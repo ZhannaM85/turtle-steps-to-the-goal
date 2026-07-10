@@ -1,1 +1,2 @@
-// Goal entity, GoalRepository interface, and pure goal logic
+export type { Goal } from './Goal'
+export type { GoalRepository } from './GoalRepository'

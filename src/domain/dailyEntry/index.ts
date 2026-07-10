@@ -1,1 +1,2 @@
-// DailyEntry entity, DailyEntryRepository interface, and pure entry logic
+export type { DailyEntry } from './DailyEntry'
+export type { DailyEntryRepository } from './DailyEntryRepository'

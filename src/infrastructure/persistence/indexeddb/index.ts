@@ -1,2 +1,3 @@
-// Dexie schema + repository implementations.
-// Nothing outside this folder should import Dexie directly.
+export { db, AppDatabase } from './db'
+export { IndexedDbGoalRepository } from './goalRepository'
+export { IndexedDbDailyEntryRepository } from './dailyEntryRepository'

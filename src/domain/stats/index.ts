@@ -1,2 +1,7 @@
-// weeklySummaries, rollingAverage, correlation, projectedTrajectory —
-// pure TS, zero React/Zustand/Dexie imports
+export { weeklySummaries } from './weeklySummaries'
+export type { WeeklySummary } from './weeklySummaries'
+export { rollingAverage } from './rollingAverage'
+export type { NumericEntryField, RollingAveragePoint } from './rollingAverage'
+export { correlation } from './correlation'
+export { projectedTrajectory } from './projectedTrajectory'
+export type { TrajectoryPoint } from './projectedTrajectory'
