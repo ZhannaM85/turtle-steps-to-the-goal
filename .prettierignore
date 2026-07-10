@@ -1,0 +1,7 @@
+dist
+coverage
+node_modules
+package-lock.json
+
+# Hand-authored prose docs — not code, don't want prose rewrapped by Prettier
+*.md
