@@ -1,4 +1,4 @@
-# Small Steps — Project Brief & Bootstrap Instructions for Claude Code
+# Turtle Steps to the Goal — Project Brief & Bootstrap Instructions for Claude Code
 
 ## How to use this document
 
@@ -9,7 +9,7 @@ its operating brief for the whole project, not just the first session.
 
 ## Configuration (edit before running)
 
-- `REPO_NAME`: `small-steps`
+- `REPO_NAME`: `turtle-steps-to-the-goal`
 - `VISIBILITY`: `public`
 - `GITHUB_OWNER`: *(leave blank to create under your authenticated `gh` account)*
 
@@ -38,7 +38,7 @@ Never generate the entire application in a single pass. After each epic
 
 ## 1. Product vision
 
-**Small Steps** is a private, personal weight-tracking companion built around
+**Turtle Steps to the Goal** is a private, personal weight-tracking companion built around
 small, achievable weekly goals rather than one distant number. Each week the
 user sets (or keeps) a target like "lose 1kg this week." Every day they log
 two numbers they already know — their current weight, and their total

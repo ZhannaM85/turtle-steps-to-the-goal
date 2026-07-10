@@ -1,0 +1,33 @@
+{
+  "permissions": {
+    "allow": [
+      "Read",
+      "Glob",
+      "Grep",
+      "Edit",
+      "Write",
+      "Bash(git status*)",
+      "Bash(git diff*)",
+      "Bash(git log*)",
+      "Bash(git show*)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(git branch)",
+      "Bash(git remote*)",
+      "Bash(git fetch*)",
+      "Bash(git pull*)",
+      "Bash(git rev-parse*)",
+      "Bash(npm *)",
+      "Bash(npx *)",
+      "Bash(node *)",
+      "Bash(node)",
+      "Bash(gh issue *)",
+      "Bash(gh label list*)",
+      "Bash(gh label create*)",
+      "Bash(gh repo view*)",
+      "Bash(gh pr *)",
+      "Bash(gh workflow *)",
+      "Bash(gh run *)"
+    ]
+  }
+}

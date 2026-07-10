@@ -9,8 +9,8 @@ _Scaffolding, domain model, and persistence. Everything downstream depends on th
 
 | # | Issue | Notes |
 |---|-------|-------|
-| [#1](https://github.com/ZhannaM85/small-steps/issues/1) | Epic 0 — Project scaffolding & tooling | |
-| [#2](https://github.com/ZhannaM85/small-steps/issues/2) | Epic 1 — Domain model & persistence layer | Depends on #1. Pause here for the Phase 1 checkpoint per `PROJECT_BRIEF.md` §11 |
+| [#1](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1) | Epic 0 — Project scaffolding & tooling | |
+| [#2](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/2) | Epic 1 — Domain model & persistence layer | Depends on #1. Pause here for the Phase 1 checkpoint per `PROJECT_BRIEF.md` §11 |
 
 ---
 
@@ -19,7 +19,7 @@ _Shared primitives and routing skeleton before any real feature screen._
 
 | # | Issue | Notes |
 |---|-------|-------|
-| [#3](https://github.com/ZhannaM85/small-steps/issues/3) | Epic 2 — Design system & shared UI | Depends on Tier 1 |
+| [#3](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/3) | Epic 2 — Design system & shared UI | Depends on Tier 1 |
 
 ---
 
@@ -28,8 +28,8 @@ _Set a goal → log a day against it → real data exists. Goal setup alone prod
 
 | # | Issue | Notes |
 |---|-------|-------|
-| [#4](https://github.com/ZhannaM85/small-steps/issues/4) | Epic 3 — Goal setup | Depends on Tier 2 |
-| [#5](https://github.com/ZhannaM85/small-steps/issues/5) | Epic 4 — Daily log entry | Depends on #4; this is the app's core daily-use loop |
+| [#4](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/4) | Epic 3 — Goal setup | Depends on Tier 2 |
+| [#5](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/5) | Epic 4 — Daily log entry | Depends on #4; this is the app's core daily-use loop |
 
 ---
 
@@ -38,8 +38,8 @@ _Once real daily entries exist (Tier 3), local-only IndexedDB is the only copy o
 
 | # | Issue | Notes |
 |---|-------|-------|
-| [#9](https://github.com/ZhannaM85/small-steps/issues/9) | Epic 8 — Export / Import | JSON export/import — the only backup mechanism since storage is local-only |
-| [#10](https://github.com/ZhannaM85/small-steps/issues/10) | Epic 9 — Deployment | GitHub Pages workflow; verify persistence survives a real deploy + reload |
+| [#9](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/9) | Epic 8 — Export / Import | JSON export/import — the only backup mechanism since storage is local-only |
+| [#10](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/10) | Epic 9 — Deployment | GitHub Pages workflow; verify persistence survives a real deploy + reload |
 
 ---
 
@@ -48,9 +48,9 @@ _Any order from here, but keep each epic its own reviewable unit of work._
 
 | # | Issue | Notes |
 |---|-------|-------|
-| [#6](https://github.com/ZhannaM85/small-steps/issues/6) | Epic 5 — Dashboard charts | Weight trend + goal line, calorie trend, weekly summary cards |
-| [#7](https://github.com/ZhannaM85/small-steps/issues/7) | Epic 6 — Correlation & pattern insights | Builds on #6's chart infrastructure |
-| [#8](https://github.com/ZhannaM85/small-steps/issues/8) | Epic 7 — History | Table view + inline edit/delete of all entries |
+| [#6](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/6) | Epic 5 — Dashboard charts | Weight trend + goal line, calorie trend, weekly summary cards |
+| [#7](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/7) | Epic 6 — Correlation & pattern insights | Builds on #6's chart infrastructure |
+| [#8](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/8) | Epic 7 — History | Table view + inline edit/delete of all entries |
 
 ---
 
@@ -59,4 +59,4 @@ _Final sweep, but apply accessibility incrementally as each feature is built —
 
 | # | Issue | Notes |
 |---|-------|-------|
-| [#11](https://github.com/ZhannaM85/small-steps/issues/11) | Epic 10 — Accessibility & responsive QA pass | Keyboard nav, WCAG AA contrast audit, responsive check |
+| [#11](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/11) | Epic 10 — Accessibility & responsive QA pass | Keyboard nav, WCAG AA contrast audit, responsive check |
