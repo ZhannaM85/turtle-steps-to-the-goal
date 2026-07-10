@@ -61,6 +61,16 @@ describe('IndexedDbGoalRepository', () => {
     const active = await goalRepository.getActiveGoal()
     expect(active?.id).toBe(newer.id)
   })
+
+  it('returns all goals for export/history purposes', async () => {
+    const older = makeGoal({ createdAt: '2026-01-01T00:00:00.000Z' })
+    const newer = makeGoal({ createdAt: '2026-02-01T00:00:00.000Z' })
+    await goalRepository.saveGoal(older)
+    await goalRepository.saveGoal(newer)
+
+    const all = await goalRepository.getAll()
+    expect(all.map((g) => g.id).sort()).toEqual([older.id, newer.id].sort())
+  })
 })
 
 describe('IndexedDbDailyEntryRepository', () => {

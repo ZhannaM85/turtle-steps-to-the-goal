@@ -9,4 +9,8 @@ export class IndexedDbGoalRepository implements GoalRepository {
   async saveGoal(goal: Goal): Promise<void> {
     await db.goals.put(goal)
   }
+
+  async getAll(): Promise<Goal[]> {
+    return db.goals.orderBy('createdAt').toArray()
+  }
 }
