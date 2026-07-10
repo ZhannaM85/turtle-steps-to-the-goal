@@ -2,3 +2,4 @@
 // domain data directly (reads/writes go through domain repository interfaces)
 
 export { useGoalStore } from './goalStore'
+export { useDailyEntryStore } from './dailyEntryStore'
