@@ -1,1 +1,1 @@
-// Weight/calorie trend charts, weekly summary cards, correlation view
+export { DashboardScreen } from './DashboardScreen'

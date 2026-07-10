@@ -1,1 +1,1 @@
-// Goal setup screen and form
+export { GoalScreen } from './GoalScreen'
