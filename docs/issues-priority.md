@@ -53,6 +53,7 @@ _Live feedback on the deployed build surfaced a real bug and two direction chang
 | [#14](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/14) | ⬜ Open | Rework goal model — remove "big goal" framing, weekly-only goals | Needs a product decision first; #6's goal-line overlay depends on the current `Goal` shape, so resolve before #6 |
 | [#15](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/15) | ⬜ Open | Add localization — English and Russian | Best done once the shell (#13) is settled so nav labels are dictionary-driven from the start |
 | [#16](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/16) | ⬜ Open | Info tooltip on Calories field — day-lag with weight | Small, self-contained; related note on #7's correlation-analysis lag |
+| [#17](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/17) | ⬜ Open | Appearance settings — mood (Dusk/Sage/Pond) + light/dark toggle | Reuses the token sets from `docs/design/color-palette-options.html`; best sequenced after #13's shell rework so Settings' Appearance section is built once |
 
 ---
 
