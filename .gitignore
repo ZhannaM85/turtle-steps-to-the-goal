@@ -23,3 +23,6 @@ coverage
 *.njsproj
 *.sln
 *.sw?
+
+# Claude Code local settings (personal tool-permission grants, not shared)
+.claude/settings.local.json
