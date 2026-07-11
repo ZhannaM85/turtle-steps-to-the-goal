@@ -1,6 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import type { DailyEntry } from '@/domain/dailyEntry'
+import { parseNumberInput } from '@/shared/lib/parseNumberInput'
 import { Button } from '@/shared/ui/button'
 import { NumberInput } from '@/shared/ui/number-input'
 import { TextField } from '@/shared/ui/text-field'
@@ -14,12 +15,6 @@ export interface DailyEntryFormProps {
   date: string
   existingEntry: DailyEntry | null
   onSubmit: (entry: DailyEntry) => void
-}
-
-// Empty inputs become undefined (not NaN), so Zod's "optional" and our
-// superRefine messages take over instead of a generic NaN type error.
-function numberValueAs(value: string) {
-  return value === '' ? undefined : Number(value)
 }
 
 export function DailyEntryForm({
@@ -48,16 +43,14 @@ export function DailyEntryForm({
     >
       <NumberInput
         label="Weight (kg)"
-        step="0.1"
         error={errors.weightKg?.message}
-        {...register('weightKg', { setValueAs: numberValueAs })}
+        {...register('weightKg', { setValueAs: parseNumberInput })}
       />
 
       <NumberInput
         label="Calories"
-        step="1"
         error={errors.caloriesConsumed?.message}
-        {...register('caloriesConsumed', { setValueAs: numberValueAs })}
+        {...register('caloriesConsumed', { setValueAs: parseNumberInput })}
       />
 
       <TextField

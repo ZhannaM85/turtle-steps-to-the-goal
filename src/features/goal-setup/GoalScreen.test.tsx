@@ -50,7 +50,7 @@ describe('GoalScreen', () => {
     expect(
       screen.getByRole('button', { name: 'Update goal' }),
     ).toBeInTheDocument()
-    expect(screen.getByLabelText('Starting weight (kg)')).toHaveValue(80)
+    expect(screen.getByLabelText('Starting weight (kg)')).toHaveValue('80')
   })
 
   it('persists an edit and updates the summary', async () => {

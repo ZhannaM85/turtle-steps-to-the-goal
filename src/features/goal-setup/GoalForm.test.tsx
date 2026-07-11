@@ -91,9 +91,23 @@ describe('GoalForm', () => {
       />,
     )
 
-    expect(screen.getByLabelText('Starting weight (kg)')).toHaveValue(80)
+    expect(screen.getByLabelText('Starting weight (kg)')).toHaveValue('80')
     expect(
       screen.getByRole('button', { name: 'Update goal' }),
     ).toBeInTheDocument()
+  })
+
+  it('accepts a comma as the decimal separator', async () => {
+    const user = userEvent.setup()
+    const onSubmit = vi.fn()
+    render(<GoalForm existingGoal={null} onSubmit={onSubmit} />)
+
+    await user.type(screen.getByLabelText('Starting weight (kg)'), '80,5')
+    await user.type(screen.getByLabelText('Target weight (kg)'), '70')
+    await user.type(screen.getByLabelText('Weekly pace (kg/week)'), '1')
+    await user.click(screen.getByRole('button', { name: 'Set goal' }))
+
+    expect(onSubmit).toHaveBeenCalledTimes(1)
+    expect(onSubmit.mock.calls[0][0].startWeightKg).toBe(80.5)
   })
 })

@@ -29,7 +29,7 @@ export const NumberInput = React.forwardRef<HTMLInputElement, NumberInputProps>(
           <Input
             ref={ref}
             id={inputId}
-            type="number"
+            type="text"
             inputMode="decimal"
             aria-invalid={error ? true : undefined}
             aria-describedby={describedBy}

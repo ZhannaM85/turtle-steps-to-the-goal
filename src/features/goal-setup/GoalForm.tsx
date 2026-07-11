@@ -2,6 +2,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import type { Goal } from '@/domain/goal'
 import { estimatedDailyCalorieDeficitKcal } from '@/domain/goal'
+import { parseNumberInput } from '@/shared/lib/parseNumberInput'
 import { Button } from '@/shared/ui/button'
 import { NumberInput } from '@/shared/ui/number-input'
 import { TextField } from '@/shared/ui/text-field'
@@ -15,12 +16,6 @@ import { goalFormSchema, type GoalFormValues } from './goalFormSchema'
 export interface GoalFormProps {
   existingGoal: Goal | null
   onSubmit: (goal: Goal) => void
-}
-
-// Empty inputs become undefined (not NaN), so Zod's "optional" and our
-// superRefine messages take over instead of a generic NaN type error.
-function numberValueAs(value: string) {
-  return value === '' ? undefined : Number(value)
 }
 
 export function GoalForm({ existingGoal, onSubmit }: GoalFormProps) {
@@ -64,16 +59,14 @@ export function GoalForm({ existingGoal, onSubmit }: GoalFormProps) {
 
       <NumberInput
         label={`Starting weight (${unit})`}
-        step="0.1"
         error={errors.startWeight?.message}
-        {...register('startWeight', { setValueAs: numberValueAs })}
+        {...register('startWeight', { setValueAs: parseNumberInput })}
       />
 
       <NumberInput
         label={`Target weight (${unit})`}
-        step="0.1"
         error={errors.targetWeight?.message}
-        {...register('targetWeight', { setValueAs: numberValueAs })}
+        {...register('targetWeight', { setValueAs: parseNumberInput })}
       />
 
       <fieldset className="flex flex-col gap-1.5">
@@ -100,9 +93,8 @@ export function GoalForm({ existingGoal, onSubmit }: GoalFormProps) {
       ) : (
         <NumberInput
           label={`Weekly pace (${unit}/week)`}
-          step="0.1"
           error={errors.targetWeeklyLoss?.message}
-          {...register('targetWeeklyLoss', { setValueAs: numberValueAs })}
+          {...register('targetWeeklyLoss', { setValueAs: parseNumberInput })}
         />
       )}
 

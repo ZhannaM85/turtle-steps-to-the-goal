@@ -3,10 +3,14 @@ import { describe, expect, it } from 'vitest'
 import { NumberInput } from './number-input'
 
 describe('NumberInput', () => {
-  it('renders a number input associated with its label', () => {
+  it('renders a decimal-mode text input associated with its label', () => {
     render(<NumberInput label="Weight" />)
     const input = screen.getByLabelText('Weight')
-    expect(input).toHaveAttribute('type', 'number')
+    // type="text" (not "number") so a comma decimal separator isn't silently
+    // rejected by the browser on mobile/non-US locales; inputMode="decimal"
+    // still surfaces the right on-screen keyboard.
+    expect(input).toHaveAttribute('type', 'text')
+    expect(input).toHaveAttribute('inputMode', 'decimal')
   })
 
   it('displays the unit suffix', () => {

@@ -87,10 +87,28 @@ describe('DailyEntryForm', () => {
       />,
     )
 
-    expect(screen.getByLabelText('Weight (kg)')).toHaveValue(80)
-    expect(screen.getByLabelText('Calories')).toHaveValue(2000)
+    expect(screen.getByLabelText('Weight (kg)')).toHaveValue('80')
+    expect(screen.getByLabelText('Calories')).toHaveValue('2000')
     expect(
       screen.getByRole('button', { name: 'Update entry' }),
     ).toBeInTheDocument()
+  })
+
+  it('accepts a comma as the decimal separator', async () => {
+    const user = userEvent.setup()
+    const onSubmit = vi.fn()
+    render(
+      <DailyEntryForm
+        date="2026-03-01"
+        existingEntry={null}
+        onSubmit={onSubmit}
+      />,
+    )
+
+    await user.type(screen.getByLabelText('Weight (kg)'), '79,5')
+    await user.click(screen.getByRole('button', { name: 'Log entry' }))
+
+    expect(onSubmit).toHaveBeenCalledTimes(1)
+    expect(onSubmit.mock.calls[0][0].weightKg).toBe(79.5)
   })
 })
