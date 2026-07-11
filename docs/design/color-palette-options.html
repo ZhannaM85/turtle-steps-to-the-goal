@@ -1,0 +1,483 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Turtle Steps — Color Palette Options</title>
+<style>
+  :root {
+    --bg: #f5f6f7;
+    --fg: #1b1e22;
+    --muted-fg: #5b6168;
+    --border: #dfe2e5;
+    --card: #ffffff;
+    --serif: "Iowan Old Style", "Palatino Linotype", "Sitka Text", Georgia, serif;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #131518;
+      --fg: #e7e9eb;
+      --muted-fg: #9ba1a8;
+      --border: #262a2f;
+      --card: #1a1d21;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #131518;
+    --fg: #e7e9eb;
+    --muted-fg: #9ba1a8;
+    --border: #262a2f;
+    --card: #1a1d21;
+  }
+  :root[data-theme="light"] {
+    --bg: #f5f6f7;
+    --fg: #1b1e22;
+    --muted-fg: #5b6168;
+    --border: #dfe2e5;
+    --card: #ffffff;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+
+  .page {
+    background: var(--bg);
+    color: var(--fg);
+    font-family: var(--sans);
+    min-height: 100vh;
+    padding: 4rem 1.5rem 6rem;
+  }
+
+  .wrap {
+    max-width: 920px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 3.5rem;
+  }
+
+  .intro { display: flex; flex-direction: column; gap: 1rem; max-width: 640px; }
+  .eyebrow {
+    font-family: var(--sans);
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted-fg);
+    font-weight: 600;
+  }
+  h1 {
+    font-family: var(--serif);
+    font-weight: 500;
+    font-size: 2.1rem;
+    line-height: 1.25;
+    margin: 0;
+    text-wrap: balance;
+    letter-spacing: -0.01em;
+  }
+  .intro p {
+    font-size: 0.98rem;
+    line-height: 1.65;
+    color: var(--muted-fg);
+    margin: 0;
+    max-width: 60ch;
+  }
+  .intro p strong { color: var(--fg); font-weight: 600; }
+
+  .specimen {
+    display: grid;
+    grid-template-columns: minmax(220px, 300px) 1fr;
+    gap: 2rem;
+    padding-top: 2.5rem;
+    border-top: 1px solid var(--border);
+  }
+  @media (max-width: 760px) {
+    .specimen { grid-template-columns: 1fr; }
+  }
+
+  .specimen-info { display: flex; flex-direction: column; gap: 0.9rem; }
+  .specimen-label {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+  }
+  .specimen-letter {
+    font-family: var(--serif);
+    font-size: 1.4rem;
+    color: var(--muted-fg);
+  }
+  .specimen-name {
+    font-family: var(--serif);
+    font-size: 1.4rem;
+    font-weight: 500;
+    margin: 0;
+  }
+  .swatch-strip { display: flex; gap: 0.4rem; }
+  .swatch {
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    flex-shrink: 0;
+  }
+  .specimen-copy {
+    font-size: 0.92rem;
+    line-height: 1.65;
+    color: var(--muted-fg);
+    margin: 0;
+  }
+  .specimen-copy .plus { color: #3f7a4f; }
+  .specimen-copy .minus { color: #a04b3f; }
+
+  .previews {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+  .preview {
+    width: 220px;
+    border-radius: 14px;
+    padding: 0.9rem 0.9rem 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.7rem;
+    overflow: hidden;
+  }
+  .preview-tag {
+    font-family: var(--sans);
+    font-size: 0.65rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    opacity: 0.65;
+  }
+  .preview-header { font-family: var(--sans); font-size: 1.05rem; font-weight: 600; margin: 0; }
+  .preview-card {
+    border-radius: 10px;
+    padding: 0.65rem 0.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+  }
+  .preview-card-label { font-size: 0.68rem; opacity: 0.75; }
+  .preview-card-value {
+    font-size: 1.5rem;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    display: flex;
+    align-items: baseline;
+    gap: 0.3rem;
+  }
+  .preview-card-value span { font-size: 0.85rem; font-weight: 400; opacity: 0.75; }
+  .preview-row { display: flex; gap: 0.4rem; align-items: center; }
+  .preview-input {
+    flex: 1;
+    border-radius: 7px;
+    border-width: 1px;
+    border-style: solid;
+    height: 26px;
+  }
+  .preview-btn {
+    border-radius: 7px;
+    padding: 0.35rem 0.7rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border: none;
+    width: fit-content;
+  }
+  .preview-nav {
+    margin: 0.3rem -0.9rem 0;
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    border-top-width: 1px;
+    border-top-style: solid;
+    padding: 0.45rem 0 0.35rem;
+  }
+  .preview-nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.15rem;
+    font-size: 0.5rem;
+  }
+  .preview-nav-item svg { width: 15px; height: 15px; }
+
+  .verdict {
+    border-radius: 16px;
+    border: 1px solid var(--border);
+    background: var(--card);
+    padding: 1.75rem 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.9rem;
+  }
+  .verdict .eyebrow { margin-bottom: -0.3rem; }
+  .verdict h2 {
+    font-family: var(--serif);
+    font-weight: 500;
+    font-size: 1.35rem;
+    margin: 0;
+  }
+  .verdict p { font-size: 0.95rem; line-height: 1.65; color: var(--muted-fg); margin: 0; max-width: 62ch; }
+  .verdict p strong { color: var(--fg); }
+  .verdict .swatch-strip { margin-top: 0.2rem; }
+
+  .closing-note {
+    font-size: 0.85rem;
+    color: var(--muted-fg);
+    border-top: 1px solid var(--border);
+    padding-top: 1.5rem;
+    line-height: 1.6;
+  }
+
+  @media print {
+    .page { padding: 0.5in; background: #fff !important; color: #000 !important; }
+    :root { --bg: #fff; --fg: #000; --muted-fg: #444; --border: #ccc; --card: #fff; }
+    .specimen { break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="wrap">
+    <div class="intro">
+      <span class="eyebrow">Design discussion &middot; issue #13</span>
+      <h1>Grayscale doesn't read as calm — it reads as unfinished</h1>
+      <p>
+        Right now every color token in the app is pure gray (zero chroma). The brief asks for
+        <strong>calm and legible, no gamified pressure</strong> — but calm needs a color to be calm
+        <em>in</em>. Three directions below, each shown as the actual bottom nav, stat card, input,
+        and button from the app, in both light and dark. Nothing here is implemented — this is for
+        picking a direction before it goes into #13.
+      </p>
+    </div>
+
+    <!-- A: Dusk (violet) -->
+    <div class="specimen">
+      <div class="specimen-info">
+        <div class="specimen-label">
+          <span class="specimen-letter">A</span>
+          <p class="specimen-name">Dusk</p>
+        </div>
+        <div class="swatch-strip">
+          <div class="swatch" style="background:#6e5bb5"></div>
+          <div class="swatch" style="background:#221b2e"></div>
+          <div class="swatch" style="background:#f1eefa"></div>
+          <div class="swatch" style="background:#b7a6f0"></div>
+        </div>
+        <p class="specimen-copy">
+          A muted periwinkle-violet. Reads reflective and unhurried — closer to dusk light than a
+          brand color. <span class="plus">Plus:</span> carries no "success/fail" baggage the way
+          green does, so a missed day never looks like a wrong color. <span class="minus">Watch
+          for:</span> violet is an easy default for "calm wellness app" right now — it needs the
+          muted, deep treatment shown here, not a bright lavender, or it drifts generic.
+        </p>
+      </div>
+      <div class="previews">
+        <div class="preview" style="background:#fafafc; color:#221b2e; border:1px solid #e4dff0;">
+          <span class="preview-tag" style="color:#6f6580;">Light</span>
+          <p class="preview-header">Today</p>
+          <div class="preview-card" style="background:#f1eefa;">
+            <span class="preview-card-label" style="color:#6f6580;">This week's target</span>
+            <span class="preview-card-value">1.0<span>kg to lose</span></span>
+          </div>
+          <div class="preview-row">
+            <div class="preview-input" style="background:#fff; border-color:#6e5bb5; box-shadow:0 0 0 3px rgba(110,91,181,0.18);"></div>
+          </div>
+          <button class="preview-btn" style="background:#6e5bb5; color:#fff;">Log entry</button>
+          <nav class="preview-nav" style="border-color:#e4dff0;">
+            <div class="preview-nav-item" style="color:#6e5bb5;">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"></circle><line x1="12" y1="2" x2="12" y2="5"></line><line x1="12" y1="19" x2="12" y2="22"></line><line x1="4" y1="12" x2="2" y2="12"></line><line x1="22" y1="12" x2="20" y2="12"></line></svg>
+              Today
+            </div>
+            <div class="preview-nav-item" style="color:#6f6580;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="12" width="3.5" height="8"></rect><rect x="10.25" y="7" width="3.5" height="13"></rect><rect x="16.5" y="3" width="3.5" height="17"></rect></svg>Chart</div>
+            <div class="preview-nav-item" style="color:#6f6580;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="8"></circle><polyline points="12,7 12,12 15,14"></polyline></svg>History</div>
+            <div class="preview-nav-item" style="color:#6f6580;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="8"></circle><circle cx="12" cy="12" r="3.5"></circle></svg>Goal</div>
+            <div class="preview-nav-item" style="color:#6f6580;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="7,10 12,15 17,10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line><line x1="4" y1="20" x2="20" y2="20"></line></svg>Export</div>
+            <div class="preview-nav-item" style="color:#6f6580;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><line x1="12" y1="2" x2="12" y2="5"></line><line x1="12" y1="19" x2="12" y2="22"></line><line x1="4.2" y1="4.2" x2="6.3" y2="6.3"></line><line x1="17.7" y1="17.7" x2="19.8" y2="19.8"></line><line x1="2" y1="12" x2="5" y2="12"></line><line x1="19" y1="12" x2="22" y2="12"></line></svg>Settings</div>
+          </nav>
+        </div>
+        <div class="preview" style="background:#1b1622; color:#ede9f5; border:1px solid #362c42;">
+          <span class="preview-tag" style="color:#a79ac0;">Dark</span>
+          <p class="preview-header">Today</p>
+          <div class="preview-card" style="background:#2a2333;">
+            <span class="preview-card-label" style="color:#a79ac0;">This week's target</span>
+            <span class="preview-card-value">1.0<span>kg to lose</span></span>
+          </div>
+          <div class="preview-row">
+            <div class="preview-input" style="background:#241d2e; border-color:#b7a6f0; box-shadow:0 0 0 3px rgba(183,166,240,0.2);"></div>
+          </div>
+          <button class="preview-btn" style="background:#b7a6f0; color:#1f1830;">Log entry</button>
+          <nav class="preview-nav" style="border-color:#362c42;">
+            <div class="preview-nav-item" style="color:#b7a6f0;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"></circle><line x1="12" y1="2" x2="12" y2="5"></line><line x1="12" y1="19" x2="12" y2="22"></line><line x1="4" y1="12" x2="2" y2="12"></line><line x1="22" y1="12" x2="20" y2="12"></line></svg>Today</div>
+            <div class="preview-nav-item" style="color:#a79ac0;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="12" width="3.5" height="8"></rect><rect x="10.25" y="7" width="3.5" height="13"></rect><rect x="16.5" y="3" width="3.5" height="17"></rect></svg>Chart</div>
+            <div class="preview-nav-item" style="color:#a79ac0;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="8"></circle><polyline points="12,7 12,12 15,14"></polyline></svg>History</div>
+            <div class="preview-nav-item" style="color:#a79ac0;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="8"></circle><circle cx="12" cy="12" r="3.5"></circle></svg>Goal</div>
+            <div class="preview-nav-item" style="color:#a79ac0;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="7,10 12,15 17,10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line><line x1="4" y1="20" x2="20" y2="20"></line></svg>Export</div>
+            <div class="preview-nav-item" style="color:#a79ac0;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><line x1="12" y1="2" x2="12" y2="5"></line><line x1="12" y1="19" x2="12" y2="22"></line><line x1="4.2" y1="4.2" x2="6.3" y2="6.3"></line><line x1="17.7" y1="17.7" x2="19.8" y2="19.8"></line><line x1="2" y1="12" x2="5" y2="12"></line><line x1="19" y1="12" x2="22" y2="12"></line></svg>Settings</div>
+          </nav>
+        </div>
+      </div>
+    </div>
+
+    <!-- B: Sage (green) -->
+    <div class="specimen">
+      <div class="specimen-info">
+        <div class="specimen-label">
+          <span class="specimen-letter">B</span>
+          <p class="specimen-name">Sage</p>
+        </div>
+        <div class="swatch-strip">
+          <div class="swatch" style="background:#4c7a62"></div>
+          <div class="swatch" style="background:#1c2620"></div>
+          <div class="swatch" style="background:#eef3ee"></div>
+          <div class="swatch" style="background:#90c7a6"></div>
+        </div>
+        <p class="specimen-copy">
+          A dry, dusty green — closer to sage leaf than gym-app lime. <span class="plus">Plus:</span>
+          the most legible "health app" signal of the three; nobody will misread the category.
+          <span class="minus">Watch for:</span> green carries the strongest built-in "good/bad"
+          coding of any hue — even used as a single neutral accent, a green number can read as
+          "on track" and an unfilled one as "behind," which cuts against the brief's no-judgment
+          stance more than it first appears to.
+        </p>
+      </div>
+      <div class="previews">
+        <div class="preview" style="background:#fafcf9; color:#1c2620; border:1px solid #dee8e0;">
+          <span class="preview-tag" style="color:#5d7268;">Light</span>
+          <p class="preview-header">Today</p>
+          <div class="preview-card" style="background:#eef3ee;">
+            <span class="preview-card-label" style="color:#5d7268;">This week's target</span>
+            <span class="preview-card-value">1.0<span>kg to lose</span></span>
+          </div>
+          <div class="preview-row">
+            <div class="preview-input" style="background:#fff; border-color:#4c7a62; box-shadow:0 0 0 3px rgba(76,122,98,0.18);"></div>
+          </div>
+          <button class="preview-btn" style="background:#4c7a62; color:#fff;">Log entry</button>
+          <nav class="preview-nav" style="border-color:#dee8e0;">
+            <div class="preview-nav-item" style="color:#4c7a62;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"></circle><line x1="12" y1="2" x2="12" y2="5"></line><line x1="12" y1="19" x2="12" y2="22"></line><line x1="4" y1="12" x2="2" y2="12"></line><line x1="22" y1="12" x2="20" y2="12"></line></svg>Today</div>
+            <div class="preview-nav-item" style="color:#5d7268;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="12" width="3.5" height="8"></rect><rect x="10.25" y="7" width="3.5" height="13"></rect><rect x="16.5" y="3" width="3.5" height="17"></rect></svg>Chart</div>
+            <div class="preview-nav-item" style="color:#5d7268;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="8"></circle><polyline points="12,7 12,12 15,14"></polyline></svg>History</div>
+            <div class="preview-nav-item" style="color:#5d7268;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="8"></circle><circle cx="12" cy="12" r="3.5"></circle></svg>Goal</div>
+            <div class="preview-nav-item" style="color:#5d7268;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="7,10 12,15 17,10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line><line x1="4" y1="20" x2="20" y2="20"></line></svg>Export</div>
+            <div class="preview-nav-item" style="color:#5d7268;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><line x1="12" y1="2" x2="12" y2="5"></line><line x1="12" y1="19" x2="12" y2="22"></line><line x1="4.2" y1="4.2" x2="6.3" y2="6.3"></line><line x1="17.7" y1="17.7" x2="19.8" y2="19.8"></line><line x1="2" y1="12" x2="5" y2="12"></line><line x1="19" y1="12" x2="22" y2="12"></line></svg>Settings</div>
+          </nav>
+        </div>
+        <div class="preview" style="background:#131c17; color:#e6efe8; border:1px solid #2c3b31;">
+          <span class="preview-tag" style="color:#93b29e;">Dark</span>
+          <p class="preview-header">Today</p>
+          <div class="preview-card" style="background:#1e2a22;">
+            <span class="preview-card-label" style="color:#93b29e;">This week's target</span>
+            <span class="preview-card-value">1.0<span>kg to lose</span></span>
+          </div>
+          <div class="preview-row">
+            <div class="preview-input" style="background:#1b2620; border-color:#90c7a6; box-shadow:0 0 0 3px rgba(144,199,166,0.2);"></div>
+          </div>
+          <button class="preview-btn" style="background:#90c7a6; color:#16261d;">Log entry</button>
+          <nav class="preview-nav" style="border-color:#2c3b31;">
+            <div class="preview-nav-item" style="color:#90c7a6;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"></circle><line x1="12" y1="2" x2="12" y2="5"></line><line x1="12" y1="19" x2="12" y2="22"></line><line x1="4" y1="12" x2="2" y2="12"></line><line x1="22" y1="12" x2="20" y2="12"></line></svg>Today</div>
+            <div class="preview-nav-item" style="color:#93b29e;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="12" width="3.5" height="8"></rect><rect x="10.25" y="7" width="3.5" height="13"></rect><rect x="16.5" y="3" width="3.5" height="17"></rect></svg>Chart</div>
+            <div class="preview-nav-item" style="color:#93b29e;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="8"></circle><polyline points="12,7 12,12 15,14"></polyline></svg>History</div>
+            <div class="preview-nav-item" style="color:#93b29e;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="8"></circle><circle cx="12" cy="12" r="3.5"></circle></svg>Goal</div>
+            <div class="preview-nav-item" style="color:#93b29e;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="7,10 12,15 17,10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line><line x1="4" y1="20" x2="20" y2="20"></line></svg>Export</div>
+            <div class="preview-nav-item" style="color:#93b29e;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><line x1="12" y1="2" x2="12" y2="5"></line><line x1="12" y1="19" x2="12" y2="22"></line><line x1="4.2" y1="4.2" x2="6.3" y2="6.3"></line><line x1="17.7" y1="17.7" x2="19.8" y2="19.8"></line><line x1="2" y1="12" x2="5" y2="12"></line><line x1="19" y1="12" x2="22" y2="12"></line></svg>Settings</div>
+          </nav>
+        </div>
+      </div>
+    </div>
+
+    <!-- C: Pond (teal-blue) -->
+    <div class="specimen">
+      <div class="specimen-info">
+        <div class="specimen-label">
+          <span class="specimen-letter">C</span>
+          <p class="specimen-name">Pond</p>
+        </div>
+        <div class="swatch-strip">
+          <div class="swatch" style="background:#3e7688"></div>
+          <div class="swatch" style="background:#16232a"></div>
+          <div class="swatch" style="background:#edf3f4"></div>
+          <div class="swatch" style="background:#85bfce"></div>
+        </div>
+        <p class="specimen-copy">
+          My suggestion. A muted slate-teal — still, clear water rather than forest or lavender field.
+          <span class="plus">Plus:</span> shares green's "living, steady" association (and the water/
+          turtle connection is a nice quiet bonus) without green's pass/fail coding — teal doesn't
+          read as "correct" the way a green checkmark does. Also keeps this app visually distinct
+          from <code>life-kaleidoscope</code>'s warm paper palette, so the two don't feel like the
+          same app reskinned. <span class="minus">Watch for:</span> the least "obviously health-app"
+          of the three — a deliberate trade for feeling calmer and less generic.
+        </p>
+      </div>
+      <div class="previews">
+        <div class="preview" style="background:#f9fbfb; color:#16232a; border:1px solid #dce7e9;">
+          <span class="preview-tag" style="color:#56707a;">Light</span>
+          <p class="preview-header">Today</p>
+          <div class="preview-card" style="background:#edf3f4;">
+            <span class="preview-card-label" style="color:#56707a;">This week's target</span>
+            <span class="preview-card-value">1.0<span>kg to lose</span></span>
+          </div>
+          <div class="preview-row">
+            <div class="preview-input" style="background:#fff; border-color:#3e7688; box-shadow:0 0 0 3px rgba(62,118,136,0.18);"></div>
+          </div>
+          <button class="preview-btn" style="background:#3e7688; color:#fff;">Log entry</button>
+          <nav class="preview-nav" style="border-color:#dce7e9;">
+            <div class="preview-nav-item" style="color:#3e7688;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"></circle><line x1="12" y1="2" x2="12" y2="5"></line><line x1="12" y1="19" x2="12" y2="22"></line><line x1="4" y1="12" x2="2" y2="12"></line><line x1="22" y1="12" x2="20" y2="12"></line></svg>Today</div>
+            <div class="preview-nav-item" style="color:#56707a;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="12" width="3.5" height="8"></rect><rect x="10.25" y="7" width="3.5" height="13"></rect><rect x="16.5" y="3" width="3.5" height="17"></rect></svg>Chart</div>
+            <div class="preview-nav-item" style="color:#56707a;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="8"></circle><polyline points="12,7 12,12 15,14"></polyline></svg>History</div>
+            <div class="preview-nav-item" style="color:#56707a;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="8"></circle><circle cx="12" cy="12" r="3.5"></circle></svg>Goal</div>
+            <div class="preview-nav-item" style="color:#56707a;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="7,10 12,15 17,10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line><line x1="4" y1="20" x2="20" y2="20"></line></svg>Export</div>
+            <div class="preview-nav-item" style="color:#56707a;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><line x1="12" y1="2" x2="12" y2="5"></line><line x1="12" y1="19" x2="12" y2="22"></line><line x1="4.2" y1="4.2" x2="6.3" y2="6.3"></line><line x1="17.7" y1="17.7" x2="19.8" y2="19.8"></line><line x1="2" y1="12" x2="5" y2="12"></line><line x1="19" y1="12" x2="22" y2="12"></line></svg>Settings</div>
+          </nav>
+        </div>
+        <div class="preview" style="background:#0f181c; color:#e4eef0; border:1px solid #263539;">
+          <span class="preview-tag" style="color:#8da9b1;">Dark</span>
+          <p class="preview-header">Today</p>
+          <div class="preview-card" style="background:#182428;">
+            <span class="preview-card-label" style="color:#8da9b1;">This week's target</span>
+            <span class="preview-card-value">1.0<span>kg to lose</span></span>
+          </div>
+          <div class="preview-row">
+            <div class="preview-input" style="background:#172227; border-color:#85bfce; box-shadow:0 0 0 3px rgba(133,191,206,0.2);"></div>
+          </div>
+          <button class="preview-btn" style="background:#85bfce; color:#10262c;">Log entry</button>
+          <nav class="preview-nav" style="border-color:#263539;">
+            <div class="preview-nav-item" style="color:#85bfce;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"></circle><line x1="12" y1="2" x2="12" y2="5"></line><line x1="12" y1="19" x2="12" y2="22"></line><line x1="4" y1="12" x2="2" y2="12"></line><line x1="22" y1="12" x2="20" y2="12"></line></svg>Today</div>
+            <div class="preview-nav-item" style="color:#8da9b1;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="12" width="3.5" height="8"></rect><rect x="10.25" y="7" width="3.5" height="13"></rect><rect x="16.5" y="3" width="3.5" height="17"></rect></svg>Chart</div>
+            <div class="preview-nav-item" style="color:#8da9b1;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="8"></circle><polyline points="12,7 12,12 15,14"></polyline></svg>History</div>
+            <div class="preview-nav-item" style="color:#8da9b1;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="8"></circle><circle cx="12" cy="12" r="3.5"></circle></svg>Goal</div>
+            <div class="preview-nav-item" style="color:#8da9b1;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="7,10 12,15 17,10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line><line x1="4" y1="20" x2="20" y2="20"></line></svg>Export</div>
+            <div class="preview-nav-item" style="color:#8da9b1;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><line x1="12" y1="2" x2="12" y2="5"></line><line x1="12" y1="19" x2="12" y2="22"></line><line x1="4.2" y1="4.2" x2="6.3" y2="6.3"></line><line x1="17.7" y1="17.7" x2="19.8" y2="19.8"></line><line x1="2" y1="12" x2="5" y2="12"></line><line x1="19" y1="12" x2="22" y2="12"></line></svg>Settings</div>
+          </nav>
+        </div>
+      </div>
+    </div>
+
+    <div class="verdict">
+      <span class="eyebrow">My take</span>
+      <h2>Pond (C), muted</h2>
+      <div class="swatch-strip">
+        <div class="swatch" style="background:#3e7688"></div>
+        <div class="swatch" style="background:#85bfce"></div>
+      </div>
+      <p>
+        Between purple and green, I'd actually steer away from both defaults. Green is the reflex
+        choice for anything health-adjacent, which makes it the hardest of the three to make feel
+        specific to <strong>this</strong> app rather than "a" fitness app — and its built-in good/bad
+        coding sits uneasily next to a brief that explicitly bans failure-state red and guilt copy.
+        Purple is calmer and judgment-free, but it's become the default shorthand for "mindful app"
+        broadly (meditation, journaling, sleep) — Pond gets the same calm without either association,
+        and the water/turtle read is a small bonus, not the reason for it.
+      </p>
+      <p>If you'd rather go with A or B instead, or want a fourth direction, say the word — this is just my read, not a lock-in.</p>
+    </div>
+
+    <p class="closing-note">
+      Nothing on this page touches the repo. Once a direction is picked, the exact tokens (mapped to
+      the app's existing <code>--primary</code> / <code>--ring</code> / <code>--muted</code> variable
+      names, shown above) go into issue #13 as part of its scope — implementation happens from there,
+      not from this page.
+    </p>
+  </div>
+</div>
+</body>
+</html>
