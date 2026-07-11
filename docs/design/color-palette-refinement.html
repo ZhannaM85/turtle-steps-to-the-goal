@@ -1,0 +1,1323 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Turtle Steps — Palette Refinement</title>
+    <style>
+      :root {
+        --bg: #f5f6f7;
+        --fg: #1b1e22;
+        --muted-fg: #5b6168;
+        --border: #dfe2e5;
+        --card: #ffffff;
+        --serif:
+          'Iowan Old Style', 'Palatino Linotype', 'Sitka Text', Georgia, serif;
+        --sans:
+          -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #131518;
+          --fg: #e7e9eb;
+          --muted-fg: #9ba1a8;
+          --border: #262a2f;
+          --card: #1a1d21;
+        }
+      }
+      :root[data-theme='dark'] {
+        --bg: #131518;
+        --fg: #e7e9eb;
+        --muted-fg: #9ba1a8;
+        --border: #262a2f;
+        --card: #1a1d21;
+      }
+      :root[data-theme='light'] {
+        --bg: #f5f6f7;
+        --fg: #1b1e22;
+        --muted-fg: #5b6168;
+        --border: #dfe2e5;
+        --card: #ffffff;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        margin: 0;
+      }
+
+      .page {
+        background: var(--bg);
+        color: var(--fg);
+        font-family: var(--sans);
+        min-height: 100vh;
+        padding: 4rem 1.5rem 6rem;
+      }
+
+      .wrap {
+        max-width: 920px;
+        margin: 0 auto;
+        display: flex;
+        flex-direction: column;
+        gap: 3.5rem;
+      }
+
+      .intro {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        max-width: 660px;
+      }
+      .eyebrow {
+        font-family: var(--sans);
+        font-size: 0.75rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--muted-fg);
+        font-weight: 600;
+      }
+      h1 {
+        font-family: var(--serif);
+        font-weight: 500;
+        font-size: 2.1rem;
+        line-height: 1.25;
+        margin: 0;
+        text-wrap: balance;
+        letter-spacing: -0.01em;
+      }
+      h2 {
+        font-family: var(--serif);
+        font-weight: 500;
+        font-size: 1.45rem;
+        margin: 0;
+      }
+      .prose {
+        font-size: 0.98rem;
+        line-height: 1.65;
+        color: var(--muted-fg);
+        margin: 0;
+        max-width: 62ch;
+      }
+      .prose strong {
+        color: var(--fg);
+        font-weight: 600;
+      }
+
+      .section {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        padding-top: 2.5rem;
+        border-top: 1px solid var(--border);
+      }
+
+      .critique-list {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        max-width: 66ch;
+      }
+      .critique-list li {
+        font-size: 0.95rem;
+        line-height: 1.6;
+        color: var(--muted-fg);
+        padding-left: 1.6rem;
+        position: relative;
+      }
+      .critique-list li::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0.45em;
+        width: 0.7rem;
+        height: 0.7rem;
+        border-radius: 3px;
+        background: var(--border);
+      }
+      .critique-list li strong {
+        color: var(--fg);
+      }
+
+      .specimen {
+        display: grid;
+        grid-template-columns: minmax(220px, 300px) 1fr;
+        gap: 2rem;
+      }
+      @media (max-width: 760px) {
+        .specimen {
+          grid-template-columns: 1fr;
+        }
+      }
+      .specimen-info {
+        display: flex;
+        flex-direction: column;
+        gap: 0.9rem;
+      }
+      .specimen-label {
+        display: flex;
+        align-items: baseline;
+        gap: 0.5rem;
+      }
+      .specimen-letter {
+        font-family: var(--serif);
+        font-size: 1.4rem;
+        color: var(--muted-fg);
+      }
+      .specimen-name {
+        font-family: var(--serif);
+        font-size: 1.4rem;
+        font-weight: 500;
+        margin: 0;
+      }
+      .swatch-strip {
+        display: flex;
+        gap: 0.4rem;
+        flex-wrap: wrap;
+      }
+      .swatch {
+        width: 34px;
+        height: 34px;
+        border-radius: 8px;
+        border: 1px solid rgba(0, 0, 0, 0.08);
+        flex-shrink: 0;
+      }
+      .swatch-labeled {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+        align-items: center;
+      }
+      .swatch-caption {
+        font-size: 0.6rem;
+        color: var(--muted-fg);
+        letter-spacing: 0.03em;
+      }
+      .specimen-copy {
+        font-size: 0.92rem;
+        line-height: 1.65;
+        color: var(--muted-fg);
+        margin: 0;
+      }
+      .specimen-copy .plus {
+        color: #3f7a4f;
+      }
+      .specimen-copy .minus {
+        color: #a04b3f;
+      }
+
+      .previews {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+      }
+      .preview {
+        width: 230px;
+        border-radius: 14px;
+        padding: 0.9rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.7rem;
+        overflow: hidden;
+      }
+      .preview-tag {
+        font-family: var(--sans);
+        font-size: 0.65rem;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        opacity: 0.65;
+      }
+      .preview-header {
+        font-family: var(--sans);
+        font-size: 1.05rem;
+        font-weight: 600;
+        margin: 0;
+      }
+      .preview-card {
+        border-radius: 10px;
+        padding: 0.65rem 0.75rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.15rem;
+      }
+      .preview-card-label {
+        font-size: 0.68rem;
+        opacity: 0.75;
+      }
+      .preview-card-value {
+        font-size: 1.5rem;
+        font-weight: 600;
+        font-variant-numeric: tabular-nums;
+        display: flex;
+        align-items: baseline;
+        gap: 0.3rem;
+      }
+      .preview-card-value span {
+        font-size: 0.85rem;
+        font-weight: 400;
+        opacity: 0.75;
+      }
+      .preview-btn {
+        border-radius: 7px;
+        padding: 0.35rem 0.7rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+        border: none;
+        width: fit-content;
+      }
+      .chart-caption {
+        font-size: 0.62rem;
+        opacity: 0.7;
+        display: flex;
+        gap: 0.9rem;
+      }
+      .chart-caption i {
+        font-style: normal;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+      }
+      .chart-caption .dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 2px;
+        display: inline-block;
+      }
+
+      .verdict {
+        border-radius: 16px;
+        border: 1px solid var(--border);
+        background: var(--card);
+        padding: 1.75rem 2rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.9rem;
+      }
+      .verdict .eyebrow {
+        margin-bottom: -0.3rem;
+      }
+
+      .rules-table {
+        border-collapse: collapse;
+        width: 100%;
+        font-size: 0.88rem;
+      }
+      .rules-table th,
+      .rules-table td {
+        text-align: left;
+        padding: 0.6rem 0.9rem;
+        border-bottom: 1px solid var(--border);
+        vertical-align: top;
+        line-height: 1.5;
+      }
+      .rules-table th {
+        font-size: 0.72rem;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--muted-fg);
+        font-weight: 600;
+      }
+      .rules-table td:first-child {
+        white-space: nowrap;
+        font-weight: 600;
+        color: var(--fg);
+      }
+      .rules-table td {
+        color: var(--muted-fg);
+      }
+      .table-scroll {
+        overflow-x: auto;
+      }
+
+      .closing-note {
+        font-size: 0.85rem;
+        color: var(--muted-fg);
+        border-top: 1px solid var(--border);
+        padding-top: 1.5rem;
+        line-height: 1.6;
+      }
+
+      @media print {
+        .page {
+          padding: 0.5in;
+          background: #fff !important;
+          color: #000 !important;
+        }
+        :root {
+          --bg: #fff;
+          --fg: #000;
+          --muted-fg: #444;
+          --border: #ccc;
+          --card: #fff;
+        }
+        .section,
+        .specimen,
+        .verdict {
+          break-inside: avoid;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <div class="wrap">
+        <div class="intro">
+          <span class="eyebrow">
+            Design discussion &middot; follows color-palette-options.html
+            &middot; issues #13 / #17 / #6
+          </span>
+          <h1>One accent isn't a palette — what Pond needs before it ships</h1>
+          <p class="prose">
+            The first document picked a hue. This one asks the next question: is
+            a single accent enough for what this app is about to become? The
+            Dashboard epic (#6) puts
+            <strong>two data families on screen at once</strong> — weight and
+            calories — plus a goal line, and the mood system (#17) makes the
+            palette a living system rather than a one-time choice. Both expose
+            the same gap: none of the three candidates says what happens when
+            one hue has to do more than color a button.
+          </p>
+        </div>
+
+        <div class="section">
+          <h2>What the current three options don't answer</h2>
+          <ul class="critique-list">
+            <li>
+              <strong>Charts need a second hue, and nobody assigned it.</strong>
+              With a single accent, #6's weight line, calorie bars, and goal
+              overlay either all inherit the same teal (unreadable), or each
+              chart invents its own color outside the system (incoherent). This
+              decision is cheaper to make now, on paper, than mid-epic.
+            </li>
+            <li>
+              <strong>The moods share no constant.</strong> #17 lets the user
+              switch Dusk/Sage/Pond, but as specified, switching re-colors
+              <em>everything</em> — including data visualizations. A weight line
+              that's violet on Monday and green on Tuesday makes the user
+              re-learn their own charts. Some layer of the palette should hold
+              still while the mood moves.
+            </li>
+            <li>
+              <strong>All three candidates are cool or botanical.</strong>
+              Dusk, Sage, and Pond sit within one temperature band. That's a
+              missed register for a product whose mascot is a sun-warmed animal
+              — and it means the mood switcher offers three variations on the
+              same feeling rather than three feelings.
+            </li>
+            <li>
+              <strong
+                >The neutral-tinting rule was shown but never written.</strong
+              >
+              Each specimen in the first doc quietly tinted its grays toward its
+              accent (Pond's dark background is #0f181c, not #131518). That's
+              the right move — zero-chroma gray next to a colored accent is what
+              made the current app feel unfinished — but it exists only as
+              pixels, not as a rule #17 can implement.
+            </li>
+          </ul>
+        </div>
+
+        <!-- D: Riverbank -->
+        <div class="section">
+          <div class="specimen">
+            <div class="specimen-info">
+              <div class="specimen-label">
+                <span class="specimen-letter">D</span>
+                <p class="specimen-name">Riverbank</p>
+              </div>
+              <div class="swatch-strip">
+                <div class="swatch-labeled">
+                  <div class="swatch" style="background: #3e7688"></div>
+                  <span class="swatch-caption">teal (kept)</span>
+                </div>
+                <div class="swatch-labeled">
+                  <div class="swatch" style="background: #c9a878"></div>
+                  <span class="swatch-caption">sand fill</span>
+                </div>
+                <div class="swatch-labeled">
+                  <div class="swatch" style="background: #8a6a3c"></div>
+                  <span class="swatch-caption">sand text</span>
+                </div>
+                <div class="swatch-labeled">
+                  <div class="swatch" style="background: #f9fbfb"></div>
+                  <span class="swatch-caption">bg light</span>
+                </div>
+                <div class="swatch-labeled">
+                  <div class="swatch" style="background: #0f181c"></div>
+                  <span class="swatch-caption">bg dark</span>
+                </div>
+              </div>
+              <p class="specimen-copy">
+                <strong>My recommendation.</strong> Not a new hue — Pond,
+                finished. The teal keeps every role it already won (buttons,
+                focus, active nav, weight data). A warm river-sand joins as the
+                counterpoint: calorie data, secondary highlights, the occasional
+                warm tint on a stat card. Where the pond meets its bank.
+                <span class="plus">Plus:</span> the two-hue split gives #6's
+                charts a permanent, meaningful assignment — weight is always
+                water, calories are always sand — and the warmth stops an
+                all-teal UI from feeling clinical.
+                <span class="minus">Watch for:</span> sand is a fill and data
+                color, never a second "brand" — if both hues fight for buttons
+                and links, the calm is gone. One rule: interactive = teal,
+                informational-warm = sand.
+              </p>
+            </div>
+            <div class="previews">
+              <div
+                class="preview"
+                style="
+                  background: #f9fbfb;
+                  color: #16232a;
+                  border: 1px solid #dce7e9;
+                "
+              >
+                <span class="preview-tag" style="color: #56707a">
+                  Light &middot; dashboard
+                </span>
+                <p class="preview-header">Dashboard</p>
+                <!-- weight chart: teal line + dashed goal -->
+                <svg
+                  viewBox="0 0 200 56"
+                  style="width: 100%; background: #edf3f4; border-radius: 10px"
+                  role="img"
+                  aria-label="Weight trend preview, teal line with dashed goal overlay"
+                >
+                  <line
+                    x1="8"
+                    y1="14"
+                    x2="192"
+                    y2="44"
+                    stroke="#9db4bc"
+                    stroke-width="1.5"
+                    stroke-dasharray="4 4"
+                  />
+                  <polyline
+                    points="8,12 40,18 72,16 104,26 136,24 168,34 192,38"
+                    fill="none"
+                    stroke="#3e7688"
+                    stroke-width="2.5"
+                    stroke-linejoin="round"
+                    stroke-linecap="round"
+                  />
+                  <circle cx="192" cy="38" r="3.5" fill="#3e7688" />
+                </svg>
+                <!-- calorie chart: sand bars + teal rolling avg -->
+                <svg
+                  viewBox="0 0 200 44"
+                  style="width: 100%; background: #edf3f4; border-radius: 10px"
+                  role="img"
+                  aria-label="Calorie trend preview, sand bars with teal rolling average"
+                >
+                  <g fill="#c9a878">
+                    <rect x="12" y="16" width="12" height="24" rx="2" />
+                    <rect x="34" y="10" width="12" height="30" rx="2" />
+                    <rect x="56" y="20" width="12" height="20" rx="2" />
+                    <rect x="78" y="14" width="12" height="26" rx="2" />
+                    <rect x="100" y="24" width="12" height="16" rx="2" />
+                    <rect x="122" y="12" width="12" height="28" rx="2" />
+                    <rect x="144" y="18" width="12" height="22" rx="2" />
+                    <rect x="166" y="22" width="12" height="18" rx="2" />
+                  </g>
+                  <polyline
+                    points="18,22 40,20 62,24 84,22 106,26 128,24 150,26 172,28"
+                    fill="none"
+                    stroke="#3e7688"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                  />
+                </svg>
+                <span class="chart-caption" style="color: #56707a">
+                  <i
+                    ><span class="dot" style="background: #3e7688"></span>
+                    weight</i
+                  >
+                  <i
+                    ><span class="dot" style="background: #c9a878"></span>
+                    calories</i
+                  >
+                </span>
+                <button
+                  class="preview-btn"
+                  style="background: #3e7688; color: #fff"
+                >
+                  Log entry
+                </button>
+              </div>
+              <div
+                class="preview"
+                style="
+                  background: #0f181c;
+                  color: #e4eef0;
+                  border: 1px solid #263539;
+                "
+              >
+                <span class="preview-tag" style="color: #8da9b1">
+                  Dark &middot; dashboard
+                </span>
+                <p class="preview-header">Dashboard</p>
+                <svg
+                  viewBox="0 0 200 56"
+                  style="width: 100%; background: #182428; border-radius: 10px"
+                  role="img"
+                  aria-label="Weight trend preview, dark theme"
+                >
+                  <line
+                    x1="8"
+                    y1="14"
+                    x2="192"
+                    y2="44"
+                    stroke="#41575f"
+                    stroke-width="1.5"
+                    stroke-dasharray="4 4"
+                  />
+                  <polyline
+                    points="8,12 40,18 72,16 104,26 136,24 168,34 192,38"
+                    fill="none"
+                    stroke="#85bfce"
+                    stroke-width="2.5"
+                    stroke-linejoin="round"
+                    stroke-linecap="round"
+                  />
+                  <circle cx="192" cy="38" r="3.5" fill="#85bfce" />
+                </svg>
+                <svg
+                  viewBox="0 0 200 44"
+                  style="width: 100%; background: #182428; border-radius: 10px"
+                  role="img"
+                  aria-label="Calorie trend preview, dark theme"
+                >
+                  <g fill="#b28e58">
+                    <rect x="12" y="16" width="12" height="24" rx="2" />
+                    <rect x="34" y="10" width="12" height="30" rx="2" />
+                    <rect x="56" y="20" width="12" height="20" rx="2" />
+                    <rect x="78" y="14" width="12" height="26" rx="2" />
+                    <rect x="100" y="24" width="12" height="16" rx="2" />
+                    <rect x="122" y="12" width="12" height="28" rx="2" />
+                    <rect x="144" y="18" width="12" height="22" rx="2" />
+                    <rect x="166" y="22" width="12" height="18" rx="2" />
+                  </g>
+                  <polyline
+                    points="18,22 40,20 62,24 84,22 106,26 128,24 150,26 172,28"
+                    fill="none"
+                    stroke="#85bfce"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                  />
+                </svg>
+                <span class="chart-caption" style="color: #8da9b1">
+                  <i
+                    ><span class="dot" style="background: #85bfce"></span>
+                    weight</i
+                  >
+                  <i
+                    ><span class="dot" style="background: #b28e58"></span>
+                    calories</i
+                  >
+                </span>
+                <button
+                  class="preview-btn"
+                  style="background: #85bfce; color: #10262c"
+                >
+                  Log entry
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- E: Tortoise -->
+        <div class="section">
+          <div class="specimen">
+            <div class="specimen-info">
+              <div class="specimen-label">
+                <span class="specimen-letter">E</span>
+                <p class="specimen-name">Tortoise</p>
+              </div>
+              <div class="swatch-strip">
+                <div class="swatch-labeled">
+                  <div class="swatch" style="background: #75672f"></div>
+                  <span class="swatch-caption">olive primary</span>
+                </div>
+                <div class="swatch-labeled">
+                  <div class="swatch" style="background: #d3b878"></div>
+                  <span class="swatch-caption">amber (dark)</span>
+                </div>
+                <div class="swatch-labeled">
+                  <div class="swatch" style="background: #8f6f3d"></div>
+                  <span class="swatch-caption">bark (sand role)</span>
+                </div>
+                <div class="swatch-labeled">
+                  <div class="swatch" style="background: #faf8f2"></div>
+                  <span class="swatch-caption">bg light</span>
+                </div>
+                <div class="swatch-labeled">
+                  <div class="swatch" style="background: #171510"></div>
+                  <span class="swatch-caption">bg dark</span>
+                </div>
+              </div>
+              <p class="specimen-copy">
+                A fourth <em>mood</em>, not a new default: dry grass, shell, sun
+                on stone — the tortoise itself rather than the pond it sits
+                beside. The only genuinely warm option on the table, which is
+                exactly what the mood switcher is missing: Dusk, Sage, and Pond
+                are three shades of cool, so "switching mood" currently barely
+                changes the temperature of the app.
+                <span class="plus">Plus:</span> olive-amber carries no pass/fail
+                coding and no wellness-app cliché; warm without drifting into
+                the cream-and-terracotta look every generated design reaches
+                for. <span class="minus">Watch for:</span> warmth is
+                <code>life-kaleidoscope</code>'s home turf — this stays distinct
+                by being olive/field-guide rather than ivory/notebook, with the
+                same sans-serif numbers-first treatment as every other mood. If
+                it ever needs a serif to work, it's drifted. One consequence of
+                being the warm mood: in dark mode the amber accent and the sand
+                family sit close together, so Tortoise's calorie bars drop to a
+                deeper bark-brown to keep the two data families apart — visible
+                in the dashboard preview.
+              </p>
+            </div>
+            <div class="previews">
+              <div
+                class="preview"
+                style="
+                  background: #faf8f2;
+                  color: #211d12;
+                  border: 1px solid #e6e0d0;
+                "
+              >
+                <span class="preview-tag" style="color: #6f6852">Light</span>
+                <p class="preview-header">Today</p>
+                <div class="preview-card" style="background: #f1ecdd">
+                  <span class="preview-card-label" style="color: #6f6852">
+                    This week's target
+                  </span>
+                  <span class="preview-card-value">
+                    1.0<span>kg to lose</span>
+                  </span>
+                </div>
+                <button
+                  class="preview-btn"
+                  style="background: #75672f; color: #fff"
+                >
+                  Log entry
+                </button>
+              </div>
+              <div
+                class="preview"
+                style="
+                  background: #171510;
+                  color: #ece7d8;
+                  border: 1px solid #35301f;
+                "
+              >
+                <span class="preview-tag" style="color: #aaa183">Dark</span>
+                <p class="preview-header">Today</p>
+                <div class="preview-card" style="background: #242115">
+                  <span class="preview-card-label" style="color: #aaa183">
+                    This week's target
+                  </span>
+                  <span class="preview-card-value">
+                    1.0<span>kg to lose</span>
+                  </span>
+                </div>
+                <button
+                  class="preview-btn"
+                  style="background: #d3b878; color: #241d0c"
+                >
+                  Log entry
+                </button>
+              </div>
+              <div
+                class="preview"
+                style="
+                  background: #faf8f2;
+                  color: #211d12;
+                  border: 1px solid #e6e0d0;
+                "
+              >
+                <span class="preview-tag" style="color: #6f6852">
+                  Light &middot; dashboard
+                </span>
+                <p class="preview-header">Dashboard</p>
+                <svg
+                  viewBox="0 0 200 56"
+                  style="width: 100%; background: #f1ecdd; border-radius: 10px"
+                  role="img"
+                  aria-label="Weight trend preview, Tortoise light: olive line with dashed goal overlay"
+                >
+                  <line
+                    x1="8"
+                    y1="14"
+                    x2="192"
+                    y2="44"
+                    stroke="#b5ac93"
+                    stroke-width="1.5"
+                    stroke-dasharray="4 4"
+                  />
+                  <polyline
+                    points="8,12 40,18 72,16 104,26 136,24 168,34 192,38"
+                    fill="none"
+                    stroke="#75672f"
+                    stroke-width="2.5"
+                    stroke-linejoin="round"
+                    stroke-linecap="round"
+                  />
+                  <circle cx="192" cy="38" r="3.5" fill="#75672f" />
+                </svg>
+                <svg
+                  viewBox="0 0 200 44"
+                  style="width: 100%; background: #f1ecdd; border-radius: 10px"
+                  role="img"
+                  aria-label="Calorie trend preview, Tortoise light: sand bars with olive rolling average"
+                >
+                  <g fill="#c9a878">
+                    <rect x="12" y="16" width="12" height="24" rx="2" />
+                    <rect x="34" y="10" width="12" height="30" rx="2" />
+                    <rect x="56" y="20" width="12" height="20" rx="2" />
+                    <rect x="78" y="14" width="12" height="26" rx="2" />
+                    <rect x="100" y="24" width="12" height="16" rx="2" />
+                    <rect x="122" y="12" width="12" height="28" rx="2" />
+                    <rect x="144" y="18" width="12" height="22" rx="2" />
+                    <rect x="166" y="22" width="12" height="18" rx="2" />
+                  </g>
+                  <polyline
+                    points="18,22 40,20 62,24 84,22 106,26 128,24 150,26 172,28"
+                    fill="none"
+                    stroke="#75672f"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                  />
+                </svg>
+                <span class="chart-caption" style="color: #6f6852">
+                  <i
+                    ><span class="dot" style="background: #75672f"></span>
+                    weight</i
+                  >
+                  <i
+                    ><span class="dot" style="background: #c9a878"></span>
+                    calories</i
+                  >
+                </span>
+              </div>
+              <div
+                class="preview"
+                style="
+                  background: #171510;
+                  color: #ece7d8;
+                  border: 1px solid #35301f;
+                "
+              >
+                <span class="preview-tag" style="color: #aaa183">
+                  Dark &middot; dashboard
+                </span>
+                <p class="preview-header">Dashboard</p>
+                <svg
+                  viewBox="0 0 200 56"
+                  style="width: 100%; background: #242115; border-radius: 10px"
+                  role="img"
+                  aria-label="Weight trend preview, Tortoise dark: amber line with dashed goal overlay"
+                >
+                  <line
+                    x1="8"
+                    y1="14"
+                    x2="192"
+                    y2="44"
+                    stroke="#55503c"
+                    stroke-width="1.5"
+                    stroke-dasharray="4 4"
+                  />
+                  <polyline
+                    points="8,12 40,18 72,16 104,26 136,24 168,34 192,38"
+                    fill="none"
+                    stroke="#d3b878"
+                    stroke-width="2.5"
+                    stroke-linejoin="round"
+                    stroke-linecap="round"
+                  />
+                  <circle cx="192" cy="38" r="3.5" fill="#d3b878" />
+                </svg>
+                <svg
+                  viewBox="0 0 200 44"
+                  style="width: 100%; background: #242115; border-radius: 10px"
+                  role="img"
+                  aria-label="Calorie trend preview, Tortoise dark: bark-brown bars with amber rolling average"
+                >
+                  <g fill="#8f6f3d">
+                    <rect x="12" y="16" width="12" height="24" rx="2" />
+                    <rect x="34" y="10" width="12" height="30" rx="2" />
+                    <rect x="56" y="20" width="12" height="20" rx="2" />
+                    <rect x="78" y="14" width="12" height="26" rx="2" />
+                    <rect x="100" y="24" width="12" height="16" rx="2" />
+                    <rect x="122" y="12" width="12" height="28" rx="2" />
+                    <rect x="144" y="18" width="12" height="22" rx="2" />
+                    <rect x="166" y="22" width="12" height="18" rx="2" />
+                  </g>
+                  <polyline
+                    points="18,22 40,20 62,24 84,22 106,26 128,24 150,26 172,28"
+                    fill="none"
+                    stroke="#d3b878"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                  />
+                </svg>
+                <span class="chart-caption" style="color: #aaa183">
+                  <i
+                    ><span class="dot" style="background: #d3b878"></span>
+                    weight</i
+                  >
+                  <i
+                    ><span class="dot" style="background: #8f6f3d"></span>
+                    calories</i
+                  >
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- F: Lagoon -->
+        <div class="section">
+          <div class="specimen">
+            <div class="specimen-info">
+              <div class="specimen-label">
+                <span class="specimen-letter">F</span>
+                <p class="specimen-name">Lagoon</p>
+              </div>
+              <div class="swatch-strip">
+                <div class="swatch-labeled">
+                  <div class="swatch" style="background: #0e7c86"></div>
+                  <span class="swatch-caption">turquoise</span>
+                </div>
+                <div class="swatch-labeled">
+                  <div class="swatch" style="background: #56cfc9"></div>
+                  <span class="swatch-caption">turquoise (dark)</span>
+                </div>
+                <div class="swatch-labeled">
+                  <div class="swatch" style="background: #c9a878"></div>
+                  <span class="swatch-caption">sand (shared)</span>
+                </div>
+                <div class="swatch-labeled">
+                  <div class="swatch" style="background: #f2fafa"></div>
+                  <span class="swatch-caption">bg light</span>
+                </div>
+                <div class="swatch-labeled">
+                  <div class="swatch" style="background: #0b1a1b"></div>
+                  <span class="swatch-caption">bg dark</span>
+                </div>
+              </div>
+              <p class="specimen-copy">
+                Pond's livelier sibling: true turquoise — clear, shallow, sunlit
+                water instead of a still gray-blue pond. Noticeably more
+                saturated than anything else on the table, so it reads
+                optimistic rather than reflective.
+                <span class="plus">Plus:</span> the most distinctive and
+                energetic mood of the set while staying judgment-free (no
+                red/green coding), and it keeps the water-and-turtle connection.
+                For someone who finds Pond too subdued, this is the same world
+                with the sun out. The shared sand counterpoint is at its most
+                natural here — turquoise water against a sandy shore — so the
+                calorie charts feel native to this mood rather than borrowed
+                from another. <span class="minus">Watch for:</span> two things.
+                Saturation and calm pull against each other — Lagoon only works
+                with strict accent discipline (buttons, focus, active tab,
+                weight line; never large tinted surfaces), or the calm brief is
+                gone. And it sits close to Pond on the hue wheel, so as a mood
+                switch it's the smallest jump of the four candidates — it earns
+                its slot on temperature and energy, not hue.
+              </p>
+            </div>
+            <div class="previews">
+              <div
+                class="preview"
+                style="
+                  background: #f2fafa;
+                  color: #122a2c;
+                  border: 1px solid #d3e8e9;
+                "
+              >
+                <span class="preview-tag" style="color: #47696c">Light</span>
+                <p class="preview-header">Today</p>
+                <div class="preview-card" style="background: #e0f2f3">
+                  <span class="preview-card-label" style="color: #47696c">
+                    This week's target
+                  </span>
+                  <span class="preview-card-value">
+                    1.0<span>kg to lose</span>
+                  </span>
+                </div>
+                <button
+                  class="preview-btn"
+                  style="background: #0e7c86; color: #fff"
+                >
+                  Log entry
+                </button>
+              </div>
+              <div
+                class="preview"
+                style="
+                  background: #0b1a1b;
+                  color: #e2f0ef;
+                  border: 1px solid #1f393a;
+                "
+              >
+                <span class="preview-tag" style="color: #8bb5b4">Dark</span>
+                <p class="preview-header">Today</p>
+                <div class="preview-card" style="background: #12292b">
+                  <span class="preview-card-label" style="color: #8bb5b4">
+                    This week's target
+                  </span>
+                  <span class="preview-card-value">
+                    1.0<span>kg to lose</span>
+                  </span>
+                </div>
+                <button
+                  class="preview-btn"
+                  style="background: #56cfc9; color: #062a29"
+                >
+                  Log entry
+                </button>
+              </div>
+              <div
+                class="preview"
+                style="
+                  background: #f2fafa;
+                  color: #122a2c;
+                  border: 1px solid #d3e8e9;
+                "
+              >
+                <span class="preview-tag" style="color: #47696c">
+                  Light &middot; dashboard
+                </span>
+                <p class="preview-header">Dashboard</p>
+                <svg
+                  viewBox="0 0 200 56"
+                  style="width: 100%; background: #e0f2f3; border-radius: 10px"
+                  role="img"
+                  aria-label="Weight trend preview, Lagoon light: turquoise line with dashed goal overlay"
+                >
+                  <line
+                    x1="8"
+                    y1="14"
+                    x2="192"
+                    y2="44"
+                    stroke="#a3c4c6"
+                    stroke-width="1.5"
+                    stroke-dasharray="4 4"
+                  />
+                  <polyline
+                    points="8,12 40,18 72,16 104,26 136,24 168,34 192,38"
+                    fill="none"
+                    stroke="#0e7c86"
+                    stroke-width="2.5"
+                    stroke-linejoin="round"
+                    stroke-linecap="round"
+                  />
+                  <circle cx="192" cy="38" r="3.5" fill="#0e7c86" />
+                </svg>
+                <svg
+                  viewBox="0 0 200 44"
+                  style="width: 100%; background: #e0f2f3; border-radius: 10px"
+                  role="img"
+                  aria-label="Calorie trend preview, Lagoon light: sand bars with turquoise rolling average"
+                >
+                  <g fill="#c9a878">
+                    <rect x="12" y="16" width="12" height="24" rx="2" />
+                    <rect x="34" y="10" width="12" height="30" rx="2" />
+                    <rect x="56" y="20" width="12" height="20" rx="2" />
+                    <rect x="78" y="14" width="12" height="26" rx="2" />
+                    <rect x="100" y="24" width="12" height="16" rx="2" />
+                    <rect x="122" y="12" width="12" height="28" rx="2" />
+                    <rect x="144" y="18" width="12" height="22" rx="2" />
+                    <rect x="166" y="22" width="12" height="18" rx="2" />
+                  </g>
+                  <polyline
+                    points="18,22 40,20 62,24 84,22 106,26 128,24 150,26 172,28"
+                    fill="none"
+                    stroke="#0e7c86"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                  />
+                </svg>
+                <span class="chart-caption" style="color: #47696c">
+                  <i
+                    ><span class="dot" style="background: #0e7c86"></span>
+                    weight</i
+                  >
+                  <i
+                    ><span class="dot" style="background: #c9a878"></span>
+                    calories</i
+                  >
+                </span>
+              </div>
+              <div
+                class="preview"
+                style="
+                  background: #0b1a1b;
+                  color: #e2f0ef;
+                  border: 1px solid #1f393a;
+                "
+              >
+                <span class="preview-tag" style="color: #8bb5b4">
+                  Dark &middot; dashboard
+                </span>
+                <p class="preview-header">Dashboard</p>
+                <svg
+                  viewBox="0 0 200 56"
+                  style="width: 100%; background: #12292b; border-radius: 10px"
+                  role="img"
+                  aria-label="Weight trend preview, Lagoon dark: turquoise line with dashed goal overlay"
+                >
+                  <line
+                    x1="8"
+                    y1="14"
+                    x2="192"
+                    y2="44"
+                    stroke="#35595a"
+                    stroke-width="1.5"
+                    stroke-dasharray="4 4"
+                  />
+                  <polyline
+                    points="8,12 40,18 72,16 104,26 136,24 168,34 192,38"
+                    fill="none"
+                    stroke="#56cfc9"
+                    stroke-width="2.5"
+                    stroke-linejoin="round"
+                    stroke-linecap="round"
+                  />
+                  <circle cx="192" cy="38" r="3.5" fill="#56cfc9" />
+                </svg>
+                <svg
+                  viewBox="0 0 200 44"
+                  style="width: 100%; background: #12292b; border-radius: 10px"
+                  role="img"
+                  aria-label="Calorie trend preview, Lagoon dark: sand bars with turquoise rolling average"
+                >
+                  <g fill="#b28e58">
+                    <rect x="12" y="16" width="12" height="24" rx="2" />
+                    <rect x="34" y="10" width="12" height="30" rx="2" />
+                    <rect x="56" y="20" width="12" height="20" rx="2" />
+                    <rect x="78" y="14" width="12" height="26" rx="2" />
+                    <rect x="100" y="24" width="12" height="16" rx="2" />
+                    <rect x="122" y="12" width="12" height="28" rx="2" />
+                    <rect x="144" y="18" width="12" height="22" rx="2" />
+                    <rect x="166" y="22" width="12" height="18" rx="2" />
+                  </g>
+                  <polyline
+                    points="18,22 40,20 62,24 84,22 106,26 128,24 150,26 172,28"
+                    fill="none"
+                    stroke="#56cfc9"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                  />
+                </svg>
+                <span class="chart-caption" style="color: #8bb5b4">
+                  <i
+                    ><span class="dot" style="background: #56cfc9"></span>
+                    weight</i
+                  >
+                  <i
+                    ><span class="dot" style="background: #b28e58"></span>
+                    calories</i
+                  >
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section">
+          <h2>Rules that hold across every mood</h2>
+          <p class="prose">
+            This is the piece the first document was missing: the parts of the
+            palette that <strong>don't</strong> move when the mood does. Writing
+            them down now is what keeps #17 from becoming four unrelated themes
+            in a trench coat.
+          </p>
+          <div class="table-scroll">
+            <table class="rules-table">
+              <thead>
+                <tr>
+                  <th>Layer</th>
+                  <th>Rule</th>
+                  <th>Why</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Neutrals</td>
+                  <td>
+                    Every gray (background, borders, muted text) is tinted 2–4%
+                    toward the active mood's accent — never zero-chroma.
+                  </td>
+                  <td>
+                    Untinted gray beside a colored accent is what made the
+                    shipped app feel unfinished. The tint is the difference
+                    between "gray app with a colored button" and a palette.
+                  </td>
+                </tr>
+                <tr>
+                  <td>Chart identity</td>
+                  <td>
+                    Weight = the mood's accent. Calories = the shared warm sand.
+                    Goal line = dashed neutral. Constant across moods.
+                  </td>
+                  <td>
+                    Users re-read the same charts daily; the data's color is
+                    part of its meaning and shouldn't reset when the mood does.
+                  </td>
+                </tr>
+                <tr>
+                  <td>Warm counterpoint</td>
+                  <td>
+                    The sand family (#c9a878 fill / #8a6a3c text, lightened on
+                    dark) is shared by all moods, including Tortoise — there it
+                    simply sits closer to the primary.
+                  </td>
+                  <td>
+                    One warm constant ties the moods together and keeps the
+                    calorie data recognizable everywhere.
+                  </td>
+                </tr>
+                <tr>
+                  <td>Semantics</td>
+                  <td>
+                    Destructive stays the existing muted red, used for
+                    irreversible actions only — never for data, never for a
+                    missed target. No semantic green anywhere.
+                  </td>
+                  <td>
+                    Brief §2: a missed week is shown factually, not as a failure
+                    state. The palette enforces what the copy promises.
+                  </td>
+                </tr>
+                <tr>
+                  <td>Interaction</td>
+                  <td>
+                    Only the mood accent is interactive (buttons, links, focus,
+                    active nav). Sand never is.
+                  </td>
+                  <td>
+                    Two hues that both look clickable double the visual noise;
+                    one interactive hue keeps the calm.
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="section">
+          <h2>The final token map — every mood, all five slots</h2>
+          <p class="prose">
+            To be unambiguous: <strong>Riverbank is not a sixth mood.</strong>
+            It's the system every mood implements — an accent pair, the shared
+            sand for calories, and tinted grounds. Pond remains the default
+            mood; Dusk and Sage need no new hue work, they simply inherit the
+            sand family like everyone else. Tortoise is the one exception: its
+            dark-mode calorie color drops to bark-brown because its amber accent
+            already lives in sand's neighborhood.
+          </p>
+          <div class="table-scroll">
+            <table class="rules-table">
+              <thead>
+                <tr>
+                  <th>Mood</th>
+                  <th>Register</th>
+                  <th>Accent (light / dark)</th>
+                  <th>Calories (light / dark)</th>
+                  <th>Ground (light / dark)</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Pond</td>
+                  <td>calm — the default</td>
+                  <td>#3e7688 / #85bfce</td>
+                  <td>#c9a878 / #b28e58</td>
+                  <td>#f9fbfb / #0f181c</td>
+                </tr>
+                <tr>
+                  <td>Dusk</td>
+                  <td>cool, reflective</td>
+                  <td>#6e5bb5 / #b7a6f0</td>
+                  <td>#c9a878 / #b28e58</td>
+                  <td>#fafafc / #1b1622</td>
+                </tr>
+                <tr>
+                  <td>Sage</td>
+                  <td>botanical</td>
+                  <td>#4c7a62 / #90c7a6</td>
+                  <td>#c9a878 / #b28e58</td>
+                  <td>#fafcf9 / #131c17</td>
+                </tr>
+                <tr>
+                  <td>Tortoise</td>
+                  <td>warm</td>
+                  <td>#75672f / #d3b878</td>
+                  <td>#c9a878 / #8f6f3d</td>
+                  <td>#faf8f2 / #171510</td>
+                </tr>
+                <tr>
+                  <td>Lagoon</td>
+                  <td>bright</td>
+                  <td>#0e7c86 / #56cfc9</td>
+                  <td>#c9a878 / #b28e58</td>
+                  <td>#f2fafa / #0b1a1b</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="prose">
+            Across every row the constants hold: sand text is #8a6a3c on light,
+            the goal line is a dashed neutral tinted toward the mood, and every
+            gray is 2–4% biased toward the accent. Whether the shipped roster is
+            all five or the tighter four (dropping Sage — see below), each mood
+            that ships uses exactly this five-slot structure, so #17's
+            implementation is one token table per mood, nothing bespoke.
+          </p>
+        </div>
+
+        <div class="verdict">
+          <span class="eyebrow">My take</span>
+          <h2>Riverbank as the system, Tortoise as the fourth mood</h2>
+          <p class="prose">
+            Don't replace the Pond decision — complete it.
+            <strong>Riverbank (D)</strong> is Pond plus the answers to the
+            questions #6 and #17 were about to force: a second, warm,
+            judgment-free hue with a fixed job, and a written set of cross-mood
+            rules. <strong>Tortoise (E)</strong> then earns its place in the
+            mood switcher by being the one warm register the current trio lacks
+            — a real mood change, not a hue swap. <strong>Lagoon (F)</strong>
+            is the strongest "bright" candidate if the roster wants one — but
+            note it overlaps Pond in hue, and Sage overlaps it in the
+            nature-green space; a four-mood roster of
+            <strong
+              >Pond &middot; Dusk &middot; Tortoise &middot; Lagoon</strong
+            >
+            covers calm/cool/warm/bright with less redundancy than shipping all
+            five. Practically: fold the sand family and the cross-mood rules
+            table into #17's implementation notes, and let #6 build its charts
+            against the chart-identity rule from day one instead of retrofitting
+            it.
+          </p>
+        </div>
+
+        <p class="closing-note">
+          Nothing on this page touches the repo's source. It refines, rather
+          than replaces, docs/design/color-palette-options.html — Dusk, Sage,
+          and Pond stand as specified there; this document adds the sand
+          counterpoint, the Tortoise and Lagoon mood candidates, and the
+          cross-mood rules. If the direction is agreed, the concrete next step
+          is a comment on #17 (final mood roster + the rules table) and one on
+          #6 (chart hue assignments), keeping implementation issue-first as
+          always.
+        </p>
+      </div>
+    </div>
+  </body>
+</html>
