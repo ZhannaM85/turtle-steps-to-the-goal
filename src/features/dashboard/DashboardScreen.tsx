@@ -2,6 +2,7 @@ import { useTranslation } from '@/i18n'
 import { EmptyState } from '@/shared/ui/empty-state'
 import { PageHeader } from '@/shared/ui/page-header'
 import { CalorieTrendChart } from './CalorieTrendChart'
+import { CorrelationView } from './CorrelationView'
 import { WeeklySummaryCards } from './WeeklySummaryCards'
 import { WeightTrendChart } from './WeightTrendChart'
 import { useDashboardData } from './useDashboardData'
@@ -28,6 +29,7 @@ export function DashboardScreen() {
         <>
           <WeightTrendChart entries={entries} goal={goal} />
           <CalorieTrendChart entries={entries} />
+          <CorrelationView entries={entries} goal={goal} />
           <WeeklySummaryCards entries={entries} goal={goal} />
         </>
       )}

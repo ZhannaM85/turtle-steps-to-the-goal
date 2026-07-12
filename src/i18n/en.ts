@@ -94,6 +94,17 @@ export const en: Dictionary = {
     targetMetNote: 'target met',
     emptyTitle: 'No entries yet',
     emptyDescription: 'Log a few days on the Today screen to see trends here.',
+    correlationTitle: 'Calories vs. weight change',
+    correlationEmptyDescription:
+      'Not enough data yet to see a pattern — keep logging and check back in a few weeks.',
+    correlationSummary: (thresholdKcal, direction) =>
+      direction === 'lower'
+        ? `Weeks under ${thresholdKcal} kcal/day averaged more loss than weeks over that.`
+        : `Weeks over ${thresholdKcal} kcal/day averaged more loss than weeks under that.`,
+    correlationWeekCount: (n) => `Based on ${n} weeks of data.`,
+    correlationLagCaveat:
+      "Compares each week's average calories to that week's weight change, not same-day numbers — digestion takes time, so today's weight reflects prior days' intake.",
+    weeklyChangeLegend: 'weekly change',
   },
   history: {
     title: 'History',

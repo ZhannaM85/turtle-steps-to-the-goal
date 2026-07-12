@@ -76,6 +76,15 @@ export interface Dictionary {
     targetMetNote: string
     emptyTitle: string
     emptyDescription: string
+    correlationTitle: string
+    correlationEmptyDescription: string
+    correlationSummary: (
+      thresholdKcal: number,
+      direction: 'lower' | 'higher',
+    ) => string
+    correlationWeekCount: (n: number) => string
+    correlationLagCaveat: string
+    weeklyChangeLegend: string
   }
   history: {
     title: string
