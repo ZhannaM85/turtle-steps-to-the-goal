@@ -84,6 +84,18 @@ export const ru: Dictionary = {
     title: 'Обзор',
     description:
       'График веса, график калорий, карточки недельной сводки, корреляции',
+    weightLegend: 'вес',
+    projectionLegend: 'прогноз',
+    caloriesLegend: 'калории',
+    rollingAverageLegend: 'среднее за 7 дней',
+    weeklySummaryTitle: 'Недельная сводка',
+    weekRange: (start, end) => `${start} – ${end}`,
+    weightChangeLabel: 'Изменение за неделю',
+    averageCaloriesLabel: 'Средние калории',
+    targetMetNote: 'цель достигнута',
+    emptyTitle: 'Пока нет записей',
+    emptyDescription:
+      'Заполните несколько дней на экране «Сегодня», чтобы увидеть тренды здесь.',
   },
   history: {
     title: 'История',

@@ -83,6 +83,17 @@ export const en: Dictionary = {
     title: 'Dashboard',
     description:
       'Weight trend, calorie trend, weekly summary cards, correlation view',
+    weightLegend: 'weight',
+    projectionLegend: 'projected',
+    caloriesLegend: 'calories',
+    rollingAverageLegend: '7-day average',
+    weeklySummaryTitle: 'Weekly summary',
+    weekRange: (start, end) => `${start} – ${end}`,
+    weightChangeLabel: 'Change this week',
+    averageCaloriesLabel: 'Average calories',
+    targetMetNote: 'target met',
+    emptyTitle: 'No entries yet',
+    emptyDescription: 'Log a few days on the Today screen to see trends here.',
   },
   history: {
     title: 'History',

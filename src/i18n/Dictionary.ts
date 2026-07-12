@@ -65,6 +65,17 @@ export interface Dictionary {
   dashboard: {
     title: string
     description: string
+    weightLegend: string
+    projectionLegend: string
+    caloriesLegend: string
+    rollingAverageLegend: string
+    weeklySummaryTitle: string
+    weekRange: (start: string, end: string) => string
+    weightChangeLabel: string
+    averageCaloriesLabel: string
+    targetMetNote: string
+    emptyTitle: string
+    emptyDescription: string
   }
   history: {
     title: string
