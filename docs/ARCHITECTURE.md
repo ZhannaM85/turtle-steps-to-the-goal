@@ -15,14 +15,14 @@ The codebase follows Clean Architecture layering with feature-based folders:
 ```mermaid
 flowchart TD
     subgraph UI ["features/ + app/  (React)"]
-        A["Screens<br/>TodayScreen, GoalScreen, ExportScreen<br/>Dashboard/History/Settings are placeholders (#6, #8, #13)"]
+        A["Screens<br/>TodayScreen, GoalScreen, ExportScreen<br/>Dashboard/History/Settings are placeholders (#6, #8)"]
     end
     subgraph State ["stores/  (Zustand)"]
         B["UI/session state only<br/>goalStore, dailyEntryStore"]
     end
     subgraph Domain ["domain/  (pure TS — no React/Zustand/Dexie)"]
         C["Entities<br/>Goal, DailyEntry"]
-        D["Pure stats<br/>weeklySummaries, rollingAverage,<br/>correlation, projectedTrajectory<br/>(built + tested, not yet wired into a screen)"]
+        D["Pure stats<br/>weeklySummaries, rollingAverage, correlation<br/>(built + tested, not yet wired into a screen)"]
         E["Repository INTERFACES<br/>GoalRepository, DailyEntryRepository"]
     end
     subgraph Infra ["infrastructure/persistence/indexeddb/  (only place Dexie exists)"]
@@ -60,7 +60,7 @@ sequenceDiagram
     participant TS as TodayScreen
 
     GF->>GM: formValuesToGoal(values, existingGoal)
-    Note over GM: if paceMode = targetDate,<br/>deriveWeeklyPaceKg() fills targetWeeklyLossKg
+    Note over GM: Goal is weekly-target-only —<br/>no start/target weight, no target date
     GM-->>GF: Goal
     GF->>GS: saveGoal(goal)
     GS->>GR: saveGoal(goal)
@@ -89,10 +89,9 @@ Pure TypeScript. Unit-testable with no DOM. If a file here ever needs `react`, `
 
 | File | Purpose |
 |------|---------|
-| `Goal.ts` | The entity: `startDate`, `startWeightKg`, `targetWeightKg`, `targetWeeklyLossKg` (drives the weekly "small step"), optional `targetDate`, `displayUnit` (`'kg' \| 'lb'` — stored canonically in kg regardless of display preference). |
+| `Goal.ts` | The entity: `id`, `targetWeeklyLossKg` (the only target concept — this week's pace, set and renewed week to week), `displayUnit` (`'kg' \| 'lb'` — stored canonically in kg regardless of display preference), `createdAt`/`updatedAt`. **No long-term target weight or target date** — issue #14 removed those deliberately: the product's small-steps framing means the app never shows a distant "big goal" number, only the current week's target. |
 | `GoalRepository.ts` | Interface: `getActiveGoal()`, `saveGoal(goal)`, `getAll()` (`getAll` added for Epic 8 export). |
-| `deriveWeeklyPaceKg.ts` | `deriveWeeklyPaceKg(startDate, targetDate, startWeightKg, targetWeightKg)` — straight-line kg/week implied by wanting to hit the target by that date. Returns `0` if `targetDate` isn't strictly after `startDate`. |
-| `calorieDeficit.ts` | `estimatedDailyCalorieDeficitKcal(targetWeeklyLossKg)` — the brief's ~7700 kcal-per-kg-of-fat approximation, explicitly labeled non-medical everywhere it's surfaced in the UI. |
+| `calorieDeficit.ts` | `estimatedDailyCalorieDeficitKcal(targetWeeklyLossKg)` — the brief's ~7700 kcal-per-kg-of-fat approximation, explicitly labeled non-medical everywhere it's surfaced in the UI. Derived from the weekly pace alone, so it was unaffected by #14. |
 | `units.ts` | `lbToKg` / `kgToLb` — pure conversion, `KG_PER_LB = 0.45359237`. |
 | `index.ts` | Barrel. |
 
@@ -113,8 +112,9 @@ Pure functions with unit tests covering edge cases (missing days, single data po
 | `weeklySummaries.ts` | Groups entries into ISO weeks (Monday–Sunday, via `date-fns` `startOfISOWeek`/`endOfISOWeek`). Per week: `averageWeightKg`, `averageCalories` (`null` if no entries have that field that week), `deltaVsPriorWeekKg` (vs. the previous week's average), and `targetMet` (whether the actual loss met `goal.targetWeeklyLossKg` — `null` without a goal or a prior week to compare). |
 | `rollingAverage.ts` | `rollingAverage(entries, field, windowDays)` — trailing-window average of `weightKg`/`caloriesConsumed` per distinct date present in the data; a day with no qualifying values in its window gets `average: null` rather than being dropped. |
 | `correlation.ts` | Pearson correlation coefficient between weekly average calories and that week's weight change, built on top of `weeklySummaries`. `null` when there are fewer than two comparable weeks or no variance in either axis (avoids a divide-by-zero, not just an edge-case nicety). |
-| `projectedTrajectory.ts` | `projectedTrajectory(goal)` — the straight-line `[start, target]` points for a chart overlay. If `targetDate` isn't set, derives one from `targetWeeklyLossKg`; returns just the start point if the pace can't produce a valid date (e.g. zero/negative pace with weight still to lose). |
 | `index.ts` | Barrel. |
+
+**`projectedTrajectory.ts` was removed in #14.** It computed a straight-line `[start, target]` overlay from `Goal.startWeightKg`/`targetWeightKg`/`targetDate`, all of which no longer exist. #6 (Dashboard charts) will need to design a new, pace-based projection from scratch — e.g. a short forward projection from the latest logged entry at the current weekly pace — rather than reintroducing a fixed line to a fixed target.
 
 ---
 
@@ -157,14 +157,14 @@ Zustand owns UI/session state only; persisted data always flows through the doma
 
 ### Features (`src/features/`)
 
-#### `goal-setup/` — Epic 3, issue #4 (done)
+#### `goal-setup/` — Epic 3, issue #4 (done); reworked to weekly-only in #14
 
 | File | Purpose |
 |------|---------|
-| `goalFormSchema.ts` | Zod schema. `paceMode` (`'weeklyLoss' \| 'targetDate'`) picks which of `targetWeeklyLoss`/`targetDate` is required, enforced via `superRefine` so the unused branch stays truly optional. |
-| `goalFormMapping.ts` | `goalToFormValues` (Goal → form, converts to the goal's display unit), `formValuesToGoal` (form → Goal, converts back to kg, derives `targetWeeklyLossKg` from `deriveWeeklyPaceKg` when in `targetDate` mode), `effectiveWeeklyPaceKg` (live pace preview from possibly-incomplete form state, used for the on-screen calorie-deficit estimate as the user types). |
-| `GoalForm.tsx` | RHF + `zodResolver`. Unit toggle (kg/lb radios), start/target weight (`NumberInput`), pace-mode toggle, and either a weekly-pace `NumberInput` or a target-date `TextField` depending on mode. Shows the rough daily-calorie-deficit estimate live, captioned non-medical. Numeric fields use `setValueAs` (not `valueAsNumber`) so an empty input becomes `undefined`, not `NaN` — otherwise Zod's built-in NaN rejection would shadow the custom `superRefine` messages. |
-| `GoalScreen.tsx` | Loads the active goal on mount, shows a `StatCard` summary (`start → target`, weekly pace) when one exists, renders `GoalForm` underneath either way (so editing is just resubmitting the same form). |
+| `goalFormSchema.ts` | Zod schema: `displayUnit` + `targetWeeklyLoss` (optional at the type level, required via `superRefine` with a custom "Enter this week's target, greater than 0" message — same pattern as `dailyEntryFormSchema`, chosen so Zod's default NaN/required error text never has to be relied on). |
+| `goalFormMapping.ts` | `goalToFormValues` (Goal → form, converts to the goal's display unit), `formValuesToGoal` (form → Goal, converts back to kg), `effectiveWeeklyPaceKg` (live pace preview from possibly-incomplete form state, used for the on-screen calorie-deficit estimate as the user types). Collapsed significantly in #14 — no more pace-mode branching or target-date derivation. |
+| `GoalForm.tsx` | RHF + `zodResolver`. Unit toggle (kg/lb radios) and a single "This week's target" `NumberInput` — that's the whole form. Shows the rough daily-calorie-deficit estimate live, captioned non-medical. Numeric field uses `setValueAs` (not `valueAsNumber`) so an empty input becomes `undefined`, not `NaN`. |
+| `GoalScreen.tsx` | Loads the active goal on mount, shows a `StatCard` summary (just the weekly target — no `start → target` big-goal line, removed in #14) when one exists, renders `GoalForm` underneath either way (so editing is just resubmitting the same form). |
 | `index.ts` | Barrel. |
 
 #### `daily-log/` — Epic 4, issue #5 (done)
@@ -178,7 +178,7 @@ Zustand owns UI/session state only; persisted data always flows through the doma
 | `index.ts` | Barrel. |
 
 #### `dashboard/DashboardScreen.tsx` — placeholder only
-`PageHeader` with a description of the intended content (weight trend + goal line, calorie trend, weekly summary cards, correlation view). Epic 5, **issue #6, open** — currently blocked behind issue #14's goal-model decision, since the planned goal-line overlay is specified against the current `Goal.targetWeightKg`/`targetDate` shape.
+`PageHeader` with a description of the intended content (weight trend, calorie trend, weekly summary cards, correlation view). Epic 5, **issue #6, open** — #14 (done) removed the `Goal` shape the brief's planned goal-line overlay depended on, so #6 now needs to design that overlay fresh as a pace-based projection rather than reusing the deleted `projectedTrajectory`.
 
 #### `history/HistoryScreen.tsx` — placeholder only
 `PageHeader` only. Epic 7, **issue #8, open**.
@@ -190,7 +190,7 @@ Zustand owns UI/session state only; persisted data always flows through the doma
 
 | File | Purpose |
 |------|---------|
-| `exportBundleSchema.ts` | Zod mirror of `Goal`/`DailyEntry`, independent of the domain types so a malformed import can't crash on a TS-only guarantee. `version: z.literal(1)` gates future format changes. |
+| `exportBundleSchema.ts` | Zod mirror of `Goal`/`DailyEntry`, independent of the domain types so a malformed import can't crash on a TS-only guarantee. `version: z.literal(2)` gates future format changes — bumped from `1` in #14 when `Goal` lost its start/target-weight/date fields. |
 | `exportBundle.ts` | `buildExportBundle(goals, dailyEntries)` — stamps `exportedAt`. |
 | `exportActions.ts` | `exportAllData()` (reads both repositories' `getAll()`), `importAllData(bundle)` (upserts every goal/entry — **merge, not destructive replace**), `parseExportBundle(raw)` (Zod `safeParse`, throws `InvalidBackupFileError` with a message written for the user) . |
 | `ExportScreen.tsx` | Export downloads a JSON file via `Blob` + a synthetic anchor click; import is a hidden file input triggered by a button. Reports counts via `summaryText(goals, entries)`, which hand-writes "goal"/"goals" and "entry"/"entries" rather than a naive `+'s'` pluralizer. |
@@ -203,7 +203,7 @@ Zustand owns UI/session state only; persisted data always flows through the doma
 | File | Purpose |
 |------|---------|
 | `router.tsx` | `createBrowserRouter` with the six routes from brief §6 (`/`, `/dashboard`, `/history`, `/goal`, `/export`, `/settings`), all nested under `AppShell`. `basename: import.meta.env.BASE_URL` so routes resolve correctly under the GitHub Pages subpath. |
-| `AppShell.tsx` | Currently a single flat `NavLink` row with no responsive/mobile-specific treatment — **issue #13 (open)** replaces this with a `life-kaleidoscope`-style header nav (desktop) + fixed bottom tab bar (mobile). |
+| `AppShell.tsx` | Reworked in **issue #13 (done)** to the `life-kaleidoscope` shell pattern: a slim header nav (app name + horizontal `NavLink`s) at `sm:` and up, and a fixed bottom tab bar (`lucide-react` icon + label per route, `min-h-14` touch targets, `env(safe-area-inset-bottom)` padding) below `sm:`. Both `<nav>`s are always in the DOM (Tailwind `hidden`/`sm:hidden` toggles visibility, not presence) with distinct `aria-label`s — `"Main"` for the header, `"Tabs"` for the bottom bar — so tests and screen readers can disambiguate them. `<main>` gets `pb-28 sm:pb-10` so content clears the fixed bar on mobile. |
 | `index.ts` | Barrel. |
 | `src/main.tsx` | Entry point: `StrictMode` + `RouterProvider`. |
 
@@ -220,7 +220,7 @@ shadcn-style primitives (Nova preset, `radix-ui` primitives, `cva` variants, ali
 | `input.tsx` | `Input` | Bare styled `<input>`. |
 | `label.tsx` | `Label` | Radix `Label.Root` wrapper. |
 | `text-field.tsx` | `TextField` | Labeled input with `hint`/`error`, wires `aria-invalid`/`aria-describedby`, id via `useId`. |
-| `number-input.tsx` | `NumberInput` | Same labeled-field pattern as `TextField`, plus a unit suffix slot. Renders `type="number"` `inputMode="decimal"` — **this is the input flagged by issue #12** (decimal entry unreliable on some mobile keyboards/locales). |
+| `number-input.tsx` | `NumberInput` | Same labeled-field pattern as `TextField`, plus a unit suffix slot. Renders `type="text"` `inputMode="decimal"` (**issue #12, done** — was `type="number"`, which silently rejected the comma decimal separator on some mobile keyboards/locales; pairs with `parseNumberInput()` accepting both `.` and `,`). |
 | `stat-card.tsx` | `StatCard` | Large numbers-first card: label, big value + unit, optional description — the brief's "numbers should be the largest things" directive as a primitive. |
 | `empty-state.tsx` | `EmptyState` | Calm empty screen (icon/title/description/action) — no guilt copy, per brief §2. |
 | `page-header.tsx` | `PageHeader` | `h1` + description + right-aligned action slot; every screen opens with one. |
@@ -236,19 +236,19 @@ shadcn-style primitives (Nova preset, `radix-ui` primitives, `cva` variants, ali
 
 ### Tests
 
-Vitest + jsdom + `fake-indexeddb` + React Testing Library + `@testing-library/user-event`. **132 tests across 26 files**, all passing as of issue #10.
+Vitest + jsdom + `fake-indexeddb` + React Testing Library + `@testing-library/user-event`. **126 tests across 25 files**, all passing as of issue #14.
 
 | Area | Covers |
 |------|--------|
-| `domain/goal/*.test.ts`, `domain/dailyEntry` (via infra tests) | Pure logic: pace derivation, calorie-deficit arithmetic, unit conversion round-trips. |
-| `domain/stats/*.test.ts` | Edge cases per function: missing days, a single data point, zero variance (correlation), pace-less trajectories. |
+| `domain/goal/*.test.ts`, `domain/dailyEntry` (via infra tests) | Pure logic: calorie-deficit arithmetic, unit conversion round-trips. |
+| `domain/stats/*.test.ts` | Edge cases per function: missing days, a single data point, zero variance (correlation). |
 | `infrastructure/persistence/indexeddb/index.test.ts` | Both repositories against `fake-indexeddb`: round-trips, unique-date enforcement, ordering, `getAll()`. |
 | `stores/*.test.ts` | Store actions against `fake-indexeddb` through the real repository implementations (not mocked). |
 | `shared/ui/*.test.tsx` | Primitives via RTL: labels/errors/ARIA wiring, render smoke tests. |
-| `features/goal-setup/*.test.{ts,tsx}` | Schema validation, form↔domain mapping (incl. a pinned `startDate` fixture to avoid real-`Date()` flakiness in `targetDate`-mode pace tests), full form interaction via RTL. |
+| `features/goal-setup/*.test.{ts,tsx}` | Schema validation, form↔domain mapping, full form interaction via RTL — no longer needs a pinned `startDate` fixture to dodge `Date()` flakiness, since #14 removed the date-dependent pace derivation entirely. |
 | `features/daily-log/*.test.{ts,tsx}` | Same pattern; date backfill via `fireEvent.change` on the native date input (native date-typing simulation is unreliable in jsdom). |
 | `features/export/*.test.{ts,tsx}` | Bundle schema rejection cases, export/import round-trip + merge-not-replace semantics, `ExportScreen` with `URL.createObjectURL`/anchor-click stubbed (absent in jsdom). |
-| `app/router.test.tsx` | Routing via `createMemoryRouter`. |
+| `app/router.test.tsx` | Routing via `createMemoryRouter`; asserts both the header nav (`"Main"`) and bottom tab bar (`"Tabs"`) landmarks render on every screen. |
 
 `test/setup.ts` imports `@testing-library/jest-dom/vitest` and manually wires `afterEach(cleanup)` — RTL's automatic cleanup detection needs `test.globals`, which isn't enabled here.
 
@@ -281,15 +281,17 @@ flowchart LR
         E4["#5 Epic 4 — Daily log entry"]
         E8["#9 Epic 8 — Export / Import"]
         E9["#10 Epic 9 — Deployment"]
-    end
-    subgraph Next ["⏭ Tier 5 — UX & product-model rework"]
         B12["#12 Bug — decimal input on mobile"]
         B13["#13 Redesign app shell — bottom tab nav"]
         B14["#14 Rework goal model — weekly-only goals"]
+    end
+    subgraph Next ["⏭ Tier 5 — UX & product-model rework"]
         B15["#15 Localization — English/Russian"]
+        B16["#16 Calories field day-lag tooltip"]
+        B17["#17 Appearance settings — mood + light/dark"]
     end
     subgraph Later ["Tier 6-7 — remaining core features + QA"]
-        E5["#6 Epic 5 — Dashboard charts"]
+        E5["#6 Epic 5 — Dashboard charts (needs a fresh<br/>goal-line design post-#14)"]
         E6["#7 Epic 6 — Correlation & insights"]
         E7["#8 Epic 7 — History"]
         E10["#11 Epic 10 — Accessibility & responsive QA"]
