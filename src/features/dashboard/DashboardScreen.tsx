@@ -1,10 +1,12 @@
+import { useTranslation } from '@/i18n'
 import { PageHeader } from '@/shared/ui/page-header'
 
 export function DashboardScreen() {
+  const t = useTranslation()
   return (
     <PageHeader
-      title="Dashboard"
-      description="Weight trend + goal line, calorie trend, weekly summary cards, correlation view"
+      title={t.dashboard.title}
+      description={t.dashboard.description}
     />
   )
 }

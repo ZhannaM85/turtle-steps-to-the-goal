@@ -1,4 +1,5 @@
 import { useEffect } from 'react'
+import { unitLabel, formatNumber, useLocale, useTranslation } from '@/i18n'
 import { kgToLb } from '@/domain/goal'
 import { PageHeader } from '@/shared/ui/page-header'
 import { StatCard } from '@/shared/ui/stat-card'
@@ -6,6 +7,8 @@ import { useGoalStore } from '@/stores'
 import { GoalForm } from './GoalForm'
 
 export function GoalScreen() {
+  const t = useTranslation()
+  const locale = useLocale()
   const { goal, status, error, loadActiveGoal, saveGoal } = useGoalStore()
 
   useEffect(() => {
@@ -17,13 +20,10 @@ export function GoalScreen() {
 
   return (
     <div className="flex flex-col gap-6">
-      <PageHeader
-        title="Goal"
-        description="This week's target — small steps, renewed week to week"
-      />
+      <PageHeader title={t.goal.title} description={t.goal.description} />
 
       {status === 'loading' || status === 'idle' ? (
-        <p className="text-sm text-muted-foreground">Loading…</p>
+        <p className="text-sm text-muted-foreground">{t.common.loading}</p>
       ) : (
         <>
           {status === 'error' && (
@@ -32,9 +32,9 @@ export function GoalScreen() {
 
           {goal && (
             <StatCard
-              label="This week's target"
-              value={toDisplay(goal.targetWeeklyLossKg).toFixed(1)}
-              unit={`${displayUnit} to lose`}
+              label={t.goal.thisWeeksTarget}
+              value={formatNumber(toDisplay(goal.targetWeeklyLossKg), locale)}
+              unit={t.today.toLose(unitLabel(displayUnit, t))}
             />
           )}
 

@@ -1,10 +1,9 @@
+import { useTranslation } from '@/i18n'
 import { PageHeader } from '@/shared/ui/page-header'
 
 export function HistoryScreen() {
+  const t = useTranslation()
   return (
-    <PageHeader
-      title="History"
-      description="Table of all past entries — edit/delete"
-    />
+    <PageHeader title={t.history.title} description={t.history.description} />
   )
 }

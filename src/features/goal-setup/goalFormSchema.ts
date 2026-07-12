@@ -1,18 +1,21 @@
 import { z } from 'zod'
+import type { Dictionary } from '@/i18n'
 
-export const goalFormSchema = z
-  .object({
-    displayUnit: z.enum(['kg', 'lb']),
-    targetWeeklyLoss: z.number().max(10).optional(),
-  })
-  .superRefine((data, ctx) => {
-    if (!data.targetWeeklyLoss || data.targetWeeklyLoss <= 0) {
-      ctx.addIssue({
-        code: 'custom',
-        path: ['targetWeeklyLoss'],
-        message: "Enter this week's target, greater than 0",
-      })
-    }
-  })
+export function makeGoalFormSchema(t: Dictionary) {
+  return z
+    .object({
+      displayUnit: z.enum(['kg', 'lb']),
+      targetWeeklyLoss: z.number().max(10).optional(),
+    })
+    .superRefine((data, ctx) => {
+      if (!data.targetWeeklyLoss || data.targetWeeklyLoss <= 0) {
+        ctx.addIssue({
+          code: 'custom',
+          path: ['targetWeeklyLoss'],
+          message: t.goal.targetRequired,
+        })
+      }
+    })
+}
 
-export type GoalFormValues = z.infer<typeof goalFormSchema>
+export type GoalFormValues = z.infer<ReturnType<typeof makeGoalFormSchema>>

@@ -1,7 +1,9 @@
+import { useMemo } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import type { Goal } from '@/domain/goal'
 import { estimatedDailyCalorieDeficitKcal } from '@/domain/goal'
+import { unitLabel, useTranslation } from '@/i18n'
 import { parseNumberInput } from '@/shared/lib/parseNumberInput'
 import { Button } from '@/shared/ui/button'
 import { NumberInput } from '@/shared/ui/number-input'
@@ -10,7 +12,7 @@ import {
   formValuesToGoal,
   goalToFormValues,
 } from './goalFormMapping'
-import { goalFormSchema, type GoalFormValues } from './goalFormSchema'
+import { makeGoalFormSchema, type GoalFormValues } from './goalFormSchema'
 
 export interface GoalFormProps {
   existingGoal: Goal | null
@@ -18,13 +20,16 @@ export interface GoalFormProps {
 }
 
 export function GoalForm({ existingGoal, onSubmit }: GoalFormProps) {
+  const t = useTranslation()
+  const schema = useMemo(() => makeGoalFormSchema(t), [t])
+
   const {
     register,
     handleSubmit,
     watch,
     formState: { errors },
   } = useForm<GoalFormValues>({
-    resolver: zodResolver(goalFormSchema),
+    resolver: zodResolver(schema),
     defaultValues: goalToFormValues(existingGoal),
   })
 
@@ -45,34 +50,37 @@ export function GoalForm({ existingGoal, onSubmit }: GoalFormProps) {
       noValidate
     >
       <fieldset className="flex flex-col gap-1.5">
-        <legend className="text-sm font-medium">Units</legend>
+        <legend className="text-sm font-medium">{t.goal.unitsLegend}</legend>
         <div className="flex gap-4">
           <label className="flex items-center gap-1.5 text-sm">
-            <input type="radio" value="kg" {...register('displayUnit')} /> kg
+            <input type="radio" value="kg" {...register('displayUnit')} />{' '}
+            {t.common.kg}
           </label>
           <label className="flex items-center gap-1.5 text-sm">
-            <input type="radio" value="lb" {...register('displayUnit')} /> lb
+            <input type="radio" value="lb" {...register('displayUnit')} />{' '}
+            {t.common.lb}
           </label>
         </div>
       </fieldset>
 
       <NumberInput
-        label={`This week's target (${unit} to lose)`}
+        label={t.goal.targetLabel(unitLabel(unit, t))}
         error={errors.targetWeeklyLoss?.message}
         {...register('targetWeeklyLoss', { setValueAs: parseNumberInput })}
       />
 
       {dailyDeficit !== null && (
         <p className="text-sm text-muted-foreground">
-          Rough estimate: about {Math.round(Math.abs(dailyDeficit))} kcal/day{' '}
-          {dailyDeficit >= 0 ? 'deficit' : 'surplus'}. This is a simple
-          arithmetic estimate (~7700 kcal ≈ 1kg of fat), not medical or
-          nutritional advice.
+          {t.goal.deficitEstimate(
+            Math.round(Math.abs(dailyDeficit)),
+            dailyDeficit >= 0 ? 'deficit' : 'surplus',
+          )}{' '}
+          {t.goal.deficitCaveat}
         </p>
       )}
 
       <Button type="submit" className="self-start">
-        {existingGoal ? 'Update this week’s target' : 'Set this week’s target'}
+        {existingGoal ? t.goal.updateButton : t.goal.setButton}
       </Button>
     </form>
   )

@@ -1,13 +1,15 @@
+import { useMemo } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import type { DailyEntry } from '@/domain/dailyEntry'
+import { useTranslation } from '@/i18n'
 import { parseNumberInput } from '@/shared/lib/parseNumberInput'
 import { Button } from '@/shared/ui/button'
 import { NumberInput } from '@/shared/ui/number-input'
 import { TextField } from '@/shared/ui/text-field'
 import { entryToFormValues, formValuesToEntry } from './dailyEntryFormMapping'
 import {
-  dailyEntryFormSchema,
+  makeDailyEntryFormSchema,
   type DailyEntryFormValues,
 } from './dailyEntryFormSchema'
 
@@ -22,12 +24,15 @@ export function DailyEntryForm({
   existingEntry,
   onSubmit,
 }: DailyEntryFormProps) {
+  const t = useTranslation()
+  const schema = useMemo(() => makeDailyEntryFormSchema(t), [t])
+
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm<DailyEntryFormValues>({
-    resolver: zodResolver(dailyEntryFormSchema),
+    resolver: zodResolver(schema),
     defaultValues: entryToFormValues(existingEntry),
   })
 
@@ -42,25 +47,25 @@ export function DailyEntryForm({
       noValidate
     >
       <NumberInput
-        label="Weight (kg)"
+        label={t.dailyEntry.weightLabel}
         error={errors.weightKg?.message}
         {...register('weightKg', { setValueAs: parseNumberInput })}
       />
 
       <NumberInput
-        label="Calories"
+        label={t.dailyEntry.caloriesLabel}
         error={errors.caloriesConsumed?.message}
         {...register('caloriesConsumed', { setValueAs: parseNumberInput })}
       />
 
       <TextField
-        label="Note (optional)"
+        label={t.dailyEntry.noteLabel}
         error={errors.note?.message}
         {...register('note')}
       />
 
       <Button type="submit" className="self-start">
-        {existingEntry ? 'Update entry' : 'Log entry'}
+        {existingEntry ? t.dailyEntry.updateButton : t.dailyEntry.logButton}
       </Button>
     </form>
   )

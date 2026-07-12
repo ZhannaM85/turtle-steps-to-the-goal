@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { format } from 'date-fns'
 import { Link } from 'react-router-dom'
 import { kgToLb } from '@/domain/goal'
+import { formatNumber, unitLabel, useLocale, useTranslation } from '@/i18n'
 import { Button } from '@/shared/ui/button'
 import { EmptyState } from '@/shared/ui/empty-state'
 import { Input } from '@/shared/ui/input'
@@ -16,6 +17,8 @@ function todayIso() {
 }
 
 export function TodayScreen() {
+  const t = useTranslation()
+  const locale = useLocale()
   const { goal, status: goalStatus, loadActiveGoal } = useGoalStore()
   const {
     entry,
@@ -42,33 +45,30 @@ export function TodayScreen() {
 
   return (
     <div className="flex flex-col gap-6">
-      <PageHeader
-        title="Today"
-        description="Quick entry for today's weight/calories, this week's target reminder"
-      />
+      <PageHeader title={t.today.title} description={t.today.description} />
 
       {goalStatus === 'loading' || goalStatus === 'idle' ? (
-        <p className="text-sm text-muted-foreground">Loading…</p>
+        <p className="text-sm text-muted-foreground">{t.common.loading}</p>
       ) : goal ? (
         <StatCard
-          label="This week's target"
-          value={weeklyPace!.toFixed(1)}
-          unit={`${displayUnit} to lose`}
+          label={t.today.thisWeeksTarget}
+          value={formatNumber(weeklyPace!, locale)}
+          unit={t.today.toLose(unitLabel(displayUnit, t))}
         />
       ) : (
         <EmptyState
-          title="No goal set yet"
-          description="Set a starting weight, target weight, and weekly pace to see this week's target here."
+          title={t.today.emptyGoalTitle}
+          description={t.today.emptyGoalDescription}
           action={
             <Button asChild>
-              <Link to="/goal">Set a goal</Link>
+              <Link to="/goal">{t.today.setGoalButton}</Link>
             </Button>
           }
         />
       )}
 
       <div className="flex flex-col gap-1.5">
-        <Label htmlFor="log-date">Date</Label>
+        <Label htmlFor="log-date">{t.today.dateLabel}</Label>
         <Input
           id="log-date"
           type="date"
@@ -80,7 +80,7 @@ export function TodayScreen() {
       </div>
 
       {entryStatus === 'loading' || entryStatus === 'idle' ? (
-        <p className="text-sm text-muted-foreground">Loading…</p>
+        <p className="text-sm text-muted-foreground">{t.common.loading}</p>
       ) : (
         <DailyEntryForm
           key={date}

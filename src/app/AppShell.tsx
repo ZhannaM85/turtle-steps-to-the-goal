@@ -8,29 +8,35 @@ import {
   Target,
   type LucideIcon,
 } from 'lucide-react'
+import { useTranslation, type Dictionary } from '@/i18n'
 import { cn } from '@/shared/lib/utils'
 
-const navItems: {
+function useNavItems(t: Dictionary): {
   to: string
   label: string
   end?: boolean
   icon: LucideIcon
-}[] = [
-  { to: '/', label: 'Today', end: true, icon: Home },
-  { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { to: '/history', label: 'History', icon: History },
-  { to: '/goal', label: 'Goal', icon: Target },
-  { to: '/export', label: 'Export', icon: Download },
-  { to: '/settings', label: 'Settings', icon: Settings },
-]
+}[] {
+  return [
+    { to: '/', label: t.nav.today, end: true, icon: Home },
+    { to: '/dashboard', label: t.nav.dashboard, icon: LayoutDashboard },
+    { to: '/history', label: t.nav.history, icon: History },
+    { to: '/goal', label: t.nav.goal, icon: Target },
+    { to: '/export', label: t.nav.export, icon: Download },
+    { to: '/settings', label: t.nav.settings, icon: Settings },
+  ]
+}
 
 export function AppShell() {
+  const t = useTranslation()
+  const navItems = useNavItems(t)
+
   return (
     <div className="min-h-svh bg-background">
       <header className="border-b border-border">
         <div className="mx-auto flex max-w-3xl items-center justify-between gap-4 px-4 py-3">
           <span className="text-sm font-semibold text-foreground">
-            Turtle Steps to the Goal
+            {t.nav.appName}
           </span>
           <nav aria-label="Main" className="hidden sm:block">
             <ul className="flex flex-wrap gap-1">
