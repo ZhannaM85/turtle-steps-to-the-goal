@@ -75,4 +75,4 @@ _Final sweep, but apply accessibility incrementally as each feature is built —
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#11](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/11) | ⬜ Open | Epic 10 — Accessibility & responsive QA pass | Keyboard nav, WCAG AA contrast audit, responsive check |
+| [#11](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/11) | ✅ Done | Epic 10 — Accessibility & responsive QA pass | Found + fixed 3 real bugs: `--input` contrast (WCAG 1.4.11), mood-radio focus visibility (2.4.7), History mobile overflow + Dashboard chart entrance-animation bug |
