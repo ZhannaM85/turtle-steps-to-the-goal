@@ -69,4 +69,17 @@ describe('SettingsScreen', () => {
     expect(useThemeStore.getState().colorScheme).toBe('dark')
     expect(document.documentElement.classList.contains('dark')).toBe(true)
   })
+
+  it('keeps the visually-hidden mood radios keyboard-focusable', async () => {
+    const user = userEvent.setup()
+    render(<SettingsScreen />)
+
+    const pondRadio = screen.getByRole('radio', { name: /Pond/ })
+    // Radio groups use roving tabindex — Tab lands on each group's checked
+    // radio directly, not every individual option.
+    await user.tab() // locale group's checked radio (English)
+    await user.tab() // mood group's checked radio (Pond)
+
+    expect(document.activeElement).toBe(pondRadio)
+  })
 })

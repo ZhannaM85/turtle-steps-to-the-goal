@@ -8,7 +8,7 @@ import { MetTargetList } from './MetTargetList'
 import { useHistoryData } from './useHistoryData'
 
 const COLUMN_HEADER_CLASS =
-  'border-b border-border px-3 py-2 text-xs font-medium tracking-wide text-muted-foreground uppercase'
+  'border-b border-border px-2 py-2 text-xs font-medium tracking-wide text-muted-foreground uppercase sm:px-3'
 
 export function HistoryScreen() {
   const t = useTranslation()
@@ -40,7 +40,7 @@ export function HistoryScreen() {
                   <th className={COLUMN_HEADER_CLASS}>
                     <button
                       type="button"
-                      className="flex items-center gap-1"
+                      className="flex items-center gap-1 rounded-md outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
                       onClick={() => setSortAsc((prev) => !prev)}
                       aria-label={t.history.sortToggleLabel}
                     >
@@ -54,7 +54,7 @@ export function HistoryScreen() {
                   <th className={COLUMN_HEADER_CLASS}>
                     {t.history.caloriesColumn}
                   </th>
-                  <th className={COLUMN_HEADER_CLASS}>
+                  <th className={`${COLUMN_HEADER_CLASS} hidden sm:table-cell`}>
                     {t.history.noteColumn}
                   </th>
                   <th className={COLUMN_HEADER_CLASS}>

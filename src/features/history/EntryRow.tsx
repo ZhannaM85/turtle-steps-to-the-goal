@@ -67,19 +67,19 @@ export function EntryRow({ entry, goal, onSaved, onDeleted }: EntryRowProps) {
 
   return (
     <tr>
-      <td className="border-b border-border px-3 py-2 text-sm whitespace-nowrap">
+      <td className="border-b border-border px-2 py-2 text-sm whitespace-nowrap sm:px-3">
         {format(parseISO(entry.date), 'PP', { locale: dateFnsLocale })}
       </td>
-      <td className="border-b border-border px-3 py-2 text-sm tabular-nums">
+      <td className="border-b border-border px-2 py-2 text-sm tabular-nums sm:px-3">
         {weightDisplay}
       </td>
-      <td className="border-b border-border px-3 py-2 text-sm tabular-nums">
+      <td className="border-b border-border px-2 py-2 text-sm tabular-nums sm:px-3">
         {caloriesDisplay}
       </td>
-      <td className="border-b border-border px-3 py-2 text-sm text-muted-foreground">
+      <td className="hidden border-b border-border px-3 py-2 text-sm text-muted-foreground sm:table-cell">
         {entry.note || '—'}
       </td>
-      <td className="border-b border-border px-3 py-2 text-sm">
+      <td className="border-b border-border px-2 py-2 text-sm sm:px-3">
         {mode === 'confirmDelete' ? (
           <div className="flex items-center gap-2 whitespace-nowrap">
             <span className="text-muted-foreground">

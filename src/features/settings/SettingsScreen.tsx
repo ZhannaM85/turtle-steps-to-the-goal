@@ -87,6 +87,7 @@ export function SettingsScreen() {
                 key={option.value}
                 className={cn(
                   'flex items-center gap-1.5 rounded-lg border border-border px-2.5 py-1.5 text-sm',
+                  'has-[:focus-visible]:ring-3 has-[:focus-visible]:ring-ring/50',
                   mood === option.value && 'border-ring bg-muted',
                 )}
               >

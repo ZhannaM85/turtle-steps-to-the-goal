@@ -110,6 +110,7 @@ export function CalorieTrendChart({ entries }: CalorieTrendChartProps) {
             dataKey="calories"
             fill="var(--chart-calories)"
             radius={[3, 3, 0, 0]}
+            isAnimationActive={false}
           />
           <Line
             type="monotone"

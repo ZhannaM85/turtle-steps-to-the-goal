@@ -84,7 +84,11 @@ export function CorrelationView({ entries, goal }: CorrelationViewProps) {
               name,
             ]}
           />
-          <Scatter data={points} fill="var(--chart-weight)" />
+          <Scatter
+            data={points}
+            fill="var(--chart-weight)"
+            isAnimationActive={false}
+          />
         </ScatterChart>
       </ResponsiveContainer>
       {insight ? (

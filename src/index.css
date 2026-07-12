@@ -15,6 +15,15 @@
  * --destructive is intentionally NOT mood-tinted — it stays constant across
  * every mood per that doc's cross-mood rules (irreversible actions only,
  * never data, never a missed target).
+ *
+ * --input deliberately differs from --border (issue #11 WCAG audit): the
+ * design doc's border hex reads as a soft divider between two similarly-
+ * toned regions, which is fine for decorative use (table rows, header
+ * line) but the Input component renders bg-transparent with only its
+ * border to mark the field boundary, so that border needs real contrast
+ * (WCAG 1.4.11, >=3:1 against background) to actually be visible. --input
+ * is the same border blended toward --foreground until it clears 3:1;
+ * --border stays at the original softer value for non-interactive dividers.
  */
 
 :root {
@@ -37,7 +46,7 @@
   --accent-foreground: #16232a;
   --destructive: oklch(0.577 0.245 27.325);
   --border: #dce7e9;
-  --input: #dce7e9;
+  --input: #879397;
   --ring: #3e7688;
   --chart-weight: #3e7688;
   --chart-calories: #c9a878;
@@ -123,7 +132,7 @@
   --accent-foreground: #e4eef0;
   --destructive: oklch(0.704 0.191 22.216);
   --border: #263539;
-  --input: #263539;
+  --input: #59676a;
   --ring: #85bfce;
   --chart-weight: #85bfce;
   --chart-calories: #b28e58;
@@ -159,7 +168,7 @@
   --accent: #edf3f4;
   --accent-foreground: #16232a;
   --border: #dce7e9;
-  --input: #dce7e9;
+  --input: #879397;
   --ring: #3e7688;
   --chart-weight: #3e7688;
   --chart-calories: #c9a878;
@@ -182,7 +191,7 @@
   --accent: #f1eefa;
   --accent-foreground: #221b2e;
   --border: #e4dff0;
-  --input: #e4dff0;
+  --input: #948fa0;
   --ring: #6e5bb5;
   --chart-weight: #6e5bb5;
   --chart-calories: #c9a878;
@@ -205,7 +214,7 @@
   --accent: #2a2333;
   --accent-foreground: #ede9f5;
   --border: #362c42;
-  --input: #362c42;
+  --input: #696174;
   --ring: #b7a6f0;
   --chart-weight: #b7a6f0;
   --chart-calories: #b28e58;
@@ -228,7 +237,7 @@
   --accent: #eef3ee;
   --accent-foreground: #1c2620;
   --border: #dee8e0;
-  --input: #dee8e0;
+  --input: #8b958d;
   --ring: #4c7a62;
   --chart-weight: #4c7a62;
   --chart-calories: #c9a878;
@@ -251,7 +260,7 @@
   --accent: #1e2a22;
   --accent-foreground: #e6efe8;
   --border: #2c3b31;
-  --input: #2c3b31;
+  --input: #5c6a61;
   --ring: #90c7a6;
   --chart-weight: #90c7a6;
   --chart-calories: #b28e58;
@@ -274,7 +283,7 @@
   --accent: #f1ecdd;
   --accent-foreground: #211d12;
   --border: #e6e0d0;
-  --input: #e6e0d0;
+  --input: #959082;
   --ring: #75672f;
   --chart-weight: #75672f;
   --chart-calories: #c9a878;
@@ -302,7 +311,7 @@
   --accent: #242115;
   --accent-foreground: #ece7d8;
   --border: #35301f;
-  --input: #35301f;
+  --input: #686353;
   --ring: #d3b878;
   --chart-weight: #d3b878;
   --chart-calories: #8f6f3d;
@@ -325,7 +334,7 @@
   --accent: #e0f2f3;
   --accent-foreground: #122a2c;
   --border: #d3e8e9;
-  --input: #d3e8e9;
+  --input: #7e9496;
   --ring: #0e7c86;
   --chart-weight: #0e7c86;
   --chart-calories: #c9a878;
@@ -348,7 +357,7 @@
   --accent: #12292b;
   --accent-foreground: #e2f0ef;
   --border: #1f393a;
-  --input: #1f393a;
+  --input: #526969;
   --ring: #56cfc9;
   --chart-weight: #56cfc9;
   --chart-calories: #b28e58;

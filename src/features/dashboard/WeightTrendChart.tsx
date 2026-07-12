@@ -128,6 +128,7 @@ export function WeightTrendChart({ entries, goal }: WeightTrendChartProps) {
               )
             }}
             activeDot={{ r: 4 }}
+            isAnimationActive={false}
           />
           <Line
             type="monotone"
