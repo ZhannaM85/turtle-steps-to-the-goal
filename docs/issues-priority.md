@@ -76,3 +76,12 @@ _Final sweep, but apply accessibility incrementally as each feature is built —
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#11](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/11) | ✅ Done | Epic 10 — Accessibility & responsive QA pass | Found + fixed 3 real bugs: `--input` contrast (WCAG 1.4.11), mood-radio focus visibility (2.4.7), History mobile overflow + Dashboard chart entrance-animation bug |
+
+---
+
+## Tier 8 — Post-launch polish (live-feedback fixes)
+_The original brief's epics are all done; this tier is for issues raised from actually using the deployed app. Small, self-contained, same pattern as #12/#16/#18/#19._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#20](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/20) | ⬜ Open | Simplify Calories field — remove total input, keep only Add | Follow-up to #19; two small open questions noted on the issue (showing the running total, correcting a mistake) to settle before implementing |
