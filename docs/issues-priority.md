@@ -49,7 +49,7 @@ _Live feedback on the deployed build surfaced a real bug and two direction chang
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#12](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/12) | ✅ Done | Bug — decimal weight values can't be entered on mobile | Self-contained; blocks basic daily use on mobile |
-| [#13](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/13) | ⬜ Open | Redesign app shell — mobile-first bottom tab nav | Adopts the `life-kaleidoscope` shell pattern; should land before #6/#8 |
+| [#13](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/13) | ✅ Done | Redesign app shell — mobile-first bottom tab nav | Adopts the `life-kaleidoscope` shell pattern; should land before #6/#8 |
 | [#14](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/14) | ⬜ Open | Rework goal model — remove "big goal" framing, weekly-only goals | Needs a product decision first; #6's goal-line overlay depends on the current `Goal` shape, so resolve before #6 |
 | [#15](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/15) | ⬜ Open | Add localization — English and Russian | Best done once the shell (#13) is settled so nav labels are dictionary-driven from the start |
 | [#16](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/16) | ⬜ Open | Info tooltip on Calories field — day-lag with weight | Small, self-contained; related note on #7's correlation-analysis lag |
