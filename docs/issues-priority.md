@@ -52,7 +52,7 @@ _Live feedback on the deployed build surfaced a real bug and two direction chang
 | [#13](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/13) | ✅ Done | Redesign app shell — mobile-first bottom tab nav | Adopts the `life-kaleidoscope` shell pattern; should land before #6/#8 |
 | [#14](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/14) | ✅ Done | Rework goal model — remove "big goal" framing, weekly-only goals | Decision: long-term target removed entirely, not just demoted. `Goal` is now weekly-pace-only |
 | [#15](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/15) | ✅ Done | Add localization — English and Russian | `src/i18n/` (Dictionary + en/ru + useLocaleStore), wired through every screen and nav; switcher on /settings |
-| [#16](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/16) | ⬜ Open | Info tooltip on Calories field — day-lag with weight | Small, self-contained; related note on #7's correlation-analysis lag |
+| [#16](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/16) | ✅ Done | Info tooltip on Calories field — day-lag with weight | New `InfoTooltip` shared primitive (tap-triggered Popover) + `tooltip?` prop on `NumberInput` |
 | [#17](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/17) | ⬜ Open | Appearance settings — mood (Dusk/Sage/Pond) + light/dark toggle | Reuses the token sets from `docs/design/color-palette-options.html`; best sequenced after #13's shell rework so Settings' Appearance section is built once |
 
 ---
