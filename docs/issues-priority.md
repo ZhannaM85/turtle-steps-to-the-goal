@@ -65,7 +65,7 @@ _Any order from here, but keep each epic its own reviewable unit of work._
 | [#6](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/6) | ✅ Done | Epic 5 — Dashboard charts | Weight trend (+ new `projectedPaceTrajectory` overlay) + calorie trend + weekly summary cards, all on `--chart-weight`/`--chart-calories`. Quiet "target met" note included, no badges |
 | [#7](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/7) | ✅ Done | Epic 6 — Correlation & pattern insights | Scatter + plain-language summary (`correlationInsight`), arithmetic-only, honors the day-lag note |
 | [#8](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/8) | ✅ Done | Epic 7 — History | Sortable table with inline edit (reuses `DailyEntryForm`) + two-step delete confirm. `MetTargetList` plain record included, no badges |
-| [#18](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/18) | ⬜ Open | Show which week — date range + week number | Small, self-contained; live-feedback fix on the already-shipped Today/Goal StatCard, same pattern as #12/#16 |
+| [#18](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/18) | ✅ Done | Show which week — date range + week number | `currentWeekInfo()` anchors Week 1 to the first logged entry; new `shared/hooks/useCurrentWeekInfo` |
 
 ---
 
