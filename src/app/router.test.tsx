@@ -43,10 +43,11 @@ describe('app router', () => {
     ).toBeInTheDocument()
   })
 
-  it('renders the nav on every screen', () => {
+  it('renders the header nav and bottom tab bar on every screen', () => {
     renderAt('/dashboard')
     expect(screen.getByRole('navigation', { name: 'Main' })).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: 'Today' })).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: 'Settings' })).toBeInTheDocument()
+    expect(screen.getByRole('navigation', { name: 'Tabs' })).toBeInTheDocument()
+    expect(screen.getAllByRole('link', { name: 'Today' })).toHaveLength(2)
+    expect(screen.getAllByRole('link', { name: 'Settings' })).toHaveLength(2)
   })
 })
