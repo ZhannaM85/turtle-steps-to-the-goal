@@ -62,7 +62,7 @@ _Any order from here, but keep each epic its own reviewable unit of work._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#6](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/6) | ⬜ Open | Epic 5 — Dashboard charts | Weight trend + calorie trend + weekly summary cards, consuming `--chart-weight`/`--chart-calories` from #17. The brief's "goal line overlay" no longer applies as designed — #14 removed the long-term target it depended on (`projectedTrajectory` was deleted); needs a fresh, pace-based design. Also: a factual "target met" note in the weekly summary card (quiet celebration, no badges — see issue comment) |
+| [#6](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/6) | ✅ Done | Epic 5 — Dashboard charts | Weight trend (+ new `projectedPaceTrajectory` overlay) + calorie trend + weekly summary cards, all on `--chart-weight`/`--chart-calories`. Quiet "target met" note included, no badges |
 | [#7](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/7) | ⬜ Open | Epic 6 — Correlation & pattern insights | Builds on #6's chart infrastructure |
 | [#8](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/8) | ⬜ Open | Epic 7 — History | Table view + inline edit/delete of all entries. Also: a "Met target" filter/section — a plain record of weeks the target was hit, no badges (see issue comment) |
 
