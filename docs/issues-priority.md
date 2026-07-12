@@ -50,7 +50,7 @@ _Live feedback on the deployed build surfaced a real bug and two direction chang
 |---|--------|-------|-------|
 | [#12](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/12) | ✅ Done | Bug — decimal weight values can't be entered on mobile | Self-contained; blocks basic daily use on mobile |
 | [#13](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/13) | ✅ Done | Redesign app shell — mobile-first bottom tab nav | Adopts the `life-kaleidoscope` shell pattern; should land before #6/#8 |
-| [#14](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/14) | ⬜ Open | Rework goal model — remove "big goal" framing, weekly-only goals | Needs a product decision first; #6's goal-line overlay depends on the current `Goal` shape, so resolve before #6 |
+| [#14](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/14) | ✅ Done | Rework goal model — remove "big goal" framing, weekly-only goals | Decision: long-term target removed entirely, not just demoted. `Goal` is now weekly-pace-only |
 | [#15](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/15) | ⬜ Open | Add localization — English and Russian | Best done once the shell (#13) is settled so nav labels are dictionary-driven from the start |
 | [#16](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/16) | ⬜ Open | Info tooltip on Calories field — day-lag with weight | Small, self-contained; related note on #7's correlation-analysis lag |
 | [#17](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/17) | ⬜ Open | Appearance settings — mood (Dusk/Sage/Pond) + light/dark toggle | Reuses the token sets from `docs/design/color-palette-options.html`; best sequenced after #13's shell rework so Settings' Appearance section is built once |
@@ -58,11 +58,11 @@ _Live feedback on the deployed build surfaced a real bug and two direction chang
 ---
 
 ## Tier 6 — Core features
-_Any order from here, but keep each epic its own reviewable unit of work. Note #6 depends on Tier 5's goal-model decision (#14)._
+_Any order from here, but keep each epic its own reviewable unit of work._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#6](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/6) | ⬜ Open | Epic 5 — Dashboard charts | Weight trend + goal line, calorie trend, weekly summary cards. Depends on #14 |
+| [#6](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/6) | ⬜ Open | Epic 5 — Dashboard charts | Weight trend + calorie trend + weekly summary cards. The brief's "goal line overlay" no longer applies as designed — #14 removed the long-term target it depended on (`projectedTrajectory` was deleted); needs a fresh, pace-based design (e.g. a short projection from the latest entry at the current weekly pace), not a straight line to a fixed target |
 | [#7](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/7) | ⬜ Open | Epic 6 — Correlation & pattern insights | Builds on #6's chart infrastructure |
 | [#8](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/8) | ⬜ Open | Epic 7 — History | Table view + inline edit/delete of all entries |
 
