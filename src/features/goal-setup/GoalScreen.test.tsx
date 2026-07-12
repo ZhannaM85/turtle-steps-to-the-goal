@@ -11,9 +11,6 @@ function makeGoal(overrides: Partial<Goal> = {}): Goal {
   const now = new Date().toISOString()
   return {
     id: crypto.randomUUID(),
-    startDate: '2026-01-01',
-    startWeightKg: 80,
-    targetWeightKg: 70,
     targetWeeklyLossKg: 1,
     displayUnit: 'kg',
     createdAt: now,
@@ -36,9 +33,9 @@ describe('GoalScreen', () => {
     render(<GoalScreen />)
 
     expect(
-      await screen.findByRole('button', { name: 'Set goal' }),
+      await screen.findByRole('button', { name: 'Set this week’s target' }),
     ).toBeInTheDocument()
-    expect(screen.queryByText(/kg → .*kg/)).not.toBeInTheDocument()
+    expect(screen.queryByText("This week's target")).not.toBeInTheDocument()
   })
 
   it('shows a summary and a pre-filled edit form when a goal exists', async () => {
@@ -46,11 +43,12 @@ describe('GoalScreen', () => {
 
     render(<GoalScreen />)
 
-    expect(await screen.findByText('80.0kg → 70.0kg')).toBeInTheDocument()
     expect(
-      screen.getByRole('button', { name: 'Update goal' }),
+      await screen.findByRole('button', { name: 'Update this week’s target' }),
     ).toBeInTheDocument()
-    expect(screen.getByLabelText('Starting weight (kg)')).toHaveValue('80')
+    expect(
+      screen.getByLabelText("This week's target (kg to lose)"),
+    ).toHaveValue('1')
   })
 
   it('persists an edit and updates the summary', async () => {
@@ -58,12 +56,16 @@ describe('GoalScreen', () => {
     const user = userEvent.setup()
 
     render(<GoalScreen />)
-    await screen.findByText('80.0kg → 70.0kg')
+    await screen.findByRole('button', { name: 'Update this week’s target' })
 
-    const weeklyPaceInput = screen.getByLabelText('Weekly pace (kg/week)')
-    await user.clear(weeklyPaceInput)
-    await user.type(weeklyPaceInput, '0.5')
-    await user.click(screen.getByRole('button', { name: 'Update goal' }))
+    const weeklyTargetInput = screen.getByLabelText(
+      "This week's target (kg to lose)",
+    )
+    await user.clear(weeklyTargetInput)
+    await user.type(weeklyTargetInput, '0.5')
+    await user.click(
+      screen.getByRole('button', { name: 'Update this week’s target' }),
+    )
 
     expect(await screen.findByText('0.5')).toBeInTheDocument()
     const persisted = await db.goals.orderBy('createdAt').last()

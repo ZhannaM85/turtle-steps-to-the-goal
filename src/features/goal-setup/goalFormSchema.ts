@@ -3,26 +3,14 @@ import { z } from 'zod'
 export const goalFormSchema = z
   .object({
     displayUnit: z.enum(['kg', 'lb']),
-    startWeight: z.number().positive().max(1000),
-    targetWeight: z.number().positive().max(1000),
-    paceMode: z.enum(['weeklyLoss', 'targetDate']),
-    targetWeeklyLoss: z.number().optional(),
-    targetDate: z.string().optional(),
+    targetWeeklyLoss: z.number().max(10).optional(),
   })
   .superRefine((data, ctx) => {
-    if (data.paceMode === 'weeklyLoss') {
-      if (!data.targetWeeklyLoss || data.targetWeeklyLoss <= 0) {
-        ctx.addIssue({
-          code: 'custom',
-          path: ['targetWeeklyLoss'],
-          message: 'Enter a weekly pace greater than 0',
-        })
-      }
-    } else if (!data.targetDate) {
+    if (!data.targetWeeklyLoss || data.targetWeeklyLoss <= 0) {
       ctx.addIssue({
         code: 'custom',
-        path: ['targetDate'],
-        message: 'Choose a target date',
+        path: ['targetWeeklyLoss'],
+        message: "Enter this week's target, greater than 0",
       })
     }
   })

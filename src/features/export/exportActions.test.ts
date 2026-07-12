@@ -14,9 +14,6 @@ function makeGoal(overrides: Partial<Goal> = {}): Goal {
   const now = new Date().toISOString()
   return {
     id: crypto.randomUUID(),
-    startDate: '2026-01-01',
-    startWeightKg: 80,
-    targetWeightKg: 70,
     targetWeeklyLossKg: 1,
     displayUnit: 'kg',
     createdAt: now,
@@ -90,7 +87,7 @@ describe('importAllData', () => {
 
     const backupEntry = makeEntry({ date: '2026-03-01' })
     await importAllData({
-      version: 1,
+      version: 2,
       exportedAt: new Date().toISOString(),
       goals: [],
       dailyEntries: [backupEntry],
@@ -105,7 +102,7 @@ describe('importAllData', () => {
 describe('parseExportBundle', () => {
   it('parses a valid bundle', () => {
     const bundle = {
-      version: 1,
+      version: 2,
       exportedAt: '2026-01-01',
       goals: [],
       dailyEntries: [],

@@ -7,9 +7,6 @@ function makeGoal(overrides: Partial<Goal> = {}): Goal {
   const now = '2026-01-01T00:00:00.000Z'
   return {
     id: 'goal-1',
-    startDate: '2026-01-01',
-    startWeightKg: 80,
-    targetWeightKg: 70,
     targetWeeklyLossKg: 1,
     displayUnit: 'kg',
     createdAt: now,
@@ -36,7 +33,7 @@ describe('buildExportBundle', () => {
     const entries = [makeEntry()]
     const bundle = buildExportBundle(goals, entries)
 
-    expect(bundle.version).toBe(1)
+    expect(bundle.version).toBe(2)
     expect(bundle.goals).toEqual(goals)
     expect(bundle.dailyEntries).toEqual(entries)
     expect(() => new Date(bundle.exportedAt).toISOString()).not.toThrow()

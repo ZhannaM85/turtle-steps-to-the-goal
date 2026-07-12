@@ -5,7 +5,6 @@ import { estimatedDailyCalorieDeficitKcal } from '@/domain/goal'
 import { parseNumberInput } from '@/shared/lib/parseNumberInput'
 import { Button } from '@/shared/ui/button'
 import { NumberInput } from '@/shared/ui/number-input'
-import { TextField } from '@/shared/ui/text-field'
 import {
   effectiveWeeklyPaceKg,
   formValuesToGoal,
@@ -31,7 +30,7 @@ export function GoalForm({ existingGoal, onSubmit }: GoalFormProps) {
 
   const values = watch()
   const unit = values.displayUnit ?? 'kg'
-  const paceKg = effectiveWeeklyPaceKg(values, existingGoal)
+  const paceKg = effectiveWeeklyPaceKg(values)
   const dailyDeficit =
     paceKg !== null ? estimatedDailyCalorieDeficitKcal(paceKg) : null
 
@@ -58,45 +57,10 @@ export function GoalForm({ existingGoal, onSubmit }: GoalFormProps) {
       </fieldset>
 
       <NumberInput
-        label={`Starting weight (${unit})`}
-        error={errors.startWeight?.message}
-        {...register('startWeight', { setValueAs: parseNumberInput })}
+        label={`This week's target (${unit} to lose)`}
+        error={errors.targetWeeklyLoss?.message}
+        {...register('targetWeeklyLoss', { setValueAs: parseNumberInput })}
       />
-
-      <NumberInput
-        label={`Target weight (${unit})`}
-        error={errors.targetWeight?.message}
-        {...register('targetWeight', { setValueAs: parseNumberInput })}
-      />
-
-      <fieldset className="flex flex-col gap-1.5">
-        <legend className="text-sm font-medium">Pace</legend>
-        <div className="flex gap-4">
-          <label className="flex items-center gap-1.5 text-sm">
-            <input type="radio" value="weeklyLoss" {...register('paceMode')} />{' '}
-            Weekly pace
-          </label>
-          <label className="flex items-center gap-1.5 text-sm">
-            <input type="radio" value="targetDate" {...register('paceMode')} />{' '}
-            Target date
-          </label>
-        </div>
-      </fieldset>
-
-      {values.paceMode === 'targetDate' ? (
-        <TextField
-          label="Target date"
-          type="date"
-          error={errors.targetDate?.message}
-          {...register('targetDate')}
-        />
-      ) : (
-        <NumberInput
-          label={`Weekly pace (${unit}/week)`}
-          error={errors.targetWeeklyLoss?.message}
-          {...register('targetWeeklyLoss', { setValueAs: parseNumberInput })}
-        />
-      )}
 
       {dailyDeficit !== null && (
         <p className="text-sm text-muted-foreground">
@@ -108,7 +72,7 @@ export function GoalForm({ existingGoal, onSubmit }: GoalFormProps) {
       )}
 
       <Button type="submit" className="self-start">
-        {existingGoal ? 'Update goal' : 'Set goal'}
+        {existingGoal ? 'Update this week’s target' : 'Set this week’s target'}
       </Button>
     </form>
   )

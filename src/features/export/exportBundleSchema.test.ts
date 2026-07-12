@@ -2,14 +2,11 @@ import { describe, expect, it } from 'vitest'
 import { exportBundleSchema } from './exportBundleSchema'
 
 const validBundle = {
-  version: 1,
+  version: 2,
   exportedAt: '2026-07-10T00:00:00.000Z',
   goals: [
     {
       id: 'goal-1',
-      startDate: '2026-01-01',
-      startWeightKg: 80,
-      targetWeightKg: 70,
       targetWeeklyLossKg: 1,
       displayUnit: 'kg',
       createdAt: '2026-01-01T00:00:00.000Z',
@@ -36,7 +33,7 @@ describe('exportBundleSchema', () => {
   it('accepts an empty bundle (no goals or entries)', () => {
     expect(
       exportBundleSchema.safeParse({
-        version: 1,
+        version: 2,
         exportedAt: '2026-07-10T00:00:00.000Z',
         goals: [],
         dailyEntries: [],
@@ -46,7 +43,7 @@ describe('exportBundleSchema', () => {
 
   it('rejects a bundle with the wrong version', () => {
     expect(
-      exportBundleSchema.safeParse({ ...validBundle, version: 2 }).success,
+      exportBundleSchema.safeParse({ ...validBundle, version: 1 }).success,
     ).toBe(false)
   })
 

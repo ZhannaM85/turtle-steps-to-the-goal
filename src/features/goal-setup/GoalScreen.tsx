@@ -19,7 +19,7 @@ export function GoalScreen() {
     <div className="flex flex-col gap-6">
       <PageHeader
         title="Goal"
-        description="View/edit the active goal and weekly pace"
+        description="This week's target — small steps, renewed week to week"
       />
 
       {status === 'loading' || status === 'idle' ? (
@@ -32,10 +32,9 @@ export function GoalScreen() {
 
           {goal && (
             <StatCard
-              label="Weekly pace"
+              label="This week's target"
               value={toDisplay(goal.targetWeeklyLossKg).toFixed(1)}
-              unit={`${displayUnit}/week`}
-              description={`${toDisplay(goal.startWeightKg).toFixed(1)}${displayUnit} → ${toDisplay(goal.targetWeightKg).toFixed(1)}${displayUnit}`}
+              unit={`${displayUnit} to lose`}
             />
           )}
 

@@ -14,9 +14,6 @@ function makeGoal(overrides: Partial<Goal> = {}): Goal {
   const now = new Date().toISOString()
   return {
     id: crypto.randomUUID(),
-    startDate: '2026-01-01',
-    startWeightKg: 80,
-    targetWeightKg: 70,
     targetWeeklyLossKg: 1,
     displayUnit: 'kg',
     createdAt: now,

@@ -35,9 +35,6 @@ function entry(date: string, overrides: Partial<DailyEntry> = {}): DailyEntry {
 function makeGoal(overrides: Partial<Goal> = {}): Goal {
   return {
     id: 'goal-1',
-    startDate: WEEK_1_START,
-    startWeightKg: 80,
-    targetWeightKg: 70,
     targetWeeklyLossKg: 1,
     displayUnit: 'kg',
     createdAt: '2026-01-01T00:00:00.000Z',

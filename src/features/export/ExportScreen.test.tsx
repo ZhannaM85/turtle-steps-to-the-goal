@@ -11,9 +11,6 @@ function makeGoal(overrides: Partial<Goal> = {}): Goal {
   const now = new Date().toISOString()
   return {
     id: crypto.randomUUID(),
-    startDate: '2026-01-01',
-    startWeightKg: 80,
-    targetWeightKg: 70,
     targetWeeklyLossKg: 1,
     displayUnit: 'kg',
     createdAt: now,
@@ -78,7 +75,7 @@ describe('ExportScreen', () => {
   it('imports a valid backup file and reports the result', async () => {
     const user = userEvent.setup()
     const bundle = {
-      version: 1,
+      version: 2,
       exportedAt: new Date().toISOString(),
       goals: [makeGoal()],
       dailyEntries: [makeEntry(), makeEntry({ date: '2026-03-02' })],
