@@ -76,5 +76,15 @@ export interface Dictionary {
     languageLabel: string
     english: string
     russian: string
+    appearanceLabel: string
+    moodLabel: string
+    moodPond: string
+    moodDusk: string
+    moodSage: string
+    moodTortoise: string
+    moodLagoon: string
+    colorSchemeLabel: string
+    light: string
+    dark: string
   }
 }

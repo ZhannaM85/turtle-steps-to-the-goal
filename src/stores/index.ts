@@ -3,3 +3,5 @@
 
 export { useGoalStore } from './goalStore'
 export { useDailyEntryStore } from './dailyEntryStore'
+export { useThemeStore } from './themeStore'
+export type { Mood, ColorScheme } from './themeStore'

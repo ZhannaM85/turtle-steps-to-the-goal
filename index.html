@@ -5,6 +5,37 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Turtle Steps to the Goal</title>
+    <script>
+      // Pre-paint theme application (issue #17): mirrors src/stores/themeStore.ts's
+      // applyTheme()/defaults, duplicated here in plain JS since this must run
+      // before the bundled JS loads, to avoid a flash of the wrong mood/scheme.
+      ;(function () {
+        var MOODS = ['pond', 'dusk', 'sage', 'tortoise', 'lagoon']
+        var mood = 'pond'
+        var colorScheme = window.matchMedia('(prefers-color-scheme: dark)')
+          .matches
+          ? 'dark'
+          : 'light'
+        try {
+          var stored = JSON.parse(localStorage.getItem('turtle-steps-theme'))
+          var state = stored && stored.state
+          if (state && MOODS.indexOf(state.mood) !== -1) mood = state.mood
+          if (
+            state &&
+            (state.colorScheme === 'light' || state.colorScheme === 'dark')
+          ) {
+            colorScheme = state.colorScheme
+          }
+        } catch (e) {
+          // Corrupted/blocked storage — fall back to the defaults above.
+        }
+        document.documentElement.dataset.mood = mood
+        document.documentElement.classList.toggle(
+          'dark',
+          colorScheme === 'dark',
+        )
+      })()
+    </script>
   </head>
   <body>
     <div id="root"></div>

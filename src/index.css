@@ -5,26 +5,43 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/*
+ * Mood system (issue #17): five accent registers (Pond default, Dusk, Sage,
+ * Tortoise, Lagoon), each with a light and dark token set, selected via
+ * [data-mood] on <html> alongside the existing .dark class. Every mood
+ * follows the same five-slot structure from docs/design/color-palette-
+ * refinement.html: accent (primary/ring), the shared warm "sand" calorie
+ * color, tinted neutrals (never zero-chroma), background, and foreground.
+ * --destructive is intentionally NOT mood-tinted — it stays constant across
+ * every mood per that doc's cross-mood rules (irreversible actions only,
+ * never data, never a missed target).
+ */
+
 :root {
   color-scheme: light dark;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
+
+  /* Pond (default mood), light */
+  --background: #f9fbfb;
+  --foreground: #16232a;
+  --card: #edf3f4;
+  --card-foreground: #16232a;
+  --popover: #edf3f4;
+  --popover-foreground: #16232a;
+  --primary: #3e7688;
+  --primary-foreground: #ffffff;
+  --secondary: #edf3f4;
+  --secondary-foreground: #16232a;
+  --muted: #edf3f4;
+  --muted-foreground: #56707a;
+  --accent: #edf3f4;
+  --accent-foreground: #16232a;
   --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
+  --border: #dce7e9;
+  --input: #dce7e9;
+  --ring: #3e7688;
+  --chart-weight: #3e7688;
+  --chart-calories: #c9a878;
+  --sand-foreground: #8a6a3c;
   --chart-1: oklch(0.87 0 0);
   --chart-2: oklch(0.556 0 0);
   --chart-3: oklch(0.439 0 0);
@@ -39,10 +56,6 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
-}
-
-body {
-  margin: 0;
 }
 
 @theme inline {
@@ -61,6 +74,9 @@ body {
   --color-chart-3: var(--chart-3);
   --color-chart-2: var(--chart-2);
   --color-chart-1: var(--chart-1);
+  --color-chart-weight: var(--chart-weight);
+  --color-chart-calories: var(--chart-calories);
+  --color-sand-foreground: var(--sand-foreground);
   --color-ring: var(--ring);
   --color-input: var(--input);
   --color-border: var(--border);
@@ -88,25 +104,30 @@ body {
   --radius-4xl: calc(var(--radius) * 2.6);
 }
 
-.dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
+/* Pond, dark (also the .dark fallback with no [data-mood] set) */
+.dark,
+:root[data-mood='pond'].dark {
+  --background: #0f181c;
+  --foreground: #e4eef0;
+  --card: #182428;
+  --card-foreground: #e4eef0;
+  --popover: #182428;
+  --popover-foreground: #e4eef0;
+  --primary: #85bfce;
+  --primary-foreground: #10262c;
+  --secondary: #182428;
+  --secondary-foreground: #e4eef0;
+  --muted: #182428;
+  --muted-foreground: #8da9b1;
+  --accent: #182428;
+  --accent-foreground: #e4eef0;
   --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
+  --border: #263539;
+  --input: #263539;
+  --ring: #85bfce;
+  --chart-weight: #85bfce;
+  --chart-calories: #b28e58;
+  --sand-foreground: #b28e58;
   --chart-1: oklch(0.87 0 0);
   --chart-2: oklch(0.556 0 0);
   --chart-3: oklch(0.439 0 0);
@@ -120,6 +141,222 @@ body {
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
+}
+
+:root[data-mood='pond'] {
+  --background: #f9fbfb;
+  --foreground: #16232a;
+  --card: #edf3f4;
+  --card-foreground: #16232a;
+  --popover: #edf3f4;
+  --popover-foreground: #16232a;
+  --primary: #3e7688;
+  --primary-foreground: #ffffff;
+  --secondary: #edf3f4;
+  --secondary-foreground: #16232a;
+  --muted: #edf3f4;
+  --muted-foreground: #56707a;
+  --accent: #edf3f4;
+  --accent-foreground: #16232a;
+  --border: #dce7e9;
+  --input: #dce7e9;
+  --ring: #3e7688;
+  --chart-weight: #3e7688;
+  --chart-calories: #c9a878;
+  --sand-foreground: #8a6a3c;
+}
+
+:root[data-mood='dusk'] {
+  --background: #fafafc;
+  --foreground: #221b2e;
+  --card: #f1eefa;
+  --card-foreground: #221b2e;
+  --popover: #f1eefa;
+  --popover-foreground: #221b2e;
+  --primary: #6e5bb5;
+  --primary-foreground: #ffffff;
+  --secondary: #f1eefa;
+  --secondary-foreground: #221b2e;
+  --muted: #f1eefa;
+  --muted-foreground: #6f6580;
+  --accent: #f1eefa;
+  --accent-foreground: #221b2e;
+  --border: #e4dff0;
+  --input: #e4dff0;
+  --ring: #6e5bb5;
+  --chart-weight: #6e5bb5;
+  --chart-calories: #c9a878;
+  --sand-foreground: #8a6a3c;
+}
+
+:root[data-mood='dusk'].dark {
+  --background: #1b1622;
+  --foreground: #ede9f5;
+  --card: #2a2333;
+  --card-foreground: #ede9f5;
+  --popover: #2a2333;
+  --popover-foreground: #ede9f5;
+  --primary: #b7a6f0;
+  --primary-foreground: #1f1830;
+  --secondary: #2a2333;
+  --secondary-foreground: #ede9f5;
+  --muted: #2a2333;
+  --muted-foreground: #a79ac0;
+  --accent: #2a2333;
+  --accent-foreground: #ede9f5;
+  --border: #362c42;
+  --input: #362c42;
+  --ring: #b7a6f0;
+  --chart-weight: #b7a6f0;
+  --chart-calories: #b28e58;
+  --sand-foreground: #b28e58;
+}
+
+:root[data-mood='sage'] {
+  --background: #fafcf9;
+  --foreground: #1c2620;
+  --card: #eef3ee;
+  --card-foreground: #1c2620;
+  --popover: #eef3ee;
+  --popover-foreground: #1c2620;
+  --primary: #4c7a62;
+  --primary-foreground: #ffffff;
+  --secondary: #eef3ee;
+  --secondary-foreground: #1c2620;
+  --muted: #eef3ee;
+  --muted-foreground: #5d7268;
+  --accent: #eef3ee;
+  --accent-foreground: #1c2620;
+  --border: #dee8e0;
+  --input: #dee8e0;
+  --ring: #4c7a62;
+  --chart-weight: #4c7a62;
+  --chart-calories: #c9a878;
+  --sand-foreground: #8a6a3c;
+}
+
+:root[data-mood='sage'].dark {
+  --background: #131c17;
+  --foreground: #e6efe8;
+  --card: #1e2a22;
+  --card-foreground: #e6efe8;
+  --popover: #1e2a22;
+  --popover-foreground: #e6efe8;
+  --primary: #90c7a6;
+  --primary-foreground: #16261d;
+  --secondary: #1e2a22;
+  --secondary-foreground: #e6efe8;
+  --muted: #1e2a22;
+  --muted-foreground: #93b29e;
+  --accent: #1e2a22;
+  --accent-foreground: #e6efe8;
+  --border: #2c3b31;
+  --input: #2c3b31;
+  --ring: #90c7a6;
+  --chart-weight: #90c7a6;
+  --chart-calories: #b28e58;
+  --sand-foreground: #b28e58;
+}
+
+:root[data-mood='tortoise'] {
+  --background: #faf8f2;
+  --foreground: #211d12;
+  --card: #f1ecdd;
+  --card-foreground: #211d12;
+  --popover: #f1ecdd;
+  --popover-foreground: #211d12;
+  --primary: #75672f;
+  --primary-foreground: #ffffff;
+  --secondary: #f1ecdd;
+  --secondary-foreground: #211d12;
+  --muted: #f1ecdd;
+  --muted-foreground: #6f6852;
+  --accent: #f1ecdd;
+  --accent-foreground: #211d12;
+  --border: #e6e0d0;
+  --input: #e6e0d0;
+  --ring: #75672f;
+  --chart-weight: #75672f;
+  --chart-calories: #c9a878;
+  --sand-foreground: #8a6a3c;
+}
+
+/*
+ * Tortoise dark is the one cross-mood exception: its amber accent sits too
+ * close to the shared sand color, so the calorie/sand slot drops to a
+ * deeper bark-brown to keep the two data families visually distinct.
+ */
+:root[data-mood='tortoise'].dark {
+  --background: #171510;
+  --foreground: #ece7d8;
+  --card: #242115;
+  --card-foreground: #ece7d8;
+  --popover: #242115;
+  --popover-foreground: #ece7d8;
+  --primary: #d3b878;
+  --primary-foreground: #241d0c;
+  --secondary: #242115;
+  --secondary-foreground: #ece7d8;
+  --muted: #242115;
+  --muted-foreground: #aaa183;
+  --accent: #242115;
+  --accent-foreground: #ece7d8;
+  --border: #35301f;
+  --input: #35301f;
+  --ring: #d3b878;
+  --chart-weight: #d3b878;
+  --chart-calories: #8f6f3d;
+  --sand-foreground: #8f6f3d;
+}
+
+:root[data-mood='lagoon'] {
+  --background: #f2fafa;
+  --foreground: #122a2c;
+  --card: #e0f2f3;
+  --card-foreground: #122a2c;
+  --popover: #e0f2f3;
+  --popover-foreground: #122a2c;
+  --primary: #0e7c86;
+  --primary-foreground: #ffffff;
+  --secondary: #e0f2f3;
+  --secondary-foreground: #122a2c;
+  --muted: #e0f2f3;
+  --muted-foreground: #47696c;
+  --accent: #e0f2f3;
+  --accent-foreground: #122a2c;
+  --border: #d3e8e9;
+  --input: #d3e8e9;
+  --ring: #0e7c86;
+  --chart-weight: #0e7c86;
+  --chart-calories: #c9a878;
+  --sand-foreground: #8a6a3c;
+}
+
+:root[data-mood='lagoon'].dark {
+  --background: #0b1a1b;
+  --foreground: #e2f0ef;
+  --card: #12292b;
+  --card-foreground: #e2f0ef;
+  --popover: #12292b;
+  --popover-foreground: #e2f0ef;
+  --primary: #56cfc9;
+  --primary-foreground: #062a29;
+  --secondary: #12292b;
+  --secondary-foreground: #e2f0ef;
+  --muted: #12292b;
+  --muted-foreground: #8bb5b4;
+  --accent: #12292b;
+  --accent-foreground: #e2f0ef;
+  --border: #1f393a;
+  --input: #1f393a;
+  --ring: #56cfc9;
+  --chart-weight: #56cfc9;
+  --chart-calories: #b28e58;
+  --sand-foreground: #b28e58;
+}
+
+body {
+  margin: 0;
 }
 
 @layer base {
