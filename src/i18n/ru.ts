@@ -43,6 +43,9 @@ export const ru: Dictionary = {
     caloriesTooltip:
       'Сегодняшний вес отражает то, что вы съели вчера — на переваривание нужно время, поэтому не ждите, что эти два числа совпадут в один день.',
     caloriesTooltipLabel: 'О поле «Калории»',
+    addCaloriesLabel: 'Добавить калории',
+    addCaloriesPlaceholder: '+ ккал',
+    addButton: 'Добавить',
     noteLabel: 'Заметка (необязательно)',
     updateButton: 'Обновить запись',
     logButton: 'Сохранить запись',

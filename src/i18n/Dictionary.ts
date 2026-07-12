@@ -29,6 +29,9 @@ export interface Dictionary {
     caloriesLabel: string
     caloriesTooltip: string
     caloriesTooltipLabel: string
+    addCaloriesLabel: string
+    addCaloriesPlaceholder: string
+    addButton: string
     noteLabel: string
     updateButton: string
     logButton: string
