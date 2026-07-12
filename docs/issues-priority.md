@@ -66,6 +66,7 @@ _Any order from here, but keep each epic its own reviewable unit of work._
 | [#7](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/7) | ✅ Done | Epic 6 — Correlation & pattern insights | Scatter + plain-language summary (`correlationInsight`), arithmetic-only, honors the day-lag note |
 | [#8](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/8) | ✅ Done | Epic 7 — History | Sortable table with inline edit (reuses `DailyEntryForm`) + two-step delete confirm. `MetTargetList` plain record included, no badges |
 | [#18](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/18) | ✅ Done | Show which week — date range + week number | `currentWeekInfo()` anchors Week 1 to the first logged entry; new `shared/hooks/useCurrentWeekInfo` |
+| [#19](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/19) | ⬜ Open | Quick-add control next to Calories | Small, self-contained; live-feedback fix on `DailyEntryForm`, no domain model change |
 
 ---
 
