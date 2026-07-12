@@ -55,6 +55,8 @@ export function DailyEntryForm({
       <NumberInput
         label={t.dailyEntry.caloriesLabel}
         error={errors.caloriesConsumed?.message}
+        tooltip={t.dailyEntry.caloriesTooltip}
+        tooltipLabel={t.dailyEntry.caloriesTooltipLabel}
         {...register('caloriesConsumed', { setValueAs: parseNumberInput })}
       />
 

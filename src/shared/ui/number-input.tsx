@@ -2,6 +2,7 @@ import * as React from 'react'
 
 import { cn } from '@/shared/lib/utils'
 import { Input } from '@/shared/ui/input'
+import { InfoTooltip } from '@/shared/ui/info-tooltip'
 import { Label } from '@/shared/ui/label'
 
 export interface NumberInputProps extends Omit<
@@ -12,10 +13,25 @@ export interface NumberInputProps extends Omit<
   unit?: string
   error?: string
   hint?: string
+  tooltip?: string
+  tooltipLabel?: string
 }
 
 export const NumberInput = React.forwardRef<HTMLInputElement, NumberInputProps>(
-  ({ label, unit, error, hint, id, className, ...props }, ref) => {
+  (
+    {
+      label,
+      unit,
+      error,
+      hint,
+      tooltip,
+      tooltipLabel,
+      id,
+      className,
+      ...props
+    },
+    ref,
+  ) => {
     const generatedId = React.useId()
     const inputId = id ?? generatedId
     const hintId = hint ? `${inputId}-hint` : undefined
@@ -24,7 +40,12 @@ export const NumberInput = React.forwardRef<HTMLInputElement, NumberInputProps>(
 
     return (
       <div className="flex flex-col gap-1.5">
-        <Label htmlFor={inputId}>{label}</Label>
+        <div className="flex items-center gap-1.5">
+          <Label htmlFor={inputId}>{label}</Label>
+          {tooltip && (
+            <InfoTooltip text={tooltip} label={tooltipLabel ?? label} />
+          )}
+        </div>
         <div className="relative">
           <Input
             ref={ref}

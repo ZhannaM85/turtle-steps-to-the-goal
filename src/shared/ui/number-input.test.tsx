@@ -1,4 +1,5 @@
 import { render, screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { describe, expect, it } from 'vitest'
 import { NumberInput } from './number-input'
 
@@ -29,5 +30,27 @@ describe('NumberInput', () => {
       'id',
       describedBy,
     )
+  })
+
+  it('renders no info-tooltip trigger when tooltip is not passed', () => {
+    render(<NumberInput label="Weight" />)
+    expect(screen.queryByRole('button')).not.toBeInTheDocument()
+  })
+
+  it('renders and opens an info tooltip when tooltip is passed', async () => {
+    const user = userEvent.setup()
+    render(
+      <NumberInput
+        label="Calories"
+        tooltip="Explains the day-lag"
+        tooltipLabel="About calories"
+      />,
+    )
+
+    const trigger = screen.getByRole('button', { name: 'About calories' })
+    expect(trigger).toBeInTheDocument()
+
+    await user.click(trigger)
+    expect(await screen.findByText('Explains the day-lag')).toBeInTheDocument()
   })
 })

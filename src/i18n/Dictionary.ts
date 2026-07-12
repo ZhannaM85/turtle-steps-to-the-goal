@@ -26,6 +26,8 @@ export interface Dictionary {
   dailyEntry: {
     weightLabel: string
     caloriesLabel: string
+    caloriesTooltip: string
+    caloriesTooltipLabel: string
     noteLabel: string
     updateButton: string
     logButton: string
