@@ -4,20 +4,13 @@ import { kgToLb, type Goal } from '@/domain/goal'
 import { weeklySummaries } from '@/domain/stats'
 import {
   formatNumber,
+  formatSignedNumber,
   getDateFnsLocale,
   unitLabel,
   useLocale,
   useTranslation,
 } from '@/i18n'
 import { StatCard } from '@/shared/ui/stat-card'
-
-function formatSignedNumber(value: number, locale: 'en' | 'ru'): string {
-  return new Intl.NumberFormat(locale === 'ru' ? 'ru-RU' : 'en-US', {
-    signDisplay: 'exceptZero',
-    minimumFractionDigits: 1,
-    maximumFractionDigits: 1,
-  }).format(value)
-}
 
 export interface WeeklySummaryCardsProps {
   entries: DailyEntry[]

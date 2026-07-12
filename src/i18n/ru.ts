@@ -112,6 +112,22 @@ export const ru: Dictionary = {
   history: {
     title: 'История',
     description: 'Таблица всех прошлых записей — редактирование и удаление',
+    emptyTitle: 'Пока нет записей',
+    emptyDescription:
+      'Заполните несколько дней на экране «Сегодня», чтобы увидеть их здесь.',
+    dateColumn: 'Дата',
+    weightColumn: 'Вес',
+    caloriesColumn: 'Калории',
+    noteColumn: 'Заметка',
+    actionsColumn: 'Действия',
+    sortToggleLabel: 'Сортировать по дате',
+    editLabel: 'Редактировать запись',
+    deleteLabel: 'Удалить запись',
+    cancelButton: 'Отмена',
+    confirmDeleteLabel: 'Удалить эту запись?',
+    confirmDeleteYes: 'Удалить',
+    confirmDeleteNo: 'Отмена',
+    metTargetTitle: 'Недели, когда цель была достигнута',
   },
   settings: {
     title: 'Настройки',

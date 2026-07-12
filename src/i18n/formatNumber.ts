@@ -11,3 +11,12 @@ export function formatNumber(
     maximumFractionDigits: fractionDigits,
   }).format(value)
 }
+
+/** Same as formatNumber, but always shows an explicit +/- sign — for deltas. */
+export function formatSignedNumber(value: number, locale: Locale): string {
+  return new Intl.NumberFormat(locale === 'ru' ? 'ru-RU' : 'en-US', {
+    signDisplay: 'exceptZero',
+    minimumFractionDigits: 1,
+    maximumFractionDigits: 1,
+  }).format(value)
+}

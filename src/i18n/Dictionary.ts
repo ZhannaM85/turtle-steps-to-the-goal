@@ -89,6 +89,21 @@ export interface Dictionary {
   history: {
     title: string
     description: string
+    emptyTitle: string
+    emptyDescription: string
+    dateColumn: string
+    weightColumn: string
+    caloriesColumn: string
+    noteColumn: string
+    actionsColumn: string
+    sortToggleLabel: string
+    editLabel: string
+    deleteLabel: string
+    cancelButton: string
+    confirmDeleteLabel: string
+    confirmDeleteYes: string
+    confirmDeleteNo: string
+    metTargetTitle: string
   }
   settings: {
     title: string
