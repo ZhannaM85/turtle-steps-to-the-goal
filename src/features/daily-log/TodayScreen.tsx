@@ -1,8 +1,15 @@
 import { useEffect, useState } from 'react'
-import { format } from 'date-fns'
+import { format, parseISO } from 'date-fns'
 import { Link } from 'react-router-dom'
 import { kgToLb } from '@/domain/goal'
-import { formatNumber, unitLabel, useLocale, useTranslation } from '@/i18n'
+import {
+  formatNumber,
+  getDateFnsLocale,
+  unitLabel,
+  useLocale,
+  useTranslation,
+} from '@/i18n'
+import { useCurrentWeekInfo } from '@/shared/hooks'
 import { Button } from '@/shared/ui/button'
 import { EmptyState } from '@/shared/ui/empty-state'
 import { Input } from '@/shared/ui/input'
@@ -19,6 +26,7 @@ function todayIso() {
 export function TodayScreen() {
   const t = useTranslation()
   const locale = useLocale()
+  const dateFnsLocale = getDateFnsLocale(locale)
   const { goal, status: goalStatus, loadActiveGoal } = useGoalStore()
   const {
     entry,
@@ -27,6 +35,7 @@ export function TodayScreen() {
     saveEntry,
   } = useDailyEntryStore()
   const [date, setDate] = useState(todayIso)
+  const weekInfo = useCurrentWeekInfo()
 
   useEffect(() => {
     loadActiveGoal()
@@ -54,6 +63,19 @@ export function TodayScreen() {
           label={t.today.thisWeeksTarget}
           value={formatNumber(weeklyPace!, locale)}
           unit={t.today.toLose(unitLabel(displayUnit, t))}
+          description={
+            weekInfo
+              ? t.common.weekLabel(
+                  weekInfo.weekNumber,
+                  format(parseISO(weekInfo.weekStart), 'MMM d', {
+                    locale: dateFnsLocale,
+                  }),
+                  format(parseISO(weekInfo.weekEnd), 'MMM d', {
+                    locale: dateFnsLocale,
+                  }),
+                )
+              : undefined
+          }
         />
       ) : (
         <EmptyState

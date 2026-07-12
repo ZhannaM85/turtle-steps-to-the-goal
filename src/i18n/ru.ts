@@ -12,6 +12,8 @@ function entryCount(n: number): string {
 export const ru: Dictionary = {
   common: {
     loading: 'Загрузка…',
+    weekLabel: (weekNumber, start, end) =>
+      `Неделя ${weekNumber} · ${start} – ${end}`,
     kg: 'кг',
     lb: 'фунт',
   },

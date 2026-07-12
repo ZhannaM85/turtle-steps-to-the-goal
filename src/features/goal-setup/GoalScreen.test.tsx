@@ -21,11 +21,13 @@ function makeGoal(overrides: Partial<Goal> = {}): Goal {
 
 beforeEach(async () => {
   await db.goals.clear()
+  await db.dailyEntries.clear()
   useGoalStore.setState({ goal: null, status: 'idle', error: null })
 })
 
 afterEach(async () => {
   await db.goals.clear()
+  await db.dailyEntries.clear()
 })
 
 describe('GoalScreen', () => {
@@ -49,6 +51,14 @@ describe('GoalScreen', () => {
     expect(
       screen.getByLabelText("This week's target (kg to lose)"),
     ).toHaveValue('1')
+  })
+
+  it('shows Week 1 with no entries logged yet', async () => {
+    await useGoalStore.getState().saveGoal(makeGoal())
+
+    render(<GoalScreen />)
+
+    expect(await screen.findByText(/^Week 1 · /)).toBeInTheDocument()
   })
 
   it('persists an edit and updates the summary', async () => {

@@ -3,6 +3,7 @@ export interface Dictionary {
     loading: string
     kg: string
     lb: string
+    weekLabel: (weekNumber: number, start: string, end: string) => string
   }
   nav: {
     appName: string

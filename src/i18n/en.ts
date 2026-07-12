@@ -13,6 +13,8 @@ export const en: Dictionary = {
     loading: 'Loading…',
     kg: 'kg',
     lb: 'lb',
+    weekLabel: (weekNumber, start, end) =>
+      `Week ${weekNumber} · ${start} – ${end}`,
   },
   nav: {
     appName: 'Turtle Steps to the Goal',

@@ -80,6 +80,18 @@ describe('TodayScreen', () => {
     expect(screen.getByText('kg to lose')).toBeInTheDocument()
   })
 
+  it('shows Week 1 with no entries logged yet', async () => {
+    await useGoalStore.getState().saveGoal(makeGoal({ targetWeeklyLossKg: 1 }))
+
+    render(
+      <MemoryRouter>
+        <TodayScreen />
+      </MemoryRouter>,
+    )
+
+    expect(await screen.findByText(/^Week 1 · /)).toBeInTheDocument()
+  })
+
   it('defaults the date picker to today and shows a blank log form', async () => {
     render(
       <MemoryRouter>
