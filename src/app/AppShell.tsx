@@ -31,7 +31,7 @@ export function AppShell() {
 
   return (
     <div className="min-h-svh bg-background">
-      <header className="border-b border-border">
+      <header className="sticky top-0 z-10 border-b border-border bg-background">
         <div className="mx-auto flex max-w-3xl items-center justify-between gap-4 px-4 py-3">
           <span className="text-sm font-semibold text-foreground">
             {t.nav.appName}
