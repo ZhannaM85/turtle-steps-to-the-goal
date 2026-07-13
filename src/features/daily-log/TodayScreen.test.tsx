@@ -103,11 +103,11 @@ describe('TodayScreen', () => {
       format(new Date(), 'yyyy-MM-dd'),
     )
     expect(
-      await screen.findByRole('button', { name: 'Log entry' }),
+      await screen.findByRole('button', { name: 'Save weight' }),
     ).toBeInTheDocument()
   })
 
-  it("logs today's entry and persists it", async () => {
+  it("logs today's weight and persists it independently", async () => {
     const user = userEvent.setup()
     render(
       <MemoryRouter>
@@ -116,10 +116,10 @@ describe('TodayScreen', () => {
     )
 
     await user.type(await screen.findByLabelText('Weight (kg)'), '80')
-    await user.click(screen.getByRole('button', { name: 'Log entry' }))
+    await user.click(screen.getByRole('button', { name: 'Save weight' }))
 
     expect(
-      await screen.findByRole('button', { name: 'Update entry' }),
+      await screen.findByRole('button', { name: 'Edit weight' }),
     ).toBeInTheDocument()
     const today = format(new Date(), 'yyyy-MM-dd')
     const persisted = await db.dailyEntries.where('date').equals(today).first()
@@ -140,9 +140,9 @@ describe('TodayScreen', () => {
     fireEvent.change(dateInput, { target: { value: yesterday } })
 
     await user.type(await screen.findByLabelText('Weight (kg)'), '81')
-    await user.click(screen.getByRole('button', { name: 'Log entry' }))
+    await user.click(screen.getByRole('button', { name: 'Save weight' }))
 
-    await screen.findByRole('button', { name: 'Update entry' })
+    await screen.findByRole('button', { name: 'Edit weight' })
 
     const backfilled = await db.dailyEntries
       .where('date')
@@ -179,7 +179,7 @@ describe('TodayScreen', () => {
     expect(await screen.findByText('79.5 kg')).toBeInTheDocument()
     expect(screen.getByText('1,900')).toBeInTheDocument()
     expect(
-      screen.getByRole('button', { name: 'Update entry' }),
+      screen.getByRole('button', { name: 'Edit weight' }),
     ).toBeInTheDocument()
   })
 })

@@ -42,7 +42,7 @@ describe('EntryRow', () => {
     expect(screen.getAllByText('—')).not.toHaveLength(0)
   })
 
-  it('expands into the daily entry form on edit', async () => {
+  it('expands into the daily entry form on edit, weight already editable with its own Save button', async () => {
     const user = userEvent.setup()
     renderRow()
 
@@ -50,31 +50,38 @@ describe('EntryRow', () => {
 
     expect(screen.getByLabelText('Weight (kg)')).toHaveValue('80')
     expect(
-      screen.getByRole('button', { name: 'Update entry' }),
+      screen.getByRole('button', { name: 'Save weight' }),
     ).toBeInTheDocument()
   })
 
-  it('returns to view mode on cancel without saving', async () => {
+  it('returns to view mode on "Done" without requiring a separate save', async () => {
     const user = userEvent.setup()
     const onSaved = vi.fn()
     renderRow({ onSaved })
 
     await user.click(screen.getByRole('button', { name: 'Edit entry' }))
-    await user.click(screen.getByRole('button', { name: 'Cancel' }))
+    await user.click(screen.getByRole('button', { name: 'Done' }))
 
     expect(screen.queryByLabelText('Weight (kg)')).not.toBeInTheDocument()
     expect(onSaved).not.toHaveBeenCalled()
   })
 
-  it('calls onSaved after a successful edit submit', async () => {
+  it('calls onSaved as soon as a field is saved, without collapsing back to view mode', async () => {
     const user = userEvent.setup()
     const onSaved = vi.fn()
     renderRow({ onSaved })
 
     await user.click(screen.getByRole('button', { name: 'Edit entry' }))
-    await user.click(screen.getByRole('button', { name: 'Update entry' }))
+    const weightInput = screen.getByLabelText('Weight (kg)')
+    await user.clear(weightInput)
+    await user.type(weightInput, '79.5')
+    await user.click(screen.getByRole('button', { name: 'Save weight' }))
 
     expect(onSaved).toHaveBeenCalledTimes(1)
+    expect(onSaved.mock.calls[0][0].weightKg).toBe(79.5)
+    // Still in edit mode — saving one field doesn't exit the row, since the
+    // user might also want to add/edit a meal or the note in this session.
+    expect(screen.getByLabelText('Weight (kg)')).toBeInTheDocument()
   })
 
   it('requires a two-step confirm before deleting', async () => {

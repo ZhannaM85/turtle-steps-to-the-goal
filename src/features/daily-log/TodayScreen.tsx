@@ -108,7 +108,7 @@ export function TodayScreen() {
           key={date}
           date={date}
           existingEntry={entry}
-          onSubmit={saveEntry}
+          onSave={saveEntry}
         />
       )}
     </div>

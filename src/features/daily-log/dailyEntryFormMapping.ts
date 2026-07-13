@@ -15,16 +15,15 @@ export function entryToFormValues(
 export function formValuesToEntry(
   values: DailyEntryFormValues,
   date: string,
-  existingEntry: DailyEntry | null,
+  identity: { id: string; createdAt: string },
 ): DailyEntry {
-  const now = new Date().toISOString()
   return {
-    id: existingEntry?.id ?? crypto.randomUUID(),
+    id: identity.id,
     date,
     weightKg: values.weightKg,
     calorieEntries: values.calorieEntries,
     note: values.note,
-    createdAt: existingEntry?.createdAt ?? now,
-    updatedAt: now,
+    createdAt: identity.createdAt,
+    updatedAt: new Date().toISOString(),
   }
 }

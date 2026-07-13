@@ -35,11 +35,10 @@ export interface Dictionary {
     caloriesTodaySuffix: string
     kcalUnit: string
     noteLabel: string
-    updateButton: string
-    logButton: string
-    weightOrCaloriesRequired: string
     editWeightLabel: string
     editNoteLabel: string
+    saveWeightLabel: string
+    saveNoteLabel: string
     mealLabel: (n: number) => string
     editMealLabel: (n: number) => string
     deleteMealLabel: (n: number) => string
@@ -114,7 +113,7 @@ export interface Dictionary {
     sortToggleLabel: string
     editLabel: string
     deleteLabel: string
-    cancelButton: string
+    doneEditingButton: string
     confirmDeleteLabel: string
     confirmDeleteYes: string
     confirmDeleteNo: string

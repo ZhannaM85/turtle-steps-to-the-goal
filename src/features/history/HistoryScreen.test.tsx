@@ -84,7 +84,10 @@ describe('HistoryScreen', () => {
     const weightInput = screen.getByLabelText('Weight (kg)')
     await user.clear(weightInput)
     await user.type(weightInput, '79.5')
-    await user.click(screen.getByRole('button', { name: 'Update entry' }))
+    await user.click(screen.getByRole('button', { name: 'Save weight' }))
+    // Saving a field no longer exits edit mode by itself (you might still
+    // want to add a meal or edit the note) — "Done" closes the row.
+    await user.click(screen.getByRole('button', { name: 'Done' }))
 
     expect(await screen.findByText('79.5 kg')).toBeInTheDocument()
     const persisted = await db.dailyEntries.get(entry.id)

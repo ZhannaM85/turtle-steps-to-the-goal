@@ -35,34 +35,34 @@ describe('entryToFormValues', () => {
 })
 
 describe('formValuesToEntry', () => {
-  it('creates a new entry with a fresh id for a date with no existing entry', () => {
+  it('builds an entry using the given identity', () => {
     const entry = formValuesToEntry(
       { weightKg: 80, calorieEntries },
       '2026-03-01',
-      null,
+      { id: 'entry-1', createdAt: '2026-03-01T00:00:00.000Z' },
     )
 
-    expect(entry.id).toBeTruthy()
+    expect(entry.id).toBe('entry-1')
     expect(entry.date).toBe('2026-03-01')
     expect(entry.weightKg).toBe(80)
     expect(entry.calorieEntries).toEqual(calorieEntries)
+    expect(entry.createdAt).toBe('2026-03-01T00:00:00.000Z')
   })
 
-  it('preserves id and createdAt when editing an existing entry', () => {
-    const existing = makeEntry({ id: 'existing-id' })
-    const entry = formValuesToEntry(
-      { weightKg: 79, calorieEntries },
-      '2026-03-01',
-      existing,
-    )
+  it('always stamps a fresh updatedAt', () => {
+    const entry = formValuesToEntry({ weightKg: 79 }, '2026-03-01', {
+      id: 'entry-1',
+      createdAt: '2026-03-01T00:00:00.000Z',
+    })
 
-    expect(entry.id).toBe('existing-id')
-    expect(entry.createdAt).toBe(existing.createdAt)
-    expect(entry.weightKg).toBe(79)
+    expect(() => new Date(entry.updatedAt).toISOString()).not.toThrow()
   })
 
-  it('allows either field to be omitted (partial daily entries)', () => {
-    const entry = formValuesToEntry({ weightKg: 80 }, '2026-03-01', null)
+  it('allows fields to be omitted (partial daily entries)', () => {
+    const entry = formValuesToEntry({ weightKg: 80 }, '2026-03-01', {
+      id: 'entry-1',
+      createdAt: '2026-03-01T00:00:00.000Z',
+    })
 
     expect(entry.weightKg).toBe(80)
     expect(entry.calorieEntries).toBeUndefined()

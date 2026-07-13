@@ -1,5 +1,4 @@
 import { useMemo, useState } from 'react'
-import { zodResolver } from '@hookform/resolvers/zod'
 import {
   Check,
   Frown,
@@ -23,18 +22,20 @@ import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/ui/button'
 import { InfoTooltip } from '@/shared/ui/info-tooltip'
 import { Input } from '@/shared/ui/input'
-import { NumberInput } from '@/shared/ui/number-input'
-import { TextField } from '@/shared/ui/text-field'
 import { entryToFormValues, formValuesToEntry } from './dailyEntryFormMapping'
 import {
-  makeDailyEntryFormSchema,
+  noteSchema,
+  weightSchema,
   type DailyEntryFormValues,
 } from './dailyEntryFormSchema'
 
 export interface DailyEntryFormProps {
   date: string
   existingEntry: DailyEntry | null
-  onSubmit: (entry: DailyEntry) => void
+  /** Called every time an individual field or meal is saved — there is no
+   * single whole-form submit anymore (#31). May fire many times per
+   * session: once per weight save, note save, meal add/edit/delete. */
+  onSave: (entry: DailyEntry) => void
   /**
    * Skips the read-only-display-until-pencil-clicked treatment for Weight
    * and Note, rendering them as plain always-editable inputs instead. Used
@@ -94,12 +95,25 @@ function EmotionPicker({
 export function DailyEntryForm({
   date,
   existingEntry,
-  onSubmit,
+  onSave,
   alwaysEditable = false,
 }: DailyEntryFormProps) {
   const t = useTranslation()
   const locale = useLocale()
-  const schema = useMemo(() => makeDailyEntryFormSchema(t), [t])
+  // A stable identity for this day's entry, reused across every independent
+  // save in this session (weight, note, each meal) so they all update the
+  // same record instead of each save inventing a new id. Computed once —
+  // existingEntry won't reactively reflect earlier saves made in this same
+  // session, since the parent doesn't necessarily re-pass a fresh prop
+  // after every one of potentially many saves.
+  const entryIdentity = useMemo(
+    () => ({
+      id: existingEntry?.id ?? crypto.randomUUID(),
+      createdAt: existingEntry?.createdAt ?? new Date().toISOString(),
+    }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [],
+  )
   const initialValues = useMemo(
     () => entryToFormValues(existingEntry),
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -112,7 +126,8 @@ export function DailyEntryForm({
   // display + pencil. Deliberately NOT derived from the live watched value —
   // that would flip to display mode mid-keystroke on every first character
   // typed into a blank field. Starts editable only when there's nothing
-  // saved yet; a pencil click or clearing the field re-opens it explicitly.
+  // saved yet; a pencil click re-opens it explicitly, a successful save
+  // collapses it back.
   const [isEditingWeight, setIsEditingWeight] = useState(
     alwaysEditable || initialValues.weightKg === undefined,
   )
@@ -131,12 +146,13 @@ export function DailyEntryForm({
 
   const {
     register,
-    handleSubmit,
+    getValues,
     setValue,
     watch,
+    setError,
+    clearErrors,
     formState: { errors },
   } = useForm<DailyEntryFormValues>({
-    resolver: zodResolver(schema),
     defaultValues: initialValues,
   })
 
@@ -147,17 +163,35 @@ export function DailyEntryForm({
   const showWeightAsDisplay = !alwaysEditable && !isEditingWeight
   const showNoteAsDisplay = !alwaysEditable && !isEditingNote
 
-  function submit(values: DailyEntryFormValues) {
-    onSubmit(formValuesToEntry(values, date, existingEntry))
-    setIsEditingWeight(values.weightKg === undefined)
-    setIsEditingNote(!values.note)
+  function persist(values: DailyEntryFormValues) {
+    onSave(formValuesToEntry(values, date, entryIdentity))
+  }
+
+  function saveWeight() {
+    const result = weightSchema.safeParse(getValues('weightKg'))
+    if (!result.success) {
+      setError('weightKg', { message: result.error.issues[0].message })
+      return
+    }
+    clearErrors('weightKg')
+    setIsEditingWeight(false)
+    persist(getValues())
+  }
+
+  function saveNote() {
+    const result = noteSchema.safeParse(getValues('note'))
+    if (!result.success) {
+      setError('note', { message: result.error.issues[0].message })
+      return
+    }
+    clearErrors('note')
+    setIsEditingNote(false)
+    persist(getValues())
   }
 
   function setCalorieEntries(next: CalorieEntry[]) {
-    setValue('calorieEntries', next, {
-      shouldValidate: true,
-      shouldDirty: true,
-    })
+    setValue('calorieEntries', next, { shouldDirty: true })
+    persist({ ...getValues(), calorieEntries: next })
   }
 
   function addCalories() {
@@ -212,11 +246,7 @@ export function DailyEntryForm({
   }
 
   return (
-    <form
-      onSubmit={handleSubmit(submit)}
-      className="flex flex-col gap-4"
-      noValidate
-    >
+    <form onSubmit={(e) => e.preventDefault()} className="flex flex-col gap-4">
       {showWeightAsDisplay ? (
         <div className="flex flex-col gap-1.5">
           <span className="text-sm font-medium">
@@ -238,11 +268,41 @@ export function DailyEntryForm({
           </div>
         </div>
       ) : (
-        <NumberInput
-          label={t.dailyEntry.weightLabel}
-          error={errors.weightKg?.message}
-          {...register('weightKg', { setValueAs: parseNumberInput })}
-        />
+        <div className="flex flex-col gap-1.5">
+          <span className="text-sm font-medium">
+            {t.dailyEntry.weightLabel}
+          </span>
+          <div className="flex items-center gap-2">
+            <Input
+              type="text"
+              inputMode="decimal"
+              aria-label={t.dailyEntry.weightLabel}
+              aria-invalid={errors.weightKg ? true : undefined}
+              className="h-8 flex-1"
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault()
+                  saveWeight()
+                }
+              }}
+              {...register('weightKg', { setValueAs: parseNumberInput })}
+            />
+            <Button
+              type="button"
+              variant="outline"
+              size="icon-sm"
+              aria-label={t.dailyEntry.saveWeightLabel}
+              onClick={saveWeight}
+            >
+              <Check aria-hidden="true" />
+            </Button>
+          </div>
+          {errors.weightKg && (
+            <p className="text-sm text-destructive">
+              {errors.weightKg.message}
+            </p>
+          )}
+        </div>
       )}
 
       <div className="flex flex-col gap-1.5">
@@ -472,16 +532,37 @@ export function DailyEntryForm({
           </div>
         </div>
       ) : (
-        <TextField
-          label={t.dailyEntry.noteLabel}
-          error={errors.note?.message}
-          {...register('note')}
-        />
+        <div className="flex flex-col gap-1.5">
+          <span className="text-sm font-medium">{t.dailyEntry.noteLabel}</span>
+          <div className="flex items-center gap-2">
+            <Input
+              type="text"
+              aria-label={t.dailyEntry.noteLabel}
+              aria-invalid={errors.note ? true : undefined}
+              className="h-8 flex-1"
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault()
+                  saveNote()
+                }
+              }}
+              {...register('note')}
+            />
+            <Button
+              type="button"
+              variant="outline"
+              size="icon-sm"
+              aria-label={t.dailyEntry.saveNoteLabel}
+              onClick={saveNote}
+            >
+              <Check aria-hidden="true" />
+            </Button>
+          </div>
+          {errors.note && (
+            <p className="text-sm text-destructive">{errors.note.message}</p>
+          )}
+        </div>
       )}
-
-      <Button type="submit" className="self-start">
-        {existingEntry ? t.dailyEntry.updateButton : t.dailyEntry.logButton}
-      </Button>
     </form>
   )
 }

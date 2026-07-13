@@ -47,10 +47,7 @@ export function EntryRow({ entry, goal, onSaved, onDeleted }: EntryRowProps) {
             date={entry.date}
             existingEntry={entry}
             alwaysEditable
-            onSubmit={(saved) => {
-              setMode('view')
-              onSaved(saved)
-            }}
+            onSave={onSaved}
           />
           <Button
             variant="ghost"
@@ -58,7 +55,7 @@ export function EntryRow({ entry, goal, onSaved, onDeleted }: EntryRowProps) {
             className="mt-2"
             onClick={() => setMode('view')}
           >
-            {t.history.cancelButton}
+            {t.history.doneEditingButton}
           </Button>
         </td>
       </tr>
