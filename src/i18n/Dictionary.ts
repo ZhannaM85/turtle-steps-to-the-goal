@@ -44,6 +44,9 @@ export interface Dictionary {
     editMealLabel: (n: number) => string
     deleteMealLabel: (n: number) => string
     saveButton: string
+    mealNoteLabel: string
+    mealNotePlaceholder: string
+    emotionLabel: (emotion: 'happy' | 'unhappy' | 'neutral') => string
   }
   goal: {
     title: string

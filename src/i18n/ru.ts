@@ -58,6 +58,14 @@ export const ru: Dictionary = {
     editMealLabel: (n) => `Изменить приём пищи ${n}`,
     deleteMealLabel: (n) => `Удалить приём пищи ${n}`,
     saveButton: 'Сохранить',
+    mealNoteLabel: 'Заметка о приёме пищи',
+    mealNotePlaceholder: 'Заметка (необязательно)',
+    emotionLabel: (emotion) =>
+      emotion === 'happy'
+        ? 'Радостно'
+        : emotion === 'unhappy'
+          ? 'Грустно'
+          : 'Нейтрально',
   },
   goal: {
     title: 'Цель',

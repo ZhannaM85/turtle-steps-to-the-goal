@@ -1,6 +1,10 @@
+export type Emotion = 'happy' | 'unhappy' | 'neutral'
+
 export interface CalorieEntry {
   id: string
   amountKcal: number
+  note?: string
+  emotion?: Emotion
   createdAt: string
 }
 

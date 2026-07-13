@@ -57,6 +57,14 @@ export const en: Dictionary = {
     editMealLabel: (n) => `Edit meal ${n}`,
     deleteMealLabel: (n) => `Delete meal ${n}`,
     saveButton: 'Save',
+    mealNoteLabel: 'Meal note',
+    mealNotePlaceholder: 'Note (optional)',
+    emotionLabel: (emotion) =>
+      emotion === 'happy'
+        ? 'Happy'
+        : emotion === 'unhappy'
+          ? 'Unhappy'
+          : 'Neutral',
   },
   goal: {
     title: 'Goal',

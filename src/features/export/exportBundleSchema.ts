@@ -8,9 +8,13 @@ const goalSchema = z.object({
   updatedAt: z.string(),
 })
 
+const emotionSchema = z.enum(['happy', 'unhappy', 'neutral'])
+
 const calorieEntrySchema = z.object({
   id: z.string(),
   amountKcal: z.number(),
+  note: z.string().optional(),
+  emotion: emotionSchema.optional(),
   createdAt: z.string(),
 })
 

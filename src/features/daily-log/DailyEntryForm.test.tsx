@@ -301,6 +301,118 @@ describe('DailyEntryForm', () => {
     })
   })
 
+  describe('per-meal notes and emotion', () => {
+    it('logs a note and an emotion together with the amount in one Add action', async () => {
+      const user = userEvent.setup()
+      render(
+        <DailyEntryForm
+          date="2026-03-01"
+          existingEntry={null}
+          onSubmit={vi.fn()}
+        />,
+      )
+
+      await user.type(screen.getByLabelText('Add calories'), '200')
+      await user.type(
+        screen.getByLabelText('Meal note'),
+        'Ate chocolates, they were good.',
+      )
+      await user.click(screen.getByRole('button', { name: 'Happy' }))
+      await user.click(screen.getByRole('button', { name: 'Add' }))
+
+      expect(screen.getByText('Meal 1 — 200 kcal')).toBeInTheDocument()
+      expect(
+        screen.getByText('Ate chocolates, they were good.'),
+      ).toBeInTheDocument()
+      // Add-flow fields reset for the next entry.
+      expect(screen.getByLabelText('Meal note')).toHaveValue('')
+    })
+
+    it('toggles an emotion selection off when clicked again', async () => {
+      const user = userEvent.setup()
+      render(
+        <DailyEntryForm
+          date="2026-03-01"
+          existingEntry={null}
+          onSubmit={vi.fn()}
+        />,
+      )
+
+      const happyButton = screen.getByRole('button', { name: 'Happy' })
+      await user.click(happyButton)
+      expect(happyButton).toHaveAttribute('aria-pressed', 'true')
+
+      await user.click(happyButton)
+      expect(happyButton).toHaveAttribute('aria-pressed', 'false')
+
+      await user.type(screen.getByLabelText('Add calories'), '150')
+      await user.click(screen.getByRole('button', { name: 'Add' }))
+
+      expect(screen.getByText('Meal 1 — 150 kcal')).toBeInTheDocument()
+      // No emotion icon rendered — its sr-only label text shouldn't exist.
+      expect(screen.queryByText('Happy')).not.toBeInTheDocument()
+    })
+
+    it('shows the note text and emotion icon on the resting row', () => {
+      render(
+        <DailyEntryForm
+          date="2026-03-01"
+          existingEntry={{
+            id: 'e1',
+            date: '2026-03-01',
+            calorieEntries: [
+              {
+                id: 'c1',
+                amountKcal: 1000,
+                note: 'Ate burgers and I hate myself.',
+                emotion: 'unhappy',
+                createdAt: now,
+              },
+            ],
+            createdAt: now,
+            updatedAt: now,
+          }}
+          onSubmit={vi.fn()}
+        />,
+      )
+
+      expect(screen.getByText('Meal 1 — 1,000 kcal')).toBeInTheDocument()
+      expect(
+        screen.getByText('Ate burgers and I hate myself.'),
+      ).toBeInTheDocument()
+      expect(screen.getByText('Unhappy')).toBeInTheDocument() // sr-only icon label
+    })
+
+    it("edits a meal's note and emotion via the pencil", async () => {
+      const user = userEvent.setup()
+      render(
+        <DailyEntryForm
+          date="2026-03-01"
+          existingEntry={{
+            id: 'e1',
+            date: '2026-03-01',
+            calorieEntries: [calories(300, 'c1')],
+            createdAt: now,
+            updatedAt: now,
+          }}
+          onSubmit={vi.fn()}
+        />,
+      )
+
+      await user.click(screen.getByRole('button', { name: 'Edit meal 1' }))
+      await user.type(
+        screen.getByLabelText('Meal note — Meal 1'),
+        'Ate a salad, it was good.',
+      )
+      await user.click(screen.getByRole('button', { name: 'Happy — Meal 1' }))
+      await user.click(screen.getByRole('button', { name: 'Save' }))
+
+      expect(screen.getByText('Meal 1 — 300 kcal')).toBeInTheDocument()
+      expect(screen.getByText('Ate a salad, it was good.')).toBeInTheDocument()
+      expect(screen.getByText('Happy')).toBeInTheDocument()
+    })
+  })
+
   describe('read-only display + pencil-to-edit for Weight and Note', () => {
     it('shows weight and note as read-only text with a pencil once they have a saved value', () => {
       render(
