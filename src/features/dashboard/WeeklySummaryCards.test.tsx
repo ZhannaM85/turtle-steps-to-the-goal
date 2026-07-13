@@ -90,6 +90,47 @@ describe('WeeklySummaryCards', () => {
     expect(screen.getByText(/target met/)).toBeInTheDocument()
   })
 
+  it("renders a loss week with the card's full bold treatment", () => {
+    const week2Start = dayOf(WEEK_1_START, 7)
+    const entries = [
+      entry(dayOf(WEEK_1_START, 0), { weightKg: 82 }),
+      entry(dayOf(week2Start, 0), { weightKg: 80 }),
+    ]
+    render(<WeeklySummaryCards entries={entries} goal={null} />)
+
+    expect(screen.getByText('-2.0')).toHaveClass('text-4xl', 'font-semibold')
+  })
+
+  it('renders a gain week visually quieter, not a giant stark plus sign', () => {
+    const week2Start = dayOf(WEEK_1_START, 7)
+    const entries = [
+      entry(dayOf(WEEK_1_START, 0), { weightKg: 80 }),
+      entry(dayOf(week2Start, 0), { weightKg: 80.6 }),
+    ]
+    render(<WeeklySummaryCards entries={entries} goal={null} />)
+
+    expect(screen.getByText('+0.6')).toHaveClass(
+      'text-2xl',
+      'font-normal',
+      'text-muted-foreground',
+    )
+  })
+
+  it('renders a no-change week with the same quiet treatment as a gain', () => {
+    const week2Start = dayOf(WEEK_1_START, 7)
+    const entries = [
+      entry(dayOf(WEEK_1_START, 0), { weightKg: 80 }),
+      entry(dayOf(week2Start, 0), { weightKg: 80 }),
+    ]
+    render(<WeeklySummaryCards entries={entries} goal={null} />)
+
+    expect(screen.getByText('0.0')).toHaveClass(
+      'text-2xl',
+      'font-normal',
+      'text-muted-foreground',
+    )
+  })
+
   it('does not show a target-met note for a week that missed target', () => {
     const week2Start = dayOf(WEEK_1_START, 7)
     const entries = [

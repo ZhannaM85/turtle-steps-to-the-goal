@@ -43,10 +43,24 @@ export function WeeklySummaryCards({ entries, goal }: WeeklySummaryCardsProps) {
             }),
             format(parseISO(week.weekEnd), 'MMM d', { locale: dateFnsLocale }),
           )
+          const delta = week.deltaVsPriorWeekKg
+          const deltaText =
+            delta === null ? null : formatSignedNumber(toDisplay(delta), locale)
+          const isLoss = delta !== null && delta < 0
+          // A loss gets the card's full bold treatment — something worth
+          // noticing. A gain (or no change) stays factual but visually
+          // quieter, rather than a giant stark "+" reading like a graded
+          // failure (nothing is hidden, just de-emphasized).
           const value =
-            week.deltaVsPriorWeekKg === null
-              ? '—'
-              : formatSignedNumber(toDisplay(week.deltaVsPriorWeekKg), locale)
+            deltaText === null ? (
+              '—'
+            ) : isLoss ? (
+              deltaText
+            ) : (
+              <span className="text-2xl font-normal text-muted-foreground">
+                {deltaText}
+              </span>
+            )
 
           const descriptionParts: string[] = []
           if (week.averageCalories !== null) {
@@ -63,7 +77,7 @@ export function WeeklySummaryCards({ entries, goal }: WeeklySummaryCardsProps) {
               key={week.weekStart}
               label={rangeLabel}
               value={value}
-              unit={week.deltaVsPriorWeekKg === null ? undefined : unit}
+              unit={delta === null ? undefined : unit}
               description={
                 descriptionParts.length > 0
                   ? descriptionParts.join(' · ')
