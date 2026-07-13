@@ -101,7 +101,7 @@ describe('WeeklySummaryCards', () => {
     expect(screen.getByText('-2.0')).toHaveClass('text-4xl', 'font-semibold')
   })
 
-  it('renders a gain week visually quieter, not a giant stark plus sign', () => {
+  it('renders a gain week visually quieter, with no explicit plus sign', () => {
     const week2Start = dayOf(WEEK_1_START, 7)
     const entries = [
       entry(dayOf(WEEK_1_START, 0), { weightKg: 80 }),
@@ -109,7 +109,8 @@ describe('WeeklySummaryCards', () => {
     ]
     render(<WeeklySummaryCards entries={entries} goal={null} />)
 
-    expect(screen.getByText('+0.6')).toHaveClass(
+    expect(screen.queryByText('+0.6')).not.toBeInTheDocument()
+    expect(screen.getByText('0.6')).toHaveClass(
       'text-2xl',
       'font-normal',
       'text-muted-foreground',

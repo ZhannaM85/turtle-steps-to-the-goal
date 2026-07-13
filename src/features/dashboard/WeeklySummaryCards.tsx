@@ -4,7 +4,6 @@ import { kgToLb, type Goal } from '@/domain/goal'
 import { weeklySummaries } from '@/domain/stats'
 import {
   formatNumber,
-  formatSignedNumber,
   getDateFnsLocale,
   unitLabel,
   useLocale,
@@ -44,8 +43,13 @@ export function WeeklySummaryCards({ entries, goal }: WeeklySummaryCardsProps) {
             format(parseISO(week.weekEnd), 'MMM d', { locale: dateFnsLocale }),
           )
           const delta = week.deltaVsPriorWeekKg
+          // formatNumber (not formatSignedNumber): a loss should still show
+          // its minus sign, but a gain shouldn't get an explicit "+" - just
+          // the plain value. Intl.NumberFormat's default sign display
+          // already does exactly that (minus for negative, nothing for
+          // positive/zero), no extra conditional needed.
           const deltaText =
-            delta === null ? null : formatSignedNumber(toDisplay(delta), locale)
+            delta === null ? null : formatNumber(toDisplay(delta), locale)
           const isLoss = delta !== null && delta < 0
           // A loss gets the card's full bold treatment — something worth
           // noticing. A gain (or no change) stays factual but visually
