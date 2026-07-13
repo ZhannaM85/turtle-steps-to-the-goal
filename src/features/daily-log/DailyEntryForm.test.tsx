@@ -88,7 +88,7 @@ describe('DailyEntryForm', () => {
     )
 
     expect(screen.getByLabelText('Weight (kg)')).toHaveValue('80')
-    expect(screen.getByLabelText('Calories')).toHaveValue('2000')
+    expect(screen.getByText('2,000')).toBeInTheDocument()
     expect(
       screen.getByRole('button', { name: 'Update entry' }),
     ).toBeInTheDocument()
@@ -112,7 +112,21 @@ describe('DailyEntryForm', () => {
     expect(onSubmit.mock.calls[0][0].weightKg).toBe(79.5)
   })
 
-  it('adds to an empty calories field via the quick-add control', async () => {
+  it('has no direct-entry calories field — only the Add control', () => {
+    render(
+      <DailyEntryForm
+        date="2026-03-01"
+        existingEntry={null}
+        onSubmit={vi.fn()}
+      />,
+    )
+
+    expect(screen.queryByLabelText('Calories')).not.toBeInTheDocument()
+    expect(screen.getByText('0')).toBeInTheDocument()
+    expect(screen.getByText('kcal today')).toBeInTheDocument()
+  })
+
+  it('adds to an empty calories total via the quick-add control', async () => {
     const user = userEvent.setup()
     render(
       <DailyEntryForm
@@ -125,7 +139,7 @@ describe('DailyEntryForm', () => {
     await user.type(screen.getByLabelText('Add calories'), '200')
     await user.click(screen.getByRole('button', { name: 'Add' }))
 
-    expect(screen.getByLabelText('Calories')).toHaveValue('200')
+    expect(screen.getByText('200')).toBeInTheDocument()
     expect(screen.getByLabelText('Add calories')).toHaveValue('')
   })
 
@@ -147,11 +161,11 @@ describe('DailyEntryForm', () => {
 
     await user.type(screen.getByLabelText('Add calories'), '200')
     await user.click(screen.getByRole('button', { name: 'Add' }))
-    expect(screen.getByLabelText('Calories')).toHaveValue('600')
+    expect(screen.getByText('600')).toBeInTheDocument()
 
     await user.type(screen.getByLabelText('Add calories'), '150')
     await user.keyboard('{Enter}')
-    expect(screen.getByLabelText('Calories')).toHaveValue('750')
+    expect(screen.getByText('750')).toBeInTheDocument()
   })
 
   it('ignores a quick-add of zero or an empty amount', async () => {
@@ -165,11 +179,11 @@ describe('DailyEntryForm', () => {
     )
 
     await user.click(screen.getByRole('button', { name: 'Add' }))
-    expect(screen.getByLabelText('Calories')).toHaveValue('')
+    expect(screen.getByText('0')).toBeInTheDocument()
 
     await user.type(screen.getByLabelText('Add calories'), '0')
     await user.click(screen.getByRole('button', { name: 'Add' }))
-    expect(screen.getByLabelText('Calories')).toHaveValue('')
+    expect(screen.getByText('0')).toBeInTheDocument()
   })
 
   it('does not submit the form when pressing Enter in the quick-add field', async () => {
@@ -187,6 +201,53 @@ describe('DailyEntryForm', () => {
     await user.keyboard('{Enter}')
 
     expect(onSubmit).not.toHaveBeenCalled()
-    expect(screen.getByLabelText('Calories')).toHaveValue('200')
+    expect(screen.getByText('200')).toBeInTheDocument()
+  })
+
+  it('shows an Undo last add button only after an add, and it reverts the total', async () => {
+    const user = userEvent.setup()
+    render(
+      <DailyEntryForm
+        date="2026-03-01"
+        existingEntry={null}
+        onSubmit={vi.fn()}
+      />,
+    )
+
+    expect(
+      screen.queryByRole('button', { name: 'Undo last add' }),
+    ).not.toBeInTheDocument()
+
+    await user.type(screen.getByLabelText('Add calories'), '200')
+    await user.click(screen.getByRole('button', { name: 'Add' }))
+    expect(screen.getByText('200')).toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: 'Undo last add' }))
+
+    expect(screen.getByText('0')).toBeInTheDocument()
+    expect(
+      screen.queryByRole('button', { name: 'Undo last add' }),
+    ).not.toBeInTheDocument()
+  })
+
+  it('only undoes the most recent add, not earlier ones', async () => {
+    const user = userEvent.setup()
+    render(
+      <DailyEntryForm
+        date="2026-03-01"
+        existingEntry={null}
+        onSubmit={vi.fn()}
+      />,
+    )
+
+    await user.type(screen.getByLabelText('Add calories'), '200')
+    await user.click(screen.getByRole('button', { name: 'Add' }))
+    await user.type(screen.getByLabelText('Add calories'), '150')
+    await user.click(screen.getByRole('button', { name: 'Add' }))
+    expect(screen.getByText('350')).toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: 'Undo last add' }))
+
+    expect(screen.getByText('200')).toBeInTheDocument()
   })
 })

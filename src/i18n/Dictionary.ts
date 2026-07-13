@@ -32,6 +32,8 @@ export interface Dictionary {
     addCaloriesLabel: string
     addCaloriesPlaceholder: string
     addButton: string
+    caloriesTodaySuffix: string
+    undoLastAddButton: string
     noteLabel: string
     updateButton: string
     logButton: string

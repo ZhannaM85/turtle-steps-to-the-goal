@@ -2,9 +2,10 @@ import { useMemo, useState } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import type { DailyEntry } from '@/domain/dailyEntry'
-import { useTranslation } from '@/i18n'
+import { formatNumber, useLocale, useTranslation } from '@/i18n'
 import { parseNumberInput } from '@/shared/lib/parseNumberInput'
 import { Button } from '@/shared/ui/button'
+import { InfoTooltip } from '@/shared/ui/info-tooltip'
 import { Input } from '@/shared/ui/input'
 import { NumberInput } from '@/shared/ui/number-input'
 import { TextField } from '@/shared/ui/text-field'
@@ -26,19 +27,24 @@ export function DailyEntryForm({
   onSubmit,
 }: DailyEntryFormProps) {
   const t = useTranslation()
+  const locale = useLocale()
   const schema = useMemo(() => makeDailyEntryFormSchema(t), [t])
   const [addAmount, setAddAmount] = useState('')
+  const [lastAdded, setLastAdded] = useState<number | null>(null)
 
   const {
     register,
     handleSubmit,
     setValue,
     getValues,
+    watch,
     formState: { errors },
   } = useForm<DailyEntryFormValues>({
     resolver: zodResolver(schema),
     defaultValues: entryToFormValues(existingEntry),
   })
+
+  const caloriesConsumed = watch('caloriesConsumed')
 
   function submit(values: DailyEntryFormValues) {
     onSubmit(formValuesToEntry(values, date, existingEntry))
@@ -52,7 +58,19 @@ export function DailyEntryForm({
       shouldValidate: true,
       shouldDirty: true,
     })
+    setLastAdded(increment)
     setAddAmount('')
+  }
+
+  function undoLastAdd() {
+    if (lastAdded === null) return
+    const current = getValues('caloriesConsumed') ?? 0
+    const next = current - lastAdded
+    setValue('caloriesConsumed', next > 0 ? next : undefined, {
+      shouldValidate: true,
+      shouldDirty: true,
+    })
+    setLastAdded(null)
   }
 
   return (
@@ -68,13 +86,40 @@ export function DailyEntryForm({
       />
 
       <div className="flex flex-col gap-1.5">
-        <NumberInput
-          label={t.dailyEntry.caloriesLabel}
-          error={errors.caloriesConsumed?.message}
-          tooltip={t.dailyEntry.caloriesTooltip}
-          tooltipLabel={t.dailyEntry.caloriesTooltipLabel}
-          {...register('caloriesConsumed', { setValueAs: parseNumberInput })}
-        />
+        <div className="flex items-center gap-1.5">
+          <span className="text-sm font-medium">
+            {t.dailyEntry.caloriesLabel}
+          </span>
+          <InfoTooltip
+            text={t.dailyEntry.caloriesTooltip}
+            label={t.dailyEntry.caloriesTooltipLabel}
+          />
+        </div>
+        <div className="flex items-center justify-between rounded-lg bg-muted px-3 py-2">
+          <span className="flex items-baseline gap-1.5" aria-live="polite">
+            <span className="text-3xl font-semibold tabular-nums text-foreground">
+              {formatNumber(caloriesConsumed ?? 0, locale, 0)}
+            </span>
+            <span className="text-sm text-muted-foreground">
+              {t.dailyEntry.caloriesTodaySuffix}
+            </span>
+          </span>
+          {lastAdded !== null && (
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={undoLastAdd}
+            >
+              {t.dailyEntry.undoLastAddButton}
+            </Button>
+          )}
+        </div>
+        {errors.caloriesConsumed && (
+          <p className="text-sm text-destructive">
+            {errors.caloriesConsumed.message}
+          </p>
+        )}
         <div className="flex items-center gap-2">
           <Input
             type="text"

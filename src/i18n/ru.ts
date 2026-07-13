@@ -46,6 +46,8 @@ export const ru: Dictionary = {
     addCaloriesLabel: 'Добавить калории',
     addCaloriesPlaceholder: '+ ккал',
     addButton: 'Добавить',
+    caloriesTodaySuffix: 'ккал сегодня',
+    undoLastAddButton: 'Отменить последнее добавление',
     noteLabel: 'Заметка (необязательно)',
     updateButton: 'Обновить запись',
     logButton: 'Сохранить запись',

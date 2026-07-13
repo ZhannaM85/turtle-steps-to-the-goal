@@ -45,6 +45,8 @@ export const en: Dictionary = {
     addCaloriesLabel: 'Add calories',
     addCaloriesPlaceholder: '+ kcal',
     addButton: 'Add',
+    caloriesTodaySuffix: 'kcal today',
+    undoLastAddButton: 'Undo last add',
     noteLabel: 'Note (optional)',
     updateButton: 'Update entry',
     logButton: 'Log entry',

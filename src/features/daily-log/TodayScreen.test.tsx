@@ -168,7 +168,7 @@ describe('TodayScreen', () => {
     )
 
     expect(await screen.findByLabelText('Weight (kg)')).toHaveValue('79.5')
-    expect(screen.getByLabelText('Calories')).toHaveValue('1900')
+    expect(screen.getByText('1,900')).toBeInTheDocument()
     expect(
       screen.getByRole('button', { name: 'Update entry' }),
     ).toBeInTheDocument()
