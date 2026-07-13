@@ -1,15 +1,22 @@
 import { z } from 'zod'
 import type { Dictionary } from '@/i18n'
 
+const calorieEntrySchema = z.object({
+  id: z.string(),
+  amountKcal: z.number().positive().max(10000),
+  createdAt: z.string(),
+})
+
 export function makeDailyEntryFormSchema(t: Dictionary) {
   return z
     .object({
       weightKg: z.number().min(20).max(400).optional(),
-      caloriesConsumed: z.number().min(0).max(10000).optional(),
+      calorieEntries: z.array(calorieEntrySchema).optional(),
       note: z.string().max(500).optional(),
     })
     .superRefine((data, ctx) => {
-      if (data.weightKg === undefined && data.caloriesConsumed === undefined) {
+      const hasCalories = (data.calorieEntries?.length ?? 0) > 0
+      if (data.weightKg === undefined && !hasCalories) {
         ctx.addIssue({
           code: 'custom',
           path: ['weightKg'],

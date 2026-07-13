@@ -10,7 +10,7 @@ function makeEntry(overrides: Partial<DailyEntry> = {}): DailyEntry {
     id: 'entry-1',
     date: '2026-03-01',
     weightKg: 80,
-    caloriesConsumed: 2000,
+    calorieEntries: [{ id: 'calorie-1', amountKcal: 2000, createdAt: now }],
     createdAt: now,
     updatedAt: now,
     ...overrides,

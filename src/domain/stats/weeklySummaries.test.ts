@@ -1,8 +1,18 @@
 import { addDays, format, startOfISOWeek } from 'date-fns'
 import { describe, expect, it } from 'vitest'
-import type { DailyEntry } from '@/domain/dailyEntry'
+import type { CalorieEntry, DailyEntry } from '@/domain/dailyEntry'
 import type { Goal } from '@/domain/goal'
 import { weeklySummaries } from './weeklySummaries'
+
+function calories(amountKcal: number): CalorieEntry[] {
+  return [
+    {
+      id: crypto.randomUUID(),
+      amountKcal,
+      createdAt: '2026-01-01T00:00:00.000Z',
+    },
+  ]
+}
 
 const DATE_FORMAT = 'yyyy-MM-dd'
 
@@ -120,7 +130,9 @@ describe('weeklySummaries', () => {
   })
 
   it('keeps averageWeightKg null for a week where only calories were logged', () => {
-    const entries = [entry(dayOf(WEEK_1_START, 0), { caloriesConsumed: 1900 })]
+    const entries = [
+      entry(dayOf(WEEK_1_START, 0), { calorieEntries: calories(1900) }),
+    ]
 
     const [summary] = weeklySummaries(entries)
 

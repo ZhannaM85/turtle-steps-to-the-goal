@@ -33,11 +33,17 @@ export interface Dictionary {
     addCaloriesPlaceholder: string
     addButton: string
     caloriesTodaySuffix: string
-    undoLastAddButton: string
+    kcalUnit: string
     noteLabel: string
     updateButton: string
     logButton: string
     weightOrCaloriesRequired: string
+    editWeightLabel: string
+    editNoteLabel: string
+    mealLabel: (n: number) => string
+    editMealLabel: (n: number) => string
+    deleteMealLabel: (n: number) => string
+    saveButton: string
   }
   goal: {
     title: string

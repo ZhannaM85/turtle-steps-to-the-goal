@@ -28,7 +28,9 @@ function makeEntry(overrides: Partial<DailyEntry> = {}): DailyEntry {
     id: crypto.randomUUID(),
     date: '2026-03-01',
     weightKg: 80,
-    caloriesConsumed: 2000,
+    calorieEntries: [
+      { id: crypto.randomUUID(), amountKcal: 2000, createdAt: now },
+    ],
     createdAt: now,
     updatedAt: now,
     ...overrides,
@@ -87,7 +89,7 @@ describe('importAllData', () => {
 
     const backupEntry = makeEntry({ date: '2026-03-01' })
     await importAllData({
-      version: 2,
+      version: 3,
       exportedAt: new Date().toISOString(),
       goals: [],
       dailyEntries: [backupEntry],
@@ -102,12 +104,63 @@ describe('importAllData', () => {
 describe('parseExportBundle', () => {
   it('parses a valid bundle', () => {
     const bundle = {
-      version: 2,
+      version: 3,
       exportedAt: '2026-01-01',
       goals: [],
       dailyEntries: [],
     }
     expect(parseExportBundle(bundle)).toEqual(bundle)
+  })
+
+  it('upgrades a legacy v2 backup (single caloriesConsumed number) into calorieEntries', () => {
+    const legacyBundle = {
+      version: 2,
+      exportedAt: '2026-01-01',
+      goals: [],
+      dailyEntries: [
+        {
+          id: 'entry-1',
+          date: '2026-03-01',
+          weightKg: 80,
+          caloriesConsumed: 1600,
+          createdAt: '2026-03-01T00:00:00.000Z',
+          updatedAt: '2026-03-01T00:00:00.000Z',
+        },
+      ],
+    }
+
+    const upgraded = parseExportBundle(legacyBundle)
+
+    expect(upgraded.version).toBe(3)
+    expect(upgraded.dailyEntries[0]).not.toHaveProperty('caloriesConsumed')
+    expect(upgraded.dailyEntries[0].calorieEntries).toEqual([
+      {
+        id: expect.any(String),
+        amountKcal: 1600,
+        createdAt: '2026-03-01T00:00:00.000Z',
+      },
+    ])
+  })
+
+  it('upgrades a legacy v2 entry with no calories logged, leaving calorieEntries undefined', () => {
+    const legacyBundle = {
+      version: 2,
+      exportedAt: '2026-01-01',
+      goals: [],
+      dailyEntries: [
+        {
+          id: 'entry-1',
+          date: '2026-03-01',
+          weightKg: 80,
+          createdAt: '2026-03-01T00:00:00.000Z',
+          updatedAt: '2026-03-01T00:00:00.000Z',
+        },
+      ],
+    }
+
+    const upgraded = parseExportBundle(legacyBundle)
+
+    expect(upgraded.dailyEntries[0].calorieEntries).toBeUndefined()
   })
 
   it('throws InvalidBackupFileError for malformed JSON content', () => {

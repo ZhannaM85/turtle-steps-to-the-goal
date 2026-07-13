@@ -1,5 +1,5 @@
 import { endOfISOWeek, format, parseISO, startOfISOWeek } from 'date-fns'
-import type { DailyEntry } from '@/domain/dailyEntry'
+import { totalCalories, type DailyEntry } from '@/domain/dailyEntry'
 import type { Goal } from '@/domain/goal'
 
 export interface WeeklySummary {
@@ -45,7 +45,7 @@ export function weeklySummaries(
       .map((e) => e.weightKg)
       .filter((v): v is number => v !== undefined)
     const calories = weekEntries
-      .map((e) => e.caloriesConsumed)
+      .map((e) => totalCalories(e.calorieEntries))
       .filter((v): v is number => v !== undefined)
 
     return {

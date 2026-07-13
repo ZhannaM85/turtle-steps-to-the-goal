@@ -7,7 +7,7 @@ export function entryToFormValues(
   if (!entry) return {}
   return {
     weightKg: entry.weightKg,
-    caloriesConsumed: entry.caloriesConsumed,
+    calorieEntries: entry.calorieEntries,
     note: entry.note,
   }
 }
@@ -22,7 +22,7 @@ export function formValuesToEntry(
     id: existingEntry?.id ?? crypto.randomUUID(),
     date,
     weightKg: values.weightKg,
-    caloriesConsumed: values.caloriesConsumed,
+    calorieEntries: values.calorieEntries,
     note: values.note,
     createdAt: existingEntry?.createdAt ?? now,
     updatedAt: now,

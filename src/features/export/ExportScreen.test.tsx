@@ -75,7 +75,7 @@ describe('ExportScreen', () => {
   it('imports a valid backup file and reports the result', async () => {
     const user = userEvent.setup()
     const bundle = {
-      version: 2,
+      version: 3,
       exportedAt: new Date().toISOString(),
       goals: [makeGoal()],
       dailyEntries: [makeEntry(), makeEntry({ date: '2026-03-02' })],

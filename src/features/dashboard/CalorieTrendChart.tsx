@@ -9,7 +9,7 @@ import {
   XAxis,
   YAxis,
 } from 'recharts'
-import type { DailyEntry } from '@/domain/dailyEntry'
+import { totalCalories, type DailyEntry } from '@/domain/dailyEntry'
 import { rollingAverage } from '@/domain/stats'
 import {
   formatNumber,
@@ -36,18 +36,21 @@ export function CalorieTrendChart({ entries }: CalorieTrendChartProps) {
   const dateFnsLocale = getDateFnsLocale(locale)
 
   const calorieBars = entries
+    .map((entry) => ({
+      date: entry.date,
+      calories: totalCalories(entry.calorieEntries),
+    }))
     .filter(
-      (entry): entry is DailyEntry & { caloriesConsumed: number } =>
-        entry.caloriesConsumed !== undefined,
+      (point): point is { date: string; calories: number } =>
+        point.calories !== undefined,
     )
     .sort((a, b) => a.date.localeCompare(b.date))
-    .map((entry) => ({ date: entry.date, calories: entry.caloriesConsumed }))
 
   if (calorieBars.length === 0) return null
 
   const rolling = rollingAverage(
     entries,
-    'caloriesConsumed',
+    (entry) => totalCalories(entry.calorieEntries),
     ROLLING_WINDOW_DAYS,
   )
     .filter(

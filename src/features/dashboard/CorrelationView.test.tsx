@@ -1,8 +1,18 @@
 import { render, screen } from '@testing-library/react'
 import { addDays, format, startOfISOWeek } from 'date-fns'
 import { describe, expect, it } from 'vitest'
-import type { DailyEntry } from '@/domain/dailyEntry'
+import type { CalorieEntry, DailyEntry } from '@/domain/dailyEntry'
 import { CorrelationView } from './CorrelationView'
+
+function calories(amountKcal: number): CalorieEntry[] {
+  return [
+    {
+      id: crypto.randomUUID(),
+      amountKcal,
+      createdAt: '2026-01-01T00:00:00.000Z',
+    },
+  ]
+}
 
 const DATE_FORMAT = 'yyyy-MM-dd'
 const WEEK_1_START = format(
@@ -39,7 +49,7 @@ describe('CorrelationView', () => {
   it('shows the not-enough-data caveat with fewer than 4 comparable weeks', () => {
     const entries = [
       entry(weekStart(0), { weightKg: 90 }),
-      entry(weekStart(1), { weightKg: 88, caloriesConsumed: 1800 }),
+      entry(weekStart(1), { weightKg: 88, calorieEntries: calories(1800) }),
     ]
     render(<CorrelationView entries={entries} goal={null} />)
 
@@ -51,10 +61,10 @@ describe('CorrelationView', () => {
   it('shows the plain-language summary once there is enough data', () => {
     const entries = [
       entry(weekStart(0), { weightKg: 90 }),
-      entry(weekStart(1), { weightKg: 88, caloriesConsumed: 1700 }),
-      entry(weekStart(2), { weightKg: 86, caloriesConsumed: 1800 }),
-      entry(weekStart(3), { weightKg: 85.5, caloriesConsumed: 2200 }),
-      entry(weekStart(4), { weightKg: 85.3, caloriesConsumed: 2300 }),
+      entry(weekStart(1), { weightKg: 88, calorieEntries: calories(1700) }),
+      entry(weekStart(2), { weightKg: 86, calorieEntries: calories(1800) }),
+      entry(weekStart(3), { weightKg: 85.5, calorieEntries: calories(2200) }),
+      entry(weekStart(4), { weightKg: 85.3, calorieEntries: calories(2300) }),
     ]
     render(<CorrelationView entries={entries} goal={null} />)
 

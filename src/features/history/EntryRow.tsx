@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { format, parseISO } from 'date-fns'
 import { Pencil, Trash2 } from 'lucide-react'
-import type { DailyEntry } from '@/domain/dailyEntry'
+import { totalCalories, type DailyEntry } from '@/domain/dailyEntry'
 import { kgToLb, type Goal } from '@/domain/goal'
 import {
   formatNumber,
@@ -35,10 +35,9 @@ export function EntryRow({ entry, goal, onSaved, onDeleted }: EntryRowProps) {
     entry.weightKg === undefined
       ? '—'
       : `${formatNumber(displayUnit === 'lb' ? kgToLb(entry.weightKg) : entry.weightKg, locale)} ${unitLabel(displayUnit, t)}`
+  const calories = totalCalories(entry.calorieEntries)
   const caloriesDisplay =
-    entry.caloriesConsumed === undefined
-      ? '—'
-      : formatNumber(entry.caloriesConsumed, locale, 0)
+    calories === undefined ? '—' : formatNumber(calories, locale, 0)
 
   if (mode === 'edit') {
     return (
@@ -47,6 +46,7 @@ export function EntryRow({ entry, goal, onSaved, onDeleted }: EntryRowProps) {
           <DailyEntryForm
             date={entry.date}
             existingEntry={entry}
+            alwaysEditable
             onSubmit={(saved) => {
               setMode('view')
               onSaved(saved)

@@ -156,9 +156,18 @@ describe('TodayScreen', () => {
   })
 
   it('loads an existing entry for editing when picking a date that already has one', async () => {
-    await useDailyEntryStore
-      .getState()
-      .saveEntry(makeEntry({ weightKg: 79.5, caloriesConsumed: 1900 }))
+    await useDailyEntryStore.getState().saveEntry(
+      makeEntry({
+        weightKg: 79.5,
+        calorieEntries: [
+          {
+            id: crypto.randomUUID(),
+            amountKcal: 1900,
+            createdAt: new Date().toISOString(),
+          },
+        ],
+      }),
+    )
     useDailyEntryStore.setState({ entry: null, date: null, status: 'idle' })
 
     render(
@@ -167,7 +176,7 @@ describe('TodayScreen', () => {
       </MemoryRouter>,
     )
 
-    expect(await screen.findByLabelText('Weight (kg)')).toHaveValue('79.5')
+    expect(await screen.findByText('79.5 kg')).toBeInTheDocument()
     expect(screen.getByText('1,900')).toBeInTheDocument()
     expect(
       screen.getByRole('button', { name: 'Update entry' }),

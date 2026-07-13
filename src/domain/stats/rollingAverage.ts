@@ -1,7 +1,8 @@
 import { differenceInCalendarDays, parseISO } from 'date-fns'
 import type { DailyEntry } from '@/domain/dailyEntry'
 
-export type NumericEntryField = 'weightKg' | 'caloriesConsumed'
+export type NumericEntryField = 'weightKg'
+type ValueExtractor = (entry: DailyEntry) => number | undefined
 
 export interface RollingAveragePoint {
   date: string
@@ -9,16 +10,20 @@ export interface RollingAveragePoint {
 }
 
 /**
- * For each distinct date present in `entries`, averages `field` over the
+ * For each distinct date present in `entries`, averages a value over the
  * trailing `windowDays` days (inclusive of that date), skipping entries
- * that don't have `field` set. A day with no qualifying values in its
- * window gets `average: null` rather than being dropped.
+ * where the value is undefined. A day with no qualifying values in its
+ * window gets `average: null` rather than being dropped. `field` can be a
+ * plain `DailyEntry` key, or an extractor function for values that aren't a
+ * plain field (e.g. a computed calorie total from `calorieEntries`).
  */
 export function rollingAverage(
   entries: DailyEntry[],
-  field: NumericEntryField,
+  field: NumericEntryField | ValueExtractor,
   windowDays: number,
 ): RollingAveragePoint[] {
+  const getValue: ValueExtractor =
+    typeof field === 'function' ? field : (entry) => entry[field]
   const sorted = [...entries].sort((a, b) => a.date.localeCompare(b.date))
   const dates = [...new Set(sorted.map((e) => e.date))]
 
@@ -26,7 +31,7 @@ export function rollingAverage(
     const windowStart = parseISO(date)
     const valuesInWindow = sorted
       .filter((e) => {
-        const value = e[field]
+        const value = getValue(e)
         if (value === undefined) return false
         const daysBefore = differenceInCalendarDays(
           windowStart,
@@ -34,7 +39,7 @@ export function rollingAverage(
         )
         return daysBefore >= 0 && daysBefore < windowDays
       })
-      .map((e) => e[field] as number)
+      .map((e) => getValue(e) as number)
 
     const average =
       valuesInWindow.length === 0

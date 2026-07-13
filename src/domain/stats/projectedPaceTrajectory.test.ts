@@ -34,7 +34,13 @@ describe('projectedPaceTrajectory', () => {
   })
 
   it('returns an empty array with no logged weight yet', () => {
-    const entries = [entry('2026-03-01', { caloriesConsumed: 1900 })]
+    const entries = [
+      entry('2026-03-01', {
+        calorieEntries: [
+          { id: 'c1', amountKcal: 1900, createdAt: '2026-01-01T00:00:00.000Z' },
+        ],
+      }),
+    ]
     expect(projectedPaceTrajectory(entries, makeGoal())).toEqual([])
   })
 
@@ -59,7 +65,11 @@ describe('projectedPaceTrajectory', () => {
   it('ignores entries with no weightKg when finding the latest point', () => {
     const entries = [
       entry('2026-03-01', { weightKg: 80 }),
-      entry('2026-03-05', { caloriesConsumed: 1800 }),
+      entry('2026-03-05', {
+        calorieEntries: [
+          { id: 'c1', amountKcal: 1800, createdAt: '2026-01-01T00:00:00.000Z' },
+        ],
+      }),
     ]
     const [start] = projectedPaceTrajectory(entries, makeGoal())
 

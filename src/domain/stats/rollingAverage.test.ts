@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import type { DailyEntry } from '@/domain/dailyEntry'
+import { totalCalories, type DailyEntry } from '@/domain/dailyEntry'
 import { rollingAverage } from './rollingAverage'
 
 let idCounter = 0
@@ -68,7 +68,13 @@ describe('rollingAverage', () => {
   })
 
   it('returns null for a date whose window has no qualifying values', () => {
-    const entries = [entry('2026-03-01', { caloriesConsumed: 2000 })]
+    const entries = [
+      entry('2026-03-01', {
+        calorieEntries: [
+          { id: 'c1', amountKcal: 2000, createdAt: '2026-01-01T00:00:00.000Z' },
+        ],
+      }),
+    ]
 
     expect(rollingAverage(entries, 'weightKg', 7)).toEqual([
       { date: '2026-03-01', average: null },
@@ -84,5 +90,31 @@ describe('rollingAverage', () => {
     const result = rollingAverage(entries, 'weightKg', 7)
 
     expect(result.map((p) => p.date)).toEqual(['2026-03-01', '2026-03-03'])
+  })
+
+  it('accepts a value-extractor function instead of a plain field name', () => {
+    const entries = [
+      entry('2026-03-01', {
+        calorieEntries: [
+          { id: 'c1', amountKcal: 1800, createdAt: '2026-01-01T00:00:00.000Z' },
+        ],
+      }),
+      entry('2026-03-02', {
+        calorieEntries: [
+          { id: 'c2', amountKcal: 2200, createdAt: '2026-01-01T00:00:00.000Z' },
+        ],
+      }),
+    ]
+
+    const result = rollingAverage(
+      entries,
+      (e) => totalCalories(e.calorieEntries),
+      7,
+    )
+
+    expect(result).toEqual([
+      { date: '2026-03-01', average: 1800 },
+      { date: '2026-03-02', average: 2000 },
+    ])
   })
 })

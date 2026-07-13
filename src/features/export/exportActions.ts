@@ -3,7 +3,11 @@ import {
   IndexedDbGoalRepository,
 } from '@/infrastructure/persistence/indexeddb'
 import { buildExportBundle } from './exportBundle'
-import { exportBundleSchema, type ExportBundle } from './exportBundleSchema'
+import {
+  exportBundleSchema,
+  exportBundleSchemaV2,
+  type ExportBundle,
+} from './exportBundleSchema'
 
 const goalRepository = new IndexedDbGoalRepository()
 const dailyEntryRepository = new IndexedDbDailyEntryRepository()
@@ -27,11 +31,33 @@ export async function importAllData(bundle: ExportBundle): Promise<void> {
 export class InvalidBackupFileError extends Error {}
 
 export function parseExportBundle(raw: unknown): ExportBundle {
-  const result = exportBundleSchema.safeParse(raw)
-  if (!result.success) {
-    throw new InvalidBackupFileError(
-      "This file doesn't look like a valid Turtle Steps backup.",
-    )
+  const current = exportBundleSchema.safeParse(raw)
+  if (current.success) return current.data
+
+  const legacy = exportBundleSchemaV2.safeParse(raw)
+  if (legacy.success) {
+    return {
+      ...legacy.data,
+      version: 3,
+      dailyEntries: legacy.data.dailyEntries.map(
+        ({ caloriesConsumed, ...entry }) => ({
+          ...entry,
+          calorieEntries:
+            caloriesConsumed === undefined
+              ? undefined
+              : [
+                  {
+                    id: crypto.randomUUID(),
+                    amountKcal: caloriesConsumed,
+                    createdAt: entry.createdAt,
+                  },
+                ],
+        }),
+      ),
+    }
   }
-  return result.data
+
+  throw new InvalidBackupFileError(
+    "This file doesn't look like a valid Turtle Steps backup.",
+  )
 }
