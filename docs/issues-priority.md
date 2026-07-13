@@ -85,4 +85,4 @@ _The original brief's epics are all done; this tier is for issues raised from ac
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#20](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/20) | ✅ Done | Simplify Calories field — remove total input, keep only Add | Read-only StatCard-style total driven by quick-add; "Undo last add" for corrections, no negative-number entry |
-| [#21](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/21) | ⬜ Open | Read-only display + pencil-to-edit for Weight/Note; itemized calorie entries | Supersedes #20's "Undo last add" with per-entry editing. Several open questions on the issue (domain model change for itemized calories, migration, running total, labels) to settle before implementing |
+| [#21](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/21) | ⬜ Open | Read-only display + pencil-to-edit for Weight/Note; itemized calorie entries | Supersedes #20's "Undo last add" with per-entry editing. Design decisions settled (see issue comments) — `caloriesConsumed` becomes `calorieEntries[]` with an IndexedDB + export-bundle migration; ready to implement |
