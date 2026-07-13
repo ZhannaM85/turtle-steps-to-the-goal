@@ -47,12 +47,18 @@ describe('app router', () => {
     ).toBeInTheDocument()
   })
 
+  it('renders the About screen at /about', () => {
+    renderAt('/about')
+    expect(screen.getByRole('heading', { name: 'About' })).toBeInTheDocument()
+  })
+
   it('renders the header nav and bottom tab bar on every screen', () => {
     renderAt('/dashboard')
     expect(screen.getByRole('navigation', { name: 'Main' })).toBeInTheDocument()
     expect(screen.getByRole('navigation', { name: 'Tabs' })).toBeInTheDocument()
     expect(screen.getAllByRole('link', { name: 'Today' })).toHaveLength(2)
     expect(screen.getAllByRole('link', { name: 'Settings' })).toHaveLength(2)
+    expect(screen.getAllByRole('link', { name: 'About' })).toHaveLength(2)
     expect(
       screen.queryByRole('link', { name: 'Export' }),
     ).not.toBeInTheDocument()

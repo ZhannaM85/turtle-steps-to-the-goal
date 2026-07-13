@@ -12,6 +12,7 @@ export interface Dictionary {
     history: string
     goal: string
     settings: string
+    about: string
   }
   today: {
     title: string
@@ -132,5 +133,13 @@ export interface Dictionary {
     colorSchemeLabel: string
     light: string
     dark: string
+  }
+  about: {
+    title: string
+    description: string
+    intro: string
+    philosophy: string
+    privacy: string
+    madeBy: (author: string) => string
   }
 }

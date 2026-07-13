@@ -1,5 +1,6 @@
 import { NavLink, Outlet } from 'react-router-dom'
 import {
+  Heart,
   History,
   Home,
   LayoutDashboard,
@@ -22,6 +23,7 @@ function useNavItems(t: Dictionary): {
     { to: '/history', label: t.nav.history, icon: History },
     { to: '/goal', label: t.nav.goal, icon: Target },
     { to: '/settings', label: t.nav.settings, icon: Settings },
+    { to: '/about', label: t.nav.about, icon: Heart },
   ]
 }
 

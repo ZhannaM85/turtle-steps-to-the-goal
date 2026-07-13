@@ -6,6 +6,7 @@ import { DashboardScreen } from '@/features/dashboard'
 import { HistoryScreen } from '@/features/history'
 import { GoalScreen } from '@/features/goal-setup'
 import { SettingsScreen } from '@/features/settings'
+import { AboutScreen } from '@/features/about'
 
 export const routes: RouteObject[] = [
   {
@@ -19,6 +20,7 @@ export const routes: RouteObject[] = [
       // tab bookmarked rather than a dead link.
       { path: '/export', element: <Navigate to="/settings" replace /> },
       { path: '/settings', element: <SettingsScreen /> },
+      { path: '/about', element: <AboutScreen /> },
     ],
   },
 ]

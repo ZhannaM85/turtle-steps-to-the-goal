@@ -23,6 +23,7 @@ export const en: Dictionary = {
     history: 'History',
     goal: 'Goal',
     settings: 'Settings',
+    about: 'About',
   },
   today: {
     title: 'Today',
@@ -153,5 +154,16 @@ export const en: Dictionary = {
     colorSchemeLabel: 'Light / dark',
     light: 'Light',
     dark: 'Dark',
+  },
+  about: {
+    title: 'About',
+    description: 'What this app is, and why it exists',
+    intro:
+      'Turtle Steps to the Goal is a small, personal weight-tracking app built around one idea: change happens through small, steady steps — not big, pressured goals.',
+    philosophy:
+      "There's no long-term target to chase, no streaks to protect, no badges to collect. Just this week's small step, one day at a time.",
+    privacy:
+      'All your data stays on your own device — nothing is sent anywhere else.',
+    madeBy: (author) => `Made by ${author}`,
   },
 }
