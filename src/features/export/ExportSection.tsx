@@ -2,7 +2,6 @@ import { useRef, useState } from 'react'
 import { format } from 'date-fns'
 import { useTranslation } from '@/i18n'
 import { Button } from '@/shared/ui/button'
-import { PageHeader } from '@/shared/ui/page-header'
 import {
   exportAllData,
   importAllData,
@@ -18,7 +17,7 @@ type Status =
   | { kind: 'imported'; goals: number; entries: number }
   | { kind: 'error'; message: string }
 
-export function ExportScreen() {
+export function ExportSection() {
   const t = useTranslation()
   const [status, setStatus] = useState<Status>({ kind: 'idle' })
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -69,8 +68,13 @@ export function ExportScreen() {
   }
 
   return (
-    <div className="flex flex-col gap-6">
-      <PageHeader title={t.export.title} description={t.export.description} />
+    <div className="flex flex-col gap-4 border-t border-border pt-6">
+      <div className="flex flex-col gap-1">
+        <h2 className="text-base font-semibold text-foreground">
+          {t.export.title}
+        </h2>
+        <p className="text-sm text-muted-foreground">{t.export.description}</p>
+      </div>
 
       <div className="flex flex-col gap-2">
         <p className="text-sm text-muted-foreground">{t.export.exportBlurb}</p>

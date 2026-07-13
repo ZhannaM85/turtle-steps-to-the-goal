@@ -22,7 +22,6 @@ export const en: Dictionary = {
     dashboard: 'Dashboard',
     history: 'History',
     goal: 'Goal',
-    export: 'Export',
     settings: 'Settings',
   },
   today: {

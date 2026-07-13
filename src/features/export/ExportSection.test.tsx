@@ -5,7 +5,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { DailyEntry } from '@/domain/dailyEntry'
 import type { Goal } from '@/domain/goal'
 import { db } from '@/infrastructure/persistence/indexeddb'
-import { ExportScreen } from './ExportScreen'
+import { ExportSection } from './ExportSection'
 
 function makeGoal(overrides: Partial<Goal> = {}): Goal {
   const now = new Date().toISOString()
@@ -41,7 +41,7 @@ beforeEach(async () => {
   await db.goals.clear()
   await db.dailyEntries.clear()
   // jsdom doesn't implement object URLs or real navigation on anchor clicks;
-  // ExportScreen only needs these to not throw.
+  // ExportSection only needs these to not throw.
   vi.stubGlobal('URL', {
     ...URL,
     createObjectURL: vi.fn(() => 'blob:mock'),
@@ -57,14 +57,14 @@ afterEach(async () => {
   vi.restoreAllMocks()
 })
 
-describe('ExportScreen', () => {
+describe('ExportSection', () => {
   it('exports and reports how much data was included', async () => {
     await db.goals.put(makeGoal())
     await db.dailyEntries.put(makeEntry())
     await db.dailyEntries.put(makeEntry({ date: '2026-03-02' }))
     const user = userEvent.setup()
 
-    render(<ExportScreen />)
+    render(<ExportSection />)
     await user.click(screen.getByRole('button', { name: 'Export backup' }))
 
     expect(
@@ -81,7 +81,7 @@ describe('ExportScreen', () => {
       dailyEntries: [makeEntry(), makeEntry({ date: '2026-03-02' })],
     }
 
-    render(<ExportScreen />)
+    render(<ExportSection />)
     const input = document.querySelector(
       'input[type="file"]',
     ) as HTMLInputElement
@@ -97,7 +97,7 @@ describe('ExportScreen', () => {
   it('shows a clear error for a file that is valid JSON but not a backup', async () => {
     const user = userEvent.setup()
 
-    render(<ExportScreen />)
+    render(<ExportSection />)
     const input = document.querySelector(
       'input[type="file"]',
     ) as HTMLInputElement
@@ -113,7 +113,7 @@ describe('ExportScreen', () => {
   it('shows a clear error for a file that is not valid JSON at all', async () => {
     const user = userEvent.setup()
 
-    render(<ExportScreen />)
+    render(<ExportSection />)
     const input = document.querySelector(
       'input[type="file"]',
     ) as HTMLInputElement

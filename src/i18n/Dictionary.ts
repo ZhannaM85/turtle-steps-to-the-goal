@@ -11,7 +11,6 @@ export interface Dictionary {
     dashboard: string
     history: string
     goal: string
-    export: string
     settings: string
   }
   today: {

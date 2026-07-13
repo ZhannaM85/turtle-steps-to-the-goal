@@ -1,11 +1,10 @@
 import type { RouteObject } from 'react-router-dom'
-import { createBrowserRouter } from 'react-router-dom'
+import { createBrowserRouter, Navigate } from 'react-router-dom'
 import { AppShell } from '@/app/AppShell'
 import { TodayScreen } from '@/features/daily-log'
 import { DashboardScreen } from '@/features/dashboard'
 import { HistoryScreen } from '@/features/history'
 import { GoalScreen } from '@/features/goal-setup'
-import { ExportScreen } from '@/features/export'
 import { SettingsScreen } from '@/features/settings'
 
 export const routes: RouteObject[] = [
@@ -16,7 +15,9 @@ export const routes: RouteObject[] = [
       { path: '/dashboard', element: <DashboardScreen /> },
       { path: '/history', element: <HistoryScreen /> },
       { path: '/goal', element: <GoalScreen /> },
-      { path: '/export', element: <ExportScreen /> },
+      // #24: Export folded into Settings; redirect for anyone with the old
+      // tab bookmarked rather than a dead link.
+      { path: '/export', element: <Navigate to="/settings" replace /> },
       { path: '/settings', element: <SettingsScreen /> },
     ],
   },

@@ -32,8 +32,11 @@ describe('app router', () => {
     expect(screen.getByRole('heading', { name: 'Goal' })).toBeInTheDocument()
   })
 
-  it('renders the Export screen at /export', () => {
+  it('redirects /export to /settings, where the export section now lives', () => {
     renderAt('/export')
+    expect(
+      screen.getByRole('heading', { name: 'Settings' }),
+    ).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Export' })).toBeInTheDocument()
   })
 
@@ -50,5 +53,8 @@ describe('app router', () => {
     expect(screen.getByRole('navigation', { name: 'Tabs' })).toBeInTheDocument()
     expect(screen.getAllByRole('link', { name: 'Today' })).toHaveLength(2)
     expect(screen.getAllByRole('link', { name: 'Settings' })).toHaveLength(2)
+    expect(
+      screen.queryByRole('link', { name: 'Export' }),
+    ).not.toBeInTheDocument()
   })
 })

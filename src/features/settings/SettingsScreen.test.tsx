@@ -1,3 +1,4 @@
+import 'fake-indexeddb/auto'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
@@ -81,5 +82,17 @@ describe('SettingsScreen', () => {
     await user.tab() // mood group's checked radio (Pond)
 
     expect(document.activeElement).toBe(pondRadio)
+  })
+
+  it('includes the export/import section (folded in from the old Export tab, #24)', () => {
+    render(<SettingsScreen />)
+
+    expect(screen.getByRole('heading', { name: 'Export' })).toBeInTheDocument()
+    expect(
+      screen.getByRole('button', { name: 'Export backup' }),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByRole('button', { name: 'Import backup' }),
+    ).toBeInTheDocument()
   })
 })

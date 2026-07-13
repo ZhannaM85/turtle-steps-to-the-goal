@@ -23,7 +23,6 @@ export const ru: Dictionary = {
     dashboard: 'Обзор',
     history: 'История',
     goal: 'Цель',
-    export: 'Экспорт',
     settings: 'Настройки',
   },
   today: {

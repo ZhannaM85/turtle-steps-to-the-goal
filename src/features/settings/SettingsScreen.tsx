@@ -5,6 +5,7 @@ import {
   type Dictionary,
 } from '@/i18n'
 import { useThemeStore, type Mood } from '@/stores'
+import { ExportSection } from '@/features/export'
 import { PageHeader } from '@/shared/ui/page-header'
 import { cn } from '@/shared/lib/utils'
 
@@ -138,6 +139,8 @@ export function SettingsScreen() {
           </div>
         </div>
       </fieldset>
+
+      <ExportSection />
     </div>
   )
 }
