@@ -36,6 +36,9 @@ export const ru: Dictionary = {
     emptyGoalDescription: 'Задайте цель на неделю, чтобы увидеть её здесь.',
     setGoalButton: 'Задать цель',
     dateLabel: 'Дата',
+    goalRenewalReminder:
+      'Эта неделя заканчивается сегодня — стоит проверить цель на следующую неделю.',
+    reviewGoalLink: 'Посмотреть цель',
   },
   dailyEntry: {
     weightLabel: 'Вес (кг)',

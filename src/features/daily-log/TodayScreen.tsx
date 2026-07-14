@@ -51,6 +51,14 @@ export function TodayScreen() {
       ? kgToLb(goal.targetWeeklyLossKg)
       : goal.targetWeeklyLossKg
     : null
+  // Quiet, one-day nudge (#38) — only on the last day of the current ISO
+  // week, and only when a goal already exists (a goal-less user already
+  // sees the "Set a goal" empty state above, which covers that case).
+  // No dismiss state to persist: it naturally stops once the week rolls
+  // over, matching the app's no-pressure tone (no badges/streaks).
+  const showGoalRenewalReminder = Boolean(
+    goal && weekInfo && weekInfo.weekEnd === todayIso(),
+  )
 
   return (
     <div className="flex flex-col gap-6">
@@ -87,6 +95,18 @@ export function TodayScreen() {
             </Button>
           }
         />
+      )}
+
+      {showGoalRenewalReminder && (
+        <div className="flex items-center justify-between gap-2 rounded-lg border border-border px-3 py-2 text-sm text-muted-foreground">
+          <span>{t.today.goalRenewalReminder}</span>
+          <Link
+            to="/goal"
+            className="shrink-0 font-medium text-foreground underline-offset-4 hover:underline"
+          >
+            {t.today.reviewGoalLink}
+          </Link>
+        </div>
       )}
 
       <div className="flex flex-col gap-1.5">

@@ -1,14 +1,36 @@
 import 'fake-indexeddb/auto'
 import { fireEvent, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { format, subDays } from 'date-fns'
+import { addDays, format, subDays } from 'date-fns'
 import { MemoryRouter } from 'react-router-dom'
-import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { Goal } from '@/domain/goal'
 import type { DailyEntry } from '@/domain/dailyEntry'
 import { db } from '@/infrastructure/persistence/indexeddb'
 import { useDailyEntryStore, useGoalStore } from '@/stores'
 import { TodayScreen } from './TodayScreen'
+
+// The reminder condition (#38) compares useCurrentWeekInfo()'s weekEnd
+// against today's real date, which is only ever true on an actual Sunday.
+// Rather than faking the system clock (which testing-library's async
+// findBy/waitFor utilities don't play well with), patch just the
+// weekEnd field after the real hook resolves, so tests stay deterministic
+// without losing the real hook's Week-N/async-loading behavior.
+let weekEndOverride: string | undefined
+
+vi.mock('@/shared/hooks', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@/shared/hooks')>()
+  return {
+    ...actual,
+    useCurrentWeekInfo: (
+      ...args: Parameters<typeof actual.useCurrentWeekInfo>
+    ) => {
+      const real = actual.useCurrentWeekInfo(...args)
+      if (weekEndOverride === undefined || !real) return real
+      return { ...real, weekEnd: weekEndOverride }
+    },
+  }
+})
 
 function makeGoal(overrides: Partial<Goal> = {}): Goal {
   const now = new Date().toISOString()
@@ -43,11 +65,13 @@ beforeEach(async () => {
     status: 'idle',
     error: null,
   })
+  weekEndOverride = undefined
 })
 
 afterEach(async () => {
   await db.goals.clear()
   await db.dailyEntries.clear()
+  weekEndOverride = undefined
 })
 
 describe('TodayScreen', () => {
@@ -180,5 +204,61 @@ describe('TodayScreen', () => {
     expect(
       screen.getByRole('button', { name: 'Edit weight' }),
     ).toBeInTheDocument()
+  })
+
+  describe('goal renewal reminder', () => {
+    it('shows on the last day of the current week when a goal exists', async () => {
+      weekEndOverride = format(new Date(), 'yyyy-MM-dd')
+      await useGoalStore
+        .getState()
+        .saveGoal(makeGoal({ targetWeeklyLossKg: 1 }))
+
+      render(
+        <MemoryRouter>
+          <TodayScreen />
+        </MemoryRouter>,
+      )
+
+      expect(
+        await screen.findByText(/worth checking next week's target/),
+      ).toBeInTheDocument()
+      expect(screen.getByRole('link', { name: 'Review goal' })).toHaveAttribute(
+        'href',
+        '/goal',
+      )
+    })
+
+    it('does not show earlier in the week', async () => {
+      weekEndOverride = format(addDays(new Date(), 1), 'yyyy-MM-dd')
+      await useGoalStore
+        .getState()
+        .saveGoal(makeGoal({ targetWeeklyLossKg: 1 }))
+
+      render(
+        <MemoryRouter>
+          <TodayScreen />
+        </MemoryRouter>,
+      )
+
+      await screen.findByText("This week's target")
+      expect(
+        screen.queryByText(/worth checking next week's target/),
+      ).not.toBeInTheDocument()
+    })
+
+    it('does not show when there is no goal, even on the last day of the week', async () => {
+      weekEndOverride = format(new Date(), 'yyyy-MM-dd')
+
+      render(
+        <MemoryRouter>
+          <TodayScreen />
+        </MemoryRouter>,
+      )
+
+      await screen.findByText('No goal set yet')
+      expect(
+        screen.queryByText(/worth checking next week's target/),
+      ).not.toBeInTheDocument()
+    })
   })
 })

@@ -23,6 +23,8 @@ export interface Dictionary {
     emptyGoalDescription: string
     setGoalButton: string
     dateLabel: string
+    goalRenewalReminder: string
+    reviewGoalLink: string
   }
   dailyEntry: {
     weightLabel: string
