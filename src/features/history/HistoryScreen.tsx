@@ -7,6 +7,8 @@ import { EmptyState } from '@/shared/ui/empty-state'
 import { Input } from '@/shared/ui/input'
 import { Label } from '@/shared/ui/label'
 import { PageHeader } from '@/shared/ui/page-header'
+import { ToggleGroup, ToggleGroupItem } from '@/shared/ui/toggle-group'
+import { CalendarView } from './CalendarView'
 import { EntryRow } from './EntryRow'
 import { MetTargetList } from './MetTargetList'
 import { useHistoryData } from './useHistoryData'
@@ -14,10 +16,13 @@ import { useHistoryData } from './useHistoryData'
 const COLUMN_HEADER_CLASS =
   'border-b border-border px-2 py-2 text-xs font-medium tracking-wide text-muted-foreground uppercase sm:px-3'
 
+type ViewMode = 'list' | 'calendar'
+
 export function HistoryScreen() {
   const t = useTranslation()
   const { entries, goal, status, saveEntry, deleteEntry } = useHistoryData()
   const [sortAsc, setSortAsc] = useState(false)
+  const [viewMode, setViewMode] = useState<ViewMode>('list')
   // Deep-linked from a dashboard chart point (#41): ?date=YYYY-MM-DD
   // pre-fills both bounds to that single day, so arriving from a chart
   // lands directly on that day's row instead of the whole table.
@@ -41,6 +46,17 @@ export function HistoryScreen() {
     setDateTo('')
   }
 
+  // From the calendar's day panel (#48): jump to List view filtered to
+  // exactly this day. Reuses the existing From/To filter state (#40) —
+  // combined with the generalized defaultExpanded check below, this lands
+  // the user on List with that one row already expanded, no separate
+  // edit-from-calendar UI needed.
+  function editDayFromCalendar(date: string) {
+    setDateFrom(date)
+    setDateTo(date)
+    setViewMode('list')
+  }
+
   return (
     <div className="flex flex-col gap-6">
       <PageHeader title={t.history.title} description={t.history.description} />
@@ -56,107 +72,137 @@ export function HistoryScreen() {
         <>
           <MetTargetList entries={entries} goal={goal} />
 
-          <div className="flex flex-col gap-3">
-            {/* Fixed width, not relative sizing (#47 recurrence): the
-             * previous grid grid-cols-2 + min-w-0 attempt relied on the
-             * native <input type="date"> control shrinking to fit an
-             * available/relative track — on real mobile Safari it doesn't;
-             * the control has its own rendering-level minimum that ignores
-             * relative width math entirely. An explicit fixed w-36 doesn't
-             * ask the control to shrink at all, it just clamps the box. */}
-            <div className="flex flex-wrap items-end gap-3">
-              <div className="flex flex-col gap-1.5">
-                <Label htmlFor="history-date-from">
-                  {t.history.dateFromLabel}
-                </Label>
-                <Input
-                  id="history-date-from"
-                  type="date"
-                  value={dateFrom}
-                  max={dateTo || undefined}
-                  onChange={(e) => setDateFrom(e.target.value)}
-                  className="w-36"
-                />
-              </div>
-              <div className="flex flex-col gap-1.5">
-                <Label htmlFor="history-date-to">{t.history.dateToLabel}</Label>
-                <Input
-                  id="history-date-to"
-                  type="date"
-                  value={dateTo}
-                  min={dateFrom || undefined}
-                  onChange={(e) => setDateTo(e.target.value)}
-                  className="w-36"
-                />
-              </div>
-            </div>
-            {isFiltering && (
-              <Button
-                variant="ghost"
-                size="sm"
-                className="self-start"
-                onClick={clearFilter}
-              >
-                {t.history.clearFilterButton}
-              </Button>
-            )}
-          </div>
+          <ToggleGroup
+            type="single"
+            aria-label={t.history.viewModeLabel}
+            value={viewMode}
+            onValueChange={(value) => value && setViewMode(value as ViewMode)}
+            className="self-start"
+          >
+            <ToggleGroupItem value="list">
+              {t.history.listViewLabel}
+            </ToggleGroupItem>
+            <ToggleGroupItem value="calendar">
+              {t.history.calendarViewLabel}
+            </ToggleGroupItem>
+          </ToggleGroup>
 
-          {sorted.length === 0 ? (
-            <EmptyState
-              title={t.history.noFilterResultsTitle}
-              description={t.history.noFilterResultsDescription}
-              action={
-                <Button variant="outline" size="sm" onClick={clearFilter}>
-                  {t.history.clearFilterButton}
-                </Button>
-              }
-            />
+          {viewMode === 'calendar' ? (
+            <CalendarView entries={entries} onEditDay={editDayFromCalendar} />
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full border-collapse text-left">
-                <thead>
-                  <tr>
-                    <th className={COLUMN_HEADER_CLASS}>
-                      <button
-                        type="button"
-                        className="flex items-center gap-1 rounded-md outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
-                        onClick={() => setSortAsc((prev) => !prev)}
-                        aria-label={t.history.sortToggleLabel}
-                      >
-                        {t.history.dateColumn}
-                        <ArrowUpDown aria-hidden="true" className="size-3.5" />
-                      </button>
-                    </th>
-                    <th className={COLUMN_HEADER_CLASS}>
-                      {t.history.weightColumn}
-                    </th>
-                    <th className={COLUMN_HEADER_CLASS}>
-                      {t.history.caloriesColumn}
-                    </th>
-                    <th
-                      className={`${COLUMN_HEADER_CLASS} hidden sm:table-cell`}
-                    >
-                      {t.history.noteColumn}
-                    </th>
-                    <th className={COLUMN_HEADER_CLASS}>
-                      {t.history.actionsColumn}
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {sorted.map((entry) => (
-                    <EntryRow
-                      key={entry.id}
-                      entry={entry}
-                      onSaved={saveEntry}
-                      onDeleted={deleteEntry}
-                      defaultExpanded={entry.date === deepLinkedDate}
+            <>
+              <div className="flex flex-col gap-3">
+                {/* Fixed width, not relative sizing (#47 recurrence): the
+                 * previous grid grid-cols-2 + min-w-0 attempt relied on the
+                 * native <input type="date"> control shrinking to fit an
+                 * available/relative track — on real mobile Safari it doesn't;
+                 * the control has its own rendering-level minimum that ignores
+                 * relative width math entirely. An explicit fixed w-36 doesn't
+                 * ask the control to shrink at all, it just clamps the box. */}
+                <div className="flex flex-wrap items-end gap-3">
+                  <div className="flex flex-col gap-1.5">
+                    <Label htmlFor="history-date-from">
+                      {t.history.dateFromLabel}
+                    </Label>
+                    <Input
+                      id="history-date-from"
+                      type="date"
+                      value={dateFrom}
+                      max={dateTo || undefined}
+                      onChange={(e) => setDateFrom(e.target.value)}
+                      className="w-36"
                     />
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <Label htmlFor="history-date-to">
+                      {t.history.dateToLabel}
+                    </Label>
+                    <Input
+                      id="history-date-to"
+                      type="date"
+                      value={dateTo}
+                      min={dateFrom || undefined}
+                      onChange={(e) => setDateTo(e.target.value)}
+                      className="w-36"
+                    />
+                  </div>
+                </div>
+                {isFiltering && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="self-start"
+                    onClick={clearFilter}
+                  >
+                    {t.history.clearFilterButton}
+                  </Button>
+                )}
+              </div>
+
+              {sorted.length === 0 ? (
+                <EmptyState
+                  title={t.history.noFilterResultsTitle}
+                  description={t.history.noFilterResultsDescription}
+                  action={
+                    <Button variant="outline" size="sm" onClick={clearFilter}>
+                      {t.history.clearFilterButton}
+                    </Button>
+                  }
+                />
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full border-collapse text-left">
+                    <thead>
+                      <tr>
+                        <th className={COLUMN_HEADER_CLASS}>
+                          <button
+                            type="button"
+                            className="flex items-center gap-1 rounded-md outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
+                            onClick={() => setSortAsc((prev) => !prev)}
+                            aria-label={t.history.sortToggleLabel}
+                          >
+                            {t.history.dateColumn}
+                            <ArrowUpDown
+                              aria-hidden="true"
+                              className="size-3.5"
+                            />
+                          </button>
+                        </th>
+                        <th className={COLUMN_HEADER_CLASS}>
+                          {t.history.weightColumn}
+                        </th>
+                        <th className={COLUMN_HEADER_CLASS}>
+                          {t.history.caloriesColumn}
+                        </th>
+                        <th
+                          className={`${COLUMN_HEADER_CLASS} hidden sm:table-cell`}
+                        >
+                          {t.history.noteColumn}
+                        </th>
+                        <th className={COLUMN_HEADER_CLASS}>
+                          {t.history.actionsColumn}
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {sorted.map((entry) => (
+                        <EntryRow
+                          key={entry.id}
+                          entry={entry}
+                          onSaved={saveEntry}
+                          onDeleted={deleteEntry}
+                          defaultExpanded={
+                            dateFrom !== '' &&
+                            entry.date === dateFrom &&
+                            entry.date === dateTo
+                          }
+                        />
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </>
           )}
         </>
       )}

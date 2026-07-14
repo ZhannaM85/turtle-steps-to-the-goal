@@ -159,6 +159,14 @@ export const en: Dictionary = {
     noFilterResultsTitle: 'No entries in this range',
     noFilterResultsDescription:
       'Try a different date range, or clear the filter.',
+    viewModeLabel: 'View mode',
+    listViewLabel: 'List',
+    calendarViewLabel: 'Calendar',
+    previousMonthLabel: 'Previous month',
+    nextMonthLabel: 'Next month',
+    todayButton: 'Today',
+    emptyDayLabel: 'Nothing logged for this day.',
+    editThisDayLink: 'Edit this day',
   },
   settings: {
     title: 'Settings',

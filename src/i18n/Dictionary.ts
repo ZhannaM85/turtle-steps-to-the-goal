@@ -131,6 +131,14 @@ export interface Dictionary {
     clearFilterButton: string
     noFilterResultsTitle: string
     noFilterResultsDescription: string
+    viewModeLabel: string
+    listViewLabel: string
+    calendarViewLabel: string
+    previousMonthLabel: string
+    nextMonthLabel: string
+    todayButton: string
+    emptyDayLabel: string
+    editThisDayLink: string
   }
   settings: {
     title: string

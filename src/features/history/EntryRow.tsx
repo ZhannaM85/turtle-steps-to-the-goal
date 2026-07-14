@@ -11,9 +11,9 @@ import {
   useTranslation,
 } from '@/i18n'
 import { DailyEntryForm } from '@/features/daily-log'
-import { EMOTIONS } from '@/shared/lib/emotionIcons'
 import { useUnitStore } from '@/stores'
 import { Button } from '@/shared/ui/button'
+import { DayDetail } from './DayDetail'
 
 const COLUMN_COUNT = 5
 
@@ -75,9 +75,6 @@ export function EntryRow({
       </tr>
     )
   }
-
-  const meals = entry.calorieEntries ?? []
-  const hasDetails = Boolean(entry.note) || meals.length > 0
 
   return (
     <>
@@ -154,53 +151,7 @@ export function EntryRow({
             colSpan={COLUMN_COUNT}
             className="border-b border-border bg-muted/40 px-3 py-3 text-sm"
           >
-            {hasDetails ? (
-              <div className="flex flex-col gap-2">
-                {entry.note && (
-                  <p className="text-muted-foreground sm:hidden">
-                    {entry.note}
-                  </p>
-                )}
-                {meals.length > 0 && (
-                  <ul className="flex flex-col gap-1.5">
-                    {meals.map((meal, index) => {
-                      const EmotionIcon = EMOTIONS.find(
-                        (e) => e.value === meal.emotion,
-                      )?.Icon
-                      return (
-                        <li key={meal.id} className="flex flex-col gap-0.5">
-                          <span className="flex items-center gap-1.5">
-                            {t.dailyEntry.mealLabel(index + 1)} —{' '}
-                            {formatNumber(meal.amountKcal, locale, 0)}{' '}
-                            {t.dailyEntry.kcalUnit}
-                            {EmotionIcon && (
-                              <>
-                                <EmotionIcon
-                                  aria-hidden="true"
-                                  className="size-3.5 text-muted-foreground"
-                                />
-                                <span className="sr-only">
-                                  {t.dailyEntry.emotionLabel(meal.emotion!)}
-                                </span>
-                              </>
-                            )}
-                          </span>
-                          {meal.note && (
-                            <span className="text-xs text-muted-foreground">
-                              {meal.note}
-                            </span>
-                          )}
-                        </li>
-                      )
-                    })}
-                  </ul>
-                )}
-              </div>
-            ) : (
-              <p className="text-muted-foreground">
-                {t.history.noDetailsLabel}
-              </p>
-            )}
+            <DayDetail entry={entry} />
           </td>
         </tr>
       )}
