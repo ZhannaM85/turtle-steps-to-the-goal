@@ -52,7 +52,6 @@ export interface Dictionary {
     title: string
     description: string
     thisWeeksTarget: string
-    unitsLegend: string
     targetLabel: (unit: string) => string
     targetRequired: string
     deficitEstimate: (kcal: number, direction: 'deficit' | 'surplus') => string
@@ -123,6 +122,7 @@ export interface Dictionary {
   settings: {
     title: string
     description: string
+    unitsLabel: string
     languageLabel: string
     english: string
     russian: string

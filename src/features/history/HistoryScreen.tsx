@@ -67,7 +67,6 @@ export function HistoryScreen() {
                   <EntryRow
                     key={entry.id}
                     entry={entry}
-                    goal={goal}
                     onSaved={saveEntry}
                     onDeleted={deleteEntry}
                   />

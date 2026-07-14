@@ -5,6 +5,7 @@ import type { Goal } from '@/domain/goal'
 import { estimatedDailyCalorieDeficitKcal } from '@/domain/goal'
 import { unitLabel, useTranslation } from '@/i18n'
 import { parseNumberInput } from '@/shared/lib/parseNumberInput'
+import { useUnitStore } from '@/stores'
 import { Button } from '@/shared/ui/button'
 import { NumberInput } from '@/shared/ui/number-input'
 import {
@@ -21,6 +22,7 @@ export interface GoalFormProps {
 
 export function GoalForm({ existingGoal, onSubmit }: GoalFormProps) {
   const t = useTranslation()
+  const unit = useUnitStore((state) => state.unit)
   const schema = useMemo(() => makeGoalFormSchema(t), [t])
 
   const {
@@ -30,17 +32,16 @@ export function GoalForm({ existingGoal, onSubmit }: GoalFormProps) {
     formState: { errors },
   } = useForm<GoalFormValues>({
     resolver: zodResolver(schema),
-    defaultValues: goalToFormValues(existingGoal),
+    defaultValues: goalToFormValues(existingGoal, unit),
   })
 
   const values = watch()
-  const unit = values.displayUnit ?? 'kg'
-  const paceKg = effectiveWeeklyPaceKg(values)
+  const paceKg = effectiveWeeklyPaceKg(values, unit)
   const dailyDeficit =
     paceKg !== null ? estimatedDailyCalorieDeficitKcal(paceKg) : null
 
   function submit(formValues: GoalFormValues) {
-    onSubmit(formValuesToGoal(formValues, existingGoal))
+    onSubmit(formValuesToGoal(formValues, existingGoal, unit))
   }
 
   return (
@@ -49,20 +50,6 @@ export function GoalForm({ existingGoal, onSubmit }: GoalFormProps) {
       className="flex flex-col gap-4"
       noValidate
     >
-      <fieldset className="flex flex-col gap-1.5">
-        <legend className="text-sm font-medium">{t.goal.unitsLegend}</legend>
-        <div className="flex gap-4">
-          <label className="flex items-center gap-1.5 text-sm">
-            <input type="radio" value="kg" {...register('displayUnit')} />{' '}
-            {t.common.kg}
-          </label>
-          <label className="flex items-center gap-1.5 text-sm">
-            <input type="radio" value="lb" {...register('displayUnit')} />{' '}
-            {t.common.lb}
-          </label>
-        </div>
-      </fieldset>
-
       <NumberInput
         label={t.goal.targetLabel(unitLabel(unit, t))}
         error={errors.targetWeeklyLoss?.message}

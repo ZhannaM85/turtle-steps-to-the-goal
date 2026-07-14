@@ -70,7 +70,6 @@ export const en: Dictionary = {
     title: 'Goal',
     description: "This week's target — small steps, renewed week to week",
     thisWeeksTarget: "This week's target",
-    unitsLegend: 'Units',
     targetLabel: (unit) => `This week's target (${unit} to lose)`,
     targetRequired: "Enter this week's target, greater than 0",
     deficitEstimate: (kcal, direction) =>
@@ -149,6 +148,7 @@ export const en: Dictionary = {
   settings: {
     title: 'Settings',
     description: 'Units (kg/lb), language, and other preferences',
+    unitsLabel: 'Units',
     languageLabel: 'Language',
     english: 'English',
     russian: 'Russian',

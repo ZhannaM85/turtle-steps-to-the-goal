@@ -9,6 +9,7 @@ import {
   useLocale,
   useTranslation,
 } from '@/i18n'
+import { useUnitStore } from '@/stores'
 
 export interface MetTargetListProps {
   entries: DailyEntry[]
@@ -26,7 +27,7 @@ export function MetTargetList({ entries, goal }: MetTargetListProps) {
   const t = useTranslation()
   const locale = useLocale()
   const dateFnsLocale = getDateFnsLocale(locale)
-  const displayUnit = goal?.displayUnit ?? 'kg'
+  const displayUnit = useUnitStore((state) => state.unit)
   const toDisplay = (kg: number) => (displayUnit === 'lb' ? kgToLb(kg) : kg)
   const unit = unitLabel(displayUnit, t)
 

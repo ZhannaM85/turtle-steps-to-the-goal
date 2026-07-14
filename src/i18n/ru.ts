@@ -72,7 +72,6 @@ export const ru: Dictionary = {
     description:
       'Цель на эту неделю — маленькие шаги, обновляется каждую неделю',
     thisWeeksTarget: 'Цель на эту неделю',
-    unitsLegend: 'Единицы измерения',
     targetLabel: (unit) => `Цель на эту неделю (${unit} похудения)`,
     targetRequired: 'Укажите цель на неделю больше 0',
     deficitEstimate: (kcal, direction) =>
@@ -153,6 +152,7 @@ export const ru: Dictionary = {
   settings: {
     title: 'Настройки',
     description: 'Единицы измерения (кг/фунты), язык и другие настройки',
+    unitsLabel: 'Единицы измерения',
     languageLabel: 'Язык',
     english: 'Английский',
     russian: 'Русский',

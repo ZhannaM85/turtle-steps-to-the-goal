@@ -19,6 +19,7 @@ import {
   useLocale,
   useTranslation,
 } from '@/i18n'
+import { useUnitStore } from '@/stores'
 
 interface ChartPoint {
   date: string
@@ -35,7 +36,7 @@ export function WeightTrendChart({ entries, goal }: WeightTrendChartProps) {
   const t = useTranslation()
   const locale = useLocale()
   const dateFnsLocale = getDateFnsLocale(locale)
-  const displayUnit = goal?.displayUnit ?? 'kg'
+  const displayUnit = useUnitStore((state) => state.unit)
   const toDisplay = (kg: number) => (displayUnit === 'lb' ? kgToLb(kg) : kg)
 
   const weightPoints = entries

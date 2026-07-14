@@ -11,7 +11,7 @@ import { kgToLb } from '@/domain/goal'
 import { useCurrentWeekInfo } from '@/shared/hooks'
 import { PageHeader } from '@/shared/ui/page-header'
 import { StatCard } from '@/shared/ui/stat-card'
-import { useGoalStore } from '@/stores'
+import { useGoalStore, useUnitStore } from '@/stores'
 import { GoalForm } from './GoalForm'
 
 export function GoalScreen() {
@@ -19,13 +19,12 @@ export function GoalScreen() {
   const locale = useLocale()
   const dateFnsLocale = getDateFnsLocale(locale)
   const { goal, status, error, loadActiveGoal, saveGoal } = useGoalStore()
+  const displayUnit = useUnitStore((state) => state.unit)
   const weekInfo = useCurrentWeekInfo()
 
   useEffect(() => {
     loadActiveGoal()
   }, [loadActiveGoal])
-
-  const displayUnit = goal?.displayUnit ?? 'kg'
   const toDisplay = (kg: number) => (displayUnit === 'lb' ? kgToLb(kg) : kg)
 
   return (

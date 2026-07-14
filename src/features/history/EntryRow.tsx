@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { format, parseISO } from 'date-fns'
 import { Pencil, Trash2 } from 'lucide-react'
 import { totalCalories, type DailyEntry } from '@/domain/dailyEntry'
-import { kgToLb, type Goal } from '@/domain/goal'
+import { kgToLb } from '@/domain/goal'
 import {
   formatNumber,
   getDateFnsLocale,
@@ -11,26 +11,26 @@ import {
   useTranslation,
 } from '@/i18n'
 import { DailyEntryForm } from '@/features/daily-log'
+import { useUnitStore } from '@/stores'
 import { Button } from '@/shared/ui/button'
 
 const COLUMN_COUNT = 5
 
 export interface EntryRowProps {
   entry: DailyEntry
-  goal: Goal | null
   onSaved: (entry: DailyEntry) => void
   onDeleted: (id: string) => void
 }
 
 type RowMode = 'view' | 'edit' | 'confirmDelete'
 
-export function EntryRow({ entry, goal, onSaved, onDeleted }: EntryRowProps) {
+export function EntryRow({ entry, onSaved, onDeleted }: EntryRowProps) {
   const t = useTranslation()
   const locale = useLocale()
   const dateFnsLocale = getDateFnsLocale(locale)
   const [mode, setMode] = useState<RowMode>('view')
 
-  const displayUnit = goal?.displayUnit ?? 'kg'
+  const displayUnit = useUnitStore((state) => state.unit)
   const weightDisplay =
     entry.weightKg === undefined
       ? '—'

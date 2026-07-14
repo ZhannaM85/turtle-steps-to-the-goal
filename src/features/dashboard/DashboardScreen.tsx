@@ -29,7 +29,7 @@ export function DashboardScreen() {
         <>
           <WeightTrendChart entries={entries} goal={goal} />
           <CalorieTrendChart entries={entries} />
-          <CorrelationView entries={entries} goal={goal} />
+          <CorrelationView entries={entries} />
           <WeeklySummaryCards entries={entries} goal={goal} />
         </>
       )}

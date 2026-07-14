@@ -8,7 +8,6 @@ function makeGoal(overrides: Partial<Goal> = {}): Goal {
   return {
     id: 'goal-1',
     targetWeeklyLossKg: 1,
-    displayUnit: 'kg',
     createdAt: now,
     updatedAt: now,
     ...overrides,

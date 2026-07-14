@@ -16,7 +16,7 @@ import { Input } from '@/shared/ui/input'
 import { Label } from '@/shared/ui/label'
 import { PageHeader } from '@/shared/ui/page-header'
 import { StatCard } from '@/shared/ui/stat-card'
-import { useDailyEntryStore, useGoalStore } from '@/stores'
+import { useDailyEntryStore, useGoalStore, useUnitStore } from '@/stores'
 import { DailyEntryForm } from './DailyEntryForm'
 
 function todayIso() {
@@ -45,7 +45,7 @@ export function TodayScreen() {
     loadEntry(date)
   }, [date, loadEntry])
 
-  const displayUnit = goal?.displayUnit ?? 'kg'
+  const displayUnit = useUnitStore((state) => state.unit)
   const weeklyPace = goal
     ? displayUnit === 'lb'
       ? kgToLb(goal.targetWeeklyLossKg)

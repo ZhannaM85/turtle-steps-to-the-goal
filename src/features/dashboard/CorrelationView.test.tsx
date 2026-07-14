@@ -42,7 +42,7 @@ function entry(date: string, overrides: Partial<DailyEntry> = {}): DailyEntry {
 
 describe('CorrelationView', () => {
   it('renders nothing when there are no comparable weeks', () => {
-    const { container } = render(<CorrelationView entries={[]} goal={null} />)
+    const { container } = render(<CorrelationView entries={[]} />)
     expect(container).toBeEmptyDOMElement()
   })
 
@@ -51,7 +51,7 @@ describe('CorrelationView', () => {
       entry(weekStart(0), { weightKg: 90 }),
       entry(weekStart(1), { weightKg: 88, calorieEntries: calories(1800) }),
     ]
-    render(<CorrelationView entries={entries} goal={null} />)
+    render(<CorrelationView entries={entries} />)
 
     expect(
       screen.getByText(/Not enough data yet to see a pattern/),
@@ -66,7 +66,7 @@ describe('CorrelationView', () => {
       entry(weekStart(3), { weightKg: 85.5, calorieEntries: calories(2200) }),
       entry(weekStart(4), { weightKg: 85.3, calorieEntries: calories(2300) }),
     ]
-    render(<CorrelationView entries={entries} goal={null} />)
+    render(<CorrelationView entries={entries} />)
 
     expect(
       screen.getByText(/averaged more loss than weeks/),

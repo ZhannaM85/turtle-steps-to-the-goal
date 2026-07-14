@@ -23,7 +23,6 @@ function renderRow(props: Partial<Parameters<typeof EntryRow>[0]> = {}) {
       <tbody>
         <EntryRow
           entry={makeEntry()}
-          goal={null}
           onSaved={vi.fn()}
           onDeleted={vi.fn()}
           {...props}

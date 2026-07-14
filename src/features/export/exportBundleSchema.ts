@@ -3,7 +3,6 @@ import { z } from 'zod'
 const goalSchema = z.object({
   id: z.string(),
   targetWeeklyLossKg: z.number(),
-  displayUnit: z.enum(['kg', 'lb']),
   createdAt: z.string(),
   updatedAt: z.string(),
 })

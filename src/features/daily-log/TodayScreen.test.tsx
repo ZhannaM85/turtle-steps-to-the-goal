@@ -15,7 +15,6 @@ function makeGoal(overrides: Partial<Goal> = {}): Goal {
   return {
     id: crypto.randomUUID(),
     targetWeeklyLossKg: 1,
-    displayUnit: 'kg',
     createdAt: now,
     updatedAt: now,
     ...overrides,

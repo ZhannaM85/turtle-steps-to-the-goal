@@ -4,7 +4,6 @@ import type { Dictionary } from '@/i18n'
 export function makeGoalFormSchema(t: Dictionary) {
   return z
     .object({
-      displayUnit: z.enum(['kg', 'lb']),
       targetWeeklyLoss: z.number().max(10).optional(),
     })
     .superRefine((data, ctx) => {

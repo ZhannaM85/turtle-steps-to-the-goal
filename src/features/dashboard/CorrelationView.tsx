@@ -8,19 +8,19 @@ import {
   YAxis,
 } from 'recharts'
 import type { DailyEntry } from '@/domain/dailyEntry'
-import { kgToLb, type Goal } from '@/domain/goal'
+import { kgToLb } from '@/domain/goal'
 import { correlationInsight, weeklySummaries } from '@/domain/stats'
 import { formatNumber, unitLabel, useLocale, useTranslation } from '@/i18n'
+import { useUnitStore } from '@/stores'
 
 export interface CorrelationViewProps {
   entries: DailyEntry[]
-  goal: Goal | null
 }
 
-export function CorrelationView({ entries, goal }: CorrelationViewProps) {
+export function CorrelationView({ entries }: CorrelationViewProps) {
   const t = useTranslation()
   const locale = useLocale()
-  const displayUnit = goal?.displayUnit ?? 'kg'
+  const displayUnit = useUnitStore((state) => state.unit)
   const toDisplay = (kg: number) => (displayUnit === 'lb' ? kgToLb(kg) : kg)
   const unit = unitLabel(displayUnit, t)
 

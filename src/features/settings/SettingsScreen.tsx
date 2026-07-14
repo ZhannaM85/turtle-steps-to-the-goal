@@ -4,7 +4,7 @@ import {
   type Locale,
   type Dictionary,
 } from '@/i18n'
-import { useThemeStore, type Mood } from '@/stores'
+import { useThemeStore, useUnitStore, type Mood, type Unit } from '@/stores'
 import { ExportSection } from '@/features/export'
 import { PageHeader } from '@/shared/ui/page-header'
 import { cn } from '@/shared/lib/utils'
@@ -31,6 +31,8 @@ function moodOptions(t: Dictionary): { value: Mood; label: string }[] {
 
 export function SettingsScreen() {
   const t = useTranslation()
+  const unit = useUnitStore((state) => state.unit)
+  const setUnit = useUnitStore((state) => state.setUnit)
   const locale = useLocaleStore((state) => state.locale)
   const setLocale = useLocaleStore((state) => state.setLocale)
   const mood = useThemeStore((state) => state.mood)
@@ -44,6 +46,32 @@ export function SettingsScreen() {
         title={t.settings.title}
         description={t.settings.description}
       />
+
+      <fieldset className="flex flex-col gap-1.5">
+        <legend className="text-sm font-medium">{t.settings.unitsLabel}</legend>
+        <div className="flex gap-4">
+          <label className="flex items-center gap-1.5 text-sm">
+            <input
+              type="radio"
+              name="unit"
+              value="kg"
+              checked={unit === 'kg'}
+              onChange={() => setUnit('kg' satisfies Unit)}
+            />{' '}
+            {t.common.kg}
+          </label>
+          <label className="flex items-center gap-1.5 text-sm">
+            <input
+              type="radio"
+              name="unit"
+              value="lb"
+              checked={unit === 'lb'}
+              onChange={() => setUnit('lb' satisfies Unit)}
+            />{' '}
+            {t.common.lb}
+          </label>
+        </div>
+      </fieldset>
 
       <fieldset className="flex flex-col gap-1.5">
         <legend className="text-sm font-medium">

@@ -1,16 +1,36 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
+import { useUnitStore } from '@/stores'
 import { GoalForm } from './GoalForm'
+
+afterEach(() => {
+  useUnitStore.setState({ unit: 'kg' })
+})
 
 describe('GoalForm', () => {
   it('defaults to kg units', () => {
     render(<GoalForm existingGoal={null} onSubmit={vi.fn()} />)
 
-    expect(screen.getByRole('radio', { name: 'kg' })).toBeChecked()
     expect(
       screen.getByLabelText("This week's target (kg to lose)"),
     ).toBeInTheDocument()
+  })
+
+  it('labels and converts the target using the current unit preference', async () => {
+    const user = userEvent.setup()
+    const onSubmit = vi.fn()
+    useUnitStore.setState({ unit: 'lb' })
+    render(<GoalForm existingGoal={null} onSubmit={onSubmit} />)
+
+    const input = screen.getByLabelText("This week's target (lb to lose)")
+    await user.type(input, '2.2')
+    await user.click(
+      screen.getByRole('button', { name: 'Set this week’s target' }),
+    )
+
+    expect(onSubmit).toHaveBeenCalledTimes(1)
+    expect(onSubmit.mock.calls[0][0].targetWeeklyLossKg).toBeCloseTo(1, 1)
   })
 
   it('shows a validation error when the weekly target is left empty', async () => {
@@ -59,7 +79,6 @@ describe('GoalForm', () => {
     expect(onSubmit).toHaveBeenCalledTimes(1)
     const goal = onSubmit.mock.calls[0][0]
     expect(goal.targetWeeklyLossKg).toBe(1)
-    expect(goal.displayUnit).toBe('kg')
     expect(goal.id).toBeTruthy()
   })
 
@@ -69,7 +88,6 @@ describe('GoalForm', () => {
         existingGoal={{
           id: 'g1',
           targetWeeklyLossKg: 1,
-          displayUnit: 'kg',
           createdAt: '2026-01-01T00:00:00.000Z',
           updatedAt: '2026-01-01T00:00:00.000Z',
         }}
