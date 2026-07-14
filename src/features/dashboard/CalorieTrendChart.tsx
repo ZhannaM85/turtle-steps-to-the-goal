@@ -38,11 +38,6 @@ export function CalorieTrendChart({ entries }: CalorieTrendChartProps) {
   const dateFnsLocale = getDateFnsLocale(locale)
   const navigate = useNavigate()
 
-  function handleChartClick(state: ChartClickState) {
-    const date = resolveChartClickDate(state, 'calories')
-    if (date) navigate(`/history?date=${date}`)
-  }
-
   const calorieBars = entries
     .map((entry) => ({
       date: entry.date,
@@ -75,6 +70,15 @@ export function CalorieTrendChart({ entries }: CalorieTrendChartProps) {
     merged.set(point.date, { ...merged.get(point.date), ...point })
   }
   const data = [...merged.values()].sort((a, b) => a.date.localeCompare(b.date))
+
+  function handleChartClick(state: ChartClickState) {
+    const date = resolveChartClickDate(
+      state,
+      data,
+      (point) => point.calories !== undefined,
+    )
+    if (date) navigate(`/history?date=${date}`)
+  }
 
   return (
     <div className="flex flex-col gap-1.5">

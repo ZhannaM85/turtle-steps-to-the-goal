@@ -34,11 +34,6 @@ export function WeightTrendChart({ entries }: WeightTrendChartProps) {
   const displayUnit = useUnitStore((state) => state.unit)
   const toDisplay = (kg: number) => (displayUnit === 'lb' ? kgToLb(kg) : kg)
 
-  function handleChartClick(state: ChartClickState) {
-    const date = resolveChartClickDate(state, 'weight')
-    if (date) navigate(`/history?date=${date}`)
-  }
-
   const data = entries
     .filter(
       (entry): entry is DailyEntry & { weightKg: number } =>
@@ -46,6 +41,15 @@ export function WeightTrendChart({ entries }: WeightTrendChartProps) {
     )
     .sort((a, b) => a.date.localeCompare(b.date))
     .map((entry) => ({ date: entry.date, weight: toDisplay(entry.weightKg) }))
+
+  function handleChartClick(state: ChartClickState) {
+    const date = resolveChartClickDate(
+      state,
+      data,
+      (point) => point.weight !== undefined,
+    )
+    if (date) navigate(`/history?date=${date}`)
+  }
 
   if (data.length === 0) return null
 
