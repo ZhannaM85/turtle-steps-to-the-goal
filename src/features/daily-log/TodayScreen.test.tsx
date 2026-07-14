@@ -261,4 +261,81 @@ describe('TodayScreen', () => {
       ).not.toBeInTheDocument()
     })
   })
+
+  describe('delta vs yesterday', () => {
+    it('shows the delta once both today and yesterday have a logged weight', async () => {
+      const yesterday = format(subDays(new Date(), 1), 'yyyy-MM-dd')
+      await db.dailyEntries.put(makeEntry({ date: yesterday, weightKg: 80.5 }))
+      await useDailyEntryStore
+        .getState()
+        .saveEntry(makeEntry({ weightKg: 80.0 }))
+      useDailyEntryStore.setState({ entry: null, date: null, status: 'idle' })
+
+      render(
+        <MemoryRouter>
+          <TodayScreen />
+        </MemoryRouter>,
+      )
+
+      expect(await screen.findByText('vs. yesterday')).toBeInTheDocument()
+      expect(screen.getByText('-0.5')).toBeInTheDocument()
+    })
+
+    it('renders a loss bold, with the minus sign', async () => {
+      const yesterday = format(subDays(new Date(), 1), 'yyyy-MM-dd')
+      await db.dailyEntries.put(makeEntry({ date: yesterday, weightKg: 80.5 }))
+      await useDailyEntryStore
+        .getState()
+        .saveEntry(makeEntry({ weightKg: 80.0 }))
+      useDailyEntryStore.setState({ entry: null, date: null, status: 'idle' })
+
+      render(
+        <MemoryRouter>
+          <TodayScreen />
+        </MemoryRouter>,
+      )
+
+      const value = await screen.findByText('-0.5')
+      expect(value).toHaveClass('text-4xl', 'font-semibold')
+    })
+
+    it('renders a gain quietly, with no explicit plus sign', async () => {
+      const yesterday = format(subDays(new Date(), 1), 'yyyy-MM-dd')
+      await db.dailyEntries.put(makeEntry({ date: yesterday, weightKg: 80.0 }))
+      await useDailyEntryStore
+        .getState()
+        .saveEntry(makeEntry({ weightKg: 80.6 }))
+      useDailyEntryStore.setState({ entry: null, date: null, status: 'idle' })
+
+      render(
+        <MemoryRouter>
+          <TodayScreen />
+        </MemoryRouter>,
+      )
+
+      const value = await screen.findByText('0.6')
+      expect(screen.queryByText('+0.6')).not.toBeInTheDocument()
+      expect(value).toHaveClass(
+        'text-2xl',
+        'font-normal',
+        'text-muted-foreground',
+      )
+    })
+
+    it('does not show the delta when yesterday has no logged weight', async () => {
+      await useDailyEntryStore
+        .getState()
+        .saveEntry(makeEntry({ weightKg: 80.0 }))
+      useDailyEntryStore.setState({ entry: null, date: null, status: 'idle' })
+
+      render(
+        <MemoryRouter>
+          <TodayScreen />
+        </MemoryRouter>,
+      )
+
+      await screen.findByText('80.0 kg')
+      expect(screen.queryByText('vs. yesterday')).not.toBeInTheDocument()
+    })
+  })
 })

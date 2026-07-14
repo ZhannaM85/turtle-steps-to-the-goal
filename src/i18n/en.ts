@@ -38,6 +38,7 @@ export const en: Dictionary = {
     goalRenewalReminder:
       "This week wraps up today — worth checking next week's target.",
     reviewGoalLink: 'Review goal',
+    vsYesterdayLabel: 'vs. yesterday',
   },
   dailyEntry: {
     weightLabel: 'Weight (kg)',

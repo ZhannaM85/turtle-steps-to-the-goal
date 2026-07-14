@@ -25,6 +25,7 @@ export interface Dictionary {
     dateLabel: string
     goalRenewalReminder: string
     reviewGoalLink: string
+    vsYesterdayLabel: string
   }
   dailyEntry: {
     weightLabel: string

@@ -39,6 +39,7 @@ export const ru: Dictionary = {
     goalRenewalReminder:
       'Эта неделя заканчивается сегодня — стоит проверить цель на следующую неделю.',
     reviewGoalLink: 'Посмотреть цель',
+    vsYesterdayLabel: 'по сравнению со вчера',
   },
   dailyEntry: {
     weightLabel: 'Вес (кг)',

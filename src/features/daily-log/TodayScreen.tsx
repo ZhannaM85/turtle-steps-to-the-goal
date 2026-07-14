@@ -9,7 +9,7 @@ import {
   useLocale,
   useTranslation,
 } from '@/i18n'
-import { useCurrentWeekInfo } from '@/shared/hooks'
+import { useCurrentWeekInfo, usePreviousDayEntry } from '@/shared/hooks'
 import { Button } from '@/shared/ui/button'
 import { EmptyState } from '@/shared/ui/empty-state'
 import { Input } from '@/shared/ui/input'
@@ -36,6 +36,7 @@ export function TodayScreen() {
   } = useDailyEntryStore()
   const [date, setDate] = useState(todayIso)
   const weekInfo = useCurrentWeekInfo()
+  const previousDayEntry = usePreviousDayEntry(date)
 
   useEffect(() => {
     loadActiveGoal()
@@ -46,11 +47,34 @@ export function TodayScreen() {
   }, [date, loadEntry])
 
   const displayUnit = useUnitStore((state) => state.unit)
-  const weeklyPace = goal
-    ? displayUnit === 'lb'
-      ? kgToLb(goal.targetWeeklyLossKg)
-      : goal.targetWeeklyLossKg
-    : null
+  const toDisplay = (kg: number) => (displayUnit === 'lb' ? kgToLb(kg) : kg)
+  const weeklyPace = goal ? toDisplay(goal.targetWeeklyLossKg) : null
+
+  // Day-over-day delta (#42) — a distinct, unsmoothed number from the
+  // weekly average-vs-average delta on Dashboard; only shown once both
+  // this day and the one before it have a logged weight.
+  const weightDeltaKg =
+    entry?.weightKg !== undefined && previousDayEntry?.weightKg !== undefined
+      ? entry.weightKg - previousDayEntry.weightKg
+      : null
+  const weightDeltaText =
+    weightDeltaKg === null
+      ? null
+      : formatNumber(toDisplay(weightDeltaKg), locale)
+  const isWeightLoss = weightDeltaKg !== null && weightDeltaKg < 0
+  // Same asymmetric emphasis as the weekly summary cards (#29): a loss is
+  // worth noticing, a gain or no-change stays quiet rather than a stark
+  // number — day-to-day weight is noisy (water, timing), more so than the
+  // week-level delta this echoes.
+  const weightDeltaValue =
+    weightDeltaText === null ? null : isWeightLoss ? (
+      weightDeltaText
+    ) : (
+      <span className="text-2xl font-normal text-muted-foreground">
+        {weightDeltaText}
+      </span>
+    )
+
   // Quiet, one-day nudge (#38) — only on the last day of the current ISO
   // week, and only when a goal already exists (a goal-less user already
   // sees the "Set a goal" empty state above, which covers that case).
@@ -94,6 +118,14 @@ export function TodayScreen() {
               <Link to="/goal">{t.today.setGoalButton}</Link>
             </Button>
           }
+        />
+      )}
+
+      {weightDeltaValue !== null && (
+        <StatCard
+          label={t.today.vsYesterdayLabel}
+          value={weightDeltaValue}
+          unit={unitLabel(displayUnit, t)}
         />
       )}
 
