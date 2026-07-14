@@ -123,6 +123,11 @@ export interface Dictionary {
     expandLabel: string
     collapseLabel: string
     noDetailsLabel: string
+    dateFromLabel: string
+    dateToLabel: string
+    clearFilterButton: string
+    noFilterResultsTitle: string
+    noFilterResultsDescription: string
   }
   settings: {
     title: string

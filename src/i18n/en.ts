@@ -150,6 +150,12 @@ export const en: Dictionary = {
     expandLabel: 'View details',
     collapseLabel: 'Hide details',
     noDetailsLabel: 'Nothing else logged for this day.',
+    dateFromLabel: 'From',
+    dateToLabel: 'To',
+    clearFilterButton: 'Clear filter',
+    noFilterResultsTitle: 'No entries in this range',
+    noFilterResultsDescription:
+      'Try a different date range, or clear the filter.',
   },
   settings: {
     title: 'Settings',

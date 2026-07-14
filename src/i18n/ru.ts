@@ -154,6 +154,11 @@ export const ru: Dictionary = {
     expandLabel: 'Показать подробности',
     collapseLabel: 'Скрыть подробности',
     noDetailsLabel: 'За этот день больше ничего не записано.',
+    dateFromLabel: 'С',
+    dateToLabel: 'По',
+    clearFilterButton: 'Сбросить фильтр',
+    noFilterResultsTitle: 'Нет записей за этот период',
+    noFilterResultsDescription: 'Попробуйте другой период или сбросьте фильтр.',
   },
   settings: {
     title: 'Настройки',
