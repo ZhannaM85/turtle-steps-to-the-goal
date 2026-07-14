@@ -83,7 +83,6 @@ export interface Dictionary {
     title: string
     description: string
     weightLegend: string
-    projectionLegend: string
     caloriesLegend: string
     rollingAverageLegend: string
     weeklySummaryTitle: string

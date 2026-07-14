@@ -2,7 +2,6 @@ import { render, screen } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import { describe, expect, it } from 'vitest'
 import type { DailyEntry } from '@/domain/dailyEntry'
-import type { Goal } from '@/domain/goal'
 import { WeightTrendChart } from './WeightTrendChart'
 
 let idCounter = 0
@@ -18,46 +17,27 @@ function entry(date: string, overrides: Partial<DailyEntry> = {}): DailyEntry {
   }
 }
 
-function makeGoal(overrides: Partial<Goal> = {}): Goal {
-  return {
-    id: 'goal-1',
-    targetWeeklyLossKg: 1,
-    createdAt: '2026-01-01T00:00:00.000Z',
-    updatedAt: '2026-01-01T00:00:00.000Z',
-    ...overrides,
-  }
-}
-
 describe('WeightTrendChart', () => {
   it('renders nothing when there are no weight entries', () => {
-    const { container } = render(
-      <WeightTrendChart entries={[]} goal={null} />,
-      {
-        wrapper: MemoryRouter,
-      },
-    )
+    const { container } = render(<WeightTrendChart entries={[]} />, {
+      wrapper: MemoryRouter,
+    })
     expect(container).toBeEmptyDOMElement()
   })
 
   it('renders the weight legend when there is weight data', () => {
     const entries = [entry('2026-03-01', { weightKg: 80 })]
-    render(<WeightTrendChart entries={entries} goal={null} />, {
+    render(<WeightTrendChart entries={entries} />, {
       wrapper: MemoryRouter,
     })
 
     expect(screen.getByText('weight')).toBeInTheDocument()
   })
 
-  it('shows the projection legend only when a goal exists to project from', () => {
+  it('does not show a projection legend (#46: prognosis line removed)', () => {
     const entries = [entry('2026-03-01', { weightKg: 80 })]
+    render(<WeightTrendChart entries={entries} />, { wrapper: MemoryRouter })
 
-    const { rerender } = render(
-      <WeightTrendChart entries={entries} goal={null} />,
-      { wrapper: MemoryRouter },
-    )
     expect(screen.queryByText('projected')).not.toBeInTheDocument()
-
-    rerender(<WeightTrendChart entries={entries} goal={makeGoal()} />)
-    expect(screen.getByText('projected')).toBeInTheDocument()
   })
 })

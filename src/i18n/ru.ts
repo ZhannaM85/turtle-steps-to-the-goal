@@ -109,7 +109,6 @@ export const ru: Dictionary = {
     description:
       'График веса, график калорий, карточки недельной сводки, корреляции',
     weightLegend: 'вес',
-    projectionLegend: 'прогноз',
     caloriesLegend: 'калории',
     rollingAverageLegend: 'среднее за 7 дней',
     weeklySummaryTitle: 'Недельная сводка',

@@ -11,8 +11,7 @@ import {
 } from 'recharts'
 import { useNavigate } from 'react-router-dom'
 import type { DailyEntry } from '@/domain/dailyEntry'
-import { kgToLb, type Goal } from '@/domain/goal'
-import { projectedPaceTrajectory } from '@/domain/stats'
+import { kgToLb } from '@/domain/goal'
 import {
   formatNumber,
   getDateFnsLocale,
@@ -23,18 +22,11 @@ import {
 import { useUnitStore } from '@/stores'
 import { resolveChartClickDate, type ChartClickState } from './chartNavigation'
 
-interface ChartPoint {
-  date: string
-  weight?: number
-  projection?: number
-}
-
 export interface WeightTrendChartProps {
   entries: DailyEntry[]
-  goal: Goal | null
 }
 
-export function WeightTrendChart({ entries, goal }: WeightTrendChartProps) {
+export function WeightTrendChart({ entries }: WeightTrendChartProps) {
   const t = useTranslation()
   const locale = useLocale()
   const dateFnsLocale = getDateFnsLocale(locale)
@@ -42,14 +34,12 @@ export function WeightTrendChart({ entries, goal }: WeightTrendChartProps) {
   const displayUnit = useUnitStore((state) => state.unit)
   const toDisplay = (kg: number) => (displayUnit === 'lb' ? kgToLb(kg) : kg)
 
-  // Only real logged days are navigable — the dashed projection line has
-  // no History entry behind it, so a tap there should do nothing.
   function handleChartClick(state: ChartClickState) {
     const date = resolveChartClickDate(state, 'weight')
     if (date) navigate(`/history?date=${date}`)
   }
 
-  const weightPoints = entries
+  const data = entries
     .filter(
       (entry): entry is DailyEntry & { weightKg: number } =>
         entry.weightKg !== undefined,
@@ -57,23 +47,9 @@ export function WeightTrendChart({ entries, goal }: WeightTrendChartProps) {
     .sort((a, b) => a.date.localeCompare(b.date))
     .map((entry) => ({ date: entry.date, weight: toDisplay(entry.weightKg) }))
 
-  const trajectory = projectedPaceTrajectory(entries, goal).map((point) => ({
-    date: point.date,
-    projection: toDisplay(point.weightKg),
-  }))
+  if (data.length === 0) return null
 
-  if (weightPoints.length === 0) return null
-
-  const merged = new Map<string, ChartPoint>()
-  for (const point of weightPoints) {
-    merged.set(point.date, { ...merged.get(point.date), ...point })
-  }
-  for (const point of trajectory) {
-    merged.set(point.date, { ...merged.get(point.date), ...point })
-  }
-  const data = [...merged.values()].sort((a, b) => a.date.localeCompare(b.date))
-  const lastWeightDate = weightPoints[weightPoints.length - 1].date
-  const lastWeightIndex = data.findIndex((p) => p.date === lastWeightDate)
+  const lastWeightIndex = data.length - 1
 
   const unit = unitLabel(displayUnit, t)
 
@@ -143,17 +119,6 @@ export function WeightTrendChart({ entries, goal }: WeightTrendChartProps) {
             activeDot={{ r: 4 }}
             isAnimationActive={false}
           />
-          <Line
-            type="monotone"
-            dataKey="projection"
-            stroke="var(--muted-foreground)"
-            strokeOpacity={0.8}
-            strokeWidth={1.5}
-            strokeDasharray="4 4"
-            connectNulls={false}
-            dot={false}
-            isAnimationActive={false}
-          />
         </LineChart>
       </ResponsiveContainer>
       <span className="flex gap-3 text-xs text-muted-foreground">
@@ -165,15 +130,6 @@ export function WeightTrendChart({ entries, goal }: WeightTrendChartProps) {
           />
           {t.dashboard.weightLegend}
         </i>
-        {trajectory.length > 0 && (
-          <i className="flex items-center gap-1 not-italic">
-            <span
-              aria-hidden="true"
-              className="size-2 rounded-sm border border-dashed border-muted-foreground"
-            />
-            {t.dashboard.projectionLegend}
-          </i>
-        )}
       </span>
       <p className="text-xs text-muted-foreground">
         {t.dashboard.chartNavigationHint}

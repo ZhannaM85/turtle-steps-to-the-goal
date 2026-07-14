@@ -108,7 +108,6 @@ export const en: Dictionary = {
     description:
       'Weight trend, calorie trend, weekly summary cards, correlation view',
     weightLegend: 'weight',
-    projectionLegend: 'projected',
     caloriesLegend: 'calories',
     rollingAverageLegend: '7-day average',
     weeklySummaryTitle: 'Weekly summary',
