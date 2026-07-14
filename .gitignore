@@ -26,3 +26,5 @@ coverage
 
 # Claude Code local settings (personal tool-permission grants, not shared)
 .claude/settings.local.json
+.zm-index/
+*.zm-index.db
