@@ -21,11 +21,19 @@ export interface EntryRowProps {
   entry: DailyEntry
   onSaved: (entry: DailyEntry) => void
   onDeleted: (id: string) => void
+  /** Opens the read-only detail panel immediately on mount — used when
+   * arriving via a dashboard-chart deep link (#41) straight to this day. */
+  defaultExpanded?: boolean
 }
 
 type RowMode = 'view' | 'edit' | 'confirmDelete'
 
-export function EntryRow({ entry, onSaved, onDeleted }: EntryRowProps) {
+export function EntryRow({
+  entry,
+  onSaved,
+  onDeleted,
+  defaultExpanded = false,
+}: EntryRowProps) {
   const t = useTranslation()
   const locale = useLocale()
   const dateFnsLocale = getDateFnsLocale(locale)
@@ -34,7 +42,7 @@ export function EntryRow({ entry, onSaved, onDeleted }: EntryRowProps) {
   // Kept separate so it survives a confirmDelete round-trip (cancel
   // returns to whatever expand state the row was already in) and is
   // untouched by switching to edit mode.
-  const [isExpanded, setIsExpanded] = useState(false)
+  const [isExpanded, setIsExpanded] = useState(defaultExpanded)
 
   const displayUnit = useUnitStore((state) => state.unit)
   const weightDisplay =

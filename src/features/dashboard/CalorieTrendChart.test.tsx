@@ -1,4 +1,5 @@
 import { render, screen } from '@testing-library/react'
+import { MemoryRouter } from 'react-router-dom'
 import { describe, expect, it } from 'vitest'
 import type { DailyEntry } from '@/domain/dailyEntry'
 import { CalorieTrendChart } from './CalorieTrendChart'
@@ -18,7 +19,9 @@ function entry(date: string, overrides: Partial<DailyEntry> = {}): DailyEntry {
 
 describe('CalorieTrendChart', () => {
   it('renders nothing when there are no calorie entries', () => {
-    const { container } = render(<CalorieTrendChart entries={[]} />)
+    const { container } = render(<CalorieTrendChart entries={[]} />, {
+      wrapper: MemoryRouter,
+    })
     expect(container).toBeEmptyDOMElement()
   })
 
@@ -30,7 +33,7 @@ describe('CalorieTrendChart', () => {
         ],
       }),
     ]
-    render(<CalorieTrendChart entries={entries} />)
+    render(<CalorieTrendChart entries={entries} />, { wrapper: MemoryRouter })
 
     expect(screen.getByText('calories')).toBeInTheDocument()
     expect(screen.getByText('7-day average')).toBeInTheDocument()

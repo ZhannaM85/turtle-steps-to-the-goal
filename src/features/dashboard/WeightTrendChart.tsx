@@ -9,6 +9,7 @@ import {
   YAxis,
   type DotItemDotProps,
 } from 'recharts'
+import { useNavigate } from 'react-router-dom'
 import type { DailyEntry } from '@/domain/dailyEntry'
 import { kgToLb, type Goal } from '@/domain/goal'
 import { projectedPaceTrajectory } from '@/domain/stats'
@@ -20,6 +21,7 @@ import {
   useTranslation,
 } from '@/i18n'
 import { useUnitStore } from '@/stores'
+import { resolveChartClickDate, type ChartClickState } from './chartNavigation'
 
 interface ChartPoint {
   date: string
@@ -36,8 +38,16 @@ export function WeightTrendChart({ entries, goal }: WeightTrendChartProps) {
   const t = useTranslation()
   const locale = useLocale()
   const dateFnsLocale = getDateFnsLocale(locale)
+  const navigate = useNavigate()
   const displayUnit = useUnitStore((state) => state.unit)
   const toDisplay = (kg: number) => (displayUnit === 'lb' ? kgToLb(kg) : kg)
+
+  // Only real logged days are navigable — the dashed projection line has
+  // no History entry behind it, so a tap there should do nothing.
+  function handleChartClick(state: ChartClickState) {
+    const date = resolveChartClickDate(state, 'weight')
+    if (date) navigate(`/history?date=${date}`)
+  }
 
   const weightPoints = entries
     .filter(
@@ -73,6 +83,8 @@ export function WeightTrendChart({ entries, goal }: WeightTrendChartProps) {
         <LineChart
           data={data}
           margin={{ top: 8, right: 8, left: 0, bottom: 0 }}
+          onClick={handleChartClick}
+          className="cursor-pointer"
         >
           <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
           <XAxis
@@ -163,6 +175,9 @@ export function WeightTrendChart({ entries, goal }: WeightTrendChartProps) {
           </i>
         )}
       </span>
+      <p className="text-xs text-muted-foreground">
+        {t.dashboard.chartNavigationHint}
+      </p>
     </div>
   )
 }

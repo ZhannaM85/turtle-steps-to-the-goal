@@ -101,6 +101,7 @@ export interface Dictionary {
     correlationWeekCount: (n: number) => string
     correlationLagCaveat: string
     weeklyChangeLegend: string
+    chartNavigationHint: string
   }
   history: {
     title: string

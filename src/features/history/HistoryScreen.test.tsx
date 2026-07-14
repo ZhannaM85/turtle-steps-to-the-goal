@@ -1,6 +1,7 @@
 import 'fake-indexeddb/auto'
 import { fireEvent, render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { MemoryRouter } from 'react-router-dom'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import type { DailyEntry } from '@/domain/dailyEntry'
 import { db } from '@/infrastructure/persistence/indexeddb'
@@ -35,7 +36,7 @@ afterEach(async () => {
 
 describe('HistoryScreen', () => {
   it('shows an empty state when there are no entries yet', async () => {
-    render(<HistoryScreen />)
+    render(<HistoryScreen />, { wrapper: MemoryRouter })
 
     expect(await screen.findByText('No entries yet')).toBeInTheDocument()
   })
@@ -44,7 +45,7 @@ describe('HistoryScreen', () => {
     await db.dailyEntries.put(makeEntry({ date: '2026-03-01', weightKg: 82 }))
     await db.dailyEntries.put(makeEntry({ date: '2026-03-03', weightKg: 80 }))
 
-    render(<HistoryScreen />)
+    render(<HistoryScreen />, { wrapper: MemoryRouter })
     await screen.findByRole('table')
 
     const rowsInitial = screen.getAllByRole('row').slice(1) // skip header row
@@ -62,7 +63,7 @@ describe('HistoryScreen', () => {
     await db.dailyEntries.put(entry)
 
     const user = userEvent.setup()
-    render(<HistoryScreen />)
+    render(<HistoryScreen />, { wrapper: MemoryRouter })
     await screen.findByRole('table')
 
     await user.click(screen.getByRole('button', { name: 'Delete entry' }))
@@ -77,7 +78,7 @@ describe('HistoryScreen', () => {
     await db.dailyEntries.put(entry)
 
     const user = userEvent.setup()
-    render(<HistoryScreen />)
+    render(<HistoryScreen />, { wrapper: MemoryRouter })
     await screen.findByRole('table')
 
     await user.click(screen.getByRole('button', { name: 'Edit entry' }))
@@ -103,7 +104,7 @@ describe('HistoryScreen', () => {
 
     it('shows every entry with no filter set', async () => {
       await seedThreeEntries()
-      render(<HistoryScreen />)
+      render(<HistoryScreen />, { wrapper: MemoryRouter })
       await screen.findByRole('table')
 
       expect(screen.getAllByRole('row')).toHaveLength(4) // header + 3
@@ -111,7 +112,7 @@ describe('HistoryScreen', () => {
 
     it('filters out entries before the "From" date', async () => {
       await seedThreeEntries()
-      render(<HistoryScreen />)
+      render(<HistoryScreen />, { wrapper: MemoryRouter })
       await screen.findByRole('table')
 
       fireEvent.change(screen.getByLabelText('From'), {
@@ -125,7 +126,7 @@ describe('HistoryScreen', () => {
 
     it('filters out entries after the "To" date', async () => {
       await seedThreeEntries()
-      render(<HistoryScreen />)
+      render(<HistoryScreen />, { wrapper: MemoryRouter })
       await screen.findByRole('table')
 
       fireEvent.change(screen.getByLabelText('To'), {
@@ -139,7 +140,7 @@ describe('HistoryScreen', () => {
 
     it('combines From and To into a range', async () => {
       await seedThreeEntries()
-      render(<HistoryScreen />)
+      render(<HistoryScreen />, { wrapper: MemoryRouter })
       await screen.findByRole('table')
 
       fireEvent.change(screen.getByLabelText('From'), {
@@ -156,7 +157,7 @@ describe('HistoryScreen', () => {
 
     it('shows a dedicated empty state when the filter matches nothing, distinct from the true empty state', async () => {
       await seedThreeEntries()
-      render(<HistoryScreen />)
+      render(<HistoryScreen />, { wrapper: MemoryRouter })
       await screen.findByRole('table')
 
       fireEvent.change(screen.getByLabelText('From'), {
@@ -174,7 +175,7 @@ describe('HistoryScreen', () => {
     it('clears the filter and restores the full list', async () => {
       await seedThreeEntries()
       const user = userEvent.setup()
-      render(<HistoryScreen />)
+      render(<HistoryScreen />, { wrapper: MemoryRouter })
       await screen.findByRole('table')
 
       fireEvent.change(screen.getByLabelText('From'), {
@@ -185,6 +186,25 @@ describe('HistoryScreen', () => {
       const rows = screen.getAllByRole('row').slice(1)
       expect(rows).toHaveLength(3)
       expect(screen.getByLabelText('From')).toHaveValue('')
+    })
+
+    it('pre-fills From/To and auto-expands the matching row when arriving via a ?date= deep link (#41)', async () => {
+      await seedThreeEntries()
+      render(
+        <MemoryRouter initialEntries={['/history?date=2026-03-10']}>
+          <HistoryScreen />
+        </MemoryRouter>,
+      )
+      await screen.findByRole('table')
+
+      expect(screen.getByLabelText('From')).toHaveValue('2026-03-10')
+      expect(screen.getByLabelText('To')).toHaveValue('2026-03-10')
+      // One matching entry, but two <tr>s: the summary row plus the
+      // auto-expanded detail row rendered alongside it.
+      const rows = screen.getAllByRole('row').slice(1)
+      expect(rows).toHaveLength(2)
+      // Auto-expanded: the meal already visible without clicking anything.
+      expect(screen.getByText('Meal 1 — 2,000 kcal')).toBeInTheDocument()
     })
   })
 })

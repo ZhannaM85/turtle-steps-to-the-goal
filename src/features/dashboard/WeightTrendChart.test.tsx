@@ -1,4 +1,5 @@
 import { render, screen } from '@testing-library/react'
+import { MemoryRouter } from 'react-router-dom'
 import { describe, expect, it } from 'vitest'
 import type { DailyEntry } from '@/domain/dailyEntry'
 import type { Goal } from '@/domain/goal'
@@ -29,13 +30,20 @@ function makeGoal(overrides: Partial<Goal> = {}): Goal {
 
 describe('WeightTrendChart', () => {
   it('renders nothing when there are no weight entries', () => {
-    const { container } = render(<WeightTrendChart entries={[]} goal={null} />)
+    const { container } = render(
+      <WeightTrendChart entries={[]} goal={null} />,
+      {
+        wrapper: MemoryRouter,
+      },
+    )
     expect(container).toBeEmptyDOMElement()
   })
 
   it('renders the weight legend when there is weight data', () => {
     const entries = [entry('2026-03-01', { weightKg: 80 })]
-    render(<WeightTrendChart entries={entries} goal={null} />)
+    render(<WeightTrendChart entries={entries} goal={null} />, {
+      wrapper: MemoryRouter,
+    })
 
     expect(screen.getByText('weight')).toBeInTheDocument()
   })
@@ -45,6 +53,7 @@ describe('WeightTrendChart', () => {
 
     const { rerender } = render(
       <WeightTrendChart entries={entries} goal={null} />,
+      { wrapper: MemoryRouter },
     )
     expect(screen.queryByText('projected')).not.toBeInTheDocument()
 

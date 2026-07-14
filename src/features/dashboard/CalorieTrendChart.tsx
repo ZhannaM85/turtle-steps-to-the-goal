@@ -9,6 +9,7 @@ import {
   XAxis,
   YAxis,
 } from 'recharts'
+import { useNavigate } from 'react-router-dom'
 import { totalCalories, type DailyEntry } from '@/domain/dailyEntry'
 import { rollingAverage } from '@/domain/stats'
 import {
@@ -17,6 +18,7 @@ import {
   useLocale,
   useTranslation,
 } from '@/i18n'
+import { resolveChartClickDate, type ChartClickState } from './chartNavigation'
 
 interface ChartPoint {
   date: string
@@ -34,6 +36,12 @@ export function CalorieTrendChart({ entries }: CalorieTrendChartProps) {
   const t = useTranslation()
   const locale = useLocale()
   const dateFnsLocale = getDateFnsLocale(locale)
+  const navigate = useNavigate()
+
+  function handleChartClick(state: ChartClickState) {
+    const date = resolveChartClickDate(state, 'calories')
+    if (date) navigate(`/history?date=${date}`)
+  }
 
   const calorieBars = entries
     .map((entry) => ({
@@ -74,6 +82,8 @@ export function CalorieTrendChart({ entries }: CalorieTrendChartProps) {
         <ComposedChart
           data={data}
           margin={{ top: 8, right: 8, left: 0, bottom: 0 }}
+          onClick={handleChartClick}
+          className="cursor-pointer"
         >
           <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
           <XAxis
@@ -144,6 +154,9 @@ export function CalorieTrendChart({ entries }: CalorieTrendChartProps) {
           {t.dashboard.rollingAverageLegend}
         </i>
       </span>
+      <p className="text-xs text-muted-foreground">
+        {t.dashboard.chartNavigationHint}
+      </p>
     </div>
   )
 }

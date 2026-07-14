@@ -1,5 +1,6 @@
 import 'fake-indexeddb/auto'
 import { render, screen } from '@testing-library/react'
+import { MemoryRouter } from 'react-router-dom'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import type { DailyEntry } from '@/domain/dailyEntry'
 import { db } from '@/infrastructure/persistence/indexeddb'
@@ -34,7 +35,7 @@ afterEach(async () => {
 
 describe('DashboardScreen', () => {
   it('shows an empty state when there are no entries yet', async () => {
-    render(<DashboardScreen />)
+    render(<DashboardScreen />, { wrapper: MemoryRouter })
 
     expect(await screen.findByText('No entries yet')).toBeInTheDocument()
   })
@@ -43,7 +44,7 @@ describe('DashboardScreen', () => {
     await db.dailyEntries.put(makeEntry({ date: '2026-03-01' }))
     await db.dailyEntries.put(makeEntry({ date: '2026-03-02' }))
 
-    render(<DashboardScreen />)
+    render(<DashboardScreen />, { wrapper: MemoryRouter })
 
     expect(await screen.findByText('Weekly summary')).toBeInTheDocument()
     expect(screen.getByText('weight')).toBeInTheDocument()

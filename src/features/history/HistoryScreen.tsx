@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { ArrowUpDown } from 'lucide-react'
+import { useSearchParams } from 'react-router-dom'
 import { useTranslation } from '@/i18n'
 import { Button } from '@/shared/ui/button'
 import { EmptyState } from '@/shared/ui/empty-state'
@@ -17,8 +18,13 @@ export function HistoryScreen() {
   const t = useTranslation()
   const { entries, goal, status, saveEntry, deleteEntry } = useHistoryData()
   const [sortAsc, setSortAsc] = useState(false)
-  const [dateFrom, setDateFrom] = useState('')
-  const [dateTo, setDateTo] = useState('')
+  // Deep-linked from a dashboard chart point (#41): ?date=YYYY-MM-DD
+  // pre-fills both bounds to that single day, so arriving from a chart
+  // lands directly on that day's row instead of the whole table.
+  const [searchParams] = useSearchParams()
+  const deepLinkedDate = searchParams.get('date') ?? ''
+  const [dateFrom, setDateFrom] = useState(deepLinkedDate)
+  const [dateTo, setDateTo] = useState(deepLinkedDate)
   const isFiltering = dateFrom !== '' || dateTo !== ''
 
   const filtered = entries.filter(
@@ -131,6 +137,7 @@ export function HistoryScreen() {
                       entry={entry}
                       onSaved={saveEntry}
                       onDeleted={deleteEntry}
+                      defaultExpanded={entry.date === deepLinkedDate}
                     />
                   ))}
                 </tbody>
