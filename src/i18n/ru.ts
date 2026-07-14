@@ -151,6 +151,9 @@ export const ru: Dictionary = {
     confirmDeleteYes: 'Удалить',
     confirmDeleteNo: 'Отмена',
     metTargetTitle: 'Недели, когда цель была достигнута',
+    expandLabel: 'Показать подробности',
+    collapseLabel: 'Скрыть подробности',
+    noDetailsLabel: 'За этот день больше ничего не записано.',
   },
   settings: {
     title: 'Настройки',

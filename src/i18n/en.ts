@@ -147,6 +147,9 @@ export const en: Dictionary = {
     confirmDeleteYes: 'Delete',
     confirmDeleteNo: 'Cancel',
     metTargetTitle: 'Weeks you hit your target',
+    expandLabel: 'View details',
+    collapseLabel: 'Hide details',
+    noDetailsLabel: 'Nothing else logged for this day.',
   },
   settings: {
     title: 'Settings',

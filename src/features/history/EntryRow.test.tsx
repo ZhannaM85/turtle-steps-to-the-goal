@@ -109,4 +109,108 @@ describe('EntryRow', () => {
       screen.getByRole('button', { name: 'Delete entry' }),
     ).toBeInTheDocument()
   })
+
+  describe('expand/collapse detail view', () => {
+    it('is collapsed by default, with no meal details visible', () => {
+      renderRow({
+        entry: makeEntry({
+          calorieEntries: [
+            {
+              id: 'c1',
+              amountKcal: 500,
+              note: 'Pasta for lunch',
+              emotion: 'happy',
+              createdAt: '2026-01-01T00:00:00.000Z',
+            },
+          ],
+        }),
+      })
+
+      expect(screen.queryByText('Pasta for lunch')).not.toBeInTheDocument()
+    })
+
+    it('shows meal notes and emotions read-only, without opening edit mode', async () => {
+      const user = userEvent.setup()
+      renderRow({
+        entry: makeEntry({
+          note: 'Went for a long walk',
+          calorieEntries: [
+            {
+              id: 'c1',
+              amountKcal: 500,
+              note: 'Pasta for lunch',
+              emotion: 'happy',
+              createdAt: '2026-01-01T00:00:00.000Z',
+            },
+          ],
+        }),
+      })
+
+      await user.click(screen.getByRole('button', { name: 'View details' }))
+
+      expect(screen.getByText('Meal 1 — 500 kcal')).toBeInTheDocument()
+      expect(screen.getByText('Pasta for lunch')).toBeInTheDocument()
+      expect(screen.getByText('Happy')).toBeInTheDocument()
+      // Read-only: no edit affordances leaked into the expanded panel itself.
+      expect(screen.queryByLabelText('Weight (kg)')).not.toBeInTheDocument()
+      expect(
+        screen.queryByRole('button', { name: /Edit meal/ }),
+      ).not.toBeInTheDocument()
+    })
+
+    it('collapses again on a second click', async () => {
+      const user = userEvent.setup()
+      renderRow({
+        entry: makeEntry({
+          calorieEntries: [
+            {
+              id: 'c1',
+              amountKcal: 500,
+              createdAt: '2026-01-01T00:00:00.000Z',
+            },
+          ],
+        }),
+      })
+
+      await user.click(screen.getByRole('button', { name: 'View details' }))
+      expect(screen.getByText('Meal 1 — 500 kcal')).toBeInTheDocument()
+
+      await user.click(screen.getByRole('button', { name: 'Hide details' }))
+      expect(screen.queryByText('Meal 1 — 500 kcal')).not.toBeInTheDocument()
+    })
+
+    it('shows a quiet fallback when there is nothing to expand', async () => {
+      const user = userEvent.setup()
+      renderRow({
+        entry: makeEntry({ note: undefined, calorieEntries: [] }),
+      })
+
+      await user.click(screen.getByRole('button', { name: 'View details' }))
+
+      expect(
+        screen.getByText('Nothing else logged for this day.'),
+      ).toBeInTheDocument()
+    })
+
+    it('survives a cancelled delete confirm without collapsing', async () => {
+      const user = userEvent.setup()
+      renderRow({
+        entry: makeEntry({
+          calorieEntries: [
+            {
+              id: 'c1',
+              amountKcal: 500,
+              createdAt: '2026-01-01T00:00:00.000Z',
+            },
+          ],
+        }),
+      })
+
+      await user.click(screen.getByRole('button', { name: 'View details' }))
+      await user.click(screen.getByRole('button', { name: 'Delete entry' }))
+      await user.click(screen.getByRole('button', { name: 'Cancel' }))
+
+      expect(screen.getByText('Meal 1 — 500 kcal')).toBeInTheDocument()
+    })
+  })
 })

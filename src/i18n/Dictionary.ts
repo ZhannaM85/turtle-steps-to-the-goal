@@ -120,6 +120,9 @@ export interface Dictionary {
     confirmDeleteYes: string
     confirmDeleteNo: string
     metTargetTitle: string
+    expandLabel: string
+    collapseLabel: string
+    noDetailsLabel: string
   }
   settings: {
     title: string

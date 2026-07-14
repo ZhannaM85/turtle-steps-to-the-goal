@@ -16,16 +16,7 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
-import {
-  Check,
-  Frown,
-  GripVertical,
-  Meh,
-  Pencil,
-  Smile,
-  Trash2,
-  type LucideIcon,
-} from 'lucide-react'
+import { Check, GripVertical, Pencil, Trash2 } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 import type { CalorieEntry, DailyEntry, Emotion } from '@/domain/dailyEntry'
 import { totalCalories } from '@/domain/dailyEntry'
@@ -36,6 +27,7 @@ import {
   type Dictionary,
   type Locale,
 } from '@/i18n'
+import { EMOTIONS } from '@/shared/lib/emotionIcons'
 import { parseNumberInput } from '@/shared/lib/parseNumberInput'
 import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/ui/button'
@@ -64,12 +56,6 @@ export interface DailyEntryFormProps {
    */
   alwaysEditable?: boolean
 }
-
-const EMOTIONS: { value: Emotion; Icon: LucideIcon }[] = [
-  { value: 'happy', Icon: Smile },
-  { value: 'neutral', Icon: Meh },
-  { value: 'unhappy', Icon: Frown },
-]
 
 function EmotionPicker({
   value,
