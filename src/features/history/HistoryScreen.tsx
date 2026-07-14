@@ -57,29 +57,34 @@ export function HistoryScreen() {
           <MetTargetList entries={entries} goal={goal} />
 
           <div className="flex flex-col gap-3">
-            <div className="grid grid-cols-2 gap-3">
-              <div className="flex min-w-0 flex-col gap-1.5">
-                <Label htmlFor="history-date-from">
-                  {t.history.dateFromLabel}
-                </Label>
-                <Input
-                  id="history-date-from"
-                  type="date"
-                  value={dateFrom}
-                  max={dateTo || undefined}
-                  onChange={(e) => setDateFrom(e.target.value)}
-                />
-              </div>
-              <div className="flex min-w-0 flex-col gap-1.5">
-                <Label htmlFor="history-date-to">{t.history.dateToLabel}</Label>
-                <Input
-                  id="history-date-to"
-                  type="date"
-                  value={dateTo}
-                  min={dateFrom || undefined}
-                  onChange={(e) => setDateTo(e.target.value)}
-                />
-              </div>
+            {/* Stacked, not side-by-side (#47 recurrence): native
+             * <input type="date"> on mobile Safari has a rendering-level
+             * minimum width that ignores CSS min-width/grid-track sizing,
+             * so two columns fighting for horizontal space overlap
+             * regardless of the layout technique used to divide that
+             * space. Full-width stacking removes the competition entirely
+             * instead of trying to out-clever the native control. */}
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="history-date-from">
+                {t.history.dateFromLabel}
+              </Label>
+              <Input
+                id="history-date-from"
+                type="date"
+                value={dateFrom}
+                max={dateTo || undefined}
+                onChange={(e) => setDateFrom(e.target.value)}
+              />
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="history-date-to">{t.history.dateToLabel}</Label>
+              <Input
+                id="history-date-to"
+                type="date"
+                value={dateTo}
+                min={dateFrom || undefined}
+                onChange={(e) => setDateTo(e.target.value)}
+              />
             </div>
             {isFiltering && (
               <Button
