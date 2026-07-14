@@ -56,33 +56,38 @@ export function HistoryScreen() {
         <>
           <MetTargetList entries={entries} goal={goal} />
 
-          <div className="flex flex-wrap items-end gap-3">
-            <div className="flex flex-col gap-1.5">
-              <Label htmlFor="history-date-from">
-                {t.history.dateFromLabel}
-              </Label>
-              <Input
-                id="history-date-from"
-                type="date"
-                value={dateFrom}
-                max={dateTo || undefined}
-                onChange={(e) => setDateFrom(e.target.value)}
-                className="max-w-40"
-              />
-            </div>
-            <div className="flex flex-col gap-1.5">
-              <Label htmlFor="history-date-to">{t.history.dateToLabel}</Label>
-              <Input
-                id="history-date-to"
-                type="date"
-                value={dateTo}
-                min={dateFrom || undefined}
-                onChange={(e) => setDateTo(e.target.value)}
-                className="max-w-40"
-              />
+          <div className="flex flex-col gap-3">
+            <div className="grid grid-cols-2 gap-3">
+              <div className="flex min-w-0 flex-col gap-1.5">
+                <Label htmlFor="history-date-from">
+                  {t.history.dateFromLabel}
+                </Label>
+                <Input
+                  id="history-date-from"
+                  type="date"
+                  value={dateFrom}
+                  max={dateTo || undefined}
+                  onChange={(e) => setDateFrom(e.target.value)}
+                />
+              </div>
+              <div className="flex min-w-0 flex-col gap-1.5">
+                <Label htmlFor="history-date-to">{t.history.dateToLabel}</Label>
+                <Input
+                  id="history-date-to"
+                  type="date"
+                  value={dateTo}
+                  min={dateFrom || undefined}
+                  onChange={(e) => setDateTo(e.target.value)}
+                />
+              </div>
             </div>
             {isFiltering && (
-              <Button variant="ghost" size="sm" onClick={clearFilter}>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="self-start"
+                onClick={clearFilter}
+              >
                 {t.history.clearFilterButton}
               </Button>
             )}
