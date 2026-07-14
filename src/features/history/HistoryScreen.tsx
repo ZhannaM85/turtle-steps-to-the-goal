@@ -57,34 +57,38 @@ export function HistoryScreen() {
           <MetTargetList entries={entries} goal={goal} />
 
           <div className="flex flex-col gap-3">
-            {/* Stacked, not side-by-side (#47 recurrence): native
-             * <input type="date"> on mobile Safari has a rendering-level
-             * minimum width that ignores CSS min-width/grid-track sizing,
-             * so two columns fighting for horizontal space overlap
-             * regardless of the layout technique used to divide that
-             * space. Full-width stacking removes the competition entirely
-             * instead of trying to out-clever the native control. */}
-            <div className="flex flex-col gap-1.5">
-              <Label htmlFor="history-date-from">
-                {t.history.dateFromLabel}
-              </Label>
-              <Input
-                id="history-date-from"
-                type="date"
-                value={dateFrom}
-                max={dateTo || undefined}
-                onChange={(e) => setDateFrom(e.target.value)}
-              />
-            </div>
-            <div className="flex flex-col gap-1.5">
-              <Label htmlFor="history-date-to">{t.history.dateToLabel}</Label>
-              <Input
-                id="history-date-to"
-                type="date"
-                value={dateTo}
-                min={dateFrom || undefined}
-                onChange={(e) => setDateTo(e.target.value)}
-              />
+            {/* Fixed width, not relative sizing (#47 recurrence): the
+             * previous grid grid-cols-2 + min-w-0 attempt relied on the
+             * native <input type="date"> control shrinking to fit an
+             * available/relative track — on real mobile Safari it doesn't;
+             * the control has its own rendering-level minimum that ignores
+             * relative width math entirely. An explicit fixed w-36 doesn't
+             * ask the control to shrink at all, it just clamps the box. */}
+            <div className="flex flex-wrap items-end gap-3">
+              <div className="flex flex-col gap-1.5">
+                <Label htmlFor="history-date-from">
+                  {t.history.dateFromLabel}
+                </Label>
+                <Input
+                  id="history-date-from"
+                  type="date"
+                  value={dateFrom}
+                  max={dateTo || undefined}
+                  onChange={(e) => setDateFrom(e.target.value)}
+                  className="w-36"
+                />
+              </div>
+              <div className="flex flex-col gap-1.5">
+                <Label htmlFor="history-date-to">{t.history.dateToLabel}</Label>
+                <Input
+                  id="history-date-to"
+                  type="date"
+                  value={dateTo}
+                  min={dateFrom || undefined}
+                  onChange={(e) => setDateTo(e.target.value)}
+                  className="w-36"
+                />
+              </div>
             </div>
             {isFiltering && (
               <Button
