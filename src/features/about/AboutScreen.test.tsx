@@ -23,10 +23,13 @@ describe('AboutScreen', () => {
     expect(screen.getByText(/stays on your own device/)).toBeInTheDocument()
   })
 
-  it('credits the author', () => {
+  it('credits the author with a link to their GitHub profile', () => {
     render(<AboutScreen />)
 
-    expect(screen.getByText('Made by zhannam85')).toBeInTheDocument()
+    const link = screen.getByRole('link', { name: 'Made by zhannam85' })
+    expect(link).toHaveAttribute('href', 'https://github.com/ZhannaM85')
+    expect(link).toHaveAttribute('target', '_blank')
+    expect(link).toHaveAttribute('rel', 'noopener noreferrer')
   })
 
   it('renders in Russian when the locale is switched', () => {
