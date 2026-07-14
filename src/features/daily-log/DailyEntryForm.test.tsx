@@ -1,8 +1,32 @@
-import { render, screen } from '@testing-library/react'
+import { act, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import type { ReactNode } from 'react'
 import { describe, expect, it, vi } from 'vitest'
 import type { CalorieEntry } from '@/domain/dailyEntry'
 import { DailyEntryForm } from './DailyEntryForm'
+
+// jsdom has no layout engine, so real pointer/keyboard drag gestures can't
+// produce meaningful rects for dnd-kit's collision detection. We trust
+// dnd-kit itself (independently tested) to turn real gestures into
+// DragEndEvents, and only test our own onDragEnd wiring here by capturing
+// and invoking it directly with a synthetic event.
+let capturedOnDragEnd:
+  | ((event: { active: { id: string }; over: { id: string } | null }) => void)
+  | undefined
+
+vi.mock('@dnd-kit/core', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@dnd-kit/core')>()
+  return {
+    ...actual,
+    DndContext: (props: {
+      onDragEnd: typeof capturedOnDragEnd
+      children: ReactNode
+    }) => {
+      capturedOnDragEnd = props.onDragEnd
+      return props.children
+    },
+  }
+})
 
 const now = '2026-03-01T00:00:00.000Z'
 
@@ -469,6 +493,47 @@ describe('DailyEntryForm', () => {
         ).toBeInTheDocument()
         expect(screen.getByText('Happy')).toBeInTheDocument()
         expect(onSave).toHaveBeenCalledTimes(1)
+      })
+
+      it('has a reorder handle for each meal', () => {
+        renderWithMeals()
+
+        expect(
+          screen.getByRole('button', { name: 'Reorder meal 1' }),
+        ).toBeInTheDocument()
+        expect(
+          screen.getByRole('button', { name: 'Reorder meal 2' }),
+        ).toBeInTheDocument()
+      })
+
+      it('reorders meals and saves immediately when a drag ends over a different meal', () => {
+        const onSave = vi.fn()
+        renderWithMeals(onSave)
+
+        act(() => {
+          capturedOnDragEnd?.({ active: { id: 'c1' }, over: { id: 'c2' } })
+        })
+
+        expect(screen.getByText('Meal 1 — 200 kcal')).toBeInTheDocument()
+        expect(screen.getByText('Meal 2 — 300 kcal')).toBeInTheDocument()
+        expect(onSave).toHaveBeenCalledTimes(1)
+        expect(
+          onSave.mock.calls[0][0].calorieEntries.map(
+            (c: CalorieEntry) => c.amountKcal,
+          ),
+        ).toEqual([200, 300])
+      })
+
+      it('does not save when a drag ends over itself or nothing', () => {
+        const onSave = vi.fn()
+        renderWithMeals(onSave)
+
+        act(() => {
+          capturedOnDragEnd?.({ active: { id: 'c1' }, over: { id: 'c1' } })
+          capturedOnDragEnd?.({ active: { id: 'c1' }, over: null })
+        })
+
+        expect(onSave).not.toHaveBeenCalled()
       })
     })
   })

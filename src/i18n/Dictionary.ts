@@ -42,6 +42,7 @@ export interface Dictionary {
     mealLabel: (n: number) => string
     editMealLabel: (n: number) => string
     deleteMealLabel: (n: number) => string
+    reorderMealLabel: (n: number) => string
     saveButton: string
     mealNoteLabel: string
     mealNotePlaceholder: string

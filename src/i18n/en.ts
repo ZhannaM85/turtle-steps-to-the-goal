@@ -55,6 +55,7 @@ export const en: Dictionary = {
     mealLabel: (n) => `Meal ${n}`,
     editMealLabel: (n) => `Edit meal ${n}`,
     deleteMealLabel: (n) => `Delete meal ${n}`,
+    reorderMealLabel: (n) => `Reorder meal ${n}`,
     saveButton: 'Save',
     mealNoteLabel: 'Meal note',
     mealNotePlaceholder: 'Note (optional)',

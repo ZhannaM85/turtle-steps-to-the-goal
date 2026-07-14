@@ -56,6 +56,7 @@ export const ru: Dictionary = {
     mealLabel: (n) => `Приём пищи ${n}`,
     editMealLabel: (n) => `Изменить приём пищи ${n}`,
     deleteMealLabel: (n) => `Удалить приём пищи ${n}`,
+    reorderMealLabel: (n) => `Изменить порядок: приём пищи ${n}`,
     saveButton: 'Сохранить',
     mealNoteLabel: 'Заметка о приёме пищи',
     mealNotePlaceholder: 'Заметка (необязательно)',

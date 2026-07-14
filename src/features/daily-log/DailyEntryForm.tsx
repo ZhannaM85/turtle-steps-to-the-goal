@@ -1,7 +1,25 @@
 import { useMemo, useState } from 'react'
 import {
+  DndContext,
+  KeyboardSensor,
+  PointerSensor,
+  closestCenter,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from '@dnd-kit/core'
+import {
+  SortableContext,
+  arrayMove,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
+import {
   Check,
   Frown,
+  GripVertical,
   Meh,
   Pencil,
   Smile,
@@ -16,6 +34,7 @@ import {
   useLocale,
   useTranslation,
   type Dictionary,
+  type Locale,
 } from '@/i18n'
 import { parseNumberInput } from '@/shared/lib/parseNumberInput'
 import { cn } from '@/shared/lib/utils'
@@ -92,6 +111,204 @@ function EmotionPicker({
   )
 }
 
+interface MealListItemProps {
+  entry: CalorieEntry
+  position: number
+  t: Dictionary
+  locale: Locale
+  isEditing: boolean
+  isConfirmingDelete: boolean
+  editAmount: string
+  editNote: string
+  editEmotion: Emotion | undefined
+  onEditAmountChange: (value: string) => void
+  onEditNoteChange: (value: string) => void
+  onEditEmotionChange: (emotion: Emotion | undefined) => void
+  onStartEdit: () => void
+  onSaveEdit: () => void
+  onRequestDelete: () => void
+  onConfirmDelete: () => void
+  onCancelDelete: () => void
+}
+
+function MealListItem({
+  entry,
+  position,
+  t,
+  locale,
+  isEditing,
+  isConfirmingDelete,
+  editAmount,
+  editNote,
+  editEmotion,
+  onEditAmountChange,
+  onEditNoteChange,
+  onEditEmotionChange,
+  onStartEdit,
+  onSaveEdit,
+  onRequestDelete,
+  onConfirmDelete,
+  onCancelDelete,
+}: MealListItemProps) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: entry.id, disabled: isEditing || isConfirmingDelete })
+  const style = { transform: CSS.Transform.toString(transform), transition }
+  const EmotionIcon = EMOTIONS.find((e) => e.value === entry.emotion)?.Icon
+
+  if (isConfirmingDelete) {
+    return (
+      <li
+        ref={setNodeRef}
+        style={style}
+        className="flex items-center gap-2 rounded-lg px-1 py-1 whitespace-nowrap"
+      >
+        <span className="text-sm text-muted-foreground">
+          {t.history.confirmDeleteLabel}
+        </span>
+        <Button
+          type="button"
+          variant="destructive"
+          size="sm"
+          onClick={onConfirmDelete}
+        >
+          {t.history.confirmDeleteYes}
+        </Button>
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          onClick={onCancelDelete}
+        >
+          {t.history.confirmDeleteNo}
+        </Button>
+      </li>
+    )
+  }
+
+  if (isEditing) {
+    return (
+      <li
+        ref={setNodeRef}
+        style={style}
+        className="flex flex-col gap-1.5 px-1 py-1"
+      >
+        <div className="flex items-center gap-2">
+          <Input
+            type="text"
+            inputMode="decimal"
+            aria-label={t.dailyEntry.mealLabel(position)}
+            value={editAmount}
+            onChange={(e) => onEditAmountChange(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault()
+                onSaveEdit()
+              }
+            }}
+            className="h-7 w-24"
+          />
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon-sm"
+            aria-label={t.dailyEntry.saveButton}
+            onClick={onSaveEdit}
+          >
+            <Check aria-hidden="true" />
+          </Button>
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon-sm"
+            aria-label={t.dailyEntry.deleteMealLabel(position)}
+            onClick={onRequestDelete}
+          >
+            <Trash2 aria-hidden="true" />
+          </Button>
+        </div>
+        <div className="flex items-center gap-2">
+          <Input
+            type="text"
+            aria-label={`${t.dailyEntry.mealNoteLabel} — ${t.dailyEntry.mealLabel(position)}`}
+            placeholder={t.dailyEntry.mealNotePlaceholder}
+            value={editNote}
+            onChange={(e) => onEditNoteChange(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault()
+                onSaveEdit()
+              }
+            }}
+            className="h-7 flex-1"
+          />
+          <EmotionPicker
+            value={editEmotion}
+            onChange={onEditEmotionChange}
+            t={t}
+            contextLabel={t.dailyEntry.mealLabel(position)}
+          />
+        </div>
+      </li>
+    )
+  }
+
+  return (
+    <li
+      ref={setNodeRef}
+      style={style}
+      className={cn(
+        'flex flex-col gap-0.5 px-1 py-1',
+        isDragging && 'opacity-50',
+      )}
+    >
+      <div className="flex items-center justify-between">
+        <span className="flex items-center gap-1.5 text-sm">
+          <button
+            type="button"
+            aria-label={t.dailyEntry.reorderMealLabel(position)}
+            className="cursor-grab touch-none text-muted-foreground active:cursor-grabbing"
+            {...attributes}
+            {...listeners}
+          >
+            <GripVertical aria-hidden="true" className="size-4" />
+          </button>
+          {t.dailyEntry.mealLabel(position)} —{' '}
+          {formatNumber(entry.amountKcal, locale, 0)} {t.dailyEntry.kcalUnit}
+          {EmotionIcon && (
+            <>
+              <EmotionIcon
+                aria-hidden="true"
+                className="size-3.5 text-muted-foreground"
+              />
+              <span className="sr-only">
+                {t.dailyEntry.emotionLabel(entry.emotion!)}
+              </span>
+            </>
+          )}
+        </span>
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon-sm"
+          aria-label={t.dailyEntry.editMealLabel(position)}
+          onClick={onStartEdit}
+        >
+          <Pencil aria-hidden="true" />
+        </Button>
+      </div>
+      {entry.note && (
+        <p className="text-xs text-muted-foreground">{entry.note}</p>
+      )}
+    </li>
+  )
+}
+
 export function DailyEntryForm({
   date,
   existingEntry,
@@ -142,6 +359,12 @@ export function DailyEntryForm({
   )
   const [confirmDeleteMealId, setConfirmDeleteMealId] = useState<string | null>(
     null,
+  )
+  const dragSensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    }),
   )
 
   const {
@@ -245,6 +468,15 @@ export function DailyEntryForm({
     setConfirmDeleteMealId(null)
   }
 
+  function handleMealDragEnd(event: DragEndEvent) {
+    const { active, over } = event
+    if (!over || active.id === over.id) return
+    const oldIndex = calorieEntries.findIndex((entry) => entry.id === active.id)
+    const newIndex = calorieEntries.findIndex((entry) => entry.id === over.id)
+    if (oldIndex === -1 || newIndex === -1) return
+    setCalorieEntries(arrayMove(calorieEntries, oldIndex, newIndex))
+  }
+
   return (
     <form onSubmit={(e) => e.preventDefault()} className="flex flex-col gap-4">
       {showWeightAsDisplay ? (
@@ -327,146 +559,41 @@ export function DailyEntryForm({
         </div>
 
         {calorieEntries.length > 0 && (
-          <ul className="flex flex-col gap-1">
-            {calorieEntries.map((entry, index) => {
-              const position = index + 1
-              const EmotionIcon = EMOTIONS.find(
-                (e) => e.value === entry.emotion,
-              )?.Icon
-
-              if (confirmDeleteMealId === entry.id) {
-                return (
-                  <li
+          <DndContext
+            sensors={dragSensors}
+            collisionDetection={closestCenter}
+            onDragEnd={handleMealDragEnd}
+          >
+            <SortableContext
+              items={calorieEntries.map((entry) => entry.id)}
+              strategy={verticalListSortingStrategy}
+            >
+              <ul className="flex flex-col gap-1">
+                {calorieEntries.map((entry, index) => (
+                  <MealListItem
                     key={entry.id}
-                    className="flex items-center gap-2 rounded-lg px-1 py-1 whitespace-nowrap"
-                  >
-                    <span className="text-sm text-muted-foreground">
-                      {t.history.confirmDeleteLabel}
-                    </span>
-                    <Button
-                      type="button"
-                      variant="destructive"
-                      size="sm"
-                      onClick={confirmDeleteMeal}
-                    >
-                      {t.history.confirmDeleteYes}
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => setConfirmDeleteMealId(null)}
-                    >
-                      {t.history.confirmDeleteNo}
-                    </Button>
-                  </li>
-                )
-              }
-
-              if (editingMealId === entry.id) {
-                return (
-                  <li
-                    key={entry.id}
-                    className="flex flex-col gap-1.5 px-1 py-1"
-                  >
-                    <div className="flex items-center gap-2">
-                      <Input
-                        type="text"
-                        inputMode="decimal"
-                        aria-label={t.dailyEntry.mealLabel(position)}
-                        value={editMealAmount}
-                        onChange={(e) => setEditMealAmount(e.target.value)}
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter') {
-                            e.preventDefault()
-                            saveEditMeal()
-                          }
-                        }}
-                        className="h-7 w-24"
-                      />
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon-sm"
-                        aria-label={t.dailyEntry.saveButton}
-                        onClick={saveEditMeal}
-                      >
-                        <Check aria-hidden="true" />
-                      </Button>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon-sm"
-                        aria-label={t.dailyEntry.deleteMealLabel(position)}
-                        onClick={() => setConfirmDeleteMealId(entry.id)}
-                      >
-                        <Trash2 aria-hidden="true" />
-                      </Button>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Input
-                        type="text"
-                        aria-label={`${t.dailyEntry.mealNoteLabel} — ${t.dailyEntry.mealLabel(position)}`}
-                        placeholder={t.dailyEntry.mealNotePlaceholder}
-                        value={editMealNote}
-                        onChange={(e) => setEditMealNote(e.target.value)}
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter') {
-                            e.preventDefault()
-                            saveEditMeal()
-                          }
-                        }}
-                        className="h-7 flex-1"
-                      />
-                      <EmotionPicker
-                        value={editMealEmotion}
-                        onChange={setEditMealEmotion}
-                        t={t}
-                        contextLabel={t.dailyEntry.mealLabel(position)}
-                      />
-                    </div>
-                  </li>
-                )
-              }
-
-              return (
-                <li key={entry.id} className="flex flex-col gap-0.5 px-1 py-1">
-                  <div className="flex items-center justify-between">
-                    <span className="flex items-center gap-1.5 text-sm">
-                      {t.dailyEntry.mealLabel(position)} —{' '}
-                      {formatNumber(entry.amountKcal, locale, 0)}{' '}
-                      {t.dailyEntry.kcalUnit}
-                      {EmotionIcon && (
-                        <>
-                          <EmotionIcon
-                            aria-hidden="true"
-                            className="size-3.5 text-muted-foreground"
-                          />
-                          <span className="sr-only">
-                            {t.dailyEntry.emotionLabel(entry.emotion!)}
-                          </span>
-                        </>
-                      )}
-                    </span>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon-sm"
-                      aria-label={t.dailyEntry.editMealLabel(position)}
-                      onClick={() => startEditMeal(entry)}
-                    >
-                      <Pencil aria-hidden="true" />
-                    </Button>
-                  </div>
-                  {entry.note && (
-                    <p className="text-xs text-muted-foreground">
-                      {entry.note}
-                    </p>
-                  )}
-                </li>
-              )
-            })}
-          </ul>
+                    entry={entry}
+                    position={index + 1}
+                    t={t}
+                    locale={locale}
+                    isEditing={editingMealId === entry.id}
+                    isConfirmingDelete={confirmDeleteMealId === entry.id}
+                    editAmount={editMealAmount}
+                    editNote={editMealNote}
+                    editEmotion={editMealEmotion}
+                    onEditAmountChange={setEditMealAmount}
+                    onEditNoteChange={setEditMealNote}
+                    onEditEmotionChange={setEditMealEmotion}
+                    onStartEdit={() => startEditMeal(entry)}
+                    onSaveEdit={saveEditMeal}
+                    onRequestDelete={() => setConfirmDeleteMealId(entry.id)}
+                    onConfirmDelete={confirmDeleteMeal}
+                    onCancelDelete={() => setConfirmDeleteMealId(null)}
+                  />
+                ))}
+              </ul>
+            </SortableContext>
+          </DndContext>
         )}
 
         <div className="flex flex-col gap-1.5">
