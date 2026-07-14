@@ -1,4 +1,5 @@
 import { format, parseISO } from 'date-fns'
+import { ArrowRight } from 'lucide-react'
 import {
   CartesianGrid,
   Line,
@@ -8,8 +9,9 @@ import {
   XAxis,
   YAxis,
   type DotItemDotProps,
+  type TooltipContentProps,
 } from 'recharts'
-import { useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import type { DailyEntry } from '@/domain/dailyEntry'
 import { kgToLb } from '@/domain/goal'
 import {
@@ -20,7 +22,7 @@ import {
   useTranslation,
 } from '@/i18n'
 import { useUnitStore } from '@/stores'
-import { resolveChartClickDate, type ChartClickState } from './chartNavigation'
+import { resolveChartClickDate } from './chartNavigation'
 
 export interface WeightTrendChartProps {
   entries: DailyEntry[]
@@ -30,7 +32,6 @@ export function WeightTrendChart({ entries }: WeightTrendChartProps) {
   const t = useTranslation()
   const locale = useLocale()
   const dateFnsLocale = getDateFnsLocale(locale)
-  const navigate = useNavigate()
   const displayUnit = useUnitStore((state) => state.unit)
   const toDisplay = (kg: number) => (displayUnit === 'lb' ? kgToLb(kg) : kg)
 
@@ -42,20 +43,45 @@ export function WeightTrendChart({ entries }: WeightTrendChartProps) {
     .sort((a, b) => a.date.localeCompare(b.date))
     .map((entry) => ({ date: entry.date, weight: toDisplay(entry.weightKg) }))
 
-  function handleChartClick(state: ChartClickState) {
-    const date = resolveChartClickDate(
-      state,
-      data,
-      (point) => point.weight !== undefined,
-    )
-    if (date) navigate(`/history?date=${date}`)
-  }
-
   if (data.length === 0) return null
 
   const lastWeightIndex = data.length - 1
 
   const unit = unitLabel(displayUnit, t)
+
+  // Tapping/hovering a point only ever shows the tooltip (#49) — the
+  // in-tooltip link is the sole way to navigate, so a stray tap elsewhere
+  // on the chart doesn't yank the user away from just glancing at values.
+  function renderTooltip({ active, label, payload }: TooltipContentProps) {
+    if (!active || !payload || payload.length === 0) return null
+    const value = payload[0]?.value
+    if (value === undefined || value === null) return null
+    const date = resolveChartClickDate(
+      { activeLabel: label },
+      data,
+      (point) => point.weight !== undefined,
+    )
+    return (
+      <div className="rounded-lg border border-border bg-popover px-3 py-2 text-xs text-popover-foreground shadow-md">
+        <p className="mb-1 font-medium">
+          {format(parseISO(String(label)), 'PP', { locale: dateFnsLocale })}
+        </p>
+        <p>
+          {formatNumber(Number(value), locale)} {unit} ·{' '}
+          {t.dashboard.weightLegend}
+        </p>
+        {date && (
+          <Link
+            to={`/history?date=${date}`}
+            className="mt-1.5 flex items-center gap-1 font-medium text-primary underline-offset-4 hover:underline"
+          >
+            {t.dashboard.viewDayLink}
+            <ArrowRight aria-hidden="true" className="size-3" />
+          </Link>
+        )}
+      </div>
+    )
+  }
 
   return (
     <div className="flex flex-col gap-1.5">
@@ -63,8 +89,6 @@ export function WeightTrendChart({ entries }: WeightTrendChartProps) {
         <LineChart
           data={data}
           margin={{ top: 8, right: 8, left: 0, bottom: 0 }}
-          onClick={handleChartClick}
-          className="cursor-pointer"
         >
           <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
           <XAxis
@@ -83,22 +107,7 @@ export function WeightTrendChart({ entries }: WeightTrendChartProps) {
             tickLine={false}
             domain={['auto', 'auto']}
           />
-          <Tooltip
-            contentStyle={{
-              background: 'var(--popover)',
-              border: '1px solid var(--border)',
-              borderRadius: 8,
-              fontSize: 12,
-              color: 'var(--popover-foreground)',
-            }}
-            labelFormatter={(label) =>
-              format(parseISO(String(label)), 'PP', { locale: dateFnsLocale })
-            }
-            formatter={(value) => [
-              `${formatNumber(Number(value), locale)} ${unit}`,
-              t.dashboard.weightLegend,
-            ]}
-          />
+          <Tooltip content={renderTooltip} />
           <Line
             type="monotone"
             dataKey="weight"

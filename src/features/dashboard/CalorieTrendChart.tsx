@@ -1,4 +1,5 @@
 import { format, parseISO } from 'date-fns'
+import { ArrowRight } from 'lucide-react'
 import {
   Bar,
   CartesianGrid,
@@ -8,8 +9,9 @@ import {
   Tooltip,
   XAxis,
   YAxis,
+  type TooltipContentProps,
 } from 'recharts'
-import { useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { totalCalories, type DailyEntry } from '@/domain/dailyEntry'
 import { rollingAverage } from '@/domain/stats'
 import {
@@ -18,7 +20,7 @@ import {
   useLocale,
   useTranslation,
 } from '@/i18n'
-import { resolveChartClickDate, type ChartClickState } from './chartNavigation'
+import { resolveChartClickDate } from './chartNavigation'
 
 interface ChartPoint {
   date: string
@@ -36,7 +38,6 @@ export function CalorieTrendChart({ entries }: CalorieTrendChartProps) {
   const t = useTranslation()
   const locale = useLocale()
   const dateFnsLocale = getDateFnsLocale(locale)
-  const navigate = useNavigate()
 
   const calorieBars = entries
     .map((entry) => ({
@@ -71,13 +72,40 @@ export function CalorieTrendChart({ entries }: CalorieTrendChartProps) {
   }
   const data = [...merged.values()].sort((a, b) => a.date.localeCompare(b.date))
 
-  function handleChartClick(state: ChartClickState) {
+  // Tapping/hovering a point only ever shows the tooltip (#49) — the
+  // in-tooltip link is the sole way to navigate, so a stray tap elsewhere
+  // on the chart doesn't yank the user away from just glancing at values.
+  function renderTooltip({ active, label, payload }: TooltipContentProps) {
+    if (!active || !payload || payload.length === 0) return null
     const date = resolveChartClickDate(
-      state,
+      { activeLabel: label },
       data,
       (point) => point.calories !== undefined,
     )
-    if (date) navigate(`/history?date=${date}`)
+    return (
+      <div className="rounded-lg border border-border bg-popover px-3 py-2 text-xs text-popover-foreground shadow-md">
+        <p className="mb-1 font-medium">
+          {format(parseISO(String(label)), 'PP', { locale: dateFnsLocale })}
+        </p>
+        {payload.map((item) => (
+          <p key={String(item.dataKey)}>
+            {formatNumber(Number(item.value), locale, 0)}{' '}
+            {item.dataKey === 'average'
+              ? t.dashboard.rollingAverageLegend
+              : t.dashboard.caloriesLegend}
+          </p>
+        ))}
+        {date && (
+          <Link
+            to={`/history?date=${date}`}
+            className="mt-1.5 flex items-center gap-1 font-medium text-primary underline-offset-4 hover:underline"
+          >
+            {t.dashboard.viewDayLink}
+            <ArrowRight aria-hidden="true" className="size-3" />
+          </Link>
+        )}
+      </div>
+    )
   }
 
   return (
@@ -86,8 +114,6 @@ export function CalorieTrendChart({ entries }: CalorieTrendChartProps) {
         <ComposedChart
           data={data}
           margin={{ top: 8, right: 8, left: 0, bottom: 0 }}
-          onClick={handleChartClick}
-          className="cursor-pointer"
         >
           <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
           <XAxis
@@ -105,24 +131,7 @@ export function CalorieTrendChart({ entries }: CalorieTrendChartProps) {
             axisLine={false}
             tickLine={false}
           />
-          <Tooltip
-            contentStyle={{
-              background: 'var(--popover)',
-              border: '1px solid var(--border)',
-              borderRadius: 8,
-              fontSize: 12,
-              color: 'var(--popover-foreground)',
-            }}
-            labelFormatter={(label) =>
-              format(parseISO(String(label)), 'PP', { locale: dateFnsLocale })
-            }
-            formatter={(value, name) => [
-              formatNumber(Number(value), locale, 0),
-              name === 'average'
-                ? t.dashboard.rollingAverageLegend
-                : t.dashboard.caloriesLegend,
-            ]}
-          />
+          <Tooltip content={renderTooltip} />
           <Bar
             dataKey="calories"
             fill="var(--chart-calories)"

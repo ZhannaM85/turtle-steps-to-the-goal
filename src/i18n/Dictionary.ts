@@ -103,6 +103,7 @@ export interface Dictionary {
     correlationLagCaveat: string
     weeklyChangeLegend: string
     chartNavigationHint: string
+    viewDayLink: string
   }
   history: {
     title: string

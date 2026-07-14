@@ -129,7 +129,8 @@ export const en: Dictionary = {
     correlationLagCaveat:
       "Compares each week's average calories to that week's weight change, not same-day numbers — digestion takes time, so today's weight reflects prior days' intake.",
     weeklyChangeLegend: 'weekly change',
-    chartNavigationHint: 'Tap a point to see that day',
+    chartNavigationHint: 'Tap a point for details',
+    viewDayLink: 'View this day',
   },
   history: {
     title: 'History',
