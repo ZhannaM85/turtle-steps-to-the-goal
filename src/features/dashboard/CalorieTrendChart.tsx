@@ -75,6 +75,9 @@ export function CalorieTrendChart({ entries }: CalorieTrendChartProps) {
   // Tapping/hovering a point only ever shows the tooltip (#49) — the
   // in-tooltip link is the sole way to navigate, so a stray tap elsewhere
   // on the chart doesn't yank the user away from just glancing at values.
+  // Recharts' tooltip wrapper is pointer-events:none by default (so
+  // hovering the tooltip itself doesn't interrupt mouse tracking on the
+  // chart) — wrapperStyle below re-enables it so the link is clickable.
   function renderTooltip({ active, label, payload }: TooltipContentProps) {
     if (!active || !payload || payload.length === 0) return null
     const date = resolveChartClickDate(
@@ -131,7 +134,10 @@ export function CalorieTrendChart({ entries }: CalorieTrendChartProps) {
             axisLine={false}
             tickLine={false}
           />
-          <Tooltip content={renderTooltip} />
+          <Tooltip
+            content={renderTooltip}
+            wrapperStyle={{ pointerEvents: 'auto' }}
+          />
           <Bar
             dataKey="calories"
             fill="var(--chart-calories)"

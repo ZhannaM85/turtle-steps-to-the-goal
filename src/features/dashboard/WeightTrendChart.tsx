@@ -52,6 +52,9 @@ export function WeightTrendChart({ entries }: WeightTrendChartProps) {
   // Tapping/hovering a point only ever shows the tooltip (#49) — the
   // in-tooltip link is the sole way to navigate, so a stray tap elsewhere
   // on the chart doesn't yank the user away from just glancing at values.
+  // Recharts' tooltip wrapper is pointer-events:none by default (so
+  // hovering the tooltip itself doesn't interrupt mouse tracking on the
+  // chart) — wrapperStyle below re-enables it so the link is clickable.
   function renderTooltip({ active, label, payload }: TooltipContentProps) {
     if (!active || !payload || payload.length === 0) return null
     const value = payload[0]?.value
@@ -107,7 +110,10 @@ export function WeightTrendChart({ entries }: WeightTrendChartProps) {
             tickLine={false}
             domain={['auto', 'auto']}
           />
-          <Tooltip content={renderTooltip} />
+          <Tooltip
+            content={renderTooltip}
+            wrapperStyle={{ pointerEvents: 'auto' }}
+          />
           <Line
             type="monotone"
             dataKey="weight"
