@@ -3,6 +3,12 @@ import { format } from 'date-fns'
 import { useTranslation } from '@/i18n'
 import { Button } from '@/shared/ui/button'
 import {
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/shared/ui/card'
+import {
   exportAllData,
   importAllData,
   InvalidBackupFileError,
@@ -68,69 +74,72 @@ export function ExportSection() {
   }
 
   return (
-    <div className="flex flex-col gap-4 border-t border-border pt-6">
-      <div className="flex flex-col gap-1">
-        <h2 className="text-base font-semibold text-foreground">
-          {t.export.title}
-        </h2>
-        <p className="text-sm text-muted-foreground">{t.export.description}</p>
-      </div>
+    <>
+      <CardHeader>
+        <CardTitle>{t.export.title}</CardTitle>
+        <CardDescription>{t.export.description}</CardDescription>
+      </CardHeader>
+      <CardContent className="flex flex-col gap-4">
+        <div className="flex flex-col gap-2">
+          <p className="text-sm text-muted-foreground">
+            {t.export.exportBlurb}
+          </p>
+          <Button
+            onClick={handleExport}
+            className="self-start"
+            disabled={status.kind === 'exporting'}
+          >
+            {status.kind === 'exporting'
+              ? t.export.exportingButton
+              : t.export.exportButton}
+          </Button>
+        </div>
 
-      <div className="flex flex-col gap-2">
-        <p className="text-sm text-muted-foreground">{t.export.exportBlurb}</p>
-        <Button
-          onClick={handleExport}
-          className="self-start"
-          disabled={status.kind === 'exporting'}
-        >
-          {status.kind === 'exporting'
-            ? t.export.exportingButton
-            : t.export.exportButton}
-        </Button>
-      </div>
+        <div className="flex flex-col gap-2">
+          <p className="text-sm text-muted-foreground">
+            {t.export.importBlurb}
+          </p>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="application/json"
+            className="hidden"
+            onChange={(e) => {
+              const file = e.target.files?.[0]
+              if (file) handleImportFile(file)
+              e.target.value = ''
+            }}
+          />
+          <Button
+            variant="outline"
+            className="self-start"
+            onClick={() => fileInputRef.current?.click()}
+            disabled={status.kind === 'importing'}
+          >
+            {status.kind === 'importing'
+              ? t.export.importingButton
+              : t.export.importButton}
+          </Button>
+        </div>
 
-      <div className="flex flex-col gap-2">
-        <p className="text-sm text-muted-foreground">{t.export.importBlurb}</p>
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept="application/json"
-          className="hidden"
-          onChange={(e) => {
-            const file = e.target.files?.[0]
-            if (file) handleImportFile(file)
-            e.target.value = ''
-          }}
-        />
-        <Button
-          variant="outline"
-          className="self-start"
-          onClick={() => fileInputRef.current?.click()}
-          disabled={status.kind === 'importing'}
-        >
-          {status.kind === 'importing'
-            ? t.export.importingButton
-            : t.export.importButton}
-        </Button>
-      </div>
-
-      {status.kind === 'exported' && (
-        <p className="text-sm text-muted-foreground">
-          {t.export.exportedSummary(
-            t.export.summary(status.goals, status.entries),
-          )}
-        </p>
-      )}
-      {status.kind === 'imported' && (
-        <p className="text-sm text-muted-foreground">
-          {t.export.importedSummary(
-            t.export.summary(status.goals, status.entries),
-          )}
-        </p>
-      )}
-      {status.kind === 'error' && (
-        <p className="text-sm text-destructive">{status.message}</p>
-      )}
-    </div>
+        {status.kind === 'exported' && (
+          <p className="text-sm text-muted-foreground">
+            {t.export.exportedSummary(
+              t.export.summary(status.goals, status.entries),
+            )}
+          </p>
+        )}
+        {status.kind === 'imported' && (
+          <p className="text-sm text-muted-foreground">
+            {t.export.importedSummary(
+              t.export.summary(status.goals, status.entries),
+            )}
+          </p>
+        )}
+        {status.kind === 'error' && (
+          <p className="text-sm text-destructive">{status.message}</p>
+        )}
+      </CardContent>
+    </>
   )
 }

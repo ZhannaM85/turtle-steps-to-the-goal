@@ -6,8 +6,9 @@ import {
 } from '@/i18n'
 import { useThemeStore, useUnitStore, type Mood, type Unit } from '@/stores'
 import { ExportSection } from '@/features/export'
+import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
 import { PageHeader } from '@/shared/ui/page-header'
-import { cn } from '@/shared/lib/utils'
+import { ToggleGroup, ToggleGroupItem } from '@/shared/ui/toggle-group'
 
 // Light-mode accent per mood, for the swatch preview only — the full token
 // set per mood/scheme lives in src/index.css.
@@ -41,134 +42,98 @@ export function SettingsScreen() {
   const setColorScheme = useThemeStore((state) => state.setColorScheme)
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-4">
       <PageHeader
         title={t.settings.title}
         description={t.settings.description}
       />
 
-      <fieldset className="flex flex-col gap-1.5">
-        <legend className="text-sm font-medium">{t.settings.unitsLabel}</legend>
-        <div className="flex gap-4">
-          <label className="flex items-center gap-1.5 text-sm">
-            <input
-              type="radio"
-              name="unit"
-              value="kg"
-              checked={unit === 'kg'}
-              onChange={() => setUnit('kg' satisfies Unit)}
-            />{' '}
-            {t.common.kg}
-          </label>
-          <label className="flex items-center gap-1.5 text-sm">
-            <input
-              type="radio"
-              name="unit"
-              value="lb"
-              checked={unit === 'lb'}
-              onChange={() => setUnit('lb' satisfies Unit)}
-            />{' '}
-            {t.common.lb}
-          </label>
-        </div>
-      </fieldset>
+      <Card>
+        <CardHeader>
+          <CardTitle>{t.settings.unitsLabel}</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <ToggleGroup
+            type="single"
+            aria-label={t.settings.unitsLabel}
+            value={unit}
+            onValueChange={(value) => value && setUnit(value as Unit)}
+          >
+            <ToggleGroupItem value="kg">{t.common.kg}</ToggleGroupItem>
+            <ToggleGroupItem value="lb">{t.common.lb}</ToggleGroupItem>
+          </ToggleGroup>
+        </CardContent>
+      </Card>
 
-      <fieldset className="flex flex-col gap-1.5">
-        <legend className="text-sm font-medium">
-          {t.settings.languageLabel}
-        </legend>
-        <div className="flex gap-4">
-          <label className="flex items-center gap-1.5 text-sm">
-            <input
-              type="radio"
-              name="locale"
-              value="en"
-              checked={locale === 'en'}
-              onChange={() => setLocale('en' satisfies Locale)}
-            />{' '}
-            {t.settings.english}
-          </label>
-          <label className="flex items-center gap-1.5 text-sm">
-            <input
-              type="radio"
-              name="locale"
-              value="ru"
-              checked={locale === 'ru'}
-              onChange={() => setLocale('ru' satisfies Locale)}
-            />{' '}
-            {t.settings.russian}
-          </label>
-        </div>
-      </fieldset>
+      <Card>
+        <CardHeader>
+          <CardTitle>{t.settings.languageLabel}</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <ToggleGroup
+            type="single"
+            aria-label={t.settings.languageLabel}
+            value={locale}
+            onValueChange={(value) => value && setLocale(value as Locale)}
+          >
+            <ToggleGroupItem value="en">{t.settings.english}</ToggleGroupItem>
+            <ToggleGroupItem value="ru">{t.settings.russian}</ToggleGroupItem>
+          </ToggleGroup>
+        </CardContent>
+      </Card>
 
-      <fieldset className="flex flex-col gap-2">
-        <legend className="text-sm font-medium">
-          {t.settings.appearanceLabel}
-        </legend>
-
-        <div className="flex flex-col gap-1.5">
-          <span className="text-sm text-muted-foreground">
-            {t.settings.moodLabel}
-          </span>
-          <div className="flex flex-wrap gap-2">
-            {moodOptions(t).map((option) => (
-              <label
-                key={option.value}
-                className={cn(
-                  'flex items-center gap-1.5 rounded-lg border border-border px-2.5 py-1.5 text-sm',
-                  'has-[:focus-visible]:ring-3 has-[:focus-visible]:ring-ring/50',
-                  mood === option.value && 'border-ring bg-muted',
-                )}
-              >
-                <input
-                  type="radio"
-                  name="mood"
-                  value={option.value}
-                  checked={mood === option.value}
-                  onChange={() => setMood(option.value)}
-                  className="sr-only"
-                />
-                <span
-                  aria-hidden="true"
-                  className="size-3.5 rounded-full"
-                  style={{ background: MOOD_SWATCH[option.value] }}
-                />
-                {option.label}
-              </label>
-            ))}
+      <Card>
+        <CardHeader>
+          <CardTitle>{t.settings.appearanceLabel}</CardTitle>
+        </CardHeader>
+        <CardContent className="flex flex-col gap-4">
+          <div className="flex flex-col gap-1.5">
+            <span className="text-sm text-muted-foreground">
+              {t.settings.moodLabel}
+            </span>
+            <ToggleGroup
+              type="single"
+              aria-label={t.settings.moodLabel}
+              value={mood}
+              onValueChange={(value) => value && setMood(value as Mood)}
+            >
+              {moodOptions(t).map((option) => (
+                <ToggleGroupItem key={option.value} value={option.value}>
+                  <span
+                    aria-hidden="true"
+                    className="size-3 rounded-full"
+                    style={{ background: MOOD_SWATCH[option.value] }}
+                  />
+                  {option.label}
+                </ToggleGroupItem>
+              ))}
+            </ToggleGroup>
           </div>
-        </div>
 
-        <div className="flex flex-col gap-1.5">
-          <span className="text-sm text-muted-foreground">
-            {t.settings.colorSchemeLabel}
-          </span>
-          <div className="flex gap-4">
-            <label className="flex items-center gap-1.5 text-sm">
-              <input
-                type="radio"
-                name="colorScheme"
-                value="light"
-                checked={colorScheme === 'light'}
-                onChange={() => setColorScheme('light')}
-              />{' '}
-              {t.settings.light}
-            </label>
-            <label className="flex items-center gap-1.5 text-sm">
-              <input
-                type="radio"
-                name="colorScheme"
-                value="dark"
-                checked={colorScheme === 'dark'}
-                onChange={() => setColorScheme('dark')}
-              />{' '}
-              {t.settings.dark}
-            </label>
+          <div className="flex flex-col gap-1.5">
+            <span className="text-sm text-muted-foreground">
+              {t.settings.colorSchemeLabel}
+            </span>
+            <ToggleGroup
+              type="single"
+              aria-label={t.settings.colorSchemeLabel}
+              value={colorScheme}
+              onValueChange={(value) =>
+                value && setColorScheme(value as 'light' | 'dark')
+              }
+            >
+              <ToggleGroupItem value="light">
+                {t.settings.light}
+              </ToggleGroupItem>
+              <ToggleGroupItem value="dark">{t.settings.dark}</ToggleGroupItem>
+            </ToggleGroup>
           </div>
-        </div>
-      </fieldset>
+        </CardContent>
+      </Card>
 
-      <ExportSection />
+      <Card>
+        <ExportSection />
+      </Card>
     </div>
   )
 }
