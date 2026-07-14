@@ -9,6 +9,7 @@ export function entryToFormValues(
     weightKg: entry.weightKg,
     calorieEntries: entry.calorieEntries,
     note: entry.note,
+    emotion: entry.emotion,
   }
 }
 
@@ -23,6 +24,7 @@ export function formValuesToEntry(
     weightKg: values.weightKg,
     calorieEntries: values.calorieEntries,
     note: values.note,
+    emotion: values.emotion,
     createdAt: identity.createdAt,
     updatedAt: new Date().toISOString(),
   }

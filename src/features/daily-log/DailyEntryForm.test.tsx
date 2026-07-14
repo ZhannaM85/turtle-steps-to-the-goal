@@ -231,6 +231,78 @@ describe('DailyEntryForm', () => {
       expect(onSave.mock.calls[0][0].note).toBe('updated note')
       expect(screen.getByText('updated note')).toBeInTheDocument()
     })
+
+    it('bundles the day mood into the same save as the note (#44)', async () => {
+      const user = userEvent.setup()
+      const onSave = vi.fn()
+      render(
+        <DailyEntryForm
+          date="2026-03-01"
+          existingEntry={null}
+          onSave={onSave}
+        />,
+      )
+
+      await user.type(screen.getByLabelText('Note (optional)'), 'felt good')
+      await user.click(
+        screen.getByRole('button', { name: 'Happy — Mood today' }),
+      )
+      await user.click(screen.getByRole('button', { name: 'Save note' }))
+
+      expect(onSave).toHaveBeenCalledTimes(1)
+      expect(onSave.mock.calls[0][0].note).toBe('felt good')
+      expect(onSave.mock.calls[0][0].emotion).toBe('happy')
+    })
+
+    it('shows the saved day mood as an icon next to the displayed note', () => {
+      const onSave = vi.fn()
+      render(
+        <DailyEntryForm
+          date="2026-03-01"
+          existingEntry={{
+            id: 'e1',
+            date: '2026-03-01',
+            note: 'felt good',
+            emotion: 'unhappy',
+            createdAt: now,
+            updatedAt: now,
+          }}
+          onSave={onSave}
+        />,
+      )
+
+      expect(screen.getByText('felt good')).toBeInTheDocument()
+      expect(screen.getByText('Unhappy')).toBeInTheDocument() // sr-only label
+      // Read-only display: no mood-picker buttons leaked into view.
+      expect(
+        screen.queryByRole('button', { name: /Mood today/ }),
+      ).not.toBeInTheDocument()
+    })
+
+    it('pre-selects the previously saved mood when editing the note', async () => {
+      const user = userEvent.setup()
+      const onSave = vi.fn()
+      render(
+        <DailyEntryForm
+          date="2026-03-01"
+          existingEntry={{
+            id: 'e1',
+            date: '2026-03-01',
+            note: 'felt good',
+            emotion: 'unhappy',
+            createdAt: now,
+            updatedAt: now,
+          }}
+          onSave={onSave}
+        />,
+      )
+
+      await user.click(screen.getByRole('button', { name: 'Edit note' }))
+
+      expect(
+        screen.getByRole('button', { name: 'Unhappy — Mood today' }),
+      ).toHaveAttribute('aria-pressed', 'true')
+    })
   })
 
   describe('alwaysEditable', () => {

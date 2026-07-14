@@ -17,6 +17,7 @@ export const dailyEntryFormSchema = z.object({
   weightKg: weightSchema,
   calorieEntries: z.array(calorieEntrySchema).optional(),
   note: noteSchema,
+  emotion: emotionSchema.optional(),
 })
 
 export type DailyEntryFormValues = z.infer<typeof dailyEntryFormSchema>

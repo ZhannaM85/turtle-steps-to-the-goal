@@ -23,6 +23,7 @@ const dailyEntrySchema = z.object({
   weightKg: z.number().optional(),
   calorieEntries: z.array(calorieEntrySchema).optional(),
   note: z.string().optional(),
+  emotion: emotionSchema.optional(),
   createdAt: z.string(),
   updatedAt: z.string(),
 })

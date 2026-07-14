@@ -367,10 +367,16 @@ export function DailyEntryForm({
 
   const weightKg = watch('weightKg')
   const note = watch('note')
+  const dayEmotion = watch('emotion')
   const calorieEntries = watch('calorieEntries') ?? []
+  const DayEmotionIcon = EMOTIONS.find((e) => e.value === dayEmotion)?.Icon
 
   const showWeightAsDisplay = !alwaysEditable && !isEditingWeight
   const showNoteAsDisplay = !alwaysEditable && !isEditingNote
+
+  function setDayEmotion(emotion: Emotion | undefined) {
+    setValue('emotion', emotion, { shouldDirty: true })
+  }
 
   function persist(values: DailyEntryFormValues) {
     onSave(formValuesToEntry(values, date, entryIdentity))
@@ -632,7 +638,20 @@ export function DailyEntryForm({
         <div className="flex flex-col gap-1.5">
           <span className="text-sm font-medium">{t.dailyEntry.noteLabel}</span>
           <div className="flex items-center justify-between rounded-lg bg-muted px-3 py-2">
-            <span className="text-sm text-foreground">{note}</span>
+            <span className="flex items-center gap-1.5 text-sm text-foreground">
+              {note}
+              {DayEmotionIcon && (
+                <>
+                  <DayEmotionIcon
+                    aria-hidden="true"
+                    className="size-3.5 text-muted-foreground"
+                  />
+                  <span className="sr-only">
+                    {t.dailyEntry.emotionLabel(dayEmotion!)}
+                  </span>
+                </>
+              )}
+            </span>
             <Button
               type="button"
               variant="ghost"
@@ -674,6 +693,17 @@ export function DailyEntryForm({
           {errors.note && (
             <p className="text-sm text-destructive">{errors.note.message}</p>
           )}
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-muted-foreground">
+              {t.dailyEntry.dayMoodLabel}
+            </span>
+            <EmotionPicker
+              value={dayEmotion}
+              onChange={setDayEmotion}
+              t={t}
+              contextLabel={t.dailyEntry.dayMoodLabel}
+            />
+          </div>
         </div>
       )}
     </form>

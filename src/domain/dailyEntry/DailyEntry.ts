@@ -14,6 +14,8 @@ export interface DailyEntry {
   weightKg?: number
   calorieEntries?: CalorieEntry[]
   note?: string
+  /** Overall mood for the day as a whole, distinct from any meal's own emotion (#44). */
+  emotion?: Emotion
   createdAt: string
   updatedAt: string
 }
