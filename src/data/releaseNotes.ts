@@ -15,6 +15,18 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    issue: 51,
+    date: '2026-07-15',
+    en: 'Meals can now log protein, fat, and carbs, with daily totals shown alongside calories.',
+    ru: 'Теперь у приёмов пищи можно указать белки, жиры и углеводы — итоги за день показываются рядом с калориями.',
+  },
+  {
+    issue: 63,
+    date: '2026-07-15',
+    en: "Added this release notes section, so you can see what's changed.",
+    ru: 'Добавлен этот раздел с историей изменений — теперь видно, что нового.',
+  },
+  {
     issue: 54,
     date: '2026-07-15',
     en: 'Meal reactions now use thumbs up/down and a "bellissimo" 🤌 option, instead of happy/neutral/unhappy.',
