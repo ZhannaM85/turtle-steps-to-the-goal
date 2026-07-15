@@ -1,6 +1,8 @@
 import { Heart } from 'lucide-react'
 import { useTranslation } from '@/i18n'
+import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
 import { PageHeader } from '@/shared/ui/page-header'
+import { ReleaseNotesSection } from './ReleaseNotesSection'
 
 const AUTHOR = 'zhannam85'
 const AUTHOR_GITHUB_URL = 'https://github.com/ZhannaM85'
@@ -31,6 +33,15 @@ export function AboutScreen() {
         />
         {t.about.madeBy(AUTHOR)}
       </a>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>{t.settings.releaseNotesLabel}</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <ReleaseNotesSection />
+        </CardContent>
+      </Card>
     </div>
   )
 }

@@ -16,7 +16,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
 import { PageHeader } from '@/shared/ui/page-header'
 import { ToggleGroup, ToggleGroupItem } from '@/shared/ui/toggle-group'
 import { MealItemsSection } from './MealItemsSection'
-import { ReleaseNotesSection } from './ReleaseNotesSection'
 
 // Light-mode accent per mood, for the swatch preview only — the full token
 // set per mood/scheme lives in src/index.css.
@@ -180,15 +179,6 @@ export function SettingsScreen() {
 
       <Card>
         <ExportSection />
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>{t.settings.releaseNotesLabel}</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <ReleaseNotesSection />
-        </CardContent>
       </Card>
     </div>
   )

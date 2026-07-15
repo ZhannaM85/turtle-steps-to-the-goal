@@ -15,6 +15,12 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    issue: 66,
+    date: '2026-07-15',
+    en: 'Release notes moved from Settings to the About page.',
+    ru: 'История изменений перенесена из «Настроек» на страницу «О проекте».',
+  },
+  {
     issue: 65,
     date: '2026-07-15',
     en: 'You can now log the time you ate each meal, useful for tracking intermittent fasting windows.',

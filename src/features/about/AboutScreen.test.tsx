@@ -32,6 +32,17 @@ describe('AboutScreen', () => {
     expect(link).toHaveAttribute('rel', 'noopener noreferrer')
   })
 
+  it('includes the release notes section, moved here from Settings (#66)', () => {
+    render(<AboutScreen />)
+
+    expect(
+      screen.getByRole('heading', { name: 'Release notes' }),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByRole('button', { name: 'Show release notes' }),
+    ).toBeInTheDocument()
+  })
+
   it('renders in Russian when the locale is switched', () => {
     useLocaleStore.setState({ locale: 'ru' })
     render(<AboutScreen />)

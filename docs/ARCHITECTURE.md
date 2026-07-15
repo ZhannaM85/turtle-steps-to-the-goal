@@ -272,7 +272,8 @@ Fully built, redesigned in #43 around a consistent `Card`-per-section layout wit
 4. **Cycle tracking** (#61) — on/off `ToggleGroup` bound to `useCycleTrackingStore.enabled`, off by default. The only effect of turning it on is that `DailyEntryForm` starts rendering the `onPeriod` toggle on Today; no gender field, no phase/prediction logic.
 5. **Meal items** (#50) — `MealItemsSection.tsx`: lists every `MealItem` from `useMealItemStore`, each row an inline-editable name (commits on blur/Enter via `rename()`) + a delete button. Empty state when nothing's been logged yet.
 6. **Export** — embeds `<ExportSection />` (from `features/export`) inside a `Card`, folding what used to be a standalone `/export` route into Settings (#24).
-7. **Release notes** (#63) — `ReleaseNotesSection.tsx`: collapsed by default (same chevron-toggle pattern as History's row expand, `#39`), reveals brief bilingual entries from `src/data/releaseNotes.ts` (`{ issue, date, en, ru }[]`, most-recent-first) when opened. That data file is a new top-level `src/data/` folder — plain static content, not a domain entity or a repository-backed concern, so it sits outside `domain/`. **Updating it is now a required step whenever a GitHub issue closes** (see `CLAUDE.md`), alongside `docs/issues-priority.md` and this file.
+
+Release notes (#63) used to be a 7th card here but moved to the About page in #66 — see `about/AboutScreen.tsx` below.
 
 #### `export/` — Epic 8, issue #9; folded into Settings in #24, schema bumped in #21
 
@@ -286,7 +287,7 @@ Fully built, redesigned in #43 around a consistent `Card`-per-section layout wit
 
 #### `about/AboutScreen.tsx` — issue #23 (new feature area)
 
-Static page: project intro/philosophy/privacy copy from the dictionary, an author credit linking to `github.com/ZhannaM85` (#35). Reachable via the "Heart" nav item, in the tab-bar slot #24 freed by folding Export into Settings.
+Static page: project intro/philosophy/privacy copy from the dictionary, an author credit linking to `github.com/ZhannaM85` (#35). Reachable via the "Heart" nav item, in the tab-bar slot #24 freed by folding Export into Settings. Also hosts **`ReleaseNotesSection.tsx`** (#63, moved here from Settings by #66) — collapsed by default (same chevron-toggle pattern as History's row expand, `#39`), reveals brief bilingual entries from `src/data/releaseNotes.ts` (`{ issue, date, en, ru }[]`, most-recent-first) when opened. That data file is a top-level `src/data/` folder — plain static content, not a domain entity or a repository-backed concern, so it sits outside `domain/`. **Updating it is a required step whenever a GitHub issue closes** (see `CLAUDE.md`), alongside `docs/issues-priority.md` and this file. The #66 move was a straight relocation, not a rename pass: its dictionary strings stayed under `settings.releaseNotesLabel`/`showReleaseNotes`/`hideReleaseNotes` rather than being renamed to an `about.*` namespace.
 
 ---
 
@@ -337,7 +338,7 @@ shadcn-style primitives (Nova preset, `radix-ui` primitives, `cva` variants, ali
 
 ### Tests
 
-Vitest + jsdom + `fake-indexeddb` + React Testing Library + `@testing-library/user-event`. **367 tests across 55 files**, all passing as of issue #65.
+Vitest + jsdom + `fake-indexeddb` + React Testing Library + `@testing-library/user-event`. **367 tests across 55 files**, all passing as of issue #66.
 
 | Area | Covers |
 |------|--------|
@@ -409,10 +410,10 @@ flowchart LR
         D21["#68 Narrow the Steps input,<br/>lower max to 20,000/day"]
         D22["#69 Sleep entry: hours+minutes<br/>instead of decimal hours"]
         D23["#65 Meal time-eaten field<br/>(intermittent fasting)"]
+        D24["#66 Move release notes<br/>Settings to About"]
     end
     subgraph Next ["📋 Open — not started"]
         N9["#62 Local food/nutrient database<br/>(#51 dependency now done)"]
-        N11["#66 Move release notes<br/>Settings to About"]
     end
     Done1 --> Done2 --> Done3 --> Next
 ```
