@@ -15,6 +15,12 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    issue: 64,
+    date: '2026-07-15',
+    en: 'Meal reaction icons (👍👎🤌) now look consistent with each other.',
+    ru: 'Значки реакций на приёмы пищи (👍👎🤌) теперь выглядят единообразно.',
+  },
+  {
     issue: 51,
     date: '2026-07-15',
     en: 'Meals can now log protein, fat, and carbs, with daily totals shown alongside calories.',

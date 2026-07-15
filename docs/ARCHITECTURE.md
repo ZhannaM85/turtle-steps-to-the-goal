@@ -319,7 +319,7 @@ shadcn-style primitives (Nova preset, `radix-ui` primitives, `cva` variants, ali
 | File | Purpose |
 |------|---------|
 | `lib/utils.ts` | `cn()` — `clsx` + `tailwind-merge`. |
-| `lib/emotionIcons.ts` | `DAY_EMOTIONS: { value: Emotion; Icon: LucideIcon }[]` — happy/neutral/unhappy → `Smile`/`Meh`/`Frown`. `MEAL_EMOTIONS: { value: MealEmotion; Icon?: LucideIcon; emoji?: string }[]` (#54) — thumbsUp/thumbsDown → `ThumbsUp`/`ThumbsDown`, `bellissimo` → the 🤌 emoji literal (`emoji`, no `Icon`) since lucide-react has no pinched-fingers/chef's-kiss icon. Both consumed by `DailyEntryForm` and `DayDetail`. |
+| `lib/emotionIcons.ts` | `DAY_EMOTIONS: { value: Emotion; Icon: LucideIcon }[]` — happy/neutral/unhappy → `Smile`/`Meh`/`Frown`, real lucide icons. `MEAL_EMOTIONS: { value: MealEmotion; Icon?: LucideIcon; emoji?: string }[]` (#54) — **all three are emoji** (👍/👎/🤌), not lucide icons: `ThumbsUp`/`ThumbsDown` were tried first, but two monochrome line icons next to bellissimo's 🤌 (no lucide equivalent exists) looked inconsistent side by side, so all three switched to emoji for visual consistency within this one picker (#64) — at the cost of no longer matching the app's lucide-icon system the way `DAY_EMOTIONS` still does. Both consumed by `DailyEntryForm` and `DayDetail`. |
 | `lib/parseNumberInput.ts` | `parseNumberInput(value)` — normalizes both `.` and `,` decimal separators into a number for React Hook Form's `setValueAs`; empty input → `undefined` (not `NaN`), so Zod's `.optional()` behaves correctly. Ties into #12's mobile-decimal fix. |
 | `hooks/useCurrentWeekInfo.ts` | Fetches only `getEarliestDate()` (not a full scan) and derives `CurrentWeekInfo` (week number/range) via `domain/stats/currentWeekInfo`. Shared by `TodayScreen` and `GoalScreen` (#18). |
 | `hooks/usePreviousDayEntry.ts` | Fetches the `DailyEntry` for `date − 1 day`, backing the day-over-day weight-delta stat on `TodayScreen` (#42) — a distinct, unsmoothed number from the week-over-week delta in `weeklySummaries`. |
@@ -390,6 +390,7 @@ flowchart LR
         D10["#54 Meal emotions: thumbs-up/down + bellissimo"]
         D11["#63 Release notes section in Settings"]
         D12["#51 Protein/fat/carbs: capture + Today totals (1/3)"]
+        D13["#64 Meal emotions: all-emoji for visual consistency"]
     end
     subgraph Next ["📋 Open — not started"]
         N2["#52-#53 Protein/fat/carbs macros<br/>(History, Dashboard — 2/3, 3/3)"]
