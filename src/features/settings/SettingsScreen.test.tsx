@@ -111,6 +111,14 @@ describe('SettingsScreen', () => {
     ).toBeInTheDocument()
   })
 
+  it('includes the release notes section (#63)', () => {
+    render(<SettingsScreen />)
+
+    expect(
+      screen.getByRole('heading', { name: 'Release notes' }),
+    ).toBeInTheDocument()
+  })
+
   it('includes the export/import section (folded in from the old Export tab, #24)', () => {
     render(<SettingsScreen />)
 

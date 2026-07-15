@@ -266,6 +266,7 @@ Fully built, redesigned in #43 around a consistent `Card`-per-section layout wit
 3. **Appearance** — 5 mood swatches bound to `useThemeStore.mood`, plus a light/dark `ToggleGroup` bound to `colorScheme` (#17).
 4. **Meal items** (#50) — `MealItemsSection.tsx`: lists every `MealItem` from `useMealItemStore`, each row an inline-editable name (commits on blur/Enter via `rename()`) + a delete button. Empty state when nothing's been logged yet.
 5. **Export** — embeds `<ExportSection />` (from `features/export`) inside a `Card`, folding what used to be a standalone `/export` route into Settings (#24).
+6. **Release notes** (#63) — `ReleaseNotesSection.tsx`: collapsed by default (same chevron-toggle pattern as History's row expand, `#39`), reveals brief bilingual entries from `src/data/releaseNotes.ts` (`{ issue, date, en, ru }[]`, most-recent-first) when opened. That data file is a new top-level `src/data/` folder — plain static content, not a domain entity or a repository-backed concern, so it sits outside `domain/`. **Updating it is now a required step whenever a GitHub issue closes** (see `CLAUDE.md`), alongside `docs/issues-priority.md` and this file.
 
 #### `export/` — Epic 8, issue #9; folded into Settings in #24, schema bumped in #21
 
@@ -327,7 +328,7 @@ shadcn-style primitives (Nova preset, `radix-ui` primitives, `cva` variants, ali
 
 ### Tests
 
-Vitest + jsdom + `fake-indexeddb` + React Testing Library + `@testing-library/user-event`. **318 tests across 50 files**, all passing as of issue #54.
+Vitest + jsdom + `fake-indexeddb` + React Testing Library + `@testing-library/user-event`. **322 tests across 51 files**, all passing as of issue #63.
 
 | Area | Covers |
 |------|--------|
@@ -386,6 +387,7 @@ flowchart LR
         D8["#58 Add a README with screenshots"]
         D9["#50 Reusable meal items (autocomplete + library)"]
         D10["#54 Meal emotions: thumbs-up/down + bellissimo"]
+        D11["#63 Release notes section in Settings"]
     end
     subgraph Next ["📋 Open — not started"]
         N2["#51-#53 Protein/fat/carbs macros<br/>(capture, History, Dashboard — split epic)"]
@@ -393,7 +395,6 @@ flowchart LR
         N5["#59 Sleep tracking (duration + deep sleep)"]
         N6["#60 Step count tracking"]
         N7["#61 Opt-in menstrual cycle tracker"]
-        N8["#63 Release notes section in Settings"]
         N9["#62 Local food/nutrient database<br/>(blocked on #51)"]
     end
     Done1 --> Done2 --> Done3 --> Next

@@ -197,6 +197,9 @@ export const en: Dictionary = {
     mealItemsEmpty: "Nothing yet — items appear here once you've logged a meal.",
     mealItemNameLabel: 'Meal item name',
     deleteMealItemLabel: (name) => `Delete "${name}"`,
+    releaseNotesLabel: 'Release notes',
+    showReleaseNotes: 'Show release notes',
+    hideReleaseNotes: 'Hide release notes',
   },
   about: {
     title: 'About',

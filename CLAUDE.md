@@ -15,8 +15,9 @@
 - `zm-index stats`                    # check index health
 
 ## Closing a GitHub issue
-Whenever a GitHub issue is closed (implementation done, verified working), update **both**:
+Whenever a GitHub issue is closed (implementation done, verified working), update **all three**:
 1. `docs/issues-priority.md` — mark the row done with a one-line implementation note.
 2. `docs/ARCHITECTURE.md` — reflect whatever actually changed (new/changed files, data model, routes, etc.) in the relevant section(s). Update the `## Status` diagram too if the issue moves an epic between tiers.
+3. `src/data/releaseNotes.ts` (#63) — add one brief, user-facing entry (`{ issue, date, en, ru }`, most-recent-first) describing what changed. This is end-user-facing copy shown in Settings, not the implementation notes from #1/#2 — keep it to one plain sentence, no jargon, both languages.
 
 Do this as part of finishing the issue, not as a separate later pass — `ARCHITECTURE.md` says at the top "this document is updated after each issue is completed," and it only stays true if it happens every time.

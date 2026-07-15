@@ -1,0 +1,329 @@
+export interface ReleaseNote {
+  issue: number
+  date: string // ISO date (YYYY-MM-DD)
+  en: string
+  ru: string
+}
+
+/**
+ * Brief, user-facing "what changed" per closed GitHub issue (#63) — not the
+ * implementation-detail notes in docs/issues-priority.md, which are written
+ * for a future engineering session, not an end user. Most-recent-first.
+ *
+ * Update this file as part of closing every issue, alongside
+ * docs/issues-priority.md and docs/ARCHITECTURE.md — see CLAUDE.md.
+ */
+export const releaseNotes: ReleaseNote[] = [
+  {
+    issue: 54,
+    date: '2026-07-15',
+    en: 'Meal reactions now use thumbs up/down and a "bellissimo" 🤌 option, instead of happy/neutral/unhappy.',
+    ru: 'Реакции на приёмы пищи теперь — «нравится», «не понравилось» и «объедение» 🤌, вместо радостно/нейтрально/грустно.',
+  },
+  {
+    issue: 50,
+    date: '2026-07-15',
+    en: "Meals you've logged before are now suggested as you type, and can be renamed or removed in Settings.",
+    ru: 'Блюда, которые вы уже добавляли, теперь подсказываются при вводе, а также их можно переименовать или удалить в настройках.',
+  },
+  {
+    issue: 58,
+    date: '2026-07-15',
+    en: 'Added a README with screenshots for anyone finding the project on GitHub.',
+    ru: 'Добавлен README со скриншотами для тех, кто найдёт проект на GitHub.',
+  },
+  {
+    issue: 57,
+    date: '2026-07-15',
+    en: 'Weight now shows exactly as you typed it, instead of being rounded to one decimal.',
+    ru: 'Вес теперь отображается именно так, как вы его ввели, без округления до одного знака.',
+  },
+  {
+    issue: 56,
+    date: '2026-07-15',
+    en: 'This week\'s target now shows as a negative number (e.g. "-0.5 kg") to make clear it\'s a loss goal.',
+    ru: 'Цель на неделю теперь отображается как отрицательное число (например, «-0,5 кг»), чтобы было понятно, что это цель похудения.',
+  },
+  {
+    issue: 48,
+    date: '2026-07-14',
+    en: 'Added a calendar view to History, alongside the existing list.',
+    ru: 'В историю добавлен вид календаря, в дополнение к списку.',
+  },
+  {
+    issue: 49,
+    date: '2026-07-14',
+    en: 'Fixed Dashboard charts navigating away on any tap — now only the tooltip link does.',
+    ru: 'Исправлен переход по любому нажатию на графике — теперь переходит только ссылка во всплывающей подсказке.',
+  },
+  {
+    issue: 47,
+    date: '2026-07-14',
+    en: 'Fixed the History date filters overlapping on mobile.',
+    ru: 'Исправлено наложение полей фильтра по дате в истории на мобильных устройствах.',
+  },
+  {
+    issue: 44,
+    date: '2026-07-14',
+    en: "Added an overall mood for the day, next to the daily note.",
+    ru: 'Добавлено общее настроение за день рядом с заметкой.',
+  },
+  {
+    issue: 45,
+    date: '2026-07-14',
+    en: 'Fixed Dashboard chart taps not opening the right day on mobile.',
+    ru: 'Исправлен переход к нужному дню при нажатии на график на мобильных устройствах.',
+  },
+  {
+    issue: 46,
+    date: '2026-07-14',
+    en: 'Removed the weight projection line from the Dashboard chart.',
+    ru: 'Убрана линия прогноза веса с графика.',
+  },
+  {
+    issue: 43,
+    date: '2026-07-14',
+    en: 'Redesigned the Settings screen for a more consistent look.',
+    ru: 'Обновлён дизайн экрана настроек для большей согласованности.',
+  },
+  {
+    issue: 42,
+    date: '2026-07-14',
+    en: 'Added a "vs. yesterday" weight stat to Today.',
+    ru: 'На экран «Сегодня» добавлено сравнение веса со вчера.',
+  },
+  {
+    issue: 41,
+    date: '2026-07-14',
+    en: 'Tapping a point on the Dashboard chart now jumps to that day in History.',
+    ru: 'Нажатие на точку графика теперь открывает этот день в истории.',
+  },
+  {
+    issue: 40,
+    date: '2026-07-14',
+    en: 'Added date search/filtering to History.',
+    ru: 'В историю добавлен поиск/фильтр по дате.',
+  },
+  {
+    issue: 39,
+    date: '2026-07-14',
+    en: "History entries can now be expanded to show a day's full details.",
+    ru: 'Записи в истории теперь можно развернуть и увидеть все детали дня.',
+  },
+  {
+    issue: 38,
+    date: '2026-07-14',
+    en: "Added a gentle reminder to set next week's goal at the end of the week.",
+    ru: 'Добавлено ненавязчивое напоминание задать цель на следующую неделю в конце недели.',
+  },
+  {
+    issue: 37,
+    date: '2026-07-14',
+    en: 'Moved the kg/lb unit switch from the Goal page to Settings.',
+    ru: 'Переключатель единиц кг/фунты перенесён со страницы цели в настройки.',
+  },
+  {
+    issue: 36,
+    date: '2026-07-14',
+    en: 'Meal entries can now be reordered by dragging.',
+    ru: 'Приёмы пищи теперь можно менять местами перетаскиванием.',
+  },
+  {
+    issue: 35,
+    date: '2026-07-14',
+    en: "The About page's author credit now links to GitHub.",
+    ru: 'Упоминание автора на странице «О проекте» теперь ведёт на GitHub.',
+  },
+  {
+    issue: 34,
+    date: '2026-07-13',
+    en: 'Weekly summary no longer shows a "+" sign on weeks where weight went up.',
+    ru: 'В недельной сводке убран знак «+» для недель с набором веса.',
+  },
+  {
+    issue: 33,
+    date: '2026-07-13',
+    en: 'Shortened the Russian "About" nav label so it no longer wraps.',
+    ru: 'Сокращена подпись «О приложении» в меню, чтобы не переносилась на две строки.',
+  },
+  {
+    issue: 32,
+    date: '2026-07-13',
+    en: 'Updated the Russian app name.',
+    ru: 'Обновлено название приложения на русском.',
+  },
+  {
+    issue: 29,
+    date: '2026-07-13',
+    en: 'Weeks with a gain (or no change) are now shown more quietly than weeks with a loss.',
+    ru: 'Недели с набором веса (или без изменений) теперь выделены менее заметно, чем недели с похудением.',
+  },
+  {
+    issue: 31,
+    date: '2026-07-13',
+    en: 'Weight, notes, and meals now save immediately — no more single "Update" button.',
+    ru: 'Вес, заметки и приёмы пищи теперь сохраняются сразу — больше не нужна общая кнопка «Обновить».',
+  },
+  {
+    issue: 30,
+    date: '2026-07-13',
+    en: 'Reordered the daily entry form so Weight and Note come before Calories.',
+    ru: 'Изменён порядок полей: вес и заметка теперь идут перед калориями.',
+  },
+  {
+    issue: 28,
+    date: '2026-07-13',
+    en: 'Meals can now have their own note and an emotion reaction.',
+    ru: 'У приёмов пищи теперь есть своя заметка и реакция.',
+  },
+  {
+    issue: 23,
+    date: '2026-07-13',
+    en: 'Added an About page explaining what this app is and who made it.',
+    ru: 'Добавлена страница «О проекте» с описанием приложения и автора.',
+  },
+  {
+    issue: 25,
+    date: '2026-07-13',
+    en: 'The header now stays visible while scrolling.',
+    ru: 'Верхняя панель теперь остаётся на месте при прокрутке.',
+  },
+  {
+    issue: 24,
+    date: '2026-07-13',
+    en: 'Export/Import moved into Settings; the standalone Export tab is gone.',
+    ru: 'Экспорт/импорт перенесены в настройки; отдельная вкладка «Экспорт» убрана.',
+  },
+  {
+    issue: 22,
+    date: '2026-07-13',
+    en: 'Added a turtle-themed favicon.',
+    ru: 'Добавлен значок сайта в виде черепахи.',
+  },
+  {
+    issue: 21,
+    date: '2026-07-13',
+    en: 'Weight and Note now show read-only with an edit button; calories can be logged as separate itemized meals.',
+    ru: 'Вес и заметка теперь отображаются только для чтения с кнопкой редактирования; калории можно вносить отдельными приёмами пищи.',
+  },
+  {
+    issue: 20,
+    date: '2026-07-13',
+    en: 'Simplified the Calories field to just an Add control.',
+    ru: 'Поле калорий упрощено — осталась только кнопка добавления.',
+  },
+  {
+    issue: 11,
+    date: '2026-07-12',
+    en: 'Accessibility and mobile-responsiveness pass across the whole app.',
+    ru: 'Проведена проверка доступности и адаптивности для мобильных устройств по всему приложению.',
+  },
+  {
+    issue: 19,
+    date: '2026-07-12',
+    en: 'Added a quick "+ kcal" control for adding calories throughout the day.',
+    ru: 'Добавлена быстрая кнопка «+ ккал» для внесения калорий в течение дня.',
+  },
+  {
+    issue: 18,
+    date: '2026-07-12',
+    en: "Today's target now shows the week number and date range.",
+    ru: 'Цель на сегодня теперь показывает номер недели и диапазон дат.',
+  },
+  {
+    issue: 8,
+    date: '2026-07-12',
+    en: 'Added the History screen.',
+    ru: 'Добавлен экран истории.',
+  },
+  {
+    issue: 7,
+    date: '2026-07-12',
+    en: 'Added calorie/weight correlation insights to the Dashboard.',
+    ru: 'На дашборд добавлена связь между калориями и изменением веса.',
+  },
+  {
+    issue: 6,
+    date: '2026-07-12',
+    en: 'Added the Dashboard with weight and calorie trend charts.',
+    ru: 'Добавлен дашборд с графиками веса и калорий.',
+  },
+  {
+    issue: 17,
+    date: '2026-07-12',
+    en: 'Added Appearance settings — 5 color moods plus light/dark mode.',
+    ru: 'Добавлены настройки внешнего вида — 5 цветовых тем и светлый/тёмный режим.',
+  },
+  {
+    issue: 16,
+    date: '2026-07-12',
+    en: 'Added an explanation tooltip on the Calories field.',
+    ru: 'Добавлена подсказка к полю калорий.',
+  },
+  {
+    issue: 15,
+    date: '2026-07-12',
+    en: 'Added English and Russian language support.',
+    ru: 'Добавлена поддержка английского и русского языков.',
+  },
+  {
+    issue: 14,
+    date: '2026-07-12',
+    en: 'Simplified goals to a weekly target only — no more long-term goal weight.',
+    ru: 'Цель упрощена до недельного темпа — долгосрочный целевой вес убран.',
+  },
+  {
+    issue: 13,
+    date: '2026-07-12',
+    en: 'Redesigned the app with a mobile-first bottom navigation bar.',
+    ru: 'Обновлён дизайн приложения с нижней панелью навигации для мобильных устройств.',
+  },
+  {
+    issue: 12,
+    date: '2026-07-11',
+    en: 'Fixed decimal weights not being enterable on some mobile keyboards.',
+    ru: 'Исправлен ввод дробного веса на некоторых мобильных клавиатурах.',
+  },
+  {
+    issue: 9,
+    date: '2026-07-10',
+    en: 'Added backup export/import.',
+    ru: 'Добавлен экспорт/импорт резервной копии данных.',
+  },
+  {
+    issue: 10,
+    date: '2026-07-10',
+    en: 'The app is now deployed and live.',
+    ru: 'Приложение опубликовано и доступно онлайн.',
+  },
+  {
+    issue: 5,
+    date: '2026-07-10',
+    en: 'Added daily weight/calorie logging.',
+    ru: 'Добавлено ежедневное внесение веса и калорий.',
+  },
+  {
+    issue: 4,
+    date: '2026-07-10',
+    en: 'Added goal setup.',
+    ru: 'Добавлена настройка цели.',
+  },
+  {
+    issue: 3,
+    date: '2026-07-10',
+    en: "Built the app's design system.",
+    ru: 'Создана дизайн-система приложения.',
+  },
+  {
+    issue: 2,
+    date: '2026-07-10',
+    en: 'Built the data model and local storage layer.',
+    ru: 'Создана модель данных и локальное хранилище.',
+  },
+  {
+    issue: 1,
+    date: '2026-07-10',
+    en: 'Initial project setup.',
+    ru: 'Начальная настройка проекта.',
+  },
+]
