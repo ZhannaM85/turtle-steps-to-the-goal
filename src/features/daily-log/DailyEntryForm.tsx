@@ -1270,11 +1270,17 @@ export function DailyEntryForm({
               <option key={item.id} value={item.name} />
             ))}
           </datalist>
-          <FoodPickerDialog
-            open={isFoodPickerOpen}
-            onOpenChange={setIsFoodPickerOpen}
-            onAdd={addFoodEntry}
-          />
+          {/* Lazily mounted (#78) — the food list grew to 300+ items, and
+           * rendering it unconditionally meant every DailyEntryForm render
+           * paid that cost even with the dialog closed. Only mounting it
+           * while open keeps the closed (overwhelmingly common) case cheap. */}
+          {isFoodPickerOpen && (
+            <FoodPickerDialog
+              open={isFoodPickerOpen}
+              onOpenChange={setIsFoodPickerOpen}
+              onAdd={addFoodEntry}
+            />
+          )}
         </div>
       </div>
 

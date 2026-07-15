@@ -3,6 +3,11 @@ import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
 import { FoodPickerDialog } from './FoodPickerDialog'
 
+// The food list grew to 300+ items (#78) — every test here renders the
+// dialog open, so the default 5s timeout is too tight under full-suite
+// parallel load even though each test is fast in isolation.
+vi.setConfig({ testTimeout: 15000 })
+
 describe('FoodPickerDialog', () => {
   it('renders nothing when closed', () => {
     render(<FoodPickerDialog open={false} onOpenChange={vi.fn()} onAdd={vi.fn()} />)

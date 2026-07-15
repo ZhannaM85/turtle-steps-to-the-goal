@@ -15,6 +15,12 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    issue: 78,
+    date: '2026-07-15',
+    en: 'The food list grew a lot — from about 60 foods to over 300, covering many more everyday foods and drinks.',
+    ru: 'Список продуктов сильно вырос — с около 60 до более 300, теперь охватывает гораздо больше повседневных продуктов и напитков.',
+  },
+  {
     issue: 77,
     date: '2026-07-15',
     en: 'Simplified the Note field’s label.',
