@@ -15,22 +15,26 @@ The codebase follows Clean Architecture layering with feature-based folders:
 ```mermaid
 flowchart TD
     subgraph UI ["features/ + app/  (React)"]
-        A["Screens<br/>TodayScreen, GoalScreen, ExportScreen<br/>Dashboard/History/Settings are placeholders (#6, #8)"]
+        A["6 screens: Today, Dashboard, History,<br/>Goal, Settings, About<br/>(/export redirects to /settings, #24)"]
     end
-    subgraph State ["stores/  (Zustand)"]
-        B["UI/session state only<br/>goalStore, dailyEntryStore"]
+    subgraph I18n ["i18n/  (Dictionary + en/ru, #15)"]
+        Z["useTranslation/useLocale,<br/>formatNumber, dateLocale, ruPluralize"]
+    end
+    subgraph State ["stores/  (Zustand, persisted to localStorage)"]
+        B["goalStore, dailyEntryStore — session/domain data<br/>unitStore (#37), themeStore — UI preferences"]
     end
     subgraph Domain ["domain/  (pure TS — no React/Zustand/Dexie)"]
-        C["Entities<br/>Goal, DailyEntry"]
-        D["Pure stats<br/>weeklySummaries, rollingAverage, correlation<br/>(built + tested, not yet wired into a screen)"]
+        C["Entities<br/>Goal, DailyEntry, CalorieEntry"]
+        D["Pure stats<br/>weeklySummaries, rollingAverage, correlation,<br/>correlationInsight, currentWeekInfo"]
         E["Repository INTERFACES<br/>GoalRepository, DailyEntryRepository"]
     end
     subgraph Infra ["infrastructure/persistence/indexeddb/  (only place Dexie exists)"]
-        F["AppDatabase<br/>Dexie schema"]
+        F["AppDatabase<br/>Dexie schema v2 (v1→v2 migration, #21)"]
         G["IndexedDb*Repository<br/>implementations"]
     end
 
     A --> B
+    A --> Z
     B --> E
     G -. implements .-> E
     G --> F
@@ -39,11 +43,14 @@ flowchart TD
     style Domain fill:#eff6ff,stroke:#3b82f6
     style Infra fill:#fef3c7,stroke:#d97706
     style UI fill:#f0fdf4,stroke:#22c55e
+    style I18n fill:#fdf4ff,stroke:#a855f7
 ```
 
-**The one dependency rule that matters:** `domain/` imports nothing from React, Zustand, or Dexie. Features and stores talk to persistence only through the repository interfaces, so a future sync backend would mean writing `Api*Repository` implementations, not a rewrite of stores or components.
+**The one dependency rule that matters:** `domain/` imports nothing from React, Zustand, or Dexie. Features and stores talk to persistence only through the repository interfaces, so a future sync backend would mean writing `Api*Repository` implementations, not a rewrite of stores or components. `i18n/` is a UI-layer concern (it exports React hooks) and sits alongside `stores/`, not inside `domain/`.
 
-**A known simplification vs. sibling projects:** stores and `exportActions.ts` each instantiate `new IndexedDbGoalRepository()` / `new IndexedDbDailyEntryRepository()` directly at module scope, rather than through a swappable factory/DI seam (compare `life-kaleidoscope`'s `getRepositories()`/`setRepositories()`). Fine while IndexedDB is the only implementation that exists; revisit if a second backend is ever built.
+**A known simplification vs. sibling projects:** stores and `exportActions.ts` each instantiate `new IndexedDbGoalRepository()` / `new IndexedDbDailyEntryRepository()` directly at module scope, rather than through a swappable factory/DI seam (compare `life-kaleidoscope`'s `getRepositories()`/`setRepositories()`). `Dashboard`'s and `History`'s data hooks (`useDashboardData`, `useHistoryData`) follow the same direct-instantiation pattern rather than routing through `dailyEntryStore`, since neither screen needs single-entry session state — they need "all entries," which the shared stores don't model. Fine while IndexedDB is the only implementation that exists; revisit if a second backend is ever built.
+
+**Three separate preference stores, not one:** display unit (`unitStore`), mood/color-scheme (`themeStore`), and locale (`i18n/localeStore.ts`) are three independent Zustand stores with three independent `localStorage` keys (`turtle-steps-unit`, `turtle-steps-theme`, `turtle-steps-locale`), split across `src/stores/` and `src/i18n/` rather than one unified preferences store. Not a problem in practice, but worth knowing before assuming a single "settings" state object exists anywhere.
 
 ---
 
@@ -77,6 +84,8 @@ sequenceDiagram
 
 `getActiveGoal()` is "most recently created goal" — there is no explicit active/inactive flag; saving a new goal (or the same goal's id again) always becomes the one Today reads. `DailyEntry` saves follow the identical shape through `dailyEntryStore` → `DailyEntryRepository` → `IndexedDbDailyEntryRepository`, keyed by the entry's `date` (a unique Dexie index — one entry per date, upserted by `put`).
 
+**Display unit is not part of this flow.** `Goal` has no `displayUnit` field (removed in #37) — kg/lb is a UI-only preference read from `unitStore` and applied at render time via a local `toDisplay(kg)` helper in every screen that shows a weight-derived number (`TodayScreen`, `GoalScreen`, `DashboardScreen`'s charts, `HistoryScreen`'s rows/detail). The stored value is always kg, everywhere.
+
 ---
 
 ## Module Reference
@@ -89,32 +98,35 @@ Pure TypeScript. Unit-testable with no DOM. If a file here ever needs `react`, `
 
 | File | Purpose |
 |------|---------|
-| `Goal.ts` | The entity: `id`, `targetWeeklyLossKg` (the only target concept — this week's pace, set and renewed week to week), `displayUnit` (`'kg' \| 'lb'` — stored canonically in kg regardless of display preference), `createdAt`/`updatedAt`. **No long-term target weight or target date** — issue #14 removed those deliberately: the product's small-steps framing means the app never shows a distant "big goal" number, only the current week's target. |
+| `Goal.ts` | The entity: `id`, `targetWeeklyLossKg` (the only target concept — this week's pace, set and renewed week to week), `createdAt`/`updatedAt`. **No `displayUnit`** (moved to `unitStore`, #37) and **no long-term target weight or target date** (removed in #14) — the product's small-steps framing means the app never shows a distant "big goal" number, only the current week's target. |
 | `GoalRepository.ts` | Interface: `getActiveGoal()`, `saveGoal(goal)`, `getAll()` (`getAll` added for Epic 8 export). |
-| `calorieDeficit.ts` | `estimatedDailyCalorieDeficitKcal(targetWeeklyLossKg)` — the brief's ~7700 kcal-per-kg-of-fat approximation, explicitly labeled non-medical everywhere it's surfaced in the UI. Derived from the weekly pace alone, so it was unaffected by #14. |
-| `units.ts` | `lbToKg` / `kgToLb` — pure conversion, `KG_PER_LB = 0.45359237`. |
+| `calorieDeficit.ts` | `estimatedDailyCalorieDeficitKcal(targetWeeklyLossKg)` — the brief's ~7700 kcal-per-kg-of-fat approximation, explicitly labeled non-medical everywhere it's surfaced in the UI. |
+| `units.ts` | `lbToKg` / `kgToLb` — pure conversion, `KG_PER_LB = 0.45359237`. Used both by `GoalForm`'s form-mapping and by every screen's `toDisplay()` unit conversion. |
 | `index.ts` | Barrel. |
 
 #### `src/domain/dailyEntry/`
 
 | File | Purpose |
 |------|---------|
-| `DailyEntry.ts` | The entity: one row per `date` (ISO string), optional `weightKg`/`caloriesConsumed`/`note` — a day can log just one of weight or calories. |
-| `DailyEntryRepository.ts` | Interface: `getByDate(date)`, `getRange(start, end)`, `upsert(entry)`, `delete(id)`, `getAll()`. |
+| `DailyEntry.ts` | The entity: one row per `date` (ISO string, unique). `weightKg?`, `note?`, `emotion?` (the **day's overall mood**, distinct from any meal's own emotion — #44), `calorieEntries?: CalorieEntry[]` — itemized per-meal list (#21), replacing the original single `caloriesConsumed` number. `CalorieEntry` (same file): `id`, `amountKcal`, `note?` (per-meal text, #28), `emotion?` (per-meal happy/unhappy/neutral, #28 — shares the same `Emotion` type as the day's mood today), `createdAt`. |
+| `totalCalories.ts` | `totalCalories(entries)` — sums a day's `calorieEntries`; returns `undefined` (not `0`) when there are none, so "no data" and "logged zero" stay distinguishable everywhere this is displayed. |
+| `DailyEntryRepository.ts` | Interface: `getByDate(date)`, `getRange(start, end)`, `upsert(entry)`, `delete(id)`, `getAll()`, `getEarliestDate()` (added for #18 — a cheap indexed lookup, not a full-table scan, used by `useCurrentWeekInfo`). |
 | `index.ts` | Barrel. |
 
-#### `src/domain/stats/` — built in Epic 1, not yet consumed by any screen
+#### `src/domain/stats/`
 
-Pure functions with unit tests covering edge cases (missing days, single data point, no variance). They exist ahead of the UI that will use them (Dashboard — #6 — and Correlation — #7 — are both still open).
+Pure functions with unit tests covering edge cases (missing days, single data point, no variance). Now consumed by both `Dashboard` (#6/#7) and `History` (#8) — no longer library-only.
 
 | File | Purpose |
 |------|---------|
-| `weeklySummaries.ts` | Groups entries into ISO weeks (Monday–Sunday, via `date-fns` `startOfISOWeek`/`endOfISOWeek`). Per week: `averageWeightKg`, `averageCalories` (`null` if no entries have that field that week), `deltaVsPriorWeekKg` (vs. the previous week's average), and `targetMet` (whether the actual loss met `goal.targetWeeklyLossKg` — `null` without a goal or a prior week to compare). |
-| `rollingAverage.ts` | `rollingAverage(entries, field, windowDays)` — trailing-window average of `weightKg`/`caloriesConsumed` per distinct date present in the data; a day with no qualifying values in its window gets `average: null` rather than being dropped. |
-| `correlation.ts` | Pearson correlation coefficient between weekly average calories and that week's weight change, built on top of `weeklySummaries`. `null` when there are fewer than two comparable weeks or no variance in either axis (avoids a divide-by-zero, not just an edge-case nicety). |
+| `weeklySummaries.ts` | Groups entries into ISO weeks (Monday–Sunday, via `date-fns` `startOfISOWeek`/`endOfISOWeek`). Per week: `averageWeightKg`, `averageCalories` (via `totalCalories`, `null` if no entries have calories that week), `deltaVsPriorWeekKg` (vs. the previous week's average), and `targetMet` (whether the actual loss met `goal.targetWeeklyLossKg` — `null` without a goal or a prior week to compare). Powers `WeeklySummaryCards` and `MetTargetList`. |
+| `rollingAverage.ts` | `rollingAverage(entries, field, windowDays)` — trailing-window average per distinct date present in the data. `field` accepts either a literal `DailyEntry` key or an extractor function, which is what lets `CalorieTrendChart` roll-average the *derived* `totalCalories()` value rather than a raw stored field. A day with no qualifying values in its window gets `average: null` rather than being dropped. |
+| `correlation.ts` | Plain Pearson correlation coefficient between weekly average calories and that week's weight change. `null` when there are fewer than two comparable weeks or no variance in either axis. Not directly rendered anywhere — `correlationInsight.ts` is what actually backs the UI. |
+| `correlationInsight.ts` | The plain-language companion to `correlation.ts` that `CorrelationView` (#7) actually uses: splits comparable weeks into lower-/higher-calorie halves by median (needs `MIN_COMPARABLE_WEEKS = 4`), reports which half averaged more loss and a rounded `thresholdKcal` — arithmetic, not statistics, on purpose. |
+| `currentWeekInfo.ts` | `currentWeekInfo(today, earliestEntryDate)` — computes which week "today" is, numbered from the week containing the *earliest logged entry* (Week 1), not from goal-creation date (goals have no start date and can be renewed freely, per #14). Backs `useCurrentWeekInfo` (#18). |
 | `index.ts` | Barrel. |
 
-**`projectedTrajectory.ts` was removed in #14.** It computed a straight-line `[start, target]` overlay from `Goal.startWeightKg`/`targetWeightKg`/`targetDate`, all of which no longer exist. #6 (Dashboard charts) will need to design a new, pace-based projection from scratch — e.g. a short forward projection from the latest logged entry at the current weekly pace — rather than reintroducing a fixed line to a fixed target.
+**History:** `projectedTrajectory.ts` was removed in #14 (it depended on `Goal` fields that no longer exist). #6 later added a new pace-based overlay, `projectedPaceTrajectory`, to `WeightTrendChart` — which #46 then removed outright per live feedback (no projection/prognosis line at all today; `WeightTrendChart` no longer takes a `goal` prop).
 
 ---
 
@@ -123,20 +135,20 @@ Pure functions with unit tests covering edge cases (missing days, single data po
 The only folder allowed to import Dexie.
 
 #### `db.ts`
-**Why it exists:** Single definition of the IndexedDB schema.
+**Why it exists:** Single definition of the IndexedDB schema, now on its second version.
 
-| Table | Indexes | Notes |
-|-------|---------|-------|
-| `goals` | `id, createdAt` | `getActiveGoal()` reads via `createdAt` ordering — no separate active/inactive flag. |
-| `dailyEntries` | `id, &date` | `&date` is a **unique** index — enforces one entry per date at the storage level. |
+| Version | Change |
+|---------|--------|
+| 1 | `goals: 'id, createdAt'`, `dailyEntries: 'id, &date'` (`&date` unique — one entry per date at the storage level). |
+| 2 (#21) | Same store shape (no index changes) + an `.upgrade()` block: for each `dailyEntries` row, if a legacy `caloriesConsumed` number exists and no `calorieEntries` yet, it's wrapped into a single-item `calorieEntries` array (new `crypto.randomUUID()` id, reuses the row's `createdAt`), then `caloriesConsumed` is deleted. |
 
-Database name: `turtle-steps-to-the-goal`, schema version 1.
+Database name: `turtle-steps-to-the-goal`. `db.migration.test.ts` seeds a raw v1-schema Dexie instance with a legacy `caloriesConsumed` row plus an untouched `weightKg`-only row, then opens the real `db` and asserts the upgrade did exactly the expected transformation and nothing more.
 
 #### `goalRepository.ts` — `IndexedDbGoalRepository`
 `getActiveGoal()` = `db.goals.orderBy('createdAt').last()` (most recently created). `saveGoal()` = `put` (insert or overwrite by id). `getAll()` = full table ordered by `createdAt`, added for Epic 8 export.
 
 #### `dailyEntryRepository.ts` — `IndexedDbDailyEntryRepository`
-`getByDate` uses the unique `date` index. `getRange` uses `.between(start, end, true, true)` (inclusive both ends) sorted by date. `upsert` is a `put`. `getAll` is ordered by date, added for Epic 8 export.
+`getByDate` uses the unique `date` index. `getRange` uses `.between(start, end, true, true)` (inclusive both ends) sorted by date. `upsert` is a `put`. `getAll` is ordered by date, added for Epic 8 export. `getEarliestDate()` (added for #18) is a cheap indexed lookup for the single earliest `date`, not a full scan.
 
 #### `index.ts`
 Barrel: `db`, `AppDatabase`, `IndexedDbGoalRepository`, `IndexedDbDailyEntryRepository`.
@@ -145,56 +157,112 @@ Barrel: `db`, `AppDatabase`, `IndexedDbGoalRepository`, `IndexedDbDailyEntryRepo
 
 ### State layer (`src/stores/`)
 
-Zustand owns UI/session state only; persisted data always flows through the domain repository interfaces, never through Dexie directly.
+Zustand. `goalStore`/`dailyEntryStore` own session/domain data (always flowing through the repository interfaces, never through Dexie directly); `unitStore`/`themeStore` own persisted UI preferences (`localStorage`, via Zustand's `persist` middleware — no IndexedDB involvement).
 
 | File | Purpose |
 |------|---------|
 | `goalStore.ts` | `useGoalStore`: `goal`, `status` (`idle/loading/ready/error`), `error`, `loadActiveGoal()`, `saveGoal(goal)`. Instantiates `IndexedDbGoalRepository` once at module scope. |
 | `dailyEntryStore.ts` | `useDailyEntryStore`: `date`, `entry`, `status`, `error`, `loadEntry(date)`, `saveEntry(entry)`. Same shape as `goalStore`. |
+| `unitStore.ts` | `useUnitStore` (#37): `unit: 'kg' \| 'lb'`, `setUnit`. Persisted to `localStorage` (`turtle-steps-unit`). This is the kg/lb toggle that used to live on the Goal page — now global, read by `TodayScreen`, `GoalScreen`, `DashboardScreen`'s charts, and every `History` weight display. |
+| `themeStore.ts` | `useThemeStore`: `mood` (`'pond' \| 'dusk' \| 'sage' \| 'tortoise' \| 'lagoon'`, #17), `colorScheme` (`'light' \| 'dark'`), `setMood`, `setColorScheme`. Persisted (`turtle-steps-theme`). Exports `detectDefaultColorScheme()` and `applyTheme()` (sets `data-mood` + toggles `.dark` on `<html>`); `applyTheme()` also runs eagerly at module-import time to stay in sync with an inline pre-paint script in `index.html` that avoids a flash of the wrong theme on load. |
+| `index.ts` | Barrel — exports all four stores plus `Mood`/`ColorScheme`/`Unit` types. |
+
+Locale is **not** here — see `src/i18n/localeStore.ts` below.
+
+---
+
+### Internationalization (`src/i18n/`) — Epic/issue #15
+
+New layer since the app's first localization pass. English and Russian, with the locale itself persisted like a UI preference (but structurally separate from `src/stores/` — see the "three preference stores" note above).
+
+| File | Purpose |
+|------|---------|
+| `Dictionary.ts` | The `Dictionary` interface — one section per feature area (`common`, `nav`, `today`, `dailyEntry`, `goal`, `export`, `dashboard`, `history`, `settings`, `about`). Several entries are functions rather than plain strings, for pluralization/interpolation (e.g. `common.weekLabel(weekNumber, start, end)`, `dailyEntry.mealLabel(n)`, `dailyEntry.emotionLabel(emotion)`, `goal.deficitEstimate(kcal, direction)`, `dashboard.correlationSummary(thresholdKcal, direction)`). |
+| `en.ts` / `ru.ts` | Full `Dictionary` implementations for each locale. |
+| `localeStore.ts` | `Locale = 'en' \| 'ru'`. `useLocaleStore` (Zustand + `persist`, `localStorage` key `turtle-steps-locale`, default from `detectDefaultLocale()` sniffing `navigator.language`). Free functions `getDictionary(locale)`; hooks `useTranslation()` (full `Dictionary` for the current locale) and `useLocale()` (just the `Locale` string). `SettingsScreen` is the only place that calls `setLocale`. |
+| `dateLocale.ts` | `getDateFnsLocale(locale)` — maps to `date-fns/locale`'s `enUS`/`ru`, used everywhere `date-fns format()` needs localized month/weekday names. |
+| `formatNumber.ts` | `formatNumber(value, locale, fractionDigits = 1)` and `formatSignedNumber(value, locale)` (always shows an explicit +/−) — both via `Intl.NumberFormat` with `ru-RU`/`en-US`, so Russian gets a decimal comma automatically. |
+| `unitLabel.ts` | `unitLabel(unit, dictionary)` → `t.common.kg` / `t.common.lb`. |
+| `ruPluralize.ts` | Standalone Russian plural-form selector (1 / 2–4 / 5+, with the 11–14 exception) for count-based Russian copy. |
 | `index.ts` | Barrel. |
 
 ---
 
 ### Features (`src/features/`)
 
-#### `goal-setup/` — Epic 3, issue #4 (done); reworked to weekly-only in #14
+#### `goal-setup/` — Epic 3, issue #4; reworked to weekly-only in #14
 
 | File | Purpose |
 |------|---------|
-| `goalFormSchema.ts` | Zod schema: `displayUnit` + `targetWeeklyLoss` (optional at the type level, required via `superRefine` with a custom "Enter this week's target, greater than 0" message — same pattern as `dailyEntryFormSchema`, chosen so Zod's default NaN/required error text never has to be relied on). |
-| `goalFormMapping.ts` | `goalToFormValues` (Goal → form, converts to the goal's display unit), `formValuesToGoal` (form → Goal, converts back to kg), `effectiveWeeklyPaceKg` (live pace preview from possibly-incomplete form state, used for the on-screen calorie-deficit estimate as the user types). Collapsed significantly in #14 — no more pace-mode branching or target-date derivation. |
-| `GoalForm.tsx` | RHF + `zodResolver`. Unit toggle (kg/lb radios) and a single "This week's target" `NumberInput` — that's the whole form. Shows the rough daily-calorie-deficit estimate live, captioned non-medical. Numeric field uses `setValueAs` (not `valueAsNumber`) so an empty input becomes `undefined`, not `NaN`. |
-| `GoalScreen.tsx` | Loads the active goal on mount, shows a `StatCard` summary (just the weekly target — no `start → target` big-goal line, removed in #14) when one exists, renders `GoalForm` underneath either way (so editing is just resubmitting the same form). |
+| `goalFormSchema.ts` | Zod schema: `targetWeeklyLoss` (optional at the type level, required via `superRefine` with a custom message — same pattern as `dailyEntryFormSchema`, so Zod's default NaN/required error text never has to be relied on). No unit field in the schema — see below. |
+| `goalFormMapping.ts` | `goalToFormValues` (Goal → form, converts to the *display* unit read from `useUnitStore` — the unit itself is a caller-supplied argument, not read from `Goal`), `formValuesToGoal` (form → Goal, converts back to kg), `effectiveWeeklyPaceKg` (live pace preview from possibly-incomplete form state, used for the on-screen calorie-deficit estimate as the user types). |
+| `GoalForm.tsx` | RHF + `zodResolver`. A single "This week's target" `NumberInput` — **no unit toggle** (moved to Settings in #37; the form reads the current unit from `useUnitStore` for display/conversion only). Shows the rough daily-calorie-deficit estimate live, captioned non-medical. |
+| `GoalScreen.tsx` | Loads the active goal on mount, shows a `StatCard` summary (the weekly target, week-range description via `useCurrentWeekInfo`) when one exists, renders `GoalForm` underneath either way. |
 | `index.ts` | Barrel. |
 
-#### `daily-log/` — Epic 4, issue #5 (done)
+#### `daily-log/` — Epic 4, issue #5; substantially rebuilt across #21/#28/#31/#36/#42/#44
+
+No longer a simple single-submit form. Current shape:
 
 | File | Purpose |
 |------|---------|
-| `dailyEntryFormSchema.ts` | Zod schema with sane ranges (weight 20–400kg, calories 0–10000); `superRefine` requires at least one of weight or calories. |
+| `dailyEntryFormSchema.ts` | Zod schema; `weightSchema` (20–400kg), `noteSchema`, per-meal `calorieEntrySchema` (`amountKcal` 0–10000, optional `note`/`emotion`). No longer requires "at least one of weight or calories" — see #31 below. |
 | `dailyEntryFormMapping.ts` | `entryToFormValues`, `formValuesToEntry`. |
-| `DailyEntryForm.tsx` | Weight/calories/note fields, same `setValueAs` pattern as `GoalForm` for the numeric inputs. |
-| `TodayScreen.tsx` | A native `<input type="date">` (capped at today via `max`) drives which date's entry is loaded/edited — this is the back-fill mechanism, not a separate screen. Shows "This week's target" (from the active goal, unit-converted) or an `EmptyState` pointing at `/goal` when none exists. `key={date}` on `DailyEntryForm` forces a clean remount per date instead of stale field state leaking across date changes. |
+| `DailyEntryForm.tsx` | The big one. Weight and Note render **read-only with a pencil-to-edit toggle** once saved (#21), rather than always-editable inputs — except when the `alwaysEditable` prop is set (used by History's inline edit, where "Edit entry" is already the explicit edit gesture). **No single submit button** (#31): Weight, Note, and each meal save independently and immediately via `onSave`, which can fire many times in one session. Calorie entries are itemized (`CalorieEntry[]`, #21) with a "+ kcal" quick-add row (note + `EmotionPicker` inline), per-meal edit/delete, and **drag-and-drop reordering** via `@dnd-kit/core` + `@dnd-kit/sortable` (#36, pointer + keyboard sensors, grip handle per row). `EmotionPicker` + the shared `EMOTIONS` constant (`src/shared/lib/emotionIcons.ts`) render the same three icons (`Smile`/`Meh`/`Frown`) for both a meal's own emotion and the day's overall mood (`DailyEntry.emotion`, #44) — they are visually and structurally identical today, disambiguated only by an ARIA `contextLabel` when both pickers are on screen at once. |
+| `TodayScreen.tsx` | A native `<input type="date">` (capped at today via `max`) drives which date's entry is loaded/edited. Shows "This week's target" `StatCard` (via `useCurrentWeekInfo`) or an `EmptyState` pointing at `/goal` when no goal exists. A second `StatCard` shows the day-over-day weight delta (#42, via `usePreviousDayEntry`) with asymmetric emphasis — bold for a loss, muted for a gain/no-change, matching #29's treatment. A quiet end-of-week banner (#38) nudges toward `/goal` on the last day of the ISO week, no dismiss state. `key={date}` on `DailyEntryForm` forces a clean remount per date. |
 | `index.ts` | Barrel. |
 
-#### `dashboard/DashboardScreen.tsx` — placeholder only
-`PageHeader` with a description of the intended content (weight trend, calorie trend, weekly summary cards, correlation view). Epic 5, **issue #6, open** — #14 (done) removed the `Goal` shape the brief's planned goal-line overlay depended on, so #6 now needs to design that overlay fresh as a pace-based projection rather than reusing the deleted `projectedTrajectory`.
+#### `dashboard/` — Epic 5/6, issues #6/#7 (done)
 
-#### `history/HistoryScreen.tsx` — placeholder only
-`PageHeader` only. Epic 7, **issue #8, open**.
-
-#### `settings/SettingsScreen.tsx` — placeholder only
-`PageHeader` only. Routing-table entry from brief §6 (units, misc preferences); no dedicated epic issue yet beyond what #15 (localization) will add here (a locale switcher).
-
-#### `export/` — Epic 8, issue #9 (done)
+Fully built; no longer a placeholder.
 
 | File | Purpose |
 |------|---------|
-| `exportBundleSchema.ts` | Zod mirror of `Goal`/`DailyEntry`, independent of the domain types so a malformed import can't crash on a TS-only guarantee. `version: z.literal(2)` gates future format changes — bumped from `1` in #14 when `Goal` lost its start/target-weight/date fields. |
-| `exportBundle.ts` | `buildExportBundle(goals, dailyEntries)` — stamps `exportedAt`. |
-| `exportActions.ts` | `exportAllData()` (reads both repositories' `getAll()`), `importAllData(bundle)` (upserts every goal/entry — **merge, not destructive replace**), `parseExportBundle(raw)` (Zod `safeParse`, throws `InvalidBackupFileError` with a message written for the user) . |
-| `ExportScreen.tsx` | Export downloads a JSON file via `Blob` + a synthetic anchor click; import is a hidden file input triggered by a button. Reports counts via `summaryText(goals, entries)`, which hand-writes "goal"/"goals" and "entry"/"entries" rather than a naive `+'s'` pluralizer. |
-| `index.ts` | Barrel. |
+| `DashboardScreen.tsx` | Loads data via `useDashboardData`; renders `WeightTrendChart`, `CalorieTrendChart`, `CorrelationView`, `WeeklySummaryCards` in order, or an `EmptyState` with zero entries. |
+| `useDashboardData.ts` | Direct-repository hook (not routed through `dailyEntryStore` — see the "known simplification" note above): fetches all entries via `IndexedDbDailyEntryRepository.getAll()` plus the active goal via `useGoalStore`. |
+| `WeightTrendChart.tsx` | Recharts `LineChart` of weight over time, unit-aware via `unitStore`. Tap/click on a point navigates to `/history?date=...` (#41) via `chartNavigation.ts`; no projection line (#46 removed the pace-projection overlay #6 had originally added). |
+| `CalorieTrendChart.tsx` | Recharts `ComposedChart`: daily calorie `Bar` + 7-day rolling-average `Line` overlay (via `rollingAverage()` with an extractor for `totalCalories()`). Same deep-link-on-tap pattern as the weight chart. |
+| `CorrelationView.tsx` | Recharts `ScatterChart` of weekly avg calories vs. that week's weight delta, plus the plain-language summary from `correlationInsight()` and an explicit day-lag caveat. |
+| `WeeklySummaryCards.tsx` | One `StatCard` per ISO week from `weeklySummaries()`, most-recent-first; asymmetric emphasis (bold loss, muted gain/no-change, #29) and no plus sign on gains (#34); a quiet "target met" note, deliberately not a badge. |
+| `chartNavigation.ts` | `resolveChartClickDate()` — resolves a Recharts click/hover event into a valid History date or `null` by looking the label up in the chart's own `data` array, rather than trusting Recharts' `activePayload`/`activeDataKey` (documented as unreliable on combo charts). Root-caused and fixed across #41/#45/#49 — tapping now only navigates via an explicit in-tooltip link (`wrapperStyle={{pointerEvents:'auto'}}`), not any tap on the chart area, so the chart stays usable for just viewing. |
+| `index.ts` | `DashboardScreen` only. |
+
+#### `history/` — Epic 7, issue #8 (done)
+
+Also fully built.
+
+| File | Purpose |
+|------|---------|
+| `HistoryScreen.tsx` | Owns filter state (From/To date range, #40; `?date=` deep-link prefill from Dashboard, #41) and a List/Calendar `ToggleGroup` view switcher (#48). Renders `MetTargetList`, then either `CalendarView` or the sortable, filterable table of `EntryRow`s. |
+| `useHistoryData.ts` | Same direct-repository pattern as `useDashboardData`; exposes `saveEntry`/`deleteEntry` that call the repository then reload. |
+| `CalendarView.tsx` | Month-grid calendar (#48, Monday-start), a marker on days with an entry, tap-a-day opens a read-only `DayDetail` panel; an "Edit this day" action hands off to `HistoryScreen`'s List view pre-filtered/expanded to that date. |
+| `DayDetail.tsx` | Shared read-only day-detail renderer — meals, notes, emotions, and the day's overall mood (#39, extended for #44, reused by both `EntryRow`'s expand panel and `CalendarView`'s day panel). A `standalone` prop adds a date/weight/calories header for contexts (calendar) that don't already show that summary elsewhere. |
+| `EntryRow.tsx` | One table row with `view / edit / confirmDelete` modes. Edit mode swaps in `DailyEntryForm` (`alwaysEditable`); expand/collapse toggles `DayDetail`; supports `defaultExpanded` for the Dashboard deep-link case. |
+| `MetTargetList.tsx` | A plain list of weeks where the target was met — explicitly not gamified, no badges. |
+| `index.ts` | `HistoryScreen` only. |
+
+#### `settings/SettingsScreen.tsx` — issues #37/#43 (done)
+
+Fully built, redesigned in #43 around a consistent `Card`-per-section layout with the shared `ToggleGroup` primitive replacing raw radios everywhere:
+
+1. **Units** — `ToggleGroup` bound to `useUnitStore` (kg/lb) — landed here from the Goal page in #37.
+2. **Language** — `ToggleGroup` bound to `useLocaleStore` (en/ru).
+3. **Appearance** — 5 mood swatches bound to `useThemeStore.mood`, plus a light/dark `ToggleGroup` bound to `colorScheme` (#17).
+4. **Export** — embeds `<ExportSection />` (from `features/export`) inside a `Card`, folding what used to be a standalone `/export` route into Settings (#24).
+
+#### `export/` — Epic 8, issue #9; folded into Settings in #24, schema bumped in #21
+
+| File | Purpose |
+|------|---------|
+| `exportBundleSchema.ts` | Current schema is **`version: 3`** (bumped from 2 for #21's itemized `calorieEntries`). A parallel legacy `exportBundleSchemaV2` (flat `caloriesConsumed: number`) is kept alongside it purely so old backup files stay importable. |
+| `exportBundle.ts` | `buildExportBundle(goals, dailyEntries)` — stamps `version: 3` + `exportedAt`. |
+| `exportActions.ts` | `exportAllData()` (reads both repositories' `getAll()`), `importAllData(bundle)` (upserts every goal/entry — merge, not destructive replace), `parseExportBundle(raw)` — tries the current v3 schema first, falls back to v2 and upgrades it in-memory, otherwise throws `InvalidBackupFileError` with a user-facing message. |
+| `ExportSection.tsx` | The export/import UI as a `Card`-content fragment (no `PageHeader` — it's meant to be dropped inside Settings' own `Card`, not rendered as a standalone screen anymore). Export downloads a JSON file via `Blob` + a synthetic anchor click; import is a hidden file input. Reports counts via a hand-written pluralizer, not a naive `+'s'`. |
+| `index.ts` | `ExportSection` only — no `ExportScreen` anymore. |
+
+#### `about/AboutScreen.tsx` — issue #23 (new feature area)
+
+Static page: project intro/philosophy/privacy copy from the dictionary, an author credit linking to `github.com/ZhannaM85` (#35). Reachable via the "Heart" nav item, in the tab-bar slot #24 freed by folding Export into Settings.
 
 ---
 
@@ -202,25 +270,27 @@ Zustand owns UI/session state only; persisted data always flows through the doma
 
 | File | Purpose |
 |------|---------|
-| `router.tsx` | `createBrowserRouter` with the six routes from brief §6 (`/`, `/dashboard`, `/history`, `/goal`, `/export`, `/settings`), all nested under `AppShell`. `basename: import.meta.env.BASE_URL` so routes resolve correctly under the GitHub Pages subpath. |
-| `AppShell.tsx` | Reworked in **issue #13 (done)** to the `life-kaleidoscope` shell pattern: a slim header nav (app name + horizontal `NavLink`s) at `sm:` and up, and a fixed bottom tab bar (`lucide-react` icon + label per route, `min-h-14` touch targets, `env(safe-area-inset-bottom)` padding) below `sm:`. Both `<nav>`s are always in the DOM (Tailwind `hidden`/`sm:hidden` toggles visibility, not presence) with distinct `aria-label`s — `"Main"` for the header, `"Tabs"` for the bottom bar — so tests and screen readers can disambiguate them. `<main>` gets `pb-28 sm:pb-10` so content clears the fixed bar on mobile. |
+| `router.tsx` | `createBrowserRouter`, all screens nested under `AppShell`: `/` (Today), `/dashboard`, `/history`, `/goal`, `/settings`, `/about` (#23), and `/export` → `<Navigate to="/settings" replace />` (#24 — kept as an explicit redirect for anyone with the old route bookmarked, rather than a dead link). `basename: import.meta.env.BASE_URL` so routes resolve correctly under the GitHub Pages subpath. |
+| `AppShell.tsx` | One shared `useNavItems(t)` array (Today/Dashboard/History/Goal/Settings/About — no Export entry) drives both a header `<nav aria-label="Main">` (hidden below `sm:`, **sticky** — `sticky top-0 z-10 border-b border-border bg-background`, #25) and a fixed bottom `<nav aria-label="Tabs">` tab bar (visible only below `sm:`, `lucide-react` icon + label per route, `env(safe-area-inset-bottom)` padding). `<main>` gets `pb-28 sm:pb-10` so content clears the fixed bar on mobile. |
 | `index.ts` | Barrel. |
 | `src/main.tsx` | Entry point: `StrictMode` + `RouterProvider`. |
 
 ---
 
-### Design system (`src/shared/ui/`) — Epic 2, issue #3 (done)
+### Design system (`src/shared/ui/`) — Epic 2, issue #3; extended by #12/#16/#43
 
-shadcn-style primitives (Nova preset, `radix-ui` primitives, `cva` variants, aliases at `@/shared/ui` rather than shadcn's default `@/components`).
+shadcn-style primitives (Nova preset, `radix-ui` primitives, `cva` variants, aliases at `@/shared/ui`).
 
 | File | Exports | Notes |
 |------|---------|-------|
 | `button.tsx` | `Button`, `buttonVariants` | Variants: `default/outline/secondary/ghost/destructive/link`; sizes incl. icon variants. |
-| `card.tsx` | `Card` + `Header/Title/Description/Content/Footer/Action` | Standard shadcn card family. |
+| `card.tsx` | `Card` + `Header/Title/Description/Content/Footer/Action` | Standard shadcn card family, now the standard section wrapper across Settings/Dashboard/History (#43). |
 | `input.tsx` | `Input` | Bare styled `<input>`. |
 | `label.tsx` | `Label` | Radix `Label.Root` wrapper. |
 | `text-field.tsx` | `TextField` | Labeled input with `hint`/`error`, wires `aria-invalid`/`aria-describedby`, id via `useId`. |
-| `number-input.tsx` | `NumberInput` | Same labeled-field pattern as `TextField`, plus a unit suffix slot. Renders `type="text"` `inputMode="decimal"` (**issue #12, done** — was `type="number"`, which silently rejected the comma decimal separator on some mobile keyboards/locales; pairs with `parseNumberInput()` accepting both `.` and `,`). |
+| `number-input.tsx` | `NumberInput` | Same labeled-field pattern as `TextField`, plus a unit suffix slot and an optional `InfoTooltip` (#16). Renders `type="text"` `inputMode="decimal"` (issue #12 — was `type="number"`, which silently rejected the comma decimal separator on some mobile keyboards/locales; pairs with `parseNumberInput()` accepting both `.` and `,`). |
+| `info-tooltip.tsx` | `InfoTooltip` | Radix `Popover`-based tap-triggered info icon (#16) — e.g. the Calories field's day-lag-with-weight explanation. |
+| `toggle-group.tsx` | `ToggleGroup`, `ToggleGroupItem` | Radix `ToggleGroup` wrapper (#43) — replaces raw radio inputs for unit/language/mood/color-scheme (Settings) and List/Calendar (History) toggles. |
 | `stat-card.tsx` | `StatCard` | Large numbers-first card: label, big value + unit, optional description — the brief's "numbers should be the largest things" directive as a primitive. |
 | `empty-state.tsx` | `EmptyState` | Calm empty screen (icon/title/description/action) — no guilt copy, per brief §2. |
 | `page-header.tsx` | `PageHeader` | `h1` + description + right-aligned action slot; every screen opens with one. |
@@ -230,29 +300,37 @@ shadcn-style primitives (Nova preset, `radix-ui` primitives, `cva` variants, ali
 | File | Purpose |
 |------|---------|
 | `lib/utils.ts` | `cn()` — `clsx` + `tailwind-merge`. |
-| `hooks/index.ts` | Empty barrel — no shared hooks needed yet. |
+| `lib/emotionIcons.ts` | `EMOTIONS: { value: Emotion; Icon: LucideIcon }[]` — the canonical happy/neutral/unhappy → `Smile`/`Meh`/`Frown` mapping, shared by `DailyEntryForm`, `DayDetail`, and `EntryRow`. |
+| `lib/parseNumberInput.ts` | `parseNumberInput(value)` — normalizes both `.` and `,` decimal separators into a number for React Hook Form's `setValueAs`; empty input → `undefined` (not `NaN`), so Zod's `.optional()` behaves correctly. Ties into #12's mobile-decimal fix. |
+| `hooks/useCurrentWeekInfo.ts` | Fetches only `getEarliestDate()` (not a full scan) and derives `CurrentWeekInfo` (week number/range) via `domain/stats/currentWeekInfo`. Shared by `TodayScreen` and `GoalScreen` (#18). |
+| `hooks/usePreviousDayEntry.ts` | Fetches the `DailyEntry` for `date − 1 day`, backing the day-over-day weight-delta stat on `TodayScreen` (#42) — a distinct, unsmoothed number from the week-over-week delta in `weeklySummaries`. |
+| `hooks/index.ts` | Barrel. |
 
 ---
 
 ### Tests
 
-Vitest + jsdom + `fake-indexeddb` + React Testing Library + `@testing-library/user-event`. **126 tests across 25 files**, all passing as of issue #14.
+Vitest + jsdom + `fake-indexeddb` + React Testing Library + `@testing-library/user-event`. **289 tests across 47 files**, all passing as of issue #49.
 
 | Area | Covers |
 |------|--------|
-| `domain/goal/*.test.ts`, `domain/dailyEntry` (via infra tests) | Pure logic: calorie-deficit arithmetic, unit conversion round-trips. |
-| `domain/stats/*.test.ts` | Edge cases per function: missing days, a single data point, zero variance (correlation). |
-| `infrastructure/persistence/indexeddb/index.test.ts` | Both repositories against `fake-indexeddb`: round-trips, unique-date enforcement, ordering, `getAll()`. |
-| `stores/*.test.ts` | Store actions against `fake-indexeddb` through the real repository implementations (not mocked). |
+| `domain/goal/*.test.ts`, `domain/dailyEntry/*.test.ts` | Pure logic: calorie-deficit arithmetic, unit conversion round-trips, `totalCalories`. |
+| `domain/stats/*.test.ts` | Edge cases per function: missing days, a single data point, zero variance (correlation), median-split behavior (`correlationInsight`), week-1 anchoring (`currentWeekInfo`). |
+| `infrastructure/persistence/indexeddb/index.test.ts` | Both repositories against `fake-indexeddb`: round-trips, unique-date enforcement, ordering, `getAll()`, `getEarliestDate()`. |
+| `infrastructure/persistence/indexeddb/db.migration.test.ts` | The v1→v2 schema upgrade specifically — seeds a raw legacy row, opens the real `db`, asserts the migration transformed only what it should. |
+| `stores/*.test.ts` | Store actions against `fake-indexeddb` through the real repository implementations (not mocked), plus `unitStore`/`themeStore` persistence behavior. |
 | `shared/ui/*.test.tsx` | Primitives via RTL: labels/errors/ARIA wiring, render smoke tests. |
-| `features/goal-setup/*.test.{ts,tsx}` | Schema validation, form↔domain mapping, full form interaction via RTL — no longer needs a pinned `startDate` fixture to dodge `Date()` flakiness, since #14 removed the date-dependent pace derivation entirely. |
-| `features/daily-log/*.test.{ts,tsx}` | Same pattern; date backfill via `fireEvent.change` on the native date input (native date-typing simulation is unreliable in jsdom). |
-| `features/export/*.test.{ts,tsx}` | Bundle schema rejection cases, export/import round-trip + merge-not-replace semantics, `ExportScreen` with `URL.createObjectURL`/anchor-click stubbed (absent in jsdom). |
-| `app/router.test.tsx` | Routing via `createMemoryRouter`; asserts both the header nav (`"Main"`) and bottom tab bar (`"Tabs"`) landmarks render on every screen. |
+| `src/theme.contrast.test.ts` | Contrast/accessibility check across the 5 moods × 2 color schemes defined in `src/index.css` — sits at `src/` root as its own category, not under a feature folder. |
+| `features/goal-setup/*.test.{ts,tsx}` | Schema validation, form↔domain mapping, full form interaction via RTL. |
+| `features/daily-log/*.test.{ts,tsx}` | Itemized calorie entries, drag-and-drop reorder, per-field independent save, date backfill via `fireEvent.change` on the native date input (native date-typing simulation is unreliable in jsdom). |
+| `features/dashboard/*.test.{ts,tsx}` | Chart data derivation, `chartNavigation.ts`'s click-resolution logic, correlation summary rendering. |
+| `features/history/*.test.{ts,tsx}` | Filtering, calendar/list view parity, edit/delete flows, `DayDetail` rendering across meal/day emotion combinations. |
+| `features/export/*.test.{ts,tsx}` | Bundle schema rejection cases (both v2 and v3), export/import round-trip + merge-not-replace semantics, v2→v3 in-memory upgrade on import, `ExportSection` with `URL.createObjectURL`/anchor-click stubbed (absent in jsdom). |
+| `app/router.test.tsx` | Routing via `createMemoryRouter`; asserts both nav landmarks (`"Main"`, `"Tabs"`) render on every screen, and that `/export` redirects. |
 
 `test/setup.ts` imports `@testing-library/jest-dom/vitest` and manually wires `afterEach(cleanup)` — RTL's automatic cleanup detection needs `test.globals`, which isn't enabled here.
 
-**Browser verification:** ad-hoc Playwright scripts (not a project dependency — written to a scratchpad and run via `node`) drive the dev server for real end-to-end checks per epic, e.g. two isolated `browser.newContext()`s to verify export-from-device-A / import-to-fresh-device-B.
+**Browser verification:** ad-hoc Playwright scripts (not a project dependency — written to a scratchpad and run via `node`) drive the dev server for real end-to-end checks per epic, e.g. two isolated `browser.newContext()`s to verify export-from-device-A / import-to-fresh-device-B, or seeding real IndexedDB state to visually check a screen without a full manual data-entry pass.
 
 ---
 
@@ -263,40 +341,38 @@ Vitest + jsdom + `fake-indexeddb` + React Testing Library + `@testing-library/us
 | Vite 8 + React 19 + TS strict | `moduleResolution: bundler`; `baseUrl` removed (deprecated under TS 6.x), `paths` alone is sufficient. |
 | Tailwind CSS v4 (`@tailwindcss/vite`) | CSS-first config. |
 | Path alias | `@/ → src/` (`vite.config.ts`, `tsconfig`). |
-| ESLint + Prettier | Deliberately not oxlint (create-vite's newer default) — the brief calls for ESLint+Prettier specifically. Flat config; `eslint-plugin-react-hooks` via `reactHooks.configs.flat['recommended-latest']` (the non-`flat` export is eslintrc-format and breaks flat config). `react-refresh/only-export-components` is scoped off for `src/shared/ui/**` only, where shadcn's `cva()` variant exports trip a false positive. |
+| ESLint + Prettier | Deliberately not oxlint (create-vite's newer default) — the brief calls for ESLint+Prettier specifically. Flat config; `eslint-plugin-react-hooks` via `reactHooks.configs.flat['recommended-latest']`. `react-refresh/only-export-components` is scoped off for `src/shared/ui/**` only, where shadcn's `cva()` variant exports trip a false positive. |
 | Scripts | `dev`, `build` (`tsc -b && vite build`), `preview`, `lint`, `format` / `format:check`, `test` / `test:watch`. |
 | Deployment | `.github/workflows/deploy-pages.yml` — builds with `npx tsc -b && npx vite build --base=/turtle-steps-to-the-goal/`, copies `dist/index.html` → `dist/404.html` for SPA routing, deploys via `actions/deploy-pages@v4`. |
+| Notable feature dependencies | `recharts` (Dashboard charts, #6/#7), `@dnd-kit/core` + `@dnd-kit/sortable` + `@dnd-kit/utilities` (meal reordering, #36), `radix-ui` (`Popover`/`ToggleGroup`/etc. primitives, #16/#43), `date-fns` (ISO week math + locale-aware formatting throughout), `zustand` `persist` middleware (`unitStore`, `themeStore`, `localeStore`). |
 
 ---
 
 ## Status
 
+All of Tiers 1–8 in `docs/issues-priority.md` (issues #1–#49) are done — every original epic, the UX/product-model rework, and the full run of live-feedback polish issues. The only open items are freshly filed and not yet started:
+
 ```mermaid
 flowchart LR
-    subgraph Done ["✅ Done"]
-        E0["#1 Epic 0 — Scaffolding & tooling"]
-        E1["#2 Epic 1 — Domain model & persistence"]
-        E2["#3 Epic 2 — Design system & shell"]
-        E3["#4 Epic 3 — Goal setup"]
-        E4["#5 Epic 4 — Daily log entry"]
-        E8["#9 Epic 8 — Export / Import"]
-        E9["#10 Epic 9 — Deployment"]
-        B12["#12 Bug — decimal input on mobile"]
-        B13["#13 Redesign app shell — bottom tab nav"]
-        B14["#14 Rework goal model — weekly-only goals"]
+    subgraph Done1 ["✅ Tiers 1-7 — architecture through QA pass"]
+        D1["#1-#5, #9-#10 Foundation,<br/>design system, first vertical slice,<br/>export/import, deployment"]
+        D2["#12-#19 UX & product-model rework —<br/>weekly-only goals, mobile-first shell,<br/>localization, mood theming"]
+        D3["#6-#8 Core features —<br/>Dashboard, Correlation, History"]
+        D4["#11 Accessibility & responsive QA"]
     end
-    subgraph Next ["⏭ Tier 5 — UX & product-model rework"]
-        B15["#15 Localization — English/Russian"]
-        B16["#16 Calories field day-lag tooltip"]
-        B17["#17 Appearance settings — mood + light/dark"]
+    subgraph Done2 ["✅ Tier 8 — post-launch polish (#20-#49)"]
+        D5["30 issues from live use — itemized calories,<br/>emotions, drag-reorder, calendar view,<br/>day-delta stat, chart tap-navigation fixes,<br/>see issues-priority.md for the full list"]
     end
-    subgraph Later ["Tier 6-7 — remaining core features + QA"]
-        E5["#6 Epic 5 — Dashboard charts (needs a fresh<br/>goal-line design post-#14)"]
-        E6["#7 Epic 6 — Correlation & insights"]
-        E7["#8 Epic 7 — History"]
-        E10["#11 Epic 10 — Accessibility & responsive QA"]
+    subgraph Next ["📋 Open — filed 2026-07-15, not started"]
+        N1["#50 Reusable meal items (autocomplete + library)"]
+        N2["#51-#53 Protein/fat/carbs macros<br/>(capture, History, Dashboard — split epic)"]
+        N3["#54 Meal emotions: thumbs-up/down + bellissimo"]
+        N4["#55 Weekly-goal-met celebration modal"]
+        N5["#56 Signed weekly-target display (-0.5 kg)"]
+        N6["#57 Weight display: show full entered precision"]
+        N7["#58 Add a README with screenshots"]
     end
-    Done --> Next --> Later
+    Done1 --> Done2 --> Next
 ```
 
-See `docs/issues-priority.md` for the full ordered queue and the reasoning behind the current tier order.
+See `docs/issues-priority.md` for the full ordered queue and the reasoning behind tier order.

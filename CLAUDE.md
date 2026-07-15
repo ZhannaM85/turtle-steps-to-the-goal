@@ -13,3 +13,10 @@
 - `zm-index usages "SymbolName"`      # find references
 - `zm-index callers "functionName"`   # find call sites
 - `zm-index stats`                    # check index health
+
+## Closing a GitHub issue
+Whenever a GitHub issue is closed (implementation done, verified working), update **both**:
+1. `docs/issues-priority.md` — mark the row done with a one-line implementation note.
+2. `docs/ARCHITECTURE.md` — reflect whatever actually changed (new/changed files, data model, routes, etc.) in the relevant section(s). Update the `## Status` diagram too if the issue moves an epic between tiers.
+
+Do this as part of finishing the issue, not as a separate later pass — `ARCHITECTURE.md` says at the top "this document is updated after each issue is completed," and it only stays true if it happens every time.
