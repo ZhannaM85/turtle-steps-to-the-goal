@@ -185,6 +185,12 @@ export const en: Dictionary = {
     colorSchemeLabel: 'Light / dark',
     light: 'Light',
     dark: 'Dark',
+    mealItemsLabel: 'Meal items',
+    mealItemsDescription:
+      "Meals you've logged before, suggested while you type. Rename or remove them here.",
+    mealItemsEmpty: "Nothing yet — items appear here once you've logged a meal.",
+    mealItemNameLabel: 'Meal item name',
+    deleteMealItemLabel: (name) => `Delete "${name}"`,
   },
   about: {
     title: 'About',

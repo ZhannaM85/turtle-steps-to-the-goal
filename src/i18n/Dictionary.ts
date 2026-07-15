@@ -157,6 +157,11 @@ export interface Dictionary {
     colorSchemeLabel: string
     light: string
     dark: string
+    mealItemsLabel: string
+    mealItemsDescription: string
+    mealItemsEmpty: string
+    mealItemNameLabel: string
+    deleteMealItemLabel: (name: string) => string
   }
   about: {
     title: string

@@ -2,12 +2,26 @@ import 'fake-indexeddb/auto'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import type { DailyEntry } from '@/domain/dailyEntry'
 import type { Goal } from '@/domain/goal'
+import type { MealItem } from '@/domain/mealItem'
 import { db } from './db'
 import { IndexedDbGoalRepository } from './goalRepository'
 import { IndexedDbDailyEntryRepository } from './dailyEntryRepository'
+import { IndexedDbMealItemRepository } from './mealItemRepository'
 
 const goalRepository = new IndexedDbGoalRepository()
 const dailyEntryRepository = new IndexedDbDailyEntryRepository()
+const mealItemRepository = new IndexedDbMealItemRepository()
+
+function makeMealItem(overrides: Partial<MealItem> = {}): MealItem {
+  const now = new Date().toISOString()
+  return {
+    id: crypto.randomUUID(),
+    name: 'Pizza',
+    createdAt: now,
+    updatedAt: now,
+    ...overrides,
+  }
+}
 
 function makeGoal(overrides: Partial<Goal> = {}): Goal {
   const now = new Date().toISOString()
@@ -38,11 +52,13 @@ function makeEntry(overrides: Partial<DailyEntry> = {}): DailyEntry {
 beforeEach(async () => {
   await db.goals.clear()
   await db.dailyEntries.clear()
+  await db.mealItems.clear()
 })
 
 afterEach(async () => {
   await db.goals.clear()
   await db.dailyEntries.clear()
+  await db.mealItems.clear()
 })
 
 describe('IndexedDbGoalRepository', () => {
@@ -131,5 +147,45 @@ describe('IndexedDbDailyEntryRepository', () => {
     await expect(dailyEntryRepository.getEarliestDate()).resolves.toBe(
       '2026-03-01',
     )
+  })
+})
+
+describe('IndexedDbMealItemRepository', () => {
+  it('returns undefined when no item has that name', async () => {
+    await expect(
+      mealItemRepository.findByName('Pizza'),
+    ).resolves.toBeUndefined()
+  })
+
+  it('upserts and finds an item by exact name', async () => {
+    const item = makeMealItem({ name: 'Pizza' })
+    await mealItemRepository.upsert(item)
+
+    await expect(mealItemRepository.findByName('Pizza')).resolves.toEqual(
+      item,
+    )
+  })
+
+  it('enforces unique names', async () => {
+    await mealItemRepository.upsert(makeMealItem({ name: 'Pizza' }))
+    await expect(
+      mealItemRepository.upsert(makeMealItem({ name: 'Pizza' })),
+    ).rejects.toThrow()
+  })
+
+  it('returns all items ordered by name', async () => {
+    await mealItemRepository.upsert(makeMealItem({ name: 'Salad' }))
+    await mealItemRepository.upsert(makeMealItem({ name: 'Avocado toast' }))
+
+    const all = await mealItemRepository.getAll()
+    expect(all.map((i) => i.name)).toEqual(['Avocado toast', 'Salad'])
+  })
+
+  it('deletes an item by id', async () => {
+    const item = makeMealItem({ name: 'Pizza' })
+    await mealItemRepository.upsert(item)
+    await mealItemRepository.delete(item.id)
+
+    await expect(mealItemRepository.getAll()).resolves.toEqual([])
   })
 })

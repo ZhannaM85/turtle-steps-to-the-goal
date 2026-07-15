@@ -113,6 +113,16 @@ Pure TypeScript. Unit-testable with no DOM. If a file here ever needs `react`, `
 | `DailyEntryRepository.ts` | Interface: `getByDate(date)`, `getRange(start, end)`, `upsert(entry)`, `delete(id)`, `getAll()`, `getEarliestDate()` (added for #18 — a cheap indexed lookup, not a full-table scan, used by `useCurrentWeekInfo`). |
 | `index.ts` | Barrel. |
 
+#### `src/domain/mealItem/` — new in #50
+
+A reusable meal-name library, deliberately **not** a foreign key from `CalorieEntry.note`.
+
+| File | Purpose |
+|------|---------|
+| `MealItem.ts` | `{ id, name, createdAt, updatedAt }`. Renaming or deleting one never touches already-logged `CalorieEntry.note` text — those are independent strings, not references. |
+| `MealItemRepository.ts` | Interface: `getAll()`, `findByName(name)`, `upsert(item)`, `delete(id)`. |
+| `index.ts` | Barrel. |
+
 #### `src/domain/stats/`
 
 Pure functions with unit tests covering edge cases (missing days, single data point, no variance). Now consumed by both `Dashboard` (#6/#7) and `History` (#8) — no longer library-only.
@@ -141,6 +151,7 @@ The only folder allowed to import Dexie.
 |---------|--------|
 | 1 | `goals: 'id, createdAt'`, `dailyEntries: 'id, &date'` (`&date` unique — one entry per date at the storage level). |
 | 2 (#21) | Same store shape (no index changes) + an `.upgrade()` block: for each `dailyEntries` row, if a legacy `caloriesConsumed` number exists and no `calorieEntries` yet, it's wrapped into a single-item `calorieEntries` array (new `crypto.randomUUID()` id, reuses the row's `createdAt`), then `caloriesConsumed` is deleted. |
+| 3 (#50) | Adds `mealItems: 'id, &name'` (`&name` unique). New store only, no `.upgrade()` needed — nothing pre-existing to migrate. |
 
 Database name: `turtle-steps-to-the-goal`. `db.migration.test.ts` seeds a raw v1-schema Dexie instance with a legacy `caloriesConsumed` row plus an untouched `weightKg`-only row, then opens the real `db` and asserts the upgrade did exactly the expected transformation and nothing more.
 
@@ -149,6 +160,9 @@ Database name: `turtle-steps-to-the-goal`. `db.migration.test.ts` seeds a raw v1
 
 #### `dailyEntryRepository.ts` — `IndexedDbDailyEntryRepository`
 `getByDate` uses the unique `date` index. `getRange` uses `.between(start, end, true, true)` (inclusive both ends) sorted by date. `upsert` is a `put`. `getAll` is ordered by date, added for Epic 8 export. `getEarliestDate()` (added for #18) is a cheap indexed lookup for the single earliest `date`, not a full scan.
+
+#### `mealItemRepository.ts` — `IndexedDbMealItemRepository` (#50)
+`getAll()` = `orderBy('name')`. `findByName()` uses the unique `name` index — the basis for upsert-by-name (`touch`) in `mealItemStore`, since `.put()` on a unique index throws if you try to insert a colliding name under a different primary key.
 
 #### `index.ts`
 Barrel: `db`, `AppDatabase`, `IndexedDbGoalRepository`, `IndexedDbDailyEntryRepository`.
@@ -164,6 +178,7 @@ Zustand. `goalStore`/`dailyEntryStore` own session/domain data (always flowing t
 | `goalStore.ts` | `useGoalStore`: `goal`, `status` (`idle/loading/ready/error`), `error`, `loadActiveGoal()`, `saveGoal(goal)`. Instantiates `IndexedDbGoalRepository` once at module scope. |
 | `dailyEntryStore.ts` | `useDailyEntryStore`: `date`, `entry`, `status`, `error`, `loadEntry(date)`, `saveEntry(entry)`. Same shape as `goalStore`. |
 | `unitStore.ts` | `useUnitStore` (#37): `unit: 'kg' \| 'lb'`, `setUnit`. Persisted to `localStorage` (`turtle-steps-unit`). This is the kg/lb toggle that used to live on the Goal page — now global, read by `TodayScreen`, `GoalScreen`, `DashboardScreen`'s charts, and every `History` weight display. |
+| `mealItemStore.ts` | `useMealItemStore` (#50): `items`, `status`, `loadItems()`, `touch(name)` (upsert-by-name — creates on first use, else just bumps `updatedAt`; trims and no-ops on empty), `rename(id, name)` (merges into an existing item if the new name collides, rather than throwing on the unique index), `deleteItem(id)`. Not persisted to `localStorage` — this is domain data in IndexedDB, unlike `unitStore`/`themeStore`. |
 | `themeStore.ts` | `useThemeStore`: `mood` (`'pond' \| 'dusk' \| 'sage' \| 'tortoise' \| 'lagoon'`, #17), `colorScheme` (`'light' \| 'dark'`), `setMood`, `setColorScheme`. Persisted (`turtle-steps-theme`). Exports `detectDefaultColorScheme()` and `applyTheme()` (sets `data-mood` + toggles `.dark` on `<html>`); `applyTheme()` also runs eagerly at module-import time to stay in sync with an inline pre-paint script in `index.html` that avoids a flash of the wrong theme on load. |
 | `index.ts` | Barrel — exports all four stores plus `Mood`/`ColorScheme`/`Unit` types. |
 
@@ -208,7 +223,7 @@ No longer a simple single-submit form. Current shape:
 |------|---------|
 | `dailyEntryFormSchema.ts` | Zod schema; `weightSchema` (20–400kg), `noteSchema`, per-meal `calorieEntrySchema` (`amountKcal` 0–10000, optional `note`/`emotion`). No longer requires "at least one of weight or calories" — see #31 below. |
 | `dailyEntryFormMapping.ts` | `entryToFormValues`, `formValuesToEntry`. |
-| `DailyEntryForm.tsx` | The big one. Weight and Note render **read-only with a pencil-to-edit toggle** once saved (#21), rather than always-editable inputs — except when the `alwaysEditable` prop is set (used by History's inline edit, where "Edit entry" is already the explicit edit gesture). **No single submit button** (#31): Weight, Note, and each meal save independently and immediately via `onSave`, which can fire many times in one session. Calorie entries are itemized (`CalorieEntry[]`, #21) with a "+ kcal" quick-add row (note + `EmotionPicker` inline), per-meal edit/delete, and **drag-and-drop reordering** via `@dnd-kit/core` + `@dnd-kit/sortable` (#36, pointer + keyboard sensors, grip handle per row). `EmotionPicker` + the shared `EMOTIONS` constant (`src/shared/lib/emotionIcons.ts`) render the same three icons (`Smile`/`Meh`/`Frown`) for both a meal's own emotion and the day's overall mood (`DailyEntry.emotion`, #44) — they are visually and structurally identical today, disambiguated only by an ARIA `contextLabel` when both pickers are on screen at once. |
+| `DailyEntryForm.tsx` | The big one. Weight and Note render **read-only with a pencil-to-edit toggle** once saved (#21), rather than always-editable inputs — except when the `alwaysEditable` prop is set (used by History's inline edit, where "Edit entry" is already the explicit edit gesture). **No single submit button** (#31): Weight, Note, and each meal save independently and immediately via `onSave`, which can fire many times in one session. Calorie entries are itemized (`CalorieEntry[]`, #21) with a "+ kcal" quick-add row (note + `EmotionPicker` inline), per-meal edit/delete, and **drag-and-drop reordering** via `@dnd-kit/core` + `@dnd-kit/sortable` (#36, pointer + keyboard sensors, grip handle per row). `EmotionPicker` + the shared `EMOTIONS` constant (`src/shared/lib/emotionIcons.ts`) render the same three icons (`Smile`/`Meh`/`Frown`) for both a meal's own emotion and the day's overall mood (`DailyEntry.emotion`, #44) — they are visually and structurally identical today, disambiguated only by an ARIA `contextLabel` when both pickers are on screen at once. Both the add-meal and edit-meal note inputs share a single `<datalist>` (`#50`, `MEAL_ITEMS_DATALIST_ID`) populated from `useMealItemStore`, offering previously-used meal names as native browser autocomplete; saving a meal with a non-empty note calls `touch(name)` to upsert it into the library. |
 | `TodayScreen.tsx` | A native `<input type="date">` (capped at today via `max`) drives which date's entry is loaded/edited. Shows "This week's target" `StatCard` (via `useCurrentWeekInfo`) or an `EmptyState` pointing at `/goal` when no goal exists. A second `StatCard` shows the day-over-day weight delta (#42, via `usePreviousDayEntry`) with asymmetric emphasis — bold for a loss, muted for a gain/no-change, matching #29's treatment. A quiet end-of-week banner (#38) nudges toward `/goal` on the last day of the ISO week, no dismiss state. `key={date}` on `DailyEntryForm` forces a clean remount per date. |
 | `index.ts` | Barrel. |
 
@@ -248,7 +263,8 @@ Fully built, redesigned in #43 around a consistent `Card`-per-section layout wit
 1. **Units** — `ToggleGroup` bound to `useUnitStore` (kg/lb) — landed here from the Goal page in #37.
 2. **Language** — `ToggleGroup` bound to `useLocaleStore` (en/ru).
 3. **Appearance** — 5 mood swatches bound to `useThemeStore.mood`, plus a light/dark `ToggleGroup` bound to `colorScheme` (#17).
-4. **Export** — embeds `<ExportSection />` (from `features/export`) inside a `Card`, folding what used to be a standalone `/export` route into Settings (#24).
+4. **Meal items** (#50) — `MealItemsSection.tsx`: lists every `MealItem` from `useMealItemStore`, each row an inline-editable name (commits on blur/Enter via `rename()`) + a delete button. Empty state when nothing's been logged yet.
+5. **Export** — embeds `<ExportSection />` (from `features/export`) inside a `Card`, folding what used to be a standalone `/export` route into Settings (#24).
 
 #### `export/` — Epic 8, issue #9; folded into Settings in #24, schema bumped in #21
 
@@ -310,7 +326,7 @@ shadcn-style primitives (Nova preset, `radix-ui` primitives, `cva` variants, ali
 
 ### Tests
 
-Vitest + jsdom + `fake-indexeddb` + React Testing Library + `@testing-library/user-event`. **294 tests across 48 files**, all passing as of issue #57.
+Vitest + jsdom + `fake-indexeddb` + React Testing Library + `@testing-library/user-event`. **314 tests across 50 files**, all passing as of issue #50.
 
 | Area | Covers |
 |------|--------|
@@ -367,9 +383,9 @@ flowchart LR
         D6["#56 Signed weekly-target display (-0.5 kg)"]
         D7["#57 Weight display: show full entered precision"]
         D8["#58 Add a README with screenshots"]
+        D9["#50 Reusable meal items (autocomplete + library)"]
     end
     subgraph Next ["📋 Open — not started"]
-        N1["#50 Reusable meal items (autocomplete + library)"]
         N2["#51-#53 Protein/fat/carbs macros<br/>(capture, History, Dashboard — split epic)"]
         N3["#54 Meal emotions: thumbs-up/down + bellissimo"]
         N4["#55 Weekly-goal-met celebration modal"]

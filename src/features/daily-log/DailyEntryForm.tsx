@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import {
   DndContext,
   KeyboardSensor,
@@ -34,12 +34,18 @@ import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/ui/button'
 import { InfoTooltip } from '@/shared/ui/info-tooltip'
 import { Input } from '@/shared/ui/input'
+import { useMealItemStore } from '@/stores'
 import { entryToFormValues, formValuesToEntry } from './dailyEntryFormMapping'
 import {
   noteSchema,
   weightSchema,
   type DailyEntryFormValues,
 } from './dailyEntryFormSchema'
+
+// Shared by both the add-meal and edit-meal note inputs (#50) — the
+// <datalist> itself is rendered once in DailyEntryForm; `list` just needs
+// to reference this id, it doesn't need to be a DOM ancestor.
+const MEAL_ITEMS_DATALIST_ID = 'meal-items-datalist'
 
 export interface DailyEntryFormProps {
   date: string
@@ -222,6 +228,7 @@ function MealListItem({
         <div className="flex items-center gap-2">
           <Input
             type="text"
+            list={MEAL_ITEMS_DATALIST_ID}
             aria-label={`${t.dailyEntry.mealNoteLabel} — ${t.dailyEntry.mealLabel(position)}`}
             placeholder={t.dailyEntry.mealNotePlaceholder}
             value={editNote}
@@ -354,6 +361,16 @@ export function DailyEntryForm({
     }),
   )
 
+  // Reusable meal-name suggestions (#50) — loaded once per form mount, a
+  // library shared across days, not scoped to this entry.
+  const mealItems = useMealItemStore((state) => state.items)
+  const loadMealItems = useMealItemStore((state) => state.loadItems)
+  const touchMealItem = useMealItemStore((state) => state.touch)
+  useEffect(() => {
+    loadMealItems()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
   const {
     register,
     getValues,
@@ -423,6 +440,7 @@ export function DailyEntryForm({
         createdAt: new Date().toISOString(),
       },
     ])
+    if (addNote.trim()) touchMealItem(addNote)
     setAddAmount('')
     setAddNote('')
     setAddEmotion(undefined)
@@ -450,6 +468,7 @@ export function DailyEntryForm({
           : entry,
       ),
     )
+    if (editMealNote.trim()) touchMealItem(editMealNote)
     setEditingMealId(null)
   }
 
@@ -618,6 +637,7 @@ export function DailyEntryForm({
           <div className="flex items-center gap-2">
             <Input
               type="text"
+              list={MEAL_ITEMS_DATALIST_ID}
               aria-label={t.dailyEntry.mealNoteLabel}
               placeholder={t.dailyEntry.mealNotePlaceholder}
               value={addNote}
@@ -632,6 +652,13 @@ export function DailyEntryForm({
             />
             <EmotionPicker value={addEmotion} onChange={setAddEmotion} t={t} />
           </div>
+          <datalist id={MEAL_ITEMS_DATALIST_ID}>
+            {mealItems.map((item) => (
+              <option key={item.id} value={item.name}>
+                {item.name}
+              </option>
+            ))}
+          </datalist>
         </div>
       </div>
 

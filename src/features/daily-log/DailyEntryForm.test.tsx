@@ -1,8 +1,11 @@
+import 'fake-indexeddb/auto'
 import { act, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import type { ReactNode } from 'react'
-import { describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { CalorieEntry } from '@/domain/dailyEntry'
+import { db } from '@/infrastructure/persistence/indexeddb'
+import { useMealItemStore } from '@/stores'
 import { DailyEntryForm } from './DailyEntryForm'
 
 // jsdom has no layout engine, so real pointer/keyboard drag gestures can't
@@ -36,6 +39,15 @@ function calories(
 ): CalorieEntry {
   return { id, amountKcal, createdAt: now }
 }
+
+beforeEach(async () => {
+  await db.mealItems.clear()
+  useMealItemStore.setState({ items: [], status: 'idle', error: null })
+})
+
+afterEach(async () => {
+  await db.mealItems.clear()
+})
 
 describe('DailyEntryForm', () => {
   it('has no whole-form submit button — every field saves independently', () => {
@@ -400,6 +412,43 @@ describe('DailyEntryForm', () => {
         screen.getByText('Ate chocolates, they were good.'),
       ).toBeInTheDocument()
       expect(screen.getByLabelText('Meal note')).toHaveValue('')
+    })
+
+    it('adds a meal note to the reusable meal-items library (#50)', async () => {
+      const user = userEvent.setup()
+      render(
+        <DailyEntryForm
+          date="2026-03-01"
+          existingEntry={null}
+          onSave={vi.fn()}
+        />,
+      )
+
+      await user.type(screen.getByLabelText('Add calories'), '200')
+      await user.type(screen.getByLabelText('Meal note'), 'Pizza')
+      await user.click(screen.getByRole('button', { name: 'Add' }))
+
+      await screen.findByText('Meal 1 — 200 kcal')
+      expect(await db.mealItems.toArray()).toEqual([
+        expect.objectContaining({ name: 'Pizza' }),
+      ])
+    })
+
+    it('offers previously logged meal names as suggestions while typing', async () => {
+      await useMealItemStore.getState().touch('Pizza')
+      render(
+        <DailyEntryForm
+          date="2026-03-01"
+          existingEntry={null}
+          onSave={vi.fn()}
+        />,
+      )
+
+      const noteInput = await screen.findByLabelText('Meal note')
+      expect(noteInput).toHaveAttribute('list', 'meal-items-datalist')
+      expect(
+        (await screen.findByText('Pizza')).closest('datalist'),
+      ).not.toBeNull()
     })
 
     it('accumulates repeated quick-adds onto the existing calories total', async () => {

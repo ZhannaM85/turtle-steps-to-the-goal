@@ -103,6 +103,14 @@ describe('SettingsScreen', () => {
     expect(document.activeElement).toBe(pondRadio)
   })
 
+  it('includes the meal items library section (#50)', () => {
+    render(<SettingsScreen />)
+
+    expect(
+      screen.getByRole('heading', { name: 'Meal items' }),
+    ).toBeInTheDocument()
+  })
+
   it('includes the export/import section (folded in from the old Export tab, #24)', () => {
     render(<SettingsScreen />)
 

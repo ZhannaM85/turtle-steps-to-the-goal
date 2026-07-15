@@ -188,6 +188,12 @@ export const ru: Dictionary = {
     colorSchemeLabel: 'Светлая / тёмная',
     light: 'Светлая',
     dark: 'Тёмная',
+    mealItemsLabel: 'Блюда',
+    mealItemsDescription:
+      'Блюда, которые вы уже добавляли — подсказки при вводе. Здесь их можно переименовать или удалить.',
+    mealItemsEmpty: 'Пока пусто — блюда появятся здесь после первой записи.',
+    mealItemNameLabel: 'Название блюда',
+    deleteMealItemLabel: (name) => `Удалить «${name}»`,
   },
   about: {
     title: 'О приложении',
