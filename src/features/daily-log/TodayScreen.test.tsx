@@ -99,7 +99,7 @@ describe('TodayScreen', () => {
     )
 
     expect(await screen.findByText("This week's target")).toBeInTheDocument()
-    expect(screen.getByText('1.0')).toBeInTheDocument()
+    expect(screen.getByText('-1.0')).toBeInTheDocument()
     expect(screen.getByText('kg to lose')).toBeInTheDocument()
   })
 

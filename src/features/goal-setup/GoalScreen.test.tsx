@@ -76,7 +76,7 @@ describe('GoalScreen', () => {
       screen.getByRole('button', { name: 'Update this week’s target' }),
     )
 
-    expect(await screen.findByText('0.5')).toBeInTheDocument()
+    expect(await screen.findByText('-0.5')).toBeInTheDocument()
     const persisted = await db.goals.orderBy('createdAt').last()
     expect(persisted?.targetWeeklyLossKg).toBe(0.5)
   })

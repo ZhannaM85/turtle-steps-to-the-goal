@@ -111,3 +111,21 @@ _The original brief's epics are all done; this tier is for issues raised from ac
 | [#46](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/46) | ✅ Done | Remove the weight projection/prognosis line from the dashboard chart | `goal` prop dropped from `WeightTrendChart`; `projectedPaceTrajectory` + test deleted outright, no other callers |
 | [#47](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/47) | ✅ Done | History: From/To date filter inputs overlap on mobile | Third attempt: side-by-side with an explicit fixed `w-36` per input (not relative/shrink-based sizing) — confirmed on real device |
 | [#48](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/48) | ✅ Done | History: add a calendar view alongside the current list view | List/Calendar `ToggleGroup` (#43); month grid with entry markers, tap a day for a read-only detail panel via new shared `DayDetail` (extracted from #39's EntryRow, reused by both); "Edit this day" reuses #40's From/To filter to jump to List pre-expanded. Also fixed a gap found in extraction: day mood (#44) wasn't shown in the read-only detail view at all |
+
+---
+
+## Tier 9 — Second live-feedback wave (2026-07-15)
+
+_Same pattern as Tier 8: issues filed from continued live use. Ordered smaller-to-larger; #52/#53 depend on #51 landing first._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#56](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/56) | ✅ Done | Show the weekly target as a negative number (-0.5 kg), not unsigned | Negated the value passed to `formatNumber` in both `TodayScreen.tsx` and `GoalScreen.tsx`'s "This week's target" `StatCard`; `Goal.targetWeeklyLossKg` and the `GoalForm` input stay a positive magnitude, display-only change |
+| [#57](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/57) | 🔲 Not started | Weight display rounds to 1 decimal instead of showing full entered precision | |
+| [#58](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/58) | 🔲 Not started | Add a README with a couple of screenshots | |
+| [#50](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/50) | 🔲 Not started | Reusable meal items — autocomplete meal names + editable library in Settings | |
+| [#54](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/54) | 🔲 Not started | Meal emotions: replace happy/unhappy/neutral with thumbs-up/thumbs-down/bellissimo | |
+| [#51](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/51) | 🔲 Not started | Add protein/fat/carbs per meal — capture fields + Today's per-day totals | Part 1 of 3 |
+| [#52](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/52) | 🔲 Not started | Show protein/fat/carbs per-day totals in History | Part 2 of 3, depends on #51 |
+| [#53](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/53) | 🔲 Not started | Dashboard: protein/fat/carbs trend charts + weekly summary rows | Part 3 of 3, depends on #51 |
+| [#55](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/55) | 🔲 Not started | Celebrate reaching the weekly weight-loss target with a modal + "set new goal" CTA | |

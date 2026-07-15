@@ -350,7 +350,7 @@ Vitest + jsdom + `fake-indexeddb` + React Testing Library + `@testing-library/us
 
 ## Status
 
-All of Tiers 1–8 in `docs/issues-priority.md` (issues #1–#49) are done — every original epic, the UX/product-model rework, and the full run of live-feedback polish issues. The only open items are freshly filed and not yet started:
+All of Tiers 1–8 in `docs/issues-priority.md` (issues #1–#49) are done — every original epic, the UX/product-model rework, and the full run of live-feedback polish issues. Tier 9 (second live-feedback wave, filed 2026-07-15) is in progress:
 
 ```mermaid
 flowchart LR
@@ -363,16 +363,18 @@ flowchart LR
     subgraph Done2 ["✅ Tier 8 — post-launch polish (#20-#49)"]
         D5["30 issues from live use — itemized calories,<br/>emotions, drag-reorder, calendar view,<br/>day-delta stat, chart tap-navigation fixes,<br/>see issues-priority.md for the full list"]
     end
+    subgraph Done3 ["✅ Tier 9 — second live-feedback wave (in progress)"]
+        D6["#56 Signed weekly-target display (-0.5 kg)"]
+    end
     subgraph Next ["📋 Open — filed 2026-07-15, not started"]
         N1["#50 Reusable meal items (autocomplete + library)"]
         N2["#51-#53 Protein/fat/carbs macros<br/>(capture, History, Dashboard — split epic)"]
         N3["#54 Meal emotions: thumbs-up/down + bellissimo"]
         N4["#55 Weekly-goal-met celebration modal"]
-        N5["#56 Signed weekly-target display (-0.5 kg)"]
-        N6["#57 Weight display: show full entered precision"]
-        N7["#58 Add a README with screenshots"]
+        N5["#57 Weight display: show full entered precision"]
+        N6["#58 Add a README with screenshots"]
     end
-    Done1 --> Done2 --> Next
+    Done1 --> Done2 --> Done3 --> Next
 ```
 
 See `docs/issues-priority.md` for the full ordered queue and the reasoning behind tier order.

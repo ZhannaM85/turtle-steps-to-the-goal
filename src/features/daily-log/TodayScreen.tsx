@@ -93,7 +93,7 @@ export function TodayScreen() {
       ) : goal ? (
         <StatCard
           label={t.today.thisWeeksTarget}
-          value={formatNumber(weeklyPace!, locale)}
+          value={formatNumber(-weeklyPace!, locale)}
           unit={t.today.toLose(unitLabel(displayUnit, t))}
           description={
             weekInfo

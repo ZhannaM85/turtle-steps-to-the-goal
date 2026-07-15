@@ -42,7 +42,7 @@ export function GoalScreen() {
           {goal && (
             <StatCard
               label={t.goal.thisWeeksTarget}
-              value={formatNumber(toDisplay(goal.targetWeeklyLossKg), locale)}
+              value={formatNumber(-toDisplay(goal.targetWeeklyLossKg), locale)}
               unit={t.today.toLose(unitLabel(displayUnit, t))}
               description={
                 weekInfo
