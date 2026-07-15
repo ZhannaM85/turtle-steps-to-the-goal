@@ -389,6 +389,9 @@ flowchart LR
         N2["#51-#53 Protein/fat/carbs macros<br/>(capture, History, Dashboard — split epic)"]
         N3["#54 Meal emotions: thumbs-up/down + bellissimo"]
         N4["#55 Weekly-goal-met celebration modal"]
+        N5["#59 Sleep tracking (duration + deep sleep)"]
+        N6["#60 Step count tracking"]
+        N7["#61 Opt-in menstrual cycle tracker"]
     end
     Done1 --> Done2 --> Done3 --> Next
 ```

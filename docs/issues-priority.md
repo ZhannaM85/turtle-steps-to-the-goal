@@ -129,3 +129,6 @@ _Same pattern as Tier 8: issues filed from continued live use. Ordered smaller-t
 | [#52](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/52) | 🔲 Not started | Show protein/fat/carbs per-day totals in History | Part 2 of 3, depends on #51 |
 | [#53](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/53) | 🔲 Not started | Dashboard: protein/fat/carbs trend charts + weekly summary rows | Part 3 of 3, depends on #51 |
 | [#55](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/55) | 🔲 Not started | Celebrate reaching the weekly weight-loss target with a modal + "set new goal" CTA | |
+| [#59](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/59) | 🔲 Not started | Add sleep tracking — duration + deep sleep | Capture + Today only; History/Dashboard display deferred |
+| [#60](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/60) | 🔲 Not started | Add step count tracking | Capture + Today only; History/Dashboard display deferred |
+| [#61](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/61) | 🔲 Not started | Add an opt-in menstrual cycle tracker | Settings toggle, off by default, no gender field; logging only, no phase/prediction computation |
