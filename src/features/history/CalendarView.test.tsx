@@ -3,7 +3,19 @@ import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
 import type { DailyEntry } from '@/domain/dailyEntry'
-import { CalendarView } from './CalendarView'
+import { useCycleTrackingStore } from '@/stores'
+import { CalendarView, type CalendarViewProps } from './CalendarView'
+
+function renderCalendar(props: Partial<CalendarViewProps> = {}) {
+  return render(
+    <CalendarView
+      entries={[]}
+      onEditDay={vi.fn()}
+      onSaved={vi.fn()}
+      {...props}
+    />,
+  )
+}
 
 // CalendarView always opens on the real current month, so test dates are
 // derived from "today" rather than hardcoded — day 15 is safely mid-month,
@@ -30,7 +42,7 @@ function makeEntry(overrides: Partial<DailyEntry> = {}): DailyEntry {
 
 describe('CalendarView', () => {
   it('shows no day detail panel until a day is selected', () => {
-    render(<CalendarView entries={[makeEntry()]} onEditDay={vi.fn()} />)
+    renderCalendar({ entries: [makeEntry()] })
 
     expect(
       screen.queryByRole('button', { name: 'Edit this day' }),
@@ -39,12 +51,7 @@ describe('CalendarView', () => {
 
   it('shows the day detail for a logged day on click', async () => {
     const user = userEvent.setup()
-    render(
-      <CalendarView
-        entries={[makeEntry({ note: 'Great day' })]}
-        onEditDay={vi.fn()}
-      />,
-    )
+    renderCalendar({ entries: [makeEntry({ note: 'Great day' })] })
 
     await user.click(screen.getByRole('button', { name: midMonthLabel }))
 
@@ -56,7 +63,7 @@ describe('CalendarView', () => {
 
   it('shows a quiet empty state for a day with no entry', async () => {
     const user = userEvent.setup()
-    render(<CalendarView entries={[]} onEditDay={vi.fn()} />)
+    renderCalendar()
 
     await user.click(screen.getByRole('button', { name: otherDayLabel }))
 
@@ -66,7 +73,7 @@ describe('CalendarView', () => {
   it('calls onEditDay with the selected date', async () => {
     const user = userEvent.setup()
     const onEditDay = vi.fn()
-    render(<CalendarView entries={[makeEntry()]} onEditDay={onEditDay} />)
+    renderCalendar({ entries: [makeEntry()], onEditDay })
 
     await user.click(screen.getByRole('button', { name: midMonthLabel }))
     await user.click(screen.getByRole('button', { name: 'Edit this day' }))
@@ -76,7 +83,7 @@ describe('CalendarView', () => {
 
   it('navigates between months', async () => {
     const user = userEvent.setup()
-    render(<CalendarView entries={[]} onEditDay={vi.fn()} />)
+    renderCalendar()
 
     const initialMonth = screen.getByText(/\d{4}/).textContent
 
@@ -85,5 +92,36 @@ describe('CalendarView', () => {
 
     await user.click(screen.getByRole('button', { name: 'Previous month' }))
     expect(screen.getByText(/\d{4}/).textContent).toBe(initialMonth)
+  })
+
+  describe('cycle tracking toggle (#71)', () => {
+    it('is hidden when the Settings toggle is off', async () => {
+      const user = userEvent.setup()
+      renderCalendar({ entries: [makeEntry()] })
+
+      await user.click(screen.getByRole('button', { name: midMonthLabel }))
+
+      expect(
+        screen.queryByRole('button', { name: 'On period' }),
+      ).not.toBeInTheDocument()
+    })
+
+    it('toggles onPeriod and saves via onSaved when the Settings toggle is on', async () => {
+      useCycleTrackingStore.setState({ enabled: true })
+      const user = userEvent.setup()
+      const onSaved = vi.fn()
+      renderCalendar({ entries: [makeEntry()], onSaved })
+
+      await user.click(screen.getByRole('button', { name: midMonthLabel }))
+      const toggle = screen.getByRole('button', { name: 'On period' })
+      expect(toggle).toHaveAttribute('aria-pressed', 'false')
+
+      await user.click(toggle)
+
+      expect(onSaved).toHaveBeenCalledTimes(1)
+      expect(onSaved.mock.calls[0][0].onPeriod).toBe(true)
+
+      useCycleTrackingStore.setState({ enabled: false })
+    })
   })
 })

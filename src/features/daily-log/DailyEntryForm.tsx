@@ -40,8 +40,9 @@ import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/ui/button'
 import { InfoTooltip } from '@/shared/ui/info-tooltip'
 import { Input } from '@/shared/ui/input'
-import { useCycleTrackingStore, useMealItemStore } from '@/stores'
+import { useMealItemStore } from '@/stores'
 import { entryToFormValues, formValuesToEntry } from './dailyEntryFormMapping'
+import { FoodPickerDialog } from './FoodPickerDialog'
 import {
   deepSleepHoursSchema,
   noteSchema,
@@ -542,6 +543,9 @@ export function DailyEntryForm({
   const [isEditingSteps, setIsEditingSteps] = useState(
     alwaysEditable || initialValues.steps === undefined,
   )
+  // Quantity-based entry against the static food list (#62) — an alternative
+  // to manual kcal/macro entry, not a replacement for it.
+  const [isFoodPickerOpen, setIsFoodPickerOpen] = useState(false)
   const [editingMealId, setEditingMealId] = useState<string | null>(null)
   const [editMealAmount, setEditMealAmount] = useState('')
   const [editMealProtein, setEditMealProtein] = useState('')
@@ -567,9 +571,6 @@ export function DailyEntryForm({
   const mealItems = useMealItemStore((state) => state.items)
   const loadMealItems = useMealItemStore((state) => state.loadItems)
   const touchMealItem = useMealItemStore((state) => state.touch)
-  // Opt-in cycle tracking (#61) — the daily toggle only renders at all when
-  // this Settings preference is on.
-  const cycleTrackingEnabled = useCycleTrackingStore((state) => state.enabled)
   useEffect(() => {
     loadMealItems()
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -592,7 +593,6 @@ export function DailyEntryForm({
   const sleepHours = watch('sleepHours')
   const deepSleepHours = watch('deepSleepHours')
   const steps = watch('steps')
-  const onPeriod = watch('onPeriod')
   const dayEmotion = watch('emotion')
   const calorieEntries = watch('calorieEntries') ?? []
   const DayEmotionIcon = DAY_EMOTIONS.find((e) => e.value === dayEmotion)?.Icon
@@ -691,14 +691,6 @@ export function DailyEntryForm({
     persist(getValues())
   }
 
-  // Boolean toggle, saves immediately on click like the emotion pickers —
-  // no separate edit/save step needed for a single on/off value (#61).
-  function toggleOnPeriod() {
-    const next = !onPeriod
-    setValue('onPeriod', next, { shouldDirty: true })
-    persist({ ...getValues(), onPeriod: next })
-  }
-
   function setCalorieEntries(next: CalorieEntry[]) {
     setValue('calorieEntries', next, { shouldDirty: true })
     persist({ ...getValues(), calorieEntries: next })
@@ -729,6 +721,31 @@ export function DailyEntryForm({
     setAddNote('')
     setAddEmotion(undefined)
     setAddTime(currentTimeHHMM())
+  }
+
+  // Quantity-based entry against the static food list (#62) — the dialog
+  // already computed kcal/macros scaled by quantity; this just adds the
+  // result as a normal meal, same flat CalorieEntry shape as manual entry.
+  function addFoodEntry(values: {
+    amountKcal: number
+    proteinG: number
+    fatG: number
+    carbsG: number
+    note: string
+  }) {
+    setCalorieEntries([
+      ...calorieEntries,
+      {
+        id: crypto.randomUUID(),
+        amountKcal: values.amountKcal,
+        proteinG: values.proteinG,
+        fatG: values.fatG,
+        carbsG: values.carbsG,
+        note: values.note,
+        timeEaten: currentTimeHHMM(),
+        createdAt: new Date().toISOString(),
+      },
+    ])
   }
 
   function startEditMeal(entry: CalorieEntry) {
@@ -1041,21 +1058,6 @@ export function DailyEntryForm({
         </div>
       )}
 
-      {cycleTrackingEnabled && (
-        <div className="flex items-center gap-1.5">
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            aria-pressed={onPeriod ?? false}
-            className={cn(onPeriod && 'bg-muted text-foreground')}
-            onClick={toggleOnPeriod}
-          >
-            {t.dailyEntry.onPeriodLabel}
-          </Button>
-        </div>
-      )}
-
       <div className="flex flex-col gap-1.5">
         <div className="flex items-center gap-1.5">
           <span className="text-sm font-medium">
@@ -1225,6 +1227,14 @@ export function DailyEntryForm({
             >
               {t.dailyEntry.addButton}
             </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={() => setIsFoodPickerOpen(true)}
+            >
+              {t.dailyEntry.addFoodButton}
+            </Button>
           </div>
           <div className="flex items-center gap-2">
             <Input
@@ -1260,6 +1270,11 @@ export function DailyEntryForm({
               <option key={item.id} value={item.name} />
             ))}
           </datalist>
+          <FoodPickerDialog
+            open={isFoodPickerOpen}
+            onOpenChange={setIsFoodPickerOpen}
+            onAdd={addFoodEntry}
+          />
         </div>
       </div>
 

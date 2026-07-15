@@ -23,13 +23,15 @@ export interface CalendarViewProps {
   entries: DailyEntry[]
   /** Switches back to the list view, filtered + expanded to this day. */
   onEditDay: (date: string) => void
+  /** Threaded down to DayDetail for the cycle-tracking toggle (#71). */
+  onSaved: (entry: DailyEntry) => void
 }
 
 // Monday-start week, matching the app's existing ISO-week convention
 // (see domain/stats/currentWeekInfo.ts).
 const WEEK_STARTS_ON = 1
 
-export function CalendarView({ entries, onEditDay }: CalendarViewProps) {
+export function CalendarView({ entries, onEditDay, onSaved }: CalendarViewProps) {
   const t = useTranslation()
   const locale = useLocale()
   const dateFnsLocale = getDateFnsLocale(locale)
@@ -143,7 +145,7 @@ export function CalendarView({ entries, onEditDay }: CalendarViewProps) {
         <div className="flex flex-col gap-2 rounded-lg border border-border bg-card p-3">
           {selectedEntry ? (
             <>
-              <DayDetail entry={selectedEntry} standalone />
+              <DayDetail entry={selectedEntry} standalone onSaved={onSaved} />
               <Button
                 variant="ghost"
                 size="sm"

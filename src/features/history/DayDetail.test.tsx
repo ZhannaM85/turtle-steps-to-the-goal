@@ -1,7 +1,16 @@
 import { render, screen } from '@testing-library/react'
-import { describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { DailyEntry } from '@/domain/dailyEntry'
+import { useCycleTrackingStore } from '@/stores'
 import { DayDetail } from './DayDetail'
+
+beforeEach(() => {
+  useCycleTrackingStore.setState({ enabled: false })
+})
+
+afterEach(() => {
+  useCycleTrackingStore.setState({ enabled: false })
+})
 
 function makeEntry(overrides: Partial<DailyEntry> = {}): DailyEntry {
   const now = '2026-01-01T00:00:00.000Z'
@@ -140,5 +149,47 @@ describe('DayDetail', () => {
     expect(
       screen.getAllByText('Protein 20g · Fat 10g · Carbs —'),
     ).toHaveLength(2)
+  })
+
+  describe('cycle tracking toggle (#71)', () => {
+    it('is hidden when the Settings toggle is off, even with onSaved provided', () => {
+      render(<DayDetail entry={makeEntry()} onSaved={vi.fn()} />)
+      expect(
+        screen.queryByRole('button', { name: 'On period' }),
+      ).not.toBeInTheDocument()
+    })
+
+    it('is hidden when onSaved is not provided, even with the Settings toggle on', () => {
+      useCycleTrackingStore.setState({ enabled: true })
+      render(<DayDetail entry={makeEntry()} />)
+      expect(
+        screen.queryByRole('button', { name: 'On period' }),
+      ).not.toBeInTheDocument()
+    })
+
+    it('toggles onPeriod via onSaved when both are present', async () => {
+      useCycleTrackingStore.setState({ enabled: true })
+      const onSaved = vi.fn()
+      render(<DayDetail entry={makeEntry()} onSaved={onSaved} />)
+
+      const toggle = screen.getByRole('button', { name: 'On period' })
+      expect(toggle).toHaveAttribute('aria-pressed', 'false')
+
+      toggle.click()
+
+      expect(onSaved).toHaveBeenCalledTimes(1)
+      expect(onSaved.mock.calls[0][0].onPeriod).toBe(true)
+    })
+
+    it('reflects an already-true onPeriod as pressed', () => {
+      useCycleTrackingStore.setState({ enabled: true })
+      render(
+        <DayDetail entry={makeEntry({ onPeriod: true })} onSaved={vi.fn()} />,
+      )
+
+      expect(
+        screen.getByRole('button', { name: 'On period' }),
+      ).toHaveAttribute('aria-pressed', 'true')
+    })
   })
 })

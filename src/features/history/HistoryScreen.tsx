@@ -88,7 +88,11 @@ export function HistoryScreen() {
           </ToggleGroup>
 
           {viewMode === 'calendar' ? (
-            <CalendarView entries={entries} onEditDay={editDayFromCalendar} />
+            <CalendarView
+              entries={entries}
+              onEditDay={editDayFromCalendar}
+              onSaved={saveEntry}
+            />
           ) : (
             <>
               <div className="flex flex-col gap-3">

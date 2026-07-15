@@ -91,6 +91,14 @@ export const ru: Dictionary = {
     macrosSummaryCompact: (protein, fat, carbs) =>
       `Б ${protein} · Ж ${fat} · У ${carbs}`,
     timeEatenLabel: 'Время',
+    addFoodButton: '+ Продукт',
+    addFoodDialogTitle: 'Добавить из списка продуктов',
+    closeFoodDialogLabel: 'Закрыть',
+    foodSearchLabel: 'Поиск продуктов',
+    foodSearchPlaceholder: 'Поиск…',
+    foodQuantityLabel: 'Количество (г)',
+    noFoodResultsText: 'Ничего не найдено.',
+    addFoodConfirmLabel: 'Добавить продукт',
     sleepLabel: 'Сон',
     sleepHoursLabel: 'Часов сна',
     deepSleepLabel: 'Глубокий сон',
@@ -104,7 +112,7 @@ export const ru: Dictionary = {
     stepsLabel: 'Шаги',
     editStepsLabel: 'Изменить шаги',
     saveStepsLabel: 'Сохранить шаги',
-    onPeriodLabel: 'Сегодня менструация',
+    onPeriodLabel: 'Менструация',
   },
   goal: {
     title: 'Цель',

@@ -15,6 +15,18 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    issue: 71,
+    date: '2026-07-15',
+    en: 'The period-tracking toggle no longer shows up every day on Today — mark it from a day in History instead.',
+    ru: 'Переключатель менструации больше не показывается каждый день на экране «Сегодня» — теперь его можно отмечать через «Историю».',
+  },
+  {
+    issue: 62,
+    date: '2026-07-15',
+    en: 'Added a searchable food list — pick a food, enter a quantity, and its calories and macros are filled in for you.',
+    ru: 'Добавлен поиск по списку продуктов — выберите продукт, укажите количество, и калории с БЖУ заполнятся автоматически.',
+  },
+  {
     issue: 66,
     date: '2026-07-15',
     en: 'Release notes moved from Settings to the About page.',

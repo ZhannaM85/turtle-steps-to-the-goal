@@ -173,7 +173,7 @@ export function EntryRow({
             colSpan={COLUMN_COUNT}
             className="border-b border-border bg-muted/40 px-3 py-3 text-sm"
           >
-            <DayDetail entry={entry} />
+            <DayDetail entry={entry} onSaved={onSaved} />
           </td>
         </tr>
       )}

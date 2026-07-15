@@ -90,6 +90,14 @@ export const en: Dictionary = {
     macrosSummaryCompact: (protein, fat, carbs) =>
       `P ${protein} · F ${fat} · C ${carbs}`,
     timeEatenLabel: 'Time',
+    addFoodButton: '+ Food',
+    addFoodDialogTitle: 'Add from food list',
+    closeFoodDialogLabel: 'Close',
+    foodSearchLabel: 'Search foods',
+    foodSearchPlaceholder: 'Search…',
+    foodQuantityLabel: 'Quantity (g)',
+    noFoodResultsText: 'No foods found.',
+    addFoodConfirmLabel: 'Add food',
     sleepLabel: 'Sleep',
     sleepHoursLabel: 'Hours slept',
     deepSleepLabel: 'Deep sleep',
@@ -104,7 +112,7 @@ export const en: Dictionary = {
     stepsLabel: 'Steps',
     editStepsLabel: 'Edit steps',
     saveStepsLabel: 'Save steps',
-    onPeriodLabel: 'On your period today',
+    onPeriodLabel: 'On period',
   },
   goal: {
     title: 'Goal',

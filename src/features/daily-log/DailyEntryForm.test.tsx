@@ -5,7 +5,7 @@ import type { ReactNode } from 'react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { CalorieEntry } from '@/domain/dailyEntry'
 import { db } from '@/infrastructure/persistence/indexeddb'
-import { useCycleTrackingStore, useMealItemStore } from '@/stores'
+import { useMealItemStore } from '@/stores'
 import { DailyEntryForm } from './DailyEntryForm'
 
 // jsdom has no layout engine, so real pointer/keyboard drag gestures can't
@@ -43,7 +43,6 @@ function calories(
 beforeEach(async () => {
   await db.mealItems.clear()
   useMealItemStore.setState({ items: [], status: 'idle', error: null })
-  useCycleTrackingStore.setState({ enabled: false })
 })
 
 afterEach(async () => {
@@ -358,68 +357,6 @@ describe('DailyEntryForm', () => {
 
       expect(onSave.mock.calls[0][0].steps).toBe(7000)
       expect(screen.getByText('7,000')).toBeInTheDocument()
-    })
-  })
-
-  describe('cycle tracking (#61)', () => {
-    it('is hidden when the Settings toggle is off', () => {
-      render(
-        <DailyEntryForm date="2026-03-01" existingEntry={null} onSave={vi.fn()} />,
-      )
-
-      expect(
-        screen.queryByRole('button', { name: 'On your period today' }),
-      ).not.toBeInTheDocument()
-    })
-
-    it('saves onPeriod immediately when toggled on, with no separate save step', async () => {
-      useCycleTrackingStore.setState({ enabled: true })
-      const user = userEvent.setup()
-      const onSave = vi.fn()
-      render(
-        <DailyEntryForm date="2026-03-01" existingEntry={null} onSave={onSave} />,
-      )
-
-      const toggle = screen.getByRole('button', {
-        name: 'On your period today',
-      })
-      expect(toggle).toHaveAttribute('aria-pressed', 'false')
-
-      await user.click(toggle)
-
-      expect(onSave).toHaveBeenCalledTimes(1)
-      expect(onSave.mock.calls[0][0].onPeriod).toBe(true)
-      expect(toggle).toHaveAttribute('aria-pressed', 'true')
-    })
-
-    it('clicking again toggles it back off', async () => {
-      useCycleTrackingStore.setState({ enabled: true })
-      const user = userEvent.setup()
-      const onSave = vi.fn()
-      render(
-        <DailyEntryForm
-          date="2026-03-01"
-          existingEntry={{
-            id: 'e1',
-            date: '2026-03-01',
-            onPeriod: true,
-            createdAt: now,
-            updatedAt: now,
-          }}
-          onSave={onSave}
-        />,
-      )
-
-      const toggle = screen.getByRole('button', {
-        name: 'On your period today',
-      })
-      expect(toggle).toHaveAttribute('aria-pressed', 'true')
-
-      await user.click(toggle)
-
-      expect(onSave).toHaveBeenCalledTimes(1)
-      expect(onSave.mock.calls[0][0].onPeriod).toBe(false)
-      expect(toggle).toHaveAttribute('aria-pressed', 'false')
     })
   })
 
@@ -1135,6 +1072,31 @@ describe('DailyEntryForm', () => {
             (c: CalorieEntry) => c.timeEaten,
           )
           expect(savedTimes).toEqual(['13:00', '08:00'])
+        })
+      })
+
+      describe('food picker (#62)', () => {
+        it('opens the food dialog from the + Food button and adds a scaled meal', async () => {
+          const user = userEvent.setup()
+          const onSave = vi.fn()
+          render(
+            <DailyEntryForm
+              date="2026-03-01"
+              existingEntry={null}
+              onSave={onSave}
+            />,
+          )
+
+          await user.click(screen.getByRole('button', { name: '+ Food' }))
+          await user.click(screen.getByText('Salmon'))
+          await user.click(screen.getByRole('button', { name: 'Add food' }))
+
+          expect(onSave).toHaveBeenCalledTimes(1)
+          const entry = onSave.mock.calls[0][0].calorieEntries[0]
+          expect(entry.amountKcal).toBe(208)
+          expect(entry.proteinG).toBe(20)
+          expect(entry.note).toBe('Salmon')
+          expect(screen.getByText('Meal 1 — 208 kcal')).toBeInTheDocument()
         })
       })
     })

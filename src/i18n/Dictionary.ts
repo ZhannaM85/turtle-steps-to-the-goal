@@ -63,6 +63,14 @@ export interface Dictionary {
     macrosSummary: (protein: string, fat: string, carbs: string) => string
     macrosSummaryCompact: (protein: string, fat: string, carbs: string) => string
     timeEatenLabel: string
+    addFoodButton: string
+    addFoodDialogTitle: string
+    closeFoodDialogLabel: string
+    foodSearchLabel: string
+    foodSearchPlaceholder: string
+    foodQuantityLabel: string
+    noFoodResultsText: string
+    addFoodConfirmLabel: string
     sleepLabel: string
     sleepHoursLabel: string
     deepSleepLabel: string

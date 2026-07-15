@@ -18,7 +18,8 @@ import {
 import { DAY_EMOTIONS, MEAL_EMOTIONS } from '@/shared/lib/emotionIcons'
 import { macrosSummaryText } from '@/shared/lib/macroDisplay'
 import { cn } from '@/shared/lib/utils'
-import { useUnitStore } from '@/stores'
+import { Button } from '@/shared/ui/button'
+import { useCycleTrackingStore, useUnitStore } from '@/stores'
 
 export interface DayDetailProps {
   entry: DailyEntry
@@ -30,6 +31,13 @@ export interface DayDetailProps {
    */
   standalone?: boolean
   className?: string
+  /**
+   * Persists a change to this entry — currently only used for the cycle
+   * tracking toggle (#71). Optional so DayDetail still works in a purely
+   * read-only context; the toggle itself only renders when both this and
+   * the Settings preference are present.
+   */
+  onSaved?: (entry: DailyEntry) => void
 }
 
 /**
@@ -42,11 +50,13 @@ export function DayDetail({
   entry,
   standalone = false,
   className,
+  onSaved,
 }: DayDetailProps) {
   const t = useTranslation()
   const locale = useLocale()
   const dateFnsLocale = getDateFnsLocale(locale)
   const displayUnit = useUnitStore((state) => state.unit)
+  const cycleTrackingEnabled = useCycleTrackingStore((state) => state.enabled)
 
   const meals = entry.calorieEntries ?? []
   const DayEmotionIcon = DAY_EMOTIONS.find(
@@ -87,6 +97,27 @@ export function DayDetail({
               {dayMacrosSummary}
             </span>
           )}
+        </div>
+      )}
+
+      {cycleTrackingEnabled && onSaved && (
+        <div>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            aria-pressed={entry.onPeriod ?? false}
+            className={cn(entry.onPeriod && 'bg-muted text-foreground')}
+            onClick={() =>
+              onSaved({
+                ...entry,
+                onPeriod: !entry.onPeriod,
+                updatedAt: new Date().toISOString(),
+              })
+            }
+          >
+            {t.dailyEntry.onPeriodLabel}
+          </Button>
         </div>
       )}
 
