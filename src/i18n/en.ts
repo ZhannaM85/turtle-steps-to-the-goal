@@ -123,6 +123,7 @@ export const en: Dictionary = {
     weightLegend: 'weight',
     caloriesLegend: 'calories',
     rollingAverageLegend: '7-day average',
+    macrosTitle: 'Protein, fat & carbs',
     weeklySummaryTitle: 'Weekly summary',
     weekRange: (start, end) => `${start} – ${end}`,
     weightChangeLabel: 'Change this week',

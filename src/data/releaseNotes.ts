@@ -15,6 +15,12 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    issue: 53,
+    date: '2026-07-15',
+    en: 'Dashboard now has a protein/fat/carbs trend chart, and weekly summaries show average macros too.',
+    ru: 'На дашборде появился график белков/жиров/углеводов, а в недельной сводке теперь тоже видны средние значения по макронутриентам.',
+  },
+  {
     issue: 52,
     date: '2026-07-15',
     en: 'History now shows protein/fat/carbs totals for each day and each meal.',

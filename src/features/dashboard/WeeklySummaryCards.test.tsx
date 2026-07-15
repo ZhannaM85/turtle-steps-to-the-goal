@@ -5,12 +5,16 @@ import type { CalorieEntry, DailyEntry } from '@/domain/dailyEntry'
 import type { Goal } from '@/domain/goal'
 import { WeeklySummaryCards } from './WeeklySummaryCards'
 
-function calories(amountKcal: number): CalorieEntry[] {
+function calories(
+  amountKcal: number,
+  macros: Partial<CalorieEntry> = {},
+): CalorieEntry[] {
   return [
     {
       id: crypto.randomUUID(),
       amountKcal,
       createdAt: '2026-01-01T00:00:00.000Z',
+      ...macros,
     },
   ]
 }
@@ -129,6 +133,22 @@ describe('WeeklySummaryCards', () => {
       'font-normal',
       'text-muted-foreground',
     )
+  })
+
+  it('shows the average macros for a week alongside average calories (#53)', () => {
+    const entries = [
+      entry(dayOf(WEEK_1_START, 0), {
+        weightKg: 80,
+        calorieEntries: calories(2000, { proteinG: 100, fatG: 60 }),
+      }),
+    ]
+    render(<WeeklySummaryCards entries={entries} goal={null} />)
+
+    expect(
+      screen.getByText(
+        'Average calories: 2,000 · Protein 100g · Fat 60g · Carbs —',
+      ),
+    ).toBeInTheDocument()
   })
 
   it('does not show a target-met note for a week that missed target', () => {

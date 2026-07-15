@@ -124,6 +124,7 @@ export const ru: Dictionary = {
     weightLegend: 'вес',
     caloriesLegend: 'калории',
     rollingAverageLegend: 'среднее за 7 дней',
+    macrosTitle: 'Белки, жиры и углеводы',
     weeklySummaryTitle: 'Недельная сводка',
     weekRange: (start, end) => `${start} – ${end}`,
     weightChangeLabel: 'Изменение за неделю',

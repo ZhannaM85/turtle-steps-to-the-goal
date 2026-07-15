@@ -130,7 +130,7 @@ Pure functions with unit tests covering edge cases (missing days, single data po
 
 | File | Purpose |
 |------|---------|
-| `weeklySummaries.ts` | Groups entries into ISO weeks (Monday–Sunday, via `date-fns` `startOfISOWeek`/`endOfISOWeek`). Per week: `averageWeightKg`, `averageCalories` (via `totalCalories`, `null` if no entries have calories that week), `deltaVsPriorWeekKg` (vs. the previous week's average), and `targetMet` (whether the actual loss met `goal.targetWeeklyLossKg` — `null` without a goal or a prior week to compare). Powers `WeeklySummaryCards` and `MetTargetList`. |
+| `weeklySummaries.ts` | Groups entries into ISO weeks (Monday–Sunday, via `date-fns` `startOfISOWeek`/`endOfISOWeek`). Per week: `averageWeightKg`, `averageCalories` (via `totalCalories`, `null` if no entries have calories that week), `averageProteinG`/`averageFatG`/`averageCarbsG` (#53, same per-macro averaging as `totalMacros.ts` — only over days that logged that specific macro), `deltaVsPriorWeekKg` (vs. the previous week's average), and `targetMet` (whether the actual loss met `goal.targetWeeklyLossKg` — `null` without a goal or a prior week to compare). Powers `WeeklySummaryCards` and `MetTargetList`. |
 | `rollingAverage.ts` | `rollingAverage(entries, field, windowDays)` — trailing-window average per distinct date present in the data. `field` accepts either a literal `DailyEntry` key or an extractor function, which is what lets `CalorieTrendChart` roll-average the *derived* `totalCalories()` value rather than a raw stored field. A day with no qualifying values in its window gets `average: null` rather than being dropped. |
 | `correlation.ts` | Plain Pearson correlation coefficient between weekly average calories and that week's weight change. `null` when there are fewer than two comparable weeks or no variance in either axis. Not directly rendered anywhere — `correlationInsight.ts` is what actually backs the UI. |
 | `correlationInsight.ts` | The plain-language companion to `correlation.ts` that `CorrelationView` (#7) actually uses: splits comparable weeks into lower-/higher-calorie halves by median (needs `MIN_COMPARABLE_WEEKS = 4`), reports which half averaged more loss and a rounded `thresholdKcal` — arithmetic, not statistics, on purpose. |
@@ -239,8 +239,9 @@ Fully built; no longer a placeholder.
 | `useDashboardData.ts` | Direct-repository hook (not routed through `dailyEntryStore` — see the "known simplification" note above): fetches all entries via `IndexedDbDailyEntryRepository.getAll()` plus the active goal via `useGoalStore`. |
 | `WeightTrendChart.tsx` | Recharts `LineChart` of weight over time, unit-aware via `unitStore`. Tap/click on a point navigates to `/history?date=...` (#41) via `chartNavigation.ts`; no projection line (#46 removed the pace-projection overlay #6 had originally added). |
 | `CalorieTrendChart.tsx` | Recharts `ComposedChart`: daily calorie `Bar` + 7-day rolling-average `Line` overlay (via `rollingAverage()` with an extractor for `totalCalories()`). Same deep-link-on-tap pattern as the weight chart. |
+| `MacroTrendChart.tsx` | Recharts `LineChart` (#53), three lines — protein/fat/carbs — on one combined chart rather than three separate ones (same unit, comparable scale, keeps the Dashboard from growing three more full-width charts). Uses new `--chart-protein`/`--chart-fat`/`--chart-carbs` CSS tokens (`src/index.css`) — unlike `--chart-weight` (mood-tinted), these follow `--chart-calories`'s pattern: one consistent hue family with a light/dark pair, constant across all 5 moods, rather than 5 separate mood-specific variants. Same deep-link-on-tap pattern as the other charts; a day only appears if at least one of the three macros was logged that day. |
 | `CorrelationView.tsx` | Recharts `ScatterChart` of weekly avg calories vs. that week's weight delta, plus the plain-language summary from `correlationInsight()` and an explicit day-lag caveat. |
-| `WeeklySummaryCards.tsx` | One `StatCard` per ISO week from `weeklySummaries()`, most-recent-first; asymmetric emphasis (bold loss, muted gain/no-change, #29) and no plus sign on gains (#34); a quiet "target met" note, deliberately not a badge. |
+| `WeeklySummaryCards.tsx` | One `StatCard` per ISO week from `weeklySummaries()`, most-recent-first; asymmetric emphasis (bold loss, muted gain/no-change, #29) and no plus sign on gains (#34); a quiet "target met" note, deliberately not a badge. Description line also includes the week's average macros (#53, via shared `macrosSummaryText`) alongside average calories, when logged. |
 | `chartNavigation.ts` | `resolveChartClickDate()` — resolves a Recharts click/hover event into a valid History date or `null` by looking the label up in the chart's own `data` array, rather than trusting Recharts' `activePayload`/`activeDataKey` (documented as unreliable on combo charts). Root-caused and fixed across #41/#45/#49 — tapping now only navigates via an explicit in-tooltip link (`wrapperStyle={{pointerEvents:'auto'}}`), not any tap on the chart area, so the chart stays usable for just viewing. |
 | `index.ts` | `DashboardScreen` only. |
 
@@ -330,7 +331,7 @@ shadcn-style primitives (Nova preset, `radix-ui` primitives, `cva` variants, ali
 
 ### Tests
 
-Vitest + jsdom + `fake-indexeddb` + React Testing Library + `@testing-library/user-event`. **340 tests across 53 files**, all passing as of issue #52.
+Vitest + jsdom + `fake-indexeddb` + React Testing Library + `@testing-library/user-event`. **345 tests across 54 files**, all passing as of issue #53.
 
 | Area | Covers |
 |------|--------|
@@ -393,14 +394,14 @@ flowchart LR
         D12["#51 Protein/fat/carbs: capture + Today totals (1/3)"]
         D13["#64 Meal emotions: all-emoji for visual consistency"]
         D14["#52 Protein/fat/carbs: History totals (2/3)"]
+        D15["#53 Protein/fat/carbs: Dashboard charts (3/3)<br/>— macros epic complete"]
     end
     subgraph Next ["📋 Open — not started"]
-        N2["#53 Protein/fat/carbs: Dashboard charts (3/3)"]
         N4["#55 Weekly-goal-met celebration modal"]
         N5["#59 Sleep tracking (duration + deep sleep)"]
         N6["#60 Step count tracking"]
         N7["#61 Opt-in menstrual cycle tracker"]
-        N9["#62 Local food/nutrient database<br/>(blocked on #51)"]
+        N9["#62 Local food/nutrient database<br/>(#51 dependency now done)"]
         N10["#65 Meal time-eaten field<br/>(intermittent fasting)"]
     end
     Done1 --> Done2 --> Done3 --> Next

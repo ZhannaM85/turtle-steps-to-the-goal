@@ -92,6 +92,7 @@ export interface Dictionary {
     weightLegend: string
     caloriesLegend: string
     rollingAverageLegend: string
+    macrosTitle: string
     weeklySummaryTitle: string
     weekRange: (start: string, end: string) => string
     weightChangeLabel: string

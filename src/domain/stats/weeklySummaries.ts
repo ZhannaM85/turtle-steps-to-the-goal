@@ -1,5 +1,11 @@
 import { endOfISOWeek, format, parseISO, startOfISOWeek } from 'date-fns'
-import { totalCalories, type DailyEntry } from '@/domain/dailyEntry'
+import {
+  totalCalories,
+  totalCarbs,
+  totalFat,
+  totalProtein,
+  type DailyEntry,
+} from '@/domain/dailyEntry'
 import type { Goal } from '@/domain/goal'
 
 export interface WeeklySummary {
@@ -7,6 +13,11 @@ export interface WeeklySummary {
   weekEnd: string // ISO date (Sunday)
   averageWeightKg: number | null
   averageCalories: number | null
+  /** Averaged only over days that logged that particular macro (#53) — a
+   * day with kcal but no protein logged doesn't pull the average toward 0. */
+  averageProteinG: number | null
+  averageFatG: number | null
+  averageCarbsG: number | null
   /** This week's averageWeightKg minus the prior week's, null if either is unavailable. */
   deltaVsPriorWeekKg: number | null
   /** Whether the actual loss (prior week avg - this week avg) met goal.targetWeeklyLossKg. */
@@ -47,12 +58,24 @@ export function weeklySummaries(
     const calories = weekEntries
       .map((e) => totalCalories(e.calorieEntries))
       .filter((v): v is number => v !== undefined)
+    const protein = weekEntries
+      .map((e) => totalProtein(e.calorieEntries))
+      .filter((v): v is number => v !== undefined)
+    const fat = weekEntries
+      .map((e) => totalFat(e.calorieEntries))
+      .filter((v): v is number => v !== undefined)
+    const carbs = weekEntries
+      .map((e) => totalCarbs(e.calorieEntries))
+      .filter((v): v is number => v !== undefined)
 
     return {
       weekStart,
       weekEnd,
       averageWeightKg: average(weights),
       averageCalories: average(calories),
+      averageProteinG: average(protein),
+      averageFatG: average(fat),
+      averageCarbsG: average(carbs),
       deltaVsPriorWeekKg: null,
       targetMet: null,
     }

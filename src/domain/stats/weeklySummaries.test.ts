@@ -4,12 +4,16 @@ import type { CalorieEntry, DailyEntry } from '@/domain/dailyEntry'
 import type { Goal } from '@/domain/goal'
 import { weeklySummaries } from './weeklySummaries'
 
-function calories(amountKcal: number): CalorieEntry[] {
+function calories(
+  amountKcal: number,
+  macros: Partial<CalorieEntry> = {},
+): CalorieEntry[] {
   return [
     {
       id: crypto.randomUUID(),
       amountKcal,
       createdAt: '2026-01-01T00:00:00.000Z',
+      ...macros,
     },
   ]
 }
@@ -137,5 +141,23 @@ describe('weeklySummaries', () => {
 
     expect(summary.averageWeightKg).toBeNull()
     expect(summary.averageCalories).toBe(1900)
+  })
+
+  it('averages macros only over the days that logged each one (#53)', () => {
+    const entries = [
+      entry(dayOf(WEEK_1_START, 0), {
+        calorieEntries: calories(1900, { proteinG: 100, fatG: 60 }),
+      }),
+      // No carbs logged all week; second day logs protein but not fat.
+      entry(dayOf(WEEK_1_START, 1), {
+        calorieEntries: calories(1800, { proteinG: 80 }),
+      }),
+    ]
+
+    const [summary] = weeklySummaries(entries)
+
+    expect(summary.averageProteinG).toBe(90) // (100 + 80) / 2
+    expect(summary.averageFatG).toBe(60) // only one day logged fat
+    expect(summary.averageCarbsG).toBeNull() // never logged
   })
 })

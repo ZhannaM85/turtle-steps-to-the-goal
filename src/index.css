@@ -50,6 +50,9 @@
   --ring: #3e7688;
   --chart-weight: #3e7688;
   --chart-calories: #c9a878;
+  --chart-protein: #b5665a;
+  --chart-fat: #8a5a78;
+  --chart-carbs: #4f6fa8;
   --sand-foreground: #8a6a3c;
   --chart-1: oklch(0.87 0 0);
   --chart-2: oklch(0.556 0 0);
@@ -85,6 +88,9 @@
   --color-chart-1: var(--chart-1);
   --color-chart-weight: var(--chart-weight);
   --color-chart-calories: var(--chart-calories);
+  --color-chart-protein: var(--chart-protein);
+  --color-chart-fat: var(--chart-fat);
+  --color-chart-carbs: var(--chart-carbs);
   --color-sand-foreground: var(--sand-foreground);
   --color-ring: var(--ring);
   --color-input: var(--input);
@@ -136,6 +142,9 @@
   --ring: #85bfce;
   --chart-weight: #85bfce;
   --chart-calories: #b28e58;
+  --chart-protein: #d99a8c;
+  --chart-fat: #c99ab8;
+  --chart-carbs: #8fadd6;
   --sand-foreground: #b28e58;
   --chart-1: oklch(0.87 0 0);
   --chart-2: oklch(0.556 0 0);
@@ -172,6 +181,9 @@
   --ring: #3e7688;
   --chart-weight: #3e7688;
   --chart-calories: #c9a878;
+  --chart-protein: #b5665a;
+  --chart-fat: #8a5a78;
+  --chart-carbs: #4f6fa8;
   --sand-foreground: #8a6a3c;
 }
 
@@ -195,6 +207,9 @@
   --ring: #6e5bb5;
   --chart-weight: #6e5bb5;
   --chart-calories: #c9a878;
+  --chart-protein: #b5665a;
+  --chart-fat: #8a5a78;
+  --chart-carbs: #4f6fa8;
   --sand-foreground: #8a6a3c;
 }
 
@@ -218,6 +233,9 @@
   --ring: #b7a6f0;
   --chart-weight: #b7a6f0;
   --chart-calories: #b28e58;
+  --chart-protein: #d99a8c;
+  --chart-fat: #c99ab8;
+  --chart-carbs: #8fadd6;
   --sand-foreground: #b28e58;
 }
 
@@ -241,6 +259,9 @@
   --ring: #4c7a62;
   --chart-weight: #4c7a62;
   --chart-calories: #c9a878;
+  --chart-protein: #b5665a;
+  --chart-fat: #8a5a78;
+  --chart-carbs: #4f6fa8;
   --sand-foreground: #8a6a3c;
 }
 
@@ -264,6 +285,9 @@
   --ring: #90c7a6;
   --chart-weight: #90c7a6;
   --chart-calories: #b28e58;
+  --chart-protein: #d99a8c;
+  --chart-fat: #c99ab8;
+  --chart-carbs: #8fadd6;
   --sand-foreground: #b28e58;
 }
 
@@ -287,6 +311,9 @@
   --ring: #75672f;
   --chart-weight: #75672f;
   --chart-calories: #c9a878;
+  --chart-protein: #b5665a;
+  --chart-fat: #8a5a78;
+  --chart-carbs: #4f6fa8;
   --sand-foreground: #8a6a3c;
 }
 
@@ -315,6 +342,9 @@
   --ring: #d3b878;
   --chart-weight: #d3b878;
   --chart-calories: #8f6f3d;
+  --chart-protein: #d99a8c;
+  --chart-fat: #c99ab8;
+  --chart-carbs: #8fadd6;
   --sand-foreground: #8f6f3d;
 }
 
@@ -338,6 +368,9 @@
   --ring: #0e7c86;
   --chart-weight: #0e7c86;
   --chart-calories: #c9a878;
+  --chart-protein: #b5665a;
+  --chart-fat: #8a5a78;
+  --chart-carbs: #4f6fa8;
   --sand-foreground: #8a6a3c;
 }
 
@@ -361,6 +394,9 @@
   --ring: #56cfc9;
   --chart-weight: #56cfc9;
   --chart-calories: #b28e58;
+  --chart-protein: #d99a8c;
+  --chart-fat: #c99ab8;
+  --chart-carbs: #8fadd6;
   --sand-foreground: #b28e58;
 }
 

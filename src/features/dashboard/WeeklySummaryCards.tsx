@@ -9,6 +9,7 @@ import {
   useLocale,
   useTranslation,
 } from '@/i18n'
+import { macrosSummaryText } from '@/shared/lib/macroDisplay'
 import { useUnitStore } from '@/stores'
 import { StatCard } from '@/shared/ui/stat-card'
 
@@ -72,6 +73,16 @@ export function WeeklySummaryCards({ entries, goal }: WeeklySummaryCardsProps) {
             descriptionParts.push(
               `${t.dashboard.averageCaloriesLabel}: ${formatNumber(week.averageCalories, locale, 0)}`,
             )
+          }
+          const macrosSummary = macrosSummaryText(
+            week.averageProteinG ?? undefined,
+            week.averageFatG ?? undefined,
+            week.averageCarbsG ?? undefined,
+            locale,
+            t,
+          )
+          if (macrosSummary) {
+            descriptionParts.push(macrosSummary)
           }
           if (week.targetMet) {
             descriptionParts.push(t.dashboard.targetMetNote)
