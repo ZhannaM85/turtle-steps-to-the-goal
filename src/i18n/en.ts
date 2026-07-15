@@ -87,6 +87,14 @@ export const en: Dictionary = {
     gramsUnit: 'g',
     macrosSummary: (protein, fat, carbs) =>
       `Protein ${protein} · Fat ${fat} · Carbs ${carbs}`,
+    sleepLabel: 'Sleep',
+    sleepHoursLabel: 'Hours slept',
+    deepSleepHoursLabel: 'Deep sleep (hours)',
+    editSleepLabel: 'Edit sleep',
+    saveSleepLabel: 'Save sleep',
+    hoursUnit: 'h',
+    sleepSummary: (hours, deepHours) =>
+      `${hours} slept · ${deepHours} deep`,
   },
   goal: {
     title: 'Goal',

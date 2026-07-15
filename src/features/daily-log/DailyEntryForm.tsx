@@ -43,7 +43,9 @@ import { Input } from '@/shared/ui/input'
 import { useMealItemStore } from '@/stores'
 import { entryToFormValues, formValuesToEntry } from './dailyEntryFormMapping'
 import {
+  deepSleepHoursSchema,
   noteSchema,
+  sleepHoursSchema,
   weightSchema,
   type DailyEntryFormValues,
 } from './dailyEntryFormSchema'
@@ -455,6 +457,11 @@ export function DailyEntryForm({
   const [isEditingNote, setIsEditingNote] = useState(
     alwaysEditable || !initialValues.note,
   )
+  const [isEditingSleep, setIsEditingSleep] = useState(
+    alwaysEditable ||
+      (initialValues.sleepHours === undefined &&
+        initialValues.deepSleepHours === undefined),
+  )
   const [editingMealId, setEditingMealId] = useState<string | null>(null)
   const [editMealAmount, setEditMealAmount] = useState('')
   const [editMealProtein, setEditMealProtein] = useState('')
@@ -498,6 +505,8 @@ export function DailyEntryForm({
 
   const weightKg = watch('weightKg')
   const note = watch('note')
+  const sleepHours = watch('sleepHours')
+  const deepSleepHours = watch('deepSleepHours')
   const dayEmotion = watch('emotion')
   const calorieEntries = watch('calorieEntries') ?? []
   const DayEmotionIcon = DAY_EMOTIONS.find((e) => e.value === dayEmotion)?.Icon
@@ -511,6 +520,7 @@ export function DailyEntryForm({
 
   const showWeightAsDisplay = !alwaysEditable && !isEditingWeight
   const showNoteAsDisplay = !alwaysEditable && !isEditingNote
+  const showSleepAsDisplay = !alwaysEditable && !isEditingSleep
 
   function setDayEmotion(emotion: Emotion | undefined) {
     setValue('emotion', emotion, { shouldDirty: true })
@@ -550,6 +560,27 @@ export function DailyEntryForm({
     }
     clearErrors('note')
     setIsEditingNote(false)
+    persist(getValues())
+  }
+
+  function saveSleep() {
+    const hoursResult = sleepHoursSchema.safeParse(getValues('sleepHours'))
+    const deepHoursResult = deepSleepHoursSchema.safeParse(
+      getValues('deepSleepHours'),
+    )
+    if (!hoursResult.success) {
+      setError('sleepHours', { message: hoursResult.error.issues[0].message })
+      return
+    }
+    if (!deepHoursResult.success) {
+      setError('deepSleepHours', {
+        message: deepHoursResult.error.issues[0].message,
+      })
+      return
+    }
+    clearErrors('sleepHours')
+    clearErrors('deepSleepHours')
+    setIsEditingSleep(false)
     persist(getValues())
   }
 
@@ -687,6 +718,95 @@ export function DailyEntryForm({
           {errors.weightKg && (
             <p className="text-sm text-destructive">
               {errors.weightKg.message}
+            </p>
+          )}
+        </div>
+      )}
+
+      {showSleepAsDisplay ? (
+        <div className="flex flex-col gap-1.5">
+          <span className="text-sm font-medium">
+            {t.dailyEntry.sleepLabel}
+          </span>
+          <div className="flex items-center justify-between rounded-lg bg-muted px-3 py-2">
+            <span className="text-sm text-foreground">
+              {t.dailyEntry.sleepSummary(
+                sleepHours === undefined
+                  ? '—'
+                  : `${formatExactNumber(sleepHours, locale)}${t.dailyEntry.hoursUnit}`,
+                deepSleepHours === undefined
+                  ? '—'
+                  : `${formatExactNumber(deepSleepHours, locale)}${t.dailyEntry.hoursUnit}`,
+              )}
+            </span>
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon-sm"
+              aria-label={t.dailyEntry.editSleepLabel}
+              onClick={() => setIsEditingSleep(true)}
+            >
+              <Pencil aria-hidden="true" />
+            </Button>
+          </div>
+        </div>
+      ) : (
+        <div className="flex flex-col gap-1.5">
+          <span className="text-sm font-medium">{t.dailyEntry.sleepLabel}</span>
+          <div className="flex flex-wrap items-end gap-2">
+            <div className="flex flex-col gap-1">
+              <span className="text-xs text-muted-foreground">
+                {t.dailyEntry.sleepHoursLabel}
+              </span>
+              <Input
+                type="text"
+                inputMode="decimal"
+                aria-label={t.dailyEntry.sleepHoursLabel}
+                aria-invalid={errors.sleepHours ? true : undefined}
+                className="h-8 w-20"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault()
+                    saveSleep()
+                  }
+                }}
+                {...register('sleepHours', { setValueAs: parseNumberInput })}
+              />
+            </div>
+            <div className="flex flex-col gap-1">
+              <span className="text-xs text-muted-foreground">
+                {t.dailyEntry.deepSleepHoursLabel}
+              </span>
+              <Input
+                type="text"
+                inputMode="decimal"
+                aria-label={t.dailyEntry.deepSleepHoursLabel}
+                aria-invalid={errors.deepSleepHours ? true : undefined}
+                className="h-8 w-20"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault()
+                    saveSleep()
+                  }
+                }}
+                {...register('deepSleepHours', {
+                  setValueAs: parseNumberInput,
+                })}
+              />
+            </div>
+            <Button
+              type="button"
+              variant="outline"
+              size="icon-sm"
+              aria-label={t.dailyEntry.saveSleepLabel}
+              onClick={saveSleep}
+            >
+              <Check aria-hidden="true" />
+            </Button>
+          </div>
+          {(errors.sleepHours || errors.deepSleepHours) && (
+            <p className="text-sm text-destructive">
+              {errors.sleepHours?.message ?? errors.deepSleepHours?.message}
             </p>
           )}
         </div>

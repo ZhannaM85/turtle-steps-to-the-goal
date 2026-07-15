@@ -61,6 +61,13 @@ export interface Dictionary {
     carbsLabel: string
     gramsUnit: string
     macrosSummary: (protein: string, fat: string, carbs: string) => string
+    sleepLabel: string
+    sleepHoursLabel: string
+    deepSleepHoursLabel: string
+    editSleepLabel: string
+    saveSleepLabel: string
+    hoursUnit: string
+    sleepSummary: (hours: string, deepHours: string) => string
   }
   goal: {
     title: string

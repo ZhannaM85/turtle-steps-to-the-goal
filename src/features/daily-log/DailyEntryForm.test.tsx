@@ -196,6 +196,94 @@ describe('DailyEntryForm', () => {
     })
   })
 
+  describe('sleep', () => {
+    it('saves sleep hours and deep sleep independently via its own Save button (#59)', async () => {
+      const user = userEvent.setup()
+      const onSave = vi.fn()
+      render(
+        <DailyEntryForm
+          date="2026-03-01"
+          existingEntry={null}
+          onSave={onSave}
+        />,
+      )
+
+      await user.type(screen.getByLabelText('Hours slept'), '7.5')
+      await user.type(screen.getByLabelText('Deep sleep (hours)'), '2')
+      await user.click(screen.getByRole('button', { name: 'Save sleep' }))
+
+      expect(onSave).toHaveBeenCalledTimes(1)
+      expect(onSave.mock.calls[0][0].sleepHours).toBe(7.5)
+      expect(onSave.mock.calls[0][0].deepSleepHours).toBe(2)
+      expect(screen.getByText('7.5h slept · 2h deep')).toBeInTheDocument()
+    })
+
+    it('can be saved with just one of the two fields, the other showing a dash', async () => {
+      const user = userEvent.setup()
+      const onSave = vi.fn()
+      render(
+        <DailyEntryForm
+          date="2026-03-01"
+          existingEntry={null}
+          onSave={onSave}
+        />,
+      )
+
+      await user.type(screen.getByLabelText('Hours slept'), '8')
+      await user.click(screen.getByRole('button', { name: 'Save sleep' }))
+
+      expect(onSave.mock.calls[0][0].sleepHours).toBe(8)
+      expect(onSave.mock.calls[0][0].deepSleepHours).toBeUndefined()
+      expect(screen.getByText('8h slept · — deep')).toBeInTheDocument()
+    })
+
+    it('rejects an out-of-range value and does not save', async () => {
+      const user = userEvent.setup()
+      const onSave = vi.fn()
+      render(
+        <DailyEntryForm
+          date="2026-03-01"
+          existingEntry={null}
+          onSave={onSave}
+        />,
+      )
+
+      await user.type(screen.getByLabelText('Hours slept'), '30')
+      await user.click(screen.getByRole('button', { name: 'Save sleep' }))
+
+      expect(await screen.findByText(/Too big/)).toBeInTheDocument()
+      expect(onSave).not.toHaveBeenCalled()
+    })
+
+    it('shows existing sleep as read-only text with a pencil, editable via a Save button', async () => {
+      const user = userEvent.setup()
+      const onSave = vi.fn()
+      render(
+        <DailyEntryForm
+          date="2026-03-01"
+          existingEntry={{
+            id: 'e1',
+            date: '2026-03-01',
+            sleepHours: 7,
+            deepSleepHours: 1.5,
+            createdAt: now,
+            updatedAt: now,
+          }}
+          onSave={onSave}
+        />,
+      )
+
+      expect(screen.getByText('7h slept · 1.5h deep')).toBeInTheDocument()
+      expect(
+        screen.queryByRole('button', { name: 'Save sleep' }),
+      ).not.toBeInTheDocument()
+
+      await user.click(screen.getByRole('button', { name: 'Edit sleep' }))
+      expect(screen.getByLabelText('Hours slept')).toHaveValue('7')
+      expect(screen.getByLabelText('Deep sleep (hours)')).toHaveValue('1.5')
+    })
+  })
+
   describe('note', () => {
     it('saves a new note independently via its own Save button', async () => {
       const user = userEvent.setup()

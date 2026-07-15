@@ -33,6 +33,10 @@ const dailyEntrySchema = z.object({
   calorieEntries: z.array(calorieEntrySchema).optional(),
   note: z.string().optional(),
   emotion: dayEmotionSchema.optional(),
+  // Sleep (#59) — purely additive/optional, same no-version-bump reasoning
+  // as macros above.
+  sleepHours: z.number().optional(),
+  deepSleepHours: z.number().optional(),
   createdAt: z.string(),
   updatedAt: z.string(),
 })

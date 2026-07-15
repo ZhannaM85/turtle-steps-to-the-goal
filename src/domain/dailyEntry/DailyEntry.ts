@@ -27,6 +27,11 @@ export interface DailyEntry {
   note?: string
   /** Overall mood for the day as a whole, distinct from any meal's own emotion (#44). */
   emotion?: Emotion
+  /** Sleep (#59) — both optional and independent, same as the rest of this
+   * entity's fields. No cross-validation against sleepHours (e.g. a
+   * wearable might report deep sleep before total for the same day). */
+  sleepHours?: number
+  deepSleepHours?: number
   createdAt: string
   updatedAt: string
 }

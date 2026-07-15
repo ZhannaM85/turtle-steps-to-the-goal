@@ -15,6 +15,12 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    issue: 59,
+    date: '2026-07-15',
+    en: 'You can now log how many hours you slept, including deep sleep.',
+    ru: 'Теперь можно вносить количество часов сна, включая глубокий сон.',
+  },
+  {
     issue: 55,
     date: '2026-07-15',
     en: 'A celebration pops up when you reach your weekly goal, with a quick way to set next week\'s target.',
