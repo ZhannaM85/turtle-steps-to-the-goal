@@ -393,6 +393,8 @@ flowchart LR
         N5["#59 Sleep tracking (duration + deep sleep)"]
         N6["#60 Step count tracking"]
         N7["#61 Opt-in menstrual cycle tracker"]
+        N8["#63 Release notes section in Settings"]
+        N9["#62 Local food/nutrient database<br/>(blocked on #51)"]
     end
     Done1 --> Done2 --> Done3 --> Next
 ```
