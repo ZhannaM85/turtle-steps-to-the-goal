@@ -130,6 +130,11 @@ export function DayDetail({
                   {t.dailyEntry.mealLabel(index + 1)} —{' '}
                   {formatNumber(meal.amountKcal, locale, 0)}{' '}
                   {t.dailyEntry.kcalUnit}
+                  {meal.timeEaten && (
+                    <span className="text-muted-foreground">
+                      · {meal.timeEaten}
+                    </span>
+                  )}
                   {mealEmotionOption && (
                     <>
                       {mealEmotionOption.Icon ? (

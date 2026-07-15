@@ -90,6 +90,7 @@ export const ru: Dictionary = {
       `Белки ${protein} · Жиры ${fat} · Углеводы ${carbs}`,
     macrosSummaryCompact: (protein, fat, carbs) =>
       `Б ${protein} · Ж ${fat} · У ${carbs}`,
+    timeEatenLabel: 'Время',
     sleepLabel: 'Сон',
     sleepHoursLabel: 'Часов сна',
     deepSleepLabel: 'Глубокий сон',

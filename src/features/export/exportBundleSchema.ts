@@ -24,6 +24,9 @@ const calorieEntrySchema = z.object({
   proteinG: z.number().optional(),
   fatG: z.number().optional(),
   carbsG: z.number().optional(),
+  // Time eaten (#65) — purely additive/optional, same no-version-bump
+  // reasoning as macros/sleep/steps above.
+  timeEaten: z.string().optional(),
 })
 
 const dailyEntrySchema = z.object({

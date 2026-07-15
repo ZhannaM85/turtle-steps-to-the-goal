@@ -1,5 +1,5 @@
 import 'fake-indexeddb/auto'
-import { act, render, screen } from '@testing-library/react'
+import { act, fireEvent, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import type { ReactNode } from 'react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -1024,6 +1024,118 @@ describe('DailyEntryForm', () => {
         })
 
         expect(onSave).not.toHaveBeenCalled()
+      })
+
+      describe('time eaten (#65)', () => {
+        it('saves the time set in the Add flow, shown next to the meal', async () => {
+          const user = userEvent.setup()
+          const onSave = vi.fn()
+          render(
+            <DailyEntryForm
+              date="2026-03-01"
+              existingEntry={null}
+              onSave={onSave}
+            />,
+          )
+
+          await user.type(screen.getByLabelText('Add calories'), '200')
+          fireEvent.change(screen.getByLabelText('Time'), {
+            target: { value: '08:15' },
+          })
+          await user.click(screen.getByRole('button', { name: 'Add' }))
+
+          expect(onSave.mock.calls[0][0].calorieEntries[0].timeEaten).toBe(
+            '08:15',
+          )
+          expect(screen.getByText('· 08:15')).toBeInTheDocument()
+        })
+
+        it('can be left blank', async () => {
+          const user = userEvent.setup()
+          const onSave = vi.fn()
+          render(
+            <DailyEntryForm
+              date="2026-03-01"
+              existingEntry={null}
+              onSave={onSave}
+            />,
+          )
+
+          await user.type(screen.getByLabelText('Add calories'), '200')
+          fireEvent.change(screen.getByLabelText('Time'), {
+            target: { value: '' },
+          })
+          await user.click(screen.getByRole('button', { name: 'Add' }))
+
+          expect(
+            onSave.mock.calls[0][0].calorieEntries[0].timeEaten,
+          ).toBeUndefined()
+        })
+
+        it('can be edited on an existing meal', async () => {
+          const user = userEvent.setup()
+          const onSave = vi.fn()
+          render(
+            <DailyEntryForm
+              date="2026-03-01"
+              existingEntry={{
+                id: 'e1',
+                date: '2026-03-01',
+                calorieEntries: [
+                  { ...calories(300, 'c1'), timeEaten: '08:00' },
+                ],
+                createdAt: now,
+                updatedAt: now,
+              }}
+              onSave={onSave}
+            />,
+          )
+
+          expect(screen.getByText('· 08:00')).toBeInTheDocument()
+
+          await user.click(screen.getByRole('button', { name: 'Edit meal 1' }))
+          expect(
+            screen.getByLabelText('Time — Meal 1'),
+          ).toHaveValue('08:00')
+          fireEvent.change(screen.getByLabelText('Time — Meal 1'), {
+            target: { value: '12:30' },
+          })
+          await user.click(screen.getByRole('button', { name: 'Save' }))
+
+          expect(onSave.mock.calls[0][0].calorieEntries[0].timeEaten).toBe(
+            '12:30',
+          )
+          expect(screen.getByText('· 12:30')).toBeInTheDocument()
+        })
+
+        it('is not cleared or changed when meals are reordered', () => {
+          const onSave = vi.fn()
+          render(
+            <DailyEntryForm
+              date="2026-03-01"
+              existingEntry={{
+                id: 'e1',
+                date: '2026-03-01',
+                calorieEntries: [
+                  { ...calories(300, 'c1'), timeEaten: '08:00' },
+                  { ...calories(200, 'c2'), timeEaten: '13:00' },
+                ],
+                createdAt: now,
+                updatedAt: now,
+              }}
+              onSave={onSave}
+            />,
+          )
+
+          act(() => {
+            capturedOnDragEnd?.({ active: { id: 'c1' }, over: { id: 'c2' } })
+          })
+
+          const savedTimes = onSave.mock.calls[0][0].calorieEntries.map(
+            (c: CalorieEntry) => c.timeEaten,
+          )
+          expect(savedTimes).toEqual(['13:00', '08:00'])
+        })
       })
     })
   })

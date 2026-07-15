@@ -15,6 +15,12 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    issue: 65,
+    date: '2026-07-15',
+    en: 'You can now log the time you ate each meal, useful for tracking intermittent fasting windows.',
+    ru: 'Теперь можно указывать время приёма пищи — удобно для отслеживания интервального голодания.',
+  },
+  {
     issue: 69,
     date: '2026-07-15',
     en: 'Sleep entry now uses separate hours and minutes fields, instead of one decimal-hours field.',

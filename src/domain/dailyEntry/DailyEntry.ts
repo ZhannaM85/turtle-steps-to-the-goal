@@ -17,6 +17,14 @@ export interface CalorieEntry {
   proteinG?: number
   fatG?: number
   carbsG?: number
+  /** Time of day the meal was eaten (#65), "HH:MM" 24-hour, e.g. "07:30" —
+   * for intermittent-fasting tracking. Time-of-day only, not a full
+   * date+time: a meal already belongs to a specific day via its parent
+   * DailyEntry. Optional and independently clearable; deliberately NOT
+   * cleared or recomputed when meals are reordered (drag-and-drop, #36) —
+   * clearing a user-entered time as a side effect of reordering would be a
+   * surprising data loss. */
+  timeEaten?: string
 }
 
 export interface DailyEntry {

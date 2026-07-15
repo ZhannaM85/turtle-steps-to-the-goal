@@ -8,6 +8,12 @@ const mealEmotionSchema = z.enum(['thumbsUp', 'thumbsDown', 'bellissimo'])
 // Macros (#51) — optional and independent of each other and of amountKcal.
 const macroGramsSchema = z.number().nonnegative().max(1000)
 
+// Time eaten (#65) — "HH:MM" 24-hour, time-of-day only. Optional/clearable.
+export const timeEatenSchema = z
+  .string()
+  .regex(/^([01]\d|2[0-3]):[0-5]\d$/)
+  .optional()
+
 const calorieEntrySchema = z.object({
   id: z.string(),
   amountKcal: z.number().positive().max(10000),
@@ -17,6 +23,7 @@ const calorieEntrySchema = z.object({
   proteinG: macroGramsSchema.optional(),
   fatG: macroGramsSchema.optional(),
   carbsG: macroGramsSchema.optional(),
+  timeEaten: timeEatenSchema,
 })
 
 export const weightSchema = z.number().min(20).max(400).optional()

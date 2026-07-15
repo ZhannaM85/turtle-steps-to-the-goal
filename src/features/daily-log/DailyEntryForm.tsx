@@ -135,12 +135,14 @@ interface MealListItemProps {
   editProtein: string
   editFat: string
   editCarbs: string
+  editTime: string
   editNote: string
   editEmotion: MealEmotion | undefined
   onEditAmountChange: (value: string) => void
   onEditProteinChange: (value: string) => void
   onEditFatChange: (value: string) => void
   onEditCarbsChange: (value: string) => void
+  onEditTimeChange: (value: string) => void
   onEditNoteChange: (value: string) => void
   onEditEmotionChange: (emotion: MealEmotion | undefined) => void
   onStartEdit: () => void
@@ -161,12 +163,14 @@ function MealListItem({
   editProtein,
   editFat,
   editCarbs,
+  editTime,
   editNote,
   editEmotion,
   onEditAmountChange,
   onEditProteinChange,
   onEditFatChange,
   onEditCarbsChange,
+  onEditTimeChange,
   onEditNoteChange,
   onEditEmotionChange,
   onStartEdit,
@@ -322,6 +326,18 @@ function MealListItem({
               className="h-7 w-14"
             />
           </div>
+          <div className="flex flex-col gap-1">
+            <span className="text-xs text-muted-foreground">
+              {t.dailyEntry.timeEatenLabel}
+            </span>
+            <Input
+              type="time"
+              aria-label={`${t.dailyEntry.timeEatenLabel} — ${t.dailyEntry.mealLabel(position)}`}
+              value={editTime}
+              onChange={(e) => onEditTimeChange(e.target.value)}
+              className="h-7 w-24"
+            />
+          </div>
         </div>
         <div className="flex items-center gap-2">
           <Input
@@ -373,6 +389,11 @@ function MealListItem({
           </button>
           {t.dailyEntry.mealLabel(position)} —{' '}
           {formatNumber(entry.amountKcal, locale, 0)} {t.dailyEntry.kcalUnit}
+          {entry.timeEaten && (
+            <span className="text-muted-foreground">
+              · {entry.timeEaten}
+            </span>
+          )}
           {mealEmotionOption && (
             <>
               {mealEmotionOption.Icon ? (
@@ -436,6 +457,14 @@ function combineHoursMinutes(
   return (hours ?? 0) + (minutes ?? 0) / 60
 }
 
+/** Default for a newly-added meal's time-eaten field (#65) — "the time when
+ * user enters the entry". Not used for editing an existing meal, which
+ * reflects whatever time (if any) was already saved on it. */
+function currentTimeHHMM(): string {
+  const now = new Date()
+  return `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`
+}
+
 export function DailyEntryForm({
   date,
   existingEntry,
@@ -471,6 +500,10 @@ export function DailyEntryForm({
   const [addEmotion, setAddEmotion] = useState<MealEmotion | undefined>(
     undefined,
   )
+  // Time eaten (#65) — defaults to "now" for a new meal, per the requested
+  // "time when user enters the entry" default; re-defaults to a fresh "now"
+  // after each add, same as the other add-* fields resetting to blank.
+  const [addTime, setAddTime] = useState(currentTimeHHMM)
   // Whether Weight/Note render as an editable input rather than read-only
   // display + pencil. Deliberately NOT derived from the live watched value —
   // that would flip to display mode mid-keystroke on every first character
@@ -514,6 +547,7 @@ export function DailyEntryForm({
   const [editMealProtein, setEditMealProtein] = useState('')
   const [editMealFat, setEditMealFat] = useState('')
   const [editMealCarbs, setEditMealCarbs] = useState('')
+  const [editMealTime, setEditMealTime] = useState('')
   const [editMealNote, setEditMealNote] = useState('')
   const [editMealEmotion, setEditMealEmotion] = useState<
     MealEmotion | undefined
@@ -683,6 +717,7 @@ export function DailyEntryForm({
         proteinG: parseOptionalMacro(addProtein),
         fatG: parseOptionalMacro(addFat),
         carbsG: parseOptionalMacro(addCarbs),
+        timeEaten: addTime || undefined,
         createdAt: new Date().toISOString(),
       },
     ])
@@ -693,6 +728,7 @@ export function DailyEntryForm({
     setAddCarbs('')
     setAddNote('')
     setAddEmotion(undefined)
+    setAddTime(currentTimeHHMM())
   }
 
   function startEditMeal(entry: CalorieEntry) {
@@ -701,6 +737,7 @@ export function DailyEntryForm({
     setEditMealProtein(entry.proteinG === undefined ? '' : String(entry.proteinG))
     setEditMealFat(entry.fatG === undefined ? '' : String(entry.fatG))
     setEditMealCarbs(entry.carbsG === undefined ? '' : String(entry.carbsG))
+    setEditMealTime(entry.timeEaten ?? '')
     setEditMealNote(entry.note ?? '')
     setEditMealEmotion(entry.emotion)
   }
@@ -719,6 +756,7 @@ export function DailyEntryForm({
               proteinG: parseOptionalMacro(editMealProtein),
               fatG: parseOptionalMacro(editMealFat),
               carbsG: parseOptionalMacro(editMealCarbs),
+              timeEaten: editMealTime || undefined,
             }
           : entry,
       ),
@@ -1066,12 +1104,14 @@ export function DailyEntryForm({
                     editProtein={editMealProtein}
                     editFat={editMealFat}
                     editCarbs={editMealCarbs}
+                    editTime={editMealTime}
                     editNote={editMealNote}
                     editEmotion={editMealEmotion}
                     onEditAmountChange={setEditMealAmount}
                     onEditProteinChange={setEditMealProtein}
                     onEditFatChange={setEditMealFat}
                     onEditCarbsChange={setEditMealCarbs}
+                    onEditTimeChange={setEditMealTime}
                     onEditNoteChange={setEditMealNote}
                     onEditEmotionChange={setEditMealEmotion}
                     onStartEdit={() => startEditMeal(entry)}
@@ -1163,6 +1203,18 @@ export function DailyEntryForm({
                   }
                 }}
                 className="h-7 w-14"
+              />
+            </div>
+            <div className="flex flex-col gap-1">
+              <span className="text-xs text-muted-foreground">
+                {t.dailyEntry.timeEatenLabel}
+              </span>
+              <Input
+                type="time"
+                aria-label={t.dailyEntry.timeEatenLabel}
+                value={addTime}
+                onChange={(e) => setAddTime(e.target.value)}
+                className="h-7 w-24"
               />
             </div>
             <Button

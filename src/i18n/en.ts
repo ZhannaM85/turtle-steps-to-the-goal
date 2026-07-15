@@ -89,6 +89,7 @@ export const en: Dictionary = {
       `Protein ${protein} · Fat ${fat} · Carbs ${carbs}`,
     macrosSummaryCompact: (protein, fat, carbs) =>
       `P ${protein} · F ${fat} · C ${carbs}`,
+    timeEatenLabel: 'Time',
     sleepLabel: 'Sleep',
     sleepHoursLabel: 'Hours slept',
     deepSleepLabel: 'Deep sleep',
