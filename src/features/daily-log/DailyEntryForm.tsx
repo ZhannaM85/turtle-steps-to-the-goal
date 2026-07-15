@@ -46,6 +46,7 @@ import {
   deepSleepHoursSchema,
   noteSchema,
   sleepHoursSchema,
+  stepsSchema,
   weightSchema,
   type DailyEntryFormValues,
 } from './dailyEntryFormSchema'
@@ -462,6 +463,9 @@ export function DailyEntryForm({
       (initialValues.sleepHours === undefined &&
         initialValues.deepSleepHours === undefined),
   )
+  const [isEditingSteps, setIsEditingSteps] = useState(
+    alwaysEditable || initialValues.steps === undefined,
+  )
   const [editingMealId, setEditingMealId] = useState<string | null>(null)
   const [editMealAmount, setEditMealAmount] = useState('')
   const [editMealProtein, setEditMealProtein] = useState('')
@@ -507,6 +511,7 @@ export function DailyEntryForm({
   const note = watch('note')
   const sleepHours = watch('sleepHours')
   const deepSleepHours = watch('deepSleepHours')
+  const steps = watch('steps')
   const dayEmotion = watch('emotion')
   const calorieEntries = watch('calorieEntries') ?? []
   const DayEmotionIcon = DAY_EMOTIONS.find((e) => e.value === dayEmotion)?.Icon
@@ -521,6 +526,7 @@ export function DailyEntryForm({
   const showWeightAsDisplay = !alwaysEditable && !isEditingWeight
   const showNoteAsDisplay = !alwaysEditable && !isEditingNote
   const showSleepAsDisplay = !alwaysEditable && !isEditingSleep
+  const showStepsAsDisplay = !alwaysEditable && !isEditingSteps
 
   function setDayEmotion(emotion: Emotion | undefined) {
     setValue('emotion', emotion, { shouldDirty: true })
@@ -581,6 +587,17 @@ export function DailyEntryForm({
     clearErrors('sleepHours')
     clearErrors('deepSleepHours')
     setIsEditingSleep(false)
+    persist(getValues())
+  }
+
+  function saveSteps() {
+    const result = stepsSchema.safeParse(getValues('steps'))
+    if (!result.success) {
+      setError('steps', { message: result.error.issues[0].message })
+      return
+    }
+    clearErrors('steps')
+    setIsEditingSteps(false)
     persist(getValues())
   }
 
@@ -808,6 +825,62 @@ export function DailyEntryForm({
             <p className="text-sm text-destructive">
               {errors.sleepHours?.message ?? errors.deepSleepHours?.message}
             </p>
+          )}
+        </div>
+      )}
+
+      {showStepsAsDisplay ? (
+        <div className="flex flex-col gap-1.5">
+          <span className="text-sm font-medium">
+            {t.dailyEntry.stepsLabel}
+          </span>
+          <div className="flex items-center justify-between rounded-lg bg-muted px-3 py-2">
+            <span className="text-sm text-foreground">
+              {steps === undefined ? '—' : formatNumber(steps, locale, 0)}
+            </span>
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon-sm"
+              aria-label={t.dailyEntry.editStepsLabel}
+              onClick={() => setIsEditingSteps(true)}
+            >
+              <Pencil aria-hidden="true" />
+            </Button>
+          </div>
+        </div>
+      ) : (
+        <div className="flex flex-col gap-1.5">
+          <span className="text-sm font-medium">
+            {t.dailyEntry.stepsLabel}
+          </span>
+          <div className="flex items-center gap-2">
+            <Input
+              type="text"
+              inputMode="numeric"
+              aria-label={t.dailyEntry.stepsLabel}
+              aria-invalid={errors.steps ? true : undefined}
+              className="h-8 flex-1"
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault()
+                  saveSteps()
+                }
+              }}
+              {...register('steps', { setValueAs: parseNumberInput })}
+            />
+            <Button
+              type="button"
+              variant="outline"
+              size="icon-sm"
+              aria-label={t.dailyEntry.saveStepsLabel}
+              onClick={saveSteps}
+            >
+              <Check aria-hidden="true" />
+            </Button>
+          </div>
+          {errors.steps && (
+            <p className="text-sm text-destructive">{errors.steps.message}</p>
           )}
         </div>
       )}

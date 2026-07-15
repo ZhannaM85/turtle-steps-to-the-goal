@@ -95,6 +95,9 @@ export const en: Dictionary = {
     hoursUnit: 'h',
     sleepSummary: (hours, deepHours) =>
       `${hours} slept · ${deepHours} deep`,
+    stepsLabel: 'Steps',
+    editStepsLabel: 'Edit steps',
+    saveStepsLabel: 'Save steps',
   },
   goal: {
     title: 'Goal',

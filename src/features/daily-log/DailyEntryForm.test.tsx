@@ -284,6 +284,78 @@ describe('DailyEntryForm', () => {
     })
   })
 
+  describe('steps', () => {
+    it('saves step count independently via its own Save button (#60)', async () => {
+      const user = userEvent.setup()
+      const onSave = vi.fn()
+      render(
+        <DailyEntryForm
+          date="2026-03-01"
+          existingEntry={null}
+          onSave={onSave}
+        />,
+      )
+
+      await user.type(screen.getByLabelText('Steps'), '8500')
+      await user.click(screen.getByRole('button', { name: 'Save steps' }))
+
+      expect(onSave).toHaveBeenCalledTimes(1)
+      expect(onSave.mock.calls[0][0].steps).toBe(8500)
+      expect(screen.getByText('8,500')).toBeInTheDocument()
+    })
+
+    it('rejects an out-of-range value and does not save', async () => {
+      const user = userEvent.setup()
+      const onSave = vi.fn()
+      render(
+        <DailyEntryForm
+          date="2026-03-01"
+          existingEntry={null}
+          onSave={onSave}
+        />,
+      )
+
+      await user.type(screen.getByLabelText('Steps'), '200000')
+      await user.click(screen.getByRole('button', { name: 'Save steps' }))
+
+      expect(await screen.findByText(/Too big/)).toBeInTheDocument()
+      expect(onSave).not.toHaveBeenCalled()
+    })
+
+    it('shows an existing step count as read-only text with a pencil, editable via a Save button', async () => {
+      const user = userEvent.setup()
+      const onSave = vi.fn()
+      render(
+        <DailyEntryForm
+          date="2026-03-01"
+          existingEntry={{
+            id: 'e1',
+            date: '2026-03-01',
+            steps: 6000,
+            createdAt: now,
+            updatedAt: now,
+          }}
+          onSave={onSave}
+        />,
+      )
+
+      expect(screen.getByText('6,000')).toBeInTheDocument()
+      expect(
+        screen.queryByRole('button', { name: 'Save steps' }),
+      ).not.toBeInTheDocument()
+
+      await user.click(screen.getByRole('button', { name: 'Edit steps' }))
+      const input = screen.getByLabelText('Steps')
+      expect(input).toHaveValue('6000')
+      await user.clear(input)
+      await user.type(input, '7000')
+      await user.click(screen.getByRole('button', { name: 'Save steps' }))
+
+      expect(onSave.mock.calls[0][0].steps).toBe(7000)
+      expect(screen.getByText('7,000')).toBeInTheDocument()
+    })
+  })
+
   describe('note', () => {
     it('saves a new note independently via its own Save button', async () => {
       const user = userEvent.setup()

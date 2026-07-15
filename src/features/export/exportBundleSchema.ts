@@ -37,6 +37,8 @@ const dailyEntrySchema = z.object({
   // as macros above.
   sleepHours: z.number().optional(),
   deepSleepHours: z.number().optional(),
+  // Steps (#60) — same reasoning, purely additive/optional.
+  steps: z.number().optional(),
   createdAt: z.string(),
   updatedAt: z.string(),
 })

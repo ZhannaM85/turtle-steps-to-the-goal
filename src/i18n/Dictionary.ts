@@ -68,6 +68,9 @@ export interface Dictionary {
     saveSleepLabel: string
     hoursUnit: string
     sleepSummary: (hours: string, deepHours: string) => string
+    stepsLabel: string
+    editStepsLabel: string
+    saveStepsLabel: string
   }
   goal: {
     title: string

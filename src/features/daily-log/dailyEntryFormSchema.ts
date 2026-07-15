@@ -24,6 +24,8 @@ export const noteSchema = z.string().max(500).optional()
 // Sleep (#59) — independent optional fields, no cross-check between them.
 export const sleepHoursSchema = z.number().min(0).max(24).optional()
 export const deepSleepHoursSchema = z.number().min(0).max(24).optional()
+// Steps (#60) — optional, independent of everything else.
+export const stepsSchema = z.number().min(0).max(100000).optional()
 
 export const dailyEntryFormSchema = z.object({
   weightKg: weightSchema,
@@ -32,6 +34,7 @@ export const dailyEntryFormSchema = z.object({
   emotion: dayEmotionSchema.optional(),
   sleepHours: sleepHoursSchema,
   deepSleepHours: deepSleepHoursSchema,
+  steps: stepsSchema,
 })
 
 export type DailyEntryFormValues = z.infer<typeof dailyEntryFormSchema>

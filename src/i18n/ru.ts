@@ -95,6 +95,9 @@ export const ru: Dictionary = {
     saveSleepLabel: 'Сохранить сон',
     hoursUnit: 'ч',
     sleepSummary: (hours, deepHours) => `${hours} сна · ${deepHours} глубокого`,
+    stepsLabel: 'Шаги',
+    editStepsLabel: 'Изменить шаги',
+    saveStepsLabel: 'Сохранить шаги',
   },
   goal: {
     title: 'Цель',

@@ -32,6 +32,8 @@ export interface DailyEntry {
    * wearable might report deep sleep before total for the same day). */
   sleepHours?: number
   deepSleepHours?: number
+  /** Step count (#60) — optional, independent of everything else. */
+  steps?: number
   createdAt: string
   updatedAt: string
 }

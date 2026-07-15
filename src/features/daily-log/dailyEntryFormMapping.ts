@@ -12,6 +12,7 @@ export function entryToFormValues(
     emotion: entry.emotion,
     sleepHours: entry.sleepHours,
     deepSleepHours: entry.deepSleepHours,
+    steps: entry.steps,
   }
 }
 
@@ -29,6 +30,7 @@ export function formValuesToEntry(
     emotion: values.emotion,
     sleepHours: values.sleepHours,
     deepSleepHours: values.deepSleepHours,
+    steps: values.steps,
     createdAt: identity.createdAt,
     updatedAt: new Date().toISOString(),
   }
