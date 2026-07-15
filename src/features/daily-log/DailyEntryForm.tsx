@@ -34,6 +34,7 @@ import {
   type Locale,
 } from '@/i18n'
 import { DAY_EMOTIONS, MEAL_EMOTIONS } from '@/shared/lib/emotionIcons'
+import { macrosSummaryText } from '@/shared/lib/macroDisplay'
 import { parseNumberInput } from '@/shared/lib/parseNumberInput'
 import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/ui/button'
@@ -181,6 +182,13 @@ function MealListItem({
   } = useSortable({ id: entry.id, disabled: isEditing || isConfirmingDelete })
   const style = { transform: CSS.Transform.toString(transform), transition }
   const mealEmotionOption = MEAL_EMOTIONS.find((e) => e.value === entry.emotion)
+  const macrosSummary = macrosSummaryText(
+    entry.proteinG,
+    entry.fatG,
+    entry.carbsG,
+    locale,
+    t,
+  )
 
   if (isConfirmingDelete) {
     return (
@@ -393,31 +401,11 @@ function MealListItem({
       {entry.note && (
         <p className="text-xs text-muted-foreground">{entry.note}</p>
       )}
-      {(entry.proteinG !== undefined ||
-        entry.fatG !== undefined ||
-        entry.carbsG !== undefined) && (
-        <p className="text-xs text-muted-foreground">
-          {t.dailyEntry.macrosSummary(
-            formatMacroGrams(entry.proteinG, locale, t),
-            formatMacroGrams(entry.fatG, locale, t),
-            formatMacroGrams(entry.carbsG, locale, t),
-          )}
-        </p>
+      {macrosSummary && (
+        <p className="text-xs text-muted-foreground">{macrosSummary}</p>
       )}
     </li>
   )
-}
-
-/** "20g" / "20г" for a logged macro, or an em dash when that particular
- * macro wasn't logged for this meal/day (#51) — distinct from "0g". */
-function formatMacroGrams(
-  grams: number | undefined,
-  locale: Locale,
-  t: Dictionary,
-): string {
-  return grams === undefined
-    ? '—'
-    : `${formatNumber(grams, locale, 0)}${t.dailyEntry.gramsUnit}`
 }
 
 export function DailyEntryForm({
@@ -513,9 +501,13 @@ export function DailyEntryForm({
   const dayEmotion = watch('emotion')
   const calorieEntries = watch('calorieEntries') ?? []
   const DayEmotionIcon = DAY_EMOTIONS.find((e) => e.value === dayEmotion)?.Icon
-  const dayTotalProtein = totalProtein(calorieEntries)
-  const dayTotalFat = totalFat(calorieEntries)
-  const dayTotalCarbs = totalCarbs(calorieEntries)
+  const dayMacrosSummary = macrosSummaryText(
+    totalProtein(calorieEntries),
+    totalFat(calorieEntries),
+    totalCarbs(calorieEntries),
+    locale,
+    t,
+  )
 
   const showWeightAsDisplay = !alwaysEditable && !isEditingWeight
   const showNoteAsDisplay = !alwaysEditable && !isEditingNote
@@ -720,16 +712,8 @@ export function DailyEntryForm({
             </span>
           </span>
         </div>
-        {(dayTotalProtein !== undefined ||
-          dayTotalFat !== undefined ||
-          dayTotalCarbs !== undefined) && (
-          <p className="text-xs text-muted-foreground">
-            {t.dailyEntry.macrosSummary(
-              formatMacroGrams(dayTotalProtein, locale, t),
-              formatMacroGrams(dayTotalFat, locale, t),
-              formatMacroGrams(dayTotalCarbs, locale, t),
-            )}
-          </p>
+        {dayMacrosSummary && (
+          <p className="text-xs text-muted-foreground">{dayMacrosSummary}</p>
         )}
 
         {calorieEntries.length > 0 && (

@@ -253,8 +253,8 @@ Also fully built.
 | `HistoryScreen.tsx` | Owns filter state (From/To date range, #40; `?date=` deep-link prefill from Dashboard, #41) and a List/Calendar `ToggleGroup` view switcher (#48). Renders `MetTargetList`, then either `CalendarView` or the sortable, filterable table of `EntryRow`s. |
 | `useHistoryData.ts` | Same direct-repository pattern as `useDashboardData`; exposes `saveEntry`/`deleteEntry` that call the repository then reload. |
 | `CalendarView.tsx` | Month-grid calendar (#48, Monday-start), a marker on days with an entry, tap-a-day opens a read-only `DayDetail` panel; an "Edit this day" action hands off to `HistoryScreen`'s List view pre-filtered/expanded to that date. |
-| `DayDetail.tsx` | Shared read-only day-detail renderer — meals, notes, emotions, and the day's overall mood (#39, extended for #44, reused by both `EntryRow`'s expand panel and `CalendarView`'s day panel). A `standalone` prop adds a date/weight/calories header for contexts (calendar) that don't already show that summary elsewhere. |
-| `EntryRow.tsx` | One table row with `view / edit / confirmDelete` modes. Edit mode swaps in `DailyEntryForm` (`alwaysEditable`); expand/collapse toggles `DayDetail`; supports `defaultExpanded` for the Dashboard deep-link case. |
+| `DayDetail.tsx` | Shared read-only day-detail renderer — meals, notes, emotions, and the day's overall mood (#39, extended for #44, reused by both `EntryRow`'s expand panel and `CalendarView`'s day panel). A `standalone` prop adds a date/weight/calories header for contexts (calendar) that don't already show that summary elsewhere; that header also gets the day's macro total (#52). Each meal shows its own macro summary line too (below its note), independent of the day total. |
+| `EntryRow.tsx` | One table row with `view / edit / confirmDelete` modes. Edit mode swaps in `DailyEntryForm` (`alwaysEditable`); expand/collapse toggles `DayDetail`; supports `defaultExpanded` for the Dashboard deep-link case. The Calories cell also shows the day's macro total as a muted line beneath the kcal number (#52), omitted when nothing was logged. |
 | `MetTargetList.tsx` | A plain list of weeks where the target was met — explicitly not gamified, no badges. |
 | `index.ts` | `HistoryScreen` only. |
 
@@ -324,12 +324,13 @@ shadcn-style primitives (Nova preset, `radix-ui` primitives, `cva` variants, ali
 | `hooks/useCurrentWeekInfo.ts` | Fetches only `getEarliestDate()` (not a full scan) and derives `CurrentWeekInfo` (week number/range) via `domain/stats/currentWeekInfo`. Shared by `TodayScreen` and `GoalScreen` (#18). |
 | `hooks/usePreviousDayEntry.ts` | Fetches the `DailyEntry` for `date − 1 day`, backing the day-over-day weight-delta stat on `TodayScreen` (#42) — a distinct, unsmoothed number from the week-over-week delta in `weeklySummaries`. |
 | `hooks/index.ts` | Barrel. |
+| `lib/macroDisplay.ts` | `formatMacroGrams`/`macrosSummaryText` (#51/#52) — shared macro-formatting, extracted from `DailyEntryForm.tsx` for reuse once `EntryRow`/`DayDetail` also needed to show macro totals. `macrosSummaryText` returns `null` when none of protein/fat/carbs were logged at all, so callers can skip rendering a line entirely rather than showing an all-dashes one. |
 
 ---
 
 ### Tests
 
-Vitest + jsdom + `fake-indexeddb` + React Testing Library + `@testing-library/user-event`. **331 tests across 52 files**, all passing as of issue #51.
+Vitest + jsdom + `fake-indexeddb` + React Testing Library + `@testing-library/user-event`. **340 tests across 53 files**, all passing as of issue #52.
 
 | Area | Covers |
 |------|--------|
@@ -391,9 +392,10 @@ flowchart LR
         D11["#63 Release notes section in Settings"]
         D12["#51 Protein/fat/carbs: capture + Today totals (1/3)"]
         D13["#64 Meal emotions: all-emoji for visual consistency"]
+        D14["#52 Protein/fat/carbs: History totals (2/3)"]
     end
     subgraph Next ["📋 Open — not started"]
-        N2["#52-#53 Protein/fat/carbs macros<br/>(History, Dashboard — 2/3, 3/3)"]
+        N2["#53 Protein/fat/carbs: Dashboard charts (3/3)"]
         N4["#55 Weekly-goal-met celebration modal"]
         N5["#59 Sleep tracking (duration + deep sleep)"]
         N6["#60 Step count tracking"]

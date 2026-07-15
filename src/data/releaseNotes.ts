@@ -15,6 +15,12 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    issue: 52,
+    date: '2026-07-15',
+    en: 'History now shows protein/fat/carbs totals for each day and each meal.',
+    ru: 'В истории теперь показаны итоги по белкам, жирам и углеводам за день и по каждому приёму пищи.',
+  },
+  {
     issue: 64,
     date: '2026-07-15',
     en: 'Meal reaction icons (👍👎🤌) now look consistent with each other.',

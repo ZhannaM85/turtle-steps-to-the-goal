@@ -41,6 +41,32 @@ describe('EntryRow', () => {
     expect(screen.getAllByText('—')).not.toHaveLength(0)
   })
 
+  it('shows the day\'s macro totals under calories, omitted when nothing logged (#52)', () => {
+    renderRow()
+
+    expect(screen.queryByText(/Protein/)).not.toBeInTheDocument()
+  })
+
+  it("shows the day's macro totals under calories when logged (#52)", () => {
+    renderRow({
+      entry: makeEntry({
+        calorieEntries: [
+          {
+            id: 'c1',
+            amountKcal: 2000,
+            proteinG: 20,
+            fatG: 10,
+            createdAt: '2026-01-01T00:00:00.000Z',
+          },
+        ],
+      }),
+    })
+
+    expect(
+      screen.getByText('Protein 20g · Fat 10g · Carbs —'),
+    ).toBeInTheDocument()
+  })
+
   it('expands into the daily entry form on edit, weight already editable with its own Save button', async () => {
     const user = userEvent.setup()
     renderRow()

@@ -1,5 +1,11 @@
 import { format, parseISO } from 'date-fns'
-import { totalCalories, type DailyEntry } from '@/domain/dailyEntry'
+import {
+  totalCalories,
+  totalCarbs,
+  totalFat,
+  totalProtein,
+  type DailyEntry,
+} from '@/domain/dailyEntry'
 import { kgToLb } from '@/domain/goal'
 import {
   formatExactNumber,
@@ -10,6 +16,7 @@ import {
   useTranslation,
 } from '@/i18n'
 import { DAY_EMOTIONS, MEAL_EMOTIONS } from '@/shared/lib/emotionIcons'
+import { macrosSummaryText } from '@/shared/lib/macroDisplay'
 import { cn } from '@/shared/lib/utils'
 import { useUnitStore } from '@/stores'
 
@@ -55,6 +62,15 @@ export function DayDetail({
   const calories = totalCalories(entry.calorieEntries)
   const caloriesDisplay =
     calories === undefined ? '—' : formatNumber(calories, locale, 0)
+  // Only shown standalone (#52) — non-standalone (EntryRow's expanded
+  // panel) already has the day's macro total in the table's Calories cell.
+  const dayMacrosSummary = macrosSummaryText(
+    totalProtein(entry.calorieEntries),
+    totalFat(entry.calorieEntries),
+    totalCarbs(entry.calorieEntries),
+    locale,
+    t,
+  )
 
   return (
     <div className={cn('flex flex-col gap-2 text-sm', className)}>
@@ -66,6 +82,11 @@ export function DayDetail({
           <span className="text-muted-foreground">
             {weightDisplay} · {caloriesDisplay} {t.dailyEntry.kcalUnit}
           </span>
+          {dayMacrosSummary && (
+            <span className="text-xs text-muted-foreground">
+              {dayMacrosSummary}
+            </span>
+          )}
         </div>
       )}
 
@@ -95,6 +116,13 @@ export function DayDetail({
           {meals.map((meal, index) => {
             const mealEmotionOption = MEAL_EMOTIONS.find(
               (e) => e.value === meal.emotion,
+            )
+            const mealMacrosSummary = macrosSummaryText(
+              meal.proteinG,
+              meal.fatG,
+              meal.carbsG,
+              locale,
+              t,
             )
             return (
               <li key={meal.id} className="flex flex-col gap-0.5">
@@ -126,6 +154,11 @@ export function DayDetail({
                 {meal.note && (
                   <span className="text-xs text-muted-foreground">
                     {meal.note}
+                  </span>
+                )}
+                {mealMacrosSummary && (
+                  <span className="text-xs text-muted-foreground">
+                    {mealMacrosSummary}
                   </span>
                 )}
               </li>

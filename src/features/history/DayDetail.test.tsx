@@ -87,4 +87,58 @@ describe('DayDetail', () => {
     rerender(<DayDetail entry={entry} standalone />)
     expect(screen.getByText('72.4 kg · — kcal')).toBeInTheDocument()
   })
+
+  it("shows a meal's own macros, omitted when nothing logged for that meal (#52)", () => {
+    render(
+      <DayDetail
+        entry={makeEntry({
+          calorieEntries: [
+            {
+              id: 'c1',
+              amountKcal: 500,
+              proteinG: 20,
+              carbsG: 30,
+              createdAt: '2026-01-01T00:00:00.000Z',
+            },
+            {
+              id: 'c2',
+              amountKcal: 300,
+              createdAt: '2026-01-01T00:00:00.000Z',
+            },
+          ],
+        })}
+      />,
+    )
+
+    expect(
+      screen.getByText('Protein 20g · Fat — · Carbs 30g'),
+    ).toBeInTheDocument()
+    // Second meal logged no macros at all — no summary line for it.
+    expect(screen.getByText('Meal 2 — 300 kcal')).toBeInTheDocument()
+  })
+
+  it("shows the day's macro total in the standalone header (#52)", () => {
+    render(
+      <DayDetail
+        entry={makeEntry({
+          calorieEntries: [
+            {
+              id: 'c1',
+              amountKcal: 500,
+              proteinG: 20,
+              fatG: 10,
+              createdAt: '2026-01-01T00:00:00.000Z',
+            },
+          ],
+        })}
+        standalone
+      />,
+    )
+
+    // Appears twice: the standalone header's day total, and this single
+    // meal's own summary line show identical numbers.
+    expect(
+      screen.getAllByText('Protein 20g · Fat 10g · Carbs —'),
+    ).toHaveLength(2)
+  })
 })

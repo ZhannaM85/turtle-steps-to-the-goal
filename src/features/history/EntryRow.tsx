@@ -1,7 +1,13 @@
 import { useState } from 'react'
 import { format, parseISO } from 'date-fns'
 import { ChevronDown, ChevronUp, Pencil, Trash2 } from 'lucide-react'
-import { totalCalories, type DailyEntry } from '@/domain/dailyEntry'
+import {
+  totalCalories,
+  totalCarbs,
+  totalFat,
+  totalProtein,
+  type DailyEntry,
+} from '@/domain/dailyEntry'
 import { kgToLb } from '@/domain/goal'
 import {
   formatExactNumber,
@@ -12,6 +18,7 @@ import {
   useTranslation,
 } from '@/i18n'
 import { DailyEntryForm } from '@/features/daily-log'
+import { macrosSummaryText } from '@/shared/lib/macroDisplay'
 import { useUnitStore } from '@/stores'
 import { Button } from '@/shared/ui/button'
 import { DayDetail } from './DayDetail'
@@ -53,6 +60,13 @@ export function EntryRow({
   const calories = totalCalories(entry.calorieEntries)
   const caloriesDisplay =
     calories === undefined ? '—' : formatNumber(calories, locale, 0)
+  const macrosSummary = macrosSummaryText(
+    totalProtein(entry.calorieEntries),
+    totalFat(entry.calorieEntries),
+    totalCarbs(entry.calorieEntries),
+    locale,
+    t,
+  )
 
   if (mode === 'edit') {
     return (
@@ -87,7 +101,14 @@ export function EntryRow({
           {weightDisplay}
         </td>
         <td className="border-b border-border px-2 py-2 text-sm tabular-nums sm:px-3">
-          {caloriesDisplay}
+          <div className="flex flex-col">
+            <span>{caloriesDisplay}</span>
+            {macrosSummary && (
+              <span className="text-xs font-normal whitespace-nowrap text-muted-foreground">
+                {macrosSummary}
+              </span>
+            )}
+          </div>
         </td>
         <td className="hidden border-b border-border px-3 py-2 text-sm text-muted-foreground sm:table-cell">
           {entry.note || '—'}
