@@ -12,7 +12,6 @@ import { kgToLb } from '@/domain/goal'
 import {
   formatExactNumber,
   formatNumber,
-  getDateFnsLocale,
   unitLabel,
   useLocale,
   useTranslation,
@@ -44,7 +43,6 @@ export function EntryRow({
 }: EntryRowProps) {
   const t = useTranslation()
   const locale = useLocale()
-  const dateFnsLocale = getDateFnsLocale(locale)
   const [mode, setMode] = useState<RowMode>('view')
   // Independent of `mode`: whether the read-only detail panel is open.
   // Kept separate so it survives a confirmDelete round-trip (cancel
@@ -95,7 +93,11 @@ export function EntryRow({
     <>
       <tr>
         <td className="border-b border-border px-2 py-2 text-sm whitespace-nowrap sm:px-3">
-          {format(parseISO(entry.date), 'PP', { locale: dateFnsLocale })}
+          {/* Compact numeric format (#73) — the localized 'PP' format
+           * ("15 июл. 2026 г.") was wide enough, combined with the other
+           * columns, to push the Actions column's icons off screen on
+           * narrow phones. dd.MM.yy is locale-agnostic and unambiguous. */}
+          {format(parseISO(entry.date), 'dd.MM.yy')}
         </td>
         <td className="border-b border-border px-2 py-2 text-sm tabular-nums sm:px-3">
           {weightDisplay}

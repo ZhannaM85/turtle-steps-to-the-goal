@@ -17,6 +17,7 @@ import type { DailyEntry } from '@/domain/dailyEntry'
 import { getDateFnsLocale, useLocale, useTranslation } from '@/i18n'
 import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/ui/button'
+import { useCycleTrackingStore } from '@/stores'
 import { DayDetail } from './DayDetail'
 
 export interface CalendarViewProps {
@@ -35,6 +36,7 @@ export function CalendarView({ entries, onEditDay, onSaved }: CalendarViewProps)
   const t = useTranslation()
   const locale = useLocale()
   const dateFnsLocale = getDateFnsLocale(locale)
+  const cycleTrackingEnabled = useCycleTrackingStore((state) => state.enabled)
   const [currentMonth, setCurrentMonth] = useState(() => new Date())
   const [selectedDate, setSelectedDate] = useState<string | null>(null)
 
@@ -104,7 +106,9 @@ export function CalendarView({ entries, onEditDay, onSaved }: CalendarViewProps)
         ))}
         {days.map((day) => {
           const dateKey = format(day, 'yyyy-MM-dd')
-          const hasEntry = entriesByDate.has(dateKey)
+          const entry = entriesByDate.get(dateKey)
+          const hasEntry = entry !== undefined
+          const onPeriod = entry?.onPeriod ?? false
           const inCurrentMonth = isSameMonth(day, currentMonth)
           const selected = selectedDate !== null && selectedDate === dateKey
           return (
@@ -136,6 +140,22 @@ export function CalendarView({ entries, onEditDay, onSaved }: CalendarViewProps)
                     : 'bg-transparent',
                 )}
               />
+              {/* Second dot for period days (#72) — only rendered at all when
+               * cycle tracking is on, so the grid doesn't reserve extra
+               * vertical space for a marker most users never see. */}
+              {cycleTrackingEnabled && (
+                <span
+                  aria-hidden="true"
+                  className={cn(
+                    'size-1 rounded-full',
+                    onPeriod
+                      ? selected
+                        ? 'bg-primary-foreground'
+                        : 'bg-destructive'
+                      : 'bg-transparent',
+                  )}
+                />
+              )}
             </button>
           )
         })}

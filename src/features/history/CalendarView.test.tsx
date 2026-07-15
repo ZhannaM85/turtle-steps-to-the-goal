@@ -124,4 +124,38 @@ describe('CalendarView', () => {
       useCycleTrackingStore.setState({ enabled: false })
     })
   })
+
+  describe('period marker dot (#72)', () => {
+    it('is not rendered at all when cycle tracking is off', () => {
+      renderCalendar({ entries: [makeEntry({ onPeriod: true })] })
+
+      const dayButton = screen.getByRole('button', { name: midMonthLabel })
+      expect(
+        dayButton.querySelectorAll('span[aria-hidden="true"]'),
+      ).toHaveLength(1)
+    })
+
+    it('reserves a transparent dot for days without onPeriod when cycle tracking is on', () => {
+      useCycleTrackingStore.setState({ enabled: true })
+      renderCalendar({ entries: [makeEntry({ onPeriod: false })] })
+
+      const dayButton = screen.getByRole('button', { name: midMonthLabel })
+      const dots = dayButton.querySelectorAll('span[aria-hidden="true"]')
+      expect(dots).toHaveLength(2)
+      expect(dots[1]).toHaveClass('bg-transparent')
+
+      useCycleTrackingStore.setState({ enabled: false })
+    })
+
+    it('shows a colored dot for a day with onPeriod true', () => {
+      useCycleTrackingStore.setState({ enabled: true })
+      renderCalendar({ entries: [makeEntry({ onPeriod: true })] })
+
+      const dayButton = screen.getByRole('button', { name: midMonthLabel })
+      const dots = dayButton.querySelectorAll('span[aria-hidden="true"]')
+      expect(dots[1]).toHaveClass('bg-destructive')
+
+      useCycleTrackingStore.setState({ enabled: false })
+    })
+  })
 })

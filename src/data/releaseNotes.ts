@@ -15,6 +15,18 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    issue: 73,
+    date: '2026-07-15',
+    en: 'Fixed the History screen so the delete button no longer gets cut off on narrow phones.',
+    ru: 'Исправлено отображение Истории: кнопка удаления больше не обрезается на узких экранах.',
+  },
+  {
+    issue: 72,
+    date: '2026-07-15',
+    en: 'The Calendar view now shows a small marker on days you logged your period.',
+    ru: 'В календаре теперь отображается метка на днях с отмеченной менструацией.',
+  },
+  {
     issue: 71,
     date: '2026-07-15',
     en: 'The period-tracking toggle no longer shows up every day on Today — mark it from a day in History instead.',

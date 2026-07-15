@@ -257,9 +257,9 @@ Also fully built.
 |------|---------|
 | `HistoryScreen.tsx` | Owns filter state (From/To date range, #40; `?date=` deep-link prefill from Dashboard, #41) and a List/Calendar `ToggleGroup` view switcher (#48). Renders `MetTargetList`, then either `CalendarView` or the sortable, filterable table of `EntryRow`s. |
 | `useHistoryData.ts` | Same direct-repository pattern as `useDashboardData`; exposes `saveEntry`/`deleteEntry` that call the repository then reload. |
-| `CalendarView.tsx` | Month-grid calendar (#48, Monday-start), a marker on days with an entry, tap-a-day opens a `DayDetail` panel; an "Edit this day" action hands off to `HistoryScreen`'s List view pre-filtered/expanded to that date. Takes an `onSaved` prop (#71, threaded from `HistoryScreen`'s `saveEntry`) passed straight through to `DayDetail` for its cycle-tracking toggle. |
+| `CalendarView.tsx` | Month-grid calendar (#48, Monday-start), a marker on days with an entry, tap-a-day opens a `DayDetail` panel; an "Edit this day" action hands off to `HistoryScreen`'s List view pre-filtered/expanded to that date. Takes an `onSaved` prop (#71, threaded from `HistoryScreen`'s `saveEntry`) passed straight through to `DayDetail` for its cycle-tracking toggle. Each day cell can show a **second** marker dot (#72) for `onPeriod` days, styled with `bg-destructive` (the mood-constant "danger" token, reused purely for its color) — that second `<span>` is only rendered at all when cycle tracking is on, so the grid doesn't reserve extra vertical space for a marker most users never see. |
 | `DayDetail.tsx` | Shared day-detail renderer — meals, notes, emotions, and the day's overall mood (#39, extended for #44, reused by both `EntryRow`'s expand panel and `CalendarView`'s day panel). A `standalone` prop adds a date/weight/calories header for contexts (calendar) that don't already show that summary elsewhere; that header also gets the day's macro total (#52). Each meal shows its own macro summary line too (below its note), independent of the day total. Mostly read-only, but **not purely read-only since #71**: an optional `onSaved` prop, when present alongside `useCycleTrackingStore`'s Settings toggle, renders an "On period" toggle button — clicking it calls `onSaved({ ...entry, onPeriod: !entry.onPeriod, ... })`, the same immediate-save-on-click shape #61 originally used directly on Today. This is the toggle's new home after #61's original placement (a button on Today, shown every day) turned out to be unwanted daily noise for something relevant only a few days a month. |
-| `EntryRow.tsx` | One table row with `view / edit / confirmDelete` modes. Edit mode swaps in `DailyEntryForm` (`alwaysEditable`); expand/collapse toggles `DayDetail`; supports `defaultExpanded` for the Dashboard deep-link case. The Calories cell also shows the day's macro total as a muted line beneath the kcal number (#52), omitted when nothing was logged — uses the **compact** single-initial form (`macrosSummaryTextCompact`, #67) rather than the full-word one, since the full-word line was wide enough on mobile to push the Actions column (expand/edit/delete) off screen. |
+| `EntryRow.tsx` | One table row with `view / edit / confirmDelete` modes. Edit mode swaps in `DailyEntryForm` (`alwaysEditable`); expand/collapse toggles `DayDetail`; supports `defaultExpanded` for the Dashboard deep-link case. The Calories cell also shows the day's macro total as a muted line beneath the kcal number (#52), omitted when nothing was logged — uses the **compact** single-initial form (`macrosSummaryTextCompact`, #67) rather than the full-word one, since the full-word line was wide enough on mobile to push the Actions column (expand/edit/delete) off screen. The Date cell uses a fixed **`dd.MM.yy`** numeric format (#73), not the localized `'PP'` format used elsewhere (`DayDetail`'s standalone header, Dashboard chart tooltips) — `'PP'` ("15 июл. 2026 г.") was still wide enough on its own to push the Actions column's 3rd icon off screen even after #67's fix, and being locale-agnostic this format needs no `dateFnsLocale`. |
 | `MetTargetList.tsx` | A plain list of weeks where the target was met — explicitly not gamified, no badges. |
 | `index.ts` | `HistoryScreen` only. |
 
@@ -339,7 +339,7 @@ shadcn-style primitives (Nova preset, `radix-ui` primitives, `cva` variants, ali
 
 ### Tests
 
-Vitest + jsdom + `fake-indexeddb` + React Testing Library + `@testing-library/user-event`. **377 tests across 56 files**, all passing as of issues #62/#71.
+Vitest + jsdom + `fake-indexeddb` + React Testing Library + `@testing-library/user-event`. **381 tests across 56 files**, all passing as of issue #73.
 
 | Area | Covers |
 |------|--------|
@@ -414,6 +414,8 @@ flowchart LR
         D24["#66 Move release notes<br/>Settings to About"]
         D25["#62 Local food/nutrient database<br/>with quantity-based entry"]
         D26["#71 Move cycle-tracking toggle<br/>Today to History day view"]
+        D27["#72 Calendar: period marker dots"]
+        D28["#73 History: fix trash icon still<br/>hidden after #67 (date format)"]
     end
     Done1 --> Done2 --> Done3
 ```
