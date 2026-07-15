@@ -181,6 +181,7 @@ Zustand. `goalStore`/`dailyEntryStore` own session/domain data (always flowing t
 | `dailyEntryStore.ts` | `useDailyEntryStore`: `date`, `entry`, `status`, `error`, `loadEntry(date)`, `saveEntry(entry)`. Same shape as `goalStore`. |
 | `unitStore.ts` | `useUnitStore` (#37): `unit: 'kg' \| 'lb'`, `setUnit`. Persisted to `localStorage` (`turtle-steps-unit`). This is the kg/lb toggle that used to live on the Goal page — now global, read by `TodayScreen`, `GoalScreen`, `DashboardScreen`'s charts, and every `History` weight display. |
 | `mealItemStore.ts` | `useMealItemStore` (#50): `items`, `status`, `loadItems()`, `touch(name)` (upsert-by-name — creates on first use, else just bumps `updatedAt`; trims and no-ops on empty), `rename(id, name)` (merges into an existing item if the new name collides, rather than throwing on the unique index), `deleteItem(id)`. Not persisted to `localStorage` — this is domain data in IndexedDB, unlike `unitStore`/`themeStore`. |
+| `goalCelebrationStore.ts` | `useGoalCelebrationStore` (#55): `celebratedWeekStart: string \| null`, `markCelebrated(weekStart)`. Persisted to `localStorage` (`turtle-steps-goal-celebration`). Deliberately stores only the *single most recent* celebrated week, not a growing history — a new week always has a different `weekStart`, so one value is enough to know "has this week already been celebrated." |
 | `themeStore.ts` | `useThemeStore`: `mood` (`'pond' \| 'dusk' \| 'sage' \| 'tortoise' \| 'lagoon'`, #17), `colorScheme` (`'light' \| 'dark'`), `setMood`, `setColorScheme`. Persisted (`turtle-steps-theme`). Exports `detectDefaultColorScheme()` and `applyTheme()` (sets `data-mood` + toggles `.dark` on `<html>`); `applyTheme()` also runs eagerly at module-import time to stay in sync with an inline pre-paint script in `index.html` that avoids a flash of the wrong theme on load. |
 | `index.ts` | Barrel — exports all four stores plus `Mood`/`ColorScheme`/`Unit` types. |
 
@@ -226,7 +227,8 @@ No longer a simple single-submit form. Current shape:
 | `dailyEntryFormSchema.ts` | Zod schema; `weightSchema` (20–400kg), `noteSchema`, per-meal `calorieEntrySchema` (`amountKcal` 0–10000, optional `note`/`emotion`). No longer requires "at least one of weight or calories" — see #31 below. |
 | `dailyEntryFormMapping.ts` | `entryToFormValues`, `formValuesToEntry`. |
 | `DailyEntryForm.tsx` | The big one. Weight and Note render **read-only with a pencil-to-edit toggle** once saved (#21), rather than always-editable inputs — except when the `alwaysEditable` prop is set (used by History's inline edit, where "Edit entry" is already the explicit edit gesture). **No single submit button** (#31): Weight, Note, and each meal save independently and immediately via `onSave`, which can fire many times in one session. Calorie entries are itemized (`CalorieEntry[]`, #21) with a "+ kcal" quick-add row (note + `EmotionPicker` inline), per-meal edit/delete, and **drag-and-drop reordering** via `@dnd-kit/core` + `@dnd-kit/sortable` (#36, pointer + keyboard sensors, grip handle per row). `EmotionPicker` is generic over both emotion sets (`<E extends string>`, taking `options`/`labelFor` props) — the day's overall mood (`DailyEntry.emotion`, #44) uses `DAY_EMOTIONS` (`Smile`/`Meh`/`Frown`), a meal's own reaction uses `MEAL_EMOTIONS` (thumbs up/down + "bellissimo" as the 🤌 emoji, #54) — two different sets since #54 split them, disambiguated (when both pickers are visible at once) by an ARIA `contextLabel`. Both the add-meal and edit-meal note inputs share a single `<datalist>` (`#50`, `MEAL_ITEMS_DATALIST_ID`) populated from `useMealItemStore`, offering previously-used meal names as native browser autocomplete; saving a meal with a non-empty note calls `touch(name)` to upsert it into the library. Its `<option>` elements deliberately have **no text children** (`value` only) — an earlier version rendered the name as visible text too, which caused real `getByText` collisions in tests once a saved note became a library entry with matching text elsewhere on the page (found while building #51). A labeled kcal/protein/fat/carbs row (#51) sits above the note/emotion row in both add and edit flows, plus a per-meal and a per-day macro summary line (`macrosSummary`, "Protein Xg · Fat Yg · Carbs Zg", `—` per macro not logged) next to the existing kcal total. |
-| `TodayScreen.tsx` | A native `<input type="date">` (capped at today via `max`) drives which date's entry is loaded/edited. Shows "This week's target" `StatCard` (via `useCurrentWeekInfo`) or an `EmptyState` pointing at `/goal` when no goal exists. A second `StatCard` shows the day-over-day weight delta (#42, via `usePreviousDayEntry`) with asymmetric emphasis — bold for a loss, muted for a gain/no-change, matching #29's treatment. A quiet end-of-week banner (#38) nudges toward `/goal` on the last day of the ISO week, no dismiss state. `key={date}` on `DailyEntryForm` forces a clean remount per date. |
+| `TodayScreen.tsx` | A native `<input type="date">` (capped at today via `max`) drives which date's entry is loaded/edited. Shows "This week's target" `StatCard` (via `useCurrentWeekInfo`) or an `EmptyState` pointing at `/goal` when no goal exists. A second `StatCard` shows the day-over-day weight delta (#42, via `usePreviousDayEntry`) with asymmetric emphasis — bold for a loss, muted for a gain/no-change, matching #29's treatment. A quiet end-of-week banner (#38) nudges toward `/goal` on the last day of the ISO week, no dismiss state. Renders `<GoalCelebrationModal />` (#55) at the top, which fires independently of the #38 banner. `key={date}` on `DailyEntryForm` forces a clean remount per date. |
+| `GoalCelebrationModal.tsx` | Intentional exception to the app's usual quiet, no-badges treatment of hitting a target (compare #6/#8/#29/#34) — a real `Dialog` (#55), not a StatCard note. Backed entirely by `useWeeklyGoalCelebration`; the CTA links to `/goal` and calls `dismiss()`, same as closing via the `X` button or clicking outside. |
 | `index.ts` | Barrel. |
 
 #### `dashboard/` — Epic 5/6, issues #6/#7 (done)
@@ -311,6 +313,7 @@ shadcn-style primitives (Nova preset, `radix-ui` primitives, `cva` variants, ali
 | `number-input.tsx` | `NumberInput` | Same labeled-field pattern as `TextField`, plus a unit suffix slot and an optional `InfoTooltip` (#16). Renders `type="text"` `inputMode="decimal"` (issue #12 — was `type="number"`, which silently rejected the comma decimal separator on some mobile keyboards/locales; pairs with `parseNumberInput()` accepting both `.` and `,`). |
 | `info-tooltip.tsx` | `InfoTooltip` | Radix `Popover`-based tap-triggered info icon (#16) — e.g. the Calories field's day-lag-with-weight explanation. |
 | `toggle-group.tsx` | `ToggleGroup`, `ToggleGroupItem` | Radix `ToggleGroup` wrapper (#43) — replaces raw radio inputs for unit/language/mood/color-scheme (Settings) and List/Calendar (History) toggles. |
+| `dialog.tsx` | `Dialog`, `DialogTrigger`, `DialogContent`, `DialogTitle`, `DialogDescription` | Radix `Dialog` wrapper (#55) — the app's first real modal primitive; every other "detail" surface (History's expand panel, `InfoTooltip`) had used inline/popover patterns instead. `DialogContent` requires a `closeLabel` prop (no visible text on the icon-only close button). |
 | `stat-card.tsx` | `StatCard` | Large numbers-first card: label, big value + unit, optional description — the brief's "numbers should be the largest things" directive as a primitive. |
 | `empty-state.tsx` | `EmptyState` | Calm empty screen (icon/title/description/action) — no guilt copy, per brief §2. |
 | `page-header.tsx` | `PageHeader` | `h1` + description + right-aligned action slot; every screen opens with one. |
@@ -324,6 +327,7 @@ shadcn-style primitives (Nova preset, `radix-ui` primitives, `cva` variants, ali
 | `lib/parseNumberInput.ts` | `parseNumberInput(value)` — normalizes both `.` and `,` decimal separators into a number for React Hook Form's `setValueAs`; empty input → `undefined` (not `NaN`), so Zod's `.optional()` behaves correctly. Ties into #12's mobile-decimal fix. |
 | `hooks/useCurrentWeekInfo.ts` | Fetches only `getEarliestDate()` (not a full scan) and derives `CurrentWeekInfo` (week number/range) via `domain/stats/currentWeekInfo`. Shared by `TodayScreen` and `GoalScreen` (#18). |
 | `hooks/usePreviousDayEntry.ts` | Fetches the `DailyEntry` for `date − 1 day`, backing the day-over-day weight-delta stat on `TodayScreen` (#42) — a distinct, unsmoothed number from the week-over-week delta in `weeklySummaries`. |
+| `hooks/useWeeklyGoalCelebration.ts` | Backs `GoalCelebrationModal` (#55): fetches all entries (direct repository, same "known simplification" pattern as `useDashboardData`/`useHistoryData`) + the active goal, runs `weeklySummaries()`, and returns `shouldCelebrate` (true when the most recent week's `targetMet` just crossed to `true` and that week hasn't been celebrated yet, per `goalCelebrationStore`) + `dismiss()`. Re-fetches whenever `dailyEntryStore.entry` changes, so a target crossed by a save made *during the current visit* to Today shows up without needing a reload. |
 | `hooks/index.ts` | Barrel. |
 | `lib/macroDisplay.ts` | `formatMacroGrams`/`macrosSummaryText` (#51/#52) — shared macro-formatting, extracted from `DailyEntryForm.tsx` for reuse once `EntryRow`/`DayDetail` also needed to show macro totals. `macrosSummaryText` returns `null` when none of protein/fat/carbs were logged at all, so callers can skip rendering a line entirely rather than showing an all-dashes one. |
 
@@ -331,7 +335,7 @@ shadcn-style primitives (Nova preset, `radix-ui` primitives, `cva` variants, ali
 
 ### Tests
 
-Vitest + jsdom + `fake-indexeddb` + React Testing Library + `@testing-library/user-event`. **345 tests across 54 files**, all passing as of issue #53.
+Vitest + jsdom + `fake-indexeddb` + React Testing Library + `@testing-library/user-event`. **351 tests across 55 files**, all passing as of issue #55.
 
 | Area | Covers |
 |------|--------|
@@ -395,9 +399,9 @@ flowchart LR
         D13["#64 Meal emotions: all-emoji for visual consistency"]
         D14["#52 Protein/fat/carbs: History totals (2/3)"]
         D15["#53 Protein/fat/carbs: Dashboard charts (3/3)<br/>— macros epic complete"]
+        D16["#55 Weekly-goal-met celebration modal"]
     end
     subgraph Next ["📋 Open — not started"]
-        N4["#55 Weekly-goal-met celebration modal"]
         N5["#59 Sleep tracking (duration + deep sleep)"]
         N6["#60 Step count tracking"]
         N7["#61 Opt-in menstrual cycle tracker"]

@@ -15,6 +15,12 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    issue: 55,
+    date: '2026-07-15',
+    en: 'A celebration pops up when you reach your weekly goal, with a quick way to set next week\'s target.',
+    ru: 'При достижении цели на неделю теперь появляется поздравление с быстрой ссылкой на цель следующей недели.',
+  },
+  {
     issue: 53,
     date: '2026-07-15',
     en: 'Dashboard now has a protein/fat/carbs trend chart, and weekly summaries show average macros too.',

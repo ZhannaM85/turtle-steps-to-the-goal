@@ -40,6 +40,11 @@ export const ru: Dictionary = {
       'Эта неделя заканчивается сегодня — стоит проверить цель на следующую неделю.',
     reviewGoalLink: 'Посмотреть цель',
     vsYesterdayLabel: 'по сравнению со вчера',
+    celebrationTitle: 'Вы достигли цели на эту неделю!',
+    celebrationDescription:
+      'Отличная работа — хотите задать цель на следующую неделю?',
+    celebrationCta: 'Задать цель на следующую неделю',
+    celebrationCloseLabel: 'Закрыть',
   },
   dailyEntry: {
     weightLabel: 'Вес (кг)',

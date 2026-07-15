@@ -19,6 +19,7 @@ import { PageHeader } from '@/shared/ui/page-header'
 import { StatCard } from '@/shared/ui/stat-card'
 import { useDailyEntryStore, useGoalStore, useUnitStore } from '@/stores'
 import { DailyEntryForm } from './DailyEntryForm'
+import { GoalCelebrationModal } from './GoalCelebrationModal'
 
 function todayIso() {
   return format(new Date(), 'yyyy-MM-dd')
@@ -87,6 +88,7 @@ export function TodayScreen() {
 
   return (
     <div className="flex flex-col gap-6">
+      <GoalCelebrationModal />
       <PageHeader title={t.today.title} description={t.today.description} />
 
       {goalStatus === 'loading' || goalStatus === 'idle' ? (
