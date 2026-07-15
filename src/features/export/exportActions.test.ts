@@ -88,7 +88,7 @@ describe('importAllData', () => {
 
     const backupEntry = makeEntry({ date: '2026-03-01' })
     await importAllData({
-      version: 3,
+      version: 4,
       exportedAt: new Date().toISOString(),
       goals: [],
       dailyEntries: [backupEntry],
@@ -103,12 +103,50 @@ describe('importAllData', () => {
 describe('parseExportBundle', () => {
   it('parses a valid bundle', () => {
     const bundle = {
-      version: 3,
+      version: 4,
       exportedAt: '2026-01-01',
       goals: [],
       dailyEntries: [],
     }
     expect(parseExportBundle(bundle)).toEqual(bundle)
+  })
+
+  it('upgrades a v3 backup by clearing old-format meal emotions (#54)', () => {
+    const v3Bundle = {
+      version: 3,
+      exportedAt: '2026-01-01',
+      goals: [],
+      dailyEntries: [
+        {
+          id: 'entry-1',
+          date: '2026-03-01',
+          weightKg: 80,
+          calorieEntries: [
+            {
+              id: 'meal-1',
+              amountKcal: 500,
+              note: 'Pizza',
+              emotion: 'happy',
+              createdAt: '2026-03-01T00:00:00.000Z',
+            },
+          ],
+          emotion: 'happy',
+          createdAt: '2026-03-01T00:00:00.000Z',
+          updatedAt: '2026-03-01T00:00:00.000Z',
+        },
+      ],
+    }
+
+    const upgraded = parseExportBundle(v3Bundle)
+
+    expect(upgraded.version).toBe(4)
+    // Meal-level emotion is cleared, not translated.
+    expect(upgraded.dailyEntries[0].calorieEntries?.[0]).not.toHaveProperty(
+      'emotion',
+    )
+    expect(upgraded.dailyEntries[0].calorieEntries?.[0].note).toBe('Pizza')
+    // Day-level emotion is untouched — that set didn't change.
+    expect(upgraded.dailyEntries[0].emotion).toBe('happy')
   })
 
   it('upgrades a legacy v2 backup (single caloriesConsumed number) into calorieEntries', () => {
@@ -130,7 +168,7 @@ describe('parseExportBundle', () => {
 
     const upgraded = parseExportBundle(legacyBundle)
 
-    expect(upgraded.version).toBe(3)
+    expect(upgraded.version).toBe(4)
     expect(upgraded.dailyEntries[0]).not.toHaveProperty('caloriesConsumed')
     expect(upgraded.dailyEntries[0].calorieEntries).toEqual([
       {

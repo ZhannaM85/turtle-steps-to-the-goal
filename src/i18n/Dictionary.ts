@@ -50,6 +50,7 @@ export interface Dictionary {
     mealNoteLabel: string
     mealNotePlaceholder: string
     emotionLabel: (emotion: 'happy' | 'unhappy' | 'neutral') => string
+    mealEmotionLabel: (emotion: 'thumbsUp' | 'thumbsDown' | 'bellissimo') => string
     dayMoodLabel: string
   }
   goal: {

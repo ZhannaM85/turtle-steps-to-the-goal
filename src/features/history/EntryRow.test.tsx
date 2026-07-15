@@ -119,7 +119,7 @@ describe('EntryRow', () => {
               id: 'c1',
               amountKcal: 500,
               note: 'Pasta for lunch',
-              emotion: 'happy',
+              emotion: 'thumbsUp',
               createdAt: '2026-01-01T00:00:00.000Z',
             },
           ],
@@ -139,7 +139,7 @@ describe('EntryRow', () => {
               id: 'c1',
               amountKcal: 500,
               note: 'Pasta for lunch',
-              emotion: 'happy',
+              emotion: 'thumbsUp',
               createdAt: '2026-01-01T00:00:00.000Z',
             },
           ],
@@ -150,7 +150,7 @@ describe('EntryRow', () => {
 
       expect(screen.getByText('Meal 1 — 500 kcal')).toBeInTheDocument()
       expect(screen.getByText('Pasta for lunch')).toBeInTheDocument()
-      expect(screen.getByText('Happy')).toBeInTheDocument()
+      expect(screen.getByText('Thumbs up')).toBeInTheDocument()
       // Read-only: no edit affordances leaked into the expanded panel itself.
       expect(screen.queryByLabelText('Weight (kg)')).not.toBeInTheDocument()
       expect(

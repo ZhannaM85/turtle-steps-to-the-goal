@@ -69,6 +69,12 @@ export const en: Dictionary = {
         : emotion === 'unhappy'
           ? 'Unhappy'
           : 'Neutral',
+    mealEmotionLabel: (emotion) =>
+      emotion === 'thumbsUp'
+        ? 'Thumbs up'
+        : emotion === 'thumbsDown'
+          ? 'Thumbs down'
+          : 'Bellissimo',
     dayMoodLabel: 'Mood today',
   },
   goal: {

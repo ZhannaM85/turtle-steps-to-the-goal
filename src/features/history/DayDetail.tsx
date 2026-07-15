@@ -9,7 +9,7 @@ import {
   useLocale,
   useTranslation,
 } from '@/i18n'
-import { EMOTIONS } from '@/shared/lib/emotionIcons'
+import { DAY_EMOTIONS, MEAL_EMOTIONS } from '@/shared/lib/emotionIcons'
 import { cn } from '@/shared/lib/utils'
 import { useUnitStore } from '@/stores'
 
@@ -42,7 +42,9 @@ export function DayDetail({
   const displayUnit = useUnitStore((state) => state.unit)
 
   const meals = entry.calorieEntries ?? []
-  const DayEmotionIcon = EMOTIONS.find((e) => e.value === entry.emotion)?.Icon
+  const DayEmotionIcon = DAY_EMOTIONS.find(
+    (e) => e.value === entry.emotion,
+  )?.Icon
   const hasNoteOrMood = Boolean(entry.note) || Boolean(DayEmotionIcon)
   const hasDetails = hasNoteOrMood || meals.length > 0
 
@@ -91,23 +93,32 @@ export function DayDetail({
       {meals.length > 0 && (
         <ul className="flex flex-col gap-1.5">
           {meals.map((meal, index) => {
-            const MealEmotionIcon = EMOTIONS.find(
+            const mealEmotionOption = MEAL_EMOTIONS.find(
               (e) => e.value === meal.emotion,
-            )?.Icon
+            )
             return (
               <li key={meal.id} className="flex flex-col gap-0.5">
                 <span className="flex items-center gap-1.5">
                   {t.dailyEntry.mealLabel(index + 1)} —{' '}
                   {formatNumber(meal.amountKcal, locale, 0)}{' '}
                   {t.dailyEntry.kcalUnit}
-                  {MealEmotionIcon && (
+                  {mealEmotionOption && (
                     <>
-                      <MealEmotionIcon
-                        aria-hidden="true"
-                        className="size-3.5 text-muted-foreground"
-                      />
+                      {mealEmotionOption.Icon ? (
+                        <mealEmotionOption.Icon
+                          aria-hidden="true"
+                          className="size-3.5 text-muted-foreground"
+                        />
+                      ) : (
+                        <span
+                          aria-hidden="true"
+                          className="text-sm leading-none"
+                        >
+                          {mealEmotionOption.emoji}
+                        </span>
+                      )}
                       <span className="sr-only">
-                        {t.dailyEntry.emotionLabel(meal.emotion!)}
+                        {t.dailyEntry.mealEmotionLabel(meal.emotion!)}
                       </span>
                     </>
                   )}

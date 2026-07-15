@@ -16,9 +16,14 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
-import { Check, GripVertical, Pencil, Trash2 } from 'lucide-react'
+import { Check, GripVertical, Pencil, type LucideIcon, Trash2 } from 'lucide-react'
 import { useForm } from 'react-hook-form'
-import type { CalorieEntry, DailyEntry, Emotion } from '@/domain/dailyEntry'
+import type {
+  CalorieEntry,
+  DailyEntry,
+  Emotion,
+  MealEmotion,
+} from '@/domain/dailyEntry'
 import { totalCalories } from '@/domain/dailyEntry'
 import {
   formatExactNumber,
@@ -28,7 +33,7 @@ import {
   type Dictionary,
   type Locale,
 } from '@/i18n'
-import { EMOTIONS } from '@/shared/lib/emotionIcons'
+import { DAY_EMOTIONS, MEAL_EMOTIONS } from '@/shared/lib/emotionIcons'
 import { parseNumberInput } from '@/shared/lib/parseNumberInput'
 import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/ui/button'
@@ -64,15 +69,20 @@ export interface DailyEntryFormProps {
   alwaysEditable?: boolean
 }
 
-function EmotionPicker({
+/** Generic over both the day's mood (Emotion) and a meal's reaction
+ * (MealEmotion, #54) — the two sets differ, so options/labelFor are passed
+ * in rather than hardcoded, but the picker UI itself is identical. */
+function EmotionPicker<E extends string>({
   value,
   onChange,
-  t,
+  options,
+  labelFor,
   contextLabel,
 }: {
-  value: Emotion | undefined
-  onChange: (emotion: Emotion | undefined) => void
-  t: Dictionary
+  value: E | undefined
+  onChange: (emotion: E | undefined) => void
+  options: { value: E; Icon?: LucideIcon; emoji?: string }[]
+  labelFor: (emotion: E) => string
   /**
    * Disambiguates this picker's buttons from another EmotionPicker visible
    * at the same time (e.g. the always-present Add-flow picker plus a meal
@@ -83,8 +93,8 @@ function EmotionPicker({
 }) {
   return (
     <div className="flex items-center gap-1">
-      {EMOTIONS.map(({ value: emotion, Icon }) => {
-        const label = t.dailyEntry.emotionLabel(emotion)
+      {options.map(({ value: emotion, Icon, emoji }) => {
+        const label = labelFor(emotion)
         return (
           <Button
             key={emotion}
@@ -96,7 +106,13 @@ function EmotionPicker({
             className={cn(value === emotion && 'bg-muted text-foreground')}
             onClick={() => onChange(value === emotion ? undefined : emotion)}
           >
-            <Icon aria-hidden="true" />
+            {Icon ? (
+              <Icon aria-hidden="true" />
+            ) : (
+              <span aria-hidden="true" className="text-base leading-none">
+                {emoji}
+              </span>
+            )}
           </Button>
         )
       })}
@@ -113,10 +129,10 @@ interface MealListItemProps {
   isConfirmingDelete: boolean
   editAmount: string
   editNote: string
-  editEmotion: Emotion | undefined
+  editEmotion: MealEmotion | undefined
   onEditAmountChange: (value: string) => void
   onEditNoteChange: (value: string) => void
-  onEditEmotionChange: (emotion: Emotion | undefined) => void
+  onEditEmotionChange: (emotion: MealEmotion | undefined) => void
   onStartEdit: () => void
   onSaveEdit: () => void
   onRequestDelete: () => void
@@ -152,7 +168,7 @@ function MealListItem({
     isDragging,
   } = useSortable({ id: entry.id, disabled: isEditing || isConfirmingDelete })
   const style = { transform: CSS.Transform.toString(transform), transition }
-  const EmotionIcon = EMOTIONS.find((e) => e.value === entry.emotion)?.Icon
+  const mealEmotionOption = MEAL_EMOTIONS.find((e) => e.value === entry.emotion)
 
   if (isConfirmingDelete) {
     return (
@@ -244,7 +260,8 @@ function MealListItem({
           <EmotionPicker
             value={editEmotion}
             onChange={onEditEmotionChange}
-            t={t}
+            options={MEAL_EMOTIONS}
+            labelFor={t.dailyEntry.mealEmotionLabel}
             contextLabel={t.dailyEntry.mealLabel(position)}
           />
         </div>
@@ -274,14 +291,20 @@ function MealListItem({
           </button>
           {t.dailyEntry.mealLabel(position)} —{' '}
           {formatNumber(entry.amountKcal, locale, 0)} {t.dailyEntry.kcalUnit}
-          {EmotionIcon && (
+          {mealEmotionOption && (
             <>
-              <EmotionIcon
-                aria-hidden="true"
-                className="size-3.5 text-muted-foreground"
-              />
+              {mealEmotionOption.Icon ? (
+                <mealEmotionOption.Icon
+                  aria-hidden="true"
+                  className="size-3.5 text-muted-foreground"
+                />
+              ) : (
+                <span aria-hidden="true" className="text-sm leading-none">
+                  {mealEmotionOption.emoji}
+                </span>
+              )}
               <span className="sr-only">
-                {t.dailyEntry.emotionLabel(entry.emotion!)}
+                {t.dailyEntry.mealEmotionLabel(entry.emotion!)}
               </span>
             </>
           )}
@@ -332,7 +355,9 @@ export function DailyEntryForm({
   )
   const [addAmount, setAddAmount] = useState('')
   const [addNote, setAddNote] = useState('')
-  const [addEmotion, setAddEmotion] = useState<Emotion | undefined>(undefined)
+  const [addEmotion, setAddEmotion] = useState<MealEmotion | undefined>(
+    undefined,
+  )
   // Whether Weight/Note render as an editable input rather than read-only
   // display + pencil. Deliberately NOT derived from the live watched value —
   // that would flip to display mode mid-keystroke on every first character
@@ -348,9 +373,9 @@ export function DailyEntryForm({
   const [editingMealId, setEditingMealId] = useState<string | null>(null)
   const [editMealAmount, setEditMealAmount] = useState('')
   const [editMealNote, setEditMealNote] = useState('')
-  const [editMealEmotion, setEditMealEmotion] = useState<Emotion | undefined>(
-    undefined,
-  )
+  const [editMealEmotion, setEditMealEmotion] = useState<
+    MealEmotion | undefined
+  >(undefined)
   const [confirmDeleteMealId, setConfirmDeleteMealId] = useState<string | null>(
     null,
   )
@@ -387,7 +412,7 @@ export function DailyEntryForm({
   const note = watch('note')
   const dayEmotion = watch('emotion')
   const calorieEntries = watch('calorieEntries') ?? []
-  const DayEmotionIcon = EMOTIONS.find((e) => e.value === dayEmotion)?.Icon
+  const DayEmotionIcon = DAY_EMOTIONS.find((e) => e.value === dayEmotion)?.Icon
 
   const showWeightAsDisplay = !alwaysEditable && !isEditingWeight
   const showNoteAsDisplay = !alwaysEditable && !isEditingNote
@@ -650,7 +675,12 @@ export function DailyEntryForm({
               }}
               className="h-7 flex-1"
             />
-            <EmotionPicker value={addEmotion} onChange={setAddEmotion} t={t} />
+            <EmotionPicker
+              value={addEmotion}
+              onChange={setAddEmotion}
+              options={MEAL_EMOTIONS}
+              labelFor={t.dailyEntry.mealEmotionLabel}
+            />
           </div>
           <datalist id={MEAL_ITEMS_DATALIST_ID}>
             {mealItems.map((item) => (
@@ -728,7 +758,8 @@ export function DailyEntryForm({
             <EmotionPicker
               value={dayEmotion}
               onChange={setDayEmotion}
-              t={t}
+              options={DAY_EMOTIONS}
+              labelFor={t.dailyEntry.emotionLabel}
               contextLabel={t.dailyEntry.dayMoodLabel}
             />
           </div>

@@ -404,7 +404,7 @@ describe('DailyEntryForm', () => {
         screen.getByLabelText('Meal note'),
         'Ate chocolates, they were good.',
       )
-      await user.click(screen.getByRole('button', { name: 'Happy' }))
+      await user.click(screen.getByRole('button', { name: 'Thumbs up' }))
       await user.click(screen.getByRole('button', { name: 'Add' }))
 
       expect(screen.getByText('Meal 1 — 200 kcal')).toBeInTheDocument()
@@ -489,18 +489,18 @@ describe('DailyEntryForm', () => {
         />,
       )
 
-      const happyButton = screen.getByRole('button', { name: 'Happy' })
-      await user.click(happyButton)
-      expect(happyButton).toHaveAttribute('aria-pressed', 'true')
+      const thumbsUpButton = screen.getByRole('button', { name: 'Thumbs up' })
+      await user.click(thumbsUpButton)
+      expect(thumbsUpButton).toHaveAttribute('aria-pressed', 'true')
 
-      await user.click(happyButton)
-      expect(happyButton).toHaveAttribute('aria-pressed', 'false')
+      await user.click(thumbsUpButton)
+      expect(thumbsUpButton).toHaveAttribute('aria-pressed', 'false')
 
       await user.type(screen.getByLabelText('Add calories'), '150')
       await user.click(screen.getByRole('button', { name: 'Add' }))
 
       expect(screen.getByText('Meal 1 — 150 kcal')).toBeInTheDocument()
-      expect(screen.queryByText('Happy')).not.toBeInTheDocument()
+      expect(screen.queryByText('Thumbs up')).not.toBeInTheDocument()
     })
 
     it('ignores a quick-add of zero or an empty amount', async () => {
@@ -606,14 +606,32 @@ describe('DailyEntryForm', () => {
           screen.getByLabelText('Meal note — Meal 1'),
           'Ate a salad, it was good.',
         )
-        await user.click(screen.getByRole('button', { name: 'Happy — Meal 1' }))
+        await user.click(
+          screen.getByRole('button', { name: 'Thumbs up — Meal 1' }),
+        )
         await user.click(screen.getByRole('button', { name: 'Save' }))
 
         expect(
           screen.getByText('Ate a salad, it was good.'),
         ).toBeInTheDocument()
-        expect(screen.getByText('Happy')).toBeInTheDocument()
+        expect(screen.getByText('Thumbs up')).toBeInTheDocument()
         expect(onSave).toHaveBeenCalledTimes(1)
+      })
+
+      it('renders bellissimo as the 🤌 emoji, not a lucide icon (#54)', async () => {
+        const user = userEvent.setup()
+        renderWithMeals(vi.fn())
+
+        await user.click(screen.getByRole('button', { name: 'Edit meal 1' }))
+        await user.click(
+          screen.getByRole('button', { name: 'Bellissimo — Meal 1' }),
+        )
+        await user.click(screen.getByRole('button', { name: 'Save' }))
+
+        // Appears twice: the now-selected picker button, and the saved
+        // meal's own display — both render the emoji, not a lucide icon.
+        expect(screen.getAllByText('🤌').length).toBeGreaterThan(0)
+        expect(screen.getByText('Bellissimo')).toBeInTheDocument()
       })
 
       it('has a reorder handle for each meal', () => {

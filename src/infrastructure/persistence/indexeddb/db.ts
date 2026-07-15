@@ -44,6 +44,27 @@ export class AppDatabase extends Dexie {
       dailyEntries: 'id, &date',
       mealItems: 'id, &name',
     })
+    // #54: a meal's own emotion moves from the day's happy/unhappy/neutral
+    // set to thumbsUp/thumbsDown/bellissimo. No auto-mapping (decided when
+    // #54 was scoped) — clear existing meal-level emotion values outright
+    // rather than guessing a translation. The day's own emotion (DailyEntry.
+    // emotion) is untouched, that set isn't changing.
+    this.version(4)
+      .stores({
+        goals: 'id, createdAt',
+        dailyEntries: 'id, &date',
+        mealItems: 'id, &name',
+      })
+      .upgrade((tx) =>
+        tx
+          .table('dailyEntries')
+          .toCollection()
+          .modify((entry) => {
+            for (const meal of entry.calorieEntries ?? []) {
+              delete meal.emotion
+            }
+          }),
+      )
   }
 }
 

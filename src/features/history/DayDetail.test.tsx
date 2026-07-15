@@ -44,7 +44,7 @@ describe('DayDetail', () => {
               id: 'c1',
               amountKcal: 500,
               note: 'Pasta for lunch',
-              emotion: 'neutral',
+              emotion: 'thumbsUp',
               createdAt: '2026-01-01T00:00:00.000Z',
             },
           ],
@@ -56,7 +56,27 @@ describe('DayDetail', () => {
     expect(screen.getByText('Happy')).toBeInTheDocument()
     expect(screen.getByText('Meal 1 — 500 kcal')).toBeInTheDocument()
     expect(screen.getByText('Pasta for lunch')).toBeInTheDocument()
-    expect(screen.getByText('Neutral')).toBeInTheDocument()
+    expect(screen.getByText('Thumbs up')).toBeInTheDocument()
+  })
+
+  it("shows a meal's bellissimo reaction as the 🤌 emoji, not an icon (#54)", () => {
+    render(
+      <DayDetail
+        entry={makeEntry({
+          calorieEntries: [
+            {
+              id: 'c1',
+              amountKcal: 500,
+              emotion: 'bellissimo',
+              createdAt: '2026-01-01T00:00:00.000Z',
+            },
+          ],
+        })}
+      />,
+    )
+
+    expect(screen.getByText('🤌')).toBeInTheDocument()
+    expect(screen.getByText('Bellissimo')).toBeInTheDocument()
   })
 
   it('only shows the date/weight/calories header when standalone', () => {

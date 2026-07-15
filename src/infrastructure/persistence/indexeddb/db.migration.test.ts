@@ -32,6 +32,24 @@ beforeAll(async () => {
       createdAt: '2026-01-02T00:00:00.000Z',
       updatedAt: '2026-01-02T00:00:00.000Z',
     },
+    {
+      id: 'legacy-3',
+      date: '2026-01-03',
+      // Already itemized (skips the v1->v2 caloriesConsumed wrap) but with
+      // an old-format meal emotion from before #54 — this is what the
+      // v3->v4 .upgrade() below needs to clear.
+      calorieEntries: [
+        {
+          id: 'legacy-meal-1',
+          amountKcal: 500,
+          emotion: 'happy',
+          createdAt: '2026-01-03T00:00:00.000Z',
+        },
+      ],
+      emotion: 'unhappy',
+      createdAt: '2026-01-03T00:00:00.000Z',
+      updatedAt: '2026-01-03T00:00:00.000Z',
+    },
   ])
   legacyDb.close()
 })
@@ -55,5 +73,15 @@ describe('AppDatabase v1 -> v2 migration', () => {
 
     expect(migrated?.calorieEntries).toBeUndefined()
     expect(migrated?.weightKg).toBe(80)
+  })
+})
+
+describe('AppDatabase v3 -> v4 migration', () => {
+  it('clears an old-format meal emotion, leaving the day emotion untouched', async () => {
+    const migrated = await db.dailyEntries.get('legacy-3')
+
+    expect(migrated?.calorieEntries?.[0]).not.toHaveProperty('emotion')
+    expect(migrated?.calorieEntries?.[0].amountKcal).toBe(500)
+    expect(migrated?.emotion).toBe('unhappy')
   })
 })

@@ -70,6 +70,12 @@ export const ru: Dictionary = {
         : emotion === 'unhappy'
           ? 'Грустно'
           : 'Нейтрально',
+    mealEmotionLabel: (emotion) =>
+      emotion === 'thumbsUp'
+        ? 'Нравится'
+        : emotion === 'thumbsDown'
+          ? 'Не понравилось'
+          : 'Объедение',
     dayMoodLabel: 'Настроение за день',
   },
   goal: {

@@ -108,7 +108,7 @@ Pure TypeScript. Unit-testable with no DOM. If a file here ever needs `react`, `
 
 | File | Purpose |
 |------|---------|
-| `DailyEntry.ts` | The entity: one row per `date` (ISO string, unique). `weightKg?`, `note?`, `emotion?` (the **day's overall mood**, distinct from any meal's own emotion — #44), `calorieEntries?: CalorieEntry[]` — itemized per-meal list (#21), replacing the original single `caloriesConsumed` number. `CalorieEntry` (same file): `id`, `amountKcal`, `note?` (per-meal text, #28), `emotion?` (per-meal happy/unhappy/neutral, #28 — shares the same `Emotion` type as the day's mood today), `createdAt`. |
+| `DailyEntry.ts` | The entity: one row per `date` (ISO string, unique). `weightKg?`, `note?`, `emotion?: Emotion` (the **day's overall mood**, distinct from any meal's own emotion — #44; `Emotion = 'happy' \| 'unhappy' \| 'neutral'`, unchanged by #54), `calorieEntries?: CalorieEntry[]` — itemized per-meal list (#21), replacing the original single `caloriesConsumed` number. `CalorieEntry` (same file): `id`, `amountKcal`, `note?` (per-meal text, #28), `emotion?: MealEmotion` (per-meal reaction, #28 — since #54 a **separate, smaller set**: `MealEmotion = 'thumbsUp' \| 'thumbsDown' \| 'bellissimo'`, no longer sharing `Emotion` with the day's mood), `createdAt`. |
 | `totalCalories.ts` | `totalCalories(entries)` — sums a day's `calorieEntries`; returns `undefined` (not `0`) when there are none, so "no data" and "logged zero" stay distinguishable everywhere this is displayed. |
 | `DailyEntryRepository.ts` | Interface: `getByDate(date)`, `getRange(start, end)`, `upsert(entry)`, `delete(id)`, `getAll()`, `getEarliestDate()` (added for #18 — a cheap indexed lookup, not a full-table scan, used by `useCurrentWeekInfo`). |
 | `index.ts` | Barrel. |
@@ -152,6 +152,7 @@ The only folder allowed to import Dexie.
 | 1 | `goals: 'id, createdAt'`, `dailyEntries: 'id, &date'` (`&date` unique — one entry per date at the storage level). |
 | 2 (#21) | Same store shape (no index changes) + an `.upgrade()` block: for each `dailyEntries` row, if a legacy `caloriesConsumed` number exists and no `calorieEntries` yet, it's wrapped into a single-item `calorieEntries` array (new `crypto.randomUUID()` id, reuses the row's `createdAt`), then `caloriesConsumed` is deleted. |
 | 3 (#50) | Adds `mealItems: 'id, &name'` (`&name` unique). New store only, no `.upgrade()` needed — nothing pre-existing to migrate. |
+| 4 (#54) | Same store shape (no index changes) + an `.upgrade()` block: strips `emotion` from every item in each `dailyEntries` row's `calorieEntries[]` (old happy/unhappy/neutral values don't map to the new thumbsUp/thumbsDown/bellissimo set — cleared outright, no auto-mapping). The row's own top-level `emotion` (day mood) is untouched. |
 
 Database name: `turtle-steps-to-the-goal`. `db.migration.test.ts` seeds a raw v1-schema Dexie instance with a legacy `caloriesConsumed` row plus an untouched `weightKg`-only row, then opens the real `db` and asserts the upgrade did exactly the expected transformation and nothing more.
 
@@ -223,7 +224,7 @@ No longer a simple single-submit form. Current shape:
 |------|---------|
 | `dailyEntryFormSchema.ts` | Zod schema; `weightSchema` (20–400kg), `noteSchema`, per-meal `calorieEntrySchema` (`amountKcal` 0–10000, optional `note`/`emotion`). No longer requires "at least one of weight or calories" — see #31 below. |
 | `dailyEntryFormMapping.ts` | `entryToFormValues`, `formValuesToEntry`. |
-| `DailyEntryForm.tsx` | The big one. Weight and Note render **read-only with a pencil-to-edit toggle** once saved (#21), rather than always-editable inputs — except when the `alwaysEditable` prop is set (used by History's inline edit, where "Edit entry" is already the explicit edit gesture). **No single submit button** (#31): Weight, Note, and each meal save independently and immediately via `onSave`, which can fire many times in one session. Calorie entries are itemized (`CalorieEntry[]`, #21) with a "+ kcal" quick-add row (note + `EmotionPicker` inline), per-meal edit/delete, and **drag-and-drop reordering** via `@dnd-kit/core` + `@dnd-kit/sortable` (#36, pointer + keyboard sensors, grip handle per row). `EmotionPicker` + the shared `EMOTIONS` constant (`src/shared/lib/emotionIcons.ts`) render the same three icons (`Smile`/`Meh`/`Frown`) for both a meal's own emotion and the day's overall mood (`DailyEntry.emotion`, #44) — they are visually and structurally identical today, disambiguated only by an ARIA `contextLabel` when both pickers are on screen at once. Both the add-meal and edit-meal note inputs share a single `<datalist>` (`#50`, `MEAL_ITEMS_DATALIST_ID`) populated from `useMealItemStore`, offering previously-used meal names as native browser autocomplete; saving a meal with a non-empty note calls `touch(name)` to upsert it into the library. |
+| `DailyEntryForm.tsx` | The big one. Weight and Note render **read-only with a pencil-to-edit toggle** once saved (#21), rather than always-editable inputs — except when the `alwaysEditable` prop is set (used by History's inline edit, where "Edit entry" is already the explicit edit gesture). **No single submit button** (#31): Weight, Note, and each meal save independently and immediately via `onSave`, which can fire many times in one session. Calorie entries are itemized (`CalorieEntry[]`, #21) with a "+ kcal" quick-add row (note + `EmotionPicker` inline), per-meal edit/delete, and **drag-and-drop reordering** via `@dnd-kit/core` + `@dnd-kit/sortable` (#36, pointer + keyboard sensors, grip handle per row). `EmotionPicker` is generic over both emotion sets (`<E extends string>`, taking `options`/`labelFor` props) — the day's overall mood (`DailyEntry.emotion`, #44) uses `DAY_EMOTIONS` (`Smile`/`Meh`/`Frown`), a meal's own reaction uses `MEAL_EMOTIONS` (thumbs up/down + "bellissimo" as the 🤌 emoji, #54) — two different sets since #54 split them, disambiguated (when both pickers are visible at once) by an ARIA `contextLabel`. Both the add-meal and edit-meal note inputs share a single `<datalist>` (`#50`, `MEAL_ITEMS_DATALIST_ID`) populated from `useMealItemStore`, offering previously-used meal names as native browser autocomplete; saving a meal with a non-empty note calls `touch(name)` to upsert it into the library. |
 | `TodayScreen.tsx` | A native `<input type="date">` (capped at today via `max`) drives which date's entry is loaded/edited. Shows "This week's target" `StatCard` (via `useCurrentWeekInfo`) or an `EmptyState` pointing at `/goal` when no goal exists. A second `StatCard` shows the day-over-day weight delta (#42, via `usePreviousDayEntry`) with asymmetric emphasis — bold for a loss, muted for a gain/no-change, matching #29's treatment. A quiet end-of-week banner (#38) nudges toward `/goal` on the last day of the ISO week, no dismiss state. `key={date}` on `DailyEntryForm` forces a clean remount per date. |
 | `index.ts` | Barrel. |
 
@@ -270,9 +271,9 @@ Fully built, redesigned in #43 around a consistent `Card`-per-section layout wit
 
 | File | Purpose |
 |------|---------|
-| `exportBundleSchema.ts` | Current schema is **`version: 3`** (bumped from 2 for #21's itemized `calorieEntries`). A parallel legacy `exportBundleSchemaV2` (flat `caloriesConsumed: number`) is kept alongside it purely so old backup files stay importable. |
-| `exportBundle.ts` | `buildExportBundle(goals, dailyEntries)` — stamps `version: 3` + `exportedAt`. |
-| `exportActions.ts` | `exportAllData()` (reads both repositories' `getAll()`), `importAllData(bundle)` (upserts every goal/entry — merge, not destructive replace), `parseExportBundle(raw)` — tries the current v3 schema first, falls back to v2 and upgrades it in-memory, otherwise throws `InvalidBackupFileError` with a user-facing message. |
+| `exportBundleSchema.ts` | Current schema is **`version: 4`** (bumped from 3 for #54's meal-emotion split). Two parallel legacy schemas are kept alongside it so old backup files stay importable: `exportBundleSchemaV3` (meal `emotion` still using the day's happy/unhappy/neutral set) and `exportBundleSchemaV2` (flat `caloriesConsumed: number`, pre-#21). |
+| `exportBundle.ts` | `buildExportBundle(goals, dailyEntries)` — stamps `version: 4` + `exportedAt`. |
+| `exportActions.ts` | `exportAllData()` (reads both repositories' `getAll()`), `importAllData(bundle)` (upserts every goal/entry — merge, not destructive replace), `parseExportBundle(raw)` — tries the current v4 schema first, falls back to v3 (clears old-format meal emotions, same policy as the IndexedDB v3→v4 migration) then v2 (wraps `caloriesConsumed`), otherwise throws `InvalidBackupFileError` with a user-facing message. |
 | `ExportSection.tsx` | The export/import UI as a `Card`-content fragment (no `PageHeader` — it's meant to be dropped inside Settings' own `Card`, not rendered as a standalone screen anymore). Export downloads a JSON file via `Blob` + a synthetic anchor click; import is a hidden file input. Reports counts via a hand-written pluralizer, not a naive `+'s'`. |
 | `index.ts` | `ExportSection` only — no `ExportScreen` anymore. |
 
@@ -316,7 +317,7 @@ shadcn-style primitives (Nova preset, `radix-ui` primitives, `cva` variants, ali
 | File | Purpose |
 |------|---------|
 | `lib/utils.ts` | `cn()` — `clsx` + `tailwind-merge`. |
-| `lib/emotionIcons.ts` | `EMOTIONS: { value: Emotion; Icon: LucideIcon }[]` — the canonical happy/neutral/unhappy → `Smile`/`Meh`/`Frown` mapping, shared by `DailyEntryForm`, `DayDetail`, and `EntryRow`. |
+| `lib/emotionIcons.ts` | `DAY_EMOTIONS: { value: Emotion; Icon: LucideIcon }[]` — happy/neutral/unhappy → `Smile`/`Meh`/`Frown`. `MEAL_EMOTIONS: { value: MealEmotion; Icon?: LucideIcon; emoji?: string }[]` (#54) — thumbsUp/thumbsDown → `ThumbsUp`/`ThumbsDown`, `bellissimo` → the 🤌 emoji literal (`emoji`, no `Icon`) since lucide-react has no pinched-fingers/chef's-kiss icon. Both consumed by `DailyEntryForm` and `DayDetail`. |
 | `lib/parseNumberInput.ts` | `parseNumberInput(value)` — normalizes both `.` and `,` decimal separators into a number for React Hook Form's `setValueAs`; empty input → `undefined` (not `NaN`), so Zod's `.optional()` behaves correctly. Ties into #12's mobile-decimal fix. |
 | `hooks/useCurrentWeekInfo.ts` | Fetches only `getEarliestDate()` (not a full scan) and derives `CurrentWeekInfo` (week number/range) via `domain/stats/currentWeekInfo`. Shared by `TodayScreen` and `GoalScreen` (#18). |
 | `hooks/usePreviousDayEntry.ts` | Fetches the `DailyEntry` for `date − 1 day`, backing the day-over-day weight-delta stat on `TodayScreen` (#42) — a distinct, unsmoothed number from the week-over-week delta in `weeklySummaries`. |
@@ -326,7 +327,7 @@ shadcn-style primitives (Nova preset, `radix-ui` primitives, `cva` variants, ali
 
 ### Tests
 
-Vitest + jsdom + `fake-indexeddb` + React Testing Library + `@testing-library/user-event`. **314 tests across 50 files**, all passing as of issue #50.
+Vitest + jsdom + `fake-indexeddb` + React Testing Library + `@testing-library/user-event`. **318 tests across 50 files**, all passing as of issue #54.
 
 | Area | Covers |
 |------|--------|
@@ -384,10 +385,10 @@ flowchart LR
         D7["#57 Weight display: show full entered precision"]
         D8["#58 Add a README with screenshots"]
         D9["#50 Reusable meal items (autocomplete + library)"]
+        D10["#54 Meal emotions: thumbs-up/down + bellissimo"]
     end
     subgraph Next ["📋 Open — not started"]
         N2["#51-#53 Protein/fat/carbs macros<br/>(capture, History, Dashboard — split epic)"]
-        N3["#54 Meal emotions: thumbs-up/down + bellissimo"]
         N4["#55 Weekly-goal-met celebration modal"]
         N5["#59 Sleep tracking (duration + deep sleep)"]
         N6["#60 Step count tracking"]

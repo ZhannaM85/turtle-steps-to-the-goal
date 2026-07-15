@@ -6,6 +6,7 @@ import { buildExportBundle } from './exportBundle'
 import {
   exportBundleSchema,
   exportBundleSchemaV2,
+  exportBundleSchemaV3,
   type ExportBundle,
 } from './exportBundleSchema'
 
@@ -34,11 +35,31 @@ export function parseExportBundle(raw: unknown): ExportBundle {
   const current = exportBundleSchema.safeParse(raw)
   if (current.success) return current.data
 
+  // v3 -> v4 (#54): meal-level emotion used the day's happy/unhappy/neutral
+  // set. No auto-mapping to thumbsUp/thumbsDown/bellissimo (decided when
+  // #54 was scoped) — old meal emotions are cleared, not translated.
+  const v3 = exportBundleSchemaV3.safeParse(raw)
+  if (v3.success) {
+    return {
+      ...v3.data,
+      version: 4,
+      dailyEntries: v3.data.dailyEntries.map((entry) => ({
+        ...entry,
+        calorieEntries: entry.calorieEntries?.map((meal) => ({
+          id: meal.id,
+          amountKcal: meal.amountKcal,
+          note: meal.note,
+          createdAt: meal.createdAt,
+        })),
+      })),
+    }
+  }
+
   const legacy = exportBundleSchemaV2.safeParse(raw)
   if (legacy.success) {
     return {
       ...legacy.data,
-      version: 3,
+      version: 4,
       dailyEntries: legacy.data.dailyEntries.map(
         ({ caloriesConsumed, ...entry }) => ({
           ...entry,
