@@ -49,13 +49,13 @@ describe('HistoryScreen', () => {
     await screen.findByRole('table')
 
     const rowsInitial = screen.getAllByRole('row').slice(1) // skip header row
-    expect(within(rowsInitial[0]).getByText('80.0 kg')).toBeInTheDocument()
+    expect(within(rowsInitial[0]).getByText('80 kg')).toBeInTheDocument()
 
     const user = userEvent.setup()
     await user.click(screen.getByRole('button', { name: 'Sort by date' }))
 
     const rowsAfterSort = screen.getAllByRole('row').slice(1)
-    expect(within(rowsAfterSort[0]).getByText('82.0 kg')).toBeInTheDocument()
+    expect(within(rowsAfterSort[0]).getByText('82 kg')).toBeInTheDocument()
   })
 
   it('deletes an entry after confirming, and it disappears from the table', async () => {
@@ -152,7 +152,7 @@ describe('HistoryScreen', () => {
 
       const rows = screen.getAllByRole('row').slice(1)
       expect(rows).toHaveLength(1)
-      expect(screen.getByText('81.0 kg')).toBeInTheDocument()
+      expect(screen.getByText('81 kg')).toBeInTheDocument()
     })
 
     it('shows a dedicated empty state when the filter matches nothing, distinct from the true empty state', async () => {

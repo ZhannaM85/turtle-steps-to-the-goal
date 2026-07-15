@@ -166,7 +166,7 @@ describe('DailyEntryForm', () => {
         />,
       )
 
-      expect(screen.getByText('80.0 kg')).toBeInTheDocument()
+      expect(screen.getByText('80 kg')).toBeInTheDocument()
       expect(
         screen.queryByRole('button', { name: 'Save weight' }),
       ).not.toBeInTheDocument()

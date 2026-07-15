@@ -181,7 +181,7 @@ New layer since the app's first localization pass. English and Russian, with the
 | `en.ts` / `ru.ts` | Full `Dictionary` implementations for each locale. |
 | `localeStore.ts` | `Locale = 'en' \| 'ru'`. `useLocaleStore` (Zustand + `persist`, `localStorage` key `turtle-steps-locale`, default from `detectDefaultLocale()` sniffing `navigator.language`). Free functions `getDictionary(locale)`; hooks `useTranslation()` (full `Dictionary` for the current locale) and `useLocale()` (just the `Locale` string). `SettingsScreen` is the only place that calls `setLocale`. |
 | `dateLocale.ts` | `getDateFnsLocale(locale)` — maps to `date-fns/locale`'s `enUS`/`ru`, used everywhere `date-fns format()` needs localized month/weekday names. |
-| `formatNumber.ts` | `formatNumber(value, locale, fractionDigits = 1)` and `formatSignedNumber(value, locale)` (always shows an explicit +/−) — both via `Intl.NumberFormat` with `ru-RU`/`en-US`, so Russian gets a decimal comma automatically. |
+| `formatNumber.ts` | `formatNumber(value, locale, fractionDigits = 1)` and `formatSignedNumber(value, locale)` (always shows an explicit +/−) — both via `Intl.NumberFormat` with `ru-RU`/`en-US`, so Russian gets a decimal comma automatically. `formatExactNumber(value, locale)` (#57, `minimumFractionDigits: 0, maximumFractionDigits: 2`) is for values that were directly entered or are a plain subtraction of two entered values (e.g. weight), where the fixed-1-decimal formatters would round away what the user actually typed — a whole number stays unpadded ("60", not "60.0"), and the max-2 cap both covers typical entered precision and rounds away floating-point subtraction noise. Computed/averaged values (weekly summaries, chart axes) intentionally keep using `formatNumber`'s fixed decimal count. |
 | `unitLabel.ts` | `unitLabel(unit, dictionary)` → `t.common.kg` / `t.common.lb`. |
 | `ruPluralize.ts` | Standalone Russian plural-form selector (1 / 2–4 / 5+, with the 11–14 exception) for count-based Russian copy. |
 | `index.ts` | Barrel. |
@@ -310,7 +310,7 @@ shadcn-style primitives (Nova preset, `radix-ui` primitives, `cva` variants, ali
 
 ### Tests
 
-Vitest + jsdom + `fake-indexeddb` + React Testing Library + `@testing-library/user-event`. **289 tests across 47 files**, all passing as of issue #49.
+Vitest + jsdom + `fake-indexeddb` + React Testing Library + `@testing-library/user-event`. **294 tests across 48 files**, all passing as of issue #57.
 
 | Area | Covers |
 |------|--------|
@@ -365,14 +365,14 @@ flowchart LR
     end
     subgraph Done3 ["✅ Tier 9 — second live-feedback wave (in progress)"]
         D6["#56 Signed weekly-target display (-0.5 kg)"]
+        D7["#57 Weight display: show full entered precision"]
     end
     subgraph Next ["📋 Open — filed 2026-07-15, not started"]
         N1["#50 Reusable meal items (autocomplete + library)"]
         N2["#51-#53 Protein/fat/carbs macros<br/>(capture, History, Dashboard — split epic)"]
         N3["#54 Meal emotions: thumbs-up/down + bellissimo"]
         N4["#55 Weekly-goal-met celebration modal"]
-        N5["#57 Weight display: show full entered precision"]
-        N6["#58 Add a README with screenshots"]
+        N5["#58 Add a README with screenshots"]
     end
     Done1 --> Done2 --> Done3 --> Next
 ```

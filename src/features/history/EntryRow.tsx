@@ -4,6 +4,7 @@ import { ChevronDown, ChevronUp, Pencil, Trash2 } from 'lucide-react'
 import { totalCalories, type DailyEntry } from '@/domain/dailyEntry'
 import { kgToLb } from '@/domain/goal'
 import {
+  formatExactNumber,
   formatNumber,
   getDateFnsLocale,
   unitLabel,
@@ -48,7 +49,7 @@ export function EntryRow({
   const weightDisplay =
     entry.weightKg === undefined
       ? '—'
-      : `${formatNumber(displayUnit === 'lb' ? kgToLb(entry.weightKg) : entry.weightKg, locale)} ${unitLabel(displayUnit, t)}`
+      : `${formatExactNumber(displayUnit === 'lb' ? kgToLb(entry.weightKg) : entry.weightKg, locale)} ${unitLabel(displayUnit, t)}`
   const calories = totalCalories(entry.calorieEntries)
   const caloriesDisplay =
     calories === undefined ? '—' : formatNumber(calories, locale, 0)

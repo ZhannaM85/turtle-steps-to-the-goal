@@ -21,6 +21,7 @@ import { useForm } from 'react-hook-form'
 import type { CalorieEntry, DailyEntry, Emotion } from '@/domain/dailyEntry'
 import { totalCalories } from '@/domain/dailyEntry'
 import {
+  formatExactNumber,
   formatNumber,
   useLocale,
   useTranslation,
@@ -478,7 +479,7 @@ export function DailyEntryForm({
           </span>
           <div className="flex items-center justify-between rounded-lg bg-muted px-3 py-2">
             <span className="text-sm text-foreground">
-              {formatNumber(weightKg!, locale)} {t.common.kg}
+              {formatExactNumber(weightKg!, locale)} {t.common.kg}
             </span>
             <Button
               type="button"

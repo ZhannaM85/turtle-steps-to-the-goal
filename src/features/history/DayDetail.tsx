@@ -2,6 +2,7 @@ import { format, parseISO } from 'date-fns'
 import { totalCalories, type DailyEntry } from '@/domain/dailyEntry'
 import { kgToLb } from '@/domain/goal'
 import {
+  formatExactNumber,
   formatNumber,
   getDateFnsLocale,
   unitLabel,
@@ -48,7 +49,7 @@ export function DayDetail({
   const weightDisplay =
     entry.weightKg === undefined
       ? '—'
-      : `${formatNumber(displayUnit === 'lb' ? kgToLb(entry.weightKg) : entry.weightKg, locale)} ${unitLabel(displayUnit, t)}`
+      : `${formatExactNumber(displayUnit === 'lb' ? kgToLb(entry.weightKg) : entry.weightKg, locale)} ${unitLabel(displayUnit, t)}`
   const calories = totalCalories(entry.calorieEntries)
   const caloriesDisplay =
     calories === undefined ? '—' : formatNumber(calories, locale, 0)

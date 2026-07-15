@@ -3,6 +3,7 @@ import { format, parseISO } from 'date-fns'
 import { Link } from 'react-router-dom'
 import { kgToLb } from '@/domain/goal'
 import {
+  formatExactNumber,
   formatNumber,
   getDateFnsLocale,
   unitLabel,
@@ -60,7 +61,7 @@ export function TodayScreen() {
   const weightDeltaText =
     weightDeltaKg === null
       ? null
-      : formatNumber(toDisplay(weightDeltaKg), locale)
+      : formatExactNumber(toDisplay(weightDeltaKg), locale)
   const isWeightLoss = weightDeltaKg !== null && weightDeltaKg < 0
   // Same asymmetric emphasis as the weekly summary cards (#29): a loss is
   // worth noticing, a gain or no-change stays quiet rather than a stark

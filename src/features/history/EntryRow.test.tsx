@@ -37,7 +37,7 @@ describe('EntryRow', () => {
     renderRow()
 
     expect(screen.getByText('2,000')).toBeInTheDocument()
-    expect(screen.getByText('80.0 kg')).toBeInTheDocument()
+    expect(screen.getByText('80 kg')).toBeInTheDocument()
     expect(screen.getAllByText('—')).not.toHaveLength(0)
   })
 

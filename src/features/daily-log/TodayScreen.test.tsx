@@ -334,7 +334,7 @@ describe('TodayScreen', () => {
         </MemoryRouter>,
       )
 
-      await screen.findByText('80.0 kg')
+      await screen.findByText('80 kg')
       expect(screen.queryByText('vs. yesterday')).not.toBeInTheDocument()
     })
   })
