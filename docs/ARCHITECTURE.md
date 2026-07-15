@@ -407,6 +407,7 @@ flowchart LR
         N7["#61 Opt-in menstrual cycle tracker"]
         N9["#62 Local food/nutrient database<br/>(#51 dependency now done)"]
         N10["#65 Meal time-eaten field<br/>(intermittent fasting)"]
+        N11["#66 Move release notes<br/>Settings to About"]
     end
     Done1 --> Done2 --> Done3 --> Next
 ```
