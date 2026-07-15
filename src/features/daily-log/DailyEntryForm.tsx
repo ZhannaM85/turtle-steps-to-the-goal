@@ -872,7 +872,7 @@ export function DailyEntryForm({
               inputMode="numeric"
               aria-label={t.dailyEntry.stepsLabel}
               aria-invalid={errors.steps ? true : undefined}
-              className="h-8 flex-1"
+              className="h-8 w-24"
               onKeyDown={(e) => {
                 if (e.key === 'Enter') {
                   e.preventDefault()

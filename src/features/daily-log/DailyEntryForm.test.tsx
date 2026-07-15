@@ -305,7 +305,7 @@ describe('DailyEntryForm', () => {
       expect(screen.getByText('8,500')).toBeInTheDocument()
     })
 
-    it('rejects an out-of-range value and does not save', async () => {
+    it('rejects a value above the 20,000/day ceiling and does not save (#68)', async () => {
       const user = userEvent.setup()
       const onSave = vi.fn()
       render(
@@ -316,7 +316,7 @@ describe('DailyEntryForm', () => {
         />,
       )
 
-      await user.type(screen.getByLabelText('Steps'), '200000')
+      await user.type(screen.getByLabelText('Steps'), '25000')
       await user.click(screen.getByRole('button', { name: 'Save steps' }))
 
       expect(await screen.findByText(/Too big/)).toBeInTheDocument()

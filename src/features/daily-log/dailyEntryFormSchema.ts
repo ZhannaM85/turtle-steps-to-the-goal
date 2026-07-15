@@ -24,8 +24,9 @@ export const noteSchema = z.string().max(500).optional()
 // Sleep (#59) — independent optional fields, no cross-check between them.
 export const sleepHoursSchema = z.number().min(0).max(24).optional()
 export const deepSleepHoursSchema = z.number().min(0).max(24).optional()
-// Steps (#60) — optional, independent of everything else.
-export const stepsSchema = z.number().min(0).max(100000).optional()
+// Steps (#60) — optional, independent of everything else. Capped at 20,000
+// (#68), a realistic daily ceiling rather than the original 100,000.
+export const stepsSchema = z.number().min(0).max(20000).optional()
 // Opt-in cycle tracking (#61) — only ever rendered/settable when the
 // Settings toggle is on, but the schema itself doesn't need to know that.
 export const onPeriodSchema = z.boolean().optional()

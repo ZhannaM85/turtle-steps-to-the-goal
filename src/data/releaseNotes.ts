@@ -15,6 +15,12 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    issue: 68,
+    date: '2026-07-15',
+    en: 'The steps field is narrower now, and the daily maximum was lowered to a realistic 20,000.',
+    ru: 'Поле «Шаги» стало уже, а максимум за день снижен до реалистичных 20 000.',
+  },
+  {
     issue: 67,
     date: '2026-07-15',
     en: 'Fixed a History screen bug on narrow phones where the edit/delete buttons could be pushed off screen.',
