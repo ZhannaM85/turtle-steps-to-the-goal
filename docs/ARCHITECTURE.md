@@ -2,7 +2,7 @@
 
 This document is updated after each issue is completed. It explains what every file does, why it exists, and how the pieces connect.
 
-Product context lives in `PROJECT_BRIEF.md`; the work queue lives in `docs/issues-priority.md`.
+Product context lives in `PROJECT_BRIEF.md`; the work queue lives in `docs/issues-priority.md`; the public-facing overview (screenshots, live link, dev setup) lives in `README.md` (#58).
 
 ---
 
@@ -366,13 +366,13 @@ flowchart LR
     subgraph Done3 ["✅ Tier 9 — second live-feedback wave (in progress)"]
         D6["#56 Signed weekly-target display (-0.5 kg)"]
         D7["#57 Weight display: show full entered precision"]
+        D8["#58 Add a README with screenshots"]
     end
-    subgraph Next ["📋 Open — filed 2026-07-15, not started"]
+    subgraph Next ["📋 Open — not started"]
         N1["#50 Reusable meal items (autocomplete + library)"]
         N2["#51-#53 Protein/fat/carbs macros<br/>(capture, History, Dashboard — split epic)"]
         N3["#54 Meal emotions: thumbs-up/down + bellissimo"]
         N4["#55 Weekly-goal-met celebration modal"]
-        N5["#58 Add a README with screenshots"]
     end
     Done1 --> Done2 --> Done3 --> Next
 ```
