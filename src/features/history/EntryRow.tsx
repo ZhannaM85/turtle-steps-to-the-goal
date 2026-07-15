@@ -18,7 +18,7 @@ import {
   useTranslation,
 } from '@/i18n'
 import { DailyEntryForm } from '@/features/daily-log'
-import { macrosSummaryText } from '@/shared/lib/macroDisplay'
+import { macrosSummaryTextCompact } from '@/shared/lib/macroDisplay'
 import { useUnitStore } from '@/stores'
 import { Button } from '@/shared/ui/button'
 import { DayDetail } from './DayDetail'
@@ -60,7 +60,7 @@ export function EntryRow({
   const calories = totalCalories(entry.calorieEntries)
   const caloriesDisplay =
     calories === undefined ? '—' : formatNumber(calories, locale, 0)
-  const macrosSummary = macrosSummaryText(
+  const macrosSummary = macrosSummaryTextCompact(
     totalProtein(entry.calorieEntries),
     totalFat(entry.calorieEntries),
     totalCarbs(entry.calorieEntries),

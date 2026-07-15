@@ -44,7 +44,7 @@ describe('EntryRow', () => {
   it('shows the day\'s macro totals under calories, omitted when nothing logged (#52)', () => {
     renderRow()
 
-    expect(screen.queryByText(/Protein/)).not.toBeInTheDocument()
+    expect(screen.queryByText(/^P /)).not.toBeInTheDocument()
   })
 
   it("shows the day's macro totals under calories when logged (#52)", () => {
@@ -62,9 +62,7 @@ describe('EntryRow', () => {
       }),
     })
 
-    expect(
-      screen.getByText('Protein 20g · Fat 10g · Carbs —'),
-    ).toBeInTheDocument()
+    expect(screen.getByText('P 20g · F 10g · C —')).toBeInTheDocument()
   })
 
   it('expands into the daily entry form on edit, weight already editable with its own Save button', async () => {

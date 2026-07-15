@@ -32,3 +32,25 @@ export function macrosSummaryText(
     formatMacroGrams(carbsG, locale, t),
   )
 }
+
+/** Single-initial variant ("P 20g · F 10g · C —") for the History table's
+ * Calories cell — kept to `whitespace-nowrap` there, so the full-word form
+ * was wide enough to push the Actions column (expand/edit/delete) off
+ * screen on narrow phones. Today's form and the calendar's DayDetail panel
+ * have room to spare and keep the full-word `macrosSummaryText` above. */
+export function macrosSummaryTextCompact(
+  proteinG: number | undefined,
+  fatG: number | undefined,
+  carbsG: number | undefined,
+  locale: Locale,
+  t: Dictionary,
+): string | null {
+  if (proteinG === undefined && fatG === undefined && carbsG === undefined) {
+    return null
+  }
+  return t.dailyEntry.macrosSummaryCompact(
+    formatMacroGrams(proteinG, locale, t),
+    formatMacroGrams(fatG, locale, t),
+    formatMacroGrams(carbsG, locale, t),
+  )
+}

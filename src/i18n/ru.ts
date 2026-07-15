@@ -88,6 +88,8 @@ export const ru: Dictionary = {
     gramsUnit: 'г',
     macrosSummary: (protein, fat, carbs) =>
       `Белки ${protein} · Жиры ${fat} · Углеводы ${carbs}`,
+    macrosSummaryCompact: (protein, fat, carbs) =>
+      `Б ${protein} · Ж ${fat} · У ${carbs}`,
     sleepLabel: 'Сон',
     sleepHoursLabel: 'Часов сна',
     deepSleepHoursLabel: 'Глубокий сон (часов)',

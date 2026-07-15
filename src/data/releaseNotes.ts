@@ -15,6 +15,12 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    issue: 67,
+    date: '2026-07-15',
+    en: 'Fixed a History screen bug on narrow phones where the edit/delete buttons could be pushed off screen.',
+    ru: 'Исправлена ошибка в Истории на узких экранах: кнопки редактирования и удаления больше не уезжают за край экрана.',
+  },
+  {
     issue: 61,
     date: '2026-07-15',
     en: 'Added an optional cycle tracker — turn it on in Settings to log your period on the Today screen.',

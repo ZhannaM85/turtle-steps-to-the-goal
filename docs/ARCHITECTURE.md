@@ -258,7 +258,7 @@ Also fully built.
 | `useHistoryData.ts` | Same direct-repository pattern as `useDashboardData`; exposes `saveEntry`/`deleteEntry` that call the repository then reload. |
 | `CalendarView.tsx` | Month-grid calendar (#48, Monday-start), a marker on days with an entry, tap-a-day opens a read-only `DayDetail` panel; an "Edit this day" action hands off to `HistoryScreen`'s List view pre-filtered/expanded to that date. |
 | `DayDetail.tsx` | Shared read-only day-detail renderer — meals, notes, emotions, and the day's overall mood (#39, extended for #44, reused by both `EntryRow`'s expand panel and `CalendarView`'s day panel). A `standalone` prop adds a date/weight/calories header for contexts (calendar) that don't already show that summary elsewhere; that header also gets the day's macro total (#52). Each meal shows its own macro summary line too (below its note), independent of the day total. |
-| `EntryRow.tsx` | One table row with `view / edit / confirmDelete` modes. Edit mode swaps in `DailyEntryForm` (`alwaysEditable`); expand/collapse toggles `DayDetail`; supports `defaultExpanded` for the Dashboard deep-link case. The Calories cell also shows the day's macro total as a muted line beneath the kcal number (#52), omitted when nothing was logged. |
+| `EntryRow.tsx` | One table row with `view / edit / confirmDelete` modes. Edit mode swaps in `DailyEntryForm` (`alwaysEditable`); expand/collapse toggles `DayDetail`; supports `defaultExpanded` for the Dashboard deep-link case. The Calories cell also shows the day's macro total as a muted line beneath the kcal number (#52), omitted when nothing was logged — uses the **compact** single-initial form (`macrosSummaryTextCompact`, #67) rather than the full-word one, since the full-word line was wide enough on mobile to push the Actions column (expand/edit/delete) off screen. |
 | `MetTargetList.tsx` | A plain list of weeks where the target was met — explicitly not gamified, no badges. |
 | `index.ts` | `HistoryScreen` only. |
 
@@ -331,13 +331,13 @@ shadcn-style primitives (Nova preset, `radix-ui` primitives, `cva` variants, ali
 | `hooks/usePreviousDayEntry.ts` | Fetches the `DailyEntry` for `date − 1 day`, backing the day-over-day weight-delta stat on `TodayScreen` (#42) — a distinct, unsmoothed number from the week-over-week delta in `weeklySummaries`. |
 | `hooks/useWeeklyGoalCelebration.ts` | Backs `GoalCelebrationModal` (#55): fetches all entries (direct repository, same "known simplification" pattern as `useDashboardData`/`useHistoryData`) + the active goal, runs `weeklySummaries()`, and returns `shouldCelebrate` (true when the most recent week's `targetMet` just crossed to `true` and that week hasn't been celebrated yet, per `goalCelebrationStore`) + `dismiss()`. Re-fetches whenever `dailyEntryStore.entry` changes, so a target crossed by a save made *during the current visit* to Today shows up without needing a reload. |
 | `hooks/index.ts` | Barrel. |
-| `lib/macroDisplay.ts` | `formatMacroGrams`/`macrosSummaryText` (#51/#52) — shared macro-formatting, extracted from `DailyEntryForm.tsx` for reuse once `EntryRow`/`DayDetail` also needed to show macro totals. `macrosSummaryText` returns `null` when none of protein/fat/carbs were logged at all, so callers can skip rendering a line entirely rather than showing an all-dashes one. |
+| `lib/macroDisplay.ts` | `formatMacroGrams`/`macrosSummaryText` (#51/#52) — shared macro-formatting, extracted from `DailyEntryForm.tsx` for reuse once `EntryRow`/`DayDetail` also needed to show macro totals. `macrosSummaryText` returns `null` when none of protein/fat/carbs were logged at all, so callers can skip rendering a line entirely rather than showing an all-dashes one. `macrosSummaryTextCompact` (#67) is the same idea with single-initial labels ("P 20g · F 10g · C —" / "Б 20г · Ж 10г · У —") — used only by `EntryRow.tsx`, where the full-word form was overflowing the mobile table width. |
 
 ---
 
 ### Tests
 
-Vitest + jsdom + `fake-indexeddb` + React Testing Library + `@testing-library/user-event`. **361 tests across 55 files**, all passing as of issue #61.
+Vitest + jsdom + `fake-indexeddb` + React Testing Library + `@testing-library/user-event`. **363 tests across 55 files**, all passing as of issue #67.
 
 | Area | Covers |
 |------|--------|
@@ -405,6 +405,7 @@ flowchart LR
         D17["#59 Sleep tracking (duration + deep sleep)"]
         D18["#60 Step count tracking"]
         D19["#61 Opt-in menstrual cycle tracker"]
+        D20["#67 History: fix macro summary overflow<br/>hiding expand/edit/delete icons"]
     end
     subgraph Next ["📋 Open — not started"]
         N9["#62 Local food/nutrient database<br/>(#51 dependency now done)"]

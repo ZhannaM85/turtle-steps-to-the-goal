@@ -61,6 +61,7 @@ export interface Dictionary {
     carbsLabel: string
     gramsUnit: string
     macrosSummary: (protein: string, fat: string, carbs: string) => string
+    macrosSummaryCompact: (protein: string, fat: string, carbs: string) => string
     sleepLabel: string
     sleepHoursLabel: string
     deepSleepHoursLabel: string

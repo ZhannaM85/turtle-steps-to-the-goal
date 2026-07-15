@@ -1,6 +1,10 @@
 import { describe, expect, it } from 'vitest'
 import { en } from '@/i18n/en'
-import { formatMacroGrams, macrosSummaryText } from './macroDisplay'
+import {
+  formatMacroGrams,
+  macrosSummaryText,
+  macrosSummaryTextCompact,
+} from './macroDisplay'
 
 describe('formatMacroGrams', () => {
   it('shows an em dash when the macro was not logged', () => {
@@ -28,6 +32,20 @@ describe('macrosSummaryText', () => {
   it('shows all three when fully logged', () => {
     expect(macrosSummaryText(20, 10, 30, 'en', en)).toBe(
       'Protein 20g · Fat 10g · Carbs 30g',
+    )
+  })
+})
+
+describe('macrosSummaryTextCompact', () => {
+  it('returns null when none of the three macros were logged', () => {
+    expect(
+      macrosSummaryTextCompact(undefined, undefined, undefined, 'en', en),
+    ).toBeNull()
+  })
+
+  it('uses single-initial labels instead of the full words (#67 History overflow fix)', () => {
+    expect(macrosSummaryTextCompact(20, 10, 30, 'en', en)).toBe(
+      'P 20g · F 10g · C 30g',
     )
   })
 })
