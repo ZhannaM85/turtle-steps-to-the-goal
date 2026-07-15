@@ -15,6 +15,12 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    issue: 69,
+    date: '2026-07-15',
+    en: 'Sleep entry now uses separate hours and minutes fields, instead of one decimal-hours field.',
+    ru: 'Ввод сна теперь состоит из отдельных полей для часов и минут, а не одного поля с десятичной дробью.',
+  },
+  {
     issue: 68,
     date: '2026-07-15',
     en: 'The steps field is narrower now, and the daily maximum was lowered to a realistic 20,000.',

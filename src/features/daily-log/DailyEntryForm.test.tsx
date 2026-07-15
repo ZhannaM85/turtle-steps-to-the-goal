@@ -198,7 +198,7 @@ describe('DailyEntryForm', () => {
   })
 
   describe('sleep', () => {
-    it('saves sleep hours and deep sleep independently via its own Save button (#59)', async () => {
+    it('saves sleep hours and deep sleep independently via its own Save button, entered as hours+minutes (#59/#69)', async () => {
       const user = userEvent.setup()
       const onSave = vi.fn()
       render(
@@ -209,14 +209,16 @@ describe('DailyEntryForm', () => {
         />,
       )
 
-      await user.type(screen.getByLabelText('Hours slept'), '7.5')
-      await user.type(screen.getByLabelText('Deep sleep (hours)'), '2')
+      await user.type(screen.getByLabelText('Hours slept — hours'), '7')
+      await user.type(screen.getByLabelText('Hours slept — minutes'), '30')
+      await user.type(screen.getByLabelText('Deep sleep — hours'), '2')
+      await user.type(screen.getByLabelText('Deep sleep — minutes'), '0')
       await user.click(screen.getByRole('button', { name: 'Save sleep' }))
 
       expect(onSave).toHaveBeenCalledTimes(1)
       expect(onSave.mock.calls[0][0].sleepHours).toBe(7.5)
       expect(onSave.mock.calls[0][0].deepSleepHours).toBe(2)
-      expect(screen.getByText('7.5h slept · 2h deep')).toBeInTheDocument()
+      expect(screen.getByText('7h 30m slept · 2h 0m deep')).toBeInTheDocument()
     })
 
     it('can be saved with just one of the two fields, the other showing a dash', async () => {
@@ -230,12 +232,12 @@ describe('DailyEntryForm', () => {
         />,
       )
 
-      await user.type(screen.getByLabelText('Hours slept'), '8')
+      await user.type(screen.getByLabelText('Hours slept — hours'), '8')
       await user.click(screen.getByRole('button', { name: 'Save sleep' }))
 
       expect(onSave.mock.calls[0][0].sleepHours).toBe(8)
       expect(onSave.mock.calls[0][0].deepSleepHours).toBeUndefined()
-      expect(screen.getByText('8h slept · — deep')).toBeInTheDocument()
+      expect(screen.getByText('8h 0m slept · — deep')).toBeInTheDocument()
     })
 
     it('rejects an out-of-range value and does not save', async () => {
@@ -249,7 +251,7 @@ describe('DailyEntryForm', () => {
         />,
       )
 
-      await user.type(screen.getByLabelText('Hours slept'), '30')
+      await user.type(screen.getByLabelText('Hours slept — hours'), '30')
       await user.click(screen.getByRole('button', { name: 'Save sleep' }))
 
       expect(await screen.findByText(/Too big/)).toBeInTheDocument()
@@ -274,14 +276,16 @@ describe('DailyEntryForm', () => {
         />,
       )
 
-      expect(screen.getByText('7h slept · 1.5h deep')).toBeInTheDocument()
+      expect(screen.getByText('7h 0m slept · 1h 30m deep')).toBeInTheDocument()
       expect(
         screen.queryByRole('button', { name: 'Save sleep' }),
       ).not.toBeInTheDocument()
 
       await user.click(screen.getByRole('button', { name: 'Edit sleep' }))
-      expect(screen.getByLabelText('Hours slept')).toHaveValue('7')
-      expect(screen.getByLabelText('Deep sleep (hours)')).toHaveValue('1.5')
+      expect(screen.getByLabelText('Hours slept — hours')).toHaveValue('7')
+      expect(screen.getByLabelText('Hours slept — minutes')).toHaveValue('0')
+      expect(screen.getByLabelText('Deep sleep — hours')).toHaveValue('1')
+      expect(screen.getByLabelText('Deep sleep — minutes')).toHaveValue('30')
     })
   })
 

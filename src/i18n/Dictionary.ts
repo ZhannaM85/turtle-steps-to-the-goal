@@ -64,10 +64,13 @@ export interface Dictionary {
     macrosSummaryCompact: (protein: string, fat: string, carbs: string) => string
     sleepLabel: string
     sleepHoursLabel: string
-    deepSleepHoursLabel: string
+    deepSleepLabel: string
     editSleepLabel: string
     saveSleepLabel: string
     hoursUnit: string
+    minutesUnit: string
+    hoursFieldLabel: string
+    minutesFieldLabel: string
     sleepSummary: (hours: string, deepHours: string) => string
     stepsLabel: string
     editStepsLabel: string

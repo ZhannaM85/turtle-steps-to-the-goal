@@ -411,6 +411,31 @@ function MealListItem({
   )
 }
 
+/** Sleep is stored as decimal hours (`sleepHours`/`deepSleepHours`), but
+ * entered as separate hours+minutes fields (#69) — typing "7.5" on a mobile
+ * numeric keypad was awkward, whole hours + whole minutes is the natural
+ * way people think about sleep duration. These two functions are the only
+ * place that conversion happens. */
+function splitHoursMinutes(value: number | undefined): {
+  hours: string
+  minutes: string
+} {
+  if (value === undefined) return { hours: '', minutes: '' }
+  const hours = Math.floor(value)
+  const minutes = Math.round((value - hours) * 60)
+  return { hours: String(hours), minutes: String(minutes) }
+}
+
+function combineHoursMinutes(
+  hoursText: string,
+  minutesText: string,
+): number | undefined {
+  const hours = parseNumberInput(hoursText)
+  const minutes = parseNumberInput(minutesText)
+  if (hours === undefined && minutes === undefined) return undefined
+  return (hours ?? 0) + (minutes ?? 0) / 60
+}
+
 export function DailyEntryForm({
   date,
   existingEntry,
@@ -462,6 +487,24 @@ export function DailyEntryForm({
     alwaysEditable ||
       (initialValues.sleepHours === undefined &&
         initialValues.deepSleepHours === undefined),
+  )
+  // Hours+minutes sub-fields for sleep entry (#69) — kept as local text
+  // state rather than react-hook-form fields, since the form's own
+  // sleepHours/deepSleepHours stay decimal; these are combined into that
+  // decimal only on save (see combineHoursMinutes).
+  const initialSleepParts = splitHoursMinutes(initialValues.sleepHours)
+  const initialDeepSleepParts = splitHoursMinutes(initialValues.deepSleepHours)
+  const [sleepHoursPart, setSleepHoursPart] = useState(
+    initialSleepParts.hours,
+  )
+  const [sleepMinutesPart, setSleepMinutesPart] = useState(
+    initialSleepParts.minutes,
+  )
+  const [deepSleepHoursPart, setDeepSleepHoursPart] = useState(
+    initialDeepSleepParts.hours,
+  )
+  const [deepSleepMinutesPart, setDeepSleepMinutesPart] = useState(
+    initialDeepSleepParts.minutes,
   )
   const [isEditingSteps, setIsEditingSteps] = useState(
     alwaysEditable || initialValues.steps === undefined,
@@ -574,10 +617,13 @@ export function DailyEntryForm({
   }
 
   function saveSleep() {
-    const hoursResult = sleepHoursSchema.safeParse(getValues('sleepHours'))
-    const deepHoursResult = deepSleepHoursSchema.safeParse(
-      getValues('deepSleepHours'),
+    const sleepHoursValue = combineHoursMinutes(sleepHoursPart, sleepMinutesPart)
+    const deepSleepHoursValue = combineHoursMinutes(
+      deepSleepHoursPart,
+      deepSleepMinutesPart,
     )
+    const hoursResult = sleepHoursSchema.safeParse(sleepHoursValue)
+    const deepHoursResult = deepSleepHoursSchema.safeParse(deepSleepHoursValue)
     if (!hoursResult.success) {
       setError('sleepHours', { message: hoursResult.error.issues[0].message })
       return
@@ -590,8 +636,14 @@ export function DailyEntryForm({
     }
     clearErrors('sleepHours')
     clearErrors('deepSleepHours')
+    setValue('sleepHours', sleepHoursValue, { shouldDirty: true })
+    setValue('deepSleepHours', deepSleepHoursValue, { shouldDirty: true })
     setIsEditingSleep(false)
-    persist(getValues())
+    persist({
+      ...getValues(),
+      sleepHours: sleepHoursValue,
+      deepSleepHours: deepSleepHoursValue,
+    })
   }
 
   function saveSteps() {
@@ -762,10 +814,10 @@ export function DailyEntryForm({
               {t.dailyEntry.sleepSummary(
                 sleepHours === undefined
                   ? '—'
-                  : `${formatExactNumber(sleepHours, locale)}${t.dailyEntry.hoursUnit}`,
+                  : `${splitHoursMinutes(sleepHours).hours}${t.dailyEntry.hoursUnit} ${splitHoursMinutes(sleepHours).minutes}${t.dailyEntry.minutesUnit}`,
                 deepSleepHours === undefined
                   ? '—'
-                  : `${formatExactNumber(deepSleepHours, locale)}${t.dailyEntry.hoursUnit}`,
+                  : `${splitHoursMinutes(deepSleepHours).hours}${t.dailyEntry.hoursUnit} ${splitHoursMinutes(deepSleepHours).minutes}${t.dailyEntry.minutesUnit}`,
               )}
             </span>
             <Button
@@ -773,7 +825,15 @@ export function DailyEntryForm({
               variant="ghost"
               size="icon-sm"
               aria-label={t.dailyEntry.editSleepLabel}
-              onClick={() => setIsEditingSleep(true)}
+              onClick={() => {
+                const parts = splitHoursMinutes(sleepHours)
+                const deepParts = splitHoursMinutes(deepSleepHours)
+                setSleepHoursPart(parts.hours)
+                setSleepMinutesPart(parts.minutes)
+                setDeepSleepHoursPart(deepParts.hours)
+                setDeepSleepMinutesPart(deepParts.minutes)
+                setIsEditingSleep(true)
+              }}
             >
               <Pencil aria-hidden="true" />
             </Button>
@@ -782,46 +842,92 @@ export function DailyEntryForm({
       ) : (
         <div className="flex flex-col gap-1.5">
           <span className="text-sm font-medium">{t.dailyEntry.sleepLabel}</span>
-          <div className="flex flex-wrap items-end gap-2">
+          <div className="flex flex-wrap items-end gap-3">
             <div className="flex flex-col gap-1">
               <span className="text-xs text-muted-foreground">
                 {t.dailyEntry.sleepHoursLabel}
               </span>
-              <Input
-                type="text"
-                inputMode="decimal"
-                aria-label={t.dailyEntry.sleepHoursLabel}
-                aria-invalid={errors.sleepHours ? true : undefined}
-                className="h-8 w-20"
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    e.preventDefault()
-                    saveSleep()
-                  }
-                }}
-                {...register('sleepHours', { setValueAs: parseNumberInput })}
-              />
+              <div className="flex items-center gap-1">
+                <Input
+                  type="text"
+                  inputMode="numeric"
+                  aria-label={`${t.dailyEntry.sleepHoursLabel} — ${t.dailyEntry.hoursFieldLabel}`}
+                  aria-invalid={errors.sleepHours ? true : undefined}
+                  className="h-8 w-12"
+                  value={sleepHoursPart}
+                  onChange={(e) => setSleepHoursPart(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault()
+                      saveSleep()
+                    }
+                  }}
+                />
+                <span className="text-xs text-muted-foreground">
+                  {t.dailyEntry.hoursUnit}
+                </span>
+                <Input
+                  type="text"
+                  inputMode="numeric"
+                  aria-label={`${t.dailyEntry.sleepHoursLabel} — ${t.dailyEntry.minutesFieldLabel}`}
+                  aria-invalid={errors.sleepHours ? true : undefined}
+                  className="h-8 w-12"
+                  value={sleepMinutesPart}
+                  onChange={(e) => setSleepMinutesPart(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault()
+                      saveSleep()
+                    }
+                  }}
+                />
+                <span className="text-xs text-muted-foreground">
+                  {t.dailyEntry.minutesUnit}
+                </span>
+              </div>
             </div>
             <div className="flex flex-col gap-1">
               <span className="text-xs text-muted-foreground">
-                {t.dailyEntry.deepSleepHoursLabel}
+                {t.dailyEntry.deepSleepLabel}
               </span>
-              <Input
-                type="text"
-                inputMode="decimal"
-                aria-label={t.dailyEntry.deepSleepHoursLabel}
-                aria-invalid={errors.deepSleepHours ? true : undefined}
-                className="h-8 w-20"
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    e.preventDefault()
-                    saveSleep()
-                  }
-                }}
-                {...register('deepSleepHours', {
-                  setValueAs: parseNumberInput,
-                })}
-              />
+              <div className="flex items-center gap-1">
+                <Input
+                  type="text"
+                  inputMode="numeric"
+                  aria-label={`${t.dailyEntry.deepSleepLabel} — ${t.dailyEntry.hoursFieldLabel}`}
+                  aria-invalid={errors.deepSleepHours ? true : undefined}
+                  className="h-8 w-12"
+                  value={deepSleepHoursPart}
+                  onChange={(e) => setDeepSleepHoursPart(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault()
+                      saveSleep()
+                    }
+                  }}
+                />
+                <span className="text-xs text-muted-foreground">
+                  {t.dailyEntry.hoursUnit}
+                </span>
+                <Input
+                  type="text"
+                  inputMode="numeric"
+                  aria-label={`${t.dailyEntry.deepSleepLabel} — ${t.dailyEntry.minutesFieldLabel}`}
+                  aria-invalid={errors.deepSleepHours ? true : undefined}
+                  className="h-8 w-12"
+                  value={deepSleepMinutesPart}
+                  onChange={(e) => setDeepSleepMinutesPart(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault()
+                      saveSleep()
+                    }
+                  }}
+                />
+                <span className="text-xs text-muted-foreground">
+                  {t.dailyEntry.minutesUnit}
+                </span>
+              </div>
             </div>
             <Button
               type="button"
