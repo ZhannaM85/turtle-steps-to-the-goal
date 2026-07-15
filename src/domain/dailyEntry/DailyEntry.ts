@@ -12,6 +12,11 @@ export interface CalorieEntry {
   note?: string
   emotion?: MealEmotion
   createdAt: string
+  /** Macros (#51) — all optional and independent of each other and of
+   * amountKcal, same as note/emotion: a meal can log any subset. */
+  proteinG?: number
+  fatG?: number
+  carbsG?: number
 }
 
 export interface DailyEntry {

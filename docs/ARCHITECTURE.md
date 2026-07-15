@@ -108,8 +108,9 @@ Pure TypeScript. Unit-testable with no DOM. If a file here ever needs `react`, `
 
 | File | Purpose |
 |------|---------|
-| `DailyEntry.ts` | The entity: one row per `date` (ISO string, unique). `weightKg?`, `note?`, `emotion?: Emotion` (the **day's overall mood**, distinct from any meal's own emotion — #44; `Emotion = 'happy' \| 'unhappy' \| 'neutral'`, unchanged by #54), `calorieEntries?: CalorieEntry[]` — itemized per-meal list (#21), replacing the original single `caloriesConsumed` number. `CalorieEntry` (same file): `id`, `amountKcal`, `note?` (per-meal text, #28), `emotion?: MealEmotion` (per-meal reaction, #28 — since #54 a **separate, smaller set**: `MealEmotion = 'thumbsUp' \| 'thumbsDown' \| 'bellissimo'`, no longer sharing `Emotion` with the day's mood), `createdAt`. |
+| `DailyEntry.ts` | The entity: one row per `date` (ISO string, unique). `weightKg?`, `note?`, `emotion?: Emotion` (the **day's overall mood**, distinct from any meal's own emotion — #44; `Emotion = 'happy' \| 'unhappy' \| 'neutral'`, unchanged by #54), `calorieEntries?: CalorieEntry[]` — itemized per-meal list (#21), replacing the original single `caloriesConsumed` number. `CalorieEntry` (same file): `id`, `amountKcal`, `note?` (per-meal text, #28), `emotion?: MealEmotion` (per-meal reaction, #28 — since #54 a **separate, smaller set**: `MealEmotion = 'thumbsUp' \| 'thumbsDown' \| 'bellissimo'`, no longer sharing `Emotion` with the day's mood), `proteinG?`/`fatG?`/`carbsG?` (macros, #51 — each independent and optional, same as note/emotion), `createdAt`. |
 | `totalCalories.ts` | `totalCalories(entries)` — sums a day's `calorieEntries`; returns `undefined` (not `0`) when there are none, so "no data" and "logged zero" stay distinguishable everywhere this is displayed. |
+| `totalMacros.ts` | `totalProtein`/`totalFat`/`totalCarbs` (#51) — same "undefined, not 0" convention as `totalCalories`, but per-macro: a meal that logged kcal but not protein is skipped when summing protein, not treated as 0g. |
 | `DailyEntryRepository.ts` | Interface: `getByDate(date)`, `getRange(start, end)`, `upsert(entry)`, `delete(id)`, `getAll()`, `getEarliestDate()` (added for #18 — a cheap indexed lookup, not a full-table scan, used by `useCurrentWeekInfo`). |
 | `index.ts` | Barrel. |
 
@@ -224,7 +225,7 @@ No longer a simple single-submit form. Current shape:
 |------|---------|
 | `dailyEntryFormSchema.ts` | Zod schema; `weightSchema` (20–400kg), `noteSchema`, per-meal `calorieEntrySchema` (`amountKcal` 0–10000, optional `note`/`emotion`). No longer requires "at least one of weight or calories" — see #31 below. |
 | `dailyEntryFormMapping.ts` | `entryToFormValues`, `formValuesToEntry`. |
-| `DailyEntryForm.tsx` | The big one. Weight and Note render **read-only with a pencil-to-edit toggle** once saved (#21), rather than always-editable inputs — except when the `alwaysEditable` prop is set (used by History's inline edit, where "Edit entry" is already the explicit edit gesture). **No single submit button** (#31): Weight, Note, and each meal save independently and immediately via `onSave`, which can fire many times in one session. Calorie entries are itemized (`CalorieEntry[]`, #21) with a "+ kcal" quick-add row (note + `EmotionPicker` inline), per-meal edit/delete, and **drag-and-drop reordering** via `@dnd-kit/core` + `@dnd-kit/sortable` (#36, pointer + keyboard sensors, grip handle per row). `EmotionPicker` is generic over both emotion sets (`<E extends string>`, taking `options`/`labelFor` props) — the day's overall mood (`DailyEntry.emotion`, #44) uses `DAY_EMOTIONS` (`Smile`/`Meh`/`Frown`), a meal's own reaction uses `MEAL_EMOTIONS` (thumbs up/down + "bellissimo" as the 🤌 emoji, #54) — two different sets since #54 split them, disambiguated (when both pickers are visible at once) by an ARIA `contextLabel`. Both the add-meal and edit-meal note inputs share a single `<datalist>` (`#50`, `MEAL_ITEMS_DATALIST_ID`) populated from `useMealItemStore`, offering previously-used meal names as native browser autocomplete; saving a meal with a non-empty note calls `touch(name)` to upsert it into the library. |
+| `DailyEntryForm.tsx` | The big one. Weight and Note render **read-only with a pencil-to-edit toggle** once saved (#21), rather than always-editable inputs — except when the `alwaysEditable` prop is set (used by History's inline edit, where "Edit entry" is already the explicit edit gesture). **No single submit button** (#31): Weight, Note, and each meal save independently and immediately via `onSave`, which can fire many times in one session. Calorie entries are itemized (`CalorieEntry[]`, #21) with a "+ kcal" quick-add row (note + `EmotionPicker` inline), per-meal edit/delete, and **drag-and-drop reordering** via `@dnd-kit/core` + `@dnd-kit/sortable` (#36, pointer + keyboard sensors, grip handle per row). `EmotionPicker` is generic over both emotion sets (`<E extends string>`, taking `options`/`labelFor` props) — the day's overall mood (`DailyEntry.emotion`, #44) uses `DAY_EMOTIONS` (`Smile`/`Meh`/`Frown`), a meal's own reaction uses `MEAL_EMOTIONS` (thumbs up/down + "bellissimo" as the 🤌 emoji, #54) — two different sets since #54 split them, disambiguated (when both pickers are visible at once) by an ARIA `contextLabel`. Both the add-meal and edit-meal note inputs share a single `<datalist>` (`#50`, `MEAL_ITEMS_DATALIST_ID`) populated from `useMealItemStore`, offering previously-used meal names as native browser autocomplete; saving a meal with a non-empty note calls `touch(name)` to upsert it into the library. Its `<option>` elements deliberately have **no text children** (`value` only) — an earlier version rendered the name as visible text too, which caused real `getByText` collisions in tests once a saved note became a library entry with matching text elsewhere on the page (found while building #51). A labeled kcal/protein/fat/carbs row (#51) sits above the note/emotion row in both add and edit flows, plus a per-meal and a per-day macro summary line (`macrosSummary`, "Protein Xg · Fat Yg · Carbs Zg", `—` per macro not logged) next to the existing kcal total. |
 | `TodayScreen.tsx` | A native `<input type="date">` (capped at today via `max`) drives which date's entry is loaded/edited. Shows "This week's target" `StatCard` (via `useCurrentWeekInfo`) or an `EmptyState` pointing at `/goal` when no goal exists. A second `StatCard` shows the day-over-day weight delta (#42, via `usePreviousDayEntry`) with asymmetric emphasis — bold for a loss, muted for a gain/no-change, matching #29's treatment. A quiet end-of-week banner (#38) nudges toward `/goal` on the last day of the ISO week, no dismiss state. `key={date}` on `DailyEntryForm` forces a clean remount per date. |
 | `index.ts` | Barrel. |
 
@@ -328,7 +329,7 @@ shadcn-style primitives (Nova preset, `radix-ui` primitives, `cva` variants, ali
 
 ### Tests
 
-Vitest + jsdom + `fake-indexeddb` + React Testing Library + `@testing-library/user-event`. **322 tests across 51 files**, all passing as of issue #63.
+Vitest + jsdom + `fake-indexeddb` + React Testing Library + `@testing-library/user-event`. **331 tests across 52 files**, all passing as of issue #51.
 
 | Area | Covers |
 |------|--------|
@@ -388,9 +389,10 @@ flowchart LR
         D9["#50 Reusable meal items (autocomplete + library)"]
         D10["#54 Meal emotions: thumbs-up/down + bellissimo"]
         D11["#63 Release notes section in Settings"]
+        D12["#51 Protein/fat/carbs: capture + Today totals (1/3)"]
     end
     subgraph Next ["📋 Open — not started"]
-        N2["#51-#53 Protein/fat/carbs macros<br/>(capture, History, Dashboard — split epic)"]
+        N2["#52-#53 Protein/fat/carbs macros<br/>(History, Dashboard — 2/3, 3/3)"]
         N4["#55 Weekly-goal-met celebration modal"]
         N5["#59 Sleep tracking (duration + deep sleep)"]
         N6["#60 Step count tracking"]

@@ -12,12 +12,18 @@ const dayEmotionSchema = z.enum(['happy', 'unhappy', 'neutral'])
 // A single meal's reaction (#54) — a different, smaller set than the day's mood.
 const mealEmotionSchema = z.enum(['thumbsUp', 'thumbsDown', 'bellissimo'])
 
+// Macros (#51) — purely additive/optional, so no version bump: an old v4
+// backup with no macros still validates (they're just undefined), and this
+// same schema also validates new exports that do have them.
 const calorieEntrySchema = z.object({
   id: z.string(),
   amountKcal: z.number(),
   note: z.string().optional(),
   emotion: mealEmotionSchema.optional(),
   createdAt: z.string(),
+  proteinG: z.number().optional(),
+  fatG: z.number().optional(),
+  carbsG: z.number().optional(),
 })
 
 const dailyEntrySchema = z.object({

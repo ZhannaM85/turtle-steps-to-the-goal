@@ -414,6 +414,104 @@ describe('DailyEntryForm', () => {
       expect(screen.getByLabelText('Meal note')).toHaveValue('')
     })
 
+    it('logs protein/fat/carbs alongside the amount (#51)', async () => {
+      const user = userEvent.setup()
+      const onSave = vi.fn()
+      render(
+        <DailyEntryForm
+          date="2026-03-01"
+          existingEntry={null}
+          onSave={onSave}
+        />,
+      )
+
+      await user.type(screen.getByLabelText('Add calories'), '200')
+      await user.type(screen.getByLabelText('Protein'), '20')
+      await user.type(screen.getByLabelText('Fat'), '10')
+      await user.type(screen.getByLabelText('Carbs'), '30')
+      await user.click(screen.getByRole('button', { name: 'Add' }))
+
+      expect(onSave.mock.calls[0][0].calorieEntries[0]).toMatchObject({
+        amountKcal: 200,
+        proteinG: 20,
+        fatG: 10,
+        carbsG: 30,
+      })
+      // Appears twice with a single meal logged: the meal's own summary
+      // line and the per-day total (#51) show the same numbers.
+      expect(
+        screen.getAllByText('Protein 20g · Fat 10g · Carbs 30g'),
+      ).toHaveLength(2)
+      expect(screen.getByLabelText('Protein')).toHaveValue('')
+    })
+
+    it('macros are independently optional — a meal can log only some of them', async () => {
+      const user = userEvent.setup()
+      const onSave = vi.fn()
+      render(
+        <DailyEntryForm
+          date="2026-03-01"
+          existingEntry={null}
+          onSave={onSave}
+        />,
+      )
+
+      await user.type(screen.getByLabelText('Add calories'), '200')
+      await user.type(screen.getByLabelText('Fat'), '10')
+      await user.click(screen.getByRole('button', { name: 'Add' }))
+
+      expect(onSave.mock.calls[0][0].calorieEntries[0]).toMatchObject({
+        amountKcal: 200,
+        fatG: 10,
+      })
+      expect(onSave.mock.calls[0][0].calorieEntries[0].proteinG).toBeUndefined()
+      expect(
+        screen.getAllByText('Protein — · Fat 10g · Carbs —'),
+      ).toHaveLength(2)
+    })
+
+    it('shows no macro summary line for a meal that logged none (#51)', async () => {
+      const user = userEvent.setup()
+      render(
+        <DailyEntryForm
+          date="2026-03-01"
+          existingEntry={null}
+          onSave={vi.fn()}
+        />,
+      )
+
+      await user.type(screen.getByLabelText('Add calories'), '200')
+      await user.click(screen.getByRole('button', { name: 'Add' }))
+
+      // The quick-add row's own "Protein"/"Fat"/"Carbs" field labels are
+      // always visible — only the combined "Protein X · Fat Y · Carbs Z"
+      // summary sentence should be absent when nothing was logged.
+      expect(screen.queryByText(/Fat .* · Carbs/)).not.toBeInTheDocument()
+    })
+
+    it("shows a read-only per-day macro total next to the kcal total (#51)", async () => {
+      const user = userEvent.setup()
+      render(
+        <DailyEntryForm
+          date="2026-03-01"
+          existingEntry={null}
+          onSave={vi.fn()}
+        />,
+      )
+
+      await user.type(screen.getByLabelText('Add calories'), '200')
+      await user.type(screen.getByLabelText('Protein'), '20')
+      await user.type(screen.getByLabelText('Fat'), '10')
+      await user.click(screen.getByRole('button', { name: 'Add' }))
+
+      await user.type(screen.getByLabelText('Add calories'), '150')
+      await user.type(screen.getByLabelText('Protein'), '5')
+      await user.click(screen.getByRole('button', { name: 'Add' }))
+
+      // Day total: 25g protein (20+5), 10g fat (only meal 1), no carbs logged.
+      expect(screen.getByText('Protein 25g · Fat 10g · Carbs —')).toBeInTheDocument()
+    })
+
     it('adds a meal note to the reusable meal-items library (#50)', async () => {
       const user = userEvent.setup()
       render(
@@ -436,7 +534,7 @@ describe('DailyEntryForm', () => {
 
     it('offers previously logged meal names as suggestions while typing', async () => {
       await useMealItemStore.getState().touch('Pizza')
-      render(
+      const { container } = render(
         <DailyEntryForm
           date="2026-03-01"
           existingEntry={null}
@@ -446,8 +544,10 @@ describe('DailyEntryForm', () => {
 
       const noteInput = await screen.findByLabelText('Meal note')
       expect(noteInput).toHaveAttribute('list', 'meal-items-datalist')
+      // Queried by `value`, not text content — an <option>'s value (not any
+      // text child) is what a real browser matches for autocomplete.
       expect(
-        (await screen.findByText('Pizza')).closest('datalist'),
+        container.querySelector('datalist#meal-items-datalist option[value="Pizza"]'),
       ).not.toBeNull()
     })
 
@@ -616,6 +716,30 @@ describe('DailyEntryForm', () => {
         ).toBeInTheDocument()
         expect(screen.getByText('Thumbs up')).toBeInTheDocument()
         expect(onSave).toHaveBeenCalledTimes(1)
+      })
+
+      it('edits a meal\'s protein/fat/carbs and saves immediately (#51)', async () => {
+        const user = userEvent.setup()
+        const onSave = vi.fn()
+        renderWithMeals(onSave)
+
+        await user.click(screen.getByRole('button', { name: 'Edit meal 1' }))
+        await user.type(screen.getByLabelText('Protein — Meal 1'), '20')
+        await user.type(screen.getByLabelText('Fat — Meal 1'), '10')
+        await user.type(screen.getByLabelText('Carbs — Meal 1'), '30')
+        await user.click(screen.getByRole('button', { name: 'Save' }))
+
+        expect(onSave.mock.calls[0][0].calorieEntries[0]).toMatchObject({
+          proteinG: 20,
+          fatG: 10,
+          carbsG: 30,
+        })
+        // Appears twice: the meal's own summary line, and the per-day total
+        // (#51) — the second meal has no macros, so the day total matches
+        // this meal's numbers exactly.
+        expect(
+          screen.getAllByText('Protein 20g · Fat 10g · Carbs 30g'),
+        ).toHaveLength(2)
       })
 
       it('renders bellissimo as the 🤌 emoji, not a lucide icon (#54)', async () => {

@@ -76,6 +76,12 @@ export const en: Dictionary = {
           ? 'Thumbs down'
           : 'Bellissimo',
     dayMoodLabel: 'Mood today',
+    proteinLabel: 'Protein',
+    fatLabel: 'Fat',
+    carbsLabel: 'Carbs',
+    gramsUnit: 'g',
+    macrosSummary: (protein, fat, carbs) =>
+      `Protein ${protein} · Fat ${fat} · Carbs ${carbs}`,
   },
   goal: {
     title: 'Goal',

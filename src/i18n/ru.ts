@@ -77,6 +77,12 @@ export const ru: Dictionary = {
           ? 'Не понравилось'
           : 'Объедение',
     dayMoodLabel: 'Настроение за день',
+    proteinLabel: 'Белки',
+    fatLabel: 'Жиры',
+    carbsLabel: 'Углеводы',
+    gramsUnit: 'г',
+    macrosSummary: (protein, fat, carbs) =>
+      `Белки ${protein} · Жиры ${fat} · Углеводы ${carbs}`,
   },
   goal: {
     title: 'Цель',

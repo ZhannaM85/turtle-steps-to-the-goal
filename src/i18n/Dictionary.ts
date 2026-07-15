@@ -52,6 +52,11 @@ export interface Dictionary {
     emotionLabel: (emotion: 'happy' | 'unhappy' | 'neutral') => string
     mealEmotionLabel: (emotion: 'thumbsUp' | 'thumbsDown' | 'bellissimo') => string
     dayMoodLabel: string
+    proteinLabel: string
+    fatLabel: string
+    carbsLabel: string
+    gramsUnit: string
+    macrosSummary: (protein: string, fat: string, carbs: string) => string
   }
   goal: {
     title: string
