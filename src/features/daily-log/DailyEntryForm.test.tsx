@@ -372,7 +372,7 @@ describe('DailyEntryForm', () => {
         />,
       )
 
-      await user.type(screen.getByLabelText('Note (optional)'), 'felt good')
+      await user.type(screen.getByLabelText('Note'), 'felt good')
       await user.click(screen.getByRole('button', { name: 'Save note' }))
 
       expect(onSave).toHaveBeenCalledTimes(1)
@@ -399,7 +399,7 @@ describe('DailyEntryForm', () => {
 
       expect(screen.getByText('felt good')).toBeInTheDocument()
       await user.click(screen.getByRole('button', { name: 'Edit note' }))
-      const input = screen.getByLabelText('Note (optional)')
+      const input = screen.getByLabelText('Note')
       await user.clear(input)
       await user.type(input, 'updated note')
       await user.click(screen.getByRole('button', { name: 'Save note' }))
@@ -419,7 +419,7 @@ describe('DailyEntryForm', () => {
         />,
       )
 
-      await user.type(screen.getByLabelText('Note (optional)'), 'felt good')
+      await user.type(screen.getByLabelText('Note'), 'felt good')
       await user.click(
         screen.getByRole('button', { name: 'Happy — Mood today' }),
       )
@@ -503,7 +503,7 @@ describe('DailyEntryForm', () => {
       expect(
         screen.getByRole('button', { name: 'Save weight' }),
       ).toBeInTheDocument()
-      expect(screen.getByLabelText('Note (optional)')).toHaveValue('felt good')
+      expect(screen.getByLabelText('Note')).toHaveValue('felt good')
       expect(
         screen.getByRole('button', { name: 'Save note' }),
       ).toBeInTheDocument()

@@ -71,6 +71,7 @@ export interface Dictionary {
     foodQuantityLabel: string
     noFoodResultsText: string
     addFoodConfirmLabel: string
+    per100gLabel: string
     sleepLabel: string
     sleepHoursLabel: string
     deepSleepLabel: string

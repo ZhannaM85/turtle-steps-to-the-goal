@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { type FoodItem, foods } from '@/data/foods'
-import { useLocale, useTranslation } from '@/i18n'
+import { formatNumber, useLocale, useTranslation } from '@/i18n'
+import { macrosSummaryTextCompact } from '@/shared/lib/macroDisplay'
 import { parseNumberInput } from '@/shared/lib/parseNumberInput'
 import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/ui/button'
@@ -89,19 +90,37 @@ export function FoodPickerDialog({
               {t.dailyEntry.noFoodResultsText}
             </p>
           ) : (
-            <ul className="flex max-h-48 flex-col overflow-y-auto rounded-lg border border-border">
+            /* No independent scroll region here (#74) — nested scroll
+             * containers on mobile made it unclear the list continued past
+             * the first ~6 visible rows. The whole dialog scrolls as one
+             * unit instead (see shared/ui/dialog.tsx's max-h-[85dvh]). */
+            <ul className="flex flex-col rounded-lg border border-border">
               {matches.map((food) => (
                 <li key={food.id}>
                   <button
                     type="button"
                     aria-pressed={selectedFood?.id === food.id}
                     className={cn(
-                      'w-full px-2.5 py-1.5 text-left text-sm hover:bg-muted',
+                      'flex w-full flex-col px-2.5 py-1.5 text-left text-sm hover:bg-muted',
                       selectedFood?.id === food.id && 'bg-muted font-medium',
                     )}
                     onClick={() => setSelectedFood(food)}
                   >
-                    {food[locale]}
+                    <span>{food[locale]}</span>
+                    {/* Per-100g preview (#75) — lets you sanity-check a food's
+                     * numbers before picking it, rather than only finding out
+                     * after it's added as a meal. */}
+                    <span className="text-xs font-normal text-muted-foreground">
+                      {formatNumber(food.kcal100, locale, 0)}{' '}
+                      {t.dailyEntry.kcalUnit} {t.dailyEntry.per100gLabel} ·{' '}
+                      {macrosSummaryTextCompact(
+                        food.protein100,
+                        food.fat100,
+                        food.carbs100,
+                        locale,
+                        t,
+                      )}
+                    </span>
                   </button>
                 </li>
               ))}

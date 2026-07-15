@@ -22,6 +22,14 @@ describe('FoodPickerDialog', () => {
     expect(screen.queryByText('Salmon')).not.toBeInTheDocument()
   })
 
+  it('shows per-100g kcal and macros next to each food name (#75)', () => {
+    render(<FoodPickerDialog open onOpenChange={vi.fn()} onAdd={vi.fn()} />)
+
+    expect(
+      screen.getByText('208 kcal per 100g · P 20g · F 13g · C 0g'),
+    ).toBeInTheDocument()
+  })
+
   it('shows a no-results message when nothing matches', async () => {
     const user = userEvent.setup()
     render(<FoodPickerDialog open onOpenChange={vi.fn()} onAdd={vi.fn()} />)

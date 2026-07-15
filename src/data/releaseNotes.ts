@@ -15,6 +15,30 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    issue: 77,
+    date: '2026-07-15',
+    en: 'Simplified the Note field’s label.',
+    ru: 'Упрощена подпись поля «Заметка».',
+  },
+  {
+    issue: 76,
+    date: '2026-07-15',
+    en: 'Cleaned up the calorie field’s placeholder text.',
+    ru: 'Упрощена подсказка в поле для калорий.',
+  },
+  {
+    issue: 75,
+    date: '2026-07-15',
+    en: 'The food picker now shows each food’s calories and macros per 100g, so you can check the numbers before picking it.',
+    ru: 'В списке продуктов теперь видны калории и БЖУ на 100 г — можно проверить значения перед выбором.',
+  },
+  {
+    issue: 74,
+    date: '2026-07-15',
+    en: 'Fixed the food picker so the full list can always be scrolled to and reached, even with the keyboard open.',
+    ru: 'Исправлена прокрутка списка продуктов — теперь весь список доступен, даже когда открыта клавиатура.',
+  },
+  {
     issue: 73,
     date: '2026-07-15',
     en: 'Fixed the History screen so the delete button no longer gets cut off on narrow phones.',
