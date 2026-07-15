@@ -26,6 +26,9 @@ export const sleepHoursSchema = z.number().min(0).max(24).optional()
 export const deepSleepHoursSchema = z.number().min(0).max(24).optional()
 // Steps (#60) — optional, independent of everything else.
 export const stepsSchema = z.number().min(0).max(100000).optional()
+// Opt-in cycle tracking (#61) — only ever rendered/settable when the
+// Settings toggle is on, but the schema itself doesn't need to know that.
+export const onPeriodSchema = z.boolean().optional()
 
 export const dailyEntryFormSchema = z.object({
   weightKg: weightSchema,
@@ -35,6 +38,7 @@ export const dailyEntryFormSchema = z.object({
   sleepHours: sleepHoursSchema,
   deepSleepHours: deepSleepHoursSchema,
   steps: stepsSchema,
+  onPeriod: onPeriodSchema,
 })
 
 export type DailyEntryFormValues = z.infer<typeof dailyEntryFormSchema>

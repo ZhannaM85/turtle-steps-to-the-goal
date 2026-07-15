@@ -39,6 +39,9 @@ const dailyEntrySchema = z.object({
   deepSleepHours: z.number().optional(),
   // Steps (#60) — same reasoning, purely additive/optional.
   steps: z.number().optional(),
+  // Opt-in cycle tracking (#61) — the logged value travels with a backup
+  // like any other field; only the Settings on/off toggle is local-only.
+  onPeriod: z.boolean().optional(),
   createdAt: z.string(),
   updatedAt: z.string(),
 })

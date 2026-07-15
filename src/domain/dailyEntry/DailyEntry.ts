@@ -34,6 +34,11 @@ export interface DailyEntry {
   deepSleepHours?: number
   /** Step count (#60) — optional, independent of everything else. */
   steps?: number
+  /** Opt-in menstrual cycle tracking (#61) — only ever set when the user
+   * has turned the feature on in Settings (`useCycleTrackingStore`); the
+   * toggle itself is a local UI preference, not exported with backups, but
+   * this logged value is a normal field on the entry like any other. */
+  onPeriod?: boolean
   createdAt: string
   updatedAt: string
 }

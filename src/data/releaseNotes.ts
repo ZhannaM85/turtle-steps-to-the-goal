@@ -15,6 +15,12 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    issue: 61,
+    date: '2026-07-15',
+    en: 'Added an optional cycle tracker — turn it on in Settings to log your period on the Today screen.',
+    ru: 'Добавлено отслеживание цикла — включите его в настройках, чтобы отмечать менструацию на экране «Сегодня».',
+  },
+  {
     issue: 60,
     date: '2026-07-15',
     en: 'You can now log your daily step count.',

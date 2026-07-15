@@ -71,6 +71,7 @@ export interface Dictionary {
     stepsLabel: string
     editStepsLabel: string
     saveStepsLabel: string
+    onPeriodLabel: string
   }
   goal: {
     title: string
@@ -186,6 +187,10 @@ export interface Dictionary {
     releaseNotesLabel: string
     showReleaseNotes: string
     hideReleaseNotes: string
+    cycleTrackingLabel: string
+    cycleTrackingDescription: string
+    cycleTrackingOn: string
+    cycleTrackingOff: string
   }
   about: {
     title: string

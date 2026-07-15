@@ -98,6 +98,7 @@ export const ru: Dictionary = {
     stepsLabel: 'Шаги',
     editStepsLabel: 'Изменить шаги',
     saveStepsLabel: 'Сохранить шаги',
+    onPeriodLabel: 'Сегодня менструация',
   },
   goal: {
     title: 'Цель',
@@ -225,6 +226,11 @@ export const ru: Dictionary = {
     releaseNotesLabel: 'История изменений',
     showReleaseNotes: 'Показать историю изменений',
     hideReleaseNotes: 'Скрыть историю изменений',
+    cycleTrackingLabel: 'Отслеживание цикла',
+    cycleTrackingDescription:
+      'Необязательно — включает переключатель «менструация» на экране «Сегодня». По умолчанию выключено.',
+    cycleTrackingOn: 'Вкл',
+    cycleTrackingOff: 'Выкл',
   },
   about: {
     title: 'О приложении',

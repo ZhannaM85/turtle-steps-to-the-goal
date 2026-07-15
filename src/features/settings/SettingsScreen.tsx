@@ -4,7 +4,13 @@ import {
   type Locale,
   type Dictionary,
 } from '@/i18n'
-import { useThemeStore, useUnitStore, type Mood, type Unit } from '@/stores'
+import {
+  useCycleTrackingStore,
+  useThemeStore,
+  useUnitStore,
+  type Mood,
+  type Unit,
+} from '@/stores'
 import { ExportSection } from '@/features/export'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
 import { PageHeader } from '@/shared/ui/page-header'
@@ -42,6 +48,10 @@ export function SettingsScreen() {
   const setMood = useThemeStore((state) => state.setMood)
   const colorScheme = useThemeStore((state) => state.colorScheme)
   const setColorScheme = useThemeStore((state) => state.setColorScheme)
+  const cycleTrackingEnabled = useCycleTrackingStore((state) => state.enabled)
+  const setCycleTrackingEnabled = useCycleTrackingStore(
+    (state) => state.setEnabled,
+  )
 
   return (
     <div className="flex flex-col gap-4">
@@ -130,6 +140,32 @@ export function SettingsScreen() {
               <ToggleGroupItem value="dark">{t.settings.dark}</ToggleGroupItem>
             </ToggleGroup>
           </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>{t.settings.cycleTrackingLabel}</CardTitle>
+        </CardHeader>
+        <CardContent className="flex flex-col gap-1.5">
+          <span className="text-sm text-muted-foreground">
+            {t.settings.cycleTrackingDescription}
+          </span>
+          <ToggleGroup
+            type="single"
+            aria-label={t.settings.cycleTrackingLabel}
+            value={cycleTrackingEnabled ? 'on' : 'off'}
+            onValueChange={(value) =>
+              value && setCycleTrackingEnabled(value === 'on')
+            }
+          >
+            <ToggleGroupItem value="off">
+              {t.settings.cycleTrackingOff}
+            </ToggleGroupItem>
+            <ToggleGroupItem value="on">
+              {t.settings.cycleTrackingOn}
+            </ToggleGroupItem>
+          </ToggleGroup>
         </CardContent>
       </Card>
 

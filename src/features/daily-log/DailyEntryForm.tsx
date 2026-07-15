@@ -40,7 +40,7 @@ import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/ui/button'
 import { InfoTooltip } from '@/shared/ui/info-tooltip'
 import { Input } from '@/shared/ui/input'
-import { useMealItemStore } from '@/stores'
+import { useCycleTrackingStore, useMealItemStore } from '@/stores'
 import { entryToFormValues, formValuesToEntry } from './dailyEntryFormMapping'
 import {
   deepSleepHoursSchema,
@@ -490,6 +490,9 @@ export function DailyEntryForm({
   const mealItems = useMealItemStore((state) => state.items)
   const loadMealItems = useMealItemStore((state) => state.loadItems)
   const touchMealItem = useMealItemStore((state) => state.touch)
+  // Opt-in cycle tracking (#61) — the daily toggle only renders at all when
+  // this Settings preference is on.
+  const cycleTrackingEnabled = useCycleTrackingStore((state) => state.enabled)
   useEffect(() => {
     loadMealItems()
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -512,6 +515,7 @@ export function DailyEntryForm({
   const sleepHours = watch('sleepHours')
   const deepSleepHours = watch('deepSleepHours')
   const steps = watch('steps')
+  const onPeriod = watch('onPeriod')
   const dayEmotion = watch('emotion')
   const calorieEntries = watch('calorieEntries') ?? []
   const DayEmotionIcon = DAY_EMOTIONS.find((e) => e.value === dayEmotion)?.Icon
@@ -599,6 +603,14 @@ export function DailyEntryForm({
     clearErrors('steps')
     setIsEditingSteps(false)
     persist(getValues())
+  }
+
+  // Boolean toggle, saves immediately on click like the emotion pickers —
+  // no separate edit/save step needed for a single on/off value (#61).
+  function toggleOnPeriod() {
+    const next = !onPeriod
+    setValue('onPeriod', next, { shouldDirty: true })
+    persist({ ...getValues(), onPeriod: next })
   }
 
   function setCalorieEntries(next: CalorieEntry[]) {
@@ -882,6 +894,21 @@ export function DailyEntryForm({
           {errors.steps && (
             <p className="text-sm text-destructive">{errors.steps.message}</p>
           )}
+        </div>
+      )}
+
+      {cycleTrackingEnabled && (
+        <div className="flex items-center gap-1.5">
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            aria-pressed={onPeriod ?? false}
+            className={cn(onPeriod && 'bg-muted text-foreground')}
+            onClick={toggleOnPeriod}
+          >
+            {t.dailyEntry.onPeriodLabel}
+          </Button>
         </div>
       )}
 

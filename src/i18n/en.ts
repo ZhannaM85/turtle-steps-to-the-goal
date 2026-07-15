@@ -98,6 +98,7 @@ export const en: Dictionary = {
     stepsLabel: 'Steps',
     editStepsLabel: 'Edit steps',
     saveStepsLabel: 'Save steps',
+    onPeriodLabel: 'On your period today',
   },
   goal: {
     title: 'Goal',
@@ -223,6 +224,11 @@ export const en: Dictionary = {
     releaseNotesLabel: 'Release notes',
     showReleaseNotes: 'Show release notes',
     hideReleaseNotes: 'Hide release notes',
+    cycleTrackingLabel: 'Cycle tracking',
+    cycleTrackingDescription:
+      "Optional — turns on a daily \"on your period\" toggle on Today. Off by default.",
+    cycleTrackingOn: 'On',
+    cycleTrackingOff: 'Off',
   },
   about: {
     title: 'About',
