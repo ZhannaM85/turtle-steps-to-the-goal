@@ -171,7 +171,10 @@ export function FoodPickerDialog({
                       aria-pressed={pressed}
                       className={cn(
                         'flex w-full flex-col px-2.5 py-1.5 text-left text-sm hover:bg-muted',
-                        pressed && 'bg-muted font-medium',
+                        // Border + tint, not bg-muted alone — --muted sits
+                        // too close to --background in dark mode to read as
+                        // selected (#84, same fix reused here).
+                        pressed && 'border-2 border-primary bg-primary/15 font-medium',
                       )}
                       onClick={() => setSelected(item)}
                     >
@@ -223,29 +226,37 @@ export function FoodPickerDialog({
               })}
             </ul>
           )}
-          {selected?.source === 'food' && (
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-muted-foreground">
-                {t.dailyEntry.foodQuantityLabel}
-              </span>
-              <Input
-                type="text"
-                inputMode="decimal"
-                aria-label={t.dailyEntry.foodQuantityLabel}
-                value={quantity}
-                onChange={(e) => setQuantity(e.target.value)}
-                className="h-8 w-20"
-              />
-            </div>
-          )}
-          <Button
-            type="button"
-            disabled={!canAdd}
-            onClick={handleAdd}
-            aria-label={t.dailyEntry.addFoodConfirmLabel}
-          >
-            {t.dailyEntry.addButton}
-          </Button>
+          {/* Sticky footer (#91) — with 300+ results and no independent
+           * list scroll region (#74), the confirm button used to sit below
+           * the entire list, off-screen until scrolled all the way past it.
+           * Pinning it to the bottom of the dialog's own scrollport keeps it
+           * reachable regardless of scroll position; bg-card + border-top
+           * stop list rows showing through as they scroll underneath. */}
+          <div className="sticky bottom-0 flex flex-col gap-3 border-t border-border bg-card pt-3">
+            {selected?.source === 'food' && (
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-muted-foreground">
+                  {t.dailyEntry.foodQuantityLabel}
+                </span>
+                <Input
+                  type="text"
+                  inputMode="decimal"
+                  aria-label={t.dailyEntry.foodQuantityLabel}
+                  value={quantity}
+                  onChange={(e) => setQuantity(e.target.value)}
+                  className="h-8 w-20"
+                />
+              </div>
+            )}
+            <Button
+              type="button"
+              disabled={!canAdd}
+              onClick={handleAdd}
+              aria-label={t.dailyEntry.addFoodConfirmLabel}
+            >
+              {t.dailyEntry.addButton}
+            </Button>
+          </div>
         </div>
       </DialogContent>
     </Dialog>

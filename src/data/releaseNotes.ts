@@ -15,6 +15,18 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    issue: 92,
+    date: '2026-07-16',
+    en: 'Fixed the food picker so you can now clearly tell which item you\'ve selected.',
+    ru: 'Исправлен выбор продукта — теперь чётко видно, какой продукт вы выбрали.',
+  },
+  {
+    issue: 91,
+    date: '2026-07-16',
+    en: 'The Add button in the food picker now always stays visible, even when scrolling a long list.',
+    ru: 'Кнопка «Добавить» в списке продуктов теперь всегда видна, даже при прокрутке длинного списка.',
+  },
+  {
     issue: 83,
     date: '2026-07-16',
     en: 'Added 34 prepared dishes to the food list — pizza, burgers, pasta, sushi, curries, and Russian classics like beef stroganoff and vareniki.',
