@@ -15,6 +15,12 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    issue: 80,
+    date: '2026-07-16',
+    en: 'Reworded the meal note field’s placeholder to "Add a dish?" so it’s clearly different from the daily note.',
+    ru: 'Изменена подсказка в поле заметки к приёму пищи на «Добавить своё блюдо?», чтобы не путать с общей заметкой дня.',
+  },
+  {
     issue: 82,
     date: '2026-07-16',
     en: 'The meal time field no longer pre-fills with the current time — it starts empty so you only see a time you actually entered.',

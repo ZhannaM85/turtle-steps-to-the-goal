@@ -67,7 +67,7 @@ export const en: Dictionary = {
     reorderMealLabel: (n) => `Reorder meal ${n}`,
     saveButton: 'Save',
     mealNoteLabel: 'Meal note',
-    mealNotePlaceholder: 'Note (optional)',
+    mealNotePlaceholder: 'Add a dish?',
     emotionLabel: (emotion) =>
       emotion === 'happy'
         ? 'Happy'
