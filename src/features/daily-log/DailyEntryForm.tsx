@@ -1334,7 +1334,20 @@ export function DailyEntryForm({
           </DndContext>
         )}
 
-        <div className="flex flex-col gap-1.5">
+        <div
+          className={cn(
+            'flex flex-col gap-1.5',
+            // Divider + heading (#95) — without one, this row read as a
+            // continuation of the last meal group above it rather than the
+            // start of a new one, since both share the same visual weight.
+            // mealLabel(n) is the same numbering already shown on existing
+            // groups, so this row previews the number the new meal will get.
+            calorieEntries.length > 0 && 'border-t border-border pt-2',
+          )}
+        >
+          <span className="text-xs font-medium text-muted-foreground">
+            {t.dailyEntry.mealLabel(calorieEntries.length + 1)}
+          </span>
           <div className="flex flex-wrap items-end gap-2">
             <div className="flex flex-col gap-1">
               <span className="text-xs text-muted-foreground">

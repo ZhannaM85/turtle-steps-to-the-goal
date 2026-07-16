@@ -15,6 +15,12 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    issue: 95,
+    date: '2026-07-16',
+    en: 'The meal entry form now labels itself "Meal 1", "Meal 2", etc. so it\'s clear whether you\'re adding to an existing meal or starting a new one.',
+    ru: 'Форма добавления приёма пищи теперь подписана «Приём пищи 1», «Приём пищи 2» и т.д. — понятно, добавляете вы к существующему приёму пищи или начинаете новый.',
+  },
+  {
     issue: 92,
     date: '2026-07-16',
     en: 'Fixed the food picker so you can now clearly tell which item you\'ve selected.',

@@ -31,6 +31,12 @@ vi.mock('@dnd-kit/core', async (importOriginal) => {
   }
 })
 
+// The food-picker tests below mount FoodPickerDialog, which renders the
+// 300+ item curated food list (same reason FoodPickerDialog.test.tsx and
+// FoodListSettingsScreen.test.tsx need this) — under full-suite parallel
+// load the default 5000ms can be too tight.
+vi.setConfig({ testTimeout: 15000 })
+
 const now = '2026-03-01T00:00:00.000Z'
 
 function calories(
@@ -530,6 +536,25 @@ describe('DailyEntryForm', () => {
       expect(screen.queryByLabelText('Calories')).not.toBeInTheDocument()
       expect(screen.getByText('0')).toBeInTheDocument()
       expect(screen.getByText('kcal today')).toBeInTheDocument()
+    })
+
+    it('labels the add row with the meal number it will create (#95)', async () => {
+      const user = userEvent.setup()
+      render(
+        <DailyEntryForm
+          date="2026-03-01"
+          existingEntry={null}
+          onSave={vi.fn()}
+        />,
+      )
+
+      expect(screen.getByText('Meal 1')).toBeInTheDocument()
+
+      await user.type(screen.getByLabelText('Add calories'), '200')
+      await user.click(screen.getByRole('button', { name: 'Add' }))
+
+      expect(screen.getByText('Meal 1 — 200 kcal')).toBeInTheDocument()
+      expect(screen.getByText('Meal 2')).toBeInTheDocument()
     })
 
     it('adds a meal and saves it immediately', async () => {
