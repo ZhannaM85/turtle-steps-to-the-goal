@@ -138,6 +138,8 @@ export interface Dictionary {
     ) => string
     correlationWeekCount: (n: number) => string
     correlationLagCaveat: string
+    correlationExpandLabel: string
+    correlationCollapseLabel: string
     weeklyChangeLegend: string
     chartNavigationHint: string
     viewDayLink: string

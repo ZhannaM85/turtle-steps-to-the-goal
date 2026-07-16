@@ -15,6 +15,12 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    issue: 89,
+    date: '2026-07-16',
+    en: 'The calories-vs-weight-change chart on Dashboard now stays collapsed until there\'s enough data to show a real pattern, instead of showing an almost-empty graph for the first few weeks.',
+    ru: 'График «Калории и изменение веса» в Обзоре теперь свёрнут, пока не накопится достаточно данных, вместо почти пустого графика в первые недели.',
+  },
+  {
     issue: 79,
     date: '2026-07-16',
     en: 'Moved the "Add" button below the note field, and made it full width, so it\'s clearer it applies to the note you just typed.',

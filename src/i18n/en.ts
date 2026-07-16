@@ -174,6 +174,8 @@ export const en: Dictionary = {
     correlationWeekCount: (n) => `Based on ${n} weeks of data.`,
     correlationLagCaveat:
       "Compares each week's average calories to that week's weight change, not same-day numbers — digestion takes time, so today's weight reflects prior days' intake.",
+    correlationExpandLabel: 'Show chart',
+    correlationCollapseLabel: 'Hide chart',
     weeklyChangeLegend: 'weekly change',
     chartNavigationHint: 'Tap a point for details',
     viewDayLink: 'View this day',

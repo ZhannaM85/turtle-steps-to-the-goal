@@ -1,4 +1,5 @@
 import { render, screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { addDays, format, startOfISOWeek } from 'date-fns'
 import { describe, expect, it } from 'vitest'
 import type { CalorieEntry, DailyEntry } from '@/domain/dailyEntry'
@@ -55,6 +56,28 @@ describe('CorrelationView', () => {
 
     expect(
       screen.getByText(/Not enough data yet to see a pattern/),
+    ).toBeInTheDocument()
+  })
+
+  it('collapses the near-empty plot by default with fewer than 4 comparable weeks (#89)', async () => {
+    const user = userEvent.setup()
+    const entries = [
+      entry(weekStart(0), { weightKg: 90 }),
+      entry(weekStart(1), { weightKg: 88, calorieEntries: calories(1800) }),
+    ]
+    const { container } = render(<CorrelationView entries={entries} />)
+
+    expect(
+      screen.getByText(/Not enough data yet to see a pattern/),
+    ).toBeInTheDocument()
+    expect(
+      container.querySelector('.recharts-wrapper'),
+    ).not.toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: 'Show chart' }))
+
+    expect(
+      screen.getByRole('button', { name: 'Hide chart' }),
     ).toBeInTheDocument()
   })
 
