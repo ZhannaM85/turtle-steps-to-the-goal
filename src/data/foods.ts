@@ -1,15 +1,26 @@
 /**
- * A hand-curated reference list of common foods (#62, expanded #78) — not
- * user data, not editable, not synced with backups. Per-100g macros are
- * drawn from two public sources: a RIA.ru calorie table (mostly RU-cuisine
- * items, https://ria.ru/20220514/tablitsa-kaloriynosti-produktov-1788483172.html)
- * and a FitForFilms macros PDF (mostly UK/international items, raw weights,
- * https://fitforfilms.com/wp-content/uploads/Macros-of-common-foods-V3.pdf,
- * "average portion" columns intentionally dropped — 100g only). Where both
- * sources cover the same food with near-identical numbers, only one entry
- * was kept to avoid confusing near-duplicates in search; genuinely distinct
- * cuts/preparations (e.g. raw vs cooked, or different %-fat dairy) were kept
- * as separate entries, matching how a real nutrition database works.
+ * A hand-curated reference list of common foods (#62, expanded #78, #83)
+ * — shipped static content, not user data; a Settings-only per-device
+ * layer of hide/correct overrides sits on top of it instead (#90,
+ * `domain/foodOverride`), so this file itself stays unmodified by users.
+ * Per-100g macros are drawn from four public sources: a RIA.ru calorie
+ * table (RU-cuisine whole ingredients,
+ * https://ria.ru/20220514/tablitsa-kaloriynosti-produktov-1788483172.html),
+ * a FitForFilms macros PDF (UK/international whole ingredients, raw
+ * weights, https://fitforfilms.com/wp-content/uploads/Macros-of-common-foods-V3.pdf,
+ * "average portion" columns intentionally dropped — 100g only), a
+ * health-diet.ru category table (RU-cuisine *prepared dishes*,
+ * https://health-diet.ru/base_of_meals/, #83 — #78's sources were whole
+ * ingredients only, with nothing for things like jam or stew), and the
+ * USDA FNDDS "as consumed" survey dataset (EN/international prepared
+ * dishes, #83 — https://fdc.nal.usda.gov/download-datasets, the
+ * `Survey (FNDDS)` JSON download; only the generic "NFS"/home-recipe
+ * entry was kept per dish, not fast-food or restaurant-brand variants).
+ * Where sources cover the same food with near-identical numbers, only one
+ * entry was kept to avoid confusing near-duplicates in search; genuinely
+ * distinct cuts/preparations (e.g. raw vs cooked, or different %-fat
+ * dairy) were kept as separate entries, matching how a real nutrition
+ * database works.
  */
 export interface FoodItem {
   id: string
@@ -349,4 +360,42 @@ export const foods: FoodItem[] = [
   { id: 'beer-3pct', en: 'Beer, 3%', ru: 'Пиво 3,0%', kcal100: 37, protein100: 0.6, fat100: 0, carbs100: 3.5 },
   { id: 'beer-4-5pct', en: 'Beer, 4.5%', ru: 'Пиво 4,5%', kcal100: 45, protein100: 0.8, fat100: 0, carbs100: 4.5 },
   { id: 'dark-beer', en: 'Dark beer', ru: 'Пиво тёмное', kcal100: 39, protein100: 0.2, fat100: 0, carbs100: 4 },
+
+  // Prepared dishes (#83) — EN/international, USDA FNDDS
+  { id: 'pizza-cheese', en: 'Pizza, cheese', ru: 'Пицца с сыром', kcal100: 263, protein100: 11.9, fat100: 11.1, carbs100: 28.8 },
+  { id: 'pasta-tomato-cheese', en: 'Pasta with tomato sauce and cheese', ru: 'Паста с томатным соусом и сыром', kcal100: 119, protein100: 3.74, fat100: 4.83, carbs100: 15 },
+  { id: 'lasagna-meat', en: 'Lasagna with meat', ru: 'Лазанья с мясом', kcal100: 206, protein100: 13.6, fat100: 10.9, carbs100: 13.1 },
+  { id: 'hamburger', en: 'Hamburger', ru: 'Гамбургер', kcal100: 288, protein100: 17.5, fat100: 14.4, carbs100: 20.7 },
+  { id: 'cheeseburger', en: 'Cheeseburger', ru: 'Чизбургер', kcal100: 296, protein100: 17.9, fat100: 16.2, carbs100: 18.7 },
+  { id: 'hot-dog', en: 'Hot dog', ru: 'Хот-дог', kcal100: 310, protein100: 11.7, fat100: 28, carbs100: 2.89 },
+  { id: 'chili-meat-beans', en: 'Chili with meat and beans', ru: 'Чили кон карне (с мясом и фасолью)', kcal100: 118, protein100: 9.8, fat100: 4.33, carbs100: 10.2 },
+  { id: 'sushi', en: 'Sushi', ru: 'Суши', kcal100: 94, protein100: 2.92, fat100: 0.67, carbs100: 18.4 },
+  { id: 'cheese-quiche', en: 'Cheese quiche', ru: 'Киш с сыром', kcal100: 365, protein100: 11.9, fat100: 29.2, carbs100: 13.7 },
+  { id: 'coleslaw', en: 'Coleslaw', ru: 'Коулслоу (салат из капусты)', kcal100: 159, protein100: 0.88, fat100: 11.8, carbs100: 12.4 },
+  { id: 'clam-chowder', en: 'New England clam chowder', ru: 'Новоанглийский суп с моллюсками (чаудер)', kcal100: 93, protein100: 3.12, fat100: 4.8, carbs100: 9.25 },
+  { id: 'shepherds-pie', en: "Shepherd's pie", ru: 'Пастуший пирог', kcal100: 123, protein100: 7.64, fat100: 6.3, carbs100: 8.72 },
+  { id: 'pad-thai', en: 'Pad Thai', ru: 'Пад тай', kcal100: 154, protein100: 8.13, fat100: 7.5, carbs100: 14.4 },
+  { id: 'enchilada', en: 'Enchilada', ru: 'Энчилада', kcal100: 178, protein100: 10, fat100: 9.02, carbs100: 14.6 },
+  { id: 'chicken-curry-rice', en: 'Chicken curry with rice', ru: 'Курица карри с рисом', kcal100: 116, protein100: 4.96, fat100: 4, carbs100: 15.1 },
+  { id: 'ramen-bowl', en: 'Ramen bowl', ru: 'Рамен', kcal100: 127, protein100: 7.13, fat100: 4.57, carbs100: 14 },
+  { id: 'chicken-noodle-soup', en: 'Chicken noodle soup', ru: 'Куриный суп с лапшой', kcal100: 53, protein100: 3.84, fat100: 1.4, carbs100: 6.21 },
+  { id: 'falafel', en: 'Falafel', ru: 'Фалафель', kcal100: 514, protein100: 8.28, fat100: 41.2, carbs100: 29 },
+  { id: 'gyro-sandwich', en: 'Gyro sandwich', ru: 'Сэндвич гирос', kcal100: 184, protein100: 11.2, fat100: 6.76, carbs100: 18.8 },
+  { id: 'chicken-dumplings', en: 'Chicken and dumplings', ru: 'Курица с клёцками', kcal100: 144, protein100: 15.7, fat100: 5.55, carbs100: 8.04 },
+  { id: 'pierogi', en: 'Pierogi', ru: 'Пироги (польские вареники)', kcal100: 195, protein100: 5.26, fat100: 6.14, carbs100: 29.6 },
+  { id: 'paella', en: 'Paella', ru: 'Паэлья', kcal100: 169, protein100: 9.53, fat100: 7.17, carbs100: 15.8 },
+  { id: 'pancakes', en: 'Pancakes', ru: 'Панкейки (американские блины)', kcal100: 282, protein100: 7.41, fat100: 12.1, carbs100: 35.3 },
+  { id: 'quesadilla-cheese', en: 'Quesadilla, cheese', ru: 'Кесадилья с сыром', kcal100: 316, protein100: 13.4, fat100: 16.2, carbs100: 28.6 },
+  { id: 'burrito', en: 'Burrito', ru: 'Буррито', kcal100: 219, protein100: 11.1, fat100: 8.54, carbs100: 23.9 },
+  { id: 'meatloaf-sandwich', en: 'Meatloaf sandwich', ru: 'Сэндвич с мясным рулетом', kcal100: 217, protein100: 11.8, fat100: 6.15, carbs100: 28.7 },
+
+  // Prepared dishes (#83) — RU-cuisine, health-diet.ru
+  { id: 'apricot-jam', en: 'Apricot jam', ru: 'Абрикосовый джем', kcal100: 209.56, protein100: 0.46, fat100: 0.06, carbs100: 51.49 },
+  { id: 'azu', en: 'Azu (beef and pickle stew)', ru: 'Азу', kcal100: 177.62, protein100: 9.31, fat100: 12.26, carbs100: 7.26 },
+  { id: 'beef-stroganoff', en: 'Beef Stroganoff', ru: 'Бефстроганов', kcal100: 355.4, protein100: 21.9, fat100: 27.4, carbs100: 5.7 },
+  { id: 'beefsteak', en: 'Beefsteak', ru: 'Бифштекс', kcal100: 384.3, protein100: 27.8, fat100: 29.6, carbs100: 1.7 },
+  { id: 'vareniki-tvorog-fruit', en: 'Vareniki with cottage cheese or fruit', ru: 'Вареники творожные/фруктовые', kcal100: 281.3, protein100: 10.4, fat100: 10.5, carbs100: 38.8 },
+  { id: 'vareniki-cabbage', en: 'Vareniki with cabbage', ru: 'Вареники с капустой', kcal100: 79.1, protein100: 4.2, fat100: 2.9, carbs100: 9.7 },
+  { id: 'fried-fish-cutlets', en: 'Fried fish cutlets', ru: 'Биточки рыбные жареные', kcal100: 232.1, protein100: 12.3, fat100: 15, carbs100: 12.7 },
+  { id: 'stewed-eggplant-tomato', en: 'Stewed eggplant with tomatoes', ru: 'Баклажаны тушеные с помидорами', kcal100: 189.3, protein100: 2.1, fat100: 17.7, carbs100: 5.7 },
 ]

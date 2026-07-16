@@ -15,6 +15,12 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    issue: 83,
+    date: '2026-07-16',
+    en: 'Added 34 prepared dishes to the food list — pizza, burgers, pasta, sushi, curries, and Russian classics like beef stroganoff and vareniki.',
+    ru: 'В список продуктов добавлены 34 готовых блюда — пицца, бургеры, паста, суши, карри, а также русская классика вроде бефстроганова и вареников.',
+  },
+  {
     issue: 90,
     date: '2026-07-16',
     en: 'You can now customize the food list — hide items you don\'t want to see, or correct their calories/macros. Find it under Settings > Manage food list.',
