@@ -3,7 +3,7 @@ import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { useLocaleStore } from '@/i18n'
-import { useThemeStore, useUnitStore } from '@/stores'
+import { useThemeStore, useUnitStore, useWeekStartStore } from '@/stores'
 import { SettingsScreen } from './SettingsScreen'
 
 beforeEach(() => {
@@ -11,6 +11,7 @@ beforeEach(() => {
   useLocaleStore.setState({ locale: 'en' })
   useThemeStore.setState({ mood: 'pond', colorScheme: 'light' })
   useUnitStore.setState({ unit: 'kg' })
+  useWeekStartStore.setState({ weekStart: 'monday' })
   document.documentElement.removeAttribute('data-mood')
   document.documentElement.classList.remove('dark')
 })
@@ -20,6 +21,7 @@ afterEach(() => {
   useLocaleStore.setState({ locale: 'en' })
   useThemeStore.setState({ mood: 'pond', colorScheme: 'light' })
   useUnitStore.setState({ unit: 'kg' })
+  useWeekStartStore.setState({ weekStart: 'monday' })
   document.documentElement.removeAttribute('data-mood')
   document.documentElement.classList.remove('dark')
 })
@@ -48,6 +50,26 @@ describe('SettingsScreen', () => {
 
     expect(screen.getByRole('radio', { name: 'lb' })).toBeChecked()
     expect(useUnitStore.getState().unit).toBe('lb')
+  })
+
+  it('defaults to Monday week start', () => {
+    render(<SettingsScreen />)
+
+    expect(screen.getByRole('radio', { name: 'Monday' })).toBeChecked()
+  })
+
+  it('switches the week-start preference when selected (#85)', async () => {
+    const user = userEvent.setup()
+    render(<SettingsScreen />)
+
+    await user.click(
+      screen.getByRole('radio', { name: 'Day of my first entry' }),
+    )
+
+    expect(
+      screen.getByRole('radio', { name: 'Day of my first entry' }),
+    ).toBeChecked()
+    expect(useWeekStartStore.getState().weekStart).toBe('firstEntryWeekday')
   })
 
   it('switches the whole dictionary to Russian when selected', async () => {
@@ -97,6 +119,7 @@ describe('SettingsScreen', () => {
     // Radio groups use roving tabindex — Tab lands on each group's checked
     // radio directly, not every individual option.
     await user.tab() // units group's checked radio (kg)
+    await user.tab() // week-start group's checked radio (Monday)
     await user.tab() // locale group's checked radio (English)
     await user.tab() // mood group's checked radio (Pond)
 

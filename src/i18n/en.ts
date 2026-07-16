@@ -247,6 +247,11 @@ export const en: Dictionary = {
       "Optional — turns on a daily \"on your period\" toggle on Today. Off by default.",
     cycleTrackingOn: 'On',
     cycleTrackingOff: 'Off',
+    weekStartLabel: 'Week start',
+    weekStartDescription:
+      'Which day each week begins on, used for "This week" and weekly summaries.',
+    weekStartMonday: 'Monday',
+    weekStartFirstEntry: 'Day of my first entry',
   },
   about: {
     title: 'About',

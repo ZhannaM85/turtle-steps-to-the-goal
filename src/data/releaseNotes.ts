@@ -15,6 +15,12 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    issue: 85,
+    date: '2026-07-16',
+    en: 'Added a Settings option to start your week on Monday or on the day you started tracking, instead of always Monday.',
+    ru: 'Добавлена настройка начала недели: с понедельника или со дня первой записи, вместо всегда понедельника.',
+  },
+  {
     issue: 89,
     date: '2026-07-16',
     en: 'The calories-vs-weight-change chart on Dashboard now stays collapsed until there\'s enough data to show a real pattern, instead of showing an almost-empty graph for the first few weeks.',

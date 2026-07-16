@@ -249,6 +249,11 @@ export const ru: Dictionary = {
       'Необязательно — включает переключатель «менструация» на экране «Сегодня». По умолчанию выключено.',
     cycleTrackingOn: 'Вкл',
     cycleTrackingOff: 'Выкл',
+    weekStartLabel: 'Начало недели',
+    weekStartDescription:
+      'День, с которого начинается неделя — используется для «Эта неделя» и недельных сводок.',
+    weekStartMonday: 'Понедельник',
+    weekStartFirstEntry: 'День первой записи',
   },
   about: {
     title: 'О приложении',

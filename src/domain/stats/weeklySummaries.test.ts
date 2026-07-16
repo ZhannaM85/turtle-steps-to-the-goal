@@ -160,4 +160,22 @@ describe('weeklySummaries', () => {
     expect(summary.averageFatG).toBe(60) // only one day logged fat
     expect(summary.averageCarbsG).toBeNull() // never logged
   })
+
+  it('groups by a custom weekStartsOn instead of Monday (#85)', () => {
+    // WEEK_1_START (Monday) + 2 = Wednesday. With weekStartsOn=3 (Wed), a
+    // Tuesday entry belongs to the *prior* Wed-start week, not this one.
+    const wednesday = dayOf(WEEK_1_START, 2)
+    const tuesdayBefore = dayOf(WEEK_1_START, 1)
+    const entries = [
+      entry(tuesdayBefore, { weightKg: 70 }),
+      entry(wednesday, { weightKg: 80 }),
+    ]
+
+    const summaries = weeklySummaries(entries, undefined, 3)
+
+    expect(summaries).toHaveLength(2)
+    expect(summaries[0].averageWeightKg).toBe(70)
+    expect(summaries[1].weekStart).toBe(wednesday)
+    expect(summaries[1].averageWeightKg).toBe(80)
+  })
 })

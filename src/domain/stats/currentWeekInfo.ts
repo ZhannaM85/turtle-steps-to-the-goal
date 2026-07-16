@@ -1,9 +1,10 @@
 import {
   differenceInCalendarWeeks,
-  endOfISOWeek,
+  endOfWeek,
   format,
   parseISO,
-  startOfISOWeek,
+  startOfWeek,
+  type Day,
 } from 'date-fns'
 
 export interface CurrentWeekInfo {
@@ -21,24 +22,30 @@ const DATE_FORMAT = 'yyyy-MM-dd'
  * renewed freely without resetting the count. If nothing has been logged
  * yet, today's week counts as Week 1 (it becomes the historical week 1
  * as soon as something is logged).
+ *
+ * `weekStartsOn` (#85) defaults to Monday (`1`, the original ISO-week
+ * behavior) — callers resolve the user's week-start preference via
+ * `resolveWeekStartsOn` and pass the result in, this function itself has
+ * no knowledge of that preference.
  */
 export function currentWeekInfo(
   today: Date,
   earliestEntryDate: string | undefined,
+  weekStartsOn: Day = 1,
 ): CurrentWeekInfo {
-  const todayWeekStart = startOfISOWeek(today)
+  const todayWeekStart = startOfWeek(today, { weekStartsOn })
   const anchorWeekStart = earliestEntryDate
-    ? startOfISOWeek(parseISO(earliestEntryDate))
+    ? startOfWeek(parseISO(earliestEntryDate), { weekStartsOn })
     : todayWeekStart
 
   const weekNumber =
     differenceInCalendarWeeks(todayWeekStart, anchorWeekStart, {
-      weekStartsOn: 1,
+      weekStartsOn,
     }) + 1
 
   return {
     weekNumber,
     weekStart: format(todayWeekStart, DATE_FORMAT),
-    weekEnd: format(endOfISOWeek(today), DATE_FORMAT),
+    weekEnd: format(endOfWeek(today, { weekStartsOn }), DATE_FORMAT),
   }
 }

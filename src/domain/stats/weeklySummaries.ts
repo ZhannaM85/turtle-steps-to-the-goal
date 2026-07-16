@@ -1,4 +1,4 @@
-import { endOfISOWeek, format, parseISO, startOfISOWeek } from 'date-fns'
+import { endOfWeek, format, parseISO, startOfWeek, type Day } from 'date-fns'
 import {
   totalCalories,
   totalCarbs,
@@ -31,14 +31,24 @@ function average(values: number[]): number | null {
 
 const DATE_FORMAT = 'yyyy-MM-dd'
 
+/**
+ * `weekStartsOn` (#85) defaults to Monday (`1`, the original ISO-week
+ * behavior) — callers resolve the user's week-start preference via
+ * `useWeekStartsOn`/`resolveWeekStartsOn` and pass the result in, this
+ * function itself has no knowledge of that preference.
+ */
 export function weeklySummaries(
   entries: DailyEntry[],
   goal?: Goal,
+  weekStartsOn: Day = 1,
 ): WeeklySummary[] {
   const weekGroups = new Map<string, DailyEntry[]>()
 
   for (const entry of entries) {
-    const weekStart = format(startOfISOWeek(parseISO(entry.date)), DATE_FORMAT)
+    const weekStart = format(
+      startOfWeek(parseISO(entry.date), { weekStartsOn }),
+      DATE_FORMAT,
+    )
     const group = weekGroups.get(weekStart)
     if (group) {
       group.push(entry)
@@ -51,7 +61,10 @@ export function weeklySummaries(
 
   const summaries: WeeklySummary[] = sortedWeekStarts.map((weekStart) => {
     const weekEntries = weekGroups.get(weekStart)!
-    const weekEnd = format(endOfISOWeek(parseISO(weekStart)), DATE_FORMAT)
+    const weekEnd = format(
+      endOfWeek(parseISO(weekStart), { weekStartsOn }),
+      DATE_FORMAT,
+    )
     const weights = weekEntries
       .map((e) => e.weightKg)
       .filter((v): v is number => v !== undefined)

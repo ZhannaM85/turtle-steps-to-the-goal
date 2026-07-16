@@ -14,6 +14,7 @@ import { kgToLb } from '@/domain/goal'
 import { correlationInsight, weeklySummaries } from '@/domain/stats'
 import { formatNumber, unitLabel, useLocale, useTranslation } from '@/i18n'
 import { useUnitStore } from '@/stores'
+import { useWeekStartsOn } from '@/shared/hooks'
 import { Button } from '@/shared/ui/button'
 
 export interface CorrelationViewProps {
@@ -35,7 +36,8 @@ export function CorrelationView({ entries }: CorrelationViewProps) {
   // toggle shown, since there's now something worth seeing at a glance.
   const [isExpanded, setIsExpanded] = useState(false)
 
-  const weeks = weeklySummaries(entries)
+  const weekStartsOn = useWeekStartsOn(entries)
+  const weeks = weeklySummaries(entries, undefined, weekStartsOn)
   const points = weeks
     .filter(
       (
@@ -52,7 +54,7 @@ export function CorrelationView({ entries }: CorrelationViewProps) {
 
   if (points.length === 0) return null
 
-  const insight = correlationInsight(entries)
+  const insight = correlationInsight(entries, weekStartsOn)
   const expanded = insight !== null || isExpanded
 
   return (

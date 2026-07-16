@@ -1,3 +1,4 @@
+import type { Day } from 'date-fns'
 import type { DailyEntry } from '@/domain/dailyEntry'
 import { weeklySummaries } from './weeklySummaries'
 
@@ -31,8 +32,9 @@ function average(values: number[]): number {
  */
 export function correlationInsight(
   entries: DailyEntry[],
+  weekStartsOn: Day = 1,
 ): CorrelationInsight | null {
-  const weeks = weeklySummaries(entries)
+  const weeks = weeklySummaries(entries, undefined, weekStartsOn)
   const points = weeks
     .filter((w) => w.averageCalories !== null && w.deltaVsPriorWeekKg !== null)
     .map((w) => ({

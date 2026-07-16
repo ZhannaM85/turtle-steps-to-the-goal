@@ -208,6 +208,10 @@ export interface Dictionary {
     cycleTrackingDescription: string
     cycleTrackingOn: string
     cycleTrackingOff: string
+    weekStartLabel: string
+    weekStartDescription: string
+    weekStartMonday: string
+    weekStartFirstEntry: string
   }
   about: {
     title: string

@@ -8,8 +8,10 @@ import {
   useCycleTrackingStore,
   useThemeStore,
   useUnitStore,
+  useWeekStartStore,
   type Mood,
   type Unit,
+  type WeekStart,
 } from '@/stores'
 import { ExportSection } from '@/features/export'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
@@ -51,6 +53,8 @@ export function SettingsScreen() {
   const setCycleTrackingEnabled = useCycleTrackingStore(
     (state) => state.setEnabled,
   )
+  const weekStart = useWeekStartStore((state) => state.weekStart)
+  const setWeekStart = useWeekStartStore((state) => state.setWeekStart)
 
   return (
     <div className="flex flex-col gap-4">
@@ -72,6 +76,30 @@ export function SettingsScreen() {
           >
             <ToggleGroupItem value="kg">{t.common.kg}</ToggleGroupItem>
             <ToggleGroupItem value="lb">{t.common.lb}</ToggleGroupItem>
+          </ToggleGroup>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>{t.settings.weekStartLabel}</CardTitle>
+        </CardHeader>
+        <CardContent className="flex flex-col gap-1.5">
+          <span className="text-sm text-muted-foreground">
+            {t.settings.weekStartDescription}
+          </span>
+          <ToggleGroup
+            type="single"
+            aria-label={t.settings.weekStartLabel}
+            value={weekStart}
+            onValueChange={(value) => value && setWeekStart(value as WeekStart)}
+          >
+            <ToggleGroupItem value="monday">
+              {t.settings.weekStartMonday}
+            </ToggleGroupItem>
+            <ToggleGroupItem value="firstEntryWeekday">
+              {t.settings.weekStartFirstEntry}
+            </ToggleGroupItem>
           </ToggleGroup>
         </CardContent>
       </Card>

@@ -10,6 +10,7 @@ import {
   useTranslation,
 } from '@/i18n'
 import { useUnitStore } from '@/stores'
+import { useWeekStartsOn } from '@/shared/hooks'
 
 export interface MetTargetListProps {
   entries: DailyEntry[]
@@ -30,8 +31,9 @@ export function MetTargetList({ entries, goal }: MetTargetListProps) {
   const displayUnit = useUnitStore((state) => state.unit)
   const toDisplay = (kg: number) => (displayUnit === 'lb' ? kgToLb(kg) : kg)
   const unit = unitLabel(displayUnit, t)
+  const weekStartsOn = useWeekStartsOn(entries)
 
-  const metWeeks = weeklySummaries(entries, goal ?? undefined)
+  const metWeeks = weeklySummaries(entries, goal ?? undefined, weekStartsOn)
     .filter((week) => week.targetMet)
     .reverse()
 

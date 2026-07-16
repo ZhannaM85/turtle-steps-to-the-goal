@@ -11,6 +11,7 @@ import {
 } from '@/i18n'
 import { macrosSummaryText } from '@/shared/lib/macroDisplay'
 import { useUnitStore } from '@/stores'
+import { useWeekStartsOn } from '@/shared/hooks'
 import { StatCard } from '@/shared/ui/stat-card'
 
 export interface WeeklySummaryCardsProps {
@@ -25,8 +26,9 @@ export function WeeklySummaryCards({ entries, goal }: WeeklySummaryCardsProps) {
   const displayUnit = useUnitStore((state) => state.unit)
   const toDisplay = (kg: number) => (displayUnit === 'lb' ? kgToLb(kg) : kg)
   const unit = unitLabel(displayUnit, t)
+  const weekStartsOn = useWeekStartsOn(entries)
 
-  const summaries = weeklySummaries(entries, goal ?? undefined)
+  const summaries = weeklySummaries(entries, goal ?? undefined, weekStartsOn)
   if (summaries.length === 0) return null
 
   const weeksMostRecentFirst = [...summaries].reverse()

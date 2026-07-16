@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import type { DailyEntry } from '@/domain/dailyEntry'
 import { weeklySummaries } from '@/domain/stats'
 import { IndexedDbDailyEntryRepository } from '@/infrastructure/persistence/indexeddb'
+import { useWeekStartsOn } from '@/shared/hooks/useWeekStartsOn'
 import {
   useDailyEntryStore,
   useGoalCelebrationStore,
@@ -37,6 +38,7 @@ export function useWeeklyGoalCelebration(): {
     (state) => state.markCelebrated,
   )
   const [entries, setEntries] = useState<DailyEntry[]>([])
+  const weekStartsOn = useWeekStartsOn(entries)
 
   useEffect(() => {
     loadActiveGoal()
@@ -56,7 +58,7 @@ export function useWeeklyGoalCelebration(): {
     return { shouldCelebrate: false, dismiss: () => {} }
   }
 
-  const summaries = weeklySummaries(entries, goal)
+  const summaries = weeklySummaries(entries, goal, weekStartsOn)
   const currentWeek = summaries[summaries.length - 1]
   const shouldCelebrate =
     currentWeek !== undefined &&
