@@ -85,6 +85,11 @@ export interface Dictionary {
     noFoodResultsText: string
     addFoodConfirmLabel: string
     per100gLabel: string
+    /** Live preview prefix for the manual add row/item-edit row's computed
+     * total (#98) — e.g. "Total: 300 kcal · ..." — recomputed on every
+     * keystroke from the per-100g rate × quantity fields (#96), so the
+     * multiplication result is visible before Add/Save, not just after. */
+    computedTotalPrefix: string
     lastLoggedLabel: string
     sleepLabel: string
     sleepHoursLabel: string

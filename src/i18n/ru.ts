@@ -106,6 +106,7 @@ export const ru: Dictionary = {
     noFoodResultsText: 'Ничего не найдено.',
     addFoodConfirmLabel: 'Добавить продукт',
     per100gLabel: 'на 100 г',
+    computedTotalPrefix: 'Итого:',
     lastLoggedLabel: 'в прошлый раз',
     sleepLabel: 'Сон',
     sleepHoursLabel: 'Часов сна',

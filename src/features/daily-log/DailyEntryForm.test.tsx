@@ -668,6 +668,30 @@ describe('DailyEntryForm', () => {
       })
     })
 
+    it('shows a live preview of the computed total before Add is pressed (#98)', async () => {
+      const user = userEvent.setup()
+      render(
+        <DailyEntryForm
+          date="2026-03-01"
+          existingEntry={null}
+          onSave={vi.fn()}
+        />,
+      )
+
+      expect(screen.queryByText(/^Total:/)).not.toBeInTheDocument()
+
+      await user.type(screen.getByLabelText('kcal/100g'), '200')
+      await user.type(screen.getByLabelText('Protein'), '20')
+      await user.type(screen.getByLabelText('Fat'), '10')
+      await user.type(screen.getByLabelText('Carbs'), '4')
+      await user.clear(screen.getByLabelText('Grams'))
+      await user.type(screen.getByLabelText('Grams'), '50')
+
+      expect(
+        screen.getByText('Total: 100 kcal · P 10g · F 5g · C 2g'),
+      ).toBeInTheDocument()
+    })
+
     it('treats a blank quantity as 100g, matching the total typed directly (#96)', async () => {
       const user = userEvent.setup()
       const onSave = vi.fn()
@@ -995,6 +1019,20 @@ describe('DailyEntryForm', () => {
         expect(screen.getByLabelText('kcal/100g — Meal 1')).toHaveValue('300')
         expect(screen.getByLabelText('Protein — Meal 1')).toHaveValue('10')
         expect(screen.getByLabelText('Grams — Meal 1')).toHaveValue('50')
+      })
+
+      it('shows a live preview of an item-edit row’s computed total (#98)', async () => {
+        const user = userEvent.setup()
+        renderWithMeals()
+
+        await user.click(screen.getByRole('button', { name: 'Edit meal 1' }))
+        await user.clear(screen.getByLabelText('Grams — Meal 1'))
+        await user.type(screen.getByLabelText('Grams — Meal 1'), '50')
+
+        // Meal 1's stored item is 300 kcal with no recorded amountG, so
+        // itemDraftFrom's fallback shows kcal/100g = 300; scaled by the
+        // newly-typed 50g quantity: 300 * 50/100 = 150.
+        expect(screen.getByText('Total: 150 kcal')).toBeInTheDocument()
       })
 
       it('edits a meal amount in place and saves immediately', async () => {

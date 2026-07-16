@@ -16,7 +16,13 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
-import { Check, GripVertical, Pencil, type LucideIcon, Trash2 } from 'lucide-react'
+import {
+  Check,
+  GripVertical,
+  Pencil,
+  type LucideIcon,
+  Trash2,
+} from 'lucide-react'
 import { useForm } from 'react-hook-form'
 import type {
   CalorieEntry,
@@ -186,9 +192,16 @@ function scaleFromPer100g(
   const scale = quantity / 100
   return {
     amountKcal: Math.round(kcal100 * scale),
-    proteinG: protein100 === undefined ? undefined : Math.round(protein100 * scale * 10) / 10,
-    fatG: fat100 === undefined ? undefined : Math.round(fat100 * scale * 10) / 10,
-    carbsG: carbs100 === undefined ? undefined : Math.round(carbs100 * scale * 10) / 10,
+    proteinG:
+      protein100 === undefined
+        ? undefined
+        : Math.round(protein100 * scale * 10) / 10,
+    fatG:
+      fat100 === undefined ? undefined : Math.round(fat100 * scale * 10) / 10,
+    carbsG:
+      carbs100 === undefined
+        ? undefined
+        : Math.round(carbs100 * scale * 10) / 10,
     amountG: quantity,
   }
 }
@@ -216,11 +229,53 @@ function ratesFromAbsolute(
   const scale = 100 / quantity
   return {
     kcal100: Math.round(amountKcal * scale),
-    protein100: proteinG === undefined ? undefined : Math.round(proteinG * scale * 10) / 10,
+    protein100:
+      proteinG === undefined
+        ? undefined
+        : Math.round(proteinG * scale * 10) / 10,
     fat100: fatG === undefined ? undefined : Math.round(fatG * scale * 10) / 10,
-    carbs100: carbsG === undefined ? undefined : Math.round(carbsG * scale * 10) / 10,
+    carbs100:
+      carbsG === undefined ? undefined : Math.round(carbsG * scale * 10) / 10,
     quantity,
   }
+}
+
+/** Live preview text for the manual entry's computed total (#98) — e.g.
+ * "300 kcal · Б 20г · Ж 5г · У 2г" — from the exact same `scaleFromPer100g`
+ * result that will actually get saved, so the multiplication is visible
+ * before Add/Save rather than only after. */
+function formatComputedTotal(
+  scaled: {
+    amountKcal: number
+    proteinG: number | undefined
+    fatG: number | undefined
+    carbsG: number | undefined
+  },
+  locale: Locale,
+  t: Dictionary,
+): string {
+  const kcalText = `${formatNumber(scaled.amountKcal, locale, 0)} ${t.dailyEntry.kcalUnit}`
+  const macros = macrosSummaryTextCompact(
+    scaled.proteinG,
+    scaled.fatG,
+    scaled.carbsG,
+    locale,
+    t,
+  )
+  return macros ? `${kcalText} · ${macros}` : kcalText
+}
+
+// Macros are optional supplementary data (#51) with no per-field error UI,
+// unlike kcal's required-and-guarded amount — invalid/garbage input (NaN)
+// or a negative number is silently treated as "not provided" rather than
+// surfacing a validation error for a low-stakes field. Module-level (not
+// nested in DailyEntryForm) since MealListItem's per-100g total preview
+// (#98) needs it too.
+function parseOptionalMacro(raw: string): number | undefined {
+  const parsed = parseNumberInput(raw)
+  return parsed !== undefined && Number.isFinite(parsed) && parsed >= 0
+    ? parsed
+    : undefined
 }
 
 function itemDraftFrom(item: CalorieItem): EditItemDraft {
@@ -395,143 +450,175 @@ function MealListItem({
          * and saving deletes the whole group, same end result as the
          * group Delete button above. */}
         <ul className="flex flex-col gap-1.5">
-          {editItems.map((item) => (
-            <li key={item.id} className="flex flex-col gap-1">
-              <div className="flex items-center gap-2">
-                <MealNoteAutocomplete
-                  listInputId={`edit-item-name-${item.id}`}
-                  ariaLabel={`${t.dailyEntry.itemNameLabel} — ${t.dailyEntry.mealLabel(position)}`}
-                  placeholder={t.dailyEntry.itemNamePlaceholder}
-                  value={item.name}
-                  onChange={(value) =>
-                    onEditItemFieldChange(item.id, 'name', value)
-                  }
-                  onSelectItem={(mealItem) =>
-                    onEditItemSelectMealItem(item.id, mealItem)
-                  }
-                  onSubmit={onSaveEdit}
-                  suggestions={mealItems}
-                  className="h-7"
-                />
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon-sm"
-                  aria-label={t.dailyEntry.deleteItemLabel}
-                  onClick={() => onRemoveEditItem(item.id)}
-                >
-                  <Trash2 aria-hidden="true" />
-                </Button>
-              </div>
-              <div className="flex flex-wrap items-end gap-2">
-                <div className="flex flex-col gap-1">
-                  <span className="text-xs text-muted-foreground">
-                    {t.dailyEntry.addCaloriesLabel}
-                  </span>
-                  <Input
-                    type="text"
-                    inputMode="decimal"
-                    aria-label={`${t.dailyEntry.addCaloriesLabel} — ${item.name || t.dailyEntry.mealLabel(position)}`}
-                    value={item.amount}
-                    onChange={(e) =>
-                      onEditItemFieldChange(item.id, 'amount', e.target.value)
+          {editItems.map((item) => {
+            // Live preview of this item's computed total (#98), same
+            // rationale as the add row's own preview below.
+            const itemKcal100 = parseNumberInput(item.amount)
+            const itemTotalPreview =
+              itemKcal100 && itemKcal100 > 0
+                ? formatComputedTotal(
+                    scaleFromPer100g(
+                      itemKcal100,
+                      parseOptionalMacro(item.protein),
+                      parseOptionalMacro(item.fat),
+                      parseOptionalMacro(item.carbs),
+                      item.amountG,
+                    ),
+                    locale,
+                    t,
+                  )
+                : null
+            return (
+              <li key={item.id} className="flex flex-col gap-1">
+                <div className="flex items-center gap-2">
+                  <MealNoteAutocomplete
+                    listInputId={`edit-item-name-${item.id}`}
+                    ariaLabel={`${t.dailyEntry.itemNameLabel} — ${t.dailyEntry.mealLabel(position)}`}
+                    placeholder={t.dailyEntry.itemNamePlaceholder}
+                    value={item.name}
+                    onChange={(value) =>
+                      onEditItemFieldChange(item.id, 'name', value)
                     }
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') {
-                        e.preventDefault()
-                        onSaveEdit()
-                      }
-                    }}
-                    className="h-7 w-16"
-                  />
-                </div>
-                <div className="flex flex-col gap-1">
-                  <span className="text-xs text-muted-foreground">
-                    {t.dailyEntry.proteinLabel}
-                  </span>
-                  <Input
-                    type="text"
-                    inputMode="decimal"
-                    aria-label={`${t.dailyEntry.proteinLabel} — ${item.name || t.dailyEntry.mealLabel(position)}`}
-                    value={item.protein}
-                    onChange={(e) =>
-                      onEditItemFieldChange(item.id, 'protein', e.target.value)
+                    onSelectItem={(mealItem) =>
+                      onEditItemSelectMealItem(item.id, mealItem)
                     }
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') {
-                        e.preventDefault()
-                        onSaveEdit()
-                      }
-                    }}
-                    className="h-7 w-14"
+                    onSubmit={onSaveEdit}
+                    suggestions={mealItems}
+                    className="h-7"
                   />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon-sm"
+                    aria-label={t.dailyEntry.deleteItemLabel}
+                    onClick={() => onRemoveEditItem(item.id)}
+                  >
+                    <Trash2 aria-hidden="true" />
+                  </Button>
                 </div>
-                <div className="flex flex-col gap-1">
-                  <span className="text-xs text-muted-foreground">
-                    {t.dailyEntry.fatLabel}
-                  </span>
-                  <Input
-                    type="text"
-                    inputMode="decimal"
-                    aria-label={`${t.dailyEntry.fatLabel} — ${item.name || t.dailyEntry.mealLabel(position)}`}
-                    value={item.fat}
-                    onChange={(e) =>
-                      onEditItemFieldChange(item.id, 'fat', e.target.value)
-                    }
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') {
-                        e.preventDefault()
-                        onSaveEdit()
+                <div className="flex flex-wrap items-end gap-2">
+                  <div className="flex flex-col gap-1">
+                    <span className="text-xs text-muted-foreground">
+                      {t.dailyEntry.addCaloriesLabel}
+                    </span>
+                    <Input
+                      type="text"
+                      inputMode="decimal"
+                      aria-label={`${t.dailyEntry.addCaloriesLabel} — ${item.name || t.dailyEntry.mealLabel(position)}`}
+                      value={item.amount}
+                      onChange={(e) =>
+                        onEditItemFieldChange(item.id, 'amount', e.target.value)
                       }
-                    }}
-                    className="h-7 w-14"
-                  />
-                </div>
-                <div className="flex flex-col gap-1">
-                  <span className="text-xs text-muted-foreground">
-                    {t.dailyEntry.carbsLabel}
-                  </span>
-                  <Input
-                    type="text"
-                    inputMode="decimal"
-                    aria-label={`${t.dailyEntry.carbsLabel} — ${item.name || t.dailyEntry.mealLabel(position)}`}
-                    value={item.carbs}
-                    onChange={(e) =>
-                      onEditItemFieldChange(item.id, 'carbs', e.target.value)
-                    }
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') {
-                        e.preventDefault()
-                        onSaveEdit()
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault()
+                          onSaveEdit()
+                        }
+                      }}
+                      className="h-7 w-16"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <span className="text-xs text-muted-foreground">
+                      {t.dailyEntry.proteinLabel}
+                    </span>
+                    <Input
+                      type="text"
+                      inputMode="decimal"
+                      aria-label={`${t.dailyEntry.proteinLabel} — ${item.name || t.dailyEntry.mealLabel(position)}`}
+                      value={item.protein}
+                      onChange={(e) =>
+                        onEditItemFieldChange(
+                          item.id,
+                          'protein',
+                          e.target.value,
+                        )
                       }
-                    }}
-                    className="h-7 w-14"
-                  />
-                </div>
-                <div className="flex flex-col gap-1">
-                  <span className="text-xs text-muted-foreground">
-                    {t.dailyEntry.itemAmountGLabel}
-                  </span>
-                  <Input
-                    type="text"
-                    inputMode="decimal"
-                    aria-label={`${t.dailyEntry.itemAmountGLabel} — ${item.name || t.dailyEntry.mealLabel(position)}`}
-                    value={item.amountG}
-                    onChange={(e) =>
-                      onEditItemFieldChange(item.id, 'amountG', e.target.value)
-                    }
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') {
-                        e.preventDefault()
-                        onSaveEdit()
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault()
+                          onSaveEdit()
+                        }
+                      }}
+                      className="h-7 w-14"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <span className="text-xs text-muted-foreground">
+                      {t.dailyEntry.fatLabel}
+                    </span>
+                    <Input
+                      type="text"
+                      inputMode="decimal"
+                      aria-label={`${t.dailyEntry.fatLabel} — ${item.name || t.dailyEntry.mealLabel(position)}`}
+                      value={item.fat}
+                      onChange={(e) =>
+                        onEditItemFieldChange(item.id, 'fat', e.target.value)
                       }
-                    }}
-                    className="h-7 w-14"
-                  />
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault()
+                          onSaveEdit()
+                        }
+                      }}
+                      className="h-7 w-14"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <span className="text-xs text-muted-foreground">
+                      {t.dailyEntry.carbsLabel}
+                    </span>
+                    <Input
+                      type="text"
+                      inputMode="decimal"
+                      aria-label={`${t.dailyEntry.carbsLabel} — ${item.name || t.dailyEntry.mealLabel(position)}`}
+                      value={item.carbs}
+                      onChange={(e) =>
+                        onEditItemFieldChange(item.id, 'carbs', e.target.value)
+                      }
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault()
+                          onSaveEdit()
+                        }
+                      }}
+                      className="h-7 w-14"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <span className="text-xs text-muted-foreground">
+                      {t.dailyEntry.itemAmountGLabel}
+                    </span>
+                    <Input
+                      type="text"
+                      inputMode="decimal"
+                      aria-label={`${t.dailyEntry.itemAmountGLabel} — ${item.name || t.dailyEntry.mealLabel(position)}`}
+                      value={item.amountG}
+                      onChange={(e) =>
+                        onEditItemFieldChange(
+                          item.id,
+                          'amountG',
+                          e.target.value,
+                        )
+                      }
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault()
+                          onSaveEdit()
+                        }
+                      }}
+                      className="h-7 w-14"
+                    />
+                  </div>
                 </div>
-              </div>
-            </li>
-          ))}
+                {itemTotalPreview && (
+                  <p className="text-xs text-muted-foreground">
+                    {t.dailyEntry.computedTotalPrefix} {itemTotalPreview}
+                  </p>
+                )}
+              </li>
+            )
+          })}
         </ul>
         <Button
           type="button"
@@ -606,9 +693,7 @@ function MealListItem({
           {formatNumber(calorieEntryKcal(entry), locale, 0)}{' '}
           {t.dailyEntry.kcalUnit}
           {entry.timeEaten && (
-            <span className="text-muted-foreground">
-              · {entry.timeEaten}
-            </span>
+            <span className="text-muted-foreground">· {entry.timeEaten}</span>
           )}
           {mealEmotionOption && (
             <>
@@ -787,9 +872,7 @@ export function DailyEntryForm({
   // decimal only on save (see combineHoursMinutes).
   const initialSleepParts = splitHoursMinutes(initialValues.sleepHours)
   const initialDeepSleepParts = splitHoursMinutes(initialValues.deepSleepHours)
-  const [sleepHoursPart, setSleepHoursPart] = useState(
-    initialSleepParts.hours,
-  )
+  const [sleepHoursPart, setSleepHoursPart] = useState(initialSleepParts.hours)
   const [sleepMinutesPart, setSleepMinutesPart] = useState(
     initialSleepParts.minutes,
   )
@@ -874,17 +957,6 @@ export function DailyEntryForm({
     onSave(formValuesToEntry(values, date, entryIdentity))
   }
 
-  // Macros are optional supplementary data (#51) with no per-field error
-  // UI, unlike kcal's required-and-guarded amount — invalid/garbage input
-  // (NaN) or a negative number is silently treated as "not provided" rather
-  // than surfacing a validation error for a low-stakes field.
-  function parseOptionalMacro(raw: string): number | undefined {
-    const parsed = parseNumberInput(raw)
-    return parsed !== undefined && Number.isFinite(parsed) && parsed >= 0
-      ? parsed
-      : undefined
-  }
-
   function saveWeight() {
     const result = weightSchema.safeParse(getValues('weightKg'))
     if (!result.success) {
@@ -908,7 +980,10 @@ export function DailyEntryForm({
   }
 
   function saveSleep() {
-    const sleepHoursValue = combineHoursMinutes(sleepHoursPart, sleepMinutesPart)
+    const sleepHoursValue = combineHoursMinutes(
+      sleepHoursPart,
+      sleepMinutesPart,
+    )
     const deepSleepHoursValue = combineHoursMinutes(
       deepSleepHoursPart,
       deepSleepMinutesPart,
@@ -1012,7 +1087,9 @@ export function DailyEntryForm({
       item.lastAmountG,
     )
     setAddAmount(String(rates.kcal100))
-    setAddProtein(rates.protein100 === undefined ? '' : String(rates.protein100))
+    setAddProtein(
+      rates.protein100 === undefined ? '' : String(rates.protein100),
+    )
     setAddFat(rates.fat100 === undefined ? '' : String(rates.fat100))
     setAddCarbs(rates.carbs100 === undefined ? '' : String(rates.carbs100))
     setAddAmountG(String(rates.quantity))
@@ -1065,7 +1142,9 @@ export function DailyEntryForm({
     value: string,
   ) {
     setEditItems((items) =>
-      items.map((item) => (item.id === id ? { ...item, [field]: value } : item)),
+      items.map((item) =>
+        item.id === id ? { ...item, [field]: value } : item,
+      ),
     )
   }
 
@@ -1086,7 +1165,8 @@ export function DailyEntryForm({
           ? {
               ...draft,
               amount: String(rates.kcal100),
-              protein: rates.protein100 === undefined ? '' : String(rates.protein100),
+              protein:
+                rates.protein100 === undefined ? '' : String(rates.protein100),
               fat: rates.fat100 === undefined ? '' : String(rates.fat100),
               carbs: rates.carbs100 === undefined ? '' : String(rates.carbs100),
               amountG: String(rates.quantity),
@@ -1179,6 +1259,26 @@ export function DailyEntryForm({
     setCalorieEntries(arrayMove(calorieEntries, oldIndex, newIndex))
   }
 
+  // Live preview of the add row's computed total (#98) — recomputed on
+  // every keystroke from the exact same math addMeal() will run, so the
+  // per-100g × quantity multiplication is visible before Add is pressed.
+  // null (nothing rendered) until a valid kcal rate is typed.
+  const addKcal100Preview = parseNumberInput(addAmount)
+  const addTotalPreview =
+    addKcal100Preview && addKcal100Preview > 0
+      ? formatComputedTotal(
+          scaleFromPer100g(
+            addKcal100Preview,
+            parseOptionalMacro(addProtein),
+            parseOptionalMacro(addFat),
+            parseOptionalMacro(addCarbs),
+            addAmountG,
+          ),
+          locale,
+          t,
+        )
+      : null
+
   return (
     <form onSubmit={(e) => e.preventDefault()} className="flex flex-col gap-4">
       {showWeightAsDisplay ? (
@@ -1241,9 +1341,7 @@ export function DailyEntryForm({
 
       {showSleepAsDisplay ? (
         <div className="flex flex-col gap-1.5">
-          <span className="text-sm font-medium">
-            {t.dailyEntry.sleepLabel}
-          </span>
+          <span className="text-sm font-medium">{t.dailyEntry.sleepLabel}</span>
           <div className="flex items-center justify-between rounded-lg bg-muted px-3 py-2">
             <span className="text-sm text-foreground">
               {t.dailyEntry.sleepSummary(
@@ -1384,9 +1482,7 @@ export function DailyEntryForm({
 
       {showStepsAsDisplay ? (
         <div className="flex flex-col gap-1.5">
-          <span className="text-sm font-medium">
-            {t.dailyEntry.stepsLabel}
-          </span>
+          <span className="text-sm font-medium">{t.dailyEntry.stepsLabel}</span>
           <div className="flex items-center justify-between rounded-lg bg-muted px-3 py-2">
             <span className="text-sm text-foreground">
               {steps === undefined ? '—' : formatNumber(steps, locale, 0)}
@@ -1404,9 +1500,7 @@ export function DailyEntryForm({
         </div>
       ) : (
         <div className="flex flex-col gap-1.5">
-          <span className="text-sm font-medium">
-            {t.dailyEntry.stepsLabel}
-          </span>
+          <span className="text-sm font-medium">{t.dailyEntry.stepsLabel}</span>
           <div className="flex items-center gap-2">
             <Input
               type="text"
@@ -1630,6 +1724,11 @@ export function DailyEntryForm({
               />
             </div>
           </div>
+          {addTotalPreview && (
+            <p className="text-xs text-muted-foreground">
+              {t.dailyEntry.computedTotalPrefix} {addTotalPreview}
+            </p>
+          )}
           <MealNoteAutocomplete
             listInputId="add-item-name"
             ariaLabel={t.dailyEntry.itemNameLabel}

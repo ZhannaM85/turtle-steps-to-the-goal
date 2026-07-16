@@ -15,6 +15,12 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    issue: 98,
+    date: '2026-07-16',
+    en: 'When manually logging a meal, you now see the calculated total update live as you type, before adding it.',
+    ru: 'При ручном добавлении блюда теперь видно, как итог пересчитывается на лету по мере ввода — ещё до нажатия «Добавить».',
+  },
+  {
     issue: 97,
     date: '2026-07-16',
     en: 'You can now delete a meal directly from Today, without opening it for edit first.',
