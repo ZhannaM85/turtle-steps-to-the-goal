@@ -15,6 +15,12 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    issue: 88,
+    date: '2026-07-16',
+    en: 'Fixed a bug where tapping "Open this day" on a Dashboard chart could take you to the wrong date.',
+    ru: 'Исправлена ошибка, из-за которой нажатие «Открыть этот день» на графике в Обзоре могло открывать не тот день.',
+  },
+  {
     issue: 87,
     date: '2026-07-16',
     en: 'Renamed the daily note field to "Day\'s note" and gave it a helpful placeholder, so it\'s clearly separate from meal notes.',

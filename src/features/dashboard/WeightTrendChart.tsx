@@ -65,7 +65,17 @@ export function WeightTrendChart({ entries }: WeightTrendChartProps) {
       (point) => point.weight !== undefined,
     )
     return (
-      <div className="rounded-lg border border-border bg-popover px-3 py-2 text-xs text-popover-foreground shadow-md">
+      <div
+        className="rounded-lg border border-border bg-popover px-3 py-2 text-xs text-popover-foreground shadow-md"
+        // Recharts tracks the active point via move events bubbling up to
+        // its wrapper div, which this tooltip is a child of. Without this,
+        // a finger drifting from "tap to open" toward the link below (#33)
+        // can silently retarget the active point to whichever date the
+        // tooltip box happens to overlap, so the link navigates to a
+        // different day than the one still visibly shown in the text.
+        onMouseMove={(e) => e.stopPropagation()}
+        onTouchMove={(e) => e.stopPropagation()}
+      >
         <p className="mb-1 font-medium">
           {format(parseISO(String(label)), 'PP', { locale: dateFnsLocale })}
         </p>

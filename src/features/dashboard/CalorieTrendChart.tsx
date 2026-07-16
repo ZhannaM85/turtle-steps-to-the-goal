@@ -86,7 +86,14 @@ export function CalorieTrendChart({ entries }: CalorieTrendChartProps) {
       (point) => point.calories !== undefined,
     )
     return (
-      <div className="rounded-lg border border-border bg-popover px-3 py-2 text-xs text-popover-foreground shadow-md">
+      <div
+        className="rounded-lg border border-border bg-popover px-3 py-2 text-xs text-popover-foreground shadow-md"
+        // See WeightTrendChart.tsx's identical handlers (#33) — prevents a
+        // finger drifting toward the in-tooltip link from silently
+        // retargeting Recharts' active point to a different date.
+        onMouseMove={(e) => e.stopPropagation()}
+        onTouchMove={(e) => e.stopPropagation()}
+      >
         <p className="mb-1 font-medium">
           {format(parseISO(String(label)), 'PP', { locale: dateFnsLocale })}
         </p>
