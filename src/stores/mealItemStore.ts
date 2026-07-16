@@ -10,8 +10,18 @@ interface MealItemStoreState {
   error: string | null
   loadItems: () => Promise<void>
   /** Upsert-by-name (#50): called whenever a meal is saved with a note.
-   * Bumps updatedAt on an existing item rather than duplicating it. */
-  touch: (name: string) => Promise<void>
+   * Bumps updatedAt on an existing item rather than duplicating it.
+   * `nutrition` (#86) records the last-used kcal/macros for this name, so
+   * the food picker can offer it as something reusable later. */
+  touch: (
+    name: string,
+    nutrition?: {
+      amountKcal?: number
+      proteinG?: number
+      fatG?: number
+      carbsG?: number
+    },
+  ) => Promise<void>
   /** Renames a library item. If another item already has the target name,
    * merges into it (deletes this one) instead of violating the unique
    * name index. */
@@ -35,14 +45,23 @@ export const useMealItemStore = create<MealItemStoreState>((set, get) => ({
       })
     }
   },
-  touch: async (name) => {
+  touch: async (name, nutrition) => {
     const trimmed = name.trim()
     if (!trimmed) return
     const existing = await mealItemRepository.findByName(trimmed)
     const now = new Date().toISOString()
-    const item: MealItem = existing
-      ? { ...existing, updatedAt: now }
-      : { id: crypto.randomUUID(), name: trimmed, createdAt: now, updatedAt: now }
+    const item: MealItem = {
+      ...(existing ?? {
+        id: crypto.randomUUID(),
+        name: trimmed,
+        createdAt: now,
+      }),
+      updatedAt: now,
+      lastAmountKcal: nutrition?.amountKcal ?? existing?.lastAmountKcal,
+      lastProteinG: nutrition?.proteinG ?? existing?.lastProteinG,
+      lastFatG: nutrition?.fatG ?? existing?.lastFatG,
+      lastCarbsG: nutrition?.carbsG ?? existing?.lastCarbsG,
+    }
     await mealItemRepository.upsert(item)
     set({ items: await mealItemRepository.getAll() })
   },

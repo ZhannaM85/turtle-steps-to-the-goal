@@ -100,6 +100,7 @@ export const en: Dictionary = {
     noFoodResultsText: 'No foods found.',
     addFoodConfirmLabel: 'Add food',
     per100gLabel: 'per 100g',
+    lastLoggedLabel: 'last logged',
     sleepLabel: 'Sleep',
     sleepHoursLabel: 'Hours slept',
     deepSleepLabel: 'Deep sleep',

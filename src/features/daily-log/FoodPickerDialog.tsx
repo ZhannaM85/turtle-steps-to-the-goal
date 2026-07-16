@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { type FoodItem, foods } from '@/data/foods'
+import type { MealItem } from '@/domain/mealItem'
 import { formatNumber, useLocale, useTranslation } from '@/i18n'
 import { macrosSummaryTextCompact } from '@/shared/lib/macroDisplay'
 import { parseNumberInput } from '@/shared/lib/parseNumberInput'
@@ -18,48 +19,100 @@ export interface FoodPickerDialogProps {
     carbsG: number
     note: string
   }) => void
+  /** Personal meal-name library (#50) — merged into this dialog's search
+   * (#86) so "+ Food" is one place to find anything you've ever added, not
+   * just the curated database. Only items with recorded last-used
+   * nutrition are shown; a bare name with nothing to reuse yet stays
+   * confined to the note field's own autocomplete. */
+  mealItems: MealItem[]
 }
 
-/** Quantity-based entry against the static food list (#62) — search, pick
- * one, scale its per-100g macros by quantity, and hand the computed numbers
- * back to the caller as a normal meal (flat CalorieEntry, same shape manual
- * entry produces — no separate "food entry" data model). */
+type PickableItem =
+  | { source: 'food'; food: FoodItem }
+  | {
+      source: 'mealItem'
+      mealItem: MealItem & { lastAmountKcal: number }
+    }
+
+function itemKey(item: PickableItem): string {
+  return item.source === 'food' ? `food-${item.food.id}` : `meal-${item.mealItem.id}`
+}
+
+function isSameItem(a: PickableItem | null, b: PickableItem): boolean {
+  if (!a || a.source !== b.source) return false
+  return a.source === 'food' && b.source === 'food'
+    ? a.food.id === b.food.id
+    : a.source === 'mealItem' &&
+        b.source === 'mealItem' &&
+        a.mealItem.id === b.mealItem.id
+}
+
+/** Quantity-based entry against the static food list (#62), merged with the
+ * personal meal-item library (#86) — search, pick one, and either scale a
+ * curated food's per-100g macros by quantity, or reuse a personal item's
+ * last-logged absolute numbers as-is (not quantity-scalable, no per-100g
+ * data exists for it). Either way, hands the result back to the caller as
+ * a normal meal (flat CalorieEntry, same shape manual entry produces). */
 export function FoodPickerDialog({
   open,
   onOpenChange,
   onAdd,
+  mealItems,
 }: FoodPickerDialogProps) {
   const t = useTranslation()
   const locale = useLocale()
   const [search, setSearch] = useState('')
-  const [selectedFood, setSelectedFood] = useState<FoodItem | null>(null)
+  const [selected, setSelected] = useState<PickableItem | null>(null)
   const [quantity, setQuantity] = useState('100')
 
   const query = search.trim().toLowerCase()
-  const matches = query
-    ? foods.filter((food) => food[locale].toLowerCase().includes(query))
-    : foods
+  const mealItemMatches: PickableItem[] = mealItems
+    .filter(
+      (item): item is MealItem & { lastAmountKcal: number } =>
+        item.lastAmountKcal !== undefined,
+    )
+    .filter((item) => !query || item.name.toLowerCase().includes(query))
+    .map((mealItem) => ({ source: 'mealItem', mealItem }))
+  const foodMatches: PickableItem[] = (
+    query ? foods.filter((food) => food[locale].toLowerCase().includes(query)) : foods
+  ).map((food) => ({ source: 'food', food }))
+  const matches = [...mealItemMatches, ...foodMatches]
 
   const quantityNum = parseNumberInput(quantity)
   const canAdd =
-    selectedFood !== null && quantityNum !== undefined && quantityNum > 0
+    selected !== null &&
+    (selected.source === 'mealItem' ||
+      (quantityNum !== undefined && quantityNum > 0))
 
   function reset() {
     setSearch('')
-    setSelectedFood(null)
+    setSelected(null)
     setQuantity('100')
   }
 
   function handleAdd() {
-    if (!selectedFood || quantityNum === undefined || quantityNum <= 0) return
-    const scale = quantityNum / 100
-    onAdd({
-      amountKcal: Math.round(selectedFood.kcal100 * scale),
-      proteinG: Math.round(selectedFood.protein100 * scale * 10) / 10,
-      fatG: Math.round(selectedFood.fat100 * scale * 10) / 10,
-      carbsG: Math.round(selectedFood.carbs100 * scale * 10) / 10,
-      note: selectedFood[locale],
-    })
+    if (!selected) return
+    if (selected.source === 'food') {
+      if (quantityNum === undefined || quantityNum <= 0) return
+      const scale = quantityNum / 100
+      const { food } = selected
+      onAdd({
+        amountKcal: Math.round(food.kcal100 * scale),
+        proteinG: Math.round(food.protein100 * scale * 10) / 10,
+        fatG: Math.round(food.fat100 * scale * 10) / 10,
+        carbsG: Math.round(food.carbs100 * scale * 10) / 10,
+        note: food[locale],
+      })
+    } else {
+      const { mealItem } = selected
+      onAdd({
+        amountKcal: mealItem.lastAmountKcal,
+        proteinG: mealItem.lastProteinG ?? 0,
+        fatG: mealItem.lastFatG ?? 0,
+        carbsG: mealItem.lastCarbsG ?? 0,
+        note: mealItem.name,
+      })
+    }
     reset()
     onOpenChange(false)
   }
@@ -82,7 +135,7 @@ export function FoodPickerDialog({
             value={search}
             onChange={(e) => {
               setSearch(e.target.value)
-              setSelectedFood(null)
+              setSelected(null)
             }}
           />
           {matches.length === 0 ? (
@@ -95,38 +148,68 @@ export function FoodPickerDialog({
              * the first ~6 visible rows. The whole dialog scrolls as one
              * unit instead (see shared/ui/dialog.tsx's max-h-[85dvh]). */
             <ul className="flex flex-col rounded-lg border border-border">
-              {matches.map((food) => (
-                <li key={food.id}>
-                  <button
-                    type="button"
-                    aria-pressed={selectedFood?.id === food.id}
-                    className={cn(
-                      'flex w-full flex-col px-2.5 py-1.5 text-left text-sm hover:bg-muted',
-                      selectedFood?.id === food.id && 'bg-muted font-medium',
-                    )}
-                    onClick={() => setSelectedFood(food)}
-                  >
-                    <span>{food[locale]}</span>
-                    {/* Per-100g preview (#75) — lets you sanity-check a food's
-                     * numbers before picking it, rather than only finding out
-                     * after it's added as a meal. */}
-                    <span className="text-xs font-normal text-muted-foreground">
-                      {formatNumber(food.kcal100, locale, 0)}{' '}
-                      {t.dailyEntry.kcalUnit} {t.dailyEntry.per100gLabel} ·{' '}
-                      {macrosSummaryTextCompact(
-                        food.protein100,
-                        food.fat100,
-                        food.carbs100,
-                        locale,
-                        t,
+              {matches.map((item) => {
+                const pressed = isSameItem(selected, item)
+                return (
+                  <li key={itemKey(item)}>
+                    <button
+                      type="button"
+                      aria-pressed={pressed}
+                      className={cn(
+                        'flex w-full flex-col px-2.5 py-1.5 text-left text-sm hover:bg-muted',
+                        pressed && 'bg-muted font-medium',
                       )}
-                    </span>
-                  </button>
-                </li>
-              ))}
+                      onClick={() => setSelected(item)}
+                    >
+                      {item.source === 'food' ? (
+                        <>
+                          <span>{item.food[locale]}</span>
+                          {/* Per-100g preview (#75) — sanity-check a food's
+                           * numbers before picking it, not just after. */}
+                          <span className="text-xs font-normal text-muted-foreground">
+                            {formatNumber(item.food.kcal100, locale, 0)}{' '}
+                            {t.dailyEntry.kcalUnit} {t.dailyEntry.per100gLabel}{' '}
+                            ·{' '}
+                            {macrosSummaryTextCompact(
+                              item.food.protein100,
+                              item.food.fat100,
+                              item.food.carbs100,
+                              locale,
+                              t,
+                            )}
+                          </span>
+                        </>
+                      ) : (
+                        <>
+                          <span>{item.mealItem.name}</span>
+                          {/* Distinguishes personal items from the curated
+                           * database (#86) — a fixed last-used amount, not
+                           * a scalable per-100g figure. */}
+                          <span className="text-xs font-normal text-muted-foreground">
+                            {formatNumber(
+                              item.mealItem.lastAmountKcal,
+                              locale,
+                              0,
+                            )}{' '}
+                            {t.dailyEntry.kcalUnit}{' '}
+                            {t.dailyEntry.lastLoggedLabel} ·{' '}
+                            {macrosSummaryTextCompact(
+                              item.mealItem.lastProteinG,
+                              item.mealItem.lastFatG,
+                              item.mealItem.lastCarbsG,
+                              locale,
+                              t,
+                            )}
+                          </span>
+                        </>
+                      )}
+                    </button>
+                  </li>
+                )
+              })}
             </ul>
           )}
-          {selectedFood && (
+          {selected?.source === 'food' && (
             <div className="flex items-center gap-2">
               <span className="text-sm text-muted-foreground">
                 {t.dailyEntry.foodQuantityLabel}

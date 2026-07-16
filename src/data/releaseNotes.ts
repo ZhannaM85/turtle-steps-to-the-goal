@@ -15,6 +15,12 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    issue: 86,
+    date: '2026-07-16',
+    en: 'Fixed meal-name suggestions not appearing on some phones, and "+ Food" now also finds dishes you\'ve added before, not just the built-in food list.',
+    ru: 'Исправлены не появлявшиеся на некоторых телефонах подсказки названий блюд; «+ Продукт» теперь также находит уже добавленные вами блюда, а не только список продуктов.',
+  },
+  {
     issue: 85,
     date: '2026-07-16',
     en: 'Added a Settings option to start your week on Monday or on the day you started tracking, instead of always Monday.',

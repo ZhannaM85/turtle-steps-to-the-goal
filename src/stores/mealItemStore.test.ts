@@ -87,6 +87,32 @@ describe('useMealItemStore', () => {
     expect(names).toEqual(['Pizza'])
   })
 
+  it('touch records the last-used nutrition (#86)', async () => {
+    await useMealItemStore
+      .getState()
+      .touch('Pizza', { amountKcal: 400, proteinG: 15, fatG: 12, carbsG: 45 })
+
+    const item = useMealItemStore.getState().items[0]
+    expect(item.lastAmountKcal).toBe(400)
+    expect(item.lastProteinG).toBe(15)
+    expect(item.lastFatG).toBe(12)
+    expect(item.lastCarbsG).toBe(45)
+  })
+
+  it('touch updates the last-used nutrition on a repeat save', async () => {
+    await useMealItemStore.getState().touch('Pizza', { amountKcal: 400 })
+    await useMealItemStore.getState().touch('Pizza', { amountKcal: 550 })
+
+    expect(useMealItemStore.getState().items[0].lastAmountKcal).toBe(550)
+  })
+
+  it('touch without nutrition preserves the previously recorded values', async () => {
+    await useMealItemStore.getState().touch('Pizza', { amountKcal: 400 })
+    await useMealItemStore.getState().touch('Pizza')
+
+    expect(useMealItemStore.getState().items[0].lastAmountKcal).toBe(400)
+  })
+
   it('deleteItem removes an item', async () => {
     await useMealItemStore.getState().touch('Pizza')
     const id = useMealItemStore.getState().items[0].id

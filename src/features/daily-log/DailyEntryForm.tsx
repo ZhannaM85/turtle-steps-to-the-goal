@@ -25,6 +25,7 @@ import type {
   MealEmotion,
 } from '@/domain/dailyEntry'
 import { totalCalories, totalCarbs, totalFat, totalProtein } from '@/domain/dailyEntry'
+import type { MealItem } from '@/domain/mealItem'
 import {
   formatExactNumber,
   formatNumber,
@@ -43,6 +44,7 @@ import { Input } from '@/shared/ui/input'
 import { useMealItemStore } from '@/stores'
 import { entryToFormValues, formValuesToEntry } from './dailyEntryFormMapping'
 import { FoodPickerDialog } from './FoodPickerDialog'
+import { MealNoteAutocomplete } from './MealNoteAutocomplete'
 import {
   deepSleepHoursSchema,
   noteSchema,
@@ -51,11 +53,6 @@ import {
   weightSchema,
   type DailyEntryFormValues,
 } from './dailyEntryFormSchema'
-
-// Shared by both the add-meal and edit-meal note inputs (#50) — the
-// <datalist> itself is rendered once in DailyEntryForm; `list` just needs
-// to reference this id, it doesn't need to be a DOM ancestor.
-const MEAL_ITEMS_DATALIST_ID = 'meal-items-datalist'
 
 export interface DailyEntryFormProps {
   date: string
@@ -140,6 +137,7 @@ interface MealListItemProps {
   position: number
   t: Dictionary
   locale: Locale
+  mealItems: MealItem[]
   isEditing: boolean
   isConfirmingDelete: boolean
   editAmount: string
@@ -168,6 +166,7 @@ function MealListItem({
   position,
   t,
   locale,
+  mealItems,
   isEditing,
   isConfirmingDelete,
   editAmount,
@@ -351,20 +350,15 @@ function MealListItem({
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <Input
-            type="text"
-            list={MEAL_ITEMS_DATALIST_ID}
-            aria-label={`${t.dailyEntry.mealNoteLabel} — ${t.dailyEntry.mealLabel(position)}`}
+          <MealNoteAutocomplete
+            listInputId={`edit-meal-note-${entry.id}`}
+            ariaLabel={`${t.dailyEntry.mealNoteLabel} — ${t.dailyEntry.mealLabel(position)}`}
             placeholder={t.dailyEntry.mealNotePlaceholder}
             value={editNote}
-            onChange={(e) => onEditNoteChange(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                e.preventDefault()
-                onSaveEdit()
-              }
-            }}
-            className="h-7 flex-1"
+            onChange={onEditNoteChange}
+            onSubmit={onSaveEdit}
+            suggestions={mealItems}
+            className="h-7"
           />
           <EmotionPicker
             value={editEmotion}
@@ -710,6 +704,9 @@ export function DailyEntryForm({
   function addCalories() {
     const increment = parseNumberInput(addAmount)
     if (!increment || increment <= 0) return
+    const proteinG = parseOptionalMacro(addProtein)
+    const fatG = parseOptionalMacro(addFat)
+    const carbsG = parseOptionalMacro(addCarbs)
     setCalorieEntries([
       ...calorieEntries,
       {
@@ -717,14 +714,16 @@ export function DailyEntryForm({
         amountKcal: increment,
         note: addNote.trim() || undefined,
         emotion: addEmotion,
-        proteinG: parseOptionalMacro(addProtein),
-        fatG: parseOptionalMacro(addFat),
-        carbsG: parseOptionalMacro(addCarbs),
+        proteinG,
+        fatG,
+        carbsG,
         timeEaten: addTime || undefined,
         createdAt: new Date().toISOString(),
       },
     ])
-    if (addNote.trim()) touchMealItem(addNote)
+    if (addNote.trim()) {
+      touchMealItem(addNote, { amountKcal: increment, proteinG, fatG, carbsG })
+    }
     setAddAmount('')
     setAddProtein('')
     setAddFat('')
@@ -773,6 +772,9 @@ export function DailyEntryForm({
   function saveEditMeal() {
     const amount = parseNumberInput(editMealAmount)
     if (!amount || amount <= 0) return
+    const proteinG = parseOptionalMacro(editMealProtein)
+    const fatG = parseOptionalMacro(editMealFat)
+    const carbsG = parseOptionalMacro(editMealCarbs)
     setCalorieEntries(
       calorieEntries.map((entry) =>
         entry.id === editingMealId
@@ -781,15 +783,17 @@ export function DailyEntryForm({
               amountKcal: amount,
               note: editMealNote.trim() || undefined,
               emotion: editMealEmotion,
-              proteinG: parseOptionalMacro(editMealProtein),
-              fatG: parseOptionalMacro(editMealFat),
-              carbsG: parseOptionalMacro(editMealCarbs),
+              proteinG,
+              fatG,
+              carbsG,
               timeEaten: editMealTime || undefined,
             }
           : entry,
       ),
     )
-    if (editMealNote.trim()) touchMealItem(editMealNote)
+    if (editMealNote.trim()) {
+      touchMealItem(editMealNote, { amountKcal: amount, proteinG, fatG, carbsG })
+    }
     setEditingMealId(null)
   }
 
@@ -1111,6 +1115,7 @@ export function DailyEntryForm({
                     position={index + 1}
                     t={t}
                     locale={locale}
+                    mealItems={mealItems}
                     isEditing={editingMealId === entry.id}
                     isConfirmingDelete={confirmDeleteMealId === entry.id}
                     editAmount={editMealAmount}
@@ -1232,20 +1237,15 @@ export function DailyEntryForm({
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <Input
-              type="text"
-              list={MEAL_ITEMS_DATALIST_ID}
-              aria-label={t.dailyEntry.mealNoteLabel}
+            <MealNoteAutocomplete
+              listInputId="add-meal-note"
+              ariaLabel={t.dailyEntry.mealNoteLabel}
               placeholder={t.dailyEntry.mealNotePlaceholder}
               value={addNote}
-              onChange={(e) => setAddNote(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') {
-                  e.preventDefault()
-                  addCalories()
-                }
-              }}
-              className="h-7 flex-1"
+              onChange={setAddNote}
+              onSubmit={addCalories}
+              suggestions={mealItems}
+              className="h-7"
             />
             <EmotionPicker
               value={addEmotion}
@@ -1277,17 +1277,6 @@ export function DailyEntryForm({
           >
             {t.dailyEntry.addFoodButton}
           </Button>
-          {/* No text children: an <option>'s text content is a real DOM
-           * text node findable by getByText, which risks colliding with the
-           * exact same text elsewhere on the page once a saved note becomes
-           * a suggestion (touchMealItem persists the raw note as the
-           * library entry's name, #50) — value alone is what autocomplete
-           * actually keys off. */}
-          <datalist id={MEAL_ITEMS_DATALIST_ID}>
-            {mealItems.map((item) => (
-              <option key={item.id} value={item.name} />
-            ))}
-          </datalist>
           {/* Lazily mounted (#78) — the food list grew to 300+ items, and
            * rendering it unconditionally meant every DailyEntryForm render
            * paid that cost even with the dialog closed. Only mounting it
@@ -1297,6 +1286,7 @@ export function DailyEntryForm({
               open={isFoodPickerOpen}
               onOpenChange={setIsFoodPickerOpen}
               onAdd={addFoodEntry}
+              mealItems={mealItems}
             />
           )}
         </div>

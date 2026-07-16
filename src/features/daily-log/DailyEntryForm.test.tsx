@@ -696,9 +696,10 @@ describe('DailyEntryForm', () => {
       ])
     })
 
-    it('offers previously logged meal names as suggestions while typing', async () => {
-      await useMealItemStore.getState().touch('Pizza')
-      const { container } = render(
+    it('offers previously logged meal names as suggestions while typing (#86)', async () => {
+      const user = userEvent.setup()
+      await useMealItemStore.getState().touch('Pizza', { amountKcal: 400 })
+      render(
         <DailyEntryForm
           date="2026-03-01"
           existingEntry={null}
@@ -707,12 +708,14 @@ describe('DailyEntryForm', () => {
       )
 
       const noteInput = await screen.findByLabelText('Meal note')
-      expect(noteInput).toHaveAttribute('list', 'meal-items-datalist')
-      // Queried by `value`, not text content — an <option>'s value (not any
-      // text child) is what a real browser matches for autocomplete.
+      await user.click(noteInput)
+
       expect(
-        container.querySelector('datalist#meal-items-datalist option[value="Pizza"]'),
-      ).not.toBeNull()
+        await screen.findByRole('button', { name: 'Pizza' }),
+      ).toBeInTheDocument()
+
+      await user.click(screen.getByRole('button', { name: 'Pizza' }))
+      expect(noteInput).toHaveValue('Pizza')
     })
 
     it('accumulates repeated quick-adds onto the existing calories total', async () => {
