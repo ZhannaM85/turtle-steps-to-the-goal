@@ -628,15 +628,30 @@ function MealListItem({
             </>
           )}
         </span>
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon-sm"
-          aria-label={t.dailyEntry.editMealLabel(position)}
-          onClick={onStartEdit}
-        >
-          <Pencil aria-hidden="true" />
-        </Button>
+        <div className="flex items-center gap-1">
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon-sm"
+            aria-label={t.dailyEntry.editMealLabel(position)}
+            onClick={onStartEdit}
+          >
+            <Pencil aria-hidden="true" />
+          </Button>
+          {/* Delete directly from the view row (#97) — previously only
+           * reachable after opening edit mode first, unlike History's
+           * EntryRow which already shows Pencil + Trash2 side by side.
+           * Reuses the same two-step confirm flow (isConfirmingDelete). */}
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon-sm"
+            aria-label={t.dailyEntry.deleteMealLabel(position)}
+            onClick={onRequestDelete}
+          >
+            <Trash2 aria-hidden="true" />
+          </Button>
+        </div>
       </div>
       {entry.note && (
         <p className="text-xs text-muted-foreground">{entry.note}</p>

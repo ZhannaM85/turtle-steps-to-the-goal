@@ -15,6 +15,12 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    issue: 97,
+    date: '2026-07-16',
+    en: 'You can now delete a meal directly from Today, without opening it for edit first.',
+    ru: 'Теперь приём пищи можно удалить прямо на странице «Сегодня», не открывая его для редактирования.',
+  },
+  {
     issue: 96,
     date: '2026-07-16',
     en: 'Manually logging a meal now works like picking from the food list: enter calories/macros per 100g and how many grams you ate, and the totals are calculated for you.',

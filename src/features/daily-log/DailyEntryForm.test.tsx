@@ -1040,6 +1040,21 @@ describe('DailyEntryForm', () => {
         ).toEqual([200])
       })
 
+      it('deletes a meal directly from the view row, without opening edit mode first (#97)', async () => {
+        const user = userEvent.setup()
+        const onSave = vi.fn()
+        renderWithMeals(onSave)
+
+        await user.click(screen.getByRole('button', { name: 'Delete meal 1' }))
+        expect(screen.getByText('Delete this entry?')).toBeInTheDocument()
+
+        await user.click(screen.getByRole('button', { name: 'Delete' }))
+
+        expect(screen.queryByText(/300 kcal/)).not.toBeInTheDocument()
+        expect(screen.getByText('Meal 1 — 200 kcal')).toBeInTheDocument()
+        expect(onSave).toHaveBeenCalledTimes(1)
+      })
+
       it('cancels a meal delete without removing it or saving, returning to the edit row', async () => {
         const user = userEvent.setup()
         const onSave = vi.fn()
