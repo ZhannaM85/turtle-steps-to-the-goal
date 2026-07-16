@@ -183,3 +183,13 @@ _Same pattern as Tiers 8/9/10: issues filed from continued live use._
 | [#93](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/93) | ✅ Done | Manual meal entry: capture grams so macros can be scaled for a different portion later | Optional `CalorieItem.amountG` + `MealItem.lastAmountG` (additive, no version bump). New "Grams" input on the bottom add row and each item-edit row; #94's autocomplete-restore extended to also restore it. Pure memory aid — nothing recalculates kcal/macros from it. Related: #94 |
 | [#94](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/94) | ✅ Done | Meal-name autocomplete restores the name but not its calories/macros | `MealNoteAutocomplete` gains `onSelectItem?: (item: MealItem) => void`, fired alongside `onChange` on a suggestion click. Both call sites (bottom add row, item-edit row) now restore kcal/protein/fat/carbs from the matched `MealItem`'s `lastAmountKcal`/macros. No-op for a name with nothing recorded yet. Related: #93 |
 | [#95](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/95) | ✅ Done | Unclear whether the bottom add row adds to the existing meal or starts a new one | Add row now shows `mealLabel(calorieEntries.length + 1)` as its own heading (previewing the number the new group will get), plus a `border-t` divider once at least one group already exists |
+
+---
+
+## Tier 12 — Fifth live-feedback wave (2026-07-16)
+
+_Same pattern as Tiers 8/9/10/11: issues filed from continued live use._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#96](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/96) | 🔲 Open | Manual meal entry: switch to per-100g macros + quantity, computed automatically | Replaces "type the total amount I ate" with the same per-100g + quantity model `FoodPickerDialog` already uses — decided (not a toggle) when filing. No domain/export-schema change expected (`CalorieItem` keeps storing computed absolute totals + `amountG`, #93); only the add-row/item-edit-row input UI and add-time computation change. See issue body for the edit-mode back-calculation and `FoodPickerDialog` consistency questions to resolve during implementation |
