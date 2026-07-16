@@ -199,6 +199,7 @@ interface MealListItemProps {
     field: 'name' | 'amount' | 'protein' | 'fat' | 'carbs',
     value: string,
   ) => void
+  onEditItemSelectMealItem: (id: string, item: MealItem) => void
   onAddEditItem: () => void
   onRemoveEditItem: (id: string) => void
   onEditTimeChange: (value: string) => void
@@ -224,6 +225,7 @@ function MealListItem({
   editNote,
   editEmotion,
   onEditItemFieldChange,
+  onEditItemSelectMealItem,
   onAddEditItem,
   onRemoveEditItem,
   onEditTimeChange,
@@ -331,6 +333,9 @@ function MealListItem({
                   value={item.name}
                   onChange={(value) =>
                     onEditItemFieldChange(item.id, 'name', value)
+                  }
+                  onSelectItem={(mealItem) =>
+                    onEditItemSelectMealItem(item.id, mealItem)
                   }
                   onSubmit={onSaveEdit}
                   suggestions={mealItems}
@@ -881,6 +886,19 @@ export function DailyEntryForm({
     setAddTime('')
   }
 
+  // Restores a previously-logged item's kcal/macros when its name is picked
+  // from the add row's autocomplete (#94) — before this, only the name
+  // field itself got filled in, even though MealItem already stores exactly
+  // these numbers from the last time this name was saved (#86). Nothing to
+  // restore for a bare name with no recorded nutrition yet.
+  function selectAddItemMealItem(item: MealItem) {
+    if (item.lastAmountKcal === undefined) return
+    setAddAmount(String(item.lastAmountKcal))
+    setAddProtein(item.lastProteinG === undefined ? '' : String(item.lastProteinG))
+    setAddFat(item.lastFatG === undefined ? '' : String(item.lastFatG))
+    setAddCarbs(item.lastCarbsG === undefined ? '' : String(item.lastCarbsG))
+  }
+
   // Quantity-based entry against the static food list (#62) — the dialog
   // already computed kcal/macros scaled by quantity; this just adds the
   // result as a new single-item meal group (#81), same as the manual Add
@@ -927,6 +945,26 @@ export function DailyEntryForm({
   ) {
     setEditItems((items) =>
       items.map((item) => (item.id === id ? { ...item, [field]: value } : item)),
+    )
+  }
+
+  // Same restore as selectAddItemMealItem, for an item row inside an
+  // already-existing meal's edit mode (#94).
+  function selectEditItemMealItem(id: string, item: MealItem) {
+    if (item.lastAmountKcal === undefined) return
+    setEditItems((items) =>
+      items.map((draft) =>
+        draft.id === id
+          ? {
+              ...draft,
+              amount: String(item.lastAmountKcal),
+              protein:
+                item.lastProteinG === undefined ? '' : String(item.lastProteinG),
+              fat: item.lastFatG === undefined ? '' : String(item.lastFatG),
+              carbs: item.lastCarbsG === undefined ? '' : String(item.lastCarbsG),
+            }
+          : draft,
+      ),
     )
   }
 
@@ -1317,6 +1355,7 @@ export function DailyEntryForm({
                     editNote={editGroupNote}
                     editEmotion={editGroupEmotion}
                     onEditItemFieldChange={updateEditItemField}
+                    onEditItemSelectMealItem={selectEditItemMealItem}
                     onAddEditItem={addEditItem}
                     onRemoveEditItem={removeEditItem}
                     onEditTimeChange={setEditGroupTime}
@@ -1445,6 +1484,7 @@ export function DailyEntryForm({
             placeholder={t.dailyEntry.itemNamePlaceholder}
             value={addItemName}
             onChange={setAddItemName}
+            onSelectItem={selectAddItemMealItem}
             onSubmit={addMeal}
             suggestions={mealItems}
             className="h-7 w-full"

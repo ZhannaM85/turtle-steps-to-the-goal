@@ -749,6 +749,31 @@ describe('DailyEntryForm', () => {
       expect(nameInput).toHaveValue('Pizza')
     })
 
+    it('restores calories/macros when a suggested name is picked (#94)', async () => {
+      const user = userEvent.setup()
+      await useMealItemStore.getState().touch('Pizza', {
+        amountKcal: 400,
+        proteinG: 15,
+        fatG: 12,
+        carbsG: 50,
+      })
+      render(
+        <DailyEntryForm
+          date="2026-03-01"
+          existingEntry={null}
+          onSave={vi.fn()}
+        />,
+      )
+
+      await user.click(await screen.findByLabelText('Dish name'))
+      await user.click(await screen.findByRole('button', { name: 'Pizza' }))
+
+      expect(screen.getByLabelText('Add calories')).toHaveValue('400')
+      expect(screen.getByLabelText('Protein')).toHaveValue('15')
+      expect(screen.getByLabelText('Fat')).toHaveValue('12')
+      expect(screen.getByLabelText('Carbs')).toHaveValue('50')
+    })
+
     it('accumulates repeated quick-adds onto the existing calories total', async () => {
       const user = userEvent.setup()
       const onSave = vi.fn()
@@ -1024,6 +1049,31 @@ describe('DailyEntryForm', () => {
             name: 'Bread',
             amountKcal: 80,
           })
+        })
+
+        it('restores calories/macros for an item-edit row when a suggested name is picked (#94)', async () => {
+          const user = userEvent.setup()
+          const onSave = vi.fn()
+          await useMealItemStore.getState().touch('Bread', {
+            amountKcal: 80,
+            proteinG: 3,
+            fatG: 1,
+            carbsG: 15,
+          })
+          renderWithMeals(onSave)
+
+          await user.click(screen.getByRole('button', { name: 'Edit meal 1' }))
+          await user.click(
+            screen.getByRole('button', { name: '+ Add item' }),
+          )
+          const nameInputs = screen.getAllByLabelText('Dish name — Meal 1')
+          await user.click(nameInputs[1])
+          await user.click(await screen.findByRole('button', { name: 'Bread' }))
+
+          expect(screen.getByLabelText('kcal — Bread')).toHaveValue('80')
+          expect(screen.getByLabelText('Protein — Bread')).toHaveValue('3')
+          expect(screen.getByLabelText('Fat — Bread')).toHaveValue('1')
+          expect(screen.getByLabelText('Carbs — Bread')).toHaveValue('15')
         })
 
         it('removing every item from a meal during edit deletes the whole meal on save', async () => {

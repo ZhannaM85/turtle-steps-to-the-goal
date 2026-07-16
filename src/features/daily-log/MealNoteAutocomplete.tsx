@@ -11,6 +11,11 @@ export interface MealNoteAutocompleteProps {
   placeholder: string
   listInputId: string
   className?: string
+  /** Fires alongside onChange when a suggestion is clicked, handing back
+   * the full matched MealItem (#94) — lets callers restore its
+   * lastAmountKcal/lastProteinG/lastFatG/lastCarbsG too, not just the name
+   * onChange alone provides. */
+  onSelectItem?: (item: MealItem) => void
 }
 
 /**
@@ -29,6 +34,7 @@ export function MealNoteAutocomplete({
   placeholder,
   listInputId,
   className,
+  onSelectItem,
 }: MealNoteAutocompleteProps) {
   const [isOpen, setIsOpen] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
@@ -82,6 +88,7 @@ export function MealNoteAutocomplete({
                 className="block w-full px-2.5 py-1.5 text-left text-sm hover:bg-muted"
                 onClick={() => {
                   onChange(item.name)
+                  onSelectItem?.(item)
                   setIsOpen(false)
                 }}
               >

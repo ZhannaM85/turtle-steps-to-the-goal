@@ -15,6 +15,12 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    issue: 94,
+    date: '2026-07-16',
+    en: 'Picking a suggested dish name now also fills in its calories and macros, not just the name.',
+    ru: 'Выбор подсказанного названия блюда теперь заполняет и калории/БЖУ, а не только название.',
+  },
+  {
     issue: 95,
     date: '2026-07-16',
     en: 'The meal entry form now labels itself "Meal 1", "Meal 2", etc. so it\'s clear whether you\'re adding to an existing meal or starting a new one.',
