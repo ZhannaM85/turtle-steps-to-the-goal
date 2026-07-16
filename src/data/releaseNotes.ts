@@ -15,6 +15,12 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    issue: 79,
+    date: '2026-07-16',
+    en: 'Moved the "Add" button below the note field, and made it full width, so it\'s clearer it applies to the note you just typed.',
+    ru: 'Кнопка «Добавить» перемещена под поле заметки и стала во всю ширину — теперь понятнее, что она относится к введённой заметке.',
+  },
+  {
     issue: 84,
     date: '2026-07-16',
     en: 'Fixed the selected mood/reaction icon being hard to see in dark mode.',

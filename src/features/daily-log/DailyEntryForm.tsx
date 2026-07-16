@@ -1230,22 +1230,6 @@ export function DailyEntryForm({
                 className="h-7 w-24"
               />
             </div>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={addCalories}
-            >
-              {t.dailyEntry.addButton}
-            </Button>
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              onClick={() => setIsFoodPickerOpen(true)}
-            >
-              {t.dailyEntry.addFoodButton}
-            </Button>
           </div>
           <div className="flex items-center gap-2">
             <Input
@@ -1270,6 +1254,29 @@ export function DailyEntryForm({
               labelFor={t.dailyEntry.mealEmotionLabel}
             />
           </div>
+          {/* Add sits after the note/mood row, not before (#79) — it was
+           * previously part of the fields row above, so users who typed a
+           * note last didn't realize it still applied to a button they'd
+           * already scrolled past. Full width so it reads as the row's
+           * single clear final action; + Food moved down alongside it for
+           * the same reason, rather than staying stranded up top. */}
+          <Button
+            type="button"
+            variant="default"
+            size="sm"
+            className="w-full"
+            onClick={addCalories}
+          >
+            {t.dailyEntry.addButton}
+          </Button>
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={() => setIsFoodPickerOpen(true)}
+          >
+            {t.dailyEntry.addFoodButton}
+          </Button>
           {/* No text children: an <option>'s text content is a real DOM
            * text node findable by getByText, which risks colliding with the
            * exact same text elsewhere on the page once a saved note becomes
