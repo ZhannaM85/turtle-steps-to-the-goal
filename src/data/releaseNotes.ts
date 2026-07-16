@@ -15,6 +15,12 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    issue: 99,
+    date: '2026-07-16',
+    en: 'You can now edit the calories and macros for your own custom dishes in Settings, not just rename or delete them.',
+    ru: 'Теперь калории и БЖУ для собственных блюд можно редактировать в Настройках, а не только переименовывать или удалять.',
+  },
+  {
     issue: 98,
     date: '2026-07-16',
     en: 'When manually logging a meal, you now see the calculated total update live as you type, before adding it.',

@@ -219,6 +219,8 @@ export interface Dictionary {
     mealItemsEmpty: string
     mealItemNameLabel: string
     deleteMealItemLabel: (name: string) => string
+    editMealItemLabel: (name: string) => string
+    saveMealItemLabel: (name: string) => string
     releaseNotesLabel: string
     showReleaseNotes: string
     hideReleaseNotes: string

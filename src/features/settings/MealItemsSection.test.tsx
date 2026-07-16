@@ -58,9 +58,7 @@ describe('MealItemsSection', () => {
       ),
     )
     await waitFor(async () =>
-      expect((await db.mealItems.toArray())[0].name).toBe(
-        'Margherita pizza',
-      ),
+      expect((await db.mealItems.toArray())[0].name).toBe('Margherita pizza'),
     )
   })
 
@@ -76,5 +74,89 @@ describe('MealItemsSection', () => {
       expect(screen.queryByDisplayValue('Pizza')).not.toBeInTheDocument(),
     )
     expect(useMealItemStore.getState().items).toEqual([])
+  })
+
+  describe('editing nutrition (#99)', () => {
+    it('shows a last-logged summary for an item with recorded nutrition', async () => {
+      await useMealItemStore.getState().touch('Pizza', {
+        amountKcal: 320,
+        proteinG: 18,
+        fatG: 10,
+        carbsG: 25,
+      })
+      render(<MealItemsSection />)
+
+      await screen.findByDisplayValue('Pizza')
+      expect(
+        screen.getByText('320 kcal last logged · P 18g · F 10g · C 25g'),
+      ).toBeInTheDocument()
+    })
+
+    it('shows no summary for a bare item with nothing recorded yet', async () => {
+      await useMealItemStore.getState().touch('Untouched')
+      render(<MealItemsSection />)
+
+      await screen.findByDisplayValue('Untouched')
+      expect(screen.queryByText(/last logged/)).not.toBeInTheDocument()
+    })
+
+    it('prefills the per-100g rate and quantity back-calculated from stored totals', async () => {
+      await useMealItemStore.getState().touch('Pizza', {
+        amountKcal: 150,
+        proteinG: 5,
+        amountG: 50,
+      })
+      const user = userEvent.setup()
+      render(<MealItemsSection />)
+
+      await screen.findByDisplayValue('Pizza')
+      await user.click(screen.getByRole('button', { name: 'Edit Pizza' }))
+
+      // 150 kcal / 5g protein eaten as a 50g portion back-calculates to
+      // 300 kcal/100g and 10g protein/100g.
+      expect(screen.getByLabelText('kcal/100g — Pizza')).toHaveValue('300')
+      expect(screen.getByLabelText('Protein — Pizza')).toHaveValue('10')
+      expect(screen.getByLabelText('Grams — Pizza')).toHaveValue('50')
+    })
+
+    it('starts blank when editing an item with nothing recorded yet', async () => {
+      await useMealItemStore.getState().touch('Untouched')
+      const user = userEvent.setup()
+      render(<MealItemsSection />)
+
+      await screen.findByDisplayValue('Untouched')
+      await user.click(screen.getByRole('button', { name: 'Edit Untouched' }))
+
+      expect(screen.getByLabelText('kcal/100g — Untouched')).toHaveValue('')
+      expect(screen.getByLabelText('Grams — Untouched')).toHaveValue('100')
+    })
+
+    it('shows a live preview and saves the scaled totals', async () => {
+      await useMealItemStore.getState().touch('Pizza')
+      const user = userEvent.setup()
+      render(<MealItemsSection />)
+
+      await screen.findByDisplayValue('Pizza')
+      await user.click(screen.getByRole('button', { name: 'Edit Pizza' }))
+
+      await user.type(screen.getByLabelText('kcal/100g — Pizza'), '200')
+      await user.type(screen.getByLabelText('Protein — Pizza'), '20')
+      await user.clear(screen.getByLabelText('Grams — Pizza'))
+      await user.type(screen.getByLabelText('Grams — Pizza'), '50')
+
+      expect(
+        screen.getByText('Total: 100 kcal · P 10g · F — · C —'),
+      ).toBeInTheDocument()
+
+      await user.click(screen.getByRole('button', { name: 'Save Pizza' }))
+
+      await waitFor(() =>
+        expect(useMealItemStore.getState().items[0]).toMatchObject({
+          lastAmountKcal: 100,
+          lastProteinG: 10,
+          lastAmountG: 50,
+        }),
+      )
+    })
   })
 })

@@ -248,6 +248,8 @@ export const ru: Dictionary = {
     mealItemsEmpty: 'Пока пусто — блюда появятся здесь после первой записи.',
     mealItemNameLabel: 'Название блюда',
     deleteMealItemLabel: (name) => `Удалить «${name}»`,
+    editMealItemLabel: (name) => `Изменить «${name}»`,
+    saveMealItemLabel: (name) => `Сохранить «${name}»`,
     releaseNotesLabel: 'История изменений',
     showReleaseNotes: 'Показать историю изменений',
     hideReleaseNotes: 'Скрыть историю изменений',
