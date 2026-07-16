@@ -15,6 +15,12 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    issue: 87,
+    date: '2026-07-16',
+    en: 'Renamed the daily note field to "Day\'s note" and gave it a helpful placeholder, so it\'s clearly separate from meal notes.',
+    ru: 'Поле общей заметки переименовано в «Заметка дня» и получило подсказку в поле ввода, чтобы не путать её с заметками к приёму пищи.',
+  },
+  {
     issue: 80,
     date: '2026-07-16',
     en: 'Reworded the meal note field’s placeholder to "Add a dish?" so it’s clearly different from the daily note.',

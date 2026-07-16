@@ -1322,6 +1322,7 @@ export function DailyEntryForm({
               type="text"
               aria-label={t.dailyEntry.noteLabel}
               aria-invalid={errors.note ? true : undefined}
+              placeholder={t.dailyEntry.noteFieldPlaceholder}
               className="h-8 flex-1"
               onKeyDown={(e) => {
                 if (e.key === 'Enter') {

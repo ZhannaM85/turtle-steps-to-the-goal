@@ -42,6 +42,7 @@ export interface Dictionary {
     caloriesTodaySuffix: string
     kcalUnit: string
     noteLabel: string
+    noteFieldPlaceholder: string
     editWeightLabel: string
     editNoteLabel: string
     saveWeightLabel: string
