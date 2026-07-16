@@ -108,7 +108,17 @@ function EmotionPicker<E extends string>({
             size="icon-sm"
             aria-label={contextLabel ? `${label} — ${contextLabel}` : label}
             aria-pressed={value === emotion}
-            className={cn(value === emotion && 'bg-muted text-foreground')}
+            // bg-muted alone (the old style) sits too close to
+            // --background in dark mode to read as "selected" — and for
+            // emoji options (unlike the lucide-icon options) text-foreground
+            // has no visual effect at all, so the background/border was the
+            // *only* indicator (#84). --primary is deliberately
+            // high-contrast against background in every mood theme, so a
+            // border + tint reliably reads as selected everywhere.
+            className={cn(
+              value === emotion &&
+                'border-2 border-primary bg-primary/15 text-foreground',
+            )}
             onClick={() => onChange(value === emotion ? undefined : emotion)}
           >
             {Icon ? (

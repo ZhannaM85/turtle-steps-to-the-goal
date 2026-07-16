@@ -15,6 +15,12 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    issue: 84,
+    date: '2026-07-16',
+    en: 'Fixed the selected mood/reaction icon being hard to see in dark mode.',
+    ru: 'Исправлена плохая видимость выбранной иконки настроения/реакции в тёмной теме.',
+  },
+  {
     issue: 88,
     date: '2026-07-16',
     en: 'Fixed a bug where tapping "Open this day" on a Dashboard chart could take you to the wrong date.',
