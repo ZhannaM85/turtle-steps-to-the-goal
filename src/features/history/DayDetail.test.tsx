@@ -51,7 +51,7 @@ describe('DayDetail', () => {
           calorieEntries: [
             {
               id: 'c1',
-              amountKcal: 500,
+              items: [{ id: 'i1', amountKcal: 500 }],
               note: 'Pasta for lunch',
               emotion: 'thumbsUp',
               createdAt: '2026-01-01T00:00:00.000Z',
@@ -75,7 +75,7 @@ describe('DayDetail', () => {
           calorieEntries: [
             {
               id: 'c1',
-              amountKcal: 500,
+              items: [{ id: 'i1', amountKcal: 500 }],
               emotion: 'bellissimo',
               createdAt: '2026-01-01T00:00:00.000Z',
             },
@@ -104,14 +104,12 @@ describe('DayDetail', () => {
           calorieEntries: [
             {
               id: 'c1',
-              amountKcal: 500,
-              proteinG: 20,
-              carbsG: 30,
+              items: [{ id: 'i1', amountKcal: 500, proteinG: 20, carbsG: 30 }],
               createdAt: '2026-01-01T00:00:00.000Z',
             },
             {
               id: 'c2',
-              amountKcal: 300,
+              items: [{ id: 'i2', amountKcal: 300 }],
               createdAt: '2026-01-01T00:00:00.000Z',
             },
           ],
@@ -133,9 +131,7 @@ describe('DayDetail', () => {
           calorieEntries: [
             {
               id: 'c1',
-              amountKcal: 500,
-              proteinG: 20,
-              fatG: 10,
+              items: [{ id: 'i1', amountKcal: 500, proteinG: 20, fatG: 10 }],
               createdAt: '2026-01-01T00:00:00.000Z',
             },
           ],

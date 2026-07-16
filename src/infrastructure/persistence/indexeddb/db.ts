@@ -65,6 +65,57 @@ export class AppDatabase extends Dexie {
             }
           }),
       )
+    // #81: a meal (CalorieEntry) becomes a group of 1+ items instead of a
+    // single flat kcal/macro record, so multiple dishes eaten together
+    // (soup + bread + cheese) can share one meal instead of becoming 3
+    // separate ones. Each existing flat meal becomes a single-item group:
+    // the item takes over amountKcal/proteinG/fatG/carbsG plus the old
+    // `note` as its `name` (the note was already doing double duty as the
+    // dish name); the group's own `note` is cleared since its meaning
+    // fully transfers to the item name, while emotion/timeEaten stay on
+    // the group.
+    this.version(5)
+      .stores({
+        goals: 'id, createdAt',
+        dailyEntries: 'id, &date',
+        mealItems: 'id, &name',
+      })
+      .upgrade((tx) =>
+        tx
+          .table('dailyEntries')
+          .toCollection()
+          .modify((entry) => {
+            if (!entry.calorieEntries) return
+            entry.calorieEntries = entry.calorieEntries.map(
+              (meal: {
+                id: string
+                amountKcal: number
+                note?: string
+                emotion?: string
+                proteinG?: number
+                fatG?: number
+                carbsG?: number
+                timeEaten?: string
+                createdAt: string
+              }) => ({
+                id: meal.id,
+                items: [
+                  {
+                    id: crypto.randomUUID(),
+                    name: meal.note,
+                    amountKcal: meal.amountKcal,
+                    proteinG: meal.proteinG,
+                    fatG: meal.fatG,
+                    carbsG: meal.carbsG,
+                  },
+                ],
+                emotion: meal.emotion,
+                timeEaten: meal.timeEaten,
+                createdAt: meal.createdAt,
+              }),
+            )
+          }),
+      )
   }
 }
 

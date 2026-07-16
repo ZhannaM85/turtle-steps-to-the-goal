@@ -29,7 +29,11 @@ describe('CalorieTrendChart', () => {
     const entries = [
       entry('2026-03-01', {
         calorieEntries: [
-          { id: 'c1', amountKcal: 1900, createdAt: '2026-01-01T00:00:00.000Z' },
+          {
+            id: 'c1',
+            items: [{ id: 'i1', amountKcal: 1900 }],
+            createdAt: '2026-01-01T00:00:00.000Z',
+          },
         ],
       }),
     ]

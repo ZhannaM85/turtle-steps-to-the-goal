@@ -71,7 +71,11 @@ describe('rollingAverage', () => {
     const entries = [
       entry('2026-03-01', {
         calorieEntries: [
-          { id: 'c1', amountKcal: 2000, createdAt: '2026-01-01T00:00:00.000Z' },
+          {
+            id: 'c1',
+            items: [{ id: 'i1', amountKcal: 2000 }],
+            createdAt: '2026-01-01T00:00:00.000Z',
+          },
         ],
       }),
     ]
@@ -96,12 +100,20 @@ describe('rollingAverage', () => {
     const entries = [
       entry('2026-03-01', {
         calorieEntries: [
-          { id: 'c1', amountKcal: 1800, createdAt: '2026-01-01T00:00:00.000Z' },
+          {
+            id: 'c1',
+            items: [{ id: 'i1', amountKcal: 1800 }],
+            createdAt: '2026-01-01T00:00:00.000Z',
+          },
         ],
       }),
       entry('2026-03-02', {
         calorieEntries: [
-          { id: 'c2', amountKcal: 2200, createdAt: '2026-01-01T00:00:00.000Z' },
+          {
+            id: 'c2',
+            items: [{ id: 'i2', amountKcal: 2200 }],
+            createdAt: '2026-01-01T00:00:00.000Z',
+          },
         ],
       }),
     ]

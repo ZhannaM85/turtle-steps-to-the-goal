@@ -10,7 +10,13 @@ function makeEntry(overrides: Partial<DailyEntry> = {}): DailyEntry {
     id: 'entry-1',
     date: '2026-03-01',
     weightKg: 80,
-    calorieEntries: [{ id: 'calorie-1', amountKcal: 2000, createdAt: now }],
+    calorieEntries: [
+      {
+        id: 'calorie-1',
+        items: [{ id: 'item-1', amountKcal: 2000 }],
+        createdAt: now,
+      },
+    ],
     createdAt: now,
     updatedAt: now,
     ...overrides,
@@ -59,9 +65,7 @@ describe('EntryRow', () => {
         calorieEntries: [
           {
             id: 'c1',
-            amountKcal: 2000,
-            proteinG: 20,
-            fatG: 10,
+            items: [{ id: 'i1', amountKcal: 2000, proteinG: 20, fatG: 10 }],
             createdAt: '2026-01-01T00:00:00.000Z',
           },
         ],
@@ -147,7 +151,7 @@ describe('EntryRow', () => {
           calorieEntries: [
             {
               id: 'c1',
-              amountKcal: 500,
+              items: [{ id: 'i1', amountKcal: 500 }],
               note: 'Pasta for lunch',
               emotion: 'thumbsUp',
               createdAt: '2026-01-01T00:00:00.000Z',
@@ -167,7 +171,7 @@ describe('EntryRow', () => {
           calorieEntries: [
             {
               id: 'c1',
-              amountKcal: 500,
+              items: [{ id: 'i1', amountKcal: 500 }],
               note: 'Pasta for lunch',
               emotion: 'thumbsUp',
               createdAt: '2026-01-01T00:00:00.000Z',
@@ -195,7 +199,7 @@ describe('EntryRow', () => {
           calorieEntries: [
             {
               id: 'c1',
-              amountKcal: 500,
+              items: [{ id: 'i1', amountKcal: 500 }],
               createdAt: '2026-01-01T00:00:00.000Z',
             },
           ],
@@ -229,7 +233,7 @@ describe('EntryRow', () => {
           calorieEntries: [
             {
               id: 'c1',
-              amountKcal: 500,
+              items: [{ id: 'i1', amountKcal: 500 }],
               createdAt: '2026-01-01T00:00:00.000Z',
             },
           ],

@@ -1,19 +1,18 @@
 import { addDays, format, startOfISOWeek } from 'date-fns'
 import { describe, expect, it } from 'vitest'
-import type { CalorieEntry, DailyEntry } from '@/domain/dailyEntry'
+import type { CalorieEntry, CalorieItem, DailyEntry } from '@/domain/dailyEntry'
 import type { Goal } from '@/domain/goal'
 import { weeklySummaries } from './weeklySummaries'
 
 function calories(
   amountKcal: number,
-  macros: Partial<CalorieEntry> = {},
+  macros: Partial<CalorieItem> = {},
 ): CalorieEntry[] {
   return [
     {
       id: crypto.randomUUID(),
-      amountKcal,
+      items: [{ id: crypto.randomUUID(), amountKcal, ...macros }],
       createdAt: '2026-01-01T00:00:00.000Z',
-      ...macros,
     },
   ]
 }

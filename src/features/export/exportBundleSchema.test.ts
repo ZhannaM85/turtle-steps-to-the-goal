@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { exportBundleSchema } from './exportBundleSchema'
 
 const validBundle = {
-  version: 4,
+  version: 5,
   exportedAt: '2026-07-10T00:00:00.000Z',
   goals: [
     {
@@ -21,7 +21,7 @@ const validBundle = {
       calorieEntries: [
         {
           id: 'calorie-1',
-          amountKcal: 2000,
+          items: [{ id: 'item-1', amountKcal: 2000 }],
           createdAt: '2026-03-01T00:00:00.000Z',
         },
       ],
@@ -39,7 +39,7 @@ describe('exportBundleSchema', () => {
   it('accepts an empty bundle (no goals or entries)', () => {
     expect(
       exportBundleSchema.safeParse({
-        version: 4,
+        version: 5,
         exportedAt: '2026-07-10T00:00:00.000Z',
         goals: [],
         dailyEntries: [],

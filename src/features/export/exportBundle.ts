@@ -7,7 +7,7 @@ export function buildExportBundle(
   dailyEntries: DailyEntry[],
 ): ExportBundle {
   return {
-    version: 4,
+    version: 5,
     exportedAt: new Date().toISOString(),
     goals,
     dailyEntries,

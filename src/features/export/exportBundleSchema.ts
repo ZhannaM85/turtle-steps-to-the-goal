@@ -12,18 +12,24 @@ const dayEmotionSchema = z.enum(['happy', 'unhappy', 'neutral'])
 // A single meal's reaction (#54) — a different, smaller set than the day's mood.
 const mealEmotionSchema = z.enum(['thumbsUp', 'thumbsDown', 'bellissimo'])
 
-// Macros (#51) — purely additive/optional, so no version bump: an old v4
-// backup with no macros still validates (they're just undefined), and this
-// same schema also validates new exports that do have them.
-const calorieEntrySchema = z.object({
+// #81: a meal groups 1+ items (e.g. soup + bread + cheese) instead of being
+// a single flat kcal/macro record. note/emotion/timeEaten stay group-level;
+// amountKcal/macros move onto each item.
+const calorieItemSchema = z.object({
   id: z.string(),
+  name: z.string().optional(),
   amountKcal: z.number(),
-  note: z.string().optional(),
-  emotion: mealEmotionSchema.optional(),
-  createdAt: z.string(),
   proteinG: z.number().optional(),
   fatG: z.number().optional(),
   carbsG: z.number().optional(),
+})
+
+const calorieEntrySchema = z.object({
+  id: z.string(),
+  items: z.array(calorieItemSchema),
+  note: z.string().optional(),
+  emotion: mealEmotionSchema.optional(),
+  createdAt: z.string(),
   // Time eaten (#65) — purely additive/optional, same no-version-bump
   // reasoning as macros/sleep/steps above.
   timeEaten: z.string().optional(),
@@ -50,13 +56,54 @@ const dailyEntrySchema = z.object({
 })
 
 export const exportBundleSchema = z.object({
-  version: z.literal(4),
+  version: z.literal(5),
   exportedAt: z.string(),
   goals: z.array(goalSchema),
   dailyEntries: z.array(dailyEntrySchema),
 })
 
 export type ExportBundle = z.infer<typeof exportBundleSchema>
+
+/**
+ * Backups written before #81 stored each meal as a single flat kcal/macro
+ * record instead of a group of items. Recognized separately so
+ * `parseExportBundle` can fold each into a single-item group on import.
+ */
+const calorieEntrySchemaV4 = z.object({
+  id: z.string(),
+  amountKcal: z.number(),
+  note: z.string().optional(),
+  emotion: mealEmotionSchema.optional(),
+  createdAt: z.string(),
+  proteinG: z.number().optional(),
+  fatG: z.number().optional(),
+  carbsG: z.number().optional(),
+  timeEaten: z.string().optional(),
+})
+
+const dailyEntrySchemaV4 = z.object({
+  id: z.string(),
+  date: z.string(),
+  weightKg: z.number().optional(),
+  calorieEntries: z.array(calorieEntrySchemaV4).optional(),
+  note: z.string().optional(),
+  emotion: dayEmotionSchema.optional(),
+  sleepHours: z.number().optional(),
+  deepSleepHours: z.number().optional(),
+  steps: z.number().optional(),
+  onPeriod: z.boolean().optional(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+})
+
+export const exportBundleSchemaV4 = z.object({
+  version: z.literal(4),
+  exportedAt: z.string(),
+  goals: z.array(goalSchema),
+  dailyEntries: z.array(dailyEntrySchemaV4),
+})
+
+export type ExportBundleV4 = z.infer<typeof exportBundleSchemaV4>
 
 /**
  * Backups written before #54 used the old shared happy/unhappy/neutral set

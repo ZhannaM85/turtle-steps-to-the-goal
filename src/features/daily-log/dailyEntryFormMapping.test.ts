@@ -3,7 +3,11 @@ import type { CalorieEntry, DailyEntry } from '@/domain/dailyEntry'
 import { entryToFormValues, formValuesToEntry } from './dailyEntryFormMapping'
 
 const calorieEntries: CalorieEntry[] = [
-  { id: 'calorie-1', amountKcal: 2000, createdAt: '2026-03-01T00:00:00.000Z' },
+  {
+    id: 'calorie-1',
+    items: [{ id: 'item-1', amountKcal: 2000 }],
+    createdAt: '2026-03-01T00:00:00.000Z',
+  },
 ]
 
 function makeEntry(overrides: Partial<DailyEntry> = {}): DailyEntry {

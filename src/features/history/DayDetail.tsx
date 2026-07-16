@@ -1,5 +1,9 @@
 import { format, parseISO } from 'date-fns'
 import {
+  calorieEntryCarbs,
+  calorieEntryFat,
+  calorieEntryKcal,
+  calorieEntryProtein,
   totalCalories,
   totalCarbs,
   totalFat,
@@ -16,7 +20,10 @@ import {
   useTranslation,
 } from '@/i18n'
 import { DAY_EMOTIONS, MEAL_EMOTIONS } from '@/shared/lib/emotionIcons'
-import { macrosSummaryText } from '@/shared/lib/macroDisplay'
+import {
+  macrosSummaryText,
+  macrosSummaryTextCompact,
+} from '@/shared/lib/macroDisplay'
 import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/ui/button'
 import { useCycleTrackingStore, useUnitStore } from '@/stores'
@@ -149,9 +156,9 @@ export function DayDetail({
               (e) => e.value === meal.emotion,
             )
             const mealMacrosSummary = macrosSummaryText(
-              meal.proteinG,
-              meal.fatG,
-              meal.carbsG,
+              calorieEntryProtein(meal),
+              calorieEntryFat(meal),
+              calorieEntryCarbs(meal),
               locale,
               t,
             )
@@ -159,7 +166,7 @@ export function DayDetail({
               <li key={meal.id} className="flex flex-col gap-0.5">
                 <span className="flex items-center gap-1.5">
                   {t.dailyEntry.mealLabel(index + 1)} —{' '}
-                  {formatNumber(meal.amountKcal, locale, 0)}{' '}
+                  {formatNumber(calorieEntryKcal(meal), locale, 0)}{' '}
                   {t.dailyEntry.kcalUnit}
                   {meal.timeEaten && (
                     <span className="text-muted-foreground">
@@ -197,6 +204,26 @@ export function DayDetail({
                     {mealMacrosSummary}
                   </span>
                 )}
+                {/* Item sub-list (#81) — a group's individual dishes. */}
+                <ul className="flex flex-col gap-0.5 pl-4">
+                  {meal.items.map((item) => {
+                    const itemMacros = macrosSummaryTextCompact(
+                      item.proteinG,
+                      item.fatG,
+                      item.carbsG,
+                      locale,
+                      t,
+                    )
+                    return (
+                      <li key={item.id} className="text-xs text-muted-foreground">
+                        {item.name && `${item.name} — `}
+                        {formatNumber(item.amountKcal, locale, 0)}{' '}
+                        {t.dailyEntry.kcalUnit}
+                        {itemMacros && ` · ${itemMacros}`}
+                      </li>
+                    )
+                  })}
+                </ul>
               </li>
             )
           })}

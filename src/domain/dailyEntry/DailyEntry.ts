@@ -6,17 +6,29 @@ export type Emotion = 'happy' | 'unhappy' | 'neutral'
  * chef's-kiss "this was amazing" tier above thumbs up). */
 export type MealEmotion = 'thumbsUp' | 'thumbsDown' | 'bellissimo'
 
-export interface CalorieEntry {
+/**
+ * One food/dish within a meal (#81) — e.g. "soup", "bread", "cheese" all
+ * eaten together at lunch. A meal (`CalorieEntry`) groups 1+ of these;
+ * note/mood/time-eaten are shared at the group level, not per item (see
+ * `CalorieEntry` below).
+ */
+export interface CalorieItem {
   id: string
+  name?: string
   amountKcal: number
-  note?: string
-  emotion?: MealEmotion
-  createdAt: string
-  /** Macros (#51) — all optional and independent of each other and of
-   * amountKcal, same as note/emotion: a meal can log any subset. */
   proteinG?: number
   fatG?: number
   carbsG?: number
+}
+
+export interface CalorieEntry {
+  id: string
+  /** Always at least one item — a group with its last item removed is
+   * itself removed, not left empty. */
+  items: CalorieItem[]
+  note?: string
+  emotion?: MealEmotion
+  createdAt: string
   /** Time of day the meal was eaten (#65), "HH:MM" 24-hour, e.g. "07:30" —
    * for intermittent-fasting tracking. Time-of-day only, not a full
    * date+time: a meal already belongs to a specific day via its parent

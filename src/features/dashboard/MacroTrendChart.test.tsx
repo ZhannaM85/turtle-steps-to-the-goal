@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import { describe, expect, it } from 'vitest'
-import type { DailyEntry } from '@/domain/dailyEntry'
+import type { CalorieItem, DailyEntry } from '@/domain/dailyEntry'
 import { MacroTrendChart } from './MacroTrendChart'
 
 let idCounter = 0
@@ -17,12 +17,16 @@ function entry(date: string, overrides: Partial<DailyEntry> = {}): DailyEntry {
   }
 }
 
+function item(overrides: Partial<CalorieItem> = {}): CalorieItem {
+  return { id: crypto.randomUUID(), amountKcal: 1900, ...overrides }
+}
+
 describe('MacroTrendChart', () => {
   it('renders nothing when no entry has any macro logged', () => {
     const entries = [
       entry('2026-03-01', {
         calorieEntries: [
-          { id: 'c1', amountKcal: 1900, createdAt: '2026-01-01T00:00:00.000Z' },
+          { id: 'c1', items: [item()], createdAt: '2026-01-01T00:00:00.000Z' },
         ],
       }),
     ]
@@ -38,8 +42,7 @@ describe('MacroTrendChart', () => {
         calorieEntries: [
           {
             id: 'c1',
-            amountKcal: 1900,
-            proteinG: 90,
+            items: [item({ proteinG: 90 })],
             createdAt: '2026-01-01T00:00:00.000Z',
           },
         ],
@@ -61,15 +64,18 @@ describe('MacroTrendChart', () => {
         calorieEntries: [
           {
             id: 'c1',
-            amountKcal: 1900,
-            carbsG: 200,
+            items: [item({ carbsG: 200 })],
             createdAt: '2026-01-01T00:00:00.000Z',
           },
         ],
       }),
       entry('2026-03-02', {
         calorieEntries: [
-          { id: 'c2', amountKcal: 1800, createdAt: '2026-01-01T00:00:00.000Z' },
+          {
+            id: 'c2',
+            items: [item({ amountKcal: 1800 })],
+            createdAt: '2026-01-01T00:00:00.000Z',
+          },
         ],
       }),
     ]

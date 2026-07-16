@@ -185,7 +185,7 @@ describe('TodayScreen', () => {
         calorieEntries: [
           {
             id: crypto.randomUUID(),
-            amountKcal: 1900,
+            items: [{ id: crypto.randomUUID(), amountKcal: 1900 }],
             createdAt: new Date().toISOString(),
           },
         ],

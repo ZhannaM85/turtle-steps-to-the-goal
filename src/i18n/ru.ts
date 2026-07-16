@@ -69,7 +69,11 @@ export const ru: Dictionary = {
     reorderMealLabel: (n) => `Изменить порядок: приём пищи ${n}`,
     saveButton: 'Сохранить',
     mealNoteLabel: 'Заметка о приёме пищи',
-    mealNotePlaceholder: 'Добавить своё блюдо?',
+    mealNotePlaceholder: 'Что-нибудь ещё об этом приёме пищи?',
+    itemNameLabel: 'Название блюда',
+    itemNamePlaceholder: 'Добавить своё блюдо?',
+    deleteItemLabel: 'Удалить блюдо',
+    addItemButton: '+ Добавить блюдо',
     emotionLabel: (emotion) =>
       emotion === 'happy'
         ? 'Радостно'
@@ -92,7 +96,7 @@ export const ru: Dictionary = {
     macrosSummaryCompact: (protein, fat, carbs) =>
       `Б ${protein} · Ж ${fat} · У ${carbs}`,
     timeEatenLabel: 'Время',
-    addFoodButton: '+ Продукт',
+    addFoodButton: 'Найти блюдо',
     addFoodDialogTitle: 'Добавить из списка продуктов',
     closeFoodDialogLabel: 'Закрыть',
     foodSearchLabel: 'Поиск продуктов',

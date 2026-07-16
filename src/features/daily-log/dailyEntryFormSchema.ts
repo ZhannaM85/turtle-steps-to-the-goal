@@ -14,15 +14,23 @@ export const timeEatenSchema = z
   .regex(/^([01]\d|2[0-3]):[0-5]\d$/)
   .optional()
 
-const calorieEntrySchema = z.object({
+// #81: a meal groups 1+ items instead of being a single flat kcal/macro
+// record — see domain/dailyEntry/DailyEntry.ts's CalorieItem/CalorieEntry.
+const calorieItemSchema = z.object({
   id: z.string(),
+  name: z.string().max(500).optional(),
   amountKcal: z.number().positive().max(10000),
-  note: z.string().max(500).optional(),
-  emotion: mealEmotionSchema.optional(),
-  createdAt: z.string(),
   proteinG: macroGramsSchema.optional(),
   fatG: macroGramsSchema.optional(),
   carbsG: macroGramsSchema.optional(),
+})
+
+const calorieEntrySchema = z.object({
+  id: z.string(),
+  items: z.array(calorieItemSchema),
+  note: z.string().max(500).optional(),
+  emotion: mealEmotionSchema.optional(),
+  createdAt: z.string(),
   timeEaten: timeEatenSchema,
 })
 

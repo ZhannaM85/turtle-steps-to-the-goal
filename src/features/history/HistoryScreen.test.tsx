@@ -15,7 +15,11 @@ function makeEntry(overrides: Partial<DailyEntry> = {}): DailyEntry {
     date: '2026-03-01',
     weightKg: 80,
     calorieEntries: [
-      { id: crypto.randomUUID(), amountKcal: 2000, createdAt: now },
+      {
+        id: crypto.randomUUID(),
+        items: [{ id: crypto.randomUUID(), amountKcal: 2000 }],
+        createdAt: now,
+      },
     ],
     createdAt: now,
     updatedAt: now,

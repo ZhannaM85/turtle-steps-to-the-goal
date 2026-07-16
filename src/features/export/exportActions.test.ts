@@ -28,7 +28,11 @@ function makeEntry(overrides: Partial<DailyEntry> = {}): DailyEntry {
     date: '2026-03-01',
     weightKg: 80,
     calorieEntries: [
-      { id: crypto.randomUUID(), amountKcal: 2000, createdAt: now },
+      {
+        id: crypto.randomUUID(),
+        items: [{ id: crypto.randomUUID(), amountKcal: 2000 }],
+        createdAt: now,
+      },
     ],
     createdAt: now,
     updatedAt: now,
@@ -88,7 +92,7 @@ describe('importAllData', () => {
 
     const backupEntry = makeEntry({ date: '2026-03-01' })
     await importAllData({
-      version: 4,
+      version: 5,
       exportedAt: new Date().toISOString(),
       goals: [],
       dailyEntries: [backupEntry],
@@ -103,7 +107,7 @@ describe('importAllData', () => {
 describe('parseExportBundle', () => {
   it('parses a valid bundle', () => {
     const bundle = {
-      version: 4,
+      version: 5,
       exportedAt: '2026-01-01',
       goals: [],
       dailyEntries: [],
@@ -111,7 +115,50 @@ describe('parseExportBundle', () => {
     expect(parseExportBundle(bundle)).toEqual(bundle)
   })
 
-  it('upgrades a v3 backup by clearing old-format meal emotions (#54)', () => {
+  it('upgrades a v4 backup by folding flat meals into single-item groups (#81)', () => {
+    const v4Bundle = {
+      version: 4,
+      exportedAt: '2026-01-01',
+      goals: [],
+      dailyEntries: [
+        {
+          id: 'entry-1',
+          date: '2026-03-01',
+          weightKg: 80,
+          calorieEntries: [
+            {
+              id: 'meal-1',
+              amountKcal: 500,
+              note: 'Pizza',
+              proteinG: 20,
+              createdAt: '2026-03-01T00:00:00.000Z',
+            },
+          ],
+          createdAt: '2026-03-01T00:00:00.000Z',
+          updatedAt: '2026-03-01T00:00:00.000Z',
+        },
+      ],
+    }
+
+    const upgraded = parseExportBundle(v4Bundle)
+
+    expect(upgraded.version).toBe(5)
+    const group = upgraded.dailyEntries[0].calorieEntries?.[0]
+    expect(group?.id).toBe('meal-1')
+    expect(group).not.toHaveProperty('note')
+    expect(group?.items).toEqual([
+      {
+        id: expect.any(String),
+        name: 'Pizza',
+        amountKcal: 500,
+        proteinG: 20,
+        fatG: undefined,
+        carbsG: undefined,
+      },
+    ])
+  })
+
+  it('upgrades a v3 backup by clearing old-format meal emotions (#54) and folding into groups (#81)', () => {
     const v3Bundle = {
       version: 3,
       exportedAt: '2026-01-01',
@@ -139,17 +186,17 @@ describe('parseExportBundle', () => {
 
     const upgraded = parseExportBundle(v3Bundle)
 
-    expect(upgraded.version).toBe(4)
+    expect(upgraded.version).toBe(5)
+    const group = upgraded.dailyEntries[0].calorieEntries?.[0]
     // Meal-level emotion is cleared, not translated.
-    expect(upgraded.dailyEntries[0].calorieEntries?.[0]).not.toHaveProperty(
-      'emotion',
-    )
-    expect(upgraded.dailyEntries[0].calorieEntries?.[0].note).toBe('Pizza')
+    expect(group?.emotion).toBeUndefined()
+    expect(group?.items[0].name).toBe('Pizza')
+    expect(group?.items[0].amountKcal).toBe(500)
     // Day-level emotion is untouched — that set didn't change.
     expect(upgraded.dailyEntries[0].emotion).toBe('happy')
   })
 
-  it('upgrades a legacy v2 backup (single caloriesConsumed number) into calorieEntries', () => {
+  it('upgrades a legacy v2 backup (single caloriesConsumed number) into a single-item group', () => {
     const legacyBundle = {
       version: 2,
       exportedAt: '2026-01-01',
@@ -168,13 +215,17 @@ describe('parseExportBundle', () => {
 
     const upgraded = parseExportBundle(legacyBundle)
 
-    expect(upgraded.version).toBe(4)
+    expect(upgraded.version).toBe(5)
     expect(upgraded.dailyEntries[0]).not.toHaveProperty('caloriesConsumed')
-    expect(upgraded.dailyEntries[0].calorieEntries).toEqual([
+    const group = upgraded.dailyEntries[0].calorieEntries?.[0]
+    expect(group?.items).toEqual([
       {
         id: expect.any(String),
+        name: undefined,
         amountKcal: 1600,
-        createdAt: '2026-03-01T00:00:00.000Z',
+        proteinG: undefined,
+        fatG: undefined,
+        carbsG: undefined,
       },
     ])
   })

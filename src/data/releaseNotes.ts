@@ -15,6 +15,12 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    issue: 81,
+    date: '2026-07-16',
+    en: 'Meals can now group multiple dishes together — add soup, bread, and cheese to the same meal instead of three separate ones. Open a meal\'s edit view and use "+ Add item" to add more dishes to it.',
+    ru: 'Приёмы пищи теперь можно группировать — добавляйте суп, хлеб и сыр в один приём пищи вместо трёх отдельных. Откройте редактирование приёма пищи и используйте «+ Добавить блюдо», чтобы добавить ещё блюда.',
+  },
+  {
     issue: 86,
     date: '2026-07-16',
     en: 'Fixed meal-name suggestions not appearing on some phones, and "+ Food" now also finds dishes you\'ve added before, not just the built-in food list.',

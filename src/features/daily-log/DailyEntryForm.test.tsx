@@ -37,7 +37,11 @@ function calories(
   amountKcal: number,
   id: string = crypto.randomUUID(),
 ): CalorieEntry {
-  return { id, amountKcal, createdAt: now }
+  return {
+    id,
+    items: [{ id: crypto.randomUUID(), amountKcal }],
+    createdAt: now,
+  }
 }
 
 beforeEach(async () => {
@@ -545,7 +549,7 @@ describe('DailyEntryForm', () => {
       expect(onSave).toHaveBeenCalledTimes(1)
       expect(
         onSave.mock.calls[0][0].calorieEntries.map(
-          (c: CalorieEntry) => c.amountKcal,
+          (c: CalorieEntry) => c.items[0].amountKcal,
         ),
       ).toEqual([200])
       expect(screen.getByText('200')).toBeInTheDocument()
@@ -595,7 +599,7 @@ describe('DailyEntryForm', () => {
       await user.type(screen.getByLabelText('Carbs'), '30')
       await user.click(screen.getByRole('button', { name: 'Add' }))
 
-      expect(onSave.mock.calls[0][0].calorieEntries[0]).toMatchObject({
+      expect(onSave.mock.calls[0][0].calorieEntries[0].items[0]).toMatchObject({
         amountKcal: 200,
         proteinG: 20,
         fatG: 10,
@@ -624,11 +628,13 @@ describe('DailyEntryForm', () => {
       await user.type(screen.getByLabelText('Fat'), '10')
       await user.click(screen.getByRole('button', { name: 'Add' }))
 
-      expect(onSave.mock.calls[0][0].calorieEntries[0]).toMatchObject({
+      expect(onSave.mock.calls[0][0].calorieEntries[0].items[0]).toMatchObject({
         amountKcal: 200,
         fatG: 10,
       })
-      expect(onSave.mock.calls[0][0].calorieEntries[0].proteinG).toBeUndefined()
+      expect(
+        onSave.mock.calls[0][0].calorieEntries[0].items[0].proteinG,
+      ).toBeUndefined()
       expect(
         screen.getAllByText('Protein — · Fat 10g · Carbs —'),
       ).toHaveLength(2)
@@ -687,7 +693,7 @@ describe('DailyEntryForm', () => {
       )
 
       await user.type(screen.getByLabelText('Add calories'), '200')
-      await user.type(screen.getByLabelText('Meal note'), 'Pizza')
+      await user.type(screen.getByLabelText('Dish name'), 'Pizza')
       await user.click(screen.getByRole('button', { name: 'Add' }))
 
       await screen.findByText('Meal 1 — 200 kcal')
@@ -707,15 +713,15 @@ describe('DailyEntryForm', () => {
         />,
       )
 
-      const noteInput = await screen.findByLabelText('Meal note')
-      await user.click(noteInput)
+      const nameInput = await screen.findByLabelText('Dish name')
+      await user.click(nameInput)
 
       expect(
         await screen.findByRole('button', { name: 'Pizza' }),
       ).toBeInTheDocument()
 
       await user.click(screen.getByRole('button', { name: 'Pizza' }))
-      expect(noteInput).toHaveValue('Pizza')
+      expect(nameInput).toHaveValue('Pizza')
     })
 
     it('accumulates repeated quick-adds onto the existing calories total', async () => {
@@ -812,7 +818,7 @@ describe('DailyEntryForm', () => {
         renderWithMeals(onSave)
 
         await user.click(screen.getByRole('button', { name: 'Edit meal 1' }))
-        const input = screen.getByLabelText('Meal 1')
+        const input = screen.getByLabelText('kcal — Meal 1')
         await user.clear(input)
         await user.type(input, '350')
         await user.click(screen.getByRole('button', { name: 'Save' }))
@@ -822,7 +828,7 @@ describe('DailyEntryForm', () => {
         expect(onSave).toHaveBeenCalledTimes(1)
         expect(
           onSave.mock.calls[0][0].calorieEntries.map(
-            (c: CalorieEntry) => c.amountKcal,
+            (c: CalorieEntry) => c.items[0].amountKcal,
           ),
         ).toEqual([350, 200])
       })
@@ -844,7 +850,7 @@ describe('DailyEntryForm', () => {
         expect(onSave).toHaveBeenCalledTimes(1)
         expect(
           onSave.mock.calls[0][0].calorieEntries.map(
-            (c: CalorieEntry) => c.amountKcal,
+            (c: CalorieEntry) => c.items[0].amountKcal,
           ),
         ).toEqual([200])
       })
@@ -858,7 +864,7 @@ describe('DailyEntryForm', () => {
         await user.click(screen.getByRole('button', { name: 'Delete meal 1' }))
         await user.click(screen.getByRole('button', { name: 'Cancel' }))
 
-        expect(screen.getByLabelText('Meal 1')).toHaveValue('300')
+        expect(screen.getByLabelText('kcal — Meal 1')).toHaveValue('300')
         expect(screen.getByText('Meal 2 — 200 kcal')).toBeInTheDocument()
         expect(onSave).not.toHaveBeenCalled()
       })
@@ -896,7 +902,7 @@ describe('DailyEntryForm', () => {
         await user.type(screen.getByLabelText('Carbs — Meal 1'), '30')
         await user.click(screen.getByRole('button', { name: 'Save' }))
 
-        expect(onSave.mock.calls[0][0].calorieEntries[0]).toMatchObject({
+        expect(onSave.mock.calls[0][0].calorieEntries[0].items[0]).toMatchObject({
           proteinG: 20,
           fatG: 10,
           carbsG: 30,
@@ -949,7 +955,7 @@ describe('DailyEntryForm', () => {
         expect(onSave).toHaveBeenCalledTimes(1)
         expect(
           onSave.mock.calls[0][0].calorieEntries.map(
-            (c: CalorieEntry) => c.amountKcal,
+            (c: CalorieEntry) => c.items[0].amountKcal,
           ),
         ).toEqual([200, 300])
       })
@@ -964,6 +970,76 @@ describe('DailyEntryForm', () => {
         })
 
         expect(onSave).not.toHaveBeenCalled()
+      })
+
+      describe('grouping multiple items under one meal (#81)', () => {
+        it('adds another item to an existing meal via edit mode, growing the kcal subtotal', async () => {
+          const user = userEvent.setup()
+          const onSave = vi.fn()
+          renderWithMeals(onSave)
+
+          await user.click(screen.getByRole('button', { name: 'Edit meal 1' }))
+          await user.click(
+            screen.getByRole('button', { name: '+ Add item' }),
+          )
+          // Captured before typing names — the kcal input's aria-label
+          // incorporates the item's (live) name, so it would stop matching
+          // 'kcal — Meal 1' once a name is typed. Element references stay
+          // valid to type into even after their label attribute changes.
+          const kcalInputs = screen.getAllByLabelText('kcal — Meal 1')
+          const nameInputs = screen.getAllByLabelText('Dish name — Meal 1')
+          await user.type(nameInputs[1], 'Bread')
+          await user.type(kcalInputs[1], '80')
+          await user.click(screen.getByRole('button', { name: 'Save' }))
+
+          expect(screen.getByText('Meal 1 — 380 kcal')).toBeInTheDocument()
+          const savedItems = onSave.mock.calls[0][0].calorieEntries[0].items
+          expect(savedItems).toHaveLength(2)
+          expect(savedItems[1]).toMatchObject({
+            name: 'Bread',
+            amountKcal: 80,
+          })
+        })
+
+        it('removing every item from a meal during edit deletes the whole meal on save', async () => {
+          const user = userEvent.setup()
+          const onSave = vi.fn()
+          renderWithMeals(onSave)
+
+          await user.click(screen.getByRole('button', { name: 'Edit meal 1' }))
+          await user.click(
+            screen.getByRole('button', { name: 'Delete item' }),
+          )
+          await user.click(screen.getByRole('button', { name: 'Save' }))
+
+          expect(screen.queryByText(/300 kcal/)).not.toBeInTheDocument()
+          expect(screen.getByText('Meal 1 — 200 kcal')).toBeInTheDocument()
+          expect(
+            onSave.mock.calls[0][0].calorieEntries.map(
+              (c: CalorieEntry) => c.items[0].amountKcal,
+            ),
+          ).toEqual([200])
+        })
+
+        it('shows each item name and kcal in the read-only view', async () => {
+          const user = userEvent.setup()
+          const onSave = vi.fn()
+          renderWithMeals(onSave)
+
+          await user.click(screen.getByRole('button', { name: 'Edit meal 1' }))
+          await user.click(
+            screen.getByRole('button', { name: '+ Add item' }),
+          )
+          const kcalInputs = screen.getAllByLabelText('kcal — Meal 1')
+          const nameInputs = screen.getAllByLabelText('Dish name — Meal 1')
+          await user.type(kcalInputs[1], '80')
+          await user.type(nameInputs[0], 'Soup')
+          await user.type(nameInputs[1], 'Bread')
+          await user.click(screen.getByRole('button', { name: 'Save' }))
+
+          expect(screen.getByText('Soup — 300 kcal')).toBeInTheDocument()
+          expect(screen.getByText('Bread — 80 kcal')).toBeInTheDocument()
+        })
       })
 
       describe('time eaten (#65)', () => {
@@ -1079,7 +1155,7 @@ describe('DailyEntryForm', () => {
       })
 
       describe('food picker (#62)', () => {
-        it('opens the food dialog from the + Food button and adds a scaled meal', async () => {
+        it('opens the food dialog from the Find food button and adds a scaled meal', async () => {
           const user = userEvent.setup()
           const onSave = vi.fn()
           render(
@@ -1090,15 +1166,15 @@ describe('DailyEntryForm', () => {
             />,
           )
 
-          await user.click(screen.getByRole('button', { name: '+ Food' }))
+          await user.click(screen.getByRole('button', { name: 'Find food' }))
           await user.click(screen.getByText('Salmon'))
           await user.click(screen.getByRole('button', { name: 'Add food' }))
 
           expect(onSave).toHaveBeenCalledTimes(1)
           const entry = onSave.mock.calls[0][0].calorieEntries[0]
-          expect(entry.amountKcal).toBe(208)
-          expect(entry.proteinG).toBe(20)
-          expect(entry.note).toBe('Salmon')
+          expect(entry.items[0].amountKcal).toBe(208)
+          expect(entry.items[0].proteinG).toBe(20)
+          expect(entry.items[0].name).toBe('Salmon')
           expect(screen.getByText('Meal 1 — 208 kcal')).toBeInTheDocument()
         })
       })

@@ -68,7 +68,13 @@ export const en: Dictionary = {
     reorderMealLabel: (n) => `Reorder meal ${n}`,
     saveButton: 'Save',
     mealNoteLabel: 'Meal note',
-    mealNotePlaceholder: 'Add a dish?',
+    // Group-level note (#81) — not a dish name (see itemNamePlaceholder for
+    // that), a free-text comment about the meal as a whole.
+    mealNotePlaceholder: 'Anything else about this meal?',
+    itemNameLabel: 'Dish name',
+    itemNamePlaceholder: 'Add a dish?',
+    deleteItemLabel: 'Delete item',
+    addItemButton: '+ Add item',
     emotionLabel: (emotion) =>
       emotion === 'happy'
         ? 'Happy'
@@ -91,7 +97,7 @@ export const en: Dictionary = {
     macrosSummaryCompact: (protein, fat, carbs) =>
       `P ${protein} · F ${fat} · C ${carbs}`,
     timeEatenLabel: 'Time',
-    addFoodButton: '+ Food',
+    addFoodButton: 'Find food',
     addFoodDialogTitle: 'Add from food list',
     closeFoodDialogLabel: 'Close',
     foodSearchLabel: 'Search foods',
