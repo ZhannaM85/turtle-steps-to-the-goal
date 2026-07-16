@@ -217,6 +217,19 @@ export interface Dictionary {
     weekStartDescription: string
     weekStartMonday: string
     weekStartFirstEntry: string
+    foodListLabel: string
+    foodListDescription: string
+    manageFoodListButton: string
+    backToSettingsLabel: string
+    hideButtonLabel: string
+    showButtonLabel: string
+    restoreDefaultButtonLabel: string
+    hideFoodLabel: (name: string) => string
+    showFoodLabel: (name: string) => string
+    editFoodLabel: (name: string) => string
+    saveFoodLabel: (name: string) => string
+    restoreDefaultLabel: (name: string) => string
+    hiddenBadgeLabel: string
   }
   about: {
     title: string

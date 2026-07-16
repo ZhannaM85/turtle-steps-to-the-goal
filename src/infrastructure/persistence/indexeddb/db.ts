@@ -2,11 +2,13 @@ import Dexie, { type Table } from 'dexie'
 import type { Goal } from '@/domain/goal'
 import type { DailyEntry } from '@/domain/dailyEntry'
 import type { MealItem } from '@/domain/mealItem'
+import type { FoodOverride } from '@/domain/foodOverride'
 
 export class AppDatabase extends Dexie {
   goals!: Table<Goal, string>
   dailyEntries!: Table<DailyEntry, string>
   mealItems!: Table<MealItem, string>
+  foodOverrides!: Table<FoodOverride, string>
 
   constructor() {
     super('turtle-steps-to-the-goal')
@@ -116,6 +118,16 @@ export class AppDatabase extends Dexie {
             )
           }),
       )
+    // #90: per-device customization of the curated foods.ts list (hide an
+    // item, or correct its per-100g numbers) — keyed by the food's own
+    // stable id, not a separate uuid, since there's at most one override
+    // per food. New store only, no upgrade() needed.
+    this.version(6).stores({
+      goals: 'id, createdAt',
+      dailyEntries: 'id, &date',
+      mealItems: 'id, &name',
+      foodOverrides: '&foodId',
+    })
   }
 }
 

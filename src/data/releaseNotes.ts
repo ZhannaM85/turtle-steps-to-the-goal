@@ -15,6 +15,12 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    issue: 90,
+    date: '2026-07-16',
+    en: 'You can now customize the food list — hide items you don\'t want to see, or correct their calories/macros. Find it under Settings > Manage food list.',
+    ru: 'Теперь список продуктов можно настроить — скрывайте ненужные продукты или исправляйте их калорийность/БЖУ. Ищите в Настройках > Управлять списком продуктов.',
+  },
+  {
     issue: 81,
     date: '2026-07-16',
     en: 'Meals can now group multiple dishes together — add soup, bread, and cheese to the same meal instead of three separate ones. Open a meal\'s edit view and use "+ Add item" to add more dishes to it.',

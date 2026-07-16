@@ -1,7 +1,10 @@
+import 'fake-indexeddb/auto'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { MealItem } from '@/domain/mealItem'
+import { db } from '@/infrastructure/persistence/indexeddb'
+import { useFoodOverrideStore } from '@/stores'
 import { FoodPickerDialog } from './FoodPickerDialog'
 
 // The food list grew to 300+ items (#78) — every test here renders the
@@ -22,6 +25,15 @@ function mealItem(overrides: Partial<MealItem> = {}): MealItem {
     ...overrides,
   }
 }
+
+beforeEach(async () => {
+  await db.foodOverrides.clear()
+  useFoodOverrideStore.setState({ overrides: [], status: 'idle', error: null })
+})
+
+afterEach(async () => {
+  await db.foodOverrides.clear()
+})
 
 describe('FoodPickerDialog', () => {
   it('renders nothing when closed', () => {
@@ -226,6 +238,46 @@ describe('FoodPickerDialog', () => {
         carbsG: 25,
         note: 'Grandma’s stew',
       })
+    })
+  })
+
+  describe('food overrides (#90)', () => {
+    it('excludes a curated food hidden via Settings', async () => {
+      await useFoodOverrideStore.getState().setHidden('salmon', true)
+      render(
+        <FoodPickerDialog
+          open
+          onOpenChange={vi.fn()}
+          onAdd={vi.fn()}
+          mealItems={[]}
+        />,
+      )
+
+      expect(await screen.findByText('Chicken breast')).toBeInTheDocument()
+      expect(screen.queryByText('Salmon')).not.toBeInTheDocument()
+    })
+
+    it('uses corrected macros for a food overridden via Settings', async () => {
+      await useFoodOverrideStore
+        .getState()
+        .setNutrition('salmon', {
+          kcal100: 300,
+          protein100: 25,
+          fat100: 20,
+          carbs100: 1,
+        })
+      render(
+        <FoodPickerDialog
+          open
+          onOpenChange={vi.fn()}
+          onAdd={vi.fn()}
+          mealItems={[]}
+        />,
+      )
+
+      expect(
+        await screen.findByText('300 kcal per 100g · P 25g · F 20g · C 1g'),
+      ).toBeInTheDocument()
     })
   })
 })

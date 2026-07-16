@@ -1,10 +1,15 @@
 import 'fake-indexeddb/auto'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { MemoryRouter } from 'react-router-dom'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { useLocaleStore } from '@/i18n'
 import { useThemeStore, useUnitStore, useWeekStartStore } from '@/stores'
 import { SettingsScreen } from './SettingsScreen'
+
+function renderSettings() {
+  return render(<SettingsScreen />, { wrapper: MemoryRouter })
+}
 
 beforeEach(() => {
   localStorage.clear()
@@ -28,7 +33,7 @@ afterEach(() => {
 
 describe('SettingsScreen', () => {
   it('renders in English by default', () => {
-    render(<SettingsScreen />)
+    renderSettings()
 
     expect(
       screen.getByRole('heading', { name: 'Settings' }),
@@ -37,14 +42,14 @@ describe('SettingsScreen', () => {
   })
 
   it('defaults to kg units', () => {
-    render(<SettingsScreen />)
+    renderSettings()
 
     expect(screen.getByRole('radio', { name: 'kg' })).toBeChecked()
   })
 
   it('switches the unit preference when lb is selected', async () => {
     const user = userEvent.setup()
-    render(<SettingsScreen />)
+    renderSettings()
 
     await user.click(screen.getByRole('radio', { name: 'lb' }))
 
@@ -53,14 +58,14 @@ describe('SettingsScreen', () => {
   })
 
   it('defaults to Monday week start', () => {
-    render(<SettingsScreen />)
+    renderSettings()
 
     expect(screen.getByRole('radio', { name: 'Monday' })).toBeChecked()
   })
 
   it('switches the week-start preference when selected (#85)', async () => {
     const user = userEvent.setup()
-    render(<SettingsScreen />)
+    renderSettings()
 
     await user.click(
       screen.getByRole('radio', { name: 'Day of my first entry' }),
@@ -74,7 +79,7 @@ describe('SettingsScreen', () => {
 
   it('switches the whole dictionary to Russian when selected', async () => {
     const user = userEvent.setup()
-    render(<SettingsScreen />)
+    renderSettings()
 
     await user.click(screen.getByRole('radio', { name: 'Russian' }))
 
@@ -85,7 +90,7 @@ describe('SettingsScreen', () => {
   })
 
   it('defaults to the Pond mood and light scheme', () => {
-    render(<SettingsScreen />)
+    renderSettings()
 
     expect(screen.getByRole('radio', { name: /Pond/ })).toBeChecked()
     expect(screen.getByRole('radio', { name: 'Light' })).toBeChecked()
@@ -93,7 +98,7 @@ describe('SettingsScreen', () => {
 
   it('switches mood and applies it to the DOM', async () => {
     const user = userEvent.setup()
-    render(<SettingsScreen />)
+    renderSettings()
 
     await user.click(screen.getByRole('radio', { name: /Lagoon/ }))
 
@@ -103,7 +108,7 @@ describe('SettingsScreen', () => {
 
   it('switches color scheme and applies it to the DOM', async () => {
     const user = userEvent.setup()
-    render(<SettingsScreen />)
+    renderSettings()
 
     await user.click(screen.getByRole('radio', { name: 'Dark' }))
 
@@ -113,7 +118,7 @@ describe('SettingsScreen', () => {
 
   it('keeps the visually-hidden mood radios keyboard-focusable', async () => {
     const user = userEvent.setup()
-    render(<SettingsScreen />)
+    renderSettings()
 
     const pondRadio = screen.getByRole('radio', { name: /Pond/ })
     // Radio groups use roving tabindex — Tab lands on each group's checked
@@ -127,15 +132,26 @@ describe('SettingsScreen', () => {
   })
 
   it('includes the meal items library section (#50)', () => {
-    render(<SettingsScreen />)
+    renderSettings()
 
     expect(
       screen.getByRole('heading', { name: 'Meal items' }),
     ).toBeInTheDocument()
   })
 
+  it('includes a link to manage the curated food list (#90)', () => {
+    renderSettings()
+
+    expect(
+      screen.getByRole('heading', { name: 'Food list' }),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByRole('link', { name: 'Manage food list' }),
+    ).toHaveAttribute('href', '/settings/foods')
+  })
+
   it('includes the export/import section (folded in from the old Export tab, #24)', () => {
-    render(<SettingsScreen />)
+    renderSettings()
 
     expect(screen.getByRole('heading', { name: 'Export' })).toBeInTheDocument()
     expect(

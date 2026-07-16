@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'
 import {
   useLocaleStore,
   useTranslation,
@@ -14,6 +15,7 @@ import {
   type WeekStart,
 } from '@/stores'
 import { ExportSection } from '@/features/export'
+import { Button } from '@/shared/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
 import { PageHeader } from '@/shared/ui/page-header'
 import { ToggleGroup, ToggleGroupItem } from '@/shared/ui/toggle-group'
@@ -202,6 +204,20 @@ export function SettingsScreen() {
         </CardHeader>
         <CardContent>
           <MealItemsSection />
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>{t.settings.foodListLabel}</CardTitle>
+        </CardHeader>
+        <CardContent className="flex flex-col gap-2">
+          <span className="text-sm text-muted-foreground">
+            {t.settings.foodListDescription}
+          </span>
+          <Button variant="outline" size="sm" className="self-start" asChild>
+            <Link to="/settings/foods">{t.settings.manageFoodListButton}</Link>
+          </Button>
         </CardContent>
       </Card>
 

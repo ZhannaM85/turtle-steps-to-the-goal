@@ -1,10 +1,12 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { type FoodItem, foods } from '@/data/foods'
 import type { MealItem } from '@/domain/mealItem'
 import { formatNumber, useLocale, useTranslation } from '@/i18n'
+import { applyFoodOverrides } from '@/shared/lib/applyFoodOverrides'
 import { macrosSummaryTextCompact } from '@/shared/lib/macroDisplay'
 import { parseNumberInput } from '@/shared/lib/parseNumberInput'
 import { cn } from '@/shared/lib/utils'
+import { useFoodOverrideStore } from '@/stores'
 import { Button } from '@/shared/ui/button'
 import { Dialog, DialogContent, DialogTitle } from '@/shared/ui/dialog'
 import { Input } from '@/shared/ui/input'
@@ -65,6 +67,16 @@ export function FoodPickerDialog({
   const [selected, setSelected] = useState<PickableItem | null>(null)
   const [quantity, setQuantity] = useState('100')
 
+  // Per-device hides/corrections to the curated list (#90) — loaded once
+  // per mount, same pattern as useMealItemStore in DailyEntryForm.
+  const foodOverrides = useFoodOverrideStore((state) => state.overrides)
+  const loadFoodOverrides = useFoodOverrideStore((state) => state.loadOverrides)
+  useEffect(() => {
+    loadFoodOverrides()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+  const visibleFoods = applyFoodOverrides(foods, foodOverrides)
+
   const query = search.trim().toLowerCase()
   const mealItemMatches: PickableItem[] = mealItems
     .filter(
@@ -74,7 +86,9 @@ export function FoodPickerDialog({
     .filter((item) => !query || item.name.toLowerCase().includes(query))
     .map((mealItem) => ({ source: 'mealItem', mealItem }))
   const foodMatches: PickableItem[] = (
-    query ? foods.filter((food) => food[locale].toLowerCase().includes(query)) : foods
+    query
+      ? visibleFoods.filter((food) => food[locale].toLowerCase().includes(query))
+      : visibleFoods
   ).map((food) => ({ source: 'food', food }))
   const matches = [...mealItemMatches, ...foodMatches]
 
