@@ -20,6 +20,7 @@ interface MealItemStoreState {
       proteinG?: number
       fatG?: number
       carbsG?: number
+      amountG?: number
     },
   ) => Promise<void>
   /** Renames a library item. If another item already has the target name,
@@ -61,6 +62,7 @@ export const useMealItemStore = create<MealItemStoreState>((set, get) => ({
       lastProteinG: nutrition?.proteinG ?? existing?.lastProteinG,
       lastFatG: nutrition?.fatG ?? existing?.lastFatG,
       lastCarbsG: nutrition?.carbsG ?? existing?.lastCarbsG,
+      lastAmountG: nutrition?.amountG ?? existing?.lastAmountG,
     }
     await mealItemRepository.upsert(item)
     set({ items: await mealItemRepository.getAll() })

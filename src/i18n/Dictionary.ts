@@ -64,6 +64,10 @@ export interface Dictionary {
     proteinLabel: string
     fatLabel: string
     carbsLabel: string
+    /** Optional portion-weight field on manually-entered items (#93) — a
+     * memory aid for scaling macros next time the same food is logged at a
+     * different portion size, not itself used to compute anything. */
+    itemAmountGLabel: string
     gramsUnit: string
     macrosSummary: (protein: string, fat: string, carbs: string) => string
     macrosSummaryCompact: (protein: string, fat: string, carbs: string) => string

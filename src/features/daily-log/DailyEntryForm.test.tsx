@@ -638,6 +638,48 @@ describe('DailyEntryForm', () => {
       expect(screen.getByLabelText('Protein')).toHaveValue('')
     })
 
+    it('logs a portion weight in grams alongside the amount (#93)', async () => {
+      const user = userEvent.setup()
+      const onSave = vi.fn()
+      render(
+        <DailyEntryForm
+          date="2026-03-01"
+          existingEntry={null}
+          onSave={onSave}
+        />,
+      )
+
+      await user.type(screen.getByLabelText('Add calories'), '200')
+      await user.type(screen.getByLabelText('Grams'), '150')
+      await user.click(screen.getByRole('button', { name: 'Add' }))
+
+      expect(onSave.mock.calls[0][0].calorieEntries[0].items[0]).toMatchObject({
+        amountKcal: 200,
+        amountG: 150,
+      })
+      expect(screen.getByLabelText('Grams')).toHaveValue('')
+    })
+
+    it('restores the portion weight in grams when a suggested name is picked (#93)', async () => {
+      const user = userEvent.setup()
+      await useMealItemStore.getState().touch('Pizza', {
+        amountKcal: 400,
+        amountG: 250,
+      })
+      render(
+        <DailyEntryForm
+          date="2026-03-01"
+          existingEntry={null}
+          onSave={vi.fn()}
+        />,
+      )
+
+      await user.click(await screen.findByLabelText('Dish name'))
+      await user.click(await screen.findByRole('button', { name: 'Pizza' }))
+
+      expect(screen.getByLabelText('Grams')).toHaveValue('250')
+    })
+
     it('macros are independently optional — a meal can log only some of them', async () => {
       const user = userEvent.setup()
       const onSave = vi.fn()
@@ -1074,6 +1116,39 @@ describe('DailyEntryForm', () => {
           expect(screen.getByLabelText('Protein — Bread')).toHaveValue('3')
           expect(screen.getByLabelText('Fat — Bread')).toHaveValue('1')
           expect(screen.getByLabelText('Carbs — Bread')).toHaveValue('15')
+        })
+
+        it('edits a portion weight in grams on an item and saves it (#93)', async () => {
+          const user = userEvent.setup()
+          const onSave = vi.fn()
+          renderWithMeals(onSave)
+
+          await user.click(screen.getByRole('button', { name: 'Edit meal 1' }))
+          await user.type(screen.getByLabelText('Grams — Meal 1'), '350')
+          await user.click(screen.getByRole('button', { name: 'Save' }))
+
+          expect(
+            onSave.mock.calls[0][0].calorieEntries[0].items[0],
+          ).toMatchObject({ amountG: 350 })
+        })
+
+        it('restores the portion weight in grams for an item-edit row when a suggested name is picked (#93)', async () => {
+          const user = userEvent.setup()
+          await useMealItemStore.getState().touch('Bread', {
+            amountKcal: 80,
+            amountG: 30,
+          })
+          renderWithMeals()
+
+          await user.click(screen.getByRole('button', { name: 'Edit meal 1' }))
+          await user.click(
+            screen.getByRole('button', { name: '+ Add item' }),
+          )
+          const nameInputs = screen.getAllByLabelText('Dish name — Meal 1')
+          await user.click(nameInputs[1])
+          await user.click(await screen.findByRole('button', { name: 'Bread' }))
+
+          expect(screen.getByLabelText('Grams — Bread')).toHaveValue('30')
         })
 
         it('removing every item from a meal during edit deletes the whole meal on save', async () => {

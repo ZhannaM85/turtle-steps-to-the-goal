@@ -99,6 +99,14 @@ describe('useMealItemStore', () => {
     expect(item.lastCarbsG).toBe(45)
   })
 
+  it('touch records the last-used portion weight in grams (#93)', async () => {
+    await useMealItemStore
+      .getState()
+      .touch('Pizza', { amountKcal: 400, amountG: 250 })
+
+    expect(useMealItemStore.getState().items[0].lastAmountG).toBe(250)
+  })
+
   it('touch updates the last-used nutrition on a repeat save', async () => {
     await useMealItemStore.getState().touch('Pizza', { amountKcal: 400 })
     await useMealItemStore.getState().touch('Pizza', { amountKcal: 550 })

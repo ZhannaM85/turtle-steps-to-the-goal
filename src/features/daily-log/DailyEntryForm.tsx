@@ -158,6 +158,7 @@ interface EditItemDraft {
   protein: string
   fat: string
   carbs: string
+  amountG: string
 }
 
 function itemDraftFrom(item: CalorieItem): EditItemDraft {
@@ -168,6 +169,7 @@ function itemDraftFrom(item: CalorieItem): EditItemDraft {
     protein: item.proteinG === undefined ? '' : String(item.proteinG),
     fat: item.fatG === undefined ? '' : String(item.fatG),
     carbs: item.carbsG === undefined ? '' : String(item.carbsG),
+    amountG: item.amountG === undefined ? '' : String(item.amountG),
   }
 }
 
@@ -179,6 +181,7 @@ function blankItemDraft(): EditItemDraft {
     protein: '',
     fat: '',
     carbs: '',
+    amountG: '',
   }
 }
 
@@ -196,7 +199,7 @@ interface MealListItemProps {
   editEmotion: MealEmotion | undefined
   onEditItemFieldChange: (
     id: string,
-    field: 'name' | 'amount' | 'protein' | 'fat' | 'carbs',
+    field: 'name' | 'amount' | 'protein' | 'fat' | 'carbs' | 'amountG',
     value: string,
   ) => void
   onEditItemSelectMealItem: (id: string, item: MealItem) => void
@@ -436,6 +439,27 @@ function MealListItem({
                     className="h-7 w-14"
                   />
                 </div>
+                <div className="flex flex-col gap-1">
+                  <span className="text-xs text-muted-foreground">
+                    {t.dailyEntry.itemAmountGLabel}
+                  </span>
+                  <Input
+                    type="text"
+                    inputMode="decimal"
+                    aria-label={`${t.dailyEntry.itemAmountGLabel} — ${item.name || t.dailyEntry.mealLabel(position)}`}
+                    value={item.amountG}
+                    onChange={(e) =>
+                      onEditItemFieldChange(item.id, 'amountG', e.target.value)
+                    }
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault()
+                        onSaveEdit()
+                      }
+                    }}
+                    className="h-7 w-14"
+                  />
+                </div>
               </div>
             </li>
           ))}
@@ -643,6 +667,7 @@ export function DailyEntryForm({
   const [addProtein, setAddProtein] = useState('')
   const [addFat, setAddFat] = useState('')
   const [addCarbs, setAddCarbs] = useState('')
+  const [addAmountG, setAddAmountG] = useState('')
   const [addItemName, setAddItemName] = useState('')
   // Group-level fields (#81) — note/mood/time-eaten belong to the meal as a
   // whole, not to any one item within it.
@@ -853,6 +878,7 @@ export function DailyEntryForm({
     const proteinG = parseOptionalMacro(addProtein)
     const fatG = parseOptionalMacro(addFat)
     const carbsG = parseOptionalMacro(addCarbs)
+    const amountG = parseOptionalMacro(addAmountG)
     setCalorieEntries([
       ...calorieEntries,
       {
@@ -865,6 +891,7 @@ export function DailyEntryForm({
             proteinG,
             fatG,
             carbsG,
+            amountG,
           },
         ],
         note: addGroupNote.trim() || undefined,
@@ -874,9 +901,16 @@ export function DailyEntryForm({
       },
     ])
     if (addItemName.trim()) {
-      touchMealItem(addItemName, { amountKcal: increment, proteinG, fatG, carbsG })
+      touchMealItem(addItemName, {
+        amountKcal: increment,
+        proteinG,
+        fatG,
+        carbsG,
+        amountG,
+      })
     }
     setAddAmount('')
+    setAddAmountG('')
     setAddProtein('')
     setAddFat('')
     setAddCarbs('')
@@ -897,6 +931,7 @@ export function DailyEntryForm({
     setAddProtein(item.lastProteinG === undefined ? '' : String(item.lastProteinG))
     setAddFat(item.lastFatG === undefined ? '' : String(item.lastFatG))
     setAddCarbs(item.lastCarbsG === undefined ? '' : String(item.lastCarbsG))
+    setAddAmountG(item.lastAmountG === undefined ? '' : String(item.lastAmountG))
   }
 
   // Quantity-based entry against the static food list (#62) — the dialog
@@ -940,7 +975,7 @@ export function DailyEntryForm({
 
   function updateEditItemField(
     id: string,
-    field: 'name' | 'amount' | 'protein' | 'fat' | 'carbs',
+    field: 'name' | 'amount' | 'protein' | 'fat' | 'carbs' | 'amountG',
     value: string,
   ) {
     setEditItems((items) =>
@@ -962,6 +997,7 @@ export function DailyEntryForm({
                 item.lastProteinG === undefined ? '' : String(item.lastProteinG),
               fat: item.lastFatG === undefined ? '' : String(item.lastFatG),
               carbs: item.lastCarbsG === undefined ? '' : String(item.lastCarbsG),
+              amountG: item.lastAmountG === undefined ? '' : String(item.lastAmountG),
             }
           : draft,
       ),
@@ -993,6 +1029,7 @@ export function DailyEntryForm({
           proteinG: parseOptionalMacro(draft.protein),
           fatG: parseOptionalMacro(draft.fat),
           carbsG: parseOptionalMacro(draft.carbs),
+          amountG: parseOptionalMacro(draft.amountG),
         },
       ]
     })
@@ -1023,6 +1060,7 @@ export function DailyEntryForm({
           proteinG: item.proteinG,
           fatG: item.fatG,
           carbsG: item.carbsG,
+          amountG: item.amountG,
         })
       }
     }
@@ -1456,6 +1494,25 @@ export function DailyEntryForm({
                 aria-label={t.dailyEntry.carbsLabel}
                 value={addCarbs}
                 onChange={(e) => setAddCarbs(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault()
+                    addMeal()
+                  }
+                }}
+                className="h-7 w-14"
+              />
+            </div>
+            <div className="flex flex-col gap-1">
+              <span className="text-xs text-muted-foreground">
+                {t.dailyEntry.itemAmountGLabel}
+              </span>
+              <Input
+                type="text"
+                inputMode="decimal"
+                aria-label={t.dailyEntry.itemAmountGLabel}
+                value={addAmountG}
+                onChange={(e) => setAddAmountG(e.target.value)}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') {
                     e.preventDefault()

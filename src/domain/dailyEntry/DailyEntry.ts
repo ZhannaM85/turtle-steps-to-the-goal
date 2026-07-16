@@ -19,6 +19,11 @@ export interface CalorieItem {
   proteinG?: number
   fatG?: number
   carbsG?: number
+  /** Portion weight in grams (#93) — recorded only for manually-entered
+   * items (kcal/macros typed directly, not scaled from a per-100g food).
+   * Purely a memory aid for logging the same food again at a different
+   * portion size later; nothing here recalculates kcal/macros from it. */
+  amountG?: number
 }
 
 export interface CalorieEntry {

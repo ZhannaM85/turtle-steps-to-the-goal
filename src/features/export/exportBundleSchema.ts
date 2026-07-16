@@ -22,6 +22,9 @@ const calorieItemSchema = z.object({
   proteinG: z.number().optional(),
   fatG: z.number().optional(),
   carbsG: z.number().optional(),
+  // Portion weight in grams (#93) — purely additive/optional, same
+  // no-version-bump reasoning as timeEaten below.
+  amountG: z.number().optional(),
 })
 
 const calorieEntrySchema = z.object({

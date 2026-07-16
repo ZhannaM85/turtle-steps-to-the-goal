@@ -23,4 +23,8 @@ export interface MealItem {
   lastProteinG?: number
   lastFatG?: number
   lastCarbsG?: number
+  /** Portion weight in grams for the last time this name was manually
+   * logged (#93) — same purely-additive/optional pattern as the fields
+   * above, kept in sync by `touch()`. */
+  lastAmountG?: number
 }

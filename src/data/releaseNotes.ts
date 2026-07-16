@@ -15,6 +15,12 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    issue: 93,
+    date: '2026-07-16',
+    en: 'You can now log a portion weight in grams alongside calories, making it easier to adjust the numbers next time you log a different amount.',
+    ru: 'Теперь можно указывать вес порции в граммах вместе с калориями — удобнее скорректировать числа, если в следующий раз порция будет другой.',
+  },
+  {
     issue: 94,
     date: '2026-07-16',
     en: 'Picking a suggested dish name now also fills in its calories and macros, not just the name.',
