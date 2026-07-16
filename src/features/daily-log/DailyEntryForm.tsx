@@ -501,10 +501,11 @@ export function DailyEntryForm({
   const [addEmotion, setAddEmotion] = useState<MealEmotion | undefined>(
     undefined,
   )
-  // Time eaten (#65) — defaults to "now" for a new meal, per the requested
-  // "time when user enters the entry" default; re-defaults to a fresh "now"
-  // after each add, same as the other add-* fields resetting to blank.
-  const [addTime, setAddTime] = useState(currentTimeHHMM)
+  // Time eaten (#65) — starts empty rather than defaulting to "now" (#82):
+  // a pre-filled value read as already-confirmed/correct and went unnoticed
+  // when it didn't match. Resets to empty after each add, same as the
+  // other add-* fields.
+  const [addTime, setAddTime] = useState('')
   // Whether Weight/Note render as an editable input rather than read-only
   // display + pencil. Deliberately NOT derived from the live watched value —
   // that would flip to display mode mid-keystroke on every first character
@@ -720,7 +721,7 @@ export function DailyEntryForm({
     setAddCarbs('')
     setAddNote('')
     setAddEmotion(undefined)
-    setAddTime(currentTimeHHMM())
+    setAddTime('')
   }
 
   // Quantity-based entry against the static food list (#62) — the dialog

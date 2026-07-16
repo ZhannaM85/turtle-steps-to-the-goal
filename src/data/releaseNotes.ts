@@ -15,6 +15,12 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    issue: 82,
+    date: '2026-07-16',
+    en: 'The meal time field no longer pre-fills with the current time — it starts empty so you only see a time you actually entered.',
+    ru: 'Поле времени приёма пищи больше не заполняется текущим временем автоматически — оно пустое, пока вы не введёте время сами.',
+  },
+  {
     issue: 78,
     date: '2026-07-15',
     en: 'The food list grew a lot — from about 60 foods to over 300, covering many more everyday foods and drinks.',
