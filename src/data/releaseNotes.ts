@@ -15,6 +15,12 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    issue: 96,
+    date: '2026-07-16',
+    en: 'Manually logging a meal now works like picking from the food list: enter calories/macros per 100g and how many grams you ate, and the totals are calculated for you.',
+    ru: 'Ручное добавление блюда теперь работает как выбор из списка продуктов: укажите калории/БЖУ на 100 г и сколько граммов вы съели — итог посчитается автоматически.',
+  },
+  {
     issue: 93,
     date: '2026-07-16',
     en: 'You can now log a portion weight in grams alongside calories, making it easier to adjust the numbers next time you log a different amount.',

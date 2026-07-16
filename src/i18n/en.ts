@@ -51,7 +51,7 @@ export const en: Dictionary = {
     caloriesTooltip:
       "Today's weight reflects what you ate yesterday — digestion takes time, so don't expect these two numbers to match up same-day.",
     caloriesTooltipLabel: 'About the calories field',
-    addCaloriesLabel: 'Add calories',
+    addCaloriesLabel: 'kcal/100g',
     addCaloriesPlaceholder: 'kcal',
     addButton: 'Add',
     caloriesTodaySuffix: 'kcal today',

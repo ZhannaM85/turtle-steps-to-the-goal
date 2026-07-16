@@ -87,7 +87,7 @@ describe('DailyEntryForm', () => {
     await user.type(screen.getByLabelText('Weight (kg)'), '80')
     await user.click(screen.getByRole('button', { name: 'Save weight' }))
 
-    await user.type(screen.getByLabelText('Add calories'), '300')
+    await user.type(screen.getByLabelText('kcal/100g'), '300')
     await user.click(screen.getByRole('button', { name: 'Add' }))
 
     expect(onSave).toHaveBeenCalledTimes(2)
@@ -550,7 +550,7 @@ describe('DailyEntryForm', () => {
 
       expect(screen.getByText('Meal 1')).toBeInTheDocument()
 
-      await user.type(screen.getByLabelText('Add calories'), '200')
+      await user.type(screen.getByLabelText('kcal/100g'), '200')
       await user.click(screen.getByRole('button', { name: 'Add' }))
 
       expect(screen.getByText('Meal 1 — 200 kcal')).toBeInTheDocument()
@@ -568,7 +568,7 @@ describe('DailyEntryForm', () => {
         />,
       )
 
-      await user.type(screen.getByLabelText('Add calories'), '200')
+      await user.type(screen.getByLabelText('kcal/100g'), '200')
       await user.click(screen.getByRole('button', { name: 'Add' }))
 
       expect(onSave).toHaveBeenCalledTimes(1)
@@ -579,7 +579,7 @@ describe('DailyEntryForm', () => {
       ).toEqual([200])
       expect(screen.getByText('200')).toBeInTheDocument()
       expect(screen.getByText('Meal 1 — 200 kcal')).toBeInTheDocument()
-      expect(screen.getByLabelText('Add calories')).toHaveValue('')
+      expect(screen.getByLabelText('kcal/100g')).toHaveValue('')
     })
 
     it('logs a note and an emotion together with the amount in one Add action', async () => {
@@ -592,7 +592,7 @@ describe('DailyEntryForm', () => {
         />,
       )
 
-      await user.type(screen.getByLabelText('Add calories'), '200')
+      await user.type(screen.getByLabelText('kcal/100g'), '200')
       await user.type(
         screen.getByLabelText('Meal note'),
         'Ate chocolates, they were good.',
@@ -618,7 +618,7 @@ describe('DailyEntryForm', () => {
         />,
       )
 
-      await user.type(screen.getByLabelText('Add calories'), '200')
+      await user.type(screen.getByLabelText('kcal/100g'), '200')
       await user.type(screen.getByLabelText('Protein'), '20')
       await user.type(screen.getByLabelText('Fat'), '10')
       await user.type(screen.getByLabelText('Carbs'), '30')
@@ -638,6 +638,57 @@ describe('DailyEntryForm', () => {
       expect(screen.getByLabelText('Protein')).toHaveValue('')
     })
 
+    it('scales per-100g kcal and macros by the quantity eaten (#96)', async () => {
+      const user = userEvent.setup()
+      const onSave = vi.fn()
+      render(
+        <DailyEntryForm
+          date="2026-03-01"
+          existingEntry={null}
+          onSave={onSave}
+        />,
+      )
+
+      // A food rated 200 kcal / 20g protein / 10g fat / 4g carbs per 100g,
+      // actually eaten as a 50g portion — half of everything.
+      await user.type(screen.getByLabelText('kcal/100g'), '200')
+      await user.type(screen.getByLabelText('Protein'), '20')
+      await user.type(screen.getByLabelText('Fat'), '10')
+      await user.type(screen.getByLabelText('Carbs'), '4')
+      await user.clear(screen.getByLabelText('Grams'))
+      await user.type(screen.getByLabelText('Grams'), '50')
+      await user.click(screen.getByRole('button', { name: 'Add' }))
+
+      expect(onSave.mock.calls[0][0].calorieEntries[0].items[0]).toMatchObject({
+        amountKcal: 100,
+        proteinG: 10,
+        fatG: 5,
+        carbsG: 2,
+        amountG: 50,
+      })
+    })
+
+    it('treats a blank quantity as 100g, matching the total typed directly (#96)', async () => {
+      const user = userEvent.setup()
+      const onSave = vi.fn()
+      render(
+        <DailyEntryForm
+          date="2026-03-01"
+          existingEntry={null}
+          onSave={onSave}
+        />,
+      )
+
+      await user.clear(screen.getByLabelText('Grams'))
+      await user.type(screen.getByLabelText('kcal/100g'), '250')
+      await user.click(screen.getByRole('button', { name: 'Add' }))
+
+      expect(onSave.mock.calls[0][0].calorieEntries[0].items[0]).toMatchObject({
+        amountKcal: 250,
+        amountG: 100,
+      })
+    })
+
     it('logs a portion weight in grams alongside the amount (#93)', async () => {
       const user = userEvent.setup()
       const onSave = vi.fn()
@@ -649,15 +700,19 @@ describe('DailyEntryForm', () => {
         />,
       )
 
-      await user.type(screen.getByLabelText('Add calories'), '200')
+      await user.type(screen.getByLabelText('kcal/100g'), '200')
+      await user.clear(screen.getByLabelText('Grams'))
       await user.type(screen.getByLabelText('Grams'), '150')
       await user.click(screen.getByRole('button', { name: 'Add' }))
 
+      // 200 kcal/100g scaled by a 150g quantity (#96): 200 * 150/100 = 300.
       expect(onSave.mock.calls[0][0].calorieEntries[0].items[0]).toMatchObject({
-        amountKcal: 200,
+        amountKcal: 300,
         amountG: 150,
       })
-      expect(screen.getByLabelText('Grams')).toHaveValue('')
+      // Resets to the default quantity, not blank (#96) — matches
+      // FoodPickerDialog's own quantity field defaulting to '100'.
+      expect(screen.getByLabelText('Grams')).toHaveValue('100')
     })
 
     it('restores the portion weight in grams when a suggested name is picked (#93)', async () => {
@@ -691,7 +746,7 @@ describe('DailyEntryForm', () => {
         />,
       )
 
-      await user.type(screen.getByLabelText('Add calories'), '200')
+      await user.type(screen.getByLabelText('kcal/100g'), '200')
       await user.type(screen.getByLabelText('Fat'), '10')
       await user.click(screen.getByRole('button', { name: 'Add' }))
 
@@ -717,7 +772,7 @@ describe('DailyEntryForm', () => {
         />,
       )
 
-      await user.type(screen.getByLabelText('Add calories'), '200')
+      await user.type(screen.getByLabelText('kcal/100g'), '200')
       await user.click(screen.getByRole('button', { name: 'Add' }))
 
       // The quick-add row's own "Protein"/"Fat"/"Carbs" field labels are
@@ -736,12 +791,12 @@ describe('DailyEntryForm', () => {
         />,
       )
 
-      await user.type(screen.getByLabelText('Add calories'), '200')
+      await user.type(screen.getByLabelText('kcal/100g'), '200')
       await user.type(screen.getByLabelText('Protein'), '20')
       await user.type(screen.getByLabelText('Fat'), '10')
       await user.click(screen.getByRole('button', { name: 'Add' }))
 
-      await user.type(screen.getByLabelText('Add calories'), '150')
+      await user.type(screen.getByLabelText('kcal/100g'), '150')
       await user.type(screen.getByLabelText('Protein'), '5')
       await user.click(screen.getByRole('button', { name: 'Add' }))
 
@@ -759,7 +814,7 @@ describe('DailyEntryForm', () => {
         />,
       )
 
-      await user.type(screen.getByLabelText('Add calories'), '200')
+      await user.type(screen.getByLabelText('kcal/100g'), '200')
       await user.type(screen.getByLabelText('Dish name'), 'Pizza')
       await user.click(screen.getByRole('button', { name: 'Add' }))
 
@@ -810,7 +865,7 @@ describe('DailyEntryForm', () => {
       await user.click(await screen.findByLabelText('Dish name'))
       await user.click(await screen.findByRole('button', { name: 'Pizza' }))
 
-      expect(screen.getByLabelText('Add calories')).toHaveValue('400')
+      expect(screen.getByLabelText('kcal/100g')).toHaveValue('400')
       expect(screen.getByLabelText('Protein')).toHaveValue('15')
       expect(screen.getByLabelText('Fat')).toHaveValue('12')
       expect(screen.getByLabelText('Carbs')).toHaveValue('50')
@@ -833,11 +888,11 @@ describe('DailyEntryForm', () => {
         />,
       )
 
-      await user.type(screen.getByLabelText('Add calories'), '200')
+      await user.type(screen.getByLabelText('kcal/100g'), '200')
       await user.click(screen.getByRole('button', { name: 'Add' }))
       expect(screen.getByText('600')).toBeInTheDocument()
 
-      await user.type(screen.getByLabelText('Add calories'), '150')
+      await user.type(screen.getByLabelText('kcal/100g'), '150')
       await user.keyboard('{Enter}')
       expect(screen.getByText('750')).toBeInTheDocument()
       expect(screen.getByText('Meal 3 — 150 kcal')).toBeInTheDocument()
@@ -861,7 +916,7 @@ describe('DailyEntryForm', () => {
       await user.click(thumbsUpButton)
       expect(thumbsUpButton).toHaveAttribute('aria-pressed', 'false')
 
-      await user.type(screen.getByLabelText('Add calories'), '150')
+      await user.type(screen.getByLabelText('kcal/100g'), '150')
       await user.click(screen.getByRole('button', { name: 'Add' }))
 
       expect(screen.getByText('Meal 1 — 150 kcal')).toBeInTheDocument()
@@ -880,7 +935,7 @@ describe('DailyEntryForm', () => {
       )
 
       await user.click(screen.getByRole('button', { name: 'Add' }))
-      await user.type(screen.getByLabelText('Add calories'), '0')
+      await user.type(screen.getByLabelText('kcal/100g'), '0')
       await user.click(screen.getByRole('button', { name: 'Add' }))
 
       expect(onSave).not.toHaveBeenCalled()
@@ -904,13 +959,51 @@ describe('DailyEntryForm', () => {
         )
       }
 
+      it('shows the per-100g rate and quantity back-calculated from stored totals (#96)', async () => {
+        const user = userEvent.setup()
+        render(
+          <DailyEntryForm
+            date="2026-03-01"
+            existingEntry={{
+              id: 'e1',
+              date: '2026-03-01',
+              calorieEntries: [
+                {
+                  id: 'c1',
+                  items: [
+                    {
+                      id: 'i1',
+                      amountKcal: 150,
+                      proteinG: 5,
+                      amountG: 50,
+                    },
+                  ],
+                  createdAt: now,
+                },
+              ],
+              createdAt: now,
+              updatedAt: now,
+            }}
+            onSave={vi.fn()}
+          />,
+        )
+
+        await user.click(screen.getByRole('button', { name: 'Edit meal 1' }))
+
+        // 150 kcal / 5g protein eaten as a 50g portion back-calculates to
+        // 300 kcal/100g and 10g protein/100g.
+        expect(screen.getByLabelText('kcal/100g — Meal 1')).toHaveValue('300')
+        expect(screen.getByLabelText('Protein — Meal 1')).toHaveValue('10')
+        expect(screen.getByLabelText('Grams — Meal 1')).toHaveValue('50')
+      })
+
       it('edits a meal amount in place and saves immediately', async () => {
         const user = userEvent.setup()
         const onSave = vi.fn()
         renderWithMeals(onSave)
 
         await user.click(screen.getByRole('button', { name: 'Edit meal 1' }))
-        const input = screen.getByLabelText('kcal — Meal 1')
+        const input = screen.getByLabelText('kcal/100g — Meal 1')
         await user.clear(input)
         await user.type(input, '350')
         await user.click(screen.getByRole('button', { name: 'Save' }))
@@ -956,7 +1049,7 @@ describe('DailyEntryForm', () => {
         await user.click(screen.getByRole('button', { name: 'Delete meal 1' }))
         await user.click(screen.getByRole('button', { name: 'Cancel' }))
 
-        expect(screen.getByLabelText('kcal — Meal 1')).toHaveValue('300')
+        expect(screen.getByLabelText('kcal/100g — Meal 1')).toHaveValue('300')
         expect(screen.getByText('Meal 2 — 200 kcal')).toBeInTheDocument()
         expect(onSave).not.toHaveBeenCalled()
       })
@@ -1076,9 +1169,9 @@ describe('DailyEntryForm', () => {
           )
           // Captured before typing names — the kcal input's aria-label
           // incorporates the item's (live) name, so it would stop matching
-          // 'kcal — Meal 1' once a name is typed. Element references stay
+          // 'kcal/100g — Meal 1' once a name is typed. Element references stay
           // valid to type into even after their label attribute changes.
-          const kcalInputs = screen.getAllByLabelText('kcal — Meal 1')
+          const kcalInputs = screen.getAllByLabelText('kcal/100g — Meal 1')
           const nameInputs = screen.getAllByLabelText('Dish name — Meal 1')
           await user.type(nameInputs[1], 'Bread')
           await user.type(kcalInputs[1], '80')
@@ -1112,7 +1205,7 @@ describe('DailyEntryForm', () => {
           await user.click(nameInputs[1])
           await user.click(await screen.findByRole('button', { name: 'Bread' }))
 
-          expect(screen.getByLabelText('kcal — Bread')).toHaveValue('80')
+          expect(screen.getByLabelText('kcal/100g — Bread')).toHaveValue('80')
           expect(screen.getByLabelText('Protein — Bread')).toHaveValue('3')
           expect(screen.getByLabelText('Fat — Bread')).toHaveValue('1')
           expect(screen.getByLabelText('Carbs — Bread')).toHaveValue('15')
@@ -1124,12 +1217,16 @@ describe('DailyEntryForm', () => {
           renderWithMeals(onSave)
 
           await user.click(screen.getByRole('button', { name: 'Edit meal 1' }))
+          await user.clear(screen.getByLabelText('Grams — Meal 1'))
           await user.type(screen.getByLabelText('Grams — Meal 1'), '350')
           await user.click(screen.getByRole('button', { name: 'Save' }))
 
+          // The item had no recorded amountG, so its 300 kcal was treated as
+          // the per-100g rate (#96's quantity-100 fallback); scaled by the
+          // new 350g quantity: 300 * 350/100 = 1050.
           expect(
             onSave.mock.calls[0][0].calorieEntries[0].items[0],
-          ).toMatchObject({ amountG: 350 })
+          ).toMatchObject({ amountKcal: 1050, amountG: 350 })
         })
 
         it('restores the portion weight in grams for an item-edit row when a suggested name is picked (#93)', async () => {
@@ -1180,7 +1277,7 @@ describe('DailyEntryForm', () => {
           await user.click(
             screen.getByRole('button', { name: '+ Add item' }),
           )
-          const kcalInputs = screen.getAllByLabelText('kcal — Meal 1')
+          const kcalInputs = screen.getAllByLabelText('kcal/100g — Meal 1')
           const nameInputs = screen.getAllByLabelText('Dish name — Meal 1')
           await user.type(kcalInputs[1], '80')
           await user.type(nameInputs[0], 'Soup')
@@ -1204,7 +1301,7 @@ describe('DailyEntryForm', () => {
             />,
           )
 
-          await user.type(screen.getByLabelText('Add calories'), '200')
+          await user.type(screen.getByLabelText('kcal/100g'), '200')
           fireEvent.change(screen.getByLabelText('Time'), {
             target: { value: '08:15' },
           })
@@ -1227,7 +1324,7 @@ describe('DailyEntryForm', () => {
             />,
           )
 
-          await user.type(screen.getByLabelText('Add calories'), '200')
+          await user.type(screen.getByLabelText('kcal/100g'), '200')
           fireEvent.change(screen.getByLabelText('Time'), {
             target: { value: '' },
           })
@@ -1325,7 +1422,34 @@ describe('DailyEntryForm', () => {
           expect(entry.items[0].amountKcal).toBe(208)
           expect(entry.items[0].proteinG).toBe(20)
           expect(entry.items[0].name).toBe('Salmon')
+          // The quantity used to scale the totals is stored too (#96), so
+          // this item can later be edited the same per-100g + quantity way
+          // a manually-entered one can, at the default 100g quantity.
+          expect(entry.items[0].amountG).toBe(100)
           expect(screen.getByText('Meal 1 — 208 kcal')).toBeInTheDocument()
+        })
+
+        it('stores the actual quantity picked, not just the default (#96)', async () => {
+          const user = userEvent.setup()
+          const onSave = vi.fn()
+          render(
+            <DailyEntryForm
+              date="2026-03-01"
+              existingEntry={null}
+              onSave={onSave}
+            />,
+          )
+
+          await user.click(screen.getByRole('button', { name: 'Find food' }))
+          await user.click(screen.getByText('Salmon'))
+          const quantityInput = screen.getByLabelText('Quantity (g)')
+          await user.clear(quantityInput)
+          await user.type(quantityInput, '50')
+          await user.click(screen.getByRole('button', { name: 'Add food' }))
+
+          const entry = onSave.mock.calls[0][0].calorieEntries[0]
+          expect(entry.items[0].amountKcal).toBe(104)
+          expect(entry.items[0].amountG).toBe(50)
         })
       })
     })

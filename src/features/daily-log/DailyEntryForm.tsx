@@ -161,15 +161,84 @@ interface EditItemDraft {
   amountG: string
 }
 
+/** Scales per-100g rates by quantity (#96) — the same math
+ * `FoodPickerDialog` already uses for curated foods, now also driving
+ * manual entry's kcal/protein/fat/carbs fields (per-100g rates) plus a
+ * quantity field, instead of typing the eaten totals directly. An
+ * invalid/blank quantity defaults to 100 rather than blocking Add — that
+ * makes the rate *equal* the total, i.e. behaves exactly like the old
+ * "type the total directly" flow when the quantity is left untouched. */
+function scaleFromPer100g(
+  kcal100: number,
+  protein100: number | undefined,
+  fat100: number | undefined,
+  carbs100: number | undefined,
+  rawQuantity: string,
+): {
+  amountKcal: number
+  proteinG: number | undefined
+  fatG: number | undefined
+  carbsG: number | undefined
+  amountG: number
+} {
+  const parsedQuantity = parseNumberInput(rawQuantity)
+  const quantity = parsedQuantity && parsedQuantity > 0 ? parsedQuantity : 100
+  const scale = quantity / 100
+  return {
+    amountKcal: Math.round(kcal100 * scale),
+    proteinG: protein100 === undefined ? undefined : Math.round(protein100 * scale * 10) / 10,
+    fatG: fat100 === undefined ? undefined : Math.round(fat100 * scale * 10) / 10,
+    carbsG: carbs100 === undefined ? undefined : Math.round(carbs100 * scale * 10) / 10,
+    amountG: quantity,
+  }
+}
+
+/** Inverse of `scaleFromPer100g` (#96) — reconstructs per-100g rates and
+ * the quantity they came from, to prefill an edit row or an autocomplete
+ * restore from previously-stored absolute totals. An item with no recorded
+ * `amountG` (created before #93/#96) is treated as quantity 100, so its
+ * stored totals become the per-100g rate unchanged — same numbers as
+ * before this feature existed, just reframed as a rate. */
+function ratesFromAbsolute(
+  amountKcal: number,
+  proteinG: number | undefined,
+  fatG: number | undefined,
+  carbsG: number | undefined,
+  amountG: number | undefined,
+): {
+  kcal100: number
+  protein100: number | undefined
+  fat100: number | undefined
+  carbs100: number | undefined
+  quantity: number
+} {
+  const quantity = amountG && amountG > 0 ? amountG : 100
+  const scale = 100 / quantity
+  return {
+    kcal100: Math.round(amountKcal * scale),
+    protein100: proteinG === undefined ? undefined : Math.round(proteinG * scale * 10) / 10,
+    fat100: fatG === undefined ? undefined : Math.round(fatG * scale * 10) / 10,
+    carbs100: carbsG === undefined ? undefined : Math.round(carbsG * scale * 10) / 10,
+    quantity,
+  }
+}
+
 function itemDraftFrom(item: CalorieItem): EditItemDraft {
+  const rates = ratesFromAbsolute(
+    item.amountKcal,
+    item.proteinG,
+    item.fatG,
+    item.carbsG,
+    item.amountG,
+  )
   return {
     id: item.id,
     name: item.name ?? '',
-    amount: String(item.amountKcal),
-    protein: item.proteinG === undefined ? '' : String(item.proteinG),
-    fat: item.fatG === undefined ? '' : String(item.fatG),
-    carbs: item.carbsG === undefined ? '' : String(item.carbsG),
-    amountG: item.amountG === undefined ? '' : String(item.amountG),
+    amount: String(rates.kcal100),
+    protein: rates.protein100 === undefined ? '' : String(rates.protein100),
+    fat: rates.fat100 === undefined ? '' : String(rates.fat100),
+    carbs: rates.carbs100 === undefined ? '' : String(rates.carbs100),
+    amountG: String(rates.quantity),
   }
 }
 
@@ -181,7 +250,7 @@ function blankItemDraft(): EditItemDraft {
     protein: '',
     fat: '',
     carbs: '',
-    amountG: '',
+    amountG: '100',
   }
 }
 
@@ -357,12 +426,12 @@ function MealListItem({
               <div className="flex flex-wrap items-end gap-2">
                 <div className="flex flex-col gap-1">
                   <span className="text-xs text-muted-foreground">
-                    {t.dailyEntry.kcalUnit}
+                    {t.dailyEntry.addCaloriesLabel}
                   </span>
                   <Input
                     type="text"
                     inputMode="decimal"
-                    aria-label={`${t.dailyEntry.kcalUnit} — ${item.name || t.dailyEntry.mealLabel(position)}`}
+                    aria-label={`${t.dailyEntry.addCaloriesLabel} — ${item.name || t.dailyEntry.mealLabel(position)}`}
                     value={item.amount}
                     onChange={(e) =>
                       onEditItemFieldChange(item.id, 'amount', e.target.value)
@@ -667,7 +736,7 @@ export function DailyEntryForm({
   const [addProtein, setAddProtein] = useState('')
   const [addFat, setAddFat] = useState('')
   const [addCarbs, setAddCarbs] = useState('')
-  const [addAmountG, setAddAmountG] = useState('')
+  const [addAmountG, setAddAmountG] = useState('100')
   const [addItemName, setAddItemName] = useState('')
   // Group-level fields (#81) — note/mood/time-eaten belong to the meal as a
   // whole, not to any one item within it.
@@ -873,12 +942,15 @@ export function DailyEntryForm({
   // always creates a new group; adding another item to an *existing* group
   // happens by opening it for edit (see the edit-item handlers below).
   function addMeal() {
-    const increment = parseNumberInput(addAmount)
-    if (!increment || increment <= 0) return
-    const proteinG = parseOptionalMacro(addProtein)
-    const fatG = parseOptionalMacro(addFat)
-    const carbsG = parseOptionalMacro(addCarbs)
-    const amountG = parseOptionalMacro(addAmountG)
+    const kcal100 = parseNumberInput(addAmount)
+    if (!kcal100 || kcal100 <= 0) return
+    const scaled = scaleFromPer100g(
+      kcal100,
+      parseOptionalMacro(addProtein),
+      parseOptionalMacro(addFat),
+      parseOptionalMacro(addCarbs),
+      addAmountG,
+    )
     setCalorieEntries([
       ...calorieEntries,
       {
@@ -887,11 +959,7 @@ export function DailyEntryForm({
           {
             id: crypto.randomUUID(),
             name: addItemName.trim() || undefined,
-            amountKcal: increment,
-            proteinG,
-            fatG,
-            carbsG,
-            amountG,
+            ...scaled,
           },
         ],
         note: addGroupNote.trim() || undefined,
@@ -901,16 +969,10 @@ export function DailyEntryForm({
       },
     ])
     if (addItemName.trim()) {
-      touchMealItem(addItemName, {
-        amountKcal: increment,
-        proteinG,
-        fatG,
-        carbsG,
-        amountG,
-      })
+      touchMealItem(addItemName, scaled)
     }
     setAddAmount('')
-    setAddAmountG('')
+    setAddAmountG('100')
     setAddProtein('')
     setAddFat('')
     setAddCarbs('')
@@ -927,11 +989,18 @@ export function DailyEntryForm({
   // restore for a bare name with no recorded nutrition yet.
   function selectAddItemMealItem(item: MealItem) {
     if (item.lastAmountKcal === undefined) return
-    setAddAmount(String(item.lastAmountKcal))
-    setAddProtein(item.lastProteinG === undefined ? '' : String(item.lastProteinG))
-    setAddFat(item.lastFatG === undefined ? '' : String(item.lastFatG))
-    setAddCarbs(item.lastCarbsG === undefined ? '' : String(item.lastCarbsG))
-    setAddAmountG(item.lastAmountG === undefined ? '' : String(item.lastAmountG))
+    const rates = ratesFromAbsolute(
+      item.lastAmountKcal,
+      item.lastProteinG,
+      item.lastFatG,
+      item.lastCarbsG,
+      item.lastAmountG,
+    )
+    setAddAmount(String(rates.kcal100))
+    setAddProtein(rates.protein100 === undefined ? '' : String(rates.protein100))
+    setAddFat(rates.fat100 === undefined ? '' : String(rates.fat100))
+    setAddCarbs(rates.carbs100 === undefined ? '' : String(rates.carbs100))
+    setAddAmountG(String(rates.quantity))
   }
 
   // Quantity-based entry against the static food list (#62) — the dialog
@@ -944,6 +1013,7 @@ export function DailyEntryForm({
     fatG: number
     carbsG: number
     note: string
+    amountG?: number
   }) {
     setCalorieEntries([
       ...calorieEntries,
@@ -957,6 +1027,7 @@ export function DailyEntryForm({
             proteinG: values.proteinG,
             fatG: values.fatG,
             carbsG: values.carbsG,
+            amountG: values.amountG,
           },
         ],
         timeEaten: currentTimeHHMM(),
@@ -987,17 +1058,23 @@ export function DailyEntryForm({
   // already-existing meal's edit mode (#94).
   function selectEditItemMealItem(id: string, item: MealItem) {
     if (item.lastAmountKcal === undefined) return
+    const rates = ratesFromAbsolute(
+      item.lastAmountKcal,
+      item.lastProteinG,
+      item.lastFatG,
+      item.lastCarbsG,
+      item.lastAmountG,
+    )
     setEditItems((items) =>
       items.map((draft) =>
         draft.id === id
           ? {
               ...draft,
-              amount: String(item.lastAmountKcal),
-              protein:
-                item.lastProteinG === undefined ? '' : String(item.lastProteinG),
-              fat: item.lastFatG === undefined ? '' : String(item.lastFatG),
-              carbs: item.lastCarbsG === undefined ? '' : String(item.lastCarbsG),
-              amountG: item.lastAmountG === undefined ? '' : String(item.lastAmountG),
+              amount: String(rates.kcal100),
+              protein: rates.protein100 === undefined ? '' : String(rates.protein100),
+              fat: rates.fat100 === undefined ? '' : String(rates.fat100),
+              carbs: rates.carbs100 === undefined ? '' : String(rates.carbs100),
+              amountG: String(rates.quantity),
             }
           : draft,
       ),
@@ -1019,17 +1096,20 @@ export function DailyEntryForm({
   // group itself is removed (#81's "last item removed = meal removed").
   function saveEditMeal() {
     const items: CalorieItem[] = editItems.flatMap((draft) => {
-      const amount = parseNumberInput(draft.amount)
-      if (!amount || amount <= 0) return []
+      const kcal100 = parseNumberInput(draft.amount)
+      if (!kcal100 || kcal100 <= 0) return []
+      const scaled = scaleFromPer100g(
+        kcal100,
+        parseOptionalMacro(draft.protein),
+        parseOptionalMacro(draft.fat),
+        parseOptionalMacro(draft.carbs),
+        draft.amountG,
+      )
       return [
         {
           id: draft.id,
           name: draft.name.trim() || undefined,
-          amountKcal: amount,
-          proteinG: parseOptionalMacro(draft.protein),
-          fatG: parseOptionalMacro(draft.fat),
-          carbsG: parseOptionalMacro(draft.carbs),
-          amountG: parseOptionalMacro(draft.amountG),
+          ...scaled,
         },
       ]
     })
@@ -1428,7 +1508,7 @@ export function DailyEntryForm({
           <div className="flex flex-wrap items-end gap-2">
             <div className="flex flex-col gap-1">
               <span className="text-xs text-muted-foreground">
-                {t.dailyEntry.kcalUnit}
+                {t.dailyEntry.addCaloriesLabel}
               </span>
               <Input
                 type="text"

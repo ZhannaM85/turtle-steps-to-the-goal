@@ -142,6 +142,7 @@ describe('FoodPickerDialog', () => {
       fatG: 5.4, // 3.6g/100g * 1.5
       carbsG: 0,
       note: 'Chicken breast',
+      amountG: 150,
     })
     expect(onOpenChange).toHaveBeenCalledWith(false)
   })
@@ -169,6 +170,7 @@ describe('FoodPickerDialog', () => {
       fatG: 13,
       carbsG: 0,
       note: 'Salmon',
+      amountG: 100,
     })
   })
 
@@ -238,6 +240,26 @@ describe('FoodPickerDialog', () => {
         carbsG: 25,
         note: 'Grandma’s stew',
       })
+    })
+
+    it('passes through a picked meal item’s recorded quantity too (#96)', async () => {
+      const user = userEvent.setup()
+      const onAdd = vi.fn()
+      render(
+        <FoodPickerDialog
+          open
+          onOpenChange={vi.fn()}
+          onAdd={onAdd}
+          mealItems={[mealItem({ name: 'Grandma’s stew', lastAmountG: 400 })]}
+        />,
+      )
+
+      await user.click(screen.getByText('Grandma’s stew'))
+      await user.click(screen.getByRole('button', { name: 'Add food' }))
+
+      expect(onAdd).toHaveBeenCalledWith(
+        expect.objectContaining({ amountG: 400 }),
+      )
     })
   })
 

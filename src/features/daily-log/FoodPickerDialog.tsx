@@ -20,6 +20,11 @@ export interface FoodPickerDialogProps {
     fatG: number
     carbsG: number
     note: string
+    /** Quantity the totals were scaled from (#96) — lets the created item
+     * be edited later the same per-100g + quantity way a manually-entered
+     * one can. Undefined for a reused personal item with no recorded
+     * quantity of its own. */
+    amountG?: number
   }) => void
   /** Personal meal-name library (#50) — merged into this dialog's search
    * (#86) so "+ Food" is one place to find anything you've ever added, not
@@ -116,6 +121,7 @@ export function FoodPickerDialog({
         fatG: Math.round(food.fat100 * scale * 10) / 10,
         carbsG: Math.round(food.carbs100 * scale * 10) / 10,
         note: food[locale],
+        amountG: quantityNum,
       })
     } else {
       const { mealItem } = selected
@@ -125,6 +131,7 @@ export function FoodPickerDialog({
         fatG: mealItem.lastFatG ?? 0,
         carbsG: mealItem.lastCarbsG ?? 0,
         note: mealItem.name,
+        amountG: mealItem.lastAmountG,
       })
     }
     reset()
