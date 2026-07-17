@@ -174,6 +174,47 @@ describe('FoodPickerDialog', () => {
     })
   })
 
+  it('lets a picked food be rated before adding (#134)', async () => {
+    const user = userEvent.setup()
+    const onAdd = vi.fn()
+    render(
+      <FoodPickerDialog
+        open
+        onOpenChange={vi.fn()}
+        onAdd={onAdd}
+        mealItems={[]}
+      />,
+    )
+
+    await user.click(screen.getByText('Salmon'))
+    await user.click(screen.getByRole('button', { name: 'Bellissimo — Salmon' }))
+    await user.click(screen.getByRole('button', { name: 'Add food' }))
+
+    expect(onAdd).toHaveBeenCalledWith(
+      expect.objectContaining({ emotion: 'bellissimo' }),
+    )
+  })
+
+  it('adds without a reaction when none is picked', async () => {
+    const user = userEvent.setup()
+    const onAdd = vi.fn()
+    render(
+      <FoodPickerDialog
+        open
+        onOpenChange={vi.fn()}
+        onAdd={onAdd}
+        mealItems={[]}
+      />,
+    )
+
+    await user.click(screen.getByText('Salmon'))
+    await user.click(screen.getByRole('button', { name: 'Add food' }))
+
+    expect(onAdd).toHaveBeenCalledWith(
+      expect.objectContaining({ emotion: undefined }),
+    )
+  })
+
   describe('personal meal items (#86)', () => {
     it('includes saved meal items in the search, alongside the curated foods', async () => {
       const user = userEvent.setup()

@@ -1060,6 +1060,7 @@ export function DailyEntryForm({
     carbsG: number
     note: string
     amountG?: number
+    emotion?: MealEmotion
   }) {
     setCalorieEntries([
       ...calorieEntries,
@@ -1074,6 +1075,7 @@ export function DailyEntryForm({
             fatG: values.fatG,
             carbsG: values.carbsG,
             amountG: values.amountG,
+            emotion: values.emotion,
           },
         ],
         timeEaten: currentTimeHHMM(),
@@ -1096,6 +1098,7 @@ export function DailyEntryForm({
     carbsG: number
     note: string
     amountG?: number
+    emotion?: MealEmotion
   }) {
     const rates = ratesFromAbsolute(
       values.amountKcal,
@@ -1115,7 +1118,7 @@ export function DailyEntryForm({
         carbs: rates.carbs100 === undefined ? '' : String(rates.carbs100),
         amountG: String(rates.quantity),
         macroMode: 'per100g',
-        emotion: undefined,
+        emotion: values.emotion,
       },
     ])
   }

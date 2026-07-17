@@ -19,6 +19,12 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    issue: 134,
+    date: '2026-07-18T01:14:25+03:00',
+    en: 'You can now rate a dish right when you add it via "Find food" — not just when typing it in manually.',
+    ru: 'Теперь можно поставить реакцию сразу при добавлении блюда через «Найти блюдо» — не только при ручном вводе.',
+  },
+  {
     issue: 133,
     date: '2026-07-18T01:06:37+03:00',
     en: 'Made the meal time, note, "+ Add item", and reaction controls the same height as the rest of the form, for a more consistent, easier-to-tap layout.',

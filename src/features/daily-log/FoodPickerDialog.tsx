@@ -1,15 +1,18 @@
 import { useEffect, useState } from 'react'
 import { type FoodItem, foods } from '@/data/foods'
+import type { MealEmotion } from '@/domain/dailyEntry'
 import type { MealItem } from '@/domain/mealItem'
 import { formatNumber, useLocale, useTranslation } from '@/i18n'
 import { applyFoodOverrides } from '@/shared/lib/applyFoodOverrides'
 import { macrosSummaryTextCompact } from '@/shared/lib/macroDisplay'
+import { MEAL_EMOTIONS } from '@/shared/lib/emotionIcons'
 import { parseNumberInput } from '@/shared/lib/parseNumberInput'
 import { cn } from '@/shared/lib/utils'
 import { useFoodOverrideStore } from '@/stores'
 import { Button } from '@/shared/ui/button'
 import { Dialog, DialogContent, DialogTitle } from '@/shared/ui/dialog'
 import { Input } from '@/shared/ui/input'
+import { EmotionPicker } from './EmotionPicker'
 
 export interface FoodPickerDialogProps {
   open: boolean
@@ -25,6 +28,10 @@ export interface FoodPickerDialogProps {
      * one can. Undefined for a reused personal item with no recorded
      * quantity of its own. */
     amountG?: number
+    /** This dish's own reaction (#134), set here rather than only after
+     * the fact by editing the newly-added item — same "rate while you're
+     * already here" pattern MealItemEditorSheet uses for manual entry. */
+    emotion?: MealEmotion
   }) => void
   /** Personal meal-name library (#50) — merged into this dialog's search
    * (#86) so "+ Food" is one place to find anything you've ever added, not
@@ -71,6 +78,7 @@ export function FoodPickerDialog({
   const [search, setSearch] = useState('')
   const [selected, setSelected] = useState<PickableItem | null>(null)
   const [quantity, setQuantity] = useState('100')
+  const [emotion, setEmotion] = useState<MealEmotion | undefined>(undefined)
 
   // Per-device hides/corrections to the curated list (#90) — loaded once
   // per mount, same pattern as useMealItemStore in DailyEntryForm.
@@ -107,6 +115,7 @@ export function FoodPickerDialog({
     setSearch('')
     setSelected(null)
     setQuantity('100')
+    setEmotion(undefined)
   }
 
   function handleAdd() {
@@ -122,6 +131,7 @@ export function FoodPickerDialog({
         carbsG: Math.round(food.carbs100 * scale * 10) / 10,
         note: food[locale],
         amountG: quantityNum,
+        emotion,
       })
     } else {
       const { mealItem } = selected
@@ -132,6 +142,7 @@ export function FoodPickerDialog({
         carbsG: mealItem.lastCarbsG ?? 0,
         note: mealItem.name,
         amountG: mealItem.lastAmountG,
+        emotion,
       })
     }
     reset()
@@ -252,6 +263,24 @@ export function FoodPickerDialog({
                   value={quantity}
                   onChange={(e) => setQuantity(e.target.value)}
                   className="h-8 w-20"
+                />
+              </div>
+            )}
+            {selected && (
+              <div className="flex flex-col gap-1.5">
+                <span className="text-sm text-muted-foreground">
+                  {t.dailyEntry.itemEmotionLabel}
+                </span>
+                <EmotionPicker
+                  value={emotion}
+                  onChange={setEmotion}
+                  options={MEAL_EMOTIONS}
+                  labelFor={t.dailyEntry.mealEmotionLabel}
+                  contextLabel={
+                    selected.source === 'food'
+                      ? selected.food[locale]
+                      : selected.mealItem.name
+                  }
                 />
               </div>
             )}

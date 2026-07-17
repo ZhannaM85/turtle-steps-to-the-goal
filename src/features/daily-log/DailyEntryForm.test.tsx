@@ -2060,6 +2060,28 @@ describe('DailyEntryForm', () => {
           expect(entry.items[0].amountKcal).toBe(104)
           expect(entry.items[0].amountG).toBe(50)
         })
+
+        it('lets a food found via Find food be rated before adding (#134)', async () => {
+          const user = userEvent.setup()
+          const onSave = vi.fn()
+          render(
+            <DailyEntryForm
+              date="2026-03-01"
+              existingEntry={null}
+              onSave={onSave}
+            />,
+          )
+
+          await user.click(screen.getByRole('button', { name: 'Find food' }))
+          await user.click(screen.getByText('Salmon'))
+          await user.click(
+            screen.getByRole('button', { name: 'Bellissimo — Salmon' }),
+          )
+          await user.click(screen.getByRole('button', { name: 'Add food' }))
+
+          const entry = onSave.mock.calls[0][0].calorieEntries[0]
+          expect(entry.items[0].emotion).toBe('bellissimo')
+        })
       })
     })
   })
