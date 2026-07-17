@@ -3,11 +3,14 @@ import { createBrowserRouter, Navigate } from 'react-router-dom'
 import { AppShell } from '@/app/AppShell'
 import { RouteErrorFallback } from '@/app/RouteErrorFallback'
 import { TodayScreen } from '@/features/daily-log'
-import { DashboardScreen } from '@/features/dashboard'
-import { HistoryScreen } from '@/features/history'
-import { GoalScreen } from '@/features/goal-setup'
-import { FoodListSettingsScreen, SettingsScreen } from '@/features/settings'
-import { AboutScreen } from '@/features/about'
+import {
+  AboutScreen,
+  DashboardScreen,
+  FoodListSettingsScreen,
+  GoalScreen,
+  HistoryScreen,
+  SettingsScreen,
+} from './lazyRoutes'
 
 export const routes: RouteObject[] = [
   {

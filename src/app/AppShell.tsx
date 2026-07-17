@@ -1,3 +1,4 @@
+import { Suspense } from 'react'
 import { NavLink, Outlet } from 'react-router-dom'
 import {
   Heart,
@@ -13,6 +14,7 @@ import { useIsTextInputFocused } from '@/shared/hooks'
 import { cn } from '@/shared/lib/utils'
 import { AppUpdateBanner } from './AppUpdateBanner'
 import { PullToRefreshIndicator } from './PullToRefreshIndicator'
+import { RouteLoadingFallback } from './RouteLoadingFallback'
 
 function useNavItems(t: Dictionary): {
   to: string
@@ -75,7 +77,12 @@ export function AppShell() {
       </header>
 
       <main className="mx-auto max-w-3xl px-4 py-6 pb-32 sm:pb-10">
-        <Outlet />
+        {/* #102: every non-Today route is now lazy-loaded (see router.tsx)
+         * — this single boundary covers all of them, so a route doesn't
+         * need its own Suspense wiring. */}
+        <Suspense fallback={<RouteLoadingFallback />}>
+          <Outlet />
+        </Suspense>
       </main>
 
       {/* Taller tap targets + horizontal safe-area padding (#112) — the

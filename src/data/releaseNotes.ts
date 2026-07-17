@@ -98,9 +98,9 @@ export const releaseNotes: ReleaseNote[] = [
   },
   {
     issue: 102,
-    date: '2026-07-17T10:48:56+03:00',
-    en: 'If something ever goes wrong while the app is running, you now see a friendly "reload" message instead of a blank screen. A loading spinner also shows briefly while the app first starts up.',
-    ru: 'Если во время работы приложения что-то пойдёт не так, теперь вы увидите понятное сообщение с предложением перезагрузить страницу вместо пустого экрана. Также при первом запуске ненадолго появляется индикатор загрузки.',
+    date: '2026-07-17T16:59:08+03:00',
+    en: 'If something ever goes wrong while the app is running, you now see a friendly "reload" message instead of a blank screen. A loading spinner also shows briefly while the app first starts up. The app should also start faster now, especially on a slow connection — screens other than Today load on demand instead of everything loading upfront.',
+    ru: 'Если во время работы приложения что-то пойдёт не так, теперь вы увидите понятное сообщение с предложением перезагрузить страницу вместо пустого экрана. Также при первом запуске ненадолго появляется индикатор загрузки. Приложение также должно теперь запускаться быстрее, особенно при медленном соединении — экраны, кроме «Сегодня», подгружаются по мере необходимости, а не все сразу.',
   },
   {
     issue: 103,

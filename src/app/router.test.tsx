@@ -15,49 +15,67 @@ describe('app router', () => {
     expect(screen.getByRole('heading', { name: 'Today' })).toBeInTheDocument()
   })
 
-  it('renders the Dashboard screen at /dashboard', () => {
+  // #102: Dashboard/History/Goal/Settings/About are now lazy-loaded (code
+  // splitting), so their headings only appear after the route chunk
+  // resolves — findByRole (async) rather than getByRole is required here.
+  // Today stays eager (the default route), so it alone can use getByRole.
+  it('renders the Dashboard screen at /dashboard', async () => {
     renderAt('/dashboard')
+    // Dashboard's chunk is the biggest of the lazy routes (charting
+    // library included) — its dynamic import can take longer than
+    // findByRole's default 1000ms timeout to transform under Vitest.
     expect(
-      screen.getByRole('heading', { name: 'Dashboard' }),
+      await screen.findByRole(
+        'heading',
+        { name: 'Dashboard' },
+        { timeout: 5000 },
+      ),
     ).toBeInTheDocument()
   })
 
-  it('renders the History screen at /history', () => {
+  it('renders the History screen at /history', async () => {
     renderAt('/history')
-    expect(screen.getByRole('heading', { name: 'History' })).toBeInTheDocument()
+    expect(
+      await screen.findByRole('heading', { name: 'History' }),
+    ).toBeInTheDocument()
   })
 
-  it('renders the Goal screen at /goal', () => {
+  it('renders the Goal screen at /goal', async () => {
     renderAt('/goal')
-    expect(screen.getByRole('heading', { name: 'Goal' })).toBeInTheDocument()
+    expect(
+      await screen.findByRole('heading', { name: 'Goal' }),
+    ).toBeInTheDocument()
   })
 
-  it('redirects /export to /settings, where the export section now lives', () => {
+  it('redirects /export to /settings, where the export section now lives', async () => {
     renderAt('/export')
     expect(
-      screen.getByRole('heading', { name: 'Settings' }),
+      await screen.findByRole('heading', { name: 'Settings' }),
     ).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Export' })).toBeInTheDocument()
   })
 
-  it('renders the Settings screen at /settings', () => {
+  it('renders the Settings screen at /settings', async () => {
     renderAt('/settings')
     expect(
-      screen.getByRole('heading', { name: 'Settings' }),
+      await screen.findByRole('heading', { name: 'Settings' }),
     ).toBeInTheDocument()
   })
 
-  it('renders the About screen at /about', () => {
+  it('renders the About screen at /about', async () => {
     renderAt('/about')
-    expect(screen.getByRole('heading', { name: 'About' })).toBeInTheDocument()
+    expect(
+      await screen.findByRole('heading', { name: 'About' }),
+    ).toBeInTheDocument()
   })
 
   it('wires an errorElement so a render crash never falls back to a blank screen (#102)', () => {
     expect(routes[0].errorElement).toBeDefined()
   })
 
-  it('renders the header nav and bottom tab bar on every screen', () => {
+  it('renders the header nav and bottom tab bar on every screen', async () => {
     renderAt('/dashboard')
+    await screen.findByRole('heading', { name: 'Dashboard' }, { timeout: 5000 })
     expect(screen.getByRole('navigation', { name: 'Main' })).toBeInTheDocument()
     expect(screen.getByRole('navigation', { name: 'Tabs' })).toBeInTheDocument()
     expect(screen.getAllByRole('link', { name: 'Today' })).toHaveLength(2)
