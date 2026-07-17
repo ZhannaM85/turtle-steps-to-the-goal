@@ -1,7 +1,9 @@
 import 'fake-indexeddb/auto'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import type { DailyEntry } from '@/domain/dailyEntry'
+import type { FoodOverride } from '@/domain/foodOverride'
 import type { Goal } from '@/domain/goal'
+import type { MealItem } from '@/domain/mealItem'
 import { db } from '@/infrastructure/persistence/indexeddb'
 import {
   exportAllData,
@@ -40,14 +42,38 @@ function makeEntry(overrides: Partial<DailyEntry> = {}): DailyEntry {
   }
 }
 
+function makeMealItem(overrides: Partial<MealItem> = {}): MealItem {
+  const now = new Date().toISOString()
+  return {
+    id: crypto.randomUUID(),
+    name: 'Pizza',
+    createdAt: now,
+    updatedAt: now,
+    ...overrides,
+  }
+}
+
+function makeFoodOverride(overrides: Partial<FoodOverride> = {}): FoodOverride {
+  return {
+    foodId: 'food-1',
+    hidden: true,
+    updatedAt: new Date().toISOString(),
+    ...overrides,
+  }
+}
+
 beforeEach(async () => {
   await db.goals.clear()
   await db.dailyEntries.clear()
+  await db.mealItems.clear()
+  await db.foodOverrides.clear()
 })
 
 afterEach(async () => {
   await db.goals.clear()
   await db.dailyEntries.clear()
+  await db.mealItems.clear()
+  await db.foodOverrides.clear()
 })
 
 describe('exportAllData', () => {
@@ -66,6 +92,17 @@ describe('exportAllData', () => {
     const bundle = await exportAllData()
     expect(bundle.goals).toEqual([goal])
     expect(bundle.dailyEntries).toEqual([entry])
+  })
+
+  it('exports meal items and food overrides currently stored (#113)', async () => {
+    const item = makeMealItem()
+    const override = makeFoodOverride()
+    await db.mealItems.put(item)
+    await db.foodOverrides.put(override)
+
+    const bundle = await exportAllData()
+    expect(bundle.mealItems).toEqual([item])
+    expect(bundle.foodOverrides).toEqual([override])
   })
 })
 
@@ -101,6 +138,36 @@ describe('importAllData', () => {
     const all = await db.dailyEntries.toArray()
     expect(all).toHaveLength(2)
     expect(all.map((e) => e.date).sort()).toEqual(['2026-03-01', '2026-03-02'])
+  })
+
+  it('round-trips meal items and food overrides (#113)', async () => {
+    const item = makeMealItem()
+    const override = makeFoodOverride()
+    await db.mealItems.put(item)
+    await db.foodOverrides.put(override)
+    const bundle = await exportAllData()
+
+    await db.mealItems.clear()
+    await db.foodOverrides.clear()
+
+    await importAllData(bundle)
+
+    expect(await db.mealItems.toArray()).toEqual([item])
+    expect(await db.foodOverrides.toArray()).toEqual([override])
+  })
+
+  it('imports fine when mealItems/foodOverrides are absent (older backups, #113)', async () => {
+    await expect(
+      importAllData({
+        version: 5,
+        exportedAt: new Date().toISOString(),
+        goals: [],
+        dailyEntries: [],
+      }),
+    ).resolves.not.toThrow()
+
+    expect(await db.mealItems.toArray()).toEqual([])
+    expect(await db.foodOverrides.toArray()).toEqual([])
   })
 })
 

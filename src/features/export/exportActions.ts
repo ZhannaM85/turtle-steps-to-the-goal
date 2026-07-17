@@ -1,6 +1,8 @@
 import {
   IndexedDbDailyEntryRepository,
+  IndexedDbFoodOverrideRepository,
   IndexedDbGoalRepository,
+  IndexedDbMealItemRepository,
 } from '@/infrastructure/persistence/indexeddb'
 import { buildExportBundle } from './exportBundle'
 import {
@@ -14,20 +16,30 @@ import {
 
 const goalRepository = new IndexedDbGoalRepository()
 const dailyEntryRepository = new IndexedDbDailyEntryRepository()
+const mealItemRepository = new IndexedDbMealItemRepository()
+const foodOverrideRepository = new IndexedDbFoodOverrideRepository()
 
 export async function exportAllData(): Promise<ExportBundle> {
-  const [goals, dailyEntries] = await Promise.all([
+  const [goals, dailyEntries, mealItems, foodOverrides] = await Promise.all([
     goalRepository.getAll(),
     dailyEntryRepository.getAll(),
+    mealItemRepository.getAll(),
+    foodOverrideRepository.getAll(),
   ])
-  return buildExportBundle(goals, dailyEntries)
+  return buildExportBundle(goals, dailyEntries, mealItems, foodOverrides)
 }
 
-/** Merges a backup into existing data (upsert by id) rather than replacing it. */
+/** Merges a backup into existing data (upsert by id) rather than replacing it.
+ * mealItems/foodOverrides (#113) are optional — older backups won't have
+ * them, in which case there's simply nothing to import for those. */
 export async function importAllData(bundle: ExportBundle): Promise<void> {
   await Promise.all([
     ...bundle.goals.map((goal) => goalRepository.saveGoal(goal)),
     ...bundle.dailyEntries.map((entry) => dailyEntryRepository.upsert(entry)),
+    ...(bundle.mealItems ?? []).map((item) => mealItemRepository.upsert(item)),
+    ...(bundle.foodOverrides ?? []).map((override) =>
+      foodOverrideRepository.upsert(override),
+    ),
   ])
 }
 

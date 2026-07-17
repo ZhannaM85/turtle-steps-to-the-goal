@@ -61,11 +61,42 @@ const dailyEntrySchema = z.object({
   updatedAt: z.string(),
 })
 
+// Personal meal-name library (#86) — previously local-only/not exported;
+// #113 added it here as purely additive/optional, same no-version-bump
+// reasoning as the entity-level fields above: an older bundle without this
+// field still parses fine (mealItems ends up undefined, importAllData
+// treats that as "nothing to import").
+const mealItemSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+  lastAmountKcal: z.number().optional(),
+  lastProteinG: z.number().optional(),
+  lastFatG: z.number().optional(),
+  lastCarbsG: z.number().optional(),
+  lastAmountG: z.number().optional(),
+})
+
+// Per-device curated-food-list customizations (#90) — same #113
+// purely-additive addition as mealItemSchema above.
+const foodOverrideSchema = z.object({
+  foodId: z.string(),
+  hidden: z.boolean().optional(),
+  kcal100: z.number().optional(),
+  protein100: z.number().optional(),
+  fat100: z.number().optional(),
+  carbs100: z.number().optional(),
+  updatedAt: z.string(),
+})
+
 export const exportBundleSchema = z.object({
   version: z.literal(5),
   exportedAt: z.string(),
   goals: z.array(goalSchema),
   dailyEntries: z.array(dailyEntrySchema),
+  mealItems: z.array(mealItemSchema).optional(),
+  foodOverrides: z.array(foodOverrideSchema).optional(),
 })
 
 export type ExportBundle = z.infer<typeof exportBundleSchema>

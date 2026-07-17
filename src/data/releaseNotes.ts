@@ -15,6 +15,12 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    issue: 113,
+    date: '2026-07-17',
+    en: 'Your custom foods and food-list edits are now included in exported backups, so they carry over when you import on another device.',
+    ru: 'Ваши собственные блюда и изменения в списке продуктов теперь включены в резервную копию — они переносятся при импорте на другое устройство.',
+  },
+  {
     issue: 112,
     date: '2026-07-17',
     en: 'The bottom navigation bar is now bigger and easier to tap, with extra room so the leftmost/rightmost tabs no longer feel cut off at the edge.',
