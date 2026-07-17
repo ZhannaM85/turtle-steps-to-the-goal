@@ -262,6 +262,9 @@ export const en: Dictionary = {
       "Compares each day's latest meal time to the very next day's weight, not a proven cause-and-effect relationship — water retention, sodium, and many other factors also affect day-to-day weight.",
     lateMealTimeLegend: 'last meal time',
     nextDayChangeLegend: 'next-day change',
+    foodReactionsTitle: 'Food reactions',
+    mostLikedFoodsTitle: 'Most liked',
+    mostDislikedFoodsTitle: 'Most disliked',
   },
   history: {
     title: 'History',

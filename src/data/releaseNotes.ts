@@ -19,6 +19,12 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    issue: 128,
+    date: '2026-07-18T01:01:23+03:00',
+    en: 'Added a "Food reactions" section on Dashboard showing your most-liked and most-disliked dishes, based on the reactions you log.',
+    ru: 'На странице «Обзор» появился раздел «Реакции на еду» с блюдами, которые вам больше всего нравятся и не нравятся — на основе ваших реакций.',
+  },
+  {
     issue: 129,
     date: '2026-07-18T00:49:41+03:00',
     en: 'You can now react to each dish in a meal separately (e.g. rate the pizza "amazing" and the milk "not for me" in the same meal), instead of one reaction for the whole meal.',

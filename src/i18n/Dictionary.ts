@@ -288,6 +288,12 @@ export interface Dictionary {
     lateMealLagCaveat: string
     lateMealTimeLegend: string
     nextDayChangeLegend: string
+    /** Per-dish reaction rollup (#128, built on #129's per-item emotion) —
+     * two ranked lists under one shared heading, each row using
+     * dailyEntry.mealEmotionLabel for its per-count accessible text. */
+    foodReactionsTitle: string
+    mostLikedFoodsTitle: string
+    mostDislikedFoodsTitle: string
   }
   history: {
     title: string
