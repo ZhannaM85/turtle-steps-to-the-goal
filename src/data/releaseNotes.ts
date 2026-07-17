@@ -15,6 +15,18 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    issue: 108,
+    date: '2026-07-17',
+    en: 'Small wording tweak to the Russian dish-name prompt so it reads as an instruction, not a yes/no question.',
+    ru: 'Небольшая правка формулировки поля названия блюда — теперь это подсказка, а не вопрос «да/нет».',
+  },
+  {
+    issue: 105,
+    date: '2026-07-17',
+    en: 'Small wording tweak to the Russian meal-note prompt to sound less formal.',
+    ru: 'Небольшая правка формулировки заметки о приёме пищи — звучит менее официально.',
+  },
+  {
     issue: 99,
     date: '2026-07-16',
     en: 'You can now edit the calories and macros for your own custom dishes in Settings, not just rename or delete them.',
