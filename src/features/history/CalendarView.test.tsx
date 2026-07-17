@@ -3,7 +3,7 @@ import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
 import type { DailyEntry } from '@/domain/dailyEntry'
-import { useCycleTrackingStore } from '@/stores'
+import { useCycleTrackingStore, useDigestionTrackingStore } from '@/stores'
 import { CalendarView, type CalendarViewProps } from './CalendarView'
 
 function renderCalendar(props: Partial<CalendarViewProps> = {}) {
@@ -156,6 +156,57 @@ describe('CalendarView', () => {
       expect(dots[1]).toHaveClass('bg-destructive')
 
       useCycleTrackingStore.setState({ enabled: false })
+    })
+  })
+
+  describe('bowel-movement marker dot', () => {
+    it('is not rendered at all when digestion tracking is off', () => {
+      renderCalendar({ entries: [makeEntry({ hadBowelMovement: true })] })
+
+      const dayButton = screen.getByRole('button', { name: midMonthLabel })
+      expect(
+        dayButton.querySelectorAll('span[aria-hidden="true"]'),
+      ).toHaveLength(1)
+    })
+
+    it('reserves a transparent dot for days without hadBowelMovement when digestion tracking is on', () => {
+      useDigestionTrackingStore.setState({ enabled: true })
+      renderCalendar({ entries: [makeEntry({ hadBowelMovement: false })] })
+
+      const dayButton = screen.getByRole('button', { name: midMonthLabel })
+      const dots = dayButton.querySelectorAll('span[aria-hidden="true"]')
+      expect(dots).toHaveLength(2)
+      expect(dots[1]).toHaveClass('bg-transparent')
+
+      useDigestionTrackingStore.setState({ enabled: false })
+    })
+
+    it('shows a colored dot for a day with hadBowelMovement true', () => {
+      useDigestionTrackingStore.setState({ enabled: true })
+      renderCalendar({ entries: [makeEntry({ hadBowelMovement: true })] })
+
+      const dayButton = screen.getByRole('button', { name: midMonthLabel })
+      const dots = dayButton.querySelectorAll('span[aria-hidden="true"]')
+      expect(dots[1]).toHaveClass('bg-amber-500')
+
+      useDigestionTrackingStore.setState({ enabled: false })
+    })
+
+    it('shows both dots side by side when both trackers are on', () => {
+      useCycleTrackingStore.setState({ enabled: true })
+      useDigestionTrackingStore.setState({ enabled: true })
+      renderCalendar({
+        entries: [makeEntry({ onPeriod: true, hadBowelMovement: true })],
+      })
+
+      const dayButton = screen.getByRole('button', { name: midMonthLabel })
+      const dots = dayButton.querySelectorAll('span[aria-hidden="true"]')
+      expect(dots).toHaveLength(3)
+      expect(dots[1]).toHaveClass('bg-destructive')
+      expect(dots[2]).toHaveClass('bg-amber-500')
+
+      useCycleTrackingStore.setState({ enabled: false })
+      useDigestionTrackingStore.setState({ enabled: false })
     })
   })
 })

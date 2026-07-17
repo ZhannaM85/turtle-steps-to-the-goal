@@ -17,7 +17,7 @@ import type { DailyEntry } from '@/domain/dailyEntry'
 import { getDateFnsLocale, useLocale, useTranslation } from '@/i18n'
 import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/ui/button'
-import { useCycleTrackingStore } from '@/stores'
+import { useCycleTrackingStore, useDigestionTrackingStore } from '@/stores'
 import { DayDetail } from './DayDetail'
 
 export interface CalendarViewProps {
@@ -32,11 +32,18 @@ export interface CalendarViewProps {
 // (see domain/stats/currentWeekInfo.ts).
 const WEEK_STARTS_ON = 1
 
-export function CalendarView({ entries, onEditDay, onSaved }: CalendarViewProps) {
+export function CalendarView({
+  entries,
+  onEditDay,
+  onSaved,
+}: CalendarViewProps) {
   const t = useTranslation()
   const locale = useLocale()
   const dateFnsLocale = getDateFnsLocale(locale)
   const cycleTrackingEnabled = useCycleTrackingStore((state) => state.enabled)
+  const digestionTrackingEnabled = useDigestionTrackingStore(
+    (state) => state.enabled,
+  )
   const [currentMonth, setCurrentMonth] = useState(() => new Date())
   const [selectedDate, setSelectedDate] = useState<string | null>(null)
 
@@ -109,6 +116,7 @@ export function CalendarView({ entries, onEditDay, onSaved }: CalendarViewProps)
           const entry = entriesByDate.get(dateKey)
           const hasEntry = entry !== undefined
           const onPeriod = entry?.onPeriod ?? false
+          const hadBowelMovement = entry?.hadBowelMovement ?? false
           const inCurrentMonth = isSameMonth(day, currentMonth)
           const selected = selectedDate !== null && selectedDate === dateKey
           return (
@@ -156,6 +164,23 @@ export function CalendarView({ entries, onEditDay, onSaved }: CalendarViewProps)
                         ? selected
                           ? 'bg-primary-foreground'
                           : 'bg-destructive'
+                        : 'bg-transparent',
+                    )}
+                  />
+                )}
+                {/* Third dot for bowel-movement days, mirroring the period
+                 * dot's own gate/color pattern — a distinct color so the two
+                 * opt-in trackers stay visually distinguishable side by
+                 * side. */}
+                {digestionTrackingEnabled && (
+                  <span
+                    aria-hidden="true"
+                    className={cn(
+                      'size-1 rounded-full',
+                      hadBowelMovement
+                        ? selected
+                          ? 'bg-primary-foreground'
+                          : 'bg-amber-500'
                         : 'bg-transparent',
                     )}
                   />

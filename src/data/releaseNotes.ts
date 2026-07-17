@@ -15,6 +15,12 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    issue: 0,
+    date: '2026-07-17',
+    en: 'The calendar view now shows a marker dot on days with a logged bowel movement, alongside the existing period marker (only visible once digestion tracking is turned on in Settings).',
+    ru: 'В календаре теперь отображается метка на днях с отмеченным стулом, рядом с уже существующей меткой цикла (видна только при включённом отслеживании пищеварения в Настройках).',
+  },
+  {
     issue: 120,
     date: '2026-07-17',
     en: 'The bottom navigation bar no longer floats mid-screen while typing — it now hides while the keyboard is open and reappears once you’re done.',
