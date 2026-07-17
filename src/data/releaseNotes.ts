@@ -15,6 +15,12 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    issue: 118,
+    date: '2026-07-17',
+    en: 'Added optional digestion tracking (off by default) — turn it on in Settings if you want to log it alongside period tracking.',
+    ru: 'Добавлено необязательное отслеживание пищеварения (по умолчанию выключено) — включите его в Настройках, если хотите вести учёт наряду с циклом.',
+  },
+  {
     issue: 115,
     date: '2026-07-17',
     en: 'The app now lets you know when a new version is available, with a one-tap reload — previously there was no way to tell.',

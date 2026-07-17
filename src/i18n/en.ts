@@ -141,6 +141,7 @@ export const en: Dictionary = {
     editStepsLabel: 'Edit steps',
     saveStepsLabel: 'Save steps',
     onPeriodLabel: 'On period',
+    hadBowelMovementLabel: 'Bowel movement',
   },
   goal: {
     title: 'Goal',
@@ -295,6 +296,11 @@ export const en: Dictionary = {
       'Optional — turns on a daily "on your period" toggle on Today. Off by default.',
     cycleTrackingOn: 'On',
     cycleTrackingOff: 'Off',
+    digestionTrackingLabel: 'Digestion tracking',
+    digestionTrackingDescription:
+      'Optional — turns on a daily "bowel movement" toggle when viewing a day in History. Off by default.',
+    digestionTrackingOn: 'On',
+    digestionTrackingOff: 'Off',
     weekStartLabel: 'Week start',
     weekStartDescription:
       'Which day each week begins on, used for "This week" and weekly summaries.',

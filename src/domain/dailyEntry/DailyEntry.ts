@@ -69,6 +69,10 @@ export interface DailyEntry {
    * toggle itself is a local UI preference, not exported with backups, but
    * this logged value is a normal field on the entry like any other. */
   onPeriod?: boolean
+  /** Opt-in digestion tracking, same shape as onPeriod above — only ever
+   * set when enabled in Settings (`useDigestionTrackingStore`); the toggle
+   * itself is a local UI preference, this logged value is a normal field. */
+  hadBowelMovement?: boolean
   createdAt: string
   updatedAt: string
 }

@@ -1,15 +1,17 @@
 import { render, screen } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { DailyEntry } from '@/domain/dailyEntry'
-import { useCycleTrackingStore } from '@/stores'
+import { useCycleTrackingStore, useDigestionTrackingStore } from '@/stores'
 import { DayDetail } from './DayDetail'
 
 beforeEach(() => {
   useCycleTrackingStore.setState({ enabled: false })
+  useDigestionTrackingStore.setState({ enabled: false })
 })
 
 afterEach(() => {
   useCycleTrackingStore.setState({ enabled: false })
+  useDigestionTrackingStore.setState({ enabled: false })
 })
 
 function makeEntry(overrides: Partial<DailyEntry> = {}): DailyEntry {
@@ -142,9 +144,9 @@ describe('DayDetail', () => {
 
     // Appears twice: the standalone header's day total, and this single
     // meal's own summary line show identical numbers.
-    expect(
-      screen.getAllByText('Protein 20g · Fat 10g · Carbs —'),
-    ).toHaveLength(2)
+    expect(screen.getAllByText('Protein 20g · Fat 10g · Carbs —')).toHaveLength(
+      2,
+    )
   })
 
   describe('cycle tracking toggle (#71)', () => {
@@ -183,9 +185,68 @@ describe('DayDetail', () => {
         <DayDetail entry={makeEntry({ onPeriod: true })} onSaved={vi.fn()} />,
       )
 
+      expect(screen.getByRole('button', { name: 'On period' })).toHaveAttribute(
+        'aria-pressed',
+        'true',
+      )
+    })
+  })
+
+  describe('digestion tracking toggle', () => {
+    it('is hidden when the Settings toggle is off, even with onSaved provided', () => {
+      render(<DayDetail entry={makeEntry()} onSaved={vi.fn()} />)
+      expect(
+        screen.queryByRole('button', { name: 'Bowel movement' }),
+      ).not.toBeInTheDocument()
+    })
+
+    it('is hidden when onSaved is not provided, even with the Settings toggle on', () => {
+      useDigestionTrackingStore.setState({ enabled: true })
+      render(<DayDetail entry={makeEntry()} />)
+      expect(
+        screen.queryByRole('button', { name: 'Bowel movement' }),
+      ).not.toBeInTheDocument()
+    })
+
+    it('toggles hadBowelMovement via onSaved when both are present', () => {
+      useDigestionTrackingStore.setState({ enabled: true })
+      const onSaved = vi.fn()
+      render(<DayDetail entry={makeEntry()} onSaved={onSaved} />)
+
+      const toggle = screen.getByRole('button', { name: 'Bowel movement' })
+      expect(toggle).toHaveAttribute('aria-pressed', 'false')
+
+      toggle.click()
+
+      expect(onSaved).toHaveBeenCalledTimes(1)
+      expect(onSaved.mock.calls[0][0].hadBowelMovement).toBe(true)
+    })
+
+    it('reflects an already-true hadBowelMovement as pressed', () => {
+      useDigestionTrackingStore.setState({ enabled: true })
+      render(
+        <DayDetail
+          entry={makeEntry({ hadBowelMovement: true })}
+          onSaved={vi.fn()}
+        />,
+      )
+
+      expect(
+        screen.getByRole('button', { name: 'Bowel movement' }),
+      ).toHaveAttribute('aria-pressed', 'true')
+    })
+
+    it('shows both toggles together when both preferences are on', () => {
+      useCycleTrackingStore.setState({ enabled: true })
+      useDigestionTrackingStore.setState({ enabled: true })
+      render(<DayDetail entry={makeEntry()} onSaved={vi.fn()} />)
+
       expect(
         screen.getByRole('button', { name: 'On period' }),
-      ).toHaveAttribute('aria-pressed', 'true')
+      ).toBeInTheDocument()
+      expect(
+        screen.getByRole('button', { name: 'Bowel movement' }),
+      ).toBeInTheDocument()
     })
   })
 })

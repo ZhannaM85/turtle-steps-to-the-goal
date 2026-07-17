@@ -7,6 +7,7 @@ import {
 } from '@/i18n'
 import {
   useCycleTrackingStore,
+  useDigestionTrackingStore,
   useThemeStore,
   useUnitStore,
   useWeekStartStore,
@@ -54,6 +55,12 @@ export function SettingsScreen() {
   const setColorScheme = useThemeStore((state) => state.setColorScheme)
   const cycleTrackingEnabled = useCycleTrackingStore((state) => state.enabled)
   const setCycleTrackingEnabled = useCycleTrackingStore(
+    (state) => state.setEnabled,
+  )
+  const digestionTrackingEnabled = useDigestionTrackingStore(
+    (state) => state.enabled,
+  )
+  const setDigestionTrackingEnabled = useDigestionTrackingStore(
     (state) => state.setEnabled,
   )
   const weekStart = useWeekStartStore((state) => state.weekStart)
@@ -194,6 +201,32 @@ export function SettingsScreen() {
             </ToggleGroupItem>
             <ToggleGroupItem value="on">
               {t.settings.cycleTrackingOn}
+            </ToggleGroupItem>
+          </ToggleGroup>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>{t.settings.digestionTrackingLabel}</CardTitle>
+        </CardHeader>
+        <CardContent className="flex flex-col gap-1.5">
+          <span className="text-sm text-muted-foreground">
+            {t.settings.digestionTrackingDescription}
+          </span>
+          <ToggleGroup
+            type="single"
+            aria-label={t.settings.digestionTrackingLabel}
+            value={digestionTrackingEnabled ? 'on' : 'off'}
+            onValueChange={(value) =>
+              value && setDigestionTrackingEnabled(value === 'on')
+            }
+          >
+            <ToggleGroupItem value="off">
+              {t.settings.digestionTrackingOff}
+            </ToggleGroupItem>
+            <ToggleGroupItem value="on">
+              {t.settings.digestionTrackingOn}
             </ToggleGroupItem>
           </ToggleGroup>
         </CardContent>

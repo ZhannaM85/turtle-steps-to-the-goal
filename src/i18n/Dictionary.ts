@@ -151,6 +151,9 @@ export interface Dictionary {
     editStepsLabel: string
     saveStepsLabel: string
     onPeriodLabel: string
+    /** Opt-in digestion tracking's per-day toggle in DayDetail.tsx, same
+     * shape/precedent as onPeriodLabel above. */
+    hadBowelMovementLabel: string
   }
   goal: {
     title: string
@@ -294,6 +297,10 @@ export interface Dictionary {
     cycleTrackingDescription: string
     cycleTrackingOn: string
     cycleTrackingOff: string
+    digestionTrackingLabel: string
+    digestionTrackingDescription: string
+    digestionTrackingOn: string
+    digestionTrackingOff: string
     weekStartLabel: string
     weekStartDescription: string
     weekStartMonday: string

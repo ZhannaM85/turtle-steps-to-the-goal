@@ -232,3 +232,13 @@ _Same pattern as Tiers 8–13: issues filed from continued live use._
 | [#112](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/112) | ✅ Done | Bottom tab bar: too small to tap, edge tabs read as cut off | Tabs grown from `min-h-14` (56px) to `min-h-[106px]` (+50px, per user's suggestion); nav now handles `env(safe-area-inset-left/right)` alongside the existing bottom one, plus `px-2` on the tab list. `<main>`'s `pb-28` bumped to `pb-44` to keep clearing the taller bar |
 | [#113](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/113) | ✅ Done | Custom foods/food-list overrides don't survive export/import to a new device | `mealItems`/`foodOverrides` added to `exportBundleSchema.ts` as optional top-level fields (no version bump, same purely-additive pattern used throughout). `exportAllData`/`importAllData` wired to both repositories; import merges (upsert), matching the existing goals/dailyEntries behavior. Older backups without these fields still import fine |
 | [#114](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/114) | ✅ Done | Add-row Time field has no visible icon/label — unclear it's a time picker | Small `Clock` icon added immediately before the input on the heading row. Item-edit row's own Time field already had a visible text label, confirmed out of scope |
+
+---
+
+## Private (no public GitHub issue, by request)
+
+_Filed and built without a public issue at the user's explicit request — the repo is public, and this one's more personal than the rest. Still documented normally here per the project's usual close-out process; see [[feedback_issue_first]]'s exception #2 in memory for why._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| — | ✅ Done | Opt-in digestion (bowel movement) tracking, mirroring cycle tracking | New `useDigestionTrackingStore` (localStorage, same shape as `cycleTrackingStore`) + Settings on/off card + `DailyEntry.hadBowelMovement` (additive, no version bump, included in the export bundle like `onPeriod`). `DayDetail.tsx` renders a "Bowel movement" toggle next to the existing "On period" one when enabled — same not-shown-on-Today placement #71 established for cycle tracking, off by default |

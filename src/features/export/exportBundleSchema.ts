@@ -57,6 +57,8 @@ const dailyEntrySchema = z.object({
   // Opt-in cycle tracking (#61) — the logged value travels with a backup
   // like any other field; only the Settings on/off toggle is local-only.
   onPeriod: z.boolean().optional(),
+  // Opt-in digestion tracking, same reasoning/shape as onPeriod above.
+  hadBowelMovement: z.boolean().optional(),
   createdAt: z.string(),
   updatedAt: z.string(),
 })

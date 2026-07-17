@@ -26,7 +26,11 @@ import {
 } from '@/shared/lib/macroDisplay'
 import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/ui/button'
-import { useCycleTrackingStore, useUnitStore } from '@/stores'
+import {
+  useCycleTrackingStore,
+  useDigestionTrackingStore,
+  useUnitStore,
+} from '@/stores'
 
 export interface DayDetailProps {
   entry: DailyEntry
@@ -64,6 +68,9 @@ export function DayDetail({
   const dateFnsLocale = getDateFnsLocale(locale)
   const displayUnit = useUnitStore((state) => state.unit)
   const cycleTrackingEnabled = useCycleTrackingStore((state) => state.enabled)
+  const digestionTrackingEnabled = useDigestionTrackingStore(
+    (state) => state.enabled,
+  )
 
   const meals = entry.calorieEntries ?? []
   const DayEmotionIcon = DAY_EMOTIONS.find(
@@ -107,24 +114,47 @@ export function DayDetail({
         </div>
       )}
 
-      {cycleTrackingEnabled && onSaved && (
-        <div>
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            aria-pressed={entry.onPeriod ?? false}
-            className={cn(entry.onPeriod && 'bg-muted text-foreground')}
-            onClick={() =>
-              onSaved({
-                ...entry,
-                onPeriod: !entry.onPeriod,
-                updatedAt: new Date().toISOString(),
-              })
-            }
-          >
-            {t.dailyEntry.onPeriodLabel}
-          </Button>
+      {((cycleTrackingEnabled && onSaved) ||
+        (digestionTrackingEnabled && onSaved)) && (
+        <div className="flex flex-wrap gap-1.5">
+          {cycleTrackingEnabled && onSaved && (
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              aria-pressed={entry.onPeriod ?? false}
+              className={cn(entry.onPeriod && 'bg-muted text-foreground')}
+              onClick={() =>
+                onSaved({
+                  ...entry,
+                  onPeriod: !entry.onPeriod,
+                  updatedAt: new Date().toISOString(),
+                })
+              }
+            >
+              {t.dailyEntry.onPeriodLabel}
+            </Button>
+          )}
+          {digestionTrackingEnabled && onSaved && (
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              aria-pressed={entry.hadBowelMovement ?? false}
+              className={cn(
+                entry.hadBowelMovement && 'bg-muted text-foreground',
+              )}
+              onClick={() =>
+                onSaved({
+                  ...entry,
+                  hadBowelMovement: !entry.hadBowelMovement,
+                  updatedAt: new Date().toISOString(),
+                })
+              }
+            >
+              {t.dailyEntry.hadBowelMovementLabel}
+            </Button>
+          )}
         </div>
       )}
 
@@ -215,7 +245,10 @@ export function DayDetail({
                       t,
                     )
                     return (
-                      <li key={item.id} className="text-xs text-muted-foreground">
+                      <li
+                        key={item.id}
+                        className="text-xs text-muted-foreground"
+                      >
                         {item.name && `${item.name} — `}
                         {formatNumber(item.amountKcal, locale, 0)}{' '}
                         {t.dailyEntry.kcalUnit}

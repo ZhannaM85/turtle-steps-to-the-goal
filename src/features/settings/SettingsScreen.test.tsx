@@ -1,10 +1,15 @@
 import 'fake-indexeddb/auto'
-import { render, screen } from '@testing-library/react'
+import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { useLocaleStore } from '@/i18n'
-import { useThemeStore, useUnitStore, useWeekStartStore } from '@/stores'
+import {
+  useDigestionTrackingStore,
+  useThemeStore,
+  useUnitStore,
+  useWeekStartStore,
+} from '@/stores'
 import { SettingsScreen } from './SettingsScreen'
 
 function renderSettings() {
@@ -17,6 +22,7 @@ beforeEach(() => {
   useThemeStore.setState({ mood: 'pond', colorScheme: 'light' })
   useUnitStore.setState({ unit: 'kg' })
   useWeekStartStore.setState({ weekStart: 'monday' })
+  useDigestionTrackingStore.setState({ enabled: false })
   document.documentElement.removeAttribute('data-mood')
   document.documentElement.classList.remove('dark')
 })
@@ -27,6 +33,7 @@ afterEach(() => {
   useThemeStore.setState({ mood: 'pond', colorScheme: 'light' })
   useUnitStore.setState({ unit: 'kg' })
   useWeekStartStore.setState({ weekStart: 'monday' })
+  useDigestionTrackingStore.setState({ enabled: false })
   document.documentElement.removeAttribute('data-mood')
   document.documentElement.classList.remove('dark')
 })
@@ -148,6 +155,27 @@ describe('SettingsScreen', () => {
     expect(
       screen.getByRole('link', { name: 'Manage food list' }),
     ).toHaveAttribute('href', '/settings/foods')
+  })
+
+  it('defaults digestion tracking to off, and switches it on when selected', async () => {
+    const user = userEvent.setup()
+    renderSettings()
+
+    expect(
+      within(
+        screen.getByRole('radiogroup', {
+          name: 'Digestion tracking',
+        }),
+      ).getByRole('radio', { name: 'Off' }),
+    ).toBeChecked()
+
+    await user.click(
+      within(
+        screen.getByRole('radiogroup', { name: 'Digestion tracking' }),
+      ).getByRole('radio', { name: 'On' }),
+    )
+
+    expect(useDigestionTrackingStore.getState().enabled).toBe(true)
   })
 
   it('includes the export/import section (folded in from the old Export tab, #24)', () => {

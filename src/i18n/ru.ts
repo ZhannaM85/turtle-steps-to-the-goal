@@ -141,6 +141,7 @@ export const ru: Dictionary = {
     editStepsLabel: 'Изменить шаги',
     saveStepsLabel: 'Сохранить шаги',
     onPeriodLabel: 'Менструация',
+    hadBowelMovementLabel: 'Стул',
   },
   goal: {
     title: 'Цель',
@@ -297,6 +298,11 @@ export const ru: Dictionary = {
       'Необязательно — включает переключатель «менструация» на экране «Сегодня». По умолчанию выключено.',
     cycleTrackingOn: 'Вкл',
     cycleTrackingOff: 'Выкл',
+    digestionTrackingLabel: 'Отслеживание пищеварения',
+    digestionTrackingDescription:
+      'Необязательно — включает переключатель «стул» при просмотре дня в разделе «История». По умолчанию выключено.',
+    digestionTrackingOn: 'Вкл',
+    digestionTrackingOff: 'Выкл',
     weekStartLabel: 'Начало недели',
     weekStartDescription:
       'День, с которого начинается неделя — используется для «Эта неделя» и недельных сводок.',
