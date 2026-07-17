@@ -128,6 +128,34 @@ export class AppDatabase extends Dexie {
       mealItems: 'id, &name',
       foodOverrides: '&foodId',
     })
+    // #129: a meal's reaction moves from the group (CalorieEntry.emotion,
+    // no longer part of the type) onto each item. Only unambiguous for a
+    // single-item meal, where the old group reaction clearly belonged to
+    // that one dish — multi-item meals had no way to know which dish it
+    // was about, so that data is simply dropped rather than guessed at
+    // (same reasoning #54's v3->v4 clear used above for the older
+    // happy/unhappy/neutral meal-emotion set).
+    this.version(7)
+      .stores({
+        goals: 'id, createdAt',
+        dailyEntries: 'id, &date',
+        mealItems: 'id, &name',
+        foodOverrides: '&foodId',
+      })
+      .upgrade((tx) =>
+        tx
+          .table('dailyEntries')
+          .toCollection()
+          .modify((entry) => {
+            for (const meal of entry.calorieEntries ?? []) {
+              const legacyEmotion = meal.emotion
+              delete meal.emotion
+              if (legacyEmotion && meal.items.length === 1) {
+                meal.items[0].emotion = legacyEmotion
+              }
+            }
+          }),
+      )
   }
 }
 

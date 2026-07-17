@@ -10,8 +10,10 @@ import {
   exportBundleSchemaV2,
   exportBundleSchemaV3,
   exportBundleSchemaV4,
+  exportBundleSchemaV5,
   type ExportBundle,
   type ExportBundleV4,
+  type ExportBundleV5,
 } from './exportBundleSchema'
 
 const goalRepository = new IndexedDbGoalRepository()
@@ -55,7 +57,7 @@ export class InvalidBackupFileError extends Error {}
  */
 function foldFlatMealsIntoGroups(
   dailyEntries: ExportBundleV4['dailyEntries'],
-): ExportBundle['dailyEntries'] {
+): ExportBundleV5['dailyEntries'] {
   return dailyEntries.map((entry) => ({
     ...entry,
     calorieEntries: entry.calorieEntries?.map((meal) => ({
@@ -77,38 +79,72 @@ function foldFlatMealsIntoGroups(
   }))
 }
 
+/**
+ * v5 -> v6 (#129): a meal's reaction moves from the group (CalorieEntry.
+ * emotion) onto each item. Only unambiguous for a single-item meal, where
+ * the old group reaction clearly belonged to that one dish — multi-item
+ * meals had no way to know which dish it was about, so that data is
+ * simply dropped (same reasoning #54's v3->v4 clear used for the older
+ * happy/unhappy/neutral meal-emotion set).
+ */
+function upgradeV5ToV6(
+  dailyEntries: ExportBundleV5['dailyEntries'],
+): ExportBundle['dailyEntries'] {
+  return dailyEntries.map((entry) => ({
+    ...entry,
+    calorieEntries: entry.calorieEntries?.map(
+      ({ emotion, ...meal }) =>
+        emotion && meal.items.length === 1
+          ? { ...meal, items: [{ ...meal.items[0], emotion }] }
+          : meal,
+    ),
+  }))
+}
+
 export function parseExportBundle(raw: unknown): ExportBundle {
   const current = exportBundleSchema.safeParse(raw)
   if (current.success) return current.data
+
+  // v5 -> v6 (#129): a meal's reaction moves from the group onto each item.
+  const v5 = exportBundleSchemaV5.safeParse(raw)
+  if (v5.success) {
+    return {
+      ...v5.data,
+      version: 6,
+      dailyEntries: upgradeV5ToV6(v5.data.dailyEntries),
+    }
+  }
 
   const v4 = exportBundleSchemaV4.safeParse(raw)
   if (v4.success) {
     return {
       ...v4.data,
-      version: 5,
-      dailyEntries: foldFlatMealsIntoGroups(v4.data.dailyEntries),
+      version: 6,
+      dailyEntries: upgradeV5ToV6(foldFlatMealsIntoGroups(v4.data.dailyEntries)),
     }
   }
 
   // v3 -> v5: meal-level emotion used the day's happy/unhappy/neutral set.
   // No auto-mapping to thumbsUp/thumbsDown/bellissimo (decided when #54 was
   // scoped) — old meal emotions are cleared, not translated. Then folded
-  // into single-item groups same as the v4 path above.
+  // into single-item groups same as the v4 path above, then on to v6.
   const v3 = exportBundleSchemaV3.safeParse(raw)
   if (v3.success) {
     return {
       ...v3.data,
-      version: 5,
-      dailyEntries: foldFlatMealsIntoGroups(
-        v3.data.dailyEntries.map((entry) => ({
-          ...entry,
-          calorieEntries: entry.calorieEntries?.map((meal) => ({
-            id: meal.id,
-            amountKcal: meal.amountKcal,
-            note: meal.note,
-            createdAt: meal.createdAt,
+      version: 6,
+      dailyEntries: upgradeV5ToV6(
+        foldFlatMealsIntoGroups(
+          v3.data.dailyEntries.map((entry) => ({
+            ...entry,
+            calorieEntries: entry.calorieEntries?.map((meal) => ({
+              id: meal.id,
+              amountKcal: meal.amountKcal,
+              note: meal.note,
+              createdAt: meal.createdAt,
+            })),
           })),
-        })),
+        ),
       ),
     }
   }
@@ -117,21 +153,23 @@ export function parseExportBundle(raw: unknown): ExportBundle {
   if (legacy.success) {
     return {
       ...legacy.data,
-      version: 5,
-      dailyEntries: foldFlatMealsIntoGroups(
-        legacy.data.dailyEntries.map(({ caloriesConsumed, ...entry }) => ({
-          ...entry,
-          calorieEntries:
-            caloriesConsumed === undefined
-              ? undefined
-              : [
-                  {
-                    id: crypto.randomUUID(),
-                    amountKcal: caloriesConsumed,
-                    createdAt: entry.createdAt,
-                  },
-                ],
-        })),
+      version: 6,
+      dailyEntries: upgradeV5ToV6(
+        foldFlatMealsIntoGroups(
+          legacy.data.dailyEntries.map(({ caloriesConsumed, ...entry }) => ({
+            ...entry,
+            calorieEntries:
+              caloriesConsumed === undefined
+                ? undefined
+                : [
+                    {
+                      id: crypto.randomUUID(),
+                      amountKcal: caloriesConsumed,
+                      createdAt: entry.createdAt,
+                    },
+                  ],
+          })),
+        ),
       ),
     }
   }

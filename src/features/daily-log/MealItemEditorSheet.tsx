@@ -1,5 +1,7 @@
+import type { MealEmotion } from '@/domain/dailyEntry'
 import type { MealItem } from '@/domain/mealItem'
 import { useLocale, useTranslation } from '@/i18n'
+import { MEAL_EMOTIONS } from '@/shared/lib/emotionIcons'
 import {
   formatComputedTotal,
   parseOptionalMacro,
@@ -11,6 +13,7 @@ import { Button } from '@/shared/ui/button'
 import { Dialog, DialogContent, DialogTitle } from '@/shared/ui/dialog'
 import { Input } from '@/shared/ui/input'
 import { ToggleGroup, ToggleGroupItem } from '@/shared/ui/toggle-group'
+import { EmotionPicker } from './EmotionPicker'
 import { MealNoteAutocomplete } from './MealNoteAutocomplete'
 
 export interface MealItemEditorSheetProps {
@@ -33,6 +36,10 @@ export interface MealItemEditorSheetProps {
   onMacroModeChange: (mode: 'per100g' | 'perPortion') => void
   mealItems: MealItem[]
   onSelectMealItem: (item: MealItem) => void
+  /** This dish's own reaction (#129) — moved here from the meal group, so
+   * different dishes in the same meal can carry different reactions. */
+  emotion: MealEmotion | undefined
+  onEmotionChange: (emotion: MealEmotion | undefined) => void
   onSave: () => void
 }
 
@@ -98,6 +105,8 @@ export function MealItemEditorSheet({
   onMacroModeChange,
   mealItems,
   onSelectMealItem,
+  emotion,
+  onEmotionChange,
   onSave,
 }: MealItemEditorSheetProps) {
   const t = useTranslation()
@@ -224,6 +233,19 @@ export function MealItemEditorSheet({
               {t.dailyEntry.computedTotalPrefix} {totalPreview}
             </p>
           )}
+
+          <div className="flex flex-col gap-1.5">
+            <span className="text-sm text-muted-foreground">
+              {t.dailyEntry.itemEmotionLabel}
+            </span>
+            <EmotionPicker
+              value={emotion}
+              onChange={onEmotionChange}
+              options={MEAL_EMOTIONS}
+              labelFor={t.dailyEntry.mealEmotionLabel}
+              contextLabel={name || undefined}
+            />
+          </div>
         </div>
 
         {/* Sticky footer (mirrors FoodPickerDialog's #91 pattern) — the

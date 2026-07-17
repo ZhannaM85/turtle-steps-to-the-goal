@@ -54,7 +54,7 @@ describe('buildExportBundle', () => {
     const entries = [makeEntry()]
     const bundle = buildExportBundle(goals, entries, [], [])
 
-    expect(bundle.version).toBe(5)
+    expect(bundle.version).toBe(6)
     expect(bundle.goals).toEqual(goals)
     expect(bundle.dailyEntries).toEqual(entries)
     expect(() => new Date(bundle.exportedAt).toISOString()).not.toThrow()

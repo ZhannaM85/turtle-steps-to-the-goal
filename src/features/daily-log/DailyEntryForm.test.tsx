@@ -589,7 +589,7 @@ describe('DailyEntryForm', () => {
       expect(screen.getByLabelText('kcal/100g')).toHaveValue('')
     })
 
-    it('logs a note and an emotion together with the amount in one Add action', async () => {
+    it('logs a note and an item reaction together with the amount in one Add action (#129)', async () => {
       const user = userEvent.setup()
       render(
         <DailyEntryForm
@@ -603,8 +603,8 @@ describe('DailyEntryForm', () => {
         screen.getByLabelText('Meal note'),
         'Ate chocolates, they were good.',
       )
-      await user.click(screen.getByRole('button', { name: 'Thumbs up' }))
       await user.click(screen.getByRole('button', { name: '+ Add item' }))
+      await user.click(screen.getByRole('button', { name: 'Thumbs up' }))
       await user.type(screen.getByLabelText('kcal/100g'), '200')
       await user.click(screen.getByRole('button', { name: 'Save' }))
 
@@ -949,7 +949,7 @@ describe('DailyEntryForm', () => {
       expect(onSave).toHaveBeenCalledTimes(2)
     })
 
-    it('toggles an emotion selection off when clicked again', async () => {
+    it('toggles an emotion selection off when clicked again (#129)', async () => {
       const user = userEvent.setup()
       render(
         <DailyEntryForm
@@ -959,6 +959,7 @@ describe('DailyEntryForm', () => {
         />,
       )
 
+      await user.click(screen.getByRole('button', { name: '+ Add item' }))
       const thumbsUpButton = screen.getByRole('button', { name: 'Thumbs up' })
       await user.click(thumbsUpButton)
       expect(thumbsUpButton).toHaveAttribute('aria-pressed', 'true')
@@ -966,7 +967,6 @@ describe('DailyEntryForm', () => {
       await user.click(thumbsUpButton)
       expect(thumbsUpButton).toHaveAttribute('aria-pressed', 'false')
 
-      await user.click(screen.getByRole('button', { name: '+ Add item' }))
       await user.type(screen.getByLabelText('kcal/100g'), '150')
       await user.click(screen.getByRole('button', { name: 'Save' }))
 
@@ -1269,7 +1269,7 @@ describe('DailyEntryForm', () => {
         expect(onSave).not.toHaveBeenCalled()
       })
 
-      it('edits a meal note and emotion and saves immediately', async () => {
+      it("edits a meal note and an item's reaction and saves immediately (#129)", async () => {
         const user = userEvent.setup()
         const onSave = vi.fn()
         renderWithMeals(onSave)
@@ -1279,9 +1279,12 @@ describe('DailyEntryForm', () => {
           screen.getByLabelText('Meal note — Meal 1'),
           'Ate a salad, it was good.',
         )
+        await user.click(screen.getByRole('button', { name: 'Edit item' }))
+        const dialog = screen.getByRole('dialog')
         await user.click(
-          screen.getByRole('button', { name: 'Thumbs up — Meal 1' }),
+          within(dialog).getByRole('button', { name: 'Thumbs up' }),
         )
+        await user.click(within(dialog).getByRole('button', { name: 'Save' }))
         await user.click(screen.getByRole('button', { name: 'Save' }))
 
         expect(
@@ -1325,13 +1328,15 @@ describe('DailyEntryForm', () => {
         renderWithMeals(vi.fn())
 
         await user.click(screen.getByRole('button', { name: 'Edit meal 1' }))
+        await user.click(screen.getByRole('button', { name: 'Edit item' }))
+        const dialog = screen.getByRole('dialog')
         await user.click(
-          screen.getByRole('button', { name: 'Bellissimo — Meal 1' }),
+          within(dialog).getByRole('button', { name: 'Bellissimo' }),
         )
+        await user.click(within(dialog).getByRole('button', { name: 'Save' }))
         await user.click(screen.getByRole('button', { name: 'Save' }))
 
-        // Appears twice: the now-selected picker button, and the saved
-        // meal's own display — both render the emoji, not a lucide icon.
+        // Renders the emoji, not a lucide icon, in the saved item's display.
         expect(screen.getAllByText('🤌').length).toBeGreaterThan(0)
         expect(screen.getByText('Bellissimo')).toBeInTheDocument()
       })

@@ -103,6 +103,7 @@ export const en: Dictionary = {
         : emotion === 'thumbsDown'
           ? 'Thumbs down'
           : 'Bellissimo',
+    itemEmotionLabel: 'Reaction',
     dayMoodLabel: 'Mood today',
     proteinLabel: 'Protein',
     fatLabel: 'Fat',

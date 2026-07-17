@@ -113,8 +113,11 @@ export async function buildExportWorkbook(
             carbs: item.carbsG,
             grams: item.amountG,
             time: meal.timeEaten,
+            // Per-dish reaction (#129) — used to be one shared value for
+            // every item in the meal; each row now reflects that item's
+            // own reaction instead.
             reaction:
-              meal.emotion && t.dailyEntry.mealEmotionLabel(meal.emotion),
+              item.emotion && t.dailyEntry.mealEmotionLabel(item.emotion),
             note: meal.note,
           })
         }

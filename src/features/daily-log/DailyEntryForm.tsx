@@ -16,15 +16,7 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
-import {
-  Check,
-  Clock,
-  GripVertical,
-  Pencil,
-  type LucideIcon,
-  Trash2,
-  X,
-} from 'lucide-react'
+import { Check, Clock, GripVertical, Pencil, Trash2, X } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 import type {
   CalorieEntry,
@@ -71,6 +63,7 @@ import { InfoTooltip } from '@/shared/ui/info-tooltip'
 import { Input } from '@/shared/ui/input'
 import { useMealItemStore, useMealLabelPresetStore } from '@/stores'
 import { entryToFormValues, formValuesToEntry } from './dailyEntryFormMapping'
+import { EmotionPicker } from './EmotionPicker'
 import { FoodPickerDialog } from './FoodPickerDialog'
 import { MealItemEditorSheet } from './MealItemEditorSheet'
 import {
@@ -99,67 +92,6 @@ export interface DailyEntryFormProps {
   alwaysEditable?: boolean
 }
 
-/** Generic over both the day's mood (Emotion) and a meal's reaction
- * (MealEmotion, #54) — the two sets differ, so options/labelFor are passed
- * in rather than hardcoded, but the picker UI itself is identical. */
-function EmotionPicker<E extends string>({
-  value,
-  onChange,
-  options,
-  labelFor,
-  contextLabel,
-}: {
-  value: E | undefined
-  onChange: (emotion: E | undefined) => void
-  options: { value: E; Icon?: LucideIcon; emoji?: string }[]
-  labelFor: (emotion: E) => string
-  /**
-   * Disambiguates this picker's buttons from another EmotionPicker visible
-   * at the same time (e.g. the always-present Add-flow picker plus a meal
-   * row's own picker while that row is being edited) — without it, two
-   * buttons named plain "Happy" would both exist on screen at once.
-   */
-  contextLabel?: string
-}) {
-  return (
-    <div className="flex items-center gap-3">
-      {options.map(({ value: emotion, Icon, emoji }) => {
-        const label = labelFor(emotion)
-        return (
-          <Button
-            key={emotion}
-            type="button"
-            variant="ghost"
-            size="icon-sm"
-            aria-label={contextLabel ? `${label} — ${contextLabel}` : label}
-            aria-pressed={value === emotion}
-            // bg-muted alone (the old style) sits too close to
-            // --background in dark mode to read as "selected" — and for
-            // emoji options (unlike the lucide-icon options) text-foreground
-            // has no visual effect at all, so the background/border was the
-            // *only* indicator (#84). --primary is deliberately
-            // high-contrast against background in every mood theme, so a
-            // border + tint reliably reads as selected everywhere.
-            className={cn(
-              value === emotion &&
-                'border-2 border-primary bg-primary/15 text-foreground',
-            )}
-            onClick={() => onChange(value === emotion ? undefined : emotion)}
-          >
-            {Icon ? (
-              <Icon aria-hidden="true" />
-            ) : (
-              <span aria-hidden="true" className="text-base leading-none">
-                {emoji}
-              </span>
-            )}
-          </Button>
-        )
-      })}
-    </div>
-  )
-}
-
 /** One item's draft fields while its parent meal group is being edited
  * (#81) — plain strings, same pattern as the rest of this form's add/edit
  * local state. `id` is the real item id for an existing item, or a fresh
@@ -181,6 +113,8 @@ interface EditItemDraft {
   // typed when no portion weight was recorded (quantity defaults to 100),
   // so there's no information lost by not persisting the original mode.
   macroMode: 'per100g' | 'perPortion'
+  // This dish's own reaction (#129) — see CalorieItem.emotion.
+  emotion: MealEmotion | undefined
 }
 
 function itemDraftFrom(item: CalorieItem): EditItemDraft {
@@ -200,6 +134,7 @@ function itemDraftFrom(item: CalorieItem): EditItemDraft {
     carbs: rates.carbs100 === undefined ? '' : String(rates.carbs100),
     amountG: String(rates.quantity),
     macroMode: 'per100g',
+    emotion: item.emotion,
   }
 }
 
@@ -213,6 +148,7 @@ function blankItemDraft(): EditItemDraft {
     carbs: '',
     amountG: '100',
     macroMode: 'per100g',
+    emotion: undefined,
   }
 }
 
@@ -228,7 +164,6 @@ interface MealListItemProps {
   editLabel: string
   editTime: string
   editNote: string
-  editEmotion: MealEmotion | undefined
   onEditItemFieldChange: (
     id: string,
     field: 'name' | 'amount' | 'protein' | 'fat' | 'carbs' | 'amountG',
@@ -236,6 +171,8 @@ interface MealListItemProps {
   ) => void
   onEditItemSelectMealItem: (id: string, item: MealItem) => void
   onEditItemModeChange: (id: string, mode: 'per100g' | 'perPortion') => void
+  // Per-dish reaction (#129) — moved from meal-group level.
+  onEditItemEmotionChange: (id: string, emotion: MealEmotion | undefined) => void
   /** Returns the new draft's id (#122) so the caller can open its editor
    * sheet immediately. */
   onAddEditItem: () => string
@@ -243,7 +180,6 @@ interface MealListItemProps {
   onEditLabelChange: (value: string) => void
   onEditTimeChange: (value: string) => void
   onEditNoteChange: (value: string) => void
-  onEditEmotionChange: (emotion: MealEmotion | undefined) => void
   onStartEdit: () => void
   onSaveEdit: () => void
   onRequestDelete: () => void
@@ -278,16 +214,15 @@ function MealListItem({
   editLabel,
   editTime,
   editNote,
-  editEmotion,
   onEditItemFieldChange,
   onEditItemSelectMealItem,
   onEditItemModeChange,
+  onEditItemEmotionChange,
   onAddEditItem,
   onRemoveEditItem,
   onEditLabelChange,
   onEditTimeChange,
   onEditNoteChange,
-  onEditEmotionChange,
   onStartEdit,
   onSaveEdit,
   onRequestDelete,
@@ -311,7 +246,6 @@ function MealListItem({
   // MealListItem's "Find food" is independent of every other one and of
   // the bottom add row's own isFoodPickerOpen.
   const [isFoodPickerOpen, setIsFoodPickerOpen] = useState(false)
-  const mealEmotionOption = MEAL_EMOTIONS.find((e) => e.value === entry.emotion)
   const macrosSummary = macrosSummaryText(
     calorieEntryProtein(entry),
     calorieEntryFat(entry),
@@ -441,6 +375,11 @@ function MealListItem({
                     t,
                   )
                 : null
+            // This dish's own reaction (#129) — shown here too, not just in
+            // the full-screen editor, so it's visible without opening it.
+            const itemEmotionOption = MEAL_EMOTIONS.find(
+              (e) => e.value === item.emotion,
+            )
             return (
               <li
                 key={item.id}
@@ -453,6 +392,17 @@ function MealListItem({
                       {' '}
                       — {itemTotalPreview}
                     </span>
+                  )}
+                  {itemEmotionOption && (
+                    <>
+                      {' '}
+                      <span aria-hidden="true" className="text-sm leading-none">
+                        {itemEmotionOption.emoji}
+                      </span>
+                      <span className="sr-only">
+                        {t.dailyEntry.mealEmotionLabel(item.emotion!)}
+                      </span>
+                    </>
                   )}
                 </span>
                 <Button
@@ -553,44 +503,39 @@ function MealListItem({
             onSelectMealItem={(mealItem) =>
               onEditItemSelectMealItem(openDraft.id, mealItem)
             }
+            emotion={openDraft.emotion}
+            onEmotionChange={(emotion) =>
+              onEditItemEmotionChange(openDraft.id, emotion)
+            }
             onSave={() => onOpenEditItem(null)}
           />
         )}
 
-        <div className="flex flex-wrap items-end gap-3">
-          <div className="flex flex-col gap-1">
-            <span className="text-xs text-muted-foreground">
-              {t.dailyEntry.timeEatenLabel}
-            </span>
-            <div className="flex items-center gap-3">
-              <Input
-                type="time"
-                aria-label={`${t.dailyEntry.timeEatenLabel} — ${t.dailyEntry.mealLabel(position)}`}
-                value={editTime}
-                onChange={(e) => onEditTimeChange(e.target.value)}
-                className="h-7 w-24"
-              />
-              {/* App-level clear button (#117), same as the add row's. */}
-              {editTime && (
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon-sm"
-                  aria-label={`${t.dailyEntry.clearTimeLabel} — ${t.dailyEntry.mealLabel(position)}`}
-                  onClick={() => onEditTimeChange('')}
-                >
-                  <X aria-hidden="true" className="size-3.5" />
-                </Button>
-              )}
-            </div>
+        <div className="flex flex-col gap-1">
+          <span className="text-xs text-muted-foreground">
+            {t.dailyEntry.timeEatenLabel}
+          </span>
+          <div className="flex items-center gap-3">
+            <Input
+              type="time"
+              aria-label={`${t.dailyEntry.timeEatenLabel} — ${t.dailyEntry.mealLabel(position)}`}
+              value={editTime}
+              onChange={(e) => onEditTimeChange(e.target.value)}
+              className="h-7 w-24"
+            />
+            {/* App-level clear button (#117), same as the add row's. */}
+            {editTime && (
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon-sm"
+                aria-label={`${t.dailyEntry.clearTimeLabel} — ${t.dailyEntry.mealLabel(position)}`}
+                onClick={() => onEditTimeChange('')}
+              >
+                <X aria-hidden="true" className="size-3.5" />
+              </Button>
+            )}
           </div>
-          <EmotionPicker
-            value={editEmotion}
-            onChange={onEditEmotionChange}
-            options={MEAL_EMOTIONS}
-            labelFor={t.dailyEntry.mealEmotionLabel}
-            contextLabel={t.dailyEntry.mealLabel(position)}
-          />
         </div>
         <Input
           type="text"
@@ -636,23 +581,6 @@ function MealListItem({
           {entry.timeEaten && (
             <span className="text-muted-foreground">· {entry.timeEaten}</span>
           )}
-          {mealEmotionOption && (
-            <>
-              {mealEmotionOption.Icon ? (
-                <mealEmotionOption.Icon
-                  aria-hidden="true"
-                  className="size-3.5 text-muted-foreground"
-                />
-              ) : (
-                <span aria-hidden="true" className="text-sm leading-none">
-                  {mealEmotionOption.emoji}
-                </span>
-              )}
-              <span className="sr-only">
-                {t.dailyEntry.mealEmotionLabel(entry.emotion!)}
-              </span>
-            </>
-          )}
         </span>
         <div className="flex items-center gap-3">
           <Button
@@ -696,11 +624,27 @@ function MealListItem({
             locale,
             t,
           )
+          // This dish's own reaction (#129) — no longer one shared reaction
+          // for the whole meal.
+          const itemEmotionOption = MEAL_EMOTIONS.find(
+            (e) => e.value === item.emotion,
+          )
           return (
             <li key={item.id} className="text-xs text-muted-foreground">
               {item.name && `${item.name} — `}
               {formatNumber(item.amountKcal, locale, 0)} {t.dailyEntry.kcalUnit}
               {itemMacros && ` · ${itemMacros}`}
+              {itemEmotionOption && (
+                <>
+                  {' '}
+                  <span aria-hidden="true" className="text-sm leading-none">
+                    {itemEmotionOption.emoji}
+                  </span>
+                  <span className="sr-only">
+                    {t.dailyEntry.mealEmotionLabel(item.emotion!)}
+                  </span>
+                </>
+              )}
             </li>
           )
         })}
@@ -786,12 +730,15 @@ export function DailyEntryForm({
     'per100g',
   )
   const [addItemName, setAddItemName] = useState('')
-  // Group-level fields (#81) — note/mood/time-eaten belong to the meal as a
+  // This item's own reaction (#129) — moved from the meal group; grouped
+  // with the other per-item draft fields above, not the group-level ones
+  // below.
+  const [addItemEmotion, setAddItemEmotion] = useState<
+    MealEmotion | undefined
+  >(undefined)
+  // Group-level fields (#81) — note/time-eaten belong to the meal as a
   // whole, not to any one item within it.
   const [addGroupNote, setAddGroupNote] = useState('')
-  const [addEmotion, setAddEmotion] = useState<MealEmotion | undefined>(
-    undefined,
-  )
   // Time eaten (#65) — starts empty rather than defaulting to "now" (#82):
   // a pre-filled value read as already-confirmed/correct and went unnoticed
   // when it didn't match. Resets to empty after each add, same as the
@@ -851,9 +798,6 @@ export function DailyEntryForm({
   const [editGroupLabel, setEditGroupLabel] = useState('')
   const [editGroupTime, setEditGroupTime] = useState('')
   const [editGroupNote, setEditGroupNote] = useState('')
-  const [editGroupEmotion, setEditGroupEmotion] = useState<
-    MealEmotion | undefined
-  >(undefined)
   const [confirmDeleteMealId, setConfirmDeleteMealId] = useState<string | null>(
     null,
   )
@@ -1059,10 +1003,10 @@ export function DailyEntryForm({
             id: crypto.randomUUID(),
             name: addItemName.trim() || undefined,
             ...scaled,
+            emotion: addItemEmotion,
           },
         ],
         note: addGroupNote.trim() || undefined,
-        emotion: addEmotion,
         timeEaten: addTime || undefined,
         createdAt: new Date().toISOString(),
       },
@@ -1077,8 +1021,8 @@ export function DailyEntryForm({
     setAddCarbs('')
     setAddMacroMode('per100g')
     setAddItemName('')
+    setAddItemEmotion(undefined)
     setAddGroupNote('')
-    setAddEmotion(undefined)
     setAddTime('')
   }
 
@@ -1171,6 +1115,7 @@ export function DailyEntryForm({
         carbs: rates.carbs100 === undefined ? '' : String(rates.carbs100),
         amountG: String(rates.quantity),
         macroMode: 'per100g',
+        emotion: undefined,
       },
     ])
   }
@@ -1181,7 +1126,6 @@ export function DailyEntryForm({
     setEditGroupLabel(entry.label ?? '')
     setEditGroupTime(entry.timeEaten ?? '')
     setEditGroupNote(entry.note ?? '')
-    setEditGroupEmotion(entry.emotion)
   }
 
   function updateEditItemField(
@@ -1193,6 +1137,14 @@ export function DailyEntryForm({
       items.map((item) =>
         item.id === id ? { ...item, [field]: value } : item,
       ),
+    )
+  }
+
+  // Separate from updateEditItemField above since emotion isn't a text
+  // field (#129).
+  function updateEditItemEmotion(id: string, emotion: MealEmotion | undefined) {
+    setEditItems((items) =>
+      items.map((item) => (item.id === id ? { ...item, emotion } : item)),
     )
   }
 
@@ -1324,6 +1276,7 @@ export function DailyEntryForm({
           id: draft.id,
           name: draft.name.trim() || undefined,
           ...scaled,
+          emotion: draft.emotion,
         },
       ]
     })
@@ -1343,7 +1296,6 @@ export function DailyEntryForm({
               items,
               label: editGroupLabel.trim() || undefined,
               note: editGroupNote.trim() || undefined,
-              emotion: editGroupEmotion,
               timeEaten: editGroupTime || undefined,
             }
           : entry,
@@ -1664,16 +1616,15 @@ export function DailyEntryForm({
                     editLabel={editGroupLabel}
                     editTime={editGroupTime}
                     editNote={editGroupNote}
-                    editEmotion={editGroupEmotion}
                     onEditItemFieldChange={updateEditItemField}
                     onEditItemSelectMealItem={selectEditItemMealItem}
                     onEditItemModeChange={updateEditItemMode}
+                    onEditItemEmotionChange={updateEditItemEmotion}
                     onAddEditItem={addEditItem}
                     onRemoveEditItem={removeEditItem}
                     onEditLabelChange={setEditGroupLabel}
                     onEditTimeChange={setEditGroupTime}
                     onEditNoteChange={setEditGroupNote}
-                    onEditEmotionChange={setEditGroupEmotion}
                     onStartEdit={() => startEditMeal(entry)}
                     onSaveEdit={saveEditMeal}
                     onRequestDelete={() => setConfirmDeleteMealId(entry.id)}
@@ -1780,33 +1731,27 @@ export function DailyEntryForm({
             onMacroModeChange={handleAddMacroModeChange}
             mealItems={mealItems}
             onSelectMealItem={selectAddItemMealItem}
+            emotion={addItemEmotion}
+            onEmotionChange={setAddItemEmotion}
             onSave={() => {
               addMeal()
               setIsAddItemSheetOpen(false)
             }}
           />
-          <div className="flex items-center gap-3">
-            <Input
-              type="text"
-              aria-label={t.dailyEntry.mealNoteLabel}
-              placeholder={t.dailyEntry.mealNotePlaceholder}
-              value={addGroupNote}
-              onChange={(e) => setAddGroupNote(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') {
-                  e.preventDefault()
-                  addMeal()
-                }
-              }}
-              className="h-7 flex-1"
-            />
-            <EmotionPicker
-              value={addEmotion}
-              onChange={setAddEmotion}
-              options={MEAL_EMOTIONS}
-              labelFor={t.dailyEntry.mealEmotionLabel}
-            />
-          </div>
+          <Input
+            type="text"
+            aria-label={t.dailyEntry.mealNoteLabel}
+            placeholder={t.dailyEntry.mealNotePlaceholder}
+            value={addGroupNote}
+            onChange={(e) => setAddGroupNote(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault()
+                addMeal()
+              }
+            }}
+            className="h-7"
+          />
           {/* "Find food" is the alternative to the manual item sheet above
            * (#106) — fill in macros via "+ Add item", or find an existing
            * dish instead. The manual path's own "Add" now lives inside

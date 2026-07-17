@@ -95,9 +95,14 @@ describe('buildExportWorkbook', () => {
           id: 'meal-1',
           label: 'Breakfast',
           timeEaten: '08:00',
-          emotion: 'thumbsUp',
           items: [
-            { id: 'item-1', name: 'Toast', amountKcal: 150, amountG: 60 },
+            {
+              id: 'item-1',
+              name: 'Toast',
+              amountKcal: 150,
+              amountG: 60,
+              emotion: 'thumbsUp',
+            },
           ],
           createdAt: '2026-03-01T00:00:00.000Z',
         },

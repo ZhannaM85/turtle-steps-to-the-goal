@@ -13,8 +13,8 @@ const dayEmotionSchema = z.enum(['happy', 'unhappy', 'neutral'])
 const mealEmotionSchema = z.enum(['thumbsUp', 'thumbsDown', 'bellissimo'])
 
 // #81: a meal groups 1+ items (e.g. soup + bread + cheese) instead of being
-// a single flat kcal/macro record. note/emotion/timeEaten stay group-level;
-// amountKcal/macros move onto each item.
+// a single flat kcal/macro record. note/timeEaten stay group-level;
+// amountKcal/macros/emotion move onto each item.
 const calorieItemSchema = z.object({
   id: z.string(),
   name: z.string().optional(),
@@ -25,6 +25,9 @@ const calorieItemSchema = z.object({
   // Portion weight in grams (#93) — purely additive/optional, same
   // no-version-bump reasoning as timeEaten below.
   amountG: z.number().optional(),
+  // Per-dish reaction (#129) — moved here from the meal group so different
+  // items in the same meal can carry different reactions.
+  emotion: mealEmotionSchema.optional(),
 })
 
 const calorieEntrySchema = z.object({
@@ -34,7 +37,6 @@ const calorieEntrySchema = z.object({
   // no-version-bump reasoning as amountG/timeEaten above.
   label: z.string().optional(),
   note: z.string().optional(),
-  emotion: mealEmotionSchema.optional(),
   createdAt: z.string(),
   // Time eaten (#65) — purely additive/optional, same no-version-bump
   // reasoning as macros/sleep/steps above.
@@ -93,7 +95,7 @@ const foodOverrideSchema = z.object({
 })
 
 export const exportBundleSchema = z.object({
-  version: z.literal(5),
+  version: z.literal(6),
   exportedAt: z.string(),
   goals: z.array(goalSchema),
   dailyEntries: z.array(dailyEntrySchema),
@@ -102,6 +104,59 @@ export const exportBundleSchema = z.object({
 })
 
 export type ExportBundle = z.infer<typeof exportBundleSchema>
+
+/**
+ * Backups written before #129 carried a meal's reaction on the group
+ * (CalorieEntry.emotion) instead of on each item. Recognized separately so
+ * `parseExportBundle` can fold it onto the item on import — see
+ * `upgradeV5ToV6` in exportActions.ts.
+ */
+const calorieItemSchemaV5 = z.object({
+  id: z.string(),
+  name: z.string().optional(),
+  amountKcal: z.number(),
+  proteinG: z.number().optional(),
+  fatG: z.number().optional(),
+  carbsG: z.number().optional(),
+  amountG: z.number().optional(),
+})
+
+const calorieEntrySchemaV5 = z.object({
+  id: z.string(),
+  items: z.array(calorieItemSchemaV5),
+  label: z.string().optional(),
+  note: z.string().optional(),
+  emotion: mealEmotionSchema.optional(),
+  createdAt: z.string(),
+  timeEaten: z.string().optional(),
+})
+
+const dailyEntrySchemaV5 = z.object({
+  id: z.string(),
+  date: z.string(),
+  weightKg: z.number().optional(),
+  calorieEntries: z.array(calorieEntrySchemaV5).optional(),
+  note: z.string().optional(),
+  emotion: dayEmotionSchema.optional(),
+  sleepHours: z.number().optional(),
+  deepSleepHours: z.number().optional(),
+  steps: z.number().optional(),
+  onPeriod: z.boolean().optional(),
+  hadBowelMovement: z.boolean().optional(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+})
+
+export const exportBundleSchemaV5 = z.object({
+  version: z.literal(5),
+  exportedAt: z.string(),
+  goals: z.array(goalSchema),
+  dailyEntries: z.array(dailyEntrySchemaV5),
+  mealItems: z.array(mealItemSchema).optional(),
+  foodOverrides: z.array(foodOverrideSchema).optional(),
+})
+
+export type ExportBundleV5 = z.infer<typeof exportBundleSchemaV5>
 
 /**
  * Backups written before #81 stored each meal as a single flat kcal/macro

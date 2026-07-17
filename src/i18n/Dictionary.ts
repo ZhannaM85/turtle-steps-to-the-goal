@@ -101,6 +101,10 @@ export interface Dictionary {
     mealEmotionLabel: (
       emotion: 'thumbsUp' | 'thumbsDown' | 'bellissimo',
     ) => string
+    /** Heading above the per-dish reaction picker in MealItemEditorSheet
+     * (#129) — mealEmotionLabel above is the per-value aria-label function
+     * ("Thumbs up"), this is the static section heading ("Reaction"). */
+    itemEmotionLabel: string
     dayMoodLabel: string
     proteinLabel: string
     fatLabel: string

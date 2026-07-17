@@ -11,7 +11,7 @@ export function buildExportBundle(
   foodOverrides: FoodOverride[],
 ): ExportBundle {
   return {
-    version: 5,
+    version: 6,
     exportedAt: new Date().toISOString(),
     goals,
     dailyEntries,

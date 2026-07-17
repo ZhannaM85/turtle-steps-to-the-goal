@@ -182,9 +182,6 @@ export function DayDetail({
       {meals.length > 0 && (
         <ul className="flex flex-col gap-1.5">
           {meals.map((meal, index) => {
-            const mealEmotionOption = MEAL_EMOTIONS.find(
-              (e) => e.value === meal.emotion,
-            )
             const mealMacrosSummary = macrosSummaryText(
               calorieEntryProtein(meal),
               calorieEntryFat(meal),
@@ -203,26 +200,6 @@ export function DayDetail({
                       · {meal.timeEaten}
                     </span>
                   )}
-                  {mealEmotionOption && (
-                    <>
-                      {mealEmotionOption.Icon ? (
-                        <mealEmotionOption.Icon
-                          aria-hidden="true"
-                          className="size-3.5 text-muted-foreground"
-                        />
-                      ) : (
-                        <span
-                          aria-hidden="true"
-                          className="text-sm leading-none"
-                        >
-                          {mealEmotionOption.emoji}
-                        </span>
-                      )}
-                      <span className="sr-only">
-                        {t.dailyEntry.mealEmotionLabel(meal.emotion!)}
-                      </span>
-                    </>
-                  )}
                 </span>
                 {meal.note && (
                   <span className="text-xs text-muted-foreground">
@@ -234,7 +211,8 @@ export function DayDetail({
                     {mealMacrosSummary}
                   </span>
                 )}
-                {/* Item sub-list (#81) — a group's individual dishes. */}
+                {/* Item sub-list (#81) — a group's individual dishes, each
+                 * with its own reaction (#129). */}
                 <ul className="flex flex-col gap-0.5 pl-4">
                   {meal.items.map((item) => {
                     const itemMacros = macrosSummaryTextCompact(
@@ -243,6 +221,9 @@ export function DayDetail({
                       item.carbsG,
                       locale,
                       t,
+                    )
+                    const itemEmotionOption = MEAL_EMOTIONS.find(
+                      (e) => e.value === item.emotion,
                     )
                     return (
                       <li
@@ -253,6 +234,20 @@ export function DayDetail({
                         {formatNumber(item.amountKcal, locale, 0)}{' '}
                         {t.dailyEntry.kcalUnit}
                         {itemMacros && ` · ${itemMacros}`}
+                        {itemEmotionOption && (
+                          <>
+                            {' '}
+                            <span
+                              aria-hidden="true"
+                              className="text-sm leading-none"
+                            >
+                              {itemEmotionOption.emoji}
+                            </span>
+                            <span className="sr-only">
+                              {t.dailyEntry.mealEmotionLabel(item.emotion!)}
+                            </span>
+                          </>
+                        )}
                       </li>
                     )
                   })}

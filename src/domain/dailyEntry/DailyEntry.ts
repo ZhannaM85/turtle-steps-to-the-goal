@@ -9,8 +9,9 @@ export type MealEmotion = 'thumbsUp' | 'thumbsDown' | 'bellissimo'
 /**
  * One food/dish within a meal (#81) — e.g. "soup", "bread", "cheese" all
  * eaten together at lunch. A meal (`CalorieEntry`) groups 1+ of these;
- * note/mood/time-eaten are shared at the group level, not per item (see
- * `CalorieEntry` below).
+ * note/time-eaten are shared at the group level, but each item carries its
+ * own reaction (#129) — e.g. pizza "bellissimo", milk "thumbs down", in the
+ * same meal.
  */
 export interface CalorieItem {
   id: string
@@ -24,6 +25,10 @@ export interface CalorieItem {
    * Purely a memory aid for logging the same food again at a different
    * portion size later; nothing here recalculates kcal/macros from it. */
   amountG?: number
+  /** This dish's own reaction (#129) — moved here from the meal group
+   * (CalorieEntry used to carry one shared `emotion` for every item in it,
+   * which couldn't tell "loved the pizza, disliked the milk" apart). */
+  emotion?: MealEmotion
 }
 
 export interface CalorieEntry {
@@ -37,7 +42,6 @@ export interface CalorieEntry {
    * within the meal) or MealItem (the reusable dish-name library). */
   label?: string
   note?: string
-  emotion?: MealEmotion
   createdAt: string
   /** Time of day the meal was eaten (#65), "HH:MM" 24-hour, e.g. "07:30" —
    * for intermittent-fasting tracking. Time-of-day only, not a full

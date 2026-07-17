@@ -23,13 +23,15 @@ const calorieItemSchema = z.object({
   proteinG: macroGramsSchema.optional(),
   fatG: macroGramsSchema.optional(),
   carbsG: macroGramsSchema.optional(),
+  // Per-dish reaction (#129) — moved here from the meal group so different
+  // items in the same meal can carry different reactions.
+  emotion: mealEmotionSchema.optional(),
 })
 
 const calorieEntrySchema = z.object({
   id: z.string(),
   items: z.array(calorieItemSchema),
   note: z.string().max(500).optional(),
-  emotion: mealEmotionSchema.optional(),
   createdAt: z.string(),
   timeEaten: timeEatenSchema,
 })

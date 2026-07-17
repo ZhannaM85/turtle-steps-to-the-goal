@@ -53,9 +53,8 @@ describe('DayDetail', () => {
           calorieEntries: [
             {
               id: 'c1',
-              items: [{ id: 'i1', amountKcal: 500 }],
+              items: [{ id: 'i1', amountKcal: 500, emotion: 'thumbsUp' }],
               note: 'Pasta for lunch',
-              emotion: 'thumbsUp',
               createdAt: '2026-01-01T00:00:00.000Z',
             },
           ],
@@ -77,8 +76,7 @@ describe('DayDetail', () => {
           calorieEntries: [
             {
               id: 'c1',
-              items: [{ id: 'i1', amountKcal: 500 }],
-              emotion: 'bellissimo',
+              items: [{ id: 'i1', amountKcal: 500, emotion: 'bellissimo' }],
               createdAt: '2026-01-01T00:00:00.000Z',
             },
           ],

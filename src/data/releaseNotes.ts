@@ -19,6 +19,12 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    issue: 129,
+    date: '2026-07-18T00:49:41+03:00',
+    en: 'You can now react to each dish in a meal separately (e.g. rate the pizza "amazing" and the milk "not for me" in the same meal), instead of one reaction for the whole meal.',
+    ru: 'Теперь можно отдельно реагировать на каждое блюдо в приёме пищи (например, пицца — «объедение», а молоко — «не понравилось» в рамках одного приёма пищи), а не одной реакцией на весь приём пищи целиком.',
+  },
+  {
     issue: 130,
     date: '2026-07-17T23:57:33+03:00',
     en: 'Added more vertical space between meals and dishes in the daily log, so they no longer read as running into each other on mobile.',

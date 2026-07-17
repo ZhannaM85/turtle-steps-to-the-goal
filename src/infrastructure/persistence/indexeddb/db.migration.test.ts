@@ -105,8 +105,12 @@ describe('AppDatabase v1 -> v2 migration', () => {
 describe('AppDatabase v3 -> v4 migration', () => {
   it('clears an old-format meal emotion, leaving the day emotion untouched', async () => {
     const migrated = await db.dailyEntries.get('legacy-3')
+    // CalorieEntry no longer has an `emotion` field post-#129 (moved to
+    // CalorieItem) — cast to check the raw stored value the v3->v4
+    // .upgrade() is responsible for clearing, same as it always was.
+    const group = migrated?.calorieEntries?.[0] as { emotion?: string }
 
-    expect(migrated?.calorieEntries?.[0].emotion).toBeUndefined()
+    expect(group.emotion).toBeUndefined()
     expect(migrated?.calorieEntries?.[0].items[0].amountKcal).toBe(500)
     expect(migrated?.emotion).toBe('unhappy')
   })
@@ -132,3 +136,18 @@ describe('AppDatabase v4 -> v5 migration', () => {
     ])
   })
 })
+
+// #129's v6->v7 migration (folding a meal's old group-level reaction onto
+// its one item) has no dedicated test here — this file's beforeAll always
+// cascades a fresh DB through every version starting at v1, and v4's
+// .upgrade() unconditionally clears meal.emotion (correct for its own
+// purpose: no real pre-v4 data could have a modern thumbsUp/thumbsDown/
+// bellissimo value, since that set didn't exist yet). That makes it
+// impossible to seed a realistic "reaches v7 with a legacy value still on
+// it" case through this harness — no actual upgrade path produces that
+// combination. Real users upgrading from an already-v6 install never hit
+// v4's clear at all (Dexie only runs each version's .upgrade() once, the
+// first time a physical DB crosses it), so v7 sees their genuine data
+// correctly. The fold logic itself (single-item folds, multi-item drops)
+// is covered directly in exportActions.test.ts's v5->v6 upgrade test,
+// which seeds an already-v5-shaped bundle and has no such contamination.

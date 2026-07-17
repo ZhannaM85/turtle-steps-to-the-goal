@@ -129,7 +129,7 @@ describe('importAllData', () => {
 
     const backupEntry = makeEntry({ date: '2026-03-01' })
     await importAllData({
-      version: 5,
+      version: 6,
       exportedAt: new Date().toISOString(),
       goals: [],
       dailyEntries: [backupEntry],
@@ -159,7 +159,7 @@ describe('importAllData', () => {
   it('imports fine when mealItems/foodOverrides are absent (older backups, #113)', async () => {
     await expect(
       importAllData({
-        version: 5,
+        version: 6,
         exportedAt: new Date().toISOString(),
         goals: [],
         dailyEntries: [],
@@ -174,12 +174,62 @@ describe('importAllData', () => {
 describe('parseExportBundle', () => {
   it('parses a valid bundle', () => {
     const bundle = {
-      version: 5,
+      version: 6,
       exportedAt: '2026-01-01',
       goals: [],
       dailyEntries: [],
     }
     expect(parseExportBundle(bundle)).toEqual(bundle)
+  })
+
+  it('upgrades a v5 backup by folding a single-item meal\'s group reaction onto its item (#129)', () => {
+    const v5Bundle = {
+      version: 5,
+      exportedAt: '2026-01-01',
+      goals: [],
+      dailyEntries: [
+        {
+          id: 'entry-1',
+          date: '2026-03-01',
+          weightKg: 80,
+          calorieEntries: [
+            {
+              id: 'meal-1',
+              items: [
+                { id: 'item-1', name: 'Pizza', amountKcal: 500 },
+              ],
+              emotion: 'bellissimo',
+              createdAt: '2026-03-01T00:00:00.000Z',
+            },
+            {
+              id: 'meal-2',
+              items: [
+                { id: 'item-2', name: 'Soup', amountKcal: 200 },
+                { id: 'item-3', name: 'Bread', amountKcal: 150 },
+              ],
+              emotion: 'thumbsUp',
+              createdAt: '2026-03-01T00:00:00.000Z',
+            },
+          ],
+          createdAt: '2026-03-01T00:00:00.000Z',
+          updatedAt: '2026-03-01T00:00:00.000Z',
+        },
+      ],
+    }
+
+    const upgraded = parseExportBundle(v5Bundle)
+
+    expect(upgraded.version).toBe(6)
+    const [singleItemMeal, multiItemMeal] =
+      upgraded.dailyEntries[0].calorieEntries!
+    // Unambiguous single-item meal: the group's old reaction moves onto it.
+    expect(singleItemMeal).not.toHaveProperty('emotion')
+    expect(singleItemMeal.items[0].emotion).toBe('bellissimo')
+    // Ambiguous multi-item meal: no way to know which dish it was about,
+    // so the old group reaction is dropped rather than guessed at.
+    expect(multiItemMeal).not.toHaveProperty('emotion')
+    expect(multiItemMeal.items[0].emotion).toBeUndefined()
+    expect(multiItemMeal.items[1].emotion).toBeUndefined()
   })
 
   it('upgrades a v4 backup by folding flat meals into single-item groups (#81)', () => {
@@ -209,7 +259,7 @@ describe('parseExportBundle', () => {
 
     const upgraded = parseExportBundle(v4Bundle)
 
-    expect(upgraded.version).toBe(5)
+    expect(upgraded.version).toBe(6)
     const group = upgraded.dailyEntries[0].calorieEntries?.[0]
     expect(group?.id).toBe('meal-1')
     expect(group).not.toHaveProperty('note')
@@ -253,10 +303,11 @@ describe('parseExportBundle', () => {
 
     const upgraded = parseExportBundle(v3Bundle)
 
-    expect(upgraded.version).toBe(5)
+    expect(upgraded.version).toBe(6)
     const group = upgraded.dailyEntries[0].calorieEntries?.[0]
-    // Meal-level emotion is cleared, not translated.
-    expect(group?.emotion).toBeUndefined()
+    // Old-format meal emotion is cleared, not translated (#54) — and never
+    // reaches the item either, since the v3 path drops it before folding.
+    expect(group?.items[0].emotion).toBeUndefined()
     expect(group?.items[0].name).toBe('Pizza')
     expect(group?.items[0].amountKcal).toBe(500)
     // Day-level emotion is untouched — that set didn't change.
@@ -282,7 +333,7 @@ describe('parseExportBundle', () => {
 
     const upgraded = parseExportBundle(legacyBundle)
 
-    expect(upgraded.version).toBe(5)
+    expect(upgraded.version).toBe(6)
     expect(upgraded.dailyEntries[0]).not.toHaveProperty('caloriesConsumed')
     const group = upgraded.dailyEntries[0].calorieEntries?.[0]
     expect(group?.items).toEqual([

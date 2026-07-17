@@ -103,6 +103,7 @@ export const ru: Dictionary = {
         : emotion === 'thumbsDown'
           ? 'Не понравилось'
           : 'Объедение',
+    itemEmotionLabel: 'Реакция',
     dayMoodLabel: 'Настроение за день',
     proteinLabel: 'Белки',
     fatLabel: 'Жиры',
