@@ -15,6 +15,12 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    issue: 121,
+    date: '2026-07-17',
+    en: 'In Portion mode, the Grams field is now replaced with a simple "Portion" label — it wasn’t doing anything editable there, just adding clutter.',
+    ru: 'В режиме «Порция» поле «Граммы» теперь заменено меткой «Порция» — в этом режиме поле ничего не считало, только добавляло путаницы.',
+  },
+  {
     issue: 119,
     date: '2026-07-17',
     en: 'Tuned down the bottom navigation bar’s height slightly — the last increase left too much empty space above the icons.',

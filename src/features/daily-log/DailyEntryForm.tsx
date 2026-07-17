@@ -559,31 +559,46 @@ function MealListItem({
                       className="h-7 w-14"
                     />
                   </div>
-                  <div className="flex flex-col gap-1">
-                    <span className="text-xs text-muted-foreground">
-                      {t.dailyEntry.itemAmountGLabel}
-                    </span>
-                    <Input
-                      type="text"
-                      inputMode="decimal"
-                      aria-label={`${t.dailyEntry.itemAmountGLabel} — ${item.name || t.dailyEntry.mealLabel(position)}`}
-                      value={item.amountG}
-                      onChange={(e) =>
-                        onEditItemFieldChange(
-                          item.id,
-                          'amountG',
-                          e.target.value,
-                        )
-                      }
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter') {
-                          e.preventDefault()
-                          onSaveEdit()
+                  {/* Grams is a pure memory aid in Portion mode (#111), not
+                   * a multiplier — an editable "100" next to a portion
+                   * total read as confusing clutter (#121), so it's
+                   * replaced with a plain "Portion" badge instead. */}
+                  {item.macroMode === 'per100g' ? (
+                    <div className="flex flex-col gap-1">
+                      <span className="text-xs text-muted-foreground">
+                        {t.dailyEntry.itemAmountGLabel}
+                      </span>
+                      <Input
+                        type="text"
+                        inputMode="decimal"
+                        aria-label={`${t.dailyEntry.itemAmountGLabel} — ${item.name || t.dailyEntry.mealLabel(position)}`}
+                        value={item.amountG}
+                        onChange={(e) =>
+                          onEditItemFieldChange(
+                            item.id,
+                            'amountG',
+                            e.target.value,
+                          )
                         }
-                      }}
-                      className="h-7 w-14"
-                    />
-                  </div>
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault()
+                            onSaveEdit()
+                          }
+                        }}
+                        className="h-7 w-14"
+                      />
+                    </div>
+                  ) : (
+                    <div className="flex flex-col gap-1">
+                      <span className="text-xs text-muted-foreground">
+                        &nbsp;
+                      </span>
+                      <span className="flex h-7 w-14 items-center text-xs text-muted-foreground">
+                        {t.dailyEntry.macroModePerPortionOption}
+                      </span>
+                    </div>
+                  )}
                 </div>
                 {itemTotalPreview && (
                   <p className="text-xs text-muted-foreground">
@@ -1828,25 +1843,38 @@ export function DailyEntryForm({
                 className="h-7 w-14"
               />
             </div>
-            <div className="flex flex-col gap-1">
-              <span className="text-xs text-muted-foreground">
-                {t.dailyEntry.itemAmountGLabel}
-              </span>
-              <Input
-                type="text"
-                inputMode="decimal"
-                aria-label={t.dailyEntry.itemAmountGLabel}
-                value={addAmountG}
-                onChange={(e) => setAddAmountG(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    e.preventDefault()
-                    addMeal()
-                  }
-                }}
-                className="h-7 w-14"
-              />
-            </div>
+            {/* Grams is a pure memory aid in Portion mode (#111), not a
+             * multiplier — an editable "100" next to a portion total read
+             * as confusing clutter (#121), replaced with a plain "Portion"
+             * badge instead. */}
+            {addMacroMode === 'per100g' ? (
+              <div className="flex flex-col gap-1">
+                <span className="text-xs text-muted-foreground">
+                  {t.dailyEntry.itemAmountGLabel}
+                </span>
+                <Input
+                  type="text"
+                  inputMode="decimal"
+                  aria-label={t.dailyEntry.itemAmountGLabel}
+                  value={addAmountG}
+                  onChange={(e) => setAddAmountG(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault()
+                      addMeal()
+                    }
+                  }}
+                  className="h-7 w-14"
+                />
+              </div>
+            ) : (
+              <div className="flex flex-col gap-1">
+                <span className="text-xs text-muted-foreground">&nbsp;</span>
+                <span className="flex h-7 w-14 items-center text-xs text-muted-foreground">
+                  {t.dailyEntry.macroModePerPortionOption}
+                </span>
+              </div>
+            )}
           </div>
           {addTotalPreview && (
             <p className="text-xs text-muted-foreground">

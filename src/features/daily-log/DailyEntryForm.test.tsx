@@ -1423,16 +1423,45 @@ describe('DailyEntryForm', () => {
             />,
           )
 
-          await user.click(screen.getByRole('radio', { name: 'Portion' }))
-          await user.type(screen.getByLabelText('kcal'), '150')
+          // Grams is only editable in per-100g mode (#121 hides it in
+          // Portion mode, as a read-only memory aid) — set it before
+          // switching, then switch there and back.
           await user.clear(screen.getByLabelText('Grams'))
           await user.type(screen.getByLabelText('Grams'), '50')
+          await user.click(screen.getByRole('radio', { name: 'Portion' }))
+          await user.clear(screen.getByLabelText('kcal'))
+          await user.type(screen.getByLabelText('kcal'), '150')
 
           await user.click(screen.getByRole('radio', { name: '100g' }))
 
           // 150 kcal eaten as a 50g portion back-calculates to 300 kcal/100g.
           expect(screen.getByLabelText('kcal/100g')).toHaveValue('300')
           expect(screen.getByLabelText('Grams')).toHaveValue('50')
+        })
+
+        it('shows a Portion badge instead of the Grams field while in Portion mode', async () => {
+          const user = userEvent.setup()
+          render(
+            <DailyEntryForm
+              date="2026-03-01"
+              existingEntry={null}
+              onSave={vi.fn()}
+            />,
+          )
+
+          expect(screen.getByLabelText('Grams')).toBeInTheDocument()
+          // Just the toggle option's own label before switching.
+          expect(screen.getAllByText('Portion')).toHaveLength(1)
+
+          await user.click(screen.getByRole('radio', { name: 'Portion' }))
+
+          expect(screen.queryByLabelText('Grams')).not.toBeInTheDocument()
+          // Toggle option label + the new static badge.
+          expect(screen.getAllByText('Portion')).toHaveLength(2)
+
+          await user.click(screen.getByRole('radio', { name: '100g' }))
+
+          expect(screen.getByLabelText('Grams')).toBeInTheDocument()
         })
 
         it('resets to per-100g mode after a successful Add', async () => {
@@ -1514,17 +1543,34 @@ describe('DailyEntryForm', () => {
           renderWithMeals()
 
           await user.click(screen.getByRole('button', { name: 'Edit meal 1' }))
+          // Grams is only editable in per-100g mode (#121 hides it in
+          // Portion mode) — set it before switching, then switch there and
+          // back.
+          await user.clear(screen.getByLabelText('Grams — Meal 1'))
+          await user.type(screen.getByLabelText('Grams — Meal 1'), '50')
           await user.click(itemToggle().getByRole('radio', { name: 'Portion' }))
           await user.clear(screen.getByLabelText('kcal — Meal 1'))
           await user.type(screen.getByLabelText('kcal — Meal 1'), '150')
-          await user.clear(screen.getByLabelText('Grams — Meal 1'))
-          await user.type(screen.getByLabelText('Grams — Meal 1'), '50')
 
           await user.click(itemToggle().getByRole('radio', { name: '100g' }))
 
           // 150 kcal eaten as a 50g portion back-calculates to 300 kcal/100g.
           expect(screen.getByLabelText('kcal/100g — Meal 1')).toHaveValue('300')
           expect(screen.getByLabelText('Grams — Meal 1')).toHaveValue('50')
+        })
+
+        it('shows a Portion badge instead of the Grams field while in Portion mode', async () => {
+          const user = userEvent.setup()
+          renderWithMeals()
+
+          await user.click(screen.getByRole('button', { name: 'Edit meal 1' }))
+          expect(screen.getByLabelText('Grams — Meal 1')).toBeInTheDocument()
+
+          await user.click(itemToggle().getByRole('radio', { name: 'Portion' }))
+
+          expect(
+            screen.queryByLabelText('Grams — Meal 1'),
+          ).not.toBeInTheDocument()
         })
 
         it('keeps each item-edit row on its own independent mode', async () => {
