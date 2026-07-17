@@ -41,8 +41,7 @@ export const en: Dictionary = {
     vsYesterdayLabel: 'vs. yesterday',
     vsMaxWeightLabel: 'vs. highest weight',
     celebrationTitle: "You reached this week's goal!",
-    celebrationDescription:
-      'Nice work — want to set a target for next week?',
+    celebrationDescription: 'Nice work — want to set a target for next week?',
     celebrationCta: "Set next week's goal",
     celebrationCloseLabel: 'Close',
   },
@@ -67,6 +66,8 @@ export const en: Dictionary = {
     editMealLabel: (n) => `Edit meal ${n}`,
     deleteMealLabel: (n) => `Delete meal ${n}`,
     reorderMealLabel: (n) => `Reorder meal ${n}`,
+    mealLabelFieldLabel: 'Meal name',
+    defaultMealNamePresets: ['Breakfast', 'Lunch', 'Dinner', 'Snack'],
     saveButton: 'Save',
     mealNoteLabel: 'Meal note',
     // Group-level note (#81) — not a dish name (see itemNamePlaceholder for
@@ -120,8 +121,7 @@ export const en: Dictionary = {
     minutesUnit: 'm',
     hoursFieldLabel: 'hours',
     minutesFieldLabel: 'minutes',
-    sleepSummary: (hours, deepHours) =>
-      `${hours} slept · ${deepHours} deep`,
+    sleepSummary: (hours, deepHours) => `${hours} slept · ${deepHours} deep`,
     stepsLabel: 'Steps',
     editStepsLabel: 'Edit steps',
     saveStepsLabel: 'Save steps',
@@ -247,17 +247,25 @@ export const en: Dictionary = {
     mealItemsLabel: 'Meal items',
     mealItemsDescription:
       "Meals you've logged before, suggested while you type. Rename or remove them here.",
-    mealItemsEmpty: "Nothing yet — items appear here once you've logged a meal.",
+    mealItemsEmpty:
+      "Nothing yet — items appear here once you've logged a meal.",
     mealItemNameLabel: 'Meal item name',
     deleteMealItemLabel: (name) => `Delete "${name}"`,
     editMealItemLabel: (name) => `Edit ${name}`,
     saveMealItemLabel: (name) => `Save ${name}`,
+    mealNamePresetsLabel: 'Meal name presets',
+    mealNamePresetsDescription:
+      'Quick-pick names offered when naming a meal, e.g. "Breakfast" or "Lunch".',
+    mealNamePresetsEmpty: 'No presets yet — add one below.',
+    addPresetPlaceholder: 'Add a preset',
+    addDefaultPresetLabel: (name) => `Add "${name}"`,
+    deletePresetLabel: (name) => `Delete "${name}"`,
     releaseNotesLabel: 'Release notes',
     showReleaseNotes: 'Show release notes',
     hideReleaseNotes: 'Hide release notes',
     cycleTrackingLabel: 'Cycle tracking',
     cycleTrackingDescription:
-      "Optional — turns on a daily \"on your period\" toggle on Today. Off by default.",
+      'Optional — turns on a daily "on your period" toggle on Today. Off by default.',
     cycleTrackingOn: 'On',
     cycleTrackingOff: 'Off',
     weekStartLabel: 'Week start',

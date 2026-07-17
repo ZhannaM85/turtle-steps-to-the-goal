@@ -56,6 +56,14 @@ export interface Dictionary {
     editMealLabel: (n: number) => string
     deleteMealLabel: (n: number) => string
     reorderMealLabel: (n: number) => string
+    /** Custom meal name field (#110) — aria-label composed with mealLabel(n),
+     * same pattern as itemNameLabel etc. */
+    mealLabelFieldLabel: string
+    /** Built-in quick-pick suggestions for the custom meal name field
+     * (#110) — offered as one-click adds in Settings, not auto-seeded into
+     * useMealLabelPresetStore (so a later language switch doesn't leave
+     * stale-language presets behind for someone who never touched them). */
+    defaultMealNamePresets: string[]
     saveButton: string
     mealNoteLabel: string
     mealNotePlaceholder: string
@@ -64,7 +72,9 @@ export interface Dictionary {
     deleteItemLabel: string
     addItemButton: string
     emotionLabel: (emotion: 'happy' | 'unhappy' | 'neutral') => string
-    mealEmotionLabel: (emotion: 'thumbsUp' | 'thumbsDown' | 'bellissimo') => string
+    mealEmotionLabel: (
+      emotion: 'thumbsUp' | 'thumbsDown' | 'bellissimo',
+    ) => string
     dayMoodLabel: string
     proteinLabel: string
     fatLabel: string
@@ -75,7 +85,11 @@ export interface Dictionary {
     itemAmountGLabel: string
     gramsUnit: string
     macrosSummary: (protein: string, fat: string, carbs: string) => string
-    macrosSummaryCompact: (protein: string, fat: string, carbs: string) => string
+    macrosSummaryCompact: (
+      protein: string,
+      fat: string,
+      carbs: string,
+    ) => string
     timeEatenLabel: string
     orDivider: string
     addFoodButton: string
@@ -223,6 +237,12 @@ export interface Dictionary {
     deleteMealItemLabel: (name: string) => string
     editMealItemLabel: (name: string) => string
     saveMealItemLabel: (name: string) => string
+    mealNamePresetsLabel: string
+    mealNamePresetsDescription: string
+    mealNamePresetsEmpty: string
+    addPresetPlaceholder: string
+    addDefaultPresetLabel: (name: string) => string
+    deletePresetLabel: (name: string) => string
     releaseNotesLabel: string
     showReleaseNotes: string
     hideReleaseNotes: string

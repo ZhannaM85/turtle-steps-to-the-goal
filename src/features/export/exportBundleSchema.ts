@@ -30,6 +30,9 @@ const calorieItemSchema = z.object({
 const calorieEntrySchema = z.object({
   id: z.string(),
   items: z.array(calorieItemSchema),
+  // Custom meal name (#110) — purely additive/optional, same
+  // no-version-bump reasoning as amountG/timeEaten above.
+  label: z.string().optional(),
   note: z.string().optional(),
   emotion: mealEmotionSchema.optional(),
   createdAt: z.string(),

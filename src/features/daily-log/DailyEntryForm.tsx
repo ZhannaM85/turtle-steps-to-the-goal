@@ -66,7 +66,7 @@ import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/ui/button'
 import { InfoTooltip } from '@/shared/ui/info-tooltip'
 import { Input } from '@/shared/ui/input'
-import { useMealItemStore } from '@/stores'
+import { useMealItemStore, useMealLabelPresetStore } from '@/stores'
 import { entryToFormValues, formValuesToEntry } from './dailyEntryFormMapping'
 import { FoodPickerDialog } from './FoodPickerDialog'
 import { MealNoteAutocomplete } from './MealNoteAutocomplete'
@@ -213,6 +213,7 @@ interface MealListItemProps {
   isEditing: boolean
   isConfirmingDelete: boolean
   editItems: EditItemDraft[]
+  editLabel: string
   editTime: string
   editNote: string
   editEmotion: MealEmotion | undefined
@@ -224,6 +225,7 @@ interface MealListItemProps {
   onEditItemSelectMealItem: (id: string, item: MealItem) => void
   onAddEditItem: () => void
   onRemoveEditItem: (id: string) => void
+  onEditLabelChange: (value: string) => void
   onEditTimeChange: (value: string) => void
   onEditNoteChange: (value: string) => void
   onEditEmotionChange: (emotion: MealEmotion | undefined) => void
@@ -243,6 +245,7 @@ function MealListItem({
   isEditing,
   isConfirmingDelete,
   editItems,
+  editLabel,
   editTime,
   editNote,
   editEmotion,
@@ -250,6 +253,7 @@ function MealListItem({
   onEditItemSelectMealItem,
   onAddEditItem,
   onRemoveEditItem,
+  onEditLabelChange,
   onEditTimeChange,
   onEditNoteChange,
   onEditEmotionChange,
@@ -268,6 +272,7 @@ function MealListItem({
     isDragging,
   } = useSortable({ id: entry.id, disabled: isEditing || isConfirmingDelete })
   const style = { transform: CSS.Transform.toString(transform), transition }
+  const mealLabelPresets = useMealLabelPresetStore((state) => state.presets)
   const mealEmotionOption = MEAL_EMOTIONS.find((e) => e.value === entry.emotion)
   const macrosSummary = macrosSummaryText(
     calorieEntryProtein(entry),
@@ -314,31 +319,54 @@ function MealListItem({
         style={style}
         className="flex flex-col gap-2 rounded-lg bg-muted/40 px-1 py-1.5"
       >
-        <div className="flex items-center justify-between">
-          <span className="text-xs font-medium text-muted-foreground">
-            {t.dailyEntry.mealLabel(position)}
-          </span>
-          <div className="flex items-center gap-1">
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon-sm"
-              aria-label={t.dailyEntry.saveButton}
-              onClick={onSaveEdit}
-            >
-              <Check aria-hidden="true" />
-            </Button>
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon-sm"
-              aria-label={t.dailyEntry.deleteMealLabel(position)}
-              onClick={onRequestDelete}
-            >
-              <Trash2 aria-hidden="true" />
-            </Button>
-          </div>
+        <div className="flex items-center gap-1">
+          {/* Custom meal name (#110) — free text, defaulting to the
+           * positional "Meal N" placeholder when left blank. Quick-pick
+           * chips below come from useMealLabelPresetStore (managed in
+           * Settings), a shortcut alongside free text, not a constraint. */}
+          <Input
+            type="text"
+            aria-label={`${t.dailyEntry.mealLabelFieldLabel} — ${t.dailyEntry.mealLabel(position)}`}
+            placeholder={t.dailyEntry.mealLabel(position)}
+            value={editLabel}
+            onChange={(e) => onEditLabelChange(e.target.value)}
+            className="h-7 flex-1"
+          />
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon-sm"
+            aria-label={t.dailyEntry.saveButton}
+            onClick={onSaveEdit}
+          >
+            <Check aria-hidden="true" />
+          </Button>
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon-sm"
+            aria-label={t.dailyEntry.deleteMealLabel(position)}
+            onClick={onRequestDelete}
+          >
+            <Trash2 aria-hidden="true" />
+          </Button>
         </div>
+        {mealLabelPresets.length > 0 && (
+          <div className="flex flex-wrap gap-1">
+            {mealLabelPresets.map((preset) => (
+              <Button
+                key={preset}
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="h-6 px-2 text-xs"
+                onClick={() => onEditLabelChange(preset)}
+              >
+                {preset}
+              </Button>
+            ))}
+          </div>
+        )}
 
         {/* One row per item in this meal group (#81) — name + kcal +
          * macros each, with its own delete button. Removing every item
@@ -584,7 +612,7 @@ function MealListItem({
           >
             <GripVertical aria-hidden="true" className="size-4" />
           </button>
-          {t.dailyEntry.mealLabel(position)} —{' '}
+          {entry.label ?? t.dailyEntry.mealLabel(position)} —{' '}
           {formatNumber(calorieEntryKcal(entry), locale, 0)}{' '}
           {t.dailyEntry.kcalUnit}
           {entry.timeEaten && (
@@ -786,6 +814,7 @@ export function DailyEntryForm({
   const [editingMealId, setEditingMealId] = useState<string | null>(null)
   // One draft per item in the group being edited (#81) — see EditItemDraft.
   const [editItems, setEditItems] = useState<EditItemDraft[]>([])
+  const [editGroupLabel, setEditGroupLabel] = useState('')
   const [editGroupTime, setEditGroupTime] = useState('')
   const [editGroupNote, setEditGroupNote] = useState('')
   const [editGroupEmotion, setEditGroupEmotion] = useState<
@@ -1026,6 +1055,7 @@ export function DailyEntryForm({
   function startEditMeal(entry: CalorieEntry) {
     setEditingMealId(entry.id)
     setEditItems(entry.items.map(itemDraftFrom))
+    setEditGroupLabel(entry.label ?? '')
     setEditGroupTime(entry.timeEaten ?? '')
     setEditGroupNote(entry.note ?? '')
     setEditGroupEmotion(entry.emotion)
@@ -1116,6 +1146,7 @@ export function DailyEntryForm({
           ? {
               ...entry,
               items,
+              label: editGroupLabel.trim() || undefined,
               note: editGroupNote.trim() || undefined,
               emotion: editGroupEmotion,
               timeEaten: editGroupTime || undefined,
@@ -1421,6 +1452,7 @@ export function DailyEntryForm({
                     isEditing={editingMealId === entry.id}
                     isConfirmingDelete={confirmDeleteMealId === entry.id}
                     editItems={editItems}
+                    editLabel={editGroupLabel}
                     editTime={editGroupTime}
                     editNote={editGroupNote}
                     editEmotion={editGroupEmotion}
@@ -1428,6 +1460,7 @@ export function DailyEntryForm({
                     onEditItemSelectMealItem={selectEditItemMealItem}
                     onAddEditItem={addEditItem}
                     onRemoveEditItem={removeEditItem}
+                    onEditLabelChange={setEditGroupLabel}
                     onEditTimeChange={setEditGroupTime}
                     onEditNoteChange={setEditGroupNote}
                     onEditEmotionChange={setEditGroupEmotion}

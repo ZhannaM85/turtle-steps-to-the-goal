@@ -5,7 +5,7 @@ import type { ReactNode } from 'react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { CalorieEntry } from '@/domain/dailyEntry'
 import { db } from '@/infrastructure/persistence/indexeddb'
-import { useMealItemStore } from '@/stores'
+import { useMealItemStore, useMealLabelPresetStore } from '@/stores'
 import { DailyEntryForm } from './DailyEntryForm'
 
 // jsdom has no layout engine, so real pointer/keyboard drag gestures can't
@@ -53,6 +53,7 @@ function calories(
 beforeEach(async () => {
   await db.mealItems.clear()
   useMealItemStore.setState({ items: [], status: 'idle', error: null })
+  useMealLabelPresetStore.setState({ presets: [] })
 })
 
 afterEach(async () => {
@@ -781,9 +782,9 @@ describe('DailyEntryForm', () => {
       expect(
         onSave.mock.calls[0][0].calorieEntries[0].items[0].proteinG,
       ).toBeUndefined()
-      expect(
-        screen.getAllByText('Protein — · Fat 10g · Carbs —'),
-      ).toHaveLength(2)
+      expect(screen.getAllByText('Protein — · Fat 10g · Carbs —')).toHaveLength(
+        2,
+      )
     })
 
     it('shows no macro summary line for a meal that logged none (#51)', async () => {
@@ -805,7 +806,7 @@ describe('DailyEntryForm', () => {
       expect(screen.queryByText(/Fat .* · Carbs/)).not.toBeInTheDocument()
     })
 
-    it("shows a read-only per-day macro total next to the kcal total (#51)", async () => {
+    it('shows a read-only per-day macro total next to the kcal total (#51)', async () => {
       const user = userEvent.setup()
       render(
         <DailyEntryForm
@@ -825,7 +826,9 @@ describe('DailyEntryForm', () => {
       await user.click(screen.getByRole('button', { name: 'Add' }))
 
       // Day total: 25g protein (20+5), 10g fat (only meal 1), no carbs logged.
-      expect(screen.getByText('Protein 25g · Fat 10g · Carbs —')).toBeInTheDocument()
+      expect(
+        screen.getByText('Protein 25g · Fat 10g · Carbs —'),
+      ).toBeInTheDocument()
     })
 
     it('adds a meal note to the reusable meal-items library (#50)', async () => {
@@ -1077,6 +1080,110 @@ describe('DailyEntryForm', () => {
         ).toEqual([350, 200])
       })
 
+      describe('custom meal name (#110)', () => {
+        it('shows a custom label instead of the default numbering when set', () => {
+          render(
+            <DailyEntryForm
+              date="2026-03-01"
+              existingEntry={{
+                id: 'e1',
+                date: '2026-03-01',
+                calorieEntries: [
+                  { ...calories(300, 'c1'), label: 'Breakfast' },
+                ],
+                createdAt: now,
+                updatedAt: now,
+              }}
+              onSave={vi.fn()}
+            />,
+          )
+
+          expect(screen.getByText('Breakfast — 300 kcal')).toBeInTheDocument()
+          expect(screen.queryByText(/^Meal 1/)).not.toBeInTheDocument()
+        })
+
+        it('sets a custom label and saves it', async () => {
+          const user = userEvent.setup()
+          const onSave = vi.fn()
+          renderWithMeals(onSave)
+
+          await user.click(screen.getByRole('button', { name: 'Edit meal 1' }))
+          await user.type(
+            screen.getByLabelText('Meal name — Meal 1'),
+            'Breakfast',
+          )
+          await user.click(screen.getByRole('button', { name: 'Save' }))
+
+          expect(screen.getByText('Breakfast — 300 kcal')).toBeInTheDocument()
+          expect(onSave.mock.calls[0][0].calorieEntries[0].label).toBe(
+            'Breakfast',
+          )
+        })
+
+        it('prefills the label input with the existing custom label', async () => {
+          const user = userEvent.setup()
+          render(
+            <DailyEntryForm
+              date="2026-03-01"
+              existingEntry={{
+                id: 'e1',
+                date: '2026-03-01',
+                calorieEntries: [{ ...calories(300, 'c1'), label: 'Dinner' }],
+                createdAt: now,
+                updatedAt: now,
+              }}
+              onSave={vi.fn()}
+            />,
+          )
+
+          await user.click(screen.getByRole('button', { name: 'Edit meal 1' }))
+
+          expect(screen.getByLabelText('Meal name — Meal 1')).toHaveValue(
+            'Dinner',
+          )
+        })
+
+        it('clearing the label reverts to the default numbering', async () => {
+          const user = userEvent.setup()
+          const onSave = vi.fn()
+          render(
+            <DailyEntryForm
+              date="2026-03-01"
+              existingEntry={{
+                id: 'e1',
+                date: '2026-03-01',
+                calorieEntries: [{ ...calories(300, 'c1'), label: 'Dinner' }],
+                createdAt: now,
+                updatedAt: now,
+              }}
+              onSave={onSave}
+            />,
+          )
+
+          await user.click(screen.getByRole('button', { name: 'Edit meal 1' }))
+          await user.clear(screen.getByLabelText('Meal name — Meal 1'))
+          await user.click(screen.getByRole('button', { name: 'Save' }))
+
+          expect(screen.getByText('Meal 1 — 300 kcal')).toBeInTheDocument()
+          expect(
+            onSave.mock.calls[0][0].calorieEntries[0].label,
+          ).toBeUndefined()
+        })
+
+        it('fills the label from a quick-pick preset', async () => {
+          useMealLabelPresetStore.setState({ presets: ['Lunch'] })
+          const user = userEvent.setup()
+          renderWithMeals()
+
+          await user.click(screen.getByRole('button', { name: 'Edit meal 1' }))
+          await user.click(screen.getByRole('button', { name: 'Lunch' }))
+
+          expect(screen.getByLabelText('Meal name — Meal 1')).toHaveValue(
+            'Lunch',
+          )
+        })
+      })
+
       it('deletes a meal with a two-step confirm and saves immediately', async () => {
         const user = userEvent.setup()
         const onSave = vi.fn()
@@ -1150,7 +1257,7 @@ describe('DailyEntryForm', () => {
         expect(onSave).toHaveBeenCalledTimes(1)
       })
 
-      it('edits a meal\'s protein/fat/carbs and saves immediately (#51)', async () => {
+      it("edits a meal's protein/fat/carbs and saves immediately (#51)", async () => {
         const user = userEvent.setup()
         const onSave = vi.fn()
         renderWithMeals(onSave)
@@ -1161,7 +1268,9 @@ describe('DailyEntryForm', () => {
         await user.type(screen.getByLabelText('Carbs — Meal 1'), '30')
         await user.click(screen.getByRole('button', { name: 'Save' }))
 
-        expect(onSave.mock.calls[0][0].calorieEntries[0].items[0]).toMatchObject({
+        expect(
+          onSave.mock.calls[0][0].calorieEntries[0].items[0],
+        ).toMatchObject({
           proteinG: 20,
           fatG: 10,
           carbsG: 30,
@@ -1238,9 +1347,7 @@ describe('DailyEntryForm', () => {
           renderWithMeals(onSave)
 
           await user.click(screen.getByRole('button', { name: 'Edit meal 1' }))
-          await user.click(
-            screen.getByRole('button', { name: '+ Add item' }),
-          )
+          await user.click(screen.getByRole('button', { name: '+ Add item' }))
           // Captured before typing names — the kcal input's aria-label
           // incorporates the item's (live) name, so it would stop matching
           // 'kcal/100g — Meal 1' once a name is typed. Element references stay
@@ -1272,9 +1379,7 @@ describe('DailyEntryForm', () => {
           renderWithMeals(onSave)
 
           await user.click(screen.getByRole('button', { name: 'Edit meal 1' }))
-          await user.click(
-            screen.getByRole('button', { name: '+ Add item' }),
-          )
+          await user.click(screen.getByRole('button', { name: '+ Add item' }))
           const nameInputs = screen.getAllByLabelText('Dish name — Meal 1')
           await user.click(nameInputs[1])
           await user.click(await screen.findByRole('button', { name: 'Bread' }))
@@ -1312,9 +1417,7 @@ describe('DailyEntryForm', () => {
           renderWithMeals()
 
           await user.click(screen.getByRole('button', { name: 'Edit meal 1' }))
-          await user.click(
-            screen.getByRole('button', { name: '+ Add item' }),
-          )
+          await user.click(screen.getByRole('button', { name: '+ Add item' }))
           const nameInputs = screen.getAllByLabelText('Dish name — Meal 1')
           await user.click(nameInputs[1])
           await user.click(await screen.findByRole('button', { name: 'Bread' }))
@@ -1328,9 +1431,7 @@ describe('DailyEntryForm', () => {
           renderWithMeals(onSave)
 
           await user.click(screen.getByRole('button', { name: 'Edit meal 1' }))
-          await user.click(
-            screen.getByRole('button', { name: 'Delete item' }),
-          )
+          await user.click(screen.getByRole('button', { name: 'Delete item' }))
           await user.click(screen.getByRole('button', { name: 'Save' }))
 
           expect(screen.queryByText(/300 kcal/)).not.toBeInTheDocument()
@@ -1348,9 +1449,7 @@ describe('DailyEntryForm', () => {
           renderWithMeals(onSave)
 
           await user.click(screen.getByRole('button', { name: 'Edit meal 1' }))
-          await user.click(
-            screen.getByRole('button', { name: '+ Add item' }),
-          )
+          await user.click(screen.getByRole('button', { name: '+ Add item' }))
           const kcalInputs = screen.getAllByLabelText('kcal/100g — Meal 1')
           const nameInputs = screen.getAllByLabelText('Dish name — Meal 1')
           await user.type(kcalInputs[1], '80')
@@ -1431,9 +1530,7 @@ describe('DailyEntryForm', () => {
           expect(screen.getByText('· 08:00')).toBeInTheDocument()
 
           await user.click(screen.getByRole('button', { name: 'Edit meal 1' }))
-          expect(
-            screen.getByLabelText('Time — Meal 1'),
-          ).toHaveValue('08:00')
+          expect(screen.getByLabelText('Time — Meal 1')).toHaveValue('08:00')
           fireEvent.change(screen.getByLabelText('Time — Meal 1'), {
             target: { value: '12:30' },
           })

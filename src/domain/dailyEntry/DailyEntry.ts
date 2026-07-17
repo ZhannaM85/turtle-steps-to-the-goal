@@ -31,6 +31,11 @@ export interface CalorieEntry {
   /** Always at least one item — a group with its last item removed is
    * itself removed, not left empty. */
   items: CalorieItem[]
+  /** Custom display name (#110), e.g. "Breakfast" — purely cosmetic,
+   * overriding the default positional "Meal N" heading when set. Doesn't
+   * affect grouping/ordering, and unrelated to CalorieItem.name (a dish
+   * within the meal) or MealItem (the reusable dish-name library). */
+  label?: string
   note?: string
   emotion?: MealEmotion
   createdAt: string

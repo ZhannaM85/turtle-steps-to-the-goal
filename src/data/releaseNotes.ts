@@ -15,6 +15,12 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    issue: 110,
+    date: '2026-07-17',
+    en: 'Meals can now be given a custom name like "Breakfast" or "Dinner" instead of always Meal 1/2/3 — edit it right on the entry. Manage a quick-pick list of names in Settings.',
+    ru: 'Приёмам пищи теперь можно давать своё название, например «Завтрак» или «Ужин», вместо Приём пищи 1/2/3 — редактируется прямо в записи. Список быстрых вариантов названий настраивается в Настройках.',
+  },
+  {
     issue: 100,
     date: '2026-07-17',
     en: 'Today now shows a third stat card: your progress compared to the highest weight you’ve ever logged.',
