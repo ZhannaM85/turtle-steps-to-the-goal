@@ -206,3 +206,4 @@ _Same pattern as Tiers 8–12: issues filed from continued live use._
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#100](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/100) | 🔲 Open | Today screen: add a stat card for progress vs. maximum recorded weight | Third `StatCard` alongside the existing "This week's target"/"vs Yesterday" cards — delta between current weight and the highest `weightKg` ever logged. Likely needs a new `useMaxRecordedWeight()` hook (`IndexedDbDailyEntryRepository.getAll()` already exists to source it) |
+| [#101](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/101) | 🔲 Open | Move Steps field to the bottom of the daily entry form, near the day note | Pure reordering — Steps isn't a morning input like Weight/Sleep, so its position implied otherwise. Move the Steps block (`DailyEntryForm.tsx:1378-1428`) down next to the Day note field, no state/logic changes |
