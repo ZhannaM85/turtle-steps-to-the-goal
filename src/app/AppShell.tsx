@@ -61,15 +61,20 @@ export function AppShell() {
         </div>
       </header>
 
-      <main className="mx-auto max-w-3xl px-4 py-6 pb-28 sm:pb-10">
+      <main className="mx-auto max-w-3xl px-4 py-6 pb-44 sm:pb-10">
         <Outlet />
       </main>
 
+      {/* Taller tap targets + horizontal safe-area padding (#112) — the
+       * original min-h-14 bar sat flush against the screen edges
+       * (inset-x-0, no side padding at all beyond the bottom safe-area
+       * inset), so the leftmost/rightmost tabs read as cut off on devices
+       * with rounded corners or side gesture areas. */}
       <nav
         aria-label="Tabs"
-        className="fixed inset-x-0 bottom-0 z-10 border-t border-border bg-background pb-[env(safe-area-inset-bottom)] sm:hidden"
+        className="fixed inset-x-0 bottom-0 z-10 border-t border-border bg-background pr-[env(safe-area-inset-right)] pb-[env(safe-area-inset-bottom)] pl-[env(safe-area-inset-left)] sm:hidden"
       >
-        <ul className="flex">
+        <ul className="flex px-2">
           {navItems.map((item) => {
             const Icon = item.icon
             return (
@@ -79,7 +84,7 @@ export function AppShell() {
                   end={item.end}
                   className={({ isActive }) =>
                     cn(
-                      'flex min-h-14 flex-col items-center justify-center gap-0.5 text-xs font-medium text-muted-foreground transition-colors',
+                      'flex min-h-[106px] flex-col items-center justify-center gap-0.5 text-xs font-medium text-muted-foreground transition-colors',
                       isActive && 'text-foreground',
                     )
                   }

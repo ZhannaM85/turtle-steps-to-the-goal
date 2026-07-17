@@ -15,6 +15,12 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    issue: 112,
+    date: '2026-07-17',
+    en: 'The bottom navigation bar is now bigger and easier to tap, with extra room so the leftmost/rightmost tabs no longer feel cut off at the edge.',
+    ru: 'Нижняя панель навигации теперь больше и удобнее для нажатия, с дополнительным отступом, чтобы крайние вкладки не выглядели обрезанными по краю экрана.',
+  },
+  {
     issue: 114,
     date: '2026-07-17',
     en: "Added a small clock icon next to the meal time field so it's clearer at a glance what it's for.",
