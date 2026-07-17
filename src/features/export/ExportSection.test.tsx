@@ -71,6 +71,28 @@ describe('ExportSection', () => {
     ).toBeInTheDocument()
   })
 
+  it('exports an Excel file and reports how much data was included', async () => {
+    await db.goals.put(makeGoal())
+    await db.dailyEntries.put(makeEntry())
+    await db.dailyEntries.put(makeEntry({ date: '2026-03-02' }))
+    const user = userEvent.setup()
+
+    render(<ExportSection />)
+    await user.click(screen.getByRole('button', { name: 'Export as Excel' }))
+
+    // exceljs is a sizeable dynamic import (#123) — under full-suite
+    // parallel load its first transform can take longer than findByText's
+    // default 1000ms timeout, same reasoning as router.test.tsx's Dashboard
+    // chunk.
+    expect(
+      await screen.findByText(
+        'Exported 1 goal and 2 daily entries.',
+        {},
+        { timeout: 5000 },
+      ),
+    ).toBeInTheDocument()
+  })
+
   it('imports a valid backup file and reports the result', async () => {
     const user = userEvent.setup()
     const bundle = {

@@ -14,11 +14,14 @@ import {
   InvalidBackupFileError,
   parseExportBundle,
 } from './exportActions'
+import { buildExportWorkbook } from './exportXlsx'
 
 type Status =
   | { kind: 'idle' }
   | { kind: 'exporting' }
   | { kind: 'exported'; goals: number; entries: number }
+  | { kind: 'exportingExcel' }
+  | { kind: 'exportedExcel'; goals: number; entries: number }
   | { kind: 'importing' }
   | { kind: 'imported'; goals: number; entries: number }
   | { kind: 'error'; message: string }
@@ -47,6 +50,38 @@ export function ExportSection() {
       })
     } catch {
       setStatus({ kind: 'error', message: t.export.exportFailed })
+    }
+  }
+
+  // Distinct from handleExport (#123) — this is a human-readable view for
+  // browsing/analysis, not a re-importable backup, so it's kept as a
+  // separate action rather than a format option on the same button.
+  async function handleExportExcel() {
+    setStatus({ kind: 'exportingExcel' })
+    try {
+      const bundle = await exportAllData()
+      const workbook = await buildExportWorkbook(
+        bundle.goals,
+        bundle.dailyEntries,
+        t,
+      )
+      const buffer = await workbook.xlsx.writeBuffer()
+      const blob = new Blob([buffer], {
+        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      })
+      const url = URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      link.href = url
+      link.download = `turtle-steps-export-${format(new Date(), 'yyyy-MM-dd')}.xlsx`
+      link.click()
+      URL.revokeObjectURL(url)
+      setStatus({
+        kind: 'exportedExcel',
+        goals: bundle.goals.length,
+        entries: bundle.dailyEntries.length,
+      })
+    } catch {
+      setStatus({ kind: 'error', message: t.export.exportExcelFailed })
     }
   }
 
@@ -97,6 +132,22 @@ export function ExportSection() {
 
         <div className="flex flex-col gap-2">
           <p className="text-sm text-muted-foreground">
+            {t.export.exportExcelBlurb}
+          </p>
+          <Button
+            variant="outline"
+            onClick={handleExportExcel}
+            className="self-start"
+            disabled={status.kind === 'exportingExcel'}
+          >
+            {status.kind === 'exportingExcel'
+              ? t.export.exportingExcelButton
+              : t.export.exportExcelButton}
+          </Button>
+        </div>
+
+        <div className="flex flex-col gap-2">
+          <p className="text-sm text-muted-foreground">
             {t.export.importBlurb}
           </p>
           <input
@@ -123,6 +174,13 @@ export function ExportSection() {
         </div>
 
         {status.kind === 'exported' && (
+          <p className="text-sm text-muted-foreground">
+            {t.export.exportedSummary(
+              t.export.summary(status.goals, status.entries),
+            )}
+          </p>
+        )}
+        {status.kind === 'exportedExcel' && (
           <p className="text-sm text-muted-foreground">
             {t.export.exportedSummary(
               t.export.summary(status.goals, status.entries),

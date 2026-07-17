@@ -19,6 +19,12 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    issue: 123,
+    date: '2026-07-17T19:34:27+03:00',
+    en: 'Added an "Export as Excel" option in Settings, alongside the JSON backup — a spreadsheet view of your data for browsing or analysis (not a re-importable backup).',
+    ru: 'В Настройках появилась опция «Экспорт в Excel» рядом с резервной копией JSON — таблица с вашими данными для просмотра и анализа (не резервная копия, импортировать обратно нельзя).',
+  },
+  {
     issue: 122,
     date: '2026-07-17T18:20:49+03:00',
     en: 'Redesigned adding/editing a dish’s calories and macros — tiny cramped fields are replaced with a full-screen editor that’s much easier to use on a phone.',

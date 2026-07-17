@@ -191,6 +191,42 @@ export interface Dictionary {
     notValidJson: string
     exportFailed: string
     importFailed: string
+    /** Excel export (#123) — a separate, human-readable view of the same
+     * data, distinct from the JSON backup above: not re-importable, so its
+     * own blurb/button/error copy rather than reusing the JSON ones. */
+    exportExcelBlurb: string
+    exportExcelButton: string
+    exportingExcelButton: string
+    exportExcelFailed: string
+  }
+  /** Column headers / sheet names for the Excel export (#123) — kept
+   * separate from the daily-entry form's own field labels (`dailyEntry.*`)
+   * even where the underlying concept matches, so wording changes to one
+   * don't silently ripple into the other. */
+  exportXlsx: {
+    dailyLogSheetName: string
+    mealsSheetName: string
+    goalsSheetName: string
+    dateColumn: string
+    weightColumn: string
+    caloriesColumn: string
+    proteinColumn: string
+    fatColumn: string
+    carbsColumn: string
+    sleepHoursColumn: string
+    deepSleepHoursColumn: string
+    stepsColumn: string
+    moodColumn: string
+    noteColumn: string
+    onPeriodColumn: string
+    hadBowelMovementColumn: string
+    mealColumn: string
+    itemColumn: string
+    gramsColumn: string
+    timeColumn: string
+    reactionColumn: string
+    createdColumn: string
+    weeklyTargetColumn: string
   }
   dashboard: {
     title: string
