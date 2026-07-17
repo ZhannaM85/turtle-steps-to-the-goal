@@ -52,6 +52,10 @@ describe('app router', () => {
     expect(screen.getByRole('heading', { name: 'About' })).toBeInTheDocument()
   })
 
+  it('wires an errorElement so a render crash never falls back to a blank screen (#102)', () => {
+    expect(routes[0].errorElement).toBeDefined()
+  })
+
   it('renders the header nav and bottom tab bar on every screen', () => {
     renderAt('/dashboard')
     expect(screen.getByRole('navigation', { name: 'Main' })).toBeInTheDocument()

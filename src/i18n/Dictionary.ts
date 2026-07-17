@@ -5,6 +5,14 @@ export interface Dictionary {
     lb: string
     weekLabel: (weekNumber: number, start: string, end: string) => string
   }
+  /** Top-level crash fallback (#102) — shown by the router's errorElement
+   * when a render error escapes anywhere in the app, instead of a silent
+   * blank screen. */
+  error: {
+    title: string
+    description: string
+    reloadButton: string
+  }
   nav: {
     appName: string
     today: string

@@ -15,6 +15,12 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    issue: 102,
+    date: '2026-07-17',
+    en: 'If something ever goes wrong while the app is running, you now see a friendly "reload" message instead of a blank screen. A loading spinner also shows briefly while the app first starts up.',
+    ru: 'Если во время работы приложения что-то пойдёт не так, теперь вы увидите понятное сообщение с предложением перезагрузить страницу вместо пустого экрана. Также при первом запуске ненадолго появляется индикатор загрузки.',
+  },
+  {
     issue: 103,
     date: '2026-07-17',
     en: 'Added a real home-screen icon (a little turtle mark) — no more generic gray tile when adding the app to your home screen.',

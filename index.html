@@ -44,6 +44,33 @@
         )
       })()
     </script>
+    <style>
+      /* Initial-load spinner (#102) — pure CSS, no JS coordination needed:
+         #root:empty only matches before React has rendered anything into
+         it, so this disappears the instant the app mounts. Colors are a
+         plain approximation of the pond mood tokens (light/dark), since
+         index.css hasn't loaded yet at this point. */
+      #root:empty::before {
+        content: '';
+        display: block;
+        width: 32px;
+        height: 32px;
+        margin: 40vh auto;
+        border-radius: 50%;
+        border: 3px solid #d8e2e4;
+        border-top-color: #3e7688;
+        animation: turtle-steps-spin 0.8s linear infinite;
+      }
+      html.dark #root:empty::before {
+        border-color: #2a3a3f;
+        border-top-color: #85bfce;
+      }
+      @keyframes turtle-steps-spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+    </style>
   </head>
   <body>
     <div id="root"></div>

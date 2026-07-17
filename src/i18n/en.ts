@@ -16,6 +16,12 @@ export const en: Dictionary = {
     weekLabel: (weekNumber, start, end) =>
       `Week ${weekNumber} · ${start} – ${end}`,
   },
+  error: {
+    title: 'Something went wrong',
+    description:
+      "The app hit an unexpected error. Your data is safe — it's all stored on this device. Reloading usually fixes it.",
+    reloadButton: 'Reload',
+  },
   nav: {
     appName: 'Turtle Steps to the Goal',
     today: 'Today',

@@ -1,6 +1,7 @@
 import type { RouteObject } from 'react-router-dom'
 import { createBrowserRouter, Navigate } from 'react-router-dom'
 import { AppShell } from '@/app/AppShell'
+import { RouteErrorFallback } from '@/app/RouteErrorFallback'
 import { TodayScreen } from '@/features/daily-log'
 import { DashboardScreen } from '@/features/dashboard'
 import { HistoryScreen } from '@/features/history'
@@ -11,6 +12,11 @@ import { AboutScreen } from '@/features/about'
 export const routes: RouteObject[] = [
   {
     element: <AppShell />,
+    // #102: catches uncaught render errors anywhere below AppShell — React
+    // Router wraps the whole route subtree in an error boundary when
+    // errorElement is set, so a crash shows RouteErrorFallback instead of
+    // silently unmounting to a blank screen.
+    errorElement: <RouteErrorFallback />,
     children: [
       { path: '/', element: <TodayScreen /> },
       { path: '/dashboard', element: <DashboardScreen /> },
