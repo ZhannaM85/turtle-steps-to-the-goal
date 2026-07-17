@@ -174,6 +174,7 @@ export const en: Dictionary = {
     summary: (goals, entries) =>
       `${goalCount(goals)} and ${entryCount(entries)}`,
     exportedSummary: (summary) => `Exported ${summary}.`,
+    exportedCsvSummary: (entries) => `Exported ${entryCount(entries)}.`,
     importedSummary: (summary) => `Imported ${summary}.`,
     invalidBackup: "This file doesn't look like a valid Turtle Steps backup.",
     notValidJson: "That file isn't valid JSON.",
@@ -184,6 +185,14 @@ export const en: Dictionary = {
     exportExcelButton: 'Export as Excel',
     exportingExcelButton: 'Exporting…',
     exportExcelFailed: 'Excel export failed.',
+    exportCsvBlurb:
+      'Download your daily log as a CSV file — a compact table format, good for viewing or for pasting into an AI assistant for analysis.',
+    exportCsvButton: 'Export as CSV',
+    exportingCsvButton: 'Exporting…',
+    exportCsvFailed: 'CSV export failed.',
+    exportCsvLlmTooltip:
+      'CSV is the best format to paste into an LLM (like ChatGPT or Claude) if you want it to analyze your data — it’s compact and easy for AI tools to read accurately.',
+    exportCsvLlmTooltipLabel: 'Why CSV for AI analysis',
   },
   exportXlsx: {
     dailyLogSheetName: 'Daily Log',

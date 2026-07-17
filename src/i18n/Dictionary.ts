@@ -186,6 +186,9 @@ export interface Dictionary {
     importingButton: string
     summary: (goals: number, entries: number) => string
     exportedSummary: (summary: string) => string
+    /** CSV export (#125) has no goals data, so it gets its own entries-only
+     * summary rather than reusing `summary`/`exportedSummary` above. */
+    exportedCsvSummary: (entries: number) => string
     importedSummary: (summary: string) => string
     invalidBackup: string
     notValidJson: string
@@ -198,6 +201,18 @@ export interface Dictionary {
     exportExcelButton: string
     exportingExcelButton: string
     exportExcelFailed: string
+    /** CSV export (#125) — a single flat Daily Log table, same shape as the
+     * Excel export's first sheet. Distinct copy from both the JSON and
+     * Excel export sections, same reasoning as exportExcelBlurb above. */
+    exportCsvBlurb: string
+    exportCsvButton: string
+    exportingCsvButton: string
+    exportCsvFailed: string
+    /** Popover remark next to the CSV button noting it's the best format
+     * for pasting into an LLM conversation — text + trigger aria-label,
+     * same InfoTooltip shape as dailyEntry.caloriesTooltip. */
+    exportCsvLlmTooltip: string
+    exportCsvLlmTooltipLabel: string
   }
   /** Column headers / sheet names for the Excel export (#123) — kept
    * separate from the daily-entry form's own field labels (`dailyEntry.*`)

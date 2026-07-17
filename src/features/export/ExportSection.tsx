@@ -8,12 +8,14 @@ import {
   CardHeader,
   CardTitle,
 } from '@/shared/ui/card'
+import { InfoTooltip } from '@/shared/ui/info-tooltip'
 import {
   exportAllData,
   importAllData,
   InvalidBackupFileError,
   parseExportBundle,
 } from './exportActions'
+import { buildDailyLogCsv, CSV_BOM } from './exportCsv'
 import { buildExportWorkbook } from './exportXlsx'
 
 type Status =
@@ -22,6 +24,8 @@ type Status =
   | { kind: 'exported'; goals: number; entries: number }
   | { kind: 'exportingExcel' }
   | { kind: 'exportedExcel'; goals: number; entries: number }
+  | { kind: 'exportingCsv' }
+  | { kind: 'exportedCsv'; entries: number }
   | { kind: 'importing' }
   | { kind: 'imported'; goals: number; entries: number }
   | { kind: 'error'; message: string }
@@ -82,6 +86,27 @@ export function ExportSection() {
       })
     } catch {
       setStatus({ kind: 'error', message: t.export.exportExcelFailed })
+    }
+  }
+
+  // Distinct from both handleExport and handleExportExcel (#125) — a
+  // single flat table, no goals data, meant for pasting into an LLM
+  // conversation rather than viewing in a spreadsheet.
+  async function handleExportCsv() {
+    setStatus({ kind: 'exportingCsv' })
+    try {
+      const bundle = await exportAllData()
+      const csv = buildDailyLogCsv(bundle.dailyEntries, t)
+      const blob = new Blob([CSV_BOM, csv], { type: 'text/csv' })
+      const url = URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      link.href = url
+      link.download = `turtle-steps-daily-log-${format(new Date(), 'yyyy-MM-dd')}.csv`
+      link.click()
+      URL.revokeObjectURL(url)
+      setStatus({ kind: 'exportedCsv', entries: bundle.dailyEntries.length })
+    } catch {
+      setStatus({ kind: 'error', message: t.export.exportCsvFailed })
     }
   }
 
@@ -148,6 +173,27 @@ export function ExportSection() {
 
         <div className="flex flex-col gap-2">
           <p className="text-sm text-muted-foreground">
+            {t.export.exportCsvBlurb}
+          </p>
+          <div className="flex items-center gap-1.5 self-start">
+            <Button
+              variant="outline"
+              onClick={handleExportCsv}
+              disabled={status.kind === 'exportingCsv'}
+            >
+              {status.kind === 'exportingCsv'
+                ? t.export.exportingCsvButton
+                : t.export.exportCsvButton}
+            </Button>
+            <InfoTooltip
+              text={t.export.exportCsvLlmTooltip}
+              label={t.export.exportCsvLlmTooltipLabel}
+            />
+          </div>
+        </div>
+
+        <div className="flex flex-col gap-2">
+          <p className="text-sm text-muted-foreground">
             {t.export.importBlurb}
           </p>
           <input
@@ -185,6 +231,11 @@ export function ExportSection() {
             {t.export.exportedSummary(
               t.export.summary(status.goals, status.entries),
             )}
+          </p>
+        )}
+        {status.kind === 'exportedCsv' && (
+          <p className="text-sm text-muted-foreground">
+            {t.export.exportedCsvSummary(status.entries)}
           </p>
         )}
         {status.kind === 'imported' && (

@@ -19,6 +19,12 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    issue: 125,
+    date: '2026-07-17T20:13:46+03:00',
+    en: 'Added an "Export as CSV" option in Settings — a compact table format, good for pasting into an AI assistant if you want it to analyze your data.',
+    ru: 'В Настройках появилась опция «Экспорт в CSV» — компактный табличный формат, удобно вставить в ИИ-ассистента для анализа ваших данных.',
+  },
+  {
     issue: 124,
     date: '2026-07-17T19:51:55+03:00',
     en: '"Find food" is now available when editing an existing meal too, not just when starting a new one.',

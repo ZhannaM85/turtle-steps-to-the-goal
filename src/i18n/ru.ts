@@ -174,6 +174,7 @@ export const ru: Dictionary = {
     importingButton: 'Импорт…',
     summary: (goals, entries) => `${goalCount(goals)} и ${entryCount(entries)}`,
     exportedSummary: (summary) => `Экспортировано: ${summary}.`,
+    exportedCsvSummary: (entries) => `Экспортировано: ${entryCount(entries)}.`,
     importedSummary: (summary) => `Импортировано: ${summary}.`,
     invalidBackup: 'Этот файл не похож на резервную копию Turtle Steps.',
     notValidJson: 'Этот файл не является корректным JSON.',
@@ -184,6 +185,14 @@ export const ru: Dictionary = {
     exportExcelButton: 'Экспорт в Excel',
     exportingExcelButton: 'Экспорт…',
     exportExcelFailed: 'Не удалось выполнить экспорт в Excel.',
+    exportCsvBlurb:
+      'Скачайте свой дневник в формате CSV — компактная табличная форма, удобна для просмотра или чтобы вставить в ИИ-ассистента для анализа.',
+    exportCsvButton: 'Экспорт в CSV',
+    exportingCsvButton: 'Экспорт…',
+    exportCsvFailed: 'Не удалось выполнить экспорт в CSV.',
+    exportCsvLlmTooltip:
+      'CSV — лучший формат, чтобы вставить в LLM (например, ChatGPT или Claude), если хотите получить анализ данных — он компактный и ИИ-инструменты читают его точнее всего.',
+    exportCsvLlmTooltipLabel: 'Почему CSV для анализа в ИИ',
   },
   exportXlsx: {
     dailyLogSheetName: 'Дневник',
