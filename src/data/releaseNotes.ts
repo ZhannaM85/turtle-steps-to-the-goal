@@ -15,6 +15,12 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    issue: 103,
+    date: '2026-07-17',
+    en: 'Added a real home-screen icon (a little turtle mark) — no more generic gray tile when adding the app to your home screen.',
+    ru: 'Добавлена настоящая иконка для главного экрана (значок черепашки) — больше никакой серой заглушки при добавлении приложения на главный экран.',
+  },
+  {
     issue: 110,
     date: '2026-07-17',
     en: 'Meals can now be given a custom name like "Breakfast" or "Dinner" instead of always Meal 1/2/3 — edit it right on the entry. Manage a quick-pick list of names in Settings.',
