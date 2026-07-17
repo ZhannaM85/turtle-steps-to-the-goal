@@ -196,3 +196,13 @@ _Same pattern as Tiers 8/9/10/11: issues filed from continued live use._
 | [#97](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/97) | ✅ Done | Today: add a delete icon directly on each meal row, not just inside edit mode | `MealListItem`'s view-mode row now shows Trash2 next to Pencil, wired to the existing `onRequestDelete`/two-step-confirm flow — matches History's `EntryRow.tsx` |
 | [#98](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/98) | ✅ Done | Manual add row: show the computed total live as a preview, not just after Add | New "Total: 300 kcal · P 20g · F 5g · C 2g" preview line (`formatComputedTotal`), recomputed on every keystroke via `scaleFromPer100g`, on both the bottom add row and each item-edit row. Hidden until a valid kcal rate is typed |
 | [#99](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/99) | ✅ Done | Let users edit macros for custom meal items in Settings, not just rename/delete | `MealItemsSection.tsx` rows gain a Pencil toggling a per-100g + quantity nutrition editor (#96's model, for consistency across the app), prefilled via `ratesFromAbsolute` and saved via `touch()` directly — no new store action. Also added a "last logged" subtitle so nutrition is visible without entering edit mode. `scaleFromPer100g`/`ratesFromAbsolute`/`formatComputedTotal`/`parseOptionalMacro` moved to `shared/lib/macroScaling.ts` for reuse |
+
+---
+
+## Tier 13 — Sixth live-feedback wave (2026-07-17)
+
+_Same pattern as Tiers 8–12: issues filed from continued live use._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#100](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/100) | 🔲 Open | Today screen: add a stat card for progress vs. maximum recorded weight | Third `StatCard` alongside the existing "This week's target"/"vs Yesterday" cards — delta between current weight and the highest `weightKg` ever logged. Likely needs a new `useMaxRecordedWeight()` hook (`IndexedDbDailyEntryRepository.getAll()` already exists to source it) |
