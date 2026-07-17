@@ -1454,9 +1454,22 @@ export function DailyEntryForm({
             calorieEntries.length > 0 && 'border-t border-border pt-2',
           )}
         >
-          <span className="text-xs font-medium text-muted-foreground">
-            {t.dailyEntry.mealLabel(calorieEntries.length + 1)}
-          </span>
+          {/* Time moved up onto the heading line (#107) — it isn't a macro
+           * the way kcal/protein/fat/carbs are, so keeping it in the fields
+           * row diluted the macros' proximity to the item-name input right
+           * below them. */}
+          <div className="flex items-center justify-between gap-2">
+            <span className="text-xs font-medium text-muted-foreground">
+              {t.dailyEntry.mealLabel(calorieEntries.length + 1)}
+            </span>
+            <Input
+              type="time"
+              aria-label={t.dailyEntry.timeEatenLabel}
+              value={addTime}
+              onChange={(e) => setAddTime(e.target.value)}
+              className="h-7 w-24"
+            />
+          </div>
           <div className="flex flex-wrap items-end gap-2">
             <div className="flex flex-col gap-1">
               <span className="text-xs text-muted-foreground">
@@ -1552,18 +1565,6 @@ export function DailyEntryForm({
                   }
                 }}
                 className="h-7 w-14"
-              />
-            </div>
-            <div className="flex flex-col gap-1">
-              <span className="text-xs text-muted-foreground">
-                {t.dailyEntry.timeEatenLabel}
-              </span>
-              <Input
-                type="time"
-                aria-label={t.dailyEntry.timeEatenLabel}
-                value={addTime}
-                onChange={(e) => setAddTime(e.target.value)}
-                className="h-7 w-24"
               />
             </div>
           </div>

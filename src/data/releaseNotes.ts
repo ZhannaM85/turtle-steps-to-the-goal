@@ -15,6 +15,12 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    issue: 107,
+    date: '2026-07-17',
+    en: 'Manual meal entry: the time field moved up next to the meal heading, so the row below it is just calories and macros.',
+    ru: 'Ручное добавление блюда: поле времени перемещено к заголовку приёма пищи, а строка ниже теперь содержит только калории и БЖУ.',
+  },
+  {
     issue: 101,
     date: '2026-07-17',
     en: 'The Steps field moved down next to the Day note — step count usually isn’t known until later in the day, unlike Weight and Sleep.',
