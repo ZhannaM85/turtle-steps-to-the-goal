@@ -97,6 +97,7 @@ export const ru: Dictionary = {
     macrosSummaryCompact: (protein, fat, carbs) =>
       `Б ${protein} · Ж ${fat} · У ${carbs}`,
     timeEatenLabel: 'Время',
+    orDivider: 'или',
     addFoodButton: 'Найти блюдо',
     addFoodDialogTitle: 'Добавить из списка продуктов',
     closeFoodDialogLabel: 'Закрыть',

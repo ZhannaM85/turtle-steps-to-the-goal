@@ -76,6 +76,7 @@ export interface Dictionary {
     macrosSummary: (protein: string, fat: string, carbs: string) => string
     macrosSummaryCompact: (protein: string, fat: string, carbs: string) => string
     timeEatenLabel: string
+    orDivider: string
     addFoodButton: string
     addFoodDialogTitle: string
     closeFoodDialogLabel: string

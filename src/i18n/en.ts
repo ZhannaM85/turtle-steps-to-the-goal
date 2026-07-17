@@ -98,6 +98,7 @@ export const en: Dictionary = {
     macrosSummaryCompact: (protein, fat, carbs) =>
       `P ${protein} · F ${fat} · C ${carbs}`,
     timeEatenLabel: 'Time',
+    orDivider: 'or',
     addFoodButton: 'Find food',
     addFoodDialogTitle: 'Add from food list',
     closeFoodDialogLabel: 'Close',

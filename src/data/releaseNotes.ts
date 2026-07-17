@@ -15,6 +15,12 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    issue: 106,
+    date: '2026-07-17',
+    en: 'Manual meal entry: "Find food" now appears above the Add button, with an "or" between them, to make clear they’re two different ways to log a meal.',
+    ru: 'Ручное добавление блюда: «Найти блюдо» теперь отображается над кнопкой «Добавить», с «или» между ними — чтобы было понятно, что это два разных способа добавить приём пищи.',
+  },
+  {
     issue: 107,
     date: '2026-07-17',
     en: 'Manual meal entry: the time field moved up next to the meal heading, so the row below it is just calories and macros.',

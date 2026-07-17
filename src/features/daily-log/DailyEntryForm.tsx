@@ -1610,8 +1610,21 @@ export function DailyEntryForm({
            * previously part of the fields row above, so users who typed a
            * note last didn't realize it still applied to a button they'd
            * already scrolled past. Full width so it reads as the row's
-           * single clear final action; + Food moved down alongside it for
-           * the same reason, rather than staying stranded up top. */}
+           * single clear final action. "Find food" now sits *above* Add,
+           * not below it (#106), with an "or" divider before it — the two
+           * are alternatives (fill in macros and Add, or find an existing
+           * dish instead), not a primary action plus an afterthought. */}
+          <p className="text-center text-xs text-muted-foreground">
+            {t.dailyEntry.orDivider}
+          </p>
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={() => setIsFoodPickerOpen(true)}
+          >
+            {t.dailyEntry.addFoodButton}
+          </Button>
           <Button
             type="button"
             variant="default"
@@ -1621,14 +1634,6 @@ export function DailyEntryForm({
             onClick={addMeal}
           >
             {t.dailyEntry.addButton}
-          </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            onClick={() => setIsFoodPickerOpen(true)}
-          >
-            {t.dailyEntry.addFoodButton}
           </Button>
           {/* Lazily mounted (#78) — the food list grew to 300+ items, and
            * rendering it unconditionally meant every DailyEntryForm render
