@@ -15,6 +15,12 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    issue: 116,
+    date: '2026-07-17',
+    en: 'Dashboard: added a chart comparing how late you last ate each day against your weight the next morning.',
+    ru: '«Обзор»: добавлен график, сравнивающий время последнего приёма пищи за день с весом на следующее утро.',
+  },
+  {
     issue: 111,
     date: '2026-07-17',
     en: 'The manual add-meal row now has a "100g / Portion" toggle — if you know a meal’s actual total (like "this sandwich is 450 kcal") but not its per-100g rate, you can type the total directly.',

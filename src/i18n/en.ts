@@ -201,6 +201,18 @@ export const en: Dictionary = {
     weeklyChangeLegend: 'weekly change',
     chartNavigationHint: 'Tap a point for details',
     viewDayLink: 'View this day',
+    lateMealTitle: 'Meal timing vs. next-day weight',
+    lateMealEmptyDescription:
+      'Not enough data yet to see a pattern — log meal times and keep tracking weight, then check back in a few weeks.',
+    lateMealSummary: (thresholdTime, direction) =>
+      direction === 'later'
+        ? `Days you last ate after ${thresholdTime} averaged more weight gain the next morning than days you ate earlier.`
+        : `Days you last ate before ${thresholdTime} averaged more weight gain the next morning than days you ate later.`,
+    lateMealDayCount: (n) => `Based on ${n} day${n === 1 ? '' : 's'} of data.`,
+    lateMealLagCaveat:
+      "Compares each day's latest meal time to the very next day's weight, not a proven cause-and-effect relationship — water retention, sodium, and many other factors also affect day-to-day weight.",
+    lateMealTimeLegend: 'last meal time',
+    nextDayChangeLegend: 'next-day change',
   },
   history: {
     title: 'History',

@@ -199,6 +199,20 @@ export interface Dictionary {
     weeklyChangeLegend: string
     chartNavigationHint: string
     viewDayLink: string
+    /** Latest-meal-time vs. next-day weight chart (#116) — distinct from
+     * the calories-vs-weekly-change correlation above (correlationTitle
+     * etc.): this pairs each day's latest meal time with the *next*
+     * calendar day's weight change, not a weekly average. */
+    lateMealTitle: string
+    lateMealEmptyDescription: string
+    lateMealSummary: (
+      thresholdTime: string,
+      direction: 'earlier' | 'later',
+    ) => string
+    lateMealDayCount: (n: number) => string
+    lateMealLagCaveat: string
+    lateMealTimeLegend: string
+    nextDayChangeLegend: string
   }
   history: {
     title: string

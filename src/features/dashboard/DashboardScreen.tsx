@@ -3,6 +3,7 @@ import { EmptyState } from '@/shared/ui/empty-state'
 import { PageHeader } from '@/shared/ui/page-header'
 import { CalorieTrendChart } from './CalorieTrendChart'
 import { CorrelationView } from './CorrelationView'
+import { LateMealCorrelationView } from './LateMealCorrelationView'
 import { MacroTrendChart } from './MacroTrendChart'
 import { WeeklySummaryCards } from './WeeklySummaryCards'
 import { WeightTrendChart } from './WeightTrendChart'
@@ -32,6 +33,7 @@ export function DashboardScreen() {
           <CalorieTrendChart entries={entries} />
           <MacroTrendChart entries={entries} />
           <CorrelationView entries={entries} />
+          <LateMealCorrelationView entries={entries} />
           <WeeklySummaryCards entries={entries} goal={goal} />
         </>
       )}
