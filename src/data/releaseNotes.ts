@@ -35,8 +35,8 @@ export const releaseNotes: ReleaseNote[] = [
   {
     issue: 111,
     date: '2026-07-17',
-    en: 'The manual add-meal row now has a "100g / Portion" toggle — if you know a meal’s actual total (like "this sandwich is 450 kcal") but not its per-100g rate, you can type the total directly.',
-    ru: 'В строке ручного добавления блюда появился переключатель «100 г / Порция» — если вы знаете итоговую калорийность блюда (например, «этот бутерброд — 450 ккал»), но не знаете, сколько это на 100 г, можно ввести итог напрямую.',
+    en: 'Manual meal entry now has a "100g / Portion" toggle, when adding a new item or editing an existing one — if you know a meal’s actual total (like "this sandwich is 450 kcal") but not its per-100g rate, you can type the total directly.',
+    ru: 'В ручном добавлении блюда появился переключатель «100 г / Порция» — как при добавлении нового блюда, так и при редактировании уже добавленного. Если вы знаете итоговую калорийность блюда (например, «этот бутерброд — 450 ккал»), но не знаете, сколько это на 100 г, можно ввести итог напрямую.',
   },
   {
     issue: 117,

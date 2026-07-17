@@ -1,5 +1,5 @@
 import 'fake-indexeddb/auto'
-import { act, fireEvent, render, screen } from '@testing-library/react'
+import { act, fireEvent, render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import type { ReactNode } from 'react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -1451,6 +1451,109 @@ describe('DailyEntryForm', () => {
 
           expect(screen.getByRole('radio', { name: '100g' })).toBeChecked()
           expect(screen.getByLabelText('kcal/100g')).toBeInTheDocument()
+        })
+      })
+
+      describe('per 100g / per portion toggle on item-edit rows (#111)', () => {
+        function itemToggle() {
+          return within(
+            screen.getByRole('radiogroup', { name: 'Entry mode — Meal 1' }),
+          )
+        }
+
+        it('defaults to per-100g mode when opening an existing item for edit', async () => {
+          const user = userEvent.setup()
+          renderWithMeals()
+
+          await user.click(screen.getByRole('button', { name: 'Edit meal 1' }))
+
+          expect(
+            screen.getByLabelText('kcal/100g — Meal 1'),
+          ).toBeInTheDocument()
+          expect(
+            itemToggle().getByRole('radio', { name: '100g' }),
+          ).toBeChecked()
+        })
+
+        it('saves the typed total directly in per-portion mode, no multiplication', async () => {
+          const user = userEvent.setup()
+          const onSave = vi.fn()
+          renderWithMeals(onSave)
+
+          await user.click(screen.getByRole('button', { name: 'Edit meal 1' }))
+          await user.click(itemToggle().getByRole('radio', { name: 'Portion' }))
+          expect(screen.getByLabelText('kcal — Meal 1')).toBeInTheDocument()
+
+          await user.clear(screen.getByLabelText('kcal — Meal 1'))
+          await user.type(screen.getByLabelText('kcal — Meal 1'), '450')
+          await user.click(screen.getByRole('button', { name: 'Save' }))
+
+          expect(onSave.mock.calls[0][0].calorieEntries[0].items[0]).toEqual(
+            expect.objectContaining({ amountKcal: 450 }),
+          )
+        })
+
+        it('converts a typed per-100g rate to an absolute total when switching to per-portion', async () => {
+          const user = userEvent.setup()
+          renderWithMeals()
+
+          await user.click(screen.getByRole('button', { name: 'Edit meal 1' }))
+          // Meal 1's stored item is 300 kcal with no recorded amountG, so
+          // itemDraftFrom's fallback shows kcal/100g = 300, Grams = 100.
+          await user.clear(screen.getByLabelText('Grams — Meal 1'))
+          await user.type(screen.getByLabelText('Grams — Meal 1'), '50')
+
+          await user.click(itemToggle().getByRole('radio', { name: 'Portion' }))
+
+          // 300 kcal/100g at a 50g quantity = 150 kcal total.
+          expect(screen.getByLabelText('kcal — Meal 1')).toHaveValue('150')
+        })
+
+        it('converts an absolute total back to a per-100g rate when switching back', async () => {
+          const user = userEvent.setup()
+          renderWithMeals()
+
+          await user.click(screen.getByRole('button', { name: 'Edit meal 1' }))
+          await user.click(itemToggle().getByRole('radio', { name: 'Portion' }))
+          await user.clear(screen.getByLabelText('kcal — Meal 1'))
+          await user.type(screen.getByLabelText('kcal — Meal 1'), '150')
+          await user.clear(screen.getByLabelText('Grams — Meal 1'))
+          await user.type(screen.getByLabelText('Grams — Meal 1'), '50')
+
+          await user.click(itemToggle().getByRole('radio', { name: '100g' }))
+
+          // 150 kcal eaten as a 50g portion back-calculates to 300 kcal/100g.
+          expect(screen.getByLabelText('kcal/100g — Meal 1')).toHaveValue('300')
+          expect(screen.getByLabelText('Grams — Meal 1')).toHaveValue('50')
+        })
+
+        it('keeps each item-edit row on its own independent mode', async () => {
+          const user = userEvent.setup()
+          const onSave = vi.fn()
+          renderWithMeals(onSave)
+
+          await user.click(screen.getByRole('button', { name: 'Edit meal 1' }))
+          await user.click(screen.getByRole('button', { name: '+ Add item' }))
+
+          // Excludes the bottom add row's own toggle (plain "Entry mode",
+          // no " — Meal N" suffix), which is always present alongside an
+          // open edit.
+          const toggles = screen.getAllByRole('radiogroup', {
+            name: /Entry mode — /,
+          })
+          expect(toggles).toHaveLength(2)
+
+          // Switch only the second (new, blank) item to portion mode.
+          await user.click(
+            within(toggles[1]).getByRole('radio', { name: 'Portion' }),
+          )
+
+          expect(
+            within(toggles[0]).getByRole('radio', { name: '100g' }),
+          ).toBeChecked()
+          expect(
+            within(toggles[1]).getByRole('radio', { name: 'Portion' }),
+          ).toBeChecked()
         })
       })
 

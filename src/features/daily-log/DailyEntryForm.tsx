@@ -175,6 +175,13 @@ interface EditItemDraft {
   fat: string
   carbs: string
   amountG: string
+  // Per 100g / Per portion entry mode (#111) — always starts as 'per100g'
+  // when opening an existing item for edit, even if it was originally
+  // logged in "per portion" mode: the back-calculated rate (via
+  // ratesFromAbsolute below) is mathematically identical to what was
+  // typed when no portion weight was recorded (quantity defaults to 100),
+  // so there's no information lost by not persisting the original mode.
+  macroMode: 'per100g' | 'perPortion'
 }
 
 function itemDraftFrom(item: CalorieItem): EditItemDraft {
@@ -193,6 +200,7 @@ function itemDraftFrom(item: CalorieItem): EditItemDraft {
     fat: rates.fat100 === undefined ? '' : String(rates.fat100),
     carbs: rates.carbs100 === undefined ? '' : String(rates.carbs100),
     amountG: String(rates.quantity),
+    macroMode: 'per100g',
   }
 }
 
@@ -205,6 +213,7 @@ function blankItemDraft(): EditItemDraft {
     fat: '',
     carbs: '',
     amountG: '100',
+    macroMode: 'per100g',
   }
 }
 
@@ -227,6 +236,7 @@ interface MealListItemProps {
     value: string,
   ) => void
   onEditItemSelectMealItem: (id: string, item: MealItem) => void
+  onEditItemModeChange: (id: string, mode: 'per100g' | 'perPortion') => void
   onAddEditItem: () => void
   onRemoveEditItem: (id: string) => void
   onEditLabelChange: (value: string) => void
@@ -255,6 +265,7 @@ function MealListItem({
   editEmotion,
   onEditItemFieldChange,
   onEditItemSelectMealItem,
+  onEditItemModeChange,
   onAddEditItem,
   onRemoveEditItem,
   onEditLabelChange,
@@ -379,18 +390,27 @@ function MealListItem({
         <ul className="flex flex-col gap-1.5">
           {editItems.map((item) => {
             // Live preview of this item's computed total (#98), same
-            // rationale as the add row's own preview below.
-            const itemKcal100 = parseNumberInput(item.amount)
+            // rationale as the add row's own preview below. Mode-aware
+            // (#111) — per-100g × quantity, or the typed total directly.
+            const itemAmountNum = parseNumberInput(item.amount)
             const itemTotalPreview =
-              itemKcal100 && itemKcal100 > 0
+              itemAmountNum && itemAmountNum > 0
                 ? formatComputedTotal(
-                    scaleFromPer100g(
-                      itemKcal100,
-                      parseOptionalMacro(item.protein),
-                      parseOptionalMacro(item.fat),
-                      parseOptionalMacro(item.carbs),
-                      item.amountG,
-                    ),
+                    item.macroMode === 'per100g'
+                      ? scaleFromPer100g(
+                          itemAmountNum,
+                          parseOptionalMacro(item.protein),
+                          parseOptionalMacro(item.fat),
+                          parseOptionalMacro(item.carbs),
+                          item.amountG,
+                        )
+                      : totalFromPortion(
+                          itemAmountNum,
+                          parseOptionalMacro(item.protein),
+                          parseOptionalMacro(item.fat),
+                          parseOptionalMacro(item.carbs),
+                          item.amountG,
+                        ),
                     locale,
                     t,
                   )
@@ -423,15 +443,42 @@ function MealListItem({
                     <Trash2 aria-hidden="true" />
                   </Button>
                 </div>
+                {/* Per 100g / Per portion toggle (#111), same as the add
+                 * row's — each item keeps its own independent mode. */}
+                <ToggleGroup
+                  type="single"
+                  aria-label={`${t.dailyEntry.macroModeLabel} — ${item.name || t.dailyEntry.mealLabel(position)}`}
+                  value={item.macroMode}
+                  onValueChange={(value) =>
+                    value &&
+                    onEditItemModeChange(
+                      item.id,
+                      value as 'per100g' | 'perPortion',
+                    )
+                  }
+                  className="w-fit gap-0.5 p-0.5"
+                >
+                  <ToggleGroupItem value="per100g" className="h-6 px-2 text-xs">
+                    {t.dailyEntry.macroModePer100gOption}
+                  </ToggleGroupItem>
+                  <ToggleGroupItem
+                    value="perPortion"
+                    className="h-6 px-2 text-xs"
+                  >
+                    {t.dailyEntry.macroModePerPortionOption}
+                  </ToggleGroupItem>
+                </ToggleGroup>
                 <div className="flex flex-wrap items-end gap-2">
                   <div className="flex flex-col gap-1">
                     <span className="text-xs text-muted-foreground">
-                      {t.dailyEntry.addCaloriesLabel}
+                      {item.macroMode === 'per100g'
+                        ? t.dailyEntry.addCaloriesLabel
+                        : t.dailyEntry.addCaloriesPortionLabel}
                     </span>
                     <Input
                       type="text"
                       inputMode="decimal"
-                      aria-label={`${t.dailyEntry.addCaloriesLabel} — ${item.name || t.dailyEntry.mealLabel(position)}`}
+                      aria-label={`${item.macroMode === 'per100g' ? t.dailyEntry.addCaloriesLabel : t.dailyEntry.addCaloriesPortionLabel} — ${item.name || t.dailyEntry.mealLabel(position)}`}
                       value={item.amount}
                       onChange={(e) =>
                         onEditItemFieldChange(item.id, 'amount', e.target.value)
@@ -1150,6 +1197,57 @@ export function DailyEntryForm({
     )
   }
 
+  // Same conversion-on-switch reasoning as the add row's
+  // handleAddMacroModeChange (#111) — updates whichever item-edit row's
+  // draft is being toggled, converting its currently-typed numbers so
+  // nothing is silently reinterpreted.
+  function updateEditItemMode(id: string, newMode: 'per100g' | 'perPortion') {
+    setEditItems((items) =>
+      items.map((draft) => {
+        if (draft.id !== id || draft.macroMode === newMode) return draft
+        const amountNum = parseNumberInput(draft.amount)
+        if (!amountNum || amountNum <= 0) {
+          return { ...draft, macroMode: newMode }
+        }
+        if (newMode === 'perPortion') {
+          const scaled = scaleFromPer100g(
+            amountNum,
+            parseOptionalMacro(draft.protein),
+            parseOptionalMacro(draft.fat),
+            parseOptionalMacro(draft.carbs),
+            draft.amountG,
+          )
+          return {
+            ...draft,
+            amount: String(scaled.amountKcal),
+            protein:
+              scaled.proteinG === undefined ? '' : String(scaled.proteinG),
+            fat: scaled.fatG === undefined ? '' : String(scaled.fatG),
+            carbs: scaled.carbsG === undefined ? '' : String(scaled.carbsG),
+            macroMode: newMode,
+          }
+        }
+        const rates = ratesFromAbsolute(
+          amountNum,
+          parseOptionalMacro(draft.protein),
+          parseOptionalMacro(draft.fat),
+          parseOptionalMacro(draft.carbs),
+          parseOptionalMacro(draft.amountG),
+        )
+        return {
+          ...draft,
+          amount: String(rates.kcal100),
+          protein:
+            rates.protein100 === undefined ? '' : String(rates.protein100),
+          fat: rates.fat100 === undefined ? '' : String(rates.fat100),
+          carbs: rates.carbs100 === undefined ? '' : String(rates.carbs100),
+          amountG: String(rates.quantity),
+          macroMode: newMode,
+        }
+      }),
+    )
+  }
+
   // Same restore as selectAddItemMealItem, for an item row inside an
   // already-existing meal's edit mode (#94).
   function selectEditItemMealItem(id: string, item: MealItem) {
@@ -1172,6 +1270,12 @@ export function DailyEntryForm({
               fat: rates.fat100 === undefined ? '' : String(rates.fat100),
               carbs: rates.carbs100 === undefined ? '' : String(rates.carbs100),
               amountG: String(rates.quantity),
+              // Restoring a suggestion always fills in per-100g rates
+              // (MealItem.lastAmountKcal etc. don't carry a mode of their
+              // own), so force the row back to that mode too — otherwise
+              // a row left in "per portion" mode would show a rate as if
+              // it were a total.
+              macroMode: 'per100g',
             }
           : draft,
       ),
@@ -1193,15 +1297,24 @@ export function DailyEntryForm({
   // group itself is removed (#81's "last item removed = meal removed").
   function saveEditMeal() {
     const items: CalorieItem[] = editItems.flatMap((draft) => {
-      const kcal100 = parseNumberInput(draft.amount)
-      if (!kcal100 || kcal100 <= 0) return []
-      const scaled = scaleFromPer100g(
-        kcal100,
-        parseOptionalMacro(draft.protein),
-        parseOptionalMacro(draft.fat),
-        parseOptionalMacro(draft.carbs),
-        draft.amountG,
-      )
+      const amountNum = parseNumberInput(draft.amount)
+      if (!amountNum || amountNum <= 0) return []
+      const scaled =
+        draft.macroMode === 'per100g'
+          ? scaleFromPer100g(
+              amountNum,
+              parseOptionalMacro(draft.protein),
+              parseOptionalMacro(draft.fat),
+              parseOptionalMacro(draft.carbs),
+              draft.amountG,
+            )
+          : totalFromPortion(
+              amountNum,
+              parseOptionalMacro(draft.protein),
+              parseOptionalMacro(draft.fat),
+              parseOptionalMacro(draft.carbs),
+              draft.amountG,
+            )
       return [
         {
           id: draft.id,
@@ -1545,6 +1658,7 @@ export function DailyEntryForm({
                     editEmotion={editGroupEmotion}
                     onEditItemFieldChange={updateEditItemField}
                     onEditItemSelectMealItem={selectEditItemMealItem}
+                    onEditItemModeChange={updateEditItemMode}
                     onAddEditItem={addEditItem}
                     onRemoveEditItem={removeEditItem}
                     onEditLabelChange={setEditGroupLabel}
