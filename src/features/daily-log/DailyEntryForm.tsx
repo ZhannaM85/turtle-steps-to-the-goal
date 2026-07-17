@@ -18,6 +18,7 @@ import {
 import { CSS } from '@dnd-kit/utilities'
 import {
   Check,
+  Clock,
   GripVertical,
   Pencil,
   type LucideIcon,
@@ -1495,13 +1496,19 @@ export function DailyEntryForm({
             <span className="text-xs font-medium text-muted-foreground">
               {t.dailyEntry.mealLabel(calorieEntries.length + 1)}
             </span>
-            <Input
-              type="time"
-              aria-label={t.dailyEntry.timeEatenLabel}
-              value={addTime}
-              onChange={(e) => setAddTime(e.target.value)}
-              className="h-7 w-24"
-            />
+            {/* Clock icon (#114) — a bare empty box gave no visual hint this
+             * was a time picker, since native <input type="time"> doesn't
+             * reliably show a placeholder across browsers. */}
+            <div className="flex items-center gap-1 text-muted-foreground">
+              <Clock aria-hidden="true" className="size-3.5" />
+              <Input
+                type="time"
+                aria-label={t.dailyEntry.timeEatenLabel}
+                value={addTime}
+                onChange={(e) => setAddTime(e.target.value)}
+                className="h-7 w-24"
+              />
+            </div>
           </div>
           <div className="flex flex-wrap items-end gap-2">
             <div className="flex flex-col gap-1">

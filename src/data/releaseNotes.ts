@@ -15,6 +15,12 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    issue: 114,
+    date: '2026-07-17',
+    en: "Added a small clock icon next to the meal time field so it's clearer at a glance what it's for.",
+    ru: 'Добавлен значок часов рядом с полем времени приёма пищи — теперь сразу понятно, для чего оно.',
+  },
+  {
     issue: 102,
     date: '2026-07-17',
     en: 'If something ever goes wrong while the app is running, you now see a friendly "reload" message instead of a blank screen. A loading spinner also shows briefly while the app first starts up.',
