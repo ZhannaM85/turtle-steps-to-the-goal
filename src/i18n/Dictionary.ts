@@ -99,6 +99,10 @@ export interface Dictionary {
       carbs: string,
     ) => string
     timeEatenLabel: string
+    /** App-level clear button for the Time field (#117) — the native iOS
+     * time picker's own Reset doesn't reliably clear the value back to
+     * empty once tapped, so this sets state to '' directly instead. */
+    clearTimeLabel: string
     orDivider: string
     addFoodButton: string
     addFoodDialogTitle: string

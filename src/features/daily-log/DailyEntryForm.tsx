@@ -23,6 +23,7 @@ import {
   Pencil,
   type LucideIcon,
   Trash2,
+  X,
 } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 import type {
@@ -559,13 +560,27 @@ function MealListItem({
             <span className="text-xs text-muted-foreground">
               {t.dailyEntry.timeEatenLabel}
             </span>
-            <Input
-              type="time"
-              aria-label={`${t.dailyEntry.timeEatenLabel} — ${t.dailyEntry.mealLabel(position)}`}
-              value={editTime}
-              onChange={(e) => onEditTimeChange(e.target.value)}
-              className="h-7 w-24"
-            />
+            <div className="flex items-center gap-1">
+              <Input
+                type="time"
+                aria-label={`${t.dailyEntry.timeEatenLabel} — ${t.dailyEntry.mealLabel(position)}`}
+                value={editTime}
+                onChange={(e) => onEditTimeChange(e.target.value)}
+                className="h-7 w-24"
+              />
+              {/* App-level clear button (#117), same as the add row's. */}
+              {editTime && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon-sm"
+                  aria-label={`${t.dailyEntry.clearTimeLabel} — ${t.dailyEntry.mealLabel(position)}`}
+                  onClick={() => onEditTimeChange('')}
+                >
+                  <X aria-hidden="true" className="size-3.5" />
+                </Button>
+              )}
+            </div>
           </div>
           <EmotionPicker
             value={editEmotion}
@@ -1508,6 +1523,20 @@ export function DailyEntryForm({
                 onChange={(e) => setAddTime(e.target.value)}
                 className="h-7 w-24"
               />
+              {/* App-level clear button (#117) — the native iOS time
+               * picker's own Reset doesn't reliably clear the value back
+               * to empty once tapped, so this bypasses it entirely. */}
+              {addTime && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon-sm"
+                  aria-label={t.dailyEntry.clearTimeLabel}
+                  onClick={() => setAddTime('')}
+                >
+                  <X aria-hidden="true" className="size-3.5" />
+                </Button>
+              )}
             </div>
           </div>
           <div className="flex flex-wrap items-end gap-2">

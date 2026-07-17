@@ -1508,6 +1508,35 @@ describe('DailyEntryForm', () => {
           ).toBeUndefined()
         })
 
+        it('has an app-level clear button, since the native picker Reset is unreliable (#117)', async () => {
+          const user = userEvent.setup()
+          render(
+            <DailyEntryForm
+              date="2026-03-01"
+              existingEntry={null}
+              onSave={vi.fn()}
+            />,
+          )
+
+          expect(
+            screen.queryByRole('button', { name: 'Clear time' }),
+          ).not.toBeInTheDocument()
+
+          fireEvent.change(screen.getByLabelText('Time'), {
+            target: { value: '08:15' },
+          })
+          expect(
+            screen.getByRole('button', { name: 'Clear time' }),
+          ).toBeInTheDocument()
+
+          await user.click(screen.getByRole('button', { name: 'Clear time' }))
+
+          expect(screen.getByLabelText('Time')).toHaveValue('')
+          expect(
+            screen.queryByRole('button', { name: 'Clear time' }),
+          ).not.toBeInTheDocument()
+        })
+
         it('can be edited on an existing meal', async () => {
           const user = userEvent.setup()
           const onSave = vi.fn()
@@ -1540,6 +1569,36 @@ describe('DailyEntryForm', () => {
             '12:30',
           )
           expect(screen.getByText('· 12:30')).toBeInTheDocument()
+        })
+
+        it('item-edit row also has an app-level clear button (#117)', async () => {
+          const user = userEvent.setup()
+          render(
+            <DailyEntryForm
+              date="2026-03-01"
+              existingEntry={{
+                id: 'e1',
+                date: '2026-03-01',
+                calorieEntries: [
+                  { ...calories(300, 'c1'), timeEaten: '08:00' },
+                ],
+                createdAt: now,
+                updatedAt: now,
+              }}
+              onSave={vi.fn()}
+            />,
+          )
+
+          await user.click(screen.getByRole('button', { name: 'Edit meal 1' }))
+          expect(
+            screen.getByRole('button', { name: 'Clear time — Meal 1' }),
+          ).toBeInTheDocument()
+
+          await user.click(
+            screen.getByRole('button', { name: 'Clear time — Meal 1' }),
+          )
+
+          expect(screen.getByLabelText('Time — Meal 1')).toHaveValue('')
         })
 
         it('is not cleared or changed when meals are reordered', () => {

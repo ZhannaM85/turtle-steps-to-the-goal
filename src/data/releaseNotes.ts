@@ -15,6 +15,12 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    issue: 117,
+    date: '2026-07-17',
+    en: 'Added a proper clear button for the meal time field — the phone’s own time picker didn’t always reset it back to empty.',
+    ru: 'Добавлена отдельная кнопка очистки для поля времени приёма пищи — встроенный выбор времени не всегда сбрасывался до пустого значения.',
+  },
+  {
     issue: 113,
     date: '2026-07-17',
     en: 'Your custom foods and food-list edits are now included in exported backups, so they carry over when you import on another device.',
