@@ -129,33 +129,38 @@ export function CalendarView({ entries, onEditDay, onSaved }: CalendarViewProps)
               )}
             >
               {format(day, 'd')}
-              <span
-                aria-hidden="true"
-                className={cn(
-                  'size-1 rounded-full',
-                  hasEntry
-                    ? selected
-                      ? 'bg-primary-foreground'
-                      : 'bg-primary'
-                    : 'bg-transparent',
-                )}
-              />
-              {/* Second dot for period days (#72) — only rendered at all when
-               * cycle tracking is on, so the grid doesn't reserve extra
-               * vertical space for a marker most users never see. */}
-              {cycleTrackingEnabled && (
+              {/* Dots sit side by side (#104), not stacked — this row is a
+               * flex-row sibling of the day number, not another flex-col
+               * child, so a second dot doesn't push onto its own line. */}
+              <span className="flex flex-row items-center gap-0.5">
                 <span
                   aria-hidden="true"
                   className={cn(
                     'size-1 rounded-full',
-                    onPeriod
+                    hasEntry
                       ? selected
                         ? 'bg-primary-foreground'
-                        : 'bg-destructive'
+                        : 'bg-primary'
                       : 'bg-transparent',
                   )}
                 />
-              )}
+                {/* Second dot for period days (#72) — only rendered at all
+                 * when cycle tracking is on, so the grid doesn't reserve
+                 * extra space for a marker most users never see. */}
+                {cycleTrackingEnabled && (
+                  <span
+                    aria-hidden="true"
+                    className={cn(
+                      'size-1 rounded-full',
+                      onPeriod
+                        ? selected
+                          ? 'bg-primary-foreground'
+                          : 'bg-destructive'
+                        : 'bg-transparent',
+                    )}
+                  />
+                )}
+              </span>
             </button>
           )
         })}

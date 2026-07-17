@@ -15,6 +15,12 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    issue: 104,
+    date: '2026-07-17',
+    en: 'Calendar view: the day markers now sit side by side instead of stacking on top of each other.',
+    ru: 'Календарь: маркеры дня теперь расположены рядом друг с другом, а не друг под другом.',
+  },
+  {
     issue: 109,
     date: '2026-07-17',
     en: 'The Add button on the manual meal row is now disabled until you’ve entered a valid amount, instead of silently doing nothing when clicked empty.',
