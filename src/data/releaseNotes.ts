@@ -15,6 +15,12 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    issue: 119,
+    date: '2026-07-17',
+    en: 'Tuned down the bottom navigation bar’s height slightly — the last increase left too much empty space above the icons.',
+    ru: 'Немного уменьшена высота нижней панели навигации — после предыдущего увеличения над значками оставалось слишком много пустого места.',
+  },
+  {
     issue: 118,
     date: '2026-07-17',
     en: 'Added optional digestion tracking (off by default) — turn it on in Settings if you want to log it alongside period tracking.',

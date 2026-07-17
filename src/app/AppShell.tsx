@@ -63,7 +63,7 @@ export function AppShell() {
         </div>
       </header>
 
-      <main className="mx-auto max-w-3xl px-4 py-6 pb-44 sm:pb-10">
+      <main className="mx-auto max-w-3xl px-4 py-6 pb-32 sm:pb-10">
         <Outlet />
       </main>
 
@@ -86,7 +86,12 @@ export function AppShell() {
                   end={item.end}
                   className={({ isActive }) =>
                     cn(
-                      'flex min-h-[106px] flex-col items-center justify-center gap-0.5 text-xs font-medium text-muted-foreground transition-colors',
+                      // #112 originally bumped this to min-h-[106px] (+50px
+                      // from the pre-#112 56px) for bigger tap targets, but
+                      // seen live that read as an oversized empty gap above
+                      // the icons (#119) — min-h-20 (80px, +24px) keeps a
+                      // meaningfully bigger target without the gap.
+                      'flex min-h-20 flex-col items-center justify-center gap-0.5 text-xs font-medium text-muted-foreground transition-colors',
                       isActive && 'text-foreground',
                     )
                   }
