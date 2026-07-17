@@ -15,6 +15,12 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    issue: 118,
+    date: '2026-07-17',
+    en: 'Pulling down now actually refreshes the app, with a visible spinner while it works — it previously did nothing.',
+    ru: 'Свайп вниз теперь действительно обновляет приложение с индикатором загрузки — раньше ничего не происходило.',
+  },
+  {
     issue: 121,
     date: '2026-07-17',
     en: 'In Portion mode, the Grams field is now replaced with a simple "Portion" label — it wasn’t doing anything editable there, just adding clutter.',

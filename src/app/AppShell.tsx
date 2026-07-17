@@ -11,6 +11,7 @@ import {
 import { useTranslation, type Dictionary } from '@/i18n'
 import { cn } from '@/shared/lib/utils'
 import { AppUpdateBanner } from './AppUpdateBanner'
+import { PullToRefreshIndicator } from './PullToRefreshIndicator'
 
 function useNavItems(t: Dictionary): {
   to: string
@@ -34,6 +35,7 @@ export function AppShell() {
 
   return (
     <div className="min-h-svh bg-background">
+      <PullToRefreshIndicator />
       <AppUpdateBanner />
       <header className="sticky top-0 z-10 border-b border-border bg-background">
         <div className="mx-auto flex max-w-3xl items-center justify-between gap-4 px-4 py-3">
