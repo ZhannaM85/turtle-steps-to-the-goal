@@ -1340,6 +1340,120 @@ describe('DailyEntryForm', () => {
         expect(onSave).not.toHaveBeenCalled()
       })
 
+      describe('per 100g / per portion toggle (#111)', () => {
+        it('defaults to per-100g mode, unchanged from before this feature', () => {
+          render(
+            <DailyEntryForm
+              date="2026-03-01"
+              existingEntry={null}
+              onSave={vi.fn()}
+            />,
+          )
+
+          expect(screen.getByLabelText('kcal/100g')).toBeInTheDocument()
+          expect(screen.getByRole('radio', { name: '100g' })).toBeChecked()
+        })
+
+        it('saves the typed total directly in per-portion mode, no multiplication', async () => {
+          const user = userEvent.setup()
+          const onSave = vi.fn()
+          render(
+            <DailyEntryForm
+              date="2026-03-01"
+              existingEntry={null}
+              onSave={onSave}
+            />,
+          )
+
+          await user.click(screen.getByRole('radio', { name: 'Portion' }))
+          expect(screen.getByLabelText('kcal')).toBeInTheDocument()
+
+          await user.type(screen.getByLabelText('kcal'), '450')
+          await user.type(screen.getByLabelText('Protein'), '20')
+          await user.click(screen.getByRole('button', { name: 'Add' }))
+
+          const item = onSave.mock.calls[0][0].calorieEntries[0].items[0]
+          expect(item.amountKcal).toBe(450)
+          expect(item.proteinG).toBe(20)
+        })
+
+        it('shows the unscaled total in the live preview while in per-portion mode', async () => {
+          const user = userEvent.setup()
+          render(
+            <DailyEntryForm
+              date="2026-03-01"
+              existingEntry={null}
+              onSave={vi.fn()}
+            />,
+          )
+
+          await user.click(screen.getByRole('radio', { name: 'Portion' }))
+          await user.type(screen.getByLabelText('kcal'), '450')
+
+          expect(screen.getByText('Total: 450 kcal')).toBeInTheDocument()
+        })
+
+        it('converts a typed per-100g rate to an absolute total when switching to per-portion', async () => {
+          const user = userEvent.setup()
+          render(
+            <DailyEntryForm
+              date="2026-03-01"
+              existingEntry={null}
+              onSave={vi.fn()}
+            />,
+          )
+
+          await user.type(screen.getByLabelText('kcal/100g'), '300')
+          await user.clear(screen.getByLabelText('Grams'))
+          await user.type(screen.getByLabelText('Grams'), '50')
+
+          await user.click(screen.getByRole('radio', { name: 'Portion' }))
+
+          // 300 kcal/100g at a 50g quantity = 150 kcal total.
+          expect(screen.getByLabelText('kcal')).toHaveValue('150')
+        })
+
+        it('converts an absolute total back to a per-100g rate when switching back', async () => {
+          const user = userEvent.setup()
+          render(
+            <DailyEntryForm
+              date="2026-03-01"
+              existingEntry={null}
+              onSave={vi.fn()}
+            />,
+          )
+
+          await user.click(screen.getByRole('radio', { name: 'Portion' }))
+          await user.type(screen.getByLabelText('kcal'), '150')
+          await user.clear(screen.getByLabelText('Grams'))
+          await user.type(screen.getByLabelText('Grams'), '50')
+
+          await user.click(screen.getByRole('radio', { name: '100g' }))
+
+          // 150 kcal eaten as a 50g portion back-calculates to 300 kcal/100g.
+          expect(screen.getByLabelText('kcal/100g')).toHaveValue('300')
+          expect(screen.getByLabelText('Grams')).toHaveValue('50')
+        })
+
+        it('resets to per-100g mode after a successful Add', async () => {
+          const user = userEvent.setup()
+          render(
+            <DailyEntryForm
+              date="2026-03-01"
+              existingEntry={null}
+              onSave={vi.fn()}
+            />,
+          )
+
+          await user.click(screen.getByRole('radio', { name: 'Portion' }))
+          await user.type(screen.getByLabelText('kcal'), '450')
+          await user.click(screen.getByRole('button', { name: 'Add' }))
+
+          expect(screen.getByRole('radio', { name: '100g' })).toBeChecked()
+          expect(screen.getByLabelText('kcal/100g')).toBeInTheDocument()
+        })
+      })
+
       describe('grouping multiple items under one meal (#81)', () => {
         it('adds another item to an existing meal via edit mode, growing the kcal subtotal', async () => {
           const user = userEvent.setup()

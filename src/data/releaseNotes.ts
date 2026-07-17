@@ -15,6 +15,12 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    issue: 111,
+    date: '2026-07-17',
+    en: 'The manual add-meal row now has a "100g / Portion" toggle — if you know a meal’s actual total (like "this sandwich is 450 kcal") but not its per-100g rate, you can type the total directly.',
+    ru: 'В строке ручного добавления блюда появился переключатель «100 г / Порция» — если вы знаете итоговую калорийность блюда (например, «этот бутерброд — 450 ккал»), но не знаете, сколько это на 100 г, можно ввести итог напрямую.',
+  },
+  {
     issue: 117,
     date: '2026-07-17',
     en: 'Added a proper clear button for the meal time field — the phone’s own time picker didn’t always reset it back to empty.',

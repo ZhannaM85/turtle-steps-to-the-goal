@@ -62,12 +62,14 @@ import {
   parseOptionalMacro,
   ratesFromAbsolute,
   scaleFromPer100g,
+  totalFromPortion,
 } from '@/shared/lib/macroScaling'
 import { parseNumberInput } from '@/shared/lib/parseNumberInput'
 import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/ui/button'
 import { InfoTooltip } from '@/shared/ui/info-tooltip'
 import { Input } from '@/shared/ui/input'
+import { ToggleGroup, ToggleGroupItem } from '@/shared/ui/toggle-group'
 import { useMealItemStore, useMealLabelPresetStore } from '@/stores'
 import { entryToFormValues, formValuesToEntry } from './dailyEntryFormMapping'
 import { FoodPickerDialog } from './FoodPickerDialog'
@@ -776,6 +778,13 @@ export function DailyEntryForm({
   const [addFat, setAddFat] = useState('')
   const [addCarbs, setAddCarbs] = useState('')
   const [addAmountG, setAddAmountG] = useState('100')
+  // Per 100g / Per portion entry mode (#111) — 'per100g' is the default,
+  // unchanged behavior. Switching modes converts the currently-typed
+  // numbers (via handleAddMacroModeChange below) rather than leaving them
+  // to be silently reinterpreted with a different meaning.
+  const [addMacroMode, setAddMacroMode] = useState<'per100g' | 'perPortion'>(
+    'per100g',
+  )
   const [addItemName, setAddItemName] = useState('')
   // Group-level fields (#81) — note/mood/time-eaten belong to the meal as a
   // whole, not to any one item within it.
@@ -971,16 +980,67 @@ export function DailyEntryForm({
   // Starts a brand-new meal group with one item (#81) — the bottom Add row
   // always creates a new group; adding another item to an *existing* group
   // happens by opening it for edit (see the edit-item handlers below).
+  // Switching entry mode (#111) converts the currently-typed numbers so
+  // nothing is silently reinterpreted with a different meaning — e.g. a
+  // per-100g rate of 300 with a 50g quantity becomes an absolute total of
+  // 150 when switching to "per portion", not a total of 300.
+  function handleAddMacroModeChange(newMode: 'per100g' | 'perPortion') {
+    if (newMode === addMacroMode) return
+    const amountNum = parseNumberInput(addAmount)
+    if (amountNum && amountNum > 0) {
+      if (newMode === 'perPortion') {
+        const scaled = scaleFromPer100g(
+          amountNum,
+          parseOptionalMacro(addProtein),
+          parseOptionalMacro(addFat),
+          parseOptionalMacro(addCarbs),
+          addAmountG,
+        )
+        setAddAmount(String(scaled.amountKcal))
+        setAddProtein(
+          scaled.proteinG === undefined ? '' : String(scaled.proteinG),
+        )
+        setAddFat(scaled.fatG === undefined ? '' : String(scaled.fatG))
+        setAddCarbs(scaled.carbsG === undefined ? '' : String(scaled.carbsG))
+      } else {
+        const rates = ratesFromAbsolute(
+          amountNum,
+          parseOptionalMacro(addProtein),
+          parseOptionalMacro(addFat),
+          parseOptionalMacro(addCarbs),
+          parseOptionalMacro(addAmountG),
+        )
+        setAddAmount(String(rates.kcal100))
+        setAddProtein(
+          rates.protein100 === undefined ? '' : String(rates.protein100),
+        )
+        setAddFat(rates.fat100 === undefined ? '' : String(rates.fat100))
+        setAddCarbs(rates.carbs100 === undefined ? '' : String(rates.carbs100))
+        setAddAmountG(String(rates.quantity))
+      }
+    }
+    setAddMacroMode(newMode)
+  }
+
   function addMeal() {
-    const kcal100 = parseNumberInput(addAmount)
-    if (!kcal100 || kcal100 <= 0) return
-    const scaled = scaleFromPer100g(
-      kcal100,
-      parseOptionalMacro(addProtein),
-      parseOptionalMacro(addFat),
-      parseOptionalMacro(addCarbs),
-      addAmountG,
-    )
+    const amountNum = parseNumberInput(addAmount)
+    if (!amountNum || amountNum <= 0) return
+    const scaled =
+      addMacroMode === 'per100g'
+        ? scaleFromPer100g(
+            amountNum,
+            parseOptionalMacro(addProtein),
+            parseOptionalMacro(addFat),
+            parseOptionalMacro(addCarbs),
+            addAmountG,
+          )
+        : totalFromPortion(
+            amountNum,
+            parseOptionalMacro(addProtein),
+            parseOptionalMacro(addFat),
+            parseOptionalMacro(addCarbs),
+            addAmountG,
+          )
     setCalorieEntries([
       ...calorieEntries,
       {
@@ -1006,6 +1066,7 @@ export function DailyEntryForm({
     setAddProtein('')
     setAddFat('')
     setAddCarbs('')
+    setAddMacroMode('per100g')
     setAddItemName('')
     setAddGroupNote('')
     setAddEmotion(undefined)
@@ -1202,20 +1263,30 @@ export function DailyEntryForm({
   }
 
   // Live preview of the add row's computed total (#98) — recomputed on
-  // every keystroke from the exact same math addMeal() will run, so the
-  // per-100g × quantity multiplication is visible before Add is pressed.
-  // null (nothing rendered) until a valid kcal rate is typed.
-  const addKcal100Preview = parseNumberInput(addAmount)
+  // every keystroke from the exact same math addMeal() will run (#111:
+  // mode-aware — per-100g × quantity, or the typed total directly), so
+  // it's visible before Add is pressed. null (nothing rendered) until a
+  // valid amount is typed. Also backs the Add button's disabled state
+  // (#109) — a valid positive number either way, regardless of mode.
+  const addAmountPreview = parseNumberInput(addAmount)
   const addTotalPreview =
-    addKcal100Preview && addKcal100Preview > 0
+    addAmountPreview && addAmountPreview > 0
       ? formatComputedTotal(
-          scaleFromPer100g(
-            addKcal100Preview,
-            parseOptionalMacro(addProtein),
-            parseOptionalMacro(addFat),
-            parseOptionalMacro(addCarbs),
-            addAmountG,
-          ),
+          addMacroMode === 'per100g'
+            ? scaleFromPer100g(
+                addAmountPreview,
+                parseOptionalMacro(addProtein),
+                parseOptionalMacro(addFat),
+                parseOptionalMacro(addCarbs),
+                addAmountG,
+              )
+            : totalFromPortion(
+                addAmountPreview,
+                parseOptionalMacro(addProtein),
+                parseOptionalMacro(addFat),
+                parseOptionalMacro(addCarbs),
+                addAmountG,
+              ),
           locale,
           t,
         )
@@ -1539,15 +1610,41 @@ export function DailyEntryForm({
               )}
             </div>
           </div>
+          {/* Per 100g / Per portion toggle (#111) — for someone who knows a
+           * meal's actual total (e.g. "this sandwich is 450 kcal") but not
+           * its per-100g rate. "Per 100g" stays the default. */}
+          <ToggleGroup
+            type="single"
+            aria-label={t.dailyEntry.macroModeLabel}
+            value={addMacroMode}
+            onValueChange={(value) =>
+              value &&
+              handleAddMacroModeChange(value as 'per100g' | 'perPortion')
+            }
+            className="w-fit gap-0.5 p-0.5"
+          >
+            <ToggleGroupItem value="per100g" className="h-6 px-2 text-xs">
+              {t.dailyEntry.macroModePer100gOption}
+            </ToggleGroupItem>
+            <ToggleGroupItem value="perPortion" className="h-6 px-2 text-xs">
+              {t.dailyEntry.macroModePerPortionOption}
+            </ToggleGroupItem>
+          </ToggleGroup>
           <div className="flex flex-wrap items-end gap-2">
             <div className="flex flex-col gap-1">
               <span className="text-xs text-muted-foreground">
-                {t.dailyEntry.addCaloriesLabel}
+                {addMacroMode === 'per100g'
+                  ? t.dailyEntry.addCaloriesLabel
+                  : t.dailyEntry.addCaloriesPortionLabel}
               </span>
               <Input
                 type="text"
                 inputMode="decimal"
-                aria-label={t.dailyEntry.addCaloriesLabel}
+                aria-label={
+                  addMacroMode === 'per100g'
+                    ? t.dailyEntry.addCaloriesLabel
+                    : t.dailyEntry.addCaloriesPortionLabel
+                }
                 placeholder={t.dailyEntry.addCaloriesPlaceholder}
                 value={addAmount}
                 onChange={(e) => setAddAmount(e.target.value)}
@@ -1699,7 +1796,7 @@ export function DailyEntryForm({
             variant="default"
             size="sm"
             className="w-full"
-            disabled={!addKcal100Preview || addKcal100Preview <= 0}
+            disabled={!addAmountPreview || addAmountPreview <= 0}
             onClick={addMeal}
           >
             {t.dailyEntry.addButton}

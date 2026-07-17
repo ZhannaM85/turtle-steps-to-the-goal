@@ -89,6 +89,34 @@ export function ratesFromAbsolute(
   }
 }
 
+/** "Per portion" mode's entry math (#111) — an alternative to
+ * `scaleFromPer100g` for when the user knows a meal's actual total
+ * (e.g. "this sandwich is 450 kcal") but not its per-100g rate. No
+ * multiplication: the typed numbers already are the total. `amountG`
+ * reverts to being a pure memory aid here (#93's original inert
+ * behavior), not a multiplier — optional, not defaulted to 100. */
+export function totalFromPortion(
+  amountKcal: number,
+  proteinG: number | undefined,
+  fatG: number | undefined,
+  carbsG: number | undefined,
+  rawAmountG: string,
+): {
+  amountKcal: number
+  proteinG: number | undefined
+  fatG: number | undefined
+  carbsG: number | undefined
+  amountG: number | undefined
+} {
+  return {
+    amountKcal,
+    proteinG,
+    fatG,
+    carbsG,
+    amountG: parseOptionalMacro(rawAmountG),
+  }
+}
+
 /** Live preview text for a `scaleFromPer100g` result (#98) — e.g.
  * "300 kcal · P 20g · F 5g · C 2g" — the exact numbers that will actually
  * get saved, so the multiplication is visible before Add/Save rather than

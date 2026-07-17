@@ -50,7 +50,17 @@ export interface Dictionary {
      * compute the total. Reused verbatim by the item-edit row's kcal field
      * (composed with a `— Meal N` suffix there for multi-item disambiguation). */
     addCaloriesLabel: string
+    /** kcal field label/aria-label in "per portion" mode (#111) — the typed
+     * number is the actual total eaten, not a per-100g rate. */
+    addCaloriesPortionLabel: string
     addCaloriesPlaceholder: string
+    /** Per 100g / Per portion entry-mode toggle (#111) — lets someone who
+     * knows a meal's total (e.g. "this sandwich is 450 kcal") skip
+     * converting it to a per-100g rate. Toggling converts the currently
+     * typed numbers rather than discarding them, so nothing is lost. */
+    macroModeLabel: string
+    macroModePer100gOption: string
+    macroModePerPortionOption: string
     addButton: string
     caloriesTodaySuffix: string
     kcalUnit: string
