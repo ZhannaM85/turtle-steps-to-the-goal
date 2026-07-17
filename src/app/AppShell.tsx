@@ -9,6 +9,7 @@ import {
   type LucideIcon,
 } from 'lucide-react'
 import { useTranslation, type Dictionary } from '@/i18n'
+import { useIsTextInputFocused } from '@/shared/hooks'
 import { cn } from '@/shared/lib/utils'
 import { AppUpdateBanner } from './AppUpdateBanner'
 import { PullToRefreshIndicator } from './PullToRefreshIndicator'
@@ -32,6 +33,14 @@ function useNavItems(t: Dictionary): {
 export function AppShell() {
   const t = useTranslation()
   const navItems = useNavItems(t)
+  // Hides the fixed bottom tab bar while a text input is focused (#120) —
+  // iOS Safari's on-screen keyboard is known to make `position: fixed`
+  // elements render at an unpredictable spot relative to the (shrunk)
+  // visual viewport rather than staying pinned to the bottom, which read
+  // as the bar "floating" mid-page. Sidesteps that WebKit quirk entirely
+  // rather than trying to fight it — the bar can't usefully be tapped
+  // while the keyboard covers most of the screen anyway.
+  const isTextInputFocused = useIsTextInputFocused()
 
   return (
     <div className="min-h-svh bg-background">
@@ -74,38 +83,40 @@ export function AppShell() {
        * (inset-x-0, no side padding at all beyond the bottom safe-area
        * inset), so the leftmost/rightmost tabs read as cut off on devices
        * with rounded corners or side gesture areas. */}
-      <nav
-        aria-label="Tabs"
-        className="fixed inset-x-0 bottom-0 z-10 border-t border-border bg-background pr-[env(safe-area-inset-right)] pb-[env(safe-area-inset-bottom)] pl-[env(safe-area-inset-left)] sm:hidden"
-      >
-        <ul className="flex px-2">
-          {navItems.map((item) => {
-            const Icon = item.icon
-            return (
-              <li key={item.to} className="flex-1">
-                <NavLink
-                  to={item.to}
-                  end={item.end}
-                  className={({ isActive }) =>
-                    cn(
-                      // #112 originally bumped this to min-h-[106px] (+50px
-                      // from the pre-#112 56px) for bigger tap targets, but
-                      // seen live that read as an oversized empty gap above
-                      // the icons (#119) — min-h-20 (80px, +24px) keeps a
-                      // meaningfully bigger target without the gap.
-                      'flex min-h-20 flex-col items-center justify-center gap-0.5 text-xs font-medium text-muted-foreground transition-colors',
-                      isActive && 'text-foreground',
-                    )
-                  }
-                >
-                  <Icon aria-hidden="true" className="size-5" />
-                  {item.label}
-                </NavLink>
-              </li>
-            )
-          })}
-        </ul>
-      </nav>
+      {!isTextInputFocused && (
+        <nav
+          aria-label="Tabs"
+          className="fixed inset-x-0 bottom-0 z-10 border-t border-border bg-background pr-[env(safe-area-inset-right)] pb-[env(safe-area-inset-bottom)] pl-[env(safe-area-inset-left)] sm:hidden"
+        >
+          <ul className="flex px-2">
+            {navItems.map((item) => {
+              const Icon = item.icon
+              return (
+                <li key={item.to} className="flex-1">
+                  <NavLink
+                    to={item.to}
+                    end={item.end}
+                    className={({ isActive }) =>
+                      cn(
+                        // #112 originally bumped this to min-h-[106px] (+50px
+                        // from the pre-#112 56px) for bigger tap targets, but
+                        // seen live that read as an oversized empty gap above
+                        // the icons (#119) — min-h-20 (80px, +24px) keeps a
+                        // meaningfully bigger target without the gap.
+                        'flex min-h-20 flex-col items-center justify-center gap-0.5 text-xs font-medium text-muted-foreground transition-colors',
+                        isActive && 'text-foreground',
+                      )
+                    }
+                  >
+                    <Icon aria-hidden="true" className="size-5" />
+                    {item.label}
+                  </NavLink>
+                </li>
+              )
+            })}
+          </ul>
+        </nav>
+      )}
     </div>
   )
 }

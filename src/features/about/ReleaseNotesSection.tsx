@@ -30,8 +30,8 @@ export function ReleaseNotesSection() {
       </Button>
       {isExpanded && (
         <ul className="flex max-h-80 flex-col gap-2.5 overflow-y-auto text-sm">
-          {releaseNotes.map((note) => (
-            <li key={note.issue} className="flex flex-col gap-0.5">
+          {releaseNotes.map((note, index) => (
+            <li key={index} className="flex flex-col gap-0.5">
               <span className="text-xs text-muted-foreground">
                 {format(parseISO(note.date), 'PP', { locale: dateFnsLocale })}
               </span>

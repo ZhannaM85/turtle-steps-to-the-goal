@@ -15,6 +15,12 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    issue: 120,
+    date: '2026-07-17',
+    en: 'The bottom navigation bar no longer floats mid-screen while typing — it now hides while the keyboard is open and reappears once you’re done.',
+    ru: 'Нижняя панель навигации больше не "плавает" посреди экрана во время ввода текста — теперь она скрывается, пока открыта клавиатура, и появляется снова после.',
+  },
+  {
     issue: 118,
     date: '2026-07-17',
     en: 'Pulling down now actually refreshes the app, with a visible spinner while it works — it previously did nothing.',
@@ -191,7 +197,7 @@ export const releaseNotes: ReleaseNote[] = [
   {
     issue: 92,
     date: '2026-07-16',
-    en: 'Fixed the food picker so you can now clearly tell which item you\'ve selected.',
+    en: "Fixed the food picker so you can now clearly tell which item you've selected.",
     ru: 'Исправлен выбор продукта — теперь чётко видно, какой продукт вы выбрали.',
   },
   {
@@ -209,7 +215,7 @@ export const releaseNotes: ReleaseNote[] = [
   {
     issue: 90,
     date: '2026-07-16',
-    en: 'You can now customize the food list — hide items you don\'t want to see, or correct their calories/macros. Find it under Settings > Manage food list.',
+    en: "You can now customize the food list — hide items you don't want to see, or correct their calories/macros. Find it under Settings > Manage food list.",
     ru: 'Теперь список продуктов можно настроить — скрывайте ненужные продукты или исправляйте их калорийность/БЖУ. Ищите в Настройках > Управлять списком продуктов.',
   },
   {
@@ -233,7 +239,7 @@ export const releaseNotes: ReleaseNote[] = [
   {
     issue: 89,
     date: '2026-07-16',
-    en: 'The calories-vs-weight-change chart on Dashboard now stays collapsed until there\'s enough data to show a real pattern, instead of showing an almost-empty graph for the first few weeks.',
+    en: "The calories-vs-weight-change chart on Dashboard now stays collapsed until there's enough data to show a real pattern, instead of showing an almost-empty graph for the first few weeks.",
     ru: 'График «Калории и изменение веса» в Обзоре теперь свёрнут, пока не накопится достаточно данных, вместо почти пустого графика в первые недели.',
   },
   {
@@ -377,7 +383,7 @@ export const releaseNotes: ReleaseNote[] = [
   {
     issue: 55,
     date: '2026-07-15',
-    en: 'A celebration pops up when you reach your weekly goal, with a quick way to set next week\'s target.',
+    en: "A celebration pops up when you reach your weekly goal, with a quick way to set next week's target.",
     ru: 'При достижении цели на неделю теперь появляется поздравление с быстрой ссылкой на цель следующей недели.',
   },
   {
@@ -461,7 +467,7 @@ export const releaseNotes: ReleaseNote[] = [
   {
     issue: 44,
     date: '2026-07-14',
-    en: "Added an overall mood for the day, next to the daily note.",
+    en: 'Added an overall mood for the day, next to the daily note.',
     ru: 'Добавлено общее настроение за день рядом с заметкой.',
   },
   {
