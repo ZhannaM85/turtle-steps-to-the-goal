@@ -1375,58 +1375,6 @@ export function DailyEntryForm({
         </div>
       )}
 
-      {showStepsAsDisplay ? (
-        <div className="flex flex-col gap-1.5">
-          <span className="text-sm font-medium">{t.dailyEntry.stepsLabel}</span>
-          <div className="flex items-center justify-between rounded-lg bg-muted px-3 py-2">
-            <span className="text-sm text-foreground">
-              {steps === undefined ? '—' : formatNumber(steps, locale, 0)}
-            </span>
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon-sm"
-              aria-label={t.dailyEntry.editStepsLabel}
-              onClick={() => setIsEditingSteps(true)}
-            >
-              <Pencil aria-hidden="true" />
-            </Button>
-          </div>
-        </div>
-      ) : (
-        <div className="flex flex-col gap-1.5">
-          <span className="text-sm font-medium">{t.dailyEntry.stepsLabel}</span>
-          <div className="flex items-center gap-2">
-            <Input
-              type="text"
-              inputMode="numeric"
-              aria-label={t.dailyEntry.stepsLabel}
-              aria-invalid={errors.steps ? true : undefined}
-              className="h-8 w-24"
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') {
-                  e.preventDefault()
-                  saveSteps()
-                }
-              }}
-              {...register('steps', { setValueAs: parseNumberInput })}
-            />
-            <Button
-              type="button"
-              variant="outline"
-              size="icon-sm"
-              aria-label={t.dailyEntry.saveStepsLabel}
-              onClick={saveSteps}
-            >
-              <Check aria-hidden="true" />
-            </Button>
-          </div>
-          {errors.steps && (
-            <p className="text-sm text-destructive">{errors.steps.message}</p>
-          )}
-        </div>
-      )}
-
       <div className="flex flex-col gap-1.5">
         <div className="flex items-center gap-1.5">
           <span className="text-sm font-medium">
@@ -1695,6 +1643,62 @@ export function DailyEntryForm({
           )}
         </div>
       </div>
+
+      {/* Moved here, next to the Day note, rather than up with the other
+       * morning fields (#101) — unlike Weight/Sleep, step count usually
+       * isn't known until later in the day, so its old position up top
+       * implied it should be filled in at the same time as those. */}
+      {showStepsAsDisplay ? (
+        <div className="flex flex-col gap-1.5">
+          <span className="text-sm font-medium">{t.dailyEntry.stepsLabel}</span>
+          <div className="flex items-center justify-between rounded-lg bg-muted px-3 py-2">
+            <span className="text-sm text-foreground">
+              {steps === undefined ? '—' : formatNumber(steps, locale, 0)}
+            </span>
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon-sm"
+              aria-label={t.dailyEntry.editStepsLabel}
+              onClick={() => setIsEditingSteps(true)}
+            >
+              <Pencil aria-hidden="true" />
+            </Button>
+          </div>
+        </div>
+      ) : (
+        <div className="flex flex-col gap-1.5">
+          <span className="text-sm font-medium">{t.dailyEntry.stepsLabel}</span>
+          <div className="flex items-center gap-2">
+            <Input
+              type="text"
+              inputMode="numeric"
+              aria-label={t.dailyEntry.stepsLabel}
+              aria-invalid={errors.steps ? true : undefined}
+              className="h-8 w-24"
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault()
+                  saveSteps()
+                }
+              }}
+              {...register('steps', { setValueAs: parseNumberInput })}
+            />
+            <Button
+              type="button"
+              variant="outline"
+              size="icon-sm"
+              aria-label={t.dailyEntry.saveStepsLabel}
+              onClick={saveSteps}
+            >
+              <Check aria-hidden="true" />
+            </Button>
+          </div>
+          {errors.steps && (
+            <p className="text-sm text-destructive">{errors.steps.message}</p>
+          )}
+        </div>
+      )}
 
       {showNoteAsDisplay ? (
         <div className="flex flex-col gap-1.5">

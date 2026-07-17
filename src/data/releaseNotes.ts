@@ -15,6 +15,12 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    issue: 101,
+    date: '2026-07-17',
+    en: 'The Steps field moved down next to the Day note — step count usually isn’t known until later in the day, unlike Weight and Sleep.',
+    ru: 'Поле «Шаги» перемещено вниз, рядом с заметкой дня — количество шагов обычно известно только позже, в отличие от веса и сна.',
+  },
+  {
     issue: 104,
     date: '2026-07-17',
     en: 'Calendar view: the day markers now sit side by side instead of stacking on top of each other.',
