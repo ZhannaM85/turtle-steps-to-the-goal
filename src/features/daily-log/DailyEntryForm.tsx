@@ -69,11 +69,10 @@ import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/ui/button'
 import { InfoTooltip } from '@/shared/ui/info-tooltip'
 import { Input } from '@/shared/ui/input'
-import { ToggleGroup, ToggleGroupItem } from '@/shared/ui/toggle-group'
 import { useMealItemStore, useMealLabelPresetStore } from '@/stores'
 import { entryToFormValues, formValuesToEntry } from './dailyEntryFormMapping'
 import { FoodPickerDialog } from './FoodPickerDialog'
-import { MealNoteAutocomplete } from './MealNoteAutocomplete'
+import { MealItemEditorSheet } from './MealItemEditorSheet'
 import {
   deepSleepHoursSchema,
   noteSchema,
@@ -237,7 +236,9 @@ interface MealListItemProps {
   ) => void
   onEditItemSelectMealItem: (id: string, item: MealItem) => void
   onEditItemModeChange: (id: string, mode: 'per100g' | 'perPortion') => void
-  onAddEditItem: () => void
+  /** Returns the new draft's id (#122) so the caller can open its editor
+   * sheet immediately. */
+  onAddEditItem: () => string
   onRemoveEditItem: (id: string) => void
   onEditLabelChange: (value: string) => void
   onEditTimeChange: (value: string) => void
@@ -248,6 +249,10 @@ interface MealListItemProps {
   onRequestDelete: () => void
   onConfirmDelete: () => void
   onCancelDelete: () => void
+  /** Which editItems draft (by id) has its full-screen editor sheet open
+   * (#122) — null when none. */
+  openEditItemId: string | null
+  onOpenEditItem: (id: string | null) => void
 }
 
 function MealListItem({
@@ -277,6 +282,8 @@ function MealListItem({
   onRequestDelete,
   onConfirmDelete,
   onCancelDelete,
+  openEditItemId,
+  onOpenEditItem,
 }: MealListItemProps) {
   const {
     attributes,
@@ -296,6 +303,10 @@ function MealListItem({
     locale,
     t,
   )
+  // Which editItems draft (if any) the full-screen item editor is currently
+  // open for (#122) — computed unconditionally since it's cheap and only
+  // actually rendered inside the isEditing branch below.
+  const openDraft = editItems.find((item) => item.id === openEditItemId) ?? null
 
   if (isConfirmingDelete) {
     return (
@@ -383,15 +394,14 @@ function MealListItem({
           </div>
         )}
 
-        {/* One row per item in this meal group (#81) — name + kcal +
-         * macros each, with its own delete button. Removing every item
-         * and saving deletes the whole group, same end result as the
-         * group Delete button above. */}
-        <ul className="flex flex-col gap-1.5">
+        {/* One compact row per item in this meal group (#81, #122) — a
+         * one-line name/total summary with edit-pencil + delete, rather
+         * than always-expanded fields. The pencil opens the full-screen
+         * MealItemEditorSheet below. Removing every item and saving
+         * deletes the whole group, same end result as the group Delete
+         * button above. */}
+        <ul className="flex flex-col gap-1">
           {editItems.map((item) => {
-            // Live preview of this item's computed total (#98), same
-            // rationale as the add row's own preview below. Mode-aware
-            // (#111) — per-100g × quantity, or the typed total directly.
             const itemAmountNum = parseNumberInput(item.amount)
             const itemTotalPreview =
               itemAmountNum && itemAmountNum > 0
@@ -416,195 +426,37 @@ function MealListItem({
                   )
                 : null
             return (
-              <li key={item.id} className="flex flex-col gap-1">
-                <div className="flex items-center gap-2">
-                  <MealNoteAutocomplete
-                    listInputId={`edit-item-name-${item.id}`}
-                    ariaLabel={`${t.dailyEntry.itemNameLabel} — ${t.dailyEntry.mealLabel(position)}`}
-                    placeholder={t.dailyEntry.itemNamePlaceholder}
-                    value={item.name}
-                    onChange={(value) =>
-                      onEditItemFieldChange(item.id, 'name', value)
-                    }
-                    onSelectItem={(mealItem) =>
-                      onEditItemSelectMealItem(item.id, mealItem)
-                    }
-                    onSubmit={onSaveEdit}
-                    suggestions={mealItems}
-                    className="h-7"
-                  />
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon-sm"
-                    aria-label={t.dailyEntry.deleteItemLabel}
-                    onClick={() => onRemoveEditItem(item.id)}
-                  >
-                    <Trash2 aria-hidden="true" />
-                  </Button>
-                </div>
-                {/* Per 100g / Per portion toggle (#111), same as the add
-                 * row's — each item keeps its own independent mode. */}
-                <ToggleGroup
-                  type="single"
-                  aria-label={`${t.dailyEntry.macroModeLabel} — ${item.name || t.dailyEntry.mealLabel(position)}`}
-                  value={item.macroMode}
-                  onValueChange={(value) =>
-                    value &&
-                    onEditItemModeChange(
-                      item.id,
-                      value as 'per100g' | 'perPortion',
-                    )
-                  }
-                  className="w-fit gap-0.5 p-0.5"
-                >
-                  <ToggleGroupItem value="per100g" className="h-6 px-2 text-xs">
-                    {t.dailyEntry.macroModePer100gOption}
-                  </ToggleGroupItem>
-                  <ToggleGroupItem
-                    value="perPortion"
-                    className="h-6 px-2 text-xs"
-                  >
-                    {t.dailyEntry.macroModePerPortionOption}
-                  </ToggleGroupItem>
-                </ToggleGroup>
-                <div className="flex flex-wrap items-end gap-2">
-                  <div className="flex flex-col gap-1">
-                    <span className="text-xs text-muted-foreground">
-                      {item.macroMode === 'per100g'
-                        ? t.dailyEntry.addCaloriesLabel
-                        : t.dailyEntry.addCaloriesPortionLabel}
+              <li
+                key={item.id}
+                className="flex items-center gap-1 rounded-md bg-card px-2 py-1"
+              >
+                <span className="flex-1 truncate text-sm">
+                  {item.name || t.dailyEntry.itemNamePlaceholder}
+                  {itemTotalPreview && (
+                    <span className="text-muted-foreground">
+                      {' '}
+                      — {itemTotalPreview}
                     </span>
-                    <Input
-                      type="text"
-                      inputMode="decimal"
-                      aria-label={`${item.macroMode === 'per100g' ? t.dailyEntry.addCaloriesLabel : t.dailyEntry.addCaloriesPortionLabel} — ${item.name || t.dailyEntry.mealLabel(position)}`}
-                      value={item.amount}
-                      onChange={(e) =>
-                        onEditItemFieldChange(item.id, 'amount', e.target.value)
-                      }
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter') {
-                          e.preventDefault()
-                          onSaveEdit()
-                        }
-                      }}
-                      className="h-7 w-16"
-                    />
-                  </div>
-                  <div className="flex flex-col gap-1">
-                    <span className="text-xs text-muted-foreground">
-                      {t.dailyEntry.proteinLabel}
-                    </span>
-                    <Input
-                      type="text"
-                      inputMode="decimal"
-                      aria-label={`${t.dailyEntry.proteinLabel} — ${item.name || t.dailyEntry.mealLabel(position)}`}
-                      value={item.protein}
-                      onChange={(e) =>
-                        onEditItemFieldChange(
-                          item.id,
-                          'protein',
-                          e.target.value,
-                        )
-                      }
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter') {
-                          e.preventDefault()
-                          onSaveEdit()
-                        }
-                      }}
-                      className="h-7 w-14"
-                    />
-                  </div>
-                  <div className="flex flex-col gap-1">
-                    <span className="text-xs text-muted-foreground">
-                      {t.dailyEntry.fatLabel}
-                    </span>
-                    <Input
-                      type="text"
-                      inputMode="decimal"
-                      aria-label={`${t.dailyEntry.fatLabel} — ${item.name || t.dailyEntry.mealLabel(position)}`}
-                      value={item.fat}
-                      onChange={(e) =>
-                        onEditItemFieldChange(item.id, 'fat', e.target.value)
-                      }
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter') {
-                          e.preventDefault()
-                          onSaveEdit()
-                        }
-                      }}
-                      className="h-7 w-14"
-                    />
-                  </div>
-                  <div className="flex flex-col gap-1">
-                    <span className="text-xs text-muted-foreground">
-                      {t.dailyEntry.carbsLabel}
-                    </span>
-                    <Input
-                      type="text"
-                      inputMode="decimal"
-                      aria-label={`${t.dailyEntry.carbsLabel} — ${item.name || t.dailyEntry.mealLabel(position)}`}
-                      value={item.carbs}
-                      onChange={(e) =>
-                        onEditItemFieldChange(item.id, 'carbs', e.target.value)
-                      }
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter') {
-                          e.preventDefault()
-                          onSaveEdit()
-                        }
-                      }}
-                      className="h-7 w-14"
-                    />
-                  </div>
-                  {/* Grams is a pure memory aid in Portion mode (#111), not
-                   * a multiplier — an editable "100" next to a portion
-                   * total read as confusing clutter (#121), so it's
-                   * replaced with a plain "Portion" badge instead. */}
-                  {item.macroMode === 'per100g' ? (
-                    <div className="flex flex-col gap-1">
-                      <span className="text-xs text-muted-foreground">
-                        {t.dailyEntry.itemAmountGLabel}
-                      </span>
-                      <Input
-                        type="text"
-                        inputMode="decimal"
-                        aria-label={`${t.dailyEntry.itemAmountGLabel} — ${item.name || t.dailyEntry.mealLabel(position)}`}
-                        value={item.amountG}
-                        onChange={(e) =>
-                          onEditItemFieldChange(
-                            item.id,
-                            'amountG',
-                            e.target.value,
-                          )
-                        }
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter') {
-                            e.preventDefault()
-                            onSaveEdit()
-                          }
-                        }}
-                        className="h-7 w-14"
-                      />
-                    </div>
-                  ) : (
-                    <div className="flex flex-col gap-1">
-                      <span className="text-xs text-muted-foreground">
-                        &nbsp;
-                      </span>
-                      <span className="flex h-7 w-14 items-center text-xs text-muted-foreground">
-                        {t.dailyEntry.macroModePerPortionOption}
-                      </span>
-                    </div>
                   )}
-                </div>
-                {itemTotalPreview && (
-                  <p className="text-xs text-muted-foreground">
-                    {t.dailyEntry.computedTotalPrefix} {itemTotalPreview}
-                  </p>
-                )}
+                </span>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon-sm"
+                  aria-label={t.dailyEntry.editItemLabel}
+                  onClick={() => onOpenEditItem(item.id)}
+                >
+                  <Pencil aria-hidden="true" />
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon-sm"
+                  aria-label={t.dailyEntry.deleteItemLabel}
+                  onClick={() => onRemoveEditItem(item.id)}
+                >
+                  <Trash2 aria-hidden="true" />
+                </Button>
               </li>
             )
           })}
@@ -614,10 +466,55 @@ function MealListItem({
           variant="ghost"
           size="sm"
           className="self-start"
-          onClick={onAddEditItem}
+          // Composed with the meal label (#122) so this doesn't collide
+          // with the add-row's own same-text trigger when both are visible
+          // at once (editing an existing meal while nothing new is
+          // staged yet).
+          aria-label={`${t.dailyEntry.addItemButton} — ${t.dailyEntry.mealLabel(position)}`}
+          onClick={() => onOpenEditItem(onAddEditItem())}
         >
           {t.dailyEntry.addItemButton}
         </Button>
+        {openDraft && (
+          <MealItemEditorSheet
+            open
+            onOpenChange={(open) => !open && onOpenEditItem(null)}
+            title={t.dailyEntry.editItemSheetTitle}
+            name={openDraft.name}
+            onNameChange={(value) =>
+              onEditItemFieldChange(openDraft.id, 'name', value)
+            }
+            amount={openDraft.amount}
+            onAmountChange={(value) =>
+              onEditItemFieldChange(openDraft.id, 'amount', value)
+            }
+            protein={openDraft.protein}
+            onProteinChange={(value) =>
+              onEditItemFieldChange(openDraft.id, 'protein', value)
+            }
+            fat={openDraft.fat}
+            onFatChange={(value) =>
+              onEditItemFieldChange(openDraft.id, 'fat', value)
+            }
+            carbs={openDraft.carbs}
+            onCarbsChange={(value) =>
+              onEditItemFieldChange(openDraft.id, 'carbs', value)
+            }
+            amountG={openDraft.amountG}
+            onAmountGChange={(value) =>
+              onEditItemFieldChange(openDraft.id, 'amountG', value)
+            }
+            macroMode={openDraft.macroMode}
+            onMacroModeChange={(mode) =>
+              onEditItemModeChange(openDraft.id, mode)
+            }
+            mealItems={mealItems}
+            onSelectMealItem={(mealItem) =>
+              onEditItemSelectMealItem(openDraft.id, mealItem)
+            }
+            onSave={() => onOpenEditItem(null)}
+          />
+        )}
 
         <div className="flex flex-wrap items-end gap-2">
           <div className="flex flex-col gap-1">
@@ -898,9 +795,18 @@ export function DailyEntryForm({
   // Quantity-based entry against the static food list (#62) — an alternative
   // to manual kcal/macro entry, not a replacement for it.
   const [isFoodPickerOpen, setIsFoodPickerOpen] = useState(false)
+  // Full-screen item editor sheet (#122) — the add row's own instance,
+  // opened by its "+ Add item" trigger. Closing it (via Save or the X)
+  // never clears the underlying add-* state, so a half-filled draft
+  // survives reopening.
+  const [isAddItemSheetOpen, setIsAddItemSheetOpen] = useState(false)
   const [editingMealId, setEditingMealId] = useState<string | null>(null)
   // One draft per item in the group being edited (#81) — see EditItemDraft.
   const [editItems, setEditItems] = useState<EditItemDraft[]>([])
+  // Which editItems draft (by id) has its full-screen editor sheet open
+  // (#122) — null when none. Reset on save/delete so it can't dangle
+  // pointing at a draft that no longer exists.
+  const [openEditItemId, setOpenEditItemId] = useState<string | null>(null)
   const [editGroupLabel, setEditGroupLabel] = useState('')
   const [editGroupTime, setEditGroupTime] = useState('')
   const [editGroupNote, setEditGroupNote] = useState('')
@@ -1297,8 +1203,13 @@ export function DailyEntryForm({
     )
   }
 
-  function addEditItem() {
-    setEditItems((items) => [...items, blankItemDraft()])
+  // Returns the new draft's id (#122) so the caller can immediately open
+  // its editor sheet — a freshly-added blank row has nothing worth showing
+  // at rest.
+  function addEditItem(): string {
+    const draft = blankItemDraft()
+    setEditItems((items) => [...items, draft])
+    return draft.id
   }
 
   function removeEditItem(id: string) {
@@ -1343,6 +1254,7 @@ export function DailyEntryForm({
         calorieEntries.filter((entry) => entry.id !== editingMealId),
       )
       setEditingMealId(null)
+      setOpenEditItemId(null)
       return
     }
     setCalorieEntries(
@@ -1371,13 +1283,17 @@ export function DailyEntryForm({
       }
     }
     setEditingMealId(null)
+    setOpenEditItemId(null)
   }
 
   function confirmDeleteMeal() {
     setCalorieEntries(
       calorieEntries.filter((entry) => entry.id !== confirmDeleteMealId),
     )
-    if (editingMealId === confirmDeleteMealId) setEditingMealId(null)
+    if (editingMealId === confirmDeleteMealId) {
+      setEditingMealId(null)
+      setOpenEditItemId(null)
+    }
     setConfirmDeleteMealId(null)
   }
 
@@ -1685,6 +1601,8 @@ export function DailyEntryForm({
                     onRequestDelete={() => setConfirmDeleteMealId(entry.id)}
                     onConfirmDelete={confirmDeleteMeal}
                     onCancelDelete={() => setConfirmDeleteMealId(null)}
+                    openEditItemId={openEditItemId}
+                    onOpenEditItem={setOpenEditItemId}
                   />
                 ))}
               </ul>
@@ -1739,158 +1657,54 @@ export function DailyEntryForm({
               )}
             </div>
           </div>
-          {/* Per 100g / Per portion toggle (#111) — for someone who knows a
-           * meal's actual total (e.g. "this sandwich is 450 kcal") but not
-           * its per-100g rate. "Per 100g" stays the default. */}
-          <ToggleGroup
-            type="single"
-            aria-label={t.dailyEntry.macroModeLabel}
-            value={addMacroMode}
-            onValueChange={(value) =>
-              value &&
-              handleAddMacroModeChange(value as 'per100g' | 'perPortion')
-            }
-            className="w-fit gap-0.5 p-0.5"
+          {/* Item fields (name, mode, kcal, macros) moved into a
+           * full-screen editor sheet (#122) — this trigger shows a compact
+           * preview once something's staged, same as an editItems row. */}
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="justify-start"
+            onClick={() => setIsAddItemSheetOpen(true)}
           >
-            <ToggleGroupItem value="per100g" className="h-6 px-2 text-xs">
-              {t.dailyEntry.macroModePer100gOption}
-            </ToggleGroupItem>
-            <ToggleGroupItem value="perPortion" className="h-6 px-2 text-xs">
-              {t.dailyEntry.macroModePerPortionOption}
-            </ToggleGroupItem>
-          </ToggleGroup>
-          <div className="flex flex-wrap items-end gap-2">
-            <div className="flex flex-col gap-1">
-              <span className="text-xs text-muted-foreground">
-                {addMacroMode === 'per100g'
-                  ? t.dailyEntry.addCaloriesLabel
-                  : t.dailyEntry.addCaloriesPortionLabel}
+            {addAmountPreview && addAmountPreview > 0 ? (
+              <span className="truncate">
+                {addItemName || t.dailyEntry.itemNamePlaceholder}
+                {addTotalPreview && (
+                  <span className="text-muted-foreground">
+                    {' '}
+                    — {addTotalPreview}
+                  </span>
+                )}
               </span>
-              <Input
-                type="text"
-                inputMode="decimal"
-                aria-label={
-                  addMacroMode === 'per100g'
-                    ? t.dailyEntry.addCaloriesLabel
-                    : t.dailyEntry.addCaloriesPortionLabel
-                }
-                placeholder={t.dailyEntry.addCaloriesPlaceholder}
-                value={addAmount}
-                onChange={(e) => setAddAmount(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    e.preventDefault()
-                    addMeal()
-                  }
-                }}
-                className="h-7 w-16"
-              />
-            </div>
-            <div className="flex flex-col gap-1">
-              <span className="text-xs text-muted-foreground">
-                {t.dailyEntry.proteinLabel}
-              </span>
-              <Input
-                type="text"
-                inputMode="decimal"
-                aria-label={t.dailyEntry.proteinLabel}
-                value={addProtein}
-                onChange={(e) => setAddProtein(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    e.preventDefault()
-                    addMeal()
-                  }
-                }}
-                className="h-7 w-14"
-              />
-            </div>
-            <div className="flex flex-col gap-1">
-              <span className="text-xs text-muted-foreground">
-                {t.dailyEntry.fatLabel}
-              </span>
-              <Input
-                type="text"
-                inputMode="decimal"
-                aria-label={t.dailyEntry.fatLabel}
-                value={addFat}
-                onChange={(e) => setAddFat(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    e.preventDefault()
-                    addMeal()
-                  }
-                }}
-                className="h-7 w-14"
-              />
-            </div>
-            <div className="flex flex-col gap-1">
-              <span className="text-xs text-muted-foreground">
-                {t.dailyEntry.carbsLabel}
-              </span>
-              <Input
-                type="text"
-                inputMode="decimal"
-                aria-label={t.dailyEntry.carbsLabel}
-                value={addCarbs}
-                onChange={(e) => setAddCarbs(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    e.preventDefault()
-                    addMeal()
-                  }
-                }}
-                className="h-7 w-14"
-              />
-            </div>
-            {/* Grams is a pure memory aid in Portion mode (#111), not a
-             * multiplier — an editable "100" next to a portion total read
-             * as confusing clutter (#121), replaced with a plain "Portion"
-             * badge instead. */}
-            {addMacroMode === 'per100g' ? (
-              <div className="flex flex-col gap-1">
-                <span className="text-xs text-muted-foreground">
-                  {t.dailyEntry.itemAmountGLabel}
-                </span>
-                <Input
-                  type="text"
-                  inputMode="decimal"
-                  aria-label={t.dailyEntry.itemAmountGLabel}
-                  value={addAmountG}
-                  onChange={(e) => setAddAmountG(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
-                      e.preventDefault()
-                      addMeal()
-                    }
-                  }}
-                  className="h-7 w-14"
-                />
-              </div>
             ) : (
-              <div className="flex flex-col gap-1">
-                <span className="text-xs text-muted-foreground">&nbsp;</span>
-                <span className="flex h-7 w-14 items-center text-xs text-muted-foreground">
-                  {t.dailyEntry.macroModePerPortionOption}
-                </span>
-              </div>
+              t.dailyEntry.addItemButton
             )}
-          </div>
-          {addTotalPreview && (
-            <p className="text-xs text-muted-foreground">
-              {t.dailyEntry.computedTotalPrefix} {addTotalPreview}
-            </p>
-          )}
-          <MealNoteAutocomplete
-            listInputId="add-item-name"
-            ariaLabel={t.dailyEntry.itemNameLabel}
-            placeholder={t.dailyEntry.itemNamePlaceholder}
-            value={addItemName}
-            onChange={setAddItemName}
-            onSelectItem={selectAddItemMealItem}
-            onSubmit={addMeal}
-            suggestions={mealItems}
-            className="h-7 w-full"
+          </Button>
+          <MealItemEditorSheet
+            open={isAddItemSheetOpen}
+            onOpenChange={setIsAddItemSheetOpen}
+            title={t.dailyEntry.addItemSheetTitle}
+            name={addItemName}
+            onNameChange={setAddItemName}
+            amount={addAmount}
+            onAmountChange={setAddAmount}
+            protein={addProtein}
+            onProteinChange={setAddProtein}
+            fat={addFat}
+            onFatChange={setAddFat}
+            carbs={addCarbs}
+            onCarbsChange={setAddCarbs}
+            amountG={addAmountG}
+            onAmountGChange={setAddAmountG}
+            macroMode={addMacroMode}
+            onMacroModeChange={handleAddMacroModeChange}
+            mealItems={mealItems}
+            onSelectMealItem={selectAddItemMealItem}
+            onSave={() => {
+              addMeal()
+              setIsAddItemSheetOpen(false)
+            }}
           />
           <div className="flex items-center gap-2">
             <Input
@@ -1914,14 +1728,10 @@ export function DailyEntryForm({
               labelFor={t.dailyEntry.mealEmotionLabel}
             />
           </div>
-          {/* Add sits after the note/mood row, not before (#79) — it was
-           * previously part of the fields row above, so users who typed a
-           * note last didn't realize it still applied to a button they'd
-           * already scrolled past. Full width so it reads as the row's
-           * single clear final action. "Find food" now sits *above* Add,
-           * not below it (#106), with an "or" divider before it — the two
-           * are alternatives (fill in macros and Add, or find an existing
-           * dish instead), not a primary action plus an afterthought. */}
+          {/* "Find food" is the alternative to the manual item sheet above
+           * (#106) — fill in macros via "+ Add item", or find an existing
+           * dish instead. The manual path's own "Add" now lives inside
+           * MealItemEditorSheet, so there's no separate button here. */}
           <p className="text-center text-xs text-muted-foreground">
             {t.dailyEntry.orDivider}
           </p>
@@ -1932,16 +1742,6 @@ export function DailyEntryForm({
             onClick={() => setIsFoodPickerOpen(true)}
           >
             {t.dailyEntry.addFoodButton}
-          </Button>
-          <Button
-            type="button"
-            variant="default"
-            size="sm"
-            className="w-full"
-            disabled={!addAmountPreview || addAmountPreview <= 0}
-            onClick={addMeal}
-          >
-            {t.dailyEntry.addButton}
           </Button>
           {/* Lazily mounted (#78) — the food list grew to 300+ items, and
            * rendering it unconditionally meant every DailyEntryForm render

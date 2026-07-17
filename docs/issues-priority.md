@@ -248,6 +248,14 @@ _Same pattern as Tiers 8–14: issues filed from continued live use._
 
 ---
 
+## Tier 16 — Meal-item editor redesign (2026-07-17)
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#122](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/122) | ✅ Done | Add/edit meal-item fields (kcal/protein/fat/carbs/grams) are tiny and hard to operate on mobile | New `MealItemEditorSheet.tsx` — a full-screen `Dialog` (new `size="fullscreen"` on `dialog.tsx`) with `h-11`/`text-base` fields, replacing the cramped `flex flex-wrap` row of `h-7 w-16` inputs everywhere it appeared. Existing meal items now show as a compact one-line summary (name — kcal · macros) with Pencil (opens the sheet)/Trash2, instead of always-expanded fields. The primary "add a new meal" row also converts to a "+ Add item" tap-to-open trigger — the reporter confirmed this tradeoff (one extra tap vs. always-visible cramped fields) explicitly. Purely a UI/layout change: no data-model or persistence changes, same `addMeal()`/`saveEditMeal()` commit paths, same `macroScaling.ts` math |
+
+---
+
 ## Private (no public GitHub issue, by request)
 
 _Filed and built without a public issue at the user's explicit request — the repo is public, and this one's more personal than the rest. Still documented normally here per the project's usual close-out process; see [[feedback_issue_first]]'s exception #2 in memory for why._

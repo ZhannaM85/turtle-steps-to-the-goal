@@ -142,6 +142,10 @@ export const ru: Dictionary = {
     saveStepsLabel: 'Сохранить шаги',
     onPeriodLabel: 'Менструация',
     hadBowelMovementLabel: 'Стул',
+    addItemSheetTitle: 'Добавить блюдо',
+    editItemSheetTitle: 'Редактировать блюдо',
+    closeItemEditorLabel: 'Закрыть редактор блюда',
+    editItemLabel: 'Редактировать блюдо',
   },
   goal: {
     title: 'Цель',

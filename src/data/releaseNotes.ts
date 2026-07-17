@@ -19,6 +19,12 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    issue: 122,
+    date: '2026-07-17T18:20:49+03:00',
+    en: 'Redesigned adding/editing a dish’s calories and macros — tiny cramped fields are replaced with a full-screen editor that’s much easier to use on a phone.',
+    ru: 'Обновлён экран добавления/редактирования калорий и БЖУ блюда — вместо тесных мелких полей теперь полноэкранный редактор, которым намного удобнее пользоваться на телефоне.',
+  },
+  {
     issue: 0,
     date: '2026-07-17T16:25:50+03:00',
     en: 'The calendar view now shows a marker dot on days with a logged bowel movement, alongside the existing period marker (only visible once digestion tracking is turned on in Settings).',

@@ -142,6 +142,10 @@ export const en: Dictionary = {
     saveStepsLabel: 'Save steps',
     onPeriodLabel: 'On period',
     hadBowelMovementLabel: 'Bowel movement',
+    addItemSheetTitle: 'Add item',
+    editItemSheetTitle: 'Edit item',
+    closeItemEditorLabel: 'Close item editor',
+    editItemLabel: 'Edit item',
   },
   goal: {
     title: 'Goal',

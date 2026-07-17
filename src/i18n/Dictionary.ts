@@ -154,6 +154,15 @@ export interface Dictionary {
     /** Opt-in digestion tracking's per-day toggle in DayDetail.tsx, same
      * shape/precedent as onPeriodLabel above. */
     hadBowelMovementLabel: string
+    /** Full-screen meal-item editor sheet (#122) — replaces the cramped
+     * inline fields row for both adding a new meal's first item and
+     * editing/adding an item within an already-existing meal. */
+    addItemSheetTitle: string
+    editItemSheetTitle: string
+    closeItemEditorLabel: string
+    /** Aria-label for the pencil button on a compact item-summary row
+     * (#122) — same unsuffixed-string convention as deleteItemLabel. */
+    editItemLabel: string
   }
   goal: {
     title: string
