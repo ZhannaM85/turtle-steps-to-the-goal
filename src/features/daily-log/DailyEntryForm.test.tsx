@@ -1669,6 +1669,30 @@ describe('DailyEntryForm', () => {
       })
 
       describe('grouping multiple items under one meal (#81)', () => {
+        it('adds a found food to an existing meal via edit mode (#124)', async () => {
+          const user = userEvent.setup()
+          const onSave = vi.fn()
+          renderWithMeals(onSave)
+
+          await user.click(screen.getByRole('button', { name: 'Edit meal 1' }))
+          await user.click(
+            screen.getByRole('button', { name: 'Find food — Meal 1' }),
+          )
+          await user.click(screen.getByText('Salmon'))
+          await user.click(screen.getByRole('button', { name: 'Add food' }))
+          await user.click(screen.getByRole('button', { name: 'Save' }))
+
+          expect(screen.getByText('Meal 1 — 508 kcal')).toBeInTheDocument()
+          const savedItems = onSave.mock.calls[0][0].calorieEntries[0].items
+          expect(savedItems).toHaveLength(2)
+          expect(savedItems[1]).toMatchObject({
+            name: 'Salmon',
+            amountKcal: 208,
+            proteinG: 20,
+            amountG: 100,
+          })
+        })
+
         it('adds another item to an existing meal via edit mode, growing the kcal subtotal', async () => {
           const user = userEvent.setup()
           const onSave = vi.fn()

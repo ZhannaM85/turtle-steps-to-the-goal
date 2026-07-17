@@ -19,6 +19,12 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    issue: 124,
+    date: '2026-07-17T19:51:55+03:00',
+    en: '"Find food" is now available when editing an existing meal too, not just when starting a new one.',
+    ru: '«Найти блюдо» теперь доступно и при редактировании уже существующего приёма пищи, а не только при создании нового.',
+  },
+  {
     issue: 123,
     date: '2026-07-17T19:34:27+03:00',
     en: 'Added an "Export as Excel" option in Settings, alongside the JSON backup — a spreadsheet view of your data for browsing or analysis (not a re-importable backup).',

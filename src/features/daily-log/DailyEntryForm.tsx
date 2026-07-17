@@ -253,6 +253,17 @@ interface MealListItemProps {
    * (#122) — null when none. */
   openEditItemId: string | null
   onOpenEditItem: (id: string | null) => void
+  /** "Find food" for an item within this meal (#124) — pushes the picked
+   * food straight into the shared editItems staging array, same as
+   * onAddEditItem's manual blank row. */
+  onAddFood: (values: {
+    amountKcal: number
+    proteinG: number
+    fatG: number
+    carbsG: number
+    note: string
+    amountG?: number
+  }) => void
 }
 
 function MealListItem({
@@ -284,6 +295,7 @@ function MealListItem({
   onCancelDelete,
   openEditItemId,
   onOpenEditItem,
+  onAddFood,
 }: MealListItemProps) {
   const {
     attributes,
@@ -295,6 +307,10 @@ function MealListItem({
   } = useSortable({ id: entry.id, disabled: isEditing || isConfirmingDelete })
   const style = { transform: CSS.Transform.toString(transform), transition }
   const mealLabelPresets = useMealLabelPresetStore((state) => state.presets)
+  // Own local dialog state (#124), not lifted to DailyEntryForm — each
+  // MealListItem's "Find food" is independent of every other one and of
+  // the bottom add row's own isFoodPickerOpen.
+  const [isFoodPickerOpen, setIsFoodPickerOpen] = useState(false)
   const mealEmotionOption = MEAL_EMOTIONS.find((e) => e.value === entry.emotion)
   const macrosSummary = macrosSummaryText(
     calorieEntryProtein(entry),
@@ -475,6 +491,31 @@ function MealListItem({
         >
           {t.dailyEntry.addItemButton}
         </Button>
+        {/* "Find food" for an item within this existing meal (#124) —
+         * FoodPickerDialog was previously only reachable from the bottom
+         * add row, leaving no way to search the food list while editing an
+         * already-existing meal. Same "or" framing as the add row's own. */}
+        <p className="text-center text-xs text-muted-foreground">
+          {t.dailyEntry.orDivider}
+        </p>
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          className="self-start"
+          aria-label={`${t.dailyEntry.addFoodButton} — ${t.dailyEntry.mealLabel(position)}`}
+          onClick={() => setIsFoodPickerOpen(true)}
+        >
+          {t.dailyEntry.addFoodButton}
+        </Button>
+        {isFoodPickerOpen && (
+          <FoodPickerDialog
+            open={isFoodPickerOpen}
+            onOpenChange={setIsFoodPickerOpen}
+            onAdd={onAddFood}
+            mealItems={mealItems}
+          />
+        )}
         {openDraft && (
           <MealItemEditorSheet
             open
@@ -1097,6 +1138,43 @@ export function DailyEntryForm({
     ])
   }
 
+  // "Find food" for an item within an already-existing meal being edited —
+  // FoodPickerDialog was previously only wired to the bottom add row
+  // (addFoodEntry above), leaving no way to search the food list while
+  // editing an existing meal, only manual entry via "+ Add item". Converts
+  // the picked food's absolute totals to a per-100g rate + quantity via
+  // ratesFromAbsolute, same as selectEditItemMealItem's "restore a
+  // suggestion" path — picking a food always lands in per-100g mode.
+  function addFoodToEditItems(values: {
+    amountKcal: number
+    proteinG: number
+    fatG: number
+    carbsG: number
+    note: string
+    amountG?: number
+  }) {
+    const rates = ratesFromAbsolute(
+      values.amountKcal,
+      values.proteinG,
+      values.fatG,
+      values.carbsG,
+      values.amountG,
+    )
+    setEditItems((items) => [
+      ...items,
+      {
+        id: crypto.randomUUID(),
+        name: values.note,
+        amount: String(rates.kcal100),
+        protein: rates.protein100 === undefined ? '' : String(rates.protein100),
+        fat: rates.fat100 === undefined ? '' : String(rates.fat100),
+        carbs: rates.carbs100 === undefined ? '' : String(rates.carbs100),
+        amountG: String(rates.quantity),
+        macroMode: 'per100g',
+      },
+    ])
+  }
+
   function startEditMeal(entry: CalorieEntry) {
     setEditingMealId(entry.id)
     setEditItems(entry.items.map(itemDraftFrom))
@@ -1603,6 +1681,7 @@ export function DailyEntryForm({
                     onCancelDelete={() => setConfirmDeleteMealId(null)}
                     openEditItemId={openEditItemId}
                     onOpenEditItem={setOpenEditItemId}
+                    onAddFood={addFoodToEditItems}
                   />
                 ))}
               </ul>
