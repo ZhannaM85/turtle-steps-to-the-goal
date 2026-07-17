@@ -32,6 +32,12 @@ const buttonVariants = cva(
         'icon-sm':
           'size-7 rounded-[min(var(--radius-md),12px)] in-data-[slot=button-group]:rounded-lg',
         'icon-lg': 'size-9',
+        // 44px — matches the standalone-field height (h-11) used by Today's
+        // Date/Weight/Sleep/Steps/Note rows and MealItemEditorSheet, so a
+        // field's adjacent pencil/Save button lines up with it (#126). Not
+        // used by the deliberately-smaller dense inline list-row controls
+        // (meal-item pencil/delete/drag, which stay icon-sm/icon-xs).
+        'icon-xl': 'size-11',
       },
     },
     defaultVariants: {

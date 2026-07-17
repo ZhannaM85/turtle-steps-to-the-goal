@@ -19,6 +19,12 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    issue: 126,
+    date: '2026-07-17T23:52:32+03:00',
+    en: 'Made the Date, Weight, Sleep, Steps, and Note fields on Today the same height as each other and their buttons, for a more consistent, easier-to-tap layout.',
+    ru: 'Поля «Дата», «Вес», «Сон», «Шаги» и «Заметка» на экране «Сегодня» теперь одной высоты друг с другом и с кнопками — интерфейс стал аккуратнее, а нажимать удобнее.',
+  },
+  {
     issue: 127,
     date: '2026-07-17T22:46:17+03:00',
     en: 'Increased the spacing between buttons and fields in the meal editor, so they are easier to tap on mobile.',

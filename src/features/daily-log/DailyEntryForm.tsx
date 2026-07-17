@@ -1421,14 +1421,14 @@ export function DailyEntryForm({
           <span className="text-sm font-medium">
             {t.dailyEntry.weightLabel}
           </span>
-          <div className="flex items-center justify-between rounded-lg bg-muted px-3 py-2">
+          <div className="flex h-11 items-center justify-between rounded-lg bg-muted px-3">
             <span className="text-sm text-foreground">
               {formatExactNumber(weightKg!, locale)} {t.common.kg}
             </span>
             <Button
               type="button"
               variant="ghost"
-              size="icon-sm"
+              size="icon-xl"
               aria-label={t.dailyEntry.editWeightLabel}
               onClick={() => setIsEditingWeight(true)}
             >
@@ -1441,13 +1441,13 @@ export function DailyEntryForm({
           <span className="text-sm font-medium">
             {t.dailyEntry.weightLabel}
           </span>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
             <Input
               type="text"
               inputMode="decimal"
               aria-label={t.dailyEntry.weightLabel}
               aria-invalid={errors.weightKg ? true : undefined}
-              className="h-8 flex-1"
+              className="h-11 flex-1"
               onKeyDown={(e) => {
                 if (e.key === 'Enter') {
                   e.preventDefault()
@@ -1459,7 +1459,7 @@ export function DailyEntryForm({
             <Button
               type="button"
               variant="outline"
-              size="icon-sm"
+              size="icon-xl"
               aria-label={t.dailyEntry.saveWeightLabel}
               onClick={saveWeight}
             >
@@ -1477,7 +1477,7 @@ export function DailyEntryForm({
       {showSleepAsDisplay ? (
         <div className="flex flex-col gap-1.5">
           <span className="text-sm font-medium">{t.dailyEntry.sleepLabel}</span>
-          <div className="flex items-center justify-between rounded-lg bg-muted px-3 py-2">
+          <div className="flex h-11 items-center justify-between rounded-lg bg-muted px-3">
             <span className="text-sm text-foreground">
               {t.dailyEntry.sleepSummary(
                 sleepHours === undefined
@@ -1491,7 +1491,7 @@ export function DailyEntryForm({
             <Button
               type="button"
               variant="ghost"
-              size="icon-sm"
+              size="icon-xl"
               aria-label={t.dailyEntry.editSleepLabel}
               onClick={() => {
                 const parts = splitHoursMinutes(sleepHours)
@@ -1521,7 +1521,7 @@ export function DailyEntryForm({
                   inputMode="numeric"
                   aria-label={`${t.dailyEntry.sleepHoursLabel} — ${t.dailyEntry.hoursFieldLabel}`}
                   aria-invalid={errors.sleepHours ? true : undefined}
-                  className="h-8 w-12"
+                  className="h-11 w-12"
                   value={sleepHoursPart}
                   onChange={(e) => setSleepHoursPart(e.target.value)}
                   onKeyDown={(e) => {
@@ -1539,7 +1539,7 @@ export function DailyEntryForm({
                   inputMode="numeric"
                   aria-label={`${t.dailyEntry.sleepHoursLabel} — ${t.dailyEntry.minutesFieldLabel}`}
                   aria-invalid={errors.sleepHours ? true : undefined}
-                  className="h-8 w-12"
+                  className="h-11 w-12"
                   value={sleepMinutesPart}
                   onChange={(e) => setSleepMinutesPart(e.target.value)}
                   onKeyDown={(e) => {
@@ -1564,7 +1564,7 @@ export function DailyEntryForm({
                   inputMode="numeric"
                   aria-label={`${t.dailyEntry.deepSleepLabel} — ${t.dailyEntry.hoursFieldLabel}`}
                   aria-invalid={errors.deepSleepHours ? true : undefined}
-                  className="h-8 w-12"
+                  className="h-11 w-12"
                   value={deepSleepHoursPart}
                   onChange={(e) => setDeepSleepHoursPart(e.target.value)}
                   onKeyDown={(e) => {
@@ -1582,7 +1582,7 @@ export function DailyEntryForm({
                   inputMode="numeric"
                   aria-label={`${t.dailyEntry.deepSleepLabel} — ${t.dailyEntry.minutesFieldLabel}`}
                   aria-invalid={errors.deepSleepHours ? true : undefined}
-                  className="h-8 w-12"
+                  className="h-11 w-12"
                   value={deepSleepMinutesPart}
                   onChange={(e) => setDeepSleepMinutesPart(e.target.value)}
                   onKeyDown={(e) => {
@@ -1600,7 +1600,7 @@ export function DailyEntryForm({
             <Button
               type="button"
               variant="outline"
-              size="icon-sm"
+              size="icon-xl"
               aria-label={t.dailyEntry.saveSleepLabel}
               onClick={saveSleep}
             >
@@ -1844,14 +1844,14 @@ export function DailyEntryForm({
       {showStepsAsDisplay ? (
         <div className="flex flex-col gap-1.5">
           <span className="text-sm font-medium">{t.dailyEntry.stepsLabel}</span>
-          <div className="flex items-center justify-between rounded-lg bg-muted px-3 py-2">
+          <div className="flex h-11 items-center justify-between rounded-lg bg-muted px-3">
             <span className="text-sm text-foreground">
               {steps === undefined ? '—' : formatNumber(steps, locale, 0)}
             </span>
             <Button
               type="button"
               variant="ghost"
-              size="icon-sm"
+              size="icon-xl"
               aria-label={t.dailyEntry.editStepsLabel}
               onClick={() => setIsEditingSteps(true)}
             >
@@ -1862,13 +1862,13 @@ export function DailyEntryForm({
       ) : (
         <div className="flex flex-col gap-1.5">
           <span className="text-sm font-medium">{t.dailyEntry.stepsLabel}</span>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
             <Input
               type="text"
               inputMode="numeric"
               aria-label={t.dailyEntry.stepsLabel}
               aria-invalid={errors.steps ? true : undefined}
-              className="h-8 w-24"
+              className="h-11 w-24"
               onKeyDown={(e) => {
                 if (e.key === 'Enter') {
                   e.preventDefault()
@@ -1880,7 +1880,7 @@ export function DailyEntryForm({
             <Button
               type="button"
               variant="outline"
-              size="icon-sm"
+              size="icon-xl"
               aria-label={t.dailyEntry.saveStepsLabel}
               onClick={saveSteps}
             >
@@ -1896,7 +1896,7 @@ export function DailyEntryForm({
       {showNoteAsDisplay ? (
         <div className="flex flex-col gap-1.5">
           <span className="text-sm font-medium">{t.dailyEntry.noteLabel}</span>
-          <div className="flex items-center justify-between rounded-lg bg-muted px-3 py-2">
+          <div className="flex h-11 items-center justify-between rounded-lg bg-muted px-3">
             <span className="flex items-center gap-1.5 text-sm text-foreground">
               {note}
               {DayEmotionIcon && (
@@ -1914,7 +1914,7 @@ export function DailyEntryForm({
             <Button
               type="button"
               variant="ghost"
-              size="icon-sm"
+              size="icon-xl"
               aria-label={t.dailyEntry.editNoteLabel}
               onClick={() => setIsEditingNote(true)}
             >
@@ -1925,13 +1925,13 @@ export function DailyEntryForm({
       ) : (
         <div className="flex flex-col gap-1.5">
           <span className="text-sm font-medium">{t.dailyEntry.noteLabel}</span>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
             <Input
               type="text"
               aria-label={t.dailyEntry.noteLabel}
               aria-invalid={errors.note ? true : undefined}
               placeholder={t.dailyEntry.noteFieldPlaceholder}
-              className="h-8 flex-1"
+              className="h-11 flex-1"
               onKeyDown={(e) => {
                 if (e.key === 'Enter') {
                   e.preventDefault()
@@ -1943,7 +1943,7 @@ export function DailyEntryForm({
             <Button
               type="button"
               variant="outline"
-              size="icon-sm"
+              size="icon-xl"
               aria-label={t.dailyEntry.saveNoteLabel}
               onClick={saveNote}
             >

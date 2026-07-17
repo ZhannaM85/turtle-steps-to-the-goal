@@ -188,7 +188,7 @@ export function TodayScreen() {
           value={date}
           max={todayIso()}
           onChange={(e) => setDate(e.target.value)}
-          className="max-w-48"
+          className="h-11 max-w-48"
         />
       </div>
 
