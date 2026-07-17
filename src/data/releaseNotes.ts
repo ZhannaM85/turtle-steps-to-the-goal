@@ -98,9 +98,9 @@ export const releaseNotes: ReleaseNote[] = [
   },
   {
     issue: 102,
-    date: '2026-07-17T16:59:08+03:00',
-    en: 'If something ever goes wrong while the app is running, you now see a friendly "reload" message instead of a blank screen. A loading spinner also shows briefly while the app first starts up. The app should also start faster now, especially on a slow connection — screens other than Today load on demand instead of everything loading upfront.',
-    ru: 'Если во время работы приложения что-то пойдёт не так, теперь вы увидите понятное сообщение с предложением перезагрузить страницу вместо пустого экрана. Также при первом запуске ненадолго появляется индикатор загрузки. Приложение также должно теперь запускаться быстрее, особенно при медленном соединении — экраны, кроме «Сегодня», подгружаются по мере необходимости, а не все сразу.',
+    date: '2026-07-17T17:14:44+03:00',
+    en: 'If something ever goes wrong while the app is running, you now see a friendly "reload" message instead of a blank screen. A loading spinner also shows briefly while the app first starts up. The app should also start faster now, especially on a slow connection — screens other than Today load on demand instead of everything loading upfront. Found and fixed the real cause of the home-screen shortcut opening to a blank/broken page: it was launching the wrong web address. If you already added the app to your home screen, please remove that icon and add it again to get the fix.',
+    ru: 'Если во время работы приложения что-то пойдёт не так, теперь вы увидите понятное сообщение с предложением перезагрузить страницу вместо пустого экрана. Также при первом запуске ненадолго появляется индикатор загрузки. Приложение также должно теперь запускаться быстрее, особенно при медленном соединении — экраны, кроме «Сегодня», подгружаются по мере необходимости, а не все сразу. Найдена и исправлена настоящая причина, по которой ярлык на главном экране открывал пустую/неработающую страницу — он вёл не по тому адресу. Если вы уже добавили приложение на главный экран, пожалуйста, удалите этот значок и добавьте заново, чтобы исправление подействовало.',
   },
   {
     issue: 103,
