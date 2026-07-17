@@ -416,7 +416,7 @@ function MealListItem({
          * MealItemEditorSheet below. Removing every item and saving
          * deletes the whole group, same end result as the group Delete
          * button above. */}
-        <ul className="flex flex-col gap-1">
+        <ul className="flex flex-col gap-2">
           {editItems.map((item) => {
             const itemAmountNum = parseNumberInput(item.amount)
             const itemTotalPreview =
@@ -615,7 +615,7 @@ function MealListItem({
       ref={setNodeRef}
       style={style}
       className={cn(
-        'flex flex-col gap-0.5 px-1 py-1',
+        'flex flex-col gap-1.5 px-1 py-1',
         isDragging && 'opacity-50',
       )}
     >
@@ -687,7 +687,7 @@ function MealListItem({
       )}
       {/* Item sub-list (#81) — a group's individual dishes, shown
        * underneath its own header/note/macro-total lines above. */}
-      <ul className="flex flex-col gap-0.5 pl-4">
+      <ul className="flex flex-col gap-1 pl-4">
         {entry.items.map((item) => {
           const itemMacros = macrosSummaryTextCompact(
             item.proteinG,
@@ -1649,7 +1649,7 @@ export function DailyEntryForm({
               items={calorieEntries.map((entry) => entry.id)}
               strategy={verticalListSortingStrategy}
             >
-              <ul className="flex flex-col gap-1">
+              <ul className="flex flex-col gap-3">
                 {calorieEntries.map((entry, index) => (
                   <MealListItem
                     key={entry.id}

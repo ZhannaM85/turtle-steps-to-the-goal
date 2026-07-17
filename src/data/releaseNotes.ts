@@ -19,6 +19,12 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    issue: 130,
+    date: '2026-07-17T23:57:33+03:00',
+    en: 'Added more vertical space between meals and dishes in the daily log, so they no longer read as running into each other on mobile.',
+    ru: 'Увеличены отступы между приёмами пищи и блюдами в дневнике — теперь они не сливаются друг с другом на телефоне.',
+  },
+  {
     issue: 126,
     date: '2026-07-17T23:52:32+03:00',
     en: 'Made the Date, Weight, Sleep, Steps, and Note fields on Today the same height as each other and their buttons, for a more consistent, easier-to-tap layout.',
