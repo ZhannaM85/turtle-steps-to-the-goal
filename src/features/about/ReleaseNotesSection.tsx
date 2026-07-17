@@ -33,7 +33,7 @@ export function ReleaseNotesSection() {
           {releaseNotes.map((note, index) => (
             <li key={index} className="flex flex-col gap-0.5">
               <span className="text-xs text-muted-foreground">
-                {format(parseISO(note.date), 'PP', { locale: dateFnsLocale })}
+                {format(parseISO(note.date), 'PPp', { locale: dateFnsLocale })}
               </span>
               <span className="text-foreground">{note[locale]}</span>
             </li>
