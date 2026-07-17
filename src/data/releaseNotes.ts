@@ -19,6 +19,12 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    issue: 133,
+    date: '2026-07-18T01:06:37+03:00',
+    en: 'Made the meal time, note, "+ Add item", and reaction controls the same height as the rest of the form, for a more consistent, easier-to-tap layout.',
+    ru: 'Поля времени, заметки, «+ Добавить блюдо» и реакция теперь одной высоты с остальной формой — интерфейс стал аккуратнее, а нажимать удобнее.',
+  },
+  {
     issue: 128,
     date: '2026-07-18T01:01:23+03:00',
     en: 'Added a "Food reactions" section on Dashboard showing your most-liked and most-disliked dishes, based on the reactions you log.',

@@ -244,6 +244,7 @@ export function MealItemEditorSheet({
               options={MEAL_EMOTIONS}
               labelFor={t.dailyEntry.mealEmotionLabel}
               contextLabel={name || undefined}
+              size="icon-xl"
             />
           </div>
         </div>

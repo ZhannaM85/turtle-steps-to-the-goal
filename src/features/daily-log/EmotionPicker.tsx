@@ -1,6 +1,7 @@
 import type { LucideIcon } from 'lucide-react'
 import { cn } from '@/shared/lib/utils'
-import { Button } from '@/shared/ui/button'
+import { Button, type buttonVariants } from '@/shared/ui/button'
+import type { VariantProps } from 'class-variance-authority'
 
 /** Generic over both the day's mood (Emotion) and a meal item's reaction
  * (MealEmotion, #54; moved from meal-group to per-item by #129) — the two
@@ -14,6 +15,7 @@ export function EmotionPicker<E extends string>({
   options,
   labelFor,
   contextLabel,
+  size = 'icon-sm',
 }: {
   value: E | undefined
   onChange: (emotion: E | undefined) => void
@@ -26,6 +28,10 @@ export function EmotionPicker<E extends string>({
    * exist on screen at once.
    */
   contextLabel?: string
+  /** Defaults to the day-mood picker's existing compact size (#84); the
+   * per-item reaction picker in MealItemEditorSheet.tsx passes `icon-xl`
+   * instead, to match that sheet's h-11 fields (#133). */
+  size?: VariantProps<typeof buttonVariants>['size']
 }) {
   return (
     <div className="flex items-center gap-3">
@@ -36,7 +42,7 @@ export function EmotionPicker<E extends string>({
             key={emotion}
             type="button"
             variant="ghost"
-            size="icon-sm"
+            size={size}
             aria-label={contextLabel ? `${label} — ${contextLabel}` : label}
             aria-pressed={value === emotion}
             // bg-muted alone (the old style) sits too close to

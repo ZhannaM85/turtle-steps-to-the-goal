@@ -521,14 +521,14 @@ function MealListItem({
               aria-label={`${t.dailyEntry.timeEatenLabel} — ${t.dailyEntry.mealLabel(position)}`}
               value={editTime}
               onChange={(e) => onEditTimeChange(e.target.value)}
-              className="h-7 w-24"
+              className="h-11 w-24"
             />
             {/* App-level clear button (#117), same as the add row's. */}
             {editTime && (
               <Button
                 type="button"
                 variant="ghost"
-                size="icon-sm"
+                size="icon-xl"
                 aria-label={`${t.dailyEntry.clearTimeLabel} — ${t.dailyEntry.mealLabel(position)}`}
                 onClick={() => onEditTimeChange('')}
               >
@@ -549,7 +549,7 @@ function MealListItem({
               onSaveEdit()
             }
           }}
-          className="h-7"
+          className="h-11"
         />
       </li>
     )
@@ -1669,7 +1669,7 @@ export function DailyEntryForm({
                 aria-label={t.dailyEntry.timeEatenLabel}
                 value={addTime}
                 onChange={(e) => setAddTime(e.target.value)}
-                className="h-7 w-24"
+                className="h-11 w-24"
               />
               {/* App-level clear button (#117) — the native iOS time
                * picker's own Reset doesn't reliably clear the value back
@@ -1678,7 +1678,7 @@ export function DailyEntryForm({
                 <Button
                   type="button"
                   variant="ghost"
-                  size="icon-sm"
+                  size="icon-xl"
                   aria-label={t.dailyEntry.clearTimeLabel}
                   onClick={() => setAddTime('')}
                 >
@@ -1694,7 +1694,7 @@ export function DailyEntryForm({
             type="button"
             variant="outline"
             size="sm"
-            className="justify-start"
+            className="h-11 justify-start"
             onClick={() => setIsAddItemSheetOpen(true)}
           >
             {addAmountPreview && addAmountPreview > 0 ? (
@@ -1750,7 +1750,7 @@ export function DailyEntryForm({
                 addMeal()
               }
             }}
-            className="h-7"
+            className="h-11"
           />
           {/* "Find food" is the alternative to the manual item sheet above
            * (#106) — fill in macros via "+ Add item", or find an existing
