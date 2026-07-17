@@ -22,6 +22,10 @@ export const en: Dictionary = {
       "The app hit an unexpected error. Your data is safe — it's all stored on this device. Reloading usually fixes it.",
     reloadButton: 'Reload',
   },
+  update: {
+    availableText: 'A new version is available.',
+    reloadButton: 'Reload',
+  },
   nav: {
     appName: 'Turtle Steps to the Goal',
     today: 'Today',

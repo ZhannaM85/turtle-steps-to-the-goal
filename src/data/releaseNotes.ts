@@ -15,6 +15,12 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    issue: 115,
+    date: '2026-07-17',
+    en: 'The app now lets you know when a new version is available, with a one-tap reload — previously there was no way to tell.',
+    ru: 'Приложение теперь сообщает о доступности новой версии с кнопкой перезагрузки в один тап — раньше узнать об этом было невозможно.',
+  },
+  {
     issue: 116,
     date: '2026-07-17',
     en: 'Dashboard: added a chart comparing how late you last ate each day against your weight the next morning.',

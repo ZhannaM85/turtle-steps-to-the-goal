@@ -32,6 +32,9 @@ jobs:
       - name: Type-check
         run: npx tsc -b
 
+      - name: Write version marker
+        run: echo "{\"version\":\"${{ github.sha }}\"}" > public/version.json
+
       - name: Build application
         run: npx vite build --base=/turtle-steps-to-the-goal/
 

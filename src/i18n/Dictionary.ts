@@ -13,6 +13,14 @@ export interface Dictionary {
     description: string
     reloadButton: string
   }
+  /** New-version-available banner (#115) — shown by `useAppUpdateAvailable`
+   * when a newer deploy is detected, since there's no pull-to-refresh in
+   * the iOS home-screen standalone context and no service worker to
+   * auto-update in the background. */
+  update: {
+    availableText: string
+    reloadButton: string
+  }
   nav: {
     appName: string
     today: string

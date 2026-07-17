@@ -28,3 +28,7 @@ coverage
 .claude/settings.local.json
 .zm-index/
 *.zm-index.db
+
+# Generated fresh by deploy-pages.yml on every deploy (#115) — never commit
+# a stale value.
+public/version.json
