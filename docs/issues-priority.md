@@ -259,6 +259,18 @@ _Same pattern as Tiers 8–14: issues filed from continued live use._
 
 ---
 
+## Tier 17 — Spacing & sizing consistency, meal reactions (2026-07-17)
+_Live-use feedback flagged two visual-consistency bugs (#126, #127) and a feature request for per-food reactions (#129) that #128's "most liked/disliked foods" list depends on for accurate attribution._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#126](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/126) | ⬜ Open | Unify heights of standalone form fields and buttons (Date, Weight, Sleep, Steps, meal item editor) | Not yet started |
+| [#127](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/127) | ✅ Done | Interactive element clusters too tightly packed — need min 12px horizontal gap | Bumped `gap-1`/`gap-1.5`/`gap-2` (4–8px) to `gap-3` (12px) across `DailyEntryForm.tsx`'s interactive-element clusters (meal-name Save/Delete, item-row Pencil/Delete, reaction picker, time-clear button, label-preset chips, view-mode Pencil/Delete, day-mood picker) and `MealItemEditorSheet.tsx`'s 100g/Portion toggle. Left icon-prefix-to-text and value-to-unit-label pairings (drag handle, Clock icon, InfoTooltip, sleep hours/minutes sub-fields) alone — those read as one visual unit, not a crowded control cluster |
+| [#129](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/129) | ⬜ Open | Move meal reaction (emotion) from meal group to individual food | Not yet started; prerequisite for #128's precise attribution |
+| [#128](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/128) | ⬜ Open | Feature request: most liked/disliked foods list based on meal reactions | Not yet started; depends on #129 landing first for accurate per-food attribution |
+
+---
+
 ## Private (no public GitHub issue, by request)
 
 _Filed and built without a public issue at the user's explicit request — the repo is public, and this one's more personal than the rest. Still documented normally here per the project's usual close-out process; see [[feedback_issue_first]]'s exception #2 in memory for why._

@@ -122,7 +122,7 @@ function EmotionPicker<E extends string>({
   contextLabel?: string
 }) {
   return (
-    <div className="flex items-center gap-1">
+    <div className="flex items-center gap-3">
       {options.map(({ value: emotion, Icon, emoji }) => {
         const label = labelFor(emotion)
         return (
@@ -361,7 +361,7 @@ function MealListItem({
         style={style}
         className="flex flex-col gap-2 rounded-lg bg-muted/40 px-1 py-1.5"
       >
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-3">
           {/* Custom meal name (#110) — free text, defaulting to the
            * positional "Meal N" placeholder when left blank. Quick-pick
            * chips below come from useMealLabelPresetStore (managed in
@@ -394,7 +394,7 @@ function MealListItem({
           </Button>
         </div>
         {mealLabelPresets.length > 0 && (
-          <div className="flex flex-wrap gap-1">
+          <div className="flex flex-wrap gap-3">
             {mealLabelPresets.map((preset) => (
               <Button
                 key={preset}
@@ -444,7 +444,7 @@ function MealListItem({
             return (
               <li
                 key={item.id}
-                className="flex items-center gap-1 rounded-md bg-card px-2 py-1"
+                className="flex items-center gap-3 rounded-md bg-card px-2 py-1"
               >
                 <span className="flex-1 truncate text-sm">
                   {item.name || t.dailyEntry.itemNamePlaceholder}
@@ -557,12 +557,12 @@ function MealListItem({
           />
         )}
 
-        <div className="flex flex-wrap items-end gap-2">
+        <div className="flex flex-wrap items-end gap-3">
           <div className="flex flex-col gap-1">
             <span className="text-xs text-muted-foreground">
               {t.dailyEntry.timeEatenLabel}
             </span>
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-3">
               <Input
                 type="time"
                 aria-label={`${t.dailyEntry.timeEatenLabel} — ${t.dailyEntry.mealLabel(position)}`}
@@ -654,7 +654,7 @@ function MealListItem({
             </>
           )}
         </span>
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-3">
           <Button
             type="button"
             variant="ghost"
@@ -1711,7 +1711,7 @@ export function DailyEntryForm({
             {/* Clock icon (#114) — a bare empty box gave no visual hint this
              * was a time picker, since native <input type="time"> doesn't
              * reliably show a placeholder across browsers. */}
-            <div className="flex items-center gap-1 text-muted-foreground">
+            <div className="flex items-center gap-3 text-muted-foreground">
               <Clock aria-hidden="true" className="size-3.5" />
               <Input
                 type="time"
@@ -1785,7 +1785,7 @@ export function DailyEntryForm({
               setIsAddItemSheetOpen(false)
             }}
           />
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
             <Input
               type="text"
               aria-label={t.dailyEntry.mealNoteLabel}
@@ -1953,7 +1953,7 @@ export function DailyEntryForm({
           {errors.note && (
             <p className="text-sm text-destructive">{errors.note.message}</p>
           )}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
             <span className="text-sm text-muted-foreground">
               {t.dailyEntry.dayMoodLabel}
             </span>

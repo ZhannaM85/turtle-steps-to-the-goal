@@ -160,7 +160,7 @@ export function MealItemEditorSheet({
             onValueChange={(value) =>
               value && onMacroModeChange(value as 'per100g' | 'perPortion')
             }
-            className="w-fit gap-1 p-1"
+            className="w-fit gap-3 p-1"
           >
             <ToggleGroupItem value="per100g" className="h-10 px-4 text-sm">
               {t.dailyEntry.macroModePer100gOption}

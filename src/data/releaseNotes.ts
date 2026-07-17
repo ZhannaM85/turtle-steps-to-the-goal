@@ -19,6 +19,12 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    issue: 127,
+    date: '2026-07-17T22:46:17+03:00',
+    en: 'Increased the spacing between buttons and fields in the meal editor, so they are easier to tap on mobile.',
+    ru: 'Увеличены отступы между кнопками и полями в редакторе приёма пищи — так проще нажимать на телефоне.',
+  },
+  {
     issue: 125,
     date: '2026-07-17T20:13:46+03:00',
     en: 'Added an "Export as CSV" option in Settings — a compact table format, good for pasting into an AI assistant if you want it to analyze your data.',
