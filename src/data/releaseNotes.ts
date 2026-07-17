@@ -15,6 +15,12 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    issue: 100,
+    date: '2026-07-17',
+    en: 'Today now shows a third stat card: your progress compared to the highest weight you’ve ever logged.',
+    ru: '«Сегодня» теперь показывает третью карточку — прогресс относительно максимального веса, который вы когда-либо фиксировали.',
+  },
+  {
     issue: 106,
     date: '2026-07-17',
     en: 'Manual meal entry: "Find food" now appears above the Add button, with an "or" between them, to make clear they’re two different ways to log a meal.',

@@ -10,7 +10,11 @@ import {
   useLocale,
   useTranslation,
 } from '@/i18n'
-import { useCurrentWeekInfo, usePreviousDayEntry } from '@/shared/hooks'
+import {
+  useCurrentWeekInfo,
+  useMaxRecordedWeight,
+  usePreviousDayEntry,
+} from '@/shared/hooks'
 import { Button } from '@/shared/ui/button'
 import { EmptyState } from '@/shared/ui/empty-state'
 import { Input } from '@/shared/ui/input'
@@ -39,6 +43,7 @@ export function TodayScreen() {
   const [date, setDate] = useState(todayIso)
   const weekInfo = useCurrentWeekInfo()
   const previousDayEntry = usePreviousDayEntry(date)
+  const maxWeightKg = useMaxRecordedWeight(entry)
 
   useEffect(() => {
     loadActiveGoal()
@@ -74,6 +79,29 @@ export function TodayScreen() {
     ) : (
       <span className="text-2xl font-normal text-muted-foreground">
         {weightDeltaText}
+      </span>
+    )
+
+  // Progress vs. the highest weight ever recorded (#100) — a third,
+  // longer-horizon delta alongside the day-over-day and weekly-target
+  // ones. Only shown once both a current weight and a recorded max exist;
+  // same asymmetric emphasis as the other delta cards (#29) — being below
+  // the max is the "good" direction, worth noticing.
+  const vsMaxWeightKg =
+    entry?.weightKg !== undefined && maxWeightKg !== null
+      ? entry.weightKg - maxWeightKg
+      : null
+  const vsMaxWeightText =
+    vsMaxWeightKg === null
+      ? null
+      : formatExactNumber(toDisplay(vsMaxWeightKg), locale)
+  const isBelowMaxWeight = vsMaxWeightKg !== null && vsMaxWeightKg < 0
+  const vsMaxWeightValue =
+    vsMaxWeightText === null ? null : isBelowMaxWeight ? (
+      vsMaxWeightText
+    ) : (
+      <span className="text-2xl font-normal text-muted-foreground">
+        {vsMaxWeightText}
       </span>
     )
 
@@ -128,6 +156,14 @@ export function TodayScreen() {
         <StatCard
           label={t.today.vsYesterdayLabel}
           value={weightDeltaValue}
+          unit={unitLabel(displayUnit, t)}
+        />
+      )}
+
+      {vsMaxWeightValue !== null && (
+        <StatCard
+          label={t.today.vsMaxWeightLabel}
+          value={vsMaxWeightValue}
           unit={unitLabel(displayUnit, t)}
         />
       )}

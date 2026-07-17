@@ -1,5 +1,5 @@
 import 'fake-indexeddb/auto'
-import { fireEvent, render, screen } from '@testing-library/react'
+import { fireEvent, render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { addDays, format, subDays } from 'date-fns'
 import { MemoryRouter } from 'react-router-dom'
@@ -277,8 +277,11 @@ describe('TodayScreen', () => {
         </MemoryRouter>,
       )
 
-      expect(await screen.findByText('vs. yesterday')).toBeInTheDocument()
-      expect(screen.getByText('-0.5')).toBeInTheDocument()
+      // Scoped to this card — the #100 max-weight card can coincidentally
+      // show the same delta text (both derived from the same two entries).
+      const label = await screen.findByText('vs. yesterday')
+      const card = label.closest('[data-slot="card"]') as HTMLElement
+      expect(within(card).getByText('-0.5')).toBeInTheDocument()
     })
 
     it('renders a loss bold, with the minus sign', async () => {
@@ -295,7 +298,9 @@ describe('TodayScreen', () => {
         </MemoryRouter>,
       )
 
-      const value = await screen.findByText('-0.5')
+      const label = await screen.findByText('vs. yesterday')
+      const card = label.closest('[data-slot="card"]') as HTMLElement
+      const value = within(card).getByText('-0.5')
       expect(value).toHaveClass('text-4xl', 'font-semibold')
     })
 
@@ -336,6 +341,86 @@ describe('TodayScreen', () => {
 
       await screen.findByText('80 kg')
       expect(screen.queryByText('vs. yesterday')).not.toBeInTheDocument()
+    })
+  })
+
+  describe('delta vs highest recorded weight (#100)', () => {
+    it('shows the delta once a higher weight exists in history', async () => {
+      const lastMonth = format(subDays(new Date(), 30), 'yyyy-MM-dd')
+      await db.dailyEntries.put(makeEntry({ date: lastMonth, weightKg: 85 }))
+      await useDailyEntryStore
+        .getState()
+        .saveEntry(makeEntry({ weightKg: 80 }))
+      useDailyEntryStore.setState({ entry: null, date: null, status: 'idle' })
+
+      render(
+        <MemoryRouter>
+          <TodayScreen />
+        </MemoryRouter>,
+      )
+
+      expect(
+        await screen.findByText('vs. highest weight'),
+      ).toBeInTheDocument()
+      expect(screen.getByText('-5')).toBeInTheDocument()
+    })
+
+    it('renders progress below the highest weight bold', async () => {
+      const lastMonth = format(subDays(new Date(), 30), 'yyyy-MM-dd')
+      await db.dailyEntries.put(makeEntry({ date: lastMonth, weightKg: 85 }))
+      await useDailyEntryStore
+        .getState()
+        .saveEntry(makeEntry({ weightKg: 80 }))
+      useDailyEntryStore.setState({ entry: null, date: null, status: 'idle' })
+
+      render(
+        <MemoryRouter>
+          <TodayScreen />
+        </MemoryRouter>,
+      )
+
+      const value = await screen.findByText('-5')
+      expect(value).toHaveClass('text-4xl', 'font-semibold')
+    })
+
+    it('renders being at the highest weight quietly', async () => {
+      await useDailyEntryStore
+        .getState()
+        .saveEntry(makeEntry({ weightKg: 80 }))
+      useDailyEntryStore.setState({ entry: null, date: null, status: 'idle' })
+
+      render(
+        <MemoryRouter>
+          <TodayScreen />
+        </MemoryRouter>,
+      )
+
+      // Scoped to the card itself — an untouched Calories total also
+      // renders a bare "0" elsewhere on the page.
+      const label = await screen.findByText('vs. highest weight')
+      const card = label.closest('[data-slot="card"]') as HTMLElement
+      const value = within(card).getByText('0')
+      expect(value).toHaveClass(
+        'text-2xl',
+        'font-normal',
+        'text-muted-foreground',
+      )
+    })
+
+    it('does not show the delta when no weight is logged for the viewed date', async () => {
+      const lastMonth = format(subDays(new Date(), 30), 'yyyy-MM-dd')
+      await db.dailyEntries.put(makeEntry({ date: lastMonth, weightKg: 85 }))
+
+      render(
+        <MemoryRouter>
+          <TodayScreen />
+        </MemoryRouter>,
+      )
+
+      await screen.findByLabelText('Date')
+      expect(
+        screen.queryByText('vs. highest weight'),
+      ).not.toBeInTheDocument()
     })
   })
 })

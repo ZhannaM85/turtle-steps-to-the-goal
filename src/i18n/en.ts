@@ -39,6 +39,7 @@ export const en: Dictionary = {
       "This week wraps up today — worth checking next week's target.",
     reviewGoalLink: 'Review goal',
     vsYesterdayLabel: 'vs. yesterday',
+    vsMaxWeightLabel: 'vs. highest weight',
     celebrationTitle: "You reached this week's goal!",
     celebrationDescription:
       'Nice work — want to set a target for next week?',
