@@ -15,6 +15,12 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    issue: 109,
+    date: '2026-07-17',
+    en: 'The Add button on the manual meal row is now disabled until you’ve entered a valid amount, instead of silently doing nothing when clicked empty.',
+    ru: 'Кнопка «Добавить» в ручном добавлении блюда теперь неактивна, пока не введено корректное значение, а не просто ничего не делает при нажатии.',
+  },
+  {
     issue: 108,
     date: '2026-07-17',
     en: 'Small wording tweak to the Russian dish-name prompt so it reads as an instruction, not a yes/no question.',

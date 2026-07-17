@@ -966,6 +966,27 @@ describe('DailyEntryForm', () => {
       expect(screen.getByText('0')).toBeInTheDocument()
     })
 
+    it('disables Add until a valid kcal/100g rate is entered (#109)', async () => {
+      const user = userEvent.setup()
+      render(
+        <DailyEntryForm
+          date="2026-03-01"
+          existingEntry={null}
+          onSave={vi.fn()}
+        />,
+      )
+
+      const addButton = screen.getByRole('button', { name: 'Add' })
+      expect(addButton).toBeDisabled()
+
+      await user.type(screen.getByLabelText('kcal/100g'), '0')
+      expect(addButton).toBeDisabled()
+
+      await user.clear(screen.getByLabelText('kcal/100g'))
+      await user.type(screen.getByLabelText('kcal/100g'), '150')
+      expect(addButton).toBeEnabled()
+    })
+
     describe('itemized meal editing', () => {
       function renderWithMeals(onSave = vi.fn()) {
         return render(

@@ -1668,6 +1668,7 @@ export function DailyEntryForm({
             variant="default"
             size="sm"
             className="w-full"
+            disabled={!addKcal100Preview || addKcal100Preview <= 0}
             onClick={addMeal}
           >
             {t.dailyEntry.addButton}
