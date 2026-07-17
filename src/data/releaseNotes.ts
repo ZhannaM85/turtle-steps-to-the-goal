@@ -83,8 +83,8 @@ export const releaseNotes: ReleaseNote[] = [
   {
     issue: 103,
     date: '2026-07-17',
-    en: 'Added a real home-screen icon (a little turtle mark) — no more generic gray tile when adding the app to your home screen.',
-    ru: 'Добавлена настоящая иконка для главного экрана (значок черепашки) — больше никакой серой заглушки при добавлении приложения на главный экран.',
+    en: 'Added a real home-screen icon — a proper illustrated turtle graphic — no more generic gray tile when adding the app to your home screen.',
+    ru: 'Добавлена настоящая иконка для главного экрана — полноценная иллюстрация черепашки — больше никакой серой заглушки при добавлении приложения на главный экран.',
   },
   {
     issue: 110,
