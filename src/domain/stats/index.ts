@@ -11,3 +11,9 @@ export { currentWeekInfo } from './currentWeekInfo'
 export type { CurrentWeekInfo } from './currentWeekInfo'
 export { foodReactionTallies, mostLikedFoods, mostDislikedFoods } from './foodReactions'
 export type { FoodReactionTally } from './foodReactions'
+export {
+  customChartPoints,
+  booleanFlagDates,
+  NUMERIC_SERIES_KEYS,
+} from './customChartSeries'
+export type { CustomChartPoint, NumericSeriesKey } from './customChartSeries'

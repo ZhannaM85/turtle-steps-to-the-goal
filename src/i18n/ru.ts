@@ -268,6 +268,12 @@ export const ru: Dictionary = {
     foodReactionsTitle: 'Реакции на еду',
     mostLikedFoodsTitle: 'Больше всего нравится',
     mostDislikedFoodsTitle: 'Больше всего не нравится',
+    customChartTitle: 'Сравнение данных',
+    customChartWeightLabel: 'Вес',
+    customChartCaloriesLabel: 'Калории',
+    customChartNormalizedCaveat:
+      'Каждая линия масштабирована по своему диапазону, чтобы разные единицы измерения (кг, ккал, шаги) можно было показать на одном графике — форма и тренд сопоставимы, но высота линии не отражает абсолютное значение. Точное значение за день смотрите во всплывающей подсказке.',
+    customChartEmptyDescription: 'Выберите хотя бы один показатель для сравнения.',
   },
   history: {
     title: 'История',

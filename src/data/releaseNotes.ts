@@ -19,6 +19,12 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    issue: 132,
+    date: '2026-07-18T02:22:54+03:00',
+    en: 'Added a "Compare your data" chart on Dashboard — pick any combination of weight, calories, protein, fat, carbs, steps, period, and bowel movement to see them overlaid on one chart, with a legend.',
+    ru: 'На странице «Обзор» появился график «Сравнение данных» — выберите любую комбинацию из веса, калорий, белков, жиров, углеводов, шагов, менструации и стула, чтобы увидеть их на одном графике с легендой.',
+  },
+  {
     issue: 134,
     date: '2026-07-18T01:14:25+03:00',
     en: 'You can now rate a dish right when you add it via "Find food" — not just when typing it in manually.',
