@@ -235,6 +235,19 @@ _Same pattern as Tiers 8–13: issues filed from continued live use._
 
 ---
 
+## Tier 15 — Eighth live-feedback wave (2026-07-17)
+
+_Same pattern as Tiers 8–14: issues filed from continued live use._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#118](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/118) | 🔲 Open | No visible feedback when pulling down to refresh (standalone mode does nothing) | No custom pull-to-refresh exists; standalone home-screen mode has no Safari chrome to catch the native gesture either. Two possible approaches noted (real drag gesture vs. a simple explicit Refresh button) — needs a decision before implementing |
+| [#119](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/119) | 🔲 Open | Bottom tab bar: top padding too large after #112's height increase | `min-h-[106px]` reads as an oversized empty gap above the icons in practice. Needs tuning down, likely to somewhere in the `min-h-20`–`min-h-24` range |
+| [#120](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/120) | 🔲 Open | Fixed bottom tab bar floats mid-screen when keyboard is open and page is scrolled | Not yet root-caused — likely a layout/visual viewport mismatch on iOS when the keyboard opens, or a transformed ancestor turning `fixed` positioning relative to the wrong element. Needs on-device investigation |
+| [#121](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/121) | 🔲 Open | Portion mode: hide the Grams field, show a Portion label instead | Grams is a pure memory aid in Portion mode (#111), not a multiplier — showing an editable "100" next to it reads as confusing clutter. Applies to both the add row and item-edit rows |
+
+---
+
 ## Private (no public GitHub issue, by request)
 
 _Filed and built without a public issue at the user's explicit request — the repo is public, and this one's more personal than the rest. Still documented normally here per the project's usual close-out process; see [[feedback_issue_first]]'s exception #2 in memory for why._
