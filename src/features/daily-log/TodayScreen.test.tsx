@@ -178,6 +178,38 @@ describe('TodayScreen', () => {
     expect(todayEntry).toBeUndefined()
   })
 
+  it('steps to the previous/next day via the arrow buttons', async () => {
+    const user = userEvent.setup()
+    render(
+      <MemoryRouter>
+        <TodayScreen />
+      </MemoryRouter>,
+    )
+
+    const today = format(new Date(), 'yyyy-MM-dd')
+    const yesterday = format(subDays(new Date(), 1), 'yyyy-MM-dd')
+    expect(await screen.findByLabelText('Date')).toHaveValue(today)
+
+    await user.click(screen.getByRole('button', { name: 'Previous day' }))
+    expect(await screen.findByLabelText('Date')).toHaveValue(yesterday)
+
+    await user.click(screen.getByRole('button', { name: 'Next day' }))
+    expect(await screen.findByLabelText('Date')).toHaveValue(today)
+  })
+
+  it('disables the next-day arrow once already on today', async () => {
+    render(
+      <MemoryRouter>
+        <TodayScreen />
+      </MemoryRouter>,
+    )
+
+    expect(await screen.findByLabelText('Date')).toHaveValue(
+      format(new Date(), 'yyyy-MM-dd'),
+    )
+    expect(screen.getByRole('button', { name: 'Next day' })).toBeDisabled()
+  })
+
   it('loads an existing entry for editing when picking a date that already has one', async () => {
     await useDailyEntryStore.getState().saveEntry(
       makeEntry({

@@ -39,6 +39,10 @@ export interface Dictionary {
     emptyGoalDescription: string
     setGoalButton: string
     dateLabel: string
+    /** Prev/next-day arrows flanking the Date field (#138) — quicker than
+     * opening the date picker to check yesterday/tomorrow. */
+    previousDayLabel: string
+    nextDayLabel: string
     goalRenewalReminder: string
     reviewGoalLink: string
     vsYesterdayLabel: string

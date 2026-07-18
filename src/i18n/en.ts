@@ -45,6 +45,8 @@ export const en: Dictionary = {
     emptyGoalDescription: 'Set a weekly target to see it here.',
     setGoalButton: 'Set a goal',
     dateLabel: 'Date',
+    previousDayLabel: 'Previous day',
+    nextDayLabel: 'Next day',
     goalRenewalReminder:
       "This week wraps up today — worth checking next week's target.",
     reviewGoalLink: 'Review goal',

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
-import { format, parseISO } from 'date-fns'
+import { addDays, format, parseISO } from 'date-fns'
+import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { kgToLb } from '@/domain/goal'
 import {
@@ -27,6 +28,10 @@ import { GoalCelebrationModal } from './GoalCelebrationModal'
 
 function todayIso() {
   return format(new Date(), 'yyyy-MM-dd')
+}
+
+function shiftDate(date: string, days: number) {
+  return format(addDays(parseISO(date), days), 'yyyy-MM-dd')
 }
 
 export function TodayScreen() {
@@ -182,14 +187,38 @@ export function TodayScreen() {
 
       <div className="flex flex-col gap-1.5">
         <Label htmlFor="log-date">{t.today.dateLabel}</Label>
-        <Input
-          id="log-date"
-          type="date"
-          value={date}
-          max={todayIso()}
-          onChange={(e) => setDate(e.target.value)}
-          className="h-12 max-w-48"
-        />
+        <div className="flex items-center gap-2">
+          <Button
+            type="button"
+            variant="outline"
+            size="icon-xl"
+            aria-label={t.today.previousDayLabel}
+            onClick={() => setDate((prev) => shiftDate(prev, -1))}
+          >
+            <ChevronLeft aria-hidden="true" />
+          </Button>
+          <Input
+            id="log-date"
+            type="date"
+            value={date}
+            max={todayIso()}
+            onChange={(e) => setDate(e.target.value)}
+            className="h-12 max-w-48"
+          />
+          {/* Capped at today (#138), same as the date input's own `max` —
+           * logging a future day isn't supported anywhere else in the app,
+           * out of scope for "quicker than opening the picker" arrows. */}
+          <Button
+            type="button"
+            variant="outline"
+            size="icon-xl"
+            aria-label={t.today.nextDayLabel}
+            disabled={date >= todayIso()}
+            onClick={() => setDate((prev) => shiftDate(prev, 1))}
+          >
+            <ChevronRight aria-hidden="true" />
+          </Button>
+        </div>
       </div>
 
       {entryStatus === 'loading' || entryStatus === 'idle' ? (

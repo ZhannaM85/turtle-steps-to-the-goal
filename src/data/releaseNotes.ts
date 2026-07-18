@@ -19,6 +19,12 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    issue: 138,
+    date: '2026-07-18T09:57:53+03:00',
+    en: 'Added left/right arrows next to the Date field on Today, for a quicker way to check yesterday (or hop back to today) than opening the date picker.',
+    ru: 'На экране «Сегодня» рядом с полем Даты появились стрелки влево/вправо — быстрый способ посмотреть вчерашний день (или вернуться к сегодняшнему), не открывая календарь.',
+  },
+  {
     issue: 136,
     date: '2026-07-18T09:53:31+03:00',
     en: 'Fixed History: editing a day no longer causes a horizontal scrollbar that cut off part of the meal-editing form.',
