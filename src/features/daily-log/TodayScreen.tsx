@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { addDays, format, parseISO } from 'date-fns'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { Link } from 'react-router-dom'
-import { kgToLb } from '@/domain/goal'
+import { goalWeekEnd, kgToLb } from '@/domain/goal'
 import {
   formatExactNumber,
   formatNumber,
@@ -11,11 +11,7 @@ import {
   useLocale,
   useTranslation,
 } from '@/i18n'
-import {
-  useCurrentWeekInfo,
-  useMaxRecordedWeight,
-  usePreviousDayEntry,
-} from '@/shared/hooks'
+import { useMaxRecordedWeight, usePreviousDayEntry } from '@/shared/hooks'
 import { Button } from '@/shared/ui/button'
 import { EmptyState } from '@/shared/ui/empty-state'
 import { Input } from '@/shared/ui/input'
@@ -46,7 +42,6 @@ export function TodayScreen() {
     saveEntry,
   } = useDailyEntryStore()
   const [date, setDate] = useState(todayIso)
-  const weekInfo = useCurrentWeekInfo()
   const previousDayEntry = usePreviousDayEntry(date)
   const maxWeightKg = useMaxRecordedWeight(entry)
 
@@ -110,13 +105,18 @@ export function TodayScreen() {
       </span>
     )
 
-  // Quiet, one-day nudge (#38) — only on the last day of the current ISO
-  // week, and only when a goal already exists (a goal-less user already
-  // sees the "Set a goal" empty state above, which covers that case).
-  // No dismiss state to persist: it naturally stops once the week rolls
-  // over, matching the app's no-pressure tone (no badges/streaks).
+  // Quiet nudge (#38) once the goal's own anchored window (#135,
+  // `goal.weekStart`..`goalWeekEnd(weekStart)`) has run its course, and
+  // only when a goal already exists (a goal-less user already sees the
+  // "Set a goal" empty state above, which covers that case). Unlike the
+  // old fixed-calendar-week version, this doesn't auto-advance on its
+  // own — a goal-anchored window only starts fresh when the user actually
+  // saves a new target (#135's whole point) — so this stays true on every
+  // visit from the day the window completes until it's renewed, rather
+  // than only the single day it happened to end. Still no dismiss state
+  // to persist, matching the app's no-pressure tone (no badges/streaks).
   const showGoalRenewalReminder = Boolean(
-    goal && weekInfo && weekInfo.weekEnd === todayIso(),
+    goal && goal.weekStart && todayIso() >= goalWeekEnd(goal.weekStart),
   )
 
   return (
@@ -132,13 +132,12 @@ export function TodayScreen() {
           value={formatNumber(-weeklyPace!, locale)}
           unit={t.today.toLose(unitLabel(displayUnit, t))}
           description={
-            weekInfo
-              ? t.common.weekLabel(
-                  weekInfo.weekNumber,
-                  format(parseISO(weekInfo.weekStart), 'MMM d', {
+            goal.weekStart
+              ? t.common.weekRangeLabel(
+                  format(parseISO(goal.weekStart), 'MMM d', {
                     locale: dateFnsLocale,
                   }),
-                  format(parseISO(weekInfo.weekEnd), 'MMM d', {
+                  format(parseISO(goalWeekEnd(goal.weekStart)), 'MMM d', {
                     locale: dateFnsLocale,
                   }),
                 )

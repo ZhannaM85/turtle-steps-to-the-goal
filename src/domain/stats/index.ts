@@ -7,8 +7,6 @@ export { correlationInsight } from './correlationInsight'
 export type { CorrelationInsight } from './correlationInsight'
 export { lateMealCorrelation, lateMealPoints } from './lateMealCorrelation'
 export type { LateMealCorrelation, LateMealPoint } from './lateMealCorrelation'
-export { currentWeekInfo } from './currentWeekInfo'
-export type { CurrentWeekInfo } from './currentWeekInfo'
 export { foodReactionTallies, mostLikedFoods, mostDislikedFoods } from './foodReactions'
 export type { FoodReactionTally } from './foodReactions'
 export {

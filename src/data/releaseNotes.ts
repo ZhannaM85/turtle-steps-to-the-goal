@@ -19,6 +19,12 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    issue: 135,
+    date: '2026-07-18T10:26:14+03:00',
+    en: "Fixed: updating this week's target now always starts a fresh 7-day window from today, instead of being labeled against whatever calendar week happened to contain today.",
+    ru: 'Исправлено: обновление цели на неделю теперь всегда начинает новое 7-дневное окно с сегодняшнего дня, а не привязывается к тому календарному отрезку недели, в который попало сегодня.',
+  },
+  {
     issue: 138,
     date: '2026-07-18T09:57:53+03:00',
     en: 'Added left/right arrows next to the Date field on Today, for a quicker way to check yesterday (or hop back to today) than opening the date picker.',

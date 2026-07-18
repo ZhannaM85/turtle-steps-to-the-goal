@@ -12,8 +12,7 @@ function entryCount(n: number): string {
 export const ru: Dictionary = {
   common: {
     loading: 'Загрузка…',
-    weekLabel: (weekNumber, start, end) =>
-      `Неделя ${weekNumber} · ${start} – ${end}`,
+    weekRangeLabel: (start, end) => `${start} – ${end}`,
     kg: 'кг',
     lb: 'фунт',
   },
@@ -49,7 +48,7 @@ export const ru: Dictionary = {
     previousDayLabel: 'Предыдущий день',
     nextDayLabel: 'Следующий день',
     goalRenewalReminder:
-      'Эта неделя заканчивается сегодня — стоит проверить цель на следующую неделю.',
+      'Цель на эту неделю пора обновить — стоит заглянуть и проверить.',
     reviewGoalLink: 'Посмотреть цель',
     vsYesterdayLabel: 'по сравнению со вчера',
     vsMaxWeightLabel: 'по сравнению с максимальным весом',

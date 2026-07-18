@@ -3,7 +3,11 @@ export interface Dictionary {
     loading: string
     kg: string
     lb: string
-    weekLabel: (weekNumber: number, start: string, end: string) => string
+    /** The goal's own anchored 7-day window (#135) — just the date range,
+     * no week number: the window starts whenever the target was last
+     * saved, not a fixed calendar grid, so a running "Week N" count no
+     * longer corresponds to anything meaningful here. */
+    weekRangeLabel: (start: string, end: string) => string
   }
   /** Top-level crash fallback (#102) — shown by the router's errorElement
    * when a render error escapes anywhere in the app, instead of a silent

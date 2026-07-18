@@ -13,8 +13,7 @@ export const en: Dictionary = {
     loading: 'Loading…',
     kg: 'kg',
     lb: 'lb',
-    weekLabel: (weekNumber, start, end) =>
-      `Week ${weekNumber} · ${start} – ${end}`,
+    weekRangeLabel: (start, end) => `${start} – ${end}`,
   },
   error: {
     title: 'Something went wrong',
@@ -48,7 +47,7 @@ export const en: Dictionary = {
     previousDayLabel: 'Previous day',
     nextDayLabel: 'Next day',
     goalRenewalReminder:
-      "This week wraps up today — worth checking next week's target.",
+      "This week's target is ready to renew — worth checking in on it.",
     reviewGoalLink: 'Review goal',
     vsYesterdayLabel: 'vs. yesterday',
     vsMaxWeightLabel: 'vs. highest weight',

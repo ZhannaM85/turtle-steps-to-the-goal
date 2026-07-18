@@ -28,8 +28,8 @@ export interface CalendarViewProps {
   onSaved: (entry: DailyEntry) => void
 }
 
-// Monday-start week, matching the app's existing ISO-week convention
-// (see domain/stats/currentWeekInfo.ts).
+// Monday-start week, matching the app's existing ISO-week convention (the
+// default weekStartsOn used by domain/stats/weeklySummaries.ts).
 const WEEK_STARTS_ON = 1
 
 export function CalendarView({

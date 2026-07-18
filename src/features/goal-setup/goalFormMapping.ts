@@ -1,3 +1,4 @@
+import { format } from 'date-fns'
 import type { Goal } from '@/domain/goal'
 import { kgToLb, lbToKg } from '@/domain/goal'
 import type { Unit } from '@/stores'
@@ -28,6 +29,11 @@ export function formValuesToGoal(
   return {
     id: existingGoal?.id ?? crypto.randomUUID(),
     targetWeeklyLossKg: toKg(values.targetWeeklyLoss as number),
+    // Always today (#135), never carried over from existingGoal — every
+    // save (new goal or edit) starts a fresh 7-day tracking window from
+    // the moment it's actually saved, rather than the window's start
+    // silently staying wherever the goal was first created.
+    weekStart: format(new Date(), 'yyyy-MM-dd'),
     createdAt: existingGoal?.createdAt ?? now,
     updatedAt: now,
   }

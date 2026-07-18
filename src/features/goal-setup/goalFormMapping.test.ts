@@ -1,3 +1,4 @@
+import { format } from 'date-fns'
 import { describe, expect, it } from 'vitest'
 import type { Goal } from '@/domain/goal'
 import {
@@ -55,6 +56,17 @@ describe('formValuesToGoal', () => {
 
     expect(goal.id).toBe('existing-id')
     expect(goal.createdAt).toBe(existing.createdAt)
+  })
+
+  it('always stamps weekStart to today, even when editing an existing goal (#135)', () => {
+    const today = format(new Date(), 'yyyy-MM-dd')
+    const existing = makeGoal({ weekStart: '2020-01-01' })
+
+    const created = formValuesToGoal(baseValues, null, 'kg')
+    expect(created.weekStart).toBe(today)
+
+    const edited = formValuesToGoal(baseValues, existing, 'kg')
+    expect(edited.weekStart).toBe(today)
   })
 
   it('converts lb inputs to canonical kg', () => {

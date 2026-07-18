@@ -137,21 +137,6 @@ describe('IndexedDbDailyEntryRepository', () => {
     await expect(dailyEntryRepository.getAll()).resolves.toEqual([])
   })
 
-  it('returns undefined for the earliest date when there are no entries', async () => {
-    await expect(
-      dailyEntryRepository.getEarliestDate(),
-    ).resolves.toBeUndefined()
-  })
-
-  it('returns the earliest date regardless of insertion order', async () => {
-    await dailyEntryRepository.upsert(makeEntry({ date: '2026-03-05' }))
-    await dailyEntryRepository.upsert(makeEntry({ date: '2026-03-01' }))
-    await dailyEntryRepository.upsert(makeEntry({ date: '2026-03-03' }))
-
-    await expect(dailyEntryRepository.getEarliestDate()).resolves.toBe(
-      '2026-03-01',
-    )
-  })
 })
 
 describe('IndexedDbMealItemRepository', () => {

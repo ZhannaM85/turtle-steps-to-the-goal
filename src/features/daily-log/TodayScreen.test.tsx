@@ -1,42 +1,21 @@
 import 'fake-indexeddb/auto'
 import { fireEvent, render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { addDays, format, subDays } from 'date-fns'
+import { format, subDays } from 'date-fns'
 import { MemoryRouter } from 'react-router-dom'
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import type { Goal } from '@/domain/goal'
 import type { DailyEntry } from '@/domain/dailyEntry'
 import { db } from '@/infrastructure/persistence/indexeddb'
 import { useDailyEntryStore, useGoalStore } from '@/stores'
 import { TodayScreen } from './TodayScreen'
 
-// The reminder condition (#38) compares useCurrentWeekInfo()'s weekEnd
-// against today's real date, which is only ever true on an actual Sunday.
-// Rather than faking the system clock (which testing-library's async
-// findBy/waitFor utilities don't play well with), patch just the
-// weekEnd field after the real hook resolves, so tests stay deterministic
-// without losing the real hook's Week-N/async-loading behavior.
-let weekEndOverride: string | undefined
-
-vi.mock('@/shared/hooks', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('@/shared/hooks')>()
-  return {
-    ...actual,
-    useCurrentWeekInfo: (
-      ...args: Parameters<typeof actual.useCurrentWeekInfo>
-    ) => {
-      const real = actual.useCurrentWeekInfo(...args)
-      if (weekEndOverride === undefined || !real) return real
-      return { ...real, weekEnd: weekEndOverride }
-    },
-  }
-})
-
 function makeGoal(overrides: Partial<Goal> = {}): Goal {
   const now = new Date().toISOString()
   return {
     id: crypto.randomUUID(),
     targetWeeklyLossKg: 1,
+    weekStart: format(new Date(), 'yyyy-MM-dd'),
     createdAt: now,
     updatedAt: now,
     ...overrides,
@@ -65,13 +44,11 @@ beforeEach(async () => {
     status: 'idle',
     error: null,
   })
-  weekEndOverride = undefined
 })
 
 afterEach(async () => {
   await db.goals.clear()
   await db.dailyEntries.clear()
-  weekEndOverride = undefined
 })
 
 describe('TodayScreen', () => {
@@ -103,8 +80,10 @@ describe('TodayScreen', () => {
     expect(screen.getByText('kg to lose')).toBeInTheDocument()
   })
 
-  it('shows Week 1 with no entries logged yet', async () => {
-    await useGoalStore.getState().saveGoal(makeGoal({ targetWeeklyLossKg: 1 }))
+  it("shows the goal's own anchored 7-day window, not a calendar week (#135)", async () => {
+    await useGoalStore
+      .getState()
+      .saveGoal(makeGoal({ targetWeeklyLossKg: 1, weekStart: '2026-03-09' }))
 
     render(
       <MemoryRouter>
@@ -112,7 +91,7 @@ describe('TodayScreen', () => {
       </MemoryRouter>,
     )
 
-    expect(await screen.findByText(/^Week 1 · /)).toBeInTheDocument()
+    expect(await screen.findByText('Mar 9 – Mar 15')).toBeInTheDocument()
   })
 
   it('defaults the date picker to today and shows a blank log form', async () => {
@@ -238,12 +217,12 @@ describe('TodayScreen', () => {
     ).toBeInTheDocument()
   })
 
-  describe('goal renewal reminder', () => {
-    it('shows on the last day of the current week when a goal exists', async () => {
-      weekEndOverride = format(new Date(), 'yyyy-MM-dd')
+  describe('goal renewal reminder (#135: anchored to goal.weekStart, not a calendar week)', () => {
+    it("shows once the goal's 7-day window has run its course", async () => {
+      const weekStart = format(subDays(new Date(), 6), 'yyyy-MM-dd') // weekEnd == today
       await useGoalStore
         .getState()
-        .saveGoal(makeGoal({ targetWeeklyLossKg: 1 }))
+        .saveGoal(makeGoal({ targetWeeklyLossKg: 1, weekStart }))
 
       render(
         <MemoryRouter>
@@ -252,7 +231,7 @@ describe('TodayScreen', () => {
       )
 
       expect(
-        await screen.findByText(/worth checking next week's target/),
+        await screen.findByText(/ready to renew/),
       ).toBeInTheDocument()
       expect(screen.getByRole('link', { name: 'Review goal' })).toHaveAttribute(
         'href',
@@ -260,11 +239,26 @@ describe('TodayScreen', () => {
       )
     })
 
-    it('does not show earlier in the week', async () => {
-      weekEndOverride = format(addDays(new Date(), 1), 'yyyy-MM-dd')
+    it('keeps showing on later visits if the window is overdue, not just its exact last day', async () => {
+      const weekStart = format(subDays(new Date(), 10), 'yyyy-MM-dd') // weekEnd 4 days ago
       await useGoalStore
         .getState()
-        .saveGoal(makeGoal({ targetWeeklyLossKg: 1 }))
+        .saveGoal(makeGoal({ targetWeeklyLossKg: 1, weekStart }))
+
+      render(
+        <MemoryRouter>
+          <TodayScreen />
+        </MemoryRouter>,
+      )
+
+      expect(await screen.findByText(/ready to renew/)).toBeInTheDocument()
+    })
+
+    it('does not show before the window is complete', async () => {
+      const weekStart = format(subDays(new Date(), 5), 'yyyy-MM-dd') // weekEnd tomorrow
+      await useGoalStore
+        .getState()
+        .saveGoal(makeGoal({ targetWeeklyLossKg: 1, weekStart }))
 
       render(
         <MemoryRouter>
@@ -273,14 +267,10 @@ describe('TodayScreen', () => {
       )
 
       await screen.findByText("This week's target")
-      expect(
-        screen.queryByText(/worth checking next week's target/),
-      ).not.toBeInTheDocument()
+      expect(screen.queryByText(/ready to renew/)).not.toBeInTheDocument()
     })
 
-    it('does not show when there is no goal, even on the last day of the week', async () => {
-      weekEndOverride = format(new Date(), 'yyyy-MM-dd')
-
+    it('does not show when there is no goal, even with a stale window', async () => {
       render(
         <MemoryRouter>
           <TodayScreen />
@@ -288,9 +278,7 @@ describe('TodayScreen', () => {
       )
 
       await screen.findByText('No goal set yet')
-      expect(
-        screen.queryByText(/worth checking next week's target/),
-      ).not.toBeInTheDocument()
+      expect(screen.queryByText(/ready to renew/)).not.toBeInTheDocument()
     })
   })
 

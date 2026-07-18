@@ -24,9 +24,4 @@ export class IndexedDbDailyEntryRepository implements DailyEntryRepository {
   async getAll(): Promise<DailyEntry[]> {
     return db.dailyEntries.orderBy('date').toArray()
   }
-
-  async getEarliestDate(): Promise<string | undefined> {
-    const earliest = await db.dailyEntries.orderBy('date').first()
-    return earliest?.date
-  }
 }

@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react'
 import type { DailyEntry } from '@/domain/dailyEntry'
-import { weeklySummaries } from '@/domain/stats'
+import { goalWindowProgress } from '@/domain/goal'
 import { IndexedDbDailyEntryRepository } from '@/infrastructure/persistence/indexeddb'
-import { useWeekStartsOn } from '@/shared/hooks/useWeekStartsOn'
 import {
   useDailyEntryStore,
   useGoalCelebrationStore,
@@ -13,14 +12,15 @@ const dailyEntryRepository = new IndexedDbDailyEntryRepository()
 
 /**
  * Whether to show the weekly-goal-met celebration modal (#55) — fires as
- * soon as the current (most recent) week's running targetMet computation
- * crosses true, mid-week, not just once the week is over. Independent of
- * #38's separate end-of-week banner; both can fire in the same week.
+ * soon as the current goal-anchored window's (#135, `goalWindowProgress`)
+ * running progress crosses true, mid-window, not just once the window is
+ * over. Independent of #38's separate end-of-window banner; both can fire
+ * for the same window.
  *
- * targetMet is a running number (weeklySummaries.ts), not stable until the
- * week ends, so once a week has been celebrated it stays celebrated for the
- * rest of that week even if the average later dips back below target —
- * avoids flip-flopping the modal back on for the same week.
+ * targetMet is a running number, not stable until the window ends, so once
+ * a window has been celebrated it stays celebrated even if the average
+ * later dips back below target — avoids flip-flopping the modal back on
+ * for the same window.
  */
 export function useWeeklyGoalCelebration(): {
   shouldCelebrate: boolean
@@ -38,7 +38,6 @@ export function useWeeklyGoalCelebration(): {
     (state) => state.markCelebrated,
   )
   const [entries, setEntries] = useState<DailyEntry[]>([])
-  const weekStartsOn = useWeekStartsOn(entries)
 
   useEffect(() => {
     loadActiveGoal()
@@ -58,17 +57,16 @@ export function useWeeklyGoalCelebration(): {
     return { shouldCelebrate: false, dismiss: () => {} }
   }
 
-  const summaries = weeklySummaries(entries, goal, weekStartsOn)
-  const currentWeek = summaries[summaries.length - 1]
+  const progress = goalWindowProgress(entries, goal)
   const shouldCelebrate =
-    currentWeek !== undefined &&
-    currentWeek.targetMet === true &&
-    currentWeek.weekStart !== celebratedWeekStart
+    progress !== null &&
+    progress.targetMet === true &&
+    progress.weekStart !== celebratedWeekStart
 
   return {
     shouldCelebrate,
     dismiss: () => {
-      if (currentWeek) markCelebrated(currentWeek.weekStart)
+      if (progress) markCelebrated(progress.weekStart)
     },
   }
 }

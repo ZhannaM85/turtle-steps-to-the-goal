@@ -1,7 +1,7 @@
 import 'fake-indexeddb/auto'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { format, startOfISOWeek, subDays } from 'date-fns'
+import { format, subDays } from 'date-fns'
 import { MemoryRouter } from 'react-router-dom'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import type { DailyEntry } from '@/domain/dailyEntry'
@@ -11,14 +11,17 @@ import { useDailyEntryStore, useGoalCelebrationStore, useGoalStore } from '@/sto
 import { GoalCelebrationModal } from './GoalCelebrationModal'
 
 const DATE_FORMAT = 'yyyy-MM-dd'
-const CURRENT_WEEK_START = format(startOfISOWeek(new Date()), DATE_FORMAT)
-const PRIOR_WEEK_DAY = format(subDays(new Date(CURRENT_WEEK_START), 3), DATE_FORMAT)
+// The goal's own anchored window (#135) — today, rather than a calendar
+// ISO week — so "current window" entries just need to fall on/after this.
+const WEEK_START = format(new Date(), DATE_FORMAT)
+const PRIOR_DAY = format(subDays(new Date(), 3), DATE_FORMAT)
 
 function makeGoal(overrides: Partial<Goal> = {}): Goal {
   const now = new Date().toISOString()
   return {
     id: crypto.randomUUID(),
     targetWeeklyLossKg: 1,
+    weekStart: WEEK_START,
     createdAt: now,
     updatedAt: now,
     ...overrides,
@@ -31,20 +34,18 @@ function makeEntry(overrides: Partial<DailyEntry> = {}): DailyEntry {
   const now = new Date().toISOString()
   return {
     id: `entry-${idCounter}`,
-    date: CURRENT_WEEK_START,
+    date: WEEK_START,
     createdAt: now,
     updatedAt: now,
     ...overrides,
   }
 }
 
-/** Seeds a prior week averaging 82kg and a current week averaging 80kg —
- * a 2kg loss against a 1kg target, so targetMet is true. */
+/** Seeds a prior-window average of 82kg and a current-window average of
+ * 80kg — a 2kg loss against a 1kg target, so targetMet is true. */
 async function seedTargetMetWeeks() {
-  await db.dailyEntries.put(makeEntry({ date: PRIOR_WEEK_DAY, weightKg: 82 }))
-  await db.dailyEntries.put(
-    makeEntry({ date: CURRENT_WEEK_START, weightKg: 80 }),
-  )
+  await db.dailyEntries.put(makeEntry({ date: PRIOR_DAY, weightKg: 82 }))
+  await db.dailyEntries.put(makeEntry({ date: WEEK_START, weightKg: 80 }))
 }
 
 beforeEach(async () => {
@@ -114,7 +115,7 @@ describe('GoalCelebrationModal', () => {
     await useGoalStore.getState().saveGoal(makeGoal({ targetWeeklyLossKg: 1 }))
     await seedTargetMetWeeks()
     useGoalCelebrationStore.setState({
-      celebratedWeekStart: CURRENT_WEEK_START,
+      celebratedWeekStart: WEEK_START,
     })
     render(
       <MemoryRouter>
@@ -144,7 +145,7 @@ describe('GoalCelebrationModal', () => {
       screen.queryByText("You reached this week's goal!"),
     ).not.toBeInTheDocument()
     expect(useGoalCelebrationStore.getState().celebratedWeekStart).toBe(
-      CURRENT_WEEK_START,
+      WEEK_START,
     )
   })
 

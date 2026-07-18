@@ -1,6 +1,7 @@
 import 'fake-indexeddb/auto'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { format } from 'date-fns'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import type { Goal } from '@/domain/goal'
 import { db } from '@/infrastructure/persistence/indexeddb'
@@ -12,6 +13,7 @@ function makeGoal(overrides: Partial<Goal> = {}): Goal {
   return {
     id: crypto.randomUUID(),
     targetWeeklyLossKg: 1,
+    weekStart: format(new Date(), 'yyyy-MM-dd'),
     createdAt: now,
     updatedAt: now,
     ...overrides,
@@ -52,12 +54,14 @@ describe('GoalScreen', () => {
     ).toHaveValue('1')
   })
 
-  it('shows Week 1 with no entries logged yet', async () => {
-    await useGoalStore.getState().saveGoal(makeGoal())
+  it("shows the goal's own anchored 7-day window, not a calendar week (#135)", async () => {
+    await useGoalStore
+      .getState()
+      .saveGoal(makeGoal({ weekStart: '2026-03-09' }))
 
     render(<GoalScreen />)
 
-    expect(await screen.findByText(/^Week 1 · /)).toBeInTheDocument()
+    expect(await screen.findByText('Mar 9 – Mar 15')).toBeInTheDocument()
   })
 
   it('persists an edit and updates the summary', async () => {

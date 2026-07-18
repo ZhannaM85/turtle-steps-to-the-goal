@@ -7,7 +7,7 @@ import { useWeekStartStore } from '@/stores'
  * Resolves the week-start preference (#85) against a set of entries already
  * in hand — for `weeklySummaries()` callers (Dashboard, History), which
  * already have `entries` as a prop rather than needing a separate
- * repository fetch the way `useCurrentWeekInfo` does.
+ * repository fetch.
  */
 export function useWeekStartsOn(entries: DailyEntry[]): Day {
   const weekStart = useWeekStartStore((state) => state.weekStart)

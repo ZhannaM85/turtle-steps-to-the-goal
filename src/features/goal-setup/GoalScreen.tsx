@@ -7,8 +7,7 @@ import {
   useLocale,
   useTranslation,
 } from '@/i18n'
-import { kgToLb } from '@/domain/goal'
-import { useCurrentWeekInfo } from '@/shared/hooks'
+import { goalWeekEnd, kgToLb } from '@/domain/goal'
 import { PageHeader } from '@/shared/ui/page-header'
 import { StatCard } from '@/shared/ui/stat-card'
 import { useGoalStore, useUnitStore } from '@/stores'
@@ -20,7 +19,6 @@ export function GoalScreen() {
   const dateFnsLocale = getDateFnsLocale(locale)
   const { goal, status, error, loadActiveGoal, saveGoal } = useGoalStore()
   const displayUnit = useUnitStore((state) => state.unit)
-  const weekInfo = useCurrentWeekInfo()
 
   useEffect(() => {
     loadActiveGoal()
@@ -45,13 +43,12 @@ export function GoalScreen() {
               value={formatNumber(-toDisplay(goal.targetWeeklyLossKg), locale)}
               unit={t.today.toLose(unitLabel(displayUnit, t))}
               description={
-                weekInfo
-                  ? t.common.weekLabel(
-                      weekInfo.weekNumber,
-                      format(parseISO(weekInfo.weekStart), 'MMM d', {
+                goal.weekStart
+                  ? t.common.weekRangeLabel(
+                      format(parseISO(goal.weekStart), 'MMM d', {
                         locale: dateFnsLocale,
                       }),
-                      format(parseISO(weekInfo.weekEnd), 'MMM d', {
+                      format(parseISO(goalWeekEnd(goal.weekStart)), 'MMM d', {
                         locale: dateFnsLocale,
                       }),
                     )

@@ -6,5 +6,4 @@ export interface DailyEntryRepository {
   upsert(entry: DailyEntry): Promise<void>
   delete(id: string): Promise<void>
   getAll(): Promise<DailyEntry[]>
-  getEarliestDate(): Promise<string | undefined>
 }

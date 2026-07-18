@@ -1,6 +1,5 @@
 // Shared React hooks
 export { useAppUpdateAvailable } from './useAppUpdateAvailable'
-export { useCurrentWeekInfo } from './useCurrentWeekInfo'
 export { useIsTextInputFocused } from './useIsTextInputFocused'
 export { usePullToRefresh } from './usePullToRefresh'
 export { useMaxRecordedWeight } from './useMaxRecordedWeight'

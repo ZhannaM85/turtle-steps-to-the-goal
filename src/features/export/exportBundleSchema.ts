@@ -3,6 +3,12 @@ import { z } from 'zod'
 const goalSchema = z.object({
   id: z.string(),
   targetWeeklyLossKg: z.number(),
+  // Anchors the goal's own 7-day tracking window (#135) — purely
+  // additive/optional, same no-version-bump reasoning as the DailyEntry
+  // fields below: a bundle written before this field existed still parses
+  // fine (weekStart ends up undefined, same as a goal never re-saved
+  // since #135 shipped).
+  weekStart: z.string().optional(),
   createdAt: z.string(),
   updatedAt: z.string(),
 })
