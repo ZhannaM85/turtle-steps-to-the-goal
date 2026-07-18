@@ -1,11 +1,16 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { beforeEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { useLocaleStore } from '@/i18n'
 import { useMealLabelPresetStore } from '@/stores'
 import { MealLabelPresetsSection } from './MealLabelPresetsSection'
 
 beforeEach(() => {
   useMealLabelPresetStore.setState({ presets: [] })
+})
+
+afterEach(() => {
+  useLocaleStore.setState({ locale: 'en' })
 })
 
 describe('MealLabelPresetsSection', () => {
@@ -71,5 +76,18 @@ describe('MealLabelPresetsSection', () => {
     expect(
       screen.queryByRole('button', { name: 'Add "Breakfast"' }),
     ).not.toBeInTheDocument()
+  })
+
+  it('does not suggest a default already added in another language (#142)', () => {
+    useMealLabelPresetStore.setState({ presets: ['Breakfast'] })
+    useLocaleStore.setState({ locale: 'ru' })
+    render(<MealLabelPresetsSection />)
+
+    expect(
+      screen.queryByRole('button', { name: 'Добавить «Завтрак»' }),
+    ).not.toBeInTheDocument()
+    expect(
+      screen.getByRole('button', { name: 'Добавить «Обед»' }),
+    ).toBeInTheDocument()
   })
 })

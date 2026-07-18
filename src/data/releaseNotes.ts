@@ -19,6 +19,12 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    issue: 142,
+    date: '2026-07-18T12:41:39+03:00',
+    en: 'Fixed: Settings no longer suggests adding "Breakfast"/"Lunch"/etc. as a meal-name preset if you already added its translation in the other language.',
+    ru: 'Исправлено: в Настройках больше не предлагается добавить «Завтрак»/«Обед» и т.д. в качестве шаблона, если перевод на другой язык уже добавлен.',
+  },
+  {
     issue: 0,
     date: '2026-07-18T12:05:24+03:00',
     en: 'Digestion tracking now logs constipation instead of a normal bowel movement, so you only need to note the days something was actually off — and the toggle is now right on Today, not just in History.',

@@ -1,9 +1,11 @@
 import { useState } from 'react'
 import { Trash2 } from 'lucide-react'
-import { useTranslation } from '@/i18n'
+import { getDictionary, useTranslation, type Locale } from '@/i18n'
 import { useMealLabelPresetStore } from '@/stores'
 import { Button } from '@/shared/ui/button'
 import { Input } from '@/shared/ui/input'
+
+const ALL_LOCALES: Locale[] = ['en', 'ru']
 
 export function MealLabelPresetsSection() {
   const t = useTranslation()
@@ -20,9 +22,18 @@ export function MealLabelPresetsSection() {
 
   // Built-in suggestions are offered as one-click adds rather than
   // auto-seeded into the store (see useMealLabelPresetStore) — only show
-  // ones not already added.
+  // ones not already added. Checked against *every* locale's translation
+  // of each default (#142), not just the active one — the four defaults
+  // are positionally aligned across en.ts/ru.ts (same index = same
+  // concept, e.g. "Breakfast"/"Завтрак" both at index 0), so a preset
+  // already added in one language shouldn't also be suggested in another.
   const unaddedDefaults = t.dailyEntry.defaultMealNamePresets.filter(
-    (name) => !presets.includes(name),
+    (_, index) =>
+      !ALL_LOCALES.some((locale) =>
+        presets.includes(
+          getDictionary(locale).dailyEntry.defaultMealNamePresets[index],
+        ),
+      ),
   )
 
   return (
