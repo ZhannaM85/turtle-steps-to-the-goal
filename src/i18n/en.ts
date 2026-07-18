@@ -163,6 +163,11 @@ export const en: Dictionary = {
       'This is a simple arithmetic estimate (~7700 kcal ≈ 1kg of fat), not medical or nutritional advice.',
     updateButton: 'Update this week’s target',
     setButton: 'Set this week’s target',
+    pastTargetsTitle: 'Past targets',
+    targetPerWeek: (target, unit) => `${target} ${unit}/week`,
+    targetMetLabel: 'Target met',
+    targetMissedLabel: 'Target not met',
+    targetNoDataLabel: 'Not enough data to tell',
   },
   export: {
     title: 'Export',

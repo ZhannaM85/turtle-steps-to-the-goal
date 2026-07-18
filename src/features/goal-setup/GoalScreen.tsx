@@ -8,10 +8,12 @@ import {
   useTranslation,
 } from '@/i18n'
 import { goalWeekEnd, kgToLb } from '@/domain/goal'
+import { usePastGoals } from '@/shared/hooks'
 import { PageHeader } from '@/shared/ui/page-header'
 import { StatCard } from '@/shared/ui/stat-card'
 import { useGoalStore, useUnitStore } from '@/stores'
 import { GoalForm } from './GoalForm'
+import { PastTargetsList } from './PastTargetsList'
 
 export function GoalScreen() {
   const t = useTranslation()
@@ -19,6 +21,7 @@ export function GoalScreen() {
   const dateFnsLocale = getDateFnsLocale(locale)
   const { goal, status, error, loadActiveGoal, saveGoal } = useGoalStore()
   const displayUnit = useUnitStore((state) => state.unit)
+  const pastTargets = usePastGoals(goal)
 
   useEffect(() => {
     loadActiveGoal()
@@ -58,6 +61,8 @@ export function GoalScreen() {
           )}
 
           <GoalForm existingGoal={goal} onSubmit={saveGoal} />
+
+          <PastTargetsList records={pastTargets} />
         </>
       )}
     </div>

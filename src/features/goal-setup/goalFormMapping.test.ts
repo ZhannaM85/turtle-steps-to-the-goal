@@ -44,36 +44,35 @@ describe('formValuesToGoal', () => {
   }
 
   it('creates a new goal with a fresh id', () => {
-    const goal = formValuesToGoal(baseValues, null, 'kg')
+    const goal = formValuesToGoal(baseValues, 'kg')
 
     expect(goal.id).toBeTruthy()
     expect(goal.targetWeeklyLossKg).toBe(1)
   })
 
-  it('preserves id and createdAt when editing an existing goal', () => {
-    const existing = makeGoal({ id: 'existing-id' })
-    const goal = formValuesToGoal(baseValues, existing, 'kg')
+  it('always creates a fresh id and createdAt, never overwriting a previous save (#147)', () => {
+    const first = formValuesToGoal(baseValues, 'kg')
+    const second = formValuesToGoal(baseValues, 'kg')
 
-    expect(goal.id).toBe('existing-id')
-    expect(goal.createdAt).toBe(existing.createdAt)
+    // Every save is its own historical record — GoalRepository.getAll()
+    // (used by the goal-history view) depends on each save getting a
+    // distinct id rather than reusing the previous goal's, which would
+    // silently overwrite it (Dexie `put` upserts by id).
+    expect(second.id).not.toBe(first.id)
   })
 
-  it('always stamps weekStart to today, even when editing an existing goal (#135)', () => {
+  it('always stamps weekStart to today (#135)', () => {
     const today = format(new Date(), 'yyyy-MM-dd')
-    const existing = makeGoal({ weekStart: '2020-01-01' })
 
-    const created = formValuesToGoal(baseValues, null, 'kg')
-    expect(created.weekStart).toBe(today)
-
-    const edited = formValuesToGoal(baseValues, existing, 'kg')
-    expect(edited.weekStart).toBe(today)
+    const goal = formValuesToGoal(baseValues, 'kg')
+    expect(goal.weekStart).toBe(today)
   })
 
   it('converts lb inputs to canonical kg', () => {
     const values: GoalFormValues = {
       targetWeeklyLoss: 2.2,
     }
-    const goal = formValuesToGoal(values, null, 'lb')
+    const goal = formValuesToGoal(values, 'lb')
 
     expect(goal.targetWeeklyLossKg).toBeCloseTo(0.998, 2)
   })

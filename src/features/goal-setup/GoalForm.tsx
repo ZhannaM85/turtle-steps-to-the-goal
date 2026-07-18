@@ -41,7 +41,7 @@ export function GoalForm({ existingGoal, onSubmit }: GoalFormProps) {
     paceKg !== null ? estimatedDailyCalorieDeficitKcal(paceKg) : null
 
   function submit(formValues: GoalFormValues) {
-    onSubmit(formValuesToGoal(formValues, existingGoal, unit))
+    onSubmit(formValuesToGoal(formValues, unit))
   }
 
   return (

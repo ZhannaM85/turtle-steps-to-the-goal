@@ -19,6 +19,12 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    issue: 147,
+    date: '2026-07-18T22:56:38+03:00',
+    en: 'The Goal screen now shows a history of past weekly targets below the form — the week each one covered, its target, and whether it was reached.',
+    ru: 'На экране «Цель» теперь под формой отображается история прошлых недельных целей — период, цель и была ли она достигнута.',
+  },
+  {
     issue: 140,
     date: '2026-07-18T22:39:41+03:00',
     en: 'The meal item editor\'s "Grams" field is now "× 100g" — type how many 100g portions you ate (e.g. "2" for 200g, "1.5" for 150g) instead of the raw gram total, matching how nutrition labels are usually printed.',

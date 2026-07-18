@@ -84,4 +84,28 @@ describe('GoalScreen', () => {
     const persisted = await db.goals.orderBy('createdAt').last()
     expect(persisted?.targetWeeklyLossKg).toBe(0.5)
   })
+
+  it('adds the previous target to the history list instead of overwriting it (#147)', async () => {
+    await useGoalStore
+      .getState()
+      .saveGoal(makeGoal({ weekStart: '2026-03-09' }))
+    const user = userEvent.setup()
+
+    render(<GoalScreen />)
+    await screen.findByRole('button', { name: 'Update this week’s target' })
+    expect(screen.queryByText('Past targets')).not.toBeInTheDocument()
+
+    const weeklyTargetInput = screen.getByLabelText(
+      "This week's target (kg to lose)",
+    )
+    await user.clear(weeklyTargetInput)
+    await user.type(weeklyTargetInput, '0.5')
+    await user.click(
+      screen.getByRole('button', { name: 'Update this week’s target' }),
+    )
+
+    expect(await screen.findByText('Past targets')).toBeInTheDocument()
+    expect(screen.getByText('Mar 9 – Mar 15')).toBeInTheDocument()
+    expect(await db.goals.count()).toBe(2)
+  })
 })

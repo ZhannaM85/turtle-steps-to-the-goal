@@ -191,6 +191,12 @@ export interface Dictionary {
     deficitCaveat: string
     updateButton: string
     setButton: string
+    /** Goal history section (#147) — every past (non-active) target. */
+    pastTargetsTitle: string
+    targetPerWeek: (target: string, unit: string) => string
+    targetMetLabel: string
+    targetMissedLabel: string
+    targetNoDataLabel: string
   }
   export: {
     title: string

@@ -17,24 +17,26 @@ export function goalToFormValues(
   }
 }
 
-export function formValuesToGoal(
-  values: GoalFormValues,
-  existingGoal: Goal | null,
-  unit: Unit,
-): Goal {
+export function formValuesToGoal(values: GoalFormValues, unit: Unit): Goal {
   const toKg = (value: number) => (unit === 'lb' ? lbToKg(value) : value)
 
   const now = new Date().toISOString()
 
   return {
-    id: existingGoal?.id ?? crypto.randomUUID(),
+    // Always a fresh id + createdAt (#147), never carried over from
+    // existingGoal — every save becomes its own historical record instead
+    // of overwriting the previous one, so past targets stay visible
+    // (GoalRepository.getAll()) rather than being silently replaced.
+    // getActiveGoal() keeps returning the right goal for free: it's just
+    // "most recent by createdAt," which a fresh createdAt naturally wins.
+    id: crypto.randomUUID(),
     targetWeeklyLossKg: toKg(values.targetWeeklyLoss as number),
-    // Always today (#135), never carried over from existingGoal — every
-    // save (new goal or edit) starts a fresh 7-day tracking window from
-    // the moment it's actually saved, rather than the window's start
-    // silently staying wherever the goal was first created.
+    // Always today (#135) — every save starts a fresh 7-day tracking
+    // window from the moment it's actually saved, rather than the
+    // window's start silently staying wherever the goal was first
+    // created.
     weekStart: format(new Date(), 'yyyy-MM-dd'),
-    createdAt: existingGoal?.createdAt ?? now,
+    createdAt: now,
     updatedAt: now,
   }
 }
