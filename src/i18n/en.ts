@@ -109,7 +109,7 @@ export const en: Dictionary = {
     proteinLabel: 'Protein',
     fatLabel: 'Fat',
     carbsLabel: 'Carbs',
-    itemAmountGLabel: 'Grams',
+    itemPortionsLabel: '× 100g',
     gramsUnit: 'g',
     macrosSummary: (protein, fat, carbs) =>
       `Protein ${protein} · Fat ${fat} · Carbs ${carbs}`,

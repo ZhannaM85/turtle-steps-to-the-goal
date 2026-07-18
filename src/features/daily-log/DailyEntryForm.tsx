@@ -52,6 +52,7 @@ import {
 import {
   formatComputedTotal,
   parseOptionalMacro,
+  portionsToGrams,
   ratesFromAbsolute,
   scaleFromPer100g,
   totalFromPortion,
@@ -116,8 +117,9 @@ interface EditItemDraft {
   // when opening an existing item for edit, even if it was originally
   // logged in "per portion" mode: the back-calculated rate (via
   // ratesFromAbsolute below) is mathematically identical to what was
-  // typed when no portion weight was recorded (quantity defaults to 100),
-  // so there's no information lost by not persisting the original mode.
+  // typed when no portion weight was recorded (portions defaults to 1,
+  // i.e. 100g), so there's no information lost by not persisting the
+  // original mode.
   macroMode: 'per100g' | 'perPortion'
   // This dish's own reaction (#129) — see CalorieItem.emotion.
   emotion: MealEmotion | undefined
@@ -138,7 +140,7 @@ function itemDraftFrom(item: CalorieItem): EditItemDraft {
     protein: rates.protein100 === undefined ? '' : String(rates.protein100),
     fat: rates.fat100 === undefined ? '' : String(rates.fat100),
     carbs: rates.carbs100 === undefined ? '' : String(rates.carbs100),
-    amountG: String(rates.quantity),
+    amountG: String(rates.portions),
     macroMode: 'per100g',
     emotion: item.emotion,
   }
@@ -152,7 +154,7 @@ function blankItemDraft(): EditItemDraft {
     protein: '',
     fat: '',
     carbs: '',
-    amountG: '100',
+    amountG: '1',
     macroMode: 'per100g',
     emotion: undefined,
   }
@@ -751,7 +753,7 @@ export function DailyEntryForm({
   const [addProtein, setAddProtein] = useState('')
   const [addFat, setAddFat] = useState('')
   const [addCarbs, setAddCarbs] = useState('')
-  const [addAmountG, setAddAmountG] = useState('100')
+  const [addAmountG, setAddAmountG] = useState('1')
   // Per 100g / Per portion entry mode (#111) — 'per100g' is the default,
   // unchanged behavior. Switching modes converts the currently-typed
   // numbers (via handleAddMacroModeChange below) rather than leaving them
@@ -1007,7 +1009,7 @@ export function DailyEntryForm({
           parseOptionalMacro(addProtein),
           parseOptionalMacro(addFat),
           parseOptionalMacro(addCarbs),
-          parseOptionalMacro(addAmountG),
+          portionsToGrams(addAmountG),
         )
         setAddAmount(String(rates.kcal100))
         setAddProtein(
@@ -1015,7 +1017,7 @@ export function DailyEntryForm({
         )
         setAddFat(rates.fat100 === undefined ? '' : String(rates.fat100))
         setAddCarbs(rates.carbs100 === undefined ? '' : String(rates.carbs100))
-        setAddAmountG(String(rates.quantity))
+        setAddAmountG(String(rates.portions))
       }
     }
     setAddMacroMode(newMode)
@@ -1061,7 +1063,7 @@ export function DailyEntryForm({
       touchMealItem(addItemName, scaled)
     }
     setAddAmount('')
-    setAddAmountG('100')
+    setAddAmountG('1')
     setAddProtein('')
     setAddFat('')
     setAddCarbs('')
@@ -1092,7 +1094,7 @@ export function DailyEntryForm({
     )
     setAddFat(rates.fat100 === undefined ? '' : String(rates.fat100))
     setAddCarbs(rates.carbs100 === undefined ? '' : String(rates.carbs100))
-    setAddAmountG(String(rates.quantity))
+    setAddAmountG(String(rates.portions))
   }
 
   // Quantity-based entry against the static food list (#62) — the dialog
@@ -1162,7 +1164,7 @@ export function DailyEntryForm({
         protein: rates.protein100 === undefined ? '' : String(rates.protein100),
         fat: rates.fat100 === undefined ? '' : String(rates.fat100),
         carbs: rates.carbs100 === undefined ? '' : String(rates.carbs100),
-        amountG: String(rates.quantity),
+        amountG: String(rates.portions),
         macroMode: 'per100g',
         emotion: values.emotion,
       },
@@ -1232,7 +1234,7 @@ export function DailyEntryForm({
           parseOptionalMacro(draft.protein),
           parseOptionalMacro(draft.fat),
           parseOptionalMacro(draft.carbs),
-          parseOptionalMacro(draft.amountG),
+          portionsToGrams(draft.amountG),
         )
         return {
           ...draft,
@@ -1241,7 +1243,7 @@ export function DailyEntryForm({
             rates.protein100 === undefined ? '' : String(rates.protein100),
           fat: rates.fat100 === undefined ? '' : String(rates.fat100),
           carbs: rates.carbs100 === undefined ? '' : String(rates.carbs100),
-          amountG: String(rates.quantity),
+          amountG: String(rates.portions),
           macroMode: newMode,
         }
       }),
@@ -1269,7 +1271,7 @@ export function DailyEntryForm({
                 rates.protein100 === undefined ? '' : String(rates.protein100),
               fat: rates.fat100 === undefined ? '' : String(rates.fat100),
               carbs: rates.carbs100 === undefined ? '' : String(rates.carbs100),
-              amountG: String(rates.quantity),
+              amountG: String(rates.portions),
               // Restoring a suggestion always fills in per-100g rates
               // (MealItem.lastAmountKcal etc. don't carry a mode of their
               // own), so force the row back to that mode too — otherwise

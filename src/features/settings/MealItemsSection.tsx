@@ -42,7 +42,7 @@ function MealItemRow({
   const [protein100, setProtein100] = useState('')
   const [fat100, setFat100] = useState('')
   const [carbs100, setCarbs100] = useState('')
-  const [amountG, setAmountG] = useState('100')
+  const [amountG, setAmountG] = useState('1')
 
   function commit() {
     const trimmed = value.trim()
@@ -64,7 +64,7 @@ function MealItemRow({
       setProtein100('')
       setFat100('')
       setCarbs100('')
-      setAmountG('100')
+      setAmountG('1')
     } else {
       const rates = ratesFromAbsolute(
         item.lastAmountKcal,
@@ -79,7 +79,7 @@ function MealItemRow({
       )
       setFat100(rates.fat100 === undefined ? '' : String(rates.fat100))
       setCarbs100(rates.carbs100 === undefined ? '' : String(rates.carbs100))
-      setAmountG(String(rates.quantity))
+      setAmountG(String(rates.portions))
     }
     setIsEditingNutrition(true)
   }
@@ -225,12 +225,12 @@ function MealItemRow({
             </div>
             <div className="flex flex-col gap-1">
               <span className="text-xs text-muted-foreground">
-                {t.dailyEntry.itemAmountGLabel}
+                {t.dailyEntry.itemPortionsLabel}
               </span>
               <Input
                 type="text"
                 inputMode="decimal"
-                aria-label={`${t.dailyEntry.itemAmountGLabel} — ${item.name}`}
+                aria-label={`${t.dailyEntry.itemPortionsLabel} — ${item.name}`}
                 value={amountG}
                 onChange={(e) => setAmountG(e.target.value)}
                 className="h-7 w-14"

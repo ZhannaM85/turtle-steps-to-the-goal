@@ -117,10 +117,12 @@ export interface Dictionary {
     proteinLabel: string
     fatLabel: string
     carbsLabel: string
-    /** Optional portion-weight field on manually-entered items (#93) — a
-     * memory aid for scaling macros next time the same food is logged at a
-     * different portion size, not itself used to compute anything. */
-    itemAmountGLabel: string
+    /** Count of 100g portions (#93, reframed by #140) — e.g. "2" for 200g,
+     * "1.5" for 150g, matching how nutrition labels are usually printed as
+     * "per 100g" rather than typing the raw gram total. In per-100g mode
+     * this multiplies the typed rates into the saved total; in "per
+     * portion" mode it's inert, a memory aid only. */
+    itemPortionsLabel: string
     gramsUnit: string
     macrosSummary: (protein: string, fat: string, carbs: string) => string
     macrosSummaryCompact: (

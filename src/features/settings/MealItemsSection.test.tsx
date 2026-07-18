@@ -100,7 +100,7 @@ describe('MealItemsSection', () => {
       expect(screen.queryByText(/last logged/)).not.toBeInTheDocument()
     })
 
-    it('prefills the per-100g rate and quantity back-calculated from stored totals', async () => {
+    it('prefills the per-100g rate and portion count back-calculated from stored totals (#140)', async () => {
       await useMealItemStore.getState().touch('Pizza', {
         amountKcal: 150,
         proteinG: 5,
@@ -113,10 +113,10 @@ describe('MealItemsSection', () => {
       await user.click(screen.getByRole('button', { name: 'Edit Pizza' }))
 
       // 150 kcal / 5g protein eaten as a 50g portion back-calculates to
-      // 300 kcal/100g and 10g protein/100g.
+      // 300 kcal/100g and 10g protein/100g; 50g is 0.5 portions of 100g.
       expect(screen.getByLabelText('kcal/100g — Pizza')).toHaveValue('300')
       expect(screen.getByLabelText('Protein — Pizza')).toHaveValue('10')
-      expect(screen.getByLabelText('Grams — Pizza')).toHaveValue('50')
+      expect(screen.getByLabelText('× 100g — Pizza')).toHaveValue('0.5')
     })
 
     it('starts blank when editing an item with nothing recorded yet', async () => {
@@ -128,7 +128,7 @@ describe('MealItemsSection', () => {
       await user.click(screen.getByRole('button', { name: 'Edit Untouched' }))
 
       expect(screen.getByLabelText('kcal/100g — Untouched')).toHaveValue('')
-      expect(screen.getByLabelText('Grams — Untouched')).toHaveValue('100')
+      expect(screen.getByLabelText('× 100g — Untouched')).toHaveValue('1')
     })
 
     it('shows a live preview and saves the scaled totals', async () => {
@@ -141,8 +141,8 @@ describe('MealItemsSection', () => {
 
       await user.type(screen.getByLabelText('kcal/100g — Pizza'), '200')
       await user.type(screen.getByLabelText('Protein — Pizza'), '20')
-      await user.clear(screen.getByLabelText('Grams — Pizza'))
-      await user.type(screen.getByLabelText('Grams — Pizza'), '50')
+      await user.clear(screen.getByLabelText('× 100g — Pizza'))
+      await user.type(screen.getByLabelText('× 100g — Pizza'), '0.5')
 
       expect(
         screen.getByText('Total: 100 kcal · P 10g · F — · C —'),

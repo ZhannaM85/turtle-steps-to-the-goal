@@ -195,7 +195,7 @@ export function MealItemEditorSheet({
              * confusing clutter, replaced with a plain "Portion" badge. */}
             {macroMode === 'per100g' ? (
               <NumberField
-                label={t.dailyEntry.itemAmountGLabel}
+                label={t.dailyEntry.itemPortionsLabel}
                 value={amountG}
                 onChange={onAmountGChange}
                 onEnter={onSave}

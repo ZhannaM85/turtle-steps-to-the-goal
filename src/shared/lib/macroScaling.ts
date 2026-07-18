@@ -14,21 +14,25 @@ export function parseOptionalMacro(raw: string): number | undefined {
     : undefined
 }
 
-/** Scales per-100g rates by quantity (#96) — the same math
- * `FoodPickerDialog` already uses for curated foods, driving manual
- * entry's kcal/protein/fat/carbs fields (per-100g rates) plus a quantity
- * field everywhere else in the app (`DailyEntryForm`'s add row and
- * item-edit rows, `MealItemsSection`'s custom-item editor, #99), instead
- * of typing the eaten totals directly. An invalid/blank quantity defaults
- * to 100 rather than blocking Add — that makes the rate *equal* the
- * total, i.e. behaves exactly like "type the total directly" when the
- * quantity is left untouched. */
+/** Scales per-100g rates by a count of 100g portions (#96, reframed by
+ * #140) — driving manual entry's kcal/protein/fat/carbs fields (per-100g
+ * rates) plus a portions field everywhere else in the app
+ * (`DailyEntryForm`'s add row and item-edit rows, `MealItemsSection`'s
+ * custom-item editor, #99). #140: the field is typed as "how many 100g
+ * portions" (e.g. "2" for 200g, "1.5" for 150g), matching how nutrition
+ * labels are usually printed, rather than the raw gram total — an invalid
+ * or blank count defaults to `1` (i.e. 100g) rather than blocking Add,
+ * same "untouched input behaves like typing the total" guarantee the old
+ * grams-default-100 had. `amountG` stays real grams (portions × 100)
+ * since everything downstream (export, `CalorieItem.amountG`,
+ * `ratesFromAbsolute` below) still reads/writes true portion weight, not
+ * a portion count. */
 export function scaleFromPer100g(
   kcal100: number,
   protein100: number | undefined,
   fat100: number | undefined,
   carbs100: number | undefined,
-  rawQuantity: string,
+  rawPortions: string,
 ): {
   amountKcal: number
   proteinG: number | undefined
@@ -36,9 +40,9 @@ export function scaleFromPer100g(
   carbsG: number | undefined
   amountG: number
 } {
-  const parsedQuantity = parseNumberInput(rawQuantity)
-  const quantity = parsedQuantity && parsedQuantity > 0 ? parsedQuantity : 100
-  const scale = quantity / 100
+  const parsedPortions = parseNumberInput(rawPortions)
+  const portions = parsedPortions && parsedPortions > 0 ? parsedPortions : 1
+  const scale = portions
   return {
     amountKcal: Math.round(kcal100 * scale),
     proteinG:
@@ -51,16 +55,30 @@ export function scaleFromPer100g(
       carbs100 === undefined
         ? undefined
         : Math.round(carbs100 * scale * 10) / 10,
-    amountG: quantity,
+    amountG: Math.round(portions * 100 * 10) / 10,
   }
 }
 
+/** Converts a raw "count of 100g portions" field (#140) to real grams, for
+ * the two mode-switch conversions (`handleAddMacroModeChange`,
+ * `updateEditItemMode` in `DailyEntryForm.tsx`) that need to feed a
+ * portions field's current value into `ratesFromAbsolute`, which still
+ * expects true grams — it's also fed directly from domain data elsewhere
+ * (`CalorieItem.amountG`, `MealItem.lastAmountG`) that were never in
+ * portions to begin with. */
+export function portionsToGrams(rawPortions: string): number | undefined {
+  const parsedPortions = parseOptionalMacro(rawPortions)
+  return parsedPortions === undefined ? undefined : parsedPortions * 100
+}
+
 /** Inverse of `scaleFromPer100g` (#96) — reconstructs per-100g rates and
- * the quantity they came from, to prefill an edit row or an autocomplete
- * restore from previously-stored absolute totals. A total with no
- * recorded quantity (created before #93/#96) is treated as quantity 100,
- * so it becomes the per-100g rate unchanged — same numbers as before this
- * feature existed, just reframed as a rate. */
+ * the portion count they came from, to prefill an edit row or an
+ * autocomplete restore from previously-stored absolute totals (`amountG`
+ * here is always true grams — a domain field, never itself a portion
+ * count). A total with no recorded grams (created before #93/#96, or an
+ * old row from before #140 reframed the field) is treated as 100g/1
+ * portion, so it becomes the per-100g rate unchanged — same numbers as
+ * before this feature existed, just reframed as a rate. */
 export function ratesFromAbsolute(
   amountKcal: number,
   proteinG: number | undefined,
@@ -72,10 +90,11 @@ export function ratesFromAbsolute(
   protein100: number | undefined
   fat100: number | undefined
   carbs100: number | undefined
-  quantity: number
+  portions: number
 } {
-  const quantity = amountG && amountG > 0 ? amountG : 100
-  const scale = 100 / quantity
+  const grams = amountG && amountG > 0 ? amountG : 100
+  const portions = grams / 100
+  const scale = 1 / portions
   return {
     kcal100: Math.round(amountKcal * scale),
     protein100:
@@ -85,7 +104,7 @@ export function ratesFromAbsolute(
     fat100: fatG === undefined ? undefined : Math.round(fatG * scale * 10) / 10,
     carbs100:
       carbsG === undefined ? undefined : Math.round(carbsG * scale * 10) / 10,
-    quantity,
+    portions,
   }
 }
 

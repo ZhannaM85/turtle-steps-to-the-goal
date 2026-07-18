@@ -19,6 +19,12 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    issue: 140,
+    date: '2026-07-18T22:39:41+03:00',
+    en: 'The meal item editor\'s "Grams" field is now "× 100g" — type how many 100g portions you ate (e.g. "2" for 200g, "1.5" for 150g) instead of the raw gram total, matching how nutrition labels are usually printed.',
+    ru: 'Поле «Граммы» в редакторе блюда теперь называется «× 100 г» — вводите количество порций по 100 г (например, «2» для 200 г, «1.5» для 150 г) вместо общего количества граммов, как обычно указано на этикетках с составом.',
+  },
+  {
     issue: 143,
     date: '2026-07-18T22:09:50+03:00',
     en: 'Each meal now shows in its own card, matching the look of the stat cards elsewhere on Today — easier to tell meals apart at a glance.',

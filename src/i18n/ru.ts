@@ -109,7 +109,7 @@ export const ru: Dictionary = {
     proteinLabel: 'Белки',
     fatLabel: 'Жиры',
     carbsLabel: 'Углеводы',
-    itemAmountGLabel: 'Граммы',
+    itemPortionsLabel: '× 100 г',
     gramsUnit: 'г',
     macrosSummary: (protein, fat, carbs) =>
       `Белки ${protein} · Жиры ${fat} · Углеводы ${carbs}`,

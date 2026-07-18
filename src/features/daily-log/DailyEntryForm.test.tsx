@@ -652,7 +652,7 @@ describe('DailyEntryForm', () => {
       ).toHaveLength(2)
     })
 
-    it('scales per-100g kcal and macros by the quantity eaten (#96)', async () => {
+    it('scales per-100g kcal and macros by the portions eaten (#96, #140)', async () => {
       const user = userEvent.setup()
       const onSave = vi.fn()
       render(
@@ -664,14 +664,14 @@ describe('DailyEntryForm', () => {
       )
 
       // A food rated 200 kcal / 20g protein / 10g fat / 4g carbs per 100g,
-      // actually eaten as a 50g portion — half of everything.
+      // actually eaten as a 50g portion — half a 100g portion.
       await user.click(screen.getByRole('button', { name: '+ Add item' }))
       await user.type(screen.getByLabelText('kcal/100g'), '200')
       await user.type(screen.getByLabelText('Protein'), '20')
       await user.type(screen.getByLabelText('Fat'), '10')
       await user.type(screen.getByLabelText('Carbs'), '4')
-      await user.clear(screen.getByLabelText('Grams'))
-      await user.type(screen.getByLabelText('Grams'), '50')
+      await user.clear(screen.getByLabelText('× 100g'))
+      await user.type(screen.getByLabelText('× 100g'), '0.5')
       await user.click(screen.getByRole('button', { name: 'Save' }))
 
       expect(onSave.mock.calls[0][0].calorieEntries[0].items[0]).toMatchObject({
@@ -700,15 +700,15 @@ describe('DailyEntryForm', () => {
       await user.type(screen.getByLabelText('Protein'), '20')
       await user.type(screen.getByLabelText('Fat'), '10')
       await user.type(screen.getByLabelText('Carbs'), '4')
-      await user.clear(screen.getByLabelText('Grams'))
-      await user.type(screen.getByLabelText('Grams'), '50')
+      await user.clear(screen.getByLabelText('× 100g'))
+      await user.type(screen.getByLabelText('× 100g'), '0.5')
 
       expect(
         screen.getByText('Total: 100 kcal · P 10g · F 5g · C 2g'),
       ).toBeInTheDocument()
     })
 
-    it('treats a blank quantity as 100g, matching the total typed directly (#96)', async () => {
+    it('treats a blank portion count as 1 (100g), matching the total typed directly (#96, #140)', async () => {
       const user = userEvent.setup()
       const onSave = vi.fn()
       render(
@@ -720,7 +720,7 @@ describe('DailyEntryForm', () => {
       )
 
       await user.click(screen.getByRole('button', { name: '+ Add item' }))
-      await user.clear(screen.getByLabelText('Grams'))
+      await user.clear(screen.getByLabelText('× 100g'))
       await user.type(screen.getByLabelText('kcal/100g'), '250')
       await user.click(screen.getByRole('button', { name: 'Save' }))
 
@@ -730,7 +730,7 @@ describe('DailyEntryForm', () => {
       })
     })
 
-    it('logs a portion weight in grams alongside the amount (#93)', async () => {
+    it('logs a portion weight in grams alongside the amount (#93, #140)', async () => {
       const user = userEvent.setup()
       const onSave = vi.fn()
       render(
@@ -743,22 +743,21 @@ describe('DailyEntryForm', () => {
 
       await user.click(screen.getByRole('button', { name: '+ Add item' }))
       await user.type(screen.getByLabelText('kcal/100g'), '200')
-      await user.clear(screen.getByLabelText('Grams'))
-      await user.type(screen.getByLabelText('Grams'), '150')
+      await user.clear(screen.getByLabelText('× 100g'))
+      await user.type(screen.getByLabelText('× 100g'), '1.5')
       await user.click(screen.getByRole('button', { name: 'Save' }))
 
-      // 200 kcal/100g scaled by a 150g quantity (#96): 200 * 150/100 = 300.
+      // 200 kcal/100g scaled by 1.5 portions (#96, #140): 200 * 1.5 = 300.
       expect(onSave.mock.calls[0][0].calorieEntries[0].items[0]).toMatchObject({
         amountKcal: 300,
         amountG: 150,
       })
-      // Resets to the default quantity, not blank (#96) — matches
-      // FoodPickerDialog's own quantity field defaulting to '100'.
+      // Resets to the default portion count, not blank (#96) — 1, i.e. 100g.
       await user.click(screen.getByRole('button', { name: '+ Add item' }))
-      expect(screen.getByLabelText('Grams')).toHaveValue('100')
+      expect(screen.getByLabelText('× 100g')).toHaveValue('1')
     })
 
-    it('restores the portion weight in grams when a suggested name is picked (#93)', async () => {
+    it('restores the portion weight in grams when a suggested name is picked (#93, #140)', async () => {
       const user = userEvent.setup()
       await useMealItemStore.getState().touch('Pizza', {
         amountKcal: 400,
@@ -776,7 +775,8 @@ describe('DailyEntryForm', () => {
       await user.click(await screen.findByLabelText('Dish name'))
       await user.click(await screen.findByRole('button', { name: 'Pizza' }))
 
-      expect(screen.getByLabelText('Grams')).toHaveValue('250')
+      // 250g back-calculates to 2.5 portions of 100g.
+      expect(screen.getByLabelText('× 100g')).toHaveValue('2.5')
     })
 
     it('macros are independently optional — a meal can log only some of them', async () => {
@@ -1072,10 +1072,10 @@ describe('DailyEntryForm', () => {
         const dialog = screen.getByRole('dialog')
 
         // 150 kcal / 5g protein eaten as a 50g portion back-calculates to
-        // 300 kcal/100g and 10g protein/100g.
+        // 300 kcal/100g and 10g protein/100g; 50g is 0.5 portions of 100g.
         expect(within(dialog).getByLabelText('kcal/100g')).toHaveValue('300')
         expect(within(dialog).getByLabelText('Protein')).toHaveValue('10')
-        expect(within(dialog).getByLabelText('Grams')).toHaveValue('50')
+        expect(within(dialog).getByLabelText('× 100g')).toHaveValue('0.5')
       })
 
       it('shows a live preview of an item-edit row’s computed total (#98)', async () => {
@@ -1085,12 +1085,12 @@ describe('DailyEntryForm', () => {
         await user.click(screen.getByRole('button', { name: 'Edit meal 1' }))
         await user.click(screen.getByRole('button', { name: 'Edit item' }))
         const dialog = screen.getByRole('dialog')
-        await user.clear(within(dialog).getByLabelText('Grams'))
-        await user.type(within(dialog).getByLabelText('Grams'), '50')
+        await user.clear(within(dialog).getByLabelText('× 100g'))
+        await user.type(within(dialog).getByLabelText('× 100g'), '0.5')
 
         // Meal 1's stored item is 300 kcal with no recorded amountG, so
         // itemDraftFrom's fallback shows kcal/100g = 300; scaled by the
-        // newly-typed 50g quantity: 300 * 50/100 = 150.
+        // newly-typed 0.5 portions (50g, #140): 300 * 0.5 = 150.
         expect(screen.getByText('Total: 150 kcal')).toBeInTheDocument()
       })
 
@@ -1524,12 +1524,12 @@ describe('DailyEntryForm', () => {
 
           await user.click(screen.getByRole('button', { name: '+ Add item' }))
           await user.type(screen.getByLabelText('kcal/100g'), '300')
-          await user.clear(screen.getByLabelText('Grams'))
-          await user.type(screen.getByLabelText('Grams'), '50')
+          await user.clear(screen.getByLabelText('× 100g'))
+          await user.type(screen.getByLabelText('× 100g'), '0.5')
 
           await user.click(screen.getByRole('radio', { name: 'Portion' }))
 
-          // 300 kcal/100g at a 50g quantity = 150 kcal total.
+          // 300 kcal/100g at 0.5 portions (50g) = 150 kcal total.
           expect(screen.getByLabelText('kcal')).toHaveValue('150')
         })
 
@@ -1543,24 +1543,25 @@ describe('DailyEntryForm', () => {
             />,
           )
 
-          // Grams is only editable in per-100g mode (#121 hides it in
-          // Portion mode, as a read-only memory aid) — set it before
-          // switching, then switch there and back.
+          // The portions field is only editable in per-100g mode (#121
+          // hides it in Portion mode, as a read-only memory aid) — set it
+          // before switching, then switch there and back.
           await user.click(screen.getByRole('button', { name: '+ Add item' }))
-          await user.clear(screen.getByLabelText('Grams'))
-          await user.type(screen.getByLabelText('Grams'), '50')
+          await user.clear(screen.getByLabelText('× 100g'))
+          await user.type(screen.getByLabelText('× 100g'), '0.5')
           await user.click(screen.getByRole('radio', { name: 'Portion' }))
           await user.clear(screen.getByLabelText('kcal'))
           await user.type(screen.getByLabelText('kcal'), '150')
 
           await user.click(screen.getByRole('radio', { name: '100g' }))
 
-          // 150 kcal eaten as a 50g portion back-calculates to 300 kcal/100g.
+          // 150 kcal eaten as a 0.5-portion (50g) back-calculates to 300
+          // kcal/100g.
           expect(screen.getByLabelText('kcal/100g')).toHaveValue('300')
-          expect(screen.getByLabelText('Grams')).toHaveValue('50')
+          expect(screen.getByLabelText('× 100g')).toHaveValue('0.5')
         })
 
-        it('shows a Portion badge instead of the Grams field while in Portion mode', async () => {
+        it('shows a Portion badge instead of the portions field while in Portion mode', async () => {
           const user = userEvent.setup()
           render(
             <DailyEntryForm
@@ -1571,19 +1572,19 @@ describe('DailyEntryForm', () => {
           )
 
           await user.click(screen.getByRole('button', { name: '+ Add item' }))
-          expect(screen.getByLabelText('Grams')).toBeInTheDocument()
+          expect(screen.getByLabelText('× 100g')).toBeInTheDocument()
           // Just the toggle option's own label before switching.
           expect(screen.getAllByText('Portion')).toHaveLength(1)
 
           await user.click(screen.getByRole('radio', { name: 'Portion' }))
 
-          expect(screen.queryByLabelText('Grams')).not.toBeInTheDocument()
+          expect(screen.queryByLabelText('× 100g')).not.toBeInTheDocument()
           // Toggle option label + the new static badge.
           expect(screen.getAllByText('Portion')).toHaveLength(2)
 
           await user.click(screen.getByRole('radio', { name: '100g' }))
 
-          expect(screen.getByLabelText('Grams')).toBeInTheDocument()
+          expect(screen.getByLabelText('× 100g')).toBeInTheDocument()
         })
 
         it('resets to per-100g mode after a successful Add', async () => {
@@ -1655,15 +1656,16 @@ describe('DailyEntryForm', () => {
           await user.click(screen.getByRole('button', { name: 'Edit item' }))
           const dialog = screen.getByRole('dialog')
           // Meal 1's stored item is 300 kcal with no recorded amountG, so
-          // itemDraftFrom's fallback shows kcal/100g = 300, Grams = 100.
-          await user.clear(within(dialog).getByLabelText('Grams'))
-          await user.type(within(dialog).getByLabelText('Grams'), '50')
+          // itemDraftFrom's fallback shows kcal/100g = 300, portions = 1
+          // (100g, #140).
+          await user.clear(within(dialog).getByLabelText('× 100g'))
+          await user.type(within(dialog).getByLabelText('× 100g'), '0.5')
 
           await user.click(
             within(dialog).getByRole('radio', { name: 'Portion' }),
           )
 
-          // 300 kcal/100g at a 50g quantity = 150 kcal total.
+          // 300 kcal/100g at 0.5 portions (50g) = 150 kcal total.
           expect(within(dialog).getByLabelText('kcal')).toHaveValue('150')
         })
 
@@ -1674,11 +1676,11 @@ describe('DailyEntryForm', () => {
           await user.click(screen.getByRole('button', { name: 'Edit meal 1' }))
           await user.click(screen.getByRole('button', { name: 'Edit item' }))
           const dialog = screen.getByRole('dialog')
-          // Grams is only editable in per-100g mode (#121 hides it in
-          // Portion mode) — set it before switching, then switch there and
-          // back.
-          await user.clear(within(dialog).getByLabelText('Grams'))
-          await user.type(within(dialog).getByLabelText('Grams'), '50')
+          // The portions field is only editable in per-100g mode (#121
+          // hides it in Portion mode) — set it before switching, then
+          // switch there and back.
+          await user.clear(within(dialog).getByLabelText('× 100g'))
+          await user.type(within(dialog).getByLabelText('× 100g'), '0.5')
           await user.click(
             within(dialog).getByRole('radio', { name: 'Portion' }),
           )
@@ -1687,26 +1689,27 @@ describe('DailyEntryForm', () => {
 
           await user.click(within(dialog).getByRole('radio', { name: '100g' }))
 
-          // 150 kcal eaten as a 50g portion back-calculates to 300 kcal/100g.
+          // 150 kcal eaten as a 0.5-portion (50g) back-calculates to 300
+          // kcal/100g.
           expect(within(dialog).getByLabelText('kcal/100g')).toHaveValue('300')
-          expect(within(dialog).getByLabelText('Grams')).toHaveValue('50')
+          expect(within(dialog).getByLabelText('× 100g')).toHaveValue('0.5')
         })
 
-        it('shows a Portion badge instead of the Grams field while in Portion mode', async () => {
+        it('shows a Portion badge instead of the portions field while in Portion mode', async () => {
           const user = userEvent.setup()
           renderWithMeals()
 
           await user.click(screen.getByRole('button', { name: 'Edit meal 1' }))
           await user.click(screen.getByRole('button', { name: 'Edit item' }))
           const dialog = screen.getByRole('dialog')
-          expect(within(dialog).getByLabelText('Grams')).toBeInTheDocument()
+          expect(within(dialog).getByLabelText('× 100g')).toBeInTheDocument()
 
           await user.click(
             within(dialog).getByRole('radio', { name: 'Portion' }),
           )
 
           expect(
-            within(dialog).queryByLabelText('Grams'),
+            within(dialog).queryByLabelText('× 100g'),
           ).not.toBeInTheDocument()
         })
 
@@ -1823,7 +1826,7 @@ describe('DailyEntryForm', () => {
           expect(within(dialog).getByLabelText('Carbs')).toHaveValue('15')
         })
 
-        it('edits a portion weight in grams on an item and saves it (#93)', async () => {
+        it('edits a portion weight in grams on an item and saves it (#93, #140)', async () => {
           const user = userEvent.setup()
           const onSave = vi.fn()
           renderWithMeals(onSave)
@@ -1831,20 +1834,20 @@ describe('DailyEntryForm', () => {
           await user.click(screen.getByRole('button', { name: 'Edit meal 1' }))
           await user.click(screen.getByRole('button', { name: 'Edit item' }))
           const dialog = screen.getByRole('dialog')
-          await user.clear(within(dialog).getByLabelText('Grams'))
-          await user.type(within(dialog).getByLabelText('Grams'), '350')
+          await user.clear(within(dialog).getByLabelText('× 100g'))
+          await user.type(within(dialog).getByLabelText('× 100g'), '3.5')
           await user.click(within(dialog).getByRole('button', { name: 'Save' }))
           await user.click(screen.getByRole('button', { name: 'Save' }))
 
           // The item had no recorded amountG, so its 300 kcal was treated as
-          // the per-100g rate (#96's quantity-100 fallback); scaled by the
-          // new 350g quantity: 300 * 350/100 = 1050.
+          // the per-100g rate (#96's portions-1 fallback); scaled by the
+          // new 3.5 portions (350g, #140): 300 * 3.5 = 1050.
           expect(
             onSave.mock.calls[0][0].calorieEntries[0].items[0],
           ).toMatchObject({ amountKcal: 1050, amountG: 350 })
         })
 
-        it('restores the portion weight in grams for an item-edit row when a suggested name is picked (#93)', async () => {
+        it('restores the portion weight in grams for an item-edit row when a suggested name is picked (#93, #140)', async () => {
           const user = userEvent.setup()
           await useMealItemStore.getState().touch('Bread', {
             amountKcal: 80,
@@ -1862,7 +1865,8 @@ describe('DailyEntryForm', () => {
             await within(dialog).findByRole('button', { name: 'Bread' }),
           )
 
-          expect(within(dialog).getByLabelText('Grams')).toHaveValue('30')
+          // 30g back-calculates to 0.3 portions of 100g.
+          expect(within(dialog).getByLabelText('× 100g')).toHaveValue('0.3')
         })
 
         it('removing every item from a meal during edit deletes the whole meal on save', async () => {
