@@ -1158,6 +1158,23 @@ describe('DailyEntryForm', () => {
           )
         })
 
+        it('saves a custom label on Enter, not just the Save button (#146)', async () => {
+          const user = userEvent.setup()
+          const onSave = vi.fn()
+          renderWithMeals(onSave)
+
+          await user.click(screen.getByRole('button', { name: 'Edit meal 1' }))
+          await user.type(
+            screen.getByLabelText('Meal name — Meal 1'),
+            'Breakfast{Enter}',
+          )
+
+          expect(screen.getByText('Breakfast — 300 kcal')).toBeInTheDocument()
+          expect(onSave.mock.calls[0][0].calorieEntries[0].label).toBe(
+            'Breakfast',
+          )
+        })
+
         it('prefills the label input with the existing custom label', async () => {
           const user = userEvent.setup()
           render(

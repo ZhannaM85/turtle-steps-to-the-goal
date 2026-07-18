@@ -311,11 +311,22 @@ function MealListItem({
             placeholder={t.dailyEntry.mealLabel(position)}
             value={editLabel}
             onChange={(e) => onEditLabelChange(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault()
+                onSaveEdit()
+              }
+            }}
             className="h-7 flex-1"
           />
+          {/* #146: was a barely-visible ghost icon that users didn't
+           * register as a required save step — outline gives it a visible
+           * border/button shape instead, same fix direction as the rest of
+           * this row staying icon-only (Delete is secondary/destructive,
+           * appropriately quieter). */}
           <Button
             type="button"
-            variant="ghost"
+            variant="outline"
             size="icon-sm"
             aria-label={t.dailyEntry.saveButton}
             onClick={onSaveEdit}

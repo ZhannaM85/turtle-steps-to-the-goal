@@ -19,6 +19,12 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    issue: 146,
+    date: '2026-07-18T20:51:44+03:00',
+    en: "Made a meal's Save (name) button look like an actual button, and pressing Enter now saves it too — previously it was easy to miss that a typed name needed a separate tap to save.",
+    ru: 'Кнопка сохранения названия приёма пищи теперь выглядит как настоящая кнопка, а нажатие Enter тоже сохраняет — раньше было легко не заметить, что введённое название нужно было отдельно подтвердить.',
+  },
+  {
     issue: 142,
     date: '2026-07-18T12:41:39+03:00',
     en: 'Fixed: Settings no longer suggests adding "Breakfast"/"Lunch"/etc. as a meal-name preset if you already added its translation in the other language.',
