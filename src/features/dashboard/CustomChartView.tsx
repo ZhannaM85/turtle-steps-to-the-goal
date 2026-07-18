@@ -1,10 +1,11 @@
 import { useState } from 'react'
 import { format, parseISO } from 'date-fns'
+import { ChartColumn, ChartLine, ChartScatter } from 'lucide-react'
 import {
+  Bar,
   CartesianGrid,
+  ComposedChart,
   Line,
-  LineChart,
-  ReferenceLine,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -54,6 +55,31 @@ const BOOLEAN_SERIES: BooleanSeriesConfig[] = [
     color: '#f59e0b',
   },
 ]
+
+/** Per-series chart type (#137) — line is the original/default look; bar and
+ * dots are alternate ways to plot the same normalized value. */
+type ChartSeriesType = 'line' | 'bar' | 'dots'
+
+const CHART_TYPE_ICONS: Record<ChartSeriesType, typeof ChartLine> = {
+  line: ChartLine,
+  bar: ChartColumn,
+  dots: ChartScatter,
+}
+
+const DEFAULT_CHART_TYPES: Record<NumericSeriesKey, ChartSeriesType> = {
+  weight: 'line',
+  calories: 'line',
+  protein: 'line',
+  fat: 'line',
+  carbs: 'line',
+  steps: 'line',
+}
+
+/** Fixed Y position for period/bowel-movement marker dots — pinned to the
+ * top of the shared 0-100 normalized range rather than to any series'
+ * actual value, since these are on/off flags with no magnitude of their
+ * own. */
+const BOOLEAN_MARKER_Y = 100
 
 /**
  * Which dashboard/i18n data each numeric series pulls from, plus how to
@@ -123,9 +149,16 @@ function useNumericSeriesConfig(): Record<
  * normalized to 0-100 within its own range via `customChartPoints`
  * (raw values are what the tooltip and legend show, never the normalized
  * ones) rather than given its own separate axis, which gets unreadable
- * fast past two or three axes on a narrow mobile screen. Period/bowel
- * movement are on/off flags, not trends, so they render as vertical
- * marker lines (`ReferenceLine`) instead of a plotted line, the same
+ * fast past two or three axes on a narrow mobile screen. Each numeric
+ * series can be plotted as a line, bar, or dots (#137, picked per series
+ * in the legend below the chart) — "dots" is a `Line` with a transparent
+ * stroke and a visible `dot`, not a `Scatter`, so it shares the same
+ * category x-axis as the line/bar series with no extra axis wiring.
+ * Period/bowel movement are on/off flags, not trends, so they always
+ * render the same way regardless of the per-series picker: a dot pinned
+ * to the top of the chart on each flagged day (same transparent-line
+ * trick), replacing an earlier full-height `ReferenceLine` per day (#137)
+ * that read as noisier than a simple marker — this now matches the dot
  * visual language `CalendarView` already uses for both (destructive-red
  * / amber dots there, same colors reused here).
  */
@@ -149,15 +182,29 @@ export function CustomChartView({ entries }: CustomChartViewProps) {
     'calories',
   ])
   const [selectedBoolean, setSelectedBoolean] = useState<string[]>([])
+  const [chartTypes, setChartTypes] = useState<
+    Record<NumericSeriesKey, ChartSeriesType>
+  >(DEFAULT_CHART_TYPES)
 
   if (entries.length === 0) return null
 
   const points = customChartPoints(entries, selectedNumeric)
+  const booleanDatesByKey = new Map(
+    selectedBoolean.map((key) => [
+      key,
+      new Set(booleanFlagDates(entries, key as 'onPeriod' | 'hadBowelMovement')),
+    ]),
+  )
   const data = points.map((point) => {
     const row: Record<string, string | number | undefined> = { date: point.date }
     for (const key of selectedNumeric) {
       row[`${key}_norm`] = point.normalized[key]
       row[`${key}_raw`] = point.raw[key]
+    }
+    for (const key of selectedBoolean) {
+      row[`${key}_marker`] = booleanDatesByKey.get(key)?.has(point.date)
+        ? BOOLEAN_MARKER_Y
+        : undefined
     }
     return row
   })
@@ -226,7 +273,7 @@ export function CustomChartView({ entries }: CustomChartViewProps) {
       ) : (
         <>
           <ResponsiveContainer width="100%" height={200}>
-            <LineChart data={data} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
+            <ComposedChart data={data} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
               <XAxis
                 dataKey="date"
@@ -239,47 +286,111 @@ export function CustomChartView({ entries }: CustomChartViewProps) {
               />
               <YAxis domain={[0, 100]} hide />
               <Tooltip content={renderTooltip} wrapperStyle={{ pointerEvents: 'auto' }} />
-              {selectedBoolean.flatMap((seriesKey) => {
+              {selectedBoolean.map((seriesKey) => {
                 const series = availableBooleanSeries.find(
                   (s) => s.key === seriesKey,
                 )
-                if (!series) return []
-                const flagKey = series.key as 'onPeriod' | 'hadBowelMovement'
-                return booleanFlagDates(entries, flagKey).map((date) => (
-                  <ReferenceLine
-                    key={`${series.key}-${date}`}
-                    x={date}
-                    stroke={series.color}
-                    strokeWidth={2}
-                    strokeOpacity={0.5}
-                    ifOverflow="visible"
+                if (!series) return null
+                return (
+                  <Line
+                    key={series.key}
+                    type="monotone"
+                    dataKey={`${series.key}_marker`}
+                    stroke="transparent"
+                    dot={{ r: 4, fill: series.color, strokeWidth: 0 }}
+                    connectNulls={false}
+                    isAnimationActive={false}
                   />
-                ))
+                )
               })}
-              {selectedNumeric.map((key) => (
-                <Line
-                  key={key}
-                  type="monotone"
-                  dataKey={`${key}_norm`}
-                  stroke={seriesConfig[key].color}
-                  strokeWidth={2}
-                  dot={false}
-                  connectNulls={false}
-                  isAnimationActive={false}
-                />
-              ))}
-            </LineChart>
+              {selectedNumeric.map((key) => {
+                const chartType = chartTypes[key]
+                if (chartType === 'bar') {
+                  return (
+                    <Bar
+                      key={key}
+                      dataKey={`${key}_norm`}
+                      fill={seriesConfig[key].color}
+                      radius={[2, 2, 0, 0]}
+                      maxBarSize={14}
+                      isAnimationActive={false}
+                    />
+                  )
+                }
+                if (chartType === 'dots') {
+                  return (
+                    <Line
+                      key={key}
+                      type="monotone"
+                      dataKey={`${key}_norm`}
+                      stroke="transparent"
+                      dot={{ r: 3, fill: seriesConfig[key].color, strokeWidth: 0 }}
+                      connectNulls={false}
+                      isAnimationActive={false}
+                    />
+                  )
+                }
+                return (
+                  <Line
+                    key={key}
+                    type="monotone"
+                    dataKey={`${key}_norm`}
+                    stroke={seriesConfig[key].color}
+                    strokeWidth={2}
+                    dot={false}
+                    connectNulls={false}
+                    isAnimationActive={false}
+                  />
+                )
+              })}
+            </ComposedChart>
           </ResponsiveContainer>
-          <span className="flex flex-wrap gap-3 text-xs text-muted-foreground">
+          <div className="flex flex-wrap gap-4 text-xs text-muted-foreground">
             {selectedNumeric.map((key) => (
-              <i key={key} className="flex items-center gap-1 not-italic">
+              <div key={key} className="flex items-center gap-1.5">
                 <span
                   aria-hidden="true"
                   className="size-2 rounded-sm"
                   style={{ background: seriesConfig[key].color }}
                 />
                 {seriesConfig[key].label}
-              </i>
+                <ToggleGroup
+                  type="single"
+                  aria-label={t.dashboard.customChartTypeGroupLabel(
+                    seriesConfig[key].label,
+                  )}
+                  value={chartTypes[key]}
+                  onValueChange={(value) => {
+                    if (!value) return
+                    setChartTypes((prev) => ({
+                      ...prev,
+                      [key]: value as ChartSeriesType,
+                    }))
+                  }}
+                  className="gap-0 bg-transparent p-0"
+                >
+                  {(['line', 'bar', 'dots'] satisfies ChartSeriesType[]).map(
+                    (option) => {
+                      const Icon = CHART_TYPE_ICONS[option]
+                      const optionLabel = {
+                        line: t.dashboard.customChartTypeLine,
+                        bar: t.dashboard.customChartTypeBar,
+                        dots: t.dashboard.customChartTypeDots,
+                      }[option]
+                      return (
+                        <ToggleGroupItem
+                          key={option}
+                          value={option}
+                          aria-label={optionLabel}
+                          className="h-auto rounded-sm px-1 py-0.5"
+                        >
+                          <Icon aria-hidden="true" className="size-3" />
+                        </ToggleGroupItem>
+                      )
+                    },
+                  )}
+                </ToggleGroup>
+              </div>
             ))}
             {selectedBoolean.map((seriesKey) => {
               const series = availableBooleanSeries.find(
@@ -287,17 +398,17 @@ export function CustomChartView({ entries }: CustomChartViewProps) {
               )
               if (!series) return null
               return (
-                <i key={series.key} className="flex items-center gap-1 not-italic">
+                <div key={series.key} className="flex items-center gap-1.5">
                   <span
                     aria-hidden="true"
                     className="size-2 rounded-full"
                     style={{ background: series.color }}
                   />
                   {series.label(t)}
-                </i>
+                </div>
               )
             })}
-          </span>
+          </div>
           <p className="text-xs text-muted-foreground">
             {t.dashboard.customChartNormalizedCaveat}
           </p>

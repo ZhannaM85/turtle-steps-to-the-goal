@@ -19,6 +19,12 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    issue: 137,
+    date: '2026-07-18T09:35:44+03:00',
+    en: 'In "Compare your data" on Dashboard, you can now pick a chart type — line, bar, or dots — for each series, and period/bowel-movement days show as dots instead of vertical lines.',
+    ru: 'В графике «Сравнение данных» на странице «Обзор» теперь можно выбрать тип графика — линия, столбцы или точки — для каждого показателя, а дни менструации/стула отмечаются точками вместо вертикальных линий.',
+  },
+  {
     issue: 132,
     date: '2026-07-18T02:22:54+03:00',
     en: 'Added a "Compare your data" chart on Dashboard — pick any combination of weight, calories, protein, fat, carbs, steps, period, and bowel movement to see them overlaid on one chart, with a legend.',

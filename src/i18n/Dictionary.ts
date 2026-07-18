@@ -303,6 +303,12 @@ export interface Dictionary {
     customChartTitle: string
     customChartWeightLabel: string
     customChartCaloriesLabel: string
+    /** Per-series chart type picker (#137) — three icon buttons (line/bar/
+     * dots) shown next to each selected series in the legend. */
+    customChartTypeLine: string
+    customChartTypeBar: string
+    customChartTypeDots: string
+    customChartTypeGroupLabel: (seriesLabel: string) => string
     customChartNormalizedCaveat: string
     customChartEmptyDescription: string
   }

@@ -271,6 +271,10 @@ export const ru: Dictionary = {
     customChartTitle: 'Сравнение данных',
     customChartWeightLabel: 'Вес',
     customChartCaloriesLabel: 'Калории',
+    customChartTypeLine: 'Линия',
+    customChartTypeBar: 'Столбцы',
+    customChartTypeDots: 'Точки',
+    customChartTypeGroupLabel: (seriesLabel) => `Тип графика для «${seriesLabel}»`,
     customChartNormalizedCaveat:
       'Каждая линия масштабирована по своему диапазону, чтобы разные единицы измерения (кг, ккал, шаги) можно было показать на одном графике — форма и тренд сопоставимы, но высота линии не отражает абсолютное значение. Точное значение за день смотрите во всплывающей подсказке.',
     customChartEmptyDescription: 'Выберите хотя бы один показатель для сравнения.',

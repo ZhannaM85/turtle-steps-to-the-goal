@@ -268,6 +268,10 @@ export const en: Dictionary = {
     customChartTitle: 'Compare your data',
     customChartWeightLabel: 'Weight',
     customChartCaloriesLabel: 'Calories',
+    customChartTypeLine: 'Line',
+    customChartTypeBar: 'Bar',
+    customChartTypeDots: 'Dots',
+    customChartTypeGroupLabel: (seriesLabel) => `Chart type for ${seriesLabel}`,
     customChartNormalizedCaveat:
       "Each line is scaled to its own range so different units (kg, kcal, steps) can share one chart — shapes and trends are comparable, but the chart's height doesn't represent an absolute value. See the exact number for any day in the tooltip.",
     customChartEmptyDescription: 'Pick at least one to compare.',
