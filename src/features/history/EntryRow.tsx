@@ -69,7 +69,18 @@ export function EntryRow({
   if (mode === 'edit') {
     return (
       <tr>
-        <td colSpan={COLUMN_COUNT} className="border-b border-border px-3 py-4">
+        {/* `block` escapes the table's auto-layout column sizing (#136) —
+         * DailyEntryForm is built as a normal full-width page section, and
+         * a `table-layout: auto` <td> sizes to its content's intrinsic
+         * width regardless of `max-w-full`/`min-w-0`, so on mobile the
+         * whole table (already wrapped in `overflow-x-auto` above) grew
+         * wider than the viewport and cut content off until scrolled. As a
+         * plain block box instead of a table-cell, it just takes the row's
+         * available width like it does on the Today screen. */}
+        <td
+          colSpan={COLUMN_COUNT}
+          className="block border-b border-border px-3 py-4"
+        >
           <DailyEntryForm
             date={entry.date}
             existingEntry={entry}

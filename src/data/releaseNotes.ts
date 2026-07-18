@@ -19,6 +19,18 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    issue: 136,
+    date: '2026-07-18T09:53:31+03:00',
+    en: 'Fixed History: editing a day no longer causes a horizontal scrollbar that cut off part of the meal-editing form.',
+    ru: 'Исправлено в Истории: редактирование дня больше не вызывает горизонтальную прокрутку, обрезающую часть формы редактирования приёма пищи.',
+  },
+  {
+    issue: 139,
+    date: '2026-07-18T09:49:37+03:00',
+    en: 'Made Weight/Sleep/Steps/notes/"+ Add item" a touch taller on Today, to match how the Date and time fields already render on iPhone.',
+    ru: 'Поля Веса/Сна/Шагов/заметок/«+ Добавить блюдо» на экране «Сегодня» стали чуть выше — теперь они той же высоты, что поля Даты и времени на iPhone.',
+  },
+  {
     issue: 137,
     date: '2026-07-18T09:35:44+03:00',
     en: 'In "Compare your data" on Dashboard, you can now pick a chart type — line, bar, or dots — for each series, and period/bowel-movement days show as dots instead of vertical lines.',

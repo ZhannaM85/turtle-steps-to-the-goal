@@ -521,7 +521,7 @@ function MealListItem({
               aria-label={`${t.dailyEntry.timeEatenLabel} — ${t.dailyEntry.mealLabel(position)}`}
               value={editTime}
               onChange={(e) => onEditTimeChange(e.target.value)}
-              className="h-11 w-24"
+              className="h-12 w-24"
             />
             {/* App-level clear button (#117), same as the add row's. */}
             {editTime && (
@@ -549,7 +549,7 @@ function MealListItem({
               onSaveEdit()
             }
           }}
-          className="h-11"
+          className="h-12"
         />
       </li>
     )
@@ -1376,7 +1376,7 @@ export function DailyEntryForm({
           <span className="text-sm font-medium">
             {t.dailyEntry.weightLabel}
           </span>
-          <div className="flex h-11 items-center justify-between rounded-lg bg-muted px-3">
+          <div className="flex h-12 items-center justify-between rounded-lg bg-muted px-3">
             <span className="text-sm text-foreground">
               {formatExactNumber(weightKg!, locale)} {t.common.kg}
             </span>
@@ -1402,7 +1402,7 @@ export function DailyEntryForm({
               inputMode="decimal"
               aria-label={t.dailyEntry.weightLabel}
               aria-invalid={errors.weightKg ? true : undefined}
-              className="h-11 flex-1"
+              className="h-12 flex-1"
               onKeyDown={(e) => {
                 if (e.key === 'Enter') {
                   e.preventDefault()
@@ -1432,7 +1432,7 @@ export function DailyEntryForm({
       {showSleepAsDisplay ? (
         <div className="flex flex-col gap-1.5">
           <span className="text-sm font-medium">{t.dailyEntry.sleepLabel}</span>
-          <div className="flex h-11 items-center justify-between rounded-lg bg-muted px-3">
+          <div className="flex h-12 items-center justify-between rounded-lg bg-muted px-3">
             <span className="text-sm text-foreground">
               {t.dailyEntry.sleepSummary(
                 sleepHours === undefined
@@ -1476,7 +1476,7 @@ export function DailyEntryForm({
                   inputMode="numeric"
                   aria-label={`${t.dailyEntry.sleepHoursLabel} — ${t.dailyEntry.hoursFieldLabel}`}
                   aria-invalid={errors.sleepHours ? true : undefined}
-                  className="h-11 w-12"
+                  className="h-12 w-12"
                   value={sleepHoursPart}
                   onChange={(e) => setSleepHoursPart(e.target.value)}
                   onKeyDown={(e) => {
@@ -1494,7 +1494,7 @@ export function DailyEntryForm({
                   inputMode="numeric"
                   aria-label={`${t.dailyEntry.sleepHoursLabel} — ${t.dailyEntry.minutesFieldLabel}`}
                   aria-invalid={errors.sleepHours ? true : undefined}
-                  className="h-11 w-12"
+                  className="h-12 w-12"
                   value={sleepMinutesPart}
                   onChange={(e) => setSleepMinutesPart(e.target.value)}
                   onKeyDown={(e) => {
@@ -1519,7 +1519,7 @@ export function DailyEntryForm({
                   inputMode="numeric"
                   aria-label={`${t.dailyEntry.deepSleepLabel} — ${t.dailyEntry.hoursFieldLabel}`}
                   aria-invalid={errors.deepSleepHours ? true : undefined}
-                  className="h-11 w-12"
+                  className="h-12 w-12"
                   value={deepSleepHoursPart}
                   onChange={(e) => setDeepSleepHoursPart(e.target.value)}
                   onKeyDown={(e) => {
@@ -1537,7 +1537,7 @@ export function DailyEntryForm({
                   inputMode="numeric"
                   aria-label={`${t.dailyEntry.deepSleepLabel} — ${t.dailyEntry.minutesFieldLabel}`}
                   aria-invalid={errors.deepSleepHours ? true : undefined}
-                  className="h-11 w-12"
+                  className="h-12 w-12"
                   value={deepSleepMinutesPart}
                   onChange={(e) => setDeepSleepMinutesPart(e.target.value)}
                   onKeyDown={(e) => {
@@ -1672,7 +1672,7 @@ export function DailyEntryForm({
                 aria-label={t.dailyEntry.timeEatenLabel}
                 value={addTime}
                 onChange={(e) => setAddTime(e.target.value)}
-                className="h-11 w-24"
+                className="h-12 w-24"
               />
               {/* App-level clear button (#117) — the native iOS time
                * picker's own Reset doesn't reliably clear the value back
@@ -1697,7 +1697,7 @@ export function DailyEntryForm({
             type="button"
             variant="outline"
             size="sm"
-            className="h-11 justify-start"
+            className="h-12 justify-start"
             onClick={() => setIsAddItemSheetOpen(true)}
           >
             {addAmountPreview && addAmountPreview > 0 ? (
@@ -1753,7 +1753,7 @@ export function DailyEntryForm({
                 addMeal()
               }
             }}
-            className="h-11"
+            className="h-12"
           />
           {/* "Find food" is the alternative to the manual item sheet above
            * (#106) — fill in macros via "+ Add item", or find an existing
@@ -1792,7 +1792,7 @@ export function DailyEntryForm({
       {showStepsAsDisplay ? (
         <div className="flex flex-col gap-1.5">
           <span className="text-sm font-medium">{t.dailyEntry.stepsLabel}</span>
-          <div className="flex h-11 items-center justify-between rounded-lg bg-muted px-3">
+          <div className="flex h-12 items-center justify-between rounded-lg bg-muted px-3">
             <span className="text-sm text-foreground">
               {steps === undefined ? '—' : formatNumber(steps, locale, 0)}
             </span>
@@ -1816,7 +1816,7 @@ export function DailyEntryForm({
               inputMode="numeric"
               aria-label={t.dailyEntry.stepsLabel}
               aria-invalid={errors.steps ? true : undefined}
-              className="h-11 w-24"
+              className="h-12 w-24"
               onKeyDown={(e) => {
                 if (e.key === 'Enter') {
                   e.preventDefault()
@@ -1844,7 +1844,7 @@ export function DailyEntryForm({
       {showNoteAsDisplay ? (
         <div className="flex flex-col gap-1.5">
           <span className="text-sm font-medium">{t.dailyEntry.noteLabel}</span>
-          <div className="flex h-11 items-center justify-between rounded-lg bg-muted px-3">
+          <div className="flex h-12 items-center justify-between rounded-lg bg-muted px-3">
             <span className="flex items-center gap-1.5 text-sm text-foreground">
               {note}
               {DayEmotionIcon && (
@@ -1879,7 +1879,7 @@ export function DailyEntryForm({
               aria-label={t.dailyEntry.noteLabel}
               aria-invalid={errors.note ? true : undefined}
               placeholder={t.dailyEntry.noteFieldPlaceholder}
-              className="h-11 flex-1"
+              className="h-12 flex-1"
               onKeyDown={(e) => {
                 if (e.key === 'Enter') {
                   e.preventDefault()

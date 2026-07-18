@@ -69,7 +69,7 @@ function NumberField({
             onEnter()
           }
         }}
-        className="h-11 text-base"
+        className="h-12 text-base"
       />
     </div>
   )
@@ -158,7 +158,7 @@ export function MealItemEditorSheet({
               onSelectItem={onSelectMealItem}
               onSubmit={onSave}
               suggestions={mealItems}
-              className="h-11 text-base"
+              className="h-12 text-base"
             />
           </div>
 
@@ -203,7 +203,7 @@ export function MealItemEditorSheet({
             ) : (
               <div className="flex flex-col gap-1.5">
                 <span className="text-sm text-muted-foreground">&nbsp;</span>
-                <span className="flex h-11 items-center text-base text-muted-foreground">
+                <span className="flex h-12 items-center text-base text-muted-foreground">
                   {t.dailyEntry.macroModePerPortionOption}
                 </span>
               </div>

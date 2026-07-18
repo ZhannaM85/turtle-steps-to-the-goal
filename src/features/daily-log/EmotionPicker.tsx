@@ -30,7 +30,7 @@ export function EmotionPicker<E extends string>({
   contextLabel?: string
   /** Defaults to the day-mood picker's existing compact size (#84); the
    * per-item reaction picker in MealItemEditorSheet.tsx passes `icon-xl`
-   * instead, to match that sheet's h-11 fields (#133). */
+   * instead, to match that sheet's h-12 fields (#133). */
   size?: VariantProps<typeof buttonVariants>['size']
 }) {
   return (
