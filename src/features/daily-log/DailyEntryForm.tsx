@@ -61,7 +61,12 @@ import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/ui/button'
 import { InfoTooltip } from '@/shared/ui/info-tooltip'
 import { Input } from '@/shared/ui/input'
-import { useMealItemStore, useMealLabelPresetStore } from '@/stores'
+import { ToggleGroup, ToggleGroupItem } from '@/shared/ui/toggle-group'
+import {
+  useDigestionTrackingStore,
+  useMealItemStore,
+  useMealLabelPresetStore,
+} from '@/stores'
 import { entryToFormValues, formValuesToEntry } from './dailyEntryFormMapping'
 import { EmotionPicker } from './EmotionPicker'
 import { FoodPickerDialog } from './FoodPickerDialog'
@@ -808,6 +813,13 @@ export function DailyEntryForm({
     }),
   )
 
+  // Opt-in digestion tracking's on/off toggle (Settings) — the toggle
+  // itself only renders on this screen when enabled, same gate DayDetail
+  // already uses for its own copy of this control.
+  const digestionTrackingEnabled = useDigestionTrackingStore(
+    (state) => state.enabled,
+  )
+
   // Reusable meal-name suggestions (#50) — loaded once per form mount, a
   // library shared across days, not scoped to this entry.
   const mealItems = useMealItemStore((state) => state.items)
@@ -835,6 +847,7 @@ export function DailyEntryForm({
   const sleepHours = watch('sleepHours')
   const deepSleepHours = watch('deepSleepHours')
   const steps = watch('steps')
+  const hadConstipation = watch('hadConstipation')
   const dayEmotion = watch('emotion')
   const calorieEntries = watch('calorieEntries') ?? []
   const DayEmotionIcon = DAY_EMOTIONS.find((e) => e.value === dayEmotion)?.Icon
@@ -857,6 +870,14 @@ export function DailyEntryForm({
 
   function persist(values: DailyEntryFormValues) {
     onSave(formValuesToEntry(values, date, entryIdentity))
+  }
+
+  // Saves immediately on tap, same as every other independent field here
+  // (#31) — no separate confirm step, since a toggle whose own state
+  // already shows what's about to happen doesn't need one.
+  function setHadConstipation(value: boolean) {
+    setValue('hadConstipation', value, { shouldDirty: true })
+    persist({ ...getValues(), hadConstipation: value })
   }
 
   function saveWeight() {
@@ -1913,6 +1934,36 @@ export function DailyEntryForm({
               contextLabel={t.dailyEntry.dayMoodLabel}
             />
           </div>
+        </div>
+      )}
+
+      {/* Surfaced directly on Today (previously only reachable via History's
+       * DayDetail, which users found hard to discover) — both options are
+       * always shown rather than a single unlabeled toggle, so the current
+       * state reads unambiguously without relying on a highlight color
+       * alone. Placed outside the note/mood block above so it stays visible
+       * regardless of that block's own display/edit state. */}
+      {digestionTrackingEnabled && (
+        <div className="flex flex-col gap-1.5">
+          <span className="text-sm font-medium">
+            {t.dailyEntry.hadConstipationLabel}
+          </span>
+          <ToggleGroup
+            type="single"
+            aria-label={t.dailyEntry.hadConstipationLabel}
+            value={hadConstipation ? 'yes' : 'no'}
+            onValueChange={(value) =>
+              value && setHadConstipation(value === 'yes')
+            }
+            className="w-fit"
+          >
+            <ToggleGroupItem value="no" className="h-12 px-6 text-base">
+              {t.dailyEntry.hadConstipationNoOption}
+            </ToggleGroupItem>
+            <ToggleGroupItem value="yes" className="h-12 px-6 text-base">
+              {t.dailyEntry.hadConstipationYesOption}
+            </ToggleGroupItem>
+          </ToggleGroup>
         </div>
       )}
     </form>

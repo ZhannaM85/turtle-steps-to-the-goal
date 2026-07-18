@@ -74,7 +74,7 @@ describe('CustomChartView', () => {
       screen.queryByRole('button', { name: 'On period' }),
     ).not.toBeInTheDocument()
     expect(
-      screen.queryByRole('button', { name: 'Bowel movement' }),
+      screen.queryByRole('button', { name: 'Constipation' }),
     ).not.toBeInTheDocument()
   })
 

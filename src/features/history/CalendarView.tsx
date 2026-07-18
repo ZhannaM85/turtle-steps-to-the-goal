@@ -116,7 +116,7 @@ export function CalendarView({
           const entry = entriesByDate.get(dateKey)
           const hasEntry = entry !== undefined
           const onPeriod = entry?.onPeriod ?? false
-          const hadBowelMovement = entry?.hadBowelMovement ?? false
+          const hadConstipation = entry?.hadConstipation ?? false
           const inCurrentMonth = isSameMonth(day, currentMonth)
           const selected = selectedDate !== null && selectedDate === dateKey
           return (
@@ -168,7 +168,7 @@ export function CalendarView({
                     )}
                   />
                 )}
-                {/* Third dot for bowel-movement days, mirroring the period
+                {/* Third dot for constipation days, mirroring the period
                  * dot's own gate/color pattern — a distinct color so the two
                  * opt-in trackers stay visually distinguishable side by
                  * side. */}
@@ -177,7 +177,7 @@ export function CalendarView({
                     aria-hidden="true"
                     className={cn(
                       'size-1 rounded-full',
-                      hadBowelMovement
+                      hadConstipation
                         ? selected
                           ? 'bg-primary-foreground'
                           : 'bg-amber-500'

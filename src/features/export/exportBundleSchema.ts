@@ -66,7 +66,12 @@ const dailyEntrySchema = z.object({
   // like any other field; only the Settings on/off toggle is local-only.
   onPeriod: z.boolean().optional(),
   // Opt-in digestion tracking, same reasoning/shape as onPeriod above.
-  hadBowelMovement: z.boolean().optional(),
+  // Reframed around the problem (constipation) instead of the normal day
+  // (previously `hadBowelMovement`) — a clean cut, not a migration: the old
+  // field meant the opposite thing, so an old bundle's value has no correct
+  // equivalent here and is simply dropped on import (Zod strips unknown keys
+  // by default).
+  hadConstipation: z.boolean().optional(),
   createdAt: z.string(),
   updatedAt: z.string(),
 })

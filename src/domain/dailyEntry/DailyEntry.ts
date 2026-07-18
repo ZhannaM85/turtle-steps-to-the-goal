@@ -75,8 +75,12 @@ export interface DailyEntry {
   onPeriod?: boolean
   /** Opt-in digestion tracking, same shape as onPeriod above — only ever
    * set when enabled in Settings (`useDigestionTrackingStore`); the toggle
-   * itself is a local UI preference, this logged value is a normal field. */
-  hadBowelMovement?: boolean
+   * itself is a local UI preference, this logged value is a normal field.
+   * Tracks the problem (constipation), not the normal day, so the app only
+   * ever asks the user to log an exception rather than every good day —
+   * `true` here has no relation to the old `hadBowelMovement` field this
+   * replaced; that one meant the opposite thing, so no data carried over. */
+  hadConstipation?: boolean
   createdAt: string
   updatedAt: string
 }

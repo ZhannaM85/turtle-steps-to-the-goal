@@ -161,7 +161,7 @@ describe('CalendarView', () => {
 
   describe('bowel-movement marker dot', () => {
     it('is not rendered at all when digestion tracking is off', () => {
-      renderCalendar({ entries: [makeEntry({ hadBowelMovement: true })] })
+      renderCalendar({ entries: [makeEntry({ hadConstipation: true })] })
 
       const dayButton = screen.getByRole('button', { name: midMonthLabel })
       expect(
@@ -169,9 +169,9 @@ describe('CalendarView', () => {
       ).toHaveLength(1)
     })
 
-    it('reserves a transparent dot for days without hadBowelMovement when digestion tracking is on', () => {
+    it('reserves a transparent dot for days without hadConstipation when digestion tracking is on', () => {
       useDigestionTrackingStore.setState({ enabled: true })
-      renderCalendar({ entries: [makeEntry({ hadBowelMovement: false })] })
+      renderCalendar({ entries: [makeEntry({ hadConstipation: false })] })
 
       const dayButton = screen.getByRole('button', { name: midMonthLabel })
       const dots = dayButton.querySelectorAll('span[aria-hidden="true"]')
@@ -181,9 +181,9 @@ describe('CalendarView', () => {
       useDigestionTrackingStore.setState({ enabled: false })
     })
 
-    it('shows a colored dot for a day with hadBowelMovement true', () => {
+    it('shows a colored dot for a day with hadConstipation true', () => {
       useDigestionTrackingStore.setState({ enabled: true })
-      renderCalendar({ entries: [makeEntry({ hadBowelMovement: true })] })
+      renderCalendar({ entries: [makeEntry({ hadConstipation: true })] })
 
       const dayButton = screen.getByRole('button', { name: midMonthLabel })
       const dots = dayButton.querySelectorAll('span[aria-hidden="true"]')
@@ -196,7 +196,7 @@ describe('CalendarView', () => {
       useCycleTrackingStore.setState({ enabled: true })
       useDigestionTrackingStore.setState({ enabled: true })
       renderCalendar({
-        entries: [makeEntry({ onPeriod: true, hadBowelMovement: true })],
+        entries: [makeEntry({ onPeriod: true, hadConstipation: true })],
       })
 
       const dayButton = screen.getByRole('button', { name: midMonthLabel })

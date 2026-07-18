@@ -19,6 +19,12 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    issue: 0,
+    date: '2026-07-18T12:05:24+03:00',
+    en: 'Digestion tracking now logs constipation instead of a normal bowel movement, so you only need to note the days something was actually off — and the toggle is now right on Today, not just in History.',
+    ru: 'Отслеживание пищеварения теперь фиксирует запор вместо обычного стула — отмечать нужно только те дни, когда что-то было не так. Переключатель теперь прямо на экране «Сегодня», а не только в Истории.',
+  },
+  {
     issue: 135,
     date: '2026-07-18T10:26:14+03:00',
     en: "Fixed: updating this week's target now always starts a fresh 7-day window from today, instead of being labeled against whatever calendar week happened to contain today.",

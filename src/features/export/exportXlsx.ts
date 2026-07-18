@@ -60,8 +60,8 @@ export async function buildExportWorkbook(
     { header: t.exportXlsx.noteColumn, key: 'note', width: 30 },
     { header: t.exportXlsx.onPeriodColumn, key: 'onPeriod', width: 12 },
     {
-      header: t.exportXlsx.hadBowelMovementColumn,
-      key: 'hadBowelMovement',
+      header: t.exportXlsx.hadConstipationColumn,
+      key: 'hadConstipation',
       width: 14,
     },
   ]
@@ -79,7 +79,7 @@ export async function buildExportWorkbook(
       mood: entry.emotion && t.dailyEntry.emotionLabel(entry.emotion),
       note: entry.note,
       onPeriod: entry.onPeriod,
-      hadBowelMovement: entry.hadBowelMovement,
+      hadConstipation: entry.hadConstipation,
     })
   }
   dailyLogSheet.getColumn('date').numFmt = DATE_FORMAT

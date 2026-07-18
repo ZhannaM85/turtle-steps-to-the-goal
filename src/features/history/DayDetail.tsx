@@ -140,19 +140,19 @@ export function DayDetail({
               type="button"
               variant="outline"
               size="sm"
-              aria-pressed={entry.hadBowelMovement ?? false}
+              aria-pressed={entry.hadConstipation ?? false}
               className={cn(
-                entry.hadBowelMovement && 'bg-muted text-foreground',
+                entry.hadConstipation && 'bg-muted text-foreground',
               )}
               onClick={() =>
                 onSaved({
                   ...entry,
-                  hadBowelMovement: !entry.hadBowelMovement,
+                  hadConstipation: !entry.hadConstipation,
                   updatedAt: new Date().toISOString(),
                 })
               }
             >
-              {t.dailyEntry.hadBowelMovementLabel}
+              {t.dailyEntry.hadConstipationLabel}
             </Button>
           )}
         </div>

@@ -36,7 +36,7 @@ export interface CustomChartViewProps {
 }
 
 interface BooleanSeriesConfig {
-  key: 'onPeriod' | 'hadBowelMovement'
+  key: 'onPeriod' | 'hadConstipation'
   label: (t: Dictionary) => string
   color: string
 }
@@ -48,8 +48,8 @@ const BOOLEAN_SERIES: BooleanSeriesConfig[] = [
     color: 'var(--destructive)',
   },
   {
-    key: 'hadBowelMovement',
-    label: (t) => t.dailyEntry.hadBowelMovementLabel,
+    key: 'hadConstipation',
+    label: (t) => t.dailyEntry.hadConstipationLabel,
     // Matches CalendarView's bg-amber-500 dot for the same flag — no CSS
     // token exists for it, so the raw Tailwind default hex is used as-is.
     color: '#f59e0b',
@@ -75,7 +75,7 @@ const DEFAULT_CHART_TYPES: Record<NumericSeriesKey, ChartSeriesType> = {
   steps: 'line',
 }
 
-/** Fixed Y position for period/bowel-movement marker dots — pinned to the
+/** Fixed Y position for period/constipation marker dots — pinned to the
  * top of the shared 0-100 normalized range rather than to any series'
  * actual value, since these are on/off flags with no magnitude of their
  * own. */
@@ -154,7 +154,7 @@ function useNumericSeriesConfig(): Record<
  * in the legend below the chart) — "dots" is a `Line` with a transparent
  * stroke and a visible `dot`, not a `Scatter`, so it shares the same
  * category x-axis as the line/bar series with no extra axis wiring.
- * Period/bowel movement are on/off flags, not trends, so they always
+ * Period/constipation are on/off flags, not trends, so they always
  * render the same way regardless of the per-series picker: a dot pinned
  * to the top of the chart on each flagged day (same transparent-line
  * trick), replacing an earlier full-height `ReferenceLine` per day (#137)
@@ -174,7 +174,7 @@ export function CustomChartView({ entries }: CustomChartViewProps) {
   const availableBooleanSeries = BOOLEAN_SERIES.filter(
     (series) =>
       (series.key === 'onPeriod' && cycleTrackingEnabled) ||
-      (series.key === 'hadBowelMovement' && digestionTrackingEnabled),
+      (series.key === 'hadConstipation' && digestionTrackingEnabled),
   )
 
   const [selectedNumeric, setSelectedNumeric] = useState<NumericSeriesKey[]>([
@@ -192,7 +192,7 @@ export function CustomChartView({ entries }: CustomChartViewProps) {
   const booleanDatesByKey = new Map(
     selectedBoolean.map((key) => [
       key,
-      new Set(booleanFlagDates(entries, key as 'onPeriod' | 'hadBowelMovement')),
+      new Set(booleanFlagDates(entries, key as 'onPeriod' | 'hadConstipation')),
     ]),
   )
   const data = points.map((point) => {

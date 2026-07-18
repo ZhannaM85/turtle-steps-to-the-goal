@@ -23,7 +23,7 @@ describe('buildDailyLogCsv', () => {
 
     expect(csv).toBe(
       'Date,Weight (kg),Calories (kcal),Protein (g),Fat (g),Carbs (g),' +
-        'Sleep (h),Deep sleep (h),Steps,Mood,Note,On period,Bowel movement',
+        'Sleep (h),Deep sleep (h),Steps,Mood,Note,On period,Constipation',
     )
   })
 

@@ -94,12 +94,12 @@ export function customChartPoints(
   })
 }
 
-/** Dates a boolean per-day flag (period, bowel movement) was on — the
+/** Dates a boolean per-day flag (period, constipation) was on — the
  * marker-band data for the two non-numeric series, kept separate from
  * `customChartPoints` since they're not plotted as a line. */
 export function booleanFlagDates(
   entries: DailyEntry[],
-  flag: 'onPeriod' | 'hadBowelMovement',
+  flag: 'onPeriod' | 'hadConstipation',
 ): string[] {
   return entries.filter((entry) => entry[flag]).map((entry) => entry.date)
 }

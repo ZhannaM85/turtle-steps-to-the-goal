@@ -14,6 +14,7 @@ export function entryToFormValues(
     deepSleepHours: entry.deepSleepHours,
     steps: entry.steps,
     onPeriod: entry.onPeriod,
+    hadConstipation: entry.hadConstipation,
   }
 }
 
@@ -33,6 +34,7 @@ export function formValuesToEntry(
     deepSleepHours: values.deepSleepHours,
     steps: values.steps,
     onPeriod: values.onPeriod,
+    hadConstipation: values.hadConstipation,
     createdAt: identity.createdAt,
     updatedAt: new Date().toISOString(),
   }

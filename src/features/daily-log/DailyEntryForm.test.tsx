@@ -5,7 +5,11 @@ import type { ReactNode } from 'react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { CalorieEntry } from '@/domain/dailyEntry'
 import { db } from '@/infrastructure/persistence/indexeddb'
-import { useMealItemStore, useMealLabelPresetStore } from '@/stores'
+import {
+  useDigestionTrackingStore,
+  useMealItemStore,
+  useMealLabelPresetStore,
+} from '@/stores'
 import { DailyEntryForm } from './DailyEntryForm'
 
 // jsdom has no layout engine, so real pointer/keyboard drag gestures can't
@@ -54,10 +58,12 @@ beforeEach(async () => {
   await db.mealItems.clear()
   useMealItemStore.setState({ items: [], status: 'idle', error: null })
   useMealLabelPresetStore.setState({ presets: [] })
+  useDigestionTrackingStore.setState({ enabled: false })
 })
 
 afterEach(async () => {
   await db.mealItems.clear()
+  useDigestionTrackingStore.setState({ enabled: false })
 })
 
 describe('DailyEntryForm', () => {
@@ -2083,6 +2089,74 @@ describe('DailyEntryForm', () => {
           expect(entry.items[0].emotion).toBe('bellissimo')
         })
       })
+    })
+  })
+
+  describe('digestion tracking (constipation)', () => {
+    it('hides the toggle when digestion tracking is disabled', () => {
+      render(
+        <DailyEntryForm date="2026-03-01" existingEntry={null} onSave={vi.fn()} />,
+      )
+
+      expect(
+        screen.queryByRole('radiogroup', { name: 'Constipation' }),
+      ).not.toBeInTheDocument()
+    })
+
+    it('shows a No/Yes toggle, defaulting to No, when enabled', () => {
+      useDigestionTrackingStore.setState({ enabled: true })
+      render(
+        <DailyEntryForm date="2026-03-01" existingEntry={null} onSave={vi.fn()} />,
+      )
+
+      expect(screen.getByRole('radio', { name: 'No' })).toHaveAttribute(
+        'aria-checked',
+        'true',
+      )
+      expect(screen.getByRole('radio', { name: 'Yes' })).toHaveAttribute(
+        'aria-checked',
+        'false',
+      )
+    })
+
+    it('saves immediately when switched to Yes, no separate save step', async () => {
+      useDigestionTrackingStore.setState({ enabled: true })
+      const user = userEvent.setup()
+      const onSave = vi.fn()
+      render(
+        <DailyEntryForm date="2026-03-01" existingEntry={null} onSave={onSave} />,
+      )
+
+      await user.click(screen.getByRole('radio', { name: 'Yes' }))
+
+      expect(onSave).toHaveBeenCalled()
+      expect(onSave.mock.calls[0][0].hadConstipation).toBe(true)
+      expect(screen.getByRole('radio', { name: 'Yes' })).toHaveAttribute(
+        'aria-checked',
+        'true',
+      )
+    })
+
+    it('reflects an already-true hadConstipation as Yes when editing', () => {
+      useDigestionTrackingStore.setState({ enabled: true })
+      render(
+        <DailyEntryForm
+          date="2026-03-01"
+          existingEntry={{
+            id: 'entry-1',
+            date: '2026-03-01',
+            hadConstipation: true,
+            createdAt: now,
+            updatedAt: now,
+          }}
+          onSave={vi.fn()}
+        />,
+      )
+
+      expect(screen.getByRole('radio', { name: 'Yes' })).toHaveAttribute(
+        'aria-checked',
+        'true',
+      )
     })
   })
 })

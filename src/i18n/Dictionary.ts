@@ -163,9 +163,12 @@ export interface Dictionary {
     editStepsLabel: string
     saveStepsLabel: string
     onPeriodLabel: string
-    /** Opt-in digestion tracking's per-day toggle in DayDetail.tsx, same
-     * shape/precedent as onPeriodLabel above. */
-    hadBowelMovementLabel: string
+    /** Opt-in digestion tracking's per-day toggle, on both Today and in
+     * DayDetail.tsx — tracks the problem (constipation), not the normal
+     * day, so logging it is only ever needed on an exception day. */
+    hadConstipationLabel: string
+    hadConstipationNoOption: string
+    hadConstipationYesOption: string
     /** Full-screen meal-item editor sheet (#122) — replaces the cramped
      * inline fields row for both adding a new meal's first item and
      * editing/adding an item within an already-existing meal. */
@@ -246,7 +249,7 @@ export interface Dictionary {
     moodColumn: string
     noteColumn: string
     onPeriodColumn: string
-    hadBowelMovementColumn: string
+    hadConstipationColumn: string
     mealColumn: string
     itemColumn: string
     gramsColumn: string

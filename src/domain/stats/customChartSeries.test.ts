@@ -125,10 +125,10 @@ describe('booleanFlagDates', () => {
     ])
   })
 
-  it('reads hadBowelMovement independently of onPeriod', () => {
-    const entries = [entry('2026-01-01', { hadBowelMovement: true })]
+  it('reads hadConstipation independently of onPeriod', () => {
+    const entries = [entry('2026-01-01', { hadConstipation: true })]
 
-    expect(booleanFlagDates(entries, 'hadBowelMovement')).toEqual([
+    expect(booleanFlagDates(entries, 'hadConstipation')).toEqual([
       '2026-01-01',
     ])
     expect(booleanFlagDates(entries, 'onPeriod')).toEqual([])

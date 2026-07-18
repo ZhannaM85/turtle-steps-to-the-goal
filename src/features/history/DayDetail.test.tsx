@@ -194,7 +194,7 @@ describe('DayDetail', () => {
     it('is hidden when the Settings toggle is off, even with onSaved provided', () => {
       render(<DayDetail entry={makeEntry()} onSaved={vi.fn()} />)
       expect(
-        screen.queryByRole('button', { name: 'Bowel movement' }),
+        screen.queryByRole('button', { name: 'Constipation' }),
       ).not.toBeInTheDocument()
     })
 
@@ -202,35 +202,35 @@ describe('DayDetail', () => {
       useDigestionTrackingStore.setState({ enabled: true })
       render(<DayDetail entry={makeEntry()} />)
       expect(
-        screen.queryByRole('button', { name: 'Bowel movement' }),
+        screen.queryByRole('button', { name: 'Constipation' }),
       ).not.toBeInTheDocument()
     })
 
-    it('toggles hadBowelMovement via onSaved when both are present', () => {
+    it('toggles hadConstipation via onSaved when both are present', () => {
       useDigestionTrackingStore.setState({ enabled: true })
       const onSaved = vi.fn()
       render(<DayDetail entry={makeEntry()} onSaved={onSaved} />)
 
-      const toggle = screen.getByRole('button', { name: 'Bowel movement' })
+      const toggle = screen.getByRole('button', { name: 'Constipation' })
       expect(toggle).toHaveAttribute('aria-pressed', 'false')
 
       toggle.click()
 
       expect(onSaved).toHaveBeenCalledTimes(1)
-      expect(onSaved.mock.calls[0][0].hadBowelMovement).toBe(true)
+      expect(onSaved.mock.calls[0][0].hadConstipation).toBe(true)
     })
 
-    it('reflects an already-true hadBowelMovement as pressed', () => {
+    it('reflects an already-true hadConstipation as pressed', () => {
       useDigestionTrackingStore.setState({ enabled: true })
       render(
         <DayDetail
-          entry={makeEntry({ hadBowelMovement: true })}
+          entry={makeEntry({ hadConstipation: true })}
           onSaved={vi.fn()}
         />,
       )
 
       expect(
-        screen.getByRole('button', { name: 'Bowel movement' }),
+        screen.getByRole('button', { name: 'Constipation' }),
       ).toHaveAttribute('aria-pressed', 'true')
     })
 
@@ -243,7 +243,7 @@ describe('DayDetail', () => {
         screen.getByRole('button', { name: 'On period' }),
       ).toBeInTheDocument()
       expect(
-        screen.getByRole('button', { name: 'Bowel movement' }),
+        screen.getByRole('button', { name: 'Constipation' }),
       ).toBeInTheDocument()
     })
   })

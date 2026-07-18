@@ -72,7 +72,7 @@ describe('buildExportWorkbook', () => {
     const [row] = sheetRows(dailyLog)
 
     // [date, weight, calories, protein, fat, carbs, sleepHours,
-    //  deepSleepHours, steps, mood, note, onPeriod, hadBowelMovement]
+    //  deepSleepHours, steps, mood, note, onPeriod, hadConstipation]
     expect(row[1]).toBeInstanceOf(Date)
     expect(row[2]).toBe(79.5)
     expect(row[3]).toBe(300)
