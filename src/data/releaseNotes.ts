@@ -19,6 +19,12 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    issue: 143,
+    date: '2026-07-18T22:09:50+03:00',
+    en: 'Each meal now shows in its own card, matching the look of the stat cards elsewhere on Today — easier to tell meals apart at a glance.',
+    ru: 'Каждый приём пищи теперь отображается в отдельной карточке — как другие карточки на экране «Сегодня» — так их проще отличать друг от друга.',
+  },
+  {
     issue: 141,
     date: '2026-07-18T21:30:29+03:00',
     en: 'Unlabeled meals now default to Breakfast/Lunch/Dinner/Snack based on order, instead of always showing "Meal 1"/"Meal 2" — a 5th meal still shows as "Meal 5". You can still rename any meal, and History now shows a custom meal name too.',

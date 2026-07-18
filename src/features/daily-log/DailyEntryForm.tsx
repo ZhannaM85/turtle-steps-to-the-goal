@@ -269,7 +269,10 @@ function MealListItem({
       <li
         ref={setNodeRef}
         style={style}
-        className="flex items-center gap-2 rounded-lg px-1 py-1 whitespace-nowrap"
+        // #143: same card treatment (bg-card/ring) as the other two
+        // MealListItem states below, so a meal doesn't lose its card
+        // boundary mid-delete-confirm.
+        className="flex items-center gap-2 rounded-xl bg-card p-3 ring-1 ring-foreground/10 whitespace-nowrap"
       >
         <span className="text-sm text-muted-foreground">
           {t.history.confirmDeleteLabel}
@@ -299,7 +302,9 @@ function MealListItem({
       <li
         ref={setNodeRef}
         style={style}
-        className="flex flex-col gap-2 rounded-lg bg-muted/40 px-1 py-1.5"
+        // #143: card treatment (bg-card/ring), matching the app's existing
+        // StatCard look — was a plain bg-muted/40 tint before.
+        className="flex flex-col gap-2 rounded-xl bg-card p-3 ring-1 ring-foreground/10"
       >
         <div className="flex items-center gap-3">
           {/* Custom meal name (#110) — free text, defaulting to the
@@ -581,8 +586,11 @@ function MealListItem({
     <li
       ref={setNodeRef}
       style={style}
+      // #143: card treatment (bg-card/ring), matching the app's existing
+      // StatCard look ("This week's target"/"vs. yesterday") — was a plain
+      // list row with no background/border before.
       className={cn(
-        'flex flex-col gap-1.5 px-1 py-1',
+        'flex flex-col gap-1.5 rounded-xl bg-card p-3 ring-1 ring-foreground/10',
         isDragging && 'opacity-50',
       )}
     >
@@ -1682,17 +1690,14 @@ export function DailyEntryForm({
         )}
 
         <div
-          className={cn(
-            'flex flex-col gap-1.5',
-            // Divider + heading (#95) — without one, this row read as a
-            // continuation of the last meal group above it rather than the
-            // start of a new one, since both share the same visual weight.
-            // defaultMealLabel(n) (#141) is the same default name existing
-            // unlabeled groups show, so this row previews what the new meal
-            // will get: Breakfast/Lunch/Dinner/Snack for the first 4, "Meal
-            // N" from the 5th on.
-            calorieEntries.length > 0 && 'border-t border-border pt-2',
-          )}
+          // Card treatment (#143), same as every other meal group's <li>
+          // above — its own visible boundary now does the job the old
+          // border-t divider (#95) used to, so that's dropped rather than
+          // doubling up on separators. defaultMealLabel(n) (#141) is the
+          // same default name existing unlabeled groups show, so this row
+          // previews what the new meal will get: Breakfast/Lunch/Dinner/
+          // Snack for the first 4, "Meal N" from the 5th on.
+          className="flex flex-col gap-1.5 rounded-xl bg-card p-3 ring-1 ring-foreground/10"
         >
           {/* Time moved up onto the heading line (#107) — it isn't a macro
            * the way kcal/protein/fat/carbs are, so keeping it in the fields
