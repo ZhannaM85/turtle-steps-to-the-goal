@@ -24,6 +24,7 @@ import {
   macrosSummaryText,
   macrosSummaryTextCompact,
 } from '@/shared/lib/macroDisplay'
+import { effectiveMealLabel } from '@/shared/lib/mealLabel'
 import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/ui/button'
 import {
@@ -192,7 +193,11 @@ export function DayDetail({
             return (
               <li key={meal.id} className="flex flex-col gap-0.5">
                 <span className="flex items-center gap-1.5">
-                  {t.dailyEntry.mealLabel(index + 1)} —{' '}
+                  {/* #141: also picks up a custom label (#110) here now —
+                   * this view never read `meal.label` at all before, always
+                   * showing the positional name regardless of what Today
+                   * displayed for the same meal. */}
+                  {effectiveMealLabel(t, index + 1, meal.label)} —{' '}
                   {formatNumber(calorieEntryKcal(meal), locale, 0)}{' '}
                   {t.dailyEntry.kcalUnit}
                   {meal.timeEaten && (

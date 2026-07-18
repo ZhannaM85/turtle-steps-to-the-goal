@@ -180,7 +180,7 @@ describe('EntryRow', () => {
 
       await user.click(screen.getByRole('button', { name: 'View details' }))
 
-      expect(screen.getByText('Meal 1 — 500 kcal')).toBeInTheDocument()
+      expect(screen.getByText('Breakfast — 500 kcal')).toBeInTheDocument()
       expect(screen.getByText('Pasta for lunch')).toBeInTheDocument()
       expect(screen.getByText('Thumbs up')).toBeInTheDocument()
       // Read-only: no edit affordances leaked into the expanded panel itself.
@@ -205,10 +205,10 @@ describe('EntryRow', () => {
       })
 
       await user.click(screen.getByRole('button', { name: 'View details' }))
-      expect(screen.getByText('Meal 1 — 500 kcal')).toBeInTheDocument()
+      expect(screen.getByText('Breakfast — 500 kcal')).toBeInTheDocument()
 
       await user.click(screen.getByRole('button', { name: 'Hide details' }))
-      expect(screen.queryByText('Meal 1 — 500 kcal')).not.toBeInTheDocument()
+      expect(screen.queryByText('Breakfast — 500 kcal')).not.toBeInTheDocument()
     })
 
     it('shows a quiet fallback when there is nothing to expand', async () => {
@@ -242,7 +242,7 @@ describe('EntryRow', () => {
       await user.click(screen.getByRole('button', { name: 'Delete entry' }))
       await user.click(screen.getByRole('button', { name: 'Cancel' }))
 
-      expect(screen.getByText('Meal 1 — 500 kcal')).toBeInTheDocument()
+      expect(screen.getByText('Breakfast — 500 kcal')).toBeInTheDocument()
     })
   })
 })

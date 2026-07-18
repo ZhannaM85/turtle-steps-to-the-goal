@@ -556,14 +556,14 @@ describe('DailyEntryForm', () => {
         />,
       )
 
-      expect(screen.getByText('Meal 1')).toBeInTheDocument()
+      expect(screen.getByText('Breakfast')).toBeInTheDocument()
 
       await user.click(screen.getByRole('button', { name: '+ Add item' }))
       await user.type(screen.getByLabelText('kcal/100g'), '200')
       await user.click(screen.getByRole('button', { name: 'Save' }))
 
-      expect(screen.getByText('Meal 1 — 200 kcal')).toBeInTheDocument()
-      expect(screen.getByText('Meal 2')).toBeInTheDocument()
+      expect(screen.getByText('Breakfast — 200 kcal')).toBeInTheDocument()
+      expect(screen.getByText('Lunch')).toBeInTheDocument()
     })
 
     it('adds a meal and saves it immediately', async () => {
@@ -588,7 +588,7 @@ describe('DailyEntryForm', () => {
         ),
       ).toEqual([200])
       expect(screen.getByText('200')).toBeInTheDocument()
-      expect(screen.getByText('Meal 1 — 200 kcal')).toBeInTheDocument()
+      expect(screen.getByText('Breakfast — 200 kcal')).toBeInTheDocument()
       // The sheet closes on save, so the field itself is gone — the reset
       // is verified by reopening the (now-blank) sheet instead.
       await user.click(screen.getByRole('button', { name: '+ Add item' }))
@@ -614,7 +614,7 @@ describe('DailyEntryForm', () => {
       await user.type(screen.getByLabelText('kcal/100g'), '200')
       await user.click(screen.getByRole('button', { name: 'Save' }))
 
-      expect(screen.getByText('Meal 1 — 200 kcal')).toBeInTheDocument()
+      expect(screen.getByText('Breakfast — 200 kcal')).toBeInTheDocument()
       expect(
         screen.getByText('Ate chocolates, they were good.'),
       ).toBeInTheDocument()
@@ -870,7 +870,7 @@ describe('DailyEntryForm', () => {
       await user.type(screen.getByLabelText('Dish name'), 'Pizza')
       await user.click(screen.getByRole('button', { name: 'Save' }))
 
-      await screen.findByText('Meal 1 — 200 kcal')
+      await screen.findByText('Breakfast — 200 kcal')
       expect(await db.mealItems.toArray()).toEqual([
         expect.objectContaining({ name: 'Pizza' }),
       ])
@@ -951,7 +951,7 @@ describe('DailyEntryForm', () => {
       await user.type(screen.getByLabelText('kcal/100g'), '150')
       await user.keyboard('{Enter}')
       expect(screen.getByText('750')).toBeInTheDocument()
-      expect(screen.getByText('Meal 3 — 150 kcal')).toBeInTheDocument()
+      expect(screen.getByText('Dinner — 150 kcal')).toBeInTheDocument()
       expect(onSave).toHaveBeenCalledTimes(2)
     })
 
@@ -976,7 +976,7 @@ describe('DailyEntryForm', () => {
       await user.type(screen.getByLabelText('kcal/100g'), '150')
       await user.click(screen.getByRole('button', { name: 'Save' }))
 
-      expect(screen.getByText('Meal 1 — 150 kcal')).toBeInTheDocument()
+      expect(screen.getByText('Breakfast — 150 kcal')).toBeInTheDocument()
       expect(screen.queryByText('Thumbs up')).not.toBeInTheDocument()
     })
 
@@ -1108,8 +1108,8 @@ describe('DailyEntryForm', () => {
         await user.click(within(dialog).getByRole('button', { name: 'Save' }))
         await user.click(screen.getByRole('button', { name: 'Save' }))
 
-        expect(screen.getByText('Meal 1 — 350 kcal')).toBeInTheDocument()
-        expect(screen.getByText('Meal 2 — 200 kcal')).toBeInTheDocument()
+        expect(screen.getByText('Breakfast — 350 kcal')).toBeInTheDocument()
+        expect(screen.getByText('Lunch — 200 kcal')).toBeInTheDocument()
         expect(onSave).toHaveBeenCalledTimes(1)
         expect(
           onSave.mock.calls[0][0].calorieEntries.map(
@@ -1138,6 +1138,56 @@ describe('DailyEntryForm', () => {
 
           expect(screen.getByText('Breakfast — 300 kcal')).toBeInTheDocument()
           expect(screen.queryByText(/^Meal 1/)).not.toBeInTheDocument()
+        })
+
+        it('defaults unlabeled meals to Breakfast/Lunch/Dinner/Snack by position (#141)', () => {
+          render(
+            <DailyEntryForm
+              date="2026-03-01"
+              existingEntry={{
+                id: 'e1',
+                date: '2026-03-01',
+                calorieEntries: [
+                  calories(100, 'c1'),
+                  calories(200, 'c2'),
+                  calories(300, 'c3'),
+                  calories(400, 'c4'),
+                ],
+                createdAt: now,
+                updatedAt: now,
+              }}
+              onSave={vi.fn()}
+            />,
+          )
+
+          expect(screen.getByText('Breakfast — 100 kcal')).toBeInTheDocument()
+          expect(screen.getByText('Lunch — 200 kcal')).toBeInTheDocument()
+          expect(screen.getByText('Dinner — 300 kcal')).toBeInTheDocument()
+          expect(screen.getByText('Snack — 400 kcal')).toBeInTheDocument()
+        })
+
+        it('falls back to positional "Meal N" from the 5th meal onward (#141)', () => {
+          render(
+            <DailyEntryForm
+              date="2026-03-01"
+              existingEntry={{
+                id: 'e1',
+                date: '2026-03-01',
+                calorieEntries: [
+                  calories(100, 'c1'),
+                  calories(200, 'c2'),
+                  calories(300, 'c3'),
+                  calories(400, 'c4'),
+                  calories(500, 'c5'),
+                ],
+                createdAt: now,
+                updatedAt: now,
+              }}
+              onSave={vi.fn()}
+            />,
+          )
+
+          expect(screen.getByText('Meal 5 — 500 kcal')).toBeInTheDocument()
         })
 
         it('sets a custom label and saves it', async () => {
@@ -1219,7 +1269,7 @@ describe('DailyEntryForm', () => {
           await user.clear(screen.getByLabelText('Meal name — Meal 1'))
           await user.click(screen.getByRole('button', { name: 'Save' }))
 
-          expect(screen.getByText('Meal 1 — 300 kcal')).toBeInTheDocument()
+          expect(screen.getByText('Breakfast — 300 kcal')).toBeInTheDocument()
           expect(
             onSave.mock.calls[0][0].calorieEntries[0].label,
           ).toBeUndefined()
@@ -1252,7 +1302,7 @@ describe('DailyEntryForm', () => {
         await user.click(screen.getByRole('button', { name: 'Delete' }))
 
         expect(screen.queryByText(/300 kcal/)).not.toBeInTheDocument()
-        expect(screen.getByText('Meal 1 — 200 kcal')).toBeInTheDocument()
+        expect(screen.getByText('Breakfast — 200 kcal')).toBeInTheDocument()
         expect(onSave).toHaveBeenCalledTimes(1)
         expect(
           onSave.mock.calls[0][0].calorieEntries.map(
@@ -1272,7 +1322,7 @@ describe('DailyEntryForm', () => {
         await user.click(screen.getByRole('button', { name: 'Delete' }))
 
         expect(screen.queryByText(/300 kcal/)).not.toBeInTheDocument()
-        expect(screen.getByText('Meal 1 — 200 kcal')).toBeInTheDocument()
+        expect(screen.getByText('Breakfast — 200 kcal')).toBeInTheDocument()
         expect(onSave).toHaveBeenCalledTimes(1)
       })
 
@@ -1288,7 +1338,7 @@ describe('DailyEntryForm', () => {
         // Back in the edit row — the item's staged draft is untouched,
         // still showing its 300 kcal total on the compact summary row.
         expect(screen.getByText(/300 kcal/)).toBeInTheDocument()
-        expect(screen.getByText('Meal 2 — 200 kcal')).toBeInTheDocument()
+        expect(screen.getByText('Lunch — 200 kcal')).toBeInTheDocument()
         expect(onSave).not.toHaveBeenCalled()
       })
 
@@ -1383,8 +1433,8 @@ describe('DailyEntryForm', () => {
           capturedOnDragEnd?.({ active: { id: 'c1' }, over: { id: 'c2' } })
         })
 
-        expect(screen.getByText('Meal 1 — 200 kcal')).toBeInTheDocument()
-        expect(screen.getByText('Meal 2 — 300 kcal')).toBeInTheDocument()
+        expect(screen.getByText('Breakfast — 200 kcal')).toBeInTheDocument()
+        expect(screen.getByText('Lunch — 300 kcal')).toBeInTheDocument()
         expect(onSave).toHaveBeenCalledTimes(1)
         expect(
           onSave.mock.calls[0][0].calorieEntries.map(
@@ -1710,7 +1760,7 @@ describe('DailyEntryForm', () => {
           await user.click(screen.getByRole('button', { name: 'Add food' }))
           await user.click(screen.getByRole('button', { name: 'Save' }))
 
-          expect(screen.getByText('Meal 1 — 508 kcal')).toBeInTheDocument()
+          expect(screen.getByText('Breakfast — 508 kcal')).toBeInTheDocument()
           const savedItems = onSave.mock.calls[0][0].calorieEntries[0].items
           expect(savedItems).toHaveLength(2)
           expect(savedItems[1]).toMatchObject({
@@ -1737,7 +1787,7 @@ describe('DailyEntryForm', () => {
           await user.click(within(dialog).getByRole('button', { name: 'Save' }))
           await user.click(screen.getByRole('button', { name: 'Save' }))
 
-          expect(screen.getByText('Meal 1 — 380 kcal')).toBeInTheDocument()
+          expect(screen.getByText('Breakfast — 380 kcal')).toBeInTheDocument()
           const savedItems = onSave.mock.calls[0][0].calorieEntries[0].items
           expect(savedItems).toHaveLength(2)
           expect(savedItems[1]).toMatchObject({
@@ -1825,7 +1875,7 @@ describe('DailyEntryForm', () => {
           await user.click(screen.getByRole('button', { name: 'Save' }))
 
           expect(screen.queryByText(/300 kcal/)).not.toBeInTheDocument()
-          expect(screen.getByText('Meal 1 — 200 kcal')).toBeInTheDocument()
+          expect(screen.getByText('Breakfast — 200 kcal')).toBeInTheDocument()
           expect(
             onSave.mock.calls[0][0].calorieEntries.map(
               (c: CalorieEntry) => c.items[0].amountKcal,
@@ -2058,7 +2108,7 @@ describe('DailyEntryForm', () => {
           // this item can later be edited the same per-100g + quantity way
           // a manually-entered one can, at the default 100g quantity.
           expect(entry.items[0].amountG).toBe(100)
-          expect(screen.getByText('Meal 1 — 208 kcal')).toBeInTheDocument()
+          expect(screen.getByText('Breakfast — 208 kcal')).toBeInTheDocument()
         })
 
         it('stores the actual quantity picked, not just the default (#96)', async () => {

@@ -125,7 +125,7 @@ describe('buildExportWorkbook', () => {
     expect(rows[0][8]).toBe(60)
     expect(rows[0][9]).toBe('08:00')
     expect(rows[0][10]).toBe('Thumbs up')
-    expect(rows[1][2]).toBe('Meal 2')
+    expect(rows[1][2]).toBe('Lunch')
     expect(rows[1][3]).toBe('Apple')
   })
 

@@ -64,7 +64,7 @@ describe('DayDetail', () => {
 
     expect(screen.getByText('Went for a long walk')).toBeInTheDocument()
     expect(screen.getByText('Happy')).toBeInTheDocument()
-    expect(screen.getByText('Meal 1 — 500 kcal')).toBeInTheDocument()
+    expect(screen.getByText('Breakfast — 500 kcal')).toBeInTheDocument()
     expect(screen.getByText('Pasta for lunch')).toBeInTheDocument()
     expect(screen.getByText('Thumbs up')).toBeInTheDocument()
   })
@@ -121,7 +121,27 @@ describe('DayDetail', () => {
       screen.getByText('Protein 20g · Fat — · Carbs 30g'),
     ).toBeInTheDocument()
     // Second meal logged no macros at all — no summary line for it.
-    expect(screen.getByText('Meal 2 — 300 kcal')).toBeInTheDocument()
+    expect(screen.getByText('Lunch — 300 kcal')).toBeInTheDocument()
+  })
+
+  it('shows a custom label instead of the positional default when set (#141)', () => {
+    render(
+      <DayDetail
+        entry={makeEntry({
+          calorieEntries: [
+            {
+              id: 'c1',
+              label: 'Post-workout',
+              items: [{ id: 'i1', amountKcal: 250 }],
+              createdAt: '2026-01-01T00:00:00.000Z',
+            },
+          ],
+        })}
+      />,
+    )
+
+    expect(screen.getByText('Post-workout — 250 kcal')).toBeInTheDocument()
+    expect(screen.queryByText(/^Breakfast/)).not.toBeInTheDocument()
   })
 
   it("shows the day's macro total in the standalone header (#52)", () => {

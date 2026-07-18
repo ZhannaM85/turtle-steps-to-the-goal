@@ -19,6 +19,12 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    issue: 141,
+    date: '2026-07-18T21:30:29+03:00',
+    en: 'Unlabeled meals now default to Breakfast/Lunch/Dinner/Snack based on order, instead of always showing "Meal 1"/"Meal 2" — a 5th meal still shows as "Meal 5". You can still rename any meal, and History now shows a custom meal name too.',
+    ru: 'Приёмы пищи без названия теперь по умолчанию называются Завтрак/Обед/Ужин/Перекус по порядку, а не всегда «Приём пищи 1»/«Приём пищи 2» — пятый приём пищи по-прежнему показывается как «Приём пищи 5». Название приёма пищи можно менять как раньше, а в Истории теперь тоже отображается заданное название.',
+  },
+  {
     issue: 146,
     date: '2026-07-18T20:51:44+03:00',
     en: "Made a meal's Save (name) button look like an actual button, and pressing Enter now saves it too — previously it was easy to miss that a typed name needed a separate tap to save.",

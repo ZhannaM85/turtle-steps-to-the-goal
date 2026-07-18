@@ -8,6 +8,7 @@ import {
 } from '@/domain/dailyEntry'
 import type { Goal } from '@/domain/goal'
 import type { Dictionary } from '@/i18n'
+import { effectiveMealLabel } from '@/shared/lib/mealLabel'
 
 const DATE_FORMAT = 'yyyy-mm-dd'
 
@@ -101,7 +102,7 @@ export async function buildExportWorkbook(
   for (const entry of sortedEntries) {
     ;(entry.calorieEntries ?? []).forEach(
       (meal: CalorieEntry, index: number) => {
-        const mealLabel = meal.label ?? t.dailyEntry.mealLabel(index + 1)
+        const mealLabel = effectiveMealLabel(t, index + 1, meal.label)
         for (const item of meal.items) {
           mealsSheet.addRow({
             date: toDate(entry.date),

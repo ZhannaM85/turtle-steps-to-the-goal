@@ -208,7 +208,7 @@ describe('HistoryScreen', () => {
       const rows = screen.getAllByRole('row').slice(1)
       expect(rows).toHaveLength(2)
       // Auto-expanded: the meal already visible without clicking anything.
-      expect(screen.getByText('Meal 1 — 2,000 kcal')).toBeInTheDocument()
+      expect(screen.getByText('Breakfast — 2,000 kcal')).toBeInTheDocument()
     })
   })
 })

@@ -56,6 +56,7 @@ import {
   scaleFromPer100g,
   totalFromPortion,
 } from '@/shared/lib/macroScaling'
+import { defaultMealLabel, effectiveMealLabel } from '@/shared/lib/mealLabel'
 import { parseNumberInput } from '@/shared/lib/parseNumberInput'
 import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/ui/button'
@@ -302,13 +303,18 @@ function MealListItem({
       >
         <div className="flex items-center gap-3">
           {/* Custom meal name (#110) — free text, defaulting to the
-           * positional "Meal N" placeholder when left blank. Quick-pick
-           * chips below come from useMealLabelPresetStore (managed in
-           * Settings), a shortcut alongside free text, not a constraint. */}
+           * positional default name (#141: Breakfast/Lunch/Dinner/Snack,
+           * "Meal N" from the 5th meal on) as the placeholder when left
+           * blank. Quick-pick chips below come from useMealLabelPresetStore
+           * (managed in Settings), a shortcut alongside free text, not a
+           * constraint. The aria-label's own disambiguation suffix stays
+           * the plain positional "Meal N" — purely an internal a11y anchor
+           * to tell same-named controls on different meals apart, not
+           * user-facing text, so it doesn't need to track the new default. */}
           <Input
             type="text"
             aria-label={`${t.dailyEntry.mealLabelFieldLabel} — ${t.dailyEntry.mealLabel(position)}`}
-            placeholder={t.dailyEntry.mealLabel(position)}
+            placeholder={defaultMealLabel(t, position)}
             value={editLabel}
             onChange={(e) => onEditLabelChange(e.target.value)}
             onKeyDown={(e) => {
@@ -591,7 +597,7 @@ function MealListItem({
           >
             <GripVertical aria-hidden="true" className="size-4" />
           </button>
-          {entry.label ?? t.dailyEntry.mealLabel(position)} —{' '}
+          {effectiveMealLabel(t, position, entry.label)} —{' '}
           {formatNumber(calorieEntryKcal(entry), locale, 0)}{' '}
           {t.dailyEntry.kcalUnit}
           {entry.timeEaten && (
@@ -1681,8 +1687,10 @@ export function DailyEntryForm({
             // Divider + heading (#95) — without one, this row read as a
             // continuation of the last meal group above it rather than the
             // start of a new one, since both share the same visual weight.
-            // mealLabel(n) is the same numbering already shown on existing
-            // groups, so this row previews the number the new meal will get.
+            // defaultMealLabel(n) (#141) is the same default name existing
+            // unlabeled groups show, so this row previews what the new meal
+            // will get: Breakfast/Lunch/Dinner/Snack for the first 4, "Meal
+            // N" from the 5th on.
             calorieEntries.length > 0 && 'border-t border-border pt-2',
           )}
         >
@@ -1692,7 +1700,7 @@ export function DailyEntryForm({
            * below them. */}
           <div className="flex items-center justify-between gap-2">
             <span className="text-xs font-medium text-muted-foreground">
-              {t.dailyEntry.mealLabel(calorieEntries.length + 1)}
+              {defaultMealLabel(t, calorieEntries.length + 1)}
             </span>
             {/* Clock icon (#114) — a bare empty box gave no visual hint this
              * was a time picker, since native <input type="time"> doesn't
