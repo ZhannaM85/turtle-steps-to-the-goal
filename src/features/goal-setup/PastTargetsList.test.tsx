@@ -35,7 +35,9 @@ describe('PastTargetsList', () => {
 
     expect(screen.getByText('Past targets')).toBeInTheDocument()
     expect(screen.getByText('Mar 9 – Mar 15')).toBeInTheDocument()
-    expect(screen.getByText('1.0 kg/week')).toBeInTheDocument()
+    // Negated (#178) — a loss, matching GoalScreen.tsx's/TodayScreen.tsx's
+    // own StatCards ("-0.6 kg to lose").
+    expect(screen.getByText('-1.0 kg/week')).toBeInTheDocument()
     expect(screen.getByText('Target met')).toBeInTheDocument()
   })
 

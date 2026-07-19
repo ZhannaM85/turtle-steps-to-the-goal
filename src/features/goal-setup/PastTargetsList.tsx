@@ -65,8 +65,12 @@ export function PastTargetsList({ records }: PastTargetsListProps) {
                       })}
                 </span>
                 <span className="tabular-nums text-muted-foreground">
+                  {/* Negated (#178) — a loss, same convention
+                   * GoalScreen.tsx's/TodayScreen.tsx's own StatCards
+                   * already use ("-0.6 kg to lose"); this list showed the
+                   * raw positive targetWeeklyLossKg instead. */}
                   {t.goal.targetPerWeek(
-                    formatNumber(toDisplay(goal.targetWeeklyLossKg), locale),
+                    formatNumber(-toDisplay(goal.targetWeeklyLossKg), locale),
                     unit,
                   )}
                 </span>

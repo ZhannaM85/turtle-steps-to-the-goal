@@ -25,6 +25,20 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 160,
+    issue: 178,
+    date: '2026-07-19T16:58:36+03:00',
+    en: "Fixed the Goal screen's past-targets list showing the weekly target as a positive number instead of a loss.",
+    ru: 'Исправлено: список прошлых целей на экране "Цель" показывал недельную цель как положительное число вместо потери веса.',
+  },
+  {
+    version: 159,
+    issue: 63,
+    date: '2026-07-19T16:46:00+03:00',
+    en: 'Each entry in the release notes now shows a version number, and the About page shows your current version.',
+    ru: 'Каждая запись в истории изменений теперь показывает номер версии, а страница "О проекте" — вашу текущую версию.',
+  },
+  {
     version: 158,
     issue: 172,
     date: '2026-07-19T16:33:38+03:00',
