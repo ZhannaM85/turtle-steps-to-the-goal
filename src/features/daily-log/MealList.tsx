@@ -709,6 +709,13 @@ export interface MealListProps {
    * `isEditing` branch, just always reached via the dedicated route now,
    * never via a direct click-to-expand). */
   focusMealId?: string
+  /** The focused meal's real position within the *full* day's meal list
+   * (#187) — `calorieEntries` here is always a single-element array in
+   * focused mode, so the render loop's own `index + 1` is always `1`;
+   * without this, every meal's placeholder/aria-labels would read as
+   * "Breakfast"/"Meal 1" regardless of which meal it actually is.
+   * Required whenever `focusMealId` is set. */
+  focusMealPosition?: number
   onFocusedMealDone?: () => void
 }
 
@@ -729,6 +736,7 @@ export function MealList({
   onChange,
   date,
   focusMealId,
+  focusMealPosition,
   onFocusedMealDone,
 }: MealListProps) {
   const t = useTranslation()
@@ -1318,7 +1326,10 @@ export function MealList({
                 <MealListItem
                   key={entry.id}
                   entry={entry}
-                  position={index + 1}
+                  // #187: calorieEntries is a single-element array in
+                  // focused mode, so index is always 0 — use the real
+                  // position passed down from MealEditScreen instead.
+                  position={focusMealId ? (focusMealPosition ?? 1) : index + 1}
                   t={t}
                   locale={locale}
                   mealItems={mealItems}

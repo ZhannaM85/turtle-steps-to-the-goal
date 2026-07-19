@@ -16,6 +16,12 @@ class ResizeObserverStub {
 globalThis.ResizeObserver ??=
   ResizeObserverStub as unknown as typeof ResizeObserver
 
+// jsdom's scrollTo is defined but only logs "Not implemented" (#185) —
+// AppShell calls it on every route change, so `??=` doesn't help here
+// (the property already exists, it's just a noisy stub). Tests that need
+// to assert on it override/spy window.scrollTo themselves.
+window.scrollTo = (() => {}) as typeof window.scrollTo
+
 // jsdom doesn't implement matchMedia; theme code (prefers-color-scheme
 // detection) reads it. Defaults to "no match" — tests that need a specific
 // match override window.matchMedia themselves.

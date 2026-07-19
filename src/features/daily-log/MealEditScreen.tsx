@@ -62,7 +62,10 @@ export function MealEditScreen() {
     dailyEntryRepository.upsert(nextEntry)
   }
 
-  const targetMeal = entry?.calorieEntries?.find((item) => item.id === mealId)
+  const targetMealIndex =
+    entry?.calorieEntries?.findIndex((item) => item.id === mealId) ?? -1
+  const targetMeal =
+    targetMealIndex >= 0 ? entry?.calorieEntries?.[targetMealIndex] : undefined
 
   return (
     <div className="flex flex-col gap-6">
@@ -89,6 +92,10 @@ export function MealEditScreen() {
           calorieEntries={[targetMeal]}
           date={date}
           focusMealId={mealId}
+          // #187: the meal's real position within the full day's list —
+          // calorieEntries here is always a single-element array, so
+          // MealList's own index-based fallback would always read as 1.
+          focusMealPosition={targetMealIndex + 1}
           onChange={handleChange}
           onFocusedMealDone={goBack}
         />

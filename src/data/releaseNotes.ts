@@ -25,6 +25,20 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 171,
+    issue: 187,
+    date: '2026-07-19T21:53:00+03:00',
+    en: 'Fixed the meal-edit screen always showing "Breakfast" as the placeholder name, even when editing a different meal.',
+    ru: 'Исправлено: экран редактирования приёма пищи всегда показывал плейсхолдер "Завтрак", даже при редактировании другого приёма пищи.',
+  },
+  {
+    version: 170,
+    issue: 185,
+    date: '2026-07-19T21:53:00+03:00',
+    en: 'Fixed the meal-edit screen sometimes opening scrolled to the middle of the page instead of the top.',
+    ru: 'Исправлено: экран редактирования приёма пищи иногда открывался прокрученным к середине страницы вместо начала.',
+  },
+  {
     version: 169,
     issue: 157,
     date: '2026-07-19T20:30:00+03:00',

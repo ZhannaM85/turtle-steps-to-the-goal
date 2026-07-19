@@ -1,5 +1,5 @@
-import { Suspense } from 'react'
-import { NavLink, Outlet } from 'react-router-dom'
+import { Suspense, useEffect } from 'react'
+import { NavLink, Outlet, useLocation } from 'react-router-dom'
 import {
   Heart,
   History,
@@ -43,6 +43,17 @@ export function AppShell() {
   // rather than trying to fight it — the bar can't usefully be tapped
   // while the keyboard covers most of the screen anyway.
   const isTextInputFocused = useIsTextInputFocused()
+
+  // #185: React Router doesn't reset scroll position on navigation by
+  // default (unlike a traditional multi-page site) — landing on a new,
+  // shorter route (e.g. MealEditScreen, #157) while still scrolled from
+  // the previous page put the new content mid-page or past it entirely.
+  // pathname only (not the full location) — a search-param-only change
+  // like History's own filters shouldn't jump the page back to the top.
+  const { pathname } = useLocation()
+  useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [pathname])
 
   return (
     <div className="min-h-svh bg-background">

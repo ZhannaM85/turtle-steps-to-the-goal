@@ -706,4 +706,36 @@ describe('MealEditScreen', () => {
       expect(screen.getByLabelText('Time — Meal 1')).toHaveValue('')
     })
   })
+
+  describe('position (#187)', () => {
+    it("shows the edited meal's real position, not always 1, when it isn't the first meal of the day", async () => {
+      await db.dailyEntries.put(
+        makeEntry({
+          calorieEntries: [
+            calories(300, 'c1'),
+            calories(400, 'c2'),
+            calories(200, 'c3'),
+          ],
+        }),
+      )
+
+      render(
+        <MemoryRouter initialEntries={['/entry/2026-03-01/meal/c3']}>
+          <Routes>
+            <Route
+              path="/entry/:date/meal/:mealId"
+              element={<MealEditScreen />}
+            />
+          </Routes>
+        </MemoryRouter>,
+      )
+
+      // c3 is the 3rd meal of the day — its aria-label and placeholder
+      // should reflect position 3 ("Dinner"), not fall back to position 1
+      // ("Breakfast") just because it's the only element in MealList's
+      // own calorieEntries array in focused mode.
+      const nameInput = await screen.findByLabelText('Meal name — Meal 3')
+      expect(nameInput).toHaveAttribute('placeholder', 'Dinner')
+    })
+  })
 })

@@ -1,8 +1,8 @@
 import 'fake-indexeddb/auto'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { createMemoryRouter, RouterProvider } from 'react-router-dom'
-import { describe, expect, it } from 'vitest'
+import { createMemoryRouter, Link, RouterProvider } from 'react-router-dom'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { AppShell } from './AppShell'
 
 function renderShellWithInput() {
@@ -64,5 +64,57 @@ describe('AppShell bottom tab bar visibility (#120)', () => {
     await user.click(screen.getByLabelText('Include'))
 
     expect(screen.getByRole('navigation', { name: 'Tabs' })).toBeInTheDocument()
+  })
+})
+
+describe('scroll to top on navigation (#185)', () => {
+  afterEach(() => {
+    vi.restoreAllMocks()
+  })
+
+  it('scrolls to top when the route pathname changes', async () => {
+    const scrollToSpy = vi.spyOn(window, 'scrollTo').mockImplementation(() => {})
+    const user = userEvent.setup()
+    const router = createMemoryRouter(
+      [
+        {
+          element: <AppShell />,
+          children: [
+            { path: '/', element: <Link to="/other">Go</Link> },
+            { path: '/other', element: <div>Other page</div> },
+          ],
+        },
+      ],
+      { initialEntries: ['/'] },
+    )
+    render(<RouterProvider router={router} />)
+    // The mount-time call doesn't count — only a real navigation should
+    // trigger this.
+    scrollToSpy.mockClear()
+
+    await user.click(screen.getByRole('link', { name: 'Go' }))
+
+    expect(await screen.findByText('Other page')).toBeInTheDocument()
+    expect(scrollToSpy).toHaveBeenCalledWith(0, 0)
+  })
+
+  it('does not scroll to top when only search params change on the same route', async () => {
+    const scrollToSpy = vi.spyOn(window, 'scrollTo').mockImplementation(() => {})
+    const user = userEvent.setup()
+    const router = createMemoryRouter(
+      [
+        {
+          element: <AppShell />,
+          children: [{ path: '/', element: <Link to="/?filter=x">Go</Link> }],
+        },
+      ],
+      { initialEntries: ['/'] },
+    )
+    render(<RouterProvider router={router} />)
+    scrollToSpy.mockClear()
+
+    await user.click(screen.getByRole('link', { name: 'Go' }))
+
+    expect(scrollToSpy).not.toHaveBeenCalled()
   })
 })
