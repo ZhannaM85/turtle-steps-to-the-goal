@@ -85,6 +85,33 @@ describe('GoalScreen', () => {
     expect(persisted?.targetWeeklyLossKg).toBe(0.5)
   })
 
+  it('edits the current week in place rather than adding a history entry (#181)', async () => {
+    const original = makeGoal()
+    await useGoalStore.getState().saveGoal(original)
+    const user = userEvent.setup()
+
+    render(<GoalScreen />)
+    await screen.findByRole('button', { name: 'Update this week’s target' })
+
+    const weeklyTargetInput = screen.getByLabelText(
+      "This week's target (kg to lose)",
+    )
+    await user.clear(weeklyTargetInput)
+    await user.type(weeklyTargetInput, '0.5')
+    await user.click(
+      screen.getByRole('button', { name: 'Update this week’s target' }),
+    )
+
+    await screen.findByText('-0.5')
+    // Still the same one record, same id — not a second history entry
+    // (the exact "two rows for the same week" bug this issue fixes).
+    expect(await db.goals.count()).toBe(1)
+    expect(screen.queryByText('Past targets')).not.toBeInTheDocument()
+    const persisted = await db.goals.get(original.id)
+    expect(persisted?.id).toBe(original.id)
+    expect(persisted?.targetWeeklyLossKg).toBe(0.5)
+  })
+
   it('adds the previous target to the history list instead of overwriting it (#147)', async () => {
     await useGoalStore
       .getState()

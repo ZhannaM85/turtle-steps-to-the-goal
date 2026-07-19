@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 165,
+    issue: 181,
+    date: '2026-07-19T18:20:00+03:00',
+    en: "Correcting this week's target now updates it in place instead of adding a duplicate entry to your Past targets history, and the Update button now shows as disabled when there's nothing new to save.",
+    ru: 'Исправление цели на эту неделю теперь обновляет её на месте, а не добавляет дубликат в историю прошлых целей. Кнопка "Обновить" теперь неактивна, если сохранять нечего.',
+  },
+  {
     version: 164,
     issue: 174,
     date: '2026-07-19T17:45:00+03:00',

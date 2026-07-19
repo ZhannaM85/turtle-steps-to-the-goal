@@ -1,11 +1,11 @@
-import { format } from 'date-fns'
+import { format, subDays } from 'date-fns'
 import { describe, expect, it } from 'vitest'
 import type { Goal } from '@/domain/goal'
 import {
   effectiveWeeklyPaceKg,
   formValuesToGoal,
   goalToFormValues,
-  isDuplicateGoalSave,
+  isUnchangedGoalEdit,
 } from './goalFormMapping'
 import type { GoalFormValues } from './goalFormSchema'
 
@@ -44,25 +44,21 @@ describe('formValuesToGoal', () => {
     targetWeeklyLoss: 1,
   }
 
-  it('creates a new goal with a fresh id', () => {
+  it('creates a new goal with a fresh id when there is no existing goal', () => {
     const goal = formValuesToGoal(baseValues, 'kg')
 
     expect(goal.id).toBeTruthy()
     expect(goal.targetWeeklyLossKg).toBe(1)
   })
 
-  it('always creates a fresh id and createdAt, never overwriting a previous save (#147)', () => {
+  it('always creates a fresh id and createdAt with no existing goal (#147)', () => {
     const first = formValuesToGoal(baseValues, 'kg')
     const second = formValuesToGoal(baseValues, 'kg')
 
-    // Every save is its own historical record — GoalRepository.getAll()
-    // (used by the goal-history view) depends on each save getting a
-    // distinct id rather than reusing the previous goal's, which would
-    // silently overwrite it (Dexie `put` upserts by id).
     expect(second.id).not.toBe(first.id)
   })
 
-  it('always stamps weekStart to today (#135)', () => {
+  it('always stamps weekStart to today when starting a fresh record (#135)', () => {
     const today = format(new Date(), 'yyyy-MM-dd')
 
     const goal = formValuesToGoal(baseValues, 'kg')
@@ -77,66 +73,109 @@ describe('formValuesToGoal', () => {
 
     expect(goal.targetWeeklyLossKg).toBeCloseTo(0.998, 2)
   })
+
+  describe('editing the current week in place (#181)', () => {
+    it("reuses the same id/createdAt/weekStart when the existing goal's window is still live", () => {
+      const today = format(new Date(), 'yyyy-MM-dd')
+      const existingGoal = makeGoal({
+        id: 'goal-1',
+        weekStart: today,
+        createdAt: '2026-01-01T00:00:00.000Z',
+        targetWeeklyLossKg: 1,
+      })
+
+      const goal = formValuesToGoal(
+        { targetWeeklyLoss: 2 },
+        'kg',
+        existingGoal,
+      )
+
+      expect(goal.id).toBe('goal-1')
+      expect(goal.createdAt).toBe('2026-01-01T00:00:00.000Z')
+      expect(goal.weekStart).toBe(today)
+      expect(goal.targetWeeklyLossKg).toBe(2)
+      expect(goal.updatedAt).not.toBe(existingGoal.updatedAt)
+    })
+
+    it("starts a fresh record once the existing goal's window has ended", () => {
+      const longAgo = format(subDays(new Date(), 365), 'yyyy-MM-dd')
+      const existingGoal = makeGoal({
+        id: 'goal-1',
+        weekStart: longAgo,
+        createdAt: '2020-01-01T00:00:00.000Z',
+      })
+
+      const goal = formValuesToGoal(
+        { targetWeeklyLoss: 2 },
+        'kg',
+        existingGoal,
+      )
+
+      expect(goal.id).not.toBe('goal-1')
+      expect(goal.weekStart).toBe(format(new Date(), 'yyyy-MM-dd'))
+    })
+
+    it('starts a fresh record for a legacy existing goal with no weekStart', () => {
+      const existingGoal = makeGoal({ id: 'goal-1', weekStart: undefined })
+
+      const goal = formValuesToGoal(
+        { targetWeeklyLoss: 2 },
+        'kg',
+        existingGoal,
+      )
+
+      expect(goal.id).not.toBe('goal-1')
+    })
+  })
 })
 
-describe('isDuplicateGoalSave (#174)', () => {
-  it('is a duplicate when weekStart and target both match an existing goal', () => {
-    const existingGoal: Goal = makeGoal({ weekStart: '2026-03-09' })
-    const newGoal: Goal = makeGoal({
-      id: 'goal-2',
-      weekStart: '2026-03-09',
+describe('isUnchangedGoalEdit (#181, follow-up to #174)', () => {
+  it("is unchanged when the target matches the live goal's own value", () => {
+    const today = format(new Date(), 'yyyy-MM-dd')
+    const existingGoal = makeGoal({ weekStart: today, targetWeeklyLossKg: 1 })
+
+    expect(isUnchangedGoalEdit(1, existingGoal)).toBe(true)
+  })
+
+  it('is not unchanged when the target actually differs', () => {
+    const today = format(new Date(), 'yyyy-MM-dd')
+    const existingGoal = makeGoal({ weekStart: today, targetWeeklyLossKg: 1 })
+
+    expect(isUnchangedGoalEdit(1.5, existingGoal)).toBe(false)
+  })
+
+  it('is not unchanged once the window has ended, even with the same target', () => {
+    const longAgo = format(subDays(new Date(), 365), 'yyyy-MM-dd')
+    const existingGoal = makeGoal({
+      weekStart: longAgo,
       targetWeeklyLossKg: 1,
     })
 
-    expect(isDuplicateGoalSave(newGoal, existingGoal)).toBe(true)
+    expect(isUnchangedGoalEdit(1, existingGoal)).toBe(false)
   })
 
-  it('is not a duplicate when the target actually changed', () => {
-    const existingGoal: Goal = makeGoal({ weekStart: '2026-03-09' })
-    const newGoal: Goal = makeGoal({
-      id: 'goal-2',
-      weekStart: '2026-03-09',
-      targetWeeklyLossKg: 1.5,
-    })
-
-    expect(isDuplicateGoalSave(newGoal, existingGoal)).toBe(false)
+  it('is never unchanged without an existing goal', () => {
+    expect(isUnchangedGoalEdit(1, null)).toBe(false)
   })
 
-  it('is not a duplicate when it is a later-day renewal with the same target', () => {
-    const existingGoal: Goal = makeGoal({ weekStart: '2026-03-09' })
-    const newGoal: Goal = makeGoal({
-      id: 'goal-2',
-      weekStart: '2026-03-16',
-      targetWeeklyLossKg: 1,
-    })
+  it('is never unchanged against a legacy goal with no weekStart', () => {
+    const existingGoal = makeGoal({ weekStart: undefined, targetWeeklyLossKg: 1 })
 
-    expect(isDuplicateGoalSave(newGoal, existingGoal)).toBe(false)
+    expect(isUnchangedGoalEdit(1, existingGoal)).toBe(false)
   })
 
-  it('is never a duplicate without an existing goal', () => {
-    const newGoal: Goal = makeGoal({ weekStart: '2026-03-09' })
-    expect(isDuplicateGoalSave(newGoal, null)).toBe(false)
-  })
+  it('is never unchanged when the typed value is null (empty/invalid input)', () => {
+    const today = format(new Date(), 'yyyy-MM-dd')
+    const existingGoal = makeGoal({ weekStart: today, targetWeeklyLossKg: 1 })
 
-  it('is never a duplicate against a legacy goal with no weekStart', () => {
-    const existingGoal: Goal = makeGoal({ weekStart: undefined })
-    const newGoal: Goal = makeGoal({ id: 'goal-2', weekStart: '2026-03-09' })
-
-    expect(isDuplicateGoalSave(newGoal, existingGoal)).toBe(false)
+    expect(isUnchangedGoalEdit(null, existingGoal)).toBe(false)
   })
 
   it('tolerates tiny float differences from a unit round-trip', () => {
-    const existingGoal: Goal = makeGoal({
-      weekStart: '2026-03-09',
-      targetWeeklyLossKg: 1,
-    })
-    const newGoal: Goal = makeGoal({
-      id: 'goal-2',
-      weekStart: '2026-03-09',
-      targetWeeklyLossKg: 1.0002,
-    })
+    const today = format(new Date(), 'yyyy-MM-dd')
+    const existingGoal = makeGoal({ weekStart: today, targetWeeklyLossKg: 1 })
 
-    expect(isDuplicateGoalSave(newGoal, existingGoal)).toBe(true)
+    expect(isUnchangedGoalEdit(1.0002, existingGoal)).toBe(true)
   })
 })
 

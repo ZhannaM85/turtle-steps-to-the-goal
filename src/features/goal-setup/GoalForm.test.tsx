@@ -103,9 +103,8 @@ describe('GoalForm', () => {
     ).toBeInTheDocument()
   })
 
-  describe('duplicate same-day re-save (#174)', () => {
-    it('does not call onSubmit and shows a notice for an unchanged same-day re-save', async () => {
-      const user = userEvent.setup()
+  describe('unchanged live-window edit (#181, follow-up to #174)', () => {
+    it('renders the button already disabled, with a notice, for an unchanged value in a live window', async () => {
       const onSubmit = vi.fn()
       const today = new Date().toISOString().slice(0, 10)
       render(
@@ -121,17 +120,44 @@ describe('GoalForm', () => {
         />,
       )
 
-      await user.click(
-        screen.getByRole('button', { name: 'Update this week’s target' }),
-      )
-
-      expect(onSubmit).not.toHaveBeenCalled()
       expect(
-        await screen.findByText('You already set this target today.'),
+        screen.getByRole('button', { name: 'Update this week’s target' }),
+      ).toBeDisabled()
+      expect(
+        await screen.findByText('This is already this week’s target.'),
       ).toBeInTheDocument()
+      expect(onSubmit).not.toHaveBeenCalled()
     })
 
-    it('still saves a genuinely different target the same day', async () => {
+    it('re-enables the button as soon as the typed value differs, and clears the notice', async () => {
+      const user = userEvent.setup()
+      const today = new Date().toISOString().slice(0, 10)
+      render(
+        <GoalForm
+          existingGoal={{
+            id: 'g1',
+            targetWeeklyLossKg: 1,
+            weekStart: today,
+            createdAt: '2026-01-01T00:00:00.000Z',
+            updatedAt: '2026-01-01T00:00:00.000Z',
+          }}
+          onSubmit={vi.fn()}
+        />,
+      )
+
+      const input = screen.getByLabelText("This week's target (kg to lose)")
+      await user.clear(input)
+      await user.type(input, '1.5')
+
+      expect(
+        screen.getByRole('button', { name: 'Update this week’s target' }),
+      ).toBeEnabled()
+      expect(
+        screen.queryByText('This is already this week’s target.'),
+      ).not.toBeInTheDocument()
+    })
+
+    it('still saves a genuinely different target within the same live window', async () => {
       const user = userEvent.setup()
       const onSubmit = vi.fn()
       const today = new Date().toISOString().slice(0, 10)
@@ -156,7 +182,40 @@ describe('GoalForm', () => {
       )
 
       expect(onSubmit).toHaveBeenCalledTimes(1)
-      expect(onSubmit.mock.calls[0][0].targetWeeklyLossKg).toBe(1.5)
+      // Edits in place (#181) — same id/createdAt, not a new record.
+      expect(onSubmit.mock.calls[0][0]).toMatchObject({
+        id: 'g1',
+        createdAt: '2026-01-01T00:00:00.000Z',
+        targetWeeklyLossKg: 1.5,
+      })
+    })
+
+    it('stays enabled for a same-value renewal once the window has ended', async () => {
+      const user = userEvent.setup()
+      const onSubmit = vi.fn()
+      render(
+        <GoalForm
+          existingGoal={{
+            id: 'g1',
+            targetWeeklyLossKg: 1,
+            weekStart: '2020-01-01',
+            createdAt: '2020-01-01T00:00:00.000Z',
+            updatedAt: '2020-01-01T00:00:00.000Z',
+          }}
+          onSubmit={onSubmit}
+        />,
+      )
+
+      const button = screen.getByRole('button', {
+        name: 'Update this week’s target',
+      })
+      expect(button).toBeEnabled()
+
+      await user.click(button)
+
+      expect(onSubmit).toHaveBeenCalledTimes(1)
+      // Starts a fresh record (#181) — the old goal's window already ended.
+      expect(onSubmit.mock.calls[0][0].id).not.toBe('g1')
     })
   })
 

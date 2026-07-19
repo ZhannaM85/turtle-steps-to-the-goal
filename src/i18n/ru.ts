@@ -167,7 +167,7 @@ export const ru: Dictionary = {
       'Это простая арифметическая оценка (~7700 ккал ≈ 1 кг жира), не медицинская и не диетологическая рекомендация.',
     updateButton: 'Обновить цель на неделю',
     setButton: 'Задать цель на неделю',
-    duplicateTargetNotice: 'Вы уже задали эту цель сегодня.',
+    duplicateTargetNotice: 'Это уже цель на эту неделю.',
     pastTargetsTitle: 'Прошлые цели',
     targetPerWeek: (target, unit) => `${target} ${unit}/неделю`,
     targetMetLabel: 'Цель достигнута',

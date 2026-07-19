@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import type { Goal } from '@/domain/goal'
@@ -12,7 +12,7 @@ import {
   effectiveWeeklyPaceKg,
   formValuesToGoal,
   goalToFormValues,
-  isDuplicateGoalSave,
+  isUnchangedGoalEdit,
 } from './goalFormMapping'
 import { makeGoalFormSchema, type GoalFormValues } from './goalFormSchema'
 
@@ -41,21 +41,20 @@ export function GoalForm({ existingGoal, onSubmit }: GoalFormProps) {
   const dailyDeficit =
     paceKg !== null ? estimatedDailyCalorieDeficitKcal(paceKg) : null
 
-  // Cleared on any edit (#174) — the notice is only meaningful for the
-  // exact values that triggered it; once the user starts changing the
-  // number it's a real edit again, not a duplicate.
-  const [showDuplicateNotice, setShowDuplicateNotice] = useState(false)
-  useEffect(() => {
-    setShowDuplicateNotice(false)
-  }, [values.targetWeeklyLoss])
+  // Live, recomputed every render (#181, follow-up to #174) — the button
+  // reflects a true no-op immediately as the user types or the form
+  // loads, not only after a failed submit attempt.
+  const isUnchanged = isUnchangedGoalEdit(paceKg, existingGoal)
 
   function submit(formValues: GoalFormValues) {
-    const newGoal = formValuesToGoal(formValues, unit)
-    if (isDuplicateGoalSave(newGoal, existingGoal)) {
-      setShowDuplicateNotice(true)
+    // Defensive re-check, not load-bearing — the button is already
+    // disabled for this case, but Enter-key implicit submission behavior
+    // for a disabled default button isn't guaranteed identical across
+    // browsers.
+    if (isUnchangedGoalEdit(effectiveWeeklyPaceKg(formValues, unit), existingGoal)) {
       return
     }
-    onSubmit(newGoal)
+    onSubmit(formValuesToGoal(formValues, unit, existingGoal))
   }
 
   return (
@@ -80,11 +79,11 @@ export function GoalForm({ existingGoal, onSubmit }: GoalFormProps) {
         </p>
       )}
 
-      <Button type="submit" className="self-start">
+      <Button type="submit" className="self-start" disabled={isUnchanged}>
         {existingGoal ? t.goal.updateButton : t.goal.setButton}
       </Button>
 
-      {showDuplicateNotice && (
+      {isUnchanged && (
         <p className="text-sm text-muted-foreground">
           {t.goal.duplicateTargetNotice}
         </p>

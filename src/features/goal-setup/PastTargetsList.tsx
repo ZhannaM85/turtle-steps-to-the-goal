@@ -20,7 +20,7 @@ export interface PastTargetsListProps {
 }
 
 function PastTargetRow({
-  record: { goal, progress },
+  record: { goal, progress, approximateEndDate },
   onDelete,
 }: {
   record: PastGoalRecord
@@ -52,6 +52,10 @@ function PastTargetRow({
         ? t.goal.targetMissedLabel
         : t.goal.targetNoDataLabel
 
+  // #181: a legacy goal (no weekStart, saved before #135) has no real
+  // window — approximateEndDate (from goalHistory.ts) derives a
+  // display-only range from when the next goal was created instead of
+  // showing just a bare single date.
   const weekRangeLabel = goal.weekStart
     ? t.common.weekRangeLabel(
         format(parseISO(goal.weekStart), 'MMM d', { locale: dateFnsLocale }),
@@ -59,7 +63,14 @@ function PastTargetRow({
           locale: dateFnsLocale,
         }),
       )
-    : format(parseISO(goal.createdAt), 'MMM d', { locale: dateFnsLocale })
+    : approximateEndDate
+      ? t.common.weekRangeLabel(
+          format(parseISO(goal.createdAt), 'MMM d', { locale: dateFnsLocale }),
+          format(parseISO(approximateEndDate), 'MMM d', {
+            locale: dateFnsLocale,
+          }),
+        )
+      : format(parseISO(goal.createdAt), 'MMM d', { locale: dateFnsLocale })
 
   return (
     <li className="flex flex-col gap-0.5 rounded-lg border border-border px-3 py-2 text-sm">

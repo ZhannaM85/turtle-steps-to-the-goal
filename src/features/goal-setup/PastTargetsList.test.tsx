@@ -80,6 +80,52 @@ describe('PastTargetsList', () => {
     expect(screen.getByText('Not enough data to tell')).toBeInTheDocument()
   })
 
+  it('shows a derived range for a legacy goal with no weekStart (#181)', () => {
+    render(
+      <PastTargetsList
+        records={[
+          makeRecord({
+            goal: {
+              id: 'g1',
+              targetWeeklyLossKg: 0.6,
+              weekStart: undefined,
+              createdAt: '2026-07-11T00:00:00.000Z',
+              updatedAt: '2026-07-11T00:00:00.000Z',
+            },
+            progress: null,
+            approximateEndDate: '2026-07-18',
+          }),
+        ]}
+        onDelete={vi.fn()}
+      />,
+    )
+
+    expect(screen.getByText('Jul 11 – Jul 18')).toBeInTheDocument()
+  })
+
+  it('falls back to a bare single date when there is no approximateEndDate either', () => {
+    render(
+      <PastTargetsList
+        records={[
+          makeRecord({
+            goal: {
+              id: 'g1',
+              targetWeeklyLossKg: 0.6,
+              weekStart: undefined,
+              createdAt: '2026-07-11T00:00:00.000Z',
+              updatedAt: '2026-07-11T00:00:00.000Z',
+            },
+            progress: null,
+            approximateEndDate: undefined,
+          }),
+        ]}
+        onDelete={vi.fn()}
+      />,
+    )
+
+    expect(screen.getByText('Jul 11')).toBeInTheDocument()
+  })
+
   describe('deleting a past target (#174)', () => {
     it('asks for confirmation before deleting, and cancel discards it', async () => {
       const user = userEvent.setup()

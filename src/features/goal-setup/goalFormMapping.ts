@@ -1,6 +1,6 @@
 import { format } from 'date-fns'
 import type { Goal } from '@/domain/goal'
-import { kgToLb, lbToKg } from '@/domain/goal'
+import { goalWeekEnd, kgToLb, lbToKg } from '@/domain/goal'
 import type { Unit } from '@/stores'
 import type { GoalFormValues } from './goalFormSchema'
 
@@ -17,56 +17,82 @@ export function goalToFormValues(
   }
 }
 
-export function formValuesToGoal(values: GoalFormValues, unit: Unit): Goal {
-  const toKg = (value: number) => (unit === 'lb' ? lbToKg(value) : value)
+/**
+ * Whether `existingGoal`'s own 7-day window is still live today (#181) —
+ * i.e. saving now should edit that same goal in place rather than
+ * starting a new one. Deliberately keyed off the window, not the
+ * calendar day: correcting Monday's target on Wednesday, still inside
+ * the same week, is an edit; renewing after the window has run its
+ * course is a genuinely new week's goal. A goal with no `weekStart` (pre-
+ * #135) has no window to still be inside, so it's never editable this way
+ * — the next save always starts a fresh, properly-anchored record.
+ */
+function isEditingLiveWindow(
+  existingGoal: Goal | null,
+): existingGoal is Goal & { weekStart: string } {
+  if (!existingGoal?.weekStart) return false
+  return format(new Date(), 'yyyy-MM-dd') <= goalWeekEnd(existingGoal.weekStart)
+}
 
+export function formValuesToGoal(
+  values: GoalFormValues,
+  unit: Unit,
+  existingGoal: Goal | null = null,
+): Goal {
+  const toKg = (value: number) => (unit === 'lb' ? lbToKg(value) : value)
   const now = new Date().toISOString()
 
+  if (isEditingLiveWindow(existingGoal)) {
+    // Same id/createdAt/weekStart (#181) — editing the current week's
+    // goal in place, not starting a new historical record. Dexie's put()
+    // upserts by id, so this overwrites rather than inserting.
+    return {
+      ...existingGoal,
+      targetWeeklyLossKg: toKg(values.targetWeeklyLoss as number),
+      updatedAt: now,
+    }
+  }
+
   return {
-    // Always a fresh id + createdAt (#147), never carried over from
-    // existingGoal — every save becomes its own historical record instead
-    // of overwriting the previous one, so past targets stay visible
-    // (GoalRepository.getAll()) rather than being silently replaced.
-    // getActiveGoal() keeps returning the right goal for free: it's just
-    // "most recent by createdAt," which a fresh createdAt naturally wins.
+    // Fresh id + createdAt (#147) — no live window to edit, so this
+    // becomes its own historical record. Either there's no active goal
+    // yet, or the previous one's window has run its course and is now
+    // finished/frozen in Past targets for good (#181).
     id: crypto.randomUUID(),
     targetWeeklyLossKg: toKg(values.targetWeeklyLoss as number),
-    // Always today (#135) — every save starts a fresh 7-day tracking
-    // window from the moment it's actually saved, rather than the
-    // window's start silently staying wherever the goal was first
-    // created.
+    // Always today (#135) — every *new* record starts a fresh 7-day
+    // tracking window from the moment it's actually saved.
     weekStart: format(new Date(), 'yyyy-MM-dd'),
     createdAt: now,
     updatedAt: now,
   }
 }
 
-/** Tolerance for comparing targetWeeklyLossKg values (#174) — a unit
- * round-trip (lb input converted to kg) can differ from a stored kg value
- * by a hair even when the user typed the same displayed number, so an
- * exact `===` would miss real duplicates. */
-const DUPLICATE_TARGET_EPSILON_KG = 0.001
+/** Tolerance for comparing targetWeeklyLossKg values — a unit round-trip
+ * (lb input converted to kg) can differ from a stored kg value by a hair
+ * even when the user typed the same displayed number. */
+const TARGET_EPSILON_KG = 0.001
 
 /**
- * Whether `newGoal` would be a same-day re-save of `existingGoal` with an
- * unchanged target (#174) — the exact "tapped Update five times with the
- * same value" scenario from the bug report. Compares `weekStart` rather
- * than an explicit "today" check: `formValuesToGoal` always stamps
- * `weekStart` to the current date (#135), so two goals share a
- * `weekStart` only when both were saved on the same calendar day.
- * Deliberately narrow — a genuinely *different* target, or the same
- * target renewed on a later day, both still save normally; only an
- * identical same-day re-submission is treated as a no-op.
+ * Whether saving `targetWeeklyLossKg` right now would be a no-op (#181,
+ * follow-up to #174) — the current week's goal is already live and
+ * already set to (within a float tolerance of) this exact value. Used
+ * only to disable the submit button / show an informational notice;
+ * harmless even if bypassed, since `formValuesToGoal` would just re-save
+ * the same values to the same record. Deliberately `false` for a
+ * same-value *renewal* after the window has ended — that's a real,
+ * meaningful action (starts a new record), not a no-op.
  */
-export function isDuplicateGoalSave(
-  newGoal: Goal,
+export function isUnchangedGoalEdit(
+  targetWeeklyLossKg: number | null,
   existingGoal: Goal | null,
 ): boolean {
-  if (!existingGoal?.weekStart) return false
+  if (targetWeeklyLossKg === null || !isEditingLiveWindow(existingGoal)) {
+    return false
+  }
   return (
-    newGoal.weekStart === existingGoal.weekStart &&
-    Math.abs(newGoal.targetWeeklyLossKg - existingGoal.targetWeeklyLossKg) <
-      DUPLICATE_TARGET_EPSILON_KG
+    Math.abs(targetWeeklyLossKg - existingGoal.targetWeeklyLossKg) <
+    TARGET_EPSILON_KG
   )
 }
 

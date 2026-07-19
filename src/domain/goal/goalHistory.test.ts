@@ -82,4 +82,42 @@ describe('pastGoals', () => {
     const result = pastGoals(goals, [])
     expect(result[0].progress).toBeNull()
   })
+
+  describe('approximateEndDate for a legacy goal with no weekStart (#181)', () => {
+    it("derives it from the date the goal that superseded it was created", () => {
+      const goals = [
+        makeGoal({ id: 'g1', createdAt: '2026-01-01T00:00:00Z' }),
+        makeGoal({ id: 'g2', createdAt: '2026-01-08T12:00:00Z' }),
+      ]
+      const result = pastGoals(goals, [])
+      expect(result[0].goal.id).toBe('g1')
+      expect(result[0].approximateEndDate).toBe('2026-01-08')
+    })
+
+    it('is undefined for a goal that already has a real weekStart', () => {
+      const goals = [
+        makeGoal({
+          id: 'g1',
+          createdAt: '2026-01-01T00:00:00Z',
+          weekStart: '2026-01-01',
+        }),
+        makeGoal({ id: 'g2', createdAt: '2026-01-08T00:00:00Z' }),
+      ]
+      const result = pastGoals(goals, [])
+      expect(result[0].approximateEndDate).toBeUndefined()
+    })
+
+    it('uses each superseding goal correctly across multiple legacy entries', () => {
+      const goals = [
+        makeGoal({ id: 'g1', createdAt: '2026-01-01T00:00:00Z' }),
+        makeGoal({ id: 'g2', createdAt: '2026-01-08T00:00:00Z' }),
+        makeGoal({ id: 'g3', createdAt: '2026-01-15T00:00:00Z' }),
+      ]
+      const result = pastGoals(goals, [])
+      // Newest-first: g2 (superseded by g3), then g1 (superseded by g2).
+      expect(result.map((r) => r.goal.id)).toEqual(['g2', 'g1'])
+      expect(result[0].approximateEndDate).toBe('2026-01-15')
+      expect(result[1].approximateEndDate).toBe('2026-01-08')
+    })
+  })
 })

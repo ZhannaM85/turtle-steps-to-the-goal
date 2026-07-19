@@ -203,10 +203,10 @@ export interface Dictionary {
     deficitCaveat: string
     updateButton: string
     setButton: string
-    /** Shown instead of saving when isDuplicateGoalSave() catches a
-     * same-day re-submission of an unchanged target (#174) — a no-op, not
-     * an error, so this reads as informational rather than a validation
-     * message. */
+    /** Shown (and the submit button disabled) when isUnchangedGoalEdit()
+     * finds the typed value already matches the live current-week goal
+     * (#181, follow-up to #174) — a no-op, not an error, so this reads as
+     * informational rather than a validation message. */
     duplicateTargetNotice: string
     /** Goal history section (#147) — every past (non-active) target. */
     pastTargetsTitle: string
