@@ -1,4 +1,5 @@
 import { Heart } from 'lucide-react'
+import { releaseNotes } from '@/data/releaseNotes'
 import { useTranslation } from '@/i18n'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
 import { PageHeader } from '@/shared/ui/page-header'
@@ -9,6 +10,11 @@ const AUTHOR_GITHUB_URL = 'https://github.com/ZhannaM85'
 
 export function AboutScreen() {
   const t = useTranslation()
+  // Most-recent-first (see releaseNotes.ts), so the first entry's version
+  // is the current one — shown prominently rather than only inside the
+  // collapsed release-notes list, so a bug report can be pinned to a
+  // specific version at a glance.
+  const currentVersion = releaseNotes[0]?.version
 
   return (
     <div className="flex flex-col gap-6">
@@ -18,6 +24,9 @@ export function AboutScreen() {
         <p>{t.about.intro}</p>
         <p>{t.about.philosophy}</p>
         <p>{t.about.privacy}</p>
+        {currentVersion !== undefined && (
+          <p>{t.about.currentVersionLabel(currentVersion)}</p>
+        )}
       </div>
 
       <a

@@ -435,5 +435,6 @@ export const en: Dictionary = {
     privacy:
       'All your data stays on your own device — nothing is sent anywhere else.',
     madeBy: (author) => `Made by ${author}`,
+    currentVersionLabel: (version) => `Version ${version}`,
   },
 }

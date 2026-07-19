@@ -47,6 +47,16 @@ describe('ReleaseNotesSection', () => {
     expect(firstTimestamp).toMatch(/\d{1,2}:\d{2}/)
   })
 
+  it('shows each entry\'s version number alongside its timestamp', async () => {
+    const user = userEvent.setup()
+    render(<ReleaseNotesSection />)
+
+    await user.click(screen.getByRole('button', { name: 'Show release notes' }))
+
+    const items = screen.getAllByRole('listitem')
+    expect(items[0]).toHaveTextContent(`v${releaseNotes[0].version}`)
+  })
+
   it('shows Russian entries when the locale is Russian', async () => {
     useLocaleStore.setState({ locale: 'ru' })
     const user = userEvent.setup()

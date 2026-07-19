@@ -482,5 +482,9 @@ export interface Dictionary {
     philosophy: string
     privacy: string
     madeBy: (author: string) => string
+    /** Current release-notes version number (simple incrementing counter,
+     * ReleaseNotesSection.tsx) — lets a reported bug be pinned to a
+     * specific version rather than just a date. */
+    currentVersionLabel: (version: number) => string
   }
 }

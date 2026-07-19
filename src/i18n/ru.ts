@@ -439,5 +439,6 @@ export const ru: Dictionary = {
     privacy:
       'Все данные хранятся только на вашем устройстве и никуда не передаются.',
     madeBy: (author) => `Автор: ${author}`,
+    currentVersionLabel: (version) => `Версия ${version}`,
   },
 }

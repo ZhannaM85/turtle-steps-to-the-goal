@@ -32,6 +32,12 @@ describe('AboutScreen', () => {
     expect(link).toHaveAttribute('rel', 'noopener noreferrer')
   })
 
+  it('shows the current version number', () => {
+    render(<AboutScreen />)
+
+    expect(screen.getByText(/^Version \d+$/)).toBeInTheDocument()
+  })
+
   it('includes the release notes section, moved here from Settings (#66)', () => {
     render(<AboutScreen />)
 
