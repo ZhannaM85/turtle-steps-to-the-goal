@@ -92,18 +92,57 @@ and #144's precedent in `docs/issues-priority.md`).
   already-correct working directory. Chaining `cd X && git ...` in one Bash
   call trips the permission checker even when both segments are
   individually allowlisted.
-- **Compound shell shapes trigger permission prompts even when every
-  segment's prefix is already allowlisted** — heredocs, `cmd > file 2>&1`,
-  `cmd; echo`, `A && B` chaining. Adding the missing prefix to the
-  allowlist does NOT fix this class of prompt (it's the *shape*, not a
-  missing prefix). The fix: don't hand-roll redirects/backgrounding at
-  all — use the Bash tool's own `run_in_background: true` and read the
-  harness's auto-captured output file afterward (via the `Read` tool, or
-  `Grep` on that file for specific lines like `FAIL |Tests\s+\d`). This
-  also avoids a real correctness bug: piping a command through `tail` or
-  `grep` in the same Bash call **masks its real exit code** (the pipe's
-  exit code is the last command's, i.e. `tail`'s, which is always 0) — a
-  failing typecheck/test run can silently report success this way.
+- **⚠️ HIGH PRIORITY — compound shell shapes trigger permission prompts
+  even when every individual program is already allowlisted.** This has
+  caused repeated, avoidable user interruptions (2026-07-19, three times
+  in one session alone) and is the single most common source of unwanted
+  permission prompts on this repo. The allowlist matches *command shape*,
+  not just the leading program name — so `git`, `gh`, `node`, `sleep` each
+  being individually allowlisted does **not** cover a command that
+  combines them. Shapes that trigger a prompt regardless of what's inside
+  them:
+  - Chaining: `A && B`, `A; B`, `cmd; echo`
+  - Redirects: `cmd > file 2>&1`, heredocs (`<<'EOF'`)
+  - Piping: `cmd | tail`, `cmd | grep ...`
+  - Command substitution: `$(cmd)`, backticks
+  - **Shell loop constructs: `until ... do ... done`, `while ... do
+    ... done`, `for ... do ... done`** — including a `sleep N` inside the
+    loop body to poll something. This one is easy to reach for when
+    "waiting for a GitHub Actions run to finish" and is exactly what
+    caused the 2026-07-19 repeats.
+  - **`run_in_background: true` does NOT fix any of the above** — it
+    changes whether the *tool call* blocks the turn, not whether the
+    *command string* needs permission. A hand-rolled `until`-loop wrapped
+    in `run_in_background: true` still prompts, because the permission
+    check runs on the command text itself before it's ever executed,
+    foreground or background. (Confirmed directly: this was tried
+    2026-07-19 as a "fix" for the loop problem and still prompted.)
+
+  **The actual fix, in order of preference:**
+  1. **Don't poll at all.** If waiting on a background Bash task
+     (`run_in_background: true` on a *simple, single, already-allowlisted*
+     command) or a background Agent, the harness sends an automatic
+     completion notification — no loop, no check-back command, needed.
+     See "Don't idle waiting on a background full-suite run" below.
+  2. **If you need to check external state that the harness can't notify
+     you about** (e.g. "has this GitHub Actions run finished yet"), issue
+     ONE plain, single, already-allowlisted command per tool call — e.g.
+     `gh run view <id> --json status,conclusion` — with **no** loop,
+     `sleep`, chaining, or substitution wrapped around it. If it's not
+     done yet, say so and stop; check again in a later turn (after the
+     user's next message, or — only inside an active `/loop` session —
+     via `ScheduleWakeup`, which does not apply to a normal conversation
+     turn).
+  3. For genuinely long-running single background commands (a test
+     suite, a build), use the Bash tool's own `run_in_background: true`
+     on the *plain* command (no wrapping) and read the harness's
+     auto-captured output file afterward (via `Read`, or `Grep` on that
+     file for specific lines like `FAIL |Tests\s+\d`) once notified. This
+     also avoids a real correctness bug: piping a command through `tail`
+     or `grep` in the same Bash call **masks its real exit code** (the
+     pipe's exit code is the last command's, i.e. `tail`'s, which is
+     always 0) — a failing typecheck/test run can silently report success
+     this way.
 - Never use raw `grep`/`awk`/`sed`/`sort`/`uniq` pipelines via the Bash
   tool for searching or aggregating — use the Grep tool instead, even for
   multi-step aggregation. Reserve Bash for things that are genuinely

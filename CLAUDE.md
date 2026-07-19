@@ -1,3 +1,24 @@
+## ⚠️ Shell safety — read this first, every session
+
+**Never write a compound shell command** — chaining (`A && B`, `A; B`),
+redirects (`> file 2>&1`, heredocs), piping (`| tail`, `| grep`), command
+substitution (`$(...)`), or **shell loop constructs (`until`/`while`/`for
+... do ... done`, especially with `sleep` inside to poll something)**.
+These all trigger a permission prompt *even when every individual program
+in them is already allowlisted* — the allowlist matches command *shape*,
+not just the leading program name. `run_in_background: true` does **not**
+avoid this either — it changes whether the tool call blocks the turn, not
+whether the command text needs permission.
+
+If you need to check on something (a GitHub Actions run, a background
+process), issue **one plain single already-allowlisted command per tool
+call**, no loop/sleep/substitution wrapped around it — and if it's not
+done yet, say so and stop rather than looping. Full details, the "why,"
+and the preferred patterns are in `docs/AGENT_WORKFLOW.md`'s "Environment
+notes" section — read it before running anything non-trivial. This has
+caused repeated avoidable user interruptions and is the single most
+common source of unwanted permission prompts on this repo.
+
 ## Starting a new batch of issues
 
 Read `docs/AGENT_WORKFLOW.md` first — it's the standing operating
