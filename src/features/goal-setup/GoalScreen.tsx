@@ -21,7 +21,7 @@ export function GoalScreen() {
   const dateFnsLocale = getDateFnsLocale(locale)
   const { goal, status, error, loadActiveGoal, saveGoal } = useGoalStore()
   const displayUnit = useUnitStore((state) => state.unit)
-  const pastTargets = usePastGoals(goal)
+  const { records: pastTargets, deleteGoal } = usePastGoals(goal)
 
   useEffect(() => {
     loadActiveGoal()
@@ -62,7 +62,7 @@ export function GoalScreen() {
 
           <GoalForm existingGoal={goal} onSubmit={saveGoal} />
 
-          <PastTargetsList records={pastTargets} />
+          <PastTargetsList records={pastTargets} onDelete={deleteGoal} />
         </>
       )}
     </div>

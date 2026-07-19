@@ -89,6 +89,18 @@ describe('IndexedDbGoalRepository', () => {
     const all = await goalRepository.getAll()
     expect(all.map((g) => g.id).sort()).toEqual([older.id, newer.id].sort())
   })
+
+  it('deletes a goal by id (#174)', async () => {
+    const keep = makeGoal({ createdAt: '2026-01-01T00:00:00.000Z' })
+    const remove = makeGoal({ createdAt: '2026-02-01T00:00:00.000Z' })
+    await goalRepository.saveGoal(keep)
+    await goalRepository.saveGoal(remove)
+
+    await goalRepository.deleteGoal(remove.id)
+
+    const all = await goalRepository.getAll()
+    expect(all.map((g) => g.id)).toEqual([keep.id])
+  })
 })
 
 describe('IndexedDbDailyEntryRepository', () => {

@@ -103,6 +103,63 @@ describe('GoalForm', () => {
     ).toBeInTheDocument()
   })
 
+  describe('duplicate same-day re-save (#174)', () => {
+    it('does not call onSubmit and shows a notice for an unchanged same-day re-save', async () => {
+      const user = userEvent.setup()
+      const onSubmit = vi.fn()
+      const today = new Date().toISOString().slice(0, 10)
+      render(
+        <GoalForm
+          existingGoal={{
+            id: 'g1',
+            targetWeeklyLossKg: 1,
+            weekStart: today,
+            createdAt: '2026-01-01T00:00:00.000Z',
+            updatedAt: '2026-01-01T00:00:00.000Z',
+          }}
+          onSubmit={onSubmit}
+        />,
+      )
+
+      await user.click(
+        screen.getByRole('button', { name: 'Update this week’s target' }),
+      )
+
+      expect(onSubmit).not.toHaveBeenCalled()
+      expect(
+        await screen.findByText('You already set this target today.'),
+      ).toBeInTheDocument()
+    })
+
+    it('still saves a genuinely different target the same day', async () => {
+      const user = userEvent.setup()
+      const onSubmit = vi.fn()
+      const today = new Date().toISOString().slice(0, 10)
+      render(
+        <GoalForm
+          existingGoal={{
+            id: 'g1',
+            targetWeeklyLossKg: 1,
+            weekStart: today,
+            createdAt: '2026-01-01T00:00:00.000Z',
+            updatedAt: '2026-01-01T00:00:00.000Z',
+          }}
+          onSubmit={onSubmit}
+        />,
+      )
+
+      const input = screen.getByLabelText("This week's target (kg to lose)")
+      await user.clear(input)
+      await user.type(input, '1.5')
+      await user.click(
+        screen.getByRole('button', { name: 'Update this week’s target' }),
+      )
+
+      expect(onSubmit).toHaveBeenCalledTimes(1)
+      expect(onSubmit.mock.calls[0][0].targetWeeklyLossKg).toBe(1.5)
+    })
+  })
+
   it('accepts a comma as the decimal separator', async () => {
     const user = userEvent.setup()
     const onSubmit = vi.fn()

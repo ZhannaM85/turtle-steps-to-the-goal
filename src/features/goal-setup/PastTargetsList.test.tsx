@@ -1,5 +1,6 @@
 import { render, screen } from '@testing-library/react'
-import { describe, expect, it } from 'vitest'
+import userEvent from '@testing-library/user-event'
+import { describe, expect, it, vi } from 'vitest'
 import type { PastGoalRecord } from '@/domain/goal'
 import { PastTargetsList } from './PastTargetsList'
 
@@ -27,12 +28,14 @@ function makeRecord(overrides: Partial<PastGoalRecord> = {}): PastGoalRecord {
 
 describe('PastTargetsList', () => {
   it('renders nothing when there is no history yet', () => {
-    const { container } = render(<PastTargetsList records={[]} />)
+    const { container } = render(
+      <PastTargetsList records={[]} onDelete={vi.fn()} />,
+    )
     expect(container).toBeEmptyDOMElement()
   })
 
   it("shows each past target's week range, weekly target, and whether it was met", () => {
-    render(<PastTargetsList records={[makeRecord()]} />)
+    render(<PastTargetsList records={[makeRecord()]} onDelete={vi.fn()} />)
 
     expect(screen.getByText('Past targets')).toBeInTheDocument()
     expect(screen.getByText('Mar 9 – Mar 15')).toBeInTheDocument()
@@ -59,6 +62,7 @@ describe('PastTargetsList', () => {
             },
           }),
         ]}
+        onDelete={vi.fn()}
       />,
     )
 
@@ -66,8 +70,46 @@ describe('PastTargetsList', () => {
   })
 
   it('labels a goal with no computable progress as not enough data', () => {
-    render(<PastTargetsList records={[makeRecord({ progress: null })]} />)
+    render(
+      <PastTargetsList
+        records={[makeRecord({ progress: null })]}
+        onDelete={vi.fn()}
+      />,
+    )
 
     expect(screen.getByText('Not enough data to tell')).toBeInTheDocument()
+  })
+
+  describe('deleting a past target (#174)', () => {
+    it('asks for confirmation before deleting, and cancel discards it', async () => {
+      const user = userEvent.setup()
+      const onDelete = vi.fn()
+      render(<PastTargetsList records={[makeRecord()]} onDelete={onDelete} />)
+
+      await user.click(
+        screen.getByRole('button', { name: 'Delete target for Mar 9 – Mar 15' }),
+      )
+      expect(
+        screen.getByText('Delete this target?'),
+      ).toBeInTheDocument()
+
+      await user.click(screen.getByRole('button', { name: 'Cancel' }))
+
+      expect(onDelete).not.toHaveBeenCalled()
+      expect(screen.queryByText('Delete this target?')).not.toBeInTheDocument()
+    })
+
+    it('calls onDelete with the goal id once confirmed', async () => {
+      const user = userEvent.setup()
+      const onDelete = vi.fn()
+      render(<PastTargetsList records={[makeRecord()]} onDelete={onDelete} />)
+
+      await user.click(
+        screen.getByRole('button', { name: 'Delete target for Mar 9 – Mar 15' }),
+      )
+      await user.click(screen.getByRole('button', { name: 'Delete' }))
+
+      expect(onDelete).toHaveBeenCalledWith('g1')
+    })
   })
 })

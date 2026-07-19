@@ -14,8 +14,16 @@ const dailyEntryRepository = new IndexedDbDailyEntryRepository()
  * goal might have just been saved, so a freshly-created historical record
  * shows up without needing a reload — same convention as
  * `useMaxRecordedWeight`.
+ *
+ * Also owns deletion (#174): `deleteGoal` removes a single history record
+ * and re-fetches on its own (a plain save doesn't change `refreshKey` for
+ * a delete, since the active goal is untouched), so `GoalScreen` doesn't
+ * need its own repository instance just to wire up the delete button.
  */
-export function usePastGoals(refreshKey: unknown): PastGoalRecord[] {
+export function usePastGoals(refreshKey: unknown): {
+  records: PastGoalRecord[]
+  deleteGoal: (id: string) => Promise<void>
+} {
   const [records, setRecords] = useState<PastGoalRecord[]>([])
 
   useEffect(() => {
@@ -34,5 +42,17 @@ export function usePastGoals(refreshKey: unknown): PastGoalRecord[] {
     }
   }, [refreshKey])
 
-  return records
+  async function deleteGoal(id: string) {
+    await goalRepository.deleteGoal(id)
+    // Re-fetch directly (#174) rather than relying on refreshKey — a
+    // delete doesn't touch the active goal, so nothing else would
+    // otherwise trigger the effect above.
+    const [goals, entries] = await Promise.all([
+      goalRepository.getAll(),
+      dailyEntryRepository.getAll(),
+    ])
+    setRecords(pastGoals(goals, entries))
+  }
+
+  return { records, deleteGoal }
 }

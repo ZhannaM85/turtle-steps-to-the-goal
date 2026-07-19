@@ -13,4 +13,8 @@ export class IndexedDbGoalRepository implements GoalRepository {
   async getAll(): Promise<Goal[]> {
     return db.goals.orderBy('createdAt').toArray()
   }
+
+  async deleteGoal(id: string): Promise<void> {
+    await db.goals.delete(id)
+  }
 }

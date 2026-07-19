@@ -1,5 +1,5 @@
 import 'fake-indexeddb/auto'
-import { render, screen } from '@testing-library/react'
+import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { format } from 'date-fns'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
@@ -107,5 +107,31 @@ describe('GoalScreen', () => {
     expect(await screen.findByText('Past targets')).toBeInTheDocument()
     expect(screen.getByText('Mar 9 – Mar 15')).toBeInTheDocument()
     expect(await db.goals.count()).toBe(2)
+  })
+
+  it('deletes a past target from history after confirming (#174)', async () => {
+    await useGoalStore
+      .getState()
+      .saveGoal(makeGoal({ weekStart: '2026-03-09' }))
+    await useGoalStore
+      .getState()
+      .saveGoal(makeGoal({ weekStart: '2026-03-16' }))
+    const user = userEvent.setup()
+
+    render(<GoalScreen />)
+    await screen.findByText('Mar 9 – Mar 15')
+    const remainingGoalsBefore = await db.goals.count()
+
+    await user.click(
+      screen.getByRole('button', { name: 'Delete target for Mar 9 – Mar 15' }),
+    )
+    await user.click(screen.getByRole('button', { name: 'Delete' }))
+
+    // deleteGoal() re-fetches asynchronously (usePastGoals.ts) after the
+    // repository write, so the row's removal isn't synchronous with the click.
+    await waitFor(() =>
+      expect(screen.queryByText('Mar 9 – Mar 15')).not.toBeInTheDocument(),
+    )
+    expect(await db.goals.count()).toBe(remainingGoalsBefore - 1)
   })
 })

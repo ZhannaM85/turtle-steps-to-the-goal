@@ -203,6 +203,11 @@ export interface Dictionary {
     deficitCaveat: string
     updateButton: string
     setButton: string
+    /** Shown instead of saving when isDuplicateGoalSave() catches a
+     * same-day re-submission of an unchanged target (#174) — a no-op, not
+     * an error, so this reads as informational rather than a validation
+     * message. */
+    duplicateTargetNotice: string
     /** Goal history section (#147) — every past (non-active) target. */
     pastTargetsTitle: string
     targetPerWeek: (target: string, unit: string) => string
@@ -215,6 +220,14 @@ export interface Dictionary {
     targetMetOnLabel: (date: string) => string
     targetMissedLabel: string
     targetNoDataLabel: string
+    /** Per-row delete on the past-targets history (#174) — same two-step
+     * confirm shape as history/EntryRow.tsx's own delete, own copy rather
+     * than cross-feature reuse since the wording differs ("target" vs
+     * "entry"). */
+    deletePastTargetLabel: (weekRange: string) => string
+    confirmDeletePastTargetLabel: string
+    confirmDeletePastTargetYes: string
+    confirmDeletePastTargetNo: string
   }
   export: {
     title: string

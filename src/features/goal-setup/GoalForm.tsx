@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import type { Goal } from '@/domain/goal'
@@ -12,6 +12,7 @@ import {
   effectiveWeeklyPaceKg,
   formValuesToGoal,
   goalToFormValues,
+  isDuplicateGoalSave,
 } from './goalFormMapping'
 import { makeGoalFormSchema, type GoalFormValues } from './goalFormSchema'
 
@@ -40,8 +41,21 @@ export function GoalForm({ existingGoal, onSubmit }: GoalFormProps) {
   const dailyDeficit =
     paceKg !== null ? estimatedDailyCalorieDeficitKcal(paceKg) : null
 
+  // Cleared on any edit (#174) — the notice is only meaningful for the
+  // exact values that triggered it; once the user starts changing the
+  // number it's a real edit again, not a duplicate.
+  const [showDuplicateNotice, setShowDuplicateNotice] = useState(false)
+  useEffect(() => {
+    setShowDuplicateNotice(false)
+  }, [values.targetWeeklyLoss])
+
   function submit(formValues: GoalFormValues) {
-    onSubmit(formValuesToGoal(formValues, unit))
+    const newGoal = formValuesToGoal(formValues, unit)
+    if (isDuplicateGoalSave(newGoal, existingGoal)) {
+      setShowDuplicateNotice(true)
+      return
+    }
+    onSubmit(newGoal)
   }
 
   return (
@@ -69,6 +83,12 @@ export function GoalForm({ existingGoal, onSubmit }: GoalFormProps) {
       <Button type="submit" className="self-start">
         {existingGoal ? t.goal.updateButton : t.goal.setButton}
       </Button>
+
+      {showDuplicateNotice && (
+        <p className="text-sm text-muted-foreground">
+          {t.goal.duplicateTargetNotice}
+        </p>
+      )}
     </form>
   )
 }

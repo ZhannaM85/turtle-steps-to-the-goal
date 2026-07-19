@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 164,
+    issue: 174,
+    date: '2026-07-19T17:45:00+03:00',
+    en: "Repeatedly tapping \"Update this week's target\" with the same number no longer creates duplicate history entries, and you can now delete a wrongly-added target from the Past targets list.",
+    ru: 'Повторное нажатие "Обновить цель на неделю" с тем же значением больше не создаёт дубликаты в истории, а неверно добавленную цель теперь можно удалить из списка прошлых целей.',
+  },
+  {
     version: 163,
     issue: 177,
     date: '2026-07-19T17:35:00+03:00',

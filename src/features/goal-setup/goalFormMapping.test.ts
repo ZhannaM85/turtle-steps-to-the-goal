@@ -5,6 +5,7 @@ import {
   effectiveWeeklyPaceKg,
   formValuesToGoal,
   goalToFormValues,
+  isDuplicateGoalSave,
 } from './goalFormMapping'
 import type { GoalFormValues } from './goalFormSchema'
 
@@ -75,6 +76,67 @@ describe('formValuesToGoal', () => {
     const goal = formValuesToGoal(values, 'lb')
 
     expect(goal.targetWeeklyLossKg).toBeCloseTo(0.998, 2)
+  })
+})
+
+describe('isDuplicateGoalSave (#174)', () => {
+  it('is a duplicate when weekStart and target both match an existing goal', () => {
+    const existingGoal: Goal = makeGoal({ weekStart: '2026-03-09' })
+    const newGoal: Goal = makeGoal({
+      id: 'goal-2',
+      weekStart: '2026-03-09',
+      targetWeeklyLossKg: 1,
+    })
+
+    expect(isDuplicateGoalSave(newGoal, existingGoal)).toBe(true)
+  })
+
+  it('is not a duplicate when the target actually changed', () => {
+    const existingGoal: Goal = makeGoal({ weekStart: '2026-03-09' })
+    const newGoal: Goal = makeGoal({
+      id: 'goal-2',
+      weekStart: '2026-03-09',
+      targetWeeklyLossKg: 1.5,
+    })
+
+    expect(isDuplicateGoalSave(newGoal, existingGoal)).toBe(false)
+  })
+
+  it('is not a duplicate when it is a later-day renewal with the same target', () => {
+    const existingGoal: Goal = makeGoal({ weekStart: '2026-03-09' })
+    const newGoal: Goal = makeGoal({
+      id: 'goal-2',
+      weekStart: '2026-03-16',
+      targetWeeklyLossKg: 1,
+    })
+
+    expect(isDuplicateGoalSave(newGoal, existingGoal)).toBe(false)
+  })
+
+  it('is never a duplicate without an existing goal', () => {
+    const newGoal: Goal = makeGoal({ weekStart: '2026-03-09' })
+    expect(isDuplicateGoalSave(newGoal, null)).toBe(false)
+  })
+
+  it('is never a duplicate against a legacy goal with no weekStart', () => {
+    const existingGoal: Goal = makeGoal({ weekStart: undefined })
+    const newGoal: Goal = makeGoal({ id: 'goal-2', weekStart: '2026-03-09' })
+
+    expect(isDuplicateGoalSave(newGoal, existingGoal)).toBe(false)
+  })
+
+  it('tolerates tiny float differences from a unit round-trip', () => {
+    const existingGoal: Goal = makeGoal({
+      weekStart: '2026-03-09',
+      targetWeeklyLossKg: 1,
+    })
+    const newGoal: Goal = makeGoal({
+      id: 'goal-2',
+      weekStart: '2026-03-09',
+      targetWeeklyLossKg: 1.0002,
+    })
+
+    expect(isDuplicateGoalSave(newGoal, existingGoal)).toBe(true)
   })
 })
 
