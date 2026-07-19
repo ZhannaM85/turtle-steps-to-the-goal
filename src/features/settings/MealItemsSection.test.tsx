@@ -156,6 +156,26 @@ describe('MealItemsSection', () => {
       expect(screen.queryByDisplayValue('Discarded')).not.toBeInTheDocument()
       expect(useMealItemStore.getState().items).toEqual([])
     })
+
+    it('saves the typed total directly in Portion mode, no multiplication (#170)', async () => {
+      const user = userEvent.setup()
+      render(<MealItemsSection />)
+
+      await user.click(
+        screen.getByRole('button', { name: 'Add custom food' }),
+      )
+      await user.click(screen.getByRole('radio', { name: 'Portion' }))
+      await user.type(screen.getByLabelText('Meal item name'), 'Sandwich')
+      await user.type(screen.getByLabelText('kcal/100g'), '450')
+      await user.click(screen.getByRole('button', { name: 'Save' }))
+
+      await waitFor(() =>
+        expect(useMealItemStore.getState().items[0]).toMatchObject({
+          name: 'Sandwich',
+          lastAmountKcal: 450,
+        }),
+      )
+    })
   })
 
   describe('editing nutrition (#99)', () => {
@@ -237,6 +257,24 @@ describe('MealItemsSection', () => {
           lastAmountKcal: 100,
           lastProteinG: 10,
           lastAmountG: 50,
+        }),
+      )
+    })
+
+    it('switches to Portion mode and saves the typed total directly, no multiplication (#170)', async () => {
+      await useMealItemStore.getState().touch('Pizza')
+      const user = userEvent.setup()
+      render(<MealItemsSection />)
+
+      await screen.findByDisplayValue('Pizza')
+      await user.click(screen.getByRole('button', { name: 'Edit Pizza' }))
+      await user.click(screen.getByRole('radio', { name: 'Portion' }))
+      await user.type(screen.getByLabelText('kcal/100g — Pizza'), '450')
+      await user.click(screen.getByRole('button', { name: 'Save Pizza' }))
+
+      await waitFor(() =>
+        expect(useMealItemStore.getState().items[0]).toMatchObject({
+          lastAmountKcal: 450,
         }),
       )
     })

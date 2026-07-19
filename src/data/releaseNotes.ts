@@ -19,6 +19,12 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    issue: 170,
+    date: '2026-07-19T16:01:46+03:00',
+    en: 'Settings > Meal items now has the same Per-100g/Per-portion entry toggle as the daily log.',
+    ru: 'В Настройках > Блюда теперь доступен тот же переключатель "На 100г/На порцию", что и в дневнике питания.',
+  },
+  {
     issue: 167,
     date: '2026-07-19T14:48:42+03:00',
     en: 'Added two new Dashboard charts: sleep vs. next-day weight, and steps vs. next-day weight.',
