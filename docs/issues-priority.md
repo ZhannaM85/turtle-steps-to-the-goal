@@ -304,6 +304,17 @@ _Same pattern as Tiers 8–17: issues filed from continued live use. Ordered eas
 
 ---
 
+## Tier 19 — Tenth live-feedback wave (2026-07-19)
+_Filed mid-Tier-18 from continued live use, once #149-151 had already shipped. Per explicit instruction, filed without pre-implementation investigation — root causes below are still open. Ordered into the existing Tier 18 queue: #152, #158, #153, #156, #154, #155, #157 (#157 last — it's the biggest and most disruptive, potentially reversing #145's prior explicit "inline, not a separate view" decision, and is flagged as a genuine design fork to confirm before building, not a routine auto-proceed item)._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#158](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/158) | ⬜ Open | Revisit #146: meal edit still shows a small checkmark icon, not a big Save button | #146's actual fix only added a border (`variant="outline"`), never changed size or added visible text — user expected a genuinely big/labeled Save button |
+| [#156](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/156) | ⬜ Open | #144 still reproducing: empty space on the right of view-mode meal cards | Undiagnosed at filing time — needs live Playwright verification, same approach #143/#144 originally used |
+| [#157](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/157) | ⬜ Open | Consider a dedicated view for editing a meal, instead of inline expansion on the same page | Potential reversal of #145's explicit decision to keep editing inline (additive option) rather than build a separate view (the "second, bigger option" #145 declined). Flagged as a genuine design fork — confirm scope before implementing |
+
+---
+
 ## Private (no public GitHub issue, by request)
 
 _Filed and built without a public issue at the user's explicit request — the repo is public, and this one's more personal than the rest. Still documented normally here per the project's usual close-out process; see [[feedback_issue_first]]'s exception #2 in memory for why._
