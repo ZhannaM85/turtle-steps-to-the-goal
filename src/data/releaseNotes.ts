@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 173,
+    issue: 184,
+    date: '2026-07-19T23:25:00+03:00',
+    en: 'Fixed the dish-name suggestions dropdown popping open immediately instead of waiting for you to start typing.',
+    ru: 'Исправлено: список подсказок для названия блюда открывался сразу, а не после начала ввода текста.',
+  },
+  {
     version: 172,
     issue: 183,
     date: '2026-07-19T22:38:00+03:00',

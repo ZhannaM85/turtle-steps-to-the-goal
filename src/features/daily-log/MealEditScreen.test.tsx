@@ -552,7 +552,7 @@ describe('MealEditScreen', () => {
         screen.getByRole('button', { name: '+ Add item — Meal 1' }),
       )
       const dialog = screen.getByRole('dialog')
-      await user.click(within(dialog).getByLabelText('Dish name'))
+      await user.type(within(dialog).getByLabelText('Dish name'), 'B')
       await user.click(
         await within(dialog).findByRole('button', { name: 'Bread' }),
       )
@@ -604,7 +604,7 @@ describe('MealEditScreen', () => {
         screen.getByRole('button', { name: '+ Add item — Meal 1' }),
       )
       const dialog = screen.getByRole('dialog')
-      await user.click(within(dialog).getByLabelText('Dish name'))
+      await user.type(within(dialog).getByLabelText('Dish name'), 'B')
       await user.click(
         await within(dialog).findByRole('button', { name: 'Bread' }),
       )

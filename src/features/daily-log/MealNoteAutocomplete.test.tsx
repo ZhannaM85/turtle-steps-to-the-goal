@@ -36,7 +36,7 @@ function mealItem(name: string): MealItem {
 }
 
 describe('MealNoteAutocomplete (#86)', () => {
-  it('shows all suggestions on focus when the field is empty', async () => {
+  it('stays closed on focus alone, even with suggestions available (#184)', async () => {
     const user = userEvent.setup()
     render(
       <MealNoteAutocomplete
@@ -51,6 +51,20 @@ describe('MealNoteAutocomplete (#86)', () => {
     )
 
     await user.click(screen.getByLabelText('Meal note'))
+
+    expect(screen.queryByRole('button', { name: 'Pizza' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Salad' })).not.toBeInTheDocument()
+  })
+
+  it('opens and shows every suggestion once typing starts (#184)', async () => {
+    const user = userEvent.setup()
+    render(
+      <ControlledAutocomplete
+        suggestions={[mealItem('Pizza'), mealItem('Salad')]}
+      />,
+    )
+
+    await user.type(screen.getByLabelText('Meal note'), 'a')
 
     expect(screen.getByRole('button', { name: 'Pizza' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Salad' })).toBeInTheDocument()
@@ -87,7 +101,7 @@ describe('MealNoteAutocomplete (#86)', () => {
       />,
     )
 
-    await user.click(screen.getByLabelText('Meal note'))
+    await user.type(screen.getByLabelText('Meal note'), 'p')
     await user.click(screen.getByRole('button', { name: 'Pizza' }))
 
     expect(onChange).toHaveBeenCalledWith('Pizza')

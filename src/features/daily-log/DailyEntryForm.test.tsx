@@ -786,7 +786,7 @@ describe('DailyEntryForm', () => {
       )
 
       await user.click(screen.getByRole('button', { name: '+ Add item' }))
-      await user.click(await screen.findByLabelText('Dish name'))
+      await user.type(await screen.findByLabelText('Dish name'), 'P')
       await user.click(await screen.findByRole('button', { name: 'Pizza' }))
 
       // 250g back-calculates to 2.5 portions of 100g.
@@ -903,7 +903,7 @@ describe('DailyEntryForm', () => {
 
       await user.click(screen.getByRole('button', { name: '+ Add item' }))
       const nameInput = await screen.findByLabelText('Dish name')
-      await user.click(nameInput)
+      await user.type(nameInput, 'Pi')
 
       expect(
         await screen.findByRole('button', { name: 'Pizza' }),
@@ -930,7 +930,7 @@ describe('DailyEntryForm', () => {
       )
 
       await user.click(screen.getByRole('button', { name: '+ Add item' }))
-      await user.click(await screen.findByLabelText('Dish name'))
+      await user.type(await screen.findByLabelText('Dish name'), 'P')
       await user.click(await screen.findByRole('button', { name: 'Pizza' }))
 
       expect(screen.getByLabelText('kcal/100g')).toHaveValue('400')
