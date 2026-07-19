@@ -1,3 +1,11 @@
+## Starting a new batch of issues
+
+Read `docs/AGENT_WORKFLOW.md` first — it's the standing operating
+procedure for how issues get filed, prioritized, implemented, and closed
+on this repo, plus environment-specific gotchas (Windows/Claude Code
+shell quirks, git conventions, test-suite timing). It exists so this
+doesn't need re-explaining every session.
+
 ## Code Search
 - ALWAYS use `zm-index search` FIRST for any code search task
 - Run `zm-index outline <file>` BEFORE reading any file longer than 500 lines
