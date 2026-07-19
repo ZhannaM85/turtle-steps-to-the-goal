@@ -1,7 +1,10 @@
 import { useState } from 'react'
 import { ArrowUpDown } from 'lucide-react'
 import { useSearchParams } from 'react-router-dom'
+import type { Emotion } from '@/domain/dailyEntry'
+import { EmotionPicker } from '@/features/daily-log'
 import { useTranslation } from '@/i18n'
+import { DAY_EMOTIONS } from '@/shared/lib/emotionIcons'
 import { Button } from '@/shared/ui/button'
 import { EmptyState } from '@/shared/ui/empty-state'
 import { Input } from '@/shared/ui/input'
@@ -30,12 +33,25 @@ export function HistoryScreen() {
   const deepLinkedDate = searchParams.get('date') ?? ''
   const [dateFrom, setDateFrom] = useState(deepLinkedDate)
   const [dateTo, setDateTo] = useState(deepLinkedDate)
-  const isFiltering = dateFrom !== '' || dateTo !== ''
+  // Note-text search + mood filter (#172) — alongside the existing
+  // date-range filter, for finding a specific day without scrolling
+  // ("that day I wrote about feeling great").
+  const [searchText, setSearchText] = useState('')
+  const [moodFilter, setMoodFilter] = useState<Emotion | undefined>(undefined)
+  const isFiltering =
+    dateFrom !== '' ||
+    dateTo !== '' ||
+    searchText.trim() !== '' ||
+    moodFilter !== undefined
 
+  const normalizedSearch = searchText.trim().toLowerCase()
   const filtered = entries.filter(
     (entry) =>
       (dateFrom === '' || entry.date >= dateFrom) &&
-      (dateTo === '' || entry.date <= dateTo),
+      (dateTo === '' || entry.date <= dateTo) &&
+      (normalizedSearch === '' ||
+        (entry.note ?? '').toLowerCase().includes(normalizedSearch)) &&
+      (moodFilter === undefined || entry.emotion === moodFilter),
   )
   const sorted = [...filtered].sort((a, b) =>
     sortAsc ? a.date.localeCompare(b.date) : b.date.localeCompare(a.date),
@@ -44,6 +60,8 @@ export function HistoryScreen() {
   function clearFilter() {
     setDateFrom('')
     setDateTo('')
+    setSearchText('')
+    setMoodFilter(undefined)
   }
 
   // From the calendar's day panel (#48): jump to List view filtered to
@@ -130,6 +148,32 @@ export function HistoryScreen() {
                       className="w-36"
                     />
                   </div>
+                </div>
+                {/* Note-text search + mood filter (#172) */}
+                <div className="flex flex-col gap-1.5">
+                  <Label htmlFor="history-search">
+                    {t.history.searchLabel}
+                  </Label>
+                  <Input
+                    id="history-search"
+                    type="text"
+                    placeholder={t.history.searchPlaceholder}
+                    value={searchText}
+                    onChange={(e) => setSearchText(e.target.value)}
+                    className="w-full sm:w-64"
+                  />
+                </div>
+                <div className="flex flex-col gap-1.5">
+                  <span className="text-sm font-medium">
+                    {t.history.moodFilterLabel}
+                  </span>
+                  <EmotionPicker
+                    value={moodFilter}
+                    onChange={setMoodFilter}
+                    options={DAY_EMOTIONS}
+                    labelFor={t.dailyEntry.emotionLabel}
+                    contextLabel={t.history.moodFilterLabel}
+                  />
                 </div>
                 {isFiltering && (
                   <Button

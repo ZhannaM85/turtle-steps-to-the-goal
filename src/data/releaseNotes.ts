@@ -19,6 +19,12 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    issue: 172,
+    date: '2026-07-19T16:33:38+03:00',
+    en: 'History (List view) can now be searched by day-note text and filtered by mood, alongside the existing date range.',
+    ru: 'В Истории (в виде списка) теперь можно искать по тексту заметок и фильтровать по настроению, в дополнение к фильтру по датам.',
+  },
+  {
     issue: 170,
     date: '2026-07-19T16:01:46+03:00',
     en: 'Settings > Meal items now has the same Per-100g/Per-portion entry toggle as the daily log.',

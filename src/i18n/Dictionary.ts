@@ -381,6 +381,13 @@ export interface Dictionary {
     noDetailsLabel: string
     dateFromLabel: string
     dateToLabel: string
+    /** Filters by day-note text content (#172) — case-insensitive substring
+     * match, alongside the existing date-range filter. */
+    searchLabel: string
+    searchPlaceholder: string
+    /** Filters by the day's overall mood (#172) — reuses EmotionPicker's
+     * existing click-again-to-clear toggle semantics. */
+    moodFilterLabel: string
     clearFilterButton: string
     noFilterResultsTitle: string
     noFilterResultsDescription: string

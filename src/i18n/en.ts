@@ -332,6 +332,9 @@ export const en: Dictionary = {
     noDetailsLabel: 'Nothing else logged for this day.',
     dateFromLabel: 'From',
     dateToLabel: 'To',
+    searchLabel: 'Search notes',
+    searchPlaceholder: 'Search day notes…',
+    moodFilterLabel: 'Filter by mood',
     clearFilterButton: 'Clear filter',
     noFilterResultsTitle: 'No entries in this range',
     noFilterResultsDescription:

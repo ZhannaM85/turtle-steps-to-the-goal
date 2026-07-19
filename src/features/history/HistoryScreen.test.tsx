@@ -211,4 +211,87 @@ describe('HistoryScreen', () => {
       expect(screen.getByText('Breakfast — 2,000 kcal')).toBeInTheDocument()
     })
   })
+
+  describe('search and mood filter (#172)', () => {
+    async function seedNotedEntries() {
+      await db.dailyEntries.put(
+        makeEntry({
+          date: '2026-03-01',
+          weightKg: 82,
+          note: 'Felt great today, best run in weeks',
+          emotion: 'happy',
+        }),
+      )
+      await db.dailyEntries.put(
+        makeEntry({
+          date: '2026-03-10',
+          weightKg: 81,
+          note: 'Rough day, stressed about work',
+          emotion: 'unhappy',
+        }),
+      )
+      await db.dailyEntries.put(
+        makeEntry({ date: '2026-03-20', weightKg: 80, emotion: 'neutral' }),
+      )
+    }
+
+    it('filters by note text, case-insensitively', async () => {
+      await seedNotedEntries()
+      render(<HistoryScreen />, { wrapper: MemoryRouter })
+      await screen.findByRole('table')
+
+      fireEvent.change(screen.getByLabelText('Search notes'), {
+        target: { value: 'GREAT' },
+      })
+
+      const rows = screen.getAllByRole('row').slice(1)
+      expect(rows).toHaveLength(1)
+      expect(screen.getByText('82 kg')).toBeInTheDocument()
+    })
+
+    it('filters by mood', async () => {
+      await seedNotedEntries()
+      const user = userEvent.setup()
+      render(<HistoryScreen />, { wrapper: MemoryRouter })
+      await screen.findByRole('table')
+
+      await user.click(
+        screen.getByRole('button', { name: 'Unhappy — Filter by mood' }),
+      )
+
+      const rows = screen.getAllByRole('row').slice(1)
+      expect(rows).toHaveLength(1)
+      expect(screen.getByText('81 kg')).toBeInTheDocument()
+    })
+
+    it('clicking the same mood again clears the filter', async () => {
+      await seedNotedEntries()
+      const user = userEvent.setup()
+      render(<HistoryScreen />, { wrapper: MemoryRouter })
+      await screen.findByRole('table')
+
+      const unhappyButton = screen.getByRole('button', {
+        name: 'Unhappy — Filter by mood',
+      })
+      await user.click(unhappyButton)
+      await user.click(unhappyButton)
+
+      expect(screen.getAllByRole('row').slice(1)).toHaveLength(3)
+    })
+
+    it('clear filter also resets search text and mood', async () => {
+      await seedNotedEntries()
+      const user = userEvent.setup()
+      render(<HistoryScreen />, { wrapper: MemoryRouter })
+      await screen.findByRole('table')
+
+      fireEvent.change(screen.getByLabelText('Search notes'), {
+        target: { value: 'great' },
+      })
+      await user.click(screen.getByRole('button', { name: 'Clear filter' }))
+
+      expect(screen.getByLabelText('Search notes')).toHaveValue('')
+      expect(screen.getAllByRole('row').slice(1)).toHaveLength(3)
+    })
+  })
 })
