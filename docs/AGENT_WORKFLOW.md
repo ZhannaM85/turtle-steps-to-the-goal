@@ -125,7 +125,16 @@ and #144's precedent in `docs/issues-priority.md`).
   test coverage.
 - Full test suite (`npx vitest run`) legitimately takes 2–4 minutes under
   this environment's load — don't assume a long-running background task is
-  stuck; poll its output file, don't re-run it.
+  stuck; the harness notifies you when it finishes, don't re-run it or poll
+  its output file in a loop waiting for it.
+- **Don't idle waiting on a background full-suite run.** Once an issue's
+  typecheck/lint/targeted-test pass is green and the full suite is kicked
+  off in the background, immediately move on to implementing the *next*
+  queued issue (research, write the code, run its own targeted tests) while
+  that suite runs — only the final commit+close step for the issue that
+  triggered the run needs to wait for its actual result. Confirmed directly
+  by the user, who pointed out mid-session (2026-07-19) that stopping to
+  wait wastes time when there's more queued work ready to start.
 
 ## Git conventions
 
