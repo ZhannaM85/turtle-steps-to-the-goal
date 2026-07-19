@@ -17,6 +17,7 @@ import {
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { Check, Clock, GripVertical, Pencil, Trash2, X } from 'lucide-react'
+import { foods } from '@/data/foods'
 import type { CalorieEntry, CalorieItem, MealEmotion } from '@/domain/dailyEntry'
 import {
   calorieEntryCarbs,
@@ -50,6 +51,12 @@ import { Input } from '@/shared/ui/input'
 import { useMealItemStore, useMealLabelPresetStore } from '@/stores'
 import { FoodPickerDialog } from './FoodPickerDialog'
 import { MealItemEditorSheet } from './MealItemEditorSheet'
+
+// Every curated food's name in either locale (#150) — names an item picked
+// via FoodPickerDialog can carry, distinct from a name the user actually
+// typed themselves. `foods.ts` is static, so this only needs computing once
+// rather than per-render or per-save.
+const curatedFoodNames = new Set(foods.flatMap((food) => [food.en, food.ru]))
 
 /** One item's draft fields while its parent meal group is being edited
  * (#81) — plain strings, same pattern as the rest of this form's add/edit
@@ -1126,7 +1133,12 @@ export function MealList({ calorieEntries, onChange }: MealListProps) {
       ),
     )
     for (const item of items) {
-      if (item.name) {
+      // Skip names that are actually a curated food, picked via
+      // FoodPickerDialog rather than typed by hand (#150) — otherwise
+      // saving any edit to a meal containing one leaks it into the
+      // personal dictionary, which addFoodEntry() already correctly
+      // avoids doing on the initial add.
+      if (item.name && !curatedFoodNames.has(item.name)) {
         touchMealItem(item.name, {
           amountKcal: item.amountKcal,
           proteinG: item.proteinG,

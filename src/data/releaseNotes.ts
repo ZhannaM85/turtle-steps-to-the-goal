@@ -19,6 +19,12 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    issue: 150,
+    date: '2026-07-19T11:31:27+03:00',
+    en: "Fixed a bug where picking a food from the built-in food list could end up in your own custom dishes list in Settings after later editing that meal.",
+    ru: 'Исправлена ошибка: выбор блюда из встроенного списка продуктов мог попасть в ваш список собственных блюд в Настройках после последующего редактирования этого приёма пищи.',
+  },
+  {
     issue: 151,
     date: '2026-07-19T11:19:34+03:00',
     en: "Added a clear button next to \"+ Add item\" so you can discard an in-progress meal item without opening its editor.",

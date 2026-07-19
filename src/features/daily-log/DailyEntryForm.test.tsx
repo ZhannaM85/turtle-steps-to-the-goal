@@ -1774,6 +1774,22 @@ describe('DailyEntryForm', () => {
           })
         })
 
+        it('does not add a found curated food to the personal meal dictionary (#150)', async () => {
+          const user = userEvent.setup()
+          renderWithMeals()
+
+          await user.click(screen.getByRole('button', { name: 'Edit meal 1' }))
+          await user.click(
+            screen.getByRole('button', { name: 'Find food — Meal 1' }),
+          )
+          await user.click(screen.getByText('Salmon'))
+          await user.click(screen.getByRole('button', { name: 'Add food' }))
+          await user.click(screen.getByRole('button', { name: 'Save' }))
+
+          expect(screen.getByText('Breakfast — 508 kcal')).toBeInTheDocument()
+          expect(await db.mealItems.toArray()).toEqual([])
+        })
+
         it('adds another item to an existing meal via edit mode, growing the kcal subtotal', async () => {
           const user = userEvent.setup()
           const onSave = vi.fn()
