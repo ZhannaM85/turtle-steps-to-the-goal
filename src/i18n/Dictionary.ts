@@ -394,6 +394,12 @@ export interface Dictionary {
     deleteMealItemLabel: (name: string) => string
     editMealItemLabel: (name: string) => string
     saveMealItemLabel: (name: string) => string
+    /** Opens the create-a-new-dictionary-entry form (#149) — same
+     * name + per-100g nutrition fields as an existing row's own editor,
+     * calling the same touch() upsert, just starting from a blank draft
+     * instead of an existing MealItem. */
+    addMealItemButton: string
+    cancelAddMealItemLabel: string
     mealNamePresetsLabel: string
     mealNamePresetsDescription: string
     mealNamePresetsEmpty: string

@@ -19,6 +19,12 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    issue: 149,
+    date: '2026-07-19T11:39:16+03:00',
+    en: 'You can now add a custom dish to Settings directly, without having to log it as a meal first.',
+    ru: 'Теперь можно добавить своё блюдо прямо в Настройках, не записывая его сначала как приём пищи.',
+  },
+  {
     issue: 150,
     date: '2026-07-19T11:31:27+03:00',
     en: "Fixed a bug where picking a food from the built-in food list could end up in your own custom dishes list in Settings after later editing that meal.",

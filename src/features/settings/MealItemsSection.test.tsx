@@ -76,6 +76,88 @@ describe('MealItemsSection', () => {
     expect(useMealItemStore.getState().items).toEqual([])
   })
 
+  describe('adding a new dictionary entry (#149)', () => {
+    it('creates a new item without any meal ever being logged', async () => {
+      const user = userEvent.setup()
+      render(<MealItemsSection />)
+
+      await user.click(
+        screen.getByRole('button', { name: 'Add custom food' }),
+      )
+      await user.type(
+        screen.getByLabelText('Meal item name'),
+        'Homemade granola',
+      )
+      await user.type(screen.getByLabelText('kcal/100g'), '450')
+      await user.type(screen.getByLabelText('Protein'), '12')
+      await user.click(screen.getByRole('button', { name: 'Save' }))
+
+      expect(
+        await screen.findByDisplayValue('Homemade granola'),
+      ).toBeInTheDocument()
+      await waitFor(() =>
+        expect(useMealItemStore.getState().items[0]).toMatchObject({
+          name: 'Homemade granola',
+          lastAmountKcal: 450,
+          lastProteinG: 12,
+        }),
+      )
+      await waitFor(async () =>
+        expect((await db.mealItems.toArray())[0]).toMatchObject({
+          name: 'Homemade granola',
+        }),
+      )
+    })
+
+    it('works from the empty state too', async () => {
+      const user = userEvent.setup()
+      render(<MealItemsSection />)
+
+      await screen.findByText(
+        "Nothing yet — items appear here once you've logged a meal.",
+      )
+      await user.click(
+        screen.getByRole('button', { name: 'Add custom food' }),
+      )
+      await user.type(screen.getByLabelText('Meal item name'), 'Tea')
+      await user.type(screen.getByLabelText('kcal/100g'), '0')
+      await user.click(screen.getByRole('button', { name: 'Save' }))
+
+      expect(await screen.findByDisplayValue('Tea')).toBeInTheDocument()
+    })
+
+    it('disables Save until a name and a valid kcal/100g are entered', async () => {
+      const user = userEvent.setup()
+      render(<MealItemsSection />)
+
+      await user.click(
+        screen.getByRole('button', { name: 'Add custom food' }),
+      )
+      const saveButton = screen.getByRole('button', { name: 'Save' })
+      expect(saveButton).toBeDisabled()
+
+      await user.type(screen.getByLabelText('kcal/100g'), '200')
+      expect(saveButton).toBeDisabled()
+
+      await user.type(screen.getByLabelText('Meal item name'), 'Oats')
+      expect(saveButton).toBeEnabled()
+    })
+
+    it('discards the draft on cancel without creating anything', async () => {
+      const user = userEvent.setup()
+      render(<MealItemsSection />)
+
+      await user.click(
+        screen.getByRole('button', { name: 'Add custom food' }),
+      )
+      await user.type(screen.getByLabelText('Meal item name'), 'Discarded')
+      await user.click(screen.getByRole('button', { name: 'Cancel' }))
+
+      expect(screen.queryByDisplayValue('Discarded')).not.toBeInTheDocument()
+      expect(useMealItemStore.getState().items).toEqual([])
+    })
+  })
+
   describe('editing nutrition (#99)', () => {
     it('shows a last-logged summary for an item with recorded nutrition', async () => {
       await useMealItemStore.getState().touch('Pizza', {

@@ -340,13 +340,15 @@ export const en: Dictionary = {
     dark: 'Dark',
     mealItemsLabel: 'Meal items',
     mealItemsDescription:
-      "Meals you've logged before, suggested while you type. Rename or remove them here.",
+      "Meals you've logged before, suggested while you type. Rename or remove them here, or add one directly.",
     mealItemsEmpty:
       "Nothing yet — items appear here once you've logged a meal.",
     mealItemNameLabel: 'Meal item name',
     deleteMealItemLabel: (name) => `Delete "${name}"`,
     editMealItemLabel: (name) => `Edit ${name}`,
     saveMealItemLabel: (name) => `Save ${name}`,
+    addMealItemButton: 'Add custom food',
+    cancelAddMealItemLabel: 'Cancel',
     mealNamePresetsLabel: 'Meal name presets',
     mealNamePresetsDescription:
       'Quick-pick names offered when naming a meal, e.g. "Breakfast" or "Lunch".',

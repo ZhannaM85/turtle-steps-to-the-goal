@@ -257,6 +257,167 @@ function MealItemRow({
   )
 }
 
+/**
+ * Creates a brand-new dictionary entry (#149) — same name + per-100g
+ * nutrition fields `MealItemRow`'s own pencil-triggered editor already
+ * uses, just starting from a blank draft instead of an existing `MealItem`.
+ * `touch(name, nutrition)` is already a create-or-update primitive
+ * independent of any day's log, so no new store action is needed here.
+ */
+function AddMealItemForm({
+  onAdd,
+  onCancel,
+}: {
+  onAdd: (
+    name: string,
+    nutrition: {
+      amountKcal: number
+      proteinG: number | undefined
+      fatG: number | undefined
+      carbsG: number | undefined
+      amountG: number
+    },
+  ) => void
+  onCancel: () => void
+}) {
+  const t = useTranslation()
+  const locale = useLocale()
+  const [name, setName] = useState('')
+  const [kcal100, setKcal100] = useState('')
+  const [protein100, setProtein100] = useState('')
+  const [fat100, setFat100] = useState('')
+  const [carbs100, setCarbs100] = useState('')
+  const [amountG, setAmountG] = useState('1')
+
+  const kcal100Num = parseNumberInput(kcal100)
+  const canSave = name.trim() !== '' && kcal100Num !== undefined && kcal100Num >= 0
+  const nutritionPreview =
+    kcal100Num && kcal100Num > 0
+      ? formatComputedTotal(
+          scaleFromPer100g(
+            kcal100Num,
+            parseOptionalMacro(protein100),
+            parseOptionalMacro(fat100),
+            parseOptionalMacro(carbs100),
+            amountG,
+          ),
+          locale,
+          t,
+        )
+      : null
+
+  function save() {
+    if (!canSave || kcal100Num === undefined) return
+    onAdd(
+      name.trim(),
+      scaleFromPer100g(
+        kcal100Num,
+        parseOptionalMacro(protein100),
+        parseOptionalMacro(fat100),
+        parseOptionalMacro(carbs100),
+        amountG,
+      ),
+    )
+  }
+
+  return (
+    <li className="flex flex-col gap-1.5 rounded-lg bg-muted/40 px-2 py-1.5">
+      <Input
+        type="text"
+        aria-label={t.settings.mealItemNameLabel}
+        placeholder={t.settings.mealItemNameLabel}
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+        className="h-8"
+      />
+      <div className="flex flex-wrap items-end gap-2">
+        <div className="flex flex-col gap-1">
+          <span className="text-xs text-muted-foreground">
+            {t.dailyEntry.addCaloriesLabel}
+          </span>
+          <Input
+            type="text"
+            inputMode="decimal"
+            aria-label={t.dailyEntry.addCaloriesLabel}
+            value={kcal100}
+            onChange={(e) => setKcal100(e.target.value)}
+            className="h-7 w-16"
+          />
+        </div>
+        <div className="flex flex-col gap-1">
+          <span className="text-xs text-muted-foreground">
+            {t.dailyEntry.proteinLabel}
+          </span>
+          <Input
+            type="text"
+            inputMode="decimal"
+            aria-label={t.dailyEntry.proteinLabel}
+            value={protein100}
+            onChange={(e) => setProtein100(e.target.value)}
+            className="h-7 w-14"
+          />
+        </div>
+        <div className="flex flex-col gap-1">
+          <span className="text-xs text-muted-foreground">
+            {t.dailyEntry.fatLabel}
+          </span>
+          <Input
+            type="text"
+            inputMode="decimal"
+            aria-label={t.dailyEntry.fatLabel}
+            value={fat100}
+            onChange={(e) => setFat100(e.target.value)}
+            className="h-7 w-14"
+          />
+        </div>
+        <div className="flex flex-col gap-1">
+          <span className="text-xs text-muted-foreground">
+            {t.dailyEntry.carbsLabel}
+          </span>
+          <Input
+            type="text"
+            inputMode="decimal"
+            aria-label={t.dailyEntry.carbsLabel}
+            value={carbs100}
+            onChange={(e) => setCarbs100(e.target.value)}
+            className="h-7 w-14"
+          />
+        </div>
+        <div className="flex flex-col gap-1">
+          <span className="text-xs text-muted-foreground">
+            {t.dailyEntry.itemPortionsLabel}
+          </span>
+          <Input
+            type="text"
+            inputMode="decimal"
+            aria-label={t.dailyEntry.itemPortionsLabel}
+            value={amountG}
+            onChange={(e) => setAmountG(e.target.value)}
+            className="h-7 w-14"
+          />
+        </div>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          disabled={!canSave}
+          onClick={save}
+        >
+          {t.dailyEntry.saveButton}
+        </Button>
+        <Button type="button" variant="ghost" size="sm" onClick={onCancel}>
+          {t.settings.cancelAddMealItemLabel}
+        </Button>
+      </div>
+      {nutritionPreview && (
+        <p className="text-xs text-muted-foreground">
+          {t.dailyEntry.computedTotalPrefix} {nutritionPreview}
+        </p>
+      )}
+    </li>
+  )
+}
+
 export function MealItemsSection() {
   const t = useTranslation()
   const items = useMealItemStore((state) => state.items)
@@ -264,6 +425,7 @@ export function MealItemsSection() {
   const rename = useMealItemStore((state) => state.rename)
   const deleteItem = useMealItemStore((state) => state.deleteItem)
   const touch = useMealItemStore((state) => state.touch)
+  const [isAdding, setIsAdding] = useState(false)
 
   useEffect(() => {
     loadItems()
@@ -274,11 +436,12 @@ export function MealItemsSection() {
       <p className="text-sm text-muted-foreground">
         {t.settings.mealItemsDescription}
       </p>
-      {items.length === 0 ? (
+      {items.length === 0 && !isAdding && (
         <p className="text-sm text-muted-foreground">
           {t.settings.mealItemsEmpty}
         </p>
-      ) : (
+      )}
+      {(items.length > 0 || isAdding) && (
         <ul className="flex flex-col gap-2">
           {items.map((item) => (
             <MealItemRow
@@ -289,7 +452,27 @@ export function MealItemsSection() {
               onSaveNutrition={touch}
             />
           ))}
+          {isAdding && (
+            <AddMealItemForm
+              onAdd={(name, nutrition) => {
+                touch(name, nutrition)
+                setIsAdding(false)
+              }}
+              onCancel={() => setIsAdding(false)}
+            />
+          )}
         </ul>
+      )}
+      {!isAdding && (
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          className="self-start"
+          onClick={() => setIsAdding(true)}
+        >
+          {t.settings.addMealItemButton}
+        </Button>
       )}
     </div>
   )

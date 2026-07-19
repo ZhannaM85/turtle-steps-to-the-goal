@@ -343,12 +343,14 @@ export const ru: Dictionary = {
     dark: 'Тёмная',
     mealItemsLabel: 'Блюда',
     mealItemsDescription:
-      'Блюда, которые вы уже добавляли — подсказки при вводе. Здесь их можно переименовать или удалить.',
+      'Блюда, которые вы уже добавляли — подсказки при вводе. Здесь их можно переименовать, удалить или добавить новое.',
     mealItemsEmpty: 'Пока пусто — блюда появятся здесь после первой записи.',
     mealItemNameLabel: 'Название блюда',
     deleteMealItemLabel: (name) => `Удалить «${name}»`,
     editMealItemLabel: (name) => `Изменить «${name}»`,
     saveMealItemLabel: (name) => `Сохранить «${name}»`,
+    addMealItemButton: 'Добавить своё блюдо',
+    cancelAddMealItemLabel: 'Отмена',
     mealNamePresetsLabel: 'Шаблоны названий приёма пищи',
     mealNamePresetsDescription:
       'Быстрые варианты названий при переименовании приёма пищи, например «Завтрак» или «Обед».',
