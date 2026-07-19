@@ -32,6 +32,12 @@ jobs:
       - name: Type-check
         run: npx tsc -b
 
+      - name: Lint
+        run: npm run lint
+
+      - name: Test
+        run: npx vitest run
+
       - name: Write version marker
         run: echo "{\"version\":\"${{ github.sha }}\"}" > public/version.json
 
