@@ -103,8 +103,15 @@ describe('GoalForm', () => {
     ).toBeInTheDocument()
   })
 
-  describe('unchanged live-window edit (#181, follow-up to #174)', () => {
-    it('renders the button already disabled, with a notice, for an unchanged value in a live window', async () => {
+  describe('editing the current week in place (#181, follow-up in #182)', () => {
+    it('keeps the button enabled and saves even when the value is unchanged (#182)', async () => {
+      // #181 briefly disabled Update whenever the pre-filled value already
+      // matched the live goal — including on ordinary page load, which
+      // read as broken since it happened by default, not just after a
+      // pointless resubmit attempt. #182 removed that: an unchanged
+      // resubmit is harmless (idempotent update to the same record), so
+      // there's no reason to block it.
+      const user = userEvent.setup()
       const onSubmit = vi.fn()
       const today = new Date().toISOString().slice(0, 10)
       render(
@@ -120,41 +127,18 @@ describe('GoalForm', () => {
         />,
       )
 
-      expect(
-        screen.getByRole('button', { name: 'Update this week’s target' }),
-      ).toBeDisabled()
-      expect(
-        await screen.findByText('This is already this week’s target.'),
-      ).toBeInTheDocument()
-      expect(onSubmit).not.toHaveBeenCalled()
-    })
+      const button = screen.getByRole('button', {
+        name: 'Update this week’s target',
+      })
+      expect(button).toBeEnabled()
 
-    it('re-enables the button as soon as the typed value differs, and clears the notice', async () => {
-      const user = userEvent.setup()
-      const today = new Date().toISOString().slice(0, 10)
-      render(
-        <GoalForm
-          existingGoal={{
-            id: 'g1',
-            targetWeeklyLossKg: 1,
-            weekStart: today,
-            createdAt: '2026-01-01T00:00:00.000Z',
-            updatedAt: '2026-01-01T00:00:00.000Z',
-          }}
-          onSubmit={vi.fn()}
-        />,
-      )
+      await user.click(button)
 
-      const input = screen.getByLabelText("This week's target (kg to lose)")
-      await user.clear(input)
-      await user.type(input, '1.5')
-
-      expect(
-        screen.getByRole('button', { name: 'Update this week’s target' }),
-      ).toBeEnabled()
-      expect(
-        screen.queryByText('This is already this week’s target.'),
-      ).not.toBeInTheDocument()
+      expect(onSubmit).toHaveBeenCalledTimes(1)
+      expect(onSubmit.mock.calls[0][0]).toMatchObject({
+        id: 'g1',
+        targetWeeklyLossKg: 1,
+      })
     })
 
     it('still saves a genuinely different target within the same live window', async () => {

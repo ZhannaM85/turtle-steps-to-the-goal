@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 166,
+    issue: 182,
+    date: '2026-07-19T18:40:00+03:00',
+    en: 'Fixed the Update button on the Goal screen showing as disabled by default (introduced in v165) — it now always stays clickable.',
+    ru: 'Исправлено: кнопка "Обновить" на экране "Цель" по умолчанию была неактивна (появилось в v165) — теперь она всегда доступна для нажатия.',
+  },
+  {
     version: 165,
     issue: 181,
     date: '2026-07-19T18:20:00+03:00',

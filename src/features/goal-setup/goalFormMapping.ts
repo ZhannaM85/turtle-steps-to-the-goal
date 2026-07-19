@@ -68,34 +68,6 @@ export function formValuesToGoal(
   }
 }
 
-/** Tolerance for comparing targetWeeklyLossKg values — a unit round-trip
- * (lb input converted to kg) can differ from a stored kg value by a hair
- * even when the user typed the same displayed number. */
-const TARGET_EPSILON_KG = 0.001
-
-/**
- * Whether saving `targetWeeklyLossKg` right now would be a no-op (#181,
- * follow-up to #174) — the current week's goal is already live and
- * already set to (within a float tolerance of) this exact value. Used
- * only to disable the submit button / show an informational notice;
- * harmless even if bypassed, since `formValuesToGoal` would just re-save
- * the same values to the same record. Deliberately `false` for a
- * same-value *renewal* after the window has ended — that's a real,
- * meaningful action (starts a new record), not a no-op.
- */
-export function isUnchangedGoalEdit(
-  targetWeeklyLossKg: number | null,
-  existingGoal: Goal | null,
-): boolean {
-  if (targetWeeklyLossKg === null || !isEditingLiveWindow(existingGoal)) {
-    return false
-  }
-  return (
-    Math.abs(targetWeeklyLossKg - existingGoal.targetWeeklyLossKg) <
-    TARGET_EPSILON_KG
-  )
-}
-
 /** Effective weekly kg pace implied by the current (possibly incomplete) form values, for live preview. */
 export function effectiveWeeklyPaceKg(
   values: Partial<GoalFormValues>,

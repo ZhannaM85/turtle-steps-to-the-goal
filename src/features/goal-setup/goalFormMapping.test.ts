@@ -5,7 +5,6 @@ import {
   effectiveWeeklyPaceKg,
   formValuesToGoal,
   goalToFormValues,
-  isUnchangedGoalEdit,
 } from './goalFormMapping'
 import type { GoalFormValues } from './goalFormSchema'
 
@@ -126,56 +125,24 @@ describe('formValuesToGoal', () => {
 
       expect(goal.id).not.toBe('goal-1')
     })
-  })
-})
 
-describe('isUnchangedGoalEdit (#181, follow-up to #174)', () => {
-  it("is unchanged when the target matches the live goal's own value", () => {
-    const today = format(new Date(), 'yyyy-MM-dd')
-    const existingGoal = makeGoal({ weekStart: today, targetWeeklyLossKg: 1 })
+    it("re-saving the same value in place is a harmless idempotent update, not blocked (#182)", () => {
+      const today = format(new Date(), 'yyyy-MM-dd')
+      const existingGoal = makeGoal({
+        id: 'goal-1',
+        weekStart: today,
+        targetWeeklyLossKg: 1,
+      })
 
-    expect(isUnchangedGoalEdit(1, existingGoal)).toBe(true)
-  })
+      const goal = formValuesToGoal(
+        { targetWeeklyLoss: 1 },
+        'kg',
+        existingGoal,
+      )
 
-  it('is not unchanged when the target actually differs', () => {
-    const today = format(new Date(), 'yyyy-MM-dd')
-    const existingGoal = makeGoal({ weekStart: today, targetWeeklyLossKg: 1 })
-
-    expect(isUnchangedGoalEdit(1.5, existingGoal)).toBe(false)
-  })
-
-  it('is not unchanged once the window has ended, even with the same target', () => {
-    const longAgo = format(subDays(new Date(), 365), 'yyyy-MM-dd')
-    const existingGoal = makeGoal({
-      weekStart: longAgo,
-      targetWeeklyLossKg: 1,
+      expect(goal.id).toBe('goal-1')
+      expect(goal.targetWeeklyLossKg).toBe(1)
     })
-
-    expect(isUnchangedGoalEdit(1, existingGoal)).toBe(false)
-  })
-
-  it('is never unchanged without an existing goal', () => {
-    expect(isUnchangedGoalEdit(1, null)).toBe(false)
-  })
-
-  it('is never unchanged against a legacy goal with no weekStart', () => {
-    const existingGoal = makeGoal({ weekStart: undefined, targetWeeklyLossKg: 1 })
-
-    expect(isUnchangedGoalEdit(1, existingGoal)).toBe(false)
-  })
-
-  it('is never unchanged when the typed value is null (empty/invalid input)', () => {
-    const today = format(new Date(), 'yyyy-MM-dd')
-    const existingGoal = makeGoal({ weekStart: today, targetWeeklyLossKg: 1 })
-
-    expect(isUnchangedGoalEdit(null, existingGoal)).toBe(false)
-  })
-
-  it('tolerates tiny float differences from a unit round-trip', () => {
-    const today = format(new Date(), 'yyyy-MM-dd')
-    const existingGoal = makeGoal({ weekStart: today, targetWeeklyLossKg: 1 })
-
-    expect(isUnchangedGoalEdit(1.0002, existingGoal)).toBe(true)
   })
 })
 

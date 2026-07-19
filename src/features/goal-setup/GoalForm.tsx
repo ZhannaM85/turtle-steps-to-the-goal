@@ -12,7 +12,6 @@ import {
   effectiveWeeklyPaceKg,
   formValuesToGoal,
   goalToFormValues,
-  isUnchangedGoalEdit,
 } from './goalFormMapping'
 import { makeGoalFormSchema, type GoalFormValues } from './goalFormSchema'
 
@@ -41,19 +40,7 @@ export function GoalForm({ existingGoal, onSubmit }: GoalFormProps) {
   const dailyDeficit =
     paceKg !== null ? estimatedDailyCalorieDeficitKcal(paceKg) : null
 
-  // Live, recomputed every render (#181, follow-up to #174) — the button
-  // reflects a true no-op immediately as the user types or the form
-  // loads, not only after a failed submit attempt.
-  const isUnchanged = isUnchangedGoalEdit(paceKg, existingGoal)
-
   function submit(formValues: GoalFormValues) {
-    // Defensive re-check, not load-bearing — the button is already
-    // disabled for this case, but Enter-key implicit submission behavior
-    // for a disabled default button isn't guaranteed identical across
-    // browsers.
-    if (isUnchangedGoalEdit(effectiveWeeklyPaceKg(formValues, unit), existingGoal)) {
-      return
-    }
     onSubmit(formValuesToGoal(formValues, unit, existingGoal))
   }
 
@@ -79,15 +66,9 @@ export function GoalForm({ existingGoal, onSubmit }: GoalFormProps) {
         </p>
       )}
 
-      <Button type="submit" className="self-start" disabled={isUnchanged}>
+      <Button type="submit" className="self-start">
         {existingGoal ? t.goal.updateButton : t.goal.setButton}
       </Button>
-
-      {isUnchanged && (
-        <p className="text-sm text-muted-foreground">
-          {t.goal.duplicateTargetNotice}
-        </p>
-      )}
     </form>
   )
 }

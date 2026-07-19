@@ -27,11 +27,20 @@ user points out.
 
 ## The standing contract
 
-1. **Issue-first.** Don't implement a change without a GitHub issue already
-   filed for it, *except*: (a) something already documented as by-design —
-   explain why instead of filing, or (b) a feature the user explicitly says
-   is too sensitive for a public issue (this repo is public) — build it
-   directly and document it under the "Private (no public GitHub issue, by
+1. **Issue-first — the full sequence, not just the GitHub issue.** Don't
+   write any code without, in this exact order: (1) `gh issue create`, (2)
+   add the row to `docs/issues-priority.md`, (3) *then* start
+   implementing. Filing the GitHub issue and immediately jumping into code
+   still counts as skipping this step — step 2 is not optional or
+   deferrable to later. Hit this exact failure mode twice in one session
+   (2026-07-19): once by starting to implement straight from chat
+   instructions with no issue at all, and — right after being corrected —
+   again by filing the issue but skipping straight to code without logging
+   it in `issues-priority.md` first. See `docs/agent-mistakes-log.md`.
+   *Exceptions*: (a) something already documented as by-design — explain
+   why instead of filing, or (b) a feature the user explicitly says is too
+   sensitive for a public issue (this repo is public) — build it directly
+   and document it under the "Private (no public GitHub issue, by
    request)" section of `docs/issues-priority.md` instead.
 2. **Scrutinize before filing — but only using what you already know, don't
    go dig for it.** If something is *immediately* obvious without opening
