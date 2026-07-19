@@ -16,7 +16,7 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
-import { Check, Clock, GripVertical, Pencil, Trash2, X } from 'lucide-react'
+import { Clock, GripVertical, Pencil, Trash2, X } from 'lucide-react'
 import { foods } from '@/data/foods'
 import type { CalorieEntry, CalorieItem, MealEmotion } from '@/domain/dailyEntry'
 import {
@@ -299,20 +299,6 @@ function MealListItem({
             }}
             className="h-7 flex-1"
           />
-          {/* #146: was a barely-visible ghost icon that users didn't
-           * register as a required save step — outline gives it a visible
-           * border/button shape instead, same fix direction as the rest of
-           * this row staying icon-only (Delete is secondary/destructive,
-           * appropriately quieter). */}
-          <Button
-            type="button"
-            variant="outline"
-            size="icon-sm"
-            aria-label={t.dailyEntry.saveButton}
-            onClick={onSaveEdit}
-          >
-            <Check aria-hidden="true" />
-          </Button>
           <Button
             type="button"
             variant="ghost"
@@ -547,6 +533,20 @@ function MealListItem({
           }}
           className="h-12"
         />
+        {/* #158 (revisits #146): a small icon-only checkmark next to the
+         * name input didn't read as "the button that saves everything in
+         * this card" — moved to a full-width, text-labeled button at the
+         * bottom, same size/prominence as MealItemEditorSheet's own Save,
+         * so it's unambiguous this confirms the whole edit, not just the
+         * name. */}
+        <Button
+          type="button"
+          size="lg"
+          className="h-12 w-full text-base"
+          onClick={onSaveEdit}
+        >
+          {t.dailyEntry.saveButton}
+        </Button>
       </li>
     )
   }

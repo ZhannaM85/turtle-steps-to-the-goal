@@ -309,7 +309,7 @@ _Filed mid-Tier-18 from continued live use, once #149-151 had already shipped. P
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#158](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/158) | ⬜ Open | Revisit #146: meal edit still shows a small checkmark icon, not a big Save button | #146's actual fix only added a border (`variant="outline"`), never changed size or added visible text — user expected a genuinely big/labeled Save button |
+| [#158](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/158) | ✅ Done | Revisit #146: meal edit still shows a small checkmark icon, not a big Save button | Replaced the small header checkmark with a full-width, text-labeled `size="lg"` Save button at the bottom of the edit card (same prominence as `MealItemEditorSheet`'s own Save) |
 | [#156](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/156) | ⬜ Open | #144 still reproducing: empty space on the right of view-mode meal cards | Undiagnosed at filing time — needs live Playwright verification, same approach #143/#144 originally used |
 | [#157](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/157) | ⬜ Open | Consider a dedicated view for editing a meal, instead of inline expansion on the same page | Potential reversal of #145's explicit decision to keep editing inline (additive option) rather than build a separate view (the "second, bigger option" #145 declined). Flagged as a genuine design fork — confirm scope before implementing |
 

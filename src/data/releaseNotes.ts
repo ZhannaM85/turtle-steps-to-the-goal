@@ -19,6 +19,12 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    issue: 158,
+    date: '2026-07-19T12:01:25+03:00',
+    en: 'When editing a meal, Save is now a full-width button at the bottom of the card instead of a small checkmark icon next to the name.',
+    ru: 'При редактировании приёма пищи кнопка "Сохранить" теперь на всю ширину внизу карточки, а не маленькая иконка-галочка рядом с названием.',
+  },
+  {
     issue: 152,
     date: '2026-07-19T11:56:27+03:00',
     en: "The day's total protein/fat/carbs now show as their own field on Today, instead of a small caption line under Calories.",
