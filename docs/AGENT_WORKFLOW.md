@@ -27,10 +27,20 @@ starting new work; it's the fastest way to pick up context.
    is too sensitive for a public issue (this repo is public) — build it
    directly and document it under the "Private (no public GitHub issue, by
    request)" section of `docs/issues-priority.md` instead.
-2. **Scrutinize before filing.** If a reported issue is actually unnecessary,
-   overly complex, underspecified, or already-correct-by-design, say so and
-   push back rather than filing it verbatim. Filing a bad issue just to
-   file it wastes a later implementation pass.
+2. **Scrutinize before filing — but only using what you already know, don't
+   go dig for it.** If something is *immediately* obvious without opening
+   files or running anything (e.g. it's already documented as by-design, or
+   you were just reading the exact code being reported on moments ago), say
+   so and push back rather than filing it verbatim. But do **not** read
+   code, run the app, or otherwise investigate *in order to* decide whether
+   to file — that's implementation-time work. A user reporting a bug from
+   the live app is the source of truth at filing time; take the report at
+   face value, file it (root cause "not yet investigated" is a perfectly
+   fine thing to write in the issue body), and do the actual digging when
+   you get to implementing it. Concretely: don't open a live-verification
+   tool (Playwright, dev server, etc.) between "user reported a bug" and
+   "issue filed" — confirmed directly by the user, who interrupted exactly
+   this sequence mid-session on 2026-07-19.
 3. **Prioritize easiest → hardest** within a batch unless told otherwise.
 4. **Once told to proceed automatically**, keep implementing the queued
    issues one after another without pausing for confirmation on routine
