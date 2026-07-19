@@ -26,6 +26,9 @@ export const ru: Dictionary = {
     availableText: 'Доступна новая версия.',
     reloadButton: 'Перезагрузить',
   },
+  offline: {
+    offlineText: 'Вы не в сети — данные всё равно сохраняются на этом устройстве.',
+  },
   nav: {
     appName: 'Черепашка идёт к цели',
     today: 'Сегодня',

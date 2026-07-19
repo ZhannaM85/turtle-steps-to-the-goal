@@ -18,12 +18,22 @@ export interface Dictionary {
     reloadButton: string
   }
   /** New-version-available banner (#115) — shown by `useAppUpdateAvailable`
-   * when a newer deploy is detected, since there's no pull-to-refresh in
-   * the iOS home-screen standalone context and no service worker to
-   * auto-update in the background. */
+   * when a newer deploy is detected. #163: the service worker's own
+   * autoUpdate registration already installs a new version silently in
+   * the background, but a page reload is still needed to actually load
+   * it — this banner is what surfaces "click to get it now" explicitly,
+   * rather than leaving the user on stale content until their next
+   * unrelated reload. */
   update: {
     availableText: string
     reloadButton: string
+  }
+  /** Quiet "you're offline" indicator (#163) — the app stays fully usable
+   * offline (all data is IndexedDB-local, the service worker precaches the
+   * app shell), so this is informational, not a blocker: mainly explains
+   * why the update-check banner above never appears while offline. */
+  offline: {
+    offlineText: string
   }
   nav: {
     appName: string

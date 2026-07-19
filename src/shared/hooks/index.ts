@@ -1,5 +1,6 @@
 // Shared React hooks
 export { useAppUpdateAvailable } from './useAppUpdateAvailable'
+export { useOnlineStatus } from './useOnlineStatus'
 export { useIsTextInputFocused } from './useIsTextInputFocused'
 export { usePullToRefresh } from './usePullToRefresh'
 export { useMaxRecordedWeight } from './useMaxRecordedWeight'

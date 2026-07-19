@@ -3,10 +3,15 @@ import { useAppUpdateAvailable } from '@/shared/hooks'
 import { Button } from '@/shared/ui/button'
 
 /**
- * Non-intrusive "a new version is available" prompt (#115) — the only way
- * to know a newer deploy exists today, since there's no service worker and
- * no pull-to-refresh in the iOS home-screen standalone context (a pull-down
- * gesture there has no Safari chrome to catch it and does nothing).
+ * Non-intrusive "a new version is available" prompt (#115) — the primary
+ * way to know a newer deploy exists, and to actually load it, since
+ * there's no pull-to-refresh in the iOS home-screen standalone context (a
+ * pull-down gesture there has no Safari chrome to catch it and does
+ * nothing). #163: the service worker's own autoUpdate registration
+ * installs a new version silently in the background, but that alone
+ * doesn't refresh what's already rendered — this banner's Reload button is
+ * still what actually gets the user onto it, rather than leaving them on
+ * stale content until an unrelated reload happens to pick it up.
  */
 export function AppUpdateBanner() {
   const t = useTranslation()

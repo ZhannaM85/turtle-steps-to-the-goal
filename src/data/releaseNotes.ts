@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 174,
+    issue: 163,
+    date: '2026-07-20T00:08:00+03:00',
+    en: 'The app now works offline and loads instantly once you’ve opened it before — a small banner lets you know when you’re offline.',
+    ru: 'Теперь приложение работает без интернета и мгновенно загружается, если вы уже открывали его ранее — небольшой баннер сообщает, когда вы вне сети.',
+  },
+  {
     version: 173,
     issue: 184,
     date: '2026-07-19T23:25:00+03:00',

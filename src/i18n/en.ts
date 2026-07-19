@@ -25,6 +25,9 @@ export const en: Dictionary = {
     availableText: 'A new version is available.',
     reloadButton: 'Reload',
   },
+  offline: {
+    offlineText: "You're offline — your data is still saved on this device.",
+  },
   nav: {
     appName: 'Turtle Steps to the Goal',
     today: 'Today',
