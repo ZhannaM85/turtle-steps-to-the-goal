@@ -315,6 +315,28 @@ _Filed mid-Tier-18 from continued live use, once #149-151 had already shipped. P
 
 ---
 
+## Tier 20 — Codebase-survey batch + two live-found issues (2026-07-19)
+_`docs/potential-improvements.md`'s 2026-07-17 survey converted to issues, once its 3 already-covered items (bundle splitting #102, goal history #147, CSV export #125) were confirmed shipped and its "undo affordance" item was confirmed not worth filing (see that doc). Plus two issues found live while testing #156's fix, unrelated to the survey._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#168](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/168) | ⬜ Open | Macros field has a different height/width than Calories | Self-filed live — the #156-follow-up `self-start` fix moved the Macros box away from #152's original "match Calories/Weight/Sleep" intent |
+| [#169](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/169) | ⬜ Open | No way to cancel out of meal edit mode without saving or deleting | Self-filed live — worth checking whether #158 made this more apparent, not whether it caused it |
+| [#159](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/159) | ⬜ Open | CI: run tests and lint before deploying, not just typecheck | |
+| [#164](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/164) | ⬜ Open | Add a "clear all my data" reset feature to Settings | |
+| [#167](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/167) | ⬜ Open | Extend the correlation-chart pattern to sleep and steps | |
+| [#170](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/170) | ⬜ Open | Add Per-100g/Per-portion toggle to MealItemsSection's Settings nutrition editor | |
+| [#172](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/172) | ⬜ Open | Add search/filter by note text or mood to History | |
+| [#163](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/163) | ⬜ Open | Add offline support via a service worker | Possible overlap with #102 — check before scoping |
+| [#162](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/162) | ⬜ Open | Add pagination/virtualization to History once data volume grows | Low priority per the issue itself — no known user near this data volume |
+| [#165](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/165) | ⬜ Open | Do a full contrast re-audit across all mood/color-scheme combinations | Audit task, not a code-first fix |
+| [#166](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/166) | ⬜ Open | Do a dedicated keyboard-navigation audit of the denser screens | Audit task, not a code-first fix |
+| [#160](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/160) | ⬜ Open | Decide whether CI should run on pull requests, not just push to main | Explicitly framed as a decision, not a routine build — confirm before implementing |
+| [#161](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/161) | ⬜ Open | Decide whether E2E/visual-regression testing is worth adding | Explicitly framed as a decision, not a routine build — confirm before implementing |
+| [#171](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/171) | ⬜ Open | Consider a gentle, opt-in "haven't logged today" reminder | Explicitly needs a product conversation on tone before scoping — confirm before implementing |
+
+---
+
 ## Private (no public GitHub issue, by request)
 
 _Filed and built without a public issue at the user's explicit request — the repo is public, and this one's more personal than the rest. Still documented normally here per the project's usual close-out process; see [[feedback_issue_first]]'s exception #2 in memory for why._
