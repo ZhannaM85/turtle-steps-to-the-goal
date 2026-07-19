@@ -1,4 +1,5 @@
 export { TodayScreen } from './TodayScreen'
 export { DailyEntryForm } from './DailyEntryForm'
 export { MealList } from './MealList'
+export { MealEditScreen } from './MealEditScreen'
 export { EmotionPicker } from './EmotionPicker'

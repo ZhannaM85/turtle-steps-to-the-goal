@@ -1,9 +1,19 @@
-import { render, screen } from '@testing-library/react'
+import { render as rtlRender, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import type { ReactElement } from 'react'
+import { MemoryRouter } from 'react-router-dom'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { DailyEntry } from '@/domain/dailyEntry'
 import { useCycleTrackingStore, useDigestionTrackingStore } from '@/stores'
 import { DayDetail } from './DayDetail'
+
+// MemoryRouter (#157) — MealList (mounted whenever onSaved is provided)
+// now calls useNavigate() for its meal-pencil navigation, which throws
+// outside a Router context. Shadowing `render` here instead of touching
+// every one of this file's many call sites individually.
+function render(ui: ReactElement) {
+  return rtlRender(ui, { wrapper: MemoryRouter })
+}
 
 beforeEach(() => {
   useCycleTrackingStore.setState({ enabled: false })
@@ -192,7 +202,7 @@ describe('DayDetail', () => {
       ).not.toBeInTheDocument()
     })
 
-    it('lets a meal be edited directly, without pulling in Weight/Sleep/Steps/Note', async () => {
+    it("a meal's pencil navigates to the dedicated edit route, without pulling in Weight/Sleep/Steps/Note (#157)", async () => {
       const user = userEvent.setup()
       const onSaved = vi.fn()
       render(
@@ -213,16 +223,14 @@ describe('DayDetail', () => {
       expect(screen.queryByLabelText('Weight (kg)')).not.toBeInTheDocument()
 
       await user.click(screen.getByRole('button', { name: 'Edit meal 1' }))
-      await user.type(
-        screen.getByLabelText('Meal name — Meal 1'),
-        'Post-workout',
-      )
-      await user.click(screen.getByRole('button', { name: 'Save' }))
 
-      expect(onSaved).toHaveBeenCalledTimes(1)
-      const saved = onSaved.mock.calls[0][0] as DailyEntry
-      expect(saved.calorieEntries?.[0].label).toBe('Post-workout')
-      expect(saved.weightKg).toBe(80)
+      // No inline edit UI opens — the pencil navigates to
+      // /entry/:date/meal/:mealId instead (exhaustive edit/save coverage
+      // now lives in MealEditScreen.test.tsx).
+      expect(
+        screen.queryByLabelText('Meal name — Meal 1'),
+      ).not.toBeInTheDocument()
+      expect(onSaved).not.toHaveBeenCalled()
     })
 
     it('offers the add-row so a new meal can be logged directly here', () => {

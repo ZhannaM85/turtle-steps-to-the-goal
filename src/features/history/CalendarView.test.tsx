@@ -1,19 +1,25 @@
 import { format } from 'date-fns'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { MemoryRouter } from 'react-router-dom'
 import { describe, expect, it, vi } from 'vitest'
 import type { DailyEntry } from '@/domain/dailyEntry'
 import { useCycleTrackingStore, useDigestionTrackingStore } from '@/stores'
 import { CalendarView, type CalendarViewProps } from './CalendarView'
 
 function renderCalendar(props: Partial<CalendarViewProps> = {}) {
+  // MemoryRouter (#157) — MealList (mounted via DayDetail's day panel)
+  // now calls useNavigate() for its meal-pencil navigation, which throws
+  // outside a Router context.
   return render(
-    <CalendarView
-      entries={[]}
-      onEditDay={vi.fn()}
-      onSaved={vi.fn()}
-      {...props}
-    />,
+    <MemoryRouter>
+      <CalendarView
+        entries={[]}
+        onEditDay={vi.fn()}
+        onSaved={vi.fn()}
+        {...props}
+      />
+    </MemoryRouter>,
   )
 }
 

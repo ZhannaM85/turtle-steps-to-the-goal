@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import {
   DndContext,
   KeyboardSensor,
@@ -17,6 +17,7 @@ import {
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { Clock, GripVertical, Pencil, Trash2, X } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
 import { foods } from '@/data/foods'
 import type { CalorieEntry, CalorieItem, MealEmotion } from '@/domain/dailyEntry'
 import {
@@ -693,6 +694,22 @@ export interface MealListProps {
    * fresh `DailyEntry` and calls its own `onSaved`. `MealList` itself has
    * no idea which. */
   onChange: (next: CalorieEntry[]) => void
+  /** This day's date (#157) — needed to build the dedicated single-meal
+   * edit route's URL (`/entry/:date/meal/:mealId`) when a meal's pencil
+   * is clicked. */
+  date: string
+  /** Set only by `MealEditScreen` (#157) — when present, this meal's edit
+   * mode opens automatically on mount, the "add a new meal" bottom row is
+   * hidden entirely, and `onFocusedMealDone` fires once editing ends
+   * (save, cancel, or delete) so the screen can navigate back. Absent
+   * (undefined) for every normal Today/History mount — clicking a meal's
+   * pencil there navigates to `/entry/:date/meal/:mealId` instead of
+   * opening inline edit mode directly (#157 replaced the #145 inline
+   * behavior; the *editing itself* still runs through this exact same
+   * `isEditing` branch, just always reached via the dedicated route now,
+   * never via a direct click-to-expand). */
+  focusMealId?: string
+  onFocusedMealDone?: () => void
 }
 
 /**
@@ -707,9 +724,16 @@ export interface MealListProps {
  * Owns all of its own local edit/add-row state — nothing here is
  * react-hook-form, so there's no dependency on a parent form instance.
  */
-export function MealList({ calorieEntries, onChange }: MealListProps) {
+export function MealList({
+  calorieEntries,
+  onChange,
+  date,
+  focusMealId,
+  onFocusedMealDone,
+}: MealListProps) {
   const t = useTranslation()
   const locale = useLocale()
+  const navigate = useNavigate()
 
   function setCalorieEntries(next: CalorieEntry[]) {
     onChange(next)
@@ -754,16 +778,37 @@ export function MealList({ calorieEntries, onChange }: MealListProps) {
   // never clears the underlying add-* state, so a half-filled draft
   // survives reopening.
   const [isAddItemSheetOpen, setIsAddItemSheetOpen] = useState(false)
-  const [editingMealId, setEditingMealId] = useState<string | null>(null)
+  // Dedicated single-meal edit route support (#157) — computed
+  // unconditionally on every render (a cheap array find), but only its
+  // *first* result ever matters: each lazy useState initializer below
+  // reads it to pre-open focusMealId's edit mode on mount, exactly as if
+  // its pencil had just been clicked. Lazy initializers rather than a
+  // mount effect calling startEditMeal — setState calls directly inside
+  // an effect body are flagged by the React Compiler's lint rule, and
+  // this is what useState's own lazy-init form exists for.
+  const focusedMealForInit = focusMealId
+    ? calorieEntries.find((entry) => entry.id === focusMealId)
+    : undefined
+  const [editingMealId, setEditingMealId] = useState<string | null>(
+    () => focusedMealForInit?.id ?? null,
+  )
   // One draft per item in the group being edited (#81) — see EditItemDraft.
-  const [editItems, setEditItems] = useState<EditItemDraft[]>([])
+  const [editItems, setEditItems] = useState<EditItemDraft[]>(() =>
+    focusedMealForInit ? focusedMealForInit.items.map(itemDraftFrom) : [],
+  )
   // Which editItems draft (by id) has its full-screen editor sheet open
   // (#122) — null when none. Reset on save/delete so it can't dangle
   // pointing at a draft that no longer exists.
   const [openEditItemId, setOpenEditItemId] = useState<string | null>(null)
-  const [editGroupLabel, setEditGroupLabel] = useState('')
-  const [editGroupTime, setEditGroupTime] = useState('')
-  const [editGroupNote, setEditGroupNote] = useState('')
+  const [editGroupLabel, setEditGroupLabel] = useState(
+    () => focusedMealForInit?.label ?? '',
+  )
+  const [editGroupTime, setEditGroupTime] = useState(
+    () => focusedMealForInit?.timeEaten ?? '',
+  )
+  const [editGroupNote, setEditGroupNote] = useState(
+    () => focusedMealForInit?.note ?? '',
+  )
   const [confirmDeleteMealId, setConfirmDeleteMealId] = useState<string | null>(
     null,
   )
@@ -783,6 +828,22 @@ export function MealList({ calorieEntries, onChange }: MealListProps) {
     loadMealItems()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  // Fires onFocusedMealDone once editing the focused meal actually ends —
+  // save, cancel, or delete all funnel through the same setEditingMealId
+  // (null) call, so this only needs to watch that one piece of state
+  // rather than wrapping three separate handlers.
+  const hasOpenedFocusedMeal = useRef(false)
+  useEffect(() => {
+    if (!focusMealId) return
+    if (editingMealId === focusMealId) {
+      hasOpenedFocusedMeal.current = true
+      return
+    }
+    if (hasOpenedFocusedMeal.current && editingMealId === null) {
+      onFocusedMealDone?.()
+    }
+  }, [editingMealId, focusMealId, onFocusedMealDone])
 
   // Starts a brand-new meal group with one item (#81) — the bottom Add row
   // always creates a new group; adding another item to an *existing* group
@@ -984,20 +1045,14 @@ export function MealList({ calorieEntries, onChange }: MealListProps) {
     ])
   }
 
-  function startEditMeal(entry: CalorieEntry) {
-    setEditingMealId(entry.id)
-    setEditItems(entry.items.map(itemDraftFrom))
-    setEditGroupLabel(entry.label ?? '')
-    setEditGroupTime(entry.timeEaten ?? '')
-    setEditGroupNote(entry.note ?? '')
-  }
-
   // #169 — before this, Save (or Delete) was the only way out of edit
   // mode; an accidental pencil tap or a change of mind had no way back
   // without committing or destroying something. editItems/editGroup* are
-  // just local staging state, overwritten fresh by startEditMeal next
-  // time this meal is opened, so discarding them here needs nothing but
-  // closing the edit state itself.
+  // just local staging state — discarding them here needs nothing but
+  // closing the edit state itself (#157: there's no longer a re-entry
+  // path into edit mode within the same mount to worry about restaging
+  // for, since it's only ever opened once, via focusMealId's lazy
+  // useState initializers on mount).
   function cancelEditMeal() {
     setEditingMealId(null)
     setOpenEditItemId(null)
@@ -1282,7 +1337,14 @@ export function MealList({ calorieEntries, onChange }: MealListProps) {
                   onEditLabelChange={setEditGroupLabel}
                   onEditTimeChange={setEditGroupTime}
                   onEditNoteChange={setEditGroupNote}
-                  onStartEdit={() => startEditMeal(entry)}
+                  // #157: navigates to the dedicated single-meal edit
+                  // route instead of opening inline edit mode directly —
+                  // only reachable from the view-mode branch, which never
+                  // renders while focusMealId is already open in edit
+                  // mode, so this can't fire during a focused mount.
+                  onStartEdit={() =>
+                    navigate(`/entry/${date}/meal/${entry.id}`)
+                  }
                   onSaveEdit={saveEditMeal}
                   onCancelEdit={cancelEditMeal}
                   onRequestDelete={() => setConfirmDeleteMealId(entry.id)}
@@ -1298,6 +1360,10 @@ export function MealList({ calorieEntries, onChange }: MealListProps) {
         </DndContext>
       )}
 
+      {/* Hidden entirely in the dedicated single-meal edit route (#157) —
+       * that screen is meant to focus on the one meal it opened for, not
+       * also offer to start a completely different one. */}
+      {!focusMealId && (
       <div
         // Card treatment (#143), same as every other meal group's <li>
         // above — its own visible boundary now does the job the old
@@ -1461,6 +1527,7 @@ export function MealList({ calorieEntries, onChange }: MealListProps) {
           />
         )}
       </div>
+      )}
     </div>
   )
 }

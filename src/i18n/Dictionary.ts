@@ -102,6 +102,15 @@ export interface Dictionary {
     cancelEditMealLabel: (n: number) => string
     deleteMealLabel: (n: number) => string
     reorderMealLabel: (n: number) => string
+    /** Dedicated single-meal edit route (#157) — replaces #145's inline
+     * expand-in-place; a meal's pencil on Today/History now navigates
+     * here instead. */
+    editMealScreenTitle: string
+    backLabel: string
+    /** Shown only if the route's mealId no longer matches anything in that
+     * day's entry (a stale link, or the meal was deleted elsewhere in the
+     * meantime) — should be rare in normal use. */
+    mealNotFoundText: string
     /** Custom meal name field (#110) — aria-label composed with mealLabel(n),
      * same pattern as itemNameLabel etc. */
     mealLabelFieldLabel: string

@@ -514,6 +514,7 @@ export function DailyEntryForm({
          * edit/add/delete meals without needing this whole form. */}
         <MealList
           calorieEntries={calorieEntries}
+          date={date}
           onChange={(next) => {
             setValue('calorieEntries', next, { shouldDirty: true })
             persist({ ...getValues(), calorieEntries: next })

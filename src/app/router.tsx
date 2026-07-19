@@ -9,6 +9,7 @@ import {
   FoodListSettingsScreen,
   GoalScreen,
   HistoryScreen,
+  MealEditScreen,
   SettingsScreen,
 } from './lazyRoutes'
 
@@ -25,6 +26,9 @@ export const routes: RouteObject[] = [
       { path: '/dashboard', element: <DashboardScreen /> },
       { path: '/history', element: <HistoryScreen /> },
       { path: '/goal', element: <GoalScreen /> },
+      // #157: dedicated single-meal edit route, replacing #145's inline
+      // expand-in-place — reached from a meal's pencil on Today/History.
+      { path: '/entry/:date/meal/:mealId', element: <MealEditScreen /> },
       // #24: Export folded into Settings; redirect for anyone with the old
       // tab bookmarked rather than a dead link.
       { path: '/export', element: <Navigate to="/settings" replace /> },

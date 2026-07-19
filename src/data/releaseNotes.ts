@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 169,
+    issue: 157,
+    date: '2026-07-19T20:30:00+03:00',
+    en: 'Editing a meal now opens its own dedicated screen instead of expanding in place on Today or History.',
+    ru: 'Редактирование приёма пищи теперь открывает отдельный экран вместо разворачивания на месте в разделах "Сегодня" или "История".',
+  },
+  {
     version: 168,
     issue: 171,
     date: '2026-07-19T19:20:00+03:00',

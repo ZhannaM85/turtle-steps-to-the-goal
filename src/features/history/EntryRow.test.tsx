@@ -1,5 +1,6 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { MemoryRouter } from 'react-router-dom'
 import { describe, expect, it, vi } from 'vitest'
 import type { DailyEntry } from '@/domain/dailyEntry'
 import { EntryRow } from './EntryRow'
@@ -24,17 +25,22 @@ function makeEntry(overrides: Partial<DailyEntry> = {}): DailyEntry {
 }
 
 function renderRow(props: Partial<Parameters<typeof EntryRow>[0]> = {}) {
+  // MemoryRouter (#157) — MealList (mounted here via DailyEntryForm's
+  // alwaysEditable edit mode) now calls useNavigate() for its meal-pencil
+  // navigation, which throws outside a Router context.
   return render(
-    <table>
-      <tbody>
-        <EntryRow
-          entry={makeEntry()}
-          onSaved={vi.fn()}
-          onDeleted={vi.fn()}
-          {...props}
-        />
-      </tbody>
-    </table>,
+    <MemoryRouter>
+      <table>
+        <tbody>
+          <EntryRow
+            entry={makeEntry()}
+            onSaved={vi.fn()}
+            onDeleted={vi.fn()}
+            {...props}
+          />
+        </tbody>
+      </table>
+    </MemoryRouter>,
   )
 }
 
@@ -193,7 +199,7 @@ describe('EntryRow', () => {
       ).toBeInTheDocument()
     })
 
-    it('edits a meal directly from the expanded panel, without opening "Edit entry" (#145)', async () => {
+    it('a meal\'s pencil in the expanded panel navigates to the dedicated edit route, without opening "Edit entry" (#145, #157)', async () => {
       const user = userEvent.setup()
       const onSaved = vi.fn()
       renderRow({
@@ -211,15 +217,16 @@ describe('EntryRow', () => {
 
       await user.click(screen.getByRole('button', { name: 'View details' }))
       await user.click(screen.getByRole('button', { name: 'Edit meal 1' }))
-      await user.type(screen.getByLabelText('Meal name — Meal 1'), 'Brunch')
-      await user.click(screen.getByRole('button', { name: 'Save' }))
 
-      expect(onSaved).toHaveBeenCalledTimes(1)
-      const saved = onSaved.mock.calls[0][0] as DailyEntry
-      expect(saved.calorieEntries?.[0].label).toBe('Brunch')
-      // Confirms the day-level fields were never pulled into edit mode —
-      // only calorieEntries changed on the saved entry.
-      expect(saved.weightKg).toBe(80)
+      // No inline edit UI opens — the pencil navigates to
+      // /entry/:date/meal/:mealId instead (exhaustive edit/save coverage
+      // now lives in MealEditScreen.test.tsx). Also confirms "Edit entry"
+      // day-level mode never opened.
+      expect(
+        screen.queryByLabelText('Meal name — Meal 1'),
+      ).not.toBeInTheDocument()
+      expect(screen.queryByLabelText('Weight (kg)')).not.toBeInTheDocument()
+      expect(onSaved).not.toHaveBeenCalled()
     })
 
     it('collapses again on a second click', async () => {

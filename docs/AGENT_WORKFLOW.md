@@ -120,6 +120,8 @@ and #144's precedent in `docs/issues-priority.md`).
   - Redirects: `cmd > file 2>&1`, heredocs (`<<'EOF'`)
   - Piping: `cmd | tail`, `cmd | grep ...`
   - Command substitution: `$(cmd)`, backticks
+  - Inline env-var prefixes: `VAR=value cmd` — the string no longer starts
+    with the allowlisted program name, same failure mode as `cd X && cmd`.
   - **Shell loop constructs: `until ... do ... done`, `while ... do
     ... done`, `for ... do ... done`** — including a `sleep N` inside the
     loop body to poll something. This one is easy to reach for when

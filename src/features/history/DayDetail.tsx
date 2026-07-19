@@ -190,6 +190,7 @@ export function DayDetail({
       {onSaved ? (
         <MealList
           calorieEntries={meals}
+          date={entry.date}
           onChange={(next) =>
             onSaved({
               ...entry,
