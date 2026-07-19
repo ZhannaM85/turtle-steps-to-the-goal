@@ -289,6 +289,21 @@ _Live-use feedback flagged two visual-consistency bugs (#126, #127) and a featur
 
 ---
 
+## Tier 18 — Ninth live-feedback wave (2026-07-19)
+_Same pattern as Tiers 8–17: issues filed from continued live use. Ordered easiest → hardest per the user's explicit request; #155 depends on #154 landing first, and #155 itself has an open design question flagged in its own issue body._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#151](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/151) | ⬜ Open | Add a clear (X) button to the meal-name input | |
+| [#150](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/150) | ⬜ Open | Bug: standard catalog foods leak into the personal meal dictionary via meal-edit save | Root cause pinned down at filing time: `saveEditMeal()`'s touch loop (`MealList.tsx:1121-1130`) doesn't distinguish free-typed names from names picked via `FoodPickerDialog` from the curated `src/data/foods.ts` catalog |
+| [#149](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/149) | ⬜ Open | Add a way to create a custom dictionary entry from Settings, not just via logging a meal | Confirmed at filing time as small/contained — `mealItems` table has no FK to daily logs, `mealItemStore.touch()` already works as a day-independent create-or-update primitive |
+| [#152](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/152) | ⬜ Open | Give the day's total macros their own field on Today, not a caption line | |
+| [#153](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/153) | ⬜ Open | Reorder/resize the add-item CTAs: Find food first and primary, + Add item as fallback link | |
+| [#154](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/154) | ⬜ Open | Bug: past-targets goal history shows nothing after a confirmed goal replacement | Undiagnosed at filing time — static review of `pastGoals()`/`usePastGoals`/`PastTargetsList` ruled out the obvious causes (old goal records aren't deleted on replace); needs live debugging |
+| [#155](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/155) | ⬜ Open | Show when a weekly goal was reached on History (List + Calendar) | Depends on #154. Open design question flagged in the issue: how to mark a 7-day goal window's outcome on per-day List rows / Calendar cells |
+
+---
+
 ## Private (no public GitHub issue, by request)
 
 _Filed and built without a public issue at the user's explicit request — the repo is public, and this one's more personal than the rest. Still documented normally here per the project's usual close-out process; see [[feedback_issue_first]]'s exception #2 in memory for why._
