@@ -334,6 +334,7 @@ _`docs/potential-improvements.md`'s 2026-07-17 survey converted to issues, once 
 | [#160](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/160) | ⬜ Open | Decide whether CI should run on pull requests, not just push to main | Explicitly framed as a decision, not a routine build — confirm before implementing |
 | [#161](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/161) | ⬜ Open | Decide whether E2E/visual-regression testing is worth adding | Explicitly framed as a decision, not a routine build — confirm before implementing |
 | [#171](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/171) | ⬜ Open | Consider a gentle, opt-in "haven't logged today" reminder | Explicitly needs a product conversation on tone before scoping — confirm before implementing |
+| [#173](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/173) | ⬜ Open | Empty space on the right returns in view mode after editing portion count and saving | Filed per explicit instruction, not yet investigated — reproduces in both Safari and the web app (unlike #156, which was web-app-only), so likely a distinct cause despite the same visual symptom. To be debugged jointly with the reporter, not solo |
 
 ---
 
