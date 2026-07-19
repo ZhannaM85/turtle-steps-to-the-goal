@@ -39,6 +39,6 @@ Deploys automatically to GitHub Pages on push to `main` (`.github/workflows/depl
 
 ## More
 
-- `docs/ARCHITECTURE.md` — how the codebase is structured and why.
-- `docs/issues-priority.md` — the work queue, in order.
-- `PROJECT_BRIEF.md` — the original product brief.
+- [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) — how the codebase is structured and why.
+- [`docs/issues-priority.md`](docs/issues-priority.md) — the work queue, in order.
+- [`PROJECT_BRIEF.md`](PROJECT_BRIEF.md) — the original product brief.
