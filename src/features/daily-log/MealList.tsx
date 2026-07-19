@@ -273,9 +273,11 @@ function MealListItem({
         style={style}
         // #143: card treatment (bg-card/ring), matching the app's existing
         // StatCard look — was a plain bg-muted/40 tint before.
-        className="flex flex-col gap-2 rounded-xl bg-card p-3 ring-1 ring-foreground/10"
+        // TEMP DEBUG (#156 follow-up) — bright outline so the card's real
+        // boundary is unambiguous in a screenshot, remove once diagnosed.
+        className="flex flex-col gap-2 rounded-xl bg-card p-3 ring-1 ring-foreground/10 outline outline-2 outline-red-500"
       >
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 outline outline-2 outline-blue-500">
           {/* Custom meal name (#110) — free text, defaulting to the
            * positional default name (#141: Breakfast/Lunch/Dinner/Snack,
            * "Meal N" from the 5th meal on) as the placeholder when left
@@ -365,7 +367,8 @@ function MealListItem({
             return (
               <li
                 key={item.id}
-                className="flex items-center gap-3 rounded-md bg-card px-2 py-1"
+                // TEMP DEBUG (#156 follow-up) — remove once diagnosed.
+                className="flex items-center gap-3 rounded-md bg-card px-2 py-1 outline outline-2 outline-purple-500"
               >
                 {/* min-w-0 (found live, correlated with longer dish names):
                  * a flex item's default min-width is `auto`, which refuses
@@ -567,7 +570,8 @@ function MealListItem({
       // StatCard look ("This week's target"/"vs. yesterday") — was a plain
       // list row with no background/border before.
       className={cn(
-        'flex flex-col gap-1.5 rounded-xl bg-card p-3 ring-1 ring-foreground/10',
+        // TEMP DEBUG (#156 follow-up) — bright outline, remove once diagnosed.
+        'flex flex-col gap-1.5 rounded-xl bg-card p-3 ring-1 ring-foreground/10 outline outline-2 outline-green-500',
         isDragging && 'opacity-50',
       )}
     >

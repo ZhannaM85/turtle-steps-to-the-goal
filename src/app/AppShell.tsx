@@ -1,4 +1,4 @@
-import { Suspense } from 'react'
+import { Suspense, useEffect, useState } from 'react'
 import { NavLink, Outlet } from 'react-router-dom'
 import {
   Heart,
@@ -32,6 +32,32 @@ function useNavItems(t: Dictionary): {
   ]
 }
 
+// TEMP DEBUG (#156 follow-up) — live width readout so a real-device
+// screenshot carries hard numbers, not just visual impressions. Remove
+// once diagnosed.
+function DebugWidthBadge() {
+  const [info, setInfo] = useState('')
+  useEffect(() => {
+    function update() {
+      setInfo(
+        `vw=${window.innerWidth} scrollW=${document.documentElement.scrollWidth} dpr=${window.devicePixelRatio}`,
+      )
+    }
+    update()
+    window.addEventListener('resize', update)
+    const interval = setInterval(update, 500)
+    return () => {
+      window.removeEventListener('resize', update)
+      clearInterval(interval)
+    }
+  }, [])
+  return (
+    <div className="fixed top-0 left-0 z-50 bg-red-600 px-2 py-1 text-xs font-bold text-white">
+      {info}
+    </div>
+  )
+}
+
 export function AppShell() {
   const t = useTranslation()
   const navItems = useNavItems(t)
@@ -46,6 +72,7 @@ export function AppShell() {
 
   return (
     <div className="min-h-svh bg-background">
+      <DebugWidthBadge />
       <PullToRefreshIndicator />
       <AppUpdateBanner />
       <header className="sticky top-0 z-10 border-b border-border bg-background">
@@ -76,7 +103,9 @@ export function AppShell() {
         </div>
       </header>
 
-      <main className="mx-auto max-w-3xl px-4 py-6 pb-32 sm:pb-10">
+      {/* TEMP DEBUG (#156 follow-up) — bright outline on the page's own
+       * content container, remove once diagnosed. */}
+      <main className="mx-auto max-w-3xl px-4 py-6 pb-32 outline outline-4 outline-orange-500 sm:pb-10">
         {/* #102: every non-Today route is now lazy-loaded (see router.tsx)
          * — this single boundary covers all of them, so a route doesn't
          * need its own Suspense wiring. */}
