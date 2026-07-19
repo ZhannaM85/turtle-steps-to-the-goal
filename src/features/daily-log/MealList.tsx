@@ -157,6 +157,7 @@ interface MealListItemProps {
   onEditNoteChange: (value: string) => void
   onStartEdit: () => void
   onSaveEdit: () => void
+  onCancelEdit: () => void
   onRequestDelete: () => void
   onConfirmDelete: () => void
   onCancelDelete: () => void
@@ -200,6 +201,7 @@ function MealListItem({
   onEditNoteChange,
   onStartEdit,
   onSaveEdit,
+  onCancelEdit,
   onRequestDelete,
   onConfirmDelete,
   onCancelDelete,
@@ -299,6 +301,18 @@ function MealListItem({
             }}
             className="h-7 flex-1"
           />
+          {/* #169 — Save/Delete used to be the only ways out of edit mode;
+           * an accidental pencil tap or a change of mind had no way back
+           * without committing or destroying something. */}
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon-sm"
+            aria-label={t.dailyEntry.cancelEditMealLabel(position)}
+            onClick={onCancelEdit}
+          >
+            <X aria-hidden="true" />
+          </Button>
           <Button
             type="button"
             variant="ghost"
@@ -978,6 +992,17 @@ export function MealList({ calorieEntries, onChange }: MealListProps) {
     setEditGroupNote(entry.note ?? '')
   }
 
+  // #169 — before this, Save (or Delete) was the only way out of edit
+  // mode; an accidental pencil tap or a change of mind had no way back
+  // without committing or destroying something. editItems/editGroup* are
+  // just local staging state, overwritten fresh by startEditMeal next
+  // time this meal is opened, so discarding them here needs nothing but
+  // closing the edit state itself.
+  function cancelEditMeal() {
+    setEditingMealId(null)
+    setOpenEditItemId(null)
+  }
+
   function updateEditItemField(
     id: string,
     field: 'name' | 'amount' | 'protein' | 'fat' | 'carbs' | 'amountG',
@@ -1259,6 +1284,7 @@ export function MealList({ calorieEntries, onChange }: MealListProps) {
                   onEditNoteChange={setEditGroupNote}
                   onStartEdit={() => startEditMeal(entry)}
                   onSaveEdit={saveEditMeal}
+                  onCancelEdit={cancelEditMeal}
                   onRequestDelete={() => setConfirmDeleteMealId(entry.id)}
                   onConfirmDelete={confirmDeleteMeal}
                   onCancelDelete={() => setConfirmDeleteMealId(null)}

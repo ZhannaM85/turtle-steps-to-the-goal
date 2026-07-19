@@ -320,8 +320,8 @@ _`docs/potential-improvements.md`'s 2026-07-17 survey converted to issues, once 
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#168](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/168) | ⬜ Open | Macros field has a different height/width than Calories | Self-filed live — the #156-follow-up `self-start` fix moved the Macros box away from #152's original "match Calories/Weight/Sleep" intent |
-| [#169](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/169) | ⬜ Open | No way to cancel out of meal edit mode without saving or deleting | Self-filed live — worth checking whether #158 made this more apparent, not whether it caused it |
+| [#168](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/168) | ✅ Done | Macros field has a different height/width than Calories | Reverted `self-start`, gave it the same full-width `h-12 items-center` treatment Weight's box uses |
+| [#169](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/169) | ✅ Done | No way to cancel out of meal edit mode without saving or deleting | New `cancelEditMeal()` + ghost `X` button in the edit header, next to Delete |
 | [#159](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/159) | ⬜ Open | CI: run tests and lint before deploying, not just typecheck | |
 | [#164](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/164) | ⬜ Open | Add a "clear all my data" reset feature to Settings | |
 | [#167](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/167) | ⬜ Open | Extend the correlation-chart pattern to sleep and steps | |

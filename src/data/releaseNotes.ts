@@ -19,6 +19,18 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    issue: 169,
+    date: '2026-07-19T14:02:47+03:00',
+    en: 'You can now cancel out of editing a meal without saving or deleting it.',
+    ru: 'Теперь можно отменить редактирование приёма пищи, не сохраняя и не удаляя его.',
+  },
+  {
+    issue: 168,
+    date: '2026-07-19T14:02:47+03:00',
+    en: "Fixed the Macros field on Today looking a different size than the Calories field above it.",
+    ru: 'Исправлено: поле "БЖУ" на экране "Сегодня" выглядело другого размера, чем поле "Калории" над ним.',
+  },
+  {
     issue: 156,
     date: '2026-07-19T13:33:11+03:00',
     en: "Fixed a layout bug (installed home-screen app only) where editing a meal, especially one with a long dish name or a reaction emoji, could leave empty space or overlapping text on screen.",

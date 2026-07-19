@@ -92,6 +92,10 @@ export interface Dictionary {
     saveNoteLabel: string
     mealLabel: (n: number) => string
     editMealLabel: (n: number) => string
+    /** Exits edit mode without saving or deleting (#169) — before this,
+     * Save/Delete were the only ways out of an accidentally-opened or
+     * changed-mind edit state. */
+    cancelEditMealLabel: (n: number) => string
     deleteMealLabel: (n: number) => string
     reorderMealLabel: (n: number) => string
     /** Custom meal name field (#110) — aria-label composed with mealLabel(n),

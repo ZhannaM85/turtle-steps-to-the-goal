@@ -488,20 +488,20 @@ export function DailyEntryForm({
 
         {/* Own field (#152) — was a text-xs caption line tucked under the
          * Calories card; promoted to the same labeled-field treatment as
-         * Calories itself, just without the large number since it's three
-         * values, not one. */}
+         * Calories/Weight/Sleep use, just without a large number since it's
+         * three values, not one. #156 follow-up briefly shrank this to
+         * self-start/content-width to avoid empty bg-muted background past
+         * the short text, but that made it visibly inconsistent in height
+         * and width with every sibling field (#168) — Weight/Sleep already
+         * have short left-aligned text in a full-width h-12 box without
+         * reading as broken, so this now matches that same treatment
+         * instead of being the one exception. */}
         {dayMacrosSummary && (
           <div className="flex flex-col gap-1.5">
             <span className="text-sm font-medium">
               {t.dailyEntry.macrosLabel}
             </span>
-            {/* self-start (#156 follow-up): a flex-col child stretches to
-             * the parent's full width by default, so this box was showing
-             * a visibly empty stretch of bg-muted background past the
-             * short macros text — unlike Calories, this field never has a
-             * reason to be as wide as the card. Sized to its own content
-             * instead. */}
-            <div className="self-start rounded-lg bg-muted px-3 py-2">
+            <div className="flex h-12 items-center rounded-lg bg-muted px-3">
               <span className="text-sm text-foreground" aria-live="polite">
                 {dayMacrosSummary}
               </span>

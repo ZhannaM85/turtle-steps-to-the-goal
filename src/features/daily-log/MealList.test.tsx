@@ -56,6 +56,31 @@ describe('MealList', () => {
     expect(next[0].label).toBe('Brunch')
   })
 
+  it('cancels an edit without saving (#169)', async () => {
+    const user = userEvent.setup()
+    const onChange = vi.fn()
+    const calorieEntries: CalorieEntry[] = [
+      {
+        id: 'c1',
+        items: [{ id: 'i1', amountKcal: 300 }],
+        createdAt: '2026-01-01T00:00:00.000Z',
+      },
+    ]
+    render(<MealList calorieEntries={calorieEntries} onChange={onChange} />)
+
+    await user.click(screen.getByRole('button', { name: 'Edit meal 1' }))
+    await user.type(screen.getByLabelText('Meal name — Meal 1'), 'Brunch')
+    await user.click(
+      screen.getByRole('button', { name: 'Cancel editing meal 1' }),
+    )
+
+    expect(onChange).not.toHaveBeenCalled()
+    expect(
+      screen.getByRole('button', { name: 'Edit meal 1' }),
+    ).toBeInTheDocument()
+    expect(screen.queryByLabelText('Meal name — Meal 1')).not.toBeInTheDocument()
+  })
+
   it('deletes a meal via the two-step confirm and calls onChange', async () => {
     const user = userEvent.setup()
     const onChange = vi.fn()
