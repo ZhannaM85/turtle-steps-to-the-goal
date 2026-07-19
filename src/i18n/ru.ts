@@ -170,6 +170,7 @@ export const ru: Dictionary = {
     pastTargetsTitle: 'Прошлые цели',
     targetPerWeek: (target, unit) => `${target} ${unit}/неделю`,
     targetMetLabel: 'Цель достигнута',
+    targetMetOnLabel: (date) => `Цель достигнута ${date}`,
     targetMissedLabel: 'Цель не достигнута',
     targetNoDataLabel: 'Недостаточно данных',
   },

@@ -169,6 +169,7 @@ export const en: Dictionary = {
     pastTargetsTitle: 'Past targets',
     targetPerWeek: (target, unit) => `${target} ${unit}/week`,
     targetMetLabel: 'Target met',
+    targetMetOnLabel: (date) => `Target met on ${date}`,
     targetMissedLabel: 'Target not met',
     targetNoDataLabel: 'Not enough data to tell',
   },

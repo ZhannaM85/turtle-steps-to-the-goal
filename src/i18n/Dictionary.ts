@@ -207,6 +207,12 @@ export interface Dictionary {
     pastTargetsTitle: string
     targetPerWeek: (target: string, unit: string) => string
     targetMetLabel: string
+    /** Same "met" state as targetMetLabel, but naming the date it was
+     * first reached (#177) — used whenever progress.metOnDate is known,
+     * which is always the case once targetMet is true. targetMetLabel
+     * stays as a defensive fallback for the (should-never-happen) case
+     * where targetMet is true without a metOnDate. */
+    targetMetOnLabel: (date: string) => string
     targetMissedLabel: string
     targetNoDataLabel: string
   }

@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 163,
+    issue: 177,
+    date: '2026-07-19T17:35:00+03:00',
+    en: 'Fixed the past-targets list claiming a brand-new goal was already met from a single day of data, and it now shows the actual date each target was reached.',
+    ru: 'Исправлено: список прошлых целей мог показать только что поставленную цель как уже достигнутую по одному дню данных. Теперь также показывается дата, когда цель была реально достигнута.',
+  },
+  {
     version: 162,
     issue: 179,
     date: '2026-07-19T17:25:00+03:00',

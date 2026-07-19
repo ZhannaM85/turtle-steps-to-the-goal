@@ -38,9 +38,19 @@ export function PastTargetsList({ records }: PastTargetsListProps) {
       </h2>
       <ul className="flex flex-col gap-1.5">
         {records.map(({ goal, progress }) => {
+          // #177: name the day it was reached, not just a binary state —
+          // metOnDate is always set whenever targetMet is true (see
+          // goalWindowProgress.ts), targetMetLabel is a defensive fallback
+          // only.
           const statusLabel =
             progress?.targetMet === true
-              ? t.goal.targetMetLabel
+              ? progress.metOnDate
+                ? t.goal.targetMetOnLabel(
+                    format(parseISO(progress.metOnDate), 'MMM d', {
+                      locale: dateFnsLocale,
+                    }),
+                  )
+                : t.goal.targetMetLabel
               : progress?.targetMet === false
                 ? t.goal.targetMissedLabel
                 : t.goal.targetNoDataLabel

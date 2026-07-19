@@ -19,6 +19,7 @@ function makeRecord(overrides: Partial<PastGoalRecord> = {}): PastGoalRecord {
       priorAverageWeightKg: 90,
       deltaKg: -2,
       targetMet: true,
+      metOnDate: '2026-03-12',
     },
     ...overrides,
   }
@@ -38,7 +39,8 @@ describe('PastTargetsList', () => {
     // Negated (#178) — a loss, matching GoalScreen.tsx's/TodayScreen.tsx's
     // own StatCards ("-0.6 kg to lose").
     expect(screen.getByText('-1.0 kg/week')).toBeInTheDocument()
-    expect(screen.getByText('Target met')).toBeInTheDocument()
+    // #177: names the day it was reached, not just a binary "Target met".
+    expect(screen.getByText('Target met on Mar 12')).toBeInTheDocument()
   })
 
   it('labels a missed target', () => {
@@ -53,6 +55,7 @@ describe('PastTargetsList', () => {
               priorAverageWeightKg: 90,
               deltaKg: -0.5,
               targetMet: false,
+              metOnDate: null,
             },
           }),
         ]}

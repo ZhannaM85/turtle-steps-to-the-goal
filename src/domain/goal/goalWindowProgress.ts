@@ -4,6 +4,16 @@ import type { Goal } from './Goal'
 
 const DATE_FORMAT = 'yyyy-MM-dd'
 
+/** Require at least this many distinct days logged within the current
+ * window before targetMet can be assessed (#177) — a single day's
+ * weigh-in (e.g. the day a goal is set, weekStart itself) compared
+ * against the prior week's average is ordinary day-to-day fluctuation,
+ * not a real week of progress; reporting "target met" from that one
+ * data point read as physically impossible ("no time has passed").
+ * Same "don't draw a conclusion from too little data" reasoning as
+ * stats/*Correlation.ts's own MIN_COMPARABLE_DAYS gates. */
+const MIN_WINDOW_DAYS_LOGGED = 2
+
 /** The last day of the 7-day window `weekStart` anchors (#135) — a fixed
  * 7-day span from whenever the target was last saved, not a calendar
  * grid. */
@@ -24,9 +34,18 @@ export interface GoalWindowProgress {
   priorAverageWeightKg: number | null
   /** averageWeightKg - priorAverageWeightKg, null unless both exist. */
   deltaKg: number | null
-  /** Whether the actual loss (-deltaKg) met goal.targetWeeklyLossKg — null
-   * without enough data to compute deltaKg. */
+  /** Whether the window's running average has crossed goal.targetWeeklyLossKg
+   * at any point so far (mirrors metOnDate — true iff metOnDate is set) —
+   * null without at least MIN_WINDOW_DAYS_LOGGED days logged this window. */
   targetMet: boolean | null
+  /** The first date (within [weekStart, weekEnd]) the window's *running*
+   * average — recomputed day by day as entries accumulate, not just the
+   * final snapshot — first crossed goal.targetWeeklyLossKg (#177). Null if
+   * it never crossed, or there isn't yet enough data to tell. Stays set
+   * once found even if a later day's average dips back below target —
+   * matches useWeeklyGoalCelebration's existing "once met, stays met for
+   * this window" reasoning. */
+  metOnDate: string | null
 }
 
 function average(values: number[]): number | null {
@@ -68,8 +87,39 @@ export function goalWindowProgress(
     averageWeightKg !== null && priorAverageWeightKg !== null
       ? averageWeightKg - priorAverageWeightKg
       : null
+
+  // Recompute the average day by day as entries accumulate (#177), rather
+  // than only checking the final snapshot — finds *when* the target was
+  // first crossed, and doubles as the MIN_WINDOW_DAYS_LOGGED gate for
+  // targetMet below.
+  const windowEntriesSorted = entries
+    .filter(
+      (entry) =>
+        entry.date >= weekStart &&
+        entry.date <= weekEnd &&
+        entry.weightKg !== undefined,
+    )
+    .sort((a, b) => a.date.localeCompare(b.date))
+
+  let metOnDate: string | null = null
+  if (priorAverageWeightKg !== null) {
+    const runningWeights: number[] = []
+    for (const entry of windowEntriesSorted) {
+      runningWeights.push(entry.weightKg as number)
+      if (runningWeights.length < MIN_WINDOW_DAYS_LOGGED) continue
+      const runningAverage = average(runningWeights) as number
+      if (-(runningAverage - priorAverageWeightKg) >= goal.targetWeeklyLossKg) {
+        metOnDate = entry.date
+        break
+      }
+    }
+  }
+
   const targetMet =
-    deltaKg !== null ? -deltaKg >= goal.targetWeeklyLossKg : null
+    currentWeights.length >= MIN_WINDOW_DAYS_LOGGED &&
+    priorAverageWeightKg !== null
+      ? metOnDate !== null
+      : null
 
   return {
     weekStart,
@@ -78,5 +128,6 @@ export function goalWindowProgress(
     priorAverageWeightKg,
     deltaKg,
     targetMet,
+    metOnDate,
   }
 }

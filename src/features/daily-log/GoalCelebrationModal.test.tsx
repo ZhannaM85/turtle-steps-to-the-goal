@@ -1,7 +1,7 @@
 import 'fake-indexeddb/auto'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { format, subDays } from 'date-fns'
+import { addDays, format, subDays } from 'date-fns'
 import { MemoryRouter } from 'react-router-dom'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import type { DailyEntry } from '@/domain/dailyEntry'
@@ -42,10 +42,17 @@ function makeEntry(overrides: Partial<DailyEntry> = {}): DailyEntry {
 }
 
 /** Seeds a prior-window average of 82kg and a current-window average of
- * 80kg — a 2kg loss against a 1kg target, so targetMet is true. */
+ * 80kg (two days logged, #177's minimum) — a 2kg loss against a 1kg
+ * target, so targetMet is true. */
 async function seedTargetMetWeeks() {
   await db.dailyEntries.put(makeEntry({ date: PRIOR_DAY, weightKg: 82 }))
   await db.dailyEntries.put(makeEntry({ date: WEEK_START, weightKg: 80 }))
+  await db.dailyEntries.put(
+    makeEntry({
+      date: format(addDays(new Date(), 1), DATE_FORMAT),
+      weightKg: 80,
+    }),
+  )
 }
 
 beforeEach(async () => {
