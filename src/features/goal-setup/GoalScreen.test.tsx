@@ -110,12 +110,18 @@ describe('GoalScreen', () => {
   })
 
   it('deletes a past target from history after confirming (#174)', async () => {
-    await useGoalStore
-      .getState()
-      .saveGoal(makeGoal({ weekStart: '2026-03-09' }))
-    await useGoalStore
-      .getState()
-      .saveGoal(makeGoal({ weekStart: '2026-03-16' }))
+    // Explicit, clearly-ordered createdAt (#174 CI flake) — both saves
+    // otherwise default to `new Date().toISOString()` back-to-back with
+    // nothing but an IndexedDB write between them, and a fast runner can
+    // give them the same millisecond. getActiveGoal()'s "most recent by
+    // createdAt" then becomes ambiguous, so pastGoals() can exclude the
+    // wrong goal and "Mar 9 – Mar 15" never renders at all.
+    await useGoalStore.getState().saveGoal(
+      makeGoal({ weekStart: '2026-03-09', createdAt: '2026-03-09T00:00:00.000Z' }),
+    )
+    await useGoalStore.getState().saveGoal(
+      makeGoal({ weekStart: '2026-03-16', createdAt: '2026-03-16T00:00:00.000Z' }),
+    )
     const user = userEvent.setup()
 
     render(<GoalScreen />)
