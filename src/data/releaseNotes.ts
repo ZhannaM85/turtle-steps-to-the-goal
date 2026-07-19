@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 168,
+    issue: 171,
+    date: '2026-07-19T19:20:00+03:00',
+    en: 'Added an optional daily reminder (off by default, in Settings) — a quiet note on Today if you haven’t logged anything yet.',
+    ru: 'Добавлено необязательное ежедневное напоминание (по умолчанию выключено, в Настройках) — спокойная заметка на экране "Сегодня", если вы ещё ничего не записали.',
+  },
+  {
     version: 167,
     issue: 162,
     date: '2026-07-19T19:05:00+03:00',

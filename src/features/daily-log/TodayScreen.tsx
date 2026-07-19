@@ -18,7 +18,12 @@ import { Input } from '@/shared/ui/input'
 import { Label } from '@/shared/ui/label'
 import { PageHeader } from '@/shared/ui/page-header'
 import { StatCard } from '@/shared/ui/stat-card'
-import { useDailyEntryStore, useGoalStore, useUnitStore } from '@/stores'
+import {
+  useDailyEntryStore,
+  useDailyReminderStore,
+  useGoalStore,
+  useUnitStore,
+} from '@/stores'
 import { DailyEntryForm } from './DailyEntryForm'
 import { GoalCelebrationModal } from './GoalCelebrationModal'
 
@@ -119,6 +124,16 @@ export function TodayScreen() {
     goal && goal.weekStart && todayIso() >= goalWeekEnd(goal.weekStart),
   )
 
+  // Opt-in, off by default (#171) — only while actually viewing today
+  // (not a past/future day pulled up via the date arrows) and only once
+  // loading has settled, so it doesn't flash on before entry is known.
+  const dailyReminderEnabled = useDailyReminderStore((state) => state.enabled)
+  const showDailyReminder =
+    dailyReminderEnabled &&
+    date === todayIso() &&
+    entryStatus === 'ready' &&
+    entry === null
+
   return (
     <div className="flex flex-col gap-6">
       <GoalCelebrationModal />
@@ -181,6 +196,12 @@ export function TodayScreen() {
           >
             {t.today.reviewGoalLink}
           </Link>
+        </div>
+      )}
+
+      {showDailyReminder && (
+        <div className="rounded-lg border border-border px-3 py-2 text-sm text-muted-foreground">
+          {t.today.dailyReminderText}
         </div>
       )}
 

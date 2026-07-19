@@ -49,6 +49,7 @@ export const en: Dictionary = {
     goalRenewalReminder:
       "This week's target is ready to renew — worth checking in on it.",
     reviewGoalLink: 'Review goal',
+    dailyReminderText: 'No entry yet today — whenever you’re ready.',
     vsYesterdayLabel: 'vs. yesterday',
     vsMaxWeightLabel: 'vs. highest weight',
     celebrationTitle: "You reached this week's goal!",
@@ -408,6 +409,11 @@ export const en: Dictionary = {
       'Optional — turns on a daily "bowel movement" toggle when viewing a day in History. Off by default.',
     digestionTrackingOn: 'On',
     digestionTrackingOff: 'Off',
+    dailyReminderLabel: 'Daily reminder',
+    dailyReminderDescription:
+      'Optional — shows a quiet note on Today if you haven’t logged anything yet. Off by default.',
+    dailyReminderOn: 'On',
+    dailyReminderOff: 'Off',
     weekStartLabel: 'Week start',
     weekStartDescription:
       'Which day each week begins on, used for "This week" and weekly summaries.',

@@ -50,6 +50,7 @@ export const ru: Dictionary = {
     goalRenewalReminder:
       'Цель на эту неделю пора обновить — стоит заглянуть и проверить.',
     reviewGoalLink: 'Посмотреть цель',
+    dailyReminderText: 'Сегодня пока нет записи — когда будете готовы.',
     vsYesterdayLabel: 'по сравнению со вчера',
     vsMaxWeightLabel: 'по сравнению с максимальным весом',
     celebrationTitle: 'Вы достигли цели на эту неделю!',
@@ -412,6 +413,11 @@ export const ru: Dictionary = {
       'Необязательно — включает переключатель «стул» при просмотре дня в разделе «История». По умолчанию выключено.',
     digestionTrackingOn: 'Вкл',
     digestionTrackingOff: 'Выкл',
+    dailyReminderLabel: 'Ежедневное напоминание',
+    dailyReminderDescription:
+      'Необязательно — показывает спокойную заметку на экране «Сегодня», если вы ещё ничего не записали. По умолчанию выключено.',
+    dailyReminderOn: 'Вкл',
+    dailyReminderOff: 'Выкл',
     weekStartLabel: 'Начало недели',
     weekStartDescription:
       'День, с которого начинается неделя — используется для «Эта неделя» и недельных сводок.',

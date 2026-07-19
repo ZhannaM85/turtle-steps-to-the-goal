@@ -5,6 +5,7 @@ import { MemoryRouter } from 'react-router-dom'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { useLocaleStore } from '@/i18n'
 import {
+  useDailyReminderStore,
   useDigestionTrackingStore,
   useThemeStore,
   useUnitStore,
@@ -23,6 +24,7 @@ beforeEach(() => {
   useUnitStore.setState({ unit: 'kg' })
   useWeekStartStore.setState({ weekStart: 'monday' })
   useDigestionTrackingStore.setState({ enabled: false })
+  useDailyReminderStore.setState({ enabled: false })
   document.documentElement.removeAttribute('data-mood')
   document.documentElement.classList.remove('dark')
 })
@@ -34,6 +36,7 @@ afterEach(() => {
   useUnitStore.setState({ unit: 'kg' })
   useWeekStartStore.setState({ weekStart: 'monday' })
   useDigestionTrackingStore.setState({ enabled: false })
+  useDailyReminderStore.setState({ enabled: false })
   document.documentElement.removeAttribute('data-mood')
   document.documentElement.classList.remove('dark')
 })
@@ -176,6 +179,25 @@ describe('SettingsScreen', () => {
     )
 
     expect(useDigestionTrackingStore.getState().enabled).toBe(true)
+  })
+
+  it('defaults the daily reminder to off, and switches it on when selected (#171)', async () => {
+    const user = userEvent.setup()
+    renderSettings()
+
+    expect(
+      within(
+        screen.getByRole('radiogroup', { name: 'Daily reminder' }),
+      ).getByRole('radio', { name: 'Off' }),
+    ).toBeChecked()
+
+    await user.click(
+      within(
+        screen.getByRole('radiogroup', { name: 'Daily reminder' }),
+      ).getByRole('radio', { name: 'On' }),
+    )
+
+    expect(useDailyReminderStore.getState().enabled).toBe(true)
   })
 
   it('includes the export/import section (folded in from the old Export tab, #24)', () => {

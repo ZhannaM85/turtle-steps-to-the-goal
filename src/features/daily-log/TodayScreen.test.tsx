@@ -7,7 +7,7 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import type { Goal } from '@/domain/goal'
 import type { DailyEntry } from '@/domain/dailyEntry'
 import { db } from '@/infrastructure/persistence/indexeddb'
-import { useDailyEntryStore, useGoalStore } from '@/stores'
+import { useDailyEntryStore, useDailyReminderStore, useGoalStore } from '@/stores'
 import { TodayScreen } from './TodayScreen'
 
 function makeGoal(overrides: Partial<Goal> = {}): Goal {
@@ -37,6 +37,7 @@ function makeEntry(overrides: Partial<DailyEntry> = {}): DailyEntry {
 beforeEach(async () => {
   await db.goals.clear()
   await db.dailyEntries.clear()
+  localStorage.clear()
   useGoalStore.setState({ goal: null, status: 'idle', error: null })
   useDailyEntryStore.setState({
     date: null,
@@ -44,11 +45,14 @@ beforeEach(async () => {
     status: 'idle',
     error: null,
   })
+  useDailyReminderStore.setState({ enabled: false })
 })
 
 afterEach(async () => {
   await db.goals.clear()
   await db.dailyEntries.clear()
+  localStorage.clear()
+  useDailyReminderStore.setState({ enabled: false })
 })
 
 describe('TodayScreen', () => {
@@ -279,6 +283,69 @@ describe('TodayScreen', () => {
 
       await screen.findByText('No goal set yet')
       expect(screen.queryByText(/ready to renew/)).not.toBeInTheDocument()
+    })
+  })
+
+  describe('daily reminder (#171)', () => {
+    const REMINDER_TEXT = 'No entry yet today'
+
+    it('does not show by default, even with nothing logged today', async () => {
+      render(
+        <MemoryRouter>
+          <TodayScreen />
+        </MemoryRouter>,
+      )
+
+      await screen.findByText('No goal set yet')
+      expect(screen.queryByText(REMINDER_TEXT, { exact: false })).not.toBeInTheDocument()
+    })
+
+    it('shows once enabled, when nothing has been logged today', async () => {
+      useDailyReminderStore.setState({ enabled: true })
+
+      render(
+        <MemoryRouter>
+          <TodayScreen />
+        </MemoryRouter>,
+      )
+
+      expect(
+        await screen.findByText(REMINDER_TEXT, { exact: false }),
+      ).toBeInTheDocument()
+    })
+
+    it('does not show once an entry exists for today', async () => {
+      useDailyReminderStore.setState({ enabled: true })
+      await db.dailyEntries.put(makeEntry())
+
+      render(
+        <MemoryRouter>
+          <TodayScreen />
+        </MemoryRouter>,
+      )
+
+      await screen.findByText('No goal set yet')
+      expect(
+        screen.queryByText(REMINDER_TEXT, { exact: false }),
+      ).not.toBeInTheDocument()
+    })
+
+    it('does not show while viewing a past day, even if enabled', async () => {
+      useDailyReminderStore.setState({ enabled: true })
+      const user = userEvent.setup()
+
+      render(
+        <MemoryRouter>
+          <TodayScreen />
+        </MemoryRouter>,
+      )
+      await screen.findByText(REMINDER_TEXT, { exact: false })
+
+      await user.click(screen.getByRole('button', { name: 'Previous day' }))
+
+      expect(
+        screen.queryByText(REMINDER_TEXT, { exact: false }),
+      ).not.toBeInTheDocument()
     })
   })
 

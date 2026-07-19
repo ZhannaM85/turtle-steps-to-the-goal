@@ -7,6 +7,7 @@ import {
 } from '@/i18n'
 import {
   useCycleTrackingStore,
+  useDailyReminderStore,
   useDigestionTrackingStore,
   useThemeStore,
   useUnitStore,
@@ -66,6 +67,10 @@ export function SettingsScreen() {
   )
   const weekStart = useWeekStartStore((state) => state.weekStart)
   const setWeekStart = useWeekStartStore((state) => state.setWeekStart)
+  const dailyReminderEnabled = useDailyReminderStore((state) => state.enabled)
+  const setDailyReminderEnabled = useDailyReminderStore(
+    (state) => state.setEnabled,
+  )
 
   return (
     <div className="flex flex-col gap-4">
@@ -228,6 +233,32 @@ export function SettingsScreen() {
             </ToggleGroupItem>
             <ToggleGroupItem value="on">
               {t.settings.digestionTrackingOn}
+            </ToggleGroupItem>
+          </ToggleGroup>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>{t.settings.dailyReminderLabel}</CardTitle>
+        </CardHeader>
+        <CardContent className="flex flex-col gap-1.5">
+          <span className="text-sm text-muted-foreground">
+            {t.settings.dailyReminderDescription}
+          </span>
+          <ToggleGroup
+            type="single"
+            aria-label={t.settings.dailyReminderLabel}
+            value={dailyReminderEnabled ? 'on' : 'off'}
+            onValueChange={(value) =>
+              value && setDailyReminderEnabled(value === 'on')
+            }
+          >
+            <ToggleGroupItem value="off">
+              {t.settings.dailyReminderOff}
+            </ToggleGroupItem>
+            <ToggleGroupItem value="on">
+              {t.settings.dailyReminderOn}
             </ToggleGroupItem>
           </ToggleGroup>
         </CardContent>

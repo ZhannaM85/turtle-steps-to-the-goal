@@ -49,6 +49,10 @@ export interface Dictionary {
     nextDayLabel: string
     goalRenewalReminder: string
     reviewGoalLink: string
+    /** Quiet, opt-in nudge (#171) — only shown when the Settings toggle is
+     * on and today has no entry yet. Same no-badges/no-streaks tone as
+     * goalRenewalReminder above, no dismiss state to persist. */
+    dailyReminderText: string
     vsYesterdayLabel: string
     vsMaxWeightLabel: string
     celebrationTitle: string
@@ -478,6 +482,13 @@ export interface Dictionary {
     digestionTrackingDescription: string
     digestionTrackingOn: string
     digestionTrackingOff: string
+    /** Opt-in "haven't logged today" reminder (#171) — off by default, same
+     * shape as cycle/digestion tracking. Deliberately just an in-app
+     * banner on Today, not a real push notification. */
+    dailyReminderLabel: string
+    dailyReminderDescription: string
+    dailyReminderOn: string
+    dailyReminderOff: string
     weekStartLabel: string
     weekStartDescription: string
     weekStartMonday: string
