@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { Check } from 'lucide-react'
 import { type FoodItem, foods } from '@/data/foods'
 import type { MealEmotion } from '@/domain/dailyEntry'
 import type { MealItem } from '@/domain/mealItem'
@@ -14,25 +15,31 @@ import { Dialog, DialogContent, DialogTitle } from '@/shared/ui/dialog'
 import { Input } from '@/shared/ui/input'
 import { EmotionPicker } from './EmotionPicker'
 
+export interface PickedFoodValues {
+  amountKcal: number
+  proteinG: number
+  fatG: number
+  carbsG: number
+  note: string
+  /** Quantity the totals were scaled from (#96) — lets the created item
+   * be edited later the same per-100g + quantity way a manually-entered
+   * one can. Undefined for a reused personal item with no recorded
+   * quantity of its own. */
+  amountG?: number
+  /** This dish's own reaction (#134), set here rather than only after
+   * the fact by editing the newly-added item — same "rate while you're
+   * already here" pattern MealItemEditorSheet uses for manual entry. */
+  emotion?: MealEmotion
+}
+
 export interface FoodPickerDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
-  onAdd: (values: {
-    amountKcal: number
-    proteinG: number
-    fatG: number
-    carbsG: number
-    note: string
-    /** Quantity the totals were scaled from (#96) — lets the created item
-     * be edited later the same per-100g + quantity way a manually-entered
-     * one can. Undefined for a reused personal item with no recorded
-     * quantity of its own. */
-    amountG?: number
-    /** This dish's own reaction (#134), set here rather than only after
-     * the fact by editing the newly-added item — same "rate while you're
-     * already here" pattern MealItemEditorSheet uses for manual entry. */
-    emotion?: MealEmotion
-  }) => void
+  /** Called once per confirm with every checked dish (#183), even when
+   * only one is checked — callers build one meal/group from the whole
+   * array rather than being invoked per item, so multi-picks land
+   * together instead of each needing its own onAdd round-trip. */
+  onAdd: (values: PickedFoodValues[]) => void
   /** Personal meal-name library (#50) — merged into this dialog's search
    * (#86) so "+ Food" is one place to find anything you've ever added, not
    * just the curated database. Only items with recorded last-used
@@ -52,21 +59,22 @@ function itemKey(item: PickableItem): string {
   return item.source === 'food' ? `food-${item.food.id}` : `meal-${item.mealItem.id}`
 }
 
-function isSameItem(a: PickableItem | null, b: PickableItem): boolean {
-  if (!a || a.source !== b.source) return false
-  return a.source === 'food' && b.source === 'food'
-    ? a.food.id === b.food.id
-    : a.source === 'mealItem' &&
-        b.source === 'mealItem' &&
-        a.mealItem.id === b.mealItem.id
-}
-
 /** Quantity-based entry against the static food list (#62), merged with the
- * personal meal-item library (#86) — search, pick one, and either scale a
- * curated food's per-100g macros by quantity, or reuse a personal item's
- * last-logged absolute numbers as-is (not quantity-scalable, no per-100g
- * data exists for it). Either way, hands the result back to the caller as
- * a normal meal (flat CalorieEntry, same shape manual entry produces). */
+ * personal meal-item library (#86) — search, check off one or more dishes
+ * (#183), and either scale a curated food's per-100g macros by quantity, or
+ * reuse a personal item's last-logged absolute numbers as-is (not
+ * quantity-scalable, no per-100g data exists for it). Either way, hands the
+ * whole batch back to the caller in one `onAdd` call as a normal meal (flat
+ * CalorieEntry shape, same as manual entry produces).
+ *
+ * Quantity/reaction editing (#183) is only offered while exactly one dish
+ * is checked, matching the pre-#183 single-pick UX exactly with no
+ * regression there — checking a second dish hides those fields and both
+ * default (100g quantity, no reaction) rather than trying to show N sets
+ * of fields at once. Fine-tuning a specific dish's portion/reaction after
+ * a multi-add still works the normal way, via that item's own pencil once
+ * it's in the meal.
+ */
 export function FoodPickerDialog({
   open,
   onOpenChange,
@@ -76,7 +84,7 @@ export function FoodPickerDialog({
   const t = useTranslation()
   const locale = useLocale()
   const [search, setSearch] = useState('')
-  const [selected, setSelected] = useState<PickableItem | null>(null)
+  const [selectedKeys, setSelectedKeys] = useState<Set<string>>(new Set())
   const [quantity, setQuantity] = useState('100')
   const [emotion, setEmotion] = useState<MealEmotion | undefined>(undefined)
 
@@ -90,61 +98,89 @@ export function FoodPickerDialog({
   }, [])
   const visibleFoods = applyFoodOverrides(foods, foodOverrides)
 
-  const query = search.trim().toLowerCase()
-  const mealItemMatches: PickableItem[] = mealItems
+  // Every pickable item regardless of the current search text (#183) — a
+  // dish checked while visible needs to stay counted toward
+  // selectedItems/canAdd even after a later search filters it out of
+  // `matches` below, since checked state deliberately survives a search
+  // change.
+  const allMealItems: PickableItem[] = mealItems
     .filter(
       (item): item is MealItem & { lastAmountKcal: number } =>
         item.lastAmountKcal !== undefined,
     )
-    .filter((item) => !query || item.name.toLowerCase().includes(query))
     .map((mealItem) => ({ source: 'mealItem', mealItem }))
-  const foodMatches: PickableItem[] = (
-    query
-      ? visibleFoods.filter((food) => food[locale].toLowerCase().includes(query))
-      : visibleFoods
-  ).map((food) => ({ source: 'food', food }))
-  const matches = [...mealItemMatches, ...foodMatches]
+  const allFoods: PickableItem[] = visibleFoods.map((food) => ({
+    source: 'food',
+    food,
+  }))
+  const allItems = [...allMealItems, ...allFoods]
+
+  const query = search.trim().toLowerCase()
+  const matches = query
+    ? allItems.filter((item) =>
+        item.source === 'food'
+          ? item.food[locale].toLowerCase().includes(query)
+          : item.mealItem.name.toLowerCase().includes(query),
+      )
+    : allItems
+
+  const selectedItems = allItems.filter((item) => selectedKeys.has(itemKey(item)))
+  const singleSelected = selectedItems.length === 1 ? selectedItems[0] : null
 
   const quantityNum = parseNumberInput(quantity)
   const canAdd =
-    selected !== null &&
-    (selected.source === 'mealItem' ||
-      (quantityNum !== undefined && quantityNum > 0))
+    selectedItems.length > 1 ||
+    (singleSelected !== null &&
+      (singleSelected.source === 'mealItem' ||
+        (quantityNum !== undefined && quantityNum > 0)))
 
   function reset() {
     setSearch('')
-    setSelected(null)
+    setSelectedKeys(new Set())
     setQuantity('100')
     setEmotion(undefined)
   }
 
+  function toggleSelected(item: PickableItem) {
+    setSelectedKeys((prev) => {
+      const next = new Set(prev)
+      const key = itemKey(item)
+      if (next.has(key)) next.delete(key)
+      else next.add(key)
+      return next
+    })
+  }
+
   function handleAdd() {
-    if (!selected) return
-    if (selected.source === 'food') {
-      if (quantityNum === undefined || quantityNum <= 0) return
-      const scale = quantityNum / 100
-      const { food } = selected
-      onAdd({
-        amountKcal: Math.round(food.kcal100 * scale),
-        proteinG: Math.round(food.protein100 * scale * 10) / 10,
-        fatG: Math.round(food.fat100 * scale * 10) / 10,
-        carbsG: Math.round(food.carbs100 * scale * 10) / 10,
-        note: food[locale],
-        amountG: quantityNum,
-        emotion,
-      })
-    } else {
-      const { mealItem } = selected
-      onAdd({
+    if (selectedItems.length === 0) return
+    const single = selectedItems.length === 1
+    const results: PickedFoodValues[] = selectedItems.map((item) => {
+      if (item.source === 'food') {
+        const singleQuantity = single ? quantityNum : undefined
+        const scale = (singleQuantity ?? 100) / 100
+        const { food } = item
+        return {
+          amountKcal: Math.round(food.kcal100 * scale),
+          proteinG: Math.round(food.protein100 * scale * 10) / 10,
+          fatG: Math.round(food.fat100 * scale * 10) / 10,
+          carbsG: Math.round(food.carbs100 * scale * 10) / 10,
+          note: food[locale],
+          amountG: singleQuantity ?? 100,
+          emotion: single ? emotion : undefined,
+        }
+      }
+      const { mealItem } = item
+      return {
         amountKcal: mealItem.lastAmountKcal,
         proteinG: mealItem.lastProteinG ?? 0,
         fatG: mealItem.lastFatG ?? 0,
         carbsG: mealItem.lastCarbsG ?? 0,
         note: mealItem.name,
         amountG: mealItem.lastAmountG,
-        emotion,
-      })
-    }
+        emotion: single ? emotion : undefined,
+      }
+    })
+    onAdd(results)
     reset()
     onOpenChange(false)
   }
@@ -165,10 +201,7 @@ export function FoodPickerDialog({
             aria-label={t.dailyEntry.foodSearchLabel}
             placeholder={t.dailyEntry.foodSearchPlaceholder}
             value={search}
-            onChange={(e) => {
-              setSearch(e.target.value)
-              setSelected(null)
-            }}
+            onChange={(e) => setSearch(e.target.value)}
           />
           {matches.length === 0 ? (
             <p className="text-sm text-muted-foreground">
@@ -181,63 +214,80 @@ export function FoodPickerDialog({
              * unit instead (see shared/ui/dialog.tsx's max-h-[85dvh]). */
             <ul className="flex flex-col rounded-lg border border-border">
               {matches.map((item) => {
-                const pressed = isSameItem(selected, item)
+                // Checked state survives a search-text change (#183) — the
+                // whole point of checking off several dishes is being able
+                // to search again for the next one without losing what's
+                // already picked.
+                const checked = selectedKeys.has(itemKey(item))
                 return (
                   <li key={itemKey(item)}>
                     <button
                       type="button"
-                      aria-pressed={pressed}
+                      role="checkbox"
+                      aria-checked={checked}
                       className={cn(
-                        'flex w-full flex-col px-2.5 py-1.5 text-left text-sm hover:bg-muted',
+                        'flex w-full items-start gap-2 px-2.5 py-1.5 text-left text-sm hover:bg-muted',
                         // Border + tint, not bg-muted alone — --muted sits
                         // too close to --background in dark mode to read as
                         // selected (#84, same fix reused here).
-                        pressed && 'border-2 border-primary bg-primary/15 font-medium',
+                        checked && 'border-2 border-primary bg-primary/15 font-medium',
                       )}
-                      onClick={() => setSelected(item)}
+                      onClick={() => toggleSelected(item)}
                     >
-                      {item.source === 'food' ? (
-                        <>
-                          <span>{item.food[locale]}</span>
-                          {/* Per-100g preview (#75) — sanity-check a food's
-                           * numbers before picking it, not just after. */}
-                          <span className="text-xs font-normal text-muted-foreground">
-                            {formatNumber(item.food.kcal100, locale, 0)}{' '}
-                            {t.dailyEntry.kcalUnit} {t.dailyEntry.per100gLabel}{' '}
-                            ·{' '}
-                            {macrosSummaryTextCompact(
-                              item.food.protein100,
-                              item.food.fat100,
-                              item.food.carbs100,
-                              locale,
-                              t,
-                            )}
-                          </span>
-                        </>
-                      ) : (
-                        <>
-                          <span>{item.mealItem.name}</span>
-                          {/* Distinguishes personal items from the curated
-                           * database (#86) — a fixed last-used amount, not
-                           * a scalable per-100g figure. */}
-                          <span className="text-xs font-normal text-muted-foreground">
-                            {formatNumber(
-                              item.mealItem.lastAmountKcal,
-                              locale,
-                              0,
-                            )}{' '}
-                            {t.dailyEntry.kcalUnit}{' '}
-                            {t.dailyEntry.lastLoggedLabel} ·{' '}
-                            {macrosSummaryTextCompact(
-                              item.mealItem.lastProteinG,
-                              item.mealItem.lastFatG,
-                              item.mealItem.lastCarbsG,
-                              locale,
-                              t,
-                            )}
-                          </span>
-                        </>
-                      )}
+                      <span
+                        aria-hidden="true"
+                        className={cn(
+                          'mt-0.5 flex size-4 shrink-0 items-center justify-center rounded border border-border',
+                          checked && 'border-primary bg-primary text-primary-foreground',
+                        )}
+                      >
+                        {checked && <Check className="size-3" />}
+                      </span>
+                      <span className="flex flex-col">
+                        {item.source === 'food' ? (
+                          <>
+                            <span>{item.food[locale]}</span>
+                            {/* Per-100g preview (#75) — sanity-check a
+                             * food's numbers before picking it, not just
+                             * after. */}
+                            <span className="text-xs font-normal text-muted-foreground">
+                              {formatNumber(item.food.kcal100, locale, 0)}{' '}
+                              {t.dailyEntry.kcalUnit}{' '}
+                              {t.dailyEntry.per100gLabel} ·{' '}
+                              {macrosSummaryTextCompact(
+                                item.food.protein100,
+                                item.food.fat100,
+                                item.food.carbs100,
+                                locale,
+                                t,
+                              )}
+                            </span>
+                          </>
+                        ) : (
+                          <>
+                            <span>{item.mealItem.name}</span>
+                            {/* Distinguishes personal items from the
+                             * curated database (#86) — a fixed last-used
+                             * amount, not a scalable per-100g figure. */}
+                            <span className="text-xs font-normal text-muted-foreground">
+                              {formatNumber(
+                                item.mealItem.lastAmountKcal,
+                                locale,
+                                0,
+                              )}{' '}
+                              {t.dailyEntry.kcalUnit}{' '}
+                              {t.dailyEntry.lastLoggedLabel} ·{' '}
+                              {macrosSummaryTextCompact(
+                                item.mealItem.lastProteinG,
+                                item.mealItem.lastFatG,
+                                item.mealItem.lastCarbsG,
+                                locale,
+                                t,
+                              )}
+                            </span>
+                          </>
+                        )}
+                      </span>
                     </button>
                   </li>
                 )
@@ -251,7 +301,12 @@ export function FoodPickerDialog({
            * reachable regardless of scroll position; bg-card + border-top
            * stop list rows showing through as they scroll underneath. */}
           <div className="sticky bottom-0 flex flex-col gap-3 border-t border-border bg-card pt-3">
-            {selected?.source === 'food' && (
+            {/* Per-dish quantity/reaction fields (#183) only make sense
+             * while exactly one dish is checked — matches the pre-#183
+             * single-pick UX exactly, no regression there. A multi-pick
+             * defaults to 100g/no reaction; either can be fine-tuned
+             * afterward via that item's own pencil once it's in the meal. */}
+            {singleSelected?.source === 'food' && (
               <div className="flex items-center gap-2">
                 <span className="text-sm text-muted-foreground">
                   {t.dailyEntry.foodQuantityLabel}
@@ -266,7 +321,7 @@ export function FoodPickerDialog({
                 />
               </div>
             )}
-            {selected && (
+            {singleSelected && (
               <div className="flex flex-col gap-1.5">
                 <span className="text-sm text-muted-foreground">
                   {t.dailyEntry.itemEmotionLabel}
@@ -277,20 +332,15 @@ export function FoodPickerDialog({
                   options={MEAL_EMOTIONS}
                   labelFor={t.dailyEntry.mealEmotionLabel}
                   contextLabel={
-                    selected.source === 'food'
-                      ? selected.food[locale]
-                      : selected.mealItem.name
+                    singleSelected.source === 'food'
+                      ? singleSelected.food[locale]
+                      : singleSelected.mealItem.name
                   }
                 />
               </div>
             )}
-            <Button
-              type="button"
-              disabled={!canAdd}
-              onClick={handleAdd}
-              aria-label={t.dailyEntry.addFoodConfirmLabel}
-            >
-              {t.dailyEntry.addButton}
+            <Button type="button" disabled={!canAdd} onClick={handleAdd}>
+              {t.dailyEntry.addSelectedFoodsButton(selectedItems.length)}
             </Button>
           </div>
         </div>

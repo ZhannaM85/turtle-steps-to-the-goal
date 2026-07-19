@@ -120,6 +120,12 @@ export interface Dictionary {
      * stale-language presets behind for someone who never touched them). */
     defaultMealNamePresets: string[]
     saveButton: string
+    /** MealItemEditorSheet's second footer action (#183) — saves the
+     * current dish and keeps the sheet open, reset for the next one,
+     * instead of closing. Only shown while adding a genuinely new item
+     * (the add row, or a freshly-added blank row in an existing meal's
+     * edit mode), not while editing an already-existing dish. */
+    saveAndAddAnotherButton: string
     mealNoteLabel: string
     mealNotePlaceholder: string
     itemNameLabel: string
@@ -168,7 +174,9 @@ export interface Dictionary {
     foodSearchPlaceholder: string
     foodQuantityLabel: string
     noFoodResultsText: string
-    addFoodConfirmLabel: string
+    /** Find food's confirm button (#183) — e.g. "Add selected (3)". Also
+     * used with n=1 for a single pick, replacing the old static "Add". */
+    addSelectedFoodsButton: (n: number) => string
     per100gLabel: string
     /** Live preview prefix for the manual add row/item-edit row's computed
      * total (#98) — e.g. "Total: 300 kcal · ..." — recomputed on every

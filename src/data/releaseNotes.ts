@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 172,
+    issue: 183,
+    date: '2026-07-19T22:38:00+03:00',
+    en: 'You can now check off several dishes in Find food, or tap "Save and add one more" when entering dishes by hand, to add them all to one meal at once.',
+    ru: 'Теперь можно отметить сразу несколько блюд в поиске еды или нажать «Сохранить и добавить ещё» при ручном вводе, чтобы добавить их все в один приём пищи разом.',
+  },
+  {
     version: 171,
     issue: 187,
     date: '2026-07-19T21:53:00+03:00',

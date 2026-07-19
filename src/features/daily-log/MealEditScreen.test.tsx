@@ -470,7 +470,7 @@ describe('MealEditScreen', () => {
         screen.getByRole('button', { name: 'Find food — Meal 1' }),
       )
       await user.click(screen.getByText('Salmon'))
-      await user.click(screen.getByRole('button', { name: 'Add food' }))
+      await user.click(screen.getByRole('button', { name: 'Add selected' }))
       await user.click(screen.getByRole('button', { name: 'Save' }))
 
       await waitFor(async () => {
@@ -497,7 +497,7 @@ describe('MealEditScreen', () => {
         screen.getByRole('button', { name: 'Find food — Meal 1' }),
       )
       await user.click(screen.getByText('Salmon'))
-      await user.click(screen.getByRole('button', { name: 'Add food' }))
+      await user.click(screen.getByRole('button', { name: 'Add selected' }))
       await user.click(screen.getByRole('button', { name: 'Save' }))
 
       await waitFor(async () => {

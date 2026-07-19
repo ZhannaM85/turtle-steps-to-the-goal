@@ -50,7 +50,7 @@ import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/ui/button'
 import { Input } from '@/shared/ui/input'
 import { useMealItemStore, useMealLabelPresetStore } from '@/stores'
-import { FoodPickerDialog } from './FoodPickerDialog'
+import { FoodPickerDialog, type PickedFoodValues } from './FoodPickerDialog'
 import { MealItemEditorSheet } from './MealItemEditorSheet'
 
 // Every curated food's name in either locale (#150) — names an item picked
@@ -120,6 +120,43 @@ function blankItemDraft(): EditItemDraft {
   }
 }
 
+/** Shared by saveEditMeal (an existing meal's edit-mode Save) and addMeal
+ * (the add row's Save, #183) — converts staged item drafts into real
+ * CalorieItems, scaling each by its own macro mode. A draft with no valid
+ * kcal is dropped silently rather than blocking the whole group's save on
+ * it — an accidentally-blank row added via "+ Add item" and never filled
+ * in shouldn't hold everything else hostage. */
+function draftsToItems(drafts: EditItemDraft[]): CalorieItem[] {
+  return drafts.flatMap((draft) => {
+    const amountNum = parseNumberInput(draft.amount)
+    if (!amountNum || amountNum <= 0) return []
+    const scaled =
+      draft.macroMode === 'per100g'
+        ? scaleFromPer100g(
+            amountNum,
+            parseOptionalMacro(draft.protein),
+            parseOptionalMacro(draft.fat),
+            parseOptionalMacro(draft.carbs),
+            draft.amountG,
+          )
+        : totalFromPortion(
+            amountNum,
+            parseOptionalMacro(draft.protein),
+            parseOptionalMacro(draft.fat),
+            parseOptionalMacro(draft.carbs),
+            draft.amountG,
+          )
+    return [
+      {
+        id: draft.id,
+        name: draft.name.trim() || undefined,
+        ...scaled,
+        emotion: draft.emotion,
+      },
+    ]
+  })
+}
+
 /** Default for a newly-added meal's time-eaten field (#65) — "the time when
  * user enters the entry". Not used for editing an existing meal, which
  * reflects whatever time (if any) was already saved on it. */
@@ -166,17 +203,10 @@ interface MealListItemProps {
    * (#122) — null when none. */
   openEditItemId: string | null
   onOpenEditItem: (id: string | null) => void
-  /** "Find food" for an item within this meal (#124) — pushes the picked
-   * food straight into the shared editItems staging array, same as
-   * onAddEditItem's manual blank row. */
-  onAddFood: (values: {
-    amountKcal: number
-    proteinG: number
-    fatG: number
-    carbsG: number
-    note: string
-    amountG?: number
-  }) => void
+  /** "Find food" for an item within this meal (#124) — pushes every picked
+   * food (#183: one or more) straight into the shared editItems staging
+   * array, same as onAddEditItem's manual blank row. */
+  onAddFood: (values: PickedFoodValues[]) => void
 }
 
 function MealListItem({
@@ -235,6 +265,12 @@ function MealListItem({
   // open for (#122) — computed unconditionally since it's cheap and only
   // actually rendered inside the isEditing branch below.
   const openDraft = editItems.find((item) => item.id === openEditItemId) ?? null
+  // "Save and add one more" (#183) only makes sense while adding a
+  // genuinely new dish, not while editing one that was already part of
+  // this meal before this edit session started — a draft counts as new
+  // if its id isn't among the entry's own original items.
+  const isOpenDraftNew =
+    openDraft !== null && !entry.items.some((item) => item.id === openDraft.id)
 
   if (isConfirmingDelete) {
     return (
@@ -522,6 +558,11 @@ function MealListItem({
               onEditItemEmotionChange(openDraft.id, emotion)
             }
             onSave={() => onOpenEditItem(null)}
+            onSaveAndAddAnother={
+              isOpenDraftNew
+                ? () => onOpenEditItem(onAddEditItem())
+                : undefined
+            }
           />
         )}
 
@@ -747,10 +788,11 @@ export function MealList({
     onChange(next)
   }
 
-  // These four describe the group's first (and, via the bottom Add row,
-  // only) item — #81's flexible-grouping decision means additional items
-  // only get added to a group by opening it for edit afterward, not from
-  // this row, which always starts a brand-new meal group.
+  // These four describe the item currently being entered in the bottom Add
+  // row. #183: "Save and add one more" stages the current fields into
+  // addStagedItems (below) and resets these back to blank for the next
+  // dish, rather than committing a brand-new meal group per item — the
+  // final Save folds addStagedItems + these current fields into one group.
   const [addAmount, setAddAmount] = useState('')
   const [addProtein, setAddProtein] = useState('')
   const [addFat, setAddFat] = useState('')
@@ -770,6 +812,12 @@ export function MealList({
   const [addItemEmotion, setAddItemEmotion] = useState<
     MealEmotion | undefined
   >(undefined)
+  // Dishes already committed via "Save and add one more" (#183) during
+  // this add-row session, waiting for the final Save to fold them (plus
+  // whatever's currently in the fields above) into one new meal group —
+  // same EditItemDraft shape and same flatMap-drops-invalid-rows handling
+  // (draftsToItems) as an existing meal's own editItems staging array.
+  const [addStagedItems, setAddStagedItems] = useState<EditItemDraft[]>([])
   // Group-level fields (#81) — note/time-eaten belong to the meal as a
   // whole, not to any one item within it.
   const [addGroupNote, setAddGroupNote] = useState('')
@@ -898,9 +946,9 @@ export function MealList({
     setAddMacroMode(newMode)
   }
 
-  // Shared by addMeal()'s post-add reset and the "+ Add item" trigger's own
-  // clear button (#151) — just the per-item draft fields, not the
-  // meal-group-level note/time next to it.
+  // Shared by addMeal()'s post-add reset, stageAddItem() (#183), and the
+  // "+ Add item" trigger's own clear button (#151) — just the per-item
+  // draft fields, not the meal-group-level note/time next to it.
   function resetItemDraft() {
     setAddAmount('')
     setAddAmountG('1')
@@ -912,45 +960,64 @@ export function MealList({
     setAddItemEmotion(undefined)
   }
 
-  function addMeal() {
+  // The add row's current fields as one draft, in the same shape staged
+  // items and an existing meal's editItems already use (#183) — lets
+  // addMeal()/stageAddItem() share draftsToItems() instead of duplicating
+  // the per-100g/per-portion scaling logic a third time.
+  function currentAddDraft(): EditItemDraft {
+    return {
+      id: crypto.randomUUID(),
+      name: addItemName,
+      amount: addAmount,
+      protein: addProtein,
+      fat: addFat,
+      carbs: addCarbs,
+      amountG: addAmountG,
+      macroMode: addMacroMode,
+      emotion: addItemEmotion,
+    }
+  }
+
+  // "Save and add one more" (#183) — commits the current fields as a
+  // staged dish (not yet a real meal) and clears them for the next one,
+  // keeping the group-level note/time and the sheet itself open. A blank
+  // draft (no valid amount) is simply not staged, matching MealItemEditor
+  // Sheet's own hasValidAmount disabled-button guard on this action.
+  function stageAddItem() {
     const amountNum = parseNumberInput(addAmount)
     if (!amountNum || amountNum <= 0) return
-    const scaled =
-      addMacroMode === 'per100g'
-        ? scaleFromPer100g(
-            amountNum,
-            parseOptionalMacro(addProtein),
-            parseOptionalMacro(addFat),
-            parseOptionalMacro(addCarbs),
-            addAmountG,
-          )
-        : totalFromPortion(
-            amountNum,
-            parseOptionalMacro(addProtein),
-            parseOptionalMacro(addFat),
-            parseOptionalMacro(addCarbs),
-            addAmountG,
-          )
+    setAddStagedItems((items) => [...items, currentAddDraft()])
+    resetItemDraft()
+  }
+
+  // Folds every staged dish (#183) plus whatever's currently in the fields
+  // into one new meal group — same "invalid/blank rows drop out silently"
+  // handling as an existing meal's own saveEditMeal, via draftsToItems.
+  function addMeal() {
+    const items = draftsToItems([...addStagedItems, currentAddDraft()])
+    if (items.length === 0) return
     setCalorieEntries([
       ...calorieEntries,
       {
         id: crypto.randomUUID(),
-        items: [
-          {
-            id: crypto.randomUUID(),
-            name: addItemName.trim() || undefined,
-            ...scaled,
-            emotion: addItemEmotion,
-          },
-        ],
+        items,
         note: addGroupNote.trim() || undefined,
         timeEaten: addTime || undefined,
         createdAt: new Date().toISOString(),
       },
     ])
-    if (addItemName.trim()) {
-      touchMealItem(addItemName, scaled)
+    for (const item of items) {
+      if (item.name) {
+        touchMealItem(item.name, {
+          amountKcal: item.amountKcal,
+          proteinG: item.proteinG,
+          fatG: item.fatG,
+          carbsG: item.carbsG,
+          amountG: item.amountG,
+        })
+      }
     }
+    setAddStagedItems([])
     resetItemDraft()
     setAddGroupNote('')
     setAddTime('')
@@ -980,34 +1047,29 @@ export function MealList({
   }
 
   // Quantity-based entry against the static food list (#62) — the dialog
-  // already computed kcal/macros scaled by quantity; this just adds the
-  // result as a new single-item meal group (#81), same as the manual Add
-  // row above.
-  function addFoodEntry(values: {
-    amountKcal: number
-    proteinG: number
-    fatG: number
-    carbsG: number
-    note: string
-    amountG?: number
-    emotion?: MealEmotion
-  }) {
+  // already computed kcal/macros scaled by quantity for every dish checked
+  // (#183: one or more); this adds the whole batch as a single new meal
+  // group (#81) with one item per dish, same as the manual Add row above.
+  // A self-contained action — it commits immediately (no extra confirm
+  // step, same as before #183), so it doesn't fold into addStagedItems;
+  // combining a Find-food pick with a manually-entered dish in one group
+  // still works the same way it always has, by editing the meal afterward.
+  function addFoodEntry(values: PickedFoodValues[]) {
+    if (values.length === 0) return
     setCalorieEntries([
       ...calorieEntries,
       {
         id: crypto.randomUUID(),
-        items: [
-          {
-            id: crypto.randomUUID(),
-            name: values.note,
-            amountKcal: values.amountKcal,
-            proteinG: values.proteinG,
-            fatG: values.fatG,
-            carbsG: values.carbsG,
-            amountG: values.amountG,
-            emotion: values.emotion,
-          },
-        ],
+        items: values.map((value) => ({
+          id: crypto.randomUUID(),
+          name: value.note,
+          amountKcal: value.amountKcal,
+          proteinG: value.proteinG,
+          fatG: value.fatG,
+          carbsG: value.carbsG,
+          amountG: value.amountG,
+          emotion: value.emotion,
+        })),
         timeEaten: currentTimeHHMM(),
         createdAt: new Date().toISOString(),
       },
@@ -1018,39 +1080,33 @@ export function MealList({
   // FoodPickerDialog was previously only wired to the bottom add row
   // (addFoodEntry above), leaving no way to search the food list while
   // editing an existing meal, only manual entry via "+ Add item". Converts
-  // the picked food's absolute totals to a per-100g rate + quantity via
+  // each picked food's absolute totals to a per-100g rate + quantity via
   // ratesFromAbsolute, same as selectEditItemMealItem's "restore a
   // suggestion" path — picking a food always lands in per-100g mode.
-  function addFoodToEditItems(values: {
-    amountKcal: number
-    proteinG: number
-    fatG: number
-    carbsG: number
-    note: string
-    amountG?: number
-    emotion?: MealEmotion
-  }) {
-    const rates = ratesFromAbsolute(
-      values.amountKcal,
-      values.proteinG,
-      values.fatG,
-      values.carbsG,
-      values.amountG,
-    )
-    setEditItems((items) => [
-      ...items,
-      {
+  // #183: values is every dish checked in one Find-food session, not just
+  // one — all land in editItems together in a single update.
+  function addFoodToEditItems(values: PickedFoodValues[]) {
+    const drafts: EditItemDraft[] = values.map((value) => {
+      const rates = ratesFromAbsolute(
+        value.amountKcal,
+        value.proteinG,
+        value.fatG,
+        value.carbsG,
+        value.amountG,
+      )
+      return {
         id: crypto.randomUUID(),
-        name: values.note,
+        name: value.note,
         amount: String(rates.kcal100),
         protein: rates.protein100 === undefined ? '' : String(rates.protein100),
         fat: rates.fat100 === undefined ? '' : String(rates.fat100),
         carbs: rates.carbs100 === undefined ? '' : String(rates.carbs100),
         amountG: String(rates.portions),
         macroMode: 'per100g',
-        emotion: values.emotion,
-      },
-    ])
+        emotion: value.emotion,
+      }
+    })
+    setEditItems((items) => [...items, ...drafts])
   }
 
   // #169 — before this, Save (or Delete) was the only way out of edit
@@ -1184,40 +1240,13 @@ export function MealList({
     setEditItems((items) => items.filter((item) => item.id !== id))
   }
 
-  // Drafts with no valid kcal are dropped silently (mirrors the add flow's
-  // own "amount required" guard) rather than blocking Save on them — an
-  // accidentally-blank row added via "+ Add item" and never filled in
-  // shouldn't hold the whole edit hostage. If every item drops out, the
-  // group itself is removed (#81's "last item removed = meal removed").
+  // Drafts with no valid kcal are dropped silently (draftsToItems) rather
+  // than blocking Save on them — an accidentally-blank row added via
+  // "+ Add item" and never filled in shouldn't hold the whole edit
+  // hostage. If every item drops out, the group itself is removed (#81's
+  // "last item removed = meal removed").
   function saveEditMeal() {
-    const items: CalorieItem[] = editItems.flatMap((draft) => {
-      const amountNum = parseNumberInput(draft.amount)
-      if (!amountNum || amountNum <= 0) return []
-      const scaled =
-        draft.macroMode === 'per100g'
-          ? scaleFromPer100g(
-              amountNum,
-              parseOptionalMacro(draft.protein),
-              parseOptionalMacro(draft.fat),
-              parseOptionalMacro(draft.carbs),
-              draft.amountG,
-            )
-          : totalFromPortion(
-              amountNum,
-              parseOptionalMacro(draft.protein),
-              parseOptionalMacro(draft.fat),
-              parseOptionalMacro(draft.carbs),
-              draft.amountG,
-            )
-      return [
-        {
-          id: draft.id,
-          name: draft.name.trim() || undefined,
-          ...scaled,
-          emotion: draft.emotion,
-        },
-      ]
-    })
+    const items = draftsToItems(editItems)
     if (items.length === 0) {
       setCalorieEntries(
         calorieEntries.filter((entry) => entry.id !== editingMealId),
@@ -1507,6 +1536,7 @@ export function MealList({
             addMeal()
             setIsAddItemSheetOpen(false)
           }}
+          onSaveAndAddAnother={stageAddItem}
         />
         {/* #153: moved below both add-item CTAs — previously sandwiched
          * between "+ Add item" and "Find food", interrupting the scan path

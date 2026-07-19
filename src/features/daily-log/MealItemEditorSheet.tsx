@@ -41,6 +41,12 @@ export interface MealItemEditorSheetProps {
   emotion: MealEmotion | undefined
   onEmotionChange: (emotion: MealEmotion | undefined) => void
   onSave: () => void
+  /** Second footer action (#183) — saves this dish and keeps the sheet
+   * open, reset for the next one, instead of closing. Only passed while
+   * adding a genuinely new item (the add row, or a freshly-added blank
+   * row in an existing meal's edit mode); omitted while editing an
+   * already-existing dish, where "add one more" doesn't make sense. */
+  onSaveAndAddAnother?: () => void
 }
 
 function NumberField({
@@ -108,6 +114,7 @@ export function MealItemEditorSheet({
   emotion,
   onEmotionChange,
   onSave,
+  onSaveAndAddAnother,
 }: MealItemEditorSheetProps) {
   const t = useTranslation()
   const locale = useLocale()
@@ -252,7 +259,7 @@ export function MealItemEditorSheet({
         {/* Sticky footer (mirrors FoodPickerDialog's #91 pattern) — the
          * primary action stays reachable while the fields above scroll,
          * rather than requiring a scroll-to-bottom to confirm. */}
-        <div className="sticky bottom-0 -mx-5 -mb-5 border-t border-border bg-card px-5 pt-3 pb-[calc(env(safe-area-inset-bottom)+1rem)]">
+        <div className="sticky bottom-0 -mx-5 -mb-5 flex flex-col gap-2 border-t border-border bg-card px-5 pt-3 pb-[calc(env(safe-area-inset-bottom)+1rem)]">
           <Button
             type="button"
             size="lg"
@@ -262,6 +269,18 @@ export function MealItemEditorSheet({
           >
             {t.dailyEntry.saveButton}
           </Button>
+          {onSaveAndAddAnother && (
+            <Button
+              type="button"
+              variant="outline"
+              size="lg"
+              className="h-12 w-full text-base"
+              disabled={!hasValidAmount}
+              onClick={onSaveAndAddAnother}
+            >
+              {t.dailyEntry.saveAndAddAnotherButton}
+            </Button>
+          )}
         </div>
       </DialogContent>
     </Dialog>

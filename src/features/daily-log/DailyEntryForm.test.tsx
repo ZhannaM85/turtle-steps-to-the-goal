@@ -1502,7 +1502,7 @@ describe('DailyEntryForm', () => {
 
           await user.click(screen.getByRole('button', { name: 'Find food' }))
           await user.click(screen.getByText('Salmon'))
-          await user.click(screen.getByRole('button', { name: 'Add food' }))
+          await user.click(screen.getByRole('button', { name: 'Add selected' }))
 
           expect(onSave).toHaveBeenCalledTimes(1)
           const entry = onSave.mock.calls[0][0].calorieEntries[0]
@@ -1532,7 +1532,7 @@ describe('DailyEntryForm', () => {
           const quantityInput = screen.getByLabelText('Quantity (g)')
           await user.clear(quantityInput)
           await user.type(quantityInput, '50')
-          await user.click(screen.getByRole('button', { name: 'Add food' }))
+          await user.click(screen.getByRole('button', { name: 'Add selected' }))
 
           const entry = onSave.mock.calls[0][0].calorieEntries[0]
           expect(entry.items[0].amountKcal).toBe(104)
@@ -1555,7 +1555,7 @@ describe('DailyEntryForm', () => {
           await user.click(
             screen.getByRole('button', { name: 'Bellissimo — Salmon' }),
           )
-          await user.click(screen.getByRole('button', { name: 'Add food' }))
+          await user.click(screen.getByRole('button', { name: 'Add selected' }))
 
           const entry = onSave.mock.calls[0][0].calorieEntries[0]
           expect(entry.items[0].emotion).toBe('bellissimo')

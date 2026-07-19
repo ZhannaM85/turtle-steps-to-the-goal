@@ -92,6 +92,7 @@ export const ru: Dictionary = {
     mealLabelFieldLabel: 'Название приёма пищи',
     defaultMealNamePresets: ['Завтрак', 'Обед', 'Ужин', 'Перекус'],
     saveButton: 'Сохранить',
+    saveAndAddAnotherButton: 'Сохранить и добавить ещё',
     mealNoteLabel: 'Заметка о приёме пищи',
     mealNotePlaceholder: 'Было вкусно?',
     itemNameLabel: 'Название блюда',
@@ -132,7 +133,8 @@ export const ru: Dictionary = {
     foodSearchPlaceholder: 'Поиск…',
     foodQuantityLabel: 'Количество (г)',
     noFoodResultsText: 'Ничего не найдено.',
-    addFoodConfirmLabel: 'Добавить продукт',
+    addSelectedFoodsButton: (n) =>
+      n > 1 ? `Добавить выбранное (${n})` : 'Добавить выбранное',
     per100gLabel: 'на 100 г',
     computedTotalPrefix: 'Итого:',
     lastLoggedLabel: 'в прошлый раз',

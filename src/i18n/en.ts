@@ -90,6 +90,7 @@ export const en: Dictionary = {
     mealLabelFieldLabel: 'Meal name',
     defaultMealNamePresets: ['Breakfast', 'Lunch', 'Dinner', 'Snack'],
     saveButton: 'Save',
+    saveAndAddAnotherButton: 'Save and add one more',
     mealNoteLabel: 'Meal note',
     // Group-level note (#81) — not a dish name (see itemNamePlaceholder for
     // that), a free-text comment about the meal as a whole.
@@ -132,7 +133,7 @@ export const en: Dictionary = {
     foodSearchPlaceholder: 'Search…',
     foodQuantityLabel: 'Quantity (g)',
     noFoodResultsText: 'No foods found.',
-    addFoodConfirmLabel: 'Add food',
+    addSelectedFoodsButton: (n) => (n > 1 ? `Add selected (${n})` : 'Add selected'),
     per100gLabel: 'per 100g',
     computedTotalPrefix: 'Total:',
     lastLoggedLabel: 'last logged',

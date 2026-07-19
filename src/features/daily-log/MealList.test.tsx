@@ -1,3 +1,4 @@
+import 'fake-indexeddb/auto'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
@@ -194,6 +195,96 @@ describe('MealList', () => {
       )
 
       expect(onFocusedMealDone).toHaveBeenCalledTimes(1)
+    })
+  })
+
+  describe('multi-add (#183)', () => {
+    it('"Save and add one more" on the add row stages a dish and keeps the sheet open for the next one', async () => {
+      const user = userEvent.setup()
+      const onChange = vi.fn()
+      render(
+        <MealList calorieEntries={[]} date="2026-03-01" onChange={onChange} />,
+        { wrapper: MemoryRouter },
+      )
+
+      await user.click(screen.getByRole('button', { name: '+ Add item' }))
+      await user.type(screen.getByLabelText('Dish name'), 'Soup')
+      await user.type(screen.getByLabelText('kcal/100g'), '100')
+      await user.click(
+        screen.getByRole('button', { name: 'Save and add one more' }),
+      )
+
+      // Sheet stays open, fields reset, no onChange yet -- nothing has
+      // actually been saved as a meal until the final Save.
+      expect(onChange).not.toHaveBeenCalled()
+      expect(screen.getByLabelText('Dish name')).toHaveValue('')
+
+      await user.type(screen.getByLabelText('Dish name'), 'Bread')
+      await user.type(screen.getByLabelText('kcal/100g'), '250')
+      await user.click(screen.getByRole('button', { name: 'Save' }))
+
+      expect(onChange).toHaveBeenCalledTimes(1)
+      const next = onChange.mock.calls[0][0] as CalorieEntry[]
+      expect(next).toHaveLength(1)
+      expect(next[0].items).toHaveLength(2)
+      expect(next[0].items[0].name).toBe('Soup')
+      expect(next[0].items[1].name).toBe('Bread')
+    })
+
+    it('"Save and add one more" is available for a freshly-added item in an existing meal\'s edit mode', async () => {
+      const user = userEvent.setup()
+      const calorieEntries: CalorieEntry[] = [
+        {
+          id: 'c1',
+          items: [{ id: 'i1', name: 'Soup', amountKcal: 300 }],
+          createdAt: '2026-01-01T00:00:00.000Z',
+        },
+      ]
+      render(
+        <MealList
+          calorieEntries={calorieEntries}
+          date="2026-03-01"
+          onChange={vi.fn()}
+          focusMealId="c1"
+        />,
+        { wrapper: MemoryRouter },
+      )
+
+      await screen.findByLabelText('Meal name — Meal 1')
+      await user.click(
+        screen.getByRole('button', { name: '+ Add item — Meal 1' }),
+      )
+
+      expect(
+        screen.getByRole('button', { name: 'Save and add one more' }),
+      ).toBeInTheDocument()
+    })
+
+    it('does not offer "Save and add one more" while editing an already-existing dish', async () => {
+      const user = userEvent.setup()
+      const calorieEntries: CalorieEntry[] = [
+        {
+          id: 'c1',
+          items: [{ id: 'i1', name: 'Soup', amountKcal: 300 }],
+          createdAt: '2026-01-01T00:00:00.000Z',
+        },
+      ]
+      render(
+        <MealList
+          calorieEntries={calorieEntries}
+          date="2026-03-01"
+          onChange={vi.fn()}
+          focusMealId="c1"
+        />,
+        { wrapper: MemoryRouter },
+      )
+
+      await screen.findByLabelText('Meal name — Meal 1')
+      await user.click(screen.getByRole('button', { name: 'Edit item' }))
+
+      expect(
+        screen.queryByRole('button', { name: 'Save and add one more' }),
+      ).not.toBeInTheDocument()
     })
   })
 })
