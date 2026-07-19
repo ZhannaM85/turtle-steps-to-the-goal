@@ -495,7 +495,13 @@ export function DailyEntryForm({
             <span className="text-sm font-medium">
               {t.dailyEntry.macrosLabel}
             </span>
-            <div className="rounded-lg bg-muted px-3 py-2">
+            {/* self-start (#156 follow-up): a flex-col child stretches to
+             * the parent's full width by default, so this box was showing
+             * a visibly empty stretch of bg-muted background past the
+             * short macros text — unlike Calories, this field never has a
+             * reason to be as wide as the card. Sized to its own content
+             * instead. */}
+            <div className="self-start rounded-lg bg-muted px-3 py-2">
               <span className="text-sm text-foreground" aria-live="polite">
                 {dayMacrosSummary}
               </span>

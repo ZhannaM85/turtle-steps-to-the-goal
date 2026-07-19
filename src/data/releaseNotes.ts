@@ -19,6 +19,12 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    issue: 156,
+    date: '2026-07-19T12:30:34+03:00',
+    en: 'Fixed the Macros field on Today showing a chunk of empty colored space next to short text.',
+    ru: 'Исправлено: поле "БЖУ" на экране "Сегодня" показывало пустое цветное пространство рядом с коротким текстом.',
+  },
+  {
     issue: 153,
     date: '2026-07-19T12:08:54+03:00',
     en: '"Find food" is now the main, bigger button when adding a dish, with manual entry as a smaller fallback link — and the meal note moved below both.',
