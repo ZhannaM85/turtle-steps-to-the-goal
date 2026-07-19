@@ -7,6 +7,8 @@ import { CustomChartView } from './CustomChartView'
 import { FoodReactionsView } from './FoodReactionsView'
 import { LateMealCorrelationView } from './LateMealCorrelationView'
 import { MacroTrendChart } from './MacroTrendChart'
+import { SleepCorrelationView } from './SleepCorrelationView'
+import { StepsCorrelationView } from './StepsCorrelationView'
 import { WeeklySummaryCards } from './WeeklySummaryCards'
 import { WeightTrendChart } from './WeightTrendChart'
 import { useDashboardData } from './useDashboardData'
@@ -37,6 +39,8 @@ export function DashboardScreen() {
           <CustomChartView entries={entries} />
           <CorrelationView entries={entries} />
           <LateMealCorrelationView entries={entries} />
+          <SleepCorrelationView entries={entries} />
+          <StepsCorrelationView entries={entries} />
           <FoodReactionsView entries={entries} />
           <WeeklySummaryCards entries={entries} goal={goal} />
         </>

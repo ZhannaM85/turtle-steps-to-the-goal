@@ -273,6 +273,28 @@ export const en: Dictionary = {
       "Compares each day's latest meal time to the very next day's weight, not a proven cause-and-effect relationship — water retention, sodium, and many other factors also affect day-to-day weight.",
     lateMealTimeLegend: 'last meal time',
     nextDayChangeLegend: 'next-day change',
+    sleepCorrelationTitle: 'Sleep vs. next-day weight',
+    sleepCorrelationEmptyDescription:
+      'Not enough data yet to see a pattern — log sleep hours and keep tracking weight, then check back in a few weeks.',
+    sleepCorrelationSummary: (thresholdHours, direction) =>
+      direction === 'less'
+        ? `Days you slept less than ${thresholdHours}h averaged more weight gain the next morning than days you slept more.`
+        : `Days you slept more than ${thresholdHours}h averaged more weight gain the next morning than days you slept less.`,
+    sleepCorrelationDayCount: (n) => `Based on ${n} day${n === 1 ? '' : 's'} of data.`,
+    sleepCorrelationLagCaveat:
+      "Compares each day's logged sleep to the very next day's weight, not a proven cause-and-effect relationship — water retention, sodium, and many other factors also affect day-to-day weight.",
+    sleepHoursLegend: 'sleep hours',
+    stepsCorrelationTitle: 'Steps vs. next-day weight',
+    stepsCorrelationEmptyDescription:
+      'Not enough data yet to see a pattern — log step counts and keep tracking weight, then check back in a few weeks.',
+    stepsCorrelationSummary: (thresholdSteps, direction) =>
+      direction === 'fewer'
+        ? `Days you took fewer than ${thresholdSteps} steps averaged more weight gain the next morning than days you took more.`
+        : `Days you took more than ${thresholdSteps} steps averaged more weight gain the next morning than days you took fewer.`,
+    stepsCorrelationDayCount: (n) => `Based on ${n} day${n === 1 ? '' : 's'} of data.`,
+    stepsCorrelationLagCaveat:
+      "Compares each day's logged steps to the very next day's weight, not a proven cause-and-effect relationship — water retention, sodium, and many other factors also affect day-to-day weight.",
+    stepsCountLegend: 'steps',
     foodReactionsTitle: 'Food reactions',
     mostLikedFoodsTitle: 'Most liked',
     mostDislikedFoodsTitle: 'Most disliked',

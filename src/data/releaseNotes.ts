@@ -19,6 +19,12 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    issue: 167,
+    date: '2026-07-19T14:48:42+03:00',
+    en: 'Added two new Dashboard charts: sleep vs. next-day weight, and steps vs. next-day weight.',
+    ru: 'На экране "Обзор" добавлены два новых графика: сон и вес на следующий день, шаги и вес на следующий день.',
+  },
+  {
     issue: 164,
     date: '2026-07-19T14:32:51+03:00',
     en: 'Added a "Clear all data" option at the bottom of Settings, for permanently deleting everything stored on this device.',

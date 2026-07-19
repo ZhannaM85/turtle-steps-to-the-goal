@@ -319,6 +319,21 @@ export interface Dictionary {
     lateMealLagCaveat: string
     lateMealTimeLegend: string
     nextDayChangeLegend: string
+    /** Sleep-hours-vs-next-day-weight correlation (#167), same shape as
+     * lateMeal* above. */
+    sleepCorrelationTitle: string
+    sleepCorrelationEmptyDescription: string
+    sleepCorrelationSummary: (thresholdHours: string, direction: string) => string
+    sleepCorrelationDayCount: (n: number) => string
+    sleepCorrelationLagCaveat: string
+    sleepHoursLegend: string
+    /** Step-count-vs-next-day-weight correlation (#167), same shape. */
+    stepsCorrelationTitle: string
+    stepsCorrelationEmptyDescription: string
+    stepsCorrelationSummary: (thresholdSteps: string, direction: string) => string
+    stepsCorrelationDayCount: (n: number) => string
+    stepsCorrelationLagCaveat: string
+    stepsCountLegend: string
     /** Per-dish reaction rollup (#128, built on #129's per-item emotion) —
      * two ranked lists under one shared heading, each row using
      * dailyEntry.mealEmotionLabel for its per-count accessible text. */
