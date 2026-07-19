@@ -183,6 +183,21 @@ and #144's precedent in `docs/issues-priority.md`).
   this environment's load — don't assume a long-running background task is
   stuck; the harness notifies you when it finishes, don't re-run it or poll
   its output file in a loop waiting for it.
+- **E2E suite (#161)**: `npm run e2e` (Playwright, `playwright.config.ts`,
+  specs in `e2e/`) — a deliberately small, black-box UI suite (no direct
+  IndexedDB seeding), not a replacement for the ad hoc seeded-Playwright
+  scripts still used for one-off live investigation (see the
+  `storageState`/`indexedDB.open` note above, and `verify-*.mjs` scratchpad
+  scripts from past sessions) — those stay useful for debugging a specific
+  live bug; this suite is for a fixed set of critical flows staying green
+  over time. Its `webServer` builds (`vite build`, default base) and
+  serves (`vite preview`) the app itself, so a first local run needs
+  Playwright's browser installed once (`npx playwright install chromium`).
+  Gates both `deploy-pages.yml` and `ci.yml`, after the existing
+  typecheck/lint/vitest steps. Add a new spec under `e2e/` only for a
+  flow judged worth the ongoing maintenance cost — this was deliberately
+  scoped small (daily-log add/edit, export/import round-trip) rather than
+  broad coverage, per #161's own "decide if this is worth it" framing.
 - **Don't idle waiting on a background full-suite run.** Once an issue's
   typecheck/lint/targeted-test pass is green and the full suite is kicked
   off in the background, immediately move on to implementing the *next*

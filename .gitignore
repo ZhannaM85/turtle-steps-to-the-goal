@@ -32,3 +32,9 @@ coverage
 # Generated fresh by deploy-pages.yml on every deploy (#115) — never commit
 # a stale value.
 public/version.json
+
+# Playwright E2E suite (#161)
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/

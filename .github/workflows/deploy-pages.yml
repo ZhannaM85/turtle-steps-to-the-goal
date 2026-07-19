@@ -38,6 +38,12 @@ jobs:
       - name: Test
         run: npx vitest run
 
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: E2E test
+        run: npm run e2e
+
       - name: Write version marker
         run: echo "{\"version\":\"${{ github.sha }}\"}" > public/version.json
 

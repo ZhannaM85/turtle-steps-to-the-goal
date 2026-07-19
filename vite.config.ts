@@ -1,9 +1,9 @@
-/// <reference types="vitest/config" />
 import path from 'node:path'
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import { VitePWA } from 'vite-plugin-pwa'
+import { defaultExclude } from 'vitest/config'
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -47,5 +47,12 @@ export default defineConfig({
   test: {
     environment: 'jsdom',
     setupFiles: ['./test/setup.ts'],
+    // e2e/ (#161) holds Playwright specs, run via `npm run e2e`
+    // (playwright.config.ts), not Vitest — they use Playwright's own
+    // test()/expect(), which crashes if Vitest's default **/*.spec.ts
+    // glob picks them up too. Spreading defaultExclude rather than
+    // hardcoding it, since providing `exclude` replaces Vitest's own
+    // default list entirely rather than merging with it.
+    exclude: [...defaultExclude, 'e2e/**'],
   },
 })
