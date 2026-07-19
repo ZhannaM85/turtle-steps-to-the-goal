@@ -8,11 +8,16 @@ afterEach(() => {
 
 describe('AppUpdateBanner', () => {
   it('renders nothing when the deployed version matches the running one', async () => {
+    // __APP_VERSION__ (not a hardcoded 'dev') so this holds regardless of
+    // environment — vite.config.ts defines it as `process.env.GITHUB_SHA ??
+    // 'dev'`, which is 'dev' locally but the real commit SHA in CI (GitHub
+    // Actions always sets GITHUB_SHA), and a hardcoded 'dev' here only
+    // matched by accident on machines without that env var set.
     vi.stubGlobal(
       'fetch',
       vi.fn().mockResolvedValue({
         ok: true,
-        json: async () => ({ version: 'dev' }),
+        json: async () => ({ version: __APP_VERSION__ }),
       }),
     )
 
