@@ -5,7 +5,21 @@
     <link rel="icon" type="image/png" href="/favicon-64.png" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="manifest" href="/manifest.json" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- interactive-widget=resizes-content (found live via debug
+         instrumentation, #156 follow-up): in standalone PWA mode
+         specifically -- not a plain Safari tab -- focusing a text input
+         and opening the keyboard was making iOS misreport
+         window.innerWidth/layout-viewport width as much wider than the
+         real screen (e.g. 483 instead of the true 393), while elements
+         sized off the real screen (like <main>) stayed correct --
+         leaving a strip of unaccounted blank page canvas on the right.
+         This meta value tells iOS 17.4+ to resize the viewport for the
+         keyboard instead of whatever its own default (buggy, in
+         standalone mode) behavior was doing. -->
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, interactive-widget=resizes-content"
+    />
     <meta name="theme-color" content="#3e7688" />
     <!-- iOS home-screen shortcut (#103) — without these, "Add to Home
          Screen" falls back to a generic gray-tile icon and an unspaced,

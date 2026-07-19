@@ -35,23 +35,34 @@ function useNavItems(t: Dictionary): {
 // TEMP DEBUG (#156 follow-up) — live width readout so a real-device
 // screenshot carries hard numbers, not just visual impressions. Remove
 // once diagnosed.
+function rectStr(label: string, el: Element | null): string | false {
+  if (!el) return `${label}=missing`
+  const r = el.getBoundingClientRect()
+  return `${label} L=${r.left.toFixed(0)} R=${r.right.toFixed(0)} W=${r.width.toFixed(0)}`
+}
+
 function DebugWidthBadge() {
   const [info, setInfo] = useState('')
   useEffect(() => {
     function update() {
+      const html = document.documentElement
+      const body = document.body
+      const root = document.getElementById('root')
+      const appDiv = root?.firstElementChild ?? null
       const main = document.querySelector('main')
       const firstCard = document.querySelector('main ul li')
-      const mainRect = main?.getBoundingClientRect()
-      const cardRect = firstCard?.getBoundingClientRect()
-      const mainStyle = main ? getComputedStyle(main) : null
+      const vv = window.visualViewport
       setInfo(
         [
-          `vw=${window.innerWidth} scrollW=${document.documentElement.scrollWidth} dpr=${window.devicePixelRatio}`,
-          mainRect &&
-            `main L=${mainRect.left.toFixed(1)} R=${mainRect.right.toFixed(1)} W=${mainRect.width.toFixed(1)}`,
-          cardRect &&
-            `card L=${cardRect.left.toFixed(1)} R=${cardRect.right.toFixed(1)} W=${cardRect.width.toFixed(1)}`,
-          mainStyle && `mainPad=${mainStyle.paddingLeft}/${mainStyle.paddingRight}`,
+          `vw=${window.innerWidth} scrollW=${html.scrollWidth} dpr=${window.devicePixelRatio}`,
+          vv &&
+            `vv w=${vv.width.toFixed(0)} scale=${vv.scale.toFixed(2)} offL=${vv.offsetLeft.toFixed(0)}`,
+          rectStr('html', html),
+          rectStr('body', body),
+          rectStr('root', root),
+          rectStr('appDiv', appDiv),
+          rectStr('main', main),
+          rectStr('card', firstCard),
         ]
           .filter(Boolean)
           .join(' | '),
@@ -59,14 +70,16 @@ function DebugWidthBadge() {
     }
     update()
     window.addEventListener('resize', update)
+    window.visualViewport?.addEventListener('resize', update)
     const interval = setInterval(update, 500)
     return () => {
       window.removeEventListener('resize', update)
+      window.visualViewport?.removeEventListener('resize', update)
       clearInterval(interval)
     }
   }, [])
   return (
-    <div className="fixed top-0 left-0 z-50 max-w-full bg-red-600 px-2 py-1 text-[10px] font-bold break-all text-white">
+    <div className="fixed top-0 left-0 z-50 max-w-full bg-red-600 px-2 py-1 text-[9px] leading-tight font-bold break-all text-white">
       {info}
     </div>
   )
