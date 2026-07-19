@@ -19,6 +19,12 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    issue: 153,
+    date: '2026-07-19T12:08:54+03:00',
+    en: '"Find food" is now the main, bigger button when adding a dish, with manual entry as a smaller fallback link — and the meal note moved below both.',
+    ru: '"Найти блюдо" теперь основная, более крупная кнопка при добавлении блюда, а ручной ввод — вспомогательная ссылка поменьше; заметка о приёме пищи перемещена под обе кнопки.',
+  },
+  {
     issue: 158,
     date: '2026-07-19T12:01:25+03:00',
     en: 'When editing a meal, Save is now a full-width button at the bottom of the card instead of a small checkmark icon next to the name.',

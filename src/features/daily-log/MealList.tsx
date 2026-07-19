@@ -409,6 +409,24 @@ function MealListItem({
             )
           })}
         </ul>
+        {/* "Find food" for an item within this existing meal (#124) —
+         * FoodPickerDialog was previously only reachable from the bottom
+         * add row, leaving no way to search the food list while editing an
+         * already-existing meal. #153: reordered ahead of "+ Add item" and
+         * made primary, matching the add row's own reordering — search
+         * first, manual entry as the fallback. */}
+        <Button
+          type="button"
+          size="lg"
+          className="h-12 w-full text-base"
+          aria-label={`${t.dailyEntry.addFoodButton} — ${t.dailyEntry.mealLabel(position)}`}
+          onClick={() => setIsFoodPickerOpen(true)}
+        >
+          {t.dailyEntry.addFoodButton}
+        </Button>
+        <p className="text-center text-xs text-muted-foreground">
+          {t.dailyEntry.orDivider}
+        </p>
         <Button
           type="button"
           variant="ghost"
@@ -422,23 +440,6 @@ function MealListItem({
           onClick={() => onOpenEditItem(onAddEditItem())}
         >
           {t.dailyEntry.addItemButton}
-        </Button>
-        {/* "Find food" for an item within this existing meal (#124) —
-         * FoodPickerDialog was previously only reachable from the bottom
-         * add row, leaving no way to search the food list while editing an
-         * already-existing meal. Same "or" framing as the add row's own. */}
-        <p className="text-center text-xs text-muted-foreground">
-          {t.dailyEntry.orDivider}
-        </p>
-        <Button
-          type="button"
-          variant="ghost"
-          size="sm"
-          className="self-start"
-          aria-label={`${t.dailyEntry.addFoodButton} — ${t.dailyEntry.mealLabel(position)}`}
-          onClick={() => setIsFoodPickerOpen(true)}
-        >
-          {t.dailyEntry.addFoodButton}
         </Button>
         {isFoodPickerOpen && (
           <FoodPickerDialog
@@ -1299,15 +1300,35 @@ export function MealList({ calorieEntries, onChange }: MealListProps) {
             )}
           </div>
         </div>
+        {/* #153: "Find food" is now the primary, full-width CTA — search
+         * first, and only fall back to typing macros by hand if the dish
+         * isn't found. Was the other way around (manual entry first,
+         * "Find food" a same-weight afterthought below it, #106), which
+         * both buried the lower-friction path and meant more free-typed
+         * names ending up inconsistent with the curated catalog. */}
+        <Button
+          type="button"
+          size="lg"
+          className="h-12 w-full text-base"
+          onClick={() => setIsFoodPickerOpen(true)}
+        >
+          {t.dailyEntry.addFoodButton}
+        </Button>
+        <p className="text-center text-xs text-muted-foreground">
+          {t.dailyEntry.orDivider}
+        </p>
         {/* Item fields (name, mode, kcal, macros) moved into a
          * full-screen editor sheet (#122) — this trigger shows a compact
-         * preview once something's staged, same as an editItems row. */}
-        <div className="flex items-center gap-3">
+         * preview once something's staged, same as an editItems row.
+         * #153: shrunk from a full-width h-12 row to a small link — now the
+         * fallback when the dish isn't in Find food's results, not the
+         * first thing offered. */}
+        <div className="flex items-center gap-2">
           <Button
             type="button"
-            variant="outline"
+            variant="ghost"
             size="sm"
-            className="h-12 flex-1 justify-start"
+            className="justify-start"
             onClick={() => setIsAddItemSheetOpen(true)}
           >
             {addAmountPreview && addAmountPreview > 0 ? (
@@ -1331,7 +1352,7 @@ export function MealList({ calorieEntries, onChange }: MealListProps) {
             <Button
               type="button"
               variant="ghost"
-              size="icon-xl"
+              size="icon-sm"
               aria-label={t.dailyEntry.clearItemDraftLabel}
               onClick={resetItemDraft}
             >
@@ -1366,6 +1387,9 @@ export function MealList({ calorieEntries, onChange }: MealListProps) {
             setIsAddItemSheetOpen(false)
           }}
         />
+        {/* #153: moved below both add-item CTAs — previously sandwiched
+         * between "+ Add item" and "Find food", interrupting the scan path
+         * between the two ways to add a dish. */}
         <Input
           type="text"
           aria-label={t.dailyEntry.mealNoteLabel}
@@ -1380,21 +1404,6 @@ export function MealList({ calorieEntries, onChange }: MealListProps) {
           }}
           className="h-12"
         />
-        {/* "Find food" is the alternative to the manual item sheet above
-         * (#106) — fill in macros via "+ Add item", or find an existing
-         * dish instead. The manual path's own "Add" now lives inside
-         * MealItemEditorSheet, so there's no separate button here. */}
-        <p className="text-center text-xs text-muted-foreground">
-          {t.dailyEntry.orDivider}
-        </p>
-        <Button
-          type="button"
-          variant="ghost"
-          size="sm"
-          onClick={() => setIsFoodPickerOpen(true)}
-        >
-          {t.dailyEntry.addFoodButton}
-        </Button>
         {/* Lazily mounted (#78) — the food list grew to 300+ items, and
          * rendering it unconditionally meant every render paid that cost
          * even with the dialog closed. Only mounting it while open keeps
