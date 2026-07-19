@@ -19,6 +19,12 @@ history grouped into tiers — its Notes column is effectively a changelog of
 past decisions and their reasoning. Skim the most recent tier before
 starting new work; it's the fastest way to pick up context.
 
+**`docs/agent-mistakes-log.md`** tracks every avoidable permission prompt
+and every skipped/out-of-order step from this contract, at the user's
+explicit request (2026-07-19). Log a new row **the moment it happens**,
+not retroactively — including ones you catch yourself, not just ones the
+user points out.
+
 ## The standing contract
 
 1. **Issue-first.** Don't implement a change without a GitHub issue already
