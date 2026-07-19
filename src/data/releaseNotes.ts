@@ -19,6 +19,12 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    issue: 151,
+    date: '2026-07-19T11:19:34+03:00',
+    en: "Added a clear button next to \"+ Add item\" so you can discard an in-progress meal item without opening its editor.",
+    ru: 'Добавлена кнопка очистки рядом с "+ Добавить блюдо" — теперь можно отменить начатое добавление блюда, не открывая редактор.',
+  },
+  {
     issue: 145,
     date: '2026-07-19T10:39:17+03:00',
     en: "You can now add, edit, delete, and reorder meals directly from History (both the list and calendar views), without opening the full day's edit form first.",

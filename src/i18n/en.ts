@@ -117,6 +117,7 @@ export const en: Dictionary = {
       `P ${protein} · F ${fat} · C ${carbs}`,
     timeEatenLabel: 'Time',
     clearTimeLabel: 'Clear time',
+    clearItemDraftLabel: 'Clear',
     orDivider: 'or',
     addFoodButton: 'Find food',
     addFoodDialogTitle: 'Add from food list',

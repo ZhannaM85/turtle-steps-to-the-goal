@@ -789,6 +789,20 @@ export function MealList({ calorieEntries, onChange }: MealListProps) {
     setAddMacroMode(newMode)
   }
 
+  // Shared by addMeal()'s post-add reset and the "+ Add item" trigger's own
+  // clear button (#151) — just the per-item draft fields, not the
+  // meal-group-level note/time next to it.
+  function resetItemDraft() {
+    setAddAmount('')
+    setAddAmountG('1')
+    setAddProtein('')
+    setAddFat('')
+    setAddCarbs('')
+    setAddMacroMode('per100g')
+    setAddItemName('')
+    setAddItemEmotion(undefined)
+  }
+
   function addMeal() {
     const amountNum = parseNumberInput(addAmount)
     if (!amountNum || amountNum <= 0) return
@@ -828,14 +842,7 @@ export function MealList({ calorieEntries, onChange }: MealListProps) {
     if (addItemName.trim()) {
       touchMealItem(addItemName, scaled)
     }
-    setAddAmount('')
-    setAddAmountG('1')
-    setAddProtein('')
-    setAddFat('')
-    setAddCarbs('')
-    setAddMacroMode('per100g')
-    setAddItemName('')
-    setAddItemEmotion(undefined)
+    resetItemDraft()
     setAddGroupNote('')
     setAddTime('')
   }
@@ -1283,27 +1290,43 @@ export function MealList({ calorieEntries, onChange }: MealListProps) {
         {/* Item fields (name, mode, kcal, macros) moved into a
          * full-screen editor sheet (#122) — this trigger shows a compact
          * preview once something's staged, same as an editItems row. */}
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          className="h-12 justify-start"
-          onClick={() => setIsAddItemSheetOpen(true)}
-        >
-          {addAmountPreview && addAmountPreview > 0 ? (
-            <span className="truncate">
-              {addItemName || t.dailyEntry.itemNamePlaceholder}
-              {addTotalPreview && (
-                <span className="text-muted-foreground">
-                  {' '}
-                  — {addTotalPreview}
-                </span>
-              )}
-            </span>
-          ) : (
-            t.dailyEntry.addItemButton
+        <div className="flex items-center gap-3">
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="h-12 flex-1 justify-start"
+            onClick={() => setIsAddItemSheetOpen(true)}
+          >
+            {addAmountPreview && addAmountPreview > 0 ? (
+              <span className="truncate">
+                {addItemName || t.dailyEntry.itemNamePlaceholder}
+                {addTotalPreview && (
+                  <span className="text-muted-foreground">
+                    {' '}
+                    — {addTotalPreview}
+                  </span>
+                )}
+              </span>
+            ) : (
+              t.dailyEntry.addItemButton
+            )}
+          </Button>
+          {/* Clear button (#151) — before this, a staged item draft with
+           * nothing the user wants could only be discarded by reopening
+           * the sheet and erasing every field by hand. */}
+          {addAmountPreview !== undefined && addAmountPreview > 0 && (
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon-xl"
+              aria-label={t.dailyEntry.clearItemDraftLabel}
+              onClick={resetItemDraft}
+            >
+              <X aria-hidden="true" className="size-3.5" />
+            </Button>
           )}
-        </Button>
+        </div>
         <MealItemEditorSheet
           open={isAddItemSheetOpen}
           onOpenChange={setIsAddItemSheetOpen}

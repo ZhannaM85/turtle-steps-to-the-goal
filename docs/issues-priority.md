@@ -294,7 +294,7 @@ _Same pattern as Tiers 8–17: issues filed from continued live use. Ordered eas
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#151](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/151) | ⬜ Open | Add a clear (X) button to the meal-name input | |
+| [#151](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/151) | ✅ Done | Add a clear (X) button to the meal-name input | New `resetItemDraft()` in `MealList.tsx` (shared with `addMeal()`'s existing post-save reset) + a `ghost`/`icon-xl` `X` button next to the "+ Add item" trigger, shown once a staged draft has a valid amount |
 | [#150](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/150) | ⬜ Open | Bug: standard catalog foods leak into the personal meal dictionary via meal-edit save | Root cause pinned down at filing time: `saveEditMeal()`'s touch loop (`MealList.tsx:1121-1130`) doesn't distinguish free-typed names from names picked via `FoodPickerDialog` from the curated `src/data/foods.ts` catalog |
 | [#149](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/149) | ⬜ Open | Add a way to create a custom dictionary entry from Settings, not just via logging a meal | Confirmed at filing time as small/contained — `mealItems` table has no FK to daily logs, `mealItemStore.touch()` already works as a day-independent create-or-update primitive |
 | [#152](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/152) | ⬜ Open | Give the day's total macros their own field on Today, not a caption line | |

@@ -135,6 +135,10 @@ export interface Dictionary {
      * time picker's own Reset doesn't reliably clear the value back to
      * empty once tapped, so this sets state to '' directly instead. */
     clearTimeLabel: string
+    /** App-level clear button for the collapsed "+ Add item" trigger
+     * (#151) — resets the whole staged item draft (name, mode, kcal,
+     * macros, emotion) back to blank without reopening the full sheet. */
+    clearItemDraftLabel: string
     orDivider: string
     addFoodButton: string
     addFoodDialogTitle: string

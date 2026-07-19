@@ -117,6 +117,7 @@ export const ru: Dictionary = {
       `Б ${protein} · Ж ${fat} · У ${carbs}`,
     timeEatenLabel: 'Время',
     clearTimeLabel: 'Очистить время',
+    clearItemDraftLabel: 'Очистить',
     orDivider: 'или',
     addFoodButton: 'Найти блюдо',
     addFoodDialogTitle: 'Добавить из списка продуктов',
