@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 167,
+    issue: 162,
+    date: '2026-07-19T19:05:00+03:00',
+    en: "The History list now shows 20 entries per page instead of all at once, so it stays fast as your log grows.",
+    ru: 'Список в разделе "История" теперь показывает по 20 записей на странице вместо всех сразу — это сохранит скорость работы по мере роста дневника.',
+  },
+  {
     version: 166,
     issue: 182,
     date: '2026-07-19T18:40:00+03:00',

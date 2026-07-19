@@ -21,6 +21,10 @@ const COLUMN_HEADER_CLASS =
 
 type ViewMode = 'list' | 'calendar'
 
+/** List-view pagination (#162) — a growing history (700-1000+ rows for a
+ * multi-year user) shouldn't render every row into the DOM at once. */
+const PAGE_SIZE = 20
+
 export function HistoryScreen() {
   const t = useTranslation()
   const { entries, goal, status, saveEntry, deleteEntry } = useHistoryData()
@@ -38,6 +42,7 @@ export function HistoryScreen() {
   // ("that day I wrote about feeling great").
   const [searchText, setSearchText] = useState('')
   const [moodFilter, setMoodFilter] = useState<Emotion | undefined>(undefined)
+  const [page, setPage] = useState(0)
   const isFiltering =
     dateFrom !== '' ||
     dateTo !== '' ||
@@ -55,6 +60,16 @@ export function HistoryScreen() {
   )
   const sorted = [...filtered].sort((a, b) =>
     sortAsc ? a.date.localeCompare(b.date) : b.date.localeCompare(a.date),
+  )
+  // Clamped at render time, not tracked via a separate reset effect
+  // (#162) — correctly snaps back into range whether the page count
+  // shrank because a filter narrowed the results or because an entry was
+  // deleted, with no dependency list to keep in sync.
+  const pageCount = Math.max(1, Math.ceil(sorted.length / PAGE_SIZE))
+  const currentPage = Math.min(page, pageCount - 1)
+  const paginated = sorted.slice(
+    currentPage * PAGE_SIZE,
+    currentPage * PAGE_SIZE + PAGE_SIZE,
   )
 
   function clearFilter() {
@@ -233,7 +248,7 @@ export function HistoryScreen() {
                       </tr>
                     </thead>
                     <tbody>
-                      {sorted.map((entry) => (
+                      {paginated.map((entry) => (
                         <EntryRow
                           key={entry.id}
                           entry={entry}
@@ -248,6 +263,32 @@ export function HistoryScreen() {
                       ))}
                     </tbody>
                   </table>
+                </div>
+              )}
+
+              {pageCount > 1 && (
+                <div className="flex items-center justify-between gap-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    disabled={currentPage === 0}
+                    onClick={() => setPage(currentPage - 1)}
+                  >
+                    {t.history.previousPageButton}
+                  </Button>
+                  <span className="text-sm text-muted-foreground">
+                    {t.history.pageIndicator(currentPage + 1, pageCount)}
+                  </span>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    disabled={currentPage === pageCount - 1}
+                    onClick={() => setPage(currentPage + 1)}
+                  >
+                    {t.history.nextPageButton}
+                  </Button>
                 </div>
               )}
             </>

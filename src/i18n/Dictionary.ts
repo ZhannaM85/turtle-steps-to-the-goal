@@ -419,6 +419,11 @@ export interface Dictionary {
     todayButton: string
     emptyDayLabel: string
     editThisDayLink: string
+    /** List-view pagination (#162) — 20 rows/page, so a growing history
+     * never renders every entry into the DOM at once. */
+    previousPageButton: string
+    nextPageButton: string
+    pageIndicator: (current: number, total: number) => string
   }
   settings: {
     title: string

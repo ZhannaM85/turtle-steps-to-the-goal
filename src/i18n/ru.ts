@@ -358,6 +358,9 @@ export const ru: Dictionary = {
     todayButton: 'Сегодня',
     emptyDayLabel: 'За этот день ничего не записано.',
     editThisDayLink: 'Редактировать этот день',
+    previousPageButton: 'Назад',
+    nextPageButton: 'Вперёд',
+    pageIndicator: (current, total) => `Страница ${current} из ${total}`,
   },
   settings: {
     title: 'Настройки',

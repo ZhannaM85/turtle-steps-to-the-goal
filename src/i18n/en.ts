@@ -353,6 +353,9 @@ export const en: Dictionary = {
     todayButton: 'Today',
     emptyDayLabel: 'Nothing logged for this day.',
     editThisDayLink: 'Edit this day',
+    previousPageButton: 'Previous',
+    nextPageButton: 'Next',
+    pageIndicator: (current, total) => `Page ${current} of ${total}`,
   },
   settings: {
     title: 'Settings',

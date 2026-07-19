@@ -1,6 +1,7 @@
 import 'fake-indexeddb/auto'
 import { fireEvent, render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { addDays, format } from 'date-fns'
 import { MemoryRouter } from 'react-router-dom'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import type { DailyEntry } from '@/domain/dailyEntry'
@@ -209,6 +210,70 @@ describe('HistoryScreen', () => {
       expect(rows).toHaveLength(2)
       // Auto-expanded: the meal already visible without clicking anything.
       expect(screen.getByText('Breakfast — 2,000 kcal')).toBeInTheDocument()
+    })
+  })
+
+  describe('pagination (#162)', () => {
+    async function seedEntries(count: number) {
+      for (let i = 0; i < count; i++) {
+        const date = format(addDays(new Date('2026-01-01'), i), 'yyyy-MM-dd')
+        await db.dailyEntries.put(makeEntry({ date, weightKg: 80 }))
+      }
+    }
+
+    it('shows no pager controls for 20 or fewer entries', async () => {
+      await seedEntries(20)
+      render(<HistoryScreen />, { wrapper: MemoryRouter })
+      await screen.findByRole('table')
+
+      expect(screen.getAllByRole('row')).toHaveLength(21) // header + 20
+      expect(
+        screen.queryByRole('button', { name: 'Next' }),
+      ).not.toBeInTheDocument()
+    })
+
+    it('shows only the first 20 rows and a page indicator for more than 20 entries', async () => {
+      await seedEntries(25)
+      render(<HistoryScreen />, { wrapper: MemoryRouter })
+      await screen.findByRole('table')
+
+      expect(screen.getAllByRole('row')).toHaveLength(21) // header + 20
+      expect(screen.getByText('Page 1 of 2')).toBeInTheDocument()
+      expect(screen.getByRole('button', { name: 'Previous' })).toBeDisabled()
+      expect(screen.getByRole('button', { name: 'Next' })).toBeEnabled()
+    })
+
+    it('advances to the next page and shows the remaining rows', async () => {
+      await seedEntries(25)
+      const user = userEvent.setup()
+      render(<HistoryScreen />, { wrapper: MemoryRouter })
+      await screen.findByRole('table')
+
+      await user.click(screen.getByRole('button', { name: 'Next' }))
+
+      expect(screen.getAllByRole('row')).toHaveLength(6) // header + 5
+      expect(screen.getByText('Page 2 of 2')).toBeInTheDocument()
+      expect(screen.getByRole('button', { name: 'Next' })).toBeDisabled()
+    })
+
+    it('clamps back into range once a filter shrinks the result set below the current page', async () => {
+      await seedEntries(25)
+      const user = userEvent.setup()
+      render(<HistoryScreen />, { wrapper: MemoryRouter })
+      await screen.findByRole('table')
+      await user.click(screen.getByRole('button', { name: 'Next' }))
+      await screen.findByText('Page 2 of 2')
+
+      // Narrows to the first 5 days only — page 2 no longer exists.
+      fireEvent.change(screen.getByLabelText('To'), {
+        target: { value: '2026-01-05' },
+      })
+
+      expect(await screen.findByRole('table')).toBeInTheDocument()
+      expect(screen.getAllByRole('row')).toHaveLength(6) // header + 5
+      expect(
+        screen.queryByRole('button', { name: 'Next' }),
+      ).not.toBeInTheDocument()
     })
   })
 
