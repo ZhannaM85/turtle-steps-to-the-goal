@@ -39,8 +39,22 @@ function DebugWidthBadge() {
   const [info, setInfo] = useState('')
   useEffect(() => {
     function update() {
+      const main = document.querySelector('main')
+      const firstCard = document.querySelector('main ul li')
+      const mainRect = main?.getBoundingClientRect()
+      const cardRect = firstCard?.getBoundingClientRect()
+      const mainStyle = main ? getComputedStyle(main) : null
       setInfo(
-        `vw=${window.innerWidth} scrollW=${document.documentElement.scrollWidth} dpr=${window.devicePixelRatio}`,
+        [
+          `vw=${window.innerWidth} scrollW=${document.documentElement.scrollWidth} dpr=${window.devicePixelRatio}`,
+          mainRect &&
+            `main L=${mainRect.left.toFixed(1)} R=${mainRect.right.toFixed(1)} W=${mainRect.width.toFixed(1)}`,
+          cardRect &&
+            `card L=${cardRect.left.toFixed(1)} R=${cardRect.right.toFixed(1)} W=${cardRect.width.toFixed(1)}`,
+          mainStyle && `mainPad=${mainStyle.paddingLeft}/${mainStyle.paddingRight}`,
+        ]
+          .filter(Boolean)
+          .join(' | '),
       )
     }
     update()
@@ -52,7 +66,7 @@ function DebugWidthBadge() {
     }
   }, [])
   return (
-    <div className="fixed top-0 left-0 z-50 bg-red-600 px-2 py-1 text-xs font-bold text-white">
+    <div className="fixed top-0 left-0 z-50 max-w-full bg-red-600 px-2 py-1 text-[10px] font-bold break-all text-white">
       {info}
     </div>
   )
