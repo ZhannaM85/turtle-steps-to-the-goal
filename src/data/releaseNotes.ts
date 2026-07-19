@@ -19,6 +19,12 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    issue: 145,
+    date: '2026-07-19T10:39:17+03:00',
+    en: "You can now add, edit, delete, and reorder meals directly from History (both the list and calendar views), without opening the full day's edit form first.",
+    ru: 'Теперь можно добавлять, редактировать, удалять и менять порядок приёмов пищи прямо в Истории (в списке и в календаре), не открывая форму редактирования всего дня.',
+  },
+  {
     issue: 147,
     date: '2026-07-18T22:56:38+03:00',
     en: 'The Goal screen now shows a history of past weekly targets below the form — the week each one covered, its target, and whether it was reached.',

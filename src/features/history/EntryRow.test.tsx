@@ -162,7 +162,7 @@ describe('EntryRow', () => {
       expect(screen.queryByText('Pasta for lunch')).not.toBeInTheDocument()
     })
 
-    it('shows meal notes and emotions read-only, without opening edit mode', async () => {
+    it('shows meal notes and emotions without opening the full day-edit form', async () => {
       const user = userEvent.setup()
       renderRow({
         entry: makeEntry({
@@ -183,11 +183,43 @@ describe('EntryRow', () => {
       expect(screen.getByText('Breakfast — 500 kcal')).toBeInTheDocument()
       expect(screen.getByText('Pasta for lunch')).toBeInTheDocument()
       expect(screen.getByText('Thumbs up')).toBeInTheDocument()
-      // Read-only: no edit affordances leaked into the expanded panel itself.
+      // #145: meals are directly editable in the expanded panel now (an
+      // "Edit meal" button exists), but the day-level fields (Weight,
+      // Sleep, Steps, Note) still don't leak in the way EntryRow's own
+      // "Edit" (alwaysEditable) mode does.
       expect(screen.queryByLabelText('Weight (kg)')).not.toBeInTheDocument()
       expect(
-        screen.queryByRole('button', { name: /Edit meal/ }),
-      ).not.toBeInTheDocument()
+        screen.getByRole('button', { name: /Edit meal/ }),
+      ).toBeInTheDocument()
+    })
+
+    it('edits a meal directly from the expanded panel, without opening "Edit entry" (#145)', async () => {
+      const user = userEvent.setup()
+      const onSaved = vi.fn()
+      renderRow({
+        onSaved,
+        entry: makeEntry({
+          calorieEntries: [
+            {
+              id: 'c1',
+              items: [{ id: 'i1', amountKcal: 500 }],
+              createdAt: '2026-01-01T00:00:00.000Z',
+            },
+          ],
+        }),
+      })
+
+      await user.click(screen.getByRole('button', { name: 'View details' }))
+      await user.click(screen.getByRole('button', { name: 'Edit meal 1' }))
+      await user.type(screen.getByLabelText('Meal name — Meal 1'), 'Brunch')
+      await user.click(screen.getByRole('button', { name: 'Save' }))
+
+      expect(onSaved).toHaveBeenCalledTimes(1)
+      const saved = onSaved.mock.calls[0][0] as DailyEntry
+      expect(saved.calorieEntries?.[0].label).toBe('Brunch')
+      // Confirms the day-level fields were never pulled into edit mode —
+      // only calorieEntries changed on the saved entry.
+      expect(saved.weightKg).toBe(80)
     })
 
     it('collapses again on a second click', async () => {

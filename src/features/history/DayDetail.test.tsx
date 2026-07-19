@@ -1,4 +1,5 @@
 import { render, screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { DailyEntry } from '@/domain/dailyEntry'
 import { useCycleTrackingStore, useDigestionTrackingStore } from '@/stores'
@@ -165,6 +166,72 @@ describe('DayDetail', () => {
     expect(screen.getAllByText('Protein 20g · Fat 10g · Carbs —')).toHaveLength(
       2,
     )
+  })
+
+  describe('meal editing (#145)', () => {
+    it('shows meals read-only, with no edit/add affordances, when onSaved is not provided', () => {
+      render(
+        <DayDetail
+          entry={makeEntry({
+            calorieEntries: [
+              {
+                id: 'c1',
+                items: [{ id: 'i1', amountKcal: 500 }],
+                createdAt: '2026-01-01T00:00:00.000Z',
+              },
+            ],
+          })}
+        />,
+      )
+
+      expect(
+        screen.queryByRole('button', { name: /Edit meal/ }),
+      ).not.toBeInTheDocument()
+      expect(
+        screen.queryByRole('button', { name: '+ Add item' }),
+      ).not.toBeInTheDocument()
+    })
+
+    it('lets a meal be edited directly, without pulling in Weight/Sleep/Steps/Note', async () => {
+      const user = userEvent.setup()
+      const onSaved = vi.fn()
+      render(
+        <DayDetail
+          entry={makeEntry({
+            calorieEntries: [
+              {
+                id: 'c1',
+                items: [{ id: 'i1', amountKcal: 500 }],
+                createdAt: '2026-01-01T00:00:00.000Z',
+              },
+            ],
+          })}
+          onSaved={onSaved}
+        />,
+      )
+
+      expect(screen.queryByLabelText('Weight (kg)')).not.toBeInTheDocument()
+
+      await user.click(screen.getByRole('button', { name: 'Edit meal 1' }))
+      await user.type(
+        screen.getByLabelText('Meal name — Meal 1'),
+        'Post-workout',
+      )
+      await user.click(screen.getByRole('button', { name: 'Save' }))
+
+      expect(onSaved).toHaveBeenCalledTimes(1)
+      const saved = onSaved.mock.calls[0][0] as DailyEntry
+      expect(saved.calorieEntries?.[0].label).toBe('Post-workout')
+      expect(saved.weightKg).toBe(80)
+    })
+
+    it('offers the add-row so a new meal can be logged directly here', () => {
+      render(<DayDetail entry={makeEntry()} onSaved={vi.fn()} />)
+
+      expect(
+        screen.getByRole('button', { name: '+ Add item' }),
+      ).toBeInTheDocument()
+    })
   })
 
   describe('cycle tracking toggle (#71)', () => {

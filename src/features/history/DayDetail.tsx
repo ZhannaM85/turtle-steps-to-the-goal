@@ -11,6 +11,7 @@ import {
   type DailyEntry,
 } from '@/domain/dailyEntry'
 import { kgToLb } from '@/domain/goal'
+import { MealList } from '@/features/daily-log'
 import {
   formatExactNumber,
   formatNumber,
@@ -180,87 +181,106 @@ export function DayDetail({
         </div>
       )}
 
-      {meals.length > 0 && (
-        <ul className="flex flex-col gap-1.5">
-          {meals.map((meal, index) => {
-            const mealMacrosSummary = macrosSummaryText(
-              calorieEntryProtein(meal),
-              calorieEntryFat(meal),
-              calorieEntryCarbs(meal),
-              locale,
-              t,
-            )
-            return (
-              <li key={meal.id} className="flex flex-col gap-0.5">
-                <span className="flex items-center gap-1.5">
-                  {/* #141: also picks up a custom label (#110) here now —
-                   * this view never read `meal.label` at all before, always
-                   * showing the positional name regardless of what Today
-                   * displayed for the same meal. */}
-                  {effectiveMealLabel(t, index + 1, meal.label)} —{' '}
-                  {formatNumber(calorieEntryKcal(meal), locale, 0)}{' '}
-                  {t.dailyEntry.kcalUnit}
-                  {meal.timeEaten && (
-                    <span className="text-muted-foreground">
-                      · {meal.timeEaten}
+      {/* #145: meals become directly editable (add/edit/delete/reorder)
+       * right here once a save path exists — previously the only way to
+       * change a meal from History was EntryRow's "Edit" button, which
+       * pulled in the *entire* day's form (Weight/Sleep/Steps/Note too) just
+       * to fix one meal. Read-only fallback (no onSaved) keeps the original
+       * plain-text rendering, e.g. for a future purely-read-only caller. */}
+      {onSaved ? (
+        <MealList
+          calorieEntries={meals}
+          onChange={(next) =>
+            onSaved({
+              ...entry,
+              calorieEntries: next,
+              updatedAt: new Date().toISOString(),
+            })
+          }
+        />
+      ) : (
+        meals.length > 0 && (
+          <ul className="flex flex-col gap-1.5">
+            {meals.map((meal, index) => {
+              const mealMacrosSummary = macrosSummaryText(
+                calorieEntryProtein(meal),
+                calorieEntryFat(meal),
+                calorieEntryCarbs(meal),
+                locale,
+                t,
+              )
+              return (
+                <li key={meal.id} className="flex flex-col gap-0.5">
+                  <span className="flex items-center gap-1.5">
+                    {/* #141: also picks up a custom label (#110) here now —
+                     * this view never read `meal.label` at all before,
+                     * always showing the positional name regardless of what
+                     * Today displayed for the same meal. */}
+                    {effectiveMealLabel(t, index + 1, meal.label)} —{' '}
+                    {formatNumber(calorieEntryKcal(meal), locale, 0)}{' '}
+                    {t.dailyEntry.kcalUnit}
+                    {meal.timeEaten && (
+                      <span className="text-muted-foreground">
+                        · {meal.timeEaten}
+                      </span>
+                    )}
+                  </span>
+                  {meal.note && (
+                    <span className="text-xs text-muted-foreground">
+                      {meal.note}
                     </span>
                   )}
-                </span>
-                {meal.note && (
-                  <span className="text-xs text-muted-foreground">
-                    {meal.note}
-                  </span>
-                )}
-                {mealMacrosSummary && (
-                  <span className="text-xs text-muted-foreground">
-                    {mealMacrosSummary}
-                  </span>
-                )}
-                {/* Item sub-list (#81) — a group's individual dishes, each
-                 * with its own reaction (#129). */}
-                <ul className="flex flex-col gap-0.5 pl-4">
-                  {meal.items.map((item) => {
-                    const itemMacros = macrosSummaryTextCompact(
-                      item.proteinG,
-                      item.fatG,
-                      item.carbsG,
-                      locale,
-                      t,
-                    )
-                    const itemEmotionOption = MEAL_EMOTIONS.find(
-                      (e) => e.value === item.emotion,
-                    )
-                    return (
-                      <li
-                        key={item.id}
-                        className="text-xs text-muted-foreground"
-                      >
-                        {item.name && `${item.name} — `}
-                        {formatNumber(item.amountKcal, locale, 0)}{' '}
-                        {t.dailyEntry.kcalUnit}
-                        {itemMacros && ` · ${itemMacros}`}
-                        {itemEmotionOption && (
-                          <>
-                            {' '}
-                            <span
-                              aria-hidden="true"
-                              className="text-sm leading-none"
-                            >
-                              {itemEmotionOption.emoji}
-                            </span>
-                            <span className="sr-only">
-                              {t.dailyEntry.mealEmotionLabel(item.emotion!)}
-                            </span>
-                          </>
-                        )}
-                      </li>
-                    )
-                  })}
-                </ul>
-              </li>
-            )
-          })}
-        </ul>
+                  {mealMacrosSummary && (
+                    <span className="text-xs text-muted-foreground">
+                      {mealMacrosSummary}
+                    </span>
+                  )}
+                  {/* Item sub-list (#81) — a group's individual dishes, each
+                   * with its own reaction (#129). */}
+                  <ul className="flex flex-col gap-0.5 pl-4">
+                    {meal.items.map((item) => {
+                      const itemMacros = macrosSummaryTextCompact(
+                        item.proteinG,
+                        item.fatG,
+                        item.carbsG,
+                        locale,
+                        t,
+                      )
+                      const itemEmotionOption = MEAL_EMOTIONS.find(
+                        (e) => e.value === item.emotion,
+                      )
+                      return (
+                        <li
+                          key={item.id}
+                          className="text-xs text-muted-foreground"
+                        >
+                          {item.name && `${item.name} — `}
+                          {formatNumber(item.amountKcal, locale, 0)}{' '}
+                          {t.dailyEntry.kcalUnit}
+                          {itemMacros && ` · ${itemMacros}`}
+                          {itemEmotionOption && (
+                            <>
+                              {' '}
+                              <span
+                                aria-hidden="true"
+                                className="text-sm leading-none"
+                              >
+                                {itemEmotionOption.emoji}
+                              </span>
+                              <span className="sr-only">
+                                {t.dailyEntry.mealEmotionLabel(item.emotion!)}
+                              </span>
+                            </>
+                          )}
+                        </li>
+                      )
+                    })}
+                  </ul>
+                </li>
+              )
+            })}
+          </ul>
+        )
       )}
 
       {!hasDetails && (
