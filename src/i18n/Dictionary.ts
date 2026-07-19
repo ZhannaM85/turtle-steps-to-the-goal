@@ -248,6 +248,12 @@ export interface Dictionary {
      * same InfoTooltip shape as dailyEntry.caloriesTooltip. */
     exportCsvLlmTooltip: string
     exportCsvLlmTooltipLabel: string
+    /** Local storage usage (#176) — `navigator.storage.estimate()`'s
+     * `usage` only, not `quota`: the quota is usually a large
+     * browser-computed ceiling (often a big fraction of free disk space),
+     * not a small fixed number, so framing it as "X of Y (Z%)" reads as
+     * near-meaningless noise rather than useful — just the amount used. */
+    storageUsedLabel: (size: string) => string
   }
   /** Column headers / sheet names for the Excel export (#123) — kept
    * separate from the daily-entry form's own field labels (`dailyEntry.*`)

@@ -205,6 +205,7 @@ export const ru: Dictionary = {
     exportCsvLlmTooltip:
       'CSV — лучший формат, чтобы вставить в LLM (например, ChatGPT или Claude), если хотите получить анализ данных — он компактный и ИИ-инструменты читают его точнее всего.',
     exportCsvLlmTooltipLabel: 'Почему CSV для анализа в ИИ',
+    storageUsedLabel: (size) => `~${size} использовано на этом устройстве`,
   },
   exportXlsx: {
     dailyLogSheetName: 'Дневник',

@@ -205,6 +205,7 @@ export const en: Dictionary = {
     exportCsvLlmTooltip:
       'CSV is the best format to paste into an LLM (like ChatGPT or Claude) if you want it to analyze your data — it’s compact and easy for AI tools to read accurately.',
     exportCsvLlmTooltipLabel: 'Why CSV for AI analysis',
+    storageUsedLabel: (size) => `~${size} used on this device`,
   },
   exportXlsx: {
     dailyLogSheetName: 'Daily Log',

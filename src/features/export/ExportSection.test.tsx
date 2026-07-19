@@ -54,6 +54,12 @@ afterEach(async () => {
   await db.dailyEntries.clear()
   vi.unstubAllGlobals()
   vi.restoreAllMocks()
+  // jsdom has no built-in navigator.storage (#176) — reset whatever a test
+  // defined so it doesn't leak into the next one.
+  Object.defineProperty(navigator, 'storage', {
+    value: undefined,
+    configurable: true,
+  })
 })
 
 describe('ExportSection', () => {
@@ -143,6 +149,19 @@ describe('ExportSection', () => {
       await screen.findByText(
         "This file doesn't look like a valid Turtle Steps backup.",
       ),
+    ).toBeInTheDocument()
+  })
+
+  it('shows the local storage size used on this device when available', async () => {
+    Object.defineProperty(navigator, 'storage', {
+      value: { estimate: vi.fn().mockResolvedValue({ usage: 51200 }) },
+      configurable: true,
+    })
+
+    render(<ExportSection />)
+
+    expect(
+      await screen.findByText('~50 KB used on this device'),
     ).toBeInTheDocument()
   })
 

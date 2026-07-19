@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { format } from 'date-fns'
 import { useTranslation } from '@/i18n'
 import { Button } from '@/shared/ui/button'
@@ -30,10 +30,31 @@ type Status =
   | { kind: 'imported'; goals: number; entries: number }
   | { kind: 'error'; message: string }
 
+/** "50 KB" / "1.2 MB" — usage only, not the quota (#176, see the
+ * storageUsedLabel doc comment in Dictionary.ts for why). */
+function formatBytes(bytes: number): string {
+  if (bytes < 1024) return `${bytes} B`
+  if (bytes < 1024 * 1024) return `${Math.round(bytes / 1024)} KB`
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
+}
+
 export function ExportSection() {
   const t = useTranslation()
   const [status, setStatus] = useState<Status>({ kind: 'idle' })
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const [storageUsage, setStorageUsage] = useState<number | null>(null)
+
+  // Best-effort (#176) — navigator.storage is unavailable in some browsers
+  // and estimate() itself can reject; either way, just show nothing rather
+  // than an error state for a purely informational number.
+  useEffect(() => {
+    navigator.storage
+      ?.estimate?.()
+      .then((estimate) => {
+        if (estimate.usage !== undefined) setStorageUsage(estimate.usage)
+      })
+      .catch(() => {})
+  }, [])
 
   async function handleExport() {
     setStatus({ kind: 'exporting' })
@@ -138,6 +159,11 @@ export function ExportSection() {
       <CardHeader>
         <CardTitle>{t.export.title}</CardTitle>
         <CardDescription>{t.export.description}</CardDescription>
+        {storageUsage !== null && (
+          <p className="text-xs text-muted-foreground">
+            {t.export.storageUsedLabel(formatBytes(storageUsage))}
+          </p>
+        )}
       </CardHeader>
       <CardContent className="flex flex-col gap-4">
         <div className="flex flex-col gap-2">

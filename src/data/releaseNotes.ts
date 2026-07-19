@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 161,
+    issue: 176,
+    date: '2026-07-19T17:15:00+03:00',
+    en: 'The Export section in Settings now shows roughly how much storage the app is using on your device.',
+    ru: 'Раздел "Экспорт" в Настройках теперь показывает примерный объём хранилища, используемого приложением на вашем устройстве.',
+  },
+  {
     version: 160,
     issue: 178,
     date: '2026-07-19T16:58:36+03:00',
