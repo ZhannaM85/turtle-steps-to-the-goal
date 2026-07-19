@@ -485,8 +485,22 @@ export function DailyEntryForm({
             </span>
           </span>
         </div>
+
+        {/* Own field (#152) — was a text-xs caption line tucked under the
+         * Calories card; promoted to the same labeled-field treatment as
+         * Calories itself, just without the large number since it's three
+         * values, not one. */}
         {dayMacrosSummary && (
-          <p className="text-xs text-muted-foreground">{dayMacrosSummary}</p>
+          <div className="flex flex-col gap-1.5">
+            <span className="text-sm font-medium">
+              {t.dailyEntry.macrosLabel}
+            </span>
+            <div className="rounded-lg bg-muted px-3 py-2">
+              <span className="text-sm text-foreground" aria-live="polite">
+                {dayMacrosSummary}
+              </span>
+            </div>
+          </div>
         )}
 
         {/* Meal editing extracted to its own component (#145) — reused

@@ -19,6 +19,12 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    issue: 152,
+    date: '2026-07-19T11:56:27+03:00',
+    en: "The day's total protein/fat/carbs now show as their own field on Today, instead of a small caption line under Calories.",
+    ru: 'Суммарные белки/жиры/углеводы за день теперь отображаются отдельным полем на экране "Сегодня", а не мелкой подписью под калориями.',
+  },
+  {
     issue: 149,
     date: '2026-07-19T11:39:16+03:00',
     en: 'You can now add a custom dish to Settings directly, without having to log it as a meal first.',

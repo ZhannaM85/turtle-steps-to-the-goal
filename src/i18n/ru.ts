@@ -72,6 +72,7 @@ export const ru: Dictionary = {
     macroModePerPortionOption: 'Порция',
     addButton: 'Добавить',
     caloriesTodaySuffix: 'ккал сегодня',
+    macrosLabel: 'БЖУ',
     kcalUnit: 'ккал',
     noteLabel: 'Заметка дня',
     noteFieldPlaceholder: 'Как прошёл день?',

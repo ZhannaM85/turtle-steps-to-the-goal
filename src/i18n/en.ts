@@ -70,6 +70,7 @@ export const en: Dictionary = {
     macroModePerPortionOption: 'Portion',
     addButton: 'Add',
     caloriesTodaySuffix: 'kcal today',
+    macrosLabel: 'Macros',
     kcalUnit: 'kcal',
     noteLabel: "Day's note",
     noteFieldPlaceholder: 'Want to share anything for the day?',

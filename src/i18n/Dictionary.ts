@@ -79,6 +79,10 @@ export interface Dictionary {
     macroModePerPortionOption: string
     addButton: string
     caloriesTodaySuffix: string
+    /** Label above the day's total-macros field (#152) — previously a
+     * caption line tucked under the Calories card, promoted to a field
+     * of its own matching Weight/Sleep/Calories' treatment. */
+    macrosLabel: string
     kcalUnit: string
     noteLabel: string
     noteFieldPlaceholder: string
