@@ -261,10 +261,15 @@ export function DayDetail({
                           {itemEmotionOption && (
                             <>
                               {' '}
-                              <span
-                                aria-hidden="true"
-                                className="text-sm leading-none"
-                              >
+                              {/* leading-none removed (#156 follow-up on
+                               * MealList.tsx, same fallback-rendering
+                               * shape here) — a larger text-sm glyph
+                               * forced to line-height:1 inside
+                               * text-xs wrapping text left an
+                               * inconsistent line-box height, which
+                               * WebKit could render as visible overlap
+                               * with the line above. */}
+                              <span aria-hidden="true" className="text-sm">
                                 {itemEmotionOption.emoji}
                               </span>
                               <span className="sr-only">

@@ -388,7 +388,16 @@ function MealListItem({
                   {itemEmotionOption && (
                     <>
                       {' '}
-                      <span aria-hidden="true" className="text-sm leading-none">
+                      {/* leading-none removed (#156 follow-up, correlated
+                       * live with the emoji specifically): a larger
+                       * text-sm glyph forced to line-height:1 inside
+                       * text-xs wrapping/truncating text left an
+                       * inconsistent line-box height, which WebKit could
+                       * render as visible overlap with the line above.
+                       * Letting it inherit the surrounding line-height
+                       * keeps every line in the paragraph the same
+                       * height. */}
+                      <span aria-hidden="true" className="text-sm">
                         {itemEmotionOption.emoji}
                       </span>
                       <span className="sr-only">
@@ -648,7 +657,9 @@ function MealListItem({
               {itemEmotionOption && (
                 <>
                   {' '}
-                  <span aria-hidden="true" className="text-sm leading-none">
+                  {/* leading-none removed (#156 follow-up) — see the
+                   * matching comment on the edit-mode item row above. */}
+                  <span aria-hidden="true" className="text-sm">
                     {itemEmotionOption.emoji}
                   </span>
                   <span className="sr-only">
