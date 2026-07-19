@@ -20,9 +20,9 @@ export interface ReleaseNote {
 export const releaseNotes: ReleaseNote[] = [
   {
     issue: 156,
-    date: '2026-07-19T12:30:34+03:00',
-    en: 'Fixed the Macros field on Today showing a chunk of empty colored space next to short text.',
-    ru: 'Исправлено: поле "БЖУ" на экране "Сегодня" показывало пустое цветное пространство рядом с коротким текстом.',
+    date: '2026-07-19T12:46:05+03:00',
+    en: 'Fixed a bug where a meal with a long dish name being edited could push the page wider than the screen instead of shortening the name with "...".',
+    ru: 'Исправлена ошибка: при редактировании блюда с длинным названием страница могла становиться шире экрана вместо сокращения названия многоточием.',
   },
   {
     issue: 153,

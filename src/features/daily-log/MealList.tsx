@@ -367,7 +367,14 @@ function MealListItem({
                 key={item.id}
                 className="flex items-center gap-3 rounded-md bg-card px-2 py-1"
               >
-                <span className="flex-1 truncate text-sm">
+                {/* min-w-0 (found live, correlated with longer dish names):
+                 * a flex item's default min-width is `auto`, which refuses
+                 * to shrink below its content's natural (untruncated)
+                 * width — so `truncate` alone silently did nothing for a
+                 * long name, and this row (and the card/page around it)
+                 * got pushed wider than the viewport instead of the text
+                 * actually ellipsizing. */}
+                <span className="min-w-0 flex-1 truncate text-sm">
                   {item.name || t.dailyEntry.itemNamePlaceholder}
                   {itemTotalPreview && (
                     <span className="text-muted-foreground">
