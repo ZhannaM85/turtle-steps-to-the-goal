@@ -323,7 +323,7 @@ _`docs/potential-improvements.md`'s 2026-07-17 survey converted to issues, once 
 | [#168](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/168) | ✅ Done | Macros field has a different height/width than Calories | Reverted `self-start`, gave it the same full-width `h-12 items-center` treatment Weight's box uses |
 | [#169](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/169) | ✅ Done | No way to cancel out of meal edit mode without saving or deleting | New `cancelEditMeal()` + ghost `X` button in the edit header, next to Delete |
 | [#159](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/159) | ✅ Done | CI: run tests and lint before deploying, not just typecheck | Added `npm run lint` and `npx vitest run` steps to `deploy-pages.yml`, right after the existing type-check, before the build step |
-| [#164](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/164) | ⬜ Open | Add a "clear all my data" reset feature to Settings | |
+| [#164](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/164) | ✅ Done | Add a "clear all my data" reset feature to Settings | New `ClearAllDataSection.tsx`, last card on the page, two-step confirm wiping all four IndexedDB tables then reloading |
 | [#167](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/167) | ⬜ Open | Extend the correlation-chart pattern to sleep and steps | |
 | [#170](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/170) | ⬜ Open | Add Per-100g/Per-portion toggle to MealItemsSection's Settings nutrition editor | |
 | [#172](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/172) | ⬜ Open | Add search/filter by note text or mood to History | |

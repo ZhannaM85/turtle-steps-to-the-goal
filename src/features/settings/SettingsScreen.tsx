@@ -20,6 +20,7 @@ import { Button } from '@/shared/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
 import { PageHeader } from '@/shared/ui/page-header'
 import { ToggleGroup, ToggleGroupItem } from '@/shared/ui/toggle-group'
+import { ClearAllDataSection } from './ClearAllDataSection'
 import { MealItemsSection } from './MealItemsSection'
 import { MealLabelPresetsSection } from './MealLabelPresetsSection'
 
@@ -266,6 +267,17 @@ export function SettingsScreen() {
 
       <Card>
         <ExportSection />
+      </Card>
+
+      {/* Last (#164) — a destructive, irreversible action belongs at the
+       * end of the page, not mixed in among routine preference toggles. */}
+      <Card>
+        <CardHeader>
+          <CardTitle>{t.settings.clearAllDataLabel}</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <ClearAllDataSection />
+        </CardContent>
       </Card>
     </div>
   )

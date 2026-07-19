@@ -19,6 +19,12 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    issue: 164,
+    date: '2026-07-19T14:32:51+03:00',
+    en: 'Added a "Clear all data" option at the bottom of Settings, for permanently deleting everything stored on this device.',
+    ru: 'В Настройках внизу добавлена опция "Удалить все данные" — для безвозвратного удаления всего, что хранится на этом устройстве.',
+  },
+  {
     issue: 169,
     date: '2026-07-19T14:02:47+03:00',
     en: 'You can now cancel out of editing a meal without saving or deleting it.',

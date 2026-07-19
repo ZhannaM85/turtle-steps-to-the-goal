@@ -382,6 +382,15 @@ export const ru: Dictionary = {
     foodListDescription:
       'Скройте ненужные продукты или исправьте их калорийность/БЖУ.',
     manageFoodListButton: 'Управлять списком продуктов',
+    clearAllDataLabel: 'Удалить все данные',
+    clearAllDataDescription:
+      'Безвозвратно удалить всё, что хранится на этом устройстве — вес, приёмы пищи, цели и собственные блюда. Это отличается от простого удаления приложения или очистки данных сайта, что не всем понятно как сделать.',
+    clearAllDataButton: 'Удалить все данные',
+    clearAllDataConfirmPrompt:
+      'Это действие нельзя отменить. Если данные могут понадобиться позже, сначала сделайте экспорт резервной копии.',
+    clearAllDataConfirmYes: 'Да, удалить всё',
+    clearAllDataConfirmNo: 'Отмена',
+    clearingAllDataButton: 'Удаление…',
     backToSettingsLabel: '← Настройки',
     hideButtonLabel: 'Скрыть',
     showButtonLabel: 'Показать',
