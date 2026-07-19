@@ -1,4 +1,4 @@
-import { Suspense, useEffect, useState } from 'react'
+import { Suspense } from 'react'
 import { NavLink, Outlet } from 'react-router-dom'
 import {
   Heart,
@@ -32,59 +32,6 @@ function useNavItems(t: Dictionary): {
   ]
 }
 
-// TEMP DEBUG (#156 follow-up) — live width readout so a real-device
-// screenshot carries hard numbers, not just visual impressions. Remove
-// once diagnosed.
-function rectStr(label: string, el: Element | null): string | false {
-  if (!el) return `${label}=missing`
-  const r = el.getBoundingClientRect()
-  return `${label} L=${r.left.toFixed(0)} R=${r.right.toFixed(0)} W=${r.width.toFixed(0)}`
-}
-
-function DebugWidthBadge() {
-  const [info, setInfo] = useState('')
-  useEffect(() => {
-    function update() {
-      const html = document.documentElement
-      const body = document.body
-      const root = document.getElementById('root')
-      const appDiv = root?.firstElementChild ?? null
-      const main = document.querySelector('main')
-      const firstCard = document.querySelector('main ul li')
-      const vv = window.visualViewport
-      setInfo(
-        [
-          `vw=${window.innerWidth} scrollW=${html.scrollWidth} dpr=${window.devicePixelRatio}`,
-          vv &&
-            `vv w=${vv.width.toFixed(0)} scale=${vv.scale.toFixed(2)} offL=${vv.offsetLeft.toFixed(0)}`,
-          rectStr('html', html),
-          rectStr('body', body),
-          rectStr('root', root),
-          rectStr('appDiv', appDiv),
-          rectStr('main', main),
-          rectStr('card', firstCard),
-        ]
-          .filter(Boolean)
-          .join(' | '),
-      )
-    }
-    update()
-    window.addEventListener('resize', update)
-    window.visualViewport?.addEventListener('resize', update)
-    const interval = setInterval(update, 500)
-    return () => {
-      window.removeEventListener('resize', update)
-      window.visualViewport?.removeEventListener('resize', update)
-      clearInterval(interval)
-    }
-  }, [])
-  return (
-    <div className="fixed top-0 left-0 z-50 max-w-full bg-red-600 px-2 py-1 text-[9px] leading-tight font-bold break-all text-white">
-      {info}
-    </div>
-  )
-}
-
 export function AppShell() {
   const t = useTranslation()
   const navItems = useNavItems(t)
@@ -99,7 +46,6 @@ export function AppShell() {
 
   return (
     <div className="min-h-svh bg-background">
-      <DebugWidthBadge />
       <PullToRefreshIndicator />
       <AppUpdateBanner />
       <header className="sticky top-0 z-10 border-b border-border bg-background">
@@ -130,9 +76,7 @@ export function AppShell() {
         </div>
       </header>
 
-      {/* TEMP DEBUG (#156 follow-up) — bright outline on the page's own
-       * content container, remove once diagnosed. */}
-      <main className="mx-auto max-w-3xl px-4 py-6 pb-32 outline outline-4 outline-orange-500 sm:pb-10">
+      <main className="mx-auto max-w-3xl px-4 py-6 pb-32 sm:pb-10">
         {/* #102: every non-Today route is now lazy-loaded (see router.tsx)
          * — this single boundary covers all of them, so a route doesn't
          * need its own Suspense wiring. */}

@@ -20,9 +20,9 @@ export interface ReleaseNote {
 export const releaseNotes: ReleaseNote[] = [
   {
     issue: 156,
-    date: '2026-07-19T12:46:05+03:00',
-    en: 'Fixed a bug where a meal with a long dish name being edited could push the page wider than the screen instead of shortening the name with "...".',
-    ru: 'Исправлена ошибка: при редактировании блюда с длинным названием страница могла становиться шире экрана вместо сокращения названия многоточием.',
+    date: '2026-07-19T13:33:11+03:00',
+    en: "Fixed a layout bug (installed home-screen app only) where editing a meal, especially one with a long dish name or a reaction emoji, could leave empty space or overlapping text on screen.",
+    ru: 'Исправлена ошибка макета (только в установленном приложении на главном экране): при редактировании приёма пищи, особенно с длинным названием блюда или эмодзи-реакцией, могло появляться пустое место или накладывающийся текст.',
   },
   {
     issue: 153,
