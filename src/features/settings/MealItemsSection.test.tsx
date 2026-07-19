@@ -76,6 +76,52 @@ describe('MealItemsSection', () => {
     expect(useMealItemStore.getState().items).toEqual([])
   })
 
+  describe('search (#179)', () => {
+    it('filters the list by name as the user types', async () => {
+      await useMealItemStore.getState().touch('Pizza')
+      await useMealItemStore.getState().touch('Salad')
+      const user = userEvent.setup()
+      render(<MealItemsSection />)
+
+      await screen.findByDisplayValue('Pizza')
+      await user.type(
+        screen.getByLabelText('Search meal items'),
+        'piz',
+      )
+
+      expect(screen.getByDisplayValue('Pizza')).toBeInTheDocument()
+      expect(screen.queryByDisplayValue('Salad')).not.toBeInTheDocument()
+    })
+
+    it('shows a no-results message when nothing matches', async () => {
+      await useMealItemStore.getState().touch('Pizza')
+      const user = userEvent.setup()
+      render(<MealItemsSection />)
+
+      await screen.findByDisplayValue('Pizza')
+      await user.type(
+        screen.getByLabelText('Search meal items'),
+        'nonexistent',
+      )
+
+      expect(screen.queryByDisplayValue('Pizza')).not.toBeInTheDocument()
+      expect(
+        screen.getByText('No meal items match your search.'),
+      ).toBeInTheDocument()
+    })
+
+    it('does not show the search field in the empty state', async () => {
+      render(<MealItemsSection />)
+
+      await screen.findByText(
+        "Nothing yet — items appear here once you've logged a meal.",
+      )
+      expect(
+        screen.queryByLabelText('Search meal items'),
+      ).not.toBeInTheDocument()
+    })
+  })
+
   describe('adding a new dictionary entry (#149)', () => {
     it('creates a new item without any meal ever being logged', async () => {
       const user = userEvent.setup()

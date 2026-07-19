@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 162,
+    issue: 179,
+    date: '2026-07-19T17:25:00+03:00',
+    en: 'The meal items list in Settings now has a search field and scrolls on its own instead of growing the whole page.',
+    ru: 'Список блюд в Настройках теперь можно искать, а сам список прокручивается отдельно, не растягивая всю страницу.',
+  },
+  {
     version: 161,
     issue: 176,
     date: '2026-07-19T17:15:00+03:00',

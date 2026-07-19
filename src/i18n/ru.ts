@@ -375,6 +375,9 @@ export const ru: Dictionary = {
     mealItemsDescription:
       'Блюда, которые вы уже добавляли — подсказки при вводе. Здесь их можно переименовать, удалить или добавить новое.',
     mealItemsEmpty: 'Пока пусто — блюда появятся здесь после первой записи.',
+    mealItemSearchLabel: 'Поиск блюд',
+    mealItemSearchPlaceholder: 'Поиск...',
+    noMealItemResultsText: 'Ничего не найдено.',
     mealItemNameLabel: 'Название блюда',
     deleteMealItemLabel: (name) => `Удалить «${name}»`,
     editMealItemLabel: (name) => `Изменить «${name}»`,

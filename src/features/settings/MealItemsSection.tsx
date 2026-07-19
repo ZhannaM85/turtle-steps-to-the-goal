@@ -593,10 +593,18 @@ export function MealItemsSection() {
   const deleteItem = useMealItemStore((state) => state.deleteItem)
   const touch = useMealItemStore((state) => state.touch)
   const [isAdding, setIsAdding] = useState(false)
+  const [search, setSearch] = useState('')
 
   useEffect(() => {
     loadItems()
   }, [loadItems])
+
+  // Same filter-as-you-type shape as FoodListSettingsScreen's search (#179)
+  // — filters by name, case-insensitive, empty query shows everything.
+  const query = search.trim().toLowerCase()
+  const visibleItems = query
+    ? items.filter((item) => item.name.toLowerCase().includes(query))
+    : items
 
   return (
     <div className="flex flex-col gap-3">
@@ -608,9 +616,26 @@ export function MealItemsSection() {
           {t.settings.mealItemsEmpty}
         </p>
       )}
-      {(items.length > 0 || isAdding) && (
-        <ul className="flex flex-col gap-2">
-          {items.map((item) => (
+      {items.length > 0 && (
+        <Input
+          type="text"
+          aria-label={t.settings.mealItemSearchLabel}
+          placeholder={t.settings.mealItemSearchPlaceholder}
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+      )}
+      {query && visibleItems.length === 0 && (
+        <p className="text-sm text-muted-foreground">
+          {t.settings.noMealItemResultsText}
+        </p>
+      )}
+      {(visibleItems.length > 0 || isAdding) && (
+        // Capped + independently scrollable (#179) — this list lives inside
+        // a Settings Card, not its own page, so an unbounded list would
+        // otherwise keep growing the whole Settings screen.
+        <ul className="flex max-h-96 flex-col gap-2 overflow-y-auto">
+          {visibleItems.map((item) => (
             <MealItemRow
               key={item.id}
               item={item}

@@ -426,6 +426,12 @@ export interface Dictionary {
     mealItemsLabel: string
     mealItemsDescription: string
     mealItemsEmpty: string
+    /** Filter-as-you-type above the list + "no matches" text (#179) — same
+     * pattern as dailyEntry.foodSearchLabel/foodSearchPlaceholder for the
+     * curated food list, mirrored here for the personal meal dictionary. */
+    mealItemSearchLabel: string
+    mealItemSearchPlaceholder: string
+    noMealItemResultsText: string
     mealItemNameLabel: string
     deleteMealItemLabel: (name: string) => string
     editMealItemLabel: (name: string) => string

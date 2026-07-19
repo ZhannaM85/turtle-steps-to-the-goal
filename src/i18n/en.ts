@@ -371,6 +371,9 @@ export const en: Dictionary = {
       "Meals you've logged before, suggested while you type. Rename or remove them here, or add one directly.",
     mealItemsEmpty:
       "Nothing yet — items appear here once you've logged a meal.",
+    mealItemSearchLabel: 'Search meal items',
+    mealItemSearchPlaceholder: 'Search...',
+    noMealItemResultsText: 'No meal items match your search.',
     mealItemNameLabel: 'Meal item name',
     deleteMealItemLabel: (name) => `Delete "${name}"`,
     editMealItemLabel: (name) => `Edit ${name}`,
