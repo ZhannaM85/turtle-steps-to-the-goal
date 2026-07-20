@@ -633,8 +633,12 @@ export function MealItemsSection() {
       {(visibleItems.length > 0 || isAdding) && (
         // Capped + independently scrollable (#179) — this list lives inside
         // a Settings Card, not its own page, so an unbounded list would
-        // otherwise keep growing the whole Settings screen.
-        <ul className="flex max-h-96 flex-col gap-2 overflow-y-auto">
+        // otherwise keep growing the whole Settings screen. #192:
+        // overscroll-y-contain stops a touch-scroll gesture that reaches
+        // this list's top/bottom edge from "chaining" up to scroll the
+        // whole page instead — without it, the browser inconsistently
+        // decided which scrollable ancestor a given gesture belonged to.
+        <ul className="flex max-h-96 flex-col gap-2 overflow-y-auto overscroll-y-contain">
           {visibleItems.map((item) => (
             <MealItemRow
               key={item.id}

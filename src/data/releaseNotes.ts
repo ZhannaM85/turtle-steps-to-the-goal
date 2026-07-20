@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 182,
+    issue: 192,
+    date: '2026-07-20T12:55:00+03:00',
+    en: 'Fixed scrolling the custom meal items list in Settings sometimes scrolling the whole page instead.',
+    ru: 'Исправлено: прокрутка списка своих блюд в настройках иногда прокручивала всю страницу вместо самого списка.',
+  },
+  {
     version: 181,
     issue: 200,
     date: '2026-07-20T12:45:00+03:00',

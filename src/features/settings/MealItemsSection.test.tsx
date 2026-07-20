@@ -76,6 +76,14 @@ describe('MealItemsSection', () => {
     expect(useMealItemStore.getState().items).toEqual([])
   })
 
+  it('contains scroll within the list instead of letting it chain to the page (#192)', async () => {
+    await useMealItemStore.getState().touch('Pizza')
+    render(<MealItemsSection />)
+
+    const list = (await screen.findByDisplayValue('Pizza')).closest('ul')
+    expect(list).toHaveClass('overflow-y-auto', 'overscroll-y-contain')
+  })
+
   describe('search (#179)', () => {
     it('filters the list by name as the user types', async () => {
       await useMealItemStore.getState().touch('Pizza')
