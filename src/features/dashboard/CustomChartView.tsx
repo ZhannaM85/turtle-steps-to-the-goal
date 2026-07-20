@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import { format, parseISO } from 'date-fns'
 import { ChartColumn, ChartLine, ChartScatter } from 'lucide-react'
 import {
@@ -28,7 +27,13 @@ import {
   useTranslation,
   type Dictionary,
 } from '@/i18n'
-import { useCycleTrackingStore, useDigestionTrackingStore, useUnitStore } from '@/stores'
+import {
+  useCustomChartSelectionStore,
+  useCycleTrackingStore,
+  useDigestionTrackingStore,
+  useUnitStore,
+  type ChartSeriesType,
+} from '@/stores'
 import { ToggleGroup, ToggleGroupItem } from '@/shared/ui/toggle-group'
 
 export interface CustomChartViewProps {
@@ -56,23 +61,10 @@ const BOOLEAN_SERIES: BooleanSeriesConfig[] = [
   },
 ]
 
-/** Per-series chart type (#137) — line is the original/default look; bar and
- * dots are alternate ways to plot the same normalized value. */
-type ChartSeriesType = 'line' | 'bar' | 'dots'
-
 const CHART_TYPE_ICONS: Record<ChartSeriesType, typeof ChartLine> = {
   line: ChartLine,
   bar: ChartColumn,
   dots: ChartScatter,
-}
-
-const DEFAULT_CHART_TYPES: Record<NumericSeriesKey, ChartSeriesType> = {
-  weight: 'line',
-  calories: 'line',
-  protein: 'line',
-  fat: 'line',
-  carbs: 'line',
-  steps: 'line',
 }
 
 /** Fixed Y position for period/constipation marker dots — pinned to the
@@ -177,14 +169,25 @@ export function CustomChartView({ entries }: CustomChartViewProps) {
       (series.key === 'hadConstipation' && digestionTrackingEnabled),
   )
 
-  const [selectedNumeric, setSelectedNumeric] = useState<NumericSeriesKey[]>([
-    'weight',
-    'calories',
-  ])
-  const [selectedBoolean, setSelectedBoolean] = useState<string[]>([])
-  const [chartTypes, setChartTypes] = useState<
-    Record<NumericSeriesKey, ChartSeriesType>
-  >(DEFAULT_CHART_TYPES)
+  // #195: persisted across navigation, not local useState — revisiting
+  // Dashboard used to silently reset back to the weight+calories/all-lines
+  // default every time.
+  const selectedNumeric = useCustomChartSelectionStore(
+    (state) => state.selectedNumeric,
+  )
+  const setSelectedNumeric = useCustomChartSelectionStore(
+    (state) => state.setSelectedNumeric,
+  )
+  const selectedBoolean = useCustomChartSelectionStore(
+    (state) => state.selectedBoolean,
+  )
+  const setSelectedBoolean = useCustomChartSelectionStore(
+    (state) => state.setSelectedBoolean,
+  )
+  const chartTypes = useCustomChartSelectionStore((state) => state.chartTypes)
+  const setChartType = useCustomChartSelectionStore(
+    (state) => state.setChartType,
+  )
 
   if (entries.length === 0) return null
 
@@ -362,10 +365,7 @@ export function CustomChartView({ entries }: CustomChartViewProps) {
                   value={chartTypes[key]}
                   onValueChange={(value) => {
                     if (!value) return
-                    setChartTypes((prev) => ({
-                      ...prev,
-                      [key]: value as ChartSeriesType,
-                    }))
+                    setChartType(key, value as ChartSeriesType)
                   }}
                   className="gap-0 bg-transparent p-0"
                 >

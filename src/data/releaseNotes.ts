@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 180,
+    issue: 195,
+    date: '2026-07-20T12:35:00+03:00',
+    en: 'The Dashboard "Compare data" chart now remembers which series and display style you had picked, instead of resetting every time you come back.',
+    ru: 'График «Сравнение данных» на обзоре теперь запоминает выбранные ряды и стиль отображения, а не сбрасывает их при каждом возврате.',
+  },
+  {
     version: 179,
     issue: 189,
     date: '2026-07-20T12:25:00+03:00',

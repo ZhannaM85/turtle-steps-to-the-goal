@@ -1,8 +1,12 @@
 import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it } from 'vitest'
 import type { DailyEntry } from '@/domain/dailyEntry'
-import { useCycleTrackingStore, useDigestionTrackingStore } from '@/stores'
+import {
+  useCustomChartSelectionStore,
+  useCycleTrackingStore,
+  useDigestionTrackingStore,
+} from '@/stores'
 import { CustomChartView } from './CustomChartView'
 
 let idCounter = 0
@@ -17,6 +21,24 @@ function entry(date: string, overrides: Partial<DailyEntry> = {}): DailyEntry {
     ...overrides,
   }
 }
+
+// #195: the selection is now persisted (zustand `persist` + localStorage)
+// rather than local useState, so it survives across tests in this file
+// unless reset — several tests below deliberately change it.
+beforeEach(() => {
+  useCustomChartSelectionStore.setState({
+    selectedNumeric: ['weight', 'calories'],
+    selectedBoolean: [],
+    chartTypes: {
+      weight: 'line',
+      calories: 'line',
+      protein: 'line',
+      fat: 'line',
+      carbs: 'line',
+      steps: 'line',
+    },
+  })
+})
 
 describe('CustomChartView', () => {
   it('renders nothing with no entries at all', () => {
@@ -124,6 +146,40 @@ describe('CustomChartView', () => {
     )
     expect(
       within(caloriesTypes).getByRole('radio', { name: 'Line' }),
+    ).toHaveAttribute('aria-checked', 'true')
+  })
+
+  it('remembers the series selection and chart type across a remount (#195)', async () => {
+    const user = userEvent.setup()
+    const { unmount } = render(
+      <CustomChartView entries={[entry('2026-03-01', { weightKg: 80 })]} />,
+    )
+
+    await user.click(screen.getByRole('button', { name: 'Calories' })) // deselect
+    await user.click(screen.getByRole('button', { name: 'Steps' })) // select
+    const weightTypes = screen.getByRole('radiogroup', {
+      name: 'Chart type for Weight',
+    })
+    await user.click(within(weightTypes).getByRole('radio', { name: 'Bar' }))
+    unmount()
+
+    // Simulates navigating away from Dashboard and back — a fresh mount,
+    // not just a re-render of the same instance.
+    render(<CustomChartView entries={[entry('2026-03-01', { weightKg: 80 })]} />)
+
+    expect(screen.getByRole('button', { name: 'Calories' })).toHaveAttribute(
+      'data-state',
+      'off',
+    )
+    expect(screen.getByRole('button', { name: 'Steps' })).toHaveAttribute(
+      'data-state',
+      'on',
+    )
+    const weightTypesAfter = screen.getByRole('radiogroup', {
+      name: 'Chart type for Weight',
+    })
+    expect(
+      within(weightTypesAfter).getByRole('radio', { name: 'Bar' }),
     ).toHaveAttribute('aria-checked', 'true')
   })
 
