@@ -1,7 +1,7 @@
 import 'fake-indexeddb/auto'
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { addDays, format, subDays } from 'date-fns'
+import { addDays, format } from 'date-fns'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import type { DailyEntry } from '@/domain/dailyEntry'
 import type { Goal } from '@/domain/goal'
@@ -11,7 +11,6 @@ import { GoalScreen } from './GoalScreen'
 
 const DATE_FORMAT = 'yyyy-MM-dd'
 const WEEK_START = format(new Date(), DATE_FORMAT)
-const PRIOR_DAY = format(subDays(new Date(), 3), DATE_FORMAT)
 
 function makeGoal(overrides: Partial<Goal> = {}): Goal {
   const now = new Date().toISOString()
@@ -38,14 +37,13 @@ function makeEntry(overrides: Partial<DailyEntry> = {}): DailyEntry {
   }
 }
 
-/** Same shape as GoalCelebrationModal.test.tsx's seedTargetMetWeeks —
- * prior-window average 82kg, current-window average 80kg (two days
- * logged, #177's minimum), a 2kg loss against a 1kg target. */
+/** Same shape as GoalCelebrationModal.test.tsx's seedTargetMetWeeks (#203:
+ * day-over-day, not an average) — weekStart's own weight as the baseline
+ * (80kg), a later day 1kg below it, meeting a 1kg target. */
 async function seedTargetMetWeeks() {
-  await db.dailyEntries.put(makeEntry({ date: PRIOR_DAY, weightKg: 82 }))
   await db.dailyEntries.put(makeEntry({ date: WEEK_START, weightKg: 80 }))
   await db.dailyEntries.put(
-    makeEntry({ date: format(addDays(new Date(), 1), DATE_FORMAT), weightKg: 80 }),
+    makeEntry({ date: format(addDays(new Date(), 1), DATE_FORMAT), weightKg: 79 }),
   )
 }
 

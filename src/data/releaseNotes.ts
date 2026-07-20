@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 193,
+    issue: 203,
+    date: '2026-07-20T18:20:00+03:00',
+    en: 'Fixed a bug where the weekly goal could show as "reached" even on a day your weight went up from when you set it — it now always compares directly against the weight you logged when the goal was set, no averaging.',
+    ru: 'Исправлена ошибка, из-за которой недельная цель могла показываться как «достигнута» даже в день, когда вес вырос по сравнению с днём постановки цели — теперь сравнение всегда идёт напрямую с весом на момент постановки цели, без усреднения.',
+  },
+  {
     version: 192,
     issue: 202,
     date: '2026-07-20T17:40:00+03:00',

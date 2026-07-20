@@ -63,9 +63,8 @@ describe('pastGoals', () => {
       makeGoal({ id: 'g2', createdAt: '2026-01-08T00:00:00Z' }),
     ]
     const entries = [
-      // Prior week (baseline for g1's window).
-      entry('2025-12-27', { weightKg: 90 }),
-      // g1's own window: two days logged (#177's minimum), -2kg, target 1kg — met.
+      // g1's own window (#203: day-over-day, not an average) — weekStart's
+      // own weight as the baseline, a later day 2kg below it, target 1kg — met.
       entry('2026-01-01', { weightKg: 89 }),
       entry('2026-01-02', { weightKg: 87 }),
     ]

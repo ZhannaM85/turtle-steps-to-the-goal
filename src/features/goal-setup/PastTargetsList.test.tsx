@@ -16,9 +16,6 @@ function makeRecord(overrides: Partial<PastGoalRecord> = {}): PastGoalRecord {
     progress: {
       weekStart: '2026-03-09',
       weekEnd: '2026-03-15',
-      averageWeightKg: 88,
-      priorAverageWeightKg: 90,
-      deltaKg: -2,
       targetMet: true,
       metOnDate: '2026-03-12',
     },
@@ -54,9 +51,6 @@ describe('PastTargetsList', () => {
             progress: {
               weekStart: '2026-03-09',
               weekEnd: '2026-03-15',
-              averageWeightKg: 89.5,
-              priorAverageWeightKg: 90,
-              deltaKg: -0.5,
               targetMet: false,
               metOnDate: null,
             },

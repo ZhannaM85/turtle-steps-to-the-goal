@@ -45,12 +45,10 @@ describe('reachedGoalWindows', () => {
   it('reports the [weekStart, metOnDate] span for a reached window', () => {
     const goals = [makeGoal({ weekStart: '2026-07-19' })]
     const entries = [
-      entry('2026-07-12', { weightKg: 60 }), // prior-week baseline
-      // #177's MIN_WINDOW_DAYS_LOGGED (2) is satisfied by logged entries,
-      // not calendar days — no entry on 07-20, running average after these
-      // two is already 59.4 (-0.6kg, past the 0.5kg target) by 07-21.
+      // #203: day-over-day against weekStart's own weight, not an average
+      // — no entry needed on 07-20, 07-21 is already 0.6kg below 07-19.
       entry('2026-07-19', { weightKg: 59.4 }),
-      entry('2026-07-21', { weightKg: 59.4 }),
+      entry('2026-07-21', { weightKg: 58.8 }),
     ]
     expect(reachedGoalWindows(goals, entries)).toEqual([
       { start: '2026-07-19', metOnDate: '2026-07-21' },
@@ -63,12 +61,10 @@ describe('reachedGoalWindows', () => {
       makeGoal({ id: 'g2', weekStart: '2026-07-19' }),
     ]
     const entries = [
-      entry('2026-06-28', { weightKg: 61 }),
       entry('2026-07-05', { weightKg: 60.4 }),
-      entry('2026-07-07', { weightKg: 60.4 }), // g1: -0.6kg — met
-      entry('2026-07-12', { weightKg: 60 }),
+      entry('2026-07-07', { weightKg: 59.8 }), // g1: -0.6kg — met
       entry('2026-07-19', { weightKg: 59.4 }),
-      entry('2026-07-21', { weightKg: 59.4 }), // g2: -0.6kg — met
+      entry('2026-07-21', { weightKg: 58.8 }), // g2: -0.6kg — met
     ]
     expect(reachedGoalWindows(goals, entries)).toEqual([
       { start: '2026-07-05', metOnDate: '2026-07-07' },
