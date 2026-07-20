@@ -24,9 +24,18 @@ test('exports a backup, clears all data, then re-imports it', async ({ page }) =
   expect(backupPath).not.toBeNull()
 
   await page.getByRole('button', { name: 'Clear all data' }).click()
-  await page
-    .getByRole('button', { name: 'Yes, delete everything' })
-    .click()
+  // The confirm button triggers a same-URL `window.location.reload()`
+  // (ClearAllDataSection.tsx) once IndexedDB is cleared. `waitForURL`
+  // alone can resolve immediately here since the URL never changes
+  // (already '/settings'), without actually waiting for that reload to
+  // finish — racing the very next `page.goto('/')` against the app's
+  // still in-flight reload, intermittently aborting one or the other
+  // navigation. Waiting for the resulting `load` event instead blocks
+  // until the reload has genuinely completed.
+  await Promise.all([
+    page.waitForEvent('load'),
+    page.getByRole('button', { name: 'Yes, delete everything' }).click(),
+  ])
   await page.waitForURL('/settings')
 
   await page.goto('/')
