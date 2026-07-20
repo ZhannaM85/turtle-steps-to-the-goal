@@ -55,6 +55,9 @@ export const en: Dictionary = {
     dailyReminderText: 'No entry yet today — whenever you’re ready.',
     vsYesterdayLabel: 'vs. yesterday',
     vsMaxWeightLabel: 'vs. highest weight',
+    remainingCaloriesLabel: 'Remaining calories',
+    kcalRemainingUnit: 'kcal remaining',
+    kcalOverUnit: 'kcal over',
     celebrationTitle: "You reached this week's goal!",
     celebrationDescription: 'Nice work — want to set a target for next week?',
     celebrationCta: "Set next week's goal",
@@ -176,6 +179,8 @@ export const en: Dictionary = {
       `Rough estimate: about ${kcal} kcal/day ${direction}.`,
     deficitCaveat:
       'This is a simple arithmetic estimate (~7700 kcal ≈ 1kg of fat), not medical or nutritional advice.',
+    dailyCalorieTargetLabel: 'Daily calories target',
+    dailyCalorieTargetHint: 'Optional — leave blank to skip.',
     updateButton: 'Update this week’s target',
     setButton: 'Set this week’s target',
     pastTargetsTitle: 'Past targets',

@@ -12,6 +12,13 @@ export interface Goal {
    * that as "no window info available," not crash.
    */
   weekStart?: string
+  /**
+   * Optional daily calories target (#208) — independent of
+   * targetWeeklyLossKg, purely additive so an existing goal without one
+   * just reads as "no daily target set" rather than needing a migration.
+   * Powers Today's "remaining calories" stat; nothing else reads it.
+   */
+  dailyCalorieTargetKcal?: number
   createdAt: string
   updatedAt: string
 }

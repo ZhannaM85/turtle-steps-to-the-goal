@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import { addDays, format, parseISO } from 'date-fns'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { Link, useSearchParams } from 'react-router-dom'
+import { totalCalories } from '@/domain/dailyEntry'
 import { goalWeekEnd, kgToLb } from '@/domain/goal'
 import {
   formatExactNumber,
@@ -125,6 +126,16 @@ export function TodayScreen() {
       </span>
     )
 
+  // #208 — only shown once the active goal has a dailyCalorieTargetKcal
+  // set (an entirely optional field, unlike the weekly weight-loss
+  // target). Unlogged calories read as 0 consumed so far, not "unknown" —
+  // the whole point is a running total that fills in as the day goes.
+  const remainingKcal =
+    goal?.dailyCalorieTargetKcal !== undefined
+      ? goal.dailyCalorieTargetKcal - (totalCalories(entry?.calorieEntries) ?? 0)
+      : null
+  const isOverCalorieBudget = remainingKcal !== null && remainingKcal < 0
+
   // Quiet nudge (#38) once the goal's own anchored window (#135,
   // `goal.weekStart`..`goalWeekEnd(weekStart)`) has run its course, and
   // only when a goal already exists (a goal-less user already sees the
@@ -199,6 +210,18 @@ export function TodayScreen() {
           label={t.today.vsMaxWeightLabel}
           value={vsMaxWeightValue}
           unit={unitLabel(displayUnit, t)}
+        />
+      )}
+
+      {remainingKcal !== null && (
+        <StatCard
+          label={t.today.remainingCaloriesLabel}
+          value={formatNumber(Math.abs(remainingKcal), locale, 0)}
+          unit={
+            isOverCalorieBudget
+              ? t.today.kcalOverUnit
+              : t.today.kcalRemainingUnit
+          }
         />
       )}
 

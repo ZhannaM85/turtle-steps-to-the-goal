@@ -531,6 +531,101 @@ describe('TodayScreen', () => {
     })
   })
 
+  describe('remaining calories (#208)', () => {
+    it('does not show when the active goal has no daily calorie target', async () => {
+      await useGoalStore.getState().saveGoal(makeGoal())
+
+      render(
+        <MemoryRouter>
+          <TodayScreen />
+        </MemoryRouter>,
+      )
+
+      await screen.findByText("This week's target")
+      expect(
+        screen.queryByText('Remaining calories'),
+      ).not.toBeInTheDocument()
+    })
+
+    it('shows what remains once a target is set, treating nothing logged as 0 consumed', async () => {
+      await useGoalStore
+        .getState()
+        .saveGoal(makeGoal({ dailyCalorieTargetKcal: 2000 }))
+
+      render(
+        <MemoryRouter>
+          <TodayScreen />
+        </MemoryRouter>,
+      )
+
+      expect(
+        await screen.findByText('Remaining calories'),
+      ).toBeInTheDocument()
+      expect(screen.getByText('2,000')).toBeInTheDocument()
+      expect(screen.getByText('kcal remaining')).toBeInTheDocument()
+    })
+
+    it('subtracts what was actually logged today', async () => {
+      await useGoalStore
+        .getState()
+        .saveGoal(makeGoal({ dailyCalorieTargetKcal: 2000 }))
+      await useDailyEntryStore.getState().saveEntry(
+        makeEntry({
+          calorieEntries: [
+            {
+              id: crypto.randomUUID(),
+              items: [{ id: crypto.randomUUID(), amountKcal: 1500 }],
+              createdAt: new Date().toISOString(),
+            },
+          ],
+        }),
+      )
+      useDailyEntryStore.setState({ entry: null, date: null, status: 'idle' })
+
+      render(
+        <MemoryRouter>
+          <TodayScreen />
+        </MemoryRouter>,
+      )
+
+      const label = await screen.findByText('Remaining calories')
+      const card = label.closest('[data-slot="card"]') as HTMLElement
+      expect(within(card).getByText('500')).toBeInTheDocument()
+      expect(within(card).getByText('kcal remaining')).toBeInTheDocument()
+    })
+
+    it('reads as "over" once logged calories exceed the target', async () => {
+      await useGoalStore
+        .getState()
+        .saveGoal(makeGoal({ dailyCalorieTargetKcal: 1000 }))
+      await useDailyEntryStore.getState().saveEntry(
+        makeEntry({
+          calorieEntries: [
+            {
+              id: crypto.randomUUID(),
+              items: [{ id: crypto.randomUUID(), amountKcal: 1300 }],
+              createdAt: new Date().toISOString(),
+            },
+          ],
+        }),
+      )
+      useDailyEntryStore.setState({ entry: null, date: null, status: 'idle' })
+
+      render(
+        <MemoryRouter>
+          <TodayScreen />
+        </MemoryRouter>,
+      )
+
+      const label = await screen.findByText('Remaining calories')
+      const card = label.closest('[data-slot="card"]') as HTMLElement
+      // The absolute difference, not a negative number — "over" carries
+      // the direction instead.
+      expect(within(card).getByText('300')).toBeInTheDocument()
+      expect(within(card).getByText('kcal over')).toBeInTheDocument()
+    })
+  })
+
   describe('viewed date lives in the URL, not local state (#200)', () => {
     it('encodes a non-today date into the URL when navigating via the arrows', async () => {
       const user = userEvent.setup()

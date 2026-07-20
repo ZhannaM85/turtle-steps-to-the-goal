@@ -36,6 +36,19 @@ describe('goalToFormValues', () => {
 
     expect(values.targetWeeklyLoss).toBeCloseTo(2.2, 1)
   })
+
+  it('maps the optional daily calorie target straight through when set (#208)', () => {
+    const values = goalToFormValues(
+      makeGoal({ dailyCalorieTargetKcal: 1800 }),
+      'kg',
+    )
+    expect(values.dailyCalorieTarget).toBe(1800)
+  })
+
+  it('leaves the daily calorie target undefined when not set (#208)', () => {
+    const values = goalToFormValues(makeGoal(), 'kg')
+    expect(values.dailyCalorieTarget).toBeUndefined()
+  })
 })
 
 describe('formValuesToGoal', () => {
@@ -73,6 +86,19 @@ describe('formValuesToGoal', () => {
     expect(goal.targetWeeklyLossKg).toBeCloseTo(0.998, 2)
   })
 
+  it('carries the optional daily calorie target through to a fresh record (#208)', () => {
+    const goal = formValuesToGoal(
+      { targetWeeklyLoss: 1, dailyCalorieTarget: 1800 },
+      'kg',
+    )
+    expect(goal.dailyCalorieTargetKcal).toBe(1800)
+  })
+
+  it('leaves the daily calorie target undefined on a fresh record when not provided (#208)', () => {
+    const goal = formValuesToGoal(baseValues, 'kg')
+    expect(goal.dailyCalorieTargetKcal).toBeUndefined()
+  })
+
   describe('editing the current week in place (#181)', () => {
     it("reuses the same id/createdAt/weekStart when the existing goal's window is still live", () => {
       const today = format(new Date(), 'yyyy-MM-dd')
@@ -94,6 +120,40 @@ describe('formValuesToGoal', () => {
       expect(goal.weekStart).toBe(today)
       expect(goal.targetWeeklyLossKg).toBe(2)
       expect(goal.updatedAt).not.toBe(existingGoal.updatedAt)
+    })
+
+    it('updates the daily calorie target in place too (#208)', () => {
+      const today = format(new Date(), 'yyyy-MM-dd')
+      const existingGoal = makeGoal({
+        id: 'goal-1',
+        weekStart: today,
+        dailyCalorieTargetKcal: 1800,
+      })
+
+      const goal = formValuesToGoal(
+        { targetWeeklyLoss: 1, dailyCalorieTarget: 2000 },
+        'kg',
+        existingGoal,
+      )
+
+      expect(goal.dailyCalorieTargetKcal).toBe(2000)
+    })
+
+    it('clears a previously-set daily calorie target when the field is left blank (#208)', () => {
+      const today = format(new Date(), 'yyyy-MM-dd')
+      const existingGoal = makeGoal({
+        id: 'goal-1',
+        weekStart: today,
+        dailyCalorieTargetKcal: 1800,
+      })
+
+      const goal = formValuesToGoal(
+        { targetWeeklyLoss: 1, dailyCalorieTarget: undefined },
+        'kg',
+        existingGoal,
+      )
+
+      expect(goal.dailyCalorieTargetKcal).toBeUndefined()
     })
 
     it("starts a fresh record once the existing goal's window has ended", () => {

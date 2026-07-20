@@ -65,6 +65,14 @@ export interface Dictionary {
     dailyReminderText: string
     vsYesterdayLabel: string
     vsMaxWeightLabel: string
+    /** #208 — only shown once the active goal has a dailyCalorieTargetKcal
+     * set; the StatCard's own value is always the absolute difference,
+     * these two supply the unit text so "under budget" and "over" read as
+     * different states rather than a plain (and possibly confusing
+     * negative) signed number. */
+    remainingCaloriesLabel: string
+    kcalRemainingUnit: string
+    kcalOverUnit: string
     celebrationTitle: string
     celebrationDescription: string
     celebrationCta: string
@@ -253,6 +261,10 @@ export interface Dictionary {
     targetRequired: string
     deficitEstimate: (kcal: number, direction: 'deficit' | 'surplus') => string
     deficitCaveat: string
+    /** #208 — genuinely optional, unlike the weekly target above; hint
+     * clarifies that leaving it blank is fine, not an error state. */
+    dailyCalorieTargetLabel: string
+    dailyCalorieTargetHint: string
     updateButton: string
     setButton: string
     /** Goal history section (#147) — every past (non-active) target. */

@@ -9,6 +9,9 @@ const goalSchema = z.object({
   // fine (weekStart ends up undefined, same as a goal never re-saved
   // since #135 shipped).
   weekStart: z.string().optional(),
+  // Optional daily calories target (#208) — same purely-additive/optional
+  // reasoning as weekStart above.
+  dailyCalorieTargetKcal: z.number().optional(),
   createdAt: z.string(),
   updatedAt: z.string(),
 })

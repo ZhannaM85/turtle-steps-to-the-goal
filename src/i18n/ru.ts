@@ -56,6 +56,9 @@ export const ru: Dictionary = {
     dailyReminderText: 'Сегодня пока нет записи — когда будете готовы.',
     vsYesterdayLabel: 'по сравнению со вчера',
     vsMaxWeightLabel: 'по сравнению с максимальным весом',
+    remainingCaloriesLabel: 'Осталось калорий',
+    kcalRemainingUnit: 'ккал осталось',
+    kcalOverUnit: 'ккал сверх нормы',
     celebrationTitle: 'Вы достигли цели на эту неделю!',
     celebrationDescription:
       'Отличная работа — хотите задать цель на следующую неделю?',
@@ -178,6 +181,8 @@ export const ru: Dictionary = {
       `Примерная оценка: около ${kcal} ккал/день ${direction === 'deficit' ? 'дефицита' : 'профицита'}.`,
     deficitCaveat:
       'Это простая арифметическая оценка (~7700 ккал ≈ 1 кг жира), не медицинская и не диетологическая рекомендация.',
+    dailyCalorieTargetLabel: 'Дневная цель по калориям',
+    dailyCalorieTargetHint: 'Необязательно — можно оставить пустым.',
     updateButton: 'Обновить цель на неделю',
     setButton: 'Задать цель на неделю',
     pastTargetsTitle: 'Прошлые цели',

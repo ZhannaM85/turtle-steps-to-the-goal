@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 200,
+    issue: 208,
+    date: '2026-07-21T00:27:00+03:00',
+    en: 'Added an optional daily calories target on the Goal page — set it, and Today will show how many calories you have left for the day.',
+    ru: 'Добавлена необязательная дневная цель по калориям на странице «Цель» — если её задать, на странице «Сегодня» будет видно, сколько калорий осталось на день.',
+  },
+  {
     version: 199,
     issue: 211,
     date: '2026-07-20T23:59:00+03:00',

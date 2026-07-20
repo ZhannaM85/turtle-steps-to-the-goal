@@ -78,6 +78,17 @@ export function GoalForm({
         </p>
       )}
 
+      {/* #208 — independent of the weekly weight-loss target above,
+       * genuinely optional (no superRefine requiring it, unlike that
+       * field), powers Today's "remaining calories" stat when set. */}
+      <NumberInput
+        label={t.goal.dailyCalorieTargetLabel}
+        hint={t.goal.dailyCalorieTargetHint}
+        unit={t.dailyEntry.kcalUnit}
+        error={errors.dailyCalorieTarget?.message}
+        {...register('dailyCalorieTarget', { setValueAs: parseNumberInput })}
+      />
+
       <Button type="submit" className="self-start">
         {existingGoal ? t.goal.updateButton : t.goal.setButton}
       </Button>
