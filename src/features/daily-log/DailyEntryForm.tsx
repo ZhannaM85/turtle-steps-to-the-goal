@@ -595,9 +595,11 @@ export function DailyEntryForm({
               {note}
               {DayEmotionIcon && (
                 <>
+                  {/* #210: was size-3.5 (14px), reported as very small next
+                   * to the note text/edit button it sits alongside. */}
                   <DayEmotionIcon
                     aria-hidden="true"
-                    className="size-3.5 text-muted-foreground"
+                    className="size-5 text-muted-foreground"
                   />
                   <span className="sr-only">
                     {t.dailyEntry.emotionLabel(dayEmotion!)}
