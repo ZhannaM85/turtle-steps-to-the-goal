@@ -477,6 +477,12 @@ export interface Dictionary {
     english: string
     russian: string
     appearanceLabel: string
+    /** #193: displayed copy is "Theme"/"Тема", not "Mood" — the key name is
+     * unchanged (still ties to the `Mood` type/`useMoodStore`) but the old
+     * label confused users with the day/meal emotion pickers elsewhere in
+     * the app, which already use "mood" for something unrelated. Can't
+     * reuse "Color scheme" either — `colorSchemeLabel` below already means
+     * the light/dark toggle. */
     moodLabel: string
     moodPond: string
     moodDusk: string

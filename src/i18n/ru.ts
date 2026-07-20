@@ -383,7 +383,7 @@ export const ru: Dictionary = {
     english: 'Английский',
     russian: 'Русский',
     appearanceLabel: 'Оформление',
-    moodLabel: 'Настроение',
+    moodLabel: 'Тема',
     moodPond: 'Пруд',
     moodDusk: 'Сумерки',
     moodSage: 'Шалфей',

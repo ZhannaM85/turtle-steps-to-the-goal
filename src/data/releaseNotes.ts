@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 176,
+    issue: 193,
+    date: '2026-07-20T12:05:00+03:00',
+    en: 'Renamed the color-theme picker in Settings from "Mood" to "Theme," since it was getting confused with the mood/reaction pickers elsewhere in the app.',
+    ru: 'Переименовали выбор цветовой темы в настройках из «Настроение» в «Тема» — он путался с выбором настроения и реакций в других частях приложения.',
+  },
+  {
     version: 175,
     issue: 155,
     date: '2026-07-20T11:43:00+03:00',

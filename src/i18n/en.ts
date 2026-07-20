@@ -377,7 +377,7 @@ export const en: Dictionary = {
     english: 'English',
     russian: 'Russian',
     appearanceLabel: 'Appearance',
-    moodLabel: 'Mood',
+    moodLabel: 'Theme',
     moodPond: 'Pond',
     moodDusk: 'Dusk',
     moodSage: 'Sage',
