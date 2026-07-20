@@ -22,6 +22,7 @@ import {
 } from '@/i18n'
 import { DAY_EMOTIONS, MEAL_EMOTIONS } from '@/shared/lib/emotionIcons'
 import {
+  formatMacroGrams,
   macrosSummaryText,
   macrosSummaryTextCompact,
 } from '@/shared/lib/macroDisplay'
@@ -258,6 +259,10 @@ export function DayDetail({
                           {item.name && `${item.name} — `}
                           {formatNumber(item.amountKcal, locale, 0)}{' '}
                           {t.dailyEntry.kcalUnit}
+                          {/* #206 — see the matching comment on
+                           * MealList.tsx's own item row. */}
+                          {item.amountG !== undefined &&
+                            ` · ${formatMacroGrams(item.amountG, locale, t)}`}
                           {itemMacros && ` · ${itemMacros}`}
                           {itemEmotionOption && (
                             <>

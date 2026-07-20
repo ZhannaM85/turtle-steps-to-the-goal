@@ -87,6 +87,28 @@ describe('DayDetail', () => {
     expect(screen.getByText('Thumbs up')).toBeInTheDocument()
   })
 
+  it("shows an item's own quantity in grams when recorded, omits it when not (#206)", () => {
+    render(
+      <DayDetail
+        entry={makeEntry({
+          calorieEntries: [
+            {
+              id: 'c1',
+              items: [
+                { id: 'i1', name: 'Bio-Skyr', amountKcal: 175, amountG: 100 },
+                { id: 'i2', name: 'Chicken thigh', amountKcal: 314 },
+              ],
+              createdAt: '2026-01-01T00:00:00.000Z',
+            },
+          ],
+        })}
+      />,
+    )
+
+    expect(screen.getByText('Bio-Skyr — 175 kcal · 100g')).toBeInTheDocument()
+    expect(screen.getByText('Chicken thigh — 314 kcal')).toBeInTheDocument()
+  })
+
   it("shows a meal's bellissimo reaction as the 🤌 emoji, not an icon (#54)", () => {
     render(
       <DayDetail

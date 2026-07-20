@@ -103,6 +103,26 @@ describe('MealList', () => {
     expect(next[0].items[0].amountKcal).toBe(200)
   })
 
+  it("shows an item's own quantity in grams when recorded, omits it when not (#206)", () => {
+    const calorieEntries: CalorieEntry[] = [
+      {
+        id: 'c1',
+        items: [
+          { id: 'i1', name: 'Bio-Skyr', amountKcal: 175, amountG: 100 },
+          { id: 'i2', name: 'Chicken thigh', amountKcal: 314 },
+        ],
+        createdAt: '2026-01-01T00:00:00.000Z',
+      },
+    ]
+    render(
+      <MealList calorieEntries={calorieEntries} date="2026-03-01" onChange={vi.fn()} />,
+      { wrapper: MemoryRouter },
+    )
+
+    expect(screen.getByText('Bio-Skyr — 175 kcal · 100g')).toBeInTheDocument()
+    expect(screen.getByText('Chicken thigh — 314 kcal')).toBeInTheDocument()
+  })
+
   it("navigates to the dedicated edit route when a meal's pencil is clicked (#157)", async () => {
     const user = userEvent.setup()
     const calorieEntries: CalorieEntry[] = [

@@ -404,7 +404,7 @@ _Filed per live report, not to be picked up until told to._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#206](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/206) | ⬜ Open | Meal item summary line doesn't show quantity in grams | Reported from a real device (screenshot, Today screen, RU locale) — a logged item's compact summary line (e.g. "Bio-Skyr Exponenta — 175 ккал · Б 30г · Ж 0г · У 15г") shows kcal and macros but not the item's own quantity (`amountG`). Not yet investigated |
+| [#206](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/206) | ✅ Done | Meal item summary line doesn't show quantity in grams | Root cause: `amountG` was never rendered anywhere once an item was saved — it only ever existed transiently in the add/edit form's own quantity input. Fixed in both places that duplicate this exact item-summary line (`MealList.tsx`'s view-mode row, `DayDetail.tsx`'s read-only fallback row) by inserting `formatMacroGrams(item.amountG, ...)` between the kcal and macros, e.g. "Salmon — 208 kcal · 100g · P 20g · F 13g · C 0g" — omitted (not "—") when unset, so manually-typed items with no recorded quantity don't get cluttered. Deliberately did *not* touch the live add/edit preview (`formatComputedTotal`) — that quantity is already visible in the input field right next to it, so adding it there would be redundant, not a fix |
 
 ---
 

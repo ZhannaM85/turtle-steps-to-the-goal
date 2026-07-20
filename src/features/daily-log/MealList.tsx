@@ -42,7 +42,11 @@ import {
 } from '@/i18n'
 import { IndexedDbDailyEntryRepository } from '@/infrastructure/persistence/indexeddb'
 import { MEAL_EMOTIONS } from '@/shared/lib/emotionIcons'
-import { macrosSummaryText, macrosSummaryTextCompact } from '@/shared/lib/macroDisplay'
+import {
+  formatMacroGrams,
+  macrosSummaryText,
+  macrosSummaryTextCompact,
+} from '@/shared/lib/macroDisplay'
 import {
   formatComputedTotal,
   parseOptionalMacro,
@@ -722,6 +726,15 @@ function MealListItem({
             <li key={item.id} className="text-xs text-muted-foreground">
               {item.name && `${item.name} — `}
               {formatNumber(item.amountKcal, locale, 0)} {t.dailyEntry.kcalUnit}
+              {/* #206: this line otherwise never surfaces the item's own
+               * quantity anywhere — the only place it existed before was
+               * inside the add/edit form's own quantity input, gone once
+               * the item is saved. Omitted (not shown as "—") when unset,
+               * same as itemMacros/itemEmotionOption below, rather than
+               * cluttering every manually-typed item with no recorded
+               * quantity. */}
+              {item.amountG !== undefined &&
+                ` · ${formatMacroGrams(item.amountG, locale, t)}`}
               {itemMacros && ` · ${itemMacros}`}
               {itemEmotionOption && (
                 <>

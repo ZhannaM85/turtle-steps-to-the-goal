@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 195,
+    issue: 206,
+    date: '2026-07-20T19:27:00+03:00',
+    en: 'Logged meal items now show their quantity in grams alongside calories and macros, wherever that was recorded.',
+    ru: 'У добавленных блюд теперь отображается количество в граммах рядом с калориями и БЖУ, если оно было указано.',
+  },
+  {
     version: 194,
     issue: 205,
     date: '2026-07-20T18:48:00+03:00',
