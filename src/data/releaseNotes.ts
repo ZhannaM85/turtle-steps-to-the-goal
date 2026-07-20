@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 205,
+    issue: 214,
+    date: '2026-07-21T02:56:00+03:00',
+    en: 'The weight chart now also shows a 7-day rolling average line, so it is easier to see the trend under day-to-day fluctuation.',
+    ru: 'На графике веса теперь также показана линия скользящего среднего за 7 дней — так проще увидеть тенденцию за пределами ежедневных колебаний.',
+  },
+  {
     version: 204,
     issue: 226,
     date: '2026-07-21T02:44:00+03:00',

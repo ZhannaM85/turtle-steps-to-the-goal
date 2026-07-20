@@ -14,6 +14,7 @@ import {
 import { Link } from 'react-router-dom'
 import type { DailyEntry } from '@/domain/dailyEntry'
 import { kgToLb } from '@/domain/goal'
+import { rollingAverage } from '@/domain/stats'
 import {
   formatNumber,
   getDateFnsLocale,
@@ -23,6 +24,19 @@ import {
 } from '@/i18n'
 import { useUnitStore } from '@/stores'
 import { resolveChartClickDate } from './chartNavigation'
+
+interface ChartPoint {
+  date: string
+  weight?: number
+  average?: number
+}
+
+// #214: matches CalorieTrendChart.tsx's own established window — no
+// window-size picker (14/30-day were only ever "possibly" in the
+// original request; a fixed 7-day window is the one concretely asked
+// for, and keeps this consistent with the app's one other rolling-
+// average chart rather than introducing a new UI control).
+const ROLLING_WINDOW_DAYS = 7
 
 export interface WeightTrendChartProps {
   entries: DailyEntry[]
@@ -35,7 +49,7 @@ export function WeightTrendChart({ entries }: WeightTrendChartProps) {
   const displayUnit = useUnitStore((state) => state.unit)
   const toDisplay = (kg: number) => (displayUnit === 'lb' ? kgToLb(kg) : kg)
 
-  const data = entries
+  const weightPoints = entries
     .filter(
       (entry): entry is DailyEntry & { weightKg: number } =>
         entry.weightKg !== undefined,
@@ -43,9 +57,36 @@ export function WeightTrendChart({ entries }: WeightTrendChartProps) {
     .sort((a, b) => a.date.localeCompare(b.date))
     .map((entry) => ({ date: entry.date, weight: toDisplay(entry.weightKg) }))
 
-  if (data.length === 0) return null
+  if (weightPoints.length === 0) return null
 
-  const lastWeightIndex = data.length - 1
+  // rollingAverage() itself always works in canonical kg (DailyEntry's own
+  // unit) — converted to the display unit per-point here, same as the raw
+  // weight values above, rather than averaging already-converted numbers
+  // (equivalent for a linear conversion like kg<->lb, but keeps the
+  // averaging math working against the entries' real stored values).
+  const rollingPoints = rollingAverage(entries, 'weightKg', ROLLING_WINDOW_DAYS)
+    .filter(
+      (point): point is { date: string; average: number } =>
+        point.average !== null,
+    )
+    .map((point) => ({ date: point.date, average: toDisplay(point.average) }))
+
+  const merged = new Map<string, ChartPoint>()
+  for (const point of weightPoints) {
+    merged.set(point.date, { ...merged.get(point.date), ...point })
+  }
+  for (const point of rollingPoints) {
+    merged.set(point.date, { ...merged.get(point.date), ...point })
+  }
+  const data = [...merged.values()].sort((a, b) => a.date.localeCompare(b.date))
+
+  // The special "current value" dot (below) marks the most recent day
+  // that actually has a logged weight — not just the last row in `data`,
+  // which can trail off with average-only points on days that logged
+  // something else but no weight (rollingAverage() covers every entry
+  // date, not only weight-logged ones).
+  const lastWeightDate = weightPoints[weightPoints.length - 1].date
+  const lastWeightIndex = data.findIndex((point) => point.date === lastWeightDate)
 
   const unit = unitLabel(displayUnit, t)
 
@@ -57,8 +98,6 @@ export function WeightTrendChart({ entries }: WeightTrendChartProps) {
   // chart) — wrapperStyle below re-enables it so the link is clickable.
   function renderTooltip({ active, label, payload }: TooltipContentProps) {
     if (!active || !payload || payload.length === 0) return null
-    const value = payload[0]?.value
-    if (value === undefined || value === null) return null
     const date = resolveChartClickDate(
       { activeLabel: label },
       data,
@@ -79,10 +118,20 @@ export function WeightTrendChart({ entries }: WeightTrendChartProps) {
         <p className="mb-1 font-medium">
           {format(parseISO(String(label)), 'PP', { locale: dateFnsLocale })}
         </p>
-        <p>
-          {formatNumber(Number(value), locale)} {unit} ·{' '}
-          {t.dashboard.weightLegend}
-        </p>
+        {/* #214: both series (either can be absent on a given day — an
+         * early day before the rolling window fills has no average yet,
+         * and (rarer) a day that logged something else but no weight has
+         * no raw value) rather than only ever reading payload[0]. */}
+        {payload.map((item) =>
+          item.value === undefined || item.value === null ? null : (
+            <p key={String(item.dataKey)}>
+              {formatNumber(Number(item.value), locale)} {unit} ·{' '}
+              {item.dataKey === 'average'
+                ? t.dashboard.rollingAverageLegend
+                : t.dashboard.weightLegend}
+            </p>
+          ),
+        )}
         {date && (
           <Link
             to={`/history?date=${date}`}
@@ -148,6 +197,24 @@ export function WeightTrendChart({ entries }: WeightTrendChartProps) {
             activeDot={{ r: 4 }}
             isAnimationActive={false}
           />
+          {/* #214: a dashed, muted-gray line — deliberately not a second
+           * solid `--chart-weight` line the way CalorieTrendChart.tsx
+           * overlays its own rolling average, since that chart's average
+           * line sits over a *different*-colored Bar series (no visual
+           * clash); here both series are the same metric, so a same-color
+           * solid pair would be hard to tell apart at a glance. The dash
+           * reads as "smoothed variant of the line next to it" rather
+           * than a second real data series. */}
+          <Line
+            type="monotone"
+            dataKey="average"
+            stroke="var(--muted-foreground)"
+            strokeWidth={1.5}
+            strokeDasharray="4 3"
+            dot={false}
+            connectNulls={false}
+            isAnimationActive={false}
+          />
         </LineChart>
       </ResponsiveContainer>
       <span className="flex gap-3 text-xs text-muted-foreground">
@@ -158,6 +225,14 @@ export function WeightTrendChart({ entries }: WeightTrendChartProps) {
             style={{ background: 'var(--chart-weight)' }}
           />
           {t.dashboard.weightLegend}
+        </i>
+        <i className="flex items-center gap-1 not-italic">
+          <span
+            aria-hidden="true"
+            className="size-2 rounded-sm"
+            style={{ background: 'var(--muted-foreground)' }}
+          />
+          {t.dashboard.rollingAverageLegend}
         </i>
       </span>
       <p className="text-xs text-muted-foreground">

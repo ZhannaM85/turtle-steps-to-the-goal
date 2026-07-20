@@ -40,4 +40,14 @@ describe('WeightTrendChart', () => {
 
     expect(screen.queryByText('projected')).not.toBeInTheDocument()
   })
+
+  describe('7-day rolling average overlay (#214)', () => {
+    it('shows the rolling-average legend alongside the weight one', () => {
+      const entries = [entry('2026-03-01', { weightKg: 80 })]
+      render(<WeightTrendChart entries={entries} />, { wrapper: MemoryRouter })
+
+      expect(screen.getByText('weight')).toBeInTheDocument()
+      expect(screen.getByText('7-day average')).toBeInTheDocument()
+    })
+  })
 })
