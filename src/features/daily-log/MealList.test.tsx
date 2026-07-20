@@ -2,9 +2,29 @@ import 'fake-indexeddb/auto'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
-import { describe, expect, it, vi } from 'vitest'
-import type { CalorieEntry } from '@/domain/dailyEntry'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import type { CalorieEntry, DailyEntry } from '@/domain/dailyEntry'
+import { db } from '@/infrastructure/persistence/indexeddb'
 import { MealList } from './MealList'
+
+function makeDailyEntry(overrides: Partial<DailyEntry> = {}): DailyEntry {
+  const now = '2026-01-01T00:00:00.000Z'
+  return {
+    id: 'entry-1',
+    date: '2026-03-01',
+    createdAt: now,
+    updatedAt: now,
+    ...overrides,
+  }
+}
+
+beforeEach(async () => {
+  await db.dailyEntries.clear()
+})
+
+afterEach(async () => {
+  await db.dailyEntries.clear()
+})
 
 /**
  * MealList (#145) was extracted from DailyEntryForm.tsx so it can be
@@ -312,6 +332,88 @@ describe('MealList', () => {
 
       expect(
         screen.queryByRole('button', { name: 'Save and add one more' }),
+      ).not.toBeInTheDocument()
+    })
+  })
+
+  describe("repeat yesterday's meal (#190)", () => {
+    it("offers to repeat yesterday's meal at the matching position, cloning only the food data", async () => {
+      await db.dailyEntries.put(
+        makeDailyEntry({
+          date: '2026-03-01',
+          calorieEntries: [
+            {
+              id: 'y1',
+              items: [
+                {
+                  id: 'yi1',
+                  name: 'Eggs',
+                  amountKcal: 150,
+                  proteinG: 12,
+                  emotion: 'thumbsUp',
+                },
+              ],
+              timeEaten: '08:00',
+              note: 'ate fast',
+              createdAt: '2026-03-01T08:00:00.000Z',
+            },
+          ],
+        }),
+      )
+      const onChange = vi.fn()
+      render(
+        <MealList calorieEntries={[]} date="2026-03-02" onChange={onChange} />,
+        { wrapper: MemoryRouter },
+      )
+
+      const repeatButton = await screen.findByRole('button', {
+        name: "Repeat yesterday's Breakfast",
+      })
+      await userEvent.setup().click(repeatButton)
+
+      expect(onChange).toHaveBeenCalledTimes(1)
+      const next = onChange.mock.calls[0][0] as CalorieEntry[]
+      expect(next).toHaveLength(1)
+      expect(next[0].id).not.toBe('y1')
+      expect(next[0].items).toHaveLength(1)
+      expect(next[0].items[0]).toMatchObject({
+        name: 'Eggs',
+        amountKcal: 150,
+        proteinG: 12,
+      })
+      expect(next[0].items[0].id).not.toBe('yi1')
+      // Only the food data is cloned — day-specific journal details aren't.
+      expect(next[0].items[0].emotion).toBeUndefined()
+      expect(next[0].timeEaten).toBeUndefined()
+      expect(next[0].note).toBeUndefined()
+    })
+
+    it('does not offer to repeat when there is no meal at that position yesterday', async () => {
+      await db.dailyEntries.put(
+        makeDailyEntry({ date: '2026-03-01', calorieEntries: [] }),
+      )
+      render(
+        <MealList calorieEntries={[]} date="2026-03-02" onChange={vi.fn()} />,
+        { wrapper: MemoryRouter },
+      )
+
+      // Wait for the (empty-result) fetch to settle before asserting
+      // absence, via a control that's always present once mounted.
+      await screen.findByRole('button', { name: '+ Add item' })
+      expect(
+        screen.queryByRole('button', { name: /Repeat yesterday's/ }),
+      ).not.toBeInTheDocument()
+    })
+
+    it('does not offer to repeat when nothing was logged yesterday at all', async () => {
+      render(
+        <MealList calorieEntries={[]} date="2026-03-02" onChange={vi.fn()} />,
+        { wrapper: MemoryRouter },
+      )
+
+      await screen.findByRole('button', { name: '+ Add item' })
+      expect(
+        screen.queryByRole('button', { name: /Repeat yesterday's/ }),
       ).not.toBeInTheDocument()
     })
   })

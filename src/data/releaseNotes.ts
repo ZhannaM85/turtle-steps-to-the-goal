@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 187,
+    issue: 190,
+    date: '2026-07-20T14:05:00+03:00',
+    en: 'Added a "Repeat yesterday\'s [meal]" button when logging a meal you had at the same time yesterday, so you don\'t have to type it all in again.',
+    ru: 'Добавили кнопку «Повторить вчерашний приём пищи» — если вы ели то же самое в это же время вчера, не нужно вводить всё заново.',
+  },
+  {
     version: 186,
     issue: 188,
     date: '2026-07-20T13:40:00+03:00',

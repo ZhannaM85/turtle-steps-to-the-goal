@@ -16,10 +16,16 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
+import { format, parseISO, subDays } from 'date-fns'
 import { Clock, GripVertical, Pencil, Trash2, X } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { foods } from '@/data/foods'
-import type { CalorieEntry, CalorieItem, MealEmotion } from '@/domain/dailyEntry'
+import type {
+  CalorieEntry,
+  CalorieItem,
+  DailyEntry,
+  MealEmotion,
+} from '@/domain/dailyEntry'
 import {
   calorieEntryCarbs,
   calorieEntryFat,
@@ -34,6 +40,7 @@ import {
   type Dictionary,
   type Locale,
 } from '@/i18n'
+import { IndexedDbDailyEntryRepository } from '@/infrastructure/persistence/indexeddb'
 import { MEAL_EMOTIONS } from '@/shared/lib/emotionIcons'
 import { macrosSummaryText, macrosSummaryTextCompact } from '@/shared/lib/macroDisplay'
 import {
@@ -58,6 +65,11 @@ import { MealItemEditorSheet } from './MealItemEditorSheet'
 // typed themselves. `foods.ts` is static, so this only needs computing once
 // rather than per-render or per-save.
 const curatedFoodNames = new Set(foods.flatMap((food) => [food.en, food.ru]))
+
+// #190: own repository instance, same no-shared-store pattern as
+// MealEditScreen/useHistoryData/useDashboardData — fetches the day
+// *before* `date` to power the "Repeat yesterday's [meal]" quick action.
+const dailyEntryRepository = new IndexedDbDailyEntryRepository()
 
 /** One item's draft fields while its parent meal group is being edited
  * (#81) — plain strings, same pattern as the rest of this form's add/edit
@@ -788,6 +800,31 @@ export function MealList({
     onChange(next)
   }
 
+  // #190: the day immediately before `date` — fetched to power "Repeat
+  // yesterday's [meal]" on the add row. Not "today's real yesterday": for
+  // a History-opened past day, this is that day's own prior day, so the
+  // quick action stays correct wherever MealList is mounted.
+  const previousDate = format(subDays(parseISO(date), 1), 'yyyy-MM-dd')
+  const [previousDayEntry, setPreviousDayEntry] = useState<DailyEntry | null>(
+    null,
+  )
+  useEffect(() => {
+    let cancelled = false
+    dailyEntryRepository
+      .getByDate(previousDate)
+      .then((result) => {
+        if (!cancelled) setPreviousDayEntry(result ?? null)
+      })
+      .catch(() => {
+        // Best-effort, same as usePastGoals/useMaxRecordedWeight — losing
+        // the repeat-meal quick action for this render isn't worth
+        // surfacing as an error state.
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [previousDate])
+
   // These four describe the item currently being entered in the bottom Add
   // row. #183: "Save and add one more" stages the current fields into
   // addStagedItems (below) and resets these back to blank for the next
@@ -1028,6 +1065,50 @@ export function MealList({
     resetItemDraft()
     setAddGroupNote('')
     setAddTime('')
+  }
+
+  // #190: the previous day's meal at this same position, if any — "same
+  // position" because that's already how this app defines a meal's
+  // identity (#141's positional Breakfast/Lunch/Dinner/Snack defaults),
+  // not by matching label text. Only offered for the *next* meal about to
+  // be added (calorieEntries.length is that meal's 0-indexed position in
+  // both days' lists).
+  const previousMeal = previousDayEntry?.calorieEntries?.[calorieEntries.length]
+
+  // Clones only the objective food data (name + macros + amountG) — not
+  // time/note/emotion, which are day-specific journal details rather than
+  // "what was eaten," so re-adding those quickly by hand if relevant stays
+  // far cheaper than what this is actually solving (retyping every dish's
+  // macros). Fresh ids for the new day's own records; touches the meal-item
+  // dictionary the same way every other add path does, skipping curated
+  // food names (#150) so they don't leak into the personal library.
+  function repeatPreviousMeal() {
+    if (!previousMeal) return
+    const items: CalorieItem[] = previousMeal.items.map((item) => ({
+      ...item,
+      id: crypto.randomUUID(),
+      emotion: undefined,
+    }))
+    setCalorieEntries([
+      ...calorieEntries,
+      {
+        id: crypto.randomUUID(),
+        items,
+        label: previousMeal.label,
+        createdAt: new Date().toISOString(),
+      },
+    ])
+    for (const item of items) {
+      if (item.name && !curatedFoodNames.has(item.name)) {
+        touchMealItem(item.name, {
+          amountKcal: item.amountKcal,
+          proteinG: item.proteinG,
+          fatG: item.fatG,
+          carbsG: item.carbsG,
+          amountG: item.amountG,
+        })
+      }
+    }
   }
 
   // Restores a previously-logged item's kcal/macros when its name is picked
@@ -1470,6 +1551,26 @@ export function MealList({
             )}
           </div>
         </div>
+        {/* #190: only rendered when the day before has a meal at this
+         * exact position — the quick action this row exists for. Placed
+         * above "Find food" since it's the fastest path when available. */}
+        {previousMeal && (
+          <Button
+            type="button"
+            variant="outline"
+            size="lg"
+            className="h-12 w-full text-base"
+            onClick={repeatPreviousMeal}
+          >
+            {t.dailyEntry.repeatMealLabel(
+              effectiveMealLabel(
+                t,
+                calorieEntries.length + 1,
+                previousMeal.label,
+              ),
+            )}
+          </Button>
+        )}
         {/* #153: "Find food" is now the primary, full-width CTA — search
          * first, and only fall back to typing macros by hand if the dish
          * isn't found. Was the other way around (manual entry first,

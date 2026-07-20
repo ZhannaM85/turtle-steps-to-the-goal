@@ -185,6 +185,12 @@ export interface Dictionary {
     /** Replaces the whole add-meal row while collapsed (#199) — tapping it
      * re-expands the full row. */
     expandAddMealLabel: string
+    /** #190: "Repeat yesterday's [meal]" quick action on the add row —
+     * only shown when the day before has a meal at this same position
+     * (#141's positional identity, not label matching). Clones that
+     * meal's items (name/macros/amountG only, not time/note/emotion) in
+     * one tap, for a routine that's logged the same way most days. */
+    repeatMealLabel: (mealLabel: string) => string
     orDivider: string
     addFoodButton: string
     addFoodDialogTitle: string
