@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 194,
+    issue: 205,
+    date: '2026-07-20T18:48:00+03:00',
+    en: 'Fixed the "Reload" button on the "a new version is available" banner, which could look like it did nothing.',
+    ru: 'Исправлена кнопка «Перезагрузить» в баннере «Доступна новая версия», которая могла выглядеть так, будто ничего не происходит.',
+  },
+  {
     version: 193,
     issue: 203,
     date: '2026-07-20T18:20:00+03:00',

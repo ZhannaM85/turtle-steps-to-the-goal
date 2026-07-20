@@ -2,6 +2,63 @@ import { useTranslation } from '@/i18n'
 import { useAppUpdateAvailable } from '@/shared/hooks'
 import { Button } from '@/shared/ui/button'
 
+// Bounded wait for the SW to actually take over before reloading (below) —
+// most real updates finish well within this, but there's no guarantee
+// (e.g. a slow connection re-downloading the ~2MB precache), and nothing
+// fires `controllerchange` at all when the check below turns up nothing
+// new. Either way this must not hang the Reload button forever.
+const CONTROLLER_CHANGE_TIMEOUT_MS = 5000
+
+/**
+ * #205: a plain `window.location.reload()` here could silently do nothing
+ * — `useAppUpdateAvailable`'s `version.json` poll runs on its own 5-minute
+ * timer, completely independent of the service worker's own update check
+ * (#163, `registerType: 'autoUpdate'`), which the browser otherwise only
+ * runs on its own schedule (roughly every 24h, or on a fresh navigation).
+ * If the SW hasn't yet re-fetched and installed the new version by the
+ * time this banner appears, a reload just re-serves whatever the
+ * currently-active SW already has cached — same content, banner
+ * reappears, "Reload" looks broken.
+ *
+ * `registration.update()` forces that check right now instead of waiting
+ * on the browser's own timer (we already know from version.json there's
+ * something to find). Confirmed against the actual generated `dist/sw.js`
+ * (`registerType: 'autoUpdate'` bakes `self.skipWaiting()` +
+ * `clientsClaim()` directly into the worker's own top-level code, not
+ * behind a message listener) that a new worker activates and claims
+ * open clients on its own the moment it installs — there's no separate
+ * "waiting" worker to explicitly message, unlike a `registerType:
+ * 'prompt'` setup. So the only real gap to close here is *timing*: giving
+ * that automatic activation a bounded window to finish (signaled by
+ * `controllerchange`) before reloading, so the reload has an actual new
+ * worker in control by the time it happens instead of racing it.
+ */
+async function reloadForUpdate() {
+  try {
+    if ('serviceWorker' in navigator) {
+      const registration = await navigator.serviceWorker.getRegistration()
+      if (registration) {
+        await registration.update()
+        await Promise.race([
+          new Promise<void>((resolve) => {
+            navigator.serviceWorker.addEventListener(
+              'controllerchange',
+              () => resolve(),
+              { once: true },
+            )
+          }),
+          new Promise<void>((resolve) =>
+            setTimeout(resolve, CONTROLLER_CHANGE_TIMEOUT_MS),
+          ),
+        ])
+      }
+    }
+  } catch {
+    // Best effort — still reload below even if any of the above failed.
+  }
+  window.location.reload()
+}
+
 /**
  * Non-intrusive "a new version is available" prompt (#115) — the primary
  * way to know a newer deploy exists, and to actually load it, since
@@ -26,7 +83,7 @@ export function AppUpdateBanner() {
         type="button"
         variant="outline"
         size="sm"
-        onClick={() => window.location.reload()}
+        onClick={() => void reloadForUpdate()}
       >
         {t.update.reloadButton}
       </Button>
