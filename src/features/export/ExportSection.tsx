@@ -30,12 +30,14 @@ type Status =
   | { kind: 'imported'; goals: number; entries: number }
   | { kind: 'error'; message: string }
 
-/** "50 KB" / "1.2 MB" — usage only, not the quota (#176, see the
- * storageUsedLabel doc comment in Dictionary.ts for why). */
+/** "50 KB" / "1.2 MB" / "1.2 GB" — used for both usage and quota (#191:
+ * quota is now shown alongside usage, so this needs a GB tier it never
+ * used to reach). */
 function formatBytes(bytes: number): string {
   if (bytes < 1024) return `${bytes} B`
   if (bytes < 1024 * 1024) return `${Math.round(bytes / 1024)} KB`
-  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
+  if (bytes < 1024 * 1024 * 1024) return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
+  return `${(bytes / (1024 * 1024 * 1024)).toFixed(1)} GB`
 }
 
 export function ExportSection() {
@@ -43,15 +45,22 @@ export function ExportSection() {
   const [status, setStatus] = useState<Status>({ kind: 'idle' })
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [storageUsage, setStorageUsage] = useState<number | null>(null)
+  const [storageQuota, setStorageQuota] = useState<number | null>(null)
 
   // Best-effort (#176) — navigator.storage is unavailable in some browsers
   // and estimate() itself can reject; either way, just show nothing rather
-  // than an error state for a purely informational number.
+  // than an error state for a purely informational number. #191: also
+  // reads `quota` now (originally left out on the reasoning that it's
+  // usually just a large browser-computed ceiling, not a small meaningful
+  // number — but users asked directly "how much space is left" and
+  // "is there even a limit," so showing the real number lets them judge
+  // that for themselves instead of the app deciding it's not worth seeing).
   useEffect(() => {
     navigator.storage
       ?.estimate?.()
       .then((estimate) => {
         if (estimate.usage !== undefined) setStorageUsage(estimate.usage)
+        if (estimate.quota !== undefined) setStorageQuota(estimate.quota)
       })
       .catch(() => {})
   }, [])
@@ -161,7 +170,12 @@ export function ExportSection() {
         <CardDescription>{t.export.description}</CardDescription>
         {storageUsage !== null && (
           <p className="text-xs text-muted-foreground">
-            {t.export.storageUsedLabel(formatBytes(storageUsage))}
+            {storageQuota !== null
+              ? t.export.storageUsedOfQuotaLabel(
+                  formatBytes(storageUsage),
+                  formatBytes(storageQuota),
+                )
+              : t.export.storageUsedLabel(formatBytes(storageUsage))}
           </p>
         )}
       </CardHeader>

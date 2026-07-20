@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 177,
+    issue: 191,
+    date: '2026-07-20T12:15:00+03:00',
+    en: "Settings' storage line now also shows how much space is available on your device, not just how much you've used.",
+    ru: 'В настройках теперь также видно, сколько места доступно на устройстве, а не только сколько уже занято.',
+  },
+  {
     version: 176,
     issue: 193,
     date: '2026-07-20T12:05:00+03:00',

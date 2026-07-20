@@ -152,7 +152,7 @@ describe('ExportSection', () => {
     ).toBeInTheDocument()
   })
 
-  it('shows the local storage size used on this device when available', async () => {
+  it('shows just usage when quota is unavailable', async () => {
     Object.defineProperty(navigator, 'storage', {
       value: { estimate: vi.fn().mockResolvedValue({ usage: 51200 }) },
       configurable: true,
@@ -162,6 +162,23 @@ describe('ExportSection', () => {
 
     expect(
       await screen.findByText('~50 KB used on this device'),
+    ).toBeInTheDocument()
+  })
+
+  it('shows usage alongside quota when both are available (#191)', async () => {
+    Object.defineProperty(navigator, 'storage', {
+      value: {
+        estimate: vi
+          .fn()
+          .mockResolvedValue({ usage: 51200, quota: 1024 * 1024 * 1024 }),
+      },
+      configurable: true,
+    })
+
+    render(<ExportSection />)
+
+    expect(
+      await screen.findByText('~50 KB used of ~1.0 GB available on this device'),
     ).toBeInTheDocument()
   })
 
