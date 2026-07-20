@@ -440,6 +440,33 @@ describe('DailyEntryForm', () => {
       expect(screen.getByText('updated note')).toBeInTheDocument()
     })
 
+    it('lets the note display card grow to fit a long, wrapped note instead of clipping it (#189)', () => {
+      const longNote =
+        'Пытаюсь в кето-диету. Сегодня было 111 грамм белка, 43 грамма углеводов, 36 грамм жира.'
+      render(
+        <DailyEntryForm
+          date="2026-03-01"
+          existingEntry={{
+            id: 'e1',
+            date: '2026-03-01',
+            note: longNote,
+            createdAt: now,
+            updatedAt: now,
+          }}
+          onSave={vi.fn()}
+        />,
+      )
+
+      // The card used to be a fixed h-12 — too short for a note that wraps
+      // to multiple lines, so the mood icon/edit button (vertically
+      // centered against that fixed height) overlapped the wrapped text.
+      // min-h-12 keeps the same look for a short note but lets the card
+      // grow for a long one.
+      const card = screen.getByText(longNote).closest('div')
+      expect(card).toHaveClass('min-h-12')
+      expect(card).not.toHaveClass('h-12')
+    })
+
     it('bundles the day mood into the same save as the note (#44)', async () => {
       const user = userEvent.setup()
       const onSave = vi.fn()

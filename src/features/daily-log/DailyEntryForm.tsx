@@ -581,7 +581,16 @@ export function DailyEntryForm({
       {showNoteAsDisplay ? (
         <div className="flex flex-col gap-1.5">
           <span className="text-sm font-medium">{t.dailyEntry.noteLabel}</span>
-          <div className="flex h-12 items-center justify-between rounded-lg bg-muted px-3">
+          {/* #189: min-h-12, not a fixed h-12 — a long note wraps to
+           * multiple lines, and the fixed-height version didn't grow to
+           * fit, so the mood icon/edit button (vertically centered against
+           * the old, too-short box) ended up overlapping the wrapped text
+           * instead of sitting clear of it. With only a floor height, a
+           * short single-line note still renders at the same 48px (the
+           * icon-xl button's own 44px + this row's centering keeps it
+           * there), while a long one grows the row to fit and items-center
+           * still centers the button/icon against the full wrapped height. */}
+          <div className="flex min-h-12 items-center justify-between gap-2 rounded-lg bg-muted px-3 py-1.5">
             <span className="flex items-center gap-1.5 text-sm text-foreground">
               {note}
               {DayEmotionIcon && (

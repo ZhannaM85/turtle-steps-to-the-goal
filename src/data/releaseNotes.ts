@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 179,
+    issue: 189,
+    date: '2026-07-20T12:25:00+03:00',
+    en: "Fixed the day's note card not growing to fit a long note, which made the mood icon and edit button overlap the text.",
+    ru: 'Исправлено: карточка заметки дня не увеличивалась под длинный текст, из-за чего значок настроения и кнопка редактирования накладывались на текст.',
+  },
+  {
     version: 178,
     issue: 196,
     date: '2026-07-20T12:20:00+03:00',
