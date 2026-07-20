@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { reloadForUpdate } from '@/shared/lib/reloadForUpdate'
 
 const PULL_THRESHOLD = 70
 const MAX_PULL = 100
@@ -11,9 +12,15 @@ const MAX_PULL = 100
  * (`window.scrollY === 0`) at the moment the touch starts, so it doesn't
  * interfere with normal scrolling or in-page drag gestures (e.g. meal
  * reordering) happening elsewhere on the page. Reaching the pull threshold
- * triggers a full `window.location.reload()` — the same recovery action
- * already used by `RouteErrorFallback`/`AppUpdateBanner`, so "drag down"
- * behaves consistently with every other refresh affordance in the app.
+ * triggers `reloadForUpdate()` (#211, was a plain `window.location.reload()`
+ * — same staleness risk `AppUpdateBanner`'s own Reload button had before
+ * #205 fixed it there specifically) so "drag down" gets the same
+ * update-aware reload as every other refresh affordance in the app, not
+ * just the same *action*. A no-op extra `registration.update()` round trip
+ * when there's nothing new to find, which is the common case here since
+ * this gesture isn't gated on `useAppUpdateAvailable` the way the banner
+ * is — pulling to refresh is a general "start over" gesture, not only an
+ * update-actuation one.
  *
  * Gesture-tracking state (start position, in-progress pull distance) lives
  * in refs rather than state, so the effect attaching the listeners only
@@ -61,7 +68,7 @@ export function usePullToRefresh(): {
       startY.current = null
       if (currentPull.current >= PULL_THRESHOLD) {
         setIsRefreshing(true)
-        window.location.reload()
+        void reloadForUpdate()
       } else {
         currentPull.current = 0
         setPullDistance(0)

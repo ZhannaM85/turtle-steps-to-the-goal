@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 199,
+    issue: 211,
+    date: '2026-07-20T23:59:00+03:00',
+    en: 'The "a new version is available" banner now checks for the update in the background too, not just when you tap Reload, so tapping it should get you onto the new version more reliably.',
+    ru: 'Баннер «Доступна новая версия» теперь также проверяет обновление в фоне, а не только при нажатии «Перезагрузить» — это должно сделать переход на новую версию надёжнее.',
+  },
+  {
     version: 198,
     issue: 209,
     date: '2026-07-20T23:39:00+03:00',

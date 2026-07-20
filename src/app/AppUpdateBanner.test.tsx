@@ -79,6 +79,19 @@ describe('AppUpdateBanner', () => {
     expect(screen.getByRole('button', { name: 'Reload' })).toBeInTheDocument()
   })
 
+  it('proactively nudges the service worker to check for itself once an update is detected (#211)', async () => {
+    stubUpdateFetch()
+    const update = vi.fn().mockResolvedValue(undefined)
+    const getRegistration = vi.fn().mockResolvedValue({ update })
+    stubServiceWorker({ getRegistration, addEventListener: vi.fn() })
+
+    render(<AppUpdateBanner />)
+    await screen.findByRole('button', { name: 'Reload' })
+
+    await waitFor(() => expect(getRegistration).toHaveBeenCalled())
+    await waitFor(() => expect(update).toHaveBeenCalled())
+  })
+
   describe('Reload button (#205)', () => {
     it('reloads directly when there is no service worker at all', async () => {
       stubUpdateFetch()
