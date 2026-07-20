@@ -424,6 +424,35 @@ _Filed per live report ("Log several issues"), not to be picked up until told to
 
 ---
 
+## Tier 26 — Analysis of `docs/weight-tracker-github-issues.md` and `docs/improvement_suggestions.md` (2026-07-20)
+
+_User supplied two external planning documents and asked for a relevance analysis: file GitHub issues for what's genuinely new and worth doing, and for anything that shouldn't be considered now, file it too but mark it Irrelevant/Paused with the reasoning. Both documents predate a lot of what the app has actually built — see the cross-reference note below before picking anything up from this tier._
+
+**Cross-reference note:** significant overlap with already-built features was found and deliberately **not** filed as issues (would be pointless busywork): weekly summaries, the Dashboard itself, CSV/Excel/JSON export, backup/restore, calendar view, cycle tracking, steps-vs-weight and sleep-vs-weight correlation, dark-mode chart theming (#165), and the keyboard-nav audit (#166, already closed clean). The two source documents also directly **contradict each other** on water intake, exercise tracking, and steps/wearable sync — one lists them as things to add, the other explicitly lists them under "things I would remove" — neither side was picked silently. Separately, `improvement_suggestions.md`'s own "Things I would remove" section (protein tracking, mood tracking, meal logging, food database, steps) describes core, already-built, actively-used features — that section appears to predate or misunderstand the app's current state, and no "remove X" issues were filed from it.
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#214](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/214) | ⬜ Open | Add 7-day (and 14/30-day) rolling weight average | Distinct from the existing calendar-week `weeklySummaries.ts` — a true rolling window recomputed per day. Not yet investigated |
+| [#215](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/215) | ⬜ Open | Show average calories/protein over 7 and 30 days | Likely Dashboard stat cards. Not yet investigated |
+| [#216](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/216) | ⬜ Open | Add calories-vs-weight and protein-vs-weight correlation | Extends the existing `stepsCorrelation.ts`/`sleepCorrelation.ts` pattern (Pearson correlation, minimum-data gate) to two metrics currently missing from it. Not yet investigated |
+| [#217](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/217) | ⬜ Open | Detect sparse/missing data, show "not enough data" instead of misleading charts | Would generalize the minimum-comparable-days gating some correlation views already have. Not yet investigated |
+| [#218](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/218) | ⬜ Open | Warn on unrealistic weight/calorie entries | A soft warning/confirm for likely typos (e.g. 590kg vs 59.0kg). Not yet investigated |
+| [#219](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/219) | ⬜ Open | Add Markdown export option | Mirrors the existing CSV export pattern. Not yet investigated |
+| [#220](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/220) | ⬜ Open | Add a daily protein goal | Sibling to #208 (daily calories goal) — likely worth scoping together when either is picked up. Not yet investigated |
+| [#221](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/221) | ⬜ Open | Autosave an in-progress entry as a draft | Today's fields save explicitly per-section, not as one combined draft. Not yet investigated |
+| [#222](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/222) | ⬜ Open | Compare two custom date ranges | Not yet investigated |
+| [#223](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/223) | ⬜ Open | Add a weekly heatmap view | Unclear what metric it should visualize — needs a decision when picked up |
+| [#224](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/224) | ⬜ Open | Add statistical confidence/outlier indicators to correlation views | The source document's own "biggest recommendation" — sample size, confidence level, outlier exclusion, plain-language strength explanation. Larger/higher-effort than the rest of this tier; likely worth splitting into smaller pieces when picked up |
+| [#225](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/225) | ⬜ Open | Track waist/hip circumference and body fat % | Bundled as one issue — three new optional daily-log number fields of the same kind. Not yet investigated |
+| [#226](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/226) | ⬜ Open | Add a monthly summary card to the Dashboard | Not yet investigated |
+| [#227](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/227) | 🚫 Irrelevant | Logging streaks, habit score, achievement badges | Conflicts with the app's established no-gamification design (`TodayScreen.tsx`/`GoalCelebrationModal.tsx` both document this explicitly). Filed and closed for the record |
+| [#228](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/228) | 🚫 Irrelevant | Long-term goal weight, pace prediction, completion date | Conflicts with #14's established decision to drop long-term goal-weight/date framing in favor of only ever showing the current week's target. Filed and closed for the record |
+| [#229](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/229) | 🚫 Irrelevant | Apple Health / Google Fit / wearable device integrations | Conflicts with the app's local-only, no-cloud privacy model — no backend exists to integrate with a device/cloud API. Both source documents actually agree on this one. Filed and closed for the record |
+| [#230](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/230) | 🚫 Irrelevant | Weekly AI-generated summary | Conflicts even with the *other* source document's own stated no-AI principle for this exact area; also no backend to call an AI API from. Filed and closed for the record |
+| [#231](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/231) | 🚫 Irrelevant | Home screen widgets | Not achievable for a GitHub-Pages-hosted PWA without a native app wrapper. Filed and closed for the record |
+
+---
+
 ## Private (no public GitHub issue, by request)
 
 _Filed and built without a public issue at the user's explicit request — the repo is public, and this one's more personal than the rest. Still documented normally here per the project's usual close-out process; see [[feedback_issue_first]]'s exception #2 in memory for why._
