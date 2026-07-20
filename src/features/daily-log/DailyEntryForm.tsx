@@ -33,6 +33,10 @@ import {
   weightSchema,
   type DailyEntryFormValues,
 } from './dailyEntryFormSchema'
+import {
+  isUnusualDailyCalories,
+  isUnusualWeightKg,
+} from './unusualEntryThresholds'
 
 export interface DailyEntryFormProps {
   date: string
@@ -112,6 +116,14 @@ export function DailyEntryForm({
   const [isEditingWeight, setIsEditingWeight] = useState(
     alwaysEditable || initialValues.weightKg === undefined,
   )
+  // #218: the exact value a Save tap flagged as unusual (not the same as
+  // "is the current field value unusual" — a second tap should only skip
+  // straight to saving if the value hasn't changed since the warning
+  // appeared; editing it after seeing the warning re-checks it fresh
+  // rather than silently reusing a stale confirmation).
+  const [pendingUnusualWeight, setPendingUnusualWeight] = useState<
+    number | null
+  >(null)
   const [isEditingNote, setIsEditingNote] = useState(
     alwaysEditable || !initialValues.note,
   )
@@ -168,6 +180,7 @@ export function DailyEntryForm({
   const dayEmotion = watch('emotion')
   const calorieEntries = watch('calorieEntries') ?? []
   const DayEmotionIcon = DAY_EMOTIONS.find((e) => e.value === dayEmotion)?.Icon
+  const dayTotalCalories = totalCalories(calorieEntries) ?? 0
   const dayMacrosSummary = macrosSummaryText(
     totalProtein(calorieEntries),
     totalFat(calorieEntries),
@@ -201,11 +214,25 @@ export function DailyEntryForm({
     const result = weightSchema.safeParse(getValues('weightKg'))
     if (!result.success) {
       setError('weightKg', { message: result.error.issues[0].message })
+      setPendingUnusualWeight(null)
       return
     }
     clearErrors('weightKg')
+    if (
+      result.data !== undefined &&
+      isUnusualWeightKg(result.data) &&
+      pendingUnusualWeight !== result.data
+    ) {
+      setPendingUnusualWeight(result.data)
+      return
+    }
+    setPendingUnusualWeight(null)
     setIsEditingWeight(false)
     persist(getValues())
+  }
+
+  function discardUnusualWeightWarning() {
+    setPendingUnusualWeight(null)
   }
 
   function saveNote() {
@@ -320,6 +347,37 @@ export function DailyEntryForm({
             <p className="text-sm text-destructive">
               {errors.weightKg.message}
             </p>
+          )}
+          {/* #218: soft warning, not a hard block — weightSchema's own
+           * 20-400kg range already rejects an outright-impossible value
+           * before this ever renders; this catches a value still inside
+           * that range but unusual enough to likely be a typo (e.g. an
+           * extra digit). A second Save tap (same value) commits it
+           * anyway; Fix it just dismisses the warning to keep editing. */}
+          {pendingUnusualWeight !== null && (
+            <div className="flex flex-col gap-2">
+              <p className="text-sm text-destructive">
+                {t.dailyEntry.unusualWeightWarning}
+              </p>
+              <div className="flex items-center gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={saveWeight}
+                >
+                  {t.dailyEntry.saveUnusualWeightAnywayLabel}
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={discardUnusualWeightWarning}
+                >
+                  {t.dailyEntry.fixWeightLabel}
+                </Button>
+              </div>
+            </div>
           )}
         </div>
       )}
@@ -478,13 +536,24 @@ export function DailyEntryForm({
         <div className="flex items-center justify-between rounded-lg bg-muted px-3 py-2">
           <span className="flex items-baseline gap-1.5" aria-live="polite">
             <span className="text-3xl font-semibold tabular-nums text-foreground">
-              {formatNumber(totalCalories(calorieEntries) ?? 0, locale, 0)}
+              {formatNumber(dayTotalCalories, locale, 0)}
             </span>
             <span className="text-sm text-muted-foreground">
               {t.dailyEntry.caloriesTodaySuffix}
             </span>
           </span>
         </div>
+        {/* #218: a quiet inline note, not a blocking confirm — a day's
+         * total crossing this threshold can't map to a single "save"
+         * action to intercept the way the weight warning does, since it's
+         * a running sum across however many meals get added throughout
+         * the day. Disappears again on its own once an item is edited or
+         * removed and the total drops back under the threshold. */}
+        {isUnusualDailyCalories(dayTotalCalories) && (
+          <p className="text-sm text-destructive">
+            {t.dailyEntry.unusualDailyCaloriesWarning}
+          </p>
+        )}
 
         {/* Own field (#152) — was a text-xs caption line tucked under the
          * Calories card; promoted to the same labeled-field treatment as

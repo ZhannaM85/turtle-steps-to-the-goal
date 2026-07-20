@@ -184,6 +184,74 @@ describe('DailyEntryForm', () => {
       expect(onSave).not.toHaveBeenCalled()
     })
 
+    describe('unusual (but valid) weight warning (#218)', () => {
+      it('warns instead of saving immediately for a technically-valid but unusual value', async () => {
+        const user = userEvent.setup()
+        const onSave = vi.fn()
+        render(
+          <DailyEntryForm date="2026-03-01" existingEntry={null} onSave={onSave} />,
+        )
+
+        await user.type(screen.getByLabelText('Weight (kg)'), '320')
+        await user.click(screen.getByRole('button', { name: 'Save weight' }))
+
+        expect(
+          await screen.findByText(/unusual weight/),
+        ).toBeInTheDocument()
+        expect(onSave).not.toHaveBeenCalled()
+      })
+
+      it('saves once "Save anyway" is confirmed', async () => {
+        const user = userEvent.setup()
+        const onSave = vi.fn()
+        render(
+          <DailyEntryForm date="2026-03-01" existingEntry={null} onSave={onSave} />,
+        )
+
+        await user.type(screen.getByLabelText('Weight (kg)'), '320')
+        await user.click(screen.getByRole('button', { name: 'Save weight' }))
+        await user.click(
+          await screen.findByRole('button', { name: 'Save anyway' }),
+        )
+
+        expect(onSave).toHaveBeenCalledTimes(1)
+        expect(onSave.mock.calls[0][0].weightKg).toBe(320)
+      })
+
+      it('dismisses the warning via "Fix it" without saving', async () => {
+        const user = userEvent.setup()
+        const onSave = vi.fn()
+        render(
+          <DailyEntryForm date="2026-03-01" existingEntry={null} onSave={onSave} />,
+        )
+
+        await user.type(screen.getByLabelText('Weight (kg)'), '320')
+        await user.click(screen.getByRole('button', { name: 'Save weight' }))
+        await user.click(
+          await screen.findByRole('button', { name: 'Fix it' }),
+        )
+
+        expect(
+          screen.queryByText(/unusual weight/),
+        ).not.toBeInTheDocument()
+        expect(onSave).not.toHaveBeenCalled()
+      })
+
+      it('does not warn for an ordinary weight', async () => {
+        const user = userEvent.setup()
+        const onSave = vi.fn()
+        render(
+          <DailyEntryForm date="2026-03-01" existingEntry={null} onSave={onSave} />,
+        )
+
+        await user.type(screen.getByLabelText('Weight (kg)'), '70')
+        await user.click(screen.getByRole('button', { name: 'Save weight' }))
+
+        expect(onSave).toHaveBeenCalledTimes(1)
+        expect(screen.queryByText(/unusual weight/)).not.toBeInTheDocument()
+      })
+    })
+
     it('saves on Enter in the weight field', async () => {
       const user = userEvent.setup()
       const onSave = vi.fn()
@@ -592,6 +660,58 @@ describe('DailyEntryForm', () => {
       expect(screen.queryByLabelText('Calories')).not.toBeInTheDocument()
       expect(screen.getByText('0')).toBeInTheDocument()
       expect(screen.getByText('kcal today')).toBeInTheDocument()
+    })
+
+    describe('unusually high daily total warning (#218)', () => {
+      function entriesWithTotal(totalKcal: number): CalorieEntry[] {
+        return [
+          {
+            id: 'c1',
+            items: [{ id: 'i1', amountKcal: totalKcal }],
+            createdAt: now,
+          },
+        ]
+      }
+
+      it('warns when the day total crosses the threshold', () => {
+        render(
+          <DailyEntryForm
+            date="2026-03-01"
+            existingEntry={{
+              id: 'e1',
+              date: '2026-03-01',
+              calorieEntries: entriesWithTotal(6500),
+              createdAt: now,
+              updatedAt: now,
+            }}
+            onSave={vi.fn()}
+          />,
+        )
+
+        expect(
+          screen.getByText(/unusually high for one day/),
+        ).toBeInTheDocument()
+      })
+
+      it('does not warn for an ordinary day total', () => {
+        render(
+          <DailyEntryForm
+            date="2026-03-01"
+            existingEntry={{
+              id: 'e1',
+              date: '2026-03-01',
+              calorieEntries: entriesWithTotal(2200),
+              createdAt: now,
+              updatedAt: now,
+            }}
+            onSave={vi.fn()}
+          />,
+        )
+
+        expect(
+          screen.queryByText(/unusually high for one day/),
+        ).not.toBeInTheDocument()
+      })
     })
 
     it('labels the add row with the meal number it will create (#95)', async () => {

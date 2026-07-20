@@ -112,6 +112,17 @@ export interface Dictionary {
     editNoteLabel: string
     saveWeightLabel: string
     saveNoteLabel: string
+    /** #218: soft warning (not a hard block, unlike weightSchema's own
+     * 20-400kg range) for a weight technically valid but unusual enough
+     * to likely be a typo — a second tap on Save confirms it anyway. */
+    unusualWeightWarning: string
+    saveUnusualWeightAnywayLabel: string
+    fixWeightLabel: string
+    /** #218: a quiet inline note, not blocking anything — a day's total
+     * calories crossing this can't map to a single "save" action to
+     * intercept the way the weight warning above does, since it's a
+     * running sum across however many meals get added. */
+    unusualDailyCaloriesWarning: string
     mealLabel: (n: number) => string
     editMealLabel: (n: number) => string
     /** Exits edit mode without saving or deleting (#169) — before this,

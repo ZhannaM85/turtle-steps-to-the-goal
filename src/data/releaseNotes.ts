@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 202,
+    issue: 218,
+    date: '2026-07-21T02:15:00+03:00',
+    en: 'The app now gently warns about an unusual weight entry or an unusually high day of calories, in case it was a typo — you can still save it either way.',
+    ru: 'Приложение теперь мягко предупреждает о необычном значении веса или необычно большом количестве калорий за день — на случай опечатки. Сохранить можно в любом случае.',
+  },
+  {
     version: 201,
     issue: 213,
     date: '2026-07-21T01:04:00+03:00',
