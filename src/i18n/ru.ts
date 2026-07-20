@@ -128,7 +128,7 @@ export const ru: Dictionary = {
     timeEatenLabel: 'Время',
     clearTimeLabel: 'Очистить время',
     clearItemDraftLabel: 'Очистить',
-    collapseAddMealLabel: 'Готово на сегодня',
+    collapseAddMealLabel: 'Свернуть',
     expandAddMealLabel: '+ Добавить ещё приём пищи',
     repeatMealLabel: (mealLabel) => `Повторить «${mealLabel}» со вчера`,
     orDivider: 'или',

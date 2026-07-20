@@ -176,11 +176,13 @@ export interface Dictionary {
      * (#151) — resets the whole staged item draft (name, mode, kcal,
      * macros, emotion) back to blank without reopening the full sheet. */
     clearItemDraftLabel: string
-    /** #199: collapses the trailing "add a new meal" row once the user is
-     * done logging for the day — not a delete, just hides the row behind
-     * a small link (expandAddMealLabel) they can tap to bring it back the
-     * same day. Resets automatically on any other day (plain component
-     * state, no persistence) since it only means "done for *today*." */
+    /** #199, redesigned by #201: collapses the trailing "add a new meal"
+     * row — not a delete, just hides the row behind a small link
+     * (expandAddMealLabel) they can tap to bring it back. For *today*
+     * specifically this now persists across navigation
+     * (useAddMealRowCollapseStore); past days always default collapsed
+     * already and don't need this button to reach that state, only to
+     * re-collapse after manually expanding within the same visit. */
     collapseAddMealLabel: string
     /** Replaces the whole add-meal row while collapsed (#199) — tapping it
      * re-expands the full row. */

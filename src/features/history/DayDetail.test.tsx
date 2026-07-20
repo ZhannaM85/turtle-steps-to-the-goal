@@ -18,11 +18,18 @@ function render(ui: ReactElement) {
 beforeEach(() => {
   useCycleTrackingStore.setState({ enabled: false })
   useDigestionTrackingStore.setState({ enabled: false })
+  // #201 made MealList's add row default collapsed for a past day — freeze
+  // "now" to this file's own fixture "today" (2026-03-01, see makeEntry
+  // below) so it keeps reading as today, matching the pre-#201
+  // always-expanded behavior these tests were written against.
+  vi.useFakeTimers({ toFake: ['Date'] })
+  vi.setSystemTime(new Date('2026-03-01T12:00:00.000Z'))
 })
 
 afterEach(() => {
   useCycleTrackingStore.setState({ enabled: false })
   useDigestionTrackingStore.setState({ enabled: false })
+  vi.useRealTimers()
 })
 
 function makeEntry(overrides: Partial<DailyEntry> = {}): DailyEntry {

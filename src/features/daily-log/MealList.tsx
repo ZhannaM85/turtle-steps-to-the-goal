@@ -56,7 +56,11 @@ import { parseNumberInput } from '@/shared/lib/parseNumberInput'
 import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/ui/button'
 import { Input } from '@/shared/ui/input'
-import { useMealItemStore, useMealLabelPresetStore } from '@/stores'
+import {
+  useAddMealRowCollapseStore,
+  useMealItemStore,
+  useMealLabelPresetStore,
+} from '@/stores'
 import { FoodPickerDialog, type PickedFoodValues } from './FoodPickerDialog'
 import { MealItemEditorSheet } from './MealItemEditorSheet'
 
@@ -871,13 +875,34 @@ export function MealList({
   // never clears the underlying add-* state, so a half-filled draft
   // survives reopening.
   const [isAddItemSheetOpen, setIsAddItemSheetOpen] = useState(false)
-  // #199: collapses the trailing add-row behind a small "+ Add another
-  // meal" link once the user is done logging for the day — not a delete,
-  // just hidden until tapped again. Plain component state, no
-  // persistence: it resets automatically whenever this screen mounts for
-  // a different day (Today keys DailyEntryForm/MealList by date), which
-  // is exactly the "only means done for *today*" behavior wanted.
-  const [isAddRowCollapsed, setIsAddRowCollapsed] = useState(false)
+  // #201 (redesign of #199): past days default collapsed — no reason to
+  // expect new meals on an old day — derived straight from date
+  // comparison, not persisted (a past day's manual expansion is local to
+  // that viewing session and resets on the next remount, same simplicity
+  // #199 originally wanted). *Today* defaults expanded, but a manual
+  // collapse now actually persists across navigation via
+  // useAddMealRowCollapseStore, replacing #199's plain component state —
+  // that reset on any remount, not just a new day, which included ones
+  // that aren't a new day at all (a MealEditScreen round trip, switching
+  // tabs and back), reading as broken rather than intentional.
+  const isPastDay = date < format(new Date(), 'yyyy-MM-dd')
+  const [isPastDayExpanded, setIsPastDayExpanded] = useState(false)
+  const collapsedDateForToday = useAddMealRowCollapseStore(
+    (state) => state.collapsedDate,
+  )
+  const setCollapsedForToday = useAddMealRowCollapseStore(
+    (state) => state.setCollapsed,
+  )
+  const isAddRowCollapsed = isPastDay
+    ? !isPastDayExpanded
+    : collapsedDateForToday === date
+  function setIsAddRowCollapsed(collapsed: boolean) {
+    if (isPastDay) {
+      setIsPastDayExpanded(!collapsed)
+    } else {
+      setCollapsedForToday(date, collapsed)
+    }
+  }
   // Dedicated single-meal edit route support (#157) — computed
   // unconditionally on every render (a cheap array find), but only its
   // *first* result ever matters: each lazy useState initializer below

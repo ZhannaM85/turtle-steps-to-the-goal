@@ -20,10 +20,18 @@ function makeDailyEntry(overrides: Partial<DailyEntry> = {}): DailyEntry {
 
 beforeEach(async () => {
   await db.dailyEntries.clear()
+  // #201 made the add row's default collapsed state depend on whether
+  // `date` is in the past relative to the real clock — freeze "now" to
+  // this file's own fixture "today" (2026-03-01) so the existing fixture
+  // dates keep reading as today/future, matching the pre-#201 always-
+  // expanded behavior these tests were written against.
+  vi.useFakeTimers({ toFake: ['Date'] })
+  vi.setSystemTime(new Date('2026-03-01T12:00:00.000Z'))
 })
 
 afterEach(async () => {
   await db.dailyEntries.clear()
+  vi.useRealTimers()
 })
 
 /**
@@ -57,7 +65,7 @@ describe('MealList', () => {
     })
 
     await user.click(
-      screen.getByRole('button', { name: 'Done adding for today' }),
+      screen.getByRole('button', { name: 'Collapse' }),
     )
 
     expect(
@@ -337,6 +345,14 @@ describe('MealList', () => {
   })
 
   describe("repeat yesterday's meal (#190)", () => {
+    // These tests use 2026-03-02 as "today" (with 2026-03-01 as the day
+    // before it), unlike the rest of this file's 2026-03-01 — override the
+    // outer beforeEach's frozen clock so 2026-03-02 still reads as
+    // today/not-past for the #201 collapse-default check above.
+    beforeEach(() => {
+      vi.setSystemTime(new Date('2026-03-02T12:00:00.000Z'))
+    })
+
     it("offers to repeat yesterday's meal at the matching position, cloning only the food data", async () => {
       await db.dailyEntries.put(
         makeDailyEntry({

@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 190,
+    issue: 201,
+    date: '2026-07-20T17:10:00+03:00',
+    en: 'The "add a new meal" row now stays collapsed the way you left it for the rest of the day, instead of reopening every time you navigate away and back. Past days start collapsed by default.',
+    ru: 'Строка «добавить приём пищи» теперь остаётся свёрнутой до конца дня, а не открывается заново при переходах между экранами. Прошедшие дни теперь по умолчанию свёрнуты.',
+  },
+  {
     version: 189,
     issue: 165,
     date: '2026-07-20T15:52:00+03:00',

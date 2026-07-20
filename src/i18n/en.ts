@@ -128,7 +128,7 @@ export const en: Dictionary = {
     timeEatenLabel: 'Time',
     clearTimeLabel: 'Clear time',
     clearItemDraftLabel: 'Clear',
-    collapseAddMealLabel: 'Done adding for today',
+    collapseAddMealLabel: 'Collapse',
     expandAddMealLabel: '+ Add another meal',
     repeatMealLabel: (mealLabel) => `Repeat yesterday's ${mealLabel}`,
     orDivider: 'or',
