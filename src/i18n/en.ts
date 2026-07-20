@@ -128,6 +128,8 @@ export const en: Dictionary = {
     timeEatenLabel: 'Time',
     clearTimeLabel: 'Clear time',
     clearItemDraftLabel: 'Clear',
+    collapseAddMealLabel: 'Done adding for today',
+    expandAddMealLabel: '+ Add another meal',
     orDivider: 'or',
     addFoodButton: 'Find food',
     addFoodDialogTitle: 'Add from food list',

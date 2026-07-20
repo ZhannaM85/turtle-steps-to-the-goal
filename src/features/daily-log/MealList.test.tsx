@@ -30,6 +30,34 @@ describe('MealList', () => {
     ).toBeInTheDocument()
   })
 
+  it('collapses the add row behind a small link, and re-expands it on tap (#199)', async () => {
+    const user = userEvent.setup()
+    render(<MealList calorieEntries={[]} date="2026-03-01" onChange={vi.fn()} />, {
+      wrapper: MemoryRouter,
+    })
+
+    await user.click(
+      screen.getByRole('button', { name: 'Done adding for today' }),
+    )
+
+    expect(
+      screen.queryByRole('button', { name: '+ Add item' }),
+    ).not.toBeInTheDocument()
+    const expandButton = screen.getByRole('button', {
+      name: '+ Add another meal',
+    })
+    expect(expandButton).toBeInTheDocument()
+
+    await user.click(expandButton)
+
+    expect(
+      screen.getByRole('button', { name: '+ Add item' }),
+    ).toBeInTheDocument()
+    expect(
+      screen.queryByRole('button', { name: '+ Add another meal' }),
+    ).not.toBeInTheDocument()
+  })
+
   it('adds a meal and calls onChange with the new list', async () => {
     const user = userEvent.setup()
     const onChange = vi.fn()

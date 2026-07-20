@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 184,
+    issue: 199,
+    date: '2026-07-20T13:20:00+03:00',
+    en: 'You can now collapse the "add a new meal" row once you\'re done for the day — tap "+ Add another meal" any time to bring it back.',
+    ru: 'Теперь можно свернуть блок добавления приёма пищи, если на сегодня вы закончили, — в любой момент можно нажать «+ Добавить ещё приём пищи», чтобы вернуть его.',
+  },
+  {
     version: 183,
     issue: 198,
     date: '2026-07-20T13:00:00+03:00',

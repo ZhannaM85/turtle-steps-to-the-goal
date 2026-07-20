@@ -834,6 +834,13 @@ export function MealList({
   // never clears the underlying add-* state, so a half-filled draft
   // survives reopening.
   const [isAddItemSheetOpen, setIsAddItemSheetOpen] = useState(false)
+  // #199: collapses the trailing add-row behind a small "+ Add another
+  // meal" link once the user is done logging for the day — not a delete,
+  // just hidden until tapped again. Plain component state, no
+  // persistence: it resets automatically whenever this screen mounts for
+  // a different day (Today keys DailyEntryForm/MealList by date), which
+  // is exactly the "only means done for *today*" behavior wanted.
+  const [isAddRowCollapsed, setIsAddRowCollapsed] = useState(false)
   // Dedicated single-meal edit route support (#157) — computed
   // unconditionally on every render (a cheap array find), but only its
   // *first* result ever matters: each lazy useState initializer below
@@ -1403,7 +1410,20 @@ export function MealList({
       {/* Hidden entirely in the dedicated single-meal edit route (#157) —
        * that screen is meant to focus on the one meal it opened for, not
        * also offer to start a completely different one. */}
-      {!focusMealId && (
+      {!focusMealId && (isAddRowCollapsed ? (
+        // #199: "done for today" collapses the whole row behind one small
+        // link rather than removing the ability to add more — tapping it
+        // just re-expands the full row below.
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          className="self-start"
+          onClick={() => setIsAddRowCollapsed(false)}
+        >
+          {t.dailyEntry.expandAddMealLabel}
+        </Button>
+      ) : (
       <div
         // Card treatment (#143), same as every other meal group's <li>
         // above — its own visible boundary now does the job the old
@@ -1567,8 +1587,20 @@ export function MealList({
             mealItems={mealItems}
           />
         )}
+        {/* #199: collapses this whole row for the rest of today once
+         * nothing more is planned — see expandAddMealLabel above for the
+         * way back. */}
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          className="self-start"
+          onClick={() => setIsAddRowCollapsed(true)}
+        >
+          {t.dailyEntry.collapseAddMealLabel}
+        </Button>
       </div>
-      )}
+      ))}
     </div>
   )
 }

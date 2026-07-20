@@ -128,6 +128,8 @@ export const ru: Dictionary = {
     timeEatenLabel: 'Время',
     clearTimeLabel: 'Очистить время',
     clearItemDraftLabel: 'Очистить',
+    collapseAddMealLabel: 'Готово на сегодня',
+    expandAddMealLabel: '+ Добавить ещё приём пищи',
     orDivider: 'или',
     addFoodButton: 'Найти блюдо',
     addFoodDialogTitle: 'Добавить из списка продуктов',
