@@ -398,6 +398,16 @@ _Filed per explicit instruction ("add one more GitHub issue and address later on
 
 ---
 
+## Tier 24 — New reports (2026-07-20)
+
+_Filed per live report, not to be picked up until told to._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#206](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/206) | ⬜ Open | Meal item summary line doesn't show quantity in grams | Reported from a real device (screenshot, Today screen, RU locale) — a logged item's compact summary line (e.g. "Bio-Skyr Exponenta — 175 ккал · Б 30г · Ж 0г · У 15г") shows kcal and macros but not the item's own quantity (`amountG`). Not yet investigated |
+
+---
+
 ## Private (no public GitHub issue, by request)
 
 _Filed and built without a public issue at the user's explicit request — the repo is public, and this one's more personal than the rest. Still documented normally here per the project's usual close-out process; see [[feedback_issue_first]]'s exception #2 in memory for why._
