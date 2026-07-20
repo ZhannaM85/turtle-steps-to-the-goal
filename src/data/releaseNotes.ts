@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 183,
+    issue: 198,
+    date: '2026-07-20T13:00:00+03:00',
+    en: 'Fixed the Dashboard "Compare data" bar chart showing the lowest day in view as an empty bar, making it look like nothing was logged that day.',
+    ru: 'Исправлено: на графике «Сравнение данных» день с наименьшим значением отображался пустым столбиком, будто в этот день ничего не было записано.',
+  },
+  {
     version: 182,
     issue: 192,
     date: '2026-07-20T12:55:00+03:00',

@@ -316,6 +316,17 @@ export function CustomChartView({ entries }: CustomChartViewProps) {
                       fill={seriesConfig[key].color}
                       radius={[2, 2, 0, 0]}
                       maxBarSize={14}
+                      // #198: a day whose value happens to be the visible
+                      // range's minimum normalizes to 0 and renders as no
+                      // bar at all — reads as "nothing logged" even though
+                      // there's a real, just relatively low, value (found
+                      // from a report that a day with 918 logged kcal, only
+                      // modestly below its neighbors, looked empty on the
+                      // calories bar chart). minPointSize keeps every bar
+                      // at least a few px tall so it stays visibly present;
+                      // the tooltip/legend still always read the real
+                      // number from `raw`, never this rendered height.
+                      minPointSize={3}
                       isAnimationActive={false}
                     />
                   )
