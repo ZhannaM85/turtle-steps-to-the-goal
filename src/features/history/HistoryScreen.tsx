@@ -150,7 +150,7 @@ export function HistoryScreen() {
                       value={dateFrom}
                       max={dateTo || undefined}
                       onChange={(e) => setDateFrom(e.target.value)}
-                      className="w-36"
+                      className="h-12 w-36"
                     />
                   </div>
                   <div className="flex flex-col gap-1.5">
@@ -163,7 +163,7 @@ export function HistoryScreen() {
                       value={dateTo}
                       min={dateFrom || undefined}
                       onChange={(e) => setDateTo(e.target.value)}
-                      className="w-36"
+                      className="h-12 w-36"
                     />
                   </div>
                 </div>
@@ -178,7 +178,7 @@ export function HistoryScreen() {
                     placeholder={t.history.searchPlaceholder}
                     value={searchText}
                     onChange={(e) => setSearchText(e.target.value)}
-                    className="w-full sm:w-64"
+                    className="h-12 w-full sm:w-64"
                   />
                 </div>
                 <div className="flex flex-col gap-1.5">

@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 178,
+    issue: 196,
+    date: '2026-07-20T12:20:00+03:00',
+    en: "History's date-range and search fields are now the same size as the input fields on Today.",
+    ru: 'Поля даты и поиска в истории теперь такого же размера, как поля ввода на странице «Сегодня».',
+  },
+  {
     version: 177,
     issue: 191,
     date: '2026-07-20T12:15:00+03:00',
