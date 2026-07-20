@@ -193,6 +193,10 @@ export interface Dictionary {
      * meal's items (name/macros/amountG only, not time/note/emotion) in
      * one tap, for a routine that's logged the same way most days. */
     repeatMealLabel: (mealLabel: string) => string
+    /** #202: title of the preview dialog "Repeat yesterday's [meal]" opens
+     * into — lets a specific dish be unchecked before confirming, rather
+     * than #190's original all-or-nothing immediate commit. */
+    repeatMealDialogTitle: (mealLabel: string) => string
     orDivider: string
     addFoodButton: string
     addFoodDialogTitle: string

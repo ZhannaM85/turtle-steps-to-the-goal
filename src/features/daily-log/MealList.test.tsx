@@ -382,10 +382,14 @@ describe('MealList', () => {
         { wrapper: MemoryRouter },
       )
 
+      const user = userEvent.setup()
       const repeatButton = await screen.findByRole('button', {
         name: "Repeat yesterday's Breakfast",
       })
-      await userEvent.setup().click(repeatButton)
+      await user.click(repeatButton)
+      // #202: the button now opens a preview dialog instead of committing
+      // immediately — confirm with everything left checked (the default).
+      await user.click(screen.getByRole('button', { name: 'Add selected' }))
 
       expect(onChange).toHaveBeenCalledTimes(1)
       const next = onChange.mock.calls[0][0] as CalorieEntry[]
@@ -402,6 +406,54 @@ describe('MealList', () => {
       expect(next[0].items[0].emotion).toBeUndefined()
       expect(next[0].timeEaten).toBeUndefined()
       expect(next[0].note).toBeUndefined()
+    })
+
+    it('lets a specific dish be unchecked before confirming (#202)', async () => {
+      await db.dailyEntries.put(
+        makeDailyEntry({
+          date: '2026-03-01',
+          calorieEntries: [
+            {
+              id: 'y1',
+              items: [
+                {
+                  id: 'yi1',
+                  name: 'Eggs',
+                  amountKcal: 150,
+                  proteinG: 12,
+                },
+                {
+                  id: 'yi2',
+                  name: 'Toast',
+                  amountKcal: 120,
+                },
+              ],
+              createdAt: '2026-03-01T08:00:00.000Z',
+            },
+          ],
+        }),
+      )
+      const onChange = vi.fn()
+      render(
+        <MealList calorieEntries={[]} date="2026-03-02" onChange={onChange} />,
+        { wrapper: MemoryRouter },
+      )
+
+      const user = userEvent.setup()
+      await user.click(
+        await screen.findByRole('button', {
+          name: "Repeat yesterday's Breakfast",
+        }),
+      )
+      await user.click(screen.getByRole('checkbox', { name: /Toast/ }))
+      await user.click(
+        screen.getByRole('button', { name: 'Add selected' }),
+      )
+
+      expect(onChange).toHaveBeenCalledTimes(1)
+      const next = onChange.mock.calls[0][0] as CalorieEntry[]
+      expect(next[0].items).toHaveLength(1)
+      expect(next[0].items[0]).toMatchObject({ name: 'Eggs' })
     })
 
     it('does not offer to repeat when there is no meal at that position yesterday', async () => {

@@ -63,6 +63,7 @@ import {
 } from '@/stores'
 import { FoodPickerDialog, type PickedFoodValues } from './FoodPickerDialog'
 import { MealItemEditorSheet } from './MealItemEditorSheet'
+import { RepeatMealDialog } from './RepeatMealDialog'
 
 // Every curated food's name in either locale (#150) — names an item picked
 // via FoodPickerDialog can carry, distinct from a name the user actually
@@ -870,6 +871,9 @@ export function MealList({
   // Quantity-based entry against the static food list (#62) — an alternative
   // to manual kcal/macro entry, not a replacement for it.
   const [isFoodPickerOpen, setIsFoodPickerOpen] = useState(false)
+  // #202: opens RepeatMealDialog's preview/selective-pick sheet instead of
+  // #190's original immediate one-tap commit.
+  const [isRepeatDialogOpen, setIsRepeatDialogOpen] = useState(false)
   // Full-screen item editor sheet (#122) — the add row's own instance,
   // opened by its "+ Add item" trigger. Closing it (via Save or the X)
   // never clears the underlying add-* state, so a half-filled draft
@@ -1107,9 +1111,12 @@ export function MealList({
   // macros). Fresh ids for the new day's own records; touches the meal-item
   // dictionary the same way every other add path does, skipping curated
   // food names (#150) so they don't leak into the personal library.
-  function repeatPreviousMeal() {
-    if (!previousMeal) return
-    const items: CalorieItem[] = previousMeal.items.map((item) => ({
+  // #202: takes just the dishes the user kept checked in RepeatMealDialog's
+  // preview, not necessarily all of `previousMeal.items` — #190 originally
+  // committed the whole meal immediately with no way to leave one out.
+  function repeatSelectedItems(selected: CalorieItem[]) {
+    if (!previousMeal || selected.length === 0) return
+    const items: CalorieItem[] = selected.map((item) => ({
       ...item,
       id: crypto.randomUUID(),
       emotion: undefined,
@@ -1585,7 +1592,7 @@ export function MealList({
             variant="outline"
             size="lg"
             className="h-12 w-full text-base"
-            onClick={repeatPreviousMeal}
+            onClick={() => setIsRepeatDialogOpen(true)}
           >
             {t.dailyEntry.repeatMealLabel(
               effectiveMealLabel(
@@ -1595,6 +1602,22 @@ export function MealList({
               ),
             )}
           </Button>
+        )}
+        {isRepeatDialogOpen && previousMeal && (
+          <RepeatMealDialog
+            open={isRepeatDialogOpen}
+            onOpenChange={setIsRepeatDialogOpen}
+            mealLabel={effectiveMealLabel(
+              t,
+              calorieEntries.length + 1,
+              previousMeal.label,
+            )}
+            items={previousMeal.items}
+            onConfirm={(selected) => {
+              repeatSelectedItems(selected)
+              setIsRepeatDialogOpen(false)
+            }}
+          />
         )}
         {/* #153: "Find food" is now the primary, full-width CTA — search
          * first, and only fall back to typing macros by hand if the dish

@@ -131,6 +131,7 @@ export const en: Dictionary = {
     collapseAddMealLabel: 'Collapse',
     expandAddMealLabel: '+ Add another meal',
     repeatMealLabel: (mealLabel) => `Repeat yesterday's ${mealLabel}`,
+    repeatMealDialogTitle: (mealLabel) => `Repeat ${mealLabel}`,
     orDivider: 'or',
     addFoodButton: 'Find food',
     addFoodDialogTitle: 'Add from food list',
