@@ -605,7 +605,12 @@ export interface Dictionary {
     title: string
     description: string
     intro: string
+    /** #213 rewrite: why the app tracks more than just weight/calories. */
+    tracking: string
     philosophy: string
+    /** #213 rewrite: a short standalone heading right before `privacy`,
+     * not part of that paragraph's own sentence flow. */
+    privacyHeading: string
     privacy: string
     madeBy: (author: string) => string
     /** Current release-notes version number (simple incrementing counter,

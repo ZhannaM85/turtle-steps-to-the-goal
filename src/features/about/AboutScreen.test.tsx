@@ -12,15 +12,23 @@ afterEach(() => {
 })
 
 describe('AboutScreen', () => {
-  it('explains what the app is and its no-big-goal philosophy', () => {
+  it('explains what the app is and its no-big-goal philosophy (#213)', () => {
     render(<AboutScreen />)
 
     expect(screen.getByRole('heading', { name: 'About' })).toBeInTheDocument()
     expect(
-      screen.getByText(/small, personal weight-tracking app/),
+      screen.getByText(/Weight changes are influenced by many factors/),
     ).toBeInTheDocument()
-    expect(screen.getByText(/no long-term target to chase/)).toBeInTheDocument()
-    expect(screen.getByText(/stays on your own device/)).toBeInTheDocument()
+    expect(
+      screen.getByText(/Track your weight alongside calories/),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByText(/steady weekly progress through small, consistent steps/),
+    ).toBeInTheDocument()
+    expect(screen.getByText('Private by design.')).toBeInTheDocument()
+    expect(
+      screen.getByText(/stored locally on your device/),
+    ).toBeInTheDocument()
   })
 
   it('credits the author with a link to their GitHub profile', () => {

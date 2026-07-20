@@ -469,11 +469,14 @@ export const en: Dictionary = {
     title: 'About',
     description: 'What this app is, and why it exists',
     intro:
-      'Turtle Steps to the Goal is a small, personal weight-tracking app built around one idea: change happens through small, steady steps — not big, pressured goals.',
+      'Weight changes are influenced by many factors—not just calories. Turtle Steps helps you keep them together in one place.',
+    tracking:
+      'Track your weight alongside calories, protein, carbohydrates, fat, sleep, activity, menstrual cycle, meals, and personal notes. Over time, the app helps you see patterns and understand how your daily habits relate to your progress.',
     philosophy:
-      "There's no long-term target to chase, no streaks to protect, no badges to collect. Just this week's small step, one day at a time.",
+      'Instead of focusing on perfect days, Turtle Steps encourages steady weekly progress through small, consistent steps.',
+    privacyHeading: 'Private by design.',
     privacy:
-      'All your data stays on your own device — nothing is sent anywhere else.',
+      'Everything is stored locally on your device. No accounts. No cloud. No tracking.',
     madeBy: (author) => `Made by ${author}`,
     currentVersionLabel: (version) => `Version ${version}`,
   },

@@ -22,7 +22,9 @@ export function AboutScreen() {
 
       <div className="flex flex-col gap-3 text-sm text-muted-foreground">
         <p>{t.about.intro}</p>
+        <p>{t.about.tracking}</p>
         <p>{t.about.philosophy}</p>
+        <p className="font-medium text-foreground">{t.about.privacyHeading}</p>
         <p>{t.about.privacy}</p>
         {currentVersion !== undefined && (
           <p>{t.about.currentVersionLabel(currentVersion)}</p>
