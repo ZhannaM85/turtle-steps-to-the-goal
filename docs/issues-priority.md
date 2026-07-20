@@ -352,6 +352,28 @@ _`docs/potential-improvements.md`'s 2026-07-17 survey converted to issues, once 
 
 ---
 
+## Tier 21 — Eleventh live-feedback wave (2026-07-20)
+
+_Same pattern as Tiers 8–20: issues filed from continued live use, in one batch. Filed without pre-implementation investigation per the standing workflow — root causes below are "not yet investigated" unless noted otherwise. Ordered easiest → hardest per the usual default._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#193](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/193) | ⬜ Open | Rename "Mood" (Настроение) to something clearer for the color-scheme/theme picker | Confuses users with the day/meal emotion pickers, which already use "mood." Scope: the section label only, not the individual theme names (Pond/Dusk/Sage/Tortoise/Lagoon) |
+| [#191](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/191) | ⬜ Open | Storage-usage line in Settings only shows usage, not available space/quota | `navigator.storage.estimate()` (#176) also returns `quota`, not currently shown. Also worth checking whether iOS Safari/PWA's `quota` figure is even a meaningful practical ceiling worth surfacing |
+| [#196](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/196) | ⬜ Open | History's input fields are a different size than Today's input fields | Likely History's filter inputs (From/To/search) were out of scope of the #126/#133/#139 field-height passes and were never updated to match |
+| [#189](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/189) | ⬜ Open | Day's note card doesn't resize properly around mood/edit icons when text wraps | Wrapped note text collides with the mood emoji/pencil icons instead of the card reflowing cleanly |
+| [#195](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/195) | ⬜ Open | Dashboard custom chart's series/mode selection isn't remembered across navigation | `CustomChartView.tsx` (#132/#137) resets its toggled series/line-bar-dots selection on every revisit |
+| [#200](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/200) | ⬜ Open | Editing a meal on a previous day navigates to today after saving | Likely `MealEditScreen.tsx`'s (#157) `navigate(-1)` and/or `TodayScreen.tsx`'s date-navigation state (#138) not round-tripping correctly |
+| [#192](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/192) | ⬜ Open | Custom meal items list in Settings doesn't reliably capture its own scroll | `MealItemsSection.tsx`'s `max-h-96 overflow-y-auto` list (#179) — sometimes scrolls the whole Settings page instead. Possibly related to #74's nested-scroll fix for `FoodPickerDialog`, though this list isn't inside a dialog |
+| [#198](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/198) | ⬜ Open | July 16 calories look wrong/missing on Dashboard chart despite being logged | History confirms 918 kcal logged that day (not a missing-data day) — the Dashboard calories bar chart renders it near-zero, a rendering discrepancy rather than a data gap |
+| [#199](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/199) | ⬜ Open | Add a way to collapse the trailing "add a new meal" row once done for the day | Collapse, not delete — the reporter explicitly wants to still be able to add more that same day if they change their mind. Needs a design decision: where the collapse state lives, and what the collapsed state looks like |
+| [#194](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/194) | ⬜ Open | Action items on Settings page are visually inconsistent with Today page | Reported broadly/vaguely — exactly which controls and what differs isn't spelled out; may need a clarifying check-in with the reporter before scoping |
+| [#188](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/188) | ⬜ Open | Bottom tab bar intermittently detaches, floats mid-page instead of staying anchored to the bottom | Reproduced by two users in the web app. Distinct symptom from #120/#156/#173/#180/#186's horizontal-blank-space/keyboard family — the bar itself un-anchors vertically. Reporter: if it doesn't reproduce in Chromium, reason about it logically from the CSS involved rather than requiring a live repro |
+| [#197](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/197) | ⬜ Open | Layout breaks with blank space on the right: edit yesterday's meal, open a food, open a macro field | Consistently (not intermittently) reproducible per the reporter — possibly the missing repro #186 was blocked on, and/or the same root cause as #173/#180. Worth checking whether fixing this also closes those |
+| [#190](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/190) | ⬜ Open | Add a way to repeat/copy a previous meal instead of re-adding it by hand every day | Biggest item in this batch — a real feature gap beyond what #50/#86/#94's per-dish autocomplete already covers (restores one dish's numbers, not a whole meal in one action). Needs a design decision before implementing: a "repeat yesterday's meal" quick action, saved meal templates, or a copy-from-History action — not decided yet |
+
+---
+
 ## Private (no public GitHub issue, by request)
 
 _Filed and built without a public issue at the user's explicit request — the repo is public, and this one's more personal than the rest. Still documented normally here per the project's usual close-out process; see [[feedback_issue_first]]'s exception #2 in memory for why._
