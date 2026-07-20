@@ -284,4 +284,40 @@ describe('EntryRow', () => {
       expect(screen.getByText('Breakfast — 500 kcal')).toBeInTheDocument()
     })
   })
+
+  describe('reached-goal-window highlighting (#155)', () => {
+    it('marks the exact reach day distinctly from the rest of the window', () => {
+      renderRow({ isGoalReachedDay: true })
+
+      expect(
+        screen.getByText('You reached your target this day', {
+          selector: '.sr-only',
+        }),
+      ).toBeInTheDocument()
+    })
+
+    it('marks the rest of a reached window without the reach-day label', () => {
+      renderRow({ isPartOfReachedGoalWindow: true })
+
+      expect(
+        screen.getByText('Part of a week you reached your target', {
+          selector: '.sr-only',
+        }),
+      ).toBeInTheDocument()
+      expect(
+        screen.queryByText('You reached your target this day'),
+      ).not.toBeInTheDocument()
+    })
+
+    it('adds no reached-goal marker by default', () => {
+      renderRow()
+
+      expect(
+        screen.queryByText('Part of a week you reached your target'),
+      ).not.toBeInTheDocument()
+      expect(
+        screen.queryByText('You reached your target this day'),
+      ).not.toBeInTheDocument()
+    })
+  })
 })

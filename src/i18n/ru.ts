@@ -182,6 +182,8 @@ export const ru: Dictionary = {
     targetMetOnLabel: (date) => `Цель достигнута ${date}`,
     targetMissedLabel: 'Цель не достигнута',
     targetNoDataLabel: 'Недостаточно данных',
+    activeGoalReachedNudge:
+      'Вы досрочно достигли цели на эту неделю — задайте новую, когда будете готовы.',
     deletePastTargetLabel: (weekRange) => `Удалить цель за ${weekRange}`,
     confirmDeletePastTargetLabel: 'Удалить эту цель?',
     confirmDeletePastTargetYes: 'Удалить',
@@ -370,6 +372,8 @@ export const ru: Dictionary = {
     previousPageButton: 'Назад',
     nextPageButton: 'Вперёд',
     pageIndicator: (current, total) => `Страница ${current} из ${total}`,
+    reachedGoalWindowDayLabel: 'Часть недели, когда вы достигли цели',
+    reachedGoalDayLabel: 'В этот день вы достигли цели',
   },
   settings: {
     title: 'Настройки',

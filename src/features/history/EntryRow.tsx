@@ -18,6 +18,7 @@ import {
 } from '@/i18n'
 import { DailyEntryForm } from '@/features/daily-log'
 import { macrosSummaryTextCompact } from '@/shared/lib/macroDisplay'
+import { cn } from '@/shared/lib/utils'
 import { useUnitStore } from '@/stores'
 import { Button } from '@/shared/ui/button'
 import { DayDetail } from './DayDetail'
@@ -31,6 +32,12 @@ export interface EntryRowProps {
   /** Opens the read-only detail panel immediately on mount — used when
    * arriving via a dashboard-chart deep link (#41) straight to this day. */
   defaultExpanded?: boolean
+  /** #155: this day falls within [weekStart, metOnDate] of some reached
+   * goal window (past or active) — tints the date cell. */
+  isPartOfReachedGoalWindow?: boolean
+  /** #155: this is the exact day some goal's target was first met —
+   * marked more strongly than isPartOfReachedGoalWindow alone. */
+  isGoalReachedDay?: boolean
 }
 
 type RowMode = 'view' | 'edit' | 'confirmDelete'
@@ -40,6 +47,8 @@ export function EntryRow({
   onSaved,
   onDeleted,
   defaultExpanded = false,
+  isPartOfReachedGoalWindow = false,
+  isGoalReachedDay = false,
 }: EntryRowProps) {
   const t = useTranslation()
   const locale = useLocale()
@@ -103,12 +112,30 @@ export function EntryRow({
   return (
     <>
       <tr>
-        <td className="border-b border-border px-2 py-2 text-sm whitespace-nowrap sm:px-3">
+        <td
+          className={cn(
+            'border-b border-border px-2 py-2 text-sm whitespace-nowrap sm:px-3',
+            // #155: tints the date cell for a day that was part of a
+            // reached goal window; the exact reach day gets a stronger
+            // tint + bold weight so it reads as distinct within the range.
+            isGoalReachedDay
+              ? 'bg-primary/15 font-semibold text-primary'
+              : isPartOfReachedGoalWindow && 'bg-primary/5',
+          )}
+        >
           {/* Compact numeric format (#73) — the localized 'PP' format
            * ("15 июл. 2026 г.") was wide enough, combined with the other
            * columns, to push the Actions column's icons off screen on
            * narrow phones. dd.MM.yy is locale-agnostic and unambiguous. */}
           {format(parseISO(entry.date), 'dd.MM.yy')}
+          {(isGoalReachedDay || isPartOfReachedGoalWindow) && (
+            <span className="sr-only">
+              {' '}
+              {isGoalReachedDay
+                ? t.history.reachedGoalDayLabel
+                : t.history.reachedGoalWindowDayLabel}
+            </span>
+          )}
         </td>
         <td className="border-b border-border px-2 py-2 text-sm tabular-nums sm:px-3">
           {weightDisplay}

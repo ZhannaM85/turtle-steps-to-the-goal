@@ -1,14 +1,5 @@
-import { useEffect, useState } from 'react'
-import type { DailyEntry } from '@/domain/dailyEntry'
-import { goalWindowProgress } from '@/domain/goal'
-import { IndexedDbDailyEntryRepository } from '@/infrastructure/persistence/indexeddb'
-import {
-  useDailyEntryStore,
-  useGoalCelebrationStore,
-  useGoalStore,
-} from '@/stores'
-
-const dailyEntryRepository = new IndexedDbDailyEntryRepository()
+import { useGoalCelebrationStore } from '@/stores'
+import { useActiveGoalProgress } from './useActiveGoalProgress'
 
 /**
  * Whether to show the weekly-goal-met celebration modal (#55) — fires as
@@ -26,38 +17,14 @@ export function useWeeklyGoalCelebration(): {
   shouldCelebrate: boolean
   dismiss: () => void
 } {
-  const { goal, loadActiveGoal } = useGoalStore()
-  // Re-fetch trigger: bumps whenever any field saves on Today (#31 — weight,
-  // note, or a meal each save independently), so a target crossed by
-  // *this* visit's own save is reflected without needing a reload.
-  const savedEntry = useDailyEntryStore((state) => state.entry)
+  const progress = useActiveGoalProgress()
   const celebratedWeekStart = useGoalCelebrationStore(
     (state) => state.celebratedWeekStart,
   )
   const markCelebrated = useGoalCelebrationStore(
     (state) => state.markCelebrated,
   )
-  const [entries, setEntries] = useState<DailyEntry[]>([])
 
-  useEffect(() => {
-    loadActiveGoal()
-  }, [loadActiveGoal])
-
-  useEffect(() => {
-    let cancelled = false
-    dailyEntryRepository.getAll().then((all) => {
-      if (!cancelled) setEntries(all)
-    })
-    return () => {
-      cancelled = true
-    }
-  }, [savedEntry])
-
-  if (!goal || entries.length === 0) {
-    return { shouldCelebrate: false, dismiss: () => {} }
-  }
-
-  const progress = goalWindowProgress(entries, goal)
   const shouldCelebrate =
     progress !== null &&
     progress.targetMet === true &&

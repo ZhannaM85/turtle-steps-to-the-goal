@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { ArrowUpDown } from 'lucide-react'
 import { useSearchParams } from 'react-router-dom'
 import type { Emotion } from '@/domain/dailyEntry'
+import { isDateWithinReachedWindow, isGoalMetOnDate } from '@/domain/goal'
 import { EmotionPicker } from '@/features/daily-log'
 import { useTranslation } from '@/i18n'
 import { DAY_EMOTIONS } from '@/shared/lib/emotionIcons'
@@ -27,7 +28,8 @@ const PAGE_SIZE = 20
 
 export function HistoryScreen() {
   const t = useTranslation()
-  const { entries, goal, status, saveEntry, deleteEntry } = useHistoryData()
+  const { entries, goal, reachedWindows, status, saveEntry, deleteEntry } =
+    useHistoryData()
   const [sortAsc, setSortAsc] = useState(false)
   const [viewMode, setViewMode] = useState<ViewMode>('list')
   // Deep-linked from a dashboard chart point (#41): ?date=YYYY-MM-DD
@@ -123,6 +125,7 @@ export function HistoryScreen() {
           {viewMode === 'calendar' ? (
             <CalendarView
               entries={entries}
+              reachedWindows={reachedWindows}
               onEditDay={editDayFromCalendar}
               onSaved={saveEntry}
             />
@@ -259,6 +262,14 @@ export function HistoryScreen() {
                             entry.date === dateFrom &&
                             entry.date === dateTo
                           }
+                          isPartOfReachedGoalWindow={isDateWithinReachedWindow(
+                            entry.date,
+                            reachedWindows,
+                          )}
+                          isGoalReachedDay={isGoalMetOnDate(
+                            entry.date,
+                            reachedWindows,
+                          )}
                         />
                       ))}
                     </tbody>

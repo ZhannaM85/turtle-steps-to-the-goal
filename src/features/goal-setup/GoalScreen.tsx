@@ -8,7 +8,7 @@ import {
   useTranslation,
 } from '@/i18n'
 import { goalWeekEnd, kgToLb } from '@/domain/goal'
-import { usePastGoals } from '@/shared/hooks'
+import { useActiveGoalProgress, usePastGoals } from '@/shared/hooks'
 import { PageHeader } from '@/shared/ui/page-header'
 import { StatCard } from '@/shared/ui/stat-card'
 import { useGoalStore, useUnitStore } from '@/stores'
@@ -22,6 +22,12 @@ export function GoalScreen() {
   const { goal, status, error, loadActiveGoal, saveGoal } = useGoalStore()
   const displayUnit = useUnitStore((state) => state.unit)
   const { records: pastTargets, deleteGoal } = usePastGoals(goal)
+  // #155: whether the active goal's own window has already been reached
+  // mid-week — drives both the "Reached on [date]" badge/nudge below and
+  // (via GoalForm's activeGoalReached prop) whether the next save starts a
+  // fresh record instead of editing this now-succeeded one in place.
+  const activeGoalProgress = useActiveGoalProgress()
+  const activeGoalReachedOn = activeGoalProgress?.metOnDate ?? null
 
   useEffect(() => {
     loadActiveGoal()
@@ -47,20 +53,48 @@ export function GoalScreen() {
               unit={t.today.toLose(unitLabel(displayUnit, t))}
               description={
                 goal.weekStart
-                  ? t.common.weekRangeLabel(
-                      format(parseISO(goal.weekStart), 'MMM d', {
-                        locale: dateFnsLocale,
-                      }),
-                      format(parseISO(goalWeekEnd(goal.weekStart)), 'MMM d', {
-                        locale: dateFnsLocale,
-                      }),
-                    )
+                  ? [
+                      t.common.weekRangeLabel(
+                        format(parseISO(goal.weekStart), 'MMM d', {
+                          locale: dateFnsLocale,
+                        }),
+                        format(parseISO(goalWeekEnd(goal.weekStart)), 'MMM d', {
+                          locale: dateFnsLocale,
+                        }),
+                      ),
+                      // #155: named alongside the range, same badge copy
+                      // PastTargetsList uses for a reached past target.
+                      activeGoalReachedOn &&
+                        t.goal.targetMetOnLabel(
+                          format(parseISO(activeGoalReachedOn), 'MMM d', {
+                            locale: dateFnsLocale,
+                          }),
+                        ),
+                    ]
+                      .filter(Boolean)
+                      .join(' · ')
                   : undefined
               }
             />
           )}
 
-          <GoalForm existingGoal={goal} onSubmit={saveGoal} />
+          {/* #155: quiet nudge once the active goal's own window has been
+           * reached mid-week — a save from here on starts a fresh record
+           * (GoalForm's activeGoalReached prop) rather than editing this
+           * now-succeeded one in place. Same tone/style as #38's
+           * goalRenewalReminder on TodayScreen; no link needed since the
+           * form is right below. */}
+          {activeGoalReachedOn && (
+            <div className="rounded-lg border border-border px-3 py-2 text-sm text-muted-foreground">
+              {t.goal.activeGoalReachedNudge}
+            </div>
+          )}
+
+          <GoalForm
+            existingGoal={goal}
+            onSubmit={saveGoal}
+            activeGoalReached={activeGoalReachedOn !== null}
+          />
 
           <PastTargetsList records={pastTargets} onDelete={deleteGoal} />
         </>

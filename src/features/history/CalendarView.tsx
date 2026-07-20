@@ -14,6 +14,11 @@ import {
 } from 'date-fns'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import type { DailyEntry } from '@/domain/dailyEntry'
+import {
+  isDateWithinReachedWindow,
+  isGoalMetOnDate,
+  type ReachedGoalWindow,
+} from '@/domain/goal'
 import { getDateFnsLocale, useLocale, useTranslation } from '@/i18n'
 import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/ui/button'
@@ -22,6 +27,9 @@ import { DayDetail } from './DayDetail'
 
 export interface CalendarViewProps {
   entries: DailyEntry[]
+  /** #155: every reached goal window (past + active), for highlighting
+   * which days were part of a successful week. */
+  reachedWindows: ReachedGoalWindow[]
   /** Switches back to the list view, filtered + expanded to this day. */
   onEditDay: (date: string) => void
   /** Threaded down to DayDetail for the cycle-tracking toggle (#71). */
@@ -34,6 +42,7 @@ const WEEK_STARTS_ON = 1
 
 export function CalendarView({
   entries,
+  reachedWindows,
   onEditDay,
   onSaved,
 }: CalendarViewProps) {
@@ -119,11 +128,23 @@ export function CalendarView({
           const hadConstipation = entry?.hadConstipation ?? false
           const inCurrentMonth = isSameMonth(day, currentMonth)
           const selected = selectedDate !== null && selectedDate === dateKey
+          // #155: goal-reached day highlighting — a stronger tint for the
+          // exact day a target was first met, a lighter one for the rest
+          // of that window. Only applied when not selected; the selected
+          // state's own bg-primary treatment already stands out.
+          const isReachedDay = isGoalMetOnDate(dateKey, reachedWindows)
+          const isReachedWindowDay =
+            !isReachedDay && isDateWithinReachedWindow(dateKey, reachedWindows)
+          const reachedGoalAriaSuffix = isReachedDay
+            ? `, ${t.history.reachedGoalDayLabel}`
+            : isReachedWindowDay
+              ? `, ${t.history.reachedGoalWindowDayLabel}`
+              : ''
           return (
             <button
               key={dateKey}
               type="button"
-              aria-label={format(day, 'PPPP', { locale: dateFnsLocale })}
+              aria-label={`${format(day, 'PPPP', { locale: dateFnsLocale })}${reachedGoalAriaSuffix}`}
               aria-pressed={selected}
               aria-current={isToday(day) ? 'date' : undefined}
               onClick={() => selectDay(day)}
@@ -132,7 +153,11 @@ export function CalendarView({
                 inCurrentMonth ? 'text-foreground' : 'text-muted-foreground/40',
                 selected
                   ? 'bg-primary text-primary-foreground'
-                  : 'hover:bg-muted',
+                  : isReachedDay
+                    ? 'bg-primary/20 hover:bg-primary/30'
+                    : isReachedWindowDay
+                      ? 'bg-primary/10 hover:bg-primary/20'
+                      : 'hover:bg-muted',
                 !selected && isToday(day) && 'font-semibold text-primary',
               )}
             >

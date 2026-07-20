@@ -18,9 +18,19 @@ import { makeGoalFormSchema, type GoalFormValues } from './goalFormSchema'
 export interface GoalFormProps {
   existingGoal: Goal | null
   onSubmit: (goal: Goal) => void
+  /** #155: whether existingGoal's own window has already been reached
+   * (goalWindowProgress(entries, existingGoal).metOnDate !== null) —
+   * computed by the caller since this form has no access to entries.
+   * Forces formValuesToGoal to start a fresh record instead of editing
+   * the already-succeeded one in place. */
+  activeGoalReached?: boolean
 }
 
-export function GoalForm({ existingGoal, onSubmit }: GoalFormProps) {
+export function GoalForm({
+  existingGoal,
+  onSubmit,
+  activeGoalReached = false,
+}: GoalFormProps) {
   const t = useTranslation()
   const unit = useUnitStore((state) => state.unit)
   const schema = useMemo(() => makeGoalFormSchema(t), [t])
@@ -41,7 +51,9 @@ export function GoalForm({ existingGoal, onSubmit }: GoalFormProps) {
     paceKg !== null ? estimatedDailyCalorieDeficitKcal(paceKg) : null
 
   function submit(formValues: GoalFormValues) {
-    onSubmit(formValuesToGoal(formValues, unit, existingGoal))
+    onSubmit(
+      formValuesToGoal(formValues, unit, existingGoal, activeGoalReached),
+    )
   }
 
   return (

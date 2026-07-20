@@ -15,6 +15,7 @@ function renderCalendar(props: Partial<CalendarViewProps> = {}) {
     <MemoryRouter>
       <CalendarView
         entries={[]}
+        reachedWindows={[]}
         onEditDay={vi.fn()}
         onSaved={vi.fn()}
         {...props}
@@ -213,6 +214,44 @@ describe('CalendarView', () => {
 
       useCycleTrackingStore.setState({ enabled: false })
       useDigestionTrackingStore.setState({ enabled: false })
+    })
+  })
+
+  describe('reached-goal window highlighting (#155)', () => {
+    const otherDayDate = format(today, 'yyyy-MM-10')
+
+    it('tints and labels the exact reach day distinctly', () => {
+      renderCalendar({
+        reachedWindows: [
+          { start: otherDayDate, metOnDate: midMonthDate },
+        ],
+      })
+
+      const dayButton = screen.getByRole('button', {
+        name: `${midMonthLabel}, You reached your target this day`,
+      })
+      expect(dayButton).toHaveClass('bg-primary/20')
+    })
+
+    it('tints and labels the rest of a reached window, without the reach-day wording', () => {
+      renderCalendar({
+        reachedWindows: [
+          { start: otherDayDate, metOnDate: midMonthDate },
+        ],
+      })
+
+      const dayButton = screen.getByRole('button', {
+        name: `${otherDayLabel}, Part of a week you reached your target`,
+      })
+      expect(dayButton).toHaveClass('bg-primary/10')
+    })
+
+    it('adds no reached-goal styling or label outside any window', () => {
+      renderCalendar({ reachedWindows: [] })
+
+      const dayButton = screen.getByRole('button', { name: midMonthLabel })
+      expect(dayButton).not.toHaveClass('bg-primary/20')
+      expect(dayButton).not.toHaveClass('bg-primary/10')
     })
   })
 })

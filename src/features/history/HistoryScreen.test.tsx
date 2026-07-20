@@ -100,6 +100,36 @@ describe('HistoryScreen', () => {
     expect(persisted?.weightKg).toBe(79.5)
   })
 
+  it('highlights days within a reached goal window in the List view (#155)', async () => {
+    await db.goals.put({
+      id: 'goal-1',
+      targetWeeklyLossKg: 1,
+      weekStart: '2026-03-01',
+      createdAt: '2026-03-01T00:00:00.000Z',
+      updatedAt: '2026-03-01T00:00:00.000Z',
+    })
+    // Prior-week baseline (82kg avg), then two logged days within the
+    // window that cross the 1kg target on the second one (#177's
+    // MIN_WINDOW_DAYS_LOGGED) — window ends up [2026-03-01, 2026-03-02].
+    await db.dailyEntries.put(makeEntry({ date: '2026-02-22', weightKg: 82 }))
+    await db.dailyEntries.put(makeEntry({ date: '2026-03-01', weightKg: 80 }))
+    await db.dailyEntries.put(makeEntry({ date: '2026-03-02', weightKg: 80 }))
+
+    render(<HistoryScreen />, { wrapper: MemoryRouter })
+    await screen.findByRole('table')
+
+    expect(
+      screen.getByText('You reached your target this day', {
+        selector: '.sr-only',
+      }),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByText('Part of a week you reached your target', {
+        selector: '.sr-only',
+      }),
+    ).toBeInTheDocument()
+  })
+
   describe('date filter', () => {
     async function seedThreeEntries() {
       await db.dailyEntries.put(makeEntry({ date: '2026-03-01', weightKg: 82 }))

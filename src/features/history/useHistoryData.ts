@@ -1,9 +1,14 @@
 import { useCallback, useEffect, useState } from 'react'
 import type { DailyEntry } from '@/domain/dailyEntry'
-import { IndexedDbDailyEntryRepository } from '@/infrastructure/persistence/indexeddb'
+import { reachedGoalWindows, type ReachedGoalWindow } from '@/domain/goal'
+import {
+  IndexedDbDailyEntryRepository,
+  IndexedDbGoalRepository,
+} from '@/infrastructure/persistence/indexeddb'
 import { useGoalStore } from '@/stores'
 
 const dailyEntryRepository = new IndexedDbDailyEntryRepository()
+const goalRepository = new IndexedDbGoalRepository()
 
 export type HistoryStatus = 'idle' | 'loading' | 'ready' | 'error'
 
@@ -11,14 +16,18 @@ export type HistoryStatus = 'idle' | 'loading' | 'ready' | 'error'
  * Loads everything History needs: all daily entries (direct repository
  * instance, same simplification as Dashboard's useDashboardData — no
  * shared store, since nothing else needs "all entries" reactively) plus
- * the active goal via the existing goalStore. Exposes reload() (called
- * from saveEntry/deleteEntry, not from the initial-load effect itself —
- * the effect fetches inline to satisfy react-hooks/set-state-in-effect,
- * same pattern as useDashboardData) so edits/deletes refresh the list.
+ * the active goal via the existing goalStore. Also loads *every* goal
+ * (own repository instance, same reasoning) to compute reachedGoalWindows()
+ * (#155) — List/Calendar need to highlight days from past reached windows
+ * too, not just the active goal's. Exposes reload() (called from
+ * saveEntry/deleteEntry, not from the initial-load effect itself — the
+ * effect fetches inline to satisfy react-hooks/set-state-in-effect, same
+ * pattern as useDashboardData) so edits/deletes refresh the list.
  */
 export function useHistoryData() {
   const { goal, loadActiveGoal } = useGoalStore()
   const [entries, setEntries] = useState<DailyEntry[]>([])
+  const [reachedWindows, setReachedWindows] = useState<ReachedGoalWindow[]>([])
   const [status, setStatus] = useState<HistoryStatus>('loading')
 
   useEffect(() => {
@@ -27,11 +36,11 @@ export function useHistoryData() {
 
   useEffect(() => {
     let cancelled = false
-    dailyEntryRepository
-      .getAll()
-      .then((all) => {
+    Promise.all([dailyEntryRepository.getAll(), goalRepository.getAll()])
+      .then(([all, goals]) => {
         if (cancelled) return
         setEntries(all)
+        setReachedWindows(reachedGoalWindows(goals, all))
         setStatus('ready')
       })
       .catch(() => {
@@ -44,8 +53,12 @@ export function useHistoryData() {
 
   const reload = useCallback(async () => {
     try {
-      const all = await dailyEntryRepository.getAll()
+      const [all, goals] = await Promise.all([
+        dailyEntryRepository.getAll(),
+        goalRepository.getAll(),
+      ])
       setEntries(all)
+      setReachedWindows(reachedGoalWindows(goals, all))
       setStatus('ready')
     } catch {
       setStatus('error')
@@ -62,5 +75,5 @@ export function useHistoryData() {
     await reload()
   }
 
-  return { entries, goal, status, reload, saveEntry, deleteEntry }
+  return { entries, goal, reachedWindows, status, reload, saveEntry, deleteEntry }
 }

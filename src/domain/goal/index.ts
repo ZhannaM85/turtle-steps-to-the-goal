@@ -6,3 +6,9 @@ export { goalWeekEnd, goalWindowProgress } from './goalWindowProgress'
 export type { GoalWindowProgress } from './goalWindowProgress'
 export { pastGoals } from './goalHistory'
 export type { PastGoalRecord } from './goalHistory'
+export {
+  reachedGoalWindows,
+  isDateWithinReachedWindow,
+  isGoalMetOnDate,
+} from './reachedGoalWindows'
+export type { ReachedGoalWindow } from './reachedGoalWindows'

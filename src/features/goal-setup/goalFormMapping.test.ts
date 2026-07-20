@@ -126,6 +126,34 @@ describe('formValuesToGoal', () => {
       expect(goal.id).not.toBe('goal-1')
     })
 
+    it('starts a fresh record when the window is calendar-live but already reached (#155)', () => {
+      const today = format(new Date(), 'yyyy-MM-dd')
+      const existingGoal = makeGoal({
+        id: 'goal-1',
+        weekStart: today,
+        targetWeeklyLossKg: 0.5,
+      })
+
+      const goal = formValuesToGoal(
+        { targetWeeklyLoss: 0.5 },
+        'kg',
+        existingGoal,
+        true,
+      )
+
+      expect(goal.id).not.toBe('goal-1')
+      expect(goal.weekStart).toBe(today)
+    })
+
+    it('defaults activeGoalReached to false, preserving the pre-#155 edit-in-place behavior', () => {
+      const today = format(new Date(), 'yyyy-MM-dd')
+      const existingGoal = makeGoal({ id: 'goal-1', weekStart: today })
+
+      const goal = formValuesToGoal({ targetWeeklyLoss: 2 }, 'kg', existingGoal)
+
+      expect(goal.id).toBe('goal-1')
+    })
+
     it("re-saving the same value in place is a harmless idempotent update, not blocked (#182)", () => {
       const today = format(new Date(), 'yyyy-MM-dd')
       const existingGoal = makeGoal({

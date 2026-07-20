@@ -26,11 +26,23 @@ export function goalToFormValues(
  * course is a genuinely new week's goal. A goal with no `weekStart` (pre-
  * #135) has no window to still be inside, so it's never editable this way
  * — the next save always starts a fresh, properly-anchored record.
+ *
+ * #155: a window also stops being "live" the moment its target is
+ * actually reached, even mid-week — reaching a goal early and setting a
+ * new one should start a fresh record, not silently overwrite the target
+ * on the record that already succeeded. `activeGoalReached` is the
+ * caller's own `goalWindowProgress(entries, existingGoal).metOnDate !==
+ * null` (computed where `entries` is actually available, e.g.
+ * `GoalScreen`) — this function stays entries-agnostic. The now-reached
+ * record's own stored `weekStart`/shape isn't rewritten retroactively;
+ * only this live/not-live decision at save time changes.
  */
 function isEditingLiveWindow(
   existingGoal: Goal | null,
+  activeGoalReached: boolean,
 ): existingGoal is Goal & { weekStart: string } {
   if (!existingGoal?.weekStart) return false
+  if (activeGoalReached) return false
   return format(new Date(), 'yyyy-MM-dd') <= goalWeekEnd(existingGoal.weekStart)
 }
 
@@ -38,11 +50,12 @@ export function formValuesToGoal(
   values: GoalFormValues,
   unit: Unit,
   existingGoal: Goal | null = null,
+  activeGoalReached = false,
 ): Goal {
   const toKg = (value: number) => (unit === 'lb' ? lbToKg(value) : value)
   const now = new Date().toISOString()
 
-  if (isEditingLiveWindow(existingGoal)) {
+  if (isEditingLiveWindow(existingGoal, activeGoalReached)) {
     // Same id/createdAt/weekStart (#181) — editing the current week's
     // goal in place, not starting a new historical record. Dexie's put()
     // upserts by id, so this overwrites rather than inserting.

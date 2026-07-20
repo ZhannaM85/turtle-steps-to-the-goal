@@ -180,6 +180,8 @@ export const en: Dictionary = {
     targetMetOnLabel: (date) => `Target met on ${date}`,
     targetMissedLabel: 'Target not met',
     targetNoDataLabel: 'Not enough data to tell',
+    activeGoalReachedNudge:
+      "You reached this week's target early — set a new one below whenever you're ready.",
     deletePastTargetLabel: (weekRange) => `Delete target for ${weekRange}`,
     confirmDeletePastTargetLabel: 'Delete this target?',
     confirmDeletePastTargetYes: 'Delete',
@@ -364,6 +366,8 @@ export const en: Dictionary = {
     previousPageButton: 'Previous',
     nextPageButton: 'Next',
     pageIndicator: (current, total) => `Page ${current} of ${total}`,
+    reachedGoalWindowDayLabel: 'Part of a week you reached your target',
+    reachedGoalDayLabel: 'You reached your target this day',
   },
   settings: {
     title: 'Settings',

@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 175,
+    issue: 155,
+    date: '2026-07-20T11:43:00+03:00',
+    en: 'History now highlights the days that were part of a week you reached your target, on both the list and calendar views — and the Goal page shows when you reached it.',
+    ru: 'В истории теперь отмечены дни недели, за которую вы достигли цели, — в списке и в календаре. На странице цели тоже видно, когда она была достигнута.',
+  },
+  {
     version: 174,
     issue: 163,
     date: '2026-07-20T00:08:00+03:00',

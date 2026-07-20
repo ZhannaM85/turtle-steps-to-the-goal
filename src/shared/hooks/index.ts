@@ -1,4 +1,5 @@
 // Shared React hooks
+export { useActiveGoalProgress } from './useActiveGoalProgress'
 export { useAppUpdateAvailable } from './useAppUpdateAvailable'
 export { useOnlineStatus } from './useOnlineStatus'
 export { useIsTextInputFocused } from './useIsTextInputFocused'

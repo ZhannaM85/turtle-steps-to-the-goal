@@ -246,6 +246,11 @@ export interface Dictionary {
     targetMetOnLabel: (date: string) => string
     targetMissedLabel: string
     targetNoDataLabel: string
+    /** Quiet nudge (#155) on GoalScreen once the *active* goal's own window
+     * has been reached mid-week — same no-badges/no-streaks tone as
+     * today.goalRenewalReminder, shown alongside the targetMetOnLabel badge
+     * on the StatCard rather than replacing it. */
+    activeGoalReachedNudge: string
     /** Per-row delete on the past-targets history (#174) — same two-step
      * confirm shape as history/EntryRow.tsx's own delete, own copy rather
      * than cross-feature reuse since the wording differs ("target" vs
@@ -455,6 +460,14 @@ export interface Dictionary {
     previousPageButton: string
     nextPageButton: string
     pageIndicator: (current: number, total: number) => string
+    /** #155: sr-only text appended to a day that falls within a reached
+     * goal window ([weekStart, metOnDate]) but isn't the exact reach day —
+     * the visual tint alone (List's date-cell background, Calendar's day
+     * background) isn't accessible on its own. */
+    reachedGoalWindowDayLabel: string
+    /** #155: sr-only text for the exact day a goal's target was first
+     * met — distinct from reachedGoalWindowDayLabel above. */
+    reachedGoalDayLabel: string
   }
   settings: {
     title: string
