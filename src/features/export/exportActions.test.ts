@@ -140,6 +140,57 @@ describe('importAllData', () => {
     expect(all.map((e) => e.date).sort()).toEqual(['2026-03-01', '2026-03-02'])
   })
 
+  it('updates a same-date entry by date, not id (#207 — a re-imported backup carries its own ids, which almost never match a same-date entry logged locally since the backup was taken)', async () => {
+    const existingEntry = makeEntry({
+      id: 'local-id',
+      date: '2026-03-01',
+      weightKg: 80,
+    })
+    await db.dailyEntries.put(existingEntry)
+
+    const backupEntry = makeEntry({
+      id: 'backup-id',
+      date: '2026-03-01',
+      weightKg: 81,
+    })
+    await importAllData({
+      version: 6,
+      exportedAt: new Date().toISOString(),
+      goals: [],
+      dailyEntries: [backupEntry],
+    })
+
+    const all = await db.dailyEntries.toArray()
+    expect(all).toHaveLength(1)
+    expect(all[0].weightKg).toBe(81)
+  })
+
+  it('updates a same-name meal item by name, not id (#207, same reasoning as the daily-entry case above)', async () => {
+    const existingItem = makeMealItem({
+      id: 'local-id',
+      name: 'Salmon',
+      lastAmountKcal: 200,
+    })
+    await db.mealItems.put(existingItem)
+
+    const backupItem = makeMealItem({
+      id: 'backup-id',
+      name: 'Salmon',
+      lastAmountKcal: 208,
+    })
+    await importAllData({
+      version: 6,
+      exportedAt: new Date().toISOString(),
+      goals: [],
+      dailyEntries: [],
+      mealItems: [backupItem],
+    })
+
+    const all = await db.mealItems.toArray()
+    expect(all).toHaveLength(1)
+    expect(all[0].lastAmountKcal).toBe(208)
+  })
+
   it('round-trips meal items and food overrides (#113)', async () => {
     const item = makeMealItem()
     const override = makeFoodOverride()

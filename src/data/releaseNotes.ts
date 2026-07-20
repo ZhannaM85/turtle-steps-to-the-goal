@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 197,
+    issue: 207,
+    date: '2026-07-20T22:57:00+03:00',
+    en: 'Fixed a bug where restoring a backup could fail with "Import failed" if the device already had its own entry for the same day.',
+    ru: 'Исправлена ошибка, из-за которой восстановление из резервной копии могло завершиться со сбоем «Не удалось выполнить импорт», если на устройстве уже была своя запись за тот же день.',
+  },
+  {
     version: 196,
     issue: 210,
     date: '2026-07-20T22:24:00+03:00',

@@ -31,14 +31,53 @@ export async function exportAllData(): Promise<ExportBundle> {
   return buildExportBundle(goals, dailyEntries, mealItems, foodOverrides)
 }
 
-/** Merges a backup into existing data (upsert by id) rather than replacing it.
- * mealItems/foodOverrides (#113) are optional — older backups won't have
- * them, in which case there's simply nothing to import for those. */
+/**
+ * Merges a backup into existing data rather than replacing it — matching
+ * entries are updated by date/name (the app's own user-facing copy for
+ * this button), everything else is left alone.
+ *
+ * #207: `dailyEntries`/`mealItems` each have a *unique* secondary index
+ * (`date`/`name`, `db.ts`) that their own `upsert()` deliberately enforces
+ * as a hard guarantee (`index.test.ts`'s "enforces one entry per
+ * date"/"enforces unique names") — every other caller resolves to the
+ * *existing* record's own id before upserting (`mealItemStore.touch()`/
+ * `rename()`, both save flows on Today/History), so it never fires
+ * outside import. A re-imported backup carries its own ids though, which
+ * essentially never match whatever this device generated for the same
+ * date/name since the backup was taken — so almost any real re-import hit
+ * a Dexie `ConstraintError` here, surfacing as a generic, unhelpful
+ * "Import failed" with nothing in the console (the error was genuinely
+ * caught, not swallowed silently). Looking up the existing id first and
+ * carrying it over onto the imported record (rather than leaving the
+ * import's own id, which would still collide) fixes this the same way
+ * every other caller already avoids it.
+ */
 export async function importAllData(bundle: ExportBundle): Promise<void> {
+  const [existingEntries, existingMealItems] = await Promise.all([
+    dailyEntryRepository.getAll(),
+    mealItemRepository.getAll(),
+  ])
+  const existingEntryIdByDate = new Map(
+    existingEntries.map((entry) => [entry.date, entry.id]),
+  )
+  const existingMealItemIdByName = new Map(
+    existingMealItems.map((item) => [item.name, item.id]),
+  )
+
   await Promise.all([
     ...bundle.goals.map((goal) => goalRepository.saveGoal(goal)),
-    ...bundle.dailyEntries.map((entry) => dailyEntryRepository.upsert(entry)),
-    ...(bundle.mealItems ?? []).map((item) => mealItemRepository.upsert(item)),
+    ...bundle.dailyEntries.map((entry) => {
+      const existingId = existingEntryIdByDate.get(entry.date)
+      return dailyEntryRepository.upsert(
+        existingId ? { ...entry, id: existingId } : entry,
+      )
+    }),
+    ...(bundle.mealItems ?? []).map((item) => {
+      const existingId = existingMealItemIdByName.get(item.name)
+      return mealItemRepository.upsert(
+        existingId ? { ...item, id: existingId } : item,
+      )
+    }),
     ...(bundle.foodOverrides ?? []).map((override) =>
       foodOverrideRepository.upsert(override),
     ),
