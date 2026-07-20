@@ -44,17 +44,35 @@
   --muted-foreground: #56707a;
   --accent: #edf3f4;
   --accent-foreground: #16232a;
-  --destructive: oklch(0.577 0.245 27.325);
+  /* #165: darkened from L=0.577 (same hue/chroma otherwise) — the
+   * original value cleared 4.5:1 against Pond's own --card by only a
+   * hair short (4.25:1) and failed outright against Tortoise's --card
+   * (4.04:1) and both Tortoise's/Lagoon's --background (~4.49:1 each).
+   * L=0.52 clears the worst case (Tortoise's --card) at ~4.76:1, with a
+   * margin. Dark mode's own destructive value already comfortably clears
+   * every mood (5.15-6.31:1) and is untouched. */
+  --destructive: oklch(0.52 0.245 27.325);
   --border: #dce7e9;
   --input: #879397;
   --ring: #3e7688;
   --chart-weight: #3e7688;
-  --chart-calories: #c9a878;
+  /* #165: matches --sand-foreground below, same as every dark-mode block
+   * already does (chart-calories === sand-foreground there) — light mode
+   * had simply never gotten that same treatment, leaving the original
+   * #c9a878 well under WCAG 1.4.11's 3:1 non-text minimum (~2.16:1)
+   * against every light background. */
+  --chart-calories: #8a6a3c;
   --chart-protein: #b5665a;
   --chart-fat: #8a5a78;
   --chart-carbs: #4f6fa8;
   --sand-foreground: #8a6a3c;
-  --chart-1: oklch(0.87 0 0);
+  /* #165: light-mode-specific override — oklch(0.87 0 0) (still correct,
+   * unchanged, in .dark below) is a near-white gray tuned for a dark
+   * background; against a light one it measured ~1.43:1, far under the
+   * 3:1 minimum for the Steps series it's the only thing that draws on
+   * this token. Reuses --chart-2's existing value (a mid gray already
+   * defined, if otherwise unused) rather than inventing a new one. */
+  --chart-1: oklch(0.556 0 0);
   --chart-2: oklch(0.556 0 0);
   --chart-3: oklch(0.439 0 0);
   --chart-4: oklch(0.371 0 0);
@@ -180,7 +198,7 @@
   --input: #879397;
   --ring: #3e7688;
   --chart-weight: #3e7688;
-  --chart-calories: #c9a878;
+  --chart-calories: #8a6a3c;
   --chart-protein: #b5665a;
   --chart-fat: #8a5a78;
   --chart-carbs: #4f6fa8;
@@ -206,7 +224,7 @@
   --input: #948fa0;
   --ring: #6e5bb5;
   --chart-weight: #6e5bb5;
-  --chart-calories: #c9a878;
+  --chart-calories: #8a6a3c;
   --chart-protein: #b5665a;
   --chart-fat: #8a5a78;
   --chart-carbs: #4f6fa8;
@@ -258,7 +276,7 @@
   --input: #8b958d;
   --ring: #4c7a62;
   --chart-weight: #4c7a62;
-  --chart-calories: #c9a878;
+  --chart-calories: #8a6a3c;
   --chart-protein: #b5665a;
   --chart-fat: #8a5a78;
   --chart-carbs: #4f6fa8;
@@ -310,7 +328,7 @@
   --input: #959082;
   --ring: #75672f;
   --chart-weight: #75672f;
-  --chart-calories: #c9a878;
+  --chart-calories: #8a6a3c;
   --chart-protein: #b5665a;
   --chart-fat: #8a5a78;
   --chart-carbs: #4f6fa8;
@@ -367,7 +385,7 @@
   --input: #7e9496;
   --ring: #0e7c86;
   --chart-weight: #0e7c86;
-  --chart-calories: #c9a878;
+  --chart-calories: #8a6a3c;
   --chart-protein: #b5665a;
   --chart-fat: #8a5a78;
   --chart-carbs: #4f6fa8;

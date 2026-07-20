@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 189,
+    issue: 165,
+    date: '2026-07-20T15:52:00+03:00',
+    en: 'Improved color contrast in light mode for the calories chart line, the Steps chart line, and error/delete text — a systematic re-check across every color theme.',
+    ru: 'Улучшена контрастность цветов в светлой теме: линия калорий и линия шагов на графиках, а также текст ошибок/удаления — по итогам полной проверки всех цветовых тем.',
+  },
+  {
     version: 188,
     issue: 197,
     date: '2026-07-20T14:45:00+03:00',
