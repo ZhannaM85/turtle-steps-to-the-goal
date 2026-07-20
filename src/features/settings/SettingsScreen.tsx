@@ -90,8 +90,12 @@ export function SettingsScreen() {
             value={unit}
             onValueChange={(value) => value && setUnit(value as Unit)}
           >
-            <ToggleGroupItem value="kg">{t.common.kg}</ToggleGroupItem>
-            <ToggleGroupItem value="lb">{t.common.lb}</ToggleGroupItem>
+            <ToggleGroupItem value="kg" className="h-12">
+              {t.common.kg}
+            </ToggleGroupItem>
+            <ToggleGroupItem value="lb" className="h-12">
+              {t.common.lb}
+            </ToggleGroupItem>
           </ToggleGroup>
         </CardContent>
       </Card>
@@ -110,10 +114,10 @@ export function SettingsScreen() {
             value={weekStart}
             onValueChange={(value) => value && setWeekStart(value as WeekStart)}
           >
-            <ToggleGroupItem value="monday">
+            <ToggleGroupItem value="monday" className="h-12">
               {t.settings.weekStartMonday}
             </ToggleGroupItem>
-            <ToggleGroupItem value="firstEntryWeekday">
+            <ToggleGroupItem value="firstEntryWeekday" className="h-12">
               {t.settings.weekStartFirstEntry}
             </ToggleGroupItem>
           </ToggleGroup>
@@ -131,8 +135,12 @@ export function SettingsScreen() {
             value={locale}
             onValueChange={(value) => value && setLocale(value as Locale)}
           >
-            <ToggleGroupItem value="en">{t.settings.english}</ToggleGroupItem>
-            <ToggleGroupItem value="ru">{t.settings.russian}</ToggleGroupItem>
+            <ToggleGroupItem value="en" className="h-12">
+              {t.settings.english}
+            </ToggleGroupItem>
+            <ToggleGroupItem value="ru" className="h-12">
+              {t.settings.russian}
+            </ToggleGroupItem>
           </ToggleGroup>
         </CardContent>
       </Card>
@@ -153,7 +161,11 @@ export function SettingsScreen() {
               onValueChange={(value) => value && setMood(value as Mood)}
             >
               {moodOptions(t).map((option) => (
-                <ToggleGroupItem key={option.value} value={option.value}>
+                <ToggleGroupItem
+                  key={option.value}
+                  value={option.value}
+                  className="h-12"
+                >
                   <span
                     aria-hidden="true"
                     className="size-3 rounded-full"
@@ -177,10 +189,12 @@ export function SettingsScreen() {
                 value && setColorScheme(value as 'light' | 'dark')
               }
             >
-              <ToggleGroupItem value="light">
+              <ToggleGroupItem value="light" className="h-12">
                 {t.settings.light}
               </ToggleGroupItem>
-              <ToggleGroupItem value="dark">{t.settings.dark}</ToggleGroupItem>
+              <ToggleGroupItem value="dark" className="h-12">
+                {t.settings.dark}
+              </ToggleGroupItem>
             </ToggleGroup>
           </div>
         </CardContent>
@@ -202,10 +216,10 @@ export function SettingsScreen() {
               value && setCycleTrackingEnabled(value === 'on')
             }
           >
-            <ToggleGroupItem value="off">
+            <ToggleGroupItem value="off" className="h-12">
               {t.settings.cycleTrackingOff}
             </ToggleGroupItem>
-            <ToggleGroupItem value="on">
+            <ToggleGroupItem value="on" className="h-12">
               {t.settings.cycleTrackingOn}
             </ToggleGroupItem>
           </ToggleGroup>
@@ -228,10 +242,10 @@ export function SettingsScreen() {
               value && setDigestionTrackingEnabled(value === 'on')
             }
           >
-            <ToggleGroupItem value="off">
+            <ToggleGroupItem value="off" className="h-12">
               {t.settings.digestionTrackingOff}
             </ToggleGroupItem>
-            <ToggleGroupItem value="on">
+            <ToggleGroupItem value="on" className="h-12">
               {t.settings.digestionTrackingOn}
             </ToggleGroupItem>
           </ToggleGroup>
@@ -254,10 +268,10 @@ export function SettingsScreen() {
               value && setDailyReminderEnabled(value === 'on')
             }
           >
-            <ToggleGroupItem value="off">
+            <ToggleGroupItem value="off" className="h-12">
               {t.settings.dailyReminderOff}
             </ToggleGroupItem>
-            <ToggleGroupItem value="on">
+            <ToggleGroupItem value="on" className="h-12">
               {t.settings.dailyReminderOn}
             </ToggleGroupItem>
           </ToggleGroup>

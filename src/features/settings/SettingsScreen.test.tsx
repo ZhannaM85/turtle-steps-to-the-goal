@@ -57,6 +57,14 @@ describe('SettingsScreen', () => {
     expect(screen.getByRole('radio', { name: 'kg' })).toBeChecked()
   })
 
+  it('sizes toggle-group controls to match the h-12 standard used elsewhere in the app (#194)', () => {
+    renderSettings()
+
+    expect(screen.getByRole('radio', { name: 'kg' })).toHaveClass('h-12')
+    expect(screen.getByRole('radio', { name: 'English' })).toHaveClass('h-12')
+    expect(screen.getByRole('radio', { name: 'Light' })).toHaveClass('h-12')
+  })
+
   it('switches the unit preference when lb is selected', async () => {
     const user = userEvent.setup()
     renderSettings()

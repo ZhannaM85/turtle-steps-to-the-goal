@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 185,
+    issue: 194,
+    date: '2026-07-20T13:30:00+03:00',
+    en: 'Settings toggle buttons (units, language, theme, and more) are now the same size as the controls on Today, instead of noticeably smaller.',
+    ru: 'Кнопки-переключатели в настройках (единицы, язык, тема и другие) теперь того же размера, что и элементы на странице «Сегодня», а не заметно меньше.',
+  },
+  {
     version: 184,
     issue: 199,
     date: '2026-07-20T13:20:00+03:00',

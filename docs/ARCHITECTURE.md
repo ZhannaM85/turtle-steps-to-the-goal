@@ -327,7 +327,7 @@ Also fully built.
 
 #### `settings/SettingsScreen.tsx` — issues #37/#43 (done)
 
-Fully built, redesigned in #43 around a consistent `Card`-per-section layout with the shared `ToggleGroup` primitive replacing raw radios everywhere:
+Fully built, redesigned in #43 around a consistent `Card`-per-section layout with the shared `ToggleGroup` primitive replacing raw radios everywhere. **#194**: every `ToggleGroupItem` on this page (all 8 groups below — units, week start, language, theme, light/dark, cycle/digestion/reminder toggles, 20 items total) gained `h-12` — the shared `toggle-group.tsx` primitive has no explicit height on its own (sizes purely from `py-1.5` + text, ~32-36px), well under the `h-12` standard #126/#133/#139 established for Today's controls, reported as "action items on this page don't match Today." Scoped to just this page's own instances via `className="h-12"` per item, not the shared component globally — bumping `ToggleGroupItem` itself would also affect deliberately-compact controls elsewhere (e.g. the per-100g/portion toggle inside meal editing, out of scope per #126's own density precedent).
 
 1. **Units** — `ToggleGroup` bound to `useUnitStore` (kg/lb) — landed here from the Goal page in #37.
 2. **Week start** (#85) — `ToggleGroup` bound to `useWeekStartStore.weekStart` ("Monday" / "Day of my first entry"), default Monday.
