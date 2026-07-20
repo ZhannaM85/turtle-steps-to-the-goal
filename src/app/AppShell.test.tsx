@@ -1,5 +1,5 @@
 import 'fake-indexeddb/auto'
-import { render, screen } from '@testing-library/react'
+import { act, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { createMemoryRouter, Link, RouterProvider } from 'react-router-dom'
 import { afterEach, describe, expect, it, vi } from 'vitest'
@@ -62,6 +62,68 @@ describe('AppShell bottom tab bar visibility (#120)', () => {
     renderShellWithInput()
 
     await user.click(screen.getByLabelText('Include'))
+
+    expect(screen.getByRole('navigation', { name: 'Tabs' })).toBeInTheDocument()
+  })
+})
+
+// #188: a second, independent signal alongside focus-tracking above — the
+// visual viewport shrinking (on-screen keyboard opening, or still
+// mid-animation) is detected directly rather than only inferred from
+// which element has DOM focus.
+function mockVisualViewport(initialHeight: number) {
+  const listeners: Partial<Record<string, () => void>> = {}
+  const viewport = {
+    height: initialHeight,
+    addEventListener: (event: string, fn: () => void) => {
+      listeners[event] = fn
+    },
+    removeEventListener: vi.fn(),
+  }
+  Object.defineProperty(window, 'visualViewport', {
+    value: viewport,
+    configurable: true,
+  })
+  return {
+    resizeTo(height: number) {
+      act(() => {
+        viewport.height = height
+        listeners.resize?.()
+      })
+    },
+  }
+}
+
+describe('AppShell bottom tab bar visibility, viewport-shrink signal (#188)', () => {
+  afterEach(() => {
+    Object.defineProperty(window, 'visualViewport', {
+      value: undefined,
+      configurable: true,
+    })
+  })
+
+  it('hides the bottom tab bar once the visual viewport shrinks, with no input focused', () => {
+    const viewport = mockVisualViewport(window.innerHeight)
+    renderShellWithInput()
+    expect(screen.getByRole('navigation', { name: 'Tabs' })).toBeInTheDocument()
+
+    viewport.resizeTo(window.innerHeight - 300)
+
+    expect(
+      screen.queryByRole('navigation', { name: 'Tabs' }),
+    ).not.toBeInTheDocument()
+  })
+
+  it('shows the bottom tab bar again once the viewport resizes back to full height', () => {
+    const viewport = mockVisualViewport(window.innerHeight)
+    renderShellWithInput()
+
+    viewport.resizeTo(window.innerHeight - 300)
+    expect(
+      screen.queryByRole('navigation', { name: 'Tabs' }),
+    ).not.toBeInTheDocument()
+
+    viewport.resizeTo(window.innerHeight)
 
     expect(screen.getByRole('navigation', { name: 'Tabs' })).toBeInTheDocument()
   })

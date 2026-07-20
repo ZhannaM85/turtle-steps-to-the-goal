@@ -10,7 +10,7 @@ import {
   type LucideIcon,
 } from 'lucide-react'
 import { useTranslation, type Dictionary } from '@/i18n'
-import { useIsTextInputFocused } from '@/shared/hooks'
+import { useIsTextInputFocused, useVisualViewportShrunk } from '@/shared/hooks'
 import { cn } from '@/shared/lib/utils'
 import { AppUpdateBanner } from './AppUpdateBanner'
 import { OfflineBanner } from './OfflineBanner'
@@ -44,6 +44,14 @@ export function AppShell() {
   // rather than trying to fight it — the bar can't usefully be tapped
   // while the keyboard covers most of the screen anyway.
   const isTextInputFocused = useIsTextInputFocused()
+  // #188: focus tracking alone catches the instant a field gains/loses
+  // focus, but the keyboard's own open/close animation can still be
+  // mid-transition (visual viewport not yet resized) for a moment after
+  // that — this widens the same #120 mitigation to also hide the bar for
+  // as long as the viewport itself actually reads as shrunk, regardless
+  // of focus state.
+  const isViewportShrunk = useVisualViewportShrunk()
+  const hideTabBar = isTextInputFocused || isViewportShrunk
 
   // #185: React Router doesn't reset scroll position on navigation by
   // default (unlike a traditional multi-page site) — landing on a new,
@@ -103,7 +111,7 @@ export function AppShell() {
        * (inset-x-0, no side padding at all beyond the bottom safe-area
        * inset), so the leftmost/rightmost tabs read as cut off on devices
        * with rounded corners or side gesture areas. */}
-      {!isTextInputFocused && (
+      {!hideTabBar && (
         <nav
           aria-label="Tabs"
           className="fixed inset-x-0 bottom-0 z-10 border-t border-border bg-background pr-[env(safe-area-inset-right)] pb-[env(safe-area-inset-bottom)] pl-[env(safe-area-inset-left)] sm:hidden"

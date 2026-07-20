@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 186,
+    issue: 188,
+    date: '2026-07-20T13:40:00+03:00',
+    en: 'Widened an existing fix for the bottom tab bar occasionally floating mid-page instead of staying anchored to the bottom on iOS.',
+    ru: 'Расширили существующее исправление, из-за которого нижняя панель вкладок иногда «зависала» посреди экрана вместо нижнего края, на iOS.',
+  },
+  {
     version: 185,
     issue: 194,
     date: '2026-07-20T13:30:00+03:00',
