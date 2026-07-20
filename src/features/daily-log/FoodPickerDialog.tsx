@@ -8,6 +8,7 @@ import { applyFoodOverrides } from '@/shared/lib/applyFoodOverrides'
 import { macrosSummaryTextCompact } from '@/shared/lib/macroDisplay'
 import { MEAL_EMOTIONS } from '@/shared/lib/emotionIcons'
 import { parseNumberInput } from '@/shared/lib/parseNumberInput'
+import { rankBySearchMatch } from '@/shared/lib/searchRank'
 import { cn } from '@/shared/lib/utils'
 import { useFoodOverrideStore } from '@/stores'
 import { Button } from '@/shared/ui/button'
@@ -115,12 +116,18 @@ export function FoodPickerDialog({
   }))
   const allItems = [...allMealItems, ...allFoods]
 
+  // #204: "сыр" substring-matching inside "сырой" (an unrelated word that
+  // happens to share a root) buried genuine "сыр" results below it —
+  // matching itself is unchanged, rankBySearchMatch only reorders so
+  // exact/whole-word matches surface first.
+  const textFor = (item: PickableItem) =>
+    item.source === 'food' ? item.food[locale] : item.mealItem.name
   const query = search.trim().toLowerCase()
   const matches = query
-    ? allItems.filter((item) =>
-        item.source === 'food'
-          ? item.food[locale].toLowerCase().includes(query)
-          : item.mealItem.name.toLowerCase().includes(query),
+    ? rankBySearchMatch(
+        allItems.filter((item) => textFor(item).toLowerCase().includes(query)),
+        query,
+        textFor,
       )
     : allItems
 

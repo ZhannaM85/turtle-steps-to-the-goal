@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import type { MealItem } from '@/domain/mealItem'
+import { rankBySearchMatch } from '@/shared/lib/searchRank'
 import { Input } from '@/shared/ui/input'
 
 export interface MealNoteAutocompleteProps {
@@ -49,9 +50,15 @@ export function MealNoteAutocomplete({
     return () => document.removeEventListener('mousedown', handlePointerDown)
   }, [])
 
+  // #204: reorders so exact/whole-word matches surface above ones where
+  // the query only occurs mid-word — matching itself is unchanged.
   const query = value.trim().toLowerCase()
   const matches = query
-    ? suggestions.filter((item) => item.name.toLowerCase().includes(query))
+    ? rankBySearchMatch(
+        suggestions.filter((item) => item.name.toLowerCase().includes(query)),
+        query,
+        (item) => item.name,
+      )
     : suggestions
 
   return (

@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 191,
+    issue: 204,
+    date: '2026-07-20T17:20:00+03:00',
+    en: 'Food and meal-name search now shows exact and whole-word matches first, so a word that happens to share a root with your search (like "raw" sharing "cheese"\'s first letters in Russian) no longer crowds out the results you actually wanted.',
+    ru: 'Поиск еды и названий блюд теперь показывает точные совпадения и совпадения по целому слову в первую очередь — слово, случайно похожее по началу (например, «сырой» на «сыр»), больше не оттесняет нужные результаты.',
+  },
+  {
     version: 190,
     issue: 201,
     date: '2026-07-20T17:10:00+03:00',

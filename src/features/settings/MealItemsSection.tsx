@@ -12,6 +12,7 @@ import {
   totalFromPortion,
 } from '@/shared/lib/macroScaling'
 import { parseNumberInput } from '@/shared/lib/parseNumberInput'
+import { rankBySearchMatch } from '@/shared/lib/searchRank'
 import { useMealItemStore } from '@/stores'
 import { Button } from '@/shared/ui/button'
 import { Input } from '@/shared/ui/input'
@@ -601,9 +602,16 @@ export function MealItemsSection() {
 
   // Same filter-as-you-type shape as FoodListSettingsScreen's search (#179)
   // — filters by name, case-insensitive, empty query shows everything.
+  // #204: rankBySearchMatch reorders (doesn't change) the filtered result
+  // so exact/whole-word matches surface above ones where the query only
+  // occurs mid-word.
   const query = search.trim().toLowerCase()
   const visibleItems = query
-    ? items.filter((item) => item.name.toLowerCase().includes(query))
+    ? rankBySearchMatch(
+        items.filter((item) => item.name.toLowerCase().includes(query)),
+        query,
+        (item) => item.name,
+      )
     : items
 
   return (

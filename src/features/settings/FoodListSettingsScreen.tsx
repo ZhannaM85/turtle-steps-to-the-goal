@@ -7,6 +7,7 @@ import { formatNumber, useLocale, useTranslation } from '@/i18n'
 import { effectiveFoodItem } from '@/shared/lib/applyFoodOverrides'
 import { macrosSummaryTextCompact } from '@/shared/lib/macroDisplay'
 import { parseNumberInput } from '@/shared/lib/parseNumberInput'
+import { rankBySearchMatch } from '@/shared/lib/searchRank'
 import { cn } from '@/shared/lib/utils'
 import { useFoodOverrideStore } from '@/stores'
 import { Button } from '@/shared/ui/button'
@@ -221,9 +222,16 @@ export function FoodListSettingsScreen() {
     loadOverrides()
   }, [loadOverrides])
 
+  // #204: rankBySearchMatch reorders (doesn't change) the filtered result
+  // so exact/whole-word matches surface above ones where the query only
+  // occurs mid-word.
   const query = search.trim().toLowerCase()
   const visibleFoods = query
-    ? foods.filter((food) => food[locale].toLowerCase().includes(query))
+    ? rankBySearchMatch(
+        foods.filter((food) => food[locale].toLowerCase().includes(query)),
+        query,
+        (food) => food[locale],
+      )
     : foods
   const overrideByFoodId = new Map(overrides.map((o) => [o.foodId, o]))
 
