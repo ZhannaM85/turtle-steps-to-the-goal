@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 198,
+    issue: 209,
+    date: '2026-07-20T23:39:00+03:00',
+    en: 'You can now remove a saved dish straight from the "Add from food list" picker, not just from Settings.',
+    ru: 'Теперь можно удалить сохранённое блюдо прямо из окна «Добавить из списка продуктов», а не только в настройках.',
+  },
+  {
     version: 197,
     issue: 207,
     date: '2026-07-20T22:57:00+03:00',

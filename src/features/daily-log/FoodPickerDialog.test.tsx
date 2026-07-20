@@ -28,11 +28,13 @@ function mealItem(overrides: Partial<MealItem> = {}): MealItem {
 
 beforeEach(async () => {
   await db.foodOverrides.clear()
+  await db.mealItems.clear()
   useFoodOverrideStore.setState({ overrides: [], status: 'idle', error: null })
 })
 
 afterEach(async () => {
   await db.foodOverrides.clear()
+  await db.mealItems.clear()
 })
 
 describe('FoodPickerDialog', () => {
@@ -401,6 +403,73 @@ describe('FoodPickerDialog', () => {
       expect(onAdd).toHaveBeenCalledWith([
         expect.objectContaining({ amountG: 400 }),
       ])
+    })
+  })
+
+  describe('removing a personal item (#209)', () => {
+    it('shows a remove button on personal items but not on curated foods', () => {
+      render(
+        <FoodPickerDialog
+          open
+          onOpenChange={vi.fn()}
+          onAdd={vi.fn()}
+          mealItems={[mealItem({ name: 'Grandma’s stew' })]}
+        />,
+      )
+
+      expect(
+        screen.getByRole('button', { name: 'Delete "Grandma’s stew"' }),
+      ).toBeInTheDocument()
+      expect(
+        screen.queryByRole('button', { name: 'Delete "Salmon"' }),
+      ).not.toBeInTheDocument()
+    })
+
+    it('deletes the item from the store when clicked', async () => {
+      const user = userEvent.setup()
+      const item = mealItem({ name: 'Grandma’s stew' })
+      await db.mealItems.put(item)
+      expect(await db.mealItems.get(item.id)).toEqual(item)
+      render(
+        <FoodPickerDialog
+          open
+          onOpenChange={vi.fn()}
+          onAdd={vi.fn()}
+          mealItems={[item]}
+        />,
+      )
+
+      await user.click(
+        screen.getByRole('button', { name: 'Delete "Grandma’s stew"' }),
+      )
+
+      expect(await db.mealItems.get(item.id)).toBeUndefined()
+    })
+
+    it('drops a deleted item from the selection so it no longer counts toward the confirm button', async () => {
+      const user = userEvent.setup()
+      const item = mealItem({ name: 'Grandma’s stew' })
+      render(
+        <FoodPickerDialog
+          open
+          onOpenChange={vi.fn()}
+          onAdd={vi.fn()}
+          mealItems={[item]}
+        />,
+      )
+
+      await user.click(screen.getByText('Grandma’s stew'))
+      expect(
+        screen.getByRole('button', { name: 'Add selected' }),
+      ).toBeEnabled()
+
+      await user.click(
+        screen.getByRole('button', { name: 'Delete "Grandma’s stew"' }),
+      )
+
+      expect(
+        screen.getByRole('button', { name: 'Add selected' }),
+      ).toBeDisabled()
     })
   })
 

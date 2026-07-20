@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Check } from 'lucide-react'
+import { Check, Trash2 } from 'lucide-react'
 import { type FoodItem, foods } from '@/data/foods'
 import type { MealEmotion } from '@/domain/dailyEntry'
 import type { MealItem } from '@/domain/mealItem'
@@ -10,7 +10,7 @@ import { MEAL_EMOTIONS } from '@/shared/lib/emotionIcons'
 import { parseNumberInput } from '@/shared/lib/parseNumberInput'
 import { rankBySearchMatch } from '@/shared/lib/searchRank'
 import { cn } from '@/shared/lib/utils'
-import { useFoodOverrideStore } from '@/stores'
+import { useFoodOverrideStore, useMealItemStore } from '@/stores'
 import { Button } from '@/shared/ui/button'
 import { Dialog, DialogContent, DialogTitle } from '@/shared/ui/dialog'
 import { Input } from '@/shared/ui/input'
@@ -88,6 +88,10 @@ export function FoodPickerDialog({
   const [selectedKeys, setSelectedKeys] = useState<Set<string>>(new Set())
   const [quantity, setQuantity] = useState('100')
   const [emotion, setEmotion] = useState<MealEmotion | undefined>(undefined)
+  // #209: lets a personal item be removed right from here, not just via
+  // Settings → Meal items — same store action, same immediate (no confirm
+  // step) delete MealItemsSection.tsx already uses.
+  const deleteMealItem = useMealItemStore((state) => state.deleteItem)
 
   // Per-device hides/corrections to the curated list (#90) — loaded once
   // per mount, same pattern as useMealItemStore in DailyEntryForm.
@@ -154,6 +158,19 @@ export function FoodPickerDialog({
       const key = itemKey(item)
       if (next.has(key)) next.delete(key)
       else next.add(key)
+      return next
+    })
+  }
+
+  // #209 — also drops it from selectedKeys if it happened to be checked,
+  // same as any other item that stops existing.
+  function handleDeletePersonalItem(item: PickableItem & { source: 'mealItem' }) {
+    deleteMealItem(item.mealItem.id)
+    setSelectedKeys((prev) => {
+      const key = itemKey(item)
+      if (!prev.has(key)) return prev
+      const next = new Set(prev)
+      next.delete(key)
       return next
     })
   }
@@ -227,13 +244,13 @@ export function FoodPickerDialog({
                 // already picked.
                 const checked = selectedKeys.has(itemKey(item))
                 return (
-                  <li key={itemKey(item)}>
+                  <li key={itemKey(item)} className="flex items-stretch">
                     <button
                       type="button"
                       role="checkbox"
                       aria-checked={checked}
                       className={cn(
-                        'flex w-full items-start gap-2 px-2.5 py-1.5 text-left text-sm hover:bg-muted',
+                        'flex w-full min-w-0 items-start gap-2 px-2.5 py-1.5 text-left text-sm hover:bg-muted',
                         // Border + tint, not bg-muted alone — --muted sits
                         // too close to --background in dark mode to read as
                         // selected (#84, same fix reused here).
@@ -296,6 +313,25 @@ export function FoodPickerDialog({
                         )}
                       </span>
                     </button>
+                    {/* #209: only personal items can be removed here — the
+                     * curated database isn't user-editable. Same immediate
+                     * delete (no confirm step) as Settings' own Meal items
+                     * list, since this only drops the reusable "last
+                     * logged" suggestion, not any already-logged meal. */}
+                    {item.source === 'mealItem' && (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon-sm"
+                        className="mr-1 shrink-0 self-center"
+                        aria-label={t.settings.deleteMealItemLabel(
+                          item.mealItem.name,
+                        )}
+                        onClick={() => handleDeletePersonalItem(item)}
+                      >
+                        <Trash2 aria-hidden="true" />
+                      </Button>
+                    )}
                   </li>
                 )
               })}
