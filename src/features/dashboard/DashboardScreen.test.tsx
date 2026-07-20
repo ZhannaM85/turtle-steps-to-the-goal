@@ -54,4 +54,14 @@ describe('DashboardScreen', () => {
     expect(screen.getByText('weight')).toBeInTheDocument()
     expect(screen.getByText('calories')).toBeInTheDocument()
   })
+
+  it('renders the monthly summary once entries exist (#226)', async () => {
+    await db.dailyEntries.put(makeEntry({ date: '2026-03-01' }))
+    await db.dailyEntries.put(makeEntry({ date: '2026-03-02' }))
+
+    render(<DashboardScreen />, { wrapper: MemoryRouter })
+
+    expect(await screen.findByText('Monthly summary')).toBeInTheDocument()
+    expect(screen.getByText('March 2026')).toBeInTheDocument()
+  })
 })

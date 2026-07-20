@@ -279,6 +279,7 @@ export const en: Dictionary = {
     weightChangeLabel: 'Change this week',
     averageCaloriesLabel: 'Average calories',
     targetMetNote: 'target met',
+    monthlySummaryTitle: 'Monthly summary',
     emptyTitle: 'No entries yet',
     emptyDescription: 'Log a few days on the Today screen to see trends here.',
     correlationTitle: 'Calories vs. weight change',

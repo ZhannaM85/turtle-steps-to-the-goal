@@ -1,5 +1,7 @@
 export { weeklySummaries } from './weeklySummaries'
 export type { WeeklySummary } from './weeklySummaries'
+export { monthlySummaries } from './monthlySummaries'
+export type { MonthlySummary } from './monthlySummaries'
 export { rollingAverage } from './rollingAverage'
 export type { NumericEntryField, RollingAveragePoint } from './rollingAverage'
 export { correlation } from './correlation'

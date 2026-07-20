@@ -280,6 +280,7 @@ export const ru: Dictionary = {
     weightChangeLabel: 'Изменение за неделю',
     averageCaloriesLabel: 'Средние калории',
     targetMetNote: 'цель достигнута',
+    monthlySummaryTitle: 'Месячная сводка',
     emptyTitle: 'Пока нет записей',
     emptyDescription:
       'Заполните несколько дней на экране «Сегодня», чтобы увидеть тренды здесь.',

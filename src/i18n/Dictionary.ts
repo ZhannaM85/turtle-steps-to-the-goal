@@ -406,6 +406,12 @@ export interface Dictionary {
     weightChangeLabel: string
     averageCaloriesLabel: string
     targetMetNote: string
+    /** #226 — a calendar month has one unambiguous boundary, unlike a
+     * week, so no separate "monthRange" formatter is needed the way
+     * weekRange is — the card's own label is just the localized month
+     * name + year (date-fns 'MMMM yyyy'), formatted directly in the
+     * component. */
+    monthlySummaryTitle: string
     emptyTitle: string
     emptyDescription: string
     correlationTitle: string

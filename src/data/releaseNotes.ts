@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 204,
+    issue: 226,
+    date: '2026-07-21T02:44:00+03:00',
+    en: 'Added a monthly summary to the Dashboard, alongside the existing weekly one.',
+    ru: 'На панель добавлена месячная сводка — рядом с уже имеющейся недельной.',
+  },
+  {
     version: 203,
     issue: 220,
     date: '2026-07-21T02:31:00+03:00',
