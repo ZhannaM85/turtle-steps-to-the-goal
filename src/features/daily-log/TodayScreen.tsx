@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { addDays, format, parseISO } from 'date-fns'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
-import { Link } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import { goalWeekEnd, kgToLb } from '@/domain/goal'
 import {
   formatExactNumber,
@@ -46,7 +46,22 @@ export function TodayScreen() {
     loadEntry,
     saveEntry,
   } = useDailyEntryStore()
-  const [date, setDate] = useState(todayIso)
+  // #200: lives in the URL (?date=), not local useState — a meal pencil
+  // navigates away to /entry/:date/meal/:mealId and calls navigate(-1) to
+  // return, which remounts this screen from scratch. Local state doesn't
+  // survive that remount and always reset to today; a search param does,
+  // since navigate(-1) restores the exact prior URL including its query
+  // string. replace: true (below) keeps browsing days from spamming the
+  // browser history stack with one entry per arrow click.
+  const [searchParams, setSearchParams] = useSearchParams()
+  const date = searchParams.get('date') ?? todayIso()
+  function setDate(next: string | ((prev: string) => string)) {
+    const nextDate = typeof next === 'function' ? next(date) : next
+    setSearchParams(
+      nextDate === todayIso() ? {} : { date: nextDate },
+      { replace: true },
+    )
+  }
   const previousDayEntry = usePreviousDayEntry(date)
   const maxWeightKg = useMaxRecordedWeight(entry)
 

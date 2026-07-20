@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 181,
+    issue: 200,
+    date: '2026-07-20T12:45:00+03:00',
+    en: 'Fixed editing a meal on a previous day bouncing you back to today once you saved and closed it.',
+    ru: 'Исправлено: после сохранения изменений в приёме пищи за прошлый день приложение возвращало на сегодняшний день.',
+  },
+  {
     version: 180,
     issue: 195,
     date: '2026-07-20T12:35:00+03:00',

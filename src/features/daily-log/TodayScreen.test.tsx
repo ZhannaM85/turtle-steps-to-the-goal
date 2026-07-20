@@ -2,7 +2,7 @@ import 'fake-indexeddb/auto'
 import { fireEvent, render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { format, subDays } from 'date-fns'
-import { MemoryRouter } from 'react-router-dom'
+import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import type { Goal } from '@/domain/goal'
 import type { DailyEntry } from '@/domain/dailyEntry'
@@ -54,6 +54,26 @@ afterEach(async () => {
   localStorage.clear()
   useDailyReminderStore.setState({ enabled: false })
 })
+
+function LocationDisplay() {
+  const location = useLocation()
+  return <div data-testid="location">{location.pathname + location.search}</div>
+}
+
+// #200: renders the actual /-route, not just <TodayScreen /> alone — the
+// bug this covers only shows up across a real remount at the same URL
+// (which is what navigate(-1) from MealEditScreen does), not a re-render
+// of one already-mounted instance.
+function renderToday(initialEntries: string[] = ['/']) {
+  return render(
+    <MemoryRouter initialEntries={initialEntries}>
+      <Routes>
+        <Route path="/" element={<TodayScreen />} />
+      </Routes>
+      <LocationDisplay />
+    </MemoryRouter>,
+  )
+}
 
 describe('TodayScreen', () => {
   it('shows an empty state with a link to set a goal when none exists', async () => {
@@ -508,6 +528,42 @@ describe('TodayScreen', () => {
       expect(
         screen.queryByText('vs. highest weight'),
       ).not.toBeInTheDocument()
+    })
+  })
+
+  describe('viewed date lives in the URL, not local state (#200)', () => {
+    it('encodes a non-today date into the URL when navigating via the arrows', async () => {
+      const user = userEvent.setup()
+      renderToday()
+      await screen.findByLabelText('Date')
+
+      await user.click(screen.getByRole('button', { name: 'Previous day' }))
+
+      expect(screen.getByTestId('location')).toHaveTextContent(
+        /\?date=\d{4}-\d{2}-\d{2}/,
+      )
+    })
+
+    it('omits the search param once navigated back to today', async () => {
+      const user = userEvent.setup()
+      renderToday()
+      await screen.findByLabelText('Date')
+
+      await user.click(screen.getByRole('button', { name: 'Previous day' }))
+      await user.click(screen.getByRole('button', { name: 'Next day' }))
+
+      expect(screen.getByTestId('location')).toHaveTextContent('/')
+      expect(screen.getByTestId('location')).not.toHaveTextContent('?date=')
+    })
+
+    it('restores a previously-viewed date from the URL after a fresh mount, instead of resetting to today', async () => {
+      // Simulates what navigate(-1) does after closing a meal edited from a
+      // previous day (#200's exact repro): TodayScreen fully remounts at
+      // the same URL it was left at, rather than re-rendering in place.
+      const yesterday = format(subDays(new Date(), 1), 'yyyy-MM-dd')
+      renderToday([`/?date=${yesterday}`])
+
+      expect(await screen.findByLabelText('Date')).toHaveValue(yesterday)
     })
   })
 })
