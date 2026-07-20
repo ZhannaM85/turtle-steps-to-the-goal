@@ -408,6 +408,20 @@ _Filed per live report, not to be picked up until told to._
 
 ---
 
+## Tier 25 — New reports (2026-07-20)
+
+_Filed per live report ("Log several issues"), not to be picked up until told to. Filed at the user's explicit request without any investigation between report and filing._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#207](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/207) | ⬜ Open | Import fails with a generic error message | Reported from a real device (screenshot, Settings screen, RU locale) — "Не удалось выполнить импорт." after picking a backup file. User provided the actual backup file that failed (`turtle-steps-backup-2026-07-20.json`, `version: 6`) for future investigation. Not yet investigated |
+| [#208](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/208) | ⬜ Open | Add a daily calories goal, shown as remaining calories on Today | Requested: a daily calories goal field on the Goal page, alongside the existing weekly weight-loss target; Today page would then show remaining calories for the day based on it. Not yet investigated |
+| [#209](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/209) | ⬜ Open | Add a remove (X) icon to personal items in the Find food picker | Reported from a real device (screenshot, Find food dialog, RU locale) — personal meal-item rows (e.g. "Beef, lean," "Bio-Skyr Exponenta") have no way to be removed directly from this picker, only via Settings → Meal items. Not yet investigated |
+| [#210](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/210) | ⬜ Open | Day's mood icon (next to the day note) is very small | Reported from a real device (screenshot, Today screen, RU locale) — the small mood icon next to the day note field, just before its pencil edit button. Not yet investigated |
+| [#211](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/211) | ⬜ Open | Update-banner Reload button (#205) still unreliable on a real device | Live follow-up the same day #205 shipped — took 6 presses to actually reload on a real device. User asked whether to remove the button and rely on pull-to-refresh instead; initial reaction (not yet investigated) is against removing it outright, since the button exists specifically for the installed/standalone PWA context which has no browser chrome/pull-to-refresh at all — the reported screenshot is a regular browser tab, where the button is more redundant with the browser's own native reload. Real question is why #205's fix isn't reliably working after 1-2 presses on a real device |
+
+---
+
 ## Private (no public GitHub issue, by request)
 
 _Filed and built without a public issue at the user's explicit request — the repo is public, and this one's more personal than the rest. Still documented normally here per the project's usual close-out process; see [[feedback_issue_first]]'s exception #2 in memory for why._
