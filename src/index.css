@@ -404,6 +404,37 @@ body {
   margin: 0;
 }
 
+/* #197/#186/#180/#173: neutralizes react-remove-scroll-bar's scrollbar-
+ * width compensation, not the scroll lock itself. Any modal Dialog
+ * (shared/ui/dialog.tsx, via Radix) sets body[data-scroll-locked] while
+ * open and separately computes a "gap" to compensate for the vanished
+ * scrollbar as `window.innerWidth - document.documentElement.clientWidth`,
+ * applied as margin-right (react-remove-scroll-bar/dist/.../utils.js,
+ * default gapMode). On iOS Safari, window.innerWidth is the exact value
+ * already proven (live, on a real device) to misreport under real
+ * on-screen-keyboard-open conditions for #156 (393->483 on that
+ * reporter's device) while clientWidth doesn't shift the same way — so
+ * this "gap" comes out as a large phantom number even though mobile
+ * Safari has no classic scrollbar taking up layout width in the first
+ * place. Applied as real margin-right, that phantom gap *is* the
+ * reported "blank space on the right." `html body[data-scroll-locked]`
+ * has higher specificity than react-remove-scroll-bar's own
+ * `body[data-scroll-locked]` rule, so this wins reliably regardless of
+ * which order the two stylesheets end up in. Deliberately only zeroes
+ * the compensation, not `overflow: hidden` — the actual scroll lock (and
+ * the dialog's focus trap, a separate mechanism) stay intact. Trade-off:
+ * on a real desktop scrollbar, this also removes the (normally wanted)
+ * content-shift compensation when a dialog opens, a minor, common,
+ * widely-tolerated cosmetic effect — accepted given every report this
+ * fixes is a mobile-only, more disruptive symptom. Reasoned from source
+ * (react-remove-scroll-bar's own computation), not confirmed live on a
+ * real device — same caveat #156's own fix carried before it was
+ * eventually verified. */
+html body[data-scroll-locked] {
+  margin-right: 0 !important;
+  padding-right: 0 !important;
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

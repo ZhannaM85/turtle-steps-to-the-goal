@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 188,
+    issue: 197,
+    date: '2026-07-20T14:45:00+03:00',
+    en: 'Fixed a likely cause of blank space appearing on the right side of the screen while a dialog (like the meal editor) is open.',
+    ru: 'Устранена вероятная причина появления пустого пространства справа на экране при открытом диалоговом окне (например, при редактировании приёма пищи).',
+  },
+  {
     version: 187,
     issue: 190,
     date: '2026-07-20T14:05:00+03:00',
