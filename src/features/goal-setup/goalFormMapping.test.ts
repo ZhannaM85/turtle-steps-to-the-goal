@@ -49,6 +49,19 @@ describe('goalToFormValues', () => {
     const values = goalToFormValues(makeGoal(), 'kg')
     expect(values.dailyCalorieTarget).toBeUndefined()
   })
+
+  it('maps the optional daily protein target straight through when set (#220)', () => {
+    const values = goalToFormValues(
+      makeGoal({ dailyProteinTargetG: 120 }),
+      'kg',
+    )
+    expect(values.dailyProteinTarget).toBe(120)
+  })
+
+  it('leaves the daily protein target undefined when not set (#220)', () => {
+    const values = goalToFormValues(makeGoal(), 'kg')
+    expect(values.dailyProteinTarget).toBeUndefined()
+  })
 })
 
 describe('formValuesToGoal', () => {
@@ -97,6 +110,19 @@ describe('formValuesToGoal', () => {
   it('leaves the daily calorie target undefined on a fresh record when not provided (#208)', () => {
     const goal = formValuesToGoal(baseValues, 'kg')
     expect(goal.dailyCalorieTargetKcal).toBeUndefined()
+  })
+
+  it('carries the optional daily protein target through to a fresh record (#220)', () => {
+    const goal = formValuesToGoal(
+      { targetWeeklyLoss: 1, dailyProteinTarget: 120 },
+      'kg',
+    )
+    expect(goal.dailyProteinTargetG).toBe(120)
+  })
+
+  it('leaves the daily protein target undefined on a fresh record when not provided (#220)', () => {
+    const goal = formValuesToGoal(baseValues, 'kg')
+    expect(goal.dailyProteinTargetG).toBeUndefined()
   })
 
   describe('editing the current week in place (#181)', () => {
@@ -154,6 +180,40 @@ describe('formValuesToGoal', () => {
       )
 
       expect(goal.dailyCalorieTargetKcal).toBeUndefined()
+    })
+
+    it('updates the daily protein target in place too (#220)', () => {
+      const today = format(new Date(), 'yyyy-MM-dd')
+      const existingGoal = makeGoal({
+        id: 'goal-1',
+        weekStart: today,
+        dailyProteinTargetG: 100,
+      })
+
+      const goal = formValuesToGoal(
+        { targetWeeklyLoss: 1, dailyProteinTarget: 130 },
+        'kg',
+        existingGoal,
+      )
+
+      expect(goal.dailyProteinTargetG).toBe(130)
+    })
+
+    it('clears a previously-set daily protein target when the field is left blank (#220)', () => {
+      const today = format(new Date(), 'yyyy-MM-dd')
+      const existingGoal = makeGoal({
+        id: 'goal-1',
+        weekStart: today,
+        dailyProteinTargetG: 100,
+      })
+
+      const goal = formValuesToGoal(
+        { targetWeeklyLoss: 1, dailyProteinTarget: undefined },
+        'kg',
+        existingGoal,
+      )
+
+      expect(goal.dailyProteinTargetG).toBeUndefined()
     })
 
     it("starts a fresh record once the existing goal's window has ended", () => {

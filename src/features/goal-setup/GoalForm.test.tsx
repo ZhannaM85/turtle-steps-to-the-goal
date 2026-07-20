@@ -143,6 +143,62 @@ describe('GoalForm', () => {
     })
   })
 
+  describe('daily protein target (#220)', () => {
+    it('is optional — submits fine when left blank', async () => {
+      const user = userEvent.setup()
+      const onSubmit = vi.fn()
+      render(<GoalForm existingGoal={null} onSubmit={onSubmit} />)
+
+      await user.type(
+        screen.getByLabelText("This week's target (kg to lose)"),
+        '1',
+      )
+      await user.click(
+        screen.getByRole('button', { name: 'Set this week’s target' }),
+      )
+
+      expect(onSubmit).toHaveBeenCalledTimes(1)
+      expect(onSubmit.mock.calls[0][0].dailyProteinTargetG).toBeUndefined()
+    })
+
+    it('submits the value when filled in', async () => {
+      const user = userEvent.setup()
+      const onSubmit = vi.fn()
+      render(<GoalForm existingGoal={null} onSubmit={onSubmit} />)
+
+      await user.type(
+        screen.getByLabelText("This week's target (kg to lose)"),
+        '1',
+      )
+      await user.type(screen.getByLabelText('Daily protein target'), '120')
+      await user.click(
+        screen.getByRole('button', { name: 'Set this week’s target' }),
+      )
+
+      expect(onSubmit).toHaveBeenCalledTimes(1)
+      expect(onSubmit.mock.calls[0][0].dailyProteinTargetG).toBe(120)
+    })
+
+    it('pre-fills from an existing goal', () => {
+      render(
+        <GoalForm
+          existingGoal={{
+            id: 'g1',
+            targetWeeklyLossKg: 1,
+            dailyProteinTargetG: 120,
+            createdAt: '2026-01-01T00:00:00.000Z',
+            updatedAt: '2026-01-01T00:00:00.000Z',
+          }}
+          onSubmit={vi.fn()}
+        />,
+      )
+
+      expect(screen.getByLabelText('Daily protein target')).toHaveValue(
+        '120',
+      )
+    })
+  })
+
   it('pre-fills from an existing goal and labels the submit button as an update', () => {
     render(
       <GoalForm

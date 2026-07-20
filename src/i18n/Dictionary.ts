@@ -73,6 +73,13 @@ export interface Dictionary {
     remainingCaloriesLabel: string
     kcalRemainingUnit: string
     kcalOverUnit: string
+    /** #220 — same shape as the calories trio above, shown once the
+     * active goal has a dailyProteinTargetG set. "Remaining" here just
+     * means not yet reached, no "over" framing the way calories has —
+     * eating more protein than planned isn't the same kind of "went over
+     * budget" concept a calorie ceiling is. */
+    remainingProteinLabel: string
+    gRemainingUnit: string
     celebrationTitle: string
     celebrationDescription: string
     celebrationCta: string
@@ -276,6 +283,10 @@ export interface Dictionary {
      * clarifies that leaving it blank is fine, not an error state. */
     dailyCalorieTargetLabel: string
     dailyCalorieTargetHint: string
+    /** #220 — same shape/reasoning as dailyCalorieTarget above, an
+     * independent optional field. */
+    dailyProteinTargetLabel: string
+    dailyProteinTargetHint: string
     updateButton: string
     setButton: string
     /** Goal history section (#147) — every past (non-active) target. */

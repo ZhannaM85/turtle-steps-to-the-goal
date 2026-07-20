@@ -137,6 +137,20 @@ describe('importAllData', () => {
     expect(all[0].dailyCalorieTargetKcal).toBe(1800)
   })
 
+  it('round-trips the optional daily protein target through parseExportBundle too (#220)', async () => {
+    const goal = makeGoal({ dailyProteinTargetG: 120 })
+    await db.goals.put(goal)
+    const bundle = await exportAllData()
+
+    await db.goals.clear()
+
+    const parsed = parseExportBundle(JSON.parse(JSON.stringify(bundle)))
+    await importAllData(parsed)
+
+    const all = await db.goals.toArray()
+    expect(all[0].dailyProteinTargetG).toBe(120)
+  })
+
   it('merges into existing data instead of wiping it', async () => {
     const existingEntry = makeEntry({ date: '2026-03-02' })
     await db.dailyEntries.put(existingEntry)

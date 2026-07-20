@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 203,
+    issue: 220,
+    date: '2026-07-21T02:31:00+03:00',
+    en: 'Added an optional daily protein target on the Goal page — set it, and Today will show how much protein you have left for the day.',
+    ru: 'Добавлена необязательная дневная цель по белку на странице «Цель» — если её задать, на странице «Сегодня» будет видно, сколько белка осталось на день.',
+  },
+  {
     version: 202,
     issue: 218,
     date: '2026-07-21T02:15:00+03:00',

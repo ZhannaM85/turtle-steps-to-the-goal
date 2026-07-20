@@ -59,6 +59,8 @@ export const ru: Dictionary = {
     remainingCaloriesLabel: 'Осталось калорий',
     kcalRemainingUnit: 'ккал осталось',
     kcalOverUnit: 'ккал сверх нормы',
+    remainingProteinLabel: 'Осталось белка',
+    gRemainingUnit: 'г осталось',
     celebrationTitle: 'Вы достигли цели на эту неделю!',
     celebrationDescription:
       'Отличная работа — хотите задать цель на следующую неделю?',
@@ -187,6 +189,8 @@ export const ru: Dictionary = {
       'Это простая арифметическая оценка (~7700 ккал ≈ 1 кг жира), не медицинская и не диетологическая рекомендация.',
     dailyCalorieTargetLabel: 'Дневная цель по калориям',
     dailyCalorieTargetHint: 'Необязательно — можно оставить пустым.',
+    dailyProteinTargetLabel: 'Дневная цель по белку',
+    dailyProteinTargetHint: 'Необязательно — можно оставить пустым.',
     updateButton: 'Обновить цель на неделю',
     setButton: 'Задать цель на неделю',
     pastTargetsTitle: 'Прошлые цели',

@@ -2,7 +2,7 @@ import { useEffect } from 'react'
 import { addDays, format, parseISO } from 'date-fns'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { Link, useSearchParams } from 'react-router-dom'
-import { totalCalories } from '@/domain/dailyEntry'
+import { totalCalories, totalProtein } from '@/domain/dailyEntry'
 import { goalWeekEnd, kgToLb } from '@/domain/goal'
 import {
   formatExactNumber,
@@ -136,6 +136,19 @@ export function TodayScreen() {
       : null
   const isOverCalorieBudget = remainingKcal !== null && remainingKcal < 0
 
+  // #220 — same shape as remainingKcal above. Clamped at 0 rather than
+  // going negative/"over" the way calories can — more protein than
+  // planned isn't the same "went over budget" concept a calorie ceiling
+  // is, so once the target's met this just reads "0g remaining" rather
+  // than needing a second unit string for a surplus state.
+  const remainingProteinG =
+    goal?.dailyProteinTargetG !== undefined
+      ? Math.max(
+          0,
+          goal.dailyProteinTargetG - (totalProtein(entry?.calorieEntries) ?? 0),
+        )
+      : null
+
   // Quiet nudge (#38) once the goal's own anchored window (#135,
   // `goal.weekStart`..`goalWeekEnd(weekStart)`) has run its course, and
   // only when a goal already exists (a goal-less user already sees the
@@ -222,6 +235,14 @@ export function TodayScreen() {
               ? t.today.kcalOverUnit
               : t.today.kcalRemainingUnit
           }
+        />
+      )}
+
+      {remainingProteinG !== null && (
+        <StatCard
+          label={t.today.remainingProteinLabel}
+          value={formatNumber(remainingProteinG, locale, 0)}
+          unit={t.today.gRemainingUnit}
         />
       )}
 

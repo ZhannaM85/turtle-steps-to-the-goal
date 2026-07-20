@@ -9,6 +9,8 @@ export function makeGoalFormSchema(t: Dictionary) {
       // requiring it below, since not everyone wants a daily calories
       // target alongside the weekly weight-loss one.
       dailyCalorieTarget: z.number().positive().max(10000).optional(),
+      // #220 — same reasoning as dailyCalorieTarget, independent of it.
+      dailyProteinTarget: z.number().positive().max(1000).optional(),
     })
     .superRefine((data, ctx) => {
       if (!data.targetWeeklyLoss || data.targetWeeklyLoss <= 0) {

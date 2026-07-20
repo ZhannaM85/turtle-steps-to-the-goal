@@ -19,6 +19,13 @@ export interface Goal {
    * Powers Today's "remaining calories" stat; nothing else reads it.
    */
   dailyCalorieTargetKcal?: number
+  /**
+   * Optional daily protein target in grams (#220) — same shape/reasoning
+   * as dailyCalorieTargetKcal above, independent of it (someone might
+   * want one without the other). Powers Today's "remaining protein"
+   * stat; nothing else reads it.
+   */
+  dailyProteinTargetG?: number
   createdAt: string
   updatedAt: string
 }

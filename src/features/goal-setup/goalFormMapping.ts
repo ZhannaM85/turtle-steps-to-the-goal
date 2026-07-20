@@ -15,6 +15,7 @@ export function goalToFormValues(
   return {
     targetWeeklyLoss: fromKg(goal.targetWeeklyLossKg),
     dailyCalorieTarget: goal.dailyCalorieTargetKcal,
+    dailyProteinTarget: goal.dailyProteinTargetG,
   }
 }
 
@@ -64,6 +65,7 @@ export function formValuesToGoal(
       ...existingGoal,
       targetWeeklyLossKg: toKg(values.targetWeeklyLoss as number),
       dailyCalorieTargetKcal: values.dailyCalorieTarget,
+      dailyProteinTargetG: values.dailyProteinTarget,
       updatedAt: now,
     }
   }
@@ -76,6 +78,7 @@ export function formValuesToGoal(
     id: crypto.randomUUID(),
     targetWeeklyLossKg: toKg(values.targetWeeklyLoss as number),
     dailyCalorieTargetKcal: values.dailyCalorieTarget,
+    dailyProteinTargetG: values.dailyProteinTarget,
     // Always today (#135) — every *new* record starts a fresh 7-day
     // tracking window from the moment it's actually saved.
     weekStart: format(new Date(), 'yyyy-MM-dd'),

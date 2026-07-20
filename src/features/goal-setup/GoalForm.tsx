@@ -89,6 +89,15 @@ export function GoalForm({
         {...register('dailyCalorieTarget', { setValueAs: parseNumberInput })}
       />
 
+      {/* #220 — same shape as dailyCalorieTarget above, independent of it. */}
+      <NumberInput
+        label={t.goal.dailyProteinTargetLabel}
+        hint={t.goal.dailyProteinTargetHint}
+        unit={t.dailyEntry.gramsUnit}
+        error={errors.dailyProteinTarget?.message}
+        {...register('dailyProteinTarget', { setValueAs: parseNumberInput })}
+      />
+
       <Button type="submit" className="self-start">
         {existingGoal ? t.goal.updateButton : t.goal.setButton}
       </Button>
