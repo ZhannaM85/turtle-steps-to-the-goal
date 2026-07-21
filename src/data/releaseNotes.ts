@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 229,
+    issue: 237,
+    date: '2026-07-21T22:14:15+03:00',
+    en: 'Settings now has a "What to track" section to hide Sleep, Steps, Body measurements, Note, or Mood from Today’s log if you don’t use them — alongside the existing cycle and digestion tracking toggles.',
+    ru: 'В настройках появился раздел «Что отслеживать» — можно скрыть сон, шаги, измерения тела, заметку или настроение на экране «Сегодня», если вы их не используете, рядом с уже существующими переключателями цикла и пищеварения.',
+  },
+  {
     version: 228,
     issue: 247,
     date: '2026-07-21T21:19:57+03:00',
