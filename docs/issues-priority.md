@@ -520,6 +520,14 @@ Also added: a scope-note comment on already-filed #253, suggesting the copy-sour
 
 ---
 
+## Tier 31 — Found while implementing #233 (2026-07-22)
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#262](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/262) | ⬜ Open | Fixed bottom tab bar reappearing on text-input blur can swallow the very next tap near the bottom of the viewport | Found and root-caused live while building #233's new Settings Profile card (Age input directly above the Sex toggle): `AppShell.tsx`'s `hideTabBar` (#120/#188) means the fixed bottom nav reinserts itself into the DOM the instant a focused text input blurs — if that blur happens mid-gesture as part of a tap on a control near the bottom edge, the tab bar's reinsertion can land between pointer-down and pointer-up, swallowing that tap. Verified via Playwright (real click leaves `aria-checked` false even after 2s; blurring first, or a synthetic coordinate-free `.click()`, both succeed reliably). Not fixed as part of #233 — general `AppShell`/`useIsTextInputFocused` issue, out of that issue's scope |
+
+---
+
 ## Private (no public GitHub issue, by request)
 
 _Filed and built without a public issue at the user's explicit request — the repo is public, and this one's more personal than the rest. Still documented normally here per the project's usual close-out process; see [[feedback_issue_first]]'s exception #2 in memory for why._
