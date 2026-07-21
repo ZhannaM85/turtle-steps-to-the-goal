@@ -178,6 +178,47 @@ export function TodayScreen() {
       <GoalCelebrationModal />
       <PageHeader title={t.today.title} description={t.today.description} />
 
+      {/* #239: previously sat below the stat cards — the page title never
+       * changes, but this does as you page between days, so it used to
+       * read as "jumping" the further down the page it was. Fixed
+       * position right under the title now, always the first thing after
+       * it regardless of how many stat cards render below. */}
+      <div className="flex flex-col gap-1.5">
+        <Label htmlFor="log-date">{t.today.dateLabel}</Label>
+        <div className="flex items-center gap-2">
+          <Button
+            type="button"
+            variant="outline"
+            size="icon-xl"
+            aria-label={t.today.previousDayLabel}
+            onClick={() => setDate((prev) => shiftDate(prev, -1))}
+          >
+            <ChevronLeft aria-hidden="true" />
+          </Button>
+          <Input
+            id="log-date"
+            type="date"
+            value={date}
+            max={todayIso()}
+            onChange={(e) => setDate(e.target.value)}
+            className="h-12 max-w-48"
+          />
+          {/* Capped at today (#138), same as the date input's own `max` —
+           * logging a future day isn't supported anywhere else in the app,
+           * out of scope for "quicker than opening the picker" arrows. */}
+          <Button
+            type="button"
+            variant="outline"
+            size="icon-xl"
+            aria-label={t.today.nextDayLabel}
+            disabled={date >= todayIso()}
+            onClick={() => setDate((prev) => shiftDate(prev, 1))}
+          >
+            <ChevronRight aria-hidden="true" />
+          </Button>
+        </div>
+      </div>
+
       {goalStatus === 'loading' || goalStatus === 'idle' ? (
         <p className="text-sm text-muted-foreground">{t.common.loading}</p>
       ) : goal ? (
@@ -263,42 +304,6 @@ export function TodayScreen() {
           {t.today.dailyReminderText}
         </div>
       )}
-
-      <div className="flex flex-col gap-1.5">
-        <Label htmlFor="log-date">{t.today.dateLabel}</Label>
-        <div className="flex items-center gap-2">
-          <Button
-            type="button"
-            variant="outline"
-            size="icon-xl"
-            aria-label={t.today.previousDayLabel}
-            onClick={() => setDate((prev) => shiftDate(prev, -1))}
-          >
-            <ChevronLeft aria-hidden="true" />
-          </Button>
-          <Input
-            id="log-date"
-            type="date"
-            value={date}
-            max={todayIso()}
-            onChange={(e) => setDate(e.target.value)}
-            className="h-12 max-w-48"
-          />
-          {/* Capped at today (#138), same as the date input's own `max` —
-           * logging a future day isn't supported anywhere else in the app,
-           * out of scope for "quicker than opening the picker" arrows. */}
-          <Button
-            type="button"
-            variant="outline"
-            size="icon-xl"
-            aria-label={t.today.nextDayLabel}
-            disabled={date >= todayIso()}
-            onClick={() => setDate((prev) => shiftDate(prev, 1))}
-          >
-            <ChevronRight aria-hidden="true" />
-          </Button>
-        </div>
-      </div>
 
       {entryStatus === 'loading' || entryStatus === 'idle' ? (
         <p className="text-sm text-muted-foreground">{t.common.loading}</p>
