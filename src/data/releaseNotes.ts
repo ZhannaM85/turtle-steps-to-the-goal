@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 227,
+    issue: 248,
+    date: '2026-07-21T20:42:46+03:00',
+    en: 'You can now add an optional brand name to a dish, shown right after its name — also included in the Excel export.',
+    ru: 'Теперь можно добавить бренд к блюду — он отображается сразу после названия и включён в экспорт в Excel.',
+  },
+  {
     version: 226,
     issue: 246,
     date: '2026-07-21T18:38:48+03:00',
