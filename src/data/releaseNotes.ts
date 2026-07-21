@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 224,
+    issue: 245,
+    date: '2026-07-21T18:06:32+03:00',
+    en: 'Each Dashboard trend chart (Weight, Calorie, Protein/fat/carbs) now has an eye icon next to its title to hide or show the whole chart.',
+    ru: 'У каждого графика тренда на панели (вес, калории, белки/жиры/углеводы) теперь есть значок глаза рядом с заголовком — скрыть или показать весь график.',
+  },
+  {
     version: 223,
     issue: 244,
     date: '2026-07-21T17:23:34+03:00',
