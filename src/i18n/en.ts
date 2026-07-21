@@ -356,6 +356,16 @@ export const en: Dictionary = {
     stepsCorrelationLagCaveat:
       "Compares each day's logged steps to the very next day's weight, not a proven cause-and-effect relationship — water retention, sodium, and many other factors also affect day-to-day weight.",
     stepsCountLegend: 'steps',
+    proteinCorrelationTitle: 'Protein vs. next-day weight',
+    proteinCorrelationEmptyDescription:
+      'Not enough data yet to see a pattern — log protein and keep tracking weight, then check back in a few weeks.',
+    proteinCorrelationSummary: (thresholdProteinG, direction) =>
+      direction === 'less'
+        ? `Days you ate less than ${thresholdProteinG}g of protein averaged more weight gain the next morning than days you ate more.`
+        : `Days you ate more than ${thresholdProteinG}g of protein averaged more weight gain the next morning than days you ate less.`,
+    proteinCorrelationDayCount: (n) => `Based on ${n} day${n === 1 ? '' : 's'} of data.`,
+    proteinCorrelationLagCaveat:
+      "Compares each day's logged protein to the very next day's weight, not a proven cause-and-effect relationship — water retention, sodium, and many other factors also affect day-to-day weight.",
     foodReactionsTitle: 'Food reactions',
     mostLikedFoodsTitle: 'Most liked',
     mostDislikedFoodsTitle: 'Most disliked',

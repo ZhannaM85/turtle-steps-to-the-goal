@@ -8,6 +8,7 @@ import { FoodReactionsView } from './FoodReactionsView'
 import { LateMealCorrelationView } from './LateMealCorrelationView'
 import { MacroTrendChart } from './MacroTrendChart'
 import { MonthlySummaryCards } from './MonthlySummaryCards'
+import { ProteinCorrelationView } from './ProteinCorrelationView'
 import { RecentAveragesCards } from './RecentAveragesCards'
 import { SleepCorrelationView } from './SleepCorrelationView'
 import { StepsCorrelationView } from './StepsCorrelationView'
@@ -43,6 +44,7 @@ export function DashboardScreen() {
           <LateMealCorrelationView entries={entries} />
           <SleepCorrelationView entries={entries} />
           <StepsCorrelationView entries={entries} />
+          <ProteinCorrelationView entries={entries} />
           <FoodReactionsView entries={entries} />
           <RecentAveragesCards entries={entries} />
           <WeeklySummaryCards entries={entries} goal={goal} />

@@ -495,6 +495,18 @@ export interface Dictionary {
     stepsCorrelationDayCount: (n: number) => string
     stepsCorrelationLagCaveat: string
     stepsCountLegend: string
+    /** Protein-vs-next-day-weight correlation (#216), same day-pair shape
+     * as sleep/steps above — deliberately distinct from the existing
+     * calories-vs-weekly-change correlation (correlationTitle etc.), which
+     * stays a weekly-average comparison, not a day-pair one. */
+    proteinCorrelationTitle: string
+    proteinCorrelationEmptyDescription: string
+    proteinCorrelationSummary: (
+      thresholdProteinG: string,
+      direction: string,
+    ) => string
+    proteinCorrelationDayCount: (n: number) => string
+    proteinCorrelationLagCaveat: string
     /** Per-dish reaction rollup (#128, built on #129's per-item emotion) —
      * two ranked lists under one shared heading, each row using
      * dailyEntry.mealEmotionLabel for its per-count accessible text. */

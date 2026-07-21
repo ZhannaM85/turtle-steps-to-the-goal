@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 210,
+    issue: 216,
+    date: '2026-07-21T10:45:00+03:00',
+    en: 'Added a Dashboard chart comparing your protein intake to your weight the next day.',
+    ru: 'На панели добавлен график, сравнивающий потребление белка с весом на следующий день.',
+  },
+  {
     version: 209,
     issue: 219,
     date: '2026-07-21T06:30:00+03:00',

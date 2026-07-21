@@ -15,6 +15,8 @@ export { sleepCorrelation, sleepPoints } from './sleepCorrelation'
 export type { SleepCorrelation, SleepPoint } from './sleepCorrelation'
 export { stepsCorrelation, stepsPoints } from './stepsCorrelation'
 export type { StepsCorrelation, StepsPoint } from './stepsCorrelation'
+export { proteinCorrelation, proteinPoints } from './proteinCorrelation'
+export type { ProteinCorrelation, ProteinPoint } from './proteinCorrelation'
 export { foodReactionTallies, mostLikedFoods, mostDislikedFoods } from './foodReactions'
 export type { FoodReactionTally } from './foodReactions'
 export {
