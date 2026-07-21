@@ -5,7 +5,7 @@ import { createMemoryRouter, Link, RouterProvider } from 'react-router-dom'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { AppShell } from './AppShell'
 
-function renderShellWithInput() {
+function renderShellWithInput(onConfirm?: () => void) {
   const router = createMemoryRouter(
     [
       {
@@ -19,6 +19,9 @@ function renderShellWithInput() {
                 <input id="text-field" type="text" />
                 <label htmlFor="checkbox-field">Include</label>
                 <input id="checkbox-field" type="checkbox" />
+                <button type="button" onClick={onConfirm}>
+                  Confirm
+                </button>
               </div>
             ),
           },
@@ -54,7 +57,34 @@ describe('AppShell bottom tab bar visibility (#120)', () => {
 
     await user.click(document.body)
 
-    expect(screen.getByRole('navigation', { name: 'Tabs' })).toBeInTheDocument()
+    // #262: the re-check on blur is now deliberately delayed (see
+    // useIsTextInputFocused.ts) so the bar can't reappear mid-gesture and
+    // swallow a same-click tap on whatever control the user is actually
+    // pressing — findBy (async) rather than a synchronous assertion.
+    expect(
+      await screen.findByRole('navigation', { name: 'Tabs' }),
+    ).toBeInTheDocument()
+  })
+
+  it('registers a click on a button right after a text input blurs, and shows the tab bar again (#262)', async () => {
+    // #262's real root cause: focus landing on the clicked button (not
+    // just focus *leaving* the input) used to synchronously flip the
+    // bar's visibility state mid-click, before that same click's mouseup
+    // was dispatched — a jsdom click() can't reproduce the actual lost
+    // event (no real hit-testing/paint), but it can confirm the fix
+    // didn't break the button's own click handler or the bar's eventual
+    // reappearance.
+    const onConfirm = vi.fn()
+    const user = userEvent.setup()
+    renderShellWithInput(onConfirm)
+
+    await user.click(screen.getByLabelText('Weight'))
+    await user.click(screen.getByRole('button', { name: 'Confirm' }))
+
+    expect(onConfirm).toHaveBeenCalledTimes(1)
+    expect(
+      await screen.findByRole('navigation', { name: 'Tabs' }),
+    ).toBeInTheDocument()
   })
 
   it('does not hide the bottom tab bar for non-text controls like checkboxes', async () => {

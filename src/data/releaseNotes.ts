@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 231,
+    issue: 262,
+    date: '2026-07-22T02:43:53+03:00',
+    en: 'Fixed a bug where tapping a button right after typing in a field near the bottom of the screen could silently do nothing on the first tap.',
+    ru: 'Исправлена ошибка: нажатие на кнопку сразу после ввода текста в поле внизу экрана иногда не срабатывало с первого раза.',
+  },
+  {
     version: 230,
     issue: 232,
     date: '2026-07-22T00:07:14+03:00',
