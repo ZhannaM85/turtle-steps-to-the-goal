@@ -53,6 +53,7 @@ export const en: Dictionary = {
     goalRenewalReminder:
       "This week's target is ready to renew — worth checking in on it.",
     reviewGoalLink: 'Review goal',
+    targetMetBanner: "You reached this week's target!",
     dailyReminderText: 'No entry yet today — whenever you’re ready.',
     vsYesterdayLabel: 'vs. yesterday',
     vsMaxWeightLabel: 'vs. highest weight',

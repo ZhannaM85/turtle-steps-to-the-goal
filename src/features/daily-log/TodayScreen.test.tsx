@@ -152,6 +152,51 @@ describe('TodayScreen', () => {
     expect(persisted?.weightKg).toBe(80)
   })
 
+  // #235: reported live as "no notification when logging today's weight,
+  // only visible on the Goal page" — reproduces the exact flow (goal
+  // already active, baseline day already logged, then a fresh live save of
+  // today's weight that crosses the target) to check whether
+  // GoalCelebrationModal actually reacts to that specific save, not just a
+  // page load where the target was already met before mounting.
+  it("shows the goal-celebration modal right after a live weight save crosses this week's target", async () => {
+    const weekStart = format(subDays(new Date(), 2), 'yyyy-MM-dd')
+    await useGoalStore
+      .getState()
+      .saveGoal(makeGoal({ targetWeeklyLossKg: 0.1, weekStart }))
+    await useDailyEntryStore
+      .getState()
+      .saveEntry(makeEntry({ date: weekStart, weightKg: 60 }))
+    useDailyEntryStore.setState({ entry: null, date: null, status: 'idle' })
+
+    const user = userEvent.setup()
+    render(
+      <MemoryRouter>
+        <TodayScreen />
+      </MemoryRouter>,
+    )
+
+    expect(
+      screen.queryByText("You reached this week's goal!"),
+    ).not.toBeInTheDocument()
+
+    await user.type(await screen.findByLabelText('Weight (kg)'), '59.8')
+    await user.click(screen.getByRole('button', { name: 'Save weight' }))
+
+    expect(
+      await screen.findByText("You reached this week's goal!"),
+    ).toBeInTheDocument()
+
+    // #235's own persistent complement to the modal above — stays visible
+    // even after the modal is dismissed, unlike the one-time dialog.
+    await user.click(screen.getByRole('button', { name: /close/i }))
+    expect(
+      await screen.findByText("You reached this week's target!"),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByRole('link', { name: 'Review goal' }),
+    ).toHaveAttribute('href', '/goal')
+  })
+
   it('back-fills a past date without touching the current entry', async () => {
     const yesterday = format(subDays(new Date(), 1), 'yyyy-MM-dd')
     const user = userEvent.setup()

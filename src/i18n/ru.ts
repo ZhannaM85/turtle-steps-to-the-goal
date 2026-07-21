@@ -54,6 +54,7 @@ export const ru: Dictionary = {
     goalRenewalReminder:
       'Цель на эту неделю пора обновить — стоит заглянуть и проверить.',
     reviewGoalLink: 'Посмотреть цель',
+    targetMetBanner: 'Вы достигли цели на эту неделю!',
     dailyReminderText: 'Сегодня пока нет записи — когда будете готовы.',
     vsYesterdayLabel: 'по сравнению со вчера',
     vsMaxWeightLabel: 'по сравнению с максимальным весом',

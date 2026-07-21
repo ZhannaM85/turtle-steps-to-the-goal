@@ -60,6 +60,7 @@ export interface Dictionary {
     nextDayLabel: string
     goalRenewalReminder: string
     reviewGoalLink: string
+    targetMetBanner: string
     /** Quiet, opt-in nudge (#171) — only shown when the Settings toggle is
      * on and today has no entry yet. Same no-badges/no-streaks tone as
      * goalRenewalReminder above, no dismiss state to persist. */

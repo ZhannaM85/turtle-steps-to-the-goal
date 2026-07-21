@@ -12,7 +12,11 @@ import {
   useLocale,
   useTranslation,
 } from '@/i18n'
-import { useMaxRecordedWeight, usePreviousDayEntry } from '@/shared/hooks'
+import {
+  useActiveGoalProgress,
+  useMaxRecordedWeight,
+  usePreviousDayEntry,
+} from '@/shared/hooks'
 import { Button } from '@/shared/ui/button'
 import { EmptyState } from '@/shared/ui/empty-state'
 import { Input } from '@/shared/ui/input'
@@ -65,6 +69,15 @@ export function TodayScreen() {
   }
   const previousDayEntry = usePreviousDayEntry(date)
   const maxWeightKg = useMaxRecordedWeight(entry)
+  // #235: GoalCelebrationModal (#55) already fires the instant a save
+  // crosses the target, but it's a one-time dismissible dialog — easy to
+  // miss (mid-interaction, an accidental outside-tap) with no second
+  // chance to notice it, which is exactly what was reported live. This is
+  // a persistent, always-visible complement, same quiet-banner shape as
+  // the #38 renewal reminder below, so the "reached" state stays visible
+  // for the rest of the window even if the modal moment was missed.
+  const activeGoalProgress = useActiveGoalProgress()
+  const showTargetMetBanner = activeGoalProgress?.targetMet === true
 
   useEffect(() => {
     loadActiveGoal()
@@ -285,6 +298,18 @@ export function TodayScreen() {
           value={formatNumber(remainingProteinG, locale, 0)}
           unit={t.today.gRemainingUnit}
         />
+      )}
+
+      {showTargetMetBanner && (
+        <div className="flex items-center justify-between gap-2 rounded-lg border border-border px-3 py-2 text-sm text-muted-foreground">
+          <span>{t.today.targetMetBanner}</span>
+          <Link
+            to="/goal"
+            className="shrink-0 font-medium text-foreground underline-offset-4 hover:underline"
+          >
+            {t.today.reviewGoalLink}
+          </Link>
+        </div>
       )}
 
       {showGoalRenewalReminder && (
