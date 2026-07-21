@@ -412,9 +412,9 @@ export function CustomChartView({ entries }: CustomChartViewProps) {
                           key={option}
                           value={option}
                           aria-label={optionLabel}
-                          className="h-auto rounded-sm px-1 py-0.5"
+                          className="h-7 rounded-sm px-1.5"
                         >
-                          <Icon aria-hidden="true" className="size-3" />
+                          <Icon aria-hidden="true" className="size-3.5" />
                         </ToggleGroupItem>
                       )
                     },
