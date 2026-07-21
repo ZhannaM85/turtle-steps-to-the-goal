@@ -25,6 +25,7 @@ export const ru: Dictionary = {
   update: {
     availableText: 'Доступна новая версия.',
     reloadButton: 'Перезагрузить',
+    reloadingText: 'Перезагрузка…',
   },
   offline: {
     offlineText: 'Вы не в сети — данные всё равно сохраняются на этом устройстве.',

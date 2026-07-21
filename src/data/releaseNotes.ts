@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 217,
+    issue: 242,
+    date: '2026-07-21T13:03:56+03:00',
+    en: 'Tapping Reload on the "new version available" banner now shows a spinner while it works, instead of looking like nothing happened.',
+    ru: 'Нажатие «Перезагрузить» в баннере о новой версии теперь показывает индикатор загрузки, а не выглядит так, будто ничего не произошло.',
+  },
+  {
     version: 216,
     issue: 236,
     date: '2026-07-21T12:57:32+03:00',

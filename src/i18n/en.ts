@@ -24,6 +24,7 @@ export const en: Dictionary = {
   update: {
     availableText: 'A new version is available.',
     reloadButton: 'Reload',
+    reloadingText: 'Reloading…',
   },
   offline: {
     offlineText: "You're offline — your data is still saved on this device.",

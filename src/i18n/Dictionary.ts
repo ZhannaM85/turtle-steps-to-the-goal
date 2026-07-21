@@ -27,6 +27,7 @@ export interface Dictionary {
   update: {
     availableText: string
     reloadButton: string
+    reloadingText: string
   }
   /** Quiet "you're offline" indicator (#163) — the app stays fully usable
    * offline (all data is IndexedDB-local, the service worker precaches the

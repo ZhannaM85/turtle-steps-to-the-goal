@@ -1,3 +1,5 @@
+import { useState } from 'react'
+import { RefreshCw } from 'lucide-react'
 import { useTranslation } from '@/i18n'
 import { useAppUpdateAvailable } from '@/shared/hooks'
 import { reloadForUpdate } from '@/shared/lib/reloadForUpdate'
@@ -20,20 +22,37 @@ import { Button } from '@/shared/ui/button'
 export function AppUpdateBanner() {
   const t = useTranslation()
   const updateAvailable = useAppUpdateAvailable()
+  // #242: reloadForUpdate() can take up to several seconds (waiting on the
+  // service worker's controllerchange, see its own comment) before the page
+  // actually reloads, with no feedback in between — reported as looking
+  // broken, prompting repeated clicks. Once clicked, this only ever resolves
+  // by a real page reload (or the tab staying open on a genuine failure),
+  // never by falling back to the button — nothing to reset it to visible.
+  const [reloading, setReloading] = useState(false)
 
   if (!updateAvailable) return null
 
   return (
     <div className="flex items-center justify-between gap-2 border-b border-border bg-muted px-4 py-2 text-sm text-foreground">
       <span>{t.update.availableText}</span>
-      <Button
-        type="button"
-        variant="outline"
-        size="sm"
-        onClick={() => void reloadForUpdate()}
-      >
-        {t.update.reloadButton}
-      </Button>
+      {reloading ? (
+        <span className="flex items-center gap-1.5 text-muted-foreground">
+          <RefreshCw aria-hidden="true" className="size-4 animate-spin" />
+          {t.update.reloadingText}
+        </span>
+      ) : (
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={() => {
+            setReloading(true)
+            void reloadForUpdate()
+          }}
+        >
+          {t.update.reloadButton}
+        </Button>
+      )}
     </div>
   )
 }

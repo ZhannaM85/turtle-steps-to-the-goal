@@ -138,6 +138,39 @@ describe('AppUpdateBanner', () => {
       10000,
     )
 
+    it(
+      'shows a loading state and hides the button once clicked, until the reload actually happens (#242)',
+      async () => {
+        stubUpdateFetch()
+        const reload = vi.fn()
+        vi.stubGlobal('location', { ...window.location, reload })
+        const update = vi.fn().mockResolvedValue(undefined)
+        stubServiceWorker({
+          getRegistration: vi.fn().mockResolvedValue({ update }),
+          // Never fires — exercises the bounded-timeout path, so the
+          // loading state has to still be showing right up to the reload.
+          addEventListener: vi.fn(),
+        })
+
+        const user = userEvent.setup()
+        render(<AppUpdateBanner />)
+        await user.click(
+          await screen.findByRole('button', { name: 'Reload' }),
+        )
+
+        expect(
+          screen.queryByRole('button', { name: 'Reload' }),
+        ).not.toBeInTheDocument()
+        expect(screen.getByText('Reloading…')).toBeInTheDocument()
+
+        // Real timers, same reasoning as the sibling test above.
+        await waitFor(() => expect(reload).toHaveBeenCalledTimes(1), {
+          timeout: 7000,
+        })
+      },
+      10000,
+    )
+
     it('reloads as soon as controllerchange fires, without waiting out the full timeout', async () => {
       stubUpdateFetch()
       const reload = vi.fn()
