@@ -45,9 +45,12 @@ describe('DashboardScreen', () => {
     expect(await screen.findByText('No entries yet')).toBeInTheDocument()
   })
 
-  it('renders the charts and weekly summary once entries exist', async () => {
+  it('renders the charts and weekly summary once enough entries exist', async () => {
+    // #217: charts need >= 3 logged days before they draw a trend line
+    // rather than showing a "not enough data" message.
     await db.dailyEntries.put(makeEntry({ date: '2026-03-01' }))
     await db.dailyEntries.put(makeEntry({ date: '2026-03-02' }))
+    await db.dailyEntries.put(makeEntry({ date: '2026-03-03' }))
 
     render(<DashboardScreen />, { wrapper: MemoryRouter })
 

@@ -17,6 +17,22 @@ function entry(date: string, overrides: Partial<DailyEntry> = {}): DailyEntry {
   }
 }
 
+function calorieEntry(kcal: number) {
+  return {
+    id: crypto.randomUUID(),
+    items: [{ id: crypto.randomUUID(), amountKcal: kcal }],
+    createdAt: '2026-01-01T00:00:00.000Z',
+  }
+}
+
+function threeCalorieEntries(): DailyEntry[] {
+  return [
+    entry('2026-03-01', { calorieEntries: [calorieEntry(1900)] }),
+    entry('2026-03-02', { calorieEntries: [calorieEntry(2000)] }),
+    entry('2026-03-03', { calorieEntries: [calorieEntry(1800)] }),
+  ]
+}
+
 describe('CalorieTrendChart', () => {
   it('renders nothing when there are no calorie entries', () => {
     const { container } = render(<CalorieTrendChart entries={[]} />, {
@@ -25,21 +41,40 @@ describe('CalorieTrendChart', () => {
     expect(container).toBeEmptyDOMElement()
   })
 
-  it('renders the calorie and rolling-average legends when there is data', () => {
-    const entries = [
-      entry('2026-03-01', {
-        calorieEntries: [
-          {
-            id: 'c1',
-            items: [{ id: 'i1', amountKcal: 1900 }],
-            createdAt: '2026-01-01T00:00:00.000Z',
-          },
-        ],
-      }),
-    ]
-    render(<CalorieTrendChart entries={entries} />, { wrapper: MemoryRouter })
+  it('renders the calorie and rolling-average legends when there is enough data', () => {
+    render(<CalorieTrendChart entries={threeCalorieEntries()} />, {
+      wrapper: MemoryRouter,
+    })
 
     expect(screen.getByText('calories')).toBeInTheDocument()
     expect(screen.getByText('7-day average')).toBeInTheDocument()
+  })
+
+  describe('not-enough-data gate (#217)', () => {
+    it('shows a message instead of the chart with only 1-2 calorie entries', () => {
+      const entries = [
+        entry('2026-03-01', { calorieEntries: [calorieEntry(1900)] }),
+      ]
+      render(<CalorieTrendChart entries={entries} />, { wrapper: MemoryRouter })
+
+      expect(
+        screen.getByText(
+          'Not enough data yet to show a trend — log a few more days and check back.',
+        ),
+      ).toBeInTheDocument()
+      expect(screen.queryByText('calories')).not.toBeInTheDocument()
+    })
+
+    it('renders the full chart once there are at least 3 calorie entries', () => {
+      render(<CalorieTrendChart entries={threeCalorieEntries()} />, {
+        wrapper: MemoryRouter,
+      })
+
+      expect(
+        screen.queryByText(
+          'Not enough data yet to show a trend — log a few more days and check back.',
+        ),
+      ).not.toBeInTheDocument()
+    })
   })
 })

@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 207,
+    issue: 217,
+    date: '2026-07-21T03:25:00+03:00',
+    en: 'The weight, calorie, and macro charts now show a "not enough data yet" message instead of a chart when there are too few logged days to show a real trend.',
+    ru: 'Графики веса, калорий и БЖУ теперь показывают сообщение «пока недостаточно данных» вместо графика, если дней для реальной тенденции ещё мало.',
+  },
+  {
     version: 206,
     issue: 215,
     date: '2026-07-21T03:10:00+03:00',

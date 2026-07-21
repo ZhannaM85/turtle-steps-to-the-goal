@@ -274,6 +274,8 @@ export const ru: Dictionary = {
     weightLegend: 'вес',
     caloriesLegend: 'калории',
     rollingAverageLegend: 'среднее за 7 дней',
+    notEnoughTrendDataMessage:
+      'Пока недостаточно данных, чтобы показать тенденцию — добавьте ещё несколько дней и загляните позже.',
     macrosTitle: 'Белки, жиры и углеводы',
     weeklySummaryTitle: 'Недельная сводка',
     weekRange: (start, end) => `${start} – ${end}`,

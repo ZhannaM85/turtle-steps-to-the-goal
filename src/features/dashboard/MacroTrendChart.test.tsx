@@ -36,13 +36,31 @@ describe('MacroTrendChart', () => {
     expect(container).toBeEmptyDOMElement()
   })
 
-  it('renders the title and all three legends when at least one macro is logged', () => {
+  it('renders the title and all three legends when at least one macro is logged on enough days', () => {
     const entries = [
       entry('2026-03-01', {
         calorieEntries: [
           {
             id: 'c1',
             items: [item({ proteinG: 90 })],
+            createdAt: '2026-01-01T00:00:00.000Z',
+          },
+        ],
+      }),
+      entry('2026-03-02', {
+        calorieEntries: [
+          {
+            id: 'c2',
+            items: [item({ proteinG: 80 })],
+            createdAt: '2026-01-01T00:00:00.000Z',
+          },
+        ],
+      }),
+      entry('2026-03-03', {
+        calorieEntries: [
+          {
+            id: 'c3',
+            items: [item({ proteinG: 85 })],
             createdAt: '2026-01-01T00:00:00.000Z',
           },
         ],
@@ -85,5 +103,32 @@ describe('MacroTrendChart', () => {
       wrapper: MemoryRouter,
     })
     expect(container).not.toBeEmptyDOMElement()
+  })
+
+  describe('not-enough-data gate (#217)', () => {
+    it('shows the title with a message instead of the chart with only 1-2 days logged', () => {
+      const entries = [
+        entry('2026-03-01', {
+          calorieEntries: [
+            {
+              id: 'c1',
+              items: [item({ proteinG: 90 })],
+              createdAt: '2026-01-01T00:00:00.000Z',
+            },
+          ],
+        }),
+      ]
+      render(<MacroTrendChart entries={entries} />, { wrapper: MemoryRouter })
+
+      expect(
+        screen.getByRole('heading', { name: 'Protein, fat & carbs' }),
+      ).toBeInTheDocument()
+      expect(
+        screen.getByText(
+          'Not enough data yet to show a trend — log a few more days and check back.',
+        ),
+      ).toBeInTheDocument()
+      expect(screen.queryByText('Protein')).not.toBeInTheDocument()
+    })
   })
 })

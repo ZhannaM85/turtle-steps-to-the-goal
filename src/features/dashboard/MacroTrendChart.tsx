@@ -32,6 +32,9 @@ interface MacroPoint {
   carbsG?: number
 }
 
+// See WeightTrendChart.tsx's identical constant/reasoning (#217).
+const MIN_TREND_DATA_POINTS = 3
+
 export interface MacroTrendChartProps {
   entries: DailyEntry[]
 }
@@ -63,6 +66,19 @@ export function MacroTrendChart({ entries }: MacroTrendChartProps) {
     .sort((a, b) => a.date.localeCompare(b.date))
 
   if (data.length === 0) return null
+
+  if (data.length < MIN_TREND_DATA_POINTS) {
+    return (
+      <div className="flex flex-col gap-1.5">
+        <h2 className="text-sm font-medium text-muted-foreground">
+          {t.dashboard.macrosTitle}
+        </h2>
+        <p className="text-sm text-muted-foreground">
+          {t.dashboard.notEnoughTrendDataMessage}
+        </p>
+      </div>
+    )
+  }
 
   function renderTooltip({ active, label, payload }: TooltipContentProps) {
     if (!active || !payload || payload.length === 0) return null

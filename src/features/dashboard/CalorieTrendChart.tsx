@@ -30,6 +30,9 @@ interface ChartPoint {
 
 const ROLLING_WINDOW_DAYS = 7
 
+// See WeightTrendChart.tsx's identical constant/reasoning (#217).
+const MIN_TREND_DATA_POINTS = 3
+
 export interface CalorieTrendChartProps {
   entries: DailyEntry[]
 }
@@ -51,6 +54,14 @@ export function CalorieTrendChart({ entries }: CalorieTrendChartProps) {
     .sort((a, b) => a.date.localeCompare(b.date))
 
   if (calorieBars.length === 0) return null
+
+  if (calorieBars.length < MIN_TREND_DATA_POINTS) {
+    return (
+      <p className="text-sm text-muted-foreground">
+        {t.dashboard.notEnoughTrendDataMessage}
+      </p>
+    )
+  }
 
   const rolling = rollingAverage(
     entries,

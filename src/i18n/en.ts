@@ -273,6 +273,8 @@ export const en: Dictionary = {
     weightLegend: 'weight',
     caloriesLegend: 'calories',
     rollingAverageLegend: '7-day average',
+    notEnoughTrendDataMessage:
+      'Not enough data yet to show a trend — log a few more days and check back.',
     macrosTitle: 'Protein, fat & carbs',
     weeklySummaryTitle: 'Weekly summary',
     weekRange: (start, end) => `${start} – ${end}`,

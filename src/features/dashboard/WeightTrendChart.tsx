@@ -38,6 +38,12 @@ interface ChartPoint {
 // average chart rather than introducing a new UI control).
 const ROLLING_WINDOW_DAYS = 7
 
+// #217: below this, a straight line connecting just 1-2 far-apart points can
+// read as a confident trend that isn't real — show a plain "not enough
+// data" message instead of the chart. Zero points still renders nothing at
+// all (see below), same as before this issue.
+const MIN_TREND_DATA_POINTS = 3
+
 export interface WeightTrendChartProps {
   entries: DailyEntry[]
 }
@@ -58,6 +64,14 @@ export function WeightTrendChart({ entries }: WeightTrendChartProps) {
     .map((entry) => ({ date: entry.date, weight: toDisplay(entry.weightKg) }))
 
   if (weightPoints.length === 0) return null
+
+  if (weightPoints.length < MIN_TREND_DATA_POINTS) {
+    return (
+      <p className="text-sm text-muted-foreground">
+        {t.dashboard.notEnoughTrendDataMessage}
+      </p>
+    )
+  }
 
   // rollingAverage() itself always works in canonical kg (DailyEntry's own
   // unit) — converted to the display unit per-point here, same as the raw
