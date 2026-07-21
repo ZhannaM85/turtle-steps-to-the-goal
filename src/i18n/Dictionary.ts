@@ -507,6 +507,12 @@ export interface Dictionary {
     ) => string
     proteinCorrelationDayCount: (n: number) => string
     proteinCorrelationLagCaveat: string
+    /** Logging-consistency heatmap (#223) — GitHub-contribution-graph style,
+     * one square per day colored by how many of the app's core fields
+     * (weight/meals/sleep/steps) were logged that day, not a chosen metric. */
+    loggingConsistencyTitle: string
+    heatmapLessLabel: string
+    heatmapMoreLabel: string
     /** Per-dish reaction rollup (#128, built on #129's per-item emotion) —
      * two ranked lists under one shared heading, each row using
      * dailyEntry.mealEmotionLabel for its per-count accessible text. */

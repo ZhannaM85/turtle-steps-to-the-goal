@@ -17,6 +17,11 @@ export { stepsCorrelation, stepsPoints } from './stepsCorrelation'
 export type { StepsCorrelation, StepsPoint } from './stepsCorrelation'
 export { proteinCorrelation, proteinPoints } from './proteinCorrelation'
 export type { ProteinCorrelation, ProteinPoint } from './proteinCorrelation'
+export { loggingConsistencyWeeks, MAX_LOGGING_SIGNALS } from './loggingConsistency'
+export type {
+  LoggingConsistencyDay,
+  LoggingConsistencyWeek,
+} from './loggingConsistency'
 export { foodReactionTallies, mostLikedFoods, mostDislikedFoods } from './foodReactions'
 export type { FoodReactionTally } from './foodReactions'
 export {

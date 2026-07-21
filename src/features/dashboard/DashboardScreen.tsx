@@ -7,6 +7,7 @@ import { CustomChartView } from './CustomChartView'
 import { FoodReactionsView } from './FoodReactionsView'
 import { LateMealCorrelationView } from './LateMealCorrelationView'
 import { MacroTrendChart } from './MacroTrendChart'
+import { LoggingConsistencyHeatmap } from './LoggingConsistencyHeatmap'
 import { MonthlySummaryCards } from './MonthlySummaryCards'
 import { ProteinCorrelationView } from './ProteinCorrelationView'
 import { RecentAveragesCards } from './RecentAveragesCards'
@@ -46,6 +47,7 @@ export function DashboardScreen() {
           <StepsCorrelationView entries={entries} />
           <ProteinCorrelationView entries={entries} />
           <FoodReactionsView entries={entries} />
+          <LoggingConsistencyHeatmap entries={entries} />
           <RecentAveragesCards entries={entries} />
           <WeeklySummaryCards entries={entries} goal={goal} />
           <MonthlySummaryCards entries={entries} />

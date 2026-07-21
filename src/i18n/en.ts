@@ -366,6 +366,9 @@ export const en: Dictionary = {
     proteinCorrelationDayCount: (n) => `Based on ${n} day${n === 1 ? '' : 's'} of data.`,
     proteinCorrelationLagCaveat:
       "Compares each day's logged protein to the very next day's weight, not a proven cause-and-effect relationship — water retention, sodium, and many other factors also affect day-to-day weight.",
+    loggingConsistencyTitle: 'Logging consistency',
+    heatmapLessLabel: 'Less',
+    heatmapMoreLabel: 'More',
     foodReactionsTitle: 'Food reactions',
     mostLikedFoodsTitle: 'Most liked',
     mostDislikedFoodsTitle: 'Most disliked',

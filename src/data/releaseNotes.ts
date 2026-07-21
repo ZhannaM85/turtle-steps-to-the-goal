@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 211,
+    issue: 223,
+    date: '2026-07-21T11:00:00+03:00',
+    en: 'Added a logging-consistency heatmap to the Dashboard, so you can see at a glance which days you logged.',
+    ru: 'На панель добавлена тепловая карта регулярности записей — видно, в какие дни вы вели дневник.',
+  },
+  {
     version: 210,
     issue: 216,
     date: '2026-07-21T10:45:00+03:00',

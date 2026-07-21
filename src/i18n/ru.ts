@@ -373,6 +373,9 @@ export const ru: Dictionary = {
       `На основе ${n} ${ruPluralize(n, 'дня', 'дней', 'дней')} данных.`,
     proteinCorrelationLagCaveat:
       'Сравнивает белок за день с весом на следующий день — это не доказанная причинно-следственная связь: на вес изо дня в день также влияют задержка воды, соль и многие другие факторы.',
+    loggingConsistencyTitle: 'Регулярность записей',
+    heatmapLessLabel: 'Меньше',
+    heatmapMoreLabel: 'Больше',
     foodReactionsTitle: 'Реакции на еду',
     mostLikedFoodsTitle: 'Больше всего нравится',
     mostDislikedFoodsTitle: 'Больше всего не нравится',
