@@ -15,6 +15,9 @@ export function entryToFormValues(
     steps: entry.steps,
     onPeriod: entry.onPeriod,
     hadConstipation: entry.hadConstipation,
+    waistCm: entry.waistCm,
+    hipCm: entry.hipCm,
+    bodyFatPercent: entry.bodyFatPercent,
   }
 }
 
@@ -35,6 +38,9 @@ export function formValuesToEntry(
     steps: values.steps,
     onPeriod: values.onPeriod,
     hadConstipation: values.hadConstipation,
+    waistCm: values.waistCm,
+    hipCm: values.hipCm,
+    bodyFatPercent: values.bodyFatPercent,
     createdAt: identity.createdAt,
     updatedAt: new Date().toISOString(),
   }

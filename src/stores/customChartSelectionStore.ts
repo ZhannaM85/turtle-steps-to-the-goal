@@ -13,6 +13,9 @@ const DEFAULT_CHART_TYPES: Record<NumericSeriesKey, ChartSeriesType> = {
   fat: 'line',
   carbs: 'line',
   steps: 'line',
+  waist: 'line',
+  hip: 'line',
+  bodyFat: 'line',
 }
 
 const DEFAULT_SELECTED_NUMERIC: NumericSeriesKey[] = ['weight', 'calories']

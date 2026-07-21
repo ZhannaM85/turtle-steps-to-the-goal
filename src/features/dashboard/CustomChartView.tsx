@@ -129,6 +129,25 @@ function useNumericSeriesConfig(): Record<
       color: 'var(--chart-1)',
       formatRaw: (value) => formatNumber(value, locale, 0),
     },
+    // #225: also reuse otherwise-unused generic --chart-* slots, same
+    // reasoning as steps above — none of these three have a dedicated
+    // token the way weight/calories/protein/fat/carbs do.
+    waist: {
+      label: t.dailyEntry.waistLabel,
+      color: 'var(--chart-2)',
+      formatRaw: (value) => `${formatNumber(value, locale)}${t.dailyEntry.cmUnit}`,
+    },
+    hip: {
+      label: t.dailyEntry.hipLabel,
+      color: 'var(--chart-3)',
+      formatRaw: (value) => `${formatNumber(value, locale)}${t.dailyEntry.cmUnit}`,
+    },
+    bodyFat: {
+      label: t.dailyEntry.bodyFatLabel,
+      color: 'var(--chart-4)',
+      formatRaw: (value) =>
+        `${formatNumber(value, locale)}${t.dailyEntry.percentUnit}`,
+    },
   }
 }
 

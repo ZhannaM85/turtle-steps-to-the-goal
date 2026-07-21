@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 208,
+    issue: 225,
+    date: '2026-07-21T06:15:00+03:00',
+    en: 'You can now log waist, hip, and body fat percentage on the Today screen, and compare them on the Dashboard chart.',
+    ru: 'Теперь на странице «Сегодня» можно записывать талию, бёдра и процент жира — их можно сравнить на графике панели.',
+  },
+  {
     version: 207,
     issue: 217,
     date: '2026-07-21T03:25:00+03:00',

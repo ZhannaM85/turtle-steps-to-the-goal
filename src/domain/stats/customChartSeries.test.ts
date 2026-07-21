@@ -79,6 +79,15 @@ describe('customChartPoints', () => {
     expect(points[1].normalized.weight).toBeUndefined()
   })
 
+  it('reads waist/hip/body fat as independent series (#225)', () => {
+    const entries = [
+      entry('2026-01-01', { waistCm: 80, hipCm: 95, bodyFatPercent: 22 }),
+    ]
+
+    const [point] = customChartPoints(entries, ['waist', 'hip', 'bodyFat'])
+    expect(point.raw).toEqual({ waist: 80, hip: 95, bodyFat: 22 })
+  })
+
   it('sums calories/protein/fat/carbs across every meal item, same as the other dashboard charts', () => {
     const entries = [
       entry('2026-01-01', {

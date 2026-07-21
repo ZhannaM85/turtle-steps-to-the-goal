@@ -467,6 +467,98 @@ describe('DailyEntryForm', () => {
     })
   })
 
+  describe('body measurements (#225)', () => {
+    it('saves waist/hip/body fat together via one Save button', async () => {
+      const user = userEvent.setup()
+      const onSave = vi.fn()
+      render(
+        <DailyEntryForm
+          date="2026-03-01"
+          existingEntry={null}
+          onSave={onSave}
+        />,
+      )
+
+      await user.type(screen.getByLabelText('Waist (cm)'), '80')
+      await user.type(screen.getByLabelText('Hip (cm)'), '95')
+      await user.type(screen.getByLabelText('Body fat (%)'), '22')
+      await user.click(
+        screen.getByRole('button', { name: 'Save body measurements' }),
+      )
+
+      expect(onSave).toHaveBeenCalledTimes(1)
+      expect(onSave.mock.calls[0][0].waistCm).toBe(80)
+      expect(onSave.mock.calls[0][0].hipCm).toBe(95)
+      expect(onSave.mock.calls[0][0].bodyFatPercent).toBe(22)
+      expect(
+        screen.getByText('Waist 80cm · Hip 95cm · Body fat 22%'),
+      ).toBeInTheDocument()
+    })
+
+    it('rejects an out-of-range waist value and does not save', async () => {
+      const user = userEvent.setup()
+      const onSave = vi.fn()
+      render(
+        <DailyEntryForm
+          date="2026-03-01"
+          existingEntry={null}
+          onSave={onSave}
+        />,
+      )
+
+      await user.type(screen.getByLabelText('Waist (cm)'), '5')
+      await user.click(
+        screen.getByRole('button', { name: 'Save body measurements' }),
+      )
+
+      expect(await screen.findByText(/Too small/)).toBeInTheDocument()
+      expect(onSave).not.toHaveBeenCalled()
+    })
+
+    it('shows existing body measurements as read-only text with a pencil, editable via a Save button', async () => {
+      const user = userEvent.setup()
+      const onSave = vi.fn()
+      render(
+        <DailyEntryForm
+          date="2026-03-01"
+          existingEntry={{
+            id: 'e1',
+            date: '2026-03-01',
+            waistCm: 80,
+            hipCm: 95,
+            bodyFatPercent: 22,
+            createdAt: now,
+            updatedAt: now,
+          }}
+          onSave={onSave}
+        />,
+      )
+
+      expect(
+        screen.getByText('Waist 80cm · Hip 95cm · Body fat 22%'),
+      ).toBeInTheDocument()
+      expect(
+        screen.queryByRole('button', { name: 'Save body measurements' }),
+      ).not.toBeInTheDocument()
+
+      await user.click(
+        screen.getByRole('button', { name: 'Edit body measurements' }),
+      )
+      const waistInput = screen.getByLabelText('Waist (cm)')
+      expect(waistInput).toHaveValue('80')
+      await user.clear(waistInput)
+      await user.type(waistInput, '78')
+      await user.click(
+        screen.getByRole('button', { name: 'Save body measurements' }),
+      )
+
+      expect(onSave.mock.calls[0][0].waistCm).toBe(78)
+      expect(
+        screen.getByText('Waist 78cm · Hip 95cm · Body fat 22%'),
+      ).toBeInTheDocument()
+    })
+  })
+
   describe('note', () => {
     it('saves a new note independently via its own Save button', async () => {
       const user = userEvent.setup()

@@ -49,6 +49,11 @@ export const stepsSchema = z.number().min(0).max(20000).optional()
 export const onPeriodSchema = z.boolean().optional()
 // Opt-in digestion tracking — same shape/gating as onPeriod above.
 export const hadConstipationSchema = z.boolean().optional()
+// Body measurements (#225) — independent optional fields, same shape as
+// sleep/steps above. Bounds are generous human ranges, not medical limits.
+export const waistCmSchema = z.number().min(30).max(300).optional()
+export const hipCmSchema = z.number().min(30).max(300).optional()
+export const bodyFatPercentSchema = z.number().min(0).max(80).optional()
 
 export const dailyEntryFormSchema = z.object({
   weightKg: weightSchema,
@@ -60,6 +65,9 @@ export const dailyEntryFormSchema = z.object({
   steps: stepsSchema,
   onPeriod: onPeriodSchema,
   hadConstipation: hadConstipationSchema,
+  waistCm: waistCmSchema,
+  hipCm: hipCmSchema,
+  bodyFatPercent: bodyFatPercentSchema,
 })
 
 export type DailyEntryFormValues = z.infer<typeof dailyEntryFormSchema>

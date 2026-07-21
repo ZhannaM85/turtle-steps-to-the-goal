@@ -254,6 +254,22 @@ export interface Dictionary {
     stepsLabel: string
     editStepsLabel: string
     saveStepsLabel: string
+    /** Body measurements (#225) — waist/hip circumference + body fat %,
+     * bundled as one editable section (same shape as sleep's hours+deep
+     * hours bundling) rather than three separate top-level fields. */
+    bodyMeasurementsLabel: string
+    editBodyMeasurementsLabel: string
+    saveBodyMeasurementsLabel: string
+    waistLabel: string
+    hipLabel: string
+    bodyFatLabel: string
+    cmUnit: string
+    percentUnit: string
+    bodyMeasurementsSummary: (
+      waist: string,
+      hip: string,
+      bodyFat: string,
+    ) => string
     onPeriodLabel: string
     /** Opt-in digestion tracking's per-day toggle, on both Today and in
      * DayDetail.tsx — tracks the problem (constipation), not the normal

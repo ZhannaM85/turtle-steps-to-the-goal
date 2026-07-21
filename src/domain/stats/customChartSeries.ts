@@ -8,6 +8,9 @@ export type NumericSeriesKey =
   | 'fat'
   | 'carbs'
   | 'steps'
+  | 'waist'
+  | 'hip'
+  | 'bodyFat'
 
 export const NUMERIC_SERIES_KEYS: NumericSeriesKey[] = [
   'weight',
@@ -16,6 +19,9 @@ export const NUMERIC_SERIES_KEYS: NumericSeriesKey[] = [
   'fat',
   'carbs',
   'steps',
+  'waist',
+  'hip',
+  'bodyFat',
 ]
 
 const SERIES_EXTRACTORS: Record<
@@ -28,6 +34,10 @@ const SERIES_EXTRACTORS: Record<
   fat: (entry) => totalFat(entry.calorieEntries),
   carbs: (entry) => totalCarbs(entry.calorieEntries),
   steps: (entry) => entry.steps,
+  // #225
+  waist: (entry) => entry.waistCm,
+  hip: (entry) => entry.hipCm,
+  bodyFat: (entry) => entry.bodyFatPercent,
 }
 
 export interface CustomChartPoint {

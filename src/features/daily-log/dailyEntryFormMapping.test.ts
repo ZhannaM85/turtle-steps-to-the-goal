@@ -36,6 +36,14 @@ describe('entryToFormValues', () => {
       note: 'felt good',
     })
   })
+
+  it('maps body measurements (#225)', () => {
+    expect(
+      entryToFormValues(
+        makeEntry({ waistCm: 80, hipCm: 95, bodyFatPercent: 22 }),
+      ),
+    ).toMatchObject({ waistCm: 80, hipCm: 95, bodyFatPercent: 22 })
+  })
 })
 
 describe('formValuesToEntry', () => {
@@ -70,5 +78,17 @@ describe('formValuesToEntry', () => {
 
     expect(entry.weightKg).toBe(80)
     expect(entry.calorieEntries).toBeUndefined()
+  })
+
+  it('round-trips body measurements (#225)', () => {
+    const entry = formValuesToEntry(
+      { waistCm: 80, hipCm: 95, bodyFatPercent: 22 },
+      '2026-03-01',
+      { id: 'entry-1', createdAt: '2026-03-01T00:00:00.000Z' },
+    )
+
+    expect(entry.waistCm).toBe(80)
+    expect(entry.hipCm).toBe(95)
+    expect(entry.bodyFatPercent).toBe(22)
   })
 })

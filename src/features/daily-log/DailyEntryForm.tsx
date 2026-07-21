@@ -26,10 +26,13 @@ import { entryToFormValues, formValuesToEntry } from './dailyEntryFormMapping'
 import { EmotionPicker } from './EmotionPicker'
 import { MealList } from './MealList'
 import {
+  bodyFatPercentSchema,
   deepSleepHoursSchema,
+  hipCmSchema,
   noteSchema,
   sleepHoursSchema,
   stepsSchema,
+  waistCmSchema,
   weightSchema,
   type DailyEntryFormValues,
 } from './dailyEntryFormSchema'
@@ -151,6 +154,15 @@ export function DailyEntryForm({
   const [isEditingSteps, setIsEditingSteps] = useState(
     alwaysEditable || initialValues.steps === undefined,
   )
+  // Body measurements (#225) — waist/hip/body fat bundled under one edit
+  // toggle, same "combine related optional numbers into one section"
+  // pattern Sleep already uses for hours+deep hours above.
+  const [isEditingBodyMeasurements, setIsEditingBodyMeasurements] = useState(
+    alwaysEditable ||
+      (initialValues.waistCm === undefined &&
+        initialValues.hipCm === undefined &&
+        initialValues.bodyFatPercent === undefined),
+  )
 
   // Opt-in digestion tracking's on/off toggle (Settings) — the toggle
   // itself only renders on this screen when enabled, same gate DayDetail
@@ -176,6 +188,9 @@ export function DailyEntryForm({
   const sleepHours = watch('sleepHours')
   const deepSleepHours = watch('deepSleepHours')
   const steps = watch('steps')
+  const waistCm = watch('waistCm')
+  const hipCm = watch('hipCm')
+  const bodyFatPercent = watch('bodyFatPercent')
   const hadConstipation = watch('hadConstipation')
   const dayEmotion = watch('emotion')
   const calorieEntries = watch('calorieEntries') ?? []
@@ -193,6 +208,8 @@ export function DailyEntryForm({
   const showNoteAsDisplay = !alwaysEditable && !isEditingNote
   const showSleepAsDisplay = !alwaysEditable && !isEditingSleep
   const showStepsAsDisplay = !alwaysEditable && !isEditingSteps
+  const showBodyMeasurementsAsDisplay =
+    !alwaysEditable && !isEditingBodyMeasurements
 
   function setDayEmotion(emotion: Emotion | undefined) {
     setValue('emotion', emotion, { shouldDirty: true })
@@ -287,6 +304,33 @@ export function DailyEntryForm({
     }
     clearErrors('steps')
     setIsEditingSteps(false)
+    persist(getValues())
+  }
+
+  function saveBodyMeasurements() {
+    const waistResult = waistCmSchema.safeParse(getValues('waistCm'))
+    const hipResult = hipCmSchema.safeParse(getValues('hipCm'))
+    const bodyFatResult = bodyFatPercentSchema.safeParse(
+      getValues('bodyFatPercent'),
+    )
+    if (!waistResult.success) {
+      setError('waistCm', { message: waistResult.error.issues[0].message })
+      return
+    }
+    if (!hipResult.success) {
+      setError('hipCm', { message: hipResult.error.issues[0].message })
+      return
+    }
+    if (!bodyFatResult.success) {
+      setError('bodyFatPercent', {
+        message: bodyFatResult.error.issues[0].message,
+      })
+      return
+    }
+    clearErrors('waistCm')
+    clearErrors('hipCm')
+    clearErrors('bodyFatPercent')
+    setIsEditingBodyMeasurements(false)
     persist(getValues())
   }
 
@@ -643,6 +687,141 @@ export function DailyEntryForm({
           </div>
           {errors.steps && (
             <p className="text-sm text-destructive">{errors.steps.message}</p>
+          )}
+        </div>
+      )}
+
+      {/* #225: waist/hip/body fat bundled under one edit toggle, same
+       * shape as the Sleep block above (one label, one Save button, several
+       * sub-inputs) rather than three separate top-level fields — these are
+       * all "the same kind of thing" (an occasional body measurement), so
+       * a user updating one is likely updating the others at the same time. */}
+      {showBodyMeasurementsAsDisplay ? (
+        <div className="flex flex-col gap-1.5">
+          <span className="text-sm font-medium">
+            {t.dailyEntry.bodyMeasurementsLabel}
+          </span>
+          <div className="flex h-12 items-center justify-between rounded-lg bg-muted px-3">
+            <span className="text-sm text-foreground">
+              {t.dailyEntry.bodyMeasurementsSummary(
+                waistCm === undefined
+                  ? '—'
+                  : `${formatExactNumber(waistCm, locale)}${t.dailyEntry.cmUnit}`,
+                hipCm === undefined
+                  ? '—'
+                  : `${formatExactNumber(hipCm, locale)}${t.dailyEntry.cmUnit}`,
+                bodyFatPercent === undefined
+                  ? '—'
+                  : `${formatExactNumber(bodyFatPercent, locale)}${t.dailyEntry.percentUnit}`,
+              )}
+            </span>
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon-xl"
+              aria-label={t.dailyEntry.editBodyMeasurementsLabel}
+              onClick={() => setIsEditingBodyMeasurements(true)}
+            >
+              <Pencil aria-hidden="true" />
+            </Button>
+          </div>
+        </div>
+      ) : (
+        <div className="flex flex-col gap-1.5">
+          <span className="text-sm font-medium">
+            {t.dailyEntry.bodyMeasurementsLabel}
+          </span>
+          <div className="flex flex-wrap items-end gap-3">
+            <div className="flex flex-col gap-1">
+              <span className="text-xs text-muted-foreground">
+                {t.dailyEntry.waistLabel}
+              </span>
+              <div className="flex items-center gap-1">
+                <Input
+                  type="text"
+                  inputMode="decimal"
+                  aria-label={`${t.dailyEntry.waistLabel} (${t.dailyEntry.cmUnit})`}
+                  aria-invalid={errors.waistCm ? true : undefined}
+                  className="h-12 w-16"
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault()
+                      saveBodyMeasurements()
+                    }
+                  }}
+                  {...register('waistCm', { setValueAs: parseNumberInput })}
+                />
+                <span className="text-xs text-muted-foreground">
+                  {t.dailyEntry.cmUnit}
+                </span>
+              </div>
+            </div>
+            <div className="flex flex-col gap-1">
+              <span className="text-xs text-muted-foreground">
+                {t.dailyEntry.hipLabel}
+              </span>
+              <div className="flex items-center gap-1">
+                <Input
+                  type="text"
+                  inputMode="decimal"
+                  aria-label={`${t.dailyEntry.hipLabel} (${t.dailyEntry.cmUnit})`}
+                  aria-invalid={errors.hipCm ? true : undefined}
+                  className="h-12 w-16"
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault()
+                      saveBodyMeasurements()
+                    }
+                  }}
+                  {...register('hipCm', { setValueAs: parseNumberInput })}
+                />
+                <span className="text-xs text-muted-foreground">
+                  {t.dailyEntry.cmUnit}
+                </span>
+              </div>
+            </div>
+            <div className="flex flex-col gap-1">
+              <span className="text-xs text-muted-foreground">
+                {t.dailyEntry.bodyFatLabel}
+              </span>
+              <div className="flex items-center gap-1">
+                <Input
+                  type="text"
+                  inputMode="decimal"
+                  aria-label={`${t.dailyEntry.bodyFatLabel} (${t.dailyEntry.percentUnit})`}
+                  aria-invalid={errors.bodyFatPercent ? true : undefined}
+                  className="h-12 w-16"
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault()
+                      saveBodyMeasurements()
+                    }
+                  }}
+                  {...register('bodyFatPercent', {
+                    setValueAs: parseNumberInput,
+                  })}
+                />
+                <span className="text-xs text-muted-foreground">
+                  {t.dailyEntry.percentUnit}
+                </span>
+              </div>
+            </div>
+            <Button
+              type="button"
+              variant="outline"
+              size="icon-xl"
+              aria-label={t.dailyEntry.saveBodyMeasurementsLabel}
+              onClick={saveBodyMeasurements}
+            >
+              <Check aria-hidden="true" />
+            </Button>
+          </div>
+          {(errors.waistCm || errors.hipCm || errors.bodyFatPercent) && (
+            <p className="text-sm text-destructive">
+              {errors.waistCm?.message ??
+                errors.hipCm?.message ??
+                errors.bodyFatPercent?.message}
+            </p>
           )}
         </div>
       )}

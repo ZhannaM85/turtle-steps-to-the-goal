@@ -36,6 +36,9 @@ beforeEach(() => {
       fat: 'line',
       carbs: 'line',
       steps: 'line',
+      waist: 'line',
+      hip: 'line',
+      bodyFat: 'line',
     },
   })
 })
@@ -56,6 +59,11 @@ describe('CustomChartView', () => {
     expect(screen.getByRole('button', { name: 'Fat' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Carbs' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Steps' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Waist' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Hip' })).toBeInTheDocument()
+    expect(
+      screen.getByRole('button', { name: 'Body fat' }),
+    ).toBeInTheDocument()
   })
 
   it('defaults to Weight and Calories selected, shown in the legend', () => {

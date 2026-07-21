@@ -151,6 +151,22 @@ describe('importAllData', () => {
     expect(all[0].dailyProteinTargetG).toBe(120)
   })
 
+  it('round-trips body measurements through parseExportBundle too (#225)', async () => {
+    const entry = makeEntry({ waistCm: 80, hipCm: 95, bodyFatPercent: 22 })
+    await db.dailyEntries.put(entry)
+    const bundle = await exportAllData()
+
+    await db.dailyEntries.clear()
+
+    const parsed = parseExportBundle(JSON.parse(JSON.stringify(bundle)))
+    await importAllData(parsed)
+
+    const all = await db.dailyEntries.toArray()
+    expect(all[0].waistCm).toBe(80)
+    expect(all[0].hipCm).toBe(95)
+    expect(all[0].bodyFatPercent).toBe(22)
+  })
+
   it('merges into existing data instead of wiping it', async () => {
     const existingEntry = makeEntry({ date: '2026-03-02' })
     await db.dailyEntries.put(existingEntry)

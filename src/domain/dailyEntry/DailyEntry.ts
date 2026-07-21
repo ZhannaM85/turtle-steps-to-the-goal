@@ -81,6 +81,14 @@ export interface DailyEntry {
    * `true` here has no relation to the old `hadBowelMovement` field this
    * replaced; that one meant the opposite thing, so no data carried over. */
   hadConstipation?: boolean
+  /** Body measurements (#225) — optional and independent of each other and
+   * of weightKg, same shape as sleep/steps above. Always stored in cm
+   * (waist/hip) or a plain percentage (body fat); unlike weightKg there's
+   * no separate display-unit conversion for these, since the app has no
+   * established inches-vs-cm preference the way it does for kg/lb. */
+  waistCm?: number
+  hipCm?: number
+  bodyFatPercent?: number
   createdAt: string
   updatedAt: string
 }

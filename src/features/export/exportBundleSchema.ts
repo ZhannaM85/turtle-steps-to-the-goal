@@ -77,6 +77,11 @@ const dailyEntrySchema = z.object({
   // equivalent here and is simply dropped on import (Zod strips unknown keys
   // by default).
   hadConstipation: z.boolean().optional(),
+  // Body measurements (#225) — purely additive/optional, same
+  // no-version-bump reasoning as sleep/steps above.
+  waistCm: z.number().optional(),
+  hipCm: z.number().optional(),
+  bodyFatPercent: z.number().optional(),
   createdAt: z.string(),
   updatedAt: z.string(),
 })
