@@ -195,6 +195,102 @@ describe('MealList', () => {
     expect(screen.getByText('Chicken thigh — 314 kcal')).toBeInTheDocument()
   })
 
+  describe('optional brand name (#248)', () => {
+    it('saves a brand entered alongside the dish name', async () => {
+      const user = userEvent.setup()
+      const onChange = vi.fn()
+      render(
+        <MealList calorieEntries={[]} date="2026-03-01" onChange={onChange} />,
+        { wrapper: MemoryRouter },
+      )
+
+      await user.click(screen.getByRole('button', { name: '+ Add item' }))
+      await user.type(screen.getByLabelText('Dish name'), 'Chicken breast')
+      await user.type(screen.getByLabelText('Brand (optional)'), 'Perdue')
+      await user.type(screen.getByLabelText('kcal/100g'), '165')
+      await user.click(screen.getByRole('button', { name: 'Save' }))
+
+      const next = onChange.mock.calls[0][0] as CalorieEntry[]
+      expect(next[0].items[0].name).toBe('Chicken breast')
+      expect(next[0].items[0].brand).toBe('Perdue')
+    })
+
+    it('leaves brand undefined when left blank', async () => {
+      const user = userEvent.setup()
+      const onChange = vi.fn()
+      render(
+        <MealList calorieEntries={[]} date="2026-03-01" onChange={onChange} />,
+        { wrapper: MemoryRouter },
+      )
+
+      await user.click(screen.getByRole('button', { name: '+ Add item' }))
+      await user.type(screen.getByLabelText('Dish name'), 'Apple')
+      await user.type(screen.getByLabelText('kcal/100g'), '52')
+      await user.click(screen.getByRole('button', { name: 'Save' }))
+
+      const next = onChange.mock.calls[0][0] as CalorieEntry[]
+      expect(next[0].items[0].brand).toBeUndefined()
+    })
+
+    it('shows the brand next to the dish name in the read-only view, with no stray "()" when unset', () => {
+      const calorieEntries: CalorieEntry[] = [
+        {
+          id: 'c1',
+          items: [
+            { id: 'i1', name: 'Chicken breast', brand: 'Perdue', amountKcal: 165 },
+            { id: 'i2', name: 'Apple', amountKcal: 52 },
+          ],
+          createdAt: '2026-01-01T00:00:00.000Z',
+        },
+      ]
+      render(
+        <MealList calorieEntries={calorieEntries} date="2026-03-01" onChange={vi.fn()} />,
+        { wrapper: MemoryRouter },
+      )
+
+      expect(
+        screen.getByText('Chicken breast (Perdue) — 165 kcal'),
+      ).toBeInTheDocument()
+      expect(screen.getByText('Apple — 52 kcal')).toBeInTheDocument()
+    })
+
+    it("pre-fills an existing item's brand when reopening its editor", async () => {
+      const user = userEvent.setup()
+      const calorieEntries: CalorieEntry[] = [
+        {
+          id: 'c1',
+          items: [
+            {
+              id: 'i1',
+              name: 'Yogurt',
+              brand: 'Chobani',
+              amountKcal: 100,
+            },
+          ],
+          createdAt: '2026-01-01T00:00:00.000Z',
+        },
+      ]
+      // #157: a meal's edit mode only opens inline via `focusMealId` (as
+      // `MealEditScreen` does) — the pencil in a normal render navigates
+      // to a dedicated route instead, so that's not exercised here.
+      render(
+        <MealList
+          calorieEntries={calorieEntries}
+          date="2026-03-01"
+          onChange={vi.fn()}
+          focusMealId="c1"
+          focusMealPosition={1}
+          onFocusedMealDone={vi.fn()}
+        />,
+        { wrapper: MemoryRouter },
+      )
+
+      await user.click(screen.getByRole('button', { name: 'Edit item' }))
+
+      expect(screen.getByLabelText('Brand (optional)')).toHaveValue('Chobani')
+    })
+  })
+
   it("navigates to the dedicated edit route when a meal's pencil is clicked (#157)", async () => {
     const user = userEvent.setup()
     const calorieEntries: CalorieEntry[] = [

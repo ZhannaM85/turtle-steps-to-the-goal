@@ -16,6 +16,11 @@ export type MealEmotion = 'thumbsUp' | 'thumbsDown' | 'bellissimo'
 export interface CalorieItem {
   id: string
   name?: string
+  /** Brand name (#248), e.g. "Perdue" for "Chicken breast" — purely
+   * cosmetic, shown alongside `name` wherever it's displayed. Optional and
+   * independent of the reusable `MealItem` name library, which is keyed on
+   * `name` alone. */
+  brand?: string
   amountKcal: number
   proteinG?: number
   fatG?: number

@@ -168,6 +168,10 @@ export interface Dictionary {
     mealNotePlaceholder: string
     itemNameLabel: string
     itemNamePlaceholder: string
+    /** Optional brand name (#248), e.g. "Perdue" — shown right after the
+     * dish name field in the item editor. */
+    itemBrandLabel: string
+    itemBrandPlaceholder: string
     deleteItemLabel: string
     addItemButton: string
     emotionLabel: (emotion: 'happy' | 'unhappy' | 'neutral') => string
@@ -428,6 +432,7 @@ export interface Dictionary {
     hadConstipationColumn: string
     mealColumn: string
     itemColumn: string
+    brandColumn: string
     gramsColumn: string
     timeColumn: string
     reactionColumn: string

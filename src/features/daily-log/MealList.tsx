@@ -90,6 +90,7 @@ const dailyEntryRepository = new IndexedDbDailyEntryRepository()
 interface EditItemDraft {
   id: string
   name: string
+  brand: string
   amount: string
   protein: string
   fat: string
@@ -118,6 +119,7 @@ function itemDraftFrom(item: CalorieItem): EditItemDraft {
   return {
     id: item.id,
     name: item.name ?? '',
+    brand: item.brand ?? '',
     amount: String(rates.kcal100),
     protein: rates.protein100 === undefined ? '' : String(rates.protein100),
     fat: rates.fat100 === undefined ? '' : String(rates.fat100),
@@ -134,6 +136,7 @@ function itemDraftFrom(item: CalorieItem): EditItemDraft {
  * form's fields, which already commit immediately on their own Save. */
 interface AddRowDraft {
   itemName: string
+  itemBrand: string
   amount: string
   protein: string
   fat: string
@@ -150,6 +153,7 @@ function blankItemDraft(): EditItemDraft {
   return {
     id: crypto.randomUUID(),
     name: '',
+    brand: '',
     amount: '',
     protein: '',
     fat: '',
@@ -190,6 +194,7 @@ function draftsToItems(drafts: EditItemDraft[]): CalorieItem[] {
       {
         id: draft.id,
         name: draft.name.trim() || undefined,
+        brand: draft.brand.trim() || undefined,
         ...scaled,
         emotion: draft.emotion,
       },
@@ -219,7 +224,7 @@ interface MealListItemProps {
   editNote: string
   onEditItemFieldChange: (
     id: string,
-    field: 'name' | 'amount' | 'protein' | 'fat' | 'carbs' | 'amountG',
+    field: 'name' | 'brand' | 'amount' | 'protein' | 'fat' | 'carbs' | 'amountG',
     value: string,
   ) => void
   onEditItemSelectMealItem: (id: string, item: MealItem) => void
@@ -467,6 +472,7 @@ function MealListItem({
                  * actually ellipsizing. */}
                 <span className="min-w-0 flex-1 truncate text-sm">
                   {item.name || t.dailyEntry.itemNamePlaceholder}
+                  {item.brand && ` (${item.brand})`}
                   {itemTotalPreview && (
                     <span className="text-muted-foreground">
                       {' '}
@@ -564,6 +570,10 @@ function MealListItem({
             name={openDraft.name}
             onNameChange={(value) =>
               onEditItemFieldChange(openDraft.id, 'name', value)
+            }
+            brand={openDraft.brand}
+            onBrandChange={(value) =>
+              onEditItemFieldChange(openDraft.id, 'brand', value)
             }
             amount={openDraft.amount}
             onAmountChange={(value) =>
@@ -743,7 +753,8 @@ function MealListItem({
           )
           return (
             <li key={item.id} className="text-xs text-muted-foreground">
-              {item.name && `${item.name} — `}
+              {item.name &&
+                `${item.name}${item.brand ? ` (${item.brand})` : ''} — `}
               {formatNumber(item.amountKcal, locale, 0)} {t.dailyEntry.kcalUnit}
               {/* #206: this line otherwise never surfaces the item's own
                * quantity anywhere — the only place it existed before was
@@ -887,6 +898,9 @@ export function MealList({
     initialAddDraft?.macroMode ?? 'per100g',
   )
   const [addItemName, setAddItemName] = useState(initialAddDraft?.itemName ?? '')
+  const [addItemBrand, setAddItemBrand] = useState(
+    initialAddDraft?.itemBrand ?? '',
+  )
   // This item's own reaction (#129) — moved from the meal group; grouped
   // with the other per-item draft fields above, not the group-level ones
   // below.
@@ -925,6 +939,7 @@ export function MealList({
       addGroupNote === '' &&
       addTime === '' &&
       addItemName === '' &&
+      addItemBrand === '' &&
       addAmount === '' &&
       addProtein === '' &&
       addFat === '' &&
@@ -936,6 +951,7 @@ export function MealList({
     }
     saveMealDraft<AddRowDraft>(date, {
       itemName: addItemName,
+      itemBrand: addItemBrand,
       amount: addAmount,
       protein: addProtein,
       fat: addFat,
@@ -950,6 +966,7 @@ export function MealList({
   }, [
     date,
     addItemName,
+    addItemBrand,
     addAmount,
     addProtein,
     addFat,
@@ -1123,6 +1140,7 @@ export function MealList({
     setAddCarbs('')
     setAddMacroMode('per100g')
     setAddItemName('')
+    setAddItemBrand('')
     setAddItemEmotion(undefined)
   }
 
@@ -1134,6 +1152,7 @@ export function MealList({
     return {
       id: crypto.randomUUID(),
       name: addItemName,
+      brand: addItemBrand,
       amount: addAmount,
       protein: addProtein,
       fat: addFat,
@@ -1310,6 +1329,7 @@ export function MealList({
       return {
         id: crypto.randomUUID(),
         name: value.note,
+        brand: '',
         amount: String(rates.kcal100),
         protein: rates.protein100 === undefined ? '' : String(rates.protein100),
         fat: rates.fat100 === undefined ? '' : String(rates.fat100),
@@ -1337,7 +1357,7 @@ export function MealList({
 
   function updateEditItemField(
     id: string,
-    field: 'name' | 'amount' | 'protein' | 'fat' | 'carbs' | 'amountG',
+    field: 'name' | 'brand' | 'amount' | 'protein' | 'fat' | 'carbs' | 'amountG',
     value: string,
   ) {
     setEditItems((items) =>
@@ -1746,6 +1766,7 @@ export function MealList({
             {addAmountPreview && addAmountPreview > 0 ? (
               <span className="truncate">
                 {addItemName || t.dailyEntry.itemNamePlaceholder}
+                {addItemBrand && ` (${addItemBrand})`}
                 {addTotalPreview && (
                   <span className="text-muted-foreground">
                     {' '}
@@ -1778,6 +1799,8 @@ export function MealList({
           title={t.dailyEntry.addItemSheetTitle}
           name={addItemName}
           onNameChange={setAddItemName}
+          brand={addItemBrand}
+          onBrandChange={setAddItemBrand}
           amount={addAmount}
           onAmountChange={setAddAmount}
           protein={addProtein}

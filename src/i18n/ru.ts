@@ -111,6 +111,8 @@ export const ru: Dictionary = {
     mealNotePlaceholder: 'Было вкусно?',
     itemNameLabel: 'Название блюда',
     itemNamePlaceholder: 'Создать блюдо?',
+    itemBrandLabel: 'Бренд (необязательно)',
+    itemBrandPlaceholder: 'например, Perdue',
     deleteItemLabel: 'Удалить блюдо',
     addItemButton: '+ Добавить блюдо',
     emotionLabel: (emotion) =>
@@ -293,6 +295,7 @@ export const ru: Dictionary = {
     hadConstipationColumn: 'Запор',
     mealColumn: 'Приём пищи',
     itemColumn: 'Блюдо',
+    brandColumn: 'Бренд',
     gramsColumn: 'Граммы',
     timeColumn: 'Время',
     reactionColumn: 'Реакция',

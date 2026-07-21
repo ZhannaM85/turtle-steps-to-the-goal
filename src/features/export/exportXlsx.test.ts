@@ -115,7 +115,14 @@ describe('buildExportWorkbook', () => {
         },
         {
           id: 'meal-2',
-          items: [{ id: 'item-2', name: 'Apple', amountKcal: 95 }],
+          items: [
+            {
+              id: 'item-2',
+              name: 'Chicken breast',
+              brand: 'Perdue',
+              amountKcal: 95,
+            },
+          ],
           createdAt: '2026-03-01T00:00:00.000Z',
         },
       ],
@@ -125,15 +132,17 @@ describe('buildExportWorkbook', () => {
     const rows = sheetRows(meals)
 
     expect(rows).toHaveLength(2)
-    // [date, meal, item, calories, protein, fat, carbs, grams, time, reaction, note]
+    // [date, meal, item, brand, calories, protein, fat, carbs, grams, time, reaction, note]
     expect(rows[0][2]).toBe('Breakfast')
     expect(rows[0][3]).toBe('Toast')
-    expect(rows[0][4]).toBe(150)
-    expect(rows[0][8]).toBe(60)
-    expect(rows[0][9]).toBe('08:00')
-    expect(rows[0][10]).toBe('Thumbs up')
+    expect(rows[0][4]).toBeUndefined()
+    expect(rows[0][5]).toBe(150)
+    expect(rows[0][9]).toBe(60)
+    expect(rows[0][10]).toBe('08:00')
+    expect(rows[0][11]).toBe('Thumbs up')
     expect(rows[1][2]).toBe('Lunch')
-    expect(rows[1][3]).toBe('Apple')
+    expect(rows[1][3]).toBe('Chicken breast')
+    expect(rows[1][4]).toBe('Perdue')
   })
 
   it('writes one Goals row per goal', async () => {

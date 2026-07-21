@@ -22,6 +22,10 @@ export interface MealItemEditorSheetProps {
   title: string
   name: string
   onNameChange: (value: string) => void
+  /** Optional brand name (#248), e.g. "Perdue" — shown right after the
+   * dish name field. */
+  brand: string
+  onBrandChange: (value: string) => void
   amount: string
   onAmountChange: (value: string) => void
   protein: string
@@ -97,6 +101,8 @@ export function MealItemEditorSheet({
   title,
   name,
   onNameChange,
+  brand,
+  onBrandChange,
   amount,
   onAmountChange,
   protein,
@@ -165,6 +171,26 @@ export function MealItemEditorSheet({
               onSelectItem={onSelectMealItem}
               onSubmit={onSave}
               suggestions={mealItems}
+              className="h-12 text-base"
+            />
+          </div>
+
+          <div className="flex flex-col gap-1.5">
+            <span className="text-sm text-muted-foreground">
+              {t.dailyEntry.itemBrandLabel}
+            </span>
+            <Input
+              type="text"
+              aria-label={t.dailyEntry.itemBrandLabel}
+              placeholder={t.dailyEntry.itemBrandPlaceholder}
+              value={brand}
+              onChange={(e) => onBrandChange(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault()
+                  onSave()
+                }
+              }}
               className="h-12 text-base"
             />
           </div>

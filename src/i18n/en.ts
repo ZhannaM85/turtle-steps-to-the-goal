@@ -111,6 +111,8 @@ export const en: Dictionary = {
     mealNotePlaceholder: 'Anything else about this meal?',
     itemNameLabel: 'Dish name',
     itemNamePlaceholder: 'Add a dish?',
+    itemBrandLabel: 'Brand (optional)',
+    itemBrandPlaceholder: 'e.g. Perdue',
     deleteItemLabel: 'Delete item',
     addItemButton: '+ Add item',
     emotionLabel: (emotion) =>
@@ -292,6 +294,7 @@ export const en: Dictionary = {
     hadConstipationColumn: 'Constipation',
     mealColumn: 'Meal',
     itemColumn: 'Item',
+    brandColumn: 'Brand',
     gramsColumn: 'Grams',
     timeColumn: 'Time',
     reactionColumn: 'Reaction',
