@@ -308,7 +308,11 @@ export const en: Dictionary = {
     trendChartEmptyDescription: 'Pick at least one series to show.',
     notEnoughTrendDataMessage:
       'Not enough data yet to show a trend — log a few more days and check back.',
+    weightTrendTitle: 'Weight trend',
+    calorieTrendTitle: 'Calorie trend',
     macrosTitle: 'Protein, fat & carbs',
+    hideChartLabel: (title) => `Hide ${title}`,
+    showChartLabel: (title) => `Show ${title}`,
     weeklySummaryTitle: 'Weekly summary',
     weekRange: (start, end) => `${start} – ${end}`,
     weightChangeLabel: 'Change this week',

@@ -446,7 +446,11 @@ export interface Dictionary {
      * means anything (e.g. two far-apart points connected by a straight
      * line can visually read as a confident trend that isn't real). */
     notEnoughTrendDataMessage: string
+    weightTrendTitle: string
+    calorieTrendTitle: string
     macrosTitle: string
+    hideChartLabel: (title: string) => string
+    showChartLabel: (title: string) => string
     weeklySummaryTitle: string
     weekRange: (start: string, end: string) => string
     weightChangeLabel: string

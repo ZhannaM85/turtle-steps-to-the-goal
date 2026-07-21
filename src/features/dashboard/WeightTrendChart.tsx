@@ -22,7 +22,8 @@ import {
   useLocale,
   useTranslation,
 } from '@/i18n'
-import { useTrendChartSeriesStore, useUnitStore } from '@/stores'
+import { useDashboardChartVisibilityStore, useTrendChartSeriesStore, useUnitStore } from '@/stores'
+import { ChartTitleWithToggle } from './ChartTitleWithToggle'
 import { resolveChartClickDate } from './chartNavigation'
 
 interface ChartPoint {
@@ -58,6 +59,11 @@ export function WeightTrendChart({ entries }: WeightTrendChartProps) {
   // trend chart and not the other.
   const visible = useTrendChartSeriesStore((state) => state.visible.weight)
   const toggleSeries = useTrendChartSeriesStore((state) => state.toggleSeries)
+  // #245 — whole-chart visibility, distinct from #238's within-chart series
+  // toggle above.
+  const chartVisible = useDashboardChartVisibilityStore(
+    (state) => state.visible.weight,
+  )
 
   const weightPoints = entries
     .filter(
@@ -69,11 +75,22 @@ export function WeightTrendChart({ entries }: WeightTrendChartProps) {
 
   if (weightPoints.length === 0) return null
 
+  const chartTitle = (
+    <ChartTitleWithToggle chart="weight" title={t.dashboard.weightTrendTitle} />
+  )
+
+  if (!chartVisible) {
+    return <div className="flex flex-col gap-1.5">{chartTitle}</div>
+  }
+
   if (weightPoints.length < MIN_TREND_DATA_POINTS) {
     return (
-      <p className="text-sm text-muted-foreground">
-        {t.dashboard.notEnoughTrendDataMessage}
-      </p>
+      <div className="flex flex-col gap-1.5">
+        {chartTitle}
+        <p className="text-sm text-muted-foreground">
+          {t.dashboard.notEnoughTrendDataMessage}
+        </p>
+      </div>
     )
   }
 
@@ -167,6 +184,7 @@ export function WeightTrendChart({ entries }: WeightTrendChartProps) {
 
   return (
     <div className="flex flex-col gap-1.5">
+      {chartTitle}
       {bothHidden ? (
         // #238 regression, caught live: this used to be an early return
         // before the legend below, so turning both series off made the

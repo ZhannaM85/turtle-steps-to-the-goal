@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 import { afterEach, describe, expect, it } from 'vitest'
 import type { DailyEntry } from '@/domain/dailyEntry'
-import { useTrendChartSeriesStore } from '@/stores'
+import { useDashboardChartVisibilityStore, useTrendChartSeriesStore } from '@/stores'
 import { CalorieTrendChart } from './CalorieTrendChart'
 
 let idCounter = 0
@@ -135,6 +135,38 @@ describe('CalorieTrendChart', () => {
       expect(
         screen.queryByText('Pick at least one series to show.'),
       ).not.toBeInTheDocument()
+    })
+  })
+
+  describe('whole-chart show/hide toggle (#245)', () => {
+    afterEach(() => {
+      useDashboardChartVisibilityStore.setState({
+        visible: { weight: true, calories: true, macros: true },
+      })
+    })
+
+    it('hides the chart body but keeps the title and toggle visible', async () => {
+      const user = userEvent.setup()
+      render(<CalorieTrendChart entries={threeCalorieEntries()} />, {
+        wrapper: MemoryRouter,
+      })
+
+      expect(screen.getByText('Calorie trend')).toBeInTheDocument()
+      const hideButton = screen.getByRole('button', {
+        name: 'Hide Calorie trend',
+      })
+
+      await user.click(hideButton)
+
+      expect(screen.queryByText('calories')).not.toBeInTheDocument()
+      expect(screen.getByText('Calorie trend')).toBeInTheDocument()
+      const showButton = screen.getByRole('button', {
+        name: 'Show Calorie trend',
+      })
+      expect(showButton).toBeInTheDocument()
+
+      await user.click(showButton)
+      expect(screen.getByText('calories')).toBeInTheDocument()
     })
   })
 })

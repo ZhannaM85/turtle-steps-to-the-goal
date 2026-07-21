@@ -1,7 +1,9 @@
 import { render, screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
-import { describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it } from 'vitest'
 import type { CalorieItem, DailyEntry } from '@/domain/dailyEntry'
+import { useDashboardChartVisibilityStore } from '@/stores'
 import { MacroTrendChart } from './MacroTrendChart'
 
 let idCounter = 0
@@ -129,6 +131,65 @@ describe('MacroTrendChart', () => {
         ),
       ).toBeInTheDocument()
       expect(screen.queryByText('Protein')).not.toBeInTheDocument()
+    })
+  })
+
+  describe('whole-chart show/hide toggle (#245)', () => {
+    afterEach(() => {
+      useDashboardChartVisibilityStore.setState({
+        visible: { weight: true, calories: true, macros: true },
+      })
+    })
+
+    it('hides the chart body but keeps the title and toggle visible', async () => {
+      const entries = [
+        entry('2026-03-01', {
+          calorieEntries: [
+            {
+              id: 'c1',
+              items: [item({ proteinG: 90 })],
+              createdAt: '2026-01-01T00:00:00.000Z',
+            },
+          ],
+        }),
+        entry('2026-03-02', {
+          calorieEntries: [
+            {
+              id: 'c2',
+              items: [item({ proteinG: 80 })],
+              createdAt: '2026-01-01T00:00:00.000Z',
+            },
+          ],
+        }),
+        entry('2026-03-03', {
+          calorieEntries: [
+            {
+              id: 'c3',
+              items: [item({ proteinG: 85 })],
+              createdAt: '2026-01-01T00:00:00.000Z',
+            },
+          ],
+        }),
+      ]
+      const user = userEvent.setup()
+      render(<MacroTrendChart entries={entries} />, { wrapper: MemoryRouter })
+
+      const hideButton = screen.getByRole('button', {
+        name: 'Hide Protein, fat & carbs',
+      })
+      await user.click(hideButton)
+
+      expect(screen.queryByText('Protein')).not.toBeInTheDocument()
+      expect(
+        screen.getByRole('heading', { name: 'Protein, fat & carbs' }),
+      ).toBeInTheDocument()
+      const showButton = screen.getByRole('button', {
+        name: 'Show Protein, fat & carbs',
+      })
+      expect(showButton).toBeInTheDocument()
+
+      await user.click(showButton)
+      expect(screen.getByText('Protein')).toBeInTheDocument()
     })
   })
 })

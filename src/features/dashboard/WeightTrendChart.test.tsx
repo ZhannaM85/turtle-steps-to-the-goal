@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 import { afterEach, describe, expect, it } from 'vitest'
 import type { DailyEntry } from '@/domain/dailyEntry'
-import { useTrendChartSeriesStore } from '@/stores'
+import { useDashboardChartVisibilityStore, useTrendChartSeriesStore } from '@/stores'
 import { WeightTrendChart } from './WeightTrendChart'
 
 let idCounter = 0
@@ -146,6 +146,41 @@ describe('WeightTrendChart', () => {
       expect(
         screen.queryByText('Pick at least one series to show.'),
       ).not.toBeInTheDocument()
+    })
+  })
+
+  describe('whole-chart show/hide toggle (#245)', () => {
+    afterEach(() => {
+      useDashboardChartVisibilityStore.setState({
+        visible: { weight: true, calories: true, macros: true },
+      })
+    })
+
+    it('hides the chart body but keeps the title and toggle visible', async () => {
+      const user = userEvent.setup()
+      render(<WeightTrendChart entries={threeWeightEntries()} />, {
+        wrapper: MemoryRouter,
+      })
+
+      expect(screen.getByText('Weight trend')).toBeInTheDocument()
+      const hideButton = screen.getByRole('button', {
+        name: 'Hide Weight trend',
+      })
+
+      await user.click(hideButton)
+
+      // The chart itself is gone, but the title and its own toggle stay —
+      // same "the control can't disappear along with what it controls"
+      // lesson as #238's own regression above.
+      expect(screen.queryByText('weight')).not.toBeInTheDocument()
+      expect(screen.getByText('Weight trend')).toBeInTheDocument()
+      const showButton = screen.getByRole('button', {
+        name: 'Show Weight trend',
+      })
+      expect(showButton).toBeInTheDocument()
+
+      await user.click(showButton)
+      expect(screen.getByText('weight')).toBeInTheDocument()
     })
   })
 })

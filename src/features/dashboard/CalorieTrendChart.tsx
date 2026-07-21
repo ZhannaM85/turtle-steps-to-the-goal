@@ -20,7 +20,8 @@ import {
   useLocale,
   useTranslation,
 } from '@/i18n'
-import { useTrendChartSeriesStore } from '@/stores'
+import { useDashboardChartVisibilityStore, useTrendChartSeriesStore } from '@/stores'
+import { ChartTitleWithToggle } from './ChartTitleWithToggle'
 import { resolveChartClickDate } from './chartNavigation'
 
 interface ChartPoint {
@@ -45,6 +46,10 @@ export function CalorieTrendChart({ entries }: CalorieTrendChartProps) {
   // #238 — see WeightTrendChart.tsx's identical note.
   const visible = useTrendChartSeriesStore((state) => state.visible.calories)
   const toggleSeries = useTrendChartSeriesStore((state) => state.toggleSeries)
+  // #245 — see WeightTrendChart.tsx's identical note.
+  const chartVisible = useDashboardChartVisibilityStore(
+    (state) => state.visible.calories,
+  )
 
   const calorieBars = entries
     .map((entry) => ({
@@ -59,11 +64,25 @@ export function CalorieTrendChart({ entries }: CalorieTrendChartProps) {
 
   if (calorieBars.length === 0) return null
 
+  const chartTitle = (
+    <ChartTitleWithToggle
+      chart="calories"
+      title={t.dashboard.calorieTrendTitle}
+    />
+  )
+
+  if (!chartVisible) {
+    return <div className="flex flex-col gap-1.5">{chartTitle}</div>
+  }
+
   if (calorieBars.length < MIN_TREND_DATA_POINTS) {
     return (
-      <p className="text-sm text-muted-foreground">
-        {t.dashboard.notEnoughTrendDataMessage}
-      </p>
+      <div className="flex flex-col gap-1.5">
+        {chartTitle}
+        <p className="text-sm text-muted-foreground">
+          {t.dashboard.notEnoughTrendDataMessage}
+        </p>
+      </div>
     )
   }
 
@@ -137,6 +156,7 @@ export function CalorieTrendChart({ entries }: CalorieTrendChartProps) {
 
   return (
     <div className="flex flex-col gap-1.5">
+      {chartTitle}
       {bothHidden ? (
         // #238 regression, caught live — see WeightTrendChart.tsx's
         // identical note. The legend below must always render, even here.

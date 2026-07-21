@@ -309,7 +309,11 @@ export const ru: Dictionary = {
     trendChartEmptyDescription: 'Выберите хотя бы один показатель для отображения.',
     notEnoughTrendDataMessage:
       'Пока недостаточно данных, чтобы показать тенденцию — добавьте ещё несколько дней и загляните позже.',
+    weightTrendTitle: 'График веса',
+    calorieTrendTitle: 'График калорий',
     macrosTitle: 'Белки, жиры и углеводы',
+    hideChartLabel: (title) => `Скрыть: ${title}`,
+    showChartLabel: (title) => `Показать: ${title}`,
     weeklySummaryTitle: 'Недельная сводка',
     weekRange: (start, end) => `${start} – ${end}`,
     weightChangeLabel: 'Изменение за неделю',

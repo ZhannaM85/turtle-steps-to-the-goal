@@ -23,6 +23,8 @@ import {
   useLocale,
   useTranslation,
 } from '@/i18n'
+import { useDashboardChartVisibilityStore } from '@/stores'
+import { ChartTitleWithToggle } from './ChartTitleWithToggle'
 import { resolveChartClickDate } from './chartNavigation'
 
 interface MacroPoint {
@@ -49,6 +51,10 @@ export function MacroTrendChart({ entries }: MacroTrendChartProps) {
   const t = useTranslation()
   const locale = useLocale()
   const dateFnsLocale = getDateFnsLocale(locale)
+  // #245 — see WeightTrendChart.tsx's identical note.
+  const chartVisible = useDashboardChartVisibilityStore(
+    (state) => state.visible.macros,
+  )
 
   const data: MacroPoint[] = entries
     .map((entry) => ({
@@ -67,12 +73,18 @@ export function MacroTrendChart({ entries }: MacroTrendChartProps) {
 
   if (data.length === 0) return null
 
+  const chartTitle = (
+    <ChartTitleWithToggle chart="macros" title={t.dashboard.macrosTitle} />
+  )
+
+  if (!chartVisible) {
+    return <div className="flex flex-col gap-1.5">{chartTitle}</div>
+  }
+
   if (data.length < MIN_TREND_DATA_POINTS) {
     return (
       <div className="flex flex-col gap-1.5">
-        <h2 className="text-sm font-medium text-muted-foreground">
-          {t.dashboard.macrosTitle}
-        </h2>
+        {chartTitle}
         <p className="text-sm text-muted-foreground">
           {t.dashboard.notEnoughTrendDataMessage}
         </p>
@@ -129,9 +141,7 @@ export function MacroTrendChart({ entries }: MacroTrendChartProps) {
 
   return (
     <div className="flex flex-col gap-1.5">
-      <h2 className="text-sm font-medium text-muted-foreground">
-        {t.dashboard.macrosTitle}
-      </h2>
+      {chartTitle}
       <ResponsiveContainer width="100%" height={160}>
         <LineChart
           data={data}
