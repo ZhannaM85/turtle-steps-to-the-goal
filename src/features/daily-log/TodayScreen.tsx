@@ -22,12 +22,16 @@ import { EmptyState } from '@/shared/ui/empty-state'
 import { Input } from '@/shared/ui/input'
 import { Label } from '@/shared/ui/label'
 import { PageHeader } from '@/shared/ui/page-header'
+import { SectionTitleWithToggle } from '@/shared/ui/section-title-with-toggle'
 import { StatCard } from '@/shared/ui/stat-card'
+import { VisibilityToggleButton } from '@/shared/ui/visibility-toggle-button'
 import {
   useDailyEntryStore,
   useDailyReminderStore,
   useGoalStore,
+  useSectionVisibilityStore,
   useUnitStore,
+  type SectionKey,
 } from '@/stores'
 import { DailyEntryForm } from './DailyEntryForm'
 import { GoalCelebrationModal } from './GoalCelebrationModal'
@@ -186,6 +190,41 @@ export function TodayScreen() {
     entryStatus === 'ready' &&
     entry === null
 
+  // #232 — each computed/insight section below (not the raw input fields
+  // #237 already covers) can be individually hidden, same mechanism
+  // #245/#247 gave every Dashboard section. Two small local helpers, not
+  // shared components, since they close over this screen's own `t`/store
+  // reads — `SectionTitleWithToggle`/`VisibilityToggleButton` themselves
+  // are the actual shared, store-agnostic pieces. `sectionTitle` is for a
+  // banner (no label of its own to attach the toggle to); `statCardAction`
+  // is for a `StatCard`, whose own label row the toggle slots into
+  // instead — using both for the same section would show its title twice.
+  const sectionVisible = useSectionVisibilityStore((state) => state.visible)
+  const toggleSection = useSectionVisibilityStore(
+    (state) => state.toggleVisible,
+  )
+  function sectionTitle(key: SectionKey, title: string) {
+    return (
+      <SectionTitleWithToggle
+        title={title}
+        visible={sectionVisible[key]}
+        onToggle={() => toggleSection(key)}
+        hideLabel={t.common.hideSectionLabel(title)}
+        showLabel={t.common.showSectionLabel(title)}
+      />
+    )
+  }
+  function statCardAction(key: SectionKey, title: string) {
+    return (
+      <VisibilityToggleButton
+        visible={sectionVisible[key]}
+        onToggle={() => toggleSection(key)}
+        hideLabel={t.common.hideSectionLabel(title)}
+        showLabel={t.common.showSectionLabel(title)}
+      />
+    )
+  }
+
   return (
     <div className="flex flex-col gap-6">
       <GoalCelebrationModal />
@@ -235,23 +274,28 @@ export function TodayScreen() {
       {goalStatus === 'loading' || goalStatus === 'idle' ? (
         <p className="text-sm text-muted-foreground">{t.common.loading}</p>
       ) : goal ? (
-        <StatCard
-          label={t.today.thisWeeksTarget}
-          value={formatNumber(-weeklyPace!, locale)}
-          unit={t.today.toLose(unitLabel(displayUnit, t))}
-          description={
-            goal.weekStart
-              ? t.common.weekRangeLabel(
-                  format(parseISO(goal.weekStart), 'MMM d', {
-                    locale: dateFnsLocale,
-                  }),
-                  format(parseISO(goalWeekEnd(goal.weekStart)), 'MMM d', {
-                    locale: dateFnsLocale,
-                  }),
-                )
-              : undefined
-          }
-        />
+        sectionVisible.todayWeeklyTarget ? (
+          <StatCard
+            label={t.today.thisWeeksTarget}
+            value={formatNumber(-weeklyPace!, locale)}
+            unit={t.today.toLose(unitLabel(displayUnit, t))}
+            description={
+              goal.weekStart
+                ? t.common.weekRangeLabel(
+                    format(parseISO(goal.weekStart), 'MMM d', {
+                      locale: dateFnsLocale,
+                    }),
+                    format(parseISO(goalWeekEnd(goal.weekStart)), 'MMM d', {
+                      locale: dateFnsLocale,
+                    }),
+                  )
+                : undefined
+            }
+            action={statCardAction('todayWeeklyTarget', t.today.thisWeeksTarget)}
+          />
+        ) : (
+          sectionTitle('todayWeeklyTarget', t.today.thisWeeksTarget)
+        )
       ) : (
         <EmptyState
           title={t.today.emptyGoalTitle}
@@ -264,69 +308,112 @@ export function TodayScreen() {
         />
       )}
 
-      {weightDeltaValue !== null && (
-        <StatCard
-          label={t.today.vsYesterdayLabel}
-          value={weightDeltaValue}
-          unit={unitLabel(displayUnit, t)}
-        />
-      )}
+      {weightDeltaValue !== null &&
+        (sectionVisible.todayVsYesterday ? (
+          <StatCard
+            label={t.today.vsYesterdayLabel}
+            value={weightDeltaValue}
+            unit={unitLabel(displayUnit, t)}
+            action={statCardAction('todayVsYesterday', t.today.vsYesterdayLabel)}
+          />
+        ) : (
+          sectionTitle('todayVsYesterday', t.today.vsYesterdayLabel)
+        ))}
 
-      {vsMaxWeightValue !== null && (
-        <StatCard
-          label={t.today.vsMaxWeightLabel}
-          value={vsMaxWeightValue}
-          unit={unitLabel(displayUnit, t)}
-        />
-      )}
+      {vsMaxWeightValue !== null &&
+        (sectionVisible.todayVsMaxWeight ? (
+          <StatCard
+            label={t.today.vsMaxWeightLabel}
+            value={vsMaxWeightValue}
+            unit={unitLabel(displayUnit, t)}
+            action={statCardAction('todayVsMaxWeight', t.today.vsMaxWeightLabel)}
+          />
+        ) : (
+          sectionTitle('todayVsMaxWeight', t.today.vsMaxWeightLabel)
+        ))}
 
-      {remainingKcal !== null && (
-        <StatCard
-          label={t.today.remainingCaloriesLabel}
-          value={formatNumber(Math.abs(remainingKcal), locale, 0)}
-          unit={
-            isOverCalorieBudget
-              ? t.today.kcalOverUnit
-              : t.today.kcalRemainingUnit
-          }
-        />
-      )}
+      {remainingKcal !== null &&
+        (sectionVisible.todayRemainingCalories ? (
+          <StatCard
+            label={t.today.remainingCaloriesLabel}
+            value={formatNumber(Math.abs(remainingKcal), locale, 0)}
+            unit={
+              isOverCalorieBudget
+                ? t.today.kcalOverUnit
+                : t.today.kcalRemainingUnit
+            }
+            action={statCardAction(
+              'todayRemainingCalories',
+              t.today.remainingCaloriesLabel,
+            )}
+          />
+        ) : (
+          sectionTitle(
+            'todayRemainingCalories',
+            t.today.remainingCaloriesLabel,
+          )
+        ))}
 
-      {remainingProteinG !== null && (
-        <StatCard
-          label={t.today.remainingProteinLabel}
-          value={formatNumber(remainingProteinG, locale, 0)}
-          unit={t.today.gRemainingUnit}
-        />
-      )}
+      {remainingProteinG !== null &&
+        (sectionVisible.todayRemainingProtein ? (
+          <StatCard
+            label={t.today.remainingProteinLabel}
+            value={formatNumber(remainingProteinG, locale, 0)}
+            unit={t.today.gRemainingUnit}
+            action={statCardAction(
+              'todayRemainingProtein',
+              t.today.remainingProteinLabel,
+            )}
+          />
+        ) : (
+          sectionTitle('todayRemainingProtein', t.today.remainingProteinLabel)
+        ))}
 
       {showTargetMetBanner && (
-        <div className="flex items-center justify-between gap-2 rounded-lg border border-border px-3 py-2 text-sm text-muted-foreground">
-          <span>{t.today.targetMetBanner}</span>
-          <Link
-            to="/goal"
-            className="shrink-0 font-medium text-foreground underline-offset-4 hover:underline"
-          >
-            {t.today.reviewGoalLink}
-          </Link>
+        <div className="flex flex-col gap-1.5">
+          {sectionTitle('todayTargetMetBanner', t.today.targetMetSectionTitle)}
+          {sectionVisible.todayTargetMetBanner && (
+            <div className="flex items-center justify-between gap-2 rounded-lg border border-border px-3 py-2 text-sm text-muted-foreground">
+              <span>{t.today.targetMetBanner}</span>
+              <Link
+                to="/goal"
+                className="shrink-0 font-medium text-foreground underline-offset-4 hover:underline"
+              >
+                {t.today.reviewGoalLink}
+              </Link>
+            </div>
+          )}
         </div>
       )}
 
       {showGoalRenewalReminder && (
-        <div className="flex items-center justify-between gap-2 rounded-lg border border-border px-3 py-2 text-sm text-muted-foreground">
-          <span>{t.today.goalRenewalReminder}</span>
-          <Link
-            to="/goal"
-            className="shrink-0 font-medium text-foreground underline-offset-4 hover:underline"
-          >
-            {t.today.reviewGoalLink}
-          </Link>
+        <div className="flex flex-col gap-1.5">
+          {sectionTitle(
+            'todayGoalRenewalReminder',
+            t.today.goalRenewalReminderSectionTitle,
+          )}
+          {sectionVisible.todayGoalRenewalReminder && (
+            <div className="flex items-center justify-between gap-2 rounded-lg border border-border px-3 py-2 text-sm text-muted-foreground">
+              <span>{t.today.goalRenewalReminder}</span>
+              <Link
+                to="/goal"
+                className="shrink-0 font-medium text-foreground underline-offset-4 hover:underline"
+              >
+                {t.today.reviewGoalLink}
+              </Link>
+            </div>
+          )}
         </div>
       )}
 
       {showDailyReminder && (
-        <div className="rounded-lg border border-border px-3 py-2 text-sm text-muted-foreground">
-          {t.today.dailyReminderText}
+        <div className="flex flex-col gap-1.5">
+          {sectionTitle('todayDailyReminder', t.today.dailyReminderSectionTitle)}
+          {sectionVisible.todayDailyReminder && (
+            <div className="rounded-lg border border-border px-3 py-2 text-sm text-muted-foreground">
+              {t.today.dailyReminderText}
+            </div>
+          )}
         </div>
       )}
 

@@ -1,7 +1,9 @@
 import { format, subDays } from 'date-fns'
 import { render, screen } from '@testing-library/react'
-import { describe, expect, it } from 'vitest'
+import userEvent from '@testing-library/user-event'
+import { afterEach, describe, expect, it } from 'vitest'
 import type { CalorieEntry, CalorieItem, DailyEntry } from '@/domain/dailyEntry'
+import { useDashboardChartVisibilityStore } from '@/stores'
 import { RecentAveragesCards } from './RecentAveragesCards'
 
 function calories(
@@ -78,5 +80,31 @@ describe('RecentAveragesCards', () => {
 
     expect(screen.queryByText('Last 7 days')).not.toBeInTheDocument()
     expect(screen.getByText('Last 30 days')).toBeInTheDocument()
+  })
+
+  describe('whole-card show/hide toggle (#232)', () => {
+    afterEach(() => {
+      useDashboardChartVisibilityStore.setState((state) => ({
+        visible: { ...state.visible, recentAverages: true },
+      }))
+    })
+
+    it('hides the card body but keeps the title and toggle visible', async () => {
+      const user = userEvent.setup()
+      const entries = [entry(daysAgo(1), { calorieEntries: calories(2000) })]
+      render(<RecentAveragesCards entries={entries} />)
+
+      const title = 'Recent averages'
+      expect(screen.getByText(title)).toBeInTheDocument()
+      await user.click(screen.getByRole('button', { name: `Hide ${title}` }))
+
+      expect(screen.queryByText('Last 7 days')).not.toBeInTheDocument()
+      expect(screen.getByText(title)).toBeInTheDocument()
+      const showButton = screen.getByRole('button', { name: `Show ${title}` })
+      expect(showButton).toBeInTheDocument()
+
+      await user.click(showButton)
+      expect(screen.getByText('Last 7 days')).toBeInTheDocument()
+    })
   })
 })

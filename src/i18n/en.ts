@@ -14,6 +14,8 @@ export const en: Dictionary = {
     kg: 'kg',
     lb: 'lb',
     weekRangeLabel: (start, end) => `${start} – ${end}`,
+    hideSectionLabel: (title) => `Hide ${title}`,
+    showSectionLabel: (title) => `Show ${title}`,
   },
   error: {
     title: 'Something went wrong',
@@ -55,6 +57,9 @@ export const en: Dictionary = {
     reviewGoalLink: 'Review goal',
     targetMetBanner: "You reached this week's target!",
     dailyReminderText: 'No entry yet today — whenever you’re ready.',
+    targetMetSectionTitle: 'Target met',
+    goalRenewalReminderSectionTitle: 'Goal renewal reminder',
+    dailyReminderSectionTitle: 'Daily reminder',
     vsYesterdayLabel: 'vs. yesterday',
     vsMaxWeightLabel: 'vs. highest weight',
     remainingCaloriesLabel: 'Remaining calories',
@@ -220,6 +225,7 @@ export const en: Dictionary = {
     targetNoDataLabel: 'Not enough data to tell',
     activeGoalReachedNudge:
       "You reached this week's target early — set a new one below whenever you're ready.",
+    activeGoalReachedSectionTitle: 'Target reached',
     deletePastTargetLabel: (weekRange) => `Delete target for ${weekRange}`,
     confirmDeletePastTargetLabel: 'Delete this target?',
     confirmDeletePastTargetYes: 'Delete',

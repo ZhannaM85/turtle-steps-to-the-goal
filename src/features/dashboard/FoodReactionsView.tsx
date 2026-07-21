@@ -3,6 +3,8 @@ import { mostDislikedFoods, mostLikedFoods } from '@/domain/stats'
 import type { FoodReactionTally } from '@/domain/stats'
 import { useTranslation, type Dictionary } from '@/i18n'
 import { MEAL_EMOTIONS } from '@/shared/lib/emotionIcons'
+import { useDashboardChartVisibilityStore } from '@/stores'
+import { ChartTitleWithToggle } from './ChartTitleWithToggle'
 
 export interface FoodReactionsViewProps {
   entries: DailyEntry[]
@@ -81,14 +83,26 @@ export function FoodReactionsView({ entries }: FoodReactionsViewProps) {
   const t = useTranslation()
   const liked = mostLikedFoods(entries)
   const disliked = mostDislikedFoods(entries)
+  const cardVisible = useDashboardChartVisibilityStore(
+    (state) => state.visible.foodReactions,
+  )
 
   if (liked.length === 0 && disliked.length === 0) return null
 
+  const cardTitle = (
+    <ChartTitleWithToggle
+      chart="foodReactions"
+      title={t.dashboard.foodReactionsTitle}
+    />
+  )
+
+  if (!cardVisible) {
+    return <div className="flex flex-col gap-3">{cardTitle}</div>
+  }
+
   return (
     <div className="flex flex-col gap-3">
-      <h2 className="text-sm font-medium text-muted-foreground">
-        {t.dashboard.foodReactionsTitle}
-      </h2>
+      {cardTitle}
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <FoodList title={t.dashboard.mostLikedFoodsTitle} foods={liked} t={t} />
         <FoodList

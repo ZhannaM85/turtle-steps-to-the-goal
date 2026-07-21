@@ -7,7 +7,12 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import type { Goal } from '@/domain/goal'
 import type { DailyEntry } from '@/domain/dailyEntry'
 import { db } from '@/infrastructure/persistence/indexeddb'
-import { useDailyEntryStore, useDailyReminderStore, useGoalStore } from '@/stores'
+import {
+  useDailyEntryStore,
+  useDailyReminderStore,
+  useGoalStore,
+  useSectionVisibilityStore,
+} from '@/stores'
 import { TodayScreen } from './TodayScreen'
 
 function makeGoal(overrides: Partial<Goal> = {}): Goal {
@@ -46,6 +51,7 @@ beforeEach(async () => {
     error: null,
   })
   useDailyReminderStore.setState({ enabled: false })
+  resetSectionVisibility()
 })
 
 afterEach(async () => {
@@ -53,7 +59,18 @@ afterEach(async () => {
   await db.dailyEntries.clear()
   localStorage.clear()
   useDailyReminderStore.setState({ enabled: false })
+  resetSectionVisibility()
 })
+
+// Merges every key back to true rather than a full literal (#232's own
+// lesson from the Dashboard store) — stays correct as SectionKey grows.
+function resetSectionVisibility() {
+  useSectionVisibilityStore.setState((state) => ({
+    visible: Object.fromEntries(
+      Object.keys(state.visible).map((key) => [key, true]),
+    ) as typeof state.visible,
+  }))
+}
 
 function LocationDisplay() {
   const location = useLocation()
@@ -814,6 +831,103 @@ describe('TodayScreen', () => {
       renderToday([`/?date=${yesterday}`])
 
       expect(await screen.findByLabelText('Date')).toHaveValue(yesterday)
+    })
+  })
+
+  describe('dismissible insight sections (#232)', () => {
+    it('hides a StatCard-based section but keeps its label and toggle visible, via the toggle slotted into the card itself', async () => {
+      const user = userEvent.setup()
+      await useGoalStore
+        .getState()
+        .saveGoal(makeGoal({ dailyProteinTargetG: 100 }))
+      await useDailyEntryStore.getState().saveEntry(
+        makeEntry({
+          calorieEntries: [
+            {
+              id: crypto.randomUUID(),
+              items: [
+                { id: crypto.randomUUID(), amountKcal: 300, proteinG: 30 },
+              ],
+              createdAt: new Date().toISOString(),
+            },
+          ],
+        }),
+      )
+      useDailyEntryStore.setState({ entry: null, date: null, status: 'idle' })
+
+      render(
+        <MemoryRouter>
+          <TodayScreen />
+        </MemoryRouter>,
+      )
+
+      await screen.findByText('Remaining protein')
+      const hideButton = screen.getByRole('button', {
+        name: 'Hide Remaining protein',
+      })
+      await user.click(hideButton)
+
+      expect(screen.queryByText('70')).not.toBeInTheDocument()
+      expect(screen.getByText('Remaining protein')).toBeInTheDocument()
+      const showButton = screen.getByRole('button', {
+        name: 'Show Remaining protein',
+      })
+      expect(showButton).toBeInTheDocument()
+
+      await user.click(showButton)
+      expect(await screen.findByText('70')).toBeInTheDocument()
+    })
+
+    it('hides a banner-based section but keeps its title and toggle visible', async () => {
+      const user = userEvent.setup()
+      useDailyReminderStore.setState({ enabled: true })
+      render(
+        <MemoryRouter>
+          <TodayScreen />
+        </MemoryRouter>,
+      )
+
+      await screen.findByText('Daily reminder')
+      expect(
+        screen.getByText('No entry yet today — whenever you’re ready.'),
+      ).toBeInTheDocument()
+
+      await user.click(
+        screen.getByRole('button', { name: 'Hide Daily reminder' }),
+      )
+
+      expect(
+        screen.queryByText('No entry yet today — whenever you’re ready.'),
+      ).not.toBeInTheDocument()
+      expect(screen.getByText('Daily reminder')).toBeInTheDocument()
+
+      await user.click(
+        screen.getByRole('button', { name: 'Show Daily reminder' }),
+      )
+      expect(
+        screen.getByText('No entry yet today — whenever you’re ready.'),
+      ).toBeInTheDocument()
+    })
+
+    it('does not show the same label twice once a StatCard section is toggled back on', async () => {
+      const user = userEvent.setup()
+      await useGoalStore.getState().saveGoal(makeGoal({ targetWeeklyLossKg: 1 }))
+
+      render(
+        <MemoryRouter>
+          <TodayScreen />
+        </MemoryRouter>,
+      )
+
+      await screen.findByText("This week's target")
+      await user.click(
+        screen.getByRole('button', { name: "Hide This week's target" }),
+      )
+      await user.click(
+        screen.getByRole('button', { name: "Show This week's target" }),
+      )
+
+      expect(screen.getAllByText("This week's target")).toHaveLength(1)
     })
   })
 })

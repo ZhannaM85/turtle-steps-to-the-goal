@@ -1,6 +1,8 @@
 import { render, screen } from '@testing-library/react'
-import { describe, expect, it } from 'vitest'
+import userEvent from '@testing-library/user-event'
+import { afterEach, describe, expect, it } from 'vitest'
 import type { CalorieEntry, CalorieItem, DailyEntry } from '@/domain/dailyEntry'
+import { useDashboardChartVisibilityStore } from '@/stores'
 import { MonthlySummaryCards } from './MonthlySummaryCards'
 
 function calories(
@@ -117,5 +119,31 @@ describe('MonthlySummaryCards', () => {
       'April 2026',
       'March 2026',
     ])
+  })
+
+  describe('whole-card show/hide toggle (#232)', () => {
+    afterEach(() => {
+      useDashboardChartVisibilityStore.setState((state) => ({
+        visible: { ...state.visible, monthlySummary: true },
+      }))
+    })
+
+    it('hides the card body but keeps the title and toggle visible', async () => {
+      const user = userEvent.setup()
+      const entries = [entry('2026-03-05', { weightKg: 80 })]
+      render(<MonthlySummaryCards entries={entries} />)
+
+      const title = 'Monthly summary'
+      expect(screen.getByText(title)).toBeInTheDocument()
+      await user.click(screen.getByRole('button', { name: `Hide ${title}` }))
+
+      expect(screen.queryByText('March 2026')).not.toBeInTheDocument()
+      expect(screen.getByText(title)).toBeInTheDocument()
+      const showButton = screen.getByRole('button', { name: `Show ${title}` })
+      expect(showButton).toBeInTheDocument()
+
+      await user.click(showButton)
+      expect(screen.getByText('March 2026')).toBeInTheDocument()
+    })
   })
 })

@@ -3,6 +3,8 @@ import { recentAverages } from '@/domain/stats'
 import { formatNumber, useLocale, useTranslation } from '@/i18n'
 import { formatMacroGrams } from '@/shared/lib/macroDisplay'
 import { StatCard } from '@/shared/ui/stat-card'
+import { useDashboardChartVisibilityStore } from '@/stores'
+import { ChartTitleWithToggle } from './ChartTitleWithToggle'
 
 export interface RecentAveragesCardsProps {
   entries: DailyEntry[]
@@ -19,6 +21,9 @@ const WINDOWS = [7, 30] as const
 export function RecentAveragesCards({ entries }: RecentAveragesCardsProps) {
   const t = useTranslation()
   const locale = useLocale()
+  const cardVisible = useDashboardChartVisibilityStore(
+    (state) => state.visible.recentAverages,
+  )
 
   const windows = WINDOWS.map((windowDays) => ({
     windowDays,
@@ -29,14 +34,23 @@ export function RecentAveragesCards({ entries }: RecentAveragesCardsProps) {
 
   if (windows.length === 0) return null
 
+  const cardTitle = (
+    <ChartTitleWithToggle
+      chart="recentAverages"
+      title={t.dashboard.recentAveragesTitle}
+    />
+  )
+
+  if (!cardVisible) {
+    return <div className="flex flex-col gap-3">{cardTitle}</div>
+  }
+
   const windowLabel = (days: number) =>
     days === 7 ? t.dashboard.last7DaysLabel : t.dashboard.last30DaysLabel
 
   return (
     <div className="flex flex-col gap-3">
-      <h2 className="text-sm font-medium text-muted-foreground">
-        {t.dashboard.recentAveragesTitle}
-      </h2>
+      {cardTitle}
       <div className="flex flex-col gap-2">
         {windows.map(({ windowDays, averageCalories, averageProteinG }) => (
           <StatCard

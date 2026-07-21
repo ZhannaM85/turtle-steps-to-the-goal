@@ -13,6 +13,8 @@ export const ru: Dictionary = {
   common: {
     loading: 'Загрузка…',
     weekRangeLabel: (start, end) => `${start} – ${end}`,
+    hideSectionLabel: (title) => `Скрыть: ${title}`,
+    showSectionLabel: (title) => `Показать: ${title}`,
     kg: 'кг',
     lb: 'фунт',
   },
@@ -56,6 +58,9 @@ export const ru: Dictionary = {
     reviewGoalLink: 'Посмотреть цель',
     targetMetBanner: 'Вы достигли цели на эту неделю!',
     dailyReminderText: 'Сегодня пока нет записи — когда будете готовы.',
+    targetMetSectionTitle: 'Цель достигнута',
+    goalRenewalReminderSectionTitle: 'Напоминание об обновлении цели',
+    dailyReminderSectionTitle: 'Ежедневное напоминание',
     vsYesterdayLabel: 'по сравнению со вчера',
     vsMaxWeightLabel: 'по сравнению с максимальным весом',
     remainingCaloriesLabel: 'Осталось калорий',
@@ -222,6 +227,7 @@ export const ru: Dictionary = {
     targetNoDataLabel: 'Недостаточно данных',
     activeGoalReachedNudge:
       'Вы досрочно достигли цели на эту неделю — задайте новую, когда будете готовы.',
+    activeGoalReachedSectionTitle: 'Цель достигнута',
     deletePastTargetLabel: (weekRange) => `Удалить цель за ${weekRange}`,
     confirmDeletePastTargetLabel: 'Удалить эту цель?',
     confirmDeletePastTargetYes: 'Удалить',

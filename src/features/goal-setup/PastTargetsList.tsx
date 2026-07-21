@@ -11,8 +11,9 @@ import {
   useLocale,
   useTranslation,
 } from '@/i18n'
-import { useUnitStore } from '@/stores'
+import { useSectionVisibilityStore, useUnitStore } from '@/stores'
 import { Button } from '@/shared/ui/button'
+import { SectionTitleWithToggle } from '@/shared/ui/section-title-with-toggle'
 
 export interface PastTargetsListProps {
   records: PastGoalRecord[]
@@ -144,14 +145,32 @@ function PastTargetRow({
  */
 export function PastTargetsList({ records, onDelete }: PastTargetsListProps) {
   const t = useTranslation()
+  const cardVisible = useSectionVisibilityStore(
+    (state) => state.visible.goalPastTargets,
+  )
+  const toggleVisible = useSectionVisibilityStore(
+    (state) => state.toggleVisible,
+  )
 
   if (records.length === 0) return null
 
+  const cardTitle = (
+    <SectionTitleWithToggle
+      title={t.goal.pastTargetsTitle}
+      visible={cardVisible}
+      onToggle={() => toggleVisible('goalPastTargets')}
+      hideLabel={t.common.hideSectionLabel(t.goal.pastTargetsTitle)}
+      showLabel={t.common.showSectionLabel(t.goal.pastTargetsTitle)}
+    />
+  )
+
+  if (!cardVisible) {
+    return <div className="flex flex-col gap-2">{cardTitle}</div>
+  }
+
   return (
     <div className="flex flex-col gap-2">
-      <h2 className="text-sm font-medium text-muted-foreground">
-        {t.goal.pastTargetsTitle}
-      </h2>
+      {cardTitle}
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead>

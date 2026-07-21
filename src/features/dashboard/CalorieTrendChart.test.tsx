@@ -140,19 +140,13 @@ describe('CalorieTrendChart', () => {
 
   describe('whole-chart show/hide toggle (#245)', () => {
     afterEach(() => {
-      useDashboardChartVisibilityStore.setState({
-        visible: {
-          weight: true,
-          calories: true,
-          macros: true,
-          customChart: true,
-          calorieWeightCorrelation: true,
-          lateMealCorrelation: true,
-          sleepCorrelation: true,
-          stepsCorrelation: true,
-          proteinCorrelation: true,
-        },
-      })
+      // Merges onto whatever keys exist rather than a full literal
+      // (#232) — a full replacement breaks every time a new Dashboard
+      // section's key gets added to DashboardChartKey, even though this
+      // describe block only ever touches `calories`.
+      useDashboardChartVisibilityStore.setState((state) => ({
+        visible: { ...state.visible, calories: true },
+      }))
     })
 
     it('hides the chart body but keeps the title and toggle visible', async () => {

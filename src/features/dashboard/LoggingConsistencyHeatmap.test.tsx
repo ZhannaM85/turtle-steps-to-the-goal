@@ -1,7 +1,9 @@
 import { format } from 'date-fns'
 import { render, screen } from '@testing-library/react'
-import { describe, expect, it } from 'vitest'
+import userEvent from '@testing-library/user-event'
+import { afterEach, describe, expect, it } from 'vitest'
 import type { DailyEntry } from '@/domain/dailyEntry'
+import { useDashboardChartVisibilityStore } from '@/stores'
 import { LoggingConsistencyHeatmap } from './LoggingConsistencyHeatmap'
 
 function today(): string {
@@ -54,5 +56,31 @@ describe('LoggingConsistencyHeatmap', () => {
     render(<LoggingConsistencyHeatmap entries={entries} />)
 
     expect(screen.getByTitle(/: 4\/4$/)).toBeInTheDocument()
+  })
+
+  describe('whole-card show/hide toggle (#232)', () => {
+    afterEach(() => {
+      useDashboardChartVisibilityStore.setState((state) => ({
+        visible: { ...state.visible, loggingConsistency: true },
+      }))
+    })
+
+    it('hides the card body but keeps the title and toggle visible', async () => {
+      const user = userEvent.setup()
+      const entries = [entry(today(), { weightKg: 80 })]
+      render(<LoggingConsistencyHeatmap entries={entries} />)
+
+      const title = 'Logging consistency'
+      expect(screen.getByText(title)).toBeInTheDocument()
+      await user.click(screen.getByRole('button', { name: `Hide ${title}` }))
+
+      expect(screen.queryByText('Less')).not.toBeInTheDocument()
+      expect(screen.getByText(title)).toBeInTheDocument()
+      const showButton = screen.getByRole('button', { name: `Show ${title}` })
+      expect(showButton).toBeInTheDocument()
+
+      await user.click(showButton)
+      expect(screen.getByText('Less')).toBeInTheDocument()
+    })
   })
 })

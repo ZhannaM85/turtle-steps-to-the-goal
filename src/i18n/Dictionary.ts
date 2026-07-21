@@ -8,6 +8,11 @@ export interface Dictionary {
      * saved, not a fixed calendar grid, so a running "Week N" count no
      * longer corresponds to anything meaningful here. */
     weekRangeLabel: (start: string, end: string) => string
+    /** #232 — generic show/hide labels for a dismissible Today/Goal
+     * section, same shape as `dashboard.hideChartLabel`/`showChartLabel`
+     * but not Dashboard-specific, so it lives here instead. */
+    hideSectionLabel: (title: string) => string
+    showSectionLabel: (title: string) => string
   }
   /** Top-level crash fallback (#102) — shown by the router's errorElement
    * when a render error escapes anywhere in the app, instead of a silent
@@ -65,6 +70,14 @@ export interface Dictionary {
      * on and today has no entry yet. Same no-badges/no-streaks tone as
      * goalRenewalReminder above, no dismiss state to persist. */
     dailyReminderText: string
+    /** #232 — short titles for the show/hide toggle row above each of the
+     * three banners, distinct from their own full-sentence body text
+     * above (`goalRenewalReminder`/`targetMetBanner`/`dailyReminderText`)
+     * — showing the whole sentence twice as both a title and the banner
+     * itself would read as an obvious duplicate. */
+    targetMetSectionTitle: string
+    goalRenewalReminderSectionTitle: string
+    dailyReminderSectionTitle: string
     vsYesterdayLabel: string
     vsMaxWeightLabel: string
     /** #208 — only shown once the active goal has a dailyCalorieTargetKcal
@@ -335,6 +348,10 @@ export interface Dictionary {
      * today.goalRenewalReminder, shown alongside the targetMetOnLabel badge
      * on the StatCard rather than replacing it. */
     activeGoalReachedNudge: string
+    /** #232 — short title for the nudge's own show/hide toggle row,
+     * distinct from the full-sentence body text above (same reasoning as
+     * today.targetMetSectionTitle etc.). */
+    activeGoalReachedSectionTitle: string
     /** Per-row delete on the past-targets history (#174) — same two-step
      * confirm shape as history/EntryRow.tsx's own delete, own copy rather
      * than cross-feature reuse since the wording differs ("target" vs

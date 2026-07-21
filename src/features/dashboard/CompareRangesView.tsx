@@ -15,7 +15,8 @@ import {
 import { macrosSummaryText } from '@/shared/lib/macroDisplay'
 import { Input } from '@/shared/ui/input'
 import { StatCard } from '@/shared/ui/stat-card'
-import { useUnitStore } from '@/stores'
+import { useDashboardChartVisibilityStore, useUnitStore } from '@/stores'
+import { ChartTitleWithToggle } from './ChartTitleWithToggle'
 
 export interface CompareRangesViewProps {
   entries: DailyEntry[]
@@ -72,8 +73,22 @@ export function CompareRangesView({ entries }: CompareRangesViewProps) {
   const [endA, setEndA] = useState(defaultA.end)
   const [startB, setStartB] = useState(defaultB.start)
   const [endB, setEndB] = useState(defaultB.end)
+  const cardVisible = useDashboardChartVisibilityStore(
+    (state) => state.visible.compareRanges,
+  )
 
   if (entries.length === 0) return null
+
+  const cardTitle = (
+    <ChartTitleWithToggle
+      chart="compareRanges"
+      title={t.dashboard.compareRangesTitle}
+    />
+  )
+
+  if (!cardVisible) {
+    return <div className="flex flex-col gap-3">{cardTitle}</div>
+  }
 
   const summaryA = dateRangeSummary(entries, startA, endA)
   const summaryB = dateRangeSummary(entries, startB, endB)
@@ -84,9 +99,7 @@ export function CompareRangesView({ entries }: CompareRangesViewProps) {
 
   return (
     <div className="flex flex-col gap-3">
-      <h2 className="text-sm font-medium text-muted-foreground">
-        {t.dashboard.compareRangesTitle}
-      </h2>
+      {cardTitle}
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <div className="flex flex-col gap-1.5">
           <span className="text-xs text-muted-foreground">

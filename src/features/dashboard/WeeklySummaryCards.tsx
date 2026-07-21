@@ -10,9 +10,10 @@ import {
   useTranslation,
 } from '@/i18n'
 import { macrosSummaryText } from '@/shared/lib/macroDisplay'
-import { useUnitStore } from '@/stores'
+import { useDashboardChartVisibilityStore, useUnitStore } from '@/stores'
 import { useWeekStartsOn } from '@/shared/hooks'
 import { StatCard } from '@/shared/ui/stat-card'
+import { ChartTitleWithToggle } from './ChartTitleWithToggle'
 
 export interface WeeklySummaryCardsProps {
   entries: DailyEntry[]
@@ -27,17 +28,29 @@ export function WeeklySummaryCards({ entries, goal }: WeeklySummaryCardsProps) {
   const toDisplay = (kg: number) => (displayUnit === 'lb' ? kgToLb(kg) : kg)
   const unit = unitLabel(displayUnit, t)
   const weekStartsOn = useWeekStartsOn(entries)
+  const cardVisible = useDashboardChartVisibilityStore(
+    (state) => state.visible.weeklySummary,
+  )
 
   const summaries = weeklySummaries(entries, goal ?? undefined, weekStartsOn)
   if (summaries.length === 0) return null
+
+  const cardTitle = (
+    <ChartTitleWithToggle
+      chart="weeklySummary"
+      title={t.dashboard.weeklySummaryTitle}
+    />
+  )
+
+  if (!cardVisible) {
+    return <div className="flex flex-col gap-3">{cardTitle}</div>
+  }
 
   const weeksMostRecentFirst = [...summaries].reverse()
 
   return (
     <div className="flex flex-col gap-3">
-      <h2 className="text-sm font-medium text-muted-foreground">
-        {t.dashboard.weeklySummaryTitle}
-      </h2>
+      {cardTitle}
       <div className="flex flex-col gap-2">
         {weeksMostRecentFirst.map((week) => {
           const rangeLabel = t.dashboard.weekRange(

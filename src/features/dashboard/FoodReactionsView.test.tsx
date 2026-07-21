@@ -1,6 +1,8 @@
 import { render, screen } from '@testing-library/react'
-import { describe, expect, it } from 'vitest'
+import userEvent from '@testing-library/user-event'
+import { afterEach, describe, expect, it } from 'vitest'
 import type { CalorieItem, DailyEntry, MealEmotion } from '@/domain/dailyEntry'
+import { useDashboardChartVisibilityStore } from '@/stores'
 import { FoodReactionsView } from './FoodReactionsView'
 
 let idCounter = 0
@@ -67,5 +69,31 @@ describe('FoodReactionsView', () => {
 
     const pizzaMentions = screen.getAllByText('Pizza')
     expect(pizzaMentions).toHaveLength(2)
+  })
+
+  describe('whole-card show/hide toggle (#232)', () => {
+    afterEach(() => {
+      useDashboardChartVisibilityStore.setState((state) => ({
+        visible: { ...state.visible, foodReactions: true },
+      }))
+    })
+
+    it('hides the card body but keeps the title and toggle visible', async () => {
+      const user = userEvent.setup()
+      const entries = [entry([item('Pizza', 'bellissimo')])]
+      render(<FoodReactionsView entries={entries} />)
+
+      const title = 'Food reactions'
+      expect(screen.getByText(title)).toBeInTheDocument()
+      await user.click(screen.getByRole('button', { name: `Hide ${title}` }))
+
+      expect(screen.queryByText('Pizza')).not.toBeInTheDocument()
+      expect(screen.getByText(title)).toBeInTheDocument()
+      const showButton = screen.getByRole('button', { name: `Show ${title}` })
+      expect(showButton).toBeInTheDocument()
+
+      await user.click(showButton)
+      expect(screen.getByText('Pizza')).toBeInTheDocument()
+    })
   })
 })

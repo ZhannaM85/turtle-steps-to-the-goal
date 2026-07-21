@@ -1,7 +1,8 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import type { DailyEntry } from '@/domain/dailyEntry'
+import { useDashboardChartVisibilityStore } from '@/stores'
 import { CompareRangesView } from './CompareRangesView'
 
 let idCounter = 0
@@ -79,5 +80,34 @@ describe('CompareRangesView', () => {
 
     expect(screen.getByText('75.0')).toBeInTheDocument()
     vi.useRealTimers()
+  })
+
+  describe('whole-card show/hide toggle (#232)', () => {
+    afterEach(() => {
+      useDashboardChartVisibilityStore.setState((state) => ({
+        visible: { ...state.visible, compareRanges: true },
+      }))
+    })
+
+    it('hides the card body but keeps the title and toggle visible', async () => {
+      const user = userEvent.setup()
+      const entries = [
+        entry('2026-03-05', { weightKg: 80 }),
+        entry('2026-02-05', { weightKg: 82 }),
+      ]
+      render(<CompareRangesView entries={entries} />)
+
+      const title = 'Compare date ranges'
+      expect(screen.getByText(title)).toBeInTheDocument()
+      await user.click(screen.getByRole('button', { name: `Hide ${title}` }))
+
+      expect(screen.queryByText('Range A')).not.toBeInTheDocument()
+      expect(screen.getByText(title)).toBeInTheDocument()
+      const showButton = screen.getByRole('button', { name: `Show ${title}` })
+      expect(showButton).toBeInTheDocument()
+
+      await user.click(showButton)
+      expect(screen.getAllByText('Range A')).not.toHaveLength(0)
+    })
   })
 })

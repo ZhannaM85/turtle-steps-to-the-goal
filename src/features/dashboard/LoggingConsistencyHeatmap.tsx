@@ -4,6 +4,8 @@ import type { DailyEntry } from '@/domain/dailyEntry'
 import { loggingConsistencyWeeks, MAX_LOGGING_SIGNALS } from '@/domain/stats'
 import { getDateFnsLocale, useLocale, useTranslation } from '@/i18n'
 import { useWeekStartsOn } from '@/shared/hooks'
+import { useDashboardChartVisibilityStore } from '@/stores'
+import { ChartTitleWithToggle } from './ChartTitleWithToggle'
 
 export interface LoggingConsistencyHeatmapProps {
   entries: DailyEntry[]
@@ -38,9 +40,23 @@ export function LoggingConsistencyHeatmap({
   const locale = useLocale()
   const dateFnsLocale = getDateFnsLocale(locale)
   const weekStartsOn = useWeekStartsOn(entries)
+  const cardVisible = useDashboardChartVisibilityStore(
+    (state) => state.visible.loggingConsistency,
+  )
 
   const weeks = loggingConsistencyWeeks(entries, weekStartsOn)
   if (weeks.length === 0) return null
+
+  const cardTitle = (
+    <ChartTitleWithToggle
+      chart="loggingConsistency"
+      title={t.dashboard.loggingConsistencyTitle}
+    />
+  )
+
+  if (!cardVisible) {
+    return <div className="flex flex-col gap-1.5">{cardTitle}</div>
+  }
 
   const recentWeeks = [...weeks].reverse().slice(0, MAX_DISPLAYED_WEEKS)
   const weekdayLabels = recentWeeks[0].days.map((day) =>
@@ -49,9 +65,7 @@ export function LoggingConsistencyHeatmap({
 
   return (
     <div className="flex flex-col gap-1.5">
-      <h2 className="text-sm font-medium text-muted-foreground">
-        {t.dashboard.loggingConsistencyTitle}
-      </h2>
+      {cardTitle}
       <div className="flex flex-col gap-1">
         <div className="grid grid-cols-[3rem_repeat(7,1fr)] items-center gap-1">
           <span />

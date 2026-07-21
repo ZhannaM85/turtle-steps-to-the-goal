@@ -1,7 +1,6 @@
-import { Eye, EyeOff } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { useTranslation } from '@/i18n'
-import { Button } from '@/shared/ui/button'
+import { SectionTitleWithToggle } from '@/shared/ui/section-title-with-toggle'
 import {
   useDashboardChartVisibilityStore,
   type DashboardChartKey,
@@ -18,13 +17,12 @@ export interface ChartTitleWithToggleProps {
 }
 
 /**
- * #245 — a per-chart show/hide toggle next to its title, for the three
- * trend charts (Weight/Calorie/Macro). Shared across all three rather than
- * duplicated inline since the accessibility shape (aria-pressed label that
- * flips with state) needs to stay identical everywhere it's used. Always
- * rendered by its caller regardless of the chart's own visibility state —
- * the #238 lesson applies here too: the control that turns a section back
- * on can never be the thing hidden along with it.
+ * #245 — a per-chart show/hide toggle next to its title, for every
+ * Dashboard section. Thin wrapper around the store-agnostic
+ * `SectionTitleWithToggle` (#232), wiring it up to
+ * `dashboardChartVisibilityStore` specifically — Today/Goal's own
+ * sections use that same shared component directly, wired to their own
+ * `sectionVisibilityStore` instead.
  */
 export function ChartTitleWithToggle({
   chart,
@@ -40,23 +38,13 @@ export function ChartTitleWithToggle({
   )
 
   return (
-    <div className="flex items-center justify-between gap-2">
-      <h2 className="text-sm font-medium text-muted-foreground">{title}</h2>
-      <div className="flex items-center gap-1">
-        {extraAction}
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon-xs"
-          aria-pressed={visible}
-          aria-label={
-            visible ? t.dashboard.hideChartLabel(title) : t.dashboard.showChartLabel(title)
-          }
-          onClick={() => toggleVisible(chart)}
-        >
-          {visible ? <Eye aria-hidden="true" /> : <EyeOff aria-hidden="true" />}
-        </Button>
-      </div>
-    </div>
+    <SectionTitleWithToggle
+      title={title}
+      visible={visible}
+      onToggle={() => toggleVisible(chart)}
+      hideLabel={t.dashboard.hideChartLabel(title)}
+      showLabel={t.dashboard.showChartLabel(title)}
+      extraAction={extraAction}
+    />
   )
 }

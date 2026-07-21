@@ -6,7 +6,7 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import type { DailyEntry } from '@/domain/dailyEntry'
 import type { Goal } from '@/domain/goal'
 import { db } from '@/infrastructure/persistence/indexeddb'
-import { useGoalStore } from '@/stores'
+import { useGoalStore, useSectionVisibilityStore } from '@/stores'
 import { GoalScreen } from './GoalScreen'
 
 const DATE_FORMAT = 'yyyy-MM-dd'
@@ -51,12 +51,24 @@ beforeEach(async () => {
   await db.goals.clear()
   await db.dailyEntries.clear()
   useGoalStore.setState({ goal: null, status: 'idle', error: null })
+  resetSectionVisibility()
 })
 
 afterEach(async () => {
   await db.goals.clear()
   await db.dailyEntries.clear()
+  resetSectionVisibility()
 })
+
+// Merges every key back to true rather than a full literal (see the same
+// note on TodayScreen.test.tsx) — stays correct as SectionKey grows.
+function resetSectionVisibility() {
+  useSectionVisibilityStore.setState((state) => ({
+    visible: Object.fromEntries(
+      Object.keys(state.visible).map((key) => [key, true]),
+    ) as typeof state.visible,
+  }))
+}
 
 describe('GoalScreen', () => {
   it('shows the setup form with no summary when there is no goal yet', async () => {
@@ -272,5 +284,95 @@ describe('GoalScreen', () => {
     expect(await db.goals.count()).toBe(2)
     const persistedOriginal = await db.goals.get(original.id)
     expect(persistedOriginal?.targetWeeklyLossKg).toBe(1)
+  })
+
+  describe('dismissible insight sections (#232)', () => {
+    it('hides the "This week\'s target" StatCard, keeping the toggle reachable via its own label row', async () => {
+      const user = userEvent.setup()
+      await useGoalStore.getState().saveGoal(makeGoal())
+
+      render(<GoalScreen />)
+      // "This week's target" legitimately appears twice — this StatCard's
+      // own label, and GoalForm's separate #244 read-only summary table
+      // (untouched by this toggle) — so every query below is by role
+      // (the hide/show button) or an *All* text query, never a bare
+      // single-match query for that ambiguous text.
+      const hideButton = await screen.findByRole('button', {
+        name: "Hide This week's target",
+      })
+
+      await user.click(hideButton)
+
+      expect(screen.queryByText('-1.0')).not.toBeInTheDocument()
+      expect(
+        screen.getAllByText("This week's target").length,
+      ).toBeGreaterThan(0)
+      const showButton = screen.getByRole('button', {
+        name: "Show This week's target",
+      })
+
+      await user.click(showButton)
+      expect(await screen.findByText('-1.0')).toBeInTheDocument()
+    })
+
+    it('hides the target-reached nudge banner but keeps its title and toggle visible', async () => {
+      const user = userEvent.setup()
+      await useGoalStore.getState().saveGoal(makeGoal({ targetWeeklyLossKg: 1 }))
+      await seedTargetMetWeeks()
+
+      render(<GoalScreen />)
+      await screen.findByText(/Target met on/)
+      const title = 'Target reached'
+      expect(screen.getByText(title)).toBeInTheDocument()
+
+      await user.click(screen.getByRole('button', { name: `Hide ${title}` }))
+
+      expect(
+        screen.queryByText(
+          "You reached this week's target early — set a new one below whenever you're ready.",
+        ),
+      ).not.toBeInTheDocument()
+      expect(screen.getByText(title)).toBeInTheDocument()
+
+      await user.click(screen.getByRole('button', { name: `Show ${title}` }))
+      expect(
+        screen.getByText(
+          "You reached this week's target early — set a new one below whenever you're ready.",
+        ),
+      ).toBeInTheDocument()
+    })
+
+    it('hides the past targets table but keeps its title and toggle visible', async () => {
+      const user = userEvent.setup()
+      await useGoalStore
+        .getState()
+        .saveGoal(makeGoal({ weekStart: '2026-03-09' }))
+
+      render(<GoalScreen />)
+      await user.click(
+        await screen.findByRole('button', { name: 'Edit goal' }),
+      )
+      const weeklyTargetInput = screen.getByLabelText(
+        "This week's target (kg to lose)",
+      )
+      await user.clear(weeklyTargetInput)
+      await user.type(weeklyTargetInput, '0.5')
+      await user.click(
+        screen.getByRole('button', { name: 'Update this week’s target' }),
+      )
+      await screen.findByText('Past targets')
+
+      await user.click(
+        screen.getByRole('button', { name: 'Hide Past targets' }),
+      )
+
+      expect(screen.queryByText('Mar 9 – Mar 15')).not.toBeInTheDocument()
+      expect(screen.getByText('Past targets')).toBeInTheDocument()
+
+      await user.click(
+        screen.getByRole('button', { name: 'Show Past targets' }),
+      )
+      expect(screen.getByText('Mar 9 – Mar 15')).toBeInTheDocument()
+    })
   })
 })

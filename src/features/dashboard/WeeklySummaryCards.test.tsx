@@ -1,8 +1,10 @@
 import { render, screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { format, startOfISOWeek } from 'date-fns'
-import { describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it } from 'vitest'
 import type { CalorieEntry, CalorieItem, DailyEntry } from '@/domain/dailyEntry'
 import type { Goal } from '@/domain/goal'
+import { useDashboardChartVisibilityStore } from '@/stores'
 import { WeeklySummaryCards } from './WeeklySummaryCards'
 
 function calories(
@@ -176,5 +178,31 @@ describe('WeeklySummaryCards', () => {
 
     const labels = screen.getAllByText(/–/).map((el) => el.textContent)
     expect(labels[0]).not.toEqual(labels[labels.length - 1])
+  })
+
+  describe('whole-card show/hide toggle (#232)', () => {
+    afterEach(() => {
+      useDashboardChartVisibilityStore.setState((state) => ({
+        visible: { ...state.visible, weeklySummary: true },
+      }))
+    })
+
+    it('hides the card body but keeps the title and toggle visible', async () => {
+      const user = userEvent.setup()
+      const entries = [entry(dayOf(WEEK_1_START, 0), { weightKg: 80 })]
+      render(<WeeklySummaryCards entries={entries} goal={null} />)
+
+      const title = 'Weekly summary'
+      expect(screen.getByText(title)).toBeInTheDocument()
+      await user.click(screen.getByRole('button', { name: `Hide ${title}` }))
+
+      expect(screen.queryByText('—')).not.toBeInTheDocument()
+      expect(screen.getByText(title)).toBeInTheDocument()
+      const showButton = screen.getByRole('button', { name: `Show ${title}` })
+      expect(showButton).toBeInTheDocument()
+
+      await user.click(showButton)
+      expect(screen.getByText('—')).toBeInTheDocument()
+    })
   })
 })

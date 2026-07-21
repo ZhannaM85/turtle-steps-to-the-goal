@@ -25,3 +25,5 @@ export { useDashboardChartVisibilityStore } from './dashboardChartVisibilityStor
 export type { DashboardChartKey } from './dashboardChartVisibilityStore'
 export { useTrackedFieldsStore } from './trackedFieldsStore'
 export type { TrackedField } from './trackedFieldsStore'
+export { useSectionVisibilityStore } from './sectionVisibilityStore'
+export type { SectionKey } from './sectionVisibilityStore'

@@ -2,11 +2,12 @@ import { create } from 'zustand'
 import { createJSONStorage, persist } from 'zustand/middleware'
 
 /** #245 — whole-chart show/hide, distinct from #238's within-a-chart
- * raw/average series toggle. Started with the three trend charts only;
- * #247 extended the same mechanism to the custom chart section and each
- * correlation card (one toggle per card, not one for the whole group —
- * matches #245's own per-chart granularity). Broader Today/Goal-page
- * section dismissal stays #232's separate, still-unscoped territory. */
+ * raw/average series toggle. Started with the three trend charts; #247
+ * extended it to the custom chart section and each correlation card
+ * (one toggle per card, not one for the whole group); #232 extended it
+ * again to every remaining Dashboard section, so every Dashboard section
+ * now has one — Today/Goal-page sections use a separate
+ * `sectionVisibilityStore.ts` (different pages, different key set). */
 export type DashboardChartKey =
   | 'weight'
   | 'calories'
@@ -17,6 +18,12 @@ export type DashboardChartKey =
   | 'sleepCorrelation'
   | 'stepsCorrelation'
   | 'proteinCorrelation'
+  | 'foodReactions'
+  | 'loggingConsistency'
+  | 'recentAverages'
+  | 'weeklySummary'
+  | 'monthlySummary'
+  | 'compareRanges'
 
 const DEFAULT_VISIBLE: Record<DashboardChartKey, boolean> = {
   weight: true,
@@ -28,6 +35,12 @@ const DEFAULT_VISIBLE: Record<DashboardChartKey, boolean> = {
   sleepCorrelation: true,
   stepsCorrelation: true,
   proteinCorrelation: true,
+  foodReactions: true,
+  loggingConsistency: true,
+  recentAverages: true,
+  weeklySummary: true,
+  monthlySummary: true,
+  compareRanges: true,
 }
 
 interface DashboardChartVisibilityState {
