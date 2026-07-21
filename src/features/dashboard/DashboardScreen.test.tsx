@@ -1,4 +1,5 @@
 import 'fake-indexeddb/auto'
+import { format } from 'date-fns'
 import { render, screen } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
@@ -63,5 +64,17 @@ describe('DashboardScreen', () => {
 
     expect(await screen.findByText('Monthly summary')).toBeInTheDocument()
     expect(screen.getByText('March 2026')).toBeInTheDocument()
+  })
+
+  it('renders the recent-averages cards once entries exist (#215)', async () => {
+    // Recent-averages is anchored to the real current date, unlike the
+    // other tests here which use fixed 2026-03 dates that fall well
+    // outside any real "last 30 days" window.
+    await db.dailyEntries.put(makeEntry({ date: format(new Date(), 'yyyy-MM-dd') }))
+
+    render(<DashboardScreen />, { wrapper: MemoryRouter })
+
+    expect(await screen.findByText('Recent averages')).toBeInTheDocument()
+    expect(screen.getByText('Last 7 days')).toBeInTheDocument()
   })
 })

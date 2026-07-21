@@ -412,6 +412,11 @@ export interface Dictionary {
      * name + year (date-fns 'MMMM yyyy'), formatted directly in the
      * component. */
     monthlySummaryTitle: string
+    /** #215 — "as of today" rolling averages, distinct from the calendar-
+     * based weekly/monthly summary cards above. */
+    recentAveragesTitle: string
+    last7DaysLabel: string
+    last30DaysLabel: string
     emptyTitle: string
     emptyDescription: string
     correlationTitle: string

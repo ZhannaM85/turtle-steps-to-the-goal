@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 206,
+    issue: 215,
+    date: '2026-07-21T03:10:00+03:00',
+    en: 'The Dashboard now shows your average calories and protein over the last 7 and 30 days.',
+    ru: 'На панели теперь показаны средние калории и белок за последние 7 и 30 дней.',
+  },
+  {
     version: 205,
     issue: 214,
     date: '2026-07-21T02:56:00+03:00',
