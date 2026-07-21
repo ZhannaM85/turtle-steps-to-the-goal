@@ -1,7 +1,9 @@
 import { render, screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
-import { describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it } from 'vitest'
 import type { DailyEntry } from '@/domain/dailyEntry'
+import { useTrendChartSeriesStore } from '@/stores'
 import { WeightTrendChart } from './WeightTrendChart'
 
 let idCounter = 0
@@ -86,6 +88,44 @@ describe('WeightTrendChart', () => {
           'Not enough data yet to show a trend — log a few more days and check back.',
         ),
       ).not.toBeInTheDocument()
+    })
+  })
+
+  describe('series toggle (#238)', () => {
+    afterEach(() => {
+      useTrendChartSeriesStore.setState({
+        visible: {
+          weight: { raw: true, average: true },
+          calories: { raw: true, average: true },
+        },
+      })
+    })
+
+    it('toggles a series off via its legend button', async () => {
+      const user = userEvent.setup()
+      render(<WeightTrendChart entries={threeWeightEntries()} />, {
+        wrapper: MemoryRouter,
+      })
+
+      const weightToggle = screen.getByRole('button', { name: 'weight' })
+      expect(weightToggle).toHaveAttribute('aria-pressed', 'true')
+
+      await user.click(weightToggle)
+      expect(weightToggle).toHaveAttribute('aria-pressed', 'false')
+    })
+
+    it('shows a "pick at least one" message once both series are turned off', async () => {
+      const user = userEvent.setup()
+      render(<WeightTrendChart entries={threeWeightEntries()} />, {
+        wrapper: MemoryRouter,
+      })
+
+      await user.click(screen.getByRole('button', { name: 'weight' }))
+      await user.click(screen.getByRole('button', { name: '7-day average' }))
+
+      expect(
+        screen.getByText('Pick at least one series to show.'),
+      ).toBeInTheDocument()
     })
   })
 })

@@ -320,6 +320,33 @@ describe('GoalForm', () => {
     })
   })
 
+  it('clears all three fields once a save succeeds (#241)', async () => {
+    // Explicitly requested by the user: not just a confirmation next to
+    // the button, the fields themselves must go blank. Current value
+    // stays visible via the "This week's target" StatCard above the form
+    // (GoalScreen.tsx), not this form.
+    const user = userEvent.setup()
+    const onSubmit = vi.fn()
+    render(<GoalForm existingGoal={null} onSubmit={onSubmit} />)
+
+    await user.type(
+      screen.getByLabelText("This week's target (kg to lose)"),
+      '1',
+    )
+    await user.type(screen.getByLabelText('Daily calories target'), '1800')
+    await user.type(screen.getByLabelText('Daily protein target'), '120')
+    await user.click(
+      screen.getByRole('button', { name: 'Set this week’s target' }),
+    )
+
+    expect(onSubmit).toHaveBeenCalledTimes(1)
+    expect(
+      screen.getByLabelText("This week's target (kg to lose)"),
+    ).toHaveValue('')
+    expect(screen.getByLabelText('Daily calories target')).toHaveValue('')
+    expect(screen.getByLabelText('Daily protein target')).toHaveValue('')
+  })
+
   it('accepts a comma as the decimal separator', async () => {
     const user = userEvent.setup()
     const onSubmit = vi.fn()

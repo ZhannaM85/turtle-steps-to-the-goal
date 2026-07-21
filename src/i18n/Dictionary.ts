@@ -432,6 +432,7 @@ export interface Dictionary {
     weightLegend: string
     caloriesLegend: string
     rollingAverageLegend: string
+    trendChartEmptyDescription: string
     /** #217 — shown by the weight/calorie/macro trend charts instead of the
      * chart itself when there are too few logged days to plot a trend that
      * means anything (e.g. two far-apart points connected by a straight

@@ -2,18 +2,32 @@ import * as React from 'react'
 
 import { cn } from '@/shared/lib/utils'
 
-function Input({ className, type, ...props }: React.ComponentProps<'input'>) {
-  return (
-    <input
-      type={type}
-      data-slot="input"
-      className={cn(
-        'h-8 w-full min-w-0 rounded-lg border border-input bg-transparent px-2.5 py-1 text-base transition-colors outline-none file:inline-flex file:h-6 file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:pointer-events-none disabled:cursor-not-allowed disabled:bg-input/50 disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 md:text-sm dark:bg-input/30 dark:disabled:bg-input/80 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40',
-        className,
-      )}
-      {...props}
-    />
-  )
-}
+/**
+ * #241 root cause: this was a plain (non-forwardRef) function component —
+ * any `ref` passed in (e.g. React Hook Form's `register()` ref, needed for
+ * `reset()` to directly update an uncontrolled input's DOM value) never
+ * reached the real `<input>` element. RHF's internal state reset correctly
+ * on `reset()`, but the visible field never followed — the input's DOM
+ * value only ever changes via user typing without a working ref. Explicit
+ * `forwardRef` fixes it for every consumer (`NumberInput` and any other
+ * form field built on this), not just the one form that surfaced it.
+ */
+const Input = React.forwardRef<HTMLInputElement, React.ComponentProps<'input'>>(
+  ({ className, type, ...props }, ref) => {
+    return (
+      <input
+        ref={ref}
+        type={type}
+        data-slot="input"
+        className={cn(
+          'h-8 w-full min-w-0 rounded-lg border border-input bg-transparent px-2.5 py-1 text-base transition-colors outline-none file:inline-flex file:h-6 file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:pointer-events-none disabled:cursor-not-allowed disabled:bg-input/50 disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 md:text-sm dark:bg-input/30 dark:disabled:bg-input/80 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40',
+          className,
+        )}
+        {...props}
+      />
+    )
+  },
+)
+Input.displayName = 'Input'
 
 export { Input }

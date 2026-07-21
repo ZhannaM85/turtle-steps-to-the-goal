@@ -296,6 +296,7 @@ export const en: Dictionary = {
     weightLegend: 'weight',
     caloriesLegend: 'calories',
     rollingAverageLegend: '7-day average',
+    trendChartEmptyDescription: 'Pick at least one series to show.',
     notEnoughTrendDataMessage:
       'Not enough data yet to show a trend — log a few more days and check back.',
     macrosTitle: 'Protein, fat & carbs',

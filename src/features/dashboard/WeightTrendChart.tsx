@@ -22,7 +22,7 @@ import {
   useLocale,
   useTranslation,
 } from '@/i18n'
-import { useUnitStore } from '@/stores'
+import { useTrendChartSeriesStore, useUnitStore } from '@/stores'
 import { resolveChartClickDate } from './chartNavigation'
 
 interface ChartPoint {
@@ -54,6 +54,10 @@ export function WeightTrendChart({ entries }: WeightTrendChartProps) {
   const dateFnsLocale = getDateFnsLocale(locale)
   const displayUnit = useUnitStore((state) => state.unit)
   const toDisplay = (kg: number) => (displayUnit === 'lb' ? kgToLb(kg) : kg)
+  // #238 — independent per chart, someone might want the average on one
+  // trend chart and not the other.
+  const visible = useTrendChartSeriesStore((state) => state.visible.weight)
+  const toggleSeries = useTrendChartSeriesStore((state) => state.toggleSeries)
 
   const weightPoints = entries
     .filter(
@@ -69,6 +73,14 @@ export function WeightTrendChart({ entries }: WeightTrendChartProps) {
     return (
       <p className="text-sm text-muted-foreground">
         {t.dashboard.notEnoughTrendDataMessage}
+      </p>
+    )
+  }
+
+  if (!visible.raw && !visible.average) {
+    return (
+      <p className="text-sm text-muted-foreground">
+        {t.dashboard.trendChartEmptyDescription}
       </p>
     )
   }
@@ -187,30 +199,32 @@ export function WeightTrendChart({ entries }: WeightTrendChartProps) {
             content={renderTooltip}
             wrapperStyle={{ pointerEvents: 'auto' }}
           />
-          <Line
-            type="monotone"
-            dataKey="weight"
-            stroke="var(--chart-weight)"
-            strokeWidth={2.5}
-            connectNulls={false}
-            dot={(props: DotItemDotProps) => {
-              const { cx, cy, index } = props
-              if (index !== lastWeightIndex || cx == null || cy == null) {
-                return <g key={index} />
-              }
-              return (
-                <circle
-                  key={index}
-                  cx={cx}
-                  cy={cy}
-                  r={3.5}
-                  fill="var(--chart-weight)"
-                />
-              )
-            }}
-            activeDot={{ r: 4 }}
-            isAnimationActive={false}
-          />
+          {visible.raw && (
+            <Line
+              type="monotone"
+              dataKey="weight"
+              stroke="var(--chart-weight)"
+              strokeWidth={2.5}
+              connectNulls={false}
+              dot={(props: DotItemDotProps) => {
+                const { cx, cy, index } = props
+                if (index !== lastWeightIndex || cx == null || cy == null) {
+                  return <g key={index} />
+                }
+                return (
+                  <circle
+                    key={index}
+                    cx={cx}
+                    cy={cy}
+                    r={3.5}
+                    fill="var(--chart-weight)"
+                  />
+                )
+              }}
+              activeDot={{ r: 4 }}
+              isAnimationActive={false}
+            />
+          )}
           {/* #214: a dashed, muted-gray line — deliberately not a second
            * solid `--chart-weight` line the way CalorieTrendChart.tsx
            * overlays its own rolling average, since that chart's average
@@ -219,35 +233,57 @@ export function WeightTrendChart({ entries }: WeightTrendChartProps) {
            * solid pair would be hard to tell apart at a glance. The dash
            * reads as "smoothed variant of the line next to it" rather
            * than a second real data series. */}
-          <Line
-            type="monotone"
-            dataKey="average"
-            stroke="var(--muted-foreground)"
-            strokeWidth={1.5}
-            strokeDasharray="4 3"
-            dot={false}
-            connectNulls={false}
-            isAnimationActive={false}
-          />
+          {visible.average && (
+            <Line
+              type="monotone"
+              dataKey="average"
+              stroke="var(--muted-foreground)"
+              strokeWidth={1.5}
+              strokeDasharray="4 3"
+              dot={false}
+              connectNulls={false}
+              isAnimationActive={false}
+            />
+          )}
         </LineChart>
       </ResponsiveContainer>
+      {/* #238: legend doubles as a show/hide toggle per series — was purely
+       * decorative before, no way to turn either off. */}
       <span className="flex gap-3 text-xs text-muted-foreground">
-        <i className="flex items-center gap-1 not-italic">
+        <button
+          type="button"
+          aria-pressed={visible.raw}
+          onClick={() => toggleSeries('weight', 'raw')}
+          className={
+            visible.raw
+              ? 'flex items-center gap-1'
+              : 'flex items-center gap-1 opacity-50'
+          }
+        >
           <span
             aria-hidden="true"
             className="size-2 rounded-sm"
             style={{ background: 'var(--chart-weight)' }}
           />
           {t.dashboard.weightLegend}
-        </i>
-        <i className="flex items-center gap-1 not-italic">
+        </button>
+        <button
+          type="button"
+          aria-pressed={visible.average}
+          onClick={() => toggleSeries('weight', 'average')}
+          className={
+            visible.average
+              ? 'flex items-center gap-1'
+              : 'flex items-center gap-1 opacity-50'
+          }
+        >
           <span
             aria-hidden="true"
             className="size-2 rounded-sm"
             style={{ background: 'var(--muted-foreground)' }}
           />
           {t.dashboard.rollingAverageLegend}
-        </i>
+        </button>
       </span>
       <p className="text-xs text-muted-foreground">
         {t.dashboard.chartNavigationHint}

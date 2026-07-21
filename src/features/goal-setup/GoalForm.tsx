@@ -40,6 +40,7 @@ export function GoalForm({
     register,
     handleSubmit,
     watch,
+    reset,
     formState: { errors },
   } = useForm<GoalFormValues>({
     resolver: zodResolver(schema),
@@ -67,6 +68,21 @@ export function GoalForm({
       formValuesToGoal(formValues, unit, existingGoal, activeGoalReached),
     )
     setJustSaved(true)
+    // Explicitly requested, twice: the fields should actually clear once
+    // Update is clicked, not just show a confirmation next to them — the
+    // current value stays visible via the "This week's target" StatCard
+    // above the form instead. Root cause of the first two attempts:
+    // react-hook-form's reset() treats `undefined` as "don't touch this
+    // uncontrolled field's DOM value," not "clear it" — its own internal
+    // state updates to undefined, but the visible input never follows.
+    // An explicit empty string is what actually clears the rendered value
+    // (confirmed with an isolated repro against a bare native <input>,
+    // no custom components involved).
+    reset({
+      targetWeeklyLoss: '' as unknown as number | undefined,
+      dailyCalorieTarget: '' as unknown as number | undefined,
+      dailyProteinTarget: '' as unknown as number | undefined,
+    })
   }
 
   return (

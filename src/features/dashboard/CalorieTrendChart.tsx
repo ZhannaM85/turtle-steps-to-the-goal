@@ -20,6 +20,7 @@ import {
   useLocale,
   useTranslation,
 } from '@/i18n'
+import { useTrendChartSeriesStore } from '@/stores'
 import { resolveChartClickDate } from './chartNavigation'
 
 interface ChartPoint {
@@ -41,6 +42,9 @@ export function CalorieTrendChart({ entries }: CalorieTrendChartProps) {
   const t = useTranslation()
   const locale = useLocale()
   const dateFnsLocale = getDateFnsLocale(locale)
+  // #238 — see WeightTrendChart.tsx's identical note.
+  const visible = useTrendChartSeriesStore((state) => state.visible.calories)
+  const toggleSeries = useTrendChartSeriesStore((state) => state.toggleSeries)
 
   const calorieBars = entries
     .map((entry) => ({
@@ -59,6 +63,14 @@ export function CalorieTrendChart({ entries }: CalorieTrendChartProps) {
     return (
       <p className="text-sm text-muted-foreground">
         {t.dashboard.notEnoughTrendDataMessage}
+      </p>
+    )
+  }
+
+  if (!visible.raw && !visible.average) {
+    return (
+      <p className="text-sm text-muted-foreground">
+        {t.dashboard.trendChartEmptyDescription}
       </p>
     )
   }
@@ -156,40 +168,64 @@ export function CalorieTrendChart({ entries }: CalorieTrendChartProps) {
             content={renderTooltip}
             wrapperStyle={{ pointerEvents: 'auto' }}
           />
-          <Bar
-            dataKey="calories"
-            fill="var(--chart-calories)"
-            radius={[3, 3, 0, 0]}
-            isAnimationActive={false}
-          />
-          <Line
-            type="monotone"
-            dataKey="average"
-            stroke="var(--chart-weight)"
-            strokeWidth={2}
-            dot={false}
-            connectNulls={false}
-            isAnimationActive={false}
-          />
+          {visible.raw && (
+            <Bar
+              dataKey="calories"
+              fill="var(--chart-calories)"
+              radius={[3, 3, 0, 0]}
+              isAnimationActive={false}
+            />
+          )}
+          {visible.average && (
+            <Line
+              type="monotone"
+              dataKey="average"
+              stroke="var(--chart-weight)"
+              strokeWidth={2}
+              dot={false}
+              connectNulls={false}
+              isAnimationActive={false}
+            />
+          )}
         </ComposedChart>
       </ResponsiveContainer>
+      {/* #238: legend doubles as a show/hide toggle per series — see
+       * WeightTrendChart.tsx's identical note. */}
       <span className="flex gap-3 text-xs text-muted-foreground">
-        <i className="flex items-center gap-1 not-italic">
+        <button
+          type="button"
+          aria-pressed={visible.raw}
+          onClick={() => toggleSeries('calories', 'raw')}
+          className={
+            visible.raw
+              ? 'flex items-center gap-1'
+              : 'flex items-center gap-1 opacity-50'
+          }
+        >
           <span
             aria-hidden="true"
             className="size-2 rounded-sm"
             style={{ background: 'var(--chart-calories)' }}
           />
           {t.dashboard.caloriesLegend}
-        </i>
-        <i className="flex items-center gap-1 not-italic">
+        </button>
+        <button
+          type="button"
+          aria-pressed={visible.average}
+          onClick={() => toggleSeries('calories', 'average')}
+          className={
+            visible.average
+              ? 'flex items-center gap-1'
+              : 'flex items-center gap-1 opacity-50'
+          }
+        >
           <span
             aria-hidden="true"
             className="size-2 rounded-sm"
             style={{ background: 'var(--chart-weight)' }}
           />
           {t.dashboard.rollingAverageLegend}
-        </i>
+        </button>
       </span>
       <p className="text-xs text-muted-foreground">
         {t.dashboard.chartNavigationHint}
