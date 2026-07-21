@@ -8,6 +8,7 @@ import {
   useDailyReminderStore,
   useDigestionTrackingStore,
   useThemeStore,
+  useTrendChartSeriesStore,
   useUnitStore,
   useWeekStartStore,
 } from '@/stores'
@@ -15,6 +16,11 @@ import { SettingsScreen } from './SettingsScreen'
 
 function renderSettings() {
   return render(<SettingsScreen />, { wrapper: MemoryRouter })
+}
+
+const defaultTrendChartVisible = {
+  weight: { raw: true, average: true },
+  calories: { raw: true, average: true },
 }
 
 beforeEach(() => {
@@ -25,6 +31,7 @@ beforeEach(() => {
   useWeekStartStore.setState({ weekStart: 'monday' })
   useDigestionTrackingStore.setState({ enabled: false })
   useDailyReminderStore.setState({ enabled: false })
+  useTrendChartSeriesStore.setState({ visible: defaultTrendChartVisible })
   document.documentElement.removeAttribute('data-mood')
   document.documentElement.classList.remove('dark')
 })
@@ -37,6 +44,7 @@ afterEach(() => {
   useWeekStartStore.setState({ weekStart: 'monday' })
   useDigestionTrackingStore.setState({ enabled: false })
   useDailyReminderStore.setState({ enabled: false })
+  useTrendChartSeriesStore.setState({ visible: defaultTrendChartVisible })
   document.documentElement.removeAttribute('data-mood')
   document.documentElement.classList.remove('dark')
 })
@@ -218,5 +226,28 @@ describe('SettingsScreen', () => {
     expect(
       screen.getByRole('button', { name: 'Import backup' }),
     ).toBeInTheDocument()
+  })
+
+  describe('Dashboard trend chart series (#238)', () => {
+    it('recovers a series that was turned off on the Dashboard itself', async () => {
+      // Simulates arriving here after the exact live scenario reported:
+      // both series turned off on the Weight trend chart, no way back
+      // there except this Settings card.
+      useTrendChartSeriesStore.setState({
+        visible: { weight: { raw: false, average: true }, calories: { raw: true, average: true } },
+      })
+      const user = userEvent.setup()
+      renderSettings()
+
+      const rawToggle = screen.getByRole('button', { name: 'weight' })
+      expect(rawToggle).toHaveAttribute('aria-pressed', 'false')
+
+      await user.click(rawToggle)
+
+      expect(rawToggle).toHaveAttribute('aria-pressed', 'true')
+      expect(useTrendChartSeriesStore.getState().visible.weight.raw).toBe(
+        true,
+      )
+    })
   })
 })

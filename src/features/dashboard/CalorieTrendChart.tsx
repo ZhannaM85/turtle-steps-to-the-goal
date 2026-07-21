@@ -67,14 +67,6 @@ export function CalorieTrendChart({ entries }: CalorieTrendChartProps) {
     )
   }
 
-  if (!visible.raw && !visible.average) {
-    return (
-      <p className="text-sm text-muted-foreground">
-        {t.dashboard.trendChartEmptyDescription}
-      </p>
-    )
-  }
-
   const rolling = rollingAverage(
     entries,
     (entry) => totalCalories(entry.calorieEntries),
@@ -141,54 +133,64 @@ export function CalorieTrendChart({ entries }: CalorieTrendChartProps) {
     )
   }
 
+  const bothHidden = !visible.raw && !visible.average
+
   return (
     <div className="flex flex-col gap-1.5">
-      <ResponsiveContainer width="100%" height={160}>
-        <ComposedChart
-          data={data}
-          margin={{ top: 8, right: 8, left: 0, bottom: 0 }}
-        >
-          <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
-          <XAxis
-            dataKey="date"
-            tick={{ fontSize: 11, fill: 'var(--muted-foreground)' }}
-            tickFormatter={(date: string) =>
-              format(parseISO(date), 'MMM d', { locale: dateFnsLocale })
-            }
-            axisLine={{ stroke: 'var(--border)' }}
-            tickLine={false}
-          />
-          <YAxis
-            width={40}
-            tick={{ fontSize: 11, fill: 'var(--muted-foreground)' }}
-            axisLine={false}
-            tickLine={false}
-          />
-          <Tooltip
-            content={renderTooltip}
-            wrapperStyle={{ pointerEvents: 'auto' }}
-          />
-          {visible.raw && (
-            <Bar
-              dataKey="calories"
-              fill="var(--chart-calories)"
-              radius={[3, 3, 0, 0]}
-              isAnimationActive={false}
+      {bothHidden ? (
+        // #238 regression, caught live — see WeightTrendChart.tsx's
+        // identical note. The legend below must always render, even here.
+        <p className="text-sm text-muted-foreground">
+          {t.dashboard.trendChartEmptyDescription}
+        </p>
+      ) : (
+        <ResponsiveContainer width="100%" height={160}>
+          <ComposedChart
+            data={data}
+            margin={{ top: 8, right: 8, left: 0, bottom: 0 }}
+          >
+            <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+            <XAxis
+              dataKey="date"
+              tick={{ fontSize: 11, fill: 'var(--muted-foreground)' }}
+              tickFormatter={(date: string) =>
+                format(parseISO(date), 'MMM d', { locale: dateFnsLocale })
+              }
+              axisLine={{ stroke: 'var(--border)' }}
+              tickLine={false}
             />
-          )}
-          {visible.average && (
-            <Line
-              type="monotone"
-              dataKey="average"
-              stroke="var(--chart-weight)"
-              strokeWidth={2}
-              dot={false}
-              connectNulls={false}
-              isAnimationActive={false}
+            <YAxis
+              width={40}
+              tick={{ fontSize: 11, fill: 'var(--muted-foreground)' }}
+              axisLine={false}
+              tickLine={false}
             />
-          )}
-        </ComposedChart>
-      </ResponsiveContainer>
+            <Tooltip
+              content={renderTooltip}
+              wrapperStyle={{ pointerEvents: 'auto' }}
+            />
+            {visible.raw && (
+              <Bar
+                dataKey="calories"
+                fill="var(--chart-calories)"
+                radius={[3, 3, 0, 0]}
+                isAnimationActive={false}
+              />
+            )}
+            {visible.average && (
+              <Line
+                type="monotone"
+                dataKey="average"
+                stroke="var(--chart-weight)"
+                strokeWidth={2}
+                dot={false}
+                connectNulls={false}
+                isAnimationActive={false}
+              />
+            )}
+          </ComposedChart>
+        </ResponsiveContainer>
+      )}
       {/* #238: legend doubles as a show/hide toggle per series — see
        * WeightTrendChart.tsx's identical note. */}
       <span className="flex gap-3 text-xs text-muted-foreground">
@@ -227,9 +229,11 @@ export function CalorieTrendChart({ entries }: CalorieTrendChartProps) {
           {t.dashboard.rollingAverageLegend}
         </button>
       </span>
-      <p className="text-xs text-muted-foreground">
-        {t.dashboard.chartNavigationHint}
-      </p>
+      {!bothHidden && (
+        <p className="text-xs text-muted-foreground">
+          {t.dashboard.chartNavigationHint}
+        </p>
+      )}
     </div>
   )
 }

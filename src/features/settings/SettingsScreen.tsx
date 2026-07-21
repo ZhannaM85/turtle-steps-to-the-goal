@@ -10,9 +10,12 @@ import {
   useDailyReminderStore,
   useDigestionTrackingStore,
   useThemeStore,
+  useTrendChartSeriesStore,
   useUnitStore,
   useWeekStartStore,
   type Mood,
+  type TrendChartKey,
+  type TrendSeriesKey,
   type Unit,
   type WeekStart,
 } from '@/stores'
@@ -70,6 +73,15 @@ export function SettingsScreen() {
   const dailyReminderEnabled = useDailyReminderStore((state) => state.enabled)
   const setDailyReminderEnabled = useDailyReminderStore(
     (state) => state.setEnabled,
+  )
+  // #238: a safety net independent of the Dashboard's own legend toggles —
+  // reported live that turning both series off there made the toggle
+  // buttons themselves disappear along with the chart, a dead end with no
+  // way back (fixed on the charts too). This card is always reachable
+  // regardless of what state either chart is in.
+  const trendChartVisible = useTrendChartSeriesStore((state) => state.visible)
+  const toggleTrendSeries = useTrendChartSeriesStore(
+    (state) => state.toggleSeries,
   )
 
   return (
@@ -275,6 +287,55 @@ export function SettingsScreen() {
               {t.settings.dailyReminderOn}
             </ToggleGroupItem>
           </ToggleGroup>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>{t.settings.trendChartsLabel}</CardTitle>
+        </CardHeader>
+        <CardContent className="flex flex-col gap-4">
+          <span className="text-sm text-muted-foreground">
+            {t.settings.trendChartsDescription}
+          </span>
+          {(
+            [
+              ['weight', t.settings.weightTrendLabel, t.dashboard.weightLegend],
+              [
+                'calories',
+                t.settings.calorieTrendLabel,
+                t.dashboard.caloriesLegend,
+              ],
+            ] as [TrendChartKey, string, string][]
+          ).map(([chart, chartLabel, rawLabel]) => (
+            <div key={chart} className="flex flex-col gap-1.5">
+              <span className="text-sm text-muted-foreground">
+                {chartLabel}
+              </span>
+              <ToggleGroup
+                type="multiple"
+                aria-label={chartLabel}
+                value={(['raw', 'average'] as TrendSeriesKey[]).filter(
+                  (series) => trendChartVisible[chart][series],
+                )}
+                onValueChange={(value: string[]) => {
+                  for (const series of ['raw', 'average'] as TrendSeriesKey[]) {
+                    const shouldBeOn = value.includes(series)
+                    if (shouldBeOn !== trendChartVisible[chart][series]) {
+                      toggleTrendSeries(chart, series)
+                    }
+                  }
+                }}
+              >
+                <ToggleGroupItem value="raw" className="h-12">
+                  {rawLabel}
+                </ToggleGroupItem>
+                <ToggleGroupItem value="average" className="h-12">
+                  {t.dashboard.rollingAverageLegend}
+                </ToggleGroupItem>
+              </ToggleGroup>
+            </div>
+          ))}
         </CardContent>
       </Card>
 

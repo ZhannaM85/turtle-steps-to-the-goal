@@ -127,5 +127,25 @@ describe('WeightTrendChart', () => {
         screen.getByText('Pick at least one series to show.'),
       ).toBeInTheDocument()
     })
+
+    it('keeps both legend toggle buttons visible and clickable once both series are off, so they can be recovered (regression)', async () => {
+      const user = userEvent.setup()
+      render(<WeightTrendChart entries={threeWeightEntries()} />, {
+        wrapper: MemoryRouter,
+      })
+
+      await user.click(screen.getByRole('button', { name: 'weight' }))
+      await user.click(screen.getByRole('button', { name: '7-day average' }))
+
+      const weightToggle = screen.getByRole('button', { name: 'weight' })
+      expect(weightToggle).toBeInTheDocument()
+      expect(weightToggle).toHaveAttribute('aria-pressed', 'false')
+
+      await user.click(weightToggle)
+      expect(weightToggle).toHaveAttribute('aria-pressed', 'true')
+      expect(
+        screen.queryByText('Pick at least one series to show.'),
+      ).not.toBeInTheDocument()
+    })
   })
 })

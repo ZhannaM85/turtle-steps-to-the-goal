@@ -671,6 +671,10 @@ export interface Dictionary {
     dailyReminderDescription: string
     dailyReminderOn: string
     dailyReminderOff: string
+    trendChartsLabel: string
+    trendChartsDescription: string
+    weightTrendLabel: string
+    calorieTrendLabel: string
     weekStartLabel: string
     weekStartDescription: string
     weekStartMonday: string

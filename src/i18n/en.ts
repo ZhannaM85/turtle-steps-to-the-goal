@@ -495,6 +495,11 @@ export const en: Dictionary = {
       'Optional — shows a quiet note on Today if you haven’t logged anything yet. Off by default.',
     dailyReminderOn: 'On',
     dailyReminderOff: 'Off',
+    trendChartsLabel: 'Dashboard trend charts',
+    trendChartsDescription:
+      'Which series show on the Weight and Calorie trend charts — a safe place to bring one back if it was turned off on the Dashboard itself.',
+    weightTrendLabel: 'Weight trend',
+    calorieTrendLabel: 'Calorie trend',
     weekStartLabel: 'Week start',
     weekStartDescription:
       'Which day each week begins on, used for "This week" and weekly summaries.',

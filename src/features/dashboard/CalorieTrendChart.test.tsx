@@ -116,5 +116,25 @@ describe('CalorieTrendChart', () => {
         screen.getByText('Pick at least one series to show.'),
       ).toBeInTheDocument()
     })
+
+    it('keeps both legend toggle buttons visible and clickable once both series are off, so they can be recovered (regression)', async () => {
+      const user = userEvent.setup()
+      render(<CalorieTrendChart entries={threeCalorieEntries()} />, {
+        wrapper: MemoryRouter,
+      })
+
+      await user.click(screen.getByRole('button', { name: 'calories' }))
+      await user.click(screen.getByRole('button', { name: '7-day average' }))
+
+      const caloriesToggle = screen.getByRole('button', { name: 'calories' })
+      expect(caloriesToggle).toBeInTheDocument()
+      expect(caloriesToggle).toHaveAttribute('aria-pressed', 'false')
+
+      await user.click(caloriesToggle)
+      expect(caloriesToggle).toHaveAttribute('aria-pressed', 'true')
+      expect(
+        screen.queryByText('Pick at least one series to show.'),
+      ).not.toBeInTheDocument()
+    })
   })
 })

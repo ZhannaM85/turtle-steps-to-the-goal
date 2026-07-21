@@ -77,14 +77,6 @@ export function WeightTrendChart({ entries }: WeightTrendChartProps) {
     )
   }
 
-  if (!visible.raw && !visible.average) {
-    return (
-      <p className="text-sm text-muted-foreground">
-        {t.dashboard.trendChartEmptyDescription}
-      </p>
-    )
-  }
-
   // rollingAverage() itself always works in canonical kg (DailyEntry's own
   // unit) — converted to the display unit per-point here, same as the raw
   // weight values above, rather than averaging already-converted numbers
@@ -171,10 +163,23 @@ export function WeightTrendChart({ entries }: WeightTrendChartProps) {
     )
   }
 
+  const bothHidden = !visible.raw && !visible.average
+
   return (
     <div className="flex flex-col gap-1.5">
-      <ResponsiveContainer width="100%" height={180}>
-        <LineChart
+      {bothHidden ? (
+        // #238 regression, caught live: this used to be an early return
+        // before the legend below, so turning both series off made the
+        // only way to turn them back on disappear along with the chart —
+        // a self-locking dead end with no recovery path in the UI at all.
+        // The legend (with its toggle buttons) must always render
+        // regardless of which state this branch takes.
+        <p className="text-sm text-muted-foreground">
+          {t.dashboard.trendChartEmptyDescription}
+        </p>
+      ) : (
+        <ResponsiveContainer width="100%" height={180}>
+          <LineChart
           data={data}
           margin={{ top: 8, right: 8, left: 0, bottom: 0 }}
         >
@@ -245,10 +250,12 @@ export function WeightTrendChart({ entries }: WeightTrendChartProps) {
               isAnimationActive={false}
             />
           )}
-        </LineChart>
-      </ResponsiveContainer>
+          </LineChart>
+        </ResponsiveContainer>
+      )}
       {/* #238: legend doubles as a show/hide toggle per series — was purely
-       * decorative before, no way to turn either off. */}
+       * decorative before, no way to turn either off. Always rendered,
+       * even in the bothHidden branch above — this is the only way back. */}
       <span className="flex gap-3 text-xs text-muted-foreground">
         <button
           type="button"
@@ -285,9 +292,11 @@ export function WeightTrendChart({ entries }: WeightTrendChartProps) {
           {t.dashboard.rollingAverageLegend}
         </button>
       </span>
-      <p className="text-xs text-muted-foreground">
-        {t.dashboard.chartNavigationHint}
-      </p>
+      {!bothHidden && (
+        <p className="text-xs text-muted-foreground">
+          {t.dashboard.chartNavigationHint}
+        </p>
+      )}
     </div>
   )
 }
