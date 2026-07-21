@@ -505,6 +505,21 @@ _Filed from a direct product discussion (not the Tier 28 cross-project code revi
 
 ---
 
+## Tier 30 — Feature ideas from a second cross-project review (2026-07-21)
+
+_Same method as Tier 28 — read another codebase's own documentation, cross-checked against `PROJECT_BRIEF.md`/`ARCHITECTURE.md`/this file so nothing already-built or already-rejected got refiled. That source app leans heavily on AI-driven logging and coaching, which is out immediately under the no-AI hard constraint, so this batch is smaller than Tier 28. One further candidate (simple workout/exercise logging with an estimated calorie-burn contribution) was flagged for discussion rather than filed — it's a genuinely new domain area, not a small addition, and needs a scope conversation first. None of these are picked up yet._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#258](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/258) | ⬜ Open | Add optional water/hydration tracking | Cleanest fit in the batch — the exact same opt-in-tracking shape already used four times (sleep #59, steps #60, cycle #61, digestion), applied to one more metric. New optional `DailyEntry.waterMl?`, off-by-default toggle, quick-log buttons, optional goal + remaining StatCard |
+| [#259](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/259) | ⬜ Open | Add a deterministic BMR/TDEE-based target calculator (suggest, don't auto-apply) | A "Suggest a target" helper on `GoalForm` using standard published formulas (Mifflin-St Jeor BMR × activity multiplier, fixed g/kg protein/fat, carbs as remainder) — plain arithmetic, not AI, prefills but never auto-saves the existing calorie/protein/fat/carb target fields. Needs new optional profile inputs (height/age/sex/activity level), explicitly scoped to stay optional so it can't become a mandatory onboarding step |
+| [#260](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/260) | ⬜ Open | Preview today's new running total before saving a meal | Small addition alongside the existing per-item computed-total preview (#98) — shows what today's overall total would become after adding the current draft, reusing existing `totalCalories`/`totalMacros` helpers |
+| [#261](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/261) | ⬜ Open | Add an opt-in local push notification for the 'haven't logged today' reminder | Extends the existing in-app-only reminder (#171) with a real local push notification via the service worker already shipped for offline support (#163) — still fully local, no account, no server |
+
+Also added: a scope-note comment on already-filed #253, suggesting the copy-source day could be picker-selectable rather than hardcoded to "yesterday" — not worth a separate issue.
+
+---
+
 ## Private (no public GitHub issue, by request)
 
 _Filed and built without a public issue at the user's explicit request — the repo is public, and this one's more personal than the rest. Still documented normally here per the project's usual close-out process; see [[feedback_issue_first]]'s exception #2 in memory for why._
