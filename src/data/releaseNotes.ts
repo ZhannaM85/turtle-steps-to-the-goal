@@ -25,6 +25,20 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 226,
+    issue: 246,
+    date: '2026-07-21T18:38:48+03:00',
+    en: 'Fixed the History page needing a horizontal scroll to reach the edit/delete buttons on narrow phones.',
+    ru: 'Исправлена страница «История»: на узких экранах телефона больше не нужна горизонтальная прокрутка, чтобы добраться до кнопок редактирования и удаления.',
+  },
+  {
+    version: 225,
+    issue: 240,
+    date: '2026-07-21T17:46:36+03:00',
+    en: 'You can now limit the Excel, CSV, and Markdown exports to a custom date range. The full JSON backup is unaffected and always exports everything.',
+    ru: 'Теперь можно ограничить экспорт в Excel, CSV и Markdown выбранным периодом. Полная резервная копия в формате JSON не затрагивается и всегда экспортирует все данные.',
+  },
+  {
     version: 224,
     issue: 245,
     date: '2026-07-21T18:06:32+03:00',
