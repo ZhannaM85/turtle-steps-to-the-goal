@@ -509,7 +509,7 @@ Vitest + jsdom + `fake-indexeddb` + React Testing Library + `@testing-library/us
 
 ## Status
 
-242 of 249 issues filed in `docs/issues-priority.md` are done — every original epic, the UX/product-model rework, and twelve full waves of live-feedback polish. 7 issues remain open, all in the two most recent tiers (#224, and #232/#233/#237/#247/#248/#249). One row per tier below; a new tier just needs a new row appended — see `docs/issues-priority.md` for full per-issue detail and the reasoning behind tier order.
+243 of 249 issues filed in `docs/issues-priority.md`'s original 27 tiers are done — every original epic, the UX/product-model rework, and twelve full waves of live-feedback polish. 2 issues remain open in those tiers (#224, #233). Tiers 28-30 (filed after this table was last refreshed) added further open feature-idea issues (#251-#261) not yet reflected as rows below — see `docs/issues-priority.md` for the current full list. One row per tier below; a new tier just needs a new row appended — see `docs/issues-priority.md` for full per-issue detail and the reasoning behind tier order.
 
 | Tier | Theme | Issues | Status |
 |---|---|---|---|
@@ -539,4 +539,4 @@ Vitest + jsdom + `fake-indexeddb` + React Testing Library + `@testing-library/us
 | 24 | New reports (2026-07-20) | [#206](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/206) | ✅ Done |
 | 25 | New reports (2026-07-20) | [#207](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/207)–[#213](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/213) | ✅ Done |
 | 26 | Analysis of `docs/weight-tracker-github-issues.md` and `docs/improvement_suggestions.md` (2026-07-20) | [#214](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/214)–[#231](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/231) | 🔍 1 open — [#224](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/224) |
-| 27 | Twelfth live-feedback wave (2026-07-21) | [#232](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/232)–[#249](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/249) | 🔍 6 open — [#232](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/232), [#233](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/233), [#237](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/237), [#247](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/247), [#248](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/248), [#249](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/249) |
+| 27 | Twelfth live-feedback wave (2026-07-21) | [#232](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/232)–[#249](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/249) | 🔍 1 open — [#233](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/233) |

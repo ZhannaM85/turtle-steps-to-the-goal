@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 230,
+    issue: 232,
+    date: '2026-07-22T00:07:14+03:00',
+    en: 'Today and Goal pages now have show/hide toggles on every computed section (this week\'s target, vs. yesterday, remaining calories/protein, past targets, and more) — matching the Dashboard chart toggles.',
+    ru: 'На страницах «Сегодня» и «Цель» теперь есть переключатели показать/скрыть для каждого вычисляемого раздела (цель на неделю, по сравнению со вчера, осталось калорий/белка, прошлые цели и другое) — как у переключателей графиков на панели.',
+  },
+  {
     version: 229,
     issue: 237,
     date: '2026-07-21T22:14:15+03:00',
