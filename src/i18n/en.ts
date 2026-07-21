@@ -243,6 +243,9 @@ export const en: Dictionary = {
     notValidJson: "That file isn't valid JSON.",
     exportFailed: 'Export failed.',
     importFailed: 'Import failed.',
+    exportPeriodLabel: 'Export period',
+    exportPeriodDescription:
+      'Optional — applies to Excel, CSV, and Markdown below, not the JSON backup above. Leave blank to export everything.',
     exportExcelBlurb:
       'Download your data as an Excel file for viewing or analysis — this is not a backup and can’t be imported back in.',
     exportExcelButton: 'Export as Excel',

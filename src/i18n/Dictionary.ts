@@ -362,6 +362,8 @@ export interface Dictionary {
     /** Excel export (#123) — a separate, human-readable view of the same
      * data, distinct from the JSON backup above: not re-importable, so its
      * own blurb/button/error copy rather than reusing the JSON ones. */
+    exportPeriodLabel: string
+    exportPeriodDescription: string
     exportExcelBlurb: string
     exportExcelButton: string
     exportingExcelButton: string

@@ -244,6 +244,9 @@ export const ru: Dictionary = {
     notValidJson: 'Этот файл не является корректным JSON.',
     exportFailed: 'Не удалось выполнить экспорт.',
     importFailed: 'Не удалось выполнить импорт.',
+    exportPeriodLabel: 'Период экспорта',
+    exportPeriodDescription:
+      'Необязательно — применяется к Excel, CSV и Markdown ниже, но не к резервной копии JSON выше. Оставьте пустым, чтобы экспортировать всё.',
     exportExcelBlurb:
       'Скачайте свои данные в формате Excel для просмотра или анализа — это не резервная копия, импортировать её обратно нельзя.',
     exportExcelButton: 'Экспорт в Excel',

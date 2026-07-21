@@ -1,5 +1,5 @@
 import 'fake-indexeddb/auto'
-import { render, screen } from '@testing-library/react'
+import { fireEvent, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { DailyEntry } from '@/domain/dailyEntry'
@@ -111,6 +111,35 @@ describe('ExportSection', () => {
     // No goals in the summary (#125) — CSV only covers the daily log.
     expect(
       await screen.findByText('Exported 2 daily entries.'),
+    ).toBeInTheDocument()
+  })
+
+  it('limits Excel/CSV/Markdown exports to the chosen period, without affecting the JSON backup (#240)', async () => {
+    await db.goals.put(makeGoal())
+    await db.dailyEntries.put(makeEntry({ date: '2026-02-15' }))
+    await db.dailyEntries.put(makeEntry({ date: '2026-03-01' }))
+    await db.dailyEntries.put(makeEntry({ date: '2026-03-10' }))
+    const user = userEvent.setup()
+
+    render(<ExportSection />)
+    fireEvent.change(screen.getByLabelText('Export period — Start date'), {
+      target: { value: '2026-03-01' },
+    })
+    fireEvent.change(screen.getByLabelText('Export period — End date'), {
+      target: { value: '2026-03-31' },
+    })
+
+    await user.click(screen.getByRole('button', { name: 'Export as CSV' }))
+    expect(
+      await screen.findByText('Exported 2 daily entries.'),
+    ).toBeInTheDocument()
+
+    // The JSON backup ignores the period entirely — a backup should stay
+    // complete regardless of whatever range happens to be set for the
+    // other formats.
+    await user.click(screen.getByRole('button', { name: 'Export backup' }))
+    expect(
+      await screen.findByText('Exported 1 goal and 3 daily entries.'),
     ).toBeInTheDocument()
   })
 

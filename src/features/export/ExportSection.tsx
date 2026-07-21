@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { format } from 'date-fns'
+import type { DailyEntry } from '@/domain/dailyEntry'
 import { useTranslation } from '@/i18n'
 import { Button } from '@/shared/ui/button'
 import {
@@ -8,6 +9,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/shared/ui/card'
+import { Input } from '@/shared/ui/input'
 import { InfoTooltip } from '@/shared/ui/info-tooltip'
 import {
   exportAllData,
@@ -18,6 +20,21 @@ import {
 import { buildDailyLogCsv, CSV_BOM } from './exportCsv'
 import { buildDailyLogMarkdown } from './exportMarkdown'
 import { buildExportWorkbook } from './exportXlsx'
+
+/** #240 — Excel/CSV/Markdown only, never the JSON backup (a backup should
+ * stay complete). Blank start/end means "no lower/upper bound", so leaving
+ * both blank exports everything, matching the pre-#240 behavior exactly. */
+function filterByExportPeriod(
+  entries: DailyEntry[],
+  start: string,
+  end: string,
+): DailyEntry[] {
+  if (!start && !end) return entries
+  return entries.filter(
+    (entry) =>
+      (!start || entry.date >= start) && (!end || entry.date <= end),
+  )
+}
 
 type Status =
   | { kind: 'idle' }
@@ -49,6 +66,10 @@ export function ExportSection() {
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [storageUsage, setStorageUsage] = useState<number | null>(null)
   const [storageQuota, setStorageQuota] = useState<number | null>(null)
+  // #240 — optional, applies to Excel/CSV/Markdown only (see
+  // filterByExportPeriod's own note).
+  const [periodStart, setPeriodStart] = useState('')
+  const [periodEnd, setPeriodEnd] = useState('')
 
   // Best-effort (#176) — navigator.storage is unavailable in some browsers
   // and estimate() itself can reject; either way, just show nothing rather
@@ -97,11 +118,12 @@ export function ExportSection() {
     setStatus({ kind: 'exportingExcel' })
     try {
       const bundle = await exportAllData()
-      const workbook = await buildExportWorkbook(
-        bundle.goals,
+      const dailyEntries = filterByExportPeriod(
         bundle.dailyEntries,
-        t,
+        periodStart,
+        periodEnd,
       )
+      const workbook = await buildExportWorkbook(bundle.goals, dailyEntries, t)
       const buffer = await workbook.xlsx.writeBuffer()
       const blob = new Blob([buffer], {
         type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
@@ -115,7 +137,7 @@ export function ExportSection() {
       setStatus({
         kind: 'exportedExcel',
         goals: bundle.goals.length,
-        entries: bundle.dailyEntries.length,
+        entries: dailyEntries.length,
       })
     } catch {
       setStatus({ kind: 'error', message: t.export.exportExcelFailed })
@@ -129,7 +151,12 @@ export function ExportSection() {
     setStatus({ kind: 'exportingCsv' })
     try {
       const bundle = await exportAllData()
-      const csv = buildDailyLogCsv(bundle.dailyEntries, t)
+      const dailyEntries = filterByExportPeriod(
+        bundle.dailyEntries,
+        periodStart,
+        periodEnd,
+      )
+      const csv = buildDailyLogCsv(dailyEntries, t)
       const blob = new Blob([CSV_BOM, csv], { type: 'text/csv' })
       const url = URL.createObjectURL(blob)
       const link = document.createElement('a')
@@ -137,7 +164,7 @@ export function ExportSection() {
       link.download = `turtle-steps-daily-log-${format(new Date(), 'yyyy-MM-dd')}.csv`
       link.click()
       URL.revokeObjectURL(url)
-      setStatus({ kind: 'exportedCsv', entries: bundle.dailyEntries.length })
+      setStatus({ kind: 'exportedCsv', entries: dailyEntries.length })
     } catch {
       setStatus({ kind: 'error', message: t.export.exportCsvFailed })
     }
@@ -150,7 +177,12 @@ export function ExportSection() {
     setStatus({ kind: 'exportingMarkdown' })
     try {
       const bundle = await exportAllData()
-      const markdown = buildDailyLogMarkdown(bundle.dailyEntries, t)
+      const dailyEntries = filterByExportPeriod(
+        bundle.dailyEntries,
+        periodStart,
+        periodEnd,
+      )
+      const markdown = buildDailyLogMarkdown(dailyEntries, t)
       const blob = new Blob([markdown], { type: 'text/markdown' })
       const url = URL.createObjectURL(blob)
       const link = document.createElement('a')
@@ -160,7 +192,7 @@ export function ExportSection() {
       URL.revokeObjectURL(url)
       setStatus({
         kind: 'exportedMarkdown',
-        entries: bundle.dailyEntries.length,
+        entries: dailyEntries.length,
       })
     } catch {
       setStatus({ kind: 'error', message: t.export.exportMarkdownFailed })
@@ -220,6 +252,35 @@ export function ExportSection() {
               ? t.export.exportingButton
               : t.export.exportButton}
           </Button>
+        </div>
+
+        {/* #240 — applies to Excel/CSV/Markdown below, not the JSON backup
+         * above (a backup should stay complete). */}
+        <div className="flex flex-col gap-1.5">
+          <span className="text-sm font-medium">
+            {t.export.exportPeriodLabel}
+          </span>
+          <p className="text-sm text-muted-foreground">
+            {t.export.exportPeriodDescription}
+          </p>
+          <div className="flex items-center gap-2">
+            <Input
+              type="date"
+              aria-label={`${t.export.exportPeriodLabel} — ${t.dashboard.rangeStartLabel}`}
+              value={periodStart}
+              max={periodEnd || undefined}
+              onChange={(e) => setPeriodStart(e.target.value)}
+              className="h-10"
+            />
+            <Input
+              type="date"
+              aria-label={`${t.export.exportPeriodLabel} — ${t.dashboard.rangeEndLabel}`}
+              value={periodEnd}
+              min={periodStart || undefined}
+              onChange={(e) => setPeriodEnd(e.target.value)}
+              className="h-10"
+            />
+          </div>
         </div>
 
         <div className="flex flex-col gap-2">
