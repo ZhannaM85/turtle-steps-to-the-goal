@@ -39,25 +39,11 @@ export const releaseNotes: ReleaseNote[] = [
     ru: 'Нажатие «Перезагрузить» в баннере о новой версии теперь показывает индикатор загрузки, а не выглядит так, будто ничего не произошло.',
   },
   {
-    version: 216,
-    issue: 236,
-    date: '2026-07-21T12:57:32+03:00',
-    en: 'The little chart-type icons in the Dashboard\'s "Compare your data" section are a bit bigger now, easier to tap.',
-    ru: 'Небольшие иконки типа графика в разделе «Сравнить данные» на панели стали немного крупнее — их удобнее нажимать.',
-  },
-  {
     version: 215,
     issue: 241,
     date: '2026-07-21T12:51:36+03:00',
     en: '"Update this week\'s target" now shows a quick "Saved" confirmation so it\'s clear the click worked.',
     ru: 'Кнопка «Обновить цель на неделю» теперь показывает подтверждение «Сохранено», чтобы было понятно, что нажатие сработало.',
-  },
-  {
-    version: 214,
-    issue: 243,
-    date: '2026-07-21T12:28:23+03:00',
-    en: "The mood icon next to your day's note is a bit bigger now, easier to see at a glance.",
-    ru: 'Иконка настроения рядом с заметкой дня стала немного крупнее — теперь её легче заметить.',
   },
   {
     version: 213,
