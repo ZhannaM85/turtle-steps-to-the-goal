@@ -30,11 +30,13 @@ import {
 import {
   useCustomChartSelectionStore,
   useCycleTrackingStore,
+  useDashboardChartVisibilityStore,
   useDigestionTrackingStore,
   useUnitStore,
   type ChartSeriesType,
 } from '@/stores'
 import { ToggleGroup, ToggleGroupItem } from '@/shared/ui/toggle-group'
+import { ChartTitleWithToggle } from './ChartTitleWithToggle'
 
 export interface CustomChartViewProps {
   entries: DailyEntry[]
@@ -207,8 +209,19 @@ export function CustomChartView({ entries }: CustomChartViewProps) {
   const setChartType = useCustomChartSelectionStore(
     (state) => state.setChartType,
   )
+  const cardVisible = useDashboardChartVisibilityStore(
+    (state) => state.visible.customChart,
+  )
 
   if (entries.length === 0) return null
+
+  const cardTitle = (
+    <ChartTitleWithToggle chart="customChart" title={t.dashboard.customChartTitle} />
+  )
+
+  if (!cardVisible) {
+    return <div className="flex flex-col gap-3">{cardTitle}</div>
+  }
 
   const points = customChartPoints(entries, selectedNumeric)
   const booleanDatesByKey = new Map(
@@ -257,9 +270,7 @@ export function CustomChartView({ entries }: CustomChartViewProps) {
 
   return (
     <div className="flex flex-col gap-3">
-      <h2 className="text-sm font-medium text-muted-foreground">
-        {t.dashboard.customChartTitle}
-      </h2>
+      {cardTitle}
       <ToggleGroup
         type="multiple"
         aria-label={t.dashboard.customChartTitle}

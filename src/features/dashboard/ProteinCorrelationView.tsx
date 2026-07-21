@@ -13,8 +13,9 @@ import type { DailyEntry } from '@/domain/dailyEntry'
 import { kgToLb } from '@/domain/goal'
 import { proteinCorrelation, proteinPoints } from '@/domain/stats'
 import { formatNumber, unitLabel, useLocale, useTranslation } from '@/i18n'
-import { useUnitStore } from '@/stores'
+import { useDashboardChartVisibilityStore, useUnitStore } from '@/stores'
 import { Button } from '@/shared/ui/button'
+import { ChartTitleWithToggle } from './ChartTitleWithToggle'
 
 export interface ProteinCorrelationViewProps {
   entries: DailyEntry[]
@@ -38,6 +39,9 @@ export function ProteinCorrelationView({
   const toDisplay = (kg: number) => (displayUnit === 'lb' ? kgToLb(kg) : kg)
   const unit = unitLabel(displayUnit, t)
   const [isExpanded, setIsExpanded] = useState(false)
+  const cardVisible = useDashboardChartVisibilityStore(
+    (state) => state.visible.proteinCorrelation,
+  )
 
   const points = proteinPoints(entries).map((point) => ({
     proteinG: point.proteinG,
@@ -49,13 +53,12 @@ export function ProteinCorrelationView({
   const insight = proteinCorrelation(entries)
   const expanded = insight !== null || isExpanded
 
-  return (
-    <div className="flex flex-col gap-1.5">
-      <div className="flex items-center justify-between">
-        <h2 className="text-sm font-medium text-muted-foreground">
-          {t.dashboard.proteinCorrelationTitle}
-        </h2>
-        {insight === null && (
+  const cardTitle = (
+    <ChartTitleWithToggle
+      chart="proteinCorrelation"
+      title={t.dashboard.proteinCorrelationTitle}
+      extraAction={
+        insight === null && (
           <Button
             type="button"
             variant="ghost"
@@ -72,8 +75,18 @@ export function ProteinCorrelationView({
               <ChevronDown aria-hidden="true" />
             )}
           </Button>
-        )}
-      </div>
+        )
+      }
+    />
+  )
+
+  if (!cardVisible) {
+    return <div className="flex flex-col gap-1.5">{cardTitle}</div>
+  }
+
+  return (
+    <div className="flex flex-col gap-1.5">
+      {cardTitle}
       {expanded && (
         <ResponsiveContainer width="100%" height={180}>
           <ScatterChart margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>

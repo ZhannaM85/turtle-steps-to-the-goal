@@ -1,10 +1,11 @@
 import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { beforeEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import type { DailyEntry } from '@/domain/dailyEntry'
 import {
   useCustomChartSelectionStore,
   useCycleTrackingStore,
+  useDashboardChartVisibilityStore,
   useDigestionTrackingStore,
 } from '@/stores'
 import { CustomChartView } from './CustomChartView'
@@ -203,5 +204,37 @@ describe('CustomChartView', () => {
     ).not.toBeInTheDocument()
 
     useCycleTrackingStore.setState({ enabled: false })
+  })
+
+  describe('whole-card show/hide toggle (#247)', () => {
+    afterEach(() => {
+      useDashboardChartVisibilityStore.setState((state) => ({
+        visible: { ...state.visible, customChart: true },
+      }))
+    })
+
+    it('hides the card body but keeps the title and toggle visible', async () => {
+      const user = userEvent.setup()
+      render(<CustomChartView entries={[entry('2026-03-01', { weightKg: 80 })]} />)
+
+      expect(screen.getByText('Compare your data')).toBeInTheDocument()
+      const hideButton = screen.getByRole('button', {
+        name: 'Hide Compare your data',
+      })
+
+      await user.click(hideButton)
+
+      expect(
+        screen.queryByRole('button', { name: 'Weight' }),
+      ).not.toBeInTheDocument()
+      expect(screen.getByText('Compare your data')).toBeInTheDocument()
+      const showButton = screen.getByRole('button', {
+        name: 'Show Compare your data',
+      })
+      expect(showButton).toBeInTheDocument()
+
+      await user.click(showButton)
+      expect(screen.getByRole('button', { name: 'Weight' })).toBeInTheDocument()
+    })
   })
 })

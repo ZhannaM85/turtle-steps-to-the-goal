@@ -1,4 +1,5 @@
 import { Eye, EyeOff } from 'lucide-react'
+import type { ReactNode } from 'react'
 import { useTranslation } from '@/i18n'
 import { Button } from '@/shared/ui/button'
 import {
@@ -9,6 +10,11 @@ import {
 export interface ChartTitleWithToggleProps {
   chart: DashboardChartKey
   title: string
+  /** An extra control to render next to the eye toggle (#247) — e.g. a
+   * correlation card's own "Show chart"/chevron expand button. Rendered
+   * only while the card itself is visible; the caller is responsible for
+   * that (same as everything else below the title). */
+  extraAction?: ReactNode
 }
 
 /**
@@ -23,6 +29,7 @@ export interface ChartTitleWithToggleProps {
 export function ChartTitleWithToggle({
   chart,
   title,
+  extraAction,
 }: ChartTitleWithToggleProps) {
   const t = useTranslation()
   const visible = useDashboardChartVisibilityStore(
@@ -35,18 +42,21 @@ export function ChartTitleWithToggle({
   return (
     <div className="flex items-center justify-between gap-2">
       <h2 className="text-sm font-medium text-muted-foreground">{title}</h2>
-      <Button
-        type="button"
-        variant="ghost"
-        size="icon-xs"
-        aria-pressed={visible}
-        aria-label={
-          visible ? t.dashboard.hideChartLabel(title) : t.dashboard.showChartLabel(title)
-        }
-        onClick={() => toggleVisible(chart)}
-      >
-        {visible ? <Eye aria-hidden="true" /> : <EyeOff aria-hidden="true" />}
-      </Button>
+      <div className="flex items-center gap-1">
+        {extraAction}
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon-xs"
+          aria-pressed={visible}
+          aria-label={
+            visible ? t.dashboard.hideChartLabel(title) : t.dashboard.showChartLabel(title)
+          }
+          onClick={() => toggleVisible(chart)}
+        >
+          {visible ? <Eye aria-hidden="true" /> : <EyeOff aria-hidden="true" />}
+        </Button>
+      </div>
     </div>
   )
 }

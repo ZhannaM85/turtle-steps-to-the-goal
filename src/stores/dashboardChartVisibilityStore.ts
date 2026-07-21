@@ -2,15 +2,32 @@ import { create } from 'zustand'
 import { createJSONStorage, persist } from 'zustand/middleware'
 
 /** #245 — whole-chart show/hide, distinct from #238's within-a-chart
- * raw/average series toggle. Weight/calorie/macro trend charts only —
- * the other Dashboard sections (correlations, summary cards, etc.) are
- * #232's broader territory, not this issue's scope. */
-export type DashboardChartKey = 'weight' | 'calories' | 'macros'
+ * raw/average series toggle. Started with the three trend charts only;
+ * #247 extended the same mechanism to the custom chart section and each
+ * correlation card (one toggle per card, not one for the whole group —
+ * matches #245's own per-chart granularity). Broader Today/Goal-page
+ * section dismissal stays #232's separate, still-unscoped territory. */
+export type DashboardChartKey =
+  | 'weight'
+  | 'calories'
+  | 'macros'
+  | 'customChart'
+  | 'calorieWeightCorrelation'
+  | 'lateMealCorrelation'
+  | 'sleepCorrelation'
+  | 'stepsCorrelation'
+  | 'proteinCorrelation'
 
 const DEFAULT_VISIBLE: Record<DashboardChartKey, boolean> = {
   weight: true,
   calories: true,
   macros: true,
+  customChart: true,
+  calorieWeightCorrelation: true,
+  lateMealCorrelation: true,
+  sleepCorrelation: true,
+  stepsCorrelation: true,
+  proteinCorrelation: true,
 }
 
 interface DashboardChartVisibilityState {

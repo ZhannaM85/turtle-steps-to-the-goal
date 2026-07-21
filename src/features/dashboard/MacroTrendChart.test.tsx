@@ -137,7 +137,17 @@ describe('MacroTrendChart', () => {
   describe('whole-chart show/hide toggle (#245)', () => {
     afterEach(() => {
       useDashboardChartVisibilityStore.setState({
-        visible: { weight: true, calories: true, macros: true },
+        visible: {
+          weight: true,
+          calories: true,
+          macros: true,
+          customChart: true,
+          calorieWeightCorrelation: true,
+          lateMealCorrelation: true,
+          sleepCorrelation: true,
+          stepsCorrelation: true,
+          proteinCorrelation: true,
+        },
       })
     })
 

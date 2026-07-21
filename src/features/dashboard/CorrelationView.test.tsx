@@ -1,8 +1,9 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { addDays, format, startOfISOWeek } from 'date-fns'
-import { describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it } from 'vitest'
 import type { CalorieEntry, DailyEntry } from '@/domain/dailyEntry'
+import { useDashboardChartVisibilityStore } from '@/stores'
 import { CorrelationView } from './CorrelationView'
 
 function calories(amountKcal: number): CalorieEntry[] {
@@ -95,5 +96,46 @@ describe('CorrelationView', () => {
       screen.getByText(/averaged more loss than weeks/),
     ).toBeInTheDocument()
     expect(screen.getByText(/Based on 4 weeks of data\./)).toBeInTheDocument()
+  })
+
+  describe('whole-card show/hide toggle (#247)', () => {
+    afterEach(() => {
+      useDashboardChartVisibilityStore.setState((state) => ({
+        visible: { ...state.visible, calorieWeightCorrelation: true },
+      }))
+    })
+
+    it('hides the card body but keeps the title and toggle visible', async () => {
+      const user = userEvent.setup()
+      const entries = [
+        entry(weekStart(0), { weightKg: 90 }),
+        entry(weekStart(1), { weightKg: 88, calorieEntries: calories(1700) }),
+        entry(weekStart(2), { weightKg: 86, calorieEntries: calories(1800) }),
+        entry(weekStart(3), { weightKg: 85.5, calorieEntries: calories(2200) }),
+        entry(weekStart(4), { weightKg: 85.3, calorieEntries: calories(2300) }),
+      ]
+      render(<CorrelationView entries={entries} />)
+
+      expect(screen.getByText('Calories vs. weight change')).toBeInTheDocument()
+      const hideButton = screen.getByRole('button', {
+        name: 'Hide Calories vs. weight change',
+      })
+
+      await user.click(hideButton)
+
+      expect(
+        screen.queryByText(/averaged more loss than weeks/),
+      ).not.toBeInTheDocument()
+      expect(screen.getByText('Calories vs. weight change')).toBeInTheDocument()
+      const showButton = screen.getByRole('button', {
+        name: 'Show Calories vs. weight change',
+      })
+      expect(showButton).toBeInTheDocument()
+
+      await user.click(showButton)
+      expect(
+        screen.getByText(/averaged more loss than weeks/),
+      ).toBeInTheDocument()
+    })
   })
 })

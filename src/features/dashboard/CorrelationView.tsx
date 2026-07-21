@@ -13,9 +13,10 @@ import type { DailyEntry } from '@/domain/dailyEntry'
 import { kgToLb } from '@/domain/goal'
 import { correlationInsight, weeklySummaries } from '@/domain/stats'
 import { formatNumber, unitLabel, useLocale, useTranslation } from '@/i18n'
-import { useUnitStore } from '@/stores'
+import { useDashboardChartVisibilityStore, useUnitStore } from '@/stores'
 import { useWeekStartsOn } from '@/shared/hooks'
 import { Button } from '@/shared/ui/button'
+import { ChartTitleWithToggle } from './ChartTitleWithToggle'
 
 export interface CorrelationViewProps {
   entries: DailyEntry[]
@@ -35,6 +36,12 @@ export function CorrelationView({ entries }: CorrelationViewProps) {
   // Once real data exists, the chart renders expanded by default — no
   // toggle shown, since there's now something worth seeing at a glance.
   const [isExpanded, setIsExpanded] = useState(false)
+  // #247 — whole-card show/hide, same mechanism #245 gave the trend
+  // charts. Distinct from isExpanded above, which is this card's own
+  // internal "show the scatter plot" toggle.
+  const cardVisible = useDashboardChartVisibilityStore(
+    (state) => state.visible.calorieWeightCorrelation,
+  )
 
   const weekStartsOn = useWeekStartsOn(entries)
   const weeks = weeklySummaries(entries, undefined, weekStartsOn)
@@ -57,13 +64,12 @@ export function CorrelationView({ entries }: CorrelationViewProps) {
   const insight = correlationInsight(entries, weekStartsOn)
   const expanded = insight !== null || isExpanded
 
-  return (
-    <div className="flex flex-col gap-1.5">
-      <div className="flex items-center justify-between">
-        <h2 className="text-sm font-medium text-muted-foreground">
-          {t.dashboard.correlationTitle}
-        </h2>
-        {insight === null && (
+  const cardTitle = (
+    <ChartTitleWithToggle
+      chart="calorieWeightCorrelation"
+      title={t.dashboard.correlationTitle}
+      extraAction={
+        insight === null && (
           <Button
             type="button"
             variant="ghost"
@@ -80,8 +86,18 @@ export function CorrelationView({ entries }: CorrelationViewProps) {
               <ChevronDown aria-hidden="true" />
             )}
           </Button>
-        )}
-      </div>
+        )
+      }
+    />
+  )
+
+  if (!cardVisible) {
+    return <div className="flex flex-col gap-1.5">{cardTitle}</div>
+  }
+
+  return (
+    <div className="flex flex-col gap-1.5">
+      {cardTitle}
       {expanded && (
         <ResponsiveContainer width="100%" height={180}>
           <ScatterChart margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>

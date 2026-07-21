@@ -1,8 +1,9 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { addDays, format } from 'date-fns'
-import { describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it } from 'vitest'
 import type { DailyEntry } from '@/domain/dailyEntry'
+import { useDashboardChartVisibilityStore } from '@/stores'
 import { StepsCorrelationView } from './StepsCorrelationView'
 
 const DATE_FORMAT = 'yyyy-MM-dd'
@@ -81,5 +82,45 @@ describe('StepsCorrelationView', () => {
       screen.getByText(/averaged more weight gain the next morning/),
     ).toBeInTheDocument()
     expect(screen.getByText(/Based on 8 days of data\./)).toBeInTheDocument()
+  })
+
+  describe('whole-card show/hide toggle (#247)', () => {
+    afterEach(() => {
+      useDashboardChartVisibilityStore.setState((state) => ({
+        visible: { ...state.visible, stepsCorrelation: true },
+      }))
+    })
+
+    it('hides the card body but keeps the title and toggle visible', async () => {
+      const user = userEvent.setup()
+      const entries = [
+        entry(day(0), { weightKg: 80.0, steps: 2000 }),
+        entry(day(1), { weightKg: 80.8, steps: 2500 }),
+        entry(day(2), { weightKg: 81.7, steps: 3000 }),
+        entry(day(3), { weightKg: 82.5, steps: 3500 }),
+        entry(day(4), { weightKg: 82.6, steps: 9000 }),
+        entry(day(5), { weightKg: 82.65, steps: 9500 }),
+        entry(day(6), { weightKg: 82.75, steps: 10000 }),
+        entry(day(7), { weightKg: 82.8, steps: 10500 }),
+        entry(day(8), { weightKg: 82.85 }),
+      ]
+      render(<StepsCorrelationView entries={entries} />)
+
+      const title = 'Steps vs. next-day weight'
+      expect(screen.getByText(title)).toBeInTheDocument()
+      await user.click(screen.getByRole('button', { name: `Hide ${title}` }))
+
+      expect(
+        screen.queryByText(/averaged more weight gain the next morning/),
+      ).not.toBeInTheDocument()
+      expect(screen.getByText(title)).toBeInTheDocument()
+      const showButton = screen.getByRole('button', { name: `Show ${title}` })
+      expect(showButton).toBeInTheDocument()
+
+      await user.click(showButton)
+      expect(
+        screen.getByText(/averaged more weight gain the next morning/),
+      ).toBeInTheDocument()
+    })
   })
 })
