@@ -73,68 +73,66 @@ function PastTargetRow({
       : format(parseISO(goal.createdAt), 'MMM d', { locale: dateFnsLocale })
 
   return (
-    <li className="flex flex-col gap-0.5 rounded-lg border border-border px-3 py-2 text-sm">
-      <div className="flex items-center justify-between gap-2">
-        <span>{weekRangeLabel}</span>
-        <div className="flex items-center gap-2">
-          <span className="tabular-nums text-muted-foreground">
-            {/* Negated (#178) — a loss, same convention
-             * GoalScreen.tsx's/TodayScreen.tsx's own StatCards
-             * already use ("-0.6 kg to lose"); this list showed the
-             * raw positive targetWeeklyLossKg instead. */}
-            {t.goal.targetPerWeek(
-              formatNumber(-toDisplay(goal.targetWeeklyLossKg), locale),
-              unit,
-            )}
-          </span>
-          {!isConfirming && (
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon-sm"
-              aria-label={t.goal.deletePastTargetLabel(weekRangeLabel)}
-              onClick={() => setIsConfirming(true)}
-            >
-              <Trash2 aria-hidden="true" />
-            </Button>
-          )}
-        </div>
-      </div>
-      {isConfirming ? (
-        <div className="flex items-center gap-2 text-xs">
-          <span className="text-muted-foreground">
-            {t.goal.confirmDeletePastTargetLabel}
-          </span>
-          <Button
-            type="button"
-            variant="destructive"
-            size="sm"
-            onClick={() => onDelete(goal.id)}
-          >
-            {t.goal.confirmDeletePastTargetYes}
-          </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            onClick={() => setIsConfirming(false)}
-          >
-            {t.goal.confirmDeletePastTargetNo}
-          </Button>
-        </div>
-      ) : (
+    <tr className="border-b border-border last:border-b-0">
+      <td className="py-2 pr-2 align-top">{weekRangeLabel}</td>
+      <td className="py-2 pr-2 text-right align-top tabular-nums text-muted-foreground">
+        {/* Negated (#178) — a loss, same convention GoalScreen.tsx's/
+         * TodayScreen.tsx's own StatCards already use ("-0.6 kg to
+         * lose"); this list showed the raw positive targetWeeklyLossKg
+         * instead. */}
+        {t.goal.targetPerWeek(
+          formatNumber(-toDisplay(goal.targetWeeklyLossKg), locale),
+          unit,
+        )}
+      </td>
+      <td className="py-2 pr-2 align-top">
         <span
           className={cn(
             'text-xs',
             progress?.targetMet === true
-              ? 'font-medium'
+              ? 'font-medium text-foreground'
               : 'text-muted-foreground',
           )}
         >
           {statusLabel}
         </span>
-      )}
-    </li>
+      </td>
+      <td className="py-2 text-right align-top">
+        {isConfirming ? (
+          <div className="flex flex-wrap items-center justify-end gap-1.5 text-xs">
+            <span className="text-muted-foreground">
+              {t.goal.confirmDeletePastTargetLabel}
+            </span>
+            <Button
+              type="button"
+              variant="destructive"
+              size="sm"
+              onClick={() => onDelete(goal.id)}
+            >
+              {t.goal.confirmDeletePastTargetYes}
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={() => setIsConfirming(false)}
+            >
+              {t.goal.confirmDeletePastTargetNo}
+            </Button>
+          </div>
+        ) : (
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon-sm"
+            aria-label={t.goal.deletePastTargetLabel(weekRangeLabel)}
+            onClick={() => setIsConfirming(true)}
+          >
+            <Trash2 aria-hidden="true" />
+          </Button>
+        )}
+      </td>
+    </tr>
   )
 }
 
@@ -154,15 +152,44 @@ export function PastTargetsList({ records, onDelete }: PastTargetsListProps) {
       <h2 className="text-sm font-medium text-muted-foreground">
         {t.goal.pastTargetsTitle}
       </h2>
-      <ul className="flex flex-col gap-1.5">
-        {records.map((record) => (
-          <PastTargetRow
-            key={record.goal.id}
-            record={record}
-            onDelete={onDelete}
-          />
-        ))}
-      </ul>
+      <div className="overflow-x-auto">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="border-b border-border">
+              <th
+                scope="col"
+                className="py-2 pr-2 text-left font-normal text-muted-foreground"
+              >
+                {t.goal.weekColumnLabel}
+              </th>
+              <th
+                scope="col"
+                className="py-2 pr-2 text-right font-normal text-muted-foreground"
+              >
+                {t.goal.targetColumnLabel}
+              </th>
+              <th
+                scope="col"
+                className="py-2 pr-2 text-left font-normal text-muted-foreground"
+              >
+                {t.goal.statusColumnLabel}
+              </th>
+              <th scope="col" className="py-2 text-right font-normal">
+                <span className="sr-only">{t.history.actionsColumn}</span>
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {records.map((record) => (
+              <PastTargetRow
+                key={record.goal.id}
+                record={record}
+                onDelete={onDelete}
+              />
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   )
 }

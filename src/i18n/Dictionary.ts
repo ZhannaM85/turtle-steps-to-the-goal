@@ -313,6 +313,9 @@ export interface Dictionary {
     editGoalLabel: string
     /** Goal history section (#147) — every past (non-active) target. */
     pastTargetsTitle: string
+    weekColumnLabel: string
+    targetColumnLabel: string
+    statusColumnLabel: string
     targetPerWeek: (target: string, unit: string) => string
     targetMetLabel: string
     /** Same "met" state as targetMetLabel, but naming the date it was
