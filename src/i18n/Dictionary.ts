@@ -677,13 +677,12 @@ export interface Dictionary {
     showReleaseNotes: string
     hideReleaseNotes: string
     cycleTrackingLabel: string
-    cycleTrackingDescription: string
-    cycleTrackingOn: string
-    cycleTrackingOff: string
     digestionTrackingLabel: string
-    digestionTrackingDescription: string
-    digestionTrackingOn: string
-    digestionTrackingOff: string
+    /** #237: unified "what to track" section — folds cycle/digestion
+     * tracking's own opt-in toggles in with the 5 fields below, which
+     * didn't have an opt-out at all before this. */
+    trackedFieldsLabel: string
+    trackedFieldsDescription: string
     /** Opt-in "haven't logged today" reminder (#171) — off by default, same
      * shape as cycle/digestion tracking. Deliberately just an in-app
      * banner on Today, not a real push notification. */

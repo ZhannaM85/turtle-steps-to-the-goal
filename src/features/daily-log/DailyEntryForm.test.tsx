@@ -15,6 +15,7 @@ import {
   useDigestionTrackingStore,
   useMealItemStore,
   useMealLabelPresetStore,
+  useTrackedFieldsStore,
 } from '@/stores'
 import { DailyEntryForm } from './DailyEntryForm'
 
@@ -640,7 +641,7 @@ describe('DailyEntryForm', () => {
       expect(card).not.toHaveClass('h-12')
     })
 
-    it('bundles the day mood into the same save as the note (#44)', async () => {
+    it('saves the note independently of mood (#44)', async () => {
       const user = userEvent.setup()
       const onSave = vi.fn()
       render(
@@ -652,17 +653,34 @@ describe('DailyEntryForm', () => {
       )
 
       await user.type(screen.getByLabelText("Day's note"), 'felt good')
-      await user.click(
-        screen.getByRole('button', { name: 'Happy — Mood today' }),
-      )
       await user.click(screen.getByRole('button', { name: 'Save note' }))
 
       expect(onSave).toHaveBeenCalledTimes(1)
       expect(onSave.mock.calls[0][0].note).toBe('felt good')
+    })
+  })
+
+  describe('mood (#237: promoted to its own standalone, always-interactive field)', () => {
+    it('saves immediately when a mood is picked, with no separate save step', async () => {
+      const user = userEvent.setup()
+      const onSave = vi.fn()
+      render(
+        <DailyEntryForm
+          date="2026-03-01"
+          existingEntry={null}
+          onSave={onSave}
+        />,
+      )
+
+      await user.click(
+        screen.getByRole('button', { name: 'Happy — Mood today' }),
+      )
+
+      expect(onSave).toHaveBeenCalledTimes(1)
       expect(onSave.mock.calls[0][0].emotion).toBe('happy')
     })
 
-    it('shows the saved day mood as an icon next to the displayed note', () => {
+    it('shows the saved day mood pre-selected in its own picker', () => {
       const onSave = vi.fn()
       render(
         <DailyEntryForm
@@ -680,36 +698,94 @@ describe('DailyEntryForm', () => {
       )
 
       expect(screen.getByText('felt good')).toBeInTheDocument()
-      expect(screen.getByText('Unhappy')).toBeInTheDocument() // sr-only label
-      // Read-only display: no mood-picker buttons leaked into view.
-      expect(
-        screen.queryByRole('button', { name: /Mood today/ }),
-      ).not.toBeInTheDocument()
-    })
-
-    it('pre-selects the previously saved mood when editing the note', async () => {
-      const user = userEvent.setup()
-      const onSave = vi.fn()
-      render(
-        <DailyEntryForm
-          date="2026-03-01"
-          existingEntry={{
-            id: 'e1',
-            date: '2026-03-01',
-            note: 'felt good',
-            emotion: 'unhappy',
-            createdAt: now,
-            updatedAt: now,
-          }}
-          onSave={onSave}
-        />,
-      )
-
-      await user.click(screen.getByRole('button', { name: 'Edit note' }))
-
       expect(
         screen.getByRole('button', { name: 'Unhappy — Mood today' }),
       ).toHaveAttribute('aria-pressed', 'true')
+    })
+  })
+
+  describe('optional field visibility (#237)', () => {
+    afterEach(() => {
+      useTrackedFieldsStore.setState({
+        tracked: {
+          sleep: true,
+          steps: true,
+          bodyMeasurements: true,
+          note: true,
+          mood: true,
+        },
+      })
+    })
+
+    it('shows Sleep, Steps, Body measurements, Note, and Mood by default', () => {
+      render(
+        <DailyEntryForm date="2026-03-01" existingEntry={null} onSave={vi.fn()} />,
+      )
+
+      expect(screen.getByText('Sleep')).toBeInTheDocument()
+      expect(screen.getByText('Steps')).toBeInTheDocument()
+      expect(screen.getByText('Body measurements')).toBeInTheDocument()
+      expect(screen.getByText("Day's note")).toBeInTheDocument()
+      expect(screen.getByText('Mood today')).toBeInTheDocument()
+    })
+
+    it('hides a field once its Settings toggle is turned off, without affecting the others', () => {
+      useTrackedFieldsStore.setState({
+        tracked: {
+          sleep: false,
+          steps: true,
+          bodyMeasurements: true,
+          note: true,
+          mood: true,
+        },
+      })
+      render(
+        <DailyEntryForm date="2026-03-01" existingEntry={null} onSave={vi.fn()} />,
+      )
+
+      expect(screen.queryByText('Sleep')).not.toBeInTheDocument()
+      expect(screen.getByText('Steps')).toBeInTheDocument()
+    })
+
+    it('hides Mood independently of Note', () => {
+      useTrackedFieldsStore.setState({
+        tracked: {
+          sleep: true,
+          steps: true,
+          bodyMeasurements: true,
+          note: true,
+          mood: false,
+        },
+      })
+      render(
+        <DailyEntryForm date="2026-03-01" existingEntry={null} onSave={vi.fn()} />,
+      )
+
+      expect(screen.getByText("Day's note")).toBeInTheDocument()
+      expect(screen.queryByText('Mood today')).not.toBeInTheDocument()
+    })
+
+    it('hides Note independently of Mood, which stays interactive on its own', async () => {
+      useTrackedFieldsStore.setState({
+        tracked: {
+          sleep: true,
+          steps: true,
+          bodyMeasurements: true,
+          note: false,
+          mood: true,
+        },
+      })
+      const user = userEvent.setup()
+      const onSave = vi.fn()
+      render(
+        <DailyEntryForm date="2026-03-01" existingEntry={null} onSave={onSave} />,
+      )
+
+      expect(screen.queryByText("Day's note")).not.toBeInTheDocument()
+      await user.click(
+        screen.getByRole('button', { name: 'Happy — Mood today' }),
+      )
+      expect(onSave.mock.calls[0][0].emotion).toBe('happy')
     })
   })
 

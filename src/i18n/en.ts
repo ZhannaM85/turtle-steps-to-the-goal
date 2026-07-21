@@ -497,15 +497,10 @@ export const en: Dictionary = {
     showReleaseNotes: 'Show release notes',
     hideReleaseNotes: 'Hide release notes',
     cycleTrackingLabel: 'Cycle tracking',
-    cycleTrackingDescription:
-      'Optional — turns on a daily "on your period" toggle on Today. Off by default.',
-    cycleTrackingOn: 'On',
-    cycleTrackingOff: 'Off',
     digestionTrackingLabel: 'Digestion tracking',
-    digestionTrackingDescription:
-      'Optional — turns on a daily "bowel movement" toggle when viewing a day in History. Off by default.',
-    digestionTrackingOn: 'On',
-    digestionTrackingOff: 'Off',
+    trackedFieldsLabel: 'What to track',
+    trackedFieldsDescription:
+      "Choose which optional fields appear on Today's log. Turning one off just hides it going forward — anything already logged stays visible in History, Export, and the Dashboard.",
     dailyReminderLabel: 'Daily reminder',
     dailyReminderDescription:
       'Optional — shows a quiet note on Today if you haven’t logged anything yet. Off by default.',

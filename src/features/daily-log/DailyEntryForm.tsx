@@ -21,7 +21,7 @@ import { Button } from '@/shared/ui/button'
 import { InfoTooltip } from '@/shared/ui/info-tooltip'
 import { Input } from '@/shared/ui/input'
 import { ToggleGroup, ToggleGroupItem } from '@/shared/ui/toggle-group'
-import { useDigestionTrackingStore } from '@/stores'
+import { useDigestionTrackingStore, useTrackedFieldsStore } from '@/stores'
 import { entryToFormValues, formValuesToEntry } from './dailyEntryFormMapping'
 import { EmotionPicker } from './EmotionPicker'
 import { MealList } from './MealList'
@@ -170,6 +170,9 @@ export function DailyEntryForm({
   const digestionTrackingEnabled = useDigestionTrackingStore(
     (state) => state.enabled,
   )
+  // #237 — which optional fields appear on this form at all, unified in
+  // one Settings section.
+  const trackedFields = useTrackedFieldsStore((state) => state.tracked)
 
   const {
     register,
@@ -194,7 +197,6 @@ export function DailyEntryForm({
   const hadConstipation = watch('hadConstipation')
   const dayEmotion = watch('emotion')
   const calorieEntries = watch('calorieEntries') ?? []
-  const DayEmotionIcon = DAY_EMOTIONS.find((e) => e.value === dayEmotion)?.Icon
   const dayTotalCalories = totalCalories(calorieEntries) ?? 0
   const dayMacrosSummary = macrosSummaryText(
     totalProtein(calorieEntries),
@@ -211,8 +213,13 @@ export function DailyEntryForm({
   const showBodyMeasurementsAsDisplay =
     !alwaysEditable && !isEditingBodyMeasurements
 
-  function setDayEmotion(emotion: Emotion | undefined) {
+  // #237: Mood is a standalone, always-interactive field (no separate
+  // edit/display toggle the way Sleep/Steps/Note have — EmotionPicker is
+  // already a compact, single-tap control) — saves immediately on pick,
+  // same as MealList's own per-item reaction picker.
+  function saveMood(emotion: Emotion | undefined) {
     setValue('emotion', emotion, { shouldDirty: true })
+    persist(getValues())
   }
 
   function persist(values: DailyEntryFormValues) {
@@ -426,7 +433,7 @@ export function DailyEntryForm({
         </div>
       )}
 
-      {showSleepAsDisplay ? (
+      {trackedFields.sleep && (showSleepAsDisplay ? (
         <div className="flex flex-col gap-1.5">
           <span className="text-sm font-medium">{t.dailyEntry.sleepLabel}</span>
           <div className="flex h-12 items-center justify-between rounded-lg bg-muted px-3">
@@ -565,7 +572,7 @@ export function DailyEntryForm({
             </p>
           )}
         </div>
-      )}
+      ))}
 
       <div className="flex flex-col gap-1.5">
         <div className="flex items-center gap-1.5">
@@ -639,7 +646,7 @@ export function DailyEntryForm({
        * morning fields (#101) — unlike Weight/Sleep, step count usually
        * isn't known until later in the day, so its old position up top
        * implied it should be filled in at the same time as those. */}
-      {showStepsAsDisplay ? (
+      {trackedFields.steps && (showStepsAsDisplay ? (
         <div className="flex flex-col gap-1.5">
           <span className="text-sm font-medium">{t.dailyEntry.stepsLabel}</span>
           <div className="flex h-12 items-center justify-between rounded-lg bg-muted px-3">
@@ -689,14 +696,14 @@ export function DailyEntryForm({
             <p className="text-sm text-destructive">{errors.steps.message}</p>
           )}
         </div>
-      )}
+      ))}
 
       {/* #225: waist/hip/body fat bundled under one edit toggle, same
        * shape as the Sleep block above (one label, one Save button, several
        * sub-inputs) rather than three separate top-level fields — these are
        * all "the same kind of thing" (an occasional body measurement), so
        * a user updating one is likely updating the others at the same time. */}
-      {showBodyMeasurementsAsDisplay ? (
+      {trackedFields.bodyMeasurements && (showBodyMeasurementsAsDisplay ? (
         <div className="flex flex-col gap-1.5">
           <span className="text-sm font-medium">
             {t.dailyEntry.bodyMeasurementsLabel}
@@ -824,43 +831,23 @@ export function DailyEntryForm({
             </p>
           )}
         </div>
-      )}
+      ))}
 
-      {showNoteAsDisplay ? (
+      {trackedFields.note && (showNoteAsDisplay ? (
         <div className="flex flex-col gap-1.5">
           <span className="text-sm font-medium">{t.dailyEntry.noteLabel}</span>
           {/* #189: min-h-12, not a fixed h-12 — a long note wraps to
            * multiple lines, and the fixed-height version didn't grow to
-           * fit, so the mood icon/edit button (vertically centered against
-           * the old, too-short box) ended up overlapping the wrapped text
-           * instead of sitting clear of it. With only a floor height, a
-           * short single-line note still renders at the same 48px (the
-           * icon-xl button's own 44px + this row's centering keeps it
-           * there), while a long one grows the row to fit and items-center
-           * still centers the button/icon against the full wrapped height. */}
+           * fit, so the edit button (vertically centered against the old,
+           * too-short box) ended up overlapping the wrapped text instead
+           * of sitting clear of it. With only a floor height, a short
+           * single-line note still renders at the same 48px (the icon-xl
+           * button's own 44px + this row's centering keeps it there),
+           * while a long one grows the row to fit and items-center still
+           * centers the button against the full wrapped height. */}
           <div className="flex min-h-12 items-center justify-between gap-2 rounded-lg bg-muted px-3 py-1.5">
             <span className="flex items-center gap-1.5 text-sm text-foreground">
               {note}
-              {DayEmotionIcon && (
-                <>
-                  {/* #210/#243: bumped 14→20→24px, still read as too small
-                   * each time — the pencil's own glyph is only 16px
-                   * (button.tsx's default), so raw size was never really
-                   * the gap; text-muted-foreground (vs. the pencil/note's
-                   * full text-foreground) was part of it, fixed below. The
-                   * remaining gap was the icon's own shape/weight — a thin
-                   * outline glyph (Smile/Meh/Frown) needs to render
-                   * noticeably larger than a solid glyph like Pencil to
-                   * read as equally prominent. Confirmed directly against
-                   * the user's own side-by-side size-4..size-10 comparison
-                   * (rendered live, not guessed): size-10 (40px) was the
-                   * first one they confirmed as a genuine match. */}
-                  <DayEmotionIcon aria-hidden="true" className="size-10" />
-                  <span className="sr-only">
-                    {t.dailyEntry.emotionLabel(dayEmotion!)}
-                  </span>
-                </>
-              )}
             </span>
             <Button
               type="button"
@@ -904,18 +891,28 @@ export function DailyEntryForm({
           {errors.note && (
             <p className="text-sm text-destructive">{errors.note.message}</p>
           )}
-          <div className="flex items-center gap-3">
-            <span className="text-sm text-muted-foreground">
-              {t.dailyEntry.dayMoodLabel}
-            </span>
-            <EmotionPicker
-              value={dayEmotion}
-              onChange={setDayEmotion}
-              options={DAY_EMOTIONS}
-              labelFor={t.dailyEntry.emotionLabel}
-              contextLabel={t.dailyEntry.dayMoodLabel}
-            />
-          </div>
+        </div>
+      ))}
+
+      {/* #237: promoted from a sub-row inside the note's edit block to its
+       * own standalone, always-interactive field (a single-tap picker, no
+       * edit/display toggle needed) — independently toggleable from Note
+       * now that both have their own opt-out in Settings. Previously the
+       * only way to see/set mood without editing the note; also used to
+       * show a redundant icon in the note's own display box, dropped now
+       * that this row is always visible on its own. */}
+      {trackedFields.mood && (
+        <div className="flex items-center gap-3">
+          <span className="text-sm text-muted-foreground">
+            {t.dailyEntry.dayMoodLabel}
+          </span>
+          <EmotionPicker
+            value={dayEmotion}
+            onChange={saveMood}
+            options={DAY_EMOTIONS}
+            labelFor={t.dailyEntry.emotionLabel}
+            contextLabel={t.dailyEntry.dayMoodLabel}
+          />
         </div>
       )}
 

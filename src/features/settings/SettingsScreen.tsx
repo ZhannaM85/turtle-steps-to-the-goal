@@ -10,10 +10,12 @@ import {
   useDailyReminderStore,
   useDigestionTrackingStore,
   useThemeStore,
+  useTrackedFieldsStore,
   useTrendChartSeriesStore,
   useUnitStore,
   useWeekStartStore,
   type Mood,
+  type TrackedField,
   type TrendChartKey,
   type TrendSeriesKey,
   type Unit,
@@ -68,6 +70,33 @@ export function SettingsScreen() {
   const setDigestionTrackingEnabled = useDigestionTrackingStore(
     (state) => state.setEnabled,
   )
+  // #237: unified "what to track" section — the 5 fields that never had
+  // their own opt-out (trackedFieldsStore) plus cycle/constipation
+  // tracking's existing opt-in toggles above, folded into the same UI
+  // even though they keep their own separate stores (real persisted data
+  // already in production; no benefit to migrating it into one store).
+  const trackedFields = useTrackedFieldsStore((state) => state.tracked)
+  const setTrackedField = useTrackedFieldsStore((state) => state.setTracked)
+  type UnifiedTrackedKey = TrackedField | 'cycle' | 'constipation'
+  const trackedFieldKeys: UnifiedTrackedKey[] = [
+    'sleep',
+    'steps',
+    'bodyMeasurements',
+    'note',
+    'mood',
+    'cycle',
+    'constipation',
+  ]
+  function isFieldTracked(key: UnifiedTrackedKey): boolean {
+    if (key === 'cycle') return cycleTrackingEnabled
+    if (key === 'constipation') return digestionTrackingEnabled
+    return trackedFields[key]
+  }
+  function setFieldTracked(key: UnifiedTrackedKey, value: boolean) {
+    if (key === 'cycle') setCycleTrackingEnabled(value)
+    else if (key === 'constipation') setDigestionTrackingEnabled(value)
+    else setTrackedField(key, value)
+  }
   const weekStart = useWeekStartStore((state) => state.weekStart)
   const setWeekStart = useWeekStartStore((state) => state.setWeekStart)
   const dailyReminderEnabled = useDailyReminderStore((state) => state.enabled)
@@ -214,51 +243,46 @@ export function SettingsScreen() {
 
       <Card>
         <CardHeader>
-          <CardTitle>{t.settings.cycleTrackingLabel}</CardTitle>
+          <CardTitle>{t.settings.trackedFieldsLabel}</CardTitle>
         </CardHeader>
         <CardContent className="flex flex-col gap-1.5">
           <span className="text-sm text-muted-foreground">
-            {t.settings.cycleTrackingDescription}
+            {t.settings.trackedFieldsDescription}
           </span>
           <ToggleGroup
-            type="single"
-            aria-label={t.settings.cycleTrackingLabel}
-            value={cycleTrackingEnabled ? 'on' : 'off'}
-            onValueChange={(value) =>
-              value && setCycleTrackingEnabled(value === 'on')
-            }
+            type="multiple"
+            aria-label={t.settings.trackedFieldsLabel}
+            value={trackedFieldKeys.filter(isFieldTracked)}
+            onValueChange={(value: string[]) => {
+              for (const key of trackedFieldKeys) {
+                const shouldBeOn = value.includes(key)
+                if (shouldBeOn !== isFieldTracked(key)) {
+                  setFieldTracked(key, shouldBeOn)
+                }
+              }
+            }}
+            className="flex-wrap"
           >
-            <ToggleGroupItem value="off" className="h-12">
-              {t.settings.cycleTrackingOff}
+            <ToggleGroupItem value="sleep" className="h-12">
+              {t.dailyEntry.sleepLabel}
             </ToggleGroupItem>
-            <ToggleGroupItem value="on" className="h-12">
-              {t.settings.cycleTrackingOn}
+            <ToggleGroupItem value="steps" className="h-12">
+              {t.dailyEntry.stepsLabel}
             </ToggleGroupItem>
-          </ToggleGroup>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>{t.settings.digestionTrackingLabel}</CardTitle>
-        </CardHeader>
-        <CardContent className="flex flex-col gap-1.5">
-          <span className="text-sm text-muted-foreground">
-            {t.settings.digestionTrackingDescription}
-          </span>
-          <ToggleGroup
-            type="single"
-            aria-label={t.settings.digestionTrackingLabel}
-            value={digestionTrackingEnabled ? 'on' : 'off'}
-            onValueChange={(value) =>
-              value && setDigestionTrackingEnabled(value === 'on')
-            }
-          >
-            <ToggleGroupItem value="off" className="h-12">
-              {t.settings.digestionTrackingOff}
+            <ToggleGroupItem value="bodyMeasurements" className="h-12">
+              {t.dailyEntry.bodyMeasurementsLabel}
             </ToggleGroupItem>
-            <ToggleGroupItem value="on" className="h-12">
-              {t.settings.digestionTrackingOn}
+            <ToggleGroupItem value="note" className="h-12">
+              {t.dailyEntry.noteLabel}
+            </ToggleGroupItem>
+            <ToggleGroupItem value="mood" className="h-12">
+              {t.dailyEntry.dayMoodLabel}
+            </ToggleGroupItem>
+            <ToggleGroupItem value="cycle" className="h-12">
+              {t.settings.cycleTrackingLabel}
+            </ToggleGroupItem>
+            <ToggleGroupItem value="constipation" className="h-12">
+              {t.settings.digestionTrackingLabel}
             </ToggleGroupItem>
           </ToggleGroup>
         </CardContent>

@@ -8,6 +8,7 @@ import {
   useDailyReminderStore,
   useDigestionTrackingStore,
   useThemeStore,
+  useTrackedFieldsStore,
   useTrendChartSeriesStore,
   useUnitStore,
   useWeekStartStore,
@@ -32,6 +33,15 @@ beforeEach(() => {
   useDigestionTrackingStore.setState({ enabled: false })
   useDailyReminderStore.setState({ enabled: false })
   useTrendChartSeriesStore.setState({ visible: defaultTrendChartVisible })
+  useTrackedFieldsStore.setState({
+    tracked: {
+      sleep: true,
+      steps: true,
+      bodyMeasurements: true,
+      note: true,
+      mood: true,
+    },
+  })
   document.documentElement.removeAttribute('data-mood')
   document.documentElement.classList.remove('dark')
 })
@@ -45,6 +55,15 @@ afterEach(() => {
   useDigestionTrackingStore.setState({ enabled: false })
   useDailyReminderStore.setState({ enabled: false })
   useTrendChartSeriesStore.setState({ visible: defaultTrendChartVisible })
+  useTrackedFieldsStore.setState({
+    tracked: {
+      sleep: true,
+      steps: true,
+      bodyMeasurements: true,
+      note: true,
+      mood: true,
+    },
+  })
   document.documentElement.removeAttribute('data-mood')
   document.documentElement.classList.remove('dark')
 })
@@ -176,25 +195,43 @@ describe('SettingsScreen', () => {
     ).toHaveAttribute('href', '/settings/foods')
   })
 
-  it('defaults digestion tracking to off, and switches it on when selected', async () => {
-    const user = userEvent.setup()
-    renderSettings()
+  describe('unified "what to track" section (#237)', () => {
+    it('defaults digestion tracking to off, and switches it on when selected', async () => {
+      const user = userEvent.setup()
+      renderSettings()
 
-    expect(
-      within(
-        screen.getByRole('radiogroup', {
-          name: 'Digestion tracking',
-        }),
-      ).getByRole('radio', { name: 'Off' }),
-    ).toBeChecked()
+      const digestionToggle = screen.getByRole('button', {
+        name: 'Digestion tracking',
+      })
+      expect(digestionToggle).toHaveAttribute('aria-pressed', 'false')
 
-    await user.click(
-      within(
-        screen.getByRole('radiogroup', { name: 'Digestion tracking' }),
-      ).getByRole('radio', { name: 'On' }),
-    )
+      await user.click(digestionToggle)
 
-    expect(useDigestionTrackingStore.getState().enabled).toBe(true)
+      expect(digestionToggle).toHaveAttribute('aria-pressed', 'true')
+      expect(useDigestionTrackingStore.getState().enabled).toBe(true)
+    })
+
+    it('defaults the previously-unconditional fields (Sleep, Steps, etc.) to on', () => {
+      renderSettings()
+
+      expect(
+        screen.getByRole('button', { name: 'Sleep' }),
+      ).toHaveAttribute('aria-pressed', 'true')
+      expect(
+        screen.getByRole('button', { name: 'Steps' }),
+      ).toHaveAttribute('aria-pressed', 'true')
+    })
+
+    it('turns a field off, updating the store', async () => {
+      const user = userEvent.setup()
+      renderSettings()
+
+      const sleepToggle = screen.getByRole('button', { name: 'Sleep' })
+      await user.click(sleepToggle)
+
+      expect(sleepToggle).toHaveAttribute('aria-pressed', 'false')
+      expect(useTrackedFieldsStore.getState().tracked.sleep).toBe(false)
+    })
   })
 
   it('defaults the daily reminder to off, and switches it on when selected (#171)', async () => {

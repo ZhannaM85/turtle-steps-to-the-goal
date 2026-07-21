@@ -504,15 +504,10 @@ export const ru: Dictionary = {
     showReleaseNotes: 'Показать историю изменений',
     hideReleaseNotes: 'Скрыть историю изменений',
     cycleTrackingLabel: 'Отслеживание цикла',
-    cycleTrackingDescription:
-      'Необязательно — включает переключатель «менструация» на экране «Сегодня». По умолчанию выключено.',
-    cycleTrackingOn: 'Вкл',
-    cycleTrackingOff: 'Выкл',
     digestionTrackingLabel: 'Отслеживание пищеварения',
-    digestionTrackingDescription:
-      'Необязательно — включает переключатель «стул» при просмотре дня в разделе «История». По умолчанию выключено.',
-    digestionTrackingOn: 'Вкл',
-    digestionTrackingOff: 'Выкл',
+    trackedFieldsLabel: 'Что отслеживать',
+    trackedFieldsDescription:
+      'Выберите, какие необязательные поля показывать на экране «Сегодня». Отключение поля скрывает его только для новых записей — уже сохранённые данные остаются видны в Истории, экспорте и на панели.',
     dailyReminderLabel: 'Ежедневное напоминание',
     dailyReminderDescription:
       'Необязательно — показывает спокойную заметку на экране «Сегодня», если вы ещё ничего не записали. По умолчанию выключено.',
