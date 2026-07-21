@@ -18,6 +18,10 @@ export function entryToFormValues(
     waistCm: entry.waistCm,
     hipCm: entry.hipCm,
     bodyFatPercent: entry.bodyFatPercent,
+    muscleMassKg: entry.muscleMassKg,
+    visceralFatRating: entry.visceralFatRating,
+    bodyWaterPercent: entry.bodyWaterPercent,
+    boneMassKg: entry.boneMassKg,
   }
 }
 
@@ -41,6 +45,10 @@ export function formValuesToEntry(
     waistCm: values.waistCm,
     hipCm: values.hipCm,
     bodyFatPercent: values.bodyFatPercent,
+    muscleMassKg: values.muscleMassKg,
+    visceralFatRating: values.visceralFatRating,
+    bodyWaterPercent: values.bodyWaterPercent,
+    boneMassKg: values.boneMassKg,
     createdAt: identity.createdAt,
     updatedAt: new Date().toISOString(),
   }

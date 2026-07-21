@@ -95,6 +95,12 @@ export interface Dictionary {
      * budget" concept a calorie ceiling is. */
     remainingProteinLabel: string
     gRemainingUnit: string
+    /** #233 — computed from today's logged weight plus the Settings
+     * Profile card's height/age/sex, so only rendered once both exist.
+     * BMI has no unit of its own (a dimensionless ratio); BMR needs one. */
+    bmiLabel: string
+    bmrLabel: string
+    bmrUnit: string
     celebrationTitle: string
     celebrationDescription: string
     celebrationCta: string
@@ -288,6 +294,24 @@ export interface Dictionary {
       waist: string,
       hip: string,
       bodyFat: string,
+    ) => string
+    /** Body composition (#233) — bioimpedance-scale-style numbers (muscle
+     * mass, visceral fat, body water %, bone mass), bundled as one
+     * editable section same as bodyMeasurements above — a distinct group
+     * since these come from a smart scale, not a tape measure/caliper. */
+    bodyCompositionLabel: string
+    editBodyCompositionLabel: string
+    saveBodyCompositionLabel: string
+    muscleMassLabel: string
+    visceralFatLabel: string
+    bodyWaterLabel: string
+    boneMassLabel: string
+    kgUnit: string
+    bodyCompositionSummary: (
+      muscleMass: string,
+      visceralFat: string,
+      bodyWater: string,
+      boneMass: string,
     ) => string
     onPeriodLabel: string
     /** Opt-in digestion tracking's per-day toggle, on both Today and in
@@ -700,6 +724,17 @@ export interface Dictionary {
      * didn't have an opt-out at all before this. */
     trackedFieldsLabel: string
     trackedFieldsDescription: string
+    /** #233 — height/age/sex, entered once (rarely changed) purely to
+     * compute BMI/BMR on Today; local preference only, not part of the
+     * export bundle, same category as unit/theme/week-start. */
+    profileLabel: string
+    profileDescription: string
+    heightLabel: string
+    ageLabel: string
+    sexLabel: string
+    sexFemaleOption: string
+    sexMaleOption: string
+    saveProfileLabel: string
     /** Opt-in "haven't logged today" reminder (#171) — off by default, same
      * shape as cycle/digestion tracking. Deliberately just an in-app
      * banner on Today, not a real push notification. */

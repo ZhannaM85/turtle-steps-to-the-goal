@@ -94,6 +94,16 @@ export interface DailyEntry {
   waistCm?: number
   hipCm?: number
   bodyFatPercent?: number
+  /** Body composition (#233) — bioimpedance-scale-style numbers, same
+   * bundled-under-one-toggle treatment as the measurements above (a
+   * distinct group since these come from a smart scale, not a tape
+   * measure/caliper). Manual entry only — this app has no device/scale
+   * integration (`PROJECT_BRIEF.md` §2), so these mirror whatever the
+   * user's own scale already shows them, typed in by hand. */
+  muscleMassKg?: number
+  visceralFatRating?: number
+  bodyWaterPercent?: number
+  boneMassKg?: number
   createdAt: string
   updatedAt: string
 }

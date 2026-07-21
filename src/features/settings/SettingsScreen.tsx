@@ -29,6 +29,7 @@ import { ToggleGroup, ToggleGroupItem } from '@/shared/ui/toggle-group'
 import { ClearAllDataSection } from './ClearAllDataSection'
 import { MealItemsSection } from './MealItemsSection'
 import { MealLabelPresetsSection } from './MealLabelPresetsSection'
+import { ProfileSection } from './ProfileSection'
 
 // Light-mode accent per mood, for the swatch preview only — the full token
 // set per mood/scheme lives in src/index.css.
@@ -82,6 +83,7 @@ export function SettingsScreen() {
     'sleep',
     'steps',
     'bodyMeasurements',
+    'bodyComposition',
     'note',
     'mood',
     'cycle',
@@ -272,6 +274,9 @@ export function SettingsScreen() {
             <ToggleGroupItem value="bodyMeasurements" className="h-12">
               {t.dailyEntry.bodyMeasurementsLabel}
             </ToggleGroupItem>
+            <ToggleGroupItem value="bodyComposition" className="h-12">
+              {t.dailyEntry.bodyCompositionLabel}
+            </ToggleGroupItem>
             <ToggleGroupItem value="note" className="h-12">
               {t.dailyEntry.noteLabel}
             </ToggleGroupItem>
@@ -285,6 +290,15 @@ export function SettingsScreen() {
               {t.settings.digestionTrackingLabel}
             </ToggleGroupItem>
           </ToggleGroup>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>{t.settings.profileLabel}</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <ProfileSection />
         </CardContent>
       </Card>
 

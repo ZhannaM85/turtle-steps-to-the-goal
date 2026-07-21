@@ -18,6 +18,7 @@ export type TrackedField =
   | 'bodyMeasurements'
   | 'note'
   | 'mood'
+  | 'bodyComposition'
 
 const DEFAULT_TRACKED: Record<TrackedField, boolean> = {
   sleep: true,
@@ -25,6 +26,7 @@ const DEFAULT_TRACKED: Record<TrackedField, boolean> = {
   bodyMeasurements: true,
   note: true,
   mood: true,
+  bodyComposition: true,
 }
 
 interface TrackedFieldsState {

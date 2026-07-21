@@ -32,3 +32,5 @@ export {
   NUMERIC_SERIES_KEYS,
 } from './customChartSeries'
 export type { CustomChartPoint, NumericSeriesKey } from './customChartSeries'
+export { calculateBmi, calculateBmr } from './bodyComposition'
+export type { Sex } from './bodyComposition'

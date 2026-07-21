@@ -7,6 +7,7 @@ import { useLocaleStore } from '@/i18n'
 import {
   useDailyReminderStore,
   useDigestionTrackingStore,
+  useProfileStore,
   useThemeStore,
   useTrackedFieldsStore,
   useTrendChartSeriesStore,
@@ -33,15 +34,12 @@ beforeEach(() => {
   useDigestionTrackingStore.setState({ enabled: false })
   useDailyReminderStore.setState({ enabled: false })
   useTrendChartSeriesStore.setState({ visible: defaultTrendChartVisible })
-  useTrackedFieldsStore.setState({
-    tracked: {
-      sleep: true,
-      steps: true,
-      bodyMeasurements: true,
-      note: true,
-      mood: true,
-    },
-  })
+  useTrackedFieldsStore.setState((state) => ({
+    tracked: Object.fromEntries(
+      Object.keys(state.tracked).map((key) => [key, true]),
+    ) as typeof state.tracked,
+  }))
+  useProfileStore.setState({ heightCm: undefined, age: undefined, sex: undefined })
   document.documentElement.removeAttribute('data-mood')
   document.documentElement.classList.remove('dark')
 })
@@ -55,15 +53,12 @@ afterEach(() => {
   useDigestionTrackingStore.setState({ enabled: false })
   useDailyReminderStore.setState({ enabled: false })
   useTrendChartSeriesStore.setState({ visible: defaultTrendChartVisible })
-  useTrackedFieldsStore.setState({
-    tracked: {
-      sleep: true,
-      steps: true,
-      bodyMeasurements: true,
-      note: true,
-      mood: true,
-    },
-  })
+  useTrackedFieldsStore.setState((state) => ({
+    tracked: Object.fromEntries(
+      Object.keys(state.tracked).map((key) => [key, true]),
+    ) as typeof state.tracked,
+  }))
+  useProfileStore.setState({ heightCm: undefined, age: undefined, sex: undefined })
   document.documentElement.removeAttribute('data-mood')
   document.documentElement.classList.remove('dark')
 })
@@ -263,6 +258,46 @@ describe('SettingsScreen', () => {
     expect(
       screen.getByRole('button', { name: 'Import backup' }),
     ).toBeInTheDocument()
+  })
+
+  describe('Profile — height/age/sex (#233)', () => {
+    it('saves height, age, and sex together via one Save button', async () => {
+      const user = userEvent.setup()
+      renderSettings()
+
+      await user.type(screen.getByLabelText('Height (cm)'), '165')
+      await user.type(screen.getByLabelText('Age', { selector: 'input' }), '30')
+      await user.click(screen.getByRole('radio', { name: 'Female' }))
+      await user.click(screen.getByRole('button', { name: 'Save profile' }))
+
+      expect(useProfileStore.getState()).toMatchObject({
+        heightCm: 165,
+        age: 30,
+        sex: 'female',
+      })
+    })
+
+    it('rejects an out-of-range height instead of saving it', async () => {
+      const user = userEvent.setup()
+      renderSettings()
+
+      await user.type(screen.getByLabelText('Height (cm)'), '999')
+      await user.click(screen.getByRole('button', { name: 'Save profile' }))
+
+      expect(useProfileStore.getState().heightCm).toBeUndefined()
+      expect(await screen.findByText(/Too big/)).toBeInTheDocument()
+    })
+
+    it('prefills the fields from an existing profile', () => {
+      useProfileStore.setState({ heightCm: 180, age: 40, sex: 'male' })
+      renderSettings()
+
+      expect(screen.getByLabelText('Height (cm)')).toHaveValue('180')
+      expect(screen.getByLabelText('Age', { selector: 'input' })).toHaveValue(
+        '40',
+      )
+      expect(screen.getByRole('radio', { name: 'Male' })).toBeChecked()
+    })
   })
 
   describe('Dashboard trend chart series (#238)', () => {

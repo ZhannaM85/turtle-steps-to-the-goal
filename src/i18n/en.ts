@@ -67,6 +67,9 @@ export const en: Dictionary = {
     kcalOverUnit: 'kcal over',
     remainingProteinLabel: 'Remaining protein',
     gRemainingUnit: 'g remaining',
+    bmiLabel: 'BMI',
+    bmrLabel: 'Estimated daily calories (BMR)',
+    bmrUnit: 'kcal/day',
     celebrationTitle: "You reached this week's goal!",
     celebrationDescription: 'Nice work — want to set a target for next week?',
     celebrationCta: "Set next week's goal",
@@ -185,6 +188,16 @@ export const en: Dictionary = {
     percentUnit: '%',
     bodyMeasurementsSummary: (waist, hip, bodyFat) =>
       `Waist ${waist} · Hip ${hip} · Body fat ${bodyFat}`,
+    bodyCompositionLabel: 'Body composition',
+    editBodyCompositionLabel: 'Edit body composition',
+    saveBodyCompositionLabel: 'Save body composition',
+    muscleMassLabel: 'Muscle mass',
+    visceralFatLabel: 'Visceral fat',
+    bodyWaterLabel: 'Body water',
+    boneMassLabel: 'Bone mass',
+    kgUnit: 'kg',
+    bodyCompositionSummary: (muscleMass, visceralFat, bodyWater, boneMass) =>
+      `Muscle ${muscleMass} · Visceral fat ${visceralFat} · Water ${bodyWater} · Bone ${boneMass}`,
     onPeriodLabel: 'On period',
     hadConstipationLabel: 'Constipation',
     hadConstipationNoOption: 'No',
@@ -507,6 +520,15 @@ export const en: Dictionary = {
     trackedFieldsLabel: 'What to track',
     trackedFieldsDescription:
       "Choose which optional fields appear on Today's log. Turning one off just hides it going forward — anything already logged stays visible in History, Export, and the Dashboard.",
+    profileLabel: 'Profile',
+    profileDescription:
+      'Optional — used only to compute BMI and estimated daily calorie needs (BMR) on Today. Stored on this device only, not included in backups.',
+    heightLabel: 'Height (cm)',
+    ageLabel: 'Age',
+    sexLabel: 'Sex',
+    sexFemaleOption: 'Female',
+    sexMaleOption: 'Male',
+    saveProfileLabel: 'Save profile',
     dailyReminderLabel: 'Daily reminder',
     dailyReminderDescription:
       'Optional — shows a quiet note on Today if you haven’t logged anything yet. Off by default.',

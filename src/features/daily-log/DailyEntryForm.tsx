@@ -27,11 +27,15 @@ import { EmotionPicker } from './EmotionPicker'
 import { MealList } from './MealList'
 import {
   bodyFatPercentSchema,
+  bodyWaterPercentSchema,
+  boneMassKgSchema,
   deepSleepHoursSchema,
   hipCmSchema,
+  muscleMassKgSchema,
   noteSchema,
   sleepHoursSchema,
   stepsSchema,
+  visceralFatRatingSchema,
   waistCmSchema,
   weightSchema,
   type DailyEntryFormValues,
@@ -163,6 +167,17 @@ export function DailyEntryForm({
         initialValues.hipCm === undefined &&
         initialValues.bodyFatPercent === undefined),
   )
+  // Body composition (#233) — muscle mass/visceral fat/body water/bone
+  // mass bundled under one edit toggle, same pattern as Body measurements
+  // above (a distinct group since these come from a smart scale rather
+  // than a tape measure/caliper).
+  const [isEditingBodyComposition, setIsEditingBodyComposition] = useState(
+    alwaysEditable ||
+      (initialValues.muscleMassKg === undefined &&
+        initialValues.visceralFatRating === undefined &&
+        initialValues.bodyWaterPercent === undefined &&
+        initialValues.boneMassKg === undefined),
+  )
 
   // Opt-in digestion tracking's on/off toggle (Settings) — the toggle
   // itself only renders on this screen when enabled, same gate DayDetail
@@ -194,6 +209,10 @@ export function DailyEntryForm({
   const waistCm = watch('waistCm')
   const hipCm = watch('hipCm')
   const bodyFatPercent = watch('bodyFatPercent')
+  const muscleMassKg = watch('muscleMassKg')
+  const visceralFatRating = watch('visceralFatRating')
+  const bodyWaterPercent = watch('bodyWaterPercent')
+  const boneMassKg = watch('boneMassKg')
   const hadConstipation = watch('hadConstipation')
   const dayEmotion = watch('emotion')
   const calorieEntries = watch('calorieEntries') ?? []
@@ -212,6 +231,8 @@ export function DailyEntryForm({
   const showStepsAsDisplay = !alwaysEditable && !isEditingSteps
   const showBodyMeasurementsAsDisplay =
     !alwaysEditable && !isEditingBodyMeasurements
+  const showBodyCompositionAsDisplay =
+    !alwaysEditable && !isEditingBodyComposition
 
   // #237: Mood is a standalone, always-interactive field (no separate
   // edit/display toggle the way Sleep/Steps/Note have — EmotionPicker is
@@ -341,6 +362,46 @@ export function DailyEntryForm({
     persist(getValues())
   }
 
+  function saveBodyComposition() {
+    const muscleResult = muscleMassKgSchema.safeParse(
+      getValues('muscleMassKg'),
+    )
+    const visceralResult = visceralFatRatingSchema.safeParse(
+      getValues('visceralFatRating'),
+    )
+    const waterResult = bodyWaterPercentSchema.safeParse(
+      getValues('bodyWaterPercent'),
+    )
+    const boneResult = boneMassKgSchema.safeParse(getValues('boneMassKg'))
+    if (!muscleResult.success) {
+      setError('muscleMassKg', {
+        message: muscleResult.error.issues[0].message,
+      })
+      return
+    }
+    if (!visceralResult.success) {
+      setError('visceralFatRating', {
+        message: visceralResult.error.issues[0].message,
+      })
+      return
+    }
+    if (!waterResult.success) {
+      setError('bodyWaterPercent', {
+        message: waterResult.error.issues[0].message,
+      })
+      return
+    }
+    if (!boneResult.success) {
+      setError('boneMassKg', { message: boneResult.error.issues[0].message })
+      return
+    }
+    clearErrors('muscleMassKg')
+    clearErrors('visceralFatRating')
+    clearErrors('bodyWaterPercent')
+    clearErrors('boneMassKg')
+    setIsEditingBodyComposition(false)
+    persist(getValues())
+  }
 
   return (
     <form onSubmit={(e) => e.preventDefault()} className="flex flex-col gap-4">
@@ -828,6 +889,171 @@ export function DailyEntryForm({
               {errors.waistCm?.message ??
                 errors.hipCm?.message ??
                 errors.bodyFatPercent?.message}
+            </p>
+          )}
+        </div>
+      ))}
+
+      {/* #233: muscle mass/visceral fat/body water/bone mass bundled
+       * under one edit toggle, same shape as Body measurements above —
+       * a distinct group since these come from a smart scale, not a
+       * tape measure/caliper, but the same "occasional related numbers"
+       * reasoning applies. Manual entry only, no device integration. */}
+      {trackedFields.bodyComposition && (showBodyCompositionAsDisplay ? (
+        <div className="flex flex-col gap-1.5">
+          <span className="text-sm font-medium">
+            {t.dailyEntry.bodyCompositionLabel}
+          </span>
+          <div className="flex h-12 items-center justify-between rounded-lg bg-muted px-3">
+            <span className="text-sm text-foreground">
+              {t.dailyEntry.bodyCompositionSummary(
+                muscleMassKg === undefined
+                  ? '—'
+                  : `${formatExactNumber(muscleMassKg, locale)}${t.dailyEntry.kgUnit}`,
+                visceralFatRating === undefined
+                  ? '—'
+                  : formatExactNumber(visceralFatRating, locale),
+                bodyWaterPercent === undefined
+                  ? '—'
+                  : `${formatExactNumber(bodyWaterPercent, locale)}${t.dailyEntry.percentUnit}`,
+                boneMassKg === undefined
+                  ? '—'
+                  : `${formatExactNumber(boneMassKg, locale)}${t.dailyEntry.kgUnit}`,
+              )}
+            </span>
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon-xl"
+              aria-label={t.dailyEntry.editBodyCompositionLabel}
+              onClick={() => setIsEditingBodyComposition(true)}
+            >
+              <Pencil aria-hidden="true" />
+            </Button>
+          </div>
+        </div>
+      ) : (
+        <div className="flex flex-col gap-1.5">
+          <span className="text-sm font-medium">
+            {t.dailyEntry.bodyCompositionLabel}
+          </span>
+          <div className="flex flex-wrap items-end gap-3">
+            <div className="flex flex-col gap-1">
+              <span className="text-xs text-muted-foreground">
+                {t.dailyEntry.muscleMassLabel}
+              </span>
+              <div className="flex items-center gap-1">
+                <Input
+                  type="text"
+                  inputMode="decimal"
+                  aria-label={`${t.dailyEntry.muscleMassLabel} (${t.dailyEntry.kgUnit})`}
+                  aria-invalid={errors.muscleMassKg ? true : undefined}
+                  className="h-12 w-16"
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault()
+                      saveBodyComposition()
+                    }
+                  }}
+                  {...register('muscleMassKg', { setValueAs: parseNumberInput })}
+                />
+                <span className="text-xs text-muted-foreground">
+                  {t.dailyEntry.kgUnit}
+                </span>
+              </div>
+            </div>
+            <div className="flex flex-col gap-1">
+              <span className="text-xs text-muted-foreground">
+                {t.dailyEntry.visceralFatLabel}
+              </span>
+              <div className="flex items-center gap-1">
+                <Input
+                  type="text"
+                  inputMode="decimal"
+                  aria-label={t.dailyEntry.visceralFatLabel}
+                  aria-invalid={errors.visceralFatRating ? true : undefined}
+                  className="h-12 w-16"
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault()
+                      saveBodyComposition()
+                    }
+                  }}
+                  {...register('visceralFatRating', {
+                    setValueAs: parseNumberInput,
+                  })}
+                />
+              </div>
+            </div>
+            <div className="flex flex-col gap-1">
+              <span className="text-xs text-muted-foreground">
+                {t.dailyEntry.bodyWaterLabel}
+              </span>
+              <div className="flex items-center gap-1">
+                <Input
+                  type="text"
+                  inputMode="decimal"
+                  aria-label={`${t.dailyEntry.bodyWaterLabel} (${t.dailyEntry.percentUnit})`}
+                  aria-invalid={errors.bodyWaterPercent ? true : undefined}
+                  className="h-12 w-16"
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault()
+                      saveBodyComposition()
+                    }
+                  }}
+                  {...register('bodyWaterPercent', {
+                    setValueAs: parseNumberInput,
+                  })}
+                />
+                <span className="text-xs text-muted-foreground">
+                  {t.dailyEntry.percentUnit}
+                </span>
+              </div>
+            </div>
+            <div className="flex flex-col gap-1">
+              <span className="text-xs text-muted-foreground">
+                {t.dailyEntry.boneMassLabel}
+              </span>
+              <div className="flex items-center gap-1">
+                <Input
+                  type="text"
+                  inputMode="decimal"
+                  aria-label={`${t.dailyEntry.boneMassLabel} (${t.dailyEntry.kgUnit})`}
+                  aria-invalid={errors.boneMassKg ? true : undefined}
+                  className="h-12 w-16"
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault()
+                      saveBodyComposition()
+                    }
+                  }}
+                  {...register('boneMassKg', { setValueAs: parseNumberInput })}
+                />
+                <span className="text-xs text-muted-foreground">
+                  {t.dailyEntry.kgUnit}
+                </span>
+              </div>
+            </div>
+            <Button
+              type="button"
+              variant="outline"
+              size="icon-xl"
+              aria-label={t.dailyEntry.saveBodyCompositionLabel}
+              onClick={saveBodyComposition}
+            >
+              <Check aria-hidden="true" />
+            </Button>
+          </div>
+          {(errors.muscleMassKg ||
+            errors.visceralFatRating ||
+            errors.bodyWaterPercent ||
+            errors.boneMassKg) && (
+            <p className="text-sm text-destructive">
+              {errors.muscleMassKg?.message ??
+                errors.visceralFatRating?.message ??
+                errors.bodyWaterPercent?.message ??
+                errors.boneMassKg?.message}
             </p>
           )}
         </div>

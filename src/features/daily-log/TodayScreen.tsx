@@ -4,6 +4,7 @@ import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { totalCalories, totalProtein } from '@/domain/dailyEntry'
 import { goalWeekEnd, kgToLb } from '@/domain/goal'
+import { calculateBmi, calculateBmr } from '@/domain/stats'
 import {
   formatExactNumber,
   formatNumber,
@@ -29,6 +30,7 @@ import {
   useDailyEntryStore,
   useDailyReminderStore,
   useGoalStore,
+  useProfileStore,
   useSectionVisibilityStore,
   useUnitStore,
   type SectionKey,
@@ -164,6 +166,24 @@ export function TodayScreen() {
           0,
           goal.dailyProteinTargetG - (totalProtein(entry?.calorieEntries) ?? 0),
         )
+      : null
+
+  // #233 — BMI/BMR, computed from today's logged weight plus the Settings
+  // Profile card's height/age/sex. Never stored — recomputed on every
+  // render from whatever's currently in profileStore plus this entry's
+  // weight, same "derived, not persisted" approach as every other stat
+  // card on this screen.
+  const { heightCm, age, sex } = useProfileStore()
+  const bmiValue =
+    entry?.weightKg !== undefined && heightCm !== undefined
+      ? calculateBmi(entry.weightKg, heightCm)
+      : null
+  const bmrValue =
+    entry?.weightKg !== undefined &&
+    heightCm !== undefined &&
+    age !== undefined &&
+    sex !== undefined
+      ? calculateBmr(entry.weightKg, heightCm, age, sex)
       : null
 
   // Quiet nudge (#38) once the goal's own anchored window (#135,
@@ -367,6 +387,29 @@ export function TodayScreen() {
           />
         ) : (
           sectionTitle('todayRemainingProtein', t.today.remainingProteinLabel)
+        ))}
+
+      {bmiValue !== null &&
+        (sectionVisible.todayBmi ? (
+          <StatCard
+            label={t.today.bmiLabel}
+            value={formatNumber(bmiValue, locale, 1)}
+            action={statCardAction('todayBmi', t.today.bmiLabel)}
+          />
+        ) : (
+          sectionTitle('todayBmi', t.today.bmiLabel)
+        ))}
+
+      {bmrValue !== null &&
+        (sectionVisible.todayBmr ? (
+          <StatCard
+            label={t.today.bmrLabel}
+            value={formatNumber(bmrValue, locale, 0)}
+            unit={t.today.bmrUnit}
+            action={statCardAction('todayBmr', t.today.bmrLabel)}
+          />
+        ) : (
+          sectionTitle('todayBmr', t.today.bmrLabel)
         ))}
 
       {showTargetMetBanner && (

@@ -82,6 +82,11 @@ const dailyEntrySchema = z.object({
   waistCm: z.number().optional(),
   hipCm: z.number().optional(),
   bodyFatPercent: z.number().optional(),
+  // Body composition (#233) — same purely-additive/optional reasoning.
+  muscleMassKg: z.number().optional(),
+  visceralFatRating: z.number().optional(),
+  bodyWaterPercent: z.number().optional(),
+  boneMassKg: z.number().optional(),
   createdAt: z.string(),
   updatedAt: z.string(),
 })

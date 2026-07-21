@@ -566,6 +566,101 @@ describe('DailyEntryForm', () => {
     })
   })
 
+  describe('body composition (#233)', () => {
+    it('saves muscle mass/visceral fat/body water/bone mass together via one Save button', async () => {
+      const user = userEvent.setup()
+      const onSave = vi.fn()
+      render(
+        <DailyEntryForm
+          date="2026-03-01"
+          existingEntry={null}
+          onSave={onSave}
+        />,
+      )
+
+      await user.type(screen.getByLabelText('Muscle mass (kg)'), '30')
+      await user.type(screen.getByLabelText('Visceral fat'), '5')
+      await user.type(screen.getByLabelText('Body water (%)'), '48')
+      await user.type(screen.getByLabelText('Bone mass (kg)'), '2.3')
+      await user.click(
+        screen.getByRole('button', { name: 'Save body composition' }),
+      )
+
+      expect(onSave).toHaveBeenCalledTimes(1)
+      expect(onSave.mock.calls[0][0].muscleMassKg).toBe(30)
+      expect(onSave.mock.calls[0][0].visceralFatRating).toBe(5)
+      expect(onSave.mock.calls[0][0].bodyWaterPercent).toBe(48)
+      expect(onSave.mock.calls[0][0].boneMassKg).toBe(2.3)
+      expect(
+        screen.getByText('Muscle 30kg · Visceral fat 5 · Water 48% · Bone 2.3kg'),
+      ).toBeInTheDocument()
+    })
+
+    it('rejects an out-of-range visceral fat value and does not save', async () => {
+      const user = userEvent.setup()
+      const onSave = vi.fn()
+      render(
+        <DailyEntryForm
+          date="2026-03-01"
+          existingEntry={null}
+          onSave={onSave}
+        />,
+      )
+
+      await user.type(screen.getByLabelText('Visceral fat'), '999')
+      await user.click(
+        screen.getByRole('button', { name: 'Save body composition' }),
+      )
+
+      expect(await screen.findByText(/Too big/)).toBeInTheDocument()
+      expect(onSave).not.toHaveBeenCalled()
+    })
+
+    it('shows existing body composition as read-only text with a pencil, editable via a Save button', async () => {
+      const user = userEvent.setup()
+      const onSave = vi.fn()
+      render(
+        <DailyEntryForm
+          date="2026-03-01"
+          existingEntry={{
+            id: 'e1',
+            date: '2026-03-01',
+            muscleMassKg: 30,
+            visceralFatRating: 5,
+            bodyWaterPercent: 48,
+            boneMassKg: 2.3,
+            createdAt: now,
+            updatedAt: now,
+          }}
+          onSave={onSave}
+        />,
+      )
+
+      expect(
+        screen.getByText('Muscle 30kg · Visceral fat 5 · Water 48% · Bone 2.3kg'),
+      ).toBeInTheDocument()
+      expect(
+        screen.queryByRole('button', { name: 'Save body composition' }),
+      ).not.toBeInTheDocument()
+
+      await user.click(
+        screen.getByRole('button', { name: 'Edit body composition' }),
+      )
+      const muscleInput = screen.getByLabelText('Muscle mass (kg)')
+      expect(muscleInput).toHaveValue('30')
+      await user.clear(muscleInput)
+      await user.type(muscleInput, '31')
+      await user.click(
+        screen.getByRole('button', { name: 'Save body composition' }),
+      )
+
+      expect(onSave.mock.calls[0][0].muscleMassKg).toBe(31)
+      expect(
+        screen.getByText('Muscle 31kg · Visceral fat 5 · Water 48% · Bone 2.3kg'),
+      ).toBeInTheDocument()
+    })
+  })
+
   describe('note', () => {
     it('saves a new note independently via its own Save button', async () => {
       const user = userEvent.setup()
@@ -706,18 +801,17 @@ describe('DailyEntryForm', () => {
 
   describe('optional field visibility (#237)', () => {
     afterEach(() => {
-      useTrackedFieldsStore.setState({
-        tracked: {
-          sleep: true,
-          steps: true,
-          bodyMeasurements: true,
-          note: true,
-          mood: true,
-        },
-      })
+      // Merges onto whatever keys exist rather than a full literal
+      // (#233's own lesson from the Dashboard/Today stores) — stays
+      // correct as TrackedField grows.
+      useTrackedFieldsStore.setState((state) => ({
+        tracked: Object.fromEntries(
+          Object.keys(state.tracked).map((key) => [key, true]),
+        ) as typeof state.tracked,
+      }))
     })
 
-    it('shows Sleep, Steps, Body measurements, Note, and Mood by default', () => {
+    it('shows Sleep, Steps, Body measurements, Body composition, Note, and Mood by default', () => {
       render(
         <DailyEntryForm date="2026-03-01" existingEntry={null} onSave={vi.fn()} />,
       )
@@ -725,20 +819,27 @@ describe('DailyEntryForm', () => {
       expect(screen.getByText('Sleep')).toBeInTheDocument()
       expect(screen.getByText('Steps')).toBeInTheDocument()
       expect(screen.getByText('Body measurements')).toBeInTheDocument()
+      expect(screen.getByText('Body composition')).toBeInTheDocument()
       expect(screen.getByText("Day's note")).toBeInTheDocument()
       expect(screen.getByText('Mood today')).toBeInTheDocument()
     })
 
+    it('hides Body composition once its Settings toggle is turned off', () => {
+      useTrackedFieldsStore.setState((state) => ({
+        tracked: { ...state.tracked, bodyComposition: false },
+      }))
+      render(
+        <DailyEntryForm date="2026-03-01" existingEntry={null} onSave={vi.fn()} />,
+      )
+
+      expect(screen.queryByText('Body composition')).not.toBeInTheDocument()
+      expect(screen.getByText('Body measurements')).toBeInTheDocument()
+    })
+
     it('hides a field once its Settings toggle is turned off, without affecting the others', () => {
-      useTrackedFieldsStore.setState({
-        tracked: {
-          sleep: false,
-          steps: true,
-          bodyMeasurements: true,
-          note: true,
-          mood: true,
-        },
-      })
+      useTrackedFieldsStore.setState((state) => ({
+        tracked: { ...state.tracked, sleep: false },
+      }))
       render(
         <DailyEntryForm date="2026-03-01" existingEntry={null} onSave={vi.fn()} />,
       )
@@ -748,15 +849,9 @@ describe('DailyEntryForm', () => {
     })
 
     it('hides Mood independently of Note', () => {
-      useTrackedFieldsStore.setState({
-        tracked: {
-          sleep: true,
-          steps: true,
-          bodyMeasurements: true,
-          note: true,
-          mood: false,
-        },
-      })
+      useTrackedFieldsStore.setState((state) => ({
+        tracked: { ...state.tracked, mood: false },
+      }))
       render(
         <DailyEntryForm date="2026-03-01" existingEntry={null} onSave={vi.fn()} />,
       )
@@ -766,15 +861,9 @@ describe('DailyEntryForm', () => {
     })
 
     it('hides Note independently of Mood, which stays interactive on its own', async () => {
-      useTrackedFieldsStore.setState({
-        tracked: {
-          sleep: true,
-          steps: true,
-          bodyMeasurements: true,
-          note: false,
-          mood: true,
-        },
-      })
+      useTrackedFieldsStore.setState((state) => ({
+        tracked: { ...state.tracked, note: false },
+      }))
       const user = userEvent.setup()
       const onSave = vi.fn()
       render(

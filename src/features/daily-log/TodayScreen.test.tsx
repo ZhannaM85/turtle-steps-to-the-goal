@@ -11,6 +11,7 @@ import {
   useDailyEntryStore,
   useDailyReminderStore,
   useGoalStore,
+  useProfileStore,
   useSectionVisibilityStore,
 } from '@/stores'
 import { TodayScreen } from './TodayScreen'
@@ -51,6 +52,7 @@ beforeEach(async () => {
     error: null,
   })
   useDailyReminderStore.setState({ enabled: false })
+  useProfileStore.setState({ heightCm: undefined, age: undefined, sex: undefined })
   resetSectionVisibility()
 })
 
@@ -59,6 +61,7 @@ afterEach(async () => {
   await db.dailyEntries.clear()
   localStorage.clear()
   useDailyReminderStore.setState({ enabled: false })
+  useProfileStore.setState({ heightCm: undefined, age: undefined, sex: undefined })
   resetSectionVisibility()
 })
 
@@ -590,6 +593,60 @@ describe('TodayScreen', () => {
       expect(
         screen.queryByText('vs. highest weight'),
       ).not.toBeInTheDocument()
+    })
+  })
+
+  describe('BMI/BMR (#233)', () => {
+    it('shows neither card with no profile data logged', async () => {
+      await useDailyEntryStore.getState().saveEntry(makeEntry({ weightKg: 80 }))
+      useDailyEntryStore.setState({ entry: null, date: null, status: 'idle' })
+
+      render(
+        <MemoryRouter>
+          <TodayScreen />
+        </MemoryRouter>,
+      )
+
+      await screen.findByLabelText('Date')
+      expect(screen.queryByText('BMI')).not.toBeInTheDocument()
+      expect(
+        screen.queryByText('Estimated daily calories (BMR)'),
+      ).not.toBeInTheDocument()
+    })
+
+    it('shows BMI once height and a logged weight exist, even without age/sex', async () => {
+      useProfileStore.setState({ heightCm: 165 })
+      await useDailyEntryStore.getState().saveEntry(makeEntry({ weightKg: 70 }))
+      useDailyEntryStore.setState({ entry: null, date: null, status: 'idle' })
+
+      render(
+        <MemoryRouter>
+          <TodayScreen />
+        </MemoryRouter>,
+      )
+
+      expect(await screen.findByText('BMI')).toBeInTheDocument()
+      expect(screen.getByText('25.7')).toBeInTheDocument()
+      expect(
+        screen.queryByText('Estimated daily calories (BMR)'),
+      ).not.toBeInTheDocument()
+    })
+
+    it('shows BMR once height, age, and sex are all set alongside a logged weight', async () => {
+      useProfileStore.setState({ heightCm: 165, age: 30, sex: 'female' })
+      await useDailyEntryStore.getState().saveEntry(makeEntry({ weightKg: 70 }))
+      useDailyEntryStore.setState({ entry: null, date: null, status: 'idle' })
+
+      render(
+        <MemoryRouter>
+          <TodayScreen />
+        </MemoryRouter>,
+      )
+
+      expect(
+        await screen.findByText('Estimated daily calories (BMR)'),
+      ).toBeInTheDocument()
+      expect(screen.getByText('1,420')).toBeInTheDocument()
     })
   })
 

@@ -49,8 +49,12 @@ describe('app router', () => {
 
   it('redirects /export to /settings, where the export section now lives', async () => {
     renderAt('/export')
+    // Settings' chunk has grown substantially across #232/#237/#247/#233 —
+    // same reasoning as Dashboard's explicit timeout above, needed once a
+    // lazy route's transform time can exceed findByRole's default 1000ms
+    // under full-suite load (a real, reproducible race, not flakiness).
     expect(
-      await screen.findByRole('heading', { name: 'Settings' }),
+      await screen.findByRole('heading', { name: 'Settings' }, { timeout: 5000 }),
     ).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Export' })).toBeInTheDocument()
   })
@@ -58,7 +62,7 @@ describe('app router', () => {
   it('renders the Settings screen at /settings', async () => {
     renderAt('/settings')
     expect(
-      await screen.findByRole('heading', { name: 'Settings' }),
+      await screen.findByRole('heading', { name: 'Settings' }, { timeout: 5000 }),
     ).toBeInTheDocument()
   })
 

@@ -68,6 +68,9 @@ export const ru: Dictionary = {
     kcalOverUnit: 'ккал сверх нормы',
     remainingProteinLabel: 'Осталось белка',
     gRemainingUnit: 'г осталось',
+    bmiLabel: 'ИМТ',
+    bmrLabel: 'Примерная суточная норма калорий (базовый обмен)',
+    bmrUnit: 'ккал/день',
     celebrationTitle: 'Вы достигли цели на эту неделю!',
     celebrationDescription:
       'Отличная работа — хотите задать цель на следующую неделю?',
@@ -186,6 +189,16 @@ export const ru: Dictionary = {
     percentUnit: '%',
     bodyMeasurementsSummary: (waist, hip, bodyFat) =>
       `Талия ${waist} · Бёдра ${hip} · Жир ${bodyFat}`,
+    bodyCompositionLabel: 'Состав тела',
+    editBodyCompositionLabel: 'Изменить состав тела',
+    saveBodyCompositionLabel: 'Сохранить состав тела',
+    muscleMassLabel: 'Мышечная масса',
+    visceralFatLabel: 'Висцеральный жир',
+    bodyWaterLabel: 'Вода в организме',
+    boneMassLabel: 'Костная масса',
+    kgUnit: 'кг',
+    bodyCompositionSummary: (muscleMass, visceralFat, bodyWater, boneMass) =>
+      `Мышцы ${muscleMass} · Висц. жир ${visceralFat} · Вода ${bodyWater} · Кости ${boneMass}`,
     onPeriodLabel: 'Менструация',
     hadConstipationLabel: 'Запор',
     hadConstipationNoOption: 'Нет',
@@ -514,6 +527,15 @@ export const ru: Dictionary = {
     trackedFieldsLabel: 'Что отслеживать',
     trackedFieldsDescription:
       'Выберите, какие необязательные поля показывать на экране «Сегодня». Отключение поля скрывает его только для новых записей — уже сохранённые данные остаются видны в Истории, экспорте и на панели.',
+    profileLabel: 'Профиль',
+    profileDescription:
+      'Необязательно — используется только для расчёта ИМТ и примерной суточной потребности в калориях (базовый обмен) на экране «Сегодня». Хранится только на этом устройстве, не входит в резервные копии.',
+    heightLabel: 'Рост (см)',
+    ageLabel: 'Возраст',
+    sexLabel: 'Пол',
+    sexFemaleOption: 'Женский',
+    sexMaleOption: 'Мужской',
+    saveProfileLabel: 'Сохранить профиль',
     dailyReminderLabel: 'Ежедневное напоминание',
     dailyReminderDescription:
       'Необязательно — показывает спокойную заметку на экране «Сегодня», если вы ещё ничего не записали. По умолчанию выключено.',
