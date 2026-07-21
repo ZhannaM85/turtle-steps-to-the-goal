@@ -25,6 +25,20 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 220,
+    issue: 243,
+    date: '2026-07-21T13:56:33+03:00',
+    en: "The mood icon next to your day's note is properly bigger now, easy to spot at a glance.",
+    ru: 'Иконка настроения рядом с заметкой дня теперь заметно крупнее — её легко увидеть с первого взгляда.',
+  },
+  {
+    version: 219,
+    issue: 236,
+    date: '2026-07-21T13:53:29+03:00',
+    en: 'The little chart-type icons in the Dashboard\'s "Compare your data" section are a bit bigger now, easier to tap.',
+    ru: 'Небольшие иконки типа графика в разделе «Сравнить данные» на панели стали немного крупнее — их удобнее нажимать.',
+  },
+  {
     version: 218,
     issue: 239,
     date: '2026-07-21T13:08:43+03:00',

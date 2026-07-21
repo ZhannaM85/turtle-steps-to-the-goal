@@ -843,18 +843,19 @@ export function DailyEntryForm({
               {note}
               {DayEmotionIcon && (
                 <>
-                  {/* #210/#243 both bumped this icon's *size* (14→20→24px)
-                   * and it still read as too small each time — measuring
-                   * the real DOM live (via Playwright) against the
-                   * adjacent Edit pencil showed why: size was never the
-                   * actual gap (both rendered 16x16 at the pencil's own
-                   * default), the pencil just inherits full `text-foreground`
-                   * while this icon was explicitly `text-muted-foreground`,
-                   * which reads as much fainter/smaller at any size. Fixed
-                   * by both: size-5 (20px, a real bump) and dropping the
-                   * muted override so it inherits the parent span's
-                   * `text-foreground` like the note text and pencil do. */}
-                  <DayEmotionIcon aria-hidden="true" className="size-5" />
+                  {/* #210/#243: bumped 14→20→24px, still read as too small
+                   * each time — the pencil's own glyph is only 16px
+                   * (button.tsx's default), so raw size was never really
+                   * the gap; text-muted-foreground (vs. the pencil/note's
+                   * full text-foreground) was part of it, fixed below. The
+                   * remaining gap was the icon's own shape/weight — a thin
+                   * outline glyph (Smile/Meh/Frown) needs to render
+                   * noticeably larger than a solid glyph like Pencil to
+                   * read as equally prominent. Confirmed directly against
+                   * the user's own side-by-side size-4..size-10 comparison
+                   * (rendered live, not guessed): size-10 (40px) was the
+                   * first one they confirmed as a genuine match. */}
+                  <DayEmotionIcon aria-hidden="true" className="size-10" />
                   <span className="sr-only">
                     {t.dailyEntry.emotionLabel(dayEmotion!)}
                   </span>
