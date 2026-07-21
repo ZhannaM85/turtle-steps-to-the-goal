@@ -505,63 +505,34 @@ Vitest + jsdom + `fake-indexeddb` + React Testing Library + `@testing-library/us
 
 ## Status
 
-All of Tiers 1–10 in `docs/issues-priority.md` (issues #1–#90) are done — every original epic, the UX/product-model rework, and three full waves of live-feedback polish, with no open issues remaining.
+242 of 249 issues filed in `docs/issues-priority.md` are done — every original epic, the UX/product-model rework, and twelve full waves of live-feedback polish. 7 issues remain open, all in the two most recent tiers (#224, and #232/#233/#237/#247/#248/#249). One row per tier below; a new tier just needs a new row appended — see `docs/issues-priority.md` for full per-issue detail and the reasoning behind tier order.
 
-```mermaid
-flowchart LR
-    subgraph Done1 ["✅ Tiers 1-7 — architecture through QA pass"]
-        D1["#1-#5, #9-#10 Foundation,<br/>design system, first vertical slice,<br/>export/import, deployment"]
-        D2["#12-#19 UX & product-model rework —<br/>weekly-only goals, mobile-first shell,<br/>localization, mood theming"]
-        D3["#6-#8 Core features —<br/>Dashboard, Correlation, History"]
-        D4["#11 Accessibility & responsive QA"]
-    end
-    subgraph Done2 ["✅ Tier 8 — post-launch polish (#20-#49)"]
-        D5["30 issues from live use — itemized calories,<br/>emotions, drag-reorder, calendar view,<br/>day-delta stat, chart tap-navigation fixes,<br/>see issues-priority.md for the full list"]
-    end
-    subgraph Done3 ["✅ Tier 9 — second live-feedback wave (complete, no open issues)"]
-        D6["#56 Signed weekly-target display (-0.5 kg)"]
-        D7["#57 Weight display: show full entered precision"]
-        D8["#58 Add a README with screenshots"]
-        D9["#50 Reusable meal items (autocomplete + library)"]
-        D10["#54 Meal emotions: thumbs-up/down + bellissimo"]
-        D11["#63 Release notes section in Settings"]
-        D12["#51 Protein/fat/carbs: capture + Today totals (1/3)"]
-        D13["#64 Meal emotions: all-emoji for visual consistency"]
-        D14["#52 Protein/fat/carbs: History totals (2/3)"]
-        D15["#53 Protein/fat/carbs: Dashboard charts (3/3)<br/>— macros epic complete"]
-        D16["#55 Weekly-goal-met celebration modal"]
-        D17["#59 Sleep tracking (duration + deep sleep)"]
-        D18["#60 Step count tracking"]
-        D19["#61 Opt-in menstrual cycle tracker"]
-        D20["#67 History: fix macro summary overflow<br/>hiding expand/edit/delete icons"]
-        D21["#68 Narrow the Steps input,<br/>lower max to 20,000/day"]
-        D22["#69 Sleep entry: hours+minutes<br/>instead of decimal hours"]
-        D23["#65 Meal time-eaten field<br/>(intermittent fasting)"]
-        D24["#66 Move release notes<br/>Settings to About"]
-        D25["#62 Local food/nutrient database<br/>with quantity-based entry"]
-        D26["#71 Move cycle-tracking toggle<br/>Today to History day view"]
-        D27["#72 Calendar: period marker dots"]
-        D28["#73 History: fix trash icon still<br/>hidden after #67 (date format)"]
-        D29["#74 Fix food picker dialog scroll<br/>on mobile with keyboard open"]
-        D30["#75 Food picker: per-100g<br/>macro preview per row"]
-        D31["#76/#77 Copy tweaks: kcal<br/>placeholder, Note label"]
-        D32["#78 Expand food list<br/>60 -> 308 items, 2 public sources"]
-    end
-    subgraph Tier10 ["✅ Tier 10 — third live-feedback wave (complete, no open issues)"]
-        D33["✅ #82 Time-eaten field:<br/>stop pre-populating with 'now'"]
-        D34["✅ #80 Reword meal-note placeholder"]
-        D35["✅ #87 Rename daily note field"]
-        D36["✅ #84 Dark-mode selected-emotion contrast"]
-        D37["✅ #79 Move Add button below note, full width"]
-        D38["✅ #85 Week-start preference"]
-        D39["✅ #83 Prepared/composite dishes"]
-        D40["✅ #86 Unify meal item search"]
-        D41["✅ #81 Group food items under one meal"]
-        D42["✅ #88 Dashboard chart tap-to-navigate<br/>goes to the wrong day"]
-        D43["✅ #89 Collapse correlation chart<br/>until enough data exists"]
-        D44["✅ #90 Let users customize<br/>the curated food list"]
-    end
-    Done1 --> Done2 --> Done3 --> Tier10
-```
-
-See `docs/issues-priority.md` for the full ordered queue and the reasoning behind tier order.
+| Tier | Theme | Issues | Status |
+|---|---|---|---|
+| 1 | Architecture foundation | [#1](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1)–[#2](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/2) | ✅ Done |
+| 2 | Design system & app shell | [#3](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/3) | ✅ Done |
+| 3 | First vertical slice | [#4](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/4)–[#5](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/5) | ✅ Done |
+| 4 | Data safety & deployment (pulled forward) | [#9](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/9)–[#10](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/10) | ✅ Done |
+| 5 | UX & product-model rework (pulled forward) | [#12](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/12)–[#17](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/17) | ✅ Done |
+| 6 | Core features (Dashboard, Correlation, History) | [#6](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/6)–[#8](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/8), [#18](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/18)–[#19](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/19) | ✅ Done |
+| 7 | Quality pass — accessibility & responsive QA | [#11](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/11) | ✅ Done |
+| 8 | Post-launch polish (live-feedback fixes) | [#20](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/20)–[#49](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/49) | ✅ Done |
+| 9 | Second live-feedback wave (2026-07-15) | [#50](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/50)–[#78](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/78) | ✅ Done |
+| 10 | Third live-feedback wave (2026-07-16) | [#79](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/79)–[#90](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/90) | ✅ Done |
+| 11 | Fourth live-feedback wave (2026-07-16) | [#91](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/91)–[#95](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/95) | ✅ Done |
+| 12 | Fifth live-feedback wave (2026-07-16) | [#96](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/96)–[#99](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/99) | ✅ Done |
+| 13 | Sixth live-feedback wave (2026-07-17) | [#100](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/100)–[#117](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/117) | ✅ Done |
+| 14 | Seventh live-feedback wave (2026-07-17) | [#111](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/111)–[#114](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/114) | ✅ Done |
+| 15 | Eighth live-feedback wave (2026-07-17) | [#118](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/118)–[#121](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/121) | ✅ Done |
+| 16 | Meal-item editor redesign (2026-07-17) | [#122](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/122)–[#125](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/125) | ✅ Done |
+| 17 | Spacing & sizing consistency, meal reactions (2026-07-17) | [#126](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/126)–[#147](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/147) | ✅ Done |
+| 18 | Ninth live-feedback wave (2026-07-19) | [#149](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/149)–[#155](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/155) | ✅ Done |
+| 19 | Tenth live-feedback wave (2026-07-19) | [#156](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/156)–[#158](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/158) | ✅ Done |
+| 20 | Codebase-survey batch + two live-found issues (2026-07-19) | [#159](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/159)–[#187](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/187) | ✅ Done |
+| 21 | Eleventh live-feedback wave (2026-07-20) | [#188](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/188)–[#200](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/200) | ✅ Done |
+| 22 | Follow-ups on #199/#190 (2026-07-20) | [#201](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/201)–[#204](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/204) | ✅ Done |
+| 23 | New reports (2026-07-20) | [#205](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/205) | ✅ Done |
+| 24 | New reports (2026-07-20) | [#206](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/206) | ✅ Done |
+| 25 | New reports (2026-07-20) | [#207](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/207)–[#213](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/213) | ✅ Done |
+| 26 | Analysis of `docs/weight-tracker-github-issues.md` and `docs/improvement_suggestions.md` (2026-07-20) | [#214](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/214)–[#231](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/231) | 🔍 1 open — [#224](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/224) |
+| 27 | Twelfth live-feedback wave (2026-07-21) | [#232](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/232)–[#249](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/249) | 🔍 6 open — [#232](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/232), [#233](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/233), [#237](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/237), [#247](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/247), [#248](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/248), [#249](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/249) |
