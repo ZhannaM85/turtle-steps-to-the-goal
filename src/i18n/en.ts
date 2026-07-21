@@ -201,6 +201,7 @@ export const en: Dictionary = {
     dailyProteinTargetHint: 'Optional — leave blank to skip.',
     updateButton: 'Update this week’s target',
     setButton: 'Set this week’s target',
+    savedConfirmation: 'Saved',
     pastTargetsTitle: 'Past targets',
     targetPerWeek: (target, unit) => `${target} ${unit}/week`,
     targetMetLabel: 'Target met',

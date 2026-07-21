@@ -203,6 +203,7 @@ export const ru: Dictionary = {
     dailyProteinTargetHint: 'Необязательно — можно оставить пустым.',
     updateButton: 'Обновить цель на неделю',
     setButton: 'Задать цель на неделю',
+    savedConfirmation: 'Сохранено',
     pastTargetsTitle: 'Прошлые цели',
     targetPerWeek: (target, unit) => `${target} ${unit}/неделю`,
     targetMetLabel: 'Цель достигнута',

@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 215,
+    issue: 241,
+    date: '2026-07-21T12:51:36+03:00',
+    en: '"Update this week\'s target" now shows a quick "Saved" confirmation so it\'s clear the click worked.',
+    ru: 'Кнопка «Обновить цель на неделю» теперь показывает подтверждение «Сохранено», чтобы было понятно, что нажатие сработало.',
+  },
+  {
     version: 214,
     issue: 243,
     date: '2026-07-21T12:28:23+03:00',

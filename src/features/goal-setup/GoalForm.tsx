@@ -1,5 +1,6 @@
-import { useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { Check } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 import type { Goal } from '@/domain/goal'
 import { estimatedDailyCalorieDeficitKcal } from '@/domain/goal'
@@ -17,7 +18,7 @@ import { makeGoalFormSchema, type GoalFormValues } from './goalFormSchema'
 
 export interface GoalFormProps {
   existingGoal: Goal | null
-  onSubmit: (goal: Goal) => void
+  onSubmit: (goal: Goal) => void | Promise<void>
   /** #155: whether existingGoal's own window has already been reached
    * (goalWindowProgress(entries, existingGoal).metOnDate !== null) —
    * computed by the caller since this form has no access to entries.
@@ -50,10 +51,22 @@ export function GoalForm({
   const dailyDeficit =
     paceKg !== null ? estimatedDailyCalorieDeficitKcal(paceKg) : null
 
-  function submit(formValues: GoalFormValues) {
-    onSubmit(
+  // #241: the button gave no visible confirmation after a successful save,
+  // so a click could look like it did nothing. Brief "Saved" checkmark,
+  // auto-clears rather than persisting indefinitely.
+  const [justSaved, setJustSaved] = useState(false)
+
+  useEffect(() => {
+    if (!justSaved) return
+    const timer = setTimeout(() => setJustSaved(false), 2000)
+    return () => clearTimeout(timer)
+  }, [justSaved])
+
+  async function submit(formValues: GoalFormValues) {
+    await onSubmit(
       formValuesToGoal(formValues, unit, existingGoal, activeGoalReached),
     )
+    setJustSaved(true)
   }
 
   return (
@@ -98,9 +111,20 @@ export function GoalForm({
         {...register('dailyProteinTarget', { setValueAs: parseNumberInput })}
       />
 
-      <Button type="submit" className="self-start">
-        {existingGoal ? t.goal.updateButton : t.goal.setButton}
-      </Button>
+      <div className="flex items-center gap-2 self-start">
+        <Button type="submit">
+          {existingGoal ? t.goal.updateButton : t.goal.setButton}
+        </Button>
+        {justSaved && (
+          <span
+            role="status"
+            className="flex items-center gap-1 text-sm text-muted-foreground"
+          >
+            <Check aria-hidden="true" className="size-4" />
+            {t.goal.savedConfirmation}
+          </span>
+        )}
+      </div>
     </form>
   )
 }
