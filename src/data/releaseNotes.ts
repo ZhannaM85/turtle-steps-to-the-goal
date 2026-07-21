@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 209,
+    issue: 219,
+    date: '2026-07-21T06:30:00+03:00',
+    en: 'Added a Markdown export option in Settings, alongside the existing JSON, Excel, and CSV exports.',
+    ru: 'В настройках добавлена возможность экспорта в Markdown — рядом с уже существующими экспортами в JSON, Excel и CSV.',
+  },
+  {
     version: 208,
     issue: 225,
     date: '2026-07-21T06:15:00+03:00',

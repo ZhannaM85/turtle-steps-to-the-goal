@@ -248,6 +248,13 @@ export const ru: Dictionary = {
     exportCsvLlmTooltip:
       'CSV — лучший формат, чтобы вставить в LLM (например, ChatGPT или Claude), если хотите получить анализ данных — он компактный и ИИ-инструменты читают его точнее всего.',
     exportCsvLlmTooltipLabel: 'Почему CSV для анализа в ИИ',
+    exportMarkdownBlurb:
+      'Скачайте свой дневник в формате Markdown — табличный формат, который хорошо читается в текстовых редакторах и приложениях для заметок.',
+    exportMarkdownButton: 'Экспорт в Markdown',
+    exportingMarkdownButton: 'Экспорт…',
+    exportMarkdownFailed: 'Не удалось выполнить экспорт в Markdown.',
+    exportedMarkdownSummary: (entries) =>
+      `Экспортировано в Markdown: ${entryCount(entries)}.`,
     storageUsedLabel: (size) => `~${size} использовано на этом устройстве`,
     storageUsedOfQuotaLabel: (used, quota) =>
       `~${used} использовано из ~${quota}, доступных на этом устройстве`,
@@ -265,6 +272,9 @@ export const ru: Dictionary = {
     sleepHoursColumn: 'Сон (ч)',
     deepSleepHoursColumn: 'Глубокий сон (ч)',
     stepsColumn: 'Шаги',
+    waistColumn: 'Талия (см)',
+    hipColumn: 'Бёдра (см)',
+    bodyFatColumn: 'Процент жира (%)',
     moodColumn: 'Настроение',
     noteColumn: 'Заметка',
     onPeriodColumn: 'Менструация',

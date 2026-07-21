@@ -114,6 +114,23 @@ describe('ExportSection', () => {
     ).toBeInTheDocument()
   })
 
+  it('exports a Markdown file and reports how many entries were included (#219)', async () => {
+    await db.goals.put(makeGoal())
+    await db.dailyEntries.put(makeEntry())
+    await db.dailyEntries.put(makeEntry({ date: '2026-03-02' }))
+    const user = userEvent.setup()
+
+    render(<ExportSection />)
+    await user.click(
+      screen.getByRole('button', { name: 'Export as Markdown' }),
+    )
+
+    // No goals in the summary, same reasoning as the CSV export above.
+    expect(
+      await screen.findByText('Exported 2 entries as Markdown.'),
+    ).toBeInTheDocument()
+  })
+
   it('imports a valid backup file and reports the result', async () => {
     const user = userEvent.setup()
     const bundle = {

@@ -16,6 +16,7 @@ import {
   parseExportBundle,
 } from './exportActions'
 import { buildDailyLogCsv, CSV_BOM } from './exportCsv'
+import { buildDailyLogMarkdown } from './exportMarkdown'
 import { buildExportWorkbook } from './exportXlsx'
 
 type Status =
@@ -26,6 +27,8 @@ type Status =
   | { kind: 'exportedExcel'; goals: number; entries: number }
   | { kind: 'exportingCsv' }
   | { kind: 'exportedCsv'; entries: number }
+  | { kind: 'exportingMarkdown' }
+  | { kind: 'exportedMarkdown'; entries: number }
   | { kind: 'importing' }
   | { kind: 'imported'; goals: number; entries: number }
   | { kind: 'error'; message: string }
@@ -140,6 +143,30 @@ export function ExportSection() {
     }
   }
 
+  // Distinct from handleExportCsv (#219) — same underlying "Daily Log" table,
+  // rendered as a Markdown table instead of CSV, for pasting into a notes
+  // app or a Markdown-rendering chat tool rather than a spreadsheet.
+  async function handleExportMarkdown() {
+    setStatus({ kind: 'exportingMarkdown' })
+    try {
+      const bundle = await exportAllData()
+      const markdown = buildDailyLogMarkdown(bundle.dailyEntries, t)
+      const blob = new Blob([markdown], { type: 'text/markdown' })
+      const url = URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      link.href = url
+      link.download = `turtle-steps-daily-log-${format(new Date(), 'yyyy-MM-dd')}.md`
+      link.click()
+      URL.revokeObjectURL(url)
+      setStatus({
+        kind: 'exportedMarkdown',
+        entries: bundle.dailyEntries.length,
+      })
+    } catch {
+      setStatus({ kind: 'error', message: t.export.exportMarkdownFailed })
+    }
+  }
+
   async function handleImportFile(file: File) {
     setStatus({ kind: 'importing' })
     try {
@@ -234,6 +261,22 @@ export function ExportSection() {
 
         <div className="flex flex-col gap-2">
           <p className="text-sm text-muted-foreground">
+            {t.export.exportMarkdownBlurb}
+          </p>
+          <Button
+            variant="outline"
+            onClick={handleExportMarkdown}
+            className="self-start"
+            disabled={status.kind === 'exportingMarkdown'}
+          >
+            {status.kind === 'exportingMarkdown'
+              ? t.export.exportingMarkdownButton
+              : t.export.exportMarkdownButton}
+          </Button>
+        </div>
+
+        <div className="flex flex-col gap-2">
+          <p className="text-sm text-muted-foreground">
             {t.export.importBlurb}
           </p>
           <input
@@ -276,6 +319,11 @@ export function ExportSection() {
         {status.kind === 'exportedCsv' && (
           <p className="text-sm text-muted-foreground">
             {t.export.exportedCsvSummary(status.entries)}
+          </p>
+        )}
+        {status.kind === 'exportedMarkdown' && (
+          <p className="text-sm text-muted-foreground">
+            {t.export.exportedMarkdownSummary(status.entries)}
           </p>
         )}
         {status.kind === 'imported' && (

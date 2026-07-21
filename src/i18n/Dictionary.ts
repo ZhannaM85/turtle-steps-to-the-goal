@@ -369,6 +369,14 @@ export interface Dictionary {
      * same InfoTooltip shape as dailyEntry.caloriesTooltip. */
     exportCsvLlmTooltip: string
     exportCsvLlmTooltipLabel: string
+    /** Markdown export (#219) — same flat Daily Log table as the CSV export,
+     * rendered as a Markdown table instead. Distinct copy, same reasoning as
+     * exportCsvBlurb above. */
+    exportMarkdownBlurb: string
+    exportMarkdownButton: string
+    exportingMarkdownButton: string
+    exportMarkdownFailed: string
+    exportedMarkdownSummary: (entries: number) => string
     /** Local storage usage (#176) — fallback copy for when
      * `navigator.storage.estimate()`'s `quota` isn't available (some
      * browsers only return `usage`); `storageUsedOfQuotaLabel` below is
@@ -398,6 +406,11 @@ export interface Dictionary {
     sleepHoursColumn: string
     deepSleepHoursColumn: string
     stepsColumn: string
+    /** Body measurements (#225) — same fields as DailyEntryForm's bundled
+     * "Body measurements" section. */
+    waistColumn: string
+    hipColumn: string
+    bodyFatColumn: string
     moodColumn: string
     noteColumn: string
     onPeriodColumn: string

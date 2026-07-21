@@ -53,6 +53,9 @@ describe('buildExportWorkbook', () => {
       sleepHours: 7,
       deepSleepHours: 1.5,
       steps: 8000,
+      waistCm: 80,
+      hipCm: 95,
+      bodyFatPercent: 22,
       note: 'Felt good',
       emotion: 'happy',
       onPeriod: true,
@@ -72,7 +75,8 @@ describe('buildExportWorkbook', () => {
     const [row] = sheetRows(dailyLog)
 
     // [date, weight, calories, protein, fat, carbs, sleepHours,
-    //  deepSleepHours, steps, mood, note, onPeriod, hadConstipation]
+    //  deepSleepHours, steps, waist, hip, bodyFat, mood, note, onPeriod,
+    //  hadConstipation]
     expect(row[1]).toBeInstanceOf(Date)
     expect(row[2]).toBe(79.5)
     expect(row[3]).toBe(300)
@@ -82,10 +86,13 @@ describe('buildExportWorkbook', () => {
     expect(row[7]).toBe(7)
     expect(row[8]).toBe(1.5)
     expect(row[9]).toBe(8000)
-    expect(row[10]).toBe('Happy')
-    expect(row[11]).toBe('Felt good')
-    expect(row[12]).toBe(true)
-    expect(row[13]).toBeUndefined()
+    expect(row[10]).toBe(80)
+    expect(row[11]).toBe(95)
+    expect(row[12]).toBe(22)
+    expect(row[13]).toBe('Happy')
+    expect(row[14]).toBe('Felt good')
+    expect(row[15]).toBe(true)
+    expect(row[16]).toBeUndefined()
   })
 
   it('writes one Meals row per logged item, using the meal label or positional fallback', async () => {

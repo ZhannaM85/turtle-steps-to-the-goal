@@ -247,6 +247,13 @@ export const en: Dictionary = {
     exportCsvLlmTooltip:
       'CSV is the best format to paste into an LLM (like ChatGPT or Claude) if you want it to analyze your data — it’s compact and easy for AI tools to read accurately.',
     exportCsvLlmTooltipLabel: 'Why CSV for AI analysis',
+    exportMarkdownBlurb:
+      'Download your daily log as a Markdown file — a table format that reads well in text editors and note-taking apps.',
+    exportMarkdownButton: 'Export as Markdown',
+    exportingMarkdownButton: 'Exporting…',
+    exportMarkdownFailed: 'Markdown export failed.',
+    exportedMarkdownSummary: (entries) =>
+      `Exported ${entries} ${entries === 1 ? 'entry' : 'entries'} as Markdown.`,
     storageUsedLabel: (size) => `~${size} used on this device`,
     storageUsedOfQuotaLabel: (used, quota) =>
       `~${used} used of ~${quota} available on this device`,
@@ -264,6 +271,9 @@ export const en: Dictionary = {
     sleepHoursColumn: 'Sleep (h)',
     deepSleepHoursColumn: 'Deep sleep (h)',
     stepsColumn: 'Steps',
+    waistColumn: 'Waist (cm)',
+    hipColumn: 'Hip (cm)',
+    bodyFatColumn: 'Body fat (%)',
     moodColumn: 'Mood',
     noteColumn: 'Note',
     onPeriodColumn: 'On period',
