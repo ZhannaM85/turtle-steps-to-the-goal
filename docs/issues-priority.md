@@ -495,6 +495,16 @@ _Not from live-app feedback like Tiers 8–27 — filed after a comparative feat
 
 ---
 
+## Tier 29 — Fasting-window tracking (2026-07-21)
+
+_Filed from a direct product discussion (not the Tier 28 cross-project code review) about whether time between meals correlates with weight change, and whether the popular "stop eating by a certain hour" claim holds up against the user's own data. Not picked up yet._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#257](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/257) | ⬜ Open | Add fasting-window tracking — correlate time between meals with weight, plus an adjustable eating-cutoff comparison | Extends #116's existing "latest meal time vs. next-day weight" correlation, which uses a median split rather than an actual elapsed-duration metric. New `domain/stats/fastingWindow.ts` computes the real elapsed hours between the previous day's last meal and the current day's first meal (both need a logged `timeEaten`, #65 — a stricter data requirement than #116's single-day one). Two separate views: a median-split general correlation (same shape as the existing sleep/steps/protein/late-meal ones) and a fixed-threshold "ate after cutoff vs. before" comparison that directly tests the popular claim, reading the cutoff from a new adjustable Settings preference (default 18:00, not hardcoded — confirmed with the user) rather than assuming everyone's testing exactly 6pm. Also planned: `fastingHours` as a new toggleable series in the existing custom chart (#132) |
+
+---
+
 ## Private (no public GitHub issue, by request)
 
 _Filed and built without a public issue at the user's explicit request — the repo is public, and this one's more personal than the rest. Still documented normally here per the project's usual close-out process; see [[feedback_issue_first]]'s exception #2 in memory for why._
