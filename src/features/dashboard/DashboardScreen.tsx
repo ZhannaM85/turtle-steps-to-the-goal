@@ -2,6 +2,7 @@ import { useTranslation } from '@/i18n'
 import { EmptyState } from '@/shared/ui/empty-state'
 import { PageHeader } from '@/shared/ui/page-header'
 import { CalorieTrendChart } from './CalorieTrendChart'
+import { CompareRangesView } from './CompareRangesView'
 import { CorrelationView } from './CorrelationView'
 import { CustomChartView } from './CustomChartView'
 import { FoodReactionsView } from './FoodReactionsView'
@@ -51,6 +52,7 @@ export function DashboardScreen() {
           <RecentAveragesCards entries={entries} />
           <WeeklySummaryCards entries={entries} goal={goal} />
           <MonthlySummaryCards entries={entries} />
+          <CompareRangesView entries={entries} />
         </>
       )}
     </div>

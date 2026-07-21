@@ -306,6 +306,15 @@ export const ru: Dictionary = {
     recentAveragesTitle: 'Средние показатели',
     last7DaysLabel: 'Последние 7 дней',
     last30DaysLabel: 'Последние 30 дней',
+    compareRangesTitle: 'Сравнение периодов',
+    rangeALabel: 'Период A',
+    rangeBLabel: 'Период Б',
+    rangeStartLabel: 'Дата начала',
+    rangeEndLabel: 'Дата окончания',
+    compareRangesDayCount: (n) =>
+      `Дней с записями: ${n}`,
+    compareRangesWeightDelta: (delta, unit) =>
+      `Средний вес в периоде Б отличается на ${delta} ${unit} от периода A.`,
     emptyTitle: 'Пока нет записей',
     emptyDescription:
       'Заполните несколько дней на экране «Сегодня», чтобы увидеть тренды здесь.',

@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 212,
+    issue: 222,
+    date: '2026-07-21T11:15:00+03:00',
+    en: 'You can now compare two custom date ranges side by side on the Dashboard, e.g. this month vs. last month.',
+    ru: 'Теперь на панели можно сравнить два произвольных периода — например, этот месяц с прошлым.',
+  },
+  {
     version: 211,
     issue: 223,
     date: '2026-07-21T11:00:00+03:00',

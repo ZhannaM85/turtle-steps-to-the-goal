@@ -22,6 +22,8 @@ export type {
   LoggingConsistencyDay,
   LoggingConsistencyWeek,
 } from './loggingConsistency'
+export { dateRangeSummary } from './dateRangeSummary'
+export type { DateRangeSummary } from './dateRangeSummary'
 export { foodReactionTallies, mostLikedFoods, mostDislikedFoods } from './foodReactions'
 export type { FoodReactionTally } from './foodReactions'
 export {

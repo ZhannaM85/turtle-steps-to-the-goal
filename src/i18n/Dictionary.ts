@@ -451,6 +451,15 @@ export interface Dictionary {
     recentAveragesTitle: string
     last7DaysLabel: string
     last30DaysLabel: string
+    /** Custom date-range comparison (#222) — two user-picked ranges shown
+     * side by side, defaulting to this month vs. last month. */
+    compareRangesTitle: string
+    rangeALabel: string
+    rangeBLabel: string
+    rangeStartLabel: string
+    rangeEndLabel: string
+    compareRangesDayCount: (n: number) => string
+    compareRangesWeightDelta: (delta: string, unit: string) => string
     emptyTitle: string
     emptyDescription: string
     correlationTitle: string
