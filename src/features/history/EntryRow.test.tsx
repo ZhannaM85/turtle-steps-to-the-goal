@@ -49,7 +49,9 @@ describe('EntryRow', () => {
     renderRow()
 
     expect(screen.getByText('2,000')).toBeInTheDocument()
-    expect(screen.getByText('80 kg')).toBeInTheDocument()
+    // Unit suffix lives in the column header, not the row, since #246 —
+    // the row just shows the number.
+    expect(screen.getByText('80')).toBeInTheDocument()
     expect(screen.getAllByText('—')).not.toHaveLength(0)
   })
 

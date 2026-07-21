@@ -9,13 +9,7 @@ import {
   type DailyEntry,
 } from '@/domain/dailyEntry'
 import { kgToLb } from '@/domain/goal'
-import {
-  formatExactNumber,
-  formatNumber,
-  unitLabel,
-  useLocale,
-  useTranslation,
-} from '@/i18n'
+import { formatExactNumber, formatNumber, useLocale, useTranslation } from '@/i18n'
 import { DailyEntryForm } from '@/features/daily-log'
 import { macrosSummaryTextCompact } from '@/shared/lib/macroDisplay'
 import { cn } from '@/shared/lib/utils'
@@ -60,10 +54,17 @@ export function EntryRow({
   const [isExpanded, setIsExpanded] = useState(defaultExpanded)
 
   const displayUnit = useUnitStore((state) => state.unit)
+  // Unit lives in the column header instead of every row (#246) — the
+  // per-row suffix was one of several things (alongside the date format in
+  // #136 and the macros compact form above) crowding the Actions column's
+  // icons off screen on narrow phones.
   const weightDisplay =
     entry.weightKg === undefined
       ? '—'
-      : `${formatExactNumber(displayUnit === 'lb' ? kgToLb(entry.weightKg) : entry.weightKg, locale)} ${unitLabel(displayUnit, t)}`
+      : formatExactNumber(
+          displayUnit === 'lb' ? kgToLb(entry.weightKg) : entry.weightKg,
+          locale,
+        )
   const calories = totalCalories(entry.calorieEntries)
   const caloriesDisplay =
     calories === undefined ? '—' : formatNumber(calories, locale, 0)
@@ -114,7 +115,7 @@ export function EntryRow({
       <tr>
         <td
           className={cn(
-            'border-b border-border px-2 py-2 text-sm whitespace-nowrap sm:px-3',
+            'border-b border-border px-1.5 py-2 text-sm whitespace-nowrap sm:px-3',
             // #155: tints the date cell for a day that was part of a
             // reached goal window; the exact reach day gets a stronger
             // tint + bold weight so it reads as distinct within the range.
@@ -137,10 +138,10 @@ export function EntryRow({
             </span>
           )}
         </td>
-        <td className="border-b border-border px-2 py-2 text-sm tabular-nums sm:px-3">
+        <td className="border-b border-border px-1.5 py-2 text-sm tabular-nums sm:px-3">
           {weightDisplay}
         </td>
-        <td className="border-b border-border px-2 py-2 text-sm tabular-nums sm:px-3">
+        <td className="border-b border-border px-1.5 py-2 text-sm tabular-nums sm:px-3">
           <div className="flex flex-col">
             <span>{caloriesDisplay}</span>
             {macrosSummary && (
@@ -153,7 +154,7 @@ export function EntryRow({
         <td className="hidden border-b border-border px-3 py-2 text-sm text-muted-foreground sm:table-cell">
           {entry.note || '—'}
         </td>
-        <td className="border-b border-border px-2 py-2 text-sm sm:px-3">
+        <td className="border-b border-border px-1.5 py-2 text-sm sm:px-3">
           {mode === 'confirmDelete' ? (
             <div className="flex items-center gap-2 whitespace-nowrap">
               <span className="text-muted-foreground">
@@ -171,10 +172,15 @@ export function EntryRow({
               </Button>
             </div>
           ) : (
-            <div className="flex gap-1">
+            // Tighter than the app's usual icon-sm/gap-1 (#246) — three
+            // non-wrapping buttons in one cell is the actual width floor
+            // that keeps pushing this column off screen on narrow phones,
+            // even after #136 and the macros compact form above already
+            // trimmed the other columns as far as they'll go.
+            <div className="flex gap-0 sm:gap-1">
               <Button
                 variant="ghost"
-                size="icon-sm"
+                size="icon-xs"
                 aria-label={
                   isExpanded ? t.history.collapseLabel : t.history.expandLabel
                 }
@@ -189,7 +195,7 @@ export function EntryRow({
               </Button>
               <Button
                 variant="ghost"
-                size="icon-sm"
+                size="icon-xs"
                 aria-label={t.history.editLabel}
                 onClick={() => setMode('edit')}
               >
@@ -197,7 +203,7 @@ export function EntryRow({
               </Button>
               <Button
                 variant="ghost"
-                size="icon-sm"
+                size="icon-xs"
                 aria-label={t.history.deleteLabel}
                 onClick={() => setMode('confirmDelete')}
               >

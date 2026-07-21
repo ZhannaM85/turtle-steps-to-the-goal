@@ -568,7 +568,10 @@ export interface Dictionary {
     emptyTitle: string
     emptyDescription: string
     dateColumn: string
-    weightColumn: string
+    /** Takes the current unit label ('kg'/'lb') — the unit lives in the
+     * header instead of every row's cell so the Actions column's icons
+     * don't get pushed off screen on narrow phones (#246). */
+    weightColumn: (unit: string) => string
     caloriesColumn: string
     noteColumn: string
     actionsColumn: string

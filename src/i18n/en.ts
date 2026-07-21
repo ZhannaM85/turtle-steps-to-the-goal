@@ -414,7 +414,7 @@ export const en: Dictionary = {
     emptyTitle: 'No entries yet',
     emptyDescription: 'Log a few days on the Today screen to see them here.',
     dateColumn: 'Date',
-    weightColumn: 'Weight',
+    weightColumn: (unit) => `Weight (${unit})`,
     caloriesColumn: 'Calories',
     noteColumn: 'Note',
     actionsColumn: 'Actions',

@@ -54,13 +54,13 @@ describe('HistoryScreen', () => {
     await screen.findByRole('table')
 
     const rowsInitial = screen.getAllByRole('row').slice(1) // skip header row
-    expect(within(rowsInitial[0]).getByText('80 kg')).toBeInTheDocument()
+    expect(within(rowsInitial[0]).getByText('80')).toBeInTheDocument()
 
     const user = userEvent.setup()
     await user.click(screen.getByRole('button', { name: 'Sort by date' }))
 
     const rowsAfterSort = screen.getAllByRole('row').slice(1)
-    expect(within(rowsAfterSort[0]).getByText('82 kg')).toBeInTheDocument()
+    expect(within(rowsAfterSort[0]).getByText('82')).toBeInTheDocument()
   })
 
   it('deletes an entry after confirming, and it disappears from the table', async () => {
@@ -95,7 +95,7 @@ describe('HistoryScreen', () => {
     // want to add a meal or edit the note) — "Done" closes the row.
     await user.click(screen.getByRole('button', { name: 'Done' }))
 
-    expect(await screen.findByText('79.5 kg')).toBeInTheDocument()
+    expect(await screen.findByText('79.5')).toBeInTheDocument()
     const persisted = await db.dailyEntries.get(entry.id)
     expect(persisted?.weightKg).toBe(79.5)
   })
@@ -155,7 +155,7 @@ describe('HistoryScreen', () => {
 
       const rows = screen.getAllByRole('row').slice(1)
       expect(rows).toHaveLength(2)
-      expect(screen.queryByText('82.0 kg')).not.toBeInTheDocument()
+      expect(screen.queryByText('82.0')).not.toBeInTheDocument()
     })
 
     it('filters out entries after the "To" date', async () => {
@@ -169,7 +169,7 @@ describe('HistoryScreen', () => {
 
       const rows = screen.getAllByRole('row').slice(1)
       expect(rows).toHaveLength(2)
-      expect(screen.queryByText('80.0 kg')).not.toBeInTheDocument()
+      expect(screen.queryByText('80.0')).not.toBeInTheDocument()
     })
 
     it('combines From and To into a range', async () => {
@@ -186,7 +186,7 @@ describe('HistoryScreen', () => {
 
       const rows = screen.getAllByRole('row').slice(1)
       expect(rows).toHaveLength(1)
-      expect(screen.getByText('81 kg')).toBeInTheDocument()
+      expect(screen.getByText('81')).toBeInTheDocument()
     })
 
     it('shows a dedicated empty state when the filter matches nothing, distinct from the true empty state', async () => {
@@ -340,7 +340,7 @@ describe('HistoryScreen', () => {
 
       const rows = screen.getAllByRole('row').slice(1)
       expect(rows).toHaveLength(1)
-      expect(screen.getByText('82 kg')).toBeInTheDocument()
+      expect(screen.getByText('82')).toBeInTheDocument()
     })
 
     it('filters by mood', async () => {
@@ -355,7 +355,7 @@ describe('HistoryScreen', () => {
 
       const rows = screen.getAllByRole('row').slice(1)
       expect(rows).toHaveLength(1)
-      expect(screen.getByText('81 kg')).toBeInTheDocument()
+      expect(screen.getByText('81')).toBeInTheDocument()
     })
 
     it('clicking the same mood again clears the filter', async () => {

@@ -423,7 +423,7 @@ export const ru: Dictionary = {
     emptyDescription:
       'Заполните несколько дней на экране «Сегодня», чтобы увидеть их здесь.',
     dateColumn: 'Дата',
-    weightColumn: 'Вес',
+    weightColumn: (unit) => `Вес (${unit})`,
     caloriesColumn: 'Калории',
     noteColumn: 'Заметка',
     actionsColumn: 'Действия',

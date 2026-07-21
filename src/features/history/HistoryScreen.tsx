@@ -4,7 +4,7 @@ import { useSearchParams } from 'react-router-dom'
 import type { Emotion } from '@/domain/dailyEntry'
 import { isDateWithinReachedWindow, isGoalMetOnDate } from '@/domain/goal'
 import { EmotionPicker } from '@/features/daily-log'
-import { useTranslation } from '@/i18n'
+import { unitLabel, useTranslation } from '@/i18n'
 import { DAY_EMOTIONS } from '@/shared/lib/emotionIcons'
 import { Button } from '@/shared/ui/button'
 import { EmptyState } from '@/shared/ui/empty-state'
@@ -12,13 +12,21 @@ import { Input } from '@/shared/ui/input'
 import { Label } from '@/shared/ui/label'
 import { PageHeader } from '@/shared/ui/page-header'
 import { ToggleGroup, ToggleGroupItem } from '@/shared/ui/toggle-group'
+import { useUnitStore } from '@/stores'
 import { CalendarView } from './CalendarView'
 import { EntryRow } from './EntryRow'
 import { MetTargetList } from './MetTargetList'
 import { useHistoryData } from './useHistoryData'
 
+// break-words (#246): on very narrow phones the table's total content
+// wants more width than the viewport has, and the browser only shrinks
+// columns whose header text has a line-break opportunity — a header like
+// "Calories" is one unbreakable word, so without this it stays at its
+// full natural width and becomes the tallest floor in the row, pushing
+// the Actions column's icons off screen even after the Weight/Date
+// columns had already been trimmed as far as they'd go.
 const COLUMN_HEADER_CLASS =
-  'border-b border-border px-2 py-2 text-xs font-medium tracking-wide text-muted-foreground uppercase sm:px-3'
+  'border-b border-border px-1.5 py-2 text-xs font-medium tracking-wide text-muted-foreground uppercase break-words sm:px-3'
 
 type ViewMode = 'list' | 'calendar'
 
@@ -28,6 +36,7 @@ const PAGE_SIZE = 20
 
 export function HistoryScreen() {
   const t = useTranslation()
+  const displayUnit = useUnitStore((state) => state.unit)
   const { entries, goal, reachedWindows, status, saveEntry, deleteEntry } =
     useHistoryData()
   const [sortAsc, setSortAsc] = useState(false)
@@ -235,7 +244,7 @@ export function HistoryScreen() {
                           </button>
                         </th>
                         <th className={COLUMN_HEADER_CLASS}>
-                          {t.history.weightColumn}
+                          {t.history.weightColumn(unitLabel(displayUnit, t))}
                         </th>
                         <th className={COLUMN_HEADER_CLASS}>
                           {t.history.caloriesColumn}
