@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 223,
+    issue: 244,
+    date: '2026-07-21T17:23:34+03:00',
+    en: 'The Goal page now shows your current weekly, calorie, and protein targets in one place, with an edit button to change them.',
+    ru: 'На странице «Цель» теперь видны текущие недельные, калорийные и белковые цели в одном месте, с кнопкой редактирования.',
+  },
+  {
     version: 222,
     issue: 238,
     date: '2026-07-21T16:35:02+03:00',
