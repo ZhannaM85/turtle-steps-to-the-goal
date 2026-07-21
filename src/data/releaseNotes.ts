@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 228,
+    issue: 247,
+    date: '2026-07-21T21:19:57+03:00',
+    en: 'The "Compare your data" chart and every correlation card on the Dashboard now have their own show/hide toggle too, matching the trend charts.',
+    ru: 'У графика «Сравнить данные» и у каждой карточки корреляции на панели теперь тоже есть переключатель показать/скрыть — как у графиков трендов.',
+  },
+  {
     version: 227,
     issue: 248,
     date: '2026-07-21T20:42:46+03:00',
