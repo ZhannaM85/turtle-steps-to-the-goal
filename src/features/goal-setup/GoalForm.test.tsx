@@ -123,7 +123,8 @@ describe('GoalForm', () => {
       expect(onSubmit.mock.calls[0][0].dailyCalorieTargetKcal).toBe(1800)
     })
 
-    it('pre-fills from an existing goal', () => {
+    it('pre-fills from an existing goal', async () => {
+      const user = userEvent.setup()
       render(
         <GoalForm
           existingGoal={{
@@ -136,6 +137,10 @@ describe('GoalForm', () => {
           onSubmit={vi.fn()}
         />,
       )
+
+      // #244: existing goals start as a read-only summary now, not the
+      // form — open it via the edit pencil first.
+      await user.click(screen.getByRole('button', { name: 'Edit goal' }))
 
       expect(screen.getByLabelText('Daily calories target')).toHaveValue(
         '1800',
@@ -179,7 +184,8 @@ describe('GoalForm', () => {
       expect(onSubmit.mock.calls[0][0].dailyProteinTargetG).toBe(120)
     })
 
-    it('pre-fills from an existing goal', () => {
+    it('pre-fills from an existing goal', async () => {
+      const user = userEvent.setup()
       render(
         <GoalForm
           existingGoal={{
@@ -193,13 +199,16 @@ describe('GoalForm', () => {
         />,
       )
 
+      await user.click(screen.getByRole('button', { name: 'Edit goal' }))
+
       expect(screen.getByLabelText('Daily protein target')).toHaveValue(
         '120',
       )
     })
   })
 
-  it('pre-fills from an existing goal and labels the submit button as an update', () => {
+  it('pre-fills from an existing goal and labels the submit button as an update', async () => {
+    const user = userEvent.setup()
     render(
       <GoalForm
         existingGoal={{
@@ -211,6 +220,8 @@ describe('GoalForm', () => {
         onSubmit={vi.fn()}
       />,
     )
+
+    await user.click(screen.getByRole('button', { name: 'Edit goal' }))
 
     expect(
       screen.getByLabelText("This week's target (kg to lose)"),
@@ -244,6 +255,7 @@ describe('GoalForm', () => {
         />,
       )
 
+      await user.click(screen.getByRole('button', { name: 'Edit goal' }))
       const button = screen.getByRole('button', {
         name: 'Update this week’s target',
       })
@@ -275,6 +287,7 @@ describe('GoalForm', () => {
         />,
       )
 
+      await user.click(screen.getByRole('button', { name: 'Edit goal' }))
       const input = screen.getByLabelText("This week's target (kg to lose)")
       await user.clear(input)
       await user.type(input, '1.5')
@@ -307,6 +320,7 @@ describe('GoalForm', () => {
         />,
       )
 
+      await user.click(screen.getByRole('button', { name: 'Edit goal' }))
       const button = screen.getByRole('button', {
         name: 'Update this week’s target',
       })
@@ -322,9 +336,10 @@ describe('GoalForm', () => {
 
   it('clears all three fields once a save succeeds (#241)', async () => {
     // Explicitly requested by the user: not just a confirmation next to
-    // the button, the fields themselves must go blank. Current value
-    // stays visible via the "This week's target" StatCard above the form
-    // (GoalScreen.tsx), not this form.
+    // the button, the fields themselves must go blank. Current value is
+    // visible via the read-only summary (#244) this collapses back to,
+    // not the form itself. existingGoal is null here specifically so it
+    // starts already in edit mode.
     const user = userEvent.setup()
     const onSubmit = vi.fn()
     render(<GoalForm existingGoal={null} onSubmit={onSubmit} />)

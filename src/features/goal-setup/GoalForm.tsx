@@ -1,10 +1,10 @@
 import { useEffect, useMemo, useState } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Check } from 'lucide-react'
+import { Check, Pencil } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 import type { Goal } from '@/domain/goal'
-import { estimatedDailyCalorieDeficitKcal } from '@/domain/goal'
-import { unitLabel, useTranslation } from '@/i18n'
+import { estimatedDailyCalorieDeficitKcal, kgToLb } from '@/domain/goal'
+import { formatExactNumber, formatNumber, unitLabel, useLocale, useTranslation } from '@/i18n'
 import { parseNumberInput } from '@/shared/lib/parseNumberInput'
 import { useUnitStore } from '@/stores'
 import { Button } from '@/shared/ui/button'
@@ -33,7 +33,10 @@ export function GoalForm({
   activeGoalReached = false,
 }: GoalFormProps) {
   const t = useTranslation()
+  const locale = useLocale()
   const unit = useUnitStore((state) => state.unit)
+  const unitText = unitLabel(unit, t)
+  const toDisplay = (kg: number) => (unit === 'lb' ? kgToLb(kg) : kg)
   const schema = useMemo(() => makeGoalFormSchema(t), [t])
 
   const {
@@ -63,6 +66,15 @@ export function GoalForm({
     return () => clearTimeout(timer)
   }, [justSaved])
 
+  // #244: reported live — once #241 made the form clear itself after a
+  // save, there was no longer anywhere to see the *current* daily
+  // calories/protein targets (the form used to double as that display,
+  // pre-filled). Read-only summary + edit pencil now, same
+  // display-then-edit shape DailyEntryForm.tsx's Weight/Note fields use.
+  // Starts editable only for brand-new setup (no goal yet) — matches
+  // those fields' own "nothing saved yet" starting condition.
+  const [isEditing, setIsEditing] = useState(existingGoal === null)
+
   async function submit(formValues: GoalFormValues) {
     await onSubmit(
       formValuesToGoal(formValues, unit, existingGoal, activeGoalReached),
@@ -70,19 +82,87 @@ export function GoalForm({
     setJustSaved(true)
     // Explicitly requested, twice: the fields should actually clear once
     // Update is clicked, not just show a confirmation next to them — the
-    // current value stays visible via the "This week's target" StatCard
-    // above the form instead. Root cause of the first two attempts:
-    // react-hook-form's reset() treats `undefined` as "don't touch this
-    // uncontrolled field's DOM value," not "clear it" — its own internal
-    // state updates to undefined, but the visible input never follows.
-    // An explicit empty string is what actually clears the rendered value
-    // (confirmed with an isolated repro against a bare native <input>,
-    // no custom components involved).
+    // current value is visible via the read-only summary (#244) this
+    // collapses back to below, not the form itself. Root cause of the
+    // first two attempts: react-hook-form's reset() treats `undefined` as
+    // "don't touch this uncontrolled field's DOM value," not "clear it" —
+    // its own internal state updates to undefined, but the visible input
+    // never follows. An explicit empty string is what actually clears the
+    // rendered value (confirmed with an isolated repro against a bare
+    // native <input>, no custom components involved).
     reset({
       targetWeeklyLoss: '' as unknown as number | undefined,
       dailyCalorieTarget: '' as unknown as number | undefined,
       dailyProteinTarget: '' as unknown as number | undefined,
     })
+    setIsEditing(false)
+  }
+
+  if (!isEditing && existingGoal) {
+    return (
+      <div className="flex flex-col gap-2">
+        <h2 className="text-sm font-medium text-foreground">
+          {t.goal.currentGoalTitle}
+        </h2>
+        <table className="w-full text-sm">
+          <tbody>
+            <tr className="border-b border-border">
+              <th
+                scope="row"
+                className="py-2 pr-4 text-left font-normal text-muted-foreground"
+              >
+                {t.goal.thisWeeksTarget}
+              </th>
+              <td className="py-2 text-right font-medium text-foreground">
+                {t.goal.targetPerWeek(
+                  formatNumber(
+                    -toDisplay(existingGoal.targetWeeklyLossKg),
+                    locale,
+                  ),
+                  unitText,
+                )}
+              </td>
+            </tr>
+            <tr className="border-b border-border">
+              <th
+                scope="row"
+                className="py-2 pr-4 text-left font-normal text-muted-foreground"
+              >
+                {t.goal.dailyCalorieTargetLabel}
+              </th>
+              <td className="py-2 text-right font-medium text-foreground">
+                {existingGoal.dailyCalorieTargetKcal !== undefined
+                  ? `${formatNumber(existingGoal.dailyCalorieTargetKcal, locale, 0)} ${t.dailyEntry.kcalUnit}`
+                  : t.goal.notSetLabel}
+              </td>
+            </tr>
+            <tr>
+              <th
+                scope="row"
+                className="py-2 pr-4 text-left font-normal text-muted-foreground"
+              >
+                {t.goal.dailyProteinTargetLabel}
+              </th>
+              <td className="py-2 text-right font-medium text-foreground">
+                {existingGoal.dailyProteinTargetG !== undefined
+                  ? `${formatExactNumber(existingGoal.dailyProteinTargetG, locale)} ${t.dailyEntry.gramsUnit}`
+                  : t.goal.notSetLabel}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon-xl"
+          aria-label={t.goal.editGoalLabel}
+          onClick={() => setIsEditing(true)}
+          className="self-start"
+        >
+          <Pencil aria-hidden="true" />
+        </Button>
+      </div>
+    )
   }
 
   return (

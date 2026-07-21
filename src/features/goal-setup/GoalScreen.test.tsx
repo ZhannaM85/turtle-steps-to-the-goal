@@ -68,13 +68,23 @@ describe('GoalScreen', () => {
     expect(screen.queryByText("This week's target")).not.toBeInTheDocument()
   })
 
-  it('shows a summary and a pre-filled edit form when a goal exists', async () => {
+  it('shows a read-only summary, then a pre-filled edit form once Edit is tapped (#244)', async () => {
     await useGoalStore.getState().saveGoal(makeGoal())
+    const user = userEvent.setup()
 
     render(<GoalScreen />)
 
     expect(
-      await screen.findByRole('button', { name: 'Update this week’s target' }),
+      await screen.findByRole('button', { name: 'Edit goal' }),
+    ).toBeInTheDocument()
+    expect(
+      screen.queryByRole('button', { name: 'Update this week’s target' }),
+    ).not.toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: 'Edit goal' }))
+
+    expect(
+      screen.getByRole('button', { name: 'Update this week’s target' }),
     ).toBeInTheDocument()
     expect(
       screen.getByLabelText("This week's target (kg to lose)"),
@@ -96,7 +106,9 @@ describe('GoalScreen', () => {
     const user = userEvent.setup()
 
     render(<GoalScreen />)
-    await screen.findByRole('button', { name: 'Update this week’s target' })
+    await user.click(
+      await screen.findByRole('button', { name: 'Edit goal' }),
+    )
 
     const weeklyTargetInput = screen.getByLabelText(
       "This week's target (kg to lose)",
@@ -118,7 +130,9 @@ describe('GoalScreen', () => {
     const user = userEvent.setup()
 
     render(<GoalScreen />)
-    await screen.findByRole('button', { name: 'Update this week’s target' })
+    await user.click(
+      await screen.findByRole('button', { name: 'Edit goal' }),
+    )
 
     const weeklyTargetInput = screen.getByLabelText(
       "This week's target (kg to lose)",
@@ -146,7 +160,9 @@ describe('GoalScreen', () => {
     const user = userEvent.setup()
 
     render(<GoalScreen />)
-    await screen.findByRole('button', { name: 'Update this week’s target' })
+    await user.click(
+      await screen.findByRole('button', { name: 'Edit goal' }),
+    )
     expect(screen.queryByText('Past targets')).not.toBeInTheDocument()
 
     const weeklyTargetInput = screen.getByLabelText(
@@ -221,7 +237,7 @@ describe('GoalScreen', () => {
     await seedTargetMetWeeks()
 
     render(<GoalScreen />)
-    await screen.findByRole('button', { name: 'Update this week’s target' })
+    await screen.findByRole('button', { name: 'Edit goal' })
 
     expect(screen.queryByText(/Target met on/)).not.toBeInTheDocument()
     expect(
@@ -239,6 +255,7 @@ describe('GoalScreen', () => {
 
     render(<GoalScreen />)
     await screen.findByText(/Target met on/)
+    await user.click(screen.getByRole('button', { name: 'Edit goal' }))
 
     const weeklyTargetInput = screen.getByLabelText(
       "This week's target (kg to lose)",
