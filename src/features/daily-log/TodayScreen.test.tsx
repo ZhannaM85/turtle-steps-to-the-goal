@@ -635,7 +635,14 @@ describe('TodayScreen', () => {
 
       const label = await screen.findByText('Remaining calories')
       const card = label.closest('[data-slot="card"]') as HTMLElement
-      expect(within(card).getByText('500')).toBeInTheDocument()
+      // Flaky under full-suite load (caught live in CI, #240 session): the
+      // "Remaining calories" label renders as soon as the goal loads,
+      // independent of whether the separately-async entry load has
+      // resolved yet, so the card can briefly show the stale
+      // nothing-logged value (2,000) before re-rendering with the real
+      // one. findByText (polls) instead of getByText (synchronous) waits
+      // out that second render instead of racing it.
+      expect(await within(card).findByText('500')).toBeInTheDocument()
       expect(within(card).getByText('kcal remaining')).toBeInTheDocument()
     })
 
@@ -665,8 +672,10 @@ describe('TodayScreen', () => {
       const label = await screen.findByText('Remaining calories')
       const card = label.closest('[data-slot="card"]') as HTMLElement
       // The absolute difference, not a negative number — "over" carries
-      // the direction instead.
-      expect(within(card).getByText('300')).toBeInTheDocument()
+      // the direction instead. findByText (not getByText) for the same
+      // reason as the sibling test above — races the entry's own async
+      // load otherwise.
+      expect(await within(card).findByText('300')).toBeInTheDocument()
       expect(within(card).getByText('kcal over')).toBeInTheDocument()
     })
   })
@@ -732,7 +741,9 @@ describe('TodayScreen', () => {
 
       const label = await screen.findByText('Remaining protein')
       const card = label.closest('[data-slot="card"]') as HTMLElement
-      expect(within(card).getByText('30')).toBeInTheDocument()
+      // findByText, not getByText — same goal-loads-before-entry race as
+      // the "remaining calories" tests above.
+      expect(await within(card).findByText('30')).toBeInTheDocument()
       expect(within(card).getByText('g remaining')).toBeInTheDocument()
     })
 
@@ -763,7 +774,9 @@ describe('TodayScreen', () => {
 
       const label = await screen.findByText('Remaining protein')
       const card = label.closest('[data-slot="card"]') as HTMLElement
-      expect(within(card).getByText('0')).toBeInTheDocument()
+      // findByText, not getByText — same goal-loads-before-entry race as
+      // the "remaining calories" tests above.
+      expect(await within(card).findByText('0')).toBeInTheDocument()
       expect(within(card).getByText('g remaining')).toBeInTheDocument()
     })
   })
