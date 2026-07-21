@@ -64,11 +64,17 @@ beforeEach(async () => {
   await db.mealItems.clear()
   useMealItemStore.setState({ items: [], status: 'idle', error: null })
   useMealLabelPresetStore.setState({ presets: [] })
+  // #221: MealList's add-row draft is now persisted to localStorage,
+  // keyed by date — this screen always focuses a single existing meal so
+  // the add-row itself never renders here, but clearing keeps this file
+  // isolated from any leftover draft another test/file left behind.
+  localStorage.clear()
 })
 
 afterEach(async () => {
   await db.dailyEntries.clear()
   await db.mealItems.clear()
+  localStorage.clear()
 })
 
 describe('MealEditScreen', () => {

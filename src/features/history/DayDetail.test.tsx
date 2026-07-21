@@ -18,6 +18,10 @@ function render(ui: ReactElement) {
 beforeEach(() => {
   useCycleTrackingStore.setState({ enabled: false })
   useDigestionTrackingStore.setState({ enabled: false })
+  // #221: MealList's add-row draft is now persisted to localStorage, keyed
+  // by date — several tests below share date 2026-03-01, so a leftover
+  // draft from one could otherwise leak into the next.
+  localStorage.clear()
   // #201 made MealList's add row default collapsed for a past day — freeze
   // "now" to this file's own fixture "today" (2026-03-01, see makeEntry
   // below) so it keeps reading as today, matching the pre-#201
@@ -29,6 +33,7 @@ beforeEach(() => {
 afterEach(() => {
   useCycleTrackingStore.setState({ enabled: false })
   useDigestionTrackingStore.setState({ enabled: false })
+  localStorage.clear()
   vi.useRealTimers()
 })
 

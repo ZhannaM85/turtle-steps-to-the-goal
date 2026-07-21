@@ -66,6 +66,7 @@ import {
   useMealLabelPresetStore,
 } from '@/stores'
 import { FoodPickerDialog, type PickedFoodValues } from './FoodPickerDialog'
+import { clearMealDraft, loadMealDraft, saveMealDraft } from './mealDraftStorage'
 import { MealItemEditorSheet } from './MealItemEditorSheet'
 import { RepeatMealDialog } from './RepeatMealDialog'
 
@@ -125,6 +126,24 @@ function itemDraftFrom(item: CalorieItem): EditItemDraft {
     macroMode: 'per100g',
     emotion: item.emotion,
   }
+}
+
+/** Everything the bottom "+ Add item" add-row holds before its meal group
+ * is actually saved (#221) — persisted to localStorage so a page reload or
+ * navigating away mid-typing doesn't lose it, unlike the rest of this
+ * form's fields, which already commit immediately on their own Save. */
+interface AddRowDraft {
+  itemName: string
+  amount: string
+  protein: string
+  fat: string
+  carbs: string
+  amountG: string
+  macroMode: 'per100g' | 'perPortion'
+  itemEmotion: MealEmotion | undefined
+  stagedItems: EditItemDraft[]
+  groupNote: string
+  time: string
 }
 
 function blankItemDraft(): EditItemDraft {
@@ -843,44 +862,105 @@ export function MealList({
     }
   }, [previousDate])
 
+  // #221: whatever add-row draft survived from an earlier, interrupted
+  // session on this same date, if any — read once via a lazy initializer
+  // (this whole component remounts on date change, `key={date}` upstream,
+  // so there's no need to react to `date` changing after mount). Each
+  // add-* field below seeds from it instead of a blank default.
+  const [initialAddDraft] = useState(() => loadMealDraft<AddRowDraft>(date))
+
   // These four describe the item currently being entered in the bottom Add
   // row. #183: "Save and add one more" stages the current fields into
   // addStagedItems (below) and resets these back to blank for the next
   // dish, rather than committing a brand-new meal group per item — the
   // final Save folds addStagedItems + these current fields into one group.
-  const [addAmount, setAddAmount] = useState('')
-  const [addProtein, setAddProtein] = useState('')
-  const [addFat, setAddFat] = useState('')
-  const [addCarbs, setAddCarbs] = useState('')
-  const [addAmountG, setAddAmountG] = useState('1')
+  const [addAmount, setAddAmount] = useState(initialAddDraft?.amount ?? '')
+  const [addProtein, setAddProtein] = useState(initialAddDraft?.protein ?? '')
+  const [addFat, setAddFat] = useState(initialAddDraft?.fat ?? '')
+  const [addCarbs, setAddCarbs] = useState(initialAddDraft?.carbs ?? '')
+  const [addAmountG, setAddAmountG] = useState(initialAddDraft?.amountG ?? '1')
   // Per 100g / Per portion entry mode (#111) — 'per100g' is the default,
   // unchanged behavior. Switching modes converts the currently-typed
   // numbers (via handleAddMacroModeChange below) rather than leaving them
   // to be silently reinterpreted with a different meaning.
   const [addMacroMode, setAddMacroMode] = useState<'per100g' | 'perPortion'>(
-    'per100g',
+    initialAddDraft?.macroMode ?? 'per100g',
   )
-  const [addItemName, setAddItemName] = useState('')
+  const [addItemName, setAddItemName] = useState(initialAddDraft?.itemName ?? '')
   // This item's own reaction (#129) — moved from the meal group; grouped
   // with the other per-item draft fields above, not the group-level ones
   // below.
   const [addItemEmotion, setAddItemEmotion] = useState<
     MealEmotion | undefined
-  >(undefined)
+  >(initialAddDraft?.itemEmotion)
   // Dishes already committed via "Save and add one more" (#183) during
   // this add-row session, waiting for the final Save to fold them (plus
   // whatever's currently in the fields above) into one new meal group —
   // same EditItemDraft shape and same flatMap-drops-invalid-rows handling
   // (draftsToItems) as an existing meal's own editItems staging array.
-  const [addStagedItems, setAddStagedItems] = useState<EditItemDraft[]>([])
+  const [addStagedItems, setAddStagedItems] = useState<EditItemDraft[]>(
+    initialAddDraft?.stagedItems ?? [],
+  )
   // Group-level fields (#81) — note/time-eaten belong to the meal as a
   // whole, not to any one item within it.
-  const [addGroupNote, setAddGroupNote] = useState('')
+  const [addGroupNote, setAddGroupNote] = useState(
+    initialAddDraft?.groupNote ?? '',
+  )
   // Time eaten (#65) — starts empty rather than defaulting to "now" (#82):
   // a pre-filled value read as already-confirmed/correct and went unnoticed
   // when it didn't match. Resets to empty after each add, same as the
   // other add-* fields.
-  const [addTime, setAddTime] = useState('')
+  const [addTime, setAddTime] = useState(initialAddDraft?.time ?? '')
+  // #221: persists the add-row draft on every change, and clears it once
+  // every draftable field is back to blank (either a successful addMeal()
+  // resets them, or the user manually cleared everything by hand) — rather
+  // than leaving a stale blob behind once there's nothing left to recover.
+  // addAmountG/addMacroMode are deliberately excluded from the blank check:
+  // they always carry a non-empty default ('1'/'per100g') even when
+  // nothing has actually been typed, so including them would prevent the
+  // all-blank case from ever being detected.
+  useEffect(() => {
+    const isBlank =
+      addStagedItems.length === 0 &&
+      addGroupNote === '' &&
+      addTime === '' &&
+      addItemName === '' &&
+      addAmount === '' &&
+      addProtein === '' &&
+      addFat === '' &&
+      addCarbs === '' &&
+      addItemEmotion === undefined
+    if (isBlank) {
+      clearMealDraft(date)
+      return
+    }
+    saveMealDraft<AddRowDraft>(date, {
+      itemName: addItemName,
+      amount: addAmount,
+      protein: addProtein,
+      fat: addFat,
+      carbs: addCarbs,
+      amountG: addAmountG,
+      macroMode: addMacroMode,
+      itemEmotion: addItemEmotion,
+      stagedItems: addStagedItems,
+      groupNote: addGroupNote,
+      time: addTime,
+    })
+  }, [
+    date,
+    addItemName,
+    addAmount,
+    addProtein,
+    addFat,
+    addCarbs,
+    addAmountG,
+    addMacroMode,
+    addItemEmotion,
+    addStagedItems,
+    addGroupNote,
+    addTime,
+  ])
   // Quantity-based entry against the static food list (#62) — an alternative
   // to manual kcal/macro entry, not a replacement for it.
   const [isFoodPickerOpen, setIsFoodPickerOpen] = useState(false)

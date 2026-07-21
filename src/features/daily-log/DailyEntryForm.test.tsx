@@ -73,6 +73,11 @@ beforeEach(async () => {
   useMealItemStore.setState({ items: [], status: 'idle', error: null })
   useMealLabelPresetStore.setState({ presets: [] })
   useDigestionTrackingStore.setState({ enabled: false })
+  // #221: many tests below share date="2026-03-01" and don't always carry
+  // the add-row's meal-item sheet through to a real Save — without this,
+  // a leftover add-row draft (now persisted to localStorage) from one test
+  // would silently pre-fill the next one's fresh render for the same date.
+  localStorage.clear()
   // #201 made MealList's add row default collapsed for a past `date` —
   // freeze "now" to this file's own fixture "today" (2026-03-01) so it
   // keeps reading as today, matching the pre-#201 always-expanded
@@ -84,6 +89,7 @@ beforeEach(async () => {
 afterEach(async () => {
   await db.mealItems.clear()
   useDigestionTrackingStore.setState({ enabled: false })
+  localStorage.clear()
   vi.useRealTimers()
 })
 

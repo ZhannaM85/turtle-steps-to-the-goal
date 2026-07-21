@@ -20,6 +20,7 @@ function makeDailyEntry(overrides: Partial<DailyEntry> = {}): DailyEntry {
 
 beforeEach(async () => {
   await db.dailyEntries.clear()
+  localStorage.clear()
   // #201 made the add row's default collapsed state depend on whether
   // `date` is in the past relative to the real clock — freeze "now" to
   // this file's own fixture "today" (2026-03-01) so the existing fixture
@@ -31,6 +32,7 @@ beforeEach(async () => {
 
 afterEach(async () => {
   await db.dailyEntries.clear()
+  localStorage.clear()
   vi.useRealTimers()
 })
 
@@ -101,6 +103,76 @@ describe('MealList', () => {
     const next = onChange.mock.calls[0][0] as CalorieEntry[]
     expect(next).toHaveLength(1)
     expect(next[0].items[0].amountKcal).toBe(200)
+  })
+
+  describe('add-row draft recovery (#221)', () => {
+    it('restores an in-progress add-row item after remounting on the same date', async () => {
+      const user = userEvent.setup()
+      const { unmount } = render(
+        <MealList calorieEntries={[]} date="2026-03-01" onChange={vi.fn()} />,
+        { wrapper: MemoryRouter },
+      )
+
+      await user.click(screen.getByRole('button', { name: '+ Add item' }))
+      await user.type(screen.getByLabelText('Dish name'), 'Chicken soup')
+      await user.type(screen.getByLabelText('kcal/100g'), '500')
+      // Never taps Save — simulates a reload/navigation-away mid-typing.
+      unmount()
+
+      render(
+        <MealList calorieEntries={[]} date="2026-03-01" onChange={vi.fn()} />,
+        { wrapper: MemoryRouter },
+      )
+      await user.click(screen.getByRole('button', { name: /Chicken soup/ }))
+
+      expect(screen.getByLabelText('Dish name')).toHaveValue('Chicken soup')
+      expect(screen.getByLabelText('kcal/100g')).toHaveValue('500')
+    })
+
+    it('does not leak a draft across different dates', async () => {
+      const user = userEvent.setup()
+      const { unmount } = render(
+        <MealList calorieEntries={[]} date="2026-03-01" onChange={vi.fn()} />,
+        { wrapper: MemoryRouter },
+      )
+
+      await user.click(screen.getByRole('button', { name: '+ Add item' }))
+      await user.type(screen.getByLabelText('kcal/100g'), '500')
+      unmount()
+
+      render(
+        <MealList calorieEntries={[]} date="2026-03-02" onChange={vi.fn()} />,
+        { wrapper: MemoryRouter },
+      )
+
+      expect(
+        screen.getByRole('button', { name: '+ Add item' }),
+      ).toBeInTheDocument()
+    })
+
+    it('clears the draft once the meal is actually saved', async () => {
+      const user = userEvent.setup()
+      const onChange = vi.fn()
+      const { unmount } = render(
+        <MealList calorieEntries={[]} date="2026-03-01" onChange={onChange} />,
+        { wrapper: MemoryRouter },
+      )
+
+      await user.click(screen.getByRole('button', { name: '+ Add item' }))
+      await user.type(screen.getByLabelText('kcal/100g'), '500')
+      await user.click(screen.getByRole('button', { name: 'Save' }))
+      expect(onChange).toHaveBeenCalledTimes(1)
+      unmount()
+
+      render(
+        <MealList calorieEntries={[]} date="2026-03-01" onChange={vi.fn()} />,
+        { wrapper: MemoryRouter },
+      )
+
+      expect(
+        screen.getByRole('button', { name: '+ Add item' }),
+      ).toBeInTheDocument()
+    })
   })
 
   it("shows an item's own quantity in grams when recorded, omits it when not (#206)", () => {

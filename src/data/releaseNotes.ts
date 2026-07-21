@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 213,
+    issue: 221,
+    date: '2026-07-21T11:40:00+03:00',
+    en: "If you're in the middle of adding a dish and close the app or the page reloads before you tap Save, what you typed is no longer lost.",
+    ru: 'Если вы добавляли блюдо и приложение закрылось или страница перезагрузилась до того, как вы нажали «Сохранить», введённые данные больше не пропадают.',
+  },
+  {
     version: 212,
     issue: 222,
     date: '2026-07-21T11:15:00+03:00',
