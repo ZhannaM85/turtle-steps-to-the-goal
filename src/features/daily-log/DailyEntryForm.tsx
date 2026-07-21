@@ -843,13 +843,18 @@ export function DailyEntryForm({
               {note}
               {DayEmotionIcon && (
                 <>
-                  {/* #210 bumped size-3.5 (14px) to size-5 (20px); #243
-                   * reported it still reads too small, bumped to size-6
-                   * (24px). */}
-                  <DayEmotionIcon
-                    aria-hidden="true"
-                    className="size-6 text-muted-foreground"
-                  />
+                  {/* #210/#243 both bumped this icon's *size* (14→20→24px)
+                   * and it still read as too small each time — measuring
+                   * the real DOM live (via Playwright) against the
+                   * adjacent Edit pencil showed why: size was never the
+                   * actual gap (both rendered 16x16 at the pencil's own
+                   * default), the pencil just inherits full `text-foreground`
+                   * while this icon was explicitly `text-muted-foreground`,
+                   * which reads as much fainter/smaller at any size. Fixed
+                   * by both: size-5 (20px, a real bump) and dropping the
+                   * muted override so it inherits the parent span's
+                   * `text-foreground` like the note text and pencil do. */}
+                  <DayEmotionIcon aria-hidden="true" className="size-5" />
                   <span className="sr-only">
                     {t.dailyEntry.emotionLabel(dayEmotion!)}
                   </span>

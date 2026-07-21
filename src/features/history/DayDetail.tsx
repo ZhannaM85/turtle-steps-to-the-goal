@@ -173,10 +173,14 @@ export function DayDetail({
           )}
           {DayEmotionIcon && (
             <>
-              {/* #210 bumped size-3.5→size-5; #243 bumped again to size-6
-               * — see the matching comment on DailyEntryForm.tsx's own
-               * day-mood icon. */}
-              <DayEmotionIcon aria-hidden="true" className="size-6" />
+              {/* #210/#243 — see the matching comment on
+               * DailyEntryForm.tsx's own day-mood icon for the full
+               * history. Synced to size-5 for consistency; the
+               * text-muted-foreground color here is unchanged and
+               * intentional — this whole row (note text included) is
+               * deliberately muted in this History context, unlike
+               * Today's row where only the icon was (wrongly) muted. */}
+              <DayEmotionIcon aria-hidden="true" className="size-5" />
               <span className="sr-only">
                 {t.dailyEntry.emotionLabel(entry.emotion!)}
               </span>
