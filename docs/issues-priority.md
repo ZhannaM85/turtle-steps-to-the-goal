@@ -480,6 +480,21 @@ _New reports from the live app, filed for later triage — not yet implemented._
 
 ---
 
+## Tier 28 — Feature ideas from cross-project research (2026-07-21)
+
+_Not from live-app feedback like Tiers 8–27 — filed after a comparative feature analysis against another nutrition-tracking codebase, cross-checked against this app's own `PROJECT_BRIEF.md`/`ARCHITECTURE.md`/this file first so nothing already-built got refiled. None of these are picked up yet._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#251](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/251) | ⬜ Open | Add recipes — multi-ingredient, servings-based templates | Biggest capability gap found in the review — `MealItem` is a single dish with fixed per-100g macros; no entity for a multi-ingredient template (e.g. a pot of chili) logged by servings and edited in one place |
+| [#252](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/252) | ⬜ Open | Add daily fat and carb targets, alongside the existing calorie/protein ones | Sibling to #208/#220's existing independent-optional-target pattern — same shape, just the two remaining macros. Lowest-effort item in this batch |
+| [#253](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/253) | ⬜ Open | Copy/duplicate an entire previous day's meals, not just one | Extends #190/#202's single-meal repeat-at-same-position to a whole day, reusing the same selective per-dish confirm dialog rather than a new UI |
+| [#254](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/254) | ⬜ Open | Add descriptive serving units (slice/cup/medium) for foods and meal items | A convenience third mode alongside the existing per-100g/per-portion toggle (#111/#140) — converts to the same underlying gram-based math, no new nutrition model |
+| [#255](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/255) | ⬜ Open | Flag a kcal/macro mismatch as a gentle sanity check on meal items | Same quiet, non-blocking tone as #218's existing unusual-entry check, applied one level down to a single item's own kcal-vs-macros consistency |
+| [#256](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/256) | ⬜ Open | Add barcode scanning — local dictionary first, Open Food Facts fallback for unknown barcodes | New `MealItem.barcode?` field; scan checks the local dictionary first (fully offline), then — only if nothing local matches and the device is online — falls back to a client-side Open Food Facts fetch (no API key, no backend, safe to call directly from the browser). Every repeat scan of an already-logged barcode stays fully offline regardless. Scope revised 2026-07-21 mid-discussion: the original version (filed same day) was local-only with no external call at all; the Open Food Facts fallback was added afterward at the user's explicit request, with the trade-off against `PROJECT_BRIEF.md` §2's "no live third-party sync" line flagged directly in the issue (same kind of deliberate scope extension #62 already made for the food database itself) |
+
+---
+
 ## Private (no public GitHub issue, by request)
 
 _Filed and built without a public issue at the user's explicit request — the repo is public, and this one's more personal than the rest. Still documented normally here per the project's usual close-out process; see [[feedback_issue_first]]'s exception #2 in memory for why._
