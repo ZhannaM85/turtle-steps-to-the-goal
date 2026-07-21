@@ -173,9 +173,10 @@ export function DayDetail({
           )}
           {DayEmotionIcon && (
             <>
-              {/* #210 — see the matching comment on DailyEntryForm.tsx's
-               * own day-mood icon (was size-3.5, reported as too small). */}
-              <DayEmotionIcon aria-hidden="true" className="size-5" />
+              {/* #210 bumped size-3.5→size-5; #243 bumped again to size-6
+               * — see the matching comment on DailyEntryForm.tsx's own
+               * day-mood icon. */}
+              <DayEmotionIcon aria-hidden="true" className="size-6" />
               <span className="sr-only">
                 {t.dailyEntry.emotionLabel(entry.emotion!)}
               </span>

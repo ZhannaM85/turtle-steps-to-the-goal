@@ -470,7 +470,7 @@ _New reports from the live app, filed for later triage — not yet implemented._
 | [#240](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/240) | ⬜ Open | Allow exporting a custom date range/period instead of full history | Not yet scoped. #222's date-range-picker UI (Compare Ranges) may be a reusable pattern |
 | [#241](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/241) | ⬜ Open | "Update this week's target" gives no visible feedback after a successful click | Not yet investigated. Distinct from #181/#182, which were about the button being wrongly *disabled* — this is a successful click having no visible confirmation |
 | [#242](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/242) | ⬜ Open | App-update Reload button shows no loading state, invites repeated clicks | Not yet investigated. Likely `AppUpdateBanner.tsx` (#115) |
-| [#243](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/243) | ⬜ Open | Day's mood icon next to the note still too small after #210's size bump | #210 bumped `size-3.5`→`size-5` (20px); live feedback says still too small. Not fixed yet |
+| [#243](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/243) | ✅ Done | Day's mood icon next to the note still too small after #210's size bump | Bumped `size-5` (20px) → `size-6` (24px) in both `DailyEntryForm.tsx`'s note display row and `DayDetail.tsx`'s equivalent, same two spots #210 touched |
 
 ---
 

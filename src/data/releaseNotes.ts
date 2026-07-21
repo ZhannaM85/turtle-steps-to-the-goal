@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 214,
+    issue: 243,
+    date: '2026-07-21T12:28:23+03:00',
+    en: "The mood icon next to your day's note is a bit bigger now, easier to see at a glance.",
+    ru: 'Иконка настроения рядом с заметкой дня стала немного крупнее — теперь её легче заметить.',
+  },
+  {
     version: 213,
     issue: 221,
     date: '2026-07-21T11:40:00+03:00',
