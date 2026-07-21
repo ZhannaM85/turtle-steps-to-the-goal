@@ -80,7 +80,12 @@ describe('app router', () => {
     expect(screen.getByRole('navigation', { name: 'Tabs' })).toBeInTheDocument()
     expect(screen.getAllByRole('link', { name: 'Today' })).toHaveLength(2)
     expect(screen.getAllByRole('link', { name: 'Settings' })).toHaveLength(2)
-    expect(screen.getAllByRole('link', { name: 'About' })).toHaveLength(2)
+    // #234: About moved out of the nav (6 tabs read as too crowded on
+    // mobile) into a card on the Settings screen, but the route itself
+    // (asserted above) still works directly.
+    expect(
+      screen.queryByRole('link', { name: 'About' }),
+    ).not.toBeInTheDocument()
     expect(
       screen.queryByRole('link', { name: 'Export' }),
     ).not.toBeInTheDocument()

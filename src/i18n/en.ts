@@ -502,6 +502,9 @@ export const en: Dictionary = {
     foodListDescription:
       'Hide items you don’t want to see, or correct their calories/macros.',
     manageFoodListButton: 'Manage food list',
+    aboutLabel: 'About',
+    aboutDescription: 'What this app is, who made it, and release notes.',
+    viewAboutButton: 'View About',
     clearAllDataLabel: 'Clear all data',
     clearAllDataDescription:
       'Permanently delete everything stored on this device — weight, meals, goals, and custom dishes. This is different from just uninstalling the app or clearing site data, which you might not know how to do.',

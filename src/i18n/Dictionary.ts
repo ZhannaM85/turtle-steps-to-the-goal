@@ -676,6 +676,9 @@ export interface Dictionary {
     foodListLabel: string
     foodListDescription: string
     manageFoodListButton: string
+    aboutLabel: string
+    aboutDescription: string
+    viewAboutButton: string
     /** Wipes every local IndexedDB table (#164) — two-step confirm, same
      * pattern as deleting a single entry/meal, scaled up in wording since
      * this is irreversible and total. */

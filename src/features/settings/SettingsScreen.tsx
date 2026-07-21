@@ -310,6 +310,24 @@ export function SettingsScreen() {
         </CardContent>
       </Card>
 
+      {/* #234: moved out of the bottom nav (6 tabs read as too crowded on
+       * mobile) — same lightweight "description + link button" shape the
+       * Food list card above uses, rather than adding a new icon slot to
+       * the header (which has no nav row at all on mobile today). */}
+      <Card>
+        <CardHeader>
+          <CardTitle>{t.settings.aboutLabel}</CardTitle>
+        </CardHeader>
+        <CardContent className="flex flex-col gap-2">
+          <span className="text-sm text-muted-foreground">
+            {t.settings.aboutDescription}
+          </span>
+          <Button variant="outline" size="sm" className="self-start" asChild>
+            <Link to="/about">{t.settings.viewAboutButton}</Link>
+          </Button>
+        </CardContent>
+      </Card>
+
       <Card>
         <ExportSection />
       </Card>

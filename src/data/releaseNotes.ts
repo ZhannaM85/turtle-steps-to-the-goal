@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 221,
+    issue: 234,
+    date: '2026-07-21T14:20:18+03:00',
+    en: '"About" moved out of the bottom navigation into a new card on the Settings screen, so the main tabs are less crowded.',
+    ru: '«О проекте» перенесён из нижнего меню в новую карточку на экране настроек — теперь основных вкладок меньше.',
+  },
+  {
     version: 220,
     issue: 243,
     date: '2026-07-21T13:56:33+03:00',

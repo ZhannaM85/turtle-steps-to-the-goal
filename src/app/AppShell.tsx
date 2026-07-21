@@ -1,7 +1,6 @@
 import { Suspense, useEffect } from 'react'
 import { NavLink, Outlet, useLocation } from 'react-router-dom'
 import {
-  Heart,
   History,
   Home,
   LayoutDashboard,
@@ -23,13 +22,15 @@ function useNavItems(t: Dictionary): {
   end?: boolean
   icon: LucideIcon
 }[] {
+  // #234: About dropped from the nav itself (6 tabs read as too crowded on
+  // mobile) — reachable from a new card in Settings instead
+  // (SettingsScreen.tsx), and still directly reachable at /about.
   return [
     { to: '/', label: t.nav.today, end: true, icon: Home },
     { to: '/dashboard', label: t.nav.dashboard, icon: LayoutDashboard },
     { to: '/history', label: t.nav.history, icon: History },
     { to: '/goal', label: t.nav.goal, icon: Target },
     { to: '/settings', label: t.nav.settings, icon: Settings },
-    { to: '/about', label: t.nav.about, icon: Heart },
   ]
 }
 
