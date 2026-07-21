@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 222,
+    issue: 238,
+    date: '2026-07-21T16:35:02+03:00',
+    en: 'The Weight and Calorie trend charts on the Dashboard let you show/hide the raw and 7-day-average lines individually — tap their legend, or use the new "Dashboard trend charts" section in Settings.',
+    ru: 'На графиках веса и калорий теперь можно показывать/скрывать отдельные линии (значение и среднее за 7 дней) — нажмите на подпись под графиком или используйте новый раздел «Графики трендов на панели» в настройках.',
+  },
+  {
     version: 221,
     issue: 234,
     date: '2026-07-21T14:20:18+03:00',
