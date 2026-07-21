@@ -453,6 +453,27 @@ _User supplied two external planning documents and asked for a relevance analysi
 
 ---
 
+## Tier 27 — Twelfth live-feedback wave (2026-07-21)
+
+_New reports from the live app, filed for later triage — not yet implemented._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#232](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/232) | ⬜ Open | Customizable sections on Today/Dashboard/Goal — dismiss via icon, restore via Settings toggle | Not yet scoped. Distinct from #225's `CustomChartView` per-series toggle (that's choosing which data series appear on one combined chart, not dismissing whole sections). Screenshot flagged the logging-consistency heatmap (#223), "Recent averages" cards (#215), and Weekly summary cards as examples, not an exhaustive list |
+| [#233](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/233) | ⬜ Open | Discussion: additional stats to track, inspired by Zepp Life/Mi Fit body composition screen | Logged verbatim per explicit "do not investigate" instruction — no scoping or recommendation made. Body fat % already tracked (#225); most of the rest (BMI, muscle, visceral fat, bone mass, basal metabolism) normally comes from a bioimpedance scale — would need to stay manual-entry per `PROJECT_BRIEF.md` §2's no-device-integration constraint |
+| [#234](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/234) | ⬜ Open | Move 'About' out of the bottom nav — 6 tabs is too crowded | Not yet scoped. User explicitly left the destination open (top header vs. Settings page) rather than picking one |
+| [#235](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/235) | ⬜ Open | Notify on Today page when a weight log meets this week's target | Not yet investigated. `GoalCelebrationModal.tsx` already exists (per #227's notes) — worth checking whether it's meant to cover this and isn't firing on Today, or is a narrower mechanism |
+| [#236](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/236) | ⬜ Open | Dashboard action icons too small for mobile touch targets (48px guidance) | Not yet scoped. Screenshot flagged the "Compare your data" chart-type toggle icons as an example; whether other small Dashboard controls are in scope too is open |
+| [#237](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/237) | ⬜ Open | Unify all optional daily-tracking fields under one Settings "what to track" section | Not yet scoped. Related but distinct from #232 (that's dismissing computed insight sections; this is which raw input fields appear on the daily-log form — Steps, Body measurements, Sleep, Notes, Mood currently have no opt-out at all, unlike cycle/constipation tracking which already have ad hoc toggles) |
+| [#238](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/238) | ⬜ Open | Customize which chart series (raw vs. 7-day average) show on Dashboard trend charts | Not yet scoped. Series-level control, smaller in scope than #232's whole-section dismiss |
+| [#239](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/239) | ⬜ Open | Move the selected date to the top of the Today page — currently jumps position per date | Not yet scoped. The static "Today" title never changes but the real selected date further down the page does, when paging between days |
+| [#240](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/240) | ⬜ Open | Allow exporting a custom date range/period instead of full history | Not yet scoped. #222's date-range-picker UI (Compare Ranges) may be a reusable pattern |
+| [#241](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/241) | ⬜ Open | "Update this week's target" gives no visible feedback after a successful click | Not yet investigated. Distinct from #181/#182, which were about the button being wrongly *disabled* — this is a successful click having no visible confirmation |
+| [#242](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/242) | ⬜ Open | App-update Reload button shows no loading state, invites repeated clicks | Not yet investigated. Likely `AppUpdateBanner.tsx` (#115) |
+| [#243](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/243) | ⬜ Open | Day's mood icon next to the note still too small after #210's size bump | #210 bumped `size-3.5`→`size-5` (20px); live feedback says still too small. Not fixed yet |
+
+---
+
 ## Private (no public GitHub issue, by request)
 
 _Filed and built without a public issue at the user's explicit request — the repo is public, and this one's more personal than the rest. Still documented normally here per the project's usual close-out process; see [[feedback_issue_first]]'s exception #2 in memory for why._

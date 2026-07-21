@@ -28,11 +28,24 @@ user points out.
 ## The standing contract
 
 1. **Issue-first — the full sequence, not just the GitHub issue.** Don't
-   write any code without, in this exact order: (1) `gh issue create`, (2)
+   write any code without, in this exact order: (1) `gh issue create`
+   **with a `--label`** (see below — never file unlabeled), (2)
    add the row to `docs/issues-priority.md`, (3) *then* start
    implementing. Filing the GitHub issue and immediately jumping into code
    still counts as skipping this step — step 2 is not optional or
-   deferrable to later. Hit this exact failure mode twice in one session
+   deferrable to later.
+
+   **Always pass `--label` on every `gh issue create`, no exceptions.**
+   Use this repo's label set: `epic` (top-level epic from `PROJECT_BRIEF.md`
+   §10), `architecture` (foundational/structural decision), `feature` (new
+   user-facing capability), `chore` (bug fix, polish, redesign of something
+   existing, i18n, perf, CI/tooling, docs — anything that isn't new
+   capability), `good-first-issue` (small, self-contained). Don't use
+   GitHub's stock `bug`/`enhancement`/`documentation` labels — a chunk of
+   issues (#35-49, #100-231) predate this rule and got created with no
+   label at all; those were backfilled with `feature`/`chore` on
+   2026-07-21 using this same taxonomy (2026-07-21, prompted directly:
+   "Not all previously closed github issues have labels on them"). Hit this exact failure mode twice in one session
    (2026-07-19): once by starting to implement straight from chat
    instructions with no issue at all, and — right after being corrected —
    again by filing the issue but skipping straight to code without logging
