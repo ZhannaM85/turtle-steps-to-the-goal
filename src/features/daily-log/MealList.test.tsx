@@ -1,5 +1,5 @@
 import 'fake-indexeddb/auto'
-import { render, screen } from '@testing-library/react'
+import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -752,6 +752,124 @@ describe('MealList', () => {
       await screen.findByRole('button', { name: '+ Add item' })
       expect(
         screen.queryByRole('button', { name: /Repeat yesterday's/ }),
+      ).not.toBeInTheDocument()
+    })
+  })
+
+  describe("copy yesterday's meals (#253)", () => {
+    beforeEach(() => {
+      vi.setSystemTime(new Date('2026-03-02T12:00:00.000Z'))
+    })
+
+    it('copies every meal from the source day, cloning only the food data', async () => {
+      await db.dailyEntries.put(
+        makeDailyEntry({
+          date: '2026-03-01',
+          calorieEntries: [
+            {
+              id: 'y1',
+              items: [
+                {
+                  id: 'yi1',
+                  name: 'Eggs',
+                  amountKcal: 150,
+                  proteinG: 12,
+                  emotion: 'thumbsUp',
+                },
+              ],
+              timeEaten: '08:00',
+              note: 'ate fast',
+              createdAt: '2026-03-01T08:00:00.000Z',
+            },
+            {
+              id: 'y2',
+              items: [{ id: 'yi2', name: 'Salad', amountKcal: 300 }],
+              createdAt: '2026-03-01T13:00:00.000Z',
+            },
+          ],
+        }),
+      )
+      const onChange = vi.fn()
+      render(
+        <MealList calorieEntries={[]} date="2026-03-02" onChange={onChange} />,
+        { wrapper: MemoryRouter },
+      )
+
+      const user = userEvent.setup()
+      await user.click(
+        await screen.findByRole('button', {
+          name: "Copy yesterday's meals",
+        }),
+      )
+
+      const dialog = screen.getByRole('dialog')
+      expect(within(dialog).getByText('Breakfast')).toBeInTheDocument()
+      expect(within(dialog).getByText('Lunch')).toBeInTheDocument()
+      await user.click(
+        within(dialog).getByRole('button', { name: 'Add selected (2)' }),
+      )
+
+      expect(onChange).toHaveBeenCalledTimes(1)
+      const next = onChange.mock.calls[0][0] as CalorieEntry[]
+      expect(next).toHaveLength(2)
+      expect(next[0].id).not.toBe('y1')
+      expect(next[0].items[0]).toMatchObject({ name: 'Eggs', amountKcal: 150 })
+      expect(next[0].items[0].id).not.toBe('yi1')
+      // Only the food data is cloned — day-specific journal details aren't.
+      expect(next[0].items[0].emotion).toBeUndefined()
+      expect(next[0].timeEaten).toBeUndefined()
+      expect(next[0].note).toBeUndefined()
+      expect(next[1].items[0]).toMatchObject({ name: 'Salad', amountKcal: 300 })
+    })
+
+    it('drops a whole meal when every dish in it gets unchecked', async () => {
+      await db.dailyEntries.put(
+        makeDailyEntry({
+          date: '2026-03-01',
+          calorieEntries: [
+            {
+              id: 'y1',
+              items: [{ id: 'yi1', name: 'Eggs', amountKcal: 150 }],
+              createdAt: '2026-03-01T08:00:00.000Z',
+            },
+            {
+              id: 'y2',
+              items: [{ id: 'yi2', name: 'Salad', amountKcal: 300 }],
+              createdAt: '2026-03-01T13:00:00.000Z',
+            },
+          ],
+        }),
+      )
+      const onChange = vi.fn()
+      render(
+        <MealList calorieEntries={[]} date="2026-03-02" onChange={onChange} />,
+        { wrapper: MemoryRouter },
+      )
+
+      const user = userEvent.setup()
+      await user.click(
+        await screen.findByRole('button', { name: "Copy yesterday's meals" }),
+      )
+      await user.click(screen.getByRole('checkbox', { name: /Eggs/ }))
+      // addSelectedFoodsButton only appends a count once n > 1 — one item
+      // left selected still reads as the plain "Add selected".
+      await user.click(screen.getByRole('button', { name: 'Add selected' }))
+
+      expect(onChange).toHaveBeenCalledTimes(1)
+      const next = onChange.mock.calls[0][0] as CalorieEntry[]
+      expect(next).toHaveLength(1)
+      expect(next[0].items[0]).toMatchObject({ name: 'Salad' })
+    })
+
+    it('does not offer to copy when nothing was logged yesterday at all', async () => {
+      render(
+        <MealList calorieEntries={[]} date="2026-03-02" onChange={vi.fn()} />,
+        { wrapper: MemoryRouter },
+      )
+
+      await screen.findByRole('button', { name: '+ Add item' })
+      expect(
+        screen.queryByRole('button', { name: "Copy yesterday's meals" }),
       ).not.toBeInTheDocument()
     })
   })

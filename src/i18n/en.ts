@@ -160,6 +160,8 @@ export const en: Dictionary = {
     expandAddMealLabel: '+ Add another meal',
     repeatMealLabel: (mealLabel) => `Repeat yesterday's ${mealLabel}`,
     repeatMealDialogTitle: (mealLabel) => `Repeat ${mealLabel}`,
+    copyYesterdayMealsLabel: "Copy yesterday's meals",
+    copyDayMealsDialogTitle: "Copy yesterday's meals",
     orDivider: 'or',
     addFoodButton: 'Find food',
     addFoodDialogTitle: 'Add from food list',

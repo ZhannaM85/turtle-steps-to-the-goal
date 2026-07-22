@@ -160,6 +160,8 @@ export const ru: Dictionary = {
     expandAddMealLabel: '+ Добавить ещё приём пищи',
     repeatMealLabel: (mealLabel) => `Повторить «${mealLabel}» со вчера`,
     repeatMealDialogTitle: (mealLabel) => `Повторить «${mealLabel}»`,
+    copyYesterdayMealsLabel: 'Скопировать вчерашние приёмы пищи',
+    copyDayMealsDialogTitle: 'Скопировать вчерашние приёмы пищи',
     orDivider: 'или',
     addFoodButton: 'Найти блюдо',
     addFoodDialogTitle: 'Добавить из списка продуктов',

@@ -269,6 +269,14 @@ export interface Dictionary {
      * into — lets a specific dish be unchecked before confirming, rather
      * than #190's original all-or-nothing immediate commit. */
     repeatMealDialogTitle: (mealLabel: string) => string
+    /** #253 — "Copy yesterday's meals": whole-day sibling of #190/#202's
+     * single-meal repeat above, reusing the exact same preview/selective-
+     * pick pattern extended over every meal group in the source day rather
+     * than one. Only meal/food data is copied — weight, sleep, steps,
+     * note, mood, time-eaten, and per-item reactions are not, same
+     * reasoning #190 used for a single meal. */
+    copyYesterdayMealsLabel: string
+    copyDayMealsDialogTitle: string
     orDivider: string
     addFoodButton: string
     addFoodDialogTitle: string

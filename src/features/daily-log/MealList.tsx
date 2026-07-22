@@ -66,6 +66,7 @@ import {
   useMealItemStore,
   useMealLabelPresetStore,
 } from '@/stores'
+import { CopyDayMealsDialog } from './CopyDayMealsDialog'
 import { FoodPickerDialog, type PickedFoodValues } from './FoodPickerDialog'
 import { clearMealDraft, loadMealDraft, saveMealDraft } from './mealDraftStorage'
 import { MealItemEditorSheet } from './MealItemEditorSheet'
@@ -985,6 +986,10 @@ export function MealList({
   // #202: opens RepeatMealDialog's preview/selective-pick sheet instead of
   // #190's original immediate one-tap commit.
   const [isRepeatDialogOpen, setIsRepeatDialogOpen] = useState(false)
+  // #253: whole-day sibling of the above — CopyDayMealsDialog's own
+  // preview/selective-pick sheet, extended over every meal group in the
+  // source day instead of just the one at this position.
+  const [isCopyDayDialogOpen, setIsCopyDayDialogOpen] = useState(false)
   // Full-screen item editor sheet (#122) — the add row's own instance,
   // opened by its "+ Add item" trigger. Closing it (via Save or the X)
   // never clears the underlying add-* state, so a half-filled draft
@@ -1216,6 +1221,48 @@ export function MealList({
   // be added (calorieEntries.length is that meal's 0-indexed position in
   // both days' lists).
   const previousMeal = previousDayEntry?.calorieEntries?.[calorieEntries.length]
+
+  // #253: every meal from the source day with at least one item, for
+  // "Copy yesterday's meals" — independent of the single-position matching
+  // `previousMeal` above uses, and available regardless of how many meals
+  // today already has.
+  const previousDayMealGroups = (previousDayEntry?.calorieEntries ?? []).filter(
+    (group) => group.items.length > 0,
+  )
+
+  // #253: mirrors repeatSelectedItems below, over several meal groups at
+  // once instead of one — each selected group becomes its own new
+  // CalorieEntry (fresh ids, dropping emotion), appended to today in a
+  // single setCalorieEntries call rather than one per meal.
+  function copyDaySelectedGroups(
+    selectedGroups: { label: string | undefined; items: CalorieItem[] }[],
+  ) {
+    if (selectedGroups.length === 0) return
+    const newEntries: CalorieEntry[] = selectedGroups.map((group) => ({
+      id: crypto.randomUUID(),
+      label: group.label,
+      items: group.items.map((item) => ({
+        ...item,
+        id: crypto.randomUUID(),
+        emotion: undefined,
+      })),
+      createdAt: new Date().toISOString(),
+    }))
+    setCalorieEntries([...calorieEntries, ...newEntries])
+    for (const newEntry of newEntries) {
+      for (const item of newEntry.items) {
+        if (item.name && !curatedFoodNames.has(item.name)) {
+          touchMealItem(item.name, {
+            amountKcal: item.amountKcal,
+            proteinG: item.proteinG,
+            fatG: item.fatG,
+            carbsG: item.carbsG,
+            amountG: item.amountG,
+          })
+        }
+      }
+    }
+  }
 
   // Clones only the objective food data (name + macros + amountG) — not
   // time/note/emotion, which are day-specific journal details rather than
@@ -1644,6 +1691,35 @@ export function MealList({
             </ul>
           </SortableContext>
         </DndContext>
+      )}
+
+      {/* #253 — a day-level action, so it's independent of the add row's
+       * own collapse state below and always offered (when available)
+       * regardless of how many meals today already has. Hidden in the
+       * single-meal edit route for the same reason the add row is. */}
+      {!focusMealId && previousDayMealGroups.length > 0 && (
+        <>
+          <Button
+            type="button"
+            variant="outline"
+            size="lg"
+            className="h-12 w-full text-base"
+            onClick={() => setIsCopyDayDialogOpen(true)}
+          >
+            {t.dailyEntry.copyYesterdayMealsLabel}
+          </Button>
+          {isCopyDayDialogOpen && (
+            <CopyDayMealsDialog
+              open={isCopyDayDialogOpen}
+              onOpenChange={setIsCopyDayDialogOpen}
+              mealGroups={previousDayMealGroups}
+              onConfirm={(selected) => {
+                copyDaySelectedGroups(selected)
+                setIsCopyDayDialogOpen(false)
+              }}
+            />
+          )}
+        </>
       )}
 
       {/* Hidden entirely in the dedicated single-meal edit route (#157) —
