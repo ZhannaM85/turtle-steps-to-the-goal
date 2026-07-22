@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 241,
+    issue: 255,
+    date: '2026-07-22T12:46:49+03:00',
+    en: 'Meal items now get a gentle note if the calories entered don\'t quite match the protein/fat/carbs — just a heads-up, never blocks saving.',
+    ru: 'При добавлении блюда теперь появляется мягкая подсказка, если калории не совсем сходятся с указанными белками/жирами/углеводами — просто предупреждение, сохранению это не мешает.',
+  },
+  {
     version: 240,
     issue: 263,
     date: '2026-07-22T12:14:39+03:00',
