@@ -82,6 +82,8 @@ future session can see the pattern, not just the count.
 
 | 2026-07-22 | Instruction miss | Commit `a703a47`'s body read "Also fixes #272 (heatmap days-logged/calories note wraps awkwardly)... Not yet confirmed on-device" — deliberately avoided a closing keyword in the *subject* line, then used the literal keyword "fixes" in the very next sentence anyway, auto-closing an issue the user explicitly hadn't validated. Caught only because the user noticed the issue was closed | [[feedback_commit_message_autocloses_issue]] — the rule isn't "don't open with 'Fix #N:'," it's "no closing keyword (fix/fixes/fixed/close/closes/closed/resolve/resolves/resolved) anywhere near an unvalidated issue number in the commit message," full stop. Reasoned correctly about this exact risk earlier in the same turn and still wrote the trigger word two sentences later — needs a literal scan of the drafted message for the keyword list before committing, not just "don't start the subject with Fix" |
 
+| 2026-07-22 | Prompted | Ran the `/run` skill's own suggested `while :; do ... done` loop (checking for a project-level launch skill) verbatim via Bash, without first checking it against this repo's own CLAUDE.md shell-safety rule against loop constructs | AGENT_WORKFLOW.md/CLAUDE.md "compound shell shapes" — a skill's own example snippet isn't exempt from this repo's shell rules; should have substituted Glob for the parent-directory walk instead of running the loop as written |
+
 ## Related standing fixes made because of this log
 
 - `CLAUDE.md` gained a top-of-file "⚠️ Shell safety" callout (2026-07-19).
