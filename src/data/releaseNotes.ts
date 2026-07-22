@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 253,
+    issue: 277,
+    date: '2026-07-22T19:26:00+03:00',
+    en: 'The body composition chart now lets you pick which of the 5 fields to show, with real numbers on two axes when exactly two are selected.',
+    ru: 'В графике состава тела теперь можно выбрать, какие из 5 показателей отображать, с реальными значениями на двух осях при выборе ровно двух.',
+  },
+  {
     version: 252,
     issue: 278,
     date: '2026-07-22T19:24:00+03:00',
