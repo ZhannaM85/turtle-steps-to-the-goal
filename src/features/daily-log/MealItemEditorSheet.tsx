@@ -313,10 +313,16 @@ export function MealItemEditorSheet({
           </div>
         </div>
 
-        {/* Sticky footer (mirrors FoodPickerDialog's #91 pattern) — the
-         * primary action stays reachable while the fields above scroll,
-         * rather than requiring a scroll-to-bottom to confirm. */}
-        <div className="sticky bottom-0 -mx-5 -mb-5 flex flex-col gap-2 border-t border-border bg-card px-5 pt-3 pb-[calc(env(safe-area-inset-bottom)+1rem)]">
+        {/* Footer with the primary action, below the scrollable fields
+         * above (#91). Was `position: sticky` until #280 — confirmed live
+         * (Playwright measurements) that it overlapped the last ~20px of
+         * the scroll region's own content instead of sitting flush below
+         * it, clipping the Reaction row right above it. Same root cause
+         * #275 already found and fixed the same way for FoodPickerDialog:
+         * `position: sticky` doesn't behave inside this DialogContent's
+         * `fixed` + `overflow-y-auto` wrapper — removing it here too,
+         * relying on the scroll region's own bounded height instead. */}
+        <div className="-mx-5 -mb-5 flex flex-col gap-2 border-t border-border bg-card px-5 pt-3 pb-[calc(env(safe-area-inset-bottom)+1rem)]">
           <Button
             type="button"
             size="lg"
