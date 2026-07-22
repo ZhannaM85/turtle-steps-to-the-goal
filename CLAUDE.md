@@ -43,6 +43,17 @@ doesn't need re-explaining every session.
 - `zm-index callers "functionName"`   # find call sites
 - `zm-index stats`                    # check index health
 
+## Implementing a GitHub issue
+
+The moment an issue's implementation is pushed and its `docs/issues-priority.md`
+row moves to "🔍 Pending validation" (done, but not yet confirmed on the
+user's device), also run `gh issue edit <N> --add-label validation` on the
+GitHub issue itself. Remove it again when closing (`gh issue close` doesn't
+strip labels on its own). This is a real, pre-existing repo label
+convention (`validation`: "Implemented, awaiting on-device confirmation
+before closing") — easy to forget since only the local docs tracked the
+status before this was written down.
+
 ## Closing a GitHub issue
 Whenever a GitHub issue is closed (implementation done, verified working), update **all three**:
 1. `docs/issues-priority.md` — mark the row done with a one-line implementation note.
