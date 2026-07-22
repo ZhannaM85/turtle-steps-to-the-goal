@@ -42,8 +42,7 @@ export const en: Dictionary = {
   },
   today: {
     title: 'Today',
-    description:
-      "Quick entry for today's weight/calories, this week's target reminder",
+    description: "Entry for today's data, this week's target reminder",
     thisWeeksTarget: "This week's target",
     toLose: (unit) => `${unit} to lose`,
     emptyGoalTitle: 'No goal set yet',
@@ -644,7 +643,7 @@ export const en: Dictionary = {
       'Instead of focusing on perfect days, Turtle Steps encourages steady weekly progress through small, consistent steps.',
     privacyHeading: 'Private by design.',
     privacy:
-      'Everything is stored locally on your device. No accounts. No cloud. No tracking.',
+      'Everything is stored locally on your device. No accounts. No cloud.',
     madeBy: (author) => `Made by ${author}`,
     currentVersionLabel: (version) => `Version ${version}`,
   },
