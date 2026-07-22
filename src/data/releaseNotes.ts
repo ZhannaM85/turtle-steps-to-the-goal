@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 260,
+    issue: 286,
+    date: '2026-07-22T23:36:02+03:00',
+    en: 'Removed the "eating cutoff time" setting and its comparison chart — the fasting-window chart already shows this without any setup.',
+    ru: 'Убрали настройку «время окончания приёма пищи» и её график сравнения — график «окно голодания» уже показывает это без каких-либо настроек.',
+  },
+  {
     version: 259,
     issue: 256,
     date: '2026-07-22T22:54:01+03:00',

@@ -446,18 +446,6 @@ export const en: Dictionary = {
     fastingWindowLagCaveat:
       "Compares the actual gap between meals (previous day's last meal to the next day's first) to that next day's weight, not a proven cause-and-effect relationship — water retention, sodium, and many other factors also affect day-to-day weight.",
     fastingHoursLegend: 'fasting hours',
-    fastingCutoffTitle: 'Eating cutoff comparison',
-    fastingCutoffEmptyDescription:
-      'Not enough data yet to see a pattern — log meal times and keep tracking weight, then check back in a few weeks.',
-    fastingCutoffSummary: (cutoffTime, direction) =>
-      direction === 'after'
-        ? `Days you last ate after ${cutoffTime} averaged more weight gain the next morning than days you ate before it.`
-        : `Days you last ate before ${cutoffTime} averaged more weight gain the next morning than days you ate after it.`,
-    fastingCutoffDayCount: (n) => `Based on ${n} day${n === 1 ? '' : 's'} of data.`,
-    fastingCutoffLagCaveat:
-      "Tests a fixed cutoff time directly, not a proven cause-and-effect relationship — water retention, sodium, and many other factors also affect day-to-day weight.",
-    fastingCutoffBeforeLabel: (cutoffTime) => `Before ${cutoffTime}`,
-    fastingCutoffAfterLabel: (cutoffTime) => `After ${cutoffTime}`,
     sleepCorrelationTitle: 'Sleep vs. next-day weight',
     sleepCorrelationEmptyDescription:
       'Not enough data yet to see a pattern — log sleep hours and keep tracking weight, then check back in a few weeks.',
@@ -634,9 +622,6 @@ export const en: Dictionary = {
       'Which day each week begins on, used for "This week" and weekly summaries.',
     weekStartMonday: 'Monday',
     weekStartFirstEntry: 'Day of my first entry',
-    fastingCutoffLabel: 'Eating cutoff time',
-    fastingCutoffDescription:
-      'Used by the "eating after this time vs. before" comparison on the Dashboard — change it to test any cutoff, not just 6pm.',
     foodListLabel: 'Food list',
     foodListDescription:
       'Hide items you don’t want to see, or correct their calories/macros.',

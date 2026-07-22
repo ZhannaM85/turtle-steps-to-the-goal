@@ -1,11 +1,7 @@
 import { addDays, format } from 'date-fns'
 import { describe, expect, it } from 'vitest'
 import type { CalorieEntry, DailyEntry } from '@/domain/dailyEntry'
-import {
-  fastingCutoffComparison,
-  fastingWindowCorrelation,
-  fastingWindowPoints,
-} from './fastingWindow'
+import { fastingWindowCorrelation, fastingWindowPoints } from './fastingWindow'
 
 const DATE_FORMAT = 'yyyy-MM-dd'
 const DAY_0 = '2026-03-01'
@@ -135,61 +131,5 @@ describe('fastingWindowCorrelation', () => {
     expect(result!.longerGroupAvgDeltaKg).toBeCloseTo(0.05, 5)
     // A 0.45kg gap clears the 0.15kg "strong" daily threshold (#224).
     expect(result!.strength).toBe('strong')
-  })
-})
-
-describe('fastingCutoffComparison', () => {
-  it('returns null with no entries', () => {
-    expect(fastingCutoffComparison([], '18:00')).toBeNull()
-  })
-
-  it('returns null with fewer than 8 comparable day-pairs', () => {
-    const entries = [
-      entry(day(0), { weightKg: 80.0, calorieEntries: mealAt('12:00') }),
-      entry(day(1), { weightKg: 80.5, calorieEntries: mealAt('22:00') }),
-    ]
-
-    expect(fastingCutoffComparison(entries, '18:00')).toBeNull()
-  })
-
-  it('buckets by the previous day\'s last meal vs. a fixed cutoff, not a median', () => {
-    const entries = [
-      entry(day(0), { weightKg: 80.0, calorieEntries: mealAt('12:00') }),
-      entry(day(1), { weightKg: 80.1, calorieEntries: mealAt('12:30') }),
-      entry(day(2), { weightKg: 80.2, calorieEntries: mealAt('13:00') }),
-      entry(day(3), { weightKg: 80.25, calorieEntries: mealAt('13:30') }),
-      entry(day(4), { weightKg: 80.4, calorieEntries: mealAt('22:00') }),
-      entry(day(5), { weightKg: 81.2, calorieEntries: mealAt('22:30') }),
-      entry(day(6), { weightKg: 81.9, calorieEntries: mealAt('23:00') }),
-      entry(day(7), { weightKg: 82.8, calorieEntries: mealAt('23:30') }),
-      entry(day(8), { weightKg: 83.4 }),
-    ]
-
-    const result = fastingCutoffComparison(entries, '18:00')
-    expect(result).not.toBeNull()
-    expect(result!.dayCount).toBe(8)
-    expect(result!.cutoffMinutes).toBe(18 * 60)
-    expect(result!.beforeGroupAvgDeltaKg).toBeCloseTo(0.1, 5)
-    expect(result!.afterGroupAvgDeltaKg).toBeCloseTo(0.75, 5)
-    expect(result!.afterAveragedMoreGain).toBe(true)
-    expect(result!.strength).toBe('strong')
-  })
-
-  it('returns null when the cutoff puts every pair on the same side', () => {
-    const entries = [
-      entry(day(0), { weightKg: 80.0, calorieEntries: mealAt('12:00') }),
-      entry(day(1), { weightKg: 80.1, calorieEntries: mealAt('12:30') }),
-      entry(day(2), { weightKg: 80.2, calorieEntries: mealAt('13:00') }),
-      entry(day(3), { weightKg: 80.25, calorieEntries: mealAt('13:30') }),
-      entry(day(4), { weightKg: 80.4, calorieEntries: mealAt('14:00') }),
-      entry(day(5), { weightKg: 81.2, calorieEntries: mealAt('14:30') }),
-      entry(day(6), { weightKg: 81.9, calorieEntries: mealAt('15:00') }),
-      entry(day(7), { weightKg: 82.8, calorieEntries: mealAt('15:30') }),
-      entry(day(8), { weightKg: 83.4 }),
-    ]
-
-    // Every last-meal time above is after 00:01, so nothing ever lands
-    // in the "before" bucket.
-    expect(fastingCutoffComparison(entries, '00:01')).toBeNull()
   })
 })

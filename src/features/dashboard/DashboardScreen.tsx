@@ -6,7 +6,6 @@ import { CalorieTrendChart } from './CalorieTrendChart'
 import { CompareRangesView } from './CompareRangesView'
 import { CorrelationView } from './CorrelationView'
 import { CustomChartView } from './CustomChartView'
-import { FastingCutoffComparisonView } from './FastingCutoffComparisonView'
 import { FastingWindowCorrelationView } from './FastingWindowCorrelationView'
 import { FoodReactionsView } from './FoodReactionsView'
 import { LateMealCorrelationView } from './LateMealCorrelationView'
@@ -49,7 +48,6 @@ export function DashboardScreen() {
           <CorrelationView entries={entries} />
           <LateMealCorrelationView entries={entries} />
           <FastingWindowCorrelationView entries={entries} />
-          <FastingCutoffComparisonView entries={entries} />
           <SleepCorrelationView entries={entries} />
           <StepsCorrelationView entries={entries} />
           <ProteinCorrelationView entries={entries} />

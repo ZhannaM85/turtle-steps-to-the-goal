@@ -9,7 +9,6 @@ import {
   useCycleTrackingStore,
   useDailyReminderStore,
   useDigestionTrackingStore,
-  useFastingCutoffStore,
   useThemeStore,
   useTrackedFieldsStore,
   useTrendChartSeriesStore,
@@ -27,7 +26,6 @@ import { releaseNotes } from '@/data/releaseNotes'
 import { ExportSection } from '@/features/export'
 import { Button } from '@/shared/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
-import { Input } from '@/shared/ui/input'
 import { PageHeader } from '@/shared/ui/page-header'
 import { ToggleGroup, ToggleGroupItem } from '@/shared/ui/toggle-group'
 import { ClearAllDataSection } from './ClearAllDataSection'
@@ -112,10 +110,6 @@ export function SettingsScreen() {
   }
   const weekStart = useWeekStartStore((state) => state.weekStart)
   const setWeekStart = useWeekStartStore((state) => state.setWeekStart)
-  const fastingCutoffTime = useFastingCutoffStore((state) => state.cutoffTime)
-  const setFastingCutoffTime = useFastingCutoffStore(
-    (state) => state.setCutoffTime,
-  )
   const dailyReminderEnabled = useDailyReminderStore((state) => state.enabled)
   const setDailyReminderEnabled = useDailyReminderStore(
     (state) => state.setEnabled,
@@ -195,24 +189,6 @@ export function SettingsScreen() {
               {t.settings.weekStartFirstEntry}
             </ToggleGroupItem>
           </ToggleGroup>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>{t.settings.fastingCutoffLabel}</CardTitle>
-        </CardHeader>
-        <CardContent className="flex flex-col gap-1.5">
-          <span className="text-sm text-muted-foreground">
-            {t.settings.fastingCutoffDescription}
-          </span>
-          <Input
-            type="time"
-            aria-label={t.settings.fastingCutoffLabel}
-            value={fastingCutoffTime}
-            onChange={(e) => setFastingCutoffTime(e.target.value)}
-            className="h-12 w-24"
-          />
         </CardContent>
       </Card>
 

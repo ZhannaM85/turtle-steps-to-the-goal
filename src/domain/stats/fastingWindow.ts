@@ -5,7 +5,6 @@ import {
   DAILY_STRENGTH_THRESHOLDS_KG,
   type CorrelationStrength,
 } from './correlationStrength'
-import { lateMealPoints } from './lateMealCorrelation'
 
 export interface FastingWindowCorrelation {
   dayCount: number
@@ -25,9 +24,6 @@ export interface FastingWindowCorrelation {
 // first meal), not just one, so noisier/rarer data needs more of it
 // before a split is meaningful.
 const MIN_COMPARABLE_DAYS = 10
-// Same single-day-pair requirement as lateMealCorrelation (only needs the
-// previous day's last meal time), so the same threshold applies.
-const MIN_COMPARABLE_CUTOFF_DAYS = 8
 
 function average(values: number[]): number {
   return values.reduce((sum, v) => sum + v, 0) / values.length
@@ -109,8 +105,7 @@ export function fastingWindowPoints(entries: DailyEntry[]): FastingWindowPoint[]
  * a shorter-fast and longer-fast half by median hours, and reports which
  * half averaged more next-day gain. Requires MIN_COMPARABLE_DAYS pairs.
  * Returns null otherwise. Answers "did my own shorter/longer-than-usual
- * fasts do worse" — relative to this user's own data, distinct from
- * `fastingCutoffComparison` below, which tests a fixed claimed cutoff time.
+ * fasts do worse" — relative to this user's own data.
  */
 export function fastingWindowCorrelation(
   entries: DailyEntry[],
@@ -140,57 +135,6 @@ export function fastingWindowCorrelation(
     shorterAveragedMoreGain: shorterGroupAvgDeltaKg > longerGroupAvgDeltaKg,
     strength: classifyCorrelationStrength(
       longerGroupAvgDeltaKg - shorterGroupAvgDeltaKg,
-      DAILY_STRENGTH_THRESHOLDS_KG,
-    ),
-  }
-}
-
-export interface FastingCutoffComparison {
-  dayCount: number
-  cutoffMinutes: number
-  beforeGroupAvgDeltaKg: number
-  afterGroupAvgDeltaKg: number
-  afterAveragedMoreGain: boolean
-  /** #224 — plain-arithmetic strength label, see correlationStrength.ts. */
-  strength: CorrelationStrength
-}
-
-/**
- * Tests the specific popular claim directly — "stop eating by a certain
- * hour helps weight loss" — rather than a relative median split: buckets
- * `lateMealPoints`' day-pairs (last-meal-time + next-day weight change,
- * #116 — reused as-is here, since this needs exactly the same single
- * previous-day-last-meal data, not the two-meal-times `fastingWindowPoints`
- * needs) by whether the previous day's last meal was before or after
- * `cutoffTime` ("HH:MM", user-adjustable via Settings, not hardcoded),
- * and reports which side averaged more next-day gain. A fixed threshold,
- * not a median, so it can come out badly unbalanced (nearly everyone eats
- * on one side of a given cutoff) — returns null if either side ends up
- * empty, or there aren't at least MIN_COMPARABLE_CUTOFF_DAYS pairs at all.
- */
-export function fastingCutoffComparison(
-  entries: DailyEntry[],
-  cutoffTime: string,
-): FastingCutoffComparison | null {
-  const points = lateMealPoints(entries)
-  if (points.length < MIN_COMPARABLE_CUTOFF_DAYS) return null
-
-  const cutoffMinutes = timeToMinutes(cutoffTime)
-  const beforeGroup = points.filter((p) => p.minutes < cutoffMinutes)
-  const afterGroup = points.filter((p) => p.minutes >= cutoffMinutes)
-  if (beforeGroup.length === 0 || afterGroup.length === 0) return null
-
-  const beforeGroupAvgDeltaKg = average(beforeGroup.map((p) => p.deltaKg))
-  const afterGroupAvgDeltaKg = average(afterGroup.map((p) => p.deltaKg))
-
-  return {
-    dayCount: points.length,
-    cutoffMinutes,
-    beforeGroupAvgDeltaKg,
-    afterGroupAvgDeltaKg,
-    afterAveragedMoreGain: afterGroupAvgDeltaKg > beforeGroupAvgDeltaKg,
-    strength: classifyCorrelationStrength(
-      afterGroupAvgDeltaKg - beforeGroupAvgDeltaKg,
       DAILY_STRENGTH_THRESHOLDS_KG,
     ),
   }

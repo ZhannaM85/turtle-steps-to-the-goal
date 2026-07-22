@@ -16,7 +16,6 @@ export type DashboardChartKey =
   | 'calorieWeightCorrelation'
   | 'lateMealCorrelation'
   | 'fastingWindowCorrelation'
-  | 'fastingCutoffComparison'
   | 'sleepCorrelation'
   | 'stepsCorrelation'
   | 'proteinCorrelation'
@@ -36,7 +35,6 @@ const DEFAULT_VISIBLE: Record<DashboardChartKey, boolean> = {
   calorieWeightCorrelation: true,
   lateMealCorrelation: true,
   fastingWindowCorrelation: true,
-  fastingCutoffComparison: true,
   sleepCorrelation: true,
   stepsCorrelation: true,
   proteinCorrelation: true,
