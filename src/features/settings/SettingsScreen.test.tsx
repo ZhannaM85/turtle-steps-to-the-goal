@@ -328,7 +328,8 @@ describe('SettingsScreen', () => {
       expect(useProfileStore.getState().activityLevel).toBe('moderate')
     })
 
-    it('prefills the fields from an existing profile', () => {
+    it('prefills the fields from an existing profile once reopened for editing', async () => {
+      const user = userEvent.setup()
       useProfileStore.setState({
         heightCm: 180,
         age: 40,
@@ -336,6 +337,8 @@ describe('SettingsScreen', () => {
         activityLevel: 'active',
       })
       renderSettings()
+
+      await user.click(screen.getByRole('button', { name: 'Edit profile' }))
 
       expect(screen.getByLabelText('Height (cm)')).toHaveValue('180')
       expect(screen.getByLabelText('Age', { selector: 'input' })).toHaveValue(
@@ -346,6 +349,28 @@ describe('SettingsScreen', () => {
       // default (unlike getByText/getByLabelText) — no `exact` option
       // needed or valid here to disambiguate from "Very active".
       expect(screen.getByRole('radio', { name: 'Active' })).toBeChecked()
+    })
+
+    // #265: saving used to leave the form exactly as it was, with no
+    // indication anything happened — this is the actual fix, verified.
+    it('shows a read-only summary with an edit icon once saved, replacing the form', async () => {
+      const user = userEvent.setup()
+      renderSettings()
+
+      await user.type(screen.getByLabelText('Height (cm)'), '165')
+      await user.type(screen.getByLabelText('Age', { selector: 'input' }), '30')
+      await user.click(screen.getByRole('radio', { name: 'Female' }))
+      await user.click(screen.getByRole('button', { name: 'Save profile' }))
+
+      expect(
+        screen.queryByLabelText('Height (cm)'),
+      ).not.toBeInTheDocument()
+      expect(
+        screen.getByText('Height 165cm · Age 30 · Female · —'),
+      ).toBeInTheDocument()
+      expect(
+        screen.getByRole('button', { name: 'Edit profile' }),
+      ).toBeInTheDocument()
     })
   })
 

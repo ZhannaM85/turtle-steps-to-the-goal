@@ -782,6 +782,16 @@ export interface Dictionary {
     activityLevelActive: string
     activityLevelVeryActive: string
     saveProfileLabel: string
+    /** #265: read-only display + pencil-to-edit, same shape as the daily
+     * log's Weight/Body composition summaries — shown once height/age/sex/
+     * activity level have been saved at least once. */
+    editProfileLabel: string
+    profileSummary: (
+      height: string,
+      age: string,
+      sex: string,
+      activityLevel: string,
+    ) => string
     /** Opt-in "haven't logged today" reminder (#171) — off by default, same
      * shape as cycle/digestion tracking. Deliberately just an in-app
      * banner on Today, not a real push notification. */

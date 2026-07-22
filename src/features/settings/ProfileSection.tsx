@@ -1,6 +1,13 @@
 import { useState } from 'react'
+import { Pencil } from 'lucide-react'
 import type { ActivityLevel, Sex } from '@/domain/stats'
-import { useTranslation, type Dictionary } from '@/i18n'
+import {
+  formatExactNumber,
+  formatNumber,
+  useLocale,
+  useTranslation,
+  type Dictionary,
+} from '@/i18n'
 import { parseNumberInput } from '@/shared/lib/parseNumberInput'
 import { Button } from '@/shared/ui/button'
 import { Input } from '@/shared/ui/input'
@@ -28,6 +35,7 @@ function activityLevelOptions(
 // toggle over saved history.
 export function ProfileSection() {
   const t = useTranslation()
+  const locale = useLocale()
   const heightCm = useProfileStore((state) => state.heightCm)
   const age = useProfileStore((state) => state.age)
   const sex = useProfileStore((state) => state.sex)
@@ -44,6 +52,18 @@ export function ProfileSection() {
     ActivityLevel | undefined
   >(activityLevel)
   const [error, setError] = useState<string | null>(null)
+  // #265: read-only display + pencil-to-edit, same shape as the daily-entry
+  // form's Weight/Body composition fields — the only "did it save"
+  // feedback was the values silently persisting with the form left exactly
+  // as-is, which read as the button doing nothing. Starts editable only
+  // when nothing's been saved yet; a pencil click re-opens it, a
+  // successful save collapses it back.
+  const [isEditingProfile, setIsEditingProfile] = useState(
+    heightCm === undefined &&
+      age === undefined &&
+      sex === undefined &&
+      activityLevel === undefined,
+  )
 
   function save() {
     const heightResult = heightCmSchema.safeParse(
@@ -63,6 +83,45 @@ export function ProfileSection() {
     setAge(ageResult.data)
     setSex(pendingSex)
     setActivityLevel(pendingActivityLevel)
+    setIsEditingProfile(false)
+  }
+
+  if (!isEditingProfile) {
+    const activityLevelLabel =
+      activityLevelOptions(t).find((option) => option.value === activityLevel)
+        ?.label ?? '—'
+    return (
+      <div className="flex flex-col gap-3">
+        <p className="text-sm text-muted-foreground">
+          {t.settings.profileDescription}
+        </p>
+        <div className="flex h-12 items-center justify-between rounded-lg bg-muted px-3">
+          <span className="text-sm text-foreground">
+            {t.settings.profileSummary(
+              heightCm === undefined
+                ? '—'
+                : `${formatExactNumber(heightCm, locale)}${t.dailyEntry.cmUnit}`,
+              age === undefined ? '—' : formatNumber(age, locale, 0),
+              sex === 'female'
+                ? t.settings.sexFemaleOption
+                : sex === 'male'
+                  ? t.settings.sexMaleOption
+                  : '—',
+              activityLevelLabel,
+            )}
+          </span>
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon-xl"
+            aria-label={t.settings.editProfileLabel}
+            onClick={() => setIsEditingProfile(true)}
+          >
+            <Pencil aria-hidden="true" />
+          </Button>
+        </div>
+      </div>
+    )
   }
 
   return (

@@ -570,6 +570,9 @@ export const ru: Dictionary = {
     activityLevelActive: 'Активный',
     activityLevelVeryActive: 'Очень активный',
     saveProfileLabel: 'Сохранить профиль',
+    editProfileLabel: 'Изменить профиль',
+    profileSummary: (height, age, sex, activityLevel) =>
+      `Рост ${height} · Возраст ${age} · ${sex} · ${activityLevel}`,
     dailyReminderLabel: 'Ежедневное напоминание',
     dailyReminderDescription:
       'Необязательно — показывает спокойную заметку на экране «Сегодня», если вы ещё ничего не записали. По умолчанию выключено.',

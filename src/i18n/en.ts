@@ -563,6 +563,9 @@ export const en: Dictionary = {
     activityLevelActive: 'Active',
     activityLevelVeryActive: 'Very active',
     saveProfileLabel: 'Save profile',
+    editProfileLabel: 'Edit profile',
+    profileSummary: (height, age, sex, activityLevel) =>
+      `Height ${height} · Age ${age} · ${sex} · ${activityLevel}`,
     dailyReminderLabel: 'Daily reminder',
     dailyReminderDescription:
       'Optional — shows a quiet note on Today if you haven’t logged anything yet. Off by default.',
