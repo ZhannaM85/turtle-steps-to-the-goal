@@ -1,10 +1,11 @@
 import 'fake-indexeddb/auto'
-import { render, screen, within } from '@testing-library/react'
+import { render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { CalorieEntry, DailyEntry } from '@/domain/dailyEntry'
 import { db } from '@/infrastructure/persistence/indexeddb'
+import { useMealItemStore } from '@/stores'
 import { MealList } from './MealList'
 
 function makeDailyEntry(overrides: Partial<DailyEntry> = {}): DailyEntry {
@@ -20,6 +21,8 @@ function makeDailyEntry(overrides: Partial<DailyEntry> = {}): DailyEntry {
 
 beforeEach(async () => {
   await db.dailyEntries.clear()
+  await db.mealItems.clear()
+  useMealItemStore.setState({ items: [], status: 'idle', error: null })
   localStorage.clear()
   // #201 made the add row's default collapsed state depend on whether
   // `date` is in the past relative to the real clock — freeze "now" to
@@ -32,6 +35,7 @@ beforeEach(async () => {
 
 afterEach(async () => {
   await db.dailyEntries.clear()
+  await db.mealItems.clear()
   localStorage.clear()
   vi.useRealTimers()
 })
@@ -372,6 +376,64 @@ describe('MealList', () => {
       await user.click(screen.getByRole('button', { name: 'Edit item' }))
 
       expect(screen.getByLabelText('Brand (optional)')).toHaveValue('Chobani')
+    })
+  })
+
+  describe('favoriting a manually-typed dish (#279)', () => {
+    it('favorites the dish when the star is checked before saving', async () => {
+      const user = userEvent.setup()
+      render(
+        <MealList calorieEntries={[]} date="2026-03-01" onChange={vi.fn()} />,
+        { wrapper: MemoryRouter },
+      )
+
+      await user.click(screen.getByRole('button', { name: '+ Add item' }))
+      await user.type(screen.getByLabelText('Dish name'), 'Granola')
+      await user.type(screen.getByLabelText('kcal/100g'), '450')
+      await user.click(
+        screen.getByRole('button', { name: 'Add Granola to favorites' }),
+      )
+      await user.click(screen.getByRole('button', { name: 'Save' }))
+
+      await waitFor(() =>
+        expect(useMealItemStore.getState().items).toContainEqual(
+          expect.objectContaining({ name: 'Granola', favorite: true }),
+        ),
+      )
+    })
+
+    it('leaves an already-favorited dish favorited when its edit is saved without touching the star', async () => {
+      await useMealItemStore.getState().touch('Granola', { amountKcal: 450 }, true)
+      const user = userEvent.setup()
+      const calorieEntries: CalorieEntry[] = [
+        {
+          id: 'c1',
+          items: [{ id: 'i1', name: 'Granola', amountKcal: 450 }],
+          createdAt: '2026-01-01T00:00:00.000Z',
+        },
+      ]
+      render(
+        <MealList
+          calorieEntries={calorieEntries}
+          date="2026-03-01"
+          onChange={vi.fn()}
+          focusMealId="c1"
+          focusMealPosition={1}
+          onFocusedMealDone={vi.fn()}
+        />,
+        { wrapper: MemoryRouter },
+      )
+
+      await user.click(screen.getByRole('button', { name: 'Edit item' }))
+      const dialog = screen.getByRole('dialog')
+      await user.click(within(dialog).getByRole('button', { name: 'Save' }))
+      await user.click(screen.getByRole('button', { name: 'Save' }))
+
+      await waitFor(() =>
+        expect(useMealItemStore.getState().items).toContainEqual(
+          expect.objectContaining({ name: 'Granola', favorite: true }),
+        ),
+      )
     })
   })
 

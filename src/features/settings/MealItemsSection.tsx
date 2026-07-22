@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Pencil, Trash2 } from 'lucide-react'
+import { Pencil, Star, Trash2 } from 'lucide-react'
 import { formatNumber, useLocale, useTranslation } from '@/i18n'
 import type { MealItem } from '@/domain/mealItem'
 import { macrosSummaryTextCompact } from '@/shared/lib/macroDisplay'
@@ -13,6 +13,7 @@ import {
 } from '@/shared/lib/macroScaling'
 import { parseNumberInput } from '@/shared/lib/parseNumberInput'
 import { rankBySearchMatch } from '@/shared/lib/searchRank'
+import { cn } from '@/shared/lib/utils'
 import { useMealItemStore } from '@/stores'
 import { Button } from '@/shared/ui/button'
 import { Input } from '@/shared/ui/input'
@@ -23,6 +24,7 @@ function MealItemRow({
   onRename,
   onDelete,
   onSaveNutrition,
+  onToggleFavorite,
 }: {
   item: MealItem
   onRename: (id: string, name: string) => void
@@ -37,6 +39,7 @@ function MealItemRow({
       amountG: number
     },
   ) => void
+  onToggleFavorite: (id: string) => void
 }) {
   const t = useTranslation()
   const locale = useLocale()
@@ -202,6 +205,22 @@ function MealItemRow({
           }}
           className="h-8 flex-1"
         />
+        {/* #279 — this dish is a MealItem, same favorite mechanism #276
+         * already added for FoodPickerDialog's own rows. */}
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon-sm"
+          aria-label={
+            item.favorite
+              ? t.dailyEntry.unfavoriteFoodLabel(item.name)
+              : t.dailyEntry.favoriteFoodLabel(item.name)
+          }
+          aria-pressed={item.favorite ?? false}
+          onClick={() => onToggleFavorite(item.id)}
+        >
+          <Star aria-hidden="true" className={cn(item.favorite && 'fill-current')} />
+        </Button>
         <Button
           type="button"
           variant="ghost"
@@ -378,6 +397,7 @@ function AddMealItemForm({
       carbsG: number | undefined
       amountG: number
     },
+    favorite: boolean,
   ) => void
   onCancel: () => void
 }) {
@@ -389,6 +409,9 @@ function AddMealItemForm({
   const [fat100, setFat100] = useState('')
   const [carbs100, setCarbs100] = useState('')
   const [amountG, setAmountG] = useState('1')
+  // #279 — lets a brand-new dish be favorited right at creation time,
+  // instead of only afterward via the food picker's own star (#276).
+  const [favorite, setFavorite] = useState(false)
   // Per 100g / Per portion entry mode (#170).
   const [macroMode, setMacroMode] = useState<'per100g' | 'perPortion'>(
     'per100g',
@@ -458,19 +481,35 @@ function AddMealItemForm({
   function save() {
     if (!canSave || kcal100Num === undefined) return
     const scaled = scale(kcal100Num)
-    onAdd(name.trim(), { ...scaled, amountG: scaled.amountG ?? 100 })
+    onAdd(name.trim(), { ...scaled, amountG: scaled.amountG ?? 100 }, favorite)
   }
 
   return (
     <li className="flex flex-col gap-1.5 rounded-lg bg-muted/40 px-2 py-1.5">
-      <Input
-        type="text"
-        aria-label={t.settings.mealItemNameLabel}
-        placeholder={t.settings.mealItemNameLabel}
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-        className="h-8"
-      />
+      <div className="flex items-center gap-2">
+        <Input
+          type="text"
+          aria-label={t.settings.mealItemNameLabel}
+          placeholder={t.settings.mealItemNameLabel}
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          className="h-8 flex-1"
+        />
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon-sm"
+          aria-label={
+            favorite
+              ? t.dailyEntry.unfavoriteFoodLabel(name || t.settings.mealItemNameLabel)
+              : t.dailyEntry.favoriteFoodLabel(name || t.settings.mealItemNameLabel)
+          }
+          aria-pressed={favorite}
+          onClick={() => setFavorite((prev) => !prev)}
+        >
+          <Star aria-hidden="true" className={cn(favorite && 'fill-current')} />
+        </Button>
+      </div>
       <ToggleGroup
         type="single"
         aria-label={t.dailyEntry.macroModeLabel}
@@ -593,6 +632,7 @@ export function MealItemsSection() {
   const rename = useMealItemStore((state) => state.rename)
   const deleteItem = useMealItemStore((state) => state.deleteItem)
   const touch = useMealItemStore((state) => state.touch)
+  const toggleFavorite = useMealItemStore((state) => state.toggleFavorite)
   const [isAdding, setIsAdding] = useState(false)
   const [search, setSearch] = useState('')
 
@@ -654,12 +694,13 @@ export function MealItemsSection() {
               onRename={rename}
               onDelete={deleteItem}
               onSaveNutrition={touch}
+              onToggleFavorite={toggleFavorite}
             />
           ))}
           {isAdding && (
             <AddMealItemForm
-              onAdd={(name, nutrition) => {
-                touch(name, nutrition)
+              onAdd={(name, nutrition, favorite) => {
+                touch(name, nutrition, favorite)
                 setIsAdding(false)
               }}
               onCancel={() => setIsAdding(false)}

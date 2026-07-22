@@ -121,6 +121,26 @@ describe('useMealItemStore', () => {
     expect(useMealItemStore.getState().items[0].lastAmountKcal).toBe(400)
   })
 
+  it('touch(name, nutrition, favorite) sets favorite on a brand-new item (#279)', async () => {
+    await useMealItemStore.getState().touch('Pizza', { amountKcal: 400 }, true)
+
+    expect(useMealItemStore.getState().items[0].favorite).toBe(true)
+  })
+
+  it('touch with favorite omitted leaves a brand-new item unfavorited', async () => {
+    await useMealItemStore.getState().touch('Pizza', { amountKcal: 400 })
+
+    expect(useMealItemStore.getState().items[0].favorite).toBeFalsy()
+  })
+
+  it('touch with favorite omitted preserves an existing item\'s favorite status (#279)', async () => {
+    await useMealItemStore.getState().touch('Pizza', { amountKcal: 400 }, true)
+
+    await useMealItemStore.getState().touch('Pizza', { amountKcal: 550 })
+
+    expect(useMealItemStore.getState().items[0].favorite).toBe(true)
+  })
+
   it('deleteItem removes an item', async () => {
     await useMealItemStore.getState().touch('Pizza')
     const id = useMealItemStore.getState().items[0].id

@@ -1,3 +1,4 @@
+import { Star } from 'lucide-react'
 import type { MealEmotion } from '@/domain/dailyEntry'
 import type { MealItem } from '@/domain/mealItem'
 import { useLocale, useTranslation } from '@/i18n'
@@ -9,6 +10,7 @@ import {
   totalFromPortion,
 } from '@/shared/lib/macroScaling'
 import { parseNumberInput } from '@/shared/lib/parseNumberInput'
+import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/ui/button'
 import { Dialog, DialogContent, DialogTitle } from '@/shared/ui/dialog'
 import { Input } from '@/shared/ui/input'
@@ -45,6 +47,13 @@ export interface MealItemEditorSheetProps {
    * different dishes in the same meal can carry different reactions. */
   emotion: MealEmotion | undefined
   onEmotionChange: (emotion: MealEmotion | undefined) => void
+  /** #279 — marks this dish as a favorite (`useMealItemStore.touch`'s new
+   * third argument) the moment it's saved, same favorite concept #276
+   * already added to the food picker's own star toggle. Lets a dish typed
+   * by hand here be pinned to the top of future searches immediately,
+   * instead of only afterward via the food picker or Settings' own list. */
+  favorite: boolean
+  onFavoriteChange: (favorite: boolean) => void
   /** #260: today's prospective running total once this draft is saved,
    * e.g. "Today would be: 1,850 kcal (was 1,550)" — only passed by the
    * add-a-new-meal flow, where nothing about this draft is reflected in
@@ -128,6 +137,8 @@ export function MealItemEditorSheet({
   onSelectMealItem,
   emotion,
   onEmotionChange,
+  favorite,
+  onFavoriteChange,
   todayTotalPreview,
   onSave,
   onSaveAndAddAnother,
@@ -180,9 +191,28 @@ export function MealItemEditorSheet({
         <DialogTitle>{title}</DialogTitle>
         <div className="flex flex-1 flex-col gap-5 overflow-y-auto pt-4">
           <div className="flex flex-col gap-1.5">
-            <span className="text-sm text-muted-foreground">
-              {t.dailyEntry.itemNameLabel}
-            </span>
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-sm text-muted-foreground">
+                {t.dailyEntry.itemNameLabel}
+              </span>
+              {/* #279 — favorites a manually-typed dish right at creation
+               * time, via useMealItemStore.touch's favorite argument. Same
+               * favorite concept #276 added to the food picker's star. */}
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon-sm"
+                aria-label={
+                  favorite
+                    ? t.dailyEntry.unfavoriteFoodLabel(name || t.dailyEntry.itemNameLabel)
+                    : t.dailyEntry.favoriteFoodLabel(name || t.dailyEntry.itemNameLabel)
+                }
+                aria-pressed={favorite}
+                onClick={() => onFavoriteChange(!favorite)}
+              >
+                <Star aria-hidden="true" className={cn(favorite && 'fill-current')} />
+              </Button>
+            </div>
             <MealNoteAutocomplete
               listInputId="item-editor-name"
               ariaLabel={t.dailyEntry.itemNameLabel}

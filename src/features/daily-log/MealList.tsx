@@ -111,6 +111,13 @@ interface EditItemDraft {
   macroMode: 'per100g' | 'perPortion'
   // This dish's own reaction (#129) — see CalorieItem.emotion.
   emotion: MealEmotion | undefined
+  /** #279 — not a CalorieItem field (favorite belongs to the reusable
+   * MealItem/FoodOverride, not one day's logged instance); read only at
+   * save time to pass into `useMealItemStore.touch`'s favorite argument.
+   * Always starts false when opening an existing item's editor (#276's
+   * food-picker star or Settings' own list are the source of truth for
+   * an existing dish's actual favorite status). */
+  favorite: boolean
 }
 
 function itemDraftFrom(item: CalorieItem): EditItemDraft {
@@ -132,6 +139,7 @@ function itemDraftFrom(item: CalorieItem): EditItemDraft {
     amountG: String(rates.portions),
     macroMode: 'per100g',
     emotion: item.emotion,
+    favorite: false,
   }
 }
 
@@ -149,6 +157,7 @@ interface AddRowDraft {
   amountG: string
   macroMode: 'per100g' | 'perPortion'
   itemEmotion: MealEmotion | undefined
+  itemFavorite: boolean
   stagedItems: EditItemDraft[]
   groupNote: string
   time: string
@@ -166,6 +175,7 @@ function blankItemDraft(): EditItemDraft {
     amountG: '1',
     macroMode: 'per100g',
     emotion: undefined,
+    favorite: false,
   }
 }
 
@@ -236,6 +246,8 @@ interface MealListItemProps {
   onEditItemModeChange: (id: string, mode: 'per100g' | 'perPortion') => void
   // Per-dish reaction (#129) — moved from meal-group level.
   onEditItemEmotionChange: (id: string, emotion: MealEmotion | undefined) => void
+  // Per-dish favorite (#279) — same shape as the emotion handler above.
+  onEditItemFavoriteChange: (id: string, favorite: boolean) => void
   /** Returns the new draft's id (#122) so the caller can open its editor
    * sheet immediately. */
   onAddEditItem: () => string
@@ -275,6 +287,7 @@ function MealListItem({
   onEditItemSelectMealItem,
   onEditItemModeChange,
   onEditItemEmotionChange,
+  onEditItemFavoriteChange,
   onAddEditItem,
   onRemoveEditItem,
   onEditLabelChange,
@@ -612,6 +625,10 @@ function MealListItem({
             onEmotionChange={(emotion) =>
               onEditItemEmotionChange(openDraft.id, emotion)
             }
+            favorite={openDraft.favorite}
+            onFavoriteChange={(favorite) =>
+              onEditItemFavoriteChange(openDraft.id, favorite)
+            }
             onSave={() => onOpenEditItem(null)}
             onSaveAndAddAnother={
               isOpenDraftNew
@@ -912,6 +929,11 @@ export function MealList({
   const [addItemEmotion, setAddItemEmotion] = useState<
     MealEmotion | undefined
   >(initialAddDraft?.itemEmotion)
+  // #279 — favorites this dish (via touchMealItem's favorite argument)
+  // the moment it's saved, grouped with the other per-item draft fields.
+  const [addItemFavorite, setAddItemFavorite] = useState(
+    initialAddDraft?.itemFavorite ?? false,
+  )
   // Dishes already committed via "Save and add one more" (#183) during
   // this add-row session, waiting for the final Save to fold them (plus
   // whatever's currently in the fields above) into one new meal group —
@@ -949,7 +971,8 @@ export function MealList({
       addProtein === '' &&
       addFat === '' &&
       addCarbs === '' &&
-      addItemEmotion === undefined
+      addItemEmotion === undefined &&
+      !addItemFavorite
     if (isBlank) {
       clearMealDraft(date)
       return
@@ -964,6 +987,7 @@ export function MealList({
       amountG: addAmountG,
       macroMode: addMacroMode,
       itemEmotion: addItemEmotion,
+      itemFavorite: addItemFavorite,
       stagedItems: addStagedItems,
       groupNote: addGroupNote,
       time: addTime,
@@ -979,6 +1003,7 @@ export function MealList({
     addAmountG,
     addMacroMode,
     addItemEmotion,
+    addItemFavorite,
     addStagedItems,
     addGroupNote,
     addTime,
@@ -1151,6 +1176,7 @@ export function MealList({
     setAddItemName('')
     setAddItemBrand('')
     setAddItemEmotion(undefined)
+    setAddItemFavorite(false)
   }
 
   // The add row's current fields as one draft, in the same shape staged
@@ -1169,6 +1195,7 @@ export function MealList({
       amountG: addAmountG,
       macroMode: addMacroMode,
       emotion: addItemEmotion,
+      favorite: addItemFavorite,
     }
   }
 
@@ -1188,8 +1215,19 @@ export function MealList({
   // into one new meal group — same "invalid/blank rows drop out silently"
   // handling as an existing meal's own saveEditMeal, via draftsToItems.
   function addMeal() {
-    const items = draftsToItems([...addStagedItems, currentAddDraft()])
+    const drafts = [...addStagedItems, currentAddDraft()]
+    const items = draftsToItems(drafts)
     if (items.length === 0) return
+    // #279 — favorite isn't a CalorieItem field, so look it up by draft id
+    // (draftsToItems preserves id: draft.id) rather than reading it off
+    // items. Only ever forces true (never false): itemDraftFrom always
+    // seeds an existing item's own draft with favorite: false regardless
+    // of its real stored status, so passing that straight through would
+    // silently un-favorite an already-favorited dish on every edit save
+    // where the star was simply never touched.
+    const favoriteById = new Map(
+      drafts.map((draft) => [draft.id, draft.favorite || undefined]),
+    )
     setCalorieEntries([
       ...calorieEntries,
       {
@@ -1202,13 +1240,17 @@ export function MealList({
     ])
     for (const item of items) {
       if (item.name) {
-        touchMealItem(item.name, {
-          amountKcal: item.amountKcal,
-          proteinG: item.proteinG,
-          fatG: item.fatG,
-          carbsG: item.carbsG,
-          amountG: item.amountG,
-        })
+        touchMealItem(
+          item.name,
+          {
+            amountKcal: item.amountKcal,
+            proteinG: item.proteinG,
+            fatG: item.fatG,
+            carbsG: item.carbsG,
+            amountG: item.amountG,
+          },
+          favoriteById.get(item.id),
+        )
       }
     }
     setAddStagedItems([])
@@ -1388,6 +1430,7 @@ export function MealList({
         amountG: String(rates.portions),
         macroMode: 'per100g',
         emotion: value.emotion,
+        favorite: false,
       }
     })
     setEditItems((items) => [...items, ...drafts])
@@ -1423,6 +1466,13 @@ export function MealList({
   function updateEditItemEmotion(id: string, emotion: MealEmotion | undefined) {
     setEditItems((items) =>
       items.map((item) => (item.id === id ? { ...item, emotion } : item)),
+    )
+  }
+
+  // #279 — same shape as updateEditItemEmotion above.
+  function updateEditItemFavorite(id: string, favorite: boolean) {
+    setEditItems((items) =>
+      items.map((item) => (item.id === id ? { ...item, favorite } : item)),
     )
   }
 
@@ -1531,6 +1581,12 @@ export function MealList({
   // "last item removed = meal removed").
   function saveEditMeal() {
     const items = draftsToItems(editItems)
+    // #279 — see addMeal()'s identical map: only ever forces true, since
+    // itemDraftFrom always seeds an existing item's draft with favorite:
+    // false regardless of its real stored status.
+    const favoriteById = new Map(
+      editItems.map((draft) => [draft.id, draft.favorite || undefined]),
+    )
     if (items.length === 0) {
       setCalorieEntries(
         calorieEntries.filter((entry) => entry.id !== editingMealId),
@@ -1559,13 +1615,17 @@ export function MealList({
       // personal dictionary, which addFoodEntry() already correctly
       // avoids doing on the initial add.
       if (item.name && !curatedFoodNames.has(item.name)) {
-        touchMealItem(item.name, {
-          amountKcal: item.amountKcal,
-          proteinG: item.proteinG,
-          fatG: item.fatG,
-          carbsG: item.carbsG,
-          amountG: item.amountG,
-        })
+        touchMealItem(
+          item.name,
+          {
+            amountKcal: item.amountKcal,
+            proteinG: item.proteinG,
+            fatG: item.fatG,
+            carbsG: item.carbsG,
+            amountG: item.amountG,
+          },
+          favoriteById.get(item.id),
+        )
       }
     }
     setEditingMealId(null)
@@ -1684,6 +1744,7 @@ export function MealList({
                   onEditItemSelectMealItem={selectEditItemMealItem}
                   onEditItemModeChange={updateEditItemMode}
                   onEditItemEmotionChange={updateEditItemEmotion}
+                  onEditItemFavoriteChange={updateEditItemFavorite}
                   onAddEditItem={addEditItem}
                   onRemoveEditItem={removeEditItem}
                   onEditLabelChange={setEditGroupLabel}
@@ -1925,6 +1986,8 @@ export function MealList({
           onSelectMealItem={selectAddItemMealItem}
           emotion={addItemEmotion}
           onEmotionChange={setAddItemEmotion}
+          favorite={addItemFavorite}
+          onFavoriteChange={setAddItemFavorite}
           todayTotalPreview={todayTotalPreview ?? undefined}
           onSave={() => {
             addMeal()

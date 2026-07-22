@@ -84,6 +84,56 @@ describe('MealItemsSection', () => {
     expect(list).toHaveClass('overflow-y-auto', 'overscroll-y-contain')
   })
 
+  describe('favorites (#279)', () => {
+    it('toggles favorite on an existing item', async () => {
+      await useMealItemStore.getState().touch('Pizza')
+      const user = userEvent.setup()
+      render(<MealItemsSection />)
+
+      await screen.findByDisplayValue('Pizza')
+      await user.click(
+        screen.getByRole('button', { name: 'Add Pizza to favorites' }),
+      )
+
+      await waitFor(() =>
+        expect(useMealItemStore.getState().items[0].favorite).toBe(true),
+      )
+      expect(
+        screen.getByRole('button', { name: 'Remove Pizza from favorites' }),
+      ).toBeInTheDocument()
+
+      await user.click(
+        screen.getByRole('button', { name: 'Remove Pizza from favorites' }),
+      )
+
+      await waitFor(() =>
+        expect(useMealItemStore.getState().items[0].favorite).toBe(false),
+      )
+    })
+
+    it('can favorite a brand-new dish right at creation time', async () => {
+      const user = userEvent.setup()
+      render(<MealItemsSection />)
+
+      await user.click(
+        screen.getByRole('button', { name: 'Add custom food' }),
+      )
+      await user.type(screen.getByLabelText('Meal item name'), 'Granola')
+      await user.type(screen.getByLabelText('kcal/100g'), '450')
+      await user.click(
+        screen.getByRole('button', { name: 'Add Granola to favorites' }),
+      )
+      await user.click(screen.getByRole('button', { name: 'Save' }))
+
+      await waitFor(() =>
+        expect(useMealItemStore.getState().items[0]).toMatchObject({
+          name: 'Granola',
+          favorite: true,
+        }),
+      )
+    })
+  })
+
   describe('search (#179)', () => {
     it('filters the list by name as the user types', async () => {
       await useMealItemStore.getState().touch('Pizza')

@@ -22,6 +22,11 @@ interface MealItemStoreState {
       carbsG?: number
       amountG?: number
     },
+    /** #279 — set when a caller (the manual "Add dish" sheet, Settings'
+     * own add-dish form) offers a favorite toggle right at creation time.
+     * Omitted entirely preserves whatever the item already had, so every
+     * pre-#279 call site is unaffected. */
+    favorite?: boolean,
   ) => Promise<void>
   /** Renames a library item. If another item already has the target name,
    * merges into it (deletes this one) instead of violating the unique
@@ -49,7 +54,7 @@ export const useMealItemStore = create<MealItemStoreState>((set, get) => ({
       })
     }
   },
-  touch: async (name, nutrition) => {
+  touch: async (name, nutrition, favorite) => {
     const trimmed = name.trim()
     if (!trimmed) return
     const existing = await mealItemRepository.findByName(trimmed)
@@ -66,6 +71,7 @@ export const useMealItemStore = create<MealItemStoreState>((set, get) => ({
       lastFatG: nutrition?.fatG ?? existing?.lastFatG,
       lastCarbsG: nutrition?.carbsG ?? existing?.lastCarbsG,
       lastAmountG: nutrition?.amountG ?? existing?.lastAmountG,
+      favorite: favorite ?? existing?.favorite,
     }
     await mealItemRepository.upsert(item)
     set({ items: await mealItemRepository.getAll() })
