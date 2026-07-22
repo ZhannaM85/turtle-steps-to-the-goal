@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 262,
+    issue: 288,
+    date: '2026-07-22T23:59:08+03:00',
+    en: 'You can now scan a barcode while editing an already-saved meal, not just when adding a new one.',
+    ru: 'Теперь можно отсканировать штрихкод при редактировании уже сохранённого приёма пищи, а не только при добавлении нового.',
+  },
+  {
     version: 261,
     issue: 289,
     date: '2026-07-22T23:50:28+03:00',

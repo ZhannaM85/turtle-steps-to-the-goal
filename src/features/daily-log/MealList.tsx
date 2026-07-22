@@ -269,6 +269,11 @@ interface MealListItemProps {
   /** Returns the new draft's id (#122) so the caller can open its editor
    * sheet immediately. */
   onAddEditItem: () => string
+  /** #288 — same local-first/Open-Food-Facts lookup as the bottom add
+   * row's own scan handler, but always creates a brand new draft (returned
+   * id) rather than mutating an existing row; `notFound` tells the caller
+   * whether to show the quiet "no food found" message. */
+  onScanBarcode: (barcode: string) => Promise<{ id: string; notFound: boolean }>
   onRemoveEditItem: (id: string) => void
   onEditLabelChange: (value: string) => void
   onEditTimeChange: (value: string) => void
@@ -307,6 +312,7 @@ function MealListItem({
   onEditItemEmotionChange,
   onEditItemFavoriteChange,
   onAddEditItem,
+  onScanBarcode,
   onRemoveEditItem,
   onEditLabelChange,
   onEditTimeChange,
@@ -335,6 +341,16 @@ function MealListItem({
   // "Find food" is independent of every other one and of the bottom add
   // row's own isFoodPickerOpen.
   const [isFoodPickerOpen, setIsFoodPickerOpen] = useState(false)
+  // #288 — same "own local state, not lifted higher" reasoning as
+  // isFoodPickerOpen above.
+  const [isBarcodeScannerOpen, setIsBarcodeScannerOpen] = useState(false)
+  const [barcodeNotFoundMessage, setBarcodeNotFoundMessage] = useState(false)
+
+  async function handleBarcodeScanned(barcode: string) {
+    const { id, notFound } = await onScanBarcode(barcode)
+    setBarcodeNotFoundMessage(notFound)
+    onOpenEditItem(id)
+  }
   const macrosSummary = macrosSummaryText(
     calorieEntryProtein(entry),
     calorieEntryFat(entry),
@@ -590,6 +606,19 @@ function MealListItem({
         >
           {t.dailyEntry.addItemButton}
         </Button>
+        {/* #288 — same fallback tier as the bottom add-row's own scan
+         * button (#256): search first, scan or type by hand otherwise. */}
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          className="justify-start"
+          aria-label={`${t.dailyEntry.scanBarcodeButton} — ${t.dailyEntry.mealLabel(position)}`}
+          onClick={() => setIsBarcodeScannerOpen(true)}
+        >
+          <ScanBarcode aria-hidden="true" />
+          {t.dailyEntry.scanBarcodeButton}
+        </Button>
         {isFoodPickerOpen && (
           <FoodPickerDialog
             open={isFoodPickerOpen}
@@ -598,10 +627,22 @@ function MealListItem({
             mealItems={mealItems}
           />
         )}
+        {isBarcodeScannerOpen && (
+          <BarcodeScannerDialog
+            open={isBarcodeScannerOpen}
+            onOpenChange={setIsBarcodeScannerOpen}
+            onScanned={handleBarcodeScanned}
+          />
+        )}
         {openDraft && (
           <MealItemEditorSheet
             open
-            onOpenChange={(open) => !open && onOpenEditItem(null)}
+            onOpenChange={(open) => {
+              if (!open) {
+                onOpenEditItem(null)
+                setBarcodeNotFoundMessage(false)
+              }
+            }}
             title={t.dailyEntry.editItemSheetTitle}
             name={openDraft.name}
             onNameChange={(value) =>
@@ -651,6 +692,11 @@ function MealListItem({
             onSaveAndAddAnother={
               isOpenDraftNew
                 ? () => onOpenEditItem(onAddEditItem())
+                : undefined
+            }
+            infoMessage={
+              barcodeNotFoundMessage
+                ? t.dailyEntry.noFoodFoundForBarcodeMessage
                 : undefined
             }
           />
@@ -1645,6 +1691,57 @@ export function MealList({
     return draft.id
   }
 
+  // #288 — the edit-meal counterpart to handleBarcodeScanned above (the
+  // bottom add-row's own scan handler): same local-first/Open-Food-Facts
+  // lookup, but since there's no single "current draft" being typed into
+  // here (unlike the add row's own fields), a scan always creates a brand
+  // new blank-or-prefilled draft — same "scanning always adds a new item,
+  // never edits an existing one" shape #256 already established — rather
+  // than mutating an existing row. Returns the new draft's id (so the
+  // caller can open its editor sheet, same as addEditItem above) and
+  // whether nothing matched anywhere, so the caller can surface the same
+  // quiet "no food found" message the add row shows.
+  async function scanBarcodeIntoEditItems(
+    barcode: string,
+  ): Promise<{ id: string; notFound: boolean }> {
+    const result = await lookupBarcode(
+      barcode,
+      mealItemRepositoryForBarcodeLookup,
+      isOnline,
+    )
+    const draft = blankItemDraft()
+    if (result.source === 'local') {
+      draft.name = result.item.name
+      draft.barcode = result.item.barcode
+      if (result.item.lastAmountKcal !== undefined) {
+        const rates = ratesFromAbsolute(
+          result.item.lastAmountKcal,
+          result.item.lastProteinG,
+          result.item.lastFatG,
+          result.item.lastCarbsG,
+          result.item.lastAmountG,
+        )
+        draft.amount = String(rates.kcal100)
+        draft.protein = rates.protein100 === undefined ? '' : String(rates.protein100)
+        draft.fat = rates.fat100 === undefined ? '' : String(rates.fat100)
+        draft.carbs = rates.carbs100 === undefined ? '' : String(rates.carbs100)
+        draft.amountG = String(rates.portions)
+      }
+    } else if (result.source === 'openFoodFacts') {
+      draft.name = result.name
+      draft.brand = result.brand ?? ''
+      draft.amount = String(result.kcal100)
+      draft.protein = result.protein100 === undefined ? '' : String(result.protein100)
+      draft.fat = result.fat100 === undefined ? '' : String(result.fat100)
+      draft.carbs = result.carbs100 === undefined ? '' : String(result.carbs100)
+      draft.barcode = barcode
+    } else {
+      draft.barcode = barcode
+    }
+    setEditItems((items) => [...items, draft])
+    return { id: draft.id, notFound: result.source === 'none' }
+  }
+
   function removeEditItem(id: string) {
     setEditItems((items) => items.filter((item) => item.id !== id))
   }
@@ -1826,6 +1923,7 @@ export function MealList({
                   onEditItemEmotionChange={updateEditItemEmotion}
                   onEditItemFavoriteChange={updateEditItemFavorite}
                   onAddEditItem={addEditItem}
+                  onScanBarcode={scanBarcodeIntoEditItems}
                   onRemoveEditItem={removeEditItem}
                   onEditLabelChange={setEditGroupLabel}
                   onEditTimeChange={setEditGroupTime}
