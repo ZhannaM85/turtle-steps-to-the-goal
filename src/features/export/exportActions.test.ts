@@ -251,6 +251,22 @@ describe('importAllData', () => {
     expect(await db.foodOverrides.toArray()).toEqual([override])
   })
 
+  it('round-trips MealItem.favorite/barcode and FoodOverride.favorite (#284)', async () => {
+    const item = makeMealItem({ favorite: true, barcode: '0123456789012' })
+    const override = makeFoodOverride({ favorite: true })
+    await db.mealItems.put(item)
+    await db.foodOverrides.put(override)
+    const bundle = await exportAllData()
+
+    await db.mealItems.clear()
+    await db.foodOverrides.clear()
+
+    await importAllData(bundle)
+
+    expect(await db.mealItems.toArray()).toEqual([item])
+    expect(await db.foodOverrides.toArray()).toEqual([override])
+  })
+
   it('imports fine when mealItems/foodOverrides are absent (older backups, #113)', async () => {
     await expect(
       importAllData({

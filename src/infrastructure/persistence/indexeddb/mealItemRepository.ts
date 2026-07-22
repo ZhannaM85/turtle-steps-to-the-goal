@@ -10,6 +10,10 @@ export class IndexedDbMealItemRepository implements MealItemRepository {
     return db.mealItems.where('name').equals(name).first()
   }
 
+  async findByBarcode(barcode: string): Promise<MealItem | undefined> {
+    return db.mealItems.where('barcode').equals(barcode).first()
+  }
+
   async upsert(item: MealItem): Promise<void> {
     await db.mealItems.put(item)
   }

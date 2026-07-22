@@ -181,6 +181,18 @@ export class AppDatabase extends Dexie {
             delete entry.waterMl
           }),
       )
+    // #256: barcode scanning — a sparse unique secondary index on
+    // mealItems.barcode. Optional field, so most existing records simply
+    // don't enter this index at all (same "undefined never collides"
+    // reasoning the existing &name index already relies on); no
+    // .upgrade() needed since there's nothing to backfill for a field
+    // that never existed before.
+    this.version(9).stores({
+      goals: 'id, createdAt',
+      dailyEntries: 'id, &date',
+      mealItems: 'id, &name, &barcode',
+      foodOverrides: '&foodId',
+    })
   }
 }
 

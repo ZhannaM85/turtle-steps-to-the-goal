@@ -122,6 +122,11 @@ const mealItemSchema = z.object({
   lastFatG: z.number().optional(),
   lastCarbsG: z.number().optional(),
   lastAmountG: z.number().optional(),
+  // #284 — #276 added this to the domain model but missed it here, so a
+  // favorited item's status was silently dropped on export/import.
+  favorite: z.boolean().optional(),
+  // #256 — scanned product barcode, same purely-additive reasoning.
+  barcode: z.string().optional(),
 })
 
 // Per-device curated-food-list customizations (#90) — same #113
@@ -134,6 +139,9 @@ const foodOverrideSchema = z.object({
   fat100: z.number().optional(),
   carbs100: z.number().optional(),
   updatedAt: z.string(),
+  // #284 — #276 added this to the domain model but missed it here, so a
+  // favorited curated food's status was silently dropped on export/import.
+  favorite: z.boolean().optional(),
 })
 
 export const exportBundleSchema = z.object({

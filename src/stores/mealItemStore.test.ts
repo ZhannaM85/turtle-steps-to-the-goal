@@ -141,6 +141,28 @@ describe('useMealItemStore', () => {
     expect(useMealItemStore.getState().items[0].favorite).toBe(true)
   })
 
+  it('touch(name, nutrition, favorite, barcode) sets barcode on a brand-new item (#256)', async () => {
+    await useMealItemStore
+      .getState()
+      .touch('Pizza', { amountKcal: 400 }, undefined, '0123456789012')
+
+    expect(useMealItemStore.getState().items[0].barcode).toBe(
+      '0123456789012',
+    )
+  })
+
+  it('touch with barcode omitted preserves an existing item\'s barcode', async () => {
+    await useMealItemStore
+      .getState()
+      .touch('Pizza', { amountKcal: 400 }, undefined, '0123456789012')
+
+    await useMealItemStore.getState().touch('Pizza', { amountKcal: 550 })
+
+    expect(useMealItemStore.getState().items[0].barcode).toBe(
+      '0123456789012',
+    )
+  })
+
   it('deleteItem removes an item', async () => {
     await useMealItemStore.getState().touch('Pizza')
     const id = useMealItemStore.getState().items[0].id

@@ -189,4 +189,42 @@ describe('IndexedDbMealItemRepository', () => {
 
     await expect(mealItemRepository.getAll()).resolves.toEqual([])
   })
+
+  describe('barcode (#256)', () => {
+    it('returns undefined when no item has that barcode', async () => {
+      await expect(
+        mealItemRepository.findByBarcode('0123456789012'),
+      ).resolves.toBeUndefined()
+    })
+
+    it('upserts and finds an item by exact barcode', async () => {
+      const item = makeMealItem({ name: 'Pizza', barcode: '0123456789012' })
+      await mealItemRepository.upsert(item)
+
+      await expect(
+        mealItemRepository.findByBarcode('0123456789012'),
+      ).resolves.toEqual(item)
+    })
+
+    it('enforces unique barcodes', async () => {
+      await mealItemRepository.upsert(
+        makeMealItem({ name: 'Pizza', barcode: '0123456789012' }),
+      )
+      await expect(
+        mealItemRepository.upsert(
+          makeMealItem({ name: 'Salad', barcode: '0123456789012' }),
+        ),
+      ).rejects.toThrow()
+    })
+
+    it('allows any number of items with no barcode at all (sparse index)', async () => {
+      await mealItemRepository.upsert(makeMealItem({ name: 'Pizza' }))
+      await expect(
+        mealItemRepository.upsert(makeMealItem({ name: 'Salad' })),
+      ).resolves.not.toThrow()
+
+      const all = await mealItemRepository.getAll()
+      expect(all).toHaveLength(2)
+    })
+  })
 })

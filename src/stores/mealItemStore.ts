@@ -27,6 +27,11 @@ interface MealItemStoreState {
      * Omitted entirely preserves whatever the item already had, so every
      * pre-#279 call site is unaffected. */
     favorite?: boolean,
+    /** #256 — set once, the first time a barcode scan creates this item
+     * (either a local match already had one, or an Open Food Facts
+     * fallback filled in the form before saving). Omitted preserves
+     * whatever the item already had, same reasoning as favorite above. */
+    barcode?: string,
   ) => Promise<void>
   /** Renames a library item. If another item already has the target name,
    * merges into it (deletes this one) instead of violating the unique
@@ -54,7 +59,7 @@ export const useMealItemStore = create<MealItemStoreState>((set, get) => ({
       })
     }
   },
-  touch: async (name, nutrition, favorite) => {
+  touch: async (name, nutrition, favorite, barcode) => {
     const trimmed = name.trim()
     if (!trimmed) return
     const existing = await mealItemRepository.findByName(trimmed)
@@ -72,6 +77,7 @@ export const useMealItemStore = create<MealItemStoreState>((set, get) => ({
       lastCarbsG: nutrition?.carbsG ?? existing?.lastCarbsG,
       lastAmountG: nutrition?.amountG ?? existing?.lastAmountG,
       favorite: favorite ?? existing?.favorite,
+      barcode: barcode ?? existing?.barcode,
     }
     await mealItemRepository.upsert(item)
     set({ items: await mealItemRepository.getAll() })

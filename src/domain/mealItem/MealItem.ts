@@ -31,4 +31,10 @@ export interface MealItem {
    * logged — `touch()`'s existing-item spread preserves this untouched on
    * every re-save, so logging the item again doesn't clear it. */
   favorite?: boolean
+  /** Scanned product barcode (#256) — set the first time this item is
+   * created via a barcode scan (local match or an Open Food Facts
+   * fallback), so every later scan of the same barcode is an instant,
+   * fully offline local match. Purely additive/optional; most items have
+   * no barcode at all. */
+  barcode?: string
 }
