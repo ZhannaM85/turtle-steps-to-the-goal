@@ -2,11 +2,18 @@ import 'fake-indexeddb/auto'
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
-import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { CalorieEntry, DailyEntry } from '@/domain/dailyEntry'
 import { db } from '@/infrastructure/persistence/indexeddb'
 import { useMealItemStore, useMealLabelPresetStore } from '@/stores'
 import { MealEditScreen } from './MealEditScreen'
+
+// This screen's Find-food tests render FoodPickerDialog's 300+-item list
+// (same as FoodPickerDialog.test.tsx/DailyEntryForm.test.tsx, which
+// already needed the identical bump) — the default 5s timeout is too
+// tight for that under full-suite parallel load even though each test is
+// fast in isolation.
+vi.setConfig({ testTimeout: 15000 })
 
 /**
  * The dedicated single-meal edit route (#157) — reached by tapping a
