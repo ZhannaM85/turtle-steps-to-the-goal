@@ -25,6 +25,27 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 252,
+    issue: 278,
+    date: '2026-07-22T19:24:00+03:00',
+    en: 'The "today would be" preview in the food-search modal now also shows protein/fat/carbs, not just calories.',
+    ru: 'Предпросмотр «На сегодня будет» в окне поиска еды теперь также показывает белки/жиры/углеводы, а не только калории.',
+  },
+  {
+    version: 251,
+    issue: 279,
+    date: '2026-07-22T19:22:27+03:00',
+    en: 'You can now mark a dish as a favorite from the Settings dish list and the manual "Add dish" form, not just the food-search modal.',
+    ru: 'Теперь можно отмечать блюдо как избранное из списка блюд в настройках и формы ручного добавления, а не только в окне поиска.',
+  },
+  {
+    version: 250,
+    issue: 280,
+    date: '2026-07-22T19:22:27+03:00',
+    en: 'Fixed the reaction row being cut off at the bottom of the manual "Add dish" form.',
+    ru: 'Исправлена обрезанная строка реакции внизу формы ручного добавления блюда.',
+  },
+  {
     version: 249,
     issue: 276,
     date: '2026-07-22T17:22:40+03:00',
