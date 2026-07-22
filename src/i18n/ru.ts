@@ -172,6 +172,8 @@ export const ru: Dictionary = {
     servingModeLabel: 'Порция',
     gramsModeOption: 'Граммы',
     servingCountLabel: 'Сколько',
+    favoriteFoodLabel: (name) => `Добавить «${name}» в избранное`,
+    unfavoriteFoodLabel: (name) => `Убрать «${name}» из избранного`,
     noFoodResultsText: 'Ничего не найдено.',
     addSelectedFoodsButton: (n) =>
       n > 1 ? `Добавить выбранное (${n})` : 'Добавить выбранное',

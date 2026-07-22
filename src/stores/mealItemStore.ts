@@ -28,6 +28,9 @@ interface MealItemStoreState {
    * name index. */
   rename: (id: string, name: string) => Promise<void>
   deleteItem: (id: string) => Promise<void>
+  /** #276 — toggles a "go-to" food, independent of `touch()`'s own
+   * recency bookkeeping. */
+  toggleFavorite: (id: string) => Promise<void>
 }
 
 export const useMealItemStore = create<MealItemStoreState>((set, get) => ({
@@ -86,6 +89,16 @@ export const useMealItemStore = create<MealItemStoreState>((set, get) => ({
   },
   deleteItem: async (id) => {
     await mealItemRepository.delete(id)
+    set({ items: await mealItemRepository.getAll() })
+  },
+  toggleFavorite: async (id) => {
+    const current = get().items.find((item) => item.id === id)
+    if (!current) return
+    await mealItemRepository.upsert({
+      ...current,
+      favorite: !current.favorite,
+      updatedAt: new Date().toISOString(),
+    })
     set({ items: await mealItemRepository.getAll() })
   },
 }))

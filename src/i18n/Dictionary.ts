@@ -292,6 +292,11 @@ export interface Dictionary {
     servingModeLabel: string
     gramsModeOption: string
     servingCountLabel: string
+    /** #276 — a "go-to" food toggle in the picker, for either source.
+     * Favorited items sort first, both unfiltered and within filtered
+     * search results. */
+    favoriteFoodLabel: (name: string) => string
+    unfavoriteFoodLabel: (name: string) => string
     noFoodResultsText: string
     /** Find food's confirm button (#183) — e.g. "Add selected (3)". Also
      * used with n=1 for a single pick, replacing the old static "Add". */

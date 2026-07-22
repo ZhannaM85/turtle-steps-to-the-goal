@@ -10,6 +10,7 @@ interface FoodOverrideStoreState {
   error: string | null
   loadOverrides: () => Promise<void>
   setHidden: (foodId: string, hidden: boolean) => Promise<void>
+  setFavorite: (foodId: string, favorite: boolean) => Promise<void>
   setNutrition: (
     foodId: string,
     nutrition: {
@@ -59,6 +60,16 @@ export const useFoodOverrideStore = create<FoodOverrideStoreState>(
       const next: FoodOverride = {
         ...current,
         hidden,
+        updatedAt: new Date().toISOString(),
+      }
+      await foodOverrideRepository.upsert(next)
+      set({ overrides: await foodOverrideRepository.getAll() })
+    },
+    setFavorite: async (foodId, favorite) => {
+      const current = existingOrBlank(get().overrides, foodId)
+      const next: FoodOverride = {
+        ...current,
+        favorite,
         updatedAt: new Date().toISOString(),
       }
       await foodOverrideRepository.upsert(next)

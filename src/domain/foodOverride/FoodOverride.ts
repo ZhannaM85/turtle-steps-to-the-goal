@@ -12,5 +12,10 @@ export interface FoodOverride {
   protein100?: number
   fat100?: number
   carbs100?: number
+  /** Marked as a "go-to" food (#276) — same per-device category as the
+   * fields above, checked directly (not merged via `effectiveFoodItem`,
+   * which is only about numeric/hidden content) wherever the food picker
+   * needs to sort favorites first. */
+  favorite?: boolean
   updatedAt: string
 }

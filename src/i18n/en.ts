@@ -172,6 +172,8 @@ export const en: Dictionary = {
     servingModeLabel: 'Serving',
     gramsModeOption: 'Grams',
     servingCountLabel: 'How many',
+    favoriteFoodLabel: (name) => `Add ${name} to favorites`,
+    unfavoriteFoodLabel: (name) => `Remove ${name} from favorites`,
     noFoodResultsText: 'No foods found.',
     addSelectedFoodsButton: (n) => (n > 1 ? `Add selected (${n})` : 'Add selected'),
     per100gLabel: 'per 100g',

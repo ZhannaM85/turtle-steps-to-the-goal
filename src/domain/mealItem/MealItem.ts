@@ -27,4 +27,8 @@ export interface MealItem {
    * logged (#93) — same purely-additive/optional pattern as the fields
    * above, kept in sync by `touch()`. */
   lastAmountG?: number
+  /** Marked as a "go-to" food (#276), independent of how recently it was
+   * logged — `touch()`'s existing-item spread preserves this untouched on
+   * every re-save, so logging the item again doesn't clear it. */
+  favorite?: boolean
 }

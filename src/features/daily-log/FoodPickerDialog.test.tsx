@@ -739,4 +739,90 @@ describe('FoodPickerDialog', () => {
       ).toBeInTheDocument()
     })
   })
+
+  describe('favorites (#276)', () => {
+    it('sorts a favorited curated food to the top of the unfiltered list', async () => {
+      const user = userEvent.setup()
+      render(
+        <FoodPickerDialog open onOpenChange={vi.fn()} onAdd={vi.fn()} mealItems={[]} />,
+      )
+
+      // Tuna isn't first alphabetically/by source order — confirm that
+      // before favoriting it, so the reorder assertion below is meaningful.
+      const allNames = screen.getAllByRole('checkbox').map((el) => el.textContent)
+      expect(allNames[0]).not.toContain('Tuna')
+
+      await user.click(
+        screen.getByRole('button', { name: 'Add Tuna to favorites' }),
+      )
+
+      const reordered = screen.getAllByRole('checkbox')
+      expect(reordered[0].textContent).toContain('Tuna')
+    })
+
+    it('keeps a favorited item first among filtered search results too', async () => {
+      const user = userEvent.setup()
+      render(
+        <FoodPickerDialog open onOpenChange={vi.fn()} onAdd={vi.fn()} mealItems={[]} />,
+      )
+
+      await user.type(screen.getByLabelText('Search foods'), 'chicken')
+      // Neither is favorited yet — matches keep rankBySearchMatch's own
+      // order (both "Chicken ___", tie broken by original list order).
+      const before = screen.getAllByRole('checkbox')
+      expect(before[0].textContent).toContain('Chicken breast')
+
+      await user.click(
+        screen.getByRole('button', { name: 'Add Chicken thigh to favorites' }),
+      )
+
+      const after = screen.getAllByRole('checkbox')
+      expect(after[0].textContent).toContain('Chicken thigh')
+    })
+
+    it('un-favoriting moves the item back out of the top spot', async () => {
+      const user = userEvent.setup()
+      await useFoodOverrideStore.getState().setFavorite('tuna', true)
+      render(
+        <FoodPickerDialog open onOpenChange={vi.fn()} onAdd={vi.fn()} mealItems={[]} />,
+      )
+
+      expect(
+        screen.getAllByRole('checkbox')[0].textContent,
+      ).toContain('Tuna')
+
+      await user.click(
+        screen.getByRole('button', { name: 'Remove Tuna from favorites' }),
+      )
+
+      expect(
+        screen.getAllByRole('checkbox')[0].textContent,
+      ).not.toContain('Tuna')
+    })
+
+    it('lets a personal meal item be favorited too, sorting it above curated foods', async () => {
+      const user = userEvent.setup()
+      render(
+        <FoodPickerDialog
+          open
+          onOpenChange={vi.fn()}
+          onAdd={vi.fn()}
+          mealItems={[mealItem({ name: 'Grandma’s stew' })]}
+        />,
+      )
+
+      // Personal items already list before curated foods (allMealItems is
+      // concatenated first) — favoriting a curated food should still not
+      // outrank it, and favoriting the personal item keeps it on top.
+      await user.click(
+        screen.getByRole('button', {
+          name: 'Add Grandma’s stew to favorites',
+        }),
+      )
+
+      expect(
+        screen.getAllByRole('checkbox')[0].textContent,
+      ).toContain('Grandma’s stew')
+    })
+  })
 })

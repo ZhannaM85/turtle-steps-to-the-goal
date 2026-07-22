@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Check, Trash2 } from 'lucide-react'
+import { Check, Star, Trash2 } from 'lucide-react'
 import { type FoodItem, type FoodServing, foods } from '@/data/foods'
 import type { MealEmotion } from '@/domain/dailyEntry'
 import type { MealItem } from '@/domain/mealItem'
@@ -133,11 +133,15 @@ export function FoodPickerDialog({
   // Settings → Meal items — same store action, same immediate (no confirm
   // step) delete MealItemsSection.tsx already uses.
   const deleteMealItem = useMealItemStore((state) => state.deleteItem)
+  // #276 — immediate, no-confirm-step toggle, same shape as the delete
+  // button above.
+  const toggleMealItemFavorite = useMealItemStore((state) => state.toggleFavorite)
 
   // Per-device hides/corrections to the curated list (#90) — loaded once
   // per mount, same pattern as useMealItemStore in DailyEntryForm.
   const foodOverrides = useFoodOverrideStore((state) => state.overrides)
   const loadFoodOverrides = useFoodOverrideStore((state) => state.loadOverrides)
+  const setFoodFavorite = useFoodOverrideStore((state) => state.setFavorite)
   useEffect(() => {
     loadFoodOverrides()
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -167,14 +171,35 @@ export function FoodPickerDialog({
   // exact/whole-word matches surface first.
   const textFor = (item: PickableItem) =>
     item.source === 'food' ? item.food[locale] : item.mealItem.name
+
+  // #276 — a favorite sorts above a non-favorite, but ties (both
+  // favorite, or both not) keep whatever order they already had — a
+  // stable sort applied *after* rankBySearchMatch below, so a favorite
+  // still shows first "among the chicken matches" without upsetting the
+  // exact/whole-word/substring ranking within that group.
+  function isFavorite(item: PickableItem): boolean {
+    if (item.source === 'mealItem') return item.mealItem.favorite === true
+    return (
+      foodOverrides.find((override) => override.foodId === item.food.id)
+        ?.favorite === true
+    )
+  }
+  function sortFavoritesFirst<T extends PickableItem>(items: T[]): T[] {
+    return [...items].sort(
+      (a, b) => Number(isFavorite(b)) - Number(isFavorite(a)),
+    )
+  }
+
   const query = search.trim().toLowerCase()
   const matches = query
-    ? rankBySearchMatch(
-        allItems.filter((item) => textFor(item).toLowerCase().includes(query)),
-        query,
-        textFor,
+    ? sortFavoritesFirst(
+        rankBySearchMatch(
+          allItems.filter((item) => textFor(item).toLowerCase().includes(query)),
+          query,
+          textFor,
+        ),
       )
-    : allItems
+    : sortFavoritesFirst(allItems)
 
   const selectedItems = allItems.filter((item) => selectedKeys.has(itemKey(item)))
   const singleSelected = selectedItems.length === 1 ? selectedItems[0] : null
@@ -248,6 +273,17 @@ export function FoodPickerDialog({
       next.delete(key)
       return next
     })
+  }
+
+  // #276 — immediate toggle, either source; the resulting re-sort (via
+  // `isFavorite`/`sortFavoritesFirst` above) happens naturally on the next
+  // render once the underlying store updates.
+  function handleToggleFavorite(item: PickableItem) {
+    if (item.source === 'mealItem') {
+      toggleMealItemFavorite(item.mealItem.id)
+    } else {
+      setFoodFavorite(item.food.id, !isFavorite(item))
+    }
   }
 
   // #264 — each item's own checked quantity now feeds the calculation,
@@ -449,6 +485,27 @@ export function FoodPickerDialog({
                         )}
                       </span>
                     </button>
+                    {/* #276 — either source can be favorited; favorites
+                     * sort first (see sortFavoritesFirst above), both
+                     * unfiltered and within search results. */}
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon-sm"
+                      className="mr-1 shrink-0 self-center"
+                      aria-label={
+                        isFavorite(item)
+                          ? t.dailyEntry.unfavoriteFoodLabel(textFor(item))
+                          : t.dailyEntry.favoriteFoodLabel(textFor(item))
+                      }
+                      aria-pressed={isFavorite(item)}
+                      onClick={() => handleToggleFavorite(item)}
+                    >
+                      <Star
+                        aria-hidden="true"
+                        className={cn(isFavorite(item) && 'fill-current')}
+                      />
+                    </Button>
                     {/* #264: a single check gets one shared quantity field
                      * in the sticky footer below — a per-row field here
                      * too would be redundant. Once a second dish is
