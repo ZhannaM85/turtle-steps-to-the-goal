@@ -27,7 +27,17 @@ export default defineConfig({
         // detects a newer deploy exists at all. Excluding it from the
         // precache manifest is enough: with no matching runtime-caching
         // rule either, the SW's fetch handler never intercepts it.
-        globIgnores: ['version.json'],
+        // #270: exceljs (the Excel-export chunk, `exportXlsx.ts`) is
+        // already lazy-imported at the JS level (`await import('exceljs')`,
+        // only fetched when a user actually exports to Excel) — but
+        // Workbox's default globPatterns precache every built JS file
+        // regardless of how it's loaded at runtime, so this ~930KB/2.4MB
+        // total chunk was being eagerly downloaded into the SW cache on
+        // every single install. Excluding it here shrinks a genuine update
+        // re-download by roughly a third; a plain network fetch still
+        // serves it correctly the first time someone exports, just not
+        // proactively cached ahead of time.
+        globIgnores: ['version.json', '**/exceljs*.js'],
       },
     }),
   ],

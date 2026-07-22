@@ -45,18 +45,28 @@ export async function reloadForUpdate(): Promise<void> {
       const registration = await navigator.serviceWorker.getRegistration()
       if (registration) {
         await registration.update()
-        await Promise.race([
-          new Promise<void>((resolve) => {
-            navigator.serviceWorker.addEventListener(
-              'controllerchange',
-              () => resolve(),
-              { once: true },
-            )
-          }),
-          new Promise<void>((resolve) =>
-            setTimeout(resolve, CONTROLLER_CHANGE_TIMEOUT_MS),
-          ),
-        ])
+        // #270: `update()` resolving doesn't itself say whether a new
+        // worker was found — but if one was, the browser has already
+        // started installing it by the time `update()` resolves, so
+        // `registration.installing`/`.waiting` will be set. When neither
+        // is set, there's nothing new for `controllerchange` to ever fire
+        // for (GitHub Pages' CDN served the same cached sw.js, per #211's
+        // own comment above) — waiting out the full timeout here would
+        // only delay the reload for no reason, so skip straight to it.
+        if (registration.installing || registration.waiting) {
+          await Promise.race([
+            new Promise<void>((resolve) => {
+              navigator.serviceWorker.addEventListener(
+                'controllerchange',
+                () => resolve(),
+                { once: true },
+              )
+            }),
+            new Promise<void>((resolve) =>
+              setTimeout(resolve, CONTROLLER_CHANGE_TIMEOUT_MS),
+            ),
+          ])
+        }
       }
     }
   } catch {
