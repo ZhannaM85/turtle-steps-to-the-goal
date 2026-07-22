@@ -289,6 +289,13 @@ export interface Dictionary {
     scanBarcodeInstructions: string
     scanBarcodeCameraErrorMessage: string
     noFoodFoundForBarcodeMessage: string
+    /** #287 — a quiet, dismissible in-app note shown right after saving the
+     * day's first meal with a recorded time, if the previous day also had
+     * one — not a background/push notification (see #261, closed as
+     * infeasible for that). `fastingHoursBetween` (domain/stats, #257)
+     * does the actual elapsed-hours math. */
+    fastingWindowToastMessage: (hours: string) => string
+    dismissFastingWindowToastLabel: string
     foodSearchLabel: string
     foodSearchPlaceholder: string
     foodQuantityLabel: string

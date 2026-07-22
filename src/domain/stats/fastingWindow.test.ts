@@ -1,7 +1,11 @@
 import { addDays, format } from 'date-fns'
 import { describe, expect, it } from 'vitest'
 import type { CalorieEntry, DailyEntry } from '@/domain/dailyEntry'
-import { fastingWindowCorrelation, fastingWindowPoints } from './fastingWindow'
+import {
+  fastingHoursBetween,
+  fastingWindowCorrelation,
+  fastingWindowPoints,
+} from './fastingWindow'
 
 const DATE_FORMAT = 'yyyy-MM-dd'
 const DAY_0 = '2026-03-01'
@@ -131,5 +135,35 @@ describe('fastingWindowCorrelation', () => {
     expect(result!.longerGroupAvgDeltaKg).toBeCloseTo(0.05, 5)
     // A 0.45kg gap clears the 0.15kg "strong" daily threshold (#224).
     expect(result!.strength).toBe('strong')
+  })
+})
+
+describe('fastingHoursBetween (#287)', () => {
+  it('computes elapsed hours from the previous day\'s last meal to the current day\'s first, with no weight required', () => {
+    const previous = { calorieEntries: mealAt('20:00') }
+    const current = { calorieEntries: mealAt('08:00') }
+
+    expect(fastingHoursBetween(previous, current)).toBe(12)
+  })
+
+  it('returns null when the previous day has no meal time logged', () => {
+    const previous = { calorieEntries: [] }
+    const current = { calorieEntries: mealAt('08:00') }
+
+    expect(fastingHoursBetween(previous, current)).toBeNull()
+  })
+
+  it('returns null when the current day has no meal time logged', () => {
+    const previous = { calorieEntries: mealAt('20:00') }
+    const current = { calorieEntries: [] }
+
+    expect(fastingHoursBetween(previous, current)).toBeNull()
+  })
+
+  it('uses the previous day\'s latest meal and the current day\'s earliest, ignoring decoys', () => {
+    const previous = { calorieEntries: mealAt('06:00', '20:00') }
+    const current = { calorieEntries: mealAt('08:00', '22:00') }
+
+    expect(fastingHoursBetween(previous, current)).toBe(12)
   })
 })

@@ -172,6 +172,8 @@ export const en: Dictionary = {
       "Couldn't access the camera — check camera permissions and try again.",
     noFoodFoundForBarcodeMessage:
       "No food found for this barcode — you can still add it by hand below.",
+    fastingWindowToastMessage: (hours) => `Your fasting window was ${hours}.`,
+    dismissFastingWindowToastLabel: 'Dismiss',
     foodSearchLabel: 'Search foods',
     foodSearchPlaceholder: 'Search…',
     foodQuantityLabel: 'Quantity (g)',

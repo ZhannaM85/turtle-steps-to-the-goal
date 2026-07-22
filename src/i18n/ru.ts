@@ -173,6 +173,8 @@ export const ru: Dictionary = {
       'Не удалось получить доступ к камере — проверьте разрешения и попробуйте снова.',
     noFoodFoundForBarcodeMessage:
       'Еда с таким штрихкодом не найдена — вы можете добавить её вручную ниже.',
+    fastingWindowToastMessage: (hours) => `Ваше окно голодания составило ${hours}.`,
+    dismissFastingWindowToastLabel: 'Скрыть',
     foodSearchLabel: 'Поиск продуктов',
     foodSearchPlaceholder: 'Поиск…',
     foodQuantityLabel: 'Количество (г)',

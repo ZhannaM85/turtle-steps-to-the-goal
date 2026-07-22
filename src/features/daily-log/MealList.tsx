@@ -37,6 +37,7 @@ import {
   totalProtein,
 } from '@/domain/dailyEntry'
 import type { MealItem } from '@/domain/mealItem'
+import { fastingHoursBetween } from '@/domain/stats'
 import {
   formatNumber,
   useLocale,
@@ -959,6 +960,30 @@ export function MealList({
     }
   }, [previousDate])
 
+  // #287 — a quiet, dismissible note shown right after a save makes
+  // `nextEntries` the day's *first* meal with a recorded time (i.e. no
+  // entry had one before this save), as long as the previous day
+  // (`previousDayEntry`, already fetched above for #190) also had at
+  // least one timed meal. Not a background/push notification (#261, closed
+  // as infeasible) — this only ever fires from a foreground save action.
+  const [fastingWindowToastHours, setFastingWindowToastHours] = useState<
+    number | null
+  >(null)
+  function announceFastingWindowIfFirstMeal(nextEntries: CalorieEntry[]) {
+    const hadTimedMealBefore = calorieEntries.some(
+      (entry) => entry.timeEaten !== undefined,
+    )
+    if (hadTimedMealBefore) return
+    const hasTimedMealAfter = nextEntries.some(
+      (entry) => entry.timeEaten !== undefined,
+    )
+    if (!hasTimedMealAfter || !previousDayEntry) return
+    const hours = fastingHoursBetween(previousDayEntry, {
+      calorieEntries: nextEntries,
+    })
+    if (hours !== null) setFastingWindowToastHours(hours)
+  }
+
   // #221: whatever add-row draft survived from an earlier, interrupted
   // session on this same date, if any — read once via a lazy initializer
   // (this whole component remounts on date change, `key={date}` upstream,
@@ -1311,7 +1336,7 @@ export function MealList({
     // #256 — same "look up by draft id" reasoning as favoriteById above;
     // barcode isn't a CalorieItem field either.
     const barcodeById = new Map(drafts.map((draft) => [draft.id, draft.barcode]))
-    setCalorieEntries([
+    const nextEntries = [
       ...calorieEntries,
       {
         id: crypto.randomUUID(),
@@ -1320,7 +1345,9 @@ export function MealList({
         timeEaten: addTime || undefined,
         createdAt: new Date().toISOString(),
       },
-    ])
+    ]
+    announceFastingWindowIfFirstMeal(nextEntries)
+    setCalorieEntries(nextEntries)
     for (const item of items) {
       if (item.name) {
         touchMealItem(
@@ -1771,19 +1798,19 @@ export function MealList({
       setOpenEditItemId(null)
       return
     }
-    setCalorieEntries(
-      calorieEntries.map((entry) =>
-        entry.id === editingMealId
-          ? {
-              ...entry,
-              items,
-              label: editGroupLabel.trim() || undefined,
-              note: editGroupNote.trim() || undefined,
-              timeEaten: editGroupTime || undefined,
-            }
-          : entry,
-      ),
+    const nextEntries = calorieEntries.map((entry) =>
+      entry.id === editingMealId
+        ? {
+            ...entry,
+            items,
+            label: editGroupLabel.trim() || undefined,
+            note: editGroupNote.trim() || undefined,
+            timeEaten: editGroupTime || undefined,
+          }
+        : entry,
     )
+    announceFastingWindowIfFirstMeal(nextEntries)
+    setCalorieEntries(nextEntries)
     for (const item of items) {
       // Skip names that are actually a curated food, picked via
       // FoodPickerDialog rather than typed by hand (#150) — otherwise
@@ -1889,6 +1916,24 @@ export function MealList({
 
   return (
     <div className="flex flex-col gap-3">
+      {fastingWindowToastHours !== null && (
+        <div className="flex items-center justify-between gap-2 rounded-lg border border-border px-3 py-2 text-sm text-muted-foreground">
+          <span>
+            {t.dailyEntry.fastingWindowToastMessage(
+              `${formatNumber(fastingWindowToastHours, locale, 1)}${t.dailyEntry.hoursUnit}`,
+            )}
+          </span>
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon-sm"
+            aria-label={t.dailyEntry.dismissFastingWindowToastLabel}
+            onClick={() => setFastingWindowToastHours(null)}
+          >
+            <X aria-hidden="true" />
+          </Button>
+        </div>
+      )}
       {calorieEntries.length > 0 && (
         <DndContext
           sensors={dragSensors}

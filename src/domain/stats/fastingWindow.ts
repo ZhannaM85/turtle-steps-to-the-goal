@@ -34,7 +34,13 @@ function timeToMinutes(hhmm: string): number {
   return hours * 60 + minutes
 }
 
-function lastMealTimeMinutes(entry: DailyEntry): number | null {
+/** Only `calorieEntries` is ever read here — callers that don't have a
+ * full `DailyEntry` (e.g. #287's toast, working from a not-yet-saved
+ * `CalorieEntry[]` for "today") can pass a bare `{ calorieEntries }`
+ * instead of constructing one. */
+type EntryWithMeals = Pick<DailyEntry, 'calorieEntries'>
+
+function lastMealTimeMinutes(entry: EntryWithMeals): number | null {
   const times = (entry.calorieEntries ?? [])
     .map((meal) => meal.timeEaten)
     .filter((time): time is string => time !== undefined)
@@ -43,11 +49,31 @@ function lastMealTimeMinutes(entry: DailyEntry): number | null {
 
 /** The earliest `timeEaten` logged across a day's meals, in minutes since
  * midnight — null if the day has no meals with a time recorded. */
-function earliestMealTimeMinutes(entry: DailyEntry): number | null {
+function earliestMealTimeMinutes(entry: EntryWithMeals): number | null {
   const times = (entry.calorieEntries ?? [])
     .map((meal) => meal.timeEaten)
     .filter((time): time is string => time !== undefined)
   return times.length === 0 ? null : Math.min(...times.map(timeToMinutes))
+}
+
+/**
+ * The actual elapsed fasting duration between the previous day's latest
+ * meal and the current day's earliest meal, correctly spanning midnight —
+ * null if either day has no meal with a recorded time. No weight
+ * requirement (unlike `fastingWindowPoints` below, which additionally
+ * pairs this with a weight delta for correlation purposes) — used
+ * directly by #287's "your fasting window was X hours" toast, which has
+ * no reason to care whether weight was logged that day at all.
+ */
+export function fastingHoursBetween(
+  previousDayEntry: EntryWithMeals,
+  currentDayEntry: EntryWithMeals,
+): number | null {
+  const lastMealMinutes = lastMealTimeMinutes(previousDayEntry)
+  if (lastMealMinutes === null) return null
+  const earliestMinutes = earliestMealTimeMinutes(currentDayEntry)
+  if (earliestMinutes === null) return null
+  return (24 * 60 - lastMealMinutes + earliestMinutes) / 60
 }
 
 export interface FastingWindowPoint {
@@ -80,18 +106,15 @@ export function fastingWindowPoints(entries: DailyEntry[]): FastingWindowPoint[]
 
   for (const entry of entries) {
     if (entry.weightKg === undefined) continue
-    const lastMealMinutes = lastMealTimeMinutes(entry)
-    if (lastMealMinutes === null) continue
     const nextDate = format(addDays(parseISO(entry.date), 1), 'yyyy-MM-dd')
     const nextEntry = byDate.get(nextDate)
     if (!nextEntry || nextEntry.weightKg === undefined) continue
-    const nextEarliestMinutes = earliestMealTimeMinutes(nextEntry)
-    if (nextEarliestMinutes === null) continue
+    const fastingHours = fastingHoursBetween(entry, nextEntry)
+    if (fastingHours === null) continue
 
-    const fastingMinutes = 24 * 60 - lastMealMinutes + nextEarliestMinutes
     points.push({
       date: nextEntry.date,
-      fastingHours: fastingMinutes / 60,
+      fastingHours,
       deltaKg: nextEntry.weightKg - entry.weightKg,
     })
   }

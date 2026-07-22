@@ -1283,4 +1283,129 @@ describe('MealList', () => {
       )
     })
   })
+
+  describe('fasting-window toast (#287)', () => {
+    it("shows the toast after saving the day's first timed meal, when yesterday also had one", async () => {
+      await db.dailyEntries.put(
+        makeDailyEntry({
+          date: '2026-02-28',
+          calorieEntries: [
+            {
+              id: 'y1',
+              items: [{ id: 'yi1', amountKcal: 400 }],
+              timeEaten: '20:00',
+              createdAt: '2026-02-28T20:00:00.000Z',
+            },
+          ],
+        }),
+      )
+      const user = userEvent.setup()
+      render(
+        <MealList calorieEntries={[]} date="2026-03-01" onChange={vi.fn()} />,
+        { wrapper: MemoryRouter },
+      )
+
+      // The add-row's Time field sits outside the item editor sheet, so it
+      // has to be set before opening that sheet — addMeal() (triggered by
+      // the sheet's own Save) reads whatever addTime already holds.
+      await user.type(screen.getByLabelText('Time'), '08:00')
+      await user.click(screen.getByRole('button', { name: '+ Add item' }))
+      await user.type(screen.getByLabelText('Dish name'), 'Oatmeal')
+      await user.type(screen.getByLabelText('kcal/100g'), '300')
+      await user.click(screen.getByRole('button', { name: 'Save' }))
+
+      expect(
+        await screen.findByText('Your fasting window was 12.0h.'),
+      ).toBeInTheDocument()
+    })
+
+    it('does not show the toast when yesterday has no timed meal', async () => {
+      const user = userEvent.setup()
+      render(
+        <MealList calorieEntries={[]} date="2026-03-01" onChange={vi.fn()} />,
+        { wrapper: MemoryRouter },
+      )
+
+      await user.type(screen.getByLabelText('Time'), '08:00')
+      await user.click(screen.getByRole('button', { name: '+ Add item' }))
+      await user.type(screen.getByLabelText('Dish name'), 'Oatmeal')
+      await user.type(screen.getByLabelText('kcal/100g'), '300')
+      await user.click(screen.getByRole('button', { name: 'Save' }))
+
+      expect(screen.queryByText(/Your fasting window was/)).not.toBeInTheDocument()
+    })
+
+    it("does not re-show the toast for a second meal logged the same day", async () => {
+      await db.dailyEntries.put(
+        makeDailyEntry({
+          date: '2026-02-28',
+          calorieEntries: [
+            {
+              id: 'y1',
+              items: [{ id: 'yi1', amountKcal: 400 }],
+              timeEaten: '20:00',
+              createdAt: '2026-02-28T20:00:00.000Z',
+            },
+          ],
+        }),
+      )
+      const user = userEvent.setup()
+      const calorieEntries: CalorieEntry[] = [
+        {
+          id: 'c1',
+          items: [{ id: 'i1', amountKcal: 300 }],
+          timeEaten: '08:00',
+          createdAt: '2026-03-01T08:00:00.000Z',
+        },
+      ]
+      render(
+        <MealList
+          calorieEntries={calorieEntries}
+          date="2026-03-01"
+          onChange={vi.fn()}
+        />,
+        { wrapper: MemoryRouter },
+      )
+
+      await user.type(screen.getByLabelText('Time'), '13:00')
+      await user.click(screen.getByRole('button', { name: '+ Add item' }))
+      await user.type(screen.getByLabelText('Dish name'), 'Lunch item')
+      await user.type(screen.getByLabelText('kcal/100g'), '500')
+      await user.click(screen.getByRole('button', { name: 'Save' }))
+
+      expect(screen.queryByText(/Your fasting window was/)).not.toBeInTheDocument()
+    })
+
+    it('dismisses the toast when the close button is clicked', async () => {
+      await db.dailyEntries.put(
+        makeDailyEntry({
+          date: '2026-02-28',
+          calorieEntries: [
+            {
+              id: 'y1',
+              items: [{ id: 'yi1', amountKcal: 400 }],
+              timeEaten: '20:00',
+              createdAt: '2026-02-28T20:00:00.000Z',
+            },
+          ],
+        }),
+      )
+      const user = userEvent.setup()
+      render(
+        <MealList calorieEntries={[]} date="2026-03-01" onChange={vi.fn()} />,
+        { wrapper: MemoryRouter },
+      )
+
+      await user.type(screen.getByLabelText('Time'), '08:00')
+      await user.click(screen.getByRole('button', { name: '+ Add item' }))
+      await user.type(screen.getByLabelText('Dish name'), 'Oatmeal')
+      await user.type(screen.getByLabelText('kcal/100g'), '300')
+      await user.click(screen.getByRole('button', { name: 'Save' }))
+      await screen.findByText('Your fasting window was 12.0h.')
+
+      await user.click(screen.getByRole('button', { name: 'Dismiss' }))
+
+      expect(screen.queryByText(/Your fasting window was/)).not.toBeInTheDocument()
+    })
+  })
 })

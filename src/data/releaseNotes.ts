@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 263,
+    issue: 287,
+    date: '2026-07-23T00:14:08+03:00',
+    en: 'Logging your first meal of the day now shows a quick note with how long your fasting window was, if yesterday\'s last meal time is known.',
+    ru: 'При записи первого приёма пищи за день теперь показывается заметка о продолжительности вашего окна голодания, если известно время последнего приёма пищи вчера.',
+  },
+  {
     version: 262,
     issue: 288,
     date: '2026-07-22T23:59:08+03:00',

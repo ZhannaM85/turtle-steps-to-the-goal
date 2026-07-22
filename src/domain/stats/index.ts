@@ -11,7 +11,11 @@ export { correlationInsight } from './correlationInsight'
 export type { CorrelationInsight } from './correlationInsight'
 export { lateMealCorrelation, lateMealPoints } from './lateMealCorrelation'
 export type { LateMealCorrelation, LateMealPoint } from './lateMealCorrelation'
-export { fastingWindowPoints, fastingWindowCorrelation } from './fastingWindow'
+export {
+  fastingWindowPoints,
+  fastingWindowCorrelation,
+  fastingHoursBetween,
+} from './fastingWindow'
 export type { FastingWindowPoint, FastingWindowCorrelation } from './fastingWindow'
 export { sleepCorrelation, sleepPoints } from './sleepCorrelation'
 export type { SleepCorrelation, SleepPoint } from './sleepCorrelation'
