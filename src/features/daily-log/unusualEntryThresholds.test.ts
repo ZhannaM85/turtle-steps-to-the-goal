@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import {
+  isInconsistentMacros,
   isUnusualDailyCalories,
   isUnusualWeightKg,
   UNUSUAL_DAILY_CALORIES_KCAL,
@@ -38,5 +39,26 @@ describe('isUnusualDailyCalories', () => {
 
   it('does not flag the exact threshold', () => {
     expect(isUnusualDailyCalories(UNUSUAL_DAILY_CALORIES_KCAL)).toBe(false)
+  })
+})
+
+describe('isInconsistentMacros', () => {
+  it('does not flag a kcal figure matching its macros (165 = 31*4 + 3.6*9 + 0*4)', () => {
+    expect(isInconsistentMacros(165, 31, 3.6, 0)).toBe(false)
+  })
+
+  it('does not flag when any macro is missing — nothing to compare against', () => {
+    expect(isInconsistentMacros(165, 31, undefined, undefined)).toBe(false)
+    expect(isInconsistentMacros(165, undefined, 3.6, 0)).toBe(false)
+  })
+
+  it('flags a kcal figure far off from its macro-derived estimate', () => {
+    // Derived: 10*4 + 0*9 + 0*4 = 40kcal, entered 500 — a clear typo shape.
+    expect(isInconsistentMacros(500, 10, 0, 0)).toBe(true)
+  })
+
+  it('does not flag a small, plausible label-rounding difference', () => {
+    // Derived: 20*4 + 5*9 + 30*4 = 245kcal, entered 250 — within tolerance.
+    expect(isInconsistentMacros(250, 20, 5, 30)).toBe(false)
   })
 })

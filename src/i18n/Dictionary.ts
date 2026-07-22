@@ -277,6 +277,10 @@ export interface Dictionary {
      * per-item preview above, only for a brand-new (not-yet-saved) meal
      * draft — "Today would be: 1,850 kcal (was 1,550)". */
     todayWouldBeLabel: (newTotal: string, previousTotal: string) => string
+    /** #255 — gentle, non-blocking note when the entered kcal doesn't
+     * match the protein/fat/carbs entered (`isInconsistentMacros`).
+     * Deliberately muted styling, not a red/destructive warning. */
+    macroMismatchNote: string
     lastLoggedLabel: string
     sleepLabel: string
     sleepHoursLabel: string

@@ -171,6 +171,8 @@ export const ru: Dictionary = {
     computedTotalPrefix: 'Итого:',
     todayWouldBeLabel: (newTotal, previousTotal) =>
       `Итог за сегодня будет: ${newTotal} (было ${previousTotal})`,
+    macroMismatchNote:
+      'Калории не совсем сходятся с указанными белками/жирами/углеводами — стоит перепроверить.',
     lastLoggedLabel: 'в прошлый раз',
     sleepLabel: 'Сон',
     sleepHoursLabel: 'Часов сна',

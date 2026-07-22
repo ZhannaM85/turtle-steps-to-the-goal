@@ -15,6 +15,7 @@ import { Input } from '@/shared/ui/input'
 import { ToggleGroup, ToggleGroupItem } from '@/shared/ui/toggle-group'
 import { EmotionPicker } from './EmotionPicker'
 import { MealNoteAutocomplete } from './MealNoteAutocomplete'
+import { isInconsistentMacros } from './unusualEntryThresholds'
 
 export interface MealItemEditorSheetProps {
   open: boolean
@@ -136,27 +137,38 @@ export function MealItemEditorSheet({
 
   const amountNum = parseNumberInput(amount)
   const hasValidAmount = amountNum !== undefined && amountNum > 0
-  const totalPreview = hasValidAmount
-    ? formatComputedTotal(
-        macroMode === 'per100g'
-          ? scaleFromPer100g(
-              amountNum,
-              parseOptionalMacro(protein),
-              parseOptionalMacro(fat),
-              parseOptionalMacro(carbs),
-              amountG,
-            )
-          : totalFromPortion(
-              amountNum,
-              parseOptionalMacro(protein),
-              parseOptionalMacro(fat),
-              parseOptionalMacro(carbs),
-              amountG,
-            ),
-        locale,
-        t,
-      )
+  const scaledPreview = hasValidAmount
+    ? macroMode === 'per100g'
+      ? scaleFromPer100g(
+          amountNum,
+          parseOptionalMacro(protein),
+          parseOptionalMacro(fat),
+          parseOptionalMacro(carbs),
+          amountG,
+        )
+      : totalFromPortion(
+          amountNum,
+          parseOptionalMacro(protein),
+          parseOptionalMacro(fat),
+          parseOptionalMacro(carbs),
+          amountG,
+        )
     : null
+  const totalPreview = scaledPreview
+    ? formatComputedTotal(scaledPreview, locale, t)
+    : null
+  // #255 — gentle, non-blocking sanity check: the entered kcal vs. the
+  // 4/9/4 estimate from its own macros, one level down from #218's
+  // day-total plausibility check. Deliberately muted, not `text-destructive`
+  // like #218's warnings — informational only, never blocks saving.
+  const macrosInconsistent = scaledPreview
+    ? isInconsistentMacros(
+        scaledPreview.amountKcal,
+        scaledPreview.proteinG,
+        scaledPreview.fatG,
+        scaledPreview.carbsG,
+      )
+    : false
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -278,6 +290,11 @@ export function MealItemEditorSheet({
           {totalPreview && todayTotalPreview && (
             <p className="text-sm text-muted-foreground">
               {todayTotalPreview}
+            </p>
+          )}
+          {totalPreview && macrosInconsistent && (
+            <p className="text-sm text-muted-foreground">
+              {t.dailyEntry.macroMismatchNote}
             </p>
           )}
 

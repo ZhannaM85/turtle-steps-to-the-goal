@@ -27,3 +27,36 @@ export const UNUSUAL_DAILY_CALORIES_KCAL = 6000
 export function isUnusualDailyCalories(totalKcal: number): boolean {
   return totalKcal > UNUSUAL_DAILY_CALORIES_KCAL
 }
+
+/**
+ * #255 — a single item's own internal consistency (entered kcal vs. the
+ * standard 4/9/4 kcal-per-gram estimate from its own protein/fat/carbs),
+ * one level down from `isUnusualDailyCalories`'s day-total plausibility
+ * check. Only runs once all three macros are entered — most items only
+ * carry a subset (e.g. kcal + protein alone), and treating a missing macro
+ * as 0 would flag nearly every normal partial entry as "inconsistent."
+ * Tolerance is the larger of a flat floor (so small items aren't flagged
+ * over ordinary label-rounding) or a percentage of the entered kcal (so
+ * large items get a proportionally wider band) — real nutrition labels
+ * routinely diverge from the strict formula (fiber, sugar alcohols,
+ * rounding) without being a typo.
+ */
+export const MACRO_MISMATCH_TOLERANCE_RATIO = 0.2
+export const MACRO_MISMATCH_MIN_TOLERANCE_KCAL = 30
+
+export function isInconsistentMacros(
+  kcal: number,
+  proteinG: number | undefined,
+  fatG: number | undefined,
+  carbsG: number | undefined,
+): boolean {
+  if (proteinG === undefined || fatG === undefined || carbsG === undefined) {
+    return false
+  }
+  const derivedKcal = proteinG * 4 + fatG * 9 + carbsG * 4
+  const tolerance = Math.max(
+    MACRO_MISMATCH_MIN_TOLERANCE_KCAL,
+    kcal * MACRO_MISMATCH_TOLERANCE_RATIO,
+  )
+  return Math.abs(kcal - derivedKcal) > tolerance
+}

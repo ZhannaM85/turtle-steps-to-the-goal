@@ -134,6 +134,59 @@ describe('MealList', () => {
     ).toBeInTheDocument()
   })
 
+  describe('macro mismatch sanity check (#255)', () => {
+    it('shows a quiet note when kcal is far off from the entered macros', async () => {
+      const user = userEvent.setup()
+      render(<MealList calorieEntries={[]} date="2026-03-01" onChange={vi.fn()} />, {
+        wrapper: MemoryRouter,
+      })
+
+      await user.click(screen.getByRole('button', { name: '+ Add item' }))
+      await user.type(screen.getByLabelText('kcal/100g'), '500')
+      await user.type(screen.getByLabelText('Protein'), '10')
+      await user.type(screen.getByLabelText('Fat'), '0')
+      await user.type(screen.getByLabelText('Carbs'), '0')
+
+      expect(
+        screen.getByText(
+          "The calories don't quite match the protein/fat/carbs entered — worth a second look.",
+        ),
+      ).toBeInTheDocument()
+    })
+
+    it('says nothing when only some macros are entered', async () => {
+      const user = userEvent.setup()
+      render(<MealList calorieEntries={[]} date="2026-03-01" onChange={vi.fn()} />, {
+        wrapper: MemoryRouter,
+      })
+
+      await user.click(screen.getByRole('button', { name: '+ Add item' }))
+      await user.type(screen.getByLabelText('kcal/100g'), '500')
+      await user.type(screen.getByLabelText('Protein'), '10')
+
+      expect(
+        screen.queryByText(/don't quite match/),
+      ).not.toBeInTheDocument()
+    })
+
+    it('says nothing when kcal and macros roughly agree', async () => {
+      const user = userEvent.setup()
+      render(<MealList calorieEntries={[]} date="2026-03-01" onChange={vi.fn()} />, {
+        wrapper: MemoryRouter,
+      })
+
+      await user.click(screen.getByRole('button', { name: '+ Add item' }))
+      await user.type(screen.getByLabelText('kcal/100g'), '245')
+      await user.type(screen.getByLabelText('Protein'), '20')
+      await user.type(screen.getByLabelText('Fat'), '5')
+      await user.type(screen.getByLabelText('Carbs'), '30')
+
+      expect(
+        screen.queryByText(/don't quite match/),
+      ).not.toBeInTheDocument()
+    })
+  })
+
   describe('add-row draft recovery (#221)', () => {
     it('restores an in-progress add-row item after remounting on the same date', async () => {
       const user = userEvent.setup()
