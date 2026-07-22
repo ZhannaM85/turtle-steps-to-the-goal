@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Check, Pencil } from 'lucide-react'
-import { useForm } from 'react-hook-form'
+import { useForm, useWatch } from 'react-hook-form'
 import type { Goal } from '@/domain/goal'
 import { estimatedDailyCalorieDeficitKcal, kgToLb } from '@/domain/goal'
 import { suggestDailyTargets } from '@/domain/stats'
@@ -53,7 +53,7 @@ export function GoalForm({
   const {
     register,
     handleSubmit,
-    watch,
+    control,
     reset,
     setValue,
     formState: { errors },
@@ -62,7 +62,7 @@ export function GoalForm({
     defaultValues: goalToFormValues(existingGoal, unit),
   })
 
-  const values = watch()
+  const values = useWatch({ control })
   const paceKg = effectiveWeeklyPaceKg(values, unit)
   const dailyDeficit =
     paceKg !== null ? estimatedDailyCalorieDeficitKcal(paceKg) : null

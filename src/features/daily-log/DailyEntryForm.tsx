@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { Check, Pencil } from 'lucide-react'
-import { useForm } from 'react-hook-form'
+import { useForm, useWatch } from 'react-hook-form'
 import type { DailyEntry, Emotion } from '@/domain/dailyEntry'
 import {
   totalCalories,
@@ -201,7 +201,7 @@ export function DailyEntryForm({
     register,
     getValues,
     setValue,
-    watch,
+    control,
     setError,
     clearErrors,
     formState: { errors },
@@ -209,21 +209,21 @@ export function DailyEntryForm({
     defaultValues: initialValues,
   })
 
-  const weightKg = watch('weightKg')
-  const note = watch('note')
-  const sleepHours = watch('sleepHours')
-  const deepSleepHours = watch('deepSleepHours')
-  const steps = watch('steps')
-  const waistCm = watch('waistCm')
-  const hipCm = watch('hipCm')
-  const bodyFatPercent = watch('bodyFatPercent')
-  const muscleMassKg = watch('muscleMassKg')
-  const visceralFatRating = watch('visceralFatRating')
-  const bodyWaterPercent = watch('bodyWaterPercent')
-  const boneMassKg = watch('boneMassKg')
-  const hadConstipation = watch('hadConstipation')
-  const dayEmotion = watch('emotion')
-  const calorieEntries = watch('calorieEntries') ?? []
+  const weightKg = useWatch({ control, name: 'weightKg' })
+  const note = useWatch({ control, name: 'note' })
+  const sleepHours = useWatch({ control, name: 'sleepHours' })
+  const deepSleepHours = useWatch({ control, name: 'deepSleepHours' })
+  const steps = useWatch({ control, name: 'steps' })
+  const waistCm = useWatch({ control, name: 'waistCm' })
+  const hipCm = useWatch({ control, name: 'hipCm' })
+  const bodyFatPercent = useWatch({ control, name: 'bodyFatPercent' })
+  const muscleMassKg = useWatch({ control, name: 'muscleMassKg' })
+  const visceralFatRating = useWatch({ control, name: 'visceralFatRating' })
+  const bodyWaterPercent = useWatch({ control, name: 'bodyWaterPercent' })
+  const boneMassKg = useWatch({ control, name: 'boneMassKg' })
+  const hadConstipation = useWatch({ control, name: 'hadConstipation' })
+  const dayEmotion = useWatch({ control, name: 'emotion' })
+  const calorieEntries = useWatch({ control, name: 'calorieEntries' }) ?? []
   const dayTotalCalories = totalCalories(calorieEntries) ?? 0
   const dayMacrosSummary = macrosSummaryText(
     totalProtein(calorieEntries),
