@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 242,
+    issue: 254,
+    date: '2026-07-22T13:51:20+03:00',
+    en: 'The food-search modal now offers common serving sizes (like "1 slice" or "1 medium") for a handful of foods, as an alternative to entering grams.',
+    ru: 'В окне поиска еды теперь доступны привычные размеры порций (например, «1 ломтик» или «1 средняя штука») для некоторых продуктов — как альтернатива вводу в граммах.',
+  },
+  {
     version: 241,
     issue: 255,
     date: '2026-07-22T12:46:49+03:00',
