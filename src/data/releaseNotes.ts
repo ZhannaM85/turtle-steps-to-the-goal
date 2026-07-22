@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 248,
+    issue: 273,
+    date: '2026-07-22T16:23:32+03:00',
+    en: 'The food-search modal now also previews what today\'s overall calorie total will become, not just the manual entry form.',
+    ru: 'В окне поиска еды теперь тоже видно, каким станет общий итог калорий за день, а не только в форме ручного ввода.',
+  },
+  {
     version: 247,
     issue: 275,
     date: '2026-07-22T15:53:18+03:00',
