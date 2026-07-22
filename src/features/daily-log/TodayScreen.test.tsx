@@ -682,6 +682,7 @@ describe('TodayScreen', () => {
       ).toBeInTheDocument()
       expect(screen.getByText('2,000')).toBeInTheDocument()
       expect(screen.getByText('kcal remaining')).toBeInTheDocument()
+      expect(screen.getByText('of 2,000 kcal')).toBeInTheDocument()
     })
 
     it('subtracts what was actually logged today', async () => {
@@ -786,6 +787,7 @@ describe('TodayScreen', () => {
       ).toBeInTheDocument()
       expect(screen.getByText('120')).toBeInTheDocument()
       expect(screen.getByText('g remaining')).toBeInTheDocument()
+      expect(screen.getByText('of 120g')).toBeInTheDocument()
     })
 
     it('subtracts what was actually logged today', async () => {
@@ -819,9 +821,13 @@ describe('TodayScreen', () => {
       // the "remaining calories" tests above.
       expect(await within(card).findByText('30')).toBeInTheDocument()
       expect(within(card).getByText('g remaining')).toBeInTheDocument()
+      expect(within(card).getByText('of 120g')).toBeInTheDocument()
     })
 
-    it('clamps at 0 once the target has been met or exceeded, rather than going negative', async () => {
+    // #266: reverses the old "clamps at 0" behavior — exceeding a protein
+    // target is a good outcome, not a "went over budget" one, so it now
+    // gets a positive surplus message instead of a flat "0g remaining".
+    it('shows a positive surplus message once the target is exceeded, instead of clamping at 0', async () => {
       await useGoalStore
         .getState()
         .saveGoal(makeGoal({ dailyProteinTargetG: 100 }))
@@ -850,8 +856,9 @@ describe('TodayScreen', () => {
       const card = label.closest('[data-slot="card"]') as HTMLElement
       // findByText, not getByText — same goal-loads-before-entry race as
       // the "remaining calories" tests above.
-      expect(await within(card).findByText('0')).toBeInTheDocument()
-      expect(within(card).getByText('g remaining')).toBeInTheDocument()
+      expect(await within(card).findByText('30')).toBeInTheDocument()
+      expect(within(card).getByText('g over')).toBeInTheDocument()
+      expect(within(card).getByText('of 100g — great job!')).toBeInTheDocument()
     })
   })
 
@@ -883,8 +890,10 @@ describe('TodayScreen', () => {
 
       expect(await screen.findByText('Remaining fat')).toBeInTheDocument()
       expect(screen.getByText('60')).toBeInTheDocument()
+      expect(screen.getByText('of 60g')).toBeInTheDocument()
       expect(await screen.findByText('Remaining carbs')).toBeInTheDocument()
       expect(screen.getByText('200')).toBeInTheDocument()
+      expect(screen.getByText('of 200g')).toBeInTheDocument()
     })
 
     it('subtracts what was actually logged today, independently for each macro', async () => {

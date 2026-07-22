@@ -18,6 +18,7 @@ import {
   useMaxRecordedWeight,
   usePreviousDayEntry,
 } from '@/shared/hooks'
+import { formatMacroGrams } from '@/shared/lib/macroDisplay'
 import { Button } from '@/shared/ui/button'
 import { EmptyState } from '@/shared/ui/empty-state'
 import { Input } from '@/shared/ui/input'
@@ -155,20 +156,20 @@ export function TodayScreen() {
       : null
   const isOverCalorieBudget = remainingKcal !== null && remainingKcal < 0
 
-  // #220 — same shape as remainingKcal above. Clamped at 0 rather than
-  // going negative/"over" the way calories can — more protein than
-  // planned isn't the same "went over budget" concept a calorie ceiling
-  // is, so once the target's met this just reads "0g remaining" rather
-  // than needing a second unit string for a surplus state.
-  const remainingProteinG =
+  // #220 — same shape as remainingKcal above.
+  // #266: no longer clamped at 0 — once intake exceeds the target, the
+  // card switches to a positive surplus message (`isOverProteinTarget`
+  // below) instead of a flat "0g remaining". A deliberate, protein-only
+  // exception: unlike a calorie ceiling, eating more protein than planned
+  // is a good outcome worth calling out, not a "went over budget" one.
+  const proteinDeltaG =
     goal?.dailyProteinTargetG !== undefined
-      ? Math.max(
-          0,
-          goal.dailyProteinTargetG - (totalProtein(entry?.calorieEntries) ?? 0),
-        )
+      ? goal.dailyProteinTargetG - (totalProtein(entry?.calorieEntries) ?? 0)
       : null
+  const isOverProteinTarget = proteinDeltaG !== null && proteinDeltaG < 0
 
-  // #252 — same shape as remainingProteinG above, each independent of the
+  // #252 — same shape as the pre-#266 remainingProteinG (still clamped at
+  // 0, no over-target framing for these two), each independent of the
   // other three targets.
   const remainingFatG =
     goal?.dailyFatTargetG !== undefined
@@ -180,6 +181,25 @@ export function TodayScreen() {
           0,
           goal.dailyCarbTargetG - (totalCarbs(entry?.calorieEntries) ?? 0),
         )
+      : null
+
+  // #266 — "of X" denominator shown as each remaining-nutrient card's
+  // `description`, so "0g remaining" also says what it's out of.
+  const calorieTargetText =
+    goal?.dailyCalorieTargetKcal !== undefined
+      ? `${formatNumber(goal.dailyCalorieTargetKcal, locale, 0)} ${t.dailyEntry.kcalUnit}`
+      : null
+  const proteinTargetText =
+    goal?.dailyProteinTargetG !== undefined
+      ? formatMacroGrams(goal.dailyProteinTargetG, locale, t)
+      : null
+  const fatTargetText =
+    goal?.dailyFatTargetG !== undefined
+      ? formatMacroGrams(goal.dailyFatTargetG, locale, t)
+      : null
+  const carbTargetText =
+    goal?.dailyCarbTargetG !== undefined
+      ? formatMacroGrams(goal.dailyCarbTargetG, locale, t)
       : null
 
   // #258 — same shape again, based on the day's logged waterMl total
@@ -383,6 +403,7 @@ export function TodayScreen() {
                 ? t.today.kcalOverUnit
                 : t.today.kcalRemainingUnit
             }
+            description={t.today.targetDenominatorText(calorieTargetText!)}
             action={statCardAction(
               'todayRemainingCalories',
               t.today.remainingCaloriesLabel,
@@ -395,12 +416,21 @@ export function TodayScreen() {
           )
         ))}
 
-      {remainingProteinG !== null &&
+      {proteinDeltaG !== null &&
         (sectionVisible.todayRemainingProtein ? (
           <StatCard
             label={t.today.remainingProteinLabel}
-            value={formatNumber(remainingProteinG, locale, 0)}
-            unit={t.today.gRemainingUnit}
+            value={formatNumber(Math.abs(proteinDeltaG), locale, 0)}
+            unit={
+              isOverProteinTarget
+                ? t.today.gOverProteinUnit
+                : t.today.gRemainingUnit
+            }
+            description={
+              isOverProteinTarget
+                ? t.today.proteinOverTargetLabel(proteinTargetText!)
+                : t.today.targetDenominatorText(proteinTargetText!)
+            }
             action={statCardAction(
               'todayRemainingProtein',
               t.today.remainingProteinLabel,
@@ -416,6 +446,7 @@ export function TodayScreen() {
             label={t.today.remainingFatLabel}
             value={formatNumber(remainingFatG, locale, 0)}
             unit={t.today.gRemainingUnit}
+            description={t.today.targetDenominatorText(fatTargetText!)}
             action={statCardAction('todayRemainingFat', t.today.remainingFatLabel)}
           />
         ) : (
@@ -428,6 +459,7 @@ export function TodayScreen() {
             label={t.today.remainingCarbLabel}
             value={formatNumber(remainingCarbG, locale, 0)}
             unit={t.today.gRemainingUnit}
+            description={t.today.targetDenominatorText(carbTargetText!)}
             action={statCardAction(
               'todayRemainingCarbs',
               t.today.remainingCarbLabel,

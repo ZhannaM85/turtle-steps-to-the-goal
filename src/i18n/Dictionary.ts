@@ -99,6 +99,19 @@ export interface Dictionary {
      * gRemainingUnit for the unit text. */
     remainingFatLabel: string
     remainingCarbLabel: string
+    /** #266 — shown as each remaining-nutrient card's `description`, so
+     * "0g remaining" also says what it's out of. Same text for all four
+     * cards; protein's own over-target state uses `proteinOverTargetLabel`
+     * instead (denominator + positive message combined), not this one. */
+    targetDenominatorText: (target: string) => string
+    /** #266 — protein-only: once intake exceeds the target, the card
+     * switches from "0g remaining" to a signed surplus (paired with
+     * `gOverProteinUnit` below) plus this positive description — a
+     * deliberate, scoped exception to #220's "no over-target framing"
+     * reasoning above, since exceeding a protein target is a good outcome
+     * unlike a calorie ceiling. Calories/fat/carb are unaffected. */
+    proteinOverTargetLabel: (target: string) => string
+    gOverProteinUnit: string
     /** #258 — same shape again, reusing dailyEntry.mlUnit for the unit
      * text instead of gRemainingUnit (a volume, not a gram weight). */
     remainingWaterLabel: string
