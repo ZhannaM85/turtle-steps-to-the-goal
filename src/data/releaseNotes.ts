@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 256,
+    issue: 282,
+    date: '2026-07-22T20:11:35+03:00',
+    en: 'Water logging is now glass/bottle quick-add buttons only, no manual amount field.',
+    ru: 'Учёт воды теперь только через кнопки быстрого добавления «стакан»/«бутылка», без поля для ручного ввода.',
+  },
+  {
     version: 255,
     issue: 281,
     date: '2026-07-22T20:08:09+03:00',
