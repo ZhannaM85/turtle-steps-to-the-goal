@@ -24,8 +24,8 @@ describe('buildDailyLogMarkdown', () => {
     expect(markdown).toBe(
       '| Date | Weight (kg) | Calories (kcal) | Protein (g) | Fat (g) | Carbs (g) | ' +
         'Sleep (h) | Deep sleep (h) | Steps | Waist (cm) | Hip (cm) | Body fat (%) | ' +
-        'Mood | Note | On period | Constipation |\n' +
-        '| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |',
+        'Mood | Note | On period | Constipation | Water (ml) |\n' +
+        '| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |',
     )
   })
 
@@ -56,7 +56,7 @@ describe('buildDailyLogMarkdown', () => {
     const [, , row] = markdown.split('\n')
 
     expect(row).toBe(
-      '| 2026-03-01 | 79.5 | 300 | 10 | 5 | 20 | 7 | 1.5 | 8000 | 80 | 95 | 22 | Happy | Felt good | true |  |',
+      '| 2026-03-01 | 79.5 | 300 | 10 | 5 | 20 | 7 | 1.5 | 8000 | 80 | 95 | 22 | Happy | Felt good | true |  |  |',
     )
   })
 

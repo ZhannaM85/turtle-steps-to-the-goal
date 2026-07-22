@@ -21,7 +21,11 @@ import { Button } from '@/shared/ui/button'
 import { InfoTooltip } from '@/shared/ui/info-tooltip'
 import { Input } from '@/shared/ui/input'
 import { ToggleGroup, ToggleGroupItem } from '@/shared/ui/toggle-group'
-import { useDigestionTrackingStore, useTrackedFieldsStore } from '@/stores'
+import {
+  useDigestionTrackingStore,
+  useTrackedFieldsStore,
+  useWaterTrackingStore,
+} from '@/stores'
 import { entryToFormValues, formValuesToEntry } from './dailyEntryFormMapping'
 import { EmotionPicker } from './EmotionPicker'
 import { MealList } from './MealList'
@@ -37,6 +41,7 @@ import {
   stepsSchema,
   visceralFatRatingSchema,
   waistCmSchema,
+  waterMlSchema,
   weightSchema,
   type DailyEntryFormValues,
 } from './dailyEntryFormSchema'
@@ -185,6 +190,9 @@ export function DailyEntryForm({
   const digestionTrackingEnabled = useDigestionTrackingStore(
     (state) => state.enabled,
   )
+  // Opt-in water tracking's on/off toggle (#258) — same gate as digestion
+  // tracking above.
+  const waterTrackingEnabled = useWaterTrackingStore((state) => state.enabled)
   // #237 — which optional fields appear on this form at all, unified in
   // one Settings section.
   const trackedFields = useTrackedFieldsStore((state) => state.tracked)
@@ -253,6 +261,27 @@ export function DailyEntryForm({
   function setHadConstipation(value: boolean) {
     setValue('hadConstipation', value, { shouldDirty: true })
     persist({ ...getValues(), hadConstipation: value })
+  }
+
+  // #258 — manual entry via the field + Save button (validated, same
+  // shape as saveSteps), or a quick-add button that bumps the current
+  // total by a fixed amount and saves immediately, no separate confirm
+  // step needed since the running total itself is the visible feedback.
+  function saveWater() {
+    const result = waterMlSchema.safeParse(getValues('waterMl'))
+    if (!result.success) {
+      setError('waterMl', { message: result.error.issues[0].message })
+      return
+    }
+    clearErrors('waterMl')
+    persist(getValues())
+  }
+
+  function addWater(amountMl: number) {
+    const nextWaterMl = (getValues('waterMl') ?? 0) + amountMl
+    setValue('waterMl', nextWaterMl, { shouldDirty: true })
+    clearErrors('waterMl')
+    persist({ ...getValues(), waterMl: nextWaterMl })
   }
 
   function saveWeight() {
@@ -1139,6 +1168,66 @@ export function DailyEntryForm({
             labelFor={t.dailyEntry.emotionLabel}
             contextLabel={t.dailyEntry.dayMoodLabel}
           />
+        </div>
+      )}
+
+      {/* #258 — opt-in water tracking, gated by its own Settings toggle
+       * (same shape as digestion tracking below). Always-editable numeric
+       * field + Save (like Steps) plus two quick-add buttons that bump the
+       * running total and save immediately — no separate confirm step,
+       * the updated total itself is the visible feedback. */}
+      {waterTrackingEnabled && (
+        <div className="flex flex-col gap-1.5">
+          <span className="text-sm font-medium">{t.dailyEntry.waterLabel}</span>
+          <div className="flex items-center gap-3">
+            <Input
+              type="text"
+              inputMode="numeric"
+              aria-label={t.dailyEntry.waterLabel}
+              aria-invalid={errors.waterMl ? true : undefined}
+              className="h-12 w-24"
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault()
+                  saveWater()
+                }
+              }}
+              {...register('waterMl', { setValueAs: parseNumberInput })}
+            />
+            <span className="text-xs text-muted-foreground">
+              {t.dailyEntry.mlUnit}
+            </span>
+            <Button
+              type="button"
+              variant="outline"
+              size="icon-xl"
+              aria-label={t.dailyEntry.saveWaterLabel}
+              onClick={saveWater}
+            >
+              <Check aria-hidden="true" />
+            </Button>
+          </div>
+          <div className="flex flex-wrap items-center gap-3">
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={() => addWater(250)}
+            >
+              {t.dailyEntry.addGlassLabel}
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={() => addWater(500)}
+            >
+              {t.dailyEntry.addBottleLabel}
+            </Button>
+          </div>
+          {errors.waterMl && (
+            <p className="text-sm text-destructive">{errors.waterMl.message}</p>
+          )}
         </div>
       )}
 

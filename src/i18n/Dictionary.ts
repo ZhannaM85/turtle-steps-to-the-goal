@@ -99,6 +99,10 @@ export interface Dictionary {
      * gRemainingUnit for the unit text. */
     remainingFatLabel: string
     remainingCarbLabel: string
+    /** #258 — same shape again, reusing dailyEntry.mlUnit for the unit
+     * text instead of gRemainingUnit (a volume, not a gram weight). */
+    remainingWaterLabel: string
+    mlRemainingUnit: string
     /** #233 — computed from today's logged weight plus the Settings
      * Profile card's height/age/sex, so only rendered once both exist.
      * BMI has no unit of its own (a dimensionless ratio); BMR needs one. */
@@ -324,6 +328,15 @@ export interface Dictionary {
     hadConstipationLabel: string
     hadConstipationNoOption: string
     hadConstipationYesOption: string
+    /** Opt-in water tracking (#258) — a running daily total, same
+     * gating shape as onPeriod/hadConstipation above. Quick-add buttons
+     * plus manual entry + its own Save button, same "always-editable
+     * numeric field" shape Steps uses. */
+    waterLabel: string
+    saveWaterLabel: string
+    mlUnit: string
+    addGlassLabel: string
+    addBottleLabel: string
     /** Full-screen meal-item editor sheet (#122) — replaces the cramped
      * inline fields row for both adding a new meal's first item and
      * editing/adding an item within an already-existing meal. */
@@ -356,6 +369,9 @@ export interface Dictionary {
     dailyFatTargetHint: string
     dailyCarbTargetLabel: string
     dailyCarbTargetHint: string
+    /** #258 — same shape again, independent of the macro targets. */
+    dailyWaterTargetLabel: string
+    dailyWaterTargetHint: string
     /** #259 — deterministic TDEE/macro-ratio suggestion, prefills but
      * never auto-saves the four target fields above. */
     suggestTargetButton: string
@@ -486,6 +502,7 @@ export interface Dictionary {
     noteColumn: string
     onPeriodColumn: string
     hadConstipationColumn: string
+    waterColumn: string
     mealColumn: string
     itemColumn: string
     brandColumn: string
@@ -739,6 +756,7 @@ export interface Dictionary {
     hideReleaseNotes: string
     cycleTrackingLabel: string
     digestionTrackingLabel: string
+    waterTrackingLabel: string
     /** #237: unified "what to track" section — folds cycle/digestion
      * tracking's own opt-in toggles in with the 5 fields below, which
      * didn't have an opt-out at all before this. */

@@ -12,6 +12,7 @@ import {
   useTrackedFieldsStore,
   useTrendChartSeriesStore,
   useUnitStore,
+  useWaterTrackingStore,
   useWeekStartStore,
 } from '@/stores'
 import { SettingsScreen } from './SettingsScreen'
@@ -32,6 +33,7 @@ beforeEach(() => {
   useUnitStore.setState({ unit: 'kg' })
   useWeekStartStore.setState({ weekStart: 'monday' })
   useDigestionTrackingStore.setState({ enabled: false })
+  useWaterTrackingStore.setState({ enabled: false })
   useDailyReminderStore.setState({ enabled: false })
   useTrendChartSeriesStore.setState({ visible: defaultTrendChartVisible })
   useTrackedFieldsStore.setState((state) => ({
@@ -56,6 +58,7 @@ afterEach(() => {
   useUnitStore.setState({ unit: 'kg' })
   useWeekStartStore.setState({ weekStart: 'monday' })
   useDigestionTrackingStore.setState({ enabled: false })
+  useWaterTrackingStore.setState({ enabled: false })
   useDailyReminderStore.setState({ enabled: false })
   useTrendChartSeriesStore.setState({ visible: defaultTrendChartVisible })
   useTrackedFieldsStore.setState((state) => ({
@@ -214,6 +217,21 @@ describe('SettingsScreen', () => {
 
       expect(digestionToggle).toHaveAttribute('aria-pressed', 'true')
       expect(useDigestionTrackingStore.getState().enabled).toBe(true)
+    })
+
+    it('defaults water tracking to off, and switches it on when selected (#258)', async () => {
+      const user = userEvent.setup()
+      renderSettings()
+
+      const waterToggle = screen.getByRole('button', {
+        name: 'Water tracking',
+      })
+      expect(waterToggle).toHaveAttribute('aria-pressed', 'false')
+
+      await user.click(waterToggle)
+
+      expect(waterToggle).toHaveAttribute('aria-pressed', 'true')
+      expect(useWaterTrackingStore.getState().enabled).toBe(true)
     })
 
     it('defaults the previously-unconditional fields (Sleep, Steps, etc.) to on', () => {

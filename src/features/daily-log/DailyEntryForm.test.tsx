@@ -16,6 +16,7 @@ import {
   useMealItemStore,
   useMealLabelPresetStore,
   useTrackedFieldsStore,
+  useWaterTrackingStore,
 } from '@/stores'
 import { DailyEntryForm } from './DailyEntryForm'
 
@@ -74,6 +75,7 @@ beforeEach(async () => {
   useMealItemStore.setState({ items: [], status: 'idle', error: null })
   useMealLabelPresetStore.setState({ presets: [] })
   useDigestionTrackingStore.setState({ enabled: false })
+  useWaterTrackingStore.setState({ enabled: false })
   // #221: many tests below share date="2026-03-01" and don't always carry
   // the add-row's meal-item sheet through to a real Save — without this,
   // a leftover add-row draft (now persisted to localStorage) from one test
@@ -90,6 +92,7 @@ beforeEach(async () => {
 afterEach(async () => {
   await db.mealItems.clear()
   useDigestionTrackingStore.setState({ enabled: false })
+  useWaterTrackingStore.setState({ enabled: false })
   localStorage.clear()
   vi.useRealTimers()
 })
@@ -2046,6 +2049,100 @@ describe('DailyEntryForm', () => {
         'aria-checked',
         'true',
       )
+    })
+  })
+
+  describe('water tracking (#258)', () => {
+    it('hides the field when water tracking is disabled', () => {
+      render(
+        <DailyEntryForm date="2026-03-01" existingEntry={null} onSave={vi.fn()} />,
+      )
+
+      expect(screen.queryByLabelText('Water')).not.toBeInTheDocument()
+    })
+
+    it('shows the field with quick-add buttons when enabled', () => {
+      useWaterTrackingStore.setState({ enabled: true })
+      render(
+        <DailyEntryForm date="2026-03-01" existingEntry={null} onSave={vi.fn()} />,
+      )
+
+      expect(screen.getByLabelText('Water')).toBeInTheDocument()
+      expect(
+        screen.getByRole('button', { name: '+1 glass (250ml)' }),
+      ).toBeInTheDocument()
+      expect(
+        screen.getByRole('button', { name: '+1 bottle (500ml)' }),
+      ).toBeInTheDocument()
+    })
+
+    it('saves the typed total via the Save button', async () => {
+      useWaterTrackingStore.setState({ enabled: true })
+      const user = userEvent.setup()
+      const onSave = vi.fn()
+      render(
+        <DailyEntryForm date="2026-03-01" existingEntry={null} onSave={onSave} />,
+      )
+
+      await user.type(screen.getByLabelText('Water'), '750')
+      await user.click(screen.getByRole('button', { name: 'Save water' }))
+
+      expect(onSave).toHaveBeenCalledTimes(1)
+      expect(onSave.mock.calls[0][0].waterMl).toBe(750)
+    })
+
+    it('rejects an out-of-range total and does not save', async () => {
+      useWaterTrackingStore.setState({ enabled: true })
+      const user = userEvent.setup()
+      const onSave = vi.fn()
+      render(
+        <DailyEntryForm date="2026-03-01" existingEntry={null} onSave={onSave} />,
+      )
+
+      await user.type(screen.getByLabelText('Water'), '99999')
+      await user.click(screen.getByRole('button', { name: 'Save water' }))
+
+      expect(await screen.findByText(/Too big/)).toBeInTheDocument()
+      expect(onSave).not.toHaveBeenCalled()
+    })
+
+    it('bumps the running total and saves immediately on a quick-add click, with no prior value', async () => {
+      useWaterTrackingStore.setState({ enabled: true })
+      const user = userEvent.setup()
+      const onSave = vi.fn()
+      render(
+        <DailyEntryForm date="2026-03-01" existingEntry={null} onSave={onSave} />,
+      )
+
+      await user.click(screen.getByRole('button', { name: '+1 glass (250ml)' }))
+
+      expect(onSave).toHaveBeenCalledTimes(1)
+      expect(onSave.mock.calls[0][0].waterMl).toBe(250)
+      expect(screen.getByLabelText('Water')).toHaveValue('250')
+    })
+
+    it('adds to an already-logged total rather than replacing it', async () => {
+      useWaterTrackingStore.setState({ enabled: true })
+      const user = userEvent.setup()
+      const onSave = vi.fn()
+      render(
+        <DailyEntryForm
+          date="2026-03-01"
+          existingEntry={{
+            id: 'entry-1',
+            date: '2026-03-01',
+            waterMl: 500,
+            createdAt: now,
+            updatedAt: now,
+          }}
+          onSave={onSave}
+        />,
+      )
+
+      await user.click(screen.getByRole('button', { name: '+1 bottle (500ml)' }))
+
+      expect(onSave).toHaveBeenCalledTimes(1)
+      expect(onSave.mock.calls[0][0].waterMl).toBe(1000)
     })
   })
 })

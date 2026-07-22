@@ -17,6 +17,8 @@ const goalSchema = z.object({
   // Optional daily fat/carb targets (#252) — same reasoning again.
   dailyFatTargetG: z.number().optional(),
   dailyCarbTargetG: z.number().optional(),
+  // Optional daily water target (#258) — same reasoning again.
+  dailyWaterTargetMl: z.number().optional(),
   createdAt: z.string(),
   updatedAt: z.string(),
 })
@@ -80,6 +82,8 @@ const dailyEntrySchema = z.object({
   // equivalent here and is simply dropped on import (Zod strips unknown keys
   // by default).
   hadConstipation: z.boolean().optional(),
+  // Opt-in water tracking (#258) — same reasoning/shape as onPeriod above.
+  waterMl: z.number().optional(),
   // Body measurements (#225) — purely additive/optional, same
   // no-version-bump reasoning as sleep/steps above.
   waistCm: z.number().optional(),

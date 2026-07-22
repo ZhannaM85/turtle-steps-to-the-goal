@@ -24,7 +24,7 @@ describe('buildDailyLogCsv', () => {
     expect(csv).toBe(
       'Date,Weight (kg),Calories (kcal),Protein (g),Fat (g),Carbs (g),' +
         'Sleep (h),Deep sleep (h),Steps,Waist (cm),Hip (cm),Body fat (%),' +
-        'Mood,Note,On period,Constipation',
+        'Mood,Note,On period,Constipation,Water (ml)',
     )
   })
 
@@ -55,7 +55,7 @@ describe('buildDailyLogCsv', () => {
     const [, row] = csv.split('\r\n')
 
     expect(row).toBe(
-      '2026-03-01,79.5,300,10,5,20,7,1.5,8000,80,95,22,Happy,Felt good,true,',
+      '2026-03-01,79.5,300,10,5,20,7,1.5,8000,80,95,22,Happy,Felt good,true,,',
     )
   })
 

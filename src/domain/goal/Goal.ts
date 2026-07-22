@@ -34,6 +34,15 @@ export interface Goal {
    */
   dailyFatTargetG?: number
   dailyCarbTargetG?: number
+  /**
+   * Optional daily water target in milliliters (#258) — same shape as the
+   * macro targets above, independent of them. Only meaningful once #258's
+   * opt-in water tracking is also turned on in Settings, but the field
+   * itself doesn't need to know that — same "renders when set" pattern
+   * every other daily target already uses. Powers Today's "remaining
+   * water" stat; nothing else reads it.
+   */
+  dailyWaterTargetMl?: number
   createdAt: string
   updatedAt: string
 }

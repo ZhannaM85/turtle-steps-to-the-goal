@@ -68,6 +68,7 @@ export async function buildExportWorkbook(
       key: 'hadConstipation',
       width: 14,
     },
+    { header: t.exportXlsx.waterColumn, key: 'water', width: 12 },
   ]
   for (const entry of sortedEntries) {
     dailyLogSheet.addRow({
@@ -87,6 +88,7 @@ export async function buildExportWorkbook(
       note: entry.note,
       onPeriod: entry.onPeriod,
       hadConstipation: entry.hadConstipation,
+      water: entry.waterMl,
     })
   }
   dailyLogSheet.getColumn('date').numFmt = DATE_FORMAT

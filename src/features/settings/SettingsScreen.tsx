@@ -13,6 +13,7 @@ import {
   useTrackedFieldsStore,
   useTrendChartSeriesStore,
   useUnitStore,
+  useWaterTrackingStore,
   useWeekStartStore,
   type Mood,
   type TrackedField,
@@ -71,14 +72,18 @@ export function SettingsScreen() {
   const setDigestionTrackingEnabled = useDigestionTrackingStore(
     (state) => state.setEnabled,
   )
+  const waterTrackingEnabled = useWaterTrackingStore((state) => state.enabled)
+  const setWaterTrackingEnabled = useWaterTrackingStore(
+    (state) => state.setEnabled,
+  )
   // #237: unified "what to track" section — the 5 fields that never had
-  // their own opt-out (trackedFieldsStore) plus cycle/constipation
+  // their own opt-out (trackedFieldsStore) plus cycle/constipation/water
   // tracking's existing opt-in toggles above, folded into the same UI
   // even though they keep their own separate stores (real persisted data
   // already in production; no benefit to migrating it into one store).
   const trackedFields = useTrackedFieldsStore((state) => state.tracked)
   const setTrackedField = useTrackedFieldsStore((state) => state.setTracked)
-  type UnifiedTrackedKey = TrackedField | 'cycle' | 'constipation'
+  type UnifiedTrackedKey = TrackedField | 'cycle' | 'constipation' | 'water'
   const trackedFieldKeys: UnifiedTrackedKey[] = [
     'sleep',
     'steps',
@@ -88,15 +93,18 @@ export function SettingsScreen() {
     'mood',
     'cycle',
     'constipation',
+    'water',
   ]
   function isFieldTracked(key: UnifiedTrackedKey): boolean {
     if (key === 'cycle') return cycleTrackingEnabled
     if (key === 'constipation') return digestionTrackingEnabled
+    if (key === 'water') return waterTrackingEnabled
     return trackedFields[key]
   }
   function setFieldTracked(key: UnifiedTrackedKey, value: boolean) {
     if (key === 'cycle') setCycleTrackingEnabled(value)
     else if (key === 'constipation') setDigestionTrackingEnabled(value)
+    else if (key === 'water') setWaterTrackingEnabled(value)
     else setTrackedField(key, value)
   }
   const weekStart = useWeekStartStore((state) => state.weekStart)
@@ -288,6 +296,9 @@ export function SettingsScreen() {
             </ToggleGroupItem>
             <ToggleGroupItem value="constipation" className="h-12">
               {t.settings.digestionTrackingLabel}
+            </ToggleGroupItem>
+            <ToggleGroupItem value="water" className="h-12">
+              {t.settings.waterTrackingLabel}
             </ToggleGroupItem>
           </ToggleGroup>
         </CardContent>

@@ -59,6 +59,7 @@ export function buildDailyLogCsv(
     t.exportXlsx.noteColumn,
     t.exportXlsx.onPeriodColumn,
     t.exportXlsx.hadConstipationColumn,
+    t.exportXlsx.waterColumn,
   ])
   const rows = sortedEntries.map((entry) =>
     csvRow([
@@ -78,6 +79,7 @@ export function buildDailyLogCsv(
       entry.note,
       entry.onPeriod,
       entry.hadConstipation,
+      entry.waterMl,
     ]),
   )
   // CRLF line endings per RFC 4180.

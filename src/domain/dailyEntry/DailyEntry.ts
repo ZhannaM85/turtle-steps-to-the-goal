@@ -86,6 +86,12 @@ export interface DailyEntry {
    * `true` here has no relation to the old `hadBowelMovement` field this
    * replaced; that one meant the opposite thing, so no data carried over. */
   hadConstipation?: boolean
+  /** Opt-in water/hydration tracking (#258), same shape as onPeriod/
+   * hadConstipation above — only ever set when enabled in Settings
+   * (`useWaterTrackingStore`). A running daily total in milliliters, built
+   * up via quick-add buttons or direct entry, not a log of individual
+   * drinks. */
+  waterMl?: number
   /** Body measurements (#225) — optional and independent of each other and
    * of weightKg, same shape as sleep/steps above. Always stored in cm
    * (waist/hip) or a plain percentage (body fat); unlike weightKg there's

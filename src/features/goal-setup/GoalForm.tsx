@@ -141,6 +141,7 @@ export function GoalForm({
       dailyProteinTarget: '' as unknown as number | undefined,
       dailyFatTarget: '' as unknown as number | undefined,
       dailyCarbTarget: '' as unknown as number | undefined,
+      dailyWaterTarget: '' as unknown as number | undefined,
     })
     setIsEditing(false)
   }
@@ -209,7 +210,7 @@ export function GoalForm({
                   : t.goal.notSetLabel}
               </td>
             </tr>
-            <tr>
+            <tr className="border-b border-border">
               <th
                 scope="row"
                 className="py-2 pr-4 text-left font-normal text-muted-foreground"
@@ -219,6 +220,19 @@ export function GoalForm({
               <td className="py-2 text-right font-medium text-foreground">
                 {existingGoal.dailyCarbTargetG !== undefined
                   ? `${formatExactNumber(existingGoal.dailyCarbTargetG, locale)} ${t.dailyEntry.gramsUnit}`
+                  : t.goal.notSetLabel}
+              </td>
+            </tr>
+            <tr>
+              <th
+                scope="row"
+                className="py-2 pr-4 text-left font-normal text-muted-foreground"
+              >
+                {t.goal.dailyWaterTargetLabel}
+              </th>
+              <td className="py-2 text-right font-medium text-foreground">
+                {existingGoal.dailyWaterTargetMl !== undefined
+                  ? `${formatExactNumber(existingGoal.dailyWaterTargetMl, locale)} ${t.dailyEntry.mlUnit}`
                   : t.goal.notSetLabel}
               </td>
             </tr>
@@ -319,6 +333,15 @@ export function GoalForm({
         unit={t.dailyEntry.gramsUnit}
         error={errors.dailyCarbTarget?.message}
         {...register('dailyCarbTarget', { setValueAs: parseNumberInput })}
+      />
+
+      {/* #258 — same shape again, independent of the macro targets. */}
+      <NumberInput
+        label={t.goal.dailyWaterTargetLabel}
+        hint={t.goal.dailyWaterTargetHint}
+        unit={t.dailyEntry.mlUnit}
+        error={errors.dailyWaterTarget?.message}
+        {...register('dailyWaterTarget', { setValueAs: parseNumberInput })}
       />
 
       <div className="flex items-center gap-2 self-start">

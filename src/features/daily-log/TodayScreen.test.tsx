@@ -955,6 +955,77 @@ describe('TodayScreen', () => {
     })
   })
 
+  describe('remaining water (#258)', () => {
+    it('does not show when the active goal has no water target', async () => {
+      await useGoalStore.getState().saveGoal(makeGoal())
+
+      render(
+        <MemoryRouter>
+          <TodayScreen />
+        </MemoryRouter>,
+      )
+
+      await screen.findByText("This week's target")
+      expect(screen.queryByText('Remaining water')).not.toBeInTheDocument()
+    })
+
+    it('shows what remains once a target is set, treating nothing logged as 0 consumed', async () => {
+      await useGoalStore
+        .getState()
+        .saveGoal(makeGoal({ dailyWaterTargetMl: 2000 }))
+
+      render(
+        <MemoryRouter>
+          <TodayScreen />
+        </MemoryRouter>,
+      )
+
+      expect(await screen.findByText('Remaining water')).toBeInTheDocument()
+      expect(screen.getByText('2,000')).toBeInTheDocument()
+      expect(screen.getByText('ml remaining')).toBeInTheDocument()
+    })
+
+    it('subtracts what was actually logged today', async () => {
+      await useGoalStore
+        .getState()
+        .saveGoal(makeGoal({ dailyWaterTargetMl: 2000 }))
+      await useDailyEntryStore
+        .getState()
+        .saveEntry(makeEntry({ waterMl: 750 }))
+      useDailyEntryStore.setState({ entry: null, date: null, status: 'idle' })
+
+      render(
+        <MemoryRouter>
+          <TodayScreen />
+        </MemoryRouter>,
+      )
+
+      const label = await screen.findByText('Remaining water')
+      const card = label.closest('[data-slot="card"]') as HTMLElement
+      expect(await within(card).findByText('1,250')).toBeInTheDocument()
+    })
+
+    it('clamps at 0 once the target has been met or exceeded, rather than going negative', async () => {
+      await useGoalStore
+        .getState()
+        .saveGoal(makeGoal({ dailyWaterTargetMl: 2000 }))
+      await useDailyEntryStore
+        .getState()
+        .saveEntry(makeEntry({ waterMl: 2500 }))
+      useDailyEntryStore.setState({ entry: null, date: null, status: 'idle' })
+
+      render(
+        <MemoryRouter>
+          <TodayScreen />
+        </MemoryRouter>,
+      )
+
+      const label = await screen.findByText('Remaining water')
+      const card = label.closest('[data-slot="card"]') as HTMLElement
+      expect(await within(card).findByText('0')).toBeInTheDocument()
+    })
+  })
+
   describe('viewed date lives in the URL, not local state (#200)', () => {
     it('encodes a non-today date into the URL when navigating via the arrows', async () => {
       const user = userEvent.setup()

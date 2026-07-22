@@ -182,6 +182,13 @@ export function TodayScreen() {
         )
       : null
 
+  // #258 — same shape again, based on the day's logged waterMl total
+  // rather than a calorieEntries-derived sum.
+  const remainingWaterMl =
+    goal?.dailyWaterTargetMl !== undefined
+      ? Math.max(0, goal.dailyWaterTargetMl - (entry?.waterMl ?? 0))
+      : null
+
   // #233 — BMI/BMR, computed from today's logged weight plus the Settings
   // Profile card's height/age/sex. Never stored — recomputed on every
   // render from whatever's currently in profileStore plus this entry's
@@ -428,6 +435,21 @@ export function TodayScreen() {
           />
         ) : (
           sectionTitle('todayRemainingCarbs', t.today.remainingCarbLabel)
+        ))}
+
+      {remainingWaterMl !== null &&
+        (sectionVisible.todayRemainingWater ? (
+          <StatCard
+            label={t.today.remainingWaterLabel}
+            value={formatNumber(remainingWaterMl, locale, 0)}
+            unit={t.today.mlRemainingUnit}
+            action={statCardAction(
+              'todayRemainingWater',
+              t.today.remainingWaterLabel,
+            )}
+          />
+        ) : (
+          sectionTitle('todayRemainingWater', t.today.remainingWaterLabel)
         ))}
 
       {bmiValue !== null &&

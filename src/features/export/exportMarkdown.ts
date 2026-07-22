@@ -50,6 +50,7 @@ export function buildDailyLogMarkdown(
     t.exportXlsx.noteColumn,
     t.exportXlsx.onPeriodColumn,
     t.exportXlsx.hadConstipationColumn,
+    t.exportXlsx.waterColumn,
   ]
   const headerRow = mdRow(headers)
   const separatorRow = `| ${headers.map(() => '---').join(' | ')} |`
@@ -71,6 +72,7 @@ export function buildDailyLogMarkdown(
       entry.note,
       entry.onPeriod,
       entry.hadConstipation,
+      entry.waterMl,
     ]),
   )
   return [headerRow, separatorRow, ...rows].join('\n')
