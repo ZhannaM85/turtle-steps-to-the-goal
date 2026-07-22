@@ -24,6 +24,7 @@ export type DashboardChartKey =
   | 'weeklySummary'
   | 'monthlySummary'
   | 'compareRanges'
+  | 'bodyComposition'
 
 const DEFAULT_VISIBLE: Record<DashboardChartKey, boolean> = {
   weight: true,
@@ -41,6 +42,7 @@ const DEFAULT_VISIBLE: Record<DashboardChartKey, boolean> = {
   weeklySummary: true,
   monthlySummary: true,
   compareRanges: true,
+  bodyComposition: true,
 }
 
 interface DashboardChartVisibilityState {

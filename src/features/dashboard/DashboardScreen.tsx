@@ -1,6 +1,7 @@
 import { useTranslation } from '@/i18n'
 import { EmptyState } from '@/shared/ui/empty-state'
 import { PageHeader } from '@/shared/ui/page-header'
+import { BodyCompositionTrendChart } from './BodyCompositionTrendChart'
 import { CalorieTrendChart } from './CalorieTrendChart'
 import { CompareRangesView } from './CompareRangesView'
 import { CorrelationView } from './CorrelationView'
@@ -41,6 +42,7 @@ export function DashboardScreen() {
           <WeightTrendChart entries={entries} />
           <CalorieTrendChart entries={entries} />
           <MacroTrendChart entries={entries} />
+          <BodyCompositionTrendChart entries={entries} />
           <CustomChartView entries={entries} />
           <CorrelationView entries={entries} />
           <LateMealCorrelationView entries={entries} />

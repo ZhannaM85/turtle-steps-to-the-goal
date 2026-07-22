@@ -40,3 +40,11 @@ export { classifyCorrelationStrength } from './correlationStrength'
 export type { CorrelationStrength } from './correlationStrength'
 export { calculateTdee, suggestDailyTargets } from './targetCalculator'
 export type { ActivityLevel, SuggestedDailyTargets } from './targetCalculator'
+export {
+  BODY_COMPOSITION_SERIES_KEYS,
+  bodyCompositionPoints,
+} from './bodyCompositionTrend'
+export type {
+  BodyCompositionPoint,
+  BodyCompositionSeriesKey,
+} from './bodyCompositionTrend'

@@ -372,6 +372,7 @@ export const ru: Dictionary = {
     weightTrendTitle: 'График веса',
     calorieTrendTitle: 'График калорий',
     macrosTitle: 'Белки, жиры и углеводы',
+    bodyCompositionTrendTitle: 'Состав тела',
     hideChartLabel: (title) => `Скрыть: ${title}`,
     showChartLabel: (title) => `Показать: ${title}`,
     weeklySummaryTitle: 'Недельная сводка',

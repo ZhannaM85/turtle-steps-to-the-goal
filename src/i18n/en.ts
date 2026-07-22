@@ -371,6 +371,7 @@ export const en: Dictionary = {
     weightTrendTitle: 'Weight trend',
     calorieTrendTitle: 'Calorie trend',
     macrosTitle: 'Protein, fat & carbs',
+    bodyCompositionTrendTitle: 'Body composition',
     hideChartLabel: (title) => `Hide ${title}`,
     showChartLabel: (title) => `Show ${title}`,
     weeklySummaryTitle: 'Weekly summary',

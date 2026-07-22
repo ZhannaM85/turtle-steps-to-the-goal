@@ -78,6 +78,8 @@ future session can see the pattern, not just the count.
 
 | 2026-07-22 | Instruction miss | `grep -n "kcalUnit:" "...en.ts"` via Bash while checking the exact unit-text value for #268's heatmap summary — yet another raw-grep-via-Bash recurrence, now well past a dozen this session despite being logged and self-corrected every prior time | "No raw grep pipelines" memory rule — self-caught immediately, redone with Grep. The pre-Bash-call checklist habit still isn't sticking; this needs a harder rule: treat *any* Bash command starting with `grep` as an automatic stop before submission, not something to catch after |
 
+| 2026-07-22 | Prompted | `git commit -m "$(cat <<'EOF' ... EOF)"` — heredoc wrapped in command substitution for a multi-line commit message closing #263/#264/#265/#266/#268, the exact same shape already logged as a mistake twice earlier this session (2026-07-21 rows) | AGENT_WORKFLOW.md "compound shell shapes" (heredoc + `$(...)`) — third occurrence of this identical pattern across sessions; should write the message to a scratch file and use `git commit -F <path>` instead, the same fix already used for `gh issue --body-file` |
+
 ## Related standing fixes made because of this log
 
 - `CLAUDE.md` gained a top-of-file "⚠️ Shell safety" callout (2026-07-19).

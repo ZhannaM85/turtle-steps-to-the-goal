@@ -563,6 +563,10 @@ export interface Dictionary {
     weightTrendTitle: string
     calorieTrendTitle: string
     macrosTitle: string
+    /** #267 — trend chart for the 5 body-composition fields (#233 +
+     * #263's body fat %), same "trend chart per tracked metric" shape as
+     * the above, only rendered while that section is toggled on. */
+    bodyCompositionTrendTitle: string
     hideChartLabel: (title: string) => string
     showChartLabel: (title: string) => string
     weeklySummaryTitle: string
