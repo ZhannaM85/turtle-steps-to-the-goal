@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react'
-import { Pencil, Star, Trash2 } from 'lucide-react'
+import { Pencil, ScanBarcode, Star, Trash2 } from 'lucide-react'
 import { formatNumber, useLocale, useTranslation } from '@/i18n'
 import type { MealItem } from '@/domain/mealItem'
+import { IndexedDbMealItemRepository } from '@/infrastructure/persistence/indexeddb'
+import { useOnlineStatus } from '@/shared/hooks'
 import { macrosSummaryTextCompact } from '@/shared/lib/macroDisplay'
 import {
   formatComputedTotal,
@@ -18,6 +20,11 @@ import { useMealItemStore } from '@/stores'
 import { Button } from '@/shared/ui/button'
 import { Input } from '@/shared/ui/input'
 import { ToggleGroup, ToggleGroupItem } from '@/shared/ui/toggle-group'
+import { BarcodeScannerDialog, lookupBarcode } from '@/features/daily-log'
+
+// #289 — read-only, one-shot lookup outside the store, same module-scope
+// pattern MealList.tsx already uses for its own barcode-scan entry point.
+const mealItemRepositoryForBarcodeLookup = new IndexedDbMealItemRepository()
 
 function MealItemRow({
   item,
@@ -398,11 +405,13 @@ function AddMealItemForm({
       amountG: number
     },
     favorite: boolean,
+    barcode: string | undefined,
   ) => void
   onCancel: () => void
 }) {
   const t = useTranslation()
   const locale = useLocale()
+  const isOnline = useOnlineStatus()
   const [name, setName] = useState('')
   const [kcal100, setKcal100] = useState('')
   const [protein100, setProtein100] = useState('')
@@ -412,10 +421,62 @@ function AddMealItemForm({
   // #279 — lets a brand-new dish be favorited right at creation time,
   // instead of only afterward via the food picker's own star (#276).
   const [favorite, setFavorite] = useState(false)
+  // #289 — same local-first/Open-Food-Facts-fallback scan entry point
+  // #256 already gave the daily-log add-row, reused here.
+  const [barcode, setBarcode] = useState<string | undefined>(undefined)
+  const [isBarcodeScannerOpen, setIsBarcodeScannerOpen] = useState(false)
+  const [barcodeNotFoundMessage, setBarcodeNotFoundMessage] = useState(false)
   // Per 100g / Per portion entry mode (#170).
   const [macroMode, setMacroMode] = useState<'per100g' | 'perPortion'>(
     'per100g',
   )
+
+  async function handleBarcodeScanned(scanned: string) {
+    const result = await lookupBarcode(
+      scanned,
+      mealItemRepositoryForBarcodeLookup,
+      isOnline,
+    )
+    setBarcodeNotFoundMessage(false)
+    setMacroMode('per100g')
+    if (result.source === 'local') {
+      setName(result.item.name)
+      setBarcode(result.item.barcode)
+      if (result.item.lastAmountKcal === undefined) {
+        setKcal100('')
+        setProtein100('')
+        setFat100('')
+        setCarbs100('')
+        setAmountG('1')
+      } else {
+        const rates = ratesFromAbsolute(
+          result.item.lastAmountKcal,
+          result.item.lastProteinG,
+          result.item.lastFatG,
+          result.item.lastCarbsG,
+          result.item.lastAmountG,
+        )
+        setKcal100(String(rates.kcal100))
+        setProtein100(
+          rates.protein100 === undefined ? '' : String(rates.protein100),
+        )
+        setFat100(rates.fat100 === undefined ? '' : String(rates.fat100))
+        setCarbs100(rates.carbs100 === undefined ? '' : String(rates.carbs100))
+        setAmountG(String(rates.portions))
+      }
+    } else if (result.source === 'openFoodFacts') {
+      setName(result.name)
+      setKcal100(String(result.kcal100))
+      setProtein100(result.protein100 === undefined ? '' : String(result.protein100))
+      setFat100(result.fat100 === undefined ? '' : String(result.fat100))
+      setCarbs100(result.carbs100 === undefined ? '' : String(result.carbs100))
+      setAmountG('1')
+      setBarcode(scanned)
+    } else {
+      setBarcodeNotFoundMessage(true)
+      setBarcode(scanned)
+    }
+  }
 
   function handleMacroModeChange(newMode: 'per100g' | 'perPortion') {
     if (newMode === macroMode) return
@@ -481,7 +542,12 @@ function AddMealItemForm({
   function save() {
     if (!canSave || kcal100Num === undefined) return
     const scaled = scale(kcal100Num)
-    onAdd(name.trim(), { ...scaled, amountG: scaled.amountG ?? 100 }, favorite)
+    onAdd(
+      name.trim(),
+      { ...scaled, amountG: scaled.amountG ?? 100 },
+      favorite,
+      barcode,
+    )
   }
 
   return (
@@ -509,7 +575,28 @@ function AddMealItemForm({
         >
           <Star aria-hidden="true" className={cn(favorite && 'fill-current')} />
         </Button>
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon-sm"
+          aria-label={t.dailyEntry.scanBarcodeButton}
+          onClick={() => setIsBarcodeScannerOpen(true)}
+        >
+          <ScanBarcode aria-hidden="true" />
+        </Button>
       </div>
+      {isBarcodeScannerOpen && (
+        <BarcodeScannerDialog
+          open={isBarcodeScannerOpen}
+          onOpenChange={setIsBarcodeScannerOpen}
+          onScanned={handleBarcodeScanned}
+        />
+      )}
+      {barcodeNotFoundMessage && (
+        <p className="text-xs text-muted-foreground">
+          {t.dailyEntry.noFoodFoundForBarcodeMessage}
+        </p>
+      )}
       <ToggleGroup
         type="single"
         aria-label={t.dailyEntry.macroModeLabel}
@@ -699,8 +786,8 @@ export function MealItemsSection() {
           ))}
           {isAdding && (
             <AddMealItemForm
-              onAdd={(name, nutrition, favorite) => {
-                touch(name, nutrition, favorite)
+              onAdd={(name, nutrition, favorite, barcode) => {
+                touch(name, nutrition, favorite, barcode)
                 setIsAdding(false)
               }}
               onCancel={() => setIsAdding(false)}

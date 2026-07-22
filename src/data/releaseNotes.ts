@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 261,
+    issue: 289,
+    date: '2026-07-22T23:50:28+03:00',
+    en: 'You can now scan a barcode directly from the "Add custom food" form in Settings, not just while logging a meal.',
+    ru: 'Теперь можно отсканировать штрихкод прямо из формы «Добавить продукт» в настройках, а не только при записи приёма пищи.',
+  },
+  {
     version: 260,
     issue: 286,
     date: '2026-07-22T23:36:02+03:00',
