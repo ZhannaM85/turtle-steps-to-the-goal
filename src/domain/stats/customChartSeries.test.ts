@@ -88,6 +88,27 @@ describe('customChartPoints', () => {
     expect(point.raw).toEqual({ waist: 80, hip: 95, bodyFat: 22 })
   })
 
+  it('reads fastingHours from the previous day\'s last meal to this day\'s first (#257)', () => {
+    const mealAt = (timeEaten: string) => [
+      { id: crypto.randomUUID(), items: [{ id: crypto.randomUUID(), amountKcal: 500 }], timeEaten, createdAt: '2026-01-01T00:00:00.000Z' },
+    ]
+    const entries = [
+      entry('2026-01-01', { weightKg: 80, calorieEntries: mealAt('20:00') }),
+      entry('2026-01-02', { weightKg: 80.5, calorieEntries: mealAt('08:00') }),
+    ]
+
+    const points = customChartPoints(entries, ['fastingHours'])
+    expect(points[0].raw.fastingHours).toBeUndefined()
+    expect(points[1].raw.fastingHours).toBe(12)
+  })
+
+  it('leaves fastingHours absent entirely when it is not one of the requested series', () => {
+    const entries = [entry('2026-01-01', { weightKg: 80 })]
+
+    const [point] = customChartPoints(entries, ['weight'])
+    expect(point.raw.fastingHours).toBeUndefined()
+  })
+
   it('sums calories/protein/fat/carbs across every meal item, same as the other dashboard charts', () => {
     const entries = [
       entry('2026-01-01', {

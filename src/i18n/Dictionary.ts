@@ -638,6 +638,34 @@ export interface Dictionary {
     lateMealLagCaveat: string
     lateMealTimeLegend: string
     nextDayChangeLegend: string
+    /** #257 — actual elapsed fasting duration (previous day's last meal to
+     * current day's first meal) vs. next-day weight, median-split same
+     * shape as lateMeal* above. Distinct from lateMeal*, which only looks
+     * at a raw clock time, not the real gap between meals. */
+    fastingWindowTitle: string
+    fastingWindowEmptyDescription: string
+    fastingWindowSummary: (
+      thresholdHours: string,
+      direction: 'shorter' | 'longer',
+    ) => string
+    fastingWindowDayCount: (n: number) => string
+    fastingWindowLagCaveat: string
+    fastingHoursLegend: string
+    /** #257 — tests a fixed, user-adjustable eating-cutoff time directly
+     * (Settings' fastingCutoffStore) rather than a relative median split —
+     * answers the specific popular claim, distinct from fastingWindow*
+     * above. Reuses lateMealPoints' last-meal-time data, just bucketed by
+     * a fixed threshold instead of the median. */
+    fastingCutoffTitle: string
+    fastingCutoffEmptyDescription: string
+    fastingCutoffSummary: (
+      cutoffTime: string,
+      direction: 'before' | 'after',
+    ) => string
+    fastingCutoffDayCount: (n: number) => string
+    fastingCutoffLagCaveat: string
+    fastingCutoffBeforeLabel: (cutoffTime: string) => string
+    fastingCutoffAfterLabel: (cutoffTime: string) => string
     /** Sleep-hours-vs-next-day-weight correlation (#167), same shape as
      * lateMeal* above. */
     sleepCorrelationTitle: string
@@ -866,12 +894,24 @@ export interface Dictionary {
     weekStartDescription: string
     weekStartMonday: string
     weekStartFirstEntry: string
+    /** #257 — the cutoff time `fastingCutoffComparison` tests against,
+     * e.g. testing "stop eating by 6pm" directly rather than relative to
+     * the user's own median (which `fastingWindowCorrelation` already
+     * does). Defaults to 18:00 but is user-adjustable. */
+    fastingCutoffLabel: string
+    fastingCutoffDescription: string
     foodListLabel: string
     foodListDescription: string
     manageFoodListButton: string
     aboutLabel: string
     aboutDescription: string
     viewAboutButton: string
+    /** #283 — compact clickable version badge at the top of Settings
+     * (PageHeader's action slot), navigating to /about — the About card
+     * further down the page was otherwise the only way to find the
+     * version. Distinct from about.currentVersionLabel's full sentence,
+     * which stays as-is on the About page itself. */
+    versionBadgeLabel: (version: number) => string
     /** Wipes every local IndexedDB table (#164) — two-step confirm, same
      * pattern as deleting a single entry/meal, scaled up in wording since
      * this is irreversible and total. */

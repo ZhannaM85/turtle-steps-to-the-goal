@@ -7,6 +7,7 @@ import { useLocaleStore } from '@/i18n'
 import {
   useDailyReminderStore,
   useDigestionTrackingStore,
+  useFastingCutoffStore,
   useProfileStore,
   useThemeStore,
   useTrackedFieldsStore,
@@ -32,6 +33,7 @@ beforeEach(() => {
   useThemeStore.setState({ mood: 'pond', colorScheme: 'light' })
   useUnitStore.setState({ unit: 'kg' })
   useWeekStartStore.setState({ weekStart: 'monday' })
+  useFastingCutoffStore.setState({ cutoffTime: '18:00' })
   useDigestionTrackingStore.setState({ enabled: false })
   useWaterTrackingStore.setState({ enabled: false })
   useDailyReminderStore.setState({ enabled: false })
@@ -57,6 +59,7 @@ afterEach(() => {
   useThemeStore.setState({ mood: 'pond', colorScheme: 'light' })
   useUnitStore.setState({ unit: 'kg' })
   useWeekStartStore.setState({ weekStart: 'monday' })
+  useFastingCutoffStore.setState({ cutoffTime: '18:00' })
   useDigestionTrackingStore.setState({ enabled: false })
   useWaterTrackingStore.setState({ enabled: false })
   useDailyReminderStore.setState({ enabled: false })
@@ -130,6 +133,30 @@ describe('SettingsScreen', () => {
     expect(useWeekStartStore.getState().weekStart).toBe('firstEntryWeekday')
   })
 
+  it('defaults to 18:00 for the fasting eating-cutoff time (#257)', () => {
+    renderSettings()
+
+    expect(screen.getByLabelText('Eating cutoff time')).toHaveValue('18:00')
+  })
+
+  it('updates the fasting eating-cutoff time when changed (#257)', async () => {
+    const user = userEvent.setup()
+    renderSettings()
+
+    const input = screen.getByLabelText('Eating cutoff time')
+    await user.clear(input)
+    await user.type(input, '20:30')
+
+    expect(useFastingCutoffStore.getState().cutoffTime).toBe('20:30')
+  })
+
+  it('shows a clickable version badge at the top linking to About (#283)', () => {
+    renderSettings()
+
+    const versionLink = screen.getByRole('link', { name: /^v\d+$/ })
+    expect(versionLink).toHaveAttribute('href', '/about')
+  })
+
   it('switches the whole dictionary to Russian when selected', async () => {
     const user = userEvent.setup()
     renderSettings()
@@ -176,8 +203,10 @@ describe('SettingsScreen', () => {
     const pondRadio = screen.getByRole('radio', { name: /Pond/ })
     // Radio groups use roving tabindex — Tab lands on each group's checked
     // radio directly, not every individual option.
+    await user.tab() // #283's version badge link (top of page)
     await user.tab() // units group's checked radio (kg)
     await user.tab() // week-start group's checked radio (Monday)
+    await user.tab() // #257's fasting eating-cutoff time input
     await user.tab() // locale group's checked radio (English)
     await user.tab() // mood group's checked radio (Pond)
 

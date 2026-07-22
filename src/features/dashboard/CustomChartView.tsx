@@ -150,6 +150,13 @@ function useNumericSeriesConfig(): Record<
       formatRaw: (value) =>
         `${formatNumber(value, locale)}${t.dailyEntry.percentUnit}`,
     },
+    // #257 — last remaining generic --chart-* slot, same reasoning as
+    // steps/waist/hip/bodyFat above.
+    fastingHours: {
+      label: t.dashboard.fastingHoursLegend,
+      color: 'var(--chart-5)',
+      formatRaw: (value) => `${formatNumber(value, locale)}h`,
+    },
   }
 }
 

@@ -9,6 +9,7 @@ import {
   useCycleTrackingStore,
   useDailyReminderStore,
   useDigestionTrackingStore,
+  useFastingCutoffStore,
   useThemeStore,
   useTrackedFieldsStore,
   useTrendChartSeriesStore,
@@ -22,9 +23,11 @@ import {
   type Unit,
   type WeekStart,
 } from '@/stores'
+import { releaseNotes } from '@/data/releaseNotes'
 import { ExportSection } from '@/features/export'
 import { Button } from '@/shared/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
+import { Input } from '@/shared/ui/input'
 import { PageHeader } from '@/shared/ui/page-header'
 import { ToggleGroup, ToggleGroupItem } from '@/shared/ui/toggle-group'
 import { ClearAllDataSection } from './ClearAllDataSection'
@@ -109,6 +112,10 @@ export function SettingsScreen() {
   }
   const weekStart = useWeekStartStore((state) => state.weekStart)
   const setWeekStart = useWeekStartStore((state) => state.setWeekStart)
+  const fastingCutoffTime = useFastingCutoffStore((state) => state.cutoffTime)
+  const setFastingCutoffTime = useFastingCutoffStore(
+    (state) => state.setCutoffTime,
+  )
   const dailyReminderEnabled = useDailyReminderStore((state) => state.enabled)
   const setDailyReminderEnabled = useDailyReminderStore(
     (state) => state.setEnabled,
@@ -122,12 +129,28 @@ export function SettingsScreen() {
   const toggleTrendSeries = useTrendChartSeriesStore(
     (state) => state.toggleSeries,
   )
+  // #283 — a compact clickable version badge at the top of the page,
+  // since the full About card (with this same version, #63) otherwise
+  // sits in the middle/bottom of a long Settings page. Most-recent-first
+  // (releaseNotes.ts), so the first entry's version is the current one,
+  // same derivation AboutScreen.tsx already uses.
+  const currentVersion = releaseNotes[0]?.version
 
   return (
     <div className="flex flex-col gap-4">
       <PageHeader
         title={t.settings.title}
         description={t.settings.description}
+        action={
+          currentVersion !== undefined && (
+            <Link
+              to="/about"
+              className="text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+            >
+              {t.settings.versionBadgeLabel(currentVersion)}
+            </Link>
+          )
+        }
       />
 
       <Card>
@@ -172,6 +195,24 @@ export function SettingsScreen() {
               {t.settings.weekStartFirstEntry}
             </ToggleGroupItem>
           </ToggleGroup>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>{t.settings.fastingCutoffLabel}</CardTitle>
+        </CardHeader>
+        <CardContent className="flex flex-col gap-1.5">
+          <span className="text-sm text-muted-foreground">
+            {t.settings.fastingCutoffDescription}
+          </span>
+          <Input
+            type="time"
+            aria-label={t.settings.fastingCutoffLabel}
+            value={fastingCutoffTime}
+            onChange={(e) => setFastingCutoffTime(e.target.value)}
+            className="h-12 w-24"
+          />
         </CardContent>
       </Card>
 

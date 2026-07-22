@@ -1,5 +1,6 @@
 import type { DailyEntry } from '@/domain/dailyEntry'
 import { totalCalories, totalCarbs, totalFat, totalProtein } from '@/domain/dailyEntry'
+import { fastingWindowPoints } from './fastingWindow'
 
 export type NumericSeriesKey =
   | 'weight'
@@ -11,6 +12,7 @@ export type NumericSeriesKey =
   | 'waist'
   | 'hip'
   | 'bodyFat'
+  | 'fastingHours'
 
 export const NUMERIC_SERIES_KEYS: NumericSeriesKey[] = [
   'weight',
@@ -22,10 +24,16 @@ export const NUMERIC_SERIES_KEYS: NumericSeriesKey[] = [
   'waist',
   'hip',
   'bodyFat',
+  'fastingHours',
 ]
 
+// fastingHours (#257) isn't a plain per-entry property — it depends on the
+// *previous* day's own last meal too, so it can't fit this per-entry
+// extractor shape. Computed separately below via fastingWindowPoints and
+// looked up by date instead, same "date -> value" map fastingHoursByDate
+// builds once per customChartPoints call.
 const SERIES_EXTRACTORS: Record<
-  NumericSeriesKey,
+  Exclude<NumericSeriesKey, 'fastingHours'>,
   (entry: DailyEntry) => number | undefined
 > = {
   weight: (entry) => entry.weightKg,
@@ -68,11 +76,18 @@ export function customChartPoints(
 ): CustomChartPoint[] {
   const sorted = [...entries].sort((a, b) => a.date.localeCompare(b.date))
 
+  const fastingHoursByDate = seriesKeys.includes('fastingHours')
+    ? new Map(fastingWindowPoints(entries).map((p) => [p.date, p.fastingHours]))
+    : null
+
   const rawByDate = new Map<string, Partial<Record<NumericSeriesKey, number>>>()
   for (const entry of sorted) {
     const values: Partial<Record<NumericSeriesKey, number>> = {}
     for (const key of seriesKeys) {
-      const value = SERIES_EXTRACTORS[key](entry)
+      const value =
+        key === 'fastingHours'
+          ? fastingHoursByDate?.get(entry.date)
+          : SERIES_EXTRACTORS[key](entry)
       if (value !== undefined) values[key] = value
     }
     rawByDate.set(entry.date, values)

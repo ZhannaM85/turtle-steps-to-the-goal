@@ -40,6 +40,7 @@ beforeEach(() => {
       waist: 'line',
       hip: 'line',
       bodyFat: 'line',
+      fastingHours: 'line',
     },
   })
 })
