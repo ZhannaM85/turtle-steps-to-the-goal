@@ -5,6 +5,7 @@ import {
   totalCarbs,
   totalFat,
   totalProtein,
+  totalWaterMl,
 } from '@/domain/dailyEntry'
 import type { Goal } from '@/domain/goal'
 import type { Dictionary } from '@/i18n'
@@ -88,7 +89,7 @@ export async function buildExportWorkbook(
       note: entry.note,
       onPeriod: entry.onPeriod,
       hadConstipation: entry.hadConstipation,
-      water: entry.waterMl,
+      water: totalWaterMl(entry.waterEntries),
     })
   }
   dailyLogSheet.getColumn('date').numFmt = DATE_FORMAT

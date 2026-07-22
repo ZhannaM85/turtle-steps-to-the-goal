@@ -369,15 +369,18 @@ export interface Dictionary {
     hadConstipationLabel: string
     hadConstipationNoOption: string
     hadConstipationYesOption: string
-    /** Opt-in water tracking (#258) — a running daily total, same
-     * gating shape as onPeriod/hadConstipation above. Quick-add buttons
-     * plus manual entry + its own Save button, same "always-editable
-     * numeric field" shape Steps uses. */
+    /** Opt-in water tracking (#258), a list of discrete entries rather
+     * than a single running total (#271) — same gating shape as onPeriod/
+     * hadConstipation above. Quick-add buttons plus manual entry + its own
+     * confirm button each add one new removable entry. */
     waterLabel: string
     saveWaterLabel: string
     mlUnit: string
     addGlassLabel: string
     addBottleLabel: string
+    /** #271 — aria-label for a logged water entry's own remove (X) button,
+     * e.g. "Remove 250ml entry". */
+    removeWaterEntryLabel: (amount: string) => string
     /** Full-screen meal-item editor sheet (#122) — replaces the cramped
      * inline fields row for both adding a new meal's first item and
      * editing/adding an item within an already-existing meal. */

@@ -11,9 +11,11 @@ import {
   exportBundleSchemaV3,
   exportBundleSchemaV4,
   exportBundleSchemaV5,
+  exportBundleSchemaV6,
   type ExportBundle,
   type ExportBundleV4,
   type ExportBundleV5,
+  type ExportBundleV6,
 } from './exportBundleSchema'
 
 const goalRepository = new IndexedDbGoalRepository()
@@ -128,7 +130,7 @@ function foldFlatMealsIntoGroups(
  */
 function upgradeV5ToV6(
   dailyEntries: ExportBundleV5['dailyEntries'],
-): ExportBundle['dailyEntries'] {
+): ExportBundleV6['dailyEntries'] {
   return dailyEntries.map((entry) => ({
     ...entry,
     calorieEntries: entry.calorieEntries?.map(
@@ -140,17 +142,46 @@ function upgradeV5ToV6(
   }))
 }
 
+/**
+ * v6 -> v7 (#271): water logging moves from a single running `waterMl`
+ * total to a list of discrete `waterEntries`. Buckets whatever total was
+ * already logged into one legacy entry rather than dropping it — same
+ * "scalar becomes a single-item list" shape `foldFlatMealsIntoGroups`
+ * already used for v4 -> v5's caloriesConsumed -> calorieEntries move.
+ */
+function upgradeV6ToV7(
+  dailyEntries: ExportBundleV6['dailyEntries'],
+): ExportBundle['dailyEntries'] {
+  return dailyEntries.map(({ waterMl, ...entry }) => ({
+    ...entry,
+    waterEntries:
+      waterMl === undefined
+        ? undefined
+        : [{ id: crypto.randomUUID(), amountMl: waterMl }],
+  }))
+}
+
 export function parseExportBundle(raw: unknown): ExportBundle {
   const current = exportBundleSchema.safeParse(raw)
   if (current.success) return current.data
+
+  // v6 -> v7 (#271): a single waterMl total becomes a list of entries.
+  const v6 = exportBundleSchemaV6.safeParse(raw)
+  if (v6.success) {
+    return {
+      ...v6.data,
+      version: 7,
+      dailyEntries: upgradeV6ToV7(v6.data.dailyEntries),
+    }
+  }
 
   // v5 -> v6 (#129): a meal's reaction moves from the group onto each item.
   const v5 = exportBundleSchemaV5.safeParse(raw)
   if (v5.success) {
     return {
       ...v5.data,
-      version: 6,
-      dailyEntries: upgradeV5ToV6(v5.data.dailyEntries),
+      version: 7,
+      dailyEntries: upgradeV6ToV7(upgradeV5ToV6(v5.data.dailyEntries)),
     }
   }
 
@@ -158,31 +189,35 @@ export function parseExportBundle(raw: unknown): ExportBundle {
   if (v4.success) {
     return {
       ...v4.data,
-      version: 6,
-      dailyEntries: upgradeV5ToV6(foldFlatMealsIntoGroups(v4.data.dailyEntries)),
+      version: 7,
+      dailyEntries: upgradeV6ToV7(
+        upgradeV5ToV6(foldFlatMealsIntoGroups(v4.data.dailyEntries)),
+      ),
     }
   }
 
   // v3 -> v5: meal-level emotion used the day's happy/unhappy/neutral set.
   // No auto-mapping to thumbsUp/thumbsDown/bellissimo (decided when #54 was
   // scoped) — old meal emotions are cleared, not translated. Then folded
-  // into single-item groups same as the v4 path above, then on to v6.
+  // into single-item groups same as the v4 path above, then on to v7.
   const v3 = exportBundleSchemaV3.safeParse(raw)
   if (v3.success) {
     return {
       ...v3.data,
-      version: 6,
-      dailyEntries: upgradeV5ToV6(
-        foldFlatMealsIntoGroups(
-          v3.data.dailyEntries.map((entry) => ({
-            ...entry,
-            calorieEntries: entry.calorieEntries?.map((meal) => ({
-              id: meal.id,
-              amountKcal: meal.amountKcal,
-              note: meal.note,
-              createdAt: meal.createdAt,
+      version: 7,
+      dailyEntries: upgradeV6ToV7(
+        upgradeV5ToV6(
+          foldFlatMealsIntoGroups(
+            v3.data.dailyEntries.map((entry) => ({
+              ...entry,
+              calorieEntries: entry.calorieEntries?.map((meal) => ({
+                id: meal.id,
+                amountKcal: meal.amountKcal,
+                note: meal.note,
+                createdAt: meal.createdAt,
+              })),
             })),
-          })),
+          ),
         ),
       ),
     }
@@ -192,22 +227,24 @@ export function parseExportBundle(raw: unknown): ExportBundle {
   if (legacy.success) {
     return {
       ...legacy.data,
-      version: 6,
-      dailyEntries: upgradeV5ToV6(
-        foldFlatMealsIntoGroups(
-          legacy.data.dailyEntries.map(({ caloriesConsumed, ...entry }) => ({
-            ...entry,
-            calorieEntries:
-              caloriesConsumed === undefined
-                ? undefined
-                : [
-                    {
-                      id: crypto.randomUUID(),
-                      amountKcal: caloriesConsumed,
-                      createdAt: entry.createdAt,
-                    },
-                  ],
-          })),
+      version: 7,
+      dailyEntries: upgradeV6ToV7(
+        upgradeV5ToV6(
+          foldFlatMealsIntoGroups(
+            legacy.data.dailyEntries.map(({ caloriesConsumed, ...entry }) => ({
+              ...entry,
+              calorieEntries:
+                caloriesConsumed === undefined
+                  ? undefined
+                  : [
+                      {
+                        id: crypto.randomUUID(),
+                        amountKcal: caloriesConsumed,
+                        createdAt: entry.createdAt,
+                      },
+                    ],
+            })),
+          ),
         ),
       ),
     }

@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { Check, Pencil } from 'lucide-react'
+import { Check, CupSoda, GlassWater, Pencil, X } from 'lucide-react'
 import { useForm, useWatch } from 'react-hook-form'
 import type { DailyEntry, Emotion } from '@/domain/dailyEntry'
 import {
@@ -136,6 +136,10 @@ export function DailyEntryForm({
   const [pendingUnusualWeight, setPendingUnusualWeight] = useState<
     number | null
   >(null)
+  // #271 — the manual "amount to add" input; transient staging state, not
+  // itself a persisted field (see addWaterEntry's own comment below).
+  const [waterInput, setWaterInput] = useState('')
+  const [waterInputError, setWaterInputError] = useState<string | null>(null)
   const [isEditingNote, setIsEditingNote] = useState(
     alwaysEditable || !initialValues.note,
   )
@@ -224,6 +228,7 @@ export function DailyEntryForm({
   const bodyWaterPercent = useWatch({ control, name: 'bodyWaterPercent' })
   const boneMassKg = useWatch({ control, name: 'boneMassKg' })
   const hadConstipation = useWatch({ control, name: 'hadConstipation' })
+  const waterEntries = useWatch({ control, name: 'waterEntries' }) ?? []
   const dayEmotion = useWatch({ control, name: 'emotion' })
   const calorieEntries = useWatch({ control, name: 'calorieEntries' }) ?? []
   const dayTotalCalories = totalCalories(calorieEntries) ?? 0
@@ -265,25 +270,42 @@ export function DailyEntryForm({
     persist({ ...getValues(), hadConstipation: value })
   }
 
-  // #258 — manual entry via the field + Save button (validated, same
-  // shape as saveSteps), or a quick-add button that bumps the current
-  // total by a fixed amount and saves immediately, no separate confirm
-  // step needed since the running total itself is the visible feedback.
-  function saveWater() {
-    const result = waterMlSchema.safeParse(getValues('waterMl'))
+  // #271: each add (quick-add button or manual entry + confirm) becomes
+  // its own removable entry instead of bumping a single running total —
+  // the previous single-number version gave no visible feedback per add,
+  // reported as "looks like nothing happens." The manual-entry input is
+  // local state (waterInput below), not an RHF field, since it holds a
+  // transient "amount to add" rather than anything persisted directly —
+  // same distinction MealList.tsx's own add-row fields draw against the
+  // final calorieEntries array.
+  function addWaterEntry(amountMl: number) {
+    const result = waterMlSchema.safeParse(amountMl)
     if (!result.success) {
-      setError('waterMl', { message: result.error.issues[0].message })
+      setWaterInputError(result.error.issues[0].message)
       return
     }
-    clearErrors('waterMl')
-    persist(getValues())
+    setWaterInputError(null)
+    const entries = [
+      ...(getValues('waterEntries') ?? []),
+      { id: crypto.randomUUID(), amountMl },
+    ]
+    setValue('waterEntries', entries, { shouldDirty: true })
+    persist({ ...getValues(), waterEntries: entries })
   }
 
-  function addWater(amountMl: number) {
-    const nextWaterMl = (getValues('waterMl') ?? 0) + amountMl
-    setValue('waterMl', nextWaterMl, { shouldDirty: true })
-    clearErrors('waterMl')
-    persist({ ...getValues(), waterMl: nextWaterMl })
+  function saveWaterInput() {
+    const amountMl = parseNumberInput(waterInput)
+    if (amountMl === undefined) return
+    addWaterEntry(amountMl)
+    setWaterInput('')
+  }
+
+  function removeWaterEntry(id: string) {
+    const entries = (getValues('waterEntries') ?? []).filter(
+      (entry) => entry.id !== id,
+    )
+    setValue('waterEntries', entries, { shouldDirty: true })
+    persist({ ...getValues(), waterEntries: entries })
   }
 
   function saveWeight() {
@@ -1174,10 +1196,10 @@ export function DailyEntryForm({
       )}
 
       {/* #258 — opt-in water tracking, gated by its own Settings toggle
-       * (same shape as digestion tracking below). Always-editable numeric
-       * field + Save (like Steps) plus two quick-add buttons that bump the
-       * running total and save immediately — no separate confirm step,
-       * the updated total itself is the visible feedback. */}
+       * (same shape as digestion tracking below). #271: each add (quick-add
+       * button or manual entry + confirm) becomes its own removable entry
+       * instead of bumping a single running total the input quietly
+       * reflected — every add now gets a persistent, visible marker. */}
       {waterTrackingEnabled && (
         <div className="flex flex-col gap-1.5">
           <span className="text-sm font-medium">{t.dailyEntry.waterLabel}</span>
@@ -1186,15 +1208,16 @@ export function DailyEntryForm({
               type="text"
               inputMode="numeric"
               aria-label={t.dailyEntry.waterLabel}
-              aria-invalid={errors.waterMl ? true : undefined}
+              aria-invalid={waterInputError ? true : undefined}
               className="h-12 w-24"
+              value={waterInput}
+              onChange={(e) => setWaterInput(e.target.value)}
               onKeyDown={(e) => {
                 if (e.key === 'Enter') {
                   e.preventDefault()
-                  saveWater()
+                  saveWaterInput()
                 }
               }}
-              {...register('waterMl', { setValueAs: parseNumberInput })}
             />
             <span className="text-xs text-muted-foreground">
               {t.dailyEntry.mlUnit}
@@ -1204,7 +1227,7 @@ export function DailyEntryForm({
               variant="outline"
               size="icon-xl"
               aria-label={t.dailyEntry.saveWaterLabel}
-              onClick={saveWater}
+              onClick={saveWaterInput}
             >
               <Check aria-hidden="true" />
             </Button>
@@ -1214,7 +1237,7 @@ export function DailyEntryForm({
               type="button"
               variant="ghost"
               size="sm"
-              onClick={() => addWater(250)}
+              onClick={() => addWaterEntry(250)}
             >
               {t.dailyEntry.addGlassLabel}
             </Button>
@@ -1222,13 +1245,42 @@ export function DailyEntryForm({
               type="button"
               variant="ghost"
               size="sm"
-              onClick={() => addWater(500)}
+              onClick={() => addWaterEntry(500)}
             >
               {t.dailyEntry.addBottleLabel}
             </Button>
           </div>
-          {errors.waterMl && (
-            <p className="text-sm text-destructive">{errors.waterMl.message}</p>
+          {waterInputError && (
+            <p className="text-sm text-destructive">{waterInputError}</p>
+          )}
+          {waterEntries.length > 0 && (
+            <div className="flex flex-wrap items-center gap-2">
+              {waterEntries.map((entry) => {
+                const amountText = `${formatNumber(entry.amountMl, locale, 0)}${t.dailyEntry.mlUnit}`
+                // No literal "bottle" icon exists in lucide-react — CupSoda
+                // is the closest distinct large-container icon available,
+                // used for anything past a typical glass-sized add.
+                const Icon = entry.amountMl > 300 ? CupSoda : GlassWater
+                return (
+                  <span
+                    key={entry.id}
+                    className="flex items-center gap-1 rounded-full bg-muted py-1 pr-1 pl-2.5 text-sm"
+                  >
+                    <Icon aria-hidden="true" className="size-4 text-muted-foreground" />
+                    {amountText}
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon-xs"
+                      aria-label={t.dailyEntry.removeWaterEntryLabel(amountText)}
+                      onClick={() => removeWaterEntry(entry.id)}
+                    >
+                      <X aria-hidden="true" />
+                    </Button>
+                  </span>
+                )
+              })}
+            </div>
           )}
         </div>
       )}

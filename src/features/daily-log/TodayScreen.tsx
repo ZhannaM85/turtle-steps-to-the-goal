@@ -2,7 +2,13 @@ import { useEffect } from 'react'
 import { addDays, format, parseISO } from 'date-fns'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { Link, useSearchParams } from 'react-router-dom'
-import { totalCalories, totalCarbs, totalFat, totalProtein } from '@/domain/dailyEntry'
+import {
+  totalCalories,
+  totalCarbs,
+  totalFat,
+  totalProtein,
+  totalWaterMl,
+} from '@/domain/dailyEntry'
 import { goalWeekEnd, kgToLb } from '@/domain/goal'
 import { calculateBmi, calculateBmr } from '@/domain/stats'
 import {
@@ -202,11 +208,14 @@ export function TodayScreen() {
       ? formatMacroGrams(goal.dailyCarbTargetG, locale, t)
       : null
 
-  // #258 — same shape again, based on the day's logged waterMl total
-  // rather than a calorieEntries-derived sum.
+  // #258 — same shape again, based on the day's logged water total
+  // (#271: summed from waterEntries, not a single stored scalar).
   const remainingWaterMl =
     goal?.dailyWaterTargetMl !== undefined
-      ? Math.max(0, goal.dailyWaterTargetMl - (entry?.waterMl ?? 0))
+      ? Math.max(
+          0,
+          goal.dailyWaterTargetMl - (totalWaterMl(entry?.waterEntries) ?? 0),
+        )
       : null
 
   // #233 — BMI/BMR, computed from today's logged weight plus the Settings

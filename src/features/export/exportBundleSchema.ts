@@ -59,6 +59,13 @@ const calorieEntrySchema = z.object({
   timeEaten: z.string().optional(),
 })
 
+// #271: one discrete water/hydration add — replaces v6's single waterMl
+// running total (see dailyEntrySchemaV6 below for that shape).
+const waterEntrySchema = z.object({
+  id: z.string(),
+  amountMl: z.number(),
+})
+
 const dailyEntrySchema = z.object({
   id: z.string(),
   date: z.string(),
@@ -82,8 +89,10 @@ const dailyEntrySchema = z.object({
   // equivalent here and is simply dropped on import (Zod strips unknown keys
   // by default).
   hadConstipation: z.boolean().optional(),
-  // Opt-in water tracking (#258) — same reasoning/shape as onPeriod above.
-  waterMl: z.number().optional(),
+  // Opt-in water tracking (#258, list shape #271) — a list of discrete
+  // adds rather than a single running total; see upgradeV6ToV7 in
+  // exportActions.ts for the migration from the old waterMl number.
+  waterEntries: z.array(waterEntrySchema).optional(),
   // Body measurements (#225) — purely additive/optional, same
   // no-version-bump reasoning as sleep/steps above.
   waistCm: z.number().optional(),
@@ -128,7 +137,7 @@ const foodOverrideSchema = z.object({
 })
 
 export const exportBundleSchema = z.object({
-  version: z.literal(6),
+  version: z.literal(7),
   exportedAt: z.string(),
   goals: z.array(goalSchema),
   dailyEntries: z.array(dailyEntrySchema),
@@ -137,6 +146,47 @@ export const exportBundleSchema = z.object({
 })
 
 export type ExportBundle = z.infer<typeof exportBundleSchema>
+
+/**
+ * Backups written before #271 stored a single `waterMl` running total
+ * instead of itemized `waterEntries`. Recognized separately so
+ * `parseExportBundle` can bucket it into one legacy entry on import — see
+ * `upgradeV6ToV7` in exportActions.ts.
+ */
+const dailyEntrySchemaV6 = z.object({
+  id: z.string(),
+  date: z.string(),
+  weightKg: z.number().optional(),
+  calorieEntries: z.array(calorieEntrySchema).optional(),
+  note: z.string().optional(),
+  emotion: dayEmotionSchema.optional(),
+  sleepHours: z.number().optional(),
+  deepSleepHours: z.number().optional(),
+  steps: z.number().optional(),
+  onPeriod: z.boolean().optional(),
+  hadConstipation: z.boolean().optional(),
+  waterMl: z.number().optional(),
+  waistCm: z.number().optional(),
+  hipCm: z.number().optional(),
+  bodyFatPercent: z.number().optional(),
+  muscleMassKg: z.number().optional(),
+  visceralFatRating: z.number().optional(),
+  bodyWaterPercent: z.number().optional(),
+  boneMassKg: z.number().optional(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+})
+
+export const exportBundleSchemaV6 = z.object({
+  version: z.literal(6),
+  exportedAt: z.string(),
+  goals: z.array(goalSchema),
+  dailyEntries: z.array(dailyEntrySchemaV6),
+  mealItems: z.array(mealItemSchema).optional(),
+  foodOverrides: z.array(foodOverrideSchema).optional(),
+})
+
+export type ExportBundleV6 = z.infer<typeof exportBundleSchemaV6>
 
 /**
  * Backups written before #129 carried a meal's reaction on the group

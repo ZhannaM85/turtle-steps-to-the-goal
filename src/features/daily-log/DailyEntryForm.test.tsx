@@ -2108,7 +2108,9 @@ describe('DailyEntryForm', () => {
       ).toBeInTheDocument()
     })
 
-    it('saves the typed total via the Save button', async () => {
+    // #271: water becomes a list of discrete, removable entries instead of
+    // a single running total.
+    it('adds a new entry via the manual field + confirm button, then clears the input', async () => {
       useWaterTrackingStore.setState({ enabled: true })
       const user = userEvent.setup()
       const onSave = vi.fn()
@@ -2120,10 +2122,13 @@ describe('DailyEntryForm', () => {
       await user.click(screen.getByRole('button', { name: 'Save water' }))
 
       expect(onSave).toHaveBeenCalledTimes(1)
-      expect(onSave.mock.calls[0][0].waterMl).toBe(750)
+      expect(onSave.mock.calls[0][0].waterEntries).toEqual([
+        expect.objectContaining({ amountMl: 750 }),
+      ])
+      expect(screen.getByLabelText('Water')).toHaveValue('')
     })
 
-    it('rejects an out-of-range total and does not save', async () => {
+    it('rejects an out-of-range amount and does not save', async () => {
       useWaterTrackingStore.setState({ enabled: true })
       const user = userEvent.setup()
       const onSave = vi.fn()
@@ -2138,7 +2143,7 @@ describe('DailyEntryForm', () => {
       expect(onSave).not.toHaveBeenCalled()
     })
 
-    it('bumps the running total and saves immediately on a quick-add click, with no prior value', async () => {
+    it('adds a new entry immediately on a quick-add click, with no prior entries', async () => {
       useWaterTrackingStore.setState({ enabled: true })
       const user = userEvent.setup()
       const onSave = vi.fn()
@@ -2149,11 +2154,13 @@ describe('DailyEntryForm', () => {
       await user.click(screen.getByRole('button', { name: '+1 glass (250ml)' }))
 
       expect(onSave).toHaveBeenCalledTimes(1)
-      expect(onSave.mock.calls[0][0].waterMl).toBe(250)
-      expect(screen.getByLabelText('Water')).toHaveValue('250')
+      expect(onSave.mock.calls[0][0].waterEntries).toEqual([
+        expect.objectContaining({ amountMl: 250 }),
+      ])
+      expect(screen.getByText('250ml')).toBeInTheDocument()
     })
 
-    it('adds to an already-logged total rather than replacing it', async () => {
+    it('adds to already-logged entries rather than replacing them', async () => {
       useWaterTrackingStore.setState({ enabled: true })
       const user = userEvent.setup()
       const onSave = vi.fn()
@@ -2163,7 +2170,7 @@ describe('DailyEntryForm', () => {
           existingEntry={{
             id: 'entry-1',
             date: '2026-03-01',
-            waterMl: 500,
+            waterEntries: [{ id: 'w1', amountMl: 500 }],
             createdAt: now,
             updatedAt: now,
           }}
@@ -2171,10 +2178,48 @@ describe('DailyEntryForm', () => {
         />,
       )
 
+      expect(screen.getByText('500ml')).toBeInTheDocument()
+
       await user.click(screen.getByRole('button', { name: '+1 bottle (500ml)' }))
 
       expect(onSave).toHaveBeenCalledTimes(1)
-      expect(onSave.mock.calls[0][0].waterMl).toBe(1000)
+      expect(onSave.mock.calls[0][0].waterEntries).toEqual([
+        expect.objectContaining({ id: 'w1', amountMl: 500 }),
+        expect.objectContaining({ amountMl: 500 }),
+      ])
+    })
+
+    it('removes a logged entry via its own remove button', async () => {
+      useWaterTrackingStore.setState({ enabled: true })
+      const user = userEvent.setup()
+      const onSave = vi.fn()
+      render(
+        <DailyEntryForm
+          date="2026-03-01"
+          existingEntry={{
+            id: 'entry-1',
+            date: '2026-03-01',
+            waterEntries: [
+              { id: 'w1', amountMl: 250 },
+              { id: 'w2', amountMl: 500 },
+            ],
+            createdAt: now,
+            updatedAt: now,
+          }}
+          onSave={onSave}
+        />,
+      )
+
+      await user.click(
+        screen.getByRole('button', { name: 'Remove 250ml entry' }),
+      )
+
+      expect(onSave).toHaveBeenCalledTimes(1)
+      expect(onSave.mock.calls[0][0].waterEntries).toEqual([
+        expect.objectContaining({ id: 'w2', amountMl: 500 }),
+      ])
+      expect(screen.queryByText('250ml')).not.toBeInTheDocument()
+      expect(screen.getByText('500ml')).toBeInTheDocument()
     })
   })
 })

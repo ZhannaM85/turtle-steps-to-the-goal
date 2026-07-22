@@ -4,6 +4,7 @@ import {
   totalCarbs,
   totalFat,
   totalProtein,
+  totalWaterMl,
 } from '@/domain/dailyEntry'
 import type { Dictionary } from '@/i18n'
 
@@ -72,7 +73,7 @@ export function buildDailyLogMarkdown(
       entry.note,
       entry.onPeriod,
       entry.hadConstipation,
-      entry.waterMl,
+      totalWaterMl(entry.waterEntries),
     ]),
   )
   return [headerRow, separatorRow, ...rows].join('\n')

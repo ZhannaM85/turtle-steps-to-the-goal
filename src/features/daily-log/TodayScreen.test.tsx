@@ -1000,7 +1000,7 @@ describe('TodayScreen', () => {
         .saveGoal(makeGoal({ dailyWaterTargetMl: 2000 }))
       await useDailyEntryStore
         .getState()
-        .saveEntry(makeEntry({ waterMl: 750 }))
+        .saveEntry(makeEntry({ waterEntries: [{ id: 'w1', amountMl: 750 }] }))
       useDailyEntryStore.setState({ entry: null, date: null, status: 'idle' })
 
       render(
@@ -1020,7 +1020,7 @@ describe('TodayScreen', () => {
         .saveGoal(makeGoal({ dailyWaterTargetMl: 2000 }))
       await useDailyEntryStore
         .getState()
-        .saveEntry(makeEntry({ waterMl: 2500 }))
+        .saveEntry(makeEntry({ waterEntries: [{ id: 'w1', amountMl: 2500 }] }))
       useDailyEntryStore.setState({ entry: null, date: null, status: 'idle' })
 
       render(

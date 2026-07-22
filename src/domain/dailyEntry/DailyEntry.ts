@@ -58,6 +58,19 @@ export interface CalorieEntry {
   timeEaten?: string
 }
 
+/**
+ * One discrete water/hydration log (#271) — replaces #258's single running
+ * `waterMl` total, which gave no visible feedback per add (a quick-add tap
+ * just quietly changed a number). Each add (quick-add button or manual
+ * entry) becomes its own removable entry, the same "add it, see it appear,
+ * remove it if wrong" shape `CalorieEntry` items already use, rather than
+ * inventing a new feedback mechanism.
+ */
+export interface WaterEntry {
+  id: string
+  amountMl: number
+}
+
 export interface DailyEntry {
   id: string
   date: string // ISO date, one entry per date
@@ -86,12 +99,12 @@ export interface DailyEntry {
    * `true` here has no relation to the old `hadBowelMovement` field this
    * replaced; that one meant the opposite thing, so no data carried over. */
   hadConstipation?: boolean
-  /** Opt-in water/hydration tracking (#258), same shape as onPeriod/
-   * hadConstipation above — only ever set when enabled in Settings
-   * (`useWaterTrackingStore`). A running daily total in milliliters, built
-   * up via quick-add buttons or direct entry, not a log of individual
-   * drinks. */
-  waterMl?: number
+  /** Opt-in water/hydration tracking (#258, list shape #271), same gating
+   * as onPeriod/hadConstipation above — only ever set when enabled in
+   * Settings (`useWaterTrackingStore`). A list of discrete adds rather than
+   * a single running total (#271) — sum via `totalWaterMl` for the day's
+   * overall amount, don't read entry.length or a stored total directly. */
+  waterEntries?: WaterEntry[]
   /** Body measurements (#225) — optional and independent of each other and
    * of weightKg, same shape as sleep/steps above. Always stored in cm
    * (waist/hip) or a plain percentage (body fat); unlike weightKg there's

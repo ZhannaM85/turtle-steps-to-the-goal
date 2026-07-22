@@ -4,6 +4,7 @@ import {
   totalCarbs,
   totalFat,
   totalProtein,
+  totalWaterMl,
 } from '@/domain/dailyEntry'
 import type { Dictionary } from '@/i18n'
 
@@ -79,7 +80,7 @@ export function buildDailyLogCsv(
       entry.note,
       entry.onPeriod,
       entry.hadConstipation,
-      entry.waterMl,
+      totalWaterMl(entry.waterEntries),
     ]),
   )
   // CRLF line endings per RFC 4180.

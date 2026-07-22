@@ -230,6 +230,7 @@ export const en: Dictionary = {
     mlUnit: 'ml',
     addGlassLabel: '+1 glass (250ml)',
     addBottleLabel: '+1 bottle (500ml)',
+    removeWaterEntryLabel: (amount) => `Remove ${amount} entry`,
     addItemSheetTitle: 'Add item',
     editItemSheetTitle: 'Edit item',
     closeItemEditorLabel: 'Close item editor',

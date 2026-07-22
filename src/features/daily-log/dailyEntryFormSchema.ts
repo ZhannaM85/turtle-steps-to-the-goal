@@ -49,10 +49,14 @@ export const stepsSchema = z.number().min(0).max(20000).optional()
 export const onPeriodSchema = z.boolean().optional()
 // Opt-in digestion tracking — same shape/gating as onPeriod above.
 export const hadConstipationSchema = z.boolean().optional()
-// Opt-in water tracking (#258) — a running daily total in ml, same
-// gating shape as onPeriod/hadConstipation above. 10000ml (10L) is a
-// generous human ceiling, not a recommendation.
-export const waterMlSchema = z.number().min(0).max(10000).optional()
+// Opt-in water tracking (#258), one discrete add (#271) — same gating
+// shape as onPeriod/hadConstipation above. 10000ml (10L) is a generous
+// human ceiling for a single add, not a recommendation.
+export const waterMlSchema = z.number().positive().max(10000)
+const waterEntrySchema = z.object({
+  id: z.string(),
+  amountMl: z.number(),
+})
 // Body measurements (#225) — independent optional fields, same shape as
 // sleep/steps above. Bounds are generous human ranges, not medical limits.
 export const waistCmSchema = z.number().min(30).max(300).optional()
@@ -77,7 +81,7 @@ export const dailyEntryFormSchema = z.object({
   steps: stepsSchema,
   onPeriod: onPeriodSchema,
   hadConstipation: hadConstipationSchema,
-  waterMl: waterMlSchema,
+  waterEntries: z.array(waterEntrySchema).optional(),
   waistCm: waistCmSchema,
   hipCm: hipCmSchema,
   bodyFatPercent: bodyFatPercentSchema,

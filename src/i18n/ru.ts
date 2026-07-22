@@ -231,6 +231,7 @@ export const ru: Dictionary = {
     mlUnit: 'мл',
     addGlassLabel: '+1 стакан (250мл)',
     addBottleLabel: '+1 бутылка (500мл)',
+    removeWaterEntryLabel: (amount) => `Удалить запись ${amount}`,
     addItemSheetTitle: 'Добавить блюдо',
     editItemSheetTitle: 'Редактировать блюдо',
     closeItemEditorLabel: 'Закрыть редактор блюда',

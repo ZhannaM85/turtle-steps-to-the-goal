@@ -156,6 +156,31 @@ export class AppDatabase extends Dexie {
             }
           }),
       )
+    // #271: water logging moves from a single running waterMl total to a
+    // list of discrete, removable entries (WaterEntry[]) — same "scalar
+    // becomes a single-item list" migration shape the v1->v2 caloriesConsumed
+    // upgrade above already used, bucketing whatever total was already
+    // logged into one legacy entry rather than dropping it.
+    this.version(8)
+      .stores({
+        goals: 'id, createdAt',
+        dailyEntries: 'id, &date',
+        mealItems: 'id, &name',
+        foodOverrides: '&foodId',
+      })
+      .upgrade((tx) =>
+        tx
+          .table('dailyEntries')
+          .toCollection()
+          .modify((entry) => {
+            if (entry.waterMl !== undefined && !entry.waterEntries) {
+              entry.waterEntries = [
+                { id: crypto.randomUUID(), amountMl: entry.waterMl },
+              ]
+            }
+            delete entry.waterMl
+          }),
+      )
   }
 }
 
