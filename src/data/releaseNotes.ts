@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 255,
+    issue: 281,
+    date: '2026-07-22T20:08:09+03:00',
+    en: 'Updated some wording in the About and Today screens to better reflect what the app actually tracks today.',
+    ru: 'Обновлены некоторые формулировки на экранах «О приложении» и «Сегодня», чтобы точнее отражать возможности приложения.',
+  },
+  {
     version: 254,
     issue: 271,
     date: '2026-07-22T19:47:00+03:00',
