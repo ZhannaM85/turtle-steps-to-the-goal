@@ -70,6 +70,8 @@ export const ru: Dictionary = {
     gRemainingUnit: 'г осталось',
     remainingFatLabel: 'Осталось жиров',
     remainingCarbLabel: 'Осталось углеводов',
+    remainingWaterLabel: 'Осталось воды',
+    mlRemainingUnit: 'мл осталось',
     bmiLabel: 'ИМТ',
     bmrLabel: 'Примерная суточная норма калорий (базовый обмен)',
     bmrUnit: 'ккал/день',
