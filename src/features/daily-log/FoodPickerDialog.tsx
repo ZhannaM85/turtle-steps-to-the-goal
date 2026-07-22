@@ -326,11 +326,20 @@ export function FoodPickerDialog({
               {t.dailyEntry.noFoodResultsText}
             </p>
           ) : (
-            /* No independent scroll region here (#74) — nested scroll
-             * containers on mobile made it unclear the list continued past
-             * the first ~6 visible rows. The whole dialog scrolls as one
-             * unit instead (see shared/ui/dialog.tsx's max-h-[85dvh]). */
-            <ul className="flex flex-col rounded-lg border border-border">
+            /* #275 — back to its own bounded scroll region (reversing
+             * #74's "whole dialog scrolls as one unit" for this one
+             * dialog specifically): the footer below can grow tall
+             * (serving-size toggle #254, per-row quantity fields #264,
+             * reaction picker), and `position: sticky` inside the
+             * fixed-position, overflow-y-auto DialogContent had a real,
+             * confirmed rendering bug — list rows past the sticky
+             * footer's own clipped bounds stayed visible underneath it.
+             * Removing the sticky positioning entirely (this list scrolls
+             * on its own, the footer is a plain element below it,
+             * unconditionally visible) sidesteps the bug outright rather
+             * than working around it. max-h-72 ≈ 6 rows, matching #74's
+             * own "first ~6 visible rows" sizing. */
+            <ul className="flex max-h-72 flex-col overflow-y-auto rounded-lg border border-border">
               {matches.map((item) => {
                 // Checked state survives a search-text change (#183) — the
                 // whole point of checking off several dishes is being able
@@ -448,13 +457,14 @@ export function FoodPickerDialog({
               })}
             </ul>
           )}
-          {/* Sticky footer (#91) — with 300+ results and no independent
-           * list scroll region (#74), the confirm button used to sit below
-           * the entire list, off-screen until scrolled all the way past it.
-           * Pinning it to the bottom of the dialog's own scrollport keeps it
-           * reachable regardless of scroll position; bg-card + border-top
-           * stop list rows showing through as they scroll underneath. */}
-          <div className="sticky bottom-0 flex flex-col gap-3 border-t border-border bg-card pt-3">
+          {/* #91 originally made this sticky so the confirm button stayed
+           * reachable without scrolling all the way past a 300+-item list.
+           * #275 reverses that: now that the list above scrolls in its
+           * own bounded region, this footer is always visible below it
+           * already, unconditionally — no sticky positioning needed (and
+           * sticky here is what caused #275's actual bug: list rows past
+           * its clipped bounds stayed visible underneath it). */}
+          <div className="flex flex-col gap-3 border-t border-border bg-card pt-3">
             {/* Reaction field (#183) only makes sense while exactly one
              * dish is checked, unchanged. #264: the quantity field used to
              * share that same single-pick-only restriction and only cover
