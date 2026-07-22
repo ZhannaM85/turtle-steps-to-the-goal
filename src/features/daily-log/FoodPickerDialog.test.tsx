@@ -626,6 +626,80 @@ describe('FoodPickerDialog', () => {
     })
   })
 
+  describe("today's running total preview (#273)", () => {
+    it('shows nothing when todayTotalKcal is not passed', async () => {
+      const user = userEvent.setup()
+      render(
+        <FoodPickerDialog open onOpenChange={vi.fn()} onAdd={vi.fn()} mealItems={[]} />,
+      )
+
+      await user.click(screen.getByText('Chicken breast'))
+
+      expect(screen.queryByText(/Today would be/)).not.toBeInTheDocument()
+    })
+
+    it('shows nothing until a dish is checked, even with todayTotalKcal passed', () => {
+      render(
+        <FoodPickerDialog
+          open
+          onOpenChange={vi.fn()}
+          onAdd={vi.fn()}
+          mealItems={[]}
+          todayTotalKcal={300}
+        />,
+      )
+
+      expect(screen.queryByText(/Today would be/)).not.toBeInTheDocument()
+    })
+
+    it('previews the new total for a single checked dish', async () => {
+      const user = userEvent.setup()
+      render(
+        <FoodPickerDialog
+          open
+          onOpenChange={vi.fn()}
+          onAdd={vi.fn()}
+          mealItems={[]}
+          todayTotalKcal={300}
+        />,
+      )
+
+      await user.click(screen.getByText('Salmon'))
+
+      expect(
+        screen.getByText('Today would be: 508 kcal (was 300 kcal)'),
+      ).toBeInTheDocument()
+
+      const quantityInput = screen.getByLabelText('Quantity (g)')
+      await user.clear(quantityInput)
+      await user.type(quantityInput, '50')
+
+      expect(
+        screen.getByText('Today would be: 404 kcal (was 300 kcal)'),
+      ).toBeInTheDocument()
+    })
+
+    it('sums every checked dish for a multi-select preview', async () => {
+      const user = userEvent.setup()
+      render(
+        <FoodPickerDialog
+          open
+          onOpenChange={vi.fn()}
+          onAdd={vi.fn()}
+          mealItems={[]}
+          todayTotalKcal={300}
+        />,
+      )
+
+      await user.click(screen.getByText('Salmon')) // 208 kcal/100g, default 100g
+      await user.click(screen.getByText('Tuna')) // 132 kcal/100g, default 100g
+
+      expect(
+        screen.getByText('Today would be: 640 kcal (was 300 kcal)'),
+      ).toBeInTheDocument()
+    })
+  })
+
   describe('food overrides (#90)', () => {
     it('excludes a curated food hidden via Settings', async () => {
       await useFoodOverrideStore.getState().setHidden('salmon', true)

@@ -1940,6 +1940,7 @@ export function MealList({
             onOpenChange={setIsFoodPickerOpen}
             onAdd={addFoodEntry}
             mealItems={mealItems}
+            todayTotalKcal={totalCalories(calorieEntries) ?? 0}
           />
         )}
         {/* #199: collapses this whole row for the rest of today once

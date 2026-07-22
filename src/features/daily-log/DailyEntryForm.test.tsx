@@ -1936,6 +1936,36 @@ describe('DailyEntryForm', () => {
           expect(screen.getByText('Breakfast — 208 kcal')).toBeInTheDocument()
         })
 
+        it("previews today's new running total when a food is checked (#273)", async () => {
+          const user = userEvent.setup()
+          render(
+            <DailyEntryForm
+              date="2026-03-01"
+              existingEntry={{
+                id: 'e1',
+                date: '2026-03-01',
+                calorieEntries: [
+                  {
+                    id: 'c1',
+                    items: [{ id: 'i1', name: 'Breakfast', amountKcal: 300 }],
+                    createdAt: '2026-01-01T00:00:00.000Z',
+                  },
+                ],
+                createdAt: now,
+                updatedAt: now,
+              }}
+              onSave={vi.fn()}
+            />,
+          )
+
+          await user.click(screen.getByRole('button', { name: 'Find food' }))
+          await user.click(screen.getByText('Salmon'))
+
+          expect(
+            screen.getByText('Today would be: 508 kcal (was 300 kcal)'),
+          ).toBeInTheDocument()
+        })
+
         it('stores the actual quantity picked, not just the default (#96)', async () => {
           const user = userEvent.setup()
           const onSave = vi.fn()
