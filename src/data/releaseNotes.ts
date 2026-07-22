@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 243,
+    issue: 253,
+    date: '2026-07-22T13:22:51+03:00',
+    en: 'Added "Copy yesterday\'s meals" — copies every meal from the day before in one go, with a checklist to pick which dishes to bring over.',
+    ru: 'Добавлена кнопка «Скопировать вчерашние приёмы пищи» — копирует все вчерашние приёмы пищи за один раз, со списком блюд для выбора.',
+  },
+  {
     version: 242,
     issue: 254,
     date: '2026-07-22T13:51:20+03:00',
