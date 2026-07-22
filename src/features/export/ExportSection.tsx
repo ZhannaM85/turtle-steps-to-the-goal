@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { format } from 'date-fns'
 import type { DailyEntry } from '@/domain/dailyEntry'
 import { useTranslation } from '@/i18n'
+import { useFoodOverrideStore, useMealItemStore } from '@/stores'
 import { Button } from '@/shared/ui/button'
 import {
   CardContent,
@@ -206,6 +207,16 @@ export function ExportSection() {
       const raw: unknown = JSON.parse(text)
       const bundle = parseExportBundle(raw)
       await importAllData(bundle)
+      // #285 — importAllData writes straight to IndexedDB via its own
+      // repository instances, bypassing useMealItemStore/useFoodOverrideStore
+      // entirely. Any already-mounted UI reading from those stores (e.g.
+      // MealItemsSection's Settings list, already open on this same page)
+      // otherwise keeps showing pre-import data until something unrelated
+      // happens to remount and reload them.
+      await Promise.all([
+        useMealItemStore.getState().loadItems(),
+        useFoodOverrideStore.getState().loadOverrides(),
+      ])
       setStatus({
         kind: 'imported',
         goals: bundle.goals.length,

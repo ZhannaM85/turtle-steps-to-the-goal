@@ -5,6 +5,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { DailyEntry } from '@/domain/dailyEntry'
 import type { Goal } from '@/domain/goal'
 import { db } from '@/infrastructure/persistence/indexeddb'
+import { useMealItemStore } from '@/stores'
 import { ExportSection } from './ExportSection'
 
 function makeGoal(overrides: Partial<Goal> = {}): Goal {
@@ -39,6 +40,8 @@ function makeFile(content: unknown, name = 'backup.json'): File {
 beforeEach(async () => {
   await db.goals.clear()
   await db.dailyEntries.clear()
+  await db.mealItems.clear()
+  useMealItemStore.setState({ items: [], status: 'idle', error: null })
   // jsdom doesn't implement object URLs or real navigation on anchor clicks;
   // ExportSection only needs these to not throw.
   vi.stubGlobal('URL', {
@@ -52,6 +55,7 @@ beforeEach(async () => {
 afterEach(async () => {
   await db.goals.clear()
   await db.dailyEntries.clear()
+  await db.mealItems.clear()
   vi.unstubAllGlobals()
   vi.restoreAllMocks()
   // jsdom has no built-in navigator.storage (#176) — reset whatever a test
@@ -180,6 +184,52 @@ describe('ExportSection', () => {
     ).toBeInTheDocument()
     expect(await db.goals.toArray()).toHaveLength(1)
     expect(await db.dailyEntries.toArray()).toHaveLength(2)
+  })
+
+  it('refreshes the already-loaded meal-item store after import, not just IndexedDB (#285)', async () => {
+    // Simulates useMealItemStore already having loaded (stale) data before
+    // the import runs — e.g. MealItemsSection already mounted on this same
+    // Settings page — the bug this regression test guards against.
+    useMealItemStore.setState({
+      items: [
+        {
+          id: 'existing-1',
+          name: 'Protein Bar',
+          favorite: false,
+          createdAt: '2026-01-01T00:00:00.000Z',
+          updatedAt: '2026-01-01T00:00:00.000Z',
+        },
+      ],
+      status: 'ready',
+      error: null,
+    })
+    const user = userEvent.setup()
+    const bundle = {
+      version: 7,
+      exportedAt: new Date().toISOString(),
+      goals: [],
+      dailyEntries: [],
+      mealItems: [
+        {
+          id: 'existing-1',
+          name: 'Protein Bar',
+          favorite: true,
+          createdAt: '2026-01-01T00:00:00.000Z',
+          updatedAt: '2026-01-02T00:00:00.000Z',
+        },
+      ],
+    }
+
+    render(<ExportSection />)
+    const input = document.querySelector(
+      'input[type="file"]',
+    ) as HTMLInputElement
+    await user.upload(input, makeFile(bundle))
+
+    await screen.findByText('Imported 0 goals and 0 daily entries.')
+    expect(useMealItemStore.getState().items).toContainEqual(
+      expect.objectContaining({ id: 'existing-1', favorite: true }),
+    )
   })
 
   it('shows a clear error for a file that is valid JSON but not a backup', async () => {

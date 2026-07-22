@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 264,
+    issue: 285,
+    date: '2026-07-23T00:21:18+03:00',
+    en: 'Fixed favorited foods imported from a backup not showing up as favorited in Settings until you happened to open the food-search modal.',
+    ru: 'Исправлена ошибка: избранные продукты из импортированной резервной копии не отображались как избранные в настройках, пока случайно не открывалось окно поиска продуктов.',
+  },
+  {
     version: 263,
     issue: 287,
     date: '2026-07-23T00:14:08+03:00',
