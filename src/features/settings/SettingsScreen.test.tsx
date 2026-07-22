@@ -324,9 +324,10 @@ describe('SettingsScreen', () => {
         '40',
       )
       expect(screen.getByRole('radio', { name: 'Male' })).toBeChecked()
-      expect(
-        screen.getByRole('radio', { name: 'Active', exact: true }),
-      ).toBeChecked()
+      // getByRole's `name` does exact accessible-name matching by
+      // default (unlike getByText/getByLabelText) — no `exact` option
+      // needed or valid here to disambiguate from "Very active".
+      expect(screen.getByRole('radio', { name: 'Active' })).toBeChecked()
     })
   })
 
