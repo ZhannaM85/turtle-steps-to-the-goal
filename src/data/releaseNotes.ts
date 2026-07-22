@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 247,
+    issue: 275,
+    date: '2026-07-22T15:53:18+03:00',
+    en: 'Fixed food-list items sometimes showing through underneath the "Add selected" button while scrolling.',
+    ru: 'Исправлена ошибка: элементы списка продуктов иногда были видны под кнопкой «Добавить выбранное» при прокрутке.',
+  },
+  {
     version: 246,
     issue: 267,
     date: '2026-07-22T14:26:50+03:00',
