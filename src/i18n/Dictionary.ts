@@ -284,6 +284,14 @@ export interface Dictionary {
     foodSearchLabel: string
     foodSearchPlaceholder: string
     foodQuantityLabel: string
+    /** #254 — a friendlier alternative to grams for a curated food with
+     * known serving sizes (egg, bread slice, medium fruit...). Toggle
+     * between plain grams and each of that food's own descriptors;
+     * `servingCountLabel` is "how many of this serving" once one's
+     * picked, replacing the grams field for that item. */
+    servingModeLabel: string
+    gramsModeOption: string
+    servingCountLabel: string
     noFoodResultsText: string
     /** Find food's confirm button (#183) — e.g. "Add selected (3)". Also
      * used with n=1 for a single pick, replacing the old static "Add". */

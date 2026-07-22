@@ -169,6 +169,9 @@ export const ru: Dictionary = {
     foodSearchLabel: 'Поиск продуктов',
     foodSearchPlaceholder: 'Поиск…',
     foodQuantityLabel: 'Количество (г)',
+    servingModeLabel: 'Порция',
+    gramsModeOption: 'Граммы',
+    servingCountLabel: 'Сколько',
     noFoodResultsText: 'Ничего не найдено.',
     addSelectedFoodsButton: (n) =>
       n > 1 ? `Добавить выбранное (${n})` : 'Добавить выбранное',

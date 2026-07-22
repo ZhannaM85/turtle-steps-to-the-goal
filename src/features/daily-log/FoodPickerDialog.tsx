@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Check, Trash2 } from 'lucide-react'
-import { type FoodItem, foods } from '@/data/foods'
+import { type FoodItem, type FoodServing, foods } from '@/data/foods'
 import type { MealEmotion } from '@/domain/dailyEntry'
 import type { MealItem } from '@/domain/mealItem'
 import { formatNumber, useLocale, useTranslation } from '@/i18n'
@@ -15,6 +15,7 @@ import { useFoodOverrideStore, useMealItemStore } from '@/stores'
 import { Button } from '@/shared/ui/button'
 import { Dialog, DialogContent, DialogTitle } from '@/shared/ui/dialog'
 import { Input } from '@/shared/ui/input'
+import { ToggleGroup, ToggleGroupItem } from '@/shared/ui/toggle-group'
 import { EmotionPicker } from './EmotionPicker'
 
 export interface PickedFoodValues {
@@ -108,6 +109,15 @@ export function FoodPickerDialog({
   // couldn't disambiguate which one it applies to. Falls back to
   // `defaultQuantityFor` for any item not yet touched.
   const [quantities, setQuantities] = useState<Record<string, string>>({})
+  // #254 — a friendlier alternative to grams for a food with known serving
+  // sizes (egg, bread slice, medium fruit, a cup of cooked rice/pasta...):
+  // 'grams' (default) uses the quantity field above as-is; any other value
+  // is the stringified index into that food's own `servings[]`, and the
+  // "how many" count below multiplies that descriptor's own gram weight.
+  // Single-select only — a shared descriptor across several different
+  // foods checked at once wouldn't mean the same thing for each of them.
+  const [servingMode, setServingMode] = useState('grams')
+  const [servingCount, setServingCount] = useState('1')
   const [emotion, setEmotion] = useState<MealEmotion | undefined>(undefined)
   // #209: lets a personal item be removed right from here, not just via
   // Settings → Meal items — same store action, same immediate (no confirm
@@ -165,9 +175,35 @@ export function FoodPickerDialog({
   function setQuantityFor(item: PickableItem, value: string) {
     setQuantities((prev) => ({ ...prev, [itemKey(item)]: value }))
   }
+  // #254 — resolves to the active serving descriptor only for the single
+  // selected food currently in serving mode; `undefined` (grams mode, a
+  // different item, a personal item, or a stale index left over from a
+  // previously selected food with fewer/no servings of its own) falls
+  // through to the plain quantity field everywhere below.
+  function activeServingFor(item: PickableItem): FoodServing | undefined {
+    if (item !== singleSelected || item.source !== 'food' || servingMode === 'grams') {
+      return undefined
+    }
+    return item.food.servings?.[Number(servingMode)]
+  }
   function hasValidQuantity(item: PickableItem): boolean {
+    const serving = activeServingFor(item)
+    if (serving) {
+      const num = parseNumberInput(servingCount)
+      return num !== undefined && num > 0
+    }
     const num = parseNumberInput(quantityFor(item))
     return num !== undefined && num > 0
+  }
+  function gramsFor(item: PickableItem): number {
+    const serving = activeServingFor(item)
+    if (serving) {
+      const countNum = parseNumberInput(servingCount)
+      const count = countNum && countNum > 0 ? countNum : 1
+      return serving.grams * count
+    }
+    const quantityNum = parseNumberInput(quantityFor(item))
+    return quantityNum && quantityNum > 0 ? quantityNum : 100
   }
   const canAdd =
     selectedItems.length > 0 && selectedItems.every(hasValidQuantity)
@@ -176,6 +212,8 @@ export function FoodPickerDialog({
     setSearch('')
     setSelectedKeys(new Set())
     setQuantities({})
+    setServingMode('grams')
+    setServingCount('1')
     setEmotion(undefined)
   }
 
@@ -208,11 +246,12 @@ export function FoodPickerDialog({
   // own to scale from, so `ratesFromAbsolute` derives one from its last
   // logged amount first — same helper the add row's own autocomplete
   // already uses to make a reused personal item's fields editable.
+  // #254 — `gramsFor` resolves either the grams-quantity field or a
+  // selected serving descriptor × count, whichever is active for this item.
   function scaledValuesFor(
     item: PickableItem,
   ): Omit<PickedFoodValues, 'emotion'> {
-    const quantityNum = parseNumberInput(quantityFor(item))
-    const grams = quantityNum && quantityNum > 0 ? quantityNum : 100
+    const grams = gramsFor(item)
     const scale = grams / 100
     if (item.source === 'food') {
       const { food } = item
@@ -423,21 +462,66 @@ export function FoodPickerDialog({
              * one dish is checked (a multi-pick gets its own per-row field
              * instead, above); reaction can still be fine-tuned afterward
              * via that item's own pencil once it's in the meal. */}
-            {singleSelected && (
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-muted-foreground">
-                  {t.dailyEntry.foodQuantityLabel}
-                </span>
-                <Input
-                  type="text"
-                  inputMode="decimal"
-                  aria-label={t.dailyEntry.foodQuantityLabel}
-                  value={quantityFor(singleSelected)}
-                  onChange={(e) => setQuantityFor(singleSelected, e.target.value)}
-                  className="h-8 w-20"
-                />
-              </div>
-            )}
+            {/* #254 — a friendlier alternative to grams, only offered
+             * once a single curated food with known serving sizes is
+             * checked (a personal item, or a food with none seeded, has
+             * nothing to offer here and just shows the grams field). */}
+            {singleSelected?.source === 'food' &&
+              singleSelected.food.servings &&
+              singleSelected.food.servings.length > 0 && (
+                <ToggleGroup
+                  type="single"
+                  aria-label={t.dailyEntry.servingModeLabel}
+                  value={servingMode}
+                  onValueChange={(value) => value && setServingMode(value)}
+                  className="w-fit flex-wrap gap-2 p-1"
+                >
+                  <ToggleGroupItem value="grams" className="h-8 px-3 text-xs">
+                    {t.dailyEntry.gramsModeOption}
+                  </ToggleGroupItem>
+                  {singleSelected.food.servings.map((serving, index) => (
+                    <ToggleGroupItem
+                      key={index}
+                      value={String(index)}
+                      className="h-8 px-3 text-xs"
+                    >
+                      {serving[locale]}
+                    </ToggleGroupItem>
+                  ))}
+                </ToggleGroup>
+              )}
+            {singleSelected &&
+              (activeServingFor(singleSelected) ? (
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-muted-foreground">
+                    {t.dailyEntry.servingCountLabel}
+                  </span>
+                  <Input
+                    type="text"
+                    inputMode="decimal"
+                    aria-label={t.dailyEntry.servingCountLabel}
+                    value={servingCount}
+                    onChange={(e) => setServingCount(e.target.value)}
+                    className="h-8 w-20"
+                  />
+                </div>
+              ) : (
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-muted-foreground">
+                    {t.dailyEntry.foodQuantityLabel}
+                  </span>
+                  <Input
+                    type="text"
+                    inputMode="decimal"
+                    aria-label={t.dailyEntry.foodQuantityLabel}
+                    value={quantityFor(singleSelected)}
+                    onChange={(e) =>
+                      setQuantityFor(singleSelected, e.target.value)
+                    }
+                    className="h-8 w-20"
+                  />
+                </div>
+              ))}
             {singleSelected && (
               <div className="flex flex-col gap-1.5">
                 <span className="text-sm text-muted-foreground">

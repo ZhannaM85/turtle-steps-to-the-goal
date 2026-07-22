@@ -531,6 +531,101 @@ describe('FoodPickerDialog', () => {
     })
   })
 
+  describe('serving descriptors (#254)', () => {
+    it('offers a serving-size toggle for a food with known servings, defaulting to grams', async () => {
+      const user = userEvent.setup()
+      render(
+        <FoodPickerDialog open onOpenChange={vi.fn()} onAdd={vi.fn()} mealItems={[]} />,
+      )
+
+      await user.click(screen.getByText('Egg'))
+
+      expect(screen.getByRole('radio', { name: 'Grams' })).toBeChecked()
+      expect(screen.getByRole('radio', { name: '1 small' })).toBeInTheDocument()
+      expect(screen.getByRole('radio', { name: '1 medium' })).toBeInTheDocument()
+      expect(screen.getByRole('radio', { name: '1 large' })).toBeInTheDocument()
+      expect(screen.getByLabelText('Quantity (g)')).toBeInTheDocument()
+    })
+
+    it('does not offer a serving-size toggle for a food with none seeded', async () => {
+      const user = userEvent.setup()
+      render(
+        <FoodPickerDialog open onOpenChange={vi.fn()} onAdd={vi.fn()} mealItems={[]} />,
+      )
+
+      await user.click(screen.getByText('Salmon'))
+
+      expect(screen.queryByRole('radio', { name: 'Grams' })).not.toBeInTheDocument()
+    })
+
+    it('switches to a "how many" count once a serving size is picked, and scales by it', async () => {
+      const user = userEvent.setup()
+      const onAdd = vi.fn()
+      render(
+        <FoodPickerDialog open onOpenChange={vi.fn()} onAdd={onAdd} mealItems={[]} />,
+      )
+
+      await user.click(screen.getByText('Egg'))
+      await user.click(screen.getByRole('radio', { name: '1 medium' }))
+
+      expect(screen.queryByLabelText('Quantity (g)')).not.toBeInTheDocument()
+      expect(screen.getByLabelText('How many')).toHaveValue('1')
+
+      await user.click(screen.getByRole('button', { name: 'Add selected' }))
+
+      // Egg: 155 kcal/100g, 13g protein/100g. 1 medium = 50g -> scale 0.5.
+      expect(onAdd).toHaveBeenCalledWith([
+        expect.objectContaining({ amountKcal: 78, proteinG: 6.5, amountG: 50 }),
+      ])
+    })
+
+    it('multiplies the serving weight by the "how many" count', async () => {
+      const user = userEvent.setup()
+      const onAdd = vi.fn()
+      render(
+        <FoodPickerDialog open onOpenChange={vi.fn()} onAdd={onAdd} mealItems={[]} />,
+      )
+
+      await user.click(screen.getByText('Egg'))
+      await user.click(screen.getByRole('radio', { name: '1 large' }))
+      const countInput = screen.getByLabelText('How many')
+      await user.clear(countInput)
+      await user.type(countInput, '2')
+      await user.click(screen.getByRole('button', { name: 'Add selected' }))
+
+      // 1 large = 56g, x2 = 112g -> scale 1.12
+      expect(onAdd).toHaveBeenCalledWith([
+        expect.objectContaining({ amountKcal: 174, amountG: 112 }),
+      ])
+    })
+
+    it('reverts to the quantity field when switched back to grams', async () => {
+      const user = userEvent.setup()
+      render(
+        <FoodPickerDialog open onOpenChange={vi.fn()} onAdd={vi.fn()} mealItems={[]} />,
+      )
+
+      await user.click(screen.getByText('Egg'))
+      await user.click(screen.getByRole('radio', { name: '1 medium' }))
+      await user.click(screen.getByRole('radio', { name: 'Grams' }))
+
+      expect(screen.getByLabelText('Quantity (g)')).toBeInTheDocument()
+      expect(screen.queryByLabelText('How many')).not.toBeInTheDocument()
+    })
+
+    it('hides the serving toggle once a second dish is checked', async () => {
+      const user = userEvent.setup()
+      render(
+        <FoodPickerDialog open onOpenChange={vi.fn()} onAdd={vi.fn()} mealItems={[]} />,
+      )
+
+      await user.click(screen.getByText('Egg'))
+      await user.click(screen.getByText('Salmon'))
+
+      expect(screen.queryByRole('radio', { name: 'Grams' })).not.toBeInTheDocument()
+    })
+  })
+
   describe('food overrides (#90)', () => {
     it('excludes a curated food hidden via Settings', async () => {
       await useFoodOverrideStore.getState().setHidden('salmon', true)

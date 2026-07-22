@@ -21,7 +21,23 @@
  * distinct cuts/preparations (e.g. raw vs cooked, or different %-fat
  * dairy) were kept as separate entries, matching how a real nutrition
  * database works.
+ *
+ * #254: a handful of entries also carry `servings` — common reference
+ * serving weights (egg sizes, a bread slice, a medium fruit/potato, a cup
+ * of cooked rice/pasta), using standard USDA/FDA reference amounts where
+ * one exists. Seeded for the most obviously ambiguous-in-grams foods only,
+ * not attempted for the rest of the list.
  */
+/** #254 — an optional named serving size (e.g. "1 slice", "1 medium"), a
+ * convenience alternative to guessing how many grams a serving actually
+ * is. Purely a friendlier input path — converts to the same gram-based
+ * math everywhere else, `amountG` still stores real grams either way. */
+export interface FoodServing {
+  en: string
+  ru: string
+  grams: number
+}
+
 export interface FoodItem {
   id: string
   en: string
@@ -30,6 +46,10 @@ export interface FoodItem {
   protein100: number
   fat100: number
   carbs100: number
+  /** Common reference serving weights (USDA/FDA-standard where one
+   * exists), seeded for a handful of foods where "how many grams" isn't
+   * obvious — not attempted for most of the list. */
+  servings?: FoodServing[]
 }
 
 export const foods: FoodItem[] = [
@@ -137,7 +157,11 @@ export const foods: FoodItem[] = [
   { id: 'butter-mushroom', en: 'Butter mushrooms (Boletus), fresh', ru: 'Маслята свежие', kcal100: 12, protein100: 2.5, fat100: 0.7, carbs100: 1.5 },
   { id: 'oyster-mushroom', en: 'Oyster mushrooms, fresh', ru: 'Вёшенки свежие', kcal100: 34, protein100: 2.5, fat100: 0.5, carbs100: 6.2 },
   // Eggs & protein powders
-  { id: 'egg', en: 'Egg', ru: 'Яйцо', kcal100: 155, protein100: 13, fat100: 11, carbs100: 1.1 },
+  { id: 'egg', en: 'Egg', ru: 'Яйцо', kcal100: 155, protein100: 13, fat100: 11, carbs100: 1.1, servings: [
+    { en: '1 small', ru: '1 маленькое', grams: 44 },
+    { en: '1 medium', ru: '1 среднее', grams: 50 },
+    { en: '1 large', ru: '1 крупное', grams: 56 },
+  ] },
   { id: 'quail-egg', en: 'Quail egg', ru: 'Перепелиное яйцо', kcal100: 170, protein100: 11.9, fat100: 13.3, carbs100: 0.8 },
   { id: 'duck-egg', en: 'Duck egg', ru: 'Утиное яйцо', kcal100: 176, protein100: 13.5, fat100: 14.1, carbs100: 0.2 },
   { id: 'omelet', en: 'Omelet', ru: 'Омлет', kcal100: 181, protein100: 9.7, fat100: 15.5, carbs100: 1.7 },
@@ -188,11 +212,17 @@ export const foods: FoodItem[] = [
   { id: 'coconut-milk', en: 'Coconut milk', ru: 'Кокосовое молоко', kcal100: 32, protein100: 0, fat100: 2, carbs100: 1.9 },
   { id: 'coconut-yogurt', en: 'Coconut yogurt', ru: 'Кокосовый йогурт', kcal100: 219, protein100: 2.5, fat100: 21, carbs100: 3.9 },
   // Grains & legumes
-  { id: 'rice-white', en: 'Rice, white, cooked', ru: 'Рис белый, варёный', kcal100: 130, protein100: 2.7, fat100: 0.3, carbs100: 28 },
-  { id: 'rice-brown', en: 'Rice, brown, cooked', ru: 'Рис бурый, варёный', kcal100: 112, protein100: 2.3, fat100: 0.9, carbs100: 24 },
+  { id: 'rice-white', en: 'Rice, white, cooked', ru: 'Рис белый, варёный', kcal100: 130, protein100: 2.7, fat100: 0.3, carbs100: 28, servings: [
+    { en: '1 cup', ru: '1 чашка', grams: 158 },
+  ] },
+  { id: 'rice-brown', en: 'Rice, brown, cooked', ru: 'Рис бурый, варёный', kcal100: 112, protein100: 2.3, fat100: 0.9, carbs100: 24, servings: [
+    { en: '1 cup', ru: '1 чашка', grams: 158 },
+  ] },
   { id: 'buckwheat', en: 'Buckwheat, cooked', ru: 'Гречка, варёная', kcal100: 92, protein100: 3.4, fat100: 0.6, carbs100: 20 },
   { id: 'oats', en: 'Oats, cooked', ru: 'Овсянка, варёная', kcal100: 71, protein100: 2.5, fat100: 1.5, carbs100: 12 },
-  { id: 'pasta', en: 'Pasta, cooked', ru: 'Макароны, варёные', kcal100: 131, protein100: 5, fat100: 1.1, carbs100: 25 },
+  { id: 'pasta', en: 'Pasta, cooked', ru: 'Макароны, варёные', kcal100: 131, protein100: 5, fat100: 1.1, carbs100: 25, servings: [
+    { en: '1 cup', ru: '1 чашка', grams: 140 },
+  ] },
   { id: 'lentils', en: 'Lentils, cooked', ru: 'Чечевица, варёная', kcal100: 116, protein100: 9, fat100: 0.4, carbs100: 20 },
   { id: 'chickpeas', en: 'Chickpeas, cooked', ru: 'Нут, варёный', kcal100: 164, protein100: 9, fat100: 2.6, carbs100: 27 },
   { id: 'black-beans', en: 'Black beans, cooked', ru: 'Чёрная фасоль, варёная', kcal100: 132, protein100: 8.9, fat100: 0.5, carbs100: 24 },
@@ -214,8 +244,12 @@ export const foods: FoodItem[] = [
   { id: 'millet-raw', en: 'Millet, raw', ru: 'Пшено, сырое', kcal100: 345, protein100: 12, fat100: 3.9, carbs100: 64 },
   { id: 'rye-raw', en: 'Rye, raw', ru: 'Рожь, сырая', kcal100: 363, protein100: 10, fat100: 1.6, carbs100: 69 },
   // Bakery & snacks
-  { id: 'bread-white', en: 'Bread, white', ru: 'Хлеб белый', kcal100: 265, protein100: 9, fat100: 3.2, carbs100: 49 },
-  { id: 'bread-whole-wheat', en: 'Bread, whole wheat', ru: 'Хлеб цельнозерновой', kcal100: 247, protein100: 13, fat100: 3.4, carbs100: 41 },
+  { id: 'bread-white', en: 'Bread, white', ru: 'Хлеб белый', kcal100: 265, protein100: 9, fat100: 3.2, carbs100: 49, servings: [
+    { en: '1 slice', ru: '1 ломтик', grams: 30 },
+  ] },
+  { id: 'bread-whole-wheat', en: 'Bread, whole wheat', ru: 'Хлеб цельнозерновой', kcal100: 247, protein100: 13, fat100: 3.4, carbs100: 41, servings: [
+    { en: '1 slice', ru: '1 ломтик', grams: 32 },
+  ] },
   { id: 'honey', en: 'Honey', ru: 'Мёд', kcal100: 304, protein100: 0.3, fat100: 0, carbs100: 82 },
   { id: 'dark-chocolate', en: 'Dark chocolate', ru: 'Тёмный шоколад', kcal100: 546, protein100: 4.9, fat100: 31, carbs100: 61 },
   { id: 'potato-chips', en: 'Potato chips', ru: 'Картофельные чипсы', kcal100: 536, protein100: 7, fat100: 34, carbs100: 53 },
@@ -229,7 +263,9 @@ export const foods: FoodItem[] = [
   { id: 'sushki', en: 'Sushki (mini bread rings)', ru: 'Сушки', kcal100: 335, protein100: 11.1, fat100: 1, carbs100: 72.2 },
   { id: 'bread-roll', en: 'Bread roll', ru: 'Булочка', kcal100: 218, protein100: 7.4, fat100: 1.8, carbs100: 43.7 },
   // Vegetables
-  { id: 'potato', en: 'Potato, boiled', ru: 'Картофель варёный', kcal100: 87, protein100: 1.9, fat100: 0.1, carbs100: 20 },
+  { id: 'potato', en: 'Potato, boiled', ru: 'Картофель варёный', kcal100: 87, protein100: 1.9, fat100: 0.1, carbs100: 20, servings: [
+    { en: '1 medium', ru: '1 средняя', grams: 150 },
+  ] },
   { id: 'sweet-potato', en: 'Sweet potato, boiled', ru: 'Батат варёный', kcal100: 76, protein100: 1.4, fat100: 0.1, carbs100: 18 },
   { id: 'broccoli', en: 'Broccoli', ru: 'Брокколи', kcal100: 34, protein100: 2.8, fat100: 0.4, carbs100: 7 },
   { id: 'carrot', en: 'Carrot', ru: 'Морковь', kcal100: 41, protein100: 0.9, fat100: 0.2, carbs100: 10 },
@@ -267,9 +303,15 @@ export const foods: FoodItem[] = [
   { id: 'turnip', en: 'Turnip, raw', ru: 'Репа, сырая', kcal100: 30, protein100: 0.9, fat100: 0, carbs100: 3.7 },
   { id: 'yam', en: 'Yam, raw', ru: 'Ямс, сырой', kcal100: 119, protein100: 1.6, fat100: 0, carbs100: 26 },
   // Fruits
-  { id: 'apple', en: 'Apple', ru: 'Яблоко', kcal100: 52, protein100: 0.3, fat100: 0.2, carbs100: 14 },
-  { id: 'banana', en: 'Banana', ru: 'Банан', kcal100: 89, protein100: 1.1, fat100: 0.3, carbs100: 23 },
-  { id: 'orange', en: 'Orange', ru: 'Апельсин', kcal100: 47, protein100: 0.9, fat100: 0.1, carbs100: 12 },
+  { id: 'apple', en: 'Apple', ru: 'Яблоко', kcal100: 52, protein100: 0.3, fat100: 0.2, carbs100: 14, servings: [
+    { en: '1 medium', ru: '1 среднее', grams: 182 },
+  ] },
+  { id: 'banana', en: 'Banana', ru: 'Банан', kcal100: 89, protein100: 1.1, fat100: 0.3, carbs100: 23, servings: [
+    { en: '1 medium', ru: '1 средний', grams: 118 },
+  ] },
+  { id: 'orange', en: 'Orange', ru: 'Апельсин', kcal100: 47, protein100: 0.9, fat100: 0.1, carbs100: 12, servings: [
+    { en: '1 medium', ru: '1 средний', grams: 131 },
+  ] },
   { id: 'grapes', en: 'Grapes', ru: 'Виноград', kcal100: 69, protein100: 0.7, fat100: 0.2, carbs100: 18 },
   { id: 'strawberry', en: 'Strawberry', ru: 'Клубника', kcal100: 32, protein100: 0.7, fat100: 0.3, carbs100: 7.7 },
   { id: 'blueberry', en: 'Blueberry', ru: 'Черника', kcal100: 57, protein100: 0.7, fat100: 0.3, carbs100: 14 },
