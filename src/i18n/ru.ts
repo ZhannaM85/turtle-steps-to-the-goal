@@ -169,6 +169,8 @@ export const ru: Dictionary = {
       n > 1 ? `Добавить выбранное (${n})` : 'Добавить выбранное',
     per100gLabel: 'на 100 г',
     computedTotalPrefix: 'Итого:',
+    todayWouldBeLabel: (newTotal, previousTotal) =>
+      `Итог за сегодня будет: ${newTotal} (было ${previousTotal})`,
     lastLoggedLabel: 'в прошлый раз',
     sleepLabel: 'Сон',
     sleepHoursLabel: 'Часов сна',

@@ -168,6 +168,8 @@ export const en: Dictionary = {
     addSelectedFoodsButton: (n) => (n > 1 ? `Add selected (${n})` : 'Add selected'),
     per100gLabel: 'per 100g',
     computedTotalPrefix: 'Total:',
+    todayWouldBeLabel: (newTotal, previousTotal) =>
+      `Today would be: ${newTotal} (was ${previousTotal})`,
     lastLoggedLabel: 'last logged',
     sleepLabel: 'Sleep',
     sleepHoursLabel: 'Hours slept',

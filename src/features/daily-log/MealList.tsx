@@ -31,6 +31,7 @@ import {
   calorieEntryFat,
   calorieEntryKcal,
   calorieEntryProtein,
+  totalCalories,
 } from '@/domain/dailyEntry'
 import type { MealItem } from '@/domain/mealItem'
 import {
@@ -1548,28 +1549,40 @@ export function MealList({
   // valid amount is typed. Also backs the Add button's disabled state
   // (#109) — a valid positive number either way, regardless of mode.
   const addAmountPreview = parseNumberInput(addAmount)
-  const addTotalPreview =
+  const addScaledPreview =
     addAmountPreview && addAmountPreview > 0
-      ? formatComputedTotal(
-          addMacroMode === 'per100g'
-            ? scaleFromPer100g(
-                addAmountPreview,
-                parseOptionalMacro(addProtein),
-                parseOptionalMacro(addFat),
-                parseOptionalMacro(addCarbs),
-                addAmountG,
-              )
-            : totalFromPortion(
-                addAmountPreview,
-                parseOptionalMacro(addProtein),
-                parseOptionalMacro(addFat),
-                parseOptionalMacro(addCarbs),
-                addAmountG,
-              ),
-          locale,
-          t,
-        )
+      ? addMacroMode === 'per100g'
+        ? scaleFromPer100g(
+            addAmountPreview,
+            parseOptionalMacro(addProtein),
+            parseOptionalMacro(addFat),
+            parseOptionalMacro(addCarbs),
+            addAmountG,
+          )
+        : totalFromPortion(
+            addAmountPreview,
+            parseOptionalMacro(addProtein),
+            parseOptionalMacro(addFat),
+            parseOptionalMacro(addCarbs),
+            addAmountG,
+          )
       : null
+  const addTotalPreview = addScaledPreview
+    ? formatComputedTotal(addScaledPreview, locale, t)
+    : null
+  // #260: this meal hasn't been saved yet — nothing about it is reflected
+  // in `calorieEntries` yet, so "today would be" is simply today's current
+  // total plus this draft, no risk of double-counting. (An already-saved
+  // meal's own edit sheet doesn't get this: that meal's *old* total is
+  // still sitting in `calorieEntries` until its outer Save commits the
+  // replacement, so the correct number there is a whole-meal delta, not
+  // this simple sum — left for a follow-up rather than shown wrong.)
+  const todayTotalPreview = addScaledPreview
+    ? t.dailyEntry.todayWouldBeLabel(
+        `${formatNumber((totalCalories(calorieEntries) ?? 0) + addScaledPreview.amountKcal, locale, 0)} ${t.dailyEntry.kcalUnit}`,
+        `${formatNumber(totalCalories(calorieEntries) ?? 0, locale, 0)} ${t.dailyEntry.kcalUnit}`,
+      )
+    : null
 
   return (
     <div className="flex flex-col gap-3">
@@ -1817,6 +1830,7 @@ export function MealList({
           onSelectMealItem={selectAddItemMealItem}
           emotion={addItemEmotion}
           onEmotionChange={setAddItemEmotion}
+          todayTotalPreview={todayTotalPreview ?? undefined}
           onSave={() => {
             addMeal()
             setIsAddItemSheetOpen(false)

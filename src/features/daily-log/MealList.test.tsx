@@ -105,6 +105,35 @@ describe('MealList', () => {
     expect(next[0].items[0].amountKcal).toBe(200)
   })
 
+  // #260: the draft's own preview ("Total: 200 kcal", #98) already existed —
+  // this is the new addition, showing what today's overall total would
+  // become, not just this one item's own total.
+  it('previews today\'s new running total while a new-meal draft has a valid amount', async () => {
+    const user = userEvent.setup()
+    const calorieEntries: CalorieEntry[] = [
+      {
+        id: 'c1',
+        items: [{ id: 'i1', name: 'Breakfast', amountKcal: 300 }],
+        createdAt: '2026-01-01T00:00:00.000Z',
+      },
+    ]
+    render(
+      <MealList calorieEntries={calorieEntries} date="2026-03-01" onChange={vi.fn()} />,
+      { wrapper: MemoryRouter },
+    )
+
+    expect(
+      screen.queryByText(/Today would be/),
+    ).not.toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: '+ Add item' }))
+    await user.type(screen.getByLabelText('kcal/100g'), '200')
+
+    expect(
+      screen.getByText('Today would be: 500 kcal (was 300 kcal)'),
+    ).toBeInTheDocument()
+  })
+
   describe('add-row draft recovery (#221)', () => {
     it('restores an in-progress add-row item after remounting on the same date', async () => {
       const user = userEvent.setup()

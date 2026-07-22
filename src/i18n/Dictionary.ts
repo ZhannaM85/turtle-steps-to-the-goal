@@ -273,6 +273,10 @@ export interface Dictionary {
      * keystroke from the per-100g rate × quantity fields (#96), so the
      * multiplication result is visible before Add/Save, not just after. */
     computedTotalPrefix: string
+    /** #260: today's prospective running total shown alongside the
+     * per-item preview above, only for a brand-new (not-yet-saved) meal
+     * draft — "Today would be: 1,850 kcal (was 1,550)". */
+    todayWouldBeLabel: (newTotal: string, previousTotal: string) => string
     lastLoggedLabel: string
     sleepLabel: string
     sleepHoursLabel: string

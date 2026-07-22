@@ -44,6 +44,14 @@ export interface MealItemEditorSheetProps {
    * different dishes in the same meal can carry different reactions. */
   emotion: MealEmotion | undefined
   onEmotionChange: (emotion: MealEmotion | undefined) => void
+  /** #260: today's prospective running total once this draft is saved,
+   * e.g. "Today would be: 1,850 kcal (was 1,550)" — only passed by the
+   * add-a-new-meal flow, where nothing about this draft is reflected in
+   * today's total yet. Omitted while editing an item within an
+   * already-saved meal, where that meal's *old* total is still counted
+   * until the outer Save commits the replacement (a different, harder
+   * whole-meal delta this doesn't attempt). */
+  todayTotalPreview?: string
   onSave: () => void
   /** Second footer action (#183) — saves this dish and keeps the sheet
    * open, reset for the next one, instead of closing. Only passed while
@@ -119,6 +127,7 @@ export function MealItemEditorSheet({
   onSelectMealItem,
   emotion,
   onEmotionChange,
+  todayTotalPreview,
   onSave,
   onSaveAndAddAnother,
 }: MealItemEditorSheetProps) {
@@ -264,6 +273,11 @@ export function MealItemEditorSheet({
           {totalPreview && (
             <p className="text-sm text-muted-foreground">
               {t.dailyEntry.computedTotalPrefix} {totalPreview}
+            </p>
+          )}
+          {totalPreview && todayTotalPreview && (
+            <p className="text-sm text-muted-foreground">
+              {todayTotalPreview}
             </p>
           )}
 
