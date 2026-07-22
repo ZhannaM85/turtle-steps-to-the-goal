@@ -1962,7 +1962,9 @@ describe('DailyEntryForm', () => {
           await user.click(screen.getByText('Salmon'))
 
           expect(
-            screen.getByText('Today would be: 508 kcal (was 300 kcal)'),
+            screen.getByText(
+              'Today would be: 508 kcal · P 20g · F 13g · C 0g (was 300 kcal · P 0g · F 0g · C 0g)',
+            ),
           ).toBeInTheDocument()
         })
 

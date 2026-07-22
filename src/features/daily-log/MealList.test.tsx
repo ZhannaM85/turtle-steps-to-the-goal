@@ -130,7 +130,9 @@ describe('MealList', () => {
     await user.type(screen.getByLabelText('kcal/100g'), '200')
 
     expect(
-      screen.getByText('Today would be: 500 kcal (was 300 kcal)'),
+      screen.getByText(
+        'Today would be: 500 kcal · P 0g · F 0g · C 0g (was 300 kcal · P 0g · F 0g · C 0g)',
+      ),
     ).toBeInTheDocument()
   })
 

@@ -9,8 +9,10 @@ import { FoodPickerDialog } from './FoodPickerDialog'
 
 // The food list grew to 300+ items (#78) — every test here renders the
 // dialog open, so the default 5s timeout is too tight under full-suite
-// parallel load even though each test is fast in isolation.
-vi.setConfig({ testTimeout: 15000 })
+// parallel load even though each test is fast in isolation. Bumped again
+// for #278: three more tests in this file pushed it further past the
+// 15s mark under full-suite parallel load (still ~3s each in isolation).
+vi.setConfig({ testTimeout: 25000 })
 
 function mealItem(overrides: Partial<MealItem> = {}): MealItem {
   return {
