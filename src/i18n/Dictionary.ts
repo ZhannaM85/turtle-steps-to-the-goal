@@ -298,15 +298,13 @@ export interface Dictionary {
     bodyFatLabel: string
     cmUnit: string
     percentUnit: string
-    bodyMeasurementsSummary: (
-      waist: string,
-      hip: string,
-      bodyFat: string,
-    ) => string
+    bodyMeasurementsSummary: (waist: string, hip: string) => string
     /** Body composition (#233) — bioimpedance-scale-style numbers (muscle
      * mass, visceral fat, body water %, bone mass), bundled as one
      * editable section same as bodyMeasurements above — a distinct group
-     * since these come from a smart scale, not a tape measure/caliper. */
+     * since these come from a smart scale, not a tape measure/caliper.
+     * #263: body fat % moved here from bodyMeasurements — same scale
+     * sync as the other four, not a tape measure/caliper reading. */
     bodyCompositionLabel: string
     editBodyCompositionLabel: string
     saveBodyCompositionLabel: string
@@ -320,6 +318,7 @@ export interface Dictionary {
       visceralFat: string,
       bodyWater: string,
       boneMass: string,
+      bodyFat: string,
     ) => string
     onPeriodLabel: string
     /** Opt-in digestion tracking's per-day toggle, on both Today and in

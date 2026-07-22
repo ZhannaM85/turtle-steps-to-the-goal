@@ -191,8 +191,7 @@ export const ru: Dictionary = {
     bodyFatLabel: 'Процент жира',
     cmUnit: 'см',
     percentUnit: '%',
-    bodyMeasurementsSummary: (waist, hip, bodyFat) =>
-      `Талия ${waist} · Бёдра ${hip} · Жир ${bodyFat}`,
+    bodyMeasurementsSummary: (waist, hip) => `Талия ${waist} · Бёдра ${hip}`,
     bodyCompositionLabel: 'Состав тела',
     editBodyCompositionLabel: 'Изменить состав тела',
     saveBodyCompositionLabel: 'Сохранить состав тела',
@@ -201,8 +200,14 @@ export const ru: Dictionary = {
     bodyWaterLabel: 'Вода в организме',
     boneMassLabel: 'Костная масса',
     kgUnit: 'кг',
-    bodyCompositionSummary: (muscleMass, visceralFat, bodyWater, boneMass) =>
-      `Мышцы ${muscleMass} · Висц. жир ${visceralFat} · Вода ${bodyWater} · Кости ${boneMass}`,
+    bodyCompositionSummary: (
+      muscleMass,
+      visceralFat,
+      bodyWater,
+      boneMass,
+      bodyFat,
+    ) =>
+      `Мышцы ${muscleMass} · Висц. жир ${visceralFat} · Вода ${bodyWater} · Кости ${boneMass} · Жир ${bodyFat}`,
     onPeriodLabel: 'Менструация',
     hadConstipationLabel: 'Запор',
     hadConstipationNoOption: 'Нет',

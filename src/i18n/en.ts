@@ -190,8 +190,7 @@ export const en: Dictionary = {
     bodyFatLabel: 'Body fat',
     cmUnit: 'cm',
     percentUnit: '%',
-    bodyMeasurementsSummary: (waist, hip, bodyFat) =>
-      `Waist ${waist} · Hip ${hip} · Body fat ${bodyFat}`,
+    bodyMeasurementsSummary: (waist, hip) => `Waist ${waist} · Hip ${hip}`,
     bodyCompositionLabel: 'Body composition',
     editBodyCompositionLabel: 'Edit body composition',
     saveBodyCompositionLabel: 'Save body composition',
@@ -200,8 +199,14 @@ export const en: Dictionary = {
     bodyWaterLabel: 'Body water',
     boneMassLabel: 'Bone mass',
     kgUnit: 'kg',
-    bodyCompositionSummary: (muscleMass, visceralFat, bodyWater, boneMass) =>
-      `Muscle ${muscleMass} · Visceral fat ${visceralFat} · Water ${bodyWater} · Bone ${boneMass}`,
+    bodyCompositionSummary: (
+      muscleMass,
+      visceralFat,
+      bodyWater,
+      boneMass,
+      bodyFat,
+    ) =>
+      `Muscle ${muscleMass} · Visceral fat ${visceralFat} · Water ${bodyWater} · Bone ${boneMass} · Body fat ${bodyFat}`,
     onPeriodLabel: 'On period',
     hadConstipationLabel: 'Constipation',
     hadConstipationNoOption: 'No',

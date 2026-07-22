@@ -169,19 +169,21 @@ export function DailyEntryForm({
   const [isEditingBodyMeasurements, setIsEditingBodyMeasurements] = useState(
     alwaysEditable ||
       (initialValues.waistCm === undefined &&
-        initialValues.hipCm === undefined &&
-        initialValues.bodyFatPercent === undefined),
+        initialValues.hipCm === undefined),
   )
   // Body composition (#233) — muscle mass/visceral fat/body water/bone
   // mass bundled under one edit toggle, same pattern as Body measurements
   // above (a distinct group since these come from a smart scale rather
-  // than a tape measure/caliper).
+  // than a tape measure/caliper). #263: body fat % moved here from Body
+  // measurements — for a bioimpedance scale it's read in the same sync as
+  // these four, not from a tape measure/caliper like waist/hip.
   const [isEditingBodyComposition, setIsEditingBodyComposition] = useState(
     alwaysEditable ||
       (initialValues.muscleMassKg === undefined &&
         initialValues.visceralFatRating === undefined &&
         initialValues.bodyWaterPercent === undefined &&
-        initialValues.boneMassKg === undefined),
+        initialValues.boneMassKg === undefined &&
+        initialValues.bodyFatPercent === undefined),
   )
 
   // Opt-in digestion tracking's on/off toggle (Settings) — the toggle
@@ -367,9 +369,6 @@ export function DailyEntryForm({
   function saveBodyMeasurements() {
     const waistResult = waistCmSchema.safeParse(getValues('waistCm'))
     const hipResult = hipCmSchema.safeParse(getValues('hipCm'))
-    const bodyFatResult = bodyFatPercentSchema.safeParse(
-      getValues('bodyFatPercent'),
-    )
     if (!waistResult.success) {
       setError('waistCm', { message: waistResult.error.issues[0].message })
       return
@@ -378,15 +377,8 @@ export function DailyEntryForm({
       setError('hipCm', { message: hipResult.error.issues[0].message })
       return
     }
-    if (!bodyFatResult.success) {
-      setError('bodyFatPercent', {
-        message: bodyFatResult.error.issues[0].message,
-      })
-      return
-    }
     clearErrors('waistCm')
     clearErrors('hipCm')
-    clearErrors('bodyFatPercent')
     setIsEditingBodyMeasurements(false)
     persist(getValues())
   }
@@ -402,6 +394,9 @@ export function DailyEntryForm({
       getValues('bodyWaterPercent'),
     )
     const boneResult = boneMassKgSchema.safeParse(getValues('boneMassKg'))
+    const bodyFatResult = bodyFatPercentSchema.safeParse(
+      getValues('bodyFatPercent'),
+    )
     if (!muscleResult.success) {
       setError('muscleMassKg', {
         message: muscleResult.error.issues[0].message,
@@ -424,10 +419,17 @@ export function DailyEntryForm({
       setError('boneMassKg', { message: boneResult.error.issues[0].message })
       return
     }
+    if (!bodyFatResult.success) {
+      setError('bodyFatPercent', {
+        message: bodyFatResult.error.issues[0].message,
+      })
+      return
+    }
     clearErrors('muscleMassKg')
     clearErrors('visceralFatRating')
     clearErrors('bodyWaterPercent')
     clearErrors('boneMassKg')
+    clearErrors('bodyFatPercent')
     setIsEditingBodyComposition(false)
     persist(getValues())
   }
@@ -807,9 +809,6 @@ export function DailyEntryForm({
                 hipCm === undefined
                   ? '—'
                   : `${formatExactNumber(hipCm, locale)}${t.dailyEntry.cmUnit}`,
-                bodyFatPercent === undefined
-                  ? '—'
-                  : `${formatExactNumber(bodyFatPercent, locale)}${t.dailyEntry.percentUnit}`,
               )}
             </span>
             <Button
@@ -877,32 +876,6 @@ export function DailyEntryForm({
                 </span>
               </div>
             </div>
-            <div className="flex flex-col gap-1">
-              <span className="text-xs text-muted-foreground">
-                {t.dailyEntry.bodyFatLabel}
-              </span>
-              <div className="flex items-center gap-1">
-                <Input
-                  type="text"
-                  inputMode="decimal"
-                  aria-label={`${t.dailyEntry.bodyFatLabel} (${t.dailyEntry.percentUnit})`}
-                  aria-invalid={errors.bodyFatPercent ? true : undefined}
-                  className="h-12 w-16"
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
-                      e.preventDefault()
-                      saveBodyMeasurements()
-                    }
-                  }}
-                  {...register('bodyFatPercent', {
-                    setValueAs: parseNumberInput,
-                  })}
-                />
-                <span className="text-xs text-muted-foreground">
-                  {t.dailyEntry.percentUnit}
-                </span>
-              </div>
-            </div>
             <Button
               type="button"
               variant="outline"
@@ -913,11 +886,9 @@ export function DailyEntryForm({
               <Check aria-hidden="true" />
             </Button>
           </div>
-          {(errors.waistCm || errors.hipCm || errors.bodyFatPercent) && (
+          {(errors.waistCm || errors.hipCm) && (
             <p className="text-sm text-destructive">
-              {errors.waistCm?.message ??
-                errors.hipCm?.message ??
-                errors.bodyFatPercent?.message}
+              {errors.waistCm?.message ?? errors.hipCm?.message}
             </p>
           )}
         </div>
@@ -948,6 +919,9 @@ export function DailyEntryForm({
                 boneMassKg === undefined
                   ? '—'
                   : `${formatExactNumber(boneMassKg, locale)}${t.dailyEntry.kgUnit}`,
+                bodyFatPercent === undefined
+                  ? '—'
+                  : `${formatExactNumber(bodyFatPercent, locale)}${t.dailyEntry.percentUnit}`,
               )}
             </span>
             <Button
@@ -1064,6 +1038,32 @@ export function DailyEntryForm({
                 </span>
               </div>
             </div>
+            <div className="flex flex-col gap-1">
+              <span className="text-xs text-muted-foreground">
+                {t.dailyEntry.bodyFatLabel}
+              </span>
+              <div className="flex items-center gap-1">
+                <Input
+                  type="text"
+                  inputMode="decimal"
+                  aria-label={`${t.dailyEntry.bodyFatLabel} (${t.dailyEntry.percentUnit})`}
+                  aria-invalid={errors.bodyFatPercent ? true : undefined}
+                  className="h-12 w-16"
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault()
+                      saveBodyComposition()
+                    }
+                  }}
+                  {...register('bodyFatPercent', {
+                    setValueAs: parseNumberInput,
+                  })}
+                />
+                <span className="text-xs text-muted-foreground">
+                  {t.dailyEntry.percentUnit}
+                </span>
+              </div>
+            </div>
             <Button
               type="button"
               variant="outline"
@@ -1077,12 +1077,14 @@ export function DailyEntryForm({
           {(errors.muscleMassKg ||
             errors.visceralFatRating ||
             errors.bodyWaterPercent ||
-            errors.boneMassKg) && (
+            errors.boneMassKg ||
+            errors.bodyFatPercent) && (
             <p className="text-sm text-destructive">
               {errors.muscleMassKg?.message ??
                 errors.visceralFatRating?.message ??
                 errors.bodyWaterPercent?.message ??
-                errors.boneMassKg?.message}
+                errors.boneMassKg?.message ??
+                errors.bodyFatPercent?.message}
             </p>
           )}
         </div>

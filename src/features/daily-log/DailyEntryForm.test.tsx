@@ -478,7 +478,7 @@ describe('DailyEntryForm', () => {
   })
 
   describe('body measurements (#225)', () => {
-    it('saves waist/hip/body fat together via one Save button', async () => {
+    it('saves waist/hip together via one Save button', async () => {
       const user = userEvent.setup()
       const onSave = vi.fn()
       render(
@@ -491,7 +491,6 @@ describe('DailyEntryForm', () => {
 
       await user.type(screen.getByLabelText('Waist (cm)'), '80')
       await user.type(screen.getByLabelText('Hip (cm)'), '95')
-      await user.type(screen.getByLabelText('Body fat (%)'), '22')
       await user.click(
         screen.getByRole('button', { name: 'Save body measurements' }),
       )
@@ -499,10 +498,7 @@ describe('DailyEntryForm', () => {
       expect(onSave).toHaveBeenCalledTimes(1)
       expect(onSave.mock.calls[0][0].waistCm).toBe(80)
       expect(onSave.mock.calls[0][0].hipCm).toBe(95)
-      expect(onSave.mock.calls[0][0].bodyFatPercent).toBe(22)
-      expect(
-        screen.getByText('Waist 80cm · Hip 95cm · Body fat 22%'),
-      ).toBeInTheDocument()
+      expect(screen.getByText('Waist 80cm · Hip 95cm')).toBeInTheDocument()
     })
 
     it('rejects an out-of-range waist value and does not save', async () => {
@@ -536,7 +532,6 @@ describe('DailyEntryForm', () => {
             date: '2026-03-01',
             waistCm: 80,
             hipCm: 95,
-            bodyFatPercent: 22,
             createdAt: now,
             updatedAt: now,
           }}
@@ -544,9 +539,7 @@ describe('DailyEntryForm', () => {
         />,
       )
 
-      expect(
-        screen.getByText('Waist 80cm · Hip 95cm · Body fat 22%'),
-      ).toBeInTheDocument()
+      expect(screen.getByText('Waist 80cm · Hip 95cm')).toBeInTheDocument()
       expect(
         screen.queryByRole('button', { name: 'Save body measurements' }),
       ).not.toBeInTheDocument()
@@ -563,9 +556,7 @@ describe('DailyEntryForm', () => {
       )
 
       expect(onSave.mock.calls[0][0].waistCm).toBe(78)
-      expect(
-        screen.getByText('Waist 78cm · Hip 95cm · Body fat 22%'),
-      ).toBeInTheDocument()
+      expect(screen.getByText('Waist 78cm · Hip 95cm')).toBeInTheDocument()
     })
   })
 
@@ -585,6 +576,7 @@ describe('DailyEntryForm', () => {
       await user.type(screen.getByLabelText('Visceral fat'), '5')
       await user.type(screen.getByLabelText('Body water (%)'), '48')
       await user.type(screen.getByLabelText('Bone mass (kg)'), '2.3')
+      await user.type(screen.getByLabelText('Body fat (%)'), '22')
       await user.click(
         screen.getByRole('button', { name: 'Save body composition' }),
       )
@@ -594,8 +586,11 @@ describe('DailyEntryForm', () => {
       expect(onSave.mock.calls[0][0].visceralFatRating).toBe(5)
       expect(onSave.mock.calls[0][0].bodyWaterPercent).toBe(48)
       expect(onSave.mock.calls[0][0].boneMassKg).toBe(2.3)
+      expect(onSave.mock.calls[0][0].bodyFatPercent).toBe(22)
       expect(
-        screen.getByText('Muscle 30kg · Visceral fat 5 · Water 48% · Bone 2.3kg'),
+        screen.getByText(
+          'Muscle 30kg · Visceral fat 5 · Water 48% · Bone 2.3kg · Body fat 22%',
+        ),
       ).toBeInTheDocument()
     })
 
@@ -632,6 +627,7 @@ describe('DailyEntryForm', () => {
             visceralFatRating: 5,
             bodyWaterPercent: 48,
             boneMassKg: 2.3,
+            bodyFatPercent: 22,
             createdAt: now,
             updatedAt: now,
           }}
@@ -640,7 +636,9 @@ describe('DailyEntryForm', () => {
       )
 
       expect(
-        screen.getByText('Muscle 30kg · Visceral fat 5 · Water 48% · Bone 2.3kg'),
+        screen.getByText(
+          'Muscle 30kg · Visceral fat 5 · Water 48% · Bone 2.3kg · Body fat 22%',
+        ),
       ).toBeInTheDocument()
       expect(
         screen.queryByRole('button', { name: 'Save body composition' }),
@@ -659,7 +657,9 @@ describe('DailyEntryForm', () => {
 
       expect(onSave.mock.calls[0][0].muscleMassKg).toBe(31)
       expect(
-        screen.getByText('Muscle 31kg · Visceral fat 5 · Water 48% · Bone 2.3kg'),
+        screen.getByText(
+          'Muscle 31kg · Visceral fat 5 · Water 48% · Bone 2.3kg · Body fat 22%',
+        ),
       ).toBeInTheDocument()
     })
   })
