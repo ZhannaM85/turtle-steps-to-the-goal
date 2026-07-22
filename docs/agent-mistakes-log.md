@@ -80,6 +80,8 @@ future session can see the pattern, not just the count.
 
 | 2026-07-22 | Prompted | `git commit -m "$(cat <<'EOF' ... EOF)"` — heredoc wrapped in command substitution for a multi-line commit message closing #263/#264/#265/#266/#268, the exact same shape already logged as a mistake twice earlier this session (2026-07-21 rows) | AGENT_WORKFLOW.md "compound shell shapes" (heredoc + `$(...)`) — third occurrence of this identical pattern across sessions; should write the message to a scratch file and use `git commit -F <path>` instead, the same fix already used for `gh issue --body-file` |
 
+| 2026-07-22 | Instruction miss | Commit `a703a47`'s body read "Also fixes #272 (heatmap days-logged/calories note wraps awkwardly)... Not yet confirmed on-device" — deliberately avoided a closing keyword in the *subject* line, then used the literal keyword "fixes" in the very next sentence anyway, auto-closing an issue the user explicitly hadn't validated. Caught only because the user noticed the issue was closed | [[feedback_commit_message_autocloses_issue]] — the rule isn't "don't open with 'Fix #N:'," it's "no closing keyword (fix/fixes/fixed/close/closes/closed/resolve/resolves/resolved) anywhere near an unvalidated issue number in the commit message," full stop. Reasoned correctly about this exact risk earlier in the same turn and still wrote the trigger word two sentences later — needs a literal scan of the drafted message for the keyword list before committing, not just "don't start the subject with Fix" |
+
 ## Related standing fixes made because of this log
 
 - `CLAUDE.md` gained a top-of-file "⚠️ Shell safety" callout (2026-07-19).
