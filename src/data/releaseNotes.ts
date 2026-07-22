@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 259,
+    issue: 256,
+    date: '2026-07-22T22:54:01+03:00',
+    en: 'You can now scan a packaged food\'s barcode to add it — matches your own saved foods first, then looks it up online if it\'s new.',
+    ru: 'Теперь можно отсканировать штрихкод продукта, чтобы добавить его — сначала ищет среди уже сохранённых продуктов, а для новых — в интернете.',
+  },
+  {
     version: 258,
     issue: 284,
     date: '2026-07-22T23:04:44+03:00',
