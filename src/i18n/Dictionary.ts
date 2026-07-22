@@ -371,10 +371,9 @@ export interface Dictionary {
     hadConstipationYesOption: string
     /** Opt-in water tracking (#258), a list of discrete entries rather
      * than a single running total (#271) — same gating shape as onPeriod/
-     * hadConstipation above. Quick-add buttons plus manual entry + its own
-     * confirm button each add one new removable entry. */
+     * hadConstipation above. #282: only the two fixed-amount quick-add
+     * buttons remain (no manual "type any amount" input/confirm button). */
     waterLabel: string
-    saveWaterLabel: string
     mlUnit: string
     addGlassLabel: string
     addBottleLabel: string

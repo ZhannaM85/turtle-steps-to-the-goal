@@ -2090,57 +2090,26 @@ describe('DailyEntryForm', () => {
         <DailyEntryForm date="2026-03-01" existingEntry={null} onSave={vi.fn()} />,
       )
 
-      expect(screen.queryByLabelText('Water')).not.toBeInTheDocument()
+      expect(
+        screen.queryByRole('button', { name: '+1 glass (250ml)' }),
+      ).not.toBeInTheDocument()
     })
 
-    it('shows the field with quick-add buttons when enabled', () => {
+    // #282: the manual "type any amount" input was removed after #271's
+    // validation — only the two fixed-amount quick-add buttons remain.
+    it('shows only the two quick-add buttons when enabled, no manual input', () => {
       useWaterTrackingStore.setState({ enabled: true })
       render(
         <DailyEntryForm date="2026-03-01" existingEntry={null} onSave={vi.fn()} />,
       )
 
-      expect(screen.getByLabelText('Water')).toBeInTheDocument()
       expect(
         screen.getByRole('button', { name: '+1 glass (250ml)' }),
       ).toBeInTheDocument()
       expect(
         screen.getByRole('button', { name: '+1 bottle (500ml)' }),
       ).toBeInTheDocument()
-    })
-
-    // #271: water becomes a list of discrete, removable entries instead of
-    // a single running total.
-    it('adds a new entry via the manual field + confirm button, then clears the input', async () => {
-      useWaterTrackingStore.setState({ enabled: true })
-      const user = userEvent.setup()
-      const onSave = vi.fn()
-      render(
-        <DailyEntryForm date="2026-03-01" existingEntry={null} onSave={onSave} />,
-      )
-
-      await user.type(screen.getByLabelText('Water'), '750')
-      await user.click(screen.getByRole('button', { name: 'Save water' }))
-
-      expect(onSave).toHaveBeenCalledTimes(1)
-      expect(onSave.mock.calls[0][0].waterEntries).toEqual([
-        expect.objectContaining({ amountMl: 750 }),
-      ])
-      expect(screen.getByLabelText('Water')).toHaveValue('')
-    })
-
-    it('rejects an out-of-range amount and does not save', async () => {
-      useWaterTrackingStore.setState({ enabled: true })
-      const user = userEvent.setup()
-      const onSave = vi.fn()
-      render(
-        <DailyEntryForm date="2026-03-01" existingEntry={null} onSave={onSave} />,
-      )
-
-      await user.type(screen.getByLabelText('Water'), '99999')
-      await user.click(screen.getByRole('button', { name: 'Save water' }))
-
-      expect(await screen.findByText(/Too big/)).toBeInTheDocument()
-      expect(onSave).not.toHaveBeenCalled()
+      expect(screen.queryByLabelText('Water')).not.toBeInTheDocument()
     })
 
     it('adds a new entry immediately on a quick-add click, with no prior entries', async () => {

@@ -227,7 +227,6 @@ export const ru: Dictionary = {
     hadConstipationNoOption: 'Нет',
     hadConstipationYesOption: 'Да',
     waterLabel: 'Вода',
-    saveWaterLabel: 'Сохранить воду',
     mlUnit: 'мл',
     addGlassLabel: '+1 стакан (250мл)',
     addBottleLabel: '+1 бутылка (500мл)',

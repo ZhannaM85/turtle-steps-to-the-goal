@@ -50,9 +50,10 @@ export const onPeriodSchema = z.boolean().optional()
 // Opt-in digestion tracking — same shape/gating as onPeriod above.
 export const hadConstipationSchema = z.boolean().optional()
 // Opt-in water tracking (#258), one discrete add (#271) — same gating
-// shape as onPeriod/hadConstipation above. 10000ml (10L) is a generous
-// human ceiling for a single add, not a recommendation.
-export const waterMlSchema = z.number().positive().max(10000)
+// shape as onPeriod/hadConstipation above. #282 removed the manual
+// "type any amount" input (only the two fixed 250/500ml quick-add
+// buttons remain), so there's no untrusted single amount left to
+// validate — this schema now only shapes the persisted entries list.
 const waterEntrySchema = z.object({
   id: z.string(),
   amountMl: z.number(),

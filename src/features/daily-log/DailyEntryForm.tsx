@@ -41,7 +41,6 @@ import {
   stepsSchema,
   visceralFatRatingSchema,
   waistCmSchema,
-  waterMlSchema,
   weightSchema,
   type DailyEntryFormValues,
 } from './dailyEntryFormSchema'
@@ -136,10 +135,6 @@ export function DailyEntryForm({
   const [pendingUnusualWeight, setPendingUnusualWeight] = useState<
     number | null
   >(null)
-  // #271 — the manual "amount to add" input; transient staging state, not
-  // itself a persisted field (see addWaterEntry's own comment below).
-  const [waterInput, setWaterInput] = useState('')
-  const [waterInputError, setWaterInputError] = useState<string | null>(null)
   const [isEditingNote, setIsEditingNote] = useState(
     alwaysEditable || !initialValues.note,
   )
@@ -270,34 +265,19 @@ export function DailyEntryForm({
     persist({ ...getValues(), hadConstipation: value })
   }
 
-  // #271: each add (quick-add button or manual entry + confirm) becomes
-  // its own removable entry instead of bumping a single running total —
-  // the previous single-number version gave no visible feedback per add,
-  // reported as "looks like nothing happens." The manual-entry input is
-  // local state (waterInput below), not an RHF field, since it holds a
-  // transient "amount to add" rather than anything persisted directly —
-  // same distinction MealList.tsx's own add-row fields draw against the
-  // final calorieEntries array.
+  // #271: each quick-add tap becomes its own removable entry instead of
+  // bumping a single running total — the previous single-number version
+  // gave no visible feedback per add, reported as "looks like nothing
+  // happens." #282: only ever called with the two fixed quick-add amounts
+  // (250/500) now that the manual "type any amount" input is gone, so
+  // there's no untrusted value here left to validate.
   function addWaterEntry(amountMl: number) {
-    const result = waterMlSchema.safeParse(amountMl)
-    if (!result.success) {
-      setWaterInputError(result.error.issues[0].message)
-      return
-    }
-    setWaterInputError(null)
     const entries = [
       ...(getValues('waterEntries') ?? []),
       { id: crypto.randomUUID(), amountMl },
     ]
     setValue('waterEntries', entries, { shouldDirty: true })
     persist({ ...getValues(), waterEntries: entries })
-  }
-
-  function saveWaterInput() {
-    const amountMl = parseNumberInput(waterInput)
-    if (amountMl === undefined) return
-    addWaterEntry(amountMl)
-    setWaterInput('')
   }
 
   function removeWaterEntry(id: string) {
@@ -1203,35 +1183,6 @@ export function DailyEntryForm({
       {waterTrackingEnabled && (
         <div className="flex flex-col gap-1.5">
           <span className="text-sm font-medium">{t.dailyEntry.waterLabel}</span>
-          <div className="flex items-center gap-3">
-            <Input
-              type="text"
-              inputMode="numeric"
-              aria-label={t.dailyEntry.waterLabel}
-              aria-invalid={waterInputError ? true : undefined}
-              className="h-12 w-24"
-              value={waterInput}
-              onChange={(e) => setWaterInput(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') {
-                  e.preventDefault()
-                  saveWaterInput()
-                }
-              }}
-            />
-            <span className="text-xs text-muted-foreground">
-              {t.dailyEntry.mlUnit}
-            </span>
-            <Button
-              type="button"
-              variant="outline"
-              size="icon-xl"
-              aria-label={t.dailyEntry.saveWaterLabel}
-              onClick={saveWaterInput}
-            >
-              <Check aria-hidden="true" />
-            </Button>
-          </div>
           <div className="flex flex-wrap items-center gap-3">
             <Button
               type="button"
@@ -1250,9 +1201,6 @@ export function DailyEntryForm({
               {t.dailyEntry.addBottleLabel}
             </Button>
           </div>
-          {waterInputError && (
-            <p className="text-sm text-destructive">{waterInputError}</p>
-          )}
           {waterEntries.length > 0 && (
             <div className="flex flex-wrap items-center gap-2">
               {waterEntries.map((entry) => {

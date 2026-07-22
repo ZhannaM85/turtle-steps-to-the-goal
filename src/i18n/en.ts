@@ -225,7 +225,6 @@ export const en: Dictionary = {
     hadConstipationNoOption: 'No',
     hadConstipationYesOption: 'Yes',
     waterLabel: 'Water',
-    saveWaterLabel: 'Save water',
     mlUnit: 'ml',
     addGlassLabel: '+1 glass (250ml)',
     addBottleLabel: '+1 bottle (500ml)',
