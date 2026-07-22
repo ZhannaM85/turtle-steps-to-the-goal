@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 249,
+    issue: 276,
+    date: '2026-07-22T17:22:40+03:00',
+    en: 'You can now mark foods as favorites in the food-search modal — favorited foods show up first in your search results.',
+    ru: 'Теперь можно отмечать еду как избранную в окне поиска — избранные продукты появляются первыми в результатах поиска.',
+  },
+  {
     version: 248,
     issue: 273,
     date: '2026-07-22T16:23:32+03:00',

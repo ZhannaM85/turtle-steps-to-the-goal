@@ -51,15 +51,20 @@ export interface FoodPickerDialogProps {
    * nutrition are shown; a bare name with nothing to reuse yet stays
    * confined to the note field's own autocomplete. */
   mealItems: MealItem[]
-  /** #273 — today's current total (before any of this dialog's picks),
-   * for a "Today would be: X (was Y)" preview next to the confirm
-   * button, same shape as `MealItemEditorSheet`'s own `todayTotalPreview`
-   * (#260). Only passed by the bottom "add a new meal" flow — the same
-   * scope boundary #260 drew, for the same reason: editing an
-   * already-saved meal's items needs a whole-meal delta, not a simple
-   * sum, since that meal's *old* total is still counted here until the
-   * outer Save commits the replacement. */
-  todayTotalKcal?: number
+  /** #273/#278 — today's current totals (before any of this dialog's
+   * picks), for a "Today would be: X (was Y)" preview next to the
+   * confirm button, same shape as `MealItemEditorSheet`'s own
+   * `todayTotalPreview` (#260). Only passed by the bottom "add a new
+   * meal" flow — the same scope boundary #260 drew, for the same
+   * reason: editing an already-saved meal's items needs a whole-meal
+   * delta, not a simple sum, since that meal's *old* total is still
+   * counted here until the outer Save commits the replacement. */
+  todayTotals?: {
+    kcal: number
+    proteinG: number
+    fatG: number
+    carbsG: number
+  }
 }
 
 type PickableItem =
@@ -108,7 +113,7 @@ export function FoodPickerDialog({
   onOpenChange,
   onAdd,
   mealItems,
-  todayTotalKcal,
+  todayTotals,
 }: FoodPickerDialogProps) {
   const t = useTranslation()
   const locale = useLocale()
@@ -351,23 +356,40 @@ export function FoodPickerDialog({
 
   // #273 — same "Today would be" preview MealItemEditorSheet's own add-row
   // instance already shows (#260), summed over every currently-checked
-  // item's own scaled kcal instead of a single draft's — covers single-
+  // item's own scaled values instead of a single draft's — covers single-
   // and multi-select in one calculation since #264 already made every
-  // pick independently quantity-scaled. `todayTotalKcal` is only passed
-  // by the bottom add-a-new-meal flow (see the prop's own doc comment).
+  // pick independently quantity-scaled. `todayTotals` is only passed by
+  // the bottom add-a-new-meal flow (see the prop's own doc comment).
+  // #278: also projects protein/fat/carbs, not just kcal.
+  const selectedTotals = selectedItems.reduce(
+    (sum, item) => {
+      const scaled = scaledValuesFor(item)
+      return {
+        kcal: sum.kcal + scaled.amountKcal,
+        proteinG: sum.proteinG + scaled.proteinG,
+        fatG: sum.fatG + scaled.fatG,
+        carbsG: sum.carbsG + scaled.carbsG,
+      }
+    },
+    { kcal: 0, proteinG: 0, fatG: 0, carbsG: 0 },
+  )
   const todayTotalPreview =
-    todayTotalKcal !== undefined && selectedItems.length > 0
+    todayTotals !== undefined && selectedItems.length > 0
       ? t.dailyEntry.todayWouldBeLabel(
-          `${formatNumber(
-            todayTotalKcal +
-              selectedItems.reduce(
-                (sum, item) => sum + scaledValuesFor(item).amountKcal,
-                0,
-              ),
+          `${formatNumber(todayTotals.kcal + selectedTotals.kcal, locale, 0)} ${t.dailyEntry.kcalUnit} · ${macrosSummaryTextCompact(
+            todayTotals.proteinG + selectedTotals.proteinG,
+            todayTotals.fatG + selectedTotals.fatG,
+            todayTotals.carbsG + selectedTotals.carbsG,
             locale,
-            0,
-          )} ${t.dailyEntry.kcalUnit}`,
-          `${formatNumber(todayTotalKcal, locale, 0)} ${t.dailyEntry.kcalUnit}`,
+            t,
+          )}`,
+          `${formatNumber(todayTotals.kcal, locale, 0)} ${t.dailyEntry.kcalUnit} · ${macrosSummaryTextCompact(
+            todayTotals.proteinG,
+            todayTotals.fatG,
+            todayTotals.carbsG,
+            locale,
+            t,
+          )}`,
         )
       : null
 

@@ -32,6 +32,9 @@ import {
   calorieEntryKcal,
   calorieEntryProtein,
   totalCalories,
+  totalCarbs,
+  totalFat,
+  totalProtein,
 } from '@/domain/dailyEntry'
 import type { MealItem } from '@/domain/mealItem'
 import {
@@ -1624,10 +1627,26 @@ export function MealList({
   // still sitting in `calorieEntries` until its outer Save commits the
   // replacement, so the correct number there is a whole-meal delta, not
   // this simple sum — left for a follow-up rather than shown wrong.)
+  // #278: also projects protein/fat/carbs, not just kcal — missing macro
+  // data (either side) counts as 0 for the projection rather than "—",
+  // since a projected total is always a real number, unlike what was
+  // actually logged.
   const todayTotalPreview = addScaledPreview
     ? t.dailyEntry.todayWouldBeLabel(
-        `${formatNumber((totalCalories(calorieEntries) ?? 0) + addScaledPreview.amountKcal, locale, 0)} ${t.dailyEntry.kcalUnit}`,
-        `${formatNumber(totalCalories(calorieEntries) ?? 0, locale, 0)} ${t.dailyEntry.kcalUnit}`,
+        `${formatNumber((totalCalories(calorieEntries) ?? 0) + addScaledPreview.amountKcal, locale, 0)} ${t.dailyEntry.kcalUnit} · ${macrosSummaryTextCompact(
+          (totalProtein(calorieEntries) ?? 0) + (addScaledPreview.proteinG ?? 0),
+          (totalFat(calorieEntries) ?? 0) + (addScaledPreview.fatG ?? 0),
+          (totalCarbs(calorieEntries) ?? 0) + (addScaledPreview.carbsG ?? 0),
+          locale,
+          t,
+        )}`,
+        `${formatNumber(totalCalories(calorieEntries) ?? 0, locale, 0)} ${t.dailyEntry.kcalUnit} · ${macrosSummaryTextCompact(
+          totalProtein(calorieEntries) ?? 0,
+          totalFat(calorieEntries) ?? 0,
+          totalCarbs(calorieEntries) ?? 0,
+          locale,
+          t,
+        )}`,
       )
     : null
 
@@ -1940,7 +1959,12 @@ export function MealList({
             onOpenChange={setIsFoodPickerOpen}
             onAdd={addFoodEntry}
             mealItems={mealItems}
-            todayTotalKcal={totalCalories(calorieEntries) ?? 0}
+            todayTotals={{
+              kcal: totalCalories(calorieEntries) ?? 0,
+              proteinG: totalProtein(calorieEntries) ?? 0,
+              fatG: totalFat(calorieEntries) ?? 0,
+              carbsG: totalCarbs(calorieEntries) ?? 0,
+            }}
           />
         )}
         {/* #199: collapses this whole row for the rest of today once

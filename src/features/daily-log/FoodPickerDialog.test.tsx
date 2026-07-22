@@ -626,8 +626,10 @@ describe('FoodPickerDialog', () => {
     })
   })
 
-  describe("today's running total preview (#273)", () => {
-    it('shows nothing when todayTotalKcal is not passed', async () => {
+  describe("today's running total preview (#273/#278)", () => {
+    const todayTotals = { kcal: 300, proteinG: 20, fatG: 5, carbsG: 10 }
+
+    it('shows nothing when todayTotals is not passed', async () => {
       const user = userEvent.setup()
       render(
         <FoodPickerDialog open onOpenChange={vi.fn()} onAdd={vi.fn()} mealItems={[]} />,
@@ -638,21 +640,21 @@ describe('FoodPickerDialog', () => {
       expect(screen.queryByText(/Today would be/)).not.toBeInTheDocument()
     })
 
-    it('shows nothing until a dish is checked, even with todayTotalKcal passed', () => {
+    it('shows nothing until a dish is checked, even with todayTotals passed', () => {
       render(
         <FoodPickerDialog
           open
           onOpenChange={vi.fn()}
           onAdd={vi.fn()}
           mealItems={[]}
-          todayTotalKcal={300}
+          todayTotals={todayTotals}
         />,
       )
 
       expect(screen.queryByText(/Today would be/)).not.toBeInTheDocument()
     })
 
-    it('previews the new total for a single checked dish', async () => {
+    it('previews the new kcal and macro totals for a single checked dish', async () => {
       const user = userEvent.setup()
       render(
         <FoodPickerDialog
@@ -660,22 +662,27 @@ describe('FoodPickerDialog', () => {
           onOpenChange={vi.fn()}
           onAdd={vi.fn()}
           mealItems={[]}
-          todayTotalKcal={300}
+          todayTotals={todayTotals}
         />,
       )
 
+      // Salmon: 208 kcal/100g · P 20g · F 13g · C 0g
       await user.click(screen.getByText('Salmon'))
 
       expect(
-        screen.getByText('Today would be: 508 kcal (was 300 kcal)'),
+        screen.getByText(
+          'Today would be: 508 kcal · P 40g · F 18g · C 10g (was 300 kcal · P 20g · F 5g · C 10g)',
+        ),
       ).toBeInTheDocument()
 
       const quantityInput = screen.getByLabelText('Quantity (g)')
       await user.clear(quantityInput)
-      await user.type(quantityInput, '50')
+      await user.type(quantityInput, '200')
 
       expect(
-        screen.getByText('Today would be: 404 kcal (was 300 kcal)'),
+        screen.getByText(
+          'Today would be: 716 kcal · P 60g · F 31g · C 10g (was 300 kcal · P 20g · F 5g · C 10g)',
+        ),
       ).toBeInTheDocument()
     })
 
@@ -687,15 +694,17 @@ describe('FoodPickerDialog', () => {
           onOpenChange={vi.fn()}
           onAdd={vi.fn()}
           mealItems={[]}
-          todayTotalKcal={300}
+          todayTotals={todayTotals}
         />,
       )
 
-      await user.click(screen.getByText('Salmon')) // 208 kcal/100g, default 100g
-      await user.click(screen.getByText('Tuna')) // 132 kcal/100g, default 100g
+      await user.click(screen.getByText('Salmon')) // 208 kcal/100g · P 20g · F 13g · C 0g
+      await user.click(screen.getByText('Tuna')) // 132 kcal/100g · P 28g · F 1g · C 0g
 
       expect(
-        screen.getByText('Today would be: 640 kcal (was 300 kcal)'),
+        screen.getByText(
+          'Today would be: 640 kcal · P 68g · F 19g · C 10g (was 300 kcal · P 20g · F 5g · C 10g)',
+        ),
       ).toBeInTheDocument()
     })
   })
