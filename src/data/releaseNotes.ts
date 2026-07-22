@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 234,
+    issue: 259,
+    date: '2026-07-22T10:50:53+03:00',
+    en: 'Added a "Suggest a target" button on the Goal page — fills in daily calorie/protein/fat/carb targets from your weight, height, age, sex, and activity level (set in Settings), which you can then review and edit before saving.',
+    ru: 'На странице «Цель» появилась кнопка «Предложить цель» — она заполняет дневные цели по калориям, белку, жирам и углеводам на основе веса, роста, возраста, пола и уровня активности (указывается в настройках); значения можно проверить и изменить перед сохранением.',
+  },
+  {
     version: 233,
     issue: 252,
     date: '2026-07-22T10:00:01+03:00',
