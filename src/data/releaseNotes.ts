@@ -25,6 +25,41 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 240,
+    issue: 263,
+    date: '2026-07-22T12:14:39+03:00',
+    en: 'Body fat % moved into the body composition section (with muscle mass, water, visceral fat, bone mass) instead of a separate measurements section.',
+    ru: 'Процент жира в организме теперь находится в разделе «Состав тела» (вместе с мышечной массой, водой, висцеральным жиром и костной массой), а не в отдельном разделе измерений.',
+  },
+  {
+    version: 239,
+    issue: 264,
+    date: '2026-07-22T13:35:47+03:00',
+    en: 'You can now set a quantity when adding food from the food list, instead of only being able to edit it afterward.',
+    ru: 'Теперь можно указать количество прямо при добавлении продукта из списка, а не только редактировать его после.',
+  },
+  {
+    version: 238,
+    issue: 265,
+    date: '2026-07-22T12:03:55+03:00',
+    en: 'The Profile section in Settings now shows a clear saved summary with an edit button, instead of leaving the form open with no confirmation after saving.',
+    ru: 'Раздел «Профиль» в настройках теперь показывает понятную сводку после сохранения с кнопкой редактирования, а не просто оставляет форму открытой без подтверждения.',
+  },
+  {
+    version: 237,
+    issue: 266,
+    date: '2026-07-22T13:10:23+03:00',
+    en: "Remaining calories/protein/fat/carbs on Today now show what they're out of, and reaching your protein target shows a positive message instead of just \"0g remaining.\"",
+    ru: 'На экране «Сегодня» карточки «Осталось калорий/белка/жиров/углеводов» теперь показывают, из скольки; а при достижении цели по белку вместо «0г осталось» появляется поздравление.',
+  },
+  {
+    version: 236,
+    issue: 268,
+    date: '2026-07-22T12:37:23+03:00',
+    en: 'Added a note next to the logging-consistency heatmap showing how many days you logged and total calories over those days, plus the last 7 days.',
+    ru: 'Рядом с картой регулярности записей появилась заметка: сколько дней вы вели записи, сколько калорий за эти дни и сколько за последние 7 дней.',
+  },
+  {
     version: 235,
     issue: 258,
     date: '2026-07-22T11:08:34+03:00',

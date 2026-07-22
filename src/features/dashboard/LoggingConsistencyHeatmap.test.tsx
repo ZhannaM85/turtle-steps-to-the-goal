@@ -55,10 +55,14 @@ describe('LoggingConsistencyHeatmap', () => {
     ]
     render(<LoggingConsistencyHeatmap entries={entries} />)
 
+    // #272 — one stat per row, not one joined sentence (which wrapped
+    // awkwardly on a real phone).
+    expect(screen.getByText('1 days logged')).toBeInTheDocument()
     expect(
-      screen.getByText(
-        '1 days logged · 500 kcal over those days · 500 kcal in the last 7 days',
-      ),
+      screen.getByText('500 kcal over the logged days'),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByText('500 kcal in the last 7 days'),
     ).toBeInTheDocument()
   })
 

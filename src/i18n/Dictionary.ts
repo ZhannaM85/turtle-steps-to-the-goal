@@ -659,12 +659,13 @@ export interface Dictionary {
     heatmapMoreLabel: string
     /** #268 — plain totals next to the heatmap so "how many days did I
      * actually log" doesn't require counting colored boxes by eye.
-     * Informational/curiosity framing only, not a guilt/streak metric. */
-    loggingConsistencySummaryText: (
-      daysLogged: string,
-      totalOverWindow: string,
-      totalLast7Days: string,
-    ) => string
+     * Informational/curiosity framing only, not a guilt/streak metric.
+     * #272: one stat per line (not one joined sentence, which wrapped
+     * awkwardly on a real phone) — each of these three renders on its own
+     * row. */
+    daysLoggedSummaryText: (daysLogged: string) => string
+    totalCaloriesOverLoggedDaysText: (total: string) => string
+    totalCaloriesLast7DaysText: (total: string) => string
     /** Per-dish reaction rollup (#128, built on #129's per-item emotion) —
      * two ranked lists under one shared heading, each row using
      * dailyEntry.mealEmotionLabel for its per-count accessible text. */

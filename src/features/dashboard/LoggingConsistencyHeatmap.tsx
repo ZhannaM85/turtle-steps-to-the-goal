@@ -117,13 +117,26 @@ export function LoggingConsistencyHeatmap({
         ))}
         <span>{t.dashboard.heatmapMoreLabel}</span>
       </div>
-      <p className="text-xs text-muted-foreground">
-        {t.dashboard.loggingConsistencySummaryText(
-          formatNumber(summary.daysLoggedCount, locale, 0),
-          kcalText(summary.totalCaloriesOverLoggedDays),
-          kcalText(summary.totalCaloriesLast7Days),
-        )}
-      </p>
+      {/* #272 — one stat per row, not one comma/dot-joined sentence: the
+       * combined line used to wrap awkwardly across several lines on a
+       * real phone, reported live right after #268 shipped. */}
+      <div className="flex flex-col gap-0.5 text-xs text-muted-foreground">
+        <p>
+          {t.dashboard.daysLoggedSummaryText(
+            formatNumber(summary.daysLoggedCount, locale, 0),
+          )}
+        </p>
+        <p>
+          {t.dashboard.totalCaloriesOverLoggedDaysText(
+            kcalText(summary.totalCaloriesOverLoggedDays),
+          )}
+        </p>
+        <p>
+          {t.dashboard.totalCaloriesLast7DaysText(
+            kcalText(summary.totalCaloriesLast7Days),
+          )}
+        </p>
+      </div>
     </div>
   )
 }
