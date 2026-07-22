@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 245,
+    issue: 272,
+    date: '2026-07-22T14:12:36+03:00',
+    en: 'The days-logged/calories note next to the logging heatmap is now three separate lines instead of one crowded sentence.',
+    ru: 'Заметка о днях с записями и калориях рядом с картой регулярности теперь показана тремя отдельными строками, а не одной перегруженной фразой.',
+  },
+  {
     version: 244,
     issue: 260,
     date: '2026-07-22T12:26:58+03:00',
