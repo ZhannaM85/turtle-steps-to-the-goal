@@ -7,6 +7,7 @@ import { formatNumber, useLocale, useTranslation } from '@/i18n'
 import { applyFoodOverrides } from '@/shared/lib/applyFoodOverrides'
 import { macrosSummaryTextCompact } from '@/shared/lib/macroDisplay'
 import { MEAL_EMOTIONS } from '@/shared/lib/emotionIcons'
+import { ratesFromAbsolute } from '@/shared/lib/macroScaling'
 import { parseNumberInput } from '@/shared/lib/parseNumberInput'
 import { rankBySearchMatch } from '@/shared/lib/searchRank'
 import { cn } from '@/shared/lib/utils'
@@ -24,8 +25,10 @@ export interface PickedFoodValues {
   note: string
   /** Quantity the totals were scaled from (#96) — lets the created item
    * be edited later the same per-100g + quantity way a manually-entered
-   * one can. Undefined for a reused personal item with no recorded
-   * quantity of its own. */
+   * one can. #264: always populated now (every pick is quantity-scaled,
+   * including a personal item with no previously recorded quantity of its
+   * own) — stays optional in the type only for shape-compatibility with
+   * other `CalorieItem`-adjacent call sites that predate this. */
   amountG?: number
   /** This dish's own reaction (#134), set here rather than only after
    * the fact by editing the newly-added item — same "rate while you're
@@ -60,21 +63,35 @@ function itemKey(item: PickableItem): string {
   return item.source === 'food' ? `food-${item.food.id}` : `meal-${item.mealItem.id}`
 }
 
+// #264 — a curated food has no "last used" quantity of its own (it's a
+// catalog reference, not a log), so 100g (its own per-100g reference
+// amount) is the sensible default. A personal item does have one — its
+// own last-logged amount — so that's what it defaults to instead.
+function defaultQuantityFor(item: PickableItem): string {
+  if (item.source === 'mealItem' && item.mealItem.lastAmountG !== undefined) {
+    return String(item.mealItem.lastAmountG)
+  }
+  return '100'
+}
+
 /** Quantity-based entry against the static food list (#62), merged with the
  * personal meal-item library (#86) — search, check off one or more dishes
- * (#183), and either scale a curated food's per-100g macros by quantity, or
- * reuse a personal item's last-logged absolute numbers as-is (not
- * quantity-scalable, no per-100g data exists for it). Either way, hands the
- * whole batch back to the caller in one `onAdd` call as a normal meal (flat
- * CalorieEntry shape, same as manual entry produces).
+ * (#183), each independently quantity-adjustable (#264) before committing.
+ * A curated food scales its per-100g macros by quantity directly; a
+ * personal item first derives a per-100g-equivalent rate from its own
+ * last-logged absolute amount (`ratesFromAbsolute`) and scales from that,
+ * same helper the add row's own autocomplete already uses. Either way,
+ * hands the whole batch back to the caller in one `onAdd` call as a normal
+ * meal (flat CalorieEntry shape, same as manual entry produces).
  *
- * Quantity/reaction editing (#183) is only offered while exactly one dish
- * is checked, matching the pre-#183 single-pick UX exactly with no
- * regression there — checking a second dish hides those fields and both
- * default (100g quantity, no reaction) rather than trying to show N sets
- * of fields at once. Fine-tuning a specific dish's portion/reaction after
- * a multi-add still works the normal way, via that item's own pencil once
- * it's in the meal.
+ * Reaction editing (#183) is only offered while exactly one dish is
+ * checked, matching the pre-#183 single-pick UX with no regression there.
+ * Quantity used to share that same single-pick-only restriction (#264
+ * lifted it): exactly one checked dish gets one shared field in the
+ * sticky footer; two or more each grow their own per-row field instead,
+ * since a single shared field can no longer say which dish it applies to.
+ * Fine-tuning a specific dish's reaction after a multi-add still works the
+ * normal way, via that item's own pencil once it's in the meal.
  */
 export function FoodPickerDialog({
   open,
@@ -86,7 +103,11 @@ export function FoodPickerDialog({
   const locale = useLocale()
   const [search, setSearch] = useState('')
   const [selectedKeys, setSelectedKeys] = useState<Set<string>>(new Set())
-  const [quantity, setQuantity] = useState('100')
+  // #264 — per-item quantity (keyed same as selectedKeys), not a single
+  // shared field: once more than one dish is checked, a shared field
+  // couldn't disambiguate which one it applies to. Falls back to
+  // `defaultQuantityFor` for any item not yet touched.
+  const [quantities, setQuantities] = useState<Record<string, string>>({})
   const [emotion, setEmotion] = useState<MealEmotion | undefined>(undefined)
   // #209: lets a personal item be removed right from here, not just via
   // Settings → Meal items — same store action, same immediate (no confirm
@@ -138,17 +159,23 @@ export function FoodPickerDialog({
   const selectedItems = allItems.filter((item) => selectedKeys.has(itemKey(item)))
   const singleSelected = selectedItems.length === 1 ? selectedItems[0] : null
 
-  const quantityNum = parseNumberInput(quantity)
+  function quantityFor(item: PickableItem): string {
+    return quantities[itemKey(item)] ?? defaultQuantityFor(item)
+  }
+  function setQuantityFor(item: PickableItem, value: string) {
+    setQuantities((prev) => ({ ...prev, [itemKey(item)]: value }))
+  }
+  function hasValidQuantity(item: PickableItem): boolean {
+    const num = parseNumberInput(quantityFor(item))
+    return num !== undefined && num > 0
+  }
   const canAdd =
-    selectedItems.length > 1 ||
-    (singleSelected !== null &&
-      (singleSelected.source === 'mealItem' ||
-        (quantityNum !== undefined && quantityNum > 0)))
+    selectedItems.length > 0 && selectedItems.every(hasValidQuantity)
 
   function reset() {
     setSearch('')
     setSelectedKeys(new Set())
-    setQuantity('100')
+    setQuantities({})
     setEmotion(undefined)
   }
 
@@ -175,35 +202,63 @@ export function FoodPickerDialog({
     })
   }
 
+  // #264 — each item's own checked quantity now feeds the calculation,
+  // whether it's the one field shown for a single pick or its own per-row
+  // field in a multi-pick. A personal item has no per-100g rate of its
+  // own to scale from, so `ratesFromAbsolute` derives one from its last
+  // logged amount first — same helper the add row's own autocomplete
+  // already uses to make a reused personal item's fields editable.
+  function scaledValuesFor(
+    item: PickableItem,
+  ): Omit<PickedFoodValues, 'emotion'> {
+    const quantityNum = parseNumberInput(quantityFor(item))
+    const grams = quantityNum && quantityNum > 0 ? quantityNum : 100
+    const scale = grams / 100
+    if (item.source === 'food') {
+      const { food } = item
+      return {
+        amountKcal: Math.round(food.kcal100 * scale),
+        proteinG: Math.round(food.protein100 * scale * 10) / 10,
+        fatG: Math.round(food.fat100 * scale * 10) / 10,
+        carbsG: Math.round(food.carbs100 * scale * 10) / 10,
+        note: food[locale],
+        amountG: grams,
+      }
+    }
+    const { mealItem } = item
+    const rates = ratesFromAbsolute(
+      mealItem.lastAmountKcal,
+      mealItem.lastProteinG,
+      mealItem.lastFatG,
+      mealItem.lastCarbsG,
+      mealItem.lastAmountG,
+    )
+    return {
+      amountKcal: Math.round(rates.kcal100 * scale),
+      proteinG:
+        rates.protein100 === undefined
+          ? 0
+          : Math.round(rates.protein100 * scale * 10) / 10,
+      fatG:
+        rates.fat100 === undefined
+          ? 0
+          : Math.round(rates.fat100 * scale * 10) / 10,
+      carbsG:
+        rates.carbs100 === undefined
+          ? 0
+          : Math.round(rates.carbs100 * scale * 10) / 10,
+      note: mealItem.name,
+      amountG: grams,
+    }
+  }
+
   function handleAdd() {
     if (selectedItems.length === 0) return
     const single = selectedItems.length === 1
-    const results: PickedFoodValues[] = selectedItems.map((item) => {
-      if (item.source === 'food') {
-        const singleQuantity = single ? quantityNum : undefined
-        const scale = (singleQuantity ?? 100) / 100
-        const { food } = item
-        return {
-          amountKcal: Math.round(food.kcal100 * scale),
-          proteinG: Math.round(food.protein100 * scale * 10) / 10,
-          fatG: Math.round(food.fat100 * scale * 10) / 10,
-          carbsG: Math.round(food.carbs100 * scale * 10) / 10,
-          note: food[locale],
-          amountG: singleQuantity ?? 100,
-          emotion: single ? emotion : undefined,
-        }
-      }
-      const { mealItem } = item
-      return {
-        amountKcal: mealItem.lastAmountKcal,
-        proteinG: mealItem.lastProteinG ?? 0,
-        fatG: mealItem.lastFatG ?? 0,
-        carbsG: mealItem.lastCarbsG ?? 0,
-        note: mealItem.name,
-        amountG: mealItem.lastAmountG,
-        emotion: single ? emotion : undefined,
-      }
-    })
+    const results: PickedFoodValues[] = selectedItems.map((item) => ({
+      ...scaledValuesFor(item),
+      emotion: single ? emotion : undefined,
+    }))
     onAdd(results)
     reset()
     onOpenChange(false)
@@ -290,9 +345,10 @@ export function FoodPickerDialog({
                         ) : (
                           <>
                             <span>{item.mealItem.name}</span>
-                            {/* Distinguishes personal items from the
-                             * curated database (#86) — a fixed last-used
-                             * amount, not a scalable per-100g figure. */}
+                            {/* #264: a personal item's last-logged amount,
+                             * shown as a preview — no longer "fixed", it's
+                             * just the default quantity below/per-row
+                             * scales it from via ratesFromAbsolute. */}
                             <span className="text-xs font-normal text-muted-foreground">
                               {formatNumber(
                                 item.mealItem.lastAmountKcal,
@@ -313,6 +369,22 @@ export function FoodPickerDialog({
                         )}
                       </span>
                     </button>
+                    {/* #264: a single check gets one shared quantity field
+                     * in the sticky footer below — a per-row field here
+                     * too would be redundant. Once a second dish is
+                     * checked, that shared field can no longer say which
+                     * one it applies to, so each checked row grows its
+                     * own instead. */}
+                    {checked && selectedItems.length > 1 && (
+                      <Input
+                        type="text"
+                        inputMode="decimal"
+                        aria-label={`${t.dailyEntry.foodQuantityLabel} — ${textFor(item)}`}
+                        value={quantityFor(item)}
+                        onChange={(e) => setQuantityFor(item, e.target.value)}
+                        className="my-1 mr-1 h-8 w-16 shrink-0 self-center"
+                      />
+                    )}
                     {/* #209: only personal items can be removed here — the
                      * curated database isn't user-editable. Same immediate
                      * delete (no confirm step) as Settings' own Meal items
@@ -344,12 +416,14 @@ export function FoodPickerDialog({
            * reachable regardless of scroll position; bg-card + border-top
            * stop list rows showing through as they scroll underneath. */}
           <div className="sticky bottom-0 flex flex-col gap-3 border-t border-border bg-card pt-3">
-            {/* Per-dish quantity/reaction fields (#183) only make sense
-             * while exactly one dish is checked — matches the pre-#183
-             * single-pick UX exactly, no regression there. A multi-pick
-             * defaults to 100g/no reaction; either can be fine-tuned
-             * afterward via that item's own pencil once it's in the meal. */}
-            {singleSelected?.source === 'food' && (
+            {/* Reaction field (#183) only makes sense while exactly one
+             * dish is checked, unchanged. #264: the quantity field used to
+             * share that same single-pick-only restriction and only cover
+             * curated foods — now shown for either source whenever exactly
+             * one dish is checked (a multi-pick gets its own per-row field
+             * instead, above); reaction can still be fine-tuned afterward
+             * via that item's own pencil once it's in the meal. */}
+            {singleSelected && (
               <div className="flex items-center gap-2">
                 <span className="text-sm text-muted-foreground">
                   {t.dailyEntry.foodQuantityLabel}
@@ -358,8 +432,8 @@ export function FoodPickerDialog({
                   type="text"
                   inputMode="decimal"
                   aria-label={t.dailyEntry.foodQuantityLabel}
-                  value={quantity}
-                  onChange={(e) => setQuantity(e.target.value)}
+                  value={quantityFor(singleSelected)}
+                  onChange={(e) => setQuantityFor(singleSelected, e.target.value)}
                   className="h-8 w-20"
                 />
               </div>

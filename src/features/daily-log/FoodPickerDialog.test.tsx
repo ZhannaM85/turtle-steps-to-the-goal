@@ -294,7 +294,7 @@ describe('FoodPickerDialog', () => {
       ).toHaveAttribute('aria-checked', 'true')
     })
 
-    it('hides the per-dish quantity/reaction fields once a second dish is checked', async () => {
+    it('hides the reaction field, and replaces the shared quantity field with one per row, once a second dish is checked (#264)', async () => {
       const user = userEvent.setup()
       render(
         <FoodPickerDialog
@@ -310,6 +310,34 @@ describe('FoodPickerDialog', () => {
 
       await user.click(screen.getByText('Tuna'))
       expect(screen.queryByLabelText('Quantity (g)')).not.toBeInTheDocument()
+      expect(screen.queryByRole('button', { name: /Bellissimo/ })).not.toBeInTheDocument()
+      expect(screen.getByLabelText('Quantity (g) — Salmon')).toBeInTheDocument()
+      expect(screen.getByLabelText('Quantity (g) — Tuna')).toBeInTheDocument()
+    })
+
+    it('scales each checked dish independently via its own per-row quantity (#264)', async () => {
+      const user = userEvent.setup()
+      const onAdd = vi.fn()
+      render(
+        <FoodPickerDialog
+          open
+          onOpenChange={vi.fn()}
+          onAdd={onAdd}
+          mealItems={[]}
+        />,
+      )
+
+      await user.click(screen.getByText('Salmon'))
+      await user.click(screen.getByText('Tuna'))
+      const salmonQuantity = screen.getByLabelText('Quantity (g) — Salmon')
+      await user.clear(salmonQuantity)
+      await user.type(salmonQuantity, '200')
+      await user.click(screen.getByRole('button', { name: 'Add selected (2)' }))
+
+      expect(onAdd).toHaveBeenCalledWith([
+        expect.objectContaining({ note: 'Salmon', amountKcal: 416, amountG: 200 }), // 208 * 2
+        expect.objectContaining({ note: 'Tuna', amountG: 100 }), // untouched, stays at the 100g default
+      ])
     })
   })
 
@@ -354,7 +382,7 @@ describe('FoodPickerDialog', () => {
       expect(screen.queryByText('Untouched item')).not.toBeInTheDocument()
     })
 
-    it('adds a picked meal item using its last-logged numbers, no quantity field', async () => {
+    it('shows a quantity field for a picked meal item too, defaulting to 100g when no quantity was previously recorded (#264)', async () => {
       const user = userEvent.setup()
       const onAdd = vi.fn()
       render(
@@ -367,8 +395,9 @@ describe('FoodPickerDialog', () => {
       )
 
       await user.click(screen.getByText('Grandma’s stew'))
-
-      expect(screen.queryByLabelText('Quantity (g)')).not.toBeInTheDocument()
+      // No lastAmountG recorded on this fixture — defaults to 100g, same
+      // reference amount a curated food's own quantity field defaults to.
+      expect(screen.getByLabelText('Quantity (g)')).toHaveValue('100')
 
       await user.click(screen.getByRole('button', { name: 'Add selected' }))
 
@@ -379,9 +408,38 @@ describe('FoodPickerDialog', () => {
           fatG: 10,
           carbsG: 25,
           note: 'Grandma’s stew',
-          amountG: undefined,
+          amountG: 100,
           emotion: undefined,
         },
+      ])
+    })
+
+    it('scales a picked meal item by an adjusted quantity (#264)', async () => {
+      const user = userEvent.setup()
+      const onAdd = vi.fn()
+      render(
+        <FoodPickerDialog
+          open
+          onOpenChange={vi.fn()}
+          onAdd={onAdd}
+          mealItems={[mealItem({ name: 'Grandma’s stew' })]}
+        />,
+      )
+
+      await user.click(screen.getByText('Grandma’s stew'))
+      const quantityInput = screen.getByLabelText('Quantity (g)')
+      await user.clear(quantityInput)
+      await user.type(quantityInput, '200')
+      await user.click(screen.getByRole('button', { name: 'Add selected' }))
+
+      expect(onAdd).toHaveBeenCalledWith([
+        expect.objectContaining({
+          amountKcal: 640,
+          proteinG: 36,
+          fatG: 20,
+          carbsG: 50,
+          amountG: 200,
+        }),
       ])
     })
 
