@@ -106,16 +106,52 @@ describe('AppUpdateBanner', () => {
       expect(reload).toHaveBeenCalledTimes(1)
     })
 
+    // #270: registration.update() resolving with neither `installing` nor
+    // `waiting` set means nothing new was found — nothing will ever fire
+    // controllerchange, so the previous behavior of waiting out the full
+    // bounded timeout anyway was pure wasted time. reloadForUpdate() now
+    // skips straight to reload in this case instead.
+    it('reloads quickly when update() finds nothing new, without waiting out the timeout', async () => {
+      stubUpdateFetch()
+      const reload = vi.fn()
+      vi.stubGlobal('location', { ...window.location, reload })
+      const update = vi.fn().mockResolvedValue(undefined)
+      const addEventListener = vi.fn()
+      stubServiceWorker({
+        getRegistration: vi.fn().mockResolvedValue({
+          update,
+          installing: null,
+          waiting: null,
+        }),
+        addEventListener,
+      })
+
+      const user = userEvent.setup()
+      render(<AppUpdateBanner />)
+      await user.click(await screen.findByRole('button', { name: 'Reload' }))
+
+      await waitFor(() => expect(reload).toHaveBeenCalledTimes(1))
+      // No controllerchange listener was ever registered — there was
+      // nothing to wait for.
+      expect(addEventListener).not.toHaveBeenCalled()
+    })
+
     it(
-      'forces an update check, then reloads anyway once the wait times out with nothing new taking over',
+      'forces an update check, then reloads anyway once a genuinely installing worker never fires controllerchange',
       async () => {
         stubUpdateFetch()
         const reload = vi.fn()
         vi.stubGlobal('location', { ...window.location, reload })
         const update = vi.fn().mockResolvedValue(undefined)
         stubServiceWorker({
-          getRegistration: vi.fn().mockResolvedValue({ update }),
-          // Never fires — this registration has nothing new to activate.
+          getRegistration: vi.fn().mockResolvedValue({
+            update,
+            // A new worker was found and is installing, but never fires
+            // controllerchange within this test — exercises the bounded
+            // timeout as a real fallback, not the "nothing new" skip path.
+            installing: {},
+            waiting: null,
+          }),
           addEventListener: vi.fn(),
         })
 
@@ -146,9 +182,15 @@ describe('AppUpdateBanner', () => {
         vi.stubGlobal('location', { ...window.location, reload })
         const update = vi.fn().mockResolvedValue(undefined)
         stubServiceWorker({
-          getRegistration: vi.fn().mockResolvedValue({ update }),
-          // Never fires — exercises the bounded-timeout path, so the
-          // loading state has to still be showing right up to the reload.
+          getRegistration: vi.fn().mockResolvedValue({
+            update,
+            // A genuinely installing worker that never fires
+            // controllerchange — exercises the bounded-timeout path, so
+            // the loading state has to still be showing right up to the
+            // reload.
+            installing: {},
+            waiting: null,
+          }),
           addEventListener: vi.fn(),
         })
 
@@ -178,7 +220,11 @@ describe('AppUpdateBanner', () => {
       const update = vi.fn().mockResolvedValue(undefined)
       const addEventListener = vi.fn()
       stubServiceWorker({
-        getRegistration: vi.fn().mockResolvedValue({ update }),
+        getRegistration: vi.fn().mockResolvedValue({
+          update,
+          installing: {},
+          waiting: null,
+        }),
         addEventListener,
       })
 
