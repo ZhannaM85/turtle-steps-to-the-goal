@@ -25,6 +25,20 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 233,
+    issue: 252,
+    date: '2026-07-22T10:00:01+03:00',
+    en: 'You can now set optional daily fat and carb targets on the Goal page, alongside the existing calorie and protein ones — each shows a "remaining" card on Today once set.',
+    ru: 'Теперь на странице «Цель» можно задать необязательные дневные цели по жирам и углеводам, в дополнение к калориям и белку — при их установке на экране «Сегодня» появляется карточка «осталось».',
+  },
+  {
+    version: 232,
+    issue: 233,
+    date: '2026-07-22T01:43:20+03:00',
+    en: 'Added Mi Fit-style body composition tracking (muscle mass, visceral fat, body water, bone mass) plus BMI and estimated daily calories (BMR), computed from an optional height/age/sex profile in Settings.',
+    ru: 'Добавлено отслеживание состава тела в стиле Mi Fit (мышечная масса, висцеральный жир, вода в организме, костная масса), а также ИМТ и примерная суточная норма калорий (базовый обмен), рассчитываемые на основе необязательного профиля (рост/возраст/пол) в настройках.',
+  },
+  {
     version: 231,
     issue: 262,
     date: '2026-07-22T02:43:53+03:00',
