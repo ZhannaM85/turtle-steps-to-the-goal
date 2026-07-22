@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 246,
+    issue: 267,
+    date: '2026-07-22T14:26:50+03:00',
+    en: 'Added a body composition chart on the Dashboard — muscle mass, visceral fat, water %, bone mass, and body fat % over time.',
+    ru: 'На странице «Обзор» появился график состава тела — мышечная масса, висцеральный жир, вода, костная масса и процент жира со временем.',
+  },
+  {
     version: 245,
     issue: 272,
     date: '2026-07-22T14:12:36+03:00',
