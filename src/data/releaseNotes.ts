@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 258,
+    issue: 284,
+    date: '2026-07-22T23:04:44+03:00',
+    en: 'Fixed favorited foods and dishes not being included in exported backups.',
+    ru: 'Исправлена ошибка: избранные продукты и блюда теперь попадают в экспортированные резервные копии.',
+  },
+  {
     version: 257,
     issue: 283,
     date: '2026-07-22T22:58:06+03:00',
