@@ -26,6 +26,14 @@ export interface Goal {
    * stat; nothing else reads it.
    */
   dailyProteinTargetG?: number
+  /**
+   * Optional daily fat/carb targets in grams (#252) — same shape/reasoning
+   * as dailyProteinTargetG above, each independent of the other three.
+   * Power Today's "remaining fat"/"remaining carbs" stats; nothing else
+   * reads them.
+   */
+  dailyFatTargetG?: number
+  dailyCarbTargetG?: number
   createdAt: string
   updatedAt: string
 }

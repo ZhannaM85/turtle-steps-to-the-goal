@@ -207,6 +207,159 @@ describe('GoalForm', () => {
     })
   })
 
+  describe('daily fat target (#252)', () => {
+    it('is optional — submits fine when left blank', async () => {
+      const user = userEvent.setup()
+      const onSubmit = vi.fn()
+      render(<GoalForm existingGoal={null} onSubmit={onSubmit} />)
+
+      await user.type(
+        screen.getByLabelText("This week's target (kg to lose)"),
+        '1',
+      )
+      await user.click(
+        screen.getByRole('button', { name: 'Set this week’s target' }),
+      )
+
+      expect(onSubmit).toHaveBeenCalledTimes(1)
+      expect(onSubmit.mock.calls[0][0].dailyFatTargetG).toBeUndefined()
+    })
+
+    it('submits the value when filled in', async () => {
+      const user = userEvent.setup()
+      const onSubmit = vi.fn()
+      render(<GoalForm existingGoal={null} onSubmit={onSubmit} />)
+
+      await user.type(
+        screen.getByLabelText("This week's target (kg to lose)"),
+        '1',
+      )
+      await user.type(screen.getByLabelText('Daily fat target'), '60')
+      await user.click(
+        screen.getByRole('button', { name: 'Set this week’s target' }),
+      )
+
+      expect(onSubmit).toHaveBeenCalledTimes(1)
+      expect(onSubmit.mock.calls[0][0].dailyFatTargetG).toBe(60)
+    })
+
+    it('pre-fills from an existing goal', async () => {
+      const user = userEvent.setup()
+      render(
+        <GoalForm
+          existingGoal={{
+            id: 'g1',
+            targetWeeklyLossKg: 1,
+            dailyFatTargetG: 60,
+            createdAt: '2026-01-01T00:00:00.000Z',
+            updatedAt: '2026-01-01T00:00:00.000Z',
+          }}
+          onSubmit={vi.fn()}
+        />,
+      )
+
+      await user.click(screen.getByRole('button', { name: 'Edit goal' }))
+
+      expect(screen.getByLabelText('Daily fat target')).toHaveValue('60')
+    })
+  })
+
+  describe('daily carb target (#252)', () => {
+    it('is optional — submits fine when left blank', async () => {
+      const user = userEvent.setup()
+      const onSubmit = vi.fn()
+      render(<GoalForm existingGoal={null} onSubmit={onSubmit} />)
+
+      await user.type(
+        screen.getByLabelText("This week's target (kg to lose)"),
+        '1',
+      )
+      await user.click(
+        screen.getByRole('button', { name: 'Set this week’s target' }),
+      )
+
+      expect(onSubmit).toHaveBeenCalledTimes(1)
+      expect(onSubmit.mock.calls[0][0].dailyCarbTargetG).toBeUndefined()
+    })
+
+    it('submits the value when filled in', async () => {
+      const user = userEvent.setup()
+      const onSubmit = vi.fn()
+      render(<GoalForm existingGoal={null} onSubmit={onSubmit} />)
+
+      await user.type(
+        screen.getByLabelText("This week's target (kg to lose)"),
+        '1',
+      )
+      await user.type(screen.getByLabelText('Daily carb target'), '200')
+      await user.click(
+        screen.getByRole('button', { name: 'Set this week’s target' }),
+      )
+
+      expect(onSubmit).toHaveBeenCalledTimes(1)
+      expect(onSubmit.mock.calls[0][0].dailyCarbTargetG).toBe(200)
+    })
+
+    it('pre-fills from an existing goal', async () => {
+      const user = userEvent.setup()
+      render(
+        <GoalForm
+          existingGoal={{
+            id: 'g1',
+            targetWeeklyLossKg: 1,
+            dailyCarbTargetG: 200,
+            createdAt: '2026-01-01T00:00:00.000Z',
+            updatedAt: '2026-01-01T00:00:00.000Z',
+          }}
+          onSubmit={vi.fn()}
+        />,
+      )
+
+      await user.click(screen.getByRole('button', { name: 'Edit goal' }))
+
+      expect(screen.getByLabelText('Daily carb target')).toHaveValue('200')
+    })
+  })
+
+  describe('read-only summary table (#244, extended #252)', () => {
+    it('shows "Not set" for fat/carb targets when unset', () => {
+      render(
+        <GoalForm
+          existingGoal={{
+            id: 'g1',
+            targetWeeklyLossKg: 1,
+            createdAt: '2026-01-01T00:00:00.000Z',
+            updatedAt: '2026-01-01T00:00:00.000Z',
+          }}
+          onSubmit={vi.fn()}
+        />,
+      )
+
+      expect(screen.getByText('Daily fat target')).toBeInTheDocument()
+      expect(screen.getByText('Daily carb target')).toBeInTheDocument()
+      expect(screen.getAllByText('Not set').length).toBeGreaterThanOrEqual(2)
+    })
+
+    it('shows the fat/carb target values when set', () => {
+      render(
+        <GoalForm
+          existingGoal={{
+            id: 'g1',
+            targetWeeklyLossKg: 1,
+            dailyFatTargetG: 60,
+            dailyCarbTargetG: 200,
+            createdAt: '2026-01-01T00:00:00.000Z',
+            updatedAt: '2026-01-01T00:00:00.000Z',
+          }}
+          onSubmit={vi.fn()}
+        />,
+      )
+
+      expect(screen.getByText('60 g')).toBeInTheDocument()
+      expect(screen.getByText('200 g')).toBeInTheDocument()
+    })
+  })
+
   it('pre-fills from an existing goal and labels the submit button as an update', async () => {
     const user = userEvent.setup()
     render(

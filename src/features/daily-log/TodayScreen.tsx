@@ -2,7 +2,7 @@ import { useEffect } from 'react'
 import { addDays, format, parseISO } from 'date-fns'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { Link, useSearchParams } from 'react-router-dom'
-import { totalCalories, totalProtein } from '@/domain/dailyEntry'
+import { totalCalories, totalCarbs, totalFat, totalProtein } from '@/domain/dailyEntry'
 import { goalWeekEnd, kgToLb } from '@/domain/goal'
 import { calculateBmi, calculateBmr } from '@/domain/stats'
 import {
@@ -165,6 +165,20 @@ export function TodayScreen() {
       ? Math.max(
           0,
           goal.dailyProteinTargetG - (totalProtein(entry?.calorieEntries) ?? 0),
+        )
+      : null
+
+  // #252 — same shape as remainingProteinG above, each independent of the
+  // other three targets.
+  const remainingFatG =
+    goal?.dailyFatTargetG !== undefined
+      ? Math.max(0, goal.dailyFatTargetG - (totalFat(entry?.calorieEntries) ?? 0))
+      : null
+  const remainingCarbG =
+    goal?.dailyCarbTargetG !== undefined
+      ? Math.max(
+          0,
+          goal.dailyCarbTargetG - (totalCarbs(entry?.calorieEntries) ?? 0),
         )
       : null
 
@@ -387,6 +401,33 @@ export function TodayScreen() {
           />
         ) : (
           sectionTitle('todayRemainingProtein', t.today.remainingProteinLabel)
+        ))}
+
+      {remainingFatG !== null &&
+        (sectionVisible.todayRemainingFat ? (
+          <StatCard
+            label={t.today.remainingFatLabel}
+            value={formatNumber(remainingFatG, locale, 0)}
+            unit={t.today.gRemainingUnit}
+            action={statCardAction('todayRemainingFat', t.today.remainingFatLabel)}
+          />
+        ) : (
+          sectionTitle('todayRemainingFat', t.today.remainingFatLabel)
+        ))}
+
+      {remainingCarbG !== null &&
+        (sectionVisible.todayRemainingCarbs ? (
+          <StatCard
+            label={t.today.remainingCarbLabel}
+            value={formatNumber(remainingCarbG, locale, 0)}
+            unit={t.today.gRemainingUnit}
+            action={statCardAction(
+              'todayRemainingCarbs',
+              t.today.remainingCarbLabel,
+            )}
+          />
+        ) : (
+          sectionTitle('todayRemainingCarbs', t.today.remainingCarbLabel)
         ))}
 
       {bmiValue !== null &&

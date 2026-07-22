@@ -14,6 +14,9 @@ const goalSchema = z.object({
   dailyCalorieTargetKcal: z.number().optional(),
   // Optional daily protein target (#220) — same reasoning again.
   dailyProteinTargetG: z.number().optional(),
+  // Optional daily fat/carb targets (#252) — same reasoning again.
+  dailyFatTargetG: z.number().optional(),
+  dailyCarbTargetG: z.number().optional(),
   createdAt: z.string(),
   updatedAt: z.string(),
 })

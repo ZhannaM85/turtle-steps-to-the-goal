@@ -95,6 +95,10 @@ export interface Dictionary {
      * budget" concept a calorie ceiling is. */
     remainingProteinLabel: string
     gRemainingUnit: string
+    /** #252 — same shape as remainingProteinLabel above, reusing
+     * gRemainingUnit for the unit text. */
+    remainingFatLabel: string
+    remainingCarbLabel: string
     /** #233 — computed from today's logged weight plus the Settings
      * Profile card's height/age/sex, so only rendered once both exist.
      * BMI has no unit of its own (a dimensionless ratio); BMR needs one. */
@@ -346,6 +350,12 @@ export interface Dictionary {
      * independent optional field. */
     dailyProteinTargetLabel: string
     dailyProteinTargetHint: string
+    /** #252 — same shape/reasoning again, two more independent optional
+     * fields. */
+    dailyFatTargetLabel: string
+    dailyFatTargetHint: string
+    dailyCarbTargetLabel: string
+    dailyCarbTargetHint: string
     updateButton: string
     setButton: string
     savedConfirmation: string

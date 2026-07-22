@@ -94,6 +94,8 @@ export function GoalForm({
       targetWeeklyLoss: '' as unknown as number | undefined,
       dailyCalorieTarget: '' as unknown as number | undefined,
       dailyProteinTarget: '' as unknown as number | undefined,
+      dailyFatTarget: '' as unknown as number | undefined,
+      dailyCarbTarget: '' as unknown as number | undefined,
     })
     setIsEditing(false)
   }
@@ -136,7 +138,7 @@ export function GoalForm({
                   : t.goal.notSetLabel}
               </td>
             </tr>
-            <tr>
+            <tr className="border-b border-border">
               <th
                 scope="row"
                 className="py-2 pr-4 text-left font-normal text-muted-foreground"
@@ -146,6 +148,32 @@ export function GoalForm({
               <td className="py-2 text-right font-medium text-foreground">
                 {existingGoal.dailyProteinTargetG !== undefined
                   ? `${formatExactNumber(existingGoal.dailyProteinTargetG, locale)} ${t.dailyEntry.gramsUnit}`
+                  : t.goal.notSetLabel}
+              </td>
+            </tr>
+            <tr className="border-b border-border">
+              <th
+                scope="row"
+                className="py-2 pr-4 text-left font-normal text-muted-foreground"
+              >
+                {t.goal.dailyFatTargetLabel}
+              </th>
+              <td className="py-2 text-right font-medium text-foreground">
+                {existingGoal.dailyFatTargetG !== undefined
+                  ? `${formatExactNumber(existingGoal.dailyFatTargetG, locale)} ${t.dailyEntry.gramsUnit}`
+                  : t.goal.notSetLabel}
+              </td>
+            </tr>
+            <tr>
+              <th
+                scope="row"
+                className="py-2 pr-4 text-left font-normal text-muted-foreground"
+              >
+                {t.goal.dailyCarbTargetLabel}
+              </th>
+              <td className="py-2 text-right font-medium text-foreground">
+                {existingGoal.dailyCarbTargetG !== undefined
+                  ? `${formatExactNumber(existingGoal.dailyCarbTargetG, locale)} ${t.dailyEntry.gramsUnit}`
                   : t.goal.notSetLabel}
               </td>
             </tr>
@@ -205,6 +233,23 @@ export function GoalForm({
         unit={t.dailyEntry.gramsUnit}
         error={errors.dailyProteinTarget?.message}
         {...register('dailyProteinTarget', { setValueAs: parseNumberInput })}
+      />
+
+      {/* #252 — same shape again, independent of the other three. */}
+      <NumberInput
+        label={t.goal.dailyFatTargetLabel}
+        hint={t.goal.dailyFatTargetHint}
+        unit={t.dailyEntry.gramsUnit}
+        error={errors.dailyFatTarget?.message}
+        {...register('dailyFatTarget', { setValueAs: parseNumberInput })}
+      />
+
+      <NumberInput
+        label={t.goal.dailyCarbTargetLabel}
+        hint={t.goal.dailyCarbTargetHint}
+        unit={t.dailyEntry.gramsUnit}
+        error={errors.dailyCarbTarget?.message}
+        {...register('dailyCarbTarget', { setValueAs: parseNumberInput })}
       />
 
       <div className="flex items-center gap-2 self-start">

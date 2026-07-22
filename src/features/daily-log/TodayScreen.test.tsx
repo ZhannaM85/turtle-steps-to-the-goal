@@ -855,6 +855,106 @@ describe('TodayScreen', () => {
     })
   })
 
+  describe('remaining fat/carbs (#252)', () => {
+    it('does not show either card when the active goal has no fat/carb targets', async () => {
+      await useGoalStore.getState().saveGoal(makeGoal())
+
+      render(
+        <MemoryRouter>
+          <TodayScreen />
+        </MemoryRouter>,
+      )
+
+      await screen.findByText("This week's target")
+      expect(screen.queryByText('Remaining fat')).not.toBeInTheDocument()
+      expect(screen.queryByText('Remaining carbs')).not.toBeInTheDocument()
+    })
+
+    it('shows what remains once targets are set, treating nothing logged as 0 consumed', async () => {
+      await useGoalStore
+        .getState()
+        .saveGoal(makeGoal({ dailyFatTargetG: 60, dailyCarbTargetG: 200 }))
+
+      render(
+        <MemoryRouter>
+          <TodayScreen />
+        </MemoryRouter>,
+      )
+
+      expect(await screen.findByText('Remaining fat')).toBeInTheDocument()
+      expect(screen.getByText('60')).toBeInTheDocument()
+      expect(await screen.findByText('Remaining carbs')).toBeInTheDocument()
+      expect(screen.getByText('200')).toBeInTheDocument()
+    })
+
+    it('subtracts what was actually logged today, independently for each macro', async () => {
+      await useGoalStore
+        .getState()
+        .saveGoal(makeGoal({ dailyFatTargetG: 60, dailyCarbTargetG: 200 }))
+      await useDailyEntryStore.getState().saveEntry(
+        makeEntry({
+          calorieEntries: [
+            {
+              id: crypto.randomUUID(),
+              items: [
+                {
+                  id: crypto.randomUUID(),
+                  amountKcal: 400,
+                  fatG: 20,
+                  carbsG: 50,
+                },
+              ],
+              createdAt: new Date().toISOString(),
+            },
+          ],
+        }),
+      )
+      useDailyEntryStore.setState({ entry: null, date: null, status: 'idle' })
+
+      render(
+        <MemoryRouter>
+          <TodayScreen />
+        </MemoryRouter>,
+      )
+
+      const fatLabel = await screen.findByText('Remaining fat')
+      const fatCard = fatLabel.closest('[data-slot="card"]') as HTMLElement
+      expect(await within(fatCard).findByText('40')).toBeInTheDocument()
+
+      const carbLabel = await screen.findByText('Remaining carbs')
+      const carbCard = carbLabel.closest('[data-slot="card"]') as HTMLElement
+      expect(await within(carbCard).findByText('150')).toBeInTheDocument()
+    })
+
+    it('clamps at 0 once a target has been met or exceeded, rather than going negative', async () => {
+      await useGoalStore
+        .getState()
+        .saveGoal(makeGoal({ dailyFatTargetG: 50 }))
+      await useDailyEntryStore.getState().saveEntry(
+        makeEntry({
+          calorieEntries: [
+            {
+              id: crypto.randomUUID(),
+              items: [{ id: crypto.randomUUID(), amountKcal: 700, fatG: 80 }],
+              createdAt: new Date().toISOString(),
+            },
+          ],
+        }),
+      )
+      useDailyEntryStore.setState({ entry: null, date: null, status: 'idle' })
+
+      render(
+        <MemoryRouter>
+          <TodayScreen />
+        </MemoryRouter>,
+      )
+
+      const label = await screen.findByText('Remaining fat')
+      const card = label.closest('[data-slot="card"]') as HTMLElement
+      expect(await within(card).findByText('0')).toBeInTheDocument()
+    })
+  })
+
   describe('viewed date lives in the URL, not local state (#200)', () => {
     it('encodes a non-today date into the URL when navigating via the arrows', async () => {
       const user = userEvent.setup()
