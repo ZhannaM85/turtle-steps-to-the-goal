@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 244,
+    issue: 260,
+    date: '2026-07-22T12:26:58+03:00',
+    en: 'When adding a new meal by hand, you now see a preview of what today\'s overall total will become, not just that one item\'s own total.',
+    ru: 'При добавлении нового приёма пищи вручную теперь видно, каким станет общий итог за день, а не только итог по этому блюду.',
+  },
+  {
     version: 243,
     issue: 253,
     date: '2026-07-22T13:22:51+03:00',
