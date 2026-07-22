@@ -166,6 +166,13 @@ export const ru: Dictionary = {
     addFoodButton: 'Найти блюдо',
     addFoodDialogTitle: 'Добавить из списка продуктов',
     closeFoodDialogLabel: 'Закрыть',
+    scanBarcodeButton: 'Сканировать штрихкод',
+    scanBarcodeDialogTitle: 'Сканировать штрихкод',
+    scanBarcodeInstructions: 'Наведите камеру на штрихкод.',
+    scanBarcodeCameraErrorMessage:
+      'Не удалось получить доступ к камере — проверьте разрешения и попробуйте снова.',
+    noFoodFoundForBarcodeMessage:
+      'Еда с таким штрихкодом не найдена — вы можете добавить её вручную ниже.',
     foodSearchLabel: 'Поиск продуктов',
     foodSearchPlaceholder: 'Поиск…',
     foodQuantityLabel: 'Количество (г)',

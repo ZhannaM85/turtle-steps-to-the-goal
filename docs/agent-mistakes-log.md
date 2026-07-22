@@ -99,6 +99,8 @@ future session can see the pattern, not just the count.
 
 | 2026-07-22 | Prompted | Ran 3 separate `gh issue view` commands stacked with literal newlines in one Bash call, to check the status of #258/#259/#260 before updating `ARCHITECTURE.md`'s tier table — same "newline is equivalent to `;` chaining" shape already logged once this session for a batch of `gh issue edit` calls; didn't stick as a lesson | CLAUDE.md "⚠️ Shell safety" — should have been 3 separate tool calls; self-caught, no user correction needed |
 
+| 2026-07-22 | Instruction miss | `grep -l "jsx-a11y" eslint.config.js package.json` via Bash while checking eslint config for #256 — raw grep recurrence, now well past 30 times this session | "No raw grep pipelines" memory rule — self-caught, redone with Grep |
+
 ## Related standing fixes made because of this log
 
 - `CLAUDE.md` gained a top-of-file "⚠️ Shell safety" callout (2026-07-19).

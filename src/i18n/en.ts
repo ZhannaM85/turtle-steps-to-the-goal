@@ -165,6 +165,13 @@ export const en: Dictionary = {
     addFoodButton: 'Find food',
     addFoodDialogTitle: 'Add from food list',
     closeFoodDialogLabel: 'Close',
+    scanBarcodeButton: 'Scan barcode',
+    scanBarcodeDialogTitle: 'Scan barcode',
+    scanBarcodeInstructions: 'Point your camera at the barcode.',
+    scanBarcodeCameraErrorMessage:
+      "Couldn't access the camera — check camera permissions and try again.",
+    noFoodFoundForBarcodeMessage:
+      "No food found for this barcode — you can still add it by hand below.",
     foodSearchLabel: 'Search foods',
     foodSearchPlaceholder: 'Search…',
     foodQuantityLabel: 'Quantity (g)',

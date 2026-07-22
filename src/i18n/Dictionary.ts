@@ -281,6 +281,14 @@ export interface Dictionary {
     addFoodButton: string
     addFoodDialogTitle: string
     closeFoodDialogLabel: string
+    /** #256 — barcode scanning, alongside "Find food". Local-first lookup
+     * with an Open Food Facts fallback on a barcode's first scan; every
+     * repeat scan is a fully offline local match. */
+    scanBarcodeButton: string
+    scanBarcodeDialogTitle: string
+    scanBarcodeInstructions: string
+    scanBarcodeCameraErrorMessage: string
+    noFoodFoundForBarcodeMessage: string
     foodSearchLabel: string
     foodSearchPlaceholder: string
     foodQuantityLabel: string

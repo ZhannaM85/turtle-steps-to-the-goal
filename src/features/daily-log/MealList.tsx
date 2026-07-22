@@ -17,7 +17,7 @@ import {
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { format, parseISO, subDays } from 'date-fns'
-import { Clock, GripVertical, Pencil, Trash2, X } from 'lucide-react'
+import { Clock, GripVertical, Pencil, ScanBarcode, Trash2, X } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { foods } from '@/data/foods'
 import type {
@@ -44,7 +44,11 @@ import {
   type Dictionary,
   type Locale,
 } from '@/i18n'
-import { IndexedDbDailyEntryRepository } from '@/infrastructure/persistence/indexeddb'
+import {
+  IndexedDbDailyEntryRepository,
+  IndexedDbMealItemRepository,
+} from '@/infrastructure/persistence/indexeddb'
+import { useOnlineStatus } from '@/shared/hooks'
 import { MEAL_EMOTIONS } from '@/shared/lib/emotionIcons'
 import {
   formatMacroGrams,
@@ -69,8 +73,10 @@ import {
   useMealItemStore,
   useMealLabelPresetStore,
 } from '@/stores'
+import { BarcodeScannerDialog } from './BarcodeScannerDialog'
 import { CopyDayMealsDialog } from './CopyDayMealsDialog'
 import { FoodPickerDialog, type PickedFoodValues } from './FoodPickerDialog'
+import { lookupBarcode } from './lookupBarcode'
 import { clearMealDraft, loadMealDraft, saveMealDraft } from './mealDraftStorage'
 import { MealItemEditorSheet } from './MealItemEditorSheet'
 import { RepeatMealDialog } from './RepeatMealDialog'
@@ -85,6 +91,10 @@ const curatedFoodNames = new Set(foods.flatMap((food) => [food.en, food.ru]))
 // MealEditScreen/useHistoryData/useDashboardData — fetches the day
 // *before* `date` to power the "Repeat yesterday's [meal]" quick action.
 const dailyEntryRepository = new IndexedDbDailyEntryRepository()
+// #256: a plain repository instance (not routed through useMealItemStore)
+// for the one-shot local-barcode-match check a scan performs — read-only,
+// no reactivity needed the way the store's own `items` list has.
+const mealItemRepositoryForBarcodeLookup = new IndexedDbMealItemRepository()
 
 /** One item's draft fields while its parent meal group is being edited
  * (#81) — plain strings, same pattern as the rest of this form's add/edit
@@ -118,6 +128,11 @@ interface EditItemDraft {
    * food-picker star or Settings' own list are the source of truth for
    * an existing dish's actual favorite status). */
   favorite: boolean
+  /** #256 — set when this draft was filled in (fully or partially) from a
+   * barcode scan, so the resulting MealItem can be found instantly next
+   * time without a repeat Open Food Facts fetch. Same "not a CalorieItem
+   * field, read only at save time" reasoning as favorite above. */
+  barcode: string | undefined
 }
 
 function itemDraftFrom(item: CalorieItem): EditItemDraft {
@@ -140,6 +155,7 @@ function itemDraftFrom(item: CalorieItem): EditItemDraft {
     macroMode: 'per100g',
     emotion: item.emotion,
     favorite: false,
+    barcode: undefined,
   }
 }
 
@@ -158,6 +174,7 @@ interface AddRowDraft {
   macroMode: 'per100g' | 'perPortion'
   itemEmotion: MealEmotion | undefined
   itemFavorite: boolean
+  itemBarcode: string | undefined
   stagedItems: EditItemDraft[]
   groupNote: string
   time: string
@@ -176,6 +193,7 @@ function blankItemDraft(): EditItemDraft {
     macroMode: 'per100g',
     emotion: undefined,
     favorite: false,
+    barcode: undefined,
   }
 }
 
@@ -934,6 +952,17 @@ export function MealList({
   const [addItemFavorite, setAddItemFavorite] = useState(
     initialAddDraft?.itemFavorite ?? false,
   )
+  // #256 — set once a barcode scan resolves for this dish, so touchMealItem
+  // can record it at save time; not itself an editable field.
+  const [addItemBarcode, setAddItemBarcode] = useState<string | undefined>(
+    initialAddDraft?.itemBarcode,
+  )
+  const [isBarcodeScannerOpen, setIsBarcodeScannerOpen] = useState(false)
+  // Shown inside the item sheet when a scan comes up with no match
+  // anywhere (#256) — cleared on the next scan or once the sheet closes,
+  // not persisted, since it's just context for why the fields are blank.
+  const [barcodeNotFoundMessage, setBarcodeNotFoundMessage] = useState(false)
+  const isOnline = useOnlineStatus()
   // Dishes already committed via "Save and add one more" (#183) during
   // this add-row session, waiting for the final Save to fold them (plus
   // whatever's currently in the fields above) into one new meal group —
@@ -972,7 +1001,8 @@ export function MealList({
       addFat === '' &&
       addCarbs === '' &&
       addItemEmotion === undefined &&
-      !addItemFavorite
+      !addItemFavorite &&
+      addItemBarcode === undefined
     if (isBlank) {
       clearMealDraft(date)
       return
@@ -988,6 +1018,7 @@ export function MealList({
       macroMode: addMacroMode,
       itemEmotion: addItemEmotion,
       itemFavorite: addItemFavorite,
+      itemBarcode: addItemBarcode,
       stagedItems: addStagedItems,
       groupNote: addGroupNote,
       time: addTime,
@@ -1004,6 +1035,7 @@ export function MealList({
     addMacroMode,
     addItemEmotion,
     addItemFavorite,
+    addItemBarcode,
     addStagedItems,
     addGroupNote,
     addTime,
@@ -1177,6 +1209,7 @@ export function MealList({
     setAddItemBrand('')
     setAddItemEmotion(undefined)
     setAddItemFavorite(false)
+    setAddItemBarcode(undefined)
   }
 
   // The add row's current fields as one draft, in the same shape staged
@@ -1196,6 +1229,7 @@ export function MealList({
       macroMode: addMacroMode,
       emotion: addItemEmotion,
       favorite: addItemFavorite,
+      barcode: addItemBarcode,
     }
   }
 
@@ -1228,6 +1262,9 @@ export function MealList({
     const favoriteById = new Map(
       drafts.map((draft) => [draft.id, draft.favorite || undefined]),
     )
+    // #256 — same "look up by draft id" reasoning as favoriteById above;
+    // barcode isn't a CalorieItem field either.
+    const barcodeById = new Map(drafts.map((draft) => [draft.id, draft.barcode]))
     setCalorieEntries([
       ...calorieEntries,
       {
@@ -1250,6 +1287,7 @@ export function MealList({
             amountG: item.amountG,
           },
           favoriteById.get(item.id),
+          barcodeById.get(item.id),
         )
       }
     }
@@ -1371,6 +1409,42 @@ export function MealList({
     setAddAmountG(String(rates.portions))
   }
 
+  // #256: a scanned barcode is checked locally first (an instant, fully
+  // offline match for any barcode already scanned before), then falls back
+  // to an Open Food Facts fetch on a genuine first scan — see
+  // lookupBarcode.ts for the full local-first/online-fallback reasoning.
+  // Either way this only ever *prefills* the add-row + opens its sheet for
+  // review; nothing is saved until the user hits Save there themselves.
+  async function handleBarcodeScanned(barcode: string) {
+    const result = await lookupBarcode(
+      barcode,
+      mealItemRepositoryForBarcodeLookup,
+      isOnline,
+    )
+    setBarcodeNotFoundMessage(false)
+    if (result.source === 'local') {
+      setAddItemName(result.item.name)
+      setAddItemBrand('')
+      setAddMacroMode('per100g')
+      selectAddItemMealItem(result.item)
+      setAddItemBarcode(result.item.barcode)
+    } else if (result.source === 'openFoodFacts') {
+      setAddItemName(result.name)
+      setAddItemBrand(result.brand ?? '')
+      setAddMacroMode('per100g')
+      setAddAmount(String(result.kcal100))
+      setAddProtein(result.protein100 === undefined ? '' : String(result.protein100))
+      setAddFat(result.fat100 === undefined ? '' : String(result.fat100))
+      setAddCarbs(result.carbs100 === undefined ? '' : String(result.carbs100))
+      setAddAmountG('1')
+      setAddItemBarcode(barcode)
+    } else {
+      setBarcodeNotFoundMessage(true)
+      setAddItemBarcode(barcode)
+    }
+    setIsAddItemSheetOpen(true)
+  }
+
   // Quantity-based entry against the static food list (#62) — the dialog
   // already computed kcal/macros scaled by quantity for every dish checked
   // (#183: one or more); this adds the whole batch as a single new meal
@@ -1431,6 +1505,7 @@ export function MealList({
         macroMode: 'per100g',
         emotion: value.emotion,
         favorite: false,
+        barcode: undefined,
       }
     })
     setEditItems((items) => [...items, ...drafts])
@@ -1587,6 +1662,10 @@ export function MealList({
     const favoriteById = new Map(
       editItems.map((draft) => [draft.id, draft.favorite || undefined]),
     )
+    // #256 — same "look up by draft id" reasoning as favoriteById above.
+    const barcodeById = new Map(
+      editItems.map((draft) => [draft.id, draft.barcode]),
+    )
     if (items.length === 0) {
       setCalorieEntries(
         calorieEntries.filter((entry) => entry.id !== editingMealId),
@@ -1625,6 +1704,7 @@ export function MealList({
             amountG: item.amountG,
           },
           favoriteById.get(item.id),
+          barcodeById.get(item.id),
         )
       }
     }
@@ -1961,10 +2041,33 @@ export function MealList({
               <X aria-hidden="true" className="size-3.5" />
             </Button>
           )}
+          {/* #256 — alongside the manual-entry trigger, same fallback
+           * tier as "+ Add item": search (Find food) first, scan or type
+           * by hand if the dish isn't found there. */}
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            className="justify-start"
+            onClick={() => setIsBarcodeScannerOpen(true)}
+          >
+            <ScanBarcode aria-hidden="true" />
+            {t.dailyEntry.scanBarcodeButton}
+          </Button>
         </div>
+        {isBarcodeScannerOpen && (
+          <BarcodeScannerDialog
+            open={isBarcodeScannerOpen}
+            onOpenChange={setIsBarcodeScannerOpen}
+            onScanned={handleBarcodeScanned}
+          />
+        )}
         <MealItemEditorSheet
           open={isAddItemSheetOpen}
-          onOpenChange={setIsAddItemSheetOpen}
+          onOpenChange={(next) => {
+            setIsAddItemSheetOpen(next)
+            if (!next) setBarcodeNotFoundMessage(false)
+          }}
           title={t.dailyEntry.addItemSheetTitle}
           name={addItemName}
           onNameChange={setAddItemName}
@@ -1989,6 +2092,11 @@ export function MealList({
           favorite={addItemFavorite}
           onFavoriteChange={setAddItemFavorite}
           todayTotalPreview={todayTotalPreview ?? undefined}
+          infoMessage={
+            barcodeNotFoundMessage
+              ? t.dailyEntry.noFoodFoundForBarcodeMessage
+              : undefined
+          }
           onSave={() => {
             addMeal()
             setIsAddItemSheetOpen(false)

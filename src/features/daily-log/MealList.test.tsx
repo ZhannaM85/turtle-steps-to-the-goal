@@ -8,6 +8,27 @@ import { db } from '@/infrastructure/persistence/indexeddb'
 import { useMealItemStore } from '@/stores'
 import { MealList } from './MealList'
 
+// #256 — a real class (not vi.fn().mockImplementation(() => ({...})),
+// which vitest warns doesn't reliably support `new`), since MealList's
+// scan flow calls `new BrowserMultiFormatReader()` under the hood via
+// BarcodeScannerDialog. Each test configures decodeFromVideoDevice's own
+// behavior to simulate a specific scanned barcode.
+const decodeFromVideoDevice = vi.fn()
+vi.mock('@zxing/browser', () => ({
+  BrowserMultiFormatReader: class {
+    decodeFromVideoDevice = decodeFromVideoDevice
+  },
+}))
+
+function mockScanning(barcode: string) {
+  decodeFromVideoDevice.mockImplementation(
+    async (_deviceId: unknown, _videoElement: unknown, callback: (result: unknown) => void) => {
+      callback({ getText: () => barcode })
+      return { stop: vi.fn() }
+    },
+  )
+}
+
 function makeDailyEntry(overrides: Partial<DailyEntry> = {}): DailyEntry {
   const now = '2026-01-01T00:00:00.000Z'
   return {
@@ -38,6 +59,8 @@ afterEach(async () => {
   await db.mealItems.clear()
   localStorage.clear()
   vi.useRealTimers()
+  vi.unstubAllGlobals()
+  decodeFromVideoDevice.mockReset()
 })
 
 /**
@@ -935,6 +958,139 @@ describe('MealList', () => {
       expect(
         screen.queryByRole('button', { name: "Copy yesterday's meals" }),
       ).not.toBeInTheDocument()
+    })
+  })
+
+  describe('barcode scanning (#256)', () => {
+    it('opens the scanner dialog when "Scan barcode" is clicked', async () => {
+      const user = userEvent.setup()
+      render(
+        <MealList calorieEntries={[]} date="2026-03-01" onChange={vi.fn()} />,
+        { wrapper: MemoryRouter },
+      )
+
+      await user.click(screen.getByRole('button', { name: 'Scan barcode' }))
+
+      expect(
+        screen.getByText('Point your camera at the barcode.'),
+      ).toBeInTheDocument()
+    })
+
+    it('prefills from an existing local item on a repeat scan, without any network fetch', async () => {
+      const fetchMock = vi.fn()
+      vi.stubGlobal('fetch', fetchMock)
+      await useMealItemStore
+        .getState()
+        .touch(
+          'Protein Bar',
+          { amountKcal: 200, proteinG: 20 },
+          undefined,
+          '0123456789012',
+        )
+      mockScanning('0123456789012')
+      const user = userEvent.setup()
+      render(
+        <MealList calorieEntries={[]} date="2026-03-01" onChange={vi.fn()} />,
+        { wrapper: MemoryRouter },
+      )
+
+      await user.click(screen.getByRole('button', { name: 'Scan barcode' }))
+
+      expect(await screen.findByDisplayValue('Protein Bar')).toBeInTheDocument()
+      expect(screen.getByLabelText('kcal/100g')).toHaveValue('200')
+      expect(fetchMock).not.toHaveBeenCalled()
+    })
+
+    it('prefills from Open Food Facts on a first scan with no local match', async () => {
+      vi.stubGlobal(
+        'fetch',
+        vi.fn().mockResolvedValue({
+          ok: true,
+          json: async () => ({
+            status: 1,
+            product: {
+              product_name: 'Chocolate Bar',
+              brands: 'Acme',
+              nutriments: {
+                'energy-kcal_100g': 520,
+                proteins_100g: 6,
+                fat_100g: 30,
+                carbohydrates_100g: 55,
+              },
+            },
+          }),
+        }),
+      )
+      mockScanning('9999999999999')
+      const user = userEvent.setup()
+      render(
+        <MealList calorieEntries={[]} date="2026-03-01" onChange={vi.fn()} />,
+        { wrapper: MemoryRouter },
+      )
+
+      await user.click(screen.getByRole('button', { name: 'Scan barcode' }))
+
+      expect(
+        await screen.findByDisplayValue('Chocolate Bar'),
+      ).toBeInTheDocument()
+      expect(screen.getByDisplayValue('Acme')).toBeInTheDocument()
+      expect(screen.getByLabelText('kcal/100g')).toHaveValue('520')
+    })
+
+    it('shows a quiet message and a blank form when nothing matches anywhere', async () => {
+      vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: false }))
+      mockScanning('0000000000000')
+      const user = userEvent.setup()
+      render(
+        <MealList calorieEntries={[]} date="2026-03-01" onChange={vi.fn()} />,
+        { wrapper: MemoryRouter },
+      )
+
+      await user.click(screen.getByRole('button', { name: 'Scan barcode' }))
+
+      expect(
+        await screen.findByText(
+          'No food found for this barcode — you can still add it by hand below.',
+        ),
+      ).toBeInTheDocument()
+      expect(screen.getByLabelText('Dish name')).toHaveValue('')
+    })
+
+    it('records the barcode on the new MealItem once saved', async () => {
+      vi.stubGlobal(
+        'fetch',
+        vi.fn().mockResolvedValue({
+          ok: true,
+          json: async () => ({
+            status: 1,
+            product: {
+              product_name: 'Chocolate Bar',
+              nutriments: { 'energy-kcal_100g': 520 },
+            },
+          }),
+        }),
+      )
+      mockScanning('9999999999999')
+      const user = userEvent.setup()
+      const onChange = vi.fn()
+      render(
+        <MealList calorieEntries={[]} date="2026-03-01" onChange={onChange} />,
+        { wrapper: MemoryRouter },
+      )
+
+      await user.click(screen.getByRole('button', { name: 'Scan barcode' }))
+      await screen.findByDisplayValue('Chocolate Bar')
+      await user.click(screen.getByRole('button', { name: 'Save' }))
+
+      expect(onChange).toHaveBeenCalledTimes(1)
+      await waitFor(() =>
+        expect(useMealItemStore.getState().items).toContainEqual(
+          expect.objectContaining({
+            name: 'Chocolate Bar',
+            barcode: '9999999999999',
+          }),
+        ),
+      )
     })
   })
 })

@@ -62,6 +62,10 @@ export interface MealItemEditorSheetProps {
    * until the outer Save commits the replacement (a different, harder
    * whole-meal delta this doesn't attempt). */
   todayTotalPreview?: string
+  /** #256 — a quiet note shown right below the title, e.g. "No food found
+   * for this barcode" after a scan comes up empty. Not an error state,
+   * just context for why the fields below are blank. */
+  infoMessage?: string
   onSave: () => void
   /** Second footer action (#183) — saves this dish and keeps the sheet
    * open, reset for the next one, instead of closing. Only passed while
@@ -140,6 +144,7 @@ export function MealItemEditorSheet({
   favorite,
   onFavoriteChange,
   todayTotalPreview,
+  infoMessage,
   onSave,
   onSaveAndAddAnother,
 }: MealItemEditorSheetProps) {
@@ -189,6 +194,9 @@ export function MealItemEditorSheet({
         className="flex flex-col"
       >
         <DialogTitle>{title}</DialogTitle>
+        {infoMessage && (
+          <p className="text-sm text-muted-foreground">{infoMessage}</p>
+        )}
         <div className="flex flex-1 flex-col gap-5 overflow-y-auto pt-4">
           <div className="flex flex-col gap-1.5">
             <div className="flex items-center justify-between gap-2">
