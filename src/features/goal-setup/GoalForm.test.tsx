@@ -1,11 +1,17 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { useUnitStore } from '@/stores'
+import { useProfileStore, useUnitStore } from '@/stores'
 import { GoalForm } from './GoalForm'
 
 afterEach(() => {
   useUnitStore.setState({ unit: 'kg' })
+  useProfileStore.setState({
+    heightCm: undefined,
+    age: undefined,
+    sex: undefined,
+    activityLevel: undefined,
+  })
 })
 
 describe('GoalForm', () => {
@@ -318,6 +324,121 @@ describe('GoalForm', () => {
       await user.click(screen.getByRole('button', { name: 'Edit goal' }))
 
       expect(screen.getByLabelText('Daily carb target')).toHaveValue('200')
+    })
+  })
+
+  describe('suggest a target (#259)', () => {
+    it('disables the button and shows a hint when profile data is incomplete', () => {
+      render(<GoalForm existingGoal={null} onSubmit={vi.fn()} />)
+
+      expect(
+        screen.getByRole('button', { name: 'Suggest a target' }),
+      ).toBeDisabled()
+      expect(
+        screen.getByText(/Log a weight, and set your height/),
+      ).toBeInTheDocument()
+    })
+
+    it('stays disabled with a profile but no logged weight', () => {
+      useProfileStore.setState({
+        heightCm: 165,
+        age: 30,
+        sex: 'female',
+        activityLevel: 'sedentary',
+      })
+      render(
+        <GoalForm existingGoal={null} onSubmit={vi.fn()} latestWeightKg={null} />,
+      )
+
+      expect(
+        screen.getByRole('button', { name: 'Suggest a target' }),
+      ).toBeDisabled()
+    })
+
+    it('fills in all four target fields once every input is available', async () => {
+      const user = userEvent.setup()
+      useProfileStore.setState({
+        heightCm: 165,
+        age: 30,
+        sex: 'female',
+        activityLevel: 'sedentary',
+      })
+      render(
+        <GoalForm
+          existingGoal={null}
+          onSubmit={vi.fn()}
+          latestWeightKg={70}
+        />,
+      )
+
+      const button = screen.getByRole('button', { name: 'Suggest a target' })
+      expect(button).toBeEnabled()
+      await user.click(button)
+
+      // BMR (Mifflin-St Jeor, female, 70kg/165cm/30y) = 1420.25,
+      // TDEE (sedentary x1.2) = 1704.3, no weekly pace typed in => 0 deficit.
+      expect(screen.getByLabelText('Daily calories target')).toHaveValue(
+        '1704',
+      )
+      expect(screen.getByLabelText('Daily protein target')).toHaveValue(
+        '112',
+      )
+      expect(screen.getByLabelText('Daily fat target')).toHaveValue('56')
+      expect(screen.getByLabelText('Daily carb target')).toHaveValue('188')
+    })
+
+    it('factors in the typed weekly-pace deficit when present', async () => {
+      const user = userEvent.setup()
+      useProfileStore.setState({
+        heightCm: 165,
+        age: 30,
+        sex: 'female',
+        activityLevel: 'sedentary',
+      })
+      render(
+        <GoalForm
+          existingGoal={null}
+          onSubmit={vi.fn()}
+          latestWeightKg={70}
+        />,
+      )
+
+      await user.type(
+        screen.getByLabelText("This week's target (kg to lose)"),
+        '1',
+      )
+      await user.click(
+        screen.getByRole('button', { name: 'Suggest a target' }),
+      )
+
+      // Same TDEE as above (1704) minus the ~1100 kcal/day deficit implied
+      // by a 1kg/week pace — asserting it's meaningfully lower confirms
+      // the deficit was actually applied, without hard-coding the exact
+      // calorieDeficit.ts constant here.
+      const calorieField = screen.getByLabelText(
+        'Daily calories target',
+      ) as HTMLInputElement
+      expect(Number(calorieField.value)).toBeLessThan(700)
+    })
+
+    it('does not save anything on its own — only fills the fields', async () => {
+      const user = userEvent.setup()
+      const onSubmit = vi.fn()
+      useProfileStore.setState({
+        heightCm: 165,
+        age: 30,
+        sex: 'female',
+        activityLevel: 'sedentary',
+      })
+      render(
+        <GoalForm existingGoal={null} onSubmit={onSubmit} latestWeightKg={70} />,
+      )
+
+      await user.click(
+        screen.getByRole('button', { name: 'Suggest a target' }),
+      )
+
+      expect(onSubmit).not.toHaveBeenCalled()
     })
   })
 

@@ -8,7 +8,7 @@ import {
   useTranslation,
 } from '@/i18n'
 import { goalWeekEnd, kgToLb } from '@/domain/goal'
-import { useActiveGoalProgress, usePastGoals } from '@/shared/hooks'
+import { useActiveGoalProgress, useLatestWeight, usePastGoals } from '@/shared/hooks'
 import { PageHeader } from '@/shared/ui/page-header'
 import { SectionTitleWithToggle } from '@/shared/ui/section-title-with-toggle'
 import { StatCard } from '@/shared/ui/stat-card'
@@ -35,6 +35,13 @@ export function GoalScreen() {
   // fresh record instead of editing this now-succeeded one in place.
   const activeGoalProgress = useActiveGoalProgress()
   const activeGoalReachedOn = activeGoalProgress?.metOnDate ?? null
+  // #259 — the most recently logged weight, needed by GoalForm's "Suggest
+  // a target" TDEE helper. `goal` as the refresh key isn't quite right
+  // (weight logging doesn't change the goal), but there's no cheaper
+  // signal already available here to key off of, and a stale weight for
+  // one render is harmless — the helper is opt-in, triggered by a button
+  // click, not something that silently applies on its own.
+  const latestWeightKg = useLatestWeight(goal)
   // #232 — same mechanism #245/#247 gave every Dashboard section and
   // #232 gave Today's own insight cards. Two small local helpers, same
   // reasoning as TodayScreen.tsx's own `sectionTitle`/`statCardAction`.
@@ -146,6 +153,7 @@ export function GoalScreen() {
             existingGoal={goal}
             onSubmit={saveGoal}
             activeGoalReached={activeGoalReachedOn !== null}
+            latestWeightKg={latestWeightKg}
           />
 
           <PastTargetsList records={pastTargets} onDelete={deleteGoal} />

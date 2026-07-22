@@ -39,7 +39,12 @@ beforeEach(() => {
       Object.keys(state.tracked).map((key) => [key, true]),
     ) as typeof state.tracked,
   }))
-  useProfileStore.setState({ heightCm: undefined, age: undefined, sex: undefined })
+  useProfileStore.setState({
+    heightCm: undefined,
+    age: undefined,
+    sex: undefined,
+    activityLevel: undefined,
+  })
   document.documentElement.removeAttribute('data-mood')
   document.documentElement.classList.remove('dark')
 })
@@ -58,7 +63,12 @@ afterEach(() => {
       Object.keys(state.tracked).map((key) => [key, true]),
     ) as typeof state.tracked,
   }))
-  useProfileStore.setState({ heightCm: undefined, age: undefined, sex: undefined })
+  useProfileStore.setState({
+    heightCm: undefined,
+    age: undefined,
+    sex: undefined,
+    activityLevel: undefined,
+  })
   document.documentElement.removeAttribute('data-mood')
   document.documentElement.classList.remove('dark')
 })
@@ -288,8 +298,25 @@ describe('SettingsScreen', () => {
       expect(await screen.findByText(/Too big/)).toBeInTheDocument()
     })
 
+    it('saves an activity level alongside the rest (#259)', async () => {
+      const user = userEvent.setup()
+      renderSettings()
+
+      await user.click(
+        screen.getByRole('radio', { name: 'Moderately active' }),
+      )
+      await user.click(screen.getByRole('button', { name: 'Save profile' }))
+
+      expect(useProfileStore.getState().activityLevel).toBe('moderate')
+    })
+
     it('prefills the fields from an existing profile', () => {
-      useProfileStore.setState({ heightCm: 180, age: 40, sex: 'male' })
+      useProfileStore.setState({
+        heightCm: 180,
+        age: 40,
+        sex: 'male',
+        activityLevel: 'active',
+      })
       renderSettings()
 
       expect(screen.getByLabelText('Height (cm)')).toHaveValue('180')
@@ -297,6 +324,9 @@ describe('SettingsScreen', () => {
         '40',
       )
       expect(screen.getByRole('radio', { name: 'Male' })).toBeChecked()
+      expect(
+        screen.getByRole('radio', { name: 'Active', exact: true }),
+      ).toBeChecked()
     })
   })
 

@@ -1,12 +1,24 @@
 import { useState } from 'react'
-import type { Sex } from '@/domain/stats'
-import { useTranslation } from '@/i18n'
+import type { ActivityLevel, Sex } from '@/domain/stats'
+import { useTranslation, type Dictionary } from '@/i18n'
 import { parseNumberInput } from '@/shared/lib/parseNumberInput'
 import { Button } from '@/shared/ui/button'
 import { Input } from '@/shared/ui/input'
 import { ToggleGroup, ToggleGroupItem } from '@/shared/ui/toggle-group'
 import { useProfileStore } from '@/stores'
 import { ageSchema, heightCmSchema } from './profileFormSchema'
+
+function activityLevelOptions(
+  t: Dictionary,
+): { value: ActivityLevel; label: string }[] {
+  return [
+    { value: 'sedentary', label: t.settings.activityLevelSedentary },
+    { value: 'light', label: t.settings.activityLevelLight },
+    { value: 'moderate', label: t.settings.activityLevelModerate },
+    { value: 'active', label: t.settings.activityLevelActive },
+    { value: 'veryActive', label: t.settings.activityLevelVeryActive },
+  ]
+}
 
 // #233 — Height/Age/Sex, entered once (or rarely updated) purely to
 // compute BMI/BMR on Today, not a daily entry. Same "bundle related
@@ -19,13 +31,18 @@ export function ProfileSection() {
   const heightCm = useProfileStore((state) => state.heightCm)
   const age = useProfileStore((state) => state.age)
   const sex = useProfileStore((state) => state.sex)
+  const activityLevel = useProfileStore((state) => state.activityLevel)
   const setHeightCm = useProfileStore((state) => state.setHeightCm)
   const setAge = useProfileStore((state) => state.setAge)
   const setSex = useProfileStore((state) => state.setSex)
+  const setActivityLevel = useProfileStore((state) => state.setActivityLevel)
 
   const [heightInput, setHeightInput] = useState(heightCm?.toString() ?? '')
   const [ageInput, setAgeInput] = useState(age?.toString() ?? '')
   const [pendingSex, setPendingSex] = useState<Sex | undefined>(sex)
+  const [pendingActivityLevel, setPendingActivityLevel] = useState<
+    ActivityLevel | undefined
+  >(activityLevel)
   const [error, setError] = useState<string | null>(null)
 
   function save() {
@@ -45,6 +62,7 @@ export function ProfileSection() {
     setHeightCm(heightResult.data)
     setAge(ageResult.data)
     setSex(pendingSex)
+    setActivityLevel(pendingActivityLevel)
   }
 
   return (
@@ -111,10 +129,43 @@ export function ProfileSection() {
             </ToggleGroupItem>
           </ToggleGroup>
         </div>
-        <Button type="button" variant="outline" size="sm" onClick={save}>
-          {t.settings.saveProfileLabel}
-        </Button>
       </div>
+      {/* #259 — only used by GoalForm's "Suggest a target" TDEE helper,
+       * unrelated to the BMI/BMR stats the fields above power. Its own row
+       * since 5 options wouldn't fit inline with the rest on mobile. */}
+      <div className="flex flex-col gap-1">
+        <span className="text-xs text-muted-foreground">
+          {t.settings.activityLevelLabel}
+        </span>
+        <ToggleGroup
+          type="single"
+          aria-label={t.settings.activityLevelLabel}
+          value={pendingActivityLevel ?? ''}
+          onValueChange={(value) =>
+            value && setPendingActivityLevel(value as ActivityLevel)
+          }
+          className="flex-wrap"
+        >
+          {activityLevelOptions(t).map((option) => (
+            <ToggleGroupItem
+              key={option.value}
+              value={option.value}
+              className="h-12"
+            >
+              {option.label}
+            </ToggleGroupItem>
+          ))}
+        </ToggleGroup>
+      </div>
+      <Button
+        type="button"
+        variant="outline"
+        size="sm"
+        onClick={save}
+        className="self-start"
+      >
+        {t.settings.saveProfileLabel}
+      </Button>
       {error && <p className="text-sm text-destructive">{error}</p>}
     </div>
   )

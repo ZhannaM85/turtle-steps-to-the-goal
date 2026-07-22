@@ -227,6 +227,11 @@ export const en: Dictionary = {
     dailyFatTargetHint: 'Optional — leave blank to skip.',
     dailyCarbTargetLabel: 'Daily carb target',
     dailyCarbTargetHint: 'Optional — leave blank to skip.',
+    suggestTargetButton: 'Suggest a target',
+    suggestTargetCaveat:
+      'Fills in the four fields below from your weight, height, age, sex, and activity level — not medical or nutritional advice. Review and edit before saving.',
+    suggestTargetMissingProfileHint:
+      'Log a weight, and set your height, age, sex, and activity level in Settings, to use this.',
     updateButton: 'Update this week’s target',
     setButton: 'Set this week’s target',
     savedConfirmation: 'Saved',
@@ -540,6 +545,12 @@ export const en: Dictionary = {
     sexLabel: 'Sex',
     sexFemaleOption: 'Female',
     sexMaleOption: 'Male',
+    activityLevelLabel: 'Activity level',
+    activityLevelSedentary: 'Sedentary',
+    activityLevelLight: 'Lightly active',
+    activityLevelModerate: 'Moderately active',
+    activityLevelActive: 'Active',
+    activityLevelVeryActive: 'Very active',
     saveProfileLabel: 'Save profile',
     dailyReminderLabel: 'Daily reminder',
     dailyReminderDescription:

@@ -229,6 +229,11 @@ export const ru: Dictionary = {
     dailyFatTargetHint: 'Необязательно — можно оставить пустым.',
     dailyCarbTargetLabel: 'Дневная цель по углеводам',
     dailyCarbTargetHint: 'Необязательно — можно оставить пустым.',
+    suggestTargetButton: 'Предложить цель',
+    suggestTargetCaveat:
+      'Заполняет четыре поля ниже на основе веса, роста, возраста, пола и уровня активности — это не медицинская или диетическая рекомендация. Проверьте и при необходимости измените значения перед сохранением.',
+    suggestTargetMissingProfileHint:
+      'Чтобы использовать это, запишите вес и укажите рост, возраст, пол и уровень активности в настройках.',
     updateButton: 'Обновить цель на неделю',
     setButton: 'Задать цель на неделю',
     savedConfirmation: 'Сохранено',
@@ -547,6 +552,12 @@ export const ru: Dictionary = {
     sexLabel: 'Пол',
     sexFemaleOption: 'Женский',
     sexMaleOption: 'Мужской',
+    activityLevelLabel: 'Уровень активности',
+    activityLevelSedentary: 'Малоподвижный',
+    activityLevelLight: 'Легкая активность',
+    activityLevelModerate: 'Умеренная активность',
+    activityLevelActive: 'Активный',
+    activityLevelVeryActive: 'Очень активный',
     saveProfileLabel: 'Сохранить профиль',
     dailyReminderLabel: 'Ежедневное напоминание',
     dailyReminderDescription:

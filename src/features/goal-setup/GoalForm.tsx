@@ -4,9 +4,10 @@ import { Check, Pencil } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 import type { Goal } from '@/domain/goal'
 import { estimatedDailyCalorieDeficitKcal, kgToLb } from '@/domain/goal'
+import { suggestDailyTargets } from '@/domain/stats'
 import { formatExactNumber, formatNumber, unitLabel, useLocale, useTranslation } from '@/i18n'
 import { parseNumberInput } from '@/shared/lib/parseNumberInput'
-import { useUnitStore } from '@/stores'
+import { useProfileStore, useUnitStore } from '@/stores'
 import { Button } from '@/shared/ui/button'
 import { NumberInput } from '@/shared/ui/number-input'
 import {
@@ -25,12 +26,18 @@ export interface GoalFormProps {
    * Forces formValuesToGoal to start a fresh record instead of editing
    * the already-succeeded one in place. */
   activeGoalReached?: boolean
+  /** #259 — the most recently logged weight (always kg, unconverted),
+   * needed by the "Suggest a target" TDEE helper below. `null` while
+   * loading or if nothing's ever been logged, in which case the helper
+   * stays disabled. */
+  latestWeightKg?: number | null
 }
 
 export function GoalForm({
   existingGoal,
   onSubmit,
   activeGoalReached = false,
+  latestWeightKg = null,
 }: GoalFormProps) {
   const t = useTranslation()
   const locale = useLocale()
@@ -38,12 +45,17 @@ export function GoalForm({
   const unitText = unitLabel(unit, t)
   const toDisplay = (kg: number) => (unit === 'lb' ? kgToLb(kg) : kg)
   const schema = useMemo(() => makeGoalFormSchema(t), [t])
+  // #259 — profile fields built for #233's BMI/BMR stats, reused here
+  // rather than a second profile concept (activityLevel was added
+  // specifically for this helper, see profileStore.ts).
+  const { heightCm, age, sex, activityLevel } = useProfileStore()
 
   const {
     register,
     handleSubmit,
     watch,
     reset,
+    setValue,
     formState: { errors },
   } = useForm<GoalFormValues>({
     resolver: zodResolver(schema),
@@ -54,6 +66,39 @@ export function GoalForm({
   const paceKg = effectiveWeeklyPaceKg(values, unit)
   const dailyDeficit =
     paceKg !== null ? estimatedDailyCalorieDeficitKcal(paceKg) : null
+
+  // #259 — "Suggest a target": prefills (never auto-saves) the four target
+  // fields below from a deterministic TDEE/macro-ratio calculation. Only
+  // enabled once every input it needs actually exists; the weekly-pace
+  // deficit is optional (falls back to a plain maintenance estimate, 0
+  // deficit, if no weekly target has been typed in yet).
+  const canSuggestTarget =
+    latestWeightKg !== null &&
+    heightCm !== undefined &&
+    age !== undefined &&
+    sex !== undefined &&
+    activityLevel !== undefined
+  function applySuggestedTargets() {
+    if (!canSuggestTarget) return
+    const suggested = suggestDailyTargets(
+      latestWeightKg,
+      heightCm,
+      age,
+      sex,
+      activityLevel,
+      dailyDeficit ?? 0,
+    )
+    setValue('dailyCalorieTarget', suggested.calorieTargetKcal, {
+      shouldValidate: true,
+    })
+    setValue('dailyProteinTarget', suggested.proteinTargetG, {
+      shouldValidate: true,
+    })
+    setValue('dailyFatTarget', suggested.fatTargetG, { shouldValidate: true })
+    setValue('dailyCarbTarget', suggested.carbTargetG, {
+      shouldValidate: true,
+    })
+  }
 
   // #241: the button gave no visible confirmation after a successful save,
   // so a click could look like it did nothing. Brief "Saved" checkmark,
@@ -214,6 +259,30 @@ export function GoalForm({
           {t.goal.deficitCaveat}
         </p>
       )}
+
+      {/* #259 — deterministic TDEE/macro-ratio suggestion, prefills but
+       * never auto-saves the four fields below. Disabled until every
+       * input it needs exists (a logged weight plus the Settings Profile
+       * card's height/age/sex/activity level); the hint explains what's
+       * missing rather than just hiding the button, matching the app's
+       * "explain, don't just disable" copy elsewhere. */}
+      <div className="flex flex-col gap-1.5">
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          className="self-start"
+          disabled={!canSuggestTarget}
+          onClick={applySuggestedTargets}
+        >
+          {t.goal.suggestTargetButton}
+        </Button>
+        <p className="text-sm text-muted-foreground">
+          {canSuggestTarget
+            ? t.goal.suggestTargetCaveat
+            : t.goal.suggestTargetMissingProfileHint}
+        </p>
+      </div>
 
       {/* #208 — independent of the weekly weight-loss target above,
        * genuinely optional (no superRefine requiring it, unlike that

@@ -356,6 +356,11 @@ export interface Dictionary {
     dailyFatTargetHint: string
     dailyCarbTargetLabel: string
     dailyCarbTargetHint: string
+    /** #259 — deterministic TDEE/macro-ratio suggestion, prefills but
+     * never auto-saves the four target fields above. */
+    suggestTargetButton: string
+    suggestTargetCaveat: string
+    suggestTargetMissingProfileHint: string
     updateButton: string
     setButton: string
     savedConfirmation: string
@@ -749,6 +754,15 @@ export interface Dictionary {
     sexLabel: string
     sexFemaleOption: string
     sexMaleOption: string
+    /** #259 — a 5th optional profile field, only used by GoalForm's
+     * "Suggest a target" TDEE helper (not by BMI/BMR, so leaving it unset
+     * doesn't affect the #233 stats above). */
+    activityLevelLabel: string
+    activityLevelSedentary: string
+    activityLevelLight: string
+    activityLevelModerate: string
+    activityLevelActive: string
+    activityLevelVeryActive: string
     saveProfileLabel: string
     /** Opt-in "haven't logged today" reminder (#171) — off by default, same
      * shape as cycle/digestion tracking. Deliberately just an in-app
