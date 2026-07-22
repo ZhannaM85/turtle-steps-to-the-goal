@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 254,
+    issue: 271,
+    date: '2026-07-22T19:47:00+03:00',
+    en: 'Water logging now shows each add as its own removable glass or bottle icon, instead of a single quiet running total.',
+    ru: 'Учёт воды теперь показывает каждое добавление отдельной удаляемой иконкой стакана или бутылки, а не одной незаметно меняющейся суммой.',
+  },
+  {
     version: 253,
     issue: 277,
     date: '2026-07-22T19:26:00+03:00',
