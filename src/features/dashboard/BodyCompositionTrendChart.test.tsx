@@ -3,7 +3,12 @@ import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 import { afterEach, describe, expect, it } from 'vitest'
 import type { DailyEntry } from '@/domain/dailyEntry'
-import { useDashboardChartVisibilityStore, useTrackedFieldsStore } from '@/stores'
+import { BODY_COMPOSITION_SERIES_KEYS } from '@/domain/stats'
+import {
+  useBodyCompositionSelectionStore,
+  useDashboardChartVisibilityStore,
+  useTrackedFieldsStore,
+} from '@/stores'
 import { BodyCompositionTrendChart } from './BodyCompositionTrendChart'
 
 let idCounter = 0
@@ -66,11 +71,13 @@ describe('BodyCompositionTrendChart', () => {
     expect(
       screen.getByRole('heading', { name: 'Body composition' }),
     ).toBeInTheDocument()
-    expect(screen.getByText('Muscle mass')).toBeInTheDocument()
-    expect(screen.getByText('Visceral fat')).toBeInTheDocument()
-    expect(screen.getByText('Body water')).toBeInTheDocument()
-    expect(screen.getByText('Bone mass')).toBeInTheDocument()
-    expect(screen.getByText('Body fat')).toBeInTheDocument()
+    // Each label now renders twice (#277): once as a series-picker toggle
+    // button, once as the chart legend entry.
+    expect(screen.getAllByText('Muscle mass')).toHaveLength(2)
+    expect(screen.getAllByText('Visceral fat')).toHaveLength(2)
+    expect(screen.getAllByText('Body water')).toHaveLength(2)
+    expect(screen.getAllByText('Bone mass')).toHaveLength(2)
+    expect(screen.getAllByText('Body fat')).toHaveLength(2)
   })
 
   describe('not-enough-data gate', () => {
@@ -119,7 +126,79 @@ describe('BodyCompositionTrendChart', () => {
       expect(showButton).toBeInTheDocument()
 
       await user.click(showButton)
-      expect(screen.getByText('Muscle mass')).toBeInTheDocument()
+      expect(screen.getAllByText('Muscle mass')).toHaveLength(2)
+    })
+  })
+
+  describe('series picker (#277)', () => {
+    afterEach(() => {
+      useBodyCompositionSelectionStore.setState({
+        selected: [...BODY_COMPOSITION_SERIES_KEYS],
+      })
+    })
+
+    it('drops a series from the legend once its picker toggle is unchecked', async () => {
+      const user = userEvent.setup()
+      render(<BodyCompositionTrendChart entries={threeDaysOfData} />, {
+        wrapper: MemoryRouter,
+      })
+
+      await user.click(screen.getByRole('button', { name: 'Visceral fat' }))
+
+      // The picker's own toggle button stays put (now unpressed) — only
+      // its legend entry disappears once deselected, back down to 1 match.
+      expect(screen.getAllByText('Visceral fat')).toHaveLength(1)
+      expect(
+        screen.getByRole('button', { name: 'Visceral fat' }),
+      ).toHaveAttribute('aria-pressed', 'false')
+      expect(screen.getAllByText('Muscle mass')).toHaveLength(2)
+    })
+
+    it('shows a "pick at least one" message once every series is unchecked', async () => {
+      const user = userEvent.setup()
+      render(<BodyCompositionTrendChart entries={threeDaysOfData} />, {
+        wrapper: MemoryRouter,
+      })
+
+      for (const label of [
+        'Muscle mass',
+        'Visceral fat',
+        'Body water',
+        'Bone mass',
+        'Body fat',
+      ]) {
+        await user.click(screen.getByRole('button', { name: label }))
+      }
+
+      expect(
+        screen.getByText('Pick at least one to see a chart.'),
+      ).toBeInTheDocument()
+      // The picker itself (and its toggle buttons) stays visible so the
+      // user can re-select — only the chart/legend disappear, so each
+      // label now shows up exactly once (the picker button) instead of 2.
+      expect(screen.getAllByText('Muscle mass')).toHaveLength(1)
+      expect(
+        screen.getByRole('button', { name: 'Hide Body composition' }),
+      ).toBeInTheDocument()
+    })
+
+    it('keeps only the 2 chosen series in the legend when narrowed to exactly 2', async () => {
+      const user = userEvent.setup()
+      render(<BodyCompositionTrendChart entries={threeDaysOfData} />, {
+        wrapper: MemoryRouter,
+      })
+
+      for (const label of ['Body water', 'Bone mass', 'Body fat']) {
+        await user.click(screen.getByRole('button', { name: label }))
+      }
+
+      expect(screen.getAllByText('Muscle mass')).toHaveLength(2)
+      expect(screen.getAllByText('Visceral fat')).toHaveLength(2)
+      // Deselected series' picker buttons remain, just without their
+      // legend entry, so they drop from 2 matches down to 1.
+      expect(screen.getAllByText('Body water')).toHaveLength(1)
+      expect(screen.getAllByText('Bone mass')).toHaveLength(1)
+      expect(screen.getAllByText('Body fat')).toHaveLength(1)
     })
   })
 })

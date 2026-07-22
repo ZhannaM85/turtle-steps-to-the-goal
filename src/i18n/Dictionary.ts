@@ -572,6 +572,9 @@ export interface Dictionary {
      * #263's body fat %), same "trend chart per tracked metric" shape as
      * the above, only rendered while that section is toggled on. */
     bodyCompositionTrendTitle: string
+    /** #277 — shown instead of the chart once every series is unchecked
+     * via the series picker, same shape as customChartEmptyDescription. */
+    bodyCompositionEmptyDescription: string
     hideChartLabel: (title: string) => string
     showChartLabel: (title: string) => string
     weeklySummaryTitle: string

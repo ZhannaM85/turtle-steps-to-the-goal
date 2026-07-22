@@ -24,7 +24,12 @@ import {
   useTranslation,
   type Dictionary,
 } from '@/i18n'
-import { useDashboardChartVisibilityStore, useTrackedFieldsStore } from '@/stores'
+import { ToggleGroup, ToggleGroupItem } from '@/shared/ui/toggle-group'
+import {
+  useBodyCompositionSelectionStore,
+  useDashboardChartVisibilityStore,
+  useTrackedFieldsStore,
+} from '@/stores'
 import { ChartTitleWithToggle } from './ChartTitleWithToggle'
 import { resolveChartClickDate } from './chartNavigation'
 
@@ -87,6 +92,12 @@ export interface BodyCompositionTrendChartProps {
  * sharing one Y-axis on the raw values would flatten the smaller-scale
  * ones to invisible lines next to the larger ones. The tooltip always
  * shows the real logged number, never the normalized plotting coordinate.
+ *
+ * #277: a `ToggleGroup` (same pattern as `CustomChartView`'s picker) lets
+ * the user narrow the 5 series down. With exactly 2 selected, there's no
+ * scale-clash risk, so the chart switches to real values on two Y-axes
+ * (left/right) instead of the shared normalized-0-100 approach — 1/3/4/5
+ * selected keeps that normalized behavior, just for the chosen subset.
  */
 export function BodyCompositionTrendChart({
   entries,
@@ -97,6 +108,10 @@ export function BodyCompositionTrendChart({
   const trackedFields = useTrackedFieldsStore((state) => state.tracked)
   const chartVisible = useDashboardChartVisibilityStore(
     (state) => state.visible.bodyComposition,
+  )
+  const selected = useBodyCompositionSelectionStore((state) => state.selected)
+  const setSelected = useBodyCompositionSelectionStore(
+    (state) => state.setSelected,
   )
 
   if (!trackedFields.bodyComposition) return null
@@ -137,18 +152,41 @@ export function BodyCompositionTrendChart({
     )
   }
 
+  const visibleKeys = BODY_COMPOSITION_SERIES_KEYS.filter((key) =>
+    selected.includes(key),
+  )
+  const dualAxis = visibleKeys.length === 2
+
+  const seriesPicker = (
+    <ToggleGroup
+      type="multiple"
+      aria-label={t.dashboard.bodyCompositionTrendTitle}
+      value={selected}
+      onValueChange={(value: string[]) =>
+        setSelected(
+          BODY_COMPOSITION_SERIES_KEYS.filter((key) => value.includes(key)),
+        )
+      }
+      className="w-fit flex-wrap"
+    >
+      {BODY_COMPOSITION_SERIES_KEYS.map((key) => (
+        <ToggleGroupItem key={key} value={key}>
+          {labelFor(t, key)}
+        </ToggleGroupItem>
+      ))}
+    </ToggleGroup>
+  )
+
   function renderTooltip({ active, label }: TooltipContentProps) {
     if (!active || !label) return null
     const point = points.find((p) => p.date === label)
     if (!point) return null
-    const rows = BODY_COMPOSITION_SERIES_KEYS.filter(
-      (key) => point.raw[key] !== undefined,
-    )
+    const rows = visibleKeys.filter((key) => point.raw[key] !== undefined)
     if (rows.length === 0) return null
     const date = resolveChartClickDate(
       { activeLabel: label },
       points,
-      (p) => BODY_COMPOSITION_SERIES_KEYS.some((key) => p.raw[key] !== undefined),
+      (p) => visibleKeys.some((key) => p.raw[key] !== undefined),
     )
     return (
       <div
@@ -180,9 +218,22 @@ export function BodyCompositionTrendChart({
     )
   }
 
+  if (visibleKeys.length === 0) {
+    return (
+      <div className="flex flex-col gap-1.5">
+        {chartTitle}
+        {seriesPicker}
+        <p className="text-sm text-muted-foreground">
+          {t.dashboard.bodyCompositionEmptyDescription}
+        </p>
+      </div>
+    )
+  }
+
   return (
     <div className="flex flex-col gap-1.5">
       {chartTitle}
+      {seriesPicker}
       <ResponsiveContainer width="100%" height={160}>
         <LineChart
           data={data}
@@ -198,22 +249,43 @@ export function BodyCompositionTrendChart({
             axisLine={{ stroke: 'var(--border)' }}
             tickLine={false}
           />
-          <YAxis
-            width={40}
-            domain={[0, 100]}
-            tick={false}
-            axisLine={false}
-            tickLine={false}
-          />
+          {dualAxis ? (
+            <>
+              <YAxis
+                yAxisId="left"
+                width={40}
+                tick={{ fontSize: 11, fill: SERIES_COLOR[visibleKeys[0]] }}
+                axisLine={false}
+                tickLine={false}
+              />
+              <YAxis
+                yAxisId="right"
+                orientation="right"
+                width={40}
+                tick={{ fontSize: 11, fill: SERIES_COLOR[visibleKeys[1]] }}
+                axisLine={false}
+                tickLine={false}
+              />
+            </>
+          ) : (
+            <YAxis
+              width={40}
+              domain={[0, 100]}
+              tick={false}
+              axisLine={false}
+              tickLine={false}
+            />
+          )}
           <Tooltip
             content={renderTooltip}
             wrapperStyle={{ pointerEvents: 'auto' }}
           />
-          {BODY_COMPOSITION_SERIES_KEYS.map((key) => (
+          {visibleKeys.map((key, index) => (
             <Line
               key={key}
+              yAxisId={dualAxis ? (index === 0 ? 'left' : 'right') : undefined}
               type="monotone"
-              dataKey={`${key}_norm`}
+              dataKey={dualAxis ? `${key}_raw` : `${key}_norm`}
               stroke={SERIES_COLOR[key]}
               strokeWidth={2}
               dot={false}
@@ -224,7 +296,7 @@ export function BodyCompositionTrendChart({
         </LineChart>
       </ResponsiveContainer>
       <span className="flex flex-wrap gap-3 text-xs text-muted-foreground">
-        {BODY_COMPOSITION_SERIES_KEYS.map((key) => (
+        {visibleKeys.map((key) => (
           <i key={key} className="flex items-center gap-1 not-italic">
             <span
               aria-hidden="true"
