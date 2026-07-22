@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 235,
+    issue: 258,
+    date: '2026-07-22T11:08:34+03:00',
+    en: 'Added optional water tracking — turn it on in Settings to log water with quick "+1 glass"/"+1 bottle" buttons on Today, set a daily water goal, and see a "remaining" card.',
+    ru: 'Добавлено необязательное отслеживание воды — включите его в настройках, чтобы записывать воду кнопками «+1 стакан»/«+1 бутылка» на экране «Сегодня», задать дневную цель по воде и видеть карточку «осталось».',
+  },
+  {
     version: 234,
     issue: 259,
     date: '2026-07-22T10:50:53+03:00',
