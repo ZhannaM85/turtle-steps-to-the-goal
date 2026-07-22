@@ -366,6 +366,12 @@ export const en: Dictionary = {
       "Compares each week's average calories to that week's weight change, not same-day numbers — digestion takes time, so today's weight reflects prior days' intake.",
     correlationExpandLabel: 'Show chart',
     correlationCollapseLabel: 'Hide chart',
+    correlationStrengthLabel: (strength) =>
+      strength === 'strong'
+        ? 'Strong pattern'
+        : strength === 'moderate'
+          ? 'Moderate pattern'
+          : 'Weak pattern',
     weeklyChangeLegend: 'weekly change',
     chartNavigationHint: 'Tap a point for details',
     viewDayLink: 'View this day',

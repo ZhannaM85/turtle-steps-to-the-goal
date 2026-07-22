@@ -71,6 +71,9 @@ describe('lateMealCorrelation', () => {
     expect(result!.laterAveragedMoreGain).toBe(true)
     expect(result!.earlierGroupAvgDeltaKg).toBeCloseTo(0.1, 5)
     expect(result!.laterGroupAvgDeltaKg).toBeCloseTo(0.75, 5)
+    // #224 — a 0.65kg gap between the two groups' averages clears the
+    // 0.15kg "strong" daily threshold.
+    expect(result!.strength).toBe('strong')
   })
 
   it('reports the earlier-eating half averaging more gain when that is what the data shows', () => {

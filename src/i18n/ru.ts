@@ -370,6 +370,12 @@ export const ru: Dictionary = {
       'Сравнивает средние калории за неделю с изменением веса за ту же неделю, а не показатели одного дня — на переваривание пищи нужно время, поэтому сегодняшний вес отражает то, что вы ели в предыдущие дни.',
     correlationExpandLabel: 'Показать график',
     correlationCollapseLabel: 'Скрыть график',
+    correlationStrengthLabel: (strength) =>
+      strength === 'strong'
+        ? 'Выраженная закономерность'
+        : strength === 'moderate'
+          ? 'Умеренная закономерность'
+          : 'Слабая закономерность',
     weeklyChangeLegend: 'изменение за неделю',
     chartNavigationHint: 'Нажмите на точку для подробностей',
     viewDayLink: 'Открыть этот день',

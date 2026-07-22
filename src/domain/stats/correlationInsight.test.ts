@@ -69,6 +69,10 @@ describe('correlationInsight', () => {
     expect(insight!.lowerAveragedMoreLoss).toBe(true)
     expect(insight!.lowerGroupAvgDeltaKg).toBeCloseTo(-2, 5)
     expect(insight!.higherGroupAvgDeltaKg).toBeCloseTo(-0.35, 5)
+    // #224 — a 1.65kg gap between the two groups' averages clears the
+    // 0.35kg "strong" weekly threshold (weekly deltas use a larger scale
+    // than the day-pair correlations' 0.15kg one).
+    expect(insight!.strength).toBe('strong')
   })
 
   it('reports the higher-calorie half averaging more loss when that is what the data shows', () => {
@@ -82,6 +86,21 @@ describe('correlationInsight', () => {
 
     const insight = correlationInsight(entries)
     expect(insight!.lowerAveragedMoreLoss).toBe(false)
+  })
+
+  it('reports a weak strength when the two groups barely differ (#224)', () => {
+    const entries = [
+      entry(weekStart(0), { weightKg: 90 }),
+      entry(weekStart(1), { weightKg: 89.5, calorieEntries: calories(1700) }), // delta -0.5
+      entry(weekStart(2), { weightKg: 88.95, calorieEntries: calories(1800) }), // delta -0.55
+      entry(weekStart(3), { weightKg: 88.43, calorieEntries: calories(2200) }), // delta -0.52
+      entry(weekStart(4), { weightKg: 87.86, calorieEntries: calories(2300) }), // delta -0.57
+    ]
+
+    const insight = correlationInsight(entries)
+    // Both groups lose weight at nearly the same rate — a 0.02kg gap,
+    // well under the 0.15kg "moderate" weekly threshold.
+    expect(insight!.strength).toBe('weak')
   })
 
   it('rounds the threshold to the nearest 50 kcal', () => {

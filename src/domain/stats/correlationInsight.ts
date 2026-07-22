@@ -1,5 +1,10 @@
 import type { Day } from 'date-fns'
 import type { DailyEntry } from '@/domain/dailyEntry'
+import {
+  classifyCorrelationStrength,
+  WEEKLY_STRENGTH_THRESHOLDS_KG,
+  type CorrelationStrength,
+} from './correlationStrength'
 import { weeklySummaries } from './weeklySummaries'
 
 export interface CorrelationInsight {
@@ -8,6 +13,8 @@ export interface CorrelationInsight {
   lowerGroupAvgDeltaKg: number
   higherGroupAvgDeltaKg: number
   lowerAveragedMoreLoss: boolean
+  /** #224 — plain-arithmetic strength label, see correlationStrength.ts. */
+  strength: CorrelationStrength
 }
 
 const MIN_COMPARABLE_WEEKS = 4
@@ -61,5 +68,9 @@ export function correlationInsight(
     lowerGroupAvgDeltaKg,
     higherGroupAvgDeltaKg,
     lowerAveragedMoreLoss: lowerGroupAvgDeltaKg < higherGroupAvgDeltaKg,
+    strength: classifyCorrelationStrength(
+      higherGroupAvgDeltaKg - lowerGroupAvgDeltaKg,
+      WEEKLY_STRENGTH_THRESHOLDS_KG,
+    ),
   }
 }

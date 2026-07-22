@@ -1,5 +1,10 @@
 import { addDays, format, parseISO } from 'date-fns'
 import { totalProtein, type DailyEntry } from '@/domain/dailyEntry'
+import {
+  classifyCorrelationStrength,
+  DAILY_STRENGTH_THRESHOLDS_KG,
+  type CorrelationStrength,
+} from './correlationStrength'
 
 export interface ProteinCorrelation {
   dayCount: number
@@ -8,6 +13,8 @@ export interface ProteinCorrelation {
   lessGroupAvgDeltaKg: number
   moreGroupAvgDeltaKg: number
   lessAveragedMoreGain: boolean
+  /** #224 — plain-arithmetic strength label, see correlationStrength.ts. */
+  strength: CorrelationStrength
 }
 
 const MIN_COMPARABLE_DAYS = 8
@@ -79,5 +86,9 @@ export function proteinCorrelation(
     lessGroupAvgDeltaKg,
     moreGroupAvgDeltaKg,
     lessAveragedMoreGain: lessGroupAvgDeltaKg > moreGroupAvgDeltaKg,
+    strength: classifyCorrelationStrength(
+      moreGroupAvgDeltaKg - lessGroupAvgDeltaKg,
+      DAILY_STRENGTH_THRESHOLDS_KG,
+    ),
   }
 }

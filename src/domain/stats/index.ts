@@ -34,3 +34,5 @@ export {
 export type { CustomChartPoint, NumericSeriesKey } from './customChartSeries'
 export { calculateBmi, calculateBmr } from './bodyComposition'
 export type { Sex } from './bodyComposition'
+export { classifyCorrelationStrength } from './correlationStrength'
+export type { CorrelationStrength } from './correlationStrength'

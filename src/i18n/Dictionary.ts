@@ -534,6 +534,11 @@ export interface Dictionary {
     correlationLagCaveat: string
     correlationExpandLabel: string
     correlationCollapseLabel: string
+    /** #224 — shared plain-language strength label, reused by every
+     * correlation view below (weekly calories one and the four day-pair
+     * ones) rather than a separate copy per view, since the concept and
+     * wording is identical everywhere it appears. */
+    correlationStrengthLabel: (strength: 'weak' | 'moderate' | 'strong') => string
     weeklyChangeLegend: string
     chartNavigationHint: string
     viewDayLink: string

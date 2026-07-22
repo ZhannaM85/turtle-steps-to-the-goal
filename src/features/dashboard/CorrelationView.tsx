@@ -17,6 +17,7 @@ import { useDashboardChartVisibilityStore, useUnitStore } from '@/stores'
 import { useWeekStartsOn } from '@/shared/hooks'
 import { Button } from '@/shared/ui/button'
 import { ChartTitleWithToggle } from './ChartTitleWithToggle'
+import { CorrelationStrengthLabel } from './CorrelationStrengthLabel'
 
 export interface CorrelationViewProps {
   entries: DailyEntry[]
@@ -155,6 +156,7 @@ export function CorrelationView({ entries }: CorrelationViewProps) {
             {t.dashboard.correlationWeekCount(insight.weekCount)}{' '}
             {t.dashboard.correlationLagCaveat}
           </p>
+          <CorrelationStrengthLabel strength={insight.strength} />
         </>
       ) : (
         <p className="text-sm text-muted-foreground">

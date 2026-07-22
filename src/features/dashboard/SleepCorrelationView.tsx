@@ -16,6 +16,7 @@ import { formatNumber, unitLabel, useLocale, useTranslation } from '@/i18n'
 import { useDashboardChartVisibilityStore, useUnitStore } from '@/stores'
 import { Button } from '@/shared/ui/button'
 import { ChartTitleWithToggle } from './ChartTitleWithToggle'
+import { CorrelationStrengthLabel } from './CorrelationStrengthLabel'
 
 export interface SleepCorrelationViewProps {
   entries: DailyEntry[]
@@ -137,6 +138,7 @@ export function SleepCorrelationView({ entries }: SleepCorrelationViewProps) {
             {t.dashboard.sleepCorrelationDayCount(insight.dayCount)}{' '}
             {t.dashboard.sleepCorrelationLagCaveat}
           </p>
+          <CorrelationStrengthLabel strength={insight.strength} />
         </>
       ) : (
         <p className="text-sm text-muted-foreground">

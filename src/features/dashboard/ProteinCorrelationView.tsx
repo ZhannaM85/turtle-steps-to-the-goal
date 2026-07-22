@@ -16,6 +16,7 @@ import { formatNumber, unitLabel, useLocale, useTranslation } from '@/i18n'
 import { useDashboardChartVisibilityStore, useUnitStore } from '@/stores'
 import { Button } from '@/shared/ui/button'
 import { ChartTitleWithToggle } from './ChartTitleWithToggle'
+import { CorrelationStrengthLabel } from './CorrelationStrengthLabel'
 
 export interface ProteinCorrelationViewProps {
   entries: DailyEntry[]
@@ -142,6 +143,7 @@ export function ProteinCorrelationView({
             {t.dashboard.proteinCorrelationDayCount(insight.dayCount)}{' '}
             {t.dashboard.proteinCorrelationLagCaveat}
           </p>
+          <CorrelationStrengthLabel strength={insight.strength} />
         </>
       ) : (
         <p className="text-sm text-muted-foreground">

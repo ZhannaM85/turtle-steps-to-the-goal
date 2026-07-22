@@ -1,5 +1,10 @@
 import { addDays, format, parseISO } from 'date-fns'
 import type { DailyEntry } from '@/domain/dailyEntry'
+import {
+  classifyCorrelationStrength,
+  DAILY_STRENGTH_THRESHOLDS_KG,
+  type CorrelationStrength,
+} from './correlationStrength'
 
 export interface StepsCorrelation {
   dayCount: number
@@ -8,6 +13,8 @@ export interface StepsCorrelation {
   fewerGroupAvgDeltaKg: number
   moreGroupAvgDeltaKg: number
   fewerAveragedMoreGain: boolean
+  /** #224 — plain-arithmetic strength label, see correlationStrength.ts. */
+  strength: CorrelationStrength
 }
 
 const MIN_COMPARABLE_DAYS = 8
@@ -74,5 +81,9 @@ export function stepsCorrelation(entries: DailyEntry[]): StepsCorrelation | null
     fewerGroupAvgDeltaKg,
     moreGroupAvgDeltaKg,
     fewerAveragedMoreGain: fewerGroupAvgDeltaKg > moreGroupAvgDeltaKg,
+    strength: classifyCorrelationStrength(
+      moreGroupAvgDeltaKg - fewerGroupAvgDeltaKg,
+      DAILY_STRENGTH_THRESHOLDS_KG,
+    ),
   }
 }

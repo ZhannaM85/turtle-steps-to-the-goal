@@ -82,6 +82,8 @@ describe('SleepCorrelationView', () => {
       screen.getByText(/averaged more weight gain the next morning/),
     ).toBeInTheDocument()
     expect(screen.getByText(/Based on 8 days of data\./)).toBeInTheDocument()
+    // #224 — plain-language strength label under the summary.
+    expect(screen.getByText('Strong pattern')).toBeInTheDocument()
   })
 
   describe('whole-card show/hide toggle (#247)', () => {

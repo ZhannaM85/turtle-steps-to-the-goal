@@ -58,6 +58,9 @@ describe('stepsCorrelation', () => {
     expect(result).not.toBeNull()
     expect(result!.dayCount).toBe(8)
     expect(result!.fewerAveragedMoreGain).toBe(true)
+    // #224 — a 0.59kg gap between the two groups' averages clears the
+    // 0.15kg "strong" daily threshold.
+    expect(result!.strength).toBe('strong')
   })
 
   it('reports the more-steps half averaging more gain when that is what the data shows', () => {

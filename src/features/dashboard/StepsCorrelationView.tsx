@@ -16,6 +16,7 @@ import { formatNumber, unitLabel, useLocale, useTranslation } from '@/i18n'
 import { useDashboardChartVisibilityStore, useUnitStore } from '@/stores'
 import { Button } from '@/shared/ui/button'
 import { ChartTitleWithToggle } from './ChartTitleWithToggle'
+import { CorrelationStrengthLabel } from './CorrelationStrengthLabel'
 
 export interface StepsCorrelationViewProps {
   entries: DailyEntry[]
@@ -139,6 +140,7 @@ export function StepsCorrelationView({ entries }: StepsCorrelationViewProps) {
             {t.dashboard.stepsCorrelationDayCount(insight.dayCount)}{' '}
             {t.dashboard.stepsCorrelationLagCaveat}
           </p>
+          <CorrelationStrengthLabel strength={insight.strength} />
         </>
       ) : (
         <p className="text-sm text-muted-foreground">

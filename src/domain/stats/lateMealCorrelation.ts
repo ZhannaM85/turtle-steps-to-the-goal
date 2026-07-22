@@ -1,5 +1,10 @@
 import { addDays, format, parseISO } from 'date-fns'
 import type { DailyEntry } from '@/domain/dailyEntry'
+import {
+  classifyCorrelationStrength,
+  DAILY_STRENGTH_THRESHOLDS_KG,
+  type CorrelationStrength,
+} from './correlationStrength'
 
 export interface LateMealCorrelation {
   dayCount: number
@@ -9,6 +14,8 @@ export interface LateMealCorrelation {
   earlierGroupAvgDeltaKg: number
   laterGroupAvgDeltaKg: number
   laterAveragedMoreGain: boolean
+  /** #224 — plain-arithmetic strength label, see correlationStrength.ts. */
+  strength: CorrelationStrength
 }
 
 const MIN_COMPARABLE_DAYS = 8
@@ -99,5 +106,9 @@ export function lateMealCorrelation(
     earlierGroupAvgDeltaKg,
     laterGroupAvgDeltaKg,
     laterAveragedMoreGain: laterGroupAvgDeltaKg > earlierGroupAvgDeltaKg,
+    strength: classifyCorrelationStrength(
+      laterGroupAvgDeltaKg - earlierGroupAvgDeltaKg,
+      DAILY_STRENGTH_THRESHOLDS_KG,
+    ),
   }
 }
