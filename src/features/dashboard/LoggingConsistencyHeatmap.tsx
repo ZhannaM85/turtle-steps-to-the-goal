@@ -1,8 +1,12 @@
 import { format, parseISO } from 'date-fns'
 import type { CSSProperties } from 'react'
 import type { DailyEntry } from '@/domain/dailyEntry'
-import { loggingConsistencyWeeks, MAX_LOGGING_SIGNALS } from '@/domain/stats'
-import { getDateFnsLocale, useLocale, useTranslation } from '@/i18n'
+import {
+  loggingConsistencySummary,
+  loggingConsistencyWeeks,
+  MAX_LOGGING_SIGNALS,
+} from '@/domain/stats'
+import { formatNumber, getDateFnsLocale, useLocale, useTranslation } from '@/i18n'
 import { useWeekStartsOn } from '@/shared/hooks'
 import { useDashboardChartVisibilityStore } from '@/stores'
 import { ChartTitleWithToggle } from './ChartTitleWithToggle'
@@ -62,6 +66,9 @@ export function LoggingConsistencyHeatmap({
   const weekdayLabels = recentWeeks[0].days.map((day) =>
     format(parseISO(day.date), 'EEEEE', { locale: dateFnsLocale }),
   )
+  const summary = loggingConsistencySummary(entries, recentWeeks)
+  const kcalText = (kcal: number | null) =>
+    kcal === null ? '—' : `${formatNumber(kcal, locale, 0)} ${t.dailyEntry.kcalUnit}`
 
   return (
     <div className="flex flex-col gap-1.5">
@@ -110,6 +117,13 @@ export function LoggingConsistencyHeatmap({
         ))}
         <span>{t.dashboard.heatmapMoreLabel}</span>
       </div>
+      <p className="text-xs text-muted-foreground">
+        {t.dashboard.loggingConsistencySummaryText(
+          formatNumber(summary.daysLoggedCount, locale, 0),
+          kcalText(summary.totalCaloriesOverLoggedDays),
+          kcalText(summary.totalCaloriesLast7Days),
+        )}
+      </p>
     </div>
   )
 }

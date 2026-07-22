@@ -458,6 +458,8 @@ export const ru: Dictionary = {
     loggingConsistencyTitle: 'Регулярность записей',
     heatmapLessLabel: 'Меньше',
     heatmapMoreLabel: 'Больше',
+    loggingConsistencySummaryText: (daysLogged, totalOverWindow, totalLast7Days) =>
+      `Дней с записями: ${daysLogged} · ${totalOverWindow} за эти дни · ${totalLast7Days} за последние 7 дней`,
     foodReactionsTitle: 'Реакции на еду',
     mostLikedFoodsTitle: 'Больше всего нравится',
     mostDislikedFoodsTitle: 'Больше всего не нравится',

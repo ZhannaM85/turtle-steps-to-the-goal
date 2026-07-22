@@ -450,6 +450,8 @@ export const en: Dictionary = {
     loggingConsistencyTitle: 'Logging consistency',
     heatmapLessLabel: 'Less',
     heatmapMoreLabel: 'More',
+    loggingConsistencySummaryText: (daysLogged, totalOverWindow, totalLast7Days) =>
+      `${daysLogged} days logged · ${totalOverWindow} over those days · ${totalLast7Days} in the last 7 days`,
     foodReactionsTitle: 'Food reactions',
     mostLikedFoodsTitle: 'Most liked',
     mostDislikedFoodsTitle: 'Most disliked',

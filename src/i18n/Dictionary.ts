@@ -624,6 +624,14 @@ export interface Dictionary {
     loggingConsistencyTitle: string
     heatmapLessLabel: string
     heatmapMoreLabel: string
+    /** #268 — plain totals next to the heatmap so "how many days did I
+     * actually log" doesn't require counting colored boxes by eye.
+     * Informational/curiosity framing only, not a guilt/streak metric. */
+    loggingConsistencySummaryText: (
+      daysLogged: string,
+      totalOverWindow: string,
+      totalLast7Days: string,
+    ) => string
     /** Per-dish reaction rollup (#128, built on #129's per-item emotion) —
      * two ranked lists under one shared heading, each row using
      * dailyEntry.mealEmotionLabel for its per-count accessible text. */
