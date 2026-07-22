@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 257,
+    issue: 283,
+    date: '2026-07-22T22:58:06+03:00',
+    en: 'The app version at the top of Settings is now a link straight to the About page.',
+    ru: 'Версия приложения вверху страницы настроек теперь ссылается прямо на страницу «О приложении».',
+  },
+  {
     version: 256,
     issue: 282,
     date: '2026-07-22T20:11:35+03:00',
