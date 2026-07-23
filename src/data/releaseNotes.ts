@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 270,
+    issue: 295,
+    date: '2026-07-23T12:44:54+03:00',
+    en: 'Fixed the add-item row\'s buttons overflowing off the screen on narrower phones after recipes were added.',
+    ru: 'Исправлено переполнение кнопок в строке добавления блюда на узких экранах телефонов после добавления рецептов.',
+  },
+  {
     version: 269,
     issue: 251,
     date: '2026-07-23T11:37:44+03:00',
