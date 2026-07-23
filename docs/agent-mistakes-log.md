@@ -119,6 +119,7 @@ future session can see the pattern, not just the count.
 | 2026-07-23 | Instruction miss | `find . -iname "TodayScreen.test.tsx" -o -iname "SettingsScreen.test.tsx" \| grep -v node_modules` via Bash while locating test files for #298 — the exact same `find`-piped-through-`grep` mistake logged two rows above, recurring within the same session | System-prompt "File search: Use Glob, NOT find or ls" + [[feedback_no_raw_grep_pipelines]] — self-caught, redone with Glob |
 | 2026-07-23 | Instruction miss | `grep -c "https://.../issues/300" docs/issues-priority.md` via Bash while checking #300's doc rows before closing — raw grep via Bash, now well past 40 occurrences this session | [[feedback_no_raw_grep_pipelines]] — self-caught, redone with Grep |
 | 2026-07-23 | Instruction miss | `grep -n "^## \|^### " "PROJECT_BRIEF.md" \| tail -40` via Bash while checking epic conventions before drafting iOS/Android release issues — raw grep piped through `tail`, same recurring pattern | [[feedback_no_raw_grep_pipelines]] — self-caught, redone with Grep |
+| 2026-07-23 | Prompted | `ls "C:\...\docs" 2>&1; echo "---"; ls "C:\...\docs\turtle-steps-ideas" 2>&1` via Bash while checking a target save-location directory outside the repo — semicolon-chained, redirected, and used `ls` where Glob was the documented tool anyway | CLAUDE.md "⚠️ Shell safety" + system-prompt "File search: Use Glob, NOT find or ls" — user interrupted directly; redone as a single Glob call |
 
 ## Related standing fixes made because of this log
 
