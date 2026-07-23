@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 273,
+    issue: 299,
+    date: '2026-07-23T13:19:40+03:00',
+    en: 'Added an icon to the "Log recipe" button so it matches the other add-row buttons.',
+    ru: 'Добавлена иконка к кнопке «Записать рецепт», чтобы она соответствовала другим кнопкам в строке добавления.',
+  },
+  {
     version: 272,
     issue: 287,
     date: '2026-07-23T13:01:18+03:00',

@@ -17,7 +17,15 @@ import {
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { format, parseISO, subDays } from 'date-fns'
-import { Clock, GripVertical, Pencil, ScanBarcode, Trash2, X } from 'lucide-react'
+import {
+  ChefHat,
+  Clock,
+  GripVertical,
+  Pencil,
+  ScanBarcode,
+  Trash2,
+  X,
+} from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { foods } from '@/data/foods'
 import type {
@@ -2243,7 +2251,9 @@ export function MealList({
           </Button>
           {/* #251 — same fallback-tier placement as Scan barcode above,
            * add-row only (a deliberate v1 scope trim, same precedent #256
-           * already set). */}
+           * already set). #299: icon added to match Scan barcode's own
+           * icon-button shape — it was the only icon-less trigger of the
+           * three. */}
           <Button
             type="button"
             variant="ghost"
@@ -2251,6 +2261,7 @@ export function MealList({
             className="justify-start"
             onClick={() => setIsLogRecipeOpen(true)}
           >
+            <ChefHat aria-hidden="true" />
             {t.recipes.logRecipeButton}
           </Button>
         </div>
