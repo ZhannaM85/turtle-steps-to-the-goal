@@ -234,6 +234,12 @@ export function TodayScreen() {
   // remaining-nutrient cards' progress bars below. A falsy target (missing,
   // or the degenerate 0 case) means no bar renders rather than a
   // divide-by-zero.
+  // #323 — calories joins the same treatment, added after the other four.
+  const caloriesPercent = goal?.dailyCalorieTargetKcal
+    ? ((totalCalories(entry?.calorieEntries) ?? 0) /
+        goal.dailyCalorieTargetKcal) *
+      100
+    : null
   const proteinPercent = goal?.dailyProteinTargetG
     ? ((totalProtein(entry?.calorieEntries) ?? 0) / goal.dailyProteinTargetG) *
       100
@@ -444,6 +450,8 @@ export function TodayScreen() {
                 : t.today.kcalRemainingUnit
             }
             description={t.today.targetDenominatorText(calorieTargetText!)}
+            progressPercent={caloriesPercent ?? undefined}
+            progressColor="var(--chart-calories)"
             action={statCardAction(
               'todayRemainingCalories',
               t.today.remainingCaloriesLabel,

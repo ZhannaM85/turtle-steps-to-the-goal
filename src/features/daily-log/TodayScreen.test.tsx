@@ -757,6 +757,35 @@ describe('TodayScreen', () => {
       expect(await within(card).findByText('300')).toBeInTheDocument()
       expect(within(card).getByText('kcal over')).toBeInTheDocument()
     })
+
+    it('sizes the progress bar to percent of target consumed (#323)', async () => {
+      await useGoalStore
+        .getState()
+        .saveGoal(makeGoal({ dailyCalorieTargetKcal: 2000 }))
+      await useDailyEntryStore.getState().saveEntry(
+        makeEntry({
+          calorieEntries: [
+            {
+              id: crypto.randomUUID(),
+              items: [{ id: crypto.randomUUID(), amountKcal: 500 }],
+              createdAt: new Date().toISOString(),
+            },
+          ],
+        }),
+      )
+      useDailyEntryStore.setState({ entry: null, date: null, status: 'idle' })
+
+      render(
+        <MemoryRouter>
+          <TodayScreen />
+        </MemoryRouter>,
+      )
+
+      const label = await screen.findByText('Remaining calories')
+      const card = label.closest('[data-slot="card"]') as HTMLElement
+      const bar = await within(card).findByRole('progressbar')
+      expect(bar).toHaveAttribute('aria-valuenow', '25')
+    })
   })
 
   describe('remaining protein (#220)', () => {
