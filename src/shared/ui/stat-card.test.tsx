@@ -60,5 +60,46 @@ describe('StatCard', () => {
       const bar = screen.getByRole('progressbar', { name: 'Protein remaining' })
       expect(bar).toHaveAttribute('aria-valuenow', '100')
     })
+
+    it('fills exactly the number of 10%-segments actually reached, in progressColor', () => {
+      render(
+        <StatCard
+          label="Protein remaining"
+          value={60}
+          unit="g"
+          progressPercent={36}
+          progressColor="rgb(1, 2, 3)"
+        />,
+      )
+
+      const bar = screen.getByRole('progressbar', { name: 'Protein remaining' })
+      const segments = bar.children
+      expect(segments).toHaveLength(10)
+      // 36% -> floor(3.6) = 3 achieved segments, not 4 — a segment only
+      // fills once its own full 10%-fraction is actually reached.
+      for (let i = 0; i < 3; i++) {
+        expect(segments[i]).toHaveStyle({ backgroundColor: 'rgb(1, 2, 3)' })
+      }
+      for (let i = 3; i < 10; i++) {
+        expect(segments[i]).not.toHaveStyle({ backgroundColor: 'rgb(1, 2, 3)' })
+      }
+    })
+
+    it('fills every segment once at or over goal', () => {
+      render(
+        <StatCard
+          label="Protein remaining"
+          value={0}
+          unit="g"
+          progressPercent={140}
+          progressColor="rgb(1, 2, 3)"
+        />,
+      )
+
+      const bar = screen.getByRole('progressbar', { name: 'Protein remaining' })
+      for (const segment of Array.from(bar.children)) {
+        expect(segment).toHaveStyle({ backgroundColor: 'rgb(1, 2, 3)' })
+      }
+    })
   })
 })

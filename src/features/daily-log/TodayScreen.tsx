@@ -470,7 +470,7 @@ export function TodayScreen() {
                 : t.today.targetDenominatorText(proteinTargetText!)
             }
             progressPercent={proteinPercent ?? undefined}
-            progressColor="var(--chart-protein)"
+            progressColor="var(--stat-protein)"
             action={statCardAction(
               'todayRemainingProtein',
               t.today.remainingProteinLabel,
@@ -488,7 +488,7 @@ export function TodayScreen() {
             unit={t.today.gRemainingUnit}
             description={t.today.targetDenominatorText(fatTargetText!)}
             progressPercent={fatPercent ?? undefined}
-            progressColor="var(--chart-fat)"
+            progressColor="var(--stat-fat)"
             action={statCardAction('todayRemainingFat', t.today.remainingFatLabel)}
           />
         ) : (
@@ -503,7 +503,7 @@ export function TodayScreen() {
             unit={t.today.gRemainingUnit}
             description={t.today.targetDenominatorText(carbTargetText!)}
             progressPercent={carbPercent ?? undefined}
-            progressColor="var(--chart-carbs)"
+            progressColor="var(--stat-carbs)"
             action={statCardAction(
               'todayRemainingCarbs',
               t.today.remainingCarbLabel,
@@ -520,7 +520,7 @@ export function TodayScreen() {
             value={formatNumber(remainingWaterMl, locale, 0)}
             unit={t.today.mlRemainingUnit}
             progressPercent={waterPercent ?? undefined}
-            progressColor="var(--primary)"
+            progressColor="var(--stat-water)"
             action={statCardAction(
               'todayRemainingWater',
               t.today.remainingWaterLabel,

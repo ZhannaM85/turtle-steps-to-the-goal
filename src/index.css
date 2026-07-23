@@ -65,6 +65,20 @@
   --chart-protein: #b5665a;
   --chart-fat: #8a5a78;
   --chart-carbs: #4f6fa8;
+  /* #320 — dedicated colors for the Today remaining-nutrient progress bars,
+   * requested live as a specific purple/orange/green/blue mapping distinct
+   * from --chart-protein/fat/carbs above (those stay exactly as-is, still
+   * used by the Dashboard's macro chart — recoloring them to match would
+   * have silently changed that chart's legend too). Not mood-tinted, same
+   * as --destructive above — each reuses an already-contrast-checked hue
+   * already present elsewhere in this exact palette rather than
+   * introducing an unaudited new color: protein's purple is --chart-fat's
+   * value, fat's orange is --chart-calories's, carbs' green is the Sage
+   * mood's --primary/--chart-weight, water's blue is --chart-carbs's. */
+  --stat-protein: #8a5a78;
+  --stat-fat: #8a6a3c;
+  --stat-carbs: #4c7a62;
+  --stat-water: #4f6fa8;
   --sand-foreground: #8a6a3c;
   /* #165: light-mode-specific override — oklch(0.87 0 0) (still correct,
    * unchanged, in .dark below) is a near-white gray tuned for a dark
@@ -109,6 +123,10 @@
   --color-chart-protein: var(--chart-protein);
   --color-chart-fat: var(--chart-fat);
   --color-chart-carbs: var(--chart-carbs);
+  --color-stat-protein: var(--stat-protein);
+  --color-stat-fat: var(--stat-fat);
+  --color-stat-carbs: var(--stat-carbs);
+  --color-stat-water: var(--stat-water);
   --color-sand-foreground: var(--sand-foreground);
   --color-ring: var(--ring);
   --color-input: var(--input);
@@ -163,6 +181,10 @@
   --chart-protein: #d99a8c;
   --chart-fat: #c99ab8;
   --chart-carbs: #8fadd6;
+  --stat-protein: #c99ab8;
+  --stat-fat: #b28e58;
+  --stat-carbs: #90c7a6;
+  --stat-water: #8fadd6;
   --sand-foreground: #b28e58;
   --chart-1: oklch(0.87 0 0);
   --chart-2: oklch(0.556 0 0);

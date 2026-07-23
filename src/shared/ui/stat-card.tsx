@@ -14,17 +14,19 @@ export interface StatCardProps {
    * so the label isn't shown twice. */
   action?: React.ReactNode
   /** #320 — percent of a numeric daily goal consumed so far (0-100+, not
-   * capped by the caller). Renders a slim bar under the value/description
-   * so progress reads at a glance instead of only from the number. The
-   * fill uses `progressColor` up to 100%, then switches to a bolder solid
-   * `--foreground` once at/over goal — deliberately not an alarm color
-   * (red/destructive): this app's whole tone is no badges/streaks/guilt
-   * (see e.g. the goal-renewal reminder's own "no-pressure" comment in
-   * TodayScreen.tsx), and going over isn't uniformly bad across every
-   * metric this is used for (over-protein is framed as a good thing). */
+   * capped by the caller). Renders a fixed row of `PROGRESS_SEGMENT_COUNT`
+   * segments under the value/description, each representing one equal
+   * fraction of the goal — a segment is solid `progressColor` once its own
+   * fraction is fully reached, otherwise a light tint of the same color
+   * (`color-mix` toward `--card`), so achieved-vs-remaining reads at a
+   * glance. Replaced an earlier single continuous fill (with a solid-
+   * foreground "at/over goal" state) after live feedback that it read as
+   * boring and that the water bar's over-goal black was confusing. */
   progressPercent?: number
   progressColor?: string
 }
+
+const PROGRESS_SEGMENT_COUNT = 10
 
 export function StatCard({
   label,
@@ -36,6 +38,16 @@ export function StatCard({
   progressPercent,
   progressColor = 'var(--primary)',
 }: StatCardProps) {
+  const achievedSegments =
+    progressPercent === undefined
+      ? 0
+      : Math.min(
+          Math.floor(
+            (Math.max(progressPercent, 0) / 100) * PROGRESS_SEGMENT_COUNT,
+          ),
+          PROGRESS_SEGMENT_COUNT,
+        )
+
   return (
     <Card className={className}>
       <CardContent className="flex flex-col gap-1">
@@ -61,16 +73,20 @@ export function StatCard({
             aria-valuenow={Math.round(Math.min(Math.max(progressPercent, 0), 100))}
             aria-valuemin={0}
             aria-valuemax={100}
-            className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-muted"
+            className="mt-1 flex w-full gap-1"
           >
-            <div
-              className="h-full rounded-full transition-[width]"
-              style={{
-                width: `${Math.min(Math.max(progressPercent, 0), 100)}%`,
-                backgroundColor:
-                  progressPercent >= 100 ? 'var(--foreground)' : progressColor,
-              }}
-            />
+            {Array.from({ length: PROGRESS_SEGMENT_COUNT }, (_, i) => (
+              <div
+                key={i}
+                className="h-1.5 flex-1 rounded-full transition-colors"
+                style={{
+                  backgroundColor:
+                    i < achievedSegments
+                      ? progressColor
+                      : `color-mix(in oklch, ${progressColor}, var(--card) 70%)`,
+                }}
+              />
+            ))}
           </div>
         )}
       </CardContent>
