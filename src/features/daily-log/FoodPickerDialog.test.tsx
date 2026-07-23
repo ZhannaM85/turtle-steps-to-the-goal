@@ -767,8 +767,15 @@ describe('FoodPickerDialog', () => {
         screen.getByRole('button', { name: 'Add Tuna to favorites' }),
       )
 
-      const reordered = screen.getAllByRole('checkbox')
-      expect(reordered[0].textContent).toContain('Tuna')
+      // handleToggleFavorite fires setFavorite (an async IndexedDB write)
+      // without awaiting it — see the "un-favoriting" test below for the
+      // full explanation. waitFor, not a synchronous expect, so this
+      // doesn't intermittently read the pre-toggle order under load.
+      await waitFor(() => {
+        expect(screen.getAllByRole('checkbox')[0].textContent).toContain(
+          'Tuna',
+        )
+      })
     })
 
     it('keeps a favorited item first among filtered search results too', async () => {
@@ -787,8 +794,12 @@ describe('FoodPickerDialog', () => {
         screen.getByRole('button', { name: 'Add Chicken thigh to favorites' }),
       )
 
-      const after = screen.getAllByRole('checkbox')
-      expect(after[0].textContent).toContain('Chicken thigh')
+      // Same un-awaited-setFavorite race as the test above.
+      await waitFor(() => {
+        expect(screen.getAllByRole('checkbox')[0].textContent).toContain(
+          'Chicken thigh',
+        )
+      })
     })
 
     it('un-favoriting moves the item back out of the top spot', async () => {
@@ -840,9 +851,13 @@ describe('FoodPickerDialog', () => {
         }),
       )
 
-      expect(
-        screen.getAllByRole('checkbox')[0].textContent,
-      ).toContain('Grandma’s stew')
+      // toggleMealItemFavorite is the same kind of un-awaited async
+      // IndexedDB write as setFavorite above.
+      await waitFor(() => {
+        expect(
+          screen.getAllByRole('checkbox')[0].textContent,
+        ).toContain('Grandma’s stew')
+      })
     })
   })
 })
