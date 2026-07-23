@@ -171,6 +171,8 @@ export const en: Dictionary = {
     scanBarcodeCameraErrorMessage: (detail) =>
       `Couldn't access the camera — check camera permissions and try again.${detail ? ` (${detail})` : ''}`,
     scanBarcodeSearchingMessage: 'Searching for this product…',
+    scanBarcodeStillScanningTip:
+      'Still scanning — make sure the barcode is well-lit, in focus, and fills the frame above.',
     scanBarcodeManualLabel: 'Or enter the barcode number',
     scanBarcodeManualPlaceholder: 'Barcode number',
     scanBarcodeManualSubmitLabel: 'Search',

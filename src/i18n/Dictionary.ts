@@ -295,6 +295,7 @@ export interface Dictionary {
      * finished," which previously had zero visible feedback (the camera
      * dialog closed instantly on decode). */
     scanBarcodeSearchingMessage: string
+    scanBarcodeStillScanningTip: string
     /** #291 — manual entry, always available alongside the camera: useful
      * on its own, and a way to tell whether a report is a camera problem
      * or a lookup problem. */

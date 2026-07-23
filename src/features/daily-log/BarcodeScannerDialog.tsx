@@ -41,6 +41,12 @@ export interface BarcodeScannerDialogProps {
  * right in the existing on-screen message — the simplest way to get any
  * debug detail back from a report without new logging infrastructure.
  */
+// #294 — how long the camera-decode phase can run before the "still
+// scanning" tip appears. Long enough not to flash on every normal scan
+// (most resolve well under this), short enough that a genuinely stuck
+// scan doesn't read as broken for too long before getting a hint.
+const STILL_SCANNING_TIP_DELAY_MS = 4000
+
 export function BarcodeScannerDialog({
   open,
   onOpenChange,
@@ -51,6 +57,7 @@ export function BarcodeScannerDialog({
   const [error, setError] = useState<string | null>(null)
   const [isProcessing, setIsProcessing] = useState(false)
   const [manualBarcode, setManualBarcode] = useState('')
+  const [showStillScanningTip, setShowStillScanningTip] = useState(false)
   const controlsRef = useRef<{ stop: () => void } | null>(null)
 
   async function handleScanned(barcode: string) {
@@ -70,9 +77,22 @@ export function BarcodeScannerDialog({
 
     async function start() {
       try {
-        const { BrowserMultiFormatReader } = await import('@zxing/browser')
+        const [{ BrowserMultiFormatReader }, { BarcodeFormat, DecodeHintType }] =
+          await Promise.all([import('@zxing/browser'), import('@zxing/library')])
         if (cancelled || !videoRef.current) return
-        const reader = new BrowserMultiFormatReader()
+        // #294 — Open Food Facts barcodes are almost always one of these
+        // four retail formats; restricting the decoder to just them (out
+        // of the ~18 symbologies it checks by default, including 2D
+        // formats like QR/Aztec/PDF417 this app never needs) means less
+        // work per frame, so a genuine barcode in view gets found faster.
+        const hints = new Map()
+        hints.set(DecodeHintType.POSSIBLE_FORMATS, [
+          BarcodeFormat.UPC_A,
+          BarcodeFormat.UPC_E,
+          BarcodeFormat.EAN_13,
+          BarcodeFormat.EAN_8,
+        ])
+        const reader = new BrowserMultiFormatReader(hints)
         controlsRef.current = await reader.decodeFromVideoDevice(
           undefined,
           videoRef.current,
@@ -95,6 +115,20 @@ export function BarcodeScannerDialog({
       controlsRef.current?.stop()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  // #294 — most of the wait a scan feels is this camera-decode phase
+  // itself (before a barcode is even found), which previously had no
+  // feedback of its own beyond the plain camera preview. A one-shot timer
+  // (not reset per-frame) is enough — it only ever needs to fire once per
+  // dialog open, and clears itself on unmount/success via the same
+  // cancelled-flag pattern the camera-start effect above uses.
+  useEffect(() => {
+    const timer = setTimeout(
+      () => setShowStillScanningTip(true),
+      STILL_SCANNING_TIP_DELAY_MS,
+    )
+    return () => clearTimeout(timer)
   }, [])
 
   function handleManualSubmit() {
@@ -124,12 +158,29 @@ export function BarcodeScannerDialog({
                 <p className="text-sm text-muted-foreground">
                   {t.dailyEntry.scanBarcodeInstructions}
                 </p>
-                <video
-                  ref={videoRef}
-                  className="w-full flex-1 rounded-lg bg-black object-cover"
-                  muted
-                  playsInline
-                />
+                <div className="relative flex-1">
+                  <video
+                    ref={videoRef}
+                    className="h-full w-full rounded-lg bg-black object-cover"
+                    muted
+                    playsInline
+                  />
+                  {/* #294 — a framing guide over the live feed, roughly
+                   * matching a barcode's own wide-short aspect ratio, so
+                   * it's clearer where to hold it (closer to how a native
+                   * scanner's capture zone reads) rather than a plain,
+                   * unstructured camera view. Purely visual — decoding
+                   * itself isn't restricted to this region, zxing still
+                   * scans the full frame. */}
+                  <div className="pointer-events-none absolute inset-0 flex items-center justify-center p-8">
+                    <div className="aspect-[5/2] w-full max-w-xs rounded-lg border-2 border-white/80" />
+                  </div>
+                </div>
+                {showStillScanningTip && (
+                  <p className="text-sm text-muted-foreground">
+                    {t.dailyEntry.scanBarcodeStillScanningTip}
+                  </p>
+                )}
               </>
             )}
             <div className="flex flex-col gap-1.5">

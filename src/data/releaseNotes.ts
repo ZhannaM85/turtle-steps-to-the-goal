@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 278,
+    issue: 294,
+    date: '2026-07-23T15:08:06+03:00',
+    en: 'Barcode scanning is faster to find retail products and now shows a framing guide plus a tip if it takes a while.',
+    ru: 'Сканирование штрихкода стало быстрее находить товары в магазинах и теперь показывает рамку для наведения и подсказку, если сканирование затягивается.',
+  },
+  {
     version: 277,
     issue: 287,
     date: '2026-07-23T14:43:45+03:00',
