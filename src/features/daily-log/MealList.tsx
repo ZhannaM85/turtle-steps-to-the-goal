@@ -964,14 +964,14 @@ export function MealList({
 
   // #287 — a quiet, dismissible note shown right after a save makes
   // `nextEntries` the day's *first* meal with a recorded time (i.e. no
-  // entry had one before this save), as long as the previous day
-  // (`previousDayEntry`, already fetched above for #190) also had at
-  // least one timed meal. Not a background/push notification (#261, closed
-  // as infeasible) — this only ever fires from a foreground save action.
+  // entry had one before this save), as long as the previous day also had
+  // at least one timed meal. Not a background/push notification (#261,
+  // closed as infeasible) — this only ever fires from a foreground save
+  // action.
   const [fastingWindowToastHours, setFastingWindowToastHours] = useState<
     number | null
   >(null)
-  function announceFastingWindowIfFirstMeal(nextEntries: CalorieEntry[]) {
+  async function announceFastingWindowIfFirstMeal(nextEntries: CalorieEntry[]) {
     const hadTimedMealBefore = calorieEntries.some(
       (entry) => entry.timeEaten !== undefined,
     )
@@ -979,8 +979,18 @@ export function MealList({
     const hasTimedMealAfter = nextEntries.some(
       (entry) => entry.timeEaten !== undefined,
     )
-    if (!hasTimedMealAfter || !previousDayEntry) return
-    const hours = fastingHoursBetween(previousDayEntry, {
+    if (!hasTimedMealAfter) return
+    // Fetched fresh here rather than reading the previousDayEntry state
+    // (fetched once on mount, above, for #190's "repeat yesterday's meal")
+    // — that fetch is async and can still be in flight if the user logs
+    // their first meal quickly after opening the page, which would
+    // otherwise silently skip this toast even though yesterday genuinely
+    // has a timed meal recorded.
+    const fetchedPreviousDayEntry = await dailyEntryRepository.getByDate(
+      previousDate,
+    )
+    if (!fetchedPreviousDayEntry) return
+    const hours = fastingHoursBetween(fetchedPreviousDayEntry, {
       calorieEntries: nextEntries,
     })
     if (hours !== null) setFastingWindowToastHours(hours)
@@ -1360,7 +1370,7 @@ export function MealList({
         createdAt: new Date().toISOString(),
       },
     ]
-    announceFastingWindowIfFirstMeal(nextEntries)
+    void announceFastingWindowIfFirstMeal(nextEntries)
     setCalorieEntries(nextEntries)
     for (const item of items) {
       if (item.name) {
@@ -1823,7 +1833,7 @@ export function MealList({
           }
         : entry,
     )
-    announceFastingWindowIfFirstMeal(nextEntries)
+    void announceFastingWindowIfFirstMeal(nextEntries)
     setCalorieEntries(nextEntries)
     for (const item of items) {
       // Skip names that are actually a curated food, picked via
