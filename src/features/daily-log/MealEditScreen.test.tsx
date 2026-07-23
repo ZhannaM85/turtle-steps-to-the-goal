@@ -5,7 +5,11 @@ import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { CalorieEntry, DailyEntry } from '@/domain/dailyEntry'
 import { db } from '@/infrastructure/persistence/indexeddb'
-import { useMealItemStore, useMealLabelPresetStore } from '@/stores'
+import {
+  useFastingWindowToastStore,
+  useMealItemStore,
+  useMealLabelPresetStore,
+} from '@/stores'
 import { MealEditScreen } from './MealEditScreen'
 
 // This screen's Find-food tests render FoodPickerDialog's 300+-item list
@@ -71,6 +75,7 @@ beforeEach(async () => {
   await db.mealItems.clear()
   useMealItemStore.setState({ items: [], status: 'idle', error: null })
   useMealLabelPresetStore.setState({ presets: [] })
+  useFastingWindowToastStore.setState({ hours: null, date: null })
   // #221: MealList's add-row draft is now persisted to localStorage,
   // keyed by date — this screen always focuses a single existing meal so
   // the add-row itself never renders here, but clearing keeps this file
@@ -717,6 +722,50 @@ describe('MealEditScreen', () => {
       )
 
       expect(screen.getByLabelText('Time — Meal 1')).toHaveValue('')
+    })
+  })
+
+  describe('fasting-window toast (#287)', () => {
+    // Reported live: adding a time to a meal that was logged without one,
+    // via this dedicated edit screen, never showed the toast — unlike
+    // adding a *new* already-timed meal from Today's own add row (already
+    // covered in MealList.test.tsx). Root cause: saveEditMeal() sets
+    // editingMealId back to null right after firing the (fire-and-forget,
+    // async) announceFastingWindowIfFirstMeal — which this screen's own
+    // useEffect reads as "done editing" and immediately calls
+    // onFocusedMealDone (navigate(-1) back to wherever the meal's pencil
+    // was tapped from), unmounting this component before the toast's own
+    // async lookup could ever resolve into locally-held state. Fixed by
+    // lifting the toast into a shared, date-scoped store (fastingWindow
+    // ToastStore.ts) instead of local useState, so it survives the
+    // navigation and Today's own (different) MealList mount can render it.
+    it('shows the toast after adding a time to a previously-untimed meal', async () => {
+      const user = userEvent.setup()
+      await db.dailyEntries.put(
+        makeEntry({
+          id: 'yesterday',
+          date: '2026-02-28',
+          calorieEntries: [{ ...calories(400, 'y1'), timeEaten: '20:00' }],
+        }),
+      )
+      await db.dailyEntries.put(makeEntry({ calorieEntries: [calories(300, 'c1')] }))
+      await renderMealEditScreen()
+
+      fireEvent.change(screen.getByLabelText('Time — Meal 1'), {
+        target: { value: '08:00' },
+      })
+      await user.click(screen.getByRole('button', { name: 'Save' }))
+
+      expect(
+        await screen.findByText('Your fasting window was 12.0h.'),
+      ).toBeInTheDocument()
+      // The part of the fix that actually matters: the value lives in the
+      // shared store, not component state, so it survives this component
+      // unmounting once onFocusedMealDone's navigate(-1) fires.
+      expect(useFastingWindowToastStore.getState()).toMatchObject({
+        hours: 12,
+        date: '2026-03-01',
+      })
     })
   })
 

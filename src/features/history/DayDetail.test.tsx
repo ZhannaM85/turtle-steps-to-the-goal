@@ -110,8 +110,10 @@ describe('DayDetail', () => {
       />,
     )
 
-    expect(screen.getByText('Bio-Skyr — 175 kcal · 100g')).toBeInTheDocument()
-    expect(screen.getByText('Chicken thigh — 314 kcal')).toBeInTheDocument()
+    expect(screen.getByText('Bio-Skyr')).toBeInTheDocument()
+    expect(screen.getByText('175 kcal · 100g')).toBeInTheDocument()
+    expect(screen.getByText('Chicken thigh')).toBeInTheDocument()
+    expect(screen.getByText('314 kcal')).toBeInTheDocument()
   })
 
   it("shows a meal's bellissimo reaction as the 🤌 emoji, not an icon (#54)", () => {

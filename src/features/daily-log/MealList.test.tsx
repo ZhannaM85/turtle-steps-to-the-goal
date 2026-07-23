@@ -1,12 +1,24 @@
 import 'fake-indexeddb/auto'
+import { useState } from 'react'
 import { render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { CalorieEntry, DailyEntry } from '@/domain/dailyEntry'
 import { db } from '@/infrastructure/persistence/indexeddb'
-import { useMealItemStore, useRecipeStore } from '@/stores'
+import { useFastingWindowToastStore, useMealItemStore, useRecipeStore } from '@/stores'
 import { MealList } from './MealList'
+
+// #301 — a plain `onChange={vi.fn()}` never feeds a save back into
+// MealList's own `calorieEntries` prop, which most tests don't need since
+// they only assert against the mock's own call args. A test that both adds
+// *and then* interacts with the resulting view-mode row (e.g. deleting it)
+// needs the prop to actually reflect that save, so it wires a real
+// controlled loop instead.
+function ControlledMealList(props: { calorieEntries: CalorieEntry[]; date: string }) {
+  const [entries, setEntries] = useState(props.calorieEntries)
+  return <MealList calorieEntries={entries} date={props.date} onChange={setEntries} />
+}
 
 // #287 — the new "Find food" toast test below interacts with a heavier
 // dialog (FoodPickerDialog's search list) than this file's other tests,
@@ -54,6 +66,7 @@ beforeEach(async () => {
   await db.recipes.clear()
   useMealItemStore.setState({ items: [], status: 'idle', error: null })
   useRecipeStore.setState({ recipes: [], status: 'idle', error: null })
+  useFastingWindowToastStore.setState({ hours: null, date: null })
   localStorage.clear()
   // #201 made the add row's default collapsed state depend on whether
   // `date` is in the past relative to the real clock — freeze "now" to
@@ -313,8 +326,10 @@ describe('MealList', () => {
       { wrapper: MemoryRouter },
     )
 
-    expect(screen.getByText('Bio-Skyr — 175 kcal · 100g')).toBeInTheDocument()
-    expect(screen.getByText('Chicken thigh — 314 kcal')).toBeInTheDocument()
+    expect(screen.getByText('Bio-Skyr')).toBeInTheDocument()
+    expect(screen.getByText('175 kcal · 100g')).toBeInTheDocument()
+    expect(screen.getByText('Chicken thigh')).toBeInTheDocument()
+    expect(screen.getByText('314 kcal')).toBeInTheDocument()
   })
 
   describe('optional brand name (#248)', () => {
@@ -370,10 +385,10 @@ describe('MealList', () => {
         { wrapper: MemoryRouter },
       )
 
-      expect(
-        screen.getByText('Chicken breast (Perdue) — 165 kcal'),
-      ).toBeInTheDocument()
-      expect(screen.getByText('Apple — 52 kcal')).toBeInTheDocument()
+      expect(screen.getByText('Chicken breast (Perdue)')).toBeInTheDocument()
+      expect(screen.getByText('165 kcal')).toBeInTheDocument()
+      expect(screen.getByText('Apple')).toBeInTheDocument()
+      expect(screen.getByText('52 kcal')).toBeInTheDocument()
     })
 
     it("pre-fills an existing item's brand when reopening its editor", async () => {
@@ -1067,6 +1082,48 @@ describe('MealList', () => {
       expect(screen.getByLabelText('Dish name')).toHaveValue('')
     })
 
+    // #300 — the add-row counterpart to the edit-mode fix: a scan
+    // prefills these fields as soon as it resolves, then the "+ Add item"
+    // button itself starts previewing that draft (#151/#153) — closing
+    // via X (rather than Save) previously left the draft in place, so the
+    // scanned food kept showing as a preview chip that read as if it had
+    // already been added, even though nothing was actually saved.
+    it('clears the draft (back to plain "+ Add item") when closed via X after a scan', async () => {
+      vi.stubGlobal(
+        'fetch',
+        vi.fn().mockResolvedValue({
+          ok: true,
+          json: async () => ({
+            status: 1,
+            product: {
+              product_name: 'Chocolate Bar',
+              nutriments: { 'energy-kcal_100g': 520 },
+            },
+          }),
+        }),
+      )
+      mockScanning('9999999999999')
+      const user = userEvent.setup()
+      render(
+        <MealList calorieEntries={[]} date="2026-03-01" onChange={vi.fn()} />,
+        { wrapper: MemoryRouter },
+      )
+
+      await user.click(screen.getByRole('button', { name: 'Scan barcode' }))
+      await screen.findByDisplayValue('Chocolate Bar')
+
+      await user.click(
+        screen.getByRole('button', { name: 'Close item editor' }),
+      )
+
+      expect(
+        screen.queryByText('Chocolate Bar', { exact: false }),
+      ).not.toBeInTheDocument()
+      expect(
+        screen.getByRole('button', { name: '+ Add item' }),
+      ).toBeInTheDocument()
+    })
+
     it('records the barcode on the new MealItem once saved', async () => {
       vi.stubGlobal(
         'fetch',
@@ -1503,6 +1560,42 @@ describe('MealList', () => {
       await screen.findByText('Your fasting window was 12.0h.')
 
       await user.click(screen.getByRole('button', { name: 'Dismiss' }))
+
+      expect(screen.queryByText(/Your fasting window was/)).not.toBeInTheDocument()
+    })
+
+    // #301: fastingWindowToastHours was only ever set, never reset —
+    // deleting the meal that triggered it (the day's only timed meal)
+    // left the toast showing a now-stale value with nothing left to
+    // back it up.
+    it('clears the toast when the meal that triggered it is deleted', async () => {
+      await db.dailyEntries.put(
+        makeDailyEntry({
+          date: '2026-02-28',
+          calorieEntries: [
+            {
+              id: 'y1',
+              items: [{ id: 'yi1', amountKcal: 400 }],
+              timeEaten: '20:00',
+              createdAt: '2026-02-28T20:00:00.000Z',
+            },
+          ],
+        }),
+      )
+      const user = userEvent.setup()
+      render(<ControlledMealList calorieEntries={[]} date="2026-03-01" />, {
+        wrapper: MemoryRouter,
+      })
+
+      await user.type(screen.getByLabelText('Time'), '08:00')
+      await user.click(screen.getByRole('button', { name: '+ Add item' }))
+      await user.type(screen.getByLabelText('Dish name'), 'Oatmeal')
+      await user.type(screen.getByLabelText('kcal/100g'), '300')
+      await user.click(screen.getByRole('button', { name: 'Save' }))
+      await screen.findByText('Your fasting window was 12.0h.')
+
+      await user.click(screen.getByRole('button', { name: 'Delete meal 1' }))
+      await user.click(screen.getByRole('button', { name: 'Delete' }))
 
       expect(screen.queryByText(/Your fasting window was/)).not.toBeInTheDocument()
     })

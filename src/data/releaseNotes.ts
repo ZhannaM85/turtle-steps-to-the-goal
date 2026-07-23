@@ -25,6 +25,20 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 277,
+    issue: 287,
+    date: '2026-07-23T14:43:45+03:00',
+    en: 'Fixed the fasting-window note also not showing when you added a time to an already-logged meal from its edit screen.',
+    ru: 'Исправлена ошибка: заметка об окне голодания также не показывалась при добавлении времени к уже записанному приёму пищи на экране редактирования.',
+  },
+  {
+    version: 276,
+    issue: 301,
+    date: '2026-07-23T14:06:02+03:00',
+    en: 'Fixed the fasting-window note staying on screen after deleting the meal that showed it.',
+    ru: 'Исправлена ошибка: заметка об окне голодания оставалась на экране после удаления приёма пищи, для которого она появилась.',
+  },
+  {
     version: 275,
     issue: 300,
     date: '2026-07-23T13:50:12+03:00',

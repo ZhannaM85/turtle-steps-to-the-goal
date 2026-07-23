@@ -79,6 +79,7 @@ import { Button } from '@/shared/ui/button'
 import { Input } from '@/shared/ui/input'
 import {
   useAddMealRowCollapseStore,
+  useFastingWindowToastStore,
   useMealItemStore,
   useMealLabelPresetStore,
   useRecipeStore,
@@ -867,11 +868,18 @@ function MealListItem({
           )
           return (
             <li key={item.id} className="text-xs text-muted-foreground">
+              {/* #302: the title stands alone on its own row — kcal/amount/
+               * macros/reaction all move down to a second row together,
+               * rather than the title running inline into whatever
+               * followed it. */}
+              {item.name && (
+                <p>
+                  {item.name}
+                  {item.brand ? ` (${item.brand})` : ''}
+                </p>
+              )}
               <p>
-                {item.name &&
-                  `${item.name}${item.brand ? ` (${item.brand})` : ''} — `}
-                {formatNumber(item.amountKcal, locale, 0)}{' '}
-                {t.dailyEntry.kcalUnit}
+                {formatNumber(item.amountKcal, locale, 0)} {t.dailyEntry.kcalUnit}
                 {/* #206: this line otherwise never surfaces the item's own
                  * quantity anywhere — the only place it existed before was
                  * inside the add/edit form's own quantity input, gone once
@@ -881,30 +889,21 @@ function MealListItem({
                  * quantity. */}
                 {item.amountG !== undefined &&
                   ` · ${formatMacroGrams(item.amountG, locale, t)}`}
+                {itemMacros && ` · ${itemMacros}`}
+                {itemEmotionOption && (
+                  <>
+                    {' '}
+                    {/* leading-none removed (#156 follow-up) — see the
+                     * matching comment on the edit-mode item row above. */}
+                    <span aria-hidden="true" className="text-sm">
+                      {itemEmotionOption.emoji}
+                    </span>
+                    <span className="sr-only">
+                      {t.dailyEntry.mealEmotionLabel(item.emotion!)}
+                    </span>
+                  </>
+                )}
               </p>
-              {/* #302: macros (+ the reaction emoji) always on their own
-               * row under the title line above, rather than inline text
-               * that only happened to wrap there depending on content
-               * length — a separate <p>, not just a wrapped run within the
-               * same paragraph. */}
-              {(itemMacros || itemEmotionOption) && (
-                <p>
-                  {itemMacros}
-                  {itemEmotionOption && (
-                    <>
-                      {itemMacros && ' '}
-                      {/* leading-none removed (#156 follow-up) — see the
-                       * matching comment on the edit-mode item row above. */}
-                      <span aria-hidden="true" className="text-sm">
-                        {itemEmotionOption.emoji}
-                      </span>
-                      <span className="sr-only">
-                        {t.dailyEntry.mealEmotionLabel(item.emotion!)}
-                      </span>
-                    </>
-                  )}
-                </p>
-              )}
             </li>
           )
         })}
@@ -1004,10 +1003,27 @@ export function MealList({
   // entry had one before this save), as long as the previous day also had
   // at least one timed meal. Not a background/push notification (#261,
   // closed as infeasible) — this only ever fires from a foreground save
-  // action.
-  const [fastingWindowToastHours, setFastingWindowToastHours] = useState<
-    number | null
-  >(null)
+  // action. Lives in a shared store (not local state) — see
+  // fastingWindowToastStore.ts's own comment for why: the dedicated
+  // single-meal edit route navigates away the instant a save completes,
+  // which would otherwise unmount this component before locally-held
+  // state could ever render.
+  const fastingWindowToastHoursRaw = useFastingWindowToastStore(
+    (state) => state.hours,
+  )
+  const fastingWindowToastDate = useFastingWindowToastStore(
+    (state) => state.date,
+  )
+  const showFastingWindowToast = useFastingWindowToastStore(
+    (state) => state.show,
+  )
+  const dismissFastingWindowToast = useFastingWindowToastStore(
+    (state) => state.dismiss,
+  )
+  // Scoped to *this* date — guards against a toast set while editing one
+  // day showing up after navigating somewhere unrelated to it.
+  const fastingWindowToastHours =
+    fastingWindowToastDate === date ? fastingWindowToastHoursRaw : null
   async function announceFastingWindowIfFirstMeal(nextEntries: CalorieEntry[]) {
     const hadTimedMealBefore = calorieEntries.some(
       (entry) => entry.timeEaten !== undefined,
@@ -1030,7 +1046,7 @@ export function MealList({
     const hours = fastingHoursBetween(fetchedPreviousDayEntry, {
       calorieEntries: nextEntries,
     })
-    if (hours !== null) setFastingWindowToastHours(hours)
+    if (hours !== null) showFastingWindowToast(hours, date)
   }
 
   // #221: whatever add-row draft survived from an earlier, interrupted
@@ -1913,14 +1929,21 @@ export function MealList({
   }
 
   function confirmDeleteMeal() {
-    setCalorieEntries(
-      calorieEntries.filter((entry) => entry.id !== confirmDeleteMealId),
+    const nextEntries = calorieEntries.filter(
+      (entry) => entry.id !== confirmDeleteMealId,
     )
+    setCalorieEntries(nextEntries)
     if (editingMealId === confirmDeleteMealId) {
       setEditingMealId(null)
       setOpenEditItemId(null)
     }
     setConfirmDeleteMealId(null)
+    // #301: the fasting-window toast otherwise keeps showing a now-stale
+    // value once the day has no timed meal left at all — e.g. deleting
+    // the only meal (the one that triggered it in the first place).
+    if (!nextEntries.some((entry) => entry.timeEaten !== undefined)) {
+      dismissFastingWindowToast()
+    }
   }
 
   function handleMealDragEnd(event: DragEndEvent) {
@@ -2004,7 +2027,7 @@ export function MealList({
             variant="ghost"
             size="icon-sm"
             aria-label={t.dailyEntry.dismissFastingWindowToastLabel}
-            onClick={() => setFastingWindowToastHours(null)}
+            onClick={dismissFastingWindowToast}
           >
             <X aria-hidden="true" />
           </Button>
@@ -2229,42 +2252,52 @@ export function MealList({
          * lets the triggers spill onto a second line instead of forcing
          * one non-wrapping row and a horizontal scrollbar. */}
         <div className="flex flex-wrap items-center gap-2">
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            className="min-w-0 justify-start"
-            onClick={() => setIsAddItemSheetOpen(true)}
-          >
-            {addAmountPreview && addAmountPreview > 0 ? (
-              <span className="truncate">
-                {addItemName || t.dailyEntry.itemNamePlaceholder}
-                {addItemBrand && ` (${addItemBrand})`}
-                {addTotalPreview && (
-                  <span className="text-muted-foreground">
-                    {' '}
-                    — {addTotalPreview}
-                  </span>
-                )}
-              </span>
-            ) : (
-              t.dailyEntry.addItemButton
-            )}
-          </Button>
-          {/* Clear button (#151) — before this, a staged item draft with
-           * nothing the user wants could only be discarded by reopening
-           * the sheet and erasing every field by hand. */}
-          {addAmountPreview !== undefined && addAmountPreview > 0 && (
+          {/* #300 follow-up — the preview button and its clear-X used to be
+           * two separate flex children of the wrapping row below, so a long
+           * preview (a scanned product's name/macros, especially in
+           * Russian) could push just the X onto its own second line,
+           * separated from the title it clears. Grouping them in their own
+           * min-w-0 flex container makes the wrap treat the pair as one
+           * unit — the X always stays glued to its title; only the whole
+           * group (vs. Scan barcode/Log recipe) wraps as a block. */}
+          <div className="flex min-w-0 items-center gap-1">
             <Button
               type="button"
               variant="ghost"
-              size="icon-sm"
-              aria-label={t.dailyEntry.clearItemDraftLabel}
-              onClick={resetItemDraft}
+              size="sm"
+              className="min-w-0 justify-start"
+              onClick={() => setIsAddItemSheetOpen(true)}
             >
-              <X aria-hidden="true" className="size-3.5" />
+              {addAmountPreview && addAmountPreview > 0 ? (
+                <span className="truncate">
+                  {addItemName || t.dailyEntry.itemNamePlaceholder}
+                  {addItemBrand && ` (${addItemBrand})`}
+                  {addTotalPreview && (
+                    <span className="text-muted-foreground">
+                      {' '}
+                      — {addTotalPreview}
+                    </span>
+                  )}
+                </span>
+              ) : (
+                t.dailyEntry.addItemButton
+              )}
             </Button>
-          )}
+            {/* Clear button (#151) — before this, a staged item draft with
+             * nothing the user wants could only be discarded by reopening
+             * the sheet and erasing every field by hand. */}
+            {addAmountPreview !== undefined && addAmountPreview > 0 && (
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon-sm"
+                aria-label={t.dailyEntry.clearItemDraftLabel}
+                onClick={resetItemDraft}
+              >
+                <X aria-hidden="true" className="size-3.5" />
+              </Button>
+            )}
+          </div>
           {/* #256 — alongside the manual-entry trigger, same fallback
            * tier as "+ Add item": search (Find food) first, scan or type
            * by hand if the dish isn't found there. */}
@@ -2316,7 +2349,20 @@ export function MealList({
           open={isAddItemSheetOpen}
           onOpenChange={(next) => {
             setIsAddItemSheetOpen(next)
-            if (!next) setBarcodeNotFoundMessage(false)
+            if (!next) {
+              // #300 — the add-row counterpart to the edit-mode fix above:
+              // a scan populates these fields as soon as it resolves, before
+              // the user has confirmed anything. Closing via the sheet's own
+              // X/Escape/backdrop (this same onOpenChange) previously left
+              // the draft in place, which then rendered as a full preview
+              // chip in place of "+ Add item" (#151/#153) — reading as if
+              // the scanned food had already been added, even though nothing
+              // was actually saved yet. Only reset when the draft came from
+              // a scan (`addItemBarcode` set): manually-typed drafts keep
+              // #221's original "survive an accidental close" behavior.
+              if (addItemBarcode !== undefined) resetItemDraft()
+              setBarcodeNotFoundMessage(false)
+            }
           }}
           title={t.dailyEntry.addItemSheetTitle}
           name={addItemName}
