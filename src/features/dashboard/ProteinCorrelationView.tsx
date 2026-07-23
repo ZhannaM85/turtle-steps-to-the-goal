@@ -35,11 +35,20 @@ export interface ProteinCorrelationViewProps {
 /**
  * Extends the day-pairing correlation pattern (#167) SleepCorrelationView/
  * StepsCorrelationView established — same shape, this time pairing each
- * day's logged protein total with the *next* calendar day's weight change.
- * Deliberately separate from CorrelationView's calories-vs-weekly-change
- * comparison (#216) — that one stays a weekly-average mechanism; this is a
- * day-pair one, matching sleep/steps rather than duplicating calories'
- * existing weekly view.
+ * day's protein share of calories with the *next* calendar day's weight
+ * change. Deliberately separate from CorrelationView's calories-vs-weekly-
+ * change comparison (#216) — that one stays a weekly-average mechanism;
+ * this is a day-pair one, matching sleep/steps rather than duplicating
+ * calories' existing weekly view.
+ *
+ * #322: originally split on raw protein grams, reported live as
+ * confounded by total calorie intake — a high-protein day is usually just
+ * a high-everything day, so "more protein -> more weight gain" was mostly
+ * picking up overeating in general. Switched to protein-as-percent-of-
+ * calories (`proteinPoints`' `proteinPercent`) so a high-protein-*share*
+ * day (protein up, carbs/fat down, similar total calories) reads
+ * differently from simply eating more of everything, without introducing
+ * real multivariate statistics.
  */
 export function ProteinCorrelationView({
   entries,
@@ -59,7 +68,7 @@ export function ProteinCorrelationView({
   const { flags, isExcluded, toggle, includedPoints } = useOutlierExclusion(
     'protein',
     rawPoints,
-    (p) => p.proteinG,
+    (p) => p.proteinPercent,
     (p) => p.deltaKg,
     (p) => p.date,
   )
@@ -67,7 +76,7 @@ export function ProteinCorrelationView({
   if (rawPoints.length === 0) return null
 
   const points = rawPoints.map((point, i) => ({
-    proteinG: point.proteinG,
+    proteinPercent: point.proteinPercent,
     delta: toDisplay(point.deltaKg),
     isOutlier: flags[i],
     isExcluded: isExcluded(point),
@@ -117,8 +126,8 @@ export function ProteinCorrelationView({
             <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
             <XAxis
               type="number"
-              dataKey="proteinG"
-              name={t.dailyEntry.proteinLabel}
+              dataKey="proteinPercent"
+              name={t.dashboard.proteinPercentOfCaloriesLabel}
               tick={{ fontSize: 11, fill: 'var(--muted-foreground)' }}
               axisLine={{ stroke: 'var(--border)' }}
               tickLine={false}
@@ -142,7 +151,7 @@ export function ProteinCorrelationView({
                 color: 'var(--popover-foreground)',
               }}
               formatter={(value, name) => [
-                `${formatNumber(Number(value), locale)}${name === t.dailyEntry.proteinLabel ? t.dailyEntry.gramsUnit : ` ${unit}`}`,
+                `${formatNumber(Number(value), locale)}${name === t.dashboard.proteinPercentOfCaloriesLabel ? t.dailyEntry.percentUnit : ` ${unit}`}`,
                 name,
               ]}
             />
@@ -170,7 +179,7 @@ export function ProteinCorrelationView({
         <>
           <p className="text-sm text-foreground">
             {t.dashboard.proteinCorrelationSummary(
-              formatNumber(insight.thresholdProteinG, locale, 0),
+              formatNumber(insight.thresholdProteinPercent, locale, 0),
               insight.lessAveragedMoreGain ? 'less' : 'more',
             )}
           </p>

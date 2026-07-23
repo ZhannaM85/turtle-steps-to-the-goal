@@ -714,15 +714,22 @@ export interface Dictionary {
     /** Protein-vs-next-day-weight correlation (#216), same day-pair shape
      * as sleep/steps above — deliberately distinct from the existing
      * calories-vs-weekly-change correlation (correlationTitle etc.), which
-     * stays a weekly-average comparison, not a day-pair one. */
+     * stays a weekly-average comparison, not a day-pair one. #322: splits
+     * on protein as a percent of that day's total calories, not raw grams
+     * (see proteinCorrelation.ts's own ProteinPoint comment for why) —
+     * thresholdProteinPercent below is a percent, not a gram amount. */
     proteinCorrelationTitle: string
     proteinCorrelationEmptyDescription: string
     proteinCorrelationSummary: (
-      thresholdProteinG: string,
+      thresholdProteinPercent: string,
       direction: string,
     ) => string
     proteinCorrelationDayCount: (n: number) => string
     proteinCorrelationLagCaveat: string
+    /** #322 — scatter-chart X-axis name/tooltip label for the protein
+     * correlation's percent-of-calories metric (distinct from
+     * dailyEntry.proteinLabel, a plain gram amount used elsewhere). */
+    proteinPercentOfCaloriesLabel: string
     /** Logging-consistency heatmap (#223) — GitHub-contribution-graph style,
      * one square per day colored by how many of the app's core fields
      * (weight/meals/sleep/steps) were logged that day, not a chosen metric. */

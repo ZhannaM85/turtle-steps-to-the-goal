@@ -16,11 +16,13 @@ function day(offset: number): string {
   )
 }
 
-function protein(proteinG: number): CalorieEntry[] {
+// #322 — a realistic fixed total-calorie denominator, see the identical
+// fixture comment in domain/stats/proteinCorrelation.test.ts.
+function protein(proteinG: number, kcal = 2000): CalorieEntry[] {
   return [
     {
       id: crypto.randomUUID(),
-      items: [{ id: crypto.randomUUID(), amountKcal: 100, proteinG }],
+      items: [{ id: crypto.randomUUID(), amountKcal: kcal, proteinG }],
       createdAt: '2026-01-01T00:00:00.000Z',
     },
   ]

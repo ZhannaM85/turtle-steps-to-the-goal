@@ -485,13 +485,14 @@ export const en: Dictionary = {
     proteinCorrelationTitle: 'Protein vs. next-day weight',
     proteinCorrelationEmptyDescription:
       'Not enough data yet to see a pattern — log protein and keep tracking weight, then check back in a few weeks.',
-    proteinCorrelationSummary: (thresholdProteinG, direction) =>
+    proteinCorrelationSummary: (thresholdProteinPercent, direction) =>
       direction === 'less'
-        ? `Days you ate less than ${thresholdProteinG}g of protein averaged more weight gain the next morning than days you ate more.`
-        : `Days you ate more than ${thresholdProteinG}g of protein averaged more weight gain the next morning than days you ate less.`,
+        ? `Days when protein was less than ${thresholdProteinPercent}% of your calories averaged more weight gain the next morning than days when it was more.`
+        : `Days when protein was more than ${thresholdProteinPercent}% of your calories averaged more weight gain the next morning than days when it was less.`,
     proteinCorrelationDayCount: (n) => `Based on ${n} day${n === 1 ? '' : 's'} of data.`,
     proteinCorrelationLagCaveat:
-      "Compares each day's logged protein to the very next day's weight, not a proven cause-and-effect relationship — water retention, sodium, and many other factors also affect day-to-day weight.",
+      "Compares each day's protein share of calories to the very next day's weight, not a proven cause-and-effect relationship — water retention, sodium, and many other factors also affect day-to-day weight.",
+    proteinPercentOfCaloriesLabel: 'Protein (% of calories)',
     loggingConsistencyTitle: 'Logging consistency',
     heatmapLessLabel: 'Less',
     heatmapMoreLabel: 'More',
