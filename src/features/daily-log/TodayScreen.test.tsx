@@ -3,13 +3,14 @@ import { fireEvent, render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { format, subDays } from 'date-fns'
 import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom'
-import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { Goal } from '@/domain/goal'
 import type { DailyEntry } from '@/domain/dailyEntry'
 import { db } from '@/infrastructure/persistence/indexeddb'
 import {
   useDailyEntryStore,
   useDailyReminderStore,
+  useDayStartStore,
   useGoalStore,
   useProfileStore,
   useSectionVisibilityStore,
@@ -53,6 +54,7 @@ beforeEach(async () => {
   })
   useDailyReminderStore.setState({ enabled: false })
   useProfileStore.setState({ heightCm: undefined, age: undefined, sex: undefined })
+  useDayStartStore.setState({ dayStartTime: '00:00' })
   resetSectionVisibility()
 })
 
@@ -62,7 +64,9 @@ afterEach(async () => {
   localStorage.clear()
   useDailyReminderStore.setState({ enabled: false })
   useProfileStore.setState({ heightCm: undefined, age: undefined, sex: undefined })
+  useDayStartStore.setState({ dayStartTime: '00:00' })
   resetSectionVisibility()
+  vi.useRealTimers()
 })
 
 // Merges every key back to true rather than a full literal (#232's own
@@ -1165,6 +1169,49 @@ describe('TodayScreen', () => {
       )
 
       expect(screen.getAllByText("This week's target")).toHaveLength(1)
+    })
+  })
+
+  describe('day-start time (#298)', () => {
+    it('defaults to the previous day when now is before the configured day-start time', () => {
+      vi.useFakeTimers({ toFake: ['Date'] })
+      vi.setSystemTime(new Date('2026-07-24T01:30:00'))
+      useDayStartStore.setState({ dayStartTime: '03:00' })
+
+      render(
+        <MemoryRouter>
+          <TodayScreen />
+        </MemoryRouter>,
+      )
+
+      expect(screen.getByLabelText('Date')).toHaveValue('2026-07-23')
+    })
+
+    it('uses the real calendar day once at or after the configured day-start time', () => {
+      vi.useFakeTimers({ toFake: ['Date'] })
+      vi.setSystemTime(new Date('2026-07-24T03:00:00'))
+      useDayStartStore.setState({ dayStartTime: '03:00' })
+
+      render(
+        <MemoryRouter>
+          <TodayScreen />
+        </MemoryRouter>,
+      )
+
+      expect(screen.getByLabelText('Date')).toHaveValue('2026-07-24')
+    })
+
+    it('is unaffected by default (midnight), matching the pre-#298 behavior exactly', () => {
+      vi.useFakeTimers({ toFake: ['Date'] })
+      vi.setSystemTime(new Date('2026-07-24T00:01:00'))
+
+      render(
+        <MemoryRouter>
+          <TodayScreen />
+        </MemoryRouter>,
+      )
+
+      expect(screen.getByLabelText('Date')).toHaveValue('2026-07-24')
     })
   })
 })

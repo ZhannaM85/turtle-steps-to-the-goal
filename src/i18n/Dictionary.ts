@@ -923,6 +923,8 @@ export interface Dictionary {
     weekStartDescription: string
     weekStartMonday: string
     weekStartFirstEntry: string
+    dayStartLabel: string
+    dayStartDescription: string
     foodListLabel: string
     foodListDescription: string
     manageFoodListButton: string

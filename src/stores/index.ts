@@ -38,3 +38,4 @@ export {
   DEFAULT_DASHBOARD_SECTION_ORDER,
   useDashboardSectionOrderStore,
 } from './dashboardSectionOrderStore'
+export { useDayStartStore } from './dayStartStore'

@@ -80,3 +80,4 @@ export type {
   BodyCompositionPoint,
   BodyCompositionSeriesKey,
 } from './bodyCompositionTrend'
+export { effectiveDateFor } from './dayStart'

@@ -8,6 +8,7 @@ import {
 import {
   useCycleTrackingStore,
   useDailyReminderStore,
+  useDayStartStore,
   useDigestionTrackingStore,
   useThemeStore,
   useTrackedFieldsStore,
@@ -26,6 +27,7 @@ import { releaseNotes } from '@/data/releaseNotes'
 import { ExportSection } from '@/features/export'
 import { Button } from '@/shared/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
+import { Input } from '@/shared/ui/input'
 import { PageHeader } from '@/shared/ui/page-header'
 import { ToggleGroup, ToggleGroupItem } from '@/shared/ui/toggle-group'
 import { ClearAllDataSection } from './ClearAllDataSection'
@@ -108,6 +110,8 @@ export function SettingsScreen() {
     else if (key === 'water') setWaterTrackingEnabled(value)
     else setTrackedField(key, value)
   }
+  const dayStartTime = useDayStartStore((state) => state.dayStartTime)
+  const setDayStartTime = useDayStartStore((state) => state.setDayStartTime)
   const weekStart = useWeekStartStore((state) => state.weekStart)
   const setWeekStart = useWeekStartStore((state) => state.setWeekStart)
   const dailyReminderEnabled = useDailyReminderStore((state) => state.enabled)
@@ -189,6 +193,24 @@ export function SettingsScreen() {
               {t.settings.weekStartFirstEntry}
             </ToggleGroupItem>
           </ToggleGroup>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>{t.settings.dayStartLabel}</CardTitle>
+        </CardHeader>
+        <CardContent className="flex flex-col gap-1.5">
+          <span className="text-sm text-muted-foreground">
+            {t.settings.dayStartDescription}
+          </span>
+          <Input
+            type="time"
+            aria-label={t.settings.dayStartLabel}
+            value={dayStartTime}
+            onChange={(e) => setDayStartTime(e.target.value)}
+            className="h-12 w-32"
+          />
         </CardContent>
       </Card>
 

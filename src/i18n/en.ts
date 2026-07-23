@@ -636,6 +636,9 @@ export const en: Dictionary = {
       'Which day each week begins on, used for "This week" and weekly summaries.',
     weekStartMonday: 'Monday',
     weekStartFirstEntry: 'Day of my first entry',
+    dayStartLabel: 'Day start time',
+    dayStartDescription:
+      "When your day begins on the Today screen — anything logged before this time counts toward the previous day. Only affects new entries going forward, and only the Today screen so far (streaks, summaries, and correlations elsewhere still use the real calendar day). Default midnight matches today's date exactly.",
     foodListLabel: 'Food list',
     foodListDescription:
       'Hide items you don’t want to see, or correct their calories/macros.',

@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 281,
+    issue: 298,
+    date: '2026-07-23T16:22:52+03:00',
+    en: 'Added a "Day start time" setting for the Today screen, for anyone up past midnight who doesn\'t want that logged against the next day.',
+    ru: 'Добавлена настройка «Начало дня» для экрана «Сегодня» — для тех, кто не спит после полуночи и не хочет, чтобы это записывалось на следующий день.',
+  },
+  {
     version: 280,
     issue: 297,
     date: '2026-07-23T15:48:12+03:00',

@@ -186,6 +186,7 @@ describe('SettingsScreen', () => {
     await user.tab() // #283's version badge link (top of page)
     await user.tab() // units group's checked radio (kg)
     await user.tab() // week-start group's checked radio (Monday)
+    await user.tab() // #298's day-start time input
     await user.tab() // locale group's checked radio (English)
     await user.tab() // mood group's checked radio (Pond)
 

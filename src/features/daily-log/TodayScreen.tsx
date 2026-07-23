@@ -10,7 +10,7 @@ import {
   totalWaterMl,
 } from '@/domain/dailyEntry'
 import { goalWeekEnd, kgToLb } from '@/domain/goal'
-import { calculateBmi, calculateBmr } from '@/domain/stats'
+import { calculateBmi, calculateBmr, effectiveDateFor } from '@/domain/stats'
 import {
   formatExactNumber,
   formatNumber,
@@ -36,6 +36,7 @@ import { VisibilityToggleButton } from '@/shared/ui/visibility-toggle-button'
 import {
   useDailyEntryStore,
   useDailyReminderStore,
+  useDayStartStore,
   useGoalStore,
   useProfileStore,
   useSectionVisibilityStore,
@@ -44,10 +45,6 @@ import {
 } from '@/stores'
 import { DailyEntryForm } from './DailyEntryForm'
 import { GoalCelebrationModal } from './GoalCelebrationModal'
-
-function todayIso() {
-  return format(new Date(), 'yyyy-MM-dd')
-}
 
 function shiftDate(date: string, days: number) {
   return format(addDays(parseISO(date), days), 'yyyy-MM-dd')
@@ -64,6 +61,19 @@ export function TodayScreen() {
     loadEntry,
     saveEntry,
   } = useDailyEntryStore()
+  // #298 — "today" (this screen's default date, and the cap on how far
+  // forward the date arrows/picker can go) accounts for a configured
+  // day-start time other than midnight, so someone up past midnight isn't
+  // pushed onto the next calendar day before they're ready to be. Default
+  // '00:00' matches the real calendar date exactly, so this is a no-op
+  // for anyone who hasn't touched the new Settings field. First-pass
+  // scope only touches this screen — streaks, weekly/monthly summaries,
+  // correlation day-pairing, and the fasting-window toast are unaffected
+  // for now (resolved via `AskUserQuestion` when this was picked up).
+  const dayStartTime = useDayStartStore((state) => state.dayStartTime)
+  function todayIso() {
+    return format(effectiveDateFor(new Date(), dayStartTime), 'yyyy-MM-dd')
+  }
   // #200: lives in the URL (?date=), not local useState — a meal pencil
   // navigates away to /entry/:date/meal/:mealId and calls navigate(-1) to
   // return, which remounts this screen from scratch. Local state doesn't
