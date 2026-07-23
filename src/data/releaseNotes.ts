@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 282,
+    issue: 319,
+    date: '2026-07-23T19:26:36+03:00',
+    en: 'Dashboard reordering is now a "Reorder" mode you turn on from the top of the page, instead of always-visible drag handles.',
+    ru: 'Изменение порядка на дашборде теперь включается кнопкой «Порядок разделов» вверху страницы, а не постоянно видимыми значками для перетаскивания.',
+  },
+  {
     version: 281,
     issue: 298,
     date: '2026-07-23T16:22:52+03:00',
