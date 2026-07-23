@@ -629,6 +629,14 @@ _The next big initiative, at the user's request: ship this PWA as installable na
 
 ---
 
+## Tier 37 — Live feedback after Dashboard reordering shipped (2026-07-23)
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#319](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/319) | 🔲 Open | Make Dashboard drag handles appear only in an on-demand edit/reorder mode | Follow-up to #297 — reported live with a screenshot as visual clutter (a grip-dots icon always showing above every section). Ask: an "Edit" icon at the top of the Dashboard, entering a reorder mode that shows drag handles only while active, with a "Save" action to confirm the new order and exit back to the normal view. Underlying persistence/drag mechanics from #297 unchanged — purely about when handles are shown |
+
+---
+
 ## Private (no public GitHub issue, by request)
 
 _Filed and built without a public issue at the user's explicit request — the repo is public, and this one's more personal than the rest. Still documented normally here per the project's usual close-out process; see [[feedback_issue_first]]'s exception #2 in memory for why._
