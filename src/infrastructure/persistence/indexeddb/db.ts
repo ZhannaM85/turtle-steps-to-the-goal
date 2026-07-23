@@ -3,12 +3,14 @@ import type { Goal } from '@/domain/goal'
 import type { DailyEntry } from '@/domain/dailyEntry'
 import type { MealItem } from '@/domain/mealItem'
 import type { FoodOverride } from '@/domain/foodOverride'
+import type { Recipe } from '@/domain/recipe'
 
 export class AppDatabase extends Dexie {
   goals!: Table<Goal, string>
   dailyEntries!: Table<DailyEntry, string>
   mealItems!: Table<MealItem, string>
   foodOverrides!: Table<FoodOverride, string>
+  recipes!: Table<Recipe, string>
 
   constructor() {
     super('turtle-steps-to-the-goal')
@@ -192,6 +194,18 @@ export class AppDatabase extends Dexie {
       dailyEntries: 'id, &date',
       mealItems: 'id, &name, &barcode',
       foodOverrides: '&foodId',
+    })
+    // #251: recipes — multi-ingredient, servings-based templates. New store
+    // only, no upgrade() needed. No unique name index (unlike mealItems) —
+    // recipes are always addressed by id (picked from a list), never
+    // looked up or deduplicated by name, so there's no ConstraintError
+    // risk to guard against.
+    this.version(10).stores({
+      goals: 'id, createdAt',
+      dailyEntries: 'id, &date',
+      mealItems: 'id, &name, &barcode',
+      foodOverrides: '&foodId',
+      recipes: 'id',
     })
   }
 }

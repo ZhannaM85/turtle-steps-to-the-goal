@@ -954,6 +954,44 @@ export interface Dictionary {
     restoreDefaultLabel: (name: string) => string
     hiddenBadgeLabel: string
   }
+  /** #251 — multi-ingredient, servings-based templates. Reached from a
+   * Settings card (settingsSectionLabel/Description, manageRecipesButton)
+   * into `RecipesSettingsScreen.tsx`'s management screen, which opens
+   * `RecipeEditorDialog.tsx` to build/edit one. Logging one from the daily
+   * log goes through `LogRecipeDialog.tsx` instead. */
+  recipes: {
+    settingsSectionLabel: string
+    settingsSectionDescription: string
+    manageRecipesButton: string
+    screenTitle: string
+    screenDescription: string
+    emptyStateText: string
+    addRecipeButton: string
+    editRecipeLabel: (name: string) => string
+    deleteRecipeLabel: (name: string) => string
+    servingsCountLabel: (n: number) => string
+    addRecipeDialogTitle: string
+    editRecipeDialogTitle: string
+    closeRecipeDialogLabel: string
+    recipeNameLabel: string
+    recipeNamePlaceholder: string
+    servingsFieldLabel: string
+    ingredientsSectionLabel: string
+    noIngredientsYetText: string
+    removeIngredientLabel: (name: string) => string
+    addIngredientButton: string
+    ingredientNameLabel: string
+    ingredientNamePlaceholder: string
+    perServingPreviewPrefix: string
+    cancelLabel: string
+    logRecipeButton: string
+    logRecipeDialogTitle: string
+    closeLogRecipeDialogLabel: string
+    pickRecipeLabel: string
+    servingsEatenLabel: string
+    noRecipesYetMessage: string
+    logButtonLabel: string
+  }
   about: {
     title: string
     description: string

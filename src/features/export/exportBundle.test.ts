@@ -3,6 +3,7 @@ import type { DailyEntry } from '@/domain/dailyEntry'
 import type { FoodOverride } from '@/domain/foodOverride'
 import type { Goal } from '@/domain/goal'
 import type { MealItem } from '@/domain/mealItem'
+import type { Recipe } from '@/domain/recipe'
 import { buildExportBundle } from './exportBundle'
 
 function makeGoal(overrides: Partial<Goal> = {}): Goal {
@@ -48,11 +49,24 @@ function makeFoodOverride(overrides: Partial<FoodOverride> = {}): FoodOverride {
   }
 }
 
+function makeRecipe(overrides: Partial<Recipe> = {}): Recipe {
+  const now = '2026-03-01T00:00:00.000Z'
+  return {
+    id: 'recipe-1',
+    name: 'Chili',
+    ingredients: [],
+    servings: 4,
+    createdAt: now,
+    updatedAt: now,
+    ...overrides,
+  }
+}
+
 describe('buildExportBundle', () => {
   it('wraps goals and entries with a version and export timestamp', () => {
     const goals = [makeGoal()]
     const entries = [makeEntry()]
-    const bundle = buildExportBundle(goals, entries, [], [])
+    const bundle = buildExportBundle(goals, entries, [], [], [])
 
     expect(bundle.version).toBe(7)
     expect(bundle.goals).toEqual(goals)
@@ -61,19 +75,27 @@ describe('buildExportBundle', () => {
   })
 
   it('handles no data at all (empty backup)', () => {
-    const bundle = buildExportBundle([], [], [], [])
+    const bundle = buildExportBundle([], [], [], [], [])
     expect(bundle.goals).toEqual([])
     expect(bundle.dailyEntries).toEqual([])
     expect(bundle.mealItems).toEqual([])
     expect(bundle.foodOverrides).toEqual([])
+    expect(bundle.recipes).toEqual([])
   })
 
   it('includes meal items and food overrides (#113)', () => {
     const mealItems = [makeMealItem()]
     const foodOverrides = [makeFoodOverride()]
-    const bundle = buildExportBundle([], [], mealItems, foodOverrides)
+    const bundle = buildExportBundle([], [], mealItems, foodOverrides, [])
 
     expect(bundle.mealItems).toEqual(mealItems)
     expect(bundle.foodOverrides).toEqual(foodOverrides)
+  })
+
+  it('includes recipes (#251)', () => {
+    const recipes = [makeRecipe()]
+    const bundle = buildExportBundle([], [], [], [], recipes)
+
+    expect(bundle.recipes).toEqual(recipes)
   })
 })

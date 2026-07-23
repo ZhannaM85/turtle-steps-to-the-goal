@@ -73,7 +73,9 @@ import {
   useAddMealRowCollapseStore,
   useMealItemStore,
   useMealLabelPresetStore,
+  useRecipeStore,
 } from '@/stores'
+import { LogRecipeDialog } from '@/features/recipes'
 import { BarcodeScannerDialog } from './BarcodeScannerDialog'
 import { CopyDayMealsDialog } from './CopyDayMealsDialog'
 import { FoodPickerDialog, type PickedFoodValues } from './FoodPickerDialog'
@@ -1205,6 +1207,18 @@ export function MealList({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
+  // #251 — recipes, same "loaded once per mount" reasoning as mealItems
+  // above. Only wired into the bottom add-row (not existing-meal-edit), a
+  // deliberate v1 scope trim, same precedent #256 already set for barcode
+  // scanning.
+  const recipes = useRecipeStore((state) => state.recipes)
+  const loadRecipes = useRecipeStore((state) => state.loadRecipes)
+  useEffect(() => {
+    loadRecipes()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+  const [isLogRecipeOpen, setIsLogRecipeOpen] = useState(false)
+
   // Fires onFocusedMealDone once editing the focused meal actually ends —
   // save, cancel, or delete all funnel through the same setEditingMealId
   // (null) call, so this only needs to watch that one piece of state
@@ -2197,12 +2211,35 @@ export function MealList({
             <ScanBarcode aria-hidden="true" />
             {t.dailyEntry.scanBarcodeButton}
           </Button>
+          {/* #251 — same fallback-tier placement as Scan barcode above,
+           * add-row only (a deliberate v1 scope trim, same precedent #256
+           * already set). */}
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            className="justify-start"
+            onClick={() => setIsLogRecipeOpen(true)}
+          >
+            {t.recipes.logRecipeButton}
+          </Button>
         </div>
         {isBarcodeScannerOpen && (
           <BarcodeScannerDialog
             open={isBarcodeScannerOpen}
             onOpenChange={setIsBarcodeScannerOpen}
             onScanned={handleBarcodeScanned}
+          />
+        )}
+        {isLogRecipeOpen && (
+          <LogRecipeDialog
+            open={isLogRecipeOpen}
+            onOpenChange={setIsLogRecipeOpen}
+            recipes={recipes}
+            onLog={(values) => {
+              addFoodEntry(values)
+              setIsLogRecipeOpen(false)
+            }}
           />
         )}
         <MealItemEditorSheet

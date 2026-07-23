@@ -3,20 +3,36 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import type { DailyEntry } from '@/domain/dailyEntry'
 import type { Goal } from '@/domain/goal'
 import type { MealItem } from '@/domain/mealItem'
+import type { Recipe } from '@/domain/recipe'
 import { db } from './db'
 import { IndexedDbGoalRepository } from './goalRepository'
 import { IndexedDbDailyEntryRepository } from './dailyEntryRepository'
 import { IndexedDbMealItemRepository } from './mealItemRepository'
+import { IndexedDbRecipeRepository } from './recipeRepository'
 
 const goalRepository = new IndexedDbGoalRepository()
 const dailyEntryRepository = new IndexedDbDailyEntryRepository()
 const mealItemRepository = new IndexedDbMealItemRepository()
+const recipeRepository = new IndexedDbRecipeRepository()
 
 function makeMealItem(overrides: Partial<MealItem> = {}): MealItem {
   const now = new Date().toISOString()
   return {
     id: crypto.randomUUID(),
     name: 'Pizza',
+    createdAt: now,
+    updatedAt: now,
+    ...overrides,
+  }
+}
+
+function makeRecipe(overrides: Partial<Recipe> = {}): Recipe {
+  const now = new Date().toISOString()
+  return {
+    id: crypto.randomUUID(),
+    name: 'Chili',
+    ingredients: [],
+    servings: 4,
     createdAt: now,
     updatedAt: now,
     ...overrides,
@@ -57,12 +73,14 @@ beforeEach(async () => {
   await db.goals.clear()
   await db.dailyEntries.clear()
   await db.mealItems.clear()
+  await db.recipes.clear()
 })
 
 afterEach(async () => {
   await db.goals.clear()
   await db.dailyEntries.clear()
   await db.mealItems.clear()
+  await db.recipes.clear()
 })
 
 describe('IndexedDbGoalRepository', () => {
@@ -226,5 +244,54 @@ describe('IndexedDbMealItemRepository', () => {
       const all = await mealItemRepository.getAll()
       expect(all).toHaveLength(2)
     })
+  })
+})
+
+describe('IndexedDbRecipeRepository (#251)', () => {
+  it('returns an empty array with no recipes yet', async () => {
+    await expect(recipeRepository.getAll()).resolves.toEqual([])
+  })
+
+  it('upserts and returns a recipe', async () => {
+    const recipe = makeRecipe({ name: 'Chili' })
+    await recipeRepository.upsert(recipe)
+
+    await expect(recipeRepository.getAll()).resolves.toEqual([recipe])
+  })
+
+  it('returns recipes sorted by name', async () => {
+    await recipeRepository.upsert(makeRecipe({ name: 'Soup' }))
+    await recipeRepository.upsert(makeRecipe({ name: 'Chili' }))
+
+    const all = await recipeRepository.getAll()
+    expect(all.map((r) => r.name)).toEqual(['Chili', 'Soup'])
+  })
+
+  it('updates an existing recipe in place when upserted again by id', async () => {
+    const recipe = makeRecipe({ name: 'Chili', servings: 4 })
+    await recipeRepository.upsert(recipe)
+    await recipeRepository.upsert({ ...recipe, servings: 6 })
+
+    const all = await recipeRepository.getAll()
+    expect(all).toHaveLength(1)
+    expect(all[0].servings).toBe(6)
+  })
+
+  it('deletes a recipe by id', async () => {
+    const recipe = makeRecipe()
+    await recipeRepository.upsert(recipe)
+    await recipeRepository.delete(recipe.id)
+
+    await expect(recipeRepository.getAll()).resolves.toEqual([])
+  })
+
+  it('allows two recipes with the same name (no unique-name constraint, unlike mealItems)', async () => {
+    await recipeRepository.upsert(makeRecipe({ name: 'Chili' }))
+    await expect(
+      recipeRepository.upsert(makeRecipe({ name: 'Chili' })),
+    ).resolves.not.toThrow()
+
+    const all = await recipeRepository.getAll()
+    expect(all).toHaveLength(2)
   })
 })

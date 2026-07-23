@@ -4,6 +4,7 @@ import type { DailyEntry } from '@/domain/dailyEntry'
 import type { FoodOverride } from '@/domain/foodOverride'
 import type { Goal } from '@/domain/goal'
 import type { MealItem } from '@/domain/mealItem'
+import type { Recipe } from '@/domain/recipe'
 import { db } from '@/infrastructure/persistence/indexeddb'
 import {
   exportAllData,
@@ -62,11 +63,25 @@ function makeFoodOverride(overrides: Partial<FoodOverride> = {}): FoodOverride {
   }
 }
 
+function makeRecipe(overrides: Partial<Recipe> = {}): Recipe {
+  const now = new Date().toISOString()
+  return {
+    id: crypto.randomUUID(),
+    name: 'Chili',
+    ingredients: [],
+    servings: 4,
+    createdAt: now,
+    updatedAt: now,
+    ...overrides,
+  }
+}
+
 beforeEach(async () => {
   await db.goals.clear()
   await db.dailyEntries.clear()
   await db.mealItems.clear()
   await db.foodOverrides.clear()
+  await db.recipes.clear()
 })
 
 afterEach(async () => {
@@ -74,6 +89,7 @@ afterEach(async () => {
   await db.dailyEntries.clear()
   await db.mealItems.clear()
   await db.foodOverrides.clear()
+  await db.recipes.clear()
 })
 
 describe('exportAllData', () => {
@@ -279,6 +295,36 @@ describe('importAllData', () => {
 
     expect(await db.mealItems.toArray()).toEqual([])
     expect(await db.foodOverrides.toArray()).toEqual([])
+  })
+
+  it('round-trips recipes (#251)', async () => {
+    const recipe = makeRecipe({
+      name: 'Chili',
+      ingredients: [
+        { id: crypto.randomUUID(), name: 'Ground beef', amountKcal: 800 },
+      ],
+      servings: 4,
+    })
+    await db.recipes.put(recipe)
+    const bundle = await exportAllData()
+
+    await db.recipes.clear()
+    await importAllData(bundle)
+
+    expect(await db.recipes.toArray()).toEqual([recipe])
+  })
+
+  it('imports fine when recipes is absent (older backups, #251)', async () => {
+    await expect(
+      importAllData({
+        version: 7,
+        exportedAt: new Date().toISOString(),
+        goals: [],
+        dailyEntries: [],
+      }),
+    ).resolves.not.toThrow()
+
+    expect(await db.recipes.toArray()).toEqual([])
   })
 })
 

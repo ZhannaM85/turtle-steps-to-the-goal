@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 269,
+    issue: 251,
+    date: '2026-07-23T11:37:44+03:00',
+    en: 'Added recipes — build a multi-ingredient dish once (like a pot of chili), then log servings of it any time from the daily log.',
+    ru: 'Добавлены рецепты — один раз соберите блюдо из нескольких ингредиентов (например, кастрюлю чили), а затем записывайте его порции в любое время из дневника питания.',
+  },
+  {
     version: 268,
     issue: 291,
     date: '2026-07-23T10:59:13+03:00',

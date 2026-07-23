@@ -10,6 +10,7 @@ import {
   GoalScreen,
   HistoryScreen,
   MealEditScreen,
+  RecipesSettingsScreen,
   SettingsScreen,
 } from './lazyRoutes'
 
@@ -34,6 +35,7 @@ export const routes: RouteObject[] = [
       { path: '/export', element: <Navigate to="/settings" replace /> },
       { path: '/settings', element: <SettingsScreen /> },
       { path: '/settings/foods', element: <FoodListSettingsScreen /> },
+      { path: '/settings/recipes', element: <RecipesSettingsScreen /> },
       { path: '/about', element: <AboutScreen /> },
     ],
   },

@@ -138,6 +138,17 @@ Per-device customization of the curated `data/foods.ts` list — hide an item, o
 | `FoodOverrideRepository.ts` | Interface: `getAll()`, `upsert(override)`, `delete(foodId)`. |
 | `index.ts` | Barrel. |
 
+#### `src/domain/recipe/` — new in #251
+
+Multi-ingredient, servings-based templates — the gap `MealItem` (a single dish with fixed per-100g macros) can't cover: a *combined* dish logged by the serving, not by weight.
+
+| File | Purpose |
+|------|---------|
+| `Recipe.ts` | `RecipeIngredient { id, name, brand?, amountKcal, proteinG?, fatG?, carbsG?, amountG? }` — structurally like `CalorieItem` minus `emotion` (a reaction belongs to a logged dish, not a raw ingredient in a template). `Recipe { id, name, ingredients, servings, createdAt, updatedAt }` — `servings` is the total yield ("makes 6 servings"). Editing a recipe only affects *future* logging, same "renames never touch past entries" precedent `MealItem.rename()` established — nothing here is a foreign key from an already-logged `CalorieItem`. |
+| `RecipeRepository.ts` | Interface: `getAll()`, `upsert(recipe)`, `delete(id)`. No `findByName` — unlike `MealItemRepository`, recipes have no unique-name constraint to reconcile against. |
+| `recipePerServing.ts` | `recipePerServing(recipe)` — combined ingredient totals ÷ `servings` (undefined, not 0, for a macro none of the ingredients logged — same convention `calorieEntryTotals.ts` uses one level up). `recipeServingsTotal(recipe, servingsEaten)` scales that per-serving result by however many servings were actually eaten — the result of "logging" a recipe. Both take `Pick<Recipe, 'ingredients' \| 'servings'>` rather than a full `Recipe`, so `RecipeEditorDialog.tsx` can compute a live preview from in-progress form state (no id/timestamps assigned yet) without constructing a fake `Recipe`. `RecipeServingTotals`'s macro fields are typed `number \| undefined` (required-but-possibly-undefined keys, not optional properties) specifically so a `RecipePerServing`/`RecipeServingsTotal` result can be passed straight into `shared/lib/macroScaling.ts`'s `formatComputedTotal`, which expects that same shape. |
+| `index.ts` | Barrel. |
+
 #### `src/domain/stats/`
 
 Pure functions with unit tests covering edge cases (missing days, single data point, no variance). Now consumed by both `Dashboard` (#6/#7) and `History` (#8) — no longer library-only.
@@ -166,7 +177,7 @@ Pure functions with unit tests covering edge cases (missing days, single data po
 The only folder allowed to import Dexie.
 
 #### `db.ts`
-**Why it exists:** Single definition of the IndexedDB schema, now on its seventh version.
+**Why it exists:** Single definition of the IndexedDB schema, now on its tenth version.
 
 | Version | Change |
 |---------|--------|
@@ -177,6 +188,9 @@ The only folder allowed to import Dexie.
 | 5 (#81) | Same store shape (no index changes) + an `.upgrade()` block: folds each flat `calorieEntries[]` meal into a single-item group — the meal's `id` becomes the group's `id`, its `note` becomes the one item's `name` (a fresh `crypto.randomUUID()` item id), `amountKcal`/`proteinG`/`fatG`/`carbsG` move onto that item, and `emotion`/`timeEaten` stay on the group. Rows with no `calorieEntries` at all are left untouched (not coerced to an empty array). |
 | 6 (#90) | Adds `foodOverrides: '&foodId'` (`&foodId` unique — one override per curated food, at most). New store only, no `.upgrade()` needed. |
 | 7 (#129) | Same store shape (no index changes) + an `.upgrade()` block: a meal's reaction moves from the group (`calorieEntries[].emotion`, no longer part of the type) onto each item. Only unambiguous for a single-item meal, where the old group reaction clearly belonged to that one dish — for a multi-item meal it's simply dropped (deleted, not guessed at), same reasoning v4's clear used for the older emotion set. |
+| 8 (#271) | Same store shape (no index changes) + an `.upgrade()` block: a `dailyEntries` row's single `waterMl` running total becomes a one-item `waterEntries` list (same "scalar becomes a single-item list" shape v2's `caloriesConsumed` upgrade used), then `waterMl` is deleted. |
+| 9 (#256) | Adds a sparse unique secondary index on `mealItems.barcode` (`mealItems: 'id, &name, &barcode'`). Optional field — records with no barcode simply never enter the index (IndexedDB excludes missing keys from a unique index entirely), so no collision between items that don't have one. No `.upgrade()` needed, nothing to backfill for a field that never existed before. |
+| 10 (#251) | Adds `recipes: 'id'`. New store only, no `.upgrade()` needed. No unique-name index (unlike `mealItems`) — recipes are always addressed by id (picked from a list), never looked up or deduplicated by name. |
 
 Database name: `turtle-steps-to-the-goal`. `db.migration.test.ts` seeds a raw v1-schema Dexie instance with a legacy `caloriesConsumed` row, an untouched `weightKg`-only row, a pre-#54 row with an old-format meal emotion, and a pre-#81 flat-meal row, then opens the real `db` (which cascades through every pending `.upgrade()` in one open) and asserts each transformation landed correctly. **v7's own fold has no dedicated test in this file** — every seed here cascades from v1, and v4's unconditional clear wipes any meal-level emotion before it could ever reach v7 (no real pre-v4 data could have had a modern thumbsUp/thumbsDown/bellissimo value in the first place, so this harness has no way to represent "reaches v7 with a legacy value still on it"; real users upgrading from an already-v6 install never run v4's `.upgrade()` at all, since Dexie only runs each version's upgrade once per physical database). The fold logic itself is covered directly in `exportActions.test.ts`'s v5→v6 bundle-upgrade test instead, which seeds already-v5-shaped data with no such contamination.
 
@@ -192,8 +206,11 @@ Database name: `turtle-steps-to-the-goal`. `db.migration.test.ts` seeds a raw v1
 #### `foodOverrideRepository.ts` — `IndexedDbFoodOverrideRepository` (#90)
 `getAll()` = full table (no ordering — the UI sorts/filters via `foods.ts`'s own order). `upsert()`/`delete()` are keyed by `foodId` directly.
 
+#### `recipeRepository.ts` — `IndexedDbRecipeRepository` (#251)
+`getAll()` = full table, sorted by name in JS (`localeCompare`) rather than a Dexie index — there's no unique-name index to sort by, unlike `mealItems`. `upsert()`/`delete()` are keyed by `id` directly.
+
 #### `index.ts`
-Barrel: `db`, `AppDatabase`, `IndexedDbGoalRepository`, `IndexedDbDailyEntryRepository`, `IndexedDbMealItemRepository`, `IndexedDbFoodOverrideRepository`.
+Barrel: `db`, `AppDatabase`, `IndexedDbGoalRepository`, `IndexedDbDailyEntryRepository`, `IndexedDbMealItemRepository`, `IndexedDbFoodOverrideRepository`, `IndexedDbRecipeRepository`.
 
 ---
 
@@ -568,4 +585,4 @@ See `docs/issues-priority.md` for full per-issue detail and the reasoning behind
 | 30 | Feature ideas from a second cross-project review (2026-07-21) | [#258](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/258)–[#261](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/261) | ✅ Done (#261 closed as not planned — not achievable without a backend on iOS) |
 | 31 | Found while implementing #233 (2026-07-22) | [#262](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/262) | ✅ Done |
 | 32 | Thirteenth live-feedback wave (2026-07-22) | [#263](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/263)–[#284](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/284) | 🟡 2 open — [#270](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/270) (partially fixed, reopened), [#274](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/274) (blocked on repro) |
-| 33 | Barcode-scanning follow-ups and fasting-window feedback (2026-07-22) | [#285](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/285)–[#292](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/292) | 🔍 7 pending validation — [#285](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/285), [#287](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/287)–[#292](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/292) |
+| 33 | Barcode-scanning follow-ups and fasting-window feedback (2026-07-22) | [#285](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/285)–[#292](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/292) | 🔍 4 pending validation — [#285](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/285), [#287](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/287), [#291](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/291)–[#292](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/292) |

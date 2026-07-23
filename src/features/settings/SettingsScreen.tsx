@@ -437,6 +437,23 @@ export function SettingsScreen() {
         </CardContent>
       </Card>
 
+      {/* #251 — same "description + link button" shape as the Food list
+       * card above, reached from Settings rather than adding another
+       * bottom-nav tab. */}
+      <Card>
+        <CardHeader>
+          <CardTitle>{t.recipes.settingsSectionLabel}</CardTitle>
+        </CardHeader>
+        <CardContent className="flex flex-col gap-2">
+          <span className="text-sm text-muted-foreground">
+            {t.recipes.settingsSectionDescription}
+          </span>
+          <Button variant="outline" size="sm" className="self-start" asChild>
+            <Link to="/settings/recipes">{t.recipes.manageRecipesButton}</Link>
+          </Button>
+        </CardContent>
+      </Card>
+
       {/* #234: moved out of the bottom nav (6 tabs read as too crowded on
        * mobile) — same lightweight "description + link button" shape the
        * Food list card above uses, rather than adding a new icon slot to

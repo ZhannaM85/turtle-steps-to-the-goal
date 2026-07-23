@@ -211,6 +211,17 @@ describe('SettingsScreen', () => {
     ).toHaveAttribute('href', '/settings/foods')
   })
 
+  it('includes a link to manage recipes (#251)', () => {
+    renderSettings()
+
+    expect(
+      screen.getByRole('heading', { name: 'Recipes' }),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByRole('link', { name: 'Manage recipes' }),
+    ).toHaveAttribute('href', '/settings/recipes')
+  })
+
   describe('unified "what to track" section (#237)', () => {
     it('defaults digestion tracking to off, and switches it on when selected', async () => {
       const user = userEvent.setup()

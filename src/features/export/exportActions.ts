@@ -3,6 +3,7 @@ import {
   IndexedDbFoodOverrideRepository,
   IndexedDbGoalRepository,
   IndexedDbMealItemRepository,
+  IndexedDbRecipeRepository,
 } from '@/infrastructure/persistence/indexeddb'
 import { buildExportBundle } from './exportBundle'
 import {
@@ -22,15 +23,18 @@ const goalRepository = new IndexedDbGoalRepository()
 const dailyEntryRepository = new IndexedDbDailyEntryRepository()
 const mealItemRepository = new IndexedDbMealItemRepository()
 const foodOverrideRepository = new IndexedDbFoodOverrideRepository()
+const recipeRepository = new IndexedDbRecipeRepository()
 
 export async function exportAllData(): Promise<ExportBundle> {
-  const [goals, dailyEntries, mealItems, foodOverrides] = await Promise.all([
-    goalRepository.getAll(),
-    dailyEntryRepository.getAll(),
-    mealItemRepository.getAll(),
-    foodOverrideRepository.getAll(),
-  ])
-  return buildExportBundle(goals, dailyEntries, mealItems, foodOverrides)
+  const [goals, dailyEntries, mealItems, foodOverrides, recipes] =
+    await Promise.all([
+      goalRepository.getAll(),
+      dailyEntryRepository.getAll(),
+      mealItemRepository.getAll(),
+      foodOverrideRepository.getAll(),
+      recipeRepository.getAll(),
+    ])
+  return buildExportBundle(goals, dailyEntries, mealItems, foodOverrides, recipes)
 }
 
 /**
@@ -83,6 +87,10 @@ export async function importAllData(bundle: ExportBundle): Promise<void> {
     ...(bundle.foodOverrides ?? []).map((override) =>
       foodOverrideRepository.upsert(override),
     ),
+    // Recipes have no unique-name index (unlike mealItems/dailyEntries) —
+    // just id, which the export already carries stably from creation, so
+    // there's no ConstraintError risk to guard against here.
+    ...(bundle.recipes ?? []).map((recipe) => recipeRepository.upsert(recipe)),
   ])
 }
 

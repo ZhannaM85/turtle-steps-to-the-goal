@@ -5,7 +5,7 @@ import { MemoryRouter } from 'react-router-dom'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { CalorieEntry, DailyEntry } from '@/domain/dailyEntry'
 import { db } from '@/infrastructure/persistence/indexeddb'
-import { useMealItemStore } from '@/stores'
+import { useMealItemStore, useRecipeStore } from '@/stores'
 import { MealList } from './MealList'
 
 // #256 — a real class (not vi.fn().mockImplementation(() => ({...})),
@@ -43,7 +43,9 @@ function makeDailyEntry(overrides: Partial<DailyEntry> = {}): DailyEntry {
 beforeEach(async () => {
   await db.dailyEntries.clear()
   await db.mealItems.clear()
+  await db.recipes.clear()
   useMealItemStore.setState({ items: [], status: 'idle', error: null })
+  useRecipeStore.setState({ recipes: [], status: 'idle', error: null })
   localStorage.clear()
   // #201 made the add row's default collapsed state depend on whether
   // `date` is in the past relative to the real clock — freeze "now" to
@@ -57,6 +59,7 @@ beforeEach(async () => {
 afterEach(async () => {
   await db.dailyEntries.clear()
   await db.mealItems.clear()
+  await db.recipes.clear()
   localStorage.clear()
   vi.useRealTimers()
   vi.unstubAllGlobals()
@@ -1406,6 +1409,57 @@ describe('MealList', () => {
       await user.click(screen.getByRole('button', { name: 'Dismiss' }))
 
       expect(screen.queryByText(/Your fasting window was/)).not.toBeInTheDocument()
+    })
+  })
+
+  describe('logging a recipe (#251)', () => {
+    it('opens the log-recipe dialog when "Log recipe" is clicked', async () => {
+      const user = userEvent.setup()
+      render(
+        <MealList calorieEntries={[]} date="2026-03-01" onChange={vi.fn()} />,
+        { wrapper: MemoryRouter },
+      )
+
+      await user.click(screen.getByRole('button', { name: 'Log recipe' }))
+
+      expect(
+        screen.getByRole('heading', { name: 'Log recipe' }),
+      ).toBeInTheDocument()
+    })
+
+    it('adds a new meal from the logged recipe, scaled by servings eaten', async () => {
+      await db.recipes.put({
+        id: 'recipe-1',
+        name: 'Chili',
+        servings: 4,
+        ingredients: [
+          { id: 'ing-1', name: 'Ground beef', amountKcal: 800, proteinG: 60 },
+        ],
+        createdAt: '2026-01-01T00:00:00.000Z',
+        updatedAt: '2026-01-01T00:00:00.000Z',
+      })
+      const user = userEvent.setup()
+      const onChange = vi.fn()
+      render(
+        <MealList calorieEntries={[]} date="2026-03-01" onChange={onChange} />,
+        { wrapper: MemoryRouter },
+      )
+
+      await user.click(screen.getByRole('button', { name: 'Log recipe' }))
+      await user.click(await screen.findByRole('button', { name: 'Chili' }))
+      const servingsInput = screen.getByLabelText('Servings eaten')
+      await user.clear(servingsInput)
+      await user.type(servingsInput, '2')
+      await user.click(screen.getByRole('button', { name: 'Log' }))
+
+      expect(onChange).toHaveBeenCalledTimes(1)
+      const next = onChange.mock.calls[0][0] as CalorieEntry[]
+      expect(next).toHaveLength(1)
+      expect(next[0].items[0]).toMatchObject({
+        name: 'Chili',
+        amountKcal: 400,
+        proteinG: 30,
+      })
     })
   })
 })

@@ -144,6 +144,30 @@ const foodOverrideSchema = z.object({
   favorite: z.boolean().optional(),
 })
 
+// Multi-ingredient, servings-based templates (#251) — previously local-only,
+// same #113 purely-additive addition as mealItems/foodOverrides above: an
+// older bundle without this field still parses fine (recipes ends up
+// undefined, importAllData treats that as "nothing to import").
+const recipeIngredientSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  brand: z.string().optional(),
+  amountKcal: z.number(),
+  proteinG: z.number().optional(),
+  fatG: z.number().optional(),
+  carbsG: z.number().optional(),
+  amountG: z.number().optional(),
+})
+
+const recipeSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  ingredients: z.array(recipeIngredientSchema),
+  servings: z.number(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+})
+
 export const exportBundleSchema = z.object({
   version: z.literal(7),
   exportedAt: z.string(),
@@ -151,6 +175,7 @@ export const exportBundleSchema = z.object({
   dailyEntries: z.array(dailyEntrySchema),
   mealItems: z.array(mealItemSchema).optional(),
   foodOverrides: z.array(foodOverrideSchema).optional(),
+  recipes: z.array(recipeSchema).optional(),
 })
 
 export type ExportBundle = z.infer<typeof exportBundleSchema>

@@ -33,6 +33,11 @@ export const FoodListSettingsScreen = lazy(() =>
     default: m.FoodListSettingsScreen,
   })),
 )
+export const RecipesSettingsScreen = lazy(() =>
+  import('@/features/recipes').then((m) => ({
+    default: m.RecipesSettingsScreen,
+  })),
+)
 export const AboutScreen = lazy(() =>
   import('@/features/about').then((m) => ({ default: m.AboutScreen })),
 )

@@ -2,6 +2,7 @@ import type { DailyEntry } from '@/domain/dailyEntry'
 import type { FoodOverride } from '@/domain/foodOverride'
 import type { Goal } from '@/domain/goal'
 import type { MealItem } from '@/domain/mealItem'
+import type { Recipe } from '@/domain/recipe'
 import type { ExportBundle } from './exportBundleSchema'
 
 export function buildExportBundle(
@@ -9,6 +10,7 @@ export function buildExportBundle(
   dailyEntries: DailyEntry[],
   mealItems: MealItem[],
   foodOverrides: FoodOverride[],
+  recipes: Recipe[],
 ): ExportBundle {
   return {
     version: 7,
@@ -17,5 +19,6 @@ export function buildExportBundle(
     dailyEntries,
     mealItems,
     foodOverrides,
+    recipes,
   }
 }
