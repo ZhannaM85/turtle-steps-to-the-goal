@@ -48,11 +48,21 @@ doesn't need re-explaining every session.
 The moment an issue's implementation is pushed and its `docs/issues-priority.md`
 row moves to "🔍 Pending validation" (done, but not yet confirmed on the
 user's device), also run `gh issue edit <N> --add-label validation` on the
-GitHub issue itself. Remove it again when closing (`gh issue close` doesn't
-strip labels on its own). This is a real, pre-existing repo label
+GitHub issue itself. This is a real, pre-existing repo label
 convention (`validation`: "Implemented, awaiting on-device confirmation
 before closing") — easy to forget since only the local docs tracked the
 status before this was written down.
+
+When the user then confirms on-device and the issue is closed, swap the
+label rather than just removing it: `gh issue edit <N> --remove-label
+validation --add-label validated`. `validated` ("Implemented and confirmed
+on-device before closing") is a separate, permanent label — added
+2026-07-23 after the user pointed out that simply stripping `validation` on
+close made a properly-confirmed issue look identical, from the label list,
+to one closed without any on-device check at all. `validation` means
+"awaiting confirmation" so it has to come off once that's no longer true,
+but `validated` stays on the closed issue forever as the visible record
+that the confirmation actually happened.
 
 ## Closing a GitHub issue
 Whenever a GitHub issue is closed (implementation done, verified working), update **all three**:
