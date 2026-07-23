@@ -184,20 +184,23 @@ export function TodayScreen() {
       : null
   const isOverProteinTarget = proteinDeltaG !== null && proteinDeltaG < 0
 
-  // #252 — same shape as the pre-#266 remainingProteinG (still clamped at
-  // 0, no over-target framing for these two), each independent of the
+  // #252 — same shape as proteinDeltaG above, each independent of the
   // other three targets.
-  const remainingFatG =
+  // #321: no longer clamped at 0 — once intake exceeds the target, the
+  // card shows the overage instead of a flat "0g remaining" (same shape
+  // #266 already gave protein), just with a neutral unit/description
+  // rather than protein's positive "great job!" framing — going over
+  // isn't uniformly a good outcome for fat/carbs the way extra protein is.
+  const fatDeltaG =
     goal?.dailyFatTargetG !== undefined
-      ? Math.max(0, goal.dailyFatTargetG - (totalFat(entry?.calorieEntries) ?? 0))
+      ? goal.dailyFatTargetG - (totalFat(entry?.calorieEntries) ?? 0)
       : null
-  const remainingCarbG =
+  const isOverFatTarget = fatDeltaG !== null && fatDeltaG < 0
+  const carbDeltaG =
     goal?.dailyCarbTargetG !== undefined
-      ? Math.max(
-          0,
-          goal.dailyCarbTargetG - (totalCarbs(entry?.calorieEntries) ?? 0),
-        )
+      ? goal.dailyCarbTargetG - (totalCarbs(entry?.calorieEntries) ?? 0)
       : null
+  const isOverCarbTarget = carbDeltaG !== null && carbDeltaG < 0
 
   // #266 — "of X" denominator shown as each remaining-nutrient card's
   // `description`, so "0g remaining" also says what it's out of.
@@ -220,13 +223,12 @@ export function TodayScreen() {
 
   // #258 — same shape again, based on the day's logged water total
   // (#271: summed from waterEntries, not a single stored scalar).
-  const remainingWaterMl =
+  // #321: no longer clamped at 0, same reasoning as fatDeltaG/carbDeltaG above.
+  const waterDeltaMl =
     goal?.dailyWaterTargetMl !== undefined
-      ? Math.max(
-          0,
-          goal.dailyWaterTargetMl - (totalWaterMl(entry?.waterEntries) ?? 0),
-        )
+      ? goal.dailyWaterTargetMl - (totalWaterMl(entry?.waterEntries) ?? 0)
       : null
+  const isOverWaterTarget = waterDeltaMl !== null && waterDeltaMl < 0
 
   // #320 — percent of each numeric daily goal consumed so far, for the
   // remaining-nutrient cards' progress bars below. A falsy target (missing,
@@ -461,7 +463,7 @@ export function TodayScreen() {
             value={formatNumber(Math.abs(proteinDeltaG), locale, 0)}
             unit={
               isOverProteinTarget
-                ? t.today.gOverProteinUnit
+                ? t.today.gOverUnit
                 : t.today.gRemainingUnit
             }
             description={
@@ -480,12 +482,12 @@ export function TodayScreen() {
           sectionTitle('todayRemainingProtein', t.today.remainingProteinLabel)
         ))}
 
-      {remainingFatG !== null &&
+      {fatDeltaG !== null &&
         (sectionVisible.todayRemainingFat ? (
           <StatCard
             label={t.today.remainingFatLabel}
-            value={formatNumber(remainingFatG, locale, 0)}
-            unit={t.today.gRemainingUnit}
+            value={formatNumber(Math.abs(fatDeltaG), locale, 0)}
+            unit={isOverFatTarget ? t.today.gOverUnit : t.today.gRemainingUnit}
             description={t.today.targetDenominatorText(fatTargetText!)}
             progressPercent={fatPercent ?? undefined}
             progressColor="var(--stat-fat)"
@@ -495,12 +497,12 @@ export function TodayScreen() {
           sectionTitle('todayRemainingFat', t.today.remainingFatLabel)
         ))}
 
-      {remainingCarbG !== null &&
+      {carbDeltaG !== null &&
         (sectionVisible.todayRemainingCarbs ? (
           <StatCard
             label={t.today.remainingCarbLabel}
-            value={formatNumber(remainingCarbG, locale, 0)}
-            unit={t.today.gRemainingUnit}
+            value={formatNumber(Math.abs(carbDeltaG), locale, 0)}
+            unit={isOverCarbTarget ? t.today.gOverUnit : t.today.gRemainingUnit}
             description={t.today.targetDenominatorText(carbTargetText!)}
             progressPercent={carbPercent ?? undefined}
             progressColor="var(--stat-carbs)"
@@ -513,12 +515,14 @@ export function TodayScreen() {
           sectionTitle('todayRemainingCarbs', t.today.remainingCarbLabel)
         ))}
 
-      {remainingWaterMl !== null &&
+      {waterDeltaMl !== null &&
         (sectionVisible.todayRemainingWater ? (
           <StatCard
             label={t.today.remainingWaterLabel}
-            value={formatNumber(remainingWaterMl, locale, 0)}
-            unit={t.today.mlRemainingUnit}
+            value={formatNumber(Math.abs(waterDeltaMl), locale, 0)}
+            unit={
+              isOverWaterTarget ? t.today.mlOverUnit : t.today.mlRemainingUnit
+            }
             progressPercent={waterPercent ?? undefined}
             progressColor="var(--stat-water)"
             action={statCardAction(

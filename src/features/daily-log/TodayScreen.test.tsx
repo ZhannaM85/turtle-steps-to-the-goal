@@ -970,7 +970,7 @@ describe('TodayScreen', () => {
       expect(await within(carbCard).findByText('150')).toBeInTheDocument()
     })
 
-    it('clamps at 0 once a target has been met or exceeded, rather than going negative', async () => {
+    it('shows the overage amount instead of clamping at 0 once a target is exceeded (#321)', async () => {
       await useGoalStore
         .getState()
         .saveGoal(makeGoal({ dailyFatTargetG: 50 }))
@@ -995,7 +995,42 @@ describe('TodayScreen', () => {
 
       const label = await screen.findByText('Remaining fat')
       const card = label.closest('[data-slot="card"]') as HTMLElement
-      expect(await within(card).findByText('0')).toBeInTheDocument()
+      expect(await within(card).findByText('30')).toBeInTheDocument()
+      expect(within(card).getByText('g over')).toBeInTheDocument()
+      // Neutral denominator, not protein's positive "great job!" framing.
+      expect(within(card).getByText('of 50g')).toBeInTheDocument()
+    })
+
+    it('shows the carbs overage amount too, independently of fat (#321)', async () => {
+      await useGoalStore
+        .getState()
+        .saveGoal(makeGoal({ dailyCarbTargetG: 100 }))
+      await useDailyEntryStore.getState().saveEntry(
+        makeEntry({
+          calorieEntries: [
+            {
+              id: crypto.randomUUID(),
+              items: [
+                { id: crypto.randomUUID(), amountKcal: 700, carbsG: 130 },
+              ],
+              createdAt: new Date().toISOString(),
+            },
+          ],
+        }),
+      )
+      useDailyEntryStore.setState({ entry: null, date: null, status: 'idle' })
+
+      render(
+        <MemoryRouter>
+          <TodayScreen />
+        </MemoryRouter>,
+      )
+
+      const label = await screen.findByText('Remaining carbs')
+      const card = label.closest('[data-slot="card"]') as HTMLElement
+      expect(await within(card).findByText('30')).toBeInTheDocument()
+      expect(within(card).getByText('g over')).toBeInTheDocument()
+      expect(within(card).getByText('of 100g')).toBeInTheDocument()
     })
   })
 
@@ -1049,7 +1084,7 @@ describe('TodayScreen', () => {
       expect(await within(card).findByText('1,250')).toBeInTheDocument()
     })
 
-    it('clamps at 0 once the target has been met or exceeded, rather than going negative', async () => {
+    it('shows the overage amount instead of clamping at 0 once the target is exceeded (#321)', async () => {
       await useGoalStore
         .getState()
         .saveGoal(makeGoal({ dailyWaterTargetMl: 2000 }))
@@ -1066,7 +1101,8 @@ describe('TodayScreen', () => {
 
       const label = await screen.findByText('Remaining water')
       const card = label.closest('[data-slot="card"]') as HTMLElement
-      expect(await within(card).findByText('0')).toBeInTheDocument()
+      expect(await within(card).findByText('500')).toBeInTheDocument()
+      expect(within(card).getByText('ml over')).toBeInTheDocument()
     })
 
     it('clamps the progress bar at 100 once over the water target (#320)', async () => {

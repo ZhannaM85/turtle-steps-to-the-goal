@@ -89,33 +89,39 @@ export interface Dictionary {
     kcalRemainingUnit: string
     kcalOverUnit: string
     /** #220 — same shape as the calories trio above, shown once the
-     * active goal has a dailyProteinTargetG set. "Remaining" here just
-     * means not yet reached, no "over" framing the way calories has —
-     * eating more protein than planned isn't the same kind of "went over
-     * budget" concept a calorie ceiling is. */
+     * active goal has a dailyProteinTargetG set. */
     remainingProteinLabel: string
     gRemainingUnit: string
     /** #252 — same shape as remainingProteinLabel above, reusing
-     * gRemainingUnit for the unit text. */
+     * gRemainingUnit for the unit text. #321 gave these over-target
+     * framing too (see gOverUnit below) — no longer clamped at 0. */
     remainingFatLabel: string
     remainingCarbLabel: string
     /** #266 — shown as each remaining-nutrient card's `description`, so
-     * "0g remaining" also says what it's out of. Same text for all four
-     * cards; protein's own over-target state uses `proteinOverTargetLabel`
-     * instead (denominator + positive message combined), not this one. */
+     * "0g remaining" also says what it's out of. Same text regardless of
+     * under/over-target state for calories/fat/carb/water; protein's own
+     * over-target state uses `proteinOverTargetLabel` instead (denominator
+     * + positive message combined), not this one. */
     targetDenominatorText: (target: string) => string
     /** #266 — protein-only: once intake exceeds the target, the card
      * switches from "0g remaining" to a signed surplus (paired with
-     * `gOverProteinUnit` below) plus this positive description — a
-     * deliberate, scoped exception to #220's "no over-target framing"
-     * reasoning above, since exceeding a protein target is a good outcome
-     * unlike a calorie ceiling. Calories/fat/carb are unaffected. */
+     * `gOverUnit` below) plus this positive description — a deliberate,
+     * protein-only exception, since exceeding a protein target is a good
+     * outcome unlike a calorie ceiling or fat/carb/water. Those three
+     * (#321) also switch to a surplus value + `gOverUnit`/`mlOverUnit`
+     * once over, but keep the neutral `targetDenominatorText` description
+     * above rather than this positive one — going over isn't uniformly
+     * good for them the way it is for protein. */
     proteinOverTargetLabel: (target: string) => string
-    gOverProteinUnit: string
+    /** Shared "g over" unit — originally protein-only (#266), extended to
+     * fat/carbs by #321 once those also stopped clamping at 0. */
+    gOverUnit: string
     /** #258 — same shape again, reusing dailyEntry.mlUnit for the unit
      * text instead of gRemainingUnit (a volume, not a gram weight). */
     remainingWaterLabel: string
     mlRemainingUnit: string
+    /** #321 — water's own "over" unit, mirroring gOverUnit but for ml. */
+    mlOverUnit: string
     /** #233 — computed from today's logged weight plus the Settings
      * Profile card's height/age/sex, so only rendered once both exist.
      * BMI has no unit of its own (a dimensionless ratio); BMR needs one. */
