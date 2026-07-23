@@ -588,6 +588,7 @@ export interface Dictionary {
     title: string
     description: string
     reorderSectionLabel: (n: number) => string
+    reorderSectionsButton: string
     weightLegend: string
     caloriesLegend: string
     rollingAverageLegend: string

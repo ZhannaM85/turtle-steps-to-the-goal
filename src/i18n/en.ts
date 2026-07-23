@@ -379,6 +379,7 @@ export const en: Dictionary = {
     description:
       'Weight trend, calorie trend, weekly summary cards, correlation view',
     reorderSectionLabel: (n: number) => `Reorder section ${n}`,
+    reorderSectionsButton: 'Reorder',
     weightLegend: 'weight',
     caloriesLegend: 'calories',
     rollingAverageLegend: '7-day average',

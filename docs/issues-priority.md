@@ -633,7 +633,15 @@ _The next big initiative, at the user's request: ship this PWA as installable na
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#319](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/319) | 🔲 Open | Make Dashboard drag handles appear only in an on-demand edit/reorder mode | Follow-up to #297 — reported live with a screenshot as visual clutter (a grip-dots icon always showing above every section). Ask: an "Edit" icon at the top of the Dashboard, entering a reorder mode that shows drag handles only while active, with a "Save" action to confirm the new order and exit back to the normal view. Underlying persistence/drag mechanics from #297 unchanged — purely about when handles are shown |
+| [#319](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/319) | 🔍 Pending validation | Make Dashboard drag handles appear only in an on-demand edit/reorder mode | Follow-up to #297 — reported live with a screenshot as visual clutter (a grip-dots icon always showing above every section). Implemented: `DashboardScreen.tsx` adds an `isReordering` toggle (`useState`, default `false`); `PageHeader`'s new `action` slot renders a "✎ Reorder" button that flips to "Save" while active. `SortableDashboardSection` only renders its grip-handle button and only enables dnd-kit's `useSortable` (`disabled: !isReordering`) while the mode is on — outside it, sections aren't draggable at all, not just visually tidy. #297's autosave-per-drop persistence is unchanged; the toggle only gates handle visibility/drag-ability, nothing is staged or deferred. New test in `DashboardScreen.test.tsx` covers handles hidden by default → shown after "Reorder" click → hidden again after "Save". Live-verified via Playwright: seeded 3 real IndexedDB entries, confirmed 0 handles by default, 17 handles in reorder mode, a real mouse drag reordered sections (weight/calories swapped and persisted to `localStorage`), and handles disappeared again after Save with the new order retained on screen |
+
+---
+
+## Tier 38 — Live feedback: make remaining-macro cards visual (2026-07-23)
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#320](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/320) | 🔲 Open | Add progress bar/ring to protein/fat/carbs/water remaining cards | Reported live with a screenshot: Today screen's 4 "remaining" StatCards (protein/fat/carbs/water) show only a bare number, no visual sense of proportion. An icon-grid idea (1 icon = fixed unit, e.g. 10g protein/fat/carbs, 250ml water) was discussed first via `AskUserQuestion`-style back-and-forth, then the user chose a progress bar/ring instead — scales cleanly across metrics of very different magnitude (47g vs 2000ml) and needs one consistent component instead of four separately-tuned icon variants. Exact visual treatment (linear vs. radial, colors, over-goal state) left as an implementation-time decision |
 
 ---
 

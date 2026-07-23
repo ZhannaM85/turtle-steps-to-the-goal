@@ -2,6 +2,7 @@ import 'fake-indexeddb/auto'
 import type { ReactNode } from 'react'
 import { format } from 'date-fns'
 import { act, render, screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { DailyEntry } from '@/domain/dailyEntry'
@@ -141,6 +142,28 @@ describe('DashboardScreen', () => {
       expect(useDashboardSectionOrderStore.getState().order).toEqual(
         DEFAULT_DASHBOARD_SECTION_ORDER,
       )
+    })
+  })
+
+  describe('on-demand reorder mode (#319)', () => {
+    it('hides drag handles until the Reorder button is clicked, then hides them again on Save', async () => {
+      await db.dailyEntries.put(makeEntry({ date: '2026-03-01' }))
+      await db.dailyEntries.put(makeEntry({ date: '2026-03-02' }))
+      await db.dailyEntries.put(makeEntry({ date: '2026-03-03' }))
+
+      const user = userEvent.setup()
+      render(<DashboardScreen />, { wrapper: MemoryRouter })
+      await screen.findByText('Weight trend')
+
+      expect(screen.queryByLabelText('Reorder section 1')).not.toBeInTheDocument()
+
+      await user.click(screen.getByRole('button', { name: 'Reorder' }))
+
+      expect(screen.getByLabelText('Reorder section 1')).toBeInTheDocument()
+
+      await user.click(screen.getByRole('button', { name: 'Save' }))
+
+      expect(screen.queryByLabelText('Reorder section 1')).not.toBeInTheDocument()
     })
   })
 
