@@ -1936,6 +1936,31 @@ describe('DailyEntryForm', () => {
           expect(screen.getByText('Breakfast — 208 kcal')).toBeInTheDocument()
         })
 
+        // #296: previously always stamped the current clock time,
+        // silently discarding a time the user had already set in the
+        // add-row's own field before picking a food via Find food.
+        it('uses the add-row time field instead of the current clock time when set (#296)', async () => {
+          const user = userEvent.setup()
+          const onSave = vi.fn()
+          render(
+            <DailyEntryForm
+              date="2026-03-01"
+              existingEntry={null}
+              onSave={onSave}
+            />,
+          )
+
+          fireEvent.change(screen.getByLabelText('Time'), {
+            target: { value: '07:30' },
+          })
+          await user.click(screen.getByRole('button', { name: 'Find food' }))
+          await user.click(screen.getByText('Salmon'))
+          await user.click(screen.getByRole('button', { name: 'Add selected' }))
+
+          const entry = onSave.mock.calls[0][0].calorieEntries[0]
+          expect(entry.timeEaten).toBe('07:30')
+        })
+
         it("previews today's new running total when a food is checked (#273)", async () => {
           const user = userEvent.setup()
           render(

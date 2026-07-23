@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 271,
+    issue: 296,
+    date: '2026-07-23T12:53:46+03:00',
+    en: 'Fixed "Find food" ignoring a time you already set for the meal, always using the current time instead.',
+    ru: 'Исправлена ошибка: «Найти блюдо» игнорировало уже указанное время приёма пищи и всегда подставляло текущее время.',
+  },
+  {
     version: 270,
     issue: 295,
     date: '2026-07-23T12:44:54+03:00',

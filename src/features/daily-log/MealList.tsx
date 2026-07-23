@@ -1550,6 +1550,11 @@ export function MealList({
   // step, same as before #183), so it doesn't fold into addStagedItems;
   // combining a Find-food pick with a manually-entered dish in one group
   // still works the same way it always has, by editing the meal afterward.
+  // #296: respects the add-row's own time field (addTime) if the user
+  // already set one before picking a food — previously always overwrote it
+  // with the current clock time, the one gap addMeal() (the "+ Add item"
+  // path) didn't have, since it already reads addTime instead of stamping
+  // "now" unconditionally.
   function addFoodEntry(values: PickedFoodValues[]) {
     if (values.length === 0) return
     setCalorieEntries([
@@ -1566,10 +1571,11 @@ export function MealList({
           amountG: value.amountG,
           emotion: value.emotion,
         })),
-        timeEaten: currentTimeHHMM(),
+        timeEaten: addTime || currentTimeHHMM(),
         createdAt: new Date().toISOString(),
       },
     ])
+    setAddTime('')
   }
 
   // "Find food" for an item within an already-existing meal being edited —
