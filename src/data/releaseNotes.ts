@@ -25,6 +25,20 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 285,
+    issue: 322,
+    date: '2026-07-24T00:15:12+03:00',
+    en: 'The protein-vs-next-day-weight chart now looks at protein as a share of your calories that day, instead of raw grams, so a high-protein day no longer reads the same as simply eating a lot.',
+    ru: 'График «Белок и вес на следующий день» теперь смотрит на долю белка в калориях за день, а не на граммы — день с высокой долей белка больше не выглядит так же, как день, когда вы просто много съели.',
+  },
+  {
+    version: 284,
+    issue: 321,
+    date: '2026-07-23T20:45:41+03:00',
+    en: 'The remaining fat/carbs/water cards now show how much over your goal you are, instead of just showing "0" once you pass it.',
+    ru: 'Карточки «Осталось жиров/углеводов/воды» теперь показывают, насколько вы превысили цель, а не просто «0» после её достижения.',
+  },
+  {
     version: 283,
     issue: 320,
     date: '2026-07-23T20:07:22+03:00',
