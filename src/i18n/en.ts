@@ -168,8 +168,12 @@ export const en: Dictionary = {
     scanBarcodeButton: 'Scan barcode',
     scanBarcodeDialogTitle: 'Scan barcode',
     scanBarcodeInstructions: 'Point your camera at the barcode.',
-    scanBarcodeCameraErrorMessage:
-      "Couldn't access the camera — check camera permissions and try again.",
+    scanBarcodeCameraErrorMessage: (detail) =>
+      `Couldn't access the camera — check camera permissions and try again.${detail ? ` (${detail})` : ''}`,
+    scanBarcodeSearchingMessage: 'Searching for this product…',
+    scanBarcodeManualLabel: 'Or enter the barcode number',
+    scanBarcodeManualPlaceholder: 'Barcode number',
+    scanBarcodeManualSubmitLabel: 'Search',
     noFoodFoundForBarcodeMessage:
       "No food found for this barcode — you can still add it by hand below.",
     fastingWindowToastMessage: (hours) => `Your fasting window was ${hours}.`,

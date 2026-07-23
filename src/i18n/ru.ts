@@ -169,8 +169,12 @@ export const ru: Dictionary = {
     scanBarcodeButton: 'Сканировать штрихкод',
     scanBarcodeDialogTitle: 'Сканировать штрихкод',
     scanBarcodeInstructions: 'Наведите камеру на штрихкод.',
-    scanBarcodeCameraErrorMessage:
-      'Не удалось получить доступ к камере — проверьте разрешения и попробуйте снова.',
+    scanBarcodeCameraErrorMessage: (detail) =>
+      `Не удалось получить доступ к камере — проверьте разрешения и попробуйте снова.${detail ? ` (${detail})` : ''}`,
+    scanBarcodeSearchingMessage: 'Ищем этот продукт…',
+    scanBarcodeManualLabel: 'Или введите номер штрихкода',
+    scanBarcodeManualPlaceholder: 'Номер штрихкода',
+    scanBarcodeManualSubmitLabel: 'Найти',
     noFoodFoundForBarcodeMessage:
       'Еда с таким штрихкодом не найдена — вы можете добавить её вручную ниже.',
     fastingWindowToastMessage: (hours) => `Ваше окно голодания составило ${hours}.`,

@@ -25,6 +25,20 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 268,
+    issue: 291,
+    date: '2026-07-23T10:59:13+03:00',
+    en: 'You can now type a barcode number by hand instead of scanning it, right from the same "Scan barcode" screen.',
+    ru: 'Теперь можно ввести номер штрихкода вручную вместо сканирования, прямо на том же экране «Сканировать штрихкод».',
+  },
+  {
+    version: 267,
+    issue: 292,
+    date: '2026-07-23T10:59:13+03:00',
+    en: 'Scanning a barcode now shows "Searching…" while looking up the product, instead of going quiet with no feedback.',
+    ru: 'При сканировании штрихкода теперь показывается «Ищем…» во время поиска продукта, вместо тишины без какой-либо обратной связи.',
+  },
+  {
     version: 266,
     issue: 224,
     date: '2026-07-23T07:44:14+03:00',

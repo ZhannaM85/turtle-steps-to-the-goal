@@ -287,7 +287,20 @@ export interface Dictionary {
     scanBarcodeButton: string
     scanBarcodeDialogTitle: string
     scanBarcodeInstructions: string
-    scanBarcodeCameraErrorMessage: string
+    /** #291 — appends the underlying caught error's name (e.g.
+     * "NotAllowedError") when known, so a report already includes that
+     * detail without needing separate debug logging. */
+    scanBarcodeCameraErrorMessage: (detail?: string) => string
+    /** #292 — shown for the gap between "barcode decoded" and "lookup
+     * finished," which previously had zero visible feedback (the camera
+     * dialog closed instantly on decode). */
+    scanBarcodeSearchingMessage: string
+    /** #291 — manual entry, always available alongside the camera: useful
+     * on its own, and a way to tell whether a report is a camera problem
+     * or a lookup problem. */
+    scanBarcodeManualLabel: string
+    scanBarcodeManualPlaceholder: string
+    scanBarcodeManualSubmitLabel: string
     noFoodFoundForBarcodeMessage: string
     /** #287 — a quiet, dismissible in-app note shown right after saving the
      * day's first meal with a recorded time, if the previous day also had
