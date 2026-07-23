@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 288,
+    issue: 326,
+    date: '2026-07-24T01:47:36+03:00',
+    en: '"Remaining calories" on Today now shows the full breakdown — total, consumed, and remaining together — and the old separate "Calories today" number lower on the page is gone.',
+    ru: '«Осталось калорий» на экране «Сегодня» теперь показывает полный расчёт — норма, потреблено и осталось вместе, а старое отдельное число «Калорий сегодня» ниже на странице убрано.',
+  },
+  {
     version: 287,
     issue: 324,
     date: '2026-07-24T01:20:00+03:00',
