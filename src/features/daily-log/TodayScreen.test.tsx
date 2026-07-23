@@ -652,6 +652,35 @@ describe('TodayScreen', () => {
       ).toBeInTheDocument()
       expect(screen.getByText('1,420')).toBeInTheDocument()
     })
+
+    it('renders BMR directly after Remaining calories, not down by BMI (#324)', async () => {
+      useProfileStore.setState({ heightCm: 165, age: 30, sex: 'female' })
+      await useGoalStore
+        .getState()
+        .saveGoal(makeGoal({ dailyCalorieTargetKcal: 2000 }))
+      await useDailyEntryStore.getState().saveEntry(makeEntry({ weightKg: 70 }))
+      useDailyEntryStore.setState({ entry: null, date: null, status: 'idle' })
+
+      render(
+        <MemoryRouter>
+          <TodayScreen />
+        </MemoryRouter>,
+      )
+
+      const remainingCalories = await screen.findByText('Remaining calories')
+      const bmr = await screen.findByText('Estimated daily calories (BMR)')
+      const bmi = screen.getByText('BMI')
+
+      // BMR now follows Remaining calories directly...
+      expect(
+        remainingCalories.compareDocumentPosition(bmr) &
+          Node.DOCUMENT_POSITION_FOLLOWING,
+      ).toBeTruthy()
+      // ...and comes before BMI, which it used to sit directly below.
+      expect(
+        bmr.compareDocumentPosition(bmi) & Node.DOCUMENT_POSITION_FOLLOWING,
+      ).toBeTruthy()
+    })
   })
 
   describe('remaining calories (#208)', () => {

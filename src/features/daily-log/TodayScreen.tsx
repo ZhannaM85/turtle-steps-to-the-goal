@@ -464,6 +464,26 @@ export function TodayScreen() {
           )
         ))}
 
+      {/* #324 — moved next to "Remaining calories" (previously down by
+       * BMI) after live feedback that 3 separate kcal-labeled numbers
+       * scattered across the page (this, BMR, and the raw logged-calories
+       * total on DailyEntryForm further down) read as confusing/
+       * duplicative. BMR is a distinct baseline estimate, not a target or
+       * a log, so it stays its own card rather than merging into
+       * "Remaining calories" — just placed where the relationship between
+       * the two is visible instead of a coincidental-looking repeat. */}
+      {bmrValue !== null &&
+        (sectionVisible.todayBmr ? (
+          <StatCard
+            label={t.today.bmrLabel}
+            value={formatNumber(bmrValue, locale, 0)}
+            unit={t.today.bmrUnit}
+            action={statCardAction('todayBmr', t.today.bmrLabel)}
+          />
+        ) : (
+          sectionTitle('todayBmr', t.today.bmrLabel)
+        ))}
+
       {proteinDeltaG !== null &&
         (sectionVisible.todayRemainingProtein ? (
           <StatCard
@@ -551,18 +571,6 @@ export function TodayScreen() {
           />
         ) : (
           sectionTitle('todayBmi', t.today.bmiLabel)
-        ))}
-
-      {bmrValue !== null &&
-        (sectionVisible.todayBmr ? (
-          <StatCard
-            label={t.today.bmrLabel}
-            value={formatNumber(bmrValue, locale, 0)}
-            unit={t.today.bmrUnit}
-            action={statCardAction('todayBmr', t.today.bmrLabel)}
-          />
-        ) : (
-          sectionTitle('todayBmr', t.today.bmrLabel)
         ))}
 
       {showTargetMetBanner && (
