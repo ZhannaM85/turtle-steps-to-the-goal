@@ -579,6 +579,19 @@ Also filed and resolved same-session: [#286](https://github.com/ZhannaM85/turtle
 
 ---
 
+## Tier 34 — Live feedback after recipes/barcode follow-ups shipped (2026-07-23)
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#293](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/293) | 🔲 Open | Scanned barcode food doesn't get added to the saved-foods list | Filed as reported, no root cause assumed — every scan entry point (`MealList.tsx`'s add-row and existing-meal-edit paths, `MealItemsSection.tsx`'s own form) should already call `touch`/`touchMealItem`, so needs live reproduction to find where that's actually breaking down before fixing |
+| [#294](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/294) | 🔲 Open | Barcode camera-decode phase feels slow, with no feedback of its own | Follow-up filed from #292's own closing note — #292's "Searching…" indicator only covers the post-decode lookup gap, not the camera-decode phase itself, where most of the actual wait happens. A few untried directions noted in the issue (lower capture resolution, narrower barcode-format allowlist, scan-target overlay, "still scanning" tip), none decided yet |
+| [#295](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/295) | 🔍 Pending validation | Log recipe button caused the add-row button cluster to overflow horizontally | Reported live with a Russian-locale screenshot right after #251 shipped. Root cause: `MealList.tsx`'s add-row (`+ Add item`, its clear button, `Scan barcode`, now `Log recipe`) packed all 4 triggers into one non-wrapping `flex items-center gap-2` row — a 4th trigger, especially with longer Russian labels ("Сканировать штрихкод", "Записать рецепт"), pushed the row past the viewport width. Fixed with `flex flex-wrap items-center gap-2` + `min-w-0` on the `+ Add item` button (needed for its `truncate`-able inner span to actually shrink). Verified via a real headless-browser check (390×844 viewport, RU locale): `scrollWidth === clientWidth === 390`, no horizontal overflow, screenshot confirms the row wraps onto two lines. Given the `layout-breaking` label. Full suite green (1166 tests). Pending on-device confirmation before closing |
+| [#296](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/296) | 🔲 Open | No way to set a meal's time when adding via Find food or + Add item | Filed as reported — the time field only becomes available after saving, via a later edit. Exact per-entry-point gap needs confirming on pickup (initial look suggests "Find food" saves immediately with no confirm step, auto-stamping the current clock time with no chance to adjust first, but this isn't confirmed as the full picture yet) |
+| [#297](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/297) | 🔲 Open | Allow drag-and-drop reordering of Dashboard sections | Not scoped yet — needs a decision on pickup on persistence (a new store, localStorage-backed like `dashboardChartVisibilityStore.ts`) and drag mechanics (`@dnd-kit`, already used for meal reordering in `MealList.tsx`, is the natural fit) |
+| [#298](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/298) | 🔲 Open | Let the user configure a custom day-start time instead of midnight | Not scoped yet — a real design fork: touches every place "today" is currently derived from the real calendar date (Today screen, streaks, weekly/monthly summaries, correlation day-pairing, the fasting-window toast, etc.), not just a display preference. Worth its own dedicated design discussion before starting, not a small settings toggle |
+
+---
+
 ## Private (no public GitHub issue, by request)
 
 _Filed and built without a public issue at the user's explicit request — the repo is public, and this one's more personal than the rest. Still documented normally here per the project's usual close-out process; see [[feedback_issue_first]]'s exception #2 in memory for why._
