@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 290,
+    issue: 327,
+    date: '2026-07-24T02:31:00+03:00',
+    en: 'Removed the leftover "Calories" title on Today\'s daily log — it no longer labeled anything after the number next to it was already removed.',
+    ru: 'Убрали лишний заголовок «Калории» в дневном журнале на экране «Сегодня» — он больше ничего не подписывал, ведь число рядом с ним уже было удалено.',
+  },
+  {
     version: 289,
     issue: 325,
     date: '2026-07-24T02:04:00+03:00',

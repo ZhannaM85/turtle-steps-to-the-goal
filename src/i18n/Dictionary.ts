@@ -152,9 +152,6 @@ export interface Dictionary {
   }
   dailyEntry: {
     weightLabel: string
-    caloriesLabel: string
-    caloriesTooltip: string
-    caloriesTooltipLabel: string
     /** Label/aria-label for the manual add row's kcal field (#96) — a
      * per-100g rate, not the total eaten; scaled by the quantity field to
      * compute the total. Reused verbatim by the item-edit row's kcal field

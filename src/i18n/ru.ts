@@ -93,10 +93,6 @@ export const ru: Dictionary = {
   },
   dailyEntry: {
     weightLabel: 'Вес (кг)',
-    caloriesLabel: 'Калории',
-    caloriesTooltip:
-      'Сегодняшний вес отражает то, что вы съели вчера — на переваривание нужно время, поэтому не ждите, что эти два числа совпадут в один день.',
-    caloriesTooltipLabel: 'О поле «Калории»',
     addCaloriesLabel: 'ккал/100г',
     addCaloriesPortionLabel: 'ккал',
     addCaloriesPlaceholder: 'ккал',

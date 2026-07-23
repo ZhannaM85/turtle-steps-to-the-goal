@@ -90,10 +90,6 @@ export const en: Dictionary = {
   },
   dailyEntry: {
     weightLabel: 'Weight (kg)',
-    caloriesLabel: 'Calories',
-    caloriesTooltip:
-      "Today's weight reflects what you ate yesterday — digestion takes time, so don't expect these two numbers to match up same-day.",
-    caloriesTooltipLabel: 'About the calories field',
     addCaloriesLabel: 'kcal/100g',
     addCaloriesPortionLabel: 'kcal',
     addCaloriesPlaceholder: 'kcal',

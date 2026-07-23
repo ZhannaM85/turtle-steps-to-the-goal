@@ -916,7 +916,7 @@ describe('DailyEntryForm', () => {
   })
 
   describe('calories', () => {
-    it('has no direct-entry calories field — only the Add control', () => {
+    it('has no direct-entry calories field', () => {
       render(
         <DailyEntryForm
           date="2026-03-01"
@@ -926,7 +926,6 @@ describe('DailyEntryForm', () => {
       )
 
       expect(screen.queryByLabelText('Calories')).not.toBeInTheDocument()
-      expect(screen.getByText('Calories')).toBeInTheDocument()
     })
 
     // #326 — the big "X kcal today" readout was removed as pure duplicate
@@ -944,6 +943,24 @@ describe('DailyEntryForm', () => {
       )
 
       expect(screen.queryByText('kcal today')).not.toBeInTheDocument()
+    })
+
+    // #327 — the "Calories" label + its day-lag info tooltip were left
+    // behind by #326 even after the number readout they used to sit next
+    // to was removed, so they no longer labeled anything. Both are gone.
+    it('no longer shows the orphaned "Calories" label or its tooltip (#327)', () => {
+      render(
+        <DailyEntryForm
+          date="2026-03-01"
+          existingEntry={null}
+          onSave={vi.fn()}
+        />,
+      )
+
+      expect(screen.queryByText('Calories')).not.toBeInTheDocument()
+      expect(
+        screen.queryByRole('button', { name: 'About the calories field' }),
+      ).not.toBeInTheDocument()
     })
 
     describe('unusually high daily total warning (#218)', () => {

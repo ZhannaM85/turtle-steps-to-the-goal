@@ -18,7 +18,6 @@ import { DAY_EMOTIONS } from '@/shared/lib/emotionIcons'
 import { macrosSummaryText } from '@/shared/lib/macroDisplay'
 import { parseNumberInput } from '@/shared/lib/parseNumberInput'
 import { Button } from '@/shared/ui/button'
-import { InfoTooltip } from '@/shared/ui/info-tooltip'
 import { Input } from '@/shared/ui/input'
 import { ToggleGroup, ToggleGroupItem } from '@/shared/ui/toggle-group'
 import {
@@ -669,21 +668,6 @@ export function DailyEntryForm({
       ))}
 
       <div className="flex flex-col gap-1.5">
-        {/* #326 — the big "1,200 kcal today" readout that used to sit
-         * here was removed: it's exact duplicate information, always the
-         * same number as TodayScreen's "Remaining calories" breakdown
-         * card's own "consumed" figure. The label + tooltip stay, since
-         * the tooltip's day-lag-with-weight explanation is unique content,
-         * not a duplicate of anything shown elsewhere. */}
-        <div className="flex items-center gap-1.5">
-          <span className="text-sm font-medium">
-            {t.dailyEntry.caloriesLabel}
-          </span>
-          <InfoTooltip
-            text={t.dailyEntry.caloriesTooltip}
-            label={t.dailyEntry.caloriesTooltipLabel}
-          />
-        </div>
         {/* #218: a quiet inline note, not a blocking confirm — a day's
          * total crossing this threshold can't map to a single "save"
          * action to intercept the way the weight warning does, since it's
