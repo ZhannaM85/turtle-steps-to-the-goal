@@ -34,3 +34,7 @@ export { useBodyCompositionSelectionStore } from './bodyCompositionSelectionStor
 export { useOutlierExclusionStore } from './outlierExclusionStore'
 export { useRecipeStore } from './recipeStore'
 export { useFastingWindowToastStore } from './fastingWindowToastStore'
+export {
+  DEFAULT_DASHBOARD_SECTION_ORDER,
+  useDashboardSectionOrderStore,
+} from './dashboardSectionOrderStore'

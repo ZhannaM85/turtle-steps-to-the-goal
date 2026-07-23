@@ -587,6 +587,7 @@ export interface Dictionary {
   dashboard: {
     title: string
     description: string
+    reorderSectionLabel: (n: number) => string
     weightLegend: string
     caloriesLegend: string
     rollingAverageLegend: string

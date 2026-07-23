@@ -380,6 +380,7 @@ export const ru: Dictionary = {
     title: 'Обзор',
     description:
       'График веса, график калорий, карточки недельной сводки, корреляции',
+    reorderSectionLabel: (n: number) => `Изменить порядок раздела ${n}`,
     weightLegend: 'вес',
     caloriesLegend: 'калории',
     rollingAverageLegend: 'среднее за 7 дней',
