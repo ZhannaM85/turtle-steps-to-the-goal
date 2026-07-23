@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 283,
+    issue: 320,
+    date: '2026-07-23T20:07:22+03:00',
+    en: 'The Today screen\'s remaining protein/fat/carbs/water cards now show a segmented progress bar in that nutrient\'s own color, so it\'s easy to see how much of the goal is left at a glance.',
+    ru: 'Карточки «Осталось белка/жиров/углеводов/воды» на экране «Сегодня» теперь показывают сегментированную шкалу прогресса своим цветом — сразу видно, сколько ещё осталось до цели.',
+  },
+  {
     version: 282,
     issue: 319,
     date: '2026-07-23T19:26:36+03:00',
