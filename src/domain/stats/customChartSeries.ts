@@ -1,5 +1,11 @@
 import type { DailyEntry } from '@/domain/dailyEntry'
-import { totalCalories, totalCarbs, totalFat, totalProtein } from '@/domain/dailyEntry'
+import {
+  totalCalories,
+  totalCarbs,
+  totalFat,
+  totalProtein,
+  totalWaterMl,
+} from '@/domain/dailyEntry'
 import { fastingWindowPoints } from './fastingWindow'
 
 export type NumericSeriesKey =
@@ -8,6 +14,7 @@ export type NumericSeriesKey =
   | 'protein'
   | 'fat'
   | 'carbs'
+  | 'water'
   | 'steps'
   | 'waist'
   | 'hip'
@@ -20,6 +27,7 @@ export const NUMERIC_SERIES_KEYS: NumericSeriesKey[] = [
   'protein',
   'fat',
   'carbs',
+  'water',
   'steps',
   'waist',
   'hip',
@@ -41,6 +49,7 @@ const SERIES_EXTRACTORS: Record<
   protein: (entry) => totalProtein(entry.calorieEntries),
   fat: (entry) => totalFat(entry.calorieEntries),
   carbs: (entry) => totalCarbs(entry.calorieEntries),
+  water: (entry) => totalWaterMl(entry.waterEntries),
   steps: (entry) => entry.steps,
   // #225
   waist: (entry) => entry.waistCm,

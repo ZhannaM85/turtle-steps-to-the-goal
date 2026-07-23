@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 289,
+    issue: 325,
+    date: '2026-07-24T02:04:00+03:00',
+    en: 'Water is now a series you can pick in the "Compare your data" chart, so you can overlay it against weight or anything else there.',
+    ru: '«Вода» теперь доступна как ряд данных на графике «Сравнить данные» — можно сопоставить её с весом или другими показателями.',
+  },
+  {
     version: 288,
     issue: 326,
     date: '2026-07-24T01:47:36+03:00',

@@ -109,6 +109,22 @@ describe('customChartPoints', () => {
     expect(point.raw.fastingHours).toBeUndefined()
   })
 
+  it('sums water across every logged entry that day (#325)', () => {
+    const entries = [
+      entry('2026-01-01', {
+        waterEntries: [
+          { id: 'w1', amountMl: 250 },
+          { id: 'w2', amountMl: 500 },
+        ],
+      }),
+      entry('2026-01-02', {}),
+    ]
+
+    const points = customChartPoints(entries, ['water'])
+    expect(points[0].raw.water).toBe(750)
+    expect(points[1].raw.water).toBeUndefined()
+  })
+
   it('sums calories/protein/fat/carbs across every meal item, same as the other dashboard charts', () => {
     const entries = [
       entry('2026-01-01', {

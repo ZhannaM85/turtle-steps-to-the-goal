@@ -36,6 +36,7 @@ beforeEach(() => {
       protein: 'line',
       fat: 'line',
       carbs: 'line',
+      water: 'line',
       steps: 'line',
       waist: 'line',
       hip: 'line',
@@ -60,6 +61,7 @@ describe('CustomChartView', () => {
     expect(screen.getByRole('button', { name: 'Protein' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Fat' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Carbs' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Water' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Steps' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Waist' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Hip' })).toBeInTheDocument()

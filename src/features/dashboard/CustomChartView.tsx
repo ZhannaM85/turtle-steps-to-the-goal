@@ -123,6 +123,18 @@ function useNumericSeriesConfig(): Record<
       formatRaw: (value) =>
         `${formatNumber(value, locale, 0)}${t.dailyEntry.gramsUnit}`,
     },
+    // #325: unlike steps/waist/hip/bodyFat/fastingHours below, water has no
+    // unused generic --chart-1..5 slot left to borrow (all five are already
+    // taken). Reuses --stat-water instead — the mood-independent color
+    // already established as water's identity elsewhere in the app (#320's
+    // Today progress bar), same reasoning #323 used to give the calories
+    // bar --chart-calories directly rather than an unaudited new token.
+    water: {
+      label: t.dailyEntry.waterLabel,
+      color: 'var(--stat-water)',
+      formatRaw: (value) =>
+        `${formatNumber(value, locale, 0)} ${t.dailyEntry.mlUnit}`,
+    },
     // Reuses one of the design system's generic, otherwise-unused chart
     // color slots (--chart-1..5) — steps has no dedicated token of its own
     // the way weight/calories/protein/fat/carbs do.

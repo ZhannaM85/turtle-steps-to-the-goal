@@ -12,6 +12,7 @@ const DEFAULT_CHART_TYPES: Record<NumericSeriesKey, ChartSeriesType> = {
   protein: 'line',
   fat: 'line',
   carbs: 'line',
+  water: 'line',
   steps: 'line',
   waist: 'line',
   hip: 'line',
