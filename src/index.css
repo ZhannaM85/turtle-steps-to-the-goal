@@ -70,13 +70,21 @@
    * from --chart-protein/fat/carbs above (those stay exactly as-is, still
    * used by the Dashboard's macro chart — recoloring them to match would
    * have silently changed that chart's legend too). Not mood-tinted, same
-   * as --destructive above — each reuses an already-contrast-checked hue
-   * already present elsewhere in this exact palette rather than
-   * introducing an unaudited new color: protein's purple is --chart-fat's
-   * value, fat's orange is --chart-calories's, carbs' green is the Sage
-   * mood's --primary/--chart-weight, water's blue is --chart-carbs's. */
+   * as --destructive above — protein/carbs/water each reuse an already-
+   * contrast-checked hue already present elsewhere in this exact palette:
+   * protein's purple is --chart-fat's value, carbs' green is the Sage
+   * mood's --primary/--chart-weight, water's blue is --chart-carbs's.
+   * #323 gave "Remaining calories" its own bar reusing --chart-calories
+   * directly (the established calories color) — which collided visually
+   * with --stat-fat below, originally also borrowed from --chart-calories
+   * since no other orange-ish audited tone existed yet. Reported live once
+   * both bars were on screen together; --stat-fat is now its own distinct
+   * burnt-orange, at a similar lightness/saturation level to its siblings
+   * above rather than a re-audited value (no contrast-checker tool run
+   * against every mood's --card here — same reasoning-by-similar-luminance
+   * approach already used for every other choice on this line). */
   --stat-protein: #8a5a78;
-  --stat-fat: #8a6a3c;
+  --stat-fat: #a8672f;
   --stat-carbs: #4c7a62;
   --stat-water: #4f6fa8;
   --sand-foreground: #8a6a3c;
@@ -182,7 +190,7 @@
   --chart-fat: #c99ab8;
   --chart-carbs: #8fadd6;
   --stat-protein: #c99ab8;
-  --stat-fat: #b28e58;
+  --stat-fat: #d9a06b;
   --stat-carbs: #90c7a6;
   --stat-water: #8fadd6;
   --sand-foreground: #b28e58;

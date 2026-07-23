@@ -25,6 +25,20 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 287,
+    issue: 324,
+    date: '2026-07-24T01:20:00+03:00',
+    en: '"Estimated daily calories (BMR)" now shows right next to "Remaining calories" on Today, instead of scattered further down the page.',
+    ru: '«Примерная суточная норма калорий (базовый обмен)» теперь отображается рядом с «Осталось калорий» на экране «Сегодня», а не отдельно ниже на странице.',
+  },
+  {
+    version: 286,
+    issue: 323,
+    date: '2026-07-24T01:15:00+03:00',
+    en: 'The remaining-calories card now shows a progress bar too, matching the protein/fat/carbs/water cards — and fat got its own distinct color so it no longer looks the same as calories.',
+    ru: 'Карточка «Осталось калорий» теперь тоже показывает шкалу прогресса — как и у белков/жиров/углеводов/воды. Жиры получили свой собственный цвет, чтобы не совпадать с калориями.',
+  },
+  {
     version: 285,
     issue: 322,
     date: '2026-07-24T00:15:12+03:00',
