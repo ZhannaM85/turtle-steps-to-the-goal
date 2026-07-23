@@ -663,6 +663,14 @@ _The next big initiative, at the user's request: ship this PWA as installable na
 
 ---
 
+## Tier 41 — Feature request: water in the comparison chart (2026-07-24)
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#325](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/325) | 🔲 Open | Add water as a toggleable series in the "Compare your data" chart | Ask: add water intake as a new toggleable series in `CustomChartView.tsx`'s general-purpose comparison chart, alongside weight/calories/protein/fat/carbs/steps, so a user can visually overlay water intake against weight trend. Data source already exists (`totalWaterMl`, #258/#271). Would follow the same `customChartSeries.ts` pattern already used for steps/waist/hip/body fat (new extractor, `useNumericSeriesConfig()` entry, `DEFAULT_CHART_TYPES` entry, a still-unused generic `--chart-*` color slot). Explicitly scoped to the general comparison chart (visual overlay only) — not a new dedicated day-pairing correlation view like the existing Sleep/Steps/Protein/Late-meal correlation cards |
+
+---
+
 ## Private (no public GitHub issue, by request)
 
 _Filed and built without a public issue at the user's explicit request — the repo is public, and this one's more personal than the rest. Still documented normally here per the project's usual close-out process; see [[feedback_issue_first]]'s exception #2 in memory for why._
