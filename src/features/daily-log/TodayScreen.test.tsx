@@ -864,6 +864,37 @@ describe('TodayScreen', () => {
       expect(within(card).getByText('g over')).toBeInTheDocument()
       expect(within(card).getByText('of 100g — great job!')).toBeInTheDocument()
     })
+
+    it('sizes the progress bar to percent of target consumed (#320)', async () => {
+      await useGoalStore
+        .getState()
+        .saveGoal(makeGoal({ dailyProteinTargetG: 100 }))
+      await useDailyEntryStore.getState().saveEntry(
+        makeEntry({
+          calorieEntries: [
+            {
+              id: crypto.randomUUID(),
+              items: [
+                { id: crypto.randomUUID(), amountKcal: 200, proteinG: 40 },
+              ],
+              createdAt: new Date().toISOString(),
+            },
+          ],
+        }),
+      )
+      useDailyEntryStore.setState({ entry: null, date: null, status: 'idle' })
+
+      render(
+        <MemoryRouter>
+          <TodayScreen />
+        </MemoryRouter>,
+      )
+
+      const label = await screen.findByText('Remaining protein')
+      const card = label.closest('[data-slot="card"]') as HTMLElement
+      const bar = await within(card).findByRole('progressbar')
+      expect(bar).toHaveAttribute('aria-valuenow', '40')
+    })
   })
 
   describe('remaining fat/carbs (#252)', () => {
@@ -1036,6 +1067,27 @@ describe('TodayScreen', () => {
       const label = await screen.findByText('Remaining water')
       const card = label.closest('[data-slot="card"]') as HTMLElement
       expect(await within(card).findByText('0')).toBeInTheDocument()
+    })
+
+    it('clamps the progress bar at 100 once over the water target (#320)', async () => {
+      await useGoalStore
+        .getState()
+        .saveGoal(makeGoal({ dailyWaterTargetMl: 2000 }))
+      await useDailyEntryStore
+        .getState()
+        .saveEntry(makeEntry({ waterEntries: [{ id: 'w1', amountMl: 2500 }] }))
+      useDailyEntryStore.setState({ entry: null, date: null, status: 'idle' })
+
+      render(
+        <MemoryRouter>
+          <TodayScreen />
+        </MemoryRouter>,
+      )
+
+      const label = await screen.findByText('Remaining water')
+      const card = label.closest('[data-slot="card"]') as HTMLElement
+      const bar = await within(card).findByRole('progressbar')
+      expect(bar).toHaveAttribute('aria-valuenow', '100')
     })
   })
 

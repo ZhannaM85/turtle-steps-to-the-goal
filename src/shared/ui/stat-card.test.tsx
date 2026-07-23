@@ -25,4 +25,40 @@ describe('StatCard', () => {
       screen.getByText("0.3kg from this week's target"),
     ).toBeInTheDocument()
   })
+
+  describe('progress bar (#320)', () => {
+    it('renders no progress bar when progressPercent is not given', () => {
+      render(<StatCard label="Protein remaining" value={60} unit="g" />)
+
+      expect(screen.queryByRole('progressbar')).not.toBeInTheDocument()
+    })
+
+    it('renders a progress bar sized to progressPercent', () => {
+      render(
+        <StatCard
+          label="Protein remaining"
+          value={60}
+          unit="g"
+          progressPercent={36}
+        />,
+      )
+
+      const bar = screen.getByRole('progressbar', { name: 'Protein remaining' })
+      expect(bar).toHaveAttribute('aria-valuenow', '36')
+    })
+
+    it('clamps aria-valuenow to 100 once over goal', () => {
+      render(
+        <StatCard
+          label="Protein remaining"
+          value={0}
+          unit="g"
+          progressPercent={140}
+        />,
+      )
+
+      const bar = screen.getByRole('progressbar', { name: 'Protein remaining' })
+      expect(bar).toHaveAttribute('aria-valuenow', '100')
+    })
+  })
 })

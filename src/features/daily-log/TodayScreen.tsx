@@ -228,6 +228,25 @@ export function TodayScreen() {
         )
       : null
 
+  // #320 — percent of each numeric daily goal consumed so far, for the
+  // remaining-nutrient cards' progress bars below. A falsy target (missing,
+  // or the degenerate 0 case) means no bar renders rather than a
+  // divide-by-zero.
+  const proteinPercent = goal?.dailyProteinTargetG
+    ? ((totalProtein(entry?.calorieEntries) ?? 0) / goal.dailyProteinTargetG) *
+      100
+    : null
+  const fatPercent = goal?.dailyFatTargetG
+    ? ((totalFat(entry?.calorieEntries) ?? 0) / goal.dailyFatTargetG) * 100
+    : null
+  const carbPercent = goal?.dailyCarbTargetG
+    ? ((totalCarbs(entry?.calorieEntries) ?? 0) / goal.dailyCarbTargetG) * 100
+    : null
+  const waterPercent = goal?.dailyWaterTargetMl
+    ? ((totalWaterMl(entry?.waterEntries) ?? 0) / goal.dailyWaterTargetMl) *
+      100
+    : null
+
   // #233 — BMI/BMR, computed from today's logged weight plus the Settings
   // Profile card's height/age/sex. Never stored — recomputed on every
   // render from whatever's currently in profileStore plus this entry's
@@ -450,6 +469,8 @@ export function TodayScreen() {
                 ? t.today.proteinOverTargetLabel(proteinTargetText!)
                 : t.today.targetDenominatorText(proteinTargetText!)
             }
+            progressPercent={proteinPercent ?? undefined}
+            progressColor="var(--chart-protein)"
             action={statCardAction(
               'todayRemainingProtein',
               t.today.remainingProteinLabel,
@@ -466,6 +487,8 @@ export function TodayScreen() {
             value={formatNumber(remainingFatG, locale, 0)}
             unit={t.today.gRemainingUnit}
             description={t.today.targetDenominatorText(fatTargetText!)}
+            progressPercent={fatPercent ?? undefined}
+            progressColor="var(--chart-fat)"
             action={statCardAction('todayRemainingFat', t.today.remainingFatLabel)}
           />
         ) : (
@@ -479,6 +502,8 @@ export function TodayScreen() {
             value={formatNumber(remainingCarbG, locale, 0)}
             unit={t.today.gRemainingUnit}
             description={t.today.targetDenominatorText(carbTargetText!)}
+            progressPercent={carbPercent ?? undefined}
+            progressColor="var(--chart-carbs)"
             action={statCardAction(
               'todayRemainingCarbs',
               t.today.remainingCarbLabel,
@@ -494,6 +519,8 @@ export function TodayScreen() {
             label={t.today.remainingWaterLabel}
             value={formatNumber(remainingWaterMl, locale, 0)}
             unit={t.today.mlRemainingUnit}
+            progressPercent={waterPercent ?? undefined}
+            progressColor="var(--primary)"
             action={statCardAction(
               'todayRemainingWater',
               t.today.remainingWaterLabel,
