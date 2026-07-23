@@ -2171,12 +2171,17 @@ export function MealList({
          * #153: shrunk from a full-width h-12 row to a small link — now the
          * fallback when the dish isn't in Find food's results, not the
          * first thing offered. */}
-        <div className="flex items-center gap-2">
+        {/* #251 regression fix — adding a 4th trigger (Log recipe) to this
+         * row without wrapping overflowed the viewport width on a real
+         * phone, especially with longer Russian button text. flex-wrap
+         * lets the triggers spill onto a second line instead of forcing
+         * one non-wrapping row and a horizontal scrollbar. */}
+        <div className="flex flex-wrap items-center gap-2">
           <Button
             type="button"
             variant="ghost"
             size="sm"
-            className="justify-start"
+            className="min-w-0 justify-start"
             onClick={() => setIsAddItemSheetOpen(true)}
           >
             {addAmountPreview && addAmountPreview > 0 ? (
