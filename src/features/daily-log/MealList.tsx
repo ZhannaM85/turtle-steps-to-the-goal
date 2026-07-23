@@ -650,7 +650,24 @@ function MealListItem({
             open
             onOpenChange={(open) => {
               if (!open) {
-                onOpenEditItem(null)
+                // #300: a barcode scan auto-populates a brand-new draft
+                // with whatever it found, before the user has confirmed
+                // they actually want it added to the meal — closing via
+                // the sheet's own X (or Escape/backdrop, all funneled
+                // through this same onOpenChange) reads as "no, don't add
+                // this," unlike "+ Add item"'s blank draft (which already
+                // silently drops out at save time regardless, since it
+                // has no valid amount). Only a still-new, scanned draft
+                // needs discarding here — an existing item being edited,
+                // or a new one the user already confirmed via Save (or
+                // "Save and add one more") earlier this session, is
+                // untouched: neither of those routes through this
+                // onOpenChange at all.
+                if (isOpenDraftNew && openDraft.barcode !== undefined) {
+                  onRemoveEditItem(openDraft.id)
+                } else {
+                  onOpenEditItem(null)
+                }
                 setBarcodeNotFoundMessage(false)
               }
             }}
@@ -850,31 +867,43 @@ function MealListItem({
           )
           return (
             <li key={item.id} className="text-xs text-muted-foreground">
-              {item.name &&
-                `${item.name}${item.brand ? ` (${item.brand})` : ''} — `}
-              {formatNumber(item.amountKcal, locale, 0)} {t.dailyEntry.kcalUnit}
-              {/* #206: this line otherwise never surfaces the item's own
-               * quantity anywhere — the only place it existed before was
-               * inside the add/edit form's own quantity input, gone once
-               * the item is saved. Omitted (not shown as "—") when unset,
-               * same as itemMacros/itemEmotionOption below, rather than
-               * cluttering every manually-typed item with no recorded
-               * quantity. */}
-              {item.amountG !== undefined &&
-                ` · ${formatMacroGrams(item.amountG, locale, t)}`}
-              {itemMacros && ` · ${itemMacros}`}
-              {itemEmotionOption && (
-                <>
-                  {' '}
-                  {/* leading-none removed (#156 follow-up) — see the
-                   * matching comment on the edit-mode item row above. */}
-                  <span aria-hidden="true" className="text-sm">
-                    {itemEmotionOption.emoji}
-                  </span>
-                  <span className="sr-only">
-                    {t.dailyEntry.mealEmotionLabel(item.emotion!)}
-                  </span>
-                </>
+              <p>
+                {item.name &&
+                  `${item.name}${item.brand ? ` (${item.brand})` : ''} — `}
+                {formatNumber(item.amountKcal, locale, 0)}{' '}
+                {t.dailyEntry.kcalUnit}
+                {/* #206: this line otherwise never surfaces the item's own
+                 * quantity anywhere — the only place it existed before was
+                 * inside the add/edit form's own quantity input, gone once
+                 * the item is saved. Omitted (not shown as "—") when unset,
+                 * same as itemMacros/itemEmotionOption below, rather than
+                 * cluttering every manually-typed item with no recorded
+                 * quantity. */}
+                {item.amountG !== undefined &&
+                  ` · ${formatMacroGrams(item.amountG, locale, t)}`}
+              </p>
+              {/* #302: macros (+ the reaction emoji) always on their own
+               * row under the title line above, rather than inline text
+               * that only happened to wrap there depending on content
+               * length — a separate <p>, not just a wrapped run within the
+               * same paragraph. */}
+              {(itemMacros || itemEmotionOption) && (
+                <p>
+                  {itemMacros}
+                  {itemEmotionOption && (
+                    <>
+                      {itemMacros && ' '}
+                      {/* leading-none removed (#156 follow-up) — see the
+                       * matching comment on the edit-mode item row above. */}
+                      <span aria-hidden="true" className="text-sm">
+                        {itemEmotionOption.emoji}
+                      </span>
+                      <span className="sr-only">
+                        {t.dailyEntry.mealEmotionLabel(item.emotion!)}
+                      </span>
+                    </>
+                  )}
+                </p>
               )}
             </li>
           )

@@ -263,32 +263,43 @@ export function DayDetail({
                           key={item.id}
                           className="text-xs text-muted-foreground"
                         >
-                          {item.name && `${item.name} — `}
-                          {formatNumber(item.amountKcal, locale, 0)}{' '}
-                          {t.dailyEntry.kcalUnit}
-                          {/* #206 — see the matching comment on
-                           * MealList.tsx's own item row. */}
-                          {item.amountG !== undefined &&
-                            ` · ${formatMacroGrams(item.amountG, locale, t)}`}
-                          {itemMacros && ` · ${itemMacros}`}
-                          {itemEmotionOption && (
-                            <>
-                              {' '}
-                              {/* leading-none removed (#156 follow-up on
-                               * MealList.tsx, same fallback-rendering
-                               * shape here) — a larger text-sm glyph
-                               * forced to line-height:1 inside
-                               * text-xs wrapping text left an
-                               * inconsistent line-box height, which
-                               * WebKit could render as visible overlap
-                               * with the line above. */}
-                              <span aria-hidden="true" className="text-sm">
-                                {itemEmotionOption.emoji}
-                              </span>
-                              <span className="sr-only">
-                                {t.dailyEntry.mealEmotionLabel(item.emotion!)}
-                              </span>
-                            </>
+                          <p>
+                            {item.name && `${item.name} — `}
+                            {formatNumber(item.amountKcal, locale, 0)}{' '}
+                            {t.dailyEntry.kcalUnit}
+                            {/* #206 — see the matching comment on
+                             * MealList.tsx's own item row. */}
+                            {item.amountG !== undefined &&
+                              ` · ${formatMacroGrams(item.amountG, locale, t)}`}
+                          </p>
+                          {/* #302 — see the matching comment on
+                           * MealList.tsx's own item row: macros (+ the
+                           * reaction emoji) always on their own row under
+                           * the title, not inline text that only happened
+                           * to wrap there. */}
+                          {(itemMacros || itemEmotionOption) && (
+                            <p>
+                              {itemMacros}
+                              {itemEmotionOption && (
+                                <>
+                                  {itemMacros && ' '}
+                                  {/* leading-none removed (#156 follow-up on
+                                   * MealList.tsx, same fallback-rendering
+                                   * shape here) — a larger text-sm glyph
+                                   * forced to line-height:1 inside
+                                   * text-xs wrapping text left an
+                                   * inconsistent line-box height, which
+                                   * WebKit could render as visible overlap
+                                   * with the line above. */}
+                                  <span aria-hidden="true" className="text-sm">
+                                    {itemEmotionOption.emoji}
+                                  </span>
+                                  <span className="sr-only">
+                                    {t.dailyEntry.mealEmotionLabel(item.emotion!)}
+                                  </span>
+                                </>
+                              )}
+                            </p>
                           )}
                         </li>
                       )

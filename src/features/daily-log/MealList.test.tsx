@@ -8,6 +8,14 @@ import { db } from '@/infrastructure/persistence/indexeddb'
 import { useMealItemStore, useRecipeStore } from '@/stores'
 import { MealList } from './MealList'
 
+// #287 — the new "Find food" toast test below interacts with a heavier
+// dialog (FoodPickerDialog's search list) than this file's other tests,
+// plus an async IndexedDB round-trip (announceFastingWindowIfFirstMeal);
+// under full-suite CPU contention that combination can exceed vitest's
+// 5000ms default, same reasoning DailyEntryForm.test.tsx's own Find-food
+// tests already needed a longer budget for.
+vi.setConfig({ testTimeout: 15000 })
+
 // #256 — a real class (not vi.fn().mockImplementation(() => ({...})),
 // which vitest warns doesn't reliably support `new`), since MealList's
 // scan flow calls `new BrowserMultiFormatReader()` under the hood via
@@ -1284,6 +1292,57 @@ describe('MealList', () => {
           }),
         ),
       )
+    })
+
+    // #300: scanBarcodeIntoEditItems used to unconditionally stage the
+    // scanned draft into editItems the instant the lookup resolved —
+    // closing the item's own sheet via its X (rather than clicking Save)
+    // still left that draft sitting there, so the overall meal Save ended
+    // up committing it anyway even though X was meant to cancel it.
+    it('does not add the scanned item if its sheet is closed via X instead of Save', async () => {
+      vi.stubGlobal(
+        'fetch',
+        vi.fn().mockResolvedValue({
+          ok: true,
+          json: async () => ({
+            status: 1,
+            product: {
+              product_name: 'Chocolate Bar',
+              nutriments: { 'energy-kcal_100g': 520 },
+            },
+          }),
+        }),
+      )
+      mockScanning('9999999999999')
+      const user = userEvent.setup()
+      const onChange = vi.fn()
+      render(
+        <MealList
+          calorieEntries={seededMeal()}
+          date="2026-03-01"
+          onChange={onChange}
+          focusMealId="c1"
+          focusMealPosition={1}
+          onFocusedMealDone={vi.fn()}
+        />,
+        { wrapper: MemoryRouter },
+      )
+
+      await user.click(
+        screen.getByRole('button', { name: 'Scan barcode — Meal 1' }),
+      )
+      await screen.findByDisplayValue('Chocolate Bar')
+      const dialog = screen.getByRole('dialog')
+      await user.click(
+        within(dialog).getByRole('button', { name: 'Close item editor' }),
+      )
+      await user.click(screen.getByRole('button', { name: 'Save' }))
+
+      expect(onChange).toHaveBeenCalled()
+      const savedEntries = onChange.mock.calls.at(-1)?.[0] as CalorieEntry[]
+      expect(savedEntries[0].items).toEqual([
+        expect.objectContaining({ name: 'Existing dish' }),
+      ])
     })
   })
 

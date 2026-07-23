@@ -25,6 +25,20 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 275,
+    issue: 300,
+    date: '2026-07-23T13:50:12+03:00',
+    en: 'Fixed a scanned food still getting added to the meal even after closing its editor with the ✕ instead of Save.',
+    ru: 'Исправлена ошибка: отсканированный продукт всё равно добавлялся в приём пищи, даже если окно редактирования закрывалось крестиком, а не кнопкой «Сохранить».',
+  },
+  {
+    version: 274,
+    issue: 302,
+    date: '2026-07-23T13:50:12+03:00',
+    en: 'Fixed a logged food\'s macros sometimes wrapping awkwardly right against its name instead of starting on their own line.',
+    ru: 'Исправлена ошибка: БЖУ записанного продукта иногда переносились неудачно вплотную к названию вместо отдельной строки.',
+  },
+  {
     version: 273,
     issue: 299,
     date: '2026-07-23T13:19:40+03:00',

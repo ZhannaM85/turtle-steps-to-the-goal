@@ -1,5 +1,5 @@
 import 'fake-indexeddb/auto'
-import { render, screen } from '@testing-library/react'
+import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { MealItem } from '@/domain/mealItem'
@@ -806,9 +806,18 @@ describe('FoodPickerDialog', () => {
         screen.getByRole('button', { name: 'Remove Tuna from favorites' }),
       )
 
-      expect(
-        screen.getAllByRole('checkbox')[0].textContent,
-      ).not.toContain('Tuna')
+      // handleToggleFavorite fires setFavorite (an async IndexedDB write)
+      // without awaiting it, same fire-and-forget shape #287 already
+      // needed to work around elsewhere — the re-sort this assertion
+      // depends on only happens once that promise resolves and the store
+      // updates, which can lag behind userEvent.click's own return under
+      // full-suite CPU load. waitFor (not a synchronous expect) is needed
+      // so this test doesn't intermittently read the pre-toggle order.
+      await waitFor(() => {
+        expect(
+          screen.getAllByRole('checkbox')[0].textContent,
+        ).not.toContain('Tuna')
+      })
     })
 
     it('lets a personal meal item be favorited too, sorting it above curated foods', async () => {
