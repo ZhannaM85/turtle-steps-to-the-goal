@@ -16,12 +16,16 @@ import { Button } from '@/shared/ui/button'
 import { Dialog, DialogContent, DialogTitle } from '@/shared/ui/dialog'
 import { Input } from '@/shared/ui/input'
 import { ToggleGroup, ToggleGroupItem } from '@/shared/ui/toggle-group'
-// Imported from its own file, not the daily-log barrel (@/features/daily-log)
+// Imported from their own files, not the daily-log barrel (@/features/daily-log)
 // — that barrel also re-exports MealList.tsx, which itself imports this
 // feature's LogRecipeDialog, so going through the barrel here would form
 // an import cycle (daily-log -> recipes -> daily-log). Same reasoning
 // lazyRoutes.ts already documents for MealEditScreen's own direct import.
 import { MealNoteAutocomplete } from '@/features/daily-log/MealNoteAutocomplete'
+import {
+  FoodPickerDialog,
+  type PickedFoodValues,
+} from '@/features/daily-log/FoodPickerDialog'
 
 export interface RecipeEditorDialogProps {
   open: boolean
@@ -143,6 +147,31 @@ export function RecipeEditorDialog({
 
   function removeIngredient(id: string) {
     setIngredients((prev) => prev.filter((ingredient) => ingredient.id !== id))
+  }
+
+  // #303 — lets an ingredient be picked from the same curated/personal
+  // food list "Find food" already searches elsewhere, instead of manual
+  // entry (typing macros by hand) being the only option. Every checked
+  // dish (#183: the dialog supports picking more than one at once) becomes
+  // its own ingredient directly — no draft-field round-trip, same
+  // "commits straight to the list" shape `addFoodToEditItems`/
+  // `addFoodEntry` already use elsewhere for this same dialog.
+  const [isFoodPickerOpen, setIsFoodPickerOpen] = useState(false)
+
+  function addIngredientsFromFoodPicker(values: PickedFoodValues[]) {
+    if (values.length === 0) return
+    setIngredients((prev) => [
+      ...prev,
+      ...values.map((value) => ({
+        id: crypto.randomUUID(),
+        name: value.note,
+        amountKcal: value.amountKcal,
+        proteinG: value.proteinG,
+        fatG: value.fatG,
+        carbsG: value.carbsG,
+        amountG: value.amountG,
+      })),
+    ])
   }
 
   const draftNutritionPreview =
@@ -276,6 +305,30 @@ export function RecipeEditorDialog({
           </div>
 
           <div className="flex flex-col gap-1.5 rounded-lg bg-muted/40 px-2.5 py-1.5">
+            {/* #303 — same fallback-tier ordering the daily log's own add
+             * row already established: search the curated/personal food
+             * list first, manual entry (below) as the fallback when the
+             * ingredient isn't found there. */}
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="w-fit"
+              onClick={() => setIsFoodPickerOpen(true)}
+            >
+              {t.dailyEntry.addFoodButton}
+            </Button>
+            {isFoodPickerOpen && (
+              <FoodPickerDialog
+                open={isFoodPickerOpen}
+                onOpenChange={setIsFoodPickerOpen}
+                onAdd={addIngredientsFromFoodPicker}
+                mealItems={mealItems}
+              />
+            )}
+            <p className="text-center text-xs text-muted-foreground">
+              {t.dailyEntry.orDivider}
+            </p>
             <MealNoteAutocomplete
               listInputId="recipe-ingredient-name"
               ariaLabel={t.recipes.ingredientNameLabel}

@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 279,
+    issue: 303,
+    date: '2026-07-23T15:27:19+03:00',
+    en: 'Recipe ingredients can now be picked from the food list, not just typed in by hand.',
+    ru: 'Ингредиенты рецепта теперь можно выбирать из списка продуктов, а не только вводить вручную.',
+  },
+  {
     version: 278,
     issue: 294,
     date: '2026-07-23T15:08:06+03:00',

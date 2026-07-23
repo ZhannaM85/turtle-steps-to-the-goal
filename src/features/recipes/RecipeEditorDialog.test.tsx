@@ -180,4 +180,29 @@ describe('RecipeEditorDialog', () => {
     expect(screen.getByLabelText('kcal/100g')).toHaveValue('250')
     expect(screen.getByLabelText('Protein')).toHaveValue('20')
   })
+
+  // #303 — an ingredient no longer has to be typed by hand even when the
+  // same food already exists in the curated/personal list; "Find food"
+  // opens the same picker dialog used elsewhere in the app.
+  it('adds an ingredient picked via Find food, with its real macros', async () => {
+    const user = userEvent.setup()
+    render(
+      <RecipeEditorDialog
+        open
+        onOpenChange={vi.fn()}
+        recipe={null}
+        mealItems={[]}
+        onSave={vi.fn()}
+      />,
+    )
+
+    await user.click(screen.getByRole('button', { name: 'Find food' }))
+    await user.click(screen.getByText('Salmon'))
+    await user.click(screen.getByRole('button', { name: 'Add selected' }))
+
+    expect(screen.getByText(/Salmon/)).toBeInTheDocument()
+    expect(
+      screen.queryByText('No ingredients yet — add at least one below.'),
+    ).not.toBeInTheDocument()
+  })
 })
