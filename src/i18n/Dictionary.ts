@@ -81,13 +81,30 @@ export interface Dictionary {
     vsYesterdayLabel: string
     vsMaxWeightLabel: string
     /** #208 — only shown once the active goal has a dailyCalorieTargetKcal
-     * set; the StatCard's own value is always the absolute difference,
+     * set; the card's own value is always the absolute difference,
      * these two supply the unit text so "under budget" and "over" read as
      * different states rather than a plain (and possibly confusing
      * negative) signed number. */
     remainingCaloriesLabel: string
     kcalRemainingUnit: string
     kcalOverUnit: string
+    /** #326 — the "Remaining calories" card shows all 3 numbers (total,
+     * consumed, remaining) at once instead of just the remaining figure,
+     * after live feedback that a bare "remaining" number still left the
+     * user hunting for the consumed total elsewhere on the page. These
+     * two label the first two numbers; the third reuses kcalRemainingUnit/
+     * kcalOverUnit above. equationSummary is an sr-only sentence reading
+     * the whole equation aloud for screen readers, since the visual
+     * layout (numbers + decorative −/= glyphs) doesn't reliably read as a
+     * coherent sentence on its own. */
+    totalCaloriesLabel: string
+    consumedCaloriesLabel: string
+    caloriesEquationSummary: (
+      total: string,
+      consumed: string,
+      remaining: string,
+      direction: 'remaining' | 'over',
+    ) => string
     /** #220 — same shape as the calories trio above, shown once the
      * active goal has a dailyProteinTargetG set. */
     remainingProteinLabel: string
@@ -155,7 +172,6 @@ export interface Dictionary {
     macroModePer100gOption: string
     macroModePerPortionOption: string
     addButton: string
-    caloriesTodaySuffix: string
     /** Label above the day's total-macros field (#152) — previously a
      * caption line tucked under the Calories card, promoted to a field
      * of its own matching Weight/Sleep/Calories' treatment. */

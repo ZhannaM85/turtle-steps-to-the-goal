@@ -669,6 +669,12 @@ export function DailyEntryForm({
       ))}
 
       <div className="flex flex-col gap-1.5">
+        {/* #326 — the big "1,200 kcal today" readout that used to sit
+         * here was removed: it's exact duplicate information, always the
+         * same number as TodayScreen's "Remaining calories" breakdown
+         * card's own "consumed" figure. The label + tooltip stay, since
+         * the tooltip's day-lag-with-weight explanation is unique content,
+         * not a duplicate of anything shown elsewhere. */}
         <div className="flex items-center gap-1.5">
           <span className="text-sm font-medium">
             {t.dailyEntry.caloriesLabel}
@@ -677,16 +683,6 @@ export function DailyEntryForm({
             text={t.dailyEntry.caloriesTooltip}
             label={t.dailyEntry.caloriesTooltipLabel}
           />
-        </div>
-        <div className="flex items-center justify-between rounded-lg bg-muted px-3 py-2">
-          <span className="flex items-baseline gap-1.5" aria-live="polite">
-            <span className="text-3xl font-semibold tabular-nums text-foreground">
-              {formatNumber(dayTotalCalories, locale, 0)}
-            </span>
-            <span className="text-sm text-muted-foreground">
-              {t.dailyEntry.caloriesTodaySuffix}
-            </span>
-          </span>
         </div>
         {/* #218: a quiet inline note, not a blocking confirm — a day's
          * total crossing this threshold can't map to a single "save"

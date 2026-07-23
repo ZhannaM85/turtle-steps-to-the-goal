@@ -64,6 +64,12 @@ export const en: Dictionary = {
     remainingCaloriesLabel: 'Remaining calories',
     kcalRemainingUnit: 'kcal remaining',
     kcalOverUnit: 'kcal over',
+    totalCaloriesLabel: 'total',
+    consumedCaloriesLabel: 'consumed',
+    caloriesEquationSummary: (total, consumed, remaining, direction) =>
+      direction === 'over'
+        ? `${total} total, ${consumed} consumed, ${remaining} over`
+        : `${total} total, ${consumed} consumed, ${remaining} remaining`,
     remainingProteinLabel: 'Remaining protein',
     gRemainingUnit: 'g remaining',
     remainingFatLabel: 'Remaining fat',
@@ -95,7 +101,6 @@ export const en: Dictionary = {
     macroModePer100gOption: '100g',
     macroModePerPortionOption: 'Portion',
     addButton: 'Add',
-    caloriesTodaySuffix: 'kcal today',
     macrosLabel: 'Macros',
     kcalUnit: 'kcal',
     noteLabel: "Day's note",

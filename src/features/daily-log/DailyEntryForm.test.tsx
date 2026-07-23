@@ -926,8 +926,24 @@ describe('DailyEntryForm', () => {
       )
 
       expect(screen.queryByLabelText('Calories')).not.toBeInTheDocument()
-      expect(screen.getByText('0')).toBeInTheDocument()
-      expect(screen.getByText('kcal today')).toBeInTheDocument()
+      expect(screen.getByText('Calories')).toBeInTheDocument()
+    })
+
+    // #326 — the big "X kcal today" readout was removed as pure duplicate
+    // information (always the same number as TodayScreen's "Remaining
+    // calories" breakdown card's own "consumed" figure); this only
+    // asserts it's actually gone, not what replaced it (that lives on
+    // TodayScreen, not this form).
+    it('no longer shows a standalone kcal-today readout (#326)', () => {
+      render(
+        <DailyEntryForm
+          date="2026-03-01"
+          existingEntry={null}
+          onSave={vi.fn()}
+        />,
+      )
+
+      expect(screen.queryByText('kcal today')).not.toBeInTheDocument()
     })
 
     describe('unusually high daily total warning (#218)', () => {
@@ -1023,7 +1039,6 @@ describe('DailyEntryForm', () => {
           (c: CalorieEntry) => c.items[0].amountKcal,
         ),
       ).toEqual([200])
-      expect(screen.getByText('200')).toBeInTheDocument()
       expect(screen.getByText('Breakfast — 200 kcal')).toBeInTheDocument()
       // The sheet closes on save, so the field itself is gone — the reset
       // is verified by reopening the (now-blank) sheet instead.
@@ -1381,14 +1396,24 @@ describe('DailyEntryForm', () => {
       await user.click(screen.getByRole('button', { name: '+ Add item' }))
       await user.type(screen.getByLabelText('kcal/100g'), '200')
       await user.click(screen.getByRole('button', { name: 'Save' }))
-      expect(screen.getByText('600')).toBeInTheDocument()
+      // The existing entry already occupies the Breakfast slot, so this
+      // one becomes Lunch.
+      expect(screen.getByText('Lunch — 200 kcal')).toBeInTheDocument()
 
       await user.click(screen.getByRole('button', { name: '+ Add item' }))
       await user.type(screen.getByLabelText('kcal/100g'), '150')
       await user.keyboard('{Enter}')
-      expect(screen.getByText('750')).toBeInTheDocument()
       expect(screen.getByText('Dinner — 150 kcal')).toBeInTheDocument()
       expect(onSave).toHaveBeenCalledTimes(2)
+      // #326 — this form no longer displays a running total of its own
+      // (TodayScreen's breakdown card owns that now), so accumulation is
+      // verified via the actual saved payload instead of a UI readout.
+      const lastSavedTotal = onSave.mock.calls[1][0].calorieEntries.reduce(
+        (sum: number, c: CalorieEntry) =>
+          sum + c.items.reduce((s: number, i) => s + i.amountKcal, 0),
+        0,
+      )
+      expect(lastSavedTotal).toBe(750)
     })
 
     it('toggles an emotion selection off when clicked again (#129)', async () => {
@@ -1432,7 +1457,7 @@ describe('DailyEntryForm', () => {
       await user.click(screen.getByRole('button', { name: 'Save' }))
 
       expect(onSave).not.toHaveBeenCalled()
-      expect(screen.getByText('0')).toBeInTheDocument()
+      expect(screen.queryByText(/— 0 kcal/)).not.toBeInTheDocument()
     })
 
     it('disables Add until a valid kcal/100g rate is entered (#109)', async () => {

@@ -66,6 +66,12 @@ export const ru: Dictionary = {
     remainingCaloriesLabel: 'Осталось калорий',
     kcalRemainingUnit: 'ккал осталось',
     kcalOverUnit: 'ккал сверх нормы',
+    totalCaloriesLabel: 'всего',
+    consumedCaloriesLabel: 'потреблено',
+    caloriesEquationSummary: (total, consumed, remaining, direction) =>
+      direction === 'over'
+        ? `${total} всего, ${consumed} потреблено, ${remaining} сверх нормы`
+        : `${total} всего, ${consumed} потреблено, ${remaining} осталось`,
     remainingProteinLabel: 'Осталось белка',
     gRemainingUnit: 'г осталось',
     remainingFatLabel: 'Осталось жиров',
@@ -98,7 +104,6 @@ export const ru: Dictionary = {
     macroModePer100gOption: '100 г',
     macroModePerPortionOption: 'Порция',
     addButton: 'Добавить',
-    caloriesTodaySuffix: 'ккал сегодня',
     macrosLabel: 'БЖУ',
     kcalUnit: 'ккал',
     noteLabel: 'Заметка дня',

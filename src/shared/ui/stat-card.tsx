@@ -1,6 +1,7 @@
 import type * as React from 'react'
 
 import { Card, CardContent } from '@/shared/ui/card'
+import { SegmentedProgressBar } from '@/shared/ui/segmented-progress-bar'
 
 export interface StatCardProps {
   label: string
@@ -14,19 +15,12 @@ export interface StatCardProps {
    * so the label isn't shown twice. */
   action?: React.ReactNode
   /** #320 — percent of a numeric daily goal consumed so far (0-100+, not
-   * capped by the caller). Renders a fixed row of `PROGRESS_SEGMENT_COUNT`
-   * segments under the value/description, each representing one equal
-   * fraction of the goal — a segment is solid `progressColor` once its own
-   * fraction is fully reached, otherwise a light tint of the same color
-   * (`color-mix` toward `--card`), so achieved-vs-remaining reads at a
-   * glance. Replaced an earlier single continuous fill (with a solid-
-   * foreground "at/over goal" state) after live feedback that it read as
-   * boring and that the water bar's over-goal black was confusing. */
+   * capped by the caller). Renders a `SegmentedProgressBar` under the
+   * value/description when given — see that component for the segment
+   * behavior itself. */
   progressPercent?: number
   progressColor?: string
 }
-
-const PROGRESS_SEGMENT_COUNT = 10
 
 export function StatCard({
   label,
@@ -38,16 +32,6 @@ export function StatCard({
   progressPercent,
   progressColor = 'var(--primary)',
 }: StatCardProps) {
-  const achievedSegments =
-    progressPercent === undefined
-      ? 0
-      : Math.min(
-          Math.floor(
-            (Math.max(progressPercent, 0) / 100) * PROGRESS_SEGMENT_COUNT,
-          ),
-          PROGRESS_SEGMENT_COUNT,
-        )
-
   return (
     <Card className={className}>
       <CardContent className="flex flex-col gap-1">
@@ -67,27 +51,12 @@ export function StatCard({
           <span className="text-sm text-muted-foreground">{description}</span>
         )}
         {progressPercent !== undefined && (
-          <div
-            role="progressbar"
-            aria-label={label}
-            aria-valuenow={Math.round(Math.min(Math.max(progressPercent, 0), 100))}
-            aria-valuemin={0}
-            aria-valuemax={100}
-            className="mt-1 flex w-full gap-1"
-          >
-            {Array.from({ length: PROGRESS_SEGMENT_COUNT }, (_, i) => (
-              <div
-                key={i}
-                className="h-1.5 flex-1 rounded-full transition-colors"
-                style={{
-                  backgroundColor:
-                    i < achievedSegments
-                      ? progressColor
-                      : `color-mix(in oklch, ${progressColor}, var(--card) 70%)`,
-                }}
-              />
-            ))}
-          </div>
+          <SegmentedProgressBar
+            percent={progressPercent}
+            color={progressColor}
+            label={label}
+            className="mt-1"
+          />
         )}
       </CardContent>
     </Card>

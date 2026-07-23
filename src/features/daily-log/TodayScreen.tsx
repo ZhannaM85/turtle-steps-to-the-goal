@@ -43,6 +43,7 @@ import {
   useUnitStore,
   type SectionKey,
 } from '@/stores'
+import { CaloriesBreakdownCard } from './CaloriesBreakdownCard'
 import { DailyEntryForm } from './DailyEntryForm'
 import { GoalCelebrationModal } from './GoalCelebrationModal'
 
@@ -166,9 +167,13 @@ export function TodayScreen() {
   // set (an entirely optional field, unlike the weekly weight-loss
   // target). Unlogged calories read as 0 consumed so far, not "unknown" —
   // the whole point is a running total that fills in as the day goes.
+  // #326 — consumedKcal named separately (not just inlined into
+  // remainingKcal's own calculation) since the breakdown card now shows it
+  // as its own number alongside total/remaining.
+  const consumedKcal = totalCalories(entry?.calorieEntries) ?? 0
   const remainingKcal =
     goal?.dailyCalorieTargetKcal !== undefined
-      ? goal.dailyCalorieTargetKcal - (totalCalories(entry?.calorieEntries) ?? 0)
+      ? goal.dailyCalorieTargetKcal - consumedKcal
       : null
   const isOverCalorieBudget = remainingKcal !== null && remainingKcal < 0
 
@@ -203,11 +208,10 @@ export function TodayScreen() {
   const isOverCarbTarget = carbDeltaG !== null && carbDeltaG < 0
 
   // #266 — "of X" denominator shown as each remaining-nutrient card's
-  // `description`, so "0g remaining" also says what it's out of.
-  const calorieTargetText =
-    goal?.dailyCalorieTargetKcal !== undefined
-      ? `${formatNumber(goal.dailyCalorieTargetKcal, locale, 0)} ${t.dailyEntry.kcalUnit}`
-      : null
+  // `description`, so "0g remaining" also says what it's out of. #326
+  // removed calories' own version of this (calorieTargetText) — the
+  // breakdown card shows the target as its own "total" number instead of
+  // a denominator caption.
   const proteinTargetText =
     goal?.dailyProteinTargetG !== undefined
       ? formatMacroGrams(goal.dailyProteinTargetG, locale, t)
@@ -441,15 +445,28 @@ export function TodayScreen() {
 
       {remainingKcal !== null &&
         (sectionVisible.todayRemainingCalories ? (
-          <StatCard
+          <CaloriesBreakdownCard
             label={t.today.remainingCaloriesLabel}
-            value={formatNumber(Math.abs(remainingKcal), locale, 0)}
-            unit={
+            totalValue={formatNumber(
+              goal!.dailyCalorieTargetKcal!,
+              locale,
+              0,
+            )}
+            totalLabel={t.today.totalCaloriesLabel}
+            consumedValue={formatNumber(consumedKcal, locale, 0)}
+            consumedLabel={t.today.consumedCaloriesLabel}
+            remainingValue={formatNumber(Math.abs(remainingKcal), locale, 0)}
+            remainingLabel={
               isOverCalorieBudget
                 ? t.today.kcalOverUnit
                 : t.today.kcalRemainingUnit
             }
-            description={t.today.targetDenominatorText(calorieTargetText!)}
+            equationSummary={t.today.caloriesEquationSummary(
+              formatNumber(goal!.dailyCalorieTargetKcal!, locale, 0),
+              formatNumber(consumedKcal, locale, 0),
+              formatNumber(Math.abs(remainingKcal), locale, 0),
+              isOverCalorieBudget ? 'over' : 'remaining',
+            )}
             progressPercent={caloriesPercent ?? undefined}
             progressColor="var(--chart-calories)"
             action={statCardAction(

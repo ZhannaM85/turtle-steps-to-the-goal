@@ -304,7 +304,9 @@ describe('TodayScreen', () => {
     )
 
     expect(await screen.findByText('79.5 kg')).toBeInTheDocument()
-    expect(screen.getByText('1,900')).toBeInTheDocument()
+    // #326 — DailyEntryForm no longer has its own standalone calories
+    // readout; the loaded meal itself is the thing to check for now.
+    expect(screen.getByText('Breakfast — 1,900 kcal')).toBeInTheDocument()
     expect(
       screen.getByRole('button', { name: 'Edit weight' }),
     ).toBeInTheDocument()
@@ -699,7 +701,7 @@ describe('TodayScreen', () => {
       ).not.toBeInTheDocument()
     })
 
-    it('shows what remains once a target is set, treating nothing logged as 0 consumed', async () => {
+    it('shows all 3 numbers once a target is set, treating nothing logged as 0 consumed (#326)', async () => {
       await useGoalStore
         .getState()
         .saveGoal(makeGoal({ dailyCalorieTargetKcal: 2000 }))
@@ -710,15 +712,17 @@ describe('TodayScreen', () => {
         </MemoryRouter>,
       )
 
-      expect(
-        await screen.findByText('Remaining calories'),
-      ).toBeInTheDocument()
-      expect(screen.getByText('2,000')).toBeInTheDocument()
-      expect(screen.getByText('kcal remaining')).toBeInTheDocument()
-      expect(screen.getByText('of 2,000 kcal')).toBeInTheDocument()
+      const label = await screen.findByText('Remaining calories')
+      const card = label.closest('[data-slot="card"]') as HTMLElement
+      // Total and remaining are both 2,000 when nothing's been logged yet.
+      expect(within(card).getAllByText('2,000')).toHaveLength(2)
+      expect(within(card).getByText('0')).toBeInTheDocument()
+      expect(within(card).getByText('total')).toBeInTheDocument()
+      expect(within(card).getByText('consumed')).toBeInTheDocument()
+      expect(within(card).getByText('kcal remaining')).toBeInTheDocument()
     })
 
-    it('subtracts what was actually logged today', async () => {
+    it('subtracts what was actually logged today, showing total/consumed/remaining together (#326)', async () => {
       await useGoalStore
         .getState()
         .saveGoal(makeGoal({ dailyCalorieTargetKcal: 2000 }))
@@ -747,14 +751,16 @@ describe('TodayScreen', () => {
       // "Remaining calories" label renders as soon as the goal loads,
       // independent of whether the separately-async entry load has
       // resolved yet, so the card can briefly show the stale
-      // nothing-logged value (2,000) before re-rendering with the real
-      // one. findByText (polls) instead of getByText (synchronous) waits
-      // out that second render instead of racing it.
+      // nothing-logged value (2,000 remaining) before re-rendering with
+      // the real one. findByText (polls) instead of getByText
+      // (synchronous) waits out that second render instead of racing it.
       expect(await within(card).findByText('500')).toBeInTheDocument()
+      expect(within(card).getByText('2,000')).toBeInTheDocument()
+      expect(within(card).getByText('1,500')).toBeInTheDocument()
       expect(within(card).getByText('kcal remaining')).toBeInTheDocument()
     })
 
-    it('reads as "over" once logged calories exceed the target', async () => {
+    it('reads as "over" once logged calories exceed the target (#326)', async () => {
       await useGoalStore
         .getState()
         .saveGoal(makeGoal({ dailyCalorieTargetKcal: 1000 }))
@@ -784,7 +790,37 @@ describe('TodayScreen', () => {
       // reason as the sibling test above — races the entry's own async
       // load otherwise.
       expect(await within(card).findByText('300')).toBeInTheDocument()
+      expect(within(card).getByText('1,000')).toBeInTheDocument()
+      expect(within(card).getByText('1,300')).toBeInTheDocument()
       expect(within(card).getByText('kcal over')).toBeInTheDocument()
+    })
+
+    it('exposes the full breakdown as one sentence for screen readers (#326)', async () => {
+      await useGoalStore
+        .getState()
+        .saveGoal(makeGoal({ dailyCalorieTargetKcal: 2000 }))
+      await useDailyEntryStore.getState().saveEntry(
+        makeEntry({
+          calorieEntries: [
+            {
+              id: crypto.randomUUID(),
+              items: [{ id: crypto.randomUUID(), amountKcal: 1500 }],
+              createdAt: new Date().toISOString(),
+            },
+          ],
+        }),
+      )
+      useDailyEntryStore.setState({ entry: null, date: null, status: 'idle' })
+
+      render(
+        <MemoryRouter>
+          <TodayScreen />
+        </MemoryRouter>,
+      )
+
+      expect(
+        await screen.findByText('2,000 total, 1,500 consumed, 500 remaining'),
+      ).toBeInTheDocument()
     })
 
     it('sizes the progress bar to percent of target consumed (#323)', async () => {
