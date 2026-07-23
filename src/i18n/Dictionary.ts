@@ -831,6 +831,12 @@ export interface Dictionary {
      * calling the same touch() upsert, just starting from a blank draft
      * instead of an existing MealItem. */
     addMealItemButton: string
+    /** #290 — the create-a-new-dictionary-entry form moved from an inline
+     * reveal at the bottom of the (potentially long) saved-foods list into
+     * a full-screen dialog, reachable instantly regardless of scroll
+     * position. */
+    addMealItemDialogTitle: string
+    closeAddMealItemDialogLabel: string
     cancelAddMealItemLabel: string
     mealNamePresetsLabel: string
     mealNamePresetsDescription: string

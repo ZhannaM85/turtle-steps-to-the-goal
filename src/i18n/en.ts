@@ -574,6 +574,8 @@ export const en: Dictionary = {
     editMealItemLabel: (name) => `Edit ${name}`,
     saveMealItemLabel: (name) => `Save ${name}`,
     addMealItemButton: 'Add custom food',
+    addMealItemDialogTitle: 'Add custom food',
+    closeAddMealItemDialogLabel: 'Close add food dialog',
     cancelAddMealItemLabel: 'Cancel',
     mealNamePresetsLabel: 'Meal name presets',
     mealNamePresetsDescription:

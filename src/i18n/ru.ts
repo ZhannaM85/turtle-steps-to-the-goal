@@ -583,6 +583,8 @@ export const ru: Dictionary = {
     editMealItemLabel: (name) => `Изменить «${name}»`,
     saveMealItemLabel: (name) => `Сохранить «${name}»`,
     addMealItemButton: 'Добавить своё блюдо',
+    addMealItemDialogTitle: 'Добавить своё блюдо',
+    closeAddMealItemDialogLabel: 'Закрыть окно добавления продукта',
     cancelAddMealItemLabel: 'Отмена',
     mealNamePresetsLabel: 'Шаблоны названий приёма пищи',
     mealNamePresetsDescription:

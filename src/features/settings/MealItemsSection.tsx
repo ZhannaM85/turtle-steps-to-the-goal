@@ -18,6 +18,7 @@ import { rankBySearchMatch } from '@/shared/lib/searchRank'
 import { cn } from '@/shared/lib/utils'
 import { useMealItemStore } from '@/stores'
 import { Button } from '@/shared/ui/button'
+import { Dialog, DialogContent, DialogTitle } from '@/shared/ui/dialog'
 import { Input } from '@/shared/ui/input'
 import { ToggleGroup, ToggleGroupItem } from '@/shared/ui/toggle-group'
 import { BarcodeScannerDialog, lookupBarcode } from '@/features/daily-log'
@@ -551,164 +552,181 @@ function AddMealItemForm({
   }
 
   return (
-    <li className="flex flex-col gap-1.5 rounded-lg bg-muted/40 px-2 py-1.5">
-      <div className="flex items-center gap-2">
-        <Input
-          type="text"
-          aria-label={t.settings.mealItemNameLabel}
-          placeholder={t.settings.mealItemNameLabel}
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          className="h-8 flex-1"
-        />
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon-sm"
-          aria-label={
-            favorite
-              ? t.dailyEntry.unfavoriteFoodLabel(name || t.settings.mealItemNameLabel)
-              : t.dailyEntry.favoriteFoodLabel(name || t.settings.mealItemNameLabel)
-          }
-          aria-pressed={favorite}
-          onClick={() => setFavorite((prev) => !prev)}
-        >
-          <Star aria-hidden="true" className={cn(favorite && 'fill-current')} />
-        </Button>
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon-sm"
-          aria-label={t.dailyEntry.scanBarcodeButton}
-          onClick={() => setIsBarcodeScannerOpen(true)}
-        >
-          <ScanBarcode aria-hidden="true" />
-        </Button>
-      </div>
-      {isBarcodeScannerOpen && (
-        <BarcodeScannerDialog
-          open={isBarcodeScannerOpen}
-          onOpenChange={setIsBarcodeScannerOpen}
-          onScanned={handleBarcodeScanned}
-        />
-      )}
-      {barcodeNotFoundMessage && (
-        <p className="text-xs text-muted-foreground">
-          {t.dailyEntry.noFoodFoundForBarcodeMessage}
-        </p>
-      )}
-      <ToggleGroup
-        type="single"
-        aria-label={t.dailyEntry.macroModeLabel}
-        value={macroMode}
-        onValueChange={(value) =>
-          value && handleMacroModeChange(value as 'per100g' | 'perPortion')
-        }
-        className="w-fit gap-2 p-0.5"
+    <Dialog open onOpenChange={(next) => !next && onCancel()}>
+      <DialogContent
+        size="fullscreen"
+        closeLabel={t.settings.closeAddMealItemDialogLabel}
+        className="flex flex-col"
       >
-        <ToggleGroupItem value="per100g" className="h-7 px-3 text-xs">
-          {t.dailyEntry.macroModePer100gOption}
-        </ToggleGroupItem>
-        <ToggleGroupItem value="perPortion" className="h-7 px-3 text-xs">
-          {t.dailyEntry.macroModePerPortionOption}
-        </ToggleGroupItem>
-      </ToggleGroup>
-      <div className="flex flex-wrap items-end gap-2">
-        <div className="flex flex-col gap-1">
-          <span className="text-xs text-muted-foreground">
-            {macroMode === 'per100g'
-              ? t.dailyEntry.addCaloriesLabel
-              : t.dailyEntry.addCaloriesPortionLabel}
-          </span>
-          <Input
-            type="text"
-            inputMode="decimal"
-            aria-label={t.dailyEntry.addCaloriesLabel}
-            value={kcal100}
-            onChange={(e) => setKcal100(e.target.value)}
-            className="h-7 w-16"
-          />
-        </div>
-        <div className="flex flex-col gap-1">
-          <span className="text-xs text-muted-foreground">
-            {t.dailyEntry.proteinLabel}
-          </span>
-          <Input
-            type="text"
-            inputMode="decimal"
-            aria-label={t.dailyEntry.proteinLabel}
-            value={protein100}
-            onChange={(e) => setProtein100(e.target.value)}
-            className="h-7 w-14"
-          />
-        </div>
-        <div className="flex flex-col gap-1">
-          <span className="text-xs text-muted-foreground">
-            {t.dailyEntry.fatLabel}
-          </span>
-          <Input
-            type="text"
-            inputMode="decimal"
-            aria-label={t.dailyEntry.fatLabel}
-            value={fat100}
-            onChange={(e) => setFat100(e.target.value)}
-            className="h-7 w-14"
-          />
-        </div>
-        <div className="flex flex-col gap-1">
-          <span className="text-xs text-muted-foreground">
-            {t.dailyEntry.carbsLabel}
-          </span>
-          <Input
-            type="text"
-            inputMode="decimal"
-            aria-label={t.dailyEntry.carbsLabel}
-            value={carbs100}
-            onChange={(e) => setCarbs100(e.target.value)}
-            className="h-7 w-14"
-          />
-        </div>
-        {macroMode === 'per100g' ? (
-          <div className="flex flex-col gap-1">
-            <span className="text-xs text-muted-foreground">
-              {t.dailyEntry.itemPortionsLabel}
-            </span>
+        <DialogTitle>{t.settings.addMealItemDialogTitle}</DialogTitle>
+        <div className="flex flex-1 flex-col gap-5 overflow-y-auto pt-4">
+          <div className="flex flex-col gap-1.5">
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-sm text-muted-foreground">
+                {t.settings.mealItemNameLabel}
+              </span>
+              <div className="flex items-center gap-1">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon-sm"
+                  aria-label={
+                    favorite
+                      ? t.dailyEntry.unfavoriteFoodLabel(name || t.settings.mealItemNameLabel)
+                      : t.dailyEntry.favoriteFoodLabel(name || t.settings.mealItemNameLabel)
+                  }
+                  aria-pressed={favorite}
+                  onClick={() => setFavorite((prev) => !prev)}
+                >
+                  <Star aria-hidden="true" className={cn(favorite && 'fill-current')} />
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon-sm"
+                  aria-label={t.dailyEntry.scanBarcodeButton}
+                  onClick={() => setIsBarcodeScannerOpen(true)}
+                >
+                  <ScanBarcode aria-hidden="true" />
+                </Button>
+              </div>
+            </div>
             <Input
               type="text"
-              inputMode="decimal"
-              aria-label={t.dailyEntry.itemPortionsLabel}
-              value={amountG}
-              onChange={(e) => setAmountG(e.target.value)}
-              className="h-7 w-14"
+              aria-label={t.settings.mealItemNameLabel}
+              placeholder={t.settings.mealItemNameLabel}
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="h-12 text-base"
             />
           </div>
-        ) : (
-          <div className="flex flex-col gap-1">
-            <span className="text-xs text-muted-foreground">&nbsp;</span>
-            <span className="flex h-7 items-center text-xs text-muted-foreground">
+          {isBarcodeScannerOpen && (
+            <BarcodeScannerDialog
+              open={isBarcodeScannerOpen}
+              onOpenChange={setIsBarcodeScannerOpen}
+              onScanned={handleBarcodeScanned}
+            />
+          )}
+          {barcodeNotFoundMessage && (
+            <p className="text-sm text-muted-foreground">
+              {t.dailyEntry.noFoodFoundForBarcodeMessage}
+            </p>
+          )}
+          <ToggleGroup
+            type="single"
+            aria-label={t.dailyEntry.macroModeLabel}
+            value={macroMode}
+            onValueChange={(value) =>
+              value && handleMacroModeChange(value as 'per100g' | 'perPortion')
+            }
+            className="w-fit gap-3 p-1"
+          >
+            <ToggleGroupItem value="per100g" className="h-10 px-4 text-sm">
+              {t.dailyEntry.macroModePer100gOption}
+            </ToggleGroupItem>
+            <ToggleGroupItem value="perPortion" className="h-10 px-4 text-sm">
               {t.dailyEntry.macroModePerPortionOption}
-            </span>
+            </ToggleGroupItem>
+          </ToggleGroup>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="flex flex-col gap-1.5">
+              <span className="text-sm text-muted-foreground">
+                {macroMode === 'per100g'
+                  ? t.dailyEntry.addCaloriesLabel
+                  : t.dailyEntry.addCaloriesPortionLabel}
+              </span>
+              <Input
+                type="text"
+                inputMode="decimal"
+                aria-label={t.dailyEntry.addCaloriesLabel}
+                value={kcal100}
+                onChange={(e) => setKcal100(e.target.value)}
+                className="h-12 text-base"
+              />
+            </div>
+            {macroMode === 'per100g' ? (
+              <div className="flex flex-col gap-1.5">
+                <span className="text-sm text-muted-foreground">
+                  {t.dailyEntry.itemPortionsLabel}
+                </span>
+                <Input
+                  type="text"
+                  inputMode="decimal"
+                  aria-label={t.dailyEntry.itemPortionsLabel}
+                  value={amountG}
+                  onChange={(e) => setAmountG(e.target.value)}
+                  className="h-12 text-base"
+                />
+              </div>
+            ) : (
+              <div className="flex flex-col gap-1.5">
+                <span className="text-sm text-muted-foreground">&nbsp;</span>
+                <span className="flex h-12 items-center text-base text-muted-foreground">
+                  {t.dailyEntry.macroModePerPortionOption}
+                </span>
+              </div>
+            )}
+            <div className="flex flex-col gap-1.5">
+              <span className="text-sm text-muted-foreground">
+                {t.dailyEntry.proteinLabel}
+              </span>
+              <Input
+                type="text"
+                inputMode="decimal"
+                aria-label={t.dailyEntry.proteinLabel}
+                value={protein100}
+                onChange={(e) => setProtein100(e.target.value)}
+                className="h-12 text-base"
+              />
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <span className="text-sm text-muted-foreground">
+                {t.dailyEntry.fatLabel}
+              </span>
+              <Input
+                type="text"
+                inputMode="decimal"
+                aria-label={t.dailyEntry.fatLabel}
+                value={fat100}
+                onChange={(e) => setFat100(e.target.value)}
+                className="h-12 text-base"
+              />
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <span className="text-sm text-muted-foreground">
+                {t.dailyEntry.carbsLabel}
+              </span>
+              <Input
+                type="text"
+                inputMode="decimal"
+                aria-label={t.dailyEntry.carbsLabel}
+                value={carbs100}
+                onChange={(e) => setCarbs100(e.target.value)}
+                className="h-12 text-base"
+              />
+            </div>
           </div>
-        )}
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          disabled={!canSave}
-          onClick={save}
-        >
-          {t.dailyEntry.saveButton}
-        </Button>
-        <Button type="button" variant="ghost" size="sm" onClick={onCancel}>
-          {t.settings.cancelAddMealItemLabel}
-        </Button>
-      </div>
-      {nutritionPreview && (
-        <p className="text-xs text-muted-foreground">
-          {t.dailyEntry.computedTotalPrefix} {nutritionPreview}
-        </p>
-      )}
-    </li>
+          {nutritionPreview && (
+            <p className="text-sm text-muted-foreground">
+              {t.dailyEntry.computedTotalPrefix} {nutritionPreview}
+            </p>
+          )}
+        </div>
+        <div className="flex justify-end gap-3 pt-4">
+          <Button type="button" variant="ghost" onClick={onCancel}>
+            {t.settings.cancelAddMealItemLabel}
+          </Button>
+          <Button
+            type="button"
+            size="lg"
+            disabled={!canSave}
+            onClick={save}
+          >
+            {t.dailyEntry.saveButton}
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
   )
 }
 
@@ -746,7 +764,7 @@ export function MealItemsSection() {
       <p className="text-sm text-muted-foreground">
         {t.settings.mealItemsDescription}
       </p>
-      {items.length === 0 && !isAdding && (
+      {items.length === 0 && (
         <p className="text-sm text-muted-foreground">
           {t.settings.mealItemsEmpty}
         </p>
@@ -765,7 +783,7 @@ export function MealItemsSection() {
           {t.settings.noMealItemResultsText}
         </p>
       )}
-      {(visibleItems.length > 0 || isAdding) && (
+      {visibleItems.length > 0 && (
         // Capped + independently scrollable (#179) — this list lives inside
         // a Settings Card, not its own page, so an unbounded list would
         // otherwise keep growing the whole Settings screen. #192:
@@ -784,27 +802,28 @@ export function MealItemsSection() {
               onToggleFavorite={toggleFavorite}
             />
           ))}
-          {isAdding && (
-            <AddMealItemForm
-              onAdd={(name, nutrition, favorite, barcode) => {
-                touch(name, nutrition, favorite, barcode)
-                setIsAdding(false)
-              }}
-              onCancel={() => setIsAdding(false)}
-            />
-          )}
         </ul>
       )}
-      {!isAdding && (
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          className="self-start"
-          onClick={() => setIsAdding(true)}
-        >
-          {t.settings.addMealItemButton}
-        </Button>
+      {/* #290 — a dedicated full-screen dialog reachable instantly from
+       * this button, instead of an inline form revealed at the bottom of
+       * a potentially long, already-scrolled list. */}
+      <Button
+        type="button"
+        variant="outline"
+        size="sm"
+        className="self-start"
+        onClick={() => setIsAdding(true)}
+      >
+        {t.settings.addMealItemButton}
+      </Button>
+      {isAdding && (
+        <AddMealItemForm
+          onAdd={(name, nutrition, favorite, barcode) => {
+            touch(name, nutrition, favorite, barcode)
+            setIsAdding(false)
+          }}
+          onCancel={() => setIsAdding(false)}
+        />
       )}
     </div>
   )

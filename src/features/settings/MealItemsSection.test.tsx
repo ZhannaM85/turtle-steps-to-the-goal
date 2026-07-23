@@ -1,5 +1,5 @@
 import 'fake-indexeddb/auto'
-import { render, screen, waitFor } from '@testing-library/react'
+import { render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { db } from '@/infrastructure/persistence/indexeddb'
@@ -196,6 +196,44 @@ describe('MealItemsSection', () => {
       expect(
         screen.queryByLabelText('Search meal items'),
       ).not.toBeInTheDocument()
+    })
+  })
+
+  describe('add-food dialog (#290)', () => {
+    it('opens the add-food form as a dialog, reachable regardless of an existing long list', async () => {
+      await useMealItemStore.getState().touch('Pizza')
+      await useMealItemStore.getState().touch('Salad')
+      const user = userEvent.setup()
+      render(<MealItemsSection />)
+
+      await screen.findByDisplayValue('Pizza')
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+
+      await user.click(
+        screen.getByRole('button', { name: 'Add custom food' }),
+      )
+
+      const dialog = screen.getByRole('dialog')
+      expect(
+        within(dialog).getByRole('heading', { name: 'Add custom food' }),
+      ).toBeInTheDocument()
+      expect(within(dialog).getByLabelText('Meal item name')).toHaveValue('')
+    })
+
+    it('closes the dialog without creating anything when its own close button is clicked', async () => {
+      const user = userEvent.setup()
+      render(<MealItemsSection />)
+
+      await user.click(
+        screen.getByRole('button', { name: 'Add custom food' }),
+      )
+      await user.type(screen.getByLabelText('Meal item name'), 'Discarded')
+      await user.click(
+        screen.getByRole('button', { name: 'Close add food dialog' }),
+      )
+
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+      expect(useMealItemStore.getState().items).toEqual([])
     })
   })
 

@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 265,
+    issue: 290,
+    date: '2026-07-23T02:14:44+03:00',
+    en: '"Add food" in Settings now opens straight away as its own screen, instead of revealing a form you had to scroll down to find.',
+    ru: 'Кнопка «Добавить продукт» в настройках теперь сразу открывает отдельный экран, вместо формы, которую приходилось искать прокруткой вниз.',
+  },
+  {
     version: 264,
     issue: 285,
     date: '2026-07-23T00:21:18+03:00',
