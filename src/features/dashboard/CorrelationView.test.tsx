@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event'
 import { addDays, format, startOfISOWeek } from 'date-fns'
 import { afterEach, describe, expect, it } from 'vitest'
 import type { CalorieEntry, DailyEntry } from '@/domain/dailyEntry'
-import { useDashboardChartVisibilityStore } from '@/stores'
+import { useDashboardChartVisibilityStore, useOutlierExclusionStore } from '@/stores'
 import { CorrelationView } from './CorrelationView'
 
 function calories(amountKcal: number): CalorieEntry[] {
@@ -96,6 +96,64 @@ describe('CorrelationView', () => {
       screen.getByText(/averaged more loss than weeks/),
     ).toBeInTheDocument()
     expect(screen.getByText(/Based on 4 weeks of data\./)).toBeInTheDocument()
+  })
+
+  describe('outlier detection and exclusion (#224)', () => {
+    afterEach(() => {
+      localStorage.clear()
+      useOutlierExclusionStore.setState({ excluded: {} })
+    })
+
+    // The plain-language-summary fixture's 4 clean weeks, plus a 5th whose
+    // delta (-25.3kg) is wildly outside that pattern (its own calorie
+    // figure, 2000, is unremarkable, so this is a clean Y-axis-only case).
+    function entriesWithOneOutlier(): DailyEntry[] {
+      return [
+        entry(weekStart(0), { weightKg: 90 }),
+        entry(weekStart(1), { weightKg: 88, calorieEntries: calories(1700) }),
+        entry(weekStart(2), { weightKg: 86, calorieEntries: calories(1800) }),
+        entry(weekStart(3), { weightKg: 85.5, calorieEntries: calories(2200) }),
+        entry(weekStart(4), { weightKg: 85.3, calorieEntries: calories(2300) }),
+        entry(weekStart(5), { weightKg: 60, calorieEntries: calories(2000) }),
+      ]
+    }
+
+    it('lists the flagged outlier week as an excludable button', () => {
+      render(<CorrelationView entries={entriesWithOneOutlier()} />)
+
+      expect(
+        screen.getByRole('button', { name: 'Exclude 6 Apr from this pattern' }),
+      ).toBeInTheDocument()
+    })
+
+    it('excludes the flagged week from the summary once tapped', async () => {
+      const user = userEvent.setup()
+      render(<CorrelationView entries={entriesWithOneOutlier()} />)
+
+      expect(screen.getByText(/Based on 5 weeks of data\./)).toBeInTheDocument()
+
+      await user.click(
+        screen.getByRole('button', { name: 'Exclude 6 Apr from this pattern' }),
+      )
+
+      expect(screen.getByText(/Based on 4 weeks of data\./)).toBeInTheDocument()
+    })
+
+    it('restores an excluded week when tapped again', async () => {
+      const user = userEvent.setup()
+      render(<CorrelationView entries={entriesWithOneOutlier()} />)
+
+      await user.click(
+        screen.getByRole('button', { name: 'Exclude 6 Apr from this pattern' }),
+      )
+      expect(screen.getByText(/Based on 4 weeks of data\./)).toBeInTheDocument()
+
+      await user.click(
+        screen.getByRole('button', { name: 'Restore 6 Apr to this pattern' }),
+      )
+
+      expect(screen.getByText(/Based on 5 weeks of data\./)).toBeInTheDocument()
+    })
   })
 
   describe('whole-card show/hide toggle (#247)', () => {

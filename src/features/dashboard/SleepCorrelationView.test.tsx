@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event'
 import { addDays, format } from 'date-fns'
 import { afterEach, describe, expect, it } from 'vitest'
 import type { DailyEntry } from '@/domain/dailyEntry'
-import { useDashboardChartVisibilityStore } from '@/stores'
+import { useDashboardChartVisibilityStore, useOutlierExclusionStore } from '@/stores'
 import { SleepCorrelationView } from './SleepCorrelationView'
 
 const DATE_FORMAT = 'yyyy-MM-dd'
@@ -84,6 +84,67 @@ describe('SleepCorrelationView', () => {
     expect(screen.getByText(/Based on 8 days of data\./)).toBeInTheDocument()
     // #224 — plain-language strength label under the summary.
     expect(screen.getByText('Strong pattern')).toBeInTheDocument()
+  })
+
+  describe('outlier detection and exclusion (#224)', () => {
+    afterEach(() => {
+      localStorage.clear()
+      useOutlierExclusionStore.setState({ excluded: {} })
+    })
+
+    // Same shape as the plain-language-summary fixture (8 clean pairs) plus
+    // a 9th whose delta (-12.85kg) is wildly outside that pattern.
+    function entriesWithOneOutlier(): DailyEntry[] {
+      return [
+        entry(day(0), { weightKg: 80.0, sleepHours: 4 }),
+        entry(day(1), { weightKg: 80.8, sleepHours: 4.5 }),
+        entry(day(2), { weightKg: 81.7, sleepHours: 5 }),
+        entry(day(3), { weightKg: 82.5, sleepHours: 5.5 }),
+        entry(day(4), { weightKg: 82.6, sleepHours: 8 }),
+        entry(day(5), { weightKg: 82.65, sleepHours: 8.5 }),
+        entry(day(6), { weightKg: 82.75, sleepHours: 9 }),
+        entry(day(7), { weightKg: 82.8, sleepHours: 9.5 }),
+        entry(day(8), { weightKg: 82.85, sleepHours: 9.5 }),
+        entry(day(9), { weightKg: 70.0 }),
+      ]
+    }
+
+    it('lists the flagged outlier day as an excludable button', () => {
+      render(<SleepCorrelationView entries={entriesWithOneOutlier()} />)
+
+      expect(
+        screen.getByRole('button', { name: 'Exclude 10 Mar from this pattern' }),
+      ).toBeInTheDocument()
+    })
+
+    it('excludes the flagged day from the summary once tapped', async () => {
+      const user = userEvent.setup()
+      render(<SleepCorrelationView entries={entriesWithOneOutlier()} />)
+
+      expect(screen.getByText(/Based on 9 days of data\./)).toBeInTheDocument()
+
+      await user.click(
+        screen.getByRole('button', { name: 'Exclude 10 Mar from this pattern' }),
+      )
+
+      expect(screen.getByText(/Based on 8 days of data\./)).toBeInTheDocument()
+    })
+
+    it('restores an excluded day when tapped again', async () => {
+      const user = userEvent.setup()
+      render(<SleepCorrelationView entries={entriesWithOneOutlier()} />)
+
+      await user.click(
+        screen.getByRole('button', { name: 'Exclude 10 Mar from this pattern' }),
+      )
+      expect(screen.getByText(/Based on 8 days of data\./)).toBeInTheDocument()
+
+      await user.click(
+        screen.getByRole('button', { name: 'Restore 10 Mar to this pattern' }),
+      )
+
+      expect(screen.getByText(/Based on 9 days of data\./)).toBeInTheDocument()
+    })
   })
 
   describe('whole-card show/hide toggle (#247)', () => {

@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event'
 import { addDays, format } from 'date-fns'
 import { afterEach, describe, expect, it } from 'vitest'
 import type { CalorieEntry, DailyEntry } from '@/domain/dailyEntry'
-import { useDashboardChartVisibilityStore } from '@/stores'
+import { useDashboardChartVisibilityStore, useOutlierExclusionStore } from '@/stores'
 import { ProteinCorrelationView } from './ProteinCorrelationView'
 
 const DATE_FORMAT = 'yyyy-MM-dd'
@@ -92,6 +92,65 @@ describe('ProteinCorrelationView', () => {
       screen.getByText(/averaged more weight gain the next morning/),
     ).toBeInTheDocument()
     expect(screen.getByText(/Based on 8 days of data\./)).toBeInTheDocument()
+  })
+
+  describe('outlier detection and exclusion (#224)', () => {
+    afterEach(() => {
+      localStorage.clear()
+      useOutlierExclusionStore.setState({ excluded: {} })
+    })
+
+    function entriesWithOneOutlier(): DailyEntry[] {
+      return [
+        entry(day(0), { weightKg: 80.0, calorieEntries: protein(40) }),
+        entry(day(1), { weightKg: 80.8, calorieEntries: protein(45) }),
+        entry(day(2), { weightKg: 81.7, calorieEntries: protein(50) }),
+        entry(day(3), { weightKg: 82.5, calorieEntries: protein(55) }),
+        entry(day(4), { weightKg: 82.6, calorieEntries: protein(100) }),
+        entry(day(5), { weightKg: 82.65, calorieEntries: protein(105) }),
+        entry(day(6), { weightKg: 82.75, calorieEntries: protein(110) }),
+        entry(day(7), { weightKg: 82.8, calorieEntries: protein(115) }),
+        entry(day(8), { weightKg: 82.85, calorieEntries: protein(115) }),
+        entry(day(9), { weightKg: 70.0 }),
+      ]
+    }
+
+    it('lists the flagged outlier day as an excludable button', () => {
+      render(<ProteinCorrelationView entries={entriesWithOneOutlier()} />)
+
+      expect(
+        screen.getByRole('button', { name: 'Exclude 10 Mar from this pattern' }),
+      ).toBeInTheDocument()
+    })
+
+    it('excludes the flagged day from the summary once tapped', async () => {
+      const user = userEvent.setup()
+      render(<ProteinCorrelationView entries={entriesWithOneOutlier()} />)
+
+      expect(screen.getByText(/Based on 9 days of data\./)).toBeInTheDocument()
+
+      await user.click(
+        screen.getByRole('button', { name: 'Exclude 10 Mar from this pattern' }),
+      )
+
+      expect(screen.getByText(/Based on 8 days of data\./)).toBeInTheDocument()
+    })
+
+    it('restores an excluded day when tapped again', async () => {
+      const user = userEvent.setup()
+      render(<ProteinCorrelationView entries={entriesWithOneOutlier()} />)
+
+      await user.click(
+        screen.getByRole('button', { name: 'Exclude 10 Mar from this pattern' }),
+      )
+      expect(screen.getByText(/Based on 8 days of data\./)).toBeInTheDocument()
+
+      await user.click(
+        screen.getByRole('button', { name: 'Restore 10 Mar to this pattern' }),
+      )
+
+      expect(screen.getByText(/Based on 9 days of data\./)).toBeInTheDocument()
+    })
   })
 
   describe('whole-card show/hide toggle (#247)', () => {

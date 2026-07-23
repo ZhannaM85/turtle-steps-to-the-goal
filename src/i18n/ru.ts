@@ -427,6 +427,9 @@ export const ru: Dictionary = {
         : strength === 'moderate'
           ? 'Умеренная закономерность'
           : 'Слабая закономерность',
+    outlierPointsHeading: 'Необычные точки данных',
+    excludeOutlierLabel: (label) => `Исключить ${label} из этой закономерности`,
+    restoreOutlierLabel: (label) => `Вернуть ${label} в эту закономерность`,
     weeklyChangeLegend: 'изменение за неделю',
     chartNavigationHint: 'Нажмите на точку для подробностей',
     viewDayLink: 'Открыть этот день',

@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 266,
+    issue: 224,
+    date: '2026-07-23T07:44:14+03:00',
+    en: 'Correlation charts now flag unusual days (like a vacation or illness) and let you exclude them from the pattern with a tap.',
+    ru: 'Графики закономерностей теперь отмечают необычные дни (например, отпуск или болезнь) и позволяют исключить их из закономерности одним нажатием.',
+  },
+  {
     version: 265,
     issue: 290,
     date: '2026-07-23T02:14:44+03:00',

@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { format, parseISO } from 'date-fns'
 import { ChevronDown, ChevronUp } from 'lucide-react'
 import {
   CartesianGrid,
@@ -11,13 +12,21 @@ import {
 } from 'recharts'
 import type { DailyEntry } from '@/domain/dailyEntry'
 import { kgToLb } from '@/domain/goal'
-import { correlationInsight, weeklySummaries } from '@/domain/stats'
-import { formatNumber, unitLabel, useLocale, useTranslation } from '@/i18n'
+import { correlationInsightFromPoints, correlationInsightPoints } from '@/domain/stats'
+import {
+  formatNumber,
+  getDateFnsLocale,
+  unitLabel,
+  useLocale,
+  useTranslation,
+} from '@/i18n'
 import { useDashboardChartVisibilityStore, useUnitStore } from '@/stores'
-import { useWeekStartsOn } from '@/shared/hooks'
+import { useOutlierExclusion, useWeekStartsOn } from '@/shared/hooks'
 import { Button } from '@/shared/ui/button'
 import { ChartTitleWithToggle } from './ChartTitleWithToggle'
 import { CorrelationStrengthLabel } from './CorrelationStrengthLabel'
+import { OutlierPointsList } from './OutlierPointsList'
+import { renderOutlierScatterShape } from './outlierScatterShape'
 
 export interface CorrelationViewProps {
   entries: DailyEntry[]
@@ -26,6 +35,7 @@ export interface CorrelationViewProps {
 export function CorrelationView({ entries }: CorrelationViewProps) {
   const t = useTranslation()
   const locale = useLocale()
+  const dateFnsLocale = getDateFnsLocale(locale)
   const displayUnit = useUnitStore((state) => state.unit)
   const toDisplay = (kg: number) => (displayUnit === 'lb' ? kgToLb(kg) : kg)
   const unit = unitLabel(displayUnit, t)
@@ -45,24 +55,26 @@ export function CorrelationView({ entries }: CorrelationViewProps) {
   )
 
   const weekStartsOn = useWeekStartsOn(entries)
-  const weeks = weeklySummaries(entries, undefined, weekStartsOn)
-  const points = weeks
-    .filter(
-      (
-        week,
-      ): week is typeof week & {
-        averageCalories: number
-        deltaVsPriorWeekKg: number
-      } => week.averageCalories !== null && week.deltaVsPriorWeekKg !== null,
-    )
-    .map((week) => ({
-      calories: week.averageCalories,
-      delta: toDisplay(week.deltaVsPriorWeekKg),
-    }))
+  const rawPoints = correlationInsightPoints(entries, weekStartsOn)
+  const { flags, isExcluded, toggle, includedPoints } = useOutlierExclusion(
+    'calorieWeight',
+    rawPoints,
+    (p) => p.calories,
+    (p) => p.delta,
+    (p) => p.weekStart,
+  )
 
-  if (points.length === 0) return null
+  if (rawPoints.length === 0) return null
 
-  const insight = correlationInsight(entries, weekStartsOn)
+  const points = rawPoints.map((point, i) => ({
+    calories: point.calories,
+    delta: toDisplay(point.delta),
+    isOutlier: flags[i],
+    isExcluded: isExcluded(point),
+  }))
+  const outlierPoints = rawPoints.filter((_, i) => flags[i])
+
+  const insight = correlationInsightFromPoints(includedPoints)
   const expanded = insight !== null || isExpanded
 
   const cardTitle = (
@@ -140,9 +152,21 @@ export function CorrelationView({ entries }: CorrelationViewProps) {
               data={points}
               fill="var(--chart-weight)"
               isAnimationActive={false}
+              shape={renderOutlierScatterShape('var(--chart-weight)')}
             />
           </ScatterChart>
         </ResponsiveContainer>
+      )}
+      {expanded && (
+        <OutlierPointsList
+          points={outlierPoints}
+          isExcluded={isExcluded}
+          onToggle={toggle}
+          getKey={(point) => point.weekStart}
+          formatLabel={(point) =>
+            format(parseISO(point.weekStart), 'd MMM', { locale: dateFnsLocale })
+          }
+        />
       )}
       {insight ? (
         <>

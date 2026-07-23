@@ -39,6 +39,11 @@ function lastMealTimeMinutes(entry: DailyEntry): number | null {
 }
 
 export interface LateMealPoint {
+  /** The day this point's delta belongs to (the *next* calendar day after
+   * the late-meal reading) — #224's stable per-point key for tap-to-exclude
+   * outlier handling, same "date the point ends on" convention
+   * `FastingWindowPoint.date` already uses. */
+  date: string
   minutes: number
   deltaKg: number
 }
@@ -66,27 +71,26 @@ export function lateMealPoints(entries: DailyEntry[]): LateMealPoint[] {
     const nextDate = format(addDays(parseISO(entry.date), 1), 'yyyy-MM-dd')
     const nextEntry = byDate.get(nextDate)
     if (!nextEntry || nextEntry.weightKg === undefined) continue
-    points.push({ minutes, deltaKg: nextEntry.weightKg - entry.weightKg })
+    points.push({
+      date: nextEntry.date,
+      minutes,
+      deltaKg: nextEntry.weightKg - entry.weightKg,
+    })
   }
 
   return points
 }
 
 /**
- * A plain-arithmetic, non-AI "pattern" summary distinct from
- * `correlationInsight` (which compares a *week's* average calories to that
- * week's weight change): splits `lateMealPoints`' comparable day-pairs into
- * an earlier-eating and later-eating half by median, and reports which half
- * averaged more next-day gain. Requires MIN_COMPARABLE_DAYS pairs —
- * day-level pairs are noisier than `correlationInsight`'s week-level
- * averages, so this needs more of them before a split is meaningful.
- * Returns null otherwise.
+ * The median-split math on its own, taking already-computed points rather
+ * than entries — #224 lets a view filter out manually-excluded outlier
+ * points first (`shared/hooks/useOutlierExclusion.ts`) and pass the
+ * remainder straight in, without this function knowing exclusion exists at
+ * all. `lateMealCorrelation` below is a thin wrapper over this + `lateMealPoints`.
  */
-export function lateMealCorrelation(
-  entries: DailyEntry[],
+export function lateMealCorrelationFromPoints(
+  points: LateMealPoint[],
 ): LateMealCorrelation | null {
-  const points = lateMealPoints(entries)
-
   if (points.length < MIN_COMPARABLE_DAYS) return null
 
   const sorted = [...points].sort((a, b) => a.minutes - b.minutes)
@@ -111,4 +115,20 @@ export function lateMealCorrelation(
       DAILY_STRENGTH_THRESHOLDS_KG,
     ),
   }
+}
+
+/**
+ * A plain-arithmetic, non-AI "pattern" summary distinct from
+ * `correlationInsight` (which compares a *week's* average calories to that
+ * week's weight change): splits `lateMealPoints`' comparable day-pairs into
+ * an earlier-eating and later-eating half by median, and reports which half
+ * averaged more next-day gain. Requires MIN_COMPARABLE_DAYS pairs —
+ * day-level pairs are noisier than `correlationInsight`'s week-level
+ * averages, so this needs more of them before a split is meaningful.
+ * Returns null otherwise.
+ */
+export function lateMealCorrelation(
+  entries: DailyEntry[],
+): LateMealCorrelation | null {
+  return lateMealCorrelationFromPoints(lateMealPoints(entries))
 }

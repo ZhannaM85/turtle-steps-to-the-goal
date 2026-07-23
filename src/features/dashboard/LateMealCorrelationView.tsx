@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { format, parseISO } from 'date-fns'
 import { ChevronDown, ChevronUp } from 'lucide-react'
 import {
   CartesianGrid,
@@ -11,12 +12,21 @@ import {
 } from 'recharts'
 import type { DailyEntry } from '@/domain/dailyEntry'
 import { kgToLb } from '@/domain/goal'
-import { lateMealCorrelation, lateMealPoints } from '@/domain/stats'
-import { formatNumber, unitLabel, useLocale, useTranslation } from '@/i18n'
+import { lateMealCorrelationFromPoints, lateMealPoints } from '@/domain/stats'
+import {
+  formatNumber,
+  getDateFnsLocale,
+  unitLabel,
+  useLocale,
+  useTranslation,
+} from '@/i18n'
 import { useDashboardChartVisibilityStore, useUnitStore } from '@/stores'
+import { useOutlierExclusion } from '@/shared/hooks'
 import { Button } from '@/shared/ui/button'
 import { ChartTitleWithToggle } from './ChartTitleWithToggle'
 import { CorrelationStrengthLabel } from './CorrelationStrengthLabel'
+import { OutlierPointsList } from './OutlierPointsList'
+import { renderOutlierScatterShape } from './outlierScatterShape'
 
 export interface LateMealCorrelationViewProps {
   entries: DailyEntry[]
@@ -40,6 +50,7 @@ export function LateMealCorrelationView({
 }: LateMealCorrelationViewProps) {
   const t = useTranslation()
   const locale = useLocale()
+  const dateFnsLocale = getDateFnsLocale(locale)
   const displayUnit = useUnitStore((state) => state.unit)
   const toDisplay = (kg: number) => (displayUnit === 'lb' ? kgToLb(kg) : kg)
   const unit = unitLabel(displayUnit, t)
@@ -48,14 +59,26 @@ export function LateMealCorrelationView({
     (state) => state.visible.lateMealCorrelation,
   )
 
-  const points = lateMealPoints(entries).map((point) => ({
+  const rawPoints = lateMealPoints(entries)
+  const { flags, isExcluded, toggle, includedPoints } = useOutlierExclusion(
+    'lateMeal',
+    rawPoints,
+    (p) => p.minutes,
+    (p) => p.deltaKg,
+    (p) => p.date,
+  )
+
+  if (rawPoints.length === 0) return null
+
+  const points = rawPoints.map((point, i) => ({
     minutes: point.minutes,
     delta: toDisplay(point.deltaKg),
+    isOutlier: flags[i],
+    isExcluded: isExcluded(point),
   }))
+  const outlierPoints = rawPoints.filter((_, i) => flags[i])
 
-  if (points.length === 0) return null
-
-  const insight = lateMealCorrelation(entries)
+  const insight = lateMealCorrelationFromPoints(includedPoints)
   const expanded = insight !== null || isExpanded
 
   const cardTitle = (
@@ -135,9 +158,21 @@ export function LateMealCorrelationView({
               data={points}
               fill="var(--chart-weight)"
               isAnimationActive={false}
+              shape={renderOutlierScatterShape('var(--chart-weight)')}
             />
           </ScatterChart>
         </ResponsiveContainer>
+      )}
+      {expanded && (
+        <OutlierPointsList
+          points={outlierPoints}
+          isExcluded={isExcluded}
+          onToggle={toggle}
+          getKey={(point) => point.date}
+          formatLabel={(point) =>
+            format(parseISO(point.date), 'd MMM', { locale: dateFnsLocale })
+          }
+        />
       )}
       {insight ? (
         <>

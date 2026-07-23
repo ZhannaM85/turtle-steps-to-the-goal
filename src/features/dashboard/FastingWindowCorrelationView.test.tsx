@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event'
 import { addDays, format } from 'date-fns'
 import { afterEach, describe, expect, it } from 'vitest'
 import type { CalorieEntry, DailyEntry } from '@/domain/dailyEntry'
-import { useDashboardChartVisibilityStore } from '@/stores'
+import { useDashboardChartVisibilityStore, useOutlierExclusionStore } from '@/stores'
 import { FastingWindowCorrelationView } from './FastingWindowCorrelationView'
 
 const DATE_FORMAT = 'yyyy-MM-dd'
@@ -101,6 +101,60 @@ describe('FastingWindowCorrelationView', () => {
       screen.getByText(/averaged more weight gain the next morning/),
     ).toBeInTheDocument()
     expect(screen.getByText(/Based on 10 days of data\./)).toBeInTheDocument()
+  })
+
+  describe('outlier detection and exclusion (#224)', () => {
+    afterEach(() => {
+      localStorage.clear()
+      useOutlierExclusionStore.setState({ excluded: {} })
+    })
+
+    // TEN_PAIR_ENTRIES' own 10 clean pairs, plus an 11th (same 9h fasting
+    // window as the others, so no X-outlier) whose delta (-12.75kg) is
+    // wildly outside the pattern.
+    function entriesWithOneOutlier(): DailyEntry[] {
+      return [
+        ...TEN_PAIR_ENTRIES,
+        entry(day(11), { weightKg: 70.0, calorieEntries: mealAt('07:00') }),
+      ]
+    }
+
+    it('lists the flagged outlier day as an excludable button', () => {
+      render(<FastingWindowCorrelationView entries={entriesWithOneOutlier()} />)
+
+      expect(
+        screen.getByRole('button', { name: 'Exclude 12 Mar from this pattern' }),
+      ).toBeInTheDocument()
+    })
+
+    it('excludes the flagged day from the summary once tapped', async () => {
+      const user = userEvent.setup()
+      render(<FastingWindowCorrelationView entries={entriesWithOneOutlier()} />)
+
+      expect(screen.getByText(/Based on 11 days of data\./)).toBeInTheDocument()
+
+      await user.click(
+        screen.getByRole('button', { name: 'Exclude 12 Mar from this pattern' }),
+      )
+
+      expect(screen.getByText(/Based on 10 days of data\./)).toBeInTheDocument()
+    })
+
+    it('restores an excluded day when tapped again', async () => {
+      const user = userEvent.setup()
+      render(<FastingWindowCorrelationView entries={entriesWithOneOutlier()} />)
+
+      await user.click(
+        screen.getByRole('button', { name: 'Exclude 12 Mar from this pattern' }),
+      )
+      expect(screen.getByText(/Based on 10 days of data\./)).toBeInTheDocument()
+
+      await user.click(
+        screen.getByRole('button', { name: 'Restore 12 Mar to this pattern' }),
+      )
+
+      expect(screen.getByText(/Based on 11 days of data\./)).toBeInTheDocument()
+    })
   })
 
   describe('whole-card show/hide toggle (#247)', () => {

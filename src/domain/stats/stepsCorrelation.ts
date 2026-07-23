@@ -24,6 +24,8 @@ function average(values: number[]): number {
 }
 
 export interface StepsPoint {
+  /** #224 — stable per-point key for tap-to-exclude outlier handling. */
+  date: string
   steps: number
   deltaKg: number
 }
@@ -44,6 +46,7 @@ export function stepsPoints(entries: DailyEntry[]): StepsPoint[] {
     const nextEntry = byDate.get(nextDate)
     if (!nextEntry || nextEntry.weightKg === undefined) continue
     points.push({
+      date: nextEntry.date,
       steps: entry.steps,
       deltaKg: nextEntry.weightKg - entry.weightKg,
     })
@@ -53,15 +56,14 @@ export function stepsPoints(entries: DailyEntry[]): StepsPoint[] {
 }
 
 /**
- * Plain-arithmetic median-split summary, same shape as `lateMealCorrelation`/
- * `sleepCorrelation` — splits `stepsPoints`' comparable day-pairs into a
- * fewer-steps and more-steps half by median count, and reports which half
- * averaged more next-day gain. Requires MIN_COMPARABLE_DAYS pairs. Returns
- * null otherwise.
+ * The median-split math on its own, taking already-computed points rather
+ * than entries — #224 lets a view filter out manually-excluded outlier
+ * points first and pass the remainder straight in. `stepsCorrelation`
+ * below is a thin wrapper over this + `stepsPoints`.
  */
-export function stepsCorrelation(entries: DailyEntry[]): StepsCorrelation | null {
-  const points = stepsPoints(entries)
-
+export function stepsCorrelationFromPoints(
+  points: StepsPoint[],
+): StepsCorrelation | null {
   if (points.length < MIN_COMPARABLE_DAYS) return null
 
   const sorted = [...points].sort((a, b) => a.steps - b.steps)
@@ -86,4 +88,15 @@ export function stepsCorrelation(entries: DailyEntry[]): StepsCorrelation | null
       DAILY_STRENGTH_THRESHOLDS_KG,
     ),
   }
+}
+
+/**
+ * Plain-arithmetic median-split summary, same shape as `lateMealCorrelation`/
+ * `sleepCorrelation` — splits `stepsPoints`' comparable day-pairs into a
+ * fewer-steps and more-steps half by median count, and reports which half
+ * averaged more next-day gain. Requires MIN_COMPARABLE_DAYS pairs. Returns
+ * null otherwise.
+ */
+export function stepsCorrelation(entries: DailyEntry[]): StepsCorrelation | null {
+  return stepsCorrelationFromPoints(stepsPoints(entries))
 }

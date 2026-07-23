@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event'
 import { addDays, format } from 'date-fns'
 import { afterEach, describe, expect, it } from 'vitest'
 import type { CalorieEntry, DailyEntry } from '@/domain/dailyEntry'
-import { useDashboardChartVisibilityStore } from '@/stores'
+import { useDashboardChartVisibilityStore, useOutlierExclusionStore } from '@/stores'
 import { LateMealCorrelationView } from './LateMealCorrelationView'
 
 const DATE_FORMAT = 'yyyy-MM-dd'
@@ -93,6 +93,86 @@ describe('LateMealCorrelationView', () => {
       screen.getByText(/averaged more weight gain the next morning/),
     ).toBeInTheDocument()
     expect(screen.getByText(/Based on 8 days of data\./)).toBeInTheDocument()
+  })
+
+  describe('outlier detection and exclusion (#224)', () => {
+    afterEach(() => {
+      localStorage.clear()
+      useOutlierExclusionStore.setState({ excluded: {} })
+    })
+
+    // 9 pairs: 8 following a clean later-eating-means-more-gain pattern
+    // (times 12:00-23:30, small positive deltas), plus a 9th whose delta
+    // (-13.4kg) is wildly outside that pattern — a clear Y-axis-only
+    // outlier (its own meal time, noon, is unremarkable).
+    function entriesWithOneOutlier(): DailyEntry[] {
+      return [
+        entry(day(0), { weightKg: 80.0, calorieEntries: mealAt('12:00') }),
+        entry(day(1), { weightKg: 80.1, calorieEntries: mealAt('12:30') }),
+        entry(day(2), { weightKg: 80.2, calorieEntries: mealAt('13:00') }),
+        entry(day(3), { weightKg: 80.25, calorieEntries: mealAt('13:30') }),
+        entry(day(4), { weightKg: 80.4, calorieEntries: mealAt('22:00') }),
+        entry(day(5), { weightKg: 81.2, calorieEntries: mealAt('22:30') }),
+        entry(day(6), { weightKg: 81.9, calorieEntries: mealAt('23:00') }),
+        entry(day(7), { weightKg: 82.8, calorieEntries: mealAt('23:30') }),
+        entry(day(8), { weightKg: 83.4, calorieEntries: mealAt('12:00') }),
+        entry(day(9), { weightKg: 70.0 }),
+      ]
+    }
+
+    it('lists the flagged outlier day as an excludable button', () => {
+      render(<LateMealCorrelationView entries={entriesWithOneOutlier()} />)
+
+      expect(
+        screen.getByRole('button', { name: 'Exclude 10 Mar from this pattern' }),
+      ).toBeInTheDocument()
+    })
+
+    it('excludes the flagged day from the summary once tapped', async () => {
+      const user = userEvent.setup()
+      render(<LateMealCorrelationView entries={entriesWithOneOutlier()} />)
+
+      expect(screen.getByText(/Based on 9 days of data\./)).toBeInTheDocument()
+
+      await user.click(
+        screen.getByRole('button', { name: 'Exclude 10 Mar from this pattern' }),
+      )
+
+      expect(screen.getByText(/Based on 8 days of data\./)).toBeInTheDocument()
+    })
+
+    it('restores an excluded day when tapped again', async () => {
+      const user = userEvent.setup()
+      render(<LateMealCorrelationView entries={entriesWithOneOutlier()} />)
+
+      await user.click(
+        screen.getByRole('button', { name: 'Exclude 10 Mar from this pattern' }),
+      )
+      expect(screen.getByText(/Based on 8 days of data\./)).toBeInTheDocument()
+
+      await user.click(
+        screen.getByRole('button', { name: 'Restore 10 Mar to this pattern' }),
+      )
+
+      expect(screen.getByText(/Based on 9 days of data\./)).toBeInTheDocument()
+    })
+
+    it('does not flag anything when every point is unremarkable', () => {
+      const entries = [
+        entry(day(0), { weightKg: 80.0, calorieEntries: mealAt('12:00') }),
+        entry(day(1), { weightKg: 80.1, calorieEntries: mealAt('12:30') }),
+        entry(day(2), { weightKg: 80.2, calorieEntries: mealAt('13:00') }),
+        entry(day(3), { weightKg: 80.25, calorieEntries: mealAt('13:30') }),
+        entry(day(4), { weightKg: 80.4, calorieEntries: mealAt('22:00') }),
+        entry(day(5), { weightKg: 81.2, calorieEntries: mealAt('22:30') }),
+        entry(day(6), { weightKg: 81.9, calorieEntries: mealAt('23:00') }),
+        entry(day(7), { weightKg: 82.8, calorieEntries: mealAt('23:30') }),
+        entry(day(8), { weightKg: 83.4 }),
+      ]
+      render(<LateMealCorrelationView entries={entries} />)
+
+      expect(screen.queryByText('Unusual data points')).not.toBeInTheDocument()
+    })
   })
 
   describe('whole-card show/hide toggle (#247)', () => {

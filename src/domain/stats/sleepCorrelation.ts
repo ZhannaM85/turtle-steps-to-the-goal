@@ -24,6 +24,9 @@ function average(values: number[]): number {
 }
 
 export interface SleepPoint {
+  /** #224 — stable per-point key for tap-to-exclude outlier handling, same
+   * "date the point ends on" convention as the other day-pair points. */
+  date: string
   hours: number
   deltaKg: number
 }
@@ -47,6 +50,7 @@ export function sleepPoints(entries: DailyEntry[]): SleepPoint[] {
     const nextEntry = byDate.get(nextDate)
     if (!nextEntry || nextEntry.weightKg === undefined) continue
     points.push({
+      date: nextEntry.date,
       hours: entry.sleepHours,
       deltaKg: nextEntry.weightKg - entry.weightKg,
     })
@@ -56,14 +60,14 @@ export function sleepPoints(entries: DailyEntry[]): SleepPoint[] {
 }
 
 /**
- * Plain-arithmetic median-split summary, same shape as `lateMealCorrelation`
- * — splits `sleepPoints`' comparable day-pairs into a less-sleep and
- * more-sleep half by median hours, and reports which half averaged more
- * next-day gain. Requires MIN_COMPARABLE_DAYS pairs. Returns null otherwise.
+ * The median-split math on its own, taking already-computed points rather
+ * than entries — #224 lets a view filter out manually-excluded outlier
+ * points first and pass the remainder straight in. `sleepCorrelation`
+ * below is a thin wrapper over this + `sleepPoints`.
  */
-export function sleepCorrelation(entries: DailyEntry[]): SleepCorrelation | null {
-  const points = sleepPoints(entries)
-
+export function sleepCorrelationFromPoints(
+  points: SleepPoint[],
+): SleepCorrelation | null {
   if (points.length < MIN_COMPARABLE_DAYS) return null
 
   const sorted = [...points].sort((a, b) => a.hours - b.hours)
@@ -88,4 +92,14 @@ export function sleepCorrelation(entries: DailyEntry[]): SleepCorrelation | null
       DAILY_STRENGTH_THRESHOLDS_KG,
     ),
   }
+}
+
+/**
+ * Plain-arithmetic median-split summary, same shape as `lateMealCorrelation`
+ * — splits `sleepPoints`' comparable day-pairs into a less-sleep and
+ * more-sleep half by median hours, and reports which half averaged more
+ * next-day gain. Requires MIN_COMPARABLE_DAYS pairs. Returns null otherwise.
+ */
+export function sleepCorrelation(entries: DailyEntry[]): SleepCorrelation | null {
+  return sleepCorrelationFromPoints(sleepPoints(entries))
 }

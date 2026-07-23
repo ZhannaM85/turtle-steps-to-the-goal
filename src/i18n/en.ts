@@ -422,6 +422,9 @@ export const en: Dictionary = {
         : strength === 'moderate'
           ? 'Moderate pattern'
           : 'Weak pattern',
+    outlierPointsHeading: 'Unusual data points',
+    excludeOutlierLabel: (label) => `Exclude ${label} from this pattern`,
+    restoreOutlierLabel: (label) => `Restore ${label} to this pattern`,
     weeklyChangeLegend: 'weekly change',
     chartNavigationHint: 'Tap a point for details',
     viewDayLink: 'View this day',

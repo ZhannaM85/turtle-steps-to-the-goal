@@ -130,11 +130,9 @@ export function fastingWindowPoints(entries: DailyEntry[]): FastingWindowPoint[]
  * Returns null otherwise. Answers "did my own shorter/longer-than-usual
  * fasts do worse" — relative to this user's own data.
  */
-export function fastingWindowCorrelation(
-  entries: DailyEntry[],
+export function fastingWindowCorrelationFromPoints(
+  points: FastingWindowPoint[],
 ): FastingWindowCorrelation | null {
-  const points = fastingWindowPoints(entries)
-
   if (points.length < MIN_COMPARABLE_DAYS) return null
 
   const sorted = [...points].sort((a, b) => a.fastingHours - b.fastingHours)
@@ -161,4 +159,10 @@ export function fastingWindowCorrelation(
       DAILY_STRENGTH_THRESHOLDS_KG,
     ),
   }
+}
+
+export function fastingWindowCorrelation(
+  entries: DailyEntry[],
+): FastingWindowCorrelation | null {
+  return fastingWindowCorrelationFromPoints(fastingWindowPoints(entries))
 }

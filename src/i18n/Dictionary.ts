@@ -636,6 +636,14 @@ export interface Dictionary {
      * ones) rather than a separate copy per view, since the concept and
      * wording is identical everywhere it appears. */
     correlationStrengthLabel: (strength: 'weak' | 'moderate' | 'strong') => string
+    /** #224 — shared outlier-flagging UI, reused by all 6 correlation
+     * views (`shared/hooks/useOutlierExclusion.ts`,
+     * `OutlierPointsList.tsx`). A flagged point (Tukey's-fences outlier on
+     * either axis) can be tapped to drop it from that one view's own
+     * correlation math — e.g. a vacation or illness week. */
+    outlierPointsHeading: string
+    excludeOutlierLabel: (label: string) => string
+    restoreOutlierLabel: (label: string) => string
     weeklyChangeLegend: string
     chartNavigationHint: string
     viewDayLink: string

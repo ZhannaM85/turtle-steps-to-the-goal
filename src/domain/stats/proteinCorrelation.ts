@@ -24,6 +24,8 @@ function average(values: number[]): number {
 }
 
 export interface ProteinPoint {
+  /** #224 — stable per-point key for tap-to-exclude outlier handling. */
+  date: string
   proteinG: number
   deltaKg: number
 }
@@ -47,6 +49,7 @@ export function proteinPoints(entries: DailyEntry[]): ProteinPoint[] {
     const nextEntry = byDate.get(nextDate)
     if (!nextEntry || nextEntry.weightKg === undefined) continue
     points.push({
+      date: nextEntry.date,
       proteinG,
       deltaKg: nextEntry.weightKg - entry.weightKg,
     })
@@ -56,17 +59,14 @@ export function proteinPoints(entries: DailyEntry[]): ProteinPoint[] {
 }
 
 /**
- * Plain-arithmetic median-split summary, same shape as `sleepCorrelation`/
- * `stepsCorrelation` — splits `proteinPoints`' comparable day-pairs into a
- * less-protein and more-protein half by median grams, and reports which
- * half averaged more next-day gain. Requires MIN_COMPARABLE_DAYS pairs.
- * Returns null otherwise.
+ * The median-split math on its own, taking already-computed points rather
+ * than entries — #224 lets a view filter out manually-excluded outlier
+ * points first and pass the remainder straight in. `proteinCorrelation`
+ * below is a thin wrapper over this + `proteinPoints`.
  */
-export function proteinCorrelation(
-  entries: DailyEntry[],
+export function proteinCorrelationFromPoints(
+  points: ProteinPoint[],
 ): ProteinCorrelation | null {
-  const points = proteinPoints(entries)
-
   if (points.length < MIN_COMPARABLE_DAYS) return null
 
   const sorted = [...points].sort((a, b) => a.proteinG - b.proteinG)
@@ -91,4 +91,17 @@ export function proteinCorrelation(
       DAILY_STRENGTH_THRESHOLDS_KG,
     ),
   }
+}
+
+/**
+ * Plain-arithmetic median-split summary, same shape as `sleepCorrelation`/
+ * `stepsCorrelation` — splits `proteinPoints`' comparable day-pairs into a
+ * less-protein and more-protein half by median grams, and reports which
+ * half averaged more next-day gain. Requires MIN_COMPARABLE_DAYS pairs.
+ * Returns null otherwise.
+ */
+export function proteinCorrelation(
+  entries: DailyEntry[],
+): ProteinCorrelation | null {
+  return proteinCorrelationFromPoints(proteinPoints(entries))
 }
