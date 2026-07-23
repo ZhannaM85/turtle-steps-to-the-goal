@@ -1322,6 +1322,43 @@ describe('MealList', () => {
       ).toBeInTheDocument()
     })
 
+    // #287 (reopened): addFoodEntry() (the "Find food" quick-commit path)
+    // set its own timeEaten but never called announceFastingWindowIfFirst
+    // Meal — the toast only ever fired via addMeal()/saveEditMeal(), so the
+    // day's first meal going through "Find food" (the add row's primary,
+    // most prominent button) silently never showed it. Every other test in
+    // this describe block only exercises "+ Add item", which is why this
+    // gap wasn't caught earlier.
+    it("shows the toast when the day's first timed meal is added via Find food", async () => {
+      await db.dailyEntries.put(
+        makeDailyEntry({
+          date: '2026-02-28',
+          calorieEntries: [
+            {
+              id: 'y1',
+              items: [{ id: 'yi1', amountKcal: 400 }],
+              timeEaten: '20:00',
+              createdAt: '2026-02-28T20:00:00.000Z',
+            },
+          ],
+        }),
+      )
+      const user = userEvent.setup()
+      render(
+        <MealList calorieEntries={[]} date="2026-03-01" onChange={vi.fn()} />,
+        { wrapper: MemoryRouter },
+      )
+
+      await user.type(screen.getByLabelText('Time'), '08:00')
+      await user.click(screen.getByRole('button', { name: 'Find food' }))
+      await user.click(screen.getByText('Salmon'))
+      await user.click(screen.getByRole('button', { name: 'Add selected' }))
+
+      expect(
+        await screen.findByText('Your fasting window was 12.0h.'),
+      ).toBeInTheDocument()
+    })
+
     it('does not show the toast when yesterday has no timed meal', async () => {
       const user = userEvent.setup()
       render(

@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 272,
+    issue: 287,
+    date: '2026-07-23T13:01:18+03:00',
+    en: 'Fixed the fasting-window note not showing when your first meal of the day was logged via "Find food".',
+    ru: 'Исправлена ошибка: заметка об окне голодания не показывалась, если первый приём пищи за день был записан через «Найти блюдо».',
+  },
+  {
     version: 271,
     issue: 296,
     date: '2026-07-23T12:53:46+03:00',

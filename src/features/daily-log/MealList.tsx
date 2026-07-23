@@ -1555,9 +1555,16 @@ export function MealList({
   // with the current clock time, the one gap addMeal() (the "+ Add item"
   // path) didn't have, since it already reads addTime instead of stamping
   // "now" unconditionally.
+  // #287 (reopened): this is the one meal-adding path that sets a
+  // `timeEaten` but never called announceFastingWindowIfFirstMeal — the
+  // toast only ever fired from addMeal()/saveEditMeal(), so anyone whose
+  // first meal of the day goes through "Find food" (the bottom add row's
+  // own primary, most prominent button) never saw it, even after the
+  // earlier race-condition fix, since that fix only touched a code path
+  // this one never reached in the first place.
   function addFoodEntry(values: PickedFoodValues[]) {
     if (values.length === 0) return
-    setCalorieEntries([
+    const nextEntries = [
       ...calorieEntries,
       {
         id: crypto.randomUUID(),
@@ -1574,7 +1581,9 @@ export function MealList({
         timeEaten: addTime || currentTimeHHMM(),
         createdAt: new Date().toISOString(),
       },
-    ])
+    ]
+    void announceFastingWindowIfFirstMeal(nextEntries)
+    setCalorieEntries(nextEntries)
     setAddTime('')
   }
 
