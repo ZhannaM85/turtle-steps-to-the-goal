@@ -672,6 +672,14 @@ _The next big initiative, at the user's request: ship this PWA as installable na
 
 ---
 
+## Tier 42 — Live feedback: orphaned label left by #326 (2026-07-24)
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#327](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/327) | 🔲 Open | Remove the now-orphaned "Calories" label/tooltip left in DailyEntryForm after #326 | Reported live with a screenshot right after validating #326 on-device: #326 deliberately kept `DailyEntryForm.tsx`'s "Calories" label + its info tooltip (day-lag-with-weight explanation) when it removed the number readout next to it, but on the real device that heading now labels nothing — it sits alone above the "БЖУ"/macros line and meal list with no readout beside it. Ask: remove the leftover title; where (if anywhere) its info-tooltip explanation should move is implementation-time work, not yet decided |
+
+---
+
 ## Private (no public GitHub issue, by request)
 
 _Filed and built without a public issue at the user's explicit request — the repo is public, and this one's more personal than the rest. Still documented normally here per the project's usual close-out process; see [[feedback_issue_first]]'s exception #2 in memory for why._
