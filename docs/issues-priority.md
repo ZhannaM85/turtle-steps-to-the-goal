@@ -645,6 +645,14 @@ _The next big initiative, at the user's request: ship this PWA as installable na
 
 ---
 
+## Tier 39 — Live feedback: show overage instead of clamping (2026-07-23)
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#321](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/321) | 🔲 Open | Show overage amount instead of clamping at 0 for fat/carbs/water remaining cards | Reported live: after drinking 3L against a 2L water goal, the card showed "0 ml left" — the extra liter is silently dropped, same clamping issue exists for fat/carbs. Protein already solved this shape (#266) with a positive "surplus — great job!" framing; ask is to extend the same over-target display to fat/carbs/water but with **neutral** wording (just "X g/ml over", no congratulatory copy), since going over isn't uniformly good for these three the way extra protein is. Scoped to the number/unit/description only — #320's segmented bar already fills fully at/over goal, unaffected |
+
+---
+
 ## Private (no public GitHub issue, by request)
 
 _Filed and built without a public issue at the user's explicit request — the repo is public, and this one's more personal than the rest. Still documented normally here per the project's usual close-out process; see [[feedback_issue_first]]'s exception #2 in memory for why._
