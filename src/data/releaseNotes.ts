@@ -25,6 +25,20 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 292,
+    issue: 328,
+    date: '2026-07-24T03:22:00+03:00',
+    en: 'The "remaining" cards on Today (calories, protein, fat, carbs, water) now show the total and consumed amounts together, so you don\'t have to do the subtraction yourself.',
+    ru: 'Карточки «осталось» на экране «Сегодня» (калории, белки, жиры, углеводы, вода) теперь показывают норму и потреблённое количество вместе — вычитать самостоятельно больше не нужно.',
+  },
+  {
+    version: 291,
+    issue: 329,
+    date: '2026-07-24T03:20:00+03:00',
+    en: 'The estimated daily calories (BMR) card is gone from Today — tap the info icon on "Remaining calories" to see it instead.',
+    ru: 'Карточка «Примерная суточная норма калорий» убрана с экрана «Сегодня» — теперь она доступна по нажатию на значок информации в карточке «Осталось калорий».',
+  },
+  {
     version: 290,
     issue: 327,
     date: '2026-07-24T02:31:00+03:00',

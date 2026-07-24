@@ -88,24 +88,7 @@ export interface Dictionary {
     remainingCaloriesLabel: string
     kcalRemainingUnit: string
     kcalOverUnit: string
-    /** #326 — the "Remaining calories" card shows all 3 numbers (total,
-     * consumed, remaining) at once instead of just the remaining figure,
-     * after live feedback that a bare "remaining" number still left the
-     * user hunting for the consumed total elsewhere on the page. These
-     * two label the first two numbers; the third reuses kcalRemainingUnit/
-     * kcalOverUnit above. equationSummary is an sr-only sentence reading
-     * the whole equation aloud for screen readers, since the visual
-     * layout (numbers + decorative −/= glyphs) doesn't reliably read as a
-     * coherent sentence on its own. */
-    totalCaloriesLabel: string
-    consumedCaloriesLabel: string
-    caloriesEquationSummary: (
-      total: string,
-      consumed: string,
-      remaining: string,
-      direction: 'remaining' | 'over',
-    ) => string
-    /** #220 — same shape as the calories trio above, shown once the
+    /** #220 — same shape as the calories pair above, shown once the
      * active goal has a dailyProteinTargetG set. */
     remainingProteinLabel: string
     gRemainingUnit: string
@@ -114,22 +97,25 @@ export interface Dictionary {
      * framing too (see gOverUnit below) — no longer clamped at 0. */
     remainingFatLabel: string
     remainingCarbLabel: string
-    /** #266 — shown as each remaining-nutrient card's `description`, so
-     * "0g remaining" also says what it's out of. Same text regardless of
-     * under/over-target state for calories/fat/carb/water; protein's own
-     * over-target state uses `proteinOverTargetLabel` instead (denominator
-     * + positive message combined), not this one. */
-    targetDenominatorText: (target: string) => string
-    /** #266 — protein-only: once intake exceeds the target, the card
+    /** #266/#328 — shown as each remaining-nutrient (and, since #328,
+     * calories) card's `description`: total minus consumed, so the amount
+     * actually consumed is visible without the reader doing that
+     * subtraction themselves — a bare "of Xg" denominator (#266's original
+     * text) still left that gap. Same shape regardless of under/over-target
+     * state for calories/fat/carb/water; protein's own over-target state
+     * uses `proteinOverTargetLabel` instead (same breakdown + a positive
+     * message), not this one. */
+    targetMinusConsumedText: (target: string, consumed: string) => string
+    /** #266/#328 — protein-only: once intake exceeds the target, the card
      * switches from "0g remaining" to a signed surplus (paired with
      * `gOverUnit` below) plus this positive description — a deliberate,
      * protein-only exception, since exceeding a protein target is a good
      * outcome unlike a calorie ceiling or fat/carb/water. Those three
      * (#321) also switch to a surplus value + `gOverUnit`/`mlOverUnit`
-     * once over, but keep the neutral `targetDenominatorText` description
+     * once over, but keep the neutral `targetMinusConsumedText` breakdown
      * above rather than this positive one — going over isn't uniformly
      * good for them the way it is for protein. */
-    proteinOverTargetLabel: (target: string) => string
+    proteinOverTargetLabel: (target: string, consumed: string) => string
     /** Shared "g over" unit — originally protein-only (#266), extended to
      * fat/carbs by #321 once those also stopped clamping at 0. */
     gOverUnit: string
@@ -145,6 +131,12 @@ export interface Dictionary {
     bmiLabel: string
     bmrLabel: string
     bmrUnit: string
+    /** #329 — BMR moved out of its own standalone card into a tooltip on
+     * the "Remaining calories" card (aria-label for the tooltip's trigger
+     * button); the tooltip body composes bmrLabel + the value + bmrUnit
+     * together in TodayScreen.tsx, so those three keep their existing text
+     * unchanged rather than needing a new combined string here. */
+    bmrTooltipLabel: string
     celebrationTitle: string
     celebrationDescription: string
     celebrationCta: string

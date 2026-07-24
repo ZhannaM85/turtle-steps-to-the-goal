@@ -24,9 +24,10 @@ import {
   useMaxRecordedWeight,
   usePreviousDayEntry,
 } from '@/shared/hooks'
-import { formatMacroGrams } from '@/shared/lib/macroDisplay'
+import { formatMacroGrams, formatMl } from '@/shared/lib/macroDisplay'
 import { Button } from '@/shared/ui/button'
 import { EmptyState } from '@/shared/ui/empty-state'
+import { InfoTooltip } from '@/shared/ui/info-tooltip'
 import { Input } from '@/shared/ui/input'
 import { Label } from '@/shared/ui/label'
 import { PageHeader } from '@/shared/ui/page-header'
@@ -43,7 +44,6 @@ import {
   useUnitStore,
   type SectionKey,
 } from '@/stores'
-import { CaloriesBreakdownCard } from './CaloriesBreakdownCard'
 import { DailyEntryForm } from './DailyEntryForm'
 import { GoalCelebrationModal } from './GoalCelebrationModal'
 
@@ -167,9 +167,11 @@ export function TodayScreen() {
   // set (an entirely optional field, unlike the weekly weight-loss
   // target). Unlogged calories read as 0 consumed so far, not "unknown" —
   // the whole point is a running total that fills in as the day goes.
-  // #326 — consumedKcal named separately (not just inlined into
-  // remainingKcal's own calculation) since the breakdown card now shows it
-  // as its own number alongside total/remaining.
+  // #326/#328 — consumedKcal (and its four siblings below) named
+  // separately rather than inlined into each delta/percent calculation,
+  // since the redesigned card descriptions now show the consumed number
+  // directly (`targetMinusConsumedText`) instead of leaving the reader to
+  // work it out from just the target and the remaining amount.
   const consumedKcal = totalCalories(entry?.calorieEntries) ?? 0
   const remainingKcal =
     goal?.dailyCalorieTargetKcal !== undefined
@@ -183,9 +185,10 @@ export function TodayScreen() {
   // below) instead of a flat "0g remaining". A deliberate, protein-only
   // exception: unlike a calorie ceiling, eating more protein than planned
   // is a good outcome worth calling out, not a "went over budget" one.
+  const consumedProteinG = totalProtein(entry?.calorieEntries) ?? 0
   const proteinDeltaG =
     goal?.dailyProteinTargetG !== undefined
-      ? goal.dailyProteinTargetG - (totalProtein(entry?.calorieEntries) ?? 0)
+      ? goal.dailyProteinTargetG - consumedProteinG
       : null
   const isOverProteinTarget = proteinDeltaG !== null && proteinDeltaG < 0
 
@@ -196,22 +199,25 @@ export function TodayScreen() {
   // #266 already gave protein), just with a neutral unit/description
   // rather than protein's positive "great job!" framing — going over
   // isn't uniformly a good outcome for fat/carbs the way extra protein is.
+  const consumedFatG = totalFat(entry?.calorieEntries) ?? 0
   const fatDeltaG =
     goal?.dailyFatTargetG !== undefined
-      ? goal.dailyFatTargetG - (totalFat(entry?.calorieEntries) ?? 0)
+      ? goal.dailyFatTargetG - consumedFatG
       : null
   const isOverFatTarget = fatDeltaG !== null && fatDeltaG < 0
+  const consumedCarbG = totalCarbs(entry?.calorieEntries) ?? 0
   const carbDeltaG =
     goal?.dailyCarbTargetG !== undefined
-      ? goal.dailyCarbTargetG - (totalCarbs(entry?.calorieEntries) ?? 0)
+      ? goal.dailyCarbTargetG - consumedCarbG
       : null
   const isOverCarbTarget = carbDeltaG !== null && carbDeltaG < 0
 
-  // #266 — "of X" denominator shown as each remaining-nutrient card's
-  // `description`, so "0g remaining" also says what it's out of. #326
-  // removed calories' own version of this (calorieTargetText) — the
-  // breakdown card shows the target as its own "total" number instead of
-  // a denominator caption.
+  // #266/#328 — each remaining-nutrient card's `description` shows target
+  // minus consumed together (`targetMinusConsumedText`), so the consumed
+  // amount is visible without the reader subtracting it themselves from
+  // "0g remaining"/"of Xg" the way the card used to only imply it. #326
+  // removed calories' own version of this (calorieTargetText); #328
+  // restores an equivalent for calories below, alongside these three.
   const proteinTargetText =
     goal?.dailyProteinTargetG !== undefined
       ? formatMacroGrams(goal.dailyProteinTargetG, locale, t)
@@ -228,11 +234,19 @@ export function TodayScreen() {
   // #258 — same shape again, based on the day's logged water total
   // (#271: summed from waterEntries, not a single stored scalar).
   // #321: no longer clamped at 0, same reasoning as fatDeltaG/carbDeltaG above.
+  const consumedWaterMl = totalWaterMl(entry?.waterEntries) ?? 0
   const waterDeltaMl =
     goal?.dailyWaterTargetMl !== undefined
-      ? goal.dailyWaterTargetMl - (totalWaterMl(entry?.waterEntries) ?? 0)
+      ? goal.dailyWaterTargetMl - consumedWaterMl
       : null
   const isOverWaterTarget = waterDeltaMl !== null && waterDeltaMl < 0
+  // #328 — water didn't have a target-denominator description at all
+  // before (unlike protein/fat/carb above); added here for the same
+  // reason the other three get one.
+  const waterTargetText =
+    goal?.dailyWaterTargetMl !== undefined
+      ? formatMl(goal.dailyWaterTargetMl, locale, t)
+      : null
 
   // #320 — percent of each numeric daily goal consumed so far, for the
   // remaining-nutrient cards' progress bars below. A falsy target (missing,
@@ -240,23 +254,19 @@ export function TodayScreen() {
   // divide-by-zero.
   // #323 — calories joins the same treatment, added after the other four.
   const caloriesPercent = goal?.dailyCalorieTargetKcal
-    ? ((totalCalories(entry?.calorieEntries) ?? 0) /
-        goal.dailyCalorieTargetKcal) *
-      100
+    ? (consumedKcal / goal.dailyCalorieTargetKcal) * 100
     : null
   const proteinPercent = goal?.dailyProteinTargetG
-    ? ((totalProtein(entry?.calorieEntries) ?? 0) / goal.dailyProteinTargetG) *
-      100
+    ? (consumedProteinG / goal.dailyProteinTargetG) * 100
     : null
   const fatPercent = goal?.dailyFatTargetG
-    ? ((totalFat(entry?.calorieEntries) ?? 0) / goal.dailyFatTargetG) * 100
+    ? (consumedFatG / goal.dailyFatTargetG) * 100
     : null
   const carbPercent = goal?.dailyCarbTargetG
-    ? ((totalCarbs(entry?.calorieEntries) ?? 0) / goal.dailyCarbTargetG) * 100
+    ? (consumedCarbG / goal.dailyCarbTargetG) * 100
     : null
   const waterPercent = goal?.dailyWaterTargetMl
-    ? ((totalWaterMl(entry?.waterEntries) ?? 0) / goal.dailyWaterTargetMl) *
-      100
+    ? (consumedWaterMl / goal.dailyWaterTargetMl) * 100
     : null
 
   // #233 — BMI/BMR, computed from today's logged weight plus the Settings
@@ -443,62 +453,53 @@ export function TodayScreen() {
           sectionTitle('todayVsMaxWeight', t.today.vsMaxWeightLabel)
         ))}
 
+      {/* #328 — was a 3-number CaloriesBreakdownCard (total/consumed/
+       * remaining all shown as an equation, #326); condensed to the same
+       * single-big-number + small-breakdown-description shape as the
+       * macro/water cards below, so all five "remaining" cards read the
+       * same way. CaloriesBreakdownCard's own component is now unused and
+       * was removed along with it. */}
       {remainingKcal !== null &&
         (sectionVisible.todayRemainingCalories ? (
-          <CaloriesBreakdownCard
+          <StatCard
             label={t.today.remainingCaloriesLabel}
-            totalValue={formatNumber(
-              goal!.dailyCalorieTargetKcal!,
-              locale,
-              0,
-            )}
-            totalLabel={t.today.totalCaloriesLabel}
-            consumedValue={formatNumber(consumedKcal, locale, 0)}
-            consumedLabel={t.today.consumedCaloriesLabel}
-            remainingValue={formatNumber(Math.abs(remainingKcal), locale, 0)}
-            remainingLabel={
+            value={formatNumber(Math.abs(remainingKcal), locale, 0)}
+            unit={
               isOverCalorieBudget
                 ? t.today.kcalOverUnit
                 : t.today.kcalRemainingUnit
             }
-            equationSummary={t.today.caloriesEquationSummary(
+            description={t.today.targetMinusConsumedText(
               formatNumber(goal!.dailyCalorieTargetKcal!, locale, 0),
               formatNumber(consumedKcal, locale, 0),
-              formatNumber(Math.abs(remainingKcal), locale, 0),
-              isOverCalorieBudget ? 'over' : 'remaining',
             )}
             progressPercent={caloriesPercent ?? undefined}
             progressColor="var(--chart-calories)"
-            action={statCardAction(
-              'todayRemainingCalories',
-              t.today.remainingCaloriesLabel,
-            )}
+            action={
+              <span className="flex items-center gap-1">
+                {/* #329 — BMR used to be its own standalone card right
+                 * after this one (#324); moved into a tooltip here instead
+                 * since it's a related-but-distinct baseline estimate, not
+                 * a target or a log, and didn't need a whole card of its
+                 * own competing for attention next to the actual target. */}
+                {bmrValue !== null && (
+                  <InfoTooltip
+                    text={`${t.today.bmrLabel}: ${formatNumber(bmrValue, locale, 0)} ${t.today.bmrUnit}`}
+                    label={t.today.bmrTooltipLabel}
+                  />
+                )}
+                {statCardAction(
+                  'todayRemainingCalories',
+                  t.today.remainingCaloriesLabel,
+                )}
+              </span>
+            }
           />
         ) : (
           sectionTitle(
             'todayRemainingCalories',
             t.today.remainingCaloriesLabel,
           )
-        ))}
-
-      {/* #324 — moved next to "Remaining calories" (previously down by
-       * BMI) after live feedback that 3 separate kcal-labeled numbers
-       * scattered across the page (this, BMR, and the raw logged-calories
-       * total on DailyEntryForm further down) read as confusing/
-       * duplicative. BMR is a distinct baseline estimate, not a target or
-       * a log, so it stays its own card rather than merging into
-       * "Remaining calories" — just placed where the relationship between
-       * the two is visible instead of a coincidental-looking repeat. */}
-      {bmrValue !== null &&
-        (sectionVisible.todayBmr ? (
-          <StatCard
-            label={t.today.bmrLabel}
-            value={formatNumber(bmrValue, locale, 0)}
-            unit={t.today.bmrUnit}
-            action={statCardAction('todayBmr', t.today.bmrLabel)}
-          />
-        ) : (
-          sectionTitle('todayBmr', t.today.bmrLabel)
         ))}
 
       {proteinDeltaG !== null &&
@@ -513,8 +514,14 @@ export function TodayScreen() {
             }
             description={
               isOverProteinTarget
-                ? t.today.proteinOverTargetLabel(proteinTargetText!)
-                : t.today.targetDenominatorText(proteinTargetText!)
+                ? t.today.proteinOverTargetLabel(
+                    proteinTargetText!,
+                    formatMacroGrams(consumedProteinG, locale, t),
+                  )
+                : t.today.targetMinusConsumedText(
+                    proteinTargetText!,
+                    formatMacroGrams(consumedProteinG, locale, t),
+                  )
             }
             progressPercent={proteinPercent ?? undefined}
             progressColor="var(--stat-protein)"
@@ -533,7 +540,10 @@ export function TodayScreen() {
             label={t.today.remainingFatLabel}
             value={formatNumber(Math.abs(fatDeltaG), locale, 0)}
             unit={isOverFatTarget ? t.today.gOverUnit : t.today.gRemainingUnit}
-            description={t.today.targetDenominatorText(fatTargetText!)}
+            description={t.today.targetMinusConsumedText(
+              fatTargetText!,
+              formatMacroGrams(consumedFatG, locale, t),
+            )}
             progressPercent={fatPercent ?? undefined}
             progressColor="var(--stat-fat)"
             action={statCardAction('todayRemainingFat', t.today.remainingFatLabel)}
@@ -548,7 +558,10 @@ export function TodayScreen() {
             label={t.today.remainingCarbLabel}
             value={formatNumber(Math.abs(carbDeltaG), locale, 0)}
             unit={isOverCarbTarget ? t.today.gOverUnit : t.today.gRemainingUnit}
-            description={t.today.targetDenominatorText(carbTargetText!)}
+            description={t.today.targetMinusConsumedText(
+              carbTargetText!,
+              formatMacroGrams(consumedCarbG, locale, t),
+            )}
             progressPercent={carbPercent ?? undefined}
             progressColor="var(--stat-carbs)"
             action={statCardAction(
@@ -568,6 +581,10 @@ export function TodayScreen() {
             unit={
               isOverWaterTarget ? t.today.mlOverUnit : t.today.mlRemainingUnit
             }
+            description={t.today.targetMinusConsumedText(
+              waterTargetText!,
+              formatMl(consumedWaterMl, locale, t),
+            )}
             progressPercent={waterPercent ?? undefined}
             progressColor="var(--stat-water)"
             action={statCardAction(

@@ -13,6 +13,18 @@ export function formatMacroGrams(
     : `${formatNumber(grams, locale, 0)}${t.dailyEntry.gramsUnit}`
 }
 
+/** "2000ml" / "2000мл", mirroring formatMacroGrams above but for water's
+ * volume unit instead of a gram weight (#328). */
+export function formatMl(
+  ml: number | undefined,
+  locale: Locale,
+  t: Dictionary,
+): string {
+  return ml === undefined
+    ? '—'
+    : `${formatNumber(ml, locale, 0)}${t.dailyEntry.mlUnit}`
+}
+
 /** "Protein 20g · Fat 10g · Carbs —", or null when none of the three were
  * logged at all — callers should render nothing in that case rather than
  * an all-dashes line (#51/#52). */

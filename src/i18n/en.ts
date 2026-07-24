@@ -64,18 +64,13 @@ export const en: Dictionary = {
     remainingCaloriesLabel: 'Remaining calories',
     kcalRemainingUnit: 'kcal remaining',
     kcalOverUnit: 'kcal over',
-    totalCaloriesLabel: 'total',
-    consumedCaloriesLabel: 'consumed',
-    caloriesEquationSummary: (total, consumed, remaining, direction) =>
-      direction === 'over'
-        ? `${total} total, ${consumed} consumed, ${remaining} over`
-        : `${total} total, ${consumed} consumed, ${remaining} remaining`,
     remainingProteinLabel: 'Remaining protein',
     gRemainingUnit: 'g remaining',
     remainingFatLabel: 'Remaining fat',
     remainingCarbLabel: 'Remaining carbs',
-    targetDenominatorText: (target) => `of ${target}`,
-    proteinOverTargetLabel: (target) => `of ${target} — great job!`,
+    targetMinusConsumedText: (target, consumed) => `${target} − ${consumed}`,
+    proteinOverTargetLabel: (target, consumed) =>
+      `${target} − ${consumed} — great job!`,
     gOverUnit: 'g over',
     remainingWaterLabel: 'Remaining water',
     mlRemainingUnit: 'ml remaining',
@@ -83,6 +78,7 @@ export const en: Dictionary = {
     bmiLabel: 'BMI',
     bmrLabel: 'Estimated daily calories (BMR)',
     bmrUnit: 'kcal/day',
+    bmrTooltipLabel: 'About estimated daily calories',
     celebrationTitle: "You reached this week's goal!",
     celebrationDescription: 'Nice work — want to set a target for next week?',
     celebrationCta: "Set next week's goal",

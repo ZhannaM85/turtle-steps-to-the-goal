@@ -602,8 +602,11 @@ describe('TodayScreen', () => {
     })
   })
 
-  describe('BMI/BMR (#233)', () => {
-    it('shows neither card with no profile data logged', async () => {
+  describe('BMI/BMR (#233, tooltip move #329)', () => {
+    it('shows neither BMI nor a BMR tooltip trigger with no profile data logged', async () => {
+      await useGoalStore
+        .getState()
+        .saveGoal(makeGoal({ dailyCalorieTargetKcal: 2000 }))
       await useDailyEntryStore.getState().saveEntry(makeEntry({ weightKg: 80 }))
       useDailyEntryStore.setState({ entry: null, date: null, status: 'idle' })
 
@@ -613,15 +616,21 @@ describe('TodayScreen', () => {
         </MemoryRouter>,
       )
 
-      await screen.findByLabelText('Date')
+      const label = await screen.findByText('Remaining calories')
+      const card = label.closest('[data-slot="card"]') as HTMLElement
       expect(screen.queryByText('BMI')).not.toBeInTheDocument()
       expect(
-        screen.queryByText('Estimated daily calories (BMR)'),
+        within(card).queryByRole('button', {
+          name: 'About estimated daily calories',
+        }),
       ).not.toBeInTheDocument()
     })
 
-    it('shows BMI once height and a logged weight exist, even without age/sex', async () => {
+    it('shows BMI once height and a logged weight exist, without a BMR tooltip trigger (needs age/sex too)', async () => {
       useProfileStore.setState({ heightCm: 165 })
+      await useGoalStore
+        .getState()
+        .saveGoal(makeGoal({ dailyCalorieTargetKcal: 2000 }))
       await useDailyEntryStore.getState().saveEntry(makeEntry({ weightKg: 70 }))
       useDailyEntryStore.setState({ entry: null, date: null, status: 'idle' })
 
@@ -633,29 +642,17 @@ describe('TodayScreen', () => {
 
       expect(await screen.findByText('BMI')).toBeInTheDocument()
       expect(screen.getByText('25.7')).toBeInTheDocument()
+      const label = await screen.findByText('Remaining calories')
+      const card = label.closest('[data-slot="card"]') as HTMLElement
       expect(
-        screen.queryByText('Estimated daily calories (BMR)'),
+        within(card).queryByRole('button', {
+          name: 'About estimated daily calories',
+        }),
       ).not.toBeInTheDocument()
     })
 
-    it('shows BMR once height, age, and sex are all set alongside a logged weight', async () => {
-      useProfileStore.setState({ heightCm: 165, age: 30, sex: 'female' })
-      await useDailyEntryStore.getState().saveEntry(makeEntry({ weightKg: 70 }))
-      useDailyEntryStore.setState({ entry: null, date: null, status: 'idle' })
-
-      render(
-        <MemoryRouter>
-          <TodayScreen />
-        </MemoryRouter>,
-      )
-
-      expect(
-        await screen.findByText('Estimated daily calories (BMR)'),
-      ).toBeInTheDocument()
-      expect(screen.getByText('1,420')).toBeInTheDocument()
-    })
-
-    it('renders BMR directly after Remaining calories, not down by BMI (#324)', async () => {
+    it('shows a BMR tooltip trigger on the Remaining calories card once height, age, and sex are all set, revealing the value on click (#329)', async () => {
+      const user = userEvent.setup()
       useProfileStore.setState({ heightCm: 165, age: 30, sex: 'female' })
       await useGoalStore
         .getState()
@@ -669,19 +666,22 @@ describe('TodayScreen', () => {
         </MemoryRouter>,
       )
 
-      const remainingCalories = await screen.findByText('Remaining calories')
-      const bmr = await screen.findByText('Estimated daily calories (BMR)')
-      const bmi = screen.getByText('BMI')
+      const label = await screen.findByText('Remaining calories')
+      const card = label.closest('[data-slot="card"]') as HTMLElement
+      const trigger = await within(card).findByRole('button', {
+        name: 'About estimated daily calories',
+      })
+      // Not its own card any more — no separate "Estimated daily calories
+      // (BMR)" heading rendered outside the tooltip's (closed) popover.
+      expect(
+        screen.queryByText('Estimated daily calories (BMR)'),
+      ).not.toBeInTheDocument()
 
-      // BMR now follows Remaining calories directly...
+      await user.click(trigger)
+
       expect(
-        remainingCalories.compareDocumentPosition(bmr) &
-          Node.DOCUMENT_POSITION_FOLLOWING,
-      ).toBeTruthy()
-      // ...and comes before BMI, which it used to sit directly below.
-      expect(
-        bmr.compareDocumentPosition(bmi) & Node.DOCUMENT_POSITION_FOLLOWING,
-      ).toBeTruthy()
+        await screen.findByText('Estimated daily calories (BMR): 1,420 kcal/day'),
+      ).toBeInTheDocument()
     })
   })
 
@@ -701,7 +701,7 @@ describe('TodayScreen', () => {
       ).not.toBeInTheDocument()
     })
 
-    it('shows all 3 numbers once a target is set, treating nothing logged as 0 consumed (#326)', async () => {
+    it('shows the remaining amount plus a total-minus-consumed breakdown, treating nothing logged as 0 consumed (#326, #328)', async () => {
       await useGoalStore
         .getState()
         .saveGoal(makeGoal({ dailyCalorieTargetKcal: 2000 }))
@@ -714,15 +714,12 @@ describe('TodayScreen', () => {
 
       const label = await screen.findByText('Remaining calories')
       const card = label.closest('[data-slot="card"]') as HTMLElement
-      // Total and remaining are both 2,000 when nothing's been logged yet.
-      expect(within(card).getAllByText('2,000')).toHaveLength(2)
-      expect(within(card).getByText('0')).toBeInTheDocument()
-      expect(within(card).getByText('total')).toBeInTheDocument()
-      expect(within(card).getByText('consumed')).toBeInTheDocument()
+      expect(within(card).getByText('2,000')).toBeInTheDocument()
       expect(within(card).getByText('kcal remaining')).toBeInTheDocument()
+      expect(within(card).getByText('2,000 − 0')).toBeInTheDocument()
     })
 
-    it('subtracts what was actually logged today, showing total/consumed/remaining together (#326)', async () => {
+    it('subtracts what was actually logged today, showing it in the breakdown (#326, #328)', async () => {
       await useGoalStore
         .getState()
         .saveGoal(makeGoal({ dailyCalorieTargetKcal: 2000 }))
@@ -755,9 +752,8 @@ describe('TodayScreen', () => {
       // the real one. findByText (polls) instead of getByText
       // (synchronous) waits out that second render instead of racing it.
       expect(await within(card).findByText('500')).toBeInTheDocument()
-      expect(within(card).getByText('2,000')).toBeInTheDocument()
-      expect(within(card).getByText('1,500')).toBeInTheDocument()
       expect(within(card).getByText('kcal remaining')).toBeInTheDocument()
+      expect(within(card).getByText('2,000 − 1,500')).toBeInTheDocument()
     })
 
     it('reads as "over" once logged calories exceed the target (#326)', async () => {
@@ -790,37 +786,8 @@ describe('TodayScreen', () => {
       // reason as the sibling test above — races the entry's own async
       // load otherwise.
       expect(await within(card).findByText('300')).toBeInTheDocument()
-      expect(within(card).getByText('1,000')).toBeInTheDocument()
-      expect(within(card).getByText('1,300')).toBeInTheDocument()
       expect(within(card).getByText('kcal over')).toBeInTheDocument()
-    })
-
-    it('exposes the full breakdown as one sentence for screen readers (#326)', async () => {
-      await useGoalStore
-        .getState()
-        .saveGoal(makeGoal({ dailyCalorieTargetKcal: 2000 }))
-      await useDailyEntryStore.getState().saveEntry(
-        makeEntry({
-          calorieEntries: [
-            {
-              id: crypto.randomUUID(),
-              items: [{ id: crypto.randomUUID(), amountKcal: 1500 }],
-              createdAt: new Date().toISOString(),
-            },
-          ],
-        }),
-      )
-      useDailyEntryStore.setState({ entry: null, date: null, status: 'idle' })
-
-      render(
-        <MemoryRouter>
-          <TodayScreen />
-        </MemoryRouter>,
-      )
-
-      expect(
-        await screen.findByText('2,000 total, 1,500 consumed, 500 remaining'),
-      ).toBeInTheDocument()
+      expect(within(card).getByText('1,000 − 1,300')).toBeInTheDocument()
     })
 
     it('sizes the progress bar to percent of target consumed (#323)', async () => {
@@ -885,7 +852,7 @@ describe('TodayScreen', () => {
       ).toBeInTheDocument()
       expect(screen.getByText('120')).toBeInTheDocument()
       expect(screen.getByText('g remaining')).toBeInTheDocument()
-      expect(screen.getByText('of 120g')).toBeInTheDocument()
+      expect(screen.getByText('120g − 0g')).toBeInTheDocument()
     })
 
     it('subtracts what was actually logged today', async () => {
@@ -919,7 +886,7 @@ describe('TodayScreen', () => {
       // the "remaining calories" tests above.
       expect(await within(card).findByText('30')).toBeInTheDocument()
       expect(within(card).getByText('g remaining')).toBeInTheDocument()
-      expect(within(card).getByText('of 120g')).toBeInTheDocument()
+      expect(within(card).getByText('120g − 90g')).toBeInTheDocument()
     })
 
     // #266: reverses the old "clamps at 0" behavior — exceeding a protein
@@ -956,7 +923,9 @@ describe('TodayScreen', () => {
       // the "remaining calories" tests above.
       expect(await within(card).findByText('30')).toBeInTheDocument()
       expect(within(card).getByText('g over')).toBeInTheDocument()
-      expect(within(card).getByText('of 100g — great job!')).toBeInTheDocument()
+      expect(
+        within(card).getByText('100g − 130g — great job!'),
+      ).toBeInTheDocument()
     })
 
     it('sizes the progress bar to percent of target consumed (#320)', async () => {
@@ -1019,10 +988,10 @@ describe('TodayScreen', () => {
 
       expect(await screen.findByText('Remaining fat')).toBeInTheDocument()
       expect(screen.getByText('60')).toBeInTheDocument()
-      expect(screen.getByText('of 60g')).toBeInTheDocument()
+      expect(screen.getByText('60g − 0g')).toBeInTheDocument()
       expect(await screen.findByText('Remaining carbs')).toBeInTheDocument()
       expect(screen.getByText('200')).toBeInTheDocument()
-      expect(screen.getByText('of 200g')).toBeInTheDocument()
+      expect(screen.getByText('200g − 0g')).toBeInTheDocument()
     })
 
     it('subtracts what was actually logged today, independently for each macro', async () => {
@@ -1091,8 +1060,8 @@ describe('TodayScreen', () => {
       const card = label.closest('[data-slot="card"]') as HTMLElement
       expect(await within(card).findByText('30')).toBeInTheDocument()
       expect(within(card).getByText('g over')).toBeInTheDocument()
-      // Neutral denominator, not protein's positive "great job!" framing.
-      expect(within(card).getByText('of 50g')).toBeInTheDocument()
+      // Neutral breakdown, not protein's positive "great job!" framing.
+      expect(within(card).getByText('50g − 80g')).toBeInTheDocument()
     })
 
     it('shows the carbs overage amount too, independently of fat (#321)', async () => {
@@ -1124,7 +1093,7 @@ describe('TodayScreen', () => {
       const card = label.closest('[data-slot="card"]') as HTMLElement
       expect(await within(card).findByText('30')).toBeInTheDocument()
       expect(within(card).getByText('g over')).toBeInTheDocument()
-      expect(within(card).getByText('of 100g')).toBeInTheDocument()
+      expect(within(card).getByText('100g − 130g')).toBeInTheDocument()
     })
   })
 
@@ -1156,9 +1125,12 @@ describe('TodayScreen', () => {
       expect(await screen.findByText('Remaining water')).toBeInTheDocument()
       expect(screen.getByText('2,000')).toBeInTheDocument()
       expect(screen.getByText('ml remaining')).toBeInTheDocument()
+      // #328 — water gets a total-minus-consumed breakdown too, which it
+      // didn't have at all before (unlike protein/fat/carb's old "of Xg").
+      expect(screen.getByText('2,000ml − 0ml')).toBeInTheDocument()
     })
 
-    it('subtracts what was actually logged today', async () => {
+    it('subtracts what was actually logged today, showing it in the breakdown (#328)', async () => {
       await useGoalStore
         .getState()
         .saveGoal(makeGoal({ dailyWaterTargetMl: 2000 }))
@@ -1176,6 +1148,7 @@ describe('TodayScreen', () => {
       const label = await screen.findByText('Remaining water')
       const card = label.closest('[data-slot="card"]') as HTMLElement
       expect(await within(card).findByText('1,250')).toBeInTheDocument()
+      expect(within(card).getByText('2,000ml − 750ml')).toBeInTheDocument()
     })
 
     it('shows the overage amount instead of clamping at 0 once the target is exceeded (#321)', async () => {

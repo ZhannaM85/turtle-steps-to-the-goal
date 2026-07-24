@@ -66,18 +66,13 @@ export const ru: Dictionary = {
     remainingCaloriesLabel: 'Осталось калорий',
     kcalRemainingUnit: 'ккал осталось',
     kcalOverUnit: 'ккал сверх нормы',
-    totalCaloriesLabel: 'всего',
-    consumedCaloriesLabel: 'потреблено',
-    caloriesEquationSummary: (total, consumed, remaining, direction) =>
-      direction === 'over'
-        ? `${total} всего, ${consumed} потреблено, ${remaining} сверх нормы`
-        : `${total} всего, ${consumed} потреблено, ${remaining} осталось`,
     remainingProteinLabel: 'Осталось белка',
     gRemainingUnit: 'г осталось',
     remainingFatLabel: 'Осталось жиров',
     remainingCarbLabel: 'Осталось углеводов',
-    targetDenominatorText: (target) => `из ${target}`,
-    proteinOverTargetLabel: (target) => `из ${target} — отличная работа!`,
+    targetMinusConsumedText: (target, consumed) => `${target} − ${consumed}`,
+    proteinOverTargetLabel: (target, consumed) =>
+      `${target} − ${consumed} — отличная работа!`,
     gOverUnit: 'г больше нормы',
     remainingWaterLabel: 'Осталось воды',
     mlRemainingUnit: 'мл осталось',
@@ -85,6 +80,7 @@ export const ru: Dictionary = {
     bmiLabel: 'ИМТ',
     bmrLabel: 'Примерная суточная норма калорий (базовый обмен)',
     bmrUnit: 'ккал/день',
+    bmrTooltipLabel: 'О примерной суточной норме калорий',
     celebrationTitle: 'Вы достигли цели на эту неделю!',
     celebrationDescription:
       'Отличная работа — хотите задать цель на следующую неделю?',
