@@ -705,6 +705,14 @@ _The next big initiative, at the user's request: ship this PWA as installable na
 
 ---
 
+## Tier 46 — Live feedback: #330's dual axis starts weight at 0 instead of its minimum (2026-07-24)
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#332](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/332) | 📋 Not started | Compare chart: 2-series dual y-axis starts weight at 0 instead of its minimum | Follow-up to #330. Reported live with two screenshots: 3-series selection scales weight from its own minimum, but the 2-series dual-axis case pins the left (weight) axis to start at 0,0 кг |
+
+---
+
 ## Private (no public GitHub issue, by request)
 
 _Filed and built without a public issue at the user's explicit request — the repo is public, and this one's more personal than the rest. Still documented normally here per the project's usual close-out process; see [[feedback_issue_first]]'s exception #2 in memory for why._
