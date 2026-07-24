@@ -209,6 +209,39 @@ describe('CustomChartView', () => {
     useCycleTrackingStore.setState({ enabled: false })
   })
 
+  describe('dual y-axis for exactly 2 series (#330)', () => {
+    it('hides the normalized-scale caveat when exactly 2 series are selected', () => {
+      // beforeEach's default selection is already ['weight', 'calories'].
+      render(<CustomChartView entries={[entry('2026-03-01', { weightKg: 80 })]} />)
+
+      expect(
+        screen.queryByText(/Each line is scaled to its own range/),
+      ).not.toBeInTheDocument()
+    })
+
+    it('still shows the normalized-scale caveat with only 1 series selected', async () => {
+      const user = userEvent.setup()
+      render(<CustomChartView entries={[entry('2026-03-01', { weightKg: 80 })]} />)
+
+      await user.click(screen.getByRole('button', { name: 'Calories' })) // down to 1
+
+      expect(
+        screen.getByText(/Each line is scaled to its own range/),
+      ).toBeInTheDocument()
+    })
+
+    it('still shows the normalized-scale caveat once a 3rd series is added', async () => {
+      const user = userEvent.setup()
+      render(<CustomChartView entries={[entry('2026-03-01', { weightKg: 80 })]} />)
+
+      await user.click(screen.getByRole('button', { name: 'Protein' })) // up to 3
+
+      expect(
+        screen.getByText(/Each line is scaled to its own range/),
+      ).toBeInTheDocument()
+    })
+  })
+
   describe('whole-card show/hide toggle (#247)', () => {
     afterEach(() => {
       useDashboardChartVisibilityStore.setState((state) => ({

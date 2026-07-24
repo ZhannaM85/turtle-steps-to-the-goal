@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 294,
+    issue: 330,
+    date: '2026-07-24T03:50:00+03:00',
+    en: 'The "Compare your data" chart now shows real values on the left and right axes when you pick exactly 2 series to compare.',
+    ru: 'График «Сравнить данные» теперь показывает реальные значения на левой и правой осях, когда выбраны ровно два ряда для сравнения.',
+  },
+  {
     version: 293,
     issue: 331,
     date: '2026-07-24T03:40:00+03:00',

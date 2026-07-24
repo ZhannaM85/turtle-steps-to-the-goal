@@ -181,7 +181,17 @@ function useNumericSeriesConfig(): Record<
  * normalized to 0-100 within its own range via `customChartPoints`
  * (raw values are what the tooltip and legend show, never the normalized
  * ones) rather than given its own separate axis, which gets unreadable
- * fast past two or three axes on a narrow mobile screen. Each numeric
+ * fast past two or three axes on a narrow mobile screen. **#330** is a
+ * deliberate, requested exception to that rule for exactly one case:
+ * when exactly 2 numeric series are selected, there's no ambiguity about
+ * which axis is whose, so those two plot their real (non-normalized)
+ * values against two real axes instead — left for the first, right for
+ * the second, each formatted in that series' own unit via its existing
+ * `formatRaw`, tick color matching the series' own line color as the
+ * left/right cue. Any other count (0, 1, or 3+) keeps the original
+ * shared-hidden-axis behavior unchanged — 3+ real axes is exactly the
+ * "unreadable past two or three" case the normalization exists to avoid.
+ * Each numeric
  * series can be plotted as a line, bar, or dots (#137, picked per series
  * in the legend below the chart) — "dots" is a `Line` with a transparent
  * stroke and a visible `dot`, not a `Scatter`, so it shares the same
@@ -241,6 +251,14 @@ export function CustomChartView({ entries }: CustomChartViewProps) {
   if (!cardVisible) {
     return <div className="flex flex-col gap-3">{cardTitle}</div>
   }
+
+  // #330 — real dual axis only when exactly 2 numeric series are picked;
+  // see this component's own doc comment above for why. `selectedNumeric`
+  // is always in fixed `NUMERIC_SERIES_KEYS` order (set by the toggle
+  // group's `onValueChange` below), so left/right stays deterministic
+  // regardless of which of the two was actually clicked second.
+  const isDualAxis = selectedNumeric.length === 2
+  const [leftAxisKey, rightAxisKey] = isDualAxis ? selectedNumeric : []
 
   const points = customChartPoints(entries, selectedNumeric)
   const booleanDatesByKey = new Map(
@@ -336,7 +354,33 @@ export function CustomChartView({ entries }: CustomChartViewProps) {
                 axisLine={{ stroke: 'var(--border)' }}
                 tickLine={false}
               />
-              <YAxis domain={[0, 100]} hide />
+              <YAxis yAxisId="normalized" domain={[0, 100]} hide />
+              {isDualAxis && (
+                <>
+                  <YAxis
+                    yAxisId="left"
+                    orientation="left"
+                    width="auto"
+                    tick={{ fontSize: 11, fill: seriesConfig[leftAxisKey!].color }}
+                    tickFormatter={(value: number) =>
+                      seriesConfig[leftAxisKey!].formatRaw(value)
+                    }
+                    axisLine={{ stroke: seriesConfig[leftAxisKey!].color }}
+                    tickLine={false}
+                  />
+                  <YAxis
+                    yAxisId="right"
+                    orientation="right"
+                    width="auto"
+                    tick={{ fontSize: 11, fill: seriesConfig[rightAxisKey!].color }}
+                    tickFormatter={(value: number) =>
+                      seriesConfig[rightAxisKey!].formatRaw(value)
+                    }
+                    axisLine={{ stroke: seriesConfig[rightAxisKey!].color }}
+                    tickLine={false}
+                  />
+                </>
+              )}
               <Tooltip content={renderTooltip} wrapperStyle={{ pointerEvents: 'auto' }} />
               {selectedBoolean.map((seriesKey) => {
                 const series = availableBooleanSeries.find(
@@ -346,6 +390,7 @@ export function CustomChartView({ entries }: CustomChartViewProps) {
                 return (
                   <Line
                     key={series.key}
+                    yAxisId="normalized"
                     type="monotone"
                     dataKey={`${series.key}_marker`}
                     stroke="transparent"
@@ -357,11 +402,21 @@ export function CustomChartView({ entries }: CustomChartViewProps) {
               })}
               {selectedNumeric.map((key) => {
                 const chartType = chartTypes[key]
+                // #330 — plot the real value against that series' own real
+                // axis when exactly 2 series are selected, instead of the
+                // shared normalized 0-100 one every other count still uses.
+                const dataKey = isDualAxis ? `${key}_raw` : `${key}_norm`
+                const yAxisId = isDualAxis
+                  ? key === leftAxisKey
+                    ? 'left'
+                    : 'right'
+                  : 'normalized'
                 if (chartType === 'bar') {
                   return (
                     <Bar
                       key={key}
-                      dataKey={`${key}_norm`}
+                      yAxisId={yAxisId}
+                      dataKey={dataKey}
                       fill={seriesConfig[key].color}
                       radius={[2, 2, 0, 0]}
                       maxBarSize={14}
@@ -384,8 +439,9 @@ export function CustomChartView({ entries }: CustomChartViewProps) {
                   return (
                     <Line
                       key={key}
+                      yAxisId={yAxisId}
                       type="monotone"
-                      dataKey={`${key}_norm`}
+                      dataKey={dataKey}
                       stroke="transparent"
                       dot={{ r: 3, fill: seriesConfig[key].color, strokeWidth: 0 }}
                       connectNulls={false}
@@ -396,8 +452,9 @@ export function CustomChartView({ entries }: CustomChartViewProps) {
                 return (
                   <Line
                     key={key}
+                    yAxisId={yAxisId}
                     type="monotone"
-                    dataKey={`${key}_norm`}
+                    dataKey={dataKey}
                     stroke={seriesConfig[key].color}
                     strokeWidth={2}
                     dot={false}
@@ -468,9 +525,15 @@ export function CustomChartView({ entries }: CustomChartViewProps) {
               )
             })}
           </div>
-          <p className="text-xs text-muted-foreground">
-            {t.dashboard.customChartNormalizedCaveat}
-          </p>
+          {/* #330 — this caveat describes the normalized-scale behavior,
+           * which no longer applies once exactly 2 series switch to real
+           * dual axes above; showing it then would contradict what's
+           * actually on screen. */}
+          {!isDualAxis && (
+            <p className="text-xs text-muted-foreground">
+              {t.dashboard.customChartNormalizedCaveat}
+            </p>
+          )}
         </>
       )}
     </div>
