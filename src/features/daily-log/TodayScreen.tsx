@@ -24,7 +24,7 @@ import {
   useMaxRecordedWeight,
   usePreviousDayEntry,
 } from '@/shared/hooks'
-import { formatMacroGrams, formatMl } from '@/shared/lib/macroDisplay'
+import { formatKcal, formatMacroGrams, formatMl } from '@/shared/lib/macroDisplay'
 import { Button } from '@/shared/ui/button'
 import { EmptyState } from '@/shared/ui/empty-state'
 import { InfoTooltip } from '@/shared/ui/info-tooltip'
@@ -470,8 +470,8 @@ export function TodayScreen() {
                 : t.today.kcalRemainingUnit
             }
             description={t.today.targetMinusConsumedText(
-              formatNumber(goal!.dailyCalorieTargetKcal!, locale, 0),
-              formatNumber(consumedKcal, locale, 0),
+              formatKcal(goal!.dailyCalorieTargetKcal!, locale, t),
+              formatKcal(consumedKcal, locale, t),
             )}
             progressPercent={caloriesPercent ?? undefined}
             progressColor="var(--chart-calories)"

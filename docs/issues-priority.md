@@ -689,6 +689,14 @@ _The next big initiative, at the user's request: ship this PWA as installable na
 
 ---
 
+## Tier 44 — Live feedback: #328's kcal breakdown lost its unit (2026-07-24)
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#331](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/331) | 🔍 Pending validation | Calories breakdown lost its "kcal" unit when condensed for #328 | Reported live with a screenshot right after validating #328: the "Remaining calories" breakdown read "1 396 – 874" with no unit, while the macro cards right below correctly show "94г – 107г" (unit on every number) — #328's calories card built its `targetMinusConsumedText` from bare `formatNumber` calls instead of a unit-suffixed formatter like the macro cards' `formatMacroGrams`. Fixed with a new `formatKcal` helper in `shared/lib/macroDisplay.ts` (mirrors `formatMacroGrams`/`formatMl`, but with a space before the unit word — matching every other `kcalUnit` call site in the app, unlike the single-letter/no-space gram/ml units). `TodayScreen.tsx`'s calories card now calls `formatKcal` for both the target and consumed numbers. `TodayScreen.test.tsx`'s three breakdown-text assertions updated from `"2,000 − 0"` etc. to `"2,000 kcal − 0 kcal"` etc. |
+
+---
+
 ## Private (no public GitHub issue, by request)
 
 _Filed and built without a public issue at the user's explicit request — the repo is public, and this one's more personal than the rest. Still documented normally here per the project's usual close-out process; see [[feedback_issue_first]]'s exception #2 in memory for why._

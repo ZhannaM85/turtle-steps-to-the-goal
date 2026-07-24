@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 293,
+    issue: 331,
+    date: '2026-07-24T03:40:00+03:00',
+    en: 'Fixed the "Remaining calories" card\'s breakdown showing bare numbers with no "kcal" unit.',
+    ru: 'Исправили карточку «Осталось калорий» — в расчёте пропала единица измерения «ккал», теперь она на месте.',
+  },
+  {
     version: 292,
     issue: 328,
     date: '2026-07-24T03:22:00+03:00',

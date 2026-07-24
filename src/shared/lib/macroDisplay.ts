@@ -25,6 +25,23 @@ export function formatMl(
     : `${formatNumber(ml, locale, 0)}${t.dailyEntry.mlUnit}`
 }
 
+/** "1,396 kcal" / "1 396 ккал" — a space before the unit, unlike
+ * formatMacroGrams/formatMl above, matching every other `kcalUnit`
+ * call site in the app (a whole word, not a single-letter suffix).
+ * #331: the calories breakdown on Today was built from bare
+ * `formatNumber` with no unit at all — reported live right after #328's
+ * own redesign shipped, since the macro cards right below it do show a
+ * unit on every number. */
+export function formatKcal(
+  kcal: number | undefined,
+  locale: Locale,
+  t: Dictionary,
+): string {
+  return kcal === undefined
+    ? '—'
+    : `${formatNumber(kcal, locale, 0)} ${t.dailyEntry.kcalUnit}`
+}
+
 /** "Protein 20g · Fat 10g · Carbs —", or null when none of the three were
  * logged at all — callers should render nothing in that case rather than
  * an all-dashes line (#51/#52). */

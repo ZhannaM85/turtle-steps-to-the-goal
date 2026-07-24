@@ -716,7 +716,7 @@ describe('TodayScreen', () => {
       const card = label.closest('[data-slot="card"]') as HTMLElement
       expect(within(card).getByText('2,000')).toBeInTheDocument()
       expect(within(card).getByText('kcal remaining')).toBeInTheDocument()
-      expect(within(card).getByText('2,000 − 0')).toBeInTheDocument()
+      expect(within(card).getByText('2,000 kcal − 0 kcal')).toBeInTheDocument()
     })
 
     it('subtracts what was actually logged today, showing it in the breakdown (#326, #328)', async () => {
@@ -753,7 +753,9 @@ describe('TodayScreen', () => {
       // (synchronous) waits out that second render instead of racing it.
       expect(await within(card).findByText('500')).toBeInTheDocument()
       expect(within(card).getByText('kcal remaining')).toBeInTheDocument()
-      expect(within(card).getByText('2,000 − 1,500')).toBeInTheDocument()
+      expect(
+        within(card).getByText('2,000 kcal − 1,500 kcal'),
+      ).toBeInTheDocument()
     })
 
     it('reads as "over" once logged calories exceed the target (#326)', async () => {
@@ -787,7 +789,9 @@ describe('TodayScreen', () => {
       // load otherwise.
       expect(await within(card).findByText('300')).toBeInTheDocument()
       expect(within(card).getByText('kcal over')).toBeInTheDocument()
-      expect(within(card).getByText('1,000 − 1,300')).toBeInTheDocument()
+      expect(
+        within(card).getByText('1,000 kcal − 1,300 kcal'),
+      ).toBeInTheDocument()
     })
 
     it('sizes the progress bar to percent of target consumed (#323)', async () => {
