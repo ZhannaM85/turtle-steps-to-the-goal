@@ -361,6 +361,7 @@ export function CustomChartView({ entries }: CustomChartViewProps) {
                     yAxisId="left"
                     orientation="left"
                     width="auto"
+                    domain={['auto', 'auto']}
                     tick={{ fontSize: 11, fill: seriesConfig[leftAxisKey!].color }}
                     tickFormatter={(value: number) =>
                       seriesConfig[leftAxisKey!].formatRaw(value)
@@ -372,6 +373,7 @@ export function CustomChartView({ entries }: CustomChartViewProps) {
                     yAxisId="right"
                     orientation="right"
                     width="auto"
+                    domain={['auto', 'auto']}
                     tick={{ fontSize: 11, fill: seriesConfig[rightAxisKey!].color }}
                     tickFormatter={(value: number) =>
                       seriesConfig[rightAxisKey!].formatRaw(value)

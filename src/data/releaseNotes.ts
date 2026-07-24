@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 295,
+    issue: 332,
+    date: '2026-07-24T11:05:00+03:00',
+    en: 'Fixed the 2-series view on the "Compare your data" and body composition charts: the left/right axes now start from the lowest logged value instead of always starting at 0.',
+    ru: 'Исправили режим сравнения двух рядов на графиках «Сравнить данные» и состава тела — левая и правая оси теперь начинаются с минимального значения, а не всегда с нуля.',
+  },
+  {
     version: 294,
     issue: 330,
     date: '2026-07-24T03:50:00+03:00',

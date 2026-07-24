@@ -254,6 +254,7 @@ export function BodyCompositionTrendChart({
               <YAxis
                 yAxisId="left"
                 width={40}
+                domain={['auto', 'auto']}
                 tick={{ fontSize: 11, fill: SERIES_COLOR[visibleKeys[0]] }}
                 axisLine={false}
                 tickLine={false}
@@ -262,6 +263,7 @@ export function BodyCompositionTrendChart({
                 yAxisId="right"
                 orientation="right"
                 width={40}
+                domain={['auto', 'auto']}
                 tick={{ fontSize: 11, fill: SERIES_COLOR[visibleKeys[1]] }}
                 axisLine={false}
                 tickLine={false}
