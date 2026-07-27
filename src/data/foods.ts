@@ -46,6 +46,16 @@ export interface FoodItem {
   protein100: number
   fat100: number
   carbs100: number
+  /** Dietary fiber per 100g (#341) — unlike kcal/protein/fat/carbs above,
+   * not seeded for any existing entry: this whole list was authored
+   * before fiber was tracked at all, and backfilling 300+ real per-food
+   * values isn't something to guess at (fabricated nutrition numbers in a
+   * health-tracking app would be actively wrong, not just incomplete).
+   * Undefined here just means "not recorded yet," same as any other
+   * optional macro field — a personal `MealItem`/manual entry can still
+   * record its own `fiberG` regardless of whether the curated food it was
+   * inspired by has this field filled in. */
+  fiber100?: number
   /** Common reference serving weights (USDA/FDA-standard where one
    * exists), seeded for a handful of foods where "how many grams" isn't
    * obvious — not attempted for most of the list. */

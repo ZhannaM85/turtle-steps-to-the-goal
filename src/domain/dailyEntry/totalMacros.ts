@@ -1,6 +1,6 @@
 import type { CalorieEntry } from './DailyEntry'
 
-type MacroField = 'proteinG' | 'fatG' | 'carbsG'
+type MacroField = 'proteinG' | 'fatG' | 'carbsG' | 'fiberG'
 
 /** Sums a day's logged macro grams for one field, across every item of
  * every meal (#81 — flattened, not per-meal). Undefined (not 0) when no
@@ -35,4 +35,11 @@ export function totalCarbs(
   entries: CalorieEntry[] | undefined,
 ): number | undefined {
   return totalMacro(entries, 'carbsG')
+}
+
+/** #341 — same shape as the three above. */
+export function totalFiber(
+  entries: CalorieEntry[] | undefined,
+): number | undefined {
+  return totalMacro(entries, 'fiberG')
 }

@@ -72,6 +72,7 @@ export const ru: Dictionary = {
     gRemainingUnit: 'г осталось',
     remainingFatLabel: 'Осталось жиров',
     remainingCarbLabel: 'Осталось углеводов',
+    remainingFiberLabel: 'Осталось клетчатки',
     targetMinusConsumedText: (target, consumed) => `${target} − ${consumed}`,
     proteinOverTargetLabel: (target, consumed) =>
       `${target} − ${consumed} — отличная работа!`,
@@ -147,6 +148,7 @@ export const ru: Dictionary = {
     proteinLabel: 'Белки',
     fatLabel: 'Жиры',
     carbsLabel: 'Углеводы',
+    fiberLabel: 'Клетчатка',
     itemPortionsLabel: '× 100 г',
     gramsUnit: 'г',
     macrosSummary: (protein, fat, carbs) =>
@@ -270,6 +272,8 @@ export const ru: Dictionary = {
     dailyFatTargetHint: 'Необязательно — можно оставить пустым.',
     dailyCarbTargetLabel: 'Дневная цель по углеводам',
     dailyCarbTargetHint: 'Необязательно — можно оставить пустым.',
+    dailyFiberTargetLabel: 'Дневная цель по клетчатке',
+    dailyFiberTargetHint: 'Необязательно — можно оставить пустым.',
     dailyWaterTargetLabel: 'Дневная цель по воде',
     dailyWaterTargetHint: 'Необязательно — можно оставить пустым.',
     suggestTargetButton: 'Предложить цель',

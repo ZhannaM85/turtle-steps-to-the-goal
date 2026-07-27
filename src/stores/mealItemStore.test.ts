@@ -99,6 +99,15 @@ describe('useMealItemStore', () => {
     expect(item.lastCarbsG).toBe(45)
   })
 
+  // #341 — same shape as the three macros above.
+  it('touch records the last-used fiber', async () => {
+    await useMealItemStore
+      .getState()
+      .touch('Pizza', { amountKcal: 400, fiberG: 3 })
+
+    expect(useMealItemStore.getState().items[0].lastFiberG).toBe(3)
+  })
+
   it('touch records the last-used portion weight in grams (#93)', async () => {
     await useMealItemStore
       .getState()

@@ -20,6 +20,9 @@ interface MealItemStoreState {
       proteinG?: number
       fatG?: number
       carbsG?: number
+      /** Dietary fiber in grams (#341) — same optional shape as the three
+       * macros above. */
+      fiberG?: number
       amountG?: number
     },
     /** #279 — set when a caller (the manual "Add dish" sheet, Settings'
@@ -75,6 +78,7 @@ export const useMealItemStore = create<MealItemStoreState>((set, get) => ({
       lastProteinG: nutrition?.proteinG ?? existing?.lastProteinG,
       lastFatG: nutrition?.fatG ?? existing?.lastFatG,
       lastCarbsG: nutrition?.carbsG ?? existing?.lastCarbsG,
+      lastFiberG: nutrition?.fiberG ?? existing?.lastFiberG,
       lastAmountG: nutrition?.amountG ?? existing?.lastAmountG,
       favorite: favorite ?? existing?.favorite,
       barcode: barcode ?? existing?.barcode,

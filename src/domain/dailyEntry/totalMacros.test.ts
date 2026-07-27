@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { CalorieEntry, CalorieItem } from './DailyEntry'
-import { totalCarbs, totalFat, totalProtein } from './totalMacros'
+import { totalCarbs, totalFat, totalFiber, totalProtein } from './totalMacros'
 
 function makeItem(overrides: Partial<CalorieItem> = {}): CalorieItem {
   return {
@@ -57,5 +57,15 @@ describe('totalProtein / totalFat / totalCarbs', () => {
       ),
     ]
     expect(totalProtein(entries)).toBe(30)
+  })
+
+  // #341 — same shape as the three macros above.
+  it('sums fiber independently of the other macros', () => {
+    const entries = [
+      makeEntry(makeItem({ fiberG: 8 })),
+      makeEntry(makeItem()), // no fiber logged for this meal
+      makeEntry(makeItem({ fiberG: 4 })),
+    ]
+    expect(totalFiber(entries)).toBe(12)
   })
 })

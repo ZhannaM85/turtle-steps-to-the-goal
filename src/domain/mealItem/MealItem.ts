@@ -23,6 +23,9 @@ export interface MealItem {
   lastProteinG?: number
   lastFatG?: number
   lastCarbsG?: number
+  /** Dietary fiber in grams (#341) — same optional/additive shape as the
+   * three macros above. */
+  lastFiberG?: number
   /** Portion weight in grams for the last time this name was manually
    * logged (#93) — same purely-additive/optional pattern as the fields
    * above, kept in sync by `touch()`. */

@@ -8,7 +8,7 @@ export type {
 } from './DailyEntry'
 export type { DailyEntryRepository } from './DailyEntryRepository'
 export { totalCalories } from './totalCalories'
-export { totalProtein, totalFat, totalCarbs } from './totalMacros'
+export { totalProtein, totalFat, totalCarbs, totalFiber } from './totalMacros'
 export { totalWaterMl } from './totalWaterMl'
 export {
   calorieEntryKcal,

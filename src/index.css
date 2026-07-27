@@ -87,6 +87,12 @@
   --stat-fat: #a8672f;
   --stat-carbs: #4c7a62;
   --stat-water: #4f6fa8;
+  /* #341 — fiber's own hue, distinct from every sibling above (purple/
+   * orange/green/blue) and from --chart-calories/--sand-foreground's tan-
+   * brown: a mustard/olive-gold, at a similar lightness/saturation level
+   * to its siblings, same reasoning-by-similar-luminance approach as
+   * every other choice on this line (no contrast-checker tool run). */
+  --stat-fiber: #8a7a2f;
   --sand-foreground: #8a6a3c;
   /* #165: light-mode-specific override — oklch(0.87 0 0) (still correct,
    * unchanged, in .dark below) is a near-white gray tuned for a dark
@@ -135,6 +141,7 @@
   --color-stat-fat: var(--stat-fat);
   --color-stat-carbs: var(--stat-carbs);
   --color-stat-water: var(--stat-water);
+  --color-stat-fiber: var(--stat-fiber);
   --color-sand-foreground: var(--sand-foreground);
   --color-ring: var(--ring);
   --color-input: var(--input);
@@ -193,6 +200,7 @@
   --stat-fat: #d9a06b;
   --stat-carbs: #90c7a6;
   --stat-water: #8fadd6;
+  --stat-fiber: #cbc06e;
   --sand-foreground: #b28e58;
   --chart-1: oklch(0.87 0 0);
   --chart-2: oklch(0.556 0 0);

@@ -327,6 +327,63 @@ describe('GoalForm', () => {
     })
   })
 
+  describe('daily fiber target (#341)', () => {
+    it('is optional — submits fine when left blank', async () => {
+      const user = userEvent.setup()
+      const onSubmit = vi.fn()
+      render(<GoalForm existingGoal={null} onSubmit={onSubmit} />)
+
+      await user.type(
+        screen.getByLabelText("This week's target (kg to lose)"),
+        '1',
+      )
+      await user.click(
+        screen.getByRole('button', { name: 'Set this week’s target' }),
+      )
+
+      expect(onSubmit).toHaveBeenCalledTimes(1)
+      expect(onSubmit.mock.calls[0][0].dailyFiberTargetG).toBeUndefined()
+    })
+
+    it('submits the value when filled in', async () => {
+      const user = userEvent.setup()
+      const onSubmit = vi.fn()
+      render(<GoalForm existingGoal={null} onSubmit={onSubmit} />)
+
+      await user.type(
+        screen.getByLabelText("This week's target (kg to lose)"),
+        '1',
+      )
+      await user.type(screen.getByLabelText('Daily fiber target'), '25')
+      await user.click(
+        screen.getByRole('button', { name: 'Set this week’s target' }),
+      )
+
+      expect(onSubmit).toHaveBeenCalledTimes(1)
+      expect(onSubmit.mock.calls[0][0].dailyFiberTargetG).toBe(25)
+    })
+
+    it('pre-fills from an existing goal', async () => {
+      const user = userEvent.setup()
+      render(
+        <GoalForm
+          existingGoal={{
+            id: 'g1',
+            targetWeeklyLossKg: 1,
+            dailyFiberTargetG: 25,
+            createdAt: '2026-01-01T00:00:00.000Z',
+            updatedAt: '2026-01-01T00:00:00.000Z',
+          }}
+          onSubmit={vi.fn()}
+        />,
+      )
+
+      await user.click(screen.getByRole('button', { name: 'Edit goal' }))
+
+      expect(screen.getByLabelText('Daily fiber target')).toHaveValue('25')
+    })
+  })
+
   describe('daily water target (#258)', () => {
     it('is optional — submits fine when left blank', async () => {
       const user = userEvent.setup()

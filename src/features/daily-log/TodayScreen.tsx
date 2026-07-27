@@ -6,6 +6,7 @@ import {
   totalCalories,
   totalCarbs,
   totalFat,
+  totalFiber,
   totalProtein,
   totalWaterMl,
 } from '@/domain/dailyEntry'
@@ -220,6 +221,17 @@ export function TodayScreen() {
       : null
   const isOverCarbTarget = carbDeltaG !== null && carbDeltaG < 0
 
+  // #341 — same shape again, independent of the other targets. Neutral
+  // "over" framing like fat/carb/water above, not protein's positive one —
+  // more fiber isn't obviously good the way more protein specifically is
+  // framed here.
+  const consumedFiberG = totalFiber(entry?.calorieEntries) ?? 0
+  const fiberDeltaG =
+    goal?.dailyFiberTargetG !== undefined
+      ? goal.dailyFiberTargetG - consumedFiberG
+      : null
+  const isOverFiberTarget = fiberDeltaG !== null && fiberDeltaG < 0
+
   // #266/#328 — each remaining-nutrient card's `description` shows target
   // minus consumed together (`targetMinusConsumedText`), so the consumed
   // amount is visible without the reader subtracting it themselves from
@@ -237,6 +249,10 @@ export function TodayScreen() {
   const carbTargetText =
     goal?.dailyCarbTargetG !== undefined
       ? formatMacroGrams(goal.dailyCarbTargetG, locale, t)
+      : null
+  const fiberTargetText =
+    goal?.dailyFiberTargetG !== undefined
+      ? formatMacroGrams(goal.dailyFiberTargetG, locale, t)
       : null
 
   // #258 — same shape again, based on the day's logged water total
@@ -272,6 +288,9 @@ export function TodayScreen() {
     : null
   const carbPercent = goal?.dailyCarbTargetG
     ? (consumedCarbG / goal.dailyCarbTargetG) * 100
+    : null
+  const fiberPercent = goal?.dailyFiberTargetG
+    ? (consumedFiberG / goal.dailyFiberTargetG) * 100
     : null
   const waterPercent = goal?.dailyWaterTargetMl
     ? (consumedWaterMl / goal.dailyWaterTargetMl) * 100
@@ -598,6 +617,27 @@ export function TodayScreen() {
           />
         ) : (
           sectionTitle('todayRemainingCarbs', t.today.remainingCarbLabel)
+        ))}
+
+      {fiberDeltaG !== null &&
+        (sectionVisible.todayRemainingFiber ? (
+          <StatCard
+            label={t.today.remainingFiberLabel}
+            value={formatNumber(Math.abs(fiberDeltaG), locale, 0)}
+            unit={isOverFiberTarget ? t.today.gOverUnit : t.today.gRemainingUnit}
+            description={t.today.targetMinusConsumedText(
+              fiberTargetText!,
+              formatMacroGrams(consumedFiberG, locale, t),
+            )}
+            progressPercent={fiberPercent ?? undefined}
+            progressColor="var(--stat-fiber)"
+            action={statCardAction(
+              'todayRemainingFiber',
+              t.today.remainingFiberLabel,
+            )}
+          />
+        ) : (
+          sectionTitle('todayRemainingFiber', t.today.remainingFiberLabel)
         ))}
 
       {waterDeltaMl !== null &&

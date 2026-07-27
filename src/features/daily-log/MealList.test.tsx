@@ -156,6 +156,23 @@ describe('MealList', () => {
     expect(next[0].items[0].amountKcal).toBe(200)
   })
 
+  // #341 — same optional-macro shape as protein/fat/carbs above.
+  it('records the entered fiber on a new item', async () => {
+    const user = userEvent.setup()
+    const onChange = vi.fn()
+    render(<MealList calorieEntries={[]} date="2026-03-01" onChange={onChange} />, {
+      wrapper: MemoryRouter,
+    })
+
+    await user.click(screen.getByRole('button', { name: '+ Add item' }))
+    await user.type(screen.getByLabelText('kcal/100g'), '200')
+    await user.type(screen.getByLabelText('Fiber'), '5')
+    await user.click(screen.getByRole('button', { name: 'Save' }))
+
+    const next = onChange.mock.calls[0][0] as CalorieEntry[]
+    expect(next[0].items[0].fiberG).toBe(5)
+  })
+
   // #260: the draft's own preview ("Total: 200 kcal", #98) already existed —
   // this is the new addition, showing what today's overall total would
   // become, not just this one item's own total.

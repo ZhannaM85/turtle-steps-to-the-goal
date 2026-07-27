@@ -70,6 +70,7 @@ export const en: Dictionary = {
     gRemainingUnit: 'g remaining',
     remainingFatLabel: 'Remaining fat',
     remainingCarbLabel: 'Remaining carbs',
+    remainingFiberLabel: 'Remaining fiber',
     targetMinusConsumedText: (target, consumed) => `${target} − ${consumed}`,
     proteinOverTargetLabel: (target, consumed) =>
       `${target} − ${consumed} — great job!`,
@@ -146,6 +147,7 @@ export const en: Dictionary = {
     proteinLabel: 'Protein',
     fatLabel: 'Fat',
     carbsLabel: 'Carbs',
+    fiberLabel: 'Fiber',
     itemPortionsLabel: '× 100g',
     gramsUnit: 'g',
     macrosSummary: (protein, fat, carbs) =>
@@ -267,6 +269,8 @@ export const en: Dictionary = {
     dailyFatTargetHint: 'Optional — leave blank to skip.',
     dailyCarbTargetLabel: 'Daily carb target',
     dailyCarbTargetHint: 'Optional — leave blank to skip.',
+    dailyFiberTargetLabel: 'Daily fiber target',
+    dailyFiberTargetHint: 'Optional — leave blank to skip.',
     dailyWaterTargetLabel: 'Daily water target',
     dailyWaterTargetHint: 'Optional — leave blank to skip.',
     suggestTargetButton: 'Suggest a target',

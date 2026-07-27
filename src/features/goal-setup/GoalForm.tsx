@@ -141,6 +141,7 @@ export function GoalForm({
       dailyProteinTarget: '' as unknown as number | undefined,
       dailyFatTarget: '' as unknown as number | undefined,
       dailyCarbTarget: '' as unknown as number | undefined,
+      dailyFiberTarget: '' as unknown as number | undefined,
       dailyWaterTarget: '' as unknown as number | undefined,
     })
     setIsEditing(false)
@@ -220,6 +221,19 @@ export function GoalForm({
               <td className="py-2 text-right font-medium text-foreground">
                 {existingGoal.dailyCarbTargetG !== undefined
                   ? `${formatExactNumber(existingGoal.dailyCarbTargetG, locale)} ${t.dailyEntry.gramsUnit}`
+                  : t.goal.notSetLabel}
+              </td>
+            </tr>
+            <tr className="border-b border-border">
+              <th
+                scope="row"
+                className="py-2 pr-4 text-left font-normal text-muted-foreground"
+              >
+                {t.goal.dailyFiberTargetLabel}
+              </th>
+              <td className="py-2 text-right font-medium text-foreground">
+                {existingGoal.dailyFiberTargetG !== undefined
+                  ? `${formatExactNumber(existingGoal.dailyFiberTargetG, locale)} ${t.dailyEntry.gramsUnit}`
                   : t.goal.notSetLabel}
               </td>
             </tr>
@@ -333,6 +347,15 @@ export function GoalForm({
         unit={t.dailyEntry.gramsUnit}
         error={errors.dailyCarbTarget?.message}
         {...register('dailyCarbTarget', { setValueAs: parseNumberInput })}
+      />
+
+      {/* #341 — same shape again, independent of the other four. */}
+      <NumberInput
+        label={t.goal.dailyFiberTargetLabel}
+        hint={t.goal.dailyFiberTargetHint}
+        unit={t.dailyEntry.gramsUnit}
+        error={errors.dailyFiberTarget?.message}
+        {...register('dailyFiberTarget', { setValueAs: parseNumberInput })}
       />
 
       {/* #258 — same shape again, independent of the macro targets. */}

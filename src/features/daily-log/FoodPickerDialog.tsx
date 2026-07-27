@@ -23,6 +23,11 @@ export interface PickedFoodValues {
   proteinG: number
   fatG: number
   carbsG: number
+  /** Dietary fiber in grams (#341) — undefined for a curated food, which
+   * has no per-food fiber data seeded yet (see `FoodItem.fiber100`'s own
+   * doc comment); a personal item carries its own `lastFiberG` if it was
+   * ever recorded. */
+  fiberG?: number
   note: string
   /** Quantity the totals were scaled from (#96) — lets the created item
    * be edited later the same per-100g + quantity way a manually-entered
@@ -324,6 +329,10 @@ export function FoodPickerDialog({
         proteinG: Math.round(food.protein100 * scale * 10) / 10,
         fatG: Math.round(food.fat100 * scale * 10) / 10,
         carbsG: Math.round(food.carbs100 * scale * 10) / 10,
+        fiberG:
+          food.fiber100 === undefined
+            ? undefined
+            : Math.round(food.fiber100 * scale * 10) / 10,
         note: food[locale],
         amountG: grams,
       }
@@ -335,6 +344,7 @@ export function FoodPickerDialog({
       mealItem.lastFatG,
       mealItem.lastCarbsG,
       mealItem.lastAmountG,
+      mealItem.lastFiberG,
     )
     return {
       amountKcal: Math.round(rates.kcal100 * scale),
@@ -350,6 +360,10 @@ export function FoodPickerDialog({
         rates.carbs100 === undefined
           ? 0
           : Math.round(rates.carbs100 * scale * 10) / 10,
+      fiberG:
+        rates.fiber100 === undefined
+          ? undefined
+          : Math.round(rates.fiber100 * scale * 10) / 10,
       note: mealItem.name,
       amountG: grams,
     }

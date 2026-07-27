@@ -35,6 +35,12 @@ export interface Goal {
   dailyFatTargetG?: number
   dailyCarbTargetG?: number
   /**
+   * Optional daily fiber target in grams (#341) — same shape/reasoning as
+   * the other macro targets above, independent of them. Powers Today's
+   * "remaining fiber" stat; nothing else reads it.
+   */
+  dailyFiberTargetG?: number
+  /**
    * Optional daily water target in milliliters (#258) — same shape as the
    * macro targets above, independent of them. Only meaningful once #258's
    * opt-in water tracking is also turned on in Settings, but the field

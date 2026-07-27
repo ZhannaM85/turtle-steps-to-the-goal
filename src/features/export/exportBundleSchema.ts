@@ -17,6 +17,8 @@ const goalSchema = z.object({
   // Optional daily fat/carb targets (#252) — same reasoning again.
   dailyFatTargetG: z.number().optional(),
   dailyCarbTargetG: z.number().optional(),
+  // Optional daily fiber target (#341) — same reasoning again.
+  dailyFiberTargetG: z.number().optional(),
   // Optional daily water target (#258) — same reasoning again.
   dailyWaterTargetMl: z.number().optional(),
   createdAt: z.string(),
@@ -38,6 +40,9 @@ const calorieItemSchema = z.object({
   proteinG: z.number().optional(),
   fatG: z.number().optional(),
   carbsG: z.number().optional(),
+  // Dietary fiber in grams (#341) — same purely-additive/optional
+  // reasoning as amountG below.
+  fiberG: z.number().optional(),
   // Portion weight in grams (#93) — purely additive/optional, same
   // no-version-bump reasoning as timeEaten below.
   amountG: z.number().optional(),
@@ -121,6 +126,9 @@ const mealItemSchema = z.object({
   lastProteinG: z.number().optional(),
   lastFatG: z.number().optional(),
   lastCarbsG: z.number().optional(),
+  // Dietary fiber in grams (#341) — same purely-additive reasoning as the
+  // three macros above.
+  lastFiberG: z.number().optional(),
   lastAmountG: z.number().optional(),
   // #284 — #276 added this to the domain model but missed it here, so a
   // favorited item's status was silently dropped on export/import.

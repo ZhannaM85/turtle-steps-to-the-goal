@@ -33,12 +33,14 @@ export function scaleFromPer100g(
   fat100: number | undefined,
   carbs100: number | undefined,
   rawPortions: string,
+  fiber100?: number,
 ): {
   amountKcal: number
   proteinG: number | undefined
   fatG: number | undefined
   carbsG: number | undefined
   amountG: number
+  fiberG: number | undefined
 } {
   const parsedPortions = parseNumberInput(rawPortions)
   const portions = parsedPortions && parsedPortions > 0 ? parsedPortions : 1
@@ -56,6 +58,10 @@ export function scaleFromPer100g(
         ? undefined
         : Math.round(carbs100 * scale * 10) / 10,
     amountG: Math.round(portions * 100 * 10) / 10,
+    fiberG:
+      fiber100 === undefined
+        ? undefined
+        : Math.round(fiber100 * scale * 10) / 10,
   }
 }
 
@@ -85,12 +91,14 @@ export function ratesFromAbsolute(
   fatG: number | undefined,
   carbsG: number | undefined,
   amountG: number | undefined,
+  fiberG?: number,
 ): {
   kcal100: number
   protein100: number | undefined
   fat100: number | undefined
   carbs100: number | undefined
   portions: number
+  fiber100: number | undefined
 } {
   const grams = amountG && amountG > 0 ? amountG : 100
   const portions = grams / 100
@@ -105,6 +113,8 @@ export function ratesFromAbsolute(
     carbs100:
       carbsG === undefined ? undefined : Math.round(carbsG * scale * 10) / 10,
     portions,
+    fiber100:
+      fiberG === undefined ? undefined : Math.round(fiberG * scale * 10) / 10,
   }
 }
 
@@ -120,12 +130,14 @@ export function totalFromPortion(
   fatG: number | undefined,
   carbsG: number | undefined,
   rawAmountG: string,
+  fiberG?: number,
 ): {
   amountKcal: number
   proteinG: number | undefined
   fatG: number | undefined
   carbsG: number | undefined
   amountG: number | undefined
+  fiberG: number | undefined
 } {
   return {
     amountKcal,
@@ -133,6 +145,7 @@ export function totalFromPortion(
     fatG,
     carbsG,
     amountG: parseOptionalMacro(rawAmountG),
+    fiberG,
   }
 }
 

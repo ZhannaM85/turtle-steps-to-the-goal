@@ -122,6 +122,9 @@ interface EditItemDraft {
   protein: string
   fat: string
   carbs: string
+  /** Dietary fiber in grams (#341) — same optional/additive shape as the
+   * three macros above. */
+  fiber: string
   amountG: string
   // Per 100g / Per portion entry mode (#111) — always starts as 'per100g'
   // when opening an existing item for edit, even if it was originally
@@ -154,6 +157,7 @@ function itemDraftFrom(item: CalorieItem): EditItemDraft {
     item.fatG,
     item.carbsG,
     item.amountG,
+    item.fiberG,
   )
   return {
     id: item.id,
@@ -163,6 +167,7 @@ function itemDraftFrom(item: CalorieItem): EditItemDraft {
     protein: rates.protein100 === undefined ? '' : String(rates.protein100),
     fat: rates.fat100 === undefined ? '' : String(rates.fat100),
     carbs: rates.carbs100 === undefined ? '' : String(rates.carbs100),
+    fiber: rates.fiber100 === undefined ? '' : String(rates.fiber100),
     amountG: String(rates.portions),
     macroMode: 'per100g',
     emotion: item.emotion,
@@ -182,6 +187,7 @@ interface AddRowDraft {
   protein: string
   fat: string
   carbs: string
+  fiber: string
   amountG: string
   macroMode: 'per100g' | 'perPortion'
   itemEmotion: MealEmotion | undefined
@@ -201,6 +207,7 @@ function blankItemDraft(): EditItemDraft {
     protein: '',
     fat: '',
     carbs: '',
+    fiber: '',
     amountG: '1',
     macroMode: 'per100g',
     emotion: undefined,
@@ -227,6 +234,7 @@ function draftsToItems(drafts: EditItemDraft[]): CalorieItem[] {
             parseOptionalMacro(draft.fat),
             parseOptionalMacro(draft.carbs),
             draft.amountG,
+            parseOptionalMacro(draft.fiber),
           )
         : totalFromPortion(
             amountNum,
@@ -234,6 +242,7 @@ function draftsToItems(drafts: EditItemDraft[]): CalorieItem[] {
             parseOptionalMacro(draft.fat),
             parseOptionalMacro(draft.carbs),
             draft.amountG,
+            parseOptionalMacro(draft.fiber),
           )
     return [
       {
@@ -269,7 +278,15 @@ interface MealListItemProps {
   editNote: string
   onEditItemFieldChange: (
     id: string,
-    field: 'name' | 'brand' | 'amount' | 'protein' | 'fat' | 'carbs' | 'amountG',
+    field:
+      | 'name'
+      | 'brand'
+      | 'amount'
+      | 'protein'
+      | 'fat'
+      | 'carbs'
+      | 'fiber'
+      | 'amountG',
     value: string,
   ) => void
   onEditItemSelectMealItem: (id: string, item: MealItem) => void
@@ -697,6 +714,10 @@ function MealListItem({
             onCarbsChange={(value) =>
               onEditItemFieldChange(openDraft.id, 'carbs', value)
             }
+            fiber={openDraft.fiber}
+            onFiberChange={(value) =>
+              onEditItemFieldChange(openDraft.id, 'fiber', value)
+            }
             amountG={openDraft.amountG}
             onAmountGChange={(value) =>
               onEditItemFieldChange(openDraft.id, 'amountG', value)
@@ -1065,6 +1086,7 @@ export function MealList({
   const [addProtein, setAddProtein] = useState(initialAddDraft?.protein ?? '')
   const [addFat, setAddFat] = useState(initialAddDraft?.fat ?? '')
   const [addCarbs, setAddCarbs] = useState(initialAddDraft?.carbs ?? '')
+  const [addFiber, setAddFiber] = useState(initialAddDraft?.fiber ?? '')
   const [addAmountG, setAddAmountG] = useState(initialAddDraft?.amountG ?? '1')
   // Per 100g / Per portion entry mode (#111) — 'per100g' is the default,
   // unchanged behavior. Switching modes converts the currently-typed
@@ -1136,6 +1158,7 @@ export function MealList({
       addProtein === '' &&
       addFat === '' &&
       addCarbs === '' &&
+      addFiber === '' &&
       addItemEmotion === undefined &&
       !addItemFavorite &&
       addItemBarcode === undefined
@@ -1150,6 +1173,7 @@ export function MealList({
       protein: addProtein,
       fat: addFat,
       carbs: addCarbs,
+      fiber: addFiber,
       amountG: addAmountG,
       macroMode: addMacroMode,
       itemEmotion: addItemEmotion,
@@ -1167,6 +1191,7 @@ export function MealList({
     addProtein,
     addFat,
     addCarbs,
+    addFiber,
     addAmountG,
     addMacroMode,
     addItemEmotion,
@@ -1316,6 +1341,7 @@ export function MealList({
           parseOptionalMacro(addFat),
           parseOptionalMacro(addCarbs),
           addAmountG,
+          parseOptionalMacro(addFiber),
         )
         setAddAmount(String(scaled.amountKcal))
         setAddProtein(
@@ -1323,6 +1349,7 @@ export function MealList({
         )
         setAddFat(scaled.fatG === undefined ? '' : String(scaled.fatG))
         setAddCarbs(scaled.carbsG === undefined ? '' : String(scaled.carbsG))
+        setAddFiber(scaled.fiberG === undefined ? '' : String(scaled.fiberG))
       } else {
         const rates = ratesFromAbsolute(
           amountNum,
@@ -1330,6 +1357,7 @@ export function MealList({
           parseOptionalMacro(addFat),
           parseOptionalMacro(addCarbs),
           portionsToGrams(addAmountG),
+          parseOptionalMacro(addFiber),
         )
         setAddAmount(String(rates.kcal100))
         setAddProtein(
@@ -1337,6 +1365,9 @@ export function MealList({
         )
         setAddFat(rates.fat100 === undefined ? '' : String(rates.fat100))
         setAddCarbs(rates.carbs100 === undefined ? '' : String(rates.carbs100))
+        setAddFiber(
+          rates.fiber100 === undefined ? '' : String(rates.fiber100),
+        )
         setAddAmountG(String(rates.portions))
       }
     }
@@ -1352,6 +1383,7 @@ export function MealList({
     setAddProtein('')
     setAddFat('')
     setAddCarbs('')
+    setAddFiber('')
     setAddMacroMode('per100g')
     setAddItemName('')
     setAddItemBrand('')
@@ -1373,6 +1405,7 @@ export function MealList({
       protein: addProtein,
       fat: addFat,
       carbs: addCarbs,
+      fiber: addFiber,
       amountG: addAmountG,
       macroMode: addMacroMode,
       emotion: addItemEmotion,
@@ -1434,6 +1467,7 @@ export function MealList({
             proteinG: item.proteinG,
             fatG: item.fatG,
             carbsG: item.carbsG,
+            fiberG: item.fiberG,
             amountG: item.amountG,
           },
           favoriteById.get(item.id),
@@ -1490,6 +1524,7 @@ export function MealList({
             proteinG: item.proteinG,
             fatG: item.fatG,
             carbsG: item.carbsG,
+            fiberG: item.fiberG,
             amountG: item.amountG,
           })
         }
@@ -1530,6 +1565,7 @@ export function MealList({
           proteinG: item.proteinG,
           fatG: item.fatG,
           carbsG: item.carbsG,
+          fiberG: item.fiberG,
           amountG: item.amountG,
         })
       }
@@ -1549,6 +1585,7 @@ export function MealList({
       item.lastFatG,
       item.lastCarbsG,
       item.lastAmountG,
+      item.lastFiberG,
     )
     setAddAmount(String(rates.kcal100))
     setAddProtein(
@@ -1556,6 +1593,7 @@ export function MealList({
     )
     setAddFat(rates.fat100 === undefined ? '' : String(rates.fat100))
     setAddCarbs(rates.carbs100 === undefined ? '' : String(rates.carbs100))
+    setAddFiber(rates.fiber100 === undefined ? '' : String(rates.fiber100))
     setAddAmountG(String(rates.portions))
   }
 
@@ -1657,6 +1695,7 @@ export function MealList({
         value.fatG,
         value.carbsG,
         value.amountG,
+        value.fiberG,
       )
       return {
         id: crypto.randomUUID(),
@@ -1666,6 +1705,7 @@ export function MealList({
         protein: rates.protein100 === undefined ? '' : String(rates.protein100),
         fat: rates.fat100 === undefined ? '' : String(rates.fat100),
         carbs: rates.carbs100 === undefined ? '' : String(rates.carbs100),
+        fiber: rates.fiber100 === undefined ? '' : String(rates.fiber100),
         amountG: String(rates.portions),
         macroMode: 'per100g',
         emotion: value.emotion,
@@ -1691,7 +1731,15 @@ export function MealList({
 
   function updateEditItemField(
     id: string,
-    field: 'name' | 'brand' | 'amount' | 'protein' | 'fat' | 'carbs' | 'amountG',
+    field:
+      | 'name'
+      | 'brand'
+      | 'amount'
+      | 'protein'
+      | 'fat'
+      | 'carbs'
+      | 'fiber'
+      | 'amountG',
     value: string,
   ) {
     setEditItems((items) =>
@@ -1735,6 +1783,7 @@ export function MealList({
             parseOptionalMacro(draft.fat),
             parseOptionalMacro(draft.carbs),
             draft.amountG,
+            parseOptionalMacro(draft.fiber),
           )
           return {
             ...draft,
@@ -1743,6 +1792,7 @@ export function MealList({
               scaled.proteinG === undefined ? '' : String(scaled.proteinG),
             fat: scaled.fatG === undefined ? '' : String(scaled.fatG),
             carbs: scaled.carbsG === undefined ? '' : String(scaled.carbsG),
+            fiber: scaled.fiberG === undefined ? '' : String(scaled.fiberG),
             macroMode: newMode,
           }
         }
@@ -1752,6 +1802,7 @@ export function MealList({
           parseOptionalMacro(draft.fat),
           parseOptionalMacro(draft.carbs),
           portionsToGrams(draft.amountG),
+          parseOptionalMacro(draft.fiber),
         )
         return {
           ...draft,
@@ -1760,6 +1811,7 @@ export function MealList({
             rates.protein100 === undefined ? '' : String(rates.protein100),
           fat: rates.fat100 === undefined ? '' : String(rates.fat100),
           carbs: rates.carbs100 === undefined ? '' : String(rates.carbs100),
+          fiber: rates.fiber100 === undefined ? '' : String(rates.fiber100),
           amountG: String(rates.portions),
           macroMode: newMode,
         }
@@ -1777,6 +1829,7 @@ export function MealList({
       item.lastFatG,
       item.lastCarbsG,
       item.lastAmountG,
+      item.lastFiberG,
     )
     setEditItems((items) =>
       items.map((draft) =>
@@ -1788,6 +1841,7 @@ export function MealList({
                 rates.protein100 === undefined ? '' : String(rates.protein100),
               fat: rates.fat100 === undefined ? '' : String(rates.fat100),
               carbs: rates.carbs100 === undefined ? '' : String(rates.carbs100),
+              fiber: rates.fiber100 === undefined ? '' : String(rates.fiber100),
               amountG: String(rates.portions),
               // Restoring a suggestion always fills in per-100g rates
               // (MealItem.lastAmountKcal etc. don't carry a mode of their
@@ -1917,6 +1971,7 @@ export function MealList({
             proteinG: item.proteinG,
             fatG: item.fatG,
             carbsG: item.carbsG,
+            fiberG: item.fiberG,
             amountG: item.amountG,
           },
           favoriteById.get(item.id),
@@ -2377,6 +2432,8 @@ export function MealList({
           onFatChange={setAddFat}
           carbs={addCarbs}
           onCarbsChange={setAddCarbs}
+          fiber={addFiber}
+          onFiberChange={setAddFiber}
           amountG={addAmountG}
           onAmountGChange={setAddAmountG}
           macroMode={addMacroMode}

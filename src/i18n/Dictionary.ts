@@ -105,6 +105,8 @@ export interface Dictionary {
      * framing too (see gOverUnit below) — no longer clamped at 0. */
     remainingFatLabel: string
     remainingCarbLabel: string
+    /** #341 — same shape as the other remaining-nutrient cards above. */
+    remainingFiberLabel: string
     /** #266/#328 — shown as each remaining-nutrient (and, since #328,
      * calories) card's `description`: total minus consumed, so the amount
      * actually consumed is visible without the reader doing that
@@ -245,6 +247,11 @@ export interface Dictionary {
     proteinLabel: string
     fatLabel: string
     carbsLabel: string
+    /** Dietary fiber in grams (#341) — same optional shape as the three
+     * macros above, entered on the Add Dish form only (see
+     * MealItemEditorSheet.tsx's own scope note on why this doesn't ripple
+     * into every macrosSummaryText call site). */
+    fiberLabel: string
     /** Count of 100g portions (#93, reframed by #140) — e.g. "2" for 200g,
      * "1.5" for 150g, matching how nutrition labels are usually printed as
      * "per 100g" rather than typing the raw gram total. In per-100g mode
@@ -460,6 +467,9 @@ export interface Dictionary {
     dailyFatTargetHint: string
     dailyCarbTargetLabel: string
     dailyCarbTargetHint: string
+    /** #341 — same shape/reasoning as the other daily macro targets above. */
+    dailyFiberTargetLabel: string
+    dailyFiberTargetHint: string
     /** #258 — same shape again, independent of the macro targets. */
     dailyWaterTargetLabel: string
     dailyWaterTargetHint: string

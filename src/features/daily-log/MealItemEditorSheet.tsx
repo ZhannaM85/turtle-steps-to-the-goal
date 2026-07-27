@@ -37,6 +37,12 @@ export interface MealItemEditorSheetProps {
   onFatChange: (value: string) => void
   carbs: string
   onCarbsChange: (value: string) => void
+  /** Dietary fiber in grams (#341) — same optional shape as protein/fat/
+   * carbs above, no scope beyond this add/edit form (daily total, goal
+   * target, and Today's remaining-fiber card all read `CalorieItem.fiberG`
+   * directly; this is the one place it gets typed in). */
+  fiber: string
+  onFiberChange: (value: string) => void
   amountG: string
   onAmountGChange: (value: string) => void
   macroMode: 'per100g' | 'perPortion'
@@ -133,6 +139,8 @@ export function MealItemEditorSheet({
   onFatChange,
   carbs,
   onCarbsChange,
+  fiber,
+  onFiberChange,
   amountG,
   onAmountGChange,
   macroMode,
@@ -161,6 +169,7 @@ export function MealItemEditorSheet({
           parseOptionalMacro(fat),
           parseOptionalMacro(carbs),
           amountG,
+          parseOptionalMacro(fiber),
         )
       : totalFromPortion(
           amountNum,
@@ -168,6 +177,7 @@ export function MealItemEditorSheet({
           parseOptionalMacro(fat),
           parseOptionalMacro(carbs),
           amountG,
+          parseOptionalMacro(fiber),
         )
     : null
   const totalPreview = scaledPreview
@@ -319,10 +329,27 @@ export function MealItemEditorSheet({
             onChange={onCarbsChange}
             onEnter={onSave}
           />
+          {/* #341 — its own field rather than folded into the shared
+           * macrosSummaryTextCompact-based total preview below, which
+           * would ripple fiber into every other place that same compact
+           * summary renders (meal-item rows, History's table cells) —
+           * deliberately out of scope for this issue. */}
+          <NumberField
+            label={t.dailyEntry.fiberLabel}
+            value={fiber}
+            onChange={onFiberChange}
+            onEnter={onSave}
+          />
 
           {totalPreview && (
             <p className="text-sm text-muted-foreground">
               {t.dailyEntry.computedTotalPrefix} {totalPreview}
+            </p>
+          )}
+          {scaledPreview?.fiberG !== undefined && (
+            <p className="text-sm text-muted-foreground">
+              {t.dailyEntry.fiberLabel}: {scaledPreview.fiberG}
+              {t.dailyEntry.gramsUnit}
             </p>
           )}
           {totalPreview && todayTotalPreview && (

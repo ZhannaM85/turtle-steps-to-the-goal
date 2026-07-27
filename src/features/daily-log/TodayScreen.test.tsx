@@ -1099,6 +1099,35 @@ describe('TodayScreen', () => {
       expect(within(card).getByText('g over')).toBeInTheDocument()
       expect(within(card).getByText('100g − 130g')).toBeInTheDocument()
     })
+
+    // #341 — same neutral over-target shape as fat/carbs above, not
+    // protein's positive "great job!" framing.
+    it('shows a remaining-fiber card, independently of the other macros', async () => {
+      await useGoalStore.getState().saveGoal(makeGoal({ dailyFiberTargetG: 25 }))
+      await useDailyEntryStore.getState().saveEntry(
+        makeEntry({
+          calorieEntries: [
+            {
+              id: crypto.randomUUID(),
+              items: [{ id: crypto.randomUUID(), amountKcal: 700, fiberG: 10 }],
+              createdAt: new Date().toISOString(),
+            },
+          ],
+        }),
+      )
+      useDailyEntryStore.setState({ entry: null, date: null, status: 'idle' })
+
+      render(
+        <MemoryRouter>
+          <TodayScreen />
+        </MemoryRouter>,
+      )
+
+      const label = await screen.findByText('Remaining fiber')
+      const card = label.closest('[data-slot="card"]') as HTMLElement
+      expect(await within(card).findByText('15')).toBeInTheDocument()
+      expect(within(card).getByText('25g − 10g')).toBeInTheDocument()
+    })
   })
 
   describe('remaining water (#258)', () => {
