@@ -25,6 +25,20 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 298,
+    issue: 341,
+    date: '2026-07-27T12:50:00+03:00',
+    en: 'You can now track dietary fiber alongside protein, fat, and carbs — on the Add Dish form, as a daily goal target, and on a new Today card.',
+    ru: 'Теперь можно отслеживать клетчатку вместе с белками, жирами и углеводами — в форме добавления блюда, как дневную цель и на новой карточке экрана «Сегодня».',
+  },
+  {
+    version: 297,
+    issue: 339,
+    date: '2026-07-27T12:50:00+03:00',
+    en: 'Past-goal rows on the Goal screen now show the two weigh-ins a "target met" or "not met" status is based on.',
+    ru: 'Строки прошлых целей на экране «Цель» теперь показывают два взвешивания, на которых основан статус «цель достигнута»/«не достигнута».',
+  },
+  {
     version: 296,
     issue: 348,
     date: '2026-07-27T12:41:00+03:00',
