@@ -850,6 +850,16 @@ _Reported live with a screenshot right after validating #343 on-device: Today's 
 
 ---
 
+## Tier 60 — Live feedback: Dashboard correlation sections run together (2026-07-27)
+
+_Reported live with a screenshot: Dashboard's correlation views (calories-vs-weight, late-meal, meal-frequency, sleep/steps/protein, etc.) have no visual boundary between them — hard to tell which chart a given summary sentence/caveat/strength label belongs to, especially next to a section with little content (an empty-state message)._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#354](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/354) | 📋 Not started | Dashboard correlation sections need a visual border to separate them | Filed at report time, not yet investigated. Affects every existing correlation view, not just one. |
+
+---
+
 ## Tier 59 — Retroactive: another flaky-test fix filed after the fact (2026-07-27)
 
 _Same pattern as #349 — found mid-session via a background full-suite run, filed and closed immediately per issue-first, fixed before commit rather than left open._
