@@ -1047,6 +1047,8 @@ export interface Dictionary {
      * full standalone policy at `/privacy` (the stable, linkable page
      * both app stores need a URL for). */
     readPrivacyPolicyLabel: string
+    /** #346 — links to the full features-summary page (`/features`). */
+    viewFeaturesLabel: string
     madeBy: (author: string) => string
     /** Current release-notes version number (simple incrementing counter,
      * ReleaseNotesSection.tsx) — lets a reported bug be pinned to a
@@ -1075,6 +1077,21 @@ export interface Dictionary {
     changesBody: string
     contactHeading: string
     contactBody: string
+    backToAboutLabel: string
+  }
+  /** #346 — a scannable "what can this app do" summary, distinct from
+   * `about`'s intro/philosophy copy and `ReleaseNotesSection`'s
+   * chronological changelog. Grouped as plain string arrays (not one
+   * field per bullet) specifically because this content is expected to
+   * need occasional additions as features ship — see `FeaturesScreen.tsx`
+   * for the "keep this in sync" convention. */
+  featuresOverview: {
+    title: string
+    description: string
+    categories: {
+      heading: string
+      items: string[]
+    }[]
     backToAboutLabel: string
   }
 }

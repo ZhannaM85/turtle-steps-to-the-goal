@@ -6,6 +6,7 @@ import { TodayScreen } from '@/features/daily-log'
 import {
   AboutScreen,
   DashboardScreen,
+  FeaturesScreen,
   FoodListSettingsScreen,
   GoalScreen,
   HistoryScreen,
@@ -40,6 +41,9 @@ export const routes: RouteObject[] = [
       { path: '/about', element: <AboutScreen /> },
       // #312 — required by both app stores as a stable, linkable URL.
       { path: '/privacy', element: <PrivacyScreen /> },
+      // #346 — a scannable current-features summary, distinct from About's
+      // intro copy and the chronological release-notes changelog.
+      { path: '/features', element: <FeaturesScreen /> },
     ],
   },
 ]

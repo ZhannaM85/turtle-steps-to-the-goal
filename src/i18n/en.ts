@@ -720,6 +720,7 @@ export const en: Dictionary = {
     privacy:
       'Everything is stored locally on your device. No accounts. No cloud.',
     readPrivacyPolicyLabel: 'Read the full privacy policy',
+    viewFeaturesLabel: 'See everything the app can do',
     madeBy: (author) => `Made by ${author}`,
     currentVersionLabel: (version) => `Version ${version}`,
   },
@@ -746,6 +747,78 @@ export const en: Dictionary = {
     changesBody: 'If this policy ever changes, the update will be posted on this same page.',
     contactHeading: 'Contact',
     contactBody: 'Questions about this policy can be sent via the project’s GitHub page.',
+    backToAboutLabel: 'Back to About',
+  },
+  featuresOverview: {
+    title: 'Features',
+    description: "What Turtle Steps can do, all in one place",
+    categories: [
+      {
+        heading: 'Daily logging',
+        items: [
+          'Track weight, calories, protein, fat, and carbs every day',
+          'Log sleep, steps, water, and mood alongside your weight',
+          'Optional menstrual cycle and digestion tracking — off by default, and never shown unless you turn it on',
+        ],
+      },
+      {
+        heading: 'Meals & food',
+        items: [
+          'Search a large built-in food database, or build your own personal food list',
+          'Scan a barcode to add a packaged food automatically',
+          'Build multi-ingredient recipes with the nutrition calculated for you',
+          'Mark favorites and reuse your last-logged amount with one tap',
+          "React to a dish with an emoji, and copy a whole day's meals to today",
+        ],
+      },
+      {
+        heading: 'Goals & progress',
+        items: [
+          'Set a weekly weight-loss pace instead of one big target number',
+          'Optional daily calorie, protein, fat, and carb targets',
+          "See whether each week's target was reached, and which weigh-ins it was based on",
+        ],
+      },
+      {
+        heading: 'Dashboard & trends',
+        items: [
+          'Weight, calorie, and macro trend charts, plus weekly and monthly summaries',
+          'Track waist, hip, and body-fat measurements over time',
+          'Build your own comparison chart from any two tracked metrics',
+          "Reorder the Dashboard's sections to match what matters to you",
+        ],
+      },
+      {
+        heading: 'Correlations & insights',
+        items: [
+          'See how protein intake, cycle phase, or fasting window relate to your weight',
+          'Spot patterns without doing any of the math yourself',
+        ],
+      },
+      {
+        heading: 'History',
+        items: [
+          'Browse every past day in a calendar view',
+          'See exactly which days met your weekly target',
+        ],
+      },
+      {
+        heading: 'Your data, your device',
+        items: [
+          'Everything is stored locally — no account, no cloud, no tracking',
+          'Export a full backup, or as Excel, CSV, or Markdown, any time',
+          'Import a backup to restore your data or move to a new device',
+        ],
+      },
+      {
+        heading: 'Make it yours',
+        items: [
+          'English and Russian',
+          'Light and dark mode, with several color themes',
+          'kg or lb, plus a configurable week-start day and day-start time',
+        ],
+      },
+    ],
     backToAboutLabel: 'Back to About',
   },
 }

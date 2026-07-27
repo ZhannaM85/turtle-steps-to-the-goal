@@ -25,6 +25,12 @@ export function AboutScreen() {
         <p>{t.about.intro}</p>
         <p>{t.about.tracking}</p>
         <p>{t.about.philosophy}</p>
+        <Link
+          to="/features"
+          className="self-start text-foreground underline-offset-4 hover:underline"
+        >
+          {t.about.viewFeaturesLabel}
+        </Link>
         <p className="font-medium text-foreground">{t.about.privacyHeading}</p>
         <p>{t.about.privacy}</p>
         <Link

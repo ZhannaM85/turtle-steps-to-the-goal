@@ -58,6 +58,15 @@ describe('AboutScreen', () => {
     expect(link).toHaveAttribute('href', '/privacy')
   })
 
+  it('links to the features overview page (#346)', () => {
+    renderAboutScreen()
+
+    const link = screen.getByRole('link', {
+      name: 'See everything the app can do',
+    })
+    expect(link).toHaveAttribute('href', '/features')
+  })
+
   it('shows the current version number', () => {
     renderAboutScreen()
 

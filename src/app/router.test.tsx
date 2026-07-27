@@ -80,6 +80,13 @@ describe('app router', () => {
     ).toBeInTheDocument()
   })
 
+  it('renders the Features screen at /features (#346)', async () => {
+    renderAt('/features')
+    expect(
+      await screen.findByRole('heading', { name: 'Features' }),
+    ).toBeInTheDocument()
+  })
+
   it('wires an errorElement so a render crash never falls back to a blank screen (#102)', () => {
     expect(routes[0].errorElement).toBeDefined()
   })
