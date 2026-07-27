@@ -156,6 +156,13 @@ export function BodyCompositionTrendChart({
     selected.includes(key),
   )
   const dualAxis = visibleKeys.length === 2
+  // #348 — reported live: exactly 1 series selected showed no y-axis
+  // values at all, unlike the exactly-2 case above. Same "no scale-clash
+  // risk" reasoning as dualAxis applies just as well to a single series —
+  // there's nothing else on screen it could be confused with — so this
+  // gets its own real, visible axis too instead of falling through to the
+  // hidden normalized-0-100 one meant for the 3+/ambiguous-scale case.
+  const singleAxis = visibleKeys.length === 1
 
   const seriesPicker = (
     <ToggleGroup
@@ -269,6 +276,15 @@ export function BodyCompositionTrendChart({
                 tickLine={false}
               />
             </>
+          ) : singleAxis ? (
+            <YAxis
+              yAxisId="single"
+              width={40}
+              domain={['auto', 'auto']}
+              tick={{ fontSize: 11, fill: SERIES_COLOR[visibleKeys[0]] }}
+              axisLine={false}
+              tickLine={false}
+            />
           ) : (
             <YAxis
               width={40}
@@ -285,9 +301,17 @@ export function BodyCompositionTrendChart({
           {visibleKeys.map((key, index) => (
             <Line
               key={key}
-              yAxisId={dualAxis ? (index === 0 ? 'left' : 'right') : undefined}
+              yAxisId={
+                dualAxis
+                  ? index === 0
+                    ? 'left'
+                    : 'right'
+                  : singleAxis
+                    ? 'single'
+                    : undefined
+              }
               type="monotone"
-              dataKey={dualAxis ? `${key}_raw` : `${key}_norm`}
+              dataKey={dualAxis || singleAxis ? `${key}_raw` : `${key}_norm`}
               stroke={SERIES_COLOR[key]}
               strokeWidth={2}
               dot={false}
