@@ -25,6 +25,34 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 306,
+    issue: 351,
+    date: '2026-07-27T16:14:54+03:00',
+    en: 'Waist/hip no longer show up as chart options when Body measurements tracking is turned off.',
+    ru: 'Талия и бёдра больше не предлагаются в графиках, если отслеживание «Измерений тела» отключено.',
+  },
+  {
+    version: 305,
+    issue: 350,
+    date: '2026-07-27T16:14:54+03:00',
+    en: "Fixed body fat % rendering as a solid black bar in the comparison chart.",
+    ru: 'Исправили: процент жира отображался в графике сравнения сплошным чёрным цветом.',
+  },
+  {
+    version: 304,
+    issue: 347,
+    date: '2026-07-27T16:14:54+03:00',
+    en: 'Fixed the fasting-hours bar chart rendering as solid black.',
+    ru: 'Исправили: столбцы часов голодания отображались сплошным чёрным цветом.',
+  },
+  {
+    version: 303,
+    issue: 343,
+    date: '2026-07-27T16:14:54+03:00',
+    en: "Added Steps and Sleep tiles to Today's summary, with the ability to reorder your summary tiles.",
+    ru: 'Добавили плитки «Шаги» и «Сон» в сводку на главном экране, с возможностью менять порядок плиток.',
+  },
+  {
     version: 302,
     issue: 344,
     date: '2026-07-27T15:09:02+03:00',
