@@ -73,6 +73,7 @@ export const en: Dictionary = {
     remainingFiberLabel: 'Remaining fiber',
     reorderCardLabel: (n) => `Reorder card ${n}`,
     reorderCardsButton: 'Reorder',
+    resetCardOrderButton: 'Reset order',
     targetMinusConsumedText: (target, consumed) => `${target} − ${consumed}`,
     proteinOverTargetLabel: (target, consumed) =>
       `${target} − ${consumed} — great job!`,
@@ -88,6 +89,7 @@ export const en: Dictionary = {
     celebrationDescription: 'Nice work — want to set a target for next week?',
     celebrationCta: "Set next week's goal",
     celebrationCloseLabel: 'Close',
+    deepSleepDescription: (hours) => `${hours} deep sleep`,
   },
   dailyEntry: {
     weightLabel: 'Weight (kg)',
@@ -393,6 +395,7 @@ export const en: Dictionary = {
       'Weight trend, calorie trend, weekly summary cards, correlation view',
     reorderSectionLabel: (n: number) => `Reorder section ${n}`,
     reorderSectionsButton: 'Reorder',
+    resetSectionOrderButton: 'Reset order',
     weightLegend: 'weight',
     caloriesLegend: 'calories',
     rollingAverageLegend: '7-day average',

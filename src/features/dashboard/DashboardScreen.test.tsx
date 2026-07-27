@@ -167,6 +167,42 @@ describe('DashboardScreen', () => {
     })
   })
 
+  describe('reset to default order (#356)', () => {
+    it('only shows the Reset order button while reordering', async () => {
+      await db.dailyEntries.put(makeEntry({ date: '2026-03-01' }))
+      const user = userEvent.setup()
+      render(<DashboardScreen />, { wrapper: MemoryRouter })
+      await screen.findByText('Weight trend')
+
+      expect(
+        screen.queryByRole('button', { name: 'Reset order' }),
+      ).not.toBeInTheDocument()
+
+      await user.click(screen.getByRole('button', { name: 'Reorder' }))
+
+      expect(
+        screen.getByRole('button', { name: 'Reset order' }),
+      ).toBeInTheDocument()
+    })
+
+    it('restores the default section order', async () => {
+      await db.dailyEntries.put(makeEntry({ date: '2026-03-01' }))
+      useDashboardSectionOrderStore.setState({
+        order: [...DEFAULT_DASHBOARD_SECTION_ORDER].reverse(),
+      })
+      const user = userEvent.setup()
+      render(<DashboardScreen />, { wrapper: MemoryRouter })
+      await screen.findByText('Weight trend')
+
+      await user.click(screen.getByRole('button', { name: 'Reorder' }))
+      await user.click(screen.getByRole('button', { name: 'Reset order' }))
+
+      expect(useDashboardSectionOrderStore.getState().order).toEqual(
+        DEFAULT_DASHBOARD_SECTION_ORDER,
+      )
+    })
+  })
+
   it('renders the monthly summary once entries exist (#226)', async () => {
     await db.dailyEntries.put(makeEntry({ date: '2026-03-01' }))
     await db.dailyEntries.put(makeEntry({ date: '2026-03-02' }))

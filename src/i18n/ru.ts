@@ -75,6 +75,7 @@ export const ru: Dictionary = {
     remainingFiberLabel: 'Осталось клетчатки',
     reorderCardLabel: (n) => `Изменить порядок карточки ${n}`,
     reorderCardsButton: 'Порядок карточек',
+    resetCardOrderButton: 'Сбросить порядок',
     targetMinusConsumedText: (target, consumed) => `${target} − ${consumed}`,
     proteinOverTargetLabel: (target, consumed) =>
       `${target} − ${consumed} — отличная работа!`,
@@ -91,6 +92,7 @@ export const ru: Dictionary = {
       'Отличная работа — хотите задать цель на следующую неделю?',
     celebrationCta: 'Задать цель на следующую неделю',
     celebrationCloseLabel: 'Закрыть',
+    deepSleepDescription: (hours) => `${hours} глубокого сна`,
   },
   dailyEntry: {
     weightLabel: 'Вес (кг)',
@@ -395,6 +397,7 @@ export const ru: Dictionary = {
       'График веса, график калорий, карточки недельной сводки, корреляции',
     reorderSectionLabel: (n: number) => `Изменить порядок раздела ${n}`,
     reorderSectionsButton: 'Порядок разделов',
+    resetSectionOrderButton: 'Сбросить порядок',
     weightLegend: 'вес',
     caloriesLegend: 'калории',
     rollingAverageLegend: 'среднее за 7 дней',

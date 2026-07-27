@@ -31,6 +31,9 @@ export const DEFAULT_DASHBOARD_SECTION_ORDER: DashboardChartKey[] = [
 interface DashboardSectionOrderState {
   order: DashboardChartKey[]
   setOrder: (order: DashboardChartKey[]) => void
+  /** #356 — reported live: no way back to the original order short of
+   * manually re-dragging every section. */
+  resetOrder: () => void
 }
 
 /**
@@ -46,6 +49,7 @@ export const useDashboardSectionOrderStore =
       (set) => ({
         order: DEFAULT_DASHBOARD_SECTION_ORDER,
         setOrder: (order) => set({ order }),
+        resetOrder: () => set({ order: DEFAULT_DASHBOARD_SECTION_ORDER }),
       }),
       {
         name: 'turtle-steps-dashboard-section-order',

@@ -381,6 +381,12 @@ export function TodayScreen() {
   // `sleepLabel`) rather than a second "today.*" copy of the same words.
   const stepsValue = entry?.steps
   const sleepValue = entry?.sleepHours
+  // #353 — reported live right after validating #343: the Sleep tile only
+  // showed the total, even though deep sleep is already logged right below
+  // it on this same form. Shown as the card's description line rather than
+  // folded into the main value, same "primary number + secondary detail"
+  // shape other StatCards with a description already use.
+  const deepSleepValue = entry?.deepSleepHours
 
   // Quiet nudge (#38) once the goal's own anchored window (#135,
   // `goal.weekStart`..`goalWeekEnd(weekStart)`) has run its course, and
@@ -449,6 +455,7 @@ export function TodayScreen() {
   // current fixed positions, unaffected by this.
   const cardOrder = useTodayCardOrderStore((state) => state.order)
   const setCardOrder = useTodayCardOrderStore((state) => state.setOrder)
+  const resetCardOrder = useTodayCardOrderStore((state) => state.resetOrder)
   const [isReorderingCards, setIsReorderingCards] = useState(false)
   const cardDragSensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
@@ -606,6 +613,13 @@ export function TodayScreen() {
           label={t.dailyEntry.sleepLabel}
           value={formatNumber(sleepValue, locale, 1)}
           unit={t.dailyEntry.hoursUnit}
+          description={
+            deepSleepValue === undefined
+              ? undefined
+              : t.today.deepSleepDescription(
+                  `${formatNumber(deepSleepValue, locale, 1)}${t.dailyEntry.hoursUnit}`,
+                )
+          }
           action={statCardAction('todaySleep', t.dailyEntry.sleepLabel)}
         />
       ) : (
@@ -624,16 +638,28 @@ export function TodayScreen() {
           // hidden entirely when there's nothing in the reorderable group
           // to reorder (e.g. a day with no goal/log yet).
           cardOrder.some((key) => cardsByKey[key]) && (
-            <Button
-              type="button"
-              variant={isReorderingCards ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => setIsReorderingCards((prev) => !prev)}
-            >
-              {isReorderingCards
-                ? t.dailyEntry.saveButton
-                : t.today.reorderCardsButton}
-            </Button>
+            <div className="flex items-center gap-2">
+              {isReorderingCards && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={resetCardOrder}
+                >
+                  {t.today.resetCardOrderButton}
+                </Button>
+              )}
+              <Button
+                type="button"
+                variant={isReorderingCards ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setIsReorderingCards((prev) => !prev)}
+              >
+                {isReorderingCards
+                  ? t.dailyEntry.saveButton
+                  : t.today.reorderCardsButton}
+              </Button>
+            </div>
           )
         }
       />

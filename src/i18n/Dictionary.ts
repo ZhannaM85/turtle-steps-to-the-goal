@@ -112,6 +112,10 @@ export interface Dictionary {
      * Today's own reorderable card group instead of Dashboard sections. */
     reorderCardLabel: (n: number) => string
     reorderCardsButton: string
+    /** #356 — same reset-to-default mechanism as
+     * `dashboard.resetSectionOrderButton`, scoped to Today's own
+     * reorderable card group. */
+    resetCardOrderButton: string
     /** #266/#328 — shown as each remaining-nutrient (and, since #328,
      * calories) card's `description`: total minus consumed, so the amount
      * actually consumed is visible without the reader doing that
@@ -156,6 +160,10 @@ export interface Dictionary {
     celebrationDescription: string
     celebrationCta: string
     celebrationCloseLabel: string
+    /** #353 — the Sleep StatCard's description line, e.g. "2.7h deep
+     * sleep" — reported live as missing even though deep sleep is already
+     * logged right below this card on the same form. */
+    deepSleepDescription: (hours: string) => string
   }
   dailyEntry: {
     weightLabel: string
@@ -645,6 +653,10 @@ export interface Dictionary {
     description: string
     reorderSectionLabel: (n: number) => string
     reorderSectionsButton: string
+    /** #356 — reported live: no way back to the original section order
+     * short of manually re-dragging everything. Shown only while
+     * `isReordering` is true, next to the existing Save button. */
+    resetSectionOrderButton: string
     weightLegend: string
     caloriesLegend: string
     rollingAverageLegend: string

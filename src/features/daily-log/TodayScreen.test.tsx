@@ -1552,6 +1552,40 @@ describe('TodayScreen', () => {
       expect(within(sleepCard).getByText('h')).toBeInTheDocument()
     })
 
+    // #353 — reported live right after validating #343: deep sleep is
+    // already logged (DailyEntryForm's own Sleep field) but never surfaced
+    // on this card, even though the total is.
+    it('shows deep sleep as the Sleep card description when logged', async () => {
+      await useDailyEntryStore
+        .getState()
+        .saveEntry(makeEntry({ sleepHours: 7.5, deepSleepHours: 2.3 }))
+      useDailyEntryStore.setState({ entry: null, date: null, status: 'idle' })
+
+      render(
+        <MemoryRouter>
+          <TodayScreen />
+        </MemoryRouter>,
+      )
+
+      await screen.findByRole('button', { name: 'Reorder' })
+      const sleepCard = findStatCardByLabel('Sleep')
+      expect(within(sleepCard).getByText('2.3h deep sleep')).toBeInTheDocument()
+    })
+
+    it('omits the deep sleep description when only the total was logged', async () => {
+      await useDailyEntryStore.getState().saveEntry(makeEntry({ sleepHours: 7.5 }))
+      useDailyEntryStore.setState({ entry: null, date: null, status: 'idle' })
+
+      render(
+        <MemoryRouter>
+          <TodayScreen />
+        </MemoryRouter>,
+      )
+
+      await screen.findByRole('button', { name: 'Reorder' })
+      expect(screen.queryByText(/deep sleep/)).not.toBeInTheDocument()
+    })
+
     it('omits Steps/Sleep cards when neither was logged', async () => {
       await useDailyEntryStore.getState().saveEntry(makeEntry())
       useDailyEntryStore.setState({ entry: null, date: null, status: 'idle' })
@@ -1681,6 +1715,56 @@ describe('TodayScreen', () => {
         capturedOnCardDragEnd?.({ active: { id: 'steps' }, over: { id: 'steps' } })
         capturedOnCardDragEnd?.({ active: { id: 'steps' }, over: null })
       })
+
+      expect(useTodayCardOrderStore.getState().order).toEqual(
+        DEFAULT_TODAY_CARD_ORDER,
+      )
+    })
+
+    // #356 — reported live: no way back to the original order short of
+    // manually re-dragging every card.
+    it('only shows the Reset order button while reordering', async () => {
+      const user = userEvent.setup()
+      await useDailyEntryStore.getState().saveEntry(makeEntry({ steps: 8432 }))
+      useDailyEntryStore.setState({ entry: null, date: null, status: 'idle' })
+
+      render(
+        <MemoryRouter>
+          <TodayScreen />
+        </MemoryRouter>,
+      )
+
+      await screen.findByRole('button', { name: 'Reorder' })
+      expect(
+        screen.queryByRole('button', { name: 'Reset order' }),
+      ).not.toBeInTheDocument()
+
+      await user.click(screen.getByRole('button', { name: 'Reorder' }))
+
+      expect(
+        screen.getByRole('button', { name: 'Reset order' }),
+      ).toBeInTheDocument()
+    })
+
+    it('restores the default card order', async () => {
+      const user = userEvent.setup()
+      await useDailyEntryStore
+        .getState()
+        .saveEntry(makeEntry({ steps: 8432, sleepHours: 7.5 }))
+      useDailyEntryStore.setState({ entry: null, date: null, status: 'idle' })
+      useTodayCardOrderStore.setState({
+        order: [...DEFAULT_TODAY_CARD_ORDER].reverse(),
+      })
+
+      render(
+        <MemoryRouter>
+          <TodayScreen />
+        </MemoryRouter>,
+      )
+
+      await screen.findByRole('button', { name: 'Reorder' })
+      await user.click(screen.getByRole('button', { name: 'Reorder' }))
+      await user.click(screen.getByRole('button', { name: 'Reset order' }))
 
       expect(useTodayCardOrderStore.getState().order).toEqual(
         DEFAULT_TODAY_CARD_ORDER,

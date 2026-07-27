@@ -99,6 +99,7 @@ export function DashboardScreen() {
   const { goal, entries, status } = useDashboardData()
   const order = useDashboardSectionOrderStore((state) => state.order)
   const setOrder = useDashboardSectionOrderStore((state) => state.setOrder)
+  const resetOrder = useDashboardSectionOrderStore((state) => state.resetOrder)
   // #336 — user-defined correlations, rendered after the fixed reorderable
   // sections below (see CustomCorrelationView's own doc comment for why
   // they're not part of that reorderable list).
@@ -169,21 +170,33 @@ export function DashboardScreen() {
           status !== 'loading' &&
           status !== 'idle' &&
           entries.length > 0 && (
-            <Button
-              type="button"
-              variant={isReordering ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => setIsReordering((prev) => !prev)}
-            >
-              {isReordering ? (
-                t.dailyEntry.saveButton
-              ) : (
-                <>
-                  <Pencil aria-hidden="true" />
-                  {t.dashboard.reorderSectionsButton}
-                </>
+            <div className="flex items-center gap-2">
+              {isReordering && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={resetOrder}
+                >
+                  {t.dashboard.resetSectionOrderButton}
+                </Button>
               )}
-            </Button>
+              <Button
+                type="button"
+                variant={isReordering ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setIsReordering((prev) => !prev)}
+              >
+                {isReordering ? (
+                  t.dailyEntry.saveButton
+                ) : (
+                  <>
+                    <Pencil aria-hidden="true" />
+                    {t.dashboard.reorderSectionsButton}
+                  </>
+                )}
+              </Button>
+            </div>
           )
         }
       />

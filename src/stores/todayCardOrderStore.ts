@@ -32,6 +32,9 @@ export const DEFAULT_TODAY_CARD_ORDER: TodayCardKey[] = [
 interface TodayCardOrderState {
   order: TodayCardKey[]
   setOrder: (order: TodayCardKey[]) => void
+  /** #356 — same reset-to-default mechanism as
+   * `dashboardSectionOrderStore.ts`'s own `resetOrder`. */
+  resetOrder: () => void
 }
 
 /**
@@ -45,6 +48,7 @@ export const useTodayCardOrderStore = create<TodayCardOrderState>()(
     (set) => ({
       order: DEFAULT_TODAY_CARD_ORDER,
       setOrder: (order) => set({ order }),
+      resetOrder: () => set({ order: DEFAULT_TODAY_CARD_ORDER }),
     }),
     {
       name: 'turtle-steps-today-card-order',
