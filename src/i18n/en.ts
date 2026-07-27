@@ -768,10 +768,7 @@ export const en: Dictionary = {
     saveButton: 'Save',
 
     logValuesSectionLabel: 'Log a value',
-    dateLabel: 'Date',
-    previousDayLabel: 'Previous day',
-    nextDayLabel: 'Next day',
-    noMetricsToLogText: 'Add a metric above to start logging values for it.',
+    logValuesMovedText: "Log today's values from the Today screen.",
     booleanYesOption: 'Yes',
     booleanNoOption: 'No',
     scaleValueLabel: (n) => `Rate ${n} out of 5`,

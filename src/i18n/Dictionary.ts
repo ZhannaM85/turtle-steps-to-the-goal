@@ -1137,13 +1137,13 @@ export interface Dictionary {
     cancelLabel: string
     saveButton: string
 
-    /** Per-date value entry, one row per defined metric, mirroring
-     * TodayScreen's own date-nav header (prev/next day arrows). */
+    /** Per-date value entry, one row per defined metric — mounted on
+     * `TodayScreen.tsx` via `CustomMetricLogSection.tsx` (#362), not this
+     * screen. `logValuesSectionLabel` is that section's own heading there;
+     * `logValuesMovedText` is the note shown here in its place once at
+     * least one metric is defined. */
     logValuesSectionLabel: string
-    dateLabel: string
-    previousDayLabel: string
-    nextDayLabel: string
-    noMetricsToLogText: string
+    logValuesMovedText: string
     booleanYesOption: string
     booleanNoOption: string
     /** Accessible label for one of the five 1-5 scale buttons, e.g. "Rate

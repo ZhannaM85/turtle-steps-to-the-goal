@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 319,
+    issue: 362,
+    date: '2026-07-27T21:32:21+03:00',
+    en: "Custom metrics are now logged right from the Today screen, instead of a separate dedicated screen.",
+    ru: 'Свои метрики теперь записываются прямо на главном экране, а не на отдельном экране.',
+  },
+  {
     version: 318,
     issue: 363,
     date: '2026-07-27T21:13:05+03:00',

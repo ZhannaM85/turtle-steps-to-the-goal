@@ -780,10 +780,7 @@ export const ru: Dictionary = {
     saveButton: 'Сохранить',
 
     logValuesSectionLabel: 'Записать значение',
-    dateLabel: 'Дата',
-    previousDayLabel: 'Предыдущий день',
-    nextDayLabel: 'Следующий день',
-    noMetricsToLogText: 'Добавьте метрику выше, чтобы начать записывать её значения.',
+    logValuesMovedText: 'Записывайте значения за сегодня на главном экране.',
     booleanYesOption: 'Да',
     booleanNoOption: 'Нет',
     scaleValueLabel: (n) => `Оценка ${n} из 5`,

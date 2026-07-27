@@ -66,6 +66,7 @@ import {
   type SectionKey,
   type TodayCardKey,
 } from '@/stores'
+import { CustomMetricLogSection } from '@/features/custom-metrics'
 import { DailyEntryForm } from './DailyEntryForm'
 import { GoalCelebrationModal } from './GoalCelebrationModal'
 
@@ -900,6 +901,8 @@ export function TodayScreen() {
           onSave={saveEntry}
         />
       )}
+
+      <CustomMetricLogSection date={date} />
     </div>
   )
 }

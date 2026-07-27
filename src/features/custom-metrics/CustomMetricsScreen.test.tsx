@@ -1,5 +1,4 @@
 import 'fake-indexeddb/auto'
-import { format } from 'date-fns'
 import { render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
@@ -7,8 +6,6 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { db } from '@/infrastructure/persistence/indexeddb'
 import { useCustomCorrelationStore, useCustomMetricStore } from '@/stores'
 import { CustomMetricsScreen } from './CustomMetricsScreen'
-
-const today = format(new Date(), 'yyyy-MM-dd')
 
 beforeEach(async () => {
   await db.customMetrics.clear()
@@ -50,9 +47,7 @@ describe('CustomMetricsScreen', () => {
     await user.type(within(dialog).getByLabelText('Unit (optional)'), 'reps')
     await user.click(within(dialog).getByRole('button', { name: 'Save' }))
 
-    // "Push-ups" itself renders twice (the management list row and the log-
-    // value row below it) — the labeled number input is unique to the latter.
-    expect(await screen.findByLabelText('Push-ups')).toBeInTheDocument()
+    expect(await screen.findByText('Push-ups')).toBeInTheDocument()
     await waitFor(async () =>
       expect((await db.customMetrics.toArray())[0]).toMatchObject({
         name: 'Push-ups',
@@ -62,7 +57,7 @@ describe('CustomMetricsScreen', () => {
     )
   })
 
-  it('creates a boolean-kind metric and logs Yes for the current date', async () => {
+  it('creates a boolean-kind metric', async () => {
     const user = userEvent.setup()
     renderScreen()
 
@@ -73,61 +68,17 @@ describe('CustomMetricsScreen', () => {
     await user.click(within(dialog).getByRole('radio', { name: 'Yes / No' }))
     await user.click(within(dialog).getByRole('button', { name: 'Save' }))
 
-    await user.click(
-      within(await screen.findByLabelText('Training session')).getByRole(
-        'radio',
-        { name: 'Yes' },
-      ),
-    )
-
-    await waitFor(async () => {
-      const entries = await db.customMetricEntries.toArray()
-      expect(entries[0]).toMatchObject({ date: today, value: 1 })
-    })
-  })
-
-  it('shows a note field only once a value is logged, and persists it (#363)', async () => {
-    await db.customMetrics.put({
-      id: 'metric-1',
-      name: 'Acne',
-      inputKind: 'scale5',
-      createdAt: '2026-01-01T00:00:00.000Z',
-    })
-    useCustomMetricStore.setState({
-      metrics: [
-        {
-          id: 'metric-1',
-          name: 'Acne',
-          inputKind: 'scale5',
-          createdAt: '2026-01-01T00:00:00.000Z',
-        },
-      ],
-    })
-    const user = userEvent.setup()
-    renderScreen()
-
-    await screen.findByLabelText('Acne')
-    expect(screen.queryByLabelText('Note')).not.toBeInTheDocument()
-
-    await user.click(
-      within(screen.getByLabelText('Acne')).getByRole('radio', {
-        name: 'Rate 3 out of 5',
+    expect(await screen.findByText('Training session')).toBeInTheDocument()
+    await waitFor(async () =>
+      expect((await db.customMetrics.toArray())[0]).toMatchObject({
+        name: 'Training session',
+        inputKind: 'boolean',
       }),
     )
-
-    const noteInput = await screen.findByLabelText('Note')
-    await user.type(noteInput, 'started a new skincare product')
-    await user.tab()
-
-    await waitFor(async () => {
-      const entries = await db.customMetricEntries.toArray()
-      expect(entries[0]).toMatchObject({
-        date: today,
-        value: 3,
-        note: 'started a new skincare product',
-      })
-    })
   })
+
+  // Per-date value entry (including the #363 note field) moved to
+  // CustomMetricLogSection.tsx (#362) — see that file's own test.
 
   it('deletes a metric, removing it from the list and the database', async () => {
     await db.customMetrics.put({
@@ -139,13 +90,27 @@ describe('CustomMetricsScreen', () => {
     const user = userEvent.setup()
     renderScreen()
 
-    await screen.findByLabelText('Push-ups')
+    await screen.findByText('Push-ups')
     await user.click(screen.getByRole('button', { name: 'Delete Push-ups' }))
 
     await waitFor(() =>
-      expect(screen.queryByLabelText('Push-ups')).not.toBeInTheDocument(),
+      expect(screen.queryByText('Push-ups')).not.toBeInTheDocument(),
     )
     expect(await db.customMetrics.toArray()).toEqual([])
+  })
+
+  it('shows a note pointing to Today once a metric is defined', async () => {
+    await db.customMetrics.put({
+      id: 'metric-1',
+      name: 'Push-ups',
+      inputKind: 'number',
+      createdAt: '2026-01-01T00:00:00.000Z',
+    })
+    renderScreen()
+
+    expect(
+      await screen.findByText("Log today's values from the Today screen."),
+    ).toBeInTheDocument()
   })
 
   it('creates a correlation between a custom metric and a built-in one', async () => {
@@ -168,7 +133,7 @@ describe('CustomMetricsScreen', () => {
     const user = userEvent.setup()
     renderScreen()
 
-    await screen.findByLabelText('Push-ups')
+    await screen.findByText('Push-ups')
     await user.click(screen.getByRole('button', { name: '+ Add correlation' }))
     const dialog = screen.getByRole('dialog')
     await user.selectOptions(

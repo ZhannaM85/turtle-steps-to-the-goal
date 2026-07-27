@@ -1,6 +1,13 @@
 import 'fake-indexeddb/auto'
 import type { ReactNode } from 'react'
-import { act, fireEvent, render, screen, within } from '@testing-library/react'
+import {
+  act,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { format, subDays } from 'date-fns'
 import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom'
@@ -10,6 +17,7 @@ import type { DailyEntry } from '@/domain/dailyEntry'
 import { db } from '@/infrastructure/persistence/indexeddb'
 import {
   DEFAULT_TODAY_CARD_ORDER,
+  useCustomMetricStore,
   useDailyEntryStore,
   useDailyReminderStore,
   useDayStartStore,
@@ -71,8 +79,16 @@ function makeEntry(overrides: Partial<DailyEntry> = {}): DailyEntry {
 beforeEach(async () => {
   await db.goals.clear()
   await db.dailyEntries.clear()
+  await db.customMetrics.clear()
+  await db.customMetricEntries.clear()
   localStorage.clear()
   useGoalStore.setState({ goal: null, status: 'idle', error: null })
+  useCustomMetricStore.setState({
+    metrics: [],
+    entries: [],
+    status: 'idle',
+    error: null,
+  })
   useDailyEntryStore.setState({
     date: null,
     entry: null,
@@ -90,6 +106,8 @@ beforeEach(async () => {
 afterEach(async () => {
   await db.goals.clear()
   await db.dailyEntries.clear()
+  await db.customMetrics.clear()
+  await db.customMetricEntries.clear()
   localStorage.clear()
   useDailyReminderStore.setState({ enabled: false })
   useProfileStore.setState({ heightCm: undefined, age: undefined, sex: undefined })
@@ -1814,6 +1832,47 @@ describe('TodayScreen', () => {
       expect(
         screen.getByRole('button', { name: 'Reset order' }),
       ).not.toBeDisabled()
+    })
+  })
+
+  describe('custom metric log section (#362)', () => {
+    it('does not render the section when no custom metrics are defined', async () => {
+      render(
+        <MemoryRouter>
+          <TodayScreen />
+        </MemoryRouter>,
+      )
+
+      await screen.findByLabelText('Date')
+      expect(screen.queryByText('Log a value')).not.toBeInTheDocument()
+    })
+
+    it('logs a value for the viewed date via the bottom-of-page section', async () => {
+      await db.customMetrics.put({
+        id: 'metric-1',
+        name: 'Push-ups',
+        inputKind: 'number',
+        createdAt: '2026-01-01T00:00:00.000Z',
+      })
+      const user = userEvent.setup()
+
+      render(
+        <MemoryRouter>
+          <TodayScreen />
+        </MemoryRouter>,
+      )
+
+      const numberInput = await screen.findByLabelText('Push-ups')
+      await user.type(numberInput, '20')
+      await user.tab()
+
+      await waitFor(async () => {
+        const entries = await db.customMetricEntries.toArray()
+        expect(entries[0]).toMatchObject({
+          date: format(new Date(), 'yyyy-MM-dd'),
+          value: 20,
+        })
+      })
     })
   })
 })

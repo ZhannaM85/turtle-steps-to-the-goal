@@ -1,0 +1,174 @@
+import { useEffect, useState } from 'react'
+import type { CustomMetric } from '@/domain/customMetric'
+import { useTranslation } from '@/i18n'
+import { useCustomMetricStore } from '@/stores'
+import { Input } from '@/shared/ui/input'
+import { ToggleGroup, ToggleGroupItem } from '@/shared/ui/toggle-group'
+
+/** One metric's value-entry row for the given date (#336) — widget shape
+ * depends on `metric.inputKind`: a plain number field, a Yes/No toggle
+ * (stored as 1/0), or a 1-5 scale picker. All three commit straight to
+ * `useCustomMetricStore.setEntryValue` — a `number` field commits on
+ * blur/Enter (typing needs a chance to finish), the toggle/scale widgets
+ * commit immediately on tap, same as this app's other single-tap pickers
+ * (mood, reaction). */
+function MetricValueRow({
+  metric,
+  date,
+  value,
+  note,
+}: {
+  metric: CustomMetric
+  date: string
+  value: number | undefined
+  note: string | undefined
+}) {
+  const t = useTranslation()
+  const setEntryValue = useCustomMetricStore((state) => state.setEntryValue)
+  const setEntryNote = useCustomMetricStore((state) => state.setEntryNote)
+  // Lazy initializer, not a synced useEffect (the React Compiler's
+  // react-hooks/set-state-in-effect lint rule flags calling setState
+  // directly in an effect body, same rule `MealEditScreen.tsx`'s own doc
+  // comment already ran into) — the parent keys each row by
+  // `${metric.id}:${date}`, so a date change remounts this component
+  // fresh instead of needing an effect to reset `draft` on prop change.
+  const [draft, setDraft] = useState(value === undefined ? '' : String(value))
+  const [noteDraft, setNoteDraft] = useState(note ?? '')
+
+  function commitNumber() {
+    const parsed = Number(draft)
+    if (draft.trim() === '' || Number.isNaN(parsed)) return
+    setEntryValue(metric.id, date, parsed)
+  }
+
+  return (
+    <div className="flex flex-col gap-2 rounded-lg border border-border px-3 py-2">
+      <div className="flex items-center justify-between gap-3">
+        <span className="text-sm font-medium">
+          {metric.name}
+          {metric.unit && (
+            <span className="text-muted-foreground"> ({metric.unit})</span>
+          )}
+        </span>
+        {metric.inputKind === 'number' && (
+          <Input
+            type="text"
+            inputMode="decimal"
+            aria-label={metric.name}
+            value={draft}
+            onChange={(e) => setDraft(e.target.value)}
+            onBlur={commitNumber}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault()
+                commitNumber()
+              }
+            }}
+            className="h-9 w-24 text-right"
+          />
+        )}
+        {metric.inputKind === 'boolean' && (
+          <ToggleGroup
+            type="single"
+            aria-label={metric.name}
+            value={value === undefined ? undefined : value === 1 ? 'yes' : 'no'}
+            onValueChange={(next) => {
+              if (next) setEntryValue(metric.id, date, next === 'yes' ? 1 : 0)
+            }}
+          >
+            <ToggleGroupItem value="no" className="text-sm">
+              {t.customMetrics.booleanNoOption}
+            </ToggleGroupItem>
+            <ToggleGroupItem value="yes" className="text-sm">
+              {t.customMetrics.booleanYesOption}
+            </ToggleGroupItem>
+          </ToggleGroup>
+        )}
+        {metric.inputKind === 'scale5' && (
+          <ToggleGroup
+            type="single"
+            aria-label={metric.name}
+            value={value === undefined ? undefined : String(value)}
+            onValueChange={(next) => {
+              if (next) setEntryValue(metric.id, date, Number(next))
+            }}
+          >
+            {[1, 2, 3, 4, 5].map((n) => (
+              <ToggleGroupItem
+                key={n}
+                value={String(n)}
+                aria-label={t.customMetrics.scaleValueLabel(n)}
+                className="w-9 text-sm"
+              >
+                {n}
+              </ToggleGroupItem>
+            ))}
+          </ToggleGroup>
+        )}
+      </div>
+      {/* #363 — only once a value for this day exists: a note has nowhere
+       * to attach to otherwise, since `CustomMetricEntry.value` is required. */}
+      {value !== undefined && (
+        <Input
+          type="text"
+          aria-label={t.customMetrics.noteLabel}
+          placeholder={t.customMetrics.notePlaceholder}
+          value={noteDraft}
+          onChange={(e) => setNoteDraft(e.target.value)}
+          onBlur={() => setEntryNote(metric.id, date, noteDraft)}
+          className="h-9"
+        />
+      )}
+    </div>
+  )
+}
+
+/**
+ * Per-date custom-metric value entry (#336), mounted at the bottom of
+ * `TodayScreen.tsx` (#362) — reverses #336's own original design fork
+ * ("entry lives on its own dedicated screen," resolved via `AskUserQuestion`
+ * before building) after live use surfaced it as an extra screen too easy to
+ * forget to visit. Defining/deleting metrics and correlations stayed on
+ * `CustomMetricsScreen.tsx`, reached via Settings — only the day-to-day act
+ * of logging *today's* (or whichever day is being viewed) value moved.
+ * Renders nothing at all if no metrics are defined yet, same "don't clutter
+ * the page with an unused feature" treatment already given to other
+ * optional Today sections (BMI/BMR, sleep, etc.) — a user who's never
+ * touched custom metrics sees no trace of this section.
+ */
+export function CustomMetricLogSection({ date }: { date: string }) {
+  const t = useTranslation()
+  const metrics = useCustomMetricStore((state) => state.metrics)
+  const entries = useCustomMetricStore((state) => state.entries)
+  const loadMetrics = useCustomMetricStore((state) => state.loadAll)
+
+  useEffect(() => {
+    loadMetrics()
+  }, [loadMetrics])
+
+  if (metrics.length === 0) return null
+
+  return (
+    <section className="flex flex-col gap-2">
+      <h2 className="text-sm font-medium text-foreground">
+        {t.customMetrics.logValuesSectionLabel}
+      </h2>
+      <div className="flex flex-col gap-2">
+        {metrics.map((metric) => {
+          const entry = entries.find(
+            (e) => e.metricId === metric.id && e.date === date,
+          )
+          return (
+            <MetricValueRow
+              key={`${metric.id}:${date}`}
+              metric={metric}
+              date={date}
+              value={entry?.value}
+              note={entry?.note}
+            />
+          )
+        })}
+      </div>
+    </section>
+  )
+}
