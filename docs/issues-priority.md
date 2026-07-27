@@ -880,6 +880,16 @@ _Reported live with two screenshots (Today's "Порядок карточек" b
 
 ---
 
+## Tier 63 — Live feedback: pre-populate meal time (2026-07-27)
+
+_User asked directly (not from a screenshot): meal "time eaten" should default to the current time instead of blank, and already-logged entries missing a time should be backfilled where possible. **User explicitly said not to implement this now — queue it for after other in-progress tickets.**_
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#357](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/357) | 📋 Not started | Pre-populate meal time-eaten by default, backfill missing times where possible | Filed at report time, not yet investigated. Deliberately deferred per the user's own instruction — do not start until other queued work is done. Reverses #82's own "blank by default" decision; flagged in the issue for whoever implements it to re-confirm that reasoning before proceeding. |
+
+---
+
 ## Tier 59 — Retroactive: another flaky-test fix filed after the fact (2026-07-27)
 
 _Same pattern as #349 — found mid-session via a background full-suite run, filed and closed immediately per issue-first, fixed before commit rather than left open._
