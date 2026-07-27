@@ -456,6 +456,17 @@ export const en: Dictionary = {
       "Compares each day's latest meal time to the very next day's weight, not a proven cause-and-effect relationship — water retention, sodium, and many other factors also affect day-to-day weight.",
     lateMealTimeLegend: 'last meal time',
     nextDayChangeLegend: 'next-day change',
+    mealFrequencyTitle: 'Meal frequency vs. next-day weight',
+    mealFrequencyEmptyDescription:
+      'Not enough data yet to see a pattern — log your meals and keep tracking weight, then check back in a few weeks.',
+    mealFrequencySummary: (thresholdCount, direction) =>
+      direction === 'more'
+        ? `Days with more than ${thresholdCount} meals logged averaged more weight gain the next morning than days with fewer, larger meals.`
+        : `Days with ${thresholdCount} or fewer meals logged averaged more weight gain the next morning than days with more, smaller meals.`,
+    mealFrequencyDayCount: (n) => `Based on ${n} day${n === 1 ? '' : 's'} of data.`,
+    mealFrequencyLagCaveat:
+      "Compares each day's number of logged meals to the very next day's weight, not a proven cause-and-effect relationship — water retention, sodium, and many other factors also affect day-to-day weight.",
+    mealCountLegend: 'meals logged',
     fastingWindowTitle: 'Fasting window vs. next-day weight',
     fastingWindowEmptyDescription:
       'Not enough data yet to see a pattern — log meal times on consecutive days and keep tracking weight, then check back in a few weeks.',

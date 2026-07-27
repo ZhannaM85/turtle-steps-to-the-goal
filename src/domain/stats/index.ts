@@ -23,6 +23,15 @@ export {
 } from './lateMealCorrelation'
 export type { LateMealCorrelation, LateMealPoint } from './lateMealCorrelation'
 export {
+  mealFrequencyCorrelation,
+  mealFrequencyCorrelationFromPoints,
+  mealFrequencyPoints,
+} from './mealFrequencyCorrelation'
+export type {
+  MealFrequencyCorrelation,
+  MealFrequencyPoint,
+} from './mealFrequencyCorrelation'
+export {
   fastingWindowPoints,
   fastingWindowCorrelation,
   fastingWindowCorrelationFromPoints,

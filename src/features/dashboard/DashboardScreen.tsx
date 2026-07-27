@@ -31,6 +31,7 @@ import { CustomChartView } from './CustomChartView'
 import { FastingWindowCorrelationView } from './FastingWindowCorrelationView'
 import { FoodReactionsView } from './FoodReactionsView'
 import { LateMealCorrelationView } from './LateMealCorrelationView'
+import { MealFrequencyCorrelationView } from './MealFrequencyCorrelationView'
 import { MacroTrendChart } from './MacroTrendChart'
 import { LoggingConsistencyHeatmap } from './LoggingConsistencyHeatmap'
 import { MonthlySummaryCards } from './MonthlySummaryCards'
@@ -122,6 +123,9 @@ export function DashboardScreen() {
     customChart: <CustomChartView entries={entries} />,
     calorieWeightCorrelation: <CorrelationView entries={entries} />,
     lateMealCorrelation: <LateMealCorrelationView entries={entries} />,
+    mealFrequencyCorrelation: (
+      <MealFrequencyCorrelationView entries={entries} />
+    ),
     fastingWindowCorrelation: <FastingWindowCorrelationView entries={entries} />,
     sleepCorrelation: <SleepCorrelationView entries={entries} />,
     stepsCorrelation: <StepsCorrelationView entries={entries} />,

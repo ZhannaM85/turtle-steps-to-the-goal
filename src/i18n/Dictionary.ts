@@ -720,6 +720,20 @@ export interface Dictionary {
     lateMealLagCaveat: string
     lateMealTimeLegend: string
     nextDayChangeLegend: string
+    /** #338 — meal *count* vs. next-day weight, same median-split shape
+     * as lateMealTitle above. Distinct from #257 (meal *timing*) and #322
+     * (meal *composition*) — this is "3 larger meals vs. 5 smaller ones,"
+     * derived from data already logged (meal group count per day), no new
+     * manual entry needed. */
+    mealFrequencyTitle: string
+    mealFrequencyEmptyDescription: string
+    mealFrequencySummary: (
+      thresholdCount: number,
+      direction: 'fewer' | 'more',
+    ) => string
+    mealFrequencyDayCount: (n: number) => string
+    mealFrequencyLagCaveat: string
+    mealCountLegend: string
     /** #257 — actual elapsed fasting duration (previous day's last meal to
      * current day's first meal) vs. next-day weight, median-split same
      * shape as lateMeal* above. Distinct from lateMeal*, which only looks

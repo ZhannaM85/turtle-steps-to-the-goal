@@ -15,6 +15,7 @@ export const DEFAULT_DASHBOARD_SECTION_ORDER: DashboardChartKey[] = [
   'customChart',
   'calorieWeightCorrelation',
   'lateMealCorrelation',
+  'mealFrequencyCorrelation',
   'fastingWindowCorrelation',
   'sleepCorrelation',
   'stepsCorrelation',
