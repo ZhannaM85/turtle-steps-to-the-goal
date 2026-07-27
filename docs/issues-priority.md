@@ -819,6 +819,16 @@ _Reported live with a screenshot: the "Состав тела" (body composition)
 
 ---
 
+## Tier 57 — Retroactive: flaky-test fix filed after the fact (2026-07-27)
+
+_Filed and closed retroactively per direct user feedback — the fix itself (commit 56ab633) shipped without an issue at all, skipping the issue-first convention. See `docs/agent-mistakes-log.md`'s 2026-07-27 entry._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#349](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/349) | ✅ Done | Fix a real timeout race in ExportSection's Excel export test | Already shipped in 56ab633 before this issue existed. `ExportSection.test.tsx`'s Excel-export test had its own Vitest timeout (5000ms default) exactly equal to its inner `findByText` wait (`{ timeout: 5000 }`), leaving no margin for render/click/`exceljs` dynamic-import before that wait even started — a real race, not just load-dependent flakiness, caught when it timed out during a background full-suite run. Fixed by bumping the test's own timeout to 10000ms (3rd `it()` argument). No release note (#131/#144 precedent — test-only change, no user-facing behavior). |
+
+---
+
 ## Private (no public GitHub issue, by request)
 
 _Filed and built without a public issue at the user's explicit request — the repo is public, and this one's more personal than the rest. Still documented normally here per the project's usual close-out process; see [[feedback_issue_first]]'s exception #2 in memory for why._
