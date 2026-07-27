@@ -926,7 +926,7 @@ _Reported live with a screenshot: Dashboard section titles now truncate with an 
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#361](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/361) | 📋 Not started | Dashboard section titles get truncated (regression from #355) | Filed at report time, not yet investigated. Self-identified likely cause: #355's `SectionTitleWithToggle` change added a `truncate` class to the title `<h2>` (to keep a long title from pushing the eye-toggle/action buttons off-screen once the drag handle also shares that row) — that's what's now clipping every title. |
+| [#361](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/361) | 🔍 Pending validation | Dashboard section titles get truncated (regression from #355) | Done. Removed the `truncate` class from `SectionTitleWithToggle`'s title `<h2>` — the parent's `min-w-0` flex container still forces it to shrink to the available width when needed, so it now wraps onto a second line instead of clipping with an ellipsis; the pre-#355 "buttons pushed off-screen" bug doesn't come back since wrapping (not overflow) is what keeps the row's width in check. Verified live via a real Playwright screenshot against seeded IndexedDB data at very narrow viewports (180px/260px) — no clipping, eye-toggle stays in place. |
 
 ---
 

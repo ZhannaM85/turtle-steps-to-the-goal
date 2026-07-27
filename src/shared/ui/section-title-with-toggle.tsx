@@ -49,7 +49,7 @@ export function SectionTitleWithToggle({
     <div className="flex items-center justify-between gap-2">
       <div className="flex min-w-0 items-center gap-2">
         {dragHandle}
-        <h2 className="truncate text-sm font-medium text-muted-foreground">
+        <h2 className="text-sm font-medium text-muted-foreground">
           {title}
         </h2>
       </div>

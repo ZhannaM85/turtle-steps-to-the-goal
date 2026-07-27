@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 316,
+    issue: 361,
+    date: '2026-07-27T20:49:16+03:00',
+    en: 'Fixed Dashboard section titles getting cut off with "..." — long titles now wrap onto a second line instead.',
+    ru: 'Исправлено обрезание заголовков разделов на Дашборде многоточием — теперь длинные заголовки переносятся на вторую строку.',
+  },
+  {
     version: 315,
     issue: 357,
     date: '2026-07-27T20:20:53+03:00',

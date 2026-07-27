@@ -158,6 +158,10 @@ future session can see the pattern, not just the count.
 
 | 2026-07-27 | Instruction miss | #357's `addTime` default changed from `''` to the current time, but the existing `MealList.test.tsx` fasting-window-toast tests (`user.type(screen.getByLabelText('Time'), '08:00')`) were never re-checked against that new non-blank starting value — `userEvent.type()` into an already-populated native time input doesn't clear it first, so the typed value landed wrong and 4 tests failed on a background full-suite run | Same class as the row above — changing a form field's default value is a behavior change that existing tests exercising that field need to be re-examined against, not just the new feature's own tests; fixed by adding `user.clear(...)` before each affected `user.type(...)` call |
 
+| 2026-07-27 | Prompted | `cd "..." && npm run dev > "<log path>" 2>&1 &` / `disown` / `sleep 1` / `echo started` — four newline-separated statements to start a dev server for #361's visual verification, stacking `&&`-chaining, a redirect, a background `&`, `disown`, and a `sleep` all in one call | CLAUDE.md "⚠️ Shell safety" — user asked directly why the prompt fired; the `Bash` tool's own `run_in_background: true` parameter backgrounds a plain, single, unchained command correctly on its own, no `&`/`disown`/`sleep` needed in the command text at all |
+
+| 2026-07-27 | Instruction miss | `npx zm-index outline src/features/dashboard/DashboardScreen.tsx 2>&1 \| head -n 40` via Bash while scoping #361's live verification — a redirect plus a raw `head` pipe on a `zm-index` call, the same recurring class of mistake logged 50+ times already this session | [[feedback_no_raw_grep_pipelines]] — self-caught immediately, redone as a single plain `zm-index outline` call with no pipe |
+
 ## Related standing fixes made because of this log
 
 - `CLAUDE.md` gained a top-of-file "⚠️ Shell safety" callout (2026-07-19).
