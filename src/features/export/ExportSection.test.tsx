@@ -81,27 +81,36 @@ describe('ExportSection', () => {
     ).toBeInTheDocument()
   })
 
-  it('exports an Excel file and reports how much data was included', async () => {
-    await db.goals.put(makeGoal())
-    await db.dailyEntries.put(makeEntry())
-    await db.dailyEntries.put(makeEntry({ date: '2026-03-02' }))
-    const user = userEvent.setup()
+  it(
+    'exports an Excel file and reports how much data was included',
+    async () => {
+      await db.goals.put(makeGoal())
+      await db.dailyEntries.put(makeEntry())
+      await db.dailyEntries.put(makeEntry({ date: '2026-03-02' }))
+      const user = userEvent.setup()
 
-    render(<ExportSection />)
-    await user.click(screen.getByRole('button', { name: 'Export as Excel' }))
+      render(<ExportSection />)
+      await user.click(screen.getByRole('button', { name: 'Export as Excel' }))
 
-    // exceljs is a sizeable dynamic import (#123) — under full-suite
-    // parallel load its first transform can take longer than findByText's
-    // default 1000ms timeout, same reasoning as router.test.tsx's Dashboard
-    // chunk.
-    expect(
-      await screen.findByText(
-        'Exported 1 goal and 2 daily entries.',
-        {},
-        { timeout: 5000 },
-      ),
-    ).toBeInTheDocument()
-  })
+      // exceljs is a sizeable dynamic import (#123) — under full-suite
+      // parallel load its first transform can take longer than findByText's
+      // default 1000ms timeout, same reasoning as router.test.tsx's Dashboard
+      // chunk. The test's own timeout (3rd `it` arg, below) needs its own
+      // bump too — left at Vitest's 5000ms default, this findByText's own
+      // 5000ms wait left zero margin for render/click/import-kickoff before
+      // it even started, a real timeout race under load rather than a fluke
+      // (confirmed live: timed out during a full-suite run competing with
+      // unrelated stale background processes for CPU).
+      expect(
+        await screen.findByText(
+          'Exported 1 goal and 2 daily entries.',
+          {},
+          { timeout: 5000 },
+        ),
+      ).toBeInTheDocument()
+    },
+    10000,
+  )
 
   it('exports a CSV file and reports how many entries were included', async () => {
     await db.goals.put(makeGoal())
