@@ -805,7 +805,7 @@ _Reported live with a screenshot: the Overview "Comparison" chart's "часов 
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#347](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/347) | 📋 Not started | Don't use black for chart series color (fasting-hours bar chart) | Likely a missing explicit color in the per-metric color mapping, falling back to a default black. Whether other series also fall back to black is implementation-time work. |
+| [#347](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/347) | 🔍 Pending validation | Don't use black for chart series color (fasting-hours bar chart) | Not a missing mapping — `useNumericSeriesConfig` already gave fastingHours a color, `var(--chart-5)`, the last of five generic achromatic (zero-chroma) `--chart-1..5` slots shared with steps/waist/hip/bodyFat. Those work fine as thin *lines* (a deliberate lightness-graduated grayscale ramp for series with no dedicated identity color) but `--chart-5`'s own lightness (oklch L=0.269) is genuinely indistinguishable from black once filled solid as a *bar* — confirmed as the root cause via `CustomChartView.tsx`'s `<Bar fill={seriesConfig[key].color} .../>`, no opacity reduction. Fixed by giving fastingHours its own dedicated `--chart-fasting` token (a muted indigo, `#5f6a9e` light/`#a3aed9` dark, distinct from every other hue already claimed in this palette) instead of lightening the shared grayscale ramp — steps/waist/hip/bodyFat aren't reported as broken, and lightening `--chart-5` in place would just push the identical "looks black as a bar" problem onto whichever of them gets switched to bar mode next. `--chart-1..4` are unchanged. |
 
 ---
 

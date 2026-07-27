@@ -162,11 +162,15 @@ function useNumericSeriesConfig(): Record<
       formatRaw: (value) =>
         `${formatNumber(value, locale)}${t.dailyEntry.percentUnit}`,
     },
-    // #257 — last remaining generic --chart-* slot, same reasoning as
-    // steps/waist/hip/bodyFat above.
+    // #257 originally reused the last generic --chart-5 slot, same
+    // reasoning as steps/waist/hip/bodyFat above. #347: reported live as
+    // solid black once switched to bar mode — --chart-5's own lightness
+    // is fine for a thin line but reads as black filled solid. Given its
+    // own dedicated token instead, same fix every other reported chart-
+    // color complaint already got.
     fastingHours: {
       label: t.dashboard.fastingHoursLegend,
-      color: 'var(--chart-5)',
+      color: 'var(--chart-fasting)',
       formatRaw: (value) => `${formatNumber(value, locale)}h`,
     },
   }

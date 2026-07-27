@@ -93,6 +93,23 @@
    * to its siblings, same reasoning-by-similar-luminance approach as
    * every other choice on this line (no contrast-checker tool run). */
   --stat-fiber: #8a7a2f;
+  /* #347 — reported live: the fasting-hours series in the "Compare your
+   * data" chart, set to bar mode, rendered in solid black. Root cause:
+   * `useNumericSeriesConfig` gave it `--chart-5`, the last of the five
+   * generic, achromatic (zero-chroma) `--chart-1..5` slots reused by
+   * steps/waist/hip/bodyFat/fastingHours below — fine as thin *lines*
+   * (the intended use, a lightness-graduated grayscale ramp for series
+   * with no dedicated color identity), but `--chart-5`'s own lightness
+   * (oklch L=0.269) reads as indistinguishable from literal black once
+   * filled solid as a *bar*. Rather than lightening the shared grayscale
+   * ramp (steps/waist/hip/bodyFat aren't reported as broken, and a
+   * lighter chart-5 could just push the same problem onto whichever of
+   * them gets switched to bar mode next), fastingHours gets its own
+   * dedicated hued token instead — same "give it a real identity color"
+   * fix every other reported chart-color complaint in this file already
+   * got. A muted indigo, distinct from every other hue already claimed
+   * above (teal/tan/terracotta/mauve/blue/olive). */
+  --chart-fasting: #5f6a9e;
   --sand-foreground: #8a6a3c;
   /* #165: light-mode-specific override — oklch(0.87 0 0) (still correct,
    * unchanged, in .dark below) is a near-white gray tuned for a dark
@@ -142,6 +159,7 @@
   --color-stat-carbs: var(--stat-carbs);
   --color-stat-water: var(--stat-water);
   --color-stat-fiber: var(--stat-fiber);
+  --color-chart-fasting: var(--chart-fasting);
   --color-sand-foreground: var(--sand-foreground);
   --color-ring: var(--ring);
   --color-input: var(--input);
@@ -201,6 +219,10 @@
   --stat-carbs: #90c7a6;
   --stat-water: #8fadd6;
   --stat-fiber: #cbc06e;
+  /* #347 — same dedicated fix as the light-mode value above, at the
+   * lighter/pastel lightness level dark mode's own hued tokens already
+   * use for everything else. */
+  --chart-fasting: #a3aed9;
   --sand-foreground: #b28e58;
   --chart-1: oklch(0.87 0 0);
   --chart-2: oklch(0.556 0 0);
