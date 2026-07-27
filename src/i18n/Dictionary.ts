@@ -1155,6 +1155,11 @@ export interface Dictionary {
      * day already exists, not before. */
     noteLabel: string
     notePlaceholder: string
+    /** Accessible label for the note's own explicit Save button (#364) —
+     * same checkmark-`Button` pattern `t.dailyEntry.saveNoteLabel` already
+     * uses for the day note, since blur-only commit gave no visible
+     * confirmation the note was saved. */
+    saveNoteLabel: string
 
     correlationsSectionLabel: string
     emptyCorrelationsText: string

@@ -775,6 +775,7 @@ export const en: Dictionary = {
     valueSavedLabel: 'Saved',
     noteLabel: 'Note',
     notePlaceholder: 'Add a note about this value...',
+    saveNoteLabel: 'Save note',
 
     correlationsSectionLabel: 'Custom correlations',
     emptyCorrelationsText: 'No custom correlations yet.',

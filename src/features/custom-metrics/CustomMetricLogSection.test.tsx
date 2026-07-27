@@ -70,7 +70,7 @@ describe('CustomMetricLogSection', () => {
 
     const noteInput = await screen.findByLabelText('Note')
     await user.type(noteInput, 'started a new skincare product')
-    await user.tab()
+    await user.click(screen.getByRole('button', { name: 'Save note' }))
 
     await waitFor(async () => {
       const entries = await db.customMetricEntries.toArray()
@@ -80,6 +80,29 @@ describe('CustomMetricLogSection', () => {
         note: 'started a new skincare product',
       })
     })
+  })
+
+  it('does not save the note on blur alone, since there was no visible confirmation it had (#364)', async () => {
+    await db.customMetrics.put({
+      id: 'metric-1',
+      name: 'Acne',
+      inputKind: 'scale5',
+      createdAt: '2026-01-01T00:00:00.000Z',
+    })
+    const user = userEvent.setup()
+    render(<CustomMetricLogSection date="2026-03-01" />)
+
+    await user.click(
+      within(await screen.findByLabelText('Acne')).getByRole('radio', {
+        name: 'Rate 3 out of 5',
+      }),
+    )
+    const noteInput = await screen.findByLabelText('Note')
+    await user.type(noteInput, 'started a new skincare product')
+    await user.tab()
+
+    const entries = await db.customMetricEntries.toArray()
+    expect(entries[0].note).toBeUndefined()
   })
 
   it('shows the already-logged value and note for the given date', async () => {

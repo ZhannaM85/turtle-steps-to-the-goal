@@ -787,6 +787,7 @@ export const ru: Dictionary = {
     valueSavedLabel: 'Сохранено',
     noteLabel: 'Заметка',
     notePlaceholder: 'Добавьте заметку об этом значении...',
+    saveNoteLabel: 'Сохранить заметку',
 
     correlationsSectionLabel: 'Свои корреляции',
     emptyCorrelationsText: 'Своих корреляций пока нет.',

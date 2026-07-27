@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 320,
+    issue: 364,
+    date: '2026-07-27T22:39:06+03:00',
+    en: "A custom metric's note now has its own Save button, instead of saving silently when you tap away.",
+    ru: 'У заметки к своей метрике теперь есть отдельная кнопка «Сохранить» вместо незаметного сохранения при переходе к другому полю.',
+  },
+  {
     version: 319,
     issue: 362,
     date: '2026-07-27T21:32:21+03:00',

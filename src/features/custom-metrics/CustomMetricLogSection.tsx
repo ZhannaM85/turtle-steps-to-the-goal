@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react'
+import { Check } from 'lucide-react'
 import type { CustomMetric } from '@/domain/customMetric'
 import { useTranslation } from '@/i18n'
 import { useCustomMetricStore } from '@/stores'
+import { Button } from '@/shared/ui/button'
 import { Input } from '@/shared/ui/input'
 import { ToggleGroup, ToggleGroupItem } from '@/shared/ui/toggle-group'
 
@@ -107,17 +109,37 @@ function MetricValueRow({
         )}
       </div>
       {/* #363 — only once a value for this day exists: a note has nowhere
-       * to attach to otherwise, since `CustomMetricEntry.value` is required. */}
+       * to attach to otherwise, since `CustomMetricEntry.value` is required.
+       * #364: reported live — blur-only commit gave no visible confirmation
+       * the note was saved. Explicit Save button instead (same Input +
+       * checkmark-`Button` pattern `DailyEntryForm.tsx`'s own day note
+       * already uses), triggered on click or Enter, not on blur. */}
       {value !== undefined && (
-        <Input
-          type="text"
-          aria-label={t.customMetrics.noteLabel}
-          placeholder={t.customMetrics.notePlaceholder}
-          value={noteDraft}
-          onChange={(e) => setNoteDraft(e.target.value)}
-          onBlur={() => setEntryNote(metric.id, date, noteDraft)}
-          className="h-9"
-        />
+        <div className="flex items-center gap-2">
+          <Input
+            type="text"
+            aria-label={t.customMetrics.noteLabel}
+            placeholder={t.customMetrics.notePlaceholder}
+            value={noteDraft}
+            onChange={(e) => setNoteDraft(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault()
+                setEntryNote(metric.id, date, noteDraft)
+              }
+            }}
+            className="h-9 flex-1"
+          />
+          <Button
+            type="button"
+            variant="outline"
+            size="icon-lg"
+            aria-label={t.customMetrics.saveNoteLabel}
+            onClick={() => setEntryNote(metric.id, date, noteDraft)}
+          >
+            <Check aria-hidden="true" />
+          </Button>
+        </div>
       )}
     </div>
   )

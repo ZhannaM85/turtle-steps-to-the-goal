@@ -947,7 +947,7 @@ _Reported live with a screenshot right after confirming #363 on-device: the new 
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#364](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/364) | 📋 Not started | Custom metric note field has no visible save action | Filed at report time, not yet investigated. Current implementation (`CustomMetricLogSection.tsx`'s `MetricValueRow`) commits the note on blur only, with no visible confirmation afterward. |
+| [#364](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/364) | 🔍 Pending validation | Custom metric note field has no visible save action | Done. Replaced the blur-only commit with an explicit Save action — same `Input` + checkmark-`Button` pattern `DailyEntryForm.tsx`'s own day note already uses (`icon-lg` to match the note field's `h-9` height), triggered on click or Enter, not on blur. New `t.customMetrics.saveNoteLabel` key (en+ru). Added a regression test locking in the exact reported behavior: typing a note and blurring away no longer silently persists it (only the explicit Save click/Enter does). |
 
 ---
 
