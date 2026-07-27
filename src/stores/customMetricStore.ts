@@ -36,6 +36,10 @@ interface CustomMetricStoreState {
    * established, rather than letting a second log for the same day pile
    * up as a duplicate row. */
   setEntryValue: (metricId: string, date: string, value: number) => Promise<void>
+  /** #363 — a note only ever amends an *existing* entry (the UI shows the
+   * field once a value for that day already exists); a no-op if somehow
+   * called with no existing entry rather than creating a valueless one. */
+  setEntryNote: (metricId: string, date: string, note: string) => Promise<void>
   deleteEntry: (id: string) => Promise<void>
 }
 
@@ -91,6 +95,20 @@ export const useCustomMetricStore = create<CustomMetricStoreState>((set) => ({
       metricId,
       date,
       value,
+      note: existing?.note,
+      updatedAt: new Date().toISOString(),
+    })
+    set({ entries: await customMetricEntryRepository.getAll() })
+  },
+  setEntryNote: async (metricId, date, note) => {
+    const existing = await customMetricEntryRepository.getByMetricAndDate(
+      metricId,
+      date,
+    )
+    if (!existing) return
+    await customMetricEntryRepository.upsert({
+      ...existing,
+      note: note.trim() === '' ? undefined : note,
       updatedAt: new Date().toISOString(),
     })
     set({ entries: await customMetricEntryRepository.getAll() })

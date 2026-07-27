@@ -776,6 +776,8 @@ export const en: Dictionary = {
     booleanNoOption: 'No',
     scaleValueLabel: (n) => `Rate ${n} out of 5`,
     valueSavedLabel: 'Saved',
+    noteLabel: 'Note',
+    notePlaceholder: 'Add a note about this value...',
 
     correlationsSectionLabel: 'Custom correlations',
     emptyCorrelationsText: 'No custom correlations yet.',

@@ -196,6 +196,7 @@ const customMetricEntrySchema = z.object({
   metricId: z.string(),
   date: z.string(),
   value: z.number(),
+  note: z.string().optional(),
   updatedAt: z.string(),
 })
 

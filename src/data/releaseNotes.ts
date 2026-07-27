@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 318,
+    issue: 363,
+    date: '2026-07-27T21:13:05+03:00',
+    en: "You can now add a note to a custom metric's logged value for a given day.",
+    ru: 'Теперь можно добавить заметку к значению своей метрики за конкретный день.',
+  },
+  {
     version: 317,
     issue: 360,
     date: '2026-07-27T20:58:28+03:00',

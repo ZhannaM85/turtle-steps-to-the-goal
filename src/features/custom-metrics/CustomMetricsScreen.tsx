@@ -42,13 +42,16 @@ function MetricValueRow({
   metric,
   date,
   value,
+  note,
 }: {
   metric: CustomMetric
   date: string
   value: number | undefined
+  note: string | undefined
 }) {
   const t = useTranslation()
   const setEntryValue = useCustomMetricStore((state) => state.setEntryValue)
+  const setEntryNote = useCustomMetricStore((state) => state.setEntryNote)
   // Lazy initializer, not a synced useEffect (the React Compiler's
   // react-hooks/set-state-in-effect lint rule flags calling setState
   // directly in an effect body, same rule `MealEditScreen.tsx`'s own doc
@@ -56,6 +59,7 @@ function MetricValueRow({
   // `${metric.id}:${date}`, so a date change remounts this component
   // fresh instead of needing an effect to reset `draft` on prop change.
   const [draft, setDraft] = useState(value === undefined ? '' : String(value))
+  const [noteDraft, setNoteDraft] = useState(note ?? '')
 
   function commitNumber() {
     const parsed = Number(draft)
@@ -64,67 +68,82 @@ function MetricValueRow({
   }
 
   return (
-    <div className="flex items-center justify-between gap-3 rounded-lg border border-border px-3 py-2">
-      <span className="text-sm font-medium">
-        {metric.name}
-        {metric.unit && (
-          <span className="text-muted-foreground"> ({metric.unit})</span>
+    <div className="flex flex-col gap-2 rounded-lg border border-border px-3 py-2">
+      <div className="flex items-center justify-between gap-3">
+        <span className="text-sm font-medium">
+          {metric.name}
+          {metric.unit && (
+            <span className="text-muted-foreground"> ({metric.unit})</span>
+          )}
+        </span>
+        {metric.inputKind === 'number' && (
+          <Input
+            type="text"
+            inputMode="decimal"
+            aria-label={metric.name}
+            value={draft}
+            onChange={(e) => setDraft(e.target.value)}
+            onBlur={commitNumber}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault()
+                commitNumber()
+              }
+            }}
+            className="h-9 w-24 text-right"
+          />
         )}
-      </span>
-      {metric.inputKind === 'number' && (
+        {metric.inputKind === 'boolean' && (
+          <ToggleGroup
+            type="single"
+            aria-label={metric.name}
+            value={value === undefined ? undefined : value === 1 ? 'yes' : 'no'}
+            onValueChange={(next) => {
+              if (next) setEntryValue(metric.id, date, next === 'yes' ? 1 : 0)
+            }}
+          >
+            <ToggleGroupItem value="no" className="text-sm">
+              {t.customMetrics.booleanNoOption}
+            </ToggleGroupItem>
+            <ToggleGroupItem value="yes" className="text-sm">
+              {t.customMetrics.booleanYesOption}
+            </ToggleGroupItem>
+          </ToggleGroup>
+        )}
+        {metric.inputKind === 'scale5' && (
+          <ToggleGroup
+            type="single"
+            aria-label={metric.name}
+            value={value === undefined ? undefined : String(value)}
+            onValueChange={(next) => {
+              if (next) setEntryValue(metric.id, date, Number(next))
+            }}
+          >
+            {[1, 2, 3, 4, 5].map((n) => (
+              <ToggleGroupItem
+                key={n}
+                value={String(n)}
+                aria-label={t.customMetrics.scaleValueLabel(n)}
+                className="w-9 text-sm"
+              >
+                {n}
+              </ToggleGroupItem>
+            ))}
+          </ToggleGroup>
+        )}
+      </div>
+      {/* #363 — only once a value for this day exists: a note has nowhere
+       * to attach to otherwise, since `CustomMetricEntry.value` is required. */}
+      {value !== undefined && (
         <Input
           type="text"
-          inputMode="decimal"
-          aria-label={metric.name}
-          value={draft}
-          onChange={(e) => setDraft(e.target.value)}
-          onBlur={commitNumber}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') {
-              e.preventDefault()
-              commitNumber()
-            }
-          }}
-          className="h-9 w-24 text-right"
+          aria-label={t.customMetrics.noteLabel}
+          placeholder={t.customMetrics.notePlaceholder}
+          value={noteDraft}
+          onChange={(e) => setNoteDraft(e.target.value)}
+          onBlur={() => setEntryNote(metric.id, date, noteDraft)}
+          className="h-9"
         />
-      )}
-      {metric.inputKind === 'boolean' && (
-        <ToggleGroup
-          type="single"
-          aria-label={metric.name}
-          value={value === undefined ? undefined : value === 1 ? 'yes' : 'no'}
-          onValueChange={(next) => {
-            if (next) setEntryValue(metric.id, date, next === 'yes' ? 1 : 0)
-          }}
-        >
-          <ToggleGroupItem value="no" className="text-sm">
-            {t.customMetrics.booleanNoOption}
-          </ToggleGroupItem>
-          <ToggleGroupItem value="yes" className="text-sm">
-            {t.customMetrics.booleanYesOption}
-          </ToggleGroupItem>
-        </ToggleGroup>
-      )}
-      {metric.inputKind === 'scale5' && (
-        <ToggleGroup
-          type="single"
-          aria-label={metric.name}
-          value={value === undefined ? undefined : String(value)}
-          onValueChange={(next) => {
-            if (next) setEntryValue(metric.id, date, Number(next))
-          }}
-        >
-          {[1, 2, 3, 4, 5].map((n) => (
-            <ToggleGroupItem
-              key={n}
-              value={String(n)}
-              aria-label={t.customMetrics.scaleValueLabel(n)}
-              className="w-9 text-sm"
-            >
-              {n}
-            </ToggleGroupItem>
-          ))}
-        </ToggleGroup>
       )}
     </div>
   )
@@ -275,18 +294,20 @@ export function CustomMetricsScreen() {
           </p>
         ) : (
           <div className="flex flex-col gap-2">
-            {metrics.map((metric) => (
-              <MetricValueRow
-                key={`${metric.id}:${date}`}
-                metric={metric}
-                date={date}
-                value={
-                  entries.find(
-                    (e) => e.metricId === metric.id && e.date === date,
-                  )?.value
-                }
-              />
-            ))}
+            {metrics.map((metric) => {
+              const entry = entries.find(
+                (e) => e.metricId === metric.id && e.date === date,
+              )
+              return (
+                <MetricValueRow
+                  key={`${metric.id}:${date}`}
+                  metric={metric}
+                  date={date}
+                  value={entry?.value}
+                  note={entry?.note}
+                />
+              )
+            })}
           </div>
         )}
       </section>

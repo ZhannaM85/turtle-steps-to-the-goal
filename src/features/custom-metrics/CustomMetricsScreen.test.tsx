@@ -86,6 +86,49 @@ describe('CustomMetricsScreen', () => {
     })
   })
 
+  it('shows a note field only once a value is logged, and persists it (#363)', async () => {
+    await db.customMetrics.put({
+      id: 'metric-1',
+      name: 'Acne',
+      inputKind: 'scale5',
+      createdAt: '2026-01-01T00:00:00.000Z',
+    })
+    useCustomMetricStore.setState({
+      metrics: [
+        {
+          id: 'metric-1',
+          name: 'Acne',
+          inputKind: 'scale5',
+          createdAt: '2026-01-01T00:00:00.000Z',
+        },
+      ],
+    })
+    const user = userEvent.setup()
+    renderScreen()
+
+    await screen.findByLabelText('Acne')
+    expect(screen.queryByLabelText('Note')).not.toBeInTheDocument()
+
+    await user.click(
+      within(screen.getByLabelText('Acne')).getByRole('radio', {
+        name: 'Rate 3 out of 5',
+      }),
+    )
+
+    const noteInput = await screen.findByLabelText('Note')
+    await user.type(noteInput, 'started a new skincare product')
+    await user.tab()
+
+    await waitFor(async () => {
+      const entries = await db.customMetricEntries.toArray()
+      expect(entries[0]).toMatchObject({
+        date: today,
+        value: 3,
+        note: 'started a new skincare product',
+      })
+    })
+  })
+
   it('deletes a metric, removing it from the list and the database', async () => {
     await db.customMetrics.put({
       id: 'metric-1',

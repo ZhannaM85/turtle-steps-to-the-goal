@@ -788,6 +788,8 @@ export const ru: Dictionary = {
     booleanNoOption: 'Нет',
     scaleValueLabel: (n) => `Оценка ${n} из 5`,
     valueSavedLabel: 'Сохранено',
+    noteLabel: 'Заметка',
+    notePlaceholder: 'Добавьте заметку об этом значении...',
 
     correlationsSectionLabel: 'Свои корреляции',
     emptyCorrelationsText: 'Своих корреляций пока нет.',

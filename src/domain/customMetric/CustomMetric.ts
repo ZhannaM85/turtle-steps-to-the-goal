@@ -43,5 +43,10 @@ export interface CustomMetricEntry {
   metricId: string
   date: string
   value: number
+  /** Free-text context for this one logged value (#363) — e.g. "started a
+   * new skincare product" attached to an Acne entry. Distinct from
+   * `CustomMetric.unit`, which is the definition's own fixed unit label,
+   * not per-day content. */
+  note?: string
   updatedAt: string
 }

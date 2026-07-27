@@ -1150,6 +1150,11 @@ export interface Dictionary {
      * 3 out of 5". */
     scaleValueLabel: (n: number) => string
     valueSavedLabel: string
+    /** Free-text note attached to one day's logged value (#363) — e.g. "started
+     * a new skincare product" on an Acne entry. Shown once a value for that
+     * day already exists, not before. */
+    noteLabel: string
+    notePlaceholder: string
 
     correlationsSectionLabel: string
     emptyCorrelationsText: string
