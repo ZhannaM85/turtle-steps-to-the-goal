@@ -87,12 +87,12 @@ export function WeightTrendChart({ entries, dragHandle }: WeightTrendChartProps)
   )
 
   if (!chartVisible) {
-    return <div className="flex flex-col gap-1.5">{chartTitle}</div>
+    return <div className="flex flex-col gap-1.5 rounded-lg border border-border p-3">{chartTitle}</div>
   }
 
   if (weightPoints.length < MIN_TREND_DATA_POINTS) {
     return (
-      <div className="flex flex-col gap-1.5">
+      <div className="flex flex-col gap-1.5 rounded-lg border border-border p-3">
         {chartTitle}
         <p className="text-sm text-muted-foreground">
           {t.dashboard.notEnoughTrendDataMessage}
@@ -190,7 +190,7 @@ export function WeightTrendChart({ entries, dragHandle }: WeightTrendChartProps)
   const bothHidden = !visible.raw && !visible.average
 
   return (
-    <div className="flex flex-col gap-1.5">
+    <div className="flex flex-col gap-1.5 rounded-lg border border-border p-3">
       {chartTitle}
       {bothHidden ? (
         // #238 regression, caught live: this used to be an early return

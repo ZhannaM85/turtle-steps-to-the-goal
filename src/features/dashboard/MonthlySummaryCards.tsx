@@ -55,13 +55,13 @@ export function MonthlySummaryCards({
   )
 
   if (!cardVisible) {
-    return <div className="flex flex-col gap-3">{cardTitle}</div>
+    return <div className="flex flex-col gap-3 rounded-lg border border-border p-3">{cardTitle}</div>
   }
 
   const monthsMostRecentFirst = [...summaries].reverse()
 
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex flex-col gap-3 rounded-lg border border-border p-3">
       {cardTitle}
       <div className="flex flex-col gap-2">
         {monthsMostRecentFirst.map((month) => {

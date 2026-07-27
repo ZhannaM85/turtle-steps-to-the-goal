@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 317,
+    issue: 360,
+    date: '2026-07-27T20:58:28+03:00',
+    en: 'Every Dashboard section now has the same bordered card look, not just the correlation charts.',
+    ru: 'Теперь все разделы Дашборда оформлены в едином стиле карточек с рамкой, а не только графики корреляций.',
+  },
+  {
     version: 316,
     issue: 361,
     date: '2026-07-27T20:49:16+03:00',

@@ -886,7 +886,7 @@ _User asked directly (not from a screenshot): meal "time eaten" should default t
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#357](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/357) | 🔍 Pending validation | Pre-populate meal time-eaten by default, backfill missing times where possible | Done. `addTime` now defaults to the current HH:MM instead of blank (`MealList.tsx`); localStorage draft's `isBlank` check no longer treats a populated default time as "blank" (same precedent as `addAmountG`/`addMacroMode`). Backfill mechanism resolved via `AskUserQuestion`: user chose auto-backfill from each meal's own `createdAt` over leaving old data untouched. New Dexie v12 migration (`db.ts`) backfills any missing `CalorieEntry.timeEaten` from that entry's own `createdAt` (local HH:MM), only filling gaps — a meal that already has a time is untouched. |
+| [#357](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/357) | ✅ Done | Pre-populate meal time-eaten by default, backfill missing times where possible | Confirmed on-device. `addTime` now defaults to the current HH:MM instead of blank (`MealList.tsx`); localStorage draft's `isBlank` check no longer treats a populated default time as "blank" (same precedent as `addAmountG`/`addMacroMode`). Backfill mechanism resolved via `AskUserQuestion`: user chose auto-backfill from each meal's own `createdAt` over leaving old data untouched. New Dexie v12 migration (`db.ts`) backfills any missing `CalorieEntry.timeEaten` from that entry's own `createdAt` (local HH:MM), only filling gaps — a meal that already has a time is untouched. |
 
 ---
 
@@ -916,7 +916,7 @@ _Follow-up to #354, reported live with two screenshots right after confirming it
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#360](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/360) | 📋 Not started | Extend Dashboard section border to every section, not just correlations | Filed at report time, not yet investigated. Likely the same mechanical one-line-per-file change #354 already used, extended to the ~11 remaining section components. |
+| [#360](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/360) | 🔍 Pending validation | Extend Dashboard section border to every section, not just correlations | Done — confirmed the same mechanical one-line-per-file change #354 used. Added `rounded-lg border border-border p-3` to the root wrapper of all 11 remaining sections: `WeightTrendChart`, `CalorieTrendChart`, `MacroTrendChart`, `BodyCompositionTrendChart`, `CustomChartView`, `FoodReactionsView`, `LoggingConsistencyHeatmap`, `RecentAveragesCards`, `WeeklySummaryCards`, `MonthlySummaryCards`, `CompareRangesView` (every early-return branch too, not just the fully-rendered one). Verified live via a real Playwright screenshot against seeded IndexedDB data — every section now shows the consistent bordered-card look. |
 
 ---
 

@@ -281,7 +281,7 @@ export function CustomChartView({ entries, dragHandle }: CustomChartViewProps) {
   )
 
   if (!cardVisible) {
-    return <div className="flex flex-col gap-3">{cardTitle}</div>
+    return <div className="flex flex-col gap-3 rounded-lg border border-border p-3">{cardTitle}</div>
   }
 
   // #330 — real dual axis only when exactly 2 numeric series are picked;
@@ -338,7 +338,7 @@ export function CustomChartView({ entries, dragHandle }: CustomChartViewProps) {
   }
 
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex flex-col gap-3 rounded-lg border border-border p-3">
       {cardTitle}
       <ToggleGroup
         type="multiple"

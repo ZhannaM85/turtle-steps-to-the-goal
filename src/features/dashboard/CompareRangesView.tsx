@@ -93,7 +93,7 @@ export function CompareRangesView({
   )
 
   if (!cardVisible) {
-    return <div className="flex flex-col gap-3">{cardTitle}</div>
+    return <div className="flex flex-col gap-3 rounded-lg border border-border p-3">{cardTitle}</div>
   }
 
   const summaryA = dateRangeSummary(entries, startA, endA)
@@ -104,7 +104,7 @@ export function CompareRangesView({
       : null
 
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex flex-col gap-3 rounded-lg border border-border p-3">
       {cardTitle}
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <div className="flex flex-col gap-1.5">

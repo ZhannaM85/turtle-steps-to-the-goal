@@ -63,7 +63,7 @@ export function LoggingConsistencyHeatmap({
   )
 
   if (!cardVisible) {
-    return <div className="flex flex-col gap-1.5">{cardTitle}</div>
+    return <div className="flex flex-col gap-1.5 rounded-lg border border-border p-3">{cardTitle}</div>
   }
 
   const recentWeeks = [...weeks].reverse().slice(0, MAX_DISPLAYED_WEEKS)
@@ -75,7 +75,7 @@ export function LoggingConsistencyHeatmap({
     kcal === null ? '—' : `${formatNumber(kcal, locale, 0)} ${t.dailyEntry.kcalUnit}`
 
   return (
-    <div className="flex flex-col gap-1.5">
+    <div className="flex flex-col gap-1.5 rounded-lg border border-border p-3">
       {cardTitle}
       <div className="flex flex-col gap-1">
         <div className="grid grid-cols-[3rem_repeat(7,1fr)] items-center gap-1">

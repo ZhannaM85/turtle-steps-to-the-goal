@@ -49,14 +49,14 @@ export function RecentAveragesCards({
   )
 
   if (!cardVisible) {
-    return <div className="flex flex-col gap-3">{cardTitle}</div>
+    return <div className="flex flex-col gap-3 rounded-lg border border-border p-3">{cardTitle}</div>
   }
 
   const windowLabel = (days: number) =>
     days === 7 ? t.dashboard.last7DaysLabel : t.dashboard.last30DaysLabel
 
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex flex-col gap-3 rounded-lg border border-border p-3">
       {cardTitle}
       <div className="flex flex-col gap-2">
         {windows.map(({ windowDays, averageCalories, averageProteinG }) => (
