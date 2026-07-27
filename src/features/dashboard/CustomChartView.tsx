@@ -156,9 +156,13 @@ function useNumericSeriesConfig(): Record<
       color: 'var(--chart-3)',
       formatRaw: (value) => `${formatNumber(value, locale)}${t.dailyEntry.cmUnit}`,
     },
+    // #350: reported live right after validating #347 — bodyFat, switched
+    // to bar mode, also rendered black. Same root cause (--chart-4 is the
+    // second-darkest of the five achromatic slots); same fix, its own
+    // dedicated hued token instead of the shared generic one.
     bodyFat: {
       label: t.dailyEntry.bodyFatLabel,
-      color: 'var(--chart-4)',
+      color: 'var(--chart-bodyfat)',
       formatRaw: (value) =>
         `${formatNumber(value, locale)}${t.dailyEntry.percentUnit}`,
     },
