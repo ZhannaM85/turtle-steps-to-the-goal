@@ -19,6 +19,8 @@ export type SectionKey =
   | 'todayRemainingCarbs'
   | 'todayRemainingFiber'
   | 'todayRemainingWater'
+  | 'todaySteps'
+  | 'todaySleep'
   | 'todayTargetMetBanner'
   | 'todayGoalRenewalReminder'
   | 'todayDailyReminder'
@@ -37,6 +39,8 @@ const DEFAULT_VISIBLE: Record<SectionKey, boolean> = {
   todayRemainingCarbs: true,
   todayRemainingFiber: true,
   todayRemainingWater: true,
+  todaySteps: true,
+  todaySleep: true,
   todayTargetMetBanner: true,
   todayGoalRenewalReminder: true,
   todayDailyReminder: true,

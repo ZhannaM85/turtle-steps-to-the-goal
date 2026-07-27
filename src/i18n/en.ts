@@ -71,6 +71,8 @@ export const en: Dictionary = {
     remainingFatLabel: 'Remaining fat',
     remainingCarbLabel: 'Remaining carbs',
     remainingFiberLabel: 'Remaining fiber',
+    reorderCardLabel: (n) => `Reorder card ${n}`,
+    reorderCardsButton: 'Reorder',
     targetMinusConsumedText: (target, consumed) => `${target} − ${consumed}`,
     proteinOverTargetLabel: (target, consumed) =>
       `${target} − ${consumed} — great job!`,

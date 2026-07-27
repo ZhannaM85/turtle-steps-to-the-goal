@@ -1,6 +1,23 @@
-import { useEffect } from 'react'
+import { useEffect, useState, type ReactNode } from 'react'
+import {
+  DndContext,
+  KeyboardSensor,
+  PointerSensor,
+  closestCenter,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from '@dnd-kit/core'
+import {
+  SortableContext,
+  arrayMove,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
 import { addDays, format, parseISO } from 'date-fns'
-import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { ChevronLeft, ChevronRight, GripVertical } from 'lucide-react'
 import { Link, useSearchParams } from 'react-router-dom'
 import {
   totalCalories,
@@ -42,11 +59,55 @@ import {
   useGoalStore,
   useProfileStore,
   useSectionVisibilityStore,
+  useTodayCardOrderStore,
   useUnitStore,
   type SectionKey,
+  type TodayCardKey,
 } from '@/stores'
 import { DailyEntryForm } from './DailyEntryForm'
 import { GoalCelebrationModal } from './GoalCelebrationModal'
+
+// #343 — a thin drag-handle strip above each reorderable card, same
+// on-demand-mode pattern #297/#319 established for Dashboard sections
+// (`DashboardScreen.tsx`'s `SortableDashboardSection`) — duplicated here
+// rather than extracted into a shared component, since the two screens'
+// section shapes differ enough (Dashboard: whole page; Today: one
+// sub-group among many other fixed-position elements) that a shared
+// abstraction would need its own generic key type threaded through both
+// call sites for what's currently only ~25 lines of overlap.
+function SortableTodayCard({
+  id,
+  position,
+  isReordering,
+  children,
+}: {
+  id: TodayCardKey
+  position: number
+  isReordering: boolean
+  children: ReactNode
+}) {
+  const t = useTranslation()
+  const { attributes, listeners, setNodeRef, transform, transition } =
+    useSortable({ id, disabled: !isReordering })
+  const style = { transform: CSS.Transform.toString(transform), transition }
+
+  return (
+    <div ref={setNodeRef} style={style} className="flex flex-col gap-1">
+      {isReordering && (
+        <button
+          type="button"
+          aria-label={t.today.reorderCardLabel(position)}
+          className="w-fit cursor-grab touch-none text-muted-foreground active:cursor-grabbing"
+          {...attributes}
+          {...listeners}
+        >
+          <GripVertical aria-hidden="true" className="size-4" />
+        </button>
+      )}
+      {children}
+    </div>
+  )
+}
 
 function shiftDate(date: string, days: number) {
   return format(addDays(parseISO(date), days), 'yyyy-MM-dd')
@@ -314,6 +375,13 @@ export function TodayScreen() {
       ? calculateBmr(entry.weightKg, heightCm, age, sex)
       : null
 
+  // #343 — plain today's-number cards, same shape as BMI above (no
+  // target/remaining concept, just whatever was logged). Reuses
+  // DailyEntryForm's own field labels (`t.dailyEntry.stepsLabel`/
+  // `sleepLabel`) rather than a second "today.*" copy of the same words.
+  const stepsValue = entry?.steps
+  const sleepValue = entry?.sleepHours
+
   // Quiet nudge (#38) once the goal's own anchored window (#135,
   // `goal.weekStart`..`goalWeekEnd(weekStart)`) has run its course, and
   // only when a goal already exists (a goal-less user already sees the
@@ -373,10 +441,202 @@ export function TodayScreen() {
     )
   }
 
+  // #343 — drag-and-drop reordering for the "remaining X" cards plus the
+  // new Steps/Sleep ones, same on-demand mechanism/mode #297/#319 already
+  // gave Dashboard sections (a toggle button, not always-visible handles).
+  // Deliberately scoped to just these eight — the weekly-target card, vs-
+  // yesterday/vs-max-weight deltas, BMI, and the banners keep their
+  // current fixed positions, unaffected by this.
+  const cardOrder = useTodayCardOrderStore((state) => state.order)
+  const setCardOrder = useTodayCardOrderStore((state) => state.setOrder)
+  const [isReorderingCards, setIsReorderingCards] = useState(false)
+  const cardDragSensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+  )
+  function handleCardDragEnd(event: DragEndEvent) {
+    const { active, over } = event
+    if (!over || active.id === over.id) return
+    const oldIndex = cardOrder.indexOf(active.id as TodayCardKey)
+    const newIndex = cardOrder.indexOf(over.id as TodayCardKey)
+    setCardOrder(arrayMove(cardOrder, oldIndex, newIndex))
+  }
+
+  const cardsByKey: Record<TodayCardKey, ReactNode> = {
+    remainingCalories:
+      remainingKcal !== null &&
+      (sectionVisible.todayRemainingCalories ? (
+        <StatCard
+          label={t.today.remainingCaloriesLabel}
+          value={formatNumber(Math.abs(remainingKcal), locale, 0)}
+          unit={isOverCalorieBudget ? t.today.kcalOverUnit : t.today.kcalRemainingUnit}
+          description={t.today.targetMinusConsumedText(
+            formatKcal(goal!.dailyCalorieTargetKcal!, locale, t),
+            formatKcal(consumedKcal, locale, t),
+          )}
+          progressPercent={caloriesPercent ?? undefined}
+          progressColor="var(--chart-calories)"
+          action={
+            <span className="flex items-center gap-1">
+              {bmrValue !== null && (
+                <InfoTooltip
+                  text={`${t.today.bmrLabel}: ${formatNumber(bmrValue, locale, 0)} ${t.today.bmrUnit}`}
+                  label={t.today.bmrTooltipLabel}
+                />
+              )}
+              {statCardAction('todayRemainingCalories', t.today.remainingCaloriesLabel)}
+            </span>
+          }
+        />
+      ) : (
+        sectionTitle('todayRemainingCalories', t.today.remainingCaloriesLabel)
+      )),
+    remainingProtein:
+      proteinDeltaG !== null &&
+      (sectionVisible.todayRemainingProtein ? (
+        <StatCard
+          label={t.today.remainingProteinLabel}
+          value={formatNumber(Math.abs(proteinDeltaG), locale, 0)}
+          unit={isOverProteinTarget ? t.today.gOverUnit : t.today.gRemainingUnit}
+          description={
+            isOverProteinTarget
+              ? t.today.proteinOverTargetLabel(
+                  proteinTargetText!,
+                  formatMacroGrams(consumedProteinG, locale, t),
+                )
+              : t.today.targetMinusConsumedText(
+                  proteinTargetText!,
+                  formatMacroGrams(consumedProteinG, locale, t),
+                )
+          }
+          progressPercent={proteinPercent ?? undefined}
+          progressColor="var(--stat-protein)"
+          action={statCardAction('todayRemainingProtein', t.today.remainingProteinLabel)}
+        />
+      ) : (
+        sectionTitle('todayRemainingProtein', t.today.remainingProteinLabel)
+      )),
+    remainingFat:
+      fatDeltaG !== null &&
+      (sectionVisible.todayRemainingFat ? (
+        <StatCard
+          label={t.today.remainingFatLabel}
+          value={formatNumber(Math.abs(fatDeltaG), locale, 0)}
+          unit={isOverFatTarget ? t.today.gOverUnit : t.today.gRemainingUnit}
+          description={t.today.targetMinusConsumedText(
+            fatTargetText!,
+            formatMacroGrams(consumedFatG, locale, t),
+          )}
+          progressPercent={fatPercent ?? undefined}
+          progressColor="var(--stat-fat)"
+          action={statCardAction('todayRemainingFat', t.today.remainingFatLabel)}
+        />
+      ) : (
+        sectionTitle('todayRemainingFat', t.today.remainingFatLabel)
+      )),
+    remainingCarbs:
+      carbDeltaG !== null &&
+      (sectionVisible.todayRemainingCarbs ? (
+        <StatCard
+          label={t.today.remainingCarbLabel}
+          value={formatNumber(Math.abs(carbDeltaG), locale, 0)}
+          unit={isOverCarbTarget ? t.today.gOverUnit : t.today.gRemainingUnit}
+          description={t.today.targetMinusConsumedText(
+            carbTargetText!,
+            formatMacroGrams(consumedCarbG, locale, t),
+          )}
+          progressPercent={carbPercent ?? undefined}
+          progressColor="var(--stat-carbs)"
+          action={statCardAction('todayRemainingCarbs', t.today.remainingCarbLabel)}
+        />
+      ) : (
+        sectionTitle('todayRemainingCarbs', t.today.remainingCarbLabel)
+      )),
+    remainingFiber:
+      fiberDeltaG !== null &&
+      (sectionVisible.todayRemainingFiber ? (
+        <StatCard
+          label={t.today.remainingFiberLabel}
+          value={formatNumber(Math.abs(fiberDeltaG), locale, 0)}
+          unit={isOverFiberTarget ? t.today.gOverUnit : t.today.gRemainingUnit}
+          description={t.today.targetMinusConsumedText(
+            fiberTargetText!,
+            formatMacroGrams(consumedFiberG, locale, t),
+          )}
+          progressPercent={fiberPercent ?? undefined}
+          progressColor="var(--stat-fiber)"
+          action={statCardAction('todayRemainingFiber', t.today.remainingFiberLabel)}
+        />
+      ) : (
+        sectionTitle('todayRemainingFiber', t.today.remainingFiberLabel)
+      )),
+    remainingWater:
+      waterDeltaMl !== null &&
+      (sectionVisible.todayRemainingWater ? (
+        <StatCard
+          label={t.today.remainingWaterLabel}
+          value={formatNumber(Math.abs(waterDeltaMl), locale, 0)}
+          unit={isOverWaterTarget ? t.today.mlOverUnit : t.today.mlRemainingUnit}
+          description={t.today.targetMinusConsumedText(
+            waterTargetText!,
+            formatMl(consumedWaterMl, locale, t),
+          )}
+          progressPercent={waterPercent ?? undefined}
+          progressColor="var(--stat-water)"
+          action={statCardAction('todayRemainingWater', t.today.remainingWaterLabel)}
+        />
+      ) : (
+        sectionTitle('todayRemainingWater', t.today.remainingWaterLabel)
+      )),
+    steps:
+      stepsValue !== undefined &&
+      (sectionVisible.todaySteps ? (
+        <StatCard
+          label={t.dailyEntry.stepsLabel}
+          value={formatNumber(stepsValue, locale, 0)}
+          action={statCardAction('todaySteps', t.dailyEntry.stepsLabel)}
+        />
+      ) : (
+        sectionTitle('todaySteps', t.dailyEntry.stepsLabel)
+      )),
+    sleep:
+      sleepValue !== undefined &&
+      (sectionVisible.todaySleep ? (
+        <StatCard
+          label={t.dailyEntry.sleepLabel}
+          value={formatNumber(sleepValue, locale, 1)}
+          unit={t.dailyEntry.hoursUnit}
+          action={statCardAction('todaySleep', t.dailyEntry.sleepLabel)}
+        />
+      ) : (
+        sectionTitle('todaySleep', t.dailyEntry.sleepLabel)
+      )),
+  }
+
   return (
     <div className="flex flex-col gap-6">
       <GoalCelebrationModal />
-      <PageHeader title={t.today.title} description={t.today.description} />
+      <PageHeader
+        title={t.today.title}
+        description={t.today.description}
+        action={
+          // #343 — same on-demand mode as Dashboard's own reorder toggle;
+          // hidden entirely when there's nothing in the reorderable group
+          // to reorder (e.g. a day with no goal/log yet).
+          cardOrder.some((key) => cardsByKey[key]) && (
+            <Button
+              type="button"
+              variant={isReorderingCards ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setIsReorderingCards((prev) => !prev)}
+            >
+              {isReorderingCards
+                ? t.dailyEntry.saveButton
+                : t.today.reorderCardsButton}
+            </Button>
+          )
+        }
+      />
 
       {/* #239: previously sat below the stat cards — the page title never
        * changes, but this does as you page between days, so it used to
@@ -504,164 +764,31 @@ export function TodayScreen() {
        * single-big-number + small-breakdown-description shape as the
        * macro/water cards below, so all five "remaining" cards read the
        * same way. CaloriesBreakdownCard's own component is now unused and
-       * was removed along with it. */}
-      {remainingKcal !== null &&
-        (sectionVisible.todayRemainingCalories ? (
-          <StatCard
-            label={t.today.remainingCaloriesLabel}
-            value={formatNumber(Math.abs(remainingKcal), locale, 0)}
-            unit={
-              isOverCalorieBudget
-                ? t.today.kcalOverUnit
-                : t.today.kcalRemainingUnit
-            }
-            description={t.today.targetMinusConsumedText(
-              formatKcal(goal!.dailyCalorieTargetKcal!, locale, t),
-              formatKcal(consumedKcal, locale, t),
+       * was removed along with it. #343: this whole group (plus Steps/
+       * Sleep) is now user-reorderable, same on-demand drag mode #297/
+       * #319 gave Dashboard sections — see cardsByKey/cardOrder above. */}
+      <DndContext
+        sensors={cardDragSensors}
+        collisionDetection={closestCenter}
+        onDragEnd={handleCardDragEnd}
+      >
+        <SortableContext items={cardOrder} strategy={verticalListSortingStrategy}>
+          <div className="flex flex-col gap-6">
+            {cardOrder.map((key, index) =>
+              cardsByKey[key] ? (
+                <SortableTodayCard
+                  key={key}
+                  id={key}
+                  position={index + 1}
+                  isReordering={isReorderingCards}
+                >
+                  {cardsByKey[key]}
+                </SortableTodayCard>
+              ) : null,
             )}
-            progressPercent={caloriesPercent ?? undefined}
-            progressColor="var(--chart-calories)"
-            action={
-              <span className="flex items-center gap-1">
-                {/* #329 — BMR used to be its own standalone card right
-                 * after this one (#324); moved into a tooltip here instead
-                 * since it's a related-but-distinct baseline estimate, not
-                 * a target or a log, and didn't need a whole card of its
-                 * own competing for attention next to the actual target. */}
-                {bmrValue !== null && (
-                  <InfoTooltip
-                    text={`${t.today.bmrLabel}: ${formatNumber(bmrValue, locale, 0)} ${t.today.bmrUnit}`}
-                    label={t.today.bmrTooltipLabel}
-                  />
-                )}
-                {statCardAction(
-                  'todayRemainingCalories',
-                  t.today.remainingCaloriesLabel,
-                )}
-              </span>
-            }
-          />
-        ) : (
-          sectionTitle(
-            'todayRemainingCalories',
-            t.today.remainingCaloriesLabel,
-          )
-        ))}
-
-      {proteinDeltaG !== null &&
-        (sectionVisible.todayRemainingProtein ? (
-          <StatCard
-            label={t.today.remainingProteinLabel}
-            value={formatNumber(Math.abs(proteinDeltaG), locale, 0)}
-            unit={
-              isOverProteinTarget
-                ? t.today.gOverUnit
-                : t.today.gRemainingUnit
-            }
-            description={
-              isOverProteinTarget
-                ? t.today.proteinOverTargetLabel(
-                    proteinTargetText!,
-                    formatMacroGrams(consumedProteinG, locale, t),
-                  )
-                : t.today.targetMinusConsumedText(
-                    proteinTargetText!,
-                    formatMacroGrams(consumedProteinG, locale, t),
-                  )
-            }
-            progressPercent={proteinPercent ?? undefined}
-            progressColor="var(--stat-protein)"
-            action={statCardAction(
-              'todayRemainingProtein',
-              t.today.remainingProteinLabel,
-            )}
-          />
-        ) : (
-          sectionTitle('todayRemainingProtein', t.today.remainingProteinLabel)
-        ))}
-
-      {fatDeltaG !== null &&
-        (sectionVisible.todayRemainingFat ? (
-          <StatCard
-            label={t.today.remainingFatLabel}
-            value={formatNumber(Math.abs(fatDeltaG), locale, 0)}
-            unit={isOverFatTarget ? t.today.gOverUnit : t.today.gRemainingUnit}
-            description={t.today.targetMinusConsumedText(
-              fatTargetText!,
-              formatMacroGrams(consumedFatG, locale, t),
-            )}
-            progressPercent={fatPercent ?? undefined}
-            progressColor="var(--stat-fat)"
-            action={statCardAction('todayRemainingFat', t.today.remainingFatLabel)}
-          />
-        ) : (
-          sectionTitle('todayRemainingFat', t.today.remainingFatLabel)
-        ))}
-
-      {carbDeltaG !== null &&
-        (sectionVisible.todayRemainingCarbs ? (
-          <StatCard
-            label={t.today.remainingCarbLabel}
-            value={formatNumber(Math.abs(carbDeltaG), locale, 0)}
-            unit={isOverCarbTarget ? t.today.gOverUnit : t.today.gRemainingUnit}
-            description={t.today.targetMinusConsumedText(
-              carbTargetText!,
-              formatMacroGrams(consumedCarbG, locale, t),
-            )}
-            progressPercent={carbPercent ?? undefined}
-            progressColor="var(--stat-carbs)"
-            action={statCardAction(
-              'todayRemainingCarbs',
-              t.today.remainingCarbLabel,
-            )}
-          />
-        ) : (
-          sectionTitle('todayRemainingCarbs', t.today.remainingCarbLabel)
-        ))}
-
-      {fiberDeltaG !== null &&
-        (sectionVisible.todayRemainingFiber ? (
-          <StatCard
-            label={t.today.remainingFiberLabel}
-            value={formatNumber(Math.abs(fiberDeltaG), locale, 0)}
-            unit={isOverFiberTarget ? t.today.gOverUnit : t.today.gRemainingUnit}
-            description={t.today.targetMinusConsumedText(
-              fiberTargetText!,
-              formatMacroGrams(consumedFiberG, locale, t),
-            )}
-            progressPercent={fiberPercent ?? undefined}
-            progressColor="var(--stat-fiber)"
-            action={statCardAction(
-              'todayRemainingFiber',
-              t.today.remainingFiberLabel,
-            )}
-          />
-        ) : (
-          sectionTitle('todayRemainingFiber', t.today.remainingFiberLabel)
-        ))}
-
-      {waterDeltaMl !== null &&
-        (sectionVisible.todayRemainingWater ? (
-          <StatCard
-            label={t.today.remainingWaterLabel}
-            value={formatNumber(Math.abs(waterDeltaMl), locale, 0)}
-            unit={
-              isOverWaterTarget ? t.today.mlOverUnit : t.today.mlRemainingUnit
-            }
-            description={t.today.targetMinusConsumedText(
-              waterTargetText!,
-              formatMl(consumedWaterMl, locale, t),
-            )}
-            progressPercent={waterPercent ?? undefined}
-            progressColor="var(--stat-water)"
-            action={statCardAction(
-              'todayRemainingWater',
-              t.today.remainingWaterLabel,
-            )}
-          />
-        ) : (
-          sectionTitle('todayRemainingWater', t.today.remainingWaterLabel)
-        ))}
+          </div>
+        </SortableContext>
+      </DndContext>
 
       {bmiValue !== null &&
         (sectionVisible.todayBmi ? (

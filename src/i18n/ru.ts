@@ -73,6 +73,8 @@ export const ru: Dictionary = {
     remainingFatLabel: 'Осталось жиров',
     remainingCarbLabel: 'Осталось углеводов',
     remainingFiberLabel: 'Осталось клетчатки',
+    reorderCardLabel: (n) => `Изменить порядок карточки ${n}`,
+    reorderCardsButton: 'Порядок карточек',
     targetMinusConsumedText: (target, consumed) => `${target} − ${consumed}`,
     proteinOverTargetLabel: (target, consumed) =>
       `${target} − ${consumed} — отличная работа!`,

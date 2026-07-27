@@ -1,5 +1,6 @@
 import 'fake-indexeddb/auto'
-import { fireEvent, render, screen, within } from '@testing-library/react'
+import type { ReactNode } from 'react'
+import { act, fireEvent, render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { format, subDays } from 'date-fns'
 import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom'
@@ -8,14 +9,40 @@ import type { Goal } from '@/domain/goal'
 import type { DailyEntry } from '@/domain/dailyEntry'
 import { db } from '@/infrastructure/persistence/indexeddb'
 import {
+  DEFAULT_TODAY_CARD_ORDER,
   useDailyEntryStore,
   useDailyReminderStore,
   useDayStartStore,
   useGoalStore,
   useProfileStore,
   useSectionVisibilityStore,
+  useTodayCardOrderStore,
 } from '@/stores'
 import { TodayScreen } from './TodayScreen'
+
+// #343 — same reasoning DashboardScreen.test.tsx's own #297 reorder tests
+// already documented: jsdom has no layout engine, so a real pointer/
+// keyboard drag can't produce meaningful rects for dnd-kit's collision
+// detection. Trust dnd-kit itself to turn real gestures into
+// DragEndEvents, and only test this screen's own onDragEnd wiring by
+// capturing and invoking it directly with a synthetic event.
+let capturedOnCardDragEnd:
+  | ((event: { active: { id: string }; over: { id: string } | null }) => void)
+  | undefined
+
+vi.mock('@dnd-kit/core', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@dnd-kit/core')>()
+  return {
+    ...actual,
+    DndContext: (props: {
+      onDragEnd: typeof capturedOnCardDragEnd
+      children: ReactNode
+    }) => {
+      capturedOnCardDragEnd = props.onDragEnd
+      return props.children
+    },
+  }
+})
 
 function makeGoal(overrides: Partial<Goal> = {}): Goal {
   const now = new Date().toISOString()
@@ -55,6 +82,8 @@ beforeEach(async () => {
   useDailyReminderStore.setState({ enabled: false })
   useProfileStore.setState({ heightCm: undefined, age: undefined, sex: undefined })
   useDayStartStore.setState({ dayStartTime: '00:00' })
+  useTodayCardOrderStore.persist.clearStorage()
+  useTodayCardOrderStore.setState({ order: DEFAULT_TODAY_CARD_ORDER })
   resetSectionVisibility()
 })
 
@@ -65,6 +94,8 @@ afterEach(async () => {
   useDailyReminderStore.setState({ enabled: false })
   useProfileStore.setState({ heightCm: undefined, age: undefined, sex: undefined })
   useDayStartStore.setState({ dayStartTime: '00:00' })
+  useTodayCardOrderStore.persist.clearStorage()
+  useTodayCardOrderStore.setState({ order: DEFAULT_TODAY_CARD_ORDER })
   resetSectionVisibility()
   vi.useRealTimers()
 })
@@ -97,6 +128,19 @@ function renderToday(initialEntries: string[] = ['/']) {
       <LocationDisplay />
     </MemoryRouter>,
   )
+}
+
+// #343 — DailyEntryForm's own Steps/Sleep input fields, rendered lower on
+// this same page, reuse the identical `t.dailyEntry.stepsLabel`/
+// `sleepLabel` text as the new StatCards — so a plain getByText('Steps')
+// matches both. This picks specifically the one living inside a StatCard.
+function findStatCardByLabel(text: string): HTMLElement {
+  const card = screen
+    .getAllByText(text)
+    .map((el) => el.closest('[data-slot="card"]'))
+    .find((el): el is HTMLElement => el !== null)
+  if (!card) throw new Error(`No StatCard found for label "${text}"`)
+  return card
 }
 
 describe('TodayScreen', () => {
@@ -1479,6 +1523,168 @@ describe('TodayScreen', () => {
           screen.queryByText("It's already a new day."),
         ).not.toBeInTheDocument()
       })
+    })
+  })
+
+  describe('Steps and Sleep cards (#343)', () => {
+    it('shows Steps and Sleep cards when logged', async () => {
+      await useDailyEntryStore
+        .getState()
+        .saveEntry(makeEntry({ steps: 8432, sleepHours: 7.5 }))
+      useDailyEntryStore.setState({ entry: null, date: null, status: 'idle' })
+
+      render(
+        <MemoryRouter>
+          <TodayScreen />
+        </MemoryRouter>,
+      )
+
+      // "Reorder" only renders once at least one card exists (see the
+      // reordering describe block below) — a reliable, unambiguous
+      // readiness signal, unlike "8,432"/"Steps", which also match
+      // DailyEntryForm's own read-only steps display further down the page.
+      await screen.findByRole('button', { name: 'Reorder' })
+      const stepsCard = findStatCardByLabel('Steps')
+      expect(within(stepsCard).getByText('8,432')).toBeInTheDocument()
+
+      const sleepCard = findStatCardByLabel('Sleep')
+      expect(within(sleepCard).getByText('7.5')).toBeInTheDocument()
+      expect(within(sleepCard).getByText('h')).toBeInTheDocument()
+    })
+
+    it('omits Steps/Sleep cards when neither was logged', async () => {
+      await useDailyEntryStore.getState().saveEntry(makeEntry())
+      useDailyEntryStore.setState({ entry: null, date: null, status: 'idle' })
+
+      render(
+        <MemoryRouter>
+          <TodayScreen />
+        </MemoryRouter>,
+      )
+
+      await screen.findByLabelText('Date')
+      expect(
+        screen
+          .getAllByText('Steps')
+          .every((el) => !el.closest('[data-slot="card"]')),
+      ).toBe(true)
+      expect(
+        screen
+          .getAllByText('Sleep')
+          .every((el) => !el.closest('[data-slot="card"]')),
+      ).toBe(true)
+    })
+
+    it('hides the Steps card via its own toggle, keeping Sleep visible', async () => {
+      const user = userEvent.setup()
+      await useDailyEntryStore
+        .getState()
+        .saveEntry(makeEntry({ steps: 8432, sleepHours: 7.5 }))
+      useDailyEntryStore.setState({ entry: null, date: null, status: 'idle' })
+
+      render(
+        <MemoryRouter>
+          <TodayScreen />
+        </MemoryRouter>,
+      )
+
+      await screen.findByRole('button', { name: 'Reorder' })
+      await user.click(screen.getByRole('button', { name: 'Hide Steps' }))
+
+      // The StatCard is gone (collapsed to a plain section title) — only
+      // DailyEntryForm's own unrelated "Steps" label/input remains.
+      expect(
+        screen
+          .getAllByText('Steps')
+          .every((el) => !el.closest('[data-slot="card"]')),
+      ).toBe(true)
+      expect(within(findStatCardByLabel('Sleep')).getByText('7.5')).toBeInTheDocument()
+    })
+  })
+
+  describe('reordering the summary cards (#343)', () => {
+    it('shows a Reorder button that toggles to Save, only while there is at least one card', async () => {
+      const user = userEvent.setup()
+      await useDailyEntryStore
+        .getState()
+        .saveEntry(makeEntry({ steps: 8432 }))
+      useDailyEntryStore.setState({ entry: null, date: null, status: 'idle' })
+
+      render(
+        <MemoryRouter>
+          <TodayScreen />
+        </MemoryRouter>,
+      )
+
+      const reorderButton = await screen.findByRole('button', {
+        name: 'Reorder',
+      })
+      await user.click(reorderButton)
+      expect(
+        screen.getByRole('button', { name: 'Save' }),
+      ).toBeInTheDocument()
+    })
+
+    it('persists a new order and re-renders cards in that order', async () => {
+      await useDailyEntryStore
+        .getState()
+        .saveEntry(makeEntry({ steps: 8432, sleepHours: 7.5 }))
+      useDailyEntryStore.setState({ entry: null, date: null, status: 'idle' })
+
+      render(
+        <MemoryRouter>
+          <TodayScreen />
+        </MemoryRouter>,
+      )
+
+      await screen.findByRole('button', { name: 'Reorder' })
+      const stepsCardBefore = findStatCardByLabel('Steps')
+      const sleepCardBefore = findStatCardByLabel('Sleep')
+      expect(
+        !!(
+          stepsCardBefore.compareDocumentPosition(sleepCardBefore) &
+          Node.DOCUMENT_POSITION_FOLLOWING
+        ),
+      ).toBe(true)
+
+      act(() => {
+        capturedOnCardDragEnd?.({ active: { id: 'sleep' }, over: { id: 'steps' } })
+      })
+
+      expect(useTodayCardOrderStore.getState().order.indexOf('sleep')).toBeLessThan(
+        useTodayCardOrderStore.getState().order.indexOf('steps'),
+      )
+      const stepsCardAfter = findStatCardByLabel('Steps')
+      const sleepCardAfter = findStatCardByLabel('Sleep')
+      expect(
+        !!(
+          sleepCardAfter.compareDocumentPosition(stepsCardAfter) &
+          Node.DOCUMENT_POSITION_FOLLOWING
+        ),
+      ).toBe(true)
+    })
+
+    it('does not reorder when a drag ends over itself or nothing', async () => {
+      await useDailyEntryStore
+        .getState()
+        .saveEntry(makeEntry({ steps: 8432, sleepHours: 7.5 }))
+      useDailyEntryStore.setState({ entry: null, date: null, status: 'idle' })
+
+      render(
+        <MemoryRouter>
+          <TodayScreen />
+        </MemoryRouter>,
+      )
+      await screen.findByRole('button', { name: 'Reorder' })
+
+      act(() => {
+        capturedOnCardDragEnd?.({ active: { id: 'steps' }, over: { id: 'steps' } })
+        capturedOnCardDragEnd?.({ active: { id: 'steps' }, over: null })
+      })
+
+      expect(useTodayCardOrderStore.getState().order).toEqual(
+        DEFAULT_TODAY_CARD_ORDER,
+      )
     })
   })
 })
