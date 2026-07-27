@@ -612,6 +612,30 @@ export interface Dictionary {
      * limit, so the real number is shown and left for them to judge. */
     storageUsedOfQuotaLabel: (used: string, quota: string) => string
   }
+  /** Importing a Zepp Life CSV export (#365) — a separate, distinct copy
+   * from the JSON backup import above, same reasoning as `exportXlsx`
+   * below (a genuinely different feature living in the same Export card,
+   * not a variant of the JSON backup flow). */
+  zeppLifeImport: {
+    importBlurb: string
+    importButton: string
+    importingButton: string
+    /** `days`/`updated` are already-formatted numbers, matching how
+     * `export.summary` passes pre-formatted pieces rather than raw counts. */
+    importedSummary: (days: number, updated: number) => string
+    /** Shown instead of `importedSummary` when the export had no BODY or
+     * ACTIVITY rows for this app to import (e.g. a scale/band was never
+     * synced) — distinct from an error, since the file itself was valid. */
+    importedNothingSummary: string
+    invalidFile: string
+    importFailed: string
+    closeDialogLabel: string
+    passwordDialogTitle: string
+    passwordDialogDescription: string
+    passwordLabel: string
+    passwordSubmitButton: string
+    wrongPassword: string
+  }
   /** Column headers / sheet names for the Excel export (#123) — kept
    * separate from the daily-entry form's own field labels (`dailyEntry.*`)
    * even where the underlying concept matches, so wording changes to one
@@ -1160,6 +1184,10 @@ export interface Dictionary {
      * uses for the day note, since blur-only commit gave no visible
      * confirmation the note was saved. */
     saveNoteLabel: string
+    /** Accessible label for the pencil button that reopens an already-saved
+     * note for editing (#364 reopened) — same read/edit-mode toggle
+     * `t.dailyEntry.editNoteLabel` already uses for the day note. */
+    editNoteLabel: string
 
     correlationsSectionLabel: string
     emptyCorrelationsText: string

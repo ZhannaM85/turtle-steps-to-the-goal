@@ -28,8 +28,8 @@ export const releaseNotes: ReleaseNote[] = [
     version: 320,
     issue: 364,
     date: '2026-07-27T22:39:06+03:00',
-    en: "A custom metric's note now has its own Save button, instead of saving silently when you tap away.",
-    ru: 'У заметки к своей метрике теперь есть отдельная кнопка «Сохранить» вместо незаметного сохранения при переходе к другому полю.',
+    en: "A custom metric's note now works like the day note — read view with an edit pencil, and an explicit Save button while editing.",
+    ru: 'Заметка к своей метрике теперь работает как заметка дня — режим просмотра с карандашом для редактирования и явная кнопка «Сохранить» при вводе.',
   },
   {
     version: 319,

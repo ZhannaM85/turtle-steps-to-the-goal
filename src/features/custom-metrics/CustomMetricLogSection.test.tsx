@@ -124,6 +124,41 @@ describe('CustomMetricLogSection', () => {
     render(<CustomMetricLogSection date="2026-03-01" />)
 
     expect(await screen.findByLabelText('Push-ups')).toHaveValue('20')
-    expect(await screen.findByLabelText('Note')).toHaveValue('felt strong')
+    // An already-saved note starts in read mode (#364 reopened), not the
+    // editable Input — matching the day note's own read/edit-mode toggle.
+    expect(await screen.findByText('felt strong')).toBeInTheDocument()
+    expect(screen.queryByLabelText('Note')).not.toBeInTheDocument()
+  })
+
+  it('reopens an already-saved note for editing via its pencil button (#364)', async () => {
+    await db.customMetrics.put({
+      id: 'metric-1',
+      name: 'Push-ups',
+      inputKind: 'number',
+      createdAt: '2026-01-01T00:00:00.000Z',
+    })
+    await db.customMetricEntries.put({
+      id: 'entry-1',
+      metricId: 'metric-1',
+      date: '2026-03-01',
+      value: 20,
+      note: 'felt strong',
+      updatedAt: '2026-01-01T00:00:00.000Z',
+    })
+    const user = userEvent.setup()
+    render(<CustomMetricLogSection date="2026-03-01" />)
+
+    await user.click(await screen.findByRole('button', { name: 'Edit note' }))
+    const noteInput = await screen.findByLabelText('Note')
+    expect(noteInput).toHaveValue('felt strong')
+    await user.clear(noteInput)
+    await user.type(noteInput, 'even stronger now')
+    await user.click(screen.getByRole('button', { name: 'Save note' }))
+
+    expect(await screen.findByText('even stronger now')).toBeInTheDocument()
+    await waitFor(async () => {
+      const entries = await db.customMetricEntries.toArray()
+      expect(entries[0].note).toBe('even stronger now')
+    })
   })
 })

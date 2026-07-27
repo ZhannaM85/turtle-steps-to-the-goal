@@ -359,6 +359,25 @@ export const en: Dictionary = {
     storageUsedOfQuotaLabel: (used, quota) =>
       `~${used} used of ~${quota} available on this device`,
   },
+  zeppLifeImport: {
+    importBlurb:
+      'Import weight, body composition, and step data from a Zepp Life export file. Get one from the Zepp Life app: Profile → Settings → Personal information security and privacy → Exercising user rights → export data. It arrives by email as a password-protected zip.',
+    importButton: 'Import from Zepp Life',
+    importingButton: 'Importing…',
+    importedSummary: (days, updated) =>
+      `Imported data for ${days} ${days === 1 ? 'day' : 'days'} from Zepp Life (${updated} updated an existing entry).`,
+    importedNothingSummary:
+      "This export didn't have any weight or step data to import.",
+    invalidFile: "This doesn't look like a Zepp Life export file.",
+    importFailed: 'Import failed.',
+    closeDialogLabel: 'Close',
+    passwordDialogTitle: 'Enter the export password',
+    passwordDialogDescription:
+      "This is the password from the export email Zepp Life sent you — not your Zepp account login password.",
+    passwordLabel: 'Password',
+    passwordSubmitButton: 'Unlock and import',
+    wrongPassword: "That password didn't work — check the export email and try again.",
+  },
   exportXlsx: {
     dailyLogSheetName: 'Daily Log',
     mealsSheetName: 'Meals',
@@ -776,6 +795,7 @@ export const en: Dictionary = {
     noteLabel: 'Note',
     notePlaceholder: 'Add a note about this value...',
     saveNoteLabel: 'Save note',
+    editNoteLabel: 'Edit note',
 
     correlationsSectionLabel: 'Custom correlations',
     emptyCorrelationsText: 'No custom correlations yet.',

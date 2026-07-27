@@ -9,6 +9,10 @@ function entryCount(n: number): string {
   return `${n} ${ruPluralize(n, 'запись', 'записи', 'записей')}`
 }
 
+function dayCount(n: number): string {
+  return `${n} ${ruPluralize(n, 'день', 'дня', 'дней')}`
+}
+
 export const ru: Dictionary = {
   common: {
     loading: 'Загрузка…',
@@ -360,6 +364,25 @@ export const ru: Dictionary = {
     storageUsedLabel: (size) => `~${size} использовано на этом устройстве`,
     storageUsedOfQuotaLabel: (used, quota) =>
       `~${used} использовано из ~${quota}, доступных на этом устройстве`,
+  },
+  zeppLifeImport: {
+    importBlurb:
+      'Импортируйте вес, состав тела и количество шагов из файла экспорта Zepp Life. Получите его в приложении Zepp Life: Профиль → Настройки → Личная информация, безопасность и конфиденциальность → Реализация прав пользователя → экспорт данных. Придёт на почту в виде защищённого паролем zip-архива.',
+    importButton: 'Импорт из Zepp Life',
+    importingButton: 'Импорт…',
+    importedSummary: (days, updated) =>
+      `Импортированы данные за ${dayCount(days)} из Zepp Life (обновлено записей: ${updated}).`,
+    importedNothingSummary:
+      'В этом экспорте не оказалось данных о весе или шагах для импорта.',
+    invalidFile: 'Это не похоже на файл экспорта Zepp Life.',
+    importFailed: 'Не удалось выполнить импорт.',
+    closeDialogLabel: 'Закрыть',
+    passwordDialogTitle: 'Введите пароль от экспорта',
+    passwordDialogDescription:
+      'Это пароль из письма с экспортом от Zepp Life — не пароль от вашего аккаунта Zepp.',
+    passwordLabel: 'Пароль',
+    passwordSubmitButton: 'Разблокировать и импортировать',
+    wrongPassword: 'Пароль не подошёл — проверьте письмо с экспортом и попробуйте снова.',
   },
   exportXlsx: {
     dailyLogSheetName: 'Дневник',
@@ -788,6 +811,7 @@ export const ru: Dictionary = {
     noteLabel: 'Заметка',
     notePlaceholder: 'Добавьте заметку об этом значении...',
     saveNoteLabel: 'Сохранить заметку',
+    editNoteLabel: 'Изменить заметку',
 
     correlationsSectionLabel: 'Свои корреляции',
     emptyCorrelationsText: 'Своих корреляций пока нет.',

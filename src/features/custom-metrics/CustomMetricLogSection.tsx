@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Check } from 'lucide-react'
+import { Check, Pencil } from 'lucide-react'
 import type { CustomMetric } from '@/domain/customMetric'
 import { useTranslation } from '@/i18n'
 import { useCustomMetricStore } from '@/stores'
@@ -36,11 +36,21 @@ function MetricValueRow({
   // fresh instead of needing an effect to reset `draft` on prop change.
   const [draft, setDraft] = useState(value === undefined ? '' : String(value))
   const [noteDraft, setNoteDraft] = useState(note ?? '')
+  // #364 reopened: reported live as still not matching the day note's own
+  // read/edit toggle (`DailyEntryForm.tsx`) — a note with nothing saved yet
+  // starts directly in edit mode (same `!initialValues.note` logic there),
+  // an already-saved note starts in read mode with a pencil to reopen it.
+  const [isEditingNote, setIsEditingNote] = useState(!note)
 
   function commitNumber() {
     const parsed = Number(draft)
     if (draft.trim() === '' || Number.isNaN(parsed)) return
     setEntryValue(metric.id, date, parsed)
+  }
+
+  function saveNote() {
+    setEntryNote(metric.id, date, noteDraft)
+    setIsEditingNote(false)
   }
 
   return (
@@ -111,35 +121,51 @@ function MetricValueRow({
       {/* #363 — only once a value for this day exists: a note has nowhere
        * to attach to otherwise, since `CustomMetricEntry.value` is required.
        * #364: reported live — blur-only commit gave no visible confirmation
-       * the note was saved. Explicit Save button instead (same Input +
-       * checkmark-`Button` pattern `DailyEntryForm.tsx`'s own day note
-       * already uses), triggered on click or Enter, not on blur. */}
+       * the note was saved; then reopened, reported live again as still not
+       * matching the day note's own read/edit-mode toggle. Now mirrors that
+       * exactly: an already-saved note reads as plain text with a pencil to
+       * reopen it, an unsaved one starts directly in edit mode. */}
       {value !== undefined && (
-        <div className="flex items-center gap-2">
-          <Input
-            type="text"
-            aria-label={t.customMetrics.noteLabel}
-            placeholder={t.customMetrics.notePlaceholder}
-            value={noteDraft}
-            onChange={(e) => setNoteDraft(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                e.preventDefault()
-                setEntryNote(metric.id, date, noteDraft)
-              }
-            }}
-            className="h-9 flex-1"
-          />
-          <Button
-            type="button"
-            variant="outline"
-            size="icon-lg"
-            aria-label={t.customMetrics.saveNoteLabel}
-            onClick={() => setEntryNote(metric.id, date, noteDraft)}
-          >
-            <Check aria-hidden="true" />
-          </Button>
-        </div>
+        isEditingNote ? (
+          <div className="flex items-center gap-2">
+            <Input
+              type="text"
+              aria-label={t.customMetrics.noteLabel}
+              placeholder={t.customMetrics.notePlaceholder}
+              value={noteDraft}
+              onChange={(e) => setNoteDraft(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault()
+                  saveNote()
+                }
+              }}
+              className="h-9 flex-1"
+            />
+            <Button
+              type="button"
+              variant="outline"
+              size="icon-lg"
+              aria-label={t.customMetrics.saveNoteLabel}
+              onClick={saveNote}
+            >
+              <Check aria-hidden="true" />
+            </Button>
+          </div>
+        ) : (
+          <div className="flex min-h-9 items-center justify-between gap-2 rounded-lg bg-muted px-2.5 py-1">
+            <span className="text-sm text-foreground">{noteDraft}</span>
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon-lg"
+              aria-label={t.customMetrics.editNoteLabel}
+              onClick={() => setIsEditingNote(true)}
+            >
+              <Pencil aria-hidden="true" />
+            </Button>
+          </div>
+        )
       )}
     </div>
   )
