@@ -870,6 +870,16 @@ _Reported live with a screenshot: in Dashboard's reorder mode, each section's dr
 
 ---
 
+## Tier 62 — Live feedback: no way back to default card order (2026-07-27)
+
+_Reported live with two screenshots (Today's "Порядок карточек" button, Dashboard's reorder mode): both let you drag-reorder cards/sections, but neither offers a way back to the original order except manually re-dragging everything._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#356](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/356) | 📋 Not started | Add a way to revert Today/Dashboard card order back to default | Filed at report time, not yet investigated. Both `todayCardOrderStore.ts`/`dashboardSectionOrderStore.ts` already export their own default-order constant. |
+
+---
+
 ## Tier 59 — Retroactive: another flaky-test fix filed after the fact (2026-07-27)
 
 _Same pattern as #349 — found mid-session via a background full-suite run, filed and closed immediately per issue-first, fixed before commit rather than left open._
