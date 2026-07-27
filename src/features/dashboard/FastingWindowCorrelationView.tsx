@@ -106,11 +106,11 @@ export function FastingWindowCorrelationView({
   )
 
   if (!cardVisible) {
-    return <div className="flex flex-col gap-1.5">{cardTitle}</div>
+    return <div className="flex flex-col gap-1.5 rounded-lg border border-border p-3">{cardTitle}</div>
   }
 
   return (
-    <div className="flex flex-col gap-1.5">
+    <div className="flex flex-col gap-1.5 rounded-lg border border-border p-3">
       {cardTitle}
       {expanded && (
         <ResponsiveContainer width="100%" height={180}>

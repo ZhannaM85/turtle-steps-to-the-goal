@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 311,
+    issue: 354,
+    date: '2026-07-27T18:21:29+03:00',
+    en: "Added a border around each Dashboard correlation section, so it's clearer which chart a summary belongs to.",
+    ru: 'Добавили рамку вокруг каждой корреляции на дашборде — теперь понятнее, к какому графику относится описание.',
+  },
+  {
     version: 310,
     issue: 356,
     date: '2026-07-27T17:49:47+03:00',
