@@ -1,3 +1,8 @@
+import type {
+  CustomCorrelation,
+  CustomMetric,
+  CustomMetricEntry,
+} from '@/domain/customMetric'
 import type { DailyEntry } from '@/domain/dailyEntry'
 import type { FoodOverride } from '@/domain/foodOverride'
 import type { Goal } from '@/domain/goal'
@@ -11,6 +16,9 @@ export function buildExportBundle(
   mealItems: MealItem[],
   foodOverrides: FoodOverride[],
   recipes: Recipe[],
+  customMetrics: CustomMetric[],
+  customMetricEntries: CustomMetricEntry[],
+  customCorrelations: CustomCorrelation[],
 ): ExportBundle {
   return {
     version: 7,
@@ -20,5 +28,8 @@ export function buildExportBundle(
     mealItems,
     foodOverrides,
     recipes,
+    customMetrics,
+    customMetricEntries,
+    customCorrelations,
   }
 }

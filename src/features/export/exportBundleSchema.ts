@@ -179,6 +179,53 @@ const recipeSchema = z.object({
   updatedAt: z.string(),
 })
 
+// User-defined metrics + correlations (#336) — previously local-only, same
+// purely-additive/optional addition as recipes above: an older bundle
+// without these fields still parses fine (they end up undefined,
+// importAllData treats that as "nothing to import").
+const customMetricSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  inputKind: z.enum(['number', 'boolean', 'scale5']),
+  unit: z.string().optional(),
+  createdAt: z.string(),
+})
+
+const customMetricEntrySchema = z.object({
+  id: z.string(),
+  metricId: z.string(),
+  date: z.string(),
+  value: z.number(),
+  updatedAt: z.string(),
+})
+
+const numericSeriesKeySchema = z.enum([
+  'weight',
+  'calories',
+  'protein',
+  'fat',
+  'carbs',
+  'water',
+  'steps',
+  'waist',
+  'hip',
+  'bodyFat',
+  'fastingHours',
+])
+
+const metricRefSchema = z.union([
+  z.object({ kind: z.literal('builtin'), key: numericSeriesKeySchema }),
+  z.object({ kind: z.literal('custom'), metricId: z.string() }),
+])
+
+const customCorrelationSchema = z.object({
+  id: z.string(),
+  name: z.string().optional(),
+  metricA: metricRefSchema,
+  metricB: metricRefSchema,
+  createdAt: z.string(),
+})
+
 export const exportBundleSchema = z.object({
   version: z.literal(7),
   exportedAt: z.string(),
@@ -187,6 +234,9 @@ export const exportBundleSchema = z.object({
   mealItems: z.array(mealItemSchema).optional(),
   foodOverrides: z.array(foodOverrideSchema).optional(),
   recipes: z.array(recipeSchema).optional(),
+  customMetrics: z.array(customMetricSchema).optional(),
+  customMetricEntries: z.array(customMetricEntrySchema).optional(),
+  customCorrelations: z.array(customCorrelationSchema).optional(),
 })
 
 export type ExportBundle = z.infer<typeof exportBundleSchema>

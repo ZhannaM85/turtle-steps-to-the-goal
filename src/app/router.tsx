@@ -5,6 +5,7 @@ import { RouteErrorFallback } from '@/app/RouteErrorFallback'
 import { TodayScreen } from '@/features/daily-log'
 import {
   AboutScreen,
+  CustomMetricsScreen,
   DashboardScreen,
   FeaturesScreen,
   FoodListSettingsScreen,
@@ -38,6 +39,7 @@ export const routes: RouteObject[] = [
       { path: '/settings', element: <SettingsScreen /> },
       { path: '/settings/foods', element: <FoodListSettingsScreen /> },
       { path: '/settings/recipes', element: <RecipesSettingsScreen /> },
+      { path: '/settings/custom-metrics', element: <CustomMetricsScreen /> },
       { path: '/about', element: <AboutScreen /> },
       // #312 — required by both app stores as a stable, linkable URL.
       { path: '/privacy', element: <PrivacyScreen /> },

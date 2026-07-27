@@ -4,6 +4,11 @@ import type { DailyEntry } from '@/domain/dailyEntry'
 import type { MealItem } from '@/domain/mealItem'
 import type { FoodOverride } from '@/domain/foodOverride'
 import type { Recipe } from '@/domain/recipe'
+import type {
+  CustomCorrelation,
+  CustomMetric,
+  CustomMetricEntry,
+} from '@/domain/customMetric'
 
 export class AppDatabase extends Dexie {
   goals!: Table<Goal, string>
@@ -11,6 +16,9 @@ export class AppDatabase extends Dexie {
   mealItems!: Table<MealItem, string>
   foodOverrides!: Table<FoodOverride, string>
   recipes!: Table<Recipe, string>
+  customMetrics!: Table<CustomMetric, string>
+  customMetricEntries!: Table<CustomMetricEntry, string>
+  customCorrelations!: Table<CustomCorrelation, string>
 
   constructor() {
     super('turtle-steps-to-the-goal')
@@ -206,6 +214,22 @@ export class AppDatabase extends Dexie {
       mealItems: 'id, &name, &barcode',
       foodOverrides: '&foodId',
       recipes: 'id',
+    })
+    // #336: user-defined metrics + correlations. Three new stores only, no
+    // upgrade() needed. `customMetricEntries` gets a unique compound index
+    // on `[metricId+date]` — at most one logged value per metric per day,
+    // enforced at the DB level the same way `dailyEntries`' own `&date`
+    // already backs up the app-level "look up the existing id, carry it
+    // over" upsert convention (`IndexedDbDailyEntryRepository.getByDate`).
+    this.version(11).stores({
+      goals: 'id, createdAt',
+      dailyEntries: 'id, &date',
+      mealItems: 'id, &name, &barcode',
+      foodOverrides: '&foodId',
+      recipes: 'id',
+      customMetrics: 'id',
+      customMetricEntries: 'id, metricId, &[metricId+date]',
+      customCorrelations: 'id',
     })
   }
 }

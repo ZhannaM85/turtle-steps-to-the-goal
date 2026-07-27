@@ -832,6 +832,26 @@ export interface Dictionary {
     customChartTypeGroupLabel: (seriesLabel: string) => string
     customChartNormalizedCaveat: string
     customChartEmptyDescription: string
+    /** #336 — one card per user-defined `CustomCorrelation`, rendered after
+     * every fixed built-in correlation view above. Unlike those (always
+     * "metric vs. the *next* day's weight change"), this pairs both sides
+     * on the *same* day — see `domain/stats/customCorrelationEngine.ts`'s
+     * own doc comment for why. `aLabel`/`bLabel` are whichever metric
+     * labels (built-in or a custom metric's own name) the user picked when
+     * defining it. */
+    customCorrelationSummary: (
+      aLabel: string,
+      thresholdValue: string,
+      direction: 'higher' | 'lower',
+      bLabel: string,
+    ) => string
+    customCorrelationDayCount: (n: number) => string
+    customCorrelationLagCaveat: string
+    customCorrelationEmptyDescription: string
+    /** Links from the Dashboard's custom-correlations block down to
+     * `CustomMetricsScreen.tsx`, same "manage elsewhere" shape recipes'
+     * own settings-card link uses. */
+    manageCustomCorrelationsLabel: string
   }
   history: {
     title: string
@@ -1073,6 +1093,66 @@ export interface Dictionary {
     servingsEatenLabel: string
     noRecipesYetMessage: string
     logButtonLabel: string
+  }
+  /** #336 — user-defined metrics ("training session", "acne") this app has
+   * no built-in field for, plus user-defined correlations between any two
+   * metrics (built-in or custom). Reached from a Settings card, same
+   * "description + link button into a dedicated management screen" shape
+   * `recipes`'s own settingsSectionLabel/manageRecipesButton pair already
+   * establishes — `CustomMetricsScreen.tsx` is that screen. */
+  customMetrics: {
+    settingsSectionLabel: string
+    settingsSectionDescription: string
+    manageCustomMetricsButton: string
+    screenTitle: string
+    screenDescription: string
+    backToSettingsLabel: string
+
+    metricsSectionLabel: string
+    emptyMetricsText: string
+    addMetricButton: string
+    addMetricDialogTitle: string
+    closeMetricDialogLabel: string
+    metricNameLabel: string
+    metricNamePlaceholder: string
+    metricInputKindLabel: string
+    metricInputKindNumberOption: string
+    metricInputKindBooleanOption: string
+    metricInputKindScaleOption: string
+    metricUnitLabel: string
+    metricUnitPlaceholder: string
+    deleteMetricLabel: (name: string) => string
+    cancelLabel: string
+    saveButton: string
+
+    /** Per-date value entry, one row per defined metric, mirroring
+     * TodayScreen's own date-nav header (prev/next day arrows). */
+    logValuesSectionLabel: string
+    dateLabel: string
+    previousDayLabel: string
+    nextDayLabel: string
+    noMetricsToLogText: string
+    booleanYesOption: string
+    booleanNoOption: string
+    /** Accessible label for one of the five 1-5 scale buttons, e.g. "Rate
+     * 3 out of 5". */
+    scaleValueLabel: (n: number) => string
+    valueSavedLabel: string
+
+    correlationsSectionLabel: string
+    emptyCorrelationsText: string
+    addCorrelationButton: string
+    addCorrelationDialogTitle: string
+    closeCorrelationDialogLabel: string
+    correlationNameLabel: string
+    correlationNamePlaceholder: string
+    metricALabel: string
+    metricBLabel: string
+    selectMetricPlaceholder: string
+    deleteCorrelationLabel: (name: string) => string
+    /** Shown when both pickers resolve to the same metric — a correlation
+     * needs two distinct sides. */
+    sameMetricErrorText: string
   }
   about: {
     title: string

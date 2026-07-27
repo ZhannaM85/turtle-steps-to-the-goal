@@ -1,4 +1,9 @@
 import { describe, expect, it } from 'vitest'
+import type {
+  CustomCorrelation,
+  CustomMetric,
+  CustomMetricEntry,
+} from '@/domain/customMetric'
 import type { DailyEntry } from '@/domain/dailyEntry'
 import type { FoodOverride } from '@/domain/foodOverride'
 import type { Goal } from '@/domain/goal'
@@ -62,11 +67,46 @@ function makeRecipe(overrides: Partial<Recipe> = {}): Recipe {
   }
 }
 
+function makeCustomMetric(overrides: Partial<CustomMetric> = {}): CustomMetric {
+  return {
+    id: 'metric-1',
+    name: 'Training session',
+    inputKind: 'boolean',
+    createdAt: '2026-03-01T00:00:00.000Z',
+    ...overrides,
+  }
+}
+
+function makeCustomMetricEntry(
+  overrides: Partial<CustomMetricEntry> = {},
+): CustomMetricEntry {
+  return {
+    id: 'metric-entry-1',
+    metricId: 'metric-1',
+    date: '2026-03-01',
+    value: 1,
+    updatedAt: '2026-03-01T00:00:00.000Z',
+    ...overrides,
+  }
+}
+
+function makeCustomCorrelation(
+  overrides: Partial<CustomCorrelation> = {},
+): CustomCorrelation {
+  return {
+    id: 'correlation-1',
+    metricA: { kind: 'custom', metricId: 'metric-1' },
+    metricB: { kind: 'builtin', key: 'weight' },
+    createdAt: '2026-03-01T00:00:00.000Z',
+    ...overrides,
+  }
+}
+
 describe('buildExportBundle', () => {
   it('wraps goals and entries with a version and export timestamp', () => {
     const goals = [makeGoal()]
     const entries = [makeEntry()]
-    const bundle = buildExportBundle(goals, entries, [], [], [])
+    const bundle = buildExportBundle(goals, entries, [], [], [], [], [], [])
 
     expect(bundle.version).toBe(7)
     expect(bundle.goals).toEqual(goals)
@@ -75,18 +115,30 @@ describe('buildExportBundle', () => {
   })
 
   it('handles no data at all (empty backup)', () => {
-    const bundle = buildExportBundle([], [], [], [], [])
+    const bundle = buildExportBundle([], [], [], [], [], [], [], [])
     expect(bundle.goals).toEqual([])
     expect(bundle.dailyEntries).toEqual([])
     expect(bundle.mealItems).toEqual([])
     expect(bundle.foodOverrides).toEqual([])
     expect(bundle.recipes).toEqual([])
+    expect(bundle.customMetrics).toEqual([])
+    expect(bundle.customMetricEntries).toEqual([])
+    expect(bundle.customCorrelations).toEqual([])
   })
 
   it('includes meal items and food overrides (#113)', () => {
     const mealItems = [makeMealItem()]
     const foodOverrides = [makeFoodOverride()]
-    const bundle = buildExportBundle([], [], mealItems, foodOverrides, [])
+    const bundle = buildExportBundle(
+      [],
+      [],
+      mealItems,
+      foodOverrides,
+      [],
+      [],
+      [],
+      [],
+    )
 
     expect(bundle.mealItems).toEqual(mealItems)
     expect(bundle.foodOverrides).toEqual(foodOverrides)
@@ -94,8 +146,28 @@ describe('buildExportBundle', () => {
 
   it('includes recipes (#251)', () => {
     const recipes = [makeRecipe()]
-    const bundle = buildExportBundle([], [], [], [], recipes)
+    const bundle = buildExportBundle([], [], [], [], recipes, [], [], [])
 
     expect(bundle.recipes).toEqual(recipes)
+  })
+
+  it('includes custom metrics, their entries, and custom correlations (#336)', () => {
+    const customMetrics = [makeCustomMetric()]
+    const customMetricEntries = [makeCustomMetricEntry()]
+    const customCorrelations = [makeCustomCorrelation()]
+    const bundle = buildExportBundle(
+      [],
+      [],
+      [],
+      [],
+      [],
+      customMetrics,
+      customMetricEntries,
+      customCorrelations,
+    )
+
+    expect(bundle.customMetrics).toEqual(customMetrics)
+    expect(bundle.customMetricEntries).toEqual(customMetricEntries)
+    expect(bundle.customCorrelations).toEqual(customCorrelations)
   })
 })

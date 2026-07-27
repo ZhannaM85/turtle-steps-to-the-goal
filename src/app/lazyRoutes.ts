@@ -38,6 +38,11 @@ export const RecipesSettingsScreen = lazy(() =>
     default: m.RecipesSettingsScreen,
   })),
 )
+export const CustomMetricsScreen = lazy(() =>
+  import('@/features/custom-metrics').then((m) => ({
+    default: m.CustomMetricsScreen,
+  })),
+)
 export const AboutScreen = lazy(() =>
   import('@/features/about').then((m) => ({ default: m.AboutScreen })),
 )

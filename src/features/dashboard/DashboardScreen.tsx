@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from 'react'
+import { useEffect, useState, type ReactNode } from 'react'
 import {
   DndContext,
   KeyboardSensor,
@@ -17,9 +17,14 @@ import {
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { GripVertical, Pencil } from 'lucide-react'
+import { Link } from 'react-router-dom'
 import { useTranslation } from '@/i18n'
 import type { DashboardChartKey } from '@/stores'
-import { useDashboardSectionOrderStore } from '@/stores'
+import {
+  useCustomCorrelationStore,
+  useCustomMetricStore,
+  useDashboardSectionOrderStore,
+} from '@/stores'
 import { Button } from '@/shared/ui/button'
 import { EmptyState } from '@/shared/ui/empty-state'
 import { PageHeader } from '@/shared/ui/page-header'
@@ -28,6 +33,7 @@ import { CalorieTrendChart } from './CalorieTrendChart'
 import { CompareRangesView } from './CompareRangesView'
 import { CorrelationView } from './CorrelationView'
 import { CustomChartView } from './CustomChartView'
+import { CustomCorrelationView } from './CustomCorrelationView'
 import { FastingWindowCorrelationView } from './FastingWindowCorrelationView'
 import { FoodReactionsView } from './FoodReactionsView'
 import { LateMealCorrelationView } from './LateMealCorrelationView'
@@ -93,6 +99,22 @@ export function DashboardScreen() {
   const { goal, entries, status } = useDashboardData()
   const order = useDashboardSectionOrderStore((state) => state.order)
   const setOrder = useDashboardSectionOrderStore((state) => state.setOrder)
+  // #336 — user-defined correlations, rendered after the fixed reorderable
+  // sections below (see CustomCorrelationView's own doc comment for why
+  // they're not part of that reorderable list).
+  const customMetrics = useCustomMetricStore((state) => state.metrics)
+  const customMetricEntries = useCustomMetricStore((state) => state.entries)
+  const loadCustomMetrics = useCustomMetricStore((state) => state.loadAll)
+  const customCorrelations = useCustomCorrelationStore(
+    (state) => state.correlations,
+  )
+  const loadCustomCorrelations = useCustomCorrelationStore(
+    (state) => state.loadCorrelations,
+  )
+  useEffect(() => {
+    loadCustomMetrics()
+    loadCustomCorrelations()
+  }, [loadCustomMetrics, loadCustomCorrelations])
   // #319 — reordering is now an on-demand mode (an "Edit"-style toggle up
   // top) rather than always-on drag handles cluttering every section. The
   // order itself still autosaves per drop exactly as #297 already did —
@@ -194,6 +216,37 @@ export function DashboardScreen() {
             </div>
           </SortableContext>
         </DndContext>
+      )}
+
+      {/* #336 — one card per user-defined correlation, after every fixed
+       * built-in section above, plus a standing link into
+       * `CustomMetricsScreen.tsx` (always shown once entries have loaded,
+       * not just when a correlation already exists — otherwise this
+       * feature would have no discoverable entry point on Dashboard at
+       * all until a user already knew to look in Settings). */}
+      {status !== 'loading' && status !== 'idle' && entries.length > 0 && (
+        <div className="mt-6 flex flex-col gap-6">
+          {customCorrelations.map((correlation) => (
+            <CustomCorrelationView
+              key={correlation.id}
+              correlation={correlation}
+              entries={entries}
+              metrics={customMetrics}
+              metricEntries={customMetricEntries}
+            />
+          ))}
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            className="self-start"
+            asChild
+          >
+            <Link to="/settings/custom-metrics">
+              {t.dashboard.manageCustomCorrelationsLabel}
+            </Link>
+          </Button>
+        </div>
       )}
     </div>
   )

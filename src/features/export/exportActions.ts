@@ -1,4 +1,7 @@
 import {
+  IndexedDbCustomCorrelationRepository,
+  IndexedDbCustomMetricEntryRepository,
+  IndexedDbCustomMetricRepository,
   IndexedDbDailyEntryRepository,
   IndexedDbFoodOverrideRepository,
   IndexedDbGoalRepository,
@@ -24,17 +27,40 @@ const dailyEntryRepository = new IndexedDbDailyEntryRepository()
 const mealItemRepository = new IndexedDbMealItemRepository()
 const foodOverrideRepository = new IndexedDbFoodOverrideRepository()
 const recipeRepository = new IndexedDbRecipeRepository()
+const customMetricRepository = new IndexedDbCustomMetricRepository()
+const customMetricEntryRepository = new IndexedDbCustomMetricEntryRepository()
+const customCorrelationRepository = new IndexedDbCustomCorrelationRepository()
 
 export async function exportAllData(): Promise<ExportBundle> {
-  const [goals, dailyEntries, mealItems, foodOverrides, recipes] =
-    await Promise.all([
-      goalRepository.getAll(),
-      dailyEntryRepository.getAll(),
-      mealItemRepository.getAll(),
-      foodOverrideRepository.getAll(),
-      recipeRepository.getAll(),
-    ])
-  return buildExportBundle(goals, dailyEntries, mealItems, foodOverrides, recipes)
+  const [
+    goals,
+    dailyEntries,
+    mealItems,
+    foodOverrides,
+    recipes,
+    customMetrics,
+    customMetricEntries,
+    customCorrelations,
+  ] = await Promise.all([
+    goalRepository.getAll(),
+    dailyEntryRepository.getAll(),
+    mealItemRepository.getAll(),
+    foodOverrideRepository.getAll(),
+    recipeRepository.getAll(),
+    customMetricRepository.getAll(),
+    customMetricEntryRepository.getAll(),
+    customCorrelationRepository.getAll(),
+  ])
+  return buildExportBundle(
+    goals,
+    dailyEntries,
+    mealItems,
+    foodOverrides,
+    recipes,
+    customMetrics,
+    customMetricEntries,
+    customCorrelations,
+  )
 }
 
 /**
@@ -91,6 +117,29 @@ export async function importAllData(bundle: ExportBundle): Promise<void> {
     // just id, which the export already carries stably from creation, so
     // there's no ConstraintError risk to guard against here.
     ...(bundle.recipes ?? []).map((recipe) => recipeRepository.upsert(recipe)),
+    // #336 — same "no unique index beyond id" reasoning as recipes above,
+    // for all three of these.
+    ...(bundle.customMetrics ?? []).map((metric) =>
+      customMetricRepository.upsert(metric),
+    ),
+    // customMetricEntries has a unique `&[metricId+date]` index (db.ts) —
+    // same ConstraintError risk #207 already fixed for dailyEntries/
+    // mealItems, since an imported entry's own id almost never matches
+    // whatever this device already generated for the same metric+date.
+    // Looking up the existing id first and carrying it over avoids it,
+    // same as those two callers above already do.
+    ...(bundle.customMetricEntries ?? []).map(async (entry) => {
+      const existing = await customMetricEntryRepository.getByMetricAndDate(
+        entry.metricId,
+        entry.date,
+      )
+      return customMetricEntryRepository.upsert(
+        existing ? { ...entry, id: existing.id } : entry,
+      )
+    }),
+    ...(bundle.customCorrelations ?? []).map((correlation) =>
+      customCorrelationRepository.upsert(correlation),
+    ),
   ])
 }
 

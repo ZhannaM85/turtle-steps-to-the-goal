@@ -70,13 +70,28 @@ export type { FoodReactionTally } from './foodReactions'
 export {
   customChartPoints,
   booleanFlagDates,
+  numericSeriesValueByDate,
   NUMERIC_SERIES_KEYS,
 } from './customChartSeries'
 export type { CustomChartPoint, NumericSeriesKey } from './customChartSeries'
 export { calculateBmi, calculateBmr } from './bodyComposition'
 export type { Sex } from './bodyComposition'
-export { classifyCorrelationStrength } from './correlationStrength'
+export {
+  classifyCorrelationStrength,
+  classifyRelativeCorrelationStrength,
+} from './correlationStrength'
 export type { CorrelationStrength } from './correlationStrength'
+export {
+  resolveMetricValueMap,
+  pointsFromValueMaps,
+  customCorrelationPoints,
+  customCorrelationFromPoints,
+  customCorrelationInsight,
+} from './customCorrelationEngine'
+export type {
+  MetricValuePoint,
+  CustomCorrelationResult,
+} from './customCorrelationEngine'
 export { outlierBounds, isOutlier, flagOutliers } from './outlierDetection'
 export type { OutlierBounds } from './outlierDetection'
 export { calculateTdee, suggestDailyTargets } from './targetCalculator'

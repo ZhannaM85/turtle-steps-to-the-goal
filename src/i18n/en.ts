@@ -535,6 +535,14 @@ export const en: Dictionary = {
     customChartNormalizedCaveat:
       "Each line is scaled to its own range so different units (kg, kcal, steps) can share one chart — shapes and trends are comparable, but the chart's height doesn't represent an absolute value. See the exact number for any day in the tooltip.",
     customChartEmptyDescription: 'Pick at least one to compare.',
+    customCorrelationSummary: (aLabel, thresholdValue, direction, bLabel) =>
+      `Days when "${aLabel}" was above ${thresholdValue} averaged a ${direction} "${bLabel}" than days with lower "${aLabel}".`,
+    customCorrelationDayCount: (n) => `Based on ${n} day${n === 1 ? '' : 's'} of data.`,
+    customCorrelationLagCaveat:
+      'Compares both metrics on the same day, not a proven cause-and-effect relationship — many other factors can affect either one.',
+    customCorrelationEmptyDescription:
+      'Not enough data yet to see a pattern — log both metrics on the same days, then check back in a few weeks.',
+    manageCustomCorrelationsLabel: 'Manage custom metrics & correlations',
   },
   history: {
     title: 'History',
@@ -728,6 +736,56 @@ export const en: Dictionary = {
     noRecipesYetMessage:
       "You haven't added any recipes yet — manage them from Settings.",
     logButtonLabel: 'Log',
+  },
+  customMetrics: {
+    settingsSectionLabel: 'Custom metrics & correlations',
+    settingsSectionDescription:
+      'Track things this app doesn’t have a built-in field for, and see how they relate to anything else you log.',
+    manageCustomMetricsButton: 'Manage custom metrics',
+    screenTitle: 'Custom metrics & correlations',
+    screenDescription:
+      'Define your own things to track, log values for them, and correlate any two metrics against each other.',
+    backToSettingsLabel: 'Back to Settings',
+
+    metricsSectionLabel: 'Your metrics',
+    emptyMetricsText: 'No custom metrics yet.',
+    addMetricButton: '+ Add metric',
+    addMetricDialogTitle: 'Add metric',
+    closeMetricDialogLabel: 'Close',
+    metricNameLabel: 'Name',
+    metricNamePlaceholder: 'e.g. Training session, Acne',
+    metricInputKindLabel: 'How is this logged?',
+    metricInputKindNumberOption: 'Number',
+    metricInputKindBooleanOption: 'Yes / No',
+    metricInputKindScaleOption: '1-5 scale',
+    metricUnitLabel: 'Unit (optional)',
+    metricUnitPlaceholder: 'e.g. reps, hours',
+    deleteMetricLabel: (name) => `Delete ${name}`,
+    cancelLabel: 'Cancel',
+    saveButton: 'Save',
+
+    logValuesSectionLabel: 'Log a value',
+    dateLabel: 'Date',
+    previousDayLabel: 'Previous day',
+    nextDayLabel: 'Next day',
+    noMetricsToLogText: 'Add a metric above to start logging values for it.',
+    booleanYesOption: 'Yes',
+    booleanNoOption: 'No',
+    scaleValueLabel: (n) => `Rate ${n} out of 5`,
+    valueSavedLabel: 'Saved',
+
+    correlationsSectionLabel: 'Custom correlations',
+    emptyCorrelationsText: 'No custom correlations yet.',
+    addCorrelationButton: '+ Add correlation',
+    addCorrelationDialogTitle: 'Add correlation',
+    closeCorrelationDialogLabel: 'Close',
+    correlationNameLabel: 'Name (optional)',
+    correlationNamePlaceholder: 'e.g. Acne vs. carbs',
+    metricALabel: 'First metric',
+    metricBLabel: 'Second metric',
+    selectMetricPlaceholder: 'Select a metric',
+    deleteCorrelationLabel: (name) => `Delete ${name}`,
+    sameMetricErrorText: 'Pick two different metrics to correlate.',
   },
   about: {
     title: 'About',

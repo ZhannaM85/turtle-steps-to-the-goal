@@ -546,6 +546,15 @@ export const ru: Dictionary = {
     customChartNormalizedCaveat:
       'Каждая линия масштабирована по своему диапазону, чтобы разные единицы измерения (кг, ккал, шаги) можно было показать на одном графике — форма и тренд сопоставимы, но высота линии не отражает абсолютное значение. Точное значение за день смотрите во всплывающей подсказке.',
     customChartEmptyDescription: 'Выберите хотя бы один показатель для сравнения.',
+    customCorrelationSummary: (aLabel, thresholdValue, direction, bLabel) =>
+      `В дни, когда «${aLabel}» был выше ${thresholdValue}, «${bLabel}» в среднем был ${direction === 'higher' ? 'выше' : 'ниже'}, чем в дни с более низким «${aLabel}».`,
+    customCorrelationDayCount: (n) =>
+      `На основе ${n} ${ruPluralize(n, 'дня', 'дней', 'дней')} данных.`,
+    customCorrelationLagCaveat:
+      'Сравнивает оба показателя в один и тот же день — это не доказанная причинно-следственная связь: на каждый из них могут влиять и другие факторы.',
+    customCorrelationEmptyDescription:
+      'Пока недостаточно данных, чтобы увидеть закономерность — записывайте оба показателя в одни и те же дни, затем загляните сюда через несколько недель.',
+    manageCustomCorrelationsLabel: 'Управление своими метриками и корреляциями',
   },
   history: {
     title: 'История',
@@ -739,6 +748,56 @@ export const ru: Dictionary = {
     noRecipesYetMessage:
       'У вас пока нет рецептов — добавьте их в настройках.',
     logButtonLabel: 'Записать',
+  },
+  customMetrics: {
+    settingsSectionLabel: 'Свои метрики и корреляции',
+    settingsSectionDescription:
+      'Отслеживайте то, для чего в приложении нет готового поля, и смотрите, как это связано с остальными вашими записями.',
+    manageCustomMetricsButton: 'Управление своими метриками',
+    screenTitle: 'Свои метрики и корреляции',
+    screenDescription:
+      'Задайте свои показатели для отслеживания, записывайте их значения и сравнивайте любые два показателя между собой.',
+    backToSettingsLabel: 'Назад к настройкам',
+
+    metricsSectionLabel: 'Ваши метрики',
+    emptyMetricsText: 'Своих метрик пока нет.',
+    addMetricButton: '+ Добавить метрику',
+    addMetricDialogTitle: 'Добавить метрику',
+    closeMetricDialogLabel: 'Закрыть',
+    metricNameLabel: 'Название',
+    metricNamePlaceholder: 'например, Тренировка, Акне',
+    metricInputKindLabel: 'Как записывать значение?',
+    metricInputKindNumberOption: 'Число',
+    metricInputKindBooleanOption: 'Да / Нет',
+    metricInputKindScaleOption: 'Шкала 1-5',
+    metricUnitLabel: 'Единица измерения (необязательно)',
+    metricUnitPlaceholder: 'например, повторения, часы',
+    deleteMetricLabel: (name) => `Удалить «${name}»`,
+    cancelLabel: 'Отмена',
+    saveButton: 'Сохранить',
+
+    logValuesSectionLabel: 'Записать значение',
+    dateLabel: 'Дата',
+    previousDayLabel: 'Предыдущий день',
+    nextDayLabel: 'Следующий день',
+    noMetricsToLogText: 'Добавьте метрику выше, чтобы начать записывать её значения.',
+    booleanYesOption: 'Да',
+    booleanNoOption: 'Нет',
+    scaleValueLabel: (n) => `Оценка ${n} из 5`,
+    valueSavedLabel: 'Сохранено',
+
+    correlationsSectionLabel: 'Свои корреляции',
+    emptyCorrelationsText: 'Своих корреляций пока нет.',
+    addCorrelationButton: '+ Добавить корреляцию',
+    addCorrelationDialogTitle: 'Добавить корреляцию',
+    closeCorrelationDialogLabel: 'Закрыть',
+    correlationNameLabel: 'Название (необязательно)',
+    correlationNamePlaceholder: 'например, Акне и углеводы',
+    metricALabel: 'Первый показатель',
+    metricBLabel: 'Второй показатель',
+    selectMetricPlaceholder: 'Выберите показатель',
+    deleteCorrelationLabel: (name) => `Удалить «${name}»`,
+    sameMetricErrorText: 'Выберите два разных показателя для сравнения.',
   },
   about: {
     title: 'О приложении',

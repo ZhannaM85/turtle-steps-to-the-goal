@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 308,
+    issue: 336,
+    date: '2026-07-27T17:14:45+03:00',
+    en: 'Added custom metrics and correlations — track anything you want (Settings → Custom metrics), and compare it against any other metric on the Dashboard.',
+    ru: 'Добавили свои метрики и корреляции — отслеживайте что угодно (Настройки → Свои метрики) и сравнивайте с любым другим показателем на дашборде.',
+  },
+  {
     version: 307,
     issue: 338,
     date: '2026-07-27T16:24:10+03:00',

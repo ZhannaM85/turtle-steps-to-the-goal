@@ -1,6 +1,10 @@
 import { describe, expect, it } from 'vitest'
 import type { DailyEntry } from '@/domain/dailyEntry'
-import { booleanFlagDates, customChartPoints } from './customChartSeries'
+import {
+  booleanFlagDates,
+  customChartPoints,
+  numericSeriesValueByDate,
+} from './customChartSeries'
 
 function entry(date: string, overrides: Partial<DailyEntry> = {}): DailyEntry {
   const now = '2026-01-01T00:00:00.000Z'
@@ -178,5 +182,25 @@ describe('booleanFlagDates', () => {
       '2026-01-01',
     ])
     expect(booleanFlagDates(entries, 'onPeriod')).toEqual([])
+  })
+})
+
+describe('numericSeriesValueByDate', () => {
+  it('maps a plain per-entry field, skipping days without it (#336)', () => {
+    const entries = [
+      entry('2026-01-01', { weightKg: 80 }),
+      entry('2026-01-02'), // no weight logged
+      entry('2026-01-03', { weightKg: 81 }),
+    ]
+
+    const map = numericSeriesValueByDate(entries, 'weight')
+
+    expect(map.get('2026-01-01')).toBe(80)
+    expect(map.has('2026-01-02')).toBe(false)
+    expect(map.get('2026-01-03')).toBe(81)
+  })
+
+  it('returns an empty map with no entries', () => {
+    expect(numericSeriesValueByDate([], 'steps').size).toBe(0)
   })
 })

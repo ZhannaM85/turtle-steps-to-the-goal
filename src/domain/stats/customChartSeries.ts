@@ -128,6 +128,32 @@ export function customChartPoints(
   })
 }
 
+/**
+ * A single series' `date -> value` map across every entry that has it
+ * (#336) — the per-entry building block `customCorrelationEngine.ts`'s
+ * generic same-day pairing needs for a `MetricRef`'s built-in side, one
+ * series at a time rather than `customChartPoints`' own "several series
+ * at once, normalized for one shared chart" shape. `fastingHours` gets the
+ * same cross-day special-case `customChartPoints` already needs (it isn't
+ * a plain per-entry field — see `SERIES_EXTRACTORS`' own comment above).
+ */
+export function numericSeriesValueByDate(
+  entries: DailyEntry[],
+  key: NumericSeriesKey,
+): Map<string, number> {
+  if (key === 'fastingHours') {
+    return new Map(
+      fastingWindowPoints(entries).map((p) => [p.date, p.fastingHours]),
+    )
+  }
+  const byDate = new Map<string, number>()
+  for (const entry of entries) {
+    const value = SERIES_EXTRACTORS[key](entry)
+    if (value !== undefined) byDate.set(entry.date, value)
+  }
+  return byDate
+}
+
 /** Dates a boolean per-day flag (period, constipation) was on — the
  * marker-band data for the two non-numeric series, kept separate from
  * `customChartPoints` since they're not plotted as a line. */
