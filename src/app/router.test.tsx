@@ -73,6 +73,13 @@ describe('app router', () => {
     ).toBeInTheDocument()
   })
 
+  it('renders the Privacy Policy screen at /privacy (#312)', async () => {
+    renderAt('/privacy')
+    expect(
+      await screen.findByRole('heading', { name: 'Privacy Policy' }),
+    ).toBeInTheDocument()
+  })
+
   it('wires an errorElement so a render crash never falls back to a blank screen (#102)', () => {
     expect(routes[0].errorElement).toBeDefined()
   })

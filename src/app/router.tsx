@@ -10,6 +10,7 @@ import {
   GoalScreen,
   HistoryScreen,
   MealEditScreen,
+  PrivacyScreen,
   RecipesSettingsScreen,
   SettingsScreen,
 } from './lazyRoutes'
@@ -37,6 +38,8 @@ export const routes: RouteObject[] = [
       { path: '/settings/foods', element: <FoodListSettingsScreen /> },
       { path: '/settings/recipes', element: <RecipesSettingsScreen /> },
       { path: '/about', element: <AboutScreen /> },
+      // #312 — required by both app stores as a stable, linkable URL.
+      { path: '/privacy', element: <PrivacyScreen /> },
     ],
   },
 ]

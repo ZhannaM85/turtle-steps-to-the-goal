@@ -715,7 +715,33 @@ export const en: Dictionary = {
     privacyHeading: 'Private by design.',
     privacy:
       'Everything is stored locally on your device. No accounts. No cloud.',
+    readPrivacyPolicyLabel: 'Read the full privacy policy',
     madeBy: (author) => `Made by ${author}`,
     currentVersionLabel: (version) => `Version ${version}`,
+  },
+  privacyPolicy: {
+    title: 'Privacy Policy',
+    description: 'How Turtle Steps handles your data',
+    lastUpdatedLabel: (date) => `Last updated: ${date}`,
+    collectionHeading: 'What we collect',
+    collectionBody:
+      "Turtle Steps doesn't collect any data automatically. Everything you see in the app was entered by you — weight, calories, meals, sleep, activity, cycle, notes, and any other field you choose to fill in.",
+    storageHeading: 'Where your data lives',
+    storageBody:
+      "All data is stored locally on your own device, in your browser's or app's own storage. There is no account, no server, and no cloud sync — Turtle Steps never sees your data.",
+    sharingHeading: 'Sharing with third parties',
+    sharingBody:
+      "Your data is never sold, shared, or transmitted anywhere. The app contains no analytics, advertising, or tracking of any kind.",
+    exportHeading: 'Exporting your data',
+    exportBody:
+      "The only way your data ever leaves your device is if you choose to export it yourself (as a JSON backup, Excel, CSV, or Markdown file) from Settings. Where that file goes afterward is entirely up to you.",
+    childrenHeading: 'Children',
+    childrenBody:
+      "Turtle Steps isn't directed at children and doesn't knowingly collect data from anyone, including children — nothing is collected automatically regardless of age.",
+    changesHeading: 'Changes to this policy',
+    changesBody: 'If this policy ever changes, the update will be posted on this same page.',
+    contactHeading: 'Contact',
+    contactBody: 'Questions about this policy can be sent via the project’s GitHub page.',
+    backToAboutLabel: 'Back to About',
   },
 }

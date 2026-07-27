@@ -41,6 +41,9 @@ export const RecipesSettingsScreen = lazy(() =>
 export const AboutScreen = lazy(() =>
   import('@/features/about').then((m) => ({ default: m.AboutScreen })),
 )
+export const PrivacyScreen = lazy(() =>
+  import('@/features/about').then((m) => ({ default: m.PrivacyScreen })),
+)
 // Imported from its own file, not the daily-log barrel (@/features/daily-log)
 // — that barrel also re-exports TodayScreen, which router.tsx already
 // imports eagerly; importing straight from the file avoids any ambiguity

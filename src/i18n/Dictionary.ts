@@ -1026,10 +1026,38 @@ export interface Dictionary {
      * not part of that paragraph's own sentence flow. */
     privacyHeading: string
     privacy: string
+    /** #312 — links from the brief on-page privacy blurb above to the
+     * full standalone policy at `/privacy` (the stable, linkable page
+     * both app stores need a URL for). */
+    readPrivacyPolicyLabel: string
     madeBy: (author: string) => string
     /** Current release-notes version number (simple incrementing counter,
      * ReleaseNotesSection.tsx) — lets a reported bug be pinned to a
      * specific version rather than just a date. */
     currentVersionLabel: (version: number) => string
+  }
+  /** #312 — full privacy policy, hosted at its own stable `/privacy` URL
+   * (required by both the App Store and Play Store submission flows,
+   * #313/#316). Distinct from `about.privacy`'s one-line blurb: this is
+   * the complete policy those store listings link to. */
+  privacyPolicy: {
+    title: string
+    description: string
+    lastUpdatedLabel: (date: string) => string
+    collectionHeading: string
+    collectionBody: string
+    storageHeading: string
+    storageBody: string
+    sharingHeading: string
+    sharingBody: string
+    exportHeading: string
+    exportBody: string
+    childrenHeading: string
+    childrenBody: string
+    changesHeading: string
+    changesBody: string
+    contactHeading: string
+    contactBody: string
+    backToAboutLabel: string
   }
 }

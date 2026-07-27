@@ -1,4 +1,5 @@
 import { render, screen } from '@testing-library/react'
+import { MemoryRouter } from 'react-router-dom'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { useLocaleStore } from '@/i18n'
 import { AboutScreen } from './AboutScreen'
@@ -11,9 +12,17 @@ afterEach(() => {
   useLocaleStore.setState({ locale: 'en' })
 })
 
+function renderAboutScreen() {
+  render(
+    <MemoryRouter>
+      <AboutScreen />
+    </MemoryRouter>,
+  )
+}
+
 describe('AboutScreen', () => {
   it('explains what the app is and its no-big-goal philosophy (#213)', () => {
-    render(<AboutScreen />)
+    renderAboutScreen()
 
     expect(screen.getByRole('heading', { name: 'About' })).toBeInTheDocument()
     expect(
@@ -32,7 +41,7 @@ describe('AboutScreen', () => {
   })
 
   it('credits the author with a link to their GitHub profile', () => {
-    render(<AboutScreen />)
+    renderAboutScreen()
 
     const link = screen.getByRole('link', { name: 'Made by zhannam85' })
     expect(link).toHaveAttribute('href', 'https://github.com/ZhannaM85')
@@ -40,14 +49,23 @@ describe('AboutScreen', () => {
     expect(link).toHaveAttribute('rel', 'noopener noreferrer')
   })
 
+  it('links to the full privacy policy page (#312)', () => {
+    renderAboutScreen()
+
+    const link = screen.getByRole('link', {
+      name: 'Read the full privacy policy',
+    })
+    expect(link).toHaveAttribute('href', '/privacy')
+  })
+
   it('shows the current version number', () => {
-    render(<AboutScreen />)
+    renderAboutScreen()
 
     expect(screen.getByText(/^Version \d+$/)).toBeInTheDocument()
   })
 
   it('includes the release notes section, moved here from Settings (#66)', () => {
-    render(<AboutScreen />)
+    renderAboutScreen()
 
     expect(
       screen.getByRole('heading', { name: 'Release notes' }),
@@ -59,7 +77,7 @@ describe('AboutScreen', () => {
 
   it('renders in Russian when the locale is switched', () => {
     useLocaleStore.setState({ locale: 'ru' })
-    render(<AboutScreen />)
+    renderAboutScreen()
 
     expect(
       screen.getByRole('heading', { name: 'О приложении' }),

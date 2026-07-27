@@ -1,4 +1,5 @@
 import { Heart } from 'lucide-react'
+import { Link } from 'react-router-dom'
 import { releaseNotes } from '@/data/releaseNotes'
 import { useTranslation } from '@/i18n'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
@@ -26,6 +27,12 @@ export function AboutScreen() {
         <p>{t.about.philosophy}</p>
         <p className="font-medium text-foreground">{t.about.privacyHeading}</p>
         <p>{t.about.privacy}</p>
+        <Link
+          to="/privacy"
+          className="self-start text-foreground underline-offset-4 hover:underline"
+        >
+          {t.about.readPrivacyPolicyLabel}
+        </Link>
         {currentVersion !== undefined && (
           <p>{t.about.currentVersionLabel(currentVersion)}</p>
         )}
