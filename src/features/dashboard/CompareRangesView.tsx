@@ -1,5 +1,5 @@
 import { endOfMonth, format, startOfMonth, subMonths } from 'date-fns'
-import { useState } from 'react'
+import { useState, type ReactNode } from 'react'
 import type { DailyEntry } from '@/domain/dailyEntry'
 import { kgToLb } from '@/domain/goal'
 import { dateRangeSummary, type DateRangeSummary } from '@/domain/stats'
@@ -20,6 +20,8 @@ import { ChartTitleWithToggle } from './ChartTitleWithToggle'
 
 export interface CompareRangesViewProps {
   entries: DailyEntry[]
+  /** #355 — see `CorrelationViewProps.dragHandle`'s own doc comment. */
+  dragHandle?: ReactNode
 }
 
 function isoMonthRange(monthsAgo: number): { start: string; end: string } {
@@ -60,7 +62,10 @@ function rangeCardDescription(
  * matching the issue's own example, so there's something to look at before
  * the user touches either picker.
  */
-export function CompareRangesView({ entries }: CompareRangesViewProps) {
+export function CompareRangesView({
+  entries,
+  dragHandle,
+}: CompareRangesViewProps) {
   const t = useTranslation()
   const locale = useLocale()
   const displayUnit = useUnitStore((state) => state.unit)
@@ -83,6 +88,7 @@ export function CompareRangesView({ entries }: CompareRangesViewProps) {
     <ChartTitleWithToggle
       chart="compareRanges"
       title={t.dashboard.compareRangesTitle}
+      dragHandle={dragHandle}
     />
   )
 

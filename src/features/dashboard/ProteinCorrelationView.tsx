@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, type ReactNode } from 'react'
 import { format, parseISO } from 'date-fns'
 import { ChevronDown, ChevronUp } from 'lucide-react'
 import {
@@ -30,6 +30,8 @@ import { renderOutlierScatterShape } from './outlierScatterShape'
 
 export interface ProteinCorrelationViewProps {
   entries: DailyEntry[]
+  /** #355 — see `CorrelationViewProps.dragHandle`'s own doc comment. */
+  dragHandle?: ReactNode
 }
 
 /**
@@ -52,6 +54,7 @@ export interface ProteinCorrelationViewProps {
  */
 export function ProteinCorrelationView({
   entries,
+  dragHandle,
 }: ProteinCorrelationViewProps) {
   const t = useTranslation()
   const locale = useLocale()
@@ -90,6 +93,7 @@ export function ProteinCorrelationView({
     <ChartTitleWithToggle
       chart="proteinCorrelation"
       title={t.dashboard.proteinCorrelationTitle}
+      dragHandle={dragHandle}
       extraAction={
         insight === null && (
           <Button

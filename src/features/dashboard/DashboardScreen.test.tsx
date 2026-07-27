@@ -165,6 +165,27 @@ describe('DashboardScreen', () => {
 
       expect(screen.queryByLabelText('Reorder section 1')).not.toBeInTheDocument()
     })
+
+    // #355 — reported live: the handle rendered on its own line above the
+    // whole section (title included) instead of beside just the title.
+    it('renders the drag handle beside its section title, not stacked above it', async () => {
+      await db.dailyEntries.put(makeEntry({ date: '2026-03-01' }))
+      await db.dailyEntries.put(makeEntry({ date: '2026-03-02' }))
+      await db.dailyEntries.put(makeEntry({ date: '2026-03-03' }))
+
+      const user = userEvent.setup()
+      render(<DashboardScreen />, { wrapper: MemoryRouter })
+      await screen.findByText('Weight trend')
+
+      await user.click(screen.getByRole('button', { name: 'Reorder' }))
+
+      const handle = screen.getByLabelText('Reorder section 1')
+      const title = screen.getByText('Weight trend')
+      // The handle and the title are siblings under the same title row —
+      // the same parent element contains both, rather than the handle
+      // living in a separate wrapper above the whole section.
+      expect(handle.parentElement).toContainElement(title)
+    })
   })
 
   describe('reset to default order (#356)', () => {

@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react'
 import { format, parseISO } from 'date-fns'
 import { ArrowRight } from 'lucide-react'
 import {
@@ -47,9 +48,11 @@ const MIN_TREND_DATA_POINTS = 3
 
 export interface WeightTrendChartProps {
   entries: DailyEntry[]
+  /** #355 — see `CorrelationViewProps.dragHandle`'s own doc comment. */
+  dragHandle?: ReactNode
 }
 
-export function WeightTrendChart({ entries }: WeightTrendChartProps) {
+export function WeightTrendChart({ entries, dragHandle }: WeightTrendChartProps) {
   const t = useTranslation()
   const locale = useLocale()
   const dateFnsLocale = getDateFnsLocale(locale)
@@ -76,7 +79,11 @@ export function WeightTrendChart({ entries }: WeightTrendChartProps) {
   if (weightPoints.length === 0) return null
 
   const chartTitle = (
-    <ChartTitleWithToggle chart="weight" title={t.dashboard.weightTrendTitle} />
+    <ChartTitleWithToggle
+      chart="weight"
+      title={t.dashboard.weightTrendTitle}
+      dragHandle={dragHandle}
+    />
   )
 
   if (!chartVisible) {

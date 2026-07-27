@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, type ReactNode } from 'react'
 import { format, parseISO } from 'date-fns'
 import { ChevronDown, ChevronUp } from 'lucide-react'
 import {
@@ -30,9 +30,14 @@ import { renderOutlierScatterShape } from './outlierScatterShape'
 
 export interface CorrelationViewProps {
   entries: DailyEntry[]
+  /** #355 — Dashboard's reorder-mode drag handle, forwarded into this
+   * section's own `ChartTitleWithToggle` call so it renders beside the
+   * title instead of `SortableDashboardSection` stacking it above the
+   * whole section. */
+  dragHandle?: ReactNode
 }
 
-export function CorrelationView({ entries }: CorrelationViewProps) {
+export function CorrelationView({ entries, dragHandle }: CorrelationViewProps) {
   const t = useTranslation()
   const locale = useLocale()
   const dateFnsLocale = getDateFnsLocale(locale)
@@ -81,6 +86,7 @@ export function CorrelationView({ entries }: CorrelationViewProps) {
     <ChartTitleWithToggle
       chart="calorieWeightCorrelation"
       title={t.dashboard.correlationTitle}
+      dragHandle={dragHandle}
       extraAction={
         insight === null && (
           <Button

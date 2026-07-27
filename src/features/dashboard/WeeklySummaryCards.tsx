@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react'
 import { format, parseISO } from 'date-fns'
 import type { DailyEntry } from '@/domain/dailyEntry'
 import { kgToLb, type Goal } from '@/domain/goal'
@@ -18,9 +19,15 @@ import { ChartTitleWithToggle } from './ChartTitleWithToggle'
 export interface WeeklySummaryCardsProps {
   entries: DailyEntry[]
   goal: Goal | null
+  /** #355 — see `CorrelationViewProps.dragHandle`'s own doc comment. */
+  dragHandle?: ReactNode
 }
 
-export function WeeklySummaryCards({ entries, goal }: WeeklySummaryCardsProps) {
+export function WeeklySummaryCards({
+  entries,
+  goal,
+  dragHandle,
+}: WeeklySummaryCardsProps) {
   const t = useTranslation()
   const locale = useLocale()
   const dateFnsLocale = getDateFnsLocale(locale)
@@ -39,6 +46,7 @@ export function WeeklySummaryCards({ entries, goal }: WeeklySummaryCardsProps) {
     <ChartTitleWithToggle
       chart="weeklySummary"
       title={t.dashboard.weeklySummaryTitle}
+      dragHandle={dragHandle}
     />
   )
 

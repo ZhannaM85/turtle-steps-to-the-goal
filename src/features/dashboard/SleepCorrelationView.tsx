@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, type ReactNode } from 'react'
 import { format, parseISO } from 'date-fns'
 import { ChevronDown, ChevronUp } from 'lucide-react'
 import {
@@ -30,6 +30,8 @@ import { renderOutlierScatterShape } from './outlierScatterShape'
 
 export interface SleepCorrelationViewProps {
   entries: DailyEntry[]
+  /** #355 — see `CorrelationViewProps.dragHandle`'s own doc comment. */
+  dragHandle?: ReactNode
 }
 
 /**
@@ -38,7 +40,10 @@ export interface SleepCorrelationViewProps {
  * sleep hours with the *next* calendar day's weight change instead of last
  * meal time. Same collapsed-until-there's-an-insight behavior as #89/#116.
  */
-export function SleepCorrelationView({ entries }: SleepCorrelationViewProps) {
+export function SleepCorrelationView({
+  entries,
+  dragHandle,
+}: SleepCorrelationViewProps) {
   const t = useTranslation()
   const locale = useLocale()
   const dateFnsLocale = getDateFnsLocale(locale)
@@ -76,6 +81,7 @@ export function SleepCorrelationView({ entries }: SleepCorrelationViewProps) {
     <ChartTitleWithToggle
       chart="sleepCorrelation"
       title={t.dashboard.sleepCorrelationTitle}
+      dragHandle={dragHandle}
       extraAction={
         insight === null && (
           <Button

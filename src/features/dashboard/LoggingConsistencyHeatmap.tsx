@@ -1,5 +1,5 @@
 import { format, parseISO } from 'date-fns'
-import type { CSSProperties } from 'react'
+import type { CSSProperties, ReactNode } from 'react'
 import type { DailyEntry } from '@/domain/dailyEntry'
 import {
   loggingConsistencySummary,
@@ -13,6 +13,8 @@ import { ChartTitleWithToggle } from './ChartTitleWithToggle'
 
 export interface LoggingConsistencyHeatmapProps {
   entries: DailyEntry[]
+  /** #355 — see `CorrelationViewProps.dragHandle`'s own doc comment. */
+  dragHandle?: ReactNode
 }
 
 // Vertical list of week-rows (one per calendar week, most-recent-first,
@@ -39,6 +41,7 @@ function intensityStyle(intensity: number): CSSProperties {
  */
 export function LoggingConsistencyHeatmap({
   entries,
+  dragHandle,
 }: LoggingConsistencyHeatmapProps) {
   const t = useTranslation()
   const locale = useLocale()
@@ -55,6 +58,7 @@ export function LoggingConsistencyHeatmap({
     <ChartTitleWithToggle
       chart="loggingConsistency"
       title={t.dashboard.loggingConsistencyTitle}
+      dragHandle={dragHandle}
     />
   )
 

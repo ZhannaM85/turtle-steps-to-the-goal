@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 312,
+    issue: 355,
+    date: '2026-07-27T19:04:02+03:00',
+    en: "Fixed Dashboard's reorder-mode drag handle showing above the section title instead of next to it.",
+    ru: 'Исправили: значок перетаскивания в режиме изменения порядка на дашборде отображался над заголовком раздела, а не рядом с ним.',
+  },
+  {
     version: 311,
     issue: 354,
     date: '2026-07-27T18:21:29+03:00',

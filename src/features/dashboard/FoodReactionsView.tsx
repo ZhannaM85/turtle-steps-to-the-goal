@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react'
 import type { DailyEntry, MealEmotion } from '@/domain/dailyEntry'
 import { mostDislikedFoods, mostLikedFoods } from '@/domain/stats'
 import type { FoodReactionTally } from '@/domain/stats'
@@ -8,6 +9,8 @@ import { ChartTitleWithToggle } from './ChartTitleWithToggle'
 
 export interface FoodReactionsViewProps {
   entries: DailyEntry[]
+  /** #355 — see `CorrelationViewProps.dragHandle`'s own doc comment. */
+  dragHandle?: ReactNode
 }
 
 function ReactionCounts({
@@ -79,7 +82,7 @@ function FoodList({
  * beyond that, since this is a plain tally, not a statistical inference that
  * needs enough points to be meaningful.
  */
-export function FoodReactionsView({ entries }: FoodReactionsViewProps) {
+export function FoodReactionsView({ entries, dragHandle }: FoodReactionsViewProps) {
   const t = useTranslation()
   const liked = mostLikedFoods(entries)
   const disliked = mostDislikedFoods(entries)
@@ -93,6 +96,7 @@ export function FoodReactionsView({ entries }: FoodReactionsViewProps) {
     <ChartTitleWithToggle
       chart="foodReactions"
       title={t.dashboard.foodReactionsTitle}
+      dragHandle={dragHandle}
     />
   )
 

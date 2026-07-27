@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react'
 import type { DailyEntry } from '@/domain/dailyEntry'
 import { recentAverages } from '@/domain/stats'
 import { formatNumber, useLocale, useTranslation } from '@/i18n'
@@ -8,6 +9,8 @@ import { ChartTitleWithToggle } from './ChartTitleWithToggle'
 
 export interface RecentAveragesCardsProps {
   entries: DailyEntry[]
+  /** #355 — see `CorrelationViewProps.dragHandle`'s own doc comment. */
+  dragHandle?: ReactNode
 }
 
 const WINDOWS = [7, 30] as const
@@ -18,7 +21,10 @@ const WINDOWS = [7, 30] as const
  * answer "how am I doing lately" at a glance without scrolling through a
  * list of past periods.
  */
-export function RecentAveragesCards({ entries }: RecentAveragesCardsProps) {
+export function RecentAveragesCards({
+  entries,
+  dragHandle,
+}: RecentAveragesCardsProps) {
   const t = useTranslation()
   const locale = useLocale()
   const cardVisible = useDashboardChartVisibilityStore(
@@ -38,6 +44,7 @@ export function RecentAveragesCards({ entries }: RecentAveragesCardsProps) {
     <ChartTitleWithToggle
       chart="recentAverages"
       title={t.dashboard.recentAveragesTitle}
+      dragHandle={dragHandle}
     />
   )
 

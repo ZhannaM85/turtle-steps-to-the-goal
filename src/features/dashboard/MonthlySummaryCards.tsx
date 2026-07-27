@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react'
 import { format, parseISO } from 'date-fns'
 import type { DailyEntry } from '@/domain/dailyEntry'
 import { kgToLb } from '@/domain/goal'
@@ -16,6 +17,8 @@ import { ChartTitleWithToggle } from './ChartTitleWithToggle'
 
 export interface MonthlySummaryCardsProps {
   entries: DailyEntry[]
+  /** #355 — see `CorrelationViewProps.dragHandle`'s own doc comment. */
+  dragHandle?: ReactNode
 }
 
 /**
@@ -26,7 +29,10 @@ export interface MonthlySummaryCardsProps {
  * of targets into a rough monthly figure would be inventing a comparison
  * rather than reusing one.
  */
-export function MonthlySummaryCards({ entries }: MonthlySummaryCardsProps) {
+export function MonthlySummaryCards({
+  entries,
+  dragHandle,
+}: MonthlySummaryCardsProps) {
   const t = useTranslation()
   const locale = useLocale()
   const dateFnsLocale = getDateFnsLocale(locale)
@@ -44,6 +50,7 @@ export function MonthlySummaryCards({ entries }: MonthlySummaryCardsProps) {
     <ChartTitleWithToggle
       chart="monthlySummary"
       title={t.dashboard.monthlySummaryTitle}
+      dragHandle={dragHandle}
     />
   )
 

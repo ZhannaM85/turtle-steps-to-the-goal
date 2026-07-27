@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react'
 import { format, parseISO } from 'date-fns'
 import { ChartColumn, ChartLine, ChartScatter } from 'lucide-react'
 import {
@@ -41,6 +42,8 @@ import { ChartTitleWithToggle } from './ChartTitleWithToggle'
 
 export interface CustomChartViewProps {
   entries: DailyEntry[]
+  /** #355 — see `CorrelationViewProps.dragHandle`'s own doc comment. */
+  dragHandle?: ReactNode
 }
 
 interface BooleanSeriesConfig {
@@ -213,7 +216,7 @@ function useNumericSeriesConfig(): Record<
  * visual language `CalendarView` already uses for both (destructive-red
  * / amber dots there, same colors reused here).
  */
-export function CustomChartView({ entries }: CustomChartViewProps) {
+export function CustomChartView({ entries, dragHandle }: CustomChartViewProps) {
   const t = useTranslation()
   const locale = useLocale()
   const dateFnsLocale = getDateFnsLocale(locale)
@@ -270,7 +273,11 @@ export function CustomChartView({ entries }: CustomChartViewProps) {
   if (entries.length === 0) return null
 
   const cardTitle = (
-    <ChartTitleWithToggle chart="customChart" title={t.dashboard.customChartTitle} />
+    <ChartTitleWithToggle
+      chart="customChart"
+      title={t.dashboard.customChartTitle}
+      dragHandle={dragHandle}
+    />
   )
 
   if (!cardVisible) {

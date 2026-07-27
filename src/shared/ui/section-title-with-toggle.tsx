@@ -10,6 +10,13 @@ export interface SectionTitleWithToggleProps {
   /** An extra control to render next to the eye toggle — e.g. a
    * correlation card's own "Show chart"/chevron expand button. */
   extraAction?: ReactNode
+  /** #355 — Dashboard's on-demand reorder-mode drag handle (#319), passed
+   * all the way down from `DashboardScreen.tsx`'s `SortableDashboardSection`
+   * through every section's own props and its `ChartTitleWithToggle` call,
+   * so it renders inline beside *this* title instead of stacked above the
+   * whole section — previously `SortableDashboardSection` rendered it
+   * itself, above whatever the section's own first line happened to be. */
+  dragHandle?: ReactNode
 }
 
 /**
@@ -36,11 +43,17 @@ export function SectionTitleWithToggle({
   hideLabel,
   showLabel,
   extraAction,
+  dragHandle,
 }: SectionTitleWithToggleProps) {
   return (
     <div className="flex items-center justify-between gap-2">
-      <h2 className="text-sm font-medium text-muted-foreground">{title}</h2>
-      <div className="flex items-center gap-1">
+      <div className="flex min-w-0 items-center gap-2">
+        {dragHandle}
+        <h2 className="truncate text-sm font-medium text-muted-foreground">
+          {title}
+        </h2>
+      </div>
+      <div className="flex shrink-0 items-center gap-1">
         {extraAction}
         <VisibilityToggleButton
           visible={visible}

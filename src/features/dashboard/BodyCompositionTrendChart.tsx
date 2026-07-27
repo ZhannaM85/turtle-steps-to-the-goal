@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react'
 import { format, parseISO } from 'date-fns'
 import { ArrowRight } from 'lucide-react'
 import {
@@ -78,6 +79,8 @@ function unitFor(t: Dictionary, key: BodyCompositionSeriesKey): string {
 
 export interface BodyCompositionTrendChartProps {
   entries: DailyEntry[]
+  /** #355 — see `CorrelationViewProps.dragHandle`'s own doc comment. */
+  dragHandle?: ReactNode
 }
 
 /**
@@ -101,6 +104,7 @@ export interface BodyCompositionTrendChartProps {
  */
 export function BodyCompositionTrendChart({
   entries,
+  dragHandle,
 }: BodyCompositionTrendChartProps) {
   const t = useTranslation()
   const locale = useLocale()
@@ -134,6 +138,7 @@ export function BodyCompositionTrendChart({
     <ChartTitleWithToggle
       chart="bodyComposition"
       title={t.dashboard.bodyCompositionTrendTitle}
+      dragHandle={dragHandle}
     />
   )
 

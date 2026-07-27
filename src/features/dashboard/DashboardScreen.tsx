@@ -49,17 +49,21 @@ import { WeeklySummaryCards } from './WeeklySummaryCards'
 import { WeightTrendChart } from './WeightTrendChart'
 import { useDashboardData } from './useDashboardData'
 
-// #297 — a thin drag-handle strip above each section rather than modifying
-// every individual chart/card component's own internal title rendering
-// (15+ files, each with a different title layout already established by
-// #232/#245/#247's own show/hide toggle work) — purely additive at this
-// level, consistent regardless of what a given section renders internally.
-// #319 — the handle (and dragging itself) is now only shown/active while
-// the page is in its on-demand reorder mode, rather than always visible;
-// `disabled` on `useSortable` (same option `MealListItem` already uses for
-// its own isEditing/isConfirmingDelete states) stops dnd-kit from treating
-// the section as draggable at all outside that mode, not just hiding the
-// handle visually.
+// #297 — drag-and-drop reordering, purely additive so it doesn't depend on
+// what a given section renders internally. #319 — the handle (and dragging
+// itself) is now only shown/active while the page is in its on-demand
+// reorder mode, rather than always visible; `disabled` on `useSortable`
+// (same option `MealListItem` already uses for its own isEditing/
+// isConfirmingDelete states) stops dnd-kit from treating the section as
+// draggable at all outside that mode, not just hiding the handle visually.
+// #355 — reported live: the handle rendered on its own line above the
+// whole section (title included) instead of beside just the title text.
+// Every one of the 18 sections' own title already funnels through the one
+// shared `ChartTitleWithToggle`/`SectionTitleWithToggle` pair (#245/#247),
+// so rather than each section inventing its own fix, `children` is now a
+// render-prop that receives the fully-built handle element — each section
+// forwards it straight into its own existing `ChartTitleWithToggle` call
+// via a new `dragHandle` prop, same one-line addition in every file.
 function SortableDashboardSection({
   id,
   position,
@@ -69,27 +73,28 @@ function SortableDashboardSection({
   id: DashboardChartKey
   position: number
   isReordering: boolean
-  children: ReactNode
+  children: (dragHandle: ReactNode) => ReactNode
 }) {
   const t = useTranslation()
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({ id, disabled: !isReordering })
   const style = { transform: CSS.Transform.toString(transform), transition }
 
+  const dragHandle = isReordering ? (
+    <button
+      type="button"
+      aria-label={t.dashboard.reorderSectionLabel(position)}
+      className="w-fit shrink-0 cursor-grab touch-none text-muted-foreground active:cursor-grabbing"
+      {...attributes}
+      {...listeners}
+    >
+      <GripVertical aria-hidden="true" className="size-4" />
+    </button>
+  ) : null
+
   return (
-    <div ref={setNodeRef} style={style} className="flex flex-col gap-1">
-      {isReordering && (
-        <button
-          type="button"
-          aria-label={t.dashboard.reorderSectionLabel(position)}
-          className="w-fit cursor-grab touch-none text-muted-foreground active:cursor-grabbing"
-          {...attributes}
-          {...listeners}
-        >
-          <GripVertical aria-hidden="true" className="size-4" />
-        </button>
-      )}
-      {children}
+    <div ref={setNodeRef} style={style}>
+      {children(dragHandle)}
     </div>
   )
 }
@@ -138,27 +143,68 @@ export function DashboardScreen() {
     setOrder(arrayMove(order, oldIndex, newIndex))
   }
 
-  const sectionsByKey: Record<DashboardChartKey, ReactNode> = {
-    weight: <WeightTrendChart entries={entries} />,
-    calories: <CalorieTrendChart entries={entries} />,
-    macros: <MacroTrendChart entries={entries} />,
-    bodyComposition: <BodyCompositionTrendChart entries={entries} />,
-    customChart: <CustomChartView entries={entries} />,
-    calorieWeightCorrelation: <CorrelationView entries={entries} />,
-    lateMealCorrelation: <LateMealCorrelationView entries={entries} />,
-    mealFrequencyCorrelation: (
-      <MealFrequencyCorrelationView entries={entries} />
+  // #355 — each entry is a render-prop function (not a plain element) so
+  // `SortableDashboardSection` can hand every section its own drag-handle
+  // element to forward into its own `ChartTitleWithToggle` call, instead of
+  // rendering the handle itself above the section.
+  const sectionsByKey: Record<
+    DashboardChartKey,
+    (dragHandle: ReactNode) => ReactNode
+  > = {
+    weight: (dragHandle) => (
+      <WeightTrendChart entries={entries} dragHandle={dragHandle} />
     ),
-    fastingWindowCorrelation: <FastingWindowCorrelationView entries={entries} />,
-    sleepCorrelation: <SleepCorrelationView entries={entries} />,
-    stepsCorrelation: <StepsCorrelationView entries={entries} />,
-    proteinCorrelation: <ProteinCorrelationView entries={entries} />,
-    foodReactions: <FoodReactionsView entries={entries} />,
-    loggingConsistency: <LoggingConsistencyHeatmap entries={entries} />,
-    recentAverages: <RecentAveragesCards entries={entries} />,
-    weeklySummary: <WeeklySummaryCards entries={entries} goal={goal} />,
-    monthlySummary: <MonthlySummaryCards entries={entries} />,
-    compareRanges: <CompareRangesView entries={entries} />,
+    calories: (dragHandle) => (
+      <CalorieTrendChart entries={entries} dragHandle={dragHandle} />
+    ),
+    macros: (dragHandle) => (
+      <MacroTrendChart entries={entries} dragHandle={dragHandle} />
+    ),
+    bodyComposition: (dragHandle) => (
+      <BodyCompositionTrendChart entries={entries} dragHandle={dragHandle} />
+    ),
+    customChart: (dragHandle) => (
+      <CustomChartView entries={entries} dragHandle={dragHandle} />
+    ),
+    calorieWeightCorrelation: (dragHandle) => (
+      <CorrelationView entries={entries} dragHandle={dragHandle} />
+    ),
+    lateMealCorrelation: (dragHandle) => (
+      <LateMealCorrelationView entries={entries} dragHandle={dragHandle} />
+    ),
+    mealFrequencyCorrelation: (dragHandle) => (
+      <MealFrequencyCorrelationView entries={entries} dragHandle={dragHandle} />
+    ),
+    fastingWindowCorrelation: (dragHandle) => (
+      <FastingWindowCorrelationView entries={entries} dragHandle={dragHandle} />
+    ),
+    sleepCorrelation: (dragHandle) => (
+      <SleepCorrelationView entries={entries} dragHandle={dragHandle} />
+    ),
+    stepsCorrelation: (dragHandle) => (
+      <StepsCorrelationView entries={entries} dragHandle={dragHandle} />
+    ),
+    proteinCorrelation: (dragHandle) => (
+      <ProteinCorrelationView entries={entries} dragHandle={dragHandle} />
+    ),
+    foodReactions: (dragHandle) => (
+      <FoodReactionsView entries={entries} dragHandle={dragHandle} />
+    ),
+    loggingConsistency: (dragHandle) => (
+      <LoggingConsistencyHeatmap entries={entries} dragHandle={dragHandle} />
+    ),
+    recentAverages: (dragHandle) => (
+      <RecentAveragesCards entries={entries} dragHandle={dragHandle} />
+    ),
+    weeklySummary: (dragHandle) => (
+      <WeeklySummaryCards entries={entries} goal={goal} dragHandle={dragHandle} />
+    ),
+    monthlySummary: (dragHandle) => (
+      <MonthlySummaryCards entries={entries} dragHandle={dragHandle} />
+    ),
+    compareRanges: (dragHandle) => (
+      <CompareRangesView entries={entries} dragHandle={dragHandle} />
+    ),
   }
 
   return (
@@ -223,7 +269,7 @@ export function DashboardScreen() {
                   position={index + 1}
                   isReordering={isReordering}
                 >
-                  {sectionsByKey[key]}
+                  {(dragHandle) => sectionsByKey[key](dragHandle)}
                 </SortableDashboardSection>
               ))}
             </div>

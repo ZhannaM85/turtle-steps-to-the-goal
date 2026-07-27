@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react'
 import { format, parseISO } from 'date-fns'
 import { ArrowRight } from 'lucide-react'
 import {
@@ -39,6 +40,8 @@ const MIN_TREND_DATA_POINTS = 3
 
 export interface MacroTrendChartProps {
   entries: DailyEntry[]
+  /** #355 — see `CorrelationViewProps.dragHandle`'s own doc comment. */
+  dragHandle?: ReactNode
 }
 
 /**
@@ -47,7 +50,7 @@ export interface MacroTrendChartProps {
  * comparable in scale, and this keeps the Dashboard from growing three more
  * full-width charts on top of weight/calories/correlation.
  */
-export function MacroTrendChart({ entries }: MacroTrendChartProps) {
+export function MacroTrendChart({ entries, dragHandle }: MacroTrendChartProps) {
   const t = useTranslation()
   const locale = useLocale()
   const dateFnsLocale = getDateFnsLocale(locale)
@@ -74,7 +77,11 @@ export function MacroTrendChart({ entries }: MacroTrendChartProps) {
   if (data.length === 0) return null
 
   const chartTitle = (
-    <ChartTitleWithToggle chart="macros" title={t.dashboard.macrosTitle} />
+    <ChartTitleWithToggle
+      chart="macros"
+      title={t.dashboard.macrosTitle}
+      dragHandle={dragHandle}
+    />
   )
 
   if (!chartVisible) {

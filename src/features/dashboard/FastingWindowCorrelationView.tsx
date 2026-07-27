@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, type ReactNode } from 'react'
 import { format, parseISO } from 'date-fns'
 import { ChevronDown, ChevronUp } from 'lucide-react'
 import {
@@ -33,6 +33,8 @@ import { renderOutlierScatterShape } from './outlierScatterShape'
 
 export interface FastingWindowCorrelationViewProps {
   entries: DailyEntry[]
+  /** #355 — see `CorrelationViewProps.dragHandle`'s own doc comment. */
+  dragHandle?: ReactNode
 }
 
 /**
@@ -44,6 +46,7 @@ export interface FastingWindowCorrelationViewProps {
  */
 export function FastingWindowCorrelationView({
   entries,
+  dragHandle,
 }: FastingWindowCorrelationViewProps) {
   const t = useTranslation()
   const locale = useLocale()
@@ -82,6 +85,7 @@ export function FastingWindowCorrelationView({
     <ChartTitleWithToggle
       chart="fastingWindowCorrelation"
       title={t.dashboard.fastingWindowTitle}
+      dragHandle={dragHandle}
       extraAction={
         insight === null && (
           <Button

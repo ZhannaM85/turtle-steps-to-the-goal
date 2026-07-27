@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react'
 import { format, parseISO } from 'date-fns'
 import { ArrowRight } from 'lucide-react'
 import {
@@ -37,9 +38,11 @@ const MIN_TREND_DATA_POINTS = 3
 
 export interface CalorieTrendChartProps {
   entries: DailyEntry[]
+  /** #355 — see `CorrelationViewProps.dragHandle`'s own doc comment. */
+  dragHandle?: ReactNode
 }
 
-export function CalorieTrendChart({ entries }: CalorieTrendChartProps) {
+export function CalorieTrendChart({ entries, dragHandle }: CalorieTrendChartProps) {
   const t = useTranslation()
   const locale = useLocale()
   const dateFnsLocale = getDateFnsLocale(locale)
@@ -68,6 +71,7 @@ export function CalorieTrendChart({ entries }: CalorieTrendChartProps) {
     <ChartTitleWithToggle
       chart="calories"
       title={t.dashboard.calorieTrendTitle}
+      dragHandle={dragHandle}
     />
   )
 

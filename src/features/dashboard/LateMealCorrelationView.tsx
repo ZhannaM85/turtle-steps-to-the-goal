@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, type ReactNode } from 'react'
 import { format, parseISO } from 'date-fns'
 import { ChevronDown, ChevronUp } from 'lucide-react'
 import {
@@ -30,6 +30,8 @@ import { renderOutlierScatterShape } from './outlierScatterShape'
 
 export interface LateMealCorrelationViewProps {
   entries: DailyEntry[]
+  /** #355 — see `CorrelationViewProps.dragHandle`'s own doc comment. */
+  dragHandle?: ReactNode
 }
 
 function minutesToTimeLabel(minutes: number): string {
@@ -47,6 +49,7 @@ function minutesToTimeLabel(minutes: number): string {
  */
 export function LateMealCorrelationView({
   entries,
+  dragHandle,
 }: LateMealCorrelationViewProps) {
   const t = useTranslation()
   const locale = useLocale()
@@ -85,6 +88,7 @@ export function LateMealCorrelationView({
     <ChartTitleWithToggle
       chart="lateMealCorrelation"
       title={t.dashboard.lateMealTitle}
+      dragHandle={dragHandle}
       extraAction={
         insight === null && (
           <Button

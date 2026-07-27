@@ -14,6 +14,9 @@ export interface ChartTitleWithToggleProps {
    * only while the card itself is visible; the caller is responsible for
    * that (same as everything else below the title). */
   extraAction?: ReactNode
+  /** #355 — forwarded straight through to `SectionTitleWithToggle`, see
+   * its own doc comment for the full chain. */
+  dragHandle?: ReactNode
 }
 
 /**
@@ -28,6 +31,7 @@ export function ChartTitleWithToggle({
   chart,
   title,
   extraAction,
+  dragHandle,
 }: ChartTitleWithToggleProps) {
   const t = useTranslation()
   const visible = useDashboardChartVisibilityStore(
@@ -45,6 +49,7 @@ export function ChartTitleWithToggle({
       hideLabel={t.dashboard.hideChartLabel(title)}
       showLabel={t.dashboard.showChartLabel(title)}
       extraAction={extraAction}
+      dragHandle={dragHandle}
     />
   )
 }

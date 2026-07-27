@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, type ReactNode } from 'react'
 import { format, parseISO } from 'date-fns'
 import { ChevronDown, ChevronUp } from 'lucide-react'
 import {
@@ -30,6 +30,8 @@ import { renderOutlierScatterShape } from './outlierScatterShape'
 
 export interface StepsCorrelationViewProps {
   entries: DailyEntry[]
+  /** #355 — see `CorrelationViewProps.dragHandle`'s own doc comment. */
+  dragHandle?: ReactNode
 }
 
 /**
@@ -38,7 +40,10 @@ export interface StepsCorrelationViewProps {
  * step count with the *next* calendar day's weight change. Same
  * collapsed-until-there's-an-insight behavior as #89/#116.
  */
-export function StepsCorrelationView({ entries }: StepsCorrelationViewProps) {
+export function StepsCorrelationView({
+  entries,
+  dragHandle,
+}: StepsCorrelationViewProps) {
   const t = useTranslation()
   const locale = useLocale()
   const dateFnsLocale = getDateFnsLocale(locale)
@@ -76,6 +81,7 @@ export function StepsCorrelationView({ entries }: StepsCorrelationViewProps) {
     <ChartTitleWithToggle
       chart="stepsCorrelation"
       title={t.dashboard.stepsCorrelationTitle}
+      dragHandle={dragHandle}
       extraAction={
         insight === null && (
           <Button

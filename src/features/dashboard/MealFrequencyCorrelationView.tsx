@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, type ReactNode } from 'react'
 import { format, parseISO } from 'date-fns'
 import { ChevronDown, ChevronUp } from 'lucide-react'
 import {
@@ -33,6 +33,8 @@ import { renderOutlierScatterShape } from './outlierScatterShape'
 
 export interface MealFrequencyCorrelationViewProps {
   entries: DailyEntry[]
+  /** #355 — see `CorrelationViewProps.dragHandle`'s own doc comment. */
+  dragHandle?: ReactNode
 }
 
 /**
@@ -45,6 +47,7 @@ export interface MealFrequencyCorrelationViewProps {
  */
 export function MealFrequencyCorrelationView({
   entries,
+  dragHandle,
 }: MealFrequencyCorrelationViewProps) {
   const t = useTranslation()
   const locale = useLocale()
@@ -83,6 +86,7 @@ export function MealFrequencyCorrelationView({
     <ChartTitleWithToggle
       chart="mealFrequencyCorrelation"
       title={t.dashboard.mealFrequencyTitle}
+      dragHandle={dragHandle}
       extraAction={
         insight === null && (
           <Button
