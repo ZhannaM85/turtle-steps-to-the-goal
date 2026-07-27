@@ -722,6 +722,80 @@ _User asked about pulling data from Apple Health and Zepp Life. Researched via W
 | [#333](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/333) | 📋 Not started | Import weight/steps/etc. data from an Apple Health or Zepp Life export file | Buildable now, independent of the mobile-app epics below — pure client-side parsing of a manually-exported file (Apple Health's XML export, Zepp Life's CSV export) feeding into the existing Import feature (#9). One-time/manual, not live sync. Exact field mapping needs real sample export files, not guessable from docs alone. |
 | [#334](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/334) | 📋 Not started | Epic — Apple Health integration (blocked on mobile app + HealthKit bridge) | HealthKit has no public/cloud API at all — data is on-device only, readable exclusively by a native iOS app (or hybrid app with a HealthKit plugin/entitlement) the user has granted permission to. Genuinely blocked until the mobile app exists; can't be built sooner by any workaround. |
 | [#335](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/335) | 📋 Not started | Epic — Android Health Connect integration (blocked on mobile app) | Same category of blocker as #334 — Health Connect is Android's on-device health data store, no cloud API, native/hybrid-app-only access. Bonus: Zepp Life can itself sync into Health Connect, making this the official, supported route to Zepp/Amazfit data — likely preferable to ever building a direct, unofficial Zepp API integration. |
+| [#337](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/337) | 📋 Not started | Investigate pulling sleep data from AutoSleep | Whether AutoSleep (third-party Apple Watch sleep-tracking app) is reachable only via #334's Apple Health/HealthKit bridge, or has its own separate export/API path (à la #333), is not yet researched — filed at report time, digging happens during implementation. |
+
+---
+
+## Tier 48 — Custom correlations (2026-07-25)
+
+_User asked for a way to correlate two things of their own choosing — including metrics the app doesn't track at all (their examples: training session vs. weight, acne vs. carbs consumption) — not just the existing fixed correlation pairs (#7, #116, #167, #216/#322)._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#336](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/336) | 📋 Not started | Add custom correlations — user-defined metrics, data entry, and dashboard graphs | New screen to define an arbitrary correlation, enter data for whichever side isn't already tracked, and see it graphed on the Dashboard alongside the existing correlation views. Several open design questions flagged in the issue itself (custom-metric value type — numeric vs. boolean vs. scale; how many correlations a user can define; where data entry lives; whether it reuses `domain/stats/*Correlation.ts`'s existing pairing shape) — a genuine fork in end-user behavior, so implementation should pause for a clarifying question rather than guessing, even under a standing auto-proceed instruction. |
+
+---
+
+## Tier 49 — New observation: meal frequency vs. weight (2026-07-25)
+
+_User asked (ru): "Корреляция что лучше, питаться три раза в день по 500 ккал или же пять раз по 300?" — is it better to eat 3x/day at ~500 kcal each or 5x/day at ~300 kcal each?_
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#338](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/338) | 📋 Not started | Add a correlation: meal frequency (3x larger meals vs 5x smaller meals) vs. weight | Distinct from #257 (meal *timing*/fasting-window vs. weight) — this is about meal *count/size distribution* instead. Unlike #336's metrics, meal count per day looks derivable from existing itemized meal-log data rather than needing new manual entry, so implementation should confirm whether this fits the existing hardcoded-correlation pattern (#116/#167) or should wait on #336's generic infra. |
+
+---
+
+## Tier 50 — Live feedback: past-goal rows don't show which weights reached the goal (2026-07-25)
+
+_Reported live with a screenshot of the Goal screen's "Прошлые цели" table: two rows both read "Цель достигнута" + a date, with no weight numbers, so it's unclear which weigh-ins the achievement is based on._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#339](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/339) | 📋 Not started | Show previous vs. current weight on past-goal rows (which weigh-ins reached the goal) | Add the previous/reached weight values to each past-goal row alongside the existing status + date. Whether to read these from whatever the goal-evaluation logic already compares internally, or re-derive from the weight log for that date range, is implementation-time work. |
+
+---
+
+## Tier 51 — Live feedback: recently-added foods hard to find in the picker (2026-07-25)
+
+_Reported live with two screenshots: a food ("Bio-skyr клубника-киви") just logged for lunch is buried mid-list, sorted alphabetically under "B", in the "Add from food list" search picker — instead of surfacing near the top like favorites already do._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#340](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/340) | 📋 Not started | Recently added foods should sort near the top of the food picker, after favorites | Favorites (★) already pin to the top; everything else falls back to plain alphabetical, burying just-used items. Exact definition of "recent" (last-logged vs. last-added-to-dictionary vs. most-frequent) and how many recent items to surface before the alphabetical fallback resumes is implementation-time work. |
+
+---
+
+## Tier 52 — Design mockup review: Add Dish + Today screen redesign ideas (2026-07-25)
+
+_User shared 5 design mockup screenshots (redesigned Add Dish / Create Your Own Dish flow, ingredient picker, and a Today-screen layout) and asked to file stories for whichever ideas weren't already built. Cross-checked against the tracker first: multi-ingredient recipes with auto-calculated nutrition (#251/#303/#83), descriptive serving/piece units (#254), favorites pinned to the top incl. in the Add Dish form (#276/#279), per-item emoji reactions (#129/#134), water quick-add (#271/#282), body-composition measurement entry (#267/#277), and copy-previous-day (#253) are all already shipped — not re-filed. Three functional ideas were new (#341-343). User then confirmed the *visual* redesign itself (new icons, restructured layout) is worth adopting too, one screen at a time, starting with the Add Dish flow — filed separately as #344._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#341](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/341) | 📋 Not started | Track dietary fiber alongside protein/fat/carbs | Confirmed not tracked anywhere in the current domain model (`kcal100`/`protein100`/`fat100`/`carbs100` only, per `ARCHITECTURE.md`). Where fiber should surface beyond the add-dish form (daily goal target, Dashboard, correlations) is implementation-time work. |
+| [#342](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/342) | 📋 Not started | Add 'Save and add another' to the Add Dish form | Distinct from #183's multi-add (checkbox-selecting several *existing* foods from the picker) — this is for the manual/custom-entry form where nutrition is typed by hand. |
+| [#343](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/343) | 📋 Not started | Add Steps and Sleep to Today's summary tiles, allow reordering | Today's summary row currently shows 4 tiles (Вес/Калории/Белок/Вода); mockup shows 6 (+ Шаги/Сон) with a per-tile reorder control. Different surface from Dashboard's existing reordering (#297) — whether it reuses that mechanism is implementation-time work. |
+| [#344](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/344) | 📋 Not started | Redesign the Add Dish flow to match the new mockup layout | Purely visual/layout: numbered steps, icon-per-field nutrition inputs, stepper quantity control, text-labeled reaction buttons, dedicated create-own-dish step, unit-picker modal, recent-ingredients section. Separate from #341/#342's new functionality — either can land first. First of the "one screen at a time" redesign rollout the user agreed to. |
+
+---
+
+## Tier 53 — Live feedback: can't start today's log before the configured day-start time (2026-07-26)
+
+_Reported live with a screenshot: at 09:12, the Today screen still showed 25 Jul with the forward arrow disabled, because Settings' day-start time (#298, closed) is set later than 09:12. #298 only covers the "up past midnight" case; there was no way to cross into the new day earlier than that fixed setting on a given morning without reconfiguring it (which would apply to every day, not just this one)._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#345](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/345) | 📋 Not started | Let the user manually start today's log earlier than the configured day-start time | Distinct from #298 (the fixed boundary itself) — this is a per-occasion way to cross it early. Exact affordance (one-tap "start today now" vs. something else) is implementation-time work. |
+
+---
+
+## Tier 54 — Add an in-app features overview page (2026-07-26)
+
+_Checked first: `AboutScreen.tsx` (`/about`) exists but only covers intro/philosophy/privacy copy plus the chronological `ReleaseNotesSection.tsx` changelog — a log of changes over time, not a scannable summary of what the app currently does. No duplicate found._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#346](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/346) | 📋 Not started | Add an in-app page listing available features | Whether this extends `AboutScreen` or is its own route, and how to keep the list from drifting out of sync as features ship, is implementation-time work. |
 
 ---
 
