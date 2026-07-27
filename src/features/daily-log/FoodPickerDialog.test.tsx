@@ -363,6 +363,33 @@ describe('FoodPickerDialog', () => {
       ).toBeInTheDocument()
     })
 
+    // #340 — reported live: a personal item just logged minutes ago was
+    // buried mid-list under the plain alphabetical order.
+    it('sorts personal meal items by recency, most recently touched first', () => {
+      render(
+        <FoodPickerDialog
+          open
+          onOpenChange={vi.fn()}
+          onAdd={vi.fn()}
+          mealItems={[
+            mealItem({
+              name: 'Apple sauce',
+              updatedAt: '2026-01-01T00:00:00.000Z',
+            }),
+            mealItem({
+              name: 'Bio-skyr strawberry-kiwi',
+              updatedAt: '2026-01-05T16:53:00.000Z',
+            }),
+          ]}
+        />,
+      )
+
+      const names = screen
+        .getAllByText(/Apple sauce|Bio-skyr strawberry-kiwi/)
+        .map((el) => el.textContent)
+      expect(names).toEqual(['Bio-skyr strawberry-kiwi', 'Apple sauce'])
+    })
+
     it('excludes meal items with no recorded nutrition yet', () => {
       render(
         <FoodPickerDialog

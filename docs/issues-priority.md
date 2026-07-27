@@ -762,7 +762,7 @@ _Reported live with two screenshots: a food ("Bio-skyr клубника-киви
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#340](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/340) | 📋 Not started | Recently added foods should sort near the top of the food picker, after favorites | Favorites (★) already pin to the top; everything else falls back to plain alphabetical, burying just-used items. Exact definition of "recent" (last-logged vs. last-added-to-dictionary vs. most-frequent) and how many recent items to surface before the alphabetical fallback resumes is implementation-time work. |
+| [#340](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/340) | 🔍 Pending validation | Recently added foods should sort near the top of the food picker, after favorites | "Recent" = last-logged (`MealItem.updatedAt`, already bumped every time `touch()` re-logs an item) — the reported item ("Bio-skyr клубника-киви") turned out to be a personal meal item, not a curated food, and curated foods have no per-user recency signal at all (`touchMealItem` deliberately skips them, `MealList.tsx`'s `curatedFoodNames` check) so extending this to curated picks was out of scope for what was actually reported. `FoodPickerDialog.tsx`'s `allMealItems` now sorts by `updatedAt` descending before merging with curated foods, replacing the alphabetical order it inherited from `mealItemRepository.getAll()` (left unchanged — Settings' own management list still wants alphabetical). No separate "top N recent, then fall back to alphabetical" cutoff needed: personal items already list ahead of every curated food structurally, so recency-sorting that block alone is enough. `sortFavoritesFirst`'s existing stable sort still applies on top, unaffected. New test asserts a more-recently-touched item renders above an older one. |
 
 ---
 
@@ -796,6 +796,26 @@ _Checked first: `AboutScreen.tsx` (`/about`) exists but only covers intro/philos
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#346](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/346) | 📋 Not started | Add an in-app page listing available features | Whether this extends `AboutScreen` or is its own route, and how to keep the list from drifting out of sync as features ship, is implementation-time work. |
+
+---
+
+## Tier 55 — Live feedback: black chart color (2026-07-27)
+
+_Reported live with a screenshot: the Overview "Comparison" chart's "часов голодания" (fasting hours) bar series renders in solid black, clashing with the app's warm beige/olive palette used everywhere else._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#347](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/347) | 📋 Not started | Don't use black for chart series color (fasting-hours bar chart) | Likely a missing explicit color in the per-metric color mapping, falling back to a default black. Whether other series also fall back to black is implementation-time work. |
+
+---
+
+## Tier 56 — Live feedback: missing y-axis on single-metric chart (2026-07-27)
+
+_Reported live with a screenshot: the "Состав тела" (body composition) chart shows y-axis values on both sides when two metrics are selected, but no y-axis values at all when only one ("Мышечная масса") is selected._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#348](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/348) | 📋 Not started | Body-composition chart shows no y-axis values when only one metric is selected | Likely the single-axis case in the chart component isn't rendering axis labels, only the two-axis (left/right) case is. Implementation-time work. |
 
 ---
 
