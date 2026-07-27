@@ -60,6 +60,12 @@ export interface MealItemEditorSheetProps {
    * instead of only afterward via the food picker or Settings' own list. */
   favorite: boolean
   onFavoriteChange: (favorite: boolean) => void
+  /** Per-dish free-text note (#344), e.g. "extra spicy today" — distinct
+   * from the meal group's own shared note. Deliberately not restored from
+   * a picked `MealItem` suggestion, same as `emotion`/`favorite` — always
+   * starts blank regardless of which name was selected. */
+  note: string
+  onNoteChange: (value: string) => void
   /** #260: today's prospective running total once this draft is saved,
    * e.g. "Today would be: 1,850 kcal (was 1,550)" — only passed by the
    * add-a-new-meal flow, where nothing about this draft is reflected in
@@ -81,20 +87,63 @@ export interface MealItemEditorSheetProps {
   onSaveAndAddAnother?: () => void
 }
 
+const NOTE_MAX_LENGTH = 200
+
+/** One card-style section (#344 redesign) — a bordered, rounded group
+ * around a logical piece of the form (name, quantity, nutrition, etc.),
+ * matching the design mockup's layout. Purely a visual grouping wrapper,
+ * not a new interaction pattern. */
+function FormSection({
+  heading,
+  headingAction,
+  children,
+}: {
+  heading?: string
+  headingAction?: React.ReactNode
+  children: React.ReactNode
+}) {
+  return (
+    <div className="flex flex-col gap-3 rounded-lg border border-border p-3">
+      {heading && (
+        <div className="flex items-center justify-between gap-2">
+          <span className="text-sm font-medium text-foreground">
+            {heading}
+          </span>
+          {headingAction}
+        </div>
+      )}
+      {children}
+    </div>
+  )
+}
+
 function NumberField({
   label,
+  icon,
   value,
   onChange,
   onEnter,
 }: {
   label: string
+  /** Leading emoji (#344 redesign) — e.g. 🌿 for protein, 💧 for fat.
+   * Purely decorative (aria-hidden), matching the design mockup's
+   * icon-per-nutrition-field treatment. Omitted for fields the mockup
+   * doesn't give an icon to (the plain kcal/quantity fields). */
+  icon?: string
   value: string
   onChange: (value: string) => void
   onEnter: () => void
 }) {
   return (
     <div className="flex flex-col gap-1.5">
-      <span className="text-sm text-muted-foreground">{label}</span>
+      <span className="flex items-center gap-1.5 text-sm text-muted-foreground">
+        {icon && (
+          <span aria-hidden="true" className="text-base leading-none">
+            {icon}
+          </span>
+        )}
+        {label}
+      </span>
       <Input
         type="text"
         inputMode="decimal"
@@ -122,6 +171,15 @@ function NumberField({
  * caller (either `addMeal()` for a new meal, or just closing the sheet for
  * an item still staged in `editItems` until the meal's own Save commits
  * it) — this component doesn't know or care which flow it's serving.
+ *
+ * **#344**: restructured into card-grouped sections (Name, Brand,
+ * Quantity, Nutrition, Reaction, Note) matching a design mockup shared
+ * live, instead of one flat stack of fields. The mockup's own icon-grid
+ * showed a 5th "Calories" field duplicating the Quantity section's own
+ * kcal input — deliberately not replicated here (kept as the single
+ * existing kcal field in Quantity, same value the mockup's Quantity
+ * section already showed) to avoid two inputs silently needing to agree
+ * on one number.
  */
 export function MealItemEditorSheet({
   open,
@@ -151,6 +209,8 @@ export function MealItemEditorSheet({
   onEmotionChange,
   favorite,
   onFavoriteChange,
+  note,
+  onNoteChange,
   todayTotalPreview,
   infoMessage,
   onSave,
@@ -207,19 +267,30 @@ export function MealItemEditorSheet({
         {infoMessage && (
           <p className="text-sm text-muted-foreground">{infoMessage}</p>
         )}
-        <div className="flex flex-1 flex-col gap-5 overflow-y-auto pt-4">
-          <div className="flex flex-col gap-1.5">
-            <div className="flex items-center justify-between gap-2">
-              <span className="text-sm text-muted-foreground">
-                {t.dailyEntry.itemNameLabel}
-              </span>
+        <div className="flex flex-1 flex-col gap-4 overflow-y-auto pt-4">
+          <FormSection heading={t.dailyEntry.itemNameLabel}>
+            <div className="flex items-center gap-2">
+              <MealNoteAutocomplete
+                listInputId="item-editor-name"
+                ariaLabel={t.dailyEntry.itemNameLabel}
+                placeholder={t.dailyEntry.itemNamePlaceholder}
+                value={name}
+                onChange={onNameChange}
+                onSelectItem={onSelectMealItem}
+                onSubmit={onSave}
+                suggestions={mealItems}
+                className="h-12 text-base"
+              />
               {/* #279 — favorites a manually-typed dish right at creation
                * time, via useMealItemStore.touch's favorite argument. Same
-               * favorite concept #276 added to the food picker's star. */}
+               * favorite concept #276 added to the food picker's star.
+               * #344: moved beside the input itself (mockup), not above
+               * it next to the label. */}
               <Button
                 type="button"
                 variant="ghost"
-                size="icon-sm"
+                size="icon-xl"
+                className="shrink-0"
                 aria-label={
                   favorite
                     ? t.dailyEntry.unfavoriteFoodLabel(name || t.dailyEntry.itemNameLabel)
@@ -231,23 +302,9 @@ export function MealItemEditorSheet({
                 <Star aria-hidden="true" className={cn(favorite && 'fill-current')} />
               </Button>
             </div>
-            <MealNoteAutocomplete
-              listInputId="item-editor-name"
-              ariaLabel={t.dailyEntry.itemNameLabel}
-              placeholder={t.dailyEntry.itemNamePlaceholder}
-              value={name}
-              onChange={onNameChange}
-              onSelectItem={onSelectMealItem}
-              onSubmit={onSave}
-              suggestions={mealItems}
-              className="h-12 text-base"
-            />
-          </div>
+          </FormSection>
 
-          <div className="flex flex-col gap-1.5">
-            <span className="text-sm text-muted-foreground">
-              {t.dailyEntry.itemBrandLabel}
-            </span>
+          <FormSection heading={t.dailyEntry.itemBrandLabel}>
             <Input
               type="text"
               aria-label={t.dailyEntry.itemBrandLabel}
@@ -262,111 +319,139 @@ export function MealItemEditorSheet({
               }}
               className="h-12 text-base"
             />
-          </div>
+          </FormSection>
 
-          <ToggleGroup
-            type="single"
-            aria-label={t.dailyEntry.macroModeLabel}
-            value={macroMode}
-            onValueChange={(value) =>
-              value && onMacroModeChange(value as 'per100g' | 'perPortion')
-            }
-            className="w-fit gap-3 p-1"
-          >
-            <ToggleGroupItem value="per100g" className="h-10 px-4 text-sm">
-              {t.dailyEntry.macroModePer100gOption}
-            </ToggleGroupItem>
-            <ToggleGroupItem value="perPortion" className="h-10 px-4 text-sm">
-              {t.dailyEntry.macroModePerPortionOption}
-            </ToggleGroupItem>
-          </ToggleGroup>
-
-          <div className="grid grid-cols-2 gap-4">
-            <NumberField
-              label={
-                macroMode === 'per100g'
-                  ? t.dailyEntry.addCaloriesLabel
-                  : t.dailyEntry.addCaloriesPortionLabel
+          <FormSection heading={t.dailyEntry.itemQuantitySectionLabel}>
+            <ToggleGroup
+              type="single"
+              aria-label={t.dailyEntry.macroModeLabel}
+              value={macroMode}
+              onValueChange={(value) =>
+                value && onMacroModeChange(value as 'per100g' | 'perPortion')
               }
-              value={amount}
-              onChange={onAmountChange}
-              onEnter={onSave}
-            />
-            {/* Grams is a pure memory aid in Portion mode (#111/#121), not a
-             * multiplier — an editable "100" next to a portion total read as
-             * confusing clutter, replaced with a plain "Portion" badge. */}
-            {macroMode === 'per100g' ? (
+              className="w-full gap-3 p-1"
+            >
+              <ToggleGroupItem
+                value="per100g"
+                className="h-10 flex-1 gap-1.5 px-4 text-sm"
+              >
+                <span aria-hidden="true">⚖️</span>
+                {t.dailyEntry.macroModePer100gOption}
+              </ToggleGroupItem>
+              <ToggleGroupItem
+                value="perPortion"
+                className="h-10 flex-1 gap-1.5 px-4 text-sm"
+              >
+                <span aria-hidden="true">🍜</span>
+                {t.dailyEntry.macroModePerPortionOption}
+              </ToggleGroupItem>
+            </ToggleGroup>
+
+            <div className="grid grid-cols-2 gap-4">
               <NumberField
-                label={t.dailyEntry.itemPortionsLabel}
-                value={amountG}
-                onChange={onAmountGChange}
+                label={
+                  macroMode === 'per100g'
+                    ? t.dailyEntry.addCaloriesLabel
+                    : t.dailyEntry.addCaloriesPortionLabel
+                }
+                value={amount}
+                onChange={onAmountChange}
                 onEnter={onSave}
               />
-            ) : (
-              <div className="flex flex-col gap-1.5">
-                <span className="text-sm text-muted-foreground">&nbsp;</span>
-                <span className="flex h-12 items-center text-base text-muted-foreground">
-                  {t.dailyEntry.macroModePerPortionOption}
-                </span>
-              </div>
+              {/* Grams is a pure memory aid in Portion mode (#111/#121), not
+               * a multiplier — an editable "100" next to a portion total
+               * read as confusing clutter, replaced with a plain "Portion"
+               * badge. */}
+              {macroMode === 'per100g' ? (
+                <NumberField
+                  label={t.dailyEntry.itemPortionsLabel}
+                  value={amountG}
+                  onChange={onAmountGChange}
+                  onEnter={onSave}
+                />
+              ) : (
+                <div className="flex flex-col gap-1.5">
+                  <span className="text-sm text-muted-foreground">&nbsp;</span>
+                  <span className="flex h-12 items-center text-base text-muted-foreground">
+                    {t.dailyEntry.macroModePerPortionOption}
+                  </span>
+                </div>
+              )}
+            </div>
+          </FormSection>
+
+          <FormSection
+            heading={t.dailyEntry.itemNutritionSectionLabel(
+              macroMode === 'per100g',
             )}
-            <NumberField
-              label={t.dailyEntry.proteinLabel}
-              value={protein}
-              onChange={onProteinChange}
-              onEnter={onSave}
-            />
-            <NumberField
-              label={t.dailyEntry.fatLabel}
-              value={fat}
-              onChange={onFatChange}
-              onEnter={onSave}
-            />
-          </div>
-          <NumberField
-            label={t.dailyEntry.carbsLabel}
-            value={carbs}
-            onChange={onCarbsChange}
-            onEnter={onSave}
-          />
-          {/* #341 — its own field rather than folded into the shared
-           * macrosSummaryTextCompact-based total preview below, which
-           * would ripple fiber into every other place that same compact
-           * summary renders (meal-item rows, History's table cells) —
-           * deliberately out of scope for this issue. */}
-          <NumberField
-            label={t.dailyEntry.fiberLabel}
-            value={fiber}
-            onChange={onFiberChange}
-            onEnter={onSave}
-          />
+          >
+            <div className="grid grid-cols-2 gap-4">
+              <NumberField
+                icon="🌿"
+                label={t.dailyEntry.proteinLabel}
+                value={protein}
+                onChange={onProteinChange}
+                onEnter={onSave}
+              />
+              <NumberField
+                icon="💧"
+                label={t.dailyEntry.fatLabel}
+                value={fat}
+                onChange={onFatChange}
+                onEnter={onSave}
+              />
+              <NumberField
+                icon="🟤"
+                label={t.dailyEntry.carbsLabel}
+                value={carbs}
+                onChange={onCarbsChange}
+                onEnter={onSave}
+              />
+              {/* #341 — its own field rather than folded into the shared
+               * macrosSummaryTextCompact-based total preview below, which
+               * would ripple fiber into every other place that same
+               * compact summary renders (meal-item rows, History's table
+               * cells) — deliberately out of scope for that issue. */}
+              <NumberField
+                icon="🌿"
+                label={t.dailyEntry.fiberLabel}
+                value={fiber}
+                onChange={onFiberChange}
+                onEnter={onSave}
+              />
+            </div>
+          </FormSection>
 
-          {totalPreview && (
-            <p className="text-sm text-muted-foreground">
-              {t.dailyEntry.computedTotalPrefix} {totalPreview}
-            </p>
-          )}
-          {scaledPreview?.fiberG !== undefined && (
-            <p className="text-sm text-muted-foreground">
-              {t.dailyEntry.fiberLabel}: {scaledPreview.fiberG}
-              {t.dailyEntry.gramsUnit}
-            </p>
-          )}
-          {totalPreview && todayTotalPreview && (
-            <p className="text-sm text-muted-foreground">
-              {todayTotalPreview}
-            </p>
-          )}
-          {totalPreview && macrosInconsistent && (
-            <p className="text-sm text-muted-foreground">
-              {t.dailyEntry.macroMismatchNote}
-            </p>
+          {(totalPreview ||
+            (scaledPreview?.fiberG !== undefined && totalPreview) ||
+            (totalPreview && todayTotalPreview) ||
+            (totalPreview && macrosInconsistent)) && (
+            <div className="flex flex-col gap-1 px-1">
+              {totalPreview && (
+                <p className="text-sm text-muted-foreground">
+                  {t.dailyEntry.computedTotalPrefix} {totalPreview}
+                </p>
+              )}
+              {scaledPreview?.fiberG !== undefined && (
+                <p className="text-sm text-muted-foreground">
+                  {t.dailyEntry.fiberLabel}: {scaledPreview.fiberG}
+                  {t.dailyEntry.gramsUnit}
+                </p>
+              )}
+              {totalPreview && todayTotalPreview && (
+                <p className="text-sm text-muted-foreground">
+                  {todayTotalPreview}
+                </p>
+              )}
+              {totalPreview && macrosInconsistent && (
+                <p className="text-sm text-muted-foreground">
+                  {t.dailyEntry.macroMismatchNote}
+                </p>
+              )}
+            </div>
           )}
 
-          <div className="flex flex-col gap-1.5">
-            <span className="text-sm text-muted-foreground">
-              {t.dailyEntry.itemEmotionLabel}
-            </span>
+          <FormSection heading={t.dailyEntry.itemEmotionLabel}>
             <EmotionPicker
               value={emotion}
               onChange={onEmotionChange}
@@ -375,7 +460,22 @@ export function MealItemEditorSheet({
               contextLabel={name || undefined}
               size="icon-xl"
             />
-          </div>
+          </FormSection>
+
+          <FormSection heading={t.dailyEntry.itemNoteLabel}>
+            <textarea
+              aria-label={t.dailyEntry.itemNoteLabel}
+              placeholder={t.dailyEntry.itemNotePlaceholder}
+              value={note}
+              maxLength={NOTE_MAX_LENGTH}
+              onChange={(e) => onNoteChange(e.target.value)}
+              rows={2}
+              className="w-full resize-none rounded-lg border border-input bg-transparent px-2.5 py-2 text-base outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+            />
+            <span className="self-end text-xs text-muted-foreground">
+              {note.length}/{NOTE_MAX_LENGTH}
+            </span>
+          </FormSection>
         </div>
 
         {/* Footer with the primary action, below the scrollable fields

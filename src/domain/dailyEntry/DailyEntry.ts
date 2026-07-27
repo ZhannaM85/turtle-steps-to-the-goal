@@ -37,6 +37,15 @@ export interface CalorieItem {
    * (CalorieEntry used to carry one shared `emotion` for every item in it,
    * which couldn't tell "loved the pizza, disliked the milk" apart). */
   emotion?: MealEmotion
+  /** Per-dish free-text note (#344), e.g. "extra spicy today" — distinct
+   * from `CalorieEntry.note` (the whole meal's shared note) the same way
+   * `emotion` is distinct from a meal-level reaction. Deliberately not
+   * restored from a `MealItem` suggestion the way its nutrition fields
+   * are (`selectAddItemMealItem`/`selectEditItemMealItem` in
+   * `MealList.tsx`) — same "starts blank regardless of the picked name"
+   * behavior `emotion`/`favorite` already have, since a note is
+   * situational to *this* logging, not a stable fact about the dish. */
+  noteText?: string
 }
 
 export interface CalorieEntry {

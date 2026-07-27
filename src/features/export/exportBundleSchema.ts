@@ -49,6 +49,9 @@ const calorieItemSchema = z.object({
   // Per-dish reaction (#129) — moved here from the meal group so different
   // items in the same meal can carry different reactions.
   emotion: mealEmotionSchema.optional(),
+  // Per-dish free-text note (#344) — same purely-additive reasoning as
+  // fiberG above, distinct from the meal-group's own `note` (below).
+  noteText: z.string().optional(),
 })
 
 const calorieEntrySchema = z.object({

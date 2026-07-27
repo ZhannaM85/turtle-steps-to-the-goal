@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 302,
+    issue: 344,
+    date: '2026-07-27T15:09:02+03:00',
+    en: 'Redesigned the Add Dish form with clearer icon-labeled sections, and added an optional note field for a dish.',
+    ru: 'Обновили форму «Добавить блюдо»: понятные разделы с иконками и новое необязательное поле для заметки о блюде.',
+  },
+  {
     version: 301,
     issue: 346,
     date: '2026-07-27T13:03:00+03:00',

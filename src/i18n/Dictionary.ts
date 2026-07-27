@@ -238,6 +238,19 @@ export interface Dictionary {
      * dish name field in the item editor. */
     itemBrandLabel: string
     itemBrandPlaceholder: string
+    /** #344 — section headings for the redesigned Add Dish form's
+     * card-grouped layout (mockup-driven): "Quantity" groups the per100g/
+     * portion mode toggle with the amount+quantity fields; "Nutrition"
+     * groups protein/fat/carbs/fiber. Nutrition's own heading is mode-aware
+     * — "(per 100g)" only makes sense in that mode, omitted in portion
+     * mode where the typed numbers are already the dish's real total. */
+    itemQuantitySectionLabel: string
+    itemNutritionSectionLabel: (isPer100g: boolean) => string
+    /** Per-dish free-text note (#344), distinct from the meal-group's own
+     * `mealNoteLabel` above — shown in the redesigned Add Dish form's own
+     * card, right below the reaction picker. */
+    itemNoteLabel: string
+    itemNotePlaceholder: string
     deleteItemLabel: string
     addItemButton: string
     emotionLabel: (emotion: 'happy' | 'unhappy' | 'neutral') => string

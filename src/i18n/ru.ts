@@ -131,6 +131,11 @@ export const ru: Dictionary = {
     itemNamePlaceholder: 'Создать блюдо?',
     itemBrandLabel: 'Бренд (необязательно)',
     itemBrandPlaceholder: 'например, Perdue',
+    itemQuantitySectionLabel: 'Количество',
+    itemNutritionSectionLabel: (isPer100g) =>
+      isPer100g ? 'Пищевая ценность (на 100 г)' : 'Пищевая ценность',
+    itemNoteLabel: 'Заметка (необязательно)',
+    itemNotePlaceholder: 'Добавьте заметку...',
     deleteItemLabel: 'Удалить блюдо',
     addItemButton: '+ Добавить блюдо',
     emotionLabel: (emotion) =>

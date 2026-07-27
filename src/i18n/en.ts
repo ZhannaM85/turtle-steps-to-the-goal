@@ -130,6 +130,11 @@ export const en: Dictionary = {
     itemNamePlaceholder: 'Add a dish?',
     itemBrandLabel: 'Brand (optional)',
     itemBrandPlaceholder: 'e.g. Perdue',
+    itemQuantitySectionLabel: 'Quantity',
+    itemNutritionSectionLabel: (isPer100g) =>
+      isPer100g ? 'Nutrition (per 100g)' : 'Nutrition',
+    itemNoteLabel: 'Note (optional)',
+    itemNotePlaceholder: 'Add a note...',
     deleteItemLabel: 'Delete item',
     addItemButton: '+ Add item',
     emotionLabel: (emotion) =>

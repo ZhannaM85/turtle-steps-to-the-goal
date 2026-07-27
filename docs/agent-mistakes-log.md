@@ -144,6 +144,8 @@ future session can see the pattern, not just the count.
 
 | 2026-07-27 | Prompted | `gh issue comment 337 --body "...## Finding\n\n...## Conclusion..."` — the exact same `\n#` inline-body heuristic, in the *same session* where I'd already hit it once for #351 and switched to `--body-file` to fix it | [[feedback_bash_chaining]] — relearning the lesson once in a session isn't sticking; the actual fix is to default to `--body-file` for *any* multi-line `gh issue comment/create` body from the start, not just after hitting the prompt once, since apparently one correction doesn't carry to the next multi-line comment a few tasks later |
 
+| 2026-07-27 | Prompted | `powershell -Command "Start-Sleep -Seconds 2" 2>&1; echo done` while pausing for the dev server to boot for #344's live check — a `;`-chained compound command, plus an unnecessary sleep in the first place (Read on the dev server's own output file would show whatever had printed so far without needing to wait for it) | CLAUDE.md "⚠️ Shell safety" — user asked directly why the prompt fired; redone by reading the server's output file straight away instead of sleeping first |
+
 ## Related standing fixes made because of this log
 
 - `CLAUDE.md` gained a top-of-file "⚠️ Shell safety" callout (2026-07-19).

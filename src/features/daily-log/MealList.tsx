@@ -125,6 +125,8 @@ interface EditItemDraft {
   /** Dietary fiber in grams (#341) — same optional/additive shape as the
    * three macros above. */
   fiber: string
+  /** Per-dish free-text note (#344) — see CalorieItem.noteText. */
+  note: string
   amountG: string
   // Per 100g / Per portion entry mode (#111) — always starts as 'per100g'
   // when opening an existing item for edit, even if it was originally
@@ -168,6 +170,11 @@ function itemDraftFrom(item: CalorieItem): EditItemDraft {
     fat: rates.fat100 === undefined ? '' : String(rates.fat100),
     carbs: rates.carbs100 === undefined ? '' : String(rates.carbs100),
     fiber: rates.fiber100 === undefined ? '' : String(rates.fiber100),
+    // #344 — deliberately not restored from the picked MealItem suggestion
+    // the way the nutrition fields above are; a note is situational to
+    // *this* logging, not a stable fact about the dish, same as
+    // emotion/favorite always starting blank too.
+    note: item.noteText ?? '',
     amountG: String(rates.portions),
     macroMode: 'per100g',
     emotion: item.emotion,
@@ -188,6 +195,7 @@ interface AddRowDraft {
   fat: string
   carbs: string
   fiber: string
+  itemNote: string
   amountG: string
   macroMode: 'per100g' | 'perPortion'
   itemEmotion: MealEmotion | undefined
@@ -208,6 +216,7 @@ function blankItemDraft(): EditItemDraft {
     fat: '',
     carbs: '',
     fiber: '',
+    note: '',
     amountG: '1',
     macroMode: 'per100g',
     emotion: undefined,
@@ -251,6 +260,7 @@ function draftsToItems(drafts: EditItemDraft[]): CalorieItem[] {
         brand: draft.brand.trim() || undefined,
         ...scaled,
         emotion: draft.emotion,
+        noteText: draft.note.trim() || undefined,
       },
     ]
   })
@@ -286,6 +296,7 @@ interface MealListItemProps {
       | 'fat'
       | 'carbs'
       | 'fiber'
+      | 'note'
       | 'amountG',
     value: string,
   ) => void
@@ -718,6 +729,10 @@ function MealListItem({
             onFiberChange={(value) =>
               onEditItemFieldChange(openDraft.id, 'fiber', value)
             }
+            note={openDraft.note}
+            onNoteChange={(value) =>
+              onEditItemFieldChange(openDraft.id, 'note', value)
+            }
             amountG={openDraft.amountG}
             onAmountGChange={(value) =>
               onEditItemFieldChange(openDraft.id, 'amountG', value)
@@ -925,6 +940,10 @@ function MealListItem({
                   </>
                 )}
               </p>
+              {/* #344 — this dish's own note, distinct from the meal
+               * group's own note shown above the item list. Omitted when
+               * unset, same as the other optional per-item details above. */}
+              {item.noteText && <p>{item.noteText}</p>}
             </li>
           )
         })}
@@ -1087,6 +1106,9 @@ export function MealList({
   const [addFat, setAddFat] = useState(initialAddDraft?.fat ?? '')
   const [addCarbs, setAddCarbs] = useState(initialAddDraft?.carbs ?? '')
   const [addFiber, setAddFiber] = useState(initialAddDraft?.fiber ?? '')
+  // Per-dish free-text note (#344) — grouped with the other per-item draft
+  // fields above, same reasoning as addItemEmotion/addItemFavorite.
+  const [addNote, setAddNote] = useState(initialAddDraft?.itemNote ?? '')
   const [addAmountG, setAddAmountG] = useState(initialAddDraft?.amountG ?? '1')
   // Per 100g / Per portion entry mode (#111) — 'per100g' is the default,
   // unchanged behavior. Switching modes converts the currently-typed
@@ -1159,6 +1181,7 @@ export function MealList({
       addFat === '' &&
       addCarbs === '' &&
       addFiber === '' &&
+      addNote === '' &&
       addItemEmotion === undefined &&
       !addItemFavorite &&
       addItemBarcode === undefined
@@ -1174,6 +1197,7 @@ export function MealList({
       fat: addFat,
       carbs: addCarbs,
       fiber: addFiber,
+      itemNote: addNote,
       amountG: addAmountG,
       macroMode: addMacroMode,
       itemEmotion: addItemEmotion,
@@ -1192,6 +1216,7 @@ export function MealList({
     addFat,
     addCarbs,
     addFiber,
+    addNote,
     addAmountG,
     addMacroMode,
     addItemEmotion,
@@ -1384,6 +1409,7 @@ export function MealList({
     setAddFat('')
     setAddCarbs('')
     setAddFiber('')
+    setAddNote('')
     setAddMacroMode('per100g')
     setAddItemName('')
     setAddItemBrand('')
@@ -1406,6 +1432,7 @@ export function MealList({
       fat: addFat,
       carbs: addCarbs,
       fiber: addFiber,
+      note: addNote,
       amountG: addAmountG,
       macroMode: addMacroMode,
       emotion: addItemEmotion,
@@ -1706,6 +1733,7 @@ export function MealList({
         fat: rates.fat100 === undefined ? '' : String(rates.fat100),
         carbs: rates.carbs100 === undefined ? '' : String(rates.carbs100),
         fiber: rates.fiber100 === undefined ? '' : String(rates.fiber100),
+        note: '',
         amountG: String(rates.portions),
         macroMode: 'per100g',
         emotion: value.emotion,
@@ -1739,6 +1767,7 @@ export function MealList({
       | 'fat'
       | 'carbs'
       | 'fiber'
+      | 'note'
       | 'amountG',
     value: string,
   ) {
@@ -2434,6 +2463,8 @@ export function MealList({
           onCarbsChange={setAddCarbs}
           fiber={addFiber}
           onFiberChange={setAddFiber}
+          note={addNote}
+          onNoteChange={setAddNote}
           amountG={addAmountG}
           onAmountGChange={setAddAmountG}
           macroMode={addMacroMode}

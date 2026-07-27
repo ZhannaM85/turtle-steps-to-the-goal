@@ -173,6 +173,23 @@ describe('MealList', () => {
     expect(next[0].items[0].fiberG).toBe(5)
   })
 
+  // #344 — per-dish free-text note, distinct from the meal group's own note.
+  it('records the entered note on a new item', async () => {
+    const user = userEvent.setup()
+    const onChange = vi.fn()
+    render(<MealList calorieEntries={[]} date="2026-03-01" onChange={onChange} />, {
+      wrapper: MemoryRouter,
+    })
+
+    await user.click(screen.getByRole('button', { name: '+ Add item' }))
+    await user.type(screen.getByLabelText('kcal/100g'), '200')
+    await user.type(screen.getByLabelText('Note (optional)'), 'extra spicy today')
+    await user.click(screen.getByRole('button', { name: 'Save' }))
+
+    const next = onChange.mock.calls[0][0] as CalorieEntry[]
+    expect(next[0].items[0].noteText).toBe('extra spicy today')
+  })
+
   // #260: the draft's own preview ("Total: 200 kcal", #98) already existed —
   // this is the new addition, showing what today's overall total would
   // become, not just this one item's own total.
@@ -442,6 +459,66 @@ describe('MealList', () => {
       await user.click(screen.getByRole('button', { name: 'Edit item' }))
 
       expect(screen.getByLabelText('Brand (optional)')).toHaveValue('Chobani')
+    })
+
+    // #344 — per-dish note, same "pre-fills on reopen" coverage as brand
+    // above.
+    it("pre-fills an existing item's note when reopening its editor", async () => {
+      const user = userEvent.setup()
+      const calorieEntries: CalorieEntry[] = [
+        {
+          id: 'c1',
+          items: [
+            {
+              id: 'i1',
+              name: 'Soup',
+              amountKcal: 100,
+              noteText: 'extra spicy today',
+            },
+          ],
+          createdAt: '2026-01-01T00:00:00.000Z',
+        },
+      ]
+      render(
+        <MealList
+          calorieEntries={calorieEntries}
+          date="2026-03-01"
+          onChange={vi.fn()}
+          focusMealId="c1"
+          focusMealPosition={1}
+          onFocusedMealDone={vi.fn()}
+        />,
+        { wrapper: MemoryRouter },
+      )
+
+      await user.click(screen.getByRole('button', { name: 'Edit item' }))
+
+      expect(screen.getByLabelText('Note (optional)')).toHaveValue(
+        'extra spicy today',
+      )
+    })
+
+    it('shows a saved note underneath the dish in the read-only view', () => {
+      const calorieEntries: CalorieEntry[] = [
+        {
+          id: 'c1',
+          items: [
+            {
+              id: 'i1',
+              name: 'Soup',
+              amountKcal: 100,
+              noteText: 'extra spicy today',
+            },
+          ],
+          createdAt: '2026-01-01T00:00:00.000Z',
+        },
+      ]
+      render(
+        <MealList calorieEntries={calorieEntries} date="2026-03-01" onChange={vi.fn()} />,
+        { wrapper: MemoryRouter },
+      )
+
+      expect(screen.getByText('extra spicy today')).toBeInTheDocument()
     })
   })
 
