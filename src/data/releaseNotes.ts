@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 296,
+    issue: 348,
+    date: '2026-07-27T12:41:00+03:00',
+    en: 'The body composition chart now shows real y-axis values when exactly one metric is selected, instead of none.',
+    ru: 'График состава тела теперь показывает реальные значения на оси Y, когда выбран ровно один показатель, а не пусто.',
+  },
+  {
     version: 295,
     issue: 332,
     date: '2026-07-24T11:05:00+03:00',
