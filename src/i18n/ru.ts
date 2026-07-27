@@ -53,6 +53,8 @@ export const ru: Dictionary = {
     dateLabel: 'Дата',
     previousDayLabel: 'Предыдущий день',
     nextDayLabel: 'Следующий день',
+    startTodayEarlyBanner: 'Уже наступил новый день.',
+    startTodayEarlyButton: 'Начать сегодняшний день сейчас',
     goalRenewalReminder:
       'Цель на эту неделю пора обновить — стоит заглянуть и проверить.',
     reviewGoalLink: 'Посмотреть цель',

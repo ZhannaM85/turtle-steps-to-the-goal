@@ -75,6 +75,14 @@ export function TodayScreen() {
   function todayIso() {
     return format(effectiveDateFor(new Date(), dayStartTime), 'yyyy-MM-dd')
   }
+  // #345 — the real calendar date, ignoring `dayStartTime` entirely.
+  // Differs from `todayIso()` only in the gap between midnight and the
+  // configured start time, i.e. exactly when someone might want to start
+  // logging today early rather than wait for the boundary they set for
+  // themselves. A plain date-only comparison (no time-of-day check needed)
+  // since `effectiveDateFor` only ever holds `todayIso()` one calendar day
+  // behind, never more.
+  const realTodayIso = format(new Date(), 'yyyy-MM-dd')
   // #200: lives in the URL (?date=), not local useState — a meal pencil
   // navigates away to /entry/:date/meal/:mealId and calls navigate(-1) to
   // return, which remounts this screen from scratch. Local state doesn't
@@ -390,6 +398,25 @@ export function TodayScreen() {
             <ChevronRight aria-hidden="true" />
           </Button>
         </div>
+        {/* #345 — only while viewing the effective "today" itself; once
+         * the user pages back to an earlier day, offering to jump the
+         * calendar forward there wouldn't make sense. Disappears on its
+         * own once the real clock reaches dayStartTime, since realTodayIso
+         * and todayIso() converge at that point with no user action. */}
+        {realTodayIso !== todayIso() && date === todayIso() && (
+          <div className="flex items-center justify-between gap-2 rounded-lg border border-border px-3 py-2 text-sm text-muted-foreground">
+            <span>{t.today.startTodayEarlyBanner}</span>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="shrink-0"
+              onClick={() => setDate(realTodayIso)}
+            >
+              {t.today.startTodayEarlyButton}
+            </Button>
+          </div>
+        )}
       </div>
 
       {goalStatus === 'loading' || goalStatus === 'idle' ? (

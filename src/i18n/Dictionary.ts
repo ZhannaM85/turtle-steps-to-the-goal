@@ -63,6 +63,14 @@ export interface Dictionary {
      * opening the date picker to check yesterday/tomorrow. */
     previousDayLabel: string
     nextDayLabel: string
+    /** #345 — shown only when the real calendar date has already turned
+     * over but the configured day-start time (#298) hasn't been reached
+     * yet, so `todayIso()` still resolves to the previous day. Lets that
+     * one occasion cross the boundary early without touching the
+     * Settings-level `dayStartTime` itself, which would apply to every
+     * future day too. */
+    startTodayEarlyBanner: string
+    startTodayEarlyButton: string
     goalRenewalReminder: string
     reviewGoalLink: string
     targetMetBanner: string
