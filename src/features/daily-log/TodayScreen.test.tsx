@@ -1547,9 +1547,9 @@ describe('TodayScreen', () => {
       const stepsCard = findStatCardByLabel('Steps')
       expect(within(stepsCard).getByText('8,432')).toBeInTheDocument()
 
+      // #358 — shown as hours+minutes ("7h 30m"), not decimal ("7.5h").
       const sleepCard = findStatCardByLabel('Sleep')
-      expect(within(sleepCard).getByText('7.5')).toBeInTheDocument()
-      expect(within(sleepCard).getByText('h')).toBeInTheDocument()
+      expect(within(sleepCard).getByText('7h 30m')).toBeInTheDocument()
     })
 
     // #353 — reported live right after validating #343: deep sleep is
@@ -1569,7 +1569,7 @@ describe('TodayScreen', () => {
 
       await screen.findByRole('button', { name: 'Reorder' })
       const sleepCard = findStatCardByLabel('Sleep')
-      expect(within(sleepCard).getByText('2.3h deep sleep')).toBeInTheDocument()
+      expect(within(sleepCard).getByText('2h 18m deep sleep')).toBeInTheDocument()
     })
 
     it('omits the deep sleep description when only the total was logged', async () => {
@@ -1632,7 +1632,9 @@ describe('TodayScreen', () => {
           .getAllByText('Steps')
           .every((el) => !el.closest('[data-slot="card"]')),
       ).toBe(true)
-      expect(within(findStatCardByLabel('Sleep')).getByText('7.5')).toBeInTheDocument()
+      expect(
+        within(findStatCardByLabel('Sleep')).getByText('7h 30m'),
+      ).toBeInTheDocument()
     })
   })
 

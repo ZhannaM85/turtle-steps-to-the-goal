@@ -896,7 +896,7 @@ _Reported live with a screenshot right after validating #353: the Sleep card sho
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#358](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/358) | 📋 Not started | Show sleep duration as hours+minutes, not decimal hours | Filed at report time, not yet investigated. `splitHoursMinutes`/`t.dailyEntry.sleepSummary` already do this exact conversion for the editable field's own read-only display — the Sleep `StatCard`'s main value and its new deep-sleep description (#353) both currently use plain decimal `formatNumber`. |
+| [#358](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/358) | 🔍 Pending validation | Show sleep duration as hours+minutes, not decimal hours | `splitHoursMinutes` (previously a private helper inside `DailyEntryForm.tsx`, #69) moved to new `shared/lib/sleepDuration.ts` alongside a new `formatSleepDuration(value, hoursUnit, minutesUnit)` — `TodayScreen.tsx`'s Sleep `StatCard` now uses it for both the main value ("9h 23m") and the #353 deep-sleep description ("2h 18m deep sleep"), replacing the plain decimal `formatNumber` both used before. `DailyEntryForm.tsx` now imports the moved function instead of defining it locally — its own read-only Sleep display (`sleepSummary`) is unchanged, already used the same conversion. New `sleepDuration.test.ts` covers the conversion directly; existing `TodayScreen.test.tsx` assertions updated to the new format. Not yet confirmed on-device by the user. |
 
 ---
 
@@ -906,7 +906,7 @@ _Reported live with a screenshot right after validating #356: the new "Reset ord
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#359](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/359) | 🔍 Pending validation | Disable 'Reset order' button when order already matches default | Both `DashboardScreen.tsx`/`TodayScreen.tsx` now compute a local `isDefaultOrder`/`isDefaultCardOrder` (`order.every((key, i) => key === DEFAULT_*_ORDER[i])`, safe without a length check since the stores' own reconciliation always keeps `order`'s length in sync with the current default array) and pass it to the Reset button's `disabled` prop. New tests on both screens cover the disabled-when-default and enabled-when-not-default cases. Not yet confirmed on-device by the user. |
+| [#359](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/359) | ✅ Done | Disable 'Reset order' button when order already matches default | Confirmed on-device by the user. Both `DashboardScreen.tsx`/`TodayScreen.tsx` now compute a local `isDefaultOrder`/`isDefaultCardOrder` (`order.every((key, i) => key === DEFAULT_*_ORDER[i])`, safe without a length check since the stores' own reconciliation always keeps `order`'s length in sync with the current default array) and pass it to the Reset button's `disabled` prop. New tests on both screens cover the disabled-when-default and enabled-when-not-default cases. |
 
 ---
 
@@ -917,6 +917,16 @@ _Follow-up to #354, reported live with two screenshots right after confirming it
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#360](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/360) | 📋 Not started | Extend Dashboard section border to every section, not just correlations | Filed at report time, not yet investigated. Likely the same mechanical one-line-per-file change #354 already used, extended to the ~11 remaining section components. |
+
+---
+
+## Tier 67 — Live feedback: #355 regression, title truncation (2026-07-27)
+
+_Reported live with a screenshot: Dashboard section titles now truncate with an ellipsis ("Калории и изменение …") instead of showing the full text._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#361](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/361) | 📋 Not started | Dashboard section titles get truncated (regression from #355) | Filed at report time, not yet investigated. Self-identified likely cause: #355's `SectionTitleWithToggle` change added a `truncate` class to the title `<h2>` (to keep a long title from pushing the eye-toggle/action buttons off-screen once the drag handle also shares that row) — that's what's now clipping every title. |
 
 ---
 

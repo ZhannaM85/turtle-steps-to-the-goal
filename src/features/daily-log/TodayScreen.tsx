@@ -43,6 +43,7 @@ import {
   usePreviousDayEntry,
 } from '@/shared/hooks'
 import { formatKcal, formatMacroGrams, formatMl } from '@/shared/lib/macroDisplay'
+import { formatSleepDuration } from '@/shared/lib/sleepDuration'
 import { Button } from '@/shared/ui/button'
 import { EmptyState } from '@/shared/ui/empty-state'
 import { InfoTooltip } from '@/shared/ui/info-tooltip'
@@ -617,13 +618,20 @@ export function TodayScreen() {
       (sectionVisible.todaySleep ? (
         <StatCard
           label={t.dailyEntry.sleepLabel}
-          value={formatNumber(sleepValue, locale, 1)}
-          unit={t.dailyEntry.hoursUnit}
+          value={formatSleepDuration(
+            sleepValue,
+            t.dailyEntry.hoursUnit,
+            t.dailyEntry.minutesUnit,
+          )}
           description={
             deepSleepValue === undefined
               ? undefined
               : t.today.deepSleepDescription(
-                  `${formatNumber(deepSleepValue, locale, 1)}${t.dailyEntry.hoursUnit}`,
+                  formatSleepDuration(
+                    deepSleepValue,
+                    t.dailyEntry.hoursUnit,
+                    t.dailyEntry.minutesUnit,
+                  ),
                 )
           }
           action={statCardAction('todaySleep', t.dailyEntry.sleepLabel)}

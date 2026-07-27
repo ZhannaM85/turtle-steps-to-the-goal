@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 314,
+    issue: 358,
+    date: '2026-07-27T19:49:31+03:00',
+    en: "Today's Sleep card now shows duration in hours and minutes (e.g. \"9h 23m\") instead of a decimal.",
+    ru: 'Карточка «Сон» на главном экране теперь показывает продолжительность в часах и минутах (например, «9ч 23м»), а не десятичным числом.',
+  },
+  {
     version: 313,
     issue: 359,
     date: '2026-07-27T19:28:26+03:00',

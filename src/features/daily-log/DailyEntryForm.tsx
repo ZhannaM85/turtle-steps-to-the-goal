@@ -17,6 +17,7 @@ import {
 import { DAY_EMOTIONS } from '@/shared/lib/emotionIcons'
 import { macrosSummaryText } from '@/shared/lib/macroDisplay'
 import { parseNumberInput } from '@/shared/lib/parseNumberInput'
+import { splitHoursMinutes } from '@/shared/lib/sleepDuration'
 import { Button } from '@/shared/ui/button'
 import { Input } from '@/shared/ui/input'
 import { ToggleGroup, ToggleGroupItem } from '@/shared/ui/toggle-group'
@@ -68,18 +69,11 @@ export interface DailyEntryFormProps {
 /** Sleep is stored as decimal hours (`sleepHours`/`deepSleepHours`), but
  * entered as separate hours+minutes fields (#69) — typing "7.5" on a mobile
  * numeric keypad was awkward, whole hours + whole minutes is the natural
- * way people think about sleep duration. These two functions are the only
- * place that conversion happens. */
-function splitHoursMinutes(value: number | undefined): {
-  hours: string
-  minutes: string
-} {
-  if (value === undefined) return { hours: '', minutes: '' }
-  const hours = Math.floor(value)
-  const minutes = Math.round((value - hours) * 60)
-  return { hours: String(hours), minutes: String(minutes) }
-}
-
+ * way people think about sleep duration. `splitHoursMinutes` moved to
+ * `shared/lib/sleepDuration.ts` (#358) so `TodayScreen.tsx`'s Sleep
+ * `StatCard` can reuse the identical conversion for its own read-only
+ * display; this combining direction (form input -> decimal) is still only
+ * needed here. */
 function combineHoursMinutes(
   hoursText: string,
   minutesText: string,
