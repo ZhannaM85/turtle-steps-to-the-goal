@@ -7,6 +7,7 @@ import {
   useCycleTrackingStore,
   useDashboardChartVisibilityStore,
   useDigestionTrackingStore,
+  useTrackedFieldsStore,
 } from '@/stores'
 import { CustomChartView } from './CustomChartView'
 
@@ -42,6 +43,16 @@ beforeEach(() => {
       hip: 'line',
       bodyFat: 'line',
       fastingHours: 'line',
+    },
+  })
+  useTrackedFieldsStore.setState({
+    tracked: {
+      sleep: true,
+      steps: true,
+      bodyMeasurements: true,
+      note: true,
+      mood: true,
+      bodyComposition: true,
     },
   })
 })
@@ -110,6 +121,39 @@ describe('CustomChartView', () => {
     expect(
       screen.queryByRole('button', { name: 'Constipation' }),
     ).not.toBeInTheDocument()
+  })
+
+  // #351 — reported live: waist/hip stayed offered here even with "Body
+  // measurements" tracking disabled in Settings, unlike the boolean
+  // period/constipation series above.
+  it('hides waist/hip when Body measurements tracking is disabled, keeping Body fat (gated separately)', () => {
+    useTrackedFieldsStore.setState((state) => ({
+      tracked: { ...state.tracked, bodyMeasurements: false },
+    }))
+    render(<CustomChartView entries={[entry('2026-03-01', { weightKg: 80 })]} />)
+
+    expect(
+      screen.queryByRole('button', { name: 'Waist' }),
+    ).not.toBeInTheDocument()
+    expect(
+      screen.queryByRole('button', { name: 'Hip' }),
+    ).not.toBeInTheDocument()
+    expect(
+      screen.getByRole('button', { name: 'Body fat' }),
+    ).toBeInTheDocument()
+  })
+
+  it('hides Body fat when Body composition tracking is disabled, keeping waist/hip (gated separately)', () => {
+    useTrackedFieldsStore.setState((state) => ({
+      tracked: { ...state.tracked, bodyComposition: false },
+    }))
+    render(<CustomChartView entries={[entry('2026-03-01', { weightKg: 80 })]} />)
+
+    expect(
+      screen.queryByRole('button', { name: 'Body fat' }),
+    ).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Waist' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Hip' })).toBeInTheDocument()
   })
 
   it('shows the period checkbox once cycle tracking is enabled', () => {

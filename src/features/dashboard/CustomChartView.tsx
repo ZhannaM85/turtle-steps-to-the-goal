@@ -32,6 +32,7 @@ import {
   useCycleTrackingStore,
   useDashboardChartVisibilityStore,
   useDigestionTrackingStore,
+  useTrackedFieldsStore,
   useUnitStore,
   type ChartSeriesType,
 } from '@/stores'
@@ -226,6 +227,22 @@ export function CustomChartView({ entries }: CustomChartViewProps) {
       (series.key === 'onPeriod' && cycleTrackingEnabled) ||
       (series.key === 'hadConstipation' && digestionTrackingEnabled),
   )
+  // #351 — reported live: waist/hip stayed offered here even with "Body
+  // measurements" tracking turned off in Settings, unlike the boolean
+  // series above (which already gate on their own opt-in trackers).
+  // bodyFat gates on "Body composition" instead, not "Body measurements"
+  // — DailyEntryForm.tsx moved its own form field into that section back
+  // in #263, even though it's still stored on the same DailyEntry as
+  // waist/hip. An already-selected key isn't force-removed from
+  // `selectedNumeric` if tracking is turned off after the fact — same
+  // "only affects what's offered going forward" behavior the boolean
+  // series already have.
+  const trackedFields = useTrackedFieldsStore((state) => state.tracked)
+  const availableNumericKeys = NUMERIC_SERIES_KEYS.filter((key) => {
+    if (key === 'waist' || key === 'hip') return trackedFields.bodyMeasurements
+    if (key === 'bodyFat') return trackedFields.bodyComposition
+    return true
+  })
 
   // #195: persisted across navigation, not local useState — revisiting
   // Dashboard used to silently reset back to the weight+calories/all-lines
@@ -332,7 +349,7 @@ export function CustomChartView({ entries }: CustomChartViewProps) {
         }}
         className="w-fit flex-wrap"
       >
-        {NUMERIC_SERIES_KEYS.map((key) => (
+        {availableNumericKeys.map((key) => (
           <ToggleGroupItem key={key} value={key}>
             {seriesConfig[key].label}
           </ToggleGroupItem>
