@@ -876,7 +876,7 @@ _Reported live with two screenshots (Today's "Порядок карточек" b
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#356](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/356) | 🔍 Pending validation | Add a way to revert Today/Dashboard card order back to default | Both `todayCardOrderStore.ts`/`dashboardSectionOrderStore.ts` gained a `resetOrder()` action (`set({ order: DEFAULT_* })`, already-exported constants) — no new reconciliation logic needed. Each screen's reorder-mode header gained a ghost "Reset order" button, shown only while `isReordering`/`isReorderingCards` is true, next to the existing Save button. No confirm step — resetting is a low-stakes, easily-undoable UI preference (immediately re-draggable), same tier as toggling a section's visibility. New tests on both screens cover the button's visibility (reorder-mode-only) and that it actually restores the default order. Not yet confirmed on-device by the user. |
+| [#356](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/356) | ✅ Done | Add a way to revert Today/Dashboard card order back to default | Confirmed on-device by the user — follow-up filed as [#359](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/359) (Reset button should disable once already default). Both `todayCardOrderStore.ts`/`dashboardSectionOrderStore.ts` gained a `resetOrder()` action (`set({ order: DEFAULT_* })`, already-exported constants) — no new reconciliation logic needed. Each screen's reorder-mode header gained a ghost "Reset order" button, shown only while `isReordering`/`isReorderingCards` is true, next to the existing Save button. No confirm step — resetting is a low-stakes, easily-undoable UI preference (immediately re-draggable), same tier as toggling a section's visibility. New tests on both screens cover the button's visibility (reorder-mode-only) and that it actually restores the default order. |
 
 ---
 
@@ -897,6 +897,16 @@ _Reported live with a screenshot right after validating #353: the Sleep card sho
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#358](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/358) | 📋 Not started | Show sleep duration as hours+minutes, not decimal hours | Filed at report time, not yet investigated. `splitHoursMinutes`/`t.dailyEntry.sleepSummary` already do this exact conversion for the editable field's own read-only display — the Sleep `StatCard`'s main value and its new deep-sleep description (#353) both currently use plain decimal `formatNumber`. |
+
+---
+
+## Tier 65 — Live feedback while validating #356 (2026-07-27)
+
+_Reported live with a screenshot right after validating #356: the new "Reset order"/"Сбросить порядок" button stays enabled even when the order is already default — clicking it does nothing visible, so the user keeps tapping with no feedback._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#359](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/359) | 📋 Not started | Disable 'Reset order' button when order already matches default | Filed at report time, not yet investigated. Both order stores already export their own default-order constant to compare the current `order` against. |
 
 ---
 
