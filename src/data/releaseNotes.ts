@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 321,
+    issue: 345,
+    date: '2026-07-27T10:58:28+03:00',
+    en: "If it's already a new day before your configured start time, you can now start today's log early with one tap instead of waiting.",
+    ru: 'Если уже наступил новый день, а настроенное время начала ещё не пришло, теперь можно начать сегодняшний журнал раньше одним нажатием, не дожидаясь.',
+  },
+  {
     version: 320,
     issue: 364,
     date: '2026-07-27T22:39:06+03:00',
