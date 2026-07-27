@@ -142,6 +142,8 @@ future session can see the pattern, not just the count.
 
 | 2026-07-27 | Prompted | `gh issue create --title "..." --body "...## Confirmed root cause\n\n...## Ask..."` — a multi-line inline `--body` with `##` headings right after blank lines, the exact same "newline immediately followed by `#`" shape already logged once on 2026-07-20 | [[feedback_bash_chaining]] / that same 2026-07-20 entry already says to use `gh issue --body-file <path>` for multi-line bodies specifically to avoid this — used inline `--body` again anyway; corrected immediately by writing the body to a scratchpad file and re-running with `--body-file` |
 
+| 2026-07-27 | Prompted | `gh issue comment 337 --body "...## Finding\n\n...## Conclusion..."` — the exact same `\n#` inline-body heuristic, in the *same session* where I'd already hit it once for #351 and switched to `--body-file` to fix it | [[feedback_bash_chaining]] — relearning the lesson once in a session isn't sticking; the actual fix is to default to `--body-file` for *any* multi-line `gh issue comment/create` body from the start, not just after hitting the prompt once, since apparently one correction doesn't carry to the next multi-line comment a few tasks later |
+
 ## Related standing fixes made because of this log
 
 - `CLAUDE.md` gained a top-of-file "⚠️ Shell safety" callout (2026-07-19).
