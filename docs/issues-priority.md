@@ -846,7 +846,7 @@ _Reported live with a screenshot right after validating #343 on-device: Today's 
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#353](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/353) | 🔍 Pending validation | Sleep summary tile on Today doesn't show deep sleep | `TodayScreen.tsx`'s Sleep `StatCard` gained a `description` line ("2.7h deep sleep") from `entry?.deepSleepHours`, using `StatCard`'s existing `description` prop rather than a new widget — same "primary number + secondary detail" shape other cards with a description already use. Omitted entirely when deep sleep wasn't logged (undefined), not shown as a dash. New `t.today.deepSleepDescription(hours)` key. New tests cover both the shown and omitted cases. Not yet confirmed on-device by the user. |
+| [#353](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/353) | ✅ Done | Sleep summary tile on Today doesn't show deep sleep | Confirmed on-device by the user — follow-up filed as [#358](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/358) (decimal-hours display, not this issue's own scope). `TodayScreen.tsx`'s Sleep `StatCard` gained a `description` line ("2.7h deep sleep") from `entry?.deepSleepHours`, using `StatCard`'s existing `description` prop rather than a new widget — same "primary number + secondary detail" shape other cards with a description already use. Omitted entirely when deep sleep wasn't logged (undefined), not shown as a dash. New `t.today.deepSleepDescription(hours)` key. New tests cover both the shown and omitted cases. |
 
 ---
 
@@ -856,7 +856,7 @@ _Reported live with a screenshot: Dashboard's correlation views (calories-vs-wei
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#354](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/354) | 📋 Not started | Dashboard correlation sections need a visual border to separate them | Filed at report time, not yet investigated. Affects every existing correlation view, not just one. |
+| [#354](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/354) | 🔍 Pending validation | Dashboard correlation sections need a visual border to separate them | All 7 named views (`CorrelationView`, `LateMealCorrelationView`, `MealFrequencyCorrelationView`, `FastingWindowCorrelationView`, `SleepCorrelationView`, `StepsCorrelationView`, `ProteinCorrelationView`) share the identical `flex flex-col gap-1.5` root wrapper — a mechanical, one-line `className` addition per file (`rounded-lg border border-border p-3`, same treatment `CustomCorrelationView.tsx` (#336) already established for its own new cards) rather than a structural change. **Deliberately scoped to just these 7**, matching the issue's own filed scope — every other Dashboard section (trend charts, `CustomChartView`, summary cards) is unchanged; if the same treatment is wanted app-wide, that's its own follow-up rather than a silent scope expansion here. All 57 existing tests across the 7 views pass unchanged (a pure styling change, nothing behavioral to newly test). Not yet confirmed on-device by the user. |
 
 ---
 
@@ -887,6 +887,16 @@ _User asked directly (not from a screenshot): meal "time eaten" should default t
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#357](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/357) | 📋 Not started | Pre-populate meal time-eaten by default, backfill missing times where possible | Filed at report time, not yet investigated. Deliberately deferred per the user's own instruction — do not start until other queued work is done. Reverses #82's own "blank by default" decision; flagged in the issue for whoever implements it to re-confirm that reasoning before proceeding. |
+
+---
+
+## Tier 64 — Live feedback while validating #353 (2026-07-27)
+
+_Reported live with a screenshot right after validating #353: the Sleep card shows both total and deep sleep as decimal hours ("9,4 ч" / "2,7ч глубокого сна"), but sleep is naturally measured in hours+minutes, matching how the app's own editable Sleep field already displays it ("9ч 23м сна · 2ч 42м глубокого")._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#358](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/358) | 📋 Not started | Show sleep duration as hours+minutes, not decimal hours | Filed at report time, not yet investigated. `splitHoursMinutes`/`t.dailyEntry.sleepSummary` already do this exact conversion for the editable field's own read-only display — the Sleep `StatCard`'s main value and its new deep-sleep description (#353) both currently use plain decimal `formatNumber`. |
 
 ---
 
