@@ -5,6 +5,14 @@ import type { MealItem } from '@/domain/mealItem'
 import type { Recipe } from '@/domain/recipe'
 import { RecipeEditorDialog } from './RecipeEditorDialog'
 
+// The "Find food" test below mounts FoodPickerDialog, whose food list has
+// grown to 300+ items (#78) — same reasoning FoodPickerDialog.test.tsx's
+// own file-level vi.setConfig already documents: the default 5s timeout is
+// too tight for that list's render/transform under full-suite parallel
+// load, even though it's fast in isolation. Confirmed live: this test
+// timed out at exactly 5000ms during a full-suite run.
+vi.setConfig({ testTimeout: 25000 })
+
 describe('RecipeEditorDialog', () => {
   it('starts blank when adding a new recipe', () => {
     render(

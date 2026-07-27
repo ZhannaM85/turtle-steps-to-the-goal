@@ -25,6 +25,27 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 301,
+    issue: 346,
+    date: '2026-07-27T13:03:00+03:00',
+    en: 'Added a Features page (linked from About) with a scannable summary of everything the app can do.',
+    ru: 'Добавили страницу «Возможности» (ссылка из раздела «О приложении») со списком всего, что умеет приложение.',
+  },
+  {
+    version: 300,
+    issue: 340,
+    date: '2026-07-27T13:03:00+03:00',
+    en: 'A food you just logged now sorts near the top of the food picker instead of getting buried alphabetically.',
+    ru: 'Только что записанный продукт теперь появляется ближе к началу списка при поиске еды, а не теряется по алфавиту.',
+  },
+  {
+    version: 299,
+    issue: 312,
+    date: '2026-07-27T13:03:00+03:00',
+    en: 'Added a full privacy policy page.',
+    ru: 'Добавили полную страницу политики конфиденциальности.',
+  },
+  {
     version: 298,
     issue: 341,
     date: '2026-07-27T12:50:00+03:00',
