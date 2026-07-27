@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 307,
+    issue: 338,
+    date: '2026-07-27T16:24:10+03:00',
+    en: 'Added a new Dashboard correlation: how the number of meals logged in a day relates to next-day weight change.',
+    ru: 'Добавили новую корреляцию на дашборде: как количество приёмов пищи за день связано с изменением веса на следующий день.',
+  },
+  {
     version: 306,
     issue: 351,
     date: '2026-07-27T16:14:54+03:00',
