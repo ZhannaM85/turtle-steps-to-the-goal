@@ -140,6 +140,8 @@ future session can see the pattern, not just the count.
 
 | 2026-07-27 | Instruction miss | Found a real timeout race in `ExportSection.test.tsx` while investigating an unrelated full-suite failure (during #339/#340), fixed and committed it (56ab633) directly — no GitHub issue filed at all, for a fix that wasn't the one already-filed issue being worked | AGENT_WORKFLOW.md contract item 1, "Issue-first — the full sequence" — caught by the user pointing at the commit graph (no `#NNN` in that one commit's message, unlike every other commit around it); corrected by filing #349 retroactively and closing it immediately, since the fix was already shipped |
 
+| 2026-07-27 | Prompted | `gh issue create --title "..." --body "...## Confirmed root cause\n\n...## Ask..."` — a multi-line inline `--body` with `##` headings right after blank lines, the exact same "newline immediately followed by `#`" shape already logged once on 2026-07-20 | [[feedback_bash_chaining]] / that same 2026-07-20 entry already says to use `gh issue --body-file <path>` for multi-line bodies specifically to avoid this — used inline `--body` again anyway; corrected immediately by writing the body to a scratchpad file and re-running with `--body-file` |
+
 ## Related standing fixes made because of this log
 
 - `CLAUDE.md` gained a top-of-file "⚠️ Shell safety" callout (2026-07-19).

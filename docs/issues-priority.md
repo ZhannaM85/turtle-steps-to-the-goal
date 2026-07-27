@@ -829,6 +829,17 @@ _Filed and closed retroactively per direct user feedback — the fix itself (com
 
 ---
 
+## Tier 58 — Live feedback while validating #347/#348 (2026-07-27)
+
+_Reported live with two screenshots right after validating #347/#348 on-device: (1) the comparison chart still shows a solid black bar for a different series once "Процент жира"/body fat % is switched to bar mode; (2) "Талия"/"Бёдра" (waist/hip) still appear as selectable comparison-chart series even though "Измерения тела" (Body measurements) is turned off in Settings' "What to track" grid._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#350](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/350) | 📋 Not started | Body fat % bar series still renders as black in the comparison chart | #347 only gave fastingHours (`--chart-5`) its own color; bodyFat still uses `--chart-4` (`oklch(0.371 0 0)`), the second-darkest of the same five achromatic slots — likely the identical "reads as black filled solid as a bar" problem, just not originally reported. Also worth checking waist/hip (`--chart-2`/`--chart-3`) in bar mode while at it. |
+| [#351](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/351) | 📋 Not started | Waist/hip stay selectable in the comparison chart even when Body measurements tracking is disabled | Confirmed: `CustomChartView.tsx`'s `useNumericSeriesConfig()` has no `useTrackedFieldsStore` gating at all for waist/hip/bodyFat, unlike the chart's boolean period/constipation series, which already only appear when their own opt-in trackers are enabled. |
+
+---
+
 ## Private (no public GitHub issue, by request)
 
 _Filed and built without a public issue at the user's explicit request — the repo is public, and this one's more personal than the rest. Still documented normally here per the project's usual close-out process; see [[feedback_issue_first]]'s exception #2 in memory for why._
