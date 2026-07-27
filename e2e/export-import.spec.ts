@@ -42,7 +42,12 @@ test('exports a backup, clears all data, then re-imports it', async ({ page }) =
   await expect(page.getByText('Breakfast — 300 kcal')).not.toBeVisible()
 
   await page.goto('/settings')
-  await page.locator('input[type="file"]').setInputFiles(backupPath!)
+  // Scoped to the JSON backup input specifically (#365 added a second
+  // `input[type="file"]` for the Zepp Life zip import, right below this
+  // one — an unscoped locator now matches both and fails strict mode).
+  await page
+    .locator('input[type="file"][accept="application/json"]')
+    .setInputFiles(backupPath!)
   await expect(page.getByText(/^Imported /)).toBeVisible()
 
   await page.goto('/')
