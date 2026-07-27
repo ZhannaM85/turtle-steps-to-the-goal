@@ -1770,5 +1770,48 @@ describe('TodayScreen', () => {
         DEFAULT_TODAY_CARD_ORDER,
       )
     })
+
+    // #359 — reported live: the button stayed enabled even when the order
+    // already matched the default, so clicking it did nothing visible.
+    it('disables Reset order when the order already matches the default', async () => {
+      const user = userEvent.setup()
+      await useDailyEntryStore.getState().saveEntry(makeEntry({ steps: 8432 }))
+      useDailyEntryStore.setState({ entry: null, date: null, status: 'idle' })
+
+      render(
+        <MemoryRouter>
+          <TodayScreen />
+        </MemoryRouter>,
+      )
+
+      await screen.findByRole('button', { name: 'Reorder' })
+      await user.click(screen.getByRole('button', { name: 'Reorder' }))
+
+      expect(screen.getByRole('button', { name: 'Reset order' })).toBeDisabled()
+    })
+
+    it('enables Reset order once the order no longer matches the default', async () => {
+      const user = userEvent.setup()
+      await useDailyEntryStore
+        .getState()
+        .saveEntry(makeEntry({ steps: 8432, sleepHours: 7.5 }))
+      useDailyEntryStore.setState({ entry: null, date: null, status: 'idle' })
+      useTodayCardOrderStore.setState({
+        order: [...DEFAULT_TODAY_CARD_ORDER].reverse(),
+      })
+
+      render(
+        <MemoryRouter>
+          <TodayScreen />
+        </MemoryRouter>,
+      )
+
+      await screen.findByRole('button', { name: 'Reorder' })
+      await user.click(screen.getByRole('button', { name: 'Reorder' }))
+
+      expect(
+        screen.getByRole('button', { name: 'Reset order' }),
+      ).not.toBeDisabled()
+    })
   })
 })

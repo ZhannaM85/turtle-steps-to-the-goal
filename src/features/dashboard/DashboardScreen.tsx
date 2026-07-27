@@ -21,6 +21,7 @@ import { Link } from 'react-router-dom'
 import { useTranslation } from '@/i18n'
 import type { DashboardChartKey } from '@/stores'
 import {
+  DEFAULT_DASHBOARD_SECTION_ORDER,
   useCustomCorrelationStore,
   useCustomMetricStore,
   useDashboardSectionOrderStore,
@@ -105,6 +106,12 @@ export function DashboardScreen() {
   const order = useDashboardSectionOrderStore((state) => state.order)
   const setOrder = useDashboardSectionOrderStore((state) => state.setOrder)
   const resetOrder = useDashboardSectionOrderStore((state) => state.resetOrder)
+  // #359 — reported live: the Reset order button stayed enabled even when
+  // the order already matched the default, so clicking it did nothing
+  // visible and the user kept tapping.
+  const isDefaultOrder = order.every(
+    (key, i) => key === DEFAULT_DASHBOARD_SECTION_ORDER[i],
+  )
   // #336 — user-defined correlations, rendered after the fixed reorderable
   // sections below (see CustomCorrelationView's own doc comment for why
   // they're not part of that reorderable list).
@@ -222,6 +229,7 @@ export function DashboardScreen() {
                   type="button"
                   variant="ghost"
                   size="sm"
+                  disabled={isDefaultOrder}
                   onClick={resetOrder}
                 >
                   {t.dashboard.resetSectionOrderButton}

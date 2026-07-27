@@ -53,6 +53,7 @@ import { SectionTitleWithToggle } from '@/shared/ui/section-title-with-toggle'
 import { StatCard } from '@/shared/ui/stat-card'
 import { VisibilityToggleButton } from '@/shared/ui/visibility-toggle-button'
 import {
+  DEFAULT_TODAY_CARD_ORDER,
   useDailyEntryStore,
   useDailyReminderStore,
   useDayStartStore,
@@ -456,6 +457,11 @@ export function TodayScreen() {
   const cardOrder = useTodayCardOrderStore((state) => state.order)
   const setCardOrder = useTodayCardOrderStore((state) => state.setOrder)
   const resetCardOrder = useTodayCardOrderStore((state) => state.resetOrder)
+  // #359 — same reasoning as Dashboard's own reset-button fix: disable it
+  // once there's nothing left to reset.
+  const isDefaultCardOrder = cardOrder.every(
+    (key, i) => key === DEFAULT_TODAY_CARD_ORDER[i],
+  )
   const [isReorderingCards, setIsReorderingCards] = useState(false)
   const cardDragSensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
@@ -644,6 +650,7 @@ export function TodayScreen() {
                   type="button"
                   variant="ghost"
                   size="sm"
+                  disabled={isDefaultCardOrder}
                   onClick={resetCardOrder}
                 >
                   {t.today.resetCardOrderButton}

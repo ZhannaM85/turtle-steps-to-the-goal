@@ -222,6 +222,35 @@ describe('DashboardScreen', () => {
         DEFAULT_DASHBOARD_SECTION_ORDER,
       )
     })
+
+    // #359 — reported live: the button stayed enabled even when the order
+    // already matched the default, so clicking it did nothing visible.
+    it('disables Reset order when the order already matches the default', async () => {
+      await db.dailyEntries.put(makeEntry({ date: '2026-03-01' }))
+      const user = userEvent.setup()
+      render(<DashboardScreen />, { wrapper: MemoryRouter })
+      await screen.findByText('Weight trend')
+
+      await user.click(screen.getByRole('button', { name: 'Reorder' }))
+
+      expect(screen.getByRole('button', { name: 'Reset order' })).toBeDisabled()
+    })
+
+    it('enables Reset order once the order no longer matches the default', async () => {
+      await db.dailyEntries.put(makeEntry({ date: '2026-03-01' }))
+      useDashboardSectionOrderStore.setState({
+        order: [...DEFAULT_DASHBOARD_SECTION_ORDER].reverse(),
+      })
+      const user = userEvent.setup()
+      render(<DashboardScreen />, { wrapper: MemoryRouter })
+      await screen.findByText('Weight trend')
+
+      await user.click(screen.getByRole('button', { name: 'Reorder' }))
+
+      expect(
+        screen.getByRole('button', { name: 'Reset order' }),
+      ).not.toBeDisabled()
+    })
   })
 
   it('renders the monthly summary once entries exist (#226)', async () => {
