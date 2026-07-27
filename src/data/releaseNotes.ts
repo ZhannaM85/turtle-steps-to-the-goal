@@ -25,6 +25,20 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 310,
+    issue: 356,
+    date: '2026-07-27T17:49:47+03:00',
+    en: "Added a 'Reset order' button to Today's and Dashboard's card reordering, to quickly go back to the original layout.",
+    ru: 'Добавили кнопку «Сбросить порядок» при изменении порядка карточек на главном экране и дашборде — быстро вернуться к исходному расположению.',
+  },
+  {
+    version: 309,
+    issue: 353,
+    date: '2026-07-27T17:49:47+03:00',
+    en: "Today's Sleep card now also shows deep sleep, not just the total.",
+    ru: 'Карточка «Сон» на главном экране теперь показывает и глубокий сон, а не только общее время.',
+  },
+  {
     version: 308,
     issue: 336,
     date: '2026-07-27T17:14:45+03:00',

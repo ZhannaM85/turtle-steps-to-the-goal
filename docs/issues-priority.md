@@ -846,7 +846,7 @@ _Reported live with a screenshot right after validating #343 on-device: Today's 
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#353](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/353) | 📋 Not started | Sleep summary tile on Today doesn't show deep sleep | Filed at report time, not yet investigated. |
+| [#353](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/353) | 🔍 Pending validation | Sleep summary tile on Today doesn't show deep sleep | `TodayScreen.tsx`'s Sleep `StatCard` gained a `description` line ("2.7h deep sleep") from `entry?.deepSleepHours`, using `StatCard`'s existing `description` prop rather than a new widget — same "primary number + secondary detail" shape other cards with a description already use. Omitted entirely when deep sleep wasn't logged (undefined), not shown as a dash. New `t.today.deepSleepDescription(hours)` key. New tests cover both the shown and omitted cases. Not yet confirmed on-device by the user. |
 
 ---
 
@@ -876,7 +876,7 @@ _Reported live with two screenshots (Today's "Порядок карточек" b
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#356](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/356) | 📋 Not started | Add a way to revert Today/Dashboard card order back to default | Filed at report time, not yet investigated. Both `todayCardOrderStore.ts`/`dashboardSectionOrderStore.ts` already export their own default-order constant. |
+| [#356](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/356) | 🔍 Pending validation | Add a way to revert Today/Dashboard card order back to default | Both `todayCardOrderStore.ts`/`dashboardSectionOrderStore.ts` gained a `resetOrder()` action (`set({ order: DEFAULT_* })`, already-exported constants) — no new reconciliation logic needed. Each screen's reorder-mode header gained a ghost "Reset order" button, shown only while `isReordering`/`isReorderingCards` is true, next to the existing Save button. No confirm step — resetting is a low-stakes, easily-undoable UI preference (immediately re-draggable), same tier as toggling a section's visibility. New tests on both screens cover the button's visibility (reorder-mode-only) and that it actually restores the default order. Not yet confirmed on-device by the user. |
 
 ---
 
