@@ -231,6 +231,37 @@ export class AppDatabase extends Dexie {
       customMetricEntries: 'id, metricId, &[metricId+date]',
       customCorrelations: 'id',
     })
+    // #357: backfills a missing timeEaten using the meal's own createdAt as
+    // an approximation — confirmed via AskUserQuestion (the alternative was
+    // leaving old data untouched; the user chose auto-backfill, aware
+    // createdAt isn't necessarily the real eaten time for someone who logs
+    // several meals in one sitting). Local hours/minutes, same "HH:MM"
+    // shape timeEaten already uses elsewhere. Only fills a gap — a meal
+    // that already has a timeEaten is left untouched. Same store shape, no
+    // index changes.
+    this.version(12)
+      .stores({
+        goals: 'id, createdAt',
+        dailyEntries: 'id, &date',
+        mealItems: 'id, &name, &barcode',
+        foodOverrides: '&foodId',
+        recipes: 'id',
+        customMetrics: 'id',
+        customMetricEntries: 'id, metricId, &[metricId+date]',
+        customCorrelations: 'id',
+      })
+      .upgrade((tx) =>
+        tx
+          .table('dailyEntries')
+          .toCollection()
+          .modify((entry) => {
+            for (const meal of entry.calorieEntries ?? []) {
+              if (meal.timeEaten) continue
+              const created = new Date(meal.createdAt)
+              meal.timeEaten = `${String(created.getHours()).padStart(2, '0')}:${String(created.getMinutes()).padStart(2, '0')}`
+            }
+          }),
+      )
   }
 }
 

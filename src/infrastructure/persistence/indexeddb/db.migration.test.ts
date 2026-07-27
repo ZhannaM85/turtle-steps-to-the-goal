@@ -71,6 +71,22 @@ beforeAll(async () => {
       createdAt: '2026-01-04T00:00:00.000Z',
       updatedAt: '2026-01-04T00:00:00.000Z',
     },
+    {
+      id: 'legacy-5',
+      date: '2026-01-05',
+      // Already in the current #81 grouped shape, but with no timeEaten at
+      // all — this is what the v11->v12 .upgrade() below needs to backfill
+      // from the group's own createdAt.
+      calorieEntries: [
+        {
+          id: 'legacy-meal-3',
+          items: [{ id: 'legacy-item-3', amountKcal: 300 }],
+          createdAt: '2026-01-05T14:37:00.000Z',
+        },
+      ],
+      createdAt: '2026-01-05T00:00:00.000Z',
+      updatedAt: '2026-01-05T00:00:00.000Z',
+    },
   ])
   legacyDb.close()
 })
@@ -78,6 +94,10 @@ beforeAll(async () => {
 describe('AppDatabase v1 -> v2 migration', () => {
   it('collapses a legacy caloriesConsumed number into calorieEntries', async () => {
     const migrated = await db.dailyEntries.get('legacy-1')
+    // #357's v11->v12 upgrade also runs on this row (no timeEaten of its
+    // own), backfilling from the same createdAt this test already uses.
+    const created = new Date('2026-01-01T00:00:00.000Z')
+    const expectedTime = `${String(created.getHours()).padStart(2, '0')}:${String(created.getMinutes()).padStart(2, '0')}`
 
     expect(migrated).not.toHaveProperty('caloriesConsumed')
     expect(migrated?.calorieEntries).toEqual([
@@ -90,6 +110,7 @@ describe('AppDatabase v1 -> v2 migration', () => {
           },
         ],
         createdAt: '2026-01-01T00:00:00.000Z',
+        timeEaten: expectedTime,
       },
     ])
   })
@@ -134,6 +155,25 @@ describe('AppDatabase v4 -> v5 migration', () => {
         carbsG: 8,
       },
     ])
+  })
+})
+
+describe('AppDatabase v11 -> v12 migration', () => {
+  it("backfills a missing timeEaten from the meal group's own createdAt", async () => {
+    const migrated = await db.dailyEntries.get('legacy-5')
+    // Computed the same way the migration itself does (local hours/minutes
+    // off the same createdAt) rather than a hardcoded clock time, so this
+    // test doesn't depend on which timezone it happens to run in.
+    const created = new Date('2026-01-05T14:37:00.000Z')
+    const expectedTime = `${String(created.getHours()).padStart(2, '0')}:${String(created.getMinutes()).padStart(2, '0')}`
+
+    expect(migrated?.calorieEntries?.[0].timeEaten).toBe(expectedTime)
+  })
+
+  it('leaves a meal that already has a timeEaten untouched', async () => {
+    const migrated = await db.dailyEntries.get('legacy-4')
+
+    expect(migrated?.calorieEntries?.[0].timeEaten).toBe('12:30')
   })
 })
 

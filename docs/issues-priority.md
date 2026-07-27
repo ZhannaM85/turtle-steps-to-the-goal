@@ -886,7 +886,7 @@ _User asked directly (not from a screenshot): meal "time eaten" should default t
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#357](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/357) | 📋 Not started | Pre-populate meal time-eaten by default, backfill missing times where possible | Filed at report time, not yet investigated. Deliberately deferred per the user's own instruction — do not start until other queued work is done. Reverses #82's own "blank by default" decision; flagged in the issue for whoever implements it to re-confirm that reasoning before proceeding. |
+| [#357](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/357) | 🔍 Pending validation | Pre-populate meal time-eaten by default, backfill missing times where possible | Done. `addTime` now defaults to the current HH:MM instead of blank (`MealList.tsx`); localStorage draft's `isBlank` check no longer treats a populated default time as "blank" (same precedent as `addAmountG`/`addMacroMode`). Backfill mechanism resolved via `AskUserQuestion`: user chose auto-backfill from each meal's own `createdAt` over leaving old data untouched. New Dexie v12 migration (`db.ts`) backfills any missing `CalorieEntry.timeEaten` from that entry's own `createdAt` (local HH:MM), only filling gaps — a meal that already has a time is untouched. |
 
 ---
 

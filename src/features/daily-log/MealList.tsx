@@ -1156,24 +1156,30 @@ export function MealList({
   const [addGroupNote, setAddGroupNote] = useState(
     initialAddDraft?.groupNote ?? '',
   )
-  // Time eaten (#65) — starts empty rather than defaulting to "now" (#82):
-  // a pre-filled value read as already-confirmed/correct and went unnoticed
-  // when it didn't match. Resets to empty after each add, same as the
-  // other add-* fields.
-  const [addTime, setAddTime] = useState(initialAddDraft?.time ?? '')
+  // Time eaten (#65) — defaults to "now" (#357, reversing #82's own
+  // "starts blank" decision, made specifically because a pre-filled value
+  // read as already-confirmed/correct and went unnoticed when it didn't
+  // match the meal's real time). Re-confirmed live rather than assumed:
+  // the clear (X) button next to the field (#117) still lets anyone blank
+  // it back out for a meal they genuinely want to log without a time,
+  // the same override that already existed before this reversal. Resets
+  // to a fresh "now" after each add, not blank, for the same reasoning.
+  const [addTime, setAddTime] = useState(
+    initialAddDraft?.time ?? currentTimeHHMM(),
+  )
   // #221: persists the add-row draft on every change, and clears it once
   // every draftable field is back to blank (either a successful addMeal()
   // resets them, or the user manually cleared everything by hand) — rather
   // than leaving a stale blob behind once there's nothing left to recover.
-  // addAmountG/addMacroMode are deliberately excluded from the blank check:
-  // they always carry a non-empty default ('1'/'per100g') even when
-  // nothing has actually been typed, so including them would prevent the
-  // all-blank case from ever being detected.
+  // addAmountG/addMacroMode/addTime are deliberately excluded from the
+  // blank check: they always carry a non-empty default ('1'/'per100g'/
+  // currentTimeHHMM(), the last one added by #357) even when nothing has
+  // actually been typed, so including them would prevent the all-blank
+  // case from ever being detected.
   useEffect(() => {
     const isBlank =
       addStagedItems.length === 0 &&
       addGroupNote === '' &&
-      addTime === '' &&
       addItemName === '' &&
       addItemBrand === '' &&
       addAmount === '' &&
@@ -1505,7 +1511,10 @@ export function MealList({
     setAddStagedItems([])
     resetItemDraft()
     setAddGroupNote('')
-    setAddTime('')
+    // #357: resets to "now" for the next new meal, not blank — matches the
+    // pre-filled default this field starts with, rather than reverting to
+    // the old always-blank behavior after the first save.
+    setAddTime(currentTimeHHMM())
   }
 
   // #190: the previous day's meal at this same position, if any — "same
@@ -1702,7 +1711,8 @@ export function MealList({
     ]
     void announceFastingWindowIfFirstMeal(nextEntries)
     setCalorieEntries(nextEntries)
-    setAddTime('')
+    // #357 — resets to a fresh "now", not blank; see addTime's own comment.
+    setAddTime(currentTimeHHMM())
   }
 
   // "Find food" for an item within an already-existing meal being edited —

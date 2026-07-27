@@ -1899,13 +1899,8 @@ describe('DailyEntryForm', () => {
             />,
           )
 
-          expect(
-            screen.queryByRole('button', { name: 'Clear time' }),
-          ).not.toBeInTheDocument()
-
-          fireEvent.change(screen.getByLabelText('Time'), {
-            target: { value: '08:15' },
-          })
+          // #357: Time now defaults to the current time (not blank), so the
+          // clear button already shows up on a fresh render.
           expect(
             screen.getByRole('button', { name: 'Clear time' }),
           ).toBeInTheDocument()
@@ -1916,6 +1911,13 @@ describe('DailyEntryForm', () => {
           expect(
             screen.queryByRole('button', { name: 'Clear time' }),
           ).not.toBeInTheDocument()
+
+          fireEvent.change(screen.getByLabelText('Time'), {
+            target: { value: '08:15' },
+          })
+          expect(
+            screen.getByRole('button', { name: 'Clear time' }),
+          ).toBeInTheDocument()
         })
 
         // #157: "can be edited on an existing meal" and "item-edit row

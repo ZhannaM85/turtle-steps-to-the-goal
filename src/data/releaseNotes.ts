@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 315,
+    issue: 357,
+    date: '2026-07-27T20:20:53+03:00',
+    en: "A meal's logged time now defaults to the current time instead of blank, and past meals missing a time have been backfilled automatically.",
+    ru: 'Время приёма пищи теперь по умолчанию заполняется текущим временем, а у прошлых записей без времени оно было заполнено автоматически.',
+  },
+  {
     version: 314,
     issue: 358,
     date: '2026-07-27T19:49:31+03:00',

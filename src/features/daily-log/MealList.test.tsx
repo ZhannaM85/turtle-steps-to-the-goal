@@ -1521,6 +1521,9 @@ describe('MealList', () => {
       // The add-row's Time field sits outside the item editor sheet, so it
       // has to be set before opening that sheet — addMeal() (triggered by
       // the sheet's own Save) reads whatever addTime already holds.
+      // Time now defaults to the current time (#357), not blank — clear it
+      // first so typing produces exactly this value, not a mix of both.
+      await user.clear(screen.getByLabelText('Time'))
       await user.type(screen.getByLabelText('Time'), '08:00')
       await user.click(screen.getByRole('button', { name: '+ Add item' }))
       await user.type(screen.getByLabelText('Dish name'), 'Oatmeal')
@@ -1559,6 +1562,9 @@ describe('MealList', () => {
         { wrapper: MemoryRouter },
       )
 
+      // Time now defaults to the current time (#357), not blank — clear it
+      // first so typing produces exactly this value, not a mix of both.
+      await user.clear(screen.getByLabelText('Time'))
       await user.type(screen.getByLabelText('Time'), '08:00')
       await user.click(screen.getByRole('button', { name: 'Find food' }))
       await user.click(screen.getByText('Salmon'))
@@ -1576,6 +1582,9 @@ describe('MealList', () => {
         { wrapper: MemoryRouter },
       )
 
+      // Time now defaults to the current time (#357), not blank — clear it
+      // first so typing produces exactly this value, not a mix of both.
+      await user.clear(screen.getByLabelText('Time'))
       await user.type(screen.getByLabelText('Time'), '08:00')
       await user.click(screen.getByRole('button', { name: '+ Add item' }))
       await user.type(screen.getByLabelText('Dish name'), 'Oatmeal')
@@ -1617,6 +1626,7 @@ describe('MealList', () => {
         { wrapper: MemoryRouter },
       )
 
+      await user.clear(screen.getByLabelText('Time'))
       await user.type(screen.getByLabelText('Time'), '13:00')
       await user.click(screen.getByRole('button', { name: '+ Add item' }))
       await user.type(screen.getByLabelText('Dish name'), 'Lunch item')
@@ -1646,6 +1656,9 @@ describe('MealList', () => {
         { wrapper: MemoryRouter },
       )
 
+      // Time now defaults to the current time (#357), not blank — clear it
+      // first so typing produces exactly this value, not a mix of both.
+      await user.clear(screen.getByLabelText('Time'))
       await user.type(screen.getByLabelText('Time'), '08:00')
       await user.click(screen.getByRole('button', { name: '+ Add item' }))
       await user.type(screen.getByLabelText('Dish name'), 'Oatmeal')
@@ -1681,6 +1694,9 @@ describe('MealList', () => {
         wrapper: MemoryRouter,
       })
 
+      // Time now defaults to the current time (#357), not blank — clear it
+      // first so typing produces exactly this value, not a mix of both.
+      await user.clear(screen.getByLabelText('Time'))
       await user.type(screen.getByLabelText('Time'), '08:00')
       await user.click(screen.getByRole('button', { name: '+ Add item' }))
       await user.type(screen.getByLabelText('Dish name'), 'Oatmeal')
