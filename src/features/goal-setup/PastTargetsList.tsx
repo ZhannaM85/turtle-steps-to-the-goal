@@ -87,16 +87,31 @@ function PastTargetRow({
         )}
       </td>
       <td className="py-2 pr-2 align-top">
-        <span
-          className={cn(
-            'text-xs',
-            progress?.targetMet === true
-              ? 'font-medium text-foreground'
-              : 'text-muted-foreground',
-          )}
-        >
-          {statusLabel}
-        </span>
+        <div className="flex flex-col gap-0.5">
+          <span
+            className={cn(
+              'text-xs',
+              progress?.targetMet === true
+                ? 'font-medium text-foreground'
+                : 'text-muted-foreground',
+            )}
+          >
+            {statusLabel}
+          </span>
+          {/* #339 — which two weigh-ins the status above is based on;
+           * both undefined only when weekStart itself never got a logged
+           * weight, i.e. progress.targetMet is still null. */}
+          {progress?.baselineWeightKg !== undefined &&
+            progress.currentWeightKg !== undefined && (
+              <span className="text-xs tabular-nums text-muted-foreground">
+                {t.goal.previousToCurrentWeightLabel(
+                  formatNumber(toDisplay(progress.baselineWeightKg), locale),
+                  formatNumber(toDisplay(progress.currentWeightKg), locale),
+                  unit,
+                )}
+              </span>
+            )}
+        </div>
       </td>
       <td className="py-2 text-right align-top">
         {isConfirming ? (

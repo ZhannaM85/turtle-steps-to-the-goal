@@ -290,6 +290,8 @@ export const ru: Dictionary = {
     targetMetOnLabel: (date) => `Цель достигнута ${date}`,
     targetMissedLabel: 'Цель не достигнута',
     targetNoDataLabel: 'Недостаточно данных',
+    previousToCurrentWeightLabel: (previous, current, unit) =>
+      `${previous} → ${current} ${unit}`,
     activeGoalReachedNudge:
       'Вы досрочно достигли цели на эту неделю — задайте новую, когда будете готовы.',
     activeGoalReachedSectionTitle: 'Цель достигнута',

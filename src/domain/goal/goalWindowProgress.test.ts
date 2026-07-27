@@ -132,4 +132,46 @@ describe('goalWindowProgress', () => {
 
     expect(progress?.metOnDate).toBe('2026-03-11')
   })
+
+  // #339: past-goal rows need to show which two weigh-ins a status came
+  // from, not just the status label itself.
+  it('reports the baseline weight and the weight that met the target', () => {
+    const goal = makeGoal({ weekStart: '2026-03-09', targetWeeklyLossKg: 1 })
+    const entries = [
+      makeEntry('2026-03-09', 80),
+      makeEntry('2026-03-10', 79.5),
+      makeEntry('2026-03-11', 79), // met here
+      makeEntry('2026-03-12', 79.5), // rises again afterward
+    ]
+
+    const progress = goalWindowProgress(entries, goal)
+
+    expect(progress?.baselineWeightKg).toBe(80)
+    expect(progress?.currentWeightKg).toBe(79)
+  })
+
+  it('falls back to the most recently logged weight in the window when the target was never met', () => {
+    const goal = makeGoal({ weekStart: '2026-03-09', targetWeeklyLossKg: 1 })
+    const entries = [
+      makeEntry('2026-03-09', 80),
+      makeEntry('2026-03-10', 79.8),
+      makeEntry('2026-03-11', 79.7),
+    ]
+
+    const progress = goalWindowProgress(entries, goal)
+
+    expect(progress?.targetMet).toBe(false)
+    expect(progress?.baselineWeightKg).toBe(80)
+    expect(progress?.currentWeightKg).toBe(79.7)
+  })
+
+  it('leaves baselineWeightKg/currentWeightKg undefined until weekStart has a logged weight', () => {
+    const goal = makeGoal({ weekStart: '2026-03-09', targetWeeklyLossKg: 1 })
+    const entries = [makeEntry('2026-03-10', 70)]
+
+    const progress = goalWindowProgress(entries, goal)
+
+    expect(progress?.baselineWeightKg).toBeUndefined()
+    expect(progress?.currentWeightKg).toBeUndefined()
+  })
 })

@@ -43,6 +43,70 @@ describe('PastTargetsList', () => {
     expect(screen.getByText('Target met on Mar 12')).toBeInTheDocument()
   })
 
+  it('shows which two weigh-ins the "target met" status is based on (#339)', () => {
+    render(
+      <PastTargetsList
+        records={[
+          makeRecord({
+            progress: {
+              weekStart: '2026-03-09',
+              weekEnd: '2026-03-15',
+              targetMet: true,
+              metOnDate: '2026-03-12',
+              baselineWeightKg: 80,
+              currentWeightKg: 78.5,
+            },
+          }),
+        ]}
+        onDelete={vi.fn()}
+      />,
+    )
+
+    expect(screen.getByText('80.0 → 78.5 kg')).toBeInTheDocument()
+  })
+
+  it('shows the previous vs. latest logged weight even when the target was missed (#339)', () => {
+    render(
+      <PastTargetsList
+        records={[
+          makeRecord({
+            progress: {
+              weekStart: '2026-03-09',
+              weekEnd: '2026-03-15',
+              targetMet: false,
+              metOnDate: null,
+              baselineWeightKg: 80,
+              currentWeightKg: 79.7,
+            },
+          }),
+        ]}
+        onDelete={vi.fn()}
+      />,
+    )
+
+    expect(screen.getByText('80.0 → 79.7 kg')).toBeInTheDocument()
+  })
+
+  it('omits the weigh-in line when no baseline weight was ever logged', () => {
+    render(
+      <PastTargetsList
+        records={[
+          makeRecord({
+            progress: {
+              weekStart: '2026-03-09',
+              weekEnd: '2026-03-15',
+              targetMet: null,
+              metOnDate: null,
+            },
+          }),
+        ]}
+        onDelete={vi.fn()}
+      />,
+    )
+
+    expect(screen.queryByText(/→/)).not.toBeInTheDocument()
+  })
+
   it('labels a missed target', () => {
     render(
       <PastTargetsList

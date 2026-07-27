@@ -33,6 +33,17 @@ export interface GoalWindowProgress {
    * reached for its window, matching useWeeklyGoalCelebration's existing
    * "once met, stays met" reasoning. */
   metOnDate: string | null
+  /** #339 — the weight logged on `weekStart` itself, i.e. the baseline
+   * every day in the window is compared against. Undefined only when
+   * `targetMet`/`metOnDate` are both null (no baseline weight logged yet). */
+  baselineWeightKg?: number
+  /** #339 — the weight the "reached"/"missed" status is actually based
+   * on, so a past-goal row can show *which* weigh-ins it came from instead
+   * of just the status label: the weight on `metOnDate` once the target
+   * was met, otherwise the most recently logged weight within the window
+   * (undefined if the window has no logged weight at all beyond the
+   * baseline). */
+  currentWeightKg?: number
 }
 
 /**
@@ -76,18 +87,24 @@ export function goalWindowProgress(
     .sort((a, b) => a.date.localeCompare(b.date))
 
   let metOnDate: string | null = null
+  let metWeightKg: number | undefined
   for (const entry of windowEntriesSorted) {
     const lossKg = baselineWeightKg - (entry.weightKg as number)
     if (lossKg >= goal.targetWeeklyLossKg) {
       metOnDate = entry.date
+      metWeightKg = entry.weightKg
       break
     }
   }
+
+  const lastWindowEntry = windowEntriesSorted.at(-1)
 
   return {
     weekStart,
     weekEnd,
     targetMet: metOnDate !== null,
     metOnDate,
+    baselineWeightKg,
+    currentWeightKg: metWeightKg ?? lastWindowEntry?.weightKg,
   }
 }

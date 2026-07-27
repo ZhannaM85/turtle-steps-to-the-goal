@@ -481,6 +481,15 @@ export interface Dictionary {
     targetMetOnLabel: (date: string) => string
     targetMissedLabel: string
     targetNoDataLabel: string
+    /** #339 — shows which two weigh-ins a past-goal row's status is
+     * actually based on: the weight logged on the window's start date,
+     * and either the weight that met the target or (if not met) the most
+     * recently logged weight in the window. */
+    previousToCurrentWeightLabel: (
+      previous: string,
+      current: string,
+      unit: string,
+    ) => string
     /** Quiet nudge (#155) on GoalScreen once the *active* goal's own window
      * has been reached mid-week — same no-badges/no-streaks tone as
      * today.goalRenewalReminder, shown alongside the targetMetOnLabel badge

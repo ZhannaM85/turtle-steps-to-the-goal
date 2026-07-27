@@ -287,6 +287,8 @@ export const en: Dictionary = {
     targetMetOnLabel: (date) => `Target met on ${date}`,
     targetMissedLabel: 'Target not met',
     targetNoDataLabel: 'Not enough data to tell',
+    previousToCurrentWeightLabel: (previous, current, unit) =>
+      `${previous} → ${current} ${unit}`,
     activeGoalReachedNudge:
       "You reached this week's target early — set a new one below whenever you're ready.",
     activeGoalReachedSectionTitle: 'Target reached',
