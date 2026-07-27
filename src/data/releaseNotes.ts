@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 313,
+    issue: 359,
+    date: '2026-07-27T19:28:26+03:00',
+    en: "The 'Reset order' button now disables itself once the order is already back to default.",
+    ru: 'Кнопка «Сбросить порядок» теперь становится неактивной, когда порядок уже совпадает со стандартным.',
+  },
+  {
     version: 312,
     issue: 355,
     date: '2026-07-27T19:04:02+03:00',
