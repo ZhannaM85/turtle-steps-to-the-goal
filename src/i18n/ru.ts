@@ -34,7 +34,8 @@ export const ru: Dictionary = {
     reloadingText: 'Перезагрузка…',
   },
   offline: {
-    offlineText: 'Вы не в сети — данные всё равно сохраняются на этом устройстве.',
+    offlineText:
+      'Вы не в сети — данные всё равно сохраняются на этом устройстве.',
   },
   nav: {
     appName: 'Черепашка идёт к цели',
@@ -47,8 +48,7 @@ export const ru: Dictionary = {
   },
   today: {
     title: 'Сегодня',
-    description:
-      'Ввод данных за сегодня, напоминание о цели на неделю',
+    description: 'Ввод данных за сегодня, напоминание о цели на неделю',
     thisWeeksTarget: 'Цель на эту неделю',
     toLose: (unit) => `${unit} похудения`,
     emptyGoalTitle: 'Цель ещё не задана',
@@ -115,10 +115,12 @@ export const ru: Dictionary = {
     editNoteLabel: 'Изменить заметку',
     saveWeightLabel: 'Сохранить вес',
     saveNoteLabel: 'Сохранить заметку',
-    unusualWeightWarning: 'Необычное значение веса — проверьте, прежде чем сохранить.',
+    unusualWeightWarning:
+      'Необычное значение веса — проверьте, прежде чем сохранить.',
     saveUnusualWeightAnywayLabel: 'Сохранить как есть',
     fixWeightLabel: 'Исправить',
-    unusualDailyCaloriesWarning: 'Необычно много калорий за один день — проверьте свои записи.',
+    unusualDailyCaloriesWarning:
+      'Необычно много калорий за один день — проверьте свои записи.',
     mealLabel: (n) => `Приём пищи ${n}`,
     editMealLabel: (n) => `Изменить приём пищи ${n}`,
     cancelEditMealLabel: (n) => `Отменить редактирование приёма пищи ${n}`,
@@ -194,7 +196,8 @@ export const ru: Dictionary = {
     scanBarcodeManualSubmitLabel: 'Найти',
     noFoodFoundForBarcodeMessage:
       'Еда с таким штрихкодом не найдена — вы можете добавить её вручную ниже.',
-    fastingWindowToastMessage: (hours) => `Ваше окно голодания составило ${hours}.`,
+    fastingWindowToastMessage: (hours) =>
+      `Ваше окно голодания составило ${hours}.`,
     dismissFastingWindowToastLabel: 'Скрыть',
     foodSearchLabel: 'Поиск продуктов',
     foodSearchPlaceholder: 'Поиск…',
@@ -382,7 +385,8 @@ export const ru: Dictionary = {
       'Это пароль из письма с экспортом от Zepp Life — не пароль от вашего аккаунта Zepp.',
     passwordLabel: 'Пароль',
     passwordSubmitButton: 'Разблокировать и импортировать',
-    wrongPassword: 'Пароль не подошёл — проверьте письмо с экспортом и попробуйте снова.',
+    wrongPassword:
+      'Пароль не подошёл — проверьте письмо с экспортом и попробуйте снова.',
   },
   exportXlsx: {
     dailyLogSheetName: 'Дневник',
@@ -424,14 +428,16 @@ export const ru: Dictionary = {
     weightLegend: 'вес',
     caloriesLegend: 'калории',
     rollingAverageLegend: 'среднее за 7 дней',
-    trendChartEmptyDescription: 'Выберите хотя бы один показатель для отображения.',
+    trendChartEmptyDescription:
+      'Выберите хотя бы один показатель для отображения.',
     notEnoughTrendDataMessage:
       'Пока недостаточно данных, чтобы показать тенденцию — добавьте ещё несколько дней и загляните позже.',
     weightTrendTitle: 'График веса',
     calorieTrendTitle: 'График калорий',
     macrosTitle: 'Белки, жиры и углеводы',
     bodyCompositionTrendTitle: 'Состав тела',
-    bodyCompositionEmptyDescription: 'Выберите хотя бы один показатель, чтобы увидеть график.',
+    bodyCompositionEmptyDescription:
+      'Выберите хотя бы один показатель, чтобы увидеть график.',
     hideChartLabel: (title) => `Скрыть: ${title}`,
     showChartLabel: (title) => `Показать: ${title}`,
     weeklySummaryTitle: 'Недельная сводка',
@@ -448,8 +454,7 @@ export const ru: Dictionary = {
     rangeBLabel: 'Период Б',
     rangeStartLabel: 'Дата начала',
     rangeEndLabel: 'Дата окончания',
-    compareRangesDayCount: (n) =>
-      `Дней с записями: ${n}`,
+    compareRangesDayCount: (n) => `Дней с записями: ${n}`,
     compareRangesWeightDelta: (delta, unit) =>
       `Средний вес в периоде Б отличается на ${delta} ${unit} от периода A.`,
     emptyTitle: 'Пока нет записей',
@@ -568,10 +573,12 @@ export const ru: Dictionary = {
     customChartTypeLine: 'Линия',
     customChartTypeBar: 'Столбцы',
     customChartTypeDots: 'Точки',
-    customChartTypeGroupLabel: (seriesLabel) => `Тип графика для «${seriesLabel}»`,
+    customChartTypeGroupLabel: (seriesLabel) =>
+      `Тип графика для «${seriesLabel}»`,
     customChartNormalizedCaveat:
       'Каждая линия масштабирована по своему диапазону, чтобы разные единицы измерения (кг, ккал, шаги) можно было показать на одном графике — форма и тренд сопоставимы, но высота линии не отражает абсолютное значение. Точное значение за день смотрите во всплывающей подсказке.',
-    customChartEmptyDescription: 'Выберите хотя бы один показатель для сравнения.',
+    customChartEmptyDescription:
+      'Выберите хотя бы один показатель для сравнения.',
     customCorrelationSummary: (aLabel, thresholdValue, direction, bLabel) =>
       `В дни, когда «${aLabel}» был выше ${thresholdValue}, «${bLabel}» в среднем был ${direction === 'higher' ? 'выше' : 'ниже'}, чем в дни с более низким «${aLabel}».`,
     customCorrelationDayCount: (n) =>
@@ -715,7 +722,8 @@ export const ru: Dictionary = {
       'Скройте ненужные продукты или исправьте их калорийность/БЖУ.',
     manageFoodListButton: 'Управлять списком продуктов',
     aboutLabel: 'О проекте',
-    aboutDescription: 'Что это за приложение, кто его сделал, и заметки о выпусках.',
+    aboutDescription:
+      'Что это за приложение, кто его сделал, и заметки о выпусках.',
     viewAboutButton: 'Открыть «О проекте»',
     versionBadgeLabel: (version) => `v${version}`,
     clearAllDataLabel: 'Удалить все данные',
@@ -751,7 +759,8 @@ export const ru: Dictionary = {
     addRecipeButton: 'Добавить рецепт',
     editRecipeLabel: (name) => `Изменить «${name}»`,
     deleteRecipeLabel: (name) => `Удалить «${name}»`,
-    servingsCountLabel: (n) => `${n} ${ruPluralize(n, 'порция', 'порции', 'порций')}`,
+    servingsCountLabel: (n) =>
+      `${n} ${ruPluralize(n, 'порция', 'порции', 'порций')}`,
     addRecipeDialogTitle: 'Добавить рецепт',
     editRecipeDialogTitle: 'Изменить рецепт',
     closeRecipeDialogLabel: 'Закрыть редактор рецепта',
@@ -771,8 +780,7 @@ export const ru: Dictionary = {
     closeLogRecipeDialogLabel: 'Закрыть окно записи рецепта',
     pickRecipeLabel: 'Какой рецепт?',
     servingsEatenLabel: 'Съедено порций',
-    noRecipesYetMessage:
-      'У вас пока нет рецептов — добавьте их в настройках.',
+    noRecipesYetMessage: 'У вас пока нет рецептов — добавьте их в настройках.',
     logButtonLabel: 'Записать',
   },
   customMetrics: {
@@ -863,9 +871,11 @@ export const ru: Dictionary = {
     childrenBody:
       'Приложение не предназначено для детей и не собирает данные ни от кого сознательно, включая детей — автоматически не собирается ничего, независимо от возраста.',
     changesHeading: 'Изменения в этой политике',
-    changesBody: 'Если эта политика когда-либо изменится, обновление будет опубликовано на этой же странице.',
+    changesBody:
+      'Если эта политика когда-либо изменится, обновление будет опубликовано на этой же странице.',
     contactHeading: 'Контакты',
-    contactBody: 'Вопросы по этой политике можно направить через страницу проекта на GitHub.',
+    contactBody:
+      'Вопросы по этой политике можно направить через страницу проекта на GitHub.',
     backToAboutLabel: 'Назад к разделу «О приложении»',
   },
   featuresOverview: {

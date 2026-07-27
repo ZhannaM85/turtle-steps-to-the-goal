@@ -108,10 +108,12 @@ export const en: Dictionary = {
     editNoteLabel: 'Edit note',
     saveWeightLabel: 'Save weight',
     saveNoteLabel: 'Save note',
-    unusualWeightWarning: "That's an unusual weight — please double-check it before saving.",
+    unusualWeightWarning:
+      "That's an unusual weight — please double-check it before saving.",
     saveUnusualWeightAnywayLabel: 'Save anyway',
     fixWeightLabel: 'Fix it',
-    unusualDailyCaloriesWarning: "That's unusually high for one day — worth double-checking your entries.",
+    unusualDailyCaloriesWarning:
+      "That's unusually high for one day — worth double-checking your entries.",
     mealLabel: (n) => `Meal ${n}`,
     editMealLabel: (n) => `Edit meal ${n}`,
     cancelEditMealLabel: (n) => `Cancel editing meal ${n}`,
@@ -188,7 +190,7 @@ export const en: Dictionary = {
     scanBarcodeManualPlaceholder: 'Barcode number',
     scanBarcodeManualSubmitLabel: 'Search',
     noFoodFoundForBarcodeMessage:
-      "No food found for this barcode — you can still add it by hand below.",
+      'No food found for this barcode — you can still add it by hand below.',
     fastingWindowToastMessage: (hours) => `Your fasting window was ${hours}.`,
     dismissFastingWindowToastLabel: 'Dismiss',
     foodSearchLabel: 'Search foods',
@@ -200,7 +202,8 @@ export const en: Dictionary = {
     favoriteFoodLabel: (name) => `Add ${name} to favorites`,
     unfavoriteFoodLabel: (name) => `Remove ${name} from favorites`,
     noFoodResultsText: 'No foods found.',
-    addSelectedFoodsButton: (n) => (n > 1 ? `Add selected (${n})` : 'Add selected'),
+    addSelectedFoodsButton: (n) =>
+      n > 1 ? `Add selected (${n})` : 'Add selected',
     per100gLabel: 'per 100g',
     computedTotalPrefix: 'Total:',
     todayWouldBeLabel: (newTotal, previousTotal) =>
@@ -373,10 +376,11 @@ export const en: Dictionary = {
     closeDialogLabel: 'Close',
     passwordDialogTitle: 'Enter the export password',
     passwordDialogDescription:
-      "This is the password from the export email Zepp Life sent you — not your Zepp account login password.",
+      'This is the password from the export email Zepp Life sent you — not your Zepp account login password.',
     passwordLabel: 'Password',
     passwordSubmitButton: 'Unlock and import',
-    wrongPassword: "That password didn't work — check the export email and try again.",
+    wrongPassword:
+      "That password didn't work — check the export email and try again.",
   },
   exportXlsx: {
     dailyLogSheetName: 'Daily Log',
@@ -490,7 +494,8 @@ export const en: Dictionary = {
       direction === 'more'
         ? `Days with more than ${thresholdCount} meals logged averaged more weight gain the next morning than days with fewer, larger meals.`
         : `Days with ${thresholdCount} or fewer meals logged averaged more weight gain the next morning than days with more, smaller meals.`,
-    mealFrequencyDayCount: (n) => `Based on ${n} day${n === 1 ? '' : 's'} of data.`,
+    mealFrequencyDayCount: (n) =>
+      `Based on ${n} day${n === 1 ? '' : 's'} of data.`,
     mealFrequencyLagCaveat:
       "Compares each day's number of logged meals to the very next day's weight, not a proven cause-and-effect relationship — water retention, sodium, and many other factors also affect day-to-day weight.",
     mealCountLegend: 'meals logged',
@@ -501,7 +506,8 @@ export const en: Dictionary = {
       direction === 'longer'
         ? `Days you fasted longer than ${thresholdHours} averaged more weight gain the next morning than days you fasted less.`
         : `Days you fasted less than ${thresholdHours} averaged more weight gain the next morning than days you fasted longer.`,
-    fastingWindowDayCount: (n) => `Based on ${n} day${n === 1 ? '' : 's'} of data.`,
+    fastingWindowDayCount: (n) =>
+      `Based on ${n} day${n === 1 ? '' : 's'} of data.`,
     fastingWindowLagCaveat:
       "Compares the actual gap between meals (previous day's last meal to the next day's first) to that next day's weight, not a proven cause-and-effect relationship — water retention, sodium, and many other factors also affect day-to-day weight.",
     fastingHoursLegend: 'fasting hours',
@@ -512,7 +518,8 @@ export const en: Dictionary = {
       direction === 'less'
         ? `Days you slept less than ${thresholdHours}h averaged more weight gain the next morning than days you slept more.`
         : `Days you slept more than ${thresholdHours}h averaged more weight gain the next morning than days you slept less.`,
-    sleepCorrelationDayCount: (n) => `Based on ${n} day${n === 1 ? '' : 's'} of data.`,
+    sleepCorrelationDayCount: (n) =>
+      `Based on ${n} day${n === 1 ? '' : 's'} of data.`,
     sleepCorrelationLagCaveat:
       "Compares each day's logged sleep to the very next day's weight, not a proven cause-and-effect relationship — water retention, sodium, and many other factors also affect day-to-day weight.",
     sleepHoursLegend: 'sleep hours',
@@ -523,7 +530,8 @@ export const en: Dictionary = {
       direction === 'fewer'
         ? `Days you took fewer than ${thresholdSteps} steps averaged more weight gain the next morning than days you took more.`
         : `Days you took more than ${thresholdSteps} steps averaged more weight gain the next morning than days you took fewer.`,
-    stepsCorrelationDayCount: (n) => `Based on ${n} day${n === 1 ? '' : 's'} of data.`,
+    stepsCorrelationDayCount: (n) =>
+      `Based on ${n} day${n === 1 ? '' : 's'} of data.`,
     stepsCorrelationLagCaveat:
       "Compares each day's logged steps to the very next day's weight, not a proven cause-and-effect relationship — water retention, sodium, and many other factors also affect day-to-day weight.",
     stepsCountLegend: 'steps',
@@ -534,7 +542,8 @@ export const en: Dictionary = {
       direction === 'less'
         ? `Days when protein was less than ${thresholdProteinPercent}% of your calories averaged more weight gain the next morning than days when it was more.`
         : `Days when protein was more than ${thresholdProteinPercent}% of your calories averaged more weight gain the next morning than days when it was less.`,
-    proteinCorrelationDayCount: (n) => `Based on ${n} day${n === 1 ? '' : 's'} of data.`,
+    proteinCorrelationDayCount: (n) =>
+      `Based on ${n} day${n === 1 ? '' : 's'} of data.`,
     proteinCorrelationLagCaveat:
       "Compares each day's protein share of calories to the very next day's weight, not a proven cause-and-effect relationship — water retention, sodium, and many other factors also affect day-to-day weight.",
     proteinPercentOfCaloriesLabel: 'Protein (% of calories)',
@@ -559,7 +568,8 @@ export const en: Dictionary = {
     customChartEmptyDescription: 'Pick at least one to compare.',
     customCorrelationSummary: (aLabel, thresholdValue, direction, bLabel) =>
       `Days when "${aLabel}" was above ${thresholdValue} averaged a ${direction} "${bLabel}" than days with lower "${aLabel}".`,
-    customCorrelationDayCount: (n) => `Based on ${n} day${n === 1 ? '' : 's'} of data.`,
+    customCorrelationDayCount: (n) =>
+      `Based on ${n} day${n === 1 ? '' : 's'} of data.`,
     customCorrelationLagCaveat:
       'Compares both metrics on the same day, not a proven cause-and-effect relationship — many other factors can affect either one.',
     customCorrelationEmptyDescription:
@@ -731,7 +741,7 @@ export const en: Dictionary = {
     screenTitle: 'Recipes',
     screenDescription:
       'Build a recipe from its ingredients once, then log servings of it from the daily log any time.',
-    emptyStateText: "Nothing yet — add a recipe to log servings of it later.",
+    emptyStateText: 'Nothing yet — add a recipe to log servings of it later.',
     addRecipeButton: 'Add recipe',
     editRecipeLabel: (name) => `Edit ${name}`,
     deleteRecipeLabel: (name) => `Delete ${name}`,
@@ -839,22 +849,24 @@ export const en: Dictionary = {
       "All data is stored locally on your own device, in your browser's or app's own storage. There is no account, no server, and no cloud sync — Turtle Steps never sees your data.",
     sharingHeading: 'Sharing with third parties',
     sharingBody:
-      "Your data is never sold, shared, or transmitted anywhere. The app contains no analytics, advertising, or tracking of any kind.",
+      'Your data is never sold, shared, or transmitted anywhere. The app contains no analytics, advertising, or tracking of any kind.',
     exportHeading: 'Exporting your data',
     exportBody:
-      "The only way your data ever leaves your device is if you choose to export it yourself (as a JSON backup, Excel, CSV, or Markdown file) from Settings. Where that file goes afterward is entirely up to you.",
+      'The only way your data ever leaves your device is if you choose to export it yourself (as a JSON backup, Excel, CSV, or Markdown file) from Settings. Where that file goes afterward is entirely up to you.',
     childrenHeading: 'Children',
     childrenBody:
       "Turtle Steps isn't directed at children and doesn't knowingly collect data from anyone, including children — nothing is collected automatically regardless of age.",
     changesHeading: 'Changes to this policy',
-    changesBody: 'If this policy ever changes, the update will be posted on this same page.',
+    changesBody:
+      'If this policy ever changes, the update will be posted on this same page.',
     contactHeading: 'Contact',
-    contactBody: 'Questions about this policy can be sent via the project’s GitHub page.',
+    contactBody:
+      'Questions about this policy can be sent via the project’s GitHub page.',
     backToAboutLabel: 'Back to About',
   },
   featuresOverview: {
     title: 'Features',
-    description: "What Turtle Steps can do, all in one place",
+    description: 'What Turtle Steps can do, all in one place',
     categories: [
       {
         heading: 'Daily logging',

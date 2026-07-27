@@ -743,7 +743,9 @@ export interface Dictionary {
      * correlation view below (weekly calories one and the four day-pair
      * ones) rather than a separate copy per view, since the concept and
      * wording is identical everywhere it appears. */
-    correlationStrengthLabel: (strength: 'weak' | 'moderate' | 'strong') => string
+    correlationStrengthLabel: (
+      strength: 'weak' | 'moderate' | 'strong',
+    ) => string
     /** #224 — shared outlier-flagging UI, reused by all 6 correlation
      * views (`shared/hooks/useOutlierExclusion.ts`,
      * `OutlierPointsList.tsx`). A flagged point (Tukey's-fences outlier on
@@ -800,14 +802,20 @@ export interface Dictionary {
      * lateMeal* above. */
     sleepCorrelationTitle: string
     sleepCorrelationEmptyDescription: string
-    sleepCorrelationSummary: (thresholdHours: string, direction: string) => string
+    sleepCorrelationSummary: (
+      thresholdHours: string,
+      direction: string,
+    ) => string
     sleepCorrelationDayCount: (n: number) => string
     sleepCorrelationLagCaveat: string
     sleepHoursLegend: string
     /** Step-count-vs-next-day-weight correlation (#167), same shape. */
     stepsCorrelationTitle: string
     stepsCorrelationEmptyDescription: string
-    stepsCorrelationSummary: (thresholdSteps: string, direction: string) => string
+    stepsCorrelationSummary: (
+      thresholdSteps: string,
+      direction: string,
+    ) => string
     stepsCorrelationDayCount: (n: number) => string
     stepsCorrelationLagCaveat: string
     stepsCountLegend: string

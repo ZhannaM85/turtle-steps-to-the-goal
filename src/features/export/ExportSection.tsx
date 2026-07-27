@@ -21,6 +21,12 @@ import {
 import { buildDailyLogCsv, CSV_BOM } from './exportCsv'
 import { buildDailyLogMarkdown } from './exportMarkdown'
 import { buildExportWorkbook } from './exportXlsx'
+import {
+  importZeppLifeExport,
+  ZeppLifeInvalidFileError,
+  ZeppLifeWrongPasswordError,
+} from './zeppLife/importZeppLife'
+import { ZeppLifePasswordDialog } from './zeppLife/ZeppLifePasswordDialog'
 
 /** #240 — Excel/CSV/Markdown only, never the JSON backup (a backup should
  * stay complete). Blank start/end means "no lower/upper bound", so leaving
@@ -32,8 +38,7 @@ function filterByExportPeriod(
 ): DailyEntry[] {
   if (!start && !end) return entries
   return entries.filter(
-    (entry) =>
-      (!start || entry.date >= start) && (!end || entry.date <= end),
+    (entry) => (!start || entry.date >= start) && (!end || entry.date <= end),
   )
 }
 
@@ -49,6 +54,8 @@ type Status =
   | { kind: 'exportedMarkdown'; entries: number }
   | { kind: 'importing' }
   | { kind: 'imported'; goals: number; entries: number }
+  | { kind: 'importingZeppLife' }
+  | { kind: 'importedZeppLife'; daysImported: number; daysUpdated: number }
   | { kind: 'error'; message: string }
 
 /** "50 KB" / "1.2 MB" / "1.2 GB" — used for both usage and quota (#191:
@@ -57,7 +64,8 @@ type Status =
 function formatBytes(bytes: number): string {
   if (bytes < 1024) return `${bytes} B`
   if (bytes < 1024 * 1024) return `${Math.round(bytes / 1024)} KB`
-  if (bytes < 1024 * 1024 * 1024) return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
+  if (bytes < 1024 * 1024 * 1024)
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
   return `${(bytes / (1024 * 1024 * 1024)).toFixed(1)} GB`
 }
 
@@ -65,6 +73,14 @@ export function ExportSection() {
   const t = useTranslation()
   const [status, setStatus] = useState<Status>({ kind: 'idle' })
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const zeppLifeFileInputRef = useRef<HTMLInputElement>(null)
+  const [zeppLifePendingFile, setZeppLifePendingFile] = useState<File | null>(
+    null,
+  )
+  const [zeppLifeDialogOpen, setZeppLifeDialogOpen] = useState(false)
+  const [zeppLifePasswordError, setZeppLifePasswordError] = useState<
+    string | null
+  >(null)
   const [storageUsage, setStorageUsage] = useState<number | null>(null)
   const [storageQuota, setStorageQuota] = useState<number | null>(null)
   // #240 — optional, applies to Excel/CSV/Markdown only (see
@@ -233,6 +249,39 @@ export function ExportSection() {
     }
   }
 
+  function handleZeppLifeFileSelected(file: File) {
+    setZeppLifePendingFile(file)
+    setZeppLifePasswordError(null)
+    setZeppLifeDialogOpen(true)
+  }
+
+  async function handleZeppLifePasswordSubmit(password: string) {
+    if (!zeppLifePendingFile) return
+    setStatus({ kind: 'importingZeppLife' })
+    try {
+      const { daysImported, daysUpdated } = await importZeppLifeExport(
+        zeppLifePendingFile,
+        password,
+      )
+      setZeppLifeDialogOpen(false)
+      setZeppLifePendingFile(null)
+      setStatus({ kind: 'importedZeppLife', daysImported, daysUpdated })
+    } catch (err) {
+      if (err instanceof ZeppLifeWrongPasswordError) {
+        setZeppLifePasswordError(t.zeppLifeImport.wrongPassword)
+        setStatus({ kind: 'idle' })
+        return
+      }
+      setZeppLifeDialogOpen(false)
+      setZeppLifePendingFile(null)
+      const message =
+        err instanceof ZeppLifeInvalidFileError
+          ? t.zeppLifeImport.invalidFile
+          : t.zeppLifeImport.importFailed
+      setStatus({ kind: 'error', message })
+    }
+  }
+
   return (
     <>
       <CardHeader>
@@ -374,6 +423,33 @@ export function ExportSection() {
           </Button>
         </div>
 
+        <div className="flex flex-col gap-2">
+          <p className="text-sm text-muted-foreground">
+            {t.zeppLifeImport.importBlurb}
+          </p>
+          <input
+            ref={zeppLifeFileInputRef}
+            type="file"
+            accept=".zip,application/zip"
+            className="hidden"
+            onChange={(e) => {
+              const file = e.target.files?.[0]
+              if (file) handleZeppLifeFileSelected(file)
+              e.target.value = ''
+            }}
+          />
+          <Button
+            variant="outline"
+            className="self-start"
+            onClick={() => zeppLifeFileInputRef.current?.click()}
+            disabled={status.kind === 'importingZeppLife'}
+          >
+            {status.kind === 'importingZeppLife'
+              ? t.zeppLifeImport.importingButton
+              : t.zeppLifeImport.importButton}
+          </Button>
+        </div>
+
         {status.kind === 'exported' && (
           <p className="text-sm text-muted-foreground">
             {t.export.exportedSummary(
@@ -405,10 +481,33 @@ export function ExportSection() {
             )}
           </p>
         )}
+        {status.kind === 'importedZeppLife' && (
+          <p className="text-sm text-muted-foreground">
+            {status.daysImported === 0
+              ? t.zeppLifeImport.importedNothingSummary
+              : t.zeppLifeImport.importedSummary(
+                  status.daysImported,
+                  status.daysUpdated,
+                )}
+          </p>
+        )}
         {status.kind === 'error' && (
           <p className="text-sm text-destructive">{status.message}</p>
         )}
       </CardContent>
+      <ZeppLifePasswordDialog
+        open={zeppLifeDialogOpen}
+        onOpenChange={(open) => {
+          setZeppLifeDialogOpen(open)
+          if (!open) {
+            setZeppLifePendingFile(null)
+            setZeppLifePasswordError(null)
+          }
+        }}
+        onSubmit={handleZeppLifePasswordSubmit}
+        error={zeppLifePasswordError}
+        submitting={status.kind === 'importingZeppLife'}
+      />
     </>
   )
 }
