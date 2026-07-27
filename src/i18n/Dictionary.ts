@@ -636,6 +636,24 @@ export interface Dictionary {
     passwordSubmitButton: string
     wrongPassword: string
   }
+  /** Importing an Apple Health XML export (#366) — same "distinct copy,
+   * distinct feature" reasoning as `zeppLifeImport` above. No password
+   * copy (unlike Zepp Life's export, Apple Health's is never encrypted),
+   * but adds a live progress percentage since a real export.xml can take
+   * a while to stream-parse. */
+  appleHealthImport: {
+    importBlurb: string
+    importButton: string
+    /** `percent` is an already-rounded 0-100 integer. */
+    importingButton: (percent: number) => string
+    importedSummary: (days: number, updated: number) => string
+    /** Shown instead of `importedSummary` when the export had none of the
+     * record types this app tracks — distinct from an error, since the
+     * file itself was valid. */
+    importedNothingSummary: string
+    invalidFile: string
+    importFailed: string
+  }
   /** Column headers / sheet names for the Excel export (#123) — kept
    * separate from the daily-entry form's own field labels (`dailyEntry.*`)
    * even where the underlying concept matches, so wording changes to one

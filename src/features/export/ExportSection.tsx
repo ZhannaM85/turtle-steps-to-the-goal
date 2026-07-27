@@ -27,6 +27,10 @@ import {
   ZeppLifeWrongPasswordError,
 } from './zeppLife/importZeppLife'
 import { ZeppLifePasswordDialog } from './zeppLife/ZeppLifePasswordDialog'
+import {
+  AppleHealthInvalidFileError,
+  importAppleHealthExport,
+} from './appleHealth/importAppleHealth'
 
 /** #240 — Excel/CSV/Markdown only, never the JSON backup (a backup should
  * stay complete). Blank start/end means "no lower/upper bound", so leaving
@@ -56,6 +60,8 @@ type Status =
   | { kind: 'imported'; goals: number; entries: number }
   | { kind: 'importingZeppLife' }
   | { kind: 'importedZeppLife'; daysImported: number; daysUpdated: number }
+  | { kind: 'importingAppleHealth'; progress: number }
+  | { kind: 'importedAppleHealth'; daysImported: number; daysUpdated: number }
   | { kind: 'error'; message: string }
 
 /** "50 KB" / "1.2 MB" / "1.2 GB" — used for both usage and quota (#191:
@@ -81,6 +87,7 @@ export function ExportSection() {
   const [zeppLifePasswordError, setZeppLifePasswordError] = useState<
     string | null
   >(null)
+  const appleHealthFileInputRef = useRef<HTMLInputElement>(null)
   const [storageUsage, setStorageUsage] = useState<number | null>(null)
   const [storageQuota, setStorageQuota] = useState<number | null>(null)
   // #240 — optional, applies to Excel/CSV/Markdown only (see
@@ -282,6 +289,28 @@ export function ExportSection() {
     }
   }
 
+  async function handleAppleHealthFileSelected(file: File) {
+    setStatus({ kind: 'importingAppleHealth', progress: 0 })
+    try {
+      const { daysImported, daysUpdated } = await importAppleHealthExport(
+        file,
+        (fraction) => {
+          setStatus({
+            kind: 'importingAppleHealth',
+            progress: Math.round(fraction * 100),
+          })
+        },
+      )
+      setStatus({ kind: 'importedAppleHealth', daysImported, daysUpdated })
+    } catch (err) {
+      const message =
+        err instanceof AppleHealthInvalidFileError
+          ? t.appleHealthImport.invalidFile
+          : t.appleHealthImport.importFailed
+      setStatus({ kind: 'error', message })
+    }
+  }
+
   return (
     <>
       <CardHeader>
@@ -450,6 +479,33 @@ export function ExportSection() {
           </Button>
         </div>
 
+        <div className="flex flex-col gap-2">
+          <p className="text-sm text-muted-foreground">
+            {t.appleHealthImport.importBlurb}
+          </p>
+          <input
+            ref={appleHealthFileInputRef}
+            type="file"
+            accept=".zip,application/zip"
+            className="hidden"
+            onChange={(e) => {
+              const file = e.target.files?.[0]
+              if (file) handleAppleHealthFileSelected(file)
+              e.target.value = ''
+            }}
+          />
+          <Button
+            variant="outline"
+            className="self-start"
+            onClick={() => appleHealthFileInputRef.current?.click()}
+            disabled={status.kind === 'importingAppleHealth'}
+          >
+            {status.kind === 'importingAppleHealth'
+              ? t.appleHealthImport.importingButton(status.progress)
+              : t.appleHealthImport.importButton}
+          </Button>
+        </div>
+
         {status.kind === 'exported' && (
           <p className="text-sm text-muted-foreground">
             {t.export.exportedSummary(
@@ -486,6 +542,16 @@ export function ExportSection() {
             {status.daysImported === 0
               ? t.zeppLifeImport.importedNothingSummary
               : t.zeppLifeImport.importedSummary(
+                  status.daysImported,
+                  status.daysUpdated,
+                )}
+          </p>
+        )}
+        {status.kind === 'importedAppleHealth' && (
+          <p className="text-sm text-muted-foreground">
+            {status.daysImported === 0
+              ? t.appleHealthImport.importedNothingSummary
+              : t.appleHealthImport.importedSummary(
                   status.daysImported,
                   status.daysUpdated,
                 )}

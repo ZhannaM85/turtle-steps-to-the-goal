@@ -4,7 +4,7 @@ import {
   parseZeppActivityCsv,
   parseZeppBodyCsv,
 } from './zeppLifeParser'
-import { mergeZeppLifePatches } from './zeppLifeMerge'
+import { mergeDailyEntryPatches } from '../mergeDailyEntryPatches'
 
 const dailyEntryRepository = new IndexedDbDailyEntryRepository()
 
@@ -80,10 +80,8 @@ export async function importZeppLifeExport(
     const patches = buildZeppLifePatches(bodyRows, activityRows)
 
     const existingEntries = await dailyEntryRepository.getAll()
-    const { daysImported, daysUpdated, entriesToUpsert } = mergeZeppLifePatches(
-      patches,
-      existingEntries,
-    )
+    const { daysImported, daysUpdated, entriesToUpsert } =
+      mergeDailyEntryPatches(patches, existingEntries)
 
     await Promise.all(
       entriesToUpsert.map((entry) => dailyEntryRepository.upsert(entry)),

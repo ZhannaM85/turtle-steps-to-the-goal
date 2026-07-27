@@ -388,6 +388,18 @@ export const ru: Dictionary = {
     wrongPassword:
       'Пароль не подошёл — проверьте письмо с экспортом и попробуйте снова.',
   },
+  appleHealthImport: {
+    importBlurb:
+      'Импортируйте вес, процент жира, обхват талии, воду и шаги из файла экспорта Apple Health. Получите его в приложении «Здоровье»: значок профиля → «Экспортировать все данные». Для большого экспорта обработка может занять некоторое время.',
+    importButton: 'Импорт из Apple Health',
+    importingButton: (percent) => `Импорт… ${percent}%`,
+    importedSummary: (days, updated) =>
+      `Импортированы данные за ${dayCount(days)} из Apple Health (обновлено записей: ${updated}).`,
+    importedNothingSummary:
+      'В этом экспорте не оказалось данных, которые отслеживает это приложение.',
+    invalidFile: 'Это не похоже на файл экспорта Apple Health.',
+    importFailed: 'Не удалось выполнить импорт.',
+  },
   exportXlsx: {
     dailyLogSheetName: 'Дневник',
     mealsSheetName: 'Приёмы пищи',

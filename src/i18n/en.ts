@@ -382,6 +382,18 @@ export const en: Dictionary = {
     wrongPassword:
       "That password didn't work — check the export email and try again.",
   },
+  appleHealthImport: {
+    importBlurb:
+      'Import weight, body fat, waist, water, and step data from an Apple Health export file. Get one from the Health app: profile icon → Export All Health Data. This can take a while to process for a large export.',
+    importButton: 'Import from Apple Health',
+    importingButton: (percent) => `Importing… ${percent}%`,
+    importedSummary: (days, updated) =>
+      `Imported data for ${days} ${days === 1 ? 'day' : 'days'} from Apple Health (${updated} updated an existing entry).`,
+    importedNothingSummary:
+      "This export didn't have any data this app tracks to import.",
+    invalidFile: "This doesn't look like an Apple Health export file.",
+    importFailed: 'Import failed.',
+  },
   exportXlsx: {
     dailyLogSheetName: 'Daily Log',
     mealsSheetName: 'Meals',

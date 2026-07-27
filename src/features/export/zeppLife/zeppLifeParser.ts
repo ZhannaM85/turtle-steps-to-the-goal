@@ -1,12 +1,11 @@
-import { format } from 'date-fns'
-import type { DailyEntry } from '@/domain/dailyEntry'
+import { parseHealthTimestamp } from '../parseHealthTimestamp'
+import type { DailyEntryPatch } from '../mergeDailyEntryPatches'
 
 /** One row from `BODY/BODY_*.csv` in a Zepp Life export — only present for
  * dates where a synced scale was used. `time` stays a raw string (UTC,
- * `YYYY-MM-DD HH:mm:ss+ZZZZ`) rather than a `Date` — its fixed-width format
- * sorts correctly as a plain string, which `buildZeppLifePatches` relies on
- * to find the latest same-day reading without ever constructing a `Date`
- * for comparison. */
+ * `YYYY-MM-DD HH:mm:ss+ZZZZ`) — parsed via `parseHealthTimestamp` at the
+ * point of use rather than up front, since most rows never need it (only
+ * the same-day tiebreak in `buildZeppLifePatches` does). */
 export interface ZeppBodyRow {
   time: string
   weightKg: number
@@ -23,20 +22,6 @@ export interface ZeppActivityRow {
   date: string
   steps: number
 }
-
-/** The subset of `DailyEntry` a Zepp Life export can fill in — everything
- * else on the day's entry (meals, notes, mood, manually-tracked fields with
- * no Zepp equivalent) is left untouched by the merge in `zeppLifeMerge.ts`. */
-export type ZeppLifePatch = Pick<
-  DailyEntry,
-  | 'weightKg'
-  | 'bodyFatPercent'
-  | 'bodyWaterPercent'
-  | 'boneMassKg'
-  | 'visceralFatRating'
-  | 'muscleMassKg'
-  | 'steps'
->
 
 const BOM = String.fromCharCode(0xfeff)
 
@@ -118,8 +103,7 @@ export function parseZeppActivityCsv(csvText: string): ZeppActivityRow[] {
  * every other date in this app (manually-logged entries, "today") is a
  * plain local calendar day rather than a UTC one. */
 export function zeppTimeToLocalDate(time: string): string {
-  const isoish = time.replace(' ', 'T').replace(/([+-]\d{2})(\d{2})$/, '$1:$2')
-  return format(new Date(isoish), 'yyyy-MM-dd')
+  return parseHealthTimestamp(time).localDate
 }
 
 function round2(value: number): number {
@@ -127,29 +111,33 @@ function round2(value: number): number {
 }
 
 /**
- * Builds one `ZeppLifePatch` per calendar date out of the export's BODY and
- * ACTIVITY rows. A date can have several BODY rows (e.g. a scale synced
- * twice the same morning, seen in a real sample) — the latest `time` wins,
- * a plain string comparison since every `time` shares the same fixed-width
- * `+0000` UTC format and so sorts correctly as text.
+ * Builds one `DailyEntryPatch` per calendar date out of the export's BODY
+ * and ACTIVITY rows. A date can have several BODY rows (e.g. a scale
+ * synced twice the same morning, seen in a real sample) — the latest
+ * `time` wins, compared as real instants (`parseHealthTimestamp`'s
+ * `epochMs`) rather than as strings, since Zepp's own export always uses a
+ * fixed `+0000` offset today but nothing guarantees that stays true.
  */
 export function buildZeppLifePatches(
   bodyRows: ZeppBodyRow[],
   activityRows: ZeppActivityRow[],
-): Map<string, ZeppLifePatch> {
-  const patches = new Map<string, ZeppLifePatch>()
+): Map<string, DailyEntryPatch> {
+  const patches = new Map<string, DailyEntryPatch>()
 
-  const latestBodyRowByDate = new Map<string, ZeppBodyRow>()
+  const latestBodyRowByDate = new Map<
+    string,
+    { row: ZeppBodyRow; epochMs: number }
+  >()
   for (const row of bodyRows) {
-    const date = zeppTimeToLocalDate(row.time)
-    const existing = latestBodyRowByDate.get(date)
-    if (!existing || row.time > existing.time) {
-      latestBodyRowByDate.set(date, row)
+    const { localDate, epochMs } = parseHealthTimestamp(row.time)
+    const existing = latestBodyRowByDate.get(localDate)
+    if (!existing || epochMs > existing.epochMs) {
+      latestBodyRowByDate.set(localDate, { row, epochMs })
     }
   }
 
-  for (const [date, row] of latestBodyRowByDate) {
-    const patch: ZeppLifePatch = { weightKg: row.weightKg }
+  for (const [date, { row }] of latestBodyRowByDate) {
+    const patch: DailyEntryPatch = { weightKg: row.weightKg }
     if (row.fatRatePercent !== undefined) {
       patch.bodyFatPercent = row.fatRatePercent
     }
