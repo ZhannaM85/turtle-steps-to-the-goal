@@ -219,6 +219,18 @@ and #144's precedent in `docs/issues-priority.md`).
   triggered the run needs to wait for its actual result. Confirmed directly
   by the user, who pointed out mid-session (2026-07-19) that stopping to
   wait wastes time when there's more queued work ready to start.
+- **Check `.github/workflows/*.yml` for the CI-pinned Node version before
+  trusting a green local test run, for anything touching Blob/File/crypto
+  or other environment-sensitive browser APIs.** CI pins `node-version: 22`;
+  the local dev machine runs whatever `nvm` has active (often newer). #365's
+  deploy failed this way (2026-07-27): new zip.js-based tests passed locally
+  on Node 24 but failed in CI — `new File([blob], ...)` silently truncates
+  data under jsdom on Node 22 (a real 271-byte zip `Blob` became a 13-byte
+  `File`) but works fine on Node 24, a genuine polyfill-version gap, not
+  flakiness. `nvm install 22` / `nvm use 22.<x>` (already allowlisted) to
+  reproduce CI exactly before pushing when a change is in this risk zone;
+  reverting to whatever version was active before (`nvm use <version>`)
+  afterward isn't required but keep track of which one is "current."
 
 ## Git conventions
 

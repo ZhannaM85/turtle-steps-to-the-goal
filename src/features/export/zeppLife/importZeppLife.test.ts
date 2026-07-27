@@ -29,7 +29,14 @@ async function makeZeppLifeExportFile(password: string): Promise<File> {
     password,
   })
   const blob = await writer.close()
-  return new File([blob], 'export.zip', { type: 'application/zip' })
+  // Built from the Blob's raw bytes, not the Blob itself — `new File([blob],
+  // ...)` silently truncates under jsdom on Node 22 (reproduced: a real
+  // 271-byte zip Blob became a 13-byte File), a jsdom/Node polyfill quirk
+  // that only affects this hand-built test fixture — a real browser file
+  // input hands `importZeppLifeExport` a genuine `File` directly, never one
+  // constructed from an existing Blob this way.
+  const buffer = await blob.arrayBuffer()
+  return new File([buffer], 'export.zip', { type: 'application/zip' })
 }
 
 beforeEach(async () => {
@@ -74,7 +81,8 @@ describe('importZeppLifeExport', () => {
       new TextReader('userId,gender\n1,0\n'),
     )
     const blob = await writer.close()
-    const file = new File([blob], 'export.zip', { type: 'application/zip' })
+    const buffer = await blob.arrayBuffer()
+    const file = new File([buffer], 'export.zip', { type: 'application/zip' })
 
     await expect(importZeppLifeExport(file, PASSWORD)).rejects.toBeInstanceOf(
       ZeppLifeInvalidFileError,
