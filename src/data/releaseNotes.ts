@@ -25,6 +25,34 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 338,
+    issue: 370,
+    date: '2026-07-28T13:12:32+03:00',
+    en: 'You can now export a JSON backup scoped to a date range, alongside the existing always-complete backup.',
+    ru: 'Теперь можно экспортировать резервную копию JSON за определённый период, отдельно от полной копии.',
+  },
+  {
+    version: 337,
+    issue: 371,
+    date: '2026-07-28T12:59:35+03:00',
+    en: 'Custom metrics can now be added as a series on the Compare Data chart.',
+    ru: 'Собственные метрики теперь можно добавить как ряд на график "Сравнение данных".',
+  },
+  {
+    version: 336,
+    issue: 374,
+    date: '2026-07-28T12:06:14+03:00',
+    en: 'The outlier date-chip lists now show the year and scroll within a fixed height for large datasets.',
+    ru: 'Списки необычных точек данных теперь показывают год и прокручиваются в ограниченной области.',
+  },
+  {
+    version: 335,
+    issue: 373,
+    date: '2026-07-28T11:13:08+03:00',
+    en: 'The Weekly Summary cards now show the year in their date range.',
+    ru: 'Карточки недельной сводки теперь показывают год в диапазоне дат.',
+  },
+  {
     version: 334,
     issue: 380,
     date: '2026-07-28T14:15:40+03:00',
