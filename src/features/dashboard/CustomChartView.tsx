@@ -18,6 +18,7 @@ import {
   booleanFlagDates,
   customChartPoints,
   NUMERIC_SERIES_KEYS,
+  resolveMetricValueMap,
   type NumericSeriesKey,
 } from '@/domain/stats'
 import {
@@ -30,6 +31,7 @@ import {
 } from '@/i18n'
 import {
   useCustomChartSelectionStore,
+  useCustomMetricStore,
   useCycleTrackingStore,
   useDashboardChartVisibilityStore,
   useDigestionTrackingStore,
@@ -39,6 +41,44 @@ import {
 } from '@/stores'
 import { ToggleGroup, ToggleGroupItem } from '@/shared/ui/toggle-group'
 import { ChartTitleWithToggle } from './ChartTitleWithToggle'
+
+/** #371 — custom metrics (#336) cycle through this fixed palette by
+ * selection order, same "generic reusable slot" precedent steps/waist/
+ * hip/bodyFat/fastingHours already established for series with no
+ * dedicated color token of their own. Colors can repeat once more than 5
+ * custom metrics are selected simultaneously alongside these built-ins —
+ * an accepted, pre-existing class of limitation (an unbounded user-defined
+ * list can't each get a truly unique color from a fixed palette), not
+ * solved here.
+ */
+const CUSTOM_METRIC_COLORS = [
+  'var(--chart-1)',
+  'var(--chart-2)',
+  'var(--chart-3)',
+  'var(--chart-4)',
+  'var(--chart-5)',
+]
+
+function customMetricColor(index: number): string {
+  return CUSTOM_METRIC_COLORS[index % CUSTOM_METRIC_COLORS.length]
+}
+
+/** Per-series 0-100 normalization, same logic `customChartSeries.ts`/
+ * `bodyCompositionTrend.ts` already use for their own fixed-key sets —
+ * kept standalone here since a custom metric's value comes from a
+ * `Map<date, number>` (via `resolveMetricValueMap`), not a `DailyEntry`
+ * field. */
+function normalizeByDate(byDate: Map<string, number>): Map<string, number> {
+  const values = [...byDate.values()]
+  const normalized = new Map<string, number>()
+  if (values.length === 0) return normalized
+  const min = Math.min(...values)
+  const max = Math.max(...values)
+  for (const [date, value] of byDate) {
+    normalized.set(date, max === min ? 50 : ((value - min) / (max - min)) * 100)
+  }
+  return normalized
+}
 
 export interface CustomChartViewProps {
   entries: DailyEntry[]
@@ -262,6 +302,12 @@ export function CustomChartView({ entries, dragHandle }: CustomChartViewProps) {
   const setSelectedBoolean = useCustomChartSelectionStore(
     (state) => state.setSelectedBoolean,
   )
+  const selectedCustomMetricIds = useCustomChartSelectionStore(
+    (state) => state.selectedCustomMetricIds,
+  )
+  const setSelectedCustomMetricIds = useCustomChartSelectionStore(
+    (state) => state.setSelectedCustomMetricIds,
+  )
   const chartTypes = useCustomChartSelectionStore((state) => state.chartTypes)
   const setChartType = useCustomChartSelectionStore(
     (state) => state.setChartType,
@@ -269,6 +315,10 @@ export function CustomChartView({ entries, dragHandle }: CustomChartViewProps) {
   const cardVisible = useDashboardChartVisibilityStore(
     (state) => state.visible.customChart,
   )
+  // #371 — DashboardScreen already triggers useCustomMetricStore.loadAll()
+  // for CustomCorrelationView, so this just reads whatever's already there.
+  const customMetrics = useCustomMetricStore((state) => state.metrics)
+  const customMetricEntries = useCustomMetricStore((state) => state.entries)
 
   if (entries.length === 0) return null
 
@@ -293,32 +343,60 @@ export function CustomChartView({ entries, dragHandle }: CustomChartViewProps) {
   const [leftAxisKey, rightAxisKey] = isDualAxis ? selectedNumeric : []
 
   const points = customChartPoints(entries, selectedNumeric)
+  const pointsByDate = new Map(points.map((p) => [p.date, p]))
   const booleanDatesByKey = new Map(
     selectedBoolean.map((key) => [
       key,
       new Set(booleanFlagDates(entries, key as 'onPeriod' | 'hadConstipation')),
     ]),
   )
-  const data = points.map((point) => {
-    const row: Record<string, string | number | undefined> = { date: point.date }
+  // #371 — resolveMetricValueMap already handles reading a custom metric's
+  // own logged entries into a plain date -> value map (same helper #336's
+  // custom-correlation engine uses); normalized the same way the built-in
+  // series above are.
+  const customMetricMaps = selectedCustomMetricIds.map((metricId) => {
+    const byDate = resolveMetricValueMap(
+      { kind: 'custom', metricId },
+      entries,
+      customMetricEntries,
+    )
+    return { metricId, byDate, normalized: normalizeByDate(byDate) }
+  })
+  // A custom metric can be logged on a date with no corresponding
+  // DailyEntry at all, so the chart's date set is the union of both
+  // sources, not just `points`' own dates.
+  const allDates = new Set(points.map((p) => p.date))
+  for (const { byDate } of customMetricMaps) {
+    for (const date of byDate.keys()) allDates.add(date)
+  }
+  const data = [...allDates].sort().map((date) => {
+    const point = pointsByDate.get(date)
+    const row: Record<string, string | number | undefined> = { date }
     for (const key of selectedNumeric) {
-      row[`${key}_norm`] = point.normalized[key]
-      row[`${key}_raw`] = point.raw[key]
+      row[`${key}_norm`] = point?.normalized[key]
+      row[`${key}_raw`] = point?.raw[key]
     }
     for (const key of selectedBoolean) {
-      row[`${key}_marker`] = booleanDatesByKey.get(key)?.has(point.date)
+      row[`${key}_marker`] = booleanDatesByKey.get(key)?.has(date)
         ? BOOLEAN_MARKER_Y
         : undefined
+    }
+    for (const { metricId, byDate, normalized } of customMetricMaps) {
+      row[`${metricId}_raw`] = byDate.get(date)
+      row[`${metricId}_norm`] = normalized.get(date)
     }
     return row
   })
 
   function renderTooltip({ active, label }: TooltipContentProps) {
     if (!active || !label) return null
-    const point = points.find((p) => p.date === label)
-    if (!point) return null
-    const rows = selectedNumeric.filter((key) => point.raw[key] !== undefined)
-    if (rows.length === 0) return null
+    const date = String(label)
+    const point = pointsByDate.get(date)
+    const rows = selectedNumeric.filter((key) => point?.raw[key] !== undefined)
+    const customRows = customMetricMaps.filter(({ byDate }) =>
+      byDate.has(date),
+    )
+    if (rows.length === 0 && customRows.length === 0) return null
     return (
       <div
         className="rounded-lg border border-border bg-popover px-3 py-2 text-xs text-popover-foreground shadow-md"
@@ -326,13 +404,24 @@ export function CustomChartView({ entries, dragHandle }: CustomChartViewProps) {
         onTouchMove={(e) => e.stopPropagation()}
       >
         <p className="mb-1 font-medium">
-          {format(parseISO(String(label)), 'PP', { locale: dateFnsLocale })}
+          {format(parseISO(date), 'PP', { locale: dateFnsLocale })}
         </p>
         {rows.map((key) => (
           <p key={key} style={{ color: seriesConfig[key].color }}>
-            {seriesConfig[key].label}: {seriesConfig[key].formatRaw(point.raw[key]!)}
+            {seriesConfig[key].label}: {seriesConfig[key].formatRaw(point!.raw[key]!)}
           </p>
         ))}
+        {customRows.map(({ metricId, byDate }) => {
+          const metric = customMetrics.find((m) => m.id === metricId)
+          if (!metric) return null
+          const index = selectedCustomMetricIds.indexOf(metricId)
+          return (
+            <p key={metricId} style={{ color: customMetricColor(index) }}>
+              {metric.name}: {formatNumber(byDate.get(date)!, locale)}
+              {metric.unit ? ` ${metric.unit}` : ''}
+            </p>
+          )
+        })}
       </div>
     )
   }
@@ -343,7 +432,7 @@ export function CustomChartView({ entries, dragHandle }: CustomChartViewProps) {
       <ToggleGroup
         type="multiple"
         aria-label={t.dashboard.customChartTitle}
-        value={[...selectedNumeric, ...selectedBoolean]}
+        value={[...selectedNumeric, ...selectedBoolean, ...selectedCustomMetricIds]}
         onValueChange={(value: string[]) => {
           setSelectedNumeric(
             NUMERIC_SERIES_KEYS.filter((key) => value.includes(key)),
@@ -352,6 +441,9 @@ export function CustomChartView({ entries, dragHandle }: CustomChartViewProps) {
             value.filter((key) =>
               availableBooleanSeries.some((series) => series.key === key),
             ),
+          )
+          setSelectedCustomMetricIds(
+            value.filter((key) => customMetrics.some((metric) => metric.id === key)),
           )
         }}
         className="w-fit flex-wrap"
@@ -366,9 +458,16 @@ export function CustomChartView({ entries, dragHandle }: CustomChartViewProps) {
             {series.label(t)}
           </ToggleGroupItem>
         ))}
+        {/* #371 — custom metrics (#336), same chip pattern as the built-ins
+         * above. */}
+        {customMetrics.map((metric) => (
+          <ToggleGroupItem key={metric.id} value={metric.id}>
+            {metric.name}
+          </ToggleGroupItem>
+        ))}
       </ToggleGroup>
 
-      {selectedNumeric.length === 0 ? (
+      {selectedNumeric.length === 0 && selectedCustomMetricIds.length === 0 ? (
         <p className="text-sm text-muted-foreground">
           {t.dashboard.customChartEmptyDescription}
         </p>
@@ -497,6 +596,23 @@ export function CustomChartView({ entries, dragHandle }: CustomChartViewProps) {
                   />
                 )
               })}
+              {/* #371 — always a plain line on the shared normalized axis,
+               * regardless of isDualAxis: an unbounded user-defined list
+               * doesn't fit the fixed line/bar/dots-per-key or exactly-2
+               * real-axis logic above, a deliberate v1 scope trim. */}
+              {selectedCustomMetricIds.map((metricId, index) => (
+                <Line
+                  key={metricId}
+                  yAxisId="normalized"
+                  type="monotone"
+                  dataKey={`${metricId}_norm`}
+                  stroke={customMetricColor(index)}
+                  strokeWidth={2}
+                  dot={false}
+                  connectNulls={false}
+                  isAnimationActive={false}
+                />
+              ))}
             </ComposedChart>
           </ResponsiveContainer>
           <div className="flex flex-wrap gap-4 text-xs text-muted-foreground">
@@ -558,12 +674,29 @@ export function CustomChartView({ entries, dragHandle }: CustomChartViewProps) {
                 </div>
               )
             })}
+            {selectedCustomMetricIds.map((metricId, index) => {
+              const metric = customMetrics.find((m) => m.id === metricId)
+              if (!metric) return null
+              return (
+                <div key={metricId} className="flex items-center gap-1.5">
+                  <span
+                    aria-hidden="true"
+                    className="size-2 rounded-sm"
+                    style={{ background: customMetricColor(index) }}
+                  />
+                  {metric.name}
+                </div>
+              )
+            })}
           </div>
           {/* #330 — this caveat describes the normalized-scale behavior,
            * which no longer applies once exactly 2 series switch to real
            * dual axes above; showing it then would contradict what's
-           * actually on screen. */}
-          {!isDualAxis && (
+           * actually on screen. #371 — a selected custom metric always
+           * plots on the normalized axis regardless of isDualAxis, so the
+           * caveat still applies whenever one is selected, even alongside
+           * an active dual-axis pair. */}
+          {(!isDualAxis || selectedCustomMetricIds.length > 0) && (
             <p className="text-xs text-muted-foreground">
               {t.dashboard.customChartNormalizedCaveat}
             </p>

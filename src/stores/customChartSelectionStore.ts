@@ -25,9 +25,17 @@ const DEFAULT_SELECTED_NUMERIC: NumericSeriesKey[] = ['weight', 'calories']
 interface CustomChartSelectionState {
   selectedNumeric: NumericSeriesKey[]
   selectedBoolean: string[]
+  /** #371 — custom metrics (#336) selectable alongside the built-in
+   * series above. Always plotted as a plain line on the shared normalized
+   * axis (no per-metric bar/dots toggle, no dual-real-axis participation)
+   * — a deliberate v1 scope trim, same category as #336's own documented
+   * trims, since an unbounded user-defined list doesn't fit the fixed-key
+   * assumptions the dual-axis/chart-type-toggle code was built around. */
+  selectedCustomMetricIds: string[]
   chartTypes: Record<NumericSeriesKey, ChartSeriesType>
   setSelectedNumeric: (keys: NumericSeriesKey[]) => void
   setSelectedBoolean: (keys: string[]) => void
+  setSelectedCustomMetricIds: (ids: string[]) => void
   setChartType: (key: NumericSeriesKey, type: ChartSeriesType) => void
 }
 
@@ -44,9 +52,12 @@ export const useCustomChartSelectionStore = create<CustomChartSelectionState>()(
     (set) => ({
       selectedNumeric: DEFAULT_SELECTED_NUMERIC,
       selectedBoolean: [],
+      selectedCustomMetricIds: [],
       chartTypes: DEFAULT_CHART_TYPES,
       setSelectedNumeric: (selectedNumeric) => set({ selectedNumeric }),
       setSelectedBoolean: (selectedBoolean) => set({ selectedBoolean }),
+      setSelectedCustomMetricIds: (selectedCustomMetricIds) =>
+        set({ selectedCustomMetricIds }),
       setChartType: (key, type) =>
         set((state) => ({
           chartTypes: { ...state.chartTypes, [key]: type },

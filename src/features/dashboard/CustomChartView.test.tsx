@@ -4,6 +4,7 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import type { DailyEntry } from '@/domain/dailyEntry'
 import {
   useCustomChartSelectionStore,
+  useCustomMetricStore,
   useCycleTrackingStore,
   useDashboardChartVisibilityStore,
   useDigestionTrackingStore,
@@ -31,6 +32,7 @@ beforeEach(() => {
   useCustomChartSelectionStore.setState({
     selectedNumeric: ['weight', 'calories'],
     selectedBoolean: [],
+    selectedCustomMetricIds: [],
     chartTypes: {
       weight: 'line',
       calories: 'line',
@@ -55,6 +57,7 @@ beforeEach(() => {
       bodyComposition: true,
     },
   })
+  useCustomMetricStore.setState({ metrics: [], entries: [] })
 })
 
 describe('CustomChartView', () => {
@@ -279,6 +282,106 @@ describe('CustomChartView', () => {
       render(<CustomChartView entries={[entry('2026-03-01', { weightKg: 80 })]} />)
 
       await user.click(screen.getByRole('button', { name: 'Protein' })) // up to 3
+
+      expect(
+        screen.getByText(/Each line is scaled to its own range/),
+      ).toBeInTheDocument()
+    })
+  })
+
+  describe('custom metrics (#371)', () => {
+    beforeEach(() => {
+      useCustomMetricStore.setState({
+        metrics: [
+          {
+            id: 'metric-1',
+            name: 'Acne',
+            inputKind: 'scale5',
+            createdAt: '2026-01-01T00:00:00.000Z',
+          },
+        ],
+        entries: [
+          {
+            id: 'entry-1',
+            metricId: 'metric-1',
+            date: '2026-03-01',
+            value: 3,
+            updatedAt: '2026-01-01T00:00:00.000Z',
+          },
+        ],
+      })
+    })
+
+    it('offers a chip for each defined custom metric', () => {
+      render(<CustomChartView entries={[entry('2026-03-01', { weightKg: 80 })]} />)
+
+      expect(screen.getByRole('button', { name: 'Acne' })).toBeInTheDocument()
+    })
+
+    it('adds the metric to the legend once selected', async () => {
+      const user = userEvent.setup()
+      render(<CustomChartView entries={[entry('2026-03-01', { weightKg: 80 })]} />)
+
+      await user.click(screen.getByRole('button', { name: 'Acne' }))
+
+      // Once selected it renders twice: the picker chip, and the legend entry.
+      expect(screen.getAllByText('Acne')).toHaveLength(2)
+    })
+
+    it('does not show the empty-chart message when only a custom metric is selected', async () => {
+      const user = userEvent.setup()
+      render(<CustomChartView entries={[entry('2026-03-01', { weightKg: 80 })]} />)
+
+      await user.click(screen.getByRole('button', { name: 'Weight' })) // deselect
+      await user.click(screen.getByRole('button', { name: 'Calories' })) // deselect
+      await user.click(screen.getByRole('button', { name: 'Acne' })) // select
+
+      expect(
+        screen.queryByText('Pick at least one to compare.'),
+      ).not.toBeInTheDocument()
+    })
+
+    it('includes a date with only a custom-metric value, even with no DailyEntry for it', async () => {
+      const user = userEvent.setup()
+      // No DailyEntry at all on 2026-03-05 — only a custom metric log.
+      useCustomMetricStore.setState({
+        metrics: [
+          {
+            id: 'metric-1',
+            name: 'Acne',
+            inputKind: 'scale5',
+            createdAt: '2026-01-01T00:00:00.000Z',
+          },
+        ],
+        entries: [
+          {
+            id: 'entry-1',
+            metricId: 'metric-1',
+            date: '2026-03-05',
+            value: 4,
+            updatedAt: '2026-01-01T00:00:00.000Z',
+          },
+        ],
+      })
+      render(<CustomChartView entries={[entry('2026-03-01', { weightKg: 80 })]} />)
+
+      await user.click(screen.getByRole('button', { name: 'Weight' })) // deselect
+      await user.click(screen.getByRole('button', { name: 'Calories' })) // deselect
+      await user.click(screen.getByRole('button', { name: 'Acne' })) // select
+
+      // Renders without crashing and shows the chart (not the empty message)
+      // even though the only logged date for the selected series has no
+      // corresponding DailyEntry at all.
+      expect(
+        screen.queryByText('Pick at least one to compare.'),
+      ).not.toBeInTheDocument()
+    })
+
+    it('keeps the normalized-scale caveat visible when a custom metric joins an active dual-axis pair', () => {
+      // beforeEach's default selection is already ['weight', 'calories'] — a
+      // dual-axis pair that would normally hide this caveat (#330).
+      useCustomChartSelectionStore.setState({ selectedCustomMetricIds: ['metric-1'] })
+      render(<CustomChartView entries={[entry('2026-03-01', { weightKg: 80 })]} />)
 
       expect(
         screen.getByText(/Each line is scaled to its own range/),
