@@ -25,6 +25,41 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 334,
+    issue: 380,
+    date: '2026-07-28T14:15:40+03:00',
+    en: 'You can now pick a time period (week/month/year/custom) for the main Dashboard trend charts.',
+    ru: 'Теперь можно выбрать период (неделя/месяц/год/свой) для основных графиков на Обзоре.',
+  },
+  {
+    version: 333,
+    issue: 376,
+    date: '2026-07-28T12:34:49+03:00',
+    en: "Fixed the body composition chart showing a mostly-empty date range when a metric's data was sparse.",
+    ru: 'Исправлено: график состава тела показывал в основном пустой диапазон дат при редких данных по показателю.',
+  },
+  {
+    version: 332,
+    issue: 381,
+    date: '2026-07-28T12:21:40+03:00',
+    en: 'The Zepp Life / Apple Health import dialogs now include a "How do I get this file?" instructions disclosure.',
+    ru: 'В диалогах импорта Zepp Life / Apple Health появилась инструкция "Как получить этот файл?".',
+  },
+  {
+    version: 331,
+    issue: 379,
+    date: '2026-07-28T12:10:17+03:00',
+    en: 'The Weekly/Monthly Summary cards now scroll within a fixed height instead of growing without limit.',
+    ru: 'Карточки недельной/месячной сводки теперь прокручиваются в ограниченной области, а не растут бесконечно.',
+  },
+  {
+    version: 330,
+    issue: 378,
+    date: '2026-07-28T11:24:03+03:00',
+    en: 'Trend and comparison chart date labels now include the year.',
+    ru: 'Подписи дат на графиках трендов и сравнения теперь включают год.',
+  },
+  {
     version: 329,
     issue: 377,
     date: '2026-07-28T13:23:53+03:00',
