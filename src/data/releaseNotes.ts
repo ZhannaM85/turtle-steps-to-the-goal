@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 327,
+    issue: 383,
+    date: '2026-07-28T15:48:08+03:00',
+    en: 'You can now track night eating (a moon icon toggle) and see how it correlates with next-day weight.',
+    ru: 'Теперь можно отмечать ночные перекусы (значок луны) и видеть их связь с весом на следующий день.',
+  },
+  {
     version: 326,
     issue: 384,
     date: '2026-07-28T15:49:06+03:00',
