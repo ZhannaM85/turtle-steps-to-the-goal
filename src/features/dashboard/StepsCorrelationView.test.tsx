@@ -5,6 +5,7 @@ import { afterEach, describe, expect, it } from 'vitest'
 import type { DailyEntry } from '@/domain/dailyEntry'
 import { useDashboardChartVisibilityStore, useOutlierExclusionStore } from '@/stores'
 import { StepsCorrelationView } from './StepsCorrelationView'
+import { MemoryRouter } from 'react-router-dom'
 
 const DATE_FORMAT = 'yyyy-MM-dd'
 const DAY_0 = '2026-03-01'
@@ -31,7 +32,7 @@ function entry(date: string, overrides: Partial<DailyEntry> = {}): DailyEntry {
 
 describe('StepsCorrelationView', () => {
   it('renders nothing with no comparable day-pairs at all', () => {
-    const { container } = render(<StepsCorrelationView entries={[]} />)
+    const { container } = render(<StepsCorrelationView entries={[]} />, { wrapper: MemoryRouter })
     expect(container).toBeEmptyDOMElement()
   })
 
@@ -40,7 +41,7 @@ describe('StepsCorrelationView', () => {
       entry(day(0), { weightKg: 80, steps: 5000 }),
       entry(day(1), { weightKg: 80.5 }),
     ]
-    render(<StepsCorrelationView entries={entries} />)
+    render(<StepsCorrelationView entries={entries} />, { wrapper: MemoryRouter })
 
     expect(
       screen.getByText(/Not enough data yet to see a pattern/),
@@ -53,7 +54,7 @@ describe('StepsCorrelationView', () => {
       entry(day(0), { weightKg: 80, steps: 5000 }),
       entry(day(1), { weightKg: 80.5 }),
     ]
-    const { container } = render(<StepsCorrelationView entries={entries} />)
+    const { container } = render(<StepsCorrelationView entries={entries} />, { wrapper: MemoryRouter })
 
     expect(container.querySelector('.recharts-wrapper')).not.toBeInTheDocument()
 
@@ -76,7 +77,7 @@ describe('StepsCorrelationView', () => {
       entry(day(7), { weightKg: 82.8, steps: 10500 }),
       entry(day(8), { weightKg: 82.85 }),
     ]
-    render(<StepsCorrelationView entries={entries} />)
+    render(<StepsCorrelationView entries={entries} />, { wrapper: MemoryRouter })
 
     expect(
       screen.getByText(/averaged more weight gain the next morning/),
@@ -106,16 +107,25 @@ describe('StepsCorrelationView', () => {
     }
 
     it('lists the flagged outlier day as an excludable button', () => {
-      render(<StepsCorrelationView entries={entriesWithOneOutlier()} />)
+      render(<StepsCorrelationView entries={entriesWithOneOutlier()} />, { wrapper: MemoryRouter })
 
       expect(
         screen.getByRole('button', { name: 'Exclude 10 Mar 2026 from this pattern' }),
       ).toBeInTheDocument()
     })
 
+    it('links the flagged outlier day to that day in History (#372)', () => {
+      render(<StepsCorrelationView entries={entriesWithOneOutlier()} />, { wrapper: MemoryRouter })
+
+      const link = screen.getByRole('link', {
+        name: 'View 10 Mar 2026 in History',
+      })
+      expect(link).toHaveAttribute('href', '/history?date=2026-03-10')
+    })
+
     it('excludes the flagged day from the summary once tapped', async () => {
       const user = userEvent.setup()
-      render(<StepsCorrelationView entries={entriesWithOneOutlier()} />)
+      render(<StepsCorrelationView entries={entriesWithOneOutlier()} />, { wrapper: MemoryRouter })
 
       expect(screen.getByText(/Based on 9 days of data\./)).toBeInTheDocument()
 
@@ -128,7 +138,7 @@ describe('StepsCorrelationView', () => {
 
     it('restores an excluded day when tapped again', async () => {
       const user = userEvent.setup()
-      render(<StepsCorrelationView entries={entriesWithOneOutlier()} />)
+      render(<StepsCorrelationView entries={entriesWithOneOutlier()} />, { wrapper: MemoryRouter })
 
       await user.click(
         screen.getByRole('button', { name: 'Exclude 10 Mar 2026 from this pattern' }),
@@ -163,7 +173,7 @@ describe('StepsCorrelationView', () => {
         entry(day(7), { weightKg: 82.8, steps: 10500 }),
         entry(day(8), { weightKg: 82.85 }),
       ]
-      render(<StepsCorrelationView entries={entries} />)
+      render(<StepsCorrelationView entries={entries} />, { wrapper: MemoryRouter })
 
       const title = 'Steps vs. next-day weight'
       expect(screen.getByText(title)).toBeInTheDocument()

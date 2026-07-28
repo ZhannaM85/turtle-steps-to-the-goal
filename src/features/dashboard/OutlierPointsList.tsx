@@ -1,3 +1,5 @@
+import { ArrowUpRight } from 'lucide-react'
+import { Link } from 'react-router-dom'
 import { useTranslation } from '@/i18n'
 import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/ui/button'
@@ -10,18 +12,27 @@ import { Button } from '@/shared/ui/button'
  * reasoning for chart-tap navigation — an explicit interactive element
  * reads better than "tap anywhere on the chart"). Renders nothing when
  * there's nothing flagged and nothing already excluded.
+ *
+ * #372 — a small separate link icon next to each chip navigates to that
+ * day in History, resolved via `AskUserQuestion` as a distinct action from
+ * the chip's own tap-to-exclude rather than overloading that existing tap.
+ * `getDate` is a separate prop from `getKey`/`formatLabel` since a couple
+ * of callers key/label by `weekStart` (a week, not a single day) but still
+ * have a sensible single date to navigate to (that week's start).
  */
 export function OutlierPointsList<T>({
   points,
   isExcluded,
   onToggle,
   getKey,
+  getDate,
   formatLabel,
 }: {
   points: T[]
   isExcluded: (point: T) => boolean
   onToggle: (point: T) => void
   getKey: (point: T) => string
+  getDate: (point: T) => string
   formatLabel: (point: T) => string
 }) {
   const t = useTranslation()
@@ -42,22 +53,32 @@ export function OutlierPointsList<T>({
           const excluded = isExcluded(point)
           const label = formatLabel(point)
           return (
-            <Button
-              key={getKey(point)}
-              type="button"
-              variant={excluded ? 'ghost' : 'outline'}
-              size="sm"
-              aria-pressed={excluded}
-              aria-label={
-                excluded
-                  ? t.dashboard.restoreOutlierLabel(label)
-                  : t.dashboard.excludeOutlierLabel(label)
-              }
-              onClick={() => onToggle(point)}
-              className={cn(excluded && 'text-muted-foreground line-through')}
-            >
-              {label}
-            </Button>
+            <div key={getKey(point)} className="flex items-center gap-0.5">
+              <Button
+                type="button"
+                variant={excluded ? 'ghost' : 'outline'}
+                size="sm"
+                aria-pressed={excluded}
+                aria-label={
+                  excluded
+                    ? t.dashboard.restoreOutlierLabel(label)
+                    : t.dashboard.excludeOutlierLabel(label)
+                }
+                onClick={() => onToggle(point)}
+                className={cn(
+                  excluded && 'text-muted-foreground line-through',
+                )}
+              >
+                {label}
+              </Button>
+              <Link
+                to={`/history?date=${getDate(point)}`}
+                aria-label={t.dashboard.viewOutlierDayLabel(label)}
+                className="flex items-center justify-center rounded-md p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground"
+              >
+                <ArrowUpRight aria-hidden="true" className="size-3.5" />
+              </Link>
+            </div>
           )
         })}
       </div>

@@ -167,6 +167,7 @@ export function CustomCorrelationView({
           isExcluded={isExcluded}
           onToggle={toggle}
           getKey={(point) => point.date}
+          getDate={(point) => point.date}
           formatLabel={(point) =>
             format(parseISO(point.date), 'd MMM yyyy', {
               locale: dateFnsLocale,

@@ -5,6 +5,7 @@ import { afterEach, describe, expect, it } from 'vitest'
 import type { CalorieEntry, DailyEntry } from '@/domain/dailyEntry'
 import { useDashboardChartVisibilityStore, useOutlierExclusionStore } from '@/stores'
 import { LateMealCorrelationView } from './LateMealCorrelationView'
+import { MemoryRouter } from 'react-router-dom'
 
 const DATE_FORMAT = 'yyyy-MM-dd'
 const DAY_0 = '2026-03-01'
@@ -42,7 +43,7 @@ function entry(date: string, overrides: Partial<DailyEntry> = {}): DailyEntry {
 
 describe('LateMealCorrelationView', () => {
   it('renders nothing with no comparable day-pairs at all', () => {
-    const { container } = render(<LateMealCorrelationView entries={[]} />)
+    const { container } = render(<LateMealCorrelationView entries={[]} />, { wrapper: MemoryRouter })
     expect(container).toBeEmptyDOMElement()
   })
 
@@ -51,7 +52,7 @@ describe('LateMealCorrelationView', () => {
       entry(day(0), { weightKg: 80, calorieEntries: mealAt('12:00') }),
       entry(day(1), { weightKg: 80.5 }),
     ]
-    render(<LateMealCorrelationView entries={entries} />)
+    render(<LateMealCorrelationView entries={entries} />, { wrapper: MemoryRouter })
 
     expect(
       screen.getByText(/Not enough data yet to see a pattern/),
@@ -64,7 +65,7 @@ describe('LateMealCorrelationView', () => {
       entry(day(0), { weightKg: 80, calorieEntries: mealAt('12:00') }),
       entry(day(1), { weightKg: 80.5 }),
     ]
-    const { container } = render(<LateMealCorrelationView entries={entries} />)
+    const { container } = render(<LateMealCorrelationView entries={entries} />, { wrapper: MemoryRouter })
 
     expect(container.querySelector('.recharts-wrapper')).not.toBeInTheDocument()
 
@@ -87,7 +88,7 @@ describe('LateMealCorrelationView', () => {
       entry(day(7), { weightKg: 82.8, calorieEntries: mealAt('23:30') }),
       entry(day(8), { weightKg: 83.4 }),
     ]
-    render(<LateMealCorrelationView entries={entries} />)
+    render(<LateMealCorrelationView entries={entries} />, { wrapper: MemoryRouter })
 
     expect(
       screen.getByText(/averaged more weight gain the next morning/),
@@ -121,7 +122,7 @@ describe('LateMealCorrelationView', () => {
     }
 
     it('lists the flagged outlier day as an excludable button', () => {
-      render(<LateMealCorrelationView entries={entriesWithOneOutlier()} />)
+      render(<LateMealCorrelationView entries={entriesWithOneOutlier()} />, { wrapper: MemoryRouter })
 
       expect(
         screen.getByRole('button', { name: 'Exclude 10 Mar 2026 from this pattern' }),
@@ -130,7 +131,7 @@ describe('LateMealCorrelationView', () => {
 
     it('excludes the flagged day from the summary once tapped', async () => {
       const user = userEvent.setup()
-      render(<LateMealCorrelationView entries={entriesWithOneOutlier()} />)
+      render(<LateMealCorrelationView entries={entriesWithOneOutlier()} />, { wrapper: MemoryRouter })
 
       expect(screen.getByText(/Based on 9 days of data\./)).toBeInTheDocument()
 
@@ -143,7 +144,7 @@ describe('LateMealCorrelationView', () => {
 
     it('restores an excluded day when tapped again', async () => {
       const user = userEvent.setup()
-      render(<LateMealCorrelationView entries={entriesWithOneOutlier()} />)
+      render(<LateMealCorrelationView entries={entriesWithOneOutlier()} />, { wrapper: MemoryRouter })
 
       await user.click(
         screen.getByRole('button', { name: 'Exclude 10 Mar 2026 from this pattern' }),
@@ -169,7 +170,7 @@ describe('LateMealCorrelationView', () => {
         entry(day(7), { weightKg: 82.8, calorieEntries: mealAt('23:30') }),
         entry(day(8), { weightKg: 83.4 }),
       ]
-      render(<LateMealCorrelationView entries={entries} />)
+      render(<LateMealCorrelationView entries={entries} />, { wrapper: MemoryRouter })
 
       expect(screen.queryByText('Unusual data points')).not.toBeInTheDocument()
     })
@@ -195,7 +196,7 @@ describe('LateMealCorrelationView', () => {
         entry(day(7), { weightKg: 82.8, calorieEntries: mealAt('23:30') }),
         entry(day(8), { weightKg: 83.4 }),
       ]
-      render(<LateMealCorrelationView entries={entries} />)
+      render(<LateMealCorrelationView entries={entries} />, { wrapper: MemoryRouter })
 
       const title = 'Meal timing vs. next-day weight'
       expect(screen.getByText(title)).toBeInTheDocument()

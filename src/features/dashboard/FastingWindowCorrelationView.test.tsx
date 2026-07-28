@@ -5,6 +5,7 @@ import { afterEach, describe, expect, it } from 'vitest'
 import type { CalorieEntry, DailyEntry } from '@/domain/dailyEntry'
 import { useDashboardChartVisibilityStore, useOutlierExclusionStore } from '@/stores'
 import { FastingWindowCorrelationView } from './FastingWindowCorrelationView'
+import { MemoryRouter } from 'react-router-dom'
 
 const DATE_FORMAT = 'yyyy-MM-dd'
 const DAY_0 = '2026-03-01'
@@ -59,7 +60,7 @@ const TEN_PAIR_ENTRIES: DailyEntry[] = [
 
 describe('FastingWindowCorrelationView', () => {
   it('renders nothing with no comparable day-pairs at all', () => {
-    const { container } = render(<FastingWindowCorrelationView entries={[]} />)
+    const { container } = render(<FastingWindowCorrelationView entries={[]} />, { wrapper: MemoryRouter })
     expect(container).toBeEmptyDOMElement()
   })
 
@@ -68,7 +69,7 @@ describe('FastingWindowCorrelationView', () => {
       entry(day(0), { weightKg: 80, calorieEntries: mealAt('20:00') }),
       entry(day(1), { weightKg: 80.5, calorieEntries: mealAt('08:00') }),
     ]
-    render(<FastingWindowCorrelationView entries={entries} />)
+    render(<FastingWindowCorrelationView entries={entries} />, { wrapper: MemoryRouter })
 
     expect(
       screen.getByText(/Not enough data yet to see a pattern/),
@@ -95,7 +96,7 @@ describe('FastingWindowCorrelationView', () => {
   })
 
   it('shows the plain-language summary once there is enough data', () => {
-    render(<FastingWindowCorrelationView entries={TEN_PAIR_ENTRIES} />)
+    render(<FastingWindowCorrelationView entries={TEN_PAIR_ENTRIES} />, { wrapper: MemoryRouter })
 
     expect(
       screen.getByText(/averaged more weight gain the next morning/),
@@ -120,7 +121,7 @@ describe('FastingWindowCorrelationView', () => {
     }
 
     it('lists the flagged outlier day as an excludable button', () => {
-      render(<FastingWindowCorrelationView entries={entriesWithOneOutlier()} />)
+      render(<FastingWindowCorrelationView entries={entriesWithOneOutlier()} />, { wrapper: MemoryRouter })
 
       expect(
         screen.getByRole('button', { name: 'Exclude 12 Mar 2026 from this pattern' }),
@@ -129,7 +130,7 @@ describe('FastingWindowCorrelationView', () => {
 
     it('excludes the flagged day from the summary once tapped', async () => {
       const user = userEvent.setup()
-      render(<FastingWindowCorrelationView entries={entriesWithOneOutlier()} />)
+      render(<FastingWindowCorrelationView entries={entriesWithOneOutlier()} />, { wrapper: MemoryRouter })
 
       expect(screen.getByText(/Based on 11 days of data\./)).toBeInTheDocument()
 
@@ -142,7 +143,7 @@ describe('FastingWindowCorrelationView', () => {
 
     it('restores an excluded day when tapped again', async () => {
       const user = userEvent.setup()
-      render(<FastingWindowCorrelationView entries={entriesWithOneOutlier()} />)
+      render(<FastingWindowCorrelationView entries={entriesWithOneOutlier()} />, { wrapper: MemoryRouter })
 
       await user.click(
         screen.getByRole('button', { name: 'Exclude 12 Mar 2026 from this pattern' }),
@@ -166,7 +167,7 @@ describe('FastingWindowCorrelationView', () => {
 
     it('hides the card body but keeps the title and toggle visible', async () => {
       const user = userEvent.setup()
-      render(<FastingWindowCorrelationView entries={TEN_PAIR_ENTRIES} />)
+      render(<FastingWindowCorrelationView entries={TEN_PAIR_ENTRIES} />, { wrapper: MemoryRouter })
 
       const title = 'Fasting window vs. next-day weight'
       expect(screen.getByText(title)).toBeInTheDocument()

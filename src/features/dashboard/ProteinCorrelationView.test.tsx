@@ -5,6 +5,7 @@ import { afterEach, describe, expect, it } from 'vitest'
 import type { CalorieEntry, DailyEntry } from '@/domain/dailyEntry'
 import { useDashboardChartVisibilityStore, useOutlierExclusionStore } from '@/stores'
 import { ProteinCorrelationView } from './ProteinCorrelationView'
+import { MemoryRouter } from 'react-router-dom'
 
 const DATE_FORMAT = 'yyyy-MM-dd'
 const DAY_0 = '2026-03-01'
@@ -43,7 +44,7 @@ function entry(date: string, overrides: Partial<DailyEntry> = {}): DailyEntry {
 
 describe('ProteinCorrelationView', () => {
   it('renders nothing with no comparable day-pairs at all', () => {
-    const { container } = render(<ProteinCorrelationView entries={[]} />)
+    const { container } = render(<ProteinCorrelationView entries={[]} />, { wrapper: MemoryRouter })
     expect(container).toBeEmptyDOMElement()
   })
 
@@ -52,7 +53,7 @@ describe('ProteinCorrelationView', () => {
       entry(day(0), { weightKg: 80, calorieEntries: protein(70) }),
       entry(day(1), { weightKg: 80.5 }),
     ]
-    render(<ProteinCorrelationView entries={entries} />)
+    render(<ProteinCorrelationView entries={entries} />, { wrapper: MemoryRouter })
 
     expect(
       screen.getByText(/Not enough data yet to see a pattern/),
@@ -65,7 +66,7 @@ describe('ProteinCorrelationView', () => {
       entry(day(0), { weightKg: 80, calorieEntries: protein(70) }),
       entry(day(1), { weightKg: 80.5 }),
     ]
-    const { container } = render(<ProteinCorrelationView entries={entries} />)
+    const { container } = render(<ProteinCorrelationView entries={entries} />, { wrapper: MemoryRouter })
 
     expect(container.querySelector('.recharts-wrapper')).not.toBeInTheDocument()
 
@@ -88,7 +89,7 @@ describe('ProteinCorrelationView', () => {
       entry(day(7), { weightKg: 82.8, calorieEntries: protein(115) }),
       entry(day(8), { weightKg: 82.85 }),
     ]
-    render(<ProteinCorrelationView entries={entries} />)
+    render(<ProteinCorrelationView entries={entries} />, { wrapper: MemoryRouter })
 
     expect(
       screen.getByText(/averaged more weight gain the next morning/),
@@ -118,7 +119,7 @@ describe('ProteinCorrelationView', () => {
     }
 
     it('lists the flagged outlier day as an excludable button', () => {
-      render(<ProteinCorrelationView entries={entriesWithOneOutlier()} />)
+      render(<ProteinCorrelationView entries={entriesWithOneOutlier()} />, { wrapper: MemoryRouter })
 
       expect(
         screen.getByRole('button', { name: 'Exclude 10 Mar 2026 from this pattern' }),
@@ -127,7 +128,7 @@ describe('ProteinCorrelationView', () => {
 
     it('excludes the flagged day from the summary once tapped', async () => {
       const user = userEvent.setup()
-      render(<ProteinCorrelationView entries={entriesWithOneOutlier()} />)
+      render(<ProteinCorrelationView entries={entriesWithOneOutlier()} />, { wrapper: MemoryRouter })
 
       expect(screen.getByText(/Based on 9 days of data\./)).toBeInTheDocument()
 
@@ -140,7 +141,7 @@ describe('ProteinCorrelationView', () => {
 
     it('restores an excluded day when tapped again', async () => {
       const user = userEvent.setup()
-      render(<ProteinCorrelationView entries={entriesWithOneOutlier()} />)
+      render(<ProteinCorrelationView entries={entriesWithOneOutlier()} />, { wrapper: MemoryRouter })
 
       await user.click(
         screen.getByRole('button', { name: 'Exclude 10 Mar 2026 from this pattern' }),
@@ -175,7 +176,7 @@ describe('ProteinCorrelationView', () => {
         entry(day(7), { weightKg: 82.8, calorieEntries: protein(115) }),
         entry(day(8), { weightKg: 82.85 }),
       ]
-      render(<ProteinCorrelationView entries={entries} />)
+      render(<ProteinCorrelationView entries={entries} />, { wrapper: MemoryRouter })
 
       const title = 'Protein vs. next-day weight'
       expect(screen.getByText(title)).toBeInTheDocument()

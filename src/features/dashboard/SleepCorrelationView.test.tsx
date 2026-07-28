@@ -5,6 +5,7 @@ import { afterEach, describe, expect, it } from 'vitest'
 import type { DailyEntry } from '@/domain/dailyEntry'
 import { useDashboardChartVisibilityStore, useOutlierExclusionStore } from '@/stores'
 import { SleepCorrelationView } from './SleepCorrelationView'
+import { MemoryRouter } from 'react-router-dom'
 
 const DATE_FORMAT = 'yyyy-MM-dd'
 const DAY_0 = '2026-03-01'
@@ -31,7 +32,7 @@ function entry(date: string, overrides: Partial<DailyEntry> = {}): DailyEntry {
 
 describe('SleepCorrelationView', () => {
   it('renders nothing with no comparable day-pairs at all', () => {
-    const { container } = render(<SleepCorrelationView entries={[]} />)
+    const { container } = render(<SleepCorrelationView entries={[]} />, { wrapper: MemoryRouter })
     expect(container).toBeEmptyDOMElement()
   })
 
@@ -40,7 +41,7 @@ describe('SleepCorrelationView', () => {
       entry(day(0), { weightKg: 80, sleepHours: 7 }),
       entry(day(1), { weightKg: 80.5 }),
     ]
-    render(<SleepCorrelationView entries={entries} />)
+    render(<SleepCorrelationView entries={entries} />, { wrapper: MemoryRouter })
 
     expect(
       screen.getByText(/Not enough data yet to see a pattern/),
@@ -53,7 +54,7 @@ describe('SleepCorrelationView', () => {
       entry(day(0), { weightKg: 80, sleepHours: 7 }),
       entry(day(1), { weightKg: 80.5 }),
     ]
-    const { container } = render(<SleepCorrelationView entries={entries} />)
+    const { container } = render(<SleepCorrelationView entries={entries} />, { wrapper: MemoryRouter })
 
     expect(container.querySelector('.recharts-wrapper')).not.toBeInTheDocument()
 
@@ -76,7 +77,7 @@ describe('SleepCorrelationView', () => {
       entry(day(7), { weightKg: 82.8, sleepHours: 9.5 }),
       entry(day(8), { weightKg: 82.85 }),
     ]
-    render(<SleepCorrelationView entries={entries} />)
+    render(<SleepCorrelationView entries={entries} />, { wrapper: MemoryRouter })
 
     expect(
       screen.getByText(/averaged more weight gain the next morning/),
@@ -110,7 +111,7 @@ describe('SleepCorrelationView', () => {
     }
 
     it('lists the flagged outlier day as an excludable button', () => {
-      render(<SleepCorrelationView entries={entriesWithOneOutlier()} />)
+      render(<SleepCorrelationView entries={entriesWithOneOutlier()} />, { wrapper: MemoryRouter })
 
       expect(
         screen.getByRole('button', { name: 'Exclude 10 Mar 2026 from this pattern' }),
@@ -119,7 +120,7 @@ describe('SleepCorrelationView', () => {
 
     it('excludes the flagged day from the summary once tapped', async () => {
       const user = userEvent.setup()
-      render(<SleepCorrelationView entries={entriesWithOneOutlier()} />)
+      render(<SleepCorrelationView entries={entriesWithOneOutlier()} />, { wrapper: MemoryRouter })
 
       expect(screen.getByText(/Based on 9 days of data\./)).toBeInTheDocument()
 
@@ -132,7 +133,7 @@ describe('SleepCorrelationView', () => {
 
     it('restores an excluded day when tapped again', async () => {
       const user = userEvent.setup()
-      render(<SleepCorrelationView entries={entriesWithOneOutlier()} />)
+      render(<SleepCorrelationView entries={entriesWithOneOutlier()} />, { wrapper: MemoryRouter })
 
       await user.click(
         screen.getByRole('button', { name: 'Exclude 10 Mar 2026 from this pattern' }),
@@ -167,7 +168,7 @@ describe('SleepCorrelationView', () => {
         entry(day(7), { weightKg: 82.8, sleepHours: 9.5 }),
         entry(day(8), { weightKg: 82.85 }),
       ]
-      render(<SleepCorrelationView entries={entries} />)
+      render(<SleepCorrelationView entries={entries} />, { wrapper: MemoryRouter })
 
       const title = 'Sleep vs. next-day weight'
       expect(screen.getByText(title)).toBeInTheDocument()

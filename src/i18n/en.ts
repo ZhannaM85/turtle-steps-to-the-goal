@@ -498,6 +498,7 @@ export const en: Dictionary = {
     outlierPointsHeading: 'Unusual data points',
     excludeOutlierLabel: (label) => `Exclude ${label} from this pattern`,
     restoreOutlierLabel: (label) => `Restore ${label} to this pattern`,
+    viewOutlierDayLabel: (label) => `View ${label} in History`,
     weeklyChangeLegend: 'weekly change',
     chartNavigationHint: 'Tap a point for details',
     viewDayLink: 'View this day',

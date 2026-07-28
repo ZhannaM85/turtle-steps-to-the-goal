@@ -1,6 +1,7 @@
 import { addDays, format } from 'date-fns'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { MemoryRouter } from 'react-router-dom'
 import { afterEach, describe, expect, it } from 'vitest'
 import type {
   CustomCorrelation,
@@ -188,6 +189,7 @@ describe('CustomCorrelationView', () => {
           metrics={[metric]}
           metricEntries={metricEntries}
         />,
+        { wrapper: MemoryRouter },
       )
 
       expect(screen.getByText(/Based on 9 days of data\./)).toBeInTheDocument()

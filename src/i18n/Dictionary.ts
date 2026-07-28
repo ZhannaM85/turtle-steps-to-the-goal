@@ -797,6 +797,11 @@ export interface Dictionary {
     outlierPointsHeading: string
     excludeOutlierLabel: (label: string) => string
     restoreOutlierLabel: (label: string) => string
+    /** #372 — a small separate link icon next to each outlier chip,
+     * navigating to that day in History — deliberately a distinct action
+     * from the chip's own tap-to-exclude (#224), not an overload of it,
+     * resolved via `AskUserQuestion`. */
+    viewOutlierDayLabel: (label: string) => string
     weeklyChangeLegend: string
     chartNavigationHint: string
     viewDayLink: string

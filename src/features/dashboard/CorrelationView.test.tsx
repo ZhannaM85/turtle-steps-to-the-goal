@@ -5,6 +5,7 @@ import { afterEach, describe, expect, it } from 'vitest'
 import type { CalorieEntry, DailyEntry } from '@/domain/dailyEntry'
 import { useDashboardChartVisibilityStore, useOutlierExclusionStore } from '@/stores'
 import { CorrelationView } from './CorrelationView'
+import { MemoryRouter } from 'react-router-dom'
 
 function calories(amountKcal: number): CalorieEntry[] {
   return [
@@ -44,7 +45,7 @@ function entry(date: string, overrides: Partial<DailyEntry> = {}): DailyEntry {
 
 describe('CorrelationView', () => {
   it('renders nothing when there are no comparable weeks', () => {
-    const { container } = render(<CorrelationView entries={[]} />)
+    const { container } = render(<CorrelationView entries={[]} />, { wrapper: MemoryRouter })
     expect(container).toBeEmptyDOMElement()
   })
 
@@ -53,7 +54,7 @@ describe('CorrelationView', () => {
       entry(weekStart(0), { weightKg: 90 }),
       entry(weekStart(1), { weightKg: 88, calorieEntries: calories(1800) }),
     ]
-    render(<CorrelationView entries={entries} />)
+    render(<CorrelationView entries={entries} />, { wrapper: MemoryRouter })
 
     expect(
       screen.getByText(/Not enough data yet to see a pattern/),
@@ -66,7 +67,7 @@ describe('CorrelationView', () => {
       entry(weekStart(0), { weightKg: 90 }),
       entry(weekStart(1), { weightKg: 88, calorieEntries: calories(1800) }),
     ]
-    const { container } = render(<CorrelationView entries={entries} />)
+    const { container } = render(<CorrelationView entries={entries} />, { wrapper: MemoryRouter })
 
     expect(
       screen.getByText(/Not enough data yet to see a pattern/),
@@ -90,7 +91,7 @@ describe('CorrelationView', () => {
       entry(weekStart(3), { weightKg: 85.5, calorieEntries: calories(2200) }),
       entry(weekStart(4), { weightKg: 85.3, calorieEntries: calories(2300) }),
     ]
-    render(<CorrelationView entries={entries} />)
+    render(<CorrelationView entries={entries} />, { wrapper: MemoryRouter })
 
     expect(
       screen.getByText(/averaged more loss than weeks/),
@@ -119,16 +120,25 @@ describe('CorrelationView', () => {
     }
 
     it('lists the flagged outlier week as an excludable button', () => {
-      render(<CorrelationView entries={entriesWithOneOutlier()} />)
+      render(<CorrelationView entries={entriesWithOneOutlier()} />, { wrapper: MemoryRouter })
 
       expect(
         screen.getByRole('button', { name: 'Exclude 6 Apr 2026 from this pattern' }),
       ).toBeInTheDocument()
     })
 
+    it("links the flagged outlier week to that week's start in History (#372)", () => {
+      render(<CorrelationView entries={entriesWithOneOutlier()} />, { wrapper: MemoryRouter })
+
+      const link = screen.getByRole('link', {
+        name: 'View 6 Apr 2026 in History',
+      })
+      expect(link).toHaveAttribute('href', '/history?date=2026-04-06')
+    })
+
     it('excludes the flagged week from the summary once tapped', async () => {
       const user = userEvent.setup()
-      render(<CorrelationView entries={entriesWithOneOutlier()} />)
+      render(<CorrelationView entries={entriesWithOneOutlier()} />, { wrapper: MemoryRouter })
 
       expect(screen.getByText(/Based on 5 weeks of data\./)).toBeInTheDocument()
 
@@ -141,7 +151,7 @@ describe('CorrelationView', () => {
 
     it('restores an excluded week when tapped again', async () => {
       const user = userEvent.setup()
-      render(<CorrelationView entries={entriesWithOneOutlier()} />)
+      render(<CorrelationView entries={entriesWithOneOutlier()} />, { wrapper: MemoryRouter })
 
       await user.click(
         screen.getByRole('button', { name: 'Exclude 6 Apr 2026 from this pattern' }),
@@ -172,7 +182,7 @@ describe('CorrelationView', () => {
         entry(weekStart(3), { weightKg: 85.5, calorieEntries: calories(2200) }),
         entry(weekStart(4), { weightKg: 85.3, calorieEntries: calories(2300) }),
       ]
-      render(<CorrelationView entries={entries} />)
+      render(<CorrelationView entries={entries} />, { wrapper: MemoryRouter })
 
       expect(screen.getByText('Calories vs. weight change')).toBeInTheDocument()
       const hideButton = screen.getByRole('button', {
