@@ -23,6 +23,30 @@ export interface DailyEntryPatchMergeResult {
 }
 
 /**
+ * #369 — restricts every patch in the map to just `includedFields`, so a
+ * user can opt out of specific data types (e.g. only import steps, leaving
+ * their manually-tracked weight history untouched) rather than the import
+ * always being all-or-nothing per source. A date whose patch has no
+ * remaining fields after filtering is dropped from the map entirely,
+ * rather than upserting/touching an entry with nothing real to add.
+ */
+export function filterPatchesToFields(
+  patches: Map<string, DailyEntryPatch>,
+  includedFields: ReadonlySet<keyof DailyEntryPatch>,
+): Map<string, DailyEntryPatch> {
+  const filtered = new Map<string, DailyEntryPatch>()
+  for (const [date, patch] of patches) {
+    const entries = Object.entries(patch).filter(([key]) =>
+      includedFields.has(key as keyof DailyEntryPatch),
+    )
+    if (entries.length > 0) {
+      filtered.set(date, Object.fromEntries(entries) as DailyEntryPatch)
+    }
+  }
+  return filtered
+}
+
+/**
  * Merges a `Map<date, DailyEntryPatch>` from any external-source importer
  * into this app's existing `DailyEntry` records — one merge implementation
  * shared by every importer (Zepp Life CSV, Apple Health XML, ...) rather

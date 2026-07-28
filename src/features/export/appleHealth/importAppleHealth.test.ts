@@ -73,6 +73,30 @@ describe('importAppleHealthExport', () => {
     expect(progressSamples.length).toBeGreaterThan(0)
   })
 
+  it('only imports the selected fields when includedFields is given (#369)', async () => {
+    const file = await makeAppleHealthExportFile(SAMPLE_XML)
+
+    const result = await importAppleHealthExport(
+      file,
+      undefined,
+      new Set(['steps']),
+    )
+
+    // The weight-only date has no fields left after filtering to just
+    // steps, so it's dropped entirely rather than imported empty.
+    expect(result).toEqual({ daysImported: 1, daysUpdated: 0 })
+    const weightEntry = await db.dailyEntries
+      .where('date')
+      .equals('2026-01-15')
+      .first()
+    expect(weightEntry).toBeUndefined()
+    const stepsEntry = await db.dailyEntries
+      .where('date')
+      .equals('2026-01-16')
+      .first()
+    expect(stepsEntry).toMatchObject({ steps: 800 })
+  })
+
   it('throws AppleHealthInvalidFileError for a zip with no export.xml entry', async () => {
     const writer = new ZipWriter(new BlobWriter('application/zip'))
     await writer.add('some-other-file.txt', new TextReader('not health data'))

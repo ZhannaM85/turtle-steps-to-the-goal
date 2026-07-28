@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { DailyEntry } from '@/domain/dailyEntry'
-import { mergeDailyEntryPatches } from './mergeDailyEntryPatches'
+import { filterPatchesToFields, mergeDailyEntryPatches } from './mergeDailyEntryPatches'
 import type { DailyEntryPatch } from './mergeDailyEntryPatches'
 
 function makeEntry(overrides: Partial<DailyEntry> = {}): DailyEntry {
@@ -65,5 +65,42 @@ describe('mergeDailyEntryPatches', () => {
 
     expect(result.daysImported).toBe(2)
     expect(result.daysUpdated).toBe(1)
+  })
+})
+
+describe('filterPatchesToFields (#369)', () => {
+  it('drops fields not in the included set, keeping the rest', () => {
+    const patches = new Map<string, DailyEntryPatch>([
+      ['2026-01-15', { weightKg: 60, steps: 8000, bodyFatPercent: 22 }],
+    ])
+
+    const filtered = filterPatchesToFields(patches, new Set(['steps']))
+
+    expect(filtered.get('2026-01-15')).toEqual({ steps: 8000 })
+  })
+
+  it('drops a date entirely once none of its fields are included', () => {
+    const patches = new Map<string, DailyEntryPatch>([
+      ['2026-01-14', { weightKg: 59 }],
+      ['2026-01-15', { steps: 8000 }],
+    ])
+
+    const filtered = filterPatchesToFields(patches, new Set(['steps']))
+
+    expect(filtered.has('2026-01-14')).toBe(false)
+    expect(filtered.has('2026-01-15')).toBe(true)
+  })
+
+  it('keeps everything when every field is included', () => {
+    const patches = new Map<string, DailyEntryPatch>([
+      ['2026-01-15', { weightKg: 60, steps: 8000 }],
+    ])
+
+    const filtered = filterPatchesToFields(
+      patches,
+      new Set(['weightKg', 'steps']),
+    )
+
+    expect(filtered.get('2026-01-15')).toEqual({ weightKg: 60, steps: 8000 })
   })
 })

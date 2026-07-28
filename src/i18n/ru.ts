@@ -370,6 +370,7 @@ export const ru: Dictionary = {
     storageUsedLabel: (size) => `~${size} использовано на этом устройстве`,
     storageUsedOfQuotaLabel: (used, quota) =>
       `~${used} использовано из ~${quota}, доступных на этом устройстве`,
+    dataToImportLabel: 'Данные для импорта',
   },
   zeppLifeImport: {
     importBlurb:

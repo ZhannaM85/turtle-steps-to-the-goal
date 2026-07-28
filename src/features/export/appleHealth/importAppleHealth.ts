@@ -1,5 +1,9 @@
 import { IndexedDbDailyEntryRepository } from '@/infrastructure/persistence/indexeddb'
-import { mergeDailyEntryPatches } from '../mergeDailyEntryPatches'
+import {
+  filterPatchesToFields,
+  mergeDailyEntryPatches,
+  type DailyEntryPatch,
+} from '../mergeDailyEntryPatches'
 import {
   AppleHealthPatchBuilder,
   AppleHealthRecordScanner,
@@ -31,6 +35,10 @@ const EXPORT_XML_RE = /(^|\/)export\.xml$/i
 export async function importAppleHealthExport(
   file: File,
   onProgress?: (fraction: number) => void,
+  /** #369 — when provided, only these `DailyEntryPatch` fields are applied;
+   * omitted entirely (not just an empty set) means "import everything",
+   * preserving pre-#369 behavior for any caller that doesn't pass it. */
+  includedFields?: ReadonlySet<keyof DailyEntryPatch>,
 ): Promise<AppleHealthImportSummary> {
   const { ZipReader, BlobReader } = await import('@zip.js/zip.js')
   const reader = new ZipReader(new BlobReader(file))
@@ -83,7 +91,10 @@ export async function importAppleHealthExport(
     }
     await getDataPromise
 
-    const patches = builder.build()
+    const rawPatches = builder.build()
+    const patches = includedFields
+      ? filterPatchesToFields(rawPatches, includedFields)
+      : rawPatches
     const existingEntries = await dailyEntryRepository.getAll()
     const { daysImported, daysUpdated, entriesToUpsert } =
       mergeDailyEntryPatches(patches, existingEntries)

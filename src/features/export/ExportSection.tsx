@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { format } from 'date-fns'
 import type { DailyEntry } from '@/domain/dailyEntry'
-import { useTranslation } from '@/i18n'
+import { type Dictionary, useTranslation } from '@/i18n'
 import { useFoodOverrideStore, useMealItemStore } from '@/stores'
 import { Button } from '@/shared/ui/button'
 import {
@@ -21,6 +21,8 @@ import {
 import { buildDailyLogCsv, CSV_BOM } from './exportCsv'
 import { buildDailyLogMarkdown } from './exportMarkdown'
 import { buildExportWorkbook } from './exportXlsx'
+import { ImportFieldPicker } from './ImportFieldPicker'
+import type { DailyEntryPatch } from './mergeDailyEntryPatches'
 import {
   importZeppLifeExport,
   ZeppLifeInvalidFileError,
@@ -31,6 +33,34 @@ import {
   AppleHealthInvalidFileError,
   importAppleHealthExport,
 } from './appleHealth/importAppleHealth'
+
+/** #369 — each source's own data types, since Zepp Life and Apple Health
+ * expose different fields (Zepp: body-composition scale readings; Apple
+ * Health: waist/water instead). All keys are selected by default so an
+ * untouched picker preserves the pre-#369 "import everything" behavior. */
+const ZEPP_LIFE_FIELDS: {
+  key: keyof DailyEntryPatch
+  label: (t: Dictionary) => string
+}[] = [
+  { key: 'weightKg', label: (t) => t.dailyEntry.weightLabel },
+  { key: 'bodyFatPercent', label: (t) => t.dailyEntry.bodyFatLabel },
+  { key: 'bodyWaterPercent', label: (t) => t.dailyEntry.bodyWaterLabel },
+  { key: 'boneMassKg', label: (t) => t.dailyEntry.boneMassLabel },
+  { key: 'visceralFatRating', label: (t) => t.dailyEntry.visceralFatLabel },
+  { key: 'muscleMassKg', label: (t) => t.dailyEntry.muscleMassLabel },
+  { key: 'steps', label: (t) => t.dailyEntry.stepsLabel },
+]
+
+const APPLE_HEALTH_FIELDS: {
+  key: keyof DailyEntryPatch
+  label: (t: Dictionary) => string
+}[] = [
+  { key: 'weightKg', label: (t) => t.dailyEntry.weightLabel },
+  { key: 'bodyFatPercent', label: (t) => t.dailyEntry.bodyFatLabel },
+  { key: 'waistCm', label: (t) => t.dailyEntry.waistLabel },
+  { key: 'steps', label: (t) => t.dailyEntry.stepsLabel },
+  { key: 'waterEntries', label: (t) => t.dailyEntry.waterLabel },
+]
 
 /** #240 — Excel/CSV/Markdown only, never the JSON backup (a backup should
  * stay complete). Blank start/end means "no lower/upper bound", so leaving
@@ -88,6 +118,14 @@ export function ExportSection() {
     string | null
   >(null)
   const appleHealthFileInputRef = useRef<HTMLInputElement>(null)
+  // #369 — all fields selected by default, so an untouched picker imports
+  // everything, matching pre-#369 behavior exactly.
+  const [zeppLifeSelectedFields, setZeppLifeSelectedFields] = useState<
+    Set<string>
+  >(() => new Set(ZEPP_LIFE_FIELDS.map((field) => field.key)))
+  const [appleHealthSelectedFields, setAppleHealthSelectedFields] = useState<
+    Set<string>
+  >(() => new Set(APPLE_HEALTH_FIELDS.map((field) => field.key)))
   const [storageUsage, setStorageUsage] = useState<number | null>(null)
   const [storageQuota, setStorageQuota] = useState<number | null>(null)
   // #240 — optional, applies to Excel/CSV/Markdown only (see
@@ -269,6 +307,7 @@ export function ExportSection() {
       const { daysImported, daysUpdated } = await importZeppLifeExport(
         zeppLifePendingFile,
         password,
+        zeppLifeSelectedFields as ReadonlySet<keyof DailyEntryPatch>,
       )
       setZeppLifeDialogOpen(false)
       setZeppLifePendingFile(null)
@@ -300,6 +339,7 @@ export function ExportSection() {
             progress: Math.round(fraction * 100),
           })
         },
+        appleHealthSelectedFields as ReadonlySet<keyof DailyEntryPatch>,
       )
       setStatus({ kind: 'importedAppleHealth', daysImported, daysUpdated })
     } catch (err) {
@@ -456,6 +496,20 @@ export function ExportSection() {
           <p className="text-sm text-muted-foreground">
             {t.zeppLifeImport.importBlurb}
           </p>
+          <div className="flex flex-col gap-1.5">
+            <span className="text-sm font-medium">
+              {t.export.dataToImportLabel}
+            </span>
+            <ImportFieldPicker
+              ariaLabel={`${t.zeppLifeImport.importButton} — ${t.export.dataToImportLabel}`}
+              fields={ZEPP_LIFE_FIELDS.map((field) => ({
+                key: field.key,
+                label: field.label(t),
+              }))}
+              selected={zeppLifeSelectedFields}
+              onChange={setZeppLifeSelectedFields}
+            />
+          </div>
           <input
             ref={zeppLifeFileInputRef}
             type="file"
@@ -471,7 +525,10 @@ export function ExportSection() {
             variant="outline"
             className="self-start"
             onClick={() => zeppLifeFileInputRef.current?.click()}
-            disabled={status.kind === 'importingZeppLife'}
+            disabled={
+              status.kind === 'importingZeppLife' ||
+              zeppLifeSelectedFields.size === 0
+            }
           >
             {status.kind === 'importingZeppLife'
               ? t.zeppLifeImport.importingButton
@@ -483,6 +540,20 @@ export function ExportSection() {
           <p className="text-sm text-muted-foreground">
             {t.appleHealthImport.importBlurb}
           </p>
+          <div className="flex flex-col gap-1.5">
+            <span className="text-sm font-medium">
+              {t.export.dataToImportLabel}
+            </span>
+            <ImportFieldPicker
+              ariaLabel={`${t.appleHealthImport.importButton} — ${t.export.dataToImportLabel}`}
+              fields={APPLE_HEALTH_FIELDS.map((field) => ({
+                key: field.key,
+                label: field.label(t),
+              }))}
+              selected={appleHealthSelectedFields}
+              onChange={setAppleHealthSelectedFields}
+            />
+          </div>
           <input
             ref={appleHealthFileInputRef}
             type="file"
@@ -498,7 +569,10 @@ export function ExportSection() {
             variant="outline"
             className="self-start"
             onClick={() => appleHealthFileInputRef.current?.click()}
-            disabled={status.kind === 'importingAppleHealth'}
+            disabled={
+              status.kind === 'importingAppleHealth' ||
+              appleHealthSelectedFields.size === 0
+            }
           >
             {status.kind === 'importingAppleHealth'
               ? t.appleHealthImport.importingButton(status.progress)

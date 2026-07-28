@@ -364,6 +364,7 @@ export const en: Dictionary = {
     storageUsedLabel: (size) => `~${size} used on this device`,
     storageUsedOfQuotaLabel: (used, quota) =>
       `~${used} used of ~${quota} available on this device`,
+    dataToImportLabel: 'Data to import',
   },
   zeppLifeImport: {
     importBlurb:

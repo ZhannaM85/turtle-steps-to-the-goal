@@ -1,5 +1,5 @@
 import 'fake-indexeddb/auto'
-import { fireEvent, render, screen } from '@testing-library/react'
+import { fireEvent, render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { DailyEntry } from '@/domain/dailyEntry'
@@ -302,5 +302,52 @@ describe('ExportSection', () => {
     expect(
       await screen.findByText("That file isn't valid JSON."),
     ).toBeInTheDocument()
+  })
+
+  describe('per-field import picker (#369)', () => {
+    // Weight/Steps/Body fat % appear in both the Zepp Life and Apple Health
+    // pickers — scoped via `within` on each picker's own group (identified
+    // by its distinct aria-label) rather than a page-wide query.
+    function zeppLifeFieldGroup() {
+      return screen.getByRole('toolbar', {
+        name: 'Import from Zepp Life — Data to import',
+      })
+    }
+
+    it('starts with every Zepp Life field selected, matching pre-#369 behavior', () => {
+      render(<ExportSection />)
+
+      expect(
+        within(zeppLifeFieldGroup()).getByRole('button', {
+          name: 'Weight (kg)',
+          pressed: true,
+        }),
+      ).toBeInTheDocument()
+      expect(
+        screen.getByRole('button', { name: 'Import from Zepp Life' }),
+      ).toBeEnabled()
+    })
+
+    it('disables the Zepp Life import button once every field is unchecked', async () => {
+      const user = userEvent.setup()
+      render(<ExportSection />)
+      const group = within(zeppLifeFieldGroup())
+
+      for (const label of [
+        'Weight (kg)',
+        'Body fat',
+        'Body water',
+        'Bone mass',
+        'Visceral fat',
+        'Muscle mass',
+        'Steps',
+      ]) {
+        await user.click(group.getByRole('button', { name: label }))
+      }
+
+      expect(
+        screen.getByRole('button', { name: 'Import from Zepp Life' }),
+      ).toBeDisabled()
+    })
   })
 })

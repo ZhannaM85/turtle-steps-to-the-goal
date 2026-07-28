@@ -66,6 +66,30 @@ describe('importZeppLifeExport', () => {
     expect(stepsEntry).toMatchObject({ steps: 8342 })
   })
 
+  it('only imports the selected fields when includedFields is given (#369)', async () => {
+    const file = await makeZeppLifeExportFile(PASSWORD)
+
+    const result = await importZeppLifeExport(
+      file,
+      PASSWORD,
+      new Set(['steps']),
+    )
+
+    // The BODY row's date (weight-only) has no fields left after filtering
+    // to just steps, so it's dropped entirely rather than imported empty.
+    expect(result).toEqual({ daysImported: 1, daysUpdated: 0 })
+    const weightEntry = await db.dailyEntries
+      .where('date')
+      .equals('2026-01-15')
+      .first()
+    expect(weightEntry).toBeUndefined()
+    const stepsEntry = await db.dailyEntries
+      .where('date')
+      .equals('2026-01-16')
+      .first()
+    expect(stepsEntry).toMatchObject({ steps: 8342 })
+  })
+
   it('throws ZeppLifeWrongPasswordError for an incorrect password', async () => {
     const file = await makeZeppLifeExportFile(PASSWORD)
 

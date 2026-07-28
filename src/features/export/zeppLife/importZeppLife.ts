@@ -4,7 +4,11 @@ import {
   parseZeppActivityCsv,
   parseZeppBodyCsv,
 } from './zeppLifeParser'
-import { mergeDailyEntryPatches } from '../mergeDailyEntryPatches'
+import {
+  filterPatchesToFields,
+  mergeDailyEntryPatches,
+  type DailyEntryPatch,
+} from '../mergeDailyEntryPatches'
 
 const dailyEntryRepository = new IndexedDbDailyEntryRepository()
 
@@ -31,6 +35,10 @@ const ACTIVITY_ENTRY_RE = /^ACTIVITY\/ACTIVITY_.*\.csv$/
 export async function importZeppLifeExport(
   file: File,
   password: string,
+  /** #369 — when provided, only these `DailyEntryPatch` fields are applied;
+   * omitted entirely (not just an empty set) means "import everything",
+   * preserving pre-#369 behavior for any caller that doesn't pass it. */
+  includedFields?: ReadonlySet<keyof DailyEntryPatch>,
 ): Promise<ZeppLifeImportSummary> {
   const { ZipReader, BlobReader, TextWriter, ERR_INVALID_PASSWORD } =
     await import('@zip.js/zip.js')
@@ -77,7 +85,10 @@ export async function importZeppLifeExport(
 
     const bodyRows = parseZeppBodyCsv(bodyText)
     const activityRows = parseZeppActivityCsv(activityText)
-    const patches = buildZeppLifePatches(bodyRows, activityRows)
+    const rawPatches = buildZeppLifePatches(bodyRows, activityRows)
+    const patches = includedFields
+      ? filterPatchesToFields(rawPatches, includedFields)
+      : rawPatches
 
     const existingEntries = await dailyEntryRepository.getAll()
     const { daysImported, daysUpdated, entriesToUpsert } =
