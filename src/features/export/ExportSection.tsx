@@ -496,6 +496,15 @@ export function ExportSection() {
           <p className="text-sm text-muted-foreground">
             {t.zeppLifeImport.importBlurb}
           </p>
+          {/* #381 — the exact menu path lives here (a third-party app's own
+           * UI, so it's presented as an aside rather than folded into the
+           * main blurb, which describes what this app does with the file). */}
+          <details className="text-sm text-muted-foreground">
+            <summary className="cursor-pointer font-medium">
+              {t.zeppLifeImport.howToExportLabel}
+            </summary>
+            <p className="mt-1">{t.zeppLifeImport.howToExportSteps}</p>
+          </details>
           <div className="flex flex-col gap-1.5">
             <span className="text-sm font-medium">
               {t.export.dataToImportLabel}
@@ -540,6 +549,12 @@ export function ExportSection() {
           <p className="text-sm text-muted-foreground">
             {t.appleHealthImport.importBlurb}
           </p>
+          <details className="text-sm text-muted-foreground">
+            <summary className="cursor-pointer font-medium">
+              {t.appleHealthImport.howToExportLabel}
+            </summary>
+            <p className="mt-1">{t.appleHealthImport.howToExportSteps}</p>
+          </details>
           <div className="flex flex-col gap-1.5">
             <span className="text-sm font-medium">
               {t.export.dataToImportLabel}

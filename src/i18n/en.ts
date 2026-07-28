@@ -368,7 +368,10 @@ export const en: Dictionary = {
   },
   zeppLifeImport: {
     importBlurb:
-      'Import weight, body composition, and step data from a Zepp Life export file. Get one from the Zepp Life app: Profile → Settings → Personal information security and privacy → Exercising user rights → export data. It arrives by email as a password-protected zip.',
+      'Import weight, body composition, and step data from a Zepp Life export file.',
+    howToExportLabel: 'How do I get this file?',
+    howToExportSteps:
+      'In the Zepp Life app: Profile → Settings → Personal information security and privacy → Exercising user rights → export data. It arrives by email as a password-protected zip.',
     importButton: 'Import from Zepp Life',
     importingButton: 'Importing…',
     importedSummary: (days, updated) =>
@@ -388,7 +391,10 @@ export const en: Dictionary = {
   },
   appleHealthImport: {
     importBlurb:
-      'Import weight, body fat, waist, water, and step data from an Apple Health export file. Get one from the Health app: profile icon → Export All Health Data. This can take a while to process for a large export.',
+      'Import weight, body fat, waist, water, and step data from an Apple Health export file.',
+    howToExportLabel: 'How do I get this file?',
+    howToExportSteps:
+      'In the Health app: tap your profile icon (top right) → Export All Health Data. This can take a while to process for a large export.',
     importButton: 'Import from Apple Health',
     importingButton: (percent) => `Importing… ${percent}%`,
     importedSummary: (days, updated) =>

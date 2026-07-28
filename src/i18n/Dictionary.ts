@@ -629,6 +629,11 @@ export interface Dictionary {
    * not a variant of the JSON backup flow). */
   zeppLifeImport: {
     importBlurb: string
+    /** #381 — collapsible "How do I get this file?" disclosure above the
+     * import button, since #365/#366 never explained how to actually
+     * obtain the source file from the third-party app in the first place. */
+    howToExportLabel: string
+    howToExportSteps: string
     importButton: string
     importingButton: string
     /** `days`/`updated` are already-formatted numbers, matching how
@@ -654,6 +659,9 @@ export interface Dictionary {
    * a while to stream-parse. */
   appleHealthImport: {
     importBlurb: string
+    /** #381 — same disclosure as `zeppLifeImport.howToExportLabel` above. */
+    howToExportLabel: string
+    howToExportSteps: string
     importButton: string
     /** `percent` is an already-rounded 0-100 integer. */
     importingButton: (percent: number) => string

@@ -350,4 +350,32 @@ describe('ExportSection', () => {
       ).toBeDisabled()
     })
   })
+
+  describe('"How do I get this file?" disclosure (#381)', () => {
+    // Native <details>/<summary> — jsdom doesn't apply the UA stylesheet
+    // that hides collapsed content visually, so this only asserts the
+    // steps are present in a <details> alongside the right toggle label,
+    // not the collapsed/expanded visual state.
+    it('pairs the Zepp Life export steps with a "How do I get this file?" toggle', () => {
+      render(<ExportSection />)
+
+      const [zeppLifeToggle] = screen.getAllByText('How do I get this file?')
+      const details = zeppLifeToggle.closest('details')
+      expect(details).not.toBeNull()
+      expect(within(details!).getByText(/Exercising user rights/)).toBeInTheDocument()
+    })
+
+    it('pairs the Apple Health export steps with their own toggle', () => {
+      render(<ExportSection />)
+
+      const [, appleHealthToggle] = screen.getAllByText(
+        'How do I get this file?',
+      )
+      const details = appleHealthToggle.closest('details')
+      expect(details).not.toBeNull()
+      expect(
+        within(details!).getByText(/Export All Health Data/),
+      ).toBeInTheDocument()
+    })
+  })
 })
