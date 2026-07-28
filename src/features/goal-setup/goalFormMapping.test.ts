@@ -216,7 +216,15 @@ describe('formValuesToGoal', () => {
       expect(goal.dailyProteinTargetG).toBeUndefined()
     })
 
-    it("starts a fresh record once the existing goal's window has ended", () => {
+    // #386 — reported live: the previous auto-detection (#181/#155/#382)
+    // silently decided, from internal reached/live-window state invisible
+    // to the user, whether a plain save edited in place or started fresh —
+    // confusing even to an experienced user. Editing now *always* edits in
+    // place, unconditionally (no more "unless the window's ended/already
+    // reached" carve-outs); only an explicit `startNew: true` from the
+    // caller (the separate "Start a new goal" button) ever starts a fresh
+    // record.
+    it("still edits in place even once the existing goal's window has ended", () => {
       const longAgo = format(subDays(new Date(), 365), 'yyyy-MM-dd')
       const existingGoal = makeGoal({
         id: 'goal-1',
@@ -230,11 +238,11 @@ describe('formValuesToGoal', () => {
         existingGoal,
       )
 
-      expect(goal.id).not.toBe('goal-1')
-      expect(goal.weekStart).toBe(format(new Date(), 'yyyy-MM-dd'))
+      expect(goal.id).toBe('goal-1')
+      expect(goal.weekStart).toBe(longAgo)
     })
 
-    it('starts a fresh record for a legacy existing goal with no weekStart', () => {
+    it('still edits in place for a legacy existing goal with no weekStart', () => {
       const existingGoal = makeGoal({ id: 'goal-1', weekStart: undefined })
 
       const goal = formValuesToGoal(
@@ -243,10 +251,11 @@ describe('formValuesToGoal', () => {
         existingGoal,
       )
 
-      expect(goal.id).not.toBe('goal-1')
+      expect(goal.id).toBe('goal-1')
+      expect(goal.weekStart).toBeUndefined()
     })
 
-    it('starts a fresh record when the window is calendar-live but already reached (#155)', () => {
+    it('still edits in place even when the goal was already reached mid-week (#155)', () => {
       const today = format(new Date(), 'yyyy-MM-dd')
       const existingGoal = makeGoal({
         id: 'goal-1',
@@ -258,14 +267,12 @@ describe('formValuesToGoal', () => {
         { targetWeeklyLoss: 0.5 },
         'kg',
         existingGoal,
-        true,
       )
 
-      expect(goal.id).not.toBe('goal-1')
-      expect(goal.weekStart).toBe(today)
+      expect(goal.id).toBe('goal-1')
     })
 
-    it('defaults activeGoalReached to false, preserving the pre-#155 edit-in-place behavior', () => {
+    it('defaults startNew to false, editing in place by default', () => {
       const today = format(new Date(), 'yyyy-MM-dd')
       const existingGoal = makeGoal({ id: 'goal-1', weekStart: today })
 
@@ -274,7 +281,7 @@ describe('formValuesToGoal', () => {
       expect(goal.id).toBe('goal-1')
     })
 
-    it("starts a fresh record when forceNew is explicitly passed, even with a live unreached window (#382)", () => {
+    it('starts a fresh record when startNew is explicitly passed, even with a live unreached window (#386)', () => {
       const today = format(new Date(), 'yyyy-MM-dd')
       const existingGoal = makeGoal({
         id: 'goal-1',
@@ -286,13 +293,27 @@ describe('formValuesToGoal', () => {
         { targetWeeklyLoss: 0.1 },
         'kg',
         existingGoal,
-        false,
         true,
       )
 
       expect(goal.id).not.toBe('goal-1')
       expect(goal.weekStart).toBe(today)
       expect(goal.targetWeeklyLossKg).toBe(0.1)
+    })
+
+    it('starts a fresh record when startNew is passed even for an already-ended window', () => {
+      const longAgo = format(subDays(new Date(), 365), 'yyyy-MM-dd')
+      const existingGoal = makeGoal({ id: 'goal-1', weekStart: longAgo })
+
+      const goal = formValuesToGoal(
+        { targetWeeklyLoss: 1 },
+        'kg',
+        existingGoal,
+        true,
+      )
+
+      expect(goal.id).not.toBe('goal-1')
+      expect(goal.weekStart).toBe(format(new Date(), 'yyyy-MM-dd'))
     })
 
     it("re-saving the same value in place is a harmless idempotent update, not blocked (#182)", () => {

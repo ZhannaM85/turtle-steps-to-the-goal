@@ -14,19 +14,12 @@ import {
   effectiveWeeklyPaceKg,
   formValuesToGoal,
   goalToFormValues,
-  isEditingLiveWindow,
 } from './goalFormMapping'
 import { makeGoalFormSchema, type GoalFormValues } from './goalFormSchema'
 
 export interface GoalFormProps {
   existingGoal: Goal | null
   onSubmit: (goal: Goal) => void | Promise<void>
-  /** #155: whether existingGoal's own window has already been reached
-   * (goalWindowProgress(entries, existingGoal).metOnDate !== null) —
-   * computed by the caller since this form has no access to entries.
-   * Forces formValuesToGoal to start a fresh record instead of editing
-   * the already-succeeded one in place. */
-  activeGoalReached?: boolean
   /** #259 — the most recently logged weight (always kg, unconverted),
    * needed by the "Suggest a target" TDEE helper below. `null` while
    * loading or if nothing's ever been logged, in which case the helper
@@ -37,7 +30,6 @@ export interface GoalFormProps {
 export function GoalForm({
   existingGoal,
   onSubmit,
-  activeGoalReached = false,
   latestWeightKg = null,
 }: GoalFormProps) {
   const t = useTranslation()
@@ -121,23 +113,17 @@ export function GoalForm({
   // those fields' own "nothing saved yet" starting condition.
   const [isEditing, setIsEditing] = useState(existingGoal === null)
 
-  // #382 — while there's a still-live, unreached window to edit in place,
-  // saving is genuinely ambiguous (edit this week's target vs. start
-  // fresh today) rather than the resolved-by-elimination case #181/#155
-  // already handle automatically everywhere else. Offer both explicitly
-  // instead of silently picking one.
-  const canStartNew = isEditingLiveWindow(existingGoal, activeGoalReached)
+  // #386 — reported live: the previous single "Update" button silently
+  // decided, from internal reached/live-window state, whether a save
+  // edited the current goal in place or quietly started a fresh one —
+  // confusing even to an experienced user. Replaced with two always-
+  // available, explicit actions (see the collapsed summary view below);
+  // this just remembers which one opened the form, so submit knows which
+  // `formValuesToGoal` behavior to use without re-deriving it.
+  const [startingNew, setStartingNew] = useState(false)
 
-  async function submit(formValues: GoalFormValues, forceNew = false) {
-    await onSubmit(
-      formValuesToGoal(
-        formValues,
-        unit,
-        existingGoal,
-        activeGoalReached,
-        forceNew,
-      ),
-    )
+  async function submit(formValues: GoalFormValues) {
+    await onSubmit(formValuesToGoal(formValues, unit, existingGoal, startingNew))
     setJustSaved(true)
     // Explicitly requested, twice: the fields should actually clear once
     // Update is clicked, not just show a confirmation next to them — the
@@ -159,6 +145,7 @@ export function GoalForm({
       dailyWaterTarget: '' as unknown as number | undefined,
     })
     setIsEditing(false)
+    setStartingNew(false)
   }
 
   if (!isEditing && existingGoal) {
@@ -266,23 +253,47 @@ export function GoalForm({
             </tr>
           </tbody>
         </table>
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon-xl"
-          aria-label={t.goal.editGoalLabel}
-          onClick={() => setIsEditing(true)}
-          className="self-start"
-        >
-          <Pencil aria-hidden="true" />
-        </Button>
+        {/* #386 — two always-available, explicit actions (reported live:
+         * the previous single button silently deciding which one it meant,
+         * based on internal state, was confusing even to an experienced
+         * user) — Edit always touches this same record; "Start a new
+         * goal" always creates a fresh one, closing this one out. */}
+        <div className="flex flex-wrap items-center gap-2">
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon-xl"
+            aria-label={t.goal.editGoalLabel}
+            onClick={() => {
+              setStartingNew(false)
+              setIsEditing(true)
+            }}
+          >
+            <Pencil aria-hidden="true" />
+          </Button>
+          <div className="flex flex-col gap-1">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => {
+                setStartingNew(true)
+                setIsEditing(true)
+              }}
+            >
+              {t.goal.startNewGoalButton}
+            </Button>
+            <p className="text-xs text-muted-foreground">
+              {t.goal.startNewGoalHint}
+            </p>
+          </div>
+        </div>
       </div>
     )
   }
 
   return (
     <form
-      onSubmit={handleSubmit((values) => submit(values, false))}
+      onSubmit={handleSubmit((values) => submit(values))}
       className="flex flex-col gap-4"
       noValidate
     >
@@ -381,24 +392,10 @@ export function GoalForm({
         {...register('dailyWaterTarget', { setValueAs: parseNumberInput })}
       />
 
-      {canStartNew && (
-        <p className="text-sm text-muted-foreground">
-          {t.goal.startNewGoalHint}
-        </p>
-      )}
       <div className="flex flex-wrap items-center gap-2 self-start">
         <Button type="submit">
-          {existingGoal ? t.goal.updateButton : t.goal.setButton}
+          {existingGoal && !startingNew ? t.goal.updateButton : t.goal.setButton}
         </Button>
-        {canStartNew && (
-          <Button
-            type="button"
-            variant="outline"
-            onClick={handleSubmit((values) => submit(values, true))}
-          >
-            {t.goal.startNewGoalButton}
-          </Button>
-        )}
         {justSaved && (
           <span
             role="status"

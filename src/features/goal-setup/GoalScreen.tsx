@@ -30,9 +30,10 @@ export function GoalScreen() {
   const displayUnit = useUnitStore((state) => state.unit)
   const { records: pastTargets, deleteGoal } = usePastGoals(goal)
   // #155: whether the active goal's own window has already been reached
-  // mid-week — drives both the "Reached on [date]" badge/nudge below and
-  // (via GoalForm's activeGoalReached prop) whether the next save starts a
-  // fresh record instead of editing this now-succeeded one in place.
+  // mid-week — drives the "Reached on [date]" badge/nudge below. #386:
+  // no longer decides which record a `GoalForm` save touches — that's now
+  // an explicit choice (Edit vs. "Start a new goal"), not auto-detected
+  // from this.
   const activeGoalProgress = useActiveGoalProgress()
   const activeGoalReachedOn = activeGoalProgress?.metOnDate ?? null
   // #259 — the most recently logged weight, needed by GoalForm's "Suggest
@@ -130,11 +131,9 @@ export function GoalScreen() {
             ))}
 
           {/* #155: quiet nudge once the active goal's own window has been
-           * reached mid-week — a save from here on starts a fresh record
-           * (GoalForm's activeGoalReached prop) rather than editing this
-           * now-succeeded one in place. Same tone/style as #38's
-           * goalRenewalReminder on TodayScreen; no link needed since the
-           * form is right below. */}
+           * reached mid-week — points at the explicit "Start a new goal"
+           * CTA below (#386). Same tone/style as #38's goalRenewalReminder
+           * on TodayScreen; no link needed since the form is right below. */}
           {activeGoalReachedOn && (
             <div className="flex flex-col gap-1.5">
               {sectionTitle(
@@ -152,7 +151,6 @@ export function GoalScreen() {
           <GoalForm
             existingGoal={goal}
             onSubmit={saveGoal}
-            activeGoalReached={activeGoalReachedOn !== null}
             latestWeightKg={latestWeightKg}
           />
 

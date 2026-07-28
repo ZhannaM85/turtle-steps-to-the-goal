@@ -172,8 +172,10 @@ describe('GoalScreen', () => {
     const user = userEvent.setup()
 
     render(<GoalScreen />)
+    // #386 — plain Edit now always edits in place; "Start a new goal" is
+    // the explicit action that produces a new history record.
     await user.click(
-      await screen.findByRole('button', { name: 'Edit goal' }),
+      await screen.findByRole('button', { name: 'Start a new goal' }),
     )
     expect(screen.queryByText('Past targets')).not.toBeInTheDocument()
 
@@ -183,7 +185,7 @@ describe('GoalScreen', () => {
     await user.clear(weeklyTargetInput)
     await user.type(weeklyTargetInput, '0.5')
     await user.click(
-      screen.getByRole('button', { name: 'Update this week’s target' }),
+      screen.getByRole('button', { name: 'Set this week’s target' }),
     )
 
     expect(await screen.findByText('Past targets')).toBeInTheDocument()
@@ -259,7 +261,7 @@ describe('GoalScreen', () => {
     ).not.toBeInTheDocument()
   })
 
-  it('starts a fresh history record on the next save once the active goal has been reached (#155)', async () => {
+  it('starts a fresh history record via the explicit "Start a new goal" CTA once the active goal has been reached (#155, redesigned for #386)', async () => {
     const original = makeGoal({ targetWeeklyLossKg: 1 })
     await useGoalStore.getState().saveGoal(original)
     await seedTargetMetWeeks()
@@ -267,7 +269,9 @@ describe('GoalScreen', () => {
 
     render(<GoalScreen />)
     await screen.findByText(/Target met on/)
-    await user.click(screen.getByRole('button', { name: 'Edit goal' }))
+    // #386 — plain Edit now always edits in place, even once the goal has
+    // been reached; "Start a new goal" is the explicit action for this.
+    await user.click(screen.getByRole('button', { name: 'Start a new goal' }))
 
     const weeklyTargetInput = screen.getByLabelText(
       "This week's target (kg to lose)",
@@ -275,7 +279,7 @@ describe('GoalScreen', () => {
     await user.clear(weeklyTargetInput)
     await user.type(weeklyTargetInput, '0.5')
     await user.click(
-      screen.getByRole('button', { name: 'Update this week’s target' }),
+      screen.getByRole('button', { name: 'Set this week’s target' }),
     )
 
     await screen.findByText('-0.5')
@@ -349,8 +353,10 @@ describe('GoalScreen', () => {
         .saveGoal(makeGoal({ weekStart: '2026-03-09' }))
 
       render(<GoalScreen />)
+      // #386 — "Start a new goal" is the explicit action that produces a
+      // past-targets history record; plain Edit now always edits in place.
       await user.click(
-        await screen.findByRole('button', { name: 'Edit goal' }),
+        await screen.findByRole('button', { name: 'Start a new goal' }),
       )
       const weeklyTargetInput = screen.getByLabelText(
         "This week's target (kg to lose)",
@@ -358,7 +364,7 @@ describe('GoalScreen', () => {
       await user.clear(weeklyTargetInput)
       await user.type(weeklyTargetInput, '0.5')
       await user.click(
-        screen.getByRole('button', { name: 'Update this week’s target' }),
+        screen.getByRole('button', { name: 'Set this week’s target' }),
       )
       await screen.findByText('Past targets')
 
