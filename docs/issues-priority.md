@@ -1021,3 +1021,11 @@ _All reported live in one session, digging into Dashboard right after importing 
 | [#376](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/376) | 📋 Not started | Body composition chart shows a mostly-empty date range when a metric's data is sparse | `BodyCompositionTrendChart`'s x-axis spans the full multi-year app date range even when a selected series (e.g. muscle mass) only has real data in a recent narrow window. Distinct from #217 (too few *total* points) — this is plenty of points, just concentrated in a sub-range of a too-wide axis domain. |
 | [#380](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/380) | 📋 Not started | Let users pick the trend chart's time period (week/month/year/custom) | Reported live with 3 screenshots of charts each defaulting to a different, uncontrollable window. Precedent to reuse: #240's export date-range picker, #222's `CompareRangesView` date pickers. Possible (not asserted) secondary benefit for #175 if a shorter default window turns out to reduce Dashboard's recomputation cost. |
 | [#377](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/377) | 📋 Not started | Let users delete logged data for a specific date range | Only existing deletion mechanism is #164's all-or-nothing "Clear all my data." Precedent to reuse: #240's date-range picker UI, though this needs its own destructive-action confirm step. |
+
+---
+
+## Tier 74 — Live feedback: goal window not anchored correctly (2026-07-28)
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#382](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/382) | 📋 Not started | New goal shows "target met" on a date before the goal existed | Reported live: goal set Jul 28 shows "target met Jul 25." Should be architecturally impossible per #135/#203's `goalWindowProgress()` (`metOnDate` only ever checked within `[weekStart, weekEnd]`, `weekStart` = creation date). Two candidate causes flagged, neither confirmed yet: a real regression in that logic, or this specific `GoalScreen` StatCard actually reading calendar-week `weeklySummaries()` data instead of the goal-anchored source — which would silently reintroduce exactly what #135 fixed. |
