@@ -14,6 +14,7 @@ import {
   effectiveWeeklyPaceKg,
   formValuesToGoal,
   goalToFormValues,
+  isEditingLiveWindow,
 } from './goalFormMapping'
 import { makeGoalFormSchema, type GoalFormValues } from './goalFormSchema'
 
@@ -120,9 +121,22 @@ export function GoalForm({
   // those fields' own "nothing saved yet" starting condition.
   const [isEditing, setIsEditing] = useState(existingGoal === null)
 
-  async function submit(formValues: GoalFormValues) {
+  // #382 — while there's a still-live, unreached window to edit in place,
+  // saving is genuinely ambiguous (edit this week's target vs. start
+  // fresh today) rather than the resolved-by-elimination case #181/#155
+  // already handle automatically everywhere else. Offer both explicitly
+  // instead of silently picking one.
+  const canStartNew = isEditingLiveWindow(existingGoal, activeGoalReached)
+
+  async function submit(formValues: GoalFormValues, forceNew = false) {
     await onSubmit(
-      formValuesToGoal(formValues, unit, existingGoal, activeGoalReached),
+      formValuesToGoal(
+        formValues,
+        unit,
+        existingGoal,
+        activeGoalReached,
+        forceNew,
+      ),
     )
     setJustSaved(true)
     // Explicitly requested, twice: the fields should actually clear once
@@ -268,7 +282,7 @@ export function GoalForm({
 
   return (
     <form
-      onSubmit={handleSubmit(submit)}
+      onSubmit={handleSubmit((values) => submit(values, false))}
       className="flex flex-col gap-4"
       noValidate
     >
@@ -367,10 +381,24 @@ export function GoalForm({
         {...register('dailyWaterTarget', { setValueAs: parseNumberInput })}
       />
 
-      <div className="flex items-center gap-2 self-start">
+      {canStartNew && (
+        <p className="text-sm text-muted-foreground">
+          {t.goal.startNewGoalHint}
+        </p>
+      )}
+      <div className="flex flex-wrap items-center gap-2 self-start">
         <Button type="submit">
           {existingGoal ? t.goal.updateButton : t.goal.setButton}
         </Button>
+        {canStartNew && (
+          <Button
+            type="button"
+            variant="outline"
+            onClick={handleSubmit((values) => submit(values, true))}
+          >
+            {t.goal.startNewGoalButton}
+          </Button>
+        )}
         {justSaved && (
           <span
             role="status"

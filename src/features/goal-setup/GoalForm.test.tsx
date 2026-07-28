@@ -740,6 +740,109 @@ describe('GoalForm', () => {
     })
   })
 
+  describe('explicit "Start a new goal" choice (#382)', () => {
+    it('offers the button only while there\'s a live, unreached window to edit in place', async () => {
+      const user = userEvent.setup()
+      const today = new Date().toISOString().slice(0, 10)
+      render(
+        <GoalForm
+          existingGoal={{
+            id: 'g1',
+            targetWeeklyLossKg: 1,
+            weekStart: today,
+            createdAt: '2026-01-01T00:00:00.000Z',
+            updatedAt: '2026-01-01T00:00:00.000Z',
+          }}
+          onSubmit={vi.fn()}
+        />,
+      )
+
+      await user.click(screen.getByRole('button', { name: 'Edit goal' }))
+
+      expect(
+        screen.getByRole('button', { name: 'Start a new goal' }),
+      ).toBeInTheDocument()
+    })
+
+    it('does not offer the button once the goal was already reached mid-week (#155)', async () => {
+      const user = userEvent.setup()
+      const today = new Date().toISOString().slice(0, 10)
+      render(
+        <GoalForm
+          existingGoal={{
+            id: 'g1',
+            targetWeeklyLossKg: 1,
+            weekStart: today,
+            createdAt: '2026-01-01T00:00:00.000Z',
+            updatedAt: '2026-01-01T00:00:00.000Z',
+          }}
+          onSubmit={vi.fn()}
+          activeGoalReached
+        />,
+      )
+
+      await user.click(screen.getByRole('button', { name: 'Edit goal' }))
+
+      expect(
+        screen.queryByRole('button', { name: 'Start a new goal' }),
+      ).not.toBeInTheDocument()
+    })
+
+    it('does not offer the button once the window has already ended', async () => {
+      const user = userEvent.setup()
+      render(
+        <GoalForm
+          existingGoal={{
+            id: 'g1',
+            targetWeeklyLossKg: 1,
+            weekStart: '2020-01-01',
+            createdAt: '2020-01-01T00:00:00.000Z',
+            updatedAt: '2020-01-01T00:00:00.000Z',
+          }}
+          onSubmit={vi.fn()}
+        />,
+      )
+
+      await user.click(screen.getByRole('button', { name: 'Edit goal' }))
+
+      expect(
+        screen.queryByRole('button', { name: 'Start a new goal' }),
+      ).not.toBeInTheDocument()
+    })
+
+    it('starts a fresh record when clicked, instead of editing the live window in place', async () => {
+      const user = userEvent.setup()
+      const onSubmit = vi.fn()
+      const today = new Date().toISOString().slice(0, 10)
+      render(
+        <GoalForm
+          existingGoal={{
+            id: 'g1',
+            targetWeeklyLossKg: 1,
+            weekStart: today,
+            createdAt: '2026-01-01T00:00:00.000Z',
+            updatedAt: '2026-01-01T00:00:00.000Z',
+          }}
+          onSubmit={onSubmit}
+        />,
+      )
+
+      await user.click(screen.getByRole('button', { name: 'Edit goal' }))
+      const input = screen.getByLabelText("This week's target (kg to lose)")
+      await user.clear(input)
+      await user.type(input, '0.1')
+      await user.click(
+        screen.getByRole('button', { name: 'Start a new goal' }),
+      )
+
+      expect(onSubmit).toHaveBeenCalledTimes(1)
+      const goal = onSubmit.mock.calls[0][0]
+      expect(goal.id).not.toBe('g1')
+      expect(goal.weekStart).toBe(today)
+      expect(goal.targetWeeklyLossKg).toBe(0.1)
+    })
+  })
+
   it('clears all three fields once a save succeeds (#241)', async () => {
     // Explicitly requested by the user: not just a confirmation next to
     // the button, the fields themselves must go blank. Current value is

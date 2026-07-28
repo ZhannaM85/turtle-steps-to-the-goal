@@ -292,6 +292,9 @@ export const en: Dictionary = {
       'Log a weight, and set your height, age, sex, and activity level in Settings, to use this.',
     updateButton: 'Update this week’s target',
     setButton: 'Set this week’s target',
+    startNewGoalButton: 'Start a new goal',
+    startNewGoalHint:
+      'Begins a fresh 7-day window from today instead, moving the current one to Past targets.',
     savedConfirmation: 'Saved',
     currentGoalTitle: 'Current goal',
     notSetLabel: 'Not set',

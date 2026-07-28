@@ -43,7 +43,16 @@ export function goalToFormValues(
  * record's own stored `weekStart`/shape isn't rewritten retroactively;
  * only this live/not-live decision at save time changes.
  */
-function isEditingLiveWindow(
+/**
+ * #382 — exported so `GoalForm` can tell, before any save happens, whether
+ * this is the ambiguous case: a save here would silently edit the current
+ * window in place rather than starting fresh, which read as impossible
+ * ("target met" on a date before a "new" goal existed) to a user who
+ * thinks of every save as setting a new goal. `GoalForm` uses this to
+ * decide whether to offer an explicit "Start a new goal" button alongside
+ * the normal one, rather than only ever resolving the choice automatically.
+ */
+export function isEditingLiveWindow(
   existingGoal: Goal | null,
   activeGoalReached: boolean,
 ): existingGoal is Goal & { weekStart: string } {
@@ -57,11 +66,15 @@ export function formValuesToGoal(
   unit: Unit,
   existingGoal: Goal | null = null,
   activeGoalReached = false,
+  /** #382 — an explicit "Start a new goal" click overrides the automatic
+   * edit-in-place resolution below, even while the current window is
+   * still live and unreached. */
+  forceNew = false,
 ): Goal {
   const toKg = (value: number) => (unit === 'lb' ? lbToKg(value) : value)
   const now = new Date().toISOString()
 
-  if (isEditingLiveWindow(existingGoal, activeGoalReached)) {
+  if (!forceNew && isEditingLiveWindow(existingGoal, activeGoalReached)) {
     // Same id/createdAt/weekStart (#181) — editing the current week's
     // goal in place, not starting a new historical record. Dexie's put()
     // upserts by id, so this overwrites rather than inserting.

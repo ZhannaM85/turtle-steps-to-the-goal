@@ -274,6 +274,27 @@ describe('formValuesToGoal', () => {
       expect(goal.id).toBe('goal-1')
     })
 
+    it("starts a fresh record when forceNew is explicitly passed, even with a live unreached window (#382)", () => {
+      const today = format(new Date(), 'yyyy-MM-dd')
+      const existingGoal = makeGoal({
+        id: 'goal-1',
+        weekStart: today,
+        targetWeeklyLossKg: 1,
+      })
+
+      const goal = formValuesToGoal(
+        { targetWeeklyLoss: 0.1 },
+        'kg',
+        existingGoal,
+        false,
+        true,
+      )
+
+      expect(goal.id).not.toBe('goal-1')
+      expect(goal.weekStart).toBe(today)
+      expect(goal.targetWeeklyLossKg).toBe(0.1)
+    })
+
     it("re-saving the same value in place is a harmless idempotent update, not blocked (#182)", () => {
       const today = format(new Date(), 'yyyy-MM-dd')
       const existingGoal = makeGoal({

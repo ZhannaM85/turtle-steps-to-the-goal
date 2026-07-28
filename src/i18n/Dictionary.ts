@@ -506,6 +506,13 @@ export interface Dictionary {
     suggestTargetMissingProfileHint: string
     updateButton: string
     setButton: string
+    /** #382 — shown alongside `updateButton` only while there's a still-live,
+     * not-yet-reached window to edit in place (the ambiguous case #181's
+     * automatic edit-in-place logic used to silently resolve on its own).
+     * Forces a fresh weekStart=today record instead, same as saving once
+     * the current window has actually run its course. */
+    startNewGoalButton: string
+    startNewGoalHint: string
     savedConfirmation: string
     currentGoalTitle: string
     notSetLabel: string
