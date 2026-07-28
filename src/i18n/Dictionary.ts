@@ -1132,6 +1132,24 @@ export interface Dictionary {
     clearAllDataConfirmYes: string
     clearAllDataConfirmNo: string
     clearingAllDataButton: string
+    /** #377 — deletes DailyEntry/CustomMetricEntry rows within a chosen
+     * date range, resolved via AskUserQuestion to also cover everything
+     * else date-scoped tied to those dates (not just DailyEntry itself).
+     * Distinct from clearAllData* above, which has no range concept —
+     * same two-step confirm shape, plus an exact row count in the prompt
+     * since a range delete's blast radius isn't obvious up front the way
+     * "delete literally everything" is. */
+    deleteRangeLabel: string
+    deleteRangeDescription: string
+    deleteRangeButton: string
+    deletingRangeButton: string
+    deleteRangeNothingToDelete: string
+    deleteRangeConfirmPrompt: (
+      dailyEntryCount: number,
+      customMetricEntryCount: number,
+    ) => string
+    deleteRangeConfirmYes: string
+    deleteRangeConfirmNo: string
     backToSettingsLabel: string
     hideButtonLabel: string
     showButtonLabel: string

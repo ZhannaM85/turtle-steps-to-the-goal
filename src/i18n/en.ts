@@ -748,6 +748,16 @@ export const en: Dictionary = {
     clearAllDataConfirmYes: 'Yes, delete everything',
     clearAllDataConfirmNo: 'Cancel',
     clearingAllDataButton: 'Deleting…',
+    deleteRangeLabel: 'Delete a date range',
+    deleteRangeDescription:
+      'Permanently delete logged data (weight, meals, custom metric logs, etc.) between two dates, without touching anything outside that range or definitions like recipes/custom metrics themselves.',
+    deleteRangeButton: 'Delete',
+    deletingRangeButton: 'Deleting…',
+    deleteRangeNothingToDelete: "There's no logged data in that range.",
+    deleteRangeConfirmPrompt: (dailyEntryCount, customMetricEntryCount) =>
+      `This will permanently delete ${dailyEntryCount} ${dailyEntryCount === 1 ? 'daily entry' : 'daily entries'}${customMetricEntryCount > 0 ? ` and ${customMetricEntryCount} custom metric ${customMetricEntryCount === 1 ? 'log' : 'logs'}` : ''} in this range. This can't be undone.`,
+    deleteRangeConfirmYes: 'Yes, delete this range',
+    deleteRangeConfirmNo: 'Cancel',
     backToSettingsLabel: '← Settings',
     hideButtonLabel: 'Hide',
     showButtonLabel: 'Show',

@@ -31,6 +31,7 @@ import { Input } from '@/shared/ui/input'
 import { PageHeader } from '@/shared/ui/page-header'
 import { ToggleGroup, ToggleGroupItem } from '@/shared/ui/toggle-group'
 import { ClearAllDataSection } from './ClearAllDataSection'
+import { DeleteRangeSection } from './DeleteRangeSection'
 import { MealItemsSection } from './MealItemsSection'
 import { MealLabelPresetsSection } from './MealLabelPresetsSection'
 import { ProfileSection } from './ProfileSection'
@@ -514,6 +515,20 @@ export function SettingsScreen() {
 
       <Card>
         <ExportSection />
+      </Card>
+
+      {/* #377 — a smaller-blast-radius destructive action than "clear
+       * everything" below, so it goes right before it in this same
+       * end-of-page destructive-actions group (#164's own placement
+       * reasoning: irreversible actions belong at the end, not mixed in
+       * among routine preference toggles). */}
+      <Card>
+        <CardHeader>
+          <CardTitle>{t.settings.deleteRangeLabel}</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <DeleteRangeSection />
+        </CardContent>
       </Card>
 
       {/* Last (#164) — a destructive, irreversible action belongs at the

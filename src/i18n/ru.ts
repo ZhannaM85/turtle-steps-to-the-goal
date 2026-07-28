@@ -761,6 +761,16 @@ export const ru: Dictionary = {
     clearAllDataConfirmYes: 'Да, удалить всё',
     clearAllDataConfirmNo: 'Отмена',
     clearingAllDataButton: 'Удаление…',
+    deleteRangeLabel: 'Удалить за период',
+    deleteRangeDescription:
+      'Безвозвратно удалить записи (вес, приёмы пищи, значения собственных метрик и т.д.) за выбранный период, не затрагивая данные вне его и сами определения (рецепты, собственные метрики).',
+    deleteRangeButton: 'Удалить',
+    deletingRangeButton: 'Удаление…',
+    deleteRangeNothingToDelete: 'За этот период нет записанных данных.',
+    deleteRangeConfirmPrompt: (dailyEntryCount, customMetricEntryCount) =>
+      `Будет безвозвратно удалено ${dayCount(dailyEntryCount)}${customMetricEntryCount > 0 ? ` и ${customMetricEntryCount} записей собственных метрик` : ''} за этот период. Это действие нельзя отменить.`,
+    deleteRangeConfirmYes: 'Да, удалить за этот период',
+    deleteRangeConfirmNo: 'Отмена',
     backToSettingsLabel: '← Настройки',
     hideButtonLabel: 'Скрыть',
     showButtonLabel: 'Показать',
