@@ -5,7 +5,7 @@ import type { MealEmotion } from '@/domain/dailyEntry'
 import type { MealItem } from '@/domain/mealItem'
 import { formatNumber, useLocale, useTranslation } from '@/i18n'
 import { applyFoodOverrides } from '@/shared/lib/applyFoodOverrides'
-import { macrosSummaryTextCompact } from '@/shared/lib/macroDisplay'
+import { formatKcal, macrosSummaryTextCompact } from '@/shared/lib/macroDisplay'
 import { MEAL_EMOTIONS } from '@/shared/lib/emotionIcons'
 import { ratesFromAbsolute } from '@/shared/lib/macroScaling'
 import { parseNumberInput } from '@/shared/lib/parseNumberInput'
@@ -70,6 +70,10 @@ export interface FoodPickerDialogProps {
     fatG: number
     carbsG: number
   }
+  /** #399 — the active goal's daily calorie target, when set. Paired with
+   * `todayTotals` above to show a "150 kcal remaining (was 500 kcal
+   * remaining)" preview alongside the existing running-total one. */
+  dailyCalorieTargetKcal?: number
 }
 
 type PickableItem =
@@ -119,6 +123,7 @@ export function FoodPickerDialog({
   onAdd,
   mealItems,
   todayTotals,
+  dailyCalorieTargetKcal,
 }: FoodPickerDialogProps) {
   const t = useTranslation()
   const locale = useLocale()
@@ -419,6 +424,21 @@ export function FoodPickerDialog({
           )}`,
         )
       : null
+  // #399 — sibling to todayTotalPreview above, shown only when a daily
+  // calorie target is set.
+  const todayRemainingPreview =
+    todayTotals !== undefined &&
+    dailyCalorieTargetKcal !== undefined &&
+    selectedItems.length > 0
+      ? t.dailyEntry.todayRemainingWouldBeLabel(
+          formatKcal(
+            dailyCalorieTargetKcal - (todayTotals.kcal + selectedTotals.kcal),
+            locale,
+            t,
+          ),
+          formatKcal(dailyCalorieTargetKcal - todayTotals.kcal, locale, t),
+        )
+      : null
 
   return (
     <Dialog
@@ -691,6 +711,11 @@ export function FoodPickerDialog({
             {todayTotalPreview && (
               <p className="text-sm text-muted-foreground">
                 {todayTotalPreview}
+              </p>
+            )}
+            {todayRemainingPreview && (
+              <p className="text-sm text-muted-foreground">
+                {todayRemainingPreview}
               </p>
             )}
             <Button type="button" disabled={!canAdd} onClick={handleAdd}>

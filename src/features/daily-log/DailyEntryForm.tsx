@@ -24,6 +24,7 @@ import { Input } from '@/shared/ui/input'
 import { ToggleGroup, ToggleGroupItem } from '@/shared/ui/toggle-group'
 import {
   useDigestionTrackingStore,
+  useGoalStore,
   useProfileStore,
   useTrackedFieldsStore,
   useWaterTrackingStore,
@@ -194,6 +195,12 @@ export function DailyEntryForm({
   const trackedFields = useTrackedFieldsStore((state) => state.tracked)
   // #398 — grammatically-correct verb form for the night-eating label below.
   const sex = useProfileStore((state) => state.sex)
+  // #399 — passed to MealList's add-food flows for a "remaining calories"
+  // preview; already loaded by this screen's own parent (TodayScreen) or,
+  // for EntryRow's alwaysEditable mode, by HistoryScreen's useHistoryData.
+  const dailyCalorieTargetKcal = useGoalStore(
+    (state) => state.goal?.dailyCalorieTargetKcal,
+  )
 
   const {
     register,
@@ -731,6 +738,7 @@ export function DailyEntryForm({
             setValue('calorieEntries', next, { shouldDirty: true })
             persist({ ...getValues(), calorieEntries: next })
           }}
+          dailyCalorieTargetKcal={dailyCalorieTargetKcal}
         />
       </div>
 

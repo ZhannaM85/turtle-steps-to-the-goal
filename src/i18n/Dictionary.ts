@@ -394,6 +394,15 @@ export interface Dictionary {
      * per-item preview above, only for a brand-new (not-yet-saved) meal
      * draft — "Today would be: 1,850 kcal (was 1,550)". */
     todayWouldBeLabel: (newTotal: string, previousTotal: string) => string
+    /** #399 — sibling to `todayWouldBeLabel` above, shown only when the
+     * active goal has a `dailyCalorieTargetKcal` set: "150 kcal remaining
+     * (was 500 kcal remaining)". Same before/after shape, but against the
+     * target instead of a running total — lets the user see whether
+     * they're about to go over before confirming, not just after saving. */
+    todayRemainingWouldBeLabel: (
+      newRemaining: string,
+      previousRemaining: string,
+    ) => string
     /** #255 — gentle, non-blocking note when the entered kcal doesn't
      * match the protein/fat/carbs entered (`isInconsistentMacros`).
      * Deliberately muted styling, not a red/destructive warning. */

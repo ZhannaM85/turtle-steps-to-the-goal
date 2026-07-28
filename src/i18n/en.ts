@@ -208,6 +208,8 @@ export const en: Dictionary = {
     computedTotalPrefix: 'Total:',
     todayWouldBeLabel: (newTotal, previousTotal) =>
       `Today would be: ${newTotal} (was ${previousTotal})`,
+    todayRemainingWouldBeLabel: (newRemaining, previousRemaining) =>
+      `${newRemaining} remaining (was ${previousRemaining} remaining)`,
     macroMismatchNote:
       "The calories don't quite match the protein/fat/carbs entered — worth a second look.",
     lastLoggedLabel: 'last logged',

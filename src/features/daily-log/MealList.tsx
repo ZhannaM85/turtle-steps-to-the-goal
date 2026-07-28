@@ -60,6 +60,7 @@ import {
 import { useOnlineStatus } from '@/shared/hooks'
 import { MEAL_EMOTIONS } from '@/shared/lib/emotionIcons'
 import {
+  formatKcal,
   formatMacroGrams,
   macrosSummaryText,
   macrosSummaryTextCompact,
@@ -984,6 +985,12 @@ export interface MealListProps {
    * Required whenever `focusMealId` is set. */
   focusMealPosition?: number
   onFocusedMealDone?: () => void
+  /** #399 — the active goal's daily calorie target, when set. Threaded
+   * into the add-row sheet and "Find food" dialog so the user can see how
+   * many calories would be left, not just the running total, before
+   * confirming an add. Omitted (no goal, or no target set) simply hides
+   * that preview line — the existing running-total one is unaffected. */
+  dailyCalorieTargetKcal?: number
 }
 
 /**
@@ -1005,6 +1012,7 @@ export function MealList({
   focusMealId,
   focusMealPosition,
   onFocusedMealDone,
+  dailyCalorieTargetKcal,
 }: MealListProps) {
   const t = useTranslation()
   const locale = useLocale()
@@ -2116,6 +2124,25 @@ export function MealList({
         )}`,
       )
     : null
+  // #399 — sibling to todayTotalPreview above, shown only when the active
+  // goal has a daily calorie target set.
+  const todayRemainingPreview =
+    addScaledPreview && dailyCalorieTargetKcal !== undefined
+      ? t.dailyEntry.todayRemainingWouldBeLabel(
+          formatKcal(
+            dailyCalorieTargetKcal -
+              ((totalCalories(calorieEntries) ?? 0) +
+                addScaledPreview.amountKcal),
+            locale,
+            t,
+          ),
+          formatKcal(
+            dailyCalorieTargetKcal - (totalCalories(calorieEntries) ?? 0),
+            locale,
+            t,
+          ),
+        )
+      : null
 
   return (
     <div className="flex flex-col gap-3">
@@ -2496,6 +2523,7 @@ export function MealList({
           favorite={addItemFavorite}
           onFavoriteChange={setAddItemFavorite}
           todayTotalPreview={todayTotalPreview ?? undefined}
+          todayRemainingPreview={todayRemainingPreview ?? undefined}
           infoMessage={
             barcodeNotFoundMessage
               ? t.dailyEntry.noFoodFoundForBarcodeMessage
@@ -2540,6 +2568,7 @@ export function MealList({
               fatG: totalFat(calorieEntries) ?? 0,
               carbsG: totalCarbs(calorieEntries) ?? 0,
             }}
+            dailyCalorieTargetKcal={dailyCalorieTargetKcal}
           />
         )}
         {/* #199: collapses this whole row for the rest of today once

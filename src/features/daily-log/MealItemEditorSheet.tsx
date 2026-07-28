@@ -74,6 +74,10 @@ export interface MealItemEditorSheetProps {
    * until the outer Save commits the replacement (a different, harder
    * whole-meal delta this doesn't attempt). */
   todayTotalPreview?: string
+  /** #399 — sibling to `todayTotalPreview` above, same add-a-new-meal-only
+   * scope: "150 kcal remaining (was 500 kcal remaining)", only passed when
+   * the active goal has a `dailyCalorieTargetKcal` set. */
+  todayRemainingPreview?: string
   /** #256 — a quiet note shown right below the title, e.g. "No food found
    * for this barcode" after a scan comes up empty. Not an error state,
    * just context for why the fields below are blank. */
@@ -212,6 +216,7 @@ export function MealItemEditorSheet({
   note,
   onNoteChange,
   todayTotalPreview,
+  todayRemainingPreview,
   infoMessage,
   onSave,
   onSaveAndAddAnother,
@@ -425,6 +430,7 @@ export function MealItemEditorSheet({
           {(totalPreview ||
             (scaledPreview?.fiberG !== undefined && totalPreview) ||
             (totalPreview && todayTotalPreview) ||
+            (totalPreview && todayRemainingPreview) ||
             (totalPreview && macrosInconsistent)) && (
             <div className="flex flex-col gap-1 px-1">
               {totalPreview && (
@@ -441,6 +447,11 @@ export function MealItemEditorSheet({
               {totalPreview && todayTotalPreview && (
                 <p className="text-sm text-muted-foreground">
                   {todayTotalPreview}
+                </p>
+              )}
+              {totalPreview && todayRemainingPreview && (
+                <p className="text-sm text-muted-foreground">
+                  {todayRemainingPreview}
                 </p>
               )}
               {totalPreview && macrosInconsistent && (

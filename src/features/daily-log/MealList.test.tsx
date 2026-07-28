@@ -226,6 +226,53 @@ describe('MealList', () => {
     ).toBeInTheDocument()
   })
 
+  // #399 — sibling to the running-total preview above, shown only when a
+  // daily calorie target is passed in.
+  describe('remaining-calories preview (#399)', () => {
+    it('shows nothing when no dailyCalorieTargetKcal is passed', async () => {
+      const user = userEvent.setup()
+      render(
+        <MealList calorieEntries={[]} date="2026-03-01" onChange={vi.fn()} />,
+        { wrapper: MemoryRouter },
+      )
+
+      await user.click(screen.getByRole('button', { name: '+ Add item' }))
+      await user.type(screen.getByLabelText('kcal/100g'), '200')
+
+      expect(screen.queryByText(/remaining/)).not.toBeInTheDocument()
+    })
+
+    it('previews remaining calories against the target while a new-meal draft has a valid amount', async () => {
+      const user = userEvent.setup()
+      const calorieEntries: CalorieEntry[] = [
+        {
+          id: 'c1',
+          items: [{ id: 'i1', name: 'Breakfast', amountKcal: 300 }],
+          createdAt: '2026-01-01T00:00:00.000Z',
+        },
+      ]
+      render(
+        <MealList
+          calorieEntries={calorieEntries}
+          date="2026-03-01"
+          onChange={vi.fn()}
+          dailyCalorieTargetKcal={2000}
+        />,
+        { wrapper: MemoryRouter },
+      )
+
+      expect(screen.queryByText(/remaining/)).not.toBeInTheDocument()
+
+      await user.click(screen.getByRole('button', { name: '+ Add item' }))
+      await user.type(screen.getByLabelText('kcal/100g'), '200')
+
+      // 2000 - 300 = 1700 remaining before; 2000 - 500 = 1500 remaining after.
+      expect(
+        screen.getByText('1,500 kcal remaining (was 1,700 kcal remaining)'),
+      ).toBeInTheDocument()
+    })
+  })
+
   describe('macro mismatch sanity check (#255)', () => {
     it('shows a quiet note when kcal is far off from the entered macros', async () => {
       const user = userEvent.setup()

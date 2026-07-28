@@ -34,6 +34,7 @@ import { Button } from '@/shared/ui/button'
 import {
   useCycleTrackingStore,
   useDigestionTrackingStore,
+  useGoalStore,
   useProfileStore,
   useUnitStore,
 } from '@/stores'
@@ -79,6 +80,11 @@ export function DayDetail({
   )
   // #398 — grammatically-correct verb form for the night-eating label below.
   const sex = useProfileStore((state) => state.sex)
+  // #399 — passed to MealList's add-food flows for a "remaining calories"
+  // preview; already loaded by HistoryScreen's own useHistoryData.
+  const dailyCalorieTargetKcal = useGoalStore(
+    (state) => state.goal?.dailyCalorieTargetKcal,
+  )
 
   const meals = entry.calorieEntries ?? []
   const DayEmotionIcon = DAY_EMOTIONS.find(
@@ -233,6 +239,7 @@ export function DayDetail({
               updatedAt: new Date().toISOString(),
             })
           }
+          dailyCalorieTargetKcal={dailyCalorieTargetKcal}
         />
       ) : (
         meals.length > 0 && (

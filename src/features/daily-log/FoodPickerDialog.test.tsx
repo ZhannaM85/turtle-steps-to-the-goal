@@ -738,6 +738,49 @@ describe('FoodPickerDialog', () => {
     })
   })
 
+  describe('remaining-calories preview (#399)', () => {
+    const todayTotals = { kcal: 300, proteinG: 20, fatG: 5, carbsG: 10 }
+
+    it('shows nothing when dailyCalorieTargetKcal is not passed', async () => {
+      const user = userEvent.setup()
+      render(
+        <FoodPickerDialog
+          open
+          onOpenChange={vi.fn()}
+          onAdd={vi.fn()}
+          mealItems={[]}
+          todayTotals={todayTotals}
+        />,
+      )
+
+      await user.click(screen.getByText('Salmon'))
+
+      expect(screen.queryByText(/remaining/)).not.toBeInTheDocument()
+    })
+
+    it('previews remaining calories against the target once a dish is checked', async () => {
+      const user = userEvent.setup()
+      render(
+        <FoodPickerDialog
+          open
+          onOpenChange={vi.fn()}
+          onAdd={vi.fn()}
+          mealItems={[]}
+          todayTotals={todayTotals}
+          dailyCalorieTargetKcal={2000}
+        />,
+      )
+
+      // Salmon: 208 kcal/100g, so +208 kcal at the default 100g quantity.
+      await user.click(screen.getByText('Salmon'))
+
+      // 2000 - 300 = 1700 remaining before; 2000 - 508 = 1492 remaining after.
+      expect(
+        screen.getByText('1,492 kcal remaining (was 1,700 kcal remaining)'),
+      ).toBeInTheDocument()
+    })
+  })
+
   describe('food overrides (#90)', () => {
     it('excludes a curated food hidden via Settings', async () => {
       await useFoodOverrideStore.getState().setHidden('salmon', true)

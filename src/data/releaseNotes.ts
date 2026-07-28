@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 348,
+    issue: 399,
+    date: '2026-07-29T02:04:37+03:00',
+    en: "When adding food (barcode scan, Find food, or manual entry) you can now see how many calories you'd have left for the day before saving.",
+    ru: 'При добавлении еды (сканер, поиск или вручную) теперь видно, сколько калорий останется на день, ещё до сохранения.',
+  },
+  {
     version: 347,
     issue: 389,
     date: '2026-07-29T01:41:30+03:00',
