@@ -116,6 +116,9 @@ export function MonthlySummaryCards({
                   ? descriptionParts.join(' · ')
                   : undefined
               }
+              // #395 — same Safari-only WebKit compositing mitigation as
+              // WeeklySummaryCards.tsx, see ARCHITECTURE.md.
+              className="will-change-transform"
             />
           )
         })}

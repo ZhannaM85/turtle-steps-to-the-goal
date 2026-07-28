@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 345,
+    issue: 395,
+    date: '2026-07-29T01:04:43+03:00',
+    en: 'Applied a fix for Weekly/Monthly Summary cards rendering blank on Safari — let us know if you still see this.',
+    ru: 'Внесено исправление для пустых карточек недельной/месячной сводки в Safari — сообщите, если проблема повторится.',
+  },
+  {
     version: 344,
     issue: 394,
     date: '2026-07-28T23:54:16+03:00',
