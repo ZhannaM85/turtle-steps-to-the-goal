@@ -297,11 +297,34 @@ describe('CustomChartView', () => {
       ).not.toBeInTheDocument()
     })
 
-    it('still shows the normalized-scale caveat with only 1 series selected', async () => {
+    it('hides the normalized-scale caveat with only 1 series selected (#393)', async () => {
       const user = userEvent.setup()
       render(<CustomChartView entries={[entry('2026-03-01', { weightKg: 80 })]} />)
 
       await user.click(screen.getByRole('button', { name: 'Calories' })) // down to 1
+
+      expect(
+        screen.queryByText(/Each line is scaled to its own range/),
+      ).not.toBeInTheDocument()
+    })
+
+    it('shows the normalized-scale caveat again when a custom metric joins a single selected series (#393)', () => {
+      useCustomMetricStore.setState({
+        metrics: [
+          {
+            id: 'metric-1',
+            name: 'Acne',
+            inputKind: 'scale5',
+            createdAt: '2026-01-01T00:00:00.000Z',
+          },
+        ],
+        entries: [],
+      })
+      useCustomChartSelectionStore.setState({
+        selectedNumeric: ['weight'],
+        selectedCustomMetricIds: ['metric-1'],
+      })
+      render(<CustomChartView entries={[entry('2026-03-01', { weightKg: 80 })]} />)
 
       expect(
         screen.getByText(/Each line is scaled to its own range/),

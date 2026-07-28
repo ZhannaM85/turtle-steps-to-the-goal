@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 342,
+    issue: 393,
+    date: '2026-07-28T23:32:46+03:00',
+    en: 'Fixed the Compare Data chart showing no y-axis when only one series was selected.',
+    ru: 'Исправлено: график "Сравнение данных" не показывал ось Y при выборе только одного ряда.',
+  },
+  {
     version: 341,
     issue: 397,
     date: '2026-07-28T23:24:49+03:00',

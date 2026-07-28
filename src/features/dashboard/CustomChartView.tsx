@@ -350,6 +350,16 @@ export function CustomChartView({ entries, dragHandle }: CustomChartViewProps) {
   // regardless of which of the two was actually clicked second.
   const isDualAxis = selectedNumeric.length === 2
   const [leftAxisKey, rightAxisKey] = isDualAxis ? selectedNumeric : []
+  // #393 — same "no scale-clash risk" reasoning as isDualAxis, extended to
+  // exactly 1 selected numeric series (#348 already established this for
+  // BodyCompositionTrendChart.tsx): a lone series gets its own real axis
+  // instead of falling through to the shared hidden normalized one, since
+  // there's nothing else numeric on screen it could be confused with.
+  // Independent of boolean markers/custom metrics being selected alongside
+  // it, same as isDualAxis already is — those keep using the always-present
+  // "normalized" axis either way.
+  const isSingleAxis = selectedNumeric.length === 1
+  const soleAxisKey = isSingleAxis ? selectedNumeric[0] : undefined
 
   const points = customChartPoints(entries, selectedNumeric)
   const pointsByDate = new Map(points.map((p) => [p.date, p]))
@@ -545,6 +555,19 @@ export function CustomChartView({ entries, dragHandle }: CustomChartViewProps) {
                   />
                 </>
               )}
+              {isSingleAxis && (
+                <YAxis
+                  yAxisId="single"
+                  width="auto"
+                  domain={['auto', 'auto']}
+                  tick={{ fontSize: 11, fill: seriesConfig[soleAxisKey!].color }}
+                  tickFormatter={(value: number) =>
+                    seriesConfig[soleAxisKey!].formatRaw(value)
+                  }
+                  axisLine={{ stroke: seriesConfig[soleAxisKey!].color }}
+                  tickLine={false}
+                />
+              )}
               <Tooltip content={renderTooltip} wrapperStyle={{ pointerEvents: 'auto' }} />
               {selectedBoolean.map((seriesKey) => {
                 const series = availableBooleanSeries.find(
@@ -566,15 +589,19 @@ export function CustomChartView({ entries, dragHandle }: CustomChartViewProps) {
               })}
               {selectedNumeric.map((key) => {
                 const chartType = chartTypes[key]
-                // #330 — plot the real value against that series' own real
-                // axis when exactly 2 series are selected, instead of the
-                // shared normalized 0-100 one every other count still uses.
-                const dataKey = isDualAxis ? `${key}_raw` : `${key}_norm`
+                // #330/#393 — plot the real value against that series' own
+                // real axis when exactly 2, or exactly 1, series are
+                // selected, instead of the shared normalized 0-100 one
+                // every other count still uses.
+                const dataKey =
+                  isDualAxis || isSingleAxis ? `${key}_raw` : `${key}_norm`
                 const yAxisId = isDualAxis
                   ? key === leftAxisKey
                     ? 'left'
                     : 'right'
-                  : 'normalized'
+                  : isSingleAxis
+                    ? 'single'
+                    : 'normalized'
                 if (chartType === 'bar') {
                   return (
                     <Bar
@@ -723,11 +750,13 @@ export function CustomChartView({ entries, dragHandle }: CustomChartViewProps) {
           {/* #330 — this caveat describes the normalized-scale behavior,
            * which no longer applies once exactly 2 series switch to real
            * dual axes above; showing it then would contradict what's
-           * actually on screen. #371 — a selected custom metric always
-           * plots on the normalized axis regardless of isDualAxis, so the
+           * actually on screen. #393 — same for the exactly-1 single-axis
+           * case. #371 — a selected custom metric always plots on the
+           * normalized axis regardless of isDualAxis/isSingleAxis, so the
            * caveat still applies whenever one is selected, even alongside
-           * an active dual-axis pair. */}
-          {(!isDualAxis || selectedCustomMetricIds.length > 0) && (
+           * an active real-axis series. */}
+          {((!isDualAxis && !isSingleAxis) ||
+            selectedCustomMetricIds.length > 0) && (
             <p className="text-xs text-muted-foreground">
               {t.dashboard.customChartNormalizedCaveat}
             </p>
