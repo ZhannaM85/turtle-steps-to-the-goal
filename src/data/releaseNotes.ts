@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 324,
+    issue: 388,
+    date: '2026-07-28T16:49:51+03:00',
+    en: "Fixed the Today screen's reorder-mode drag handle rendering above each card instead of to its left.",
+    ru: 'Исправлено: маркер перетаскивания на экране "Сегодня" отображался над карточкой вместо левой стороны.',
+  },
+  {
     version: 323,
     issue: 366,
     date: '2026-07-28T00:57:23+03:00',
