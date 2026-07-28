@@ -932,7 +932,7 @@ export const releaseNotes: ReleaseNote[] = [
     issue: 202,
     date: '2026-07-20T17:40:00+03:00',
     en: '"Repeat yesterday\'s meal" now shows a preview first, letting you uncheck any dish you don\'t want to repeat instead of always adding all of them.',
-    ru: '«Повторить приём пищи со вчера» теперь сначала показывает предпросмотр — можно снять галочку с блюда, которое повторять не нужно, вместо добавления всех сразу.',
+    ru: '«Повторить вчерашний приём пищи» теперь сначала показывает предпросмотр — можно снять галочку с блюда, которое повторять не нужно, вместо добавления всех сразу.',
   },
   {
     version: 191,

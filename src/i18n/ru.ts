@@ -175,7 +175,7 @@ export const ru: Dictionary = {
     clearItemDraftLabel: 'Очистить',
     collapseAddMealLabel: 'Свернуть',
     expandAddMealLabel: '+ Добавить ещё приём пищи',
-    repeatMealLabel: (mealLabel) => `Повторить «${mealLabel}» со вчера`,
+    repeatMealLabel: (mealLabel) => `Повторить вчерашний «${mealLabel}»`,
     repeatMealDialogTitle: (mealLabel) => `Повторить «${mealLabel}»`,
     copyYesterdayMealsLabel: 'Скопировать вчерашние приёмы пищи',
     copyDayMealsDialogTitle: 'Скопировать вчерашние приёмы пищи',
