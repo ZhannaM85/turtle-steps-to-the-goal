@@ -274,7 +274,11 @@ describe('SettingsScreen', () => {
       const user = userEvent.setup()
       renderSettings()
 
-      const sleepToggle = screen.getByRole('button', { name: 'Sleep' })
+      // #368 gave the Apple Health field picker its own "Sleep" chip too —
+      // scope to this toggle group specifically, same as the test above.
+      const sleepToggle = within(
+        screen.getByRole('toolbar', { name: 'What to track' }),
+      ).getByRole('button', { name: 'Sleep' })
       await user.click(sleepToggle)
 
       expect(sleepToggle).toHaveAttribute('aria-pressed', 'false')
