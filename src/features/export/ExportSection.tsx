@@ -59,6 +59,11 @@ const APPLE_HEALTH_FIELDS: {
   { key: 'waistCm', label: (t) => t.dailyEntry.waistLabel },
   { key: 'steps', label: (t) => t.dailyEntry.stepsLabel },
   { key: 'waterEntries', label: (t) => t.dailyEntry.waterLabel },
+  // #368 — sleepHours/deepSleepHours added once Apple Health's own sleep
+  // parsing existed; every other field here was already pickable, so these
+  // two get the same treatment rather than being unconditionally imported.
+  { key: 'sleepHours', label: (t) => t.dailyEntry.sleepLabel },
+  { key: 'deepSleepHours', label: (t) => t.dailyEntry.deepSleepLabel },
 ]
 
 /** #240 — Excel/CSV/Markdown only, never the JSON backup (a backup should

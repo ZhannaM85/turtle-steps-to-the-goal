@@ -288,4 +288,108 @@ describe('AppleHealthPatchBuilder', () => {
 
     expect(builder.build().size).toBe(0)
   })
+
+  describe('sleep (#368)', () => {
+    it('sums Asleep-stage interval durations into sleepHours, bucketed by the wake date', () => {
+      const builder = new AppleHealthPatchBuilder()
+      // Falls asleep 23:00 on the 14th, wakes 07:00 on the 15th — belongs
+      // to the 15th (the day this sleep is reviewed "this morning"), not
+      // the 14th (the day the interval started).
+      builder.addRecord({
+        type: 'HKCategoryTypeIdentifierSleepAnalysis',
+        value: 'HKCategoryValueSleepAnalysisAsleepCore',
+        startDate: '2026-01-14 23:00:00+0000',
+        endDate: '2026-01-15 03:00:00+0000',
+      })
+      builder.addRecord({
+        type: 'HKCategoryTypeIdentifierSleepAnalysis',
+        value: 'HKCategoryValueSleepAnalysisAsleepREM',
+        startDate: '2026-01-15 03:00:00+0000',
+        endDate: '2026-01-15 07:00:00+0000',
+      })
+
+      const patches = builder.build()
+      expect(patches.get('2026-01-14')).toBeUndefined()
+      expect(patches.get('2026-01-15')).toEqual({ sleepHours: 8 })
+    })
+
+    it('separately tracks AsleepDeep intervals as deepSleepHours, alongside the total', () => {
+      const builder = new AppleHealthPatchBuilder()
+      builder.addRecord({
+        type: 'HKCategoryTypeIdentifierSleepAnalysis',
+        value: 'HKCategoryValueSleepAnalysisAsleepCore',
+        startDate: '2026-01-15 00:00:00+0000',
+        endDate: '2026-01-15 05:00:00+0000',
+      })
+      builder.addRecord({
+        type: 'HKCategoryTypeIdentifierSleepAnalysis',
+        value: 'HKCategoryValueSleepAnalysisAsleepDeep',
+        startDate: '2026-01-15 05:00:00+0000',
+        endDate: '2026-01-15 06:30:00+0000',
+      })
+
+      expect(builder.build().get('2026-01-15')).toEqual({
+        sleepHours: 6.5,
+        deepSleepHours: 1.5,
+      })
+    })
+
+    it('excludes Awake intervals from the total', () => {
+      const builder = new AppleHealthPatchBuilder()
+      builder.addRecord({
+        type: 'HKCategoryTypeIdentifierSleepAnalysis',
+        value: 'HKCategoryValueSleepAnalysisAsleepCore',
+        startDate: '2026-01-15 00:00:00+0000',
+        endDate: '2026-01-15 04:00:00+0000',
+      })
+      builder.addRecord({
+        type: 'HKCategoryTypeIdentifierSleepAnalysis',
+        value: 'HKCategoryValueSleepAnalysisAwake',
+        startDate: '2026-01-15 04:00:00+0000',
+        endDate: '2026-01-15 04:30:00+0000',
+      })
+      builder.addRecord({
+        type: 'HKCategoryTypeIdentifierSleepAnalysis',
+        value: 'HKCategoryValueSleepAnalysisAsleepCore',
+        startDate: '2026-01-15 04:30:00+0000',
+        endDate: '2026-01-15 07:00:00+0000',
+      })
+
+      expect(builder.build().get('2026-01-15')).toEqual({ sleepHours: 6.5 })
+    })
+
+    it('falls back to InBed duration only when a source has no Asleep* interval at all that night', () => {
+      const builder = new AppleHealthPatchBuilder()
+      builder.addRecord({
+        type: 'HKCategoryTypeIdentifierSleepAnalysis',
+        value: 'HKCategoryValueSleepAnalysisInBed',
+        startDate: '2026-01-15 00:00:00+0000',
+        endDate: '2026-01-15 07:30:00+0000',
+      })
+
+      expect(builder.build().get('2026-01-15')).toEqual({ sleepHours: 7.5 })
+    })
+
+    it("keeps only the dominant source's sleep for a night, not the sum across sources", () => {
+      const builder = new AppleHealthPatchBuilder()
+      // Watch: 7h asleep. A third-party app double-logging the same night
+      // via its own 8h InBed interval would double the total if summed.
+      builder.addRecord({
+        type: 'HKCategoryTypeIdentifierSleepAnalysis',
+        value: 'HKCategoryValueSleepAnalysisAsleepCore',
+        startDate: '2026-01-15 00:00:00+0000',
+        endDate: '2026-01-15 07:00:00+0000',
+        sourceName: 'My Watch',
+      })
+      builder.addRecord({
+        type: 'HKCategoryTypeIdentifierSleepAnalysis',
+        value: 'HKCategoryValueSleepAnalysisInBed',
+        startDate: '2026-01-14 23:30:00+0000',
+        endDate: '2026-01-15 07:30:00+0000',
+        sourceName: 'Sleep Tracker App',
+      })
+
+      expect(builder.build().get('2026-01-15')).toEqual({ sleepHours: 8 })
+    })
+  })
 })

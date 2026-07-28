@@ -400,7 +400,7 @@ export const en: Dictionary = {
   },
   appleHealthImport: {
     importBlurb:
-      'Import weight, body fat, waist, water, and step data from an Apple Health export file.',
+      'Import weight, body fat, waist, water, sleep, and step data from an Apple Health export file.',
     howToExportLabel: 'How do I get this file?',
     howToExportSteps:
       'In the Health app: tap your profile icon (top right) → Export All Health Data. This can take a while to process for a large export.',

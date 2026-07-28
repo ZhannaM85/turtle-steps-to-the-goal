@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 349,
+    issue: 368,
+    date: '2026-07-29T02:16:44+03:00',
+    en: 'The Apple Health import now also brings in sleep and deep sleep data, not just weight/body/step data.',
+    ru: 'Импорт Apple Health теперь также переносит данные о сне и глубоком сне, а не только вес/тело/шаги.',
+  },
+  {
     version: 348,
     issue: 399,
     date: '2026-07-29T02:04:37+03:00',

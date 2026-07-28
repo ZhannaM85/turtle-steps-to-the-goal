@@ -107,7 +107,33 @@ const HK_TYPE = {
   waistCircumference: 'HKQuantityTypeIdentifierWaistCircumference',
   stepCount: 'HKQuantityTypeIdentifierStepCount',
   dietaryWater: 'HKQuantityTypeIdentifierDietaryWater',
+  sleepAnalysis: 'HKCategoryTypeIdentifierSleepAnalysis',
 } as const
+
+// #368 — a Category-type record's "amount" is its own startDate/endDate
+// interval, not a numeric `value` the way every Quantity type above is —
+// `value` is instead one of these stage identifiers. `AsleepUnspecified`
+// replaced the older, unqualified `Asleep` in iOS 16; both can appear
+// depending on the OS version active when a given record was written, so
+// both count. `InBed` alone (no Asleep* record covering the same night)
+// is the only signal a pre-stage-tracking source ever wrote — used as a
+// fallback, not summed alongside real sleep stages. `Awake` intentionally
+// contributes to neither total.
+const SLEEP_ASLEEP_VALUES = new Set([
+  'HKCategoryValueSleepAnalysisAsleep',
+  'HKCategoryValueSleepAnalysisAsleepUnspecified',
+  'HKCategoryValueSleepAnalysisAsleepCore',
+  'HKCategoryValueSleepAnalysisAsleepDeep',
+  'HKCategoryValueSleepAnalysisAsleepREM',
+])
+const SLEEP_DEEP_VALUE = 'HKCategoryValueSleepAnalysisAsleepDeep'
+const SLEEP_IN_BED_VALUE = 'HKCategoryValueSleepAnalysisInBed'
+
+interface SleepTotals {
+  asleepSeconds: number
+  deepSeconds: number
+  inBedSeconds: number
+}
 
 interface LatestValue {
   value: number
@@ -144,8 +170,23 @@ export class AppleHealthPatchBuilder {
   // source, same-day intraday records still sum as before.
   private stepsByDateAndSource = new Map<string, Map<string, number>>()
   private waterEntriesByDate = new Map<string, WaterEntry[]>()
+  // #368 — same per-(date, source) shape as stepsByDateAndSource above, and
+  // for the identical reason: a phone/watch/third-party sleep app can each
+  // write their own overlapping interval for the same real night, so a
+  // dominant-source pick at build() time (not summing across sources)
+  // avoids double-counting the same sleep twice. Keyed by the *wake* date
+  // (the calendar day a night's final interval ends on) — matches how a
+  // person would actually describe "how did I sleep", reviewed the
+  // following morning, not the day they happened to fall asleep on.
+  private sleepByDateAndSource = new Map<string, Map<string, SleepTotals>>()
 
   addRecord(record: AppleHealthRecord): void {
+    // #368 — a Category-type record (sleep) has no numeric `value` at all;
+    // handle it before the Quantity-type numeric check below rejects it.
+    if (record.type === HK_TYPE.sleepAnalysis) {
+      this.addSleepRecord(record)
+      return
+    }
     if (record.value === undefined) return
     const numeric = Number(record.value)
     if (!Number.isFinite(numeric)) return
@@ -198,6 +239,36 @@ export class AppleHealthPatchBuilder {
     }
   }
 
+  private addSleepRecord(record: AppleHealthRecord): void {
+    if (record.value === undefined) return
+    if (!record.startDate || !record.endDate) return
+    const start = parseHealthTimestamp(record.startDate)
+    const end = parseHealthTimestamp(record.endDate)
+    const seconds = (end.epochMs - start.epochMs) / 1000
+    if (!(seconds > 0)) return
+    const isAsleep = SLEEP_ASLEEP_VALUES.has(record.value)
+    const isInBed = record.value === SLEEP_IN_BED_VALUE
+    if (!isAsleep && !isInBed) return // e.g. Awake — contributes to neither total
+
+    const source = record.sourceName ?? UNKNOWN_STEP_SOURCE
+    const bySource =
+      this.sleepByDateAndSource.get(end.localDate) ??
+      new Map<string, SleepTotals>()
+    const totals = bySource.get(source) ?? {
+      asleepSeconds: 0,
+      deepSeconds: 0,
+      inBedSeconds: 0,
+    }
+    if (isAsleep) {
+      totals.asleepSeconds += seconds
+      if (record.value === SLEEP_DEEP_VALUE) totals.deepSeconds += seconds
+    } else {
+      totals.inBedSeconds += seconds
+    }
+    bySource.set(source, totals)
+    this.sleepByDateAndSource.set(end.localDate, bySource)
+  }
+
   private setIfLatest(
     map: Map<string, LatestValue>,
     date: string,
@@ -241,6 +312,29 @@ export class AppleHealthPatchBuilder {
     }
     for (const [date, entries] of this.waterEntriesByDate) {
       patchFor(date).waterEntries = entries
+    }
+    for (const [date, bySource] of this.sleepByDateAndSource) {
+      // #368 — same dominant-source-per-night pick as steps above, not a
+      // sum across sources (a phone and a watch can each log their own
+      // overlapping interval for the same real sleep). Each source's own
+      // total prefers real sleep-stage data (asleepSeconds) and only falls
+      // back to inBedSeconds when that source recorded no Asleep* interval
+      // at all that night (older, pre-stage-tracking data).
+      let bestSource: SleepTotals | null = null
+      let bestHours = 0
+      for (const totals of bySource.values()) {
+        const hours = (totals.asleepSeconds || totals.inBedSeconds) / 3600
+        if (hours > bestHours) {
+          bestHours = hours
+          bestSource = totals
+        }
+      }
+      if (bestSource) {
+        patchFor(date).sleepHours = round2(bestHours)
+        if (bestSource.deepSeconds > 0) {
+          patchFor(date).deepSleepHours = round2(bestSource.deepSeconds / 3600)
+        }
+      }
     }
 
     return patches
