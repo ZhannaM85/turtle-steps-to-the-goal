@@ -1029,3 +1029,11 @@ _All reported live in one session, digging into Dashboard right after importing 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#382](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/382) | 📋 Not started | New goal shows "target met" on a date before the goal existed | Reported live: goal set Jul 28 shows "target met Jul 25." Should be architecturally impossible per #135/#203's `goalWindowProgress()` (`metOnDate` only ever checked within `[weekStart, weekEnd]`, `weekStart` = creation date). Two candidate causes flagged, neither confirmed yet: a real regression in that logic, or this specific `GoalScreen` StatCard actually reading calendar-week `weeklySummaries()` data instead of the goal-anchored source — which would silently reintroduce exactly what #135 fixed. |
+
+---
+
+## Tier 75 — Night eating tracking (2026-07-28)
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#383](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/383) | 📋 Not started | Track night eating (yes/no, moon icon), include in correlations | Genuine fork flagged, not resolved: point the user at defining this themselves via #336's existing generic custom-metric+correlation system, or build a dedicated built-in field/view mirroring #338's meal-frequency precedent (which used a dedicated view specifically because #336's generic same-day pairing engine doesn't replicate the 6 built-in views' "metric vs. *next-day* weight change" framing). Also undecided: whether "night eating" is a derived flag from #65's existing `timeEaten` data (some cutoff hour) or a separate manual toggle. |
