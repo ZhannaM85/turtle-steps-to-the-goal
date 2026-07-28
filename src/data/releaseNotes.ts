@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 328,
+    issue: 375,
+    date: '2026-07-28T13:50:05+03:00',
+    en: "Fixed the steps-vs-weight correlation chart's axis being stretched unreadable by a few extreme step-count days.",
+    ru: 'Исправлено: график "шаги и вес" растягивался до нечитаемости из-за нескольких дней с экстремальным числом шагов.',
+  },
+  {
     version: 327,
     issue: 383,
     date: '2026-07-28T15:48:08+03:00',
