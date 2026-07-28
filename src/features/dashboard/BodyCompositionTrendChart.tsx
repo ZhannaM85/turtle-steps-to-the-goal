@@ -121,18 +121,8 @@ export function BodyCompositionTrendChart({
   if (!trackedFields.bodyComposition) return null
 
   const points = bodyCompositionPoints(entries)
-  const data = points.map((point) => {
-    const row: Record<string, string | number | undefined> = {
-      date: point.date,
-    }
-    for (const key of BODY_COMPOSITION_SERIES_KEYS) {
-      row[`${key}_norm`] = point.normalized[key]
-      row[`${key}_raw`] = point.raw[key]
-    }
-    return row
-  })
 
-  if (data.length === 0) return null
+  if (points.length === 0) return null
 
   const chartTitle = (
     <ChartTitleWithToggle
@@ -146,7 +136,7 @@ export function BodyCompositionTrendChart({
     return <div className="flex flex-col gap-1.5 rounded-lg border border-border p-3">{chartTitle}</div>
   }
 
-  if (data.length < MIN_TREND_DATA_POINTS) {
+  if (points.length < MIN_TREND_DATA_POINTS) {
     return (
       <div className="flex flex-col gap-1.5 rounded-lg border border-border p-3">
         {chartTitle}
@@ -241,6 +231,32 @@ export function BodyCompositionTrendChart({
       </div>
     )
   }
+
+  // #376 — `points` spans every date with *any* of the 5 fields logged, but
+  // a currently-selected series might only have real values in a much
+  // narrower recent window (e.g. years of weight/water data alongside a
+  // muscle-mass reading only started last month). Narrowing the chart's
+  // own `data` to the dates where at least one *visible* series has a
+  // value keeps the x-axis from stretching across a range where the
+  // selected line has nothing to draw, rather than rendering it correctly
+  // but mostly as blank space. Deliberately doesn't affect the
+  // not-enough-data gate above, which stays based on the full dataset —
+  // a selection choice narrowing the visible range isn't the same thing
+  // as there being too little data logged to be worth a trend at all.
+  const visiblePoints = points.filter((point) =>
+    visibleKeys.some((key) => point.raw[key] !== undefined),
+  )
+
+  const data = visiblePoints.map((point) => {
+    const row: Record<string, string | number | undefined> = {
+      date: point.date,
+    }
+    for (const key of BODY_COMPOSITION_SERIES_KEYS) {
+      row[`${key}_norm`] = point.normalized[key]
+      row[`${key}_raw`] = point.raw[key]
+    }
+    return row
+  })
 
   return (
     <div className="flex flex-col gap-1.5 rounded-lg border border-border p-3">
