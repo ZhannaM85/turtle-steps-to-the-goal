@@ -193,7 +193,7 @@ describe('CustomCorrelationView', () => {
       expect(screen.getByText(/Based on 9 days of data\./)).toBeInTheDocument()
 
       await user.click(
-        screen.getByRole('button', { name: 'Exclude 9 Mar from this pattern' }),
+        screen.getByRole('button', { name: 'Exclude 9 Mar 2026 from this pattern' }),
       )
 
       expect(screen.getByText(/Based on 8 days of data\./)).toBeInTheDocument()

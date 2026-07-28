@@ -170,7 +170,9 @@ export function CorrelationView({ entries, dragHandle }: CorrelationViewProps) {
           onToggle={toggle}
           getKey={(point) => point.weekStart}
           formatLabel={(point) =>
-            format(parseISO(point.weekStart), 'd MMM', { locale: dateFnsLocale })
+            format(parseISO(point.weekStart), 'd MMM yyyy', {
+              locale: dateFnsLocale,
+            })
           }
         />
       )}

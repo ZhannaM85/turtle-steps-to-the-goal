@@ -170,7 +170,9 @@ export function FastingWindowCorrelationView({
           onToggle={toggle}
           getKey={(point) => point.date}
           formatLabel={(point) =>
-            format(parseISO(point.date), 'd MMM', { locale: dateFnsLocale })
+            format(parseISO(point.date), 'd MMM yyyy', {
+              locale: dateFnsLocale,
+            })
           }
         />
       )}

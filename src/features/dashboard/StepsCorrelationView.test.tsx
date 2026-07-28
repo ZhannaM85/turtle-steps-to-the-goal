@@ -109,7 +109,7 @@ describe('StepsCorrelationView', () => {
       render(<StepsCorrelationView entries={entriesWithOneOutlier()} />)
 
       expect(
-        screen.getByRole('button', { name: 'Exclude 10 Mar from this pattern' }),
+        screen.getByRole('button', { name: 'Exclude 10 Mar 2026 from this pattern' }),
       ).toBeInTheDocument()
     })
 
@@ -120,7 +120,7 @@ describe('StepsCorrelationView', () => {
       expect(screen.getByText(/Based on 9 days of data\./)).toBeInTheDocument()
 
       await user.click(
-        screen.getByRole('button', { name: 'Exclude 10 Mar from this pattern' }),
+        screen.getByRole('button', { name: 'Exclude 10 Mar 2026 from this pattern' }),
       )
 
       expect(screen.getByText(/Based on 8 days of data\./)).toBeInTheDocument()
@@ -131,12 +131,12 @@ describe('StepsCorrelationView', () => {
       render(<StepsCorrelationView entries={entriesWithOneOutlier()} />)
 
       await user.click(
-        screen.getByRole('button', { name: 'Exclude 10 Mar from this pattern' }),
+        screen.getByRole('button', { name: 'Exclude 10 Mar 2026 from this pattern' }),
       )
       expect(screen.getByText(/Based on 8 days of data\./)).toBeInTheDocument()
 
       await user.click(
-        screen.getByRole('button', { name: 'Restore 10 Mar to this pattern' }),
+        screen.getByRole('button', { name: 'Restore 10 Mar 2026 to this pattern' }),
       )
 
       expect(screen.getByText(/Based on 9 days of data\./)).toBeInTheDocument()

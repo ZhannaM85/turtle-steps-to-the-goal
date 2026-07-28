@@ -33,7 +33,11 @@ export function OutlierPointsList<T>({
       <span className="text-xs font-medium text-muted-foreground">
         {t.dashboard.outlierPointsHeading}
       </span>
-      <div className="flex flex-wrap gap-2">
+      {/* #374 — a multi-year dataset can flag dozens of outliers on one
+       * view; a max-height scrollable container (rather than pagination)
+       * keeps the list from pushing the rest of the Dashboard far down the
+       * page, without adding new interactive state of its own. */}
+      <div className="flex max-h-40 flex-wrap gap-2 overflow-y-auto">
         {points.map((point) => {
           const excluded = isExcluded(point)
           const label = formatLabel(point)
