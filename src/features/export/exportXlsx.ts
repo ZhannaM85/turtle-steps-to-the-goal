@@ -1,6 +1,7 @@
 import type ExcelJS from 'exceljs'
 import type { CalorieEntry, DailyEntry } from '@/domain/dailyEntry'
 import {
+  hadNightEating,
   totalCalories,
   totalCarbs,
   totalFat,
@@ -69,6 +70,11 @@ export async function buildExportWorkbook(
       key: 'hadConstipation',
       width: 14,
     },
+    {
+      header: t.exportXlsx.nightEatingColumn,
+      key: 'nightEating',
+      width: 14,
+    },
     { header: t.exportXlsx.waterColumn, key: 'water', width: 12 },
   ]
   for (const entry of sortedEntries) {
@@ -89,6 +95,7 @@ export async function buildExportWorkbook(
       note: entry.note,
       onPeriod: entry.onPeriod,
       hadConstipation: entry.hadConstipation,
+      nightEating: hadNightEating(entry),
       water: totalWaterMl(entry.waterEntries),
     })
   }

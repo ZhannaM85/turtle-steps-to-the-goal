@@ -4,6 +4,7 @@ import {
   fireEvent,
   render as rtlRender,
   screen,
+  within,
 } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import type { ReactElement, ReactNode } from 'react'
@@ -2104,11 +2105,14 @@ describe('DailyEntryForm', () => {
         <DailyEntryForm date="2026-03-01" existingEntry={null} onSave={vi.fn()} />,
       )
 
-      expect(screen.getByRole('radio', { name: 'No' })).toHaveAttribute(
+      const group = within(
+        screen.getByRole('radiogroup', { name: 'Constipation' }),
+      )
+      expect(group.getByRole('radio', { name: 'No' })).toHaveAttribute(
         'aria-checked',
         'true',
       )
-      expect(screen.getByRole('radio', { name: 'Yes' })).toHaveAttribute(
+      expect(group.getByRole('radio', { name: 'Yes' })).toHaveAttribute(
         'aria-checked',
         'false',
       )
@@ -2122,11 +2126,14 @@ describe('DailyEntryForm', () => {
         <DailyEntryForm date="2026-03-01" existingEntry={null} onSave={onSave} />,
       )
 
-      await user.click(screen.getByRole('radio', { name: 'Yes' }))
+      const group = within(
+        screen.getByRole('radiogroup', { name: 'Constipation' }),
+      )
+      await user.click(group.getByRole('radio', { name: 'Yes' }))
 
       expect(onSave).toHaveBeenCalled()
       expect(onSave.mock.calls[0][0].hadConstipation).toBe(true)
-      expect(screen.getByRole('radio', { name: 'Yes' })).toHaveAttribute(
+      expect(group.getByRole('radio', { name: 'Yes' })).toHaveAttribute(
         'aria-checked',
         'true',
       )
@@ -2148,10 +2155,128 @@ describe('DailyEntryForm', () => {
         />,
       )
 
-      expect(screen.getByRole('radio', { name: 'Yes' })).toHaveAttribute(
+      const group = within(
+        screen.getByRole('radiogroup', { name: 'Constipation' }),
+      )
+      expect(group.getByRole('radio', { name: 'Yes' })).toHaveAttribute(
         'aria-checked',
         'true',
       )
+    })
+  })
+
+  describe('night eating tracking (#383)', () => {
+    it('always shows the toggle, with no Settings opt-in gate', () => {
+      render(
+        <DailyEntryForm date="2026-03-01" existingEntry={null} onSave={vi.fn()} />,
+      )
+
+      expect(
+        screen.getByRole('radiogroup', { name: 'Ate late tonight' }),
+      ).toBeInTheDocument()
+    })
+
+    it('defaults to No when there is no logged meal and no override', () => {
+      render(
+        <DailyEntryForm date="2026-03-01" existingEntry={null} onSave={vi.fn()} />,
+      )
+
+      const group = within(
+        screen.getByRole('radiogroup', { name: 'Ate late tonight' }),
+      )
+      expect(group.getByRole('radio', { name: 'No' })).toHaveAttribute(
+        'aria-checked',
+        'true',
+      )
+    })
+
+    it('saves an explicit override immediately when switched to Yes', async () => {
+      const user = userEvent.setup()
+      const onSave = vi.fn()
+      render(
+        <DailyEntryForm date="2026-03-01" existingEntry={null} onSave={onSave} />,
+      )
+
+      const group = within(
+        screen.getByRole('radiogroup', { name: 'Ate late tonight' }),
+      )
+      await user.click(group.getByRole('radio', { name: 'Yes' }))
+
+      expect(onSave).toHaveBeenCalled()
+      expect(onSave.mock.calls[0][0].nightEatingOverride).toBe(true)
+      expect(group.getByRole('radio', { name: 'Yes' })).toHaveAttribute(
+        'aria-checked',
+        'true',
+      )
+    })
+
+    it('reflects a value derived from a logged late meal, with no override yet', () => {
+      render(
+        <DailyEntryForm
+          date="2026-03-01"
+          existingEntry={{
+            id: 'entry-1',
+            date: '2026-03-01',
+            calorieEntries: [
+              {
+                id: 'c1',
+                items: [{ id: 'i1', amountKcal: 400 }],
+                timeEaten: '23:00',
+                createdAt: now,
+              },
+            ],
+            createdAt: now,
+            updatedAt: now,
+          }}
+          onSave={vi.fn()}
+        />,
+      )
+
+      const group = within(
+        screen.getByRole('radiogroup', { name: 'Ate late tonight' }),
+      )
+      expect(group.getByRole('radio', { name: 'Yes' })).toHaveAttribute(
+        'aria-checked',
+        'true',
+      )
+    })
+
+    it('lets an explicit override win over the derived meal-time value', async () => {
+      const user = userEvent.setup()
+      const onSave = vi.fn()
+      render(
+        <DailyEntryForm
+          date="2026-03-01"
+          existingEntry={{
+            id: 'entry-1',
+            date: '2026-03-01',
+            calorieEntries: [
+              {
+                id: 'c1',
+                items: [{ id: 'i1', amountKcal: 400 }],
+                timeEaten: '23:00',
+                createdAt: now,
+              },
+            ],
+            nightEatingOverride: false,
+            createdAt: now,
+            updatedAt: now,
+          }}
+          onSave={onSave}
+        />,
+      )
+
+      const group = within(
+        screen.getByRole('radiogroup', { name: 'Ate late tonight' }),
+      )
+      expect(group.getByRole('radio', { name: 'No' })).toHaveAttribute(
+        'aria-checked',
+        'true',
+      )
+
+      await user.click(group.getByRole('radio', { name: 'Yes' }))
+
+      expect(onSave.mock.calls[0][0].nightEatingOverride).toBe(true)
     })
   })
 

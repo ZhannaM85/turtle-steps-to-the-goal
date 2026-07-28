@@ -24,7 +24,7 @@ describe('buildDailyLogCsv', () => {
     expect(csv).toBe(
       'Date,Weight (kg),Calories (kcal),Protein (g),Fat (g),Carbs (g),' +
         'Sleep (h),Deep sleep (h),Steps,Waist (cm),Hip (cm),Body fat (%),' +
-        'Mood,Note,On period,Constipation,Water (ml)',
+        'Mood,Note,On period,Constipation,Ate late tonight,Water (ml)',
     )
   })
 
@@ -55,8 +55,25 @@ describe('buildDailyLogCsv', () => {
     const [, row] = csv.split('\r\n')
 
     expect(row).toBe(
-      '2026-03-01,79.5,300,10,5,20,7,1.5,8000,80,95,22,Happy,Felt good,true,,',
+      '2026-03-01,79.5,300,10,5,20,7,1.5,8000,80,95,22,Happy,Felt good,true,,false,',
     )
+  })
+
+  it('exports the effective night-eating value, derived from a late meal with no override (#383)', () => {
+    const entry = makeEntry({
+      calorieEntries: [
+        {
+          id: 'meal-1',
+          items: [{ id: 'item-1', amountKcal: 400 }],
+          timeEaten: '23:00',
+          createdAt: '2026-03-01T00:00:00.000Z',
+        },
+      ],
+    })
+    const csv = buildDailyLogCsv([entry], t)
+    const [, row] = csv.split('\r\n')
+
+    expect(row.endsWith(',true,')).toBe(true)
   })
 
   it('quotes fields containing a comma and escapes embedded quotes', () => {

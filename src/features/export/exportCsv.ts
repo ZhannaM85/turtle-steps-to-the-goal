@@ -1,5 +1,6 @@
 import type { DailyEntry } from '@/domain/dailyEntry'
 import {
+  hadNightEating,
   totalCalories,
   totalCarbs,
   totalFat,
@@ -60,6 +61,7 @@ export function buildDailyLogCsv(
     t.exportXlsx.noteColumn,
     t.exportXlsx.onPeriodColumn,
     t.exportXlsx.hadConstipationColumn,
+    t.exportXlsx.nightEatingColumn,
     t.exportXlsx.waterColumn,
   ])
   const rows = sortedEntries.map((entry) =>
@@ -80,6 +82,7 @@ export function buildDailyLogCsv(
       entry.note,
       entry.onPeriod,
       entry.hadConstipation,
+      hadNightEating(entry),
       totalWaterMl(entry.waterEntries),
     ]),
   )

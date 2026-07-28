@@ -450,6 +450,12 @@ export interface Dictionary {
     hadConstipationLabel: string
     hadConstipationNoOption: string
     hadConstipationYesOption: string
+    /** #383 — always shown (no Settings opt-in, unlike hadConstipation
+     * above): reflects a value derived from today's own logged meal times,
+     * unless manually overridden via this same toggle. */
+    nightEatingLabel: string
+    nightEatingNoOption: string
+    nightEatingYesOption: string
     /** Opt-in water tracking (#258), a list of discrete entries rather
      * than a single running total (#271) — same gating shape as onPeriod/
      * hadConstipation above. #282: only the two fixed-amount quick-add
@@ -705,6 +711,11 @@ export interface Dictionary {
     noteColumn: string
     onPeriodColumn: string
     hadConstipationColumn: string
+    /** #383 — the *effective* value (`hadNightEating()`, override or else
+     * derived from that day's own logged meal times), not the raw
+     * `nightEatingOverride` field — unlike onPeriod/hadConstipation above,
+     * night eating has no untracked/opt-in state to leave blank. */
+    nightEatingColumn: string
     waterColumn: string
     mealColumn: string
     itemColumn: string
@@ -896,6 +907,18 @@ export interface Dictionary {
      * correlation's percent-of-calories metric (distinct from
      * dailyEntry.proteinLabel, a plain gram amount used elsewhere). */
     proteinPercentOfCaloriesLabel: string
+    /** #383 — night eating (hadNightEating()) vs. next-day weight. Unlike
+     * every other correlation view above, the predictor here is already
+     * boolean (no threshold to find), so this is a plain two-group
+     * comparison rather than a median split — see
+     * nightEatingCorrelation.ts's own doc comment. Kept as its own view
+     * despite the conceptual overlap with #116's lateMeal* (median-splits
+     * the exact last-meal-time instead), confirmed with the user. */
+    nightEatingCorrelationTitle: string
+    nightEatingCorrelationEmptyDescription: string
+    nightEatingCorrelationSummary: (direction: 'more' | 'less') => string
+    nightEatingCorrelationDayCount: (n: number) => string
+    nightEatingCorrelationLagCaveat: string
     /** Logging-consistency heatmap (#223) — GitHub-contribution-graph style,
      * one square per day colored by how many of the app's core fields
      * (weight/meals/sleep/steps) were logged that day, not a chosen metric. */

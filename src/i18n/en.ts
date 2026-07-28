@@ -253,6 +253,9 @@ export const en: Dictionary = {
     hadConstipationLabel: 'Constipation',
     hadConstipationNoOption: 'No',
     hadConstipationYesOption: 'Yes',
+    nightEatingLabel: 'Ate late tonight',
+    nightEatingNoOption: 'No',
+    nightEatingYesOption: 'Yes',
     waterLabel: 'Water',
     mlUnit: 'ml',
     addGlassLabel: '+1 glass (250ml)',
@@ -428,6 +431,7 @@ export const en: Dictionary = {
     noteColumn: 'Note',
     onPeriodColumn: 'On period',
     hadConstipationColumn: 'Constipation',
+    nightEatingColumn: 'Ate late tonight',
     waterColumn: 'Water (ml)',
     mealColumn: 'Meal',
     itemColumn: 'Item',
@@ -580,6 +584,17 @@ export const en: Dictionary = {
     proteinCorrelationLagCaveat:
       "Compares each day's protein share of calories to the very next day's weight, not a proven cause-and-effect relationship — water retention, sodium, and many other factors also affect day-to-day weight.",
     proteinPercentOfCaloriesLabel: 'Protein (% of calories)',
+    nightEatingCorrelationTitle: 'Night eating vs. next-day weight',
+    nightEatingCorrelationEmptyDescription:
+      'Not enough data yet to see a pattern — keep logging meal times (or the night-eating toggle directly) and tracking weight, then check back in a few weeks.',
+    nightEatingCorrelationSummary: (direction) =>
+      direction === 'more'
+        ? "Nights you ate late averaged more weight gain the next morning than nights you didn't."
+        : "Nights you ate late averaged less weight gain the next morning than nights you didn't.",
+    nightEatingCorrelationDayCount: (n) =>
+      `Based on ${n} day${n === 1 ? '' : 's'} of data.`,
+    nightEatingCorrelationLagCaveat:
+      "Compares each day's night-eating status to the very next day's weight, not a proven cause-and-effect relationship — water retention, sodium, and many other factors also affect day-to-day weight.",
     loggingConsistencyTitle: 'Logging consistency',
     heatmapLessLabel: 'Less',
     heatmapMoreLabel: 'More',

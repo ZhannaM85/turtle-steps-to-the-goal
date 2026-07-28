@@ -1,5 +1,6 @@
 import type { DailyEntry } from '@/domain/dailyEntry'
 import {
+  hadNightEating,
   totalCalories,
   totalCarbs,
   totalFat,
@@ -51,6 +52,7 @@ export function buildDailyLogMarkdown(
     t.exportXlsx.noteColumn,
     t.exportXlsx.onPeriodColumn,
     t.exportXlsx.hadConstipationColumn,
+    t.exportXlsx.nightEatingColumn,
     t.exportXlsx.waterColumn,
   ]
   const headerRow = mdRow(headers)
@@ -73,6 +75,7 @@ export function buildDailyLogMarkdown(
       entry.note,
       entry.onPeriod,
       entry.hadConstipation,
+      hadNightEating(entry),
       totalWaterMl(entry.waterEntries),
     ]),
   )

@@ -10,6 +10,7 @@ export type { DailyEntryRepository } from './DailyEntryRepository'
 export { totalCalories } from './totalCalories'
 export { totalProtein, totalFat, totalCarbs, totalFiber } from './totalMacros'
 export { totalWaterMl } from './totalWaterMl'
+export { hadNightEating } from './nightEating'
 export {
   calorieEntryKcal,
   calorieEntryProtein,

@@ -76,7 +76,7 @@ describe('buildExportWorkbook', () => {
 
     // [date, weight, calories, protein, fat, carbs, sleepHours,
     //  deepSleepHours, steps, waist, hip, bodyFat, mood, note, onPeriod,
-    //  hadConstipation]
+    //  hadConstipation, nightEating]
     expect(row[1]).toBeInstanceOf(Date)
     expect(row[2]).toBe(79.5)
     expect(row[3]).toBe(300)
@@ -93,6 +93,10 @@ describe('buildExportWorkbook', () => {
     expect(row[14]).toBe('Felt good')
     expect(row[15]).toBe(true)
     expect(row[16]).toBeUndefined()
+    // Unlike hadConstipation above, nightEating is never left blank — it's
+    // the effective `hadNightEating()` value (#383), false here since no
+    // override/late meal was logged.
+    expect(row[17]).toBe(false)
   })
 
   it('writes one Meals row per logged item, using the meal label or positional fallback', async () => {

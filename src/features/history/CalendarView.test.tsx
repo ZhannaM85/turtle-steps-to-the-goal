@@ -137,9 +137,10 @@ describe('CalendarView', () => {
       renderCalendar({ entries: [makeEntry({ onPeriod: true })] })
 
       const dayButton = screen.getByRole('button', { name: midMonthLabel })
+      // 2, not 1: the entry dot plus the always-on night-eating dot (#383).
       expect(
         dayButton.querySelectorAll('span[aria-hidden="true"]'),
-      ).toHaveLength(1)
+      ).toHaveLength(2)
     })
 
     it('reserves a transparent dot for days without onPeriod when cycle tracking is on', () => {
@@ -148,7 +149,7 @@ describe('CalendarView', () => {
 
       const dayButton = screen.getByRole('button', { name: midMonthLabel })
       const dots = dayButton.querySelectorAll('span[aria-hidden="true"]')
-      expect(dots).toHaveLength(2)
+      expect(dots).toHaveLength(3)
       expect(dots[1]).toHaveClass('bg-transparent')
 
       useCycleTrackingStore.setState({ enabled: false })
@@ -171,9 +172,10 @@ describe('CalendarView', () => {
       renderCalendar({ entries: [makeEntry({ hadConstipation: true })] })
 
       const dayButton = screen.getByRole('button', { name: midMonthLabel })
+      // 2, not 1: the entry dot plus the always-on night-eating dot (#383).
       expect(
         dayButton.querySelectorAll('span[aria-hidden="true"]'),
-      ).toHaveLength(1)
+      ).toHaveLength(2)
     })
 
     it('reserves a transparent dot for days without hadConstipation when digestion tracking is on', () => {
@@ -182,7 +184,7 @@ describe('CalendarView', () => {
 
       const dayButton = screen.getByRole('button', { name: midMonthLabel })
       const dots = dayButton.querySelectorAll('span[aria-hidden="true"]')
-      expect(dots).toHaveLength(2)
+      expect(dots).toHaveLength(3)
       expect(dots[1]).toHaveClass('bg-transparent')
 
       useDigestionTrackingStore.setState({ enabled: false })
@@ -208,12 +210,52 @@ describe('CalendarView', () => {
 
       const dayButton = screen.getByRole('button', { name: midMonthLabel })
       const dots = dayButton.querySelectorAll('span[aria-hidden="true"]')
-      expect(dots).toHaveLength(3)
+      expect(dots).toHaveLength(4)
       expect(dots[1]).toHaveClass('bg-destructive')
       expect(dots[2]).toHaveClass('bg-amber-500')
 
       useCycleTrackingStore.setState({ enabled: false })
       useDigestionTrackingStore.setState({ enabled: false })
+    })
+  })
+
+  describe('night eating marker dot (#383)', () => {
+    it('reserves a transparent dot for a day with no night eating', () => {
+      renderCalendar({ entries: [makeEntry({ nightEatingOverride: false })] })
+
+      const dayButton = screen.getByRole('button', { name: midMonthLabel })
+      const dots = dayButton.querySelectorAll('span[aria-hidden="true"]')
+      expect(dots).toHaveLength(2)
+      expect(dots[1]).toHaveClass('bg-transparent')
+    })
+
+    it('shows a colored dot for a day with night eating overridden true', () => {
+      renderCalendar({ entries: [makeEntry({ nightEatingOverride: true })] })
+
+      const dayButton = screen.getByRole('button', { name: midMonthLabel })
+      const dots = dayButton.querySelectorAll('span[aria-hidden="true"]')
+      expect(dots[1]).toHaveClass('bg-indigo-500')
+    })
+
+    it('shows a colored dot derived from a late-logged meal with no override', () => {
+      renderCalendar({
+        entries: [
+          makeEntry({
+            calorieEntries: [
+              {
+                id: 'meal-1',
+                items: [{ id: 'item-1', amountKcal: 300 }],
+                timeEaten: '23:00',
+                createdAt: '2026-01-01T00:00:00.000Z',
+              },
+            ],
+          }),
+        ],
+      })
+
+      const dayButton = screen.getByRole('button', { name: midMonthLabel })
+      const dots = dayButton.querySelectorAll('span[aria-hidden="true"]')
+      expect(dots[1]).toHaveClass('bg-indigo-500')
     })
   })
 

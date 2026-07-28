@@ -87,7 +87,7 @@ export interface CustomChartViewProps {
 }
 
 interface BooleanSeriesConfig {
-  key: 'onPeriod' | 'hadConstipation'
+  key: 'onPeriod' | 'hadConstipation' | 'nightEating'
   label: (t: Dictionary) => string
   color: string
 }
@@ -104,6 +104,12 @@ const BOOLEAN_SERIES: BooleanSeriesConfig[] = [
     // Matches CalendarView's bg-amber-500 dot for the same flag — no CSS
     // token exists for it, so the raw Tailwind default hex is used as-is.
     color: '#f59e0b',
+  },
+  {
+    key: 'nightEating',
+    label: (t) => t.dailyEntry.nightEatingLabel,
+    // Matches CalendarView's bg-indigo-500 dot for the same flag (#383).
+    color: '#6366f1',
   },
 ]
 
@@ -265,10 +271,13 @@ export function CustomChartView({ entries, dragHandle }: CustomChartViewProps) {
   const digestionTrackingEnabled = useDigestionTrackingStore(
     (state) => state.enabled,
   )
+  // #383 — nightEating has no Settings opt-in to gate behind (unlike the
+  // other two), so it's always offered.
   const availableBooleanSeries = BOOLEAN_SERIES.filter(
     (series) =>
       (series.key === 'onPeriod' && cycleTrackingEnabled) ||
-      (series.key === 'hadConstipation' && digestionTrackingEnabled),
+      (series.key === 'hadConstipation' && digestionTrackingEnabled) ||
+      series.key === 'nightEating',
   )
   // #351 — reported live: waist/hip stayed offered here even with "Body
   // measurements" tracking turned off in Settings, unlike the boolean
@@ -347,7 +356,12 @@ export function CustomChartView({ entries, dragHandle }: CustomChartViewProps) {
   const booleanDatesByKey = new Map(
     selectedBoolean.map((key) => [
       key,
-      new Set(booleanFlagDates(entries, key as 'onPeriod' | 'hadConstipation')),
+      new Set(
+        booleanFlagDates(
+          entries,
+          key as 'onPeriod' | 'hadConstipation' | 'nightEating',
+        ),
+      ),
     ]),
   )
   // #371 — resolveMetricValueMap already handles reading a custom metric's

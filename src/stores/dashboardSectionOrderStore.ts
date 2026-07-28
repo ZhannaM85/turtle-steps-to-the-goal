@@ -5,8 +5,9 @@ import type { DashboardChartKey } from './dashboardChartVisibilityStore'
 // #297 — the Dashboard's own fixed section order, exactly as
 // DashboardScreen.tsx rendered them before this issue. Reuses
 // `DashboardChartKey` (dashboardChartVisibilityStore.ts) rather than a
-// second parallel key list — same 17 sections either store needs to know
-// about, and keeping them as one type avoids the two ever drifting apart.
+// second parallel key list — same set of sections either store needs to
+// know about, and keeping them as one type avoids the two ever drifting
+// apart.
 export const DEFAULT_DASHBOARD_SECTION_ORDER: DashboardChartKey[] = [
   'weight',
   'calories',
@@ -20,6 +21,7 @@ export const DEFAULT_DASHBOARD_SECTION_ORDER: DashboardChartKey[] = [
   'sleepCorrelation',
   'stepsCorrelation',
   'proteinCorrelation',
+  'nightEatingCorrelation',
   'foodReactions',
   'loggingConsistency',
   'recentAverages',

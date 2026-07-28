@@ -91,4 +91,14 @@ describe('formValuesToEntry', () => {
     expect(entry.hipCm).toBe(95)
     expect(entry.bodyFatPercent).toBe(22)
   })
+
+  it('round-trips nightEatingOverride (#383)', () => {
+    const entry = formValuesToEntry(
+      { nightEatingOverride: true },
+      '2026-03-01',
+      { id: 'entry-1', createdAt: '2026-03-01T00:00:00.000Z' },
+    )
+
+    expect(entry.nightEatingOverride).toBe(true)
+  })
 })

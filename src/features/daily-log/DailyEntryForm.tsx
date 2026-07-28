@@ -1,8 +1,9 @@
 import { useMemo, useState } from 'react'
-import { Check, CupSoda, GlassWater, Pencil, X } from 'lucide-react'
+import { Check, CupSoda, GlassWater, Moon, Pencil, X } from 'lucide-react'
 import { useForm, useWatch } from 'react-hook-form'
 import type { DailyEntry, Emotion } from '@/domain/dailyEntry'
 import {
+  hadNightEating,
   totalCalories,
   totalCarbs,
   totalFat,
@@ -216,9 +217,20 @@ export function DailyEntryForm({
   const bodyWaterPercent = useWatch({ control, name: 'bodyWaterPercent' })
   const boneMassKg = useWatch({ control, name: 'boneMassKg' })
   const hadConstipation = useWatch({ control, name: 'hadConstipation' })
+  const nightEatingOverride = useWatch({
+    control,
+    name: 'nightEatingOverride',
+  })
   const waterEntries = useWatch({ control, name: 'waterEntries' }) ?? []
   const dayEmotion = useWatch({ control, name: 'emotion' })
   const calorieEntries = useWatch({ control, name: 'calorieEntries' }) ?? []
+  // #383 — the toggle always shows the *effective* value (override, or
+  // else derived from today's own logged meal times), so it reflects
+  // reality even before the user has ever touched it themselves.
+  const nightEatingEffective = hadNightEating({
+    calorieEntries,
+    nightEatingOverride,
+  })
   const dayTotalCalories = totalCalories(calorieEntries) ?? 0
   const dayMacrosSummary = macrosSummaryText(
     totalProtein(calorieEntries),
@@ -256,6 +268,15 @@ export function DailyEntryForm({
   function setHadConstipation(value: boolean) {
     setValue('hadConstipation', value, { shouldDirty: true })
     persist({ ...getValues(), hadConstipation: value })
+  }
+
+  // #383 — always sets an explicit override once touched, same "saves
+  // immediately, no confirm step" reasoning as setHadConstipation above.
+  // The toggle's own displayed value (see nightEatingEffective below)
+  // shows the *derived* value until the user actually overrides it.
+  function setNightEatingOverride(value: boolean) {
+    setValue('nightEatingOverride', value, { shouldDirty: true })
+    persist({ ...getValues(), nightEatingOverride: value })
   }
 
   // #271: each quick-add tap becomes its own removable entry instead of
@@ -1236,6 +1257,33 @@ export function DailyEntryForm({
           </ToggleGroup>
         </div>
       )}
+
+      {/* #383 — always shown (no Settings opt-in gate, unlike onPeriod/
+       * hadConstipation above): a manually-set override layered on a value
+       * already derived from today's own logged meal times, so there's no
+       * extra logging step for anyone already recording when they eat. */}
+      <div className="flex flex-col gap-1.5">
+        <span className="text-sm font-medium">
+          <Moon aria-hidden="true" className="mr-1 inline size-4" />
+          {t.dailyEntry.nightEatingLabel}
+        </span>
+        <ToggleGroup
+          type="single"
+          aria-label={t.dailyEntry.nightEatingLabel}
+          value={nightEatingEffective ? 'yes' : 'no'}
+          onValueChange={(value) =>
+            value && setNightEatingOverride(value === 'yes')
+          }
+          className="w-fit"
+        >
+          <ToggleGroupItem value="no" className="h-12 px-6 text-base">
+            {t.dailyEntry.nightEatingNoOption}
+          </ToggleGroupItem>
+          <ToggleGroupItem value="yes" className="h-12 px-6 text-base">
+            {t.dailyEntry.nightEatingYesOption}
+          </ToggleGroupItem>
+        </ToggleGroup>
+      </div>
     </form>
   )
 }

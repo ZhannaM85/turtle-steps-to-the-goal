@@ -48,6 +48,7 @@ import { MealFrequencyCorrelationView } from './MealFrequencyCorrelationView'
 import { MacroTrendChart } from './MacroTrendChart'
 import { LoggingConsistencyHeatmap } from './LoggingConsistencyHeatmap'
 import { MonthlySummaryCards } from './MonthlySummaryCards'
+import { NightEatingCorrelationView } from './NightEatingCorrelationView'
 import { ProteinCorrelationView } from './ProteinCorrelationView'
 import { RecentAveragesCards } from './RecentAveragesCards'
 import { SleepCorrelationView } from './SleepCorrelationView'
@@ -221,6 +222,9 @@ export function DashboardScreen() {
     ),
     proteinCorrelation: (dragHandle) => (
       <ProteinCorrelationView entries={entries} dragHandle={dragHandle} />
+    ),
+    nightEatingCorrelation: (dragHandle) => (
+      <NightEatingCorrelationView entries={entries} dragHandle={dragHandle} />
     ),
     foodReactions: (dragHandle) => (
       <FoodReactionsView entries={entries} dragHandle={dragHandle} />

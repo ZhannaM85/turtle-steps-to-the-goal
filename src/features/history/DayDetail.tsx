@@ -1,9 +1,11 @@
 import { format, parseISO } from 'date-fns'
+import { Moon } from 'lucide-react'
 import {
   calorieEntryCarbs,
   calorieEntryFat,
   calorieEntryKcal,
   calorieEntryProtein,
+  hadNightEating,
   totalCalories,
   totalCarbs,
   totalFat,
@@ -117,10 +119,9 @@ export function DayDetail({
         </div>
       )}
 
-      {((cycleTrackingEnabled && onSaved) ||
-        (digestionTrackingEnabled && onSaved)) && (
+      {onSaved && (
         <div className="flex flex-wrap gap-1.5">
-          {cycleTrackingEnabled && onSaved && (
+          {cycleTrackingEnabled && (
             <Button
               type="button"
               variant="outline"
@@ -138,7 +139,7 @@ export function DayDetail({
               {t.dailyEntry.onPeriodLabel}
             </Button>
           )}
-          {digestionTrackingEnabled && onSaved && (
+          {digestionTrackingEnabled && (
             <Button
               type="button"
               variant="outline"
@@ -158,6 +159,29 @@ export function DayDetail({
               {t.dailyEntry.hadConstipationLabel}
             </Button>
           )}
+          {/* #383 — always shown (no Settings opt-in, unlike onPeriod/
+           * hadConstipation above): mirrors DailyEntryForm's own toggle,
+           * flipping the *effective* (derived-or-overridden) value into an
+           * explicit override each time it's pressed. */}
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            aria-pressed={hadNightEating(entry)}
+            className={cn(
+              hadNightEating(entry) && 'bg-muted text-foreground',
+            )}
+            onClick={() =>
+              onSaved({
+                ...entry,
+                nightEatingOverride: !hadNightEating(entry),
+                updatedAt: new Date().toISOString(),
+              })
+            }
+          >
+            <Moon aria-hidden="true" className="mr-1 inline size-4" />
+            {t.dailyEntry.nightEatingLabel}
+          </Button>
         </div>
       )}
 

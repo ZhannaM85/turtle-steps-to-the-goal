@@ -20,6 +20,7 @@ export type DashboardChartKey =
   | 'sleepCorrelation'
   | 'stepsCorrelation'
   | 'proteinCorrelation'
+  | 'nightEatingCorrelation'
   | 'foodReactions'
   | 'loggingConsistency'
   | 'recentAverages'
@@ -40,6 +41,7 @@ const DEFAULT_VISIBLE: Record<DashboardChartKey, boolean> = {
   sleepCorrelation: true,
   stepsCorrelation: true,
   proteinCorrelation: true,
+  nightEatingCorrelation: true,
   foodReactions: true,
   loggingConsistency: true,
   recentAverages: true,

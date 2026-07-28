@@ -1,5 +1,6 @@
 import type { DailyEntry } from '@/domain/dailyEntry'
 import {
+  hadNightEating,
   totalCalories,
   totalCarbs,
   totalFat,
@@ -154,12 +155,18 @@ export function numericSeriesValueByDate(
   return byDate
 }
 
-/** Dates a boolean per-day flag (period, constipation) was on — the
- * marker-band data for the two non-numeric series, kept separate from
- * `customChartPoints` since they're not plotted as a line. */
+/** Dates a boolean per-day flag (period, constipation, night eating) was on
+ * — the marker-band data for the non-numeric series, kept separate from
+ * `customChartPoints` since they're not plotted as a line. `nightEating`
+ * isn't a plain field lookup like the other two — same derived-value
+ * special-case `fastingHours` needs above, via `hadNightEating` rather than
+ * `entry[flag]`. */
 export function booleanFlagDates(
   entries: DailyEntry[],
-  flag: 'onPeriod' | 'hadConstipation',
+  flag: 'onPeriod' | 'hadConstipation' | 'nightEating',
 ): string[] {
+  if (flag === 'nightEating') {
+    return entries.filter((entry) => hadNightEating(entry)).map((entry) => entry.date)
+  }
   return entries.filter((entry) => entry[flag]).map((entry) => entry.date)
 }

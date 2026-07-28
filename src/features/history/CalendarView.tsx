@@ -13,7 +13,7 @@ import {
   subMonths,
 } from 'date-fns'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
-import type { DailyEntry } from '@/domain/dailyEntry'
+import { hadNightEating, type DailyEntry } from '@/domain/dailyEntry'
 import {
   isDateWithinReachedWindow,
   isGoalMetOnDate,
@@ -126,6 +126,7 @@ export function CalendarView({
           const hasEntry = entry !== undefined
           const onPeriod = entry?.onPeriod ?? false
           const hadConstipation = entry?.hadConstipation ?? false
+          const nightEating = entry !== undefined && hadNightEating(entry)
           const inCurrentMonth = isSameMonth(day, currentMonth)
           const selected = selectedDate !== null && selectedDate === dateKey
           // #155: goal-reached day highlighting — a stronger tint for the
@@ -210,6 +211,20 @@ export function CalendarView({
                     )}
                   />
                 )}
+                {/* Fourth dot for night eating (#383) — always rendered
+                 * (unlike the two dots above, night eating has no Settings
+                 * opt-in to gate behind), a distinct color from both. */}
+                <span
+                  aria-hidden="true"
+                  className={cn(
+                    'size-1 rounded-full',
+                    nightEating
+                      ? selected
+                        ? 'bg-primary-foreground'
+                        : 'bg-indigo-500'
+                      : 'bg-transparent',
+                  )}
+                />
               </span>
             </button>
           )

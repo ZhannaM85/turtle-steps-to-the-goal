@@ -111,6 +111,17 @@ export interface DailyEntry {
    * `true` here has no relation to the old `hadBowelMovement` field this
    * replaced; that one meant the opposite thing, so no data carried over. */
   hadConstipation?: boolean
+  /** #383 — manual override for "did you eat late tonight," layered on top
+   * of a derived value (`hadNightEating()`, `domain/dailyEntry/nightEating.ts`)
+   * computed from this day's own logged meal `timeEaten` values against a
+   * fixed cutoff hour. `undefined` means "no override, use the derived
+   * value"; `true`/`false` here always wins over whatever the meal times
+   * alone would suggest — e.g. a late meal logged with the wrong time, or a
+   * late-night snack that was never logged as a meal at all. Unlike
+   * onPeriod/hadConstipation above, not gated behind a Settings opt-in —
+   * this needs no extra logging step for anyone already logging meal
+   * times, so it's always on. */
+  nightEatingOverride?: boolean
   /** Opt-in water/hydration tracking (#258, list shape #271), same gating
    * as onPeriod/hadConstipation above — only ever set when enabled in
    * Settings (`useWaterTrackingStore`). A list of discrete adds rather than

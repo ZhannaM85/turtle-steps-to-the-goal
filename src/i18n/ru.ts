@@ -259,6 +259,9 @@ export const ru: Dictionary = {
     hadConstipationLabel: 'Запор',
     hadConstipationNoOption: 'Нет',
     hadConstipationYesOption: 'Да',
+    nightEatingLabel: 'Ел(а) поздно вечером',
+    nightEatingNoOption: 'Нет',
+    nightEatingYesOption: 'Да',
     waterLabel: 'Вода',
     mlUnit: 'мл',
     addGlassLabel: '+1 стакан (250мл)',
@@ -434,6 +437,7 @@ export const ru: Dictionary = {
     noteColumn: 'Заметка',
     onPeriodColumn: 'Менструация',
     hadConstipationColumn: 'Запор',
+    nightEatingColumn: 'Ел(а) поздно вечером',
     waterColumn: 'Вода (мл)',
     mealColumn: 'Приём пищи',
     itemColumn: 'Блюдо',
@@ -591,6 +595,17 @@ export const ru: Dictionary = {
     proteinCorrelationLagCaveat:
       'Сравнивает долю белка в калориях за день с весом на следующий день — это не доказанная причинно-следственная связь: на вес изо дня в день также влияют задержка воды, соль и многие другие факторы.',
     proteinPercentOfCaloriesLabel: 'Белок (% от калорий)',
+    nightEatingCorrelationTitle: 'Ночные перекусы и вес на следующий день',
+    nightEatingCorrelationEmptyDescription:
+      'Пока недостаточно данных, чтобы увидеть закономерность — продолжайте записывать время приёмов пищи (или переключатель ночных перекусов напрямую) и отслеживать вес, затем загляните сюда через несколько недель.',
+    nightEatingCorrelationSummary: (direction) =>
+      direction === 'more'
+        ? 'В ночи, когда вы ели поздно, в среднем набирался больший вес на следующее утро, чем в ночи, когда вы не ели поздно.'
+        : 'В ночи, когда вы ели поздно, в среднем набирался меньший вес на следующее утро, чем в ночи, когда вы не ели поздно.',
+    nightEatingCorrelationDayCount: (n) =>
+      `На основе ${n} ${ruPluralize(n, 'дня', 'дней', 'дней')} данных.`,
+    nightEatingCorrelationLagCaveat:
+      'Сравнивает статус ночных перекусов за день с весом на следующий день — это не доказанная причинно-следственная связь: на вес изо дня в день также влияют задержка воды, соль и многие другие факторы.',
     loggingConsistencyTitle: 'Регулярность записей',
     heatmapLessLabel: 'Меньше',
     heatmapMoreLabel: 'Больше',

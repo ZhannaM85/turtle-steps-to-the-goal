@@ -97,6 +97,11 @@ const dailyEntrySchema = z.object({
   // equivalent here and is simply dropped on import (Zod strips unknown keys
   // by default).
   hadConstipation: z.boolean().optional(),
+  // #383 — manual override for the derived "did you eat late tonight"
+  // value (`domain/dailyEntry/nightEating.ts`'s `hadNightEating()`);
+  // purely additive, no version bump, same shape as every other optional
+  // field added since v7.
+  nightEatingOverride: z.boolean().optional(),
   // Opt-in water tracking (#258, list shape #271) — a list of discrete
   // adds rather than a single running total; see upgradeV6ToV7 in
   // exportActions.ts for the migration from the old waterMl number.

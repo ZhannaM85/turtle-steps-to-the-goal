@@ -170,6 +170,37 @@ describe('CustomChartView', () => {
     useCycleTrackingStore.setState({ enabled: false })
   })
 
+  it('always shows the night-eating checkbox, with no Settings opt-in to gate behind (#383)', () => {
+    useCycleTrackingStore.setState({ enabled: false })
+    useDigestionTrackingStore.setState({ enabled: false })
+    render(<CustomChartView entries={[entry('2026-03-01', { weightKg: 80 })]} />)
+
+    expect(
+      screen.getByRole('button', { name: 'Ate late tonight' }),
+    ).toBeInTheDocument()
+  })
+
+  it('adds a legend entry once the night-eating series is selected', async () => {
+    const user = userEvent.setup()
+    render(
+      <CustomChartView
+        entries={[
+          entry('2026-03-01', { weightKg: 80, nightEatingOverride: true }),
+          entry('2026-03-02', { weightKg: 80.2 }),
+        ]}
+      />,
+    )
+
+    const toggle = screen.getByRole('button', { name: 'Ate late tonight' })
+    // Only the filter chip itself before selection — no legend entry yet.
+    expect(screen.getAllByText('Ate late tonight')).toHaveLength(1)
+
+    await user.click(toggle)
+
+    // Chip plus its own new legend entry, once selected.
+    expect(screen.getAllByText('Ate late tonight')).toHaveLength(2)
+  })
+
   it('defaults each selected series to the line chart type', () => {
     render(<CustomChartView entries={[entry('2026-03-01', { weightKg: 80 })]} />)
 

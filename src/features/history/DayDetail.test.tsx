@@ -378,4 +378,82 @@ describe('DayDetail', () => {
       ).toBeInTheDocument()
     })
   })
+
+  describe('night eating toggle (#383)', () => {
+    it('is hidden when onSaved is not provided, unlike onPeriod/hadConstipation there is no Settings gate', () => {
+      render(<DayDetail entry={makeEntry()} />)
+      expect(
+        screen.queryByRole('button', { name: 'Ate late tonight' }),
+      ).not.toBeInTheDocument()
+    })
+
+    it('is shown even when neither cycle nor digestion tracking is on', () => {
+      render(<DayDetail entry={makeEntry()} onSaved={vi.fn()} />)
+      expect(
+        screen.getByRole('button', { name: 'Ate late tonight' }),
+      ).toBeInTheDocument()
+    })
+
+    it('sets an explicit override via onSaved when toggled', () => {
+      const onSaved = vi.fn()
+      render(<DayDetail entry={makeEntry()} onSaved={onSaved} />)
+
+      const toggle = screen.getByRole('button', { name: 'Ate late tonight' })
+      expect(toggle).toHaveAttribute('aria-pressed', 'false')
+
+      toggle.click()
+
+      expect(onSaved).toHaveBeenCalledTimes(1)
+      expect(onSaved.mock.calls[0][0].nightEatingOverride).toBe(true)
+    })
+
+    it('reflects a value derived from meal times when there is no override', () => {
+      render(
+        <DayDetail
+          entry={makeEntry({
+            calorieEntries: [
+              {
+                id: 'c1',
+                items: [{ id: 'i1', amountKcal: 400 }],
+                timeEaten: '23:00',
+                createdAt: '2026-01-01T00:00:00.000Z',
+              },
+            ],
+          })}
+          onSaved={vi.fn()}
+        />,
+      )
+
+      expect(
+        screen.getByRole('button', { name: 'Ate late tonight' }),
+      ).toHaveAttribute('aria-pressed', 'true')
+    })
+
+    it('lets an explicit override win over the derived meal-time value', () => {
+      const onSaved = vi.fn()
+      render(
+        <DayDetail
+          entry={makeEntry({
+            calorieEntries: [
+              {
+                id: 'c1',
+                items: [{ id: 'i1', amountKcal: 400 }],
+                timeEaten: '23:00',
+                createdAt: '2026-01-01T00:00:00.000Z',
+              },
+            ],
+            nightEatingOverride: false,
+          })}
+          onSaved={onSaved}
+        />,
+      )
+
+      const toggle = screen.getByRole('button', { name: 'Ate late tonight' })
+      expect(toggle).toHaveAttribute('aria-pressed', 'false')
+
+      toggle.click()
+
+      expect(onSaved.mock.calls[0][0].nightEatingOverride).toBe(true)
+    })
+  })
 })

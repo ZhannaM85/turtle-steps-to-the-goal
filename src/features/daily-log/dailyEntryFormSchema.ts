@@ -49,6 +49,9 @@ export const stepsSchema = z.number().min(0).max(20000).optional()
 export const onPeriodSchema = z.boolean().optional()
 // Opt-in digestion tracking — same shape/gating as onPeriod above.
 export const hadConstipationSchema = z.boolean().optional()
+// #383 — manual override for the derived night-eating value; always
+// rendered (no Settings opt-in, unlike onPeriod/hadConstipation above).
+export const nightEatingOverrideSchema = z.boolean().optional()
 // Opt-in water tracking (#258), one discrete add (#271) — same gating
 // shape as onPeriod/hadConstipation above. #282 removed the manual
 // "type any amount" input (only the two fixed 250/500ml quick-add
@@ -82,6 +85,7 @@ export const dailyEntryFormSchema = z.object({
   steps: stepsSchema,
   onPeriod: onPeriodSchema,
   hadConstipation: hadConstipationSchema,
+  nightEatingOverride: nightEatingOverrideSchema,
   waterEntries: z.array(waterEntrySchema).optional(),
   waistCm: waistCmSchema,
   hipCm: hipCmSchema,
