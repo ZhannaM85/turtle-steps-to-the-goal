@@ -1036,7 +1036,7 @@ _All reported live in one session, digging into Dashboard right after importing 
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#383](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/383) | 📋 Not started | Track night eating (yes/no, moon icon), include in correlations | Genuine fork flagged, not resolved: point the user at defining this themselves via #336's existing generic custom-metric+correlation system, or build a dedicated built-in field/view mirroring #338's meal-frequency precedent (which used a dedicated view specifically because #336's generic same-day pairing engine doesn't replicate the 6 built-in views' "metric vs. *next-day* weight change" framing). Also undecided: whether "night eating" is a derived flag from #65's existing `timeEaten` data (some cutoff hour) or a separate manual toggle. |
+| [#383](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/383) | 📋 Not started | Track night eating (yes/no, moon icon), include in correlations | Design fully resolved via `AskUserQuestion` (multiple rounds): dedicated built-in field + its own correlation view (not the generic custom-metric route) — kept as its own view despite #116's `LateMealCorrelationView` already correlating last-meal-time with next-day weight via median split, since a fixed yes/no cutoff is a different, more concrete question. Data source is a hybrid: derived from existing `timeEaten` data (any meal at/after a cutoff hour) with a manual override layered on top, override winning when set. |
 
 ---
 
