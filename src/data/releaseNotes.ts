@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 325,
+    issue: 385,
+    date: '2026-07-28T15:56:40+03:00',
+    en: 'Fixed the Apple Health import double-counting steps on days tracked by both an iPhone and Apple Watch.',
+    ru: 'Исправлено: импорт Apple Health удваивал шаги за дни, когда данные записывали и iPhone, и Apple Watch.',
+  },
+  {
     version: 324,
     issue: 388,
     date: '2026-07-28T16:49:51+03:00',
