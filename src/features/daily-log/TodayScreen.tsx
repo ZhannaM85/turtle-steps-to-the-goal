@@ -94,20 +94,25 @@ function SortableTodayCard({
     useSortable({ id, disabled: !isReordering })
   const style = { transform: CSS.Transform.toString(transform), transition }
 
+  // #388 — reported live: the handle sat on its own line above the card
+  // instead of beside it. Unlike Dashboard's own chart cards (each with a
+  // title row the handle can slot into, #355), these StatCards have no
+  // such row, so the handle gets its own column to the left instead — a
+  // row layout rather than #355's "hand it to the title" render-prop.
   return (
-    <div ref={setNodeRef} style={style} className="flex flex-col gap-1">
+    <div ref={setNodeRef} style={style} className="flex items-center gap-1">
       {isReordering && (
         <button
           type="button"
           aria-label={t.today.reorderCardLabel(position)}
-          className="w-fit cursor-grab touch-none text-muted-foreground active:cursor-grabbing"
+          className="shrink-0 cursor-grab touch-none text-muted-foreground active:cursor-grabbing"
           {...attributes}
           {...listeners}
         >
           <GripVertical aria-hidden="true" className="size-4" />
         </button>
       )}
-      {children}
+      <div className="min-w-0 flex-1">{children}</div>
     </div>
   )
 }
