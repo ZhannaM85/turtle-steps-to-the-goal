@@ -12,6 +12,7 @@ afterEach(() => {
     sex: undefined,
     activityLevel: undefined,
   })
+  vi.useRealTimers()
 })
 
 describe('GoalForm', () => {
@@ -811,7 +812,13 @@ describe('GoalForm', () => {
     })
 
     it('starts a fresh record when submitted, instead of editing the existing goal in place', async () => {
-      const user = userEvent.setup()
+      // Freezes the clock so `today` (captured here) and the code under
+      // test's own `new Date()` (called on submit, after several real async
+      // interactions) can't ever disagree — a real midnight rollover during
+      // a long full-suite run once made this fail non-deterministically.
+      vi.useFakeTimers({ toFake: ['Date'] })
+      vi.setSystemTime(new Date('2026-07-24T12:00:00'))
+      const user = userEvent.setup({ delay: null })
       const onSubmit = vi.fn()
       const today = new Date().toISOString().slice(0, 10)
       render(
