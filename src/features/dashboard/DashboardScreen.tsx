@@ -18,12 +18,17 @@ import {
 import { CSS } from '@dnd-kit/utilities'
 import { GripVertical, Pencil } from 'lucide-react'
 import { Link } from 'react-router-dom'
+import {
+  filterEntriesByTrendChartPeriod,
+  resolveTrendChartPeriodRange,
+} from '@/domain/stats'
 import { useTranslation } from '@/i18n'
 import type { DashboardChartKey } from '@/stores'
 import {
   DEFAULT_DASHBOARD_SECTION_ORDER,
   useCustomCorrelationStore,
   useCustomMetricStore,
+  useDashboardPeriodStore,
   useDashboardSectionOrderStore,
 } from '@/stores'
 import { Button } from '@/shared/ui/button'
@@ -35,6 +40,7 @@ import { CompareRangesView } from './CompareRangesView'
 import { CorrelationView } from './CorrelationView'
 import { CustomChartView } from './CustomChartView'
 import { CustomCorrelationView } from './CustomCorrelationView'
+import { DashboardPeriodPicker } from './DashboardPeriodPicker'
 import { FastingWindowCorrelationView } from './FastingWindowCorrelationView'
 import { FoodReactionsView } from './FoodReactionsView'
 import { LateMealCorrelationView } from './LateMealCorrelationView'
@@ -103,6 +109,25 @@ function SortableDashboardSection({
 export function DashboardScreen() {
   const t = useTranslation()
   const { goal, entries, status } = useDashboardData()
+  // #380 — one global period control scoped to just the 4 main trend
+  // charts below (Weight/Calorie/Macro/Body composition), not every
+  // Dashboard section — see DashboardPeriodPicker's own doc comment for
+  // why correlations/CustomChartView are deliberately excluded.
+  const trendChartPeriod = useDashboardPeriodStore((state) => state.period)
+  const trendChartCustomStart = useDashboardPeriodStore(
+    (state) => state.customStart,
+  )
+  const trendChartCustomEnd = useDashboardPeriodStore(
+    (state) => state.customEnd,
+  )
+  const trendChartEntries = filterEntriesByTrendChartPeriod(
+    entries,
+    resolveTrendChartPeriodRange(
+      trendChartPeriod,
+      trendChartCustomStart,
+      trendChartCustomEnd,
+    ),
+  )
   const order = useDashboardSectionOrderStore((state) => state.order)
   const setOrder = useDashboardSectionOrderStore((state) => state.setOrder)
   const resetOrder = useDashboardSectionOrderStore((state) => state.resetOrder)
@@ -159,16 +184,19 @@ export function DashboardScreen() {
     (dragHandle: ReactNode) => ReactNode
   > = {
     weight: (dragHandle) => (
-      <WeightTrendChart entries={entries} dragHandle={dragHandle} />
+      <WeightTrendChart entries={trendChartEntries} dragHandle={dragHandle} />
     ),
     calories: (dragHandle) => (
-      <CalorieTrendChart entries={entries} dragHandle={dragHandle} />
+      <CalorieTrendChart entries={trendChartEntries} dragHandle={dragHandle} />
     ),
     macros: (dragHandle) => (
-      <MacroTrendChart entries={entries} dragHandle={dragHandle} />
+      <MacroTrendChart entries={trendChartEntries} dragHandle={dragHandle} />
     ),
     bodyComposition: (dragHandle) => (
-      <BodyCompositionTrendChart entries={entries} dragHandle={dragHandle} />
+      <BodyCompositionTrendChart
+        entries={trendChartEntries}
+        dragHandle={dragHandle}
+      />
     ),
     customChart: (dragHandle) => (
       <CustomChartView entries={entries} dragHandle={dragHandle} />
@@ -263,26 +291,32 @@ export function DashboardScreen() {
           description={t.dashboard.emptyDescription}
         />
       ) : (
-        <DndContext
-          sensors={dragSensors}
-          collisionDetection={closestCenter}
-          onDragEnd={handleDragEnd}
-        >
-          <SortableContext items={order} strategy={verticalListSortingStrategy}>
-            <div className="flex flex-col gap-6">
-              {order.map((key, index) => (
-                <SortableDashboardSection
-                  key={key}
-                  id={key}
-                  position={index + 1}
-                  isReordering={isReordering}
-                >
-                  {(dragHandle) => sectionsByKey[key](dragHandle)}
-                </SortableDashboardSection>
-              ))}
-            </div>
-          </SortableContext>
-        </DndContext>
+        <>
+          <DashboardPeriodPicker />
+          <DndContext
+            sensors={dragSensors}
+            collisionDetection={closestCenter}
+            onDragEnd={handleDragEnd}
+          >
+            <SortableContext
+              items={order}
+              strategy={verticalListSortingStrategy}
+            >
+              <div className="flex flex-col gap-6">
+                {order.map((key, index) => (
+                  <SortableDashboardSection
+                    key={key}
+                    id={key}
+                    position={index + 1}
+                    isReordering={isReordering}
+                  >
+                    {(dragHandle) => sectionsByKey[key](dragHandle)}
+                  </SortableDashboardSection>
+                ))}
+              </div>
+            </SortableContext>
+          </DndContext>
+        </>
       )}
 
       {/* #336 — one card per user-defined correlation, after every fixed

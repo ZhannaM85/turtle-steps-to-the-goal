@@ -458,6 +458,12 @@ export const ru: Dictionary = {
       'Выберите хотя бы один показатель для отображения.',
     notEnoughTrendDataMessage:
       'Пока недостаточно данных, чтобы показать тенденцию — добавьте ещё несколько дней и загляните позже.',
+    trendChartPeriodLabel: 'Период графиков',
+    trendChartPeriodAllOption: 'Всё время',
+    trendChartPeriodWeekOption: 'Неделя',
+    trendChartPeriodMonthOption: 'Месяц',
+    trendChartPeriodYearOption: 'Год',
+    trendChartPeriodCustomOption: 'Свой период',
     weightTrendTitle: 'График веса',
     calorieTrendTitle: 'График калорий',
     macrosTitle: 'Белки, жиры и углеводы',

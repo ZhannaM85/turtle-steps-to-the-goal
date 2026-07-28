@@ -451,6 +451,12 @@ export const en: Dictionary = {
     trendChartEmptyDescription: 'Pick at least one series to show.',
     notEnoughTrendDataMessage:
       'Not enough data yet to show a trend — log a few more days and check back.',
+    trendChartPeriodLabel: 'Chart period',
+    trendChartPeriodAllOption: 'All time',
+    trendChartPeriodWeekOption: 'Week',
+    trendChartPeriodMonthOption: 'Month',
+    trendChartPeriodYearOption: 'Year',
+    trendChartPeriodCustomOption: 'Custom',
     weightTrendTitle: 'Weight trend',
     calorieTrendTitle: 'Calorie trend',
     macrosTitle: 'Protein, fat & carbs',

@@ -1,6 +1,6 @@
 import 'fake-indexeddb/auto'
 import type { ReactNode } from 'react'
-import { format } from 'date-fns'
+import { format, subDays } from 'date-fns'
 import { act, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
@@ -9,6 +9,7 @@ import type { DailyEntry } from '@/domain/dailyEntry'
 import { db } from '@/infrastructure/persistence/indexeddb'
 import {
   DEFAULT_DASHBOARD_SECTION_ORDER,
+  useDashboardPeriodStore,
   useDashboardSectionOrderStore,
   useGoalStore,
 } from '@/stores'
@@ -64,6 +65,11 @@ beforeEach(async () => {
   useDashboardSectionOrderStore.persist.clearStorage()
   useDashboardSectionOrderStore.setState({
     order: DEFAULT_DASHBOARD_SECTION_ORDER,
+  })
+  useDashboardPeriodStore.setState({
+    period: 'all',
+    customStart: '',
+    customEnd: '',
   })
 })
 
@@ -261,6 +267,50 @@ describe('DashboardScreen', () => {
 
     expect(await screen.findByText('Monthly summary')).toBeInTheDocument()
     expect(screen.getByText('March 2026')).toBeInTheDocument()
+  })
+
+  describe('trend chart period picker (#380)', () => {
+    it("scopes the Weight trend chart to the selected period, without affecting Weekly summary", async () => {
+      const today = format(new Date(), 'yyyy-MM-dd')
+      // 3 old entries (>1 year back) give 'all' enough points for a trend
+      // line and their own week a Weekly summary entry; 1 more entry today
+      // means only 1 point falls inside a 'week' window once selected.
+      await db.dailyEntries.put(
+        makeEntry({ date: format(subDays(new Date(), 400), 'yyyy-MM-dd') }),
+      )
+      await db.dailyEntries.put(
+        makeEntry({ date: format(subDays(new Date(), 399), 'yyyy-MM-dd') }),
+      )
+      await db.dailyEntries.put(
+        makeEntry({ date: format(subDays(new Date(), 398), 'yyyy-MM-dd') }),
+      )
+      await db.dailyEntries.put(makeEntry({ date: today }))
+
+      const user = userEvent.setup()
+      render(<DashboardScreen />, { wrapper: MemoryRouter })
+      const weightHeading = await screen.findByText('Weight trend')
+      const weightSection = weightHeading.closest(
+        '.rounded-lg.border.border-border.p-3',
+      ) as HTMLElement
+
+      // 'all' (the default): 4 points is enough for a trend line.
+      expect(weightSection).not.toHaveTextContent('Not enough data yet')
+      // Weekly summary reflects the full history regardless of the
+      // picker — the 400-days-ago week's own range label should show.
+      const oldWeekLabel = format(subDays(new Date(), 400), 'yyyy')
+      expect(screen.getByText('Weekly summary')).toBeInTheDocument()
+      expect(screen.getAllByText(new RegExp(oldWeekLabel)).length).toBeGreaterThan(0)
+
+      await user.click(screen.getByRole('radio', { name: 'Week' }))
+
+      // Now only "today"'s single point falls inside the window — below
+      // MIN_TREND_DATA_POINTS, so the trend chart falls back to the
+      // not-enough-data message instead of drawing a misleading line.
+      expect(weightSection).toHaveTextContent('Not enough data yet')
+      // Weekly summary is untouched by the picker (deliberately scoped to
+      // just the 4 main trend charts) — the old week's card still shows.
+      expect(screen.getAllByText(new RegExp(oldWeekLabel)).length).toBeGreaterThan(0)
+    })
   })
 
   it('renders the recent-averages cards once entries exist (#215)', async () => {

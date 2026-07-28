@@ -65,6 +65,14 @@ export { loggingConsistencySummary } from './loggingConsistencySummary'
 export type { LoggingConsistencySummary } from './loggingConsistencySummary'
 export { dateRangeSummary } from './dateRangeSummary'
 export type { DateRangeSummary } from './dateRangeSummary'
+export {
+  resolveTrendChartPeriodRange,
+  filterEntriesByTrendChartPeriod,
+} from './trendChartPeriod'
+export type {
+  TrendChartPeriod,
+  TrendChartPeriodRange,
+} from './trendChartPeriod'
 export { foodReactionTallies, mostLikedFoods, mostDislikedFoods } from './foodReactions'
 export type { FoodReactionTally } from './foodReactions'
 export {
