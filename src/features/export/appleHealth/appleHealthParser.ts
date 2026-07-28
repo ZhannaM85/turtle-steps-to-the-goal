@@ -9,6 +9,10 @@ export interface AppleHealthRecord {
   creationDate?: string
   startDate?: string
   endDate?: string
+  /** #385 — which device/app logged this record (e.g. "iPhone", "My Watch").
+   * Only currently read for StepCount dedup (see AppleHealthPatchBuilder's
+   * own comment) — every other record type still ignores it. */
+  sourceName?: string
 }
 
 const RECORD_TAG_RE = /<Record\b([^>]*?)\/>/g
@@ -38,6 +42,7 @@ function parseRecordAttrs(tagAttrs: string): AppleHealthRecord | null {
     creationDate: attrs.creationDate,
     startDate: attrs.startDate,
     endDate: attrs.endDate,
+    sourceName: attrs.sourceName,
   }
 }
 
@@ -113,6 +118,12 @@ function round2(value: number): number {
   return Math.round(value * 100) / 100
 }
 
+// #385 — bucket key for a StepCount record with no sourceName attribute at
+// all (not expected in a real export, where it's always present, but kept
+// as its own single bucket rather than silently merging into whichever
+// named source happens to be seen first).
+const UNKNOWN_STEP_SOURCE = '__unknown__'
+
 /**
  * Folds a stream of `AppleHealthRecord`s into one `DailyEntryPatch` per
  * calendar date — the accumulators here (not the raw records) are what
@@ -123,7 +134,15 @@ export class AppleHealthPatchBuilder {
   private latestWeightByDate = new Map<string, LatestValue>()
   private latestBodyFatByDate = new Map<string, LatestValue>()
   private latestWaistByDate = new Map<string, LatestValue>()
-  private stepsByDate = new Map<string, number>()
+  // #385 — keyed by date, then by sourceName: an iPhone and an Apple Watch
+  // can each log their own overlapping StepCount records for the same real
+  // walk, so summing every record regardless of source double-counts.
+  // Best-effort fix (no real multi-source export to validate a true
+  // interval-overlap merge against): per calendar date, `build()` below
+  // keeps only the single source that logged the most steps that day and
+  // discards the rest, rather than summing across sources. Within one
+  // source, same-day intraday records still sum as before.
+  private stepsByDateAndSource = new Map<string, Map<string, number>>()
   private waterEntriesByDate = new Map<string, WaterEntry[]>()
 
   addRecord(record: AppleHealthRecord): void {
@@ -156,14 +175,18 @@ export class AppleHealthPatchBuilder {
           this.setIfLatest(this.latestWaistByDate, localDate, numeric, epochMs)
         }
         break
-      case HK_TYPE.stepCount:
-        // Records are intraday chunks (one per detected walking burst),
-        // not one per day — sum them.
-        this.stepsByDate.set(
-          localDate,
-          (this.stepsByDate.get(localDate) ?? 0) + numeric,
-        )
+      case HK_TYPE.stepCount: {
+        // Records are intraday chunks (one per detected walking burst), not
+        // one per day — sum them, but only within the same source (#385);
+        // see this.stepsByDateAndSource's own comment for why not across
+        // sources.
+        const source = record.sourceName ?? UNKNOWN_STEP_SOURCE
+        const bySource =
+          this.stepsByDateAndSource.get(localDate) ?? new Map<string, number>()
+        bySource.set(source, (bySource.get(source) ?? 0) + numeric)
+        this.stepsByDateAndSource.set(localDate, bySource)
         break
+      }
       case HK_TYPE.dietaryWater: {
         const entries = this.waterEntriesByDate.get(localDate) ?? []
         entries.push({ id: crypto.randomUUID(), amountMl: numeric })
@@ -207,8 +230,14 @@ export class AppleHealthPatchBuilder {
     for (const [date, { value }] of this.latestWaistByDate) {
       patchFor(date).waistCm = value
     }
-    for (const [date, steps] of this.stepsByDate) {
-      patchFor(date).steps = steps
+    for (const [date, bySource] of this.stepsByDateAndSource) {
+      // #385 — the dominant (highest-total) source for this date only,
+      // not the sum across all of them.
+      let maxSteps = 0
+      for (const total of bySource.values()) {
+        if (total > maxSteps) maxSteps = total
+      }
+      patchFor(date).steps = maxSteps
     }
     for (const [date, entries] of this.waterEntriesByDate) {
       patchFor(date).waterEntries = entries

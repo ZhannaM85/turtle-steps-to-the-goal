@@ -91,6 +91,16 @@ describe('AppleHealthRecordScanner', () => {
 
     expect(records[0].type).toBe('HKQuantityTypeIdentifierBodyMass')
   })
+
+  it('extracts sourceName (#385)', () => {
+    const scanner = new AppleHealthRecordScanner()
+    const records = scanner.push(
+      '<Record type="HKQuantityTypeIdentifierStepCount" unit="count" value="120" ' +
+        'sourceName="My Watch" startDate="2026-01-15 08:00:00+0000"/>',
+    )
+
+    expect(records[0].sourceName).toBe('My Watch')
+  })
 })
 
 describe('AppleHealthPatchBuilder', () => {
@@ -138,8 +148,11 @@ describe('AppleHealthPatchBuilder', () => {
     expect(patches.get('2026-01-16')).toEqual({ waistCm: 76 })
   })
 
-  it('sums StepCount across multiple intraday records on the same date', () => {
+  it('sums StepCount across multiple intraday records from the same source on the same date', () => {
     const builder = new AppleHealthPatchBuilder()
+    // Neither record has its own sourceName — both fall into the same
+    // "unknown source" bucket (#385), so they still sum together like any
+    // other same-source pair would.
     builder.addRecord({
       type: 'HKQuantityTypeIdentifierStepCount',
       value: '10',
@@ -152,6 +165,65 @@ describe('AppleHealthPatchBuilder', () => {
     })
 
     expect(builder.build().get('2026-01-15')).toEqual({ steps: 35 })
+  })
+
+  it('keeps only the dominant source\'s steps for a date, not the sum across sources (#385)', () => {
+    const builder = new AppleHealthPatchBuilder()
+    // iPhone: 3000 + 1000 = 4000. Watch: 4500. Naively summing every
+    // record regardless of source would give 8500 — double-counting the
+    // same real walk logged by both devices.
+    builder.addRecord({
+      type: 'HKQuantityTypeIdentifierStepCount',
+      value: '3000',
+      startDate: '2026-01-15 08:00:00+0000',
+      sourceName: 'iPhone',
+    })
+    builder.addRecord({
+      type: 'HKQuantityTypeIdentifierStepCount',
+      value: '4500',
+      startDate: '2026-01-15 09:00:00+0000',
+      sourceName: 'My Watch',
+    })
+    builder.addRecord({
+      type: 'HKQuantityTypeIdentifierStepCount',
+      value: '1000',
+      startDate: '2026-01-15 17:00:00+0000',
+      sourceName: 'iPhone',
+    })
+
+    expect(builder.build().get('2026-01-15')).toEqual({ steps: 4500 })
+  })
+
+  it('resolves the dominant source independently per date', () => {
+    const builder = new AppleHealthPatchBuilder()
+    builder.addRecord({
+      type: 'HKQuantityTypeIdentifierStepCount',
+      value: '6000',
+      startDate: '2026-01-15 08:00:00+0000',
+      sourceName: 'iPhone',
+    })
+    builder.addRecord({
+      type: 'HKQuantityTypeIdentifierStepCount',
+      value: '2000',
+      startDate: '2026-01-15 09:00:00+0000',
+      sourceName: 'My Watch',
+    })
+    builder.addRecord({
+      type: 'HKQuantityTypeIdentifierStepCount',
+      value: '1500',
+      startDate: '2026-01-16 08:00:00+0000',
+      sourceName: 'iPhone',
+    })
+    builder.addRecord({
+      type: 'HKQuantityTypeIdentifierStepCount',
+      value: '7000',
+      startDate: '2026-01-16 09:00:00+0000',
+      sourceName: 'My Watch',
+    })
+
+    const patches = builder.build()
+    expect(patches.get('2026-01-15')).toEqual({ steps: 6000 })
+    expect(patches.get('2026-01-16')).toEqual({ steps: 7000 })
   })
 
   it('turns each DietaryWater record into its own WaterEntry', () => {
