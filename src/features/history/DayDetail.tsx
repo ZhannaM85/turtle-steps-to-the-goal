@@ -34,6 +34,7 @@ import { Button } from '@/shared/ui/button'
 import {
   useCycleTrackingStore,
   useDigestionTrackingStore,
+  useProfileStore,
   useUnitStore,
 } from '@/stores'
 
@@ -76,6 +77,8 @@ export function DayDetail({
   const digestionTrackingEnabled = useDigestionTrackingStore(
     (state) => state.enabled,
   )
+  // #398 — grammatically-correct verb form for the night-eating label below.
+  const sex = useProfileStore((state) => state.sex)
 
   const meals = entry.calorieEntries ?? []
   const DayEmotionIcon = DAY_EMOTIONS.find(
@@ -180,7 +183,7 @@ export function DayDetail({
             }
           >
             <Moon aria-hidden="true" className="mr-1 inline size-4" />
-            {t.dailyEntry.nightEatingLabel}
+            {t.dailyEntry.nightEatingLabel(sex)}
           </Button>
         </div>
       )}

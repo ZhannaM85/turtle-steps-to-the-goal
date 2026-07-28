@@ -24,6 +24,7 @@ import { Input } from '@/shared/ui/input'
 import { ToggleGroup, ToggleGroupItem } from '@/shared/ui/toggle-group'
 import {
   useDigestionTrackingStore,
+  useProfileStore,
   useTrackedFieldsStore,
   useWaterTrackingStore,
 } from '@/stores'
@@ -191,6 +192,8 @@ export function DailyEntryForm({
   // #237 — which optional fields appear on this form at all, unified in
   // one Settings section.
   const trackedFields = useTrackedFieldsStore((state) => state.tracked)
+  // #398 — grammatically-correct verb form for the night-eating label below.
+  const sex = useProfileStore((state) => state.sex)
 
   const {
     register,
@@ -1265,11 +1268,11 @@ export function DailyEntryForm({
       <div className="flex flex-col gap-1.5">
         <span className="text-sm font-medium">
           <Moon aria-hidden="true" className="mr-1 inline size-4" />
-          {t.dailyEntry.nightEatingLabel}
+          {t.dailyEntry.nightEatingLabel(sex)}
         </span>
         <ToggleGroup
           type="single"
-          aria-label={t.dailyEntry.nightEatingLabel}
+          aria-label={t.dailyEntry.nightEatingLabel(sex)}
           value={nightEatingEffective ? 'yes' : 'no'}
           onValueChange={(value) =>
             value && setNightEatingOverride(value === 'yes')

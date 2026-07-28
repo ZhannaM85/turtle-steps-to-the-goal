@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 339,
+    issue: 398,
+    date: '2026-07-28T23:06:10+03:00',
+    en: 'The night-eating label now uses the correct Russian verb form when Profile sex is set.',
+    ru: 'Подпись "ночной перекус" теперь использует правильную форму глагола, если пол указан в профиле.',
+  },
+  {
     version: 338,
     issue: 370,
     date: '2026-07-28T13:12:32+03:00',

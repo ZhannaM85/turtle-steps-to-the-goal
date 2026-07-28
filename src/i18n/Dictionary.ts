@@ -1,3 +1,5 @@
+import type { Sex } from '@/domain/stats/bodyComposition'
+
 export interface Dictionary {
   common: {
     loading: string
@@ -452,8 +454,12 @@ export interface Dictionary {
     hadConstipationYesOption: string
     /** #383 — always shown (no Settings opt-in, unlike hadConstipation
      * above): reflects a value derived from today's own logged meal times,
-     * unless manually overridden via this same toggle. */
-    nightEatingLabel: string
+     * unless manually overridden via this same toggle. #398: takes the
+     * optional Profile `sex` so the toggle's own label can use the
+     * grammatically-correct Russian verb form; callers with no sex context
+     * (the chart legend, the correlation view) call it with no argument for
+     * the neutral placeholder form. */
+    nightEatingLabel: (sex?: Sex) => string
     nightEatingNoOption: string
     nightEatingYesOption: string
     /** Opt-in water tracking (#258), a list of discrete entries rather

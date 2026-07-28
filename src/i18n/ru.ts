@@ -259,7 +259,12 @@ export const ru: Dictionary = {
     hadConstipationLabel: 'Запор',
     hadConstipationNoOption: 'Нет',
     hadConstipationYesOption: 'Да',
-    nightEatingLabel: 'Ел(а) поздно вечером',
+    nightEatingLabel: (sex) =>
+      sex === 'female'
+        ? 'Ела поздно вечером'
+        : sex === 'male'
+          ? 'Ел поздно вечером'
+          : 'Ел(а) поздно вечером',
     nightEatingNoOption: 'Нет',
     nightEatingYesOption: 'Да',
     waterLabel: 'Вода',

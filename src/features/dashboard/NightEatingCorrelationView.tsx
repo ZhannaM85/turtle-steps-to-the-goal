@@ -132,7 +132,7 @@ export function NightEatingCorrelationView({
             <XAxis
               type="number"
               dataKey="x"
-              name={t.dailyEntry.nightEatingLabel}
+              name={t.dailyEntry.nightEatingLabel()}
               domain={[-0.5, 1.5]}
               ticks={[NO_X, YES_X]}
               tickFormatter={(value: number) =>
@@ -163,7 +163,7 @@ export function NightEatingCorrelationView({
                 color: 'var(--popover-foreground)',
               }}
               formatter={(value, name) => [
-                name === t.dailyEntry.nightEatingLabel
+                name === t.dailyEntry.nightEatingLabel()
                   ? Number(value) === YES_X
                     ? t.dailyEntry.nightEatingYesOption
                     : t.dailyEntry.nightEatingNoOption

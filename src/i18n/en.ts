@@ -253,7 +253,7 @@ export const en: Dictionary = {
     hadConstipationLabel: 'Constipation',
     hadConstipationNoOption: 'No',
     hadConstipationYesOption: 'Yes',
-    nightEatingLabel: 'Ate late tonight',
+    nightEatingLabel: () => 'Ate late tonight',
     nightEatingNoOption: 'No',
     nightEatingYesOption: 'Yes',
     waterLabel: 'Water',

@@ -107,7 +107,7 @@ const BOOLEAN_SERIES: BooleanSeriesConfig[] = [
   },
   {
     key: 'nightEating',
-    label: (t) => t.dailyEntry.nightEatingLabel,
+    label: (t) => t.dailyEntry.nightEatingLabel(),
     // Matches CalendarView's bg-indigo-500 dot for the same flag (#383).
     color: '#6366f1',
   },
