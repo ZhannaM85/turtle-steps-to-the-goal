@@ -66,10 +66,10 @@ export function WeeklySummaryCards({
       <div className="flex max-h-96 flex-col gap-2 overflow-y-auto">
         {weeksMostRecentFirst.map((week) => {
           const rangeLabel = t.dashboard.weekRange(
-            format(parseISO(week.weekStart), 'MMM d, yyyy', {
+            format(parseISO(week.weekStart), 'PP', {
               locale: dateFnsLocale,
             }),
-            format(parseISO(week.weekEnd), 'MMM d, yyyy', {
+            format(parseISO(week.weekEnd), 'PP', {
               locale: dateFnsLocale,
             }),
           )

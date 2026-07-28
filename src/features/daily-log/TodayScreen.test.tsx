@@ -201,7 +201,9 @@ describe('TodayScreen', () => {
       </MemoryRouter>,
     )
 
-    expect(await screen.findByText('Mar 9 – Mar 15')).toBeInTheDocument()
+    expect(
+      await screen.findByText('Mar 9, 2026 – Mar 15, 2026'),
+    ).toBeInTheDocument()
   })
 
   it('defaults the date picker to today and shows a blank log form', async () => {

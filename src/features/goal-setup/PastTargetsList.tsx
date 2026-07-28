@@ -44,7 +44,7 @@ function PastTargetRow({
     progress?.targetMet === true
       ? progress.metOnDate
         ? t.goal.targetMetOnLabel(
-            format(parseISO(progress.metOnDate), 'MMM d, yyyy', {
+            format(parseISO(progress.metOnDate), 'PP', {
               locale: dateFnsLocale,
             }),
           )
@@ -59,19 +59,19 @@ function PastTargetRow({
   // showing just a bare single date.
   const weekRangeLabel = goal.weekStart
     ? t.common.weekRangeLabel(
-        format(parseISO(goal.weekStart), 'MMM d, yyyy', { locale: dateFnsLocale }),
-        format(parseISO(goalWeekEnd(goal.weekStart)), 'MMM d, yyyy', {
+        format(parseISO(goal.weekStart), 'PP', { locale: dateFnsLocale }),
+        format(parseISO(goalWeekEnd(goal.weekStart)), 'PP', {
           locale: dateFnsLocale,
         }),
       )
     : approximateEndDate
       ? t.common.weekRangeLabel(
-          format(parseISO(goal.createdAt), 'MMM d, yyyy', { locale: dateFnsLocale }),
-          format(parseISO(approximateEndDate), 'MMM d, yyyy', {
+          format(parseISO(goal.createdAt), 'PP', { locale: dateFnsLocale }),
+          format(parseISO(approximateEndDate), 'PP', {
             locale: dateFnsLocale,
           }),
         )
-      : format(parseISO(goal.createdAt), 'MMM d, yyyy', { locale: dateFnsLocale })
+      : format(parseISO(goal.createdAt), 'PP', { locale: dateFnsLocale })
 
   return (
     <tr className="border-b border-border last:border-b-0">

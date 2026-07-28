@@ -756,10 +756,10 @@ export function TodayScreen() {
             description={
               goal.weekStart
                 ? t.common.weekRangeLabel(
-                    format(parseISO(goal.weekStart), 'MMM d', {
+                    format(parseISO(goal.weekStart), 'PP', {
                       locale: dateFnsLocale,
                     }),
-                    format(parseISO(goalWeekEnd(goal.weekStart)), 'MMM d', {
+                    format(parseISO(goalWeekEnd(goal.weekStart)), 'PP', {
                       locale: dateFnsLocale,
                     }),
                   )

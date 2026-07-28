@@ -99,12 +99,12 @@ export function GoalScreen() {
                   goal.weekStart
                     ? [
                         t.common.weekRangeLabel(
-                          format(parseISO(goal.weekStart), 'MMM d', {
+                          format(parseISO(goal.weekStart), 'PP', {
                             locale: dateFnsLocale,
                           }),
                           format(
                             parseISO(goalWeekEnd(goal.weekStart)),
-                            'MMM d',
+                            'PP',
                             { locale: dateFnsLocale },
                           ),
                         ),
@@ -112,7 +112,7 @@ export function GoalScreen() {
                         // PastTargetsList uses for a reached past target.
                         activeGoalReachedOn &&
                           t.goal.targetMetOnLabel(
-                            format(parseISO(activeGoalReachedOn), 'MMM d', {
+                            format(parseISO(activeGoalReachedOn), 'PP', {
                               locale: dateFnsLocale,
                             }),
                           ),

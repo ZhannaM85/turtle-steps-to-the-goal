@@ -110,7 +110,7 @@ describe('GoalScreen', () => {
 
     render(<GoalScreen />)
 
-    expect(await screen.findByText('Mar 9 – Mar 15')).toBeInTheDocument()
+    expect(await screen.findByText('Mar 9, 2026 – Mar 15, 2026')).toBeInTheDocument()
   })
 
   it('persists an edit and updates the summary', async () => {
@@ -189,7 +189,7 @@ describe('GoalScreen', () => {
     )
 
     expect(await screen.findByText('Past targets')).toBeInTheDocument()
-    expect(screen.getByText('Mar 9 – Mar 15')).toBeInTheDocument()
+    expect(screen.getByText('Mar 9, 2026 – Mar 15, 2026')).toBeInTheDocument()
     expect(await db.goals.count()).toBe(2)
   })
 
@@ -199,7 +199,7 @@ describe('GoalScreen', () => {
     // nothing but an IndexedDB write between them, and a fast runner can
     // give them the same millisecond. getActiveGoal()'s "most recent by
     // createdAt" then becomes ambiguous, so pastGoals() can exclude the
-    // wrong goal and "Mar 9 – Mar 15" never renders at all.
+    // wrong goal and "Mar 9, 2026 – Mar 15, 2026" never renders at all.
     await useGoalStore.getState().saveGoal(
       makeGoal({ weekStart: '2026-03-09', createdAt: '2026-03-09T00:00:00.000Z' }),
     )
@@ -209,18 +209,20 @@ describe('GoalScreen', () => {
     const user = userEvent.setup()
 
     render(<GoalScreen />)
-    await screen.findByText('Mar 9 – Mar 15')
+    await screen.findByText('Mar 9, 2026 – Mar 15, 2026')
     const remainingGoalsBefore = await db.goals.count()
 
     await user.click(
-      screen.getByRole('button', { name: 'Delete target for Mar 9 – Mar 15' }),
+      screen.getByRole('button', {
+        name: 'Delete target for Mar 9, 2026 – Mar 15, 2026',
+      }),
     )
     await user.click(screen.getByRole('button', { name: 'Delete' }))
 
     // deleteGoal() re-fetches asynchronously (usePastGoals.ts) after the
     // repository write, so the row's removal isn't synchronous with the click.
     await waitFor(() =>
-      expect(screen.queryByText('Mar 9 – Mar 15')).not.toBeInTheDocument(),
+      expect(screen.queryByText('Mar 9, 2026 – Mar 15, 2026')).not.toBeInTheDocument(),
     )
     expect(await db.goals.count()).toBe(remainingGoalsBefore - 1)
   })
@@ -372,13 +374,13 @@ describe('GoalScreen', () => {
         screen.getByRole('button', { name: 'Hide Past targets' }),
       )
 
-      expect(screen.queryByText('Mar 9 – Mar 15')).not.toBeInTheDocument()
+      expect(screen.queryByText('Mar 9, 2026 – Mar 15, 2026')).not.toBeInTheDocument()
       expect(screen.getByText('Past targets')).toBeInTheDocument()
 
       await user.click(
         screen.getByRole('button', { name: 'Show Past targets' }),
       )
-      expect(screen.getByText('Mar 9 – Mar 15')).toBeInTheDocument()
+      expect(screen.getByText('Mar 9, 2026 – Mar 15, 2026')).toBeInTheDocument()
     })
   })
 })

@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 341,
+    issue: 397,
+    date: '2026-07-28T23:24:49+03:00',
+    en: 'Fixed chart and date-range labels reading in the wrong order in Russian (day and month are now in the correct order).',
+    ru: 'Исправлен неверный порядок дня и месяца в подписях дат на графиках и в списках.',
+  },
+  {
     version: 340,
     issue: 392,
     date: '2026-07-28T23:13:46+03:00',
