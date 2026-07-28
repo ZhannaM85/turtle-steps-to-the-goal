@@ -7,12 +7,15 @@ import { ToggleGroup, ToggleGroupItem } from '@/shared/ui/toggle-group'
 /**
  * #380 — one global period control above the Weight/Calorie/Macro/Body
  * composition trend charts (resolved via `AskUserQuestion`: one shared
- * control rather than a picker per chart). Deliberately scoped to just
- * those 4 charts, not the correlation views (their own day/week-count
- * caveats already describe a full-history sample size, changing that
- * would change what the underlying statistic even means) or
- * `CustomChartView` (`#384` already tracks that component's own,
- * different-shaped date-range gap separately).
+ * control rather than a picker per chart). Originally scoped to just those
+ * 4 charts, deliberately excluding the correlation views (narrowing their
+ * input changes what the underlying statistic means, not just what's shown)
+ * and `CustomChartView`. **#396** reversed that scope decision on the
+ * user's own explicit choice (confirmed via `AskUserQuestion`, same
+ * "extend to everything, accept the smaller-sample trade-off for
+ * correlations too" shape #370 already chose over #240's original
+ * always-complete-backup decision) — now applies to every Dashboard
+ * section that reads `entries`, correlation views included.
  */
 export function DashboardPeriodPicker() {
   const t = useTranslation()

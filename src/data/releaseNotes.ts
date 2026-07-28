@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 346,
+    issue: 396,
+    date: '2026-07-29T01:18:25+03:00',
+    en: 'The Dashboard time-period picker now also scopes the correlation views and the Compare Data chart, not just the main trend charts.',
+    ru: 'Выбор периода на Обзоре теперь также влияет на графики корреляций и "Сравнение данных", а не только на основные графики.',
+  },
+  {
     version: 345,
     issue: 395,
     date: '2026-07-29T01:04:43+03:00',

@@ -110,10 +110,10 @@ function SortableDashboardSection({
 export function DashboardScreen() {
   const t = useTranslation()
   const { goal, entries, status } = useDashboardData()
-  // #380 — one global period control scoped to just the 4 main trend
-  // charts below (Weight/Calorie/Macro/Body composition), not every
-  // Dashboard section — see DashboardPeriodPicker's own doc comment for
-  // why correlations/CustomChartView are deliberately excluded.
+  // #380 — one global period control, originally scoped to just the 4 main
+  // trend charts below; #396 extended it to every Dashboard section that
+  // reads `entries` — see DashboardPeriodPicker's own doc comment for the
+  // scope-reversal reasoning.
   const trendChartPeriod = useDashboardPeriodStore((state) => state.period)
   const trendChartCustomStart = useDashboardPeriodStore(
     (state) => state.customStart,
@@ -121,7 +121,7 @@ export function DashboardScreen() {
   const trendChartCustomEnd = useDashboardPeriodStore(
     (state) => state.customEnd,
   )
-  const trendChartEntries = filterEntriesByTrendChartPeriod(
+  const periodFilteredEntries = filterEntriesByTrendChartPeriod(
     entries,
     resolveTrendChartPeriodRange(
       trendChartPeriod,
@@ -185,46 +185,79 @@ export function DashboardScreen() {
     (dragHandle: ReactNode) => ReactNode
   > = {
     weight: (dragHandle) => (
-      <WeightTrendChart entries={trendChartEntries} dragHandle={dragHandle} />
-    ),
-    calories: (dragHandle) => (
-      <CalorieTrendChart entries={trendChartEntries} dragHandle={dragHandle} />
-    ),
-    macros: (dragHandle) => (
-      <MacroTrendChart entries={trendChartEntries} dragHandle={dragHandle} />
-    ),
-    bodyComposition: (dragHandle) => (
-      <BodyCompositionTrendChart
-        entries={trendChartEntries}
+      <WeightTrendChart
+        entries={periodFilteredEntries}
         dragHandle={dragHandle}
       />
     ),
+    calories: (dragHandle) => (
+      <CalorieTrendChart
+        entries={periodFilteredEntries}
+        dragHandle={dragHandle}
+      />
+    ),
+    macros: (dragHandle) => (
+      <MacroTrendChart
+        entries={periodFilteredEntries}
+        dragHandle={dragHandle}
+      />
+    ),
+    bodyComposition: (dragHandle) => (
+      <BodyCompositionTrendChart
+        entries={periodFilteredEntries}
+        dragHandle={dragHandle}
+      />
+    ),
+    // #396 — extended the trend-chart-only period picker (#380) to every
+    // correlation view plus this chart, on the user's own explicit choice
+    // to accept the smaller-sample trade-off for correlations too.
     customChart: (dragHandle) => (
-      <CustomChartView entries={entries} dragHandle={dragHandle} />
+      <CustomChartView entries={periodFilteredEntries} dragHandle={dragHandle} />
     ),
     calorieWeightCorrelation: (dragHandle) => (
-      <CorrelationView entries={entries} dragHandle={dragHandle} />
+      <CorrelationView entries={periodFilteredEntries} dragHandle={dragHandle} />
     ),
     lateMealCorrelation: (dragHandle) => (
-      <LateMealCorrelationView entries={entries} dragHandle={dragHandle} />
+      <LateMealCorrelationView
+        entries={periodFilteredEntries}
+        dragHandle={dragHandle}
+      />
     ),
     mealFrequencyCorrelation: (dragHandle) => (
-      <MealFrequencyCorrelationView entries={entries} dragHandle={dragHandle} />
+      <MealFrequencyCorrelationView
+        entries={periodFilteredEntries}
+        dragHandle={dragHandle}
+      />
     ),
     fastingWindowCorrelation: (dragHandle) => (
-      <FastingWindowCorrelationView entries={entries} dragHandle={dragHandle} />
+      <FastingWindowCorrelationView
+        entries={periodFilteredEntries}
+        dragHandle={dragHandle}
+      />
     ),
     sleepCorrelation: (dragHandle) => (
-      <SleepCorrelationView entries={entries} dragHandle={dragHandle} />
+      <SleepCorrelationView
+        entries={periodFilteredEntries}
+        dragHandle={dragHandle}
+      />
     ),
     stepsCorrelation: (dragHandle) => (
-      <StepsCorrelationView entries={entries} dragHandle={dragHandle} />
+      <StepsCorrelationView
+        entries={periodFilteredEntries}
+        dragHandle={dragHandle}
+      />
     ),
     proteinCorrelation: (dragHandle) => (
-      <ProteinCorrelationView entries={entries} dragHandle={dragHandle} />
+      <ProteinCorrelationView
+        entries={periodFilteredEntries}
+        dragHandle={dragHandle}
+      />
     ),
     nightEatingCorrelation: (dragHandle) => (
-      <NightEatingCorrelationView entries={entries} dragHandle={dragHandle} />
+      <NightEatingCorrelationView
+        entries={periodFilteredEntries}
+        dragHandle={dragHandle}
+      />
     ),
     foodReactions: (dragHandle) => (
       <FoodReactionsView entries={entries} dragHandle={dragHandle} />

@@ -307,9 +307,42 @@ describe('DashboardScreen', () => {
       // MIN_TREND_DATA_POINTS, so the trend chart falls back to the
       // not-enough-data message instead of drawing a misleading line.
       expect(weightSection).toHaveTextContent('Not enough data yet')
-      // Weekly summary is untouched by the picker (deliberately scoped to
-      // just the 4 main trend charts) — the old week's card still shows.
+      // Weekly summary is untouched by the picker (deliberately not part of
+      // #396's extended scope, unlike the correlation views below) — the
+      // old week's card still shows.
       expect(screen.getAllByText(new RegExp(oldWeekLabel)).length).toBeGreaterThan(0)
+    })
+
+    it('scopes correlation views to the selected period too (#396)', async () => {
+      // Same 4-entry shape as the test above: 3 old entries give the
+      // calorie-vs-weight correlation enough distinct weeks (>= 4) under
+      // 'all', but narrowing to 'week' leaves only today's single entry —
+      // nowhere near enough for a weekly comparison.
+      const today = format(new Date(), 'yyyy-MM-dd')
+      await db.dailyEntries.put(
+        makeEntry({ date: format(subDays(new Date(), 400), 'yyyy-MM-dd') }),
+      )
+      await db.dailyEntries.put(
+        makeEntry({ date: format(subDays(new Date(), 399), 'yyyy-MM-dd') }),
+      )
+      await db.dailyEntries.put(
+        makeEntry({ date: format(subDays(new Date(), 398), 'yyyy-MM-dd') }),
+      )
+      await db.dailyEntries.put(makeEntry({ date: today }))
+
+      const user = userEvent.setup()
+      render(<DashboardScreen />, { wrapper: MemoryRouter })
+      await screen.findByText('Weight trend')
+
+      expect(
+        screen.getByText('Calories vs. weight change'),
+      ).toBeInTheDocument()
+
+      await user.click(screen.getByRole('radio', { name: 'Week' }))
+
+      expect(
+        screen.queryByText('Calories vs. weight change'),
+      ).not.toBeInTheDocument()
     })
   })
 
