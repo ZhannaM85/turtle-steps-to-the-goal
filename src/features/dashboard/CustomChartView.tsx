@@ -376,14 +376,31 @@ export function CustomChartView({ entries, dragHandle }: CustomChartViewProps) {
     )
     return { metricId, byDate, normalized: normalizeByDate(byDate) }
   })
-  // A custom metric can be logged on a date with no corresponding
-  // DailyEntry at all, so the chart's date set is the union of both
-  // sources, not just `points`' own dates.
-  const allDates = new Set(points.map((p) => p.date))
-  for (const { byDate } of customMetricMaps) {
-    for (const date of byDate.keys()) allDates.add(date)
+  // #384 — same root cause and fix as #376's BodyCompositionTrendChart:
+  // `points` spans every logged entry's date regardless of which numeric
+  // series are actually selected (e.g. years of weight data alongside a
+  // steps series that only started last month), so using its full date set
+  // stretched the chart across mostly-blank space whenever a selected
+  // series' own real data was a narrower recent window than the rest of
+  // the history. Narrowed to dates where at least one *currently selected*
+  // series — numeric, boolean marker, or custom metric — actually has a
+  // value, unioned across all three since (unlike BodyCompositionTrendChart)
+  // this chart can mix all three categories at once. A custom metric can be
+  // logged on a date with no corresponding DailyEntry at all, so its own
+  // dates are still included even though they can't come from `points`.
+  const relevantDates = new Set<string>()
+  for (const point of points) {
+    if (selectedNumeric.some((key) => point.raw[key] !== undefined)) {
+      relevantDates.add(point.date)
+    }
   }
-  const data = [...allDates].sort().map((date) => {
+  for (const key of selectedBoolean) {
+    for (const date of booleanDatesByKey.get(key) ?? []) relevantDates.add(date)
+  }
+  for (const { byDate } of customMetricMaps) {
+    for (const date of byDate.keys()) relevantDates.add(date)
+  }
+  const data = [...relevantDates].sort().map((date) => {
     const point = pointsByDate.get(date)
     const row: Record<string, string | number | undefined> = { date }
     for (const key of selectedNumeric) {
