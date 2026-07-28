@@ -37,11 +37,14 @@ export interface NightEatingPoint {
  * *exact* last-meal-time instead of using a fixed yes/no cutoff — a
  * deliberately simpler, more concrete question, kept as its own view
  * despite the overlap (confirmed with the user). A day only contributes a
- * point if it has a logged weight and the very next calendar date also
- * does — same two-endpoints requirement every other day-pairing
- * correlation in this folder uses. Unlike `mealFrequencyPoints`, doesn't
- * require any meals to be logged at all — a manual override alone still
- * gives `hadNightEating()` a definite value.
+ * point if it has a logged weight, the very next calendar date also does,
+ * and `hadNightEating()` returns a *definite* value — same two-endpoints
+ * requirement every other day-pairing correlation in this folder uses, plus
+ * (**#394**) a third requirement this one alone needs: skip a day with no
+ * override and no timed meal at all, rather than letting it silently fall
+ * into the "No" group the way the old `boolean`-only `hadNightEating()`
+ * used to. A manual override alone still gives a definite value with zero
+ * meals logged, unlike `mealFrequencyPoints`.
  */
 export function nightEatingPoints(entries: DailyEntry[]): NightEatingPoint[] {
   const byDate = new Map(entries.map((entry) => [entry.date, entry]))
@@ -49,12 +52,14 @@ export function nightEatingPoints(entries: DailyEntry[]): NightEatingPoint[] {
 
   for (const entry of entries) {
     if (entry.weightKg === undefined) continue
+    const nightEating = hadNightEating(entry)
+    if (nightEating === undefined) continue
     const nextDate = format(addDays(parseISO(entry.date), 1), 'yyyy-MM-dd')
     const nextEntry = byDate.get(nextDate)
     if (!nextEntry || nextEntry.weightKg === undefined) continue
     points.push({
       date: nextEntry.date,
-      hadNightEating: hadNightEating(entry),
+      hadNightEating: nightEating,
       deltaKg: nextEntry.weightKg - entry.weightKg,
     })
   }

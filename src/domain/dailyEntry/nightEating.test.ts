@@ -17,8 +17,8 @@ function entry(overrides: Partial<DailyEntry> = {}): DailyEntry {
 }
 
 describe('hadNightEating', () => {
-  it('is false with no meals logged at all', () => {
-    expect(hadNightEating(entry())).toBe(false)
+  it('is undefined (not false) with no meals logged at all (#394)', () => {
+    expect(hadNightEating(entry())).toBeUndefined()
   })
 
   it('is false when every meal was eaten before the cutoff', () => {
@@ -36,10 +36,18 @@ describe('hadNightEating', () => {
     ).toBe(true)
   })
 
-  it('ignores meals with no recorded time', () => {
-    expect(hadNightEating(entry({ calorieEntries: [meal(undefined)] }))).toBe(
-      false,
-    )
+  it('is undefined when no meal has a recorded time (#394)', () => {
+    expect(
+      hadNightEating(entry({ calorieEntries: [meal(undefined)] })),
+    ).toBeUndefined()
+  })
+
+  it('is false, not undefined, once at least one meal has a recorded time', () => {
+    expect(
+      hadNightEating(
+        entry({ calorieEntries: [meal(undefined), meal('08:00')] }),
+      ),
+    ).toBe(false)
   })
 
   it('lets a manual override win over the derived value, either direction', () => {

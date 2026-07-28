@@ -20,11 +20,23 @@ const NIGHT_EATING_CUTOFF_HHMM = '21:00'
  * `NIGHT_EATING_CUTOFF_HHMM`. A meal with no recorded time never
  * contributes to the derived value (nothing to compare), but doesn't
  * prevent a *different* meal that day from doing so.
+ *
+ * **#394**: returns `undefined` — not `false` — when there's no override and
+ * *no* meal that day has a `timeEaten` at all (not just none of them being
+ * late). The original `boolean`-only version silently returned `false` for
+ * this "no data" case, which every day imported without per-meal timestamps
+ * (the overwhelming majority of a real MyFitnessPal/Apple Health/Zepp Life
+ * import — none of those set meal-level `timeEaten`) then hit, inflating
+ * `nightEatingCorrelation`'s "No" group with thousands of zero-signal days
+ * for a user who had only just started actually tracking this. `undefined`
+ * lets every consumer (correlation, toggle UI, calendar dot, exports, chart
+ * series) tell "confirmed not eating late" apart from "no idea yet."
  */
-export function hadNightEating(entry: NightEatingInput): boolean {
+export function hadNightEating(entry: NightEatingInput): boolean | undefined {
   if (entry.nightEatingOverride !== undefined) return entry.nightEatingOverride
-  return (entry.calorieEntries ?? []).some(
-    (meal) =>
-      meal.timeEaten !== undefined && meal.timeEaten >= NIGHT_EATING_CUTOFF_HHMM,
+  const timedMeals = (entry.calorieEntries ?? []).filter(
+    (meal) => meal.timeEaten !== undefined,
   )
+  if (timedMeals.length === 0) return undefined
+  return timedMeals.some((meal) => meal.timeEaten! >= NIGHT_EATING_CUTOFF_HHMM)
 }

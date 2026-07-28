@@ -1273,7 +1273,13 @@ export function DailyEntryForm({
         <ToggleGroup
           type="single"
           aria-label={t.dailyEntry.nightEatingLabel(sex)}
-          value={nightEatingEffective ? 'yes' : 'no'}
+          value={
+            nightEatingEffective === undefined
+              ? undefined
+              : nightEatingEffective
+                ? 'yes'
+                : 'no'
+          }
           onValueChange={(value) =>
             value && setNightEatingOverride(value === 'yes')
           }

@@ -2176,7 +2176,7 @@ describe('DailyEntryForm', () => {
       ).toBeInTheDocument()
     })
 
-    it('defaults to No when there is no logged meal and no override', () => {
+    it('selects neither option when there is no logged meal and no override (#394)', () => {
       render(
         <DailyEntryForm date="2026-03-01" existingEntry={null} onSave={vi.fn()} />,
       )
@@ -2186,7 +2186,11 @@ describe('DailyEntryForm', () => {
       )
       expect(group.getByRole('radio', { name: 'No' })).toHaveAttribute(
         'aria-checked',
-        'true',
+        'false',
+      )
+      expect(group.getByRole('radio', { name: 'Yes' })).toHaveAttribute(
+        'aria-checked',
+        'false',
       )
     })
 

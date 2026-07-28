@@ -93,10 +93,9 @@ describe('buildExportWorkbook', () => {
     expect(row[14]).toBe('Felt good')
     expect(row[15]).toBe(true)
     expect(row[16]).toBeUndefined()
-    // Unlike hadConstipation above, nightEating is never left blank — it's
-    // the effective `hadNightEating()` value (#383), false here since no
-    // override/late meal was logged.
-    expect(row[17]).toBe(false)
+    // #394 — nightEating is blank here (not false): the one logged meal has
+    // no timeEaten, so hadNightEating() has no signal to derive from.
+    expect(row[17]).toBeUndefined()
   })
 
   it('writes one Meals row per logged item, using the meal label or positional fallback', async () => {

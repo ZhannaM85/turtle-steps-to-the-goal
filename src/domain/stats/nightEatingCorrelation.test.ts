@@ -102,6 +102,34 @@ describe('nightEatingCorrelation', () => {
     expect(nightEatingCorrelation(entries)).toBeNull()
   })
 
+  it('excludes a day with no override and no timed meal at all, rather than counting it as "No" (#394)', () => {
+    const trackedDays = [
+      entry(day(0), { weightKg: 80.0, nightEatingOverride: false }),
+      entry(day(1), { weightKg: 80.1, nightEatingOverride: false }),
+      entry(day(2), { weightKg: 80.2, nightEatingOverride: false }),
+      entry(day(3), { weightKg: 80.25, nightEatingOverride: false }),
+      entry(day(4), { weightKg: 80.4, nightEatingOverride: true }),
+      entry(day(5), { weightKg: 81.2, nightEatingOverride: true }),
+      entry(day(6), { weightKg: 81.9, nightEatingOverride: true }),
+      entry(day(7), { weightKg: 82.8, nightEatingOverride: true }),
+      entry(day(8), { weightKg: 83.4 }),
+    ]
+    // Same real weights as the "reports the night-eating group" test above,
+    // plus several more weighed-in days with no override and no logged
+    // meals at all — the exact shape a real historical import produces.
+    // With the pre-#394 boolean-only hadNightEating(), these would have
+    // silently defaulted to "No" and inflated dayCount well past 8; they
+    // should now be excluded entirely instead.
+    const untrackedDays = Array.from({ length: 8 }, (_, i) =>
+      entry(day(9 + i), { weightKg: 83.4 + i * 0.05 }),
+    )
+
+    const result = nightEatingCorrelation([...trackedDays, ...untrackedDays])
+    expect(result).not.toBeNull()
+    expect(result!.dayCount).toBe(8)
+    expect(result!.noNightEatingGroupAvgDeltaKg).toBeCloseTo(0.1, 5)
+  })
+
   it('ignores a day whose next calendar date has no logged weight', () => {
     const entries = [
       entry(day(0), { weightKg: 80.0, nightEatingOverride: true }),

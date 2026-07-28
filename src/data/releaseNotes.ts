@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 344,
+    issue: 394,
+    date: '2026-07-28T23:54:16+03:00',
+    en: 'Fixed the night-eating correlation counting untracked days as "no," which could inflate its sample size and mislead the reported pattern.',
+    ru: 'Исправлено: корреляция ночных перекусов считала неотслеженные дни как "нет", что завышало размер выборки.',
+  },
+  {
     version: 343,
     issue: 391,
     date: '2026-07-28T23:38:53+03:00',

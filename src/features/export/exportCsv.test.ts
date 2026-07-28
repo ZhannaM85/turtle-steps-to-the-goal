@@ -54,8 +54,10 @@ describe('buildDailyLogCsv', () => {
     const csv = buildDailyLogCsv([entry], t)
     const [, row] = csv.split('\r\n')
 
+    // #394 — nightEating is blank here (not false): the one logged meal has
+    // no timeEaten, so hadNightEating() has no signal to derive from.
     expect(row).toBe(
-      '2026-03-01,79.5,300,10,5,20,7,1.5,8000,80,95,22,Happy,Felt good,true,,false,',
+      '2026-03-01,79.5,300,10,5,20,7,1.5,8000,80,95,22,Happy,Felt good,true,,,',
     )
   })
 

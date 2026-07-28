@@ -399,7 +399,9 @@ describe('DayDetail', () => {
       render(<DayDetail entry={makeEntry()} onSaved={onSaved} />)
 
       const toggle = screen.getByRole('button', { name: 'Ate late tonight' })
-      expect(toggle).toHaveAttribute('aria-pressed', 'false')
+      // #394 — no meal/override at all means "no data yet," not a confirmed
+      // "No": aria-pressed is omitted entirely rather than set to false.
+      expect(toggle).not.toHaveAttribute('aria-pressed')
 
       toggle.click()
 
