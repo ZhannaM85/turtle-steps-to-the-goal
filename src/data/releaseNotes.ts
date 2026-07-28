@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 340,
+    issue: 392,
+    date: '2026-07-28T23:13:46+03:00',
+    en: 'The "weeks you hit your target" and past-targets lists now show the year in their date ranges.',
+    ru: 'Списки "недели, когда цель была достигнута" и прошлых целей теперь показывают год в диапазоне дат.',
+  },
+  {
     version: 339,
     issue: 398,
     date: '2026-07-28T23:06:10+03:00',

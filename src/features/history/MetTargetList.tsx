@@ -52,10 +52,10 @@ export function MetTargetList({ entries, goal }: MetTargetListProps) {
           >
             <span>
               {t.dashboard.weekRange(
-                format(parseISO(week.weekStart), 'MMM d', {
+                format(parseISO(week.weekStart), 'MMM d, yyyy', {
                   locale: dateFnsLocale,
                 }),
-                format(parseISO(week.weekEnd), 'MMM d', {
+                format(parseISO(week.weekEnd), 'MMM d, yyyy', {
                   locale: dateFnsLocale,
                 }),
               )}

@@ -35,12 +35,12 @@ describe('PastTargetsList', () => {
     render(<PastTargetsList records={[makeRecord()]} onDelete={vi.fn()} />)
 
     expect(screen.getByText('Past targets')).toBeInTheDocument()
-    expect(screen.getByText('Mar 9 – Mar 15')).toBeInTheDocument()
+    expect(screen.getByText('Mar 9, 2026 – Mar 15, 2026')).toBeInTheDocument()
     // Negated (#178) — a loss, matching GoalScreen.tsx's/TodayScreen.tsx's
     // own StatCards ("-0.6 kg to lose").
     expect(screen.getByText('-1.0 kg/week')).toBeInTheDocument()
     // #177: names the day it was reached, not just a binary "Target met".
-    expect(screen.getByText('Target met on Mar 12')).toBeInTheDocument()
+    expect(screen.getByText('Target met on Mar 12, 2026')).toBeInTheDocument()
   })
 
   it('shows which two weigh-ins the "target met" status is based on (#339)', () => {
@@ -158,7 +158,7 @@ describe('PastTargetsList', () => {
       />,
     )
 
-    expect(screen.getByText('Jul 11 – Jul 18')).toBeInTheDocument()
+    expect(screen.getByText('Jul 11, 2026 – Jul 18, 2026')).toBeInTheDocument()
   })
 
   it('falls back to a bare single date when there is no approximateEndDate either', () => {
@@ -181,7 +181,7 @@ describe('PastTargetsList', () => {
       />,
     )
 
-    expect(screen.getByText('Jul 11')).toBeInTheDocument()
+    expect(screen.getByText('Jul 11, 2026')).toBeInTheDocument()
   })
 
   describe('deleting a past target (#174)', () => {
@@ -191,7 +191,7 @@ describe('PastTargetsList', () => {
       render(<PastTargetsList records={[makeRecord()]} onDelete={onDelete} />)
 
       await user.click(
-        screen.getByRole('button', { name: 'Delete target for Mar 9 – Mar 15' }),
+        screen.getByRole('button', { name: 'Delete target for Mar 9, 2026 – Mar 15, 2026' }),
       )
       expect(
         screen.getByText('Delete this target?'),
@@ -209,7 +209,7 @@ describe('PastTargetsList', () => {
       render(<PastTargetsList records={[makeRecord()]} onDelete={onDelete} />)
 
       await user.click(
-        screen.getByRole('button', { name: 'Delete target for Mar 9 – Mar 15' }),
+        screen.getByRole('button', { name: 'Delete target for Mar 9, 2026 – Mar 15, 2026' }),
       )
       await user.click(screen.getByRole('button', { name: 'Delete' }))
 
