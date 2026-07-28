@@ -340,7 +340,11 @@ export const en: Dictionary = {
     importFailed: 'Import failed.',
     exportPeriodLabel: 'Export period',
     exportPeriodDescription:
-      'Optional — applies to Excel, CSV, and Markdown below, not the JSON backup above. Leave blank to export everything.',
+      'Optional — applies to Excel, CSV, and Markdown below, and the ranged backup below that, not the full JSON backup above. Leave blank to export everything.',
+    exportRangedBackupBlurb:
+      'Download a JSON backup scoped to the period above instead of your full history — useful for sharing or archiving a slice without the whole thing. Not a substitute for the full backup above, which stays the one guaranteed-complete restore source.',
+    exportRangedBackupButton: 'Export ranged backup',
+    exportingRangedBackupButton: 'Exporting…',
     exportExcelBlurb:
       'Download your data as an Excel file for viewing or analysis — this is not a backup and can’t be imported back in.',
     exportExcelButton: 'Export as Excel',

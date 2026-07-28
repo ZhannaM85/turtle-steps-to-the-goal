@@ -156,6 +156,49 @@ describe('ExportSection', () => {
     ).toBeInTheDocument()
   })
 
+  it('scopes the ranged backup to the chosen period, keeping all goals (#370)', async () => {
+    await db.goals.put(makeGoal())
+    await db.dailyEntries.put(makeEntry({ date: '2026-02-15' }))
+    await db.dailyEntries.put(makeEntry({ date: '2026-03-01' }))
+    await db.dailyEntries.put(makeEntry({ date: '2026-03-10' }))
+    const user = userEvent.setup()
+
+    render(<ExportSection />)
+    fireEvent.change(screen.getByLabelText('Export period — Start date'), {
+      target: { value: '2026-03-01' },
+    })
+    fireEvent.change(screen.getByLabelText('Export period — End date'), {
+      target: { value: '2026-03-31' },
+    })
+
+    await user.click(
+      screen.getByRole('button', { name: 'Export ranged backup' }),
+    )
+
+    // 2 daily entries within the period, but still both goals — goals
+    // aren't date-scoped the same way, same reasoning Excel/CSV/Markdown
+    // already apply to daily entries only.
+    expect(
+      await screen.findByText('Exported 1 goal and 2 daily entries.'),
+    ).toBeInTheDocument()
+  })
+
+  it('exports everything when the ranged backup is used with no period set', async () => {
+    await db.goals.put(makeGoal())
+    await db.dailyEntries.put(makeEntry({ date: '2026-02-15' }))
+    await db.dailyEntries.put(makeEntry({ date: '2026-03-10' }))
+    const user = userEvent.setup()
+
+    render(<ExportSection />)
+    await user.click(
+      screen.getByRole('button', { name: 'Export ranged backup' }),
+    )
+
+    expect(
+      await screen.findByText('Exported 1 goal and 2 daily entries.'),
+    ).toBeInTheDocument()
+  })
+
   it('exports a Markdown file and reports how many entries were included (#219)', async () => {
     await db.goals.put(makeGoal())
     await db.dailyEntries.put(makeEntry())

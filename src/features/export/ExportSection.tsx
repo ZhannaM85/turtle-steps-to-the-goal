@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
 import { format } from 'date-fns'
-import type { DailyEntry } from '@/domain/dailyEntry'
 import { type Dictionary, useTranslation } from '@/i18n'
 import { useFoodOverrideStore, useMealItemStore } from '@/stores'
 import { Button } from '@/shared/ui/button'
@@ -65,11 +64,11 @@ const APPLE_HEALTH_FIELDS: {
 /** #240 — Excel/CSV/Markdown only, never the JSON backup (a backup should
  * stay complete). Blank start/end means "no lower/upper bound", so leaving
  * both blank exports everything, matching the pre-#240 behavior exactly. */
-function filterByExportPeriod(
-  entries: DailyEntry[],
+function filterByExportPeriod<T extends { date: string }>(
+  entries: T[],
   start: string,
   end: string,
-): DailyEntry[] {
+): T[] {
   if (!start && !end) return entries
   return entries.filter(
     (entry) => (!start || entry.date >= start) && (!end || entry.date <= end),
@@ -80,6 +79,8 @@ type Status =
   | { kind: 'idle' }
   | { kind: 'exporting' }
   | { kind: 'exported'; goals: number; entries: number }
+  | { kind: 'exportingRangedBackup' }
+  | { kind: 'exportedRangedBackup'; goals: number; entries: number }
   | { kind: 'exportingExcel' }
   | { kind: 'exportedExcel'; goals: number; entries: number }
   | { kind: 'exportingCsv' }
@@ -167,6 +168,48 @@ export function ExportSection() {
         kind: 'exported',
         goals: bundle.goals.length,
         entries: bundle.dailyEntries.length,
+      })
+    } catch {
+      setStatus({ kind: 'error', message: t.export.exportFailed })
+    }
+  }
+
+  // #370 — reverses #240's original decision that the JSON backup should
+  // always stay complete, resolved via AskUserQuestion: rather than making
+  // the one "Export backup" button above range-aware (which would make a
+  // partial file ambiguous as an actual restore source), this is a second,
+  // clearly separate action. Filters dailyEntries/customMetricEntries (the
+  // date-scoped collections) the same way filterByExportPeriod already
+  // does for Excel/CSV/Markdown; goals and every definition/reference
+  // collection (mealItems, foodOverrides, recipes, customMetrics,
+  // customCorrelations) stay complete, same as those three exports.
+  async function handleExportRangedBackup() {
+    setStatus({ kind: 'exportingRangedBackup' })
+    try {
+      const bundle = await exportAllData()
+      const dailyEntries = filterByExportPeriod(
+        bundle.dailyEntries,
+        periodStart,
+        periodEnd,
+      )
+      const customMetricEntries = filterByExportPeriod(
+        bundle.customMetricEntries ?? [],
+        periodStart,
+        periodEnd,
+      )
+      const rangedBundle = { ...bundle, dailyEntries, customMetricEntries }
+      const json = JSON.stringify(rangedBundle, null, 2)
+      const blob = new Blob([json], { type: 'application/json' })
+      const url = URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      link.href = url
+      link.download = `turtle-steps-backup-ranged-${format(new Date(), 'yyyy-MM-dd')}.json`
+      link.click()
+      URL.revokeObjectURL(url)
+      setStatus({
+        kind: 'exportedRangedBackup',
+        goals: rangedBundle.goals.length,
+        entries: dailyEntries.length,
       })
     } catch {
       setStatus({ kind: 'error', message: t.export.exportFailed })
@@ -412,6 +455,24 @@ export function ExportSection() {
           </div>
         </div>
 
+        {/* #370 — a second, clearly separate JSON export from the always-
+         * complete one above, scoped to the period picker above. */}
+        <div className="flex flex-col gap-2">
+          <p className="text-sm text-muted-foreground">
+            {t.export.exportRangedBackupBlurb}
+          </p>
+          <Button
+            variant="outline"
+            onClick={handleExportRangedBackup}
+            className="self-start"
+            disabled={status.kind === 'exportingRangedBackup'}
+          >
+            {status.kind === 'exportingRangedBackup'
+              ? t.export.exportingRangedBackupButton
+              : t.export.exportRangedBackupButton}
+          </Button>
+        </div>
+
         <div className="flex flex-col gap-2">
           <p className="text-sm text-muted-foreground">
             {t.export.exportExcelBlurb}
@@ -596,6 +657,13 @@ export function ExportSection() {
         </div>
 
         {status.kind === 'exported' && (
+          <p className="text-sm text-muted-foreground">
+            {t.export.exportedSummary(
+              t.export.summary(status.goals, status.entries),
+            )}
+          </p>
+        )}
+        {status.kind === 'exportedRangedBackup' && (
           <p className="text-sm text-muted-foreground">
             {t.export.exportedSummary(
               t.export.summary(status.goals, status.entries),

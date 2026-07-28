@@ -583,6 +583,12 @@ export interface Dictionary {
      * own blurb/button/error copy rather than reusing the JSON ones. */
     exportPeriodLabel: string
     exportPeriodDescription: string
+    /** #370 — reverses #240's original "JSON backup always stays complete"
+     * decision: a second, clearly separate button below the period picker,
+     * not the same button becoming range-aware. */
+    exportRangedBackupBlurb: string
+    exportRangedBackupButton: string
+    exportingRangedBackupButton: string
     exportExcelBlurb: string
     exportExcelButton: string
     exportingExcelButton: string
