@@ -62,10 +62,12 @@ export function WeeklySummaryCards({
       <div className="flex flex-col gap-2">
         {weeksMostRecentFirst.map((week) => {
           const rangeLabel = t.dashboard.weekRange(
-            format(parseISO(week.weekStart), 'MMM d', {
+            format(parseISO(week.weekStart), 'MMM d, yyyy', {
               locale: dateFnsLocale,
             }),
-            format(parseISO(week.weekEnd), 'MMM d', { locale: dateFnsLocale }),
+            format(parseISO(week.weekEnd), 'MMM d, yyyy', {
+              locale: dateFnsLocale,
+            }),
           )
           const delta = week.deltaVsPriorWeekKg
           // formatNumber (not formatSignedNumber): a loss should still show

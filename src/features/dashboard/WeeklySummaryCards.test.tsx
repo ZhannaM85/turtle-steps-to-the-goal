@@ -168,6 +168,13 @@ describe('WeeklySummaryCards', () => {
     expect(screen.queryByText(/target met/)).not.toBeInTheDocument()
   })
 
+  it('shows the year in the week range label (#373)', () => {
+    const entries = [entry(dayOf(WEEK_1_START, 0), { weightKg: 80 })]
+    render(<WeeklySummaryCards entries={entries} goal={null} />)
+
+    expect(screen.getByText(/2026/)).toBeInTheDocument()
+  })
+
   it('lists weeks most-recent-first', () => {
     const week2Start = dayOf(WEEK_1_START, 7)
     const entries = [
