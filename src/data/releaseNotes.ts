@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 326,
+    issue: 384,
+    date: '2026-07-28T15:49:06+03:00',
+    en: 'Fixed the Compare Data chart showing a mostly-empty date range when a selected series had sparse data.',
+    ru: 'Исправлено: график "Сравнить данные" показывал в основном пустой диапазон дат для выбранного ряда с редкими данными.',
+  },
+  {
     version: 325,
     issue: 385,
     date: '2026-07-28T15:56:40+03:00',
