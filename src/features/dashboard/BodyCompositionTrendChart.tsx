@@ -256,7 +256,7 @@ export function BodyCompositionTrendChart({
             dataKey="date"
             tick={{ fontSize: 11, fill: 'var(--muted-foreground)' }}
             tickFormatter={(date: string) =>
-              format(parseISO(date), 'MMM d', { locale: dateFnsLocale })
+              format(parseISO(date), 'MMM d, yyyy', { locale: dateFnsLocale })
             }
             axisLine={{ stroke: 'var(--border)' }}
             tickLine={false}
