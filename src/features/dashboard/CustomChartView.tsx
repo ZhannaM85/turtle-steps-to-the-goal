@@ -654,23 +654,59 @@ export function CustomChartView({ entries, dragHandle }: CustomChartViewProps) {
                   />
                 )
               })}
-              {/* #371 — always a plain line on the shared normalized axis,
-               * regardless of isDualAxis: an unbounded user-defined list
-               * doesn't fit the fixed line/bar/dots-per-key or exactly-2
-               * real-axis logic above, a deliberate v1 scope trim. */}
-              {selectedCustomMetricIds.map((metricId, index) => (
-                <Line
-                  key={metricId}
-                  yAxisId="normalized"
-                  type="monotone"
-                  dataKey={`${metricId}_norm`}
-                  stroke={customMetricColor(index)}
-                  strokeWidth={2}
-                  dot={false}
-                  connectNulls={false}
-                  isAnimationActive={false}
-                />
-              ))}
+              {/* #371 — always plotted on the shared normalized axis,
+               * regardless of isDualAxis/isSingleAxis: an unbounded
+               * user-defined list doesn't fit the fixed-key dual/single
+               * real-axis logic above, a deliberate v1 scope trim. #391 —
+               * that trim was only ever about axis assignment, not chart
+               * type: line/bar/dots is purely a rendering choice, so it
+               * extends the same per-key toggle built-in series already
+               * have. */}
+              {selectedCustomMetricIds.map((metricId, index) => {
+                const chartType = chartTypes[metricId] ?? 'line'
+                const color = customMetricColor(index)
+                if (chartType === 'bar') {
+                  return (
+                    <Bar
+                      key={metricId}
+                      yAxisId="normalized"
+                      dataKey={`${metricId}_norm`}
+                      fill={color}
+                      radius={[2, 2, 0, 0]}
+                      maxBarSize={14}
+                      minPointSize={3}
+                      isAnimationActive={false}
+                    />
+                  )
+                }
+                if (chartType === 'dots') {
+                  return (
+                    <Line
+                      key={metricId}
+                      yAxisId="normalized"
+                      type="monotone"
+                      dataKey={`${metricId}_norm`}
+                      stroke="transparent"
+                      dot={{ r: 3, fill: color, strokeWidth: 0 }}
+                      connectNulls={false}
+                      isAnimationActive={false}
+                    />
+                  )
+                }
+                return (
+                  <Line
+                    key={metricId}
+                    yAxisId="normalized"
+                    type="monotone"
+                    dataKey={`${metricId}_norm`}
+                    stroke={color}
+                    strokeWidth={2}
+                    dot={false}
+                    connectNulls={false}
+                    isAnimationActive={false}
+                  />
+                )
+              })}
             </ComposedChart>
           </ResponsiveContainer>
           <div className="flex flex-wrap gap-4 text-xs text-muted-foreground">
@@ -743,6 +779,38 @@ export function CustomChartView({ entries, dragHandle }: CustomChartViewProps) {
                     style={{ background: customMetricColor(index) }}
                   />
                   {metric.name}
+                  <ToggleGroup
+                    type="single"
+                    aria-label={t.dashboard.customChartTypeGroupLabel(
+                      metric.name,
+                    )}
+                    value={chartTypes[metricId] ?? 'line'}
+                    onValueChange={(value) => {
+                      if (!value) return
+                      setChartType(metricId, value as ChartSeriesType)
+                    }}
+                    className="gap-0 bg-transparent p-0"
+                  >
+                    {(['line', 'bar', 'dots'] satisfies ChartSeriesType[]).map(
+                      (option) => {
+                        const Icon = CHART_TYPE_ICONS[option]
+                        const optionLabel = {
+                          line: t.dashboard.customChartTypeLine,
+                          bar: t.dashboard.customChartTypeBar,
+                          dots: t.dashboard.customChartTypeDots,
+                        }[option]
+                        return (
+                          <ToggleGroupItem
+                            key={option}
+                            value={option}
+                            aria-label={optionLabel}
+                          >
+                            <Icon aria-hidden="true" />
+                          </ToggleGroupItem>
+                        )
+                      },
+                    )}
+                  </ToggleGroup>
                 </div>
               )
             })}

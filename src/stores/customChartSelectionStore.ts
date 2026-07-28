@@ -32,11 +32,18 @@ interface CustomChartSelectionState {
    * trims, since an unbounded user-defined list doesn't fit the fixed-key
    * assumptions the dual-axis/chart-type-toggle code was built around. */
   selectedCustomMetricIds: string[]
-  chartTypes: Record<NumericSeriesKey, ChartSeriesType>
+  /** #391 — widened from `Record<NumericSeriesKey, ChartSeriesType>` so a
+   * custom metric's id can carry its own chart-type entry too (#371's v1
+   * trim only ever meant "no dual/single real-axis participation," not "no
+   * line/bar/dots choice" — that part extends cleanly since chart type is
+   * purely a rendering choice, independent of axis assignment). A metric id
+   * with no entry yet defaults to `'line'` at the read site, same as every
+   * `NumericSeriesKey` already does via `DEFAULT_CHART_TYPES` below. */
+  chartTypes: Record<string, ChartSeriesType>
   setSelectedNumeric: (keys: NumericSeriesKey[]) => void
   setSelectedBoolean: (keys: string[]) => void
   setSelectedCustomMetricIds: (ids: string[]) => void
-  setChartType: (key: NumericSeriesKey, type: ChartSeriesType) => void
+  setChartType: (key: string, type: ChartSeriesType) => void
 }
 
 /**

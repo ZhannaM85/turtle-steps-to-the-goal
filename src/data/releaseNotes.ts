@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 343,
+    issue: 391,
+    date: '2026-07-28T23:38:53+03:00',
+    en: 'Custom metrics on the Compare Data chart can now switch between line, bar, and dots too.',
+    ru: 'Собственные метрики на графике "Сравнение данных" теперь тоже можно отображать линией, столбцами или точками.',
+  },
+  {
     version: 342,
     issue: 393,
     date: '2026-07-28T23:32:46+03:00',

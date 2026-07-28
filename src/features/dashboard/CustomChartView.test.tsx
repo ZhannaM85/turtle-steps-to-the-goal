@@ -382,6 +382,32 @@ describe('CustomChartView', () => {
       expect(screen.getAllByText('Acne')).toHaveLength(2)
     })
 
+    it('offers a line/bar/dots chart-type toggle for a selected custom metric, defaulting to line (#391)', async () => {
+      const user = userEvent.setup()
+      render(<CustomChartView entries={[entry('2026-03-01', { weightKg: 80 })]} />)
+
+      await user.click(screen.getByRole('button', { name: 'Acne' }))
+
+      const acneTypes = screen.getByRole('radiogroup', {
+        name: 'Chart type for Acne',
+      })
+      expect(within(acneTypes).getByRole('radio', { name: 'Line' })).toHaveAttribute(
+        'aria-checked',
+        'true',
+      )
+
+      await user.click(within(acneTypes).getByRole('radio', { name: 'Bar' }))
+
+      expect(within(acneTypes).getByRole('radio', { name: 'Bar' })).toHaveAttribute(
+        'aria-checked',
+        'true',
+      )
+      expect(within(acneTypes).getByRole('radio', { name: 'Line' })).toHaveAttribute(
+        'aria-checked',
+        'false',
+      )
+    })
+
     it('does not show the empty-chart message when only a custom metric is selected', async () => {
       const user = userEvent.setup()
       render(<CustomChartView entries={[entry('2026-03-01', { weightKg: 80 })]} />)
