@@ -34,26 +34,63 @@ function timeToMinutes(hhmm: string): number {
   return hours * 60 + minutes
 }
 
+/**
+ * #387 — reported live: a meal logged before the configured day-start
+ * time (#298) gets filed under the *previous* calendar day's own
+ * `DailyEntry` (`effectiveDateFor`), so a real past-midnight meal (e.g.
+ * "01:22") can end up sitting alongside that day's own evening meals
+ * (e.g. "19:41"). Left as raw clock minutes, `Math.max`/`Math.min` would
+ * treat "01:22" as the *earliest* event of that day instead of what it
+ * actually was — the latest, genuinely past real midnight. Shifting any
+ * time before the cutoff forward by 24h restores its true chronological
+ * position relative to that day's other meals, regardless of which
+ * calendar day's bucket it happens to be stored under (a meal manually
+ * backdated to an early time via History, not just one filed there live,
+ * gets the same treatment — the day-start-time concept is about when a
+ * *logical* day ends, not which record happens to hold the meal).
+ */
+function adjustForDayStart(minutes: number, dayStartMinutes: number): number {
+  return minutes < dayStartMinutes ? minutes + 24 * 60 : minutes
+}
+
 /** Only `calorieEntries` is ever read here — callers that don't have a
  * full `DailyEntry` (e.g. #287's toast, working from a not-yet-saved
  * `CalorieEntry[]` for "today") can pass a bare `{ calorieEntries }`
  * instead of constructing one. */
 type EntryWithMeals = Pick<DailyEntry, 'calorieEntries'>
 
-function lastMealTimeMinutes(entry: EntryWithMeals): number | null {
+// #387 — defaults to midnight (today's existing behavior everywhere a
+// caller doesn't pass a real value) so this stays a purely additive
+// change; only #287's toast (the one actually reported) passes the
+// user's real day-start-time setting so far. `fastingWindowCorrelation`/
+// `customChartSeries.ts`'s own `fastingHours` series still assume midnight
+// — the same "correlation day-pairing... unaffected for now" scope #298
+// itself already called out, not newly introduced here.
+function lastMealTimeMinutes(
+  entry: EntryWithMeals,
+  dayStartTime: string,
+): number | null {
+  const dayStartMinutes = timeToMinutes(dayStartTime)
   const times = (entry.calorieEntries ?? [])
     .map((meal) => meal.timeEaten)
     .filter((time): time is string => time !== undefined)
-  return times.length === 0 ? null : Math.max(...times.map(timeToMinutes))
+    .map((time) => adjustForDayStart(timeToMinutes(time), dayStartMinutes))
+  return times.length === 0 ? null : Math.max(...times)
 }
 
 /** The earliest `timeEaten` logged across a day's meals, in minutes since
- * midnight — null if the day has no meals with a time recorded. */
-function earliestMealTimeMinutes(entry: EntryWithMeals): number | null {
+ * midnight (day-start-adjusted, see `adjustForDayStart`) — null if the day
+ * has no meals with a time recorded. */
+function earliestMealTimeMinutes(
+  entry: EntryWithMeals,
+  dayStartTime: string,
+): number | null {
+  const dayStartMinutes = timeToMinutes(dayStartTime)
   const times = (entry.calorieEntries ?? [])
     .map((meal) => meal.timeEaten)
     .filter((time): time is string => time !== undefined)
-  return times.length === 0 ? null : Math.min(...times.map(timeToMinutes))
+    .map((time) => adjustForDayStart(timeToMinutes(time), dayStartMinutes))
+  return times.length === 0 ? null : Math.min(...times)
 }
 
 /**
@@ -68,10 +105,11 @@ function earliestMealTimeMinutes(entry: EntryWithMeals): number | null {
 export function fastingHoursBetween(
   previousDayEntry: EntryWithMeals,
   currentDayEntry: EntryWithMeals,
+  dayStartTime = '00:00',
 ): number | null {
-  const lastMealMinutes = lastMealTimeMinutes(previousDayEntry)
+  const lastMealMinutes = lastMealTimeMinutes(previousDayEntry, dayStartTime)
   if (lastMealMinutes === null) return null
-  const earliestMinutes = earliestMealTimeMinutes(currentDayEntry)
+  const earliestMinutes = earliestMealTimeMinutes(currentDayEntry, dayStartTime)
   if (earliestMinutes === null) return null
   return (24 * 60 - lastMealMinutes + earliestMinutes) / 60
 }

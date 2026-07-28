@@ -79,6 +79,7 @@ import { Button } from '@/shared/ui/button'
 import { Input } from '@/shared/ui/input'
 import {
   useAddMealRowCollapseStore,
+  useDayStartStore,
   useFastingWindowToastStore,
   useMealItemStore,
   useMealLabelPresetStore,
@@ -1060,6 +1061,13 @@ export function MealList({
   const dismissFastingWindowToast = useFastingWindowToastStore(
     (state) => state.dismiss,
   )
+  // #387 — reported live: a meal logged before this cutoff gets filed
+  // under the *previous* day's own record (`effectiveDateFor`, #298), so
+  // without this the toast's own day-pairing math would treat that
+  // past-midnight meal as an early meal of that previous day instead of
+  // its actual latest one. See fastingWindow.ts's own `adjustForDayStart`
+  // comment for the full reasoning.
+  const dayStartTime = useDayStartStore((state) => state.dayStartTime)
   // Scoped to *this* date — guards against a toast set while editing one
   // day showing up after navigating somewhere unrelated to it.
   const fastingWindowToastHours =
@@ -1083,9 +1091,11 @@ export function MealList({
       previousDate,
     )
     if (!fetchedPreviousDayEntry) return
-    const hours = fastingHoursBetween(fetchedPreviousDayEntry, {
-      calorieEntries: nextEntries,
-    })
+    const hours = fastingHoursBetween(
+      fetchedPreviousDayEntry,
+      { calorieEntries: nextEntries },
+      dayStartTime,
+    )
     if (hours !== null) showFastingWindowToast(hours, date)
   }
 

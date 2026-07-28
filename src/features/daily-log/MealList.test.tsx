@@ -6,7 +6,12 @@ import { MemoryRouter } from 'react-router-dom'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { CalorieEntry, DailyEntry } from '@/domain/dailyEntry'
 import { db } from '@/infrastructure/persistence/indexeddb'
-import { useFastingWindowToastStore, useMealItemStore, useRecipeStore } from '@/stores'
+import {
+  useDayStartStore,
+  useFastingWindowToastStore,
+  useMealItemStore,
+  useRecipeStore,
+} from '@/stores'
 import { MealList } from './MealList'
 
 // #301 — a plain `onChange={vi.fn()}` never feeds a save back into
@@ -1708,6 +1713,55 @@ describe('MealList', () => {
       await user.click(screen.getByRole('button', { name: 'Delete' }))
 
       expect(screen.queryByText(/Your fasting window was/)).not.toBeInTheDocument()
+    })
+
+    // #387 — reported live: with a custom day-start time (#298), a
+    // past-midnight meal gets filed under the *previous* day's own record
+    // alongside its normal evening meal. Without accounting for that, the
+    // toast picked the evening meal as "the last one" (a much earlier raw
+    // clock time than the real, later past-midnight meal), computing a
+    // wildly wrong multi-hour gap instead of the true one.
+    it("uses the previous day's actual latest meal, not its earliest-by-clock-time one, once a custom day-start time is set", async () => {
+      useDayStartStore.setState({ dayStartTime: '02:00' })
+      await db.dailyEntries.put(
+        makeDailyEntry({
+          date: '2026-02-28',
+          calorieEntries: [
+            {
+              id: 'y1',
+              items: [{ id: 'yi1', amountKcal: 400 }],
+              timeEaten: '19:41',
+              createdAt: '2026-02-28T19:41:00.000Z',
+            },
+            {
+              id: 'y2',
+              items: [{ id: 'yi2', amountKcal: 650 }],
+              // A real past-midnight snack, filed under Feb 28 by
+              // effectiveDateFor() since 01:22 is before the 02:00 cutoff.
+              timeEaten: '01:22',
+              createdAt: '2026-02-28T01:22:00.000Z',
+            },
+          ],
+        }),
+      )
+      const user = userEvent.setup()
+      render(
+        <MealList calorieEntries={[]} date="2026-03-01" onChange={vi.fn()} />,
+        { wrapper: MemoryRouter },
+      )
+
+      await user.clear(screen.getByLabelText('Time'))
+      await user.type(screen.getByLabelText('Time'), '13:36')
+      await user.click(screen.getByRole('button', { name: '+ Add item' }))
+      await user.type(screen.getByLabelText('Dish name'), 'Oatmeal')
+      await user.type(screen.getByLabelText('kcal/100g'), '300')
+      await user.click(screen.getByRole('button', { name: 'Save' }))
+
+      expect(
+        await screen.findByText('Your fasting window was 12.2h.'),
+      ).toBeInTheDocument()
+
+      useDayStartStore.setState({ dayStartTime: '00:00' })
     })
   })
 
