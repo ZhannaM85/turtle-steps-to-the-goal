@@ -257,11 +257,16 @@ describe('SettingsScreen', () => {
     it('defaults the previously-unconditional fields (Sleep, Steps, etc.) to on', () => {
       renderSettings()
 
+      // #369's per-field import pickers (Zepp Life/Apple Health) also have
+      // their own "Steps" chip — scope to this toggle group specifically.
+      const trackedFieldsGroup = within(
+        screen.getByRole('toolbar', { name: 'What to track' }),
+      )
       expect(
-        screen.getByRole('button', { name: 'Sleep' }),
+        trackedFieldsGroup.getByRole('button', { name: 'Sleep' }),
       ).toHaveAttribute('aria-pressed', 'true')
       expect(
-        screen.getByRole('button', { name: 'Steps' }),
+        trackedFieldsGroup.getByRole('button', { name: 'Steps' }),
       ).toHaveAttribute('aria-pressed', 'true')
     })
 
