@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 329,
+    issue: 377,
+    date: '2026-07-28T13:23:53+03:00',
+    en: 'You can now delete logged data for a specific date range, instead of only clearing everything.',
+    ru: 'Теперь можно удалить данные за определённый период, а не только очистить всё сразу.',
+  },
+  {
     version: 328,
     issue: 375,
     date: '2026-07-28T13:50:05+03:00',
