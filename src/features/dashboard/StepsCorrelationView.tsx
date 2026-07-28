@@ -12,7 +12,11 @@ import {
 } from 'recharts'
 import type { DailyEntry } from '@/domain/dailyEntry'
 import { kgToLb } from '@/domain/goal'
-import { stepsCorrelationFromPoints, stepsPoints } from '@/domain/stats'
+import {
+  outlierBounds,
+  stepsCorrelationFromPoints,
+  stepsPoints,
+} from '@/domain/stats'
 import {
   formatNumber,
   getDateFnsLocale,
@@ -74,6 +78,21 @@ export function StepsCorrelationView({
   }))
   const outlierPoints = rawPoints.filter((_, i) => flags[i])
 
+  // #375 — reported live: a handful of extreme step counts (e.g. a
+  // double-counted day from a multi-source import) stretched the x-axis
+  // so wide that the normal <15,000-step cluster squished together
+  // unreadably. Reuses the same Tukey's-fences bounds already computing
+  // which points render red/get listed below (#224) — an extreme point
+  // still renders (Recharts clips it at the visible edge via
+  // allowDataOverflow, not delete it), it just no longer dictates the
+  // whole axis's scale. Falls back to Recharts' own 'auto' domain exactly
+  // as before when there's too little data for the bounds to mean
+  // anything (fewer than 4 points).
+  const stepsBounds = outlierBounds(rawPoints.map((p) => p.steps))
+  const xDomain: [number, number | 'auto'] = stepsBounds
+    ? [0, stepsBounds.upper]
+    : [0, 'auto']
+
   const insight = stepsCorrelationFromPoints(includedPoints)
   const expanded = insight !== null || isExpanded
 
@@ -120,6 +139,8 @@ export function StepsCorrelationView({
               type="number"
               dataKey="steps"
               name={t.dashboard.stepsCountLegend}
+              domain={xDomain}
+              allowDataOverflow
               tick={{ fontSize: 11, fill: 'var(--muted-foreground)' }}
               axisLine={{ stroke: 'var(--border)' }}
               tickLine={false}
