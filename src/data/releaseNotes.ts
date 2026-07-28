@@ -25,6 +25,20 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 323,
+    issue: 366,
+    date: '2026-07-28T00:57:23+03:00',
+    en: 'You can now import weight, body fat, waist, water, and step data from an Apple Health export file.',
+    ru: 'Теперь можно импортировать вес, процент жира, обхват талии, воду и шаги из файла экспорта Apple Health.',
+  },
+  {
+    version: 322,
+    issue: 365,
+    date: '2026-07-27T23:14:24+03:00',
+    en: 'You can now import weight, body composition, and step data from a Zepp Life export file.',
+    ru: 'Теперь можно импортировать вес, состав тела и количество шагов из файла экспорта Zepp Life.',
+  },
+  {
     version: 321,
     issue: 345,
     date: '2026-07-27T10:58:28+03:00',
