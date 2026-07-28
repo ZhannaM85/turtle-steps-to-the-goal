@@ -114,13 +114,13 @@ describe('StepsCorrelationView', () => {
       ).toBeInTheDocument()
     })
 
-    it('links the flagged outlier day to that day in History (#372)', () => {
+    it('links the flagged outlier day to that day on Today (#372, #389)', () => {
       render(<StepsCorrelationView entries={entriesWithOneOutlier()} />, { wrapper: MemoryRouter })
 
       const link = screen.getByRole('link', {
-        name: 'View 10 Mar 2026 in History',
+        name: 'Edit 10 Mar 2026',
       })
-      expect(link).toHaveAttribute('href', '/history?date=2026-03-10')
+      expect(link).toHaveAttribute('href', '/?date=2026-03-10')
     })
 
     it('excludes the flagged day from the summary once tapped', async () => {

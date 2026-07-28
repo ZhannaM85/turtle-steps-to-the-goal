@@ -523,7 +523,7 @@ export const ru: Dictionary = {
     outlierPointsHeading: 'Необычные точки данных',
     excludeOutlierLabel: (label) => `Исключить ${label} из этой закономерности`,
     restoreOutlierLabel: (label) => `Вернуть ${label} в эту закономерность`,
-    viewOutlierDayLabel: (label) => `Открыть ${label} в Истории`,
+    viewOutlierDayLabel: (label) => `Редактировать ${label}`,
     weeklyChangeLegend: 'изменение за неделю',
     chartNavigationHint: 'Нажмите на точку для подробностей',
     viewDayLink: 'Открыть этот день',

@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 347,
+    issue: 389,
+    date: '2026-07-29T01:41:30+03:00',
+    en: 'Tapping a flagged outlier date in a correlation view now opens that day on Today, ready to edit, instead of a read-only History summary.',
+    ru: 'Нажатие на отмеченную дату в графике корреляции теперь открывает этот день на экране "Сегодня" для редактирования, а не в Истории.',
+  },
+  {
     version: 346,
     issue: 396,
     date: '2026-07-29T01:18:25+03:00',

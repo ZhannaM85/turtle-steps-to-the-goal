@@ -14,11 +14,19 @@ import { Button } from '@/shared/ui/button'
  * there's nothing flagged and nothing already excluded.
  *
  * #372 — a small separate link icon next to each chip navigates to that
- * day in History, resolved via `AskUserQuestion` as a distinct action from
- * the chip's own tap-to-exclude rather than overloading that existing tap.
- * `getDate` is a separate prop from `getKey`/`formatLabel` since a couple
- * of callers key/label by `weekStart` (a week, not a single day) but still
- * have a sensible single date to navigate to (that week's start).
+ * day, resolved via `AskUserQuestion` as a distinct action from the chip's
+ * own tap-to-exclude rather than overloading that existing tap. `getDate`
+ * is a separate prop from `getKey`/`formatLabel` since a couple of callers
+ * key/label by `weekStart` (a week, not a single day) but still have a
+ * sensible single date to navigate to (that week's start).
+ *
+ * **#389**: originally targeted `/history?date=X` (same route the #41
+ * chart-tap mechanism uses), but that lands on History's read-only
+ * `DayDetail` panel — reported live as not actually landing somewhere
+ * ready to edit. Retargeted to `/?date=X` (Today), which already has a
+ * full `?date=` deep-link mechanism of its own (the same one its own
+ * Previous/Next day arrows use) and renders the complete editable
+ * `DailyEntryForm` for that date, not just a summary panel.
  */
 export function OutlierPointsList<T>({
   points,
@@ -72,7 +80,7 @@ export function OutlierPointsList<T>({
                 {label}
               </Button>
               <Link
-                to={`/history?date=${getDate(point)}`}
+                to={`/?date=${getDate(point)}`}
                 aria-label={t.dashboard.viewOutlierDayLabel(label)}
                 className="flex items-center justify-center rounded-md p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground"
               >

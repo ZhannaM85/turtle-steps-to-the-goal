@@ -127,13 +127,13 @@ describe('CorrelationView', () => {
       ).toBeInTheDocument()
     })
 
-    it("links the flagged outlier week to that week's start in History (#372)", () => {
+    it("links the flagged outlier week to that week's start on Today (#372, #389)", () => {
       render(<CorrelationView entries={entriesWithOneOutlier()} />, { wrapper: MemoryRouter })
 
       const link = screen.getByRole('link', {
-        name: 'View 6 Apr 2026 in History',
+        name: 'Edit 6 Apr 2026',
       })
-      expect(link).toHaveAttribute('href', '/history?date=2026-04-06')
+      expect(link).toHaveAttribute('href', '/?date=2026-04-06')
     })
 
     it('excludes the flagged week from the summary once tapped', async () => {
