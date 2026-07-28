@@ -59,7 +59,11 @@ export function WeeklySummaryCards({
   return (
     <div className="flex flex-col gap-3 rounded-lg border border-border p-3">
       {cardTitle}
-      <div className="flex flex-col gap-2">
+      {/* #379 — a multi-year import can add 300+ weekly cards; a
+       * max-height scrollable container (rather than pagination) keeps
+       * the list from pushing the rest of the Dashboard far down the
+       * page, without adding new interactive state of its own. */}
+      <div className="flex max-h-96 flex-col gap-2 overflow-y-auto">
         {weeksMostRecentFirst.map((week) => {
           const rangeLabel = t.dashboard.weekRange(
             format(parseISO(week.weekStart), 'MMM d, yyyy', {

@@ -63,7 +63,9 @@ export function MonthlySummaryCards({
   return (
     <div className="flex flex-col gap-3 rounded-lg border border-border p-3">
       {cardTitle}
-      <div className="flex flex-col gap-2">
+      {/* #379 — same scroll-cap treatment as WeeklySummaryCards, for the
+       * same reason (a multi-year import adds a card per calendar month). */}
+      <div className="flex max-h-96 flex-col gap-2 overflow-y-auto">
         {monthsMostRecentFirst.map((month) => {
           const monthLabel = format(parseISO(month.monthStart), 'MMMM yyyy', {
             locale: dateFnsLocale,
