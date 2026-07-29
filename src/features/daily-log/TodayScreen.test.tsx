@@ -25,6 +25,7 @@ import {
   useProfileStore,
   useSectionVisibilityStore,
   useTodayCardOrderStore,
+  useTodayStatsCollapseStore,
 } from '@/stores'
 import { TodayScreen } from './TodayScreen'
 
@@ -100,6 +101,7 @@ beforeEach(async () => {
   useDayStartStore.setState({ dayStartTime: '00:00' })
   useTodayCardOrderStore.persist.clearStorage()
   useTodayCardOrderStore.setState({ order: DEFAULT_TODAY_CARD_ORDER })
+  useTodayStatsCollapseStore.setState({ collapsed: false })
   resetSectionVisibility()
 })
 
@@ -114,6 +116,8 @@ afterEach(async () => {
   useDayStartStore.setState({ dayStartTime: '00:00' })
   useTodayCardOrderStore.persist.clearStorage()
   useTodayCardOrderStore.setState({ order: DEFAULT_TODAY_CARD_ORDER })
+  useTodayStatsCollapseStore.persist.clearStorage()
+  useTodayStatsCollapseStore.setState({ collapsed: false })
   resetSectionVisibility()
   vi.useRealTimers()
 })
@@ -746,6 +750,77 @@ describe('TodayScreen', () => {
       expect(
         await screen.findByText('Estimated daily calories (BMR): 1,420 kcal/day'),
       ).toBeInTheDocument()
+    })
+  })
+
+  describe('stats accordion (#418)', () => {
+    it('is expanded by default, showing BMI and the reorderable card group', async () => {
+      useProfileStore.setState({ heightCm: 165 })
+      await useGoalStore
+        .getState()
+        .saveGoal(makeGoal({ dailyCalorieTargetKcal: 2000 }))
+      await useDailyEntryStore.getState().saveEntry(makeEntry({ weightKg: 70 }))
+      useDailyEntryStore.setState({ entry: null, date: null, status: 'idle' })
+
+      render(
+        <MemoryRouter>
+          <TodayScreen />
+        </MemoryRouter>,
+      )
+
+      expect(
+        await screen.findByRole('button', { name: 'Hide stats' }),
+      ).toBeInTheDocument()
+      expect(screen.getByText('BMI')).toBeInTheDocument()
+      expect(screen.getByText('Remaining calories')).toBeInTheDocument()
+    })
+
+    it('collapses BMI and the reorderable card group on click, persisting the choice', async () => {
+      const user = userEvent.setup()
+      useProfileStore.setState({ heightCm: 165 })
+      await useGoalStore
+        .getState()
+        .saveGoal(makeGoal({ dailyCalorieTargetKcal: 2000 }))
+      await useDailyEntryStore.getState().saveEntry(makeEntry({ weightKg: 70 }))
+      useDailyEntryStore.setState({ entry: null, date: null, status: 'idle' })
+
+      render(
+        <MemoryRouter>
+          <TodayScreen />
+        </MemoryRouter>,
+      )
+
+      await screen.findByText('BMI')
+      await user.click(screen.getByRole('button', { name: 'Hide stats' }))
+
+      expect(screen.queryByText('BMI')).not.toBeInTheDocument()
+      expect(screen.queryByText('Remaining calories')).not.toBeInTheDocument()
+      expect(
+        screen.getByRole('button', { name: 'Show stats' }),
+      ).toBeInTheDocument()
+      expect(useTodayStatsCollapseStore.getState().collapsed).toBe(true)
+    })
+
+    it('does not affect the Goal target card or Morning entries, which stay outside the accordion', async () => {
+      const user = userEvent.setup()
+      useProfileStore.setState({ heightCm: 165 })
+      await useGoalStore
+        .getState()
+        .saveGoal(makeGoal({ dailyCalorieTargetKcal: 2000 }))
+      await useDailyEntryStore.getState().saveEntry(makeEntry({ weightKg: 70 }))
+      useDailyEntryStore.setState({ entry: null, date: null, status: 'idle' })
+
+      render(
+        <MemoryRouter>
+          <TodayScreen />
+        </MemoryRouter>,
+      )
+
+      await screen.findByText('BMI')
+      await user.click(screen.getByRole('button', { name: 'Hide stats' }))
+
+      expect(screen.getByText("This week's target")).toBeInTheDocument()
+      expect(screen.getByText('70 kg')).toBeInTheDocument()
     })
   })
 

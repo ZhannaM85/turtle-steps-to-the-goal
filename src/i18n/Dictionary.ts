@@ -126,6 +126,14 @@ export interface Dictionary {
      * `dashboard.resetSectionOrderButton`, scoped to Today's own
      * reorderable card group. */
     resetCardOrderButton: string
+    /** #418 — BMI/the two weight deltas/the reorderable card group all sit
+     * inside one collapsible section (expanded by default) so the whole
+     * block can be hidden in one tap instead of scrolling past each card.
+     * `statsSectionLabel` is the section's own visible heading; the two
+     * labels below are the toggle trigger's `aria-label` in each state. */
+    statsSectionLabel: string
+    expandStatsLabel: string
+    collapseStatsLabel: string
     /** #266/#328 — shown as each remaining-nutrient (and, since #328,
      * calories) card's `description`: total minus consumed, so the amount
      * actually consumed is visible without the reader doing that

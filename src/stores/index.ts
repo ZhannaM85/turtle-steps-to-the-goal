@@ -45,5 +45,6 @@ export {
   useTodayCardOrderStore,
   type TodayCardKey,
 } from './todayCardOrderStore'
+export { useTodayStatsCollapseStore } from './todayStatsCollapseStore'
 export { useCustomMetricStore } from './customMetricStore'
 export { useCustomCorrelationStore } from './customCorrelationStore'

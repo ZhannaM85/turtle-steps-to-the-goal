@@ -17,7 +17,13 @@ import {
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { addDays, format, parseISO } from 'date-fns'
-import { Check, ChevronLeft, ChevronRight, GripVertical } from 'lucide-react'
+import {
+  Check,
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  GripVertical,
+} from 'lucide-react'
 import { Link, useSearchParams } from 'react-router-dom'
 import {
   totalCalories,
@@ -45,6 +51,11 @@ import {
 import { formatKcal, formatMacroGrams, formatMl } from '@/shared/lib/macroDisplay'
 import { formatSleepDuration } from '@/shared/lib/sleepDuration'
 import { Button } from '@/shared/ui/button'
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from '@/shared/ui/collapsible'
 import { EmptyState } from '@/shared/ui/empty-state'
 import { InfoTooltip } from '@/shared/ui/info-tooltip'
 import { Input } from '@/shared/ui/input'
@@ -62,6 +73,7 @@ import {
   useProfileStore,
   useSectionVisibilityStore,
   useTodayCardOrderStore,
+  useTodayStatsCollapseStore,
   useUnitStore,
   type SectionKey,
   type TodayCardKey,
@@ -467,6 +479,13 @@ export function TodayScreen() {
   const cardOrder = useTodayCardOrderStore((state) => state.order)
   const setCardOrder = useTodayCardOrderStore((state) => state.setOrder)
   const resetCardOrder = useTodayCardOrderStore((state) => state.resetOrder)
+  // #418 — BMI/the two weight deltas/the reorderable group below all
+  // collapse together as one block, separate from this per-card reorder
+  // mechanism (which stays scoped to just the eight reorderable cards).
+  const statsCollapsed = useTodayStatsCollapseStore((state) => state.collapsed)
+  const setStatsCollapsed = useTodayStatsCollapseStore(
+    (state) => state.setCollapsed,
+  )
   // #359 — same reasoning as Dashboard's own reset-button fix: disable it
   // once there's nothing left to reset.
   const isDefaultCardOrder = cardOrder.every(
@@ -839,75 +858,120 @@ export function TodayScreen() {
          * bottom-of-page gate used to give it before this was split. */}
         <DailyEntryFormMorning />
 
-        {/* #415 — moved here, right after the Goal target card, from after
-         * the reorderable card group below: with most other stat cards
-         * hidden via Settings, BMI was ending up the only visible one in
-         * this whole section while still rendering last within it. */}
-        {bmiValue !== null &&
-        (sectionVisible.todayBmi ? (
-          <StatCard
-            label={t.today.bmiLabel}
-            value={formatNumber(bmiValue, locale, 1)}
-            action={statCardAction('todayBmi', t.today.bmiLabel)}
-          />
-        ) : (
-          sectionTitle('todayBmi', t.today.bmiLabel)
-        ))}
+        {/* #418 — BMI, the two weight deltas, and the reorderable card
+         * group below all collapse together as one block (expanded by
+         * default, persisted via useTodayStatsCollapseStore) — reported
+         * live as a long uninterrupted wall of stat cards between the Goal
+         * target card/Morning entries above and Meals/Water/Custom
+         * Metrics/Evening entries further down. The Goal target card,
+         * Morning entries, and the banners below all stay outside this
+         * block, unaffected. */}
+        <Collapsible
+          open={!statsCollapsed}
+          onOpenChange={(open) => setStatsCollapsed(!open)}
+        >
+          <CollapsibleTrigger asChild>
+            <button
+              type="button"
+              aria-label={
+                statsCollapsed
+                  ? t.today.expandStatsLabel
+                  : t.today.collapseStatsLabel
+              }
+              className="group flex w-full items-center justify-between rounded-lg border border-border px-3 py-2 text-sm font-medium text-muted-foreground hover:text-foreground"
+            >
+              {t.today.statsSectionLabel}
+              <ChevronDown
+                aria-hidden="true"
+                className="size-4 transition-transform group-data-[state=open]:rotate-180"
+              />
+            </button>
+          </CollapsibleTrigger>
+          <CollapsibleContent>
+            <div className="flex flex-col gap-6 pt-3">
+              {/* #415 — moved here, right after the Goal target card, from
+               * after the reorderable card group below: with most other
+               * stat cards hidden via Settings, BMI was ending up the only
+               * visible one in this whole section while still rendering
+               * last within it. */}
+              {bmiValue !== null &&
+                (sectionVisible.todayBmi ? (
+                  <StatCard
+                    label={t.today.bmiLabel}
+                    value={formatNumber(bmiValue, locale, 1)}
+                    action={statCardAction('todayBmi', t.today.bmiLabel)}
+                  />
+                ) : (
+                  sectionTitle('todayBmi', t.today.bmiLabel)
+                ))}
 
-      {weightDeltaValue !== null &&
-        (sectionVisible.todayVsYesterday ? (
-          <StatCard
-            label={t.today.vsYesterdayLabel}
-            value={weightDeltaValue}
-            unit={unitLabel(displayUnit, t)}
-            action={statCardAction('todayVsYesterday', t.today.vsYesterdayLabel)}
-          />
-        ) : (
-          sectionTitle('todayVsYesterday', t.today.vsYesterdayLabel)
-        ))}
+              {weightDeltaValue !== null &&
+                (sectionVisible.todayVsYesterday ? (
+                  <StatCard
+                    label={t.today.vsYesterdayLabel}
+                    value={weightDeltaValue}
+                    unit={unitLabel(displayUnit, t)}
+                    action={statCardAction(
+                      'todayVsYesterday',
+                      t.today.vsYesterdayLabel,
+                    )}
+                  />
+                ) : (
+                  sectionTitle('todayVsYesterday', t.today.vsYesterdayLabel)
+                ))}
 
-      {vsMaxWeightValue !== null &&
-        (sectionVisible.todayVsMaxWeight ? (
-          <StatCard
-            label={t.today.vsMaxWeightLabel}
-            value={vsMaxWeightValue}
-            unit={unitLabel(displayUnit, t)}
-            action={statCardAction('todayVsMaxWeight', t.today.vsMaxWeightLabel)}
-          />
-        ) : (
-          sectionTitle('todayVsMaxWeight', t.today.vsMaxWeightLabel)
-        ))}
+              {vsMaxWeightValue !== null &&
+                (sectionVisible.todayVsMaxWeight ? (
+                  <StatCard
+                    label={t.today.vsMaxWeightLabel}
+                    value={vsMaxWeightValue}
+                    unit={unitLabel(displayUnit, t)}
+                    action={statCardAction(
+                      'todayVsMaxWeight',
+                      t.today.vsMaxWeightLabel,
+                    )}
+                  />
+                ) : (
+                  sectionTitle('todayVsMaxWeight', t.today.vsMaxWeightLabel)
+                ))}
 
-      {/* #328 — was a 3-number CaloriesBreakdownCard (total/consumed/
-       * remaining all shown as an equation, #326); condensed to the same
-       * single-big-number + small-breakdown-description shape as the
-       * macro/water cards below, so all five "remaining" cards read the
-       * same way. CaloriesBreakdownCard's own component is now unused and
-       * was removed along with it. #343: this whole group (plus Steps/
-       * Sleep) is now user-reorderable, same on-demand drag mode #297/
-       * #319 gave Dashboard sections — see cardsByKey/cardOrder above. */}
-      <DndContext
-        sensors={cardDragSensors}
-        collisionDetection={closestCenter}
-        onDragEnd={handleCardDragEnd}
-      >
-        <SortableContext items={cardOrder} strategy={verticalListSortingStrategy}>
-          <div className="flex flex-col gap-6">
-            {cardOrder.map((key, index) =>
-              cardsByKey[key] ? (
-                <SortableTodayCard
-                  key={key}
-                  id={key}
-                  position={index + 1}
-                  isReordering={isReorderingCards}
+              {/* #328 — was a 3-number CaloriesBreakdownCard (total/consumed/
+               * remaining all shown as an equation, #326); condensed to the
+               * same single-big-number + small-breakdown-description shape
+               * as the macro/water cards below, so all five "remaining"
+               * cards read the same way. CaloriesBreakdownCard's own
+               * component is now unused and was removed along with it.
+               * #343: this whole group (plus Steps/Sleep) is now
+               * user-reorderable, same on-demand drag mode #297/#319 gave
+               * Dashboard sections — see cardsByKey/cardOrder above. */}
+              <DndContext
+                sensors={cardDragSensors}
+                collisionDetection={closestCenter}
+                onDragEnd={handleCardDragEnd}
+              >
+                <SortableContext
+                  items={cardOrder}
+                  strategy={verticalListSortingStrategy}
                 >
-                  {cardsByKey[key]}
-                </SortableTodayCard>
-              ) : null,
-            )}
-          </div>
-        </SortableContext>
-      </DndContext>
+                  <div className="flex flex-col gap-6">
+                    {cardOrder.map((key, index) =>
+                      cardsByKey[key] ? (
+                        <SortableTodayCard
+                          key={key}
+                          id={key}
+                          position={index + 1}
+                          isReordering={isReorderingCards}
+                        >
+                          {cardsByKey[key]}
+                        </SortableTodayCard>
+                      ) : null,
+                    )}
+                  </div>
+                </SortableContext>
+              </DndContext>
+            </div>
+          </CollapsibleContent>
+        </Collapsible>
 
       {showTargetMetBanner && (
         <div className="flex flex-col gap-1.5">

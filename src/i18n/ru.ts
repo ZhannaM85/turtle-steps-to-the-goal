@@ -82,6 +82,9 @@ export const ru: Dictionary = {
     reorderCardLabel: (n) => `Изменить порядок карточки ${n}`,
     reorderCardsButton: 'Порядок карточек',
     resetCardOrderButton: 'Сбросить порядок',
+    statsSectionLabel: 'Показатели',
+    expandStatsLabel: 'Показать показатели',
+    collapseStatsLabel: 'Скрыть показатели',
     targetMinusConsumedText: (target, consumed) => `${target} − ${consumed}`,
     proteinOverTargetLabel: (target, consumed) =>
       `${target} − ${consumed} — отличная работа!`,

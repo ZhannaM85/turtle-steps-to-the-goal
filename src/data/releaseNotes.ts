@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 369,
+    issue: 418,
+    date: '2026-07-29T16:58:17+03:00',
+    en: 'BMI, the weight deltas, and the remaining-nutrient cards on Today now collapse into one section you can hide in a single tap — expanded by default.',
+    ru: 'ИМТ, изменения веса и карточки оставшихся нутриентов на вкладке "Сегодня" теперь можно скрыть одним нажатием — по умолчанию раздел развёрнут.',
+  },
+  {
     version: 368,
     issue: 419,
     date: '2026-07-29T16:39:26+03:00',

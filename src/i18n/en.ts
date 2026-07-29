@@ -76,6 +76,9 @@ export const en: Dictionary = {
     reorderCardLabel: (n) => `Reorder card ${n}`,
     reorderCardsButton: 'Reorder',
     resetCardOrderButton: 'Reset order',
+    statsSectionLabel: 'Stats',
+    expandStatsLabel: 'Show stats',
+    collapseStatsLabel: 'Hide stats',
     targetMinusConsumedText: (target, consumed) => `${target} − ${consumed}`,
     proteinOverTargetLabel: (target, consumed) =>
       `${target} − ${consumed} — great job!`,
