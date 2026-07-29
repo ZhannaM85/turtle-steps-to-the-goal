@@ -7,6 +7,7 @@ import {
   totalProtein,
   totalWaterMl,
 } from '@/domain/dailyEntry'
+import type { Sex } from '@/domain/stats'
 import type { Dictionary } from '@/i18n'
 
 function mdField(value: string | number | boolean | undefined): string {
@@ -31,6 +32,7 @@ function mdRow(values: (string | number | boolean | undefined)[]): string {
 export function buildDailyLogMarkdown(
   dailyEntries: DailyEntry[],
   t: Dictionary,
+  sex?: Sex,
 ): string {
   const sortedEntries = [...dailyEntries].sort((a, b) =>
     a.date.localeCompare(b.date),
@@ -52,7 +54,7 @@ export function buildDailyLogMarkdown(
     t.exportXlsx.noteColumn,
     t.exportXlsx.onPeriodColumn,
     t.exportXlsx.hadConstipationColumn,
-    t.exportXlsx.nightEatingColumn,
+    t.exportXlsx.nightEatingColumn(sex),
     t.exportXlsx.waterColumn,
   ]
   const headerRow = mdRow(headers)

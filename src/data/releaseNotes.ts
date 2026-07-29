@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 364,
+    issue: 414,
+    date: '2026-07-29T15:36:00+03:00',
+    en: 'The "ate late tonight" export column header is now gender-correct too, matching the rest of the app.',
+    ru: 'Заголовок столбца "Ел(а) поздно вечером" в экспорте теперь тоже правильно согласован по роду, как и везде в приложении.',
+  },
+  {
     version: 363,
     issue: 415,
     date: '2026-07-29T15:26:00+03:00',

@@ -9,6 +9,7 @@ import {
   totalWaterMl,
 } from '@/domain/dailyEntry'
 import type { Goal } from '@/domain/goal'
+import type { Sex } from '@/domain/stats'
 import type { Dictionary } from '@/i18n'
 import { effectiveMealLabel } from '@/shared/lib/mealLabel'
 
@@ -36,6 +37,7 @@ export async function buildExportWorkbook(
   goals: Goal[],
   dailyEntries: DailyEntry[],
   t: Dictionary,
+  sex?: Sex,
 ): Promise<ExcelJS.Workbook> {
   const ExcelJS = (await import('exceljs')).default
   const workbook = new ExcelJS.Workbook()
@@ -71,7 +73,7 @@ export async function buildExportWorkbook(
       width: 14,
     },
     {
-      header: t.exportXlsx.nightEatingColumn,
+      header: t.exportXlsx.nightEatingColumn(sex),
       key: 'nightEating',
       width: 14,
     },

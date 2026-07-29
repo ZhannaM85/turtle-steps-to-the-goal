@@ -753,8 +753,10 @@ export interface Dictionary {
     /** #383 — the *effective* value (`hadNightEating()`, override or else
      * derived from that day's own logged meal times), not the raw
      * `nightEatingOverride` field — unlike onPeriod/hadConstipation above,
-     * night eating has no untracked/opt-in state to leave blank. */
-    nightEatingColumn: string
+     * night eating has no untracked/opt-in state to leave blank. #414 —
+     * widened to a function like `dailyEntry.nightEatingLabel` (#398/#407),
+     * so this column header is gender-correct too. */
+    nightEatingColumn: (sex?: Sex) => string
     waterColumn: string
     mealColumn: string
     itemColumn: string

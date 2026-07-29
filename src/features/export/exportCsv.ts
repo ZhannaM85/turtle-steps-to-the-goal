@@ -7,6 +7,7 @@ import {
   totalProtein,
   totalWaterMl,
 } from '@/domain/dailyEntry'
+import type { Sex } from '@/domain/stats'
 import type { Dictionary } from '@/i18n'
 
 /** UTF-8 byte-order mark — prepend to the CSV Blob so Excel correctly
@@ -40,6 +41,7 @@ function csvRow(values: (string | number | boolean | undefined)[]): string {
 export function buildDailyLogCsv(
   dailyEntries: DailyEntry[],
   t: Dictionary,
+  sex?: Sex,
 ): string {
   const sortedEntries = [...dailyEntries].sort((a, b) =>
     a.date.localeCompare(b.date),
@@ -61,7 +63,7 @@ export function buildDailyLogCsv(
     t.exportXlsx.noteColumn,
     t.exportXlsx.onPeriodColumn,
     t.exportXlsx.hadConstipationColumn,
-    t.exportXlsx.nightEatingColumn,
+    t.exportXlsx.nightEatingColumn(sex),
     t.exportXlsx.waterColumn,
   ])
   const rows = sortedEntries.map((entry) =>

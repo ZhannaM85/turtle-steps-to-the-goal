@@ -454,7 +454,12 @@ export const ru: Dictionary = {
     noteColumn: 'Заметка',
     onPeriodColumn: 'Менструация',
     hadConstipationColumn: 'Запор',
-    nightEatingColumn: 'Ел(а) поздно вечером',
+    nightEatingColumn: (sex) =>
+      sex === 'female'
+        ? 'Ела поздно вечером'
+        : sex === 'male'
+          ? 'Ел поздно вечером'
+          : 'Ел(а) поздно вечером',
     waterColumn: 'Вода (мл)',
     mealColumn: 'Приём пищи',
     itemColumn: 'Блюдо',

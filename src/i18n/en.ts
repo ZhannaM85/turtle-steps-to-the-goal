@@ -443,7 +443,7 @@ export const en: Dictionary = {
     noteColumn: 'Note',
     onPeriodColumn: 'On period',
     hadConstipationColumn: 'Constipation',
-    nightEatingColumn: 'Ate late tonight',
+    nightEatingColumn: () => 'Ate late tonight',
     waterColumn: 'Water (ml)',
     mealColumn: 'Meal',
     itemColumn: 'Item',

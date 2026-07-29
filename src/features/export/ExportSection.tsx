@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { format } from 'date-fns'
 import { type Dictionary, useTranslation } from '@/i18n'
-import { useFoodOverrideStore, useMealItemStore } from '@/stores'
+import { useFoodOverrideStore, useMealItemStore, useProfileStore } from '@/stores'
 import { Button } from '@/shared/ui/button'
 import {
   CardContent,
@@ -120,6 +120,10 @@ function formatBytes(bytes: number): string {
 
 export function ExportSection() {
   const t = useTranslation()
+  // #414 — gender-correct nightEatingColumn header (#398/#407's own
+  // pattern), same real profile sex every other consumer of that label
+  // already reads.
+  const sex = useProfileStore((state) => state.sex)
   const [status, setStatus] = useState<Status>({ kind: 'idle' })
   const fileInputRef = useRef<HTMLInputElement>(null)
   const zeppLifeFileInputRef = useRef<HTMLInputElement>(null)
@@ -240,7 +244,12 @@ export function ExportSection() {
         periodStart,
         periodEnd,
       )
-      const workbook = await buildExportWorkbook(bundle.goals, dailyEntries, t)
+      const workbook = await buildExportWorkbook(
+        bundle.goals,
+        dailyEntries,
+        t,
+        sex,
+      )
       const buffer = await workbook.xlsx.writeBuffer()
       const blob = new Blob([buffer], {
         type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
@@ -273,7 +282,7 @@ export function ExportSection() {
         periodStart,
         periodEnd,
       )
-      const csv = buildDailyLogCsv(dailyEntries, t)
+      const csv = buildDailyLogCsv(dailyEntries, t, sex)
       const blob = new Blob([CSV_BOM, csv], { type: 'text/csv' })
       const url = URL.createObjectURL(blob)
       const link = document.createElement('a')
@@ -299,7 +308,7 @@ export function ExportSection() {
         periodStart,
         periodEnd,
       )
-      const markdown = buildDailyLogMarkdown(dailyEntries, t)
+      const markdown = buildDailyLogMarkdown(dailyEntries, t, sex)
       const blob = new Blob([markdown], { type: 'text/markdown' })
       const url = URL.createObjectURL(blob)
       const link = document.createElement('a')

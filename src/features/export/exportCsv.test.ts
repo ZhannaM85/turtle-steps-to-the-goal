@@ -86,6 +86,15 @@ describe('buildDailyLogCsv', () => {
     expect(row).toContain('"Salad, with ""extra"" dressing"')
   })
 
+  it('uses the gender-correct night-eating column header when sex is given (#414)', () => {
+    const ru = getDictionary('ru')
+    const csv = buildDailyLogCsv([], ru, 'female')
+    const [header] = csv.split('\r\n')
+
+    expect(header).toContain('Ела поздно вечером')
+    expect(header).not.toContain('Ел(а)')
+  })
+
   it('sorts entries by date ascending, regardless of input order', () => {
     const entries = [
       makeEntry({ id: 'e2', date: '2026-03-02', weightKg: 79 }),
