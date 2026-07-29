@@ -176,6 +176,16 @@ export interface Dictionary {
     deepSleepDescription: (hours: string) => string
   }
   dailyEntry: {
+    /** #404 — group headers wrapping the daily-entry fields into two
+     * always-expanded (not collapsible, confirmed via `AskUserQuestion`)
+     * sections by when they're naturally filled in: Morning (Weight,
+     * Sleep, Body measurements, Body composition) and Evening (Steps,
+     * Note, Mood, Constipation, Night eating). Meals and Water stay
+     * ungrouped, matching the user's own reference mockup. */
+    morningEntriesTitle: string
+    morningEntriesSubtitle: string
+    eveningEntriesTitle: string
+    eveningEntriesSubtitle: string
     weightLabel: string
     /** Label/aria-label for the manual add row's kcal field (#96) — a
      * per-100g rate, not the total eaten; scaled by the quantity field to

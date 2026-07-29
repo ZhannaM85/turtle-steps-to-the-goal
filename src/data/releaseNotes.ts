@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 359,
+    issue: 404,
+    date: '2026-07-29T14:05:00+03:00',
+    en: 'The daily entry form now groups Weight/Sleep/Body measurements/Body composition under "Morning entries" and Steps/Note/Mood/Constipation/Night eating under "Evening entries."',
+    ru: 'Форма дневной записи теперь группирует Вес/Сон/Замеры тела/Состав тела под "Утренние записи", а Шаги/Заметку/Настроение/Запор/Позднюю еду — под "Вечерние записи".',
+  },
+  {
     version: 358,
     issue: 411,
     date: '2026-07-29T13:36:30+03:00',

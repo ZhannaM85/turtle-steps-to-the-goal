@@ -94,6 +94,10 @@ export const en: Dictionary = {
     deepSleepDescription: (hours) => `${hours} deep sleep`,
   },
   dailyEntry: {
+    morningEntriesTitle: 'Morning entries',
+    morningEntriesSubtitle: 'Fill in after waking up',
+    eveningEntriesTitle: 'Evening entries',
+    eveningEntriesSubtitle: 'Fill in before bed',
     weightLabel: 'Weight (kg)',
     addCaloriesLabel: 'kcal/100g',
     addCaloriesPortionLabel: 'kcal',

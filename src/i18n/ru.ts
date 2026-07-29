@@ -101,6 +101,10 @@ export const ru: Dictionary = {
     deepSleepDescription: (hours) => `${hours} глубокого сна`,
   },
   dailyEntry: {
+    morningEntriesTitle: 'Утренние записи',
+    morningEntriesSubtitle: 'Заполните утром после пробуждения',
+    eveningEntriesTitle: 'Вечерние записи',
+    eveningEntriesSubtitle: 'Заполните перед сном',
     weightLabel: 'Вес (кг)',
     addCaloriesLabel: 'ккал/100г',
     addCaloriesPortionLabel: 'ккал',

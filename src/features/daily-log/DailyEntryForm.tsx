@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { Check, CupSoda, GlassWater, Moon, Pencil, X } from 'lucide-react'
+import { Check, CupSoda, GlassWater, Moon, Pencil, Sun, X } from 'lucide-react'
 import { useForm, useWatch } from 'react-hook-form'
 import type { DailyEntry, Emotion } from '@/domain/dailyEntry'
 import {
@@ -441,9 +441,7 @@ export function DailyEntryForm({
   }
 
   function saveBodyComposition() {
-    const muscleResult = muscleMassKgSchema.safeParse(
-      getValues('muscleMassKg'),
-    )
+    const muscleResult = muscleMassKgSchema.safeParse(getValues('muscleMassKg'))
     const visceralResult = visceralFatRatingSchema.safeParse(
       getValues('visceralFatRating'),
     )
@@ -552,235 +550,594 @@ export function DailyEntryForm({
 
   return (
     <form onSubmit={(e) => e.preventDefault()} className="flex flex-col gap-4">
-      {showWeightAsDisplay ? (
-        <div className="flex flex-col gap-1.5">
-          <span className="text-sm font-medium">
-            {t.dailyEntry.weightLabel}
+      {/* #404 — Weight/Sleep/Body measurements/Body composition grouped
+       * under one "fill this in each morning" header, matching a reference
+       * mockup the user provided. Confirmed via AskUserQuestion:
+       * always-expanded, no collapse chevron (simpler than the mockup's
+       * own per-group collapse). */}
+      <div className="flex flex-col gap-4 rounded-lg border border-border p-3">
+        <div className="flex flex-col gap-0.5">
+          <span className="flex items-center gap-1.5 text-sm font-medium">
+            <Sun aria-hidden="true" className="size-4" />
+            {t.dailyEntry.morningEntriesTitle}
           </span>
-          <div className="flex h-12 items-center justify-between rounded-lg bg-muted px-3">
-            <span className="text-sm text-foreground">
-              {formatExactNumber(weightKg!, locale)} {t.common.kg}
-            </span>
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon-xl"
-              aria-label={t.dailyEntry.editWeightLabel}
-              onClick={() => setIsEditingWeight(true)}
-            >
-              <Pencil aria-hidden="true" />
-            </Button>
-          </div>
+          <span className="text-xs text-muted-foreground">
+            {t.dailyEntry.morningEntriesSubtitle}
+          </span>
         </div>
-      ) : (
-        <div className="flex flex-col gap-1.5">
-          <span className="text-sm font-medium">
-            {t.dailyEntry.weightLabel}
-          </span>
-          <div className="flex items-center gap-3">
-            <Input
-              type="text"
-              inputMode="decimal"
-              aria-label={t.dailyEntry.weightLabel}
-              aria-invalid={errors.weightKg ? true : undefined}
-              className="h-12 flex-1"
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') {
-                  e.preventDefault()
-                  saveWeight()
-                }
-              }}
-              {...register('weightKg', { setValueAs: parseNumberInput })}
-            />
-            <Button
-              type="button"
-              variant="outline"
-              size="icon-xl"
-              aria-label={t.dailyEntry.saveWeightLabel}
-              onClick={saveWeight}
-            >
-              <Check aria-hidden="true" />
-            </Button>
+
+        {showWeightAsDisplay ? (
+          <div className="flex flex-col gap-1.5">
+            <span className="text-sm font-medium">
+              {t.dailyEntry.weightLabel}
+            </span>
+            <div className="flex h-12 items-center justify-between rounded-lg bg-muted px-3">
+              <span className="text-sm text-foreground">
+                {formatExactNumber(weightKg!, locale)} {t.common.kg}
+              </span>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon-xl"
+                aria-label={t.dailyEntry.editWeightLabel}
+                onClick={() => setIsEditingWeight(true)}
+              >
+                <Pencil aria-hidden="true" />
+              </Button>
+            </div>
           </div>
-          {errors.weightKg && (
-            <p className="text-sm text-destructive">
-              {errors.weightKg.message}
-            </p>
-          )}
-          {/* #218: soft warning, not a hard block — weightSchema's own
-           * 20-400kg range already rejects an outright-impossible value
-           * before this ever renders; this catches a value still inside
-           * that range but unusual enough to likely be a typo (e.g. an
-           * extra digit). A second Save tap (same value) commits it
-           * anyway; Fix it just dismisses the warning to keep editing. */}
-          {pendingUnusualWeight !== null && (
-            <div className="flex flex-col gap-2">
+        ) : (
+          <div className="flex flex-col gap-1.5">
+            <span className="text-sm font-medium">
+              {t.dailyEntry.weightLabel}
+            </span>
+            <div className="flex items-center gap-3">
+              <Input
+                type="text"
+                inputMode="decimal"
+                aria-label={t.dailyEntry.weightLabel}
+                aria-invalid={errors.weightKg ? true : undefined}
+                className="h-12 flex-1"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault()
+                    saveWeight()
+                  }
+                }}
+                {...register('weightKg', { setValueAs: parseNumberInput })}
+              />
+              <Button
+                type="button"
+                variant="outline"
+                size="icon-xl"
+                aria-label={t.dailyEntry.saveWeightLabel}
+                onClick={saveWeight}
+              >
+                <Check aria-hidden="true" />
+              </Button>
+            </div>
+            {errors.weightKg && (
               <p className="text-sm text-destructive">
-                {t.dailyEntry.unusualWeightWarning}
+                {errors.weightKg.message}
               </p>
-              <div className="flex items-center gap-2">
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={saveWeight}
-                >
-                  {t.dailyEntry.saveUnusualWeightAnywayLabel}
-                </Button>
+            )}
+            {/* #218: soft warning, not a hard block — weightSchema's own
+             * 20-400kg range already rejects an outright-impossible value
+             * before this ever renders; this catches a value still inside
+             * that range but unusual enough to likely be a typo (e.g. an
+             * extra digit). A second Save tap (same value) commits it
+             * anyway; Fix it just dismisses the warning to keep editing. */}
+            {pendingUnusualWeight !== null && (
+              <div className="flex flex-col gap-2">
+                <p className="text-sm text-destructive">
+                  {t.dailyEntry.unusualWeightWarning}
+                </p>
+                <div className="flex items-center gap-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={saveWeight}
+                  >
+                    {t.dailyEntry.saveUnusualWeightAnywayLabel}
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={discardUnusualWeightWarning}
+                  >
+                    {t.dailyEntry.fixWeightLabel}
+                  </Button>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {trackedFields.sleep &&
+          (showSleepAsDisplay ? (
+            <div className="flex flex-col gap-1.5">
+              <span className="text-sm font-medium">
+                {t.dailyEntry.sleepLabel}
+              </span>
+              <div className="flex h-12 items-center justify-between rounded-lg bg-muted px-3">
+                <span className="text-sm text-foreground">
+                  {t.dailyEntry.sleepSummary(
+                    sleepHours === undefined
+                      ? '—'
+                      : `${splitHoursMinutes(sleepHours).hours}${t.dailyEntry.hoursUnit} ${splitHoursMinutes(sleepHours).minutes}${t.dailyEntry.minutesUnit}`,
+                    deepSleepHours === undefined
+                      ? '—'
+                      : `${splitHoursMinutes(deepSleepHours).hours}${t.dailyEntry.hoursUnit} ${splitHoursMinutes(deepSleepHours).minutes}${t.dailyEntry.minutesUnit}`,
+                  )}
+                </span>
                 <Button
                   type="button"
                   variant="ghost"
-                  size="sm"
-                  onClick={discardUnusualWeightWarning}
+                  size="icon-xl"
+                  aria-label={t.dailyEntry.editSleepLabel}
+                  onClick={() => {
+                    const parts = splitHoursMinutes(sleepHours)
+                    const deepParts = splitHoursMinutes(deepSleepHours)
+                    setSleepHoursPart(parts.hours)
+                    setSleepMinutesPart(parts.minutes)
+                    setDeepSleepHoursPart(deepParts.hours)
+                    setDeepSleepMinutesPart(deepParts.minutes)
+                    setIsEditingSleep(true)
+                  }}
                 >
-                  {t.dailyEntry.fixWeightLabel}
+                  <Pencil aria-hidden="true" />
                 </Button>
               </div>
             </div>
-          )}
-        </div>
-      )}
-
-      {trackedFields.sleep && (showSleepAsDisplay ? (
-        <div className="flex flex-col gap-1.5">
-          <span className="text-sm font-medium">{t.dailyEntry.sleepLabel}</span>
-          <div className="flex h-12 items-center justify-between rounded-lg bg-muted px-3">
-            <span className="text-sm text-foreground">
-              {t.dailyEntry.sleepSummary(
-                sleepHours === undefined
-                  ? '—'
-                  : `${splitHoursMinutes(sleepHours).hours}${t.dailyEntry.hoursUnit} ${splitHoursMinutes(sleepHours).minutes}${t.dailyEntry.minutesUnit}`,
-                deepSleepHours === undefined
-                  ? '—'
-                  : `${splitHoursMinutes(deepSleepHours).hours}${t.dailyEntry.hoursUnit} ${splitHoursMinutes(deepSleepHours).minutes}${t.dailyEntry.minutesUnit}`,
+          ) : (
+            <div className="flex flex-col gap-1.5">
+              <span className="text-sm font-medium">
+                {t.dailyEntry.sleepLabel}
+              </span>
+              <div className="flex flex-wrap items-end gap-3">
+                <div className="flex flex-col gap-1">
+                  <span className="text-xs text-muted-foreground">
+                    {t.dailyEntry.sleepHoursLabel}
+                  </span>
+                  <div className="flex items-center gap-1">
+                    <Input
+                      type="text"
+                      inputMode="numeric"
+                      aria-label={`${t.dailyEntry.sleepHoursLabel} — ${t.dailyEntry.hoursFieldLabel}`}
+                      aria-invalid={errors.sleepHours ? true : undefined}
+                      className="h-12 w-12"
+                      value={sleepHoursPart}
+                      onChange={(e) => setSleepHoursPart(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault()
+                          saveSleep()
+                        }
+                      }}
+                    />
+                    <span className="text-xs text-muted-foreground">
+                      {t.dailyEntry.hoursUnit}
+                    </span>
+                    <Input
+                      type="text"
+                      inputMode="numeric"
+                      aria-label={`${t.dailyEntry.sleepHoursLabel} — ${t.dailyEntry.minutesFieldLabel}`}
+                      aria-invalid={errors.sleepHours ? true : undefined}
+                      className="h-12 w-12"
+                      value={sleepMinutesPart}
+                      onChange={(e) => setSleepMinutesPart(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault()
+                          saveSleep()
+                        }
+                      }}
+                    />
+                    <span className="text-xs text-muted-foreground">
+                      {t.dailyEntry.minutesUnit}
+                    </span>
+                  </div>
+                </div>
+                <div className="flex flex-col gap-1">
+                  <span className="text-xs text-muted-foreground">
+                    {t.dailyEntry.deepSleepLabel}
+                  </span>
+                  <div className="flex items-center gap-1">
+                    <Input
+                      type="text"
+                      inputMode="numeric"
+                      aria-label={`${t.dailyEntry.deepSleepLabel} — ${t.dailyEntry.hoursFieldLabel}`}
+                      aria-invalid={errors.deepSleepHours ? true : undefined}
+                      className="h-12 w-12"
+                      value={deepSleepHoursPart}
+                      onChange={(e) => setDeepSleepHoursPart(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault()
+                          saveSleep()
+                        }
+                      }}
+                    />
+                    <span className="text-xs text-muted-foreground">
+                      {t.dailyEntry.hoursUnit}
+                    </span>
+                    <Input
+                      type="text"
+                      inputMode="numeric"
+                      aria-label={`${t.dailyEntry.deepSleepLabel} — ${t.dailyEntry.minutesFieldLabel}`}
+                      aria-invalid={errors.deepSleepHours ? true : undefined}
+                      className="h-12 w-12"
+                      value={deepSleepMinutesPart}
+                      onChange={(e) => setDeepSleepMinutesPart(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault()
+                          saveSleep()
+                        }
+                      }}
+                    />
+                    <span className="text-xs text-muted-foreground">
+                      {t.dailyEntry.minutesUnit}
+                    </span>
+                  </div>
+                </div>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="icon-xl"
+                  aria-label={t.dailyEntry.saveSleepLabel}
+                  onClick={saveSleep}
+                >
+                  <Check aria-hidden="true" />
+                </Button>
+              </div>
+              {(errors.sleepHours || errors.deepSleepHours) && (
+                <p className="text-sm text-destructive">
+                  {errors.sleepHours?.message ?? errors.deepSleepHours?.message}
+                </p>
               )}
-            </span>
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon-xl"
-              aria-label={t.dailyEntry.editSleepLabel}
-              onClick={() => {
-                const parts = splitHoursMinutes(sleepHours)
-                const deepParts = splitHoursMinutes(deepSleepHours)
-                setSleepHoursPart(parts.hours)
-                setSleepMinutesPart(parts.minutes)
-                setDeepSleepHoursPart(deepParts.hours)
-                setDeepSleepMinutesPart(deepParts.minutes)
-                setIsEditingSleep(true)
-              }}
-            >
-              <Pencil aria-hidden="true" />
-            </Button>
-          </div>
-        </div>
-      ) : (
-        <div className="flex flex-col gap-1.5">
-          <span className="text-sm font-medium">{t.dailyEntry.sleepLabel}</span>
-          <div className="flex flex-wrap items-end gap-3">
-            <div className="flex flex-col gap-1">
-              <span className="text-xs text-muted-foreground">
-                {t.dailyEntry.sleepHoursLabel}
+            </div>
+          ))}
+
+        {/* #225: waist/hip/body fat bundled under one edit toggle, same
+         * shape as the Sleep block above (one label, one Save button, several
+         * sub-inputs) rather than three separate top-level fields — these are
+         * all "the same kind of thing" (an occasional body measurement), so
+         * a user updating one is likely updating the others at the same time.
+         * #404: moved here from below Steps, into the Morning group, alongside
+         * Body composition — both are physical measurements typically taken
+         * in the morning, same as Weight. */}
+        {trackedFields.bodyMeasurements &&
+          (showBodyMeasurementsAsDisplay ? (
+            <div className="flex flex-col gap-1.5">
+              <span className="text-sm font-medium">
+                {t.dailyEntry.bodyMeasurementsLabel}
               </span>
-              <div className="flex items-center gap-1">
-                <Input
-                  type="text"
-                  inputMode="numeric"
-                  aria-label={`${t.dailyEntry.sleepHoursLabel} — ${t.dailyEntry.hoursFieldLabel}`}
-                  aria-invalid={errors.sleepHours ? true : undefined}
-                  className="h-12 w-12"
-                  value={sleepHoursPart}
-                  onChange={(e) => setSleepHoursPart(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
-                      e.preventDefault()
-                      saveSleep()
-                    }
-                  }}
-                />
-                <span className="text-xs text-muted-foreground">
-                  {t.dailyEntry.hoursUnit}
+              <div className="flex h-12 items-center justify-between rounded-lg bg-muted px-3">
+                <span className="text-sm text-foreground">
+                  {t.dailyEntry.bodyMeasurementsSummary(
+                    waistCm === undefined
+                      ? '—'
+                      : `${formatExactNumber(waistCm, locale)}${t.dailyEntry.cmUnit}`,
+                    hipCm === undefined
+                      ? '—'
+                      : `${formatExactNumber(hipCm, locale)}${t.dailyEntry.cmUnit}`,
+                  )}
                 </span>
-                <Input
-                  type="text"
-                  inputMode="numeric"
-                  aria-label={`${t.dailyEntry.sleepHoursLabel} — ${t.dailyEntry.minutesFieldLabel}`}
-                  aria-invalid={errors.sleepHours ? true : undefined}
-                  className="h-12 w-12"
-                  value={sleepMinutesPart}
-                  onChange={(e) => setSleepMinutesPart(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
-                      e.preventDefault()
-                      saveSleep()
-                    }
-                  }}
-                />
-                <span className="text-xs text-muted-foreground">
-                  {t.dailyEntry.minutesUnit}
-                </span>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon-xl"
+                  aria-label={t.dailyEntry.editBodyMeasurementsLabel}
+                  onClick={() => setIsEditingBodyMeasurements(true)}
+                >
+                  <Pencil aria-hidden="true" />
+                </Button>
               </div>
             </div>
-            <div className="flex flex-col gap-1">
-              <span className="text-xs text-muted-foreground">
-                {t.dailyEntry.deepSleepLabel}
+          ) : (
+            <div className="flex flex-col gap-1.5">
+              <span className="text-sm font-medium">
+                {t.dailyEntry.bodyMeasurementsLabel}
               </span>
-              <div className="flex items-center gap-1">
-                <Input
-                  type="text"
-                  inputMode="numeric"
-                  aria-label={`${t.dailyEntry.deepSleepLabel} — ${t.dailyEntry.hoursFieldLabel}`}
-                  aria-invalid={errors.deepSleepHours ? true : undefined}
-                  className="h-12 w-12"
-                  value={deepSleepHoursPart}
-                  onChange={(e) => setDeepSleepHoursPart(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
-                      e.preventDefault()
-                      saveSleep()
-                    }
-                  }}
-                />
-                <span className="text-xs text-muted-foreground">
-                  {t.dailyEntry.hoursUnit}
+              <div className="flex flex-wrap items-end gap-3">
+                <div className="flex flex-col gap-1">
+                  <span className="text-xs text-muted-foreground">
+                    {t.dailyEntry.waistLabel}
+                  </span>
+                  <div className="flex items-center gap-1">
+                    <Input
+                      type="text"
+                      inputMode="decimal"
+                      aria-label={`${t.dailyEntry.waistLabel} (${t.dailyEntry.cmUnit})`}
+                      aria-invalid={errors.waistCm ? true : undefined}
+                      className="h-12 w-16"
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault()
+                          saveBodyMeasurements()
+                        }
+                      }}
+                      {...register('waistCm', { setValueAs: parseNumberInput })}
+                    />
+                    <span className="text-xs text-muted-foreground">
+                      {t.dailyEntry.cmUnit}
+                    </span>
+                  </div>
+                </div>
+                <div className="flex flex-col gap-1">
+                  <span className="text-xs text-muted-foreground">
+                    {t.dailyEntry.hipLabel}
+                  </span>
+                  <div className="flex items-center gap-1">
+                    <Input
+                      type="text"
+                      inputMode="decimal"
+                      aria-label={`${t.dailyEntry.hipLabel} (${t.dailyEntry.cmUnit})`}
+                      aria-invalid={errors.hipCm ? true : undefined}
+                      className="h-12 w-16"
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault()
+                          saveBodyMeasurements()
+                        }
+                      }}
+                      {...register('hipCm', { setValueAs: parseNumberInput })}
+                    />
+                    <span className="text-xs text-muted-foreground">
+                      {t.dailyEntry.cmUnit}
+                    </span>
+                  </div>
+                </div>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="icon-xl"
+                  aria-label={t.dailyEntry.saveBodyMeasurementsLabel}
+                  onClick={saveBodyMeasurements}
+                >
+                  <Check aria-hidden="true" />
+                </Button>
+              </div>
+              {(errors.waistCm || errors.hipCm) && (
+                <p className="text-sm text-destructive">
+                  {errors.waistCm?.message ?? errors.hipCm?.message}
+                </p>
+              )}
+            </div>
+          ))}
+
+        {/* #233: muscle mass/visceral fat/body water/bone mass bundled
+         * under one edit toggle, same shape as Body measurements above —
+         * a distinct group since these come from a smart scale, not a
+         * tape measure/caliper, but the same "occasional related numbers"
+         * reasoning applies. Manual entry only, no device integration. */}
+        {trackedFields.bodyComposition &&
+          (showBodyCompositionAsDisplay ? (
+            <div className="flex flex-col gap-1.5">
+              <span className="text-sm font-medium">
+                {t.dailyEntry.bodyCompositionLabel}
+              </span>
+              <div className="flex h-12 items-center justify-between rounded-lg bg-muted px-3">
+                <span className="text-sm text-foreground">
+                  {t.dailyEntry.bodyCompositionSummary(
+                    muscleMassKg === undefined
+                      ? '—'
+                      : `${formatExactNumber(muscleMassKg, locale)}${t.dailyEntry.kgUnit}`,
+                    visceralFatRating === undefined
+                      ? '—'
+                      : formatExactNumber(visceralFatRating, locale),
+                    bodyWaterPercent === undefined
+                      ? '—'
+                      : `${formatExactNumber(bodyWaterPercent, locale)}${t.dailyEntry.percentUnit}`,
+                    boneMassKg === undefined
+                      ? '—'
+                      : `${formatExactNumber(boneMassKg, locale)}${t.dailyEntry.kgUnit}`,
+                    bodyFatPercent === undefined
+                      ? '—'
+                      : `${formatExactNumber(bodyFatPercent, locale)}${t.dailyEntry.percentUnit}`,
+                  )}
                 </span>
-                <Input
-                  type="text"
-                  inputMode="numeric"
-                  aria-label={`${t.dailyEntry.deepSleepLabel} — ${t.dailyEntry.minutesFieldLabel}`}
-                  aria-invalid={errors.deepSleepHours ? true : undefined}
-                  className="h-12 w-12"
-                  value={deepSleepMinutesPart}
-                  onChange={(e) => setDeepSleepMinutesPart(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
-                      e.preventDefault()
-                      saveSleep()
-                    }
-                  }}
-                />
-                <span className="text-xs text-muted-foreground">
-                  {t.dailyEntry.minutesUnit}
-                </span>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon-xl"
+                  aria-label={t.dailyEntry.editBodyCompositionLabel}
+                  onClick={() => setIsEditingBodyComposition(true)}
+                >
+                  <Pencil aria-hidden="true" />
+                </Button>
               </div>
             </div>
-            <Button
-              type="button"
-              variant="outline"
-              size="icon-xl"
-              aria-label={t.dailyEntry.saveSleepLabel}
-              onClick={saveSleep}
-            >
-              <Check aria-hidden="true" />
-            </Button>
-          </div>
-          {(errors.sleepHours || errors.deepSleepHours) && (
-            <p className="text-sm text-destructive">
-              {errors.sleepHours?.message ?? errors.deepSleepHours?.message}
-            </p>
-          )}
-        </div>
-      ))}
+          ) : (
+            <div className="flex flex-col gap-1.5">
+              <span className="text-sm font-medium">
+                {t.dailyEntry.bodyCompositionLabel}
+              </span>
+              <div className="flex flex-wrap items-end gap-3">
+                <div className="flex flex-col gap-1">
+                  <span className="text-xs text-muted-foreground">
+                    {t.dailyEntry.muscleMassLabel}
+                  </span>
+                  <div className="flex items-center gap-1">
+                    <Input
+                      type="text"
+                      inputMode="decimal"
+                      aria-label={`${t.dailyEntry.muscleMassLabel} (${t.dailyEntry.kgUnit})`}
+                      aria-invalid={errors.muscleMassKg ? true : undefined}
+                      className="h-12 w-16"
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault()
+                          saveBodyComposition()
+                        }
+                      }}
+                      {...register('muscleMassKg', {
+                        setValueAs: parseNumberInput,
+                      })}
+                    />
+                    <span className="text-xs text-muted-foreground">
+                      {t.dailyEntry.kgUnit}
+                    </span>
+                  </div>
+                </div>
+                <div className="flex flex-col gap-1">
+                  <span className="text-xs text-muted-foreground">
+                    {t.dailyEntry.visceralFatLabel}
+                  </span>
+                  <div className="flex items-center gap-1">
+                    <Input
+                      type="text"
+                      inputMode="decimal"
+                      aria-label={t.dailyEntry.visceralFatLabel}
+                      aria-invalid={errors.visceralFatRating ? true : undefined}
+                      className="h-12 w-16"
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault()
+                          saveBodyComposition()
+                        }
+                      }}
+                      {...register('visceralFatRating', {
+                        setValueAs: parseNumberInput,
+                      })}
+                    />
+                  </div>
+                </div>
+                <div className="flex flex-col gap-1">
+                  <span className="text-xs text-muted-foreground">
+                    {t.dailyEntry.bodyWaterLabel}
+                  </span>
+                  <div className="flex items-center gap-1">
+                    <Input
+                      type="text"
+                      inputMode="decimal"
+                      aria-label={`${t.dailyEntry.bodyWaterLabel} (${t.dailyEntry.percentUnit})`}
+                      aria-invalid={errors.bodyWaterPercent ? true : undefined}
+                      className="h-12 w-16"
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault()
+                          saveBodyComposition()
+                        }
+                      }}
+                      {...register('bodyWaterPercent', {
+                        setValueAs: parseNumberInput,
+                      })}
+                    />
+                    <span className="text-xs text-muted-foreground">
+                      {t.dailyEntry.percentUnit}
+                    </span>
+                  </div>
+                </div>
+                <div className="flex flex-col gap-1">
+                  <span className="text-xs text-muted-foreground">
+                    {t.dailyEntry.boneMassLabel}
+                  </span>
+                  <div className="flex items-center gap-1">
+                    <Input
+                      type="text"
+                      inputMode="decimal"
+                      aria-label={`${t.dailyEntry.boneMassLabel} (${t.dailyEntry.kgUnit})`}
+                      aria-invalid={errors.boneMassKg ? true : undefined}
+                      className="h-12 w-16"
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault()
+                          saveBodyComposition()
+                        }
+                      }}
+                      {...register('boneMassKg', {
+                        setValueAs: parseNumberInput,
+                      })}
+                    />
+                    <span className="text-xs text-muted-foreground">
+                      {t.dailyEntry.kgUnit}
+                    </span>
+                  </div>
+                </div>
+                <div className="flex flex-col gap-1">
+                  <span className="text-xs text-muted-foreground">
+                    {t.dailyEntry.bodyFatLabel}
+                  </span>
+                  <div className="flex items-center gap-1">
+                    <Input
+                      type="text"
+                      inputMode="decimal"
+                      aria-label={`${t.dailyEntry.bodyFatLabel} (${t.dailyEntry.percentUnit})`}
+                      aria-invalid={errors.bodyFatPercent ? true : undefined}
+                      className="h-12 w-16"
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault()
+                          saveBodyComposition()
+                        }
+                      }}
+                      {...register('bodyFatPercent', {
+                        setValueAs: parseNumberInput,
+                      })}
+                    />
+                    <span className="text-xs text-muted-foreground">
+                      {t.dailyEntry.percentUnit}
+                    </span>
+                  </div>
+                </div>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="icon-xl"
+                  aria-label={t.dailyEntry.saveBodyCompositionLabel}
+                  onClick={saveBodyComposition}
+                >
+                  <Check aria-hidden="true" />
+                </Button>
+              </div>
+              {(errors.muscleMassKg ||
+                errors.visceralFatRating ||
+                errors.bodyWaterPercent ||
+                errors.boneMassKg ||
+                errors.bodyFatPercent) && (
+                <p className="text-sm text-destructive">
+                  {errors.muscleMassKg?.message ??
+                    errors.visceralFatRating?.message ??
+                    errors.bodyWaterPercent?.message ??
+                    errors.boneMassKg?.message ??
+                    errors.bodyFatPercent?.message}
+                </p>
+              )}
+              {/* #401 — same soft-warning shape as weight's own above: a second
+               * Save tap on unchanged values commits anyway, Fix it just
+               * dismisses to keep editing. */}
+              {pendingUnusualBodyComposition !== null && (
+                <div className="flex flex-col gap-2">
+                  <p className="text-sm text-destructive">
+                    {t.dailyEntry.unusualBodyCompositionWarning}
+                  </p>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={saveBodyComposition}
+                    >
+                      {t.dailyEntry.saveUnusualBodyCompositionAnywayLabel}
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={discardUnusualBodyCompositionWarning}
+                    >
+                      {t.dailyEntry.fixBodyCompositionLabel}
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </div>
+          ))}
+      </div>
 
       <div className="flex flex-col gap-1.5">
         {/* #218: a quiet inline note, not a blocking confirm — a day's
@@ -832,478 +1189,241 @@ export function DailyEntryForm({
         />
       </div>
 
-      {/* Moved here, next to the Day note, rather than up with the other
-       * morning fields (#101) — unlike Weight/Sleep, step count usually
-       * isn't known until later in the day, so its old position up top
-       * implied it should be filled in at the same time as those. */}
-      {trackedFields.steps && (showStepsAsDisplay ? (
-        <div className="flex flex-col gap-1.5">
-          <span className="text-sm font-medium">{t.dailyEntry.stepsLabel}</span>
-          <div className="flex h-12 items-center justify-between rounded-lg bg-muted px-3">
-            <span className="text-sm text-foreground">
-              {steps === undefined ? '—' : formatNumber(steps, locale, 0)}
-            </span>
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon-xl"
-              aria-label={t.dailyEntry.editStepsLabel}
-              onClick={() => setIsEditingSteps(true)}
-            >
-              <Pencil aria-hidden="true" />
-            </Button>
-          </div>
+      {/* #404 — Steps/Note/Mood/Constipation/Night eating grouped under
+       * one "fill this in each evening" header, the counterpart to the
+       * Morning group above. Same always-expanded (not collapsible)
+       * treatment. */}
+      <div className="flex flex-col gap-4 rounded-lg border border-border p-3">
+        <div className="flex flex-col gap-0.5">
+          <span className="flex items-center gap-1.5 text-sm font-medium">
+            <Moon aria-hidden="true" className="size-4" />
+            {t.dailyEntry.eveningEntriesTitle}
+          </span>
+          <span className="text-xs text-muted-foreground">
+            {t.dailyEntry.eveningEntriesSubtitle}
+          </span>
         </div>
-      ) : (
-        <div className="flex flex-col gap-1.5">
-          <span className="text-sm font-medium">{t.dailyEntry.stepsLabel}</span>
-          <div className="flex items-center gap-3">
-            <Input
-              type="text"
-              inputMode="numeric"
-              aria-label={t.dailyEntry.stepsLabel}
-              aria-invalid={errors.steps ? true : undefined}
-              className="h-12 w-24"
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') {
-                  e.preventDefault()
-                  saveSteps()
-                }
-              }}
-              {...register('steps', { setValueAs: parseNumberInput })}
-            />
-            <Button
-              type="button"
-              variant="outline"
-              size="icon-xl"
-              aria-label={t.dailyEntry.saveStepsLabel}
-              onClick={saveSteps}
-            >
-              <Check aria-hidden="true" />
-            </Button>
-          </div>
-          {errors.steps && (
-            <p className="text-sm text-destructive">{errors.steps.message}</p>
-          )}
-        </div>
-      ))}
 
-      {/* #225: waist/hip/body fat bundled under one edit toggle, same
-       * shape as the Sleep block above (one label, one Save button, several
-       * sub-inputs) rather than three separate top-level fields — these are
-       * all "the same kind of thing" (an occasional body measurement), so
-       * a user updating one is likely updating the others at the same time. */}
-      {trackedFields.bodyMeasurements && (showBodyMeasurementsAsDisplay ? (
-        <div className="flex flex-col gap-1.5">
-          <span className="text-sm font-medium">
-            {t.dailyEntry.bodyMeasurementsLabel}
-          </span>
-          <div className="flex h-12 items-center justify-between rounded-lg bg-muted px-3">
-            <span className="text-sm text-foreground">
-              {t.dailyEntry.bodyMeasurementsSummary(
-                waistCm === undefined
-                  ? '—'
-                  : `${formatExactNumber(waistCm, locale)}${t.dailyEntry.cmUnit}`,
-                hipCm === undefined
-                  ? '—'
-                  : `${formatExactNumber(hipCm, locale)}${t.dailyEntry.cmUnit}`,
-              )}
-            </span>
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon-xl"
-              aria-label={t.dailyEntry.editBodyMeasurementsLabel}
-              onClick={() => setIsEditingBodyMeasurements(true)}
-            >
-              <Pencil aria-hidden="true" />
-            </Button>
-          </div>
-        </div>
-      ) : (
-        <div className="flex flex-col gap-1.5">
-          <span className="text-sm font-medium">
-            {t.dailyEntry.bodyMeasurementsLabel}
-          </span>
-          <div className="flex flex-wrap items-end gap-3">
-            <div className="flex flex-col gap-1">
-              <span className="text-xs text-muted-foreground">
-                {t.dailyEntry.waistLabel}
+        {trackedFields.steps &&
+          (showStepsAsDisplay ? (
+            <div className="flex flex-col gap-1.5">
+              <span className="text-sm font-medium">
+                {t.dailyEntry.stepsLabel}
               </span>
-              <div className="flex items-center gap-1">
-                <Input
-                  type="text"
-                  inputMode="decimal"
-                  aria-label={`${t.dailyEntry.waistLabel} (${t.dailyEntry.cmUnit})`}
-                  aria-invalid={errors.waistCm ? true : undefined}
-                  className="h-12 w-16"
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
-                      e.preventDefault()
-                      saveBodyMeasurements()
-                    }
-                  }}
-                  {...register('waistCm', { setValueAs: parseNumberInput })}
-                />
-                <span className="text-xs text-muted-foreground">
-                  {t.dailyEntry.cmUnit}
+              <div className="flex h-12 items-center justify-between rounded-lg bg-muted px-3">
+                <span className="text-sm text-foreground">
+                  {steps === undefined ? '—' : formatNumber(steps, locale, 0)}
                 </span>
-              </div>
-            </div>
-            <div className="flex flex-col gap-1">
-              <span className="text-xs text-muted-foreground">
-                {t.dailyEntry.hipLabel}
-              </span>
-              <div className="flex items-center gap-1">
-                <Input
-                  type="text"
-                  inputMode="decimal"
-                  aria-label={`${t.dailyEntry.hipLabel} (${t.dailyEntry.cmUnit})`}
-                  aria-invalid={errors.hipCm ? true : undefined}
-                  className="h-12 w-16"
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
-                      e.preventDefault()
-                      saveBodyMeasurements()
-                    }
-                  }}
-                  {...register('hipCm', { setValueAs: parseNumberInput })}
-                />
-                <span className="text-xs text-muted-foreground">
-                  {t.dailyEntry.cmUnit}
-                </span>
-              </div>
-            </div>
-            <Button
-              type="button"
-              variant="outline"
-              size="icon-xl"
-              aria-label={t.dailyEntry.saveBodyMeasurementsLabel}
-              onClick={saveBodyMeasurements}
-            >
-              <Check aria-hidden="true" />
-            </Button>
-          </div>
-          {(errors.waistCm || errors.hipCm) && (
-            <p className="text-sm text-destructive">
-              {errors.waistCm?.message ?? errors.hipCm?.message}
-            </p>
-          )}
-        </div>
-      ))}
-
-      {/* #233: muscle mass/visceral fat/body water/bone mass bundled
-       * under one edit toggle, same shape as Body measurements above —
-       * a distinct group since these come from a smart scale, not a
-       * tape measure/caliper, but the same "occasional related numbers"
-       * reasoning applies. Manual entry only, no device integration. */}
-      {trackedFields.bodyComposition && (showBodyCompositionAsDisplay ? (
-        <div className="flex flex-col gap-1.5">
-          <span className="text-sm font-medium">
-            {t.dailyEntry.bodyCompositionLabel}
-          </span>
-          <div className="flex h-12 items-center justify-between rounded-lg bg-muted px-3">
-            <span className="text-sm text-foreground">
-              {t.dailyEntry.bodyCompositionSummary(
-                muscleMassKg === undefined
-                  ? '—'
-                  : `${formatExactNumber(muscleMassKg, locale)}${t.dailyEntry.kgUnit}`,
-                visceralFatRating === undefined
-                  ? '—'
-                  : formatExactNumber(visceralFatRating, locale),
-                bodyWaterPercent === undefined
-                  ? '—'
-                  : `${formatExactNumber(bodyWaterPercent, locale)}${t.dailyEntry.percentUnit}`,
-                boneMassKg === undefined
-                  ? '—'
-                  : `${formatExactNumber(boneMassKg, locale)}${t.dailyEntry.kgUnit}`,
-                bodyFatPercent === undefined
-                  ? '—'
-                  : `${formatExactNumber(bodyFatPercent, locale)}${t.dailyEntry.percentUnit}`,
-              )}
-            </span>
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon-xl"
-              aria-label={t.dailyEntry.editBodyCompositionLabel}
-              onClick={() => setIsEditingBodyComposition(true)}
-            >
-              <Pencil aria-hidden="true" />
-            </Button>
-          </div>
-        </div>
-      ) : (
-        <div className="flex flex-col gap-1.5">
-          <span className="text-sm font-medium">
-            {t.dailyEntry.bodyCompositionLabel}
-          </span>
-          <div className="flex flex-wrap items-end gap-3">
-            <div className="flex flex-col gap-1">
-              <span className="text-xs text-muted-foreground">
-                {t.dailyEntry.muscleMassLabel}
-              </span>
-              <div className="flex items-center gap-1">
-                <Input
-                  type="text"
-                  inputMode="decimal"
-                  aria-label={`${t.dailyEntry.muscleMassLabel} (${t.dailyEntry.kgUnit})`}
-                  aria-invalid={errors.muscleMassKg ? true : undefined}
-                  className="h-12 w-16"
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
-                      e.preventDefault()
-                      saveBodyComposition()
-                    }
-                  }}
-                  {...register('muscleMassKg', { setValueAs: parseNumberInput })}
-                />
-                <span className="text-xs text-muted-foreground">
-                  {t.dailyEntry.kgUnit}
-                </span>
-              </div>
-            </div>
-            <div className="flex flex-col gap-1">
-              <span className="text-xs text-muted-foreground">
-                {t.dailyEntry.visceralFatLabel}
-              </span>
-              <div className="flex items-center gap-1">
-                <Input
-                  type="text"
-                  inputMode="decimal"
-                  aria-label={t.dailyEntry.visceralFatLabel}
-                  aria-invalid={errors.visceralFatRating ? true : undefined}
-                  className="h-12 w-16"
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
-                      e.preventDefault()
-                      saveBodyComposition()
-                    }
-                  }}
-                  {...register('visceralFatRating', {
-                    setValueAs: parseNumberInput,
-                  })}
-                />
-              </div>
-            </div>
-            <div className="flex flex-col gap-1">
-              <span className="text-xs text-muted-foreground">
-                {t.dailyEntry.bodyWaterLabel}
-              </span>
-              <div className="flex items-center gap-1">
-                <Input
-                  type="text"
-                  inputMode="decimal"
-                  aria-label={`${t.dailyEntry.bodyWaterLabel} (${t.dailyEntry.percentUnit})`}
-                  aria-invalid={errors.bodyWaterPercent ? true : undefined}
-                  className="h-12 w-16"
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
-                      e.preventDefault()
-                      saveBodyComposition()
-                    }
-                  }}
-                  {...register('bodyWaterPercent', {
-                    setValueAs: parseNumberInput,
-                  })}
-                />
-                <span className="text-xs text-muted-foreground">
-                  {t.dailyEntry.percentUnit}
-                </span>
-              </div>
-            </div>
-            <div className="flex flex-col gap-1">
-              <span className="text-xs text-muted-foreground">
-                {t.dailyEntry.boneMassLabel}
-              </span>
-              <div className="flex items-center gap-1">
-                <Input
-                  type="text"
-                  inputMode="decimal"
-                  aria-label={`${t.dailyEntry.boneMassLabel} (${t.dailyEntry.kgUnit})`}
-                  aria-invalid={errors.boneMassKg ? true : undefined}
-                  className="h-12 w-16"
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
-                      e.preventDefault()
-                      saveBodyComposition()
-                    }
-                  }}
-                  {...register('boneMassKg', { setValueAs: parseNumberInput })}
-                />
-                <span className="text-xs text-muted-foreground">
-                  {t.dailyEntry.kgUnit}
-                </span>
-              </div>
-            </div>
-            <div className="flex flex-col gap-1">
-              <span className="text-xs text-muted-foreground">
-                {t.dailyEntry.bodyFatLabel}
-              </span>
-              <div className="flex items-center gap-1">
-                <Input
-                  type="text"
-                  inputMode="decimal"
-                  aria-label={`${t.dailyEntry.bodyFatLabel} (${t.dailyEntry.percentUnit})`}
-                  aria-invalid={errors.bodyFatPercent ? true : undefined}
-                  className="h-12 w-16"
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
-                      e.preventDefault()
-                      saveBodyComposition()
-                    }
-                  }}
-                  {...register('bodyFatPercent', {
-                    setValueAs: parseNumberInput,
-                  })}
-                />
-                <span className="text-xs text-muted-foreground">
-                  {t.dailyEntry.percentUnit}
-                </span>
-              </div>
-            </div>
-            <Button
-              type="button"
-              variant="outline"
-              size="icon-xl"
-              aria-label={t.dailyEntry.saveBodyCompositionLabel}
-              onClick={saveBodyComposition}
-            >
-              <Check aria-hidden="true" />
-            </Button>
-          </div>
-          {(errors.muscleMassKg ||
-            errors.visceralFatRating ||
-            errors.bodyWaterPercent ||
-            errors.boneMassKg ||
-            errors.bodyFatPercent) && (
-            <p className="text-sm text-destructive">
-              {errors.muscleMassKg?.message ??
-                errors.visceralFatRating?.message ??
-                errors.bodyWaterPercent?.message ??
-                errors.boneMassKg?.message ??
-                errors.bodyFatPercent?.message}
-            </p>
-          )}
-          {/* #401 — same soft-warning shape as weight's own above: a second
-           * Save tap on unchanged values commits anyway, Fix it just
-           * dismisses to keep editing. */}
-          {pendingUnusualBodyComposition !== null && (
-            <div className="flex flex-col gap-2">
-              <p className="text-sm text-destructive">
-                {t.dailyEntry.unusualBodyCompositionWarning}
-              </p>
-              <div className="flex items-center gap-2">
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={saveBodyComposition}
-                >
-                  {t.dailyEntry.saveUnusualBodyCompositionAnywayLabel}
-                </Button>
                 <Button
                   type="button"
                   variant="ghost"
-                  size="sm"
-                  onClick={discardUnusualBodyCompositionWarning}
+                  size="icon-xl"
+                  aria-label={t.dailyEntry.editStepsLabel}
+                  onClick={() => setIsEditingSteps(true)}
                 >
-                  {t.dailyEntry.fixBodyCompositionLabel}
+                  <Pencil aria-hidden="true" />
                 </Button>
               </div>
             </div>
-          )}
-        </div>
-      ))}
+          ) : (
+            <div className="flex flex-col gap-1.5">
+              <span className="text-sm font-medium">
+                {t.dailyEntry.stepsLabel}
+              </span>
+              <div className="flex items-center gap-3">
+                <Input
+                  type="text"
+                  inputMode="numeric"
+                  aria-label={t.dailyEntry.stepsLabel}
+                  aria-invalid={errors.steps ? true : undefined}
+                  className="h-12 w-24"
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault()
+                      saveSteps()
+                    }
+                  }}
+                  {...register('steps', { setValueAs: parseNumberInput })}
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="icon-xl"
+                  aria-label={t.dailyEntry.saveStepsLabel}
+                  onClick={saveSteps}
+                >
+                  <Check aria-hidden="true" />
+                </Button>
+              </div>
+              {errors.steps && (
+                <p className="text-sm text-destructive">
+                  {errors.steps.message}
+                </p>
+              )}
+            </div>
+          ))}
 
-      {trackedFields.note && (showNoteAsDisplay ? (
-        <div className="flex flex-col gap-1.5">
-          <span className="text-sm font-medium">{t.dailyEntry.noteLabel}</span>
-          {/* #189: min-h-12, not a fixed h-12 — a long note wraps to
-           * multiple lines, and the fixed-height version didn't grow to
-           * fit, so the edit button (vertically centered against the old,
-           * too-short box) ended up overlapping the wrapped text instead
-           * of sitting clear of it. With only a floor height, a short
-           * single-line note still renders at the same 48px (the icon-xl
-           * button's own 44px + this row's centering keeps it there),
-           * while a long one grows the row to fit and items-center still
-           * centers the button against the full wrapped height. */}
-          <div className="flex min-h-12 items-center justify-between gap-2 rounded-lg bg-muted px-3 py-1.5">
-            <span className="flex items-center gap-1.5 text-sm text-foreground">
-              {note}
-            </span>
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon-xl"
-              aria-label={t.dailyEntry.editNoteLabel}
-              onClick={() => setIsEditingNote(true)}
-            >
-              <Pencil aria-hidden="true" />
-            </Button>
-          </div>
-        </div>
-      ) : (
-        <div className="flex flex-col gap-1.5">
-          <span className="text-sm font-medium">{t.dailyEntry.noteLabel}</span>
+        {trackedFields.note &&
+          (showNoteAsDisplay ? (
+            <div className="flex flex-col gap-1.5">
+              <span className="text-sm font-medium">
+                {t.dailyEntry.noteLabel}
+              </span>
+              {/* #189: min-h-12, not a fixed h-12 — a long note wraps to
+               * multiple lines, and the fixed-height version didn't grow to
+               * fit, so the edit button (vertically centered against the old,
+               * too-short box) ended up overlapping the wrapped text instead
+               * of sitting clear of it. With only a floor height, a short
+               * single-line note still renders at the same 48px (the icon-xl
+               * button's own 44px + this row's centering keeps it there),
+               * while a long one grows the row to fit and items-center still
+               * centers the button against the full wrapped height. */}
+              <div className="flex min-h-12 items-center justify-between gap-2 rounded-lg bg-muted px-3 py-1.5">
+                <span className="flex items-center gap-1.5 text-sm text-foreground">
+                  {note}
+                </span>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon-xl"
+                  aria-label={t.dailyEntry.editNoteLabel}
+                  onClick={() => setIsEditingNote(true)}
+                >
+                  <Pencil aria-hidden="true" />
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <div className="flex flex-col gap-1.5">
+              <span className="text-sm font-medium">
+                {t.dailyEntry.noteLabel}
+              </span>
+              <div className="flex items-center gap-3">
+                <Input
+                  type="text"
+                  aria-label={t.dailyEntry.noteLabel}
+                  aria-invalid={errors.note ? true : undefined}
+                  placeholder={t.dailyEntry.noteFieldPlaceholder}
+                  className="h-12 flex-1"
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault()
+                      saveNote()
+                    }
+                  }}
+                  {...register('note')}
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="icon-xl"
+                  aria-label={t.dailyEntry.saveNoteLabel}
+                  onClick={saveNote}
+                >
+                  <Check aria-hidden="true" />
+                </Button>
+              </div>
+              {errors.note && (
+                <p className="text-sm text-destructive">
+                  {errors.note.message}
+                </p>
+              )}
+            </div>
+          ))}
+
+        {/* #237: promoted from a sub-row inside the note's edit block to its
+         * own standalone, always-interactive field (a single-tap picker, no
+         * edit/display toggle needed) — independently toggleable from Note
+         * now that both have their own opt-out in Settings. Previously the
+         * only way to see/set mood without editing the note; also used to
+         * show a redundant icon in the note's own display box, dropped now
+         * that this row is always visible on its own. */}
+        {trackedFields.mood && (
           <div className="flex items-center gap-3">
-            <Input
-              type="text"
-              aria-label={t.dailyEntry.noteLabel}
-              aria-invalid={errors.note ? true : undefined}
-              placeholder={t.dailyEntry.noteFieldPlaceholder}
-              className="h-12 flex-1"
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') {
-                  e.preventDefault()
-                  saveNote()
-                }
-              }}
-              {...register('note')}
+            <span className="text-sm text-muted-foreground">
+              {t.dailyEntry.dayMoodLabel}
+            </span>
+            <EmotionPicker
+              value={dayEmotion}
+              onChange={saveMood}
+              options={DAY_EMOTIONS}
+              labelFor={t.dailyEntry.emotionLabel}
+              contextLabel={t.dailyEntry.dayMoodLabel}
             />
-            <Button
-              type="button"
-              variant="outline"
-              size="icon-xl"
-              aria-label={t.dailyEntry.saveNoteLabel}
-              onClick={saveNote}
-            >
-              <Check aria-hidden="true" />
-            </Button>
           </div>
-          {errors.note && (
-            <p className="text-sm text-destructive">{errors.note.message}</p>
-          )}
-        </div>
-      ))}
+        )}
 
-      {/* #237: promoted from a sub-row inside the note's edit block to its
-       * own standalone, always-interactive field (a single-tap picker, no
-       * edit/display toggle needed) — independently toggleable from Note
-       * now that both have their own opt-out in Settings. Previously the
-       * only way to see/set mood without editing the note; also used to
-       * show a redundant icon in the note's own display box, dropped now
-       * that this row is always visible on its own. */}
-      {trackedFields.mood && (
-        <div className="flex items-center gap-3">
-          <span className="text-sm text-muted-foreground">
-            {t.dailyEntry.dayMoodLabel}
+        {/* Surfaced directly on Today (previously only reachable via History's
+         * DayDetail, which users found hard to discover) — both options are
+         * always shown rather than a single unlabeled toggle, so the current
+         * state reads unambiguously without relying on a highlight color
+         * alone. #404: moved here from below Water, into the Evening group. */}
+        {digestionTrackingEnabled && (
+          <div className="flex flex-col gap-1.5">
+            <span className="text-sm font-medium">
+              {t.dailyEntry.hadConstipationLabel}
+            </span>
+            <ToggleGroup
+              type="single"
+              aria-label={t.dailyEntry.hadConstipationLabel}
+              value={hadConstipation ? 'yes' : 'no'}
+              onValueChange={(value) =>
+                value && setHadConstipation(value === 'yes')
+              }
+              className="w-fit"
+            >
+              <ToggleGroupItem value="no" className="h-12 px-6 text-base">
+                {t.dailyEntry.hadConstipationNoOption}
+              </ToggleGroupItem>
+              <ToggleGroupItem value="yes" className="h-12 px-6 text-base">
+                {t.dailyEntry.hadConstipationYesOption}
+              </ToggleGroupItem>
+            </ToggleGroup>
+          </div>
+        )}
+
+        {/* #383 — always shown (no Settings opt-in gate, unlike onPeriod/
+         * hadConstipation above): a manually-set override layered on a value
+         * already derived from today's own logged meal times, so there's no
+         * extra logging step for anyone already recording when they eat. */}
+        <div className="flex flex-col gap-1.5">
+          <span className="text-sm font-medium">
+            <Moon aria-hidden="true" className="mr-1 inline size-4" />
+            {t.dailyEntry.nightEatingLabel(sex)}
           </span>
-          <EmotionPicker
-            value={dayEmotion}
-            onChange={saveMood}
-            options={DAY_EMOTIONS}
-            labelFor={t.dailyEntry.emotionLabel}
-            contextLabel={t.dailyEntry.dayMoodLabel}
-          />
+          <ToggleGroup
+            type="single"
+            aria-label={t.dailyEntry.nightEatingLabel(sex)}
+            value={
+              nightEatingEffective === undefined
+                ? undefined
+                : nightEatingEffective
+                  ? 'yes'
+                  : 'no'
+            }
+            onValueChange={(value) =>
+              setNightEatingOverride(value === '' ? undefined : value === 'yes')
+            }
+            className="w-fit"
+          >
+            <ToggleGroupItem value="no" className="h-12 px-6 text-base">
+              {t.dailyEntry.nightEatingNoOption}
+            </ToggleGroupItem>
+            <ToggleGroupItem value="yes" className="h-12 px-6 text-base">
+              {t.dailyEntry.nightEatingYesOption}
+            </ToggleGroupItem>
+          </ToggleGroup>
         </div>
-      )}
+      </div>
 
       {/* #258 — opt-in water tracking, gated by its own Settings toggle
-       * (same shape as digestion tracking below). #271: each add (quick-add
+       * (same shape as digestion tracking above). #271: each add (quick-add
        * button or manual entry + confirm) becomes its own removable entry
        * instead of bumping a single running total the input quietly
-       * reflected — every add now gets a persistent, visible marker. */}
+       * reflected — every add now gets a persistent, visible marker. #404:
+       * stays ungrouped (like Meals above), not folded into either the
+       * Morning or Evening group — moved here from between Mood and
+       * Constipation now that those two sit inside the Evening group. */}
       {waterTrackingEnabled && (
         <div className="flex flex-col gap-1.5">
           <span className="text-sm font-medium">{t.dailyEntry.waterLabel}</span>
@@ -1338,13 +1458,18 @@ export function DailyEntryForm({
                     key={entry.id}
                     className="flex items-center gap-1 rounded-full bg-muted py-1 pr-1 pl-2.5 text-sm"
                   >
-                    <Icon aria-hidden="true" className="size-4 text-muted-foreground" />
+                    <Icon
+                      aria-hidden="true"
+                      className="size-4 text-muted-foreground"
+                    />
                     {amountText}
                     <Button
                       type="button"
                       variant="ghost"
                       size="icon-xs"
-                      aria-label={t.dailyEntry.removeWaterEntryLabel(amountText)}
+                      aria-label={t.dailyEntry.removeWaterEntryLabel(
+                        amountText,
+                      )}
                       onClick={() => removeWaterEntry(entry.id)}
                     >
                       <X aria-hidden="true" />
@@ -1356,69 +1481,6 @@ export function DailyEntryForm({
           )}
         </div>
       )}
-
-      {/* Surfaced directly on Today (previously only reachable via History's
-       * DayDetail, which users found hard to discover) — both options are
-       * always shown rather than a single unlabeled toggle, so the current
-       * state reads unambiguously without relying on a highlight color
-       * alone. Placed outside the note/mood block above so it stays visible
-       * regardless of that block's own display/edit state. */}
-      {digestionTrackingEnabled && (
-        <div className="flex flex-col gap-1.5">
-          <span className="text-sm font-medium">
-            {t.dailyEntry.hadConstipationLabel}
-          </span>
-          <ToggleGroup
-            type="single"
-            aria-label={t.dailyEntry.hadConstipationLabel}
-            value={hadConstipation ? 'yes' : 'no'}
-            onValueChange={(value) =>
-              value && setHadConstipation(value === 'yes')
-            }
-            className="w-fit"
-          >
-            <ToggleGroupItem value="no" className="h-12 px-6 text-base">
-              {t.dailyEntry.hadConstipationNoOption}
-            </ToggleGroupItem>
-            <ToggleGroupItem value="yes" className="h-12 px-6 text-base">
-              {t.dailyEntry.hadConstipationYesOption}
-            </ToggleGroupItem>
-          </ToggleGroup>
-        </div>
-      )}
-
-      {/* #383 — always shown (no Settings opt-in gate, unlike onPeriod/
-       * hadConstipation above): a manually-set override layered on a value
-       * already derived from today's own logged meal times, so there's no
-       * extra logging step for anyone already recording when they eat. */}
-      <div className="flex flex-col gap-1.5">
-        <span className="text-sm font-medium">
-          <Moon aria-hidden="true" className="mr-1 inline size-4" />
-          {t.dailyEntry.nightEatingLabel(sex)}
-        </span>
-        <ToggleGroup
-          type="single"
-          aria-label={t.dailyEntry.nightEatingLabel(sex)}
-          value={
-            nightEatingEffective === undefined
-              ? undefined
-              : nightEatingEffective
-                ? 'yes'
-                : 'no'
-          }
-          onValueChange={(value) =>
-            setNightEatingOverride(value === '' ? undefined : value === 'yes')
-          }
-          className="w-fit"
-        >
-          <ToggleGroupItem value="no" className="h-12 px-6 text-base">
-            {t.dailyEntry.nightEatingNoOption}
-          </ToggleGroupItem>
-          <ToggleGroupItem value="yes" className="h-12 px-6 text-base">
-            {t.dailyEntry.nightEatingYesOption}
-          </ToggleGroupItem>
-        </ToggleGroup>
-      </div>
     </form>
   )
 }
