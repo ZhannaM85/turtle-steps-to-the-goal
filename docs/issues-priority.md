@@ -1093,3 +1093,15 @@ _Caught by a background full-suite run after #396 shipped — filed before commi
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#400](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/400) | ✅ Done | GoalForm test flaky against a real midnight rollover during full-suite runs | `const today = new Date().toISOString().slice(0, 10)` (captured once at test start) and the code under test's own `new Date()` (called on submit, after several real async interactions) landed on different calendar days once a real midnight rollover happened mid-run — a genuine race against the wall clock, not app-code-dependent flakiness. Fixed with `vi.useFakeTimers({ toFake: ['Date'] })`/`vi.setSystemTime(...)` + `userEvent.setup({ delay: null })`, same pattern `TodayScreen.test.tsx`'s day-start-time tests already established; `vi.useRealTimers()` added to the file's existing `afterEach`. No release note (#131/#144/#349 precedent — test-only change). |
+
+---
+
+## Tier 81 — Live feedback batch (2026-07-29)
+
+_Several issues surfaced live in one session while discussing a Today-screen redesign. Not implemented yet — filed per the standing issue-first contract._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#401](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/401) | 📋 Not started | Warn on unusual weight/body-composition entries compared to the previous day | Non-blocking sanity check, same soft-warning pattern as #255's kcal/macro mismatch check. Thresholds TBD at implementation time. |
+| [#402](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/402) | 📋 Not started | Add a "System" option so light/dark theme follows the phone's OS setting live | #17 only set a one-time default from `prefers-color-scheme`; this adds a live-tracking third mode via `matchMedia`. |
+| [#403](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/403) | 📋 Not started | Add a quick "Today" jump next to the date navigator | Small affordance, shown only when viewing a non-today date. |
