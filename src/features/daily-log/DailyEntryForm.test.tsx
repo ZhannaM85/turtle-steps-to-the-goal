@@ -843,6 +843,24 @@ describe('DailyEntryForm', () => {
       expect(screen.getByText('updated note')).toBeInTheDocument()
     })
 
+    it('lets Enter insert a newline in the note field instead of saving it (#417)', async () => {
+      const user = userEvent.setup()
+      const onSave = vi.fn()
+      render(
+        <DailyEntryForm
+          date="2026-03-01"
+          existingEntry={null}
+          onSave={onSave}
+        />,
+      )
+
+      const input = screen.getByLabelText("Day's note")
+      await user.type(input, 'line one{Enter}line two')
+
+      expect(onSave).not.toHaveBeenCalled()
+      expect(input).toHaveValue('line one\nline two')
+    })
+
     it('lets the note display card grow to fit a long, wrapped note instead of clipping it (#189)', () => {
       const longNote =
         'Пытаюсь в кето-диету. Сегодня было 111 грамм белка, 43 грамма углеводов, 36 грамм жира.'

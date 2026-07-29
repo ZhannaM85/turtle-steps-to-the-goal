@@ -67,8 +67,35 @@ import {
   type TodayCardKey,
 } from '@/stores'
 import { CustomMetricLogSection } from '@/features/custom-metrics'
-import { DailyEntryForm } from './DailyEntryForm'
+import { DailyEntryFormBottom } from './DailyEntryFormBottom'
+import { DailyEntryFormTop } from './DailyEntryFormTop'
 import { GoalCelebrationModal } from './GoalCelebrationModal'
+import {
+  useDailyEntryFormState,
+  type DailyEntryFormProps,
+} from './useDailyEntryFormState'
+
+/**
+ * #416 — Evening entries (Steps/Note/Mood/Constipation/Night eating, #404)
+ * render *after* `CustomMetricLogSection` here, unlike the combined
+ * `DailyEntryForm` (Morning group + Meals + Water immediately followed by
+ * Evening) that History's `EntryRow.tsx` still uses. One shared
+ * `useDailyEntryFormState` call keeps both halves reading/writing the same
+ * live form state — e.g. the Evening group's night-eating toggle still
+ * sees the same live `calorieEntries` the Meals section (in Top) edits,
+ * with no remount needed in between.
+ */
+function TodayDailyEntrySections(props: DailyEntryFormProps) {
+  const state = useDailyEntryFormState(props)
+
+  return (
+    <>
+      <DailyEntryFormTop state={state} />
+      <CustomMetricLogSection date={props.date} />
+      <DailyEntryFormBottom state={state} />
+    </>
+  )
+}
 
 // #343 — a thin drag-handle strip above each reorderable card, same
 // on-demand-mode pattern #297/#319 established for Dashboard sections
@@ -929,15 +956,13 @@ export function TodayScreen() {
       {entryStatus === 'loading' || entryStatus === 'idle' ? (
         <p className="text-sm text-muted-foreground">{t.common.loading}</p>
       ) : (
-        <DailyEntryForm
+        <TodayDailyEntrySections
           key={date}
           date={date}
           existingEntry={entry}
           onSave={saveEntry}
         />
       )}
-
-      <CustomMetricLogSection date={date} />
     </div>
   )
 }

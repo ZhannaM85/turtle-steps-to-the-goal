@@ -25,6 +25,20 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 367,
+    issue: 417,
+    date: '2026-07-29T16:07:22+03:00',
+    en: "The day's note field now grows to fit longer text instead of scrolling sideways on one row.",
+    ru: 'Поле заметки дня теперь растёт по высоте под длинный текст вместо горизонтальной прокрутки в одну строку.',
+  },
+  {
+    version: 366,
+    issue: 416,
+    date: '2026-07-29T16:05:08+03:00',
+    en: "On Today, the evening section (steps, note, mood, and the rest) now renders after Water and Custom Metrics instead of before them.",
+    ru: 'На вкладке "Сегодня" вечерний блок (шаги, заметка, настроение и остальное) теперь отображается после воды и пользовательских показателей, а не до них.',
+  },
+  {
     version: 365,
     issue: 413,
     date: '2026-07-29T15:40:00+03:00',
