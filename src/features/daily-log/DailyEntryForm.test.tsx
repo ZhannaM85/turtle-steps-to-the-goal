@@ -675,6 +675,22 @@ describe('DailyEntryForm', () => {
       expect(onSave).not.toHaveBeenCalled()
     })
 
+    // #427 — jsdom has no layout engine (same reasoning #343's dnd-kit note
+    // already documents), so the real fix was verified live via a Playwright
+    // boundingBox() measurement, not here. This guards the specific classes
+    // that placement depends on, so a future refactor back to grid auto-flow
+    // (the original bug) doesn't silently regress unnoticed.
+    it('pins the Save button to column 3/row 2 of the grid, not auto-flow (#427)', () => {
+      render(
+        <DailyEntryForm date="2026-03-01" existingEntry={null} onSave={vi.fn()} />,
+      )
+
+      const saveButton = screen.getByRole('button', {
+        name: 'Save body composition',
+      })
+      expect(saveButton).toHaveClass('col-start-3', 'row-start-2', 'self-end')
+    })
+
     it('shows existing body composition as read-only text with a pencil, editable via a Save button', async () => {
       const user = userEvent.setup()
       const onSave = vi.fn()
