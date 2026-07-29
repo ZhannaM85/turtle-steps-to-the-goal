@@ -68,34 +68,10 @@ import {
 } from '@/stores'
 import { CustomMetricLogSection } from '@/features/custom-metrics'
 import { DailyEntryFormBottom } from './DailyEntryFormBottom'
+import { DailyEntryFormMorning } from './DailyEntryFormMorning'
+import { DailyEntryFormStateProvider } from './DailyEntryFormStateContext'
 import { DailyEntryFormTop } from './DailyEntryFormTop'
 import { GoalCelebrationModal } from './GoalCelebrationModal'
-import {
-  useDailyEntryFormState,
-  type DailyEntryFormProps,
-} from './useDailyEntryFormState'
-
-/**
- * #416 — Evening entries (Steps/Note/Mood/Constipation/Night eating, #404)
- * render *after* `CustomMetricLogSection` here, unlike the combined
- * `DailyEntryForm` (Morning group + Meals + Water immediately followed by
- * Evening) that History's `EntryRow.tsx` still uses. One shared
- * `useDailyEntryFormState` call keeps both halves reading/writing the same
- * live form state — e.g. the Evening group's night-eating toggle still
- * sees the same live `calorieEntries` the Meals section (in Top) edits,
- * with no remount needed in between.
- */
-function TodayDailyEntrySections(props: DailyEntryFormProps) {
-  const state = useDailyEntryFormState(props)
-
-  return (
-    <>
-      <DailyEntryFormTop state={state} />
-      <CustomMetricLogSection date={props.date} />
-      <DailyEntryFormBottom state={state} />
-    </>
-  )
-}
 
 // #343 — a thin drag-handle strip above each reorderable card, same
 // on-demand-mode pattern #297/#319 established for Dashboard sections
@@ -835,11 +811,39 @@ export function TodayScreen() {
         />
       )}
 
-      {/* #415 — moved here, right after the Goal target card, from after
-       * the reorderable card group below: with most other stat cards
-       * hidden via Settings, BMI was ending up the only visible one in
-       * this whole section while still rendering last within it. */}
-      {bmiValue !== null &&
+      {/* #419 — everything from here down (Morning entries plus the rest
+       * of the daily-entry form further below) shares one live form-state
+       * instance via context, keyed by `date` so it resets cleanly per
+       * day, same as `key={date}` on a single component used to do before
+       * this was split across two non-adjacent render spots. */}
+      {entryStatus === 'loading' || entryStatus === 'idle' ? (
+        <p className="text-sm text-muted-foreground">{t.common.loading}</p>
+      ) : (
+      <DailyEntryFormStateProvider
+        key={date}
+        date={date}
+        existingEntry={entry}
+        onSave={saveEntry}
+      >
+        {/* #419 — reported live: the actual logging fields (Weight/Sleep/
+         * Body measurements/Body composition) used to sit at the very
+         * bottom of this screen, past BMI/the deltas/the whole reorderable
+         * stat-card group/the banners. Moved here, right after the Goal
+         * target card, so logging doesn't require scrolling past a wall of
+         * stat cards first. Meals/Water/Custom Metrics/Evening entries stay
+         * further down, unaffected. Gating this whole block (not just this
+         * one piece) on `entryStatus` matters, not just cosmetic — the
+         * shared `useDailyEntryFormState` inside the provider memoizes its
+         * initial values once on mount (`[]` deps), so it must not mount
+         * until `entry` is the real loaded value, same guarantee a single
+         * bottom-of-page gate used to give it before this was split. */}
+        <DailyEntryFormMorning />
+
+        {/* #415 — moved here, right after the Goal target card, from after
+         * the reorderable card group below: with most other stat cards
+         * hidden via Settings, BMI was ending up the only visible one in
+         * this whole section while still rendering last within it. */}
+        {bmiValue !== null &&
         (sectionVisible.todayBmi ? (
           <StatCard
             label={t.today.bmiLabel}
@@ -953,15 +957,10 @@ export function TodayScreen() {
         </div>
       )}
 
-      {entryStatus === 'loading' || entryStatus === 'idle' ? (
-        <p className="text-sm text-muted-foreground">{t.common.loading}</p>
-      ) : (
-        <TodayDailyEntrySections
-          key={date}
-          date={date}
-          existingEntry={entry}
-          onSave={saveEntry}
-        />
+        <DailyEntryFormTop />
+        <CustomMetricLogSection date={date} />
+        <DailyEntryFormBottom />
+      </DailyEntryFormStateProvider>
       )}
     </div>
   )

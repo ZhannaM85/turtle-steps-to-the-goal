@@ -1,34 +1,36 @@
 import { DailyEntryFormBottom } from './DailyEntryFormBottom'
+import { DailyEntryFormMorning } from './DailyEntryFormMorning'
+import { DailyEntryFormStateProvider } from './DailyEntryFormStateContext'
 import { DailyEntryFormTop } from './DailyEntryFormTop'
-import {
-  useDailyEntryFormState,
-  type DailyEntryFormProps,
-} from './useDailyEntryFormState'
+import type { DailyEntryFormProps } from './useDailyEntryFormState'
 
 export type { DailyEntryFormProps } from './useDailyEntryFormState'
 
 /**
- * The combined daily-entry form: Morning group + Meals + Water
- * (`DailyEntryFormTop`) immediately followed by the Evening group
- * (`DailyEntryFormBottom`). Used wherever the whole form renders as one
- * contiguous block — History's inline edit (`EntryRow.tsx`) — via a single
- * `useDailyEntryFormState` call shared by both halves.
+ * The combined daily-entry form: Morning group (`DailyEntryFormMorning`),
+ * Meals + Water (`DailyEntryFormTop`), then the Evening group
+ * (`DailyEntryFormBottom`) — one contiguous block. Used wherever the whole
+ * form renders together — History's inline edit (`EntryRow.tsx`) — via a
+ * single `DailyEntryFormStateProvider` shared by all three.
  *
- * `TodayScreen.tsx` does **not** use this component — #416 moved the
- * Evening group to render after `CustomMetricLogSection` there, so it
- * calls `useDailyEntryFormState` itself and renders `DailyEntryFormTop`/
- * `DailyEntryFormBottom` directly, with `CustomMetricLogSection` in
- * between. Both call sites share the same state hook, so e.g. the Evening
- * group's night-eating toggle always sees the same live `calorieEntries`
- * the Meals section (in Top) edits, regardless of which layout is used.
+ * `TodayScreen.tsx` does **not** use this component — #419 moved
+ * `DailyEntryFormMorning` to render right after the Goal target card there
+ * (before BMI/the deltas/the reorderable stat-card group), and #416 moved
+ * the Evening group to render after `CustomMetricLogSection` — so it wraps
+ * its own `DailyEntryFormStateProvider` around all of that and renders each
+ * piece where it belongs directly. Both call sites share the same state
+ * shape, so e.g. the Evening group's night-eating toggle always sees the
+ * same live `calorieEntries` the Meals section (`DailyEntryFormTop`) edits,
+ * regardless of which layout is used.
  */
 export function DailyEntryForm(props: DailyEntryFormProps) {
-  const state = useDailyEntryFormState(props)
-
   return (
-    <form onSubmit={(e) => e.preventDefault()} className="flex flex-col gap-4">
-      <DailyEntryFormTop state={state} />
-      <DailyEntryFormBottom state={state} />
-    </form>
+    <DailyEntryFormStateProvider {...props}>
+      <form onSubmit={(e) => e.preventDefault()} className="flex flex-col gap-4">
+        <DailyEntryFormMorning />
+        <DailyEntryFormTop />
+        <DailyEntryFormBottom />
+      </form>
+    </DailyEntryFormStateProvider>
   )
 }

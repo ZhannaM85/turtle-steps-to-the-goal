@@ -7,22 +7,20 @@ import { Input } from '@/shared/ui/input'
 import { Textarea } from '@/shared/ui/textarea'
 import { ToggleGroup, ToggleGroupItem } from '@/shared/ui/toggle-group'
 import { EmotionPicker } from './EmotionPicker'
-import type { DailyEntryFormState } from './useDailyEntryFormState'
+import { useDailyEntryFormStateContext } from './useDailyEntryFormStateContext'
 
 /**
  * #416 — the "Evening entries" group (Steps/Note/Mood/Constipation/Night
  * eating, #404), split out of `DailyEntryForm.tsx` so `TodayScreen.tsx`
  * can render it *after* `CustomMetricLogSection`, while `DailyEntryFormTop`
- * (Morning group + Meals + Water) renders before it — both halves share
- * the same live form state via `useDailyEntryFormState`. `DailyEntryForm.tsx`
- * (the combined default, used by History's `EntryRow.tsx`) renders this
- * immediately after `DailyEntryFormTop`, unchanged from before this split.
+ * (Meals + Water) and `DailyEntryFormMorning` (#419) render before it —
+ * all three read the same live form state via `DailyEntryFormStateContext`.
+ * `DailyEntryForm.tsx` (the combined default, used by History's
+ * `EntryRow.tsx`) renders this last, immediately after `DailyEntryFormTop`,
+ * unchanged from before this split.
  */
-export function DailyEntryFormBottom({
-  state,
-}: {
-  state: DailyEntryFormState
-}) {
+export function DailyEntryFormBottom() {
+  const state = useDailyEntryFormStateContext()
   const { t, locale } = state
 
   return (

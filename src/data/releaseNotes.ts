@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 368,
+    issue: 419,
+    date: '2026-07-29T16:39:26+03:00',
+    en: "On Today, the Morning entries (weight, sleep, body measurements/composition) now render right after this week's target card, instead of at the very bottom of the page.",
+    ru: 'На вкладке "Сегодня" утренние показатели (вес, сон, измерения/состав тела) теперь отображаются сразу после карточки цели на неделю, а не в самом низу страницы.',
+  },
+  {
     version: 367,
     issue: 417,
     date: '2026-07-29T16:07:22+03:00',
