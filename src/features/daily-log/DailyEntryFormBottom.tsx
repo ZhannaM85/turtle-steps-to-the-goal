@@ -1,4 +1,4 @@
-import { Check, Moon, Pencil, X } from 'lucide-react'
+import { Check, Moon, Pencil } from 'lucide-react'
 import { formatNumber } from '@/i18n'
 import { DAY_EMOTIONS } from '@/shared/lib/emotionIcons'
 import { parseNumberInput } from '@/shared/lib/parseNumberInput'
@@ -222,70 +222,46 @@ export function DailyEntryFormBottom() {
           <Moon aria-hidden="true" className="mr-1 inline size-4" />
           {t.dailyEntry.nightEatingLabel(state.sex)}
         </span>
-        <span className="inline-flex items-center gap-1">
-          <ToggleGroup
-            type="single"
-            aria-label={t.dailyEntry.nightEatingLabel(state.sex)}
-            // #423 — the toggle's pressed/unpressed state now reflects only
-            // the explicit `nightEatingOverride` (three states: 'yes'/'no'/
-            // undefined→''), never `nightEatingEffective`'s meal-derived
-            // fallback. Conflating the two made an auto-computed answer
-            // visually indistinguishable from a real manual pick — clearing
-            // an override on a day with real logged meals could "land back"
-            // on Yes or No instead of showing nothing selected, reported
-            // live with screenshots (a 7pm dinner correctly derives to "not
-            // late," so Clear appeared to snap to No). `''` for the
-            // undefined case keeps Radix's `useControllableState` in
-            // controlled mode (#406's own earlier fix) — the same real,
-            // defined "no item matches" value it already needed, just now
-            // driven by a value that can never coincide with a real answer.
-            value={
-              state.nightEatingOverride === undefined
-                ? ''
-                : state.nightEatingOverride
-                  ? 'yes'
-                  : 'no'
-            }
-            onValueChange={(value) =>
-              state.setNightEatingOverride(
-                value === '' ? undefined : value === 'yes',
-              )
-            }
-            className="w-fit"
-          >
-            <ToggleGroupItem value="no" className="h-12 px-6 text-base">
-              {t.dailyEntry.nightEatingNoOption}
-            </ToggleGroupItem>
-            <ToggleGroupItem value="yes" className="h-12 px-6 text-base">
-              {t.dailyEntry.nightEatingYesOption}
-            </ToggleGroupItem>
-          </ToggleGroup>
-          {state.nightEatingOverride !== undefined && (
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon-xs"
-              aria-label={t.dailyEntry.clearNightEatingOverrideLabel}
-              onClick={() => state.setNightEatingOverride(undefined)}
-            >
-              <X aria-hidden="true" />
-            </Button>
-          )}
-        </span>
-        {/* #423 — the derived value stays visible as plain text once
-         * there's no override to show it via the toggle itself, instead
-         * of being silently lost now that the toggle only reflects an
-         * explicit pick. */}
-        {state.nightEatingOverride === undefined &&
-          state.nightEatingEffective !== undefined && (
-            <span className="text-xs text-muted-foreground">
-              {t.dailyEntry.nightEatingAutoDetectedLabel(
-                state.nightEatingEffective
-                  ? t.dailyEntry.nightEatingYesOption
-                  : t.dailyEntry.nightEatingNoOption,
-              )}
-            </span>
-          )}
+        <ToggleGroup
+          type="single"
+          aria-label={t.dailyEntry.nightEatingLabel(state.sex)}
+          // #423 — the toggle's pressed/unpressed state reflects only the
+          // explicit `nightEatingOverride` (three states: 'yes'/'no'/
+          // undefined→''), never `nightEatingEffective`'s meal-derived
+          // fallback. Conflating the two made an auto-computed answer
+          // visually indistinguishable from a real manual pick — clearing
+          // an override on a day with real logged meals could "land back"
+          // on Yes or No instead of showing nothing selected, reported
+          // live with screenshots (a 7pm dinner correctly derives to "not
+          // late," so Clear appeared to snap to No). `''` for the
+          // undefined case keeps Radix's `useControllableState` in
+          // controlled mode (#406's own earlier fix) — the same real,
+          // defined "no item matches" value it already needed, just now
+          // driven by a value that can never coincide with a real answer.
+          // Tap-the-active-item-again is Radix's own built-in deselect, the
+          // only way to clear an override (#428 removed the explicit "×"
+          // Clear button this used to sit alongside).
+          value={
+            state.nightEatingOverride === undefined
+              ? ''
+              : state.nightEatingOverride
+                ? 'yes'
+                : 'no'
+          }
+          onValueChange={(value) =>
+            state.setNightEatingOverride(
+              value === '' ? undefined : value === 'yes',
+            )
+          }
+          className="w-fit"
+        >
+          <ToggleGroupItem value="no" className="h-12 px-6 text-base">
+            {t.dailyEntry.nightEatingNoOption}
+          </ToggleGroupItem>
+          <ToggleGroupItem value="yes" className="h-12 px-6 text-base">
+            {t.dailyEntry.nightEatingYesOption}
+          </ToggleGroupItem>
+        </ToggleGroup>
       </div>
     </div>
   )

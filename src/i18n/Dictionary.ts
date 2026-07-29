@@ -508,16 +508,6 @@ export interface Dictionary {
      * state, so a small separate "×" button clears an explicit override
      * back to the derived value. */
     clearNightEatingOverrideLabel: string
-    /** #423 — the toggle's own pressed/unpressed state now reflects only
-     * an explicit `nightEatingOverride`, not the meal-time-derived
-     * fallback (previously conflating the two made an auto-computed
-     * answer indistinguishable from a manual pick, so clearing an
-     * override could visibly "land back" on an answer instead of showing
-     * nothing selected, reported live with screenshots). This caption
-     * surfaces the derived value as plain text instead, shown only when
-     * there's no override yet and a real derived answer exists. `option`
-     * is the already-translated Yes/No option text. */
-    nightEatingAutoDetectedLabel: (option: string) => string
     /** Opt-in water tracking (#258), a list of discrete entries rather
      * than a single running total (#271) — same gating shape as onPeriod/
      * hadConstipation above. #282: only the two fixed-amount quick-add
