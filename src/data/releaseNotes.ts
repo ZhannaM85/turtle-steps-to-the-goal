@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 371,
+    issue: 421,
+    date: '2026-07-29T18:15:17+03:00',
+    en: 'The "Stats" section on Today now reads as one cohesive box instead of a detached header floating above its cards.',
+    ru: 'Раздел "Показатели" на вкладке "Сегодня" теперь выглядит единым блоком, а не оторванным от карточек заголовком.',
+  },
+  {
     version: 370,
     issue: 420,
     date: '2026-07-29T17:14:22+03:00',

@@ -870,6 +870,14 @@ export function TodayScreen() {
          * Metrics/Evening entries further down. The Goal target card,
          * Morning entries, and the banners below all stay outside this
          * block, unaffected. */}
+        {/* #421 — the trigger and its collapsed content used to be two
+         * visually separate pieces (the trigger had its own border box,
+         * the cards below had none linking them together) — reported live
+         * as looking detached. One shared bordered container now wraps
+         * both, same `rounded-lg border border-border p-3` treatment
+         * `DailyEntryFormMorning`/`DailyEntryFormBottom` already use for
+         * their own grouped sections. */}
+        <div className="rounded-lg border border-border p-3">
         <Collapsible
           open={!statsCollapsed}
           onOpenChange={(open) => setStatsCollapsed(!open)}
@@ -882,7 +890,7 @@ export function TodayScreen() {
                   ? t.today.expandStatsLabel
                   : t.today.collapseStatsLabel
               }
-              className="group flex w-full items-center justify-between rounded-lg border border-border px-3 py-2 text-sm font-medium text-muted-foreground hover:text-foreground"
+              className="group flex w-full items-center justify-between text-sm font-medium text-muted-foreground hover:text-foreground"
             >
               {t.today.statsSectionLabel}
               <ChevronDown
@@ -976,6 +984,7 @@ export function TodayScreen() {
             </div>
           </CollapsibleContent>
         </Collapsible>
+        </div>
 
       {showTargetMetBanner && (
         <div className="flex flex-col gap-1.5">
