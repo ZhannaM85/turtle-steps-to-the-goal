@@ -1,4 +1,4 @@
-import { Check, Moon, Pencil, X } from 'lucide-react'
+import { Check, Moon, Pencil } from 'lucide-react'
 import { formatNumber } from '@/i18n'
 import { DAY_EMOTIONS } from '@/shared/lib/emotionIcons'
 import { parseNumberInput } from '@/shared/lib/parseNumberInput'
@@ -222,51 +222,46 @@ export function DailyEntryFormBottom() {
           <Moon aria-hidden="true" className="mr-1 inline size-4" />
           {t.dailyEntry.nightEatingLabel(state.sex)}
         </span>
-        <div className="flex items-center gap-2">
-          <ToggleGroup
-            type="single"
-            aria-label={t.dailyEntry.nightEatingLabel(state.sex)}
-            value={
-              state.nightEatingEffective === undefined
-                ? undefined
-                : state.nightEatingEffective
-                  ? 'yes'
-                  : 'no'
-            }
-            onValueChange={(value) =>
-              state.setNightEatingOverride(
-                value === '' ? undefined : value === 'yes',
-              )
-            }
-            className="w-fit"
-          >
-            <ToggleGroupItem value="no" className="h-12 px-6 text-base">
-              {t.dailyEntry.nightEatingNoOption}
-            </ToggleGroupItem>
-            <ToggleGroupItem value="yes" className="h-12 px-6 text-base">
-              {t.dailyEntry.nightEatingYesOption}
-            </ToggleGroupItem>
-          </ToggleGroup>
-          {/* #423 — tapping the already-pressed option again (the
-           * ToggleGroup's own built-in deselect, #406) only clears the
-           * *override*; if the day's own logged meal times independently
-           * derive to the same effective value, the toggle looks unchanged
-           * after "clearing" it. This explicit Clear button (same idiom
-           * #413 already added to History's DayDetail.tsx) gives a visible,
-           * unambiguous way to know there's an active override and remove
-           * it — shown only while one actually exists. */}
-          {state.nightEatingOverride !== undefined && (
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon-xs"
-              aria-label={t.dailyEntry.clearNightEatingOverrideLabel}
-              onClick={() => state.setNightEatingOverride(undefined)}
-            >
-              <X aria-hidden="true" />
-            </Button>
-          )}
-        </div>
+        <ToggleGroup
+          type="single"
+          aria-label={t.dailyEntry.nightEatingLabel(state.sex)}
+          // #406/#423 real root cause, found via live Playwright against a
+          // real browser (jsdom's own render of this didn't reproduce it —
+          // the existing unit tests all passed throughout): Radix's
+          // `useControllableState` treats a controlled `value` of
+          // `undefined` as "stop controlling me, keep whatever you had,"
+          // not as "explicitly show nothing selected." Passing `undefined`
+          // here (the falsy branch used to) meant clicking to deselect
+          // correctly cleared `nightEatingOverride` in the actual saved
+          // data, but the ToggleGroup's own rendered aria-checked state
+          // never updated — it kept showing whatever was last clicked,
+          // which is what #406/#423 were actually running into. `''` is a
+          // real, defined value Radix accepts as "no item matches this,"
+          // which keeps it in controlled mode and clears the visible
+          // selection correctly — with this fixed, the ToggleGroup's own
+          // tap-to-deselect works reliably on its own, so the separate
+          // Clear button #423 added is no longer needed.
+          value={
+            state.nightEatingEffective === undefined
+              ? ''
+              : state.nightEatingEffective
+                ? 'yes'
+                : 'no'
+          }
+          onValueChange={(value) =>
+            state.setNightEatingOverride(
+              value === '' ? undefined : value === 'yes',
+            )
+          }
+          className="w-fit"
+        >
+          <ToggleGroupItem value="no" className="h-12 px-6 text-base">
+            {t.dailyEntry.nightEatingNoOption}
+          </ToggleGroupItem>
+          <ToggleGroupItem value="yes" className="h-12 px-6 text-base">
+            {t.dailyEntry.nightEatingYesOption}
+          </ToggleGroupItem>
+        </ToggleGroup>
       </div>
     </div>
   )

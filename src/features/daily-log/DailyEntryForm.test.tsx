@@ -2467,17 +2467,7 @@ describe('DailyEntryForm', () => {
       )
     })
 
-    it('has no Clear button when there is no explicit override yet (#423)', () => {
-      render(
-        <DailyEntryForm date="2026-03-01" existingEntry={null} onSave={vi.fn()} />,
-      )
-
-      expect(
-        screen.queryByRole('button', { name: 'Clear' }),
-      ).not.toBeInTheDocument()
-    })
-
-    it('shows a Clear button once an explicit override exists, resetting it even when the day\'s own meal data would derive the same value (#423)', async () => {
+    it('deselecting clears the visible selection, not just the saved override (#406 real root cause)', async () => {
       const user = userEvent.setup()
       const onSave = vi.fn()
       render(
@@ -2502,14 +2492,14 @@ describe('DailyEntryForm', () => {
         'true',
       )
 
-      const clearButton = screen.getByRole('button', { name: 'Clear' })
-      await user.click(clearButton)
+      await user.click(group.getByRole('radio', { name: 'No' }))
 
       expect(onSave.mock.calls[0][0].nightEatingOverride).toBeUndefined()
-      expect(
-        screen.queryByRole('button', { name: 'Clear' }),
-      ).not.toBeInTheDocument()
       expect(group.getByRole('radio', { name: 'No' })).toHaveAttribute(
+        'aria-checked',
+        'false',
+      )
+      expect(group.getByRole('radio', { name: 'Yes' })).toHaveAttribute(
         'aria-checked',
         'false',
       )
