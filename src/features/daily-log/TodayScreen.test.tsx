@@ -1327,6 +1327,32 @@ describe('TodayScreen', () => {
     })
   })
 
+  describe('quick jump back to today (#403)', () => {
+    it('has no Today button while already viewing today', async () => {
+      renderToday()
+      await screen.findByLabelText('Date')
+
+      expect(
+        screen.queryByRole('button', { name: 'Today' }),
+      ).not.toBeInTheDocument()
+    })
+
+    it('shows a Today button once viewing a non-today date, which jumps straight back', async () => {
+      const user = userEvent.setup()
+      const yesterday = format(subDays(new Date(), 1), 'yyyy-MM-dd')
+      const today = format(new Date(), 'yyyy-MM-dd')
+      renderToday([`/?date=${yesterday}`])
+      expect(await screen.findByLabelText('Date')).toHaveValue(yesterday)
+
+      await user.click(screen.getByRole('button', { name: 'Today' }))
+
+      expect(await screen.findByLabelText('Date')).toHaveValue(today)
+      expect(
+        screen.queryByRole('button', { name: 'Today' }),
+      ).not.toBeInTheDocument()
+    })
+  })
+
   describe('dismissible insight sections (#232)', () => {
     it('hides a StatCard-based section but keeps its label and toggle visible, via the toggle slotted into the card itself', async () => {
       const user = userEvent.setup()

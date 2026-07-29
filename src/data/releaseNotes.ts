@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 351,
+    issue: 403,
+    date: '2026-07-29T12:29:10+03:00',
+    en: 'A quick "Today" button now appears next to the date picker whenever you\'re viewing another day, to jump straight back.',
+    ru: 'Рядом с выбором даты теперь появляется кнопка "Сегодня", когда вы просматриваете другой день, — чтобы сразу вернуться.',
+  },
+  {
     version: 350,
     issue: 410,
     date: '2026-07-29T12:24:25+03:00',

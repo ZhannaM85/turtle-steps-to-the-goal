@@ -65,6 +65,10 @@ export interface Dictionary {
      * opening the date picker to check yesterday/tomorrow. */
     previousDayLabel: string
     nextDayLabel: string
+    /** #403 — shown next to the date navigator only while viewing a
+     * non-today date, a quick way back after paging/picking far away
+     * instead of stepping/picking your way back manually. */
+    jumpToTodayButton: string
     /** #345 — shown only when the real calendar date has already turned
      * over but the configured day-start time (#298) hasn't been reached
      * yet, so `todayIso()` still resolves to the previous day. Lets that

@@ -723,6 +723,19 @@ export function TodayScreen() {
           >
             <ChevronRight aria-hidden="true" />
           </Button>
+          {/* #403 — quick way back after paging/picking far away, instead
+           * of stepping/picking manually all the way back. */}
+          {date !== todayIso() && (
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="shrink-0"
+              onClick={() => setDate(todayIso())}
+            >
+              {t.today.jumpToTodayButton}
+            </Button>
+          )}
         </div>
         {/* #345 — only while viewing the effective "today" itself; once
          * the user pages back to an earlier day, offering to jump the
