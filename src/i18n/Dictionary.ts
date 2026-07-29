@@ -1080,6 +1080,10 @@ export interface Dictionary {
     moodTortoise: string
     moodLagoon: string
     colorSchemeLabel: string
+    /** #402 — live-tracks the OS's own `prefers-color-scheme`, including
+     * while the app stays open across an OS-level change; distinct from
+     * `light`/`dark` below, which are an explicit, OS-independent pick. */
+    systemColorScheme: string
     light: string
     dark: string
     mealItemsLabel: string

@@ -16,6 +16,7 @@ import {
   useUnitStore,
   useWaterTrackingStore,
   useWeekStartStore,
+  type ColorScheme,
   type Mood,
   type TrackedField,
   type TrendChartKey,
@@ -277,9 +278,12 @@ export function SettingsScreen() {
               aria-label={t.settings.colorSchemeLabel}
               value={colorScheme}
               onValueChange={(value) =>
-                value && setColorScheme(value as 'light' | 'dark')
+                value && setColorScheme(value as ColorScheme)
               }
             >
+              <ToggleGroupItem value="system" className="h-12">
+                {t.settings.systemColorScheme}
+              </ToggleGroupItem>
               <ToggleGroupItem value="light" className="h-12">
                 {t.settings.light}
               </ToggleGroupItem>

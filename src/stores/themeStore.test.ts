@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import {
   applyTheme,
   detectDefaultColorScheme,
+  resolveColorScheme,
   useThemeStore,
 } from './themeStore'
 
@@ -53,6 +54,31 @@ describe('applyTheme', () => {
     expect(document.documentElement.dataset.mood).toBe('sage')
     expect(document.documentElement.classList.contains('dark')).toBe(false)
   })
+
+  it('resolves "system" to whatever the OS currently reports (#402)', () => {
+    mockPrefersDark(true)
+    applyTheme('pond', 'system')
+    expect(document.documentElement.classList.contains('dark')).toBe(true)
+
+    mockPrefersDark(false)
+    applyTheme('pond', 'system')
+    expect(document.documentElement.classList.contains('dark')).toBe(false)
+  })
+})
+
+describe('resolveColorScheme (#402)', () => {
+  it('passes light/dark through unchanged', () => {
+    expect(resolveColorScheme('light')).toBe('light')
+    expect(resolveColorScheme('dark')).toBe('dark')
+  })
+
+  it('resolves "system" from the live OS preference', () => {
+    mockPrefersDark(true)
+    expect(resolveColorScheme('system')).toBe('dark')
+
+    mockPrefersDark(false)
+    expect(resolveColorScheme('system')).toBe('light')
+  })
 })
 
 describe('useThemeStore', () => {
@@ -65,6 +91,13 @@ describe('useThemeStore', () => {
   it('updates colorScheme via setColorScheme and applies it to the DOM', () => {
     useThemeStore.getState().setColorScheme('dark')
     expect(useThemeStore.getState().colorScheme).toBe('dark')
+    expect(document.documentElement.classList.contains('dark')).toBe(true)
+  })
+
+  it('setColorScheme("system") applies the live OS preference to the DOM (#402)', () => {
+    mockPrefersDark(true)
+    useThemeStore.getState().setColorScheme('system')
+    expect(useThemeStore.getState().colorScheme).toBe('system')
     expect(document.documentElement.classList.contains('dark')).toBe(true)
   })
 

@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 356,
+    issue: 402,
+    date: '2026-07-29T13:04:20+03:00',
+    en: 'Added a "System" option for light/dark theme, which now follows your phone\'s setting live instead of only reading it once.',
+    ru: 'Добавлен вариант "Системная" для светлой/тёмной темы — теперь она следует настройке телефона в реальном времени, а не только при первом запуске.',
+  },
+  {
     version: 355,
     issue: 408,
     date: '2026-07-29T12:57:10+03:00',

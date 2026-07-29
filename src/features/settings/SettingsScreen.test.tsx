@@ -176,6 +176,15 @@ describe('SettingsScreen', () => {
     expect(document.documentElement.classList.contains('dark')).toBe(true)
   })
 
+  it('offers a System option that follows the OS preference (#402)', async () => {
+    const user = userEvent.setup()
+    renderSettings()
+
+    await user.click(screen.getByRole('radio', { name: 'System' }))
+
+    expect(useThemeStore.getState().colorScheme).toBe('system')
+  })
+
   it('keeps the visually-hidden mood radios keyboard-focusable', async () => {
     const user = userEvent.setup()
     renderSettings()
