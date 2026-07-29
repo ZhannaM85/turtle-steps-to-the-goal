@@ -45,7 +45,12 @@ export function MetTargetList({ entries, goal }: MetTargetListProps) {
       <h2 className="text-sm font-medium text-muted-foreground">
         {t.history.metTargetTitle}
       </h2>
-      <ul className="flex flex-col gap-1.5">
+      {/* #425 — reported live: an unbounded list grew to dominate the page
+       * once enough weeks qualified. Same max-h-96 overflow-y-auto scroll
+       * region WeeklySummaryCards/MonthlySummaryCards/the outlier chip
+       * lists already use elsewhere, rather than pagination — smaller
+       * change, no new interactive state needed. */}
+      <ul className="flex max-h-96 flex-col gap-1.5 overflow-y-auto">
         {metWeeks.map((week) => (
           <li
             key={week.weekStart}

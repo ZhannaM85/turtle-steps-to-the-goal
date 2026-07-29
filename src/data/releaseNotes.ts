@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 373,
+    issue: 425,
+    date: '2026-07-29T18:33:24+03:00',
+    en: 'The "weeks target met" list on History now shows below the Calendar/List view instead of above it, and scrolls within its own bounded box instead of stretching the whole page.',
+    ru: 'Список "недель, когда цель была достигнута" в Истории теперь отображается под календарём/списком, а не над ним, и прокручивается в своей области вместо растягивания всей страницы.',
+  },
+  {
     version: 372,
     issue: 423,
     date: '2026-07-29T18:27:11+03:00',

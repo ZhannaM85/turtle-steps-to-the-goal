@@ -114,8 +114,6 @@ export function HistoryScreen() {
         />
       ) : (
         <>
-          <MetTargetList entries={entries} goal={goal} />
-
           <ToggleGroup
             type="single"
             aria-label={t.history.viewModeLabel}
@@ -313,6 +311,11 @@ export function HistoryScreen() {
               )}
             </>
           )}
+
+          {/* #425 — moved here, after the Calendar/List view, from before
+           * it: reported live as pushing the actual History content far
+           * down the page when the qualifying-weeks list is long. */}
+          <MetTargetList entries={entries} goal={goal} />
         </>
       )}
     </div>
