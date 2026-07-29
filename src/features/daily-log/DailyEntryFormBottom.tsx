@@ -1,4 +1,4 @@
-import { Check, Moon, Pencil } from 'lucide-react'
+import { Check, Moon, Pencil, X } from 'lucide-react'
 import { formatNumber } from '@/i18n'
 import { DAY_EMOTIONS } from '@/shared/lib/emotionIcons'
 import { parseNumberInput } from '@/shared/lib/parseNumberInput'
@@ -222,30 +222,51 @@ export function DailyEntryFormBottom() {
           <Moon aria-hidden="true" className="mr-1 inline size-4" />
           {t.dailyEntry.nightEatingLabel(state.sex)}
         </span>
-        <ToggleGroup
-          type="single"
-          aria-label={t.dailyEntry.nightEatingLabel(state.sex)}
-          value={
-            state.nightEatingEffective === undefined
-              ? undefined
-              : state.nightEatingEffective
-                ? 'yes'
-                : 'no'
-          }
-          onValueChange={(value) =>
-            state.setNightEatingOverride(
-              value === '' ? undefined : value === 'yes',
-            )
-          }
-          className="w-fit"
-        >
-          <ToggleGroupItem value="no" className="h-12 px-6 text-base">
-            {t.dailyEntry.nightEatingNoOption}
-          </ToggleGroupItem>
-          <ToggleGroupItem value="yes" className="h-12 px-6 text-base">
-            {t.dailyEntry.nightEatingYesOption}
-          </ToggleGroupItem>
-        </ToggleGroup>
+        <div className="flex items-center gap-2">
+          <ToggleGroup
+            type="single"
+            aria-label={t.dailyEntry.nightEatingLabel(state.sex)}
+            value={
+              state.nightEatingEffective === undefined
+                ? undefined
+                : state.nightEatingEffective
+                  ? 'yes'
+                  : 'no'
+            }
+            onValueChange={(value) =>
+              state.setNightEatingOverride(
+                value === '' ? undefined : value === 'yes',
+              )
+            }
+            className="w-fit"
+          >
+            <ToggleGroupItem value="no" className="h-12 px-6 text-base">
+              {t.dailyEntry.nightEatingNoOption}
+            </ToggleGroupItem>
+            <ToggleGroupItem value="yes" className="h-12 px-6 text-base">
+              {t.dailyEntry.nightEatingYesOption}
+            </ToggleGroupItem>
+          </ToggleGroup>
+          {/* #423 — tapping the already-pressed option again (the
+           * ToggleGroup's own built-in deselect, #406) only clears the
+           * *override*; if the day's own logged meal times independently
+           * derive to the same effective value, the toggle looks unchanged
+           * after "clearing" it. This explicit Clear button (same idiom
+           * #413 already added to History's DayDetail.tsx) gives a visible,
+           * unambiguous way to know there's an active override and remove
+           * it — shown only while one actually exists. */}
+          {state.nightEatingOverride !== undefined && (
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon-xs"
+              aria-label={t.dailyEntry.clearNightEatingOverrideLabel}
+              onClick={() => state.setNightEatingOverride(undefined)}
+            >
+              <X aria-hidden="true" />
+            </Button>
+          )}
+        </div>
       </div>
     </div>
   )

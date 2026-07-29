@@ -627,6 +627,7 @@ export function useDailyEntryFormState({
     setHadConstipation,
     // Night eating
     sex,
+    nightEatingOverride,
     nightEatingEffective,
     setNightEatingOverride,
   }
