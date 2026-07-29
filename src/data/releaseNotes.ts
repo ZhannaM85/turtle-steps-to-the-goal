@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 360,
+    issue: 412,
+    date: '2026-07-29T14:25:00+03:00',
+    en: 'Fixed a bug where deep sleep from early in the night (before midnight) could go missing from the Apple Health import while the rest of that night still counted correctly.',
+    ru: 'Исправлена ошибка, из-за которой глубокий сон в начале ночи (до полуночи) мог не переноситься при импорте Apple Health, хотя остальной сон за эту ночь учитывался верно.',
+  },
+  {
     version: 359,
     issue: 404,
     date: '2026-07-29T14:05:00+03:00',

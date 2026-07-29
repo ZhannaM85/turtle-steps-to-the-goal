@@ -391,6 +391,64 @@ describe('AppleHealthPatchBuilder', () => {
 
       expect(builder.build().get('2026-01-15')).toEqual({ sleepHours: 8 })
     })
+
+    it("keeps a pre-midnight deep-sleep segment on the night's own wake date, not the day it ended on (#412)", () => {
+      const builder = new AppleHealthPatchBuilder()
+      // Falls asleep 22:30 on the 14th, straight into deep sleep — this
+      // segment both starts and ends *before* midnight, unlike the rest of
+      // the night. Reported live: this exact shape silently dropped the
+      // deep-sleep segment from the night it belongs to.
+      builder.addRecord({
+        type: 'HKCategoryTypeIdentifierSleepAnalysis',
+        value: 'HKCategoryValueSleepAnalysisAsleepDeep',
+        startDate: '2026-01-14 22:30:00+0000',
+        endDate: '2026-01-14 23:15:00+0000',
+      })
+      builder.addRecord({
+        type: 'HKCategoryTypeIdentifierSleepAnalysis',
+        value: 'HKCategoryValueSleepAnalysisAsleepCore',
+        startDate: '2026-01-14 23:15:00+0000',
+        endDate: '2026-01-15 03:00:00+0000',
+      })
+      builder.addRecord({
+        type: 'HKCategoryTypeIdentifierSleepAnalysis',
+        value: 'HKCategoryValueSleepAnalysisAsleepREM',
+        startDate: '2026-01-15 03:00:00+0000',
+        endDate: '2026-01-15 07:00:00+0000',
+      })
+
+      const patches = builder.build()
+      expect(patches.get('2026-01-14')).toBeUndefined()
+      expect(patches.get('2026-01-15')).toEqual({
+        sleepHours: 8.5,
+        deepSleepHours: 0.75,
+      })
+    })
+
+    it('does not merge two genuinely separate nights (a full day apart) across the same source', () => {
+      const builder = new AppleHealthPatchBuilder()
+      // A real previous night, ending in the morning of the 14th.
+      builder.addRecord({
+        type: 'HKCategoryTypeIdentifierSleepAnalysis',
+        value: 'HKCategoryValueSleepAnalysisAsleepCore',
+        startDate: '2026-01-13 23:00:00+0000',
+        endDate: '2026-01-14 07:00:00+0000',
+      })
+      // The next real night, many waking hours later.
+      builder.addRecord({
+        type: 'HKCategoryTypeIdentifierSleepAnalysis',
+        value: 'HKCategoryValueSleepAnalysisAsleepDeep',
+        startDate: '2026-01-14 23:00:00+0000',
+        endDate: '2026-01-15 06:00:00+0000',
+      })
+
+      const patches = builder.build()
+      expect(patches.get('2026-01-14')).toEqual({ sleepHours: 8 })
+      expect(patches.get('2026-01-15')).toEqual({
+        sleepHours: 7,
+        deepSleepHours: 7,
+      })
+    })
   })
 
   describe('menstrual flow (#411)', () => {

@@ -1,3 +1,4 @@
+import { addDays, format, parseISO } from 'date-fns'
 import type { WaterEntry } from '@/domain/dailyEntry'
 import { parseHealthTimestamp } from '../parseHealthTimestamp'
 import type { DailyEntryPatch } from '../mergeDailyEntryPatches'
@@ -143,7 +144,28 @@ interface SleepTotals {
   asleepSeconds: number
   deepSeconds: number
   inBedSeconds: number
+  // #412 — the earliest/latest real timestamp folded into this bucket so
+  // far, for the cross-midnight merge in `build()` below. Not otherwise
+  // used for the totals themselves.
+  firstStartMs: number
+  lastEndMs: number
 }
+
+// #412 — reported live: deep sleep specifically missing for a night whose
+// *total* sleep imported correctly. Root cause: each sleep record is
+// bucketed by its own `end.localDate`, but a night's first segment can
+// itself end *before* midnight (e.g. falling asleep at 22:30, the first
+// Core/Deep segment ending at 23:15) — deep sleep in particular
+// concentrates in the first sleep cycle of the night, making it the
+// segment most likely to both start and end pre-midnight. That segment's
+// seconds silently land in the *previous* calendar day's bucket instead of
+// the night's actual wake date, even though the class-level intent
+// ("keyed by the wake date") assumes every segment of one continuous night
+// ends after midnight. A real two-nights-apart gap is always many hours
+// (an entire waking day); a same-session split by this bug is always a
+// small gap between one bucket's last end and the very next calendar
+// day's first start, which is what this threshold distinguishes.
+const SLEEP_SESSION_MERGE_GAP_MS = 4 * 60 * 60 * 1000
 
 interface LatestValue {
   value: number
@@ -277,6 +299,8 @@ export class AppleHealthPatchBuilder {
       asleepSeconds: 0,
       deepSeconds: 0,
       inBedSeconds: 0,
+      firstStartMs: start.epochMs,
+      lastEndMs: end.epochMs,
     }
     if (isAsleep) {
       totals.asleepSeconds += seconds
@@ -284,8 +308,44 @@ export class AppleHealthPatchBuilder {
     } else {
       totals.inBedSeconds += seconds
     }
+    totals.firstStartMs = Math.min(totals.firstStartMs, start.epochMs)
+    totals.lastEndMs = Math.max(totals.lastEndMs, end.epochMs)
     bySource.set(source, totals)
     this.sleepByDateAndSource.set(end.localDate, bySource)
+  }
+
+  // #412 — folds a calendar day's sleep bucket forward into the *next*
+  // day's bucket for the same source, when the gap between this bucket's
+  // last end and the next day's first start is small enough that they're
+  // almost certainly one continuous overnight session split only because
+  // an early segment (often deep sleep) happened to end before midnight.
+  // Mutates `sleepByDateAndSource` in place; called once from `build()`
+  // before the per-date dominant-source pick below, so that pick already
+  // sees each night's segments merged under its own true wake date.
+  private mergeSleepSessionsAcrossMidnight(): void {
+    const dates = [...this.sleepByDateAndSource.keys()].sort()
+    for (const date of dates) {
+      const bySource = this.sleepByDateAndSource.get(date)
+      if (!bySource) continue // already folded forward and removed below
+      const nextDate = format(addDays(parseISO(date), 1), 'yyyy-MM-dd')
+      const nextBySource = this.sleepByDateAndSource.get(nextDate)
+      if (!nextBySource) continue
+      for (const [source, totals] of bySource) {
+        const nextTotals = nextBySource.get(source)
+        if (!nextTotals) continue
+        const gapMs = nextTotals.firstStartMs - totals.lastEndMs
+        if (gapMs < 0 || gapMs > SLEEP_SESSION_MERGE_GAP_MS) continue
+        nextTotals.asleepSeconds += totals.asleepSeconds
+        nextTotals.deepSeconds += totals.deepSeconds
+        nextTotals.inBedSeconds += totals.inBedSeconds
+        nextTotals.firstStartMs = Math.min(
+          nextTotals.firstStartMs,
+          totals.firstStartMs,
+        )
+        bySource.delete(source)
+      }
+      if (bySource.size === 0) this.sleepByDateAndSource.delete(date)
+    }
   }
 
   private addMenstrualFlowRecord(record: AppleHealthRecord): void {
@@ -344,6 +404,7 @@ export class AppleHealthPatchBuilder {
     for (const date of this.onPeriodDates) {
       patchFor(date).onPeriod = true
     }
+    this.mergeSleepSessionsAcrossMidnight()
     for (const [date, bySource] of this.sleepByDateAndSource) {
       // #368 — same dominant-source-per-night pick as steps above, not a
       // sum across sources (a phone and a watch can each log their own
