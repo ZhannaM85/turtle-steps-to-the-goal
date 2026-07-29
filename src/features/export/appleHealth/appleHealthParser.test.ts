@@ -101,6 +101,94 @@ describe('AppleHealthRecordScanner', () => {
 
     expect(records[0].sourceName).toBe('My Watch')
   })
+
+  describe('a paired (non-self-closing) Record with MetadataEntry children (#411)', () => {
+    it('still extracts the Record\'s own attributes, ignoring the metadata', () => {
+      const scanner = new AppleHealthRecordScanner()
+      const records = scanner.push(
+        '<Record type="HKCategoryTypeIdentifierMenstrualFlow" sourceName="Health" ' +
+          'startDate="2026-07-11 08:00:00+0000" endDate="2026-07-11 08:00:00+0000" ' +
+          'value="HKCategoryValueMenstrualFlowMedium">' +
+          '<MetadataEntry key="HKMetadataKeyMenstrualCycleStart" value="1"/>' +
+          '</Record>',
+      )
+
+      expect(records).toEqual([
+        {
+          type: 'HKCategoryTypeIdentifierMenstrualFlow',
+          unit: undefined,
+          value: 'HKCategoryValueMenstrualFlowMedium',
+          creationDate: undefined,
+          startDate: '2026-07-11 08:00:00+0000',
+          endDate: '2026-07-11 08:00:00+0000',
+          sourceName: 'Health',
+        },
+      ])
+    })
+
+    it('handles multiple MetadataEntry children on one record', () => {
+      const scanner = new AppleHealthRecordScanner()
+      const records = scanner.push(
+        '<Record type="HKQuantityTypeIdentifierBodyMass" unit="kg" value="60.5" ' +
+          'startDate="2026-01-15 12:00:00+0000">' +
+          '<MetadataEntry key="HKWasUserEntered" value="1"/>' +
+          '<MetadataEntry key="HKMetadataKeyDeviceManufacturerName" value="Acme"/>' +
+          '</Record>',
+      )
+
+      expect(records).toHaveLength(1)
+      expect(records[0]).toMatchObject({ type: 'HKQuantityTypeIdentifierBodyMass' })
+    })
+
+    it('does not run away past this record into a later, unrelated Record (no false nesting)', () => {
+      const scanner = new AppleHealthRecordScanner()
+      const records = scanner.push(
+        '<Record type="HKQuantityTypeIdentifierBodyMass" unit="kg" value="60.5" ' +
+          'startDate="2026-01-15 12:00:00+0000">' +
+          '<MetadataEntry key="HKWasUserEntered" value="1"/>' +
+          '</Record>' +
+          '<Record type="HKQuantityTypeIdentifierStepCount" unit="count" value="500"/>',
+      )
+
+      expect(records).toHaveLength(2)
+      expect(records[0].type).toBe('HKQuantityTypeIdentifierBodyMass')
+      expect(records[1].type).toBe('HKQuantityTypeIdentifierStepCount')
+    })
+
+    it('completes a paired Record split across two chunks', () => {
+      const scanner = new AppleHealthRecordScanner()
+      const first = scanner.push(
+        '<Record type="HKCategoryTypeIdentifierMenstrualFlow" ' +
+          'startDate="2026-07-11 08:00:00+0000" value="HKCategoryValueMenstrualFlowLight">' +
+          '<MetadataEntry key="HKMetadataKeyMenst',
+      )
+      const second = scanner.push('rualCycleStart" value="1"/></Record>')
+
+      expect(first).toHaveLength(0)
+      expect(second).toHaveLength(1)
+      expect(second[0].type).toBe('HKCategoryTypeIdentifierMenstrualFlow')
+    })
+  })
+
+  it('stays fast through a long stretch of paired Records with metadata (no catastrophic backtracking)', () => {
+    const scanner = new AppleHealthRecordScanner()
+    // 2,000 realistic paired records with a metadata child each -- confirms
+    // the #411 regex's lazy [\s\S]*? alternative doesn't reintroduce the
+    // same class of O(n^2) blowup the self-closing-only version was
+    // already fixed against (see the no-match-stretch test above).
+    const chunk =
+      '<Record type="HKQuantityTypeIdentifierBodyMass" unit="kg" value="60.5" ' +
+      'startDate="2026-01-15 12:00:00+0000"><MetadataEntry key="HKWasUserEntered" value="1"/></Record>'
+    const start = performance.now()
+    let total = 0
+    for (let i = 0; i < 2000; i++) {
+      total += scanner.push(chunk).length
+    }
+    const elapsedMs = performance.now() - start
+
+    expect(total).toBe(2000)
+    expect(elapsedMs).toBeLessThan(2000)
+  })
 })
 
 describe('AppleHealthPatchBuilder', () => {
@@ -484,6 +572,28 @@ describe('AppleHealthPatchBuilder', () => {
       })
 
       expect(builder.build().get('2026-01-15')).toEqual({ weightKg: 61.4 })
+    })
+
+    it('imports end-to-end from a real-shaped export.xml flow record with metadata, the exact reported bug (#411)', () => {
+      // Reported live: real period days in the user's own Apple Health
+      // Cycle Tracking showed no marker at all after import. Root cause,
+      // reproduced here: a manually-logged MenstrualFlow record carries a
+      // <MetadataEntry> child (HKMetadataKeyMenstrualCycleStart), making it
+      // a paired, not self-closing, <Record> -- silently dropped by the
+      // scanner before this fix, before ever reaching the builder at all.
+      const scanner = new AppleHealthRecordScanner()
+      const records = scanner.push(
+        '<Record type="HKCategoryTypeIdentifierMenstrualFlow" sourceName="Health" ' +
+          'startDate="2026-07-11 08:00:00+0000" endDate="2026-07-11 08:00:00+0000" ' +
+          'value="HKCategoryValueMenstrualFlowMedium">' +
+          '<MetadataEntry key="HKMetadataKeyMenstrualCycleStart" value="1"/>' +
+          '</Record>',
+      )
+
+      const builder = new AppleHealthPatchBuilder()
+      for (const record of records) builder.addRecord(record)
+
+      expect(builder.build().get('2026-07-11')).toEqual({ onPeriod: true })
     })
   })
 })

@@ -16,7 +16,14 @@ export interface AppleHealthRecord {
   sourceName?: string
 }
 
-const RECORD_TAG_RE = /<Record\b([^>]*?)\/>/g
+// #411 — matches both the self-closing `<Record .../>` shape (the only one
+// originally handled) and the paired `<Record ...>...</Record>` shape Apple
+// Health actually writes whenever a record carries `<MetadataEntry>`
+// children (e.g. `HKWasUserEntered`, or `HKMetadataKeyMenstrualCycleStart`
+// on a manually-logged MenstrualFlow record) — the self-closing-only regex
+// silently dropped every one of these, with no error. Root cause of period
+// days genuinely present in a real export not appearing after import.
+const RECORD_TAG_RE = /<Record\b([^>]*?)(?:\/>|>[\s\S]*?<\/Record>)/g
 const ATTR_RE = /([\w:-]+)="([^"]*)"/g
 
 function unescapeXmlEntities(value: string): string {
@@ -54,16 +61,20 @@ function parseRecordAttrs(tagAttrs: string): AppleHealthRecord | null {
 const TAG_SAFETY_MARGIN = 4096
 
 /**
- * Incrementally extracts `<Record .../>` elements out of chunks of Apple
- * Health's `export.xml`, fed in whatever size the decompressor happens to
- * hand back. Never holds more than "text since the last complete match" in
- * its internal buffer — a tag split across two chunk boundaries (likely at
- * some point in a 1GB+ file streamed in small pieces) is simply completed
- * once its closing `/>` arrives in a later chunk, rather than requiring
- * the whole file in memory at once. Only self-closing `<Record/>` elements
- * are matched (per the export's own DTD, every `Record` — including ones
- * nested inside a `Correlation` — also appears flat at the top level, so
- * this alone is a complete, non-nesting-aware view of every record).
+ * Incrementally extracts `<Record>` elements (both the self-closing
+ * `<Record .../>` shape and the paired `<Record ...>...</Record>` shape
+ * used whenever a record has `<MetadataEntry>` children, #411) out of
+ * chunks of Apple Health's `export.xml`, fed in whatever size the
+ * decompressor happens to hand back. Never holds more than "text since the
+ * last complete match" in its internal buffer — a tag split across two
+ * chunk boundaries (likely at some point in a 1GB+ file streamed in small
+ * pieces) is simply completed once its closing tag arrives in a later
+ * chunk, rather than requiring the whole file in memory at once. `Record`
+ * elements themselves don't nest (per the export's own DTD, one nested
+ * inside a `Correlation` also appears flat at the top level) — only their
+ * own `MetadataEntry` children can appear between an opening and closing
+ * `Record` tag, so a non-nesting-aware "first `</Record>` closes it" match
+ * is still a complete, correct view of every record.
  *
  * Real exports have long stretches (e.g. inside a `<Workout>` block) with
  * no `<Record>` tags at all — during one of these, `this.buffer` is
