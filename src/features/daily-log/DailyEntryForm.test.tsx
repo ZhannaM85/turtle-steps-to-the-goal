@@ -2484,6 +2484,53 @@ describe('DailyEntryForm', () => {
       ).not.toBeInTheDocument()
     })
 
+    it('has no Clear button even once an explicit override exists (#428)', () => {
+      render(
+        <DailyEntryForm
+          date="2026-03-01"
+          existingEntry={{
+            id: 'entry-1',
+            date: '2026-03-01',
+            nightEatingOverride: true,
+            createdAt: now,
+            updatedAt: now,
+          }}
+          onSave={vi.fn()}
+        />,
+      )
+
+      expect(
+        screen.queryByRole('button', { name: 'Clear' }),
+      ).not.toBeInTheDocument()
+    })
+
+    it('has no auto-detected caption text, even with a derived value from a logged meal (#429)', () => {
+      render(
+        <DailyEntryForm
+          date="2026-03-01"
+          existingEntry={{
+            id: 'entry-1',
+            date: '2026-03-01',
+            calorieEntries: [
+              {
+                id: 'c1',
+                items: [{ id: 'i1', amountKcal: 400 }],
+                timeEaten: '23:00',
+                createdAt: now,
+              },
+            ],
+            createdAt: now,
+            updatedAt: now,
+          }}
+          onSave={vi.fn()}
+        />,
+      )
+
+      expect(
+        screen.queryByText(/Auto-detected from your meals/i),
+      ).not.toBeInTheDocument()
+    })
+
   })
 
   describe('water tracking (#258)', () => {
