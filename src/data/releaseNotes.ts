@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 363,
+    issue: 415,
+    date: '2026-07-29T15:26:00+03:00',
+    en: 'The BMI card on Today now sits right after your weekly target, instead of at the bottom of the stat cards.',
+    ru: 'Карточка ИМТ на экране "Сегодня" теперь расположена сразу после недельной цели, а не в самом низу карточек.',
+  },
+  {
     version: 362,
     issue: 395,
     date: '2026-07-29T15:15:00+03:00',

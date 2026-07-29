@@ -808,6 +808,21 @@ export function TodayScreen() {
         />
       )}
 
+      {/* #415 — moved here, right after the Goal target card, from after
+       * the reorderable card group below: with most other stat cards
+       * hidden via Settings, BMI was ending up the only visible one in
+       * this whole section while still rendering last within it. */}
+      {bmiValue !== null &&
+        (sectionVisible.todayBmi ? (
+          <StatCard
+            label={t.today.bmiLabel}
+            value={formatNumber(bmiValue, locale, 1)}
+            action={statCardAction('todayBmi', t.today.bmiLabel)}
+          />
+        ) : (
+          sectionTitle('todayBmi', t.today.bmiLabel)
+        ))}
+
       {weightDeltaValue !== null &&
         (sectionVisible.todayVsYesterday ? (
           <StatCard
@@ -862,17 +877,6 @@ export function TodayScreen() {
           </div>
         </SortableContext>
       </DndContext>
-
-      {bmiValue !== null &&
-        (sectionVisible.todayBmi ? (
-          <StatCard
-            label={t.today.bmiLabel}
-            value={formatNumber(bmiValue, locale, 1)}
-            action={statCardAction('todayBmi', t.today.bmiLabel)}
-          />
-        ) : (
-          sectionTitle('todayBmi', t.today.bmiLabel)
-        ))}
 
       {showTargetMetBanner && (
         <div className="flex flex-col gap-1.5">
