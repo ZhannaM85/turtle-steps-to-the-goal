@@ -25,13 +25,6 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
-    version: 381,
-    issue: 426,
-    date: '2026-07-30T00:16:54+03:00',
-    en: "History's and the Dashboard's \"weeks target met\" no longer credits weeks that came before your current goal even existed.",
-    ru: 'Раздел "цель недели достигнута" в Истории и на Панели больше не засчитывает недели, которые были до создания вашей текущей цели.',
-  },
-  {
     version: 380,
     issue: 430,
     date: '2026-07-29T23:17:58+03:00',
