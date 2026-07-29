@@ -4,6 +4,13 @@ import { splitHoursMinutes } from '@/shared/lib/sleepDuration'
 import { parseNumberInput } from '@/shared/lib/parseNumberInput'
 import { Button } from '@/shared/ui/button'
 import { Input } from '@/shared/ui/input'
+import {
+  bodyFatPercentSchema,
+  bodyWaterPercentSchema,
+  boneMassKgSchema,
+  muscleMassKgSchema,
+  visceralFatRatingSchema,
+} from './dailyEntryFormSchema'
 import { useDailyEntryFormStateContext } from './useDailyEntryFormStateContext'
 
 /**
@@ -19,6 +26,24 @@ import { useDailyEntryFormStateContext } from './useDailyEntryFormStateContext'
 export function DailyEntryFormMorning() {
   const state = useDailyEntryFormStateContext()
   const { t, locale } = state
+
+  // #435 — validates on blur in addition to `saveBodyComposition()`'s
+  // existing Save-time check, reusing the exact same schema. Composed with
+  // `register()`'s own `onBlur` (needed for react-hook-form's internal
+  // touched/dirty tracking) rather than replacing it.
+  function bodyCompositionFieldProps(
+    field: Parameters<typeof state.validateBodyCompositionFieldOnBlur>[0],
+    schema: Parameters<typeof state.validateBodyCompositionFieldOnBlur>[1],
+  ) {
+    const registered = state.register(field, { setValueAs: parseNumberInput })
+    return {
+      ...registered,
+      onBlur: (event: Parameters<typeof registered.onBlur>[0]) => {
+        void registered.onBlur(event)
+        state.validateBodyCompositionFieldOnBlur(field, schema)
+      },
+    }
+  }
 
   return (
     <div className="flex flex-col gap-4 rounded-lg border border-border p-3">
@@ -475,9 +500,10 @@ export function DailyEntryFormMorning() {
                         state.saveBodyComposition()
                       }
                     }}
-                    {...state.register('muscleMassKg', {
-                      setValueAs: parseNumberInput,
-                    })}
+                    {...bodyCompositionFieldProps(
+                      'muscleMassKg',
+                      muscleMassKgSchema,
+                    )}
                   />
                   <span className="text-xs text-muted-foreground">
                     {t.dailyEntry.kgUnit}
@@ -503,9 +529,10 @@ export function DailyEntryFormMorning() {
                         state.saveBodyComposition()
                       }
                     }}
-                    {...state.register('visceralFatRating', {
-                      setValueAs: parseNumberInput,
-                    })}
+                    {...bodyCompositionFieldProps(
+                      'visceralFatRating',
+                      visceralFatRatingSchema,
+                    )}
                   />
                 </div>
               </div>
@@ -528,9 +555,10 @@ export function DailyEntryFormMorning() {
                         state.saveBodyComposition()
                       }
                     }}
-                    {...state.register('bodyWaterPercent', {
-                      setValueAs: parseNumberInput,
-                    })}
+                    {...bodyCompositionFieldProps(
+                      'bodyWaterPercent',
+                      bodyWaterPercentSchema,
+                    )}
                   />
                   <span className="text-xs text-muted-foreground">
                     {t.dailyEntry.percentUnit}
@@ -554,9 +582,10 @@ export function DailyEntryFormMorning() {
                         state.saveBodyComposition()
                       }
                     }}
-                    {...state.register('boneMassKg', {
-                      setValueAs: parseNumberInput,
-                    })}
+                    {...bodyCompositionFieldProps(
+                      'boneMassKg',
+                      boneMassKgSchema,
+                    )}
                   />
                   <span className="text-xs text-muted-foreground">
                     {t.dailyEntry.kgUnit}
@@ -582,9 +611,10 @@ export function DailyEntryFormMorning() {
                         state.saveBodyComposition()
                       }
                     }}
-                    {...state.register('bodyFatPercent', {
-                      setValueAs: parseNumberInput,
-                    })}
+                    {...bodyCompositionFieldProps(
+                      'bodyFatPercent',
+                      bodyFatPercentSchema,
+                    )}
                   />
                   <span className="text-xs text-muted-foreground">
                     {t.dailyEntry.percentUnit}

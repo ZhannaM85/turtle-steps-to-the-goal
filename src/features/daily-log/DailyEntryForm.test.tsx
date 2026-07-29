@@ -675,6 +675,51 @@ describe('DailyEntryForm', () => {
       expect(onSave).not.toHaveBeenCalled()
     })
 
+    describe('validates on blur, not just on Save (#435)', () => {
+      it('shows an error as soon as an out-of-range value is blurred, before Save is clicked', async () => {
+        const user = userEvent.setup()
+        render(
+          <DailyEntryForm date="2026-03-01" existingEntry={null} onSave={vi.fn()} />,
+        )
+
+        await user.type(screen.getByLabelText('Muscle mass (kg)'), '27272')
+        await user.tab()
+
+        expect(await screen.findByText(/Too big/)).toBeInTheDocument()
+      })
+
+      it('clears the error on blur once the value is fixed', async () => {
+        const user = userEvent.setup()
+        render(
+          <DailyEntryForm date="2026-03-01" existingEntry={null} onSave={vi.fn()} />,
+        )
+
+        const field = screen.getByLabelText('Visceral fat')
+        await user.type(field, '19119')
+        await user.tab()
+        expect(await screen.findByText(/Too big/)).toBeInTheDocument()
+
+        await user.clear(field)
+        await user.type(field, '5')
+        await user.tab()
+
+        expect(screen.queryByText(/Too big/)).not.toBeInTheDocument()
+      })
+
+      it('does not show an error while a value is only half-typed, before blurring', async () => {
+        const user = userEvent.setup()
+        render(
+          <DailyEntryForm date="2026-03-01" existingEntry={null} onSave={vi.fn()} />,
+        )
+
+        // "2" alone would be a perfectly valid visceral fat rating -- this
+        // confirms validation isn't running on every keystroke.
+        await user.type(screen.getByLabelText('Visceral fat'), '2')
+
+        expect(screen.queryByText(/Too big/)).not.toBeInTheDocument()
+      })
+    })
+
     // #427 — jsdom has no layout engine (same reasoning #343's dnd-kit note
     // already documents), so the real fix was verified live via a Playwright
     // boundingBox() measurement, not here. This guards the specific classes

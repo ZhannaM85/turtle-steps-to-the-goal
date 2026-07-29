@@ -558,6 +558,38 @@ export function useDailyEntryFormState({
     setPendingUnusualBodyComposition(null)
   }
 
+  // #435 — the hard schema bounds `saveBodyComposition()` already checks
+  // (above) only ever ran at Save time, so an absurd value sat looking
+  // accepted in the input until the user actually tapped Save. Validates
+  // one field on blur (not every keystroke, which would flash an error on a
+  // half-typed number, e.g. "2" -> "27" on the way to "2.7") — reuses the
+  // exact same schema, doesn't replace the Save-time check (still needed:
+  // blurring away without ever re-focusing the field would otherwise let an
+  // invalid value slip through un-validated at Save). Deliberately scoped
+  // to just these 5 fields, not weight/waist/hip/sleep/steps, per the
+  // resolved design fork.
+  function validateBodyCompositionFieldOnBlur(
+    field:
+      | 'muscleMassKg'
+      | 'visceralFatRating'
+      | 'bodyWaterPercent'
+      | 'boneMassKg'
+      | 'bodyFatPercent',
+    schema:
+      | typeof muscleMassKgSchema
+      | typeof visceralFatRatingSchema
+      | typeof bodyWaterPercentSchema
+      | typeof boneMassKgSchema
+      | typeof bodyFatPercentSchema,
+  ) {
+    const result = schema.safeParse(getValues(field))
+    if (!result.success) {
+      setError(field, { message: result.error.issues[0].message })
+    } else {
+      clearErrors(field)
+    }
+  }
+
   return {
     t,
     locale,
@@ -618,6 +650,7 @@ export function useDailyEntryFormState({
     saveBodyComposition,
     pendingUnusualBodyComposition,
     discardUnusualBodyCompositionWarning,
+    validateBodyCompositionFieldOnBlur,
     // Note
     note,
     showNoteAsDisplay,
