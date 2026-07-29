@@ -15,6 +15,7 @@ import {
   useLocale,
   useTranslation,
 } from '@/i18n'
+import { usePreviousDayEntry } from '@/shared/hooks'
 import { DAY_EMOTIONS } from '@/shared/lib/emotionIcons'
 import { macrosSummaryText } from '@/shared/lib/macroDisplay'
 import { parseNumberInput } from '@/shared/lib/parseNumberInput'
@@ -48,7 +49,13 @@ import {
   type DailyEntryFormValues,
 } from './dailyEntryFormSchema'
 import {
+  isUnusualBodyFatPercentDelta,
+  isUnusualBodyWaterPercentDelta,
+  isUnusualBoneMassDeltaKg,
   isUnusualDailyCalories,
+  isUnusualMuscleMassDeltaKg,
+  isUnusualVisceralFatDelta,
+  isUnusualWeightDeltaKg,
   isUnusualWeightKg,
 } from './unusualEntryThresholds'
 
@@ -95,6 +102,11 @@ export function DailyEntryForm({
 }: DailyEntryFormProps) {
   const t = useTranslation()
   const locale = useLocale()
+  // #401 — the prior calendar day's entry, for a relative sanity check
+  // (unusual jump vs. yesterday) alongside #218's absolute-plausibility
+  // checks below. `null` when there's no entry for that date (nothing to
+  // compare against, so no delta warning is possible).
+  const previousDayEntry = usePreviousDayEntry(date)
   // A stable identity for this day's entry, reused across every independent
   // save in this session (weight, note, each meal) so they all update the
   // same record instead of each save inventing a new id. Computed once —
@@ -131,6 +143,18 @@ export function DailyEntryForm({
   const [pendingUnusualWeight, setPendingUnusualWeight] = useState<
     number | null
   >(null)
+  // #401 — same "re-check fresh if the value changed" shape as
+  // pendingUnusualWeight above, but for the 5 body composition fields at
+  // once: a second Save tap only commits straight through if none of them
+  // changed since the warning appeared.
+  const [pendingUnusualBodyComposition, setPendingUnusualBodyComposition] =
+    useState<{
+      muscleMassKg?: number
+      visceralFatRating?: number
+      bodyWaterPercent?: number
+      boneMassKg?: number
+      bodyFatPercent?: number
+    } | null>(null)
   const [isEditingNote, setIsEditingNote] = useState(
     alwaysEditable || !initialValues.note,
   )
@@ -324,12 +348,15 @@ export function DailyEntryForm({
       return
     }
     clearErrors('weightKg')
-    if (
+    // #401 — a value can pass the absolute plausibility band above while
+    // still being an unusual jump from yesterday's own logged weight.
+    const isUnusual =
       result.data !== undefined &&
-      isUnusualWeightKg(result.data) &&
-      pendingUnusualWeight !== result.data
-    ) {
-      setPendingUnusualWeight(result.data)
+      (isUnusualWeightKg(result.data) ||
+        (previousDayEntry?.weightKg !== undefined &&
+          isUnusualWeightDeltaKg(result.data, previousDayEntry.weightKg)))
+    if (isUnusual && pendingUnusualWeight !== result.data) {
+      setPendingUnusualWeight(result.data!)
       return
     }
     setPendingUnusualWeight(null)
@@ -460,8 +487,67 @@ export function DailyEntryForm({
     clearErrors('bodyWaterPercent')
     clearErrors('boneMassKg')
     clearErrors('bodyFatPercent')
+    // #401 — each field's own unusual-jump-vs-yesterday check, same
+    // relative-delta reasoning as saveWeight() above; only ever compares
+    // against a previous value that's actually defined.
+    const current = {
+      muscleMassKg: muscleResult.data,
+      visceralFatRating: visceralResult.data,
+      bodyWaterPercent: waterResult.data,
+      boneMassKg: boneResult.data,
+      bodyFatPercent: bodyFatResult.data,
+    }
+    const isUnusual =
+      (current.muscleMassKg !== undefined &&
+        previousDayEntry?.muscleMassKg !== undefined &&
+        isUnusualMuscleMassDeltaKg(
+          current.muscleMassKg,
+          previousDayEntry.muscleMassKg,
+        )) ||
+      (current.visceralFatRating !== undefined &&
+        previousDayEntry?.visceralFatRating !== undefined &&
+        isUnusualVisceralFatDelta(
+          current.visceralFatRating,
+          previousDayEntry.visceralFatRating,
+        )) ||
+      (current.bodyWaterPercent !== undefined &&
+        previousDayEntry?.bodyWaterPercent !== undefined &&
+        isUnusualBodyWaterPercentDelta(
+          current.bodyWaterPercent,
+          previousDayEntry.bodyWaterPercent,
+        )) ||
+      (current.boneMassKg !== undefined &&
+        previousDayEntry?.boneMassKg !== undefined &&
+        isUnusualBoneMassDeltaKg(
+          current.boneMassKg,
+          previousDayEntry.boneMassKg,
+        )) ||
+      (current.bodyFatPercent !== undefined &&
+        previousDayEntry?.bodyFatPercent !== undefined &&
+        isUnusualBodyFatPercentDelta(
+          current.bodyFatPercent,
+          previousDayEntry.bodyFatPercent,
+        ))
+    const unchangedSincePendingWarning =
+      pendingUnusualBodyComposition !== null &&
+      pendingUnusualBodyComposition.muscleMassKg === current.muscleMassKg &&
+      pendingUnusualBodyComposition.visceralFatRating ===
+        current.visceralFatRating &&
+      pendingUnusualBodyComposition.bodyWaterPercent ===
+        current.bodyWaterPercent &&
+      pendingUnusualBodyComposition.boneMassKg === current.boneMassKg &&
+      pendingUnusualBodyComposition.bodyFatPercent === current.bodyFatPercent
+    if (isUnusual && !unchangedSincePendingWarning) {
+      setPendingUnusualBodyComposition(current)
+      return
+    }
+    setPendingUnusualBodyComposition(null)
     setIsEditingBodyComposition(false)
     persist(getValues())
+  }
+
+  function discardUnusualBodyCompositionWarning() {
+    setPendingUnusualBodyComposition(null)
   }
 
   return (
@@ -1098,6 +1184,34 @@ export function DailyEntryForm({
                 errors.boneMassKg?.message ??
                 errors.bodyFatPercent?.message}
             </p>
+          )}
+          {/* #401 — same soft-warning shape as weight's own above: a second
+           * Save tap on unchanged values commits anyway, Fix it just
+           * dismisses to keep editing. */}
+          {pendingUnusualBodyComposition !== null && (
+            <div className="flex flex-col gap-2">
+              <p className="text-sm text-destructive">
+                {t.dailyEntry.unusualBodyCompositionWarning}
+              </p>
+              <div className="flex items-center gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={saveBodyComposition}
+                >
+                  {t.dailyEntry.saveUnusualBodyCompositionAnywayLabel}
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={discardUnusualBodyCompositionWarning}
+                >
+                  {t.dailyEntry.fixBodyCompositionLabel}
+                </Button>
+              </div>
+            </div>
           )}
         </div>
       ))}

@@ -211,6 +211,12 @@ export interface Dictionary {
     unusualWeightWarning: string
     saveUnusualWeightAnywayLabel: string
     fixWeightLabel: string
+    /** #401 — same soft-warning shape as unusualWeightWarning above, but for
+     * an unusual jump vs. yesterday's own logged value in any of the 5 body
+     * composition fields (a second tap on Save confirms it anyway). */
+    unusualBodyCompositionWarning: string
+    saveUnusualBodyCompositionAnywayLabel: string
+    fixBodyCompositionLabel: string
     /** #218: a quiet inline note, not blocking anything — a day's total
      * calories crossing this can't map to a single "save" action to
      * intercept the way the weight warning above does, since it's a

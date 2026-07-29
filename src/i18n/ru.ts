@@ -121,6 +121,10 @@ export const ru: Dictionary = {
       'Необычное значение веса — проверьте, прежде чем сохранить.',
     saveUnusualWeightAnywayLabel: 'Сохранить как есть',
     fixWeightLabel: 'Исправить',
+    unusualBodyCompositionWarning:
+      'Необычное изменение по сравнению со вчерашним днём — проверьте, прежде чем сохранить.',
+    saveUnusualBodyCompositionAnywayLabel: 'Сохранить как есть',
+    fixBodyCompositionLabel: 'Исправить',
     unusualDailyCaloriesWarning:
       'Необычно много калорий за один день — проверьте свои записи.',
     mealLabel: (n) => `Приём пищи ${n}`,

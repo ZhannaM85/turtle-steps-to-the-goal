@@ -114,6 +114,10 @@ export const en: Dictionary = {
       "That's an unusual weight — please double-check it before saving.",
     saveUnusualWeightAnywayLabel: 'Save anyway',
     fixWeightLabel: 'Fix it',
+    unusualBodyCompositionWarning:
+      "That's an unusual change from yesterday — please double-check it before saving.",
+    saveUnusualBodyCompositionAnywayLabel: 'Save anyway',
+    fixBodyCompositionLabel: 'Fix it',
     unusualDailyCaloriesWarning:
       "That's unusually high for one day — worth double-checking your entries.",
     mealLabel: (n) => `Meal ${n}`,

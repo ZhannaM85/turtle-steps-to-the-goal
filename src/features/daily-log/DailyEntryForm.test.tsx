@@ -265,6 +265,64 @@ describe('DailyEntryForm', () => {
       })
     })
 
+    describe('unusual jump vs. yesterday (#401)', () => {
+      afterEach(async () => {
+        await db.dailyEntries.clear()
+      })
+
+      it('warns on a big overnight weight jump, even one inside the absolute plausibility band', async () => {
+        await db.dailyEntries.put({
+          id: 'prev-1',
+          date: '2026-02-28',
+          weightKg: 60,
+          createdAt: now,
+          updatedAt: now,
+        })
+        const user = userEvent.setup()
+        const onSave = vi.fn()
+        render(
+          <DailyEntryForm date="2026-03-01" existingEntry={null} onSave={onSave} />,
+        )
+
+        // 75kg on its own is nowhere near #218's 35-250kg absolute band —
+        // only the 15kg jump from yesterday's 60kg makes this unusual.
+        await user.type(screen.getByLabelText('Weight (kg)'), '75')
+        await user.click(screen.getByRole('button', { name: 'Save weight' }))
+
+        expect(
+          await screen.findByText(/unusual weight/),
+        ).toBeInTheDocument()
+        expect(onSave).not.toHaveBeenCalled()
+
+        await user.click(
+          screen.getByRole('button', { name: 'Save anyway' }),
+        )
+        expect(onSave).toHaveBeenCalledTimes(1)
+      })
+
+      it('does not warn for an ordinary day-to-day weight change', async () => {
+        await db.dailyEntries.put({
+          id: 'prev-2',
+          date: '2026-02-28',
+          weightKg: 70,
+          createdAt: now,
+          updatedAt: now,
+        })
+        const user = userEvent.setup()
+        const onSave = vi.fn()
+        render(
+          <DailyEntryForm date="2026-03-01" existingEntry={null} onSave={onSave} />,
+        )
+
+        await screen.findByLabelText('Weight (kg)')
+        await user.type(screen.getByLabelText('Weight (kg)'), '70.3')
+        await user.click(screen.getByRole('button', { name: 'Save weight' }))
+
+        expect(onSave).toHaveBeenCalledTimes(1)
+        expect(screen.queryByText(/unusual weight/)).not.toBeInTheDocument()
+      })
+    })
+
     it('saves on Enter in the weight field', async () => {
       const user = userEvent.setup()
       const onSave = vi.fn()
@@ -664,6 +722,76 @@ describe('DailyEntryForm', () => {
           'Muscle 31kg · Visceral fat 5 · Water 48% · Bone 2.3kg · Body fat 22%',
         ),
       ).toBeInTheDocument()
+    })
+
+    describe('unusual jump vs. yesterday (#401)', () => {
+      afterEach(async () => {
+        await db.dailyEntries.clear()
+      })
+
+      it('warns when a body composition field jumps unusually from yesterday, saves anyway on confirm', async () => {
+        await db.dailyEntries.put({
+          id: 'prev-1',
+          date: '2026-02-28',
+          muscleMassKg: 30,
+          createdAt: now,
+          updatedAt: now,
+        })
+        const user = userEvent.setup()
+        const onSave = vi.fn()
+        render(
+          <DailyEntryForm
+            date="2026-03-01"
+            existingEntry={null}
+            onSave={onSave}
+          />,
+        )
+
+        // 35kg on its own is a perfectly ordinary muscle mass — only the
+        // 5kg jump from yesterday's 30kg makes this unusual.
+        await user.type(screen.getByLabelText('Muscle mass (kg)'), '35')
+        await user.click(
+          screen.getByRole('button', { name: 'Save body composition' }),
+        )
+
+        expect(
+          await screen.findByText(/unusual change/),
+        ).toBeInTheDocument()
+        expect(onSave).not.toHaveBeenCalled()
+
+        await user.click(
+          screen.getByRole('button', { name: 'Save anyway' }),
+        )
+        expect(onSave).toHaveBeenCalledTimes(1)
+        expect(onSave.mock.calls[0][0].muscleMassKg).toBe(35)
+      })
+
+      it('does not warn for an ordinary day-to-day body composition change', async () => {
+        await db.dailyEntries.put({
+          id: 'prev-2',
+          date: '2026-02-28',
+          muscleMassKg: 30,
+          createdAt: now,
+          updatedAt: now,
+        })
+        const user = userEvent.setup()
+        const onSave = vi.fn()
+        render(
+          <DailyEntryForm
+            date="2026-03-01"
+            existingEntry={null}
+            onSave={onSave}
+          />,
+        )
+
+        await user.type(screen.getByLabelText('Muscle mass (kg)'), '30.1')
+        await user.click(
+          screen.getByRole('button', { name: 'Save body composition' }),
+        )
+
+        expect(onSave).toHaveBeenCalledTimes(1)
+        expect(screen.queryByText(/unusual change/)).not.toBeInTheDocument()
+      })
     })
   })
 

@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 357,
+    issue: 401,
+    date: '2026-07-29T13:24:00+03:00',
+    en: "Weight and body composition entries now get a gentle warning if they've jumped unusually from yesterday's — you can save anyway or fix the value.",
+    ru: 'Вес и состав тела теперь мягко предупреждают о необычном скачке по сравнению со вчерашним днём — можно сохранить как есть или исправить значение.',
+  },
+  {
     version: 356,
     issue: 402,
     date: '2026-07-29T13:04:20+03:00',

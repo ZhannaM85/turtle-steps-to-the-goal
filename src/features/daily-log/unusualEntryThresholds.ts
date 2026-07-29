@@ -60,3 +60,119 @@ export function isInconsistentMacros(
   )
   return Math.abs(kcal - derivedKcal) > tolerance
 }
+
+/**
+ * #401 — a *relative* sanity check, distinct from `isUnusualWeightKg`'s
+ * absolute plausibility band above: a value can sit comfortably inside that
+ * band (e.g. 60kg -> 75kg) while still being an implausible overnight swing
+ * for one person. Tolerance is the larger of a flat floor (so normal
+ * day-to-day noise near a low value isn't flagged) or a percentage of the
+ * previous value (so a proportionally bigger swing is allowed for someone
+ * heavier/leaner to begin with) — same "larger of floor or percentage"
+ * shape `isInconsistentMacros` above already established. Static, not
+ * adjusted for how many days have actually passed since the previous
+ * entry (a real gap between logged days would make a bigger swing
+ * unremarkable) — a known simplification, not attempted here.
+ */
+function isUnusualDelta(
+  current: number,
+  previous: number,
+  minAbsoluteDelta: number,
+  percentOfPrevious: number,
+): boolean {
+  const tolerance = Math.max(
+    minAbsoluteDelta,
+    Math.abs(previous) * percentOfPrevious,
+  )
+  return Math.abs(current - previous) > tolerance
+}
+
+export const UNUSUAL_WEIGHT_DELTA_MIN_KG = 3
+export const UNUSUAL_WEIGHT_DELTA_RATIO = 0.05
+
+export function isUnusualWeightDeltaKg(
+  currentKg: number,
+  previousKg: number,
+): boolean {
+  return isUnusualDelta(
+    currentKg,
+    previousKg,
+    UNUSUAL_WEIGHT_DELTA_MIN_KG,
+    UNUSUAL_WEIGHT_DELTA_RATIO,
+  )
+}
+
+export const UNUSUAL_MUSCLE_MASS_DELTA_MIN_KG = 2
+export const UNUSUAL_MUSCLE_MASS_DELTA_RATIO = 0.1
+
+export function isUnusualMuscleMassDeltaKg(
+  currentKg: number,
+  previousKg: number,
+): boolean {
+  return isUnusualDelta(
+    currentKg,
+    previousKg,
+    UNUSUAL_MUSCLE_MASS_DELTA_MIN_KG,
+    UNUSUAL_MUSCLE_MASS_DELTA_RATIO,
+  )
+}
+
+export const UNUSUAL_BONE_MASS_DELTA_MIN_KG = 0.3
+export const UNUSUAL_BONE_MASS_DELTA_RATIO = 0.1
+
+export function isUnusualBoneMassDeltaKg(
+  currentKg: number,
+  previousKg: number,
+): boolean {
+  return isUnusualDelta(
+    currentKg,
+    previousKg,
+    UNUSUAL_BONE_MASS_DELTA_MIN_KG,
+    UNUSUAL_BONE_MASS_DELTA_RATIO,
+  )
+}
+
+export const UNUSUAL_VISCERAL_FAT_DELTA_MIN = 2
+export const UNUSUAL_VISCERAL_FAT_DELTA_RATIO = 0.2
+
+export function isUnusualVisceralFatDelta(
+  current: number,
+  previous: number,
+): boolean {
+  return isUnusualDelta(
+    current,
+    previous,
+    UNUSUAL_VISCERAL_FAT_DELTA_MIN,
+    UNUSUAL_VISCERAL_FAT_DELTA_RATIO,
+  )
+}
+
+export const UNUSUAL_BODY_FAT_PERCENT_DELTA_MIN = 3
+export const UNUSUAL_BODY_FAT_PERCENT_DELTA_RATIO = 0.15
+
+export function isUnusualBodyFatPercentDelta(
+  current: number,
+  previous: number,
+): boolean {
+  return isUnusualDelta(
+    current,
+    previous,
+    UNUSUAL_BODY_FAT_PERCENT_DELTA_MIN,
+    UNUSUAL_BODY_FAT_PERCENT_DELTA_RATIO,
+  )
+}
+
+export const UNUSUAL_BODY_WATER_PERCENT_DELTA_MIN = 3
+export const UNUSUAL_BODY_WATER_PERCENT_DELTA_RATIO = 0.1
+
+export function isUnusualBodyWaterPercentDelta(
+  current: number,
+  previous: number,
+): boolean {
+  return isUnusualDelta(
+    current,
+    previous,
+    UNUSUAL_BODY_WATER_PERCENT_DELTA_MIN,
+    UNUSUAL_BODY_WATER_PERCENT_DELTA_RATIO,
+  )
+}
