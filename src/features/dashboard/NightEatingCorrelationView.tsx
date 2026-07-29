@@ -23,7 +23,11 @@ import {
   useLocale,
   useTranslation,
 } from '@/i18n'
-import { useDashboardChartVisibilityStore, useUnitStore } from '@/stores'
+import {
+  useDashboardChartVisibilityStore,
+  useProfileStore,
+  useUnitStore,
+} from '@/stores'
 import { useOutlierExclusion } from '@/shared/hooks'
 import { Button } from '@/shared/ui/button'
 import { ChartTitleWithToggle } from './ChartTitleWithToggle'
@@ -60,6 +64,7 @@ export function NightEatingCorrelationView({
   const t = useTranslation()
   const locale = useLocale()
   const dateFnsLocale = getDateFnsLocale(locale)
+  const sex = useProfileStore((state) => state.sex)
   const displayUnit = useUnitStore((state) => state.unit)
   const toDisplay = (kg: number) => (displayUnit === 'lb' ? kgToLb(kg) : kg)
   const unit = unitLabel(displayUnit, t)
@@ -132,7 +137,7 @@ export function NightEatingCorrelationView({
             <XAxis
               type="number"
               dataKey="x"
-              name={t.dailyEntry.nightEatingLabel()}
+              name={t.dailyEntry.nightEatingLabel(sex)}
               domain={[-0.5, 1.5]}
               ticks={[NO_X, YES_X]}
               tickFormatter={(value: number) =>
@@ -163,7 +168,7 @@ export function NightEatingCorrelationView({
                 color: 'var(--popover-foreground)',
               }}
               formatter={(value, name) => [
-                name === t.dailyEntry.nightEatingLabel()
+                name === t.dailyEntry.nightEatingLabel(sex)
                   ? Number(value) === YES_X
                     ? t.dailyEntry.nightEatingYesOption
                     : t.dailyEntry.nightEatingNoOption

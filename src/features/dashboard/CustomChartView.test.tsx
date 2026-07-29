@@ -2,12 +2,14 @@ import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import type { DailyEntry } from '@/domain/dailyEntry'
+import { useLocaleStore } from '@/i18n'
 import {
   useCustomChartSelectionStore,
   useCustomMetricStore,
   useCycleTrackingStore,
   useDashboardChartVisibilityStore,
   useDigestionTrackingStore,
+  useProfileStore,
   useTrackedFieldsStore,
 } from '@/stores'
 import { CustomChartView } from './CustomChartView'
@@ -199,6 +201,23 @@ describe('CustomChartView', () => {
 
     // Chip plus its own new legend entry, once selected.
     expect(screen.getAllByText('Ate late tonight')).toHaveLength(2)
+  })
+
+  it('uses the real profile sex for the night-eating label instead of the neutral placeholder (#407)', () => {
+    useLocaleStore.setState({ locale: 'ru' })
+    useProfileStore.setState({ sex: 'female' })
+
+    render(<CustomChartView entries={[entry('2026-03-01', { weightKg: 80 })]} />)
+
+    expect(
+      screen.getByRole('button', { name: 'Ела поздно вечером' }),
+    ).toBeInTheDocument()
+    expect(
+      screen.queryByRole('button', { name: 'Ел(а) поздно вечером' }),
+    ).not.toBeInTheDocument()
+
+    useLocaleStore.setState({ locale: 'en' })
+    useProfileStore.setState({ sex: undefined })
   })
 
   it('defaults each selected series to the line chart type', () => {

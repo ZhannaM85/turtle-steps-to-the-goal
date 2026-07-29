@@ -20,6 +20,7 @@ import {
   NUMERIC_SERIES_KEYS,
   resolveMetricValueMap,
   type NumericSeriesKey,
+  type Sex,
 } from '@/domain/stats'
 import {
   formatNumber,
@@ -35,6 +36,7 @@ import {
   useCycleTrackingStore,
   useDashboardChartVisibilityStore,
   useDigestionTrackingStore,
+  useProfileStore,
   useTrackedFieldsStore,
   useUnitStore,
   type ChartSeriesType,
@@ -88,7 +90,7 @@ export interface CustomChartViewProps {
 
 interface BooleanSeriesConfig {
   key: 'onPeriod' | 'hadConstipation' | 'nightEating'
-  label: (t: Dictionary) => string
+  label: (t: Dictionary, sex?: Sex) => string
   color: string
 }
 
@@ -107,7 +109,11 @@ const BOOLEAN_SERIES: BooleanSeriesConfig[] = [
   },
   {
     key: 'nightEating',
-    label: (t) => t.dailyEntry.nightEatingLabel(),
+    // #407 — reversing #398's own deliberate scope limit (generic label
+    // "regardless of who's viewing"): reported live that the neutral
+    // "Ел(а)" placeholder reads badly here too, same as it did in
+    // DailyEntryForm/DayDetail before #398.
+    label: (t, sex) => t.dailyEntry.nightEatingLabel(sex),
     // Matches CalendarView's bg-indigo-500 dot for the same flag (#383).
     color: '#6366f1',
   },
@@ -267,6 +273,7 @@ export function CustomChartView({ entries, dragHandle }: CustomChartViewProps) {
   const locale = useLocale()
   const dateFnsLocale = getDateFnsLocale(locale)
   const seriesConfig = useNumericSeriesConfig()
+  const sex = useProfileStore((state) => state.sex)
   const cycleTrackingEnabled = useCycleTrackingStore((state) => state.enabled)
   const digestionTrackingEnabled = useDigestionTrackingStore(
     (state) => state.enabled,
@@ -496,7 +503,7 @@ export function CustomChartView({ entries, dragHandle }: CustomChartViewProps) {
         ))}
         {availableBooleanSeries.map((series) => (
           <ToggleGroupItem key={series.key} value={series.key}>
-            {series.label(t)}
+            {series.label(t, sex)}
           </ToggleGroupItem>
         ))}
         {/* #371 — custom metrics (#336), same chip pattern as the built-ins
@@ -764,7 +771,7 @@ export function CustomChartView({ entries, dragHandle }: CustomChartViewProps) {
                     className="size-2 rounded-full"
                     style={{ background: series.color }}
                   />
-                  {series.label(t)}
+                  {series.label(t, sex)}
                 </div>
               )
             })}

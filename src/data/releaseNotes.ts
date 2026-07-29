@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 353,
+    issue: 407,
+    date: '2026-07-29T12:46:20+03:00',
+    en: 'The gender-correct "ate late tonight" label now also shows correctly in the Compare Data chart and its correlation view, not just Today/History.',
+    ru: 'Правильная по роду формулировка "Ел(а) поздно вечером" теперь также корректно отображается в графике "Сравнение данных" и его корреляции, а не только на Сегодня/в Истории.',
+  },
+  {
     version: 352,
     issue: 406,
     date: '2026-07-29T12:35:40+03:00',
