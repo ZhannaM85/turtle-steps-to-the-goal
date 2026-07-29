@@ -713,20 +713,29 @@ export function TodayScreen() {
        * position right under the title now, always the first thing after
        * it regardless of how many stat cards render below. */}
       <div className="flex flex-col gap-1.5">
-        <Label htmlFor="log-date" className="flex items-center gap-1.5">
-          {t.today.dateLabel}
+        <div className="flex items-center gap-1.5">
+          <Label htmlFor="log-date">{t.today.dateLabel}</Label>
           {/* #405 — visible at a glance while stepping through history via
-           * the arrows, before scrolling down into the form itself. */}
+           * the arrows, before scrolling down into the form itself. #422:
+           * reported live — a screen-reader-only aria-label on a plain
+           * decorative span gave a sighted user no way to learn what the
+           * checkmark meant. Now an actual tappable `InfoTooltip` trigger
+           * (custom `icon` override, #422's own addition, so the
+           * meaningful checkmark glyph isn't replaced by a generic "i") —
+           * a sibling of the `<Label>`, not nested inside it: a `<label>`
+           * implicitly extends its own accessible name to any interactive
+           * element nested inside it, which would have made this button's
+           * name read as "Date This day has logged entries" instead of
+           * just the latter. */}
           {entry !== null && (
-            <span
-              role="img"
-              aria-label={t.today.dayHasEntriesLabel}
-              className="inline-flex items-center justify-center rounded-full bg-primary/15 p-0.5"
-            >
-              <Check aria-hidden="true" className="size-3 text-primary" />
-            </span>
+            <InfoTooltip
+              text={t.today.dayHasEntriesLabel}
+              label={t.today.dayHasEntriesLabel}
+              className="size-auto rounded-full bg-primary/15 p-0.5 text-primary hover:text-primary"
+              icon={<Check aria-hidden="true" className="size-3" />}
+            />
           )}
-        </Label>
+        </div>
         <div className="flex items-center gap-2">
           <Button
             type="button"

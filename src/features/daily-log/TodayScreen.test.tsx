@@ -1408,7 +1408,7 @@ describe('TodayScreen', () => {
       await screen.findByLabelText('Date')
 
       expect(
-        screen.queryByRole('img', { name: 'This day has logged entries' }),
+        screen.queryByRole('button', { name: 'This day has logged entries' }),
       ).not.toBeInTheDocument()
     })
 
@@ -1420,7 +1420,26 @@ describe('TodayScreen', () => {
       await screen.findByLabelText('Date')
 
       expect(
-        await screen.findByRole('img', { name: 'This day has logged entries' }),
+        await screen.findByRole('button', {
+          name: 'This day has logged entries',
+        }),
+      ).toBeInTheDocument()
+    })
+
+    it('shows an explanatory tooltip when the checkmark is clicked (#422)', async () => {
+      const user = userEvent.setup()
+      await useDailyEntryStore
+        .getState()
+        .saveEntry(makeEntry({ date: '2026-03-01', weightKg: 60 }))
+      renderToday(['/?date=2026-03-01'])
+      await screen.findByLabelText('Date')
+
+      await user.click(
+        screen.getByRole('button', { name: 'This day has logged entries' }),
+      )
+
+      expect(
+        await screen.findByText('This day has logged entries'),
       ).toBeInTheDocument()
     })
   })

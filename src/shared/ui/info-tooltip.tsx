@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react'
 import { Info } from 'lucide-react'
 import { Popover as PopoverPrimitive } from 'radix-ui'
 
@@ -7,9 +8,20 @@ export interface InfoTooltipProps {
   text: string
   label: string
   className?: string
+  /** #422 — overrides the default `Info` glyph, for a caller whose trigger
+   * already carries its own meaningful icon (e.g. the date-navigator's
+   * checkmark badge) that shouldn't be replaced by a generic "i" just to
+   * become tappable. Defaults to `Info` so every existing caller (BMR
+   * tooltip, etc.) is unaffected. */
+  icon?: ReactNode
 }
 
-export function InfoTooltip({ text, label, className }: InfoTooltipProps) {
+export function InfoTooltip({
+  text,
+  label,
+  className,
+  icon,
+}: InfoTooltipProps) {
   return (
     <PopoverPrimitive.Root>
       <PopoverPrimitive.Trigger asChild>
@@ -21,7 +33,7 @@ export function InfoTooltip({ text, label, className }: InfoTooltipProps) {
             className,
           )}
         >
-          <Info className="size-3.5" aria-hidden="true" />
+          {icon ?? <Info className="size-3.5" aria-hidden="true" />}
         </button>
       </PopoverPrimitive.Trigger>
       <PopoverPrimitive.Portal>

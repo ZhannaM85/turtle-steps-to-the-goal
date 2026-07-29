@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 374,
+    issue: 422,
+    date: '2026-07-29T19:30:51+03:00',
+    en: "Tapping the checkmark next to Today's date now shows a tooltip explaining it means the day already has logged entries, instead of only being readable by a screen reader.",
+    ru: 'Нажатие на галочку рядом с датой на вкладке "Сегодня" теперь показывает подсказку о том, что за этот день уже есть записи, а не только текст для программ чтения с экрана.',
+  },
+  {
     version: 373,
     issue: 425,
     date: '2026-07-29T18:33:24+03:00',
