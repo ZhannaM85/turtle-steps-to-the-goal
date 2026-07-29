@@ -129,4 +129,41 @@ describe('rollingAverage', () => {
       { date: '2026-03-02', average: 2000 },
     ])
   })
+
+  // #175 — a multi-year import (~2,190 daily entries) profiled at 150+
+  // seconds of self-time inside this function's old O(n²) shape (re-filtering
+  // and re-parseISO-ing every entry for every distinct date). This doesn't
+  // assert an exact millisecond budget (flaky across machines/CI load), just
+  // that it stays roughly linear rather than quadratic -- 10x the entries
+  // should take nowhere near 10x as long, let alone 100x.
+  it('scales roughly linearly, not quadratically, with entry count (#175)', () => {
+    function manyEntries(count: number): DailyEntry[] {
+      const start = new Date('2020-01-01T00:00:00Z')
+      const result: DailyEntry[] = []
+      for (let i = 0; i < count; i++) {
+        const date = new Date(start.getTime() + i * 86400000)
+          .toISOString()
+          .slice(0, 10)
+        result.push(entry(date, { weightKg: 80 - i * 0.001 }))
+      }
+      return result
+    }
+
+    const small = manyEntries(200)
+    const large = manyEntries(2000) // 10x the entries
+
+    const smallStart = performance.now()
+    rollingAverage(small, 'weightKg', 7)
+    const smallMs = performance.now() - smallStart
+
+    const largeStart = performance.now()
+    rollingAverage(large, 'weightKg', 7)
+    const largeMs = performance.now() - largeStart
+
+    // A quadratic implementation would take ~100x as long for 10x the
+    // entries; a linear one takes ~10x. Generous 30x ceiling absorbs
+    // measurement noise on a small (sub-millisecond-scale) baseline
+    // without masking a real quadratic regression.
+    expect(largeMs).toBeLessThan(Math.max(smallMs, 1) * 30)
+  })
 })
