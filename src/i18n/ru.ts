@@ -58,6 +58,7 @@ export const ru: Dictionary = {
     previousDayLabel: 'Предыдущий день',
     nextDayLabel: 'Следующий день',
     jumpToTodayButton: 'Сегодня',
+    dayHasEntriesLabel: 'За этот день есть записи',
     startTodayEarlyBanner: 'Уже наступил новый день.',
     startTodayEarlyButton: 'Начать сегодняшний день сейчас',
     goalRenewalReminder:

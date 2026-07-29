@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 354,
+    issue: 405,
+    date: '2026-07-29T12:51:30+03:00',
+    en: 'A small checkmark now appears next to the date when browsing to a day that already has logged entries.',
+    ru: 'Рядом с датой теперь появляется галочка, если за этот день уже есть записи.',
+  },
+  {
     version: 353,
     issue: 407,
     date: '2026-07-29T12:46:20+03:00',

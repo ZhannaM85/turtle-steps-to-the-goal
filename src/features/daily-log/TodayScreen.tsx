@@ -17,7 +17,7 @@ import {
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { addDays, format, parseISO } from 'date-fns'
-import { ChevronLeft, ChevronRight, GripVertical } from 'lucide-react'
+import { Check, ChevronLeft, ChevronRight, GripVertical } from 'lucide-react'
 import { Link, useSearchParams } from 'react-router-dom'
 import {
   totalCalories,
@@ -691,7 +691,20 @@ export function TodayScreen() {
        * position right under the title now, always the first thing after
        * it regardless of how many stat cards render below. */}
       <div className="flex flex-col gap-1.5">
-        <Label htmlFor="log-date">{t.today.dateLabel}</Label>
+        <Label htmlFor="log-date" className="flex items-center gap-1.5">
+          {t.today.dateLabel}
+          {/* #405 — visible at a glance while stepping through history via
+           * the arrows, before scrolling down into the form itself. */}
+          {entry !== null && (
+            <span
+              role="img"
+              aria-label={t.today.dayHasEntriesLabel}
+              className="inline-flex items-center justify-center rounded-full bg-primary/15 p-0.5"
+            >
+              <Check aria-hidden="true" className="size-3 text-primary" />
+            </span>
+          )}
+        </Label>
         <div className="flex items-center gap-2">
           <Button
             type="button"

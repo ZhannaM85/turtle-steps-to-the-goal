@@ -52,6 +52,7 @@ export const en: Dictionary = {
     previousDayLabel: 'Previous day',
     nextDayLabel: 'Next day',
     jumpToTodayButton: 'Today',
+    dayHasEntriesLabel: 'This day has logged entries',
     startTodayEarlyBanner: "It's already a new day.",
     startTodayEarlyButton: "Start today's log now",
     goalRenewalReminder:

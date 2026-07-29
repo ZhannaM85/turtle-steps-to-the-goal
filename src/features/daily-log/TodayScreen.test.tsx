@@ -1327,6 +1327,29 @@ describe('TodayScreen', () => {
     })
   })
 
+  describe('checkmark on the date navigator when the day has entries (#405)', () => {
+    it('shows no checkmark for a day with no logged entry', async () => {
+      renderToday()
+      await screen.findByLabelText('Date')
+
+      expect(
+        screen.queryByRole('img', { name: 'This day has logged entries' }),
+      ).not.toBeInTheDocument()
+    })
+
+    it('shows a checkmark once the viewed day has a logged entry', async () => {
+      await useDailyEntryStore
+        .getState()
+        .saveEntry(makeEntry({ date: '2026-03-01', weightKg: 60 }))
+      renderToday(['/?date=2026-03-01'])
+      await screen.findByLabelText('Date')
+
+      expect(
+        await screen.findByRole('img', { name: 'This day has logged entries' }),
+      ).toBeInTheDocument()
+    })
+  })
+
   describe('quick jump back to today (#403)', () => {
     it('has no Today button while already viewing today', async () => {
       renderToday()

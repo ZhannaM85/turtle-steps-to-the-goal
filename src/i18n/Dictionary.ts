@@ -69,6 +69,10 @@ export interface Dictionary {
      * non-today date, a quick way back after paging/picking far away
      * instead of stepping/picking your way back manually. */
     jumpToTodayButton: string
+    /** #405 — accessible name for the checkmark badge shown next to the
+     * date navigator when the viewed date already has a logged entry,
+     * visible before scrolling down into the form itself. */
+    dayHasEntriesLabel: string
     /** #345 — shown only when the real calendar date has already turned
      * over but the configured day-start time (#298) hasn't been reached
      * yet, so `todayIso()` still resolves to the previous day. Lets that
