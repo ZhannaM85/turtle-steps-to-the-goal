@@ -1,5 +1,6 @@
 import { render, screen } from '@testing-library/react'
-import { describe, expect, it } from 'vitest'
+import userEvent from '@testing-library/user-event'
+import { describe, expect, it, vi } from 'vitest'
 import { StatCard } from './stat-card'
 
 describe('StatCard', () => {
@@ -100,6 +101,34 @@ describe('StatCard', () => {
       for (const segment of Array.from(bar.children)) {
         expect(segment).toHaveStyle({ backgroundColor: 'rgb(1, 2, 3)' })
       }
+    })
+  })
+
+  describe('click handling (#430)', () => {
+    it('calls onClick when the card is clicked', async () => {
+      const user = userEvent.setup()
+      const onClick = vi.fn()
+      render(<StatCard label="Remaining water" value={2000} unit="ml" onClick={onClick} />)
+
+      await user.click(screen.getByText('Remaining water').closest('[data-slot="card"]')!)
+
+      expect(onClick).toHaveBeenCalled()
+    })
+
+    it('has no pointer cursor when no onClick is given', () => {
+      render(<StatCard label="Remaining water" value={2000} unit="ml" />)
+
+      const card = screen.getByText('Remaining water').closest('[data-slot="card"]')
+      expect(card).not.toHaveClass('cursor-pointer')
+    })
+
+    it('shows a pointer cursor once onClick is given', () => {
+      render(
+        <StatCard label="Remaining water" value={2000} unit="ml" onClick={vi.fn()} />,
+      )
+
+      const card = screen.getByText('Remaining water').closest('[data-slot="card"]')
+      expect(card).toHaveClass('cursor-pointer')
     })
   })
 })

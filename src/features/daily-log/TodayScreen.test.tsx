@@ -26,6 +26,7 @@ import {
   useSectionVisibilityStore,
   useTodayCardOrderStore,
   useTodayStatsCollapseStore,
+  useWaterTrackingStore,
 } from '@/stores'
 import { TodayScreen } from './TodayScreen'
 
@@ -102,6 +103,7 @@ beforeEach(async () => {
   useTodayCardOrderStore.persist.clearStorage()
   useTodayCardOrderStore.setState({ order: DEFAULT_TODAY_CARD_ORDER })
   useTodayStatsCollapseStore.setState({ collapsed: false })
+  useWaterTrackingStore.setState({ enabled: false })
   resetSectionVisibility()
 })
 
@@ -1363,6 +1365,63 @@ describe('TodayScreen', () => {
       const card = label.closest('[data-slot="card"]') as HTMLElement
       const bar = await within(card).findByRole('progressbar')
       expect(bar).toHaveAttribute('aria-valuenow', '100')
+    })
+
+    describe('click-to-scroll (#430)', () => {
+      beforeEach(() => {
+        useWaterTrackingStore.setState({ enabled: true })
+        // jsdom doesn't implement scrollIntoView at all.
+        Element.prototype.scrollIntoView = vi.fn()
+      })
+
+      afterEach(() => {
+        // @ts-expect-error — undo the jsdom polyfill above, don't leak it
+        // into other test files sharing this prototype.
+        delete Element.prototype.scrollIntoView
+      })
+
+      it('scrolls to the water add/remove section when the card itself is clicked', async () => {
+        const user = userEvent.setup()
+        await useGoalStore
+          .getState()
+          .saveGoal(makeGoal({ dailyWaterTargetMl: 2000 }))
+
+        render(
+          <MemoryRouter>
+            <TodayScreen />
+          </MemoryRouter>,
+        )
+
+        const label = await screen.findByText('Remaining water')
+        const card = label.closest('[data-slot="card"]') as HTMLElement
+        await user.click(card)
+
+        const waterSection = document.getElementById('water-entry-section')
+        expect(waterSection?.scrollIntoView).toHaveBeenCalledWith({
+          behavior: 'smooth',
+          block: 'start',
+        })
+      })
+
+      it('does not scroll when clicking the card\'s own hide-section toggle (propagation regression)', async () => {
+        const user = userEvent.setup()
+        await useGoalStore
+          .getState()
+          .saveGoal(makeGoal({ dailyWaterTargetMl: 2000 }))
+
+        render(
+          <MemoryRouter>
+            <TodayScreen />
+          </MemoryRouter>,
+        )
+
+        const label = await screen.findByText('Remaining water')
+        const card = label.closest('[data-slot="card"]') as HTMLElement
+        await user.click(within(card).getByRole('button', { name: 'Hide Remaining water' }))
+
+        const waterSection = document.getElementById('water-entry-section')
+        expect(waterSection?.scrollIntoView).not.toHaveBeenCalled()
+      })
     })
   })
 
