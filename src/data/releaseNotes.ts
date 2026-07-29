@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 355,
+    issue: 408,
+    date: '2026-07-29T12:57:10+03:00',
+    en: 'History\'s "weeks you hit your target" list now also shows the resulting weight, not just the change.',
+    ru: 'Список "Недели, когда цель была достигнута" в Истории теперь также показывает итоговый вес, а не только изменение.',
+  },
+  {
     version: 354,
     issue: 405,
     date: '2026-07-29T12:51:30+03:00',

@@ -84,4 +84,19 @@ describe('MetTargetList', () => {
     expect(screen.getByText('-3.0 kg')).toBeInTheDocument()
     expect(screen.queryByText('-0.1 kg')).not.toBeInTheDocument()
   })
+
+  it('shows the resulting weight (previous → current) alongside the delta (#408)', () => {
+    const entries = [
+      entry(weekStart(0), { weightKg: 90 }),
+      entry(weekStart(1), { weightKg: 87 }), // -3kg, met
+    ]
+    render(
+      <MetTargetList
+        entries={entries}
+        goal={makeGoal({ targetWeeklyLossKg: 1 })}
+      />,
+    )
+
+    expect(screen.getByText('90.0 → 87.0 kg')).toBeInTheDocument()
+  })
 })

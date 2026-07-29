@@ -3,6 +3,7 @@ import type { DailyEntry } from '@/domain/dailyEntry'
 import { kgToLb, type Goal } from '@/domain/goal'
 import { weeklySummaries } from '@/domain/stats'
 import {
+  formatNumber,
   formatSignedNumber,
   getDateFnsLocale,
   unitLabel,
@@ -60,10 +61,28 @@ export function MetTargetList({ entries, goal }: MetTargetListProps) {
                 }),
               )}
             </span>
-            <span className="tabular-nums text-muted-foreground">
-              {formatSignedNumber(toDisplay(week.deltaVsPriorWeekKg!), locale)}{' '}
-              {unit}
-            </span>
+            <div className="flex flex-col items-end gap-0.5">
+              <span className="tabular-nums text-muted-foreground">
+                {formatSignedNumber(toDisplay(week.deltaVsPriorWeekKg!), locale)}{' '}
+                {unit}
+              </span>
+              {/* #408 — the resulting weight itself, same "previous → current"
+               * pair PastTargetsList (Goal page) already shows; both averages
+               * are guaranteed non-null here since deltaVsPriorWeekKg is only
+               * ever set once both weeks' averageWeightKg exist. */}
+              <span className="text-xs tabular-nums text-muted-foreground">
+                {t.goal.previousToCurrentWeightLabel(
+                  formatNumber(
+                    toDisplay(
+                      week.averageWeightKg! - week.deltaVsPriorWeekKg!,
+                    ),
+                    locale,
+                  ),
+                  formatNumber(toDisplay(week.averageWeightKg!), locale),
+                  unit,
+                )}
+              </span>
+            </div>
           </li>
         ))}
       </ul>
