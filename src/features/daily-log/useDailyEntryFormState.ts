@@ -286,6 +286,33 @@ export function useDailyEntryFormState({
   const showBodyCompositionAsDisplay =
     !alwaysEditable && !isEditingBodyComposition
 
+  // #424 — whether there's an established value to actually cancel back
+  // to. A field that's still empty (nothing ever saved) auto-opens in edit
+  // mode with no display-mode rendering to return to (its own display JSX
+  // assumes a real value); offering Cancel there would flip to display mode
+  // with nothing to show. Mirrors the exact same "any field in the group
+  // already has a value" condition each field's own isEditingX initial
+  // state above already uses (negated) — `alwaysEditable` itself always
+  // permits it, since that context never reaches the display-mode branch
+  // and cancel there just clears the input back to blank, safely.
+  const canCancelWeightEdit = alwaysEditable || initialValues.weightKg !== undefined
+  const canCancelSleepEdit =
+    alwaysEditable ||
+    initialValues.sleepHours !== undefined ||
+    initialValues.deepSleepHours !== undefined
+  const canCancelStepsEdit = alwaysEditable || initialValues.steps !== undefined
+  const canCancelBodyMeasurementsEdit =
+    alwaysEditable ||
+    initialValues.waistCm !== undefined ||
+    initialValues.hipCm !== undefined
+  const canCancelBodyCompositionEdit =
+    alwaysEditable ||
+    initialValues.muscleMassKg !== undefined ||
+    initialValues.visceralFatRating !== undefined ||
+    initialValues.bodyWaterPercent !== undefined ||
+    initialValues.boneMassKg !== undefined ||
+    initialValues.bodyFatPercent !== undefined
+
   // #237: Mood is a standalone, always-interactive field (no separate
   // edit/display toggle the way Sleep/Steps/Note have — EmotionPicker is
   // already a compact, single-tap control) — saves immediately on pick,
@@ -371,6 +398,21 @@ export function useDailyEntryFormState({
     setPendingUnusualWeight(null)
   }
 
+  // #424 — reverts to the value from when this render's edit session
+  // started, same "leave without saving" affordance MealList.tsx's #169
+  // Cancel button already established, applied here. `initialValues` is
+  // memoized once on mount (see its own comment above) — reverting mid-
+  // session after an earlier save-then-reopen-then-cancel in the same
+  // mount would revert further back than just that reopen, a known,
+  // accepted limitation shared with every other use of `initialValues`
+  // in this hook.
+  function cancelEditWeight() {
+    setValue('weightKg', initialValues.weightKg)
+    clearErrors('weightKg')
+    setPendingUnusualWeight(null)
+    setIsEditingWeight(false)
+  }
+
   function saveNote() {
     const result = noteSchema.safeParse(getValues('note'))
     if (!result.success) {
@@ -415,6 +457,22 @@ export function useDailyEntryFormState({
     })
   }
 
+  // #424 — same "revert to session-start value" shape as cancelEditWeight
+  // above, plus resetting the hours/minutes sub-fields local state (not
+  // react-hook-form fields, see combineHoursMinutes' own comment) back to
+  // the initial split.
+  function cancelEditSleep() {
+    setValue('sleepHours', initialValues.sleepHours)
+    setValue('deepSleepHours', initialValues.deepSleepHours)
+    setSleepHoursPart(initialSleepParts.hours)
+    setSleepMinutesPart(initialSleepParts.minutes)
+    setDeepSleepHoursPart(initialDeepSleepParts.hours)
+    setDeepSleepMinutesPart(initialDeepSleepParts.minutes)
+    clearErrors('sleepHours')
+    clearErrors('deepSleepHours')
+    setIsEditingSleep(false)
+  }
+
   function saveSteps() {
     const result = stepsSchema.safeParse(getValues('steps'))
     if (!result.success) {
@@ -424,6 +482,13 @@ export function useDailyEntryFormState({
     clearErrors('steps')
     setIsEditingSteps(false)
     persist(getValues())
+  }
+
+  // #424
+  function cancelEditSteps() {
+    setValue('steps', initialValues.steps)
+    clearErrors('steps')
+    setIsEditingSteps(false)
   }
 
   function saveBodyMeasurements() {
@@ -441,6 +506,15 @@ export function useDailyEntryFormState({
     clearErrors('hipCm')
     setIsEditingBodyMeasurements(false)
     persist(getValues())
+  }
+
+  // #424
+  function cancelEditBodyMeasurements() {
+    setValue('waistCm', initialValues.waistCm)
+    setValue('hipCm', initialValues.hipCm)
+    clearErrors('waistCm')
+    clearErrors('hipCm')
+    setIsEditingBodyMeasurements(false)
   }
 
   function saveBodyComposition() {
@@ -558,6 +632,22 @@ export function useDailyEntryFormState({
     setPendingUnusualBodyComposition(null)
   }
 
+  // #424
+  function cancelEditBodyComposition() {
+    setValue('muscleMassKg', initialValues.muscleMassKg)
+    setValue('visceralFatRating', initialValues.visceralFatRating)
+    setValue('bodyWaterPercent', initialValues.bodyWaterPercent)
+    setValue('boneMassKg', initialValues.boneMassKg)
+    setValue('bodyFatPercent', initialValues.bodyFatPercent)
+    clearErrors('muscleMassKg')
+    clearErrors('visceralFatRating')
+    clearErrors('bodyWaterPercent')
+    clearErrors('boneMassKg')
+    clearErrors('bodyFatPercent')
+    setPendingUnusualBodyComposition(null)
+    setIsEditingBodyComposition(false)
+  }
+
   // #435 — the hard schema bounds `saveBodyComposition()` already checks
   // (above) only ever ran at Save time, so an absurd value sat looking
   // accepted in the input until the user actually tapped Save. Validates
@@ -604,6 +694,8 @@ export function useDailyEntryFormState({
     pendingUnusualWeight,
     saveWeight,
     discardUnusualWeightWarning,
+    canCancelWeightEdit,
+    cancelEditWeight,
     // Sleep
     trackedFields,
     sleepHours,
@@ -619,6 +711,8 @@ export function useDailyEntryFormState({
     deepSleepMinutesPart,
     setDeepSleepMinutesPart,
     saveSleep,
+    canCancelSleepEdit,
+    cancelEditSleep,
     // Meals/macros
     dayTotalCalories,
     dayMacrosSummary,
@@ -633,12 +727,16 @@ export function useDailyEntryFormState({
     steps,
     setIsEditingSteps,
     saveSteps,
+    canCancelStepsEdit,
+    cancelEditSteps,
     // Body measurements
     waistCm,
     hipCm,
     showBodyMeasurementsAsDisplay,
     setIsEditingBodyMeasurements,
     saveBodyMeasurements,
+    canCancelBodyMeasurementsEdit,
+    cancelEditBodyMeasurements,
     // Body composition
     muscleMassKg,
     visceralFatRating,
@@ -650,6 +748,8 @@ export function useDailyEntryFormState({
     saveBodyComposition,
     pendingUnusualBodyComposition,
     discardUnusualBodyCompositionWarning,
+    canCancelBodyCompositionEdit,
+    cancelEditBodyComposition,
     validateBodyCompositionFieldOnBlur,
     // Note
     note,

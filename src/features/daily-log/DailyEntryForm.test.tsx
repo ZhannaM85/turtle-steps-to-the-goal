@@ -372,6 +372,50 @@ describe('DailyEntryForm', () => {
       expect(onSave.mock.calls[0][0].weightKg).toBe(79.5)
       expect(screen.getByText('79.5 kg')).toBeInTheDocument()
     })
+
+    describe('leaving edit mode without saving (#424)', () => {
+      it('has no Cancel button for a brand-new entry with nothing saved yet', () => {
+        render(
+          <DailyEntryForm date="2026-03-01" existingEntry={null} onSave={vi.fn()} />,
+        )
+
+        expect(
+          screen.queryByRole('button', { name: 'Cancel editing weight' }),
+        ).not.toBeInTheDocument()
+      })
+
+      it('discards a typed change and reverts to the saved value', async () => {
+        const user = userEvent.setup()
+        const onSave = vi.fn()
+        render(
+          <DailyEntryForm
+            date="2026-03-01"
+            existingEntry={{
+              id: 'e1',
+              date: '2026-03-01',
+              weightKg: 80,
+              createdAt: now,
+              updatedAt: now,
+            }}
+            onSave={onSave}
+          />,
+        )
+
+        await user.click(screen.getByRole('button', { name: 'Edit weight' }))
+        const input = screen.getByLabelText('Weight (kg)')
+        await user.clear(input)
+        await user.type(input, '999')
+        await user.click(
+          screen.getByRole('button', { name: 'Cancel editing weight' }),
+        )
+
+        expect(onSave).not.toHaveBeenCalled()
+        expect(screen.getByText('80 kg')).toBeInTheDocument()
+        expect(
+          screen.queryByLabelText('Weight (kg)'),
+        ).not.toBeInTheDocument()
+      })
+    })
   })
 
   describe('sleep', () => {
@@ -464,6 +508,50 @@ describe('DailyEntryForm', () => {
       expect(screen.getByLabelText('Deep sleep — hours')).toHaveValue('1')
       expect(screen.getByLabelText('Deep sleep — minutes')).toHaveValue('30')
     })
+
+    describe('leaving edit mode without saving (#424)', () => {
+      it('has no Cancel button for a brand-new entry with nothing saved yet', () => {
+        render(
+          <DailyEntryForm date="2026-03-01" existingEntry={null} onSave={vi.fn()} />,
+        )
+
+        expect(
+          screen.queryByRole('button', { name: 'Cancel editing sleep' }),
+        ).not.toBeInTheDocument()
+      })
+
+      it('discards typed changes to both hours and deep sleep, reverting to the saved values', async () => {
+        const user = userEvent.setup()
+        const onSave = vi.fn()
+        render(
+          <DailyEntryForm
+            date="2026-03-01"
+            existingEntry={{
+              id: 'e1',
+              date: '2026-03-01',
+              sleepHours: 7,
+              deepSleepHours: 1.5,
+              createdAt: now,
+              updatedAt: now,
+            }}
+            onSave={onSave}
+          />,
+        )
+
+        await user.click(screen.getByRole('button', { name: 'Edit sleep' }))
+        await user.clear(screen.getByLabelText('Hours slept — hours'))
+        await user.type(screen.getByLabelText('Hours slept — hours'), '3')
+        await user.click(
+          screen.getByRole('button', { name: 'Cancel editing sleep' }),
+        )
+
+        expect(onSave).not.toHaveBeenCalled()
+        expect(screen.getByText('7h 0m slept · 1h 30m deep')).toBeInTheDocument()
+
+        await user.click(screen.getByRole('button', { name: 'Edit sleep' }))
+        expect(screen.getByLabelText('Hours slept — hours')).toHaveValue('7')
+      })
+    })
   })
 
   describe('steps', () => {
@@ -535,6 +623,47 @@ describe('DailyEntryForm', () => {
 
       expect(onSave.mock.calls[0][0].steps).toBe(7000)
       expect(screen.getByText('7,000')).toBeInTheDocument()
+    })
+
+    describe('leaving edit mode without saving (#424)', () => {
+      it('has no Cancel button for a brand-new entry with nothing saved yet', () => {
+        render(
+          <DailyEntryForm date="2026-03-01" existingEntry={null} onSave={vi.fn()} />,
+        )
+
+        expect(
+          screen.queryByRole('button', { name: 'Cancel editing steps' }),
+        ).not.toBeInTheDocument()
+      })
+
+      it('discards a typed change and reverts to the saved value', async () => {
+        const user = userEvent.setup()
+        const onSave = vi.fn()
+        render(
+          <DailyEntryForm
+            date="2026-03-01"
+            existingEntry={{
+              id: 'e1',
+              date: '2026-03-01',
+              steps: 6000,
+              createdAt: now,
+              updatedAt: now,
+            }}
+            onSave={onSave}
+          />,
+        )
+
+        await user.click(screen.getByRole('button', { name: 'Edit steps' }))
+        const input = screen.getByLabelText('Steps')
+        await user.clear(input)
+        await user.type(input, '99999')
+        await user.click(
+          screen.getByRole('button', { name: 'Cancel editing steps' }),
+        )
+
+        expect(onSave).not.toHaveBeenCalled()
+        expect(screen.getByText('6,000')).toBeInTheDocument()
+      })
     })
   })
 
@@ -618,6 +747,54 @@ describe('DailyEntryForm', () => {
 
       expect(onSave.mock.calls[0][0].waistCm).toBe(78)
       expect(screen.getByText('Waist 78cm · Hip 95cm')).toBeInTheDocument()
+    })
+
+    describe('leaving edit mode without saving (#424)', () => {
+      it('has no Cancel button for a brand-new entry with nothing saved yet', () => {
+        render(
+          <DailyEntryForm date="2026-03-01" existingEntry={null} onSave={vi.fn()} />,
+        )
+
+        expect(
+          screen.queryByRole('button', {
+            name: 'Cancel editing body measurements',
+          }),
+        ).not.toBeInTheDocument()
+      })
+
+      it('discards typed changes to both waist and hip, reverting to the saved values', async () => {
+        const user = userEvent.setup()
+        const onSave = vi.fn()
+        render(
+          <DailyEntryForm
+            date="2026-03-01"
+            existingEntry={{
+              id: 'e1',
+              date: '2026-03-01',
+              waistCm: 80,
+              hipCm: 95,
+              createdAt: now,
+              updatedAt: now,
+            }}
+            onSave={onSave}
+          />,
+        )
+
+        await user.click(
+          screen.getByRole('button', { name: 'Edit body measurements' }),
+        )
+        const waistInput = screen.getByLabelText('Waist (cm)')
+        await user.clear(waistInput)
+        await user.type(waistInput, '150')
+        await user.click(
+          screen.getByRole('button', {
+            name: 'Cancel editing body measurements',
+          }),
+        )
+
+        expect(onSave).not.toHaveBeenCalled()
+        expect(screen.getByText('Waist 80cm · Hip 95cm')).toBeInTheDocument()
+      })
     })
   })
 
@@ -783,6 +960,118 @@ describe('DailyEntryForm', () => {
           'Muscle 31kg · Visceral fat 5 · Water 48% · Bone 2.3kg · Body fat 22%',
         ),
       ).toBeInTheDocument()
+    })
+
+    describe('leaving edit mode without saving (#424)', () => {
+      afterEach(async () => {
+        await db.dailyEntries.clear()
+      })
+
+      it('has no Cancel button for a brand-new entry with nothing saved yet', () => {
+        render(
+          <DailyEntryForm date="2026-03-01" existingEntry={null} onSave={vi.fn()} />,
+        )
+
+        expect(
+          screen.queryByRole('button', {
+            name: 'Cancel editing body composition',
+          }),
+        ).not.toBeInTheDocument()
+      })
+
+      it('discards typed changes to all 5 fields, reverting to the saved values', async () => {
+        const user = userEvent.setup()
+        const onSave = vi.fn()
+        render(
+          <DailyEntryForm
+            date="2026-03-01"
+            existingEntry={{
+              id: 'e1',
+              date: '2026-03-01',
+              muscleMassKg: 30,
+              visceralFatRating: 5,
+              bodyWaterPercent: 48,
+              boneMassKg: 2.3,
+              bodyFatPercent: 22,
+              createdAt: now,
+              updatedAt: now,
+            }}
+            onSave={onSave}
+          />,
+        )
+
+        await user.click(
+          screen.getByRole('button', { name: 'Edit body composition' }),
+        )
+        const muscleInput = screen.getByLabelText('Muscle mass (kg)')
+        await user.clear(muscleInput)
+        await user.type(muscleInput, '90')
+        await user.click(
+          screen.getByRole('button', {
+            name: 'Cancel editing body composition',
+          }),
+        )
+
+        expect(onSave).not.toHaveBeenCalled()
+        expect(
+          screen.getByText(
+            'Muscle 30kg · Visceral fat 5 · Water 48% · Bone 2.3kg · Body fat 22%',
+          ),
+        ).toBeInTheDocument()
+      })
+
+      it('also dismisses any pending unusual-value warning', async () => {
+        // A previous day's entry so there's a #401 delta baseline, and an
+        // existing today's entry so the Cancel button actually renders
+        // (nothing established for today = nothing to cancel back to).
+        await db.dailyEntries.put({
+          id: 'prev-1',
+          date: '2026-02-28',
+          muscleMassKg: 30,
+          createdAt: now,
+          updatedAt: now,
+        })
+        const user = userEvent.setup()
+        const onSave = vi.fn()
+        render(
+          <DailyEntryForm
+            date="2026-03-01"
+            existingEntry={{
+              id: 'e1',
+              date: '2026-03-01',
+              muscleMassKg: 30,
+              createdAt: now,
+              updatedAt: now,
+            }}
+            onSave={onSave}
+          />,
+        )
+
+        await user.click(
+          screen.getByRole('button', { name: 'Edit body composition' }),
+        )
+        const muscleInput = screen.getByLabelText('Muscle mass (kg)')
+        await user.clear(muscleInput)
+        // 35kg on its own is a perfectly ordinary muscle mass -- only the
+        // 5kg jump from yesterday's 30kg (#401) makes this unusual.
+        await user.type(muscleInput, '35')
+        await user.click(
+          screen.getByRole('button', { name: 'Save body composition' }),
+        )
+        expect(await screen.findByText(/unusual change/)).toBeInTheDocument()
+
+        await user.click(
+          screen.getByRole('button', {
+            name: 'Cancel editing body composition',
+          }),
+        )
+
+        expect(onSave).not.toHaveBeenCalled()
+        expect(screen.queryByText(/unusual change/)).not.toBeInTheDocument()
+        expect(
+          screen.getByText(/Muscle 30kg/),
+        ).toBeInTheDocument()
+      })
     })
 
     describe('unusual jump vs. yesterday (#401)', () => {

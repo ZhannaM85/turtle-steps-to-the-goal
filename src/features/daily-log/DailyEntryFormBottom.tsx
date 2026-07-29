@@ -1,4 +1,4 @@
-import { Check, Moon, Pencil } from 'lucide-react'
+import { Check, Moon, Pencil, X } from 'lucide-react'
 import { formatNumber } from '@/i18n'
 import { DAY_EMOTIONS } from '@/shared/lib/emotionIcons'
 import { parseNumberInput } from '@/shared/lib/parseNumberInput'
@@ -80,6 +80,18 @@ export function DailyEntryFormBottom() {
                   setValueAs: parseNumberInput,
                 })}
               />
+              {/* #424 */}
+              {state.canCancelStepsEdit && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon-xl"
+                  aria-label={t.dailyEntry.cancelEditStepsLabel}
+                  onClick={state.cancelEditSteps}
+                >
+                  <X aria-hidden="true" />
+                </Button>
+              )}
               <Button
                 type="button"
                 variant="outline"

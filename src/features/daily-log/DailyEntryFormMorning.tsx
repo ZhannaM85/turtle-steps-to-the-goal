@@ -1,4 +1,4 @@
-import { Check, Pencil, Sun } from 'lucide-react'
+import { Check, Pencil, Sun, X } from 'lucide-react'
 import { formatExactNumber } from '@/i18n'
 import { splitHoursMinutes } from '@/shared/lib/sleepDuration'
 import { parseNumberInput } from '@/shared/lib/parseNumberInput'
@@ -99,6 +99,21 @@ export function DailyEntryFormMorning() {
                 setValueAs: parseNumberInput,
               })}
             />
+            {/* #424 — leave edit mode without saving, same affordance
+             * MealList.tsx's #169 Cancel button already established. Hidden
+             * when there's no established value to actually revert to (a
+             * brand-new entry auto-opens here with nothing saved yet). */}
+            {state.canCancelWeightEdit && (
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon-xl"
+                aria-label={t.dailyEntry.cancelEditWeightLabel}
+                onClick={state.cancelEditWeight}
+              >
+                <X aria-hidden="true" />
+              </Button>
+            )}
             <Button
               type="button"
               variant="outline"
@@ -284,6 +299,18 @@ export function DailyEntryFormMorning() {
                   </span>
                 </div>
               </div>
+              {/* #424 */}
+              {state.canCancelSleepEdit && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon-xl"
+                  aria-label={t.dailyEntry.cancelEditSleepLabel}
+                  onClick={state.cancelEditSleep}
+                >
+                  <X aria-hidden="true" />
+                </Button>
+              )}
               <Button
                 type="button"
                 variant="outline"
@@ -397,6 +424,18 @@ export function DailyEntryFormMorning() {
                   </span>
                 </div>
               </div>
+              {/* #424 */}
+              {state.canCancelBodyMeasurementsEdit && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon-xl"
+                  aria-label={t.dailyEntry.cancelEditBodyMeasurementsLabel}
+                  onClick={state.cancelEditBodyMeasurements}
+                >
+                  <X aria-hidden="true" />
+                </Button>
+              )}
               <Button
                 type="button"
                 variant="outline"
@@ -480,7 +519,7 @@ export function DailyEntryFormMorning() {
              * feedback before landing here. `w-fit` on the grid keeps its
              * columns sized to their (narrow, `w-16`) field content
              * instead of splitting the card's full width evenly. */}
-            <div className="grid w-fit grid-cols-[auto_auto_auto] gap-x-6 gap-y-3">
+            <div className="grid w-fit grid-cols-[auto_auto_auto_auto] gap-x-6 gap-y-3">
               <div className="col-start-1 row-start-1 flex flex-col gap-1">
                 <span className="text-xs text-muted-foreground">
                   {t.dailyEntry.muscleMassLabel}
@@ -621,6 +660,22 @@ export function DailyEntryFormMorning() {
                   </span>
                 </div>
               </div>
+              {/* #424 — added as a 4th grid column at Save's own row (not
+               * a new row/placement scheme), so Save's already-live-
+               * validated col-start-3/row-start-2 position (#427) is
+               * untouched by this addition. */}
+              {state.canCancelBodyCompositionEdit && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon-xl"
+                  aria-label={t.dailyEntry.cancelEditBodyCompositionLabel}
+                  onClick={state.cancelEditBodyComposition}
+                  className="col-start-4 row-start-2 self-end"
+                >
+                  <X aria-hidden="true" />
+                </Button>
+              )}
               <Button
                 type="button"
                 variant="outline"

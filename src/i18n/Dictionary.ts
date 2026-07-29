@@ -223,6 +223,10 @@ export interface Dictionary {
     editNoteLabel: string
     saveWeightLabel: string
     saveNoteLabel: string
+    /** #424 — same "leave edit mode without saving" affordance
+     * cancelEditMealLabel already established for meals, applied to
+     * Weight/Sleep/Steps/Body measurements/Body composition. */
+    cancelEditWeightLabel: string
     /** #218: soft warning (not a hard block, unlike weightSchema's own
      * 20-400kg range) for a weight technically valid but unusual enough
      * to likely be a typo — a second tap on Save confirms it anyway. */
@@ -445,6 +449,8 @@ export interface Dictionary {
     deepSleepLabel: string
     editSleepLabel: string
     saveSleepLabel: string
+    /** #424 */
+    cancelEditSleepLabel: string
     hoursUnit: string
     minutesUnit: string
     hoursFieldLabel: string
@@ -453,12 +459,16 @@ export interface Dictionary {
     stepsLabel: string
     editStepsLabel: string
     saveStepsLabel: string
+    /** #424 */
+    cancelEditStepsLabel: string
     /** Body measurements (#225) — waist/hip circumference + body fat %,
      * bundled as one editable section (same shape as sleep's hours+deep
      * hours bundling) rather than three separate top-level fields. */
     bodyMeasurementsLabel: string
     editBodyMeasurementsLabel: string
     saveBodyMeasurementsLabel: string
+    /** #424 */
+    cancelEditBodyMeasurementsLabel: string
     waistLabel: string
     hipLabel: string
     bodyFatLabel: string
@@ -474,6 +484,8 @@ export interface Dictionary {
     bodyCompositionLabel: string
     editBodyCompositionLabel: string
     saveBodyCompositionLabel: string
+    /** #424 */
+    cancelEditBodyCompositionLabel: string
     muscleMassLabel: string
     visceralFatLabel: string
     bodyWaterLabel: string
