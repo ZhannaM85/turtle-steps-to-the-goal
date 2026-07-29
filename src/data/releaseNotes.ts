@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 362,
+    issue: 395,
+    date: '2026-07-29T15:15:00+03:00',
+    en: 'Fixed Weekly/Monthly Summary cards showing only the date, with the weight change and calories missing.',
+    ru: 'Исправлена проблема, из-за которой в карточках недельной/месячной сводки была видна только дата, а изменение веса и калории отсутствовали.',
+  },
+  {
     version: 361,
     issue: 393,
     date: '2026-07-29T14:47:00+03:00',

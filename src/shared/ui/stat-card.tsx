@@ -1,5 +1,6 @@
 import type * as React from 'react'
 
+import { cn } from '@/shared/lib/utils'
 import { Card, CardContent } from '@/shared/ui/card'
 import { SegmentedProgressBar } from '@/shared/ui/segmented-progress-bar'
 
@@ -33,7 +34,20 @@ export function StatCard({
   progressColor = 'var(--primary)',
 }: StatCardProps) {
   return (
-    <Card className={className}>
+    // #395 — `Card`'s own base styles include `overflow-hidden` (needed
+    // elsewhere for clipping an image's square corners to match the card's
+    // rounded ones), but per the CSS flexbox spec, `overflow` other than
+    // `visible` makes a flex item's *automatic minimum size* resolve to 0
+    // instead of its content size — inside a scrollable flex-column list
+    // of many StatCards (`WeeklySummaryCards`/`MonthlySummaryCards`, #379),
+    // that let a card's box shrink below its actual content height, with
+    // `overflow-hidden` then silently clipping the value/description text
+    // that no longer fit. Confirmed live: removing `overflow-hidden`
+    // (verified interactively via DevTools on a real reported case) made
+    // the clipped value reappear immediately, no other change needed.
+    // StatCard never renders an image, so overriding back to
+    // `overflow-visible` here is safe for every current/future usage.
+    <Card className={cn('overflow-visible', className)}>
       <CardContent className="flex flex-col gap-1">
         <span className="flex items-center justify-between gap-2">
           <span className="text-sm text-muted-foreground">{label}</span>

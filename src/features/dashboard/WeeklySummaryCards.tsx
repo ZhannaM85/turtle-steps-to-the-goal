@@ -128,9 +128,6 @@ export function WeeklySummaryCards({
                   ? descriptionParts.join(' · ')
                   : undefined
               }
-              // #395 — Safari-only WebKit compositing mitigation, see
-              // ARCHITECTURE.md. Unverified without a real device.
-              className="will-change-transform"
             />
           )
         })}
