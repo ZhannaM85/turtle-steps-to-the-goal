@@ -457,5 +457,28 @@ describe('DayDetail', () => {
 
       expect(onSaved.mock.calls[0][0].nightEatingOverride).toBe(true)
     })
+
+    it('has no Clear button when there is no explicit override yet (#413)', () => {
+      render(<DayDetail entry={makeEntry()} onSaved={vi.fn()} />)
+
+      expect(
+        screen.queryByRole('button', { name: 'Clear' }),
+      ).not.toBeInTheDocument()
+    })
+
+    it('shows a Clear button once an explicit override exists, resetting it to the derived value (#413)', () => {
+      const onSaved = vi.fn()
+      render(
+        <DayDetail
+          entry={makeEntry({ nightEatingOverride: true })}
+          onSaved={onSaved}
+        />,
+      )
+
+      const clearButton = screen.getByRole('button', { name: 'Clear' })
+      clearButton.click()
+
+      expect(onSaved.mock.calls[0][0].nightEatingOverride).toBeUndefined()
+    })
   })
 })

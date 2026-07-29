@@ -268,6 +268,7 @@ export const en: Dictionary = {
     nightEatingLabel: () => 'Ate late tonight',
     nightEatingNoOption: 'No',
     nightEatingYesOption: 'Yes',
+    clearNightEatingOverrideLabel: 'Clear',
     waterLabel: 'Water',
     mlUnit: 'ml',
     addGlassLabel: '+1 glass (250ml)',

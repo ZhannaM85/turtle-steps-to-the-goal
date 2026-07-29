@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 365,
+    issue: 413,
+    date: '2026-07-29T15:40:00+03:00',
+    en: 'History\'s "ate late tonight" toggle can now be cleared back to its automatic value too, with a small Clear button.',
+    ru: 'Переключатель "Ел(а) поздно вечером" в Истории теперь тоже можно сбросить к автоматическому значению небольшой кнопкой "Сбросить".',
+  },
+  {
     version: 364,
     issue: 414,
     date: '2026-07-29T15:36:00+03:00',

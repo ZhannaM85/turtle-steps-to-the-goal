@@ -1,5 +1,5 @@
 import { format, parseISO } from 'date-fns'
-import { Moon } from 'lucide-react'
+import { Moon, X } from 'lucide-react'
 import {
   calorieEntryCarbs,
   calorieEntryFat,
@@ -171,26 +171,52 @@ export function DayDetail({
           {/* #383 — always shown (no Settings opt-in, unlike onPeriod/
            * hadConstipation above): mirrors DailyEntryForm's own toggle,
            * flipping the *effective* (derived-or-overridden) value into an
-           * explicit override each time it's pressed. */}
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            aria-pressed={hadNightEating(entry)}
-            className={cn(
-              hadNightEating(entry) && 'bg-muted text-foreground',
+           * explicit override each time it's pressed. #413: unlike
+           * onPeriod/hadConstipation, night eating has a real third state
+           * (no override, use the derived value) — this single button has
+           * no natural third click state the way #406's two-option
+           * ToggleGroup does, so a separate clear affordance appears next
+           * to it (same small "×" pattern DailyEntryForm's own water-entry
+           * pills already use to remove one entry) once an explicit
+           * override actually exists. */}
+          <span className="inline-flex items-center gap-1">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              aria-pressed={hadNightEating(entry)}
+              className={cn(
+                hadNightEating(entry) && 'bg-muted text-foreground',
+              )}
+              onClick={() =>
+                onSaved({
+                  ...entry,
+                  nightEatingOverride: !hadNightEating(entry),
+                  updatedAt: new Date().toISOString(),
+                })
+              }
+            >
+              <Moon aria-hidden="true" className="mr-1 inline size-4" />
+              {t.dailyEntry.nightEatingLabel(sex)}
+            </Button>
+            {entry.nightEatingOverride !== undefined && (
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon-xs"
+                aria-label={t.dailyEntry.clearNightEatingOverrideLabel}
+                onClick={() =>
+                  onSaved({
+                    ...entry,
+                    nightEatingOverride: undefined,
+                    updatedAt: new Date().toISOString(),
+                  })
+                }
+              >
+                <X aria-hidden="true" />
+              </Button>
             )}
-            onClick={() =>
-              onSaved({
-                ...entry,
-                nightEatingOverride: !hadNightEating(entry),
-                updatedAt: new Date().toISOString(),
-              })
-            }
-          >
-            <Moon aria-hidden="true" className="mr-1 inline size-4" />
-            {t.dailyEntry.nightEatingLabel(sex)}
-          </Button>
+          </span>
         </div>
       )}
 

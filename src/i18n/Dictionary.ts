@@ -495,6 +495,11 @@ export interface Dictionary {
     nightEatingLabel: (sex?: Sex) => string
     nightEatingNoOption: string
     nightEatingYesOption: string
+    /** #413 — History's own single-button night-eating toggle (unlike
+     * Today's two-option ToggleGroup, #406) has no built-in third click
+     * state, so a small separate "×" button clears an explicit override
+     * back to the derived value. */
+    clearNightEatingOverrideLabel: string
     /** Opt-in water tracking (#258), a list of discrete entries rather
      * than a single running total (#271) — same gating shape as onPeriod/
      * hadConstipation above. #282: only the two fixed-amount quick-add

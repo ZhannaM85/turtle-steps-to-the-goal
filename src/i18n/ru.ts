@@ -279,6 +279,7 @@ export const ru: Dictionary = {
           : 'Ел(а) поздно вечером',
     nightEatingNoOption: 'Нет',
     nightEatingYesOption: 'Да',
+    clearNightEatingOverrideLabel: 'Сбросить',
     waterLabel: 'Вода',
     mlUnit: 'мл',
     addGlassLabel: '+1 стакан (250мл)',
