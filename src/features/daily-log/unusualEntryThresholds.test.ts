@@ -1,11 +1,16 @@
 import { describe, expect, it } from 'vitest'
 import {
   isInconsistentMacros,
+  isUnusualBodyFatPercent,
   isUnusualBodyFatPercentDelta,
+  isUnusualBodyWaterPercent,
   isUnusualBodyWaterPercentDelta,
+  isUnusualBoneMassKg,
   isUnusualBoneMassDeltaKg,
   isUnusualDailyCalories,
+  isUnusualMuscleMassKg,
   isUnusualMuscleMassDeltaKg,
+  isUnusualVisceralFat,
   isUnusualVisceralFatDelta,
   isUnusualWeightDeltaKg,
   isUnusualWeightKg,
@@ -102,5 +107,50 @@ describe('unusual-vs-previous-day deltas (#401)', () => {
   it('does not flag ordinary body water % noise, but flags a large jump', () => {
     expect(isUnusualBodyWaterPercentDelta(48.3, 48)).toBe(false)
     expect(isUnusualBodyWaterPercentDelta(60, 48)).toBe(true)
+  })
+})
+
+describe('absolute plausibility bounds for body composition (#401 follow-up)', () => {
+  it('flags muscle mass outside 0-100kg range', () => {
+    expect(isUnusualMuscleMassKg(50)).toBe(false)
+    expect(isUnusualMuscleMassKg(-1)).toBe(true)
+    expect(isUnusualMuscleMassKg(7888)).toBe(true)
+  })
+
+  it('flags visceral fat outside 0-20 range', () => {
+    expect(isUnusualVisceralFat(10)).toBe(false)
+    expect(isUnusualVisceralFat(-1)).toBe(true)
+    expect(isUnusualVisceralFat(25)).toBe(true)
+  })
+
+  it('flags body water % outside 0-100 range', () => {
+    expect(isUnusualBodyWaterPercent(50)).toBe(false)
+    expect(isUnusualBodyWaterPercent(-1)).toBe(true)
+    expect(isUnusualBodyWaterPercent(478)).toBe(true)
+  })
+
+  it('flags bone mass outside 0-30kg range', () => {
+    expect(isUnusualBoneMassKg(15)).toBe(false)
+    expect(isUnusualBoneMassKg(-1)).toBe(true)
+    expect(isUnusualBoneMassKg(233)).toBe(true)
+  })
+
+  it('flags body fat % outside 0-100 range', () => {
+    expect(isUnusualBodyFatPercent(30)).toBe(false)
+    expect(isUnusualBodyFatPercent(-1)).toBe(true)
+    expect(isUnusualBodyFatPercent(329)).toBe(true)
+  })
+
+  it('accepts boundary values', () => {
+    expect(isUnusualMuscleMassKg(0)).toBe(false)
+    expect(isUnusualMuscleMassKg(100)).toBe(false)
+    expect(isUnusualVisceralFat(0)).toBe(false)
+    expect(isUnusualVisceralFat(20)).toBe(false)
+    expect(isUnusualBodyWaterPercent(0)).toBe(false)
+    expect(isUnusualBodyWaterPercent(100)).toBe(false)
+    expect(isUnusualBoneMassKg(0)).toBe(false)
+    expect(isUnusualBoneMassKg(30)).toBe(false)
+    expect(isUnusualBodyFatPercent(0)).toBe(false)
+    expect(isUnusualBodyFatPercent(100)).toBe(false)
   })
 })
