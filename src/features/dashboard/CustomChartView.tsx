@@ -533,7 +533,31 @@ export function CustomChartView({ entries, dragHandle }: CustomChartViewProps) {
                 axisLine={{ stroke: 'var(--border)' }}
                 tickLine={false}
               />
-              <YAxis yAxisId="normalized" domain={[0, 100]} hide />
+              {/* #393 — reported live: no y-axis at all with exactly 1
+               * numeric series selected, confirmed via a real seeded
+               * Playwright run (not just jsdom, where this axis renders no
+               * SVG internals at all) that the "single" axis below was
+               * rendering with negative x-coordinates, off-canvas to the
+               * left of the SVG. Root cause: this hidden axis defaults to
+               * `orientation="left"` same as "single" — two same-side
+               * y-axes (even though this one is invisible) confuses
+               * Recharts' `width="auto"` margin-expansion measurement,
+               * which only misbehaves in the exactly-1-series case (the
+               * dual-axis "left"/"right" pair above never shares a side
+               * with this one). Explicitly moving this hidden axis to the
+               * *other* side is enough to stop it competing with "single"
+               * for left-side margin space — verified live afterward: the
+               * axis renders with positive coordinates, and the dual-axis
+               * pair + boolean-marker dots (which also use this same
+               * `yAxisId="normalized"`) are unaffected, since orientation
+               * only changes which side a (here, invisible) axis's own
+               * labels would draw on, not the underlying data mapping. */}
+              <YAxis
+                yAxisId="normalized"
+                orientation="right"
+                domain={[0, 100]}
+                hide
+              />
               {isDualAxis && (
                 <>
                   <YAxis
@@ -565,6 +589,7 @@ export function CustomChartView({ entries, dragHandle }: CustomChartViewProps) {
               {isSingleAxis && (
                 <YAxis
                   yAxisId="single"
+                  orientation="left"
                   width="auto"
                   domain={['auto', 'auto']}
                   tick={{ fontSize: 11, fill: seriesConfig[soleAxisKey!].color }}
