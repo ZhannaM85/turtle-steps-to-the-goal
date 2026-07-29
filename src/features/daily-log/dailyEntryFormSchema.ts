@@ -65,15 +65,17 @@ const waterEntrySchema = z.object({
 // sleep/steps above. Bounds are generous human ranges, not medical limits.
 export const waistCmSchema = z.number().min(30).max(300).optional()
 export const hipCmSchema = z.number().min(30).max(300).optional()
-export const bodyFatPercentSchema = z.number().min(0).max(80).optional()
+export const bodyFatPercentSchema = z.number().min(0).max(100).optional()
 // Body composition (#233) — bioimpedance-scale-style numbers, same
 // generous-human-range reasoning as the measurements above. Visceral fat
 // is a unitless rating (most smart scales report roughly 1-30, healthy
-// range under ~10) rather than a physical measurement.
-export const muscleMassKgSchema = z.number().min(0).max(150).optional()
-export const visceralFatRatingSchema = z.number().min(0).max(60).optional()
-export const bodyWaterPercentSchema = z.number().min(0).max(80).optional()
-export const boneMassKgSchema = z.number().min(0).max(20).optional()
+// range under ~10) rather than a physical measurement. #401 follow-up:
+// schema max values match the absolute plausibility bounds that catch
+// typos (e.g. muscle mass 7888kg, water 478%) before soft warnings run.
+export const muscleMassKgSchema = z.number().min(0).max(100).optional()
+export const visceralFatRatingSchema = z.number().min(0).max(20).optional()
+export const bodyWaterPercentSchema = z.number().min(0).max(100).optional()
+export const boneMassKgSchema = z.number().min(0).max(30).optional()
 
 export const dailyEntryFormSchema = z.object({
   weightKg: weightSchema,
