@@ -1,6 +1,10 @@
 import { useCallback, useEffect, useState } from 'react'
 import type { DailyEntry } from '@/domain/dailyEntry'
-import { reachedGoalWindows, type ReachedGoalWindow } from '@/domain/goal'
+import {
+  earliestGoalCreatedAt,
+  reachedGoalWindows,
+  type ReachedGoalWindow,
+} from '@/domain/goal'
 import {
   IndexedDbDailyEntryRepository,
   IndexedDbGoalRepository,
@@ -22,12 +26,19 @@ export type HistoryStatus = 'idle' | 'loading' | 'ready' | 'error'
  * too, not just the active goal's. Exposes reload() (called from
  * saveEntry/deleteEntry, not from the initial-load effect itself — the
  * effect fetches inline to satisfy react-hooks/set-state-in-effect, same
- * pattern as useDashboardData) so edits/deletes refresh the list.
+ * pattern as useDashboardData) so edits/deletes refresh the list. Also
+ * derives `goalTrackingStartDate` (#426) from that same already-fetched
+ * `goals` list — the one-time moment goal-tracking itself began, distinct
+ * from the active `goal`'s own `createdAt` (which resets to "now" every
+ * time a fresh weekly target is started).
  */
 export function useHistoryData() {
   const { goal, loadActiveGoal } = useGoalStore()
   const [entries, setEntries] = useState<DailyEntry[]>([])
   const [reachedWindows, setReachedWindows] = useState<ReachedGoalWindow[]>([])
+  const [goalTrackingStartDate, setGoalTrackingStartDate] = useState<
+    string | undefined
+  >(undefined)
   const [status, setStatus] = useState<HistoryStatus>('loading')
 
   useEffect(() => {
@@ -41,6 +52,7 @@ export function useHistoryData() {
         if (cancelled) return
         setEntries(all)
         setReachedWindows(reachedGoalWindows(goals, all))
+        setGoalTrackingStartDate(earliestGoalCreatedAt(goals))
         setStatus('ready')
       })
       .catch(() => {
@@ -59,6 +71,7 @@ export function useHistoryData() {
       ])
       setEntries(all)
       setReachedWindows(reachedGoalWindows(goals, all))
+      setGoalTrackingStartDate(earliestGoalCreatedAt(goals))
       setStatus('ready')
     } catch {
       setStatus('error')
@@ -75,5 +88,14 @@ export function useHistoryData() {
     await reload()
   }
 
-  return { entries, goal, reachedWindows, status, reload, saveEntry, deleteEntry }
+  return {
+    entries,
+    goal,
+    reachedWindows,
+    goalTrackingStartDate,
+    status,
+    reload,
+    saveEntry,
+    deleteEntry,
+  }
 }

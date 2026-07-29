@@ -118,7 +118,7 @@ describe('weeklySummaries', () => {
     expect(week2.targetMet).toBe(false)
   })
 
-  it('leaves targetMet null for a week that entirely predates the goal\'s creation (#426)', () => {
+  it('leaves targetMet null for a week that entirely predates goal-tracking (#426)', () => {
     const week2Start = dayOf(WEEK_1_START, 7)
     const entries = [
       entry(dayOf(WEEK_1_START, 0), { weightKg: 80 }),
@@ -127,15 +127,44 @@ describe('weeklySummaries', () => {
 
     const [, week2] = weeklySummaries(
       entries,
-      makeGoal({
-        targetWeeklyLossKg: 1,
-        // Goal created the day after week2 started — week2 predates it.
-        createdAt: `${dayOf(week2Start, 1)}T00:00:00.000Z`,
-      }),
+      makeGoal({ targetWeeklyLossKg: 1 }),
+      1,
+      // goal-tracking started the day after week2 started — week2 predates it.
+      `${dayOf(week2Start, 1)}T00:00:00.000Z`,
     )
 
     expect(week2.deltaVsPriorWeekKg).toBe(-3)
     expect(week2.targetMet).toBeNull()
+  })
+
+  it('still evaluates targetMet for a week that predates only the *active* goal, not goal-tracking itself (#426 regression)', () => {
+    // Reproduces the exact reported regression: this app creates a fresh
+    // Goal record roughly every week ("Начать новую цель"), so the active
+    // goal's own createdAt is almost always very recent. Using it directly
+    // as the cutoff wiped out every earlier week's status. The real cutoff
+    // must be goal-tracking's own start (the earliest goal ever), passed
+    // explicitly via goalTrackingStartDate -- not read off the active goal.
+    const week2Start = dayOf(WEEK_1_START, 7)
+    const entries = [
+      entry(dayOf(WEEK_1_START, 0), { weightKg: 80 }),
+      entry(dayOf(week2Start, 0), { weightKg: 77 }), // 3kg lost, meets a 1kg target
+    ]
+    const activeGoal = makeGoal({
+      targetWeeklyLossKg: 1,
+      // The *active* goal was just recreated well after week2 started --
+      // if this were used as the cutoff, week2 would wrongly get null.
+      createdAt: `${dayOf(week2Start, 3)}T00:00:00.000Z`,
+    })
+
+    const [, week2] = weeklySummaries(
+      entries,
+      activeGoal,
+      1,
+      // goal-tracking itself began back at WEEK_1_START, well before week2.
+      `${WEEK_1_START}T00:00:00.000Z`,
+    )
+
+    expect(week2.targetMet).toBe(true)
   })
 
   it('still evaluates targetMet for a week starting the same calendar day the goal was created (#426)', () => {
@@ -147,10 +176,9 @@ describe('weeklySummaries', () => {
 
     const [, week2] = weeklySummaries(
       entries,
-      makeGoal({
-        targetWeeklyLossKg: 1,
-        createdAt: `${week2Start}T09:00:00.000Z`,
-      }),
+      makeGoal({ targetWeeklyLossKg: 1 }),
+      1,
+      `${week2Start}T09:00:00.000Z`,
     )
 
     expect(week2.targetMet).toBe(true)

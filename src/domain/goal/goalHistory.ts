@@ -20,6 +20,24 @@ export interface PastGoalRecord {
 }
 
 /**
+ * The earliest `createdAt` across every `Goal` record ever saved (#426) —
+ * distinct from the currently *active* goal's own `createdAt`, which resets
+ * to "now" every time the user starts a fresh weekly target (`saveGoal`,
+ * #147/#181) and so is almost always very recent. Used as a stable,
+ * one-time cutoff for "did goal-tracking exist yet during this week" — a
+ * week from before the user ever set up any goal at all shouldn't show a
+ * target-met/not-met verdict, but a week that predates only the *current*
+ * goal (while an earlier one was already active) should still be evaluated.
+ */
+export function earliestGoalCreatedAt(goals: Goal[]): string | undefined {
+  if (goals.length === 0) return undefined
+  return goals.reduce(
+    (earliest, goal) => (goal.createdAt < earliest ? goal.createdAt : earliest),
+    goals[0].createdAt,
+  )
+}
+
+/**
  * Every goal except the currently active one (#147) — the most-recently-
  * created, which `GoalRepository.getActiveGoal()` already surfaces via
  * `GoalScreen`'s main StatCard, so repeating it here would be redundant.

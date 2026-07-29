@@ -109,7 +109,7 @@ function SortableDashboardSection({
 
 export function DashboardScreen() {
   const t = useTranslation()
-  const { goal, entries, status } = useDashboardData()
+  const { goal, entries, goalTrackingStartDate, status } = useDashboardData()
   // #380 — one global period control, originally scoped to just the 4 main
   // trend charts below; #396 extended it to every Dashboard section that
   // reads `entries` — see DashboardPeriodPicker's own doc comment for the
@@ -269,7 +269,12 @@ export function DashboardScreen() {
       <RecentAveragesCards entries={entries} dragHandle={dragHandle} />
     ),
     weeklySummary: (dragHandle) => (
-      <WeeklySummaryCards entries={entries} goal={goal} dragHandle={dragHandle} />
+      <WeeklySummaryCards
+        entries={entries}
+        goal={goal}
+        goalTrackingStartDate={goalTrackingStartDate}
+        dragHandle={dragHandle}
+      />
     ),
     monthlySummary: (dragHandle) => (
       <MonthlySummaryCards entries={entries} dragHandle={dragHandle} />

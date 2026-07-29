@@ -16,6 +16,10 @@ import { useWeekStartsOn } from '@/shared/hooks'
 export interface MetTargetListProps {
   entries: DailyEntry[]
   goal: Goal | null
+  /** #426 — the earliest goal ever created (`earliestGoalCreatedAt`), not
+   * the active `goal`'s own `createdAt`. See `weeklySummaries()`'s own doc
+   * comment for why those two are deliberately different values. */
+  goalTrackingStartDate?: string
 }
 
 /**
@@ -25,7 +29,11 @@ export interface MetTargetListProps {
  * rest of History. Renders nothing when no week qualifies (no goal set, or
  * none met yet) rather than showing an empty/zero state.
  */
-export function MetTargetList({ entries, goal }: MetTargetListProps) {
+export function MetTargetList({
+  entries,
+  goal,
+  goalTrackingStartDate,
+}: MetTargetListProps) {
   const t = useTranslation()
   const locale = useLocale()
   const dateFnsLocale = getDateFnsLocale(locale)
@@ -34,7 +42,12 @@ export function MetTargetList({ entries, goal }: MetTargetListProps) {
   const unit = unitLabel(displayUnit, t)
   const weekStartsOn = useWeekStartsOn(entries)
 
-  const metWeeks = weeklySummaries(entries, goal ?? undefined, weekStartsOn)
+  const metWeeks = weeklySummaries(
+    entries,
+    goal ?? undefined,
+    weekStartsOn,
+    goalTrackingStartDate,
+  )
     .filter((week) => week.targetMet)
     .reverse()
 

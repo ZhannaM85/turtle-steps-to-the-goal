@@ -37,8 +37,15 @@ const PAGE_SIZE = 20
 export function HistoryScreen() {
   const t = useTranslation()
   const displayUnit = useUnitStore((state) => state.unit)
-  const { entries, goal, reachedWindows, status, saveEntry, deleteEntry } =
-    useHistoryData()
+  const {
+    entries,
+    goal,
+    reachedWindows,
+    goalTrackingStartDate,
+    status,
+    saveEntry,
+    deleteEntry,
+  } = useHistoryData()
   const [sortAsc, setSortAsc] = useState(false)
   const [viewMode, setViewMode] = useState<ViewMode>('list')
   // Deep-linked from a dashboard chart point (#41): ?date=YYYY-MM-DD
@@ -315,7 +322,11 @@ export function HistoryScreen() {
           {/* #425 — moved here, after the Calendar/List view, from before
            * it: reported live as pushing the actual History content far
            * down the page when the qualifying-weeks list is long. */}
-          <MetTargetList entries={entries} goal={goal} />
+          <MetTargetList
+            entries={entries}
+            goal={goal}
+            goalTrackingStartDate={goalTrackingStartDate}
+          />
         </>
       )}
     </div>

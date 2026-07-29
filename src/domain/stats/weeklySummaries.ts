@@ -36,11 +36,23 @@ const DATE_FORMAT = 'yyyy-MM-dd'
  * behavior) — callers resolve the user's week-start preference via
  * `useWeekStartsOn`/`resolveWeekStartsOn` and pass the result in, this
  * function itself has no knowledge of that preference.
+ *
+ * `goalTrackingStartDate` (#426) is deliberately a separate parameter from
+ * `goal` itself — `goal` is whichever goal is currently *active* (used for
+ * its `targetWeeklyLossKg`), but this app creates a fresh `Goal` record
+ * roughly every week (`saveGoal`, #147/#181), so the active goal's own
+ * `createdAt` is almost always very recent. Gating on it directly would
+ * wipe out every earlier week's status the moment a new weekly goal starts
+ * (confirmed live: the whole "weeks target met" list going empty even
+ * though real met weeks existed). Callers should pass
+ * `earliestGoalCreatedAt(allGoals)` here instead — the one-time moment
+ * goal-tracking itself began — not the active goal's own `createdAt`.
  */
 export function weeklySummaries(
   entries: DailyEntry[],
   goal?: Goal,
   weekStartsOn: Day = 1,
+  goalTrackingStartDate?: string,
 ): WeeklySummary[] {
   const weekGroups = new Map<string, DailyEntry[]>()
 
@@ -103,15 +115,23 @@ export function weeklySummaries(
 
     current.deltaVsPriorWeekKg = current.averageWeightKg - prior.averageWeightKg
 
-    // #426 — only evaluate weeks that actually fall within the goal's real
-    // active window; a week entirely before the goal was created (e.g.
-    // backfilled import history, or the app's own pre-goal history) has no
-    // goal to have been "met" against, so it should show no status at all
-    // rather than a retroactive comparison. Date-only granularity (not the
-    // exact creation moment) to match this codebase's existing goal-window
+    // #426 — only evaluate weeks that actually fall within goal-tracking's
+    // real active window; a week entirely before *any* goal was ever
+    // created (e.g. backfilled import history, or the app's own pre-goal
+    // history) has nothing to have been "met" against, so it should show no
+    // status at all rather than a retroactive comparison. Gated on
+    // `goalTrackingStartDate` (the earliest goal ever created), not
+    // `goal.createdAt` (the active one) — see this function's own doc
+    // comment above. No gating at all when the caller doesn't pass one
+    // (existing callers/tests that only pass `goal`), date-only granularity
+    // when it is passed, matching this codebase's existing goal-window
     // comparisons (`isDateWithinReachedWindow` etc.), so a week starting the
-    // same calendar day the goal was created still counts.
-    if (goal && current.weekStart >= goal.createdAt.slice(0, 10)) {
+    // same calendar day goal-tracking began still counts.
+    if (
+      goal &&
+      (goalTrackingStartDate === undefined ||
+        current.weekStart >= goalTrackingStartDate.slice(0, 10))
+    ) {
       const actualLossKg = -current.deltaVsPriorWeekKg
       current.targetMet = actualLossKg >= goal.targetWeeklyLossKg
     }

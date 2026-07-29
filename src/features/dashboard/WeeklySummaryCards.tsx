@@ -19,6 +19,10 @@ import { ChartTitleWithToggle } from './ChartTitleWithToggle'
 export interface WeeklySummaryCardsProps {
   entries: DailyEntry[]
   goal: Goal | null
+  /** #426 — the earliest goal ever created (`earliestGoalCreatedAt`), not
+   * the active `goal`'s own `createdAt`. See `weeklySummaries()`'s own doc
+   * comment for why those two are deliberately different values. */
+  goalTrackingStartDate?: string
   /** #355 — see `CorrelationViewProps.dragHandle`'s own doc comment. */
   dragHandle?: ReactNode
 }
@@ -26,6 +30,7 @@ export interface WeeklySummaryCardsProps {
 export function WeeklySummaryCards({
   entries,
   goal,
+  goalTrackingStartDate,
   dragHandle,
 }: WeeklySummaryCardsProps) {
   const t = useTranslation()
@@ -39,7 +44,12 @@ export function WeeklySummaryCards({
     (state) => state.visible.weeklySummary,
   )
 
-  const summaries = weeklySummaries(entries, goal ?? undefined, weekStartsOn)
+  const summaries = weeklySummaries(
+    entries,
+    goal ?? undefined,
+    weekStartsOn,
+    goalTrackingStartDate,
+  )
   if (summaries.length === 0) return null
 
   const cardTitle = (

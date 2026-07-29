@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import type { DailyEntry } from '@/domain/dailyEntry'
 import type { Goal } from './Goal'
-import { pastGoals } from './goalHistory'
+import { earliestGoalCreatedAt, pastGoals } from './goalHistory'
 
 function makeGoal(overrides: Partial<Goal> = {}): Goal {
   return {
@@ -25,6 +25,26 @@ function entry(date: string, overrides: Partial<DailyEntry> = {}): DailyEntry {
     ...overrides,
   }
 }
+
+describe('earliestGoalCreatedAt', () => {
+  it('returns undefined for no goals', () => {
+    expect(earliestGoalCreatedAt([])).toBeUndefined()
+  })
+
+  it('returns the only goal\'s createdAt when just one exists', () => {
+    const goals = [makeGoal({ id: 'g1', createdAt: '2026-01-01T00:00:00Z' })]
+    expect(earliestGoalCreatedAt(goals)).toBe('2026-01-01T00:00:00Z')
+  })
+
+  it('picks the earliest createdAt regardless of array order (#426)', () => {
+    const goals = [
+      makeGoal({ id: 'g3', createdAt: '2026-01-15T00:00:00Z' }),
+      makeGoal({ id: 'g1', createdAt: '2026-01-01T00:00:00Z' }),
+      makeGoal({ id: 'g2', createdAt: '2026-01-08T00:00:00Z' }),
+    ]
+    expect(earliestGoalCreatedAt(goals)).toBe('2026-01-01T00:00:00Z')
+  })
+})
 
 describe('pastGoals', () => {
   it('returns nothing when only one goal has ever been saved', () => {

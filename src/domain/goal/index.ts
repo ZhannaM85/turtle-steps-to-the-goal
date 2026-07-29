@@ -4,7 +4,7 @@ export { estimatedDailyCalorieDeficitKcal } from './calorieDeficit'
 export { lbToKg, kgToLb } from './units'
 export { goalWeekEnd, goalWindowProgress } from './goalWindowProgress'
 export type { GoalWindowProgress } from './goalWindowProgress'
-export { pastGoals } from './goalHistory'
+export { pastGoals, earliestGoalCreatedAt } from './goalHistory'
 export type { PastGoalRecord } from './goalHistory'
 export {
   reachedGoalWindows,
