@@ -1449,6 +1449,16 @@ describe('TodayScreen', () => {
         screen.queryByRole('button', { name: 'Today' }),
       ).not.toBeInTheDocument()
     })
+
+    it('renders at the same height as the arrows/Date input it shares a row with (#420)', async () => {
+      const yesterday = format(subDays(new Date(), 1), 'yyyy-MM-dd')
+      renderToday([`/?date=${yesterday}`])
+      await screen.findByLabelText('Date')
+
+      expect(screen.getByRole('button', { name: 'Today' })).toHaveClass(
+        'h-12',
+      )
+    })
   })
 
   describe('dismissible insight sections (#232)', () => {

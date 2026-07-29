@@ -759,13 +759,17 @@ export function TodayScreen() {
             <ChevronRight aria-hidden="true" />
           </Button>
           {/* #403 — quick way back after paging/picking far away, instead
-           * of stepping/picking manually all the way back. */}
+           * of stepping/picking manually all the way back. #420: explicit
+           * h-12 (no named text-content button size reaches 48px — only
+           * the icon-only, square icon-xl does) to match the arrows/Date
+           * input it shares this row with, same "same row, same height"
+           * rule documented on button.tsx's own size variants. */}
           {date !== todayIso() && (
             <Button
               type="button"
               variant="outline"
               size="sm"
-              className="shrink-0"
+              className="h-12 shrink-0"
               onClick={() => setDate(todayIso())}
             >
               {t.today.jumpToTodayButton}

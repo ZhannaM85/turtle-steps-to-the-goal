@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 370,
+    issue: 420,
+    date: '2026-07-29T17:14:22+03:00',
+    en: "The Today date row's \"jump to today\" button now matches the height of the arrows and date field next to it.",
+    ru: 'Кнопка "Сегодня" в строке даты теперь той же высоты, что и стрелки и поле даты рядом с ней.',
+  },
+  {
     version: 369,
     issue: 418,
     date: '2026-07-29T16:58:17+03:00',

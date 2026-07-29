@@ -20,6 +20,15 @@ const buttonVariants = cva(
           'bg-destructive/10 text-destructive hover:bg-destructive/20 focus-visible:border-destructive/40 focus-visible:ring-destructive/20 dark:bg-destructive/20 dark:hover:bg-destructive/30 dark:focus-visible:ring-destructive/40',
         link: 'text-primary underline-offset-4 hover:underline',
       },
+      // #420 — convention: every button/input sharing one visual row must
+      // resolve to the same rendered height. None of these named sizes are
+      // guaranteed to line up with a sibling row element on their own (e.g.
+      // a text-content button next to an icon-xl/h-12 field) — when they
+      // don't, override the mismatched one with an explicit height
+      // (className="h-12 ...", same as icon-xl's own 48px) rather than
+      // leaving visibly uneven heights in one row. Reported live once
+      // already (#420 — Today's date-navigator row: 48px arrows/Date input
+      // next to a `sm` jump-to-today button).
       size: {
         default:
           'h-8 gap-1.5 px-2.5 has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2',
