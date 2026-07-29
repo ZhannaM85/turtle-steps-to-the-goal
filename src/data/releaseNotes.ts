@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 376,
+    issue: 427,
+    date: '2026-07-29T20:18:30+03:00',
+    en: "Body composition's edit mode now lays its fields out in a steady 2-per-row grid, so the Save button always lands in the same predictable spot instead of sometimes getting stranded on its own line.",
+    ru: 'Поля в режиме редактирования состава тела теперь всегда располагаются по 2 в ряд, поэтому кнопка сохранения всегда оказывается на одном и том же предсказуемом месте, а не иногда "застревает" на отдельной строке.',
+  },
+  {
     version: 375,
     issue: 423,
     date: '2026-07-29T20:08:44+03:00',

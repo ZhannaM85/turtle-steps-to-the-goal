@@ -195,9 +195,7 @@ export function DailyEntryFormMorning() {
                     aria-invalid={state.errors.sleepHours ? true : undefined}
                     className="h-12 w-12"
                     value={state.sleepMinutesPart}
-                    onChange={(e) =>
-                      state.setSleepMinutesPart(e.target.value)
-                    }
+                    onChange={(e) => state.setSleepMinutesPart(e.target.value)}
                     onKeyDown={(e) => {
                       if (e.key === 'Enter') {
                         e.preventDefault()
@@ -439,8 +437,26 @@ export function DailyEntryFormMorning() {
             <span className="text-sm font-medium">
               {t.dailyEntry.bodyCompositionLabel}
             </span>
-            <div className="flex flex-wrap items-end gap-3">
-              <div className="flex flex-col gap-1">
+            {/* #427 — 5 fields plus the Save button don't wrap evenly in a
+             * single `flex flex-wrap` row the way Sleep's 2/Body
+             * measurements' 2 do (2 then 3, stranding the button on its
+             * own line). A fixed 2-per-row grid keeps every field's
+             * position predictable regardless of viewport width. The Save
+             * button is explicitly placed at column 3, row 2 (not relying
+             * on grid auto-flow, which would place it right after field 5
+             * on a 3rd row instead) — `self-end` bottom-aligns it within
+             * that row's cell, which (since the button is `size-12`/48px,
+             * exactly matching each `h-12` input) lands its top border
+             * flush with row 2's own input top border, not just "roughly
+             * near it." Three earlier placements (floating below in
+             * leftover grid whitespace, same-row-as-the-last-field only,
+             * then centered against all 3 rows rather than exactly
+             * top-aligned with row 2 specifically) each missed live
+             * feedback before landing here. `w-fit` on the grid keeps its
+             * columns sized to their (narrow, `w-16`) field content
+             * instead of splitting the card's full width evenly. */}
+            <div className="grid w-fit grid-cols-[auto_auto_auto] gap-x-6 gap-y-3">
+              <div className="col-start-1 row-start-1 flex flex-col gap-1">
                 <span className="text-xs text-muted-foreground">
                   {t.dailyEntry.muscleMassLabel}
                 </span>
@@ -468,7 +484,7 @@ export function DailyEntryFormMorning() {
                   </span>
                 </div>
               </div>
-              <div className="flex flex-col gap-1">
+              <div className="col-start-2 row-start-1 flex flex-col gap-1">
                 <span className="text-xs text-muted-foreground">
                   {t.dailyEntry.visceralFatLabel}
                 </span>
@@ -493,7 +509,7 @@ export function DailyEntryFormMorning() {
                   />
                 </div>
               </div>
-              <div className="flex flex-col gap-1">
+              <div className="col-start-1 row-start-2 flex flex-col gap-1">
                 <span className="text-xs text-muted-foreground">
                   {t.dailyEntry.bodyWaterLabel}
                 </span>
@@ -521,7 +537,7 @@ export function DailyEntryFormMorning() {
                   </span>
                 </div>
               </div>
-              <div className="flex flex-col gap-1">
+              <div className="col-start-2 row-start-2 flex flex-col gap-1">
                 <span className="text-xs text-muted-foreground">
                   {t.dailyEntry.boneMassLabel}
                 </span>
@@ -547,7 +563,7 @@ export function DailyEntryFormMorning() {
                   </span>
                 </div>
               </div>
-              <div className="flex flex-col gap-1">
+              <div className="col-start-1 row-start-3 flex flex-col gap-1">
                 <span className="text-xs text-muted-foreground">
                   {t.dailyEntry.bodyFatLabel}
                 </span>
@@ -581,6 +597,7 @@ export function DailyEntryFormMorning() {
                 size="icon-xl"
                 aria-label={t.dailyEntry.saveBodyCompositionLabel}
                 onClick={state.saveBodyComposition}
+                className="col-start-3 row-start-2 self-end"
               >
                 <Check aria-hidden="true" />
               </Button>
