@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 352,
+    issue: 406,
+    date: '2026-07-29T12:35:40+03:00',
+    en: 'The "Ate late tonight" toggle can now be unselected by tapping the active option again.',
+    ru: 'Переключатель "Ел(а) поздно вечером" теперь можно снять повторным нажатием на выбранный вариант.',
+  },
+  {
     version: 351,
     issue: 403,
     date: '2026-07-29T12:29:10+03:00',

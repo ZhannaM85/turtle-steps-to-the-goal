@@ -280,11 +280,15 @@ export function DailyEntryForm({
     persist({ ...getValues(), hadConstipation: value })
   }
 
-  // #383 — always sets an explicit override once touched, same "saves
+  // #383 — sets an explicit override once touched, same "saves
   // immediately, no confirm step" reasoning as setHadConstipation above.
   // The toggle's own displayed value (see nightEatingEffective below)
   // shows the *derived* value until the user actually overrides it.
-  function setNightEatingOverride(value: boolean) {
+  // #406 — `undefined` clears the override back to "no override, use the
+  // derived value" — tapping the already-active option deselects it
+  // (see the ToggleGroup's onValueChange below), rather than leaving no
+  // way back to the untracked/derived state once tapped.
+  function setNightEatingOverride(value: boolean | undefined) {
     setValue('nightEatingOverride', value, { shouldDirty: true })
     persist({ ...getValues(), nightEatingOverride: value })
   }
@@ -1289,7 +1293,7 @@ export function DailyEntryForm({
                 : 'no'
           }
           onValueChange={(value) =>
-            value && setNightEatingOverride(value === 'yes')
+            setNightEatingOverride(value === '' ? undefined : value === 'yes')
           }
           className="w-fit"
         >

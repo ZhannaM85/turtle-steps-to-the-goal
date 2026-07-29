@@ -2282,6 +2282,44 @@ describe('DailyEntryForm', () => {
 
       expect(onSave.mock.calls[0][0].nightEatingOverride).toBe(true)
     })
+
+    it('clears an explicit override back to unselected when the active option is tapped again (#406)', async () => {
+      const user = userEvent.setup()
+      const onSave = vi.fn()
+      render(
+        <DailyEntryForm
+          date="2026-03-01"
+          existingEntry={{
+            id: 'entry-1',
+            date: '2026-03-01',
+            nightEatingOverride: true,
+            createdAt: now,
+            updatedAt: now,
+          }}
+          onSave={onSave}
+        />,
+      )
+
+      const group = within(
+        screen.getByRole('radiogroup', { name: 'Ate late tonight' }),
+      )
+      expect(group.getByRole('radio', { name: 'Yes' })).toHaveAttribute(
+        'aria-checked',
+        'true',
+      )
+
+      await user.click(group.getByRole('radio', { name: 'Yes' }))
+
+      expect(onSave.mock.calls[0][0].nightEatingOverride).toBeUndefined()
+      expect(group.getByRole('radio', { name: 'No' })).toHaveAttribute(
+        'aria-checked',
+        'false',
+      )
+      expect(group.getByRole('radio', { name: 'Yes' })).toHaveAttribute(
+        'aria-checked',
+        'false',
+      )
+    })
   })
 
   describe('water tracking (#258)', () => {
