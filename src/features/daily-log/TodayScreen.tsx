@@ -626,6 +626,10 @@ export function TodayScreen() {
           progressPercent={waterPercent ?? undefined}
           progressColor="var(--stat-water)"
           action={statCardAction('todayRemainingWater', t.today.remainingWaterLabel)}
+          onClick={() => {
+            const waterSection = document.getElementById('water-entry-section')
+            waterSection?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+          }}
         />
       ) : (
         sectionTitle('todayRemainingWater', t.today.remainingWaterLabel)

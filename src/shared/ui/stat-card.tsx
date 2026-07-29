@@ -21,6 +21,9 @@ export interface StatCardProps {
    * behavior itself. */
   progressPercent?: number
   progressColor?: string
+  /** #430 — optional click handler to make the card interactive, e.g.
+   * scrolling to a related control section */
+  onClick?: () => void
 }
 
 export function StatCard({
@@ -32,6 +35,7 @@ export function StatCard({
   action,
   progressPercent,
   progressColor = 'var(--primary)',
+  onClick,
 }: StatCardProps) {
   return (
     // #395 — `Card`'s own base styles include `overflow-hidden` (needed
@@ -47,7 +51,10 @@ export function StatCard({
     // the clipped value reappear immediately, no other change needed.
     // StatCard never renders an image, so overriding back to
     // `overflow-visible` here is safe for every current/future usage.
-    <Card className={cn('overflow-visible', className)}>
+    <Card
+      onClick={onClick}
+      className={cn('overflow-visible', onClick && 'cursor-pointer', className)}
+    >
       <CardContent className="flex flex-col gap-1">
         <span className="flex items-center justify-between gap-2">
           <span className="text-sm text-muted-foreground">{label}</span>

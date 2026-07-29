@@ -81,7 +81,7 @@ export function DailyEntryFormTop() {
        * of the Evening group — stays ungrouped (like Meals above), not
        * folded into either the Morning or Evening group. */}
       {state.waterTrackingEnabled && (
-        <div className="flex flex-col gap-1.5">
+        <div id="water-entry-section" className="flex flex-col gap-1.5">
           <span className="text-sm font-medium">{t.dailyEntry.waterLabel}</span>
           <div className="flex flex-wrap items-center gap-3">
             <Button
