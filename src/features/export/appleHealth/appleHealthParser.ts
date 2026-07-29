@@ -108,7 +108,17 @@ const HK_TYPE = {
   stepCount: 'HKQuantityTypeIdentifierStepCount',
   dietaryWater: 'HKQuantityTypeIdentifierDietaryWater',
   sleepAnalysis: 'HKCategoryTypeIdentifierSleepAnalysis',
+  // #411 — another Category-type record, same shape as sleepAnalysis: no
+  // numeric `value`, just a flow-level identifier string.
+  menstrualFlow: 'HKCategoryTypeIdentifierMenstrualFlow',
 } as const
+
+// #411 — the one flow-level value that means "no flow," i.e. doesn't
+// itself mark the day as a period day. Every other value (Light/Medium/
+// Heavy/Unspecified) does. From public HealthKit documentation, not yet
+// confirmed against a real export the same way #366's other field
+// mappings originally were.
+const MENSTRUAL_FLOW_NONE_VALUE = 'HKCategoryValueMenstrualFlowNone'
 
 // #368 — a Category-type record's "amount" is its own startDate/endDate
 // interval, not a numeric `value` the way every Quantity type above is —
@@ -179,12 +189,21 @@ export class AppleHealthPatchBuilder {
   // person would actually describe "how did I sleep", reviewed the
   // following morning, not the day they happened to fall asleep on.
   private sleepByDateAndSource = new Map<string, Map<string, SleepTotals>>()
+  // #411 — dates with a real (non-"None") menstrual flow record. A date
+  // with no record at all is simply left unset, same as this app's own
+  // manual onPeriod toggle when never touched — there's no "confirmed not
+  // on period" state modeled here, only "was a period day."
+  private onPeriodDates = new Set<string>()
 
   addRecord(record: AppleHealthRecord): void {
     // #368 — a Category-type record (sleep) has no numeric `value` at all;
     // handle it before the Quantity-type numeric check below rejects it.
     if (record.type === HK_TYPE.sleepAnalysis) {
       this.addSleepRecord(record)
+      return
+    }
+    if (record.type === HK_TYPE.menstrualFlow) {
+      this.addMenstrualFlowRecord(record)
       return
     }
     if (record.value === undefined) return
@@ -269,6 +288,15 @@ export class AppleHealthPatchBuilder {
     this.sleepByDateAndSource.set(end.localDate, bySource)
   }
 
+  private addMenstrualFlowRecord(record: AppleHealthRecord): void {
+    if (record.value === undefined) return
+    if (record.value === MENSTRUAL_FLOW_NONE_VALUE) return
+    const dateSource = record.startDate ?? record.creationDate
+    if (!dateSource) return
+    const { localDate } = parseHealthTimestamp(dateSource)
+    this.onPeriodDates.add(localDate)
+  }
+
   private setIfLatest(
     map: Map<string, LatestValue>,
     date: string,
@@ -312,6 +340,9 @@ export class AppleHealthPatchBuilder {
     }
     for (const [date, entries] of this.waterEntriesByDate) {
       patchFor(date).waterEntries = entries
+    }
+    for (const date of this.onPeriodDates) {
+      patchFor(date).onPeriod = true
     }
     for (const [date, bySource] of this.sleepByDateAndSource) {
       // #368 — same dominant-source-per-night pick as steps above, not a

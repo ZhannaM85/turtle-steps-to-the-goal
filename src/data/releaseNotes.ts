@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 358,
+    issue: 411,
+    date: '2026-07-29T13:36:30+03:00',
+    en: 'The Apple Health import now also brings in period data, not just weight/body/sleep/step data.',
+    ru: 'Импорт Apple Health теперь также переносит данные о менструации, а не только вес/тело/сон/шаги.',
+  },
+  {
     version: 357,
     issue: 401,
     date: '2026-07-29T13:24:00+03:00',

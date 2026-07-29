@@ -392,4 +392,40 @@ describe('AppleHealthPatchBuilder', () => {
       expect(builder.build().get('2026-01-15')).toEqual({ sleepHours: 8 })
     })
   })
+
+  describe('menstrual flow (#411)', () => {
+    it('maps a real flow record to onPeriod: true', () => {
+      const builder = new AppleHealthPatchBuilder()
+      builder.addRecord({
+        type: 'HKCategoryTypeIdentifierMenstrualFlow',
+        value: 'HKCategoryValueMenstrualFlowMedium',
+        startDate: '2026-01-15 08:00:00+0000',
+      })
+
+      expect(builder.build().get('2026-01-15')).toEqual({ onPeriod: true })
+    })
+
+    it('does not set onPeriod for a "None" flow record', () => {
+      const builder = new AppleHealthPatchBuilder()
+      builder.addRecord({
+        type: 'HKCategoryTypeIdentifierMenstrualFlow',
+        value: 'HKCategoryValueMenstrualFlowNone',
+        startDate: '2026-01-15 08:00:00+0000',
+      })
+
+      expect(builder.build().get('2026-01-15')).toBeUndefined()
+    })
+
+    it('does not set onPeriod for a date with no flow record at all', () => {
+      const builder = new AppleHealthPatchBuilder()
+      builder.addRecord({
+        type: 'HKQuantityTypeIdentifierBodyMass',
+        unit: 'kg',
+        value: '61.4',
+        startDate: '2026-01-15 12:00:00+0000',
+      })
+
+      expect(builder.build().get('2026-01-15')).toEqual({ weightKg: 61.4 })
+    })
+  })
 })

@@ -64,6 +64,13 @@ const APPLE_HEALTH_FIELDS: {
   // two get the same treatment rather than being unconditionally imported.
   { key: 'sleepHours', label: (t) => t.dailyEntry.sleepLabel },
   { key: 'deepSleepHours', label: (t) => t.dailyEntry.deepSleepLabel },
+  // #411 — same reasoning as #368 above, once menstrual flow parsing
+  // existed. Offered unconditionally like every other field here, even
+  // though the app's own manual onPeriod toggle is gated behind a
+  // Settings opt-in (useCycleTrackingStore) — this picker has no
+  // precedent for gating any field behind a tracking-enabled store (e.g.
+  // waterEntries isn't gated behind water tracking either).
+  { key: 'onPeriod', label: (t) => t.dailyEntry.onPeriodLabel },
 ]
 
 /** #240 — Excel/CSV/Markdown only, never the JSON backup (a backup should
