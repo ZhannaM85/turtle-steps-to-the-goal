@@ -25,6 +25,34 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 381,
+    issue: 426,
+    date: '2026-07-30T00:16:54+03:00',
+    en: "History's and the Dashboard's \"weeks target met\" no longer credits weeks that came before your current goal even existed.",
+    ru: 'Раздел "цель недели достигнута" в Истории и на Панели больше не засчитывает недели, которые были до создания вашей текущей цели.',
+  },
+  {
+    version: 380,
+    issue: 430,
+    date: '2026-07-29T23:17:58+03:00',
+    en: "Tapping the remaining-water card on Today now scrolls straight to the add/remove water buttons, instead of leaving you to find them yourself.",
+    ru: 'Нажатие на карточку "Осталось воды" на вкладке Сегодня теперь сразу прокручивает страницу к кнопкам добавления/удаления воды, вместо того чтобы искать их вручную.',
+  },
+  {
+    version: 379,
+    issue: 429,
+    date: '2026-07-29T23:07:23+03:00',
+    en: 'Removed the small "auto-detected" note under the "ate late tonight" toggle that looked like leftover debug text.',
+    ru: 'Убрали небольшую подпись "определено автоматически" под переключателем "Ел(а) поздно вечером", которая выглядела как забытый отладочный текст.',
+  },
+  {
+    version: 378,
+    issue: 428,
+    date: '2026-07-29T23:07:23+03:00',
+    en: 'Removed the small "Clear" button next to the "ate late tonight" toggle — tapping your current answer again already resets it, so the button was just extra clutter.',
+    ru: 'Убрали маленькую кнопку "Сбросить" рядом с переключателем "Ел(а) поздно вечером" — повторное нажатие на уже выбранный вариант само его снимает, кнопка была лишней.',
+  },
+  {
     version: 377,
     issue: 423,
     date: '2026-07-29T20:50:05+03:00',
