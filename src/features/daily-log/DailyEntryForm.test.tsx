@@ -2360,7 +2360,7 @@ describe('DailyEntryForm', () => {
       )
     })
 
-    it('reflects a value derived from a logged late meal, with no override yet', () => {
+    it('shows a derived value as caption text, not as the toggle itself, with no override yet (#423)', () => {
       render(
         <DailyEntryForm
           date="2026-03-01"
@@ -2387,8 +2387,15 @@ describe('DailyEntryForm', () => {
       )
       expect(group.getByRole('radio', { name: 'Yes' })).toHaveAttribute(
         'aria-checked',
-        'true',
+        'false',
       )
+      expect(group.getByRole('radio', { name: 'No' })).toHaveAttribute(
+        'aria-checked',
+        'false',
+      )
+      expect(
+        screen.getByText('Auto-detected from your meals: Yes'),
+      ).toBeInTheDocument()
     })
 
     it('lets an explicit override win over the derived meal-time value', async () => {
@@ -2542,6 +2549,55 @@ describe('DailyEntryForm', () => {
         'aria-checked',
         'false',
       )
+    })
+
+    it('Clear always resets to nothing selected, even when a real logged meal derives a definite value (#423)', async () => {
+      // Reported live with screenshots: a dinner logged at 19:0x (well
+      // before the 23:00 cutoff) correctly derives to "not late," but
+      // clearing an explicit override used to fall through to that
+      // derived value in the toggle itself, making Clear look like it
+      // "defaulted to No" instead of showing nothing selected.
+      const user = userEvent.setup()
+      const onSave = vi.fn()
+      render(
+        <DailyEntryForm
+          date="2026-03-01"
+          existingEntry={{
+            id: 'entry-1',
+            date: '2026-03-01',
+            calorieEntries: [
+              {
+                id: 'c1',
+                items: [{ id: 'i1', amountKcal: 300 }],
+                timeEaten: '19:00',
+                createdAt: now,
+              },
+            ],
+            nightEatingOverride: true,
+            createdAt: now,
+            updatedAt: now,
+          }}
+          onSave={onSave}
+        />,
+      )
+
+      await user.click(screen.getByRole('button', { name: 'Clear' }))
+
+      expect(onSave.mock.calls[0][0].nightEatingOverride).toBeUndefined()
+      const group = within(
+        screen.getByRole('radiogroup', { name: 'Ate late tonight' }),
+      )
+      expect(group.getByRole('radio', { name: 'Yes' })).toHaveAttribute(
+        'aria-checked',
+        'false',
+      )
+      expect(group.getByRole('radio', { name: 'No' })).toHaveAttribute(
+        'aria-checked',
+        'false',
+      )
+      expect(
+        screen.getByText('Auto-detected from your meals: No'),
+      ).toBeInTheDocument()
     })
   })
 

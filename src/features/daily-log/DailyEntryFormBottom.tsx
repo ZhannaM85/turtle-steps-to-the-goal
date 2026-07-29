@@ -226,31 +226,23 @@ export function DailyEntryFormBottom() {
           <ToggleGroup
             type="single"
             aria-label={t.dailyEntry.nightEatingLabel(state.sex)}
-            // #406/#423: Radix's `useControllableState` treats a controlled
-            // `value` of `undefined` as "stop controlling me, keep whatever
-            // you had," not "explicitly show nothing selected" — `''` (a
-            // real, defined value Radix accepts as "no item matches this")
-            // fixed the ToggleGroup's own rendered aria-checked state
-            // reliably clearing on tap-to-deselect, confirmed via live
-            // Playwright against a real running dev server on both
-            // Chromium and WebKit. #423 reopened again after that shipped —
-            // still reported broken live on real Safari/the installed PWA.
-            // Re-verified the exact reported scenario (a genuinely blank
-            // day, zero food logged) via the same live cross-engine
-            // Playwright setup, reading the real persisted IndexedDB record
-            // after each click, and it deselects correctly every time on
-            // both engines — so whatever the real-device mechanism is, it
-            // isn't reproducible through this toggle's own click-to-deselect
-            // path from outside a real Safari session. Restoring the
-            // explicit Clear button below (same small "×" pattern
-            // `DayDetail.tsx`'s #413 History treatment already uses) as a
-            // second, independent way to reach "no override" that doesn't
-            // rely on this ToggleGroup's tap-the-active-item deselect
-            // behavior at all.
+            // #423 — the toggle's pressed/unpressed state now reflects only
+            // the explicit `nightEatingOverride` (three states: 'yes'/'no'/
+            // undefined→''), never `nightEatingEffective`'s meal-derived
+            // fallback. Conflating the two made an auto-computed answer
+            // visually indistinguishable from a real manual pick — clearing
+            // an override on a day with real logged meals could "land back"
+            // on Yes or No instead of showing nothing selected, reported
+            // live with screenshots (a 7pm dinner correctly derives to "not
+            // late," so Clear appeared to snap to No). `''` for the
+            // undefined case keeps Radix's `useControllableState` in
+            // controlled mode (#406's own earlier fix) — the same real,
+            // defined "no item matches" value it already needed, just now
+            // driven by a value that can never coincide with a real answer.
             value={
-              state.nightEatingEffective === undefined
+              state.nightEatingOverride === undefined
                 ? ''
-                : state.nightEatingEffective
+                : state.nightEatingOverride
                   ? 'yes'
                   : 'no'
             }
@@ -280,6 +272,20 @@ export function DailyEntryFormBottom() {
             </Button>
           )}
         </span>
+        {/* #423 — the derived value stays visible as plain text once
+         * there's no override to show it via the toggle itself, instead
+         * of being silently lost now that the toggle only reflects an
+         * explicit pick. */}
+        {state.nightEatingOverride === undefined &&
+          state.nightEatingEffective !== undefined && (
+            <span className="text-xs text-muted-foreground">
+              {t.dailyEntry.nightEatingAutoDetectedLabel(
+                state.nightEatingEffective
+                  ? t.dailyEntry.nightEatingYesOption
+                  : t.dailyEntry.nightEatingNoOption,
+              )}
+            </span>
+          )}
       </div>
     </div>
   )

@@ -283,6 +283,8 @@ export const ru: Dictionary = {
     nightEatingNoOption: 'Нет',
     nightEatingYesOption: 'Да',
     clearNightEatingOverrideLabel: 'Сбросить',
+    nightEatingAutoDetectedLabel: (option: string) =>
+      `Определено автоматически по приёмам пищи: ${option}`,
     waterLabel: 'Вода',
     mlUnit: 'мл',
     addGlassLabel: '+1 стакан (250мл)',

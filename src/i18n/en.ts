@@ -272,6 +272,8 @@ export const en: Dictionary = {
     nightEatingNoOption: 'No',
     nightEatingYesOption: 'Yes',
     clearNightEatingOverrideLabel: 'Clear',
+    nightEatingAutoDetectedLabel: (option: string) =>
+      `Auto-detected from your meals: ${option}`,
     waterLabel: 'Water',
     mlUnit: 'ml',
     addGlassLabel: '+1 glass (250ml)',

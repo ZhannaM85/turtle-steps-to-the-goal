@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 377,
+    issue: 423,
+    date: '2026-07-29T20:50:05+03:00',
+    en: 'The "ate late tonight" toggle now only shows your own Yes/No pick — tapping Clear always shows nothing selected. What the app auto-detects from your logged meal times now appears as a small note underneath instead.',
+    ru: 'Переключатель "Ел(а) поздно вечером" теперь показывает только ваш собственный выбор Да/Нет — нажатие "Сбросить" всегда снимает оба варианта. То, что приложение определяет автоматически по времени приёмов пищи, теперь отображается небольшой подписью снизу.',
+  },
+  {
     version: 376,
     issue: 427,
     date: '2026-07-29T20:18:30+03:00',
