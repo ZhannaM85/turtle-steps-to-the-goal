@@ -176,3 +176,59 @@ export function isUnusualBodyWaterPercentDelta(
     UNUSUAL_BODY_WATER_PERCENT_DELTA_RATIO,
   )
 }
+
+/**
+ * #401 follow-up — absolute plausibility bounds for body composition fields,
+ * analogous to `isUnusualWeightKg`'s 35-250kg band. These catch typos with
+ * wildly impossible values (7888kg muscle, 478% water, etc.) even when
+ * there's no prior entry to compare delta against.
+ */
+export const MUSCLE_MASS_PLAUSIBLE_MAX_KG = 100
+export const MUSCLE_MASS_PLAUSIBLE_MIN_KG = 0
+
+export function isUnusualMuscleMassKg(muscleMassKg: number): boolean {
+  return (
+    muscleMassKg < MUSCLE_MASS_PLAUSIBLE_MIN_KG ||
+    muscleMassKg > MUSCLE_MASS_PLAUSIBLE_MAX_KG
+  )
+}
+
+export const VISCERAL_FAT_PLAUSIBLE_MAX = 20
+export const VISCERAL_FAT_PLAUSIBLE_MIN = 0
+
+export function isUnusualVisceralFat(visceralFat: number): boolean {
+  return (
+    visceralFat < VISCERAL_FAT_PLAUSIBLE_MIN ||
+    visceralFat > VISCERAL_FAT_PLAUSIBLE_MAX
+  )
+}
+
+export const BODY_WATER_PERCENT_PLAUSIBLE_MAX = 100
+export const BODY_WATER_PERCENT_PLAUSIBLE_MIN = 0
+
+export function isUnusualBodyWaterPercent(bodyWaterPercent: number): boolean {
+  return (
+    bodyWaterPercent < BODY_WATER_PERCENT_PLAUSIBLE_MIN ||
+    bodyWaterPercent > BODY_WATER_PERCENT_PLAUSIBLE_MAX
+  )
+}
+
+export const BONE_MASS_PLAUSIBLE_MAX_KG = 30
+export const BONE_MASS_PLAUSIBLE_MIN_KG = 0
+
+export function isUnusualBoneMassKg(boneMassKg: number): boolean {
+  return (
+    boneMassKg < BONE_MASS_PLAUSIBLE_MIN_KG ||
+    boneMassKg > BONE_MASS_PLAUSIBLE_MAX_KG
+  )
+}
+
+export const BODY_FAT_PERCENT_PLAUSIBLE_MAX = 100
+export const BODY_FAT_PERCENT_PLAUSIBLE_MIN = 0
+
+export function isUnusualBodyFatPercent(bodyFatPercent: number): boolean {
+  return (
+    bodyFatPercent < BODY_FAT_PERCENT_PLAUSIBLE_MIN ||
+    bodyFatPercent > BODY_FAT_PERCENT_PLAUSIBLE_MAX
+  )
+}

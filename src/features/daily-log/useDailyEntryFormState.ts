@@ -39,6 +39,11 @@ import {
 import {
   isUnusualBodyFatPercentDelta,
   isUnusualBodyWaterPercentDelta,
+  isUnusualMuscleMassKg,
+  isUnusualVisceralFat,
+  isUnusualBodyWaterPercent,
+  isUnusualBoneMassKg,
+  isUnusualBodyFatPercent,
   isUnusualBoneMassDeltaKg,
   isUnusualMuscleMassDeltaKg,
   isUnusualVisceralFatDelta,
@@ -497,35 +502,40 @@ export function useDailyEntryFormState({
     }
     const isUnusual =
       (current.muscleMassKg !== undefined &&
-        previousDayEntry?.muscleMassKg !== undefined &&
-        isUnusualMuscleMassDeltaKg(
-          current.muscleMassKg,
-          previousDayEntry.muscleMassKg,
-        )) ||
+        (isUnusualMuscleMassKg(current.muscleMassKg) ||
+          (previousDayEntry?.muscleMassKg !== undefined &&
+            isUnusualMuscleMassDeltaKg(
+              current.muscleMassKg,
+              previousDayEntry.muscleMassKg,
+            )))) ||
       (current.visceralFatRating !== undefined &&
-        previousDayEntry?.visceralFatRating !== undefined &&
-        isUnusualVisceralFatDelta(
-          current.visceralFatRating,
-          previousDayEntry.visceralFatRating,
-        )) ||
+        (isUnusualVisceralFat(current.visceralFatRating) ||
+          (previousDayEntry?.visceralFatRating !== undefined &&
+            isUnusualVisceralFatDelta(
+              current.visceralFatRating,
+              previousDayEntry.visceralFatRating,
+            )))) ||
       (current.bodyWaterPercent !== undefined &&
-        previousDayEntry?.bodyWaterPercent !== undefined &&
-        isUnusualBodyWaterPercentDelta(
-          current.bodyWaterPercent,
-          previousDayEntry.bodyWaterPercent,
-        )) ||
+        (isUnusualBodyWaterPercent(current.bodyWaterPercent) ||
+          (previousDayEntry?.bodyWaterPercent !== undefined &&
+            isUnusualBodyWaterPercentDelta(
+              current.bodyWaterPercent,
+              previousDayEntry.bodyWaterPercent,
+            )))) ||
       (current.boneMassKg !== undefined &&
-        previousDayEntry?.boneMassKg !== undefined &&
-        isUnusualBoneMassDeltaKg(
-          current.boneMassKg,
-          previousDayEntry.boneMassKg,
-        )) ||
+        (isUnusualBoneMassKg(current.boneMassKg) ||
+          (previousDayEntry?.boneMassKg !== undefined &&
+            isUnusualBoneMassDeltaKg(
+              current.boneMassKg,
+              previousDayEntry.boneMassKg,
+            )))) ||
       (current.bodyFatPercent !== undefined &&
-        previousDayEntry?.bodyFatPercent !== undefined &&
-        isUnusualBodyFatPercentDelta(
-          current.bodyFatPercent,
-          previousDayEntry.bodyFatPercent,
-        ))
+        (isUnusualBodyFatPercent(current.bodyFatPercent) ||
+          (previousDayEntry?.bodyFatPercent !== undefined &&
+            isUnusualBodyFatPercentDelta(
+              current.bodyFatPercent,
+              previousDayEntry.bodyFatPercent,
+            ))))
     const unchangedSincePendingWarning =
       pendingUnusualBodyComposition !== null &&
       pendingUnusualBodyComposition.muscleMassKg === current.muscleMassKg &&
