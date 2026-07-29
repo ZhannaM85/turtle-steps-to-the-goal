@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 350,
+    issue: 410,
+    date: '2026-07-29T12:24:25+03:00',
+    en: 'The "night eating" cutoff moved from 9pm to 11pm.',
+    ru: 'Порог "поздний приём пищи" сдвинут с 21:00 на 23:00.',
+  },
+  {
     version: 349,
     issue: 368,
     date: '2026-07-29T02:16:44+03:00',

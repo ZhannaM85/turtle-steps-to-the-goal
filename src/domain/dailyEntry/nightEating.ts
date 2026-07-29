@@ -10,8 +10,11 @@ type NightEatingInput = Pick<DailyEntry, 'calorieEntries' | 'nightEatingOverride
  * after this counts as night eating for the derived value. Not
  * user-configurable (#383 deliberately keeps this simple; #298's separate
  * day-start-time setting answers a different question — which calendar
- * day a very-early-morning entry belongs to, not when "late" begins). */
-const NIGHT_EATING_CUTOFF_HHMM = '21:00'
+ * day a very-early-morning entry belongs to, not when "late" begins).
+ * #410: moved from 21:00 to 23:00 — 9pm read as too early/strict after
+ * live feedback showed a stretch of ordinary evenings all flagged as
+ * "night eating." */
+const NIGHT_EATING_CUTOFF_HHMM = '23:00'
 
 /**
  * Whether a day counts as "night eating" (#383) — `entry.nightEatingOverride`

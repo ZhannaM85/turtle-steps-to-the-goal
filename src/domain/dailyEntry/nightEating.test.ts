@@ -27,13 +27,19 @@ describe('hadNightEating', () => {
     ).toBe(false)
   })
 
-  it('is true when a meal was eaten at or after the 21:00 cutoff', () => {
+  it('is true when a meal was eaten at or after the 23:00 cutoff', () => {
     expect(
-      hadNightEating(entry({ calorieEntries: [meal('08:00'), meal('21:00')] })),
+      hadNightEating(entry({ calorieEntries: [meal('08:00'), meal('23:00')] })),
     ).toBe(true)
     expect(
       hadNightEating(entry({ calorieEntries: [meal('23:15')] })),
     ).toBe(true)
+  })
+
+  it('is false for a meal just before the cutoff', () => {
+    expect(
+      hadNightEating(entry({ calorieEntries: [meal('22:59')] })),
+    ).toBe(false)
   })
 
   it('is undefined when no meal has a recorded time (#394)', () => {
