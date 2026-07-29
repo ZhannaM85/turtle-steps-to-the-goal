@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 375,
+    issue: 423,
+    date: '2026-07-29T20:08:44+03:00',
+    en: 'A small "Clear" button now appears next to Today\'s "ate late tonight" toggle whenever you\'ve picked Yes/No, as a second, independent way to reset it back to automatic.',
+    ru: 'Небольшая кнопка "Сбросить" теперь появляется рядом с переключателем "Ел(а) поздно вечером" на вкладке "Сегодня" всякий раз, когда выбрано Да/Нет — как ещё один, независимый способ вернуть его к автоматическому значению.',
+  },
+  {
     version: 374,
     issue: 422,
     date: '2026-07-29T19:30:51+03:00',

@@ -2504,6 +2504,45 @@ describe('DailyEntryForm', () => {
         'false',
       )
     })
+
+    it('has no Clear button when there is no explicit override yet (#423)', () => {
+      render(
+        <DailyEntryForm date="2026-03-01" existingEntry={null} onSave={vi.fn()} />,
+      )
+
+      expect(
+        screen.queryByRole('button', { name: 'Clear' }),
+      ).not.toBeInTheDocument()
+    })
+
+    it('shows a Clear button once an explicit override exists, resetting it independently of the toggle (#423)', async () => {
+      const user = userEvent.setup()
+      const onSave = vi.fn()
+      render(
+        <DailyEntryForm
+          date="2026-03-01"
+          existingEntry={{
+            id: 'entry-1',
+            date: '2026-03-01',
+            nightEatingOverride: true,
+            createdAt: now,
+            updatedAt: now,
+          }}
+          onSave={onSave}
+        />,
+      )
+
+      await user.click(screen.getByRole('button', { name: 'Clear' }))
+
+      expect(onSave.mock.calls[0][0].nightEatingOverride).toBeUndefined()
+      const group = within(
+        screen.getByRole('radiogroup', { name: 'Ate late tonight' }),
+      )
+      expect(group.getByRole('radio', { name: 'Yes' })).toHaveAttribute(
+        'aria-checked',
+        'false',
+      )
+    })
   })
 
   describe('water tracking (#258)', () => {
