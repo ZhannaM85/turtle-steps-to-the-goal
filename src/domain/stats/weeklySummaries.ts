@@ -103,7 +103,15 @@ export function weeklySummaries(
 
     current.deltaVsPriorWeekKg = current.averageWeightKg - prior.averageWeightKg
 
-    if (goal) {
+    // #426 — only evaluate weeks that actually fall within the goal's real
+    // active window; a week entirely before the goal was created (e.g.
+    // backfilled import history, or the app's own pre-goal history) has no
+    // goal to have been "met" against, so it should show no status at all
+    // rather than a retroactive comparison. Date-only granularity (not the
+    // exact creation moment) to match this codebase's existing goal-window
+    // comparisons (`isDateWithinReachedWindow` etc.), so a week starting the
+    // same calendar day the goal was created still counts.
+    if (goal && current.weekStart >= goal.createdAt.slice(0, 10)) {
       const actualLossKg = -current.deltaVsPriorWeekKg
       current.targetMet = actualLossKg >= goal.targetWeeklyLossKg
     }

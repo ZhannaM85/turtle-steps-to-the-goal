@@ -118,6 +118,44 @@ describe('weeklySummaries', () => {
     expect(week2.targetMet).toBe(false)
   })
 
+  it('leaves targetMet null for a week that entirely predates the goal\'s creation (#426)', () => {
+    const week2Start = dayOf(WEEK_1_START, 7)
+    const entries = [
+      entry(dayOf(WEEK_1_START, 0), { weightKg: 80 }),
+      entry(dayOf(week2Start, 0), { weightKg: 77 }), // 3kg lost, would meet a 1kg target
+    ]
+
+    const [, week2] = weeklySummaries(
+      entries,
+      makeGoal({
+        targetWeeklyLossKg: 1,
+        // Goal created the day after week2 started — week2 predates it.
+        createdAt: `${dayOf(week2Start, 1)}T00:00:00.000Z`,
+      }),
+    )
+
+    expect(week2.deltaVsPriorWeekKg).toBe(-3)
+    expect(week2.targetMet).toBeNull()
+  })
+
+  it('still evaluates targetMet for a week starting the same calendar day the goal was created (#426)', () => {
+    const week2Start = dayOf(WEEK_1_START, 7)
+    const entries = [
+      entry(dayOf(WEEK_1_START, 0), { weightKg: 80 }),
+      entry(dayOf(week2Start, 0), { weightKg: 77 }),
+    ]
+
+    const [, week2] = weeklySummaries(
+      entries,
+      makeGoal({
+        targetWeeklyLossKg: 1,
+        createdAt: `${week2Start}T09:00:00.000Z`,
+      }),
+    )
+
+    expect(week2.targetMet).toBe(true)
+  })
+
   it('leaves targetMet null when no goal is provided', () => {
     const week2Start = dayOf(WEEK_1_START, 7)
     const entries = [
