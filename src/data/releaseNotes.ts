@@ -25,6 +25,20 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 392,
+    issue: 448,
+    date: '2026-07-30T14:47:02+03:00',
+    en: 'The Weight graph now flags a point as abnormal only when it jumps more than 2kg from the previous day, a simpler and more predictable rule than before.',
+    ru: 'На графике веса точка теперь помечается как аномальная только при скачке более чем на 2кг по сравнению с предыдущим днём — более простое и предсказуемое правило.',
+  },
+  {
+    version: 391,
+    issue: 449,
+    date: '2026-07-30T14:47:02+03:00',
+    en: "Fixed the day's note not showing fully expanded when reopening a previous day with an already-long note — it now shows in full immediately instead of only after you start typing.",
+    ru: 'Исправлена заметка дня, которая не разворачивалась полностью при повторном открытии предыдущего дня с уже длинной заметкой — теперь она сразу показывается целиком, а не только после начала набора текста.',
+  },
+  {
     version: 390,
     issue: 441,
     date: '2026-07-30T12:57:43+03:00',
