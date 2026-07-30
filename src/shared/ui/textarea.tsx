@@ -25,9 +25,16 @@ const Textarea = React.forwardRef<
   return (
     <textarea
       ref={(el) => {
-        if (el) resize(el)
+        // #449 — the forwarded ref (react-hook-form's register()) must run
+        // first: for an uncontrolled field, RHF sets el.value from the
+        // registered default *inside its own ref callback*, since there's
+        // no React `value` prop doing it. Measuring scrollHeight before
+        // that runs sees an empty textarea (always the 1-row min-height),
+        // so a previous day's already-long note never grew to fit until
+        // the user's own typing triggered a later onInput-driven resize.
         if (typeof ref === 'function') ref(el)
         else if (ref) ref.current = el
+        if (el) resize(el)
       }}
       rows={rows}
       data-slot="textarea"
