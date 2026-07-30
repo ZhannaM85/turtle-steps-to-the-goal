@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 401,
+    issue: 456,
+    date: '2026-07-30T22:36:13+03:00',
+    en: 'The fasting-window notification now stays visible instead of being dismissible.',
+    ru: 'Уведомление об окне голодания теперь остаётся видимым и не скрывается вручную.',
+  },
+  {
     version: 400,
     issue: 455,
     date: '2026-07-30T21:17:18+03:00',
