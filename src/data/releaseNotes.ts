@@ -25,6 +25,20 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 398,
+    issue: 451,
+    date: '2026-07-30T17:16:52+03:00',
+    en: 'Compare your data: each series button now shows its own unit (e.g. "Weight (kg)"), and the Y-axis just shows plain numbers.',
+    ru: '"Сравнение данных": на каждой кнопке показателя теперь указана единица измерения (например, "Вес (кг)"), а ось Y — просто числа.',
+  },
+  {
+    version: 397,
+    issue: 453,
+    date: '2026-07-30T17:25:16+03:00',
+    en: 'Added the same previous/next paging arrows to the "Compare your data" chart.',
+    ru: 'Добавлены такие же стрелки "назад/вперёд" на график "Сравнение данных".',
+  },
+  {
     version: 396,
     issue: 443,
     date: '2026-07-30T16:33:03+03:00',
