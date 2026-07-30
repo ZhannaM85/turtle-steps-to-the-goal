@@ -212,7 +212,6 @@ export const en: Dictionary = {
     cancelAddToMealLabel: 'Cancel',
     doneAddingMealButton: 'Done',
     fastingWindowToastMessage: (hours) => `Your fasting window was ${hours}.`,
-    dismissFastingWindowToastLabel: 'Dismiss',
     foodSearchLabel: 'Search foods',
     foodSearchPlaceholder: 'Search…',
     foodQuantityLabel: 'Quantity (g)',

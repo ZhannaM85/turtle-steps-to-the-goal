@@ -975,6 +975,46 @@ describe('MealList', () => {
       expect(screen.queryByText(/Your fasting window was/)).not.toBeInTheDocument()
     })
 
+    // #456 — deliberately persistent: no manual close control at all, even
+    // once the toast is showing.
+    it('has no dismiss button once the toast is showing', async () => {
+      await db.dailyEntries.put(
+        makeDailyEntry({
+          date: '2026-02-28',
+          calorieEntries: [
+            {
+              id: 'y1',
+              items: [{ id: 'yi1', amountKcal: 400 }],
+              timeEaten: '20:00',
+              createdAt: '2026-02-28T20:00:00.000Z',
+            },
+          ],
+        }),
+      )
+      const user = userEvent.setup()
+      render(<ControlledMealList calorieEntries={[]} date="2026-03-01" />, {
+        wrapper: MemoryRouter,
+      })
+
+      await user.click(
+        screen.getByRole('button', { name: '+ Add another meal' }),
+      )
+      await user.clear(screen.getByLabelText('Time'))
+      await user.type(screen.getByLabelText('Time'), '08:00')
+      await user.click(
+        screen.getByRole('button', { name: "Can't find it? Add manually" }),
+      )
+      await user.type(screen.getByLabelText('Dish name'), 'Oatmeal')
+      await user.type(screen.getByLabelText('kcal/100g'), '300')
+      await user.click(screen.getByRole('button', { name: 'Save' }))
+      await screen.findByText('Your fasting window was 12.0h.')
+      await user.click(screen.getByRole('button', { name: 'Done' }))
+
+      expect(
+        screen.queryByRole('button', { name: 'Dismiss' }),
+      ).not.toBeInTheDocument()
+    })
+
     it("does not re-show the toast for a second meal logged the same day", async () => {
       await db.dailyEntries.put(
         makeDailyEntry({
@@ -1022,56 +1062,6 @@ describe('MealList', () => {
       expect(screen.queryByText(/Your fasting window was/)).not.toBeInTheDocument()
     })
 
-    it('dismisses the toast when the close button is clicked', async () => {
-      await db.dailyEntries.put(
-        makeDailyEntry({
-          date: '2026-02-28',
-          calorieEntries: [
-            {
-              id: 'y1',
-              items: [{ id: 'yi1', amountKcal: 400 }],
-              timeEaten: '20:00',
-              createdAt: '2026-02-28T20:00:00.000Z',
-            },
-          ],
-        }),
-      )
-      const user = userEvent.setup()
-      // A plain `onChange={vi.fn()}` never feeds the save back into
-      // MealList's own `calorieEntries` prop (see ControlledMealList's own
-      // doc comment) — the "Done" button below only renders once the
-      // flyout's `items` prop (derived from that same prop) is non-empty,
-      // so this test needs the real controlled loop, unlike the others in
-      // this describe block that only ever check the toast text itself.
-      render(<ControlledMealList calorieEntries={[]} date="2026-03-01" />, {
-        wrapper: MemoryRouter,
-      })
-
-      // Time now defaults to the current time (#357), not blank — clear it
-      // first so typing produces exactly this value, not a mix of both.
-      await user.click(
-        screen.getByRole('button', { name: '+ Add another meal' }),
-      )
-      await user.clear(screen.getByLabelText('Time'))
-      await user.type(screen.getByLabelText('Time'), '08:00')
-      await user.click(
-        screen.getByRole('button', { name: "Can't find it? Add manually" }),
-      )
-      await user.type(screen.getByLabelText('Dish name'), 'Oatmeal')
-      await user.type(screen.getByLabelText('kcal/100g'), '300')
-      await user.click(screen.getByRole('button', { name: 'Save' }))
-      await screen.findByText('Your fasting window was 12.0h.')
-      // The toast lives in MealList's own tree, behind the still-open
-      // fullscreen flyout (Radix hides everything outside an open dialog
-      // from the accessibility tree) — closing it first, same as a real
-      // user finishing the flyout before seeing the toast underneath.
-      await user.click(screen.getByRole('button', { name: 'Done' }))
-
-      await user.click(screen.getByRole('button', { name: 'Dismiss' }))
-
-      expect(screen.queryByText(/Your fasting window was/)).not.toBeInTheDocument()
-    })
-
     // #301: fastingWindowToastHours was only ever set, never reset —
     // deleting the meal that triggered it (the day's only timed meal)
     // left the toast showing a now-stale value with nothing left to
@@ -1109,8 +1099,10 @@ describe('MealList', () => {
       await user.type(screen.getByLabelText('kcal/100g'), '300')
       await user.click(screen.getByRole('button', { name: 'Save' }))
       await screen.findByText('Your fasting window was 12.0h.')
-      // See the identical note in the "dismisses the toast" test above —
-      // the toast is behind the still-open flyout until it's closed.
+      // The toast lives in MealList's own tree, behind the still-open
+      // fullscreen flyout (Radix hides everything outside an open dialog
+      // from the accessibility tree) — closing it first, same as a real
+      // user finishing the flyout before seeing the toast underneath.
       await user.click(screen.getByRole('button', { name: 'Done' }))
 
       await user.click(screen.getByRole('button', { name: 'Delete meal 1' }))

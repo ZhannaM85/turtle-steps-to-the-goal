@@ -415,7 +415,6 @@ export interface Dictionary {
      * infeasible for that). `fastingHoursBetween` (domain/stats, #257)
      * does the actual elapsed-hours math. */
     fastingWindowToastMessage: (hours: string) => string
-    dismissFastingWindowToastLabel: string
     foodSearchLabel: string
     foodSearchPlaceholder: string
     foodQuantityLabel: string

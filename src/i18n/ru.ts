@@ -218,7 +218,6 @@ export const ru: Dictionary = {
     doneAddingMealButton: 'Готово',
     fastingWindowToastMessage: (hours) =>
       `Ваше окно голодания составило ${hours}.`,
-    dismissFastingWindowToastLabel: 'Скрыть',
     foodSearchLabel: 'Поиск продуктов',
     foodSearchPlaceholder: 'Поиск…',
     foodQuantityLabel: 'Количество (г)',

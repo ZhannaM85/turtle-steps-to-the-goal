@@ -1699,21 +1699,17 @@ export function MealList({
   return (
     <div className="flex flex-col gap-3">
       {fastingWindowToastHours !== null && (
-        <div className="flex items-center justify-between gap-2 rounded-lg border border-border px-3 py-2 text-sm text-muted-foreground">
+        // #456 — no manual dismiss control (deliberately persistent):
+        // `dismissFastingWindowToast()` itself stays, called from #301
+        // (deleting the meal that triggered it) and #450 (the underlying
+        // window recalculating to no longer apply) — both are the toast's
+        // own claim becoming false, not a user choosing to hide it.
+        <div className="flex items-center gap-2 rounded-lg border border-border px-3 py-2 text-sm text-muted-foreground">
           <span>
             {t.dailyEntry.fastingWindowToastMessage(
               `${formatNumber(fastingWindowToastHours, locale, 1)}${t.dailyEntry.hoursUnit}`,
             )}
           </span>
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon-sm"
-            aria-label={t.dailyEntry.dismissFastingWindowToastLabel}
-            onClick={dismissFastingWindowToast}
-          >
-            <X aria-hidden="true" />
-          </Button>
         </div>
       )}
       {calorieEntries.length > 0 && (
