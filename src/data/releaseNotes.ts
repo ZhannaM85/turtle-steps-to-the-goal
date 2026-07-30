@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 399,
+    issue: 454,
+    date: '2026-07-30T21:04:23+03:00',
+    en: 'Adding a meal is now a dedicated screen: search or scan a barcode, add several dishes without closing it, and rate the whole meal when you\'re done.',
+    ru: 'Добавление приёма пищи теперь на отдельном экране: ищите или сканируйте штрихкод, добавляйте несколько блюд без закрытия, а в конце оцените весь приём пищи.',
+  },
+  {
     version: 398,
     issue: 451,
     date: '2026-07-30T17:16:52+03:00',
