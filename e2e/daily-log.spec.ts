@@ -11,11 +11,11 @@ test('logs a meal, then edits its calories via the pencil', async ({ page }) => 
 
   // #454 — the add-row accordion became a dedicated flyout: open it, then
   // fall back to manual entry (the direct successor of the old "+ Add
-  // item" button, which no longer exists on the main page itself).
+  // item" button, which no longer exists on the main page itself). #459
+  // replaced the empty-search state's plain "Can't find it? Add manually"
+  // link with a row of quick-action cards — "Add food" is the same handler.
   await page.getByRole('button', { name: '+ Add another meal' }).click()
-  await page
-    .getByRole('button', { name: "Can't find it? Add manually" })
-    .click()
+  await page.getByRole('button', { name: 'Add food' }).click()
   await page.getByLabel('kcal/100g').fill('300')
   await page.getByRole('button', { name: 'Save', exact: true }).click()
   await page.getByRole('button', { name: 'Done' }).click()
@@ -24,17 +24,26 @@ test('logs a meal, then edits its calories via the pencil', async ({ page }) => 
 
   await page.getByRole('button', { name: 'Edit meal 1' }).click()
   await expect(page).toHaveURL(/\/entry\/.+\/meal\/.+/)
-  await expect(
-    page.getByRole('heading', { name: 'Edit meal' }),
-  ).toBeVisible()
+  // #459 — MealEditScreen now renders AddMealDialog itself (titled with the
+  // meal label) instead of a bespoke screen with an "Edit meal" heading.
+  const editDialog = page.getByRole('dialog', { name: 'Breakfast' })
+  await expect(editDialog).toBeVisible()
 
-  await page.getByRole('button', { name: 'Edit item' }).click()
-  const itemSheet = page.getByRole('dialog')
-  const kcalField = itemSheet.getByLabel('kcal/100g')
+  await editDialog.getByRole('button', { name: 'Edit item' }).click()
+  // The per-item editor is its own nested Dialog stacked on top of
+  // editDialog, so both are `role=dialog` at once — scope by title to
+  // avoid an ambiguous match.
+  const itemSheet = page.getByRole('dialog', { name: 'Edit item' })
+  // Editing an already-saved item opens in "Portion" mode (startEditItem's
+  // macroMode: 'perPortion'), where the field is plain "kcal" rather than
+  // the "kcal/100g" rate field the 100g-mode manual-add flow uses.
+  const kcalField = itemSheet.getByLabel('kcal', { exact: true })
   await kcalField.fill('450')
   await itemSheet.getByRole('button', { name: 'Save', exact: true }).click()
 
-  await page.getByRole('button', { name: 'Save', exact: true }).click()
+  // #459's sticky footer button is "Done" in both the add and edit flows
+  // (no separate "Save" action for an already-saved meal anymore).
+  await editDialog.getByRole('button', { name: 'Done' }).click()
 
   // MealEditScreen navigates back to Today once the focused meal's edit
   // ends (#157's onFocusedMealDone) — the updated total should show there.

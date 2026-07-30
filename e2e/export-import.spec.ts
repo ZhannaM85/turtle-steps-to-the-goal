@@ -13,11 +13,11 @@ test('exports a backup, clears all data, then re-imports it', async ({ page }) =
   await page.goto('/')
   // #454 — the add-row accordion became a dedicated flyout: open it, then
   // fall back to manual entry (the direct successor of the old "+ Add
-  // item" button, which no longer exists on the main page itself).
+  // item" button, which no longer exists on the main page itself). #459
+  // replaced the empty-search state's plain "Can't find it? Add manually"
+  // link with a row of quick-action cards — "Add food" is the same handler.
   await page.getByRole('button', { name: '+ Add another meal' }).click()
-  await page
-    .getByRole('button', { name: "Can't find it? Add manually" })
-    .click()
+  await page.getByRole('button', { name: 'Add food' }).click()
   await page.getByLabel('kcal/100g').fill('300')
   await page.getByRole('button', { name: 'Save', exact: true }).click()
   await page.getByRole('button', { name: 'Done' }).click()
