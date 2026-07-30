@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 382,
+    issue: 424,
+    date: '2026-07-30T11:12:37+03:00',
+    en: 'Weight, Sleep, Body measurements, Steps, and Body composition now have a Cancel button (×) next to Save, so you can back out of edit mode without saving a change.',
+    ru: 'В полях Вес, Сон, Замеры тела, Шаги и Состав тела теперь есть кнопка отмены (×) рядом с "Сохранить" — можно выйти из режима редактирования, не сохраняя изменения.',
+  },
+  {
     version: 381,
     issue: 435,
     date: '2026-07-30T11:08:38+03:00',
