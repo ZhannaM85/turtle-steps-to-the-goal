@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 383,
+    issue: 426,
+    date: '2026-07-30T11:21:04+03:00',
+    en: 'Fixed "weeks target met" incorrectly disappearing for weeks that happened before your very first weekly goal was ever set.',
+    ru: 'Исправлена ошибка, из-за которой "недели с достигнутой целью" пропадали для недель до того, как была установлена самая первая недельная цель.',
+  },
+  {
     version: 382,
     issue: 424,
     date: '2026-07-30T11:12:37+03:00',
