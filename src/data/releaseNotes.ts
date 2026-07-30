@@ -25,6 +25,20 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 395,
+    issue: 447,
+    date: '2026-07-30T15:51:14+03:00',
+    en: 'Fixed a bug where an invalid, unsaved Body composition value could sneak in as saved when a different field was saved instead.',
+    ru: 'Исправлена ошибка: недействительное, несохранённое значение в разделе "Состав тела" могло сохраниться при сохранении другого поля.',
+  },
+  {
+    version: 394,
+    issue: 446,
+    date: '2026-07-30T15:34:11+03:00',
+    en: 'Fixed misaligned Body composition fields on days where a Russian label wraps to two lines.',
+    ru: 'Исправлено смещение полей в разделе "Состав тела" на днях, где подпись переносится на две строки.',
+  },
+  {
     version: 393,
     issue: 444,
     date: '2026-07-30T15:22:59+03:00',
