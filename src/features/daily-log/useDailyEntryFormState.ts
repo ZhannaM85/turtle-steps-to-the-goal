@@ -323,8 +323,76 @@ export function useDailyEntryFormState({
     persist(getValues())
   }
 
+  // #447 — every save handler calls `persist(getValues())`, which writes
+  // *every* registered field at once, not just the one the user actually
+  // clicked Save on. Reported live: typing far-out-of-range values into
+  // all 5 Body composition fields (which only validate inside
+  // `saveBodyComposition()` itself, and #435's on-blur check) got
+  // persisted anyway despite Body composition's own Save button never
+  // being successfully clicked — because saving a *different* field
+  // (Weight/Sleep/Steps/Note/etc.) calls `persist(getValues())` too, and
+  // `getValues()` includes whatever garbage is still sitting, unvalidated,
+  // in every other field's input at that moment. Fixed by sanitizing here,
+  // the one shared choke point every save handler already goes through:
+  // any schema-backed field that currently fails its own validation falls
+  // back to `initialValues` (the last value this render session actually
+  // started with) instead of being written through as-is. This doesn't
+  // change the intentional behavior of the field actually being saved —
+  // that field's own handler already validated it before ever calling
+  // persist() — it only stops *other* fields' in-progress, never-saved
+  // drafts from silently riding along.
+  function sanitizeForPersist(
+    values: DailyEntryFormValues,
+  ): DailyEntryFormValues {
+    return {
+      ...values,
+      weightKg: weightSchema.safeParse(values.weightKg).success
+        ? values.weightKg
+        : initialValues.weightKg,
+      note: noteSchema.safeParse(values.note).success
+        ? values.note
+        : initialValues.note,
+      sleepHours: sleepHoursSchema.safeParse(values.sleepHours).success
+        ? values.sleepHours
+        : initialValues.sleepHours,
+      deepSleepHours: deepSleepHoursSchema.safeParse(values.deepSleepHours)
+        .success
+        ? values.deepSleepHours
+        : initialValues.deepSleepHours,
+      steps: stepsSchema.safeParse(values.steps).success
+        ? values.steps
+        : initialValues.steps,
+      waistCm: waistCmSchema.safeParse(values.waistCm).success
+        ? values.waistCm
+        : initialValues.waistCm,
+      hipCm: hipCmSchema.safeParse(values.hipCm).success
+        ? values.hipCm
+        : initialValues.hipCm,
+      muscleMassKg: muscleMassKgSchema.safeParse(values.muscleMassKg).success
+        ? values.muscleMassKg
+        : initialValues.muscleMassKg,
+      visceralFatRating: visceralFatRatingSchema.safeParse(
+        values.visceralFatRating,
+      ).success
+        ? values.visceralFatRating
+        : initialValues.visceralFatRating,
+      bodyWaterPercent: bodyWaterPercentSchema.safeParse(
+        values.bodyWaterPercent,
+      ).success
+        ? values.bodyWaterPercent
+        : initialValues.bodyWaterPercent,
+      boneMassKg: boneMassKgSchema.safeParse(values.boneMassKg).success
+        ? values.boneMassKg
+        : initialValues.boneMassKg,
+      bodyFatPercent: bodyFatPercentSchema.safeParse(values.bodyFatPercent)
+        .success
+        ? values.bodyFatPercent
+        : initialValues.bodyFatPercent,
+    }
+  }
+
   function persist(values: DailyEntryFormValues) {
-    onSave(formValuesToEntry(values, date, entryIdentity))
+    onSave(formValuesToEntry(sanitizeForPersist(values), date, entryIdentity))
   }
 
   // Saves immediately on tap, same as every other independent field here

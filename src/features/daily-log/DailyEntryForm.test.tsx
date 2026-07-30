@@ -1143,6 +1143,30 @@ describe('DailyEntryForm', () => {
         expect(screen.queryByText(/unusual change/)).not.toBeInTheDocument()
       })
     })
+
+    it('does not persist an invalid, never-saved draft when a different field is saved (#447)', async () => {
+      const user = userEvent.setup()
+      const onSave = vi.fn()
+      render(
+        <DailyEntryForm date="2026-03-01" existingEntry={null} onSave={onSave} />,
+      )
+
+      // Type a far-out-of-range value into Body composition, but never
+      // click its own Save button (or trigger the #435 on-blur error path
+      // by leaving the field, matching the reported live scenario).
+      await user.type(screen.getByLabelText('Muscle mass (kg)'), '58888')
+
+      // Save a completely different field instead.
+      await user.type(screen.getByLabelText('Weight (kg)'), '60')
+      await user.click(screen.getByRole('button', { name: 'Save weight' }))
+
+      expect(onSave).toHaveBeenCalledTimes(1)
+      expect(onSave.mock.calls[0][0].weightKg).toBe(60)
+      // The invalid, never-validated muscle mass draft must not ride
+      // along -- nothing was ever successfully saved for it, so it stays
+      // unset rather than persisting the still-invalid 58888 draft.
+      expect(onSave.mock.calls[0][0].muscleMassKg).toBeUndefined()
+    })
   })
 
   describe('note', () => {
