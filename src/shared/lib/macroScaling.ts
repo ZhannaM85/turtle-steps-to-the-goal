@@ -77,6 +77,18 @@ export function portionsToGrams(rawPortions: string): number | undefined {
   return parsedPortions === undefined ? undefined : parsedPortions * 100
 }
 
+/** Inverse of `portionsToGrams` above (#457) — converts a raw grams field
+ * (Portion mode's own optional weight, not a portions count) back to a
+ * portions count for per-100g mode's own field. Unlike `portionsToGrams`,
+ * always returns a number (defaulting invalid/blank input to 1, i.e.
+ * 100g) rather than `undefined` — same "no weight recorded" → "1 portion"
+ * fallback `ratesFromAbsolute`'s own grams defaulting already uses, since
+ * this feeds a field that's always shown a concrete number. */
+export function gramsToPortions(rawGrams: string): number {
+  const parsedGrams = parseOptionalMacro(rawGrams)
+  return parsedGrams && parsedGrams > 0 ? parsedGrams / 100 : 1
+}
+
 /** Inverse of `scaleFromPer100g` (#96) — reconstructs per-100g rates and
  * the portion count they came from, to prefill an edit row or an
  * autocomplete restore from previously-stored absolute totals (`amountG`

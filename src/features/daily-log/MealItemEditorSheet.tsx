@@ -363,25 +363,31 @@ export function MealItemEditorSheet({
                 onChange={onAmountChange}
                 onEnter={onSave}
               />
-              {/* Grams is a pure memory aid in Portion mode (#111/#121), not
-               * a multiplier — an editable "100" next to a portion total
-               * read as confusing clutter, replaced with a plain "Portion"
-               * badge. */}
-              {macroMode === 'per100g' ? (
-                <NumberField
-                  label={t.dailyEntry.itemPortionsLabel}
-                  value={amountG}
-                  onChange={onAmountGChange}
-                  onEnter={onSave}
-                />
-              ) : (
-                <div className="flex flex-col gap-1.5">
-                  <span className="text-sm text-muted-foreground">&nbsp;</span>
-                  <span className="flex h-12 items-center text-base text-muted-foreground">
-                    {t.dailyEntry.macroModePerPortionOption}
-                  </span>
-                </div>
-              )}
+              {/* #111/#121: in per-100g mode this is a portions-*count*
+               * multiplier ("× 100g"). #121 originally made it a
+               * non-interactive "Portion" badge in Portion mode (an
+               * editable "100" there read as a confusing multiplier that
+               * didn't actually apply) — #457 restored it as a real,
+               * optional field there instead, since without it there was
+               * no way to record a portion-mode item's actual weight at
+               * all, which is what lets a per-100g rate be
+               * back-calculated later (`ratesFromAbsolute`) even for
+               * something entered as a direct total. Genuinely a
+               * different unit than per-100g mode's own field (real
+               * grams, not a portions count) — the mode-switch handlers
+               * (`changeManualDraftMode`/`updateEditItemMode`) convert
+               * between the two so switching modes doesn't leave a stale
+               * number read in the wrong unit. */}
+              <NumberField
+                label={
+                  macroMode === 'per100g'
+                    ? t.dailyEntry.itemPortionsLabel
+                    : t.dailyEntry.itemWeightLabel
+                }
+                value={amountG}
+                onChange={onAmountGChange}
+                onEnter={onSave}
+              />
             </div>
           </FormSection>
 

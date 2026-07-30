@@ -414,7 +414,9 @@ describe('MealEditScreen', () => {
       expect(within(dialog).getByLabelText('× 100g')).toHaveValue('0.5')
     })
 
-    it('shows a Portion badge instead of the portions field while in Portion mode', async () => {
+    // #457 — the field became a real, optional weight-in-grams field in
+    // Portion mode instead of a non-interactive "Portion" badge.
+    it('shows an optional weight field, not a portions multiplier, while in Portion mode', async () => {
       const user = userEvent.setup()
       await db.dailyEntries.put(
         makeEntry({ calorieEntries: [calories(300, 'c1'), calories(200, 'c2')] }),
@@ -432,6 +434,9 @@ describe('MealEditScreen', () => {
       expect(
         within(dialog).queryByLabelText('× 100g'),
       ).not.toBeInTheDocument()
+      expect(
+        within(dialog).getByLabelText('Weight (g)'),
+      ).toBeInTheDocument()
     })
 
     it('keeps each item-edit row on its own independent mode', async () => {

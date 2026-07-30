@@ -335,6 +335,11 @@ export interface Dictionary {
      * this multiplies the typed rates into the saved total; in "per
      * portion" mode it's inert, a memory aid only. */
     itemPortionsLabel: string
+    /** #457 — the same field's own label while in "per portion" mode: an
+     * optional weight in grams, recorded (not multiplied) so a per-100g
+     * rate can still be back-calculated later (`ratesFromAbsolute`) even
+     * for an item entered as a direct total. */
+    itemWeightLabel: string
     gramsUnit: string
     macrosSummary: (protein: string, fat: string, carbs: string) => string
     macrosSummaryCompact: (

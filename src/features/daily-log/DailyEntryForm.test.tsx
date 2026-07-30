@@ -2392,7 +2392,12 @@ describe('DailyEntryForm', () => {
           expect(screen.getByLabelText('× 100g')).toHaveValue('0.5')
         })
 
-        it('shows a Portion badge instead of the portions field while in Portion mode', async () => {
+        // #457 — the field used to become a non-interactive "Portion"
+        // badge in Portion mode (a portions-count *multiplier* there would
+        // have been confusing); it's now a real, optional weight-in-grams
+        // field instead, so a per-100g rate can still be back-calculated
+        // later even for an item entered as a direct total.
+        it('shows an optional weight field, not a portions multiplier, while in Portion mode', async () => {
           const user = userEvent.setup()
           render(
             <DailyEntryForm
@@ -2404,18 +2409,72 @@ describe('DailyEntryForm', () => {
 
           await openAddItemFlow(user)
           expect(screen.getByLabelText('× 100g')).toBeInTheDocument()
-          // Just the toggle option's own label before switching.
-          expect(screen.getAllByText('Portion')).toHaveLength(1)
+          expect(screen.queryByLabelText('Weight (g)')).not.toBeInTheDocument()
 
           await user.click(screen.getByRole('radio', { name: 'Portion' }))
 
           expect(screen.queryByLabelText('× 100g')).not.toBeInTheDocument()
-          // Toggle option label + the new static badge.
-          expect(screen.getAllByText('Portion')).toHaveLength(2)
+          expect(screen.getByLabelText('Weight (g)')).toBeInTheDocument()
 
           await user.click(screen.getByRole('radio', { name: '100g' }))
 
           expect(screen.getByLabelText('× 100g')).toBeInTheDocument()
+        })
+
+        it('records a portion-mode weight and converts it to a per-100g rate when switching back', async () => {
+          const user = userEvent.setup()
+          const onSave = vi.fn()
+          render(
+            <DailyEntryForm
+              date="2026-03-01"
+              existingEntry={null}
+              onSave={onSave}
+            />,
+          )
+
+          await openAddItemFlow(user)
+          await user.click(screen.getByRole('radio', { name: 'Portion' }))
+          await user.type(screen.getByLabelText('kcal'), '450')
+          await user.type(screen.getByLabelText('Protein'), '30')
+          await user.clear(screen.getByLabelText('Weight (g)'))
+          await user.type(screen.getByLabelText('Weight (g)'), '150')
+          await user.click(screen.getByRole('button', { name: 'Save' }))
+
+          const item = onSave.mock.calls[0][0].calorieEntries[0].items[0]
+          expect(item.amountKcal).toBe(450)
+          expect(item.proteinG).toBe(30)
+          expect(item.amountG).toBe(150)
+        })
+
+        // #457 — the weight field holds real grams in Portion mode, a
+        // different unit than per-100g mode's own portions-*count* field
+        // (e.g. "1.5" meaning 150g there) — switching modes has to convert
+        // between the two, not reuse the raw number as-is. A regression
+        // here previously ran the Portion→per-100g conversion through
+        // portionsToGrams() a second time (150g → treated as "150
+        // portions" → 15000g), producing a wildly wrong back-calculated
+        // rate (3 kcal/100g) instead of the correct one.
+        it('back-calculates the correct per-100g rate from a portion-mode weight when switching modes', async () => {
+          const user = userEvent.setup()
+          render(
+            <DailyEntryForm
+              date="2026-03-01"
+              existingEntry={null}
+              onSave={vi.fn()}
+            />,
+          )
+
+          await openAddItemFlow(user)
+          await user.click(screen.getByRole('radio', { name: 'Portion' }))
+          await user.type(screen.getByLabelText('kcal'), '450')
+          await user.clear(screen.getByLabelText('Weight (g)'))
+          await user.type(screen.getByLabelText('Weight (g)'), '150')
+
+          await user.click(screen.getByRole('radio', { name: '100g' }))
+
+          // 450 kcal for a 150g portion = 300 kcal/100g.
+          expect(screen.getByLabelText('kcal/100g')).toHaveValue('300')
+          expect(screen.getByLabelText('× 100g')).toHaveValue('1.5')
         })
 
         it('resets to per-100g mode after a successful Add', async () => {

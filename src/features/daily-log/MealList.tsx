@@ -59,6 +59,7 @@ import {
 } from '@/shared/lib/macroDisplay'
 import {
   formatComputedTotal,
+  gramsToPortions,
   parseOptionalMacro,
   portionsToGrams,
   ratesFromAbsolute,
@@ -1390,9 +1391,21 @@ export function MealList({
     setEditItems((items) =>
       items.map((draft) => {
         if (draft.id !== id || draft.macroMode === newMode) return draft
+        // #457 — the weight/portions field's own *unit* changes between
+        // modes (a portions count in per-100g mode, e.g. "0.5" meaning
+        // 50g; real grams in Portion mode) independently of whether an
+        // amount/macros have been typed yet — converting it can't live
+        // behind the "nothing to convert" guard below, or setting the
+        // weight *before* the amount (a completely normal order) would
+        // switch modes without ever converting it, leaving a number in
+        // the wrong unit for whichever mode comes next.
+        const convertedAmountG =
+          newMode === 'perPortion'
+            ? String(portionsToGrams(draft.amountG) ?? '')
+            : String(gramsToPortions(draft.amountG))
         const amountNum = parseNumberInput(draft.amount)
         if (!amountNum || amountNum <= 0) {
-          return { ...draft, macroMode: newMode }
+          return { ...draft, amountG: convertedAmountG, macroMode: newMode }
         }
         if (newMode === 'perPortion') {
           const scaled = scaleFromPer100g(
@@ -1411,6 +1424,7 @@ export function MealList({
             fat: scaled.fatG === undefined ? '' : String(scaled.fatG),
             carbs: scaled.carbsG === undefined ? '' : String(scaled.carbsG),
             fiber: scaled.fiberG === undefined ? '' : String(scaled.fiberG),
+            amountG: convertedAmountG,
             macroMode: newMode,
           }
         }
@@ -1419,7 +1433,11 @@ export function MealList({
           parseOptionalMacro(draft.protein),
           parseOptionalMacro(draft.fat),
           parseOptionalMacro(draft.carbs),
-          portionsToGrams(draft.amountG),
+          // #457 — draft.amountG is already real grams here (Portion
+          // mode's own field, not a portions count) — used directly, not
+          // through portionsToGrams (which would wrongly multiply it by
+          // 100 again).
+          parseOptionalMacro(draft.amountG),
           parseOptionalMacro(draft.fiber),
         )
         return {
@@ -1430,7 +1448,7 @@ export function MealList({
           fat: rates.fat100 === undefined ? '' : String(rates.fat100),
           carbs: rates.carbs100 === undefined ? '' : String(rates.carbs100),
           fiber: rates.fiber100 === undefined ? '' : String(rates.fiber100),
-          amountG: String(rates.portions),
+          amountG: convertedAmountG,
           macroMode: newMode,
         }
       }),
