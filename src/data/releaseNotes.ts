@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 386,
+    issue: 440,
+    date: '2026-07-30T12:14:07+03:00',
+    en: 'Sleep can now be added as a series in "Compare your data", alongside weight, calories, and the rest.',
+    ru: 'Сон теперь можно добавить как показатель в разделе "Сравнение данных", наряду с весом, калориями и другими.',
+  },
+  {
     version: 385,
     issue: 439,
     date: '2026-07-30T12:03:20+03:00',

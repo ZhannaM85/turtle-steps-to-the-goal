@@ -121,6 +121,15 @@
    * gray than to chart-4/chart-5's confirmed-too-dark end, and neither
    * was actually reported. */
   --chart-bodyfat: #3f7a5c;
+  /* #440 — sleep is a new toggleable Compare Data series with the same
+   * per-series bar/dots option fastingHours/bodyFat have, so reusing one
+   * of the freed-up --chart-4/--chart-5 achromatic slots would risk the
+   * identical "reads as solid black once switched to bar mode" bug #347/
+   * #350 already found and fixed for those two — giving it its own
+   * dedicated hued token up front instead of waiting to get the same
+   * report a third time. A dusty rose, distinct from every hue already
+   * claimed above (teal/tan/terracotta/mauve/blue/olive/indigo/forest). */
+  --chart-sleep: #a85c72;
   --sand-foreground: #8a6a3c;
   /* #165: light-mode-specific override — oklch(0.87 0 0) (still correct,
    * unchanged, in .dark below) is a near-white gray tuned for a dark
@@ -172,6 +181,7 @@
   --color-stat-fiber: var(--stat-fiber);
   --color-chart-fasting: var(--chart-fasting);
   --color-chart-bodyfat: var(--chart-bodyfat);
+  --color-chart-sleep: var(--chart-sleep);
   --color-sand-foreground: var(--sand-foreground);
   --color-ring: var(--ring);
   --color-input: var(--input);
@@ -237,6 +247,8 @@
   --chart-fasting: #a3aed9;
   /* #350 — same dedicated fix as the light-mode value above. */
   --chart-bodyfat: #82c4a0;
+  /* #440 — same dedicated fix as the light-mode value above. */
+  --chart-sleep: #d98ba0;
   --sand-foreground: #b28e58;
   --chart-1: oklch(0.87 0 0);
   --chart-2: oklch(0.556 0 0);

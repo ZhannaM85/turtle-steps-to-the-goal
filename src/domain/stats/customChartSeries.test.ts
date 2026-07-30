@@ -72,6 +72,17 @@ describe('customChartPoints', () => {
     expect(points[1].normalized).toEqual({ weight: 100, steps: 100 })
   })
 
+  it('extracts sleep from sleepHours (#440)', () => {
+    const entries = [
+      entry('2026-01-01', { sleepHours: 6 }),
+      entry('2026-01-02', { sleepHours: 8 }),
+    ]
+
+    const points = customChartPoints(entries, ['sleep'])
+    expect(points[0].raw).toEqual({ sleep: 6 })
+    expect(points[1].raw).toEqual({ sleep: 8 })
+  })
+
   it('leaves a series absent for a day it was never logged, not defaulted to 0', () => {
     const entries = [
       entry('2026-01-01', { weightKg: 80 }),

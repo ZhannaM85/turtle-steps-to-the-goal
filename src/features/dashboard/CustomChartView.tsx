@@ -199,6 +199,14 @@ function useNumericSeriesConfig(): Record<
       color: 'var(--chart-1)',
       formatRaw: (value) => formatNumber(value, locale, 0),
     },
+    // #440: its own dedicated token, not a reused generic --chart-4/5 slot
+    // — see index.css's own comment for why (the #347/#350 bar-mode-reads-
+    // black lesson).
+    sleep: {
+      label: t.dailyEntry.sleepLabel,
+      color: 'var(--chart-sleep)',
+      formatRaw: (value) => formatNumber(value, locale),
+    },
     // #225: also reuse otherwise-unused generic --chart-* slots, same
     // reasoning as steps above — none of these three have a dedicated
     // token the way weight/calories/protein/fat/carbs do.

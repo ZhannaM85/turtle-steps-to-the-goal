@@ -17,6 +17,7 @@ export type NumericSeriesKey =
   | 'carbs'
   | 'water'
   | 'steps'
+  | 'sleep'
   | 'waist'
   | 'hip'
   | 'bodyFat'
@@ -30,6 +31,7 @@ export const NUMERIC_SERIES_KEYS: NumericSeriesKey[] = [
   'carbs',
   'water',
   'steps',
+  'sleep',
   'waist',
   'hip',
   'bodyFat',
@@ -52,6 +54,8 @@ const SERIES_EXTRACTORS: Record<
   carbs: (entry) => totalCarbs(entry.calorieEntries),
   water: (entry) => totalWaterMl(entry.waterEntries),
   steps: (entry) => entry.steps,
+  // #440
+  sleep: (entry) => entry.sleepHours,
   // #225
   waist: (entry) => entry.waistCm,
   hip: (entry) => entry.hipCm,

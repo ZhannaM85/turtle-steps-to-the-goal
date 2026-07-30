@@ -14,6 +14,7 @@ const DEFAULT_CHART_TYPES: Record<NumericSeriesKey, ChartSeriesType> = {
   carbs: 'line',
   water: 'line',
   steps: 'line',
+  sleep: 'line',
   waist: 'line',
   hip: 'line',
   bodyFat: 'line',

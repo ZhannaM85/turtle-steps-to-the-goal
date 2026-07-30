@@ -213,6 +213,7 @@ const numericSeriesKeySchema = z.enum([
   'carbs',
   'water',
   'steps',
+  'sleep',
   'waist',
   'hip',
   'bodyFat',

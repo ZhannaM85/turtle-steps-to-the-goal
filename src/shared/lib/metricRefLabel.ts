@@ -27,6 +27,8 @@ export function builtinMetricLabel(t: Dictionary, key: NumericSeriesKey): string
       return t.dailyEntry.waterLabel
     case 'steps':
       return t.dailyEntry.stepsLabel
+    case 'sleep':
+      return t.dailyEntry.sleepLabel
     case 'waist':
       return t.dailyEntry.waistLabel
     case 'hip':
