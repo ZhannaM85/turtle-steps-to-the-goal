@@ -9,9 +9,16 @@ import { expect, test } from '@playwright/test'
 test('logs a meal, then edits its calories via the pencil', async ({ page }) => {
   await page.goto('/')
 
-  await page.getByRole('button', { name: '+ Add item' }).click()
+  // #454 — the add-row accordion became a dedicated flyout: open it, then
+  // fall back to manual entry (the direct successor of the old "+ Add
+  // item" button, which no longer exists on the main page itself).
+  await page.getByRole('button', { name: '+ Add another meal' }).click()
+  await page
+    .getByRole('button', { name: "Can't find it? Add manually" })
+    .click()
   await page.getByLabel('kcal/100g').fill('300')
   await page.getByRole('button', { name: 'Save', exact: true }).click()
+  await page.getByRole('button', { name: 'Done' }).click()
 
   await expect(page.getByText('Breakfast — 300 kcal')).toBeVisible()
 
