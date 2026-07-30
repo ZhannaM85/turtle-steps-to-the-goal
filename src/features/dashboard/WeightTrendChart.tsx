@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { format, parseISO } from 'date-fns'
+import { format, parseISO, subDays } from 'date-fns'
 import { ArrowRight } from 'lucide-react'
 import {
   CartesianGrid,
@@ -15,7 +15,7 @@ import {
 import { Link } from 'react-router-dom'
 import type { DailyEntry } from '@/domain/dailyEntry'
 import { kgToLb } from '@/domain/goal'
-import { outlierBounds, isOutlier, rollingAverage } from '@/domain/stats'
+import { rollingAverage } from '@/domain/stats'
 import {
   formatNumber,
   getDateFnsLocale,
@@ -132,14 +132,39 @@ export function WeightTrendChart({ entries, dragHandle }: WeightTrendChartProps)
 
   // #441 — reported live with a screenshot: an obvious single-point
   // data-entry-error spike rendered identically to every real point, no
-  // visual flag at all. Reuses the same Tukey's-fences rule (#224) the 6
-  // correlation views already use for their own scatter points, applied
-  // here to the raw weight values directly (a single dimension, not the
-  // X/Y-pair shape `flagOutliers` needs for those views) — scoped to just
-  // this chart per the report, not the other 3 trend charts.
-  const weightBounds = outlierBounds(weightPoints.map((point) => point.weight))
-  const isWeightOutlier = (weight: number | undefined) =>
-    weight !== undefined && isOutlier(weight, weightBounds)
+  // visual flag at all. Originally reused the Tukey's-fences rule (#224)
+  // the 6 correlation views use for their own scatter points — #448
+  // replaced that with a simpler, deterministic rule instead (confirmed
+  // live once #441's own statistical version was working): flag a point
+  // if it's more than 2kg away from the *immediately preceding calendar
+  // day's* own logged weight, same "previous day" concept #401's existing
+  // save-time `isUnusualWeightDeltaKg` warning already uses elsewhere —
+  // resolved via `AskUserQuestion` over comparing against the 7-day
+  // rolling average or the visible range's overall median instead.
+  // Computed against canonical kg (not the display-converted `weight`
+  // values below), same as `isUnusualWeightDeltaKg`, so the 2kg threshold
+  // means the same thing regardless of the user's kg/lb display setting.
+  const OUTLIER_DELTA_KG = 2
+  const weightKgByDate = new Map(
+    entries
+      .filter((entry): entry is DailyEntry & { weightKg: number } =>
+        entry.weightKg !== undefined,
+      )
+      .map((entry) => [entry.date, entry.weightKg]),
+  )
+  const outlierDates = new Set(
+    [...weightKgByDate.entries()]
+      .filter(([date, weightKg]) => {
+        const previousDate = format(subDays(parseISO(date), 1), 'yyyy-MM-dd')
+        const previousWeightKg = weightKgByDate.get(previousDate)
+        return (
+          previousWeightKg !== undefined &&
+          Math.abs(weightKg - previousWeightKg) > OUTLIER_DELTA_KG
+        )
+      })
+      .map(([date]) => date),
+  )
+  const isWeightOutlier = (date: string) => outlierDates.has(date)
 
   const unit = unitLabel(displayUnit, t)
 
@@ -254,7 +279,7 @@ export function WeightTrendChart({ entries, dragHandle }: WeightTrendChartProps)
                 }
                 // #441 — an outlier point always renders flagged, not just
                 // when it's also the current-value marker below.
-                if (isWeightOutlier(data[index]?.weight)) {
+                if (data[index] && isWeightOutlier(data[index].date)) {
                   return (
                     <circle
                       key={index}
