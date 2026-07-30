@@ -193,7 +193,7 @@ describe('DailyEntryForm', () => {
       await user.type(screen.getByLabelText('Weight (kg)'), '5')
       await user.click(screen.getByRole('button', { name: 'Save weight' }))
 
-      expect(await screen.findByText(/Too small/)).toBeInTheDocument()
+      expect(await screen.findByText(/Invalid value/)).toBeInTheDocument()
       expect(onSave).not.toHaveBeenCalled()
     })
 
@@ -475,7 +475,7 @@ describe('DailyEntryForm', () => {
       await user.type(screen.getByLabelText('Hours slept — hours'), '30')
       await user.click(screen.getByRole('button', { name: 'Save sleep' }))
 
-      expect(await screen.findByText(/Too big/)).toBeInTheDocument()
+      expect(await screen.findByText(/Invalid value/)).toBeInTheDocument()
       expect(onSave).not.toHaveBeenCalled()
     })
 
@@ -588,7 +588,7 @@ describe('DailyEntryForm', () => {
       await user.type(screen.getByLabelText('Steps'), '25000')
       await user.click(screen.getByRole('button', { name: 'Save steps' }))
 
-      expect(await screen.findByText(/Too big/)).toBeInTheDocument()
+      expect(await screen.findByText(/Invalid value/)).toBeInTheDocument()
       expect(onSave).not.toHaveBeenCalled()
     })
 
@@ -707,7 +707,7 @@ describe('DailyEntryForm', () => {
         screen.getByRole('button', { name: 'Save body measurements' }),
       )
 
-      expect(await screen.findByText(/Too small/)).toBeInTheDocument()
+      expect(await screen.findByText(/Invalid value/)).toBeInTheDocument()
       expect(onSave).not.toHaveBeenCalled()
     })
 
@@ -848,7 +848,7 @@ describe('DailyEntryForm', () => {
         screen.getByRole('button', { name: 'Save body composition' }),
       )
 
-      expect(await screen.findByText(/Too big/)).toBeInTheDocument()
+      expect(await screen.findByText(/Invalid value/)).toBeInTheDocument()
       expect(onSave).not.toHaveBeenCalled()
     })
 
@@ -862,7 +862,7 @@ describe('DailyEntryForm', () => {
         await user.type(screen.getByLabelText('Muscle mass (kg)'), '27272')
         await user.tab()
 
-        expect(await screen.findByText(/Too big/)).toBeInTheDocument()
+        expect(await screen.findByText(/Invalid value/)).toBeInTheDocument()
       })
 
       it('clears the error on blur once the value is fixed', async () => {
@@ -874,13 +874,13 @@ describe('DailyEntryForm', () => {
         const field = screen.getByLabelText('Visceral fat')
         await user.type(field, '19119')
         await user.tab()
-        expect(await screen.findByText(/Too big/)).toBeInTheDocument()
+        expect(await screen.findByText(/Invalid value/)).toBeInTheDocument()
 
         await user.clear(field)
         await user.type(field, '5')
         await user.tab()
 
-        expect(screen.queryByText(/Too big/)).not.toBeInTheDocument()
+        expect(screen.queryByText(/Invalid value/)).not.toBeInTheDocument()
       })
 
       it('does not show an error while a value is only half-typed, before blurring', async () => {
@@ -893,7 +893,7 @@ describe('DailyEntryForm', () => {
         // confirms validation isn't running on every keystroke.
         await user.type(screen.getByLabelText('Visceral fat'), '2')
 
-        expect(screen.queryByText(/Too big/)).not.toBeInTheDocument()
+        expect(screen.queryByText(/Invalid value/)).not.toBeInTheDocument()
       })
     })
 

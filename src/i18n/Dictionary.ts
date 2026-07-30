@@ -230,6 +230,16 @@ export interface Dictionary {
      * customMetrics below). */
     cancelEditWeightLabel: string
     cancelEditNoteLabel: string
+    /** #436 — every hard-bounds field validator in `useDailyEntryFormState.ts`
+     * (weight, note, sleep/deep sleep, steps, waist/hip, the 5 body-
+     * composition fields) used to set its error message straight from
+     * zod's own `safeParse` issue — always raw English text, never routed
+     * through this dictionary like every other user-facing string. Fixed
+     * by using this one shared generic message everywhere instead of the
+     * raw zod text, rather than writing ~10 fields' worth of specific
+     * bounds copy (resolved directly: plain translated wording over
+     * mentioning each field's exact numeric limits). */
+    invalidValueMessage: string
     /** #218: soft warning (not a hard block, unlike weightSchema's own
      * 20-400kg range) for a weight technically valid but unusual enough
      * to likely be a typo — a second tap on Save confirms it anyway. */

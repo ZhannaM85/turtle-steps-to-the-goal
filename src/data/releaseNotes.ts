@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 389,
+    issue: 436,
+    date: '2026-07-30T12:48:27+03:00',
+    en: 'Validation error messages (weight, sleep, steps, body measurements, body composition) now show in your selected language, instead of always in English.',
+    ru: 'Сообщения об ошибках проверки (вес, сон, шаги, замеры тела, состав тела) теперь показываются на выбранном языке, а не всегда на английском.',
+  },
+  {
     version: 388,
     issue: 437,
     date: '2026-07-30T12:37:06+03:00',

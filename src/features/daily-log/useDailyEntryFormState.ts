@@ -374,7 +374,7 @@ export function useDailyEntryFormState({
   function saveWeight() {
     const result = weightSchema.safeParse(getValues('weightKg'))
     if (!result.success) {
-      setError('weightKg', { message: result.error.issues[0].message })
+      setError('weightKg', { message: t.dailyEntry.invalidValueMessage })
       setPendingUnusualWeight(null)
       return
     }
@@ -417,7 +417,7 @@ export function useDailyEntryFormState({
   function saveNote() {
     const result = noteSchema.safeParse(getValues('note'))
     if (!result.success) {
-      setError('note', { message: result.error.issues[0].message })
+      setError('note', { message: t.dailyEntry.invalidValueMessage })
       return
     }
     clearErrors('note')
@@ -445,12 +445,12 @@ export function useDailyEntryFormState({
     const hoursResult = sleepHoursSchema.safeParse(sleepHoursValue)
     const deepHoursResult = deepSleepHoursSchema.safeParse(deepSleepHoursValue)
     if (!hoursResult.success) {
-      setError('sleepHours', { message: hoursResult.error.issues[0].message })
+      setError('sleepHours', { message: t.dailyEntry.invalidValueMessage })
       return
     }
     if (!deepHoursResult.success) {
       setError('deepSleepHours', {
-        message: deepHoursResult.error.issues[0].message,
+        message: t.dailyEntry.invalidValueMessage,
       })
       return
     }
@@ -485,7 +485,7 @@ export function useDailyEntryFormState({
   function saveSteps() {
     const result = stepsSchema.safeParse(getValues('steps'))
     if (!result.success) {
-      setError('steps', { message: result.error.issues[0].message })
+      setError('steps', { message: t.dailyEntry.invalidValueMessage })
       return
     }
     clearErrors('steps')
@@ -504,11 +504,11 @@ export function useDailyEntryFormState({
     const waistResult = waistCmSchema.safeParse(getValues('waistCm'))
     const hipResult = hipCmSchema.safeParse(getValues('hipCm'))
     if (!waistResult.success) {
-      setError('waistCm', { message: waistResult.error.issues[0].message })
+      setError('waistCm', { message: t.dailyEntry.invalidValueMessage })
       return
     }
     if (!hipResult.success) {
-      setError('hipCm', { message: hipResult.error.issues[0].message })
+      setError('hipCm', { message: t.dailyEntry.invalidValueMessage })
       return
     }
     clearErrors('waistCm')
@@ -542,29 +542,29 @@ export function useDailyEntryFormState({
     )
     if (!muscleResult.success) {
       setError('muscleMassKg', {
-        message: muscleResult.error.issues[0].message,
+        message: t.dailyEntry.invalidValueMessage,
       })
       return
     }
     if (!visceralResult.success) {
       setError('visceralFatRating', {
-        message: visceralResult.error.issues[0].message,
+        message: t.dailyEntry.invalidValueMessage,
       })
       return
     }
     if (!waterResult.success) {
       setError('bodyWaterPercent', {
-        message: waterResult.error.issues[0].message,
+        message: t.dailyEntry.invalidValueMessage,
       })
       return
     }
     if (!boneResult.success) {
-      setError('boneMassKg', { message: boneResult.error.issues[0].message })
+      setError('boneMassKg', { message: t.dailyEntry.invalidValueMessage })
       return
     }
     if (!bodyFatResult.success) {
       setError('bodyFatPercent', {
-        message: bodyFatResult.error.issues[0].message,
+        message: t.dailyEntry.invalidValueMessage,
       })
       return
     }
@@ -683,7 +683,7 @@ export function useDailyEntryFormState({
   ) {
     const result = schema.safeParse(getValues(field))
     if (!result.success) {
-      setError(field, { message: result.error.issues[0].message })
+      setError(field, { message: t.dailyEntry.invalidValueMessage })
     } else {
       clearErrors(field)
     }
