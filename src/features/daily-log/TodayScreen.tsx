@@ -756,8 +756,8 @@ export function TodayScreen() {
             value={date}
             max={todayIso()}
             onChange={(e) => setDate(e.target.value)}
-            className="h-12 max-h-12 max-w-48"
-            style={{ lineHeight: '1.5rem' }}
+            className="max-w-48 overflow-hidden"
+            style={{ height: '3rem', maxHeight: '3rem', lineHeight: '1.5rem' }}
           />
           {/* Capped at today (#138), same as the date input's own `max` —
            * logging a future day isn't supported anywhere else in the app,
