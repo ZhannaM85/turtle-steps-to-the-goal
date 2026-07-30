@@ -269,7 +269,15 @@ describe('AddMealDialog (#454)', () => {
 
       await user.click(screen.getByRole('button', { name: 'Scan barcode' }))
 
-      expect(await screen.findByText('Protein Bar')).toBeInTheDocument()
+      // findByText's own default ~1000ms poll window (distinct from this
+      // file's 25s *test* timeout) can be too short for the real async
+      // chain here — BarcodeScannerDialog's dynamic `@zxing/browser`/
+      // `@zxing/library` import, then the mocked decode callback, then
+      // lookupBarcode's own IndexedDB round-trip — a real, reproducible
+      // flake under load, not a one-off.
+      expect(
+        await screen.findByText('Protein Bar', {}, { timeout: 10000 }),
+      ).toBeInTheDocument()
       expect(
         screen.queryByLabelText('Dish name'),
       ).not.toBeInTheDocument()
