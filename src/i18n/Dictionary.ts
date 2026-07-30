@@ -313,6 +313,11 @@ export interface Dictionary {
     deleteItemLabel: string
     addItemButton: string
     emotionLabel: (emotion: 'happy' | 'unhappy' | 'neutral') => string
+    /** #459 — the "meal so far" footer's own "Was it tasty?" reaction
+     * reuses the day-mood Emotion type/icons, but with Yes/So-so/No
+     * wording rather than emotionLabel's Happy/Neutral/Sad framing (that
+     * one's for the day's own mood, a different question). */
+    mealReactionValueLabel: (emotion: 'happy' | 'unhappy' | 'neutral') => string
     mealEmotionLabel: (
       emotion: 'thumbsUp' | 'thumbsDown' | 'bellissimo',
     ) => string
@@ -409,7 +414,19 @@ export interface Dictionary {
      * from `dayMoodLabel`'s whole-day framing), the quantity-confirm
      * step's own Cancel, and the flyout's final "Done" action. */
     recentFoodsLabel: string
+    /** #459 — expands the Recent list past its default 3-item cap to the
+     * full list, matching the mockup's "Show all" link. */
+    showAllRecentLabel: string
+    /** #459 — the same link's other state, once expanded: collapses the
+     * Recent list back to its 3-item cap. Reported live after the initial
+     * "Show all" had no way back. */
+    collapseRecentLabel: string
     cantFindItAddManuallyLabel: string
+    /** #459 — the quick-action row's own 3 bordered cards (Add food / Scan
+     * barcode / Create recipe), replacing the old plain-text links.
+     * scanBarcodeButton/recipes.logRecipeButton are reused for the other
+     * two cards' labels. */
+    quickActionAddFoodLabel: string
     mealSoFarLabel: string
     wasItTastyLabel: string
     cancelAddToMealLabel: string

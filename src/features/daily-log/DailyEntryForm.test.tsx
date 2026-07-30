@@ -31,18 +31,18 @@ function render(ui: ReactElement) {
 
 // #454 replaced the always-visible inline add-row with a dedicated flyout
 // (AddMealDialog) opened via "+ Add another meal", with manual entry now
-// one level deeper behind "Can't find it? Add manually" — this opens the
-// same MealItemEditorSheet these pre-#454 tests already exercise, whether
-// the flyout is already open (a second add within the same test) or not.
-// Once open, the trigger button itself becomes `aria-hidden` (covered by
-// the fullscreen dialog), so `queryByRole` — which respects that, unlike
+// one level deeper behind the "Add food" quick-action card (#459 restyled
+// this from a plain "Can't find it? Add manually" text link into a
+// bordered card, same underlying action) — this opens the same
+// MealItemEditorSheet these pre-#454 tests already exercise, whether the
+// flyout is already open (a second add within the same test) or not. Once
+// open, the trigger button itself becomes `aria-hidden` (covered by the
+// fullscreen dialog), so `queryByRole` — which respects that, unlike
 // `getByText` — reliably tells the two cases apart.
 async function openAddItemFlow(user: ReturnType<typeof userEvent.setup>) {
   const trigger = screen.queryByRole('button', { name: '+ Add another meal' })
   if (trigger) await user.click(trigger)
-  await user.click(
-    screen.getByRole('button', { name: "Can't find it? Add manually" }),
-  )
+  await user.click(screen.getByRole('button', { name: 'Add food' }))
 }
 
 // jsdom has no layout engine, so real pointer/keyboard drag gestures can't

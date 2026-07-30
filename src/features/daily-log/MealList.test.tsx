@@ -895,7 +895,7 @@ describe('MealList', () => {
       await user.clear(screen.getByLabelText('Time'))
       await user.type(screen.getByLabelText('Time'), '08:00')
       await user.click(
-        screen.getByRole('button', { name: "Can't find it? Add manually" }),
+        screen.getByRole('button', { name: 'Add food' }),
       )
       await user.type(screen.getByLabelText('Dish name'), 'Oatmeal')
       await user.type(screen.getByLabelText('kcal/100g'), '300')
@@ -962,7 +962,7 @@ describe('MealList', () => {
       await user.clear(screen.getByLabelText('Time'))
       await user.type(screen.getByLabelText('Time'), '08:00')
       await user.click(
-        screen.getByRole('button', { name: "Can't find it? Add manually" }),
+        screen.getByRole('button', { name: 'Add food' }),
       )
       await user.type(screen.getByLabelText('Dish name'), 'Oatmeal')
       await user.type(screen.getByLabelText('kcal/100g'), '300')
@@ -998,7 +998,7 @@ describe('MealList', () => {
       await user.clear(screen.getByLabelText('Time'))
       await user.type(screen.getByLabelText('Time'), '08:00')
       await user.click(
-        screen.getByRole('button', { name: "Can't find it? Add manually" }),
+        screen.getByRole('button', { name: 'Add food' }),
       )
       await user.type(screen.getByLabelText('Dish name'), 'Oatmeal')
       await user.type(screen.getByLabelText('kcal/100g'), '300')
@@ -1042,7 +1042,7 @@ describe('MealList', () => {
       await user.clear(screen.getByLabelText('Time'))
       await user.type(screen.getByLabelText('Time'), '08:00')
       await user.click(
-        screen.getByRole('button', { name: "Can't find it? Add manually" }),
+        screen.getByRole('button', { name: 'Add food' }),
       )
       await user.type(screen.getByLabelText('Dish name'), 'Oatmeal')
       await user.type(screen.getByLabelText('kcal/100g'), '300')
@@ -1148,7 +1148,7 @@ describe('MealList', () => {
       await user.clear(screen.getByLabelText('Time'))
       await user.type(screen.getByLabelText('Time'), '13:36')
       await user.click(
-        screen.getByRole('button', { name: "Can't find it? Add manually" }),
+        screen.getByRole('button', { name: 'Add food' }),
       )
       await user.type(screen.getByLabelText('Dish name'), 'Oatmeal')
       await user.type(screen.getByLabelText('kcal/100g'), '300')

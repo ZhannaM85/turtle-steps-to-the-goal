@@ -168,6 +168,8 @@ export const ru: Dictionary = {
         : emotion === 'unhappy'
           ? 'Грустно'
           : 'Нейтрально',
+    mealReactionValueLabel: (emotion) =>
+      emotion === 'happy' ? 'Да' : emotion === 'unhappy' ? 'Нет' : 'Так себе',
     mealEmotionLabel: (emotion) =>
       emotion === 'thumbsUp'
         ? 'Нравится'
@@ -212,7 +214,10 @@ export const ru: Dictionary = {
     noFoodFoundForBarcodeMessage:
       'Еда с таким штрихкодом не найдена — вы можете добавить её вручную ниже.',
     recentFoodsLabel: 'Недавние',
+    showAllRecentLabel: 'Показать все',
+    collapseRecentLabel: 'Свернуть',
     cantFindItAddManuallyLabel: 'Не нашли? Добавить вручную',
+    quickActionAddFoodLabel: 'Добавить блюдо',
     mealSoFarLabel: 'Состав приёма пищи',
     wasItTastyLabel: 'Было вкусно?',
     cancelAddToMealLabel: 'Отмена',

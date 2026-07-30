@@ -1189,6 +1189,24 @@ export function MealList({
     setCalorieEntries(nextEntries)
   }
 
+  // #459 — lets the flyout's own "meal so far" list edit a mistakenly
+  // mis-entered item in place, rather than deleting and re-adding it.
+  function updateItemInNewMeal(updatedItem: CalorieItem) {
+    if (!inProgressMealId) return
+    setCalorieEntries(
+      calorieEntries.map((entry) =>
+        entry.id === inProgressMealId
+          ? {
+              ...entry,
+              items: entry.items.map((item) =>
+                item.id === updatedItem.id ? updatedItem : item,
+              ),
+            }
+          : entry,
+      ),
+    )
+  }
+
   // Lets the flyout's own "meal so far" list drop a mistakenly-added item
   // without leaving the dialog — same "a group with its last item removed
   // is itself removed" invariant CalorieEntry.items documents.
@@ -1780,6 +1798,7 @@ export function MealList({
               onReactionChange={setNewMealReaction}
               onAppendItems={appendItemsToNewMeal}
               onRemoveItem={removeItemFromNewMeal}
+              onUpdateItem={updateItemInNewMeal}
               todayTotals={{
                 kcal: totalCalories(calorieEntries) ?? 0,
                 proteinG: totalProtein(calorieEntries) ?? 0,

@@ -163,6 +163,8 @@ export const en: Dictionary = {
         : emotion === 'unhappy'
           ? 'Unhappy'
           : 'Neutral',
+    mealReactionValueLabel: (emotion) =>
+      emotion === 'happy' ? 'Yes' : emotion === 'unhappy' ? 'No' : 'So-so',
     mealEmotionLabel: (emotion) =>
       emotion === 'thumbsUp'
         ? 'Thumbs up'
@@ -207,7 +209,10 @@ export const en: Dictionary = {
     noFoodFoundForBarcodeMessage:
       'No food found for this barcode — you can still add it by hand below.',
     recentFoodsLabel: 'Recent',
+    showAllRecentLabel: 'Show all',
+    collapseRecentLabel: 'Show less',
     cantFindItAddManuallyLabel: "Can't find it? Add manually",
+    quickActionAddFoodLabel: 'Add food',
     mealSoFarLabel: 'This meal so far',
     wasItTastyLabel: 'Was it tasty?',
     cancelAddToMealLabel: 'Cancel',

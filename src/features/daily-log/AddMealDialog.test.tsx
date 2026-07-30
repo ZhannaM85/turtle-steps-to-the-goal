@@ -157,8 +157,11 @@ describe('AddMealDialog (#454)', () => {
     expect(screen.getByText('Was it tasty?')).toBeInTheDocument()
     // EmotionPicker's aria-label includes the contextLabel suffix
     // (`${label} — ${contextLabel}`) to disambiguate from any other
-    // EmotionPicker on screen — here that's the meal label itself.
-    await user.click(screen.getByRole('button', { name: 'Happy — Breakfast' }))
+    // EmotionPicker on screen — here that's the meal label itself. #459
+    // switched this picker's own labelFor from emotionLabel ("Happy") to
+    // mealReactionValueLabel ("Yes") to match the mockup's Yes/So-so/No
+    // wording for "Was it tasty?" specifically.
+    await user.click(screen.getByRole('button', { name: 'Yes — Breakfast' }))
 
     expect(onReactionChange).toHaveBeenCalledWith('happy')
   })
@@ -206,13 +209,11 @@ describe('AddMealDialog (#454)', () => {
   })
 
   describe('manual entry fallback (#454)', () => {
-    it('adds a manually-typed dish via "Can\'t find it? Add manually"', async () => {
+    it('adds a manually-typed dish via the "Add food" quick action', async () => {
       const user = userEvent.setup()
       render(<ControlledAddMealDialog {...defaultProps} />)
 
-      await user.click(
-        screen.getByRole('button', { name: "Can't find it? Add manually" }),
-      )
+      await user.click(screen.getByRole('button', { name: 'Add food' }))
       await user.type(screen.getByLabelText('Dish name'), 'Homemade soup')
       await user.type(screen.getByLabelText('kcal/100g'), '150')
       await user.click(screen.getByRole('button', { name: 'Save' }))
@@ -229,9 +230,7 @@ describe('AddMealDialog (#454)', () => {
       const user = userEvent.setup()
       render(<ControlledAddMealDialog {...defaultProps} />)
 
-      await user.click(
-        screen.getByRole('button', { name: "Can't find it? Add manually" }),
-      )
+      await user.click(screen.getByRole('button', { name: 'Add food' }))
       await user.type(screen.getByLabelText('Dish name'), 'Homemade soup')
       await user.type(screen.getByLabelText('kcal/100g'), '150')
       await user.click(

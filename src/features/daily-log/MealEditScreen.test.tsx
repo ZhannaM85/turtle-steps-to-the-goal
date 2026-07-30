@@ -1,45 +1,25 @@
 import 'fake-indexeddb/auto'
-import { fireEvent, render, screen, waitFor, within } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { CalorieEntry, DailyEntry } from '@/domain/dailyEntry'
 import { db } from '@/infrastructure/persistence/indexeddb'
-import { useMealItemStore, useMealLabelPresetStore } from '@/stores'
+import { useMealItemStore } from '@/stores'
 import { MealEditScreen } from './MealEditScreen'
 
-// This screen's Find-food tests render FoodPickerDialog's 300+-item list
-// (same as FoodPickerDialog.test.tsx/DailyEntryForm.test.tsx, which
-// already needed the identical bump) — the default 5s timeout is too
-// tight for that under full-suite parallel load even though each test is
-// fast in isolation.
+// #459 — MealEditScreen was migrated off MealList's own single-meal-focus
+// mode onto AddMealDialog directly, so it now shares that component's own
+// interaction model: one item edited at a time via MealItemEditorSheet
+// (not several inline rows editable at once), no custom meal-label field,
+// and every change persists immediately (no separate "Save" step for the
+// meal group itself). This file replaces the old MealList-era coverage
+// (simultaneous multi-row editing, label renaming) with tests matching
+// that new model — see #459's own priority-tracker note for why those old
+// capabilities were dropped rather than preserved.
 vi.setConfig({ testTimeout: 15000 })
 
-/**
- * The dedicated single-meal edit route (#157) — reached by tapping a
- * meal's pencil on Today or History, replacing #145's inline
- * expand-in-place. This file carries the exhaustive itemized-meal-editing
- * coverage that used to live in DailyEntryForm.test.tsx's "itemized meal
- * editing" describe block (moved wholesale, adapted for real
- * navigation/persistence instead of props/callback mocks) — the
- * underlying editing UI/logic is unchanged from before #157, only *how
- * it's reached* moved. View-mode display tests (custom label rendering,
- * default numbering, etc.) and the "add a new meal" flow are untouched
- * by #157 and stay in DailyEntryForm.test.tsx/MealList.test.tsx.
- */
-
 const now = '2026-03-01T00:00:00.000Z'
-
-function calories(
-  amountKcal: number,
-  id: string = crypto.randomUUID(),
-): CalorieEntry {
-  return {
-    id,
-    items: [{ id: crypto.randomUUID(), amountKcal }],
-    createdAt: now,
-  }
-}
 
 function makeEntry(overrides: Partial<DailyEntry> = {}): DailyEntry {
   return {
@@ -59,10 +39,11 @@ async function renderMealEditScreen(mealId = 'c1', date = '2026-03-01') {
       </Routes>
     </MemoryRouter>,
   )
-  // Data loads asynchronously (repository getByDate) — wait for the
-  // meal's own edit UI (already open, #157's whole point) before
-  // interacting, same as waiting for any other async-loaded screen.
-  await screen.findByLabelText('Meal name — Meal 1')
+  // Data loads asynchronously (repository getByDate) — wait for the meal's
+  // own AddMealDialog to be showing before interacting. Every existing
+  // meal has at least one item (CalorieEntry.items is never empty), so
+  // "This meal so far" is always present once loaded.
+  await screen.findByText('This meal so far')
   return utils
 }
 
@@ -70,22 +51,126 @@ beforeEach(async () => {
   await db.dailyEntries.clear()
   await db.mealItems.clear()
   useMealItemStore.setState({ items: [], status: 'idle', error: null })
-  useMealLabelPresetStore.setState({ presets: [] })
-  // #221: MealList's add-row draft is now persisted to localStorage,
-  // keyed by date — this screen always focuses a single existing meal so
-  // the add-row itself never renders here, but clearing keeps this file
-  // isolated from any leftover draft another test/file left behind.
-  localStorage.clear()
 })
 
 afterEach(async () => {
   await db.dailyEntries.clear()
   await db.mealItems.clear()
-  localStorage.clear()
 })
 
 describe('MealEditScreen', () => {
-  it('shows the per-100g rate and quantity back-calculated from stored totals (#96)', async () => {
+  it("shows the meal's own items and title, at its real position (#187)", async () => {
+    const oneItemMeal: CalorieEntry = {
+      id: 'c3',
+      items: [{ id: 'i1', name: 'Salmon', amountKcal: 300 }],
+      createdAt: now,
+    }
+    await db.dailyEntries.put(
+      makeEntry({
+        calorieEntries: [
+          { id: 'c1', items: [{ id: 'i0', amountKcal: 100 }], createdAt: now },
+          { id: 'c2', items: [{ id: 'i0b', amountKcal: 100 }], createdAt: now },
+          oneItemMeal,
+        ],
+      }),
+    )
+    await renderMealEditScreen('c3')
+
+    // c3 is the 3rd meal of the day — its title should reflect position 3
+    // ("Dinner"), not fall back to position 1 just because it's the only
+    // meal AddMealDialog itself knows about.
+    expect(screen.getByText('Dinner')).toBeInTheDocument()
+    expect(screen.getByText('Salmon')).toBeInTheDocument()
+    expect(screen.getByText(/300/)).toBeInTheDocument()
+  })
+
+  it('shows the not-found message for a stale mealId', async () => {
+    await db.dailyEntries.put(
+      makeEntry({
+        calorieEntries: [
+          { id: 'c1', items: [{ id: 'i1', amountKcal: 100 }], createdAt: now },
+        ],
+      }),
+    )
+    render(
+      <MemoryRouter initialEntries={['/entry/2026-03-01/meal/does-not-exist']}>
+        <Routes>
+          <Route path="/entry/:date/meal/:mealId" element={<MealEditScreen />} />
+        </Routes>
+      </MemoryRouter>,
+    )
+
+    expect(
+      await screen.findByText("This meal couldn't be found."),
+    ).toBeInTheDocument()
+  })
+
+  it('adds a new item via the "Add food" quick action, persisting it immediately', async () => {
+    const user = userEvent.setup()
+    await db.dailyEntries.put(
+      makeEntry({
+        calorieEntries: [
+          { id: 'c1', items: [{ id: 'i1', name: 'Salmon', amountKcal: 300 }], createdAt: now },
+        ],
+      }),
+    )
+    await renderMealEditScreen()
+
+    await user.click(screen.getByRole('button', { name: 'Add food' }))
+    await user.type(screen.getByLabelText('Dish name'), 'Bread')
+    await user.type(screen.getByLabelText('kcal/100g'), '80')
+    await user.click(screen.getByRole('button', { name: 'Save' }))
+
+    expect(await screen.findByText('Bread')).toBeInTheDocument()
+    await waitFor(async () => {
+      const saved = await db.dailyEntries.get('e1')
+      expect(saved?.calorieEntries?.[0].items.map((item) => item.name)).toEqual([
+        'Salmon',
+        'Bread',
+      ])
+    })
+  })
+
+  it('edits an already-added item in place by tapping its row', async () => {
+    const user = userEvent.setup()
+    await db.dailyEntries.put(
+      makeEntry({
+        calorieEntries: [
+          {
+            id: 'c1',
+            items: [{ id: 'i1', name: 'Salmon', amountKcal: 300, amountG: 150 }],
+            createdAt: now,
+          },
+        ],
+      }),
+    )
+    await renderMealEditScreen()
+
+    await user.click(screen.getByText('Salmon'))
+    expect(screen.getByRole('heading', { name: 'Edit item' })).toBeInTheDocument()
+    const nameField = screen.getByLabelText('Dish name')
+    expect(nameField).toHaveValue('Salmon')
+    // Edit-in-place prefills 'perPortion' mode (the direct passthrough
+    // representation — see startEditItem's own comment), whose amount
+    // field is labeled "kcal" (the item's real total), not "kcal/100g".
+    await user.clear(screen.getByLabelText('kcal'))
+    await user.type(screen.getByLabelText('kcal'), '450')
+    await user.click(screen.getByRole('button', { name: 'Save' }))
+
+    await waitFor(async () => {
+      const saved = await db.dailyEntries.get('e1')
+      const items = saved?.calorieEntries?.[0].items
+      expect(items).toHaveLength(1)
+      expect(items?.[0]).toMatchObject({
+        id: 'i1',
+        name: 'Salmon',
+        amountKcal: 450,
+        amountG: 150,
+      })
+    })
+  })
+
+  it('removes one item of several, persisting the remaining item', async () => {
     const user = userEvent.setup()
     await db.dailyEntries.put(
       makeEntry({
@@ -93,7 +178,8 @@ describe('MealEditScreen', () => {
           {
             id: 'c1',
             items: [
-              { id: 'i1', amountKcal: 150, proteinG: 5, amountG: 50 },
+              { id: 'i1', name: 'Salmon', amountKcal: 300 },
+              { id: 'i2', name: 'Rice', amountKcal: 200 },
             ],
             createdAt: now,
           },
@@ -102,686 +188,114 @@ describe('MealEditScreen', () => {
     )
     await renderMealEditScreen()
 
-    await user.click(screen.getByRole('button', { name: 'Edit item' }))
-    const dialog = screen.getByRole('dialog')
-
-    // 150 kcal / 5g protein eaten as a 50g portion back-calculates to
-    // 300 kcal/100g and 10g protein/100g; 50g is 0.5 portions of 100g.
-    expect(within(dialog).getByLabelText('kcal/100g')).toHaveValue('300')
-    expect(within(dialog).getByLabelText('Protein')).toHaveValue('10')
-    expect(within(dialog).getByLabelText('× 100g')).toHaveValue('0.5')
-  })
-
-  it('shows a live preview of an item-edit row’s computed total (#98)', async () => {
-    const user = userEvent.setup()
-    await db.dailyEntries.put(
-      makeEntry({ calorieEntries: [calories(300, 'c1'), calories(200, 'c2')] }),
-    )
-    await renderMealEditScreen()
-
-    await user.click(screen.getByRole('button', { name: 'Edit item' }))
-    const dialog = screen.getByRole('dialog')
-    await user.clear(within(dialog).getByLabelText('× 100g'))
-    await user.type(within(dialog).getByLabelText('× 100g'), '0.5')
-
-    // Meal 1's stored item is 300 kcal with no recorded amountG, so
-    // itemDraftFrom's fallback shows kcal/100g = 300; scaled by the
-    // newly-typed 0.5 portions (50g, #140): 300 * 0.5 = 150.
-    expect(screen.getByText('Total: 150 kcal')).toBeInTheDocument()
-  })
-
-  it('edits a meal amount in place and saves immediately', async () => {
-    const user = userEvent.setup()
-    await db.dailyEntries.put(
-      makeEntry({ calorieEntries: [calories(300, 'c1'), calories(200, 'c2')] }),
-    )
-    await renderMealEditScreen()
-
-    await user.click(screen.getByRole('button', { name: 'Edit item' }))
-    const dialog = screen.getByRole('dialog')
-    const input = within(dialog).getByLabelText('kcal/100g')
-    await user.clear(input)
-    await user.type(input, '350')
-    await user.click(within(dialog).getByRole('button', { name: 'Save' }))
-    await user.click(screen.getByRole('button', { name: 'Save' }))
+    await user.click(screen.getAllByRole('button', { name: 'Delete item' })[0])
 
     await waitFor(async () => {
       const saved = await db.dailyEntries.get('e1')
-      const amounts = saved?.calorieEntries?.map((c) => c.items[0].amountKcal)
-      expect(amounts).toEqual([350, 200])
+      expect(saved?.calorieEntries?.[0].items.map((item) => item.id)).toEqual([
+        'i2',
+      ])
     })
   })
 
-  describe('custom meal name (#110)', () => {
-    it('sets a custom label and saves it', async () => {
-      const user = userEvent.setup()
-      await db.dailyEntries.put(makeEntry({ calorieEntries: [calories(300, 'c1')] }))
-      await renderMealEditScreen()
-
-      await user.type(
-        screen.getByLabelText('Meal name — Meal 1'),
-        'Breakfast',
-      )
-      await user.click(screen.getByRole('button', { name: 'Save' }))
-
-      await waitFor(async () => {
-        const saved = await db.dailyEntries.get('e1')
-        expect(saved?.calorieEntries?.[0].label).toBe('Breakfast')
-      })
-    })
-
-    it('saves a custom label on Enter, not just the Save button (#146)', async () => {
-      const user = userEvent.setup()
-      await db.dailyEntries.put(makeEntry({ calorieEntries: [calories(300, 'c1')] }))
-      await renderMealEditScreen()
-
-      await user.type(
-        screen.getByLabelText('Meal name — Meal 1'),
-        'Breakfast{Enter}',
-      )
-
-      await waitFor(async () => {
-        const saved = await db.dailyEntries.get('e1')
-        expect(saved?.calorieEntries?.[0].label).toBe('Breakfast')
-      })
-    })
-
-    it('prefills the label input with the existing custom label', async () => {
-      await db.dailyEntries.put(
-        makeEntry({
-          calorieEntries: [{ ...calories(300, 'c1'), label: 'Dinner' }],
-        }),
-      )
-      await renderMealEditScreen()
-
-      expect(screen.getByLabelText('Meal name — Meal 1')).toHaveValue(
-        'Dinner',
-      )
-    })
-
-    it('clearing the label reverts to the default numbering', async () => {
-      const user = userEvent.setup()
-      await db.dailyEntries.put(
-        makeEntry({
-          calorieEntries: [{ ...calories(300, 'c1'), label: 'Dinner' }],
-        }),
-      )
-      await renderMealEditScreen()
-
-      await user.clear(screen.getByLabelText('Meal name — Meal 1'))
-      await user.click(screen.getByRole('button', { name: 'Save' }))
-
-      await waitFor(async () => {
-        const saved = await db.dailyEntries.get('e1')
-        expect(saved?.calorieEntries?.[0].label).toBeUndefined()
-      })
-    })
-
-    it('fills the label from a quick-pick preset', async () => {
-      useMealLabelPresetStore.setState({ presets: ['Lunch'] })
-      const user = userEvent.setup()
-      await db.dailyEntries.put(makeEntry({ calorieEntries: [calories(300, 'c1')] }))
-      await renderMealEditScreen()
-
-      await user.click(screen.getByRole('button', { name: 'Lunch' }))
-
-      expect(screen.getByLabelText('Meal name — Meal 1')).toHaveValue(
-        'Lunch',
-      )
-    })
-  })
-
-  it('cancels a meal delete without removing it or saving, returning to the edit row', async () => {
+  it("removing a meal's last item deletes the whole meal", async () => {
     const user = userEvent.setup()
     await db.dailyEntries.put(
-      makeEntry({ calorieEntries: [calories(300, 'c1'), calories(200, 'c2')] }),
+      makeEntry({
+        calorieEntries: [
+          { id: 'c1', items: [{ id: 'i1', name: 'Salmon', amountKcal: 300 }], createdAt: now },
+          { id: 'c2', items: [{ id: 'i2', amountKcal: 100 }], createdAt: now },
+        ],
+      }),
+    )
+    await renderMealEditScreen()
+
+    await user.click(screen.getByRole('button', { name: 'Delete item' }))
+
+    await waitFor(async () => {
+      const saved = await db.dailyEntries.get('e1')
+      expect(saved?.calorieEntries?.map((meal) => meal.id)).toEqual(['c2'])
+    })
+  })
+
+  it('deletes the whole meal via the header delete button after confirming', async () => {
+    const user = userEvent.setup()
+    await db.dailyEntries.put(
+      makeEntry({
+        calorieEntries: [
+          { id: 'c1', items: [{ id: 'i1', name: 'Salmon', amountKcal: 300 }], createdAt: now },
+          { id: 'c2', items: [{ id: 'i2', amountKcal: 100 }], createdAt: now },
+        ],
+      }),
+    )
+    await renderMealEditScreen()
+
+    await user.click(screen.getByRole('button', { name: 'Delete meal 1' }))
+    await user.click(screen.getByRole('button', { name: 'Delete' }))
+
+    await waitFor(async () => {
+      const saved = await db.dailyEntries.get('e1')
+      expect(saved?.calorieEntries?.map((meal) => meal.id)).toEqual(['c2'])
+    })
+  })
+
+  it('cancels a whole-meal delete without removing it', async () => {
+    const user = userEvent.setup()
+    await db.dailyEntries.put(
+      makeEntry({
+        calorieEntries: [
+          { id: 'c1', items: [{ id: 'i1', name: 'Salmon', amountKcal: 300 }], createdAt: now },
+        ],
+      }),
     )
     await renderMealEditScreen()
 
     await user.click(screen.getByRole('button', { name: 'Delete meal 1' }))
     await user.click(screen.getByRole('button', { name: 'Cancel' }))
 
-    // Back in the edit row — the item's staged draft is untouched, still
-    // showing its 300 kcal total on the compact summary row.
-    expect(screen.getByText(/300 kcal/)).toBeInTheDocument()
+    expect(screen.getByText('Salmon')).toBeInTheDocument()
     expect(await db.dailyEntries.get('e1')).toMatchObject({
-      calorieEntries: [{ id: 'c1' }, { id: 'c2' }],
+      calorieEntries: [{ id: 'c1' }],
     })
   })
 
-  it("edits a meal note and an item's reaction and saves immediately (#129)", async () => {
+  it('edits time eaten and the meal note, persisting each immediately', async () => {
     const user = userEvent.setup()
     await db.dailyEntries.put(
-      makeEntry({ calorieEntries: [calories(300, 'c1'), calories(200, 'c2')] }),
+      makeEntry({
+        calorieEntries: [
+          { id: 'c1', items: [{ id: 'i1', name: 'Salmon', amountKcal: 300 }], createdAt: now },
+        ],
+      }),
     )
     await renderMealEditScreen()
 
-    await user.type(
-      screen.getByLabelText('Meal note — Meal 1'),
-      'Ate a salad, it was good.',
-    )
-    await user.click(screen.getByRole('button', { name: 'Edit item' }))
-    const dialog = screen.getByRole('dialog')
-    await user.click(
-      within(dialog).getByRole('button', { name: 'Thumbs up' }),
-    )
-    await user.click(within(dialog).getByRole('button', { name: 'Save' }))
-    await user.click(screen.getByRole('button', { name: 'Save' }))
+    fireEvent.change(screen.getByLabelText('Time'), { target: { value: '08:15' } })
+    await user.type(screen.getByLabelText('Meal note'), 'Ate outside')
 
     await waitFor(async () => {
       const saved = await db.dailyEntries.get('e1')
-      expect(saved?.calorieEntries?.[0].note).toBe('Ate a salad, it was good.')
-      expect(saved?.calorieEntries?.[0].items[0].emotion).toBe('thumbsUp')
+      expect(saved?.calorieEntries?.[0].timeEaten).toBe('08:15')
+      expect(saved?.calorieEntries?.[0].note).toBe('Ate outside')
     })
   })
 
-  it("edits a meal's protein/fat/carbs and saves immediately (#51)", async () => {
+  it("edits the meal's reaction, persisting it immediately", async () => {
     const user = userEvent.setup()
     await db.dailyEntries.put(
-      makeEntry({ calorieEntries: [calories(300, 'c1'), calories(200, 'c2')] }),
+      makeEntry({
+        calorieEntries: [
+          { id: 'c1', items: [{ id: 'i1', name: 'Salmon', amountKcal: 300 }], createdAt: now },
+        ],
+      }),
     )
     await renderMealEditScreen()
 
-    await user.click(screen.getByRole('button', { name: 'Edit item' }))
-    const dialog = screen.getByRole('dialog')
-    await user.type(within(dialog).getByLabelText('Protein'), '20')
-    await user.type(within(dialog).getByLabelText('Fat'), '10')
-    await user.type(within(dialog).getByLabelText('Carbs'), '30')
-    await user.click(within(dialog).getByRole('button', { name: 'Save' }))
-    await user.click(screen.getByRole('button', { name: 'Save' }))
+    await user.click(screen.getByRole('button', { name: 'Yes — Breakfast' }))
 
     await waitFor(async () => {
       const saved = await db.dailyEntries.get('e1')
-      expect(saved?.calorieEntries?.[0].items[0]).toMatchObject({
-        proteinG: 20,
-        fatG: 10,
-        carbsG: 30,
-      })
-    })
-  })
-
-  it('renders bellissimo as the 🤌 emoji, not a lucide icon (#54)', async () => {
-    const user = userEvent.setup()
-    await db.dailyEntries.put(
-      makeEntry({ calorieEntries: [calories(300, 'c1'), calories(200, 'c2')] }),
-    )
-    await renderMealEditScreen()
-
-    await user.click(screen.getByRole('button', { name: 'Edit item' }))
-    const dialog = screen.getByRole('dialog')
-    await user.click(
-      within(dialog).getByRole('button', { name: 'Bellissimo' }),
-    )
-    await user.click(within(dialog).getByRole('button', { name: 'Save' }))
-
-    // Renders the emoji, not a lucide icon, in the saved item's display.
-    expect(screen.getAllByText('🤌').length).toBeGreaterThan(0)
-    expect(screen.getByText('Bellissimo')).toBeInTheDocument()
-  })
-
-  describe('per 100g / per portion toggle on item-edit rows (#111)', () => {
-    it('defaults to per-100g mode when opening an existing item for edit', async () => {
-      const user = userEvent.setup()
-      await db.dailyEntries.put(
-        makeEntry({ calorieEntries: [calories(300, 'c1'), calories(200, 'c2')] }),
-      )
-      await renderMealEditScreen()
-
-      await user.click(screen.getByRole('button', { name: 'Edit item' }))
-      const dialog = screen.getByRole('dialog')
-
-      expect(within(dialog).getByLabelText('kcal/100g')).toBeInTheDocument()
-      expect(
-        within(dialog).getByRole('radio', { name: '100g' }),
-      ).toBeChecked()
-    })
-
-    it('saves the typed total directly in per-portion mode, no multiplication', async () => {
-      const user = userEvent.setup()
-      await db.dailyEntries.put(
-        makeEntry({ calorieEntries: [calories(300, 'c1'), calories(200, 'c2')] }),
-      )
-      await renderMealEditScreen()
-
-      await user.click(screen.getByRole('button', { name: 'Edit item' }))
-      const dialog = screen.getByRole('dialog')
-      await user.click(
-        within(dialog).getByRole('radio', { name: 'Portion' }),
-      )
-      expect(within(dialog).getByLabelText('kcal')).toBeInTheDocument()
-
-      await user.clear(within(dialog).getByLabelText('kcal'))
-      await user.type(within(dialog).getByLabelText('kcal'), '450')
-      await user.click(within(dialog).getByRole('button', { name: 'Save' }))
-      await user.click(screen.getByRole('button', { name: 'Save' }))
-
-      await waitFor(async () => {
-        const saved = await db.dailyEntries.get('e1')
-        expect(saved?.calorieEntries?.[0].items[0]).toEqual(
-          expect.objectContaining({ amountKcal: 450 }),
-        )
-      })
-    })
-
-    it('converts a typed per-100g rate to an absolute total when switching to per-portion', async () => {
-      const user = userEvent.setup()
-      await db.dailyEntries.put(
-        makeEntry({ calorieEntries: [calories(300, 'c1'), calories(200, 'c2')] }),
-      )
-      await renderMealEditScreen()
-
-      await user.click(screen.getByRole('button', { name: 'Edit item' }))
-      const dialog = screen.getByRole('dialog')
-      // Meal 1's stored item is 300 kcal with no recorded amountG, so
-      // itemDraftFrom's fallback shows kcal/100g = 300, portions = 1
-      // (100g, #140).
-      await user.clear(within(dialog).getByLabelText('× 100g'))
-      await user.type(within(dialog).getByLabelText('× 100g'), '0.5')
-
-      await user.click(
-        within(dialog).getByRole('radio', { name: 'Portion' }),
-      )
-
-      // 300 kcal/100g at 0.5 portions (50g) = 150 kcal total.
-      expect(within(dialog).getByLabelText('kcal')).toHaveValue('150')
-    })
-
-    it('converts an absolute total back to a per-100g rate when switching back', async () => {
-      const user = userEvent.setup()
-      await db.dailyEntries.put(
-        makeEntry({ calorieEntries: [calories(300, 'c1'), calories(200, 'c2')] }),
-      )
-      await renderMealEditScreen()
-
-      await user.click(screen.getByRole('button', { name: 'Edit item' }))
-      const dialog = screen.getByRole('dialog')
-      // The portions field is only editable in per-100g mode (#121 hides
-      // it in Portion mode) — set it before switching, then switch there
-      // and back.
-      await user.clear(within(dialog).getByLabelText('× 100g'))
-      await user.type(within(dialog).getByLabelText('× 100g'), '0.5')
-      await user.click(
-        within(dialog).getByRole('radio', { name: 'Portion' }),
-      )
-      await user.clear(within(dialog).getByLabelText('kcal'))
-      await user.type(within(dialog).getByLabelText('kcal'), '150')
-
-      await user.click(within(dialog).getByRole('radio', { name: '100g' }))
-
-      // 150 kcal eaten as a 0.5-portion (50g) back-calculates to 300
-      // kcal/100g.
-      expect(within(dialog).getByLabelText('kcal/100g')).toHaveValue('300')
-      expect(within(dialog).getByLabelText('× 100g')).toHaveValue('0.5')
-    })
-
-    // #457 — the field became a real, optional weight-in-grams field in
-    // Portion mode instead of a non-interactive "Portion" badge.
-    it('shows an optional weight field, not a portions multiplier, while in Portion mode', async () => {
-      const user = userEvent.setup()
-      await db.dailyEntries.put(
-        makeEntry({ calorieEntries: [calories(300, 'c1'), calories(200, 'c2')] }),
-      )
-      await renderMealEditScreen()
-
-      await user.click(screen.getByRole('button', { name: 'Edit item' }))
-      const dialog = screen.getByRole('dialog')
-      expect(within(dialog).getByLabelText('× 100g')).toBeInTheDocument()
-
-      await user.click(
-        within(dialog).getByRole('radio', { name: 'Portion' }),
-      )
-
-      expect(
-        within(dialog).queryByLabelText('× 100g'),
-      ).not.toBeInTheDocument()
-      expect(
-        within(dialog).getByLabelText('Weight (g)'),
-      ).toBeInTheDocument()
-    })
-
-    it('keeps each item-edit row on its own independent mode', async () => {
-      const user = userEvent.setup()
-      await db.dailyEntries.put(
-        makeEntry({ calorieEntries: [calories(300, 'c1'), calories(200, 'c2')] }),
-      )
-      await renderMealEditScreen()
-
-      // "+ Add item" immediately opens the new blank item's own sheet
-      // (#122) — switch only this one to Portion mode, then close it.
-      await user.click(
-        screen.getByRole('button', { name: '+ Add item — Meal 1' }),
-      )
-      let dialog = screen.getByRole('dialog')
-      await user.click(
-        within(dialog).getByRole('radio', { name: 'Portion' }),
-      )
-      expect(
-        within(dialog).getByRole('radio', { name: 'Portion' }),
-      ).toBeChecked()
-      // The Save button is disabled without a valid amount (this blank
-      // draft has none) — close via the X instead, same as a cancel.
-      await user.click(
-        within(dialog).getByRole('button', { name: 'Close item editor' }),
-      )
-
-      // The original item (index 0) is unaffected — still defaults to
-      // 100g, confirming the two drafts' modes are independent.
-      await user.click(
-        screen.getAllByRole('button', { name: 'Edit item' })[0],
-      )
-      dialog = screen.getByRole('dialog')
-      expect(
-        within(dialog).getByRole('radio', { name: '100g' }),
-      ).toBeChecked()
-    })
-  })
-
-  describe('grouping multiple items under one meal (#81)', () => {
-    it('adds a found food to an existing meal via edit mode (#124)', async () => {
-      const user = userEvent.setup()
-      await db.dailyEntries.put(
-        makeEntry({ calorieEntries: [calories(300, 'c1'), calories(200, 'c2')] }),
-      )
-      await renderMealEditScreen()
-
-      await user.click(
-        screen.getByRole('button', { name: 'Find food — Meal 1' }),
-      )
-      await user.click(screen.getByText('Salmon'))
-      await user.click(screen.getByRole('button', { name: 'Add selected' }))
-      await user.click(screen.getByRole('button', { name: 'Save' }))
-
-      await waitFor(async () => {
-        const saved = await db.dailyEntries.get('e1')
-        const savedItems = saved?.calorieEntries?.[0].items
-        expect(savedItems).toHaveLength(2)
-        expect(savedItems?.[1]).toMatchObject({
-          name: 'Salmon',
-          amountKcal: 208,
-          proteinG: 20,
-          amountG: 100,
-        })
-      })
-    })
-
-    it('does not add a found curated food to the personal meal dictionary (#150)', async () => {
-      const user = userEvent.setup()
-      await db.dailyEntries.put(
-        makeEntry({ calorieEntries: [calories(300, 'c1'), calories(200, 'c2')] }),
-      )
-      await renderMealEditScreen()
-
-      await user.click(
-        screen.getByRole('button', { name: 'Find food — Meal 1' }),
-      )
-      await user.click(screen.getByText('Salmon'))
-      await user.click(screen.getByRole('button', { name: 'Add selected' }))
-      await user.click(screen.getByRole('button', { name: 'Save' }))
-
-      await waitFor(async () => {
-        const saved = await db.dailyEntries.get('e1')
-        expect(saved?.calorieEntries?.[0].items).toHaveLength(2)
-      })
-      expect(await db.mealItems.toArray()).toEqual([])
-    })
-
-    it('adds another item to an existing meal via edit mode, growing the kcal subtotal', async () => {
-      const user = userEvent.setup()
-      await db.dailyEntries.put(
-        makeEntry({ calorieEntries: [calories(300, 'c1'), calories(200, 'c2')] }),
-      )
-      await renderMealEditScreen()
-
-      // "+ Add item" immediately opens the new item's sheet (#122).
-      await user.click(
-        screen.getByRole('button', { name: '+ Add item — Meal 1' }),
-      )
-      const dialog = screen.getByRole('dialog')
-      await user.type(within(dialog).getByLabelText('Dish name'), 'Bread')
-      await user.type(within(dialog).getByLabelText('kcal/100g'), '80')
-      await user.click(within(dialog).getByRole('button', { name: 'Save' }))
-      await user.click(screen.getByRole('button', { name: 'Save' }))
-
-      await waitFor(async () => {
-        const saved = await db.dailyEntries.get('e1')
-        const savedItems = saved?.calorieEntries?.[0].items
-        expect(savedItems).toHaveLength(2)
-        expect(savedItems?.[1]).toMatchObject({
-          name: 'Bread',
-          amountKcal: 80,
-        })
-      })
-    })
-
-    it('restores calories/macros for an item-edit row when a suggested name is picked (#94)', async () => {
-      const user = userEvent.setup()
-      await useMealItemStore.getState().touch('Bread', {
-        amountKcal: 80,
-        proteinG: 3,
-        fatG: 1,
-        carbsG: 15,
-      })
-      await db.dailyEntries.put(
-        makeEntry({ calorieEntries: [calories(300, 'c1'), calories(200, 'c2')] }),
-      )
-      await renderMealEditScreen()
-
-      await user.click(
-        screen.getByRole('button', { name: '+ Add item — Meal 1' }),
-      )
-      const dialog = screen.getByRole('dialog')
-      await user.type(within(dialog).getByLabelText('Dish name'), 'B')
-      await user.click(
-        await within(dialog).findByRole('button', { name: 'Bread' }),
-      )
-
-      expect(within(dialog).getByLabelText('kcal/100g')).toHaveValue('80')
-      expect(within(dialog).getByLabelText('Protein')).toHaveValue('3')
-      expect(within(dialog).getByLabelText('Fat')).toHaveValue('1')
-      expect(within(dialog).getByLabelText('Carbs')).toHaveValue('15')
-    })
-
-    it('edits a portion weight in grams on an item and saves it (#93, #140)', async () => {
-      const user = userEvent.setup()
-      await db.dailyEntries.put(
-        makeEntry({ calorieEntries: [calories(300, 'c1'), calories(200, 'c2')] }),
-      )
-      await renderMealEditScreen()
-
-      await user.click(screen.getByRole('button', { name: 'Edit item' }))
-      const dialog = screen.getByRole('dialog')
-      await user.clear(within(dialog).getByLabelText('× 100g'))
-      await user.type(within(dialog).getByLabelText('× 100g'), '3.5')
-      await user.click(within(dialog).getByRole('button', { name: 'Save' }))
-      await user.click(screen.getByRole('button', { name: 'Save' }))
-
-      // The item had no recorded amountG, so its 300 kcal was treated as
-      // the per-100g rate (#96's portions-1 fallback); scaled by the new
-      // 3.5 portions (350g, #140): 300 * 3.5 = 1050.
-      await waitFor(async () => {
-        const saved = await db.dailyEntries.get('e1')
-        expect(saved?.calorieEntries?.[0].items[0]).toMatchObject({
-          amountKcal: 1050,
-          amountG: 350,
-        })
-      })
-    })
-
-    it('restores the portion weight in grams for an item-edit row when a suggested name is picked (#93, #140)', async () => {
-      const user = userEvent.setup()
-      await useMealItemStore.getState().touch('Bread', {
-        amountKcal: 80,
-        amountG: 30,
-      })
-      await db.dailyEntries.put(
-        makeEntry({ calorieEntries: [calories(300, 'c1'), calories(200, 'c2')] }),
-      )
-      await renderMealEditScreen()
-
-      await user.click(
-        screen.getByRole('button', { name: '+ Add item — Meal 1' }),
-      )
-      const dialog = screen.getByRole('dialog')
-      await user.type(within(dialog).getByLabelText('Dish name'), 'B')
-      await user.click(
-        await within(dialog).findByRole('button', { name: 'Bread' }),
-      )
-
-      // 30g back-calculates to 0.3 portions of 100g.
-      expect(within(dialog).getByLabelText('× 100g')).toHaveValue('0.3')
-    })
-
-    it('removing every item from a meal during edit deletes the whole meal on save', async () => {
-      const user = userEvent.setup()
-      await db.dailyEntries.put(
-        makeEntry({ calorieEntries: [calories(300, 'c1'), calories(200, 'c2')] }),
-      )
-      await renderMealEditScreen()
-
-      await user.click(screen.getByRole('button', { name: 'Delete item' }))
-      await user.click(screen.getByRole('button', { name: 'Save' }))
-
-      await waitFor(async () => {
-        const saved = await db.dailyEntries.get('e1')
-        expect(saved?.calorieEntries?.map((c) => c.id)).toEqual(['c2'])
-      })
-    })
-
-    it('shows each item name and kcal in the read-only view', async () => {
-      const user = userEvent.setup()
-      await db.dailyEntries.put(
-        makeEntry({ calorieEntries: [calories(300, 'c1'), calories(200, 'c2')] }),
-      )
-      await renderMealEditScreen()
-
-      await user.click(
-        screen.getAllByRole('button', { name: 'Edit item' })[0],
-      )
-      let dialog = screen.getByRole('dialog')
-      await user.type(within(dialog).getByLabelText('Dish name'), 'Soup')
-      await user.click(within(dialog).getByRole('button', { name: 'Save' }))
-
-      // "+ Add item" immediately opens the new item's own sheet (#122).
-      await user.click(
-        screen.getByRole('button', { name: '+ Add item — Meal 1' }),
-      )
-      dialog = screen.getByRole('dialog')
-      await user.type(within(dialog).getByLabelText('Dish name'), 'Bread')
-      await user.type(within(dialog).getByLabelText('kcal/100g'), '80')
-      await user.click(within(dialog).getByRole('button', { name: 'Save' }))
-
-      // Split across a nested <span> (the kcal part is styled separately),
-      // so a single-string getByText can't match it in one go — check via
-      // the containing row's combined textContent instead.
-      expect(screen.getByText('Soup').closest('li')).toHaveTextContent(
-        '300 kcal',
-      )
-      expect(screen.getByText('Bread').closest('li')).toHaveTextContent(
-        '80 kcal',
-      )
-    })
-  })
-
-  describe('time eaten (#65)', () => {
-    it('can be edited on an existing meal', async () => {
-      const user = userEvent.setup()
-      await db.dailyEntries.put(
-        makeEntry({
-          calorieEntries: [{ ...calories(300, 'c1'), timeEaten: '08:00' }],
-        }),
-      )
-      await renderMealEditScreen()
-
-      expect(screen.getByLabelText('Time — Meal 1')).toHaveValue('08:00')
-      fireEvent.change(screen.getByLabelText('Time — Meal 1'), {
-        target: { value: '12:30' },
-      })
-      await user.click(screen.getByRole('button', { name: 'Save' }))
-
-      await waitFor(async () => {
-        const saved = await db.dailyEntries.get('e1')
-        expect(saved?.calorieEntries?.[0].timeEaten).toBe('12:30')
-      })
-    })
-
-    it('item-edit row also has an app-level clear button (#117)', async () => {
-      const user = userEvent.setup()
-      await db.dailyEntries.put(
-        makeEntry({
-          calorieEntries: [{ ...calories(300, 'c1'), timeEaten: '08:00' }],
-        }),
-      )
-      await renderMealEditScreen()
-
-      expect(
-        screen.getByRole('button', { name: 'Clear time — Meal 1' }),
-      ).toBeInTheDocument()
-
-      await user.click(
-        screen.getByRole('button', { name: 'Clear time — Meal 1' }),
-      )
-
-      expect(screen.getByLabelText('Time — Meal 1')).toHaveValue('')
-    })
-  })
-
-  describe('fasting-window toast (#287)', () => {
-    // #456 — the toast is a plain derived value now (MealList.tsx's own
-    // useMemo over `previousDayEntry`/`calorieEntries`), so saving a time
-    // via this edit screen shows it the same synchronous way any other
-    // save does, no shared store needed.
-    it('shows the toast after adding a time to a previously-untimed meal', async () => {
-      const user = userEvent.setup()
-      await db.dailyEntries.put(
-        makeEntry({
-          id: 'yesterday',
-          date: '2026-02-28',
-          calorieEntries: [{ ...calories(400, 'y1'), timeEaten: '20:00' }],
-        }),
-      )
-      await db.dailyEntries.put(makeEntry({ calorieEntries: [calories(300, 'c1')] }))
-      await renderMealEditScreen()
-
-      fireEvent.change(screen.getByLabelText('Time — Meal 1'), {
-        target: { value: '08:00' },
-      })
-      await user.click(screen.getByRole('button', { name: 'Save' }))
-
-      expect(
-        await screen.findByText('Your fasting window was 12.0h.'),
-      ).toBeInTheDocument()
-    })
-  })
-
-  describe('position (#187)', () => {
-    it("shows the edited meal's real position, not always 1, when it isn't the first meal of the day", async () => {
-      await db.dailyEntries.put(
-        makeEntry({
-          calorieEntries: [
-            calories(300, 'c1'),
-            calories(400, 'c2'),
-            calories(200, 'c3'),
-          ],
-        }),
-      )
-
-      render(
-        <MemoryRouter initialEntries={['/entry/2026-03-01/meal/c3']}>
-          <Routes>
-            <Route
-              path="/entry/:date/meal/:mealId"
-              element={<MealEditScreen />}
-            />
-          </Routes>
-        </MemoryRouter>,
-      )
-
-      // c3 is the 3rd meal of the day — its aria-label and placeholder
-      // should reflect position 3 ("Dinner"), not fall back to position 1
-      // ("Breakfast") just because it's the only element in MealList's
-      // own calorieEntries array in focused mode.
-      const nameInput = await screen.findByLabelText('Meal name — Meal 3')
-      expect(nameInput).toHaveAttribute('placeholder', 'Dinner')
+      expect(saved?.calorieEntries?.[0].reaction).toBe('happy')
     })
   })
 })

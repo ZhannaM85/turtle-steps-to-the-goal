@@ -1,5 +1,14 @@
 import { useEffect, useState } from 'react'
-import { ChefHat, ScanBarcode, Star, Trash2, X } from 'lucide-react'
+import {
+  ChefHat,
+  type LucideIcon,
+  Pencil,
+  ScanBarcode,
+  Star,
+  Trash2,
+  Utensils,
+  X,
+} from 'lucide-react'
 import { type FoodItem, type FoodServing, foods } from '@/data/foods'
 import type { CalorieItem, Emotion, MealEmotion } from '@/domain/dailyEntry'
 import type { MealItem } from '@/domain/mealItem'
@@ -95,6 +104,11 @@ export interface AddMealDialogProps {
    * computed by `MealList.tsx` exactly as it already does for the heading
    * above the old add-row (`effectiveMealLabel`/`defaultMealLabel`). */
   mealLabel: string
+  /** #459 — the meal's 1-based position within the day, needed only for
+   * the whole-meal delete button's aria-label (`deleteMealLabel(n)`).
+   * Undefined (and `onDeleteMeal` absent) for the in-progress "new meal"
+   * flow, which has nothing to delete yet. */
+  mealPosition?: number
   timeEaten: string
   onTimeEatenChange: (value: string) => void
   /** The whole meal's own shared note (distinct from a per-item `noteText`,
@@ -115,6 +129,16 @@ export interface AddMealDialogProps {
   onReactionChange: (reaction: Emotion | undefined) => void
   onAppendItems: (items: CalorieItem[]) => void
   onRemoveItem: (itemId: string) => void
+  /** #459 — edit-in-place for an already-added item (tap its row in "This
+   * meal so far"), reusing the same manual-entry sheet pre-filled with its
+   * current values rather than a separate editor. Optional since the
+   * in-progress "new meal" flow (MealList.tsx) wires it too, but only
+   * MealEditScreen strictly depends on it. */
+  onUpdateItem?: (item: CalorieItem) => void
+  /** #459 — deletes the whole meal (only meaningful for an already-saved
+   * meal, so only `MealEditScreen` passes this — the in-progress "new
+   * meal" flow leaves it undefined and the button stays hidden). */
+  onDeleteMeal?: () => void
   todayTotals?: {
     kcal: number
     proteinG: number
@@ -140,6 +164,7 @@ export function AddMealDialog({
   open,
   onOpenChange,
   mealLabel,
+  mealPosition,
   timeEaten,
   onTimeEatenChange,
   note,
@@ -150,6 +175,8 @@ export function AddMealDialog({
   onReactionChange,
   onAppendItems,
   onRemoveItem,
+  onUpdateItem,
+  onDeleteMeal,
   todayTotals,
   dailyCalorieTargetKcal,
 }: AddMealDialogProps) {
@@ -198,6 +225,12 @@ export function AddMealDialog({
   const [isManualOpen, setIsManualOpen] = useState(false)
   const [manualDraft, setManualDraft] = useState(blankManualDraft)
   const [barcodeNotFoundMessage, setBarcodeNotFoundMessage] = useState(false)
+  // #459 — non-null while the manual-entry sheet is editing an
+  // already-added item (tapped from "This meal so far") rather than
+  // building a brand-new one; changes what saveManualDraft() does on Save.
+  const [editingItemId, setEditingItemId] = useState<string | null>(null)
+  const [showAllRecent, setShowAllRecent] = useState(false)
+  const [isConfirmingMealDelete, setIsConfirmingMealDelete] = useState(false)
 
   function touchIfPersonal(item: CalorieItem) {
     if (item.name && !curatedFoodNames.has(item.name)) {
@@ -258,8 +291,12 @@ export function AddMealDialog({
   // "Recent" (#454) — the personal library's own most-recently-touched
   // items, capped short, shown only while the search box is empty; typing
   // anything switches straight to ranked search across the full catalog.
-  const RECENT_COUNT = 5
-  const recentItems = allMealItems.slice(0, RECENT_COUNT)
+  // #459 — capped at 3 by default (mockup), with a "Show all" link
+  // expanding to the full list rather than a fixed larger cap.
+  const RECENT_COUNT = 3
+  const recentItems = showAllRecent
+    ? allMealItems
+    : allMealItems.slice(0, RECENT_COUNT)
   const matches = query
     ? sortFavoritesFirst(
         rankBySearchMatch(
@@ -497,14 +534,18 @@ export function AddMealDialog({
             parseOptionalMacro(manualDraft.fiber),
           )
     const newItem: CalorieItem = {
-      id: crypto.randomUUID(),
+      id: editingItemId ?? crypto.randomUUID(),
       name: manualDraft.name.trim() || undefined,
       brand: manualDraft.brand.trim() || undefined,
       ...scaled,
       emotion: manualDraft.emotion,
       noteText: manualDraft.note.trim() || undefined,
     }
-    onAppendItems([newItem])
+    if (editingItemId && onUpdateItem) {
+      onUpdateItem(newItem)
+    } else {
+      onAppendItems([newItem])
+    }
     // A single touchMealItem call, not touchIfPersonal *and* this — calling
     // both raced two writes to the personal library's unique `name` index
     // for the same dish (confirmed via a real ConstraintError under test).
@@ -523,7 +564,33 @@ export function AddMealDialog({
       )
     }
     setManualDraft(blankManualDraft())
+    setEditingItemId(null)
     setIsManualOpen(false)
+  }
+
+  // #459 — tapping an already-added item in "This meal so far" opens the
+  // same manual-entry sheet pre-filled with its exact current values.
+  // 'perPortion' mode is the direct passthrough representation (see
+  // totalFromPortion) — amount/protein/fat/carbs/fiber are the item's own
+  // absolute values unchanged, amountG is its own real grams — so no rate
+  // math is needed to round-trip it, unlike reconstructing a per100g rate.
+  function startEditItem(item: CalorieItem) {
+    setEditingItemId(item.id)
+    setManualDraft({
+      name: item.name ?? '',
+      brand: item.brand ?? '',
+      amount: String(item.amountKcal),
+      protein: item.proteinG === undefined ? '' : String(item.proteinG),
+      fat: item.fatG === undefined ? '' : String(item.fatG),
+      carbs: item.carbsG === undefined ? '' : String(item.carbsG),
+      fiber: item.fiberG === undefined ? '' : String(item.fiberG),
+      note: item.noteText ?? '',
+      amountG: item.amountG === undefined ? '' : String(item.amountG),
+      macroMode: 'perPortion',
+      emotion: item.emotion,
+      favorite: false,
+    })
+    setIsManualOpen(true)
   }
 
   function handleRepeatConfirm(selected: CalorieItem[]) {
@@ -647,8 +714,45 @@ export function AddMealDialog({
                 <X aria-hidden="true" className="size-3.5" />
               </Button>
             )}
+            {/* #459 — whole-meal delete, only meaningful once this dialog
+             * is editing an already-saved meal (MealEditScreen); the
+             * in-progress "new meal" flow leaves onDeleteMeal undefined. */}
+            {onDeleteMeal && mealPosition !== undefined && (
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon-sm"
+                aria-label={t.dailyEntry.deleteMealLabel(mealPosition)}
+                onClick={() => setIsConfirmingMealDelete(true)}
+              >
+                <Trash2 aria-hidden="true" className="size-3.5" />
+              </Button>
+            )}
           </div>
         </div>
+        {isConfirmingMealDelete && onDeleteMeal && (
+          <div className="mt-2 flex items-center gap-2 rounded-lg bg-card p-2 ring-1 ring-foreground/10">
+            <span className="text-sm text-muted-foreground">
+              {t.history.confirmDeleteLabel}
+            </span>
+            <Button
+              type="button"
+              variant="destructive"
+              size="sm"
+              onClick={onDeleteMeal}
+            >
+              {t.history.confirmDeleteYes}
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={() => setIsConfirmingMealDelete(false)}
+            >
+              {t.history.confirmDeleteNo}
+            </Button>
+          </div>
+        )}
         <Input
           type="text"
           aria-label={t.dailyEntry.mealNoteLabel}
@@ -759,7 +863,7 @@ export function AddMealDialog({
             </div>
           </div>
         ) : (
-          <div className="mt-3 flex flex-col gap-3">
+          <div className="mt-4 flex flex-col gap-4">
             {previousMeal && previousMeal.items.length > 0 && (
               <Button
                 type="button"
@@ -824,11 +928,47 @@ export function AddMealDialog({
               )
             ) : (
               <>
+                {/* #459 — 3 prominent bordered cards, replacing the old
+                 * small plain-text links at the bottom. "Scan barcode" is
+                 * a deliberate second entry point alongside the search
+                 * bar's own scan icon, matching the mockup exactly. */}
+                <div className="grid grid-cols-3 gap-2">
+                  <QuickActionCard
+                    Icon={Utensils}
+                    label={t.dailyEntry.quickActionAddFoodLabel}
+                    onClick={() => setIsManualOpen(true)}
+                  />
+                  <QuickActionCard
+                    Icon={ScanBarcode}
+                    label={t.dailyEntry.scanBarcodeButton}
+                    ariaLabel={`${t.dailyEntry.scanBarcodeButton} — ${mealLabel}`}
+                    onClick={() => setIsBarcodeOpen(true)}
+                  />
+                  <QuickActionCard
+                    Icon={ChefHat}
+                    label={t.recipes.logRecipeButton}
+                    onClick={() => setIsRecipeOpen(true)}
+                  />
+                </div>
                 {recentItems.length > 0 && (
-                  <div className="flex flex-col gap-1.5">
-                    <span className="text-sm font-medium text-muted-foreground">
-                      {t.dailyEntry.recentFoodsLabel}
-                    </span>
+                  <div className="flex flex-col gap-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium text-muted-foreground">
+                        {t.dailyEntry.recentFoodsLabel}
+                      </span>
+                      {allMealItems.length > RECENT_COUNT && (
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setShowAllRecent((current) => !current)}
+                        >
+                          {showAllRecent
+                            ? t.dailyEntry.collapseRecentLabel
+                            : t.dailyEntry.showAllRecentLabel}
+                        </Button>
+                      )}
+                    </div>
                     <PickableItemList
                       items={recentItems}
                       textFor={textFor}
@@ -843,30 +983,11 @@ export function AddMealDialog({
                     />
                   </div>
                 )}
-                <div className="flex flex-wrap items-center gap-2">
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setIsManualOpen(true)}
-                  >
-                    {t.dailyEntry.cantFindItAddManuallyLabel}
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setIsRecipeOpen(true)}
-                  >
-                    <ChefHat aria-hidden="true" />
-                    {t.recipes.logRecipeButton}
-                  </Button>
-                </div>
               </>
             )}
 
             {items.length > 0 && (
-              <div className="flex flex-col gap-1.5 border-t border-border pt-3">
+              <div className="flex flex-col gap-2 border-t border-border pt-4">
                 <span className="text-sm font-medium text-muted-foreground">
                   {t.dailyEntry.mealSoFarLabel}
                 </span>
@@ -876,10 +997,25 @@ export function AddMealDialog({
                       key={item.id}
                       className="flex items-center justify-between gap-2 text-sm"
                     >
-                      <span>{item.name || t.dailyEntry.itemNamePlaceholder}</span>
-                      <span className="flex items-center gap-2 text-muted-foreground">
+                      <button
+                        type="button"
+                        className="min-w-0 flex-1 truncate text-left hover:underline"
+                        onClick={() => startEditItem(item)}
+                      >
+                        {item.name || t.dailyEntry.itemNamePlaceholder}
+                      </button>
+                      <span className="flex shrink-0 items-center gap-2 text-muted-foreground">
                         {formatNumber(item.amountKcal, locale, 0)}{' '}
                         {t.dailyEntry.kcalUnit}
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon-sm"
+                          aria-label={t.dailyEntry.editItemSheetTitle}
+                          onClick={() => startEditItem(item)}
+                        >
+                          <Pencil aria-hidden="true" />
+                        </Button>
                         <Button
                           type="button"
                           variant="ghost"
@@ -903,7 +1039,7 @@ export function AddMealDialog({
                     {todayRemainingPreview}
                   </p>
                 )}
-                <div className="flex flex-col gap-1.5 pt-1.5">
+                <div className="flex flex-col gap-2 pt-2">
                   <span className="text-sm text-muted-foreground">
                     {t.dailyEntry.wasItTastyLabel}
                   </span>
@@ -911,7 +1047,9 @@ export function AddMealDialog({
                     value={reaction}
                     onChange={onReactionChange}
                     options={DAY_EMOTIONS}
-                    labelFor={t.dailyEntry.emotionLabel}
+                    labelFor={t.dailyEntry.mealReactionValueLabel}
+                    size="icon-xl"
+                    layout="spread"
                     contextLabel={mealLabel}
                   />
                 </div>
@@ -954,9 +1092,14 @@ export function AddMealDialog({
             if (!next) {
               setManualDraft(blankManualDraft())
               setBarcodeNotFoundMessage(false)
+              setEditingItemId(null)
             }
           }}
-          title={t.dailyEntry.addItemSheetTitle}
+          title={
+            editingItemId
+              ? t.dailyEntry.editItemSheetTitle
+              : t.dailyEntry.addItemSheetTitle
+          }
           name={manualDraft.name}
           onNameChange={(value) =>
             setManualDraft((draft) => ({ ...draft, name: value }))
@@ -1036,6 +1179,37 @@ export function AddMealDialog({
         />
       </DialogContent>
     </Dialog>
+  )
+}
+
+// #459 — the quick-action row's own bordered-card treatment (icon + label,
+// evenly sized via the parent's grid-cols-3), replacing the old plain-text
+// ghost-link row.
+function QuickActionCard({
+  Icon,
+  label,
+  ariaLabel,
+  onClick,
+}: {
+  Icon: LucideIcon
+  label: string
+  /** Overrides the visible `label` as the accessible name — needed for the
+   * barcode card, whose visible text ("Scan barcode") would otherwise
+   * collide with the search bar's own same-labeled icon button (#459
+   * deliberately keeps both, reversing #454's one-entry-point decision). */
+  ariaLabel?: string
+  onClick: () => void
+}) {
+  return (
+    <button
+      type="button"
+      aria-label={ariaLabel}
+      className="flex flex-col items-center gap-1.5 rounded-lg border border-border p-3 text-center text-xs font-medium hover:bg-muted"
+      onClick={onClick}
+    >
+      <Icon aria-hidden="true" className="size-5" />
+      {label}
+    </button>
   )
 }
 

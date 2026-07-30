@@ -1,28 +1,26 @@
 import { useEffect, useState } from 'react'
-import { ArrowLeft } from 'lucide-react'
 import { useNavigate, useParams } from 'react-router-dom'
-import type { CalorieEntry, DailyEntry } from '@/domain/dailyEntry'
+import type { CalorieEntry, CalorieItem, DailyEntry, Emotion } from '@/domain/dailyEntry'
 import { useTranslation } from '@/i18n'
 import { IndexedDbDailyEntryRepository } from '@/infrastructure/persistence/indexeddb'
-import { Button } from '@/shared/ui/button'
-import { PageHeader } from '@/shared/ui/page-header'
-import { MealList } from './MealList'
+import { effectiveMealLabel } from '@/shared/lib/mealLabel'
+import { AddMealDialog } from './AddMealDialog'
 
 const dailyEntryRepository = new IndexedDbDailyEntryRepository()
 
 /**
  * Dedicated single-meal edit route (#157) — `/entry/:date/meal/:mealId`,
- * reached by tapping a meal's pencil on Today or History. Replaces #145's
- * "expand inline alongside the rest of the day" behavior with a focused
- * screen showing just that one meal.
+ * reached by tapping a meal's pencil on Today or History.
  *
- * Reuses `MealList` (and every bit of its existing add-item/macro-mode/
- * drag/food-picker machinery) unchanged rather than duplicating any of
- * it — this screen just constrains it to a single-element
- * `calorieEntries` array via `focusMealId`, which auto-opens that meal's
- * edit mode on mount and hides the "add a new meal" row. Same direct-
- * repository pattern as `useHistoryData`/`useDashboardData` (no shared
- * store — this is the only place that needs one specific day's entry).
+ * #459 — migrated onto `AddMealDialog` (the #454 flyout) instead of
+ * `MealList` in its old single-meal-focus mode, so editing an
+ * already-saved meal gets the same redesigned look as adding a new one.
+ * `AddMealDialog` already fit this case via its existing prop shape; the
+ * only additions it needed were per-item edit-in-place (`onUpdateItem`)
+ * and whole-meal delete (`onDeleteMeal`), both otherwise unused by
+ * `MealList.tsx`'s own in-progress-new-meal wiring. Same direct-repository
+ * pattern as `useHistoryData`/`useDashboardData` (no shared store — this
+ * is the only place that needs one specific day's entry).
  */
 export function MealEditScreen() {
   const t = useTranslation()
@@ -46,20 +44,75 @@ export function MealEditScreen() {
     navigate(-1)
   }
 
-  function handleChange(next: CalorieEntry[]) {
-    if (!entry || !mealId) return
-    const updated = next[0]
-    const calorieEntries = entry.calorieEntries ?? []
-    const merged = updated
-      ? calorieEntries.map((item) => (item.id === mealId ? updated : item))
-      : calorieEntries.filter((item) => item.id !== mealId)
+  function persist(nextCalorieEntries: CalorieEntry[]) {
+    if (!entry) return
     const nextEntry: DailyEntry = {
       ...entry,
-      calorieEntries: merged,
+      calorieEntries: nextCalorieEntries,
       updatedAt: new Date().toISOString(),
     }
     setEntry(nextEntry)
     dailyEntryRepository.upsert(nextEntry)
+  }
+
+  function withTargetMeal(
+    update: (meal: CalorieEntry) => CalorieEntry,
+  ): CalorieEntry[] {
+    return (entry?.calorieEntries ?? []).map((meal) =>
+      meal.id === mealId ? update(meal) : meal,
+    )
+  }
+
+  function handleAppendItems(newItems: CalorieItem[]) {
+    if (!entry || !mealId) return
+    persist(withTargetMeal((meal) => ({ ...meal, items: [...meal.items, ...newItems] })))
+  }
+
+  function handleUpdateItem(updatedItem: CalorieItem) {
+    if (!entry || !mealId) return
+    persist(
+      withTargetMeal((meal) => ({
+        ...meal,
+        items: meal.items.map((item) =>
+          item.id === updatedItem.id ? updatedItem : item,
+        ),
+      })),
+    )
+  }
+
+  // Same "a group with its last item removed is itself removed" invariant
+  // CalorieEntry.items documents elsewhere (MealList.tsx's own
+  // removeItemFromNewMeal) — removing this meal's last item here leaves
+  // nothing to keep editing, so it also navigates back.
+  function handleRemoveItem(itemId: string) {
+    if (!entry || !mealId) return
+    const nextEntries = withTargetMeal((meal) => ({
+      ...meal,
+      items: meal.items.filter((item) => item.id !== itemId),
+    })).filter((meal) => meal.id !== mealId || meal.items.length > 0)
+    persist(nextEntries)
+    if (!nextEntries.some((meal) => meal.id === mealId)) goBack()
+  }
+
+  function handleDeleteMeal() {
+    if (!entry || !mealId) return
+    persist((entry.calorieEntries ?? []).filter((meal) => meal.id !== mealId))
+    goBack()
+  }
+
+  function handleTimeEatenChange(value: string) {
+    if (!entry || !mealId) return
+    persist(withTargetMeal((meal) => ({ ...meal, timeEaten: value || undefined })))
+  }
+
+  function handleNoteChange(value: string) {
+    if (!entry || !mealId) return
+    persist(withTargetMeal((meal) => ({ ...meal, note: value || undefined })))
+  }
+
+  function handleReactionChange(reaction: Emotion | undefined) {
+    if (!entry || !mealId) return
+    persist(withTargetMeal((meal) => ({ ...meal, reaction })))
   }
 
   const targetMealIndex =
@@ -67,39 +120,35 @@ export function MealEditScreen() {
   const targetMeal =
     targetMealIndex >= 0 ? entry?.calorieEntries?.[targetMealIndex] : undefined
 
-  return (
-    <div className="flex flex-col gap-6">
-      <Button
-        type="button"
-        variant="ghost"
-        size="sm"
-        className="w-fit gap-1.5 px-1"
-        onClick={goBack}
-      >
-        <ArrowLeft aria-hidden="true" className="size-4" />
-        {t.dailyEntry.backLabel}
-      </Button>
-      <PageHeader title={t.dailyEntry.editMealScreenTitle} />
-
-      {entry === undefined ? (
-        <p className="text-sm text-muted-foreground">{t.common.loading}</p>
-      ) : !targetMeal || !date ? (
+  if (entry === undefined || !targetMeal || !date) {
+    return (
+      <div className="flex flex-col gap-6">
         <p className="text-sm text-muted-foreground">
-          {t.dailyEntry.mealNotFoundText}
+          {entry === undefined ? t.common.loading : t.dailyEntry.mealNotFoundText}
         </p>
-      ) : (
-        <MealList
-          calorieEntries={[targetMeal]}
-          date={date}
-          focusMealId={mealId}
-          // #187: the meal's real position within the full day's list —
-          // calorieEntries here is always a single-element array, so
-          // MealList's own index-based fallback would always read as 1.
-          focusMealPosition={targetMealIndex + 1}
-          onChange={handleChange}
-          onFocusedMealDone={goBack}
-        />
-      )}
-    </div>
+      </div>
+    )
+  }
+
+  return (
+    <AddMealDialog
+      open
+      onOpenChange={(next) => {
+        if (!next) goBack()
+      }}
+      mealLabel={effectiveMealLabel(t, targetMealIndex + 1, targetMeal.label)}
+      mealPosition={targetMealIndex + 1}
+      timeEaten={targetMeal.timeEaten ?? ''}
+      onTimeEatenChange={handleTimeEatenChange}
+      note={targetMeal.note ?? ''}
+      onNoteChange={handleNoteChange}
+      items={targetMeal.items}
+      reaction={targetMeal.reaction}
+      onReactionChange={handleReactionChange}
+      onAppendItems={handleAppendItems}
+      onRemoveItem={handleRemoveItem}
+      onUpdateItem={handleUpdateItem}
+      onDeleteMeal={handleDeleteMeal}
+    />
   )
 }

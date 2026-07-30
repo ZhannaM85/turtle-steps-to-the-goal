@@ -16,6 +16,7 @@ export function EmotionPicker<E extends string>({
   labelFor,
   contextLabel,
   size = 'icon-sm',
+  layout = 'row',
 }: {
   value: E | undefined
   onChange: (emotion: E | undefined) => void
@@ -32,9 +33,19 @@ export function EmotionPicker<E extends string>({
    * per-item reaction picker in MealItemEditorSheet.tsx passes `icon-xl`
    * instead, to match that sheet's h-12 fields (#133). */
   size?: VariantProps<typeof buttonVariants>['size']
+  /** #459 — the "meal so far" footer's "Was it tasty?" picker wants large
+   * icons evenly spread across the row with a visible text label under
+   * each, matching the mockup; every other caller keeps the original
+   * compact icon-only row. */
+  layout?: 'row' | 'spread'
 }) {
   return (
-    <div className="flex items-center gap-3">
+    <div
+      className={cn(
+        'flex items-center',
+        layout === 'spread' ? 'justify-between gap-2' : 'gap-3',
+      )}
+    >
       {options.map(({ value: emotion, Icon, emoji }) => {
         const label = labelFor(emotion)
         return (
@@ -53,6 +64,7 @@ export function EmotionPicker<E extends string>({
             // high-contrast against background in every mood theme, so a
             // border + tint reliably reads as selected everywhere.
             className={cn(
+              layout === 'spread' && 'h-auto flex-1 flex-col gap-1 py-2',
               value === emotion &&
                 'border-2 border-primary bg-primary/15 text-foreground',
             )}
@@ -63,6 +75,11 @@ export function EmotionPicker<E extends string>({
             ) : (
               <span aria-hidden="true" className="text-base leading-none">
                 {emoji}
+              </span>
+            )}
+            {layout === 'spread' && (
+              <span aria-hidden="true" className="text-xs font-normal">
+                {label}
               </span>
             )}
           </Button>
