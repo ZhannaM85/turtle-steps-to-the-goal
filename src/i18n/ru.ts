@@ -665,6 +665,7 @@ export const ru: Dictionary = {
     customChartTitle: 'Сравнение данных',
     customChartWeightLabel: 'Вес',
     customChartCaloriesLabel: 'Калории',
+    customChartFastingHoursLabel: 'Часы голодания',
     customChartTypeLine: 'Линия',
     customChartTypeBar: 'Столбцы',
     customChartTypeDots: 'Точки',

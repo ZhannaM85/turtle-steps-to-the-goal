@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 384,
+    issue: 445,
+    date: '2026-07-30T11:59:40+03:00',
+    en: 'Fixed the "fasting hours" option in Compare your data, which read oddly as a lowercase sentence fragment instead of a proper label.',
+    ru: 'Исправлена подпись "часов голодания" в разделе "Сравнение данных" — раньше она отображалась как обрывок предложения, а не как отдельная метка.',
+  },
+  {
     version: 383,
     issue: 426,
     date: '2026-07-30T11:21:04+03:00',

@@ -1032,14 +1032,16 @@ export interface Dictionary {
     mostLikedFoodsTitle: string
     mostDislikedFoodsTitle: string
     /** Customizable multi-series chart (#132) — checkboxes toggle which
-     * series overlay on one chart. Weight/Calories get their own
-     * Title-case labels here since dailyEntry's weightLegend/caloriesLegend
-     * are lowercase sentence-fragment forms, not standalone labels;
+     * series overlay on one chart. Weight/Calories/Fasting hours get their
+     * own Title-case labels here since dailyEntry's weightLegend/
+     * caloriesLegend and dashboard's own fastingHoursLegend (#445) are
+     * lowercase sentence-fragment forms, not standalone labels;
      * Protein/Fat/Carbs/Steps/On period/Bowel movement reuse
      * dailyEntry.proteinLabel etc. directly, already Title-case. */
     customChartTitle: string
     customChartWeightLabel: string
     customChartCaloriesLabel: string
+    customChartFastingHoursLabel: string
     /** Per-series chart type picker (#137) — three icon buttons (line/bar/
      * dots) shown next to each selected series in the legend. */
     customChartTypeLine: string

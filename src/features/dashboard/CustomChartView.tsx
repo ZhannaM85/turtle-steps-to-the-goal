@@ -229,7 +229,7 @@ function useNumericSeriesConfig(): Record<
     // own dedicated token instead, same fix every other reported chart-
     // color complaint already got.
     fastingHours: {
-      label: t.dashboard.fastingHoursLegend,
+      label: t.dashboard.customChartFastingHoursLabel,
       color: 'var(--chart-fasting)',
       formatRaw: (value) => `${formatNumber(value, locale)}h`,
     },

@@ -643,6 +643,7 @@ export const en: Dictionary = {
     customChartTitle: 'Compare your data',
     customChartWeightLabel: 'Weight',
     customChartCaloriesLabel: 'Calories',
+    customChartFastingHoursLabel: 'Fasting hours',
     customChartTypeLine: 'Line',
     customChartTypeBar: 'Bar',
     customChartTypeDots: 'Dots',
