@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 400,
+    issue: 455,
+    date: '2026-07-30T21:17:18+03:00',
+    en: 'You can now exclude a flagged weight point on the Weight trend graph, the same way you already could on the correlation charts.',
+    ru: 'Теперь можно исключить отмеченную точку на графике веса — так же, как это уже было доступно на графиках корреляции.',
+  },
+  {
     version: 399,
     issue: 454,
     date: '2026-07-30T21:04:23+03:00',
