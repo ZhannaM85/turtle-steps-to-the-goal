@@ -689,7 +689,18 @@ export function AddMealDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent size="fullscreen" closeLabel={t.dailyEntry.closeFoodDialogLabel}>
+      <DialogContent
+        size="fullscreen"
+        closeLabel={t.dailyEntry.closeFoodDialogLabel}
+        // #459 sticky footer — confirmed live via devtools that the real
+        // bleed-through cause was DialogContent's own bottom safe-area
+        // padding: `sticky bottom-0` sticks to the *padding* edge of the
+        // scrolling container, so that padding strip stayed below the
+        // stuck footer, and scrolled content was still visible flowing
+        // through it. Zeroed here (this dialog only, via the merged
+        // className) to remove that gap entirely.
+        className="pb-0"
+      >
         <div className="flex items-center justify-between gap-2 pr-8">
           <DialogTitle>{mealLabel}</DialogTitle>
           <div className="flex items-center gap-1">
@@ -995,11 +1006,11 @@ export function AddMealDialog({
                   {items.map((item) => (
                     <li
                       key={item.id}
-                      className="flex items-center justify-between gap-2 text-sm"
+                      className="flex items-start justify-between gap-2 py-2 text-sm"
                     >
                       <button
                         type="button"
-                        className="min-w-0 flex-1 truncate text-left hover:underline"
+                        className="min-w-0 flex-1 text-left hover:underline"
                         onClick={() => startEditItem(item)}
                       >
                         {item.name || t.dailyEntry.itemNamePlaceholder}
@@ -1039,7 +1050,10 @@ export function AddMealDialog({
                     {todayRemainingPreview}
                   </p>
                 )}
-                <div className="flex flex-col gap-2 pt-2">
+                {/* pb-20 (reported live) — clears space for the sticky
+                 * Done bar below, so it never overlaps/covers these
+                 * reaction buttons once scrolled all the way down. */}
+                <div className="flex flex-col gap-2 pt-2 pb-20">
                   <span className="text-sm text-muted-foreground">
                     {t.dailyEntry.wasItTastyLabel}
                   </span>
@@ -1053,9 +1067,20 @@ export function AddMealDialog({
                     contextLabel={mealLabel}
                   />
                 </div>
-                <Button type="button" onClick={() => onOpenChange(false)}>
-                  {t.dailyEntry.doneAddingMealButton}
-                </Button>
+                {/* Sticky footer (reported live — the button was scrolled
+                 * out of view under a long enough item/Recent list).
+                 * pb-0 — confirmed live via devtools that any bottom
+                 * padding here (beyond the button's own) left a gap where
+                 * scrolled content bled through beneath the button. */}
+                <div className="sticky bottom-0 border-t border-border bg-card pt-3 pb-0">
+                  <Button
+                    type="button"
+                    className="w-full"
+                    onClick={() => onOpenChange(false)}
+                  >
+                    {t.dailyEntry.doneAddingMealButton}
+                  </Button>
+                </div>
               </div>
             )}
           </div>
