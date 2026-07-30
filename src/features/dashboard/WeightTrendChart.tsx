@@ -15,7 +15,7 @@ import {
 import { Link } from 'react-router-dom'
 import type { DailyEntry } from '@/domain/dailyEntry'
 import { kgToLb } from '@/domain/goal'
-import { rollingAverage } from '@/domain/stats'
+import { outlierBounds, isOutlier, rollingAverage } from '@/domain/stats'
 import {
   formatNumber,
   getDateFnsLocale,
@@ -130,6 +130,17 @@ export function WeightTrendChart({ entries, dragHandle }: WeightTrendChartProps)
   const lastWeightDate = weightPoints[weightPoints.length - 1].date
   const lastWeightIndex = data.findIndex((point) => point.date === lastWeightDate)
 
+  // #441 — reported live with a screenshot: an obvious single-point
+  // data-entry-error spike rendered identically to every real point, no
+  // visual flag at all. Reuses the same Tukey's-fences rule (#224) the 6
+  // correlation views already use for their own scatter points, applied
+  // here to the raw weight values directly (a single dimension, not the
+  // X/Y-pair shape `flagOutliers` needs for those views) — scoped to just
+  // this chart per the report, not the other 3 trend charts.
+  const weightBounds = outlierBounds(weightPoints.map((point) => point.weight))
+  const isWeightOutlier = (weight: number | undefined) =>
+    weight !== undefined && isOutlier(weight, weightBounds)
+
   const unit = unitLabel(displayUnit, t)
 
   // Tapping/hovering a point only ever shows the tooltip (#49) — the
@@ -238,7 +249,23 @@ export function WeightTrendChart({ entries, dragHandle }: WeightTrendChartProps)
               connectNulls={false}
               dot={(props: DotItemDotProps) => {
                 const { cx, cy, index } = props
-                if (index !== lastWeightIndex || cx == null || cy == null) {
+                if (cx == null || cy == null || index == null) {
+                  return <g key={index} />
+                }
+                // #441 — an outlier point always renders flagged, not just
+                // when it's also the current-value marker below.
+                if (isWeightOutlier(data[index]?.weight)) {
+                  return (
+                    <circle
+                      key={index}
+                      cx={cx}
+                      cy={cy}
+                      r={4}
+                      fill="var(--destructive)"
+                    />
+                  )
+                }
+                if (index !== lastWeightIndex) {
                   return <g key={index} />
                 }
                 return (

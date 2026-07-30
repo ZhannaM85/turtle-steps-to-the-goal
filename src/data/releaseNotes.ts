@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 390,
+    issue: 441,
+    date: '2026-07-30T12:57:43+03:00',
+    en: 'The Weight trend graph now highlights an unusually extreme point (e.g. an obvious data-entry typo) in red, instead of drawing it exactly like every normal point.',
+    ru: 'На графике веса необычно резкое значение (например, явная опечатка при вводе) теперь выделяется красным, а не отображается как обычная точка.',
+  },
+  {
     version: 389,
     issue: 436,
     date: '2026-07-30T12:48:27+03:00',
