@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 388,
+    issue: 437,
+    date: '2026-07-30T12:37:06+03:00',
+    en: "The day's note and custom-metric notes now have a Cancel button (×) too, so you can back out of editing without saving a change.",
+    ru: 'В заметке дня и заметках произвольных показателей теперь тоже есть кнопка отмены (×) — можно выйти из редактирования, не сохраняя изменения.',
+  },
+  {
     version: 387,
     issue: 442,
     date: '2026-07-30T12:19:54+03:00',

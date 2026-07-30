@@ -1211,6 +1211,50 @@ describe('DailyEntryForm', () => {
       expect(input).toHaveValue('line one\nline two')
     })
 
+    describe('leaving edit mode without saving (#437)', () => {
+      it('has no Cancel button for a brand-new note with nothing saved yet', () => {
+        render(
+          <DailyEntryForm date="2026-03-01" existingEntry={null} onSave={vi.fn()} />,
+        )
+
+        expect(
+          screen.queryByRole('button', { name: 'Cancel editing note' }),
+        ).not.toBeInTheDocument()
+      })
+
+      it('discards a typed change and reverts to the saved note', async () => {
+        const user = userEvent.setup()
+        const onSave = vi.fn()
+        render(
+          <DailyEntryForm
+            date="2026-03-01"
+            existingEntry={{
+              id: 'e1',
+              date: '2026-03-01',
+              note: 'felt good',
+              createdAt: now,
+              updatedAt: now,
+            }}
+            onSave={onSave}
+          />,
+        )
+
+        await user.click(screen.getByRole('button', { name: 'Edit note' }))
+        const input = screen.getByLabelText("Day's note")
+        await user.clear(input)
+        await user.type(input, 'a change I want to discard')
+        await user.click(
+          screen.getByRole('button', { name: 'Cancel editing note' }),
+        )
+
+        expect(onSave).not.toHaveBeenCalled()
+        expect(screen.getByText('felt good')).toBeInTheDocument()
+        expect(
+          screen.queryByLabelText("Day's note"),
+        ).not.toBeInTheDocument()
+      })
+    })
+
     it('lets the note display card grow to fit a long, wrapped note instead of clipping it (#189)', () => {
       const longNote =
         'Пытаюсь в кето-диету. Сегодня было 111 грамм белка, 43 грамма углеводов, 36 грамм жира.'

@@ -125,6 +125,7 @@ export const ru: Dictionary = {
     saveWeightLabel: 'Сохранить вес',
     saveNoteLabel: 'Сохранить заметку',
     cancelEditWeightLabel: 'Отменить редактирование веса',
+    cancelEditNoteLabel: 'Отменить редактирование заметки',
     unusualWeightWarning:
       'Необычное значение веса — проверьте, прежде чем сохранить.',
     saveUnusualWeightAnywayLabel: 'Сохранить как есть',
@@ -927,6 +928,7 @@ export const ru: Dictionary = {
     notePlaceholder: 'Добавьте заметку об этом значении...',
     saveNoteLabel: 'Сохранить заметку',
     editNoteLabel: 'Изменить заметку',
+    cancelEditNoteLabel: 'Отменить редактирование заметки',
 
     correlationsSectionLabel: 'Свои корреляции',
     emptyCorrelationsText: 'Своих корреляций пока нет.',

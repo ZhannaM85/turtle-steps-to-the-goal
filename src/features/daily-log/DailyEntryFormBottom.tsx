@@ -168,6 +168,21 @@ export function DailyEntryFormBottom() {
               >
                 <Check aria-hidden="true" />
               </Button>
+              {/* #437 — same #424 Cancel-without-saving affordance,
+               * extended to the day note. Hidden when there's nothing
+               * saved yet to revert to (a brand-new note auto-opens here
+               * with no display-mode render to safely fall back to). */}
+              {state.canCancelNoteEdit && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon-xl"
+                  aria-label={t.dailyEntry.cancelEditNoteLabel}
+                  onClick={state.cancelEditNote}
+                >
+                  <X aria-hidden="true" />
+                </Button>
+              )}
             </div>
             {state.errors.note && (
               <p className="text-sm text-destructive">

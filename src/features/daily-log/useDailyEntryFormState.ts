@@ -296,6 +296,7 @@ export function useDailyEntryFormState({
   // permits it, since that context never reaches the display-mode branch
   // and cancel there just clears the input back to blank, safely.
   const canCancelWeightEdit = alwaysEditable || initialValues.weightKg !== undefined
+  const canCancelNoteEdit = alwaysEditable || Boolean(initialValues.note)
   const canCancelSleepEdit =
     alwaysEditable ||
     initialValues.sleepHours !== undefined ||
@@ -422,6 +423,14 @@ export function useDailyEntryFormState({
     clearErrors('note')
     setIsEditingNote(false)
     persist(getValues())
+  }
+
+  // #437 — same #424 Cancel-without-saving affordance, extended to the day
+  // note (the two other fields, weight/sleep/etc., already got this).
+  function cancelEditNote() {
+    setValue('note', initialValues.note)
+    clearErrors('note')
+    setIsEditingNote(false)
   }
 
   function saveSleep() {
@@ -756,6 +765,8 @@ export function useDailyEntryFormState({
     showNoteAsDisplay,
     setIsEditingNote,
     saveNote,
+    canCancelNoteEdit,
+    cancelEditNote,
     // Mood
     dayEmotion,
     saveMood,

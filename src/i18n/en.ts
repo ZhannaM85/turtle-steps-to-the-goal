@@ -118,6 +118,7 @@ export const en: Dictionary = {
     saveWeightLabel: 'Save weight',
     saveNoteLabel: 'Save note',
     cancelEditWeightLabel: 'Cancel editing weight',
+    cancelEditNoteLabel: 'Cancel editing note',
     unusualWeightWarning:
       "That's an unusual weight — please double-check it before saving.",
     saveUnusualWeightAnywayLabel: 'Save anyway',
@@ -902,6 +903,7 @@ export const en: Dictionary = {
     notePlaceholder: 'Add a note about this value...',
     saveNoteLabel: 'Save note',
     editNoteLabel: 'Edit note',
+    cancelEditNoteLabel: 'Cancel editing note',
 
     correlationsSectionLabel: 'Custom correlations',
     emptyCorrelationsText: 'No custom correlations yet.',

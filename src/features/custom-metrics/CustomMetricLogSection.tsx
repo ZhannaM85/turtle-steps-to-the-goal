@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Check, Pencil } from 'lucide-react'
+import { Check, Pencil, X } from 'lucide-react'
 import type { CustomMetric } from '@/domain/customMetric'
 import { useTranslation } from '@/i18n'
 import { useCustomMetricStore } from '@/stores'
@@ -50,6 +50,14 @@ function MetricValueRow({
 
   function saveNote() {
     setEntryNote(metric.id, date, noteDraft)
+    setIsEditingNote(false)
+  }
+
+  // #437 — same #424 Cancel-without-saving affordance the day note
+  // (DailyEntryForm.tsx) already got, applied here: reverts the local draft
+  // back to the last-saved note and exits edit mode without persisting.
+  function cancelEditNote() {
+    setNoteDraft(note ?? '')
     setIsEditingNote(false)
   }
 
@@ -151,6 +159,19 @@ function MetricValueRow({
             >
               <Check aria-hidden="true" />
             </Button>
+            {/* #437 — hidden when there's no saved note yet to revert to,
+             * same gating every #424 Cancel button already uses. */}
+            {Boolean(note) && (
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon-lg"
+                aria-label={t.customMetrics.cancelEditNoteLabel}
+                onClick={cancelEditNote}
+              >
+                <X aria-hidden="true" />
+              </Button>
+            )}
           </div>
         ) : (
           <div className="flex min-h-9 items-center justify-between gap-2 rounded-lg bg-muted px-2.5 py-1">

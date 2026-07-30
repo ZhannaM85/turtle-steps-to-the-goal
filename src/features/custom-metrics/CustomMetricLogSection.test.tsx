@@ -161,4 +161,61 @@ describe('CustomMetricLogSection', () => {
       expect(entries[0].note).toBe('even stronger now')
     })
   })
+
+  it('cancels editing an already-saved note without persisting the change (#437)', async () => {
+    await db.customMetrics.put({
+      id: 'metric-1',
+      name: 'Push-ups',
+      inputKind: 'number',
+      createdAt: '2026-01-01T00:00:00.000Z',
+    })
+    await db.customMetricEntries.put({
+      id: 'entry-1',
+      metricId: 'metric-1',
+      date: '2026-03-01',
+      value: 20,
+      note: 'felt strong',
+      updatedAt: '2026-01-01T00:00:00.000Z',
+    })
+    const user = userEvent.setup()
+    render(<CustomMetricLogSection date="2026-03-01" />)
+
+    await user.click(await screen.findByRole('button', { name: 'Edit note' }))
+    const noteInput = await screen.findByLabelText('Note')
+    await user.clear(noteInput)
+    await user.type(noteInput, 'a change I want to discard')
+    await user.click(
+      screen.getByRole('button', { name: 'Cancel editing note' }),
+    )
+
+    expect(await screen.findByText('felt strong')).toBeInTheDocument()
+    expect(
+      screen.queryByText('a change I want to discard'),
+    ).not.toBeInTheDocument()
+    const entries = await db.customMetricEntries.toArray()
+    expect(entries[0].note).toBe('felt strong')
+  })
+
+  it('does not show a Cancel button for a note with nothing saved yet (#437)', async () => {
+    await db.customMetrics.put({
+      id: 'metric-1',
+      name: 'Push-ups',
+      inputKind: 'number',
+      createdAt: '2026-01-01T00:00:00.000Z',
+    })
+    await db.customMetricEntries.put({
+      id: 'entry-1',
+      metricId: 'metric-1',
+      date: '2026-03-01',
+      value: 20,
+      updatedAt: '2026-01-01T00:00:00.000Z',
+    })
+
+    render(<CustomMetricLogSection date="2026-03-01" />)
+
+    await screen.findByLabelText('Note')
+    expect(
+      screen.queryByRole('button', { name: 'Cancel editing note' }),
+    ).not.toBeInTheDocument()
+  })
 })

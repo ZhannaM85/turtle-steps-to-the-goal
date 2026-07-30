@@ -225,8 +225,11 @@ export interface Dictionary {
     saveNoteLabel: string
     /** #424 — same "leave edit mode without saving" affordance
      * cancelEditMealLabel already established for meals, applied to
-     * Weight/Sleep/Steps/Body measurements/Body composition. */
+     * Weight/Sleep/Steps/Body measurements/Body composition. #437 extends
+     * it to the day note (custom-metric notes get their own key, see
+     * customMetrics below). */
     cancelEditWeightLabel: string
+    cancelEditNoteLabel: string
     /** #218: soft warning (not a hard block, unlike weightSchema's own
      * 20-400kg range) for a weight technically valid but unusual enough
      * to likely be a typo — a second tap on Save confirms it anyway. */
@@ -1392,6 +1395,9 @@ export interface Dictionary {
      * note for editing (#364 reopened) — same read/edit-mode toggle
      * `t.dailyEntry.editNoteLabel` already uses for the day note. */
     editNoteLabel: string
+    /** #437 — same #424/#437 Cancel-without-saving affordance
+     * `t.dailyEntry.cancelEditNoteLabel` already gives the day note. */
+    cancelEditNoteLabel: string
 
     correlationsSectionLabel: string
     emptyCorrelationsText: string
