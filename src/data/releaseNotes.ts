@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 393,
+    issue: 444,
+    date: '2026-07-30T15:22:59+03:00',
+    en: 'Fixed the right-side axis missing on "Compare your data" for some series pairs, and shortened its date labels so they no longer overlap.',
+    ru: 'Исправлена пропадавшая правая ось в разделе "Сравнение данных" для некоторых пар показателей, а подписи дат сокращены, чтобы не перекрывались.',
+  },
+  {
     version: 392,
     issue: 448,
     date: '2026-07-30T14:47:02+03:00',
