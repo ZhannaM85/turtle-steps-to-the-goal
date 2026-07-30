@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 385,
+    issue: 439,
+    date: '2026-07-30T12:03:20+03:00',
+    en: "The MyFitnessPal import instructions now mention that self-service data export requires a Premium subscription, with a fallback to email their support directly if you don't have one.",
+    ru: 'В инструкции по импорту MyFitnessPal теперь указано, что самостоятельный запрос данных требует подписки Premium, а также добавлен запасной вариант — написать напрямую в поддержку, если подписки нет.',
+  },
+  {
     version: 384,
     issue: 445,
     date: '2026-07-30T11:59:40+03:00',

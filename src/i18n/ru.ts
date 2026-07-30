@@ -449,7 +449,7 @@ export const ru: Dictionary = {
       'Импортируйте историю приёмов пищи и веса из выгрузки данных MyFitnessPal.',
     howToExportLabel: 'Как получить этот файл?',
     howToExportSteps:
-      'Запросите выгрузку данных (Data Access Request) на myfitnesspal.com → Settings → Privacy Center → Manage My Data. Файл придёт на почту в формате .xlsx — подготовка может занять несколько дней.',
+      'Запросите выгрузку данных (Data Access Request) на myfitnesspal.com → Settings → Privacy Center → Manage My Data — эта функция доступна только с подпиской Premium. Если она недоступна на вашем аккаунте, можно написать напрямую в поддержку MyFitnessPal с просьбой предоставить ваши данные. Файл придёт на почту в формате .xlsx — подготовка может занять несколько дней.',
     importButton: 'Импорт из MyFitnessPal',
     importingButton: 'Импорт…',
     importedSummary: (days, updated) =>

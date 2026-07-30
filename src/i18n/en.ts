@@ -437,7 +437,7 @@ export const en: Dictionary = {
     importBlurb: 'Import meal and weight history from a MyFitnessPal data export.',
     howToExportLabel: 'How do I get this file?',
     howToExportSteps:
-      "Request a Data Access Request export from MyFitnessPal (myfitnesspal.com → Settings → Privacy Center → Manage My Data). It arrives by email as an .xlsx file — this can take a few days to be ready.",
+      'Request a Data Access Request export from MyFitnessPal (myfitnesspal.com → Settings → Privacy Center → Manage My Data — this option requires a Premium subscription). If it\'s not available on your account, you can instead email MyFitnessPal support directly and ask them for your data. It arrives by email as an .xlsx file — this can take a few days to be ready.',
     importButton: 'Import from MyFitnessPal',
     importingButton: 'Importing…',
     importedSummary: (days, updated) =>
