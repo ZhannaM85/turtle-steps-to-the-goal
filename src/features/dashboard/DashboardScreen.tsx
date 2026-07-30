@@ -228,9 +228,18 @@ export function DashboardScreen() {
     ),
     // #396 — extended the trend-chart-only period picker (#380) to every
     // correlation view plus this chart, on the user's own explicit choice
-    // to accept the smaller-sample trade-off for correlations too.
+    // to accept the smaller-sample trade-off for correlations too. #453 —
+    // now also gets its own independent pager, same as the 4 trend charts
+    // above, so it needs the full `entries` + period info too, not the
+    // pre-filtered set.
     customChart: (dragHandle) => (
-      <CustomChartView entries={periodFilteredEntries} dragHandle={dragHandle} />
+      <CustomChartView
+        entries={entries}
+        period={trendChartPeriod}
+        customStart={trendChartCustomStart}
+        customEnd={trendChartCustomEnd}
+        dragHandle={dragHandle}
+      />
     ),
     calorieWeightCorrelation: (dragHandle) => (
       <CorrelationView entries={periodFilteredEntries} dragHandle={dragHandle} />

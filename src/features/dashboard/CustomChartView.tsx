@@ -21,6 +21,7 @@ import {
   resolveMetricValueMap,
   type NumericSeriesKey,
   type Sex,
+  type TrendChartPeriod,
 } from '@/domain/stats'
 import {
   formatNumber,
@@ -42,7 +43,9 @@ import {
   type ChartSeriesType,
 } from '@/stores'
 import { ToggleGroup, ToggleGroupItem } from '@/shared/ui/toggle-group'
+import { ChartPeriodPagerControls } from './ChartPeriodPagerControls'
 import { ChartTitleWithToggle } from './ChartTitleWithToggle'
+import { useChartPeriodPager } from './useChartPeriodPager'
 
 /** #371 — custom metrics (#336) cycle through this fixed palette by
  * selection order, same "generic reusable slot" precedent steps/waist/
@@ -83,7 +86,15 @@ function normalizeByDate(byDate: Map<string, number>): Map<string, number> {
 }
 
 export interface CustomChartViewProps {
+  /** #453 — the *full*, not period-filtered, set: this chart resolves its
+   * own visible window via `useChartPeriodPager` (using `period` below),
+   * same pattern #443 established for the 4 main trend charts. */
   entries: DailyEntry[]
+  /** #453 — defaults to 'all' (no paging) so every pre-#453 caller/test
+   * that never passes this behaves exactly as before. */
+  period?: TrendChartPeriod
+  customStart?: string
+  customEnd?: string
   /** #355 — see `CorrelationViewProps.dragHandle`'s own doc comment. */
   dragHandle?: ReactNode
 }
@@ -312,10 +323,18 @@ function useNumericSeriesConfig(): Record<
  * visual language `CalendarView` already uses for both (destructive-red
  * / amber dots there, same colors reused here).
  */
-export function CustomChartView({ entries, dragHandle }: CustomChartViewProps) {
+export function CustomChartView({
+  entries: allEntries,
+  period = 'all',
+  customStart = '',
+  customEnd = '',
+  dragHandle,
+}: CustomChartViewProps) {
   const t = useTranslation()
   const locale = useLocale()
   const dateFnsLocale = getDateFnsLocale(locale)
+  const pager = useChartPeriodPager(period, customStart, customEnd, allEntries)
+  const entries = pager.pagedEntries
   const seriesConfig = useNumericSeriesConfig()
   const sex = useProfileStore((state) => state.sex)
   const cycleTrackingEnabled = useCycleTrackingStore((state) => state.enabled)
@@ -380,8 +399,6 @@ export function CustomChartView({ entries, dragHandle }: CustomChartViewProps) {
   const customMetrics = useCustomMetricStore((state) => state.metrics)
   const customMetricEntries = useCustomMetricStore((state) => state.entries)
 
-  if (entries.length === 0) return null
-
   const cardTitle = (
     <ChartTitleWithToggle
       chart="customChart"
@@ -389,6 +406,19 @@ export function CustomChartView({ entries, dragHandle }: CustomChartViewProps) {
       dragHandle={dragHandle}
     />
   )
+
+  // #453 — see WeightTrendChart.tsx's identical note on why this only
+  // stops rendering entirely (rather than showing the pager) when paging
+  // is inactive.
+  if (entries.length === 0) {
+    if (!pager.showPager) return null
+    return (
+      <div className="flex flex-col gap-3 rounded-lg border border-border p-3">
+        {cardTitle}
+        <ChartPeriodPagerControls pager={pager} />
+      </div>
+    )
+  }
 
   if (!cardVisible) {
     return <div className="flex flex-col gap-3 rounded-lg border border-border p-3">{cardTitle}</div>
@@ -928,6 +958,7 @@ export function CustomChartView({ entries, dragHandle }: CustomChartViewProps) {
           )}
         </>
       )}
+      <ChartPeriodPagerControls pager={pager} />
     </div>
   )
 }

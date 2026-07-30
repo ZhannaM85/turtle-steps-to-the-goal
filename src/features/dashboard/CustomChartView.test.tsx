@@ -1,6 +1,6 @@
 import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { DailyEntry } from '@/domain/dailyEntry'
 import { useLocaleStore } from '@/i18n'
 import {
@@ -521,6 +521,38 @@ describe('CustomChartView', () => {
 
       await user.click(showButton)
       expect(screen.getByRole('button', { name: 'Weight (kg)' })).toBeInTheDocument()
+    })
+  })
+
+  describe('prev/next period paging (#453)', () => {
+    afterEach(() => {
+      vi.useRealTimers()
+    })
+
+    it('shows no paging arrows when no period is passed (pre-#453 behavior)', () => {
+      render(<CustomChartView entries={[entry('2026-03-01', { weightKg: 80 })]} />)
+
+      expect(
+        screen.queryByRole('button', { name: 'Previous period' }),
+      ).not.toBeInTheDocument()
+    })
+
+    it('goes to the previous week when the Previous period arrow is clicked', async () => {
+      vi.useFakeTimers({ toFake: ['Date'] })
+      vi.setSystemTime(new Date('2026-07-28T12:00:00.000Z'))
+      const user = userEvent.setup({ delay: null })
+      const entries = [
+        entry('2026-07-16', { weightKg: 80 }),
+        entry('2026-07-25', { weightKg: 79 }),
+      ]
+
+      render(<CustomChartView entries={entries} period="week" />)
+
+      expect(screen.getByText('22.07.26 – 28.07.26')).toBeInTheDocument()
+
+      await user.click(screen.getByRole('button', { name: 'Previous period' }))
+
+      expect(screen.getByText('15.07.26 – 21.07.26')).toBeInTheDocument()
     })
   })
 })
