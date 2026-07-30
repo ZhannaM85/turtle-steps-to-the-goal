@@ -68,6 +68,16 @@ export interface CalorieEntry {
    * clearing a user-entered time as a side effect of reordering would be a
    * surprising data loss. */
   timeEaten?: string
+  /** #454 — a whole-meal "was it tasty?" reaction, set once when finishing
+   * adding a meal. Deliberately typed `Emotion` (the day's own happy/
+   * neutral/unhappy set, `DAY_EMOTIONS`), not `MealEmotion` — #129 already
+   * established that a *shared* reaction across every dish in a meal is the
+   * wrong shape for "did I like this specific dish" (moved to `CalorieItem.
+   * emotion` for exactly that reason), but "was this meal, as a whole,
+   * satisfying" is a genuinely different question with no per-dish
+   * ambiguity, and its own smiley/neutral/frown framing matches the day
+   * mood's icon set, not the per-item thumbs/bellissimo one. */
+  reaction?: Emotion
 }
 
 /**

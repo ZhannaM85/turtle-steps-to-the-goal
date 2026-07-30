@@ -65,6 +65,10 @@ const calorieEntrySchema = z.object({
   // Time eaten (#65) — purely additive/optional, same no-version-bump
   // reasoning as macros/sleep/steps above.
   timeEaten: z.string().optional(),
+  // #454 — whole-meal "was it tasty?" reaction, the day's own emotion set
+  // (not mealEmotionSchema, the per-dish one) — same no-version-bump
+  // reasoning as every other optional field above.
+  reaction: dayEmotionSchema.optional(),
 })
 
 // #271: one discrete water/hydration add — replaces v6's single waterMl

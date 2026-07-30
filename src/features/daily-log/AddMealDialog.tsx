@@ -1,0 +1,1105 @@
+import { useEffect, useState } from 'react'
+import { ChefHat, ScanBarcode, Star, Trash2, X } from 'lucide-react'
+import { type FoodItem, type FoodServing, foods } from '@/data/foods'
+import type { CalorieItem, Emotion, MealEmotion } from '@/domain/dailyEntry'
+import type { MealItem } from '@/domain/mealItem'
+import { formatNumber, useLocale, useTranslation } from '@/i18n'
+import { applyFoodOverrides } from '@/shared/lib/applyFoodOverrides'
+import { DAY_EMOTIONS, MEAL_EMOTIONS } from '@/shared/lib/emotionIcons'
+import { formatKcal, macrosSummaryTextCompact } from '@/shared/lib/macroDisplay'
+import {
+  parseOptionalMacro,
+  portionsToGrams,
+  ratesFromAbsolute,
+  scaleFromPer100g,
+  totalFromPortion,
+} from '@/shared/lib/macroScaling'
+import { parseNumberInput } from '@/shared/lib/parseNumberInput'
+import { rankBySearchMatch } from '@/shared/lib/searchRank'
+import { cn } from '@/shared/lib/utils'
+import { useOnlineStatus } from '@/shared/hooks'
+import {
+  useFoodOverrideStore,
+  useMealItemStore,
+  useRecipeStore,
+} from '@/stores'
+import { IndexedDbMealItemRepository } from '@/infrastructure/persistence/indexeddb'
+import { Button } from '@/shared/ui/button'
+import { Dialog, DialogContent, DialogTitle } from '@/shared/ui/dialog'
+import { Input } from '@/shared/ui/input'
+import { LogRecipeDialog } from '@/features/recipes'
+import { BarcodeScannerDialog } from './BarcodeScannerDialog'
+import { EmotionPicker } from './EmotionPicker'
+import type { PickedFoodValues } from './FoodPickerDialog'
+import { lookupBarcode } from './lookupBarcode'
+import { MealItemEditorSheet } from './MealItemEditorSheet'
+import { RepeatMealDialog } from './RepeatMealDialog'
+
+// #256 — same "own repository instance, no shared store" pattern
+// MealList.tsx's own barcode-lookup instance already uses (read-only,
+// one-shot, no reactivity needed the way useMealItemStore's own `items`
+// list has).
+const mealItemRepositoryForBarcodeLookup = new IndexedDbMealItemRepository()
+
+// Every curated food's name in either locale — mirrors MealList.tsx's own
+// curatedFoodNames, needed here too since manual-entry/recipe-log items
+// route through the same onAppendItems callback MealList uses to decide
+// whether to touch the personal food-name library.
+const curatedFoodNames = new Set(foods.flatMap((food) => [food.en, food.ru]))
+
+type PickableItem =
+  | { source: 'food'; food: FoodItem }
+  | { source: 'mealItem'; mealItem: MealItem & { lastAmountKcal: number } }
+
+function itemKey(item: PickableItem): string {
+  return item.source === 'food' ? `food-${item.food.id}` : `meal-${item.mealItem.id}`
+}
+
+// #264 — a curated food has no "last used" quantity of its own, so 100g
+// (its per-100g reference amount) is the sensible default; a personal item
+// defaults to its own last-logged amount. Same logic as FoodPickerDialog's
+// own defaultQuantityFor — duplicated rather than shared, since sharing it
+// would mean threading FoodPickerDialog's other component-scoped state
+// through as parameters too, for one small pure function; FoodPickerDialog
+// itself is untouched (it's still the "Find food" flow for editing an
+// already-existing meal, out of #454's scope).
+function defaultQuantityFor(item: PickableItem): string {
+  if (item.source === 'mealItem' && item.mealItem.lastAmountG !== undefined) {
+    return String(item.mealItem.lastAmountG)
+  }
+  return '100'
+}
+
+function blankManualDraft() {
+  return {
+    name: '',
+    brand: '',
+    amount: '',
+    protein: '',
+    fat: '',
+    carbs: '',
+    fiber: '',
+    note: '',
+    amountG: '1',
+    macroMode: 'per100g' as 'per100g' | 'perPortion',
+    emotion: undefined as MealEmotion | undefined,
+    favorite: false,
+  }
+}
+
+export interface AddMealDialogProps {
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  /** Position-derived default, or the previous meal's own custom label —
+   * computed by `MealList.tsx` exactly as it already does for the heading
+   * above the old add-row (`effectiveMealLabel`/`defaultMealLabel`). */
+  mealLabel: string
+  timeEaten: string
+  onTimeEatenChange: (value: string) => void
+  /** The whole meal's own shared note (distinct from a per-item `noteText`,
+   * #454 restoring what the pre-redesign add-row already had — dropped by
+   * accident during the rewrite, since the mockup this issue was based on
+   * didn't show one, but it's still fully editable once a meal is already
+   * saved, so a brand-new meal needs the same capability at creation time. */
+  note: string
+  onNoteChange: (value: string) => void
+  /** Yesterday's meal at this same position, if any — powers "Repeat
+   * yesterday's [meal]". Undefined hides that quick action entirely. */
+  previousMeal?: { label?: string; items: CalorieItem[] }
+  /** The in-progress meal's own items, live from `MealList` — this dialog
+   * stays open across multiple adds (#454), so this list grows in place
+   * rather than being local, uncommitted state. */
+  items: CalorieItem[]
+  reaction: Emotion | undefined
+  onReactionChange: (reaction: Emotion | undefined) => void
+  onAppendItems: (items: CalorieItem[]) => void
+  onRemoveItem: (itemId: string) => void
+  todayTotals?: {
+    kcal: number
+    proteinG: number
+    fatG: number
+    carbsG: number
+  }
+  dailyCalorieTargetKcal?: number
+}
+
+/**
+ * #454 — the "add a meal" flow, redesigned from an inline accordion into a
+ * dedicated full-screen flyout: search (with barcode scan folded into the
+ * input itself) + a Recent list + Repeat/recipe/manual-entry quick actions,
+ * all appending straight into the *same* in-progress meal (`items`, `date`'s
+ * own `CalorieEntry` tracked by `MealList`) so the flyout can stay open
+ * across several single-dish adds instead of closing after each one.
+ * `FoodPickerDialog.tsx` (still used for editing an already-existing meal,
+ * out of scope here) is untouched — this duplicates its ranking/quantity
+ * logic rather than sharing it, a deliberate tradeoff to avoid risking a
+ * regression in that still-active, more heavily-tested flow.
+ */
+export function AddMealDialog({
+  open,
+  onOpenChange,
+  mealLabel,
+  timeEaten,
+  onTimeEatenChange,
+  note,
+  onNoteChange,
+  previousMeal,
+  items,
+  reaction,
+  onReactionChange,
+  onAppendItems,
+  onRemoveItem,
+  todayTotals,
+  dailyCalorieTargetKcal,
+}: AddMealDialogProps) {
+  const t = useTranslation()
+  const locale = useLocale()
+  const isOnline = useOnlineStatus()
+
+  const mealItems = useMealItemStore((state) => state.items)
+  const touchMealItem = useMealItemStore((state) => state.touch)
+  const recipes = useRecipeStore((state) => state.recipes)
+  const loadRecipes = useRecipeStore((state) => state.loadRecipes)
+  const foodOverrides = useFoodOverrideStore((state) => state.overrides)
+  const loadFoodOverrides = useFoodOverrideStore((state) => state.loadOverrides)
+  const setFoodFavorite = useFoodOverrideStore((state) => state.setFavorite)
+  const toggleMealItemFavorite = useMealItemStore((state) => state.toggleFavorite)
+  // This dialog is only mounted while open (lazy-mounted, same pattern
+  // FoodPickerDialog/BarcodeScannerDialog already use), so both stores get
+  // loaded fresh each time it opens — cheap, and simpler than threading a
+  // "has this already loaded elsewhere" flag through from MealList, which
+  // no longer loads either of these itself now that this dialog owns the
+  // whole "add a meal" flow.
+  useEffect(() => {
+    loadRecipes()
+    loadFoodOverrides()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  const [search, setSearch] = useState('')
+  // The item currently being quantity-confirmed — null shows the main
+  // search/recent/quick-actions view instead (#454's single-tap-then-
+  // return-to-search shape, replacing FoodPickerDialog's check-many-then-
+  // confirm-once model).
+  const [activeItem, setActiveItem] = useState<PickableItem | null>(null)
+  const [quantity, setQuantity] = useState('100')
+  const [servingMode, setServingMode] = useState('grams')
+  const [servingCount, setServingCount] = useState('1')
+  // Per-dish reaction (#129) — unchanged concept, just entered at the same
+  // confirm-quantity step a search/barcode pick already goes through.
+  const [itemEmotion, setItemEmotion] = useState<MealEmotion | undefined>(
+    undefined,
+  )
+
+  const [isRepeatOpen, setIsRepeatOpen] = useState(false)
+  const [isRecipeOpen, setIsRecipeOpen] = useState(false)
+  const [isBarcodeOpen, setIsBarcodeOpen] = useState(false)
+  const [isManualOpen, setIsManualOpen] = useState(false)
+  const [manualDraft, setManualDraft] = useState(blankManualDraft)
+  const [barcodeNotFoundMessage, setBarcodeNotFoundMessage] = useState(false)
+
+  function touchIfPersonal(item: CalorieItem) {
+    if (item.name && !curatedFoodNames.has(item.name)) {
+      touchMealItem(item.name, {
+        amountKcal: item.amountKcal,
+        proteinG: item.proteinG,
+        fatG: item.fatG,
+        carbsG: item.carbsG,
+        fiberG: item.fiberG,
+        amountG: item.amountG,
+      })
+    }
+  }
+
+  function resetActiveItem() {
+    setActiveItem(null)
+    setQuantity('100')
+    setServingMode('grams')
+    setServingCount('1')
+    setItemEmotion(undefined)
+  }
+
+  const visibleFoods = applyFoodOverrides(foods, foodOverrides)
+  const allMealItems: PickableItem[] = mealItems
+    .filter(
+      (item): item is MealItem & { lastAmountKcal: number } =>
+        item.lastAmountKcal !== undefined,
+    )
+    .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))
+    .map((mealItem) => ({ source: 'mealItem', mealItem }))
+  const allFoods: PickableItem[] = visibleFoods.map((food) => ({
+    source: 'food',
+    food,
+  }))
+  const allItems = [...allMealItems, ...allFoods]
+
+  const textFor = (item: PickableItem) =>
+    item.source === 'food' ? item.food[locale] : item.mealItem.name
+
+  function isFavorite(item: PickableItem): boolean {
+    if (item.source === 'mealItem') return item.mealItem.favorite === true
+    return (
+      foodOverrides.find((override) => override.foodId === item.food.id)
+        ?.favorite === true
+    )
+  }
+  function sortFavoritesFirst(list: PickableItem[]): PickableItem[] {
+    return [...list].sort(
+      (a, b) => Number(isFavorite(b)) - Number(isFavorite(a)),
+    )
+  }
+  function handleToggleFavorite(item: PickableItem) {
+    if (item.source === 'mealItem') toggleMealItemFavorite(item.mealItem.id)
+    else setFoodFavorite(item.food.id, !isFavorite(item))
+  }
+
+  const query = search.trim().toLowerCase()
+  // "Recent" (#454) — the personal library's own most-recently-touched
+  // items, capped short, shown only while the search box is empty; typing
+  // anything switches straight to ranked search across the full catalog.
+  const RECENT_COUNT = 5
+  const recentItems = allMealItems.slice(0, RECENT_COUNT)
+  const matches = query
+    ? sortFavoritesFirst(
+        rankBySearchMatch(
+          allItems.filter((item) => textFor(item).toLowerCase().includes(query)),
+          query,
+          textFor,
+        ),
+      )
+    : []
+
+  function activeServingFor(item: PickableItem): FoodServing | undefined {
+    if (item.source !== 'food' || servingMode === 'grams') return undefined
+    return item.food.servings?.[Number(servingMode)]
+  }
+  function gramsFor(item: PickableItem): number {
+    const serving = activeServingFor(item)
+    if (serving) {
+      const countNum = parseNumberInput(servingCount)
+      const count = countNum && countNum > 0 ? countNum : 1
+      return serving.grams * count
+    }
+    const quantityNum = parseNumberInput(quantity)
+    return quantityNum && quantityNum > 0 ? quantityNum : 100
+  }
+  function hasValidQuantity(item: PickableItem): boolean {
+    const serving = activeServingFor(item)
+    if (serving) {
+      const num = parseNumberInput(servingCount)
+      return num !== undefined && num > 0
+    }
+    const num = parseNumberInput(quantity)
+    return num !== undefined && num > 0
+  }
+  function scaledValuesFor(item: PickableItem): Omit<PickedFoodValues, 'emotion'> {
+    const grams = gramsFor(item)
+    const scale = grams / 100
+    if (item.source === 'food') {
+      const { food } = item
+      return {
+        amountKcal: Math.round(food.kcal100 * scale),
+        proteinG: Math.round(food.protein100 * scale * 10) / 10,
+        fatG: Math.round(food.fat100 * scale * 10) / 10,
+        carbsG: Math.round(food.carbs100 * scale * 10) / 10,
+        fiberG:
+          food.fiber100 === undefined
+            ? undefined
+            : Math.round(food.fiber100 * scale * 10) / 10,
+        note: food[locale],
+        amountG: grams,
+      }
+    }
+    const { mealItem } = item
+    const rates = ratesFromAbsolute(
+      mealItem.lastAmountKcal,
+      mealItem.lastProteinG,
+      mealItem.lastFatG,
+      mealItem.lastCarbsG,
+      mealItem.lastAmountG,
+      mealItem.lastFiberG,
+    )
+    return {
+      amountKcal: Math.round(rates.kcal100 * scale),
+      proteinG:
+        rates.protein100 === undefined
+          ? 0
+          : Math.round(rates.protein100 * scale * 10) / 10,
+      fatG:
+        rates.fat100 === undefined
+          ? 0
+          : Math.round(rates.fat100 * scale * 10) / 10,
+      carbsG:
+        rates.carbs100 === undefined
+          ? 0
+          : Math.round(rates.carbs100 * scale * 10) / 10,
+      fiberG:
+        rates.fiber100 === undefined
+          ? undefined
+          : Math.round(rates.fiber100 * scale * 10) / 10,
+      note: mealItem.name,
+      amountG: grams,
+    }
+  }
+
+  function confirmActiveItem() {
+    if (!activeItem || !hasValidQuantity(activeItem)) return
+    const scaled = scaledValuesFor(activeItem)
+    const newItem: CalorieItem = {
+      id: crypto.randomUUID(),
+      name: scaled.note,
+      amountKcal: scaled.amountKcal,
+      proteinG: scaled.proteinG,
+      fatG: scaled.fatG,
+      carbsG: scaled.carbsG,
+      fiberG: scaled.fiberG,
+      amountG: scaled.amountG,
+      emotion: itemEmotion,
+    }
+    onAppendItems([newItem])
+    touchIfPersonal(newItem)
+    setSearch('')
+    resetActiveItem()
+  }
+
+  // #256 — resolves a scan straight to the same quantity-confirm step a
+  // search pick uses (a scan already found a real food), rather than
+  // #454's predecessor behavior of prefilling the manual-entry sheet.
+  async function handleScanned(barcode: string) {
+    const result = await lookupBarcode(
+      barcode,
+      mealItemRepositoryForBarcodeLookup,
+      isOnline,
+    )
+    setBarcodeNotFoundMessage(false)
+    if (result.source === 'local') {
+      setActiveItem({
+        source: 'mealItem',
+        mealItem: result.item as MealItem & { lastAmountKcal: number },
+      })
+      setQuantity(defaultQuantityFor({ source: 'mealItem', mealItem: result.item as MealItem & { lastAmountKcal: number } }))
+    } else if (result.source === 'openFoodFacts') {
+      // Not a catalog/personal-library item yet — represented as a
+      // one-off synthetic food so the same confirm-quantity step (which
+      // only knows about PickableItem) can still handle it.
+      const syntheticFood: FoodItem = {
+        id: `off-${barcode}`,
+        en: result.name,
+        ru: result.name,
+        kcal100: result.kcal100,
+        protein100: result.protein100 ?? 0,
+        fat100: result.fat100 ?? 0,
+        carbs100: result.carbs100 ?? 0,
+      }
+      setActiveItem({ source: 'food', food: syntheticFood })
+      setQuantity('100')
+    } else {
+      setBarcodeNotFoundMessage(true)
+      setIsManualOpen(true)
+    }
+  }
+
+  // Converts the already-typed values across the per-100g/per-portion
+  // toggle (#111) instead of leaving them as-is under the new
+  // interpretation — same conversion math MealList.tsx's own
+  // updateEditItemMode() already uses for an existing item's edit sheet,
+  // ported here since manual entry lost it in the #454 rewrite (a real
+  // regression: switching modes used to recompute the total/rate, now it
+  // silently didn't).
+  function changeManualDraftMode(newMode: 'per100g' | 'perPortion') {
+    setManualDraft((draft) => {
+      if (draft.macroMode === newMode) return draft
+      const amountNum = parseNumberInput(draft.amount)
+      if (!amountNum || amountNum <= 0) return { ...draft, macroMode: newMode }
+      if (newMode === 'perPortion') {
+        const scaled = scaleFromPer100g(
+          amountNum,
+          parseOptionalMacro(draft.protein),
+          parseOptionalMacro(draft.fat),
+          parseOptionalMacro(draft.carbs),
+          draft.amountG,
+          parseOptionalMacro(draft.fiber),
+        )
+        return {
+          ...draft,
+          amount: String(scaled.amountKcal),
+          protein: scaled.proteinG === undefined ? '' : String(scaled.proteinG),
+          fat: scaled.fatG === undefined ? '' : String(scaled.fatG),
+          carbs: scaled.carbsG === undefined ? '' : String(scaled.carbsG),
+          fiber: scaled.fiberG === undefined ? '' : String(scaled.fiberG),
+          macroMode: newMode,
+        }
+      }
+      const rates = ratesFromAbsolute(
+        amountNum,
+        parseOptionalMacro(draft.protein),
+        parseOptionalMacro(draft.fat),
+        parseOptionalMacro(draft.carbs),
+        portionsToGrams(draft.amountG),
+        parseOptionalMacro(draft.fiber),
+      )
+      return {
+        ...draft,
+        amount: String(rates.kcal100),
+        protein: rates.protein100 === undefined ? '' : String(rates.protein100),
+        fat: rates.fat100 === undefined ? '' : String(rates.fat100),
+        carbs: rates.carbs100 === undefined ? '' : String(rates.carbs100),
+        fiber: rates.fiber100 === undefined ? '' : String(rates.fiber100),
+        amountG: String(rates.portions),
+        macroMode: newMode,
+      }
+    })
+  }
+
+  function saveManualDraft() {
+    const amountNum = parseNumberInput(manualDraft.amount)
+    if (!amountNum || amountNum <= 0) return
+    // Same per-100g-rate-x-portions vs. typed-total-directly scaling
+    // MealList.tsx's own draftsToItems() uses for the identical
+    // EditItemDraft shape — manualDraft.amountG is a *portion count*
+    // ('1' = 100g), not raw grams, same #140 convention every other
+    // per-100g field in this app already follows.
+    const scaled =
+      manualDraft.macroMode === 'per100g'
+        ? scaleFromPer100g(
+            amountNum,
+            parseOptionalMacro(manualDraft.protein),
+            parseOptionalMacro(manualDraft.fat),
+            parseOptionalMacro(manualDraft.carbs),
+            manualDraft.amountG,
+            parseOptionalMacro(manualDraft.fiber),
+          )
+        : totalFromPortion(
+            amountNum,
+            parseOptionalMacro(manualDraft.protein),
+            parseOptionalMacro(manualDraft.fat),
+            parseOptionalMacro(manualDraft.carbs),
+            manualDraft.amountG,
+            parseOptionalMacro(manualDraft.fiber),
+          )
+    const newItem: CalorieItem = {
+      id: crypto.randomUUID(),
+      name: manualDraft.name.trim() || undefined,
+      brand: manualDraft.brand.trim() || undefined,
+      ...scaled,
+      emotion: manualDraft.emotion,
+      noteText: manualDraft.note.trim() || undefined,
+    }
+    onAppendItems([newItem])
+    // A single touchMealItem call, not touchIfPersonal *and* this — calling
+    // both raced two writes to the personal library's unique `name` index
+    // for the same dish (confirmed via a real ConstraintError under test).
+    if (newItem.name && !curatedFoodNames.has(newItem.name)) {
+      touchMealItem(
+        newItem.name,
+        {
+          amountKcal: newItem.amountKcal,
+          proteinG: newItem.proteinG,
+          fatG: newItem.fatG,
+          carbsG: newItem.carbsG,
+          fiberG: newItem.fiberG,
+          amountG: newItem.amountG,
+        },
+        manualDraft.favorite || undefined,
+      )
+    }
+    setManualDraft(blankManualDraft())
+    setIsManualOpen(false)
+  }
+
+  function handleRepeatConfirm(selected: CalorieItem[]) {
+    if (selected.length === 0) return
+    const cloned = selected.map((item) => ({
+      ...item,
+      id: crypto.randomUUID(),
+      emotion: undefined,
+    }))
+    onAppendItems(cloned)
+    for (const item of cloned) touchIfPersonal(item)
+    setIsRepeatOpen(false)
+  }
+
+  function handleRecipeLog(values: PickedFoodValues[]) {
+    const newItems: CalorieItem[] = values.map((value) => ({
+      id: crypto.randomUUID(),
+      name: value.note,
+      amountKcal: value.amountKcal,
+      proteinG: value.proteinG,
+      fatG: value.fatG,
+      carbsG: value.carbsG,
+      fiberG: value.fiberG,
+      amountG: value.amountG,
+      emotion: value.emotion,
+    }))
+    onAppendItems(newItems)
+    setIsRecipeOpen(false)
+  }
+
+  const totalsSoFar = items.reduce(
+    (sum, item) => ({
+      kcal: sum.kcal + item.amountKcal,
+      proteinG: sum.proteinG + (item.proteinG ?? 0),
+      fatG: sum.fatG + (item.fatG ?? 0),
+      carbsG: sum.carbsG + (item.carbsG ?? 0),
+    }),
+    { kcal: 0, proteinG: 0, fatG: 0, carbsG: 0 },
+  )
+  const todayTotalPreview = todayTotals
+    ? t.dailyEntry.todayWouldBeLabel(
+        `${formatNumber(todayTotals.kcal + totalsSoFar.kcal, locale, 0)} ${t.dailyEntry.kcalUnit}`,
+        `${formatNumber(todayTotals.kcal, locale, 0)} ${t.dailyEntry.kcalUnit}`,
+      )
+    : null
+  const todayRemainingPreview =
+    todayTotals !== undefined && dailyCalorieTargetKcal !== undefined
+      ? t.dailyEntry.todayRemainingWouldBeLabel(
+          formatKcal(
+            dailyCalorieTargetKcal - (todayTotals.kcal + totalsSoFar.kcal),
+            locale,
+            t,
+          ),
+          formatKcal(dailyCalorieTargetKcal - todayTotals.kcal, locale, t),
+        )
+      : null
+
+  // #273/#278 — the confirm-quantity step's own "Today would be" preview,
+  // restored after being dropped in the #454 rewrite: FoodPickerDialog's
+  // old checked-but-not-yet-added state showed this (kcal *and* macros,
+  // #278), and this step is the direct replacement for that flow for a
+  // catalog/personal-library pick. Includes the active item's own
+  // prospective scaled values, on top of whatever's already confirmed.
+  const activeScaled = activeItem ? scaledValuesFor(activeItem) : null
+  const activeTodayTotalPreview =
+    activeScaled && todayTotals
+      ? t.dailyEntry.todayWouldBeLabel(
+          `${formatNumber(todayTotals.kcal + totalsSoFar.kcal + activeScaled.amountKcal, locale, 0)} ${t.dailyEntry.kcalUnit} · ${macrosSummaryTextCompact(
+            todayTotals.proteinG + totalsSoFar.proteinG + (activeScaled.proteinG ?? 0),
+            todayTotals.fatG + totalsSoFar.fatG + (activeScaled.fatG ?? 0),
+            todayTotals.carbsG + totalsSoFar.carbsG + (activeScaled.carbsG ?? 0),
+            locale,
+            t,
+          )}`,
+          `${formatNumber(todayTotals.kcal, locale, 0)} ${t.dailyEntry.kcalUnit} · ${macrosSummaryTextCompact(
+            todayTotals.proteinG,
+            todayTotals.fatG,
+            todayTotals.carbsG,
+            locale,
+            t,
+          )}`,
+        )
+      : null
+  const activeTodayRemainingPreview =
+    activeScaled && todayTotals !== undefined && dailyCalorieTargetKcal !== undefined
+      ? t.dailyEntry.todayRemainingWouldBeLabel(
+          formatKcal(
+            dailyCalorieTargetKcal -
+              (todayTotals.kcal + totalsSoFar.kcal + activeScaled.amountKcal),
+            locale,
+            t,
+          ),
+          formatKcal(dailyCalorieTargetKcal - todayTotals.kcal, locale, t),
+        )
+      : null
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent size="fullscreen" closeLabel={t.dailyEntry.closeFoodDialogLabel}>
+        <div className="flex items-center justify-between gap-2 pr-8">
+          <DialogTitle>{mealLabel}</DialogTitle>
+          <div className="flex items-center gap-1">
+            <Input
+              type="time"
+              aria-label={t.dailyEntry.timeEatenLabel}
+              value={timeEaten}
+              onChange={(e) => onTimeEatenChange(e.target.value)}
+              className="h-9 w-24"
+            />
+            {/* App-level clear button (#117) — restored after being
+             * dropped in the #454 rewrite; the native time picker's own
+             * Reset control isn't reliable enough to depend on alone. */}
+            {timeEaten && (
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon-sm"
+                aria-label={t.dailyEntry.clearTimeLabel}
+                onClick={() => onTimeEatenChange('')}
+              >
+                <X aria-hidden="true" className="size-3.5" />
+              </Button>
+            )}
+          </div>
+        </div>
+        <Input
+          type="text"
+          aria-label={t.dailyEntry.mealNoteLabel}
+          placeholder={t.dailyEntry.mealNotePlaceholder}
+          value={note}
+          onChange={(e) => onNoteChange(e.target.value)}
+          className="mt-2 h-10 text-sm"
+        />
+
+        {activeItem ? (
+          <div className="mt-3 flex flex-col gap-3">
+            <p className="text-sm font-medium">{textFor(activeItem)}</p>
+            {activeItem.source === 'food' &&
+              activeItem.food.servings &&
+              activeItem.food.servings.length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                  <Button
+                    type="button"
+                    variant={servingMode === 'grams' ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => setServingMode('grams')}
+                  >
+                    {t.dailyEntry.gramsModeOption}
+                  </Button>
+                  {activeItem.food.servings.map((serving, index) => (
+                    <Button
+                      type="button"
+                      key={index}
+                      variant={
+                        servingMode === String(index) ? 'default' : 'outline'
+                      }
+                      size="sm"
+                      onClick={() => setServingMode(String(index))}
+                    >
+                      {serving[locale]}
+                    </Button>
+                  ))}
+                </div>
+              )}
+            {activeServingFor(activeItem) ? (
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-muted-foreground">
+                  {t.dailyEntry.servingCountLabel}
+                </span>
+                <Input
+                  type="text"
+                  inputMode="decimal"
+                  aria-label={t.dailyEntry.servingCountLabel}
+                  value={servingCount}
+                  onChange={(e) => setServingCount(e.target.value)}
+                  className="h-10 w-20"
+                />
+              </div>
+            ) : (
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-muted-foreground">
+                  {t.dailyEntry.foodQuantityLabel}
+                </span>
+                <Input
+                  type="text"
+                  inputMode="decimal"
+                  aria-label={t.dailyEntry.foodQuantityLabel}
+                  value={quantity}
+                  onChange={(e) => setQuantity(e.target.value)}
+                  className="h-10 w-20"
+                />
+              </div>
+            )}
+            <div className="flex flex-col gap-1.5">
+              <span className="text-sm text-muted-foreground">
+                {t.dailyEntry.itemEmotionLabel}
+              </span>
+              <EmotionPicker
+                value={itemEmotion}
+                onChange={setItemEmotion}
+                options={MEAL_EMOTIONS}
+                labelFor={t.dailyEntry.mealEmotionLabel}
+                contextLabel={textFor(activeItem)}
+              />
+            </div>
+            {activeTodayTotalPreview && (
+              <p className="text-sm text-muted-foreground">
+                {activeTodayTotalPreview}
+              </p>
+            )}
+            {activeTodayRemainingPreview && (
+              <p className="text-sm text-muted-foreground">
+                {activeTodayRemainingPreview}
+              </p>
+            )}
+            <div className="flex gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                className="flex-1"
+                onClick={resetActiveItem}
+              >
+                {t.dailyEntry.cancelAddToMealLabel}
+              </Button>
+              <Button
+                type="button"
+                className="flex-1"
+                disabled={!hasValidQuantity(activeItem)}
+                onClick={confirmActiveItem}
+              >
+                {t.dailyEntry.addItemButton}
+              </Button>
+            </div>
+          </div>
+        ) : (
+          <div className="mt-3 flex flex-col gap-3">
+            {previousMeal && previousMeal.items.length > 0 && (
+              <Button
+                type="button"
+                variant="outline"
+                size="lg"
+                className="h-12 w-full text-base"
+                onClick={() => setIsRepeatOpen(true)}
+              >
+                {t.dailyEntry.repeatMealLabel(mealLabel)}
+              </Button>
+            )}
+            <div className="relative">
+              <Input
+                type="text"
+                aria-label={t.dailyEntry.foodSearchLabel}
+                placeholder={t.dailyEntry.foodSearchPlaceholder}
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="h-12 pr-11 text-base"
+              />
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon-sm"
+                aria-label={t.dailyEntry.scanBarcodeButton}
+                className="absolute top-1/2 right-1.5 -translate-y-1/2"
+                onClick={() => setIsBarcodeOpen(true)}
+              >
+                <ScanBarcode aria-hidden="true" />
+              </Button>
+            </div>
+
+            {query ? (
+              matches.length === 0 ? (
+                <div className="flex flex-col items-start gap-1.5">
+                  <p className="text-sm text-muted-foreground">
+                    {t.dailyEntry.noFoodResultsText}
+                  </p>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="self-start"
+                    onClick={() => setIsManualOpen(true)}
+                  >
+                    {t.dailyEntry.cantFindItAddManuallyLabel}
+                  </Button>
+                </div>
+              ) : (
+                <PickableItemList
+                  items={matches}
+                  textFor={textFor}
+                  isFavorite={isFavorite}
+                  onToggleFavorite={handleToggleFavorite}
+                  onPick={(item) => {
+                    setActiveItem(item)
+                    setQuantity(defaultQuantityFor(item))
+                  }}
+                  t={t}
+                  locale={locale}
+                />
+              )
+            ) : (
+              <>
+                {recentItems.length > 0 && (
+                  <div className="flex flex-col gap-1.5">
+                    <span className="text-sm font-medium text-muted-foreground">
+                      {t.dailyEntry.recentFoodsLabel}
+                    </span>
+                    <PickableItemList
+                      items={recentItems}
+                      textFor={textFor}
+                      isFavorite={isFavorite}
+                      onToggleFavorite={handleToggleFavorite}
+                      onPick={(item) => {
+                        setActiveItem(item)
+                        setQuantity(defaultQuantityFor(item))
+                      }}
+                      t={t}
+                      locale={locale}
+                    />
+                  </div>
+                )}
+                <div className="flex flex-wrap items-center gap-2">
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setIsManualOpen(true)}
+                  >
+                    {t.dailyEntry.cantFindItAddManuallyLabel}
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setIsRecipeOpen(true)}
+                  >
+                    <ChefHat aria-hidden="true" />
+                    {t.recipes.logRecipeButton}
+                  </Button>
+                </div>
+              </>
+            )}
+
+            {items.length > 0 && (
+              <div className="flex flex-col gap-1.5 border-t border-border pt-3">
+                <span className="text-sm font-medium text-muted-foreground">
+                  {t.dailyEntry.mealSoFarLabel}
+                </span>
+                <ul className="flex flex-col gap-1">
+                  {items.map((item) => (
+                    <li
+                      key={item.id}
+                      className="flex items-center justify-between gap-2 text-sm"
+                    >
+                      <span>{item.name || t.dailyEntry.itemNamePlaceholder}</span>
+                      <span className="flex items-center gap-2 text-muted-foreground">
+                        {formatNumber(item.amountKcal, locale, 0)}{' '}
+                        {t.dailyEntry.kcalUnit}
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon-sm"
+                          aria-label={t.dailyEntry.deleteItemLabel}
+                          onClick={() => onRemoveItem(item.id)}
+                        >
+                          <Trash2 aria-hidden="true" />
+                        </Button>
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+                {todayTotalPreview && (
+                  <p className="text-sm text-muted-foreground">
+                    {todayTotalPreview}
+                  </p>
+                )}
+                {todayRemainingPreview && (
+                  <p className="text-sm text-muted-foreground">
+                    {todayRemainingPreview}
+                  </p>
+                )}
+                <div className="flex flex-col gap-1.5 pt-1.5">
+                  <span className="text-sm text-muted-foreground">
+                    {t.dailyEntry.wasItTastyLabel}
+                  </span>
+                  <EmotionPicker
+                    value={reaction}
+                    onChange={onReactionChange}
+                    options={DAY_EMOTIONS}
+                    labelFor={t.dailyEntry.emotionLabel}
+                    contextLabel={mealLabel}
+                  />
+                </div>
+                <Button type="button" onClick={() => onOpenChange(false)}>
+                  {t.dailyEntry.doneAddingMealButton}
+                </Button>
+              </div>
+            )}
+          </div>
+        )}
+
+        {isRepeatOpen && previousMeal && (
+          <RepeatMealDialog
+            open={isRepeatOpen}
+            onOpenChange={setIsRepeatOpen}
+            mealLabel={mealLabel}
+            items={previousMeal.items}
+            onConfirm={handleRepeatConfirm}
+          />
+        )}
+        {isRecipeOpen && (
+          <LogRecipeDialog
+            open={isRecipeOpen}
+            onOpenChange={setIsRecipeOpen}
+            recipes={recipes}
+            onLog={handleRecipeLog}
+          />
+        )}
+        {isBarcodeOpen && (
+          <BarcodeScannerDialog
+            open={isBarcodeOpen}
+            onOpenChange={setIsBarcodeOpen}
+            onScanned={handleScanned}
+          />
+        )}
+        <MealItemEditorSheet
+          open={isManualOpen}
+          onOpenChange={(next) => {
+            setIsManualOpen(next)
+            if (!next) {
+              setManualDraft(blankManualDraft())
+              setBarcodeNotFoundMessage(false)
+            }
+          }}
+          title={t.dailyEntry.addItemSheetTitle}
+          name={manualDraft.name}
+          onNameChange={(value) =>
+            setManualDraft((draft) => ({ ...draft, name: value }))
+          }
+          brand={manualDraft.brand}
+          onBrandChange={(value) =>
+            setManualDraft((draft) => ({ ...draft, brand: value }))
+          }
+          amount={manualDraft.amount}
+          onAmountChange={(value) =>
+            setManualDraft((draft) => ({ ...draft, amount: value }))
+          }
+          protein={manualDraft.protein}
+          onProteinChange={(value) =>
+            setManualDraft((draft) => ({ ...draft, protein: value }))
+          }
+          fat={manualDraft.fat}
+          onFatChange={(value) =>
+            setManualDraft((draft) => ({ ...draft, fat: value }))
+          }
+          carbs={manualDraft.carbs}
+          onCarbsChange={(value) =>
+            setManualDraft((draft) => ({ ...draft, carbs: value }))
+          }
+          fiber={manualDraft.fiber}
+          onFiberChange={(value) =>
+            setManualDraft((draft) => ({ ...draft, fiber: value }))
+          }
+          note={manualDraft.note}
+          onNoteChange={(value) =>
+            setManualDraft((draft) => ({ ...draft, note: value }))
+          }
+          amountG={manualDraft.amountG}
+          onAmountGChange={(value) =>
+            setManualDraft((draft) => ({ ...draft, amountG: value }))
+          }
+          macroMode={manualDraft.macroMode}
+          onMacroModeChange={changeManualDraftMode}
+          mealItems={mealItems}
+          onSelectMealItem={(item) => {
+            if (item.lastAmountKcal === undefined) return
+            const rates = ratesFromAbsolute(
+              item.lastAmountKcal,
+              item.lastProteinG,
+              item.lastFatG,
+              item.lastCarbsG,
+              item.lastAmountG,
+              item.lastFiberG,
+            )
+            setManualDraft((draft) => ({
+              ...draft,
+              amount: String(rates.kcal100),
+              protein:
+                rates.protein100 === undefined ? '' : String(rates.protein100),
+              fat: rates.fat100 === undefined ? '' : String(rates.fat100),
+              carbs: rates.carbs100 === undefined ? '' : String(rates.carbs100),
+              fiber: rates.fiber100 === undefined ? '' : String(rates.fiber100),
+              amountG: String(rates.portions),
+            }))
+          }}
+          emotion={manualDraft.emotion}
+          onEmotionChange={(value) =>
+            setManualDraft((draft) => ({ ...draft, emotion: value }))
+          }
+          favorite={manualDraft.favorite}
+          onFavoriteChange={(value) =>
+            setManualDraft((draft) => ({ ...draft, favorite: value }))
+          }
+          todayTotalPreview={todayTotalPreview ?? undefined}
+          todayRemainingPreview={todayRemainingPreview ?? undefined}
+          infoMessage={
+            barcodeNotFoundMessage
+              ? t.dailyEntry.noFoodFoundForBarcodeMessage
+              : undefined
+          }
+          onSave={saveManualDraft}
+        />
+      </DialogContent>
+    </Dialog>
+  )
+}
+
+function PickableItemList({
+  items,
+  textFor,
+  isFavorite,
+  onToggleFavorite,
+  onPick,
+  t,
+  locale,
+}: {
+  items: PickableItem[]
+  textFor: (item: PickableItem) => string
+  isFavorite: (item: PickableItem) => boolean
+  onToggleFavorite: (item: PickableItem) => void
+  onPick: (item: PickableItem) => void
+  t: ReturnType<typeof useTranslation>
+  locale: ReturnType<typeof useLocale>
+}) {
+  return (
+    <ul className="flex max-h-72 flex-col overflow-y-auto rounded-lg border border-border">
+      {items.map((item) => (
+        <li key={itemKey(item)} className="flex items-stretch">
+          <button
+            type="button"
+            className="flex w-full min-w-0 items-start gap-2 px-2.5 py-1.5 text-left text-sm hover:bg-muted"
+            onClick={() => onPick(item)}
+          >
+            <span className="flex flex-col">
+              {item.source === 'food' ? (
+                <>
+                  <span>{item.food[locale]}</span>
+                  <span className="text-xs font-normal text-muted-foreground">
+                    {formatNumber(item.food.kcal100, locale, 0)}{' '}
+                    {t.dailyEntry.kcalUnit} {t.dailyEntry.per100gLabel} ·{' '}
+                    {macrosSummaryTextCompact(
+                      item.food.protein100,
+                      item.food.fat100,
+                      item.food.carbs100,
+                      locale,
+                      t,
+                    )}
+                  </span>
+                </>
+              ) : (
+                <>
+                  <span>{item.mealItem.name}</span>
+                  <span className="text-xs font-normal text-muted-foreground">
+                    {formatNumber(item.mealItem.lastAmountKcal, locale, 0)}{' '}
+                    {t.dailyEntry.kcalUnit} {t.dailyEntry.lastLoggedLabel} ·{' '}
+                    {macrosSummaryTextCompact(
+                      item.mealItem.lastProteinG,
+                      item.mealItem.lastFatG,
+                      item.mealItem.lastCarbsG,
+                      locale,
+                      t,
+                    )}
+                  </span>
+                </>
+              )}
+            </span>
+          </button>
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon-sm"
+            className="mr-1 shrink-0 self-center"
+            aria-label={
+              isFavorite(item)
+                ? t.dailyEntry.unfavoriteFoodLabel(textFor(item))
+                : t.dailyEntry.favoriteFoodLabel(textFor(item))
+            }
+            aria-pressed={isFavorite(item)}
+            onClick={() => onToggleFavorite(item)}
+          >
+            <Star
+              aria-hidden="true"
+              className={cn(isFavorite(item) && 'fill-current')}
+            />
+          </Button>
+        </li>
+      ))}
+    </ul>
+  )
+}

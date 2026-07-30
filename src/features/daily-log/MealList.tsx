@@ -17,21 +17,14 @@ import {
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { addDays, format, parseISO, subDays } from 'date-fns'
-import {
-  ChefHat,
-  Clock,
-  GripVertical,
-  Pencil,
-  ScanBarcode,
-  Trash2,
-  X,
-} from 'lucide-react'
+import { GripVertical, Pencil, ScanBarcode, Trash2, X } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { foods } from '@/data/foods'
 import type {
   CalorieEntry,
   CalorieItem,
   DailyEntry,
+  Emotion,
   MealEmotion,
 } from '@/domain/dailyEntry'
 import {
@@ -60,7 +53,6 @@ import {
 import { useOnlineStatus } from '@/shared/hooks'
 import { MEAL_EMOTIONS } from '@/shared/lib/emotionIcons'
 import {
-  formatKcal,
   formatMacroGrams,
   macrosSummaryText,
   macrosSummaryTextCompact,
@@ -79,21 +71,17 @@ import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/ui/button'
 import { Input } from '@/shared/ui/input'
 import {
-  useAddMealRowCollapseStore,
   useDayStartStore,
   useFastingWindowToastStore,
   useMealItemStore,
   useMealLabelPresetStore,
-  useRecipeStore,
 } from '@/stores'
-import { LogRecipeDialog } from '@/features/recipes'
+import { AddMealDialog } from './AddMealDialog'
 import { BarcodeScannerDialog } from './BarcodeScannerDialog'
 import { CopyDayMealsDialog } from './CopyDayMealsDialog'
 import { FoodPickerDialog, type PickedFoodValues } from './FoodPickerDialog'
 import { lookupBarcode } from './lookupBarcode'
-import { clearMealDraft, loadMealDraft, saveMealDraft } from './mealDraftStorage'
 import { MealItemEditorSheet } from './MealItemEditorSheet'
-import { RepeatMealDialog } from './RepeatMealDialog'
 
 // Every curated food's name in either locale (#150) — names an item picked
 // via FoodPickerDialog can carry, distinct from a name the user actually
@@ -183,29 +171,6 @@ function itemDraftFrom(item: CalorieItem): EditItemDraft {
     favorite: false,
     barcode: undefined,
   }
-}
-
-/** Everything the bottom "+ Add item" add-row holds before its meal group
- * is actually saved (#221) — persisted to localStorage so a page reload or
- * navigating away mid-typing doesn't lose it, unlike the rest of this
- * form's fields, which already commit immediately on their own Save. */
-interface AddRowDraft {
-  itemName: string
-  itemBrand: string
-  amount: string
-  protein: string
-  fat: string
-  carbs: string
-  fiber: string
-  itemNote: string
-  amountG: string
-  macroMode: 'per100g' | 'perPortion'
-  itemEmotion: MealEmotion | undefined
-  itemFavorite: boolean
-  itemBarcode: string | undefined
-  stagedItems: EditItemDraft[]
-  groupNote: string
-  time: string
 }
 
 function blankItemDraft(): EditItemDraft {
@@ -1141,191 +1106,39 @@ export function MealList({
     }
   }
 
-  // #221: whatever add-row draft survived from an earlier, interrupted
-  // session on this same date, if any — read once via a lazy initializer
-  // (this whole component remounts on date change, `key={date}` upstream,
-  // so there's no need to react to `date` changing after mount). Each
-  // add-* field below seeds from it instead of a blank default.
-  const [initialAddDraft] = useState(() => loadMealDraft<AddRowDraft>(date))
-
-  // These four describe the item currently being entered in the bottom Add
-  // row. #183: "Save and add one more" stages the current fields into
-  // addStagedItems (below) and resets these back to blank for the next
-  // dish, rather than committing a brand-new meal group per item — the
-  // final Save folds addStagedItems + these current fields into one group.
-  const [addAmount, setAddAmount] = useState(initialAddDraft?.amount ?? '')
-  const [addProtein, setAddProtein] = useState(initialAddDraft?.protein ?? '')
-  const [addFat, setAddFat] = useState(initialAddDraft?.fat ?? '')
-  const [addCarbs, setAddCarbs] = useState(initialAddDraft?.carbs ?? '')
-  const [addFiber, setAddFiber] = useState(initialAddDraft?.fiber ?? '')
-  // Per-dish free-text note (#344) — grouped with the other per-item draft
-  // fields above, same reasoning as addItemEmotion/addItemFavorite.
-  const [addNote, setAddNote] = useState(initialAddDraft?.itemNote ?? '')
-  const [addAmountG, setAddAmountG] = useState(initialAddDraft?.amountG ?? '1')
-  // Per 100g / Per portion entry mode (#111) — 'per100g' is the default,
-  // unchanged behavior. Switching modes converts the currently-typed
-  // numbers (via handleAddMacroModeChange below) rather than leaving them
-  // to be silently reinterpreted with a different meaning.
-  const [addMacroMode, setAddMacroMode] = useState<'per100g' | 'perPortion'>(
-    initialAddDraft?.macroMode ?? 'per100g',
-  )
-  const [addItemName, setAddItemName] = useState(initialAddDraft?.itemName ?? '')
-  const [addItemBrand, setAddItemBrand] = useState(
-    initialAddDraft?.itemBrand ?? '',
-  )
-  // This item's own reaction (#129) — moved from the meal group; grouped
-  // with the other per-item draft fields above, not the group-level ones
-  // below.
-  const [addItemEmotion, setAddItemEmotion] = useState<
-    MealEmotion | undefined
-  >(initialAddDraft?.itemEmotion)
-  // #279 — favorites this dish (via touchMealItem's favorite argument)
-  // the moment it's saved, grouped with the other per-item draft fields.
-  const [addItemFavorite, setAddItemFavorite] = useState(
-    initialAddDraft?.itemFavorite ?? false,
-  )
-  // #256 — set once a barcode scan resolves for this dish, so touchMealItem
-  // can record it at save time; not itself an editable field.
-  const [addItemBarcode, setAddItemBarcode] = useState<string | undefined>(
-    initialAddDraft?.itemBarcode,
-  )
-  const [isBarcodeScannerOpen, setIsBarcodeScannerOpen] = useState(false)
-  // Shown inside the item sheet when a scan comes up with no match
-  // anywhere (#256) — cleared on the next scan or once the sheet closes,
-  // not persisted, since it's just context for why the fields are blank.
-  const [barcodeNotFoundMessage, setBarcodeNotFoundMessage] = useState(false)
   const isOnline = useOnlineStatus()
-  // Dishes already committed via "Save and add one more" (#183) during
-  // this add-row session, waiting for the final Save to fold them (plus
-  // whatever's currently in the fields above) into one new meal group —
-  // same EditItemDraft shape and same flatMap-drops-invalid-rows handling
-  // (draftsToItems) as an existing meal's own editItems staging array.
-  const [addStagedItems, setAddStagedItems] = useState<EditItemDraft[]>(
-    initialAddDraft?.stagedItems ?? [],
-  )
-  // Group-level fields (#81) — note/time-eaten belong to the meal as a
-  // whole, not to any one item within it.
-  const [addGroupNote, setAddGroupNote] = useState(
-    initialAddDraft?.groupNote ?? '',
-  )
-  // Time eaten (#65) — defaults to "now" (#357, reversing #82's own
-  // "starts blank" decision, made specifically because a pre-filled value
-  // read as already-confirmed/correct and went unnoticed when it didn't
-  // match the meal's real time). Re-confirmed live rather than assumed:
-  // the clear (X) button next to the field (#117) still lets anyone blank
-  // it back out for a meal they genuinely want to log without a time,
-  // the same override that already existed before this reversal. Resets
-  // to a fresh "now" after each add, not blank, for the same reasoning.
-  const [addTime, setAddTime] = useState(
-    initialAddDraft?.time ?? currentTimeHHMM(),
-  )
-  // #221: persists the add-row draft on every change, and clears it once
-  // every draftable field is back to blank (either a successful addMeal()
-  // resets them, or the user manually cleared everything by hand) — rather
-  // than leaving a stale blob behind once there's nothing left to recover.
-  // addAmountG/addMacroMode/addTime are deliberately excluded from the
-  // blank check: they always carry a non-empty default ('1'/'per100g'/
-  // currentTimeHHMM(), the last one added by #357) even when nothing has
-  // actually been typed, so including them would prevent the all-blank
-  // case from ever being detected.
-  useEffect(() => {
-    const isBlank =
-      addStagedItems.length === 0 &&
-      addGroupNote === '' &&
-      addItemName === '' &&
-      addItemBrand === '' &&
-      addAmount === '' &&
-      addProtein === '' &&
-      addFat === '' &&
-      addCarbs === '' &&
-      addFiber === '' &&
-      addNote === '' &&
-      addItemEmotion === undefined &&
-      !addItemFavorite &&
-      addItemBarcode === undefined
-    if (isBlank) {
-      clearMealDraft(date)
-      return
-    }
-    saveMealDraft<AddRowDraft>(date, {
-      itemName: addItemName,
-      itemBrand: addItemBrand,
-      amount: addAmount,
-      protein: addProtein,
-      fat: addFat,
-      carbs: addCarbs,
-      fiber: addFiber,
-      itemNote: addNote,
-      amountG: addAmountG,
-      macroMode: addMacroMode,
-      itemEmotion: addItemEmotion,
-      itemFavorite: addItemFavorite,
-      itemBarcode: addItemBarcode,
-      stagedItems: addStagedItems,
-      groupNote: addGroupNote,
-      time: addTime,
-    })
-  }, [
-    date,
-    addItemName,
-    addItemBrand,
-    addAmount,
-    addProtein,
-    addFat,
-    addCarbs,
-    addFiber,
-    addNote,
-    addAmountG,
-    addMacroMode,
-    addItemEmotion,
-    addItemFavorite,
-    addItemBarcode,
-    addStagedItems,
-    addGroupNote,
-    addTime,
-  ])
-  // Quantity-based entry against the static food list (#62) — an alternative
-  // to manual kcal/macro entry, not a replacement for it.
-  const [isFoodPickerOpen, setIsFoodPickerOpen] = useState(false)
-  // #202: opens RepeatMealDialog's preview/selective-pick sheet instead of
-  // #190's original immediate one-tap commit.
-  const [isRepeatDialogOpen, setIsRepeatDialogOpen] = useState(false)
   // #253: whole-day sibling of the above — CopyDayMealsDialog's own
   // preview/selective-pick sheet, extended over every meal group in the
   // source day instead of just the one at this position.
   const [isCopyDayDialogOpen, setIsCopyDayDialogOpen] = useState(false)
-  // Full-screen item editor sheet (#122) — the add row's own instance,
-  // opened by its "+ Add item" trigger. Closing it (via Save or the X)
-  // never clears the underlying add-* state, so a half-filled draft
-  // survives reopening.
-  const [isAddItemSheetOpen, setIsAddItemSheetOpen] = useState(false)
-  // #201 (redesign of #199): past days default collapsed — no reason to
-  // expect new meals on an old day — derived straight from date
-  // comparison, not persisted (a past day's manual expansion is local to
-  // that viewing session and resets on the next remount, same simplicity
-  // #199 originally wanted). *Today* defaults expanded, but a manual
-  // collapse now actually persists across navigation via
-  // useAddMealRowCollapseStore, replacing #199's plain component state —
-  // that reset on any remount, not just a new day, which included ones
-  // that aren't a new day at all (a MealEditScreen round trip, switching
-  // tabs and back), reading as broken rather than intentional.
-  const isPastDay = date < format(new Date(), 'yyyy-MM-dd')
-  const [isPastDayExpanded, setIsPastDayExpanded] = useState(false)
-  const collapsedDateForToday = useAddMealRowCollapseStore(
-    (state) => state.collapsedDate,
-  )
-  const setCollapsedForToday = useAddMealRowCollapseStore(
-    (state) => state.setCollapsed,
-  )
-  const isAddRowCollapsed = isPastDay
-    ? !isPastDayExpanded
-    : collapsedDateForToday === date
-  function setIsAddRowCollapsed(collapsed: boolean) {
-    if (isPastDay) {
-      setIsPastDayExpanded(!collapsed)
-    } else {
-      setCollapsedForToday(date, collapsed)
-    }
+  // #454 — the whole "add a meal" flyout, replacing the old inline
+  // accordion (isAddRowCollapsed/the add-row's own draft-field cluster).
+  // `inProgressMealId` tracks which CalorieEntry the flyout is currently
+  // building: null until the *first* item this session is actually added,
+  // at which point a new entry is created and every subsequent add (search
+  // pick, barcode scan, Repeat, recipe, manual entry) appends to that same
+  // entry instead of creating a new one — the flyout stays open across
+  // several single-dish adds (resolved via `AskUserQuestion`) rather than
+  // closing after each one. `newMealPosition`/`newMealPreviousMeal` are
+  // captured once at the moment the flyout opens (openAddMealDialog below),
+  // not recomputed reactively — `calorieEntries.length` grows the instant
+  // the first item lands, which would otherwise drift `previousMeal`
+  // (keyed by position) to the *next* slot mid-session.
+  const [isAddMealDialogOpen, setIsAddMealDialogOpen] = useState(false)
+  const [inProgressMealId, setInProgressMealId] = useState<string | null>(null)
+  const [newMealTime, setNewMealTime] = useState(currentTimeHHMM())
+  const [newMealNote, setNewMealNote] = useState('')
+  const [newMealPosition, setNewMealPosition] = useState(1)
+  const [newMealPreviousMeal, setNewMealPreviousMeal] = useState<
+    CalorieEntry | undefined
+  >(undefined)
+  function openAddMealDialog() {
+    setInProgressMealId(null)
+    setNewMealTime(currentTimeHHMM())
+    setNewMealNote('')
+    setNewMealPosition(calorieEntries.length + 1)
+    setNewMealPreviousMeal(previousDayEntry?.calorieEntries?.[calorieEntries.length])
+    setIsAddMealDialogOpen(true)
   }
   // Dedicated single-meal edit route support (#157) — computed
   // unconditionally on every render (a cheap array find), but only its
@@ -1378,18 +1191,6 @@ export function MealList({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  // #251 — recipes, same "loaded once per mount" reasoning as mealItems
-  // above. Only wired into the bottom add-row (not existing-meal-edit), a
-  // deliberate v1 scope trim, same precedent #256 already set for barcode
-  // scanning.
-  const recipes = useRecipeStore((state) => state.recipes)
-  const loadRecipes = useRecipeStore((state) => state.loadRecipes)
-  useEffect(() => {
-    loadRecipes()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
-  const [isLogRecipeOpen, setIsLogRecipeOpen] = useState(false)
-
   // Fires onFocusedMealDone once editing the focused meal actually ends —
   // save, cancel, or delete all funnel through the same setEditingMealId
   // (null) call, so this only needs to watch that one piece of state
@@ -1406,177 +1207,109 @@ export function MealList({
     }
   }, [editingMealId, focusMealId, onFocusedMealDone])
 
-  // Starts a brand-new meal group with one item (#81) — the bottom Add row
-  // always creates a new group; adding another item to an *existing* group
-  // happens by opening it for edit (see the edit-item handlers below).
-  // Switching entry mode (#111) converts the currently-typed numbers so
-  // nothing is silently reinterpreted with a different meaning — e.g. a
-  // per-100g rate of 300 with a 50g quantity becomes an absolute total of
-  // 150 when switching to "per portion", not a total of 300.
-  function handleAddMacroModeChange(newMode: 'per100g' | 'perPortion') {
-    if (newMode === addMacroMode) return
-    const amountNum = parseNumberInput(addAmount)
-    if (amountNum && amountNum > 0) {
-      if (newMode === 'perPortion') {
-        const scaled = scaleFromPer100g(
-          amountNum,
-          parseOptionalMacro(addProtein),
-          parseOptionalMacro(addFat),
-          parseOptionalMacro(addCarbs),
-          addAmountG,
-          parseOptionalMacro(addFiber),
-        )
-        setAddAmount(String(scaled.amountKcal))
-        setAddProtein(
-          scaled.proteinG === undefined ? '' : String(scaled.proteinG),
-        )
-        setAddFat(scaled.fatG === undefined ? '' : String(scaled.fatG))
-        setAddCarbs(scaled.carbsG === undefined ? '' : String(scaled.carbsG))
-        setAddFiber(scaled.fiberG === undefined ? '' : String(scaled.fiberG))
-      } else {
-        const rates = ratesFromAbsolute(
-          amountNum,
-          parseOptionalMacro(addProtein),
-          parseOptionalMacro(addFat),
-          parseOptionalMacro(addCarbs),
-          portionsToGrams(addAmountG),
-          parseOptionalMacro(addFiber),
-        )
-        setAddAmount(String(rates.kcal100))
-        setAddProtein(
-          rates.protein100 === undefined ? '' : String(rates.protein100),
-        )
-        setAddFat(rates.fat100 === undefined ? '' : String(rates.fat100))
-        setAddCarbs(rates.carbs100 === undefined ? '' : String(rates.carbs100))
-        setAddFiber(
-          rates.fiber100 === undefined ? '' : String(rates.fiber100),
-        )
-        setAddAmountG(String(rates.portions))
-      }
+  // #454 — the in-progress meal `AddMealDialog` is currently building, if
+  // any (see inProgressMealId's own comment above for why the flyout stays
+  // open across several adds instead of closing after each one).
+  const inProgressMeal = calorieEntries.find(
+    (entry) => entry.id === inProgressMealId,
+  )
+
+  // Appends one or more items to the in-progress meal, creating it (a
+  // fresh CalorieEntry) on the *first* call this session and appending to
+  // that same entry's `items` on every subsequent call — same
+  // replace-items-for-this-id shape saveEditMeal() below already uses for
+  // an existing meal's own edit-mode Save, just applied to a freshly
+  // created id instead of a previously-saved one. `AddMealDialog` itself
+  // already handles touchMealItem for whichever of search/barcode/manual
+  // entry/Repeat/recipe produced these items, so this only owns the
+  // day's own `calorieEntries` array and the fasting-toast checks every
+  // other add path already runs.
+  function appendItemsToNewMeal(newItems: CalorieItem[]) {
+    if (newItems.length === 0) return
+    let nextEntries: CalorieEntry[]
+    if (
+      inProgressMealId &&
+      calorieEntries.some((entry) => entry.id === inProgressMealId)
+    ) {
+      nextEntries = calorieEntries.map((entry) =>
+        entry.id === inProgressMealId
+          ? { ...entry, items: [...entry.items, ...newItems] }
+          : entry,
+      )
+    } else {
+      const newId = crypto.randomUUID()
+      setInProgressMealId(newId)
+      nextEntries = [
+        ...calorieEntries,
+        {
+          id: newId,
+          items: newItems,
+          timeEaten: newMealTime || undefined,
+          note: newMealNote.trim() || undefined,
+          createdAt: new Date().toISOString(),
+        },
+      ]
     }
-    setAddMacroMode(newMode)
-  }
-
-  // Shared by addMeal()'s post-add reset, stageAddItem() (#183), and the
-  // "+ Add item" trigger's own clear button (#151) — just the per-item
-  // draft fields, not the meal-group-level note/time next to it.
-  function resetItemDraft() {
-    setAddAmount('')
-    setAddAmountG('1')
-    setAddProtein('')
-    setAddFat('')
-    setAddCarbs('')
-    setAddFiber('')
-    setAddNote('')
-    setAddMacroMode('per100g')
-    setAddItemName('')
-    setAddItemBrand('')
-    setAddItemEmotion(undefined)
-    setAddItemFavorite(false)
-    setAddItemBarcode(undefined)
-  }
-
-  // The add row's current fields as one draft, in the same shape staged
-  // items and an existing meal's editItems already use (#183) — lets
-  // addMeal()/stageAddItem() share draftsToItems() instead of duplicating
-  // the per-100g/per-portion scaling logic a third time.
-  function currentAddDraft(): EditItemDraft {
-    return {
-      id: crypto.randomUUID(),
-      name: addItemName,
-      brand: addItemBrand,
-      amount: addAmount,
-      protein: addProtein,
-      fat: addFat,
-      carbs: addCarbs,
-      fiber: addFiber,
-      note: addNote,
-      amountG: addAmountG,
-      macroMode: addMacroMode,
-      emotion: addItemEmotion,
-      favorite: addItemFavorite,
-      barcode: addItemBarcode,
-    }
-  }
-
-  // "Save and add one more" (#183) — commits the current fields as a
-  // staged dish (not yet a real meal) and clears them for the next one,
-  // keeping the group-level note/time and the sheet itself open. A blank
-  // draft (no valid amount) is simply not staged, matching MealItemEditor
-  // Sheet's own hasValidAmount disabled-button guard on this action.
-  function stageAddItem() {
-    const amountNum = parseNumberInput(addAmount)
-    if (!amountNum || amountNum <= 0) return
-    setAddStagedItems((items) => [...items, currentAddDraft()])
-    resetItemDraft()
-  }
-
-  // Folds every staged dish (#183) plus whatever's currently in the fields
-  // into one new meal group — same "invalid/blank rows drop out silently"
-  // handling as an existing meal's own saveEditMeal, via draftsToItems.
-  function addMeal() {
-    const drafts = [...addStagedItems, currentAddDraft()]
-    const items = draftsToItems(drafts)
-    if (items.length === 0) return
-    // #279 — favorite isn't a CalorieItem field, so look it up by draft id
-    // (draftsToItems preserves id: draft.id) rather than reading it off
-    // items. Only ever forces true (never false): itemDraftFrom always
-    // seeds an existing item's own draft with favorite: false regardless
-    // of its real stored status, so passing that straight through would
-    // silently un-favorite an already-favorited dish on every edit save
-    // where the star was simply never touched.
-    const favoriteById = new Map(
-      drafts.map((draft) => [draft.id, draft.favorite || undefined]),
-    )
-    // #256 — same "look up by draft id" reasoning as favoriteById above;
-    // barcode isn't a CalorieItem field either.
-    const barcodeById = new Map(drafts.map((draft) => [draft.id, draft.barcode]))
-    const nextEntries = [
-      ...calorieEntries,
-      {
-        id: crypto.randomUUID(),
-        items,
-        note: addGroupNote.trim() || undefined,
-        timeEaten: addTime || undefined,
-        createdAt: new Date().toISOString(),
-      },
-    ]
     void announceFastingWindowIfFirstMeal(nextEntries)
     void reconcileFastingWindowToastForPreviousDayEdit(nextEntries)
     setCalorieEntries(nextEntries)
-    for (const item of items) {
-      if (item.name) {
-        touchMealItem(
-          item.name,
-          {
-            amountKcal: item.amountKcal,
-            proteinG: item.proteinG,
-            fatG: item.fatG,
-            carbsG: item.carbsG,
-            fiberG: item.fiberG,
-            amountG: item.amountG,
-          },
-          favoriteById.get(item.id),
-          barcodeById.get(item.id),
-        )
-      }
-    }
-    setAddStagedItems([])
-    resetItemDraft()
-    setAddGroupNote('')
-    // #357: resets to "now" for the next new meal, not blank — matches the
-    // pre-filled default this field starts with, rather than reverting to
-    // the old always-blank behavior after the first save.
-    setAddTime(currentTimeHHMM())
   }
 
-  // #190: the previous day's meal at this same position, if any — "same
-  // position" because that's already how this app defines a meal's
-  // identity (#141's positional Breakfast/Lunch/Dinner/Snack defaults),
-  // not by matching label text. Only offered for the *next* meal about to
-  // be added (calorieEntries.length is that meal's 0-indexed position in
-  // both days' lists).
-  const previousMeal = previousDayEntry?.calorieEntries?.[calorieEntries.length]
+  // Lets the flyout's own "meal so far" list drop a mistakenly-added item
+  // without leaving the dialog — same "a group with its last item removed
+  // is itself removed" invariant CalorieEntry.items documents.
+  function removeItemFromNewMeal(itemId: string) {
+    if (!inProgressMealId) return
+    setCalorieEntries(
+      calorieEntries
+        .map((entry) =>
+          entry.id === inProgressMealId
+            ? { ...entry, items: entry.items.filter((item) => item.id !== itemId) }
+            : entry,
+        )
+        .filter((entry) => entry.id !== inProgressMealId || entry.items.length > 0),
+    )
+  }
+
+  // #454 — the new whole-meal "was it tasty?" reaction, set from the
+  // flyout's own footer once at least one item has been added.
+  function setNewMealReaction(reaction: Emotion | undefined) {
+    if (!inProgressMealId) return
+    setCalorieEntries(
+      calorieEntries.map((entry) =>
+        entry.id === inProgressMealId ? { ...entry, reaction } : entry,
+      ),
+    )
+  }
+
+  // Time/note are editable in the flyout both *before* the first item lands
+  // (where they're just seed values for appendItemsToNewMeal's own
+  // entry-creation branch above) and *after*, once the entry already
+  // exists — without also writing through to the live entry here, a change
+  // made post-creation would only ever update the input's own display, not
+  // the actually-saved CalorieEntry.
+  function updateNewMealTime(value: string) {
+    setNewMealTime(value)
+    if (!inProgressMealId) return
+    setCalorieEntries(
+      calorieEntries.map((entry) =>
+        entry.id === inProgressMealId
+          ? { ...entry, timeEaten: value || undefined }
+          : entry,
+      ),
+    )
+  }
+  function updateNewMealNote(value: string) {
+    setNewMealNote(value)
+    if (!inProgressMealId) return
+    setCalorieEntries(
+      calorieEntries.map((entry) =>
+        entry.id === inProgressMealId
+          ? { ...entry, note: value.trim() || undefined }
+          : entry,
+      ),
+    )
+  }
 
   // #253: every meal from the source day with at least one item, for
   // "Copy yesterday's meals" — independent of the single-position matching
@@ -1628,147 +1361,6 @@ export function MealList({
   // macros). Fresh ids for the new day's own records; touches the meal-item
   // dictionary the same way every other add path does, skipping curated
   // food names (#150) so they don't leak into the personal library.
-  // #202: takes just the dishes the user kept checked in RepeatMealDialog's
-  // preview, not necessarily all of `previousMeal.items` — #190 originally
-  // committed the whole meal immediately with no way to leave one out.
-  function repeatSelectedItems(selected: CalorieItem[]) {
-    if (!previousMeal || selected.length === 0) return
-    const items: CalorieItem[] = selected.map((item) => ({
-      ...item,
-      id: crypto.randomUUID(),
-      emotion: undefined,
-    }))
-    setCalorieEntries([
-      ...calorieEntries,
-      {
-        id: crypto.randomUUID(),
-        items,
-        label: previousMeal.label,
-        createdAt: new Date().toISOString(),
-      },
-    ])
-    for (const item of items) {
-      if (item.name && !curatedFoodNames.has(item.name)) {
-        touchMealItem(item.name, {
-          amountKcal: item.amountKcal,
-          proteinG: item.proteinG,
-          fatG: item.fatG,
-          carbsG: item.carbsG,
-          fiberG: item.fiberG,
-          amountG: item.amountG,
-        })
-      }
-    }
-  }
-
-  // Restores a previously-logged item's kcal/macros when its name is picked
-  // from the add row's autocomplete (#94) — before this, only the name
-  // field itself got filled in, even though MealItem already stores exactly
-  // these numbers from the last time this name was saved (#86). Nothing to
-  // restore for a bare name with no recorded nutrition yet.
-  function selectAddItemMealItem(item: MealItem) {
-    if (item.lastAmountKcal === undefined) return
-    const rates = ratesFromAbsolute(
-      item.lastAmountKcal,
-      item.lastProteinG,
-      item.lastFatG,
-      item.lastCarbsG,
-      item.lastAmountG,
-      item.lastFiberG,
-    )
-    setAddAmount(String(rates.kcal100))
-    setAddProtein(
-      rates.protein100 === undefined ? '' : String(rates.protein100),
-    )
-    setAddFat(rates.fat100 === undefined ? '' : String(rates.fat100))
-    setAddCarbs(rates.carbs100 === undefined ? '' : String(rates.carbs100))
-    setAddFiber(rates.fiber100 === undefined ? '' : String(rates.fiber100))
-    setAddAmountG(String(rates.portions))
-  }
-
-  // #256: a scanned barcode is checked locally first (an instant, fully
-  // offline match for any barcode already scanned before), then falls back
-  // to an Open Food Facts fetch on a genuine first scan — see
-  // lookupBarcode.ts for the full local-first/online-fallback reasoning.
-  // Either way this only ever *prefills* the add-row + opens its sheet for
-  // review; nothing is saved until the user hits Save there themselves.
-  async function handleBarcodeScanned(barcode: string) {
-    const result = await lookupBarcode(
-      barcode,
-      mealItemRepositoryForBarcodeLookup,
-      isOnline,
-    )
-    setBarcodeNotFoundMessage(false)
-    if (result.source === 'local') {
-      setAddItemName(result.item.name)
-      setAddItemBrand('')
-      setAddMacroMode('per100g')
-      selectAddItemMealItem(result.item)
-      setAddItemBarcode(result.item.barcode)
-    } else if (result.source === 'openFoodFacts') {
-      setAddItemName(result.name)
-      setAddItemBrand(result.brand ?? '')
-      setAddMacroMode('per100g')
-      setAddAmount(String(result.kcal100))
-      setAddProtein(result.protein100 === undefined ? '' : String(result.protein100))
-      setAddFat(result.fat100 === undefined ? '' : String(result.fat100))
-      setAddCarbs(result.carbs100 === undefined ? '' : String(result.carbs100))
-      setAddAmountG('1')
-      setAddItemBarcode(barcode)
-    } else {
-      setBarcodeNotFoundMessage(true)
-      setAddItemBarcode(barcode)
-    }
-    setIsAddItemSheetOpen(true)
-  }
-
-  // Quantity-based entry against the static food list (#62) — the dialog
-  // already computed kcal/macros scaled by quantity for every dish checked
-  // (#183: one or more); this adds the whole batch as a single new meal
-  // group (#81) with one item per dish, same as the manual Add row above.
-  // A self-contained action — it commits immediately (no extra confirm
-  // step, same as before #183), so it doesn't fold into addStagedItems;
-  // combining a Find-food pick with a manually-entered dish in one group
-  // still works the same way it always has, by editing the meal afterward.
-  // #296: respects the add-row's own time field (addTime) if the user
-  // already set one before picking a food — previously always overwrote it
-  // with the current clock time, the one gap addMeal() (the "+ Add item"
-  // path) didn't have, since it already reads addTime instead of stamping
-  // "now" unconditionally.
-  // #287 (reopened): this is the one meal-adding path that sets a
-  // `timeEaten` but never called announceFastingWindowIfFirstMeal — the
-  // toast only ever fired from addMeal()/saveEditMeal(), so anyone whose
-  // first meal of the day goes through "Find food" (the bottom add row's
-  // own primary, most prominent button) never saw it, even after the
-  // earlier race-condition fix, since that fix only touched a code path
-  // this one never reached in the first place.
-  function addFoodEntry(values: PickedFoodValues[]) {
-    if (values.length === 0) return
-    const nextEntries = [
-      ...calorieEntries,
-      {
-        id: crypto.randomUUID(),
-        items: values.map((value) => ({
-          id: crypto.randomUUID(),
-          name: value.note,
-          amountKcal: value.amountKcal,
-          proteinG: value.proteinG,
-          fatG: value.fatG,
-          carbsG: value.carbsG,
-          amountG: value.amountG,
-          emotion: value.emotion,
-        })),
-        timeEaten: addTime || currentTimeHHMM(),
-        createdAt: new Date().toISOString(),
-      },
-    ]
-    void announceFastingWindowIfFirstMeal(nextEntries)
-    void reconcileFastingWindowToastForPreviousDayEdit(nextEntries)
-    setCalorieEntries(nextEntries)
-    // #357 — resets to a fresh "now", not blank; see addTime's own comment.
-    setAddTime(currentTimeHHMM())
-  }
-
   // "Find food" for an item within an already-existing meal being edited —
   // FoodPickerDialog was previously only wired to the bottom add row
   // (addFoodEntry above), leaving no way to search the food list while
@@ -2104,83 +1696,6 @@ export function MealList({
     setCalorieEntries(arrayMove(calorieEntries, oldIndex, newIndex))
   }
 
-  // Live preview of the add row's computed total (#98) — recomputed on
-  // every keystroke from the exact same math addMeal() will run (#111:
-  // mode-aware — per-100g × quantity, or the typed total directly), so
-  // it's visible before Add is pressed. null (nothing rendered) until a
-  // valid amount is typed. Also backs the Add button's disabled state
-  // (#109) — a valid positive number either way, regardless of mode.
-  const addAmountPreview = parseNumberInput(addAmount)
-  const addScaledPreview =
-    addAmountPreview && addAmountPreview > 0
-      ? addMacroMode === 'per100g'
-        ? scaleFromPer100g(
-            addAmountPreview,
-            parseOptionalMacro(addProtein),
-            parseOptionalMacro(addFat),
-            parseOptionalMacro(addCarbs),
-            addAmountG,
-          )
-        : totalFromPortion(
-            addAmountPreview,
-            parseOptionalMacro(addProtein),
-            parseOptionalMacro(addFat),
-            parseOptionalMacro(addCarbs),
-            addAmountG,
-          )
-      : null
-  const addTotalPreview = addScaledPreview
-    ? formatComputedTotal(addScaledPreview, locale, t)
-    : null
-  // #260: this meal hasn't been saved yet — nothing about it is reflected
-  // in `calorieEntries` yet, so "today would be" is simply today's current
-  // total plus this draft, no risk of double-counting. (An already-saved
-  // meal's own edit sheet doesn't get this: that meal's *old* total is
-  // still sitting in `calorieEntries` until its outer Save commits the
-  // replacement, so the correct number there is a whole-meal delta, not
-  // this simple sum — left for a follow-up rather than shown wrong.)
-  // #278: also projects protein/fat/carbs, not just kcal — missing macro
-  // data (either side) counts as 0 for the projection rather than "—",
-  // since a projected total is always a real number, unlike what was
-  // actually logged.
-  const todayTotalPreview = addScaledPreview
-    ? t.dailyEntry.todayWouldBeLabel(
-        `${formatNumber((totalCalories(calorieEntries) ?? 0) + addScaledPreview.amountKcal, locale, 0)} ${t.dailyEntry.kcalUnit} · ${macrosSummaryTextCompact(
-          (totalProtein(calorieEntries) ?? 0) + (addScaledPreview.proteinG ?? 0),
-          (totalFat(calorieEntries) ?? 0) + (addScaledPreview.fatG ?? 0),
-          (totalCarbs(calorieEntries) ?? 0) + (addScaledPreview.carbsG ?? 0),
-          locale,
-          t,
-        )}`,
-        `${formatNumber(totalCalories(calorieEntries) ?? 0, locale, 0)} ${t.dailyEntry.kcalUnit} · ${macrosSummaryTextCompact(
-          totalProtein(calorieEntries) ?? 0,
-          totalFat(calorieEntries) ?? 0,
-          totalCarbs(calorieEntries) ?? 0,
-          locale,
-          t,
-        )}`,
-      )
-    : null
-  // #399 — sibling to todayTotalPreview above, shown only when the active
-  // goal has a daily calorie target set.
-  const todayRemainingPreview =
-    addScaledPreview && dailyCalorieTargetKcal !== undefined
-      ? t.dailyEntry.todayRemainingWouldBeLabel(
-          formatKcal(
-            dailyCalorieTargetKcal -
-              ((totalCalories(calorieEntries) ?? 0) +
-                addScaledPreview.amountKcal),
-            locale,
-            t,
-          ),
-          formatKcal(
-            dailyCalorieTargetKcal - (totalCalories(calorieEntries) ?? 0),
-            locale,
-            t,
-          ),
-        )
-      : null
-
   return (
     <div className="flex flex-col gap-3">
       {fastingWindowToastHours !== null && (
@@ -2294,334 +1809,51 @@ export function MealList({
 
       {/* Hidden entirely in the dedicated single-meal edit route (#157) —
        * that screen is meant to focus on the one meal it opened for, not
-       * also offer to start a completely different one. */}
-      {!focusMealId && (isAddRowCollapsed ? (
-        // #199: "done for today" collapses the whole row behind one small
-        // link rather than removing the ability to add more — tapping it
-        // just re-expands the full row below.
-        <Button
-          type="button"
-          variant="ghost"
-          size="sm"
-          className="self-start"
-          onClick={() => setIsAddRowCollapsed(false)}
-        >
-          {t.dailyEntry.expandAddMealLabel}
-        </Button>
-      ) : (
-      <div
-        // Card treatment (#143), same as every other meal group's <li>
-        // above — its own visible boundary now does the job the old
-        // border-t divider (#95) used to, so that's dropped rather than
-        // doubling up on separators. defaultMealLabel(n) (#141) is the
-        // same default name existing unlabeled groups show, so this row
-        // previews what the new meal will get: Breakfast/Lunch/Dinner/
-        // Snack for the first 4, "Meal N" from the 5th on.
-        className="flex flex-col gap-1.5 rounded-xl bg-card p-3 ring-1 ring-foreground/10"
-      >
-        {/* Time moved up onto the heading line (#107) — it isn't a macro
-         * the way kcal/protein/fat/carbs are, so keeping it in the fields
-         * row diluted the macros' proximity to the item-name input right
-         * below them. */}
-        <div className="flex items-center justify-between gap-2">
-          <span className="text-xs font-medium text-muted-foreground">
-            {defaultMealLabel(t, calorieEntries.length + 1)}
-          </span>
-          {/* Clock icon (#114) — a bare empty box gave no visual hint this
-           * was a time picker, since native <input type="time"> doesn't
-           * reliably show a placeholder across browsers. */}
-          <div className="flex items-center gap-3 text-muted-foreground">
-            <Clock aria-hidden="true" className="size-3.5" />
-            <Input
-              type="time"
-              aria-label={t.dailyEntry.timeEatenLabel}
-              value={addTime}
-              onChange={(e) => setAddTime(e.target.value)}
-              className="h-12 w-24"
-            />
-            {/* App-level clear button (#117) — the native iOS time
-             * picker's own Reset doesn't reliably clear the value back
-             * to empty once tapped, so this bypasses it entirely. */}
-            {addTime && (
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon-xl"
-                aria-label={t.dailyEntry.clearTimeLabel}
-                onClick={() => setAddTime('')}
-              >
-                <X aria-hidden="true" className="size-3.5" />
-              </Button>
-            )}
-          </div>
-        </div>
-        {/* #190: only rendered when the day before has a meal at this
-         * exact position — the quick action this row exists for. Placed
-         * above "Find food" since it's the fastest path when available. */}
-        {previousMeal && (
+       * also offer to start a completely different one. #454 — this used
+       * to be an inline accordion (a collapse/expand toggle behind a whole
+       * card of triggers); now it's a single trigger opening a dedicated
+       * full-screen flyout instead. */}
+      {!focusMealId && (
+        <>
           <Button
             type="button"
             variant="outline"
             size="lg"
             className="h-12 w-full text-base"
-            onClick={() => setIsRepeatDialogOpen(true)}
+            onClick={openAddMealDialog}
           >
-            {t.dailyEntry.repeatMealLabel(
-              effectiveMealLabel(
+            {t.dailyEntry.expandAddMealLabel}
+          </Button>
+          {isAddMealDialogOpen && (
+            <AddMealDialog
+              open={isAddMealDialogOpen}
+              onOpenChange={setIsAddMealDialogOpen}
+              mealLabel={effectiveMealLabel(
                 t,
-                calorieEntries.length + 1,
-                previousMeal.label,
-              ),
-            )}
-          </Button>
-        )}
-        {isRepeatDialogOpen && previousMeal && (
-          <RepeatMealDialog
-            open={isRepeatDialogOpen}
-            onOpenChange={setIsRepeatDialogOpen}
-            mealLabel={effectiveMealLabel(
-              t,
-              calorieEntries.length + 1,
-              previousMeal.label,
-            )}
-            items={previousMeal.items}
-            onConfirm={(selected) => {
-              repeatSelectedItems(selected)
-              setIsRepeatDialogOpen(false)
-            }}
-          />
-        )}
-        {/* #153: "Find food" is now the primary, full-width CTA — search
-         * first, and only fall back to typing macros by hand if the dish
-         * isn't found. Was the other way around (manual entry first,
-         * "Find food" a same-weight afterthought below it, #106), which
-         * both buried the lower-friction path and meant more free-typed
-         * names ending up inconsistent with the curated catalog. */}
-        <Button
-          type="button"
-          size="lg"
-          className="h-12 w-full text-base"
-          onClick={() => setIsFoodPickerOpen(true)}
-        >
-          {t.dailyEntry.addFoodButton}
-        </Button>
-        <p className="text-center text-xs text-muted-foreground">
-          {t.dailyEntry.orDivider}
-        </p>
-        {/* Item fields (name, mode, kcal, macros) moved into a
-         * full-screen editor sheet (#122) — this trigger shows a compact
-         * preview once something's staged, same as an editItems row.
-         * #153: shrunk from a full-width h-12 row to a small link — now the
-         * fallback when the dish isn't in Find food's results, not the
-         * first thing offered. */}
-        {/* #251 regression fix — adding a 4th trigger (Log recipe) to this
-         * row without wrapping overflowed the viewport width on a real
-         * phone, especially with longer Russian button text. flex-wrap
-         * lets the triggers spill onto a second line instead of forcing
-         * one non-wrapping row and a horizontal scrollbar. */}
-        <div className="flex flex-wrap items-center gap-2">
-          {/* #300 follow-up — the preview button and its clear-X used to be
-           * two separate flex children of the wrapping row below, so a long
-           * preview (a scanned product's name/macros, especially in
-           * Russian) could push just the X onto its own second line,
-           * separated from the title it clears. Grouping them in their own
-           * min-w-0 flex container makes the wrap treat the pair as one
-           * unit — the X always stays glued to its title; only the whole
-           * group (vs. Scan barcode/Log recipe) wraps as a block. */}
-          <div className="flex min-w-0 items-center gap-1">
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              className="min-w-0 justify-start"
-              onClick={() => setIsAddItemSheetOpen(true)}
-            >
-              {addAmountPreview && addAmountPreview > 0 ? (
-                <span className="truncate">
-                  {addItemName || t.dailyEntry.itemNamePlaceholder}
-                  {addItemBrand && ` (${addItemBrand})`}
-                  {addTotalPreview && (
-                    <span className="text-muted-foreground">
-                      {' '}
-                      — {addTotalPreview}
-                    </span>
-                  )}
-                </span>
-              ) : (
-                t.dailyEntry.addItemButton
+                newMealPosition,
+                inProgressMeal?.label ?? newMealPreviousMeal?.label,
               )}
-            </Button>
-            {/* Clear button (#151) — before this, a staged item draft with
-             * nothing the user wants could only be discarded by reopening
-             * the sheet and erasing every field by hand. */}
-            {addAmountPreview !== undefined && addAmountPreview > 0 && (
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon-sm"
-                aria-label={t.dailyEntry.clearItemDraftLabel}
-                onClick={resetItemDraft}
-              >
-                <X aria-hidden="true" className="size-3.5" />
-              </Button>
-            )}
-          </div>
-          {/* #256 — alongside the manual-entry trigger, same fallback
-           * tier as "+ Add item": search (Find food) first, scan or type
-           * by hand if the dish isn't found there. */}
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            className="justify-start"
-            onClick={() => setIsBarcodeScannerOpen(true)}
-          >
-            <ScanBarcode aria-hidden="true" />
-            {t.dailyEntry.scanBarcodeButton}
-          </Button>
-          {/* #251 — same fallback-tier placement as Scan barcode above,
-           * add-row only (a deliberate v1 scope trim, same precedent #256
-           * already set). #299: icon added to match Scan barcode's own
-           * icon-button shape — it was the only icon-less trigger of the
-           * three. */}
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            className="justify-start"
-            onClick={() => setIsLogRecipeOpen(true)}
-          >
-            <ChefHat aria-hidden="true" />
-            {t.recipes.logRecipeButton}
-          </Button>
-        </div>
-        {isBarcodeScannerOpen && (
-          <BarcodeScannerDialog
-            open={isBarcodeScannerOpen}
-            onOpenChange={setIsBarcodeScannerOpen}
-            onScanned={handleBarcodeScanned}
-          />
-        )}
-        {isLogRecipeOpen && (
-          <LogRecipeDialog
-            open={isLogRecipeOpen}
-            onOpenChange={setIsLogRecipeOpen}
-            recipes={recipes}
-            onLog={(values) => {
-              addFoodEntry(values)
-              setIsLogRecipeOpen(false)
-            }}
-          />
-        )}
-        <MealItemEditorSheet
-          open={isAddItemSheetOpen}
-          onOpenChange={(next) => {
-            setIsAddItemSheetOpen(next)
-            if (!next) {
-              // #300 — the add-row counterpart to the edit-mode fix above:
-              // a scan populates these fields as soon as it resolves, before
-              // the user has confirmed anything. Closing via the sheet's own
-              // X/Escape/backdrop (this same onOpenChange) previously left
-              // the draft in place, which then rendered as a full preview
-              // chip in place of "+ Add item" (#151/#153) — reading as if
-              // the scanned food had already been added, even though nothing
-              // was actually saved yet. Only reset when the draft came from
-              // a scan (`addItemBarcode` set): manually-typed drafts keep
-              // #221's original "survive an accidental close" behavior.
-              if (addItemBarcode !== undefined) resetItemDraft()
-              setBarcodeNotFoundMessage(false)
-            }
-          }}
-          title={t.dailyEntry.addItemSheetTitle}
-          name={addItemName}
-          onNameChange={setAddItemName}
-          brand={addItemBrand}
-          onBrandChange={setAddItemBrand}
-          amount={addAmount}
-          onAmountChange={setAddAmount}
-          protein={addProtein}
-          onProteinChange={setAddProtein}
-          fat={addFat}
-          onFatChange={setAddFat}
-          carbs={addCarbs}
-          onCarbsChange={setAddCarbs}
-          fiber={addFiber}
-          onFiberChange={setAddFiber}
-          note={addNote}
-          onNoteChange={setAddNote}
-          amountG={addAmountG}
-          onAmountGChange={setAddAmountG}
-          macroMode={addMacroMode}
-          onMacroModeChange={handleAddMacroModeChange}
-          mealItems={mealItems}
-          onSelectMealItem={selectAddItemMealItem}
-          emotion={addItemEmotion}
-          onEmotionChange={setAddItemEmotion}
-          favorite={addItemFavorite}
-          onFavoriteChange={setAddItemFavorite}
-          todayTotalPreview={todayTotalPreview ?? undefined}
-          todayRemainingPreview={todayRemainingPreview ?? undefined}
-          infoMessage={
-            barcodeNotFoundMessage
-              ? t.dailyEntry.noFoodFoundForBarcodeMessage
-              : undefined
-          }
-          onSave={() => {
-            addMeal()
-            setIsAddItemSheetOpen(false)
-          }}
-          onSaveAndAddAnother={stageAddItem}
-        />
-        {/* #153: moved below both add-item CTAs — previously sandwiched
-         * between "+ Add item" and "Find food", interrupting the scan path
-         * between the two ways to add a dish. */}
-        <Input
-          type="text"
-          aria-label={t.dailyEntry.mealNoteLabel}
-          placeholder={t.dailyEntry.mealNotePlaceholder}
-          value={addGroupNote}
-          onChange={(e) => setAddGroupNote(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') {
-              e.preventDefault()
-              addMeal()
-            }
-          }}
-          className="h-12"
-        />
-        {/* Lazily mounted (#78) — the food list grew to 300+ items, and
-         * rendering it unconditionally meant every render paid that cost
-         * even with the dialog closed. Only mounting it while open keeps
-         * the closed (overwhelmingly common) case cheap. */}
-        {isFoodPickerOpen && (
-          <FoodPickerDialog
-            open={isFoodPickerOpen}
-            onOpenChange={setIsFoodPickerOpen}
-            onAdd={addFoodEntry}
-            mealItems={mealItems}
-            todayTotals={{
-              kcal: totalCalories(calorieEntries) ?? 0,
-              proteinG: totalProtein(calorieEntries) ?? 0,
-              fatG: totalFat(calorieEntries) ?? 0,
-              carbsG: totalCarbs(calorieEntries) ?? 0,
-            }}
-            dailyCalorieTargetKcal={dailyCalorieTargetKcal}
-          />
-        )}
-        {/* #199: collapses this whole row for the rest of today once
-         * nothing more is planned — see expandAddMealLabel above for the
-         * way back. */}
-        <Button
-          type="button"
-          variant="ghost"
-          size="sm"
-          className="self-start"
-          onClick={() => setIsAddRowCollapsed(true)}
-        >
-          {t.dailyEntry.collapseAddMealLabel}
-        </Button>
-      </div>
-      ))}
+              timeEaten={newMealTime}
+              onTimeEatenChange={updateNewMealTime}
+              note={newMealNote}
+              onNoteChange={updateNewMealNote}
+              previousMeal={newMealPreviousMeal}
+              items={inProgressMeal?.items ?? []}
+              reaction={inProgressMeal?.reaction}
+              onReactionChange={setNewMealReaction}
+              onAppendItems={appendItemsToNewMeal}
+              onRemoveItem={removeItemFromNewMeal}
+              todayTotals={{
+                kcal: totalCalories(calorieEntries) ?? 0,
+                proteinG: totalProtein(calorieEntries) ?? 0,
+                fatG: totalFat(calorieEntries) ?? 0,
+                carbsG: totalCarbs(calorieEntries) ?? 0,
+              }}
+              dailyCalorieTargetKcal={dailyCalorieTargetKcal}
+            />
+          )}
+        </>
+      )}
     </div>
   )
 }

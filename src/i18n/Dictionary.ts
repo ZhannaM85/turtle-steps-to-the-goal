@@ -347,20 +347,11 @@ export interface Dictionary {
      * time picker's own Reset doesn't reliably clear the value back to
      * empty once tapped, so this sets state to '' directly instead. */
     clearTimeLabel: string
-    /** App-level clear button for the collapsed "+ Add item" trigger
-     * (#151) — resets the whole staged item draft (name, mode, kcal,
-     * macros, emotion) back to blank without reopening the full sheet. */
-    clearItemDraftLabel: string
-    /** #199, redesigned by #201: collapses the trailing "add a new meal"
-     * row — not a delete, just hides the row behind a small link
-     * (expandAddMealLabel) they can tap to bring it back. For *today*
-     * specifically this now persists across navigation
-     * (useAddMealRowCollapseStore); past days always default collapsed
-     * already and don't need this button to reach that state, only to
-     * re-collapse after manually expanding within the same visit. */
-    collapseAddMealLabel: string
-    /** Replaces the whole add-meal row while collapsed (#199) — tapping it
-     * re-expands the full row. */
+    /** #454 — the sole trigger opening the "add a meal" flyout
+     * (`AddMealDialog`), for every day/position; superseded #199/#201's
+     * collapse/expand accordion (and its now-removed sibling
+     * `collapseAddMealLabel`), which this same string already read as its
+     * "re-expand" link text, so the copy itself didn't need to change. */
     expandAddMealLabel: string
     /** #190: "Repeat yesterday's [meal]" quick action on the add row —
      * only shown when the day before has a meal at this same position
@@ -406,6 +397,18 @@ export interface Dictionary {
     scanBarcodeManualPlaceholder: string
     scanBarcodeManualSubmitLabel: string
     noFoodFoundForBarcodeMessage: string
+    /** #454 — the "add a meal" flyout's own copy: a short recent-items
+     * heading shown while the search box is empty, the fallback link to
+     * manual entry once a search comes up empty, the live "meal so far"
+     * heading, the whole-meal "was it tasty?" reaction question (distinct
+     * from `dayMoodLabel`'s whole-day framing), the quantity-confirm
+     * step's own Cancel, and the flyout's final "Done" action. */
+    recentFoodsLabel: string
+    cantFindItAddManuallyLabel: string
+    mealSoFarLabel: string
+    wasItTastyLabel: string
+    cancelAddToMealLabel: string
+    doneAddingMealButton: string
     /** #287 — a quiet, dismissible in-app note shown right after saving the
      * day's first meal with a recorded time, if the previous day also had
      * one — not a background/push notification (see #261, closed as

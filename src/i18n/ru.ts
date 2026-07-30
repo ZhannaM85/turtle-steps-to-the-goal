@@ -188,8 +188,6 @@ export const ru: Dictionary = {
       `Б ${protein} · Ж ${fat} · У ${carbs}`,
     timeEatenLabel: 'Время',
     clearTimeLabel: 'Очистить время',
-    clearItemDraftLabel: 'Очистить',
-    collapseAddMealLabel: 'Свернуть',
     expandAddMealLabel: '+ Добавить ещё приём пищи',
     repeatMealLabel: (mealLabel) => `Повторить вчерашний «${mealLabel}»`,
     repeatMealDialogTitle: (mealLabel) => `Повторить «${mealLabel}»`,
@@ -212,6 +210,12 @@ export const ru: Dictionary = {
     scanBarcodeManualSubmitLabel: 'Найти',
     noFoodFoundForBarcodeMessage:
       'Еда с таким штрихкодом не найдена — вы можете добавить её вручную ниже.',
+    recentFoodsLabel: 'Недавние',
+    cantFindItAddManuallyLabel: 'Не нашли? Добавить вручную',
+    mealSoFarLabel: 'Состав приёма пищи',
+    wasItTastyLabel: 'Было вкусно?',
+    cancelAddToMealLabel: 'Отмена',
+    doneAddingMealButton: 'Готово',
     fastingWindowToastMessage: (hours) =>
       `Ваше окно голодания составило ${hours}.`,
     dismissFastingWindowToastLabel: 'Скрыть',

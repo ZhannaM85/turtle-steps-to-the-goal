@@ -234,7 +234,7 @@ describe('DayDetail', () => {
         screen.queryByRole('button', { name: /Edit meal/ }),
       ).not.toBeInTheDocument()
       expect(
-        screen.queryByRole('button', { name: '+ Add item' }),
+        screen.queryByRole('button', { name: '+ Add another meal' }),
       ).not.toBeInTheDocument()
     })
 
@@ -269,11 +269,11 @@ describe('DayDetail', () => {
       expect(onSaved).not.toHaveBeenCalled()
     })
 
-    it('offers the add-row so a new meal can be logged directly here', () => {
+    it('offers the add-meal trigger so a new meal can be logged directly here', () => {
       render(<DayDetail entry={makeEntry()} onSaved={vi.fn()} />)
 
       expect(
-        screen.getByRole('button', { name: '+ Add item' }),
+        screen.getByRole('button', { name: '+ Add another meal' }),
       ).toBeInTheDocument()
     })
   })

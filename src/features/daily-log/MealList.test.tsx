@@ -106,294 +106,19 @@ afterEach(async () => {
  * directly (the mechanism `MealEditScreen` depends on).
  */
 describe('MealList', () => {
-  it('shows the add-row even with no meals yet', () => {
+  // #454 — the whole "add a meal" flow (search/barcode/manual entry/Repeat/
+  // recipe/persistent multi-add/reaction) moved into its own
+  // AddMealDialog.test.tsx; this file keeps only what's still genuinely
+  // MealList's own concern (the trigger existing, existing-meal viewing/
+  // editing, the fasting toast, "Copy yesterday's meals").
+  it('shows the add-meal trigger even with no meals yet', () => {
     render(<MealList calorieEntries={[]} date="2026-03-01" onChange={vi.fn()} />, {
       wrapper: MemoryRouter,
     })
 
     expect(
-      screen.getByRole('button', { name: '+ Add item' }),
+      screen.getByRole('button', { name: '+ Add another meal' }),
     ).toBeInTheDocument()
-  })
-
-  it('collapses the add row behind a small link, and re-expands it on tap (#199)', async () => {
-    const user = userEvent.setup()
-    render(<MealList calorieEntries={[]} date="2026-03-01" onChange={vi.fn()} />, {
-      wrapper: MemoryRouter,
-    })
-
-    await user.click(
-      screen.getByRole('button', { name: 'Collapse' }),
-    )
-
-    expect(
-      screen.queryByRole('button', { name: '+ Add item' }),
-    ).not.toBeInTheDocument()
-    const expandButton = screen.getByRole('button', {
-      name: '+ Add another meal',
-    })
-    expect(expandButton).toBeInTheDocument()
-
-    await user.click(expandButton)
-
-    expect(
-      screen.getByRole('button', { name: '+ Add item' }),
-    ).toBeInTheDocument()
-    expect(
-      screen.queryByRole('button', { name: '+ Add another meal' }),
-    ).not.toBeInTheDocument()
-  })
-
-  it('adds a meal and calls onChange with the new list', async () => {
-    const user = userEvent.setup()
-    const onChange = vi.fn()
-    render(<MealList calorieEntries={[]} date="2026-03-01" onChange={onChange} />, {
-      wrapper: MemoryRouter,
-    })
-
-    await user.click(screen.getByRole('button', { name: '+ Add item' }))
-    await user.type(screen.getByLabelText('kcal/100g'), '200')
-    await user.click(screen.getByRole('button', { name: 'Save' }))
-
-    expect(onChange).toHaveBeenCalledTimes(1)
-    const next = onChange.mock.calls[0][0] as CalorieEntry[]
-    expect(next).toHaveLength(1)
-    expect(next[0].items[0].amountKcal).toBe(200)
-  })
-
-  // #341 — same optional-macro shape as protein/fat/carbs above.
-  it('records the entered fiber on a new item', async () => {
-    const user = userEvent.setup()
-    const onChange = vi.fn()
-    render(<MealList calorieEntries={[]} date="2026-03-01" onChange={onChange} />, {
-      wrapper: MemoryRouter,
-    })
-
-    await user.click(screen.getByRole('button', { name: '+ Add item' }))
-    await user.type(screen.getByLabelText('kcal/100g'), '200')
-    await user.type(screen.getByLabelText('Fiber'), '5')
-    await user.click(screen.getByRole('button', { name: 'Save' }))
-
-    const next = onChange.mock.calls[0][0] as CalorieEntry[]
-    expect(next[0].items[0].fiberG).toBe(5)
-  })
-
-  // #344 — per-dish free-text note, distinct from the meal group's own note.
-  it('records the entered note on a new item', async () => {
-    const user = userEvent.setup()
-    const onChange = vi.fn()
-    render(<MealList calorieEntries={[]} date="2026-03-01" onChange={onChange} />, {
-      wrapper: MemoryRouter,
-    })
-
-    await user.click(screen.getByRole('button', { name: '+ Add item' }))
-    await user.type(screen.getByLabelText('kcal/100g'), '200')
-    await user.type(screen.getByLabelText('Note (optional)'), 'extra spicy today')
-    await user.click(screen.getByRole('button', { name: 'Save' }))
-
-    const next = onChange.mock.calls[0][0] as CalorieEntry[]
-    expect(next[0].items[0].noteText).toBe('extra spicy today')
-  })
-
-  // #260: the draft's own preview ("Total: 200 kcal", #98) already existed —
-  // this is the new addition, showing what today's overall total would
-  // become, not just this one item's own total.
-  it('previews today\'s new running total while a new-meal draft has a valid amount', async () => {
-    const user = userEvent.setup()
-    const calorieEntries: CalorieEntry[] = [
-      {
-        id: 'c1',
-        items: [{ id: 'i1', name: 'Breakfast', amountKcal: 300 }],
-        createdAt: '2026-01-01T00:00:00.000Z',
-      },
-    ]
-    render(
-      <MealList calorieEntries={calorieEntries} date="2026-03-01" onChange={vi.fn()} />,
-      { wrapper: MemoryRouter },
-    )
-
-    expect(
-      screen.queryByText(/Today would be/),
-    ).not.toBeInTheDocument()
-
-    await user.click(screen.getByRole('button', { name: '+ Add item' }))
-    await user.type(screen.getByLabelText('kcal/100g'), '200')
-
-    expect(
-      screen.getByText(
-        'Today would be: 500 kcal · P 0g · F 0g · C 0g (was 300 kcal · P 0g · F 0g · C 0g)',
-      ),
-    ).toBeInTheDocument()
-  })
-
-  // #399 — sibling to the running-total preview above, shown only when a
-  // daily calorie target is passed in.
-  describe('remaining-calories preview (#399)', () => {
-    it('shows nothing when no dailyCalorieTargetKcal is passed', async () => {
-      const user = userEvent.setup()
-      render(
-        <MealList calorieEntries={[]} date="2026-03-01" onChange={vi.fn()} />,
-        { wrapper: MemoryRouter },
-      )
-
-      await user.click(screen.getByRole('button', { name: '+ Add item' }))
-      await user.type(screen.getByLabelText('kcal/100g'), '200')
-
-      expect(screen.queryByText(/remaining/)).not.toBeInTheDocument()
-    })
-
-    it('previews remaining calories against the target while a new-meal draft has a valid amount', async () => {
-      const user = userEvent.setup()
-      const calorieEntries: CalorieEntry[] = [
-        {
-          id: 'c1',
-          items: [{ id: 'i1', name: 'Breakfast', amountKcal: 300 }],
-          createdAt: '2026-01-01T00:00:00.000Z',
-        },
-      ]
-      render(
-        <MealList
-          calorieEntries={calorieEntries}
-          date="2026-03-01"
-          onChange={vi.fn()}
-          dailyCalorieTargetKcal={2000}
-        />,
-        { wrapper: MemoryRouter },
-      )
-
-      expect(screen.queryByText(/remaining/)).not.toBeInTheDocument()
-
-      await user.click(screen.getByRole('button', { name: '+ Add item' }))
-      await user.type(screen.getByLabelText('kcal/100g'), '200')
-
-      // 2000 - 300 = 1700 remaining before; 2000 - 500 = 1500 remaining after.
-      expect(
-        screen.getByText('1,500 kcal remaining (was 1,700 kcal remaining)'),
-      ).toBeInTheDocument()
-    })
-  })
-
-  describe('macro mismatch sanity check (#255)', () => {
-    it('shows a quiet note when kcal is far off from the entered macros', async () => {
-      const user = userEvent.setup()
-      render(<MealList calorieEntries={[]} date="2026-03-01" onChange={vi.fn()} />, {
-        wrapper: MemoryRouter,
-      })
-
-      await user.click(screen.getByRole('button', { name: '+ Add item' }))
-      await user.type(screen.getByLabelText('kcal/100g'), '500')
-      await user.type(screen.getByLabelText('Protein'), '10')
-      await user.type(screen.getByLabelText('Fat'), '0')
-      await user.type(screen.getByLabelText('Carbs'), '0')
-
-      expect(
-        screen.getByText(
-          "The calories don't quite match the protein/fat/carbs entered — worth a second look.",
-        ),
-      ).toBeInTheDocument()
-    })
-
-    it('says nothing when only some macros are entered', async () => {
-      const user = userEvent.setup()
-      render(<MealList calorieEntries={[]} date="2026-03-01" onChange={vi.fn()} />, {
-        wrapper: MemoryRouter,
-      })
-
-      await user.click(screen.getByRole('button', { name: '+ Add item' }))
-      await user.type(screen.getByLabelText('kcal/100g'), '500')
-      await user.type(screen.getByLabelText('Protein'), '10')
-
-      expect(
-        screen.queryByText(/don't quite match/),
-      ).not.toBeInTheDocument()
-    })
-
-    it('says nothing when kcal and macros roughly agree', async () => {
-      const user = userEvent.setup()
-      render(<MealList calorieEntries={[]} date="2026-03-01" onChange={vi.fn()} />, {
-        wrapper: MemoryRouter,
-      })
-
-      await user.click(screen.getByRole('button', { name: '+ Add item' }))
-      await user.type(screen.getByLabelText('kcal/100g'), '245')
-      await user.type(screen.getByLabelText('Protein'), '20')
-      await user.type(screen.getByLabelText('Fat'), '5')
-      await user.type(screen.getByLabelText('Carbs'), '30')
-
-      expect(
-        screen.queryByText(/don't quite match/),
-      ).not.toBeInTheDocument()
-    })
-  })
-
-  describe('add-row draft recovery (#221)', () => {
-    it('restores an in-progress add-row item after remounting on the same date', async () => {
-      const user = userEvent.setup()
-      const { unmount } = render(
-        <MealList calorieEntries={[]} date="2026-03-01" onChange={vi.fn()} />,
-        { wrapper: MemoryRouter },
-      )
-
-      await user.click(screen.getByRole('button', { name: '+ Add item' }))
-      await user.type(screen.getByLabelText('Dish name'), 'Chicken soup')
-      await user.type(screen.getByLabelText('kcal/100g'), '500')
-      // Never taps Save — simulates a reload/navigation-away mid-typing.
-      unmount()
-
-      render(
-        <MealList calorieEntries={[]} date="2026-03-01" onChange={vi.fn()} />,
-        { wrapper: MemoryRouter },
-      )
-      await user.click(screen.getByRole('button', { name: /Chicken soup/ }))
-
-      expect(screen.getByLabelText('Dish name')).toHaveValue('Chicken soup')
-      expect(screen.getByLabelText('kcal/100g')).toHaveValue('500')
-    })
-
-    it('does not leak a draft across different dates', async () => {
-      const user = userEvent.setup()
-      const { unmount } = render(
-        <MealList calorieEntries={[]} date="2026-03-01" onChange={vi.fn()} />,
-        { wrapper: MemoryRouter },
-      )
-
-      await user.click(screen.getByRole('button', { name: '+ Add item' }))
-      await user.type(screen.getByLabelText('kcal/100g'), '500')
-      unmount()
-
-      render(
-        <MealList calorieEntries={[]} date="2026-03-02" onChange={vi.fn()} />,
-        { wrapper: MemoryRouter },
-      )
-
-      expect(
-        screen.getByRole('button', { name: '+ Add item' }),
-      ).toBeInTheDocument()
-    })
-
-    it('clears the draft once the meal is actually saved', async () => {
-      const user = userEvent.setup()
-      const onChange = vi.fn()
-      const { unmount } = render(
-        <MealList calorieEntries={[]} date="2026-03-01" onChange={onChange} />,
-        { wrapper: MemoryRouter },
-      )
-
-      await user.click(screen.getByRole('button', { name: '+ Add item' }))
-      await user.type(screen.getByLabelText('kcal/100g'), '500')
-      await user.click(screen.getByRole('button', { name: 'Save' }))
-      expect(onChange).toHaveBeenCalledTimes(1)
-      unmount()
-
-      render(
-        <MealList calorieEntries={[]} date="2026-03-01" onChange={vi.fn()} />,
-        { wrapper: MemoryRouter },
-      )
-
-      expect(
-        screen.getByRole('button', { name: '+ Add item' }),
-      ).toBeInTheDocument()
-    })
   })
 
   it("shows an item's own quantity in grams when recorded, omits it when not (#206)", () => {
@@ -419,42 +144,6 @@ describe('MealList', () => {
   })
 
   describe('optional brand name (#248)', () => {
-    it('saves a brand entered alongside the dish name', async () => {
-      const user = userEvent.setup()
-      const onChange = vi.fn()
-      render(
-        <MealList calorieEntries={[]} date="2026-03-01" onChange={onChange} />,
-        { wrapper: MemoryRouter },
-      )
-
-      await user.click(screen.getByRole('button', { name: '+ Add item' }))
-      await user.type(screen.getByLabelText('Dish name'), 'Chicken breast')
-      await user.type(screen.getByLabelText('Brand (optional)'), 'Perdue')
-      await user.type(screen.getByLabelText('kcal/100g'), '165')
-      await user.click(screen.getByRole('button', { name: 'Save' }))
-
-      const next = onChange.mock.calls[0][0] as CalorieEntry[]
-      expect(next[0].items[0].name).toBe('Chicken breast')
-      expect(next[0].items[0].brand).toBe('Perdue')
-    })
-
-    it('leaves brand undefined when left blank', async () => {
-      const user = userEvent.setup()
-      const onChange = vi.fn()
-      render(
-        <MealList calorieEntries={[]} date="2026-03-01" onChange={onChange} />,
-        { wrapper: MemoryRouter },
-      )
-
-      await user.click(screen.getByRole('button', { name: '+ Add item' }))
-      await user.type(screen.getByLabelText('Dish name'), 'Apple')
-      await user.type(screen.getByLabelText('kcal/100g'), '52')
-      await user.click(screen.getByRole('button', { name: 'Save' }))
-
-      const next = onChange.mock.calls[0][0] as CalorieEntry[]
-      expect(next[0].items[0].brand).toBeUndefined()
-    })
-
     it('shows the brand next to the dish name in the read-only view, with no stray "()" when unset', () => {
       const calorieEntries: CalorieEntry[] = [
         {
@@ -575,28 +264,6 @@ describe('MealList', () => {
   })
 
   describe('favoriting a manually-typed dish (#279)', () => {
-    it('favorites the dish when the star is checked before saving', async () => {
-      const user = userEvent.setup()
-      render(
-        <MealList calorieEntries={[]} date="2026-03-01" onChange={vi.fn()} />,
-        { wrapper: MemoryRouter },
-      )
-
-      await user.click(screen.getByRole('button', { name: '+ Add item' }))
-      await user.type(screen.getByLabelText('Dish name'), 'Granola')
-      await user.type(screen.getByLabelText('kcal/100g'), '450')
-      await user.click(
-        screen.getByRole('button', { name: 'Add Granola to favorites' }),
-      )
-      await user.click(screen.getByRole('button', { name: 'Save' }))
-
-      await waitFor(() =>
-        expect(useMealItemStore.getState().items).toContainEqual(
-          expect.objectContaining({ name: 'Granola', favorite: true }),
-        ),
-      )
-    })
-
     it('leaves an already-favorited dish favorited when its edit is saved without touching the star', async () => {
       await useMealItemStore.getState().touch('Granola', { amountKcal: 450 }, true)
       const user = userEvent.setup()
@@ -722,7 +389,7 @@ describe('MealList', () => {
       )
 
       expect(
-        screen.queryByRole('button', { name: '+ Add item' }),
+        screen.queryByRole('button', { name: '+ Add another meal' }),
       ).not.toBeInTheDocument()
     })
 
@@ -784,38 +451,6 @@ describe('MealList', () => {
   })
 
   describe('multi-add (#183)', () => {
-    it('"Save and add one more" on the add row stages a dish and keeps the sheet open for the next one', async () => {
-      const user = userEvent.setup()
-      const onChange = vi.fn()
-      render(
-        <MealList calorieEntries={[]} date="2026-03-01" onChange={onChange} />,
-        { wrapper: MemoryRouter },
-      )
-
-      await user.click(screen.getByRole('button', { name: '+ Add item' }))
-      await user.type(screen.getByLabelText('Dish name'), 'Soup')
-      await user.type(screen.getByLabelText('kcal/100g'), '100')
-      await user.click(
-        screen.getByRole('button', { name: 'Save and add one more' }),
-      )
-
-      // Sheet stays open, fields reset, no onChange yet -- nothing has
-      // actually been saved as a meal until the final Save.
-      expect(onChange).not.toHaveBeenCalled()
-      expect(screen.getByLabelText('Dish name')).toHaveValue('')
-
-      await user.type(screen.getByLabelText('Dish name'), 'Bread')
-      await user.type(screen.getByLabelText('kcal/100g'), '250')
-      await user.click(screen.getByRole('button', { name: 'Save' }))
-
-      expect(onChange).toHaveBeenCalledTimes(1)
-      const next = onChange.mock.calls[0][0] as CalorieEntry[]
-      expect(next).toHaveLength(1)
-      expect(next[0].items).toHaveLength(2)
-      expect(next[0].items[0].name).toBe('Soup')
-      expect(next[0].items[1].name).toBe('Bread')
-    })
-
     it('"Save and add one more" is available for a freshly-added item in an existing meal\'s edit mode', async () => {
       const user = userEvent.setup()
       const calorieEntries: CalorieEntry[] = [
@@ -869,148 +504,6 @@ describe('MealList', () => {
 
       expect(
         screen.queryByRole('button', { name: 'Save and add one more' }),
-      ).not.toBeInTheDocument()
-    })
-  })
-
-  describe("repeat yesterday's meal (#190)", () => {
-    // These tests use 2026-03-02 as "today" (with 2026-03-01 as the day
-    // before it), unlike the rest of this file's 2026-03-01 — override the
-    // outer beforeEach's frozen clock so 2026-03-02 still reads as
-    // today/not-past for the #201 collapse-default check above.
-    beforeEach(() => {
-      vi.setSystemTime(new Date('2026-03-02T12:00:00.000Z'))
-    })
-
-    it("offers to repeat yesterday's meal at the matching position, cloning only the food data", async () => {
-      await db.dailyEntries.put(
-        makeDailyEntry({
-          date: '2026-03-01',
-          calorieEntries: [
-            {
-              id: 'y1',
-              items: [
-                {
-                  id: 'yi1',
-                  name: 'Eggs',
-                  amountKcal: 150,
-                  proteinG: 12,
-                  emotion: 'thumbsUp',
-                },
-              ],
-              timeEaten: '08:00',
-              note: 'ate fast',
-              createdAt: '2026-03-01T08:00:00.000Z',
-            },
-          ],
-        }),
-      )
-      const onChange = vi.fn()
-      render(
-        <MealList calorieEntries={[]} date="2026-03-02" onChange={onChange} />,
-        { wrapper: MemoryRouter },
-      )
-
-      const user = userEvent.setup()
-      const repeatButton = await screen.findByRole('button', {
-        name: "Repeat yesterday's Breakfast",
-      })
-      await user.click(repeatButton)
-      // #202: the button now opens a preview dialog instead of committing
-      // immediately — confirm with everything left checked (the default).
-      await user.click(screen.getByRole('button', { name: 'Add selected' }))
-
-      expect(onChange).toHaveBeenCalledTimes(1)
-      const next = onChange.mock.calls[0][0] as CalorieEntry[]
-      expect(next).toHaveLength(1)
-      expect(next[0].id).not.toBe('y1')
-      expect(next[0].items).toHaveLength(1)
-      expect(next[0].items[0]).toMatchObject({
-        name: 'Eggs',
-        amountKcal: 150,
-        proteinG: 12,
-      })
-      expect(next[0].items[0].id).not.toBe('yi1')
-      // Only the food data is cloned — day-specific journal details aren't.
-      expect(next[0].items[0].emotion).toBeUndefined()
-      expect(next[0].timeEaten).toBeUndefined()
-      expect(next[0].note).toBeUndefined()
-    })
-
-    it('lets a specific dish be unchecked before confirming (#202)', async () => {
-      await db.dailyEntries.put(
-        makeDailyEntry({
-          date: '2026-03-01',
-          calorieEntries: [
-            {
-              id: 'y1',
-              items: [
-                {
-                  id: 'yi1',
-                  name: 'Eggs',
-                  amountKcal: 150,
-                  proteinG: 12,
-                },
-                {
-                  id: 'yi2',
-                  name: 'Toast',
-                  amountKcal: 120,
-                },
-              ],
-              createdAt: '2026-03-01T08:00:00.000Z',
-            },
-          ],
-        }),
-      )
-      const onChange = vi.fn()
-      render(
-        <MealList calorieEntries={[]} date="2026-03-02" onChange={onChange} />,
-        { wrapper: MemoryRouter },
-      )
-
-      const user = userEvent.setup()
-      await user.click(
-        await screen.findByRole('button', {
-          name: "Repeat yesterday's Breakfast",
-        }),
-      )
-      await user.click(screen.getByRole('checkbox', { name: /Toast/ }))
-      await user.click(
-        screen.getByRole('button', { name: 'Add selected' }),
-      )
-
-      expect(onChange).toHaveBeenCalledTimes(1)
-      const next = onChange.mock.calls[0][0] as CalorieEntry[]
-      expect(next[0].items).toHaveLength(1)
-      expect(next[0].items[0]).toMatchObject({ name: 'Eggs' })
-    })
-
-    it('does not offer to repeat when there is no meal at that position yesterday', async () => {
-      await db.dailyEntries.put(
-        makeDailyEntry({ date: '2026-03-01', calorieEntries: [] }),
-      )
-      render(
-        <MealList calorieEntries={[]} date="2026-03-02" onChange={vi.fn()} />,
-        { wrapper: MemoryRouter },
-      )
-
-      // Wait for the (empty-result) fetch to settle before asserting
-      // absence, via a control that's always present once mounted.
-      await screen.findByRole('button', { name: '+ Add item' })
-      expect(
-        screen.queryByRole('button', { name: /Repeat yesterday's/ }),
-      ).not.toBeInTheDocument()
-    })
-
-    it('does not offer to repeat when nothing was logged yesterday at all', async () => {
-      render(
-        <MealList calorieEntries={[]} date="2026-03-02" onChange={vi.fn()} />,
-        { wrapper: MemoryRouter },
-      )
-
-      await screen.findByRole('button', { name: '+ Add item' })
-      expect(
-        screen.queryByRole('button', { name: /Repeat yesterday's/ }),
       ).not.toBeInTheDocument()
     })
   })
@@ -1126,187 +619,13 @@ describe('MealList', () => {
         { wrapper: MemoryRouter },
       )
 
-      await screen.findByRole('button', { name: '+ Add item' })
+      await screen.findByRole('button', { name: '+ Add another meal' })
       expect(
         screen.queryByRole('button', { name: "Copy yesterday's meals" }),
       ).not.toBeInTheDocument()
     })
   })
 
-  describe('barcode scanning (#256)', () => {
-    it('opens the scanner dialog when "Scan barcode" is clicked', async () => {
-      const user = userEvent.setup()
-      render(
-        <MealList calorieEntries={[]} date="2026-03-01" onChange={vi.fn()} />,
-        { wrapper: MemoryRouter },
-      )
-
-      await user.click(screen.getByRole('button', { name: 'Scan barcode' }))
-
-      expect(
-        screen.getByText('Point your camera at the barcode.'),
-      ).toBeInTheDocument()
-    })
-
-    it('prefills from an existing local item on a repeat scan, without any network fetch', async () => {
-      const fetchMock = vi.fn()
-      vi.stubGlobal('fetch', fetchMock)
-      await useMealItemStore
-        .getState()
-        .touch(
-          'Protein Bar',
-          { amountKcal: 200, proteinG: 20 },
-          undefined,
-          '0123456789012',
-        )
-      mockScanning('0123456789012')
-      const user = userEvent.setup()
-      render(
-        <MealList calorieEntries={[]} date="2026-03-01" onChange={vi.fn()} />,
-        { wrapper: MemoryRouter },
-      )
-
-      await user.click(screen.getByRole('button', { name: 'Scan barcode' }))
-
-      expect(await screen.findByDisplayValue('Protein Bar')).toBeInTheDocument()
-      expect(screen.getByLabelText('kcal/100g')).toHaveValue('200')
-      expect(fetchMock).not.toHaveBeenCalled()
-    })
-
-    it('prefills from Open Food Facts on a first scan with no local match', async () => {
-      vi.stubGlobal(
-        'fetch',
-        vi.fn().mockResolvedValue({
-          ok: true,
-          json: async () => ({
-            status: 1,
-            product: {
-              product_name: 'Chocolate Bar',
-              brands: 'Acme',
-              nutriments: {
-                'energy-kcal_100g': 520,
-                proteins_100g: 6,
-                fat_100g: 30,
-                carbohydrates_100g: 55,
-              },
-            },
-          }),
-        }),
-      )
-      mockScanning('9999999999999')
-      const user = userEvent.setup()
-      render(
-        <MealList calorieEntries={[]} date="2026-03-01" onChange={vi.fn()} />,
-        { wrapper: MemoryRouter },
-      )
-
-      await user.click(screen.getByRole('button', { name: 'Scan barcode' }))
-
-      expect(
-        await screen.findByDisplayValue('Chocolate Bar'),
-      ).toBeInTheDocument()
-      expect(screen.getByDisplayValue('Acme')).toBeInTheDocument()
-      expect(screen.getByLabelText('kcal/100g')).toHaveValue('520')
-    })
-
-    it('shows a quiet message and a blank form when nothing matches anywhere', async () => {
-      vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: false }))
-      mockScanning('0000000000000')
-      const user = userEvent.setup()
-      render(
-        <MealList calorieEntries={[]} date="2026-03-01" onChange={vi.fn()} />,
-        { wrapper: MemoryRouter },
-      )
-
-      await user.click(screen.getByRole('button', { name: 'Scan barcode' }))
-
-      expect(
-        await screen.findByText(
-          'No food found for this barcode — you can still add it by hand below.',
-        ),
-      ).toBeInTheDocument()
-      expect(screen.getByLabelText('Dish name')).toHaveValue('')
-    })
-
-    // #300 — the add-row counterpart to the edit-mode fix: a scan
-    // prefills these fields as soon as it resolves, then the "+ Add item"
-    // button itself starts previewing that draft (#151/#153) — closing
-    // via X (rather than Save) previously left the draft in place, so the
-    // scanned food kept showing as a preview chip that read as if it had
-    // already been added, even though nothing was actually saved.
-    it('clears the draft (back to plain "+ Add item") when closed via X after a scan', async () => {
-      vi.stubGlobal(
-        'fetch',
-        vi.fn().mockResolvedValue({
-          ok: true,
-          json: async () => ({
-            status: 1,
-            product: {
-              product_name: 'Chocolate Bar',
-              nutriments: { 'energy-kcal_100g': 520 },
-            },
-          }),
-        }),
-      )
-      mockScanning('9999999999999')
-      const user = userEvent.setup()
-      render(
-        <MealList calorieEntries={[]} date="2026-03-01" onChange={vi.fn()} />,
-        { wrapper: MemoryRouter },
-      )
-
-      await user.click(screen.getByRole('button', { name: 'Scan barcode' }))
-      await screen.findByDisplayValue('Chocolate Bar')
-
-      await user.click(
-        screen.getByRole('button', { name: 'Close item editor' }),
-      )
-
-      expect(
-        screen.queryByText('Chocolate Bar', { exact: false }),
-      ).not.toBeInTheDocument()
-      expect(
-        screen.getByRole('button', { name: '+ Add item' }),
-      ).toBeInTheDocument()
-    })
-
-    it('records the barcode on the new MealItem once saved', async () => {
-      vi.stubGlobal(
-        'fetch',
-        vi.fn().mockResolvedValue({
-          ok: true,
-          json: async () => ({
-            status: 1,
-            product: {
-              product_name: 'Chocolate Bar',
-              nutriments: { 'energy-kcal_100g': 520 },
-            },
-          }),
-        }),
-      )
-      mockScanning('9999999999999')
-      const user = userEvent.setup()
-      const onChange = vi.fn()
-      render(
-        <MealList calorieEntries={[]} date="2026-03-01" onChange={onChange} />,
-        { wrapper: MemoryRouter },
-      )
-
-      await user.click(screen.getByRole('button', { name: 'Scan barcode' }))
-      await screen.findByDisplayValue('Chocolate Bar')
-      await user.click(screen.getByRole('button', { name: 'Save' }))
-
-      expect(onChange).toHaveBeenCalledTimes(1)
-      await waitFor(() =>
-        expect(useMealItemStore.getState().items).toContainEqual(
-          expect.objectContaining({
-            name: 'Chocolate Bar',
-            barcode: '9999999999999',
-          }),
-        ),
-      )
-    })
-  })
 
   describe('barcode scanning within an existing meal (#288)', () => {
     function seededMeal(): CalorieEntry[] {
@@ -1570,14 +889,17 @@ describe('MealList', () => {
         { wrapper: MemoryRouter },
       )
 
-      // The add-row's Time field sits outside the item editor sheet, so it
-      // has to be set before opening that sheet — addMeal() (triggered by
-      // the sheet's own Save) reads whatever addTime already holds.
+      // #454 — the add-row is now a single trigger opening AddMealDialog;
       // Time now defaults to the current time (#357), not blank — clear it
       // first so typing produces exactly this value, not a mix of both.
+      await user.click(
+        screen.getByRole('button', { name: '+ Add another meal' }),
+      )
       await user.clear(screen.getByLabelText('Time'))
       await user.type(screen.getByLabelText('Time'), '08:00')
-      await user.click(screen.getByRole('button', { name: '+ Add item' }))
+      await user.click(
+        screen.getByRole('button', { name: "Can't find it? Add manually" }),
+      )
       await user.type(screen.getByLabelText('Dish name'), 'Oatmeal')
       await user.type(screen.getByLabelText('kcal/100g'), '300')
       await user.click(screen.getByRole('button', { name: 'Save' }))
@@ -1590,11 +912,10 @@ describe('MealList', () => {
     // #287 (reopened): addFoodEntry() (the "Find food" quick-commit path)
     // set its own timeEaten but never called announceFastingWindowIfFirst
     // Meal — the toast only ever fired via addMeal()/saveEditMeal(), so the
-    // day's first meal going through "Find food" (the add row's primary,
-    // most prominent button) silently never showed it. Every other test in
-    // this describe block only exercises "+ Add item", which is why this
-    // gap wasn't caught earlier.
-    it("shows the toast when the day's first timed meal is added via Find food", async () => {
+    // day's first meal going through search silently never showed it.
+    // Every other test in this describe block only exercises manual entry,
+    // which is why this gap wasn't caught earlier.
+    it("shows the toast when the day's first timed meal is added via search", async () => {
       await db.dailyEntries.put(
         makeDailyEntry({
           date: '2026-02-28',
@@ -1616,11 +937,14 @@ describe('MealList', () => {
 
       // Time now defaults to the current time (#357), not blank — clear it
       // first so typing produces exactly this value, not a mix of both.
+      await user.click(
+        screen.getByRole('button', { name: '+ Add another meal' }),
+      )
       await user.clear(screen.getByLabelText('Time'))
       await user.type(screen.getByLabelText('Time'), '08:00')
-      await user.click(screen.getByRole('button', { name: 'Find food' }))
-      await user.click(screen.getByText('Salmon'))
-      await user.click(screen.getByRole('button', { name: 'Add selected' }))
+      await user.type(screen.getByLabelText('Search foods'), 'Salmon')
+      await user.click(await screen.findByText('Salmon'))
+      await user.click(screen.getByRole('button', { name: '+ Add item' }))
 
       expect(
         await screen.findByText('Your fasting window was 12.0h.'),
@@ -1636,9 +960,14 @@ describe('MealList', () => {
 
       // Time now defaults to the current time (#357), not blank — clear it
       // first so typing produces exactly this value, not a mix of both.
+      await user.click(
+        screen.getByRole('button', { name: '+ Add another meal' }),
+      )
       await user.clear(screen.getByLabelText('Time'))
       await user.type(screen.getByLabelText('Time'), '08:00')
-      await user.click(screen.getByRole('button', { name: '+ Add item' }))
+      await user.click(
+        screen.getByRole('button', { name: "Can't find it? Add manually" }),
+      )
       await user.type(screen.getByLabelText('Dish name'), 'Oatmeal')
       await user.type(screen.getByLabelText('kcal/100g'), '300')
       await user.click(screen.getByRole('button', { name: 'Save' }))
@@ -1678,9 +1007,14 @@ describe('MealList', () => {
         { wrapper: MemoryRouter },
       )
 
+      await user.click(
+        screen.getByRole('button', { name: '+ Add another meal' }),
+      )
       await user.clear(screen.getByLabelText('Time'))
       await user.type(screen.getByLabelText('Time'), '13:00')
-      await user.click(screen.getByRole('button', { name: '+ Add item' }))
+      await user.click(
+        screen.getByRole('button', { name: "Can't find it? Add manually" }),
+      )
       await user.type(screen.getByLabelText('Dish name'), 'Lunch item')
       await user.type(screen.getByLabelText('kcal/100g'), '500')
       await user.click(screen.getByRole('button', { name: 'Save' }))
@@ -1703,20 +1037,35 @@ describe('MealList', () => {
         }),
       )
       const user = userEvent.setup()
-      render(
-        <MealList calorieEntries={[]} date="2026-03-01" onChange={vi.fn()} />,
-        { wrapper: MemoryRouter },
-      )
+      // A plain `onChange={vi.fn()}` never feeds the save back into
+      // MealList's own `calorieEntries` prop (see ControlledMealList's own
+      // doc comment) — the "Done" button below only renders once the
+      // flyout's `items` prop (derived from that same prop) is non-empty,
+      // so this test needs the real controlled loop, unlike the others in
+      // this describe block that only ever check the toast text itself.
+      render(<ControlledMealList calorieEntries={[]} date="2026-03-01" />, {
+        wrapper: MemoryRouter,
+      })
 
       // Time now defaults to the current time (#357), not blank — clear it
       // first so typing produces exactly this value, not a mix of both.
+      await user.click(
+        screen.getByRole('button', { name: '+ Add another meal' }),
+      )
       await user.clear(screen.getByLabelText('Time'))
       await user.type(screen.getByLabelText('Time'), '08:00')
-      await user.click(screen.getByRole('button', { name: '+ Add item' }))
+      await user.click(
+        screen.getByRole('button', { name: "Can't find it? Add manually" }),
+      )
       await user.type(screen.getByLabelText('Dish name'), 'Oatmeal')
       await user.type(screen.getByLabelText('kcal/100g'), '300')
       await user.click(screen.getByRole('button', { name: 'Save' }))
       await screen.findByText('Your fasting window was 12.0h.')
+      // The toast lives in MealList's own tree, behind the still-open
+      // fullscreen flyout (Radix hides everything outside an open dialog
+      // from the accessibility tree) — closing it first, same as a real
+      // user finishing the flyout before seeing the toast underneath.
+      await user.click(screen.getByRole('button', { name: 'Done' }))
 
       await user.click(screen.getByRole('button', { name: 'Dismiss' }))
 
@@ -1748,13 +1097,21 @@ describe('MealList', () => {
 
       // Time now defaults to the current time (#357), not blank — clear it
       // first so typing produces exactly this value, not a mix of both.
+      await user.click(
+        screen.getByRole('button', { name: '+ Add another meal' }),
+      )
       await user.clear(screen.getByLabelText('Time'))
       await user.type(screen.getByLabelText('Time'), '08:00')
-      await user.click(screen.getByRole('button', { name: '+ Add item' }))
+      await user.click(
+        screen.getByRole('button', { name: "Can't find it? Add manually" }),
+      )
       await user.type(screen.getByLabelText('Dish name'), 'Oatmeal')
       await user.type(screen.getByLabelText('kcal/100g'), '300')
       await user.click(screen.getByRole('button', { name: 'Save' }))
       await screen.findByText('Your fasting window was 12.0h.')
+      // See the identical note in the "dismisses the toast" test above —
+      // the toast is behind the still-open flyout until it's closed.
+      await user.click(screen.getByRole('button', { name: 'Done' }))
 
       await user.click(screen.getByRole('button', { name: 'Delete meal 1' }))
       await user.click(screen.getByRole('button', { name: 'Delete' }))
@@ -1818,15 +1175,14 @@ describe('MealList', () => {
 
       // Logs a later meal on the *previous* day (2026-02-28) — its new real
       // last-meal time, 23:00, is 3 hours later than the original 20:00.
-      // 2026-02-28 is a past day relative to the mocked "today" (2026-03-01,
-      // this file's own beforeEach), so its add row starts collapsed (#199)
-      // behind this button, unlike a same-day MealList's own always-open row.
       await user.click(
         screen.getByRole('button', { name: '+ Add another meal' }),
       )
       await user.clear(screen.getByLabelText('Time'))
       await user.type(screen.getByLabelText('Time'), '23:00')
-      await user.click(screen.getByRole('button', { name: '+ Add item' }))
+      await user.click(
+        screen.getByRole('button', { name: "Can't find it? Add manually" }),
+      )
       await user.type(screen.getByLabelText('Dish name'), 'Late snack')
       await user.type(screen.getByLabelText('kcal/100g'), '100')
       await user.click(screen.getByRole('button', { name: 'Save' }))
@@ -1888,9 +1244,14 @@ describe('MealList', () => {
         { wrapper: MemoryRouter },
       )
 
+      await user.click(
+        screen.getByRole('button', { name: '+ Add another meal' }),
+      )
       await user.clear(screen.getByLabelText('Time'))
       await user.type(screen.getByLabelText('Time'), '13:36')
-      await user.click(screen.getByRole('button', { name: '+ Add item' }))
+      await user.click(
+        screen.getByRole('button', { name: "Can't find it? Add manually" }),
+      )
       await user.type(screen.getByLabelText('Dish name'), 'Oatmeal')
       await user.type(screen.getByLabelText('kcal/100g'), '300')
       await user.click(screen.getByRole('button', { name: 'Save' }))
@@ -1903,54 +1264,4 @@ describe('MealList', () => {
     })
   })
 
-  describe('logging a recipe (#251)', () => {
-    it('opens the log-recipe dialog when "Log recipe" is clicked', async () => {
-      const user = userEvent.setup()
-      render(
-        <MealList calorieEntries={[]} date="2026-03-01" onChange={vi.fn()} />,
-        { wrapper: MemoryRouter },
-      )
-
-      await user.click(screen.getByRole('button', { name: 'Log recipe' }))
-
-      expect(
-        screen.getByRole('heading', { name: 'Log recipe' }),
-      ).toBeInTheDocument()
-    })
-
-    it('adds a new meal from the logged recipe, scaled by servings eaten', async () => {
-      await db.recipes.put({
-        id: 'recipe-1',
-        name: 'Chili',
-        servings: 4,
-        ingredients: [
-          { id: 'ing-1', name: 'Ground beef', amountKcal: 800, proteinG: 60 },
-        ],
-        createdAt: '2026-01-01T00:00:00.000Z',
-        updatedAt: '2026-01-01T00:00:00.000Z',
-      })
-      const user = userEvent.setup()
-      const onChange = vi.fn()
-      render(
-        <MealList calorieEntries={[]} date="2026-03-01" onChange={onChange} />,
-        { wrapper: MemoryRouter },
-      )
-
-      await user.click(screen.getByRole('button', { name: 'Log recipe' }))
-      await user.click(await screen.findByRole('button', { name: 'Chili' }))
-      const servingsInput = screen.getByLabelText('Servings eaten')
-      await user.clear(servingsInput)
-      await user.type(servingsInput, '2')
-      await user.click(screen.getByRole('button', { name: 'Log' }))
-
-      expect(onChange).toHaveBeenCalledTimes(1)
-      const next = onChange.mock.calls[0][0] as CalorieEntry[]
-      expect(next).toHaveLength(1)
-      expect(next[0].items[0]).toMatchObject({
-        name: 'Chili',
-        amountKcal: 400,
-        proteinG: 30,
-      })
-    })
-  })
 })
