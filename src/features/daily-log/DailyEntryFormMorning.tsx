@@ -521,7 +521,15 @@ export function DailyEntryFormMorning() {
              * instead of splitting the card's full width evenly. */}
             <div className="grid w-fit grid-cols-[auto_auto_auto_auto] gap-x-6 gap-y-3">
               <div className="col-start-1 row-start-1 flex flex-col gap-1">
-                <span className="text-xs text-muted-foreground">
+                {/* #446 — a fixed min-h reserves the same vertical space
+                 * whether or not this particular label actually wraps, so
+                 * every input in the row still starts at the same y
+                 * position as its row siblings (a longer Russian label
+                 * wrapping to 2 lines here used to push just *that*
+                 * column's input down, misaligning it from the others in
+                 * the same row). min-h-8 (32px) fits 2 lines at this
+                 * text-xs size, the tallest any of these 5 labels wrap to. */}
+                <span className="min-h-8 text-xs text-muted-foreground">
                   {t.dailyEntry.muscleMassLabel}
                 </span>
                 <div className="flex items-center gap-1">
@@ -550,7 +558,7 @@ export function DailyEntryFormMorning() {
                 </div>
               </div>
               <div className="col-start-2 row-start-1 flex flex-col gap-1">
-                <span className="text-xs text-muted-foreground">
+                <span className="min-h-8 text-xs text-muted-foreground">
                   {t.dailyEntry.visceralFatLabel}
                 </span>
                 <div className="flex items-center gap-1">
@@ -576,7 +584,7 @@ export function DailyEntryFormMorning() {
                 </div>
               </div>
               <div className="col-start-1 row-start-2 flex flex-col gap-1">
-                <span className="text-xs text-muted-foreground">
+                <span className="min-h-8 text-xs text-muted-foreground">
                   {t.dailyEntry.bodyWaterLabel}
                 </span>
                 <div className="flex items-center gap-1">
@@ -605,7 +613,7 @@ export function DailyEntryFormMorning() {
                 </div>
               </div>
               <div className="col-start-2 row-start-2 flex flex-col gap-1">
-                <span className="text-xs text-muted-foreground">
+                <span className="min-h-8 text-xs text-muted-foreground">
                   {t.dailyEntry.boneMassLabel}
                 </span>
                 <div className="flex items-center gap-1">
@@ -632,7 +640,7 @@ export function DailyEntryFormMorning() {
                 </div>
               </div>
               <div className="col-start-1 row-start-3 flex flex-col gap-1">
-                <span className="text-xs text-muted-foreground">
+                <span className="min-h-8 text-xs text-muted-foreground">
                   {t.dailyEntry.bodyFatLabel}
                 </span>
                 <div className="flex items-center gap-1">
