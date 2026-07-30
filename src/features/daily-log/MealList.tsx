@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import {
   DndContext,
   KeyboardSensor,
@@ -16,7 +16,7 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
-import { addDays, format, parseISO, subDays } from 'date-fns'
+import { format, parseISO, subDays } from 'date-fns'
 import { GripVertical, Pencil, ScanBarcode, Trash2, X } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { foods } from '@/data/foods'
@@ -72,7 +72,6 @@ import { Button } from '@/shared/ui/button'
 import { Input } from '@/shared/ui/input'
 import {
   useDayStartStore,
-  useFastingWindowToastStore,
   useMealItemStore,
   useMealLabelPresetStore,
 } from '@/stores'
@@ -1012,28 +1011,6 @@ export function MealList({
     }
   }, [previousDate])
 
-  // #287 — a quiet, dismissible note shown right after a save makes
-  // `nextEntries` the day's *first* meal with a recorded time (i.e. no
-  // entry had one before this save), as long as the previous day also had
-  // at least one timed meal. Not a background/push notification (#261,
-  // closed as infeasible) — this only ever fires from a foreground save
-  // action. Lives in a shared store (not local state) — see
-  // fastingWindowToastStore.ts's own comment for why: the dedicated
-  // single-meal edit route navigates away the instant a save completes,
-  // which would otherwise unmount this component before locally-held
-  // state could ever render.
-  const fastingWindowToastHoursRaw = useFastingWindowToastStore(
-    (state) => state.hours,
-  )
-  const fastingWindowToastDate = useFastingWindowToastStore(
-    (state) => state.date,
-  )
-  const showFastingWindowToast = useFastingWindowToastStore(
-    (state) => state.show,
-  )
-  const dismissFastingWindowToast = useFastingWindowToastStore(
-    (state) => state.dismiss,
-  )
   // #387 — reported live: a meal logged before this cutoff gets filed
   // under the *previous* day's own record (`effectiveDateFor`, #298), so
   // without this the toast's own day-pairing math would treat that
@@ -1041,70 +1018,28 @@ export function MealList({
   // its actual latest one. See fastingWindow.ts's own `adjustForDayStart`
   // comment for the full reasoning.
   const dayStartTime = useDayStartStore((state) => state.dayStartTime)
-  // Scoped to *this* date — guards against a toast set while editing one
-  // day showing up after navigating somewhere unrelated to it.
-  const fastingWindowToastHours =
-    fastingWindowToastDate === date ? fastingWindowToastHoursRaw : null
-  async function announceFastingWindowIfFirstMeal(nextEntries: CalorieEntry[]) {
-    const hadTimedMealBefore = calorieEntries.some(
-      (entry) => entry.timeEaten !== undefined,
-    )
-    if (hadTimedMealBefore) return
-    const hasTimedMealAfter = nextEntries.some(
-      (entry) => entry.timeEaten !== undefined,
-    )
-    if (!hasTimedMealAfter) return
-    // Fetched fresh here rather than reading the previousDayEntry state
-    // (fetched once on mount, above, for #190's "repeat yesterday's meal")
-    // — that fetch is async and can still be in flight if the user logs
-    // their first meal quickly after opening the page, which would
-    // otherwise silently skip this toast even though yesterday genuinely
-    // has a timed meal recorded.
-    const fetchedPreviousDayEntry = await dailyEntryRepository.getByDate(
-      previousDate,
-    )
-    if (!fetchedPreviousDayEntry) return
-    const hours = fastingHoursBetween(
-      fetchedPreviousDayEntry,
-      { calorieEntries: nextEntries },
-      dayStartTime,
-    )
-    if (hours !== null) showFastingWindowToast(hours, date)
-  }
-
-  // #450 — reported live: the toast above only ever fires from *this* day's
-  // own first-timed-meal save, so it never updates again once shown, even
-  // if the *previous* day's own last-meal time later changes (e.g.
-  // navigating back and logging one more, later meal there) — the exact
-  // input `fastingHoursBetween` used to compute the toast's own number.
-  // Runs alongside `announceFastingWindowIfFirstMeal` at every save site
-  // below: if this day is the immediate previous day of whichever date the
-  // currently-shown toast is *about*, recompute (or clear) it using this
-  // save's own `nextEntries` as the new "previous day" side of that
-  // calculation — the toast day's own entries are re-fetched fresh, same
-  // "don't trust possibly-stale local state" reasoning
-  // `announceFastingWindowIfFirstMeal` already uses for `previousDayEntry`.
-  async function reconcileFastingWindowToastForPreviousDayEdit(
-    nextEntries: CalorieEntry[],
-  ) {
-    if (fastingWindowToastDate === null) return
-    const nextDateOfThisDay = format(addDays(parseISO(date), 1), 'yyyy-MM-dd')
-    if (fastingWindowToastDate !== nextDateOfThisDay) return
-    const toastDayEntry = await dailyEntryRepository.getByDate(
-      fastingWindowToastDate,
-    )
-    if (!toastDayEntry) return
-    const hours = fastingHoursBetween(
-      { calorieEntries: nextEntries },
-      toastDayEntry,
-      dayStartTime,
-    )
-    if (hours !== null) {
-      showFastingWindowToast(hours, fastingWindowToastDate)
-    } else {
-      dismissFastingWindowToast()
-    }
-  }
+  // #287/#450/#456 — a quiet note shown whenever this day's first timed
+  // meal and the previous day's last timed meal are both known, computed
+  // as a plain derived value (not an action-triggered store, #456's own
+  // "display constantly" ask) so it's automatically always correct: it
+  // shows on page load if the condition already holds, recomputes live if
+  // either side changes later (a save on *this* day, or `previousDayEntry`
+  // resolving/updating after navigating between days — #450's own
+  // retroactive-recalc case falls out of this for free), and never needs
+  // an explicit dismiss/reconcile call at any save site. `useMemo` — not
+  // recomputed on unrelated re-renders (opening a dialog, typing in
+  // search), only when one of these actual inputs changes.
+  const fastingWindowToastHours = useMemo(
+    () =>
+      previousDayEntry
+        ? fastingHoursBetween(
+            previousDayEntry,
+            { calorieEntries },
+            dayStartTime,
+          )
+        : null,
+    [previousDayEntry, calorieEntries, dayStartTime],
+  )
 
   const isOnline = useOnlineStatus()
   // #253: whole-day sibling of the above — CopyDayMealsDialog's own
@@ -1250,8 +1185,6 @@ export function MealList({
         },
       ]
     }
-    void announceFastingWindowIfFirstMeal(nextEntries)
-    void reconcileFastingWindowToastForPreviousDayEdit(nextEntries)
     setCalorieEntries(nextEntries)
   }
 
@@ -1640,8 +1573,6 @@ export function MealList({
           }
         : entry,
     )
-    void announceFastingWindowIfFirstMeal(nextEntries)
-    void reconcileFastingWindowToastForPreviousDayEdit(nextEntries)
     setCalorieEntries(nextEntries)
     for (const item of items) {
       // Skip names that are actually a curated food, picked via
@@ -1679,12 +1610,6 @@ export function MealList({
       setOpenEditItemId(null)
     }
     setConfirmDeleteMealId(null)
-    // #301: the fasting-window toast otherwise keeps showing a now-stale
-    // value once the day has no timed meal left at all — e.g. deleting
-    // the only meal (the one that triggered it in the first place).
-    if (!nextEntries.some((entry) => entry.timeEaten !== undefined)) {
-      dismissFastingWindowToast()
-    }
   }
 
   function handleMealDragEnd(event: DragEndEvent) {
@@ -1699,11 +1624,9 @@ export function MealList({
   return (
     <div className="flex flex-col gap-3">
       {fastingWindowToastHours !== null && (
-        // #456 — no manual dismiss control (deliberately persistent):
-        // `dismissFastingWindowToast()` itself stays, called from #301
-        // (deleting the meal that triggered it) and #450 (the underlying
-        // window recalculating to no longer apply) — both are the toast's
-        // own claim becoming false, not a user choosing to hide it.
+        // #456 — purely derived (see the useMemo above), so this note is
+        // always accurate for whatever's currently on screen and has no
+        // dismiss control of its own to go stale.
         <div className="flex items-center gap-2 rounded-lg border border-border px-3 py-2 text-sm text-muted-foreground">
           <span>
             {t.dailyEntry.fastingWindowToastMessage(

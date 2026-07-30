@@ -14,7 +14,6 @@ import type { CalorieEntry } from '@/domain/dailyEntry'
 import { db } from '@/infrastructure/persistence/indexeddb'
 import {
   useDigestionTrackingStore,
-  useFastingWindowToastStore,
   useMealItemStore,
   useMealLabelPresetStore,
   useTrackedFieldsStore,
@@ -94,7 +93,6 @@ beforeEach(async () => {
   useMealLabelPresetStore.setState({ presets: [] })
   useDigestionTrackingStore.setState({ enabled: false })
   useWaterTrackingStore.setState({ enabled: false })
-  useFastingWindowToastStore.setState({ hours: null, date: null })
   // #221: many tests below share date="2026-03-01" and don't always carry
   // the add-row's meal-item sheet through to a real Save — without this,
   // a leftover add-row draft (now persisted to localStorage) from one test
