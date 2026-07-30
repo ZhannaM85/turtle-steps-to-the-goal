@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 381,
+    issue: 435,
+    date: '2026-07-30T11:08:38+03:00',
+    en: 'The 5 Body composition fields (muscle mass, visceral fat, body water %, bone mass, body fat %) now show an error as soon as you leave an out-of-range field, instead of only when you tap Save.',
+    ru: 'Ошибка в полях "Состав тела" (мышечная масса, висцеральный жир, вода в организме, костная масса, процент жира) теперь появляется сразу при выходе из поля с недопустимым значением, а не только при нажатии "Сохранить".',
+  },
+  {
     version: 380,
     issue: 430,
     date: '2026-07-29T23:17:58+03:00',
