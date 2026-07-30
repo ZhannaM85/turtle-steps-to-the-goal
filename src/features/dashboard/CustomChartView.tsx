@@ -535,9 +535,15 @@ export function CustomChartView({ entries, dragHandle }: CustomChartViewProps) {
               <XAxis
                 dataKey="date"
                 tick={{ fontSize: 11, fill: 'var(--muted-foreground)' }}
-                tickFormatter={(date: string) =>
-                  format(parseISO(date), 'PP', { locale: dateFnsLocale })
-                }
+                // #444 follow-up — reported live right after fixing the
+                // right-axis overflow: with both y-axes now actually
+                // rendering (taking up real width on both sides), the
+                // previous 'PP' format ("8 июл. 2026 г.") was too wide for
+                // the shrunk plot area and overlapped between ticks. A
+                // fixed numeric dd.MM.yy ("16.07.26") is short enough to
+                // fit and, unlike 'PP', has no locale-dependent month name
+                // to translate, so it doesn't need date-fns' locale option.
+                tickFormatter={(date: string) => format(parseISO(date), 'dd.MM.yy')}
                 axisLine={{ stroke: 'var(--border)' }}
                 tickLine={false}
               />
@@ -563,6 +569,7 @@ export function CustomChartView({ entries, dragHandle }: CustomChartViewProps) {
               <YAxis
                 yAxisId="normalized"
                 orientation="right"
+                width={0}
                 domain={[0, 100]}
                 hide
               />
