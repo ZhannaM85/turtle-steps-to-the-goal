@@ -571,7 +571,16 @@ export function CustomChartView({ entries, dragHandle }: CustomChartViewProps) {
                   <YAxis
                     yAxisId="left"
                     orientation="left"
-                    width="auto"
+                    // #444 — was `width="auto"`. The always-present hidden
+                    // `normalized` axis above is `orientation="right"`, same
+                    // as this dual-axis pair's own "right" key below — two
+                    // same-side axes confuse Recharts' `width="auto"`
+                    // margin-auto-expansion measurement, the identical bug
+                    // class #393 already found (there, for the single-axis
+                    // case). A fixed pixel width sidesteps that measurement
+                    // entirely, same fix `BodyCompositionTrendChart.tsx`'s
+                    // own dual axis already uses for exactly this reason.
+                    width={40}
                     domain={['auto', 'auto']}
                     tick={{ fontSize: 11, fill: seriesConfig[leftAxisKey!].color }}
                     tickFormatter={(value: number) =>
@@ -583,7 +592,7 @@ export function CustomChartView({ entries, dragHandle }: CustomChartViewProps) {
                   <YAxis
                     yAxisId="right"
                     orientation="right"
-                    width="auto"
+                    width={40}
                     domain={['auto', 'auto']}
                     tick={{ fontSize: 11, fill: seriesConfig[rightAxisKey!].color }}
                     tickFormatter={(value: number) =>
@@ -598,7 +607,7 @@ export function CustomChartView({ entries, dragHandle }: CustomChartViewProps) {
                 <YAxis
                   yAxisId="single"
                   orientation="left"
-                  width="auto"
+                  width={40}
                   domain={['auto', 'auto']}
                   tick={{ fontSize: 11, fill: seriesConfig[soleAxisKey!].color }}
                   tickFormatter={(value: number) =>
