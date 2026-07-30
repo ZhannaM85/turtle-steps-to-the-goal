@@ -32,6 +32,10 @@ import {
   AppleHealthInvalidFileError,
   importAppleHealthExport,
 } from './appleHealth/importAppleHealth'
+import {
+  importMyFitnessPalExport,
+  MyFitnessPalInvalidFileError,
+} from './myFitnessPal/importMyFitnessPal'
 
 /** #369 — each source's own data types, since Zepp Life and Apple Health
  * expose different fields (Zepp: body-composition scale readings; Apple
@@ -73,6 +77,17 @@ const APPLE_HEALTH_FIELDS: {
   { key: 'onPeriod', label: (t) => t.dailyEntry.onPeriodLabel },
 ]
 
+// #367 — meals are this import's actual payoff (#365/#366 never touch
+// calorieEntries at all), weight a clean bonus using the same scalar shape
+// those two already established.
+const MYFITNESSPAL_FIELDS: {
+  key: keyof DailyEntryPatch
+  label: (t: Dictionary) => string
+}[] = [
+  { key: 'calorieEntries', label: (t) => t.dailyEntry.mealsLabel },
+  { key: 'weightKg', label: (t) => t.dailyEntry.weightLabel },
+]
+
 /** #240 — Excel/CSV/Markdown only, never the JSON backup (a backup should
  * stay complete). Blank start/end means "no lower/upper bound", so leaving
  * both blank exports everything, matching the pre-#240 behavior exactly. */
@@ -105,6 +120,8 @@ type Status =
   | { kind: 'importedZeppLife'; daysImported: number; daysUpdated: number }
   | { kind: 'importingAppleHealth'; progress: number }
   | { kind: 'importedAppleHealth'; daysImported: number; daysUpdated: number }
+  | { kind: 'importingMyFitnessPal' }
+  | { kind: 'importedMyFitnessPal'; daysImported: number; daysUpdated: number }
   | { kind: 'error'; message: string }
 
 /** "50 KB" / "1.2 MB" / "1.2 GB" — used for both usage and quota (#191:
@@ -143,6 +160,11 @@ export function ExportSection() {
   const [appleHealthSelectedFields, setAppleHealthSelectedFields] = useState<
     Set<string>
   >(() => new Set(APPLE_HEALTH_FIELDS.map((field) => field.key)))
+  const myFitnessPalFileInputRef = useRef<HTMLInputElement>(null)
+  const [myFitnessPalSelectedFields, setMyFitnessPalSelectedFields] =
+    useState<Set<string>>(
+      () => new Set(MYFITNESSPAL_FIELDS.map((field) => field.key)),
+    )
   const [storageUsage, setStorageUsage] = useState<number | null>(null)
   const [storageQuota, setStorageQuota] = useState<number | null>(null)
   // #240 — optional, applies to Excel/CSV/Markdown only (see
@@ -415,6 +437,23 @@ export function ExportSection() {
     }
   }
 
+  async function handleMyFitnessPalFileSelected(file: File) {
+    setStatus({ kind: 'importingMyFitnessPal' })
+    try {
+      const { daysImported, daysUpdated } = await importMyFitnessPalExport(
+        file,
+        myFitnessPalSelectedFields as ReadonlySet<keyof DailyEntryPatch>,
+      )
+      setStatus({ kind: 'importedMyFitnessPal', daysImported, daysUpdated })
+    } catch (err) {
+      const message =
+        err instanceof MyFitnessPalInvalidFileError
+          ? t.myFitnessPalImport.invalidFile
+          : t.myFitnessPalImport.importFailed
+      setStatus({ kind: 'error', message })
+    }
+  }
+
   return (
     <>
       <CardHeader>
@@ -677,6 +716,56 @@ export function ExportSection() {
           </Button>
         </div>
 
+        <div className="flex flex-col gap-2">
+          <p className="text-sm text-muted-foreground">
+            {t.myFitnessPalImport.importBlurb}
+          </p>
+          <details className="text-sm text-muted-foreground">
+            <summary className="cursor-pointer font-medium">
+              {t.myFitnessPalImport.howToExportLabel}
+            </summary>
+            <p className="mt-1">{t.myFitnessPalImport.howToExportSteps}</p>
+          </details>
+          <div className="flex flex-col gap-1.5">
+            <span className="text-sm font-medium">
+              {t.export.dataToImportLabel}
+            </span>
+            <ImportFieldPicker
+              ariaLabel={`${t.myFitnessPalImport.importButton} — ${t.export.dataToImportLabel}`}
+              fields={MYFITNESSPAL_FIELDS.map((field) => ({
+                key: field.key,
+                label: field.label(t),
+              }))}
+              selected={myFitnessPalSelectedFields}
+              onChange={setMyFitnessPalSelectedFields}
+            />
+          </div>
+          <input
+            ref={myFitnessPalFileInputRef}
+            type="file"
+            accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            className="hidden"
+            onChange={(e) => {
+              const file = e.target.files?.[0]
+              if (file) handleMyFitnessPalFileSelected(file)
+              e.target.value = ''
+            }}
+          />
+          <Button
+            variant="outline"
+            className="self-start"
+            onClick={() => myFitnessPalFileInputRef.current?.click()}
+            disabled={
+              status.kind === 'importingMyFitnessPal' ||
+              myFitnessPalSelectedFields.size === 0
+            }
+          >
+            {status.kind === 'importingMyFitnessPal'
+              ? t.myFitnessPalImport.importingButton
+              : t.myFitnessPalImport.importButton}
+          </Button>
+        </div>
+
         {status.kind === 'exported' && (
           <p className="text-sm text-muted-foreground">
             {t.export.exportedSummary(
@@ -730,6 +819,16 @@ export function ExportSection() {
             {status.daysImported === 0
               ? t.appleHealthImport.importedNothingSummary
               : t.appleHealthImport.importedSummary(
+                  status.daysImported,
+                  status.daysUpdated,
+                )}
+          </p>
+        )}
+        {status.kind === 'importedMyFitnessPal' && (
+          <p className="text-sm text-muted-foreground">
+            {status.daysImported === 0
+              ? t.myFitnessPalImport.importedNothingSummary
+              : t.myFitnessPalImport.importedSummary(
                   status.daysImported,
                   status.daysUpdated,
                 )}

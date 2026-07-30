@@ -392,6 +392,31 @@ describe('ExportSection', () => {
         screen.getByRole('button', { name: 'Import from Zepp Life' }),
       ).toBeDisabled()
     })
+
+    it('starts with every MyFitnessPal field selected, and disables its button once all are unchecked (#367)', async () => {
+      const user = userEvent.setup()
+      render(<ExportSection />)
+      const group = within(
+        screen.getByRole('toolbar', {
+          name: 'Import from MyFitnessPal — Data to import',
+        }),
+      )
+
+      expect(
+        group.getByRole('button', { name: 'Meals', pressed: true }),
+      ).toBeInTheDocument()
+      expect(
+        screen.getByRole('button', { name: 'Import from MyFitnessPal' }),
+      ).toBeEnabled()
+
+      for (const label of ['Meals', 'Weight (kg)']) {
+        await user.click(group.getByRole('button', { name: label }))
+      }
+
+      expect(
+        screen.getByRole('button', { name: 'Import from MyFitnessPal' }),
+      ).toBeDisabled()
+    })
   })
 
   describe('"How do I get this file?" disclosure (#381)', () => {
@@ -418,6 +443,19 @@ describe('ExportSection', () => {
       expect(details).not.toBeNull()
       expect(
         within(details!).getByText(/Export All Health Data/),
+      ).toBeInTheDocument()
+    })
+
+    it('pairs the MyFitnessPal export steps with their own toggle (#367)', () => {
+      render(<ExportSection />)
+
+      const [, , myFitnessPalToggle] = screen.getAllByText(
+        'How do I get this file?',
+      )
+      const details = myFitnessPalToggle.closest('details')
+      expect(details).not.toBeNull()
+      expect(
+        within(details!).getByText(/Data Access Request/),
       ).toBeInTheDocument()
     })
   })

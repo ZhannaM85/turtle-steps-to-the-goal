@@ -1,0 +1,201 @@
+import { describe, expect, it } from 'vitest'
+import {
+  buildMyFitnessPalPatches,
+  cellToDateString,
+  cellToNumber,
+  cellToString,
+  type MyFitnessPalRow,
+} from './myFitnessPalParser'
+
+describe('cellToDateString', () => {
+  it('formats a real Date value as yyyy-MM-dd', () => {
+    expect(cellToDateString(new Date('2026-01-15T00:00:00Z'))).toBe(
+      '2026-01-15',
+    )
+  })
+
+  it('extracts the date-only prefix from a string value', () => {
+    expect(cellToDateString('2026-01-15')).toBe('2026-01-15')
+    expect(cellToDateString('2026-01-15 08:30:00')).toBe('2026-01-15')
+  })
+
+  it('returns undefined for an unrecognizable value', () => {
+    expect(cellToDateString(undefined)).toBeUndefined()
+    expect(cellToDateString('not a date')).toBeUndefined()
+    expect(cellToDateString(42)).toBeUndefined()
+  })
+})
+
+describe('cellToNumber', () => {
+  it('passes through a real number', () => {
+    expect(cellToNumber(120.5)).toBe(120.5)
+  })
+
+  it('parses a numeric string', () => {
+    expect(cellToNumber('120.5')).toBe(120.5)
+  })
+
+  it('returns undefined for empty/non-numeric values', () => {
+    expect(cellToNumber('')).toBeUndefined()
+    expect(cellToNumber('abc')).toBeUndefined()
+    expect(cellToNumber(undefined)).toBeUndefined()
+    expect(cellToNumber(Number.NaN)).toBeUndefined()
+  })
+})
+
+describe('cellToString', () => {
+  it('trims a string value, returning undefined when empty', () => {
+    expect(cellToString('  hello  ')).toBe('hello')
+    expect(cellToString('   ')).toBeUndefined()
+  })
+
+  it('stringifies a number value', () => {
+    expect(cellToString(42)).toBe('42')
+  })
+})
+
+describe('buildMyFitnessPalPatches', () => {
+  it('maps a Measurement "weight"/"kilograms" row to weightKg', () => {
+    const rows: MyFitnessPalRow[] = [
+      {
+        type: 'Measurement',
+        date: '2026-01-15',
+        description: 'weight',
+        value: 72.4,
+        unit: 'kilograms',
+      },
+    ]
+
+    expect(buildMyFitnessPalPatches(rows).get('2026-01-15')).toEqual({
+      weightKg: 72.4,
+    })
+  })
+
+  it('ignores a Measurement row with a different description', () => {
+    const rows: MyFitnessPalRow[] = [
+      {
+        type: 'Measurement',
+        date: '2026-01-15',
+        description: 'body_fat',
+        value: 20,
+        unit: 'percent',
+      },
+    ]
+
+    expect(buildMyFitnessPalPatches(rows).size).toBe(0)
+  })
+
+  it('ignores a Measurement row with an unexpected unit', () => {
+    const rows: MyFitnessPalRow[] = [
+      {
+        type: 'Measurement',
+        date: '2026-01-15',
+        description: 'weight',
+        value: 160,
+        unit: 'pounds',
+      },
+    ]
+
+    expect(buildMyFitnessPalPatches(rows).size).toBe(0)
+  })
+
+  it('groups Foods rows into one CalorieEntry per (date, meal), reading details_json', () => {
+    const rows: MyFitnessPalRow[] = [
+      {
+        type: 'Foods',
+        date: '2026-01-15',
+        description: 'Oatmeal',
+        calories: 300,
+        proteinG: 10,
+        fatG: 5,
+        carbsG: 50,
+        fiberG: 8,
+        detailsJson: JSON.stringify({ meal: 'Breakfast', brand_name: 'Quaker' }),
+      },
+      {
+        type: 'Foods',
+        date: '2026-01-15',
+        description: 'Banana',
+        calories: 100,
+        detailsJson: JSON.stringify({ meal: 'Breakfast' }),
+      },
+      {
+        type: 'Foods',
+        date: '2026-01-15',
+        description: 'Chicken breast',
+        calories: 400,
+        detailsJson: JSON.stringify({ meal: 'Dinner', brand_name: 'Perdue' }),
+      },
+    ]
+
+    const patch = buildMyFitnessPalPatches(rows).get('2026-01-15')
+    expect(patch?.calorieEntries).toHaveLength(2)
+
+    const breakfast = patch?.calorieEntries?.find((e) => e.label === 'Breakfast')
+    expect(breakfast?.items).toHaveLength(2)
+    expect(breakfast?.items[0]).toMatchObject({
+      name: 'Oatmeal',
+      brand: 'Quaker',
+      amountKcal: 300,
+      proteinG: 10,
+      fatG: 5,
+      carbsG: 50,
+      fiberG: 8,
+    })
+    expect(breakfast?.items[1]).toMatchObject({ name: 'Banana', amountKcal: 100 })
+    expect(breakfast?.createdAt).toBe('2026-01-15T12:00:00.000Z')
+
+    const dinner = patch?.calorieEntries?.find((e) => e.label === 'Dinner')
+    expect(dinner?.items).toHaveLength(1)
+    expect(dinner?.items[0]).toMatchObject({ name: 'Chicken breast', brand: 'Perdue' })
+  })
+
+  it('still creates an item with no label when details_json is missing or malformed', () => {
+    const rows: MyFitnessPalRow[] = [
+      { type: 'Foods', date: '2026-01-15', description: 'Apple', calories: 95 },
+      {
+        type: 'Foods',
+        date: '2026-01-15',
+        description: 'Toast',
+        calories: 150,
+        detailsJson: 'not valid json',
+      },
+    ]
+
+    const patch = buildMyFitnessPalPatches(rows).get('2026-01-15')
+    expect(patch?.calorieEntries).toHaveLength(1)
+    expect(patch?.calorieEntries?.[0].label).toBeUndefined()
+    expect(patch?.calorieEntries?.[0].items).toHaveLength(2)
+  })
+
+  it('ignores a Foods row with no calories value', () => {
+    const rows: MyFitnessPalRow[] = [
+      { type: 'Foods', date: '2026-01-15', description: 'Mystery item' },
+    ]
+
+    expect(buildMyFitnessPalPatches(rows).size).toBe(0)
+  })
+
+  it('combines a weight measurement and meals for the same date into one patch', () => {
+    const rows: MyFitnessPalRow[] = [
+      {
+        type: 'Measurement',
+        date: '2026-01-15',
+        description: 'weight',
+        value: 70,
+        unit: 'kilograms',
+      },
+      {
+        type: 'Foods',
+        date: '2026-01-15',
+        description: 'Oatmeal',
+        calories: 300,
+        detailsJson: JSON.stringify({ meal: 'Breakfast' }),
+      },
+    ]
+
+    const patch = buildMyFitnessPalPatches(rows).get('2026-01-15')
+    expect(patch?.weightKg).toBe(70)
+    expect(patch?.calorieEntries).toHaveLength(1)
+  })
+})

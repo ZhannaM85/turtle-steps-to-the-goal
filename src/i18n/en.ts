@@ -242,6 +242,7 @@ export const en: Dictionary = {
     editStepsLabel: 'Edit steps',
     saveStepsLabel: 'Save steps',
     cancelEditStepsLabel: 'Cancel editing steps',
+    mealsLabel: 'Meals',
     bodyMeasurementsLabel: 'Body measurements',
     editBodyMeasurementsLabel: 'Edit body measurements',
     saveBodyMeasurementsLabel: 'Save body measurements',
@@ -430,6 +431,20 @@ export const en: Dictionary = {
     importedNothingSummary:
       "This export didn't have any data this app tracks to import.",
     invalidFile: "This doesn't look like an Apple Health export file.",
+    importFailed: 'Import failed.',
+  },
+  myFitnessPalImport: {
+    importBlurb: 'Import meal and weight history from a MyFitnessPal data export.',
+    howToExportLabel: 'How do I get this file?',
+    howToExportSteps:
+      "Request a Data Access Request export from MyFitnessPal (myfitnesspal.com → Settings → Privacy Center → Manage My Data). It arrives by email as an .xlsx file — this can take a few days to be ready.",
+    importButton: 'Import from MyFitnessPal',
+    importingButton: 'Importing…',
+    importedSummary: (days, updated) =>
+      `Imported data for ${days} ${days === 1 ? 'day' : 'days'} from MyFitnessPal (${updated} updated an existing entry).`,
+    importedNothingSummary:
+      "This export didn't have any meal or weight data to import.",
+    invalidFile: "This doesn't look like a MyFitnessPal export file.",
     importFailed: 'Import failed.',
   },
   exportXlsx: {

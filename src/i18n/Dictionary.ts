@@ -461,6 +461,11 @@ export interface Dictionary {
     saveStepsLabel: string
     /** #424 */
     cancelEditStepsLabel: string
+    /** #367 — generic "meals" data-type label, for the MyFitnessPal import
+     * field picker. Meals aren't a single pencil-to-edit field the way
+     * weight/steps are (they're the existing MealList.tsx flow), so this
+     * doesn't pair with an edit/save label the way the others above do. */
+    mealsLabel: string
     /** Body measurements (#225) — waist/hip circumference + body fat %,
      * bundled as one editable section (same shape as sleep's hours+deep
      * hours bundling) rather than three separate top-level fields. */
@@ -745,6 +750,26 @@ export interface Dictionary {
     /** Shown instead of `importedSummary` when the export had none of the
      * record types this app tracks — distinct from an error, since the
      * file itself was valid. */
+    importedNothingSummary: string
+    invalidFile: string
+    importFailed: string
+  }
+  /** Importing a MyFitnessPal "Data Access Request" export (#367) — same
+   * "distinct copy, distinct feature" reasoning as `zeppLifeImport`/
+   * `appleHealthImport` above. The real export the user obtains here is a
+   * plain, unencrypted `.xlsx` (a GDPR data request, not the Premium-only
+   * "Download Your Data" zip the issue's original filing assumed), so —
+   * unlike Zepp Life — there's no password copy needed here either. Meals
+   * are this import's actual payoff (#365/#366 only ever covered body
+   * metrics); weight is a clean bonus using the same scalar shape those two
+   * already established. */
+  myFitnessPalImport: {
+    importBlurb: string
+    howToExportLabel: string
+    howToExportSteps: string
+    importButton: string
+    importingButton: string
+    importedSummary: (days: number, updated: number) => string
     importedNothingSummary: string
     invalidFile: string
     importFailed: string

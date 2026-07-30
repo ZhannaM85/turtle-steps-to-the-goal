@@ -73,7 +73,22 @@ export function mergeDailyEntryPatches(
       createdAt: now,
       updatedAt: now,
     }
-    entriesToUpsert.push({ ...base, ...patch, updatedAt: now })
+    // #367 — every other field here is a scalar (imported value wins on
+    // conflict, per #365's own precedent above), but calorieEntries is a
+    // list: a MyFitnessPal import's meals should land *alongside* whatever
+    // is already logged for that date, not replace it wholesale the way a
+    // plain `{...patch}` spread would. Resolved directly by the user:
+    // append, accepting that the same real meal logged both by hand and
+    // present in the import shows up twice — no dedup requested.
+    const calorieEntries = patch.calorieEntries
+      ? [...(existing?.calorieEntries ?? []), ...patch.calorieEntries]
+      : undefined
+    entriesToUpsert.push({
+      ...base,
+      ...patch,
+      ...(calorieEntries ? { calorieEntries } : {}),
+      updatedAt: now,
+    })
   }
 
   return { daysImported: patches.size, daysUpdated, entriesToUpsert }

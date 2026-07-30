@@ -54,6 +54,87 @@ describe('mergeDailyEntryPatches', () => {
     })
   })
 
+  describe('calorieEntries (#367)', () => {
+    it('appends imported meals alongside an existing entry\'s meals, rather than replacing them', () => {
+      const existing = makeEntry({
+        calorieEntries: [
+          {
+            id: 'hand-logged',
+            items: [{ id: 'i1', name: 'Homemade soup', amountKcal: 250 }],
+            createdAt: '2026-01-15T08:00:00.000Z',
+          },
+        ],
+      })
+      const patches = new Map<string, DailyEntryPatch>([
+        [
+          '2026-01-15',
+          {
+            calorieEntries: [
+              {
+                id: 'imported-1',
+                items: [{ id: 'i2', name: 'Oatmeal', amountKcal: 300 }],
+                createdAt: '2026-01-15T12:00:00.000Z',
+              },
+            ],
+          },
+        ],
+      ])
+
+      const result = mergeDailyEntryPatches(patches, [existing])
+
+      expect(result.entriesToUpsert[0].calorieEntries).toHaveLength(2)
+      expect(result.entriesToUpsert[0].calorieEntries?.[0].id).toBe(
+        'hand-logged',
+      )
+      expect(result.entriesToUpsert[0].calorieEntries?.[1].id).toBe(
+        'imported-1',
+      )
+    })
+
+    it('just sets calorieEntries directly for a brand-new entry with none to merge with', () => {
+      const patches = new Map<string, DailyEntryPatch>([
+        [
+          '2026-01-15',
+          {
+            calorieEntries: [
+              {
+                id: 'imported-1',
+                items: [{ id: 'i1', name: 'Oatmeal', amountKcal: 300 }],
+                createdAt: '2026-01-15T12:00:00.000Z',
+              },
+            ],
+          },
+        ],
+      ])
+
+      const result = mergeDailyEntryPatches(patches, [])
+
+      expect(result.entriesToUpsert[0].calorieEntries).toHaveLength(1)
+    })
+
+    it("leaves an existing entry's meals untouched when the patch has no calorieEntries at all", () => {
+      const existing = makeEntry({
+        calorieEntries: [
+          {
+            id: 'hand-logged',
+            items: [{ id: 'i1', name: 'Homemade soup', amountKcal: 250 }],
+            createdAt: '2026-01-15T08:00:00.000Z',
+          },
+        ],
+      })
+      const patches = new Map<string, DailyEntryPatch>([
+        ['2026-01-15', { weightKg: 60 }],
+      ])
+
+      const result = mergeDailyEntryPatches(patches, [existing])
+
+      expect(result.entriesToUpsert[0].calorieEntries).toHaveLength(1)
+      expect(result.entriesToUpsert[0].calorieEntries?.[0].id).toBe(
+        'hand-logged',
+      )
+    })
+  })
+
   it('counts days imported vs. days that already had an entry independently', () => {
     const patches = new Map<string, DailyEntryPatch>([
       ['2026-01-14', { weightKg: 59 }],

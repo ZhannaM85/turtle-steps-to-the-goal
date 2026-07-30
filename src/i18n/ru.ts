@@ -248,6 +248,7 @@ export const ru: Dictionary = {
     editStepsLabel: 'Изменить шаги',
     saveStepsLabel: 'Сохранить шаги',
     cancelEditStepsLabel: 'Отменить редактирование шагов',
+    mealsLabel: 'Приёмы пищи',
     bodyMeasurementsLabel: 'Измерения тела',
     editBodyMeasurementsLabel: 'Изменить измерения тела',
     saveBodyMeasurementsLabel: 'Сохранить измерения тела',
@@ -441,6 +442,21 @@ export const ru: Dictionary = {
     importedNothingSummary:
       'В этом экспорте не оказалось данных, которые отслеживает это приложение.',
     invalidFile: 'Это не похоже на файл экспорта Apple Health.',
+    importFailed: 'Не удалось выполнить импорт.',
+  },
+  myFitnessPalImport: {
+    importBlurb:
+      'Импортируйте историю приёмов пищи и веса из выгрузки данных MyFitnessPal.',
+    howToExportLabel: 'Как получить этот файл?',
+    howToExportSteps:
+      'Запросите выгрузку данных (Data Access Request) на myfitnesspal.com → Settings → Privacy Center → Manage My Data. Файл придёт на почту в формате .xlsx — подготовка может занять несколько дней.',
+    importButton: 'Импорт из MyFitnessPal',
+    importingButton: 'Импорт…',
+    importedSummary: (days, updated) =>
+      `Импортированы данные за ${dayCount(days)} из MyFitnessPal (обновлено записей: ${updated}).`,
+    importedNothingSummary:
+      'В этом экспорте не оказалось данных о приёмах пищи или весе для импорта.',
+    invalidFile: 'Это не похоже на файл экспорта MyFitnessPal.',
     importFailed: 'Не удалось выполнить импорт.',
   },
   exportXlsx: {
