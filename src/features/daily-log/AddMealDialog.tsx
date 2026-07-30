@@ -1068,11 +1068,14 @@ export function AddMealDialog({
                   />
                 </div>
                 {/* Sticky footer (reported live — the button was scrolled
-                 * out of view under a long enough item/Recent list).
-                 * pb-0 — confirmed live via devtools that any bottom
-                 * padding here (beyond the button's own) left a gap where
-                 * scrolled content bled through beneath the button. */}
-                <div className="sticky bottom-0 border-t border-border bg-card pt-3 pb-0">
+                 * out of view under a long enough item/Recent list). The
+                 * bleed-through bug traced to DialogContent's own bottom
+                 * padding (zeroed via its className prop above, see that
+                 * comment) — *this* div's own pb is safe to use for visual
+                 * clearance below the button, since it's this opaque box's
+                 * own interior space, not a gap the scrolled content can
+                 * show through. */}
+                <div className="sticky bottom-0 border-t border-border bg-card pt-3 pb-3">
                   <Button
                     type="button"
                     className="w-full"
