@@ -3,7 +3,11 @@ import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import type { DailyEntry } from '@/domain/dailyEntry'
-import { useDashboardChartVisibilityStore, useTrendChartSeriesStore } from '@/stores'
+import {
+  useDashboardChartVisibilityStore,
+  useOutlierExclusionStore,
+  useTrendChartSeriesStore,
+} from '@/stores'
 import { WeightTrendChart } from './WeightTrendChart'
 
 let idCounter = 0
@@ -246,6 +250,72 @@ describe('WeightTrendChart', () => {
       expect(
         screen.getByRole('button', { name: 'Next period' }),
       ).not.toBeDisabled()
+    })
+  })
+
+  describe('exclude abnormal weight points (#455)', () => {
+    afterEach(() => {
+      useOutlierExclusionStore.setState({ excluded: {} })
+    })
+
+    // #448's own day-over-day rule: 2026-03-02 is a 3kg jump from the
+    // previous calendar day (over the 2kg threshold) — 2026-03-03's own
+    // 0.2kg delta from *that* stays unflagged.
+    function entriesWithOneOutlier(): DailyEntry[] {
+      return [
+        entry('2026-03-01', { weightKg: 80 }),
+        entry('2026-03-02', { weightKg: 83 }),
+        entry('2026-03-03', { weightKg: 83.2 }),
+      ]
+    }
+
+    it('offers an Exclude chip for a flagged point', () => {
+      render(<WeightTrendChart entries={entriesWithOneOutlier()} />, {
+        wrapper: MemoryRouter,
+      })
+
+      expect(
+        screen.getByRole('button', {
+          name: 'Exclude 2 Mar 2026 from this pattern',
+        }),
+      ).toBeInTheDocument()
+    })
+
+    it('shows no chip list when nothing is flagged', () => {
+      render(<WeightTrendChart entries={threeWeightEntries()} />, {
+        wrapper: MemoryRouter,
+      })
+
+      expect(screen.queryByText('Unusual data points')).not.toBeInTheDocument()
+    })
+
+    it('toggles a flagged point to Restore once excluded, and back again', async () => {
+      const user = userEvent.setup()
+      render(<WeightTrendChart entries={entriesWithOneOutlier()} />, {
+        wrapper: MemoryRouter,
+      })
+
+      await user.click(
+        screen.getByRole('button', {
+          name: 'Exclude 2 Mar 2026 from this pattern',
+        }),
+      )
+      expect(
+        screen.getByRole('button', {
+          name: 'Restore 2 Mar 2026 to this pattern',
+        }),
+      ).toBeInTheDocument()
+
+      await user.click(
+        screen.getByRole('button', {
+          name: 'Restore 2 Mar 2026 to this pattern',
+        }),
+      )
+      expect(
+        screen.getByRole('button', {
+          name: 'Exclude 2 Mar 2026 from this pattern',
+        }),
+      ).toBeInTheDocument()
     })
   })
 })

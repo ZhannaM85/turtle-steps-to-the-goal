@@ -23,11 +23,29 @@ import {
   useLocale,
   useTranslation,
 } from '@/i18n'
-import { useDashboardChartVisibilityStore, useTrendChartSeriesStore, useUnitStore } from '@/stores'
+import {
+  useDashboardChartVisibilityStore,
+  useOutlierExclusionStore,
+  useTrendChartSeriesStore,
+  useUnitStore,
+} from '@/stores'
 import { ChartPeriodPagerControls } from './ChartPeriodPagerControls'
 import { ChartTitleWithToggle } from './ChartTitleWithToggle'
 import { resolveChartClickDate } from './chartNavigation'
+import { OutlierPointsList } from './OutlierPointsList'
 import { useChartPeriodPager } from './useChartPeriodPager'
+
+// #455 — same tap-to-exclude bookkeeping the 6 correlation views already
+// share via `useOutlierExclusion`/`OutlierPointsList`, reused here directly
+// against the store rather than that hook: this chart's own #448 flagging
+// (a flat day-over-day kg delta) isn't the 2D Tukey's-fences shape
+// `useOutlierExclusion` computes, so only the store + list component
+// generalize, not the flagging math itself. One stable view key, since
+// there's only ever one Weight trend chart.
+const WEIGHT_TREND_OUTLIER_VIEW_KEY = 'weightTrend'
+// Stable reference for "no exclusions yet" — see useOutlierExclusion.ts's
+// own identical comment for why a fresh `{}` per render would loop.
+const EMPTY_EXCLUDED: Record<string, true> = {}
 
 interface ChartPoint {
   date: string
@@ -74,6 +92,14 @@ export function WeightTrendChart({
   const locale = useLocale()
   const dateFnsLocale = getDateFnsLocale(locale)
   const displayUnit = useUnitStore((state) => state.unit)
+  // #455 — hooks must run before this component's own early returns below
+  // (rules-of-hooks), even though this value is only read much further down.
+  const excludedWeightDates = useOutlierExclusionStore(
+    (state) => state.excluded[WEIGHT_TREND_OUTLIER_VIEW_KEY] ?? EMPTY_EXCLUDED,
+  )
+  const toggleExcludedWeightDate = useOutlierExclusionStore(
+    (state) => state.toggleExcluded,
+  )
   const pager = useChartPeriodPager(period, customStart, customEnd, allEntries)
   const entries = pager.pagedEntries
   const toDisplay = (kg: number) => (displayUnit === 'lb' ? kgToLb(kg) : kg)
@@ -206,6 +232,17 @@ export function WeightTrendChart({
   )
   const isWeightOutlier = (date: string) => outlierDates.has(date)
 
+  // #455 — lets the user dismiss a flagged point they've confirmed is a
+  // real value, without it affecting anything else on the chart (the
+  // rolling average, or whether a neighboring day's own delta gets
+  // flagged, are both untouched — same "excluded from the summary, not
+  // rewritten out of the data" spirit the correlation views already use).
+  const isExcludedWeightDate = (date: string) =>
+    Boolean(excludedWeightDates[date])
+  const outlierWeightPoints = weightPoints.filter((point) =>
+    isWeightOutlier(point.date),
+  )
+
   const unit = unitLabel(displayUnit, t)
 
   // Tapping/hovering a point only ever shows the tooltip (#49) — the
@@ -318,7 +355,10 @@ export function WeightTrendChart({
                   return <g key={index} />
                 }
                 // #441 — an outlier point always renders flagged, not just
-                // when it's also the current-value marker below.
+                // when it's also the current-value marker below. #455: one
+                // the user has since excluded renders dimmed instead, same
+                // treatment `outlierScatterShape.tsx` already uses for the
+                // correlation views' own excluded points.
                 if (data[index] && isWeightOutlier(data[index].date)) {
                   return (
                     <circle
@@ -327,6 +367,7 @@ export function WeightTrendChart({
                       cy={cy}
                       r={4}
                       fill="var(--destructive)"
+                      opacity={isExcludedWeightDate(data[index].date) ? 0.3 : 1}
                     />
                   )
                 }
@@ -370,6 +411,20 @@ export function WeightTrendChart({
           </LineChart>
         </ResponsiveContainer>
       )}
+      {/* #455 — tap-to-exclude chips for every currently-flagged point,
+       * same shared component the 6 correlation views already use. */}
+      <OutlierPointsList
+        points={outlierWeightPoints}
+        isExcluded={(point) => isExcludedWeightDate(point.date)}
+        onToggle={(point) =>
+          toggleExcludedWeightDate(WEIGHT_TREND_OUTLIER_VIEW_KEY, point.date)
+        }
+        getKey={(point) => point.date}
+        getDate={(point) => point.date}
+        formatLabel={(point) =>
+          format(parseISO(point.date), 'd MMM yyyy', { locale: dateFnsLocale })
+        }
+      />
       {/* #238: legend doubles as a show/hide toggle per series — was purely
        * decorative before, no way to turn either off. Always rendered,
        * even in the bothHidden branch above — this is the only way back. */}
