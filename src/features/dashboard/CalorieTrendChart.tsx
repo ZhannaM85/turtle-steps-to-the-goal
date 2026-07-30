@@ -14,7 +14,7 @@ import {
 } from 'recharts'
 import { Link } from 'react-router-dom'
 import { totalCalories, type DailyEntry } from '@/domain/dailyEntry'
-import { rollingAverage } from '@/domain/stats'
+import { rollingAverage, type TrendChartPeriod } from '@/domain/stats'
 import {
   formatNumber,
   getDateFnsLocale,
@@ -22,8 +22,10 @@ import {
   useTranslation,
 } from '@/i18n'
 import { useDashboardChartVisibilityStore, useTrendChartSeriesStore } from '@/stores'
+import { ChartPeriodPagerControls } from './ChartPeriodPagerControls'
 import { ChartTitleWithToggle } from './ChartTitleWithToggle'
 import { resolveChartClickDate } from './chartNavigation'
+import { useChartPeriodPager } from './useChartPeriodPager'
 
 interface ChartPoint {
   date: string
@@ -37,15 +39,27 @@ const ROLLING_WINDOW_DAYS = 7
 const MIN_TREND_DATA_POINTS = 3
 
 export interface CalorieTrendChartProps {
+  /** #443 — see `WeightTrendChartProps.entries`'s identical doc comment. */
   entries: DailyEntry[]
+  period?: TrendChartPeriod
+  customStart?: string
+  customEnd?: string
   /** #355 — see `CorrelationViewProps.dragHandle`'s own doc comment. */
   dragHandle?: ReactNode
 }
 
-export function CalorieTrendChart({ entries, dragHandle }: CalorieTrendChartProps) {
+export function CalorieTrendChart({
+  entries: allEntries,
+  period = 'all',
+  customStart = '',
+  customEnd = '',
+  dragHandle,
+}: CalorieTrendChartProps) {
   const t = useTranslation()
   const locale = useLocale()
   const dateFnsLocale = getDateFnsLocale(locale)
+  const pager = useChartPeriodPager(period, customStart, customEnd, allEntries)
+  const entries = pager.pagedEntries
   // #238 — see WeightTrendChart.tsx's identical note.
   const visible = useTrendChartSeriesStore((state) => state.visible.calories)
   const toggleSeries = useTrendChartSeriesStore((state) => state.toggleSeries)
@@ -65,7 +79,25 @@ export function CalorieTrendChart({ entries, dragHandle }: CalorieTrendChartProp
     )
     .sort((a, b) => a.date.localeCompare(b.date))
 
-  if (calorieBars.length === 0) return null
+  // #443 — see WeightTrendChart.tsx's identical note on why this only
+  // stops rendering entirely (rather than showing the pager) when paging
+  // is inactive.
+  if (calorieBars.length === 0) {
+    if (!pager.showPager) return null
+    return (
+      <div className="flex flex-col gap-1.5 rounded-lg border border-border p-3">
+        <ChartTitleWithToggle
+          chart="calories"
+          title={t.dashboard.calorieTrendTitle}
+          dragHandle={dragHandle}
+        />
+        <p className="text-sm text-muted-foreground">
+          {t.dashboard.notEnoughTrendDataMessage}
+        </p>
+        <ChartPeriodPagerControls pager={pager} />
+      </div>
+    )
+  }
 
   const chartTitle = (
     <ChartTitleWithToggle
@@ -86,6 +118,7 @@ export function CalorieTrendChart({ entries, dragHandle }: CalorieTrendChartProp
         <p className="text-sm text-muted-foreground">
           {t.dashboard.notEnoughTrendDataMessage}
         </p>
+        <ChartPeriodPagerControls pager={pager} />
       </div>
     )
   }
@@ -258,6 +291,7 @@ export function CalorieTrendChart({ entries, dragHandle }: CalorieTrendChartProp
           {t.dashboard.chartNavigationHint}
         </p>
       )}
+      <ChartPeriodPagerControls pager={pager} />
     </div>
   )
 }

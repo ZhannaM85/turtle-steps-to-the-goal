@@ -18,6 +18,7 @@ import {
   totalProtein,
   type DailyEntry,
 } from '@/domain/dailyEntry'
+import type { TrendChartPeriod } from '@/domain/stats'
 import {
   formatNumber,
   getDateFnsLocale,
@@ -25,8 +26,10 @@ import {
   useTranslation,
 } from '@/i18n'
 import { useDashboardChartVisibilityStore } from '@/stores'
+import { ChartPeriodPagerControls } from './ChartPeriodPagerControls'
 import { ChartTitleWithToggle } from './ChartTitleWithToggle'
 import { resolveChartClickDate } from './chartNavigation'
+import { useChartPeriodPager } from './useChartPeriodPager'
 
 interface MacroPoint {
   date: string
@@ -39,7 +42,11 @@ interface MacroPoint {
 const MIN_TREND_DATA_POINTS = 3
 
 export interface MacroTrendChartProps {
+  /** #443 — see `WeightTrendChartProps.entries`'s identical doc comment. */
   entries: DailyEntry[]
+  period?: TrendChartPeriod
+  customStart?: string
+  customEnd?: string
   /** #355 — see `CorrelationViewProps.dragHandle`'s own doc comment. */
   dragHandle?: ReactNode
 }
@@ -50,10 +57,18 @@ export interface MacroTrendChartProps {
  * comparable in scale, and this keeps the Dashboard from growing three more
  * full-width charts on top of weight/calories/correlation.
  */
-export function MacroTrendChart({ entries, dragHandle }: MacroTrendChartProps) {
+export function MacroTrendChart({
+  entries: allEntries,
+  period = 'all',
+  customStart = '',
+  customEnd = '',
+  dragHandle,
+}: MacroTrendChartProps) {
   const t = useTranslation()
   const locale = useLocale()
   const dateFnsLocale = getDateFnsLocale(locale)
+  const pager = useChartPeriodPager(period, customStart, customEnd, allEntries)
+  const entries = pager.pagedEntries
   // #245 — see WeightTrendChart.tsx's identical note.
   const chartVisible = useDashboardChartVisibilityStore(
     (state) => state.visible.macros,
@@ -74,7 +89,25 @@ export function MacroTrendChart({ entries, dragHandle }: MacroTrendChartProps) {
     )
     .sort((a, b) => a.date.localeCompare(b.date))
 
-  if (data.length === 0) return null
+  // #443 — see WeightTrendChart.tsx's identical note on why this only
+  // stops rendering entirely (rather than showing the pager) when paging
+  // is inactive.
+  if (data.length === 0) {
+    if (!pager.showPager) return null
+    return (
+      <div className="flex flex-col gap-1.5 rounded-lg border border-border p-3">
+        <ChartTitleWithToggle
+          chart="macros"
+          title={t.dashboard.macrosTitle}
+          dragHandle={dragHandle}
+        />
+        <p className="text-sm text-muted-foreground">
+          {t.dashboard.notEnoughTrendDataMessage}
+        </p>
+        <ChartPeriodPagerControls pager={pager} />
+      </div>
+    )
+  }
 
   const chartTitle = (
     <ChartTitleWithToggle
@@ -95,6 +128,7 @@ export function MacroTrendChart({ entries, dragHandle }: MacroTrendChartProps) {
         <p className="text-sm text-muted-foreground">
           {t.dashboard.notEnoughTrendDataMessage}
         </p>
+        <ChartPeriodPagerControls pager={pager} />
       </div>
     )
   }
@@ -232,6 +266,7 @@ export function MacroTrendChart({ entries, dragHandle }: MacroTrendChartProps) {
       <p className="text-xs text-muted-foreground">
         {t.dashboard.chartNavigationHint}
       </p>
+      <ChartPeriodPagerControls pager={pager} />
     </div>
   )
 }

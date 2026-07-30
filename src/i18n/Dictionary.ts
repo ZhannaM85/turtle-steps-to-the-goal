@@ -929,6 +929,10 @@ export interface Dictionary {
     viewOutlierDayLabel: (label: string) => string
     weeklyChangeLegend: string
     chartNavigationHint: string
+    /** #443 — per-chart prev/next paging within the shared Week/Month/Year
+     * period type, see `useChartPeriodPager`'s own doc comment. */
+    previousPeriodLabel: string
+    nextPeriodLabel: string
     viewDayLink: string
     /** Latest-meal-time vs. next-day weight chart (#116) — distinct from
      * the calories-vs-weekly-change correlation above (correlationTitle

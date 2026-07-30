@@ -570,6 +570,8 @@ export const ru: Dictionary = {
     viewOutlierDayLabel: (label) => `Редактировать ${label}`,
     weeklyChangeLegend: 'изменение за неделю',
     chartNavigationHint: 'Нажмите на точку для подробностей',
+    previousPeriodLabel: 'Предыдущий период',
+    nextPeriodLabel: 'Следующий период',
     viewDayLink: 'Открыть этот день',
     lateMealTitle: 'Время последнего приёма пищи и вес на следующий день',
     lateMealEmptyDescription:

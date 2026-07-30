@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
-import { afterEach, describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import type { DailyEntry } from '@/domain/dailyEntry'
 import { useDashboardChartVisibilityStore, useTrendChartSeriesStore } from '@/stores'
 import { WeightTrendChart } from './WeightTrendChart'
@@ -183,6 +183,69 @@ describe('WeightTrendChart', () => {
 
       await user.click(showButton)
       expect(screen.getByText('weight')).toBeInTheDocument()
+    })
+  })
+
+  describe('prev/next period paging (#443)', () => {
+    afterEach(() => {
+      vi.useRealTimers()
+    })
+
+    it('shows no paging arrows when no period is passed (pre-#443 behavior)', () => {
+      render(<WeightTrendChart entries={threeWeightEntries()} />, {
+        wrapper: MemoryRouter,
+      })
+
+      expect(
+        screen.queryByRole('button', { name: 'Previous period' }),
+      ).not.toBeInTheDocument()
+    })
+
+    it("shows arrows and the current week's range once period='week' is passed", () => {
+      vi.useFakeTimers({ toFake: ['Date'] })
+      vi.setSystemTime(new Date('2026-07-28T12:00:00.000Z'))
+      const entries = [
+        entry('2026-07-15', { weightKg: 80 }),
+        entry('2026-07-16', { weightKg: 80.2 }),
+        entry('2026-07-17', { weightKg: 80.1 }),
+        entry('2026-07-25', { weightKg: 79 }),
+        entry('2026-07-26', { weightKg: 78.8 }),
+        entry('2026-07-27', { weightKg: 78.9 }),
+      ]
+
+      render(<WeightTrendChart entries={entries} period="week" />, {
+        wrapper: MemoryRouter,
+      })
+
+      expect(screen.getByText('22.07.26 – 28.07.26')).toBeInTheDocument()
+      expect(
+        screen.getByRole('button', { name: 'Next period' }),
+      ).toBeDisabled()
+    })
+
+    it('goes to the previous week when the Previous period arrow is clicked', async () => {
+      vi.useFakeTimers({ toFake: ['Date'] })
+      vi.setSystemTime(new Date('2026-07-28T12:00:00.000Z'))
+      const user = userEvent.setup({ delay: null })
+      const entries = [
+        entry('2026-07-15', { weightKg: 80 }),
+        entry('2026-07-16', { weightKg: 80.2 }),
+        entry('2026-07-17', { weightKg: 80.1 }),
+        entry('2026-07-25', { weightKg: 79 }),
+        entry('2026-07-26', { weightKg: 78.8 }),
+        entry('2026-07-27', { weightKg: 78.9 }),
+      ]
+
+      render(<WeightTrendChart entries={entries} period="week" />, {
+        wrapper: MemoryRouter,
+      })
+
+      await user.click(screen.getByRole('button', { name: 'Previous period' }))
+
+      expect(screen.getByText('15.07.26 – 21.07.26')).toBeInTheDocument()
+      expect(
+        screen.getByRole('button', { name: 'Next period' }),
+      ).not.toBeDisabled()
     })
   })
 })

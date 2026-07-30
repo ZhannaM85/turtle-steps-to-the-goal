@@ -21,10 +21,22 @@ export interface TrendChartPeriodRange {
   end: string | null
 }
 
-const ROLLING_WINDOW_DAYS: Record<'week' | 'month' | 'year', number> = {
+// #443 — exported so `useChartPeriodPager` can page a chart's own anchor
+// backward/forward by exactly one window's worth of days, reusing the same
+// window sizes this file already defines rather than duplicating them.
+export const ROLLING_WINDOW_DAYS: Record<'week' | 'month' | 'year', number> = {
   week: 6,
   month: 29,
   year: 364,
+}
+
+/** Only Week/Month/Year are rolling windows anchored to "today" -- 'all' has
+ * no natural "next unit" and 'custom' is already an arbitrary user-picked
+ * range, so neither has a meaningful "page to the next one" action (#443). */
+export function isPageableTrendChartPeriod(
+  period: TrendChartPeriod,
+): period is 'week' | 'month' | 'year' {
+  return period === 'week' || period === 'month' || period === 'year'
 }
 
 /**

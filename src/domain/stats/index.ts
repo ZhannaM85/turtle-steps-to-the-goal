@@ -77,6 +77,8 @@ export type { DateRangeSummary } from './dateRangeSummary'
 export {
   resolveTrendChartPeriodRange,
   filterEntriesByTrendChartPeriod,
+  isPageableTrendChartPeriod,
+  ROLLING_WINDOW_DAYS,
 } from './trendChartPeriod'
 export type {
   TrendChartPeriod,

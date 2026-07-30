@@ -184,27 +184,45 @@ export function DashboardScreen() {
     DashboardChartKey,
     (dragHandle: ReactNode) => ReactNode
   > = {
+    // #443 — these 4 pass the *full* `entries`, not `periodFilteredEntries`,
+    // plus the period/custom-range values themselves: each chart now
+    // resolves (and can page independently past) its own visible window
+    // via `useChartPeriodPager`, rather than receiving an already-fixed
+    // slice with no way to see beyond it. Every other section below is
+    // unaffected, still reading the pre-filtered `periodFilteredEntries`.
     weight: (dragHandle) => (
       <WeightTrendChart
-        entries={periodFilteredEntries}
+        entries={entries}
+        period={trendChartPeriod}
+        customStart={trendChartCustomStart}
+        customEnd={trendChartCustomEnd}
         dragHandle={dragHandle}
       />
     ),
     calories: (dragHandle) => (
       <CalorieTrendChart
-        entries={periodFilteredEntries}
+        entries={entries}
+        period={trendChartPeriod}
+        customStart={trendChartCustomStart}
+        customEnd={trendChartCustomEnd}
         dragHandle={dragHandle}
       />
     ),
     macros: (dragHandle) => (
       <MacroTrendChart
-        entries={periodFilteredEntries}
+        entries={entries}
+        period={trendChartPeriod}
+        customStart={trendChartCustomStart}
+        customEnd={trendChartCustomEnd}
         dragHandle={dragHandle}
       />
     ),
     bodyComposition: (dragHandle) => (
       <BodyCompositionTrendChart
-        entries={periodFilteredEntries}
+        entries={entries}
+        period={trendChartPeriod}
+        customStart={trendChartCustomStart}
+        customEnd={trendChartCustomEnd}
         dragHandle={dragHandle}
       />
     ),

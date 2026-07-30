@@ -15,7 +15,7 @@ import {
 import { Link } from 'react-router-dom'
 import type { DailyEntry } from '@/domain/dailyEntry'
 import { kgToLb } from '@/domain/goal'
-import { rollingAverage } from '@/domain/stats'
+import { rollingAverage, type TrendChartPeriod } from '@/domain/stats'
 import {
   formatNumber,
   getDateFnsLocale,
@@ -24,8 +24,10 @@ import {
   useTranslation,
 } from '@/i18n'
 import { useDashboardChartVisibilityStore, useTrendChartSeriesStore, useUnitStore } from '@/stores'
+import { ChartPeriodPagerControls } from './ChartPeriodPagerControls'
 import { ChartTitleWithToggle } from './ChartTitleWithToggle'
 import { resolveChartClickDate } from './chartNavigation'
+import { useChartPeriodPager } from './useChartPeriodPager'
 
 interface ChartPoint {
   date: string
@@ -47,16 +49,33 @@ const ROLLING_WINDOW_DAYS = 7
 const MIN_TREND_DATA_POINTS = 3
 
 export interface WeightTrendChartProps {
+  /** #443 — the *full*, not period-filtered, set: this chart resolves its
+   * own visible window via `useChartPeriodPager` (using `period` below),
+   * since paging needs access to days outside whatever range the caller
+   * would otherwise have pre-filtered to. */
   entries: DailyEntry[]
+  /** #443 — defaults to 'all' (no paging) so every pre-#443 caller/test
+   * that never passes this behaves exactly as before. */
+  period?: TrendChartPeriod
+  customStart?: string
+  customEnd?: string
   /** #355 — see `CorrelationViewProps.dragHandle`'s own doc comment. */
   dragHandle?: ReactNode
 }
 
-export function WeightTrendChart({ entries, dragHandle }: WeightTrendChartProps) {
+export function WeightTrendChart({
+  entries: allEntries,
+  period = 'all',
+  customStart = '',
+  customEnd = '',
+  dragHandle,
+}: WeightTrendChartProps) {
   const t = useTranslation()
   const locale = useLocale()
   const dateFnsLocale = getDateFnsLocale(locale)
   const displayUnit = useUnitStore((state) => state.unit)
+  const pager = useChartPeriodPager(period, customStart, customEnd, allEntries)
+  const entries = pager.pagedEntries
   const toDisplay = (kg: number) => (displayUnit === 'lb' ? kgToLb(kg) : kg)
   // #238 — independent per chart, someone might want the average on one
   // trend chart and not the other.
@@ -76,7 +95,27 @@ export function WeightTrendChart({ entries, dragHandle }: WeightTrendChartProps)
     .sort((a, b) => a.date.localeCompare(b.date))
     .map((entry) => ({ date: entry.date, weight: toDisplay(entry.weightKg) }))
 
-  if (weightPoints.length === 0) return null
+  // #443 — when paging is active (period is week/month/year), a paged-to
+  // window can legitimately have zero points even though other windows
+  // don't; returning null would strand the user with no way to page back.
+  // With paging inactive ('all'/'custom', every pre-#443 caller), this
+  // stays the exact `return null` it always was.
+  if (weightPoints.length === 0) {
+    if (!pager.showPager) return null
+    return (
+      <div className="flex flex-col gap-1.5 rounded-lg border border-border p-3">
+        <ChartTitleWithToggle
+          chart="weight"
+          title={t.dashboard.weightTrendTitle}
+          dragHandle={dragHandle}
+        />
+        <p className="text-sm text-muted-foreground">
+          {t.dashboard.notEnoughTrendDataMessage}
+        </p>
+        <ChartPeriodPagerControls pager={pager} />
+      </div>
+    )
+  }
 
   const chartTitle = (
     <ChartTitleWithToggle
@@ -97,6 +136,7 @@ export function WeightTrendChart({ entries, dragHandle }: WeightTrendChartProps)
         <p className="text-sm text-muted-foreground">
           {t.dashboard.notEnoughTrendDataMessage}
         </p>
+        <ChartPeriodPagerControls pager={pager} />
       </div>
     )
   }
@@ -374,6 +414,7 @@ export function WeightTrendChart({ entries, dragHandle }: WeightTrendChartProps)
           {t.dashboard.chartNavigationHint}
         </p>
       )}
+      <ChartPeriodPagerControls pager={pager} />
     </div>
   )
 }

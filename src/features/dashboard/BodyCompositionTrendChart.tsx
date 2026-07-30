@@ -17,6 +17,7 @@ import {
   BODY_COMPOSITION_SERIES_KEYS,
   bodyCompositionPoints,
   type BodyCompositionSeriesKey,
+  type TrendChartPeriod,
 } from '@/domain/stats'
 import {
   formatExactNumber,
@@ -31,8 +32,10 @@ import {
   useDashboardChartVisibilityStore,
   useTrackedFieldsStore,
 } from '@/stores'
+import { ChartPeriodPagerControls } from './ChartPeriodPagerControls'
 import { ChartTitleWithToggle } from './ChartTitleWithToggle'
 import { resolveChartClickDate } from './chartNavigation'
+import { useChartPeriodPager } from './useChartPeriodPager'
 
 // See WeightTrendChart.tsx's identical constant/reasoning (#217).
 const MIN_TREND_DATA_POINTS = 3
@@ -78,7 +81,11 @@ function unitFor(t: Dictionary, key: BodyCompositionSeriesKey): string {
 }
 
 export interface BodyCompositionTrendChartProps {
+  /** #443 — see `WeightTrendChartProps.entries`'s identical doc comment. */
   entries: DailyEntry[]
+  period?: TrendChartPeriod
+  customStart?: string
+  customEnd?: string
   /** #355 — see `CorrelationViewProps.dragHandle`'s own doc comment. */
   dragHandle?: ReactNode
 }
@@ -103,12 +110,17 @@ export interface BodyCompositionTrendChartProps {
  * selected keeps that normalized behavior, just for the chosen subset.
  */
 export function BodyCompositionTrendChart({
-  entries,
+  entries: allEntries,
+  period = 'all',
+  customStart = '',
+  customEnd = '',
   dragHandle,
 }: BodyCompositionTrendChartProps) {
   const t = useTranslation()
   const locale = useLocale()
   const dateFnsLocale = getDateFnsLocale(locale)
+  const pager = useChartPeriodPager(period, customStart, customEnd, allEntries)
+  const entries = pager.pagedEntries
   const trackedFields = useTrackedFieldsStore((state) => state.tracked)
   const chartVisible = useDashboardChartVisibilityStore(
     (state) => state.visible.bodyComposition,
@@ -122,8 +134,6 @@ export function BodyCompositionTrendChart({
 
   const points = bodyCompositionPoints(entries)
 
-  if (points.length === 0) return null
-
   const chartTitle = (
     <ChartTitleWithToggle
       chart="bodyComposition"
@@ -131,6 +141,22 @@ export function BodyCompositionTrendChart({
       dragHandle={dragHandle}
     />
   )
+
+  // #443 — see WeightTrendChart.tsx's identical note on why this only
+  // stops rendering entirely (rather than showing the pager) when paging
+  // is inactive.
+  if (points.length === 0) {
+    if (!pager.showPager) return null
+    return (
+      <div className="flex flex-col gap-1.5 rounded-lg border border-border p-3">
+        {chartTitle}
+        <p className="text-sm text-muted-foreground">
+          {t.dashboard.notEnoughTrendDataMessage}
+        </p>
+        <ChartPeriodPagerControls pager={pager} />
+      </div>
+    )
+  }
 
   if (!chartVisible) {
     return <div className="flex flex-col gap-1.5 rounded-lg border border-border p-3">{chartTitle}</div>
@@ -143,6 +169,7 @@ export function BodyCompositionTrendChart({
         <p className="text-sm text-muted-foreground">
           {t.dashboard.notEnoughTrendDataMessage}
         </p>
+        <ChartPeriodPagerControls pager={pager} />
       </div>
     )
   }
@@ -228,6 +255,7 @@ export function BodyCompositionTrendChart({
         <p className="text-sm text-muted-foreground">
           {t.dashboard.bodyCompositionEmptyDescription}
         </p>
+        <ChartPeriodPagerControls pager={pager} />
       </div>
     )
   }
@@ -357,6 +385,7 @@ export function BodyCompositionTrendChart({
       <p className="text-xs text-muted-foreground">
         {t.dashboard.chartNavigationHint}
       </p>
+      <ChartPeriodPagerControls pager={pager} />
     </div>
   )
 }

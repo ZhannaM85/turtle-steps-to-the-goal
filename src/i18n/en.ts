@@ -549,6 +549,8 @@ export const en: Dictionary = {
     viewOutlierDayLabel: (label) => `Edit ${label}`,
     weeklyChangeLegend: 'weekly change',
     chartNavigationHint: 'Tap a point for details',
+    previousPeriodLabel: 'Previous period',
+    nextPeriodLabel: 'Next period',
     viewDayLink: 'View this day',
     lateMealTitle: 'Meal timing vs. next-day weight',
     lateMealEmptyDescription:
