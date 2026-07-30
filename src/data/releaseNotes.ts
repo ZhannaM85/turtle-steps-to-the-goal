@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 402,
+    issue: 457,
+    date: '2026-07-30T23:55:05+03:00',
+    en: 'When logging a dish by its total (Portion mode), you can now also record its weight in grams, so a per-100g rate is saved too.',
+    ru: 'При добавлении блюда по итоговому значению (режим "Порция") теперь можно также указать вес в граммах — это позволит сохранить показатель на 100 г.',
+  },
+  {
     version: 401,
     issue: 456,
     date: '2026-07-30T22:36:13+03:00',
