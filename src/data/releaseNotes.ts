@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 387,
+    issue: 442,
+    date: '2026-07-30T12:19:54+03:00',
+    en: 'Tapping "View this day" on the Weight, Calorie, Macro, or Body composition graphs now opens that day on Today (fully editable), instead of History.',
+    ru: 'Нажатие "Открыть этот день" на графиках веса, калорий, макросов или состава тела теперь открывает этот день на вкладке Сегодня (полностью редактируемый), а не в Истории.',
+  },
+  {
     version: 386,
     issue: 440,
     date: '2026-07-30T12:14:07+03:00',

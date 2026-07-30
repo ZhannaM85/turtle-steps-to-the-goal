@@ -135,7 +135,7 @@ export function MacroTrendChart({ entries, dragHandle }: MacroTrendChartProps) {
         ))}
         {date && (
           <Link
-            to={`/history?date=${date}`}
+            to={`/?date=${date}`}
             className="mt-1.5 flex items-center gap-1 font-medium text-primary underline-offset-4 hover:underline"
           >
             {t.dashboard.viewDayLink}
