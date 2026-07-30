@@ -72,31 +72,33 @@ describe('CustomChartView', () => {
     render(<CustomChartView entries={[entry('2026-03-01', { weightKg: 80 })]} />)
 
     expect(screen.getByText('Compare your data')).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Weight' })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Calories' })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Protein' })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Fat' })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Carbs' })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Water' })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Steps' })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Waist' })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Hip' })).toBeInTheDocument()
+    // #451 — each series' unit now lives on its own toggle button, moved
+    // off the Y-axis ticks (Steps has no unit, same as before).
+    expect(screen.getByRole('button', { name: 'Weight (kg)' })).toBeInTheDocument()
     expect(
-      screen.getByRole('button', { name: 'Body fat' }),
+      screen.getByRole('button', { name: 'Calories (kcal)' }),
+    ).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Protein (g)' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Fat (g)' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Carbs (g)' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Water (ml)' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Steps' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Waist (cm)' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Hip (cm)' })).toBeInTheDocument()
+    expect(
+      screen.getByRole('button', { name: 'Body fat (%)' }),
     ).toBeInTheDocument()
   })
 
   it('defaults to Weight and Calories selected, shown in the legend', () => {
     render(<CustomChartView entries={[entry('2026-03-01', { weightKg: 80 })]} />)
 
-    expect(screen.getByRole('button', { name: 'Weight' })).toHaveAttribute(
-      'data-state',
-      'on',
-    )
-    expect(screen.getByRole('button', { name: 'Calories' })).toHaveAttribute(
-      'data-state',
-      'on',
-    )
+    expect(
+      screen.getByRole('button', { name: 'Weight (kg)' }),
+    ).toHaveAttribute('data-state', 'on')
+    expect(
+      screen.getByRole('button', { name: 'Calories (kcal)' }),
+    ).toHaveAttribute('data-state', 'on')
     expect(screen.getByRole('button', { name: 'Steps' })).toHaveAttribute(
       'data-state',
       'off',
@@ -107,8 +109,8 @@ describe('CustomChartView', () => {
     const user = userEvent.setup()
     render(<CustomChartView entries={[entry('2026-03-01', { weightKg: 80 })]} />)
 
-    await user.click(screen.getByRole('button', { name: 'Weight' }))
-    await user.click(screen.getByRole('button', { name: 'Calories' }))
+    await user.click(screen.getByRole('button', { name: 'Weight (kg)' }))
+    await user.click(screen.getByRole('button', { name: 'Calories (kcal)' }))
 
     expect(
       screen.getByText('Pick at least one to compare.'),
@@ -138,13 +140,13 @@ describe('CustomChartView', () => {
     render(<CustomChartView entries={[entry('2026-03-01', { weightKg: 80 })]} />)
 
     expect(
-      screen.queryByRole('button', { name: 'Waist' }),
+      screen.queryByRole('button', { name: 'Waist (cm)' }),
     ).not.toBeInTheDocument()
     expect(
-      screen.queryByRole('button', { name: 'Hip' }),
+      screen.queryByRole('button', { name: 'Hip (cm)' }),
     ).not.toBeInTheDocument()
     expect(
-      screen.getByRole('button', { name: 'Body fat' }),
+      screen.getByRole('button', { name: 'Body fat (%)' }),
     ).toBeInTheDocument()
   })
 
@@ -155,10 +157,12 @@ describe('CustomChartView', () => {
     render(<CustomChartView entries={[entry('2026-03-01', { weightKg: 80 })]} />)
 
     expect(
-      screen.queryByRole('button', { name: 'Body fat' }),
+      screen.queryByRole('button', { name: 'Body fat (%)' }),
     ).not.toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Waist' })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Hip' })).toBeInTheDocument()
+    expect(
+      screen.getByRole('button', { name: 'Waist (cm)' }),
+    ).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Hip (cm)' })).toBeInTheDocument()
   })
 
   it('shows the period checkbox once cycle tracking is enabled', () => {
@@ -264,7 +268,7 @@ describe('CustomChartView', () => {
       <CustomChartView entries={[entry('2026-03-01', { weightKg: 80 })]} />,
     )
 
-    await user.click(screen.getByRole('button', { name: 'Calories' })) // deselect
+    await user.click(screen.getByRole('button', { name: 'Calories (kcal)' })) // deselect
     await user.click(screen.getByRole('button', { name: 'Steps' })) // select
     const weightTypes = screen.getByRole('radiogroup', {
       name: 'Chart type for Weight',
@@ -276,7 +280,7 @@ describe('CustomChartView', () => {
     // not just a re-render of the same instance.
     render(<CustomChartView entries={[entry('2026-03-01', { weightKg: 80 })]} />)
 
-    expect(screen.getByRole('button', { name: 'Calories' })).toHaveAttribute(
+    expect(screen.getByRole('button', { name: 'Calories (kcal)' })).toHaveAttribute(
       'data-state',
       'off',
     )
@@ -320,7 +324,7 @@ describe('CustomChartView', () => {
       const user = userEvent.setup()
       render(<CustomChartView entries={[entry('2026-03-01', { weightKg: 80 })]} />)
 
-      await user.click(screen.getByRole('button', { name: 'Calories' })) // down to 1
+      await user.click(screen.getByRole('button', { name: 'Calories (kcal)' })) // down to 1
 
       expect(
         screen.queryByText(/Each line is scaled to its own range/),
@@ -354,7 +358,7 @@ describe('CustomChartView', () => {
       const user = userEvent.setup()
       render(<CustomChartView entries={[entry('2026-03-01', { weightKg: 80 })]} />)
 
-      await user.click(screen.getByRole('button', { name: 'Protein' })) // up to 3
+      await user.click(screen.getByRole('button', { name: 'Protein (g)' })) // up to 3
 
       expect(
         screen.getByText(/Each line is scaled to its own range/),
@@ -431,8 +435,8 @@ describe('CustomChartView', () => {
       const user = userEvent.setup()
       render(<CustomChartView entries={[entry('2026-03-01', { weightKg: 80 })]} />)
 
-      await user.click(screen.getByRole('button', { name: 'Weight' })) // deselect
-      await user.click(screen.getByRole('button', { name: 'Calories' })) // deselect
+      await user.click(screen.getByRole('button', { name: 'Weight (kg)' })) // deselect
+      await user.click(screen.getByRole('button', { name: 'Calories (kcal)' })) // deselect
       await user.click(screen.getByRole('button', { name: 'Acne' })) // select
 
       expect(
@@ -464,8 +468,8 @@ describe('CustomChartView', () => {
       })
       render(<CustomChartView entries={[entry('2026-03-01', { weightKg: 80 })]} />)
 
-      await user.click(screen.getByRole('button', { name: 'Weight' })) // deselect
-      await user.click(screen.getByRole('button', { name: 'Calories' })) // deselect
+      await user.click(screen.getByRole('button', { name: 'Weight (kg)' })) // deselect
+      await user.click(screen.getByRole('button', { name: 'Calories (kcal)' })) // deselect
       await user.click(screen.getByRole('button', { name: 'Acne' })) // select
 
       // Renders without crashing and shows the chart (not the empty message)
@@ -507,7 +511,7 @@ describe('CustomChartView', () => {
       await user.click(hideButton)
 
       expect(
-        screen.queryByRole('button', { name: 'Weight' }),
+        screen.queryByRole('button', { name: 'Weight (kg)' }),
       ).not.toBeInTheDocument()
       expect(screen.getByText('Compare your data')).toBeInTheDocument()
       const showButton = screen.getByRole('button', {
@@ -516,7 +520,7 @@ describe('CustomChartView', () => {
       expect(showButton).toBeInTheDocument()
 
       await user.click(showButton)
-      expect(screen.getByRole('button', { name: 'Weight' })).toBeInTheDocument()
+      expect(screen.getByRole('button', { name: 'Weight (kg)' })).toBeInTheDocument()
     })
   })
 })

@@ -139,7 +139,21 @@ const BOOLEAN_MARKER_Y = 100
  */
 function useNumericSeriesConfig(): Record<
   NumericSeriesKey,
-  { label: string; color: string; formatRaw: (value: number) => string }
+  {
+    label: string
+    color: string
+    formatRaw: (value: number) => string
+    /** #451 — bare-number formatting for the Y-axis tick labels specifically
+     * (no unit suffix, unlike `formatRaw` above, which still carries it for
+     * the tooltip/legend's own per-point value text — moved to `unit`
+     * below instead, appended to this series' own selection toggle button
+     * so it isn't repeated on every single tick). */
+    formatAxisTick: (value: number) => string
+    /** Undefined for steps/sleep, which never had a unit suffix to begin
+     * with (a bare count / bare hour number was already the pre-#451
+     * behavior for both). */
+    unit?: string
+  }
 > {
   const t = useTranslation()
   const locale = useLocale()
@@ -154,30 +168,40 @@ function useNumericSeriesConfig(): Record<
       color: 'var(--chart-weight)',
       formatRaw: (value) =>
         `${formatNumber(toDisplayWeight(value), locale)} ${weightUnit}`,
+      formatAxisTick: (value) => formatNumber(toDisplayWeight(value), locale),
+      unit: weightUnit,
     },
     calories: {
       label: t.dashboard.customChartCaloriesLabel,
       color: 'var(--chart-calories)',
       formatRaw: (value) =>
         `${formatNumber(value, locale, 0)} ${t.dailyEntry.kcalUnit}`,
+      formatAxisTick: (value) => formatNumber(value, locale, 0),
+      unit: t.dailyEntry.kcalUnit,
     },
     protein: {
       label: t.dailyEntry.proteinLabel,
       color: 'var(--chart-protein)',
       formatRaw: (value) =>
         `${formatNumber(value, locale, 0)}${t.dailyEntry.gramsUnit}`,
+      formatAxisTick: (value) => formatNumber(value, locale, 0),
+      unit: t.dailyEntry.gramsUnit,
     },
     fat: {
       label: t.dailyEntry.fatLabel,
       color: 'var(--chart-fat)',
       formatRaw: (value) =>
         `${formatNumber(value, locale, 0)}${t.dailyEntry.gramsUnit}`,
+      formatAxisTick: (value) => formatNumber(value, locale, 0),
+      unit: t.dailyEntry.gramsUnit,
     },
     carbs: {
       label: t.dailyEntry.carbsLabel,
       color: 'var(--chart-carbs)',
       formatRaw: (value) =>
         `${formatNumber(value, locale, 0)}${t.dailyEntry.gramsUnit}`,
+      formatAxisTick: (value) => formatNumber(value, locale, 0),
+      unit: t.dailyEntry.gramsUnit,
     },
     // #325: unlike steps/waist/hip/bodyFat/fastingHours below, water has no
     // unused generic --chart-1..5 slot left to borrow (all five are already
@@ -190,6 +214,8 @@ function useNumericSeriesConfig(): Record<
       color: 'var(--stat-water)',
       formatRaw: (value) =>
         `${formatNumber(value, locale, 0)} ${t.dailyEntry.mlUnit}`,
+      formatAxisTick: (value) => formatNumber(value, locale, 0),
+      unit: t.dailyEntry.mlUnit,
     },
     // Reuses one of the design system's generic, otherwise-unused chart
     // color slots (--chart-1..5) — steps has no dedicated token of its own
@@ -198,6 +224,7 @@ function useNumericSeriesConfig(): Record<
       label: t.dailyEntry.stepsLabel,
       color: 'var(--chart-1)',
       formatRaw: (value) => formatNumber(value, locale, 0),
+      formatAxisTick: (value) => formatNumber(value, locale, 0),
     },
     // #440: its own dedicated token, not a reused generic --chart-4/5 slot
     // — see index.css's own comment for why (the #347/#350 bar-mode-reads-
@@ -206,6 +233,7 @@ function useNumericSeriesConfig(): Record<
       label: t.dailyEntry.sleepLabel,
       color: 'var(--chart-sleep)',
       formatRaw: (value) => formatNumber(value, locale),
+      formatAxisTick: (value) => formatNumber(value, locale),
     },
     // #225: also reuse otherwise-unused generic --chart-* slots, same
     // reasoning as steps above — none of these three have a dedicated
@@ -214,11 +242,15 @@ function useNumericSeriesConfig(): Record<
       label: t.dailyEntry.waistLabel,
       color: 'var(--chart-2)',
       formatRaw: (value) => `${formatNumber(value, locale)}${t.dailyEntry.cmUnit}`,
+      formatAxisTick: (value) => formatNumber(value, locale),
+      unit: t.dailyEntry.cmUnit,
     },
     hip: {
       label: t.dailyEntry.hipLabel,
       color: 'var(--chart-3)',
       formatRaw: (value) => `${formatNumber(value, locale)}${t.dailyEntry.cmUnit}`,
+      formatAxisTick: (value) => formatNumber(value, locale),
+      unit: t.dailyEntry.cmUnit,
     },
     // #350: reported live right after validating #347 — bodyFat, switched
     // to bar mode, also rendered black. Same root cause (--chart-4 is the
@@ -229,6 +261,8 @@ function useNumericSeriesConfig(): Record<
       color: 'var(--chart-bodyfat)',
       formatRaw: (value) =>
         `${formatNumber(value, locale)}${t.dailyEntry.percentUnit}`,
+      formatAxisTick: (value) => formatNumber(value, locale),
+      unit: t.dailyEntry.percentUnit,
     },
     // #257 originally reused the last generic --chart-5 slot, same
     // reasoning as steps/waist/hip/bodyFat above. #347: reported live as
@@ -240,6 +274,8 @@ function useNumericSeriesConfig(): Record<
       label: t.dashboard.customChartFastingHoursLabel,
       color: 'var(--chart-fasting)',
       formatRaw: (value) => `${formatNumber(value, locale)}h`,
+      formatAxisTick: (value) => formatNumber(value, locale),
+      unit: 'h',
     },
   }
 }
@@ -506,7 +542,12 @@ export function CustomChartView({ entries, dragHandle }: CustomChartViewProps) {
       >
         {availableNumericKeys.map((key) => (
           <ToggleGroupItem key={key} value={key}>
-            {seriesConfig[key].label}
+            {/* #451 — the unit that used to repeat on every Y-axis tick
+             * label now lives here instead, once per series rather than
+             * once per tick. */}
+            {seriesConfig[key].unit
+              ? `${seriesConfig[key].label} (${seriesConfig[key].unit})`
+              : seriesConfig[key].label}
           </ToggleGroupItem>
         ))}
         {availableBooleanSeries.map((series) => (
@@ -591,7 +632,7 @@ export function CustomChartView({ entries, dragHandle }: CustomChartViewProps) {
                     domain={['auto', 'auto']}
                     tick={{ fontSize: 11, fill: seriesConfig[leftAxisKey!].color }}
                     tickFormatter={(value: number) =>
-                      seriesConfig[leftAxisKey!].formatRaw(value)
+                      seriesConfig[leftAxisKey!].formatAxisTick(value)
                     }
                     axisLine={{ stroke: seriesConfig[leftAxisKey!].color }}
                     tickLine={false}
@@ -603,7 +644,7 @@ export function CustomChartView({ entries, dragHandle }: CustomChartViewProps) {
                     domain={['auto', 'auto']}
                     tick={{ fontSize: 11, fill: seriesConfig[rightAxisKey!].color }}
                     tickFormatter={(value: number) =>
-                      seriesConfig[rightAxisKey!].formatRaw(value)
+                      seriesConfig[rightAxisKey!].formatAxisTick(value)
                     }
                     axisLine={{ stroke: seriesConfig[rightAxisKey!].color }}
                     tickLine={false}
@@ -618,7 +659,7 @@ export function CustomChartView({ entries, dragHandle }: CustomChartViewProps) {
                   domain={['auto', 'auto']}
                   tick={{ fontSize: 11, fill: seriesConfig[soleAxisKey!].color }}
                   tickFormatter={(value: number) =>
-                    seriesConfig[soleAxisKey!].formatRaw(value)
+                    seriesConfig[soleAxisKey!].formatAxisTick(value)
                   }
                   axisLine={{ stroke: seriesConfig[soleAxisKey!].color }}
                   tickLine={false}
