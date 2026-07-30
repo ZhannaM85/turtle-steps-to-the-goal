@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 396,
+    issue: 443,
+    date: '2026-07-30T16:33:03+03:00',
+    en: 'Added previous/next arrows to the Weight, Calorie, Protein/fat/carbs, and Body composition trend charts, so you can page back through past weeks/months/years on each one independently.',
+    ru: 'На графиках Веса, Калорий, Белков/жиров/углеводов и Состава тела появились стрелки "назад/вперёд" — теперь можно листать прошлые недели/месяцы/годы независимо на каждом графике.',
+  },
+  {
     version: 395,
     issue: 447,
     date: '2026-07-30T15:51:14+03:00',

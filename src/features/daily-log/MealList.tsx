@@ -16,7 +16,7 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
-import { format, parseISO, subDays } from 'date-fns'
+import { addDays, format, parseISO, subDays } from 'date-fns'
 import {
   ChefHat,
   Clock,
@@ -1107,6 +1107,40 @@ export function MealList({
     if (hours !== null) showFastingWindowToast(hours, date)
   }
 
+  // #450 — reported live: the toast above only ever fires from *this* day's
+  // own first-timed-meal save, so it never updates again once shown, even
+  // if the *previous* day's own last-meal time later changes (e.g.
+  // navigating back and logging one more, later meal there) — the exact
+  // input `fastingHoursBetween` used to compute the toast's own number.
+  // Runs alongside `announceFastingWindowIfFirstMeal` at every save site
+  // below: if this day is the immediate previous day of whichever date the
+  // currently-shown toast is *about*, recompute (or clear) it using this
+  // save's own `nextEntries` as the new "previous day" side of that
+  // calculation — the toast day's own entries are re-fetched fresh, same
+  // "don't trust possibly-stale local state" reasoning
+  // `announceFastingWindowIfFirstMeal` already uses for `previousDayEntry`.
+  async function reconcileFastingWindowToastForPreviousDayEdit(
+    nextEntries: CalorieEntry[],
+  ) {
+    if (fastingWindowToastDate === null) return
+    const nextDateOfThisDay = format(addDays(parseISO(date), 1), 'yyyy-MM-dd')
+    if (fastingWindowToastDate !== nextDateOfThisDay) return
+    const toastDayEntry = await dailyEntryRepository.getByDate(
+      fastingWindowToastDate,
+    )
+    if (!toastDayEntry) return
+    const hours = fastingHoursBetween(
+      { calorieEntries: nextEntries },
+      toastDayEntry,
+      dayStartTime,
+    )
+    if (hours !== null) {
+      showFastingWindowToast(hours, fastingWindowToastDate)
+    } else {
+      dismissFastingWindowToast()
+    }
+  }
+
   // #221: whatever add-row draft survived from an earlier, interrupted
   // session on this same date, if any — read once via a lazy initializer
   // (this whole component remounts on date change, `key={date}` upstream,
@@ -1508,6 +1542,7 @@ export function MealList({
       },
     ]
     void announceFastingWindowIfFirstMeal(nextEntries)
+    void reconcileFastingWindowToastForPreviousDayEdit(nextEntries)
     setCalorieEntries(nextEntries)
     for (const item of items) {
       if (item.name) {
@@ -1728,6 +1763,7 @@ export function MealList({
       },
     ]
     void announceFastingWindowIfFirstMeal(nextEntries)
+    void reconcileFastingWindowToastForPreviousDayEdit(nextEntries)
     setCalorieEntries(nextEntries)
     // #357 — resets to a fresh "now", not blank; see addTime's own comment.
     setAddTime(currentTimeHHMM())
@@ -2013,6 +2049,7 @@ export function MealList({
         : entry,
     )
     void announceFastingWindowIfFirstMeal(nextEntries)
+    void reconcileFastingWindowToastForPreviousDayEdit(nextEntries)
     setCalorieEntries(nextEntries)
     for (const item of items) {
       // Skip names that are actually a curated food, picked via

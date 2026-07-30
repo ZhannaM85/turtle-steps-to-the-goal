@@ -1762,6 +1762,97 @@ describe('MealList', () => {
       expect(screen.queryByText(/Your fasting window was/)).not.toBeInTheDocument()
     })
 
+    // #450 — reported live: the toast only ever recomputes from *this*
+    // day's own first-timed-meal save, so once shown it never updates
+    // again, even if the *previous* day's own last-meal time changes
+    // afterward (e.g. navigating back and logging one more, later meal
+    // there) — exactly the input the toast's own number is computed from.
+    it("recalculates an already-shown toast when the previous day's last meal time changes retroactively", async () => {
+      await db.dailyEntries.put(
+        makeDailyEntry({
+          date: '2026-02-28',
+          calorieEntries: [
+            {
+              id: 'y1',
+              items: [{ id: 'yi1', amountKcal: 400 }],
+              timeEaten: '20:00',
+              createdAt: '2026-02-28T20:00:00.000Z',
+            },
+          ],
+        }),
+      )
+      await db.dailyEntries.put(
+        makeDailyEntry({
+          date: '2026-03-01',
+          calorieEntries: [
+            {
+              id: 't1',
+              items: [{ id: 'ti1', amountKcal: 300 }],
+              timeEaten: '08:00',
+              createdAt: '2026-03-01T08:00:00.000Z',
+            },
+          ],
+        }),
+      )
+      // Simulates the toast already being shown for today, from an earlier
+      // save this same session — same starting state #301's "clears the
+      // toast" test above sets up via the UI instead.
+      useFastingWindowToastStore.setState({ hours: 12, date: '2026-03-01' })
+
+      const user = userEvent.setup()
+      const { unmount } = render(
+        <MealList
+          calorieEntries={[
+            {
+              id: 'y1',
+              items: [{ id: 'yi1', amountKcal: 400 }],
+              timeEaten: '20:00',
+              createdAt: '2026-02-28T20:00:00.000Z',
+            },
+          ]}
+          date="2026-02-28"
+          onChange={vi.fn()}
+        />,
+        { wrapper: MemoryRouter },
+      )
+
+      // Logs a later meal on the *previous* day (2026-02-28) — its new real
+      // last-meal time, 23:00, is 3 hours later than the original 20:00.
+      // 2026-02-28 is a past day relative to the mocked "today" (2026-03-01,
+      // this file's own beforeEach), so its add row starts collapsed (#199)
+      // behind this button, unlike a same-day MealList's own always-open row.
+      await user.click(
+        screen.getByRole('button', { name: '+ Add another meal' }),
+      )
+      await user.clear(screen.getByLabelText('Time'))
+      await user.type(screen.getByLabelText('Time'), '23:00')
+      await user.click(screen.getByRole('button', { name: '+ Add item' }))
+      await user.type(screen.getByLabelText('Dish name'), 'Late snack')
+      await user.type(screen.getByLabelText('kcal/100g'), '100')
+      await user.click(screen.getByRole('button', { name: 'Save' }))
+
+      await waitFor(() => {
+        const state = useFastingWindowToastStore.getState()
+        expect({ hours: state.hours, date: state.date }).toEqual({
+          hours: 9,
+          date: '2026-03-01',
+        })
+      })
+
+      // Matches the real flow: leaving the previous day and landing back on
+      // today re-mounts *that* day's own MealList, which is the one that
+      // actually renders the toast (scoped to its own date).
+      unmount()
+      render(
+        <MealList calorieEntries={[]} date="2026-03-01" onChange={vi.fn()} />,
+        { wrapper: MemoryRouter },
+      )
+
+      expect(
+        await screen.findByText('Your fasting window was 9.0h.'),
+      ).toBeInTheDocument()
+    })
+
     // #387 — reported live: with a custom day-start time (#298), a
     // past-midnight meal gets filed under the *previous* day's own record
     // alongside its normal evening meal. Without accounting for that, the
