@@ -84,8 +84,15 @@ user points out.
    - `npx tsc -b` (there is no `npm run typecheck` script — use `tsc -b`
      directly, or `npm run build` which runs it as a first step).
    - `npm run lint`.
-   - Run the affected test file(s), then the full suite (`npx vitest run`
-     with no path — currently 600+ tests, takes 2–4 minutes).
+   - Run the **affected** test file(s) only (`npx vitest run path/to/File.test.tsx`
+     — the file(s) whose behavior changed, plus direct consumers if a shared
+     helper/UI primitive/i18n key changed). Do **not** default to the full
+     suite. Reserve `npx vitest run` (no path) for risky/cross-cutting
+     changes: shared UI primitives, stores/domain used widely, test helpers,
+     global i18n keys, or anything that has already failed in CI and needs
+     a local repro. GitHub Actions remains the full-suite gate on push.
+     Run `npm run e2e` locally only when routes or primary UI entry points
+     changed (it also gates CI — see Environment notes).
    - Update all three docs (see `CLAUDE.md`'s "Closing a GitHub issue"
      section — `docs/issues-priority.md`, `docs/ARCHITECTURE.md`,
      `src/data/releaseNotes.ts`). Do this as part of finishing the issue,
@@ -93,6 +100,9 @@ user points out.
    - Close the GitHub issue with a real explanatory comment (`gh issue
      comment <n> --body "..."` then `gh issue close <n>`) — don't just mark
      it done in the docs and move on without actually closing it on GitHub.
+     (For live-feedback fixes awaiting on-device confirmation, leave the
+     issue open, set status to 🔍 Pending validation, and add the
+     `validation` label *after* push — see CLAUDE.md.)
    - Commit (stage explicit filenames, never `git add -A`/`.`) and push.
 6. **End of batch:** run `gh issue list --state open --json number,title`
    as a final check. Docs saying "✅ Done" is not proof the issue is
@@ -192,10 +202,14 @@ and #144's precedent in `docs/issues-priority.md`).
   a resulting oddity (e.g. a missing label) as a seeding-technique
   limitation, not a real app bug, if the same logic already has real unit
   test coverage.
-- Full test suite (`npx vitest run`) legitimately takes 2–4 minutes under
-  this environment's load — don't assume a long-running background task is
-  stuck; the harness notifies you when it finishes, don't re-run it or poll
-  its output file in a loop waiting for it.
+- Full test suite (`npx vitest run` with no path) currently 600+ tests /
+  2–4+ minutes under this environment's load — **not** part of the default
+  per-issue checklist (changed 2026-08-01: affected tests only by default;
+  full suite only for risky/cross-cutting changes or CI repro). When you
+  *do* run it in the background, the harness notifies you when it finishes —
+  don't re-run it or poll its output file in a loop waiting for it, and
+  don't idle: move on to the next queued issue's research/targeted tests
+  while it runs; only that issue's final commit+close needs the result.
 - **E2E suite (#161)**: `npm run e2e` (Playwright, `playwright.config.ts`,
   specs in `e2e/`) — a deliberately small, black-box UI suite (no direct
   IndexedDB seeding), not a replacement for the ad hoc seeded-Playwright
@@ -207,18 +221,12 @@ and #144's precedent in `docs/issues-priority.md`).
   serves (`vite preview`) the app itself, so a first local run needs
   Playwright's browser installed once (`npx playwright install chromium`).
   Gates both `deploy-pages.yml` and `ci.yml`, after the existing
-  typecheck/lint/vitest steps. Add a new spec under `e2e/` only for a
-  flow judged worth the ongoing maintenance cost — this was deliberately
-  scoped small (daily-log add/edit, export/import round-trip) rather than
-  broad coverage, per #161's own "decide if this is worth it" framing.
-- **Don't idle waiting on a background full-suite run.** Once an issue's
-  typecheck/lint/targeted-test pass is green and the full suite is kicked
-  off in the background, immediately move on to implementing the *next*
-  queued issue (research, write the code, run its own targeted tests) while
-  that suite runs — only the final commit+close step for the issue that
-  triggered the run needs to wait for its actual result. Confirmed directly
-  by the user, who pointed out mid-session (2026-07-19) that stopping to
-  wait wastes time when there's more queued work ready to start.
+  typecheck/lint/vitest steps. Run it locally only when routes or primary
+  UI entry points changed; otherwise CI is enough. Add a new spec under
+  `e2e/` only for a flow judged worth the ongoing maintenance cost — this
+  was deliberately scoped small (daily-log add/edit, export/import
+  round-trip) rather than broad coverage, per #161's own "decide if this
+  is worth it" framing.
 - **Check `.github/workflows/*.yml` for the CI-pinned Node version before
   trusting a green local test run, for anything touching Blob/File/crypto
   or other environment-sensitive browser APIs.** CI pins `node-version: 22`;
