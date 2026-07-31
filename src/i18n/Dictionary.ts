@@ -202,6 +202,14 @@ export interface Dictionary {
     morningEntriesSubtitle: string
     eveningEntriesTitle: string
     eveningEntriesSubtitle: string
+    /** #472 — accordion triggers wrapping the Morning/Evening entries
+     * groups, same expand/collapse aria-label pair shape as
+     * expandMacrosLabel/collapseMacrosLabel and expandMealsLabel/
+     * collapseMealsLabel above. */
+    expandMorningEntriesLabel: string
+    collapseMorningEntriesLabel: string
+    expandEveningEntriesLabel: string
+    collapseEveningEntriesLabel: string
     weightLabel: string
     /** Label/aria-label for the manual add row's kcal field (#96) — a
      * per-100g rate, not the total eaten; scaled by the quantity field to
