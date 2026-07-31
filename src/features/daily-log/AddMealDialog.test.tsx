@@ -9,8 +9,10 @@ import { useFoodOverrideStore, useMealItemStore, useRecipeStore } from '@/stores
 import { AddMealDialog, type AddMealDialogProps } from './AddMealDialog'
 
 // Matches FoodPickerDialog.test.tsx's own reasoning — every test here
-// renders the dialog open against the full 300+-item food list.
-vi.setConfig({ testTimeout: 25000 })
+// renders the dialog open against the full 300+-item food list. Raised
+// from 25000 alongside the barcode-scan test's own findByText timeout
+// below, so that test still has headroom after its 20s wait.
+vi.setConfig({ testTimeout: 30000 })
 
 const decodeFromVideoDevice = vi.fn()
 vi.mock('@zxing/browser', () => ({
@@ -269,13 +271,15 @@ describe('AddMealDialog (#454)', () => {
       await user.click(screen.getByRole('button', { name: 'Scan barcode' }))
 
       // findByText's own default ~1000ms poll window (distinct from this
-      // file's 25s *test* timeout) can be too short for the real async
-      // chain here — BarcodeScannerDialog's dynamic `@zxing/browser`/
-      // `@zxing/library` import, then the mocked decode callback, then
-      // lookupBarcode's own IndexedDB round-trip — a real, reproducible
-      // flake under load, not a one-off.
+      // file's own *test* timeout below) can be too short for the real
+      // async chain here — BarcodeScannerDialog's dynamic
+      // `@zxing/browser`/`@zxing/library` import, then the mocked decode
+      // callback, then lookupBarcode's own IndexedDB round-trip — a real,
+      // reproducible flake under load, not a one-off. Bumped once already
+      // (10000ms) and still timed out under a full-suite CI run's heavier
+      // load; raised further with headroom under the file's own timeout.
       expect(
-        await screen.findByText('Protein Bar', {}, { timeout: 10000 }),
+        await screen.findByText('Protein Bar', {}, { timeout: 20000 }),
       ).toBeInTheDocument()
       expect(
         screen.queryByLabelText('Dish name'),
