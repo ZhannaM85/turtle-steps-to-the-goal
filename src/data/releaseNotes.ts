@@ -25,6 +25,20 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 406,
+    issue: 464,
+    date: '2026-07-31T14:44:25+03:00',
+    en: "Today's meal list now uses bigger text and spacing, with a divider between dishes, so it's easier to read on a phone.",
+    ru: 'Список приёмов пищи на экране "Сегодня" теперь использует более крупный текст и отступы, а между блюдами появилась разделительная линия — читать на телефоне стало удобнее.',
+  },
+  {
+    version: 405,
+    issue: 462,
+    date: '2026-07-31T14:44:25+03:00',
+    en: "Today's КБЖУ row now also shows calories, and a new row underneath shows how many calories/macros you have left for the day.",
+    ru: 'Строка КБЖУ на экране "Сегодня" теперь также показывает калории, а новая строка под ней показывает, сколько калорий/БЖУ осталось на день.',
+  },
+  {
     version: 404,
     issue: 461,
     date: '2026-07-31T11:22:07+03:00',
