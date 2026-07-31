@@ -184,28 +184,30 @@ export function TodayScreen() {
       { replace: true },
     )
   }
-  // #420 debug instrument (temporary — remove once resolved). Attempts
-  // 3 and 4 both tried to clip the native Date input down to the
-  // arrows'/today button's 48px (overflow-hidden directly on the
-  // `<input>`, then on a wrapping `<div>`) — attempt 4 confirmed the clip
-  // actually took effect this time, but it cut off the input's own real,
-  // rendered right/bottom border, not invisible overflow: the native
-  // control genuinely paints larger than 48px in both dimensions, so any
-  // box smaller than that chops off real chrome. 5th attempt (below):
-  // stop constraining the input at all — let it render at its true
-  // natural size (measured uncapped at 42px, actually *shorter* than the
-  // 48px arrows/today button, not taller) — and shrink the buttons to
-  // match it instead, the same "match the native control, don't fight
-  // it" principle #139 used (just in the opposite direction, since this
-  // control's natural size turned out smaller). ?debug=420 keeps showing
-  // each element's live rendered height on-screen for future reference.
-  const debug420 = searchParams.get('debug') === '420'
-  const debug420PrevRef = useRef<HTMLButtonElement>(null)
-  const debug420DateRef = useRef<HTMLInputElement>(null)
-  const debug420NextRef = useRef<HTMLButtonElement>(null)
-  const debug420TodayRef = useRef<HTMLButtonElement>(null)
-  const [debug420Heights, setDebug420Heights] = useState<
-    Record<'prev' | 'date' | 'next' | 'today', number | null>
+  // #465 debug instrument (temporary — remove once resolved). Follow-up
+  // to #420 (fixed/closed — see button.tsx's icon-xl comment and
+  // ARCHITECTURE.md for that history): the Date input's *width* visibly
+  // grows once the "Сегодня" button is gone (today's own date,
+  // `date !== todayIso()` false) — the input is the only flexible
+  // (non-`shrink-0`) sibling in the row (`min-w-0`, `max-w-48`), so it
+  // absorbs whatever space the missing button frees up, up to its 192px
+  // (`max-w-48`) cap. A local Playwright check at the same 390px viewport
+  // did *not* reproduce the width difference the user saw live — like
+  // #420's own height quirk, Chromium's native date-input rendering
+  // apparently doesn't match Safari's real intrinsic/min-content width
+  // here either, so this also needs a real device number rather than a
+  // desktop measurement. ?debug=465 reports width×height for each row
+  // element on-screen (no devtools needed on-device).
+  const debug465 = searchParams.get('debug') === '465'
+  const debug465PrevRef = useRef<HTMLButtonElement>(null)
+  const debug465DateRef = useRef<HTMLInputElement>(null)
+  const debug465NextRef = useRef<HTMLButtonElement>(null)
+  const debug465TodayRef = useRef<HTMLButtonElement>(null)
+  const [debug465Sizes, setDebug420Sizes] = useState<
+    Record<
+      'prev' | 'date' | 'next' | 'today',
+      { width: number; height: number } | null
+    >
   >({ prev: null, date: null, next: null, today: null })
 
   const previousDayEntry = usePreviousDayEntry(date)
@@ -228,23 +230,26 @@ export function TodayScreen() {
     loadEntry(date)
   }, [date, loadEntry])
 
-  // #420 debug instrument (temporary) — see the comment above where these
+  // #465 debug instrument (temporary) — see the comment above where these
   // refs/state are declared. ResizeObserver rather than a one-shot measure
   // so a late layout shift (native control chrome finishing its own
   // render after mount) still gets caught.
   useEffect(() => {
-    if (!debug420) return
-    const targets: Array<[keyof typeof debug420Heights, HTMLElement | null]> = [
-      ['prev', debug420PrevRef.current],
-      ['date', debug420DateRef.current],
-      ['next', debug420NextRef.current],
-      ['today', debug420TodayRef.current],
+    if (!debug465) return
+    const targets: Array<[keyof typeof debug465Sizes, HTMLElement | null]> = [
+      ['prev', debug465PrevRef.current],
+      ['date', debug465DateRef.current],
+      ['next', debug465NextRef.current],
+      ['today', debug465TodayRef.current],
     ]
     const observer = new ResizeObserver(() => {
-      setDebug420Heights((prev) => {
+      setDebug420Sizes((prev) => {
         const next = { ...prev }
         for (const [key, el] of targets) {
-          if (el) next[key] = el.getBoundingClientRect().height
+          if (el) {
+            const rect = el.getBoundingClientRect()
+            next[key] = { width: rect.width, height: rect.height }
+          }
         }
         return next
       })
@@ -253,7 +258,7 @@ export function TodayScreen() {
       if (el) observer.observe(el)
     }
     return () => observer.disconnect()
-  }, [debug420, date])
+  }, [debug465, date])
 
   const displayUnit = useUnitStore((state) => state.unit)
   const toDisplay = (kg: number) => (displayUnit === 'lb' ? kgToLb(kg) : kg)
@@ -792,17 +797,20 @@ export function TodayScreen() {
           )}
         </div>
         <div className="flex items-center gap-2">
-          {/* #420 5th attempt — sized to match the Date input's own real
-           * rendered height (measured on-device at 42px, see the comment
-           * by debug420's declaration above) instead of the app-wide
-           * icon-xl/48px used elsewhere, since 2 separate attempts to clip
-           * the native input down to 48px both ended up cutting off its
-           * own real border rather than invisible overflow — it genuinely
-           * paints larger than 48px and can't be boxed down cleanly.
-           * Scoped to just this row's controls, not the shared icon-xl
-           * class other Today rows (Weight/Sleep/Steps/Notes) still use. */}
+          {/* #420 (fixed) — sized to match the Date input's own real
+           * rendered height (measured on-device at 42px) instead of the
+           * app-wide icon-xl/48px used elsewhere, since 2 separate
+           * attempts to clip the native input down to 48px both ended up
+           * cutting off its own real border rather than invisible
+           * overflow — it genuinely paints larger than 48px and can't be
+           * boxed down cleanly. Scoped to just this row's controls, not
+           * the shared icon-xl class other Today rows (Weight/Sleep/
+           * Steps/Notes) still use. See ARCHITECTURE.md for the full
+           * history. #465 (open) — see the comment by debug465's
+           * declaration above: this row's width has its own, separate
+           * follow-up quirk. */}
           <Button
-            ref={debug420PrevRef}
+            ref={debug465PrevRef}
             type="button"
             variant="outline"
             size="icon-xl"
@@ -814,7 +822,7 @@ export function TodayScreen() {
           </Button>
           <Input
             id="log-date"
-            ref={debug420DateRef}
+            ref={debug465DateRef}
             type="date"
             value={date}
             max={todayIso()}
@@ -825,7 +833,7 @@ export function TodayScreen() {
            * logging a future day isn't supported anywhere else in the app,
            * out of scope for "quicker than opening the picker" arrows. */}
           <Button
-            ref={debug420NextRef}
+            ref={debug465NextRef}
             type="button"
             variant="outline"
             size="icon-xl"
@@ -844,7 +852,7 @@ export function TodayScreen() {
            * button.tsx's own size variants. */}
           {date !== todayIso() && (
             <Button
-              ref={debug420TodayRef}
+              ref={debug465TodayRef}
               type="button"
               variant="outline"
               size="sm"
@@ -855,12 +863,24 @@ export function TodayScreen() {
             </Button>
           )}
         </div>
-        {debug420 && (
+        {debug465 && (
           <p className="font-mono text-xs text-muted-foreground">
-            #420 heights (px) — prev:{debug420Heights.prev?.toFixed(1) ?? '?'}{' '}
-            date:{debug420Heights.date?.toFixed(1) ?? '?'} next:
-            {debug420Heights.next?.toFixed(1) ?? '?'} today:
-            {debug420Heights.today?.toFixed(1) ?? '?'}
+            #465 w×h (px) — prev:
+            {debug465Sizes.prev
+              ? `${debug465Sizes.prev.width.toFixed(0)}×${debug465Sizes.prev.height.toFixed(0)}`
+              : '?'}{' '}
+            date:
+            {debug465Sizes.date
+              ? `${debug465Sizes.date.width.toFixed(0)}×${debug465Sizes.date.height.toFixed(0)}`
+              : '?'}{' '}
+            next:
+            {debug465Sizes.next
+              ? `${debug465Sizes.next.width.toFixed(0)}×${debug465Sizes.next.height.toFixed(0)}`
+              : '?'}{' '}
+            today:
+            {debug465Sizes.today
+              ? `${debug465Sizes.today.width.toFixed(0)}×${debug465Sizes.today.height.toFixed(0)}`
+              : '?'}
           </p>
         )}
         {/* #345 — only while viewing the effective "today" itself; once
