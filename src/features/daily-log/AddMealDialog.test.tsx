@@ -78,6 +78,11 @@ function ControlledAddMealDialog({ initialItems, ...props }: ControlledProps) {
       onRemoveItem={(id) =>
         setItems((prev) => prev.filter((item) => item.id !== id))
       }
+      onUpdateItem={(updated) =>
+        setItems((prev) =>
+          prev.map((item) => (item.id === updated.id ? updated : item)),
+        )
+      }
     />
   )
 }
@@ -414,5 +419,26 @@ describe('AddMealDialog (#454)', () => {
     const done = screen.getByRole('button', { name: 'Done' })
     expect(done).toHaveClass('h-12')
     expect(done).not.toHaveClass('h-8')
+  })
+
+  it('does not auto-focus the dish name when editing an existing item (#475)', async () => {
+    const user = userEvent.setup()
+    render(
+      <ControlledAddMealDialog
+        {...defaultProps}
+        initialItems={[{ id: 'i1', name: 'Oatmeal', amountKcal: 250 }]}
+      />,
+    )
+
+    await user.click(screen.getByRole('button', { name: 'Edit item' }))
+
+    expect(
+      await screen.findByRole('heading', { name: 'Edit item' }),
+    ).toBeInTheDocument()
+    const nameInput = screen.getByLabelText('Dish name')
+    expect(nameInput).toHaveValue('Oatmeal')
+    // Pre-#475 Radix FocusScope focused the first tabbable and called
+    // `.select()`, so a stray keystroke replaced the whole name.
+    expect(nameInput).not.toHaveFocus()
   })
 })

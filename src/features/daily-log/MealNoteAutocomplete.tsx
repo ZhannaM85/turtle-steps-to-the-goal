@@ -71,9 +71,10 @@ export function MealNoteAutocomplete({
         placeholder={placeholder}
         value={value}
         // #184: deliberately no onFocus={() => setIsOpen(true)} here —
-        // this field autofocuses when MealItemEditorSheet opens, which
-        // used to pop the full suggestions list open before the user had
-        // typed anything. Only typing (onChange) opens it now.
+        // this field autofocuses when MealItemEditorSheet opens for *add*
+        // (#475 leaves edit without auto-focus), which used to pop the
+        // full suggestions list open before the user had typed anything.
+        // Only typing (onChange) opens it now.
         onChange={(e) => {
           onChange(e.target.value)
           setIsOpen(true)

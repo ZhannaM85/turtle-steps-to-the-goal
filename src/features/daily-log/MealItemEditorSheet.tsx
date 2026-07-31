@@ -89,6 +89,11 @@ export interface MealItemEditorSheetProps {
    * row in an existing meal's edit mode); omitted while editing an
    * already-existing dish, where "add one more" doesn't make sense. */
   onSaveAndAddAnother?: () => void
+  /** #475 — when false (edit flows), suppress Radix Dialog's open
+   * auto-focus so the pre-filled name isn't focused and select-all'd
+   * (one stray keystroke would overwrite it). Defaults to true for add
+   * flows, where focusing the empty name field is still helpful. */
+  autoFocusName?: boolean
 }
 
 const NOTE_MAX_LENGTH = 200
@@ -220,6 +225,7 @@ export function MealItemEditorSheet({
   infoMessage,
   onSave,
   onSaveAndAddAnother,
+  autoFocusName = true,
 }: MealItemEditorSheetProps) {
   const t = useTranslation()
   const locale = useLocale()
@@ -267,6 +273,17 @@ export function MealItemEditorSheet({
         size="fullscreen"
         closeLabel={t.dailyEntry.closeItemEditorLabel}
         className="flex flex-col"
+        onOpenAutoFocus={
+          autoFocusName
+            ? undefined
+            : (event) => {
+                // #475 — editing an existing dish: don't focus (and
+                // select-all) the name field on open. Radix FocusScope
+                // otherwise focuses the first tabbable and calls
+                // `.select()` on text inputs.
+                event.preventDefault()
+              }
+        }
       >
         <DialogTitle>{title}</DialogTitle>
         {infoMessage && (

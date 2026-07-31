@@ -1130,6 +1130,9 @@ export function AddMealDialog({
               ? t.dailyEntry.editItemSheetTitle
               : t.dailyEntry.addItemSheetTitle
           }
+          // #475 — only auto-focus the name when adding a new dish; editing
+          // must not select-all the existing name (easy accidental overwrite).
+          autoFocusName={!editingItemId}
           name={manualDraft.name}
           onNameChange={(value) =>
             setManualDraft((draft) => ({ ...draft, name: value }))

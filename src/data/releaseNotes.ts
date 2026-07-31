@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 413,
+    issue: 475,
+    date: '2026-08-01T01:37:52+03:00',
+    en: 'Editing a dish no longer auto-selects its name, so a stray keystroke won’t accidentally wipe it.',
+    ru: 'При редактировании блюда название больше не выделяется автоматически — случайное нажатие клавиши его не сотрёт.',
+  },
+  {
     version: 412,
     issue: 474,
     date: '2026-08-01T01:25:00+03:00',
