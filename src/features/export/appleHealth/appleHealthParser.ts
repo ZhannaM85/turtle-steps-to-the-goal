@@ -423,19 +423,32 @@ export class AppleHealthPatchBuilder {
       // total prefers real sleep-stage data (asleepSeconds) and only falls
       // back to inBedSeconds when that source recorded no Asleep* interval
       // at all that night (older, pre-stage-tracking data).
+      //
+      // #412 (reopened) — deep sleep is NOT tied to that same dominant
+      // source. Third-party apps (e.g. AutoSleep) often win on total hours
+      // via AsleepUnspecified but never write AsleepDeep into HealthKit;
+      // the Watch writes real AsleepDeep stages for the same night with a
+      // shorter total. Taking deep only from the dominant source then
+      // drops deep to "—" while total sleep stays correct. Use the max
+      // deepSeconds across sources for the night (never a sum — stages
+      // from two devices would otherwise double-count).
       let bestSource: SleepTotals | null = null
       let bestHours = 0
+      let bestDeepSeconds = 0
       for (const totals of bySource.values()) {
         const hours = (totals.asleepSeconds || totals.inBedSeconds) / 3600
         if (hours > bestHours) {
           bestHours = hours
           bestSource = totals
         }
+        if (totals.deepSeconds > bestDeepSeconds) {
+          bestDeepSeconds = totals.deepSeconds
+        }
       }
       if (bestSource) {
         patchFor(date).sleepHours = round2(bestHours)
-        if (bestSource.deepSeconds > 0) {
-          patchFor(date).deepSleepHours = round2(bestSource.deepSeconds / 3600)
+        if (bestDeepSeconds > 0) {
+          patchFor(date).deepSleepHours = round2(bestDeepSeconds / 3600)
         }
       }
     }

@@ -480,6 +480,70 @@ describe('AppleHealthPatchBuilder', () => {
       expect(builder.build().get('2026-01-15')).toEqual({ sleepHours: 8 })
     })
 
+    it("keeps dominant-source total sleep but takes deep from a staged source when the winner has none (#412)", () => {
+      // Exact reported shape from a real Apple Health export (Jul 2, 2026):
+      // AutoSleep wins on total via AsleepUnspecified (7h19m) but never
+      // writes AsleepDeep; the Watch writes real deep stages for the same
+      // wake date with a shorter total. Previously deep rendered as "—".
+      const builder = new AppleHealthPatchBuilder()
+      builder.addRecord({
+        type: 'HKCategoryTypeIdentifierSleepAnalysis',
+        value: 'HKCategoryValueSleepAnalysisAsleepUnspecified',
+        startDate: '2026-07-02 00:15:00 +0300',
+        endDate: '2026-07-02 00:52:00 +0300',
+        sourceName: 'AutoSleep',
+      })
+      builder.addRecord({
+        type: 'HKCategoryTypeIdentifierSleepAnalysis',
+        value: 'HKCategoryValueSleepAnalysisAsleepUnspecified',
+        startDate: '2026-07-02 01:30:00 +0300',
+        endDate: '2026-07-02 08:12:00 +0300',
+        sourceName: 'AutoSleep',
+      })
+      builder.addRecord({
+        type: 'HKCategoryTypeIdentifierSleepAnalysis',
+        value: 'HKCategoryValueSleepAnalysisAsleepCore',
+        startDate: '2026-07-02 02:06:24 +0300',
+        endDate: '2026-07-02 02:25:56 +0300',
+        sourceName: "Zhanna's Apple Watch",
+      })
+      builder.addRecord({
+        type: 'HKCategoryTypeIdentifierSleepAnalysis',
+        value: 'HKCategoryValueSleepAnalysisAsleepDeep',
+        startDate: '2026-07-02 02:25:56 +0300',
+        endDate: '2026-07-02 03:40:56 +0300',
+        sourceName: "Zhanna's Apple Watch",
+      })
+
+      expect(builder.build().get('2026-07-02')).toEqual({
+        sleepHours: 7.32, // 7h19m from AutoSleep
+        deepSleepHours: 1.25, // 1h15m from Watch stages, not dropped
+      })
+    })
+
+    it('does not sum deep sleep across sources for the same night (#412)', () => {
+      const builder = new AppleHealthPatchBuilder()
+      builder.addRecord({
+        type: 'HKCategoryTypeIdentifierSleepAnalysis',
+        value: 'HKCategoryValueSleepAnalysisAsleepDeep',
+        startDate: '2026-01-15 00:00:00+0000',
+        endDate: '2026-01-15 01:00:00+0000',
+        sourceName: 'Watch A',
+      })
+      builder.addRecord({
+        type: 'HKCategoryTypeIdentifierSleepAnalysis',
+        value: 'HKCategoryValueSleepAnalysisAsleepDeep',
+        startDate: '2026-01-15 00:00:00+0000',
+        endDate: '2026-01-15 00:30:00+0000',
+        sourceName: 'Watch B',
+      })
+
+      expect(builder.build().get('2026-01-15')).toEqual({
+        sleepHours: 1,
+        deepSleepHours: 1, // max, not 1.5
+      })
+    })
+
     it("keeps a pre-midnight deep-sleep segment on the night's own wake date, not the day it ended on (#412)", () => {
       const builder = new AppleHealthPatchBuilder()
       // Falls asleep 22:30 on the 14th, straight into deep sleep — this

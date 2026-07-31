@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 420,
+    issue: 412,
+    date: '2026-08-01T02:20:00+03:00',
+    en: 'Deep sleep from Apple Health import no longer goes missing when a sleep app and Apple Watch both logged the same night.',
+    ru: 'Глубокий сон из импорта Apple Health больше не пропадает, когда одну и ту же ночь записали и приложение сна, и Apple Watch.',
+  },
+  {
     version: 419,
     issue: 458,
     date: '2026-08-01T02:02:41+03:00',
