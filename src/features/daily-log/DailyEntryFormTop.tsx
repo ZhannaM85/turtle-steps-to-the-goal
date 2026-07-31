@@ -30,6 +30,8 @@ export function DailyEntryFormTop() {
   // #467 — accordion wrapping the two macros StatCards below, same
   // bordered-Collapsible pattern TodayScreen's own Stats section uses.
   const [macrosCollapsed, setMacrosCollapsed] = useState(false)
+  // #468 — same pattern again, wrapping the meal list.
+  const [mealsCollapsed, setMealsCollapsed] = useState(false)
 
   return (
     <>
@@ -110,16 +112,52 @@ export function DailyEntryFormTop() {
 
         {/* Meal editing extracted to its own component (#145) — reused
          * as-is by DayDetail.tsx too, so History's read-only expand-row can
-         * edit/add/delete meals without needing this whole form. */}
-        <MealList
-          calorieEntries={state.calorieEntries}
-          date={state.date}
-          onChange={(next) => {
-            state.setValue('calorieEntries', next, { shouldDirty: true })
-            state.persist({ ...state.getValues(), calorieEntries: next })
-          }}
-          dailyCalorieTargetKcal={state.dailyCalorieTargetKcal}
-        />
+         * edit/add/delete meals without needing this whole form. #468:
+         * wrapped in the same bordered `Collapsible` accordion the macros
+         * cards above and TodayScreen's own Stats section use — reported
+         * live as looking visually inconsistent with those otherwise (and
+         * paired with removing the meal cards' own broken drag-to-reorder
+         * handles, tracked separately as a future on-demand-mode
+         * replacement in #471). */}
+        <div className="rounded-lg border border-border p-3">
+          <Collapsible
+            open={!mealsCollapsed}
+            onOpenChange={(open) => setMealsCollapsed(!open)}
+          >
+            <CollapsibleTrigger asChild>
+              <button
+                type="button"
+                aria-label={
+                  mealsCollapsed
+                    ? t.dailyEntry.expandMealsLabel
+                    : t.dailyEntry.collapseMealsLabel
+                }
+                className="group flex w-full items-center justify-between text-sm font-medium text-muted-foreground hover:text-foreground"
+              >
+                {t.dailyEntry.mealsLabel}
+                <ChevronDown
+                  aria-hidden="true"
+                  className="size-4 transition-transform group-data-[state=open]:rotate-180"
+                />
+              </button>
+            </CollapsibleTrigger>
+            <CollapsibleContent>
+              <div className="pt-3">
+                <MealList
+                  calorieEntries={state.calorieEntries}
+                  date={state.date}
+                  onChange={(next) => {
+                    state.setValue('calorieEntries', next, {
+                      shouldDirty: true,
+                    })
+                    state.persist({ ...state.getValues(), calorieEntries: next })
+                  }}
+                  dailyCalorieTargetKcal={state.dailyCalorieTargetKcal}
+                />
+              </div>
+            </CollapsibleContent>
+          </Collapsible>
+        </div>
       </div>
 
       {/* #258 — opt-in water tracking, gated by its own Settings toggle.

@@ -1,23 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import {
-  DndContext,
-  KeyboardSensor,
-  PointerSensor,
-  closestCenter,
-  useSensor,
-  useSensors,
-  type DragEndEvent,
-} from '@dnd-kit/core'
-import {
-  SortableContext,
-  arrayMove,
-  sortableKeyboardCoordinates,
-  useSortable,
-  verticalListSortingStrategy,
-} from '@dnd-kit/sortable'
-import { CSS } from '@dnd-kit/utilities'
 import { format, parseISO, subDays } from 'date-fns'
-import { GripVertical, Pencil, ScanBarcode, Trash2, X } from 'lucide-react'
+import { Pencil, ScanBarcode, Trash2, X } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { foods } from '@/data/foods'
 import type {
@@ -68,7 +51,6 @@ import {
 } from '@/shared/lib/macroScaling'
 import { defaultMealLabel, effectiveMealLabel } from '@/shared/lib/mealLabel'
 import { parseNumberInput } from '@/shared/lib/parseNumberInput'
-import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/ui/button'
 import { Input } from '@/shared/ui/input'
 import {
@@ -334,15 +316,6 @@ function MealListItem({
   onOpenEditItem,
   onAddFood,
 }: MealListItemProps) {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id: entry.id, disabled: isEditing || isConfirmingDelete })
-  const style = { transform: CSS.Transform.toString(transform), transition }
   const mealLabelPresets = useMealLabelPresetStore((state) => state.presets)
   // Own local dialog state (#124), not lifted higher — each MealListItem's
   // "Find food" is independent of every other one and of the bottom add
@@ -379,8 +352,6 @@ function MealListItem({
   if (isConfirmingDelete) {
     return (
       <li
-        ref={setNodeRef}
-        style={style}
         // #143: same card treatment (bg-card/ring) as the other two
         // MealListItem states below, so a meal doesn't lose its card
         // boundary mid-delete-confirm.
@@ -412,8 +383,6 @@ function MealListItem({
   if (isEditing) {
     return (
       <li
-        ref={setNodeRef}
-        style={style}
         // #143: card treatment (bg-card/ring), matching the app's existing
         // StatCard look — was a plain bg-muted/40 tint before.
         className="flex flex-col gap-2 rounded-xl bg-card p-3 ring-1 ring-foreground/10"
@@ -794,27 +763,13 @@ function MealListItem({
 
   return (
     <li
-      ref={setNodeRef}
-      style={style}
       // #143: card treatment (bg-card/ring), matching the app's existing
       // StatCard look ("This week's target"/"vs. yesterday") — was a plain
       // list row with no background/border before.
-      className={cn(
-        'flex flex-col gap-2 rounded-xl bg-card p-4 ring-1 ring-foreground/10',
-        isDragging && 'opacity-50',
-      )}
+      className="flex flex-col gap-2 rounded-xl bg-card p-4 ring-1 ring-foreground/10"
     >
       <div className="flex items-center justify-between">
         <span className="flex items-center gap-1.5 text-lg font-medium">
-          <button
-            type="button"
-            aria-label={t.dailyEntry.reorderMealLabel(position)}
-            className="cursor-grab touch-none text-muted-foreground active:cursor-grabbing"
-            {...attributes}
-            {...listeners}
-          >
-            <GripVertical aria-hidden="true" className="size-4" />
-          </button>
           {effectiveMealLabel(t, position, entry.label)} —{' '}
           {formatNumber(calorieEntryKcal(entry), locale, 0)}{' '}
           {t.dailyEntry.kcalUnit}
@@ -848,10 +803,10 @@ function MealListItem({
         </div>
       </div>
       {entry.note && (
-        <p className="text-base text-muted-foreground">{entry.note}</p>
+        <p className="text-sm text-muted-foreground">{entry.note}</p>
       )}
       {macrosSummary && (
-        <p className="text-base text-muted-foreground">{macrosSummary}</p>
+        <p className="text-sm text-muted-foreground">{macrosSummary}</p>
       )}
       {/* Item sub-list (#81) — a group's individual dishes, shown
        * underneath its own header/note/macro-total lines above. */}
@@ -872,7 +827,11 @@ function MealListItem({
           return (
             <li
               key={item.id}
-              className="py-2 text-xl text-muted-foreground first:pt-0 last:pb-0"
+              // #468 follow-up — reported live still not matching the
+              // stat/calories cards' own text-sm description size; #464's
+              // text-xl bump (a response to "too condensed") overshot once
+              // compared directly against those cards.
+              className="py-2 text-sm text-muted-foreground first:pt-0 last:pb-0"
             >
               {/* #302: the title stands alone on its own row — kcal/amount/
                * macros/reaction all move down to a second row together,
@@ -1119,12 +1078,6 @@ export function MealList({
   )
   const [confirmDeleteMealId, setConfirmDeleteMealId] = useState<string | null>(
     null,
-  )
-  const dragSensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
-    }),
   )
 
   // Reusable meal-name suggestions (#50) — loaded once per mount, a
@@ -1658,15 +1611,6 @@ export function MealList({
     setConfirmDeleteMealId(null)
   }
 
-  function handleMealDragEnd(event: DragEndEvent) {
-    const { active, over } = event
-    if (!over || active.id === over.id) return
-    const oldIndex = calorieEntries.findIndex((entry) => entry.id === active.id)
-    const newIndex = calorieEntries.findIndex((entry) => entry.id === over.id)
-    if (oldIndex === -1 || newIndex === -1) return
-    setCalorieEntries(arrayMove(calorieEntries, oldIndex, newIndex))
-  }
-
   return (
     <div className="flex flex-col gap-3">
       {fastingWindowToastHours !== null && (
@@ -1682,65 +1626,52 @@ export function MealList({
         </div>
       )}
       {calorieEntries.length > 0 && (
-        <DndContext
-          sensors={dragSensors}
-          collisionDetection={closestCenter}
-          onDragEnd={handleMealDragEnd}
-        >
-          <SortableContext
-            items={calorieEntries.map((entry) => entry.id)}
-            strategy={verticalListSortingStrategy}
-          >
-            <ul className="flex flex-col gap-3">
-              {calorieEntries.map((entry, index) => (
-                <MealListItem
-                  key={entry.id}
-                  entry={entry}
-                  // #187: calorieEntries is a single-element array in
-                  // focused mode, so index is always 0 — use the real
-                  // position passed down from MealEditScreen instead.
-                  position={focusMealId ? (focusMealPosition ?? 1) : index + 1}
-                  t={t}
-                  locale={locale}
-                  mealItems={mealItems}
-                  isEditing={editingMealId === entry.id}
-                  isConfirmingDelete={confirmDeleteMealId === entry.id}
-                  editItems={editItems}
-                  editLabel={editGroupLabel}
-                  editTime={editGroupTime}
-                  editNote={editGroupNote}
-                  onEditItemFieldChange={updateEditItemField}
-                  onEditItemSelectMealItem={selectEditItemMealItem}
-                  onEditItemModeChange={updateEditItemMode}
-                  onEditItemEmotionChange={updateEditItemEmotion}
-                  onEditItemFavoriteChange={updateEditItemFavorite}
-                  onAddEditItem={addEditItem}
-                  onScanBarcode={scanBarcodeIntoEditItems}
-                  onRemoveEditItem={removeEditItem}
-                  onEditLabelChange={setEditGroupLabel}
-                  onEditTimeChange={setEditGroupTime}
-                  onEditNoteChange={setEditGroupNote}
-                  // #157: navigates to the dedicated single-meal edit
-                  // route instead of opening inline edit mode directly —
-                  // only reachable from the view-mode branch, which never
-                  // renders while focusMealId is already open in edit
-                  // mode, so this can't fire during a focused mount.
-                  onStartEdit={() =>
-                    navigate(`/entry/${date}/meal/${entry.id}`)
-                  }
-                  onSaveEdit={saveEditMeal}
-                  onCancelEdit={cancelEditMeal}
-                  onRequestDelete={() => setConfirmDeleteMealId(entry.id)}
-                  onConfirmDelete={confirmDeleteMeal}
-                  onCancelDelete={() => setConfirmDeleteMealId(null)}
-                  openEditItemId={openEditItemId}
-                  onOpenEditItem={setOpenEditItemId}
-                  onAddFood={addFoodToEditItems}
-                />
-              ))}
-            </ul>
-          </SortableContext>
-        </DndContext>
+        <ul className="flex flex-col gap-3">
+          {calorieEntries.map((entry, index) => (
+            <MealListItem
+              key={entry.id}
+              entry={entry}
+              // #187: calorieEntries is a single-element array in
+              // focused mode, so index is always 0 — use the real
+              // position passed down from MealEditScreen instead.
+              position={focusMealId ? (focusMealPosition ?? 1) : index + 1}
+              t={t}
+              locale={locale}
+              mealItems={mealItems}
+              isEditing={editingMealId === entry.id}
+              isConfirmingDelete={confirmDeleteMealId === entry.id}
+              editItems={editItems}
+              editLabel={editGroupLabel}
+              editTime={editGroupTime}
+              editNote={editGroupNote}
+              onEditItemFieldChange={updateEditItemField}
+              onEditItemSelectMealItem={selectEditItemMealItem}
+              onEditItemModeChange={updateEditItemMode}
+              onEditItemEmotionChange={updateEditItemEmotion}
+              onEditItemFavoriteChange={updateEditItemFavorite}
+              onAddEditItem={addEditItem}
+              onScanBarcode={scanBarcodeIntoEditItems}
+              onRemoveEditItem={removeEditItem}
+              onEditLabelChange={setEditGroupLabel}
+              onEditTimeChange={setEditGroupTime}
+              onEditNoteChange={setEditGroupNote}
+              // #157: navigates to the dedicated single-meal edit
+              // route instead of opening inline edit mode directly —
+              // only reachable from the view-mode branch, which never
+              // renders while focusMealId is already open in edit
+              // mode, so this can't fire during a focused mount.
+              onStartEdit={() => navigate(`/entry/${date}/meal/${entry.id}`)}
+              onSaveEdit={saveEditMeal}
+              onCancelEdit={cancelEditMeal}
+              onRequestDelete={() => setConfirmDeleteMealId(entry.id)}
+              onConfirmDelete={confirmDeleteMeal}
+              onCancelDelete={() => setConfirmDeleteMealId(null)}
+              openEditItemId={openEditItemId}
+              onOpenEditItem={setOpenEditItemId}
+              onAddFood={addFoodToEditItems}
+            />
+          ))}
+        </ul>
       )}
 
       {/* #253 — a day-level action, so it's independent of the add row's

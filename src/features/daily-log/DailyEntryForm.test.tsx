@@ -1,13 +1,7 @@
 import 'fake-indexeddb/auto'
-import {
-  act,
-  fireEvent,
-  render as rtlRender,
-  screen,
-  within,
-} from '@testing-library/react'
+import { fireEvent, render as rtlRender, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import type { ReactElement, ReactNode } from 'react'
+import type { ReactElement } from 'react'
 import { MemoryRouter } from 'react-router-dom'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { CalorieEntry } from '@/domain/dailyEntry'
@@ -44,29 +38,6 @@ async function openAddItemFlow(user: ReturnType<typeof userEvent.setup>) {
   if (trigger) await user.click(trigger)
   await user.click(screen.getByRole('button', { name: 'Add food' }))
 }
-
-// jsdom has no layout engine, so real pointer/keyboard drag gestures can't
-// produce meaningful rects for dnd-kit's collision detection. We trust
-// dnd-kit itself (independently tested) to turn real gestures into
-// DragEndEvents, and only test our own onDragEnd wiring here by capturing
-// and invoking it directly with a synthetic event.
-let capturedOnDragEnd:
-  | ((event: { active: { id: string }; over: { id: string } | null }) => void)
-  | undefined
-
-vi.mock('@dnd-kit/core', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('@dnd-kit/core')>()
-  return {
-    ...actual,
-    DndContext: (props: {
-      onDragEnd: typeof capturedOnDragEnd
-      children: ReactNode
-    }) => {
-      capturedOnDragEnd = props.onDragEnd
-      return props.children
-    },
-  }
-})
 
 // The food-picker tests below mount FoodPickerDialog, which renders the
 // 300+ item curated food list (same reason FoodPickerDialog.test.tsx and
@@ -2283,46 +2254,11 @@ describe('DailyEntryForm', () => {
       // item's reaction...", "edits a meal's protein/fat/carbs...", and
       // "renders bellissimo..." moved to MealEditScreen.test.tsx.
 
-      it('has a reorder handle for each meal', () => {
-        renderWithMeals()
-
-        expect(
-          screen.getByRole('button', { name: 'Reorder meal 1' }),
-        ).toBeInTheDocument()
-        expect(
-          screen.getByRole('button', { name: 'Reorder meal 2' }),
-        ).toBeInTheDocument()
-      })
-
-      it('reorders meals and saves immediately when a drag ends over a different meal', () => {
-        const onSave = vi.fn()
-        renderWithMeals(onSave)
-
-        act(() => {
-          capturedOnDragEnd?.({ active: { id: 'c1' }, over: { id: 'c2' } })
-        })
-
-        expect(screen.getByText('Breakfast — 200 kcal')).toBeInTheDocument()
-        expect(screen.getByText('Lunch — 300 kcal')).toBeInTheDocument()
-        expect(onSave).toHaveBeenCalledTimes(1)
-        expect(
-          onSave.mock.calls[0][0].calorieEntries.map(
-            (c: CalorieEntry) => c.items[0].amountKcal,
-          ),
-        ).toEqual([200, 300])
-      })
-
-      it('does not save when a drag ends over itself or nothing', () => {
-        const onSave = vi.fn()
-        renderWithMeals(onSave)
-
-        act(() => {
-          capturedOnDragEnd?.({ active: { id: 'c1' }, over: { id: 'c1' } })
-          capturedOnDragEnd?.({ active: { id: 'c1' }, over: null })
-        })
-
-        expect(onSave).not.toHaveBeenCalled()
-      })
+      // #468 — drag-to-reorder removed entirely (reported live as broken,
+      // couldn't actually swap two meals) along with its 3 tests here.
+      // See #471 for the planned replacement, an on-demand toggle mode
+      // like TodayScreen's own Stats section reorder, not always-on drag
+      // handles.
 
       describe('per 100g / per portion toggle (#111)', () => {
         it('defaults to per-100g mode, unchanged from before this feature', async () => {
@@ -2638,34 +2574,8 @@ describe('DailyEntryForm', () => {
         // also has an app-level clear button (#117)" moved to
         // MealEditScreen.test.tsx.
 
-        it('is not cleared or changed when meals are reordered', () => {
-          const onSave = vi.fn()
-          render(
-            <DailyEntryForm
-              date="2026-03-01"
-              existingEntry={{
-                id: 'e1',
-                date: '2026-03-01',
-                calorieEntries: [
-                  { ...calories(300, 'c1'), timeEaten: '08:00' },
-                  { ...calories(200, 'c2'), timeEaten: '13:00' },
-                ],
-                createdAt: now,
-                updatedAt: now,
-              }}
-              onSave={onSave}
-            />,
-          )
-
-          act(() => {
-            capturedOnDragEnd?.({ active: { id: 'c1' }, over: { id: 'c2' } })
-          })
-
-          const savedTimes = onSave.mock.calls[0][0].calorieEntries.map(
-            (c: CalorieEntry) => c.timeEaten,
-          )
-          expect(savedTimes).toEqual(['13:00', '08:00'])
-        })
+        // #468 — drag-to-reorder removed; see the comment where its other
+        // tests used to sit, above.
       })
 
       describe('food picker (#62)', () => {

@@ -276,7 +276,6 @@ export interface Dictionary {
      * changed-mind edit state. */
     cancelEditMealLabel: (n: number) => string
     deleteMealLabel: (n: number) => string
-    reorderMealLabel: (n: number) => string
     /** Dedicated single-meal edit route (#157) — replaces #145's inline
      * expand-in-place; a meal's pencil on Today/History now navigates
      * here instead. */
@@ -534,6 +533,12 @@ export interface Dictionary {
      * weight/steps are (they're the existing MealList.tsx flow), so this
      * doesn't pair with an edit/save label the way the others above do. */
     mealsLabel: string
+    /** #468 — accordion trigger wrapping the meal list, same
+     * expand/collapse aria-label pair shape as expandMacrosLabel/
+     * collapseMacrosLabel and t.today's own expandStatsLabel/
+     * collapseStatsLabel. */
+    expandMealsLabel: string
+    collapseMealsLabel: string
     /** Body measurements (#225) — waist/hip circumference + body fat %,
      * bundled as one editable section (same shape as sleep's hours+deep
      * hours bundling) rather than three separate top-level fields. */
