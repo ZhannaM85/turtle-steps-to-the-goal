@@ -1534,7 +1534,7 @@ describe('TodayScreen', () => {
       await screen.findByLabelText('Date')
 
       expect(screen.getByRole('button', { name: 'Today' })).toHaveClass(
-        'h-12',
+        'h-[2.625rem]',
       )
     })
   })

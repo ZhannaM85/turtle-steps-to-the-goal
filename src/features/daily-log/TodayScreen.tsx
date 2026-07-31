@@ -184,23 +184,24 @@ export function TodayScreen() {
       { replace: true },
     )
   }
-  // #420 debug instrument (temporary — remove once resolved). Uncapped
-  // on-device measurement showed the native Date input's own natural
-  // height (42px) is actually *shorter* than the 48px arrows/today
-  // button, not taller — yet the capped version (3rd attempt: inline
-  // height+max-height+overflow-hidden directly on the `<input>`) still
-  // visually rendered taller live, despite computing to exactly 48px in
-  // 2 desktop engines. That combination (box measures right,
-  // overflow-hidden already present, still visually taller only on real
-  // iOS) points at a native form-control chrome that isn't reliably
-  // clipped by `overflow: hidden` set on itself in Mobile Safari — so
-  // the 4th attempt (below) moves the fixed height + overflow-hidden to
-  // a plain wrapping `<div>` instead, which has no such native-widget
-  // quirk. ?debug=420 still strips that wrapper's cap so its real
-  // unconstrained height can be read on-screen if this needs revisiting.
+  // #420 debug instrument (temporary — remove once resolved). Attempts
+  // 3 and 4 both tried to clip the native Date input down to the
+  // arrows'/today button's 48px (overflow-hidden directly on the
+  // `<input>`, then on a wrapping `<div>`) — attempt 4 confirmed the clip
+  // actually took effect this time, but it cut off the input's own real,
+  // rendered right/bottom border, not invisible overflow: the native
+  // control genuinely paints larger than 48px in both dimensions, so any
+  // box smaller than that chops off real chrome. 5th attempt (below):
+  // stop constraining the input at all — let it render at its true
+  // natural size (measured uncapped at 42px, actually *shorter* than the
+  // 48px arrows/today button, not taller) — and shrink the buttons to
+  // match it instead, the same "match the native control, don't fight
+  // it" principle #139 used (just in the opposite direction, since this
+  // control's natural size turned out smaller). ?debug=420 keeps showing
+  // each element's live rendered height on-screen for future reference.
   const debug420 = searchParams.get('debug') === '420'
   const debug420PrevRef = useRef<HTMLButtonElement>(null)
-  const debug420DateRef = useRef<HTMLDivElement>(null)
+  const debug420DateRef = useRef<HTMLInputElement>(null)
   const debug420NextRef = useRef<HTMLButtonElement>(null)
   const debug420TodayRef = useRef<HTMLButtonElement>(null)
   const [debug420Heights, setDebug420Heights] = useState<
@@ -791,38 +792,35 @@ export function TodayScreen() {
           )}
         </div>
         <div className="flex items-center gap-2">
+          {/* #420 5th attempt — sized to match the Date input's own real
+           * rendered height (measured on-device at 42px, see the comment
+           * by debug420's declaration above) instead of the app-wide
+           * icon-xl/48px used elsewhere, since 2 separate attempts to clip
+           * the native input down to 48px both ended up cutting off its
+           * own real border rather than invisible overflow — it genuinely
+           * paints larger than 48px and can't be boxed down cleanly.
+           * Scoped to just this row's controls, not the shared icon-xl
+           * class other Today rows (Weight/Sleep/Steps/Notes) still use. */}
           <Button
             ref={debug420PrevRef}
             type="button"
             variant="outline"
             size="icon-xl"
+            className="size-[2.625rem]"
             aria-label={t.today.previousDayLabel}
             onClick={() => setDate((prev) => shiftDate(prev, -1))}
           >
             <ChevronLeft aria-hidden="true" />
           </Button>
-          {/* #420 4th attempt — see the comment by debug420's declaration
-           * above for why this moved from overflow-hidden directly on the
-           * `<input>` (3rd attempt, still visually too tall live on real
-           * iOS Safari) to overflow-hidden on this plain wrapping div
-           * instead: a div's own clipping isn't subject to the native
-           * form-control chrome's own-overflow quirk, so whatever the
-           * input paints internally gets clipped by its container rather
-           * than relying on the input to clip itself. */}
-          <div
+          <Input
+            id="log-date"
             ref={debug420DateRef}
-            className={debug420 ? 'max-w-48' : 'max-w-48 overflow-hidden'}
-            style={debug420 ? undefined : { height: '3rem' }}
-          >
-            <Input
-              id="log-date"
-              type="date"
-              value={date}
-              max={todayIso()}
-              onChange={(e) => setDate(e.target.value)}
-              className="h-full w-full"
-            />
-          </div>
+            type="date"
+            value={date}
+            max={todayIso()}
+            onChange={(e) => setDate(e.target.value)}
+            className="max-w-48"
+          />
           {/* Capped at today (#138), same as the date input's own `max` —
            * logging a future day isn't supported anywhere else in the app,
            * out of scope for "quicker than opening the picker" arrows. */}
@@ -831,6 +829,7 @@ export function TodayScreen() {
             type="button"
             variant="outline"
             size="icon-xl"
+            className="size-[2.625rem]"
             aria-label={t.today.nextDayLabel}
             disabled={date >= todayIso()}
             onClick={() => setDate((prev) => shiftDate(prev, 1))}
@@ -839,17 +838,17 @@ export function TodayScreen() {
           </Button>
           {/* #403 — quick way back after paging/picking far away, instead
            * of stepping/picking manually all the way back. #420: explicit
-           * h-12 (no named text-content button size reaches 48px — only
-           * the icon-only, square icon-xl does) to match the arrows/Date
-           * input it shares this row with, same "same row, same height"
-           * rule documented on button.tsx's own size variants. */}
+           * height override (no named text-content button size reaches
+           * 42px on its own) to match the arrows/Date input it shares this
+           * row with, same "same row, same height" rule documented on
+           * button.tsx's own size variants. */}
           {date !== todayIso() && (
             <Button
               ref={debug420TodayRef}
               type="button"
               variant="outline"
               size="sm"
-              className="h-12 shrink-0"
+              className="h-[2.625rem] shrink-0"
               onClick={() => setDate(todayIso())}
             >
               {t.today.jumpToTodayButton}
@@ -859,7 +858,7 @@ export function TodayScreen() {
         {debug420 && (
           <p className="font-mono text-xs text-muted-foreground">
             #420 heights (px) — prev:{debug420Heights.prev?.toFixed(1) ?? '?'}{' '}
-            date:{debug420Heights.date?.toFixed(1) ?? '?'} (uncapped) next:
+            date:{debug420Heights.date?.toFixed(1) ?? '?'} next:
             {debug420Heights.next?.toFixed(1) ?? '?'} today:
             {debug420Heights.today?.toFixed(1) ?? '?'}
           </p>
