@@ -12,7 +12,10 @@ export interface ZeppBodyRow {
   fatRatePercent?: number
   bodyWaterRatePercent?: number
   boneMassKg?: number
-  muscleRatePercent?: number
+  /** Zepp's CSV column is named `muscleRate`, but the value is already kg
+   * (matches the in-app "Muscle X kg" reading) — not a % of body weight.
+   * Confirmed against a real export + the Zepp Life UI (#458). */
+  muscleMassKg?: number
   visceralFat?: number
 }
 
@@ -67,7 +70,7 @@ export function parseZeppBodyCsv(csvText: string): ZeppBodyRow[] {
       fatRatePercent: parseOptionalNumber(cells[fatRateCol]),
       bodyWaterRatePercent: parseOptionalNumber(cells[bodyWaterRateCol]),
       boneMassKg: parseOptionalNumber(cells[boneMassCol]),
-      muscleRatePercent: parseOptionalNumber(cells[muscleRateCol]),
+      muscleMassKg: parseOptionalNumber(cells[muscleRateCol]),
       visceralFat: parseOptionalNumber(cells[visceralFatCol]),
     })
   }
@@ -104,10 +107,6 @@ export function parseZeppActivityCsv(csvText: string): ZeppActivityRow[] {
  * plain local calendar day rather than a UTC one. */
 export function zeppTimeToLocalDate(time: string): string {
   return parseHealthTimestamp(time).localDate
-}
-
-function round2(value: number): number {
-  return Math.round(value * 100) / 100
 }
 
 /**
@@ -150,10 +149,12 @@ export function buildZeppLifePatches(
     if (row.visceralFat !== undefined) {
       patch.visceralFatRating = row.visceralFat
     }
-    // Zepp's muscleRate is a % of body weight, but DailyEntry.muscleMassKg
-    // is in kg — not a direct copy, needs converting via this row's weight.
-    if (row.muscleRatePercent !== undefined) {
-      patch.muscleMassKg = round2((row.weightKg * row.muscleRatePercent) / 100)
+    // Column name is `muscleRate`, but the value is already kg — same number
+    // Zepp Life shows as "Muscle X kg". Pre-#458 this was wrongly treated as
+    // a % of body weight (`weight * rate / 100`), which produced ~22kg that
+    // looked confusingly like BMI for this user's scale range.
+    if (row.muscleMassKg !== undefined) {
+      patch.muscleMassKg = row.muscleMassKg
     }
     patches.set(date, patch)
   }

@@ -23,7 +23,7 @@ describe('parseZeppBodyCsv', () => {
         fatRatePercent: 35.5,
         bodyWaterRatePercent: 46.0,
         boneMassKg: 2.4,
-        muscleRatePercent: 37.29,
+        muscleMassKg: 37.29,
         visceralFat: 6.0,
       },
     ])
@@ -43,7 +43,7 @@ describe('parseZeppBodyCsv', () => {
         fatRatePercent: undefined,
         bodyWaterRatePercent: undefined,
         boneMassKg: undefined,
-        muscleRatePercent: undefined,
+        muscleMassKg: undefined,
         visceralFat: undefined,
       },
     ])
@@ -102,20 +102,22 @@ describe('buildZeppLifePatches', () => {
     expect(patches.get('2026-01-15')).toEqual({ weightKg: 61.4 })
   })
 
-  it('converts muscleRate (a % of body weight) into muscleMassKg', () => {
+  it('maps muscleRate directly to muscleMassKg (already kg, not a % — #458)', () => {
     const rows = [
       {
         time: '2026-01-15 12:00:00+0000',
-        weightKg: 60,
-        muscleRatePercent: 37.29,
+        weightKg: 59.15,
+        muscleMassKg: 37.63,
       },
     ]
 
     const patches = buildZeppLifePatches(rows, [])
 
     expect(patches.get('2026-01-15')).toEqual({
-      weightKg: 60,
-      muscleMassKg: 22.37, // 60 * 37.29 / 100, rounded to 2dp
+      weightKg: 59.15,
+      // Same number Zepp Life shows as "Muscle 37.63 kg" — must NOT be
+      // recomputed as weight * rate / 100 (that produced the old 22.26 bug).
+      muscleMassKg: 37.63,
     })
   })
 

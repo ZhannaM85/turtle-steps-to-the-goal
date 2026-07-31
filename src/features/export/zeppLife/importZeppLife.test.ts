@@ -58,7 +58,15 @@ describe('importZeppLifeExport', () => {
       .where('date')
       .equals('2026-01-15')
       .first()
-    expect(weightEntry).toMatchObject({ weightKg: 61.4, bodyFatPercent: 35.5 })
+    expect(weightEntry).toMatchObject({
+      weightKg: 61.4,
+      bodyFatPercent: 35.5,
+      // #458 — muscleRate is already kg, not weight * rate / 100
+      muscleMassKg: 37.29,
+      boneMassKg: 2.4,
+      bodyWaterPercent: 46.0,
+      visceralFatRating: 6.0,
+    })
     const stepsEntry = await db.dailyEntries
       .where('date')
       .equals('2026-01-16')

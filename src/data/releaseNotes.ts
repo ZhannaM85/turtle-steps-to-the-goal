@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 419,
+    issue: 458,
+    date: '2026-08-01T02:02:41+03:00',
+    en: 'Muscle mass from a Zepp Life import now matches the kg value shown in Zepp, instead of a wrongly converted figure that looked like BMI.',
+    ru: 'Мышечная масса из импорта Zepp Life теперь совпадает с кг в Zepp, а не с ошибочно пересчитанным числом, похожим на ИМТ.',
+  },
+  {
     version: 418,
     issue: 175,
     date: '2026-07-30T02:15:10+03:00',
