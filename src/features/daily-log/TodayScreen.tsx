@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from 'react'
+import { useEffect, useRef, useState, type ReactNode } from 'react'
 import {
   DndContext,
   KeyboardSensor,
@@ -184,6 +184,27 @@ export function TodayScreen() {
       { replace: true },
     )
   }
+  // #420 debug instrument (temporary — remove once resolved). 3 separate
+  // CSS attempts to cap the Date input down to the arrows'/today button's
+  // 48px (h-12, then max-h-12, then inline height+max-height+overflow-
+  // hidden) have all failed live on-device while never reproducing in
+  // Playwright. Per #139's precedent for this exact same native-date-
+  // input-height quirk, the fix that actually worked there was the
+  // opposite of shrinking: measure the control's real intrinsic height on
+  // a real device and grow the rest of the row to match it, rather than
+  // fighting Safari's own rendering. ?debug=420 strips this row's height
+  // cap off the Date input entirely so its true unconstrained height can
+  // be read directly on-screen (no devtools needed) before trying a 4th
+  // guess.
+  const debug420 = searchParams.get('debug') === '420'
+  const debug420PrevRef = useRef<HTMLButtonElement>(null)
+  const debug420DateRef = useRef<HTMLInputElement>(null)
+  const debug420NextRef = useRef<HTMLButtonElement>(null)
+  const debug420TodayRef = useRef<HTMLButtonElement>(null)
+  const [debug420Heights, setDebug420Heights] = useState<
+    Record<'prev' | 'date' | 'next' | 'today', number | null>
+  >({ prev: null, date: null, next: null, today: null })
+
   const previousDayEntry = usePreviousDayEntry(date)
   const maxWeightKg = useMaxRecordedWeight(entry)
   // #235: GoalCelebrationModal (#55) already fires the instant a save
@@ -203,6 +224,33 @@ export function TodayScreen() {
   useEffect(() => {
     loadEntry(date)
   }, [date, loadEntry])
+
+  // #420 debug instrument (temporary) — see the comment above where these
+  // refs/state are declared. ResizeObserver rather than a one-shot measure
+  // so a late layout shift (native control chrome finishing its own
+  // render after mount) still gets caught.
+  useEffect(() => {
+    if (!debug420) return
+    const targets: Array<[keyof typeof debug420Heights, HTMLElement | null]> = [
+      ['prev', debug420PrevRef.current],
+      ['date', debug420DateRef.current],
+      ['next', debug420NextRef.current],
+      ['today', debug420TodayRef.current],
+    ]
+    const observer = new ResizeObserver(() => {
+      setDebug420Heights((prev) => {
+        const next = { ...prev }
+        for (const [key, el] of targets) {
+          if (el) next[key] = el.getBoundingClientRect().height
+        }
+        return next
+      })
+    })
+    for (const [, el] of targets) {
+      if (el) observer.observe(el)
+    }
+    return () => observer.disconnect()
+  }, [debug420, date])
 
   const displayUnit = useUnitStore((state) => state.unit)
   const toDisplay = (kg: number) => (displayUnit === 'lb' ? kgToLb(kg) : kg)
@@ -742,6 +790,7 @@ export function TodayScreen() {
         </div>
         <div className="flex items-center gap-2">
           <Button
+            ref={debug420PrevRef}
             type="button"
             variant="outline"
             size="icon-xl"
@@ -752,17 +801,26 @@ export function TodayScreen() {
           </Button>
           <Input
             id="log-date"
+            ref={debug420DateRef}
             type="date"
             value={date}
             max={todayIso()}
             onChange={(e) => setDate(e.target.value)}
-            className="max-w-48 overflow-hidden"
-            style={{ height: '3rem', maxHeight: '3rem', lineHeight: '1.5rem' }}
+            // #420 debug — ?debug=420 drops the height cap so the input
+            // renders at its real unconstrained height (see the comment
+            // by debug420's declaration above).
+            className={debug420 ? 'max-w-48' : 'max-w-48 overflow-hidden'}
+            style={
+              debug420
+                ? undefined
+                : { height: '3rem', maxHeight: '3rem', lineHeight: '1.5rem' }
+            }
           />
           {/* Capped at today (#138), same as the date input's own `max` —
            * logging a future day isn't supported anywhere else in the app,
            * out of scope for "quicker than opening the picker" arrows. */}
           <Button
+            ref={debug420NextRef}
             type="button"
             variant="outline"
             size="icon-xl"
@@ -780,6 +838,7 @@ export function TodayScreen() {
            * rule documented on button.tsx's own size variants. */}
           {date !== todayIso() && (
             <Button
+              ref={debug420TodayRef}
               type="button"
               variant="outline"
               size="sm"
@@ -790,6 +849,14 @@ export function TodayScreen() {
             </Button>
           )}
         </div>
+        {debug420 && (
+          <p className="font-mono text-xs text-muted-foreground">
+            #420 heights (px) — prev:{debug420Heights.prev?.toFixed(1) ?? '?'}{' '}
+            date:{debug420Heights.date?.toFixed(1) ?? '?'} (uncapped) next:
+            {debug420Heights.next?.toFixed(1) ?? '?'} today:
+            {debug420Heights.today?.toFixed(1) ?? '?'}
+          </p>
+        )}
         {/* #345 — only while viewing the effective "today" itself; once
          * the user pages back to an earlier day, offering to jump the
          * calendar forward there wouldn't make sense. Disappears on its
