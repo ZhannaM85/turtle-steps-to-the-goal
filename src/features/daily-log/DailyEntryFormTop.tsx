@@ -1,7 +1,13 @@
-import { CupSoda, GlassWater, X } from 'lucide-react'
+import { ChevronDown, CupSoda, GlassWater, X } from 'lucide-react'
+import { useState } from 'react'
 import { formatNumber } from '@/i18n'
 import { Button } from '@/shared/ui/button'
-import { Card, CardContent } from '@/shared/ui/card'
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from '@/shared/ui/collapsible'
+import { StatCard } from '@/shared/ui/stat-card'
 import { MealList } from './MealList'
 import { useDailyEntryFormStateContext } from './useDailyEntryFormStateContext'
 import { isUnusualDailyCalories } from './unusualEntryThresholds'
@@ -21,6 +27,9 @@ import { isUnusualDailyCalories } from './unusualEntryThresholds'
 export function DailyEntryFormTop() {
   const state = useDailyEntryFormStateContext()
   const { t, locale } = state
+  // #467 — accordion wrapping the two macros StatCards below, same
+  // bordered-Collapsible pattern TodayScreen's own Stats section uses.
+  const [macrosCollapsed, setMacrosCollapsed] = useState(false)
 
   return (
     <>
@@ -39,45 +48,64 @@ export function DailyEntryFormTop() {
 
         {/* Own field (#152) — was a text-xs caption line tucked under the
          * Calories card; promoted to the same labeled-field treatment as
-         * Calories/Weight/Sleep use, just without a large number since it's
-         * three values, not one. #156 follow-up briefly shrank this to
-         * self-start/content-width to avoid empty bg-muted background past
-         * the short text, but that made it visibly inconsistent in height
-         * and width with every sibling field (#168) — Weight/Sleep already
-         * have short left-aligned text in a full-width h-12 box without
-         * reading as broken, so this now matches that same treatment
-         * instead of being the one exception. #462: rebuilt on the actual
-         * `Card`/`CardContent` components (the same "This week's target"-
-         * style card StatCard already uses) instead of a plain bg-muted
-         * box, per live feedback that the old box read too small/condensed
-         * on a phone. */}
-        {state.dayMacrosSummary && (
-          <Card>
-            <CardContent className="flex flex-col gap-1">
-              <span className="text-sm text-muted-foreground">
-                {t.dailyEntry.macrosLabel}
-              </span>
-              <span className="text-lg text-foreground" aria-live="polite">
-                {state.dayMacrosSummary}
-              </span>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* #462 — remaining-macros counterpart to the row above, same
-         * treatment, shown only once at least one daily target (calories/
-         * protein/fat/carbs) is actually set. */}
-        {state.dayRemainingMacrosSummary && (
-          <Card>
-            <CardContent className="flex flex-col gap-1">
-              <span className="text-sm text-muted-foreground">
-                {t.dailyEntry.remainingMacrosLabel}
-              </span>
-              <span className="text-lg text-foreground" aria-live="polite">
-                {state.dayRemainingMacrosSummary}
-              </span>
-            </CardContent>
-          </Card>
+         * Calories/Weight/Sleep use. #467: rebuilt on `StatCard` (the same
+         * big-number + description shape the Stats section's own cards
+         * use, kcal as the value, protein/fat/carbs as the description)
+         * instead of a plain `Card`, wrapped in the same bordered
+         * `Collapsible` accordion TodayScreen's Stats section uses —
+         * reported live as looking visually inconsistent with those
+         * cards otherwise. */}
+        {(state.dayMacrosSummary || state.dayRemainingMacrosSummary) && (
+          <div className="rounded-lg border border-border p-3">
+            <Collapsible
+              open={!macrosCollapsed}
+              onOpenChange={(open) => setMacrosCollapsed(!open)}
+            >
+              <CollapsibleTrigger asChild>
+                <button
+                  type="button"
+                  aria-label={
+                    macrosCollapsed
+                      ? t.dailyEntry.expandMacrosLabel
+                      : t.dailyEntry.collapseMacrosLabel
+                  }
+                  className="group flex w-full items-center justify-between text-sm font-medium text-muted-foreground hover:text-foreground"
+                >
+                  {t.dailyEntry.macrosLabel}
+                  <ChevronDown
+                    aria-hidden="true"
+                    className="size-4 transition-transform group-data-[state=open]:rotate-180"
+                  />
+                </button>
+              </CollapsibleTrigger>
+              <CollapsibleContent>
+                <div className="flex flex-col gap-6 pt-3">
+                  {state.dayMacrosSummary && (
+                    <StatCard
+                      label={t.dailyEntry.consumedMacrosLabel}
+                      value={formatNumber(state.dayTotalCalories, locale, 0)}
+                      unit={t.dailyEntry.kcalUnit}
+                      description={state.dayMacrosDescription ?? undefined}
+                    />
+                  )}
+                  {state.dayRemainingMacrosSummary && (
+                    <StatCard
+                      label={t.dailyEntry.remainingMacrosLabel}
+                      value={
+                        state.remainingKcal !== undefined
+                          ? formatNumber(state.remainingKcal, locale, 0)
+                          : '—'
+                      }
+                      unit={t.dailyEntry.kcalUnit}
+                      description={
+                        state.dayRemainingMacrosDescription ?? undefined
+                      }
+                    />
+                  )}
+                </div>
+              </CollapsibleContent>
+            </Collapsible>
+          </div>
         )}
 
         {/* Meal editing extracted to its own component (#145) — reused

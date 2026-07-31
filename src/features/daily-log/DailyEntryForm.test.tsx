@@ -1710,14 +1710,23 @@ describe('DailyEntryForm', () => {
         fatG: 10,
         carbsG: 30,
       })
-      // The meal's own summary line (#51).
+      // The per-day total (#462) now lives on its own StatCard (#467) —
+      // kcal as the big value, macros as the description below it.
+      const consumedCard = screen
+        .getByText('Consumed')
+        .closest('[data-slot="card"]') as HTMLElement
+      expect(within(consumedCard).getByText('200')).toBeInTheDocument()
       expect(
-        screen.getByText('Protein 20g · Fat 10g · Carbs 30g'),
+        within(consumedCard).getByText('Protein 20g · Fat 10g · Carbs 30g'),
       ).toBeInTheDocument()
-      // The per-day total also includes calories (#462).
+      // The meal's own summary line (#51) also still renders this text,
+      // separately from the day-total card above.
+      const macrosMatches = screen.getAllByText(
+        'Protein 20g · Fat 10g · Carbs 30g',
+      )
       expect(
-        screen.getByText('200 kcal · Protein 20g · Fat 10g · Carbs 30g'),
-      ).toBeInTheDocument()
+        macrosMatches.some((el) => !consumedCard.contains(el)),
+      ).toBe(true)
     })
 
     it('scales per-100g kcal and macros by the portions eaten (#96, #140)', async () => {
@@ -1870,12 +1879,17 @@ describe('DailyEntryForm', () => {
       expect(
         onSave.mock.calls[0][0].calorieEntries[0].items[0].proteinG,
       ).toBeUndefined()
+      const consumedCard = screen
+        .getByText('Consumed')
+        .closest('[data-slot="card"]') as HTMLElement
+      expect(within(consumedCard).getByText('200')).toBeInTheDocument()
       expect(
-        screen.getByText('Protein — · Fat 10g · Carbs —'),
+        within(consumedCard).getByText('Protein — · Fat 10g · Carbs —'),
       ).toBeInTheDocument()
+      const macrosMatches = screen.getAllByText('Protein — · Fat 10g · Carbs —')
       expect(
-        screen.getByText('200 kcal · Protein — · Fat 10g · Carbs —'),
-      ).toBeInTheDocument()
+        macrosMatches.some((el) => !consumedCard.contains(el)),
+      ).toBe(true)
     })
 
     it('shows no macro summary line for a meal that logged none (#51)', async () => {
@@ -1892,16 +1906,23 @@ describe('DailyEntryForm', () => {
       await user.type(screen.getByLabelText('kcal/100g'), '200')
       await user.click(screen.getByRole('button', { name: 'Save' }))
 
-      // The per-meal summary line (macro-only, unaffected by #462) stays
-      // absent when no macros were logged at all.
-      expect(
-        screen.queryByText('Protein — · Fat — · Carbs —'),
-      ).not.toBeInTheDocument()
       // The day-level total now always shows once *any* value — even just
-      // calories — is logged (#462), with dashes for the unset macros.
+      // calories — is logged (#462), with dashes for the unset macros, on
+      // its own StatCard (#467).
+      const consumedCard = screen
+        .getByText('Consumed')
+        .closest('[data-slot="card"]') as HTMLElement
+      expect(within(consumedCard).getByText('200')).toBeInTheDocument()
       expect(
-        screen.getByText('200 kcal · Protein — · Fat — · Carbs —'),
+        within(consumedCard).getByText('Protein — · Fat — · Carbs —'),
       ).toBeInTheDocument()
+      // The per-meal summary line (macro-only, unaffected by #462) stays
+      // absent when no macros were logged at all — every match for this
+      // text lives inside the day-total card above, none elsewhere.
+      const macrosMatches = screen.getAllByText('Protein — · Fat — · Carbs —')
+      expect(macrosMatches.every((el) => consumedCard.contains(el))).toBe(
+        true,
+      )
     })
 
     it('shows a read-only per-day macro total next to the kcal total (#51)', async () => {
@@ -1932,9 +1953,14 @@ describe('DailyEntryForm', () => {
       await user.click(screen.getByRole('button', { name: 'Done' }))
 
       // Day total: 350 kcal (200+150), 25g protein (20+5), 10g fat (only
-      // meal 1), no carbs logged.
+      // meal 1), no carbs logged. Own StatCard (#467) — kcal as the big
+      // value, macros as the description below it.
+      const consumedCard = screen
+        .getByText('Consumed')
+        .closest('[data-slot="card"]') as HTMLElement
+      expect(within(consumedCard).getByText('350')).toBeInTheDocument()
       expect(
-        screen.getByText('350 kcal · Protein 25g · Fat 10g · Carbs —'),
+        within(consumedCard).getByText('Protein 25g · Fat 10g · Carbs —'),
       ).toBeInTheDocument()
     })
 

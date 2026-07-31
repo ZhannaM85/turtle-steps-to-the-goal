@@ -117,6 +117,7 @@ export const ru: Dictionary = {
     macroModePerPortionOption: 'Порция',
     addButton: 'Добавить',
     macrosLabel: 'КБЖУ',
+    consumedMacrosLabel: 'Употреблено',
     kcalUnit: 'ккал',
     noteLabel: 'Заметка дня',
     noteFieldPlaceholder: 'Как прошёл день?',
@@ -192,6 +193,8 @@ export const ru: Dictionary = {
     macrosSummaryWithCalories: (kcal, protein, fat, carbs) =>
       `${kcal} · Белки ${protein} · Жиры ${fat} · Углеводы ${carbs}`,
     remainingMacrosLabel: 'Осталось',
+    expandMacrosLabel: 'Показать калории и БЖУ',
+    collapseMacrosLabel: 'Скрыть калории и БЖУ',
     timeEatenLabel: 'Время',
     clearTimeLabel: 'Очистить время',
     expandAddMealLabel: '+ Добавить ещё приём пищи',

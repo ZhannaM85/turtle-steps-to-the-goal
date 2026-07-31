@@ -216,6 +216,10 @@ export interface Dictionary {
      * caption line tucked under the Calories card, promoted to a field
      * of its own matching Weight/Sleep/Calories' treatment. */
     macrosLabel: string
+    /** Label on the day-total macros StatCard once it's split out of the
+     * combined section label above (#467) — the "consumed so far"
+     * counterpart to remainingMacrosLabel below. */
+    consumedMacrosLabel: string
     kcalUnit: string
     noteLabel: string
     noteFieldPlaceholder: string
@@ -366,6 +370,11 @@ export interface Dictionary {
      * wording family as the individual t.today.remaining*Label strings,
      * but one combined label for the whole row rather than per-macro. */
     remainingMacrosLabel: string
+    /** Accordion trigger wrapping the two macros StatCards (#467), same
+     * expand/collapse aria-label pair shape as t.today's own
+     * expandStatsLabel/collapseStatsLabel. */
+    expandMacrosLabel: string
+    collapseMacrosLabel: string
     timeEatenLabel: string
     /** App-level clear button for the Time field (#117) — the native iOS
      * time picker's own Reset doesn't reliably clear the value back to

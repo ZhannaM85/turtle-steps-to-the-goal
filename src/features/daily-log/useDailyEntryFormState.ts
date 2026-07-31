@@ -10,7 +10,10 @@ import {
 } from '@/domain/dailyEntry'
 import { useLocale, useTranslation } from '@/i18n'
 import { usePreviousDayEntry } from '@/shared/hooks'
-import { macrosSummaryTextWithCalories } from '@/shared/lib/macroDisplay'
+import {
+  formatMacroGrams,
+  macrosSummaryTextWithCalories,
+} from '@/shared/lib/macroDisplay'
 import { parseNumberInput } from '@/shared/lib/parseNumberInput'
 import { splitHoursMinutes } from '@/shared/lib/sleepDuration'
 import {
@@ -326,6 +329,25 @@ export function useDailyEntryFormState({
     remainingCarbG,
     locale,
     t,
+  )
+  // #467 — StatCard-shaped counterparts to the two combined strings above:
+  // kcal as the card's own big value, this as its description (protein/fat/
+  // carbs only, no kcal prefix since the card already shows it as the
+  // number). Built directly rather than via macrosSummaryText — that
+  // helper returns null when all 3 macros are unset, which is right for
+  // its other callers (no card renders at all then) but wrong here: the
+  // card itself is already gated on dayMacrosSummary/dayRemainingMacrosSummary
+  // (true once *any* of kcal+3 macros is set), so a macros-only null would
+  // silently drop the description on a day with just calories logged.
+  const dayMacrosDescription = t.dailyEntry.macrosSummary(
+    formatMacroGrams(consumedProteinG, locale, t),
+    formatMacroGrams(consumedFatG, locale, t),
+    formatMacroGrams(consumedCarbG, locale, t),
+  )
+  const dayRemainingMacrosDescription = t.dailyEntry.macrosSummary(
+    formatMacroGrams(remainingProteinG, locale, t),
+    formatMacroGrams(remainingFatG, locale, t),
+    formatMacroGrams(remainingCarbG, locale, t),
   )
 
   const showWeightAsDisplay = !alwaysEditable && !isEditingWeight
@@ -844,7 +866,10 @@ export function useDailyEntryFormState({
     // Meals/macros
     dayTotalCalories,
     dayMacrosSummary,
+    dayMacrosDescription,
     dayRemainingMacrosSummary,
+    dayRemainingMacrosDescription,
+    remainingKcal,
     calorieEntries,
     setValue,
     getValues,
