@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 409,
+    issue: 467,
+    date: '2026-07-31T21:00:04+03:00',
+    en: "The calories and remaining-macros cards on Today now match the other stat cards' look, and collapse together in their own section.",
+    ru: 'Карточки калорий и остатка БЖУ на экране «Сегодня» теперь выглядят как остальные карточки статистики и сворачиваются вместе в отдельном разделе.',
+  },
+  {
     version: 408,
     issue: 465,
     date: '2026-07-31T17:03:00+03:00',
