@@ -30,8 +30,7 @@ function MetricValueRow({
   const setEntryNote = useCustomMetricStore((state) => state.setEntryNote)
   // Lazy initializer, not a synced useEffect (the React Compiler's
   // react-hooks/set-state-in-effect lint rule flags calling setState
-  // directly in an effect body, same rule `MealEditScreen.tsx`'s own doc
-  // comment already ran into) — the parent keys each row by
+  // directly in an effect body) — the parent keys each row by
   // `${metric.id}:${date}`, so a date change remounts this component
   // fresh instead of needing an effect to reset `draft` on prop change.
   const [draft, setDraft] = useState(value === undefined ? '' : String(value))

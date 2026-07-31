@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 410,
+    issue: 461,
+    date: '2026-08-01T00:20:00+03:00',
+    en: 'Fixed a blank screen that could appear after closing the meal editor in the installed app.',
+    ru: 'Исправлена пустая страница, которая могла появляться после закрытия редактора приёма пищи в установленном приложении.',
+  },
+  {
     version: 409,
     issue: 467,
     date: '2026-07-31T21:00:04+03:00',

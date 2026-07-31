@@ -19,8 +19,7 @@ import { ToggleGroup, ToggleGroupItem } from '@/shared/ui/toggle-group'
 // Imported from their own files, not the daily-log barrel (@/features/daily-log)
 // — that barrel also re-exports MealList.tsx, which itself imports this
 // feature's LogRecipeDialog, so going through the barrel here would form
-// an import cycle (daily-log -> recipes -> daily-log). Same reasoning
-// lazyRoutes.ts already documents for MealEditScreen's own direct import.
+// an import cycle (daily-log -> recipes -> daily-log).
 import { MealNoteAutocomplete } from '@/features/daily-log/MealNoteAutocomplete'
 import {
   FoodPickerDialog,

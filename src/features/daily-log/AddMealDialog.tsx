@@ -131,13 +131,13 @@ export interface AddMealDialogProps {
   onRemoveItem: (itemId: string) => void
   /** #459 — edit-in-place for an already-added item (tap its row in "This
    * meal so far"), reusing the same manual-entry sheet pre-filled with its
-   * current values rather than a separate editor. Optional since the
-   * in-progress "new meal" flow (MealList.tsx) wires it too, but only
-   * MealEditScreen strictly depends on it. */
+   * current values rather than a separate editor. Optional: both the
+   * in-progress "new meal" flow and the #461 saved-meal overlay wire it. */
   onUpdateItem?: (item: CalorieItem) => void
   /** #459 — deletes the whole meal (only meaningful for an already-saved
-   * meal, so only `MealEditScreen` passes this — the in-progress "new
-   * meal" flow leaves it undefined and the button stays hidden). */
+   * meal, so only MealList's #461 edit overlay passes this — the
+   * in-progress "new meal" flow leaves it undefined and the button stays
+   * hidden). */
   onDeleteMeal?: () => void
   todayTotals?: {
     kcal: number
@@ -726,8 +726,9 @@ export function AddMealDialog({
               </Button>
             )}
             {/* #459 — whole-meal delete, only meaningful once this dialog
-             * is editing an already-saved meal (MealEditScreen); the
-             * in-progress "new meal" flow leaves onDeleteMeal undefined. */}
+             * is editing an already-saved meal (MealList's #461 overlay);
+             * the in-progress "new meal" flow leaves onDeleteMeal
+             * undefined. */}
             {onDeleteMeal && mealPosition !== undefined && (
               <Button
                 type="button"

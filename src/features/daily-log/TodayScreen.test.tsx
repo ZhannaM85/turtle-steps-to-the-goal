@@ -141,8 +141,8 @@ function LocationDisplay() {
 
 // #200: renders the actual /-route, not just <TodayScreen /> alone — the
 // bug this covers only shows up across a real remount at the same URL
-// (which is what navigate(-1) from MealEditScreen does), not a re-render
-// of one already-mounted instance.
+// (e.g. a History deep-link or reload), not a re-render of one
+// already-mounted instance.
 function renderToday(initialEntries: string[] = ['/']) {
   return render(
     <MemoryRouter initialEntries={initialEntries}>
@@ -1518,9 +1518,9 @@ describe('TodayScreen', () => {
     })
 
     it('restores a previously-viewed date from the URL after a fresh mount, instead of resetting to today', async () => {
-      // Simulates what navigate(-1) does after closing a meal edited from a
-      // previous day (#200's exact repro): TodayScreen fully remounts at
-      // the same URL it was left at, rather than re-rendering in place.
+      // Simulates a remount at the same URL (#200): TodayScreen fully
+      // remounts at the URL it was left at, rather than re-rendering in
+      // place — e.g. a reload or History deep-link with ?date=.
       const yesterday = format(subDays(new Date(), 1), 'yyyy-MM-dd')
       renderToday([`/?date=${yesterday}`])
 

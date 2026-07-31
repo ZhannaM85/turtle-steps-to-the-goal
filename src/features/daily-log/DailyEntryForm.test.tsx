@@ -2131,9 +2131,10 @@ describe('DailyEntryForm', () => {
         )
       }
 
-      // #157: "shows the per-100g rate...", "shows a live preview...", and
-      // "edits a meal amount in place..." moved to MealEditScreen.test.tsx
-      // — editing an existing meal is no longer reachable inline here.
+      // #157/#461: existing-meal edit coverage moved off this form — first
+      // to MealEditScreen (#157), then into MealList's in-place
+      // AddMealDialog overlay (#461). See MealList.test.tsx /
+      // AddMealDialog.test.tsx.
 
       describe('custom meal name (#110)', () => {
         it('shows a custom label instead of the default numbering when set', () => {
@@ -2208,9 +2209,8 @@ describe('DailyEntryForm', () => {
         })
 
         // #157: "sets a custom label...", "saves a custom label on
-        // Enter...", "prefills the label input...", "clearing the
-        // label...", and "fills the label from a quick-pick preset" moved
-        // to MealEditScreen.test.tsx.
+        // #157/#461: label-field edit coverage moved off this form — see
+        // MealList.test.tsx / AddMealDialog.test.tsx.
       })
 
       it('deletes a meal with a two-step confirm and saves immediately', async () => {
@@ -2250,9 +2250,8 @@ describe('DailyEntryForm', () => {
         expect(onSave).toHaveBeenCalledTimes(1)
       })
 
-      // #157: "cancels a meal delete...", "edits a meal note and an
-      // item's reaction...", "edits a meal's protein/fat/carbs...", and
-      // "renders bellissimo..." moved to MealEditScreen.test.tsx.
+      // #157/#461: meal-note / reaction / macro edit coverage moved off
+      // this form — see MealList.test.tsx / AddMealDialog.test.tsx.
 
       // #468 — drag-to-reorder removed entirely (reported live as broken,
       // couldn't actually swap two meals) along with its 3 tests here.
@@ -2475,10 +2474,8 @@ describe('DailyEntryForm', () => {
       })
 
       // #157: the entire "per 100g / per portion toggle on item-edit rows
-      // (#111)" describe block and the entire "grouping multiple items
-      // under one meal (#81)" describe block moved to
-      // MealEditScreen.test.tsx — both were exclusively about editing an
-      // already-logged meal's items, no longer reachable inline here.
+      // #157/#461: per-100g / multi-item edit coverage moved off this
+      // form — see MealList.test.tsx / AddMealDialog.test.tsx.
 
       describe('time eaten (#65)', () => {
         it('saves the time set in the Add flow, shown next to the meal', async () => {
@@ -2570,9 +2567,8 @@ describe('DailyEntryForm', () => {
           ).toBeInTheDocument()
         })
 
-        // #157: "can be edited on an existing meal" and "item-edit row
-        // also has an app-level clear button (#117)" moved to
-        // MealEditScreen.test.tsx.
+        // #157/#461: existing-meal time-eaten edit coverage moved off
+        // this form — see MealList.test.tsx / AddMealDialog.test.tsx.
 
         // #468 — drag-to-reorder removed; see the comment where its other
         // tests used to sit, above.

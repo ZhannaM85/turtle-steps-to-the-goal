@@ -201,7 +201,7 @@ describe('EntryRow', () => {
       ).toBeInTheDocument()
     })
 
-    it('a meal\'s pencil in the expanded panel navigates to the dedicated edit route, without opening "Edit entry" (#145, #157)', async () => {
+    it('a meal\'s pencil in the expanded panel opens the AddMealDialog overlay, without opening "Edit entry" (#145, #157, #461)', async () => {
       const user = userEvent.setup()
       const onSaved = vi.fn()
       renderRow({
@@ -220,13 +220,12 @@ describe('EntryRow', () => {
       await user.click(screen.getByRole('button', { name: 'View details' }))
       await user.click(screen.getByRole('button', { name: 'Edit meal 1' }))
 
-      // No inline edit UI opens — the pencil navigates to
-      // /entry/:date/meal/:mealId instead (exhaustive edit/save coverage
-      // now lives in MealEditScreen.test.tsx). Also confirms "Edit entry"
-      // day-level mode never opened.
+      // #461 — pencil opens AddMealDialog as a state-controlled overlay
+      // (no dedicated edit route). Also confirms "Edit entry" day-level
+      // mode never opened.
       expect(
-        screen.queryByLabelText('Meal name — Meal 1'),
-      ).not.toBeInTheDocument()
+        screen.getByRole('dialog', { name: 'Breakfast' }),
+      ).toBeInTheDocument()
       expect(screen.queryByLabelText('Weight (kg)')).not.toBeInTheDocument()
       expect(onSaved).not.toHaveBeenCalled()
     })

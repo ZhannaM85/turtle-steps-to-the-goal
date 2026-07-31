@@ -2,7 +2,8 @@ import { expect, test } from '@playwright/test'
 
 /**
  * Starter E2E coverage (#161) for the app's most-used flow: logging a
- * meal, then editing it via the dedicated MealEditScreen route (#157).
+ * meal, then editing it via the in-place AddMealDialog overlay (#461 —
+ * previously a dedicated MealEditScreen route under #157).
  * Pure UI interaction, no direct IndexedDB seeding — each Playwright test
  * gets a fresh, isolated browser context, so there's nothing to clean up.
  */
@@ -22,10 +23,11 @@ test('logs a meal, then edits its calories via the pencil', async ({ page }) => 
 
   await expect(page.getByText('Breakfast — 300 kcal')).toBeVisible()
 
+  // #461 — pencil opens AddMealDialog as a state-controlled overlay on the
+  // same page (no /entry/:date/meal/:mealId navigation), so the URL stays
+  // on Today throughout.
   await page.getByRole('button', { name: 'Edit meal 1' }).click()
-  await expect(page).toHaveURL(/\/entry\/.+\/meal\/.+/)
-  // #459 — MealEditScreen now renders AddMealDialog itself (titled with the
-  // meal label) instead of a bespoke screen with an "Edit meal" heading.
+  await expect(page).toHaveURL('/')
   const editDialog = page.getByRole('dialog', { name: 'Breakfast' })
   await expect(editDialog).toBeVisible()
 
@@ -45,8 +47,6 @@ test('logs a meal, then edits its calories via the pencil', async ({ page }) => 
   // (no separate "Save" action for an already-saved meal anymore).
   await editDialog.getByRole('button', { name: 'Done' }).click()
 
-  // MealEditScreen navigates back to Today once the focused meal's edit
-  // ends (#157's onFocusedMealDone) — the updated total should show there.
   await expect(page).toHaveURL('/')
   await expect(page.getByText('Breakfast — 450 kcal')).toBeVisible()
   await expect(page.getByText('Breakfast — 300 kcal')).not.toBeVisible()

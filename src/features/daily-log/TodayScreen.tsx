@@ -168,13 +168,15 @@ export function TodayScreen() {
   // since `effectiveDateFor` only ever holds `todayIso()` one calendar day
   // behind, never more.
   const realTodayIso = format(new Date(), 'yyyy-MM-dd')
-  // #200: lives in the URL (?date=), not local useState — a meal pencil
-  // navigates away to /entry/:date/meal/:mealId and calls navigate(-1) to
-  // return, which remounts this screen from scratch. Local state doesn't
-  // survive that remount and always reset to today; a search param does,
-  // since navigate(-1) restores the exact prior URL including its query
+  // #200: lives in the URL (?date=), not local useState — browsing days
+  // via the arrows (and any future navigation that remounts this screen)
+  // would otherwise always reset to today. A search param survives a
+  // remount since it restores the exact prior URL including its query
   // string. replace: true (below) keeps browsing days from spamming the
   // browser history stack with one entry per arrow click.
+  // (Originally added for #157's MealEditScreen navigate(-1) round trip;
+  // #461 removed that route, but the param still helps History deep-links
+  // and reloads land on the viewed day.)
   const [searchParams, setSearchParams] = useSearchParams()
   const date = searchParams.get('date') ?? todayIso()
   function setDate(next: string | ((prev: string) => string)) {

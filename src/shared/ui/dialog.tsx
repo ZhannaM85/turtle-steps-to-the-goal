@@ -19,9 +19,9 @@ function DialogContent({
   /**
    * 'fullscreen' (#122) is a large flyout instead of the default centered
    * card — for content dense enough that even the 85dvh centered treatment
-   * feels cramped (the meal-item editor's larger touch targets). Still one
-   * scroll unit (same dvh reasoning as the comment below), just sized to
-   * dominate the viewport rather than centered/capped.
+   * feels cramped. Still one scroll unit (same dvh reasoning as the
+   * comment below), just sized to dominate the viewport rather than
+   * centered/capped.
    *
    * #461: inset top/bottom by a small fixed gap rather than sitting truly
    * edge-to-edge (`inset-0`/`h-dvh`) — installed iOS home-screen PWAs
@@ -31,6 +31,24 @@ function DialogContent({
    * with this literally-edge-to-edge fixed layer; giving it a real gap
    * from the viewport edges sidesteps whatever WebKit standalone-mode
    * compositing bug that depended on.
+   *
+   * #461 reopened: still went blank afterward — tried moving
+   * `MealItemEditorSheet` off 'fullscreen', then `AddMealDialog` too, but
+   * kept recurring for each. **Not actually about this variant at all**:
+   * `AddMealDialog` (the one dialog in the reported repro) was reached via
+   * a dedicated route (`/entry/:date/meal/:mealId`, #157) rather than
+   * opened in place — closing it called `navigate(-1)`, unmounting
+   * TodayScreen's whole `<main>` and relying on browser history/
+   * `popstate` to bring it back, which is a known-unreliable mechanism in
+   * installed standalone iOS PWAs specifically (their own isolated
+   * navigation history, separate from a normal Safari tab) — confirmed
+   * live via devtools that `<main>` was genuinely *empty* while the
+   * dialog was open, not just visually covered. Fixed at the actual
+   * source: the route removed entirely, `AddMealDialog` now opens as a
+   * plain state-controlled overlay like it already did for adding a new
+   * meal (see `MealList.tsx`) — TodayScreen never unmounts, so there's no
+   * history round-trip to fail. Both dialogs stayed on 'fullscreen'; the
+   * `size="default"` attempts for each were reverted once this was found.
    */
   size?: 'default' | 'fullscreen'
 }) {

@@ -56,8 +56,8 @@ export function AppShell() {
 
   // #185: React Router doesn't reset scroll position on navigation by
   // default (unlike a traditional multi-page site) — landing on a new,
-  // shorter route (e.g. MealEditScreen, #157) while still scrolled from
-  // the previous page put the new content mid-page or past it entirely.
+  // shorter route while still scrolled from the previous page put the
+  // new content mid-page or past it entirely.
   // pathname only (not the full location) — a search-param-only change
   // like History's own filters shouldn't jump the page back to the top.
   const { pathname } = useLocation()

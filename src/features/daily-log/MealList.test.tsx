@@ -1,6 +1,6 @@
 import 'fake-indexeddb/auto'
 import { useState } from 'react'
-import { render, screen, waitFor, within } from '@testing-library/react'
+import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -15,39 +15,24 @@ import { MealList } from './MealList'
 // *and then* interacts with the resulting view-mode row (e.g. deleting it)
 // needs the prop to actually reflect that save, so it wires a real
 // controlled loop instead.
-function ControlledMealList(props: { calorieEntries: CalorieEntry[]; date: string }) {
+function ControlledMealList(props: {
+  calorieEntries: CalorieEntry[]
+  date: string
+}) {
   const [entries, setEntries] = useState(props.calorieEntries)
-  return <MealList calorieEntries={entries} date={props.date} onChange={setEntries} />
-}
-
-// #287 — the new "Find food" toast test below interacts with a heavier
-// dialog (FoodPickerDialog's search list) than this file's other tests,
-// plus an async IndexedDB round-trip (announceFastingWindowIfFirstMeal);
-// under full-suite CPU contention that combination can exceed vitest's
-// 5000ms default, same reasoning DailyEntryForm.test.tsx's own Find-food
-// tests already needed a longer budget for.
-vi.setConfig({ testTimeout: 15000 })
-
-// #256 — a real class (not vi.fn().mockImplementation(() => ({...})),
-// which vitest warns doesn't reliably support `new`), since MealList's
-// scan flow calls `new BrowserMultiFormatReader()` under the hood via
-// BarcodeScannerDialog. Each test configures decodeFromVideoDevice's own
-// behavior to simulate a specific scanned barcode.
-const decodeFromVideoDevice = vi.fn()
-vi.mock('@zxing/browser', () => ({
-  BrowserMultiFormatReader: class {
-    decodeFromVideoDevice = decodeFromVideoDevice
-  },
-}))
-
-function mockScanning(barcode: string) {
-  decodeFromVideoDevice.mockImplementation(
-    async (_deviceId: unknown, _videoElement: unknown, callback: (result: unknown) => void) => {
-      callback({ getText: () => barcode })
-      return { stop: vi.fn() }
-    },
+  return (
+    <MealList
+      calorieEntries={entries}
+      date={props.date}
+      onChange={setEntries}
+    />
   )
 }
+
+// #287 — Find-food toast tests interact with a heavier dialog plus an
+// async IndexedDB round-trip; under full-suite CPU contention that can
+// exceed vitest's 5000ms default.
+vi.setConfig({ testTimeout: 15000 })
 
 function makeDailyEntry(overrides: Partial<DailyEntry> = {}): DailyEntry {
   const now = '2026-01-01T00:00:00.000Z'
@@ -70,8 +55,7 @@ beforeEach(async () => {
   // #201 made the add row's default collapsed state depend on whether
   // `date` is in the past relative to the real clock — freeze "now" to
   // this file's own fixture "today" (2026-03-01) so the existing fixture
-  // dates keep reading as today/future, matching the pre-#201 always-
-  // expanded behavior these tests were written against.
+  // dates keep reading as today/future.
   vi.useFakeTimers({ toFake: ['Date'] })
   vi.setSystemTime(new Date('2026-03-01T12:00:00.000Z'))
 })
@@ -83,32 +67,23 @@ afterEach(async () => {
   localStorage.clear()
   vi.useRealTimers()
   vi.unstubAllGlobals()
-  decodeFromVideoDevice.mockReset()
 })
 
 /**
  * MealList (#145) was extracted from DailyEntryForm.tsx so it can be
- * mounted standalone (DayDetail.tsx now does exactly that). The exhaustive
- * add/per-100g/drag-reorder behavior coverage already lives in
- * DailyEntryForm.test.tsx (unchanged after the extraction) — this file just
- * proves the component works on its own, independent of any parent form.
- * **#157**: existing-meal editing moved to a dedicated route
- * (`MealEditScreen.tsx`), reached by navigating away from here rather than
- * expanding inline — that exhaustive coverage now lives in
- * `MealEditScreen.test.tsx` instead. This file only proves the pencil
- * navigates to the right place and that `focusMealId` opens edit mode
- * directly (the mechanism `MealEditScreen` depends on).
+ * mounted standalone (DayDetail.tsx now does exactly that). Exhaustive
+ * add / per-item-editor / barcode coverage lives in
+ * AddMealDialog.test.tsx and MealItemEditorSheet's own suite. This file
+ * covers MealList's own concerns: the add trigger, read-only meal cards,
+ * the #461 in-place edit overlay wiring, copy-yesterday, and the fasting
+ * toast.
  */
 describe('MealList', () => {
-  // #454 — the whole "add a meal" flow (search/barcode/manual entry/Repeat/
-  // recipe/persistent multi-add/reaction) moved into its own
-  // AddMealDialog.test.tsx; this file keeps only what's still genuinely
-  // MealList's own concern (the trigger existing, existing-meal viewing/
-  // editing, the fasting toast, "Copy yesterday's meals").
   it('shows the add-meal trigger even with no meals yet', () => {
-    render(<MealList calorieEntries={[]} date="2026-03-01" onChange={vi.fn()} />, {
-      wrapper: MemoryRouter,
-    })
+    render(
+      <MealList calorieEntries={[]} date="2026-03-01" onChange={vi.fn()} />,
+      { wrapper: MemoryRouter },
+    )
 
     expect(
       screen.getByRole('button', { name: '+ Add another meal' }),
@@ -127,7 +102,11 @@ describe('MealList', () => {
       },
     ]
     render(
-      <MealList calorieEntries={calorieEntries} date="2026-03-01" onChange={vi.fn()} />,
+      <MealList
+        calorieEntries={calorieEntries}
+        date="2026-03-01"
+        onChange={vi.fn()}
+      />,
       { wrapper: MemoryRouter },
     )
 
@@ -143,14 +122,23 @@ describe('MealList', () => {
         {
           id: 'c1',
           items: [
-            { id: 'i1', name: 'Chicken breast', brand: 'Perdue', amountKcal: 165 },
+            {
+              id: 'i1',
+              name: 'Chicken breast',
+              brand: 'Perdue',
+              amountKcal: 165,
+            },
             { id: 'i2', name: 'Apple', amountKcal: 52 },
           ],
           createdAt: '2026-01-01T00:00:00.000Z',
         },
       ]
       render(
-        <MealList calorieEntries={calorieEntries} date="2026-03-01" onChange={vi.fn()} />,
+        <MealList
+          calorieEntries={calorieEntries}
+          date="2026-03-01"
+          onChange={vi.fn()}
+        />,
         { wrapper: MemoryRouter },
       )
 
@@ -158,79 +146,6 @@ describe('MealList', () => {
       expect(screen.getByText('165 kcal')).toBeInTheDocument()
       expect(screen.getByText('Apple')).toBeInTheDocument()
       expect(screen.getByText('52 kcal')).toBeInTheDocument()
-    })
-
-    it("pre-fills an existing item's brand when reopening its editor", async () => {
-      const user = userEvent.setup()
-      const calorieEntries: CalorieEntry[] = [
-        {
-          id: 'c1',
-          items: [
-            {
-              id: 'i1',
-              name: 'Yogurt',
-              brand: 'Chobani',
-              amountKcal: 100,
-            },
-          ],
-          createdAt: '2026-01-01T00:00:00.000Z',
-        },
-      ]
-      // #157: a meal's edit mode only opens inline via `focusMealId` (as
-      // `MealEditScreen` does) — the pencil in a normal render navigates
-      // to a dedicated route instead, so that's not exercised here.
-      render(
-        <MealList
-          calorieEntries={calorieEntries}
-          date="2026-03-01"
-          onChange={vi.fn()}
-          focusMealId="c1"
-          focusMealPosition={1}
-          onFocusedMealDone={vi.fn()}
-        />,
-        { wrapper: MemoryRouter },
-      )
-
-      await user.click(screen.getByRole('button', { name: 'Edit item' }))
-
-      expect(screen.getByLabelText('Brand (optional)')).toHaveValue('Chobani')
-    })
-
-    // #344 — per-dish note, same "pre-fills on reopen" coverage as brand
-    // above.
-    it("pre-fills an existing item's note when reopening its editor", async () => {
-      const user = userEvent.setup()
-      const calorieEntries: CalorieEntry[] = [
-        {
-          id: 'c1',
-          items: [
-            {
-              id: 'i1',
-              name: 'Soup',
-              amountKcal: 100,
-              noteText: 'extra spicy today',
-            },
-          ],
-          createdAt: '2026-01-01T00:00:00.000Z',
-        },
-      ]
-      render(
-        <MealList
-          calorieEntries={calorieEntries}
-          date="2026-03-01"
-          onChange={vi.fn()}
-          focusMealId="c1"
-          focusMealPosition={1}
-          onFocusedMealDone={vi.fn()}
-        />,
-        { wrapper: MemoryRouter },
-      )
-
-      await user.click(screen.getByRole('button', { name: 'Edit item' }))
-
-      expect(screen.getByLabelText('Note (optional)')).toHaveValue(
-        'extra spicy today',
-      )
     })
 
     it('shows a saved note underneath the dish in the read-only view', () => {
@@ -249,7 +164,11 @@ describe('MealList', () => {
         },
       ]
       render(
-        <MealList calorieEntries={calorieEntries} date="2026-03-01" onChange={vi.fn()} />,
+        <MealList
+          calorieEntries={calorieEntries}
+          date="2026-03-01"
+          onChange={vi.fn()}
+        />,
         { wrapper: MemoryRouter },
       )
 
@@ -257,14 +176,13 @@ describe('MealList', () => {
     })
   })
 
-  describe('favoriting a manually-typed dish (#279)', () => {
-    it('leaves an already-favorited dish favorited when its edit is saved without touching the star', async () => {
-      await useMealItemStore.getState().touch('Granola', { amountKcal: 450 }, true)
+  describe('edit overlay (#461)', () => {
+    it("opens AddMealDialog in place when a meal's pencil is clicked", async () => {
       const user = userEvent.setup()
       const calorieEntries: CalorieEntry[] = [
         {
           id: 'c1',
-          items: [{ id: 'i1', name: 'Granola', amountKcal: 450 }],
+          items: [{ id: 'i1', name: 'Oatmeal', amountKcal: 300 }],
           createdAt: '2026-01-01T00:00:00.000Z',
         },
       ]
@@ -273,50 +191,167 @@ describe('MealList', () => {
           calorieEntries={calorieEntries}
           date="2026-03-01"
           onChange={vi.fn()}
-          focusMealId="c1"
-          focusMealPosition={1}
-          onFocusedMealDone={vi.fn()}
         />,
         { wrapper: MemoryRouter },
       )
 
-      await user.click(screen.getByRole('button', { name: 'Edit item' }))
-      const dialog = screen.getByRole('dialog')
-      await user.click(within(dialog).getByRole('button', { name: 'Save' }))
-      await user.click(screen.getByRole('button', { name: 'Save' }))
+      await user.click(screen.getByRole('button', { name: 'Edit meal 1' }))
 
-      await waitFor(() =>
-        expect(useMealItemStore.getState().items).toContainEqual(
-          expect.objectContaining({ name: 'Granola', favorite: true }),
-        ),
-      )
+      const dialog = screen.getByRole('dialog', { name: 'Breakfast' })
+      expect(dialog).toBeInTheDocument()
+      expect(within(dialog).getByText('This meal so far')).toBeInTheDocument()
+      expect(within(dialog).getByText('Oatmeal')).toBeInTheDocument()
     })
-  })
 
-  it("navigates to the dedicated edit route when a meal's pencil is clicked (#157)", async () => {
-    const user = userEvent.setup()
-    const calorieEntries: CalorieEntry[] = [
-      {
-        id: 'c1',
-        items: [{ id: 'i1', amountKcal: 300 }],
-        createdAt: '2026-01-01T00:00:00.000Z',
-      },
-    ]
-    render(
-      <MemoryRouter initialEntries={['/']}>
-        <MealList calorieEntries={calorieEntries} date="2026-03-01" onChange={vi.fn()} />
-      </MemoryRouter>,
-    )
+    it('closes the overlay when Done is clicked', async () => {
+      const user = userEvent.setup()
+      render(
+        <ControlledMealList
+          calorieEntries={[
+            {
+              id: 'c1',
+              items: [{ id: 'i1', name: 'Oatmeal', amountKcal: 300 }],
+              createdAt: '2026-01-01T00:00:00.000Z',
+            },
+          ]}
+          date="2026-03-01"
+        />,
+        { wrapper: MemoryRouter },
+      )
 
-    await user.click(screen.getByRole('button', { name: 'Edit meal 1' }))
+      await user.click(screen.getByRole('button', { name: 'Edit meal 1' }))
+      const dialog = screen.getByRole('dialog', { name: 'Breakfast' })
+      await user.click(within(dialog).getByRole('button', { name: 'Done' }))
 
-    // No inline edit UI opens — the pencil navigates instead (there's no
-    // matching <Routes> in this bare render, so the location itself isn't
-    // directly assertable here; the absence of inline fields is the
-    // observable proof editing didn't happen in place).
-    expect(
-      screen.queryByLabelText('Meal name — Meal 1'),
-    ).not.toBeInTheDocument()
+      expect(
+        screen.queryByRole('dialog', { name: 'Breakfast' }),
+      ).not.toBeInTheDocument()
+    })
+
+    it('updates an existing item via the overlay and persists through onChange', async () => {
+      const user = userEvent.setup()
+      const onChange = vi.fn()
+      const calorieEntries: CalorieEntry[] = [
+        {
+          id: 'c1',
+          items: [{ id: 'i1', name: 'Oatmeal', amountKcal: 300 }],
+          createdAt: '2026-01-01T00:00:00.000Z',
+        },
+      ]
+      render(
+        <MealList
+          calorieEntries={calorieEntries}
+          date="2026-03-01"
+          onChange={onChange}
+        />,
+        { wrapper: MemoryRouter },
+      )
+
+      await user.click(screen.getByRole('button', { name: 'Edit meal 1' }))
+      const dialog = screen.getByRole('dialog', { name: 'Breakfast' })
+      await user.click(
+        within(dialog).getByRole('button', { name: 'Edit item' }),
+      )
+      const itemSheet = screen.getByRole('dialog', { name: 'Edit item' })
+      const kcalField = within(itemSheet).getByLabelText('kcal', {
+        exact: true,
+      })
+      await user.clear(kcalField)
+      await user.type(kcalField, '450')
+      await user.click(
+        within(itemSheet).getByRole('button', { name: 'Save' }),
+      )
+
+      expect(onChange).toHaveBeenCalled()
+      const next = onChange.mock.calls.at(-1)?.[0] as CalorieEntry[]
+      expect(next[0].items[0]).toMatchObject({
+        name: 'Oatmeal',
+        amountKcal: 450,
+      })
+    })
+
+    it('removes the whole meal (and closes the overlay) when its last item is deleted', async () => {
+      const user = userEvent.setup()
+      render(
+        <ControlledMealList
+          calorieEntries={[
+            {
+              id: 'c1',
+              items: [{ id: 'i1', name: 'Oatmeal', amountKcal: 300 }],
+              createdAt: '2026-01-01T00:00:00.000Z',
+            },
+          ]}
+          date="2026-03-01"
+        />,
+        { wrapper: MemoryRouter },
+      )
+
+      await user.click(screen.getByRole('button', { name: 'Edit meal 1' }))
+      const dialog = screen.getByRole('dialog', { name: 'Breakfast' })
+      await user.click(
+        within(dialog).getByRole('button', { name: 'Delete item' }),
+      )
+
+      expect(
+        screen.queryByRole('dialog', { name: 'Breakfast' }),
+      ).not.toBeInTheDocument()
+      expect(screen.queryByText(/Breakfast/)).not.toBeInTheDocument()
+    })
+
+    it('deletes the whole meal from the overlay trash and closes', async () => {
+      const user = userEvent.setup()
+      render(
+        <ControlledMealList
+          calorieEntries={[
+            {
+              id: 'c1',
+              items: [{ id: 'i1', name: 'Oatmeal', amountKcal: 300 }],
+              createdAt: '2026-01-01T00:00:00.000Z',
+            },
+          ]}
+          date="2026-03-01"
+        />,
+        { wrapper: MemoryRouter },
+      )
+
+      await user.click(screen.getByRole('button', { name: 'Edit meal 1' }))
+      const dialog = screen.getByRole('dialog', { name: 'Breakfast' })
+      await user.click(
+        within(dialog).getByRole('button', { name: 'Delete meal 1' }),
+      )
+      await user.click(
+        within(dialog).getByRole('button', { name: 'Delete' }),
+      )
+
+      expect(
+        screen.queryByRole('dialog', { name: 'Breakfast' }),
+      ).not.toBeInTheDocument()
+      expect(screen.queryByText(/Breakfast/)).not.toBeInTheDocument()
+    })
+
+    it('keeps a typed meal-note space while editing (does not trim mid-keystroke)', async () => {
+      const user = userEvent.setup()
+      render(
+        <ControlledMealList
+          calorieEntries={[
+            {
+              id: 'c1',
+              items: [{ id: 'i1', name: 'Oatmeal', amountKcal: 300 }],
+              note: 'extra',
+              createdAt: '2026-01-01T00:00:00.000Z',
+            },
+          ]}
+          date="2026-03-01"
+        />,
+        { wrapper: MemoryRouter },
+      )
+
+      await user.click(screen.getByRole('button', { name: 'Edit meal 1' }))
+      const note = screen.getByLabelText('Meal note')
+      await user.type(note, ' spicy')
+
+      expect(note).toHaveValue('extra spicy')
+    })
   })
 
   it('deletes a meal via the two-step confirm and calls onChange', async () => {
@@ -330,7 +365,11 @@ describe('MealList', () => {
       },
     ]
     render(
-      <MealList calorieEntries={calorieEntries} date="2026-03-01" onChange={onChange} />,
+      <MealList
+        calorieEntries={calorieEntries}
+        date="2026-03-01"
+        onChange={onChange}
+      />,
       { wrapper: MemoryRouter },
     )
 
@@ -338,168 +377,6 @@ describe('MealList', () => {
     await user.click(screen.getByRole('button', { name: 'Delete' }))
 
     expect(onChange).toHaveBeenCalledWith([])
-  })
-
-  describe('focusMealId (#157) — the dedicated single-meal edit route mechanism', () => {
-    it('opens the matching meal in edit mode automatically on mount', async () => {
-      const calorieEntries: CalorieEntry[] = [
-        {
-          id: 'c1',
-          items: [{ id: 'i1', amountKcal: 300 }],
-          createdAt: '2026-01-01T00:00:00.000Z',
-        },
-      ]
-      render(
-        <MealList
-          calorieEntries={calorieEntries}
-          date="2026-03-01"
-          onChange={vi.fn()}
-          focusMealId="c1"
-        />,
-        { wrapper: MemoryRouter },
-      )
-
-      expect(
-        await screen.findByLabelText('Meal name — Meal 1'),
-      ).toBeInTheDocument()
-    })
-
-    it('hides the "add a new meal" row while focused', () => {
-      const calorieEntries: CalorieEntry[] = [
-        {
-          id: 'c1',
-          items: [{ id: 'i1', amountKcal: 300 }],
-          createdAt: '2026-01-01T00:00:00.000Z',
-        },
-      ]
-      render(
-        <MealList
-          calorieEntries={calorieEntries}
-          date="2026-03-01"
-          onChange={vi.fn()}
-          focusMealId="c1"
-        />,
-        { wrapper: MemoryRouter },
-      )
-
-      expect(
-        screen.queryByRole('button', { name: '+ Add another meal' }),
-      ).not.toBeInTheDocument()
-    })
-
-    it('calls onFocusedMealDone after saving', async () => {
-      const user = userEvent.setup()
-      const onFocusedMealDone = vi.fn()
-      const calorieEntries: CalorieEntry[] = [
-        {
-          id: 'c1',
-          items: [{ id: 'i1', amountKcal: 300 }],
-          createdAt: '2026-01-01T00:00:00.000Z',
-        },
-      ]
-      render(
-        <MealList
-          calorieEntries={calorieEntries}
-          date="2026-03-01"
-          onChange={vi.fn()}
-          focusMealId="c1"
-          onFocusedMealDone={onFocusedMealDone}
-        />,
-        { wrapper: MemoryRouter },
-      )
-
-      await screen.findByLabelText('Meal name — Meal 1')
-      await user.click(screen.getByRole('button', { name: 'Save' }))
-
-      expect(onFocusedMealDone).toHaveBeenCalledTimes(1)
-    })
-
-    it('calls onFocusedMealDone after cancelling', async () => {
-      const user = userEvent.setup()
-      const onFocusedMealDone = vi.fn()
-      const calorieEntries: CalorieEntry[] = [
-        {
-          id: 'c1',
-          items: [{ id: 'i1', amountKcal: 300 }],
-          createdAt: '2026-01-01T00:00:00.000Z',
-        },
-      ]
-      render(
-        <MealList
-          calorieEntries={calorieEntries}
-          date="2026-03-01"
-          onChange={vi.fn()}
-          focusMealId="c1"
-          onFocusedMealDone={onFocusedMealDone}
-        />,
-        { wrapper: MemoryRouter },
-      )
-
-      await screen.findByLabelText('Meal name — Meal 1')
-      await user.click(
-        screen.getByRole('button', { name: 'Cancel editing meal 1' }),
-      )
-
-      expect(onFocusedMealDone).toHaveBeenCalledTimes(1)
-    })
-  })
-
-  describe('multi-add (#183)', () => {
-    it('"Save and add one more" is available for a freshly-added item in an existing meal\'s edit mode', async () => {
-      const user = userEvent.setup()
-      const calorieEntries: CalorieEntry[] = [
-        {
-          id: 'c1',
-          items: [{ id: 'i1', name: 'Soup', amountKcal: 300 }],
-          createdAt: '2026-01-01T00:00:00.000Z',
-        },
-      ]
-      render(
-        <MealList
-          calorieEntries={calorieEntries}
-          date="2026-03-01"
-          onChange={vi.fn()}
-          focusMealId="c1"
-        />,
-        { wrapper: MemoryRouter },
-      )
-
-      await screen.findByLabelText('Meal name — Meal 1')
-      await user.click(
-        screen.getByRole('button', { name: '+ Add item — Meal 1' }),
-      )
-
-      expect(
-        screen.getByRole('button', { name: 'Save and add one more' }),
-      ).toBeInTheDocument()
-    })
-
-    it('does not offer "Save and add one more" while editing an already-existing dish', async () => {
-      const user = userEvent.setup()
-      const calorieEntries: CalorieEntry[] = [
-        {
-          id: 'c1',
-          items: [{ id: 'i1', name: 'Soup', amountKcal: 300 }],
-          createdAt: '2026-01-01T00:00:00.000Z',
-        },
-      ]
-      render(
-        <MealList
-          calorieEntries={calorieEntries}
-          date="2026-03-01"
-          onChange={vi.fn()}
-          focusMealId="c1"
-        />,
-        { wrapper: MemoryRouter },
-      )
-
-      await screen.findByLabelText('Meal name — Meal 1')
-      await user.click(screen.getByRole('button', { name: 'Edit item' }))
-
-      expect(
-        screen.queryByRole('button', { name: 'Save and add one more' }),
-      ).not.toBeInTheDocument()
-    })
   })
 
   describe("copy yesterday's meals (#253)", () => {
@@ -620,248 +497,6 @@ describe('MealList', () => {
     })
   })
 
-
-  describe('barcode scanning within an existing meal (#288)', () => {
-    function seededMeal(): CalorieEntry[] {
-      return [
-        {
-          id: 'c1',
-          items: [{ id: 'i1', name: 'Existing dish', amountKcal: 100 }],
-          createdAt: '2026-01-01T00:00:00.000Z',
-        },
-      ]
-    }
-
-    it('opens the scanner dialog when "Scan barcode — Meal 1" is clicked', async () => {
-      const user = userEvent.setup()
-      render(
-        <MealList
-          calorieEntries={seededMeal()}
-          date="2026-03-01"
-          onChange={vi.fn()}
-          focusMealId="c1"
-          focusMealPosition={1}
-          onFocusedMealDone={vi.fn()}
-        />,
-        { wrapper: MemoryRouter },
-      )
-
-      await user.click(
-        screen.getByRole('button', { name: 'Scan barcode — Meal 1' }),
-      )
-
-      expect(
-        screen.getByText('Point your camera at the barcode.'),
-      ).toBeInTheDocument()
-    })
-
-    it('adds a new item prefilled from a local match, without any network fetch', async () => {
-      const fetchMock = vi.fn()
-      vi.stubGlobal('fetch', fetchMock)
-      await useMealItemStore
-        .getState()
-        .touch(
-          'Protein Bar',
-          { amountKcal: 200, proteinG: 20 },
-          undefined,
-          '0123456789012',
-        )
-      mockScanning('0123456789012')
-      const user = userEvent.setup()
-      render(
-        <MealList
-          calorieEntries={seededMeal()}
-          date="2026-03-01"
-          onChange={vi.fn()}
-          focusMealId="c1"
-          focusMealPosition={1}
-          onFocusedMealDone={vi.fn()}
-        />,
-        { wrapper: MemoryRouter },
-      )
-
-      await user.click(
-        screen.getByRole('button', { name: 'Scan barcode — Meal 1' }),
-      )
-
-      expect(await screen.findByDisplayValue('Protein Bar')).toBeInTheDocument()
-      expect(screen.getByLabelText('kcal/100g')).toHaveValue('200')
-      expect(fetchMock).not.toHaveBeenCalled()
-    })
-
-    it('adds a new item prefilled from Open Food Facts on a first scan', async () => {
-      vi.stubGlobal(
-        'fetch',
-        vi.fn().mockResolvedValue({
-          ok: true,
-          json: async () => ({
-            status: 1,
-            product: {
-              product_name: 'Chocolate Bar',
-              nutriments: { 'energy-kcal_100g': 520 },
-            },
-          }),
-        }),
-      )
-      mockScanning('9999999999999')
-      const user = userEvent.setup()
-      render(
-        <MealList
-          calorieEntries={seededMeal()}
-          date="2026-03-01"
-          onChange={vi.fn()}
-          focusMealId="c1"
-          focusMealPosition={1}
-          onFocusedMealDone={vi.fn()}
-        />,
-        { wrapper: MemoryRouter },
-      )
-
-      await user.click(
-        screen.getByRole('button', { name: 'Scan barcode — Meal 1' }),
-      )
-
-      expect(
-        await screen.findByDisplayValue('Chocolate Bar'),
-      ).toBeInTheDocument()
-      expect(screen.getByLabelText('kcal/100g')).toHaveValue('520')
-    })
-
-    it('shows a quiet message when nothing matches anywhere', async () => {
-      vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: false }))
-      mockScanning('0000000000000')
-      const user = userEvent.setup()
-      render(
-        <MealList
-          calorieEntries={seededMeal()}
-          date="2026-03-01"
-          onChange={vi.fn()}
-          focusMealId="c1"
-          focusMealPosition={1}
-          onFocusedMealDone={vi.fn()}
-        />,
-        { wrapper: MemoryRouter },
-      )
-
-      await user.click(
-        screen.getByRole('button', { name: 'Scan barcode — Meal 1' }),
-      )
-
-      expect(
-        await screen.findByText(
-          'No food found for this barcode — you can still add it by hand below.',
-        ),
-      ).toBeInTheDocument()
-      expect(screen.getByLabelText('Dish name')).toHaveValue('')
-    })
-
-    it('records the barcode on the meal once saved, alongside the original item', async () => {
-      vi.stubGlobal(
-        'fetch',
-        vi.fn().mockResolvedValue({
-          ok: true,
-          json: async () => ({
-            status: 1,
-            product: {
-              product_name: 'Chocolate Bar',
-              nutriments: { 'energy-kcal_100g': 520 },
-            },
-          }),
-        }),
-      )
-      mockScanning('9999999999999')
-      const user = userEvent.setup()
-      const onChange = vi.fn()
-      render(
-        <MealList
-          calorieEntries={seededMeal()}
-          date="2026-03-01"
-          onChange={onChange}
-          focusMealId="c1"
-          focusMealPosition={1}
-          onFocusedMealDone={vi.fn()}
-        />,
-        { wrapper: MemoryRouter },
-      )
-
-      await user.click(
-        screen.getByRole('button', { name: 'Scan barcode — Meal 1' }),
-      )
-      await screen.findByDisplayValue('Chocolate Bar')
-      const dialog = screen.getByRole('dialog')
-      await user.click(within(dialog).getByRole('button', { name: 'Save' }))
-      await user.click(screen.getByRole('button', { name: 'Save' }))
-
-      expect(onChange).toHaveBeenCalled()
-      const savedEntries = onChange.mock.calls.at(-1)?.[0] as CalorieEntry[]
-      expect(savedEntries[0].items).toEqual(
-        expect.arrayContaining([
-          expect.objectContaining({ name: 'Existing dish' }),
-          expect.objectContaining({ name: 'Chocolate Bar' }),
-        ]),
-      )
-      await waitFor(() =>
-        expect(useMealItemStore.getState().items).toContainEqual(
-          expect.objectContaining({
-            name: 'Chocolate Bar',
-            barcode: '9999999999999',
-          }),
-        ),
-      )
-    })
-
-    // #300: scanBarcodeIntoEditItems used to unconditionally stage the
-    // scanned draft into editItems the instant the lookup resolved —
-    // closing the item's own sheet via its X (rather than clicking Save)
-    // still left that draft sitting there, so the overall meal Save ended
-    // up committing it anyway even though X was meant to cancel it.
-    it('does not add the scanned item if its sheet is closed via X instead of Save', async () => {
-      vi.stubGlobal(
-        'fetch',
-        vi.fn().mockResolvedValue({
-          ok: true,
-          json: async () => ({
-            status: 1,
-            product: {
-              product_name: 'Chocolate Bar',
-              nutriments: { 'energy-kcal_100g': 520 },
-            },
-          }),
-        }),
-      )
-      mockScanning('9999999999999')
-      const user = userEvent.setup()
-      const onChange = vi.fn()
-      render(
-        <MealList
-          calorieEntries={seededMeal()}
-          date="2026-03-01"
-          onChange={onChange}
-          focusMealId="c1"
-          focusMealPosition={1}
-          onFocusedMealDone={vi.fn()}
-        />,
-        { wrapper: MemoryRouter },
-      )
-
-      await user.click(
-        screen.getByRole('button', { name: 'Scan barcode — Meal 1' }),
-      )
-      await screen.findByDisplayValue('Chocolate Bar')
-      const dialog = screen.getByRole('dialog')
-      await user.click(
-        within(dialog).getByRole('button', { name: 'Close item editor' }),
-      )
-      await user.click(screen.getByRole('button', { name: 'Save' }))
-
-      expect(onChange).toHaveBeenCalled()
-      const savedEntries = onChange.mock.calls.at(-1)?.[0] as CalorieEntry[]
-      expect(savedEntries[0].items).toEqual([
-        expect.objectContaining({ name: 'Existing dish' }),
-      ])
-    })
-  })
-
   describe('fasting-window toast (#287)', () => {
     it("shows the toast after saving the day's first timed meal, when yesterday also had one", async () => {
       await db.dailyEntries.put(
@@ -878,25 +513,18 @@ describe('MealList', () => {
         }),
       )
       const user = userEvent.setup()
-      // #456 — purely derived from the `calorieEntries` prop now (see
-      // MealList.tsx's own useMemo), so this needs the real controlled
-      // loop (ControlledMealList) — a plain `onChange={vi.fn()}` never
-      // feeds a save back into the prop the toast actually reads.
+      // #456 — purely derived from the `calorieEntries` prop now, so this
+      // needs the real controlled loop (ControlledMealList).
       render(<ControlledMealList calorieEntries={[]} date="2026-03-01" />, {
         wrapper: MemoryRouter,
       })
 
-      // #454 — the add-row is now a single trigger opening AddMealDialog;
-      // Time now defaults to the current time (#357), not blank — clear it
-      // first so typing produces exactly this value, not a mix of both.
       await user.click(
         screen.getByRole('button', { name: '+ Add another meal' }),
       )
       await user.clear(screen.getByLabelText('Time'))
       await user.type(screen.getByLabelText('Time'), '08:00')
-      await user.click(
-        screen.getByRole('button', { name: 'Add food' }),
-      )
+      await user.click(screen.getByRole('button', { name: 'Add food' }))
       await user.type(screen.getByLabelText('Dish name'), 'Oatmeal')
       await user.type(screen.getByLabelText('kcal/100g'), '300')
       await user.click(screen.getByRole('button', { name: 'Save' }))
@@ -906,13 +534,6 @@ describe('MealList', () => {
       ).toBeInTheDocument()
     })
 
-    // #287 (reopened): addFoodEntry() (the "Find food" quick-commit path)
-    // set its own timeEaten but never called announceFastingWindowIfFirst
-    // Meal — the toast only ever fired via addMeal()/saveEditMeal(), so the
-    // day's first meal going through search silently never showed it.
-    // #456 made the toast a plain derived value instead (no more per-save
-    // announce call to forget), so this now just re-confirms search is one
-    // more path that correctly feeds the `calorieEntries` prop it reads.
     it("shows the toast when the day's first timed meal is added via search", async () => {
       await db.dailyEntries.put(
         makeDailyEntry({
@@ -932,8 +553,6 @@ describe('MealList', () => {
         wrapper: MemoryRouter,
       })
 
-      // Time now defaults to the current time (#357), not blank — clear it
-      // first so typing produces exactly this value, not a mix of both.
       await user.click(
         screen.getByRole('button', { name: '+ Add another meal' }),
       )
@@ -954,25 +573,21 @@ describe('MealList', () => {
         wrapper: MemoryRouter,
       })
 
-      // Time now defaults to the current time (#357), not blank — clear it
-      // first so typing produces exactly this value, not a mix of both.
       await user.click(
         screen.getByRole('button', { name: '+ Add another meal' }),
       )
       await user.clear(screen.getByLabelText('Time'))
       await user.type(screen.getByLabelText('Time'), '08:00')
-      await user.click(
-        screen.getByRole('button', { name: 'Add food' }),
-      )
+      await user.click(screen.getByRole('button', { name: 'Add food' }))
       await user.type(screen.getByLabelText('Dish name'), 'Oatmeal')
       await user.type(screen.getByLabelText('kcal/100g'), '300')
       await user.click(screen.getByRole('button', { name: 'Save' }))
 
-      expect(screen.queryByText(/Your fasting window was/)).not.toBeInTheDocument()
+      expect(
+        screen.queryByText(/Your fasting window was/),
+      ).not.toBeInTheDocument()
     })
 
-    // #456 — deliberately persistent: no manual close control at all, even
-    // once the toast is showing.
     it('has no dismiss button once the toast is showing', async () => {
       await db.dailyEntries.put(
         makeDailyEntry({
@@ -997,9 +612,7 @@ describe('MealList', () => {
       )
       await user.clear(screen.getByLabelText('Time'))
       await user.type(screen.getByLabelText('Time'), '08:00')
-      await user.click(
-        screen.getByRole('button', { name: 'Add food' }),
-      )
+      await user.click(screen.getByRole('button', { name: 'Add food' }))
       await user.type(screen.getByLabelText('Dish name'), 'Oatmeal')
       await user.type(screen.getByLabelText('kcal/100g'), '300')
       await user.click(screen.getByRole('button', { name: 'Save' }))
@@ -1011,10 +624,6 @@ describe('MealList', () => {
       ).not.toBeInTheDocument()
     })
 
-    // #301: fastingWindowToastHours was only ever set, never reset —
-    // deleting the meal that triggered it (the day's only timed meal)
-    // left the toast showing a now-stale value with nothing left to
-    // back it up.
     it('clears the toast when the meal that triggered it is deleted', async () => {
       await db.dailyEntries.put(
         makeDailyEntry({
@@ -1034,42 +643,26 @@ describe('MealList', () => {
         wrapper: MemoryRouter,
       })
 
-      // Time now defaults to the current time (#357), not blank — clear it
-      // first so typing produces exactly this value, not a mix of both.
       await user.click(
         screen.getByRole('button', { name: '+ Add another meal' }),
       )
       await user.clear(screen.getByLabelText('Time'))
       await user.type(screen.getByLabelText('Time'), '08:00')
-      await user.click(
-        screen.getByRole('button', { name: 'Add food' }),
-      )
+      await user.click(screen.getByRole('button', { name: 'Add food' }))
       await user.type(screen.getByLabelText('Dish name'), 'Oatmeal')
       await user.type(screen.getByLabelText('kcal/100g'), '300')
       await user.click(screen.getByRole('button', { name: 'Save' }))
       await screen.findByText('Your fasting window was 12.0h.')
-      // The toast lives in MealList's own tree, behind the still-open
-      // fullscreen flyout (Radix hides everything outside an open dialog
-      // from the accessibility tree) — closing it first, same as a real
-      // user finishing the flyout before seeing the toast underneath.
       await user.click(screen.getByRole('button', { name: 'Done' }))
 
       await user.click(screen.getByRole('button', { name: 'Delete meal 1' }))
       await user.click(screen.getByRole('button', { name: 'Delete' }))
 
-      expect(screen.queryByText(/Your fasting window was/)).not.toBeInTheDocument()
+      expect(
+        screen.queryByText(/Your fasting window was/),
+      ).not.toBeInTheDocument()
     })
 
-    // #450/#456 — reported live: the toast used to only ever compute once,
-    // from *this* day's own first-timed-meal save, so it never updated
-    // again even if the *previous* day's own last-meal time changed
-    // afterward. #456's derived-value rewrite (see MealList.tsx's own
-    // useMemo) makes this true for free — the toast reads whatever
-    // `previousDayEntry` currently holds, refetched fresh every time this
-    // day's own MealList mounts, so simply seeding the previous day with
-    // its *already-updated* record and rendering today's view once is
-    // enough to prove the number reflects the real current data, not a
-    // stale cached one.
     it("reflects the previous day's actual latest meal, not a stale cached value", async () => {
       await db.dailyEntries.put(
         makeDailyEntry({
@@ -1078,9 +671,6 @@ describe('MealList', () => {
             {
               id: 'y1',
               items: [{ id: 'yi1', amountKcal: 400 }],
-              // The day's real last meal has since moved to 23:00 (e.g. a
-              // later snack logged after the toast was first shown) — 4
-              // hours later than the 20:00 this same fixture used to use.
               timeEaten: '23:00',
               createdAt: '2026-02-28T23:00:00.000Z',
             },
@@ -1108,12 +698,6 @@ describe('MealList', () => {
       ).toBeInTheDocument()
     })
 
-    // #387 — reported live: with a custom day-start time (#298), a
-    // past-midnight meal gets filed under the *previous* day's own record
-    // alongside its normal evening meal. Without accounting for that, the
-    // toast picked the evening meal as "the last one" (a much earlier raw
-    // clock time than the real, later past-midnight meal), computing a
-    // wildly wrong multi-hour gap instead of the true one.
     it("uses the previous day's actual latest meal, not its earliest-by-clock-time one, once a custom day-start time is set", async () => {
       useDayStartStore.setState({ dayStartTime: '02:00' })
       await db.dailyEntries.put(
@@ -1129,8 +713,6 @@ describe('MealList', () => {
             {
               id: 'y2',
               items: [{ id: 'yi2', amountKcal: 650 }],
-              // A real past-midnight snack, filed under Feb 28 by
-              // effectiveDateFor() since 01:22 is before the 02:00 cutoff.
               timeEaten: '01:22',
               createdAt: '2026-02-28T01:22:00.000Z',
             },
@@ -1147,9 +729,7 @@ describe('MealList', () => {
       )
       await user.clear(screen.getByLabelText('Time'))
       await user.type(screen.getByLabelText('Time'), '13:36')
-      await user.click(
-        screen.getByRole('button', { name: 'Add food' }),
-      )
+      await user.click(screen.getByRole('button', { name: 'Add food' }))
       await user.type(screen.getByLabelText('Dish name'), 'Oatmeal')
       await user.type(screen.getByLabelText('kcal/100g'), '300')
       await user.click(screen.getByRole('button', { name: 'Save' }))
@@ -1161,5 +741,4 @@ describe('MealList', () => {
       useDayStartStore.setState({ dayStartTime: '00:00' })
     })
   })
-
 })
