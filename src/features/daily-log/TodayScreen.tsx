@@ -184,21 +184,23 @@ export function TodayScreen() {
       { replace: true },
     )
   }
-  // #420 debug instrument (temporary — remove once resolved). 3 separate
-  // CSS attempts to cap the Date input down to the arrows'/today button's
-  // 48px (h-12, then max-h-12, then inline height+max-height+overflow-
-  // hidden) have all failed live on-device while never reproducing in
-  // Playwright. Per #139's precedent for this exact same native-date-
-  // input-height quirk, the fix that actually worked there was the
-  // opposite of shrinking: measure the control's real intrinsic height on
-  // a real device and grow the rest of the row to match it, rather than
-  // fighting Safari's own rendering. ?debug=420 strips this row's height
-  // cap off the Date input entirely so its true unconstrained height can
-  // be read directly on-screen (no devtools needed) before trying a 4th
-  // guess.
+  // #420 debug instrument (temporary — remove once resolved). Uncapped
+  // on-device measurement showed the native Date input's own natural
+  // height (42px) is actually *shorter* than the 48px arrows/today
+  // button, not taller — yet the capped version (3rd attempt: inline
+  // height+max-height+overflow-hidden directly on the `<input>`) still
+  // visually rendered taller live, despite computing to exactly 48px in
+  // 2 desktop engines. That combination (box measures right,
+  // overflow-hidden already present, still visually taller only on real
+  // iOS) points at a native form-control chrome that isn't reliably
+  // clipped by `overflow: hidden` set on itself in Mobile Safari — so
+  // the 4th attempt (below) moves the fixed height + overflow-hidden to
+  // a plain wrapping `<div>` instead, which has no such native-widget
+  // quirk. ?debug=420 still strips that wrapper's cap so its real
+  // unconstrained height can be read on-screen if this needs revisiting.
   const debug420 = searchParams.get('debug') === '420'
   const debug420PrevRef = useRef<HTMLButtonElement>(null)
-  const debug420DateRef = useRef<HTMLInputElement>(null)
+  const debug420DateRef = useRef<HTMLDivElement>(null)
   const debug420NextRef = useRef<HTMLButtonElement>(null)
   const debug420TodayRef = useRef<HTMLButtonElement>(null)
   const [debug420Heights, setDebug420Heights] = useState<
@@ -799,23 +801,28 @@ export function TodayScreen() {
           >
             <ChevronLeft aria-hidden="true" />
           </Button>
-          <Input
-            id="log-date"
+          {/* #420 4th attempt — see the comment by debug420's declaration
+           * above for why this moved from overflow-hidden directly on the
+           * `<input>` (3rd attempt, still visually too tall live on real
+           * iOS Safari) to overflow-hidden on this plain wrapping div
+           * instead: a div's own clipping isn't subject to the native
+           * form-control chrome's own-overflow quirk, so whatever the
+           * input paints internally gets clipped by its container rather
+           * than relying on the input to clip itself. */}
+          <div
             ref={debug420DateRef}
-            type="date"
-            value={date}
-            max={todayIso()}
-            onChange={(e) => setDate(e.target.value)}
-            // #420 debug — ?debug=420 drops the height cap so the input
-            // renders at its real unconstrained height (see the comment
-            // by debug420's declaration above).
             className={debug420 ? 'max-w-48' : 'max-w-48 overflow-hidden'}
-            style={
-              debug420
-                ? undefined
-                : { height: '3rem', maxHeight: '3rem', lineHeight: '1.5rem' }
-            }
-          />
+            style={debug420 ? undefined : { height: '3rem' }}
+          >
+            <Input
+              id="log-date"
+              type="date"
+              value={date}
+              max={todayIso()}
+              onChange={(e) => setDate(e.target.value)}
+              className="h-full w-full"
+            />
+          </div>
           {/* Capped at today (#138), same as the date input's own `max` —
            * logging a future day isn't supported anywhere else in the app,
            * out of scope for "quicker than opening the picker" arrows. */}
