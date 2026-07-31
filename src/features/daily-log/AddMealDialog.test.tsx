@@ -284,7 +284,17 @@ describe('AddMealDialog (#454)', () => {
       expect(
         screen.queryByLabelText('Dish name'),
       ).not.toBeInTheDocument()
-      await user.click(screen.getByRole('button', { name: '+ Add item' }))
+      // Wait for the quantity-confirm step itself — under full-suite CI load
+      // the scanner dialog can still be open when Protein Bar first appears
+      // (e.g. in a parent layer), so clicking "+ Add item" immediately used
+      // to flake. findByRole polls until that step is actually mounted.
+      await user.click(
+        await screen.findByRole(
+          'button',
+          { name: '+ Add item' },
+          { timeout: 20000 },
+        ),
+      )
 
       expect(screen.getByText('This meal so far')).toBeInTheDocument()
       expect(screen.getAllByText('Protein Bar').length).toBeGreaterThan(0)

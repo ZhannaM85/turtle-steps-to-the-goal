@@ -188,7 +188,8 @@ describe('EntryRow', () => {
 
       await user.click(screen.getByRole('button', { name: 'View details' }))
 
-      expect(screen.getByText('Breakfast — 500 kcal')).toBeInTheDocument()
+      expect(screen.getByText('Breakfast')).toBeInTheDocument()
+      expect(screen.getAllByText('500 kcal').length).toBeGreaterThan(0)
       expect(screen.getByText('Pasta for lunch')).toBeInTheDocument()
       expect(screen.getByText('Thumbs up')).toBeInTheDocument()
       // #145: meals are directly editable in the expanded panel now (an
@@ -245,10 +246,14 @@ describe('EntryRow', () => {
       })
 
       await user.click(screen.getByRole('button', { name: 'View details' }))
-      expect(screen.getByText('Breakfast — 500 kcal')).toBeInTheDocument()
+      // #473 — MealList header is the label alone; kcal lives on its own line.
+      expect(screen.getByText('Breakfast')).toBeInTheDocument()
+      expect(screen.getAllByText('500 kcal').length).toBeGreaterThan(0)
 
       await user.click(screen.getByRole('button', { name: 'Hide details' }))
-      expect(screen.queryByText('Breakfast — 500 kcal')).not.toBeInTheDocument()
+      expect(
+        screen.queryByRole('button', { name: /Edit meal/ }),
+      ).not.toBeInTheDocument()
     })
 
     it('shows a quiet fallback when there is nothing to expand', async () => {
@@ -282,7 +287,8 @@ describe('EntryRow', () => {
       await user.click(screen.getByRole('button', { name: 'Delete entry' }))
       await user.click(screen.getByRole('button', { name: 'Cancel' }))
 
-      expect(screen.getByText('Breakfast — 500 kcal')).toBeInTheDocument()
+      expect(screen.getByText('Breakfast')).toBeInTheDocument()
+      expect(screen.getAllByText('500 kcal').length).toBeGreaterThan(0)
     })
   })
 

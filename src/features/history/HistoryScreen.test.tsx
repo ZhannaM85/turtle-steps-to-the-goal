@@ -238,7 +238,9 @@ describe('HistoryScreen', () => {
       const rows = screen.getAllByRole('row').slice(1)
       expect(rows).toHaveLength(2)
       // Auto-expanded: the meal already visible without clicking anything.
-      expect(screen.getByText('Breakfast — 2,000 kcal')).toBeInTheDocument()
+      // #473 — MealList header is the label alone; kcal lives on its own line.
+      expect(screen.getByText('Breakfast')).toBeInTheDocument()
+      expect(screen.getAllByText(/2,000 kcal/).length).toBeGreaterThan(0)
     })
   })
 
