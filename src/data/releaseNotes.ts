@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 404,
+    issue: 461,
+    date: '2026-07-31T11:22:07+03:00',
+    en: 'Fixed a bug where closing the add/edit-meal screen on the installed app could leave the screen blank until you tapped it.',
+    ru: 'Исправлена ошибка, из-за которой после закрытия экрана добавления/редактирования приёма пищи в установленном приложении экран мог оставаться пустым, пока по нему не нажмёшь.',
+  },
+  {
     version: 403,
     issue: 459,
     date: '2026-07-31T02:12:00+03:00',
