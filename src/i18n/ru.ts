@@ -51,6 +51,7 @@ export const ru: Dictionary = {
     description: 'Ввод данных за сегодня, напоминание о цели на неделю',
     thisWeeksTarget: 'Цель на эту неделю',
     toLose: (unit) => `${unit} похудения`,
+    weeklyTargetFromWeight: (weight) => `от ${weight}`,
     emptyGoalTitle: 'Цель ещё не задана',
     emptyGoalDescription: 'Задайте цель на неделю, чтобы увидеть её здесь.',
     setGoalButton: 'Задать цель',

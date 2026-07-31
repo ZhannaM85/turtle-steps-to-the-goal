@@ -196,6 +196,62 @@ describe('TodayScreen', () => {
     expect(screen.getByText('kg to lose')).toBeInTheDocument()
   })
 
+  // #469 — reported live: the target figure alone doesn't say which weight
+  // it's relative to (it's actually a flat weekly-pace target, not derived
+  // from any specific weight at all). Surfaces today's own logged weight
+  // as that reference point instead.
+  it("doesn't show a reference weight before today's own weight is logged", async () => {
+    await useGoalStore.getState().saveGoal(makeGoal({ targetWeeklyLossKg: 1 }))
+
+    render(
+      <MemoryRouter>
+        <TodayScreen />
+      </MemoryRouter>,
+    )
+
+    expect(await screen.findByText("This week's target")).toBeInTheDocument()
+    expect(screen.queryByText(/from .* kg/)).not.toBeInTheDocument()
+  })
+
+  it("appends today's own logged weight to the weekly target's description once it's set (#469)", async () => {
+    await useGoalStore.getState().saveGoal(makeGoal({ targetWeeklyLossKg: 1 }))
+    await useDailyEntryStore
+      .getState()
+      .saveEntry(makeEntry({ weightKg: 80.5 }))
+
+    render(
+      <MemoryRouter>
+        <TodayScreen />
+      </MemoryRouter>,
+    )
+
+    expect(await screen.findByText("This week's target")).toBeInTheDocument()
+    expect(
+      screen.getByText('from 80.5 kg', { exact: false }),
+    ).toBeInTheDocument()
+  })
+
+  // #469 — reported live via screenshot: still no reference weight shown
+  // first thing in the morning, before today's own weigh-in — exactly the
+  // gap the first attempt (today's own weightKg only) left open. Falls
+  // back to the most recently logged weight across any past day instead.
+  it("falls back to the most recent past weigh-in when today's own isn't logged yet (#469)", async () => {
+    await useGoalStore.getState().saveGoal(makeGoal({ targetWeeklyLossKg: 1 }))
+    const yesterday = format(subDays(new Date(), 1), 'yyyy-MM-dd')
+    await db.dailyEntries.put(makeEntry({ date: yesterday, weightKg: 79.2 }))
+
+    render(
+      <MemoryRouter>
+        <TodayScreen />
+      </MemoryRouter>,
+    )
+
+    expect(await screen.findByText("This week's target")).toBeInTheDocument()
+    expect(
+      await screen.findByText('from 79.2 kg', { exact: false }),
+    ).toBeInTheDocument()
+  })
+
   it("shows the goal's own anchored 7-day window, not a calendar week (#135)", async () => {
     await useGoalStore
       .getState()

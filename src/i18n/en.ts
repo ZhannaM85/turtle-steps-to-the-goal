@@ -45,6 +45,7 @@ export const en: Dictionary = {
     description: "Entry for today's data, this week's target reminder",
     thisWeeksTarget: "This week's target",
     toLose: (unit) => `${unit} to lose`,
+    weeklyTargetFromWeight: (weight) => `from ${weight}`,
     emptyGoalTitle: 'No goal set yet',
     emptyGoalDescription: 'Set a weekly target to see it here.',
     setGoalButton: 'Set a goal',
