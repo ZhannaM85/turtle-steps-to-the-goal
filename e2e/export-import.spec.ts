@@ -21,7 +21,15 @@ test('exports a backup, clears all data, then re-imports it', async ({ page }) =
   await page.getByLabel('kcal/100g').fill('300')
   await page.getByRole('button', { name: 'Save', exact: true }).click()
   await page.getByRole('button', { name: 'Done' }).click()
-  await expect(page.getByText('Breakfast — 300 kcal')).toBeVisible()
+  // #473 — the meal label and its calorie total are separate lines within
+  // the card now, so the round-trip is checked via the total alone.
+  await expect(
+    page
+      .getByRole('listitem')
+      .filter({ hasText: 'Breakfast' })
+      .getByText('300 kcal')
+      .first(),
+  ).toBeVisible()
 
   await page.goto('/settings')
   const downloadPromise = page.waitForEvent('download')
@@ -46,7 +54,7 @@ test('exports a backup, clears all data, then re-imports it', async ({ page }) =
   await page.waitForURL('/settings')
 
   await page.goto('/')
-  await expect(page.getByText('Breakfast — 300 kcal')).not.toBeVisible()
+  await expect(page.getByText('300 kcal')).toHaveCount(0)
 
   await page.goto('/settings')
   // Scoped to the JSON backup input specifically (#365 added a second
@@ -58,5 +66,11 @@ test('exports a backup, clears all data, then re-imports it', async ({ page }) =
   await expect(page.getByText(/^Imported /)).toBeVisible()
 
   await page.goto('/')
-  await expect(page.getByText('Breakfast — 300 kcal')).toBeVisible()
+  await expect(
+    page
+      .getByRole('listitem')
+      .filter({ hasText: 'Breakfast' })
+      .getByText('300 kcal')
+      .first(),
+  ).toBeVisible()
 })

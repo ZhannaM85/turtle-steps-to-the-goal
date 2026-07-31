@@ -21,7 +21,11 @@ test('logs a meal, then edits its calories via the pencil', async ({ page }) => 
   await page.getByRole('button', { name: 'Save', exact: true }).click()
   await page.getByRole('button', { name: 'Done' }).click()
 
-  await expect(page.getByText('Breakfast — 300 kcal')).toBeVisible()
+  // #473 — the card's header is the meal label alone now; its calorie
+  // total moved onto a separate line within the same card, so this checks
+  // both inside the card rather than matching one combined string.
+  const mealCard = page.getByRole('listitem').filter({ hasText: 'Breakfast' })
+  await expect(mealCard.getByText('300 kcal').first()).toBeVisible()
 
   // #461 — pencil opens AddMealDialog as a state-controlled overlay on the
   // same page (no /entry/:date/meal/:mealId navigation), so the URL stays
@@ -48,6 +52,6 @@ test('logs a meal, then edits its calories via the pencil', async ({ page }) => 
   await editDialog.getByRole('button', { name: 'Done' }).click()
 
   await expect(page).toHaveURL('/')
-  await expect(page.getByText('Breakfast — 450 kcal')).toBeVisible()
-  await expect(page.getByText('Breakfast — 300 kcal')).not.toBeVisible()
+  await expect(mealCard.getByText('450 kcal').first()).toBeVisible()
+  await expect(page.getByText('300 kcal')).toHaveCount(0)
 })
