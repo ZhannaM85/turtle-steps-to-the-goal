@@ -187,20 +187,21 @@ export function TodayScreen() {
   // #465 debug instrument (temporary — remove once resolved). Follow-up
   // to #420 (fixed/closed — see button.tsx's icon-xl comment and
   // ARCHITECTURE.md for that history): the Date input's *width* visibly
-  // grows once the "Сегодня" button is gone (today's own date,
-  // `date !== todayIso()` false) — the input is the only flexible
-  // (non-`shrink-0`) sibling in the row (`min-w-0`, `max-w-48`), so it
-  // absorbs whatever space the missing button frees up, up to its 192px
-  // (`max-w-48`) cap. A local Playwright check at the same 390px viewport
-  // did *not* reproduce the width difference the user saw live — like
-  // #420's own height quirk, Chromium's native date-input rendering
-  // apparently doesn't match Safari's real intrinsic/min-content width
-  // here either, so this also needs a real device number rather than a
-  // desktop measurement. ?debug=465 reports width×height for each row
-  // element on-screen (no devtools needed on-device).
+  // grew once the "Сегодня" button was gone (today's own date,
+  // `date !== todayIso()` false). On-device measurement (via this
+  // instrument) confirmed it: 179px with the button present, 214px
+  // without — and 214 exceeds `max-w-48`'s own 192px cap, meaning that
+  // constraint wasn't actually binding on this native control at all,
+  // the same "native form-control chrome ignores ordinary CSS
+  // constraints applied to itself" quirk #420 already hit for height.
+  // Fixed the same way: a plain wrapping `<div>` with a fixed pixel
+  // width + overflow-hidden (see the Date input below) rather than
+  // trusting a width/max-width class on the input directly. ?debug=465
+  // still reports width×height for each row element on-screen for
+  // future reference.
   const debug465 = searchParams.get('debug') === '465'
   const debug465PrevRef = useRef<HTMLButtonElement>(null)
-  const debug465DateRef = useRef<HTMLInputElement>(null)
+  const debug465DateRef = useRef<HTMLDivElement>(null)
   const debug465NextRef = useRef<HTMLButtonElement>(null)
   const debug465TodayRef = useRef<HTMLButtonElement>(null)
   const [debug465Sizes, setDebug420Sizes] = useState<
@@ -820,15 +821,30 @@ export function TodayScreen() {
           >
             <ChevronLeft aria-hidden="true" />
           </Button>
-          <Input
-            id="log-date"
+          {/* #465 — on-device measurement showed `max-w-48` doesn't
+           * actually bind on this native control (214px measured live,
+           * past its own 192px cap) — the same "native form-control
+           * chrome ignores ordinary CSS constraints on itself" quirk
+           * #420 already hit for height. 179px (with the today button
+           * present, the more space-constrained case) rendered cleanly
+           * with no clipping, so — same fix shape as #420's own wrapper-
+           * div — a plain `<div>` with a fixed pixel width +
+           * overflow-hidden holds it there regardless of which siblings
+           * are mounted, rather than trusting max-width on the input
+           * itself again. */}
+          <div
             ref={debug465DateRef}
-            type="date"
-            value={date}
-            max={todayIso()}
-            onChange={(e) => setDate(e.target.value)}
-            className="max-w-48"
-          />
+            className="w-[185px] shrink-0 overflow-hidden"
+          >
+            <Input
+              id="log-date"
+              type="date"
+              value={date}
+              max={todayIso()}
+              onChange={(e) => setDate(e.target.value)}
+              className="h-full w-full"
+            />
+          </div>
           {/* Capped at today (#138), same as the date input's own `max` —
            * logging a future day isn't supported anywhere else in the app,
            * out of scope for "quicker than opening the picker" arrows. */}
