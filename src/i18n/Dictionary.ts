@@ -60,9 +60,10 @@ export interface Dictionary {
     /** #469 — appended to the weekly-target card's description (alongside
      * the week's date range) so the loss/gain figure isn't shown with no
      * stated reference point — it's a flat weekly-pace target, not derived
-     * from any specific weight, so this just surfaces the most recently
-     * logged weight (any past day, not only today's) as context for what
-     * it'd apply against. */
+     * from any specific weight, so this surfaces the goal window's own
+     * baseline (the weight logged on `weekStart` itself, not just the
+     * most recently logged one — those can be different days) as context
+     * for what it'd apply against. */
     weeklyTargetFromWeight: (weight: string) => string
     emptyGoalTitle: string
     emptyGoalDescription: string

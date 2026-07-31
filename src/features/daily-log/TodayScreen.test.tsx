@@ -198,9 +198,11 @@ describe('TodayScreen', () => {
 
   // #469 — reported live: the target figure alone doesn't say which weight
   // it's relative to (it's actually a flat weekly-pace target, not derived
-  // from any specific weight at all). Surfaces today's own logged weight
-  // as that reference point instead.
-  it("doesn't show a reference weight before today's own weight is logged", async () => {
+  // from any specific weight at all). Surfaces the goal window's own
+  // baseline — the weight logged on `weekStart` itself — as that reference
+  // point, same value #339's own "X → Y kg" status line already reads
+  // (`goalWindowProgress().baselineWeightKg`).
+  it("doesn't show a reference weight before the goal window's own weekStart weight is logged", async () => {
     await useGoalStore.getState().saveGoal(makeGoal({ targetWeeklyLossKg: 1 }))
 
     render(
@@ -213,11 +215,12 @@ describe('TodayScreen', () => {
     expect(screen.queryByText(/from .* kg/)).not.toBeInTheDocument()
   })
 
-  it("appends today's own logged weight to the weekly target's description once it's set (#469)", async () => {
-    await useGoalStore.getState().saveGoal(makeGoal({ targetWeeklyLossKg: 1 }))
-    await useDailyEntryStore
+  it("appends the weight logged on the goal's own weekStart to the weekly target's description (#469)", async () => {
+    const weekStart = format(subDays(new Date(), 2), 'yyyy-MM-dd')
+    await useGoalStore
       .getState()
-      .saveEntry(makeEntry({ weightKg: 80.5 }))
+      .saveGoal(makeGoal({ targetWeeklyLossKg: 1, weekStart }))
+    await db.dailyEntries.put(makeEntry({ date: weekStart, weightKg: 58.8 }))
 
     render(
       <MemoryRouter>
@@ -227,18 +230,25 @@ describe('TodayScreen', () => {
 
     expect(await screen.findByText("This week's target")).toBeInTheDocument()
     expect(
-      screen.getByText('from 80.5 kg', { exact: false }),
+      await screen.findByText('from 58.8 kg', { exact: false }),
     ).toBeInTheDocument()
   })
 
-  // #469 — reported live via screenshot: still no reference weight shown
-  // first thing in the morning, before today's own weigh-in — exactly the
-  // gap the first attempt (today's own weightKg only) left open. Falls
-  // back to the most recently logged weight across any past day instead.
-  it("falls back to the most recent past weigh-in when today's own isn't logged yet (#469)", async () => {
-    await useGoalStore.getState().saveGoal(makeGoal({ targetWeeklyLossKg: 1 }))
-    const yesterday = format(subDays(new Date(), 1), 'yyyy-MM-dd')
-    await db.dailyEntries.put(makeEntry({ date: yesterday, weightKg: 79.2 }))
+  // #469 — reported live with a screenshot right after the first fix
+  // shipped: it showed today's own weight (59.6 kg) instead of the weight
+  // actually logged when the goal's week started 2 days earlier (58.8 kg).
+  // A first attempt used the most recently logged weight across any past
+  // day, which is wrong whenever that's a *different* day than weekStart —
+  // exactly this scenario.
+  it("shows the goal's own weekStart weight, not a later day's, when they differ", async () => {
+    const weekStart = format(subDays(new Date(), 2), 'yyyy-MM-dd')
+    await useGoalStore
+      .getState()
+      .saveGoal(makeGoal({ targetWeeklyLossKg: 1, weekStart }))
+    await db.dailyEntries.put(makeEntry({ date: weekStart, weightKg: 58.8 }))
+    await useDailyEntryStore
+      .getState()
+      .saveEntry(makeEntry({ weightKg: 59.6 }))
 
     render(
       <MemoryRouter>
@@ -248,8 +258,9 @@ describe('TodayScreen', () => {
 
     expect(await screen.findByText("This week's target")).toBeInTheDocument()
     expect(
-      await screen.findByText('from 79.2 kg', { exact: false }),
+      await screen.findByText('from 58.8 kg', { exact: false }),
     ).toBeInTheDocument()
+    expect(screen.queryByText(/from 59\.6 kg/)).not.toBeInTheDocument()
   })
 
   it("shows the goal's own anchored 7-day window, not a calendar week (#135)", async () => {

@@ -45,7 +45,6 @@ import {
 } from '@/i18n'
 import {
   useActiveGoalProgress,
-  useLatestWeight,
   useMaxRecordedWeight,
   usePreviousDayEntry,
 } from '@/shared/hooks'
@@ -217,13 +216,6 @@ export function TodayScreen() {
 
   const previousDayEntry = usePreviousDayEntry(date)
   const maxWeightKg = useMaxRecordedWeight(entry)
-  // #469 — the weekly-target card's reference weight. Today's own
-  // `entry.weightKg` would read blank before it's logged for the day
-  // (reported live: still no reference shown first thing in the morning,
-  // exactly when this is most wanted) — `useLatestWeight` falls back
-  // across every past entry instead, same "most recent known weight"
-  // helper #259's "Suggest a target" already uses.
-  const latestWeightKg = useLatestWeight(entry)
   // #235: GoalCelebrationModal (#55) already fires the instant a save
   // crosses the target, but it's a one-time dismissible dialog — easy to
   // miss (mid-interaction, an accidental outside-tap) with no second
@@ -929,15 +921,19 @@ export function TodayScreen() {
                     ),
                     // #469 — this is a flat weekly-pace target, not derived
                     // from any specific weight, so the figure alone reads
-                    // as ambiguous ("-0.1kg from what?"). Surfaces the most
-                    // recently logged weight as that reference point — not
-                    // just today's own (`entry?.weightKg`), which reported
-                    // live as still blank first thing in the morning,
-                    // before today's weigh-in, exactly when this is most
-                    // wanted.
-                    latestWeightKg !== null
+                    // as ambiguous ("-0.1kg from what?"). Surfaces the
+                    // baseline it's actually measured against: the weight
+                    // logged on `goal.weekStart` itself, same
+                    // `activeGoalProgress.baselineWeightKg` #339's own
+                    // "X → Y kg" status line already reads from — not the
+                    // most recently logged weight (an earlier attempt),
+                    // which is a different day whenever this week's own
+                    // baseline weigh-in isn't the latest one logged
+                    // (reported live: showed today's weight while the
+                    // goal's window actually started 2 days earlier).
+                    activeGoalProgress?.baselineWeightKg !== undefined
                       ? t.today.weeklyTargetFromWeight(
-                          `${formatExactNumber(toDisplay(latestWeightKg), locale)} ${unitLabel(displayUnit, t)}`,
+                          `${formatExactNumber(toDisplay(activeGoalProgress.baselineWeightKg), locale)} ${unitLabel(displayUnit, t)}`,
                         )
                       : null,
                   ]
