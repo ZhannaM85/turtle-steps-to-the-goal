@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 408,
+    issue: 465,
+    date: '2026-07-31T17:03:00+03:00',
+    en: "Fixed the date field on Today's date row changing width depending on whether the jump-to-today button is showing.",
+    ru: 'Исправлено изменение ширины поля даты в строке даты на экране "Сегодня" в зависимости от наличия кнопки "Сегодня".',
+  },
+  {
     version: 407,
     issue: 420,
     date: '2026-07-31T15:57:05+03:00',
