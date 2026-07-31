@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 403,
+    issue: 459,
+    date: '2026-07-31T02:12:00+03:00',
+    en: "The add-meal screen now matches the mockup more closely (bigger quick-action cards, a clearer mood picker, more breathing room), and editing an already-logged meal uses the same screen too.",
+    ru: 'Экран добавления приёма пищи теперь больше соответствует макету (крупные карточки быстрых действий, более понятный выбор настроения, больше воздуха), а редактирование уже сохранённого приёма пищи теперь происходит на том же экране.',
+  },
+  {
     version: 402,
     issue: 457,
     date: '2026-07-30T23:55:05+03:00',
