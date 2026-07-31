@@ -352,6 +352,20 @@ export interface Dictionary {
       fat: string,
       carbs: string,
     ) => string
+    /** #462 — Today's day-level БЖУ row and its "remaining" counterpart,
+     * both of which need calories alongside the three macros unlike
+     * macrosSummary above (used everywhere calories are already shown
+     * separately). */
+    macrosSummaryWithCalories: (
+      kcal: string,
+      protein: string,
+      fat: string,
+      carbs: string,
+    ) => string
+    /** Label above the "remaining macros" row (#462) — same "Осталось ..."
+     * wording family as the individual t.today.remaining*Label strings,
+     * but one combined label for the whole row rather than per-macro. */
+    remainingMacrosLabel: string
     timeEatenLabel: string
     /** App-level clear button for the Time field (#117) — the native iOS
      * time picker's own Reset doesn't reliably clear the value back to

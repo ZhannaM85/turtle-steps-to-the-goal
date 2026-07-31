@@ -800,12 +800,12 @@ function MealListItem({
       // StatCard look ("This week's target"/"vs. yesterday") — was a plain
       // list row with no background/border before.
       className={cn(
-        'flex flex-col gap-1.5 rounded-xl bg-card p-3 ring-1 ring-foreground/10',
+        'flex flex-col gap-2 rounded-xl bg-card p-4 ring-1 ring-foreground/10',
         isDragging && 'opacity-50',
       )}
     >
       <div className="flex items-center justify-between">
-        <span className="flex items-center gap-1.5 text-sm">
+        <span className="flex items-center gap-1.5 text-lg font-medium">
           <button
             type="button"
             aria-label={t.dailyEntry.reorderMealLabel(position)}
@@ -848,14 +848,14 @@ function MealListItem({
         </div>
       </div>
       {entry.note && (
-        <p className="text-xs text-muted-foreground">{entry.note}</p>
+        <p className="text-base text-muted-foreground">{entry.note}</p>
       )}
       {macrosSummary && (
-        <p className="text-xs text-muted-foreground">{macrosSummary}</p>
+        <p className="text-base text-muted-foreground">{macrosSummary}</p>
       )}
       {/* Item sub-list (#81) — a group's individual dishes, shown
        * underneath its own header/note/macro-total lines above. */}
-      <ul className="flex flex-col gap-1 pl-4">
+      <ul className="flex flex-col divide-y divide-foreground/15 pl-4">
         {entry.items.map((item) => {
           const itemMacros = macrosSummaryTextCompact(
             item.proteinG,
@@ -870,7 +870,10 @@ function MealListItem({
             (e) => e.value === item.emotion,
           )
           return (
-            <li key={item.id} className="text-xs text-muted-foreground">
+            <li
+              key={item.id}
+              className="py-2 text-xl text-muted-foreground first:pt-0 last:pb-0"
+            >
               {/* #302: the title stands alone on its own row — kcal/amount/
                * macros/reaction all move down to a second row together,
                * rather than the title running inline into whatever
@@ -892,21 +895,28 @@ function MealListItem({
                  * quantity. */}
                 {item.amountG !== undefined &&
                   ` · ${formatMacroGrams(item.amountG, locale, t)}`}
-                {itemMacros && ` · ${itemMacros}`}
-                {itemEmotionOption && (
-                  <>
-                    {' '}
-                    {/* leading-none removed (#156 follow-up) — see the
-                     * matching comment on the edit-mode item row above. */}
-                    <span aria-hidden="true" className="text-sm">
-                      {itemEmotionOption.emoji}
-                    </span>
-                    <span className="sr-only">
-                      {t.dailyEntry.mealEmotionLabel(item.emotion!)}
-                    </span>
-                  </>
-                )}
               </p>
+              {/* Own row, split from kcal/amount above (#462 follow-up) —
+               * at the bigger #464 font size, kcal+amount+macros+reaction
+               * all on one line wrapped mid-number on a phone width. */}
+              {(itemMacros || itemEmotionOption) && (
+                <p>
+                  {itemMacros}
+                  {itemEmotionOption && (
+                    <>
+                      {' '}
+                      {/* leading-none removed (#156 follow-up) — see the
+                       * matching comment on the edit-mode item row above. */}
+                      <span aria-hidden="true" className="text-sm">
+                        {itemEmotionOption.emoji}
+                      </span>
+                      <span className="sr-only">
+                        {t.dailyEntry.mealEmotionLabel(item.emotion!)}
+                      </span>
+                    </>
+                  )}
+                </p>
+              )}
               {/* #344 — this dish's own note, distinct from the meal
                * group's own note shown above the item list. Omitted when
                * unset, same as the other optional per-item details above. */}

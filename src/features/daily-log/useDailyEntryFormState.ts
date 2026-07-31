@@ -10,7 +10,7 @@ import {
 } from '@/domain/dailyEntry'
 import { useLocale, useTranslation } from '@/i18n'
 import { usePreviousDayEntry } from '@/shared/hooks'
-import { macrosSummaryText } from '@/shared/lib/macroDisplay'
+import { macrosSummaryTextWithCalories } from '@/shared/lib/macroDisplay'
 import { parseNumberInput } from '@/shared/lib/parseNumberInput'
 import { splitHoursMinutes } from '@/shared/lib/sleepDuration'
 import {
@@ -228,6 +228,16 @@ export function useDailyEntryFormState({
   const dailyCalorieTargetKcal = useGoalStore(
     (state) => state.goal?.dailyCalorieTargetKcal,
   )
+  // #462 — read alongside dailyCalorieTargetKcal above, to compute the
+  // "remaining macros" row below (dayRemainingMacrosSummary). Each is
+  // independently optional, same as the calorie target.
+  const dailyProteinTargetG = useGoalStore(
+    (state) => state.goal?.dailyProteinTargetG,
+  )
+  const dailyFatTargetG = useGoalStore((state) => state.goal?.dailyFatTargetG)
+  const dailyCarbTargetG = useGoalStore(
+    (state) => state.goal?.dailyCarbTargetG,
+  )
 
   const {
     register,
@@ -269,10 +279,51 @@ export function useDailyEntryFormState({
     nightEatingOverride,
   })
   const dayTotalCalories = totalCalories(calorieEntries) ?? 0
-  const dayMacrosSummary = macrosSummaryText(
-    totalProtein(calorieEntries),
-    totalFat(calorieEntries),
-    totalCarbs(calorieEntries),
+  // #462 — consumed macros pulled out to standalone variables so the
+  // "remaining" computation below can reuse them, rather than calling
+  // totalProtein/totalFat/totalCarbs a second time.
+  const consumedProteinG = totalProtein(calorieEntries)
+  const consumedFatG = totalFat(calorieEntries)
+  const consumedCarbG = totalCarbs(calorieEntries)
+  const dayMacrosSummary = macrosSummaryTextWithCalories(
+    // Undefined-preserving (not dayTotalCalories's `?? 0` above) — matches
+    // the three macros' own "dash when unlogged" treatment, and keeps this
+    // row hidden entirely on a day with nothing logged at all, same as
+    // before #462 added calories in here.
+    totalCalories(calorieEntries),
+    consumedProteinG,
+    consumedFatG,
+    consumedCarbG,
+    locale,
+    t,
+  )
+  // #462 — "remaining" counterpart to dayMacrosSummary above: each daily
+  // target minus what's been consumed so far, same unclamped shape
+  // TodayScreen's own remaining-nutrient cards already use (#266/#321) —
+  // an overage just reads as a negative number here rather than a
+  // "0g remaining" floor. Undefined (not shown, dash) when that particular
+  // target isn't set; the whole row hides when none of the four are.
+  const remainingKcal =
+    dailyCalorieTargetKcal !== undefined
+      ? dailyCalorieTargetKcal - dayTotalCalories
+      : undefined
+  const remainingProteinG =
+    dailyProteinTargetG !== undefined
+      ? dailyProteinTargetG - (consumedProteinG ?? 0)
+      : undefined
+  const remainingFatG =
+    dailyFatTargetG !== undefined
+      ? dailyFatTargetG - (consumedFatG ?? 0)
+      : undefined
+  const remainingCarbG =
+    dailyCarbTargetG !== undefined
+      ? dailyCarbTargetG - (consumedCarbG ?? 0)
+      : undefined
+  const dayRemainingMacrosSummary = macrosSummaryTextWithCalories(
+    remainingKcal,
+    remainingProteinG,
+    remainingFatG,
+    remainingCarbG,
     locale,
     t,
   )
@@ -793,6 +844,7 @@ export function useDailyEntryFormState({
     // Meals/macros
     dayTotalCalories,
     dayMacrosSummary,
+    dayRemainingMacrosSummary,
     calorieEntries,
     setValue,
     getValues,

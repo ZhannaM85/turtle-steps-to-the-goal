@@ -116,7 +116,7 @@ export const ru: Dictionary = {
     macroModePer100gOption: '100 г',
     macroModePerPortionOption: 'Порция',
     addButton: 'Добавить',
-    macrosLabel: 'БЖУ',
+    macrosLabel: 'КБЖУ',
     kcalUnit: 'ккал',
     noteLabel: 'Заметка дня',
     noteFieldPlaceholder: 'Как прошёл день?',
@@ -189,6 +189,9 @@ export const ru: Dictionary = {
       `Белки ${protein} · Жиры ${fat} · Углеводы ${carbs}`,
     macrosSummaryCompact: (protein, fat, carbs) =>
       `Б ${protein} · Ж ${fat} · У ${carbs}`,
+    macrosSummaryWithCalories: (kcal, protein, fat, carbs) =>
+      `${kcal} · Белки ${protein} · Жиры ${fat} · Углеводы ${carbs}`,
+    remainingMacrosLabel: 'Осталось',
     timeEatenLabel: 'Время',
     clearTimeLabel: 'Очистить время',
     expandAddMealLabel: '+ Добавить ещё приём пищи',

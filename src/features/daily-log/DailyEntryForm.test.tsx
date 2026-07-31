@@ -1710,11 +1710,14 @@ describe('DailyEntryForm', () => {
         fatG: 10,
         carbsG: 30,
       })
-      // Appears twice with a single meal logged: the meal's own summary
-      // line and the per-day total (#51) show the same numbers.
+      // The meal's own summary line (#51).
       expect(
-        screen.getAllByText('Protein 20g · Fat 10g · Carbs 30g'),
-      ).toHaveLength(2)
+        screen.getByText('Protein 20g · Fat 10g · Carbs 30g'),
+      ).toBeInTheDocument()
+      // The per-day total also includes calories (#462).
+      expect(
+        screen.getByText('200 kcal · Protein 20g · Fat 10g · Carbs 30g'),
+      ).toBeInTheDocument()
     })
 
     it('scales per-100g kcal and macros by the portions eaten (#96, #140)', async () => {
@@ -1867,9 +1870,12 @@ describe('DailyEntryForm', () => {
       expect(
         onSave.mock.calls[0][0].calorieEntries[0].items[0].proteinG,
       ).toBeUndefined()
-      expect(screen.getAllByText('Protein — · Fat 10g · Carbs —')).toHaveLength(
-        2,
-      )
+      expect(
+        screen.getByText('Protein — · Fat 10g · Carbs —'),
+      ).toBeInTheDocument()
+      expect(
+        screen.getByText('200 kcal · Protein — · Fat 10g · Carbs —'),
+      ).toBeInTheDocument()
     })
 
     it('shows no macro summary line for a meal that logged none (#51)', async () => {
@@ -1886,11 +1892,16 @@ describe('DailyEntryForm', () => {
       await user.type(screen.getByLabelText('kcal/100g'), '200')
       await user.click(screen.getByRole('button', { name: 'Save' }))
 
-      // The sheet's own "Protein"/"Fat"/"Carbs" field labels aren't
-      // rendered at rest (sheet is closed) — only the combined "Protein X
-      // · Fat Y · Carbs Z" summary sentence should be absent either way
-      // when nothing was logged.
-      expect(screen.queryByText(/Fat .* · Carbs/)).not.toBeInTheDocument()
+      // The per-meal summary line (macro-only, unaffected by #462) stays
+      // absent when no macros were logged at all.
+      expect(
+        screen.queryByText('Protein — · Fat — · Carbs —'),
+      ).not.toBeInTheDocument()
+      // The day-level total now always shows once *any* value — even just
+      // calories — is logged (#462), with dashes for the unset macros.
+      expect(
+        screen.getByText('200 kcal · Protein — · Fat — · Carbs —'),
+      ).toBeInTheDocument()
     })
 
     it('shows a read-only per-day macro total next to the kcal total (#51)', async () => {
@@ -1920,9 +1931,10 @@ describe('DailyEntryForm', () => {
       await user.click(screen.getByRole('button', { name: 'Save' }))
       await user.click(screen.getByRole('button', { name: 'Done' }))
 
-      // Day total: 25g protein (20+5), 10g fat (only meal 1), no carbs logged.
+      // Day total: 350 kcal (200+150), 25g protein (20+5), 10g fat (only
+      // meal 1), no carbs logged.
       expect(
-        screen.getByText('Protein 25g · Fat 10g · Carbs —'),
+        screen.getByText('350 kcal · Protein 25g · Fat 10g · Carbs —'),
       ).toBeInTheDocument()
     })
 

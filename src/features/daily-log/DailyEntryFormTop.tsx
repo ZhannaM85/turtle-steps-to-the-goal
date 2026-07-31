@@ -1,6 +1,7 @@
 import { CupSoda, GlassWater, X } from 'lucide-react'
 import { formatNumber } from '@/i18n'
 import { Button } from '@/shared/ui/button'
+import { Card, CardContent } from '@/shared/ui/card'
 import { MealList } from './MealList'
 import { useDailyEntryFormStateContext } from './useDailyEntryFormStateContext'
 import { isUnusualDailyCalories } from './unusualEntryThresholds'
@@ -45,18 +46,38 @@ export function DailyEntryFormTop() {
          * and width with every sibling field (#168) — Weight/Sleep already
          * have short left-aligned text in a full-width h-12 box without
          * reading as broken, so this now matches that same treatment
-         * instead of being the one exception. */}
+         * instead of being the one exception. #462: rebuilt on the actual
+         * `Card`/`CardContent` components (the same "This week's target"-
+         * style card StatCard already uses) instead of a plain bg-muted
+         * box, per live feedback that the old box read too small/condensed
+         * on a phone. */}
         {state.dayMacrosSummary && (
-          <div className="flex flex-col gap-1.5">
-            <span className="text-sm font-medium">
-              {t.dailyEntry.macrosLabel}
-            </span>
-            <div className="flex h-12 items-center rounded-lg bg-muted px-3">
-              <span className="text-sm text-foreground" aria-live="polite">
+          <Card>
+            <CardContent className="flex flex-col gap-1">
+              <span className="text-sm text-muted-foreground">
+                {t.dailyEntry.macrosLabel}
+              </span>
+              <span className="text-lg text-foreground" aria-live="polite">
                 {state.dayMacrosSummary}
               </span>
-            </div>
-          </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* #462 — remaining-macros counterpart to the row above, same
+         * treatment, shown only once at least one daily target (calories/
+         * protein/fat/carbs) is actually set. */}
+        {state.dayRemainingMacrosSummary && (
+          <Card>
+            <CardContent className="flex flex-col gap-1">
+              <span className="text-sm text-muted-foreground">
+                {t.dailyEntry.remainingMacrosLabel}
+              </span>
+              <span className="text-lg text-foreground" aria-live="polite">
+                {state.dayRemainingMacrosSummary}
+              </span>
+            </CardContent>
+          </Card>
         )}
 
         {/* Meal editing extracted to its own component (#145) — reused

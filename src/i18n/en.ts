@@ -109,7 +109,7 @@ export const en: Dictionary = {
     macroModePer100gOption: '100g',
     macroModePerPortionOption: 'Portion',
     addButton: 'Add',
-    macrosLabel: 'Macros',
+    macrosLabel: 'Calories & macros',
     kcalUnit: 'kcal',
     noteLabel: "Day's note",
     noteFieldPlaceholder: 'Want to share anything for the day?',
@@ -184,6 +184,9 @@ export const en: Dictionary = {
       `Protein ${protein} · Fat ${fat} · Carbs ${carbs}`,
     macrosSummaryCompact: (protein, fat, carbs) =>
       `P ${protein} · F ${fat} · C ${carbs}`,
+    macrosSummaryWithCalories: (kcal, protein, fat, carbs) =>
+      `${kcal} · Protein ${protein} · Fat ${fat} · Carbs ${carbs}`,
+    remainingMacrosLabel: 'Remaining',
     timeEatenLabel: 'Time',
     clearTimeLabel: 'Clear time',
     expandAddMealLabel: '+ Add another meal',

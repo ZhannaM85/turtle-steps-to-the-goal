@@ -62,6 +62,37 @@ export function macrosSummaryText(
   )
 }
 
+/** "170 kcal · Protein 20g · Fat 10g · Carbs —", or null when calories and
+ * all three macros are unset — same shape as macrosSummaryText above plus a
+ * leading calories figure (#462). Used only for Today's day-level БЖУ row
+ * and its "remaining" counterpart, both of which fed the caller a real
+ * number for calories where macrosSummaryText's callers (per-meal rows,
+ * weekly/monthly summaries) already show calories separately and don't
+ * want it duplicated here. */
+export function macrosSummaryTextWithCalories(
+  kcal: number | undefined,
+  proteinG: number | undefined,
+  fatG: number | undefined,
+  carbsG: number | undefined,
+  locale: Locale,
+  t: Dictionary,
+): string | null {
+  if (
+    kcal === undefined &&
+    proteinG === undefined &&
+    fatG === undefined &&
+    carbsG === undefined
+  ) {
+    return null
+  }
+  return t.dailyEntry.macrosSummaryWithCalories(
+    formatKcal(kcal, locale, t),
+    formatMacroGrams(proteinG, locale, t),
+    formatMacroGrams(fatG, locale, t),
+    formatMacroGrams(carbsG, locale, t),
+  )
+}
+
 /** Single-initial variant ("P 20g · F 10g · C —") for the History table's
  * Calories cell — kept to `whitespace-nowrap` there, so the full-word form
  * was wide enough to push the Actions column (expand/edit/delete) off
