@@ -25,6 +25,41 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 418,
+    issue: 175,
+    date: '2026-07-30T02:15:10+03:00',
+    en: 'Opening the Dashboard is much faster with a long weight history — the rolling average no longer slows down as more days are logged.',
+    ru: 'Открытие панели с длинной историей веса стало заметно быстрее — скользящее среднее больше не тормозит по мере накопления дней.',
+  },
+  {
+    version: 417,
+    issue: 468,
+    date: '2026-07-31T22:09:11+03:00',
+    en: 'Meals on Today sit in a collapsible section like Stats and Macros, with meal-card text sized to match the surrounding cards.',
+    ru: 'Приёмы пищи на экране «Сегодня» теперь в сворачиваемом разделе, как статистика и КБЖУ, а текст на карточках совпадает по размеру с соседними карточками.',
+  },
+  {
+    version: 416,
+    issue: 469,
+    date: '2026-07-31T21:47:06+03:00',
+    en: 'This week’s target card now shows which starting weight the weekly pace is relative to (the weight logged on the day the goal week began).',
+    ru: 'Карточка цели на неделю теперь показывает, от какого стартового веса считается темп (вес, записанный в день начала недели цели).',
+  },
+  {
+    version: 415,
+    issue: 470,
+    date: '2026-07-31T21:24:39+03:00',
+    en: 'The Reorder button for Today’s Stats cards now sits in the Stats section header, not next to the page title.',
+    ru: 'Кнопка «Изменить порядок» для карточек статистики на экране «Сегодня» теперь в заголовке раздела «Статистика», а не рядом с названием страницы.',
+  },
+  {
+    version: 414,
+    issue: 472,
+    date: '2026-07-31T22:28:24+03:00',
+    en: 'Morning entries and Evening entries on Today can now be collapsed, same as the Stats, Macros, and Meals sections.',
+    ru: 'Блоки «Утренние записи» и «Вечерние записи» на экране «Сегодня» теперь можно сворачивать — так же, как разделы статистики, КБЖУ и приёмов пищи.',
+  },
+  {
     version: 413,
     issue: 475,
     date: '2026-08-01T01:37:52+03:00',
