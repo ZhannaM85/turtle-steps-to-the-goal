@@ -17,11 +17,20 @@ function DialogContent({
   /** Accessible name for the close button — no visible text, icon only. */
   closeLabel: string
   /**
-   * 'fullscreen' (#122) covers the whole viewport instead of the default
-   * centered card — for content dense enough that even the 85dvh centered
-   * treatment feels cramped (the meal-item editor's larger touch targets).
-   * Still one scroll unit (same dvh reasoning as the comment below), just
-   * sized to the full viewport rather than centered/capped.
+   * 'fullscreen' (#122) is a large flyout instead of the default centered
+   * card — for content dense enough that even the 85dvh centered treatment
+   * feels cramped (the meal-item editor's larger touch targets). Still one
+   * scroll unit (same dvh reasoning as the comment below), just sized to
+   * dominate the viewport rather than centered/capped.
+   *
+   * #461: inset top/bottom by a small fixed gap rather than sitting truly
+   * edge-to-edge (`inset-0`/`h-dvh`) — installed iOS home-screen PWAs
+   * (standalone display mode only, not Safari itself) intermittently left
+   * the screen blank after this dialog closed, recovering only once the
+   * user tapped the screen to force a repaint. That only ever happened
+   * with this literally-edge-to-edge fixed layer; giving it a real gap
+   * from the viewport edges sidesteps whatever WebKit standalone-mode
+   * compositing bug that depended on.
    */
   size?: 'default' | 'fullscreen'
 }) {
@@ -40,7 +49,7 @@ function DialogContent({
           size === 'default' &&
             'fixed top-1/2 left-1/2 z-50 max-h-[85dvh] w-[calc(100%-2rem)] max-w-sm -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-xl bg-card p-5 text-card-foreground shadow-lg outline-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95',
           size === 'fullscreen' &&
-            'fixed inset-0 z-50 h-dvh w-full overflow-y-auto bg-card p-5 pt-[calc(env(safe-area-inset-top)+1rem)] pb-[calc(env(safe-area-inset-bottom)+1rem)] text-card-foreground outline-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
+            'fixed inset-x-0 top-[calc(env(safe-area-inset-top)+16px)] bottom-[calc(env(safe-area-inset-bottom)+16px)] z-50 overflow-y-auto rounded-xl bg-card p-5 text-card-foreground shadow-lg outline-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
           className,
         )}
         {...props}
