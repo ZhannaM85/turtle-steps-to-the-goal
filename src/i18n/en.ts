@@ -191,6 +191,8 @@ export const en: Dictionary = {
       `P ${protein} · F ${fat} · C ${carbs}`,
     macrosSummaryWithCalories: (kcal, protein, fat, carbs) =>
       `${kcal} · Protein ${protein} · Fat ${fat} · Carbs ${carbs}`,
+    macrosSummaryCompactWithCalories: (kcal, protein, fat, carbs) =>
+      `${kcal} · P ${protein} · F ${fat} · C ${carbs}`,
     remainingMacrosLabel: 'Remaining',
     expandMacrosLabel: 'Show calories & macros',
     collapseMacrosLabel: 'Hide calories & macros',

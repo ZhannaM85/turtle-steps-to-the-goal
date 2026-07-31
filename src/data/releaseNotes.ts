@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 411,
+    issue: 473,
+    date: '2026-08-01T00:53:22+03:00',
+    en: 'Meal cards were redesigned: name and time on the top row, calories with compact macros below, and clearer dish rows that no longer crowd the edit buttons.',
+    ru: 'Карточки приёмов пищи переработаны: название и время в верхней строке, калории с компактным БЖУ ниже, а список блюд читается яснее и больше не наезжает на кнопки редактирования.',
+  },
+  {
     version: 410,
     issue: 461,
     date: '2026-08-01T00:20:00+03:00',

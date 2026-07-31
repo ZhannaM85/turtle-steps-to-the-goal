@@ -443,7 +443,10 @@ describe('TodayScreen', () => {
     expect(await screen.findByText('79.5 kg')).toBeInTheDocument()
     // #326 — DailyEntryForm no longer has its own standalone calories
     // readout; the loaded meal itself is the thing to check for now.
-    expect(screen.getByText('Breakfast — 1,900 kcal')).toBeInTheDocument()
+    // #473 — the meal card's header is the label alone now; its total moved
+    // onto the calorie/macros line below it.
+    expect(screen.getByText('Breakfast')).toBeInTheDocument()
+    expect(screen.getAllByText(/1,900 kcal/).length).toBeGreaterThan(0)
     expect(
       screen.getByRole('button', { name: 'Edit weight' }),
     ).toBeInTheDocument()

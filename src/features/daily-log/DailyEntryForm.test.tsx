@@ -39,6 +39,22 @@ async function openAddItemFlow(user: ReturnType<typeof userEvent.setup>) {
   await user.click(screen.getByRole('button', { name: 'Add food' }))
 }
 
+// #473 split the meal card's old single "Breakfast — 200 kcal" header line
+// into a label-only title plus a calorie/macro summary line below it, so a
+// saved meal can no longer be asserted with one exact string. Scoping to
+// the card's own <li> also keeps these from matching AddMealDialog's
+// same-named heading while the flyout is still open.
+function expectMealCard(label: string, kcalText: string) {
+  const card = screen
+    .getAllByText(label)
+    .map((el) => el.closest('li'))
+    .find((li): li is HTMLLIElement => li !== null)
+  expect(card).toBeDefined()
+  expect(
+    within(card as HTMLElement).getAllByText(kcalText, { exact: false }).length,
+  ).toBeGreaterThan(0)
+}
+
 // The food-picker tests below mount FoodPickerDialog, which renders the
 // 300+ item curated food list (same reason FoodPickerDialog.test.tsx and
 // FoodListSettingsScreen.test.tsx need this) — under full-suite parallel
@@ -1587,7 +1603,7 @@ describe('DailyEntryForm', () => {
       await user.click(screen.getByRole('button', { name: 'Save' }))
       await user.click(screen.getByRole('button', { name: 'Done' }))
 
-      expect(screen.getByText('Breakfast — 200 kcal')).toBeInTheDocument()
+      expectMealCard('Breakfast', '200 kcal')
 
       await user.click(
         screen.getByRole('button', { name: '+ Add another meal' }),
@@ -1618,7 +1634,7 @@ describe('DailyEntryForm', () => {
           (c: CalorieEntry) => c.items[0].amountKcal,
         ),
       ).toEqual([200])
-      expect(screen.getByText('Breakfast — 200 kcal')).toBeInTheDocument()
+      expectMealCard('Breakfast', '200 kcal')
       // The sheet closes on save, so the field itself is gone — the reset
       // is verified by reopening the (now-blank) sheet instead.
       await openAddItemFlow(user)
@@ -1651,7 +1667,7 @@ describe('DailyEntryForm', () => {
       await user.click(screen.getByRole('button', { name: 'Save' }))
       await user.click(screen.getByRole('button', { name: 'Done' }))
 
-      expect(screen.getByText('Breakfast — 200 kcal')).toBeInTheDocument()
+      expectMealCard('Breakfast', '200 kcal')
       expect(
         screen.getByText('Ate chocolates, they were good.'),
       ).toBeInTheDocument()
@@ -1690,14 +1706,11 @@ describe('DailyEntryForm', () => {
       expect(
         within(consumedCard).getByText('Protein 20g · Fat 10g · Carbs 30g'),
       ).toBeInTheDocument()
-      // The meal's own summary line (#51) also still renders this text,
-      // separately from the day-total card above.
-      const macrosMatches = screen.getAllByText(
-        'Protein 20g · Fat 10g · Carbs 30g',
-      )
+      // The meal's own totals line (#473) uses compact initials and leads
+      // with kcal — distinct from the day-total card's full-word macros.
       expect(
-        macrosMatches.some((el) => !consumedCard.contains(el)),
-      ).toBe(true)
+        screen.getByText('200 kcal · P 20g · F 10g · C 30g'),
+      ).toBeInTheDocument()
     })
 
     it('scales per-100g kcal and macros by the portions eaten (#96, #140)', async () => {
@@ -1857,10 +1870,9 @@ describe('DailyEntryForm', () => {
       expect(
         within(consumedCard).getByText('Protein — · Fat 10g · Carbs —'),
       ).toBeInTheDocument()
-      const macrosMatches = screen.getAllByText('Protein — · Fat 10g · Carbs —')
       expect(
-        macrosMatches.some((el) => !consumedCard.contains(el)),
-      ).toBe(true)
+        screen.getByText('200 kcal · P — · F 10g · C —'),
+      ).toBeInTheDocument()
     })
 
     it('shows no macro summary line for a meal that logged none (#51)', async () => {
@@ -1950,7 +1962,9 @@ describe('DailyEntryForm', () => {
       await user.type(screen.getByLabelText('Dish name'), 'Pizza')
       await user.click(screen.getByRole('button', { name: 'Save' }))
 
-      await screen.findByText('Breakfast — 200 kcal')
+      // Wait until the meal card has rendered (kcal appears both on the
+      // totals line and the dish row after #473), then assert the library.
+      await screen.findAllByText('200 kcal')
       expect(await db.mealItems.toArray()).toEqual([
         expect.objectContaining({ name: 'Pizza' }),
       ])
@@ -2027,7 +2041,7 @@ describe('DailyEntryForm', () => {
       await user.click(screen.getByRole('button', { name: 'Save' }))
       // The existing entry already occupies the Breakfast slot, so this
       // one becomes Lunch.
-      expect(screen.getByText('Lunch — 200 kcal')).toBeInTheDocument()
+      expectMealCard('Lunch', '200 kcal')
       // Closing the flyout (#454) ends this meal, so the *next* add starts
       // a fresh one (Dinner) instead of appending a second item onto Lunch.
       await user.click(screen.getByRole('button', { name: 'Done' }))
@@ -2035,7 +2049,7 @@ describe('DailyEntryForm', () => {
       await openAddItemFlow(user)
       await user.type(screen.getByLabelText('kcal/100g'), '150')
       await user.keyboard('{Enter}')
-      expect(screen.getByText('Dinner — 150 kcal')).toBeInTheDocument()
+      expectMealCard('Dinner', '150 kcal')
       expect(onSave).toHaveBeenCalledTimes(2)
       // #326 — this form no longer displays a running total of its own
       // (TodayScreen's breakdown card owns that now), so accumulation is
@@ -2069,7 +2083,7 @@ describe('DailyEntryForm', () => {
       await user.type(screen.getByLabelText('kcal/100g'), '150')
       await user.click(screen.getByRole('button', { name: 'Save' }))
 
-      expect(screen.getByText('Breakfast — 150 kcal')).toBeInTheDocument()
+      expectMealCard('Breakfast', '150 kcal')
       expect(screen.queryByText('Thumbs up')).not.toBeInTheDocument()
     })
 
@@ -2089,7 +2103,12 @@ describe('DailyEntryForm', () => {
       await user.click(screen.getByRole('button', { name: 'Save' }))
 
       expect(onSave).not.toHaveBeenCalled()
-      expect(screen.queryByText(/— 0 kcal/)).not.toBeInTheDocument()
+      // #473 — no meal card at all, rather than one reading "0 kcal": the
+      // card's own edit control is the reliable marker now that its header
+      // no longer carries the total.
+      expect(
+        screen.queryByRole('button', { name: 'Edit meal 1' }),
+      ).not.toBeInTheDocument()
     })
 
     it('disables Add until a valid kcal/100g rate is entered (#109)', async () => {
@@ -2154,7 +2173,7 @@ describe('DailyEntryForm', () => {
             />,
           )
 
-          expect(screen.getByText('Breakfast — 300 kcal')).toBeInTheDocument()
+          expectMealCard('Breakfast', '300 kcal')
           expect(screen.queryByText(/^Meal 1/)).not.toBeInTheDocument()
         })
 
@@ -2178,10 +2197,10 @@ describe('DailyEntryForm', () => {
             />,
           )
 
-          expect(screen.getByText('Breakfast — 100 kcal')).toBeInTheDocument()
-          expect(screen.getByText('Lunch — 200 kcal')).toBeInTheDocument()
-          expect(screen.getByText('Dinner — 300 kcal')).toBeInTheDocument()
-          expect(screen.getByText('Snack — 400 kcal')).toBeInTheDocument()
+          expectMealCard('Breakfast', '100 kcal')
+          expectMealCard('Lunch', '200 kcal')
+          expectMealCard('Dinner', '300 kcal')
+          expectMealCard('Snack', '400 kcal')
         })
 
         it('falls back to positional "Meal N" from the 5th meal onward (#141)', () => {
@@ -2205,7 +2224,7 @@ describe('DailyEntryForm', () => {
             />,
           )
 
-          expect(screen.getByText('Meal 5 — 500 kcal')).toBeInTheDocument()
+          expectMealCard('Meal 5', '500 kcal')
         })
 
         // #157: "sets a custom label...", "saves a custom label on
@@ -2226,7 +2245,7 @@ describe('DailyEntryForm', () => {
         await user.click(screen.getByRole('button', { name: 'Delete' }))
 
         expect(screen.queryByText(/300 kcal/)).not.toBeInTheDocument()
-        expect(screen.getByText('Breakfast — 200 kcal')).toBeInTheDocument()
+        expectMealCard('Breakfast', '200 kcal')
         expect(onSave).toHaveBeenCalledTimes(1)
         expect(
           onSave.mock.calls[0][0].calorieEntries.map(
@@ -2246,7 +2265,7 @@ describe('DailyEntryForm', () => {
         await user.click(screen.getByRole('button', { name: 'Delete' }))
 
         expect(screen.queryByText(/300 kcal/)).not.toBeInTheDocument()
-        expect(screen.getByText('Breakfast — 200 kcal')).toBeInTheDocument()
+        expectMealCard('Breakfast', '200 kcal')
         expect(onSave).toHaveBeenCalledTimes(1)
       })
 
@@ -2503,7 +2522,7 @@ describe('DailyEntryForm', () => {
           expect(onSave.mock.calls[0][0].calorieEntries[0].timeEaten).toBe(
             '08:15',
           )
-          expect(screen.getByText('· 08:15')).toBeInTheDocument()
+          expect(screen.getByText('08:15')).toBeInTheDocument()
         })
 
         it('can be left blank', async () => {
@@ -2602,7 +2621,7 @@ describe('DailyEntryForm', () => {
           // this item can later be edited the same per-100g + quantity way
           // a manually-entered one can, at the default 100g quantity.
           expect(entry.items[0].amountG).toBe(100)
-          expect(screen.getByText('Breakfast — 208 kcal')).toBeInTheDocument()
+          expectMealCard('Breakfast', '208 kcal')
         })
 
         // #296: previously always stamped the current clock time,

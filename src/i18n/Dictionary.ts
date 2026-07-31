@@ -381,6 +381,17 @@ export interface Dictionary {
       fat: string,
       carbs: string,
     ) => string
+    /** #473 — the meal card's own totals line, which absorbed the calories
+     * figure that used to sit in the header. The full-word form wrapped to
+     * three lines in Russian ("Белки/Жиры/Углеводы"), so this line uses the
+     * single-initial macro names macrosSummaryCompact already established
+     * — also matching the dish rows directly underneath it. */
+    macrosSummaryCompactWithCalories: (
+      kcal: string,
+      protein: string,
+      fat: string,
+      carbs: string,
+    ) => string
     /** Label above the "remaining macros" row (#462) — same "Осталось ..."
      * wording family as the individual t.today.remaining*Label strings,
      * but one combined label for the whole row rather than per-macro. */

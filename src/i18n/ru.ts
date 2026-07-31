@@ -196,6 +196,8 @@ export const ru: Dictionary = {
       `Б ${protein} · Ж ${fat} · У ${carbs}`,
     macrosSummaryWithCalories: (kcal, protein, fat, carbs) =>
       `${kcal} · Белки ${protein} · Жиры ${fat} · Углеводы ${carbs}`,
+    macrosSummaryCompactWithCalories: (kcal, protein, fat, carbs) =>
+      `${kcal} · Б ${protein} · Ж ${fat} · У ${carbs}`,
     remainingMacrosLabel: 'Осталось',
     expandMacrosLabel: 'Показать калории и БЖУ',
     collapseMacrosLabel: 'Скрыть калории и БЖУ',

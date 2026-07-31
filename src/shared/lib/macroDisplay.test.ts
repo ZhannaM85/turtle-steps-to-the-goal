@@ -4,6 +4,7 @@ import {
   formatMacroGrams,
   macrosSummaryText,
   macrosSummaryTextCompact,
+  macrosSummaryTextCompactWithCalories,
 } from './macroDisplay'
 
 describe('formatMacroGrams', () => {
@@ -47,5 +48,26 @@ describe('macrosSummaryTextCompact', () => {
     expect(macrosSummaryTextCompact(20, 10, 30, 'en', en)).toBe(
       'P 20g · F 10g · C 30g',
     )
+  })
+})
+
+describe('macrosSummaryTextCompactWithCalories (#473)', () => {
+  it('returns a bare kcal figure when no macros were logged', () => {
+    expect(
+      macrosSummaryTextCompactWithCalories(
+        175,
+        undefined,
+        undefined,
+        undefined,
+        'en',
+        en,
+      ),
+    ).toBe('175 kcal')
+  })
+
+  it('leads with kcal and uses single-initial macro labels', () => {
+    expect(
+      macrosSummaryTextCompactWithCalories(2430, 76, 176, 138, 'en', en),
+    ).toBe('2,430 kcal · P 76g · F 176g · C 138g')
   })
 })

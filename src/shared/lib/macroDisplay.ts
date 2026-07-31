@@ -93,6 +93,32 @@ export function macrosSummaryTextWithCalories(
   )
 }
 
+/** "170 kcal · P 20g · F 10g · C —" — single-initial counterpart to
+ * macrosSummaryTextWithCalories above, for the meal card's totals line
+ * (#473). The full-word form wrapped to three lines in Russian at that
+ * card's width; the initials also match the dish rows right below it,
+ * which already use macrosSummaryTextCompact. Never returns null: unlike
+ * the macros-only helpers, this line is the meal's only calorie readout,
+ * so callers always have something to render. */
+export function macrosSummaryTextCompactWithCalories(
+  kcal: number | undefined,
+  proteinG: number | undefined,
+  fatG: number | undefined,
+  carbsG: number | undefined,
+  locale: Locale,
+  t: Dictionary,
+): string {
+  if (proteinG === undefined && fatG === undefined && carbsG === undefined) {
+    return formatKcal(kcal, locale, t)
+  }
+  return t.dailyEntry.macrosSummaryCompactWithCalories(
+    formatKcal(kcal, locale, t),
+    formatMacroGrams(proteinG, locale, t),
+    formatMacroGrams(fatG, locale, t),
+    formatMacroGrams(carbsG, locale, t),
+  )
+}
+
 /** Single-initial variant ("P 20g · F 10g · C —") for the History table's
  * Calories cell — kept to `whitespace-nowrap` there, so the full-word form
  * was wide enough to push the Actions column (expand/edit/delete) off

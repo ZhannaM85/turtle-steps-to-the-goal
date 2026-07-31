@@ -111,9 +111,79 @@ describe('MealList', () => {
     )
 
     expect(screen.getByText('Bio-Skyr')).toBeInTheDocument()
-    expect(screen.getByText('175 kcal · 100g')).toBeInTheDocument()
+    // #473 split kcal and grams onto a bold span + muted sibling, so they
+    // no longer form one exact text node.
+    expect(screen.getByText('175 kcal')).toBeInTheDocument()
+    expect(screen.getByText('· 100g')).toBeInTheDocument()
     expect(screen.getByText('Chicken thigh')).toBeInTheDocument()
     expect(screen.getByText('314 kcal')).toBeInTheDocument()
+  })
+
+  it('keeps only the meal name in the header, time right before the icons, kcal on the macros line (#473)', () => {
+    const calorieEntries: CalorieEntry[] = [
+      {
+        id: 'c1',
+        label: 'Late-night snack platter',
+        timeEaten: '20:25',
+        items: [{ id: 'i1', name: 'Skyr', amountKcal: 175, proteinG: 20 }],
+        createdAt: '2026-01-01T00:00:00.000Z',
+      },
+    ]
+    render(
+      <MealList
+        calorieEntries={calorieEntries}
+        date="2026-03-01"
+        onChange={vi.fn()}
+      />,
+      { wrapper: MemoryRouter },
+    )
+
+    const title = screen.getByText('Late-night snack platter')
+    expect(title.textContent).not.toMatch(/kcal|20:25/)
+
+    // Time sits between the title and the icon cluster, so it can never be
+    // pushed onto the icons' line by a long meal name.
+    const headerRow = title.parentElement
+    expect(headerRow?.className).toMatch(/items-start/)
+    const time = screen.getByText('20:25')
+    expect(time.previousElementSibling).toBe(title)
+
+    const iconCluster = time.nextElementSibling
+    expect(
+      within(iconCluster as HTMLElement).getByRole('button', {
+        name: 'Edit meal 1',
+      }),
+    ).toBeInTheDocument()
+    expect(
+      within(iconCluster as HTMLElement).getByRole('button', {
+        name: 'Delete meal 1',
+      }),
+    ).toBeInTheDocument()
+
+    expect(
+      screen.getByText('175 kcal · P 20g · F — · C —'),
+    ).toBeInTheDocument()
+  })
+
+  it('shows a meal without logged macros as a bare kcal figure, not a row of dashes (#473)', () => {
+    const calorieEntries: CalorieEntry[] = [
+      {
+        id: 'c1',
+        items: [{ id: 'i1', name: 'Skyr', amountKcal: 175 }],
+        createdAt: '2026-01-01T00:00:00.000Z',
+      },
+    ]
+    render(
+      <MealList
+        calorieEntries={calorieEntries}
+        date="2026-03-01"
+        onChange={vi.fn()}
+      />,
+      { wrapper: MemoryRouter },
+    )
+
+    expect(screen.queryByText(/P —/)).not.toBeInTheDocument()
+    expect(screen.getAllByText('175 kcal').length).toBeGreaterThan(0)
   })
 
   describe('optional brand name (#248)', () => {

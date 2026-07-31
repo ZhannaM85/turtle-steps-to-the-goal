@@ -30,8 +30,8 @@ import { IndexedDbDailyEntryRepository } from '@/infrastructure/persistence/inde
 import { MEAL_EMOTIONS } from '@/shared/lib/emotionIcons'
 import {
   formatMacroGrams,
-  macrosSummaryText,
   macrosSummaryTextCompact,
+  macrosSummaryTextCompactWithCalories,
 } from '@/shared/lib/macroDisplay'
 import { effectiveMealLabel } from '@/shared/lib/mealLabel'
 import { Button } from '@/shared/ui/button'
@@ -84,13 +84,19 @@ function MealListItem({
   onConfirmDelete,
   onCancelDelete,
 }: MealListItemProps) {
-  const macrosSummary = macrosSummaryText(
+  // #473: kcal leads this line instead of sitting in the header as a second
+  // title-sized row of its own, and uses the single-initial macro names —
+  // the full-word form wrapped to three lines in Russian at this width,
+  // which was the whole reason the card felt cramped.
+  const calorieSummary = macrosSummaryTextCompactWithCalories(
+    calorieEntryKcal(entry),
     calorieEntryProtein(entry),
     calorieEntryFat(entry),
     calorieEntryCarbs(entry),
     locale,
     t,
   )
+
   if (isConfirmingDelete) {
     return (
       <li
@@ -126,19 +132,27 @@ function MealListItem({
     <li
       // #143: card treatment (bg-card/ring), matching the app's existing
       // StatCard look ("This week's target"/"vs. yesterday") — was a plain
-      // list row with no background/border before.
-      className="flex flex-col gap-2 rounded-xl bg-card p-4 ring-1 ring-foreground/10"
+      // list row with no background/border before. #473 opened the row
+      // spacing up (gap-2 → gap-3), the card reading as too condensed being
+      // that report's underlying complaint.
+      className="flex flex-col gap-3 rounded-xl bg-card p-4 ring-1 ring-foreground/10"
     >
-      <div className="flex items-center justify-between">
-        <span className="flex items-center gap-1.5 text-lg font-medium">
-          {effectiveMealLabel(t, position, entry.label)} —{' '}
-          {formatNumber(calorieEntryKcal(entry), locale, 0)}{' '}
-          {t.dailyEntry.kcalUnit}
-          {entry.timeEaten && (
-            <span className="text-muted-foreground">· {entry.timeEaten}</span>
-          )}
-        </span>
-        <div className="flex items-center gap-3">
+      {/* #473: `{label} — {kcal} · {time}` was one flex line, so once it
+       * ran out of width the text wrapped mid-cluster and the trailing
+       * time collided with the edit/delete icons. Now the header carries
+       * only the meal name (`min-w-0 flex-1`, free to wrap) with the time
+       * pinned right beside the `shrink-0` icons; kcal moved down onto the
+       * totals line below. */}
+      <div className="flex items-start justify-between gap-2">
+        <p className="min-w-0 flex-1 text-lg font-medium">
+          {effectiveMealLabel(t, position, entry.label)}
+        </p>
+        {entry.timeEaten && (
+          <span className="shrink-0 pt-1 text-sm whitespace-nowrap text-muted-foreground">
+            {entry.timeEaten}
+          </span>
+        )}
+        <div className="flex shrink-0 items-center gap-3">
           <Button
             type="button"
             variant="ghost"
@@ -166,9 +180,9 @@ function MealListItem({
       {entry.note && (
         <p className="text-sm text-muted-foreground">{entry.note}</p>
       )}
-      {macrosSummary && (
-        <p className="text-sm text-muted-foreground">{macrosSummary}</p>
-      )}
+      {/* #473: one size up from the dish rows below (which stay text-sm),
+       * now that the compact macro initials keep it to a single line. */}
+      <p className="text-base text-muted-foreground">{calorieSummary}</p>
       {/* Item sub-list (#81) — a group's individual dishes, shown
        * underneath its own header/note/macro-total lines above. */}
       <ul className="flex flex-col divide-y divide-foreground/15 pl-4">
@@ -188,24 +202,31 @@ function MealListItem({
           return (
             <li
               key={item.id}
-              // #468 follow-up — reported live still not matching the
-              // stat/calories cards' own text-sm description size; #464's
-              // text-xl bump (a response to "too condensed") overshot once
-              // compared directly against those cards.
-              className="py-2 text-sm text-muted-foreground first:pt-0 last:pb-0"
+              // #473: rebuilt on StatCard's own hierarchy (label → bold
+              // value → muted description) instead of three lines at one
+              // uniform size/tone, which is what made the list read as
+              // condensed even after #464/#468's size passes.
+              className="flex flex-col gap-0.5 py-3 text-sm text-muted-foreground first:pt-0 last:pb-0"
             >
               {/* #302: the title stands alone on its own row — kcal/amount/
                * macros/reaction all move down to a second row together,
                * rather than the title running inline into whatever
                * followed it. */}
               {item.name && (
-                <p>
+                // Inherits the row's own muted tone rather than full
+                // foreground (#473 follow-up) — at full strength the dish
+                // names competed with the meal title above them. Size and
+                // weight carry the hierarchy here, not color.
+                <p className="text-base font-medium">
                   {item.name}
                   {item.brand ? ` (${item.brand})` : ''}
                 </p>
               )}
-              <p>
-                {formatNumber(item.amountKcal, locale, 0)} {t.dailyEntry.kcalUnit}
+              <p className="flex items-baseline gap-1.5">
+                <span className="text-xl font-semibold tabular-nums">
+                  {formatNumber(item.amountKcal, locale, 0)}{' '}
+                  {t.dailyEntry.kcalUnit}
+                </span>
                 {/* #206: this line otherwise never surfaces the item's own
                  * quantity anywhere — the only place it existed before was
                  * inside the add/edit form's own quantity input, gone once
@@ -213,8 +234,9 @@ function MealListItem({
                  * same as itemMacros/itemEmotionOption below, rather than
                  * cluttering every manually-typed item with no recorded
                  * quantity. */}
-                {item.amountG !== undefined &&
-                  ` · ${formatMacroGrams(item.amountG, locale, t)}`}
+                {item.amountG !== undefined && (
+                  <span>· {formatMacroGrams(item.amountG, locale, t)}</span>
+                )}
               </p>
               {/* Own row, split from kcal/amount above (#462 follow-up) —
                * at the bigger #464 font size, kcal+amount+macros+reaction
