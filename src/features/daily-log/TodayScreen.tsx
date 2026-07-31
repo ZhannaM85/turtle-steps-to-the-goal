@@ -744,40 +744,7 @@ export function TodayScreen() {
   return (
     <div className="flex flex-col gap-6">
       <GoalCelebrationModal />
-      <PageHeader
-        title={t.today.title}
-        description={t.today.description}
-        action={
-          // #343 — same on-demand mode as Dashboard's own reorder toggle;
-          // hidden entirely when there's nothing in the reorderable group
-          // to reorder (e.g. a day with no goal/log yet).
-          cardOrder.some((key) => cardsByKey[key]) && (
-            <div className="flex items-center gap-2">
-              {isReorderingCards && (
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  disabled={isDefaultCardOrder}
-                  onClick={resetCardOrder}
-                >
-                  {t.today.resetCardOrderButton}
-                </Button>
-              )}
-              <Button
-                type="button"
-                variant={isReorderingCards ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setIsReorderingCards((prev) => !prev)}
-              >
-                {isReorderingCards
-                  ? t.dailyEntry.saveButton
-                  : t.today.reorderCardsButton}
-              </Button>
-            </div>
-          )
-        }
-      />
+      <PageHeader title={t.today.title} description={t.today.description} />
 
       {/* #239: previously sat below the stat cards — the page title never
        * changes, but this does as you page between days, so it used to
@@ -1043,23 +1010,79 @@ export function TodayScreen() {
           open={!statsCollapsed}
           onOpenChange={(open) => setStatsCollapsed(!open)}
         >
-          <CollapsibleTrigger asChild>
-            <button
-              type="button"
-              aria-label={
-                statsCollapsed
-                  ? t.today.expandStatsLabel
-                  : t.today.collapseStatsLabel
-              }
-              className="group flex w-full items-center justify-between text-sm font-medium text-muted-foreground hover:text-foreground"
-            >
-              {t.today.statsSectionLabel}
-              <ChevronDown
+          <div className="flex items-center justify-between gap-2">
+            {/* #470 — the label stays the one real accessible trigger
+             * (aria-label carries the expand/collapse meaning); the
+             * trailing chevron below is a second, `aria-hidden` trigger —
+             * same toggle, visually last in the row instead of stuck
+             * right after the label, so the Reorder controls can sit
+             * between the two without nesting a button inside a button. */}
+            <CollapsibleTrigger asChild>
+              <button
+                type="button"
+                aria-label={
+                  statsCollapsed
+                    ? t.today.expandStatsLabel
+                    : t.today.collapseStatsLabel
+                }
+                className="text-sm font-medium text-muted-foreground hover:text-foreground"
+              >
+                {t.today.statsSectionLabel}
+              </button>
+            </CollapsibleTrigger>
+            {/* #470 — moved here from the page header: this only ever
+             * reorders the card group below, inside this same accordion,
+             * but used to sit next to the page's own "Today" title at the
+             * very top, reading as if it reordered the whole page.
+             * Entering reorder mode also force-expands this section (it
+             * was previously independent of statsCollapsed) — the cards
+             * being reordered would otherwise stay hidden behind a
+             * collapsed trigger the reorder toggle now sits directly on. */}
+            {cardOrder.some((key) => cardsByKey[key]) && (
+              <div className="flex flex-1 items-center justify-end gap-2">
+                {isReorderingCards && (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    disabled={isDefaultCardOrder}
+                    onClick={resetCardOrder}
+                  >
+                    {t.today.resetCardOrderButton}
+                  </Button>
+                )}
+                <Button
+                  type="button"
+                  variant={isReorderingCards ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() =>
+                    setIsReorderingCards((prev) => {
+                      const next = !prev
+                      if (next) setStatsCollapsed(false)
+                      return next
+                    })
+                  }
+                >
+                  {isReorderingCards
+                    ? t.dailyEntry.saveButton
+                    : t.today.reorderCardsButton}
+                </Button>
+              </div>
+            )}
+            <CollapsibleTrigger asChild>
+              <button
+                type="button"
                 aria-hidden="true"
-                className="size-4 transition-transform group-data-[state=open]:rotate-180"
-              />
-            </button>
-          </CollapsibleTrigger>
+                tabIndex={-1}
+                className="group shrink-0"
+              >
+                <ChevronDown
+                  aria-hidden="true"
+                  className="size-4 text-muted-foreground transition-transform group-data-[state=open]:rotate-180"
+                />
+              </button>
+            </CollapsibleTrigger>
+          </div>
           <CollapsibleContent>
             <div className="flex flex-col gap-6 pt-3">
               {/* #415 — moved here, right after the Goal target card, from
