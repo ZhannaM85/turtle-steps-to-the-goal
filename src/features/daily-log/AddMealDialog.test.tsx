@@ -396,4 +396,23 @@ describe('AddMealDialog (#454)', () => {
 
     expect(onOpenChange).toHaveBeenCalledWith(false)
   })
+
+  it('gives Done the same 48px footer-CTA size as every other primary footer action (#474)', () => {
+    render(
+      <AddMealDialog
+        {...defaultProps}
+        items={[{ id: 'i1', amountKcal: 200 }]}
+        reaction={undefined}
+        onReactionChange={vi.fn()}
+        onAppendItems={vi.fn()}
+        onRemoveItem={vi.fn()}
+      />,
+    )
+
+    // It used to be the default h-8 size with only w-full, which read as
+    // visibly smaller than MealItemEditorSheet's Save right next to it.
+    const done = screen.getByRole('button', { name: 'Done' })
+    expect(done).toHaveClass('h-12')
+    expect(done).not.toHaveClass('h-8')
+  })
 })

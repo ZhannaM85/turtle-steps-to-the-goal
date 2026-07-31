@@ -777,8 +777,8 @@ export function MealList({
           <Button
             type="button"
             variant="outline"
-            size="lg"
-            className="h-12 w-full text-base"
+            size="xl"
+            className="w-full"
             onClick={() => setIsCopyDayDialogOpen(true)}
           >
             {t.dailyEntry.copyYesterdayMealsLabel}
@@ -803,8 +803,8 @@ export function MealList({
       <Button
         type="button"
         variant="outline"
-        size="lg"
-        className="h-12 w-full text-base"
+        size="xl"
+        className="w-full"
         onClick={openAddMealDialog}
       >
         {t.dailyEntry.expandAddMealLabel}

@@ -35,6 +35,18 @@ const buttonVariants = cva(
         xs: "h-6 gap-1 rounded-[min(var(--radius-md),10px)] px-2 text-xs in-data-[slot=button-group]:rounded-lg has-data-[icon=inline-end]:pr-1.5 has-data-[icon=inline-start]:pl-1.5 [&_svg:not([class*='size-'])]:size-3",
         sm: "h-7 gap-1 rounded-[min(var(--radius-md),12px)] px-2.5 text-[0.8rem] in-data-[slot=button-group]:rounded-lg has-data-[icon=inline-end]:pr-1.5 has-data-[icon=inline-start]:pl-1.5 [&_svg:not([class*='size-'])]:size-3.5",
         lg: 'h-9 gap-1.5 px-2.5 has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2',
+        // 48px — #474: the named size for a **primary footer action**, i.e.
+        // the full-width CTA at the bottom of a sheet/dialog/edit card
+        // (Save, Done, Find food, Repeat meal…). Use `size="xl"
+        // className="w-full"`; don't reach for the default h-8 size with
+        // only `w-full`, which is what made #474's Done button read as
+        // smaller than every other footer CTA. Same 48px as `icon-xl` and
+        // the standalone-field height, so a footer button never looks
+        // shorter than the fields it sits under. Geometry is `lg`'s, only
+        // taller and at `text-base`, so the pre-#474 hand-written
+        // `size="lg" className="h-12 w-full text-base"` call sites this
+        // replaced render identically.
+        xl: 'h-12 gap-1.5 px-2.5 text-base has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2',
         icon: 'size-8',
         'icon-xs':
           "size-6 rounded-[min(var(--radius-md),10px)] in-data-[slot=button-group]:rounded-lg [&_svg:not([class*='size-'])]:size-3",

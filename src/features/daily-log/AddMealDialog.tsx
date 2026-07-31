@@ -880,8 +880,8 @@ export function AddMealDialog({
               <Button
                 type="button"
                 variant="outline"
-                size="lg"
-                className="h-12 w-full text-base"
+                size="xl"
+                className="w-full"
                 onClick={() => setIsRepeatOpen(true)}
               >
                 {t.dailyEntry.repeatMealLabel(mealLabel)}
@@ -1079,6 +1079,7 @@ export function AddMealDialog({
                 <div className="sticky bottom-0 border-t border-border bg-card pt-3 pb-3">
                   <Button
                     type="button"
+                    size="xl"
                     className="w-full"
                     onClick={() => onOpenChange(false)}
                   >

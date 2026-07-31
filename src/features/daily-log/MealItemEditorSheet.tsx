@@ -507,8 +507,8 @@ export function MealItemEditorSheet({
         <div className="-mx-5 -mb-5 flex flex-col gap-2 border-t border-border bg-card px-5 pt-3 pb-[calc(env(safe-area-inset-bottom)+1rem)]">
           <Button
             type="button"
-            size="lg"
-            className="h-12 w-full text-base"
+            size="xl"
+            className="w-full"
             disabled={!hasValidAmount}
             onClick={onSave}
           >
@@ -518,8 +518,8 @@ export function MealItemEditorSheet({
             <Button
               type="button"
               variant="outline"
-              size="lg"
-              className="h-12 w-full text-base"
+              size="xl"
+              className="w-full"
               disabled={!hasValidAmount}
               onClick={onSaveAndAddAnother}
             >

@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 412,
+    issue: 474,
+    date: '2026-08-01T01:25:00+03:00',
+    en: 'The Done button at the bottom of the add-meal screen is now the same comfortable size as the Save button, like every other main button at the bottom of a screen.',
+    ru: 'Кнопка «Готово» внизу экрана добавления приёма пищи теперь такого же удобного размера, как кнопка «Сохранить», — как и все другие главные кнопки внизу экрана.',
+  },
+  {
     version: 411,
     issue: 473,
     date: '2026-08-01T00:53:22+03:00',
