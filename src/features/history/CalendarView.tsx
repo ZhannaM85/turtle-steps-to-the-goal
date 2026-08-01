@@ -287,12 +287,12 @@ export function CalendarView({
         })}
       </div>
 
-      {/* #482 / #485 — toggleable legend for every trackable marker type
-       * (dimmed when off). Horizontal wrap at all breakpoints; Markers
-       * popover removed — legend is the primary control. */}
+      {/* #482 / #485 / #492 — toggleable chip legend for every trackable
+       * marker type. Same chip family as #490's goal legend; pressed =
+       * dots visible, off = dimmed chip (toggle semantics from #485). */}
       <ul
         aria-label={t.history.calendarMarkerLegendLabel}
-        className="flex flex-row flex-wrap gap-x-3 gap-y-1.5 text-sm"
+        className="flex flex-row flex-wrap gap-2 text-sm"
       >
         {legendItems.map((item) => (
           <li key={item.key}>
@@ -302,10 +302,10 @@ export function CalendarView({
               aria-label={`${item.label} — ${t.history.calendarMarkerLegendLabel}`}
               onClick={() => toggleMarkerVisible(item.key)}
               className={cn(
-                'flex items-center gap-2 rounded-md outline-none transition-opacity focus-visible:ring-3 focus-visible:ring-ring/50',
+                'inline-flex items-center gap-2 rounded-full border px-2.5 py-1 outline-none transition-colors focus-visible:ring-3 focus-visible:ring-ring/50',
                 item.pressed
-                  ? 'text-muted-foreground'
-                  : 'text-muted-foreground/50 line-through',
+                  ? 'border-primary/40 bg-muted text-foreground'
+                  : 'border-border bg-card text-muted-foreground/70 line-through',
               )}
             >
               <span

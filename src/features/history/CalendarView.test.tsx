@@ -349,6 +349,9 @@ describe('CalendarView', () => {
       expect(
         screen.getByRole('button', { name: 'Logged day — Calendar markers' }),
       ).toHaveAttribute('aria-pressed', 'true')
+      expect(
+        screen.getByRole('button', { name: 'Logged day — Calendar markers' }),
+      ).toHaveClass('rounded-full')
     })
 
     it('toggles a marker off from the legend and keeps the chip discoverable', async () => {

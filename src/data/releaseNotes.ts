@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 441,
+    issue: 492,
+    date: '2026-08-01T14:50:00+03:00',
+    en: 'On History’s calendar, the marker legend (logged day, period, and so on) now looks like the same soft chips as the goal colors.',
+    ru: 'В календаре «Истории» легенда меток (есть запись, менструация и т.д.) теперь в тех же мягких «чипах», что и цвета цели.',
+  },
+  {
     version: 440,
     issue: 490,
     date: '2026-08-01T14:45:00+03:00',
