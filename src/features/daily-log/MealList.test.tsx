@@ -116,7 +116,7 @@ describe('MealList', () => {
     ).toBeInTheDocument()
     expect(screen.getAllByText('Oatmeal').length).toBeGreaterThan(0)
 
-    await user.click(screen.getByRole('button', { name: 'Keep editing' }))
+    await user.click(screen.getByRole('button', { name: 'No' }))
     expect(screen.getByRole('dialog')).toBeInTheDocument()
     expect(
       screen.queryByText(
@@ -125,7 +125,7 @@ describe('MealList', () => {
     ).not.toBeInTheDocument()
 
     await user.click(screen.getByRole('button', { name: 'Close' }))
-    await user.click(screen.getByRole('button', { name: 'Discard' }))
+    await user.click(screen.getByRole('button', { name: 'Yes' }))
 
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
     expect(screen.queryByText('Oatmeal')).not.toBeInTheDocument()
@@ -478,7 +478,7 @@ describe('MealList', () => {
           'Leave without saving? Changes to this meal will be discarded.',
         ),
       ).toBeInTheDocument()
-      await user.click(within(dialog).getByRole('button', { name: 'Discard' }))
+      await user.click(within(dialog).getByRole('button', { name: 'Yes' }))
 
       expect(
         screen.queryByRole('dialog', { name: 'Breakfast' }),

@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 463,
+    issue: 514,
+    date: '2026-08-01T21:07:18+03:00',
+    en: 'When leaving Add meal without saving, the confirm buttons now say Yes and No so they match the question.',
+    ru: 'При выходе из добавления приёма пищи без сохранения кнопки подтверждения теперь «Да» и «Нет» — как в самом вопросе.',
+  },
+  {
     version: 462,
     issue: 509,
     date: '2026-08-01T20:38:52+03:00',

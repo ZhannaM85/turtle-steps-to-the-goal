@@ -234,8 +234,8 @@ export const en: Dictionary = {
     doneAddingMealButton: 'Done',
     confirmDiscardInProgressMealLabel:
       'Leave without saving? Foods added here will be discarded.',
-    confirmDiscardInProgressMealYes: 'Discard',
-    confirmDiscardInProgressMealNo: 'Keep editing',
+    confirmDiscardInProgressMealYes: 'Yes',
+    confirmDiscardInProgressMealNo: 'No',
     confirmDiscardEditedMealLabel:
       'Leave without saving? Changes to this meal will be discarded.',
     confirmDeleteItemLabel: 'Remove this food?',

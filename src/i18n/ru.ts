@@ -250,8 +250,8 @@ export const ru: Dictionary = {
     doneAddingMealButton: 'Готово',
     confirmDiscardInProgressMealLabel:
       'Выйти без сохранения? Добавленные здесь блюда будут удалены.',
-    confirmDiscardInProgressMealYes: 'Удалить',
-    confirmDiscardInProgressMealNo: 'Продолжить',
+    confirmDiscardInProgressMealYes: 'Да',
+    confirmDiscardInProgressMealNo: 'Нет',
     confirmDiscardEditedMealLabel:
       'Выйти без сохранения? Изменения в этом приёме пищи будут отменены.',
     confirmDeleteItemLabel: 'Убрать это блюдо?',
