@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 468,
+    issue: 517,
+    date: '2026-08-01T23:24:08+03:00',
+    en: 'When confirming a food from search or a barcode scan, you can now edit calories and macros before adding it to the meal.',
+    ru: 'При подтверждении продукта из поиска или после сканирования штрихкода можно сразу поправить калории и макросы, до добавления в приём пищи.',
+  },
+  {
     version: 467,
     issue: 516,
     date: '2026-08-01T22:30:26+03:00',

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import {
   ChefHat,
   type LucideIcon,
@@ -84,6 +84,58 @@ function defaultQuantityFor(item: PickableItem): string {
     return String(item.mealItem.lastAmountG)
   }
   return '100'
+}
+
+/** Per-100g rates for the quantity-confirm step (#517). Quantity changes
+ * rescale from these; editing the absolute kcal/macro fields back-calculates
+ * into them. Meal-line only — curated catalog entries are never rewritten. */
+interface ConfirmRates {
+  kcal100: number
+  protein100: number
+  fat100: number
+  carbs100: number
+  fiber100: number | undefined
+}
+
+function ratesFromPickable(item: PickableItem): ConfirmRates {
+  if (item.source === 'food') {
+    return {
+      kcal100: item.food.kcal100,
+      protein100: item.food.protein100,
+      fat100: item.food.fat100,
+      carbs100: item.food.carbs100,
+      fiber100: item.food.fiber100,
+    }
+  }
+  const rates = ratesFromAbsolute(
+    item.mealItem.lastAmountKcal,
+    item.mealItem.lastProteinG,
+    item.mealItem.lastFatG,
+    item.mealItem.lastCarbsG,
+    item.mealItem.lastAmountG,
+    item.mealItem.lastFiberG,
+  )
+  return {
+    kcal100: rates.kcal100,
+    protein100: rates.protein100 ?? 0,
+    fat100: rates.fat100 ?? 0,
+    carbs100: rates.carbs100 ?? 0,
+    fiber100: rates.fiber100,
+  }
+}
+
+function scaleConfirmDisplay(rates: ConfirmRates, grams: number) {
+  const scale = grams / 100
+  return {
+    kcal: String(Math.round(rates.kcal100 * scale)),
+    protein: String(Math.round(rates.protein100 * scale * 10) / 10),
+    fat: String(Math.round(rates.fat100 * scale * 10) / 10),
+    carbs: String(Math.round(rates.carbs100 * scale * 10) / 10),
+    fiber:
+      rates.fiber100 === undefined
+        ? ''
+        : String(Math.round(rates.fiber100 * scale * 10) / 10),
+  }
 }
 
 function blankManualDraft() {
@@ -252,6 +304,16 @@ export function AddMealDialog({
   const [itemEmotion, setItemEmotion] = useState<MealEmotion | undefined>(
     undefined,
   )
+  // #517 — editable kcal/macros on the confirm step. Absolute display
+  // strings for the current grams; confirmRates are the per-100g source
+  // that quantity/serving changes rescale from.
+  const [confirmRates, setConfirmRates] = useState<ConfirmRates | null>(null)
+  const [confirmKcal, setConfirmKcal] = useState('')
+  const [confirmProtein, setConfirmProtein] = useState('')
+  const [confirmFat, setConfirmFat] = useState('')
+  const [confirmCarbs, setConfirmCarbs] = useState('')
+  const [confirmFiber, setConfirmFiber] = useState('')
+  const confirmGramsRef = useRef<number | null>(null)
 
   const [isRepeatOpen, setIsRepeatOpen] = useState(false)
   const [isRecipeOpen, setIsRecipeOpen] = useState(false)
@@ -289,6 +351,90 @@ export function AddMealDialog({
     setServingMode('grams')
     setServingCount('1')
     setItemEmotion(undefined)
+    setConfirmRates(null)
+    setConfirmKcal('')
+    setConfirmProtein('')
+    setConfirmFat('')
+    setConfirmCarbs('')
+    setConfirmFiber('')
+    confirmGramsRef.current = null
+  }
+
+  /** #517 — pick → confirm step: seed quantity + editable nutrition from
+   * the catalog/personal item's per-100g rates (meal-line override only). */
+  function selectActiveItem(item: PickableItem, quantityOverride?: string) {
+    setActiveItem(item)
+    const qty = quantityOverride ?? defaultQuantityFor(item)
+    setQuantity(qty)
+    setServingMode('grams')
+    setServingCount('1')
+    setItemEmotion(undefined)
+    const rates = ratesFromPickable(item)
+    const qtyNum = parseNumberInput(qty)
+    const grams = qtyNum && qtyNum > 0 ? qtyNum : 100
+    const display = scaleConfirmDisplay(rates, grams)
+    setConfirmRates(rates)
+    confirmGramsRef.current = grams
+    setConfirmKcal(display.kcal)
+    setConfirmProtein(display.protein)
+    setConfirmFat(display.fat)
+    setConfirmCarbs(display.carbs)
+    setConfirmFiber(display.fiber)
+  }
+
+  function applyConfirmDisplay(rates: ConfirmRates, grams: number) {
+    const display = scaleConfirmDisplay(rates, grams)
+    setConfirmKcal(display.kcal)
+    setConfirmProtein(display.protein)
+    setConfirmFat(display.fat)
+    setConfirmCarbs(display.carbs)
+    setConfirmFiber(display.fiber)
+  }
+
+  function updateConfirmAbsolute(
+    field: 'kcal' | 'protein' | 'fat' | 'carbs' | 'fiber',
+    value: string,
+  ) {
+    if (field === 'kcal') setConfirmKcal(value)
+    else if (field === 'protein') setConfirmProtein(value)
+    else if (field === 'fat') setConfirmFat(value)
+    else if (field === 'carbs') setConfirmCarbs(value)
+    else setConfirmFiber(value)
+
+    if (!activeItem || !confirmRates) return
+    const grams = gramsFor(activeItem)
+    if (grams <= 0) return
+
+    if (field === 'fiber' && value.trim() === '') {
+      setConfirmRates({ ...confirmRates, fiber100: undefined })
+      return
+    }
+    const num = parseNumberInput(value)
+    if (num === undefined) return
+    const rate = (num * 100) / grams
+    if (field === 'kcal') {
+      setConfirmRates({ ...confirmRates, kcal100: Math.round(rate) })
+    } else if (field === 'protein') {
+      setConfirmRates({
+        ...confirmRates,
+        protein100: Math.round(rate * 10) / 10,
+      })
+    } else if (field === 'fat') {
+      setConfirmRates({
+        ...confirmRates,
+        fat100: Math.round(rate * 10) / 10,
+      })
+    } else if (field === 'carbs') {
+      setConfirmRates({
+        ...confirmRates,
+        carbs100: Math.round(rate * 10) / 10,
+      })
+    } else {
+      setConfirmRates({
+        ...confirmRates,
+        fiber100: Math.round(rate * 10) / 10,
+      })
+    }
   }
 
   const visibleFoods = applyFoodOverrides(foods, foodOverrides)
@@ -368,9 +514,40 @@ export function AddMealDialog({
     const num = parseNumberInput(quantity)
     return num !== undefined && num > 0
   }
+
+  // #517 — when grams change (quantity or serving), rescale the editable
+  // absolute fields from confirmRates. Skip when rates changed from typing
+  // into those same fields (grams unchanged).
+  useEffect(() => {
+    if (!activeItem || !confirmRates) return
+    const grams = gramsFor(activeItem)
+    if (confirmGramsRef.current === grams) return
+    confirmGramsRef.current = grams
+    applyConfirmDisplay(confirmRates, grams)
+    // gramsFor/applyConfirmDisplay are stable closures over state already
+    // listed; listing them would re-fire on every render.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [quantity, servingMode, servingCount, activeItem, confirmRates])
+
   function scaledValuesFor(item: PickableItem): Omit<PickedFoodValues, 'emotion'> {
     const grams = gramsFor(item)
     const scale = grams / 100
+    // #517 — prefer the (possibly user-corrected) confirm-step rates so
+    // quantity changes and the Add commit share one source of truth.
+    if (confirmRates) {
+      return {
+        amountKcal: Math.round(confirmRates.kcal100 * scale),
+        proteinG: Math.round(confirmRates.protein100 * scale * 10) / 10,
+        fatG: Math.round(confirmRates.fat100 * scale * 10) / 10,
+        carbsG: Math.round(confirmRates.carbs100 * scale * 10) / 10,
+        fiberG:
+          confirmRates.fiber100 === undefined
+            ? undefined
+            : Math.round(confirmRates.fiber100 * scale * 10) / 10,
+        note: textFor(item),
+        amountG: grams,
+      }
+    }
     if (item.source === 'food') {
       const { food } = item
       return {
@@ -420,19 +597,26 @@ export function AddMealDialog({
 
   function confirmActiveItem() {
     if (!activeItem || !hasValidQuantity(activeItem)) return
-    const scaled = scaledValuesFor(activeItem)
+    const kcalNum = parseNumberInput(confirmKcal)
+    if (kcalNum === undefined || kcalNum <= 0) return
+    const grams = gramsFor(activeItem)
+    // #517 — commit the editable absolute fields as shown (WYSIWYG), not a
+    // re-scale that could drift from mid-edit rounding on the rates.
     const newItem: CalorieItem = {
       id: crypto.randomUUID(),
-      name: scaled.note,
-      amountKcal: scaled.amountKcal,
-      proteinG: scaled.proteinG,
-      fatG: scaled.fatG,
-      carbsG: scaled.carbsG,
-      fiberG: scaled.fiberG,
-      amountG: scaled.amountG,
+      name: textFor(activeItem),
+      amountKcal: Math.round(kcalNum),
+      proteinG: parseOptionalMacro(confirmProtein) ?? 0,
+      fatG: parseOptionalMacro(confirmFat) ?? 0,
+      carbsG: parseOptionalMacro(confirmCarbs) ?? 0,
+      fiberG: parseOptionalMacro(confirmFiber),
+      amountG: grams,
       emotion: itemEmotion,
     }
     onAppendItems([newItem])
+    // Personal last-used memory only (#50/#86) — curated catalog names are
+    // skipped inside touchIfPersonal. Confirm-step edits are a meal-line
+    // override; they do not rewrite foods.ts / foodOverrides.
     touchIfPersonal(newItem)
     setSearch('')
     resetActiveItem()
@@ -449,11 +633,11 @@ export function AddMealDialog({
     )
     setBarcodeNotFoundMessage(false)
     if (result.source === 'local') {
-      setActiveItem({
+      const item: PickableItem = {
         source: 'mealItem',
         mealItem: result.item as MealItem & { lastAmountKcal: number },
-      })
-      setQuantity(defaultQuantityFor({ source: 'mealItem', mealItem: result.item as MealItem & { lastAmountKcal: number } }))
+      }
+      selectActiveItem(item)
     } else if (result.source === 'openFoodFacts') {
       // Not a catalog/personal-library item yet — represented as a
       // one-off synthetic food so the same confirm-quantity step (which
@@ -467,8 +651,7 @@ export function AddMealDialog({
         fat100: result.fat100 ?? 0,
         carbs100: result.carbs100 ?? 0,
       }
-      setActiveItem({ source: 'food', food: syntheticFood })
-      setQuantity('100')
+      selectActiveItem({ source: 'food', food: syntheticFood }, '100')
     } else {
       setBarcodeNotFoundMessage(true)
       setIsManualOpen(true)
@@ -909,22 +1092,12 @@ export function AddMealDialog({
 
         {activeItem ? (
           <div className="flex flex-col gap-3">
-            {/* #505 — same dish hierarchy as MealList (#473): name base,
-             * kcal xl hero, grams/macros sm muted. */}
+            {/* #505 — dish name; #517 replaces the read-only kcal hero with
+             * editable kcal/macros (meal-line override). Quantity still
+             * scales from the corrected per-100g rates. */}
             <p className="text-base font-medium text-muted-foreground">
               {textFor(activeItem)}
             </p>
-            {activeScaled && (
-              <p className="flex items-baseline gap-1.5 text-sm text-muted-foreground">
-                <span className="text-xl font-semibold tabular-nums">
-                  {formatNumber(activeScaled.amountKcal, locale, 0)}{' '}
-                  {t.dailyEntry.kcalUnit}
-                </span>
-                {activeScaled.amountG !== undefined && (
-                  <span>· {formatMacroGrams(activeScaled.amountG, locale, t)}</span>
-                )}
-              </p>
-            )}
             {activeItem.source === 'food' &&
               activeItem.food.servings &&
               activeItem.food.servings.length > 0 && (
@@ -981,6 +1154,81 @@ export function AddMealDialog({
                 />
               </div>
             )}
+            <div className="grid grid-cols-2 gap-3">
+              <div className="flex flex-col gap-1.5">
+                <span className="text-sm text-muted-foreground">
+                  {t.dailyEntry.addCaloriesPortionLabel}
+                </span>
+                <Input
+                  type="text"
+                  inputMode="decimal"
+                  aria-label={t.dailyEntry.addCaloriesPortionLabel}
+                  value={confirmKcal}
+                  onChange={(e) =>
+                    updateConfirmAbsolute('kcal', e.target.value)
+                  }
+                  className="h-12 text-base font-semibold tabular-nums"
+                />
+              </div>
+              <div className="flex flex-col gap-1.5">
+                <span className="text-sm text-muted-foreground">
+                  {t.dailyEntry.proteinLabel}
+                </span>
+                <Input
+                  type="text"
+                  inputMode="decimal"
+                  aria-label={t.dailyEntry.proteinLabel}
+                  value={confirmProtein}
+                  onChange={(e) =>
+                    updateConfirmAbsolute('protein', e.target.value)
+                  }
+                  className="h-12 text-base tabular-nums"
+                />
+              </div>
+              <div className="flex flex-col gap-1.5">
+                <span className="text-sm text-muted-foreground">
+                  {t.dailyEntry.fatLabel}
+                </span>
+                <Input
+                  type="text"
+                  inputMode="decimal"
+                  aria-label={t.dailyEntry.fatLabel}
+                  value={confirmFat}
+                  onChange={(e) => updateConfirmAbsolute('fat', e.target.value)}
+                  className="h-12 text-base tabular-nums"
+                />
+              </div>
+              <div className="flex flex-col gap-1.5">
+                <span className="text-sm text-muted-foreground">
+                  {t.dailyEntry.carbsLabel}
+                </span>
+                <Input
+                  type="text"
+                  inputMode="decimal"
+                  aria-label={t.dailyEntry.carbsLabel}
+                  value={confirmCarbs}
+                  onChange={(e) =>
+                    updateConfirmAbsolute('carbs', e.target.value)
+                  }
+                  className="h-12 text-base tabular-nums"
+                />
+              </div>
+              <div className="flex flex-col gap-1.5">
+                <span className="text-sm text-muted-foreground">
+                  {t.dailyEntry.fiberLabel}
+                </span>
+                <Input
+                  type="text"
+                  inputMode="decimal"
+                  aria-label={t.dailyEntry.fiberLabel}
+                  value={confirmFiber}
+                  onChange={(e) =>
+                    updateConfirmAbsolute('fiber', e.target.value)
+                  }
+                  className="h-12 text-base tabular-nums"
+                />
+              </div>
+            </div>
             <div className="flex flex-col gap-1.5">
               <span className="text-sm text-muted-foreground">
                 {t.dailyEntry.itemEmotionLabel}
@@ -1015,7 +1263,11 @@ export function AddMealDialog({
               <Button
                 type="button"
                 className="flex-1"
-                disabled={!hasValidQuantity(activeItem)}
+                disabled={
+                  !hasValidQuantity(activeItem) ||
+                  parseNumberInput(confirmKcal) === undefined ||
+                  (parseNumberInput(confirmKcal) ?? 0) <= 0
+                }
                 onClick={confirmActiveItem}
               >
                 {t.dailyEntry.addItemButton}
@@ -1079,8 +1331,7 @@ export function AddMealDialog({
                   isFavorite={isFavorite}
                   onToggleFavorite={handleToggleFavorite}
                   onPick={(item) => {
-                    setActiveItem(item)
-                    setQuantity(defaultQuantityFor(item))
+                    selectActiveItem(item)
                   }}
                   t={t}
                   locale={locale}
@@ -1150,8 +1401,7 @@ export function AddMealDialog({
                         isFavorite={isFavorite}
                         onToggleFavorite={handleToggleFavorite}
                         onPick={(item) => {
-                          setActiveItem(item)
-                          setQuantity(defaultQuantityFor(item))
+                          selectActiveItem(item)
                         }}
                         t={t}
                         locale={locale}

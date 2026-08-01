@@ -226,6 +226,50 @@ describe('AddMealDialog (#454)', () => {
     expect(screen.getByText('Salmon')).toBeInTheDocument()
   })
 
+  it('lets the user edit kcal/macros on the confirm step before adding (#517)', async () => {
+    const user = userEvent.setup()
+    const onAppendItems = vi.fn()
+    render(
+      <AddMealDialog
+        {...defaultProps}
+        items={[]}
+        reaction={undefined}
+        onReactionChange={vi.fn()}
+        onAppendItems={onAppendItems}
+        onRemoveItem={vi.fn()}
+      />,
+    )
+
+    await user.type(screen.getByLabelText('Search foods'), 'Salmon')
+    await user.click(await screen.findByText('Salmon'))
+
+    const kcal = screen.getByLabelText('kcal')
+    const protein = screen.getByLabelText('Protein')
+    await user.clear(kcal)
+    await user.type(kcal, '250')
+    await user.clear(protein)
+    await user.type(protein, '30')
+
+    // Changing quantity rescale from the corrected per-100g rates
+    // (250 kcal / 100g → 500 at 200g; 30g protein → 60).
+    const quantity = screen.getByLabelText('Quantity (g)')
+    await user.clear(quantity)
+    await user.type(quantity, '200')
+
+    expect(kcal).toHaveValue('500')
+    expect(protein).toHaveValue('60')
+
+    await user.click(screen.getByRole('button', { name: '+ Add item' }))
+
+    expect(onAppendItems).toHaveBeenCalledTimes(1)
+    expect(onAppendItems.mock.calls[0][0][0]).toMatchObject({
+      name: 'Salmon',
+      amountKcal: 500,
+      proteinG: 60,
+      amountG: 200,
+    })
+  })
+
   it('stays open across multiple adds, accumulating the meal live (persistent multi-add)', async () => {
     const user = userEvent.setup()
     render(<ControlledAddMealDialog {...defaultProps} />)
