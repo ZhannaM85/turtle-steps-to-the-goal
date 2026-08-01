@@ -38,107 +38,49 @@ export function DailyEntryFormTop() {
   const [waterCollapsed, setWaterCollapsed] = useState(false)
 
   return (
-    <>
-      <div className="flex flex-col gap-1.5">
-        {/* #218: a quiet inline note, not a blocking confirm — a day's
-         * total crossing this threshold can't map to a single "save"
-         * action to intercept the way the weight warning does, since it's
-         * a running sum across however many meals get added throughout
-         * the day. Disappears again on its own once an item is edited or
-         * removed and the total drops back under the threshold. */}
-        {isUnusualDailyCalories(state.dayTotalCalories) && (
-          <p className="text-sm text-destructive">
-            {t.dailyEntry.unusualDailyCaloriesWarning}
-          </p>
-        )}
+    // #510 — same `gap-6` as TodayScreen's form-area / page column so
+    // macros / meals / water shells aren't flush (`gap-1.5`) while peers
+    // elsewhere use the larger rhythm. History's combined form uses the
+    // same token via DailyEntryForm.
+    <div className="flex flex-col gap-6">
+      {/* #218: a quiet inline note, not a blocking confirm — a day's
+       * total crossing this threshold can't map to a single "save"
+       * action to intercept the way the weight warning does, since it's
+       * a running sum across however many meals get added throughout
+       * the day. Disappears again on its own once an item is edited or
+       * removed and the total drops back under the threshold. */}
+      {isUnusualDailyCalories(state.dayTotalCalories) && (
+        <p className="text-sm text-destructive">
+          {t.dailyEntry.unusualDailyCaloriesWarning}
+        </p>
+      )}
 
-        {/* Own field (#152) — was a text-xs caption line tucked under the
-         * Calories card; promoted to the same labeled-field treatment as
-         * Calories/Weight/Sleep use. #467: rebuilt on `StatCard` (the same
-         * big-number + description shape the Stats section's own cards
-         * use, kcal as the value, protein/fat/carbs as the description)
-         * instead of a plain `Card`, wrapped in the same bordered
-         * `Collapsible` accordion TodayScreen's Stats section uses —
-         * reported live as looking visually inconsistent with those
-         * cards otherwise. */}
-        {(state.dayMacrosSummary || state.dayRemainingMacrosSummary) && (
-          <div className="rounded-lg border border-border p-3">
-            <Collapsible
-              open={!macrosCollapsed}
-              onOpenChange={(open) => setMacrosCollapsed(!open)}
-            >
-              <CollapsibleTrigger asChild>
-                <button
-                  type="button"
-                  aria-label={
-                    macrosCollapsed
-                      ? t.dailyEntry.expandMacrosLabel
-                      : t.dailyEntry.collapseMacrosLabel
-                  }
-                  className="group flex w-full items-center justify-between text-sm font-medium text-muted-foreground hover:text-foreground"
-                >
-                  {t.dailyEntry.macrosLabel}
-                  <ChevronDown
-                    aria-hidden="true"
-                    className="size-4 transition-transform group-data-[state=open]:rotate-180"
-                  />
-                </button>
-              </CollapsibleTrigger>
-              <CollapsibleContent>
-                <div className="flex flex-col gap-6 pt-3">
-                  {state.dayMacrosSummary && (
-                    <StatCard
-                      label={t.dailyEntry.consumedMacrosLabel}
-                      value={formatNumber(state.dayTotalCalories, locale, 0)}
-                      unit={t.dailyEntry.kcalUnit}
-                      description={state.dayMacrosDescription ?? undefined}
-                    />
-                  )}
-                  {state.dayRemainingMacrosSummary && (
-                    <StatCard
-                      label={t.dailyEntry.remainingMacrosLabel}
-                      value={
-                        state.remainingKcal !== undefined
-                          ? formatNumber(state.remainingKcal, locale, 0)
-                          : '—'
-                      }
-                      unit={t.dailyEntry.kcalUnit}
-                      description={
-                        state.dayRemainingMacrosDescription ?? undefined
-                      }
-                    />
-                  )}
-                </div>
-              </CollapsibleContent>
-            </Collapsible>
-          </div>
-        )}
-
-        {/* Meal editing extracted to its own component (#145) — reused
-         * as-is by DayDetail.tsx too, so History's read-only expand-row can
-         * edit/add/delete meals without needing this whole form. #468:
-         * wrapped in the same bordered `Collapsible` accordion the macros
-         * cards above and TodayScreen's own Stats section use — reported
-         * live as looking visually inconsistent with those otherwise (and
-         * paired with removing the meal cards' own broken drag-to-reorder
-         * handles, tracked separately as a future on-demand-mode
-         * replacement in #471). */}
+      {/* Own field (#152) — was a text-xs caption line tucked under the
+       * Calories card; promoted to the same labeled-field treatment as
+       * Calories/Weight/Sleep use. #467: rebuilt on `StatCard` (the same
+       * big-number + description shape the Stats section's own cards
+       * use, kcal as the value, protein/fat/carbs as the description)
+       * instead of a plain `Card`, wrapped in the same bordered
+       * `Collapsible` accordion TodayScreen's Stats section uses —
+       * reported live as looking visually inconsistent with those
+       * cards otherwise. */}
+      {(state.dayMacrosSummary || state.dayRemainingMacrosSummary) && (
         <div className="rounded-lg border border-border p-3">
           <Collapsible
-            open={!mealsCollapsed}
-            onOpenChange={(open) => setMealsCollapsed(!open)}
+            open={!macrosCollapsed}
+            onOpenChange={(open) => setMacrosCollapsed(!open)}
           >
             <CollapsibleTrigger asChild>
               <button
                 type="button"
                 aria-label={
-                  mealsCollapsed
-                    ? t.dailyEntry.expandMealsLabel
-                    : t.dailyEntry.collapseMealsLabel
+                  macrosCollapsed
+                    ? t.dailyEntry.expandMacrosLabel
+                    : t.dailyEntry.collapseMacrosLabel
                 }
                 className="group flex w-full items-center justify-between text-sm font-medium text-muted-foreground hover:text-foreground"
               >
-                {t.dailyEntry.mealsLabel}
+                {t.dailyEntry.macrosLabel}
                 <ChevronDown
                   aria-hidden="true"
                   className="size-4 transition-transform group-data-[state=open]:rotate-180"
@@ -146,22 +88,82 @@ export function DailyEntryFormTop() {
               </button>
             </CollapsibleTrigger>
             <CollapsibleContent>
-              <div className="pt-3">
-                <MealList
-                  calorieEntries={state.calorieEntries}
-                  date={state.date}
-                  onChange={(next) => {
-                    state.setValue('calorieEntries', next, {
-                      shouldDirty: true,
-                    })
-                    state.persist({ ...state.getValues(), calorieEntries: next })
-                  }}
-                  dailyCalorieTargetKcal={state.dailyCalorieTargetKcal}
-                />
+              <div className="flex flex-col gap-6 pt-3">
+                {state.dayMacrosSummary && (
+                  <StatCard
+                    label={t.dailyEntry.consumedMacrosLabel}
+                    value={formatNumber(state.dayTotalCalories, locale, 0)}
+                    unit={t.dailyEntry.kcalUnit}
+                    description={state.dayMacrosDescription ?? undefined}
+                  />
+                )}
+                {state.dayRemainingMacrosSummary && (
+                  <StatCard
+                    label={t.dailyEntry.remainingMacrosLabel}
+                    value={
+                      state.remainingKcal !== undefined
+                        ? formatNumber(state.remainingKcal, locale, 0)
+                        : '—'
+                    }
+                    unit={t.dailyEntry.kcalUnit}
+                    description={
+                      state.dayRemainingMacrosDescription ?? undefined
+                    }
+                  />
+                )}
               </div>
             </CollapsibleContent>
           </Collapsible>
         </div>
+      )}
+
+      {/* Meal editing extracted to its own component (#145) — reused
+       * as-is by DayDetail.tsx too, so History's read-only expand-row can
+       * edit/add/delete meals without needing this whole form. #468:
+       * wrapped in the same bordered `Collapsible` accordion the macros
+       * cards above and TodayScreen's own Stats section use — reported
+       * live as looking visually inconsistent with those otherwise (and
+       * paired with removing the meal cards' own broken drag-to-reorder
+       * handles, tracked separately as a future on-demand-mode
+       * replacement in #471). */}
+      <div className="rounded-lg border border-border p-3">
+        <Collapsible
+          open={!mealsCollapsed}
+          onOpenChange={(open) => setMealsCollapsed(!open)}
+        >
+          <CollapsibleTrigger asChild>
+            <button
+              type="button"
+              aria-label={
+                mealsCollapsed
+                  ? t.dailyEntry.expandMealsLabel
+                  : t.dailyEntry.collapseMealsLabel
+              }
+              className="group flex w-full items-center justify-between text-sm font-medium text-muted-foreground hover:text-foreground"
+            >
+              {t.dailyEntry.mealsLabel}
+              <ChevronDown
+                aria-hidden="true"
+                className="size-4 transition-transform group-data-[state=open]:rotate-180"
+              />
+            </button>
+          </CollapsibleTrigger>
+          <CollapsibleContent>
+            <div className="pt-3">
+              <MealList
+                calorieEntries={state.calorieEntries}
+                date={state.date}
+                onChange={(next) => {
+                  state.setValue('calorieEntries', next, {
+                    shouldDirty: true,
+                  })
+                  state.persist({ ...state.getValues(), calorieEntries: next })
+                }}
+                dailyCalorieTargetKcal={state.dailyCalorieTargetKcal}
+              />
+            </div>
+          </CollapsibleContent>
+        </Collapsible>
       </div>
 
       {/* #258 — opt-in water tracking, gated by its own Settings toggle.
@@ -264,6 +266,6 @@ export function DailyEntryFormTop() {
           </Collapsible>
         </div>
       )}
-    </>
+    </div>
   )
 }

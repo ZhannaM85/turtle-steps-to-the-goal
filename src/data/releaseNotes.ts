@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 460,
+    issue: 510,
+    date: '2026-08-01T20:20:37+03:00',
+    en: 'On the Day screen, every section card now has the same spacing between them when collapsed — matching the gap under the weekly goal card.',
+    ru: 'На экране дня между всеми свёрнутыми секциями теперь одинаковый отступ — такой же, как под карточкой недельной цели.',
+  },
+  {
     version: 459,
     issue: 508,
     date: '2026-08-01T20:14:00+03:00',

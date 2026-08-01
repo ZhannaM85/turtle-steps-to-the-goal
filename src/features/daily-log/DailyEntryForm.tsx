@@ -26,7 +26,9 @@ export type { DailyEntryFormProps } from './useDailyEntryFormState'
 export function DailyEntryForm(props: DailyEntryFormProps) {
   return (
     <DailyEntryFormStateProvider {...props}>
-      <form onSubmit={(e) => e.preventDefault()} className="flex flex-col gap-4">
+      {/* #510 — match Today's form-area `gap-6` so History's combined
+       * Morning / Top / Bottom shells share the same rhythm. */}
+      <form onSubmit={(e) => e.preventDefault()} className="flex flex-col gap-6">
         <DailyEntryFormMorning />
         <DailyEntryFormTop />
         <DailyEntryFormBottom />

@@ -1010,7 +1010,10 @@ export function TodayScreen() {
           {t.common.loading}
         </p>
       ) : (
-      <div ref={formAreaRef}>
+      <div ref={formAreaRef} className="flex flex-col gap-6">
+      {/* #510 — same vertical rhythm as the page column (`gap-6` above
+       * between Goal and this block). Without it, Morning / Stats /
+       * macros / meals / water / custom metrics / Evening sat flush. */}
       <DailyEntryFormStateProvider
         key={date}
         date={date}
