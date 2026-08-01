@@ -5,7 +5,7 @@ import userEvent from '@testing-library/user-event'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { CalorieItem, Emotion } from '@/domain/dailyEntry'
 import { db } from '@/infrastructure/persistence/indexeddb'
-import { useFoodOverrideStore, useMealItemStore, useRecipeStore } from '@/stores'
+import { useFoodOverrideStore, useMealItemStore, useRecipeStore, useAddMealRecentVisibilityStore } from '@/stores'
 import { AddMealDialog, type AddMealDialogProps } from './AddMealDialog'
 
 // Matches FoodPickerDialog.test.tsx's own reasoning — every test here
@@ -37,6 +37,8 @@ beforeEach(async () => {
   useMealItemStore.setState({ items: [], status: 'idle', error: null })
   useRecipeStore.setState({ recipes: [], status: 'idle', error: null })
   useFoodOverrideStore.setState({ overrides: [], status: 'idle', error: null })
+  useAddMealRecentVisibilityStore.setState({ recentVisible: true })
+  localStorage.removeItem('turtle-steps-add-meal-recent-visibility')
 })
 
 afterEach(async () => {
@@ -239,6 +241,36 @@ describe('AddMealDialog (#454)', () => {
       render(<ControlledAddMealDialog {...defaultProps} />)
 
       expect(screen.queryByText('Recent')).not.toBeInTheDocument()
+    })
+  })
+
+  describe('Recent eye toggle (#507)', () => {
+    it('hides the Recent list while keeping the heading so it can be shown again', async () => {
+      const user = userEvent.setup()
+      await useMealItemStore.getState().touch('Homemade soup', { amountKcal: 320 })
+      render(<ControlledAddMealDialog {...defaultProps} />)
+
+      expect(await screen.findByText('Homemade soup')).toBeInTheDocument()
+
+      await user.click(screen.getByRole('button', { name: 'Hide Recent' }))
+
+      expect(screen.getByText('Recent')).toBeInTheDocument()
+      expect(screen.queryByText('Homemade soup')).not.toBeInTheDocument()
+      expect(screen.getByRole('button', { name: 'Show Recent' })).toBeInTheDocument()
+    })
+
+    it('shows the Recent list again after tapping Show', async () => {
+      const user = userEvent.setup()
+      await useMealItemStore.getState().touch('Homemade soup', { amountKcal: 320 })
+      useAddMealRecentVisibilityStore.setState({ recentVisible: false })
+      render(<ControlledAddMealDialog {...defaultProps} />)
+
+      expect(screen.getByText('Recent')).toBeInTheDocument()
+      expect(screen.queryByText('Homemade soup')).not.toBeInTheDocument()
+
+      await user.click(screen.getByRole('button', { name: 'Show Recent' }))
+
+      expect(await screen.findByText('Homemade soup')).toBeInTheDocument()
     })
   })
 

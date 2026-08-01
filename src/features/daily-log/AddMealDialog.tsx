@@ -36,11 +36,13 @@ import {
   useFoodOverrideStore,
   useMealItemStore,
   useRecipeStore,
+  useAddMealRecentVisibilityStore,
 } from '@/stores'
 import { IndexedDbMealItemRepository } from '@/infrastructure/persistence/indexeddb'
 import { Button } from '@/shared/ui/button'
 import { Dialog, DialogContent, DialogTitle } from '@/shared/ui/dialog'
 import { Input } from '@/shared/ui/input'
+import { SectionTitleWithToggle } from '@/shared/ui/section-title-with-toggle'
 import { LogRecipeDialog } from '@/features/recipes'
 import { BarcodeScannerDialog } from './BarcodeScannerDialog'
 import { EmotionPicker } from './EmotionPicker'
@@ -209,6 +211,13 @@ export function AddMealDialog({
   const loadFoodOverrides = useFoodOverrideStore((state) => state.loadOverrides)
   const setFoodFavorite = useFoodOverrideStore((state) => state.setFavorite)
   const toggleMealItemFavorite = useMealItemStore((state) => state.toggleFavorite)
+  // #507 — persisted eye toggle for the Recent list (same idea as #245).
+  const recentVisible = useAddMealRecentVisibilityStore(
+    (state) => state.recentVisible,
+  )
+  const toggleRecentVisible = useAddMealRecentVisibilityStore(
+    (state) => state.toggleRecentVisible,
+  )
   // This dialog is only mounted while open (lazy-mounted, same pattern
   // FoodPickerDialog/BarcodeScannerDialog already use), so both stores get
   // loaded fresh each time it opens — cheap, and simpler than threading a
@@ -1041,35 +1050,51 @@ export function AddMealDialog({
                 </div>
                 {recentItems.length > 0 && (
                   <div className="flex flex-col gap-3">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium text-muted-foreground">
-                        {t.dailyEntry.recentFoodsLabel}
-                      </span>
-                      {allMealItems.length > RECENT_COUNT && (
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => setShowAllRecent((current) => !current)}
-                        >
-                          {showAllRecent
-                            ? t.dailyEntry.collapseRecentLabel
-                            : t.dailyEntry.showAllRecentLabel}
-                        </Button>
+                    {/* #507 — eye toggle hides the whole Recent list; title
+                     * + eye stay so it can be shown again (#238 lesson,
+                     * same as SectionTitleWithToggle elsewhere). */}
+                    <SectionTitleWithToggle
+                      title={t.dailyEntry.recentFoodsLabel}
+                      visible={recentVisible}
+                      onToggle={toggleRecentVisible}
+                      hideLabel={t.common.hideSectionLabel(
+                        t.dailyEntry.recentFoodsLabel,
                       )}
-                    </div>
-                    <PickableItemList
-                      items={recentItems}
-                      textFor={textFor}
-                      isFavorite={isFavorite}
-                      onToggleFavorite={handleToggleFavorite}
-                      onPick={(item) => {
-                        setActiveItem(item)
-                        setQuantity(defaultQuantityFor(item))
-                      }}
-                      t={t}
-                      locale={locale}
+                      showLabel={t.common.showSectionLabel(
+                        t.dailyEntry.recentFoodsLabel,
+                      )}
+                      extraAction={
+                        recentVisible &&
+                        allMealItems.length > RECENT_COUNT ? (
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={() =>
+                              setShowAllRecent((current) => !current)
+                            }
+                          >
+                            {showAllRecent
+                              ? t.dailyEntry.collapseRecentLabel
+                              : t.dailyEntry.showAllRecentLabel}
+                          </Button>
+                        ) : undefined
+                      }
                     />
+                    {recentVisible && (
+                      <PickableItemList
+                        items={recentItems}
+                        textFor={textFor}
+                        isFavorite={isFavorite}
+                        onToggleFavorite={handleToggleFavorite}
+                        onPick={(item) => {
+                          setActiveItem(item)
+                          setQuantity(defaultQuantityFor(item))
+                        }}
+                        t={t}
+                        locale={locale}
+                      />
+                    )}
                   </div>
                 )}
                 {items.length === 0 && mealNoteField}
