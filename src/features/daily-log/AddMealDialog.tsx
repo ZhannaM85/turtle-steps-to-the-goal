@@ -687,6 +687,23 @@ export function AddMealDialog({
         )
       : null
 
+  // #480 — rendered in two mutually exclusive spots: with the reaction
+  // block above Done once the meal has an item, and on its own for an
+  // empty meal. Typing the note *before* adding any food is a supported
+  // flow (#129) — MealList keeps a new meal's note in its own state until
+  // the first item creates the CalorieEntry — so gating it on items alone
+  // would drop the field for exactly that case.
+  const mealNoteField = (
+    <Input
+      type="text"
+      aria-label={t.dailyEntry.mealNoteLabel}
+      placeholder={t.dailyEntry.mealNotePlaceholder(mealLabel)}
+      value={note}
+      onChange={(e) => onNoteChange(e.target.value)}
+      className="h-10 text-sm"
+    />
+  )
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
@@ -993,6 +1010,7 @@ export function AddMealDialog({
                     />
                   </div>
                 )}
+                {items.length === 0 && mealNoteField}
               </>
             )}
 
@@ -1069,14 +1087,7 @@ export function AddMealDialog({
                     layout="spread"
                     contextLabel={mealLabel}
                   />
-                  <Input
-                    type="text"
-                    aria-label={t.dailyEntry.mealNoteLabel}
-                    placeholder={t.dailyEntry.mealNotePlaceholder(mealLabel)}
-                    value={note}
-                    onChange={(e) => onNoteChange(e.target.value)}
-                    className="h-10 text-sm"
-                  />
+                  {mealNoteField}
                 </div>
                 {/* Sticky footer (reported live — the button was scrolled
                  * out of view under a long enough item/Recent list). The
