@@ -115,6 +115,12 @@ export interface AddMealDialogProps {
   isConfirmingDiscard?: boolean
   onConfirmDiscard?: () => void
   onCancelDiscard?: () => void
+  /** #509 — overrides #494's new-meal discard copy (edit-existing uses
+   * `confirmDiscardEditedMealLabel`). */
+  discardConfirmLabel?: string
+  /** #509 — edit overlay: keep Done reachable after the last composition
+   * row is removed so empty-meal commit can delete the saved meal. */
+  showDoneWhenEmpty?: boolean
   /** Position-derived default, or the previous meal's own custom label —
    * computed by `MealList.tsx` exactly as it already does for the heading
    * above the old add-row (`effectiveMealLabel`/`defaultMealLabel`). */
@@ -182,6 +188,8 @@ export function AddMealDialog({
   isConfirmingDiscard = false,
   onConfirmDiscard,
   onCancelDiscard,
+  discardConfirmLabel,
+  showDoneWhenEmpty = false,
   mealLabel,
   mealPosition,
   timeEaten,
@@ -257,6 +265,10 @@ export function AddMealDialog({
   const [editingItemId, setEditingItemId] = useState<string | null>(null)
   const [showAllRecent, setShowAllRecent] = useState(false)
   const [isConfirmingMealDelete, setIsConfirmingMealDelete] = useState(false)
+  // #509 — trash on a composition row asks first; not a hard delete.
+  const [confirmRemoveItemId, setConfirmRemoveItemId] = useState<string | null>(
+    null,
+  )
 
   function touchIfPersonal(item: CalorieItem) {
     if (item.name && !curatedFoodNames.has(item.name)) {
@@ -838,7 +850,8 @@ export function AddMealDialog({
         {isConfirmingDiscard && onConfirmDiscard && onCancelDiscard && (
           <div className="flex flex-col gap-2 rounded-xl bg-card p-3 ring-1 ring-foreground/10">
             <span className="text-sm text-muted-foreground">
-              {t.dailyEntry.confirmDiscardInProgressMealLabel}
+              {discardConfirmLabel ??
+                t.dailyEntry.confirmDiscardInProgressMealLabel}
             </span>
             <div className="flex items-center gap-2">
               <Button
@@ -856,6 +869,35 @@ export function AddMealDialog({
                 onClick={onCancelDiscard}
               >
                 {t.dailyEntry.confirmDiscardInProgressMealNo}
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {confirmRemoveItemId && (
+          <div className="flex flex-col gap-2 rounded-xl bg-card p-3 ring-1 ring-foreground/10">
+            <span className="text-sm text-muted-foreground">
+              {t.dailyEntry.confirmDeleteItemLabel}
+            </span>
+            <div className="flex items-center gap-2">
+              <Button
+                type="button"
+                variant="destructive"
+                size="sm"
+                onClick={() => {
+                  onRemoveItem(confirmRemoveItemId)
+                  setConfirmRemoveItemId(null)
+                }}
+              >
+                {t.dailyEntry.confirmDeleteItemYes}
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={() => setConfirmRemoveItemId(null)}
+              >
+                {t.dailyEntry.confirmDeleteItemNo}
               </Button>
             </div>
           </div>
@@ -1117,8 +1159,13 @@ export function AddMealDialog({
               </>
             )}
 
-            {items.length > 0 && (
+            {/* #509 — edit overlay keeps Done when composition is emptied
+             * so committing an empty draft can remove the saved meal;
+             * new-meal still hides Done until at least one food exists. */}
+            {(items.length > 0 || showDoneWhenEmpty) && (
               <div className="flex flex-col gap-3 border-t border-border pt-4">
+                {items.length > 0 && (
+                  <>
                 <span className="text-sm font-medium text-muted-foreground">
                   {t.dailyEntry.mealSoFarLabel}
                 </span>
@@ -1174,7 +1221,7 @@ export function AddMealDialog({
                             variant="ghost"
                             size="icon-sm"
                             aria-label={t.dailyEntry.deleteItemLabel}
-                            onClick={() => onRemoveItem(item.id)}
+                            onClick={() => setConfirmRemoveItemId(item.id)}
                           >
                             <Trash2 aria-hidden="true" />
                           </Button>
@@ -1222,6 +1269,13 @@ export function AddMealDialog({
                    * live — the button was invisible under it). */}
                   {deleteMealSection}
                 </div>
+                  </>
+                )}
+                {items.length === 0 && showDoneWhenEmpty && (
+                  <div className="flex flex-col gap-3 pb-20">
+                    {deleteMealSection}
+                  </div>
+                )}
                 {/* Sticky footer (reported live — the button was scrolled
                  * out of view under a long enough item/Recent list). The
                  * bleed-through bug traced to DialogContent's own bottom
@@ -1242,7 +1296,8 @@ export function AddMealDialog({
                     onClick={() => {
                       // #491 — Done confirms keep; X / escape only call
                       // onOpenChange(false), which MealList treats as discard
-                      // for an in-progress new meal.
+                      // for an in-progress new meal. #509 — edit Done
+                      // flushes the draft the same way.
                       onDone?.()
                       onOpenChange(false)
                     }}
@@ -1254,8 +1309,9 @@ export function AddMealDialog({
             )}
             {/* #508 — an emptied saved meal has no "meal so far" block and
              * therefore no sticky footer, so delete has to render here to
-             * stay reachable at all. */}
-            {items.length === 0 && deleteMealSection}
+             * stay reachable at all — only when #509's edit empty-Done
+             * path isn't already showing it above. */}
+            {items.length === 0 && !showDoneWhenEmpty && deleteMealSection}
           </div>
         )}
         </div>

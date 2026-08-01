@@ -252,6 +252,11 @@ export const ru: Dictionary = {
       'Выйти без сохранения? Добавленные здесь блюда будут удалены.',
     confirmDiscardInProgressMealYes: 'Удалить',
     confirmDiscardInProgressMealNo: 'Продолжить',
+    confirmDiscardEditedMealLabel:
+      'Выйти без сохранения? Изменения в этом приёме пищи будут отменены.',
+    confirmDeleteItemLabel: 'Убрать это блюдо?',
+    confirmDeleteItemYes: 'Убрать',
+    confirmDeleteItemNo: 'Отмена',
     fastingWindowToastMessage: (hours) =>
       `Ваше окно голодания составило ${hours}.`,
     foodSearchLabel: 'Поиск продуктов',

@@ -236,6 +236,11 @@ export const en: Dictionary = {
       'Leave without saving? Foods added here will be discarded.',
     confirmDiscardInProgressMealYes: 'Discard',
     confirmDiscardInProgressMealNo: 'Keep editing',
+    confirmDiscardEditedMealLabel:
+      'Leave without saving? Changes to this meal will be discarded.',
+    confirmDeleteItemLabel: 'Remove this food?',
+    confirmDeleteItemYes: 'Remove',
+    confirmDeleteItemNo: 'Cancel',
     fastingWindowToastMessage: (hours) => `Your fasting window was ${hours}.`,
     foodSearchLabel: 'Search foods',
     foodSearchPlaceholder: 'Search…',

@@ -359,7 +359,7 @@ describe('MealList', () => {
       ).not.toBeInTheDocument()
     })
 
-    it('updates an existing item via the overlay and persists through onChange', async () => {
+    it('updates an existing item via the overlay and persists on Done (#509)', async () => {
       const user = userEvent.setup()
       const onChange = vi.fn()
       const calorieEntries: CalorieEntry[] = [
@@ -393,6 +393,10 @@ describe('MealList', () => {
         within(itemSheet).getByRole('button', { name: 'Save' }),
       )
 
+      expect(onChange).not.toHaveBeenCalled()
+
+      await user.click(within(dialog).getByRole('button', { name: 'Done' }))
+
       expect(onChange).toHaveBeenCalled()
       const next = onChange.mock.calls.at(-1)?.[0] as CalorieEntry[]
       expect(next[0].items[0]).toMatchObject({
@@ -401,7 +405,7 @@ describe('MealList', () => {
       })
     })
 
-    it('removes the whole meal (and closes the overlay) when its last item is deleted', async () => {
+    it('asks before removing a food, and only deletes the meal from the day on Done (#509)', async () => {
       const user = userEvent.setup()
       render(
         <ControlledMealList
@@ -422,11 +426,65 @@ describe('MealList', () => {
       await user.click(
         within(dialog).getByRole('button', { name: 'Delete item' }),
       )
+      expect(within(dialog).getByText('Remove this food?')).toBeInTheDocument()
+      await user.click(within(dialog).getByRole('button', { name: 'Remove' }))
+
+      expect(
+        screen.getByRole('dialog', { name: 'Breakfast' }),
+      ).toBeInTheDocument()
+      expect(within(dialog).getByRole('button', { name: 'Done' })).toBeInTheDocument()
+
+      await user.click(within(dialog).getByRole('button', { name: 'Done' }))
 
       expect(
         screen.queryByRole('dialog', { name: 'Breakfast' }),
       ).not.toBeInTheDocument()
-      expect(screen.queryByText(/Breakfast/)).not.toBeInTheDocument()
+      expect(
+        screen.queryByRole('button', { name: 'Edit meal 1' }),
+      ).not.toBeInTheDocument()
+      expect(screen.queryByText('Oatmeal')).not.toBeInTheDocument()
+    })
+
+    it('discards edit-session deletes when Close is confirmed (#509)', async () => {
+      const user = userEvent.setup()
+      render(
+        <ControlledMealList
+          calorieEntries={[
+            {
+              id: 'c1',
+              items: [
+                { id: 'i1', name: 'Oatmeal', amountKcal: 300 },
+                { id: 'i2', name: 'Banana', amountKcal: 90 },
+              ],
+              createdAt: '2026-01-01T00:00:00.000Z',
+            },
+          ]}
+          date="2026-03-01"
+        />,
+        { wrapper: MemoryRouter },
+      )
+
+      await user.click(screen.getByRole('button', { name: 'Edit meal 1' }))
+      const dialog = screen.getByRole('dialog', { name: 'Breakfast' })
+      await user.click(
+        within(dialog).getAllByRole('button', { name: 'Delete item' })[0]!,
+      )
+      await user.click(within(dialog).getByRole('button', { name: 'Remove' }))
+      expect(within(dialog).queryByText('Oatmeal')).not.toBeInTheDocument()
+
+      await user.click(within(dialog).getByRole('button', { name: 'Close' }))
+      expect(
+        within(dialog).getByText(
+          'Leave without saving? Changes to this meal will be discarded.',
+        ),
+      ).toBeInTheDocument()
+      await user.click(within(dialog).getByRole('button', { name: 'Discard' }))
+
+      expect(
+        screen.queryByRole('dialog', { name: 'Breakfast' }),
+      ).not.toBeInTheDocument()
+      expect(screen.getByText('Oatmeal')).toBeInTheDocument()
+      expect(screen.getByText('Banana')).toBeInTheDocument()
     })
 
     it('deletes the whole meal from the overlay trash and closes', async () => {

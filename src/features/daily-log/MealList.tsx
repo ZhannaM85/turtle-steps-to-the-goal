@@ -453,11 +453,93 @@ export function MealList({
   // unreliable enough to leave the page genuinely blank. This dialog
   // opening/closing is now just local state; TodayScreen/History never
   // unmount for it at all.
+  // #509 — edits buffer in `editingMealDraft` until Done; Close discards
+  // (with confirm when dirty) so X no longer silently commits deletes.
   const [editingMealId, setEditingMealId] = useState<string | null>(null)
-  const editingMeal = calorieEntries.find((entry) => entry.id === editingMealId)
+  const [editingMealDraft, setEditingMealDraft] = useState<CalorieEntry | null>(
+    null,
+  )
+  const editingMealBaselineRef = useRef<CalorieEntry | null>(null)
+  const keepEditingChangesRef = useRef(false)
+  const [confirmDiscardEditMeal, setConfirmDiscardEditMeal] = useState(false)
+  const editingMeal = editingMealDraft
   const [confirmDeleteMealId, setConfirmDeleteMealId] = useState<string | null>(
     null,
   )
+
+  function cloneCalorieEntry(entry: CalorieEntry): CalorieEntry {
+    return {
+      ...entry,
+      items: entry.items.map((item) => ({ ...item })),
+    }
+  }
+
+  function clearEditingMealState() {
+    setEditingMealId(null)
+    setEditingMealDraft(null)
+    editingMealBaselineRef.current = null
+    keepEditingChangesRef.current = false
+    setConfirmDiscardEditMeal(false)
+  }
+
+  function openEditingMeal(entryId: string) {
+    const meal = calorieEntries.find((entry) => entry.id === entryId)
+    if (!meal) return
+    setEditingMealId(entryId)
+    setEditingMealDraft(cloneCalorieEntry(meal))
+    editingMealBaselineRef.current = cloneCalorieEntry(meal)
+    keepEditingChangesRef.current = false
+    setConfirmDiscardEditMeal(false)
+  }
+
+  function isEditingMealDirty(): boolean {
+    if (!editingMealDraft || !editingMealBaselineRef.current) return false
+    return (
+      JSON.stringify(editingMealDraft) !==
+      JSON.stringify(editingMealBaselineRef.current)
+    )
+  }
+
+  function commitEditingMealAndClose() {
+    if (!editingMealId || !editingMealDraft) {
+      clearEditingMealState()
+      return
+    }
+    const committed: CalorieEntry = {
+      ...editingMealDraft,
+      note: editingMealDraft.note?.trim() || undefined,
+      timeEaten: editingMealDraft.timeEaten || undefined,
+    }
+    if (committed.items.length === 0) {
+      setCalorieEntries(
+        calorieEntries.filter((entry) => entry.id !== editingMealId),
+      )
+    } else {
+      setCalorieEntries(
+        calorieEntries.map((entry) =>
+          entry.id === editingMealId ? committed : entry,
+        ),
+      )
+    }
+    clearEditingMealState()
+  }
+
+  function discardEditingMealAndClose() {
+    clearEditingMealState()
+  }
+
+  function closeEditingMealDialog(open: boolean) {
+    if (open) return
+    if (keepEditingChangesRef.current) {
+      commitEditingMealAndClose()
+      return
+    }
+    if (isEditingMealDirty()) {
+      setConfirmDiscardEditMeal(true)
+      return
+    }
+    discardEditingMealAndClose()
+  }
 
   // Reusable meal-name suggestions (#50) — loaded once per mount, a
   // library shared across days, not scoped to this entry. AddMealDialog
@@ -633,91 +715,59 @@ export function MealList({
     }
   }
 
-  // #461 — editing an already-saved meal via the shared AddMealDialog
-  // overlay, same shape as appendItemsToNewMeal/updateItemInNewMeal/
-  // removeItemFromNewMeal above for the in-progress *new* meal, just
-  // keyed on editingMealId (always an existing entry) instead of
-  // inProgressMealId (created on first item). AddMealDialog/
-  // MealItemEditorSheet already own all the per-100g/portion conversion
-  // and draft-staging logic internally — no need to duplicate any of
-  // that here the way the old #145 inline-edit machinery did.
+  // #461/#509 — editing an already-saved meal via the shared AddMealDialog
+  // overlay. Mutations update `editingMealDraft` only; Done flushes to
+  // `calorieEntries` (Close discards dirty drafts — see closeEditingMealDialog).
   function appendItemsToEditingMeal(newItems: CalorieItem[]) {
-    if (!editingMealId || newItems.length === 0) return
-    setCalorieEntries(
-      calorieEntries.map((entry) =>
-        entry.id === editingMealId
-          ? { ...entry, items: [...entry.items, ...newItems] }
-          : entry,
-      ),
-    )
+    if (!editingMealDraft || newItems.length === 0) return
+    setEditingMealDraft({
+      ...editingMealDraft,
+      items: [...editingMealDraft.items, ...newItems],
+    })
   }
 
   function updateItemInEditingMeal(updatedItem: CalorieItem) {
-    if (!editingMealId) return
-    setCalorieEntries(
-      calorieEntries.map((entry) =>
-        entry.id === editingMealId
-          ? {
-              ...entry,
-              items: entry.items.map((item) =>
-                item.id === updatedItem.id ? updatedItem : item,
-              ),
-            }
-          : entry,
+    if (!editingMealDraft) return
+    setEditingMealDraft({
+      ...editingMealDraft,
+      items: editingMealDraft.items.map((item) =>
+        item.id === updatedItem.id ? updatedItem : item,
       ),
-    )
+    })
   }
 
-  // Same "a group with its last item removed is itself removed"
-  // invariant as removeItemFromNewMeal above — closes the dialog too
-  // when that happens, since there'd be nothing left to edit.
+  // Draft-only remove — emptying the draft does not delete the day meal
+  // until Done (#509). Close restores the baseline.
   function removeItemFromEditingMeal(itemId: string) {
-    if (!editingMealId) return
-    const nextEntries = calorieEntries
-      .map((entry) =>
-        entry.id === editingMealId
-          ? { ...entry, items: entry.items.filter((item) => item.id !== itemId) }
-          : entry,
-      )
-      .filter((entry) => entry.id !== editingMealId || entry.items.length > 0)
-    setCalorieEntries(nextEntries)
-    if (!nextEntries.some((entry) => entry.id === editingMealId)) {
-      setEditingMealId(null)
-    }
+    if (!editingMealDraft) return
+    setEditingMealDraft({
+      ...editingMealDraft,
+      items: editingMealDraft.items.filter((item) => item.id !== itemId),
+    })
   }
 
   function setEditingMealReaction(reaction: Emotion | undefined) {
-    if (!editingMealId) return
-    setCalorieEntries(
-      calorieEntries.map((entry) =>
-        entry.id === editingMealId ? { ...entry, reaction } : entry,
-      ),
-    )
+    if (!editingMealDraft) return
+    setEditingMealDraft({ ...editingMealDraft, reaction })
   }
 
   function updateEditingMealTime(value: string) {
-    if (!editingMealId) return
-    setCalorieEntries(
-      calorieEntries.map((entry) =>
-        entry.id === editingMealId
-          ? { ...entry, timeEaten: value || undefined }
-          : entry,
-      ),
-    )
+    if (!editingMealDraft) return
+    setEditingMealDraft({
+      ...editingMealDraft,
+      timeEaten: value || undefined,
+    })
   }
 
   // Raw value (not trimmed) — the input's value is read straight back from
   // `editingMeal.note`, so trimming on every keystroke would swallow a
   // trailing space mid-typing. Empty string still clears the field.
   function updateEditingMealNote(value: string) {
-    if (!editingMealId) return
-    setCalorieEntries(
-      calorieEntries.map((entry) =>
-        entry.id === editingMealId
-          ? { ...entry, note: value || undefined }
-          : entry,
-      ),
-    )
+    if (!editingMealDraft) return
+    setEditingMealDraft({
+      ...editingMealDraft,
+      note: value || undefined,
+    })
   }
 
   function deleteEditingMeal() {
@@ -725,7 +775,7 @@ export function MealList({
     setCalorieEntries(
       calorieEntries.filter((entry) => entry.id !== editingMealId),
     )
-    setEditingMealId(null)
+    clearEditingMealState()
   }
 
   function confirmDeleteMeal() {
@@ -734,7 +784,7 @@ export function MealList({
     )
     setCalorieEntries(nextEntries)
     if (editingMealId === confirmDeleteMealId) {
-      setEditingMealId(null)
+      clearEditingMealState()
     }
     setConfirmDeleteMealId(null)
   }
@@ -766,7 +816,7 @@ export function MealList({
               // #461 — opens the shared AddMealDialog overlay for this
               // meal (state-controlled, see the render block below) —
               // no route navigation, so this screen never unmounts.
-              onStartEdit={() => setEditingMealId(entry.id)}
+              onStartEdit={() => openEditingMeal(entry.id)}
               onRequestDelete={() => setConfirmDeleteMealId(entry.id)}
               onConfirmDelete={confirmDeleteMeal}
               onCancelDelete={() => setConfirmDeleteMealId(null)}
@@ -775,12 +825,18 @@ export function MealList({
         </ul>
       )}
 
-      {editingMeal && (
+      {editingMeal && editingMealId && (
         <AddMealDialog
           open
-          onOpenChange={(next) => {
-            if (!next) setEditingMealId(null)
+          onOpenChange={closeEditingMealDialog}
+          onDone={() => {
+            keepEditingChangesRef.current = true
           }}
+          isConfirmingDiscard={confirmDiscardEditMeal}
+          onConfirmDiscard={discardEditingMealAndClose}
+          onCancelDiscard={() => setConfirmDiscardEditMeal(false)}
+          discardConfirmLabel={t.dailyEntry.confirmDiscardEditedMealLabel}
+          showDoneWhenEmpty
           mealLabel={effectiveMealLabel(
             t,
             calorieEntries.findIndex((entry) => entry.id === editingMealId) + 1,
@@ -801,10 +857,30 @@ export function MealList({
           onUpdateItem={updateItemInEditingMeal}
           onDeleteMeal={deleteEditingMeal}
           todayTotals={{
-            kcal: totalCalories(calorieEntries) ?? 0,
-            proteinG: totalProtein(calorieEntries) ?? 0,
-            fatG: totalFat(calorieEntries) ?? 0,
-            carbsG: totalCarbs(calorieEntries) ?? 0,
+            kcal:
+              totalCalories(
+                calorieEntries.map((entry) =>
+                  entry.id === editingMealId ? editingMeal : entry,
+                ),
+              ) ?? 0,
+            proteinG:
+              totalProtein(
+                calorieEntries.map((entry) =>
+                  entry.id === editingMealId ? editingMeal : entry,
+                ),
+              ) ?? 0,
+            fatG:
+              totalFat(
+                calorieEntries.map((entry) =>
+                  entry.id === editingMealId ? editingMeal : entry,
+                ),
+              ) ?? 0,
+            carbsG:
+              totalCarbs(
+                calorieEntries.map((entry) =>
+                  entry.id === editingMealId ? editingMeal : entry,
+                ),
+              ) ?? 0,
           }}
           dailyCalorieTargetKcal={dailyCalorieTargetKcal}
         />

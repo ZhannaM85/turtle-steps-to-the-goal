@@ -498,6 +498,13 @@ export interface Dictionary {
     confirmDiscardInProgressMealLabel: string
     confirmDiscardInProgressMealYes: string
     confirmDiscardInProgressMealNo: string
+    /** #509 — same shape as #494's discard confirm, for Close on an
+     * already-saved meal whose draft has uncommitted edits. */
+    confirmDiscardEditedMealLabel: string
+    /** #509 — confirm before trash removes a composition row (new or edit). */
+    confirmDeleteItemLabel: string
+    confirmDeleteItemYes: string
+    confirmDeleteItemNo: string
     /** #287 — a quiet, dismissible in-app note shown right after saving the
      * day's first meal with a recorded time, if the previous day also had
      * one — not a background/push notification (see #261, closed as

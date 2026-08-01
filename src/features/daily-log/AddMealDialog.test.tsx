@@ -278,7 +278,7 @@ describe('AddMealDialog (#454)', () => {
     expect(screen.queryByRole('button', { name: 'Done' })).not.toBeInTheDocument()
   })
 
-  it('removes an item from the meal so far', async () => {
+  it('asks before removing an item from the meal so far (#509)', async () => {
     const user = userEvent.setup()
     const onRemoveItem = vi.fn()
     render(
@@ -293,7 +293,10 @@ describe('AddMealDialog (#454)', () => {
     )
 
     await user.click(screen.getByRole('button', { name: 'Delete item' }))
+    expect(onRemoveItem).not.toHaveBeenCalled()
+    expect(screen.getByText('Remove this food?')).toBeInTheDocument()
 
+    await user.click(screen.getByRole('button', { name: 'Remove' }))
     expect(onRemoveItem).toHaveBeenCalledWith('i1')
   })
 

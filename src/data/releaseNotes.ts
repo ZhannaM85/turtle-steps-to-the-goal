@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 462,
+    issue: 509,
+    date: '2026-08-01T20:38:52+03:00',
+    en: 'When editing a meal, removing a food asks for confirmation first, and closing without Done discards unsaved changes instead of keeping them.',
+    ru: 'При редактировании приёма пищи удаление блюда сначала спрашивает подтверждение, а закрытие без «Готово» отменяет несохранённые изменения вместо того, чтобы их оставлять.',
+  },
+  {
     version: 461,
     issue: 511,
     date: '2026-08-01T20:28:58+03:00',
