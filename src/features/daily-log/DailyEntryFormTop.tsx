@@ -220,7 +220,9 @@ export function DailyEntryFormTop() {
                   </Button>
                 </div>
                 {state.waterEntries.length > 0 && (
-                  <div className="flex flex-wrap items-center gap-2">
+                  // #488 — three chips per row on phone (was ~2 with
+                  // flex-wrap); each chip fills its grid cell.
+                  <div className="grid grid-cols-3 gap-2">
                     {state.waterEntries.map((entry) => {
                       const amountText = `${formatNumber(entry.amountMl, locale, 0)}${t.dailyEntry.mlUnit}`
                       // No literal "bottle" icon exists in lucide-react —
@@ -232,7 +234,7 @@ export function DailyEntryFormTop() {
                       return (
                         <span
                           key={entry.id}
-                          className="flex items-center gap-1 rounded-full bg-muted py-1 pr-1 pl-2.5 text-sm"
+                          className="flex min-w-0 items-center justify-center gap-1 rounded-full bg-muted py-1 pr-1 pl-2 text-sm"
                         >
                           <Icon
                             aria-hidden="true"

@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 432,
+    issue: 488,
+    date: '2026-08-01T13:46:41+03:00',
+    en: 'Water amounts on Day now show three chips per row on phones.',
+    ru: 'Порции воды на экране «День» теперь по три в ряд на телефоне.',
+  },
+  {
     version: 431,
     issue: 486,
     date: '2026-08-01T13:43:57+03:00',
