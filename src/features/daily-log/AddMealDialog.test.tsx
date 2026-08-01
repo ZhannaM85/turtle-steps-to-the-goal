@@ -10,8 +10,8 @@ import { AddMealDialog, type AddMealDialogProps } from './AddMealDialog'
 
 // Matches FoodPickerDialog.test.tsx's own reasoning — every test here
 // renders the dialog open against the full 300+-item food list. Raised
-// from 25000 alongside the barcode-scan test's own findByText timeout
-// below, so that test still has headroom after its 20s wait.
+// from 25000 alongside the barcode-scan test's own 20s wait below, so
+// that test still has headroom under this timeout.
 vi.setConfig({ testTimeout: 30000 })
 
 const decodeFromVideoDevice = vi.fn()
@@ -406,31 +406,30 @@ describe('AddMealDialog (#454)', () => {
 
       await user.click(screen.getByRole('button', { name: 'Scan barcode' }))
 
-      // findByText's own default ~1000ms poll window (distinct from this
-      // file's own *test* timeout below) can be too short for the real
-      // async chain here — BarcodeScannerDialog's dynamic
-      // `@zxing/browser`/`@zxing/library` import, then the mocked decode
-      // callback, then lookupBarcode's own IndexedDB round-trip — a real,
-      // reproducible flake under load, not a one-off. Bumped once already
-      // (10000ms) and still timed out under a full-suite CI run's heavier
-      // load; raised further with headroom under the file's own timeout.
-      expect(
-        await screen.findByText('Protein Bar', {}, { timeout: 20000 }),
-      ).toBeInTheDocument()
+      // Waits on the quantity-confirm step itself, not on the dish name:
+      // "Protein Bar" is in the personal library too (touched above so
+      // lookupBarcode resolves it locally), so it can render as a Recent
+      // row while the lookup is still in flight. Waiting for the *name*
+      // could therefore resolve against that row, which the confirm step
+      // then unmounts — leaving a detached node and an "element could not
+      // be found in the document" failure a few hundred ms in, well
+      // before any timeout. "+ Add item" only exists in the confirm step,
+      // so it can't resolve early. The long timeout still matters: the
+      // chain here (BarcodeScannerDialog's dynamic
+      // `@zxing/browser`/`@zxing/library` import, the mocked decode
+      // callback, then lookupBarcode's IndexedDB round-trip) has needed
+      // it under a full-suite CI run's load.
+      const addItemButton = await screen.findByRole(
+        'button',
+        { name: '+ Add item' },
+        { timeout: 20000 },
+      )
+      expect(screen.getByText('Protein Bar')).toBeInTheDocument()
       expect(
         screen.queryByLabelText('Dish name'),
       ).not.toBeInTheDocument()
-      // Wait for the quantity-confirm step itself — under full-suite CI load
-      // the scanner dialog can still be open when Protein Bar first appears
-      // (e.g. in a parent layer), so clicking "+ Add item" immediately used
-      // to flake. findByRole polls until that step is actually mounted.
-      await user.click(
-        await screen.findByRole(
-          'button',
-          { name: '+ Add item' },
-          { timeout: 20000 },
-        ),
-      )
+
+      await user.click(addItemButton)
 
       expect(screen.getByText('This meal so far')).toBeInTheDocument()
       expect(screen.getAllByText('Protein Bar').length).toBeGreaterThan(0)
