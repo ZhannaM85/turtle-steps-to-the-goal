@@ -153,10 +153,10 @@ export function SettingsScreen() {
         }
       />
 
-      {/* #498 — About / Features / Export promoted to the top so trust,
-       * capabilities, and backup aren't buried under recipes/metrics.
-       * Export stays above the destructive clear/delete actions at the
-       * bottom (same #164 placement reasoning as before). */}
+      {/* #498 — About / Features promoted to the top so trust and
+       * capabilities aren't buried under recipes/metrics. #504 keeps
+       * Export in its prior lower placement (backup/storage with the
+       * destructive clear/delete group), not at the top with these cards. */}
       <Card>
         <CardHeader>
           <CardTitle>{t.settings.aboutLabel}</CardTitle>
@@ -183,10 +183,6 @@ export function SettingsScreen() {
             <Link to="/features">{t.settings.viewFeaturesButton}</Link>
           </Button>
         </CardContent>
-      </Card>
-
-      <Card>
-        <ExportSection />
       </Card>
 
       <Card>
@@ -533,6 +529,13 @@ export function SettingsScreen() {
             </Link>
           </Button>
         </CardContent>
+      </Card>
+
+      {/* #504 — Export stays above the destructive clear/delete actions
+       * (#164), after preference/list-management cards — not promoted
+       * with About/Features at the top (#498 side effect, reverted). */}
+      <Card>
+        <ExportSection />
       </Card>
 
       {/* #377 — a smaller-blast-radius destructive action than "clear

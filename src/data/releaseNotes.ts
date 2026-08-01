@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 454,
+    issue: 504,
+    date: '2026-08-01T18:05:00+03:00',
+    en: 'Export is back lower on Settings — About and Features stay near the top, but backup tools are no longer mixed in with them.',
+    ru: 'Экспорт снова ниже в Настройках — «О приложении» и «Возможности» остаются сверху, а инструменты резервного копирования больше не рядом с ними.',
+  },
+  {
     version: 453,
     issue: 500,
     date: '2026-08-01T17:55:00+03:00',

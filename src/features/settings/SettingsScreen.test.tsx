@@ -137,21 +137,27 @@ describe('SettingsScreen', () => {
     expect(versionLink).toHaveAttribute('href', '/about')
   })
 
-  it('promotes About, Features, and Export cards above preference toggles (#498)', () => {
+  it('promotes About and Features above preference toggles (#498); Export stays lower (#504)', () => {
     renderSettings()
 
     const aboutHeading = screen.getByRole('heading', { name: 'About' })
     const featuresHeading = screen.getByRole('heading', { name: 'Features' })
-    const exportHeading = screen.getByRole('heading', { name: 'Export' })
     const unitsHeading = screen.getByRole('heading', { name: 'Units' })
+    const exportHeading = screen.getByRole('heading', { name: 'Export' })
+    const deleteRangeHeading = screen.getByRole('heading', {
+      name: 'Delete a date range',
+    })
 
     expect(aboutHeading.compareDocumentPosition(featuresHeading)).toBe(
       Node.DOCUMENT_POSITION_FOLLOWING,
     )
-    expect(featuresHeading.compareDocumentPosition(exportHeading)).toBe(
+    expect(featuresHeading.compareDocumentPosition(unitsHeading)).toBe(
       Node.DOCUMENT_POSITION_FOLLOWING,
     )
-    expect(exportHeading.compareDocumentPosition(unitsHeading)).toBe(
+    expect(unitsHeading.compareDocumentPosition(exportHeading)).toBe(
+      Node.DOCUMENT_POSITION_FOLLOWING,
+    )
+    expect(exportHeading.compareDocumentPosition(deleteRangeHeading)).toBe(
       Node.DOCUMENT_POSITION_FOLLOWING,
     )
 
@@ -218,7 +224,7 @@ describe('SettingsScreen', () => {
 
     const pondRadio = screen.getByRole('radio', { name: /Pond/ })
     // Direct focus — tab-counting from the page top is brittle now that
-    // #498 puts About/Features/Export (many controls) above Units.
+    // #498 puts About/Features above Units.
     pondRadio.focus()
     expect(document.activeElement).toBe(pondRadio)
   })
