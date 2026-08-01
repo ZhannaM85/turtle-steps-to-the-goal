@@ -474,7 +474,7 @@ export const en: Dictionary = {
       'Import meal and weight history from a MyFitnessPal data export.',
     howToExportLabel: 'How do I get this file?',
     howToExportSteps:
-      "Request a Data Access Request export from MyFitnessPal (myfitnesspal.com → Settings → Privacy Center → Manage My Data — this option requires a Premium subscription). If it's not available on your account, you can instead email MyFitnessPal support directly and ask them for your data. It arrives by email as an .xlsx file — this can take a few days to be ready.",
+      'Request a Data Access Request export from MyFitnessPal (myfitnesspal.com → Settings → Privacy Center → Manage My Data — this option requires a Premium subscription). If it\'s not available on your account, you can instead email MyFitnessPal support directly and ask them for your data. It arrives by email as an .xlsx file, often password-protected — the password is in the same email. This can take a few days to be ready.',
     importButton: 'Import from MyFitnessPal',
     importingButton: 'Importing…',
     importedSummary: (days, updated) =>
@@ -483,6 +483,14 @@ export const en: Dictionary = {
       "This export didn't have any meal or weight data to import.",
     invalidFile: "This doesn't look like a MyFitnessPal export file.",
     importFailed: 'Import failed.',
+    closeDialogLabel: 'Close',
+    passwordDialogTitle: 'Enter the export password',
+    passwordDialogDescription:
+      'This is the password from the export email MyFitnessPal sent you — not your MyFitnessPal account login password.',
+    passwordLabel: 'Password',
+    passwordSubmitButton: 'Unlock and import',
+    wrongPassword:
+      "That password didn't work — check the export email and try again.",
   },
   exportXlsx: {
     dailyLogSheetName: 'Daily Log',

@@ -16,6 +16,10 @@ import {
 const dailyEntryRepository = new IndexedDbDailyEntryRepository()
 
 export class MyFitnessPalInvalidFileError extends Error {}
+export class MyFitnessPalWrongPasswordError extends Error {}
+/** Encrypted export picked without a password yet — UI should open the
+ * password dialog rather than showing a fatal "invalid file" error. */
+export class MyFitnessPalPasswordRequiredError extends Error {}
 
 export interface MyFitnessPalImportSummary {
   daysImported: number
@@ -32,16 +36,63 @@ const HEADER_ROW_NUMBER = 2
 const FIRST_DATA_ROW_NUMBER = 3
 const REQUIRED_COLUMNS = ['item_type', 'date'] as const
 
+/** OLE Compound Document magic (`D0 CF 11 E0…`) — MS-OFFCRYPTO-encrypted
+ * Office files use this wrapper instead of the plain ZIP (`PK`) that an
+ * unencrypted `.xlsx` starts with (#500). */
+const OLE_MAGIC = [0xd0, 0xcf, 0x11, 0xe0] as const
+
+/**
+ * True when the bytes look like an OLE compound document (password-
+ * protected MyFitnessPal Data Access Request exports), as opposed to a
+ * plain ZIP-based `.xlsx`. Used by the Settings UI to decide whether to
+ * open the password dialog before calling {@link importMyFitnessPalExport}.
+ */
+export function isMyFitnessPalEncrypted(buffer: ArrayBuffer): boolean {
+  if (buffer.byteLength < OLE_MAGIC.length) return false
+  const bytes = new Uint8Array(buffer)
+  return OLE_MAGIC.every((b, i) => bytes[i] === b)
+}
+
+async function decryptMyFitnessPalWorkbook(
+  buffer: ArrayBuffer,
+  password: string,
+): Promise<ArrayBuffer> {
+  // Dynamically imported like exceljs / @zip.js — only pulled in when an
+  // encrypted MFP export is actually unlocked (#500).
+  const officeCrypto = (await import('officecrypto-tool')).default
+  try {
+    const decrypted = await officeCrypto.decrypt(Buffer.from(buffer), {
+      password,
+    })
+    // Copy into a fresh ArrayBuffer — Buffer's `.buffer` may be a larger
+    // SharedArrayBuffer-backed view, which exceljs/`xlsx.load` doesn't
+    // accept as `ArrayBuffer`.
+    return Uint8Array.from(decrypted).buffer
+  } catch (err) {
+    if (
+      err instanceof Error &&
+      err.message.toLowerCase().includes('password')
+    ) {
+      throw new MyFitnessPalWrongPasswordError('Incorrect password.')
+    }
+    throw new MyFitnessPalInvalidFileError(
+      "This doesn't look like a MyFitnessPal export file.",
+    )
+  }
+}
+
 /**
  * Reads a MyFitnessPal "Data Access Request" export client-side and merges
  * its `Foods` (meals) and `Measurement` (weight) rows into this app's
- * `DailyEntry` records. Unlike Zepp Life's export, the actual file the user
- * obtains here is a plain, unencrypted `.xlsx` — no MS-OFFCRYPTO layer to
- * unwrap first (that was the original filing's assumption, based on
- * MyFitnessPal's *other*, Premium-only "Download Your Data" export
- * mechanism, corrected once a real sample was inspected). `exceljs`
- * (already a dependency for the Excel *export* side, `exportXlsx.ts`) reads
- * it the same way it writes one.
+ * `DailyEntry` records.
+ *
+ * #367 assumed a plain unencrypted `.xlsx`. #500 confirmed the live export
+ * the user actually receives is often an MS-OFFCRYPTO-encrypted OLE file
+ * (still named `.xlsx`) whose password arrives in the same email — so this
+ * optionally decrypts first (via `officecrypto-tool`) when a password is
+ * provided. Unencrypted plain `.xlsx` exports still work without one.
+ * `exceljs` (already a dependency for the Excel *export* side) reads the
+ * resulting workbook the same way it writes one.
  */
 export async function importMyFitnessPalExport(
   file: File,
@@ -49,6 +100,8 @@ export async function importMyFitnessPalExport(
   includedFields?: ReadonlySet<keyof DailyEntryPatch>,
   /** #496 — defaults to fillGaps inside mergeDailyEntryPatches. */
   importMode?: DailyEntryImportMode,
+  /** #500 — required when the picked file is MS-OFFCRYPTO-encrypted. */
+  password?: string,
 ): Promise<MyFitnessPalImportSummary> {
   const ExcelJS = (await import('exceljs')).default
   const workbook = new ExcelJS.Workbook()
@@ -56,8 +109,23 @@ export async function importMyFitnessPalExport(
   let buffer: ArrayBuffer
   try {
     buffer = await file.arrayBuffer()
+    if (isMyFitnessPalEncrypted(buffer)) {
+      if (!password) {
+        throw new MyFitnessPalPasswordRequiredError(
+          'This MyFitnessPal export is password-protected.',
+        )
+      }
+      buffer = await decryptMyFitnessPalWorkbook(buffer, password)
+    }
     await workbook.xlsx.load(buffer)
-  } catch {
+  } catch (err) {
+    if (
+      err instanceof MyFitnessPalWrongPasswordError ||
+      err instanceof MyFitnessPalPasswordRequiredError ||
+      err instanceof MyFitnessPalInvalidFileError
+    ) {
+      throw err
+    }
     throw new MyFitnessPalInvalidFileError(
       "This doesn't look like a MyFitnessPal export file.",
     )

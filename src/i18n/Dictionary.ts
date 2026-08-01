@@ -865,12 +865,13 @@ export interface Dictionary {
   }
   /** Importing a MyFitnessPal "Data Access Request" export (#367) — same
    * "distinct copy, distinct feature" reasoning as `zeppLifeImport`/
-   * `appleHealthImport` above. The real export the user obtains here is a
-   * plain, unencrypted `.xlsx` (a GDPR data request, not the Premium-only
-   * "Download Your Data" zip the issue's original filing assumed), so —
-   * unlike Zepp Life — there's no password copy needed here either. Meals
-   * are this import's actual payoff (#365/#366 only ever covered body
-   * metrics); weight is a clean bonus using the same scalar shape those two
+   * `appleHealthImport` above. #500 corrected the encryption assumption:
+   * the live export is often an MS-OFFCRYPTO-encrypted OLE file (still
+   * named `.xlsx`) whose password arrives in the same email, so this
+   * block now carries the same password-dialog copy Zepp Life has; plain
+   * unencrypted `.xlsx` exports still skip the dialog. Meals are this
+   * import's actual payoff (#365/#366 only ever covered body metrics);
+   * weight is a clean bonus using the same scalar shape those two
    * already established. */
   myFitnessPalImport: {
     importBlurb: string
@@ -882,6 +883,12 @@ export interface Dictionary {
     importedNothingSummary: string
     invalidFile: string
     importFailed: string
+    closeDialogLabel: string
+    passwordDialogTitle: string
+    passwordDialogDescription: string
+    passwordLabel: string
+    passwordSubmitButton: string
+    wrongPassword: string
   }
   /** Column headers / sheet names for the Excel export (#123) — kept
    * separate from the daily-entry form's own field labels (`dailyEntry.*`)

@@ -496,7 +496,7 @@ export const ru: Dictionary = {
       'Импортируйте историю приёмов пищи и веса из выгрузки данных MyFitnessPal.',
     howToExportLabel: 'Как получить этот файл?',
     howToExportSteps:
-      'Запросите выгрузку данных (Data Access Request) на myfitnesspal.com → Settings → Privacy Center → Manage My Data — эта функция доступна только с подпиской Premium. Если она недоступна на вашем аккаунте, можно написать напрямую в поддержку MyFitnessPal с просьбой предоставить ваши данные. Файл придёт на почту в формате .xlsx — подготовка может занять несколько дней.',
+      'Запросите выгрузку данных (Data Access Request) на myfitnesspal.com → Settings → Privacy Center → Manage My Data — эта функция доступна только с подпиской Premium. Если она недоступна на вашем аккаунте, можно написать напрямую в поддержку MyFitnessPal с просьбой предоставить ваши данные. Файл придёт на почту в формате .xlsx, часто с паролем — пароль указан в том же письме. Подготовка может занять несколько дней.',
     importButton: 'Импорт из MyFitnessPal',
     importingButton: 'Импорт…',
     importedSummary: (days, updated) =>
@@ -505,6 +505,14 @@ export const ru: Dictionary = {
       'В этом экспорте не оказалось данных о приёмах пищи или весе для импорта.',
     invalidFile: 'Это не похоже на файл экспорта MyFitnessPal.',
     importFailed: 'Не удалось выполнить импорт.',
+    closeDialogLabel: 'Закрыть',
+    passwordDialogTitle: 'Введите пароль экспорта',
+    passwordDialogDescription:
+      'Это пароль из письма с выгрузкой MyFitnessPal — не пароль от вашего аккаунта MyFitnessPal.',
+    passwordLabel: 'Пароль',
+    passwordSubmitButton: 'Разблокировать и импортировать',
+    wrongPassword:
+      'Этот пароль не подошёл — проверьте письмо с выгрузкой и попробуйте снова.',
   },
   exportXlsx: {
     dailyLogSheetName: 'Дневник',

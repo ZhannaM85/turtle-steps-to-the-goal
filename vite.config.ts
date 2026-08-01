@@ -3,6 +3,7 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import { VitePWA } from 'vite-plugin-pwa'
+import { nodePolyfills } from 'vite-plugin-node-polyfills'
 import { defaultExclude } from 'vitest/config'
 
 // https://vite.dev/config/
@@ -10,6 +11,18 @@ export default defineConfig({
   plugins: [
     react(),
     tailwindcss(),
+    // #500 — `officecrypto-tool` (MS-OFFCRYPTO decrypt for password-
+    // protected MyFitnessPal .xlsx) uses Node's `crypto`/`buffer` APIs.
+    // Scoped to those builtins only so the rest of the app stays lean;
+    // the polyfills land in the same lazy chunk as the MFP import.
+    nodePolyfills({
+      include: ['buffer', 'crypto', 'stream', 'vm'],
+      globals: {
+        Buffer: true,
+        global: true,
+        process: true,
+      },
+    }),
     // Offline support / instant cold loads (#163) — precaches the built
     // app shell (JS/CSS/HTML/icons) via a generated Workbox service
     // worker, so the app loads without a live network fetch once it's
@@ -27,20 +40,20 @@ export default defineConfig({
         // detects a newer deploy exists at all. Excluding it from the
         // precache manifest is enough: with no matching runtime-caching
         // rule either, the SW's fetch handler never intercepts it.
-        // #270: exceljs (the Excel-export chunk, `exportXlsx.ts`) is
-        // already lazy-imported at the JS level (`await import('exceljs')`,
-        // only fetched when a user actually exports to Excel) — but
-        // Workbox's default globPatterns precache every built JS file
-        // regardless of how it's loaded at runtime, so this ~930KB/2.4MB
-        // total chunk was being eagerly downloaded into the SW cache on
-        // every single install. Excluding it here shrinks a genuine update
-        // re-download by roughly a third; a plain network fetch still
-        // serves it correctly the first time someone exports, just not
-        // proactively cached ahead of time.
+        // #270 — exceljs (Excel export chunk)
+        // #500 — officecrypto-tool (password-protected MyFitnessPal decrypt)
+        // Both are already lazy-imported and only needed when those
+        // export/import flows run; excluding them from the SW precache
+        // keeps routine update downloads smaller.
         // #497: Features/Capabilities screenshots live in public/screenshots
         // and are only needed on /features — keep them out of the SW precache
         // so routine app updates don't re-download ~1.6MB of PNGs.
-        globIgnores: ['version.json', '**/exceljs*.js', 'screenshots/**'],
+        globIgnores: [
+          'version.json',
+          '**/exceljs*.js',
+          '**/officecrypto-tool*.js',
+          'screenshots/**',
+        ],
       },
     }),
   ],

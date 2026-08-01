@@ -38,8 +38,11 @@ import {
 } from './appleHealth/importAppleHealth'
 import {
   importMyFitnessPalExport,
+  isMyFitnessPalEncrypted,
   MyFitnessPalInvalidFileError,
+  MyFitnessPalWrongPasswordError,
 } from './myFitnessPal/importMyFitnessPal'
+import { MyFitnessPalPasswordDialog } from './myFitnessPal/MyFitnessPalPasswordDialog'
 
 /** #369 — each source's own data types, since Zepp Life and Apple Health
  * expose different fields (Zepp: body-composition scale readings; Apple
@@ -171,6 +174,12 @@ export function ExportSection() {
   const [appleHealthImportMode, setAppleHealthImportMode] =
     useState<DailyEntryImportMode>('fillGaps')
   const myFitnessPalFileInputRef = useRef<HTMLInputElement>(null)
+  const [myFitnessPalPendingFile, setMyFitnessPalPendingFile] =
+    useState<File | null>(null)
+  const [myFitnessPalDialogOpen, setMyFitnessPalDialogOpen] = useState(false)
+  const [myFitnessPalPasswordError, setMyFitnessPalPasswordError] = useState<
+    string | null
+  >(null)
   const [myFitnessPalSelectedFields, setMyFitnessPalSelectedFields] =
     useState<Set<string>>(
       () => new Set(MYFITNESSPAL_FIELDS.map((field) => field.key)),
@@ -452,15 +461,50 @@ export function ExportSection() {
   }
 
   async function handleMyFitnessPalFileSelected(file: File) {
+    // #500 — encrypted Data Access Request exports are OLE (MS-OFFCRYPTO)
+    // and need the email password before exceljs can read them; plain
+    // unencrypted .xlsx still imports immediately like #367.
+    try {
+      const buffer = await file.arrayBuffer()
+      if (isMyFitnessPalEncrypted(buffer)) {
+        setMyFitnessPalPendingFile(file)
+        setMyFitnessPalPasswordError(null)
+        setMyFitnessPalDialogOpen(true)
+        return
+      }
+    } catch {
+      setStatus({ kind: 'error', message: t.myFitnessPalImport.invalidFile })
+      return
+    }
+    await runMyFitnessPalImport(file)
+  }
+
+  async function handleMyFitnessPalPasswordSubmit(password: string) {
+    if (!myFitnessPalPendingFile) return
+    await runMyFitnessPalImport(myFitnessPalPendingFile, password)
+  }
+
+  async function runMyFitnessPalImport(file: File, password?: string) {
     setStatus({ kind: 'importingMyFitnessPal' })
     try {
       const { daysImported, daysUpdated } = await importMyFitnessPalExport(
         file,
         myFitnessPalSelectedFields as ReadonlySet<keyof DailyEntryPatch>,
         myFitnessPalImportMode,
+        password,
       )
+      setMyFitnessPalDialogOpen(false)
+      setMyFitnessPalPendingFile(null)
+      setMyFitnessPalPasswordError(null)
       setStatus({ kind: 'importedMyFitnessPal', daysImported, daysUpdated })
     } catch (err) {
+      if (err instanceof MyFitnessPalWrongPasswordError) {
+        setMyFitnessPalPasswordError(t.myFitnessPalImport.wrongPassword)
+        setStatus({ kind: 'idle' })
+        return
+      }
+      setMyFitnessPalDialogOpen(false)
+      setMyFitnessPalPendingFile(null)
       const message =
         err instanceof MyFitnessPalInvalidFileError
           ? t.myFitnessPalImport.invalidFile
@@ -910,6 +954,19 @@ export function ExportSection() {
         onSubmit={handleZeppLifePasswordSubmit}
         error={zeppLifePasswordError}
         submitting={status.kind === 'importingZeppLife'}
+      />
+      <MyFitnessPalPasswordDialog
+        open={myFitnessPalDialogOpen}
+        onOpenChange={(open) => {
+          setMyFitnessPalDialogOpen(open)
+          if (!open) {
+            setMyFitnessPalPendingFile(null)
+            setMyFitnessPalPasswordError(null)
+          }
+        }}
+        onSubmit={handleMyFitnessPalPasswordSubmit}
+        error={myFitnessPalPasswordError}
+        submitting={status.kind === 'importingMyFitnessPal'}
       />
     </>
   )

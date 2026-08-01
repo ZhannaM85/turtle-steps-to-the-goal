@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 450,
+    issue: 500,
+    date: '2026-08-01T16:56:08+03:00',
+    en: 'MyFitnessPal import now asks for the password from your export email when the file is protected, instead of saying it is not a MyFitnessPal file.',
+    ru: 'Импорт из MyFitnessPal теперь запрашивает пароль из письма с выгрузкой, если файл защищён, а не пишет, что это не файл MyFitnessPal.',
+  },
+  {
     version: 449,
     issue: 499,
     date: '2026-08-01T16:41:29+03:00',

@@ -3,7 +3,10 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { db } from '@/infrastructure/persistence/indexeddb'
 import {
   importMyFitnessPalExport,
+  isMyFitnessPalEncrypted,
   MyFitnessPalInvalidFileError,
+  MyFitnessPalPasswordRequiredError,
+  MyFitnessPalWrongPasswordError,
 } from './importMyFitnessPal'
 
 // Confirmed real 40-column header from the user's own Data Access Request
@@ -76,6 +79,23 @@ async function makeMyFitnessPalExportFile(
   })
 }
 
+/** #500 — wraps a plain workbook in MS-OFFCRYPTO encryption so the decrypt
+ * + password path is exercised end-to-end, not only the OLE magic check. */
+async function makeEncryptedMyFitnessPalExportFile(
+  dataRows: Partial<Record<string, unknown>>[],
+  password: string,
+): Promise<File> {
+  const plain = await makeMyFitnessPalExportFile(dataRows)
+  const officeCrypto = (await import('officecrypto-tool')).default
+  const encrypted = officeCrypto.encrypt(
+    Buffer.from(await plain.arrayBuffer()),
+    { password },
+  )
+  return new File([Uint8Array.from(encrypted)], 'mfp-export-encrypted.xlsx', {
+    type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  })
+}
+
 beforeEach(async () => {
   await db.dailyEntries.clear()
 })
@@ -103,7 +123,10 @@ describe('importMyFitnessPalExport', () => {
         fat_g: 5,
         carbs_g: 50,
         fiber_g: 8,
-        details_json: JSON.stringify({ meal: 'Breakfast', brand_name: 'Quaker' }),
+        details_json: JSON.stringify({
+          meal: 'Breakfast',
+          brand_name: 'Quaker',
+        }),
       },
       {
         item_type: 'Foods',
@@ -123,7 +146,9 @@ describe('importMyFitnessPalExport', () => {
     const entry = await db.dailyEntries.get({ date: '2026-01-15' })
     expect(entry?.weightKg).toBe(72.4)
     expect(entry?.calorieEntries).toHaveLength(2)
-    const breakfast = entry?.calorieEntries?.find((e) => e.label === 'Breakfast')
+    const breakfast = entry?.calorieEntries?.find(
+      (e) => e.label === 'Breakfast',
+    )
     expect(breakfast?.items[0]).toMatchObject({
       name: 'Oatmeal',
       brand: 'Quaker',
@@ -214,4 +239,44 @@ describe('importMyFitnessPalExport', () => {
       MyFitnessPalInvalidFileError,
     )
   })
+
+  it(
+    'decrypts an MS-OFFCRYPTO-encrypted export with the right password (#500)',
+    async () => {
+      const file = await makeEncryptedMyFitnessPalExportFile(
+        [
+          {
+            item_type: 'Measurement',
+            date: '2026-01-15',
+            description: 'weight',
+            value: 72.4,
+            unit: 'kilograms',
+          },
+        ],
+        '833439',
+      )
+
+      expect(isMyFitnessPalEncrypted(await file.arrayBuffer())).toBe(true)
+
+      await expect(importMyFitnessPalExport(file)).rejects.toThrow(
+        MyFitnessPalPasswordRequiredError,
+      )
+      await expect(
+        importMyFitnessPalExport(file, undefined, undefined, 'wrong'),
+      ).rejects.toThrow(MyFitnessPalWrongPasswordError)
+
+      const result = await importMyFitnessPalExport(
+        file,
+        undefined,
+        undefined,
+        '833439',
+      )
+      expect(result).toEqual({ daysImported: 1, daysUpdated: 0 })
+      const entry = await db.dailyEntries.get({ date: '2026-01-15' })
+      expect(entry?.weightKg).toBe(72.4)
+    },
+    // Encrypt + two decrypt attempts each run ~100k SHA iterations —
+    // default 5s is too tight under load.
+    30_000,
+  )
 })
