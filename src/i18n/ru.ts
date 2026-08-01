@@ -1049,6 +1049,7 @@ export const ru: Dictionary = {
     description: 'Что умеет «Черепашка идёт к цели» — всё в одном месте',
     categories: [
       {
+        id: 'dailyLogging',
         heading: 'Ежедневные записи',
         items: [
           'Отслеживайте вес, калории, белки, жиры, углеводы и клетчатку каждый день',
@@ -1058,6 +1059,7 @@ export const ru: Dictionary = {
         ],
       },
       {
+        id: 'meals',
         heading: 'Приёмы пищи и еда',
         items: [
           'Ищите в большой встроенной базе продуктов или создайте свой личный список еды',
@@ -1068,6 +1070,7 @@ export const ru: Dictionary = {
         ],
       },
       {
+        id: 'goals',
         heading: 'Цели и прогресс',
         items: [
           'Задайте недельный темп снижения веса вместо одной большой цифры',
@@ -1076,6 +1079,7 @@ export const ru: Dictionary = {
         ],
       },
       {
+        id: 'dashboard',
         heading: 'Дашборд и тренды',
         items: [
           'Графики тренда веса, калорий и БЖУ, а также недельные и месячные сводки',
@@ -1085,6 +1089,7 @@ export const ru: Dictionary = {
         ],
       },
       {
+        id: 'correlations',
         heading: 'Корреляции и наблюдения',
         items: [
           'Смотрите, как белок, фаза цикла или окно голодания связаны с вашим весом',
@@ -1092,6 +1097,7 @@ export const ru: Dictionary = {
         ],
       },
       {
+        id: 'history',
         heading: 'История',
         items: [
           'Просматривайте прошлые дни списком или в календаре, используйте поиск и фильтры',
@@ -1100,6 +1106,7 @@ export const ru: Dictionary = {
         ],
       },
       {
+        id: 'yourData',
         heading: 'Ваши данные — на вашем устройстве',
         items: [
           'Всё хранится локально — без аккаунта, без облака, без слежки',
@@ -1109,6 +1116,7 @@ export const ru: Dictionary = {
         ],
       },
       {
+        id: 'makeItYours',
         heading: 'Настройте под себя',
         items: [
           'Русский и английский язык',
@@ -1117,6 +1125,7 @@ export const ru: Dictionary = {
         ],
       },
     ],
+    screenshotAlt: (heading) => `Скриншот приложения — ${heading}`,
     backToAboutLabel: 'Назад к разделу «О приложении»',
   },
 }

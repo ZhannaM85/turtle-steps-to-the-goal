@@ -1592,10 +1592,22 @@ export interface Dictionary {
   featuresOverview: {
     title: string
     description: string
+    /** Stable ids for screenshot mapping (#497) — not translated. */
     categories: {
+      id:
+        | 'dailyLogging'
+        | 'meals'
+        | 'goals'
+        | 'dashboard'
+        | 'correlations'
+        | 'history'
+        | 'yourData'
+        | 'makeItYours'
       heading: string
       items: string[]
     }[]
+    /** Accessible alt for a category screenshot, e.g. "App screenshot — Daily logging". */
+    screenshotAlt: (heading: string) => string
     backToAboutLabel: string
   }
 }

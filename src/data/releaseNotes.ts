@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 447,
+    issue: 497,
+    date: '2026-08-01T16:17:20+03:00',
+    en: 'The Features page now shows an app screenshot next to each capability category so you can see what each area looks like.',
+    ru: 'На странице «Возможности» рядом с каждой категорией теперь есть скриншот приложения, чтобы было видно, как выглядит каждый раздел.',
+  },
+  {
     version: 446,
     issue: 496,
     date: '2026-08-01T16:10:00+03:00',

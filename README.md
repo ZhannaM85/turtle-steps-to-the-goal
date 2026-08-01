@@ -34,9 +34,9 @@ stays on your own device in the browser's IndexedDB.
 
 | Day | Meals, water & custom metrics |
 |---|---|
-| ![Day screen in the Tortoise theme: weekly target, morning entries, and body composition](docs/screenshots/day.png) | ![Day screen in the Tortoise theme: nutrition summary and itemized meals](docs/screenshots/day-meals.png) |
+| ![Day screen in the Tortoise theme: weekly target, morning entries, and body composition](public/screenshots/day.png) | ![Day screen in the Tortoise theme: nutrition summary and itemized meals](public/screenshots/day-meals.png) |
 | **Dashboard** | **History** |
-| ![Dashboard screen in the Tortoise theme: weight, calorie, and macro trends](docs/screenshots/dashboard.png) | ![History screen in the Tortoise theme: filters, goal markers, and daily nutrition rows](docs/screenshots/history.png) |
+| ![Dashboard screen in the Tortoise theme: weight, calorie, and macro trends](public/screenshots/dashboard.png) | ![History screen in the Tortoise theme: filters, goal markers, and daily nutrition rows](public/screenshots/history.png) |
 
 The screenshots use deterministic demo data. Regenerate them with
 `node scripts/capture-screenshots.mjs` after installing Playwright's Chromium

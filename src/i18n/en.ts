@@ -1015,6 +1015,7 @@ export const en: Dictionary = {
     description: 'What Turtle Steps can do, all in one place',
     categories: [
       {
+        id: 'dailyLogging',
         heading: 'Daily logging',
         items: [
           'Track weight, calories, protein, fat, carbs, and fiber every day',
@@ -1024,6 +1025,7 @@ export const en: Dictionary = {
         ],
       },
       {
+        id: 'meals',
         heading: 'Meals & food',
         items: [
           'Search a large built-in food database, or build your own personal food list',
@@ -1034,6 +1036,7 @@ export const en: Dictionary = {
         ],
       },
       {
+        id: 'goals',
         heading: 'Goals & progress',
         items: [
           'Set a weekly weight-loss pace instead of one big target number',
@@ -1042,6 +1045,7 @@ export const en: Dictionary = {
         ],
       },
       {
+        id: 'dashboard',
         heading: 'Dashboard & trends',
         items: [
           'Weight, calorie, and macro trend charts, plus weekly and monthly summaries',
@@ -1051,6 +1055,7 @@ export const en: Dictionary = {
         ],
       },
       {
+        id: 'correlations',
         heading: 'Correlations & insights',
         items: [
           'See how protein intake, cycle phase, or fasting window relate to your weight',
@@ -1058,6 +1063,7 @@ export const en: Dictionary = {
         ],
       },
       {
+        id: 'history',
         heading: 'History',
         items: [
           'Browse past days as a searchable, filterable list or calendar',
@@ -1066,6 +1072,7 @@ export const en: Dictionary = {
         ],
       },
       {
+        id: 'yourData',
         heading: 'Your data, your device',
         items: [
           'Everything is stored locally — no account, no cloud, no tracking',
@@ -1075,6 +1082,7 @@ export const en: Dictionary = {
         ],
       },
       {
+        id: 'makeItYours',
         heading: 'Make it yours',
         items: [
           'English and Russian',
@@ -1083,6 +1091,7 @@ export const en: Dictionary = {
         ],
       },
     ],
+    screenshotAlt: (heading) => `App screenshot — ${heading}`,
     backToAboutLabel: 'Back to About',
   },
 }

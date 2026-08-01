@@ -1,5 +1,6 @@
 /**
- * Regenerates `docs/screenshots/*.png` for the README (#495).
+ * Regenerates `public/screenshots/*.png` for the README and the in-app
+ * Features/Capabilities page (#495, #497).
  *
  *   node scripts/capture-screenshots.mjs
  *
@@ -8,12 +9,12 @@
  * own Settings → Import backup flow, then captures one phone-sized shot per
  * screen. Needs Playwright's Chromium once: `npx playwright install chromium`.
  *
- * Screenshots are documentation, not a test — nothing gates on them. They
- * exist so the README doesn't keep drifting years behind the UI, which is
- * what #495 was filed about.
+ * Screenshots are documentation / Features illustration, not a test — nothing
+ * gates on them. They exist so the README and Capabilities page don't keep
+ * drifting years behind the UI.
  */
 
-import { mkdtemp, writeFile } from 'node:fs/promises'
+import { mkdir, mkdtemp, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -25,7 +26,7 @@ const repoRoot = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
   '..',
 )
-const outputDir = path.join(repoRoot, 'docs', 'screenshots')
+const outputDir = path.join(repoRoot, 'public', 'screenshots')
 
 const VIEWPORT = { width: 430, height: 1250 }
 
@@ -42,14 +43,39 @@ const SHOTS = [
     scrollTo: 'Meals',
   },
   {
+    file: 'goal.png',
+    route: '/goal',
+    readyText: "This week's target",
+  },
+  {
     file: 'dashboard.png',
     route: '/dashboard',
     readySelector: '.recharts-responsive-container',
   },
+  {
+    file: 'correlations.png',
+    route: '/dashboard',
+    readySelector: '.recharts-responsive-container',
+    scrollTo: 'Calories vs. weight change',
+  },
   { file: 'history.png', route: '/history', readyText: 'Page 1 of 5' },
+  {
+    file: 'export.png',
+    route: '/settings',
+    readyText: 'Export',
+    scrollTo: 'Export',
+  },
+  {
+    file: 'appearance.png',
+    route: '/settings',
+    readyText: 'Appearance',
+    scrollTo: 'Appearance',
+  },
 ]
 
 async function main() {
+  await mkdir(outputDir, { recursive: true })
+
   const server = await createServer({
     configFile: path.join(repoRoot, 'vite.config.ts'),
     root: repoRoot,

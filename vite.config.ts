@@ -37,7 +37,10 @@ export default defineConfig({
         // re-download by roughly a third; a plain network fetch still
         // serves it correctly the first time someone exports, just not
         // proactively cached ahead of time.
-        globIgnores: ['version.json', '**/exceljs*.js'],
+        // #497: Features/Capabilities screenshots live in public/screenshots
+        // and are only needed on /features — keep them out of the SW precache
+        // so routine app updates don't re-download ~1.6MB of PNGs.
+        globIgnores: ['version.json', '**/exceljs*.js', 'screenshots/**'],
       },
     }),
   ],
