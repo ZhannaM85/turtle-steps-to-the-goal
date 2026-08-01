@@ -31,6 +31,11 @@ export type { SectionKey } from './sectionVisibilityStore'
 export { useProfileStore } from './profileStore'
 export type { ActivityLevel, Sex } from './profileStore'
 export { useBodyCompositionSelectionStore } from './bodyCompositionSelectionStore'
+export {
+  MACRO_SERIES_KEYS,
+  useMacroChartSelectionStore,
+  type MacroSeriesKey,
+} from './macroChartSelectionStore'
 export { useOutlierExclusionStore } from './outlierExclusionStore'
 export { useRecipeStore } from './recipeStore'
 export {

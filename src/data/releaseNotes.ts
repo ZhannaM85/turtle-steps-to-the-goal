@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 452,
+    issue: 501,
+    date: '2026-08-01T17:40:00+03:00',
+    en: 'The protein, fat and carbs chart now has buttons to show or hide each series, includes calories, lets you draw each series as a line, bars or dots, and shows real scale numbers when one or two series are on.',
+    ru: 'На графике белков, жиров и углеводов теперь есть кнопки показа каждой линии, добавлены калории, каждую линию можно рисовать линией, столбцами или точками, а при одной-двух выбранных показывается настоящая шкала.',
+  },
+  {
     version: 451,
     issue: 503,
     date: '2026-08-01T17:03:36+03:00',
