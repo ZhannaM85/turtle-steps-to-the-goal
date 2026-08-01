@@ -25,9 +25,16 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 424,
+    issue: 481,
+    date: '2026-08-01T12:40:42+03:00',
+    en: 'Full-screen meal dialogs now fill the whole screen edge to edge, without empty gaps at the top and bottom.',
+    ru: 'Полноэкранные окна приёма пищи теперь занимают весь экран без пустых полос сверху и снизу.',
+  },
+  {
     version: 423,
     issue: 477,
-    date: '2026-08-01T12:40:00+03:00',
+    date: '2026-08-01T12:36:54+03:00',
     en: 'The Reorder control in Stats is now a compact grip icon instead of a long text label.',
     ru: 'Кнопка «Порядок карточек» в Показателях теперь компактная иконка-грип вместо длинной подписи.',
   },

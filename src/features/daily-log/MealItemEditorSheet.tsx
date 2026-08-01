@@ -521,7 +521,10 @@ export function MealItemEditorSheet({
          * `position: sticky` doesn't behave inside this DialogContent's
          * `fixed` + `overflow-y-auto` wrapper — removing it here too,
          * relying on the scroll region's own bounded height instead. */}
-        <div className="-mx-5 -mb-5 flex flex-col gap-2 border-t border-border bg-card px-5 pt-3 pb-[calc(env(safe-area-inset-bottom)+1rem)]">
+        {/* #481 — DialogContent bottom padding is now
+         * `safe-area + 1.25rem`; cancel the full amount so this footer
+         * reaches the true viewport edge, then re-apply safe-area here. */}
+        <div className="-mx-5 -mb-[calc(env(safe-area-inset-bottom)+1.25rem)] flex flex-col gap-2 border-t border-border bg-card px-5 pt-3 pb-[calc(env(safe-area-inset-bottom)+1rem)]">
           <Button
             type="button"
             size="xl"

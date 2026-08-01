@@ -1076,7 +1076,11 @@ export function AddMealDialog({
                  * clearance below the button, since it's this opaque box's
                  * own interior space, not a gap the scrolled content can
                  * show through. */}
-                <div className="sticky bottom-0 border-t border-border bg-card pt-3 pb-3">
+                {/* #481 — DialogContent is edge-to-edge with safe-area in
+                 * its own padding; this dialog zeros that bottom padding
+                 * (`pb-0` above) so sticky sticks to the true viewport
+                 * edge, so the safe-area clearance has to live here. */}
+                <div className="sticky bottom-0 border-t border-border bg-card pt-3 pb-[calc(env(safe-area-inset-bottom)+0.75rem)]">
                   <Button
                     type="button"
                     size="xl"
