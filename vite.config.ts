@@ -20,7 +20,10 @@ export default defineConfig({
       globals: {
         Buffer: true,
         global: true,
-        process: true,
+        // Never shim `process`: nothing in officecrypto-tool's dependency
+        // tree reads it, and the shim's `cwd()` returns '/' — which broke
+        // `theme.contrast.test.ts`'s `resolve(process.cwd(), …)` in CI.
+        process: false,
       },
     }),
     // Offline support / instant cold loads (#163) — precaches the built
