@@ -104,6 +104,11 @@ export interface AddMealDialogProps {
    * the dialog X / escape / overlay does *not* call this — MealList uses
    * that distinction to discard an in-progress new meal. */
   onDone?: () => void
+  /** #494 — MealList sets this when X would discard foods already added
+   * this session; Cancel clears it and stays in the flyout. */
+  isConfirmingDiscard?: boolean
+  onConfirmDiscard?: () => void
+  onCancelDiscard?: () => void
   /** Position-derived default, or the previous meal's own custom label —
    * computed by `MealList.tsx` exactly as it already does for the heading
    * above the old add-row (`effectiveMealLabel`/`defaultMealLabel`). */
@@ -168,6 +173,9 @@ export function AddMealDialog({
   open,
   onOpenChange,
   onDone,
+  isConfirmingDiscard = false,
+  onConfirmDiscard,
+  onCancelDiscard,
   mealLabel,
   mealPosition,
   timeEaten,
@@ -791,6 +799,31 @@ export function AddMealDialog({
             >
               {t.history.confirmDeleteNo}
             </Button>
+          </div>
+        )}
+        {isConfirmingDiscard && onConfirmDiscard && onCancelDiscard && (
+          <div className="mt-2 flex flex-col gap-2 rounded-lg bg-card p-2 ring-1 ring-foreground/10">
+            <span className="text-sm text-muted-foreground">
+              {t.dailyEntry.confirmDiscardInProgressMealLabel}
+            </span>
+            <div className="flex items-center gap-2">
+              <Button
+                type="button"
+                variant="destructive"
+                size="sm"
+                onClick={onConfirmDiscard}
+              >
+                {t.dailyEntry.confirmDiscardInProgressMealYes}
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={onCancelDiscard}
+              >
+                {t.dailyEntry.confirmDiscardInProgressMealNo}
+              </Button>
+            </div>
           </div>
         )}
 

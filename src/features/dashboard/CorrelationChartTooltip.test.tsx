@@ -1,5 +1,5 @@
-import { render, screen } from '@testing-library/react'
-import { MemoryRouter } from 'react-router-dom'
+import { fireEvent, render, screen } from '@testing-library/react'
+import { createMemoryRouter, RouterProvider } from 'react-router-dom'
 import { describe, expect, it } from 'vitest'
 import { CorrelationChartTooltip } from './CorrelationChartTooltip'
 
@@ -26,8 +26,15 @@ function payloadFor(date: string | undefined) {
 const formatValue = (value: number, name: string) =>
   name === 'steps' ? String(value) : `${value} kg`
 
-function renderTooltip(ui: React.ReactElement) {
-  return render(ui, { wrapper: MemoryRouter })
+function renderTooltip(ui: React.ReactElement, initialPath = '/dashboard') {
+  const router = createMemoryRouter(
+    [
+      { path: '/', element: <div>today</div> },
+      { path: '/dashboard', element: ui },
+    ],
+    { initialEntries: [initialPath] },
+  )
+  return { ...render(<RouterProvider router={router} />), router }
 }
 
 describe('CorrelationChartTooltip', () => {
@@ -44,8 +51,8 @@ describe('CorrelationChartTooltip', () => {
     expect(screen.getByText('next-day change: -0.2 kg')).toBeInTheDocument()
   })
 
-  it('links to the point day (#489)', () => {
-    renderTooltip(
+  it('navigates to the point day on pointerdown (#489)', () => {
+    const { router } = renderTooltip(
       <CorrelationChartTooltip
         formatValue={formatValue}
         active
@@ -54,13 +61,15 @@ describe('CorrelationChartTooltip', () => {
     )
 
     expect(screen.getByText('Mar 1, 2026')).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: /View this day/ })).toHaveAttribute(
-      'href',
-      '/?date=2026-03-01',
+    fireEvent.pointerDown(
+      screen.getByRole('button', { name: /View this day/ }),
     )
+
+    expect(router.state.location.pathname).toBe('/')
+    expect(router.state.location.search).toBe('?date=2026-03-01')
   })
 
-  it('omits the link for a point with no resolvable calendar date', () => {
+  it('omits the open-day control for a point with no resolvable calendar date', () => {
     renderTooltip(
       <CorrelationChartTooltip
         formatValue={formatValue}
@@ -70,7 +79,9 @@ describe('CorrelationChartTooltip', () => {
     )
 
     expect(screen.getByText('steps: 9000')).toBeInTheDocument()
-    expect(screen.queryByRole('link')).not.toBeInTheDocument()
+    expect(
+      screen.queryByRole('button', { name: /View this day/ }),
+    ).not.toBeInTheDocument()
   })
 
   it('renders nothing while the tooltip is inactive', () => {
@@ -81,6 +92,7 @@ describe('CorrelationChartTooltip', () => {
       />,
     )
 
-    expect(container).toBeEmptyDOMElement()
+    expect(container.querySelector('[class*="rounded-lg"]')).toBeNull()
+    expect(screen.queryByText('steps: 9000')).not.toBeInTheDocument()
   })
 })

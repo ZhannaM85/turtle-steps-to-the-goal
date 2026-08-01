@@ -90,7 +90,7 @@ describe('MealList', () => {
     ).toBeInTheDocument()
   })
 
-  it('discards an in-progress new meal when the dialog is closed with X (#491)', async () => {
+  it('asks before discarding an in-progress new meal on X (#494)', async () => {
     const user = userEvent.setup()
     render(
       <ControlledMealList calorieEntries={[]} date="2026-03-01" />,
@@ -107,6 +107,25 @@ describe('MealList', () => {
     expect(screen.getAllByText('Oatmeal').length).toBeGreaterThan(0)
 
     await user.click(screen.getByRole('button', { name: 'Close' }))
+
+    expect(screen.getByRole('dialog')).toBeInTheDocument()
+    expect(
+      screen.getByText(
+        'Leave without saving? Foods added here will be discarded.',
+      ),
+    ).toBeInTheDocument()
+    expect(screen.getAllByText('Oatmeal').length).toBeGreaterThan(0)
+
+    await user.click(screen.getByRole('button', { name: 'Keep editing' }))
+    expect(screen.getByRole('dialog')).toBeInTheDocument()
+    expect(
+      screen.queryByText(
+        'Leave without saving? Foods added here will be discarded.',
+      ),
+    ).not.toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: 'Close' }))
+    await user.click(screen.getByRole('button', { name: 'Discard' }))
 
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
     expect(screen.queryByText('Oatmeal')).not.toBeInTheDocument()

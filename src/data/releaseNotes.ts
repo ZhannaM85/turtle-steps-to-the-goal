@@ -25,6 +25,20 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 444,
+    issue: 489,
+    date: '2026-08-01T15:15:32+03:00',
+    en: 'On Overview correlation charts, “Open this day” in a point’s tooltip should now take you to that day on a phone, not just close the tip.',
+    ru: 'В графиках корреляции на «Обзоре» «Открыть этот день» в подсказке к точке теперь должно открывать этот день на телефоне, а не только закрывать подсказку.',
+  },
+  {
+    version: 443,
+    issue: 494,
+    date: '2026-08-01T15:15:32+03:00',
+    en: 'Closing Add meal with X after you’ve already added foods now asks whether to discard them, so an accidental tap doesn’t wipe the meal.',
+    ru: 'Закрытие «Добавить приём пищи» крестиком после добавления блюд теперь спрашивает, удалить ли их — случайное нажатие больше не стирает приём.',
+  },
+  {
     version: 442,
     issue: 491,
     date: '2026-08-01T14:52:17+03:00',

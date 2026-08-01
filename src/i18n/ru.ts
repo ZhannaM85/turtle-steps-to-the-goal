@@ -245,6 +245,10 @@ export const ru: Dictionary = {
     wasItTastyLabel: 'Было вкусно?',
     cancelAddToMealLabel: 'Отмена',
     doneAddingMealButton: 'Готово',
+    confirmDiscardInProgressMealLabel:
+      'Выйти без сохранения? Добавленные здесь блюда будут удалены.',
+    confirmDiscardInProgressMealYes: 'Удалить',
+    confirmDiscardInProgressMealNo: 'Продолжить',
     fastingWindowToastMessage: (hours) =>
       `Ваше окно голодания составило ${hours}.`,
     foodSearchLabel: 'Поиск продуктов',

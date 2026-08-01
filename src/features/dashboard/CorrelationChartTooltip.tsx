@@ -1,6 +1,6 @@
 import { format, parseISO } from 'date-fns'
 import { ArrowRight } from 'lucide-react'
-import { Link } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { getDateFnsLocale, useLocale, useTranslation } from '@/i18n'
 
 interface CorrelationTooltipEntry {
@@ -33,13 +33,19 @@ export interface CorrelationChartTooltipProps {
  * `OutlierPointsList` chips below the chart (#372/#389), so a point that
  * wasn't flagged as an outlier had no route to its day at all.
  *
- * Mirrors `WeightTrendChart`'s own in-tooltip link (#442), including the two
- * non-obvious bits that make it actually tappable: `wrapperStyle` must
- * re-enable pointer events at the call site (recharts sets
+ * Mirrors `WeightTrendChart`'s own in-tooltip affordance (#442), including
+ * the two non-obvious bits that make interaction work at all: `wrapperStyle`
+ * must re-enable pointer events at the call site (recharts sets
  * `pointer-events: none` on the tooltip wrapper so hovering it doesn't
  * interrupt the chart's mouse tracking), and move events have to stop
- * propagating here so a finger drifting toward the link doesn't retarget the
- * active point mid-tap and navigate to a different day than the one shown.
+ * propagating here so a finger drifting toward the control doesn't retarget
+ * the active point mid-tap (#33).
+ *
+ * On-device follow-up: a plain `<Link>` looked right but tapping it only
+ * dismissed the tooltip — Recharts clears `active` on the touch that would
+ * have been the click, unmounting the link before navigation. Navigate on
+ * `pointerdown` instead (and stop the event) so the route change wins the
+ * race against tooltip teardown.
  */
 export function CorrelationChartTooltip({
   formatValue,
@@ -47,6 +53,7 @@ export function CorrelationChartTooltip({
   payload,
 }: CorrelationChartTooltipProps) {
   const t = useTranslation()
+  const navigate = useNavigate()
   const dateFnsLocale = getDateFnsLocale(useLocale())
 
   if (!active || !payload || payload.length === 0) return null
@@ -58,6 +65,7 @@ export function CorrelationChartTooltip({
       className="rounded-lg border border-border bg-popover px-3 py-2 text-xs text-popover-foreground shadow-md"
       onMouseMove={(e) => e.stopPropagation()}
       onTouchMove={(e) => e.stopPropagation()}
+      onPointerDown={(e) => e.stopPropagation()}
     >
       {date && (
         <p className="mb-1 font-medium">
@@ -73,13 +81,18 @@ export function CorrelationChartTooltip({
         )
       })}
       {date && (
-        <Link
-          to={`/?date=${date}`}
+        <button
+          type="button"
           className="mt-1.5 flex items-center gap-1 font-medium text-primary underline-offset-4 hover:underline"
+          onPointerDown={(e) => {
+            e.preventDefault()
+            e.stopPropagation()
+            navigate(`/?date=${date}`)
+          }}
         >
           {t.dashboard.viewDayLink}
           <ArrowRight aria-hidden="true" className="size-3" />
-        </Link>
+        </button>
       )}
     </div>
   )

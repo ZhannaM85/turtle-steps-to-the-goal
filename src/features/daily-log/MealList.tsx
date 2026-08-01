@@ -396,8 +396,10 @@ export function MealList({
     CalorieEntry | undefined
   >(undefined)
   // #491 — Done sets this so closing the dialog keeps the in-progress
-  // meal; X / escape / overlay leave it false and we discard.
+  // meal; X / escape / overlay leave it false and we discard (#494 asks
+  // first when that discard would drop foods already added this session).
   const keepInProgressMealRef = useRef(false)
+  const [confirmDiscardAddMeal, setConfirmDiscardAddMeal] = useState(false)
   function openAddMealDialog() {
     setInProgressMealId(null)
     setNewMealTime(currentTimeHHMM())
@@ -405,7 +407,20 @@ export function MealList({
     setNewMealPosition(calorieEntries.length + 1)
     setNewMealPreviousMeal(previousDayEntry?.calorieEntries?.[calorieEntries.length])
     keepInProgressMealRef.current = false
+    setConfirmDiscardAddMeal(false)
     setIsAddMealDialogOpen(true)
+  }
+
+  function discardInProgressMealAndClose() {
+    if (inProgressMealId) {
+      setCalorieEntries(
+        calorieEntries.filter((entry) => entry.id !== inProgressMealId),
+      )
+    }
+    keepInProgressMealRef.current = false
+    setInProgressMealId(null)
+    setConfirmDiscardAddMeal(false)
+    setIsAddMealDialogOpen(false)
   }
 
   function closeAddMealDialog(open: boolean) {
@@ -413,13 +428,20 @@ export function MealList({
       setIsAddMealDialogOpen(true)
       return
     }
-    if (!keepInProgressMealRef.current && inProgressMealId) {
-      setCalorieEntries(
-        calorieEntries.filter((entry) => entry.id !== inProgressMealId),
-      )
+    if (keepInProgressMealRef.current) {
+      keepInProgressMealRef.current = false
+      setInProgressMealId(null)
+      setConfirmDiscardAddMeal(false)
+      setIsAddMealDialogOpen(false)
+      return
     }
-    keepInProgressMealRef.current = false
-    setInProgressMealId(null)
+    // #494 — foods already written into the day for this session; confirm
+    // before silent discard. Empty flyout (no inProgressMealId yet) closes.
+    if (inProgressMealId) {
+      setConfirmDiscardAddMeal(true)
+      return
+    }
+    setConfirmDiscardAddMeal(false)
     setIsAddMealDialogOpen(false)
   }
   // #461 — which already-saved meal (if any) is open for editing in the
@@ -835,6 +857,9 @@ export function MealList({
           onDone={() => {
             keepInProgressMealRef.current = true
           }}
+          isConfirmingDiscard={confirmDiscardAddMeal}
+          onConfirmDiscard={discardInProgressMealAndClose}
+          onCancelDiscard={() => setConfirmDiscardAddMeal(false)}
           mealLabel={effectiveMealLabel(
             t,
             newMealPosition,

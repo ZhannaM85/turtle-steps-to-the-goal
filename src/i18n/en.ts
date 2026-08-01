@@ -230,6 +230,10 @@ export const en: Dictionary = {
     wasItTastyLabel: 'Was it tasty?',
     cancelAddToMealLabel: 'Cancel',
     doneAddingMealButton: 'Done',
+    confirmDiscardInProgressMealLabel:
+      'Leave without saving? Foods added here will be discarded.',
+    confirmDiscardInProgressMealYes: 'Discard',
+    confirmDiscardInProgressMealNo: 'Keep editing',
     fastingWindowToastMessage: (hours) => `Your fasting window was ${hours}.`,
     foodSearchLabel: 'Search foods',
     foodSearchPlaceholder: 'Search…',

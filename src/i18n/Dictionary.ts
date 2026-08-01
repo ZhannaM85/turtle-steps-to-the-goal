@@ -482,6 +482,11 @@ export interface Dictionary {
     wasItTastyLabel: string
     cancelAddToMealLabel: string
     doneAddingMealButton: string
+    /** #494 — confirm before X/escape discards an in-progress new meal
+     * that already has foods from this flyout session (#491). */
+    confirmDiscardInProgressMealLabel: string
+    confirmDiscardInProgressMealYes: string
+    confirmDiscardInProgressMealNo: string
     /** #287 — a quiet, dismissible in-app note shown right after saving the
      * day's first meal with a recorded time, if the previous day also had
      * one — not a background/push notification (see #261, closed as
