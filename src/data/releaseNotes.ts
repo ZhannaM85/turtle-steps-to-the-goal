@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 457,
+    issue: 505,
+    date: '2026-08-01T19:15:00+03:00',
+    en: 'Add meal and Add food screens now use the same text sizes and spacing as the meal cards on the Day screen, so dish names and calories are easier to scan.',
+    ru: 'Экраны «Добавить приём пищи» и «Добавить блюдо» теперь используют те же размеры текста и отступы, что и карточки приёмов на экране Дня — названия блюд и калории проще читать.',
+  },
+  {
     version: 456,
     issue: 506,
     date: '2026-08-01T18:45:00+03:00',

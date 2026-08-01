@@ -15,7 +15,11 @@ import type { MealItem } from '@/domain/mealItem'
 import { formatNumber, useLocale, useTranslation } from '@/i18n'
 import { applyFoodOverrides } from '@/shared/lib/applyFoodOverrides'
 import { DAY_EMOTIONS, MEAL_EMOTIONS } from '@/shared/lib/emotionIcons'
-import { formatKcal, macrosSummaryTextCompact } from '@/shared/lib/macroDisplay'
+import {
+  formatKcal,
+  formatMacroGrams,
+  macrosSummaryTextCompact,
+} from '@/shared/lib/macroDisplay'
 import {
   gramsToPortions,
   parseOptionalMacro,
@@ -738,7 +742,9 @@ export function AddMealDialog({
         }}
       >
         <div className="flex items-center justify-between gap-2 pr-8">
-          <DialogTitle>{mealLabel}</DialogTitle>
+          {/* #505 — match Day meal-card title weight (`text-lg font-medium`),
+           * not the shared DialogTitle semibold default. */}
+          <DialogTitle className="font-medium">{mealLabel}</DialogTitle>
           <div className="flex items-center gap-1">
             <Input
               type="time"
@@ -778,8 +784,11 @@ export function AddMealDialog({
             )}
           </div>
         </div>
+        {/* #505 — one vertical scale (`gap-3`/`gap-4`) instead of mixed
+         * `mt-2`/`mt-3`/`mt-4` between confirms, quantity step, and browse. */}
+        <div className="mt-3 flex flex-col gap-4">
         {isConfirmingMealDelete && onDeleteMeal && (
-          <div className="mt-2 flex items-center gap-2 rounded-lg bg-card p-2 ring-1 ring-foreground/10">
+          <div className="flex items-center gap-2 rounded-xl bg-card p-3 ring-1 ring-foreground/10">
             <span className="text-sm text-muted-foreground">
               {t.history.confirmDeleteLabel}
             </span>
@@ -802,7 +811,7 @@ export function AddMealDialog({
           </div>
         )}
         {isConfirmingDiscard && onConfirmDiscard && onCancelDiscard && (
-          <div className="mt-2 flex flex-col gap-2 rounded-lg bg-card p-2 ring-1 ring-foreground/10">
+          <div className="flex flex-col gap-2 rounded-xl bg-card p-3 ring-1 ring-foreground/10">
             <span className="text-sm text-muted-foreground">
               {t.dailyEntry.confirmDiscardInProgressMealLabel}
             </span>
@@ -828,8 +837,23 @@ export function AddMealDialog({
         )}
 
         {activeItem ? (
-          <div className="mt-3 flex flex-col gap-3">
-            <p className="text-sm font-medium">{textFor(activeItem)}</p>
+          <div className="flex flex-col gap-3">
+            {/* #505 — same dish hierarchy as MealList (#473): name base,
+             * kcal xl hero, grams/macros sm muted. */}
+            <p className="text-base font-medium text-muted-foreground">
+              {textFor(activeItem)}
+            </p>
+            {activeScaled && (
+              <p className="flex items-baseline gap-1.5 text-sm text-muted-foreground">
+                <span className="text-xl font-semibold tabular-nums">
+                  {formatNumber(activeScaled.amountKcal, locale, 0)}{' '}
+                  {t.dailyEntry.kcalUnit}
+                </span>
+                {activeScaled.amountG !== undefined && (
+                  <span>· {formatMacroGrams(activeScaled.amountG, locale, t)}</span>
+                )}
+              </p>
+            )}
             {activeItem.source === 'food' &&
               activeItem.food.servings &&
               activeItem.food.servings.length > 0 && (
@@ -868,7 +892,7 @@ export function AddMealDialog({
                   aria-label={t.dailyEntry.servingCountLabel}
                   value={servingCount}
                   onChange={(e) => setServingCount(e.target.value)}
-                  className="h-10 w-20"
+                  className="h-12 w-20 text-base"
                 />
               </div>
             ) : (
@@ -882,7 +906,7 @@ export function AddMealDialog({
                   aria-label={t.dailyEntry.foodQuantityLabel}
                   value={quantity}
                   onChange={(e) => setQuantity(e.target.value)}
-                  className="h-10 w-20"
+                  className="h-12 w-20 text-base"
                 />
               </div>
             )}
@@ -899,12 +923,12 @@ export function AddMealDialog({
               />
             </div>
             {activeTodayTotalPreview && (
-              <p className="text-sm text-muted-foreground">
+              <p className="text-base text-muted-foreground">
                 {activeTodayTotalPreview}
               </p>
             )}
             {activeTodayRemainingPreview && (
-              <p className="text-sm text-muted-foreground">
+              <p className="text-base text-muted-foreground">
                 {activeTodayRemainingPreview}
               </p>
             )}
@@ -928,7 +952,7 @@ export function AddMealDialog({
             </div>
           </div>
         ) : (
-          <div className="mt-4 flex flex-col gap-4">
+          <div className="flex flex-col gap-4">
             {previousMeal && previousMeal.items.length > 0 && (
               <Button
                 type="button"
@@ -997,7 +1021,7 @@ export function AddMealDialog({
                  * small plain-text links at the bottom. "Scan barcode" is
                  * a deliberate second entry point alongside the search
                  * bar's own scan icon, matching the mockup exactly. */}
-                <div className="grid grid-cols-3 gap-2">
+                <div className="grid grid-cols-3 gap-3">
                   <QuickActionCard
                     Icon={Utensils}
                     label={t.dailyEntry.quickActionAddFoodLabel}
@@ -1016,7 +1040,7 @@ export function AddMealDialog({
                   />
                 </div>
                 {recentItems.length > 0 && (
-                  <div className="flex flex-col gap-2">
+                  <div className="flex flex-col gap-3">
                     <div className="flex items-center justify-between">
                       <span className="text-sm font-medium text-muted-foreground">
                         {t.dailyEntry.recentFoodsLabel}
@@ -1053,55 +1077,78 @@ export function AddMealDialog({
             )}
 
             {items.length > 0 && (
-              <div className="flex flex-col gap-2 border-t border-border pt-4">
+              <div className="flex flex-col gap-3 border-t border-border pt-4">
                 <span className="text-sm font-medium text-muted-foreground">
                   {t.dailyEntry.mealSoFarLabel}
                 </span>
-                <ul className="flex flex-col gap-1">
-                  {items.map((item) => (
-                    <li
-                      key={item.id}
-                      className="flex items-start justify-between gap-2 py-2 text-sm"
-                    >
-                      <button
-                        type="button"
-                        className="min-w-0 flex-1 text-left hover:underline"
-                        onClick={() => startEditItem(item)}
+                {/* #505 — Day meal-card dish rhythm: rounded-xl / p-4 /
+                 * divide / py-3, name base + kcal xl + macros sm. */}
+                <ul className="flex flex-col divide-y divide-foreground/15 rounded-xl border border-border p-4">
+                  {items.map((item) => {
+                    const itemMacros = macrosSummaryTextCompact(
+                      item.proteinG,
+                      item.fatG,
+                      item.carbsG,
+                      locale,
+                      t,
+                    )
+                    return (
+                      <li
+                        key={item.id}
+                        className="flex items-start justify-between gap-2 py-3 text-sm text-muted-foreground first:pt-0 last:pb-0"
                       >
-                        {item.name || t.dailyEntry.itemNamePlaceholder}
-                      </button>
-                      <span className="flex shrink-0 items-center gap-2 text-muted-foreground">
-                        {formatNumber(item.amountKcal, locale, 0)}{' '}
-                        {t.dailyEntry.kcalUnit}
-                        <Button
+                        <button
                           type="button"
-                          variant="ghost"
-                          size="icon-sm"
-                          aria-label={t.dailyEntry.editItemSheetTitle}
+                          className="flex min-w-0 flex-1 flex-col gap-0.5 text-left hover:underline"
                           onClick={() => startEditItem(item)}
                         >
-                          <Pencil aria-hidden="true" />
-                        </Button>
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="icon-sm"
-                          aria-label={t.dailyEntry.deleteItemLabel}
-                          onClick={() => onRemoveItem(item.id)}
-                        >
-                          <Trash2 aria-hidden="true" />
-                        </Button>
-                      </span>
-                    </li>
-                  ))}
+                          <p className="text-base font-medium">
+                            {item.name || t.dailyEntry.itemNamePlaceholder}
+                          </p>
+                          <p className="flex items-baseline gap-1.5">
+                            <span className="text-xl font-semibold tabular-nums">
+                              {formatNumber(item.amountKcal, locale, 0)}{' '}
+                              {t.dailyEntry.kcalUnit}
+                            </span>
+                            {item.amountG !== undefined && (
+                              <span>
+                                · {formatMacroGrams(item.amountG, locale, t)}
+                              </span>
+                            )}
+                          </p>
+                          {itemMacros && <p>{itemMacros}</p>}
+                        </button>
+                        <span className="flex shrink-0 items-center gap-2">
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon-sm"
+                            aria-label={t.dailyEntry.editItemSheetTitle}
+                            onClick={() => startEditItem(item)}
+                          >
+                            <Pencil aria-hidden="true" />
+                          </Button>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon-sm"
+                            aria-label={t.dailyEntry.deleteItemLabel}
+                            onClick={() => onRemoveItem(item.id)}
+                          >
+                            <Trash2 aria-hidden="true" />
+                          </Button>
+                        </span>
+                      </li>
+                    )
+                  })}
                 </ul>
                 {todayTotalPreview && (
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-base text-muted-foreground">
                     {todayTotalPreview}
                   </p>
                 )}
                 {todayRemainingPreview && (
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-base text-muted-foreground">
                     {todayRemainingPreview}
                   </p>
                 )}
@@ -1112,7 +1159,7 @@ export function AddMealDialog({
                  * reaction block (above Done), not under the quick-
                  * action cards. Placeholder is meal-aware copy, not
                  * the reaction's "Was it tasty?" wording. */}
-                <div className="flex flex-col gap-2 pt-2 pb-20">
+                <div className="flex flex-col gap-3 pt-2 pb-20">
                   <span className="text-sm text-muted-foreground">
                     {t.dailyEntry.wasItTastyLabel}
                   </span>
@@ -1159,6 +1206,7 @@ export function AddMealDialog({
             )}
           </div>
         )}
+        </div>
 
         {isRepeatOpen && previousMeal && (
           <RepeatMealDialog
@@ -1306,7 +1354,8 @@ function QuickActionCard({
     <button
       type="button"
       aria-label={ariaLabel}
-      className="flex flex-col items-center gap-1.5 rounded-lg border border-border p-3 text-center text-xs font-medium hover:bg-muted"
+      // #505 — stay quieter than meal title + dish kcal heroes.
+      className="flex flex-col items-center gap-1.5 rounded-xl border border-border p-3 text-center text-xs font-medium text-muted-foreground hover:bg-muted hover:text-foreground"
       onClick={onClick}
     >
       <Icon aria-hidden="true" className="size-5" />
@@ -1333,19 +1382,27 @@ function PickableItemList({
   locale: ReturnType<typeof useLocale>
 }) {
   return (
-    <ul className="flex max-h-72 flex-col overflow-y-auto rounded-lg border border-border">
+    // #505 — Day-card list rhythm for Recent / search matches: rounded-xl
+    // shell, divide rows, name base / secondary sm (kcal hero stays on
+    // composition + quantity preview, not every catalog row).
+    <ul className="flex max-h-72 flex-col divide-y divide-foreground/15 overflow-y-auto rounded-xl border border-border p-4">
       {items.map((item) => (
-        <li key={itemKey(item)} className="flex items-stretch">
+        <li
+          key={itemKey(item)}
+          className="flex items-stretch py-3 first:pt-0 last:pb-0"
+        >
           <button
             type="button"
-            className="flex w-full min-w-0 items-start gap-2 px-2.5 py-1.5 text-left text-sm hover:bg-muted"
+            className="flex w-full min-w-0 items-start gap-2 text-left text-sm text-muted-foreground hover:bg-muted"
             onClick={() => onPick(item)}
           >
-            <span className="flex flex-col">
+            <span className="flex min-w-0 flex-col gap-0.5">
               {item.source === 'food' ? (
                 <>
-                  <span>{item.food[locale]}</span>
-                  <span className="text-xs font-normal text-muted-foreground">
+                  <span className="text-base font-medium">
+                    {item.food[locale]}
+                  </span>
+                  <span>
                     {formatNumber(item.food.kcal100, locale, 0)}{' '}
                     {t.dailyEntry.kcalUnit} {t.dailyEntry.per100gLabel} ·{' '}
                     {macrosSummaryTextCompact(
@@ -1359,8 +1416,10 @@ function PickableItemList({
                 </>
               ) : (
                 <>
-                  <span>{item.mealItem.name}</span>
-                  <span className="text-xs font-normal text-muted-foreground">
+                  <span className="text-base font-medium">
+                    {item.mealItem.name}
+                  </span>
+                  <span>
                     {formatNumber(item.mealItem.lastAmountKcal, locale, 0)}{' '}
                     {t.dailyEntry.kcalUnit} {t.dailyEntry.lastLoggedLabel} ·{' '}
                     {macrosSummaryTextCompact(

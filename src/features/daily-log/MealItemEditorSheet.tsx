@@ -1,8 +1,9 @@
 import { Star } from 'lucide-react'
 import type { MealEmotion } from '@/domain/dailyEntry'
 import type { MealItem } from '@/domain/mealItem'
-import { useLocale, useTranslation } from '@/i18n'
+import { formatNumber, useLocale, useTranslation } from '@/i18n'
 import { MEAL_EMOTIONS } from '@/shared/lib/emotionIcons'
+import { formatMacroGrams } from '@/shared/lib/macroDisplay'
 import {
   formatComputedTotal,
   parseOptionalMacro,
@@ -112,7 +113,7 @@ function FormSection({
   children: React.ReactNode
 }) {
   return (
-    <div className="flex flex-col gap-3 rounded-lg border border-border p-3">
+    <div className="flex flex-col gap-3 rounded-xl border border-border p-4">
       {heading && (
         <div className="flex items-center justify-between gap-2">
           <span className="text-sm font-medium text-foreground">
@@ -285,7 +286,7 @@ export function MealItemEditorSheet({
               }
         }
       >
-        <DialogTitle>{title}</DialogTitle>
+        <DialogTitle className="font-medium">{title}</DialogTitle>
         {infoMessage && (
           <p className="text-sm text-muted-foreground">{infoMessage}</p>
         )}
@@ -301,7 +302,7 @@ export function MealItemEditorSheet({
                 onSelectItem={onSelectMealItem}
                 onSubmit={onSave}
                 suggestions={mealItems}
-                className="h-12 text-base"
+                className="h-12 text-base font-medium"
               />
               {/* #279 — favorites a manually-typed dish right at creation
                * time, via useMealItemStore.touch's favorite argument. Same
@@ -455,32 +456,41 @@ export function MealItemEditorSheet({
             (totalPreview && todayTotalPreview) ||
             (totalPreview && todayRemainingPreview) ||
             (totalPreview && macrosInconsistent)) && (
-            <div className="flex flex-col gap-1 px-1">
+            // #505 — same base/sm split as Day meal card: dish kcal hero +
+            // day totals at text-base; secondary notes stay text-sm.
+            <div className="flex flex-col gap-1.5 px-1 text-sm text-muted-foreground">
+              {scaledPreview && (
+                <p className="flex items-baseline gap-1.5">
+                  <span className="text-xl font-semibold tabular-nums">
+                    {formatNumber(scaledPreview.amountKcal, locale, 0)}{' '}
+                    {t.dailyEntry.kcalUnit}
+                  </span>
+                  {scaledPreview.amountG !== undefined && (
+                    <span>
+                      · {formatMacroGrams(scaledPreview.amountG, locale, t)}
+                    </span>
+                  )}
+                </p>
+              )}
               {totalPreview && (
-                <p className="text-sm text-muted-foreground">
+                <p>
                   {t.dailyEntry.computedTotalPrefix} {totalPreview}
                 </p>
               )}
               {scaledPreview?.fiberG !== undefined && (
-                <p className="text-sm text-muted-foreground">
+                <p>
                   {t.dailyEntry.fiberLabel}: {scaledPreview.fiberG}
                   {t.dailyEntry.gramsUnit}
                 </p>
               )}
               {totalPreview && todayTotalPreview && (
-                <p className="text-sm text-muted-foreground">
-                  {todayTotalPreview}
-                </p>
+                <p className="text-base">{todayTotalPreview}</p>
               )}
               {totalPreview && todayRemainingPreview && (
-                <p className="text-sm text-muted-foreground">
-                  {todayRemainingPreview}
-                </p>
+                <p className="text-base">{todayRemainingPreview}</p>
               )}
               {totalPreview && macrosInconsistent && (
-                <p className="text-sm text-muted-foreground">
-                  {t.dailyEntry.macroMismatchNote}
-                </p>
+                <p>{t.dailyEntry.macroMismatchNote}</p>
               )}
             </div>
           )}
