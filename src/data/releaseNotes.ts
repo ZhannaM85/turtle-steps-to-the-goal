@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 438,
+    issue: 489,
+    date: '2026-08-01T14:40:00+03:00',
+    en: 'On the Overview pattern charts, tapping a point now shows its date and a “View this day” link, so you can open and edit that day straight from the chart.',
+    ru: 'На графиках закономерностей в «Обзоре» при нажатии на точку теперь видны её дата и ссылка «Открыть этот день» — можно сразу перейти к нему и внести правки.',
+  },
+  {
     version: 437,
     issue: 479,
     date: '2026-08-01T14:05:00+03:00',

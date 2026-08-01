@@ -24,6 +24,7 @@ import { useDashboardChartVisibilityStore, useUnitStore } from '@/stores'
 import { useOutlierExclusion } from '@/shared/hooks'
 import { Button } from '@/shared/ui/button'
 import { ChartTitleWithToggle } from './ChartTitleWithToggle'
+import { CorrelationChartTooltip } from './CorrelationChartTooltip'
 import { CorrelationStrengthLabel } from './CorrelationStrengthLabel'
 import { OutlierPointsList } from './OutlierPointsList'
 import { renderOutlierScatterShape } from './outlierScatterShape'
@@ -79,6 +80,7 @@ export function ProteinCorrelationView({
   if (rawPoints.length === 0) return null
 
   const points = rawPoints.map((point, i) => ({
+    date: point.date,
     proteinPercent: point.proteinPercent,
     delta: toDisplay(point.deltaKg),
     isOutlier: flags[i],
@@ -147,17 +149,14 @@ export function ProteinCorrelationView({
             />
             <Tooltip
               cursor={{ strokeDasharray: '3 3', stroke: 'var(--border)' }}
-              contentStyle={{
-                background: 'var(--popover)',
-                border: '1px solid var(--border)',
-                borderRadius: 8,
-                fontSize: 12,
-                color: 'var(--popover-foreground)',
-              }}
-              formatter={(value, name) => [
-                `${formatNumber(Number(value), locale)}${name === t.dashboard.proteinPercentOfCaloriesLabel ? t.dailyEntry.percentUnit : ` ${unit}`}`,
-                name,
-              ]}
+              wrapperStyle={{ pointerEvents: 'auto' }}
+              content={
+                <CorrelationChartTooltip
+                  formatValue={(value, name) =>
+                    `${formatNumber(value, locale)}${name === t.dashboard.proteinPercentOfCaloriesLabel ? t.dailyEntry.percentUnit : ` ${unit}`}`
+                  }
+                />
+              }
             />
             <Scatter
               data={points}

@@ -27,6 +27,7 @@ import { useDashboardChartVisibilityStore, useUnitStore } from '@/stores'
 import { useOutlierExclusion } from '@/shared/hooks'
 import { Button } from '@/shared/ui/button'
 import { ChartTitleWithToggle } from './ChartTitleWithToggle'
+import { CorrelationChartTooltip } from './CorrelationChartTooltip'
 import { CorrelationStrengthLabel } from './CorrelationStrengthLabel'
 import { OutlierPointsList } from './OutlierPointsList'
 import { renderOutlierScatterShape } from './outlierScatterShape'
@@ -71,6 +72,7 @@ export function FastingWindowCorrelationView({
   if (rawPoints.length === 0) return null
 
   const points = rawPoints.map((point, i) => ({
+    date: point.date,
     fastingHours: point.fastingHours,
     delta: toDisplay(point.deltaKg),
     isOutlier: flags[i],
@@ -140,19 +142,16 @@ export function FastingWindowCorrelationView({
             />
             <Tooltip
               cursor={{ strokeDasharray: '3 3', stroke: 'var(--border)' }}
-              contentStyle={{
-                background: 'var(--popover)',
-                border: '1px solid var(--border)',
-                borderRadius: 8,
-                fontSize: 12,
-                color: 'var(--popover-foreground)',
-              }}
-              formatter={(value, name) => [
-                name === t.dashboard.fastingHoursLegend
-                  ? `${formatNumber(Number(value), locale)}h`
-                  : `${formatNumber(Number(value), locale)} ${unit}`,
-                name,
-              ]}
+              wrapperStyle={{ pointerEvents: 'auto' }}
+              content={
+                <CorrelationChartTooltip
+                  formatValue={(value, name) =>
+                    name === t.dashboard.fastingHoursLegend
+                      ? `${formatNumber(value, locale)}h`
+                      : `${formatNumber(value, locale)} ${unit}`
+                  }
+                />
+              }
             />
             <Scatter
               data={points}

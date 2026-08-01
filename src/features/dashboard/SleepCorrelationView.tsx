@@ -24,6 +24,7 @@ import { useDashboardChartVisibilityStore, useUnitStore } from '@/stores'
 import { useOutlierExclusion } from '@/shared/hooks'
 import { Button } from '@/shared/ui/button'
 import { ChartTitleWithToggle } from './ChartTitleWithToggle'
+import { CorrelationChartTooltip } from './CorrelationChartTooltip'
 import { CorrelationStrengthLabel } from './CorrelationStrengthLabel'
 import { OutlierPointsList } from './OutlierPointsList'
 import { renderOutlierScatterShape } from './outlierScatterShape'
@@ -67,6 +68,7 @@ export function SleepCorrelationView({
   if (rawPoints.length === 0) return null
 
   const points = rawPoints.map((point, i) => ({
+    date: point.date,
     hours: point.hours,
     delta: toDisplay(point.deltaKg),
     isOutlier: flags[i],
@@ -135,17 +137,14 @@ export function SleepCorrelationView({
             />
             <Tooltip
               cursor={{ strokeDasharray: '3 3', stroke: 'var(--border)' }}
-              contentStyle={{
-                background: 'var(--popover)',
-                border: '1px solid var(--border)',
-                borderRadius: 8,
-                fontSize: 12,
-                color: 'var(--popover-foreground)',
-              }}
-              formatter={(value, name) => [
-                `${formatNumber(Number(value), locale)}${name === t.dashboard.sleepHoursLegend ? 'h' : ` ${unit}`}`,
-                name,
-              ]}
+              wrapperStyle={{ pointerEvents: 'auto' }}
+              content={
+                <CorrelationChartTooltip
+                  formatValue={(value, name) =>
+                    `${formatNumber(value, locale)}${name === t.dashboard.sleepHoursLegend ? 'h' : ` ${unit}`}`
+                  }
+                />
+              }
             />
             <Scatter
               data={points}

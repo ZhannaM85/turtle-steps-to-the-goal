@@ -24,6 +24,7 @@ import { useDashboardChartVisibilityStore, useUnitStore } from '@/stores'
 import { useOutlierExclusion, useWeekStartsOn } from '@/shared/hooks'
 import { Button } from '@/shared/ui/button'
 import { ChartTitleWithToggle } from './ChartTitleWithToggle'
+import { CorrelationChartTooltip } from './CorrelationChartTooltip'
 import { CorrelationStrengthLabel } from './CorrelationStrengthLabel'
 import { OutlierPointsList } from './OutlierPointsList'
 import { renderOutlierScatterShape } from './outlierScatterShape'
@@ -72,6 +73,10 @@ export function CorrelationView({ entries, dragHandle }: CorrelationViewProps) {
   if (rawPoints.length === 0) return null
 
   const points = rawPoints.map((point, i) => ({
+    // This view's points are whole weeks, not days — the tooltip's link
+    // targets that week's start, exactly what `OutlierPointsList` below
+    // already navigates to for the same point.
+    date: point.weekStart,
     calories: point.calories,
     delta: toDisplay(point.delta),
     isOutlier: flags[i],
@@ -140,19 +145,16 @@ export function CorrelationView({ entries, dragHandle }: CorrelationViewProps) {
             />
             <Tooltip
               cursor={{ strokeDasharray: '3 3', stroke: 'var(--border)' }}
-              contentStyle={{
-                background: 'var(--popover)',
-                border: '1px solid var(--border)',
-                borderRadius: 8,
-                fontSize: 12,
-                color: 'var(--popover-foreground)',
-              }}
-              formatter={(value, name) => [
-                name === t.dashboard.caloriesLegend
-                  ? formatNumber(Number(value), locale, 0)
-                  : `${formatNumber(Number(value), locale)} ${unit}`,
-                name,
-              ]}
+              wrapperStyle={{ pointerEvents: 'auto' }}
+              content={
+                <CorrelationChartTooltip
+                  formatValue={(value, name) =>
+                    name === t.dashboard.caloriesLegend
+                      ? formatNumber(value, locale, 0)
+                      : `${formatNumber(value, locale)} ${unit}`
+                  }
+                />
+              }
             />
             <Scatter
               data={points}

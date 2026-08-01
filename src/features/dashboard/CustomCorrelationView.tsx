@@ -24,6 +24,7 @@ import { formatNumber, getDateFnsLocale, useLocale, useTranslation } from '@/i18
 import { metricRefLabel } from '@/shared/lib/metricRefLabel'
 import { useOutlierExclusion } from '@/shared/hooks'
 import { Button } from '@/shared/ui/button'
+import { CorrelationChartTooltip } from './CorrelationChartTooltip'
 import { CorrelationStrengthLabel } from './CorrelationStrengthLabel'
 import { OutlierPointsList } from './OutlierPointsList'
 import { renderOutlierScatterShape } from './outlierScatterShape'
@@ -87,6 +88,7 @@ export function CustomCorrelationView({
   if (rawPoints.length === 0) return null
 
   const points = rawPoints.map((point, i) => ({
+    date: point.date,
     aValue: point.aValue,
     bValue: point.bValue,
     isOutlier: flags[i],
@@ -143,14 +145,12 @@ export function CustomCorrelationView({
             />
             <Tooltip
               cursor={{ strokeDasharray: '3 3', stroke: 'var(--border)' }}
-              contentStyle={{
-                background: 'var(--popover)',
-                border: '1px solid var(--border)',
-                borderRadius: 8,
-                fontSize: 12,
-                color: 'var(--popover-foreground)',
-              }}
-              formatter={(value, name) => [formatNumber(Number(value), locale), name]}
+              wrapperStyle={{ pointerEvents: 'auto' }}
+              content={
+                <CorrelationChartTooltip
+                  formatValue={(value) => formatNumber(value, locale)}
+                />
+              }
             />
             <Scatter
               data={points}
