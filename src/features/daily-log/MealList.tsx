@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { format, parseISO, subDays } from 'date-fns'
 import { Pencil, Trash2 } from 'lucide-react'
 import { foods } from '@/data/foods'
@@ -395,13 +395,32 @@ export function MealList({
   const [newMealPreviousMeal, setNewMealPreviousMeal] = useState<
     CalorieEntry | undefined
   >(undefined)
+  // #491 — Done sets this so closing the dialog keeps the in-progress
+  // meal; X / escape / overlay leave it false and we discard.
+  const keepInProgressMealRef = useRef(false)
   function openAddMealDialog() {
     setInProgressMealId(null)
     setNewMealTime(currentTimeHHMM())
     setNewMealNote('')
     setNewMealPosition(calorieEntries.length + 1)
     setNewMealPreviousMeal(previousDayEntry?.calorieEntries?.[calorieEntries.length])
+    keepInProgressMealRef.current = false
     setIsAddMealDialogOpen(true)
+  }
+
+  function closeAddMealDialog(open: boolean) {
+    if (open) {
+      setIsAddMealDialogOpen(true)
+      return
+    }
+    if (!keepInProgressMealRef.current && inProgressMealId) {
+      setCalorieEntries(
+        calorieEntries.filter((entry) => entry.id !== inProgressMealId),
+      )
+    }
+    keepInProgressMealRef.current = false
+    setInProgressMealId(null)
+    setIsAddMealDialogOpen(false)
   }
   // #461 — which already-saved meal (if any) is open for editing in the
   // shared AddMealDialog overlay, state-controlled like inProgressMealId
@@ -812,7 +831,10 @@ export function MealList({
       {isAddMealDialogOpen && (
         <AddMealDialog
           open={isAddMealDialogOpen}
-          onOpenChange={setIsAddMealDialogOpen}
+          onOpenChange={closeAddMealDialog}
+          onDone={() => {
+            keepInProgressMealRef.current = true
+          }}
           mealLabel={effectiveMealLabel(
             t,
             newMealPosition,

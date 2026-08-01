@@ -90,6 +90,48 @@ describe('MealList', () => {
     ).toBeInTheDocument()
   })
 
+  it('discards an in-progress new meal when the dialog is closed with X (#491)', async () => {
+    const user = userEvent.setup()
+    render(
+      <ControlledMealList calorieEntries={[]} date="2026-03-01" />,
+      { wrapper: MemoryRouter },
+    )
+
+    await user.click(
+      screen.getByRole('button', { name: '+ Add another meal' }),
+    )
+    await user.click(screen.getByRole('button', { name: 'Add food' }))
+    await user.type(screen.getByLabelText('Dish name'), 'Oatmeal')
+    await user.type(screen.getByLabelText('kcal/100g'), '300')
+    await user.click(screen.getByRole('button', { name: 'Save' }))
+    expect(screen.getAllByText('Oatmeal').length).toBeGreaterThan(0)
+
+    await user.click(screen.getByRole('button', { name: 'Close' }))
+
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    expect(screen.queryByText('Oatmeal')).not.toBeInTheDocument()
+    expect(screen.queryByText('Breakfast')).not.toBeInTheDocument()
+  })
+
+  it('keeps an in-progress new meal when Done is clicked (#491)', async () => {
+    const user = userEvent.setup()
+    render(
+      <ControlledMealList calorieEntries={[]} date="2026-03-01" />,
+      { wrapper: MemoryRouter },
+    )
+
+    await user.click(
+      screen.getByRole('button', { name: '+ Add another meal' }),
+    )
+    await user.click(screen.getByRole('button', { name: 'Add food' }))
+    await user.type(screen.getByLabelText('Dish name'), 'Oatmeal')
+    await user.type(screen.getByLabelText('kcal/100g'), '300')
+    await user.click(screen.getByRole('button', { name: 'Save' }))
+    await user.click(screen.getByRole('button', { name: 'Done' }))
+
+    expect(screen.getByText('Oatmeal')).toBeInTheDocument()
+  })
+
   it("shows an item's own quantity in grams when recorded, omits it when not (#206)", () => {
     const calorieEntries: CalorieEntry[] = [
       {

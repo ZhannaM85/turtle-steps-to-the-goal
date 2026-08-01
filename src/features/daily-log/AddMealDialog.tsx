@@ -100,6 +100,10 @@ function blankManualDraft() {
 export interface AddMealDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
+  /** #491 — called when the user taps Done (confirm keep). Closing via
+   * the dialog X / escape / overlay does *not* call this — MealList uses
+   * that distinction to discard an in-progress new meal. */
+  onDone?: () => void
   /** Position-derived default, or the previous meal's own custom label —
    * computed by `MealList.tsx` exactly as it already does for the heading
    * above the old add-row (`effectiveMealLabel`/`defaultMealLabel`). */
@@ -163,6 +167,7 @@ export interface AddMealDialogProps {
 export function AddMealDialog({
   open,
   onOpenChange,
+  onDone,
   mealLabel,
   mealPosition,
   timeEaten,
@@ -1106,7 +1111,13 @@ export function AddMealDialog({
                     type="button"
                     size="xl"
                     className="w-full"
-                    onClick={() => onOpenChange(false)}
+                    onClick={() => {
+                      // #491 — Done confirms keep; X / escape only call
+                      // onOpenChange(false), which MealList treats as discard
+                      // for an in-progress new meal.
+                      onDone?.()
+                      onOpenChange(false)
+                    }}
                   >
                     {t.dailyEntry.doneAddingMealButton}
                   </Button>

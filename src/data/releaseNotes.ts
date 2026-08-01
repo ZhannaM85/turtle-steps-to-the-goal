@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 442,
+    issue: 491,
+    date: '2026-08-01T14:52:17+03:00',
+    en: 'Closing Add meal with X now discards a meal you hadn’t finished with Done, so half-started breakfasts don’t stay on the day by accident.',
+    ru: 'Закрытие «Добавить приём пищи» крестиком теперь отменяет приём, который вы не подтвердили кнопкой «Готово» — недописанный завтрак больше не остаётся в дне.',
+  },
+  {
     version: 441,
     issue: 492,
     date: '2026-08-01T14:50:00+03:00',
