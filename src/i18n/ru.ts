@@ -315,6 +315,8 @@ export const ru: Dictionary = {
     nightEatingYesOption: 'Да',
     clearNightEatingOverrideLabel: 'Сбросить',
     waterLabel: 'Вода',
+    expandWaterLabel: 'Показать воду',
+    collapseWaterLabel: 'Скрыть воду',
     mlUnit: 'мл',
     addGlassLabel: '+1 стакан (250мл)',
     addBottleLabel: '+1 бутылка (500мл)',

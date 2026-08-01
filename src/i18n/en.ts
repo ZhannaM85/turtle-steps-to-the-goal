@@ -304,6 +304,8 @@ export const en: Dictionary = {
     nightEatingYesOption: 'Yes',
     clearNightEatingOverrideLabel: 'Clear',
     waterLabel: 'Water',
+    expandWaterLabel: 'Show water',
+    collapseWaterLabel: 'Hide water',
     mlUnit: 'ml',
     addGlassLabel: '+1 glass (250ml)',
     addBottleLabel: '+1 bottle (500ml)',

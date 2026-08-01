@@ -32,6 +32,10 @@ export function DailyEntryFormTop() {
   const [macrosCollapsed, setMacrosCollapsed] = useState(false)
   // #468 — same pattern again, wrapping the meal list.
   const [mealsCollapsed, setMealsCollapsed] = useState(false)
+  // #476 — same pattern again, wrapping the water quick-add + chips
+  // (was left ungrouped on purpose in #416 when Meals was also plain;
+  // Meals gained the accordion in #468, so Water was the odd one out).
+  const [waterCollapsed, setWaterCollapsed] = useState(false)
 
   return (
     <>
@@ -165,63 +169,97 @@ export function DailyEntryFormTop() {
        * becomes its own removable entry instead of bumping a single
        * running total the input quietly reflected — every add now gets a
        * persistent, visible marker. #416: moved here, after Meals, ahead
-       * of the Evening group — stays ungrouped (like Meals above), not
-       * folded into either the Morning or Evening group. */}
+       * of the Evening group — not folded into Morning or Evening.
+       * #476: wrapped in the same bordered `Collapsible` accordion the
+       * macros (#467) / meals (#468) sections above use — was the last
+       * plain unbordered block between those and Evening (#472). */}
       {state.waterTrackingEnabled && (
-        <div id="water-entry-section" className="flex flex-col gap-1.5">
-          <span className="text-sm font-medium">{t.dailyEntry.waterLabel}</span>
-          <div className="flex flex-wrap items-center gap-3">
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              onClick={() => state.addWaterEntry(250)}
-            >
-              {t.dailyEntry.addGlassLabel}
-            </Button>
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              onClick={() => state.addWaterEntry(500)}
-            >
-              {t.dailyEntry.addBottleLabel}
-            </Button>
-          </div>
-          {state.waterEntries.length > 0 && (
-            <div className="flex flex-wrap items-center gap-2">
-              {state.waterEntries.map((entry) => {
-                const amountText = `${formatNumber(entry.amountMl, locale, 0)}${t.dailyEntry.mlUnit}`
-                // No literal "bottle" icon exists in lucide-react — CupSoda
-                // is the closest distinct large-container icon available,
-                // used for anything past a typical glass-sized add.
-                const Icon = entry.amountMl > 300 ? CupSoda : GlassWater
-                return (
-                  <span
-                    key={entry.id}
-                    className="flex items-center gap-1 rounded-full bg-muted py-1 pr-1 pl-2.5 text-sm"
+        <div
+          id="water-entry-section"
+          className="rounded-lg border border-border p-3"
+        >
+          <Collapsible
+            open={!waterCollapsed}
+            onOpenChange={(open) => setWaterCollapsed(!open)}
+          >
+            <CollapsibleTrigger asChild>
+              <button
+                type="button"
+                aria-label={
+                  waterCollapsed
+                    ? t.dailyEntry.expandWaterLabel
+                    : t.dailyEntry.collapseWaterLabel
+                }
+                className="group flex w-full items-center justify-between text-sm font-medium text-muted-foreground hover:text-foreground"
+              >
+                {t.dailyEntry.waterLabel}
+                <ChevronDown
+                  aria-hidden="true"
+                  className="size-4 transition-transform group-data-[state=open]:rotate-180"
+                />
+              </button>
+            </CollapsibleTrigger>
+            <CollapsibleContent>
+              <div className="flex flex-col gap-1.5 pt-3">
+                <div className="flex flex-wrap items-center gap-3">
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => state.addWaterEntry(250)}
                   >
-                    <Icon
-                      aria-hidden="true"
-                      className="size-4 text-muted-foreground"
-                    />
-                    {amountText}
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon-xs"
-                      aria-label={t.dailyEntry.removeWaterEntryLabel(
-                        amountText,
-                      )}
-                      onClick={() => state.removeWaterEntry(entry.id)}
-                    >
-                      <X aria-hidden="true" />
-                    </Button>
-                  </span>
-                )
-              })}
-            </div>
-          )}
+                    {t.dailyEntry.addGlassLabel}
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => state.addWaterEntry(500)}
+                  >
+                    {t.dailyEntry.addBottleLabel}
+                  </Button>
+                </div>
+                {state.waterEntries.length > 0 && (
+                  <div className="flex flex-wrap items-center gap-2">
+                    {state.waterEntries.map((entry) => {
+                      const amountText = `${formatNumber(entry.amountMl, locale, 0)}${t.dailyEntry.mlUnit}`
+                      // No literal "bottle" icon exists in lucide-react —
+                      // CupSoda is the closest distinct large-container
+                      // icon available, used for anything past a typical
+                      // glass-sized add.
+                      const Icon =
+                        entry.amountMl > 300 ? CupSoda : GlassWater
+                      return (
+                        <span
+                          key={entry.id}
+                          className="flex items-center gap-1 rounded-full bg-muted py-1 pr-1 pl-2.5 text-sm"
+                        >
+                          <Icon
+                            aria-hidden="true"
+                            className="size-4 text-muted-foreground"
+                          />
+                          {amountText}
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon-xs"
+                            aria-label={t.dailyEntry.removeWaterEntryLabel(
+                              amountText,
+                            )}
+                            onClick={() =>
+                              state.removeWaterEntry(entry.id)
+                            }
+                          >
+                            <X aria-hidden="true" />
+                          </Button>
+                        </span>
+                      )
+                    })}
+                  </div>
+                )}
+              </div>
+            </CollapsibleContent>
+          </Collapsible>
         </div>
       )}
     </>

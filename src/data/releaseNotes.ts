@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 422,
+    issue: 476,
+    date: '2026-08-01T12:23:45+03:00',
+    en: 'Water on the Day screen now sits in a collapsible section like Meals and Macros.',
+    ru: 'Вода на экране «День» теперь в сворачиваемом разделе, как приёмы пищи и КБЖУ.',
+  },
+  {
     version: 421,
     issue: 466,
     date: '2026-08-01T12:16:12+03:00',

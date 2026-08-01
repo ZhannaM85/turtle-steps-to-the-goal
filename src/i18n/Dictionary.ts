@@ -622,6 +622,11 @@ export interface Dictionary {
      * hadConstipation above. #282: only the two fixed-amount quick-add
      * buttons remain (no manual "type any amount" input/confirm button). */
     waterLabel: string
+    /** #476 — accordion trigger wrapping the water quick-add + chips,
+     * same expand/collapse aria-label pair shape as expandMealsLabel/
+     * collapseMealsLabel and expandMacrosLabel/collapseMacrosLabel. */
+    expandWaterLabel: string
+    collapseWaterLabel: string
     mlUnit: string
     addGlassLabel: string
     addBottleLabel: string
