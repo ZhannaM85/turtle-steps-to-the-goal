@@ -100,7 +100,7 @@ describe('HistoryScreen', () => {
     expect(persisted?.weightKg).toBe(79.5)
   })
 
-  it('highlights days within a reached goal window in the List view (#155)', async () => {
+  it('highlights met days and day-over-day progress days in the List view (#155, #479)', async () => {
     await db.goals.put({
       id: 'goal-1',
       targetWeeklyLossKg: 1,
@@ -108,11 +108,11 @@ describe('HistoryScreen', () => {
       createdAt: '2026-03-01T00:00:00.000Z',
       updatedAt: '2026-03-01T00:00:00.000Z',
     })
-    // #203: day-over-day against weekStart's own weight — 03-02 is 1kg
-    // below 03-01, crossing the 1kg target — window ends up
-    // [2026-03-01, 2026-03-02].
+    // #203 met on 03-03 (−1kg vs weekStart). #479 light tint only on
+    // 03-02 (dropped vs 03-01); weekStart itself has no prior weigh-in.
     await db.dailyEntries.put(makeEntry({ date: '2026-03-01', weightKg: 80 }))
-    await db.dailyEntries.put(makeEntry({ date: '2026-03-02', weightKg: 79 }))
+    await db.dailyEntries.put(makeEntry({ date: '2026-03-02', weightKg: 79.5 }))
+    await db.dailyEntries.put(makeEntry({ date: '2026-03-03', weightKg: 79 }))
 
     render(<HistoryScreen />, { wrapper: MemoryRouter })
     await screen.findByRole('table')
@@ -123,14 +123,20 @@ describe('HistoryScreen', () => {
       }),
     ).toBeInTheDocument()
     expect(
-      screen.getByText('Part of a week you reached your target', {
+      screen.getByText('Weight dropped on the way to your target', {
         selector: '.sr-only',
       }),
     ).toBeInTheDocument()
-    // #479 — same copy also appears in the shared visible legend
+    // #479 — toggleable legend next to the table
+    const legend = screen.getByRole('list', {
+      name: 'Reached-target highlighting',
+    })
+    expect(legend).toBeInTheDocument()
     expect(
-      screen.getByRole('list', { name: 'Reached-target highlighting' }),
-    ).toBeInTheDocument()
+      screen.getByRole('button', {
+        name: 'You reached your target this day — Reached-target highlighting',
+      }),
+    ).toHaveAttribute('aria-pressed', 'true')
   })
 
   describe('date filter', () => {

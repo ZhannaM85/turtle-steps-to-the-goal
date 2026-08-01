@@ -26,11 +26,11 @@ export interface EntryRowProps {
   /** Opens the read-only detail panel immediately on mount — used when
    * arriving via a dashboard-chart deep link (#41) straight to this day. */
   defaultExpanded?: boolean
-  /** #155: this day falls within [weekStart, metOnDate] of some reached
-   * goal window (past or active) — tints the date cell. */
-  isPartOfReachedGoalWindow?: boolean
+  /** #479: weight dropped day-over-day before a reached target — light
+   * date-cell tint (not whole-window membership). */
+  isHeadingTowardGoal?: boolean
   /** #155: this is the exact day some goal's target was first met —
-   * marked more strongly than isPartOfReachedGoalWindow alone. */
+   * marked more strongly than isHeadingTowardGoal alone. */
   isGoalReachedDay?: boolean
 }
 
@@ -41,7 +41,7 @@ export function EntryRow({
   onSaved,
   onDeleted,
   defaultExpanded = false,
-  isPartOfReachedGoalWindow = false,
+  isHeadingTowardGoal = false,
   isGoalReachedDay = false,
 }: EntryRowProps) {
   const t = useTranslation()
@@ -121,7 +121,7 @@ export function EntryRow({
             // tint + bold weight so it reads as distinct within the range.
             isGoalReachedDay
               ? 'bg-primary/15 font-semibold text-primary'
-              : isPartOfReachedGoalWindow && 'bg-primary/5',
+              : isHeadingTowardGoal && 'bg-primary/5',
           )}
         >
           {/* Compact numeric format (#73) — the localized 'PP' format
@@ -129,7 +129,7 @@ export function EntryRow({
            * columns, to push the Actions column's icons off screen on
            * narrow phones. dd.MM.yy is locale-agnostic and unambiguous. */}
           {format(parseISO(entry.date), 'dd.MM.yy')}
-          {(isGoalReachedDay || isPartOfReachedGoalWindow) && (
+          {(isGoalReachedDay || isHeadingTowardGoal) && (
             <span className="sr-only">
               {' '}
               {isGoalReachedDay

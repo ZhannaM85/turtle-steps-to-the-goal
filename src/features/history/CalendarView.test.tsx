@@ -276,8 +276,9 @@ describe('CalendarView', () => {
     })
   })
 
-  describe('reached-goal window highlighting (#155)', () => {
+  describe('reached-goal window highlighting (#155, #479)', () => {
     const otherDayDate = format(today, 'yyyy-MM-10')
+    const priorDayDate = format(today, 'yyyy-MM-09')
 
     it('tints and labels the exact reach day distinctly', () => {
       renderCalendar({
@@ -292,17 +293,39 @@ describe('CalendarView', () => {
       expect(dayButton).toHaveClass('bg-primary/20')
     })
 
-    it('tints and labels the rest of a reached window, without the reach-day wording', () => {
+    it('tints a pre-met day only when weight dropped day-over-day (#479)', () => {
       renderCalendar({
+        entries: [
+          makeEntry({ id: 'e1', date: priorDayDate, weightKg: 80 }),
+          makeEntry({ id: 'e2', date: otherDayDate, weightKg: 79.5 }),
+          makeEntry({ id: 'e3', date: midMonthDate, weightKg: 79 }),
+        ],
+        reachedWindows: [
+          { start: priorDayDate, metOnDate: midMonthDate },
+        ],
+      })
+
+      const headingDay = screen.getByRole('button', {
+        name: `${otherDayLabel}, Weight dropped on the way to your target`,
+      })
+      expect(headingDay).toHaveClass('bg-primary/10')
+    })
+
+    it('skips light tint when the prior day has no weigh-in (#479)', () => {
+      renderCalendar({
+        entries: [
+          makeEntry({ id: 'e1', date: otherDayDate, weightKg: 79.5 }),
+        ],
         reachedWindows: [
           { start: otherDayDate, metOnDate: midMonthDate },
         ],
       })
 
-      const dayButton = screen.getByRole('button', {
-        name: `${otherDayLabel}, Part of a week you reached your target`,
-      })
-      expect(dayButton).toHaveClass('bg-primary/10')
+      const dayButton = screen.getByRole('button', { name: otherDayLabel })
+      expect(dayButton).not.toHaveClass('bg-primary/10')
+      expect(dayButton.getAttribute('aria-label')).not.toContain(
+        'Weight dropped',
+      )
     })
 
     it('adds no reached-goal styling or label outside any window', () => {

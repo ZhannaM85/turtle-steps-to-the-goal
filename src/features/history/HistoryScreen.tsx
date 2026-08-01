@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { ArrowUpDown } from 'lucide-react'
 import { useSearchParams } from 'react-router-dom'
 import type { Emotion } from '@/domain/dailyEntry'
-import { isDateWithinReachedWindow, isGoalMetOnDate } from '@/domain/goal'
+import { isGoalMetOnDate, isHeadingTowardGoalOnDate } from '@/domain/goal'
 import { EmotionPicker } from '@/features/daily-log'
 import { unitLabel, useTranslation } from '@/i18n'
 import { DAY_EMOTIONS } from '@/shared/lib/emotionIcons'
@@ -16,6 +16,7 @@ import { useUnitStore } from '@/stores'
 import { CalendarView } from './CalendarView'
 import { EntryRow } from './EntryRow'
 import { MetTargetList } from './MetTargetList'
+import { ReachedGoalLegend } from './ReachedGoalLegend'
 import { useHistoryData } from './useHistoryData'
 
 // break-words (#246): on very narrow phones the table's total content
@@ -61,6 +62,10 @@ export function HistoryScreen() {
   const [searchText, setSearchText] = useState('')
   const [moodFilter, setMoodFilter] = useState<Emotion | undefined>(undefined)
   const [page, setPage] = useState(0)
+  // #479 — legend row toggles (local; defaults on). Hide the matching
+  // tint without removing the legend chip.
+  const [showMetDayTint, setShowMetDayTint] = useState(true)
+  const [showHeadingTowardTint, setShowHeadingTowardTint] = useState(true)
   const isFiltering =
     dateFrom !== '' ||
     dateTo !== '' ||
@@ -136,37 +141,27 @@ export function HistoryScreen() {
             </ToggleGroupItem>
           </ToggleGroup>
 
-          {/* #479 — sighted counterpart to EntryRow/CalendarView's
-           * sr-only #155 labels. One legend covers both views. */}
-          {reachedWindows.length > 0 && (
-            <ul
-              aria-label={t.history.reachedGoalLegendLabel}
-              className="flex flex-col gap-1.5 text-sm text-muted-foreground sm:flex-row sm:flex-wrap sm:gap-x-4 sm:gap-y-1.5"
-            >
-              <li className="flex items-center gap-2">
-                <span
-                  aria-hidden="true"
-                  className="size-3 shrink-0 rounded-sm bg-primary/15 ring-1 ring-primary/30"
-                />
-                {t.history.reachedGoalDayLabel}
-              </li>
-              <li className="flex items-center gap-2">
-                <span
-                  aria-hidden="true"
-                  className="size-3 shrink-0 rounded-sm bg-primary/5 ring-1 ring-primary/20"
-                />
-                {t.history.reachedGoalWindowDayLabel}
-              </li>
-            </ul>
-          )}
-
           {viewMode === 'calendar' ? (
-            <CalendarView
-              entries={entries}
-              reachedWindows={reachedWindows}
-              onEditDay={editDayFromCalendar}
-              onSaved={saveEntry}
-            />
+            <div className="flex flex-col gap-3">
+              {reachedWindows.length > 0 && (
+                <ReachedGoalLegend
+                  showMetDay={showMetDayTint}
+                  showHeadingToward={showHeadingTowardTint}
+                  onToggleMetDay={() => setShowMetDayTint((v) => !v)}
+                  onToggleHeadingToward={() =>
+                    setShowHeadingTowardTint((v) => !v)
+                  }
+                />
+              )}
+              <CalendarView
+                entries={entries}
+                reachedWindows={reachedWindows}
+                showMetDayTint={showMetDayTint}
+                showHeadingTowardTint={showHeadingTowardTint}
+                onEditDay={editDayFromCalendar}
+                onSaved={saveEntry}
+              />
+            </div>
           ) : (
             <>
               <div className="flex flex-col gap-3">
@@ -254,7 +249,20 @@ export function HistoryScreen() {
                   }
                 />
               ) : (
-                <div className="overflow-x-auto">
+                <div className="flex flex-col gap-3">
+                  {/* #479 — legend sits next to the table (not above the
+                   * view toggle). Rows toggle which tints paint. */}
+                  {reachedWindows.length > 0 && (
+                    <ReachedGoalLegend
+                      showMetDay={showMetDayTint}
+                      showHeadingToward={showHeadingTowardTint}
+                      onToggleMetDay={() => setShowMetDayTint((v) => !v)}
+                      onToggleHeadingToward={() =>
+                        setShowHeadingTowardTint((v) => !v)
+                      }
+                    />
+                  )}
+                  <div className="overflow-x-auto">
                   <table className="w-full border-collapse text-left">
                     <thead>
                       <tr>
@@ -300,18 +308,23 @@ export function HistoryScreen() {
                             entry.date === dateFrom &&
                             entry.date === dateTo
                           }
-                          isPartOfReachedGoalWindow={isDateWithinReachedWindow(
-                            entry.date,
-                            reachedWindows,
-                          )}
-                          isGoalReachedDay={isGoalMetOnDate(
-                            entry.date,
-                            reachedWindows,
-                          )}
+                          isHeadingTowardGoal={
+                            showHeadingTowardTint &&
+                            isHeadingTowardGoalOnDate(
+                              entry.date,
+                              reachedWindows,
+                              entries,
+                            )
+                          }
+                          isGoalReachedDay={
+                            showMetDayTint &&
+                            isGoalMetOnDate(entry.date, reachedWindows)
+                          }
                         />
                       ))}
                     </tbody>
                   </table>
+                  </div>
                 </div>
               )}
 

@@ -1223,11 +1223,8 @@ export interface Dictionary {
     previousPageButton: string
     nextPageButton: string
     pageIndicator: (current: number, total: number) => string
-    /** #155: sr-only text appended to a day that falls within a reached
-     * goal window ([weekStart, metOnDate]) but isn't the exact reach day —
-     * the visual tint alone (List's date-cell background, Calendar's day
-     * background) isn't accessible on its own. Also used as the light-
-     * swatch label in #479's visible legend. */
+    /** #155 / #479: sr-only + legend label for a pre-met day whose weight
+     * dropped day-over-day on the way to a reached target (light tint). */
     reachedGoalWindowDayLabel: string
     /** #155: sr-only text for the exact day a goal's target was first
      * met — distinct from reachedGoalWindowDayLabel above. Also used as

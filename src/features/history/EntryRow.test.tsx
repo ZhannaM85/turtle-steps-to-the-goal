@@ -304,10 +304,10 @@ describe('EntryRow', () => {
     })
 
     it('marks the rest of a reached window without the reach-day label', () => {
-      renderRow({ isPartOfReachedGoalWindow: true })
+      renderRow({ isHeadingTowardGoal: true })
 
       expect(
-        screen.getByText('Part of a week you reached your target', {
+        screen.getByText('Weight dropped on the way to your target', {
           selector: '.sr-only',
         }),
       ).toBeInTheDocument()
@@ -320,7 +320,7 @@ describe('EntryRow', () => {
       renderRow()
 
       expect(
-        screen.queryByText('Part of a week you reached your target'),
+        screen.queryByText('Weight dropped on the way to your target'),
       ).not.toBeInTheDocument()
       expect(
         screen.queryByText('You reached your target this day'),

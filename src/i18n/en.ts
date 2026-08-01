@@ -732,7 +732,7 @@ export const en: Dictionary = {
     previousPageButton: 'Previous',
     nextPageButton: 'Next',
     pageIndicator: (current, total) => `Page ${current} of ${total}`,
-    reachedGoalWindowDayLabel: 'Part of a week you reached your target',
+    reachedGoalWindowDayLabel: 'Weight dropped on the way to your target',
     reachedGoalDayLabel: 'You reached your target this day',
     reachedGoalLegendLabel: 'Reached-target highlighting',
     calendarMarkersButton: 'Markers',

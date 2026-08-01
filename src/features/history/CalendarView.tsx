@@ -15,8 +15,8 @@ import {
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { hadNightEating, type DailyEntry } from '@/domain/dailyEntry'
 import {
-  isDateWithinReachedWindow,
   isGoalMetOnDate,
+  isHeadingTowardGoalOnDate,
   type ReachedGoalWindow,
 } from '@/domain/goal'
 import { getDateFnsLocale, useLocale, useTranslation } from '@/i18n'
@@ -35,6 +35,10 @@ export interface CalendarViewProps {
   /** #155: every reached goal window (past + active), for highlighting
    * which days were part of a successful week. */
   reachedWindows: ReachedGoalWindow[]
+  /** #479 — when false, hide the strong met-day tint. */
+  showMetDayTint?: boolean
+  /** #479 — when false, hide the light heading-toward tint. */
+  showHeadingTowardTint?: boolean
   /** Switches back to the list view, filtered + expanded to this day. */
   onEditDay: (date: string) => void
   /** Threaded down to DayDetail for the cycle-tracking toggle (#71). */
@@ -48,6 +52,8 @@ const WEEK_STARTS_ON = 1
 export function CalendarView({
   entries,
   reachedWindows,
+  showMetDayTint = true,
+  showHeadingTowardTint = true,
   onEditDay,
   onSaved,
 }: CalendarViewProps) {
@@ -184,16 +190,17 @@ export function CalendarView({
           const nightEating = entry !== undefined && hadNightEating(entry)
           const inCurrentMonth = isSameMonth(day, currentMonth)
           const selected = selectedDate !== null && selectedDate === dateKey
-          // #155: goal-reached day highlighting — a stronger tint for the
-          // exact day a target was first met, a lighter one for the rest
-          // of that window. Only applied when not selected; the selected
-          // state's own bg-primary treatment already stands out.
-          const isReachedDay = isGoalMetOnDate(dateKey, reachedWindows)
-          const isReachedWindowDay =
-            !isReachedDay && isDateWithinReachedWindow(dateKey, reachedWindows)
+          // #155 / #479: stronger tint for the met day; light tint only for
+          // pre-met days whose weight dropped day-over-day (not whole-
+          // window membership). Legend toggles can hide either.
+          const isReachedDay =
+            showMetDayTint && isGoalMetOnDate(dateKey, reachedWindows)
+          const isHeadingToward =
+            showHeadingTowardTint &&
+            isHeadingTowardGoalOnDate(dateKey, reachedWindows, entries)
           const reachedGoalAriaSuffix = isReachedDay
             ? `, ${t.history.reachedGoalDayLabel}`
-            : isReachedWindowDay
+            : isHeadingToward
               ? `, ${t.history.reachedGoalWindowDayLabel}`
               : ''
           const anyMarkerSlot =
@@ -213,7 +220,7 @@ export function CalendarView({
                   ? 'bg-primary text-primary-foreground'
                   : isReachedDay
                     ? 'bg-primary/20 hover:bg-primary/30'
-                    : isReachedWindowDay
+                    : isHeadingToward
                       ? 'bg-primary/10 hover:bg-primary/20'
                       : 'hover:bg-muted',
                 !selected && isToday(day) && 'font-semibold text-primary',

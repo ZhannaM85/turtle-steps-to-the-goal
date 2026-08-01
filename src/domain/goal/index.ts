@@ -10,5 +10,6 @@ export {
   reachedGoalWindows,
   isDateWithinReachedWindow,
   isGoalMetOnDate,
+  isHeadingTowardGoalOnDate,
 } from './reachedGoalWindows'
 export type { ReachedGoalWindow } from './reachedGoalWindows'

@@ -4,6 +4,7 @@ import type { Goal } from './Goal'
 import {
   isDateWithinReachedWindow,
   isGoalMetOnDate,
+  isHeadingTowardGoalOnDate,
   reachedGoalWindows,
 } from './reachedGoalWindows'
 
@@ -95,5 +96,42 @@ describe('isGoalMetOnDate', () => {
     expect(isGoalMetOnDate('2026-07-21', windows)).toBe(true)
     expect(isGoalMetOnDate('2026-07-20', windows)).toBe(false)
     expect(isGoalMetOnDate('2026-07-19', windows)).toBe(false)
+  })
+})
+
+describe('isHeadingTowardGoalOnDate (#479)', () => {
+  const windows = [{ start: '2026-07-19', metOnDate: '2026-07-22' }]
+
+  it('is true only for a pre-met day whose weight dropped vs the prior day', () => {
+    const entries = [
+      entry('2026-07-19', { weightKg: 60 }),
+      entry('2026-07-20', { weightKg: 59.7 }), // down DoD
+      entry('2026-07-21', { weightKg: 59.8 }), // up — skip
+      entry('2026-07-22', { weightKg: 59.4 }), // met day — not light
+    ]
+    expect(isHeadingTowardGoalOnDate('2026-07-20', windows, entries)).toBe(true)
+    expect(isHeadingTowardGoalOnDate('2026-07-21', windows, entries)).toBe(false)
+    expect(isHeadingTowardGoalOnDate('2026-07-22', windows, entries)).toBe(false)
+  })
+
+  it('skips days with no weigh-in or no previous-day weigh-in', () => {
+    const entries = [
+      entry('2026-07-19', { weightKg: 60 }),
+      entry('2026-07-20'), // no weight
+      entry('2026-07-21', { weightKg: 59.5 }), // prior day had no weight
+      entry('2026-07-22', { weightKg: 59.4 }),
+    ]
+    expect(isHeadingTowardGoalOnDate('2026-07-20', windows, entries)).toBe(false)
+    expect(isHeadingTowardGoalOnDate('2026-07-21', windows, entries)).toBe(false)
+    // weekStart with no prior day in the dataset
+    expect(isHeadingTowardGoalOnDate('2026-07-19', windows, entries)).toBe(false)
+  })
+
+  it('is false outside any reached pre-met span', () => {
+    const entries = [
+      entry('2026-07-18', { weightKg: 60.2 }),
+      entry('2026-07-19', { weightKg: 60 }),
+    ]
+    expect(isHeadingTowardGoalOnDate('2026-07-18', windows, entries)).toBe(false)
   })
 })
