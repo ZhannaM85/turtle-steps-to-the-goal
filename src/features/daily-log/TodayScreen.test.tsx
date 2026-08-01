@@ -406,6 +406,53 @@ describe('TodayScreen', () => {
     expect(await screen.findByLabelText('Date')).toHaveValue(today)
   })
 
+  // #503 — day switches used to flip `entryStatus` to `'loading'`, which
+  // replaced the whole form with a short "Loading…" line and collapsed
+  // page height (browser clamp → scroll to top). Assert that prev-day
+  // restores the captured scrollY after the new day is ready.
+  it('restores window scroll position after changing day via prev (#503)', async () => {
+    const user = userEvent.setup()
+    let scrollY = 420
+    Object.defineProperty(window, 'scrollY', {
+      configurable: true,
+      get: () => scrollY,
+    })
+    const scrollToSpy = vi
+      .spyOn(window, 'scrollTo')
+      .mockImplementation(((...args: unknown[]) => {
+        if (typeof args[0] === 'number') {
+          scrollY = Number(args[1]) || 0
+          return
+        }
+        const opts = args[0] as ScrollToOptions | undefined
+        if (opts && typeof opts.top === 'number') scrollY = opts.top
+      }) as typeof window.scrollTo)
+
+    try {
+      render(
+        <MemoryRouter>
+          <TodayScreen />
+        </MemoryRouter>,
+      )
+
+      const today = format(new Date(), 'yyyy-MM-dd')
+      const yesterday = format(subDays(new Date(), 1), 'yyyy-MM-dd')
+      expect(await screen.findByLabelText('Date')).toHaveValue(today)
+
+      scrollY = 420
+      await user.click(screen.getByRole('button', { name: 'Previous day' }))
+      expect(await screen.findByLabelText('Date')).toHaveValue(yesterday)
+
+      await waitFor(() => {
+        expect(scrollToSpy).toHaveBeenCalledWith(0, 420)
+      })
+      expect(scrollY).toBe(420)
+    } finally {
+      scrollToSpy.mockRestore()
+      Reflect.deleteProperty(window, 'scrollY')
+    }
+  })
+
   it('disables the next-day arrow once already on today', async () => {
     render(
       <MemoryRouter>

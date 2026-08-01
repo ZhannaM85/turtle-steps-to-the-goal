@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 451,
+    issue: 503,
+    date: '2026-08-01T17:03:36+03:00',
+    en: 'Changing the day with the date arrows no longer jumps the page back to the top, so you can keep comparing the same section across days.',
+    ru: 'Переключение дня стрелками даты больше не прокручивает страницу наверх — можно сравнивать один и тот же раздел между днями.',
+  },
+  {
     version: 450,
     issue: 500,
     date: '2026-08-01T16:56:08+03:00',

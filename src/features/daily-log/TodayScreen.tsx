@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type ReactNode } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react'
 import {
   DndContext,
   KeyboardSensor,
@@ -179,8 +179,18 @@ export function TodayScreen() {
   // and reloads land on the viewed day.)
   const [searchParams, setSearchParams] = useSearchParams()
   const date = searchParams.get('date') ?? todayIso()
+  // #503 — day switches used to scroll to the top: `loadEntry` flips
+  // status to `'loading'`, the form gate swaps in a short "Loading…" line,
+  // page height collapses, and the browser clamps scroll. Capture scroll
+  // here (navigator-driven changes only — not History deep-links) and
+  // restore after the new day is ready; the loading placeholder also
+  // keeps the previous form's min-height so the clamp doesn't fire.
+  const pendingScrollYRef = useRef<number | null>(null)
+  const formAreaRef = useRef<HTMLDivElement>(null)
+  const [loadingMinHeight, setLoadingMinHeight] = useState<number | undefined>()
   function setDate(next: string | ((prev: string) => string)) {
     const nextDate = typeof next === 'function' ? next(date) : next
+    pendingScrollYRef.current = window.scrollY
     setSearchParams(
       nextDate === todayIso() ? {} : { date: nextDate },
       { replace: true },
@@ -235,6 +245,20 @@ export function TodayScreen() {
   useEffect(() => {
     loadEntry(date)
   }, [date, loadEntry])
+
+  // #503 — remember the form area's height while ready so the loading
+  // placeholder can reserve it; restore navigator scroll after the new
+  // day paints. Skip restore when `pendingScrollYRef` is null (initial
+  // mount / History `?date=` deep-link — those should land at the top).
+  useLayoutEffect(() => {
+    if (entryStatus === 'loading' || entryStatus === 'idle') return
+    const el = formAreaRef.current
+    if (el) setLoadingMinHeight(el.offsetHeight)
+    const y = pendingScrollYRef.current
+    if (y === null) return
+    pendingScrollYRef.current = null
+    window.scrollTo(0, y)
+  }, [entryStatus, date, entry])
 
   // #465 debug instrument (temporary) — see the comment above where these
   // refs/state are declared. ResizeObserver rather than a one-shot measure
@@ -971,10 +995,22 @@ export function TodayScreen() {
        * of the daily-entry form further below) shares one live form-state
        * instance via context, keyed by `date` so it resets cleanly per
        * day, same as `key={date}` on a single component used to do before
-       * this was split across two non-adjacent render spots. */}
+       * this was split across two non-adjacent render spots.
+       * #503 — loading placeholder keeps the previous form's min-height
+       * so day switches don't collapse the page (and clamp scroll to top). */}
       {entryStatus === 'loading' || entryStatus === 'idle' ? (
-        <p className="text-sm text-muted-foreground">{t.common.loading}</p>
+        <p
+          className="text-sm text-muted-foreground"
+          style={
+            loadingMinHeight != null
+              ? { minHeight: loadingMinHeight }
+              : undefined
+          }
+        >
+          {t.common.loading}
+        </p>
       ) : (
+      <div ref={formAreaRef}>
       <DailyEntryFormStateProvider
         key={date}
         date={date}
@@ -1234,6 +1270,7 @@ export function TodayScreen() {
         <CustomMetricLogSection date={date} />
         <DailyEntryFormBottom />
       </DailyEntryFormStateProvider>
+      </div>
       )}
     </div>
   )
