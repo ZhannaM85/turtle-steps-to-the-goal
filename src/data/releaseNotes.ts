@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 425,
+    issue: 480,
+    date: '2026-08-01T12:43:27+03:00',
+    en: 'In Add meal, the meal note field now sits under the action buttons instead of above Search.',
+    ru: 'В окне добавления приёма пищи поле заметки теперь под кнопками действий, а не над поиском.',
+  },
+  {
     version: 424,
     issue: 481,
     date: '2026-08-01T12:40:42+03:00',

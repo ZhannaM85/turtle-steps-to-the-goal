@@ -765,14 +765,6 @@ export function AddMealDialog({
             </Button>
           </div>
         )}
-        <Input
-          type="text"
-          aria-label={t.dailyEntry.mealNoteLabel}
-          placeholder={t.dailyEntry.mealNotePlaceholder}
-          value={note}
-          onChange={(e) => onNoteChange(e.target.value)}
-          className="mt-2 h-10 text-sm"
-        />
 
         {activeItem ? (
           <div className="mt-3 flex flex-col gap-3">
@@ -962,6 +954,17 @@ export function AddMealDialog({
                     onClick={() => setIsRecipeOpen(true)}
                   />
                 </div>
+                {/* #480 — meal note used to sit above Search and read as
+                 * the primary field; moved under the three quick actions
+                 * so Search stays the clear first step. */}
+                <Input
+                  type="text"
+                  aria-label={t.dailyEntry.mealNoteLabel}
+                  placeholder={t.dailyEntry.mealNotePlaceholder}
+                  value={note}
+                  onChange={(e) => onNoteChange(e.target.value)}
+                  className="h-10 text-sm"
+                />
                 {recentItems.length > 0 && (
                   <div className="flex flex-col gap-2">
                     <div className="flex items-center justify-between">
