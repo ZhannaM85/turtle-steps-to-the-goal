@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import type { DailyEntry } from '@/domain/dailyEntry'
 import {
   booleanFlagDates,
+  booleanFlagMarkers,
   customChartPoints,
   numericSeriesValueByDate,
 } from './customChartSeries'
@@ -193,6 +194,60 @@ describe('booleanFlagDates', () => {
       '2026-01-01',
     ])
     expect(booleanFlagDates(entries, 'onPeriod')).toEqual([])
+  })
+})
+
+describe('booleanFlagMarkers (#502)', () => {
+  function axis(length: number, start = 1): string[] {
+    return Array.from({ length }, (_, i) =>
+      `2026-01-${String(start + i).padStart(2, '0')}`,
+    )
+  }
+
+  it('keeps one dot per flagged day when they all fit', () => {
+    const dates = axis(10)
+
+    expect(
+      booleanFlagMarkers(dates, ['2026-01-02', '2026-01-07'], 24),
+    ).toEqual([
+      { date: '2026-01-02', dayCount: 1 },
+      { date: '2026-01-07', dayCount: 1 },
+    ])
+  })
+
+  it('groups a run of flagged days into a single dot on a long axis', () => {
+    const dates = axis(28)
+    const flagged = ['2026-01-05', '2026-01-06', '2026-01-07', '2026-01-08']
+
+    // 28 dates over 7 markers -> 4-date windows, so the whole run collapses.
+    expect(booleanFlagMarkers(dates, flagged, 7)).toEqual([
+      { date: '2026-01-05', dayCount: 4 },
+    ])
+  })
+
+  it('never places two dots closer together than one window', () => {
+    const dates = axis(24)
+    // Adjacent days that straddle a fixed 4-date window boundary: a
+    // bucket-by-index grouping would emit both, this must not.
+    const markers = booleanFlagMarkers(dates, ['2026-01-08', '2026-01-09'], 6)
+
+    expect(markers).toEqual([{ date: '2026-01-08', dayCount: 2 }])
+  })
+
+  it('caps the number of dots at maxMarkers', () => {
+    const dates = axis(30)
+    const markers = booleanFlagMarkers(dates, dates, 5)
+
+    expect(markers.length).toBeLessThanOrEqual(5)
+    expect(markers.reduce((sum, m) => sum + m.dayCount, 0)).toBe(30)
+  })
+
+  it('returns nothing when the flag was never on', () => {
+    expect(booleanFlagMarkers(axis(10), [], 24)).toEqual([])
+  })
+
+  it('ignores flagged dates that are not on the axis', () => {
+    expect(booleanFlagMarkers(axis(3), ['2026-05-01'], 24)).toEqual([])
   })
 })
 

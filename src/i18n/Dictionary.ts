@@ -1169,6 +1169,14 @@ export interface Dictionary {
     customChartTypeDots: string
     customChartTypeGroupLabel: (seriesLabel: string) => string
     customChartNormalizedCaveat: string
+    /** #502 — tooltip suffix for a boolean day marker (period, constipation,
+     * night eating) whose single dot stands for several flagged days on a
+     * long range. Only rendered when the count is above 1. */
+    customChartMarkerDaysText: (dayCount: number) => string
+    /** #502 — shown under the chart only while day markers are actually
+     * being grouped, explaining that one dot can cover several days and
+     * that a shorter period shows each of them. */
+    customChartGroupedMarkersCaveat: string
     customChartEmptyDescription: string
     /** #336 — one card per user-defined `CustomCorrelation`, rendered after
      * every fixed built-in correlation view above. Unlike those (always

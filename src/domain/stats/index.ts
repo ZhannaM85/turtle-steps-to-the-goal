@@ -89,10 +89,15 @@ export type { FoodReactionTally } from './foodReactions'
 export {
   customChartPoints,
   booleanFlagDates,
+  booleanFlagMarkers,
   numericSeriesValueByDate,
   NUMERIC_SERIES_KEYS,
 } from './customChartSeries'
-export type { CustomChartPoint, NumericSeriesKey } from './customChartSeries'
+export type {
+  BooleanFlagMarker,
+  CustomChartPoint,
+  NumericSeriesKey,
+} from './customChartSeries'
 export { calculateBmi, calculateBmr } from './bodyComposition'
 export type { Sex } from './bodyComposition'
 export {

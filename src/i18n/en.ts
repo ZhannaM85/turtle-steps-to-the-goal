@@ -697,6 +697,10 @@ export const en: Dictionary = {
     customChartTypeGroupLabel: (seriesLabel) => `Chart type for ${seriesLabel}`,
     customChartNormalizedCaveat:
       "Each line is scaled to its own range so different units (kg, kcal, steps) can share one chart — shapes and trends are comparable, but the chart's height doesn't represent an absolute value. See the exact number for any day in the tooltip.",
+    customChartMarkerDaysText: (dayCount) =>
+      `${dayCount} day${dayCount === 1 ? '' : 's'}`,
+    customChartGroupedMarkersCaveat:
+      'On a long range, day markers are grouped — one dot can stand for several marked days. Tap a dot to see how many, or pick a shorter period to see every day on its own.',
     customChartEmptyDescription: 'Pick at least one to compare.',
     customCorrelationSummary: (aLabel, thresholdValue, direction, bLabel) =>
       `Days when "${aLabel}" was above ${thresholdValue} averaged a ${direction} "${bLabel}" than days with lower "${aLabel}".`,

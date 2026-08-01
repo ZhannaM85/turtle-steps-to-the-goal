@@ -174,3 +174,56 @@ export function booleanFlagDates(
   }
   return entries.filter((entry) => entry[flag]).map((entry) => entry.date)
 }
+
+/** One marker dot for a boolean flag, standing for `dayCount` flagged days
+ * starting at `date` (see `booleanFlagMarkers`). */
+export interface BooleanFlagMarker {
+  /** An x-axis date the dot is drawn on — always a genuinely flagged day,
+   * the first one in its group. */
+  date: string
+  /** How many flagged days this single dot represents. 1 on short ranges,
+   * where every flagged day still gets its own dot. */
+  dayCount: number
+}
+
+/**
+ * #502 — group a boolean flag's flagged days into at most `maxMarkers`
+ * dots. A marker dot is ~8px wide, so on a multi-year x-axis (where a day
+ * is a fraction of a pixel) one dot per flagged day overlapped its
+ * neighbours into a solid band that read as "on period non-stop for
+ * years". Grouping keeps the dots visually separate at any range: the axis
+ * is walked in fixed-size windows, and each window that contains at least
+ * one flagged day emits a single dot on its first flagged day, then skips
+ * the rest of the window so consecutive dots can never sit adjacent.
+ *
+ * `axisDates` must be the chart's sorted x-axis categories — the window
+ * size comes from how many of those fit between dots, not from calendar
+ * distance, since that's what decides whether two dots overlap on screen.
+ * When the axis is short enough that every flagged day fits (window size
+ * 1), this returns exactly one `dayCount: 1` marker per flagged day, i.e.
+ * the pre-#502 behavior.
+ */
+export function booleanFlagMarkers(
+  axisDates: string[],
+  flaggedDates: Iterable<string>,
+  maxMarkers: number,
+): BooleanFlagMarker[] {
+  const flagged = flaggedDates instanceof Set ? flaggedDates : new Set(flaggedDates)
+  const windowSize = Math.max(1, Math.ceil(axisDates.length / maxMarkers))
+  const markers: BooleanFlagMarker[] = []
+  let index = 0
+  while (index < axisDates.length) {
+    if (!flagged.has(axisDates[index])) {
+      index += 1
+      continue
+    }
+    const windowEnd = Math.min(index + windowSize, axisDates.length)
+    let dayCount = 0
+    for (let i = index; i < windowEnd; i += 1) {
+      if (flagged.has(axisDates[i])) dayCount += 1
+    }
+    markers.push({ date: axisDates[index], dayCount })
+    index = windowEnd
+  }
+  return markers
+}

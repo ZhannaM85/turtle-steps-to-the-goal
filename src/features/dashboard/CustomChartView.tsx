@@ -16,6 +16,7 @@ import type { DailyEntry } from '@/domain/dailyEntry'
 import { kgToLb } from '@/domain/goal'
 import {
   booleanFlagDates,
+  booleanFlagMarkers,
   customChartPoints,
   NUMERIC_SERIES_KEYS,
   resolveMetricValueMap,
@@ -141,6 +142,15 @@ const CHART_TYPE_ICONS: Record<ChartSeriesType, typeof ChartLine> = {
  * actual value, since these are on/off flags with no magnitude of their
  * own. */
 const BOOLEAN_MARKER_Y = 100
+
+/** #502 — how many marker dots a boolean flag may draw across the whole
+ * x-axis before `booleanFlagMarkers` starts grouping days together. The
+ * dots are 8px across (`r: 4`) and the plot area is roughly 330px wide on
+ * a phone, so 24 of them leaves a few px of clear background between
+ * neighbours — enough that a recurring flag reads as separate events
+ * rather than one filled-in band, which is exactly what a multi-year range
+ * used to produce. */
+const MAX_BOOLEAN_MARKERS = 24
 
 /**
  * Which dashboard/i18n data each numeric series pulls from, plus how to
@@ -321,7 +331,10 @@ function useNumericSeriesConfig(): Record<
  * trick), replacing an earlier full-height `ReferenceLine` per day (#137)
  * that read as noisier than a simple marker — this now matches the dot
  * visual language `CalendarView` already uses for both (destructive-red
- * / amber dots there, same colors reused here).
+ * / amber dots there, same colors reused here). **#502**: on a range long
+ * enough that those dots would overlap, several flagged days are grouped
+ * behind one dot (`booleanFlagMarkers`) instead — see its own note where
+ * the markers are built below.
  */
 export function CustomChartView({
   entries: allEntries,
@@ -491,7 +504,31 @@ export function CustomChartView({
   for (const { byDate } of customMetricMaps) {
     for (const date of byDate.keys()) relevantDates.add(date)
   }
-  const data = [...relevantDates].sort().map((date) => {
+  const sortedDates = [...relevantDates].sort()
+  // #502 — reported live: with years of history on screen, one dot per
+  // flagged day drew a solid red band along the top that read as
+  // "menstruating continuously for years". The dots were already
+  // discrete (transparent stroke, `connectNulls={false}`) — they simply
+  // overlapped, since a day is a fraction of a pixel wide at that range.
+  // `booleanFlagMarkers` collapses each group of days into one dot, so
+  // recurring flags stay legible as separate events; on a short enough
+  // range every flagged day still gets its own dot, unchanged.
+  const markerDayCountByKey = new Map(
+    selectedBoolean.map((key) => [
+      key,
+      new Map(
+        booleanFlagMarkers(
+          sortedDates,
+          booleanDatesByKey.get(key) ?? new Set<string>(),
+          MAX_BOOLEAN_MARKERS,
+        ).map((marker) => [marker.date, marker.dayCount]),
+      ),
+    ]),
+  )
+  const hasGroupedMarkers = [...markerDayCountByKey.values()].some((byDate) =>
+    [...byDate.values()].some((dayCount) => dayCount > 1),
+  )
+  const data = sortedDates.map((date) => {
     const point = pointsByDate.get(date)
     const row: Record<string, string | number | undefined> = { date }
     for (const key of selectedNumeric) {
@@ -499,7 +536,7 @@ export function CustomChartView({
       row[`${key}_raw`] = point?.raw[key]
     }
     for (const key of selectedBoolean) {
-      row[`${key}_marker`] = booleanDatesByKey.get(key)?.has(date)
+      row[`${key}_marker`] = markerDayCountByKey.get(key)?.has(date)
         ? BOOLEAN_MARKER_Y
         : undefined
     }
@@ -518,7 +555,17 @@ export function CustomChartView({
     const customRows = customMetricMaps.filter(({ byDate }) =>
       byDate.has(date),
     )
-    if (rows.length === 0 && customRows.length === 0) return null
+    // #502 — boolean flags had no tooltip row at all before; now that one
+    // dot can stand for several days, the count is the only way to read
+    // what a grouped dot actually means.
+    const markerRows = selectedBoolean.flatMap((seriesKey) => {
+      const dayCount = markerDayCountByKey.get(seriesKey)?.get(date)
+      const series = availableBooleanSeries.find((s) => s.key === seriesKey)
+      if (dayCount === undefined || !series) return []
+      return [{ series, dayCount }]
+    })
+    if (rows.length === 0 && customRows.length === 0 && markerRows.length === 0)
+      return null
     return (
       <div
         className="rounded-lg border border-border bg-popover px-3 py-2 text-xs text-popover-foreground shadow-md"
@@ -544,6 +591,14 @@ export function CustomChartView({
             </p>
           )
         })}
+        {markerRows.map(({ series, dayCount }) => (
+          <p key={series.key} style={{ color: series.color }}>
+            {series.label(t, sex)}
+            {dayCount > 1
+              ? `: ${t.dashboard.customChartMarkerDaysText(dayCount)}`
+              : ''}
+          </p>
+        ))}
       </div>
     )
   }
@@ -954,6 +1009,14 @@ export function CustomChartView({
             selectedCustomMetricIds.length > 0) && (
             <p className="text-xs text-muted-foreground">
               {t.dashboard.customChartNormalizedCaveat}
+            </p>
+          )}
+          {/* #502 — only shown once grouping actually kicks in, so a short
+           * range (where every flagged day still has its own dot) doesn't
+           * warn about something that isn't happening. */}
+          {hasGroupedMarkers && (
+            <p className="text-xs text-muted-foreground">
+              {t.dashboard.customChartGroupedMarkersCaveat}
             </p>
           )}
         </>

@@ -310,6 +310,60 @@ describe('CustomChartView', () => {
     useCycleTrackingStore.setState({ enabled: false })
   })
 
+  // #502 — reported live: over a multi-year range the per-day period dots
+  // overlapped into one solid red band that read as continuous menstruation.
+  describe('grouped boolean day markers (#502)', () => {
+    function isoDate(dayOffset: number): string {
+      const date = new Date(Date.UTC(2026, 0, 1))
+      date.setUTCDate(date.getUTCDate() + dayOffset)
+      return date.toISOString().slice(0, 10)
+    }
+
+    /** Daily weight entries with a 5-day period every 28 days. */
+    function cycleEntries(days: number): DailyEntry[] {
+      return Array.from({ length: days }, (_, day) =>
+        entry(isoDate(day), {
+          weightKg: 80,
+          onPeriod: day % 28 < 5 || undefined,
+        }),
+      )
+    }
+
+    afterEach(() => {
+      useCycleTrackingStore.setState({ enabled: false })
+    })
+
+    it('explains the grouping when the range is long enough to need it', () => {
+      useCycleTrackingStore.setState({ enabled: true })
+      useCustomChartSelectionStore.setState({ selectedBoolean: ['onPeriod'] })
+
+      render(<CustomChartView entries={cycleEntries(120)} />)
+
+      expect(
+        screen.getByText(/one dot can stand for several marked days/),
+      ).toBeInTheDocument()
+    })
+
+    it('keeps a dot per day, and no grouping notice, on a short range', () => {
+      useCycleTrackingStore.setState({ enabled: true })
+      useCustomChartSelectionStore.setState({ selectedBoolean: ['onPeriod'] })
+
+      render(<CustomChartView entries={cycleEntries(10)} />)
+
+      expect(
+        screen.queryByText(/one dot can stand for several marked days/),
+      ).not.toBeInTheDocument()
+    })
+
+    it('says nothing about grouping when no marker series is selected', () => {
+      render(<CustomChartView entries={cycleEntries(120)} />)
+
+      expect(
+        screen.queryByText(/one dot can stand for several marked days/),
+      ).not.toBeInTheDocument()
+    })
+  })
+
   describe('dual y-axis for exactly 2 series (#330)', () => {
     it('hides the normalized-scale caveat when exactly 2 series are selected', () => {
       // beforeEach's default selection is already ['weight', 'calories'].

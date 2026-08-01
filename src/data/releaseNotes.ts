@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 455,
+    issue: 502,
+    date: '2026-08-01T18:30:00+03:00',
+    en: 'In "Compare your data", period and other day marks no longer merge into one solid line over long ranges — several days are grouped into a single dot, and tapping it shows how many days it covers.',
+    ru: 'В разделе «Сравнение данных» отметки менструации и других дней больше не сливаются в сплошную линию на длинных периодах — несколько дней объединяются в одну точку, а при нажатии видно, сколько дней она обозначает.',
+  },
+  {
     version: 454,
     issue: 504,
     date: '2026-08-01T18:05:00+03:00',
