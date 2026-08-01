@@ -1255,3 +1255,13 @@ _Live discussion after the equal-weight body-composition grid: Weight should be 
 | [#518](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/518) | ✅ Done | Barcode: food created after not-found scan is not remembered for next scan | Confirmed on-device by the user. `pendingBarcode` held from not-found / OFF scan through manual Save or confirm → `touch(..., barcode)`. Next scan hits `findByBarcode` locally. |
 | [#519](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/519) | ✅ Done | Add/Edit food: show barcode when stored (verify scan persistence) | Confirmed on-device by the user. Quiet `Barcode: …` line on `MealItemEditorSheet` (pending scan or library match), Settings add-food dialog, and saved-foods rows when `MealItem.barcode` is set. |
 | [#520](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/520) | ✅ Done | Format barcode display with spaced groups (EAN-13 style) | Confirmed on-device by the user. Display-only `formatBarcodeDisplay`: 13-digit → `1 123456 654321`. Stored/lookup values stay raw digits. |
+
+---
+
+## Tier 88 — Live feedback: macros Remaining card missing calorie target (2026-08-02)
+
+_Reported live with a screenshot of the Day КБЖУ section: Remaining shows leftover kcal but not what budget those leftovers are from._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#521](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/521) | ⬜ Open | КБЖУ Remaining card: show daily calorie target the leftover is from | Remaining is already `dailyCalorieTargetKcal − dayTotalCalories`; Stats Remaining calories card already shows `target − consumed` via `targetMinusConsumedText`, but the macros Remaining StatCard (#462/#467) description is only remaining P/F/C. Mention the daily target on that card (reuse/mirror `targetMinusConsumedText` above/alongside macros). |
