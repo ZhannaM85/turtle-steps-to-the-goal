@@ -148,9 +148,10 @@ export const en: Dictionary = {
     saveButton: 'Save',
     saveAndAddAnotherButton: 'Save and add one more',
     mealNoteLabel: 'Meal note',
-    // Group-level note (#81) — not a dish name (see itemNamePlaceholder for
-    // that), a free-text comment about the meal as a whole.
-    mealNotePlaceholder: 'Anything else about this meal?',
+    // Group-level note (#81 / #480) — free-text comment about the meal as
+    // a whole. Meal-aware placeholder; not the reaction's "Was it tasty?".
+    mealNotePlaceholder: (mealLabel) =>
+      `Note about ${mealLabel.toLowerCase()}`,
     itemNameLabel: 'Dish name',
     itemNamePlaceholder: 'Add a dish?',
     itemBrandLabel: 'Brand (optional)',

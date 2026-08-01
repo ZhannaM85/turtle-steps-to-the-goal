@@ -114,13 +114,19 @@ describe('AddMealDialog (#454)', () => {
     expect(screen.getByLabelText('Time')).not.toHaveFocus()
   })
 
-  it('has a meal note field, restored after being dropped in the #454 rewrite', async () => {
+  it('has a meal note field next to the reaction block (#480)', async () => {
     const user = userEvent.setup()
-    render(<ControlledAddMealDialog {...defaultProps} />)
+    render(
+      <ControlledAddMealDialog
+        {...defaultProps}
+        initialItems={[{ id: 'i1', name: 'Oatmeal', amountKcal: 250 }]}
+      />,
+    )
 
-    await user.type(screen.getByLabelText('Meal note'), 'Cheat day')
-
-    expect(screen.getByLabelText('Meal note')).toHaveValue('Cheat day')
+    const note = screen.getByLabelText('Meal note')
+    expect(note).toHaveAttribute('placeholder', 'Note about breakfast')
+    await user.type(note, 'Cheat day')
+    expect(note).toHaveValue('Cheat day')
   })
 
   it('searches the food list, confirms a quantity, and adds it to the meal so far', async () => {

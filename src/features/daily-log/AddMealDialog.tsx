@@ -960,17 +960,6 @@ export function AddMealDialog({
                     onClick={() => setIsRecipeOpen(true)}
                   />
                 </div>
-                {/* #480 — meal note used to sit above Search and read as
-                 * the primary field; moved under the three quick actions
-                 * so Search stays the clear first step. */}
-                <Input
-                  type="text"
-                  aria-label={t.dailyEntry.mealNoteLabel}
-                  placeholder={t.dailyEntry.mealNotePlaceholder}
-                  value={note}
-                  onChange={(e) => onNoteChange(e.target.value)}
-                  className="h-10 text-sm"
-                />
                 {recentItems.length > 0 && (
                   <div className="flex flex-col gap-2">
                     <div className="flex items-center justify-between">
@@ -1062,7 +1051,11 @@ export function AddMealDialog({
                 )}
                 {/* pb-20 (reported live) — clears space for the sticky
                  * Done bar below, so it never overlaps/covers these
-                 * reaction buttons once scrolled all the way down. */}
+                 * reaction buttons once scrolled all the way down.
+                 * #480 (2nd pass) — meal note lives here with the
+                 * reaction block (above Done), not under the quick-
+                 * action cards. Placeholder is meal-aware copy, not
+                 * the reaction's "Was it tasty?" wording. */}
                 <div className="flex flex-col gap-2 pt-2 pb-20">
                   <span className="text-sm text-muted-foreground">
                     {t.dailyEntry.wasItTastyLabel}
@@ -1075,6 +1068,14 @@ export function AddMealDialog({
                     size="icon-xl"
                     layout="spread"
                     contextLabel={mealLabel}
+                  />
+                  <Input
+                    type="text"
+                    aria-label={t.dailyEntry.mealNoteLabel}
+                    placeholder={t.dailyEntry.mealNotePlaceholder(mealLabel)}
+                    value={note}
+                    onChange={(e) => onNoteChange(e.target.value)}
+                    className="h-10 text-sm"
                   />
                 </div>
                 {/* Sticky footer (reported live — the button was scrolled

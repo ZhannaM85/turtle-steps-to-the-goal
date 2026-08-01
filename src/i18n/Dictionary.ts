@@ -309,7 +309,9 @@ export interface Dictionary {
      * edit mode), not while editing an already-existing dish. */
     saveAndAddAnotherButton: string
     mealNoteLabel: string
-    mealNotePlaceholder: string
+    /** Group-level note placeholder (#480) — meal-aware, e.g. "Note about
+     * breakfast"; must not reuse the reaction block's "Was it tasty?" copy. */
+    mealNotePlaceholder: (mealLabel: string) => string
     itemNameLabel: string
     itemNamePlaceholder: string
     /** Optional brand name (#248), e.g. "Perdue" — shown right after the

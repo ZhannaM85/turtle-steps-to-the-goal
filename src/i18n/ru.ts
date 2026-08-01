@@ -155,7 +155,18 @@ export const ru: Dictionary = {
     saveButton: 'Сохранить',
     saveAndAddAnotherButton: 'Сохранить и добавить ещё',
     mealNoteLabel: 'Заметка о приёме пищи',
-    mealNotePlaceholder: 'Было вкусно?',
+    // #480 — meal-aware note placeholder; not the reaction's «Было вкусно?».
+    // Known presets use the prepositional («о завтраке»); custom names fall
+    // back to the lowercase label as-is.
+    mealNotePlaceholder: (mealLabel) => {
+      const about: Record<string, string> = {
+        Завтрак: 'завтраке',
+        Обед: 'обеде',
+        Ужин: 'ужине',
+        Перекус: 'перекусе',
+      }
+      return `Заметка о ${about[mealLabel] ?? mealLabel.toLowerCase()}`
+    },
     itemNameLabel: 'Название блюда',
     itemNamePlaceholder: 'Создать блюдо?',
     itemBrandLabel: 'Бренд (необязательно)',

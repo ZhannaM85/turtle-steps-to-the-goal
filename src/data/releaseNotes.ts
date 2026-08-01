@@ -25,9 +25,16 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 436,
+    issue: 480,
+    date: '2026-08-01T13:54:29+03:00',
+    en: 'In Add meal, the note field sits with the taste reaction icons, and its placeholder names the meal (for example “Note about breakfast”).',
+    ru: 'В добавлении приёма пищи поле заметки рядом с реакцией «было вкусно?», а подсказка называет приём (например «Заметка о завтраке»).',
+  },
+  {
     version: 435,
     issue: 485,
-    date: '2026-08-01T13:51:35+03:00',
+    date: '2026-08-01T13:54:29+03:00',
     en: 'On History’s calendar, tap a legend color to show or hide that marker; the legend stays in a horizontal row on phones.',
     ru: 'В календаре «Истории» нажмите цвет в легенде, чтобы показать или скрыть метку; легенда в ряд и на телефоне.',
   },
