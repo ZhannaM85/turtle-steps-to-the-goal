@@ -147,6 +147,7 @@ export const ru: Dictionary = {
     editMealLabel: (n) => `Изменить приём пищи ${n}`,
     cancelEditMealLabel: (n) => `Отменить редактирование приёма пищи ${n}`,
     deleteMealLabel: (n) => `Удалить приём пищи ${n}`,
+    deleteWholeMealButton: 'Удалить приём пищи',
     editMealScreenTitle: 'Редактировать приём пищи',
     backLabel: 'Назад',
     mealNotFoundText: 'Этот приём пищи не найден.',

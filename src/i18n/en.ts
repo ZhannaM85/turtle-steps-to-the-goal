@@ -140,6 +140,7 @@ export const en: Dictionary = {
     editMealLabel: (n) => `Edit meal ${n}`,
     cancelEditMealLabel: (n) => `Cancel editing meal ${n}`,
     deleteMealLabel: (n) => `Delete meal ${n}`,
+    deleteWholeMealButton: 'Delete meal',
     editMealScreenTitle: 'Edit meal',
     backLabel: 'Back',
     mealNotFoundText: "This meal couldn't be found.",

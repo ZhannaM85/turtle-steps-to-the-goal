@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 459,
+    issue: 508,
+    date: '2026-08-01T20:14:00+03:00',
+    en: 'In Add meal, the top-right corner now holds only the close button: the clear-time ✕ moved inside the time field, and "Delete meal" is a labelled red button near the Done button at the bottom.',
+    ru: 'В экране добавления приёма пищи в правом верхнем углу теперь только кнопка закрытия: ✕ для очистки времени переехал внутрь поля времени, а «Удалить приём пищи» стал подписанной красной кнопкой внизу, рядом с «Готово».',
+  },
+  {
     version: 458,
     issue: 507,
     date: '2026-08-01T18:55:34+03:00',

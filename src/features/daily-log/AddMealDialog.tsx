@@ -730,6 +730,54 @@ export function AddMealDialog({
     />
   )
 
+  // #508 — whole-meal delete (#459) used to be a trash icon in the header,
+  // one tap away from Close; a destructive action must not sit next to
+  // dismiss. It's a quiet labelled secondary at the end of the body now,
+  // by the sticky Done footer, with #459's two-step confirm unchanged.
+  // Like `mealNoteField` above it renders in one of two mutually exclusive
+  // spots, because the sticky footer only exists once the meal has an item.
+  // Only meaningful while editing an already-saved meal (MealList's #461
+  // overlay) — the in-progress "new meal" flow leaves onDeleteMeal
+  // undefined.
+  const deleteMealSection =
+    onDeleteMeal && mealPosition !== undefined ? (
+      isConfirmingMealDelete ? (
+        <div className="flex items-center gap-2 rounded-xl bg-card p-3 ring-1 ring-foreground/10">
+          <span className="text-sm text-muted-foreground">
+            {t.history.confirmDeleteLabel}
+          </span>
+          <Button
+            type="button"
+            variant="destructive"
+            size="sm"
+            onClick={onDeleteMeal}
+          >
+            {t.history.confirmDeleteYes}
+          </Button>
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={() => setIsConfirmingMealDelete(false)}
+          >
+            {t.history.confirmDeleteNo}
+          </Button>
+        </div>
+      ) : (
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          aria-label={t.dailyEntry.deleteMealLabel(mealPosition)}
+          className="self-start text-destructive hover:bg-destructive/10 hover:text-destructive"
+          onClick={() => setIsConfirmingMealDelete(true)}
+        >
+          <Trash2 aria-hidden="true" />
+          {t.dailyEntry.deleteWholeMealButton}
+        </Button>
+      )
+    ) : null
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
@@ -754,13 +802,19 @@ export function AddMealDialog({
           {/* #505 — match Day meal-card title weight (`text-lg font-medium`),
            * not the shared DialogTitle semibold default. */}
           <DialogTitle className="font-medium">{mealLabel}</DialogTitle>
-          <div className="flex items-center gap-1">
+          {/* #508 — the header keeps the time control only; DialogContent's
+           * own Close owns the top-right corner alone. The #117 clear
+           * control now lives *inside* this field's border so it reads as
+           * part of the time widget rather than a second bare ✕ beside
+           * Close (the two were easy to confuse), and whole-meal delete
+           * moved down next to the Done footer. */}
+          <div className="flex h-9 items-center rounded-lg border border-input bg-transparent pr-1 transition-colors focus-within:border-ring focus-within:ring-3 focus-within:ring-ring/50 dark:bg-input/30">
             <Input
               type="time"
               aria-label={t.dailyEntry.timeEatenLabel}
               value={timeEaten}
               onChange={(e) => onTimeEatenChange(e.target.value)}
-              className="h-9 w-24"
+              className="h-full w-24 border-transparent bg-transparent pr-0 focus-visible:border-transparent focus-visible:ring-0 dark:bg-transparent"
             />
             {/* App-level clear button (#117) — restored after being
              * dropped in the #454 rewrite; the native time picker's own
@@ -769,26 +823,11 @@ export function AddMealDialog({
               <Button
                 type="button"
                 variant="ghost"
-                size="icon-sm"
+                size="icon-xs"
                 aria-label={t.dailyEntry.clearTimeLabel}
                 onClick={() => onTimeEatenChange('')}
               >
                 <X aria-hidden="true" className="size-3.5" />
-              </Button>
-            )}
-            {/* #459 — whole-meal delete, only meaningful once this dialog
-             * is editing an already-saved meal (MealList's #461 overlay);
-             * the in-progress "new meal" flow leaves onDeleteMeal
-             * undefined. */}
-            {onDeleteMeal && mealPosition !== undefined && (
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon-sm"
-                aria-label={t.dailyEntry.deleteMealLabel(mealPosition)}
-                onClick={() => setIsConfirmingMealDelete(true)}
-              >
-                <Trash2 aria-hidden="true" className="size-3.5" />
               </Button>
             )}
           </div>
@@ -796,29 +835,6 @@ export function AddMealDialog({
         {/* #505 — one vertical scale (`gap-3`/`gap-4`) instead of mixed
          * `mt-2`/`mt-3`/`mt-4` between confirms, quantity step, and browse. */}
         <div className="mt-3 flex flex-col gap-4">
-        {isConfirmingMealDelete && onDeleteMeal && (
-          <div className="flex items-center gap-2 rounded-xl bg-card p-3 ring-1 ring-foreground/10">
-            <span className="text-sm text-muted-foreground">
-              {t.history.confirmDeleteLabel}
-            </span>
-            <Button
-              type="button"
-              variant="destructive"
-              size="sm"
-              onClick={onDeleteMeal}
-            >
-              {t.history.confirmDeleteYes}
-            </Button>
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              onClick={() => setIsConfirmingMealDelete(false)}
-            >
-              {t.history.confirmDeleteNo}
-            </Button>
-          </div>
-        )}
         {isConfirmingDiscard && onConfirmDiscard && onCancelDiscard && (
           <div className="flex flex-col gap-2 rounded-xl bg-card p-3 ring-1 ring-foreground/10">
             <span className="text-sm text-muted-foreground">
@@ -1198,6 +1214,13 @@ export function AddMealDialog({
                     contextLabel={mealLabel}
                   />
                   {mealNoteField}
+                  {/* #508 — whole-meal delete lives down here, well away
+                   * from the header's Close. It has to be *inside* this
+                   * pb-20 block, not between it and the footer: with short
+                   * content the page doesn't scroll, so the sticky Done bar
+                   * covers anything that flows into that last strip (seen
+                   * live — the button was invisible under it). */}
+                  {deleteMealSection}
                 </div>
                 {/* Sticky footer (reported live — the button was scrolled
                  * out of view under a long enough item/Recent list). The
@@ -1229,6 +1252,10 @@ export function AddMealDialog({
                 </div>
               </div>
             )}
+            {/* #508 — an emptied saved meal has no "meal so far" block and
+             * therefore no sticky footer, so delete has to render here to
+             * stay reachable at all. */}
+            {items.length === 0 && deleteMealSection}
           </div>
         )}
         </div>

@@ -1,6 +1,6 @@
 import 'fake-indexeddb/auto'
 import { useState } from 'react'
-import { render, screen, waitFor } from '@testing-library/react'
+import { render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { CalorieItem, Emotion } from '@/domain/dailyEntry'
@@ -114,6 +114,75 @@ describe('AddMealDialog (#454)', () => {
     // Pre-#487 Radix FocusScope focused the header `type="time"` input,
     // which presents the native time picker on iOS/Safari.
     expect(screen.getByLabelText('Time')).not.toHaveFocus()
+  })
+
+  describe('header CTAs regrouped (#508)', () => {
+    const savedMealProps = {
+      ...defaultProps,
+      mealPosition: 1,
+      initialItems: [{ id: 'i1', name: 'Oatmeal', amountKcal: 250 }],
+    }
+
+    it('leaves only the time widget beside the title — delete is not in the header', () => {
+      render(
+        <ControlledAddMealDialog {...savedMealProps} onDeleteMeal={vi.fn()} />,
+      )
+
+      const header = screen.getByRole('heading', { name: 'Breakfast' })
+        .parentElement as HTMLElement
+      expect(within(header).getByLabelText('Time')).toBeInTheDocument()
+      expect(
+        within(header).queryByRole('button', { name: 'Delete meal 1' }),
+      ).not.toBeInTheDocument()
+    })
+
+    it('puts the clear-time control inside the time field itself', () => {
+      render(
+        <ControlledAddMealDialog {...savedMealProps} onDeleteMeal={vi.fn()} />,
+      )
+
+      // Pre-#508 this was a standalone ghost ✕ next to the dialog's own
+      // Close ✕ — two bare ✕ icons of the same weight in one corner.
+      const clear = screen.getByRole('button', { name: 'Clear time' })
+      expect(clear.parentElement).toContainElement(screen.getByLabelText('Time'))
+    })
+
+    it('deletes the whole meal from a labelled button by the Done footer', async () => {
+      const user = userEvent.setup()
+      const onDeleteMeal = vi.fn()
+      render(
+        <ControlledAddMealDialog
+          {...savedMealProps}
+          onDeleteMeal={onDeleteMeal}
+        />,
+      )
+
+      const deleteMeal = screen.getByRole('button', { name: 'Delete meal 1' })
+      expect(deleteMeal).toHaveTextContent('Delete meal')
+
+      await user.click(deleteMeal)
+      expect(screen.getByText('Delete this entry?')).toBeInTheDocument()
+      expect(onDeleteMeal).not.toHaveBeenCalled()
+
+      await user.click(screen.getByRole('button', { name: 'Delete' }))
+      expect(onDeleteMeal).toHaveBeenCalled()
+    })
+
+    it('still offers delete when the saved meal has no items left', () => {
+      render(
+        <ControlledAddMealDialog
+          {...savedMealProps}
+          initialItems={[]}
+          onDeleteMeal={vi.fn()}
+        />,
+      )
+
+      // No items means no "meal so far" block and so no sticky Done footer
+      // to sit above — the control has to render in the browse body instead.
+      expect(
+        screen.getByRole('button', { name: 'Delete meal 1' }),
+      ).toBeInTheDocument()
+    })
   })
 
   it('has a meal note field next to the reaction block (#480)', async () => {

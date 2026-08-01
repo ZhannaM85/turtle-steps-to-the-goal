@@ -284,6 +284,12 @@ export interface Dictionary {
      * changed-mind edit state. */
     cancelEditMealLabel: (n: number) => string
     deleteMealLabel: (n: number) => string
+    /** Visible text of Add meal's whole-meal delete button (#508), which
+     * moved out of the header icon cluster down to the Done footer. The
+     * positioned `deleteMealLabel(n)` stays as its aria-label, so the two
+     * meal-delete controls (Day meal row, this dialog) remain
+     * distinguishable to assistive tech. */
+    deleteWholeMealButton: string
     /** Dedicated single-meal edit route (#157) — replaces #145's inline
      * expand-in-place; a meal's pencil on Today/History now navigates
      * here instead. */
