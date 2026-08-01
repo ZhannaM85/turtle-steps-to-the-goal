@@ -510,26 +510,48 @@ export function DailyEntryFormMorning() {
                   <span className="text-sm font-medium">
                     {t.dailyEntry.bodyCompositionLabel}
                   </span>
-                  <div className="flex h-12 items-center justify-between rounded-lg bg-muted px-3">
-                    <span className="text-sm text-foreground">
-                      {t.dailyEntry.bodyCompositionSummary(
-                        state.muscleMassKg === undefined
-                          ? '—'
-                          : `${formatExactNumber(state.muscleMassKg, locale)}${t.dailyEntry.kgUnit}`,
-                        state.visceralFatRating === undefined
-                          ? '—'
-                          : formatExactNumber(state.visceralFatRating, locale),
-                        state.bodyWaterPercent === undefined
-                          ? '—'
-                          : `${formatExactNumber(state.bodyWaterPercent, locale)}${t.dailyEntry.percentUnit}`,
-                        state.boneMassKg === undefined
-                          ? '—'
-                          : `${formatExactNumber(state.boneMassKg, locale)}${t.dailyEntry.kgUnit}`,
-                        state.bodyFatPercent === undefined
-                          ? '—'
-                          : `${formatExactNumber(state.bodyFatPercent, locale)}${t.dailyEntry.percentUnit}`,
-                      )}
-                    </span>
+                  {/* #515 — five equal-weight metrics in the old fixed h-12
+                   * line wrapped like accidental overflow on mobile. Keep the
+                   * Morning display shell, but borrow StatCard's hierarchy:
+                   * body fat is the primary figure and the other smart-scale
+                   * readings form a deliberately quieter description. */}
+                  <div className="flex min-h-20 items-center justify-between gap-2 rounded-lg bg-muted px-3 py-2.5">
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-baseline gap-1.5">
+                        <span className="text-2xl font-semibold tabular-nums text-foreground">
+                          {state.bodyFatPercent === undefined
+                            ? '—'
+                            : formatExactNumber(state.bodyFatPercent, locale)}
+                        </span>
+                        {state.bodyFatPercent !== undefined && (
+                          <span className="text-sm text-muted-foreground">
+                            {t.dailyEntry.percentUnit}
+                          </span>
+                        )}
+                        <span className="text-sm text-muted-foreground">
+                          {t.dailyEntry.bodyFatLabel}
+                        </span>
+                      </div>
+                      <p className="mt-1 text-xs leading-5 text-muted-foreground">
+                        {t.dailyEntry.bodyCompositionSummary(
+                          state.muscleMassKg === undefined
+                            ? '—'
+                            : `${formatExactNumber(state.muscleMassKg, locale)}${t.dailyEntry.kgUnit}`,
+                          state.visceralFatRating === undefined
+                            ? '—'
+                            : formatExactNumber(
+                                state.visceralFatRating,
+                                locale,
+                              ),
+                          state.bodyWaterPercent === undefined
+                            ? '—'
+                            : `${formatExactNumber(state.bodyWaterPercent, locale)}${t.dailyEntry.percentUnit}`,
+                          state.boneMassKg === undefined
+                            ? '—'
+                            : `${formatExactNumber(state.boneMassKg, locale)}${t.dailyEntry.kgUnit}`,
+                        )}
+                      </p>
+                    </div>
                     <Button
                       type="button"
                       variant="ghost"

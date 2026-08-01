@@ -618,7 +618,6 @@ export interface Dictionary {
       visceralFat: string,
       bodyWater: string,
       boneMass: string,
-      bodyFat: string,
     ) => string
     onPeriodLabel: string
     /** Opt-in digestion tracking's per-day toggle, on both Today and in

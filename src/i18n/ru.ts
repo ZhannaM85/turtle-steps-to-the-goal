@@ -321,9 +321,8 @@ export const ru: Dictionary = {
       visceralFat,
       bodyWater,
       boneMass,
-      bodyFat,
     ) =>
-      `Мышцы ${muscleMass} · Висц. жир ${visceralFat} · Вода ${bodyWater} · Кости ${boneMass} · Жир ${bodyFat}`,
+      `Мышцы ${muscleMass} · Висц. жир ${visceralFat} · Вода ${bodyWater} · Кости ${boneMass}`,
     onPeriodLabel: 'Менструация',
     hadConstipationLabel: 'Запор',
     hadConstipationNoOption: 'Нет',

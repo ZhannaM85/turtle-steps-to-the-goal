@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 465,
+    issue: 515,
+    date: '2026-08-01T21:21:38+03:00',
+    en: 'Morning body composition now highlights body fat and shows the other measurements in a cleaner secondary line.',
+    ru: 'В утреннем составе тела теперь выделен процент жира, а остальные показатели собраны в более аккуратную дополнительную строку.',
+  },
+  {
     version: 464,
     issue: 513,
     date: '2026-08-01T21:11:14+03:00',

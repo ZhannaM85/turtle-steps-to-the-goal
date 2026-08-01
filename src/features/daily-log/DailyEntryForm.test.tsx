@@ -828,7 +828,7 @@ describe('DailyEntryForm', () => {
       expect(onSave.mock.calls[0][0].bodyFatPercent).toBe(22)
       expect(
         screen.getByText(
-          'Muscle 30kg · Visceral fat 5 · Water 48% · Bone 2.3kg · Body fat 22%',
+          'Muscle 30kg · Visceral fat 5 · Water 48% · Bone 2.3kg',
         ),
       ).toBeInTheDocument()
     })
@@ -937,9 +937,11 @@ describe('DailyEntryForm', () => {
 
       expect(
         screen.getByText(
-          'Muscle 30kg · Visceral fat 5 · Water 48% · Bone 2.3kg · Body fat 22%',
+          'Muscle 30kg · Visceral fat 5 · Water 48% · Bone 2.3kg',
         ),
       ).toBeInTheDocument()
+      expect(screen.getByText('22')).toHaveClass('text-2xl', 'font-semibold')
+      expect(screen.getByText('Body fat')).toBeInTheDocument()
       expect(
         screen.queryByRole('button', { name: 'Save body composition' }),
       ).not.toBeInTheDocument()
@@ -958,7 +960,7 @@ describe('DailyEntryForm', () => {
       expect(onSave.mock.calls[0][0].muscleMassKg).toBe(31)
       expect(
         screen.getByText(
-          'Muscle 31kg · Visceral fat 5 · Water 48% · Bone 2.3kg · Body fat 22%',
+          'Muscle 31kg · Visceral fat 5 · Water 48% · Bone 2.3kg',
         ),
       ).toBeInTheDocument()
     })
@@ -1016,7 +1018,7 @@ describe('DailyEntryForm', () => {
         expect(onSave).not.toHaveBeenCalled()
         expect(
           screen.getByText(
-            'Muscle 30kg · Visceral fat 5 · Water 48% · Bone 2.3kg · Body fat 22%',
+            'Muscle 30kg · Visceral fat 5 · Water 48% · Bone 2.3kg',
           ),
         ).toBeInTheDocument()
       })
