@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 473,
+    issue: 521,
+    date: '2026-08-02T01:45:00+03:00',
+    en: 'The Remaining calories card under macros now also shows your daily target minus what you have already eaten, so it is clear what the leftover is from.',
+    ru: 'В карточке «Осталось» в блоке КБЖУ теперь также показана дневная цель минус уже съеденное — сразу видно, от какого бюджета остаток.',
+  },
+  {
     version: 472,
     issue: 520,
     date: '2026-08-02T01:14:10+03:00',

@@ -1264,4 +1264,4 @@ _Reported live with a screenshot of the Day КБЖУ section: Remaining shows le
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#521](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/521) | ⬜ Open | КБЖУ Remaining card: show daily calorie target the leftover is from | Remaining is already `dailyCalorieTargetKcal − dayTotalCalories`; Stats Remaining calories card already shows `target − consumed` via `targetMinusConsumedText`, but the macros Remaining StatCard (#462/#467) description is only remaining P/F/C. Mention the daily target on that card (reuse/mirror `targetMinusConsumedText` above/alongside macros). |
+| [#521](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/521) | 🔍 Pending validation | КБЖУ Remaining card: show daily calorie target the leftover is from | Remaining macros StatCard description now leads with the same `target − consumed` line (`t.today.targetMinusConsumedText` + `formatKcal`) Stats Remaining calories already uses, then the remaining P/F/C line underneath (`whitespace-pre-line` on `StatCard` description). Omitted when no daily calorie target is set. |

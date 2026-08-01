@@ -11,6 +11,7 @@ import {
 import { useLocale, useTranslation } from '@/i18n'
 import { usePreviousDayEntry } from '@/shared/hooks'
 import {
+  formatKcal,
   formatMacroGrams,
   macrosSummaryTextWithCalories,
 } from '@/shared/lib/macroDisplay'
@@ -344,11 +345,26 @@ export function useDailyEntryFormState({
     formatMacroGrams(consumedFatG, locale, t),
     formatMacroGrams(consumedCarbG, locale, t),
   )
-  const dayRemainingMacrosDescription = t.dailyEntry.macrosSummary(
+  // #521 — Remaining card's big number alone doesn't answer "left from
+  // how many?"; prepend the same target − consumed line TodayScreen's
+  // Stats remaining-calories card already shows (`targetMinusConsumedText`).
+  // Macros stay on a second line (StatCard description uses
+  // whitespace-pre-line). Omitted when no daily calorie target is set.
+  const remainingMacrosLine = t.dailyEntry.macrosSummary(
     formatMacroGrams(remainingProteinG, locale, t),
     formatMacroGrams(remainingFatG, locale, t),
     formatMacroGrams(remainingCarbG, locale, t),
   )
+  const dayRemainingMacrosDescription =
+    dailyCalorieTargetKcal !== undefined
+      ? [
+          t.today.targetMinusConsumedText(
+            formatKcal(dailyCalorieTargetKcal, locale, t),
+            formatKcal(dayTotalCalories, locale, t),
+          ),
+          remainingMacrosLine,
+        ].join('\n')
+      : remainingMacrosLine
 
   const showWeightAsDisplay = !alwaysEditable && !isEditingWeight
   const showNoteAsDisplay = !alwaysEditable && !isEditingNote

@@ -69,7 +69,12 @@ export function StatCard({
           )}
         </span>
         {description && (
-          <span className="text-sm text-muted-foreground">{description}</span>
+          // #521 — allow a multi-line description (e.g. target − consumed
+          // above remaining macros on the Day КБЖУ Remaining card). Plain
+          // strings without newlines are unchanged.
+          <span className="whitespace-pre-line text-sm text-muted-foreground">
+            {description}
+          </span>
         )}
         {progressPercent !== undefined && (
           <SegmentedProgressBar
