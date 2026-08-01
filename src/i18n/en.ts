@@ -223,6 +223,7 @@ export const en: Dictionary = {
     scanBarcodeManualSubmitLabel: 'Search',
     noFoodFoundForBarcodeMessage:
       'No food found for this barcode — you can still add it by hand below.',
+    itemBarcodeLabel: (code) => `Barcode: ${code}`,
     recentFoodsLabel: 'Recent',
     showAllRecentLabel: 'Show all',
     collapseRecentLabel: 'Show less',

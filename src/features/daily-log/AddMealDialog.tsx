@@ -906,6 +906,14 @@ export function AddMealDialog({
   // catalog/personal-library pick. Includes the active item's own
   // prospective scaled values, on top of whatever's already confirmed.
   const activeScaled = activeItem ? scaledValuesFor(activeItem) : null
+  // #519 — show barcode on the manual Add/Edit sheet when a scan is pending
+  // or the dish name already matches a personal library item that has one.
+  const manualSheetBarcode =
+    pendingBarcode ??
+    (manualDraft.name.trim()
+      ? mealItems.find((item) => item.name === manualDraft.name.trim())
+          ?.barcode
+      : undefined)
   const activeTodayTotalPreview =
     activeScaled && todayTotals
       ? t.dailyEntry.todayWouldBeLabel(
@@ -1720,6 +1728,7 @@ export function AddMealDialog({
               ? t.dailyEntry.noFoodFoundForBarcodeMessage
               : undefined
           }
+          barcode={manualSheetBarcode}
           onSave={saveManualDraft}
         />
       </DialogContent>

@@ -239,6 +239,7 @@ export const ru: Dictionary = {
     scanBarcodeManualSubmitLabel: 'Найти',
     noFoodFoundForBarcodeMessage:
       'Еда с таким штрихкодом не найдена — вы можете добавить её вручную ниже.',
+    itemBarcodeLabel: (code) => `Штрихкод: ${code}`,
     recentFoodsLabel: 'Недавние',
     showAllRecentLabel: 'Показать все',
     collapseRecentLabel: 'Свернуть',

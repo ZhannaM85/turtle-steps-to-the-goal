@@ -469,6 +469,10 @@ export interface Dictionary {
     scanBarcodeManualPlaceholder: string
     scanBarcodeManualSubmitLabel: string
     noFoodFoundForBarcodeMessage: string
+    /** #519 — quiet secondary line on Add/Edit food when a barcode is
+     * attached (scan-sourced or already stored on the MealItem). Omitted
+     * entirely when there is no barcode — do not show an empty state. */
+    itemBarcodeLabel: (code: string) => string
     /** #454 — the "add a meal" flyout's own copy: a short recent-items
      * heading shown while the search box is empty, the fallback link to
      * manual entry once a search comes up empty, the live "meal so far"

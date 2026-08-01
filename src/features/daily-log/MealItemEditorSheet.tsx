@@ -83,6 +83,9 @@ export interface MealItemEditorSheetProps {
    * for this barcode" after a scan comes up empty. Not an error state,
    * just context for why the fields below are blank. */
   infoMessage?: string
+  /** #519 — stored or scan-pending barcode, shown as a quiet secondary
+   * line when present. Omitted entirely when undefined/empty. */
+  barcode?: string
   onSave: () => void
   /** Second footer action (#183) — saves this dish and keeps the sheet
    * open, reset for the next one, instead of closing. Only passed while
@@ -224,6 +227,7 @@ export function MealItemEditorSheet({
   todayTotalPreview,
   todayRemainingPreview,
   infoMessage,
+  barcode,
   onSave,
   onSaveAndAddAnother,
   autoFocusName = true,
@@ -289,6 +293,11 @@ export function MealItemEditorSheet({
         <DialogTitle className="font-medium">{title}</DialogTitle>
         {infoMessage && (
           <p className="text-sm text-muted-foreground">{infoMessage}</p>
+        )}
+        {barcode && (
+          <p className="text-sm text-muted-foreground">
+            {t.dailyEntry.itemBarcodeLabel(barcode)}
+          </p>
         )}
         <div className="flex flex-1 flex-col gap-4 overflow-y-auto pt-4">
           <FormSection heading={t.dailyEntry.itemNameLabel}>

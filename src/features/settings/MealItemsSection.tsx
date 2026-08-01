@@ -265,6 +265,11 @@ function MealItemRow({
           )}
         </span>
       )}
+      {item.barcode && (
+        <span className="pl-1 text-xs text-muted-foreground">
+          {t.dailyEntry.itemBarcodeLabel(item.barcode)}
+        </span>
+      )}
       {isEditingNutrition && (
         <div className="flex flex-col gap-1.5 rounded-lg bg-muted/40 px-2 py-1.5">
           <ToggleGroup
@@ -610,6 +615,11 @@ function AddMealItemForm({
           {barcodeNotFoundMessage && (
             <p className="text-sm text-muted-foreground">
               {t.dailyEntry.noFoodFoundForBarcodeMessage}
+            </p>
+          )}
+          {barcode && (
+            <p className="text-sm text-muted-foreground">
+              {t.dailyEntry.itemBarcodeLabel(barcode)}
             </p>
           )}
           <ToggleGroup
