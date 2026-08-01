@@ -3,6 +3,7 @@ import type { MealEmotion } from '@/domain/dailyEntry'
 import type { MealItem } from '@/domain/mealItem'
 import { formatNumber, useLocale, useTranslation } from '@/i18n'
 import { MEAL_EMOTIONS } from '@/shared/lib/emotionIcons'
+import { formatBarcodeDisplay } from '@/shared/lib/formatBarcode'
 import { formatMacroGrams } from '@/shared/lib/macroDisplay'
 import {
   formatComputedTotal,
@@ -303,7 +304,7 @@ export function MealItemEditorSheet({
         )}
         {barcode && (
           <p className="text-sm text-muted-foreground">
-            {t.dailyEntry.itemBarcodeLabel(barcode)}
+            {t.dailyEntry.itemBarcodeLabel(formatBarcodeDisplay(barcode))}
           </p>
         )}
         <div className="flex flex-1 flex-col gap-4 overflow-y-auto pt-4">

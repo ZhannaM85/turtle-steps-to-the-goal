@@ -425,7 +425,7 @@ describe('MealItemsSection', () => {
         ),
       ).toBeInTheDocument()
       // #519 — scanned code visible on the Add food dialog.
-      expect(screen.getByText('Barcode: 0000000000000')).toBeInTheDocument()
+      expect(screen.getByText('Barcode: 0 000000 000000')).toBeInTheDocument()
     })
 
     it('records the scanned barcode on the new MealItem once saved', async () => {
@@ -450,7 +450,7 @@ describe('MealItemsSection', () => {
       await user.click(screen.getByRole('button', { name: 'Scan barcode' }))
       await screen.findByDisplayValue('Chocolate Bar')
       // #519 — barcode shown on Add food while the scanned code is held.
-      expect(screen.getByText('Barcode: 9999999999999')).toBeInTheDocument()
+      expect(screen.getByText('Barcode: 9 999999 999999')).toBeInTheDocument()
       await user.click(screen.getByRole('button', { name: 'Save' }))
 
       await waitFor(() =>
@@ -459,8 +459,8 @@ describe('MealItemsSection', () => {
           barcode: '9999999999999',
         }),
       )
-      // #519 — stored barcode remains visible on the saved-foods list row.
-      expect(screen.getByText('Barcode: 9999999999999')).toBeInTheDocument()
+      // #519/#520 — stored barcode remains visible (spaced) on the list row.
+      expect(screen.getByText('Barcode: 9 999999 999999')).toBeInTheDocument()
     })
   })
 

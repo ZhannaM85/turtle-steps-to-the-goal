@@ -494,7 +494,7 @@ describe('AddMealDialog (#454)', () => {
       ).toBeInTheDocument()
       expect(screen.getByLabelText('Dish name')).toHaveValue('')
       // #519 — pending scan code is visible on the Add food sheet.
-      expect(screen.getByText('Barcode: 0000000000000')).toBeInTheDocument()
+      expect(screen.getByText('Barcode: 0 000000 000000')).toBeInTheDocument()
     })
 
     it('remembers a food created after a not-found scan for the next scan (#518)', async () => {

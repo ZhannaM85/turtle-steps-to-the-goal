@@ -4,6 +4,7 @@ import { formatNumber, useLocale, useTranslation } from '@/i18n'
 import type { MealItem } from '@/domain/mealItem'
 import { IndexedDbMealItemRepository } from '@/infrastructure/persistence/indexeddb'
 import { useOnlineStatus } from '@/shared/hooks'
+import { formatBarcodeDisplay } from '@/shared/lib/formatBarcode'
 import { macrosSummaryTextCompact } from '@/shared/lib/macroDisplay'
 import {
   formatComputedTotal,
@@ -267,7 +268,7 @@ function MealItemRow({
       )}
       {item.barcode && (
         <span className="pl-1 text-xs text-muted-foreground">
-          {t.dailyEntry.itemBarcodeLabel(item.barcode)}
+          {t.dailyEntry.itemBarcodeLabel(formatBarcodeDisplay(item.barcode))}
         </span>
       )}
       {isEditingNutrition && (
@@ -619,7 +620,7 @@ function AddMealItemForm({
           )}
           {barcode && (
             <p className="text-sm text-muted-foreground">
-              {t.dailyEntry.itemBarcodeLabel(barcode)}
+              {t.dailyEntry.itemBarcodeLabel(formatBarcodeDisplay(barcode))}
             </p>
           )}
           <ToggleGroup
