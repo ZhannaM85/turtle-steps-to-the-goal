@@ -2,10 +2,27 @@ import { format } from 'date-fns'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
-import { describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import type { DailyEntry } from '@/domain/dailyEntry'
-import { useCycleTrackingStore, useDigestionTrackingStore } from '@/stores'
+import {
+  useCalendarMarkerVisibilityStore,
+  useCycleTrackingStore,
+  useDigestionTrackingStore,
+} from '@/stores'
 import { CalendarView, type CalendarViewProps } from './CalendarView'
+
+afterEach(() => {
+  useCalendarMarkerVisibilityStore.setState({
+    visible: {
+      entry: true,
+      period: true,
+      digestion: true,
+      nightEating: true,
+    },
+  })
+  useCycleTrackingStore.setState({ enabled: false })
+  useDigestionTrackingStore.setState({ enabled: false })
+})
 
 function renderCalendar(props: Partial<CalendarViewProps> = {}) {
   // MemoryRouter (#157) — MealList (mounted via DayDetail's day panel)
@@ -294,6 +311,37 @@ describe('CalendarView', () => {
       const dayButton = screen.getByRole('button', { name: midMonthLabel })
       expect(dayButton).not.toHaveClass('bg-primary/20')
       expect(dayButton).not.toHaveClass('bg-primary/10')
+    })
+  })
+
+  describe('calendar marker legend and visibility (#482)', () => {
+    it('shows a legend for currently painted marker types', () => {
+      renderCalendar({ entries: [makeEntry()] })
+
+      const legend = screen.getByRole('list', { name: 'Calendar markers' })
+      expect(legend).toHaveTextContent('Logged day')
+      expect(legend).toHaveTextContent('Night eating')
+      expect(legend).not.toHaveTextContent('On period')
+    })
+
+    it('omits a night-eating slot entirely when that marker is hidden', async () => {
+      const user = userEvent.setup()
+      renderCalendar({
+        entries: [makeEntry({ nightEatingOverride: true })],
+      })
+
+      await user.click(
+        screen.getByRole('button', { name: 'Calendar markers' }),
+      )
+      await user.click(screen.getByRole('checkbox', { name: /Night eating/ }))
+
+      const dayButton = screen.getByRole('button', { name: midMonthLabel })
+      const dots = dayButton.querySelectorAll('span[aria-hidden="true"]')
+      expect(dots).toHaveLength(1)
+      expect(dots[0]).toHaveClass('bg-primary')
+      expect(
+        screen.getByRole('list', { name: 'Calendar markers' }),
+      ).not.toHaveTextContent('Night eating')
     })
   })
 })

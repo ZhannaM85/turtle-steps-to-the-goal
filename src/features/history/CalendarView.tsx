@@ -13,6 +13,7 @@ import {
   subMonths,
 } from 'date-fns'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { Popover as PopoverPrimitive } from 'radix-ui'
 import { hadNightEating, type DailyEntry } from '@/domain/dailyEntry'
 import {
   isDateWithinReachedWindow,
@@ -22,7 +23,12 @@ import {
 import { getDateFnsLocale, useLocale, useTranslation } from '@/i18n'
 import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/ui/button'
-import { useCycleTrackingStore, useDigestionTrackingStore } from '@/stores'
+import {
+  useCalendarMarkerVisibilityStore,
+  useCycleTrackingStore,
+  useDigestionTrackingStore,
+  type CalendarMarkerKey,
+} from '@/stores'
 import { DayDetail } from './DayDetail'
 
 export interface CalendarViewProps {
@@ -53,6 +59,12 @@ export function CalendarView({
   const digestionTrackingEnabled = useDigestionTrackingStore(
     (state) => state.enabled,
   )
+  const markerVisible = useCalendarMarkerVisibilityStore(
+    (state) => state.visible,
+  )
+  const toggleMarkerVisible = useCalendarMarkerVisibilityStore(
+    (state) => state.toggleVisible,
+  )
   const [currentMonth, setCurrentMonth] = useState(() => new Date())
   const [selectedDate, setSelectedDate] = useState<string | null>(null)
 
@@ -72,6 +84,83 @@ export function CalendarView({
   const selectedEntry = selectedDate
     ? (entriesByDate.get(selectedDate) ?? null)
     : null
+
+  // #482 — which marker types actually paint (tracking gates × user
+  // visibility). Legend and popover checklist both read from this.
+  const showEntry = markerVisible.entry
+  const showPeriod = cycleTrackingEnabled && markerVisible.period
+  const showDigestion = digestionTrackingEnabled && markerVisible.digestion
+  const showNightEating = markerVisible.nightEating
+
+  const legendItems: {
+    key: CalendarMarkerKey
+    swatchClass: string
+    label: string
+  }[] = []
+  if (showEntry) {
+    legendItems.push({
+      key: 'entry',
+      swatchClass: 'bg-primary',
+      label: t.history.calendarMarkerEntryLabel,
+    })
+  }
+  if (showPeriod) {
+    legendItems.push({
+      key: 'period',
+      swatchClass: 'bg-destructive',
+      label: t.dailyEntry.onPeriodLabel,
+    })
+  }
+  if (showDigestion) {
+    legendItems.push({
+      key: 'digestion',
+      swatchClass: 'bg-amber-500',
+      label: t.dailyEntry.hadConstipationLabel,
+    })
+  }
+  if (showNightEating) {
+    legendItems.push({
+      key: 'nightEating',
+      swatchClass: 'bg-indigo-500',
+      label: t.history.calendarMarkerNightEatingLabel,
+    })
+  }
+
+  const checklistItems: {
+    key: CalendarMarkerKey
+    swatchClass: string
+    label: string
+    checked: boolean
+  }[] = [
+    {
+      key: 'entry',
+      swatchClass: 'bg-primary',
+      label: t.history.calendarMarkerEntryLabel,
+      checked: markerVisible.entry,
+    },
+  ]
+  if (cycleTrackingEnabled) {
+    checklistItems.push({
+      key: 'period',
+      swatchClass: 'bg-destructive',
+      label: t.dailyEntry.onPeriodLabel,
+      checked: markerVisible.period,
+    })
+  }
+  if (digestionTrackingEnabled) {
+    checklistItems.push({
+      key: 'digestion',
+      swatchClass: 'bg-amber-500',
+      label: t.dailyEntry.hadConstipationLabel,
+      checked: markerVisible.digestion,
+    })
+  }
+  checklistItems.push({
+    key: 'nightEating',
+    swatchClass: 'bg-indigo-500',
+    label: t.history.calendarMarkerNightEatingLabel,
+    checked: markerVisible.nightEating,
+  })
 
   function selectDay(day: Date) {
     setSelectedDate(format(day, 'yyyy-MM-dd'))
@@ -102,13 +191,62 @@ export function CalendarView({
         <span className="text-sm font-medium capitalize">
           {format(currentMonth, 'LLLL yyyy', { locale: dateFnsLocale })}
         </span>
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => setCurrentMonth(new Date())}
-        >
-          {t.history.todayButton}
-        </Button>
+        <div className="flex items-center gap-1">
+          {/* #482 — toggle which marker dots paint; persisted separately
+           * from Settings track toggles. */}
+          <PopoverPrimitive.Root>
+            <PopoverPrimitive.Trigger asChild>
+              <Button
+                variant="ghost"
+                size="sm"
+                aria-label={t.history.calendarMarkersDialogLabel}
+              >
+                {t.history.calendarMarkersButton}
+              </Button>
+            </PopoverPrimitive.Trigger>
+            <PopoverPrimitive.Portal>
+              <PopoverPrimitive.Content
+                side="bottom"
+                align="end"
+                sideOffset={6}
+                className="z-50 flex w-56 flex-col gap-2 rounded-lg border border-border bg-card p-3 text-card-foreground shadow-md outline-none"
+              >
+                <span className="text-sm font-medium">
+                  {t.history.calendarMarkersDialogLabel}
+                </span>
+                <ul className="flex flex-col gap-2">
+                  {checklistItems.map((item) => (
+                    <li key={item.key}>
+                      <label className="flex cursor-pointer items-center gap-2 text-sm">
+                        <input
+                          type="checkbox"
+                          checked={item.checked}
+                          onChange={() => toggleMarkerVisible(item.key)}
+                          className="size-4 accent-primary"
+                        />
+                        <span
+                          aria-hidden="true"
+                          className={cn(
+                            'size-2 shrink-0 rounded-full',
+                            item.swatchClass,
+                          )}
+                        />
+                        {item.label}
+                      </label>
+                    </li>
+                  ))}
+                </ul>
+              </PopoverPrimitive.Content>
+            </PopoverPrimitive.Portal>
+          </PopoverPrimitive.Root>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setCurrentMonth(new Date())}
+          >
+            {t.history.todayButton}
+          </Button>
+        </div>
       </div>
 
       <div className="grid grid-cols-7 gap-1">
@@ -141,6 +279,8 @@ export function CalendarView({
             : isReachedWindowDay
               ? `, ${t.history.reachedGoalWindowDayLabel}`
               : ''
+          const anyMarkerSlot =
+            showEntry || showPeriod || showDigestion || showNightEating
           return (
             <button
               key={dateKey}
@@ -163,73 +303,88 @@ export function CalendarView({
               )}
             >
               {format(day, 'd')}
-              {/* Dots sit side by side (#104), not stacked — this row is a
-               * flex-row sibling of the day number, not another flex-col
-               * child, so a second dot doesn't push onto its own line. */}
-              <span className="flex flex-row items-center gap-0.5">
-                <span
-                  aria-hidden="true"
-                  className={cn(
-                    'size-1 rounded-full',
-                    hasEntry
-                      ? selected
-                        ? 'bg-primary-foreground'
-                        : 'bg-primary'
-                      : 'bg-transparent',
+              {/* Dots sit side by side (#104). #482: only render a slot
+               * when that marker type is visible — no transparent gap for
+               * a toggled-off type (esp. night eating). */}
+              {anyMarkerSlot && (
+                <span className="flex flex-row items-center gap-0.5">
+                  {showEntry && (
+                    <span
+                      aria-hidden="true"
+                      className={cn(
+                        'size-1 rounded-full',
+                        hasEntry
+                          ? selected
+                            ? 'bg-primary-foreground'
+                            : 'bg-primary'
+                          : 'bg-transparent',
+                      )}
+                    />
                   )}
-                />
-                {/* Second dot for period days (#72) — only rendered at all
-                 * when cycle tracking is on, so the grid doesn't reserve
-                 * extra space for a marker most users never see. */}
-                {cycleTrackingEnabled && (
-                  <span
-                    aria-hidden="true"
-                    className={cn(
-                      'size-1 rounded-full',
-                      onPeriod
-                        ? selected
-                          ? 'bg-primary-foreground'
-                          : 'bg-destructive'
-                        : 'bg-transparent',
-                    )}
-                  />
-                )}
-                {/* Third dot for constipation days, mirroring the period
-                 * dot's own gate/color pattern — a distinct color so the two
-                 * opt-in trackers stay visually distinguishable side by
-                 * side. */}
-                {digestionTrackingEnabled && (
-                  <span
-                    aria-hidden="true"
-                    className={cn(
-                      'size-1 rounded-full',
-                      hadConstipation
-                        ? selected
-                          ? 'bg-primary-foreground'
-                          : 'bg-amber-500'
-                        : 'bg-transparent',
-                    )}
-                  />
-                )}
-                {/* Fourth dot for night eating (#383) — always rendered
-                 * (unlike the two dots above, night eating has no Settings
-                 * opt-in to gate behind), a distinct color from both. */}
-                <span
-                  aria-hidden="true"
-                  className={cn(
-                    'size-1 rounded-full',
-                    nightEating
-                      ? selected
-                        ? 'bg-primary-foreground'
-                        : 'bg-indigo-500'
-                      : 'bg-transparent',
+                  {showPeriod && (
+                    <span
+                      aria-hidden="true"
+                      className={cn(
+                        'size-1 rounded-full',
+                        onPeriod
+                          ? selected
+                            ? 'bg-primary-foreground'
+                            : 'bg-destructive'
+                          : 'bg-transparent',
+                      )}
+                    />
                   )}
-                />
-              </span>
+                  {showDigestion && (
+                    <span
+                      aria-hidden="true"
+                      className={cn(
+                        'size-1 rounded-full',
+                        hadConstipation
+                          ? selected
+                            ? 'bg-primary-foreground'
+                            : 'bg-amber-500'
+                          : 'bg-transparent',
+                      )}
+                    />
+                  )}
+                  {showNightEating && (
+                    <span
+                      aria-hidden="true"
+                      className={cn(
+                        'size-1 rounded-full',
+                        nightEating
+                          ? selected
+                            ? 'bg-primary-foreground'
+                            : 'bg-indigo-500'
+                          : 'bg-transparent',
+                      )}
+                    />
+                  )}
+                </span>
+              )}
             </button>
           )
         })}
       </div>
+
+      {/* #482 — legend for currently painted marker types. Shares the
+       * page with #479's goal-tint legend above the calendar. */}
+      {legendItems.length > 0 && (
+        <ul
+          aria-label={t.history.calendarMarkerLegendLabel}
+          className="flex flex-col gap-1.5 text-sm text-muted-foreground sm:flex-row sm:flex-wrap sm:gap-x-4 sm:gap-y-1.5"
+        >
+          {legendItems.map((item) => (
+            <li key={item.key} className="flex items-center gap-2">
+              <span
+                aria-hidden="true"
+                className={cn('size-2 shrink-0 rounded-full', item.swatchClass)}
+              />
+              {item.label}
+            </li>
+          ))}
+        </ul>
+      )}
 
       {selectedDate && (
         <div className="flex flex-col gap-2 rounded-lg border border-border bg-card p-3">

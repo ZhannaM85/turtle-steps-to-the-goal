@@ -1233,6 +1233,12 @@ export interface Dictionary {
     reachedGoalDayLabel: string
     /** #479: accessible name for the shared List/Calendar tint legend. */
     reachedGoalLegendLabel: string
+    /** #482: calendar marker-dot legend + visibility control. */
+    calendarMarkersButton: string
+    calendarMarkersDialogLabel: string
+    calendarMarkerLegendLabel: string
+    calendarMarkerEntryLabel: string
+    calendarMarkerNightEatingLabel: string
   }
   settings: {
     title: string

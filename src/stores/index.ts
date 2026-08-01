@@ -46,3 +46,5 @@ export {
 export { useTodayStatsCollapseStore } from './todayStatsCollapseStore'
 export { useCustomMetricStore } from './customMetricStore'
 export { useCustomCorrelationStore } from './customCorrelationStore'
+export { useCalendarMarkerVisibilityStore } from './calendarMarkerVisibilityStore'
+export type { CalendarMarkerKey } from './calendarMarkerVisibilityStore'

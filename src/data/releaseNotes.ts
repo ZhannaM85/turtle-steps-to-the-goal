@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 429,
+    issue: 482,
+    date: '2026-08-01T12:59:07+03:00',
+    en: 'The History calendar now has a legend for its colored dots, and a Markers control to choose which ones to show.',
+    ru: 'В календаре Истории теперь есть легенда цветных точек и кнопка «Метки», чтобы выбрать, какие из них показывать.',
+  },
+  {
     version: 428,
     issue: 483,
     date: '2026-08-01T12:55:00+03:00',

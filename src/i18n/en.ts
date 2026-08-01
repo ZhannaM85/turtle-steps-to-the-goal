@@ -734,6 +734,11 @@ export const en: Dictionary = {
     reachedGoalWindowDayLabel: 'Part of a week you reached your target',
     reachedGoalDayLabel: 'You reached your target this day',
     reachedGoalLegendLabel: 'Reached-target highlighting',
+    calendarMarkersButton: 'Markers',
+    calendarMarkersDialogLabel: 'Calendar markers',
+    calendarMarkerLegendLabel: 'Calendar markers',
+    calendarMarkerEntryLabel: 'Logged day',
+    calendarMarkerNightEatingLabel: 'Night eating',
   },
   settings: {
     title: 'Settings',

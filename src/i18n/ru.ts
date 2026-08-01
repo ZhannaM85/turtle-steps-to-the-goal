@@ -758,6 +758,11 @@ export const ru: Dictionary = {
     reachedGoalWindowDayLabel: 'Часть недели, когда вы достигли цели',
     reachedGoalDayLabel: 'В этот день вы достигли цели',
     reachedGoalLegendLabel: 'Подсветка достигнутой цели',
+    calendarMarkersButton: 'Метки',
+    calendarMarkersDialogLabel: 'Метки календаря',
+    calendarMarkerLegendLabel: 'Метки календаря',
+    calendarMarkerEntryLabel: 'Есть запись',
+    calendarMarkerNightEatingLabel: 'Ночные перекусы',
   },
   settings: {
     title: 'Настройки',
