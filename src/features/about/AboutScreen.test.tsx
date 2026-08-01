@@ -69,10 +69,33 @@ describe('AboutScreen', () => {
     expect(link).toHaveAttribute('href', '/features')
   })
 
+  it('leads with Features, Privacy, and Version as cards (#498)', () => {
+    renderAboutScreen()
+
+    const featuresHeading = screen.getByRole('heading', { name: 'Features' })
+    const privacyHeading = screen.getByRole('heading', {
+      name: 'Privacy Policy',
+    })
+    const versionHeading = screen.getByRole('heading', { name: /^Version \d+$/ })
+    const aboutBody = screen.getByText(/private, local-first companion/)
+
+    expect(featuresHeading.compareDocumentPosition(privacyHeading)).toBe(
+      Node.DOCUMENT_POSITION_FOLLOWING,
+    )
+    expect(privacyHeading.compareDocumentPosition(versionHeading)).toBe(
+      Node.DOCUMENT_POSITION_FOLLOWING,
+    )
+    expect(versionHeading.compareDocumentPosition(aboutBody)).toBe(
+      Node.DOCUMENT_POSITION_FOLLOWING,
+    )
+  })
+
   it('shows the current version number', () => {
     renderAboutScreen()
 
-    expect(screen.getByText(/^Version \d+$/)).toBeInTheDocument()
+    expect(
+      screen.getByRole('heading', { name: /^Version \d+$/ }),
+    ).toBeInTheDocument()
   })
 
   it('includes the release notes section, moved here from Settings (#66)', () => {

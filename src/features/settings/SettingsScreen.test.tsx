@@ -137,6 +137,34 @@ describe('SettingsScreen', () => {
     expect(versionLink).toHaveAttribute('href', '/about')
   })
 
+  it('promotes About, Features, and Export cards above preference toggles (#498)', () => {
+    renderSettings()
+
+    const aboutHeading = screen.getByRole('heading', { name: 'About' })
+    const featuresHeading = screen.getByRole('heading', { name: 'Features' })
+    const exportHeading = screen.getByRole('heading', { name: 'Export' })
+    const unitsHeading = screen.getByRole('heading', { name: 'Units' })
+
+    expect(aboutHeading.compareDocumentPosition(featuresHeading)).toBe(
+      Node.DOCUMENT_POSITION_FOLLOWING,
+    )
+    expect(featuresHeading.compareDocumentPosition(exportHeading)).toBe(
+      Node.DOCUMENT_POSITION_FOLLOWING,
+    )
+    expect(exportHeading.compareDocumentPosition(unitsHeading)).toBe(
+      Node.DOCUMENT_POSITION_FOLLOWING,
+    )
+
+    expect(screen.getByRole('link', { name: 'View About' })).toHaveAttribute(
+      'href',
+      '/about',
+    )
+    expect(screen.getByRole('link', { name: 'View Features' })).toHaveAttribute(
+      'href',
+      '/features',
+    )
+  })
+
   it('switches the whole dictionary to Russian when selected', async () => {
     const user = userEvent.setup()
     renderSettings()
@@ -185,20 +213,13 @@ describe('SettingsScreen', () => {
     expect(useThemeStore.getState().colorScheme).toBe('system')
   })
 
-  it('keeps the visually-hidden mood radios keyboard-focusable', async () => {
-    const user = userEvent.setup()
+  it('keeps the visually-hidden mood radios keyboard-focusable', () => {
     renderSettings()
 
     const pondRadio = screen.getByRole('radio', { name: /Pond/ })
-    // Radio groups use roving tabindex — Tab lands on each group's checked
-    // radio directly, not every individual option.
-    await user.tab() // #283's version badge link (top of page)
-    await user.tab() // units group's checked radio (kg)
-    await user.tab() // week-start group's checked radio (Monday)
-    await user.tab() // #298's day-start time input
-    await user.tab() // locale group's checked radio (English)
-    await user.tab() // mood group's checked radio (Pond)
-
+    // Direct focus — tab-counting from the page top is brittle now that
+    // #498 puts About/Features/Export (many controls) above Units.
+    pondRadio.focus()
     expect(document.activeElement).toBe(pondRadio)
   })
 

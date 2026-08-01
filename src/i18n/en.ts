@@ -843,6 +843,9 @@ export const en: Dictionary = {
     aboutLabel: 'About',
     aboutDescription: 'What this app is, who made it, and release notes.',
     viewAboutButton: 'View About',
+    featuresLabel: 'Features',
+    featuresDescription: 'Everything the app can do, with screenshots.',
+    viewFeaturesButton: 'View Features',
     versionBadgeLabel: (version) => `v${version}`,
     clearAllDataLabel: 'Clear all data',
     clearAllDataDescription:

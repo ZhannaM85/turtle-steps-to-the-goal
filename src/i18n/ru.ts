@@ -877,6 +877,9 @@ export const ru: Dictionary = {
     aboutDescription:
       'Что это за приложение, кто его сделал, и заметки о выпусках.',
     viewAboutButton: 'Открыть «О проекте»',
+    featuresLabel: 'Возможности',
+    featuresDescription: 'Всё, что умеет приложение, со скриншотами.',
+    viewFeaturesButton: 'Открыть «Возможности»',
     versionBadgeLabel: (version) => `v${version}`,
     clearAllDataLabel: 'Удалить все данные',
     clearAllDataDescription:

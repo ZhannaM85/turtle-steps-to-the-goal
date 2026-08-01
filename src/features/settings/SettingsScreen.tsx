@@ -153,6 +153,42 @@ export function SettingsScreen() {
         }
       />
 
+      {/* #498 — About / Features / Export promoted to the top so trust,
+       * capabilities, and backup aren't buried under recipes/metrics.
+       * Export stays above the destructive clear/delete actions at the
+       * bottom (same #164 placement reasoning as before). */}
+      <Card>
+        <CardHeader>
+          <CardTitle>{t.settings.aboutLabel}</CardTitle>
+        </CardHeader>
+        <CardContent className="flex flex-col gap-2">
+          <span className="text-sm text-muted-foreground">
+            {t.settings.aboutDescription}
+          </span>
+          <Button variant="outline" size="sm" className="self-start" asChild>
+            <Link to="/about">{t.settings.viewAboutButton}</Link>
+          </Button>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>{t.settings.featuresLabel}</CardTitle>
+        </CardHeader>
+        <CardContent className="flex flex-col gap-2">
+          <span className="text-sm text-muted-foreground">
+            {t.settings.featuresDescription}
+          </span>
+          <Button variant="outline" size="sm" className="self-start" asChild>
+            <Link to="/features">{t.settings.viewFeaturesButton}</Link>
+          </Button>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <ExportSection />
+      </Card>
+
       <Card>
         <CardHeader>
           <CardTitle>{t.settings.unitsLabel}</CardTitle>
@@ -497,28 +533,6 @@ export function SettingsScreen() {
             </Link>
           </Button>
         </CardContent>
-      </Card>
-
-      {/* #234: moved out of the bottom nav (6 tabs read as too crowded on
-       * mobile) — same lightweight "description + link button" shape the
-       * Food list card above uses, rather than adding a new icon slot to
-       * the header (which has no nav row at all on mobile today). */}
-      <Card>
-        <CardHeader>
-          <CardTitle>{t.settings.aboutLabel}</CardTitle>
-        </CardHeader>
-        <CardContent className="flex flex-col gap-2">
-          <span className="text-sm text-muted-foreground">
-            {t.settings.aboutDescription}
-          </span>
-          <Button variant="outline" size="sm" className="self-start" asChild>
-            <Link to="/about">{t.settings.viewAboutButton}</Link>
-          </Button>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <ExportSection />
       </Card>
 
       {/* #377 — a smaller-blast-radius destructive action than "clear

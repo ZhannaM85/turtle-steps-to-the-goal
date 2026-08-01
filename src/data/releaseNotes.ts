@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 448,
+    issue: 498,
+    date: '2026-08-01T16:31:41+03:00',
+    en: 'About, Features, and Export are easier to find at the top of Settings, and About now leads with Features, Privacy, and Version cards.',
+    ru: '«О проекте», «Возможности» и «Экспорт» теперь вверху Настроек, а на странице «О приложении» сначала идут карточки Возможностей, Политики конфиденциальности и версии.',
+  },
+  {
     version: 447,
     issue: 497,
     date: '2026-08-01T16:17:20+03:00',
