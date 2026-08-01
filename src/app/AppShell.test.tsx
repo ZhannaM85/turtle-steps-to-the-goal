@@ -211,20 +211,25 @@ describe('scroll to top on navigation (#185)', () => {
   })
 })
 
-describe('AppShell bottom tab active accent (#484)', () => {
-  it('marks the active tab with a primary tint, not only foreground text', () => {
+describe('AppShell bottom tab active accent (#484, #493)', () => {
+  it('marks the active tab with an inner pill around icon+label, not a full-height slab', () => {
     renderShellWithInput()
 
     const tabs = screen.getByRole('navigation', { name: 'Tabs' })
     const dayTab = within(tabs).getByRole('link', { name: 'Day' })
-    expect(dayTab).toHaveClass('bg-muted', 'text-primary')
-    expect(dayTab).not.toHaveClass('text-muted-foreground')
+    // #493 — the link itself stays a tall tap target without bg-muted;
+    // the visible selected treatment lives on the inner pill.
+    expect(dayTab).not.toHaveClass('bg-muted')
+    expect(dayTab).toHaveClass('min-h-20')
+    const dayPill = dayTab.querySelector('span')
+    expect(dayPill).toHaveClass('bg-muted', 'text-primary', 'rounded-2xl')
 
     const dashboardTab = within(tabs).getByRole('link', {
       name: 'Dashboard',
     })
-    expect(dashboardTab).toHaveClass('text-muted-foreground')
-    expect(dashboardTab).not.toHaveClass('bg-muted')
-    expect(dashboardTab).not.toHaveClass('text-primary')
+    const dashboardPill = dashboardTab.querySelector('span')
+    expect(dashboardPill).toHaveClass('text-muted-foreground')
+    expect(dashboardPill).not.toHaveClass('bg-muted')
+    expect(dashboardPill).not.toHaveClass('text-primary')
   })
 })

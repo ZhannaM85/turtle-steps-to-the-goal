@@ -117,7 +117,9 @@ export function AppShell() {
           aria-label="Tabs"
           className="fixed inset-x-0 bottom-0 z-10 border-t border-border bg-background pr-[env(safe-area-inset-right)] pb-[env(safe-area-inset-bottom)] pl-[env(safe-area-inset-left)] sm:hidden"
         >
-          <ul className="flex px-2">
+          {/* #493 — px-4 matches main's horizontal padding so edge tabs
+           * align with content cards; was px-2 and read as wider. */}
+          <ul className="flex px-4">
             {navItems.map((item) => {
               const Icon = item.icon
               return (
@@ -125,27 +127,24 @@ export function AppShell() {
                   <NavLink
                     to={item.to}
                     end={item.end}
-                    className={({ isActive }) =>
-                      cn(
-                        // #112 originally bumped this to min-h-[106px] (+50px
-                        // from the pre-#112 56px) for bigger tap targets, but
-                        // seen live that read as an oversized empty gap above
-                        // the icons (#119) — min-h-20 (80px, +24px) keeps a
-                        // meaningfully bigger target without the gap.
-                        // #484 — active tab was only text-foreground vs muted
-                        // inactive, hard to spot; primary accent + soft tint
-                        // (mirrors desktop's bg-muted pill, with a stronger
-                        // color signal across moods).
-                        'mx-0.5 flex min-h-20 flex-col items-center justify-center gap-0.5 rounded-lg text-xs font-medium text-muted-foreground transition-colors',
-                        // #484 — bg-primary/10 was invisible on cream themes;
-                        // use the same readable bg-muted desktop already uses,
-                        // keep text-primary for the accent signal.
-                        isActive && 'bg-muted text-primary',
-                      )
-                    }
+                    className="flex min-h-20 flex-col items-center justify-center text-xs font-medium"
                   >
-                    <Icon aria-hidden="true" className="size-5" />
-                    {item.label}
+                    {({ isActive }) => (
+                      // #493 — keep the tall tap target on the link, but
+                      // paint the selected treatment on an inner pill
+                      // around icon+label only (not a full-height slab).
+                      <span
+                        className={cn(
+                          'inline-flex flex-col items-center gap-0.5 rounded-2xl px-3 py-1.5 transition-colors',
+                          isActive
+                            ? 'bg-muted text-primary'
+                            : 'text-muted-foreground',
+                        )}
+                      >
+                        <Icon aria-hidden="true" className="size-5" />
+                        {item.label}
+                      </span>
+                    )}
                   </NavLink>
                 </li>
               )

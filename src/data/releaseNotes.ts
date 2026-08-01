@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 439,
+    issue: 493,
+    date: '2026-08-01T14:45:00+03:00',
+    en: 'The selected bottom-tab highlight is now a soft pill around the icon and label, not a tall bar filling the whole tab.',
+    ru: 'Подсветка выбранной вкладки внизу теперь мягкая «таблетка» вокруг иконки и подписи, а не высокий прямоугольник на всю вкладку.',
+  },
+  {
     version: 438,
     issue: 489,
     date: '2026-08-01T14:40:00+03:00',
