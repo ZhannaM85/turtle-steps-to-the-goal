@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 456,
+    issue: 506,
+    date: '2026-08-01T18:45:00+03:00',
+    en: 'Recent averages on Overview now show the exact from–to dates for the last 7 and 30 days, not only the relative labels.',
+    ru: 'В средних показателях на Обзоре теперь видны точные даты «с — по» для последних 7 и 30 дней, а не только относительные подписи.',
+  },
+  {
     version: 455,
     issue: 502,
     date: '2026-08-01T18:30:00+03:00',

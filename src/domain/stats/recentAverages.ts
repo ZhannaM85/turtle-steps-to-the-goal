@@ -1,4 +1,4 @@
-import { differenceInCalendarDays, parseISO } from 'date-fns'
+import { differenceInCalendarDays, format, parseISO, subDays } from 'date-fns'
 import { totalCalories, totalProtein, type DailyEntry } from '@/domain/dailyEntry'
 
 export interface RecentAverages {
@@ -6,9 +6,31 @@ export interface RecentAverages {
   averageProteinG: number | null
 }
 
+export interface RecentAverageWindowRange {
+  /** Inclusive start (`yyyy-MM-dd`) — `today - (windowDays - 1)`. */
+  startDate: string
+  /** Inclusive end (`yyyy-MM-dd`) — calendar day of `today`. */
+  endDate: string
+}
+
 function average(values: number[]): number | null {
   if (values.length === 0) return null
   return values.reduce((sum, value) => sum + value, 0) / values.length
+}
+
+/**
+ * Calendar bounds for the same trailing window `recentAverages` uses
+ * (`today` inclusive, counting back `windowDays` days). Empty days are
+ * still part of this range even when they don't enter the average
+ * denominator — the UI shows which days *could* have fed the stat.
+ */
+export function recentAverageWindowRange(
+  windowDays: number,
+  today: Date = new Date(),
+): RecentAverageWindowRange {
+  const endDate = format(today, 'yyyy-MM-dd')
+  const startDate = format(subDays(today, windowDays - 1), 'yyyy-MM-dd')
+  return { startDate, endDate }
 }
 
 /**

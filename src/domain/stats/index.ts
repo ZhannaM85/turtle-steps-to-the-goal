@@ -4,8 +4,11 @@ export { monthlySummaries } from './monthlySummaries'
 export type { MonthlySummary } from './monthlySummaries'
 export { rollingAverage } from './rollingAverage'
 export type { NumericEntryField, RollingAveragePoint } from './rollingAverage'
-export { recentAverages } from './recentAverages'
-export type { RecentAverages } from './recentAverages'
+export { recentAverages, recentAverageWindowRange } from './recentAverages'
+export type {
+  RecentAverages,
+  RecentAverageWindowRange,
+} from './recentAverages'
 export { correlation } from './correlation'
 export {
   correlationInsight,

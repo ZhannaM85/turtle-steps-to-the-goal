@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { CalorieEntry, CalorieItem, DailyEntry } from '@/domain/dailyEntry'
-import { recentAverages } from './recentAverages'
+import { recentAverages, recentAverageWindowRange } from './recentAverages'
 
 function calories(
   amountKcal: number,
@@ -29,6 +29,22 @@ function entry(date: string, overrides: Partial<DailyEntry> = {}): DailyEntry {
 }
 
 const TODAY = new Date('2026-03-31T12:00:00.000Z')
+
+describe('recentAverageWindowRange', () => {
+  it('returns an inclusive today-anchored window (7 days = today and 6 days back)', () => {
+    expect(recentAverageWindowRange(7, TODAY)).toEqual({
+      startDate: '2026-03-25',
+      endDate: '2026-03-31',
+    })
+  })
+
+  it('returns an inclusive 30-day window ending today', () => {
+    expect(recentAverageWindowRange(30, TODAY)).toEqual({
+      startDate: '2026-03-02',
+      endDate: '2026-03-31',
+    })
+  })
+})
 
 describe('recentAverages', () => {
   it('returns nulls for no entries', () => {

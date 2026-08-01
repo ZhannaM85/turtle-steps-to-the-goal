@@ -1,8 +1,9 @@
-import { format, subDays } from 'date-fns'
+import { format, parseISO, subDays } from 'date-fns'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, describe, expect, it } from 'vitest'
 import type { CalorieEntry, CalorieItem, DailyEntry } from '@/domain/dailyEntry'
+import { recentAverageWindowRange } from '@/domain/stats'
 import { useDashboardChartVisibilityStore } from '@/stores'
 import { RecentAveragesCards } from './RecentAveragesCards'
 
@@ -36,6 +37,11 @@ function daysAgo(n: number): string {
   return format(subDays(new Date(), n), 'yyyy-MM-dd')
 }
 
+function expectedRangeLabel(windowDays: number): string {
+  const { startDate, endDate } = recentAverageWindowRange(windowDays)
+  return `${format(parseISO(startDate), 'PP')} – ${format(parseISO(endDate), 'PP')}`
+}
+
 describe('RecentAveragesCards', () => {
   it('renders nothing when there are no entries', () => {
     const { container } = render(<RecentAveragesCards entries={[]} />)
@@ -61,6 +67,17 @@ describe('RecentAveragesCards', () => {
     expect(screen.getByText('1,500')).toBeInTheDocument()
   })
 
+  it('shows the inclusive from→to calendar range on each card (#506)', () => {
+    const entries = [
+      entry(daysAgo(1), { calorieEntries: calories(2000) }),
+      entry(daysAgo(20), { calorieEntries: calories(1000) }),
+    ]
+    render(<RecentAveragesCards entries={entries} />)
+
+    expect(screen.getByText(expectedRangeLabel(7))).toBeInTheDocument()
+    expect(screen.getByText(expectedRangeLabel(30))).toBeInTheDocument()
+  })
+
   it('shows the average protein alongside average calories', () => {
     const entries = [
       entry(daysAgo(1), {
@@ -69,9 +86,9 @@ describe('RecentAveragesCards', () => {
     ]
     render(<RecentAveragesCards entries={entries} />)
 
-    // Appears in both the 7-day and 30-day cards, since a day 1 day back
-    // falls within both windows.
-    expect(screen.getAllByText('Protein: 100g')).toHaveLength(2)
+    // Range + protein share the description line; a day 1 day back falls
+    // within both windows, so the protein fragment appears twice.
+    expect(screen.getAllByText(/Protein: 100g/)).toHaveLength(2)
   })
 
   it('only shows the 30-day card when the 7-day window has no data', () => {
@@ -80,6 +97,8 @@ describe('RecentAveragesCards', () => {
 
     expect(screen.queryByText('Last 7 days')).not.toBeInTheDocument()
     expect(screen.getByText('Last 30 days')).toBeInTheDocument()
+    expect(screen.queryByText(expectedRangeLabel(7))).not.toBeInTheDocument()
+    expect(screen.getByText(expectedRangeLabel(30))).toBeInTheDocument()
   })
 
   describe('whole-card show/hide toggle (#232)', () => {
