@@ -98,6 +98,10 @@ export interface MealItemEditorSheetProps {
    * (one stray keystroke would overwrite it). Defaults to true for add
    * flows, where focusing the empty name field is still helpful. */
   autoFocusName?: boolean
+  /** #518 follow-up — when true (barcode not-found → create), Save stays
+   * disabled until a dish name is typed. Without a name, `touch` never
+   * wrote a MealItem, so Custom foods stayed empty and rescans missed. */
+  requireName?: boolean
 }
 
 const NOTE_MAX_LENGTH = 200
@@ -231,12 +235,15 @@ export function MealItemEditorSheet({
   onSave,
   onSaveAndAddAnother,
   autoFocusName = true,
+  requireName = false,
 }: MealItemEditorSheetProps) {
   const t = useTranslation()
   const locale = useLocale()
 
   const amountNum = parseNumberInput(amount)
   const hasValidAmount = amountNum !== undefined && amountNum > 0
+  const canSave =
+    hasValidAmount && (!requireName || name.trim().length > 0)
   const scaledPreview = hasValidAmount
     ? macroMode === 'per100g'
       ? scaleFromPer100g(
@@ -548,7 +555,7 @@ export function MealItemEditorSheet({
             type="button"
             size="xl"
             className="w-full"
-            disabled={!hasValidAmount}
+            disabled={!canSave}
             onClick={onSave}
           >
             {t.dailyEntry.saveButton}
@@ -559,7 +566,7 @@ export function MealItemEditorSheet({
               variant="outline"
               size="xl"
               className="w-full"
-              disabled={!hasValidAmount}
+              disabled={!canSave}
               onClick={onSaveAndAddAnother}
             >
               {t.dailyEntry.saveAndAddAnotherButton}

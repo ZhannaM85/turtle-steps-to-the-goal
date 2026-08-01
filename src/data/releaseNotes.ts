@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 471,
+    issue: 518,
+    date: '2026-08-01T23:58:10+03:00',
+    en: 'After scanning a barcode that is not found, you must enter a dish name before saving — that name is what gets remembered for the next scan and shows up under Custom foods.',
+    ru: 'После сканирования неизвестного штрихкода нужно ввести название блюда перед сохранением — именно оно запоминается для следующего сканирования и появляется в «Своих продуктах».',
+  },
+  {
     version: 470,
     issue: 519,
     date: '2026-08-01T23:32:56+03:00',

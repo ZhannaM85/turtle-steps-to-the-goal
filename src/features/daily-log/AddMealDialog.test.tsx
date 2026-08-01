@@ -539,6 +539,48 @@ describe('AddMealDialog (#454)', () => {
       ).not.toBeInTheDocument()
       await user.click(addItemButton)
     })
+
+    it('requires a dish name after a not-found scan so Custom foods can be written (#518)', async () => {
+      vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: false }))
+      mockScanning('1111111111111')
+      const user = userEvent.setup()
+      render(<ControlledAddMealDialog {...defaultProps} />)
+
+      await user.click(screen.getByRole('button', { name: 'Scan barcode' }))
+      await screen.findByText(
+        'No food found for this barcode — you can still add it by hand below.',
+      )
+      await user.type(screen.getByLabelText('kcal/100g'), '90')
+
+      // Calories alone used to enable Save; touch then skipped (no name),
+      // so the meal line appeared but Custom foods / rescan stayed empty.
+      expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled()
+    })
+
+    it('still saves a barcode-sourced food when its name matches a curated catalog entry (#518)', async () => {
+      vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: false }))
+      mockScanning('2222222222222')
+      const user = userEvent.setup()
+      render(<ControlledAddMealDialog {...defaultProps} />)
+
+      await user.click(screen.getByRole('button', { name: 'Scan barcode' }))
+      await screen.findByText(
+        'No food found for this barcode — you can still add it by hand below.',
+      )
+      // "Salmon" is in foods.ts — the curated-name skip must not apply
+      // when a scanned barcode is being attached.
+      await user.type(screen.getByLabelText('Dish name'), 'Salmon')
+      await user.type(screen.getByLabelText('kcal/100g'), '150')
+      await user.click(screen.getByRole('button', { name: 'Save' }))
+
+      await waitFor(() =>
+        expect(
+          useMealItemStore
+            .getState()
+            .items.find((item) => item.name === 'Salmon'),
+        ).toMatchObject({ barcode: '2222222222222', lastAmountKcal: 150 }),
+      )
+    })
   })
 
   describe("Repeat yesterday's meal", () => {

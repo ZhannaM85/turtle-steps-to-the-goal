@@ -336,21 +336,26 @@ export function AddMealDialog({
   )
 
   function touchIfPersonal(item: CalorieItem) {
-    if (item.name && !curatedFoodNames.has(item.name)) {
-      touchMealItem(
-        item.name,
-        {
-          amountKcal: item.amountKcal,
-          proteinG: item.proteinG,
-          fatG: item.fatG,
-          carbsG: item.carbsG,
-          fiberG: item.fiberG,
-          amountG: item.amountG,
-        },
-        undefined,
-        pendingBarcode ?? undefined,
-      )
-    }
+    // #518 — barcode-sourced saves must always land in the personal
+    // library (with the code), even when the typed/OFF name matches a
+    // curated catalog entry. Skipping those left Custom foods empty and
+    // made every later scan look like a first-time not-found.
+    const fromBarcode = pendingBarcode != null
+    if (!item.name) return
+    if (!fromBarcode && curatedFoodNames.has(item.name)) return
+    void touchMealItem(
+      item.name,
+      {
+        amountKcal: item.amountKcal,
+        proteinG: item.proteinG,
+        fatG: item.fatG,
+        carbsG: item.carbsG,
+        fiberG: item.fiberG,
+        amountG: item.amountG,
+      },
+      undefined,
+      pendingBarcode ?? undefined,
+    )
   }
 
   function resetActiveItem() {
@@ -744,9 +749,13 @@ export function AddMealDialog({
     })
   }
 
-  function saveManualDraft() {
+  async function saveManualDraft() {
     const amountNum = parseNumberInput(manualDraft.amount)
     if (!amountNum || amountNum <= 0) return
+    // #518 — barcode not-found create must have a name so we can touch a
+    // MealItem; Save is also gated via requireName on the sheet.
+    const trimmedName = manualDraft.name.trim()
+    if (pendingBarcode && !trimmedName) return
     // Same per-100g-rate-x-portions vs. typed-total-directly scaling
     // MealList.tsx's own draftsToItems() uses for the identical
     // EditItemDraft shape — manualDraft.amountG is a *portion count*
@@ -770,9 +779,10 @@ export function AddMealDialog({
             manualDraft.amountG,
             parseOptionalMacro(manualDraft.fiber),
           )
+    const barcodeToSave = pendingBarcode ?? undefined
     const newItem: CalorieItem = {
       id: editingItemId ?? crypto.randomUUID(),
-      name: manualDraft.name.trim() || undefined,
+      name: trimmedName || undefined,
       brand: manualDraft.brand.trim() || undefined,
       ...scaled,
       emotion: manualDraft.emotion,
@@ -786,9 +796,13 @@ export function AddMealDialog({
     // A single touchMealItem call, not touchIfPersonal *and* this — calling
     // both raced two writes to the personal library's unique `name` index
     // for the same dish (confirmed via a real ConstraintError under test).
-    if (newItem.name && !curatedFoodNames.has(newItem.name)) {
-      touchMealItem(
-        newItem.name,
+    // #518 — when this save carries a scanned barcode, always upsert the
+    // personal library (bypass curated-name skip) so Custom foods + the
+    // next findByBarcode hit work. Await so a fast rescan can't race the
+    // IndexedDB write.
+    if (trimmedName && (barcodeToSave || !curatedFoodNames.has(trimmedName))) {
+      await touchMealItem(
+        trimmedName,
         {
           amountKcal: newItem.amountKcal,
           proteinG: newItem.proteinG,
@@ -798,10 +812,7 @@ export function AddMealDialog({
           amountG: newItem.amountG,
         },
         manualDraft.favorite || undefined,
-        // #518 — attach the not-found scan's barcode on first save so
-        // findByBarcode hits next time. Omitted when opening Add food
-        // without a prior scan (pendingBarcode null).
-        pendingBarcode ?? undefined,
+        barcodeToSave,
       )
     }
     setPendingBarcode(null)
@@ -1729,7 +1740,10 @@ export function AddMealDialog({
               : undefined
           }
           barcode={manualSheetBarcode}
-          onSave={saveManualDraft}
+          requireName={pendingBarcode !== null && editingItemId === null}
+          onSave={() => {
+            void saveManualDraft()
+          }}
         />
       </DialogContent>
     </Dialog>
