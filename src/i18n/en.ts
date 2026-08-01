@@ -150,8 +150,7 @@ export const en: Dictionary = {
     mealNoteLabel: 'Meal note',
     // Group-level note (#81 / #480) — free-text comment about the meal as
     // a whole. Meal-aware placeholder; not the reaction's "Was it tasty?".
-    mealNotePlaceholder: (mealLabel) =>
-      `Note about ${mealLabel.toLowerCase()}`,
+    mealNotePlaceholder: (mealLabel) => `Note about ${mealLabel.toLowerCase()}`,
     itemNameLabel: 'Dish name',
     itemNamePlaceholder: 'Add a dish?',
     itemBrandLabel: 'Brand (optional)',
@@ -466,10 +465,11 @@ export const en: Dictionary = {
     importFailed: 'Import failed.',
   },
   myFitnessPalImport: {
-    importBlurb: 'Import meal and weight history from a MyFitnessPal data export.',
+    importBlurb:
+      'Import meal and weight history from a MyFitnessPal data export.',
     howToExportLabel: 'How do I get this file?',
     howToExportSteps:
-      'Request a Data Access Request export from MyFitnessPal (myfitnesspal.com → Settings → Privacy Center → Manage My Data — this option requires a Premium subscription). If it\'s not available on your account, you can instead email MyFitnessPal support directly and ask them for your data. It arrives by email as an .xlsx file — this can take a few days to be ready.',
+      "Request a Data Access Request export from MyFitnessPal (myfitnesspal.com → Settings → Privacy Center → Manage My Data — this option requires a Premium subscription). If it's not available on your account, you can instead email MyFitnessPal support directly and ask them for your data. It arrives by email as an .xlsx file — this can take a few days to be ready.",
     importButton: 'Import from MyFitnessPal',
     importingButton: 'Importing…',
     importedSummary: (days, updated) =>
@@ -965,9 +965,9 @@ export const en: Dictionary = {
     title: 'About',
     description: 'What this app is, and why it exists',
     intro:
-      'Weight changes are influenced by many factors—not just calories. Turtle Steps helps you keep them together in one place.',
+      'Turtle Steps is a private, local-first companion for understanding weight, nutrition, and the everyday factors around them.',
     tracking:
-      'Track your weight alongside calories, protein, carbohydrates, fat, sleep, activity, menstrual cycle, meals, and personal notes. Over time, the app helps you see patterns and understand how your daily habits relate to your progress.',
+      'Bring meals, macros, hydration, sleep, activity, body measurements, and any custom metrics you choose together in one place. Explore Features for the full list.',
     philosophy:
       'Instead of focusing on perfect days, Turtle Steps encourages steady weekly progress through small, consistent steps.',
     privacyHeading: 'Private by design.',
@@ -1012,8 +1012,9 @@ export const en: Dictionary = {
       {
         heading: 'Daily logging',
         items: [
-          'Track weight, calories, protein, fat, and carbs every day',
+          'Track weight, calories, protein, fat, carbs, and fiber every day',
           'Log sleep, steps, water, and mood alongside your weight',
+          'Create number, yes/no, or five-point custom metrics for anything else that matters to you',
           'Optional menstrual cycle and digestion tracking — off by default, and never shown unless you turn it on',
         ],
       },
@@ -1039,7 +1040,7 @@ export const en: Dictionary = {
         heading: 'Dashboard & trends',
         items: [
           'Weight, calorie, and macro trend charts, plus weekly and monthly summaries',
-          'Track waist, hip, and body-fat measurements over time',
+          'Track waist, hip, body fat, muscle mass, visceral fat, body water, and bone mass over time',
           'Build your own comparison chart from any two tracked metrics',
           "Reorder the Dashboard's sections to match what matters to you",
         ],
@@ -1054,8 +1055,9 @@ export const en: Dictionary = {
       {
         heading: 'History',
         items: [
-          'Browse every past day in a calendar view',
-          'See exactly which days met your weekly target',
+          'Browse past days as a searchable, filterable list or calendar',
+          'Use calendar markers for weight, meals, water, mood, notes, custom metrics, and reached goals',
+          'Open any day to review or edit its complete log',
         ],
       },
       {
@@ -1064,6 +1066,7 @@ export const en: Dictionary = {
           'Everything is stored locally — no account, no cloud, no tracking',
           'Export a full backup, or as Excel, CSV, or Markdown, any time',
           'Import a backup to restore your data or move to a new device',
+          'Import weight, body composition, steps, and meals from Zepp Life, Apple Health, or MyFitnessPal exports',
         ],
       },
       {

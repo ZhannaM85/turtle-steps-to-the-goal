@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 445,
+    issue: 495,
+    date: '2026-08-01T15:40:57+03:00',
+    en: 'About and Features now reflect the full app, including nutrition, body composition, custom metrics, history, and health-data imports.',
+    ru: 'Разделы «О приложении» и «Возможности» теперь отражают всё приложение: питание, состав тела, свои метрики, историю и импорт данных о здоровье.',
+  },
+  {
     version: 444,
     issue: 489,
     date: '2026-08-01T15:15:32+03:00',
@@ -315,7 +322,7 @@ export const releaseNotes: ReleaseNote[] = [
     version: 403,
     issue: 459,
     date: '2026-07-31T02:12:00+03:00',
-    en: "The add-meal screen now matches the mockup more closely (bigger quick-action cards, a clearer mood picker, more breathing room), and editing an already-logged meal uses the same screen too.",
+    en: 'The add-meal screen now matches the mockup more closely (bigger quick-action cards, a clearer mood picker, more breathing room), and editing an already-logged meal uses the same screen too.',
     ru: 'Экран добавления приёма пищи теперь больше соответствует макету (крупные карточки быстрых действий, более понятный выбор настроения, больше воздуха), а редактирование уже сохранённого приёма пищи теперь происходит на том же экране.',
   },
   {
@@ -343,7 +350,7 @@ export const releaseNotes: ReleaseNote[] = [
     version: 399,
     issue: 454,
     date: '2026-07-30T21:04:23+03:00',
-    en: 'Adding a meal is now a dedicated screen: search or scan a barcode, add several dishes without closing it, and rate the whole meal when you\'re done.',
+    en: "Adding a meal is now a dedicated screen: search or scan a barcode, add several dishes without closing it, and rate the whole meal when you're done.",
     ru: 'Добавление приёма пищи теперь на отдельном экране: ищите или сканируйте штрихкод, добавляйте несколько блюд без закрытия, а в конце оцените весь приём пищи.',
   },
   {
@@ -476,7 +483,7 @@ export const releaseNotes: ReleaseNote[] = [
     version: 380,
     issue: 430,
     date: '2026-07-29T23:17:58+03:00',
-    en: "Tapping the remaining-water card on Today now scrolls straight to the add/remove water buttons, instead of leaving you to find them yourself.",
+    en: 'Tapping the remaining-water card on Today now scrolls straight to the add/remove water buttons, instead of leaving you to find them yourself.',
     ru: 'Нажатие на карточку "Осталось воды" на вкладке Сегодня теперь сразу прокручивает страницу к кнопкам добавления/удаления воды, вместо того чтобы искать их вручную.',
   },
   {
@@ -532,7 +539,7 @@ export const releaseNotes: ReleaseNote[] = [
     version: 372,
     issue: 423,
     date: '2026-07-29T19:05:00+03:00',
-    en: "Today's \"ate late tonight\" toggle now actually clears back to its automatic value when you tap the selected option again — it used to silently keep showing the old selection.",
+    en: 'Today\'s "ate late tonight" toggle now actually clears back to its automatic value when you tap the selected option again — it used to silently keep showing the old selection.',
     ru: 'Переключатель "Ел(а) поздно вечером" на вкладке "Сегодня" теперь действительно сбрасывается к автоматическому значению при повторном нажатии на выбранный вариант — раньше он молча продолжал показывать старый выбор.',
   },
   {
@@ -546,7 +553,7 @@ export const releaseNotes: ReleaseNote[] = [
     version: 370,
     issue: 420,
     date: '2026-07-29T17:14:22+03:00',
-    en: "The Today date row's \"jump to today\" button now matches the height of the arrows and date field next to it.",
+    en: 'The Today date row\'s "jump to today" button now matches the height of the arrows and date field next to it.',
     ru: 'Кнопка "Сегодня" в строке даты теперь той же высоты, что и стрелки и поле даты рядом с ней.',
   },
   {
@@ -574,7 +581,7 @@ export const releaseNotes: ReleaseNote[] = [
     version: 366,
     issue: 416,
     date: '2026-07-29T16:05:08+03:00',
-    en: "On Today, the evening section (steps, note, mood, and the rest) now renders after Water and Custom Metrics instead of before them.",
+    en: 'On Today, the evening section (steps, note, mood, and the rest) now renders after Water and Custom Metrics instead of before them.',
     ru: 'На вкладке "Сегодня" вечерний блок (шаги, заметка, настроение и остальное) теперь отображается после воды и пользовательских показателей, а не до них.',
   },
   {
@@ -903,7 +910,7 @@ export const releaseNotes: ReleaseNote[] = [
     version: 319,
     issue: 362,
     date: '2026-07-27T21:32:21+03:00',
-    en: "Custom metrics are now logged right from the Today screen, instead of a separate dedicated screen.",
+    en: 'Custom metrics are now logged right from the Today screen, instead of a separate dedicated screen.',
     ru: 'Свои метрики теперь записываются прямо на главном экране, а не на отдельном экране.',
   },
   {
@@ -938,7 +945,7 @@ export const releaseNotes: ReleaseNote[] = [
     version: 314,
     issue: 358,
     date: '2026-07-27T19:49:31+03:00',
-    en: "Today's Sleep card now shows duration in hours and minutes (e.g. \"9h 23m\") instead of a decimal.",
+    en: 'Today\'s Sleep card now shows duration in hours and minutes (e.g. "9h 23m") instead of a decimal.',
     ru: 'Карточка «Сон» на главном экране теперь показывает продолжительность в часах и минутах (например, «9ч 23м»), а не десятичным числом.',
   },
   {
@@ -1001,7 +1008,7 @@ export const releaseNotes: ReleaseNote[] = [
     version: 305,
     issue: 350,
     date: '2026-07-27T16:14:54+03:00',
-    en: "Fixed body fat % rendering as a solid black bar in the comparison chart.",
+    en: 'Fixed body fat % rendering as a solid black bar in the comparison chart.',
     ru: 'Исправили: процент жира отображался в графике сравнения сплошным чёрным цветом.',
   },
   {
@@ -1155,7 +1162,7 @@ export const releaseNotes: ReleaseNote[] = [
     version: 283,
     issue: 320,
     date: '2026-07-23T20:07:22+03:00',
-    en: 'The Today screen\'s remaining protein/fat/carbs/water cards now show a segmented progress bar in that nutrient\'s own color, so it\'s easy to see how much of the goal is left at a glance.',
+    en: "The Today screen's remaining protein/fat/carbs/water cards now show a segmented progress bar in that nutrient's own color, so it's easy to see how much of the goal is left at a glance.",
     ru: 'Карточки «Осталось белка/жиров/углеводов/воды» на экране «Сегодня» теперь показывают сегментированную шкалу прогресса своим цветом — сразу видно, сколько ещё осталось до цели.',
   },
   {
@@ -1176,7 +1183,7 @@ export const releaseNotes: ReleaseNote[] = [
     version: 280,
     issue: 297,
     date: '2026-07-23T15:48:12+03:00',
-    en: 'You can now drag and drop to reorder the Dashboard\'s own sections.',
+    en: "You can now drag and drop to reorder the Dashboard's own sections.",
     ru: 'Теперь разделы на экране «Обзор» можно менять местами перетаскиванием.',
   },
   {
@@ -1218,7 +1225,7 @@ export const releaseNotes: ReleaseNote[] = [
     version: 274,
     issue: 302,
     date: '2026-07-23T13:50:12+03:00',
-    en: 'Fixed a logged food\'s macros sometimes wrapping awkwardly right against its name instead of starting on their own line.',
+    en: "Fixed a logged food's macros sometimes wrapping awkwardly right against its name instead of starting on their own line.",
     ru: 'Исправлена ошибка: БЖУ записанного продукта иногда переносились неудачно вплотную к названию вместо отдельной строки.',
   },
   {
@@ -1246,7 +1253,7 @@ export const releaseNotes: ReleaseNote[] = [
     version: 270,
     issue: 295,
     date: '2026-07-23T12:44:54+03:00',
-    en: 'Fixed the add-item row\'s buttons overflowing off the screen on narrower phones after recipes were added.',
+    en: "Fixed the add-item row's buttons overflowing off the screen on narrower phones after recipes were added.",
     ru: 'Исправлено переполнение кнопок в строке добавления блюда на узких экранах телефонов после добавления рецептов.',
   },
   {
@@ -1295,7 +1302,7 @@ export const releaseNotes: ReleaseNote[] = [
     version: 263,
     issue: 287,
     date: '2026-07-23T00:14:08+03:00',
-    en: 'Logging your first meal of the day now shows a quick note with how long your fasting window was, if yesterday\'s last meal time is known.',
+    en: "Logging your first meal of the day now shows a quick note with how long your fasting window was, if yesterday's last meal time is known.",
     ru: 'При записи первого приёма пищи за день теперь показывается заметка о продолжительности вашего окна голодания, если известно время последнего приёма пищи вчера.',
   },
   {
@@ -1323,7 +1330,7 @@ export const releaseNotes: ReleaseNote[] = [
     version: 259,
     issue: 256,
     date: '2026-07-22T22:54:01+03:00',
-    en: 'You can now scan a packaged food\'s barcode to add it — matches your own saved foods first, then looks it up online if it\'s new.',
+    en: "You can now scan a packaged food's barcode to add it — matches your own saved foods first, then looks it up online if it's new.",
     ru: 'Теперь можно отсканировать штрихкод продукта, чтобы добавить его — сначала ищет среди уже сохранённых продуктов, а для новых — в интернете.',
   },
   {
@@ -1400,7 +1407,7 @@ export const releaseNotes: ReleaseNote[] = [
     version: 248,
     issue: 273,
     date: '2026-07-22T16:23:32+03:00',
-    en: 'The food-search modal now also previews what today\'s overall calorie total will become, not just the manual entry form.',
+    en: "The food-search modal now also previews what today's overall calorie total will become, not just the manual entry form.",
     ru: 'В окне поиска еды теперь тоже видно, каким станет общий итог калорий за день, а не только в форме ручного ввода.',
   },
   {
@@ -1428,7 +1435,7 @@ export const releaseNotes: ReleaseNote[] = [
     version: 244,
     issue: 260,
     date: '2026-07-22T12:26:58+03:00',
-    en: 'When adding a new meal by hand, you now see a preview of what today\'s overall total will become, not just that one item\'s own total.',
+    en: "When adding a new meal by hand, you now see a preview of what today's overall total will become, not just that one item's own total.",
     ru: 'При добавлении нового приёма пищи вручную теперь видно, каким станет общий итог за день, а не только итог по этому блюду.',
   },
   {
@@ -1449,7 +1456,7 @@ export const releaseNotes: ReleaseNote[] = [
     version: 241,
     issue: 255,
     date: '2026-07-22T12:46:49+03:00',
-    en: 'Meal items now get a gentle note if the calories entered don\'t quite match the protein/fat/carbs — just a heads-up, never blocks saving.',
+    en: "Meal items now get a gentle note if the calories entered don't quite match the protein/fat/carbs — just a heads-up, never blocks saving.",
     ru: 'При добавлении блюда теперь появляется мягкая подсказка, если калории не совсем сходятся с указанными белками/жирами/углеводами — просто предупреждение, сохранению это не мешает.',
   },
   {
@@ -1477,7 +1484,7 @@ export const releaseNotes: ReleaseNote[] = [
     version: 237,
     issue: 266,
     date: '2026-07-22T13:10:23+03:00',
-    en: "Remaining calories/protein/fat/carbs on Today now show what they're out of, and reaching your protein target shows a positive message instead of just \"0g remaining.\"",
+    en: 'Remaining calories/protein/fat/carbs on Today now show what they\'re out of, and reaching your protein target shows a positive message instead of just "0g remaining."',
     ru: 'На экране «Сегодня» карточки «Осталось калорий/белка/жиров/углеводов» теперь показывают, из скольки; а при достижении цели по белку вместо «0г осталось» появляется поздравление.',
   },
   {
@@ -1526,7 +1533,7 @@ export const releaseNotes: ReleaseNote[] = [
     version: 230,
     issue: 232,
     date: '2026-07-22T00:07:14+03:00',
-    en: 'Today and Goal pages now have show/hide toggles on every computed section (this week\'s target, vs. yesterday, remaining calories/protein, past targets, and more) — matching the Dashboard chart toggles.',
+    en: "Today and Goal pages now have show/hide toggles on every computed section (this week's target, vs. yesterday, remaining calories/protein, past targets, and more) — matching the Dashboard chart toggles.",
     ru: 'На страницах «Сегодня» и «Цель» теперь есть переключатели показать/скрыть для каждого вычисляемого раздела (цель на неделю, по сравнению со вчера, осталось калорий/белка, прошлые цели и другое) — как у переключателей графиков на панели.',
   },
   {
@@ -1750,7 +1757,7 @@ export const releaseNotes: ReleaseNote[] = [
     version: 196,
     issue: 210,
     date: '2026-07-20T22:24:00+03:00',
-    en: 'The day\'s mood icon next to your note is bigger now, easier to see.',
+    en: "The day's mood icon next to your note is bigger now, easier to see.",
     ru: 'Иконка настроения дня рядом с заметкой теперь крупнее и лучше видна.',
   },
   {
@@ -1953,7 +1960,7 @@ export const releaseNotes: ReleaseNote[] = [
     version: 167,
     issue: 162,
     date: '2026-07-19T19:05:00+03:00',
-    en: "The History list now shows 20 entries per page instead of all at once, so it stays fast as your log grows.",
+    en: 'The History list now shows 20 entries per page instead of all at once, so it stays fast as your log grows.',
     ru: 'Список в разделе "История" теперь показывает по 20 записей на странице вместо всех сразу — это сохранит скорость работы по мере роста дневника.',
   },
   {
@@ -1974,7 +1981,7 @@ export const releaseNotes: ReleaseNote[] = [
     version: 164,
     issue: 174,
     date: '2026-07-19T17:45:00+03:00',
-    en: "Repeatedly tapping \"Update this week's target\" with the same number no longer creates duplicate history entries, and you can now delete a wrongly-added target from the Past targets list.",
+    en: 'Repeatedly tapping "Update this week\'s target" with the same number no longer creates duplicate history entries, and you can now delete a wrongly-added target from the Past targets list.',
     ru: 'Повторное нажатие "Обновить цель на неделю" с тем же значением больше не создаёт дубликаты в истории, а неверно добавленную цель теперь можно удалить из списка прошлых целей.',
   },
   {
@@ -2051,14 +2058,14 @@ export const releaseNotes: ReleaseNote[] = [
     version: 153,
     issue: 168,
     date: '2026-07-19T14:02:47+03:00',
-    en: "Fixed the Macros field on Today looking a different size than the Calories field above it.",
+    en: 'Fixed the Macros field on Today looking a different size than the Calories field above it.',
     ru: 'Исправлено: поле "БЖУ" на экране "Сегодня" выглядело другого размера, чем поле "Калории" над ним.',
   },
   {
     version: 152,
     issue: 156,
     date: '2026-07-19T13:33:11+03:00',
-    en: "Fixed a layout bug (installed home-screen app only) where editing a meal, especially one with a long dish name or a reaction emoji, could leave empty space or overlapping text on screen.",
+    en: 'Fixed a layout bug (installed home-screen app only) where editing a meal, especially one with a long dish name or a reaction emoji, could leave empty space or overlapping text on screen.',
     ru: 'Исправлена ошибка макета (только в установленном приложении на главном экране): при редактировании приёма пищи, особенно с длинным названием блюда или эмодзи-реакцией, могло появляться пустое место или накладывающийся текст.',
   },
   {
@@ -2093,14 +2100,14 @@ export const releaseNotes: ReleaseNote[] = [
     version: 147,
     issue: 150,
     date: '2026-07-19T11:31:27+03:00',
-    en: "Fixed a bug where picking a food from the built-in food list could end up in your own custom dishes list in Settings after later editing that meal.",
+    en: 'Fixed a bug where picking a food from the built-in food list could end up in your own custom dishes list in Settings after later editing that meal.',
     ru: 'Исправлена ошибка: выбор блюда из встроенного списка продуктов мог попасть в ваш список собственных блюд в Настройках после последующего редактирования этого приёма пищи.',
   },
   {
     version: 146,
     issue: 151,
     date: '2026-07-19T11:19:34+03:00',
-    en: "Added a clear button next to \"+ Add item\" so you can discard an in-progress meal item without opening its editor.",
+    en: 'Added a clear button next to "+ Add item" so you can discard an in-progress meal item without opening its editor.',
     ru: 'Добавлена кнопка очистки рядом с "+ Добавить блюдо" — теперь можно отменить начатое добавление блюда, не открывая редактор.',
   },
   {

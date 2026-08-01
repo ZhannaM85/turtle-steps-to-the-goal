@@ -21,18 +21,20 @@ function renderAboutScreen() {
 }
 
 describe('AboutScreen', () => {
-  it('explains what the app is and its no-big-goal philosophy (#213)', () => {
+  it('summarizes the current app and its no-big-goal philosophy (#213, #495)', () => {
     renderAboutScreen()
 
     expect(screen.getByRole('heading', { name: 'About' })).toBeInTheDocument()
     expect(
-      screen.getByText(/Weight changes are influenced by many factors/),
+      screen.getByText(/private, local-first companion/),
     ).toBeInTheDocument()
     expect(
-      screen.getByText(/Track your weight alongside calories/),
+      screen.getByText(/meals, macros, hydration, sleep, activity/),
     ).toBeInTheDocument()
     expect(
-      screen.getByText(/steady weekly progress through small, consistent steps/),
+      screen.getByText(
+        /steady weekly progress through small, consistent steps/,
+      ),
     ).toBeInTheDocument()
     expect(screen.getByText('Private by design.')).toBeInTheDocument()
     expect(

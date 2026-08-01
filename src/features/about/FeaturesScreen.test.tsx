@@ -21,21 +21,32 @@ function renderFeaturesScreen() {
 }
 
 describe('FeaturesScreen', () => {
-  it('lists every feature category with its own bullet points (#346)', () => {
+  it('lists current feature categories and representative capabilities (#346, #495)', () => {
     renderFeaturesScreen()
 
-    expect(screen.getByRole('heading', { name: 'Features' })).toBeInTheDocument()
+    expect(
+      screen.getByRole('heading', { name: 'Features' }),
+    ).toBeInTheDocument()
     expect(
       screen.getByRole('heading', { name: 'Daily logging' }),
     ).toBeInTheDocument()
     expect(
-      screen.getByText(/Track weight, calories, protein, fat, and carbs/),
+      screen.getByText(
+        /Track weight, calories, protein, fat, carbs, and fiber/,
+      ),
+    ).toBeInTheDocument()
+    expect(screen.getByText(/five-point custom metrics/)).toBeInTheDocument()
+    expect(
+      screen.getByText(/muscle mass, visceral fat, body water, and bone mass/),
     ).toBeInTheDocument()
     expect(
       screen.getByRole('heading', { name: 'Your data, your device' }),
     ).toBeInTheDocument()
     expect(
       screen.getByText(/no account, no cloud, no tracking/),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByText(/Zepp Life, Apple Health, or MyFitnessPal/),
     ).toBeInTheDocument()
   })
 
