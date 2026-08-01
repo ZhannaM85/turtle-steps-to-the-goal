@@ -27,7 +27,7 @@ export const releaseNotes: ReleaseNote[] = [
   {
     version: 458,
     issue: 507,
-    date: '2026-08-01T19:00:00+03:00',
+    date: '2026-08-01T18:55:34+03:00',
     en: 'In Add meal, you can hide the Recent suggestions list with an eye icon next to the heading — tap again to show it. Your choice is remembered.',
     ru: 'В экране добавления приёма пищи список «Недавние» можно скрыть значком глаза рядом с заголовком — нажмите ещё раз, чтобы показать. Выбор сохраняется.',
   },
