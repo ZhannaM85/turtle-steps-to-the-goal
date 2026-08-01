@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 466,
+    issue: 515,
+    date: '2026-08-01T22:06:57+03:00',
+    en: 'Morning body composition now shows all five measurements side by side in a tidy grid, instead of highlighting body fat above the rest.',
+    ru: 'В утреннем составе тела все пять показателей теперь стоят рядом в аккуратной сетке, а не с выделенным процентом жира над остальными.',
+  },
+  {
     version: 465,
     issue: 515,
     date: '2026-08-01T21:21:38+03:00',

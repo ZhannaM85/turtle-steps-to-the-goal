@@ -55,6 +55,19 @@ function expectMealCard(label: string, kcalText: string) {
   ).toBeGreaterThan(0)
 }
 
+// #515 replaced Body composition's single "Muscle 30kg · …" summary line
+// with a grid of label/value cells, so its readings are separate nodes now.
+// Scoping to the section keeps short values like a visceral-fat rating from
+// matching an unrelated number elsewhere in the form.
+function expectBodyCompositionValues(values: string[]) {
+  const section = screen
+    .getByText('Body composition')
+    .closest('div') as HTMLElement
+  for (const value of values) {
+    expect(within(section).getByText(value)).toBeInTheDocument()
+  }
+}
+
 // The food-picker tests below mount FoodPickerDialog, which renders the
 // 300+ item curated food list (same reason FoodPickerDialog.test.tsx and
 // FoodListSettingsScreen.test.tsx need this) — under full-suite parallel
@@ -826,11 +839,7 @@ describe('DailyEntryForm', () => {
       expect(onSave.mock.calls[0][0].bodyWaterPercent).toBe(48)
       expect(onSave.mock.calls[0][0].boneMassKg).toBe(2.3)
       expect(onSave.mock.calls[0][0].bodyFatPercent).toBe(22)
-      expect(
-        screen.getByText(
-          'Muscle 30kg · Visceral fat 5 · Water 48% · Bone 2.3kg',
-        ),
-      ).toBeInTheDocument()
+      expectBodyCompositionValues(['30kg', '5', '48%', '2.3kg', '22%'])
     })
 
     it('rejects an out-of-range visceral fat value and does not save', async () => {
@@ -935,13 +944,7 @@ describe('DailyEntryForm', () => {
         />,
       )
 
-      expect(
-        screen.getByText(
-          'Muscle 30kg · Visceral fat 5 · Water 48% · Bone 2.3kg',
-        ),
-      ).toBeInTheDocument()
-      expect(screen.getByText('22')).toHaveClass('text-2xl', 'font-semibold')
-      expect(screen.getByText('Body fat')).toBeInTheDocument()
+      expectBodyCompositionValues(['30kg', '5', '48%', '2.3kg', '22%'])
       expect(
         screen.queryByRole('button', { name: 'Save body composition' }),
       ).not.toBeInTheDocument()
@@ -958,11 +961,7 @@ describe('DailyEntryForm', () => {
       )
 
       expect(onSave.mock.calls[0][0].muscleMassKg).toBe(31)
-      expect(
-        screen.getByText(
-          'Muscle 31kg · Visceral fat 5 · Water 48% · Bone 2.3kg',
-        ),
-      ).toBeInTheDocument()
+      expectBodyCompositionValues(['31kg', '5', '48%', '2.3kg', '22%'])
     })
 
     describe('leaving edit mode without saving (#424)', () => {
@@ -1016,11 +1015,7 @@ describe('DailyEntryForm', () => {
         )
 
         expect(onSave).not.toHaveBeenCalled()
-        expect(
-          screen.getByText(
-            'Muscle 30kg · Visceral fat 5 · Water 48% · Bone 2.3kg',
-          ),
-        ).toBeInTheDocument()
+        expectBodyCompositionValues(['30kg', '5', '48%', '2.3kg', '22%'])
       })
 
       it('also dismisses any pending unusual-value warning', async () => {
@@ -1071,9 +1066,7 @@ describe('DailyEntryForm', () => {
 
         expect(onSave).not.toHaveBeenCalled()
         expect(screen.queryByText(/unusual change/)).not.toBeInTheDocument()
-        expect(
-          screen.getByText(/Muscle 30kg/),
-        ).toBeInTheDocument()
+        expectBodyCompositionValues(['30kg'])
       })
     })
 

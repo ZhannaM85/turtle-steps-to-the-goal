@@ -299,13 +299,11 @@ export const en: Dictionary = {
     bodyWaterLabel: 'Body water',
     boneMassLabel: 'Bone mass',
     kgUnit: 'kg',
-    bodyCompositionSummary: (
-      muscleMass,
-      visceralFat,
-      bodyWater,
-      boneMass,
-    ) =>
-      `Muscle ${muscleMass} · Visceral fat ${visceralFat} · Water ${bodyWater} · Bone ${boneMass}`,
+    muscleMassShortLabel: 'Muscle',
+    visceralFatShortLabel: 'Visceral fat',
+    bodyWaterShortLabel: 'Water',
+    boneMassShortLabel: 'Bone',
+    bodyFatShortLabel: 'Body fat',
     onPeriodLabel: 'On period',
     hadConstipationLabel: 'Constipation',
     hadConstipationNoOption: 'No',

@@ -38,6 +38,47 @@ export function DailyEntryFormMorning() {
   )
   const setCollapsed = useTodaySectionsCollapseStore((s) => s.setCollapsed)
 
+  // #515 — the collapsed Body composition row, in the same field order as
+  // the edit grid. All five are peers (one smart-scale reading), so none is
+  // singled out as a headline value.
+  const bodyCompositionMetrics = [
+    {
+      label: t.dailyEntry.muscleMassShortLabel,
+      value:
+        state.muscleMassKg === undefined
+          ? '—'
+          : `${formatExactNumber(state.muscleMassKg, locale)}${t.dailyEntry.kgUnit}`,
+    },
+    {
+      label: t.dailyEntry.visceralFatShortLabel,
+      value:
+        state.visceralFatRating === undefined
+          ? '—'
+          : formatExactNumber(state.visceralFatRating, locale),
+    },
+    {
+      label: t.dailyEntry.bodyWaterShortLabel,
+      value:
+        state.bodyWaterPercent === undefined
+          ? '—'
+          : `${formatExactNumber(state.bodyWaterPercent, locale)}${t.dailyEntry.percentUnit}`,
+    },
+    {
+      label: t.dailyEntry.boneMassShortLabel,
+      value:
+        state.boneMassKg === undefined
+          ? '—'
+          : `${formatExactNumber(state.boneMassKg, locale)}${t.dailyEntry.kgUnit}`,
+    },
+    {
+      label: t.dailyEntry.bodyFatShortLabel,
+      value:
+        state.bodyFatPercent === undefined
+          ? '—'
+          : `${formatExactNumber(state.bodyFatPercent, locale)}${t.dailyEntry.percentUnit}`,
+    },
+  ]
+
   // #435 — validates on blur in addition to `saveBodyComposition()`'s
   // existing Save-time check, reusing the exact same schema. Composed with
   // `register()`'s own `onBlur` (needed for react-hook-form's internal
@@ -510,48 +551,28 @@ export function DailyEntryFormMorning() {
                   <span className="text-sm font-medium">
                     {t.dailyEntry.bodyCompositionLabel}
                   </span>
-                  {/* #515 — five equal-weight metrics in the old fixed h-12
-                   * line wrapped like accidental overflow on mobile. Keep the
-                   * Morning display shell, but borrow StatCard's hierarchy:
-                   * body fat is the primary figure and the other smart-scale
-                   * readings form a deliberately quieter description. */}
-                  <div className="flex min-h-20 items-center justify-between gap-2 rounded-lg bg-muted px-3 py-2.5">
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-baseline gap-1.5">
-                        <span className="text-2xl font-semibold tabular-nums text-foreground">
-                          {state.bodyFatPercent === undefined
-                            ? '—'
-                            : formatExactNumber(state.bodyFatPercent, locale)}
-                        </span>
-                        {state.bodyFatPercent !== undefined && (
-                          <span className="text-sm text-muted-foreground">
-                            {t.dailyEntry.percentUnit}
-                          </span>
-                        )}
-                        <span className="text-sm text-muted-foreground">
-                          {t.dailyEntry.bodyFatLabel}
-                        </span>
-                      </div>
-                      <p className="mt-1 text-xs leading-5 text-muted-foreground">
-                        {t.dailyEntry.bodyCompositionSummary(
-                          state.muscleMassKg === undefined
-                            ? '—'
-                            : `${formatExactNumber(state.muscleMassKg, locale)}${t.dailyEntry.kgUnit}`,
-                          state.visceralFatRating === undefined
-                            ? '—'
-                            : formatExactNumber(
-                                state.visceralFatRating,
-                                locale,
-                              ),
-                          state.bodyWaterPercent === undefined
-                            ? '—'
-                            : `${formatExactNumber(state.bodyWaterPercent, locale)}${t.dailyEntry.percentUnit}`,
-                          state.boneMassKg === undefined
-                            ? '—'
-                            : `${formatExactNumber(state.boneMassKg, locale)}${t.dailyEntry.kgUnit}`,
-                        )}
-                      </p>
-                    </div>
+                  {/* #515 — the five readings used to share one fixed-height
+                   * `·`-separated line, which wrapped like accidental
+                   * overflow next to Weight's and Sleep's clean single lines.
+                   * Same muted shell and pencil, but the values now sit in a
+                   * deliberate two-row grid where each metric keeps the same
+                   * visual weight — the wrap is the layout, not a symptom. */}
+                  <div className="flex items-center justify-between gap-2 rounded-lg bg-muted px-3 py-2.5">
+                    <dl className="grid min-w-0 flex-1 grid-cols-3 gap-x-3 gap-y-2">
+                      {bodyCompositionMetrics.map((metric) => (
+                        <div
+                          key={metric.label}
+                          className="flex min-w-0 flex-col"
+                        >
+                          <dt className="truncate text-xs text-muted-foreground">
+                            {metric.label}
+                          </dt>
+                          <dd className="text-sm font-medium tabular-nums text-foreground">
+                            {metric.value}
+                          </dd>
+                        </div>
+                      ))}
+                    </dl>
                     <Button
                       type="button"
                       variant="ghost"

@@ -613,12 +613,14 @@ export interface Dictionary {
     bodyWaterLabel: string
     boneMassLabel: string
     kgUnit: string
-    bodyCompositionSummary: (
-      muscleMass: string,
-      visceralFat: string,
-      bodyWater: string,
-      boneMass: string,
-    ) => string
+    /** #515 — compact labels for the collapsed Body composition grid, where
+     * five metrics share a narrow row. The full `*Label` keys above stay on
+     * the edit inputs, where there's room for them. */
+    muscleMassShortLabel: string
+    visceralFatShortLabel: string
+    bodyWaterShortLabel: string
+    boneMassShortLabel: string
+    bodyFatShortLabel: string
     onPeriodLabel: string
     /** Opt-in digestion tracking's per-day toggle, on both Today and in
      * DayDetail.tsx — tracks the problem (constipation), not the normal

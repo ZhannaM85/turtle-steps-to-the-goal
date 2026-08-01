@@ -316,13 +316,11 @@ export const ru: Dictionary = {
     bodyWaterLabel: 'Вода в организме',
     boneMassLabel: 'Костная масса',
     kgUnit: 'кг',
-    bodyCompositionSummary: (
-      muscleMass,
-      visceralFat,
-      bodyWater,
-      boneMass,
-    ) =>
-      `Мышцы ${muscleMass} · Висц. жир ${visceralFat} · Вода ${bodyWater} · Кости ${boneMass}`,
+    muscleMassShortLabel: 'Мышцы',
+    visceralFatShortLabel: 'Висц. жир',
+    bodyWaterShortLabel: 'Вода',
+    boneMassShortLabel: 'Кости',
+    bodyFatShortLabel: 'Жир',
     onPeriodLabel: 'Менструация',
     hadConstipationLabel: 'Запор',
     hadConstipationNoOption: 'Нет',
