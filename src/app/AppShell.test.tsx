@@ -217,13 +217,14 @@ describe('AppShell bottom tab active accent (#484)', () => {
 
     const tabs = screen.getByRole('navigation', { name: 'Tabs' })
     const dayTab = within(tabs).getByRole('link', { name: 'Day' })
-    expect(dayTab).toHaveClass('bg-primary/10', 'text-primary')
+    expect(dayTab).toHaveClass('bg-muted', 'text-primary')
     expect(dayTab).not.toHaveClass('text-muted-foreground')
 
     const dashboardTab = within(tabs).getByRole('link', {
       name: 'Dashboard',
     })
     expect(dashboardTab).toHaveClass('text-muted-foreground')
-    expect(dashboardTab).not.toHaveClass('bg-primary/10')
+    expect(dashboardTab).not.toHaveClass('bg-muted')
+    expect(dashboardTab).not.toHaveClass('text-primary')
   })
 })

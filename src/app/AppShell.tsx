@@ -137,7 +137,10 @@ export function AppShell() {
                         // (mirrors desktop's bg-muted pill, with a stronger
                         // color signal across moods).
                         'mx-0.5 flex min-h-20 flex-col items-center justify-center gap-0.5 rounded-lg text-xs font-medium text-muted-foreground transition-colors',
-                        isActive && 'bg-primary/10 text-primary',
+                        // #484 — bg-primary/10 was invisible on cream themes;
+                        // use the same readable bg-muted desktop already uses,
+                        // keep text-primary for the accent signal.
+                        isActive && 'bg-muted text-primary',
                       )
                     }
                   >
