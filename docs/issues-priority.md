@@ -1241,3 +1241,13 @@ _Reported by the user as "the build is failing" on the #511 run; same category a
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#512](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/512) | ✅ Done | CI: AddMealDialog barcode test flaky — waits on a dish name the confirm step unmounts | Run [30710491495](https://github.com/ZhannaM85/turtle-steps-to-the-goal/actions/runs/30710491495) (the #511 commit) failed on `AddMealDialog.test.tsx`'s barcode test alone, 1610/1611 passing; the next run (#509) passed with the test untouched, and #511 changed nothing in this file. **Not** a timeout, despite this test's own bump history (1000 → 10000 → 20000ms): it failed ~233ms in, and the error was `toBeInTheDocument()` on an *already-resolved* element — `findByText('Protein Bar')` resolved against a node that was detached again before the assertion. Cause: `AddMealDialog` renders `activeItem ? <quantity-confirm step> : <search + Recent list>` as exclusive branches, and the test seeds `Protein Bar` into the personal library (`mealItemStore.touch(...)`, required so `lookupBarcode` resolves it locally), so the same name can render as a **Recent** row while the scan chain (dynamic `@zxing` import → mocked decode callback → `lookupBarcode`'s IndexedDB read) is still in flight. Under full-suite CI load store hydration wins that race, `findByText` grabs the Recent row, then `setActiveItem` swaps branches and unmounts it. Fixed by awaiting the confirm step itself — `+ Add item` exists only in that branch, so it can't resolve early — and asserting the dish name after it mounts; the 20s timeout stays, the async chain genuinely needs it. No release note (#131/#144/#349/#400 precedent — test-only change). |
+
+---
+
+## Tier 87 — Morning Weight hierarchy after #515 (2026-08-01)
+
+_Live discussion after the equal-weight body-composition grid: Weight should be the enlarged primary figure; Sleep stays as-is._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#516](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/516) | 🔍 Pending validation | Morning notes: enlarge Weight display (primary morning figure) | After #515, Weight still matched Sleep's quiet `text-sm` row. Now `text-2xl font-semibold` value + muted `kg` in the same shell; Sleep/body-comp unchanged. Confirmed liked in Chrome emulator. |

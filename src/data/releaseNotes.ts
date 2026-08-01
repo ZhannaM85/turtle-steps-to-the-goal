@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 467,
+    issue: 516,
+    date: '2026-08-01T22:30:26+03:00',
+    en: 'Morning weight is now shown larger than the other morning fields, so it stands out as the main reading.',
+    ru: 'Утренний вес теперь крупнее остальных утренних полей — он сразу читается как главный показатель.',
+  },
+  {
     version: 466,
     issue: 515,
     date: '2026-08-01T22:06:57+03:00',

@@ -68,6 +68,14 @@ function expectBodyCompositionValues(values: string[]) {
   }
 }
 
+// #516 — Weight value and unit are separate nodes (large value, muted unit).
+function expectWeightDisplay(value: string) {
+  const section = screen.getByText('Weight (kg)').closest('div') as HTMLElement
+  const valueEl = within(section).getByText(value)
+  expect(valueEl).toHaveClass('text-2xl', 'font-semibold')
+  expect(within(section).getByText('kg')).toBeInTheDocument()
+}
+
 // The food-picker tests below mount FoodPickerDialog, which renders the
 // 300+ item curated food list (same reason FoodPickerDialog.test.tsx and
 // FoodListSettingsScreen.test.tsx need this) — under full-suite parallel
@@ -172,7 +180,7 @@ describe('DailyEntryForm', () => {
       const entry = onSave.mock.calls[0][0]
       expect(entry.date).toBe('2026-03-01')
       expect(entry.weightKg).toBe(79.5)
-      expect(screen.getByText('79.5 kg')).toBeInTheDocument()
+      expectWeightDisplay('79.5')
     })
 
     it('accepts a comma as the decimal separator', async () => {
@@ -370,7 +378,7 @@ describe('DailyEntryForm', () => {
         />,
       )
 
-      expect(screen.getByText('80 kg')).toBeInTheDocument()
+      expectWeightDisplay('80')
       expect(
         screen.queryByRole('button', { name: 'Save weight' }),
       ).not.toBeInTheDocument()
@@ -384,7 +392,7 @@ describe('DailyEntryForm', () => {
 
       expect(onSave).toHaveBeenCalledTimes(1)
       expect(onSave.mock.calls[0][0].weightKg).toBe(79.5)
-      expect(screen.getByText('79.5 kg')).toBeInTheDocument()
+      expectWeightDisplay('79.5')
     })
 
     describe('leaving edit mode without saving (#424)', () => {
@@ -424,7 +432,7 @@ describe('DailyEntryForm', () => {
         )
 
         expect(onSave).not.toHaveBeenCalled()
-        expect(screen.getByText('80 kg')).toBeInTheDocument()
+        expectWeightDisplay('80')
         expect(
           screen.queryByLabelText('Weight (kg)'),
         ).not.toBeInTheDocument()

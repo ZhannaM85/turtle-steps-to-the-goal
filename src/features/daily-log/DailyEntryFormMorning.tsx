@@ -135,9 +135,18 @@ export function DailyEntryFormMorning() {
                 <span className="text-sm font-medium">
                   {t.dailyEntry.weightLabel}
                 </span>
-                <div className="flex h-12 items-center justify-between rounded-lg bg-muted px-3">
-                  <span className="text-sm text-foreground">
-                    {formatExactNumber(state.weightKg!, locale)} {t.common.kg}
+                <div className="flex min-h-12 items-center justify-between gap-2 rounded-lg bg-muted px-3 py-2">
+                  {/* #516 — Weight is the Day screen's primary morning
+                   * figure (unlike body composition's five peers). Same
+                   * muted shell + pencil as Sleep; value sized up so the
+                   * hierarchy is obvious at a glance. */}
+                  <span className="flex min-w-0 items-baseline gap-1.5">
+                    <span className="text-2xl font-semibold tabular-nums text-foreground">
+                      {formatExactNumber(state.weightKg!, locale)}
+                    </span>
+                    <span className="text-sm text-muted-foreground">
+                      {t.common.kg}
+                    </span>
                   </span>
                   <Button
                     type="button"
