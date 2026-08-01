@@ -48,7 +48,12 @@ export {
   useTodayCardOrderStore,
   type TodayCardKey,
 } from './todayCardOrderStore'
-export { useTodayStatsCollapseStore } from './todayStatsCollapseStore'
+export {
+  anyTodaySectionExpanded,
+  TODAY_SECTION_KEYS,
+  useTodaySectionsCollapseStore,
+  type TodaySectionKey,
+} from './todaySectionsCollapseStore'
 export { useCustomMetricStore } from './customMetricStore'
 export { useCustomCorrelationStore } from './customCorrelationStore'
 export { useCalendarMarkerVisibilityStore } from './calendarMarkerVisibilityStore'

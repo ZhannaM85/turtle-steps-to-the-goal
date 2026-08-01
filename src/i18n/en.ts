@@ -80,6 +80,8 @@ export const en: Dictionary = {
     statsSectionLabel: 'Stats',
     expandStatsLabel: 'Show stats',
     collapseStatsLabel: 'Hide stats',
+    collapseAllSectionsLabel: 'Collapse all',
+    expandAllSectionsLabel: 'Expand all',
     targetMinusConsumedText: (target, consumed) => `${target} − ${consumed}`,
     proteinOverTargetLabel: (target, consumed) =>
       `${target} − ${consumed} — great job!`,

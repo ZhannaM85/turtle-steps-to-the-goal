@@ -1,5 +1,4 @@
 import { Check, ChevronDown, Pencil, Sun, X } from 'lucide-react'
-import { useState } from 'react'
 import { formatExactNumber } from '@/i18n'
 import { splitHoursMinutes } from '@/shared/lib/sleepDuration'
 import { parseNumberInput } from '@/shared/lib/parseNumberInput'
@@ -10,6 +9,7 @@ import {
   CollapsibleTrigger,
 } from '@/shared/ui/collapsible'
 import { Input } from '@/shared/ui/input'
+import { useTodaySectionsCollapseStore } from '@/stores'
 import {
   bodyFatPercentSchema,
   bodyWaterPercentSchema,
@@ -32,9 +32,11 @@ import { useDailyEntryFormStateContext } from './useDailyEntryFormStateContext'
 export function DailyEntryFormMorning() {
   const state = useDailyEntryFormStateContext()
   const { t, locale } = state
-  // #472 — accordion wrapping this whole group, same bordered-Collapsible
-  // pattern Stats/Macros/Meals already use.
-  const [collapsed, setCollapsed] = useState(false)
+  // #472/#511 — accordion; collapse shared with Day Collapse all control.
+  const collapsed = useTodaySectionsCollapseStore(
+    (s) => s.sections.morning,
+  )
+  const setCollapsed = useTodaySectionsCollapseStore((s) => s.setCollapsed)
 
   // #435 — validates on blur in addition to `saveBodyComposition()`'s
   // existing Save-time check, reusing the exact same schema. Composed with
@@ -58,7 +60,7 @@ export function DailyEntryFormMorning() {
     <div className="rounded-lg border border-border p-3">
       <Collapsible
         open={!collapsed}
-        onOpenChange={(open) => setCollapsed(!open)}
+        onOpenChange={(open) => setCollapsed('morning', !open)}
       >
         <CollapsibleTrigger asChild>
           <button

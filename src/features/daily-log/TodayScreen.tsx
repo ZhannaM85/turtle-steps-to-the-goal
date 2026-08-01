@@ -73,7 +73,7 @@ import {
   useProfileStore,
   useSectionVisibilityStore,
   useTodayCardOrderStore,
-  useTodayStatsCollapseStore,
+  useTodaySectionsCollapseStore,
   useUnitStore,
   type SectionKey,
   type TodayCardKey,
@@ -83,6 +83,7 @@ import { DailyEntryFormBottom } from './DailyEntryFormBottom'
 import { DailyEntryFormMorning } from './DailyEntryFormMorning'
 import { DailyEntryFormStateProvider } from './DailyEntryFormStateContext'
 import { DailyEntryFormTop } from './DailyEntryFormTop'
+import { DaySectionsCollapseControl } from './DaySectionsCollapseControl'
 import { GoalCelebrationModal } from './GoalCelebrationModal'
 
 // #343 — a thin drag-handle strip above each reorderable card, same
@@ -565,11 +566,13 @@ export function TodayScreen() {
   const cardOrder = useTodayCardOrderStore((state) => state.order)
   const setCardOrder = useTodayCardOrderStore((state) => state.setOrder)
   const resetCardOrder = useTodayCardOrderStore((state) => state.resetOrder)
-  // #418 — BMI/the two weight deltas/the reorderable group below all
-  // collapse together as one block, separate from this per-card reorder
-  // mechanism (which stays scoped to just the eight reorderable cards).
-  const statsCollapsed = useTodayStatsCollapseStore((state) => state.collapsed)
-  const setStatsCollapsed = useTodayStatsCollapseStore(
+  // #418/#511 — BMI/the two weight deltas/the reorderable group below all
+  // collapse together as one block; collapse state lives in the shared
+  // Day sections store with Morning/macros/meals/water/custom/Evening.
+  const statsCollapsed = useTodaySectionsCollapseStore(
+    (state) => state.sections.stats,
+  )
+  const setStatsCollapsed = useTodaySectionsCollapseStore(
     (state) => state.setCollapsed,
   )
   // #359 — same reasoning as Dashboard's own reset-button fix: disable it
@@ -1031,12 +1034,17 @@ export function TodayScreen() {
          * shared `useDailyEntryFormState` inside the provider memoizes its
          * initial values once on mount (`[]` deps), so it must not mount
          * until `entry` is the real loaded value, same guarantee a single
-         * bottom-of-page gate used to give it before this was split. */}
-        <DailyEntryFormMorning />
+         * bottom-of-page gate used to give it before this was split.
+         * #511 — Collapse all / Expand all sits tight above Morning (not a
+         * full gap-6 peer) so it doesn't leave a sparse empty band. */}
+        <div className="flex flex-col gap-1.5">
+          <DaySectionsCollapseControl />
+          <DailyEntryFormMorning />
+        </div>
 
         {/* #418 — BMI, the two weight deltas, and the reorderable card
          * group below all collapse together as one block (expanded by
-         * default, persisted via useTodayStatsCollapseStore) — reported
+         * default, persisted via useTodaySectionsCollapseStore) — reported
          * live as a long uninterrupted wall of stat cards between the Goal
          * target card/Morning entries above and Meals/Water/Custom
          * Metrics/Evening entries further down. The Goal target card,
@@ -1052,7 +1060,7 @@ export function TodayScreen() {
         <div className="rounded-lg border border-border p-3">
         <Collapsible
           open={!statsCollapsed}
-          onOpenChange={(open) => setStatsCollapsed(!open)}
+          onOpenChange={(open) => setStatsCollapsed('stats', !open)}
         >
           <div className="flex items-center justify-between gap-2">
             {/* #470 — the label stays the one real accessible trigger
@@ -1107,7 +1115,7 @@ export function TodayScreen() {
                   onClick={() =>
                     setIsReorderingCards((prev) => {
                       const next = !prev
-                      if (next) setStatsCollapsed(false)
+                      if (next) setStatsCollapsed('stats', false)
                       return next
                     })
                   }

@@ -25,7 +25,7 @@ import {
   useProfileStore,
   useSectionVisibilityStore,
   useTodayCardOrderStore,
-  useTodayStatsCollapseStore,
+  useTodaySectionsCollapseStore,
   useWaterTrackingStore,
 } from '@/stores'
 import { TodayScreen } from './TodayScreen'
@@ -102,7 +102,17 @@ beforeEach(async () => {
   useDayStartStore.setState({ dayStartTime: '00:00' })
   useTodayCardOrderStore.persist.clearStorage()
   useTodayCardOrderStore.setState({ order: DEFAULT_TODAY_CARD_ORDER })
-  useTodayStatsCollapseStore.setState({ collapsed: false })
+  useTodaySectionsCollapseStore.setState({
+    sections: {
+      morning: false,
+      stats: false,
+      macros: false,
+      meals: false,
+      water: false,
+      customMetrics: false,
+      evening: false,
+    },
+  })
   useWaterTrackingStore.setState({ enabled: false })
   resetSectionVisibility()
 })
@@ -118,8 +128,18 @@ afterEach(async () => {
   useDayStartStore.setState({ dayStartTime: '00:00' })
   useTodayCardOrderStore.persist.clearStorage()
   useTodayCardOrderStore.setState({ order: DEFAULT_TODAY_CARD_ORDER })
-  useTodayStatsCollapseStore.persist.clearStorage()
-  useTodayStatsCollapseStore.setState({ collapsed: false })
+  useTodaySectionsCollapseStore.persist.clearStorage()
+  useTodaySectionsCollapseStore.setState({
+    sections: {
+      morning: false,
+      stats: false,
+      macros: false,
+      meals: false,
+      water: false,
+      customMetrics: false,
+      evening: false,
+    },
+  })
   resetSectionVisibility()
   vi.useRealTimers()
 })
@@ -917,7 +937,67 @@ describe('TodayScreen', () => {
       expect(
         screen.getByRole('button', { name: 'Show stats' }),
       ).toBeInTheDocument()
-      expect(useTodayStatsCollapseStore.getState().collapsed).toBe(true)
+      expect(useTodaySectionsCollapseStore.getState().sections.stats).toBe(
+        true,
+      )
+    })
+
+    it('collapses every top-level section via Collapse all, then expands them via Expand all (#511)', async () => {
+      const user = userEvent.setup()
+      await useGoalStore.getState().saveGoal(makeGoal())
+      await useDailyEntryStore.getState().saveEntry(makeEntry({ weightKg: 70 }))
+      useDailyEntryStore.setState({ entry: null, date: null, status: 'idle' })
+
+      render(
+        <MemoryRouter>
+          <TodayScreen />
+        </MemoryRouter>,
+      )
+
+      expect(
+        await screen.findByRole('button', { name: 'Collapse all' }),
+      ).toBeInTheDocument()
+      expect(
+        screen.getByRole('button', { name: 'Hide stats' }),
+      ).toBeInTheDocument()
+
+      await user.click(screen.getByRole('button', { name: 'Collapse all' }))
+
+      expect(
+        screen.getByRole('button', { name: 'Expand all' }),
+      ).toBeInTheDocument()
+      expect(
+        screen.getByRole('button', { name: 'Show stats' }),
+      ).toBeInTheDocument()
+      expect(
+        screen.getByRole('button', {
+          name: 'Show morning entries',
+        }),
+      ).toBeInTheDocument()
+      expect(
+        useTodaySectionsCollapseStore.getState().sections.morning,
+      ).toBe(true)
+      expect(useTodaySectionsCollapseStore.getState().sections.stats).toBe(
+        true,
+      )
+      expect(useTodaySectionsCollapseStore.getState().sections.meals).toBe(
+        true,
+      )
+      expect(useTodaySectionsCollapseStore.getState().sections.evening).toBe(
+        true,
+      )
+
+      await user.click(screen.getByRole('button', { name: 'Expand all' }))
+
+      expect(
+        screen.getByRole('button', { name: 'Collapse all' }),
+      ).toBeInTheDocument()
+      expect(
+        screen.getByRole('button', { name: 'Hide stats' }),
+      ).toBeInTheDocument()
+      expect(useTodaySectionsCollapseStore.getState().sections.stats).toBe(
+        false,
+      )
     })
 
     it('does not affect the Goal target card or Morning entries, which stay outside the accordion', async () => {

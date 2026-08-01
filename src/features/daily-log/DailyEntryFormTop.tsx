@@ -1,5 +1,4 @@
 import { ChevronDown, CupSoda, GlassWater, X } from 'lucide-react'
-import { useState } from 'react'
 import { formatNumber } from '@/i18n'
 import { Button } from '@/shared/ui/button'
 import {
@@ -8,6 +7,7 @@ import {
   CollapsibleTrigger,
 } from '@/shared/ui/collapsible'
 import { StatCard } from '@/shared/ui/stat-card'
+import { useTodaySectionsCollapseStore } from '@/stores'
 import { MealList } from './MealList'
 import { useDailyEntryFormStateContext } from './useDailyEntryFormStateContext'
 import { isUnusualDailyCalories } from './unusualEntryThresholds'
@@ -27,15 +27,17 @@ import { isUnusualDailyCalories } from './unusualEntryThresholds'
 export function DailyEntryFormTop() {
   const state = useDailyEntryFormStateContext()
   const { t, locale } = state
-  // #467 — accordion wrapping the two macros StatCards below, same
-  // bordered-Collapsible pattern TodayScreen's own Stats section uses.
-  const [macrosCollapsed, setMacrosCollapsed] = useState(false)
-  // #468 — same pattern again, wrapping the meal list.
-  const [mealsCollapsed, setMealsCollapsed] = useState(false)
-  // #476 — same pattern again, wrapping the water quick-add + chips
-  // (was left ungrouped on purpose in #416 when Meals was also plain;
-  // Meals gained the accordion in #468, so Water was the odd one out).
-  const [waterCollapsed, setWaterCollapsed] = useState(false)
+  // #467/#468/#476/#511 — accordions; collapse shared with Day Collapse all.
+  const macrosCollapsed = useTodaySectionsCollapseStore(
+    (s) => s.sections.macros,
+  )
+  const mealsCollapsed = useTodaySectionsCollapseStore(
+    (s) => s.sections.meals,
+  )
+  const waterCollapsed = useTodaySectionsCollapseStore(
+    (s) => s.sections.water,
+  )
+  const setCollapsed = useTodaySectionsCollapseStore((s) => s.setCollapsed)
 
   return (
     // #510 — same `gap-6` as TodayScreen's form-area / page column so
@@ -68,7 +70,7 @@ export function DailyEntryFormTop() {
         <div className="rounded-lg border border-border p-3">
           <Collapsible
             open={!macrosCollapsed}
-            onOpenChange={(open) => setMacrosCollapsed(!open)}
+            onOpenChange={(open) => setCollapsed('macros', !open)}
           >
             <CollapsibleTrigger asChild>
               <button
@@ -129,7 +131,7 @@ export function DailyEntryFormTop() {
       <div className="rounded-lg border border-border p-3">
         <Collapsible
           open={!mealsCollapsed}
-          onOpenChange={(open) => setMealsCollapsed(!open)}
+          onOpenChange={(open) => setCollapsed('meals', !open)}
         >
           <CollapsibleTrigger asChild>
             <button
@@ -182,7 +184,7 @@ export function DailyEntryFormTop() {
         >
           <Collapsible
             open={!waterCollapsed}
-            onOpenChange={(open) => setWaterCollapsed(!open)}
+            onOpenChange={(open) => setCollapsed('water', !open)}
           >
             <CollapsibleTrigger asChild>
               <button

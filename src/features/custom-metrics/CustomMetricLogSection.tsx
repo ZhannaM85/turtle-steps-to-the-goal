@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { Check, ChevronDown, Pencil, X } from 'lucide-react'
 import type { CustomMetric } from '@/domain/customMetric'
 import { useTranslation } from '@/i18n'
-import { useCustomMetricStore } from '@/stores'
+import { useCustomMetricStore, useTodaySectionsCollapseStore } from '@/stores'
 import { Button } from '@/shared/ui/button'
 import {
   Collapsible,
@@ -213,7 +213,11 @@ export function CustomMetricLogSection({ date }: { date: string }) {
   const metrics = useCustomMetricStore((state) => state.metrics)
   const entries = useCustomMetricStore((state) => state.entries)
   const loadMetrics = useCustomMetricStore((state) => state.loadAll)
-  const [collapsed, setCollapsed] = useState(false)
+  // #478/#511 — accordion; collapse shared with Day Collapse all control.
+  const collapsed = useTodaySectionsCollapseStore(
+    (s) => s.sections.customMetrics,
+  )
+  const setCollapsed = useTodaySectionsCollapseStore((s) => s.setCollapsed)
 
   useEffect(() => {
     loadMetrics()
@@ -232,7 +236,7 @@ export function CustomMetricLogSection({ date }: { date: string }) {
     <section className="rounded-lg border border-border p-3">
       <Collapsible
         open={!collapsed}
-        onOpenChange={(open) => setCollapsed(!open)}
+        onOpenChange={(open) => setCollapsed('customMetrics', !open)}
       >
         <CollapsibleTrigger asChild>
           <button

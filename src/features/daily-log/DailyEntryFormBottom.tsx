@@ -1,5 +1,4 @@
 import { Check, ChevronDown, Moon, Pencil, X } from 'lucide-react'
-import { useState } from 'react'
 import { formatNumber } from '@/i18n'
 import { DAY_EMOTIONS } from '@/shared/lib/emotionIcons'
 import { parseNumberInput } from '@/shared/lib/parseNumberInput'
@@ -12,6 +11,7 @@ import {
 import { Input } from '@/shared/ui/input'
 import { Textarea } from '@/shared/ui/textarea'
 import { ToggleGroup, ToggleGroupItem } from '@/shared/ui/toggle-group'
+import { useTodaySectionsCollapseStore } from '@/stores'
 import { EmotionPicker } from './EmotionPicker'
 import { useDailyEntryFormStateContext } from './useDailyEntryFormStateContext'
 
@@ -28,15 +28,17 @@ import { useDailyEntryFormStateContext } from './useDailyEntryFormStateContext'
 export function DailyEntryFormBottom() {
   const state = useDailyEntryFormStateContext()
   const { t, locale } = state
-  // #472 — accordion wrapping this whole group, same bordered-Collapsible
-  // pattern Stats/Macros/Meals/Morning entries already use.
-  const [collapsed, setCollapsed] = useState(false)
+  // #472/#511 — accordion; collapse shared with Day Collapse all control.
+  const collapsed = useTodaySectionsCollapseStore(
+    (s) => s.sections.evening,
+  )
+  const setCollapsed = useTodaySectionsCollapseStore((s) => s.setCollapsed)
 
   return (
     <div className="rounded-lg border border-border p-3">
       <Collapsible
         open={!collapsed}
-        onOpenChange={(open) => setCollapsed(!open)}
+        onOpenChange={(open) => setCollapsed('evening', !open)}
       >
         <CollapsibleTrigger asChild>
           <button

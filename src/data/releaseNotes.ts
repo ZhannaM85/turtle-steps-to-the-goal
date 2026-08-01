@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 461,
+    issue: 511,
+    date: '2026-08-01T20:28:58+03:00',
+    en: 'On the Day screen, a Collapse all / Expand all control above Morning entries opens or shuts every section card in one tap. Your choice is remembered.',
+    ru: 'На экране дня над утренними записями появилась кнопка «Свернуть все» / «Развернуть все» — одним нажатием открывает или закрывает все секции. Выбор сохраняется.',
+  },
+  {
     version: 460,
     issue: 510,
     date: '2026-08-01T20:20:37+03:00',

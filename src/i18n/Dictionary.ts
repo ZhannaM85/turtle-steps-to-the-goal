@@ -142,6 +142,11 @@ export interface Dictionary {
     statsSectionLabel: string
     expandStatsLabel: string
     collapseStatsLabel: string
+    /** #511 — one control for every top-level Day section accordion.
+     * Label flips: Collapse all while any active section is open, Expand
+     * all once every active section is shut. */
+    collapseAllSectionsLabel: string
+    expandAllSectionsLabel: string
     /** #266/#328 — shown as each remaining-nutrient (and, since #328,
      * calories) card's `description`: total minus consumed, so the amount
      * actually consumed is visible without the reader doing that

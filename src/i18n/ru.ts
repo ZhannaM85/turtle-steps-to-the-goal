@@ -86,6 +86,8 @@ export const ru: Dictionary = {
     statsSectionLabel: 'Показатели',
     expandStatsLabel: 'Показать показатели',
     collapseStatsLabel: 'Скрыть показатели',
+    collapseAllSectionsLabel: 'Свернуть все',
+    expandAllSectionsLabel: 'Развернуть все',
     targetMinusConsumedText: (target, consumed) => `${target} − ${consumed}`,
     proteinOverTargetLabel: (target, consumed) =>
       `${target} − ${consumed} — отличная работа!`,
