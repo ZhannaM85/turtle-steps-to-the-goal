@@ -25,16 +25,23 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 434,
+    issue: 487,
+    date: '2026-08-01T13:46:41+03:00',
+    en: 'Opening Add or Edit meal no longer pops the time picker until you tap the time field.',
+    ru: 'При открытии добавления или правки приёма пищи больше не всплывает выбор времени — только после нажатия на поле времени.',
+  },
+  {
     version: 433,
     issue: 484,
-    date: '2026-08-01T13:46:41+03:00',
+    date: '2026-08-01T13:48:46+03:00',
     en: 'The selected tab in the bottom bar now has a clearer background so it stands out on cream themes.',
     ru: 'У выбранной вкладки в нижней панели теперь более заметный фон — лучше видно на светлой теме.',
   },
   {
     version: 432,
     issue: 488,
-    date: '2026-08-01T13:46:41+03:00',
+    date: '2026-08-01T13:48:27+03:00',
     en: 'Water amounts on Day now show three chips per row on phones.',
     ru: 'Порции воды на экране «День» теперь по три в ряд на телефоне.',
   },

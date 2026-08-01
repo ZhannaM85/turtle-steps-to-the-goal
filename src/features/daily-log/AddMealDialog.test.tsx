@@ -106,6 +106,14 @@ describe('AddMealDialog (#454)', () => {
     expect(screen.getByLabelText('Time')).toHaveValue('08:00')
   })
 
+  it('does not auto-focus the time field on open (#487)', () => {
+    render(<ControlledAddMealDialog {...defaultProps} />)
+
+    // Pre-#487 Radix FocusScope focused the header `type="time"` input,
+    // which presents the native time picker on iOS/Safari.
+    expect(screen.getByLabelText('Time')).not.toHaveFocus()
+  })
+
   it('has a meal note field, restored after being dropped in the #454 rewrite', async () => {
     const user = userEvent.setup()
     render(<ControlledAddMealDialog {...defaultProps} />)

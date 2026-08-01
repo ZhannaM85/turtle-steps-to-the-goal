@@ -700,6 +700,12 @@ export function AddMealDialog({
         // through it. Zeroed here (this dialog only, via the merged
         // className) to remove that gap entirely.
         className="pb-0"
+        onOpenAutoFocus={(event) => {
+          // #487 — Radix FocusScope otherwise focuses the header
+          // `type="time"` input on open, which presents the native time
+          // picker on iOS/Safari. Time UI only after an explicit tap.
+          event.preventDefault()
+        }}
       >
         <div className="flex items-center justify-between gap-2 pr-8">
           <DialogTitle>{mealLabel}</DialogTitle>
