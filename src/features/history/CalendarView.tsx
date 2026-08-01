@@ -13,7 +13,6 @@ import {
   subMonths,
 } from 'date-fns'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
-import { Popover as PopoverPrimitive } from 'radix-ui'
 import { hadNightEating, type DailyEntry } from '@/domain/dailyEntry'
 import {
   isDateWithinReachedWindow,
@@ -85,8 +84,9 @@ export function CalendarView({
     ? (entriesByDate.get(selectedDate) ?? null)
     : null
 
-  // #482 — which marker types actually paint (tracking gates × user
-  // visibility). Legend and popover checklist both read from this.
+  // #482 / #485 — which marker types actually paint (tracking gates ×
+  // user visibility). Legend lists every trackable type (dimmed when
+  // off) and is the primary toggle UI.
   const showEntry = markerVisible.entry
   const showPeriod = cycleTrackingEnabled && markerVisible.period
   const showDigestion = digestionTrackingEnabled && markerVisible.digestion
@@ -96,70 +96,36 @@ export function CalendarView({
     key: CalendarMarkerKey
     swatchClass: string
     label: string
-  }[] = []
-  if (showEntry) {
-    legendItems.push({
-      key: 'entry',
-      swatchClass: 'bg-primary',
-      label: t.history.calendarMarkerEntryLabel,
-    })
-  }
-  if (showPeriod) {
-    legendItems.push({
-      key: 'period',
-      swatchClass: 'bg-destructive',
-      label: t.dailyEntry.onPeriodLabel,
-    })
-  }
-  if (showDigestion) {
-    legendItems.push({
-      key: 'digestion',
-      swatchClass: 'bg-amber-500',
-      label: t.dailyEntry.hadConstipationLabel,
-    })
-  }
-  if (showNightEating) {
-    legendItems.push({
-      key: 'nightEating',
-      swatchClass: 'bg-indigo-500',
-      label: t.history.calendarMarkerNightEatingLabel,
-    })
-  }
-
-  const checklistItems: {
-    key: CalendarMarkerKey
-    swatchClass: string
-    label: string
-    checked: boolean
+    pressed: boolean
   }[] = [
     {
       key: 'entry',
       swatchClass: 'bg-primary',
       label: t.history.calendarMarkerEntryLabel,
-      checked: markerVisible.entry,
+      pressed: markerVisible.entry,
     },
   ]
   if (cycleTrackingEnabled) {
-    checklistItems.push({
+    legendItems.push({
       key: 'period',
       swatchClass: 'bg-destructive',
       label: t.dailyEntry.onPeriodLabel,
-      checked: markerVisible.period,
+      pressed: markerVisible.period,
     })
   }
   if (digestionTrackingEnabled) {
-    checklistItems.push({
+    legendItems.push({
       key: 'digestion',
       swatchClass: 'bg-amber-500',
       label: t.dailyEntry.hadConstipationLabel,
-      checked: markerVisible.digestion,
+      pressed: markerVisible.digestion,
     })
   }
-  checklistItems.push({
+  legendItems.push({
     key: 'nightEating',
     swatchClass: 'bg-indigo-500',
     label: t.history.calendarMarkerNightEatingLabel,
-    checked: markerVisible.nightEating,
+    pressed: markerVisible.nightEating,
   })
 
   function selectDay(day: Date) {
@@ -191,62 +157,13 @@ export function CalendarView({
         <span className="text-sm font-medium capitalize">
           {format(currentMonth, 'LLLL yyyy', { locale: dateFnsLocale })}
         </span>
-        <div className="flex items-center gap-1">
-          {/* #482 — toggle which marker dots paint; persisted separately
-           * from Settings track toggles. */}
-          <PopoverPrimitive.Root>
-            <PopoverPrimitive.Trigger asChild>
-              <Button
-                variant="ghost"
-                size="sm"
-                aria-label={t.history.calendarMarkersDialogLabel}
-              >
-                {t.history.calendarMarkersButton}
-              </Button>
-            </PopoverPrimitive.Trigger>
-            <PopoverPrimitive.Portal>
-              <PopoverPrimitive.Content
-                side="bottom"
-                align="end"
-                sideOffset={6}
-                className="z-50 flex w-56 flex-col gap-2 rounded-lg border border-border bg-card p-3 text-card-foreground shadow-md outline-none"
-              >
-                <span className="text-sm font-medium">
-                  {t.history.calendarMarkersDialogLabel}
-                </span>
-                <ul className="flex flex-col gap-2">
-                  {checklistItems.map((item) => (
-                    <li key={item.key}>
-                      <label className="flex cursor-pointer items-center gap-2 text-sm">
-                        <input
-                          type="checkbox"
-                          checked={item.checked}
-                          onChange={() => toggleMarkerVisible(item.key)}
-                          className="size-4 accent-primary"
-                        />
-                        <span
-                          aria-hidden="true"
-                          className={cn(
-                            'size-2 shrink-0 rounded-full',
-                            item.swatchClass,
-                          )}
-                        />
-                        {item.label}
-                      </label>
-                    </li>
-                  ))}
-                </ul>
-              </PopoverPrimitive.Content>
-            </PopoverPrimitive.Portal>
-          </PopoverPrimitive.Root>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setCurrentMonth(new Date())}
-          >
-            {t.history.todayButton}
-          </Button>
-        </div>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => setCurrentMonth(new Date())}
+        >
+          {t.history.todayButton}
+        </Button>
       </div>
 
       <div className="grid grid-cols-7 gap-1">
@@ -367,24 +284,40 @@ export function CalendarView({
         })}
       </div>
 
-      {/* #482 — legend for currently painted marker types. Shares the
-       * page with #479's goal-tint legend above the calendar. */}
-      {legendItems.length > 0 && (
-        <ul
-          aria-label={t.history.calendarMarkerLegendLabel}
-          className="flex flex-col gap-1.5 text-sm text-muted-foreground sm:flex-row sm:flex-wrap sm:gap-x-4 sm:gap-y-1.5"
-        >
-          {legendItems.map((item) => (
-            <li key={item.key} className="flex items-center gap-2">
+      {/* #482 / #485 — toggleable legend for every trackable marker type
+       * (dimmed when off). Horizontal wrap at all breakpoints; Markers
+       * popover removed — legend is the primary control. */}
+      <ul
+        aria-label={t.history.calendarMarkerLegendLabel}
+        className="flex flex-row flex-wrap gap-x-3 gap-y-1.5 text-sm"
+      >
+        {legendItems.map((item) => (
+          <li key={item.key}>
+            <button
+              type="button"
+              aria-pressed={item.pressed}
+              aria-label={`${item.label} — ${t.history.calendarMarkerLegendLabel}`}
+              onClick={() => toggleMarkerVisible(item.key)}
+              className={cn(
+                'flex items-center gap-2 rounded-md outline-none transition-opacity focus-visible:ring-3 focus-visible:ring-ring/50',
+                item.pressed
+                  ? 'text-muted-foreground'
+                  : 'text-muted-foreground/50 line-through',
+              )}
+            >
               <span
                 aria-hidden="true"
-                className={cn('size-2 shrink-0 rounded-full', item.swatchClass)}
+                className={cn(
+                  'size-2 shrink-0 rounded-full',
+                  item.swatchClass,
+                  !item.pressed && 'opacity-40',
+                )}
               />
               {item.label}
-            </li>
-          ))}
-        </ul>
-      )}
+            </button>
+          </li>
+        ))}
+      </ul>
 
       {selectedDate && (
         <div className="flex flex-col gap-2 rounded-lg border border-border bg-card p-3">

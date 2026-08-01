@@ -25,9 +25,16 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 435,
+    issue: 485,
+    date: '2026-08-01T13:51:35+03:00',
+    en: 'On History’s calendar, tap a legend color to show or hide that marker; the legend stays in a horizontal row on phones.',
+    ru: 'В календаре «Истории» нажмите цвет в легенде, чтобы показать или скрыть метку; легенда в ряд и на телефоне.',
+  },
+  {
     version: 434,
     issue: 487,
-    date: '2026-08-01T13:46:41+03:00',
+    date: '2026-08-01T13:51:35+03:00',
     en: 'Opening Add or Edit meal no longer pops the time picker until you tap the time field.',
     ru: 'При открытии добавления или правки приёма пищи больше не всплывает выбор времени — только после нажатия на поле времени.',
   },

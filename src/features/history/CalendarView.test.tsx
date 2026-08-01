@@ -314,34 +314,48 @@ describe('CalendarView', () => {
     })
   })
 
-  describe('calendar marker legend and visibility (#482)', () => {
-    it('shows a legend for currently painted marker types', () => {
+  describe('calendar marker legend and visibility (#482, #485)', () => {
+    it('shows a horizontal legend for every trackable marker type', () => {
       renderCalendar({ entries: [makeEntry()] })
 
       const legend = screen.getByRole('list', { name: 'Calendar markers' })
+      expect(legend).toHaveClass('flex-row')
       expect(legend).toHaveTextContent('Logged day')
       expect(legend).toHaveTextContent('Night eating')
       expect(legend).not.toHaveTextContent('On period')
+      expect(
+        screen.getByRole('button', { name: 'Logged day — Calendar markers' }),
+      ).toHaveAttribute('aria-pressed', 'true')
     })
 
-    it('omits a night-eating slot entirely when that marker is hidden', async () => {
+    it('toggles a marker off from the legend and keeps the chip discoverable', async () => {
       const user = userEvent.setup()
       renderCalendar({
         entries: [makeEntry({ nightEatingOverride: true })],
       })
 
-      await user.click(
-        screen.getByRole('button', { name: 'Calendar markers' }),
-      )
-      await user.click(screen.getByRole('checkbox', { name: /Night eating/ }))
+      const nightEatingToggle = screen.getByRole('button', {
+        name: 'Night eating — Calendar markers',
+      })
+      expect(nightEatingToggle).toHaveAttribute('aria-pressed', 'true')
+      await user.click(nightEatingToggle)
 
+      expect(nightEatingToggle).toHaveAttribute('aria-pressed', 'false')
       const dayButton = screen.getByRole('button', { name: midMonthLabel })
       const dots = dayButton.querySelectorAll('span[aria-hidden="true"]')
       expect(dots).toHaveLength(1)
       expect(dots[0]).toHaveClass('bg-primary')
       expect(
         screen.getByRole('list', { name: 'Calendar markers' }),
-      ).not.toHaveTextContent('Night eating')
+      ).toHaveTextContent('Night eating')
+    })
+
+    it('does not show a separate Markers popover once the legend is the toggle (#485)', () => {
+      renderCalendar({ entries: [makeEntry()] })
+
+      expect(
+        screen.queryByRole('button', { name: 'Calendar markers' }),
+      ).not.toBeInTheDocument()
     })
   })
 })
