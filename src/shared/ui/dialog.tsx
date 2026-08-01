@@ -11,11 +11,19 @@ function DialogContent({
   className,
   children,
   closeLabel,
+  closeClassName,
   size = 'default',
   ...props
 }: React.ComponentProps<typeof DialogPrimitive.Content> & {
   /** Accessible name for the close button — no visible text, icon only. */
   closeLabel: string
+  /**
+   * Optional override for the absolute Close control (position, hit area,
+   * icon size via `[&_svg]:…`). Used when a caller’s header row needs a
+   * different vertical midline than the shared default — e.g. Add meal
+   * (#513) centers Close on its `h-9` time widget.
+   */
+  closeClassName?: string
   /**
    * 'fullscreen' (#122) is a large flyout instead of the default centered
    * card — for content dense enough that even the 85dvh centered treatment
@@ -67,6 +75,7 @@ function DialogContent({
             size === 'fullscreen'
               ? 'top-[calc(env(safe-area-inset-top)+0.75rem)] right-[calc(env(safe-area-inset-right)+0.75rem)]'
               : 'top-3 right-3',
+            closeClassName,
           )}
         >
           <X className="size-4" aria-hidden="true" />

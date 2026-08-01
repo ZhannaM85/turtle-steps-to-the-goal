@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 464,
+    issue: 513,
+    date: '2026-08-01T21:11:14+03:00',
+    en: 'On Add meal, the Close button lines up with the time field and is clearly larger than the clear-time icon.',
+    ru: 'В добавлении приёма пищи кнопка «Закрыть» выровнена с полем времени и заметно крупнее крестика очистки времени.',
+  },
+  {
     version: 463,
     issue: 514,
     date: '2026-08-01T21:07:18+03:00',

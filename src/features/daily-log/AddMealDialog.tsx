@@ -795,6 +795,10 @@ export function AddMealDialog({
       <DialogContent
         size="fullscreen"
         closeLabel={t.dailyEntry.closeFoodDialogLabel}
+        // #513 — share the h-9 time row's vertical band (top = content
+        // padding, hit area size-9) and upsize the ✕ vs in-field clear
+        // (size-3.5) so modal dismiss reads as the stronger chrome.
+        closeClassName="top-[calc(env(safe-area-inset-top)+1.25rem)] size-9 [&_svg]:size-5"
         // #459 sticky footer — confirmed live via devtools that the real
         // bleed-through cause was DialogContent's own bottom safe-area
         // padding: `sticky bottom-0` sticks to the *padding* edge of the
@@ -810,7 +814,7 @@ export function AddMealDialog({
           event.preventDefault()
         }}
       >
-        <div className="flex items-center justify-between gap-2 pr-8">
+        <div className="flex items-center justify-between gap-2 pr-10">
           {/* #505 — match Day meal-card title weight (`text-lg font-medium`),
            * not the shared DialogTitle semibold default. */}
           <DialogTitle className="font-medium">{mealLabel}</DialogTitle>
