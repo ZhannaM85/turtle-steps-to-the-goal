@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 449,
+    issue: 499,
+    date: '2026-08-01T16:41:29+03:00',
+    en: 'On the Day screen, the date row stays visible at the top while you scroll, so you can always see which day you are on and switch days without scrolling back up.',
+    ru: 'На экране «День» строка с датой остаётся сверху при прокрутке — всегда видно, какой день открыт, и можно переключать дни, не возвращаясь наверх.',
+  },
+  {
     version: 448,
     issue: 498,
     date: '2026-08-01T16:31:41+03:00',

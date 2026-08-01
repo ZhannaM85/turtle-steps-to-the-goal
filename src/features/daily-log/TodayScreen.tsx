@@ -744,8 +744,15 @@ export function TodayScreen() {
        * changes, but this does as you page between days, so it used to
        * read as "jumping" the further down the page it was. Fixed
        * position right under the title now, always the first thing after
-       * it regardless of how many stat cards render below. */}
-      <div className="flex flex-col gap-1.5">
+       * it regardless of how many stat cards render below.
+       * #499: sticky under AppShell's #25 header so day context / prev-next /
+       * jump-to-today stay reachable while scrolling. `top` matches the
+       * header's mobile (app-name only, py-3 + text-sm) vs sm+ (with
+       * desktop nav link py) heights + 1px border; opaque bg so content
+       * doesn't show through. -mx-4/px-4 bleeds the background to the
+       * main column edges. #465's always-rendered Today button layout is
+       * unchanged. */}
+      <div className="sticky top-[calc(2.75rem+1px)] z-10 -mx-4 flex flex-col gap-1.5 border-b border-border bg-background px-4 py-2 sm:top-[calc(3.5rem+1px)]">
         <div className="flex items-center gap-1.5">
           <Label htmlFor="log-date">{t.today.dateLabel}</Label>
           {/* #405 — visible at a glance while stepping through history via
