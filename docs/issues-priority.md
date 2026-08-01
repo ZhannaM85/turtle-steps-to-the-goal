@@ -1251,3 +1251,4 @@ _Live discussion after the equal-weight body-composition grid: Weight should be 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#516](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/516) | 🔍 Pending validation | Morning notes: enlarge Weight display (primary morning figure) | After #515, Weight still matched Sleep's quiet `text-sm` row. Now `text-2xl font-semibold` value + muted `kg` in the same shell; Sleep/body-comp unchanged. Confirmed liked in Chrome emulator. |
+| [#517](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/517) | ⬜ Open | Add meal confirm step: edit calories/macros before adding (barcode/search) | Reported live with screenshot. Quantity-confirm is grams-only; wrong catalog macros need add-then-edit. Allow kcal/macro edit on confirm before Add dish. |
