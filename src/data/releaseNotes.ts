@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 423,
+    issue: 477,
+    date: '2026-08-01T12:40:00+03:00',
+    en: 'The Reorder control in Stats is now a compact grip icon instead of a long text label.',
+    ru: 'Кнопка «Порядок карточек» в Показателях теперь компактная иконка-грип вместо длинной подписи.',
+  },
+  {
     version: 422,
     issue: 476,
     date: '2026-08-01T12:23:45+03:00',

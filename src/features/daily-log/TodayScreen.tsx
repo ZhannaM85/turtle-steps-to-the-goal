@@ -1052,7 +1052,12 @@ export function TodayScreen() {
                 <Button
                   type="button"
                   variant={isReorderingCards ? 'default' : 'outline'}
-                  size="sm"
+                  size={isReorderingCards ? 'sm' : 'icon-sm'}
+                  aria-label={
+                    isReorderingCards
+                      ? undefined
+                      : t.today.reorderCardsButton
+                  }
                   onClick={() =>
                     setIsReorderingCards((prev) => {
                       const next = !prev
@@ -1061,9 +1066,11 @@ export function TodayScreen() {
                     })
                   }
                 >
-                  {isReorderingCards
-                    ? t.dailyEntry.saveButton
-                    : t.today.reorderCardsButton}
+                  {isReorderingCards ? (
+                    t.dailyEntry.saveButton
+                  ) : (
+                    <GripVertical aria-hidden="true" className="size-4" />
+                  )}
                 </Button>
               </div>
             )}
