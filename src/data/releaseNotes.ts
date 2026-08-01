@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 437,
+    issue: 479,
+    date: '2026-08-01T14:05:00+03:00',
+    en: 'On History, the goal colors sit next to the list or calendar: strong means you hit the target that day; light means your weight dropped on the way there. Tap a legend row to hide or show that color.',
+    ru: 'В «Истории» цвета цели рядом со списком или календарём: яркий — цель достигнута в этот день; светлый — вес снизился по пути к ней. Нажмите строку легенды, чтобы скрыть или показать цвет.',
+  },
+  {
     version: 436,
     issue: 480,
     date: '2026-08-01T13:54:29+03:00',
