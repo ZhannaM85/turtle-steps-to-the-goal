@@ -27,7 +27,7 @@ export const releaseNotes: ReleaseNote[] = [
   {
     version: 472,
     issue: 520,
-    date: '2026-08-02T01:12:00+03:00',
+    date: '2026-08-02T01:14:10+03:00',
     en: 'Barcodes are now shown with spaces (for example 1 123456 654321) so the long number is easier to read.',
     ru: 'Штрихкоды теперь показываются с пробелами (например 1 123456 654321), чтобы длинный номер было проще читать.',
   },
