@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 453,
+    issue: 500,
+    date: '2026-08-01T17:55:00+03:00',
+    en: 'Unlocking a password-protected MyFitnessPal export now works — entering the password imports your meals and weight instead of failing.',
+    ru: 'Разблокировка защищённой паролем выгрузки MyFitnessPal теперь работает — после ввода пароля приёмы пищи и вес импортируются, а не выдают ошибку.',
+  },
+  {
     version: 452,
     issue: 501,
     date: '2026-08-01T17:40:00+03:00',

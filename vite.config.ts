@@ -7,25 +7,25 @@ import { nodePolyfills } from 'vite-plugin-node-polyfills'
 import { defaultExclude } from 'vitest/config'
 
 // https://vite.dev/config/
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
   plugins: [
     react(),
     tailwindcss(),
     // #500 — `officecrypto-tool` (MS-OFFCRYPTO decrypt for password-
-    // protected MyFitnessPal .xlsx) uses Node's `crypto`/`buffer` APIs.
-    // Scoped to those builtins only so the rest of the app stays lean;
-    // the polyfills land in the same lazy chunk as the MFP import.
-    nodePolyfills({
-      include: ['buffer', 'crypto', 'stream', 'vm'],
-      globals: {
-        Buffer: true,
-        global: true,
-        // Never shim `process`: nothing in officecrypto-tool's dependency
-        // tree reads it, and the shim's `cwd()` returns '/' — which broke
-        // `theme.contrast.test.ts`'s `resolve(process.cwd(), …)` in CI.
-        process: false,
-      },
-    }),
+    // protected MyFitnessPal .xlsx) reads Node's `crypto`/`buffer` and
+    // touches `process` at module scope, so the browser needs all three
+    // shimmed or the decrypt chunk throws "process is not defined".
+    // Skipped under Vitest (`mode === 'test'`), which already runs in real
+    // Node: the shim's `process.cwd()` returns '/', which would break
+    // node-side test code such as `theme.contrast.test.ts`'s CSS read.
+    ...(mode === 'test'
+      ? []
+      : [
+          nodePolyfills({
+            include: ['buffer', 'crypto', 'stream', 'vm'],
+            globals: { Buffer: true, global: true, process: true },
+          }),
+        ]),
     // Offline support / instant cold loads (#163) — precaches the built
     // app shell (JS/CSS/HTML/icons) via a generated Workbox service
     // worker, so the app loads without a live network fetch once it's
@@ -84,4 +84,4 @@ export default defineConfig({
     // default list entirely rather than merging with it.
     exclude: [...defaultExclude, 'e2e/**'],
   },
-})
+}))
