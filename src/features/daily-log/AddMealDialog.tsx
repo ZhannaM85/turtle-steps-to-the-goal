@@ -749,7 +749,7 @@ export function AddMealDialog({
     })
   }
 
-  async function saveManualDraft() {
+  function saveManualDraft() {
     const amountNum = parseNumberInput(manualDraft.amount)
     if (!amountNum || amountNum <= 0) return
     // #518 — barcode not-found create must have a name so we can touch a
@@ -780,6 +780,7 @@ export function AddMealDialog({
             parseOptionalMacro(manualDraft.fiber),
           )
     const barcodeToSave = pendingBarcode ?? undefined
+    const favoriteToSave = manualDraft.favorite || undefined
     const newItem: CalorieItem = {
       id: editingItemId ?? crypto.randomUUID(),
       name: trimmedName || undefined,
@@ -793,15 +794,25 @@ export function AddMealDialog({
     } else {
       onAppendItems([newItem])
     }
+    // Close the sheet before awaiting library I/O. `onSave` is invoked as
+    // `void saveManualDraft()`, so awaiting touch *before* close left the
+    // editor open when MealList tests immediately looked for Close/Done
+    // (CI run 30718165978). Capture favorite/barcode first — draft resets
+    // below. #518 still attaches barcode on touch; AddMealDialog tests
+    // wait on the store before rescanning.
+    const shouldTouch =
+      !!trimmedName &&
+      (!!barcodeToSave || !curatedFoodNames.has(trimmedName))
+    setPendingBarcode(null)
+    setManualDraft(blankManualDraft())
+    setEditingItemId(null)
+    setIsManualOpen(false)
     // A single touchMealItem call, not touchIfPersonal *and* this — calling
     // both raced two writes to the personal library's unique `name` index
     // for the same dish (confirmed via a real ConstraintError under test).
-    // #518 — when this save carries a scanned barcode, always upsert the
-    // personal library (bypass curated-name skip) so Custom foods + the
-    // next findByBarcode hit work. Await so a fast rescan can't race the
-    // IndexedDB write.
-    if (trimmedName && (barcodeToSave || !curatedFoodNames.has(trimmedName))) {
-      await touchMealItem(
+    // #518 — barcode-sourced saves bypass the curated-name skip.
+    if (shouldTouch) {
+      void touchMealItem(
         trimmedName,
         {
           amountKcal: newItem.amountKcal,
@@ -811,14 +822,10 @@ export function AddMealDialog({
           fiberG: newItem.fiberG,
           amountG: newItem.amountG,
         },
-        manualDraft.favorite || undefined,
+        favoriteToSave,
         barcodeToSave,
       )
     }
-    setPendingBarcode(null)
-    setManualDraft(blankManualDraft())
-    setEditingItemId(null)
-    setIsManualOpen(false)
   }
 
   // #459 — tapping an already-added item in "This meal so far" opens the
@@ -1741,9 +1748,7 @@ export function AddMealDialog({
           }
           barcode={manualSheetBarcode}
           requireName={pendingBarcode !== null && editingItemId === null}
-          onSave={() => {
-            void saveManualDraft()
-          }}
+          onSave={saveManualDraft}
         />
       </DialogContent>
     </Dialog>
