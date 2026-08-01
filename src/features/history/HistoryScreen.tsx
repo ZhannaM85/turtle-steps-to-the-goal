@@ -62,25 +62,43 @@ export function HistoryScreen() {
   const [searchText, setSearchText] = useState('')
   const [moodFilter, setMoodFilter] = useState<Emotion | undefined>(undefined)
   const [page, setPage] = useState(0)
-  // #479 — legend row toggles (local; defaults on). Hide the matching
-  // tint without removing the legend chip.
-  const [showMetDayTint, setShowMetDayTint] = useState(true)
-  const [showHeadingTowardTint, setShowHeadingTowardTint] = useState(true)
+  // #490 — legend chips filter to those dates (not hide tints). Off =
+  // show every day; either/both pressed = union of matching dates.
+  const [filterMetDays, setFilterMetDays] = useState(false)
+  const [filterHeadingTowardDays, setFilterHeadingTowardDays] =
+    useState(false)
   const isFiltering =
     dateFrom !== '' ||
     dateTo !== '' ||
     searchText.trim() !== '' ||
-    moodFilter !== undefined
+    moodFilter !== undefined ||
+    filterMetDays ||
+    filterHeadingTowardDays
 
   const normalizedSearch = searchText.trim().toLowerCase()
-  const filtered = entries.filter(
-    (entry) =>
-      (dateFrom === '' || entry.date >= dateFrom) &&
-      (dateTo === '' || entry.date <= dateTo) &&
-      (normalizedSearch === '' ||
-        (entry.note ?? '').toLowerCase().includes(normalizedSearch)) &&
-      (moodFilter === undefined || entry.emotion === moodFilter),
-  )
+  const filtered = entries.filter((entry) => {
+    if (dateFrom !== '' && entry.date < dateFrom) return false
+    if (dateTo !== '' && entry.date > dateTo) return false
+    if (
+      normalizedSearch !== '' &&
+      !(entry.note ?? '').toLowerCase().includes(normalizedSearch)
+    ) {
+      return false
+    }
+    if (moodFilter !== undefined && entry.emotion !== moodFilter) return false
+    if (filterMetDays || filterHeadingTowardDays) {
+      const isMet = isGoalMetOnDate(entry.date, reachedWindows)
+      const isHeading = isHeadingTowardGoalOnDate(
+        entry.date,
+        reachedWindows,
+        entries,
+      )
+      const matches =
+        (filterMetDays && isMet) || (filterHeadingTowardDays && isHeading)
+      if (!matches) return false
+    }
+    return true
+  })
   const sorted = [...filtered].sort((a, b) =>
     sortAsc ? a.date.localeCompare(b.date) : b.date.localeCompare(a.date),
   )
@@ -100,6 +118,18 @@ export function HistoryScreen() {
     setDateTo('')
     setSearchText('')
     setMoodFilter(undefined)
+    setFilterMetDays(false)
+    setFilterHeadingTowardDays(false)
+  }
+
+  function toggleMetDaysFilter() {
+    setFilterMetDays((prev) => !prev)
+    setViewMode('list')
+  }
+
+  function toggleHeadingTowardDaysFilter() {
+    setFilterHeadingTowardDays((prev) => !prev)
+    setViewMode('list')
   }
 
   // From the calendar's day panel (#48): jump to List view filtered to
@@ -145,19 +175,15 @@ export function HistoryScreen() {
             <div className="flex flex-col gap-3">
               {reachedWindows.length > 0 && (
                 <ReachedGoalLegend
-                  showMetDay={showMetDayTint}
-                  showHeadingToward={showHeadingTowardTint}
-                  onToggleMetDay={() => setShowMetDayTint((v) => !v)}
-                  onToggleHeadingToward={() =>
-                    setShowHeadingTowardTint((v) => !v)
-                  }
+                  filterMetDays={filterMetDays}
+                  filterHeadingTowardDays={filterHeadingTowardDays}
+                  onToggleMetDays={toggleMetDaysFilter}
+                  onToggleHeadingTowardDays={toggleHeadingTowardDaysFilter}
                 />
               )}
               <CalendarView
                 entries={entries}
                 reachedWindows={reachedWindows}
-                showMetDayTint={showMetDayTint}
-                showHeadingTowardTint={showHeadingTowardTint}
                 onEditDay={editDayFromCalendar}
                 onSaved={saveEntry}
               />
@@ -254,12 +280,10 @@ export function HistoryScreen() {
                    * view toggle). Rows toggle which tints paint. */}
                   {reachedWindows.length > 0 && (
                     <ReachedGoalLegend
-                      showMetDay={showMetDayTint}
-                      showHeadingToward={showHeadingTowardTint}
-                      onToggleMetDay={() => setShowMetDayTint((v) => !v)}
-                      onToggleHeadingToward={() =>
-                        setShowHeadingTowardTint((v) => !v)
-                      }
+                      filterMetDays={filterMetDays}
+                      filterHeadingTowardDays={filterHeadingTowardDays}
+                      onToggleMetDays={toggleMetDaysFilter}
+                      onToggleHeadingTowardDays={toggleHeadingTowardDaysFilter}
                     />
                   )}
                   <div className="overflow-x-auto">
@@ -308,18 +332,15 @@ export function HistoryScreen() {
                             entry.date === dateFrom &&
                             entry.date === dateTo
                           }
-                          isHeadingTowardGoal={
-                            showHeadingTowardTint &&
-                            isHeadingTowardGoalOnDate(
-                              entry.date,
-                              reachedWindows,
-                              entries,
-                            )
-                          }
-                          isGoalReachedDay={
-                            showMetDayTint &&
-                            isGoalMetOnDate(entry.date, reachedWindows)
-                          }
+                          isHeadingTowardGoal={isHeadingTowardGoalOnDate(
+                            entry.date,
+                            reachedWindows,
+                            entries,
+                          )}
+                          isGoalReachedDay={isGoalMetOnDate(
+                            entry.date,
+                            reachedWindows,
+                          )}
                         />
                       ))}
                     </tbody>

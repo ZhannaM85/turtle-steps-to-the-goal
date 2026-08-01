@@ -35,10 +35,6 @@ export interface CalendarViewProps {
   /** #155: every reached goal window (past + active), for highlighting
    * which days were part of a successful week. */
   reachedWindows: ReachedGoalWindow[]
-  /** #479 — when false, hide the strong met-day tint. */
-  showMetDayTint?: boolean
-  /** #479 — when false, hide the light heading-toward tint. */
-  showHeadingTowardTint?: boolean
   /** Switches back to the list view, filtered + expanded to this day. */
   onEditDay: (date: string) => void
   /** Threaded down to DayDetail for the cycle-tracking toggle (#71). */
@@ -52,8 +48,6 @@ const WEEK_STARTS_ON = 1
 export function CalendarView({
   entries,
   reachedWindows,
-  showMetDayTint = true,
-  showHeadingTowardTint = true,
   onEditDay,
   onSaved,
 }: CalendarViewProps) {
@@ -192,12 +186,14 @@ export function CalendarView({
           const selected = selectedDate !== null && selectedDate === dateKey
           // #155 / #479: stronger tint for the met day; light tint only for
           // pre-met days whose weight dropped day-over-day (not whole-
-          // window membership). Legend toggles can hide either.
-          const isReachedDay =
-            showMetDayTint && isGoalMetOnDate(dateKey, reachedWindows)
-          const isHeadingToward =
-            showHeadingTowardTint &&
-            isHeadingTowardGoalOnDate(dateKey, reachedWindows, entries)
+          // window membership). #490 — tints always paint; legend chips
+          // filter List dates instead of hiding these.
+          const isReachedDay = isGoalMetOnDate(dateKey, reachedWindows)
+          const isHeadingToward = isHeadingTowardGoalOnDate(
+            dateKey,
+            reachedWindows,
+            entries,
+          )
           const reachedGoalAriaSuffix = isReachedDay
             ? `, ${t.history.reachedGoalDayLabel}`
             : isHeadingToward

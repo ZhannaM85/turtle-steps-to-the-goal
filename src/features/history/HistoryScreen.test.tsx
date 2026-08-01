@@ -127,16 +127,48 @@ describe('HistoryScreen', () => {
         selector: '.sr-only',
       }),
     ).toBeInTheDocument()
-    // #479 — toggleable legend next to the table
-    const legend = screen.getByRole('list', {
-      name: 'Reached-target highlighting',
+    // #490 — chip legend next to the table; off until tapped (show dates)
+    const metChip = screen.getByRole('button', {
+      name: 'You reached your target this day — Reached-target highlighting',
     })
-    expect(legend).toBeInTheDocument()
-    expect(
+    expect(metChip).toHaveAttribute('aria-pressed', 'false')
+    expect(metChip).toHaveClass('rounded-full')
+  })
+
+  it('filters the List to met-target days when that legend chip is pressed (#490)', async () => {
+    const user = userEvent.setup()
+    await db.goals.put({
+      id: 'goal-1',
+      targetWeeklyLossKg: 1,
+      weekStart: '2026-03-01',
+      createdAt: '2026-03-01T00:00:00.000Z',
+      updatedAt: '2026-03-01T00:00:00.000Z',
+    })
+    await db.dailyEntries.put(makeEntry({ date: '2026-03-01', weightKg: 80 }))
+    await db.dailyEntries.put(makeEntry({ date: '2026-03-02', weightKg: 79.5 }))
+    await db.dailyEntries.put(makeEntry({ date: '2026-03-03', weightKg: 79 }))
+
+    render(<HistoryScreen />, { wrapper: MemoryRouter })
+    await screen.findByRole('table')
+
+    await user.click(
       screen.getByRole('button', {
         name: 'You reached your target this day — Reached-target highlighting',
       }),
-    ).toHaveAttribute('aria-pressed', 'true')
+    )
+
+    const rows = screen.getAllByRole('row').slice(1)
+    expect(rows).toHaveLength(1)
+    expect(
+      screen.getByText('You reached your target this day', {
+        selector: '.sr-only',
+      }),
+    ).toBeInTheDocument()
+    expect(
+      screen.queryByText('Weight dropped on the way to your target', {
+        selector: '.sr-only',
+      }),
+    ).not.toBeInTheDocument()
   })
 
   describe('date filter', () => {

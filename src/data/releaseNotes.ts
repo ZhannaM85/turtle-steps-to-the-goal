@@ -25,9 +25,16 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 440,
+    issue: 490,
+    date: '2026-08-01T14:45:00+03:00',
+    en: 'On History, tapping a goal-color chip filters the list to those days (target reached, or weight dropped on the way). The colors themselves always stay visible.',
+    ru: 'В «Истории» нажатие на «чип» цвета цели фильтрует список по таким дням (цель достигнута или вес снизился по пути). Сами цвета по-прежнему всегда видны.',
+  },
+  {
     version: 439,
     issue: 493,
-    date: '2026-08-01T14:45:00+03:00',
+    date: '2026-08-01T14:42:59+03:00',
     en: 'The selected bottom-tab highlight is now a soft pill around the icon and label, not a tall bar filling the whole tab.',
     ru: 'Подсветка выбранной вкладки внизу теперь мягкая «таблетка» вокруг иконки и подписи, а не высокий прямоугольник на всю вкладку.',
   },
