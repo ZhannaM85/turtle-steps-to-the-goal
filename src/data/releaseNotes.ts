@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 421,
+    issue: 466,
+    date: '2026-08-01T12:16:12+03:00',
+    en: 'The daily log tab is now called Day instead of Today, so the name still makes sense when you browse a past date.',
+    ru: 'Вкладка ежедневного журнала теперь называется «День», а не «Сегодня» — так название остаётся верным, когда вы смотрите прошлую дату.',
+  },
+  {
     version: 420,
     issue: 412,
     date: '2026-08-01T02:20:00+03:00',

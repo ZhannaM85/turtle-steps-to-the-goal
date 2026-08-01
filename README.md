@@ -10,9 +10,9 @@ Local-first — no backend, no accounts, no telemetry. All your data stays on yo
 
 ## Screenshots
 
-| Today | Dashboard |
+| Day | Dashboard |
 |---|---|
-| ![Today screen: this week's target, vs-yesterday delta, weight, and itemized calories](docs/screenshots/today.png) | ![Dashboard screen: weight trend, calorie trend, correlation, and weekly summary cards](docs/screenshots/dashboard.png) |
+| ![Day screen: this week's target, vs-yesterday delta, weight, and itemized calories](docs/screenshots/today.png) | ![Dashboard screen: weight trend, calorie trend, correlation, and weekly summary cards](docs/screenshots/dashboard.png) |
 
 ## Tech stack
 

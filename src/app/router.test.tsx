@@ -10,9 +10,9 @@ function renderAt(path: string) {
 }
 
 describe('app router', () => {
-  it('renders the Today screen at /', () => {
+  it('renders the Day screen at /', () => {
     renderAt('/')
-    expect(screen.getByRole('heading', { name: 'Today' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Day' })).toBeInTheDocument()
   })
 
   // #102: Dashboard/History/Goal/Settings/About are now lazy-loaded (code
@@ -96,7 +96,7 @@ describe('app router', () => {
     await screen.findByRole('heading', { name: 'Dashboard' }, { timeout: 5000 })
     expect(screen.getByRole('navigation', { name: 'Main' })).toBeInTheDocument()
     expect(screen.getByRole('navigation', { name: 'Tabs' })).toBeInTheDocument()
-    expect(screen.getAllByRole('link', { name: 'Today' })).toHaveLength(2)
+    expect(screen.getAllByRole('link', { name: 'Day' })).toHaveLength(2)
     expect(screen.getAllByRole('link', { name: 'Settings' })).toHaveLength(2)
     // #234: About moved out of the nav (6 tabs read as too crowded on
     // mobile) into a card on the Settings screen, but the route itself

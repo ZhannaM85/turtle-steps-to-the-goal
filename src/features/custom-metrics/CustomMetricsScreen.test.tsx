@@ -109,7 +109,7 @@ describe('CustomMetricsScreen', () => {
     renderScreen()
 
     expect(
-      await screen.findByText("Log today's values from the Today screen."),
+      await screen.findByText("Log today's values from the Day screen."),
     ).toBeInTheDocument()
   })
 

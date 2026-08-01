@@ -33,7 +33,7 @@ export const en: Dictionary = {
   },
   nav: {
     appName: 'Turtle Steps to the Goal',
-    today: 'Today',
+    today: 'Day',
     dashboard: 'Dashboard',
     history: 'History',
     goal: 'Goal',
@@ -41,8 +41,8 @@ export const en: Dictionary = {
     about: 'About',
   },
   today: {
-    title: 'Today',
-    description: "Entry for today's data, this week's target reminder",
+    title: 'Day',
+    description: "Entry for the day's data, this week's target reminder",
     thisWeeksTarget: "This week's target",
     toLose: (unit) => `${unit} to lose`,
     weeklyTargetFromWeight: (weight) => `from ${weight}`,
@@ -547,7 +547,7 @@ export const en: Dictionary = {
     compareRangesWeightDelta: (delta, unit) =>
       `Range B averaged ${delta} ${unit} vs. Range A.`,
     emptyTitle: 'No entries yet',
-    emptyDescription: 'Log a few days on the Today screen to see trends here.',
+    emptyDescription: 'Log a few days on the Day screen to see trends here.',
     correlationTitle: 'Calories vs. weight change',
     correlationEmptyDescription:
       'Not enough data yet to see a pattern — keep logging and check back in a few weeks.',
@@ -692,7 +692,7 @@ export const en: Dictionary = {
     title: 'History',
     description: 'Table of all past entries — edit/delete',
     emptyTitle: 'No entries yet',
-    emptyDescription: 'Log a few days on the Today screen to see them here.',
+    emptyDescription: 'Log a few days on the Day screen to see them here.',
     dateColumn: 'Date',
     weightColumn: (unit) => `Weight (${unit})`,
     caloriesColumn: 'Calories',
@@ -781,10 +781,10 @@ export const en: Dictionary = {
     waterTrackingLabel: 'Water tracking',
     trackedFieldsLabel: 'What to track',
     trackedFieldsDescription:
-      "Choose which optional fields appear on Today's log. Turning one off just hides it going forward — anything already logged stays visible in History, Export, and the Dashboard.",
+      'Choose which optional fields appear on the Day screen. Turning one off just hides it going forward — anything already logged stays visible in History, Export, and the Dashboard.',
     profileLabel: 'Profile',
     profileDescription:
-      'Optional — used only to compute BMI and estimated daily calorie needs (BMR) on Today. Stored on this device only, not included in backups.',
+      'Optional — used only to compute BMI and estimated daily calorie needs (BMR) on the Day screen. Stored on this device only, not included in backups.',
     heightLabel: 'Height (cm)',
     ageLabel: 'Age',
     sexLabel: 'Sex',
@@ -802,7 +802,7 @@ export const en: Dictionary = {
       `Height ${height} · Age ${age} · ${sex} · ${activityLevel}`,
     dailyReminderLabel: 'Daily reminder',
     dailyReminderDescription:
-      'Optional — shows a quiet note on Today if you haven’t logged anything yet. Off by default.',
+      'Optional — shows a quiet note on the Day screen if you haven’t logged anything yet. Off by default.',
     dailyReminderOn: 'On',
     dailyReminderOff: 'Off',
     trendChartsLabel: 'Dashboard trend charts',
@@ -817,7 +817,7 @@ export const en: Dictionary = {
     weekStartFirstEntry: 'Day of my first entry',
     dayStartLabel: 'Day start time',
     dayStartDescription:
-      "When your day begins on the Today screen — anything logged before this time counts toward the previous day. Only affects new entries going forward, and only the Today screen so far (streaks, summaries, and correlations elsewhere still use the real calendar day). Default midnight matches today's date exactly.",
+      "When your day begins on the Day screen — anything logged before this time counts toward the previous day. Only affects new entries going forward, and only the Day screen so far (streaks, summaries, and correlations elsewhere still use the real calendar day). Default midnight matches today's date exactly.",
     foodListLabel: 'Food list',
     foodListDescription:
       'Hide items you don’t want to see, or correct their calories/macros.',
@@ -920,7 +920,7 @@ export const en: Dictionary = {
     saveButton: 'Save',
 
     logValuesSectionLabel: 'Log a value',
-    logValuesMovedText: "Log today's values from the Today screen.",
+    logValuesMovedText: "Log today's values from the Day screen.",
     booleanYesOption: 'Yes',
     booleanNoOption: 'No',
     scaleValueLabel: (n) => `Rate ${n} out of 5`,
