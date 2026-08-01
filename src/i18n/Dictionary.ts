@@ -1224,11 +1224,15 @@ export interface Dictionary {
     /** #155: sr-only text appended to a day that falls within a reached
      * goal window ([weekStart, metOnDate]) but isn't the exact reach day —
      * the visual tint alone (List's date-cell background, Calendar's day
-     * background) isn't accessible on its own. */
+     * background) isn't accessible on its own. Also used as the light-
+     * swatch label in #479's visible legend. */
     reachedGoalWindowDayLabel: string
     /** #155: sr-only text for the exact day a goal's target was first
-     * met — distinct from reachedGoalWindowDayLabel above. */
+     * met — distinct from reachedGoalWindowDayLabel above. Also used as
+     * the strong-swatch label in #479's visible legend. */
     reachedGoalDayLabel: string
+    /** #479: accessible name for the shared List/Calendar tint legend. */
+    reachedGoalLegendLabel: string
   }
   settings: {
     title: string

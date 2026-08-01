@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 426,
+    issue: 479,
+    date: '2026-08-01T12:46:48+03:00',
+    en: 'History now shows a small legend explaining the green date highlighting for days you reached a weekly target.',
+    ru: 'В Истории теперь есть небольшая легенда, объясняющая зелёную подсветку дат, когда вы достигли недельной цели.',
+  },
+  {
     version: 425,
     issue: 480,
     date: '2026-08-01T12:43:27+03:00',

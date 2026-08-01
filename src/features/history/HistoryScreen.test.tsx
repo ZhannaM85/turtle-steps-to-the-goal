@@ -127,6 +127,10 @@ describe('HistoryScreen', () => {
         selector: '.sr-only',
       }),
     ).toBeInTheDocument()
+    // #479 — same copy also appears in the shared visible legend
+    expect(
+      screen.getByRole('list', { name: 'Reached-target highlighting' }),
+    ).toBeInTheDocument()
   })
 
   describe('date filter', () => {

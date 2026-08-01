@@ -757,6 +757,7 @@ export const ru: Dictionary = {
     pageIndicator: (current, total) => `Страница ${current} из ${total}`,
     reachedGoalWindowDayLabel: 'Часть недели, когда вы достигли цели',
     reachedGoalDayLabel: 'В этот день вы достигли цели',
+    reachedGoalLegendLabel: 'Подсветка достигнутой цели',
   },
   settings: {
     title: 'Настройки',

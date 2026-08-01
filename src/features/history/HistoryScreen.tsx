@@ -136,6 +136,30 @@ export function HistoryScreen() {
             </ToggleGroupItem>
           </ToggleGroup>
 
+          {/* #479 — sighted counterpart to EntryRow/CalendarView's
+           * sr-only #155 labels. One legend covers both views. */}
+          {reachedWindows.length > 0 && (
+            <ul
+              aria-label={t.history.reachedGoalLegendLabel}
+              className="flex flex-col gap-1.5 text-sm text-muted-foreground sm:flex-row sm:flex-wrap sm:gap-x-4 sm:gap-y-1.5"
+            >
+              <li className="flex items-center gap-2">
+                <span
+                  aria-hidden="true"
+                  className="size-3 shrink-0 rounded-sm bg-primary/15 ring-1 ring-primary/30"
+                />
+                {t.history.reachedGoalDayLabel}
+              </li>
+              <li className="flex items-center gap-2">
+                <span
+                  aria-hidden="true"
+                  className="size-3 shrink-0 rounded-sm bg-primary/5 ring-1 ring-primary/20"
+                />
+                {t.history.reachedGoalWindowDayLabel}
+              </li>
+            </ul>
+          )}
+
           {viewMode === 'calendar' ? (
             <CalendarView
               entries={entries}
