@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 446,
+    issue: 496,
+    date: '2026-08-01T16:10:00+03:00',
+    en: 'Zepp Life, Apple Health, and MyFitnessPal imports default to filling empty values only, so a later re-import won’t overwrite weights or other fields you’ve already corrected — you can still choose overwrite when you want.',
+    ru: 'Импорт из Zepp Life, Apple Health и MyFitnessPal по умолчанию заполняет только пустые значения, поэтому повторный импорт не затрёт вес и другие поля, которые вы уже исправили — при необходимости можно выбрать замену импортом.',
+  },
+  {
     version: 445,
     issue: 495,
     date: '2026-08-01T15:40:57+03:00',

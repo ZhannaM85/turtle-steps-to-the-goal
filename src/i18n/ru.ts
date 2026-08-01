@@ -447,6 +447,11 @@ export const ru: Dictionary = {
     storageUsedOfQuotaLabel: (used, quota) =>
       `~${used} использовано из ~${quota}, доступных на этом устройстве`,
     dataToImportLabel: 'Данные для импорта',
+    importConflictModeLabel: 'Если за день уже есть значение',
+    importConflictModeDescription:
+      '«Только пустые» сохраняет то, что вы уже записали или исправили. «Заменить импортом» подставляет значения из файла — когда данные с устройства должны быть главными.',
+    importConflictModeFillGaps: 'Только пустые',
+    importConflictModeOverwrite: 'Заменить импортом',
   },
   zeppLifeImport: {
     importBlurb:

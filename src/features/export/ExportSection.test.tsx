@@ -419,6 +419,60 @@ describe('ExportSection', () => {
     })
   })
 
+  describe('import conflict mode (#496)', () => {
+    it('defaults each wearable/MFP import to Fill gaps only', () => {
+      render(<ExportSection />)
+
+      for (const source of [
+        'Import from Zepp Life',
+        'Import from Apple Health',
+        'Import from MyFitnessPal',
+      ]) {
+        const group = within(
+          screen.getByRole('radiogroup', {
+            name: `${source} — If a day already has a value`,
+          }),
+        )
+        expect(
+          group.getByRole('radio', {
+            name: 'Fill gaps only',
+            checked: true,
+          }),
+        ).toBeInTheDocument()
+        expect(
+          group.getByRole('radio', {
+            name: 'Overwrite with import',
+            checked: false,
+          }),
+        ).toBeInTheDocument()
+      }
+    })
+
+    it('lets the user switch a source to Overwrite with import', async () => {
+      const user = userEvent.setup()
+      render(<ExportSection />)
+      const group = within(
+        screen.getByRole('radiogroup', {
+          name: 'Import from Zepp Life — If a day already has a value',
+        }),
+      )
+
+      await user.click(
+        group.getByRole('radio', { name: 'Overwrite with import' }),
+      )
+
+      expect(
+        group.getByRole('radio', {
+          name: 'Overwrite with import',
+          checked: true,
+        }),
+      ).toBeInTheDocument()
+      expect(
+        group.getByRole('radio', { name: 'Fill gaps only', checked: false }),
+      ).toBeInTheDocument()
+    })
+  })
+
   describe('"How do I get this file?" disclosure (#381)', () => {
     // Native <details>/<summary> — jsdom doesn't apply the UA stylesheet
     // that hides collapsed content visually, so this only asserts the

@@ -425,6 +425,11 @@ export const en: Dictionary = {
     storageUsedOfQuotaLabel: (used, quota) =>
       `~${used} used of ~${quota} available on this device`,
     dataToImportLabel: 'Data to import',
+    importConflictModeLabel: 'If a day already has a value',
+    importConflictModeDescription:
+      'Fill gaps only keeps values you already logged or corrected. Overwrite replaces them with the import — useful when the wearable should win.',
+    importConflictModeFillGaps: 'Fill gaps only',
+    importConflictModeOverwrite: 'Overwrite with import',
   },
   zeppLifeImport: {
     importBlurb:

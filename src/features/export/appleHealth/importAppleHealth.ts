@@ -2,6 +2,7 @@ import { IndexedDbDailyEntryRepository } from '@/infrastructure/persistence/inde
 import {
   filterPatchesToFields,
   mergeDailyEntryPatches,
+  type DailyEntryImportMode,
   type DailyEntryPatch,
 } from '../mergeDailyEntryPatches'
 import {
@@ -39,6 +40,8 @@ export async function importAppleHealthExport(
    * omitted entirely (not just an empty set) means "import everything",
    * preserving pre-#369 behavior for any caller that doesn't pass it. */
   includedFields?: ReadonlySet<keyof DailyEntryPatch>,
+  /** #496 — defaults to fillGaps inside mergeDailyEntryPatches. */
+  importMode?: DailyEntryImportMode,
 ): Promise<AppleHealthImportSummary> {
   const { ZipReader, BlobReader } = await import('@zip.js/zip.js')
   const reader = new ZipReader(new BlobReader(file))
@@ -97,7 +100,7 @@ export async function importAppleHealthExport(
       : rawPatches
     const existingEntries = await dailyEntryRepository.getAll()
     const { daysImported, daysUpdated, entriesToUpsert } =
-      mergeDailyEntryPatches(patches, existingEntries)
+      mergeDailyEntryPatches(patches, existingEntries, importMode)
 
     await Promise.all(
       entriesToUpsert.map((entry) => dailyEntryRepository.upsert(entry)),

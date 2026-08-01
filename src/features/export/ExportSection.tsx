@@ -20,8 +20,12 @@ import {
 import { buildDailyLogCsv, CSV_BOM } from './exportCsv'
 import { buildDailyLogMarkdown } from './exportMarkdown'
 import { buildExportWorkbook } from './exportXlsx'
+import { ImportConflictModePicker } from './ImportConflictModePicker'
 import { ImportFieldPicker } from './ImportFieldPicker'
-import type { DailyEntryPatch } from './mergeDailyEntryPatches'
+import type {
+  DailyEntryImportMode,
+  DailyEntryPatch,
+} from './mergeDailyEntryPatches'
 import {
   importZeppLifeExport,
   ZeppLifeInvalidFileError,
@@ -157,14 +161,22 @@ export function ExportSection() {
   const [zeppLifeSelectedFields, setZeppLifeSelectedFields] = useState<
     Set<string>
   >(() => new Set(ZEPP_LIFE_FIELDS.map((field) => field.key)))
+  // #496 — safer default: fill gaps only so a re-import does not wipe
+  // manual corrections (e.g. fixing an abnormal Zepp weight).
+  const [zeppLifeImportMode, setZeppLifeImportMode] =
+    useState<DailyEntryImportMode>('fillGaps')
   const [appleHealthSelectedFields, setAppleHealthSelectedFields] = useState<
     Set<string>
   >(() => new Set(APPLE_HEALTH_FIELDS.map((field) => field.key)))
+  const [appleHealthImportMode, setAppleHealthImportMode] =
+    useState<DailyEntryImportMode>('fillGaps')
   const myFitnessPalFileInputRef = useRef<HTMLInputElement>(null)
   const [myFitnessPalSelectedFields, setMyFitnessPalSelectedFields] =
     useState<Set<string>>(
       () => new Set(MYFITNESSPAL_FIELDS.map((field) => field.key)),
     )
+  const [myFitnessPalImportMode, setMyFitnessPalImportMode] =
+    useState<DailyEntryImportMode>('fillGaps')
   const [storageUsage, setStorageUsage] = useState<number | null>(null)
   const [storageQuota, setStorageQuota] = useState<number | null>(null)
   // #240 — optional, applies to Excel/CSV/Markdown only (see
@@ -394,6 +406,7 @@ export function ExportSection() {
         zeppLifePendingFile,
         password,
         zeppLifeSelectedFields as ReadonlySet<keyof DailyEntryPatch>,
+        zeppLifeImportMode,
       )
       setZeppLifeDialogOpen(false)
       setZeppLifePendingFile(null)
@@ -426,6 +439,7 @@ export function ExportSection() {
           })
         },
         appleHealthSelectedFields as ReadonlySet<keyof DailyEntryPatch>,
+        appleHealthImportMode,
       )
       setStatus({ kind: 'importedAppleHealth', daysImported, daysUpdated })
     } catch (err) {
@@ -443,6 +457,7 @@ export function ExportSection() {
       const { daysImported, daysUpdated } = await importMyFitnessPalExport(
         file,
         myFitnessPalSelectedFields as ReadonlySet<keyof DailyEntryPatch>,
+        myFitnessPalImportMode,
       )
       setStatus({ kind: 'importedMyFitnessPal', daysImported, daysUpdated })
     } catch (err) {
@@ -640,6 +655,21 @@ export function ExportSection() {
               onChange={setZeppLifeSelectedFields}
             />
           </div>
+          <div className="flex flex-col gap-1.5">
+            <span className="text-sm font-medium">
+              {t.export.importConflictModeLabel}
+            </span>
+            <p className="text-sm text-muted-foreground">
+              {t.export.importConflictModeDescription}
+            </p>
+            <ImportConflictModePicker
+              ariaLabel={`${t.zeppLifeImport.importButton} — ${t.export.importConflictModeLabel}`}
+              value={zeppLifeImportMode}
+              onChange={setZeppLifeImportMode}
+              fillGapsLabel={t.export.importConflictModeFillGaps}
+              overwriteLabel={t.export.importConflictModeOverwrite}
+            />
+          </div>
           <input
             ref={zeppLifeFileInputRef}
             type="file"
@@ -690,6 +720,21 @@ export function ExportSection() {
               onChange={setAppleHealthSelectedFields}
             />
           </div>
+          <div className="flex flex-col gap-1.5">
+            <span className="text-sm font-medium">
+              {t.export.importConflictModeLabel}
+            </span>
+            <p className="text-sm text-muted-foreground">
+              {t.export.importConflictModeDescription}
+            </p>
+            <ImportConflictModePicker
+              ariaLabel={`${t.appleHealthImport.importButton} — ${t.export.importConflictModeLabel}`}
+              value={appleHealthImportMode}
+              onChange={setAppleHealthImportMode}
+              fillGapsLabel={t.export.importConflictModeFillGaps}
+              overwriteLabel={t.export.importConflictModeOverwrite}
+            />
+          </div>
           <input
             ref={appleHealthFileInputRef}
             type="file"
@@ -738,6 +783,21 @@ export function ExportSection() {
               }))}
               selected={myFitnessPalSelectedFields}
               onChange={setMyFitnessPalSelectedFields}
+            />
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <span className="text-sm font-medium">
+              {t.export.importConflictModeLabel}
+            </span>
+            <p className="text-sm text-muted-foreground">
+              {t.export.importConflictModeDescription}
+            </p>
+            <ImportConflictModePicker
+              ariaLabel={`${t.myFitnessPalImport.importButton} — ${t.export.importConflictModeLabel}`}
+              value={myFitnessPalImportMode}
+              onChange={setMyFitnessPalImportMode}
+              fillGapsLabel={t.export.importConflictModeFillGaps}
+              overwriteLabel={t.export.importConflictModeOverwrite}
             />
           </div>
           <input

@@ -31,7 +31,7 @@ describe('mergeDailyEntryPatches', () => {
     })
   })
 
-  it('overwrites just the patched fields on an existing entry, wins on conflict', () => {
+  it('overwrites just the patched fields on an existing entry when mode is overwrite', () => {
     const existing = makeEntry({
       weightKg: 59, // will be overwritten by the imported value
       note: 'Felt great today', // must survive the merge untouched
@@ -41,7 +41,7 @@ describe('mergeDailyEntryPatches', () => {
       ['2026-01-15', { weightKg: 61.4, bodyFatPercent: 22 }],
     ])
 
-    const result = mergeDailyEntryPatches(patches, [existing])
+    const result = mergeDailyEntryPatches(patches, [existing], 'overwrite')
 
     expect(result.daysUpdated).toBe(1)
     expect(result.entriesToUpsert[0]).toMatchObject({
@@ -51,6 +51,69 @@ describe('mergeDailyEntryPatches', () => {
       bodyFatPercent: 22,
       note: 'Felt great today', // untouched
       steps: 1000, // untouched — not in this patch
+    })
+  })
+
+  describe('fillGaps mode (#496)', () => {
+    it('keeps a local weight correction and only fills blank fields', () => {
+      const existing = makeEntry({
+        weightKg: 58.2, // manual correction — must survive
+        steps: undefined,
+      })
+      const patches = new Map<string, DailyEntryPatch>([
+        ['2026-01-15', { weightKg: 99.9, steps: 8000, bodyFatPercent: 22 }],
+      ])
+
+      const result = mergeDailyEntryPatches(patches, [existing], 'fillGaps')
+
+      expect(result.daysImported).toBe(1)
+      expect(result.entriesToUpsert[0]).toMatchObject({
+        id: 'existing-1',
+        weightKg: 58.2,
+        steps: 8000,
+        bodyFatPercent: 22,
+      })
+    })
+
+    it('skips a day entirely when every patched field already has a local value', () => {
+      const existing = makeEntry({ weightKg: 58.2, steps: 1000 })
+      const patches = new Map<string, DailyEntryPatch>([
+        ['2026-01-15', { weightKg: 99.9, steps: 8000 }],
+      ])
+
+      const result = mergeDailyEntryPatches(patches, [existing], 'fillGaps')
+
+      expect(result.daysImported).toBe(0)
+      expect(result.daysUpdated).toBe(0)
+      expect(result.entriesToUpsert).toHaveLength(0)
+    })
+
+    it('defaults to fillGaps when mode is omitted', () => {
+      const existing = makeEntry({ weightKg: 58.2 })
+      const patches = new Map<string, DailyEntryPatch>([
+        ['2026-01-15', { weightKg: 99.9 }],
+      ])
+
+      const result = mergeDailyEntryPatches(patches, [existing])
+
+      expect(result.entriesToUpsert).toHaveLength(0)
+    })
+
+    it('still fills blank fields on a day that already has other data', () => {
+      const existing = makeEntry({
+        note: 'Felt great',
+        weightKg: undefined,
+      })
+      const patches = new Map<string, DailyEntryPatch>([
+        ['2026-01-15', { weightKg: 60 }],
+      ])
+
+      const result = mergeDailyEntryPatches(patches, [existing], 'fillGaps')
+
+      expect(result.entriesToUpsert[0]).toMatchObject({
+        weightKg: 60,
+        note: 'Felt great',
+      })
     })
   })
 
@@ -80,7 +143,7 @@ describe('mergeDailyEntryPatches', () => {
         ],
       ])
 
-      const result = mergeDailyEntryPatches(patches, [existing])
+      const result = mergeDailyEntryPatches(patches, [existing], 'overwrite')
 
       expect(result.entriesToUpsert[0].calorieEntries).toHaveLength(2)
       expect(result.entriesToUpsert[0].calorieEntries?.[0].id).toBe(
@@ -89,6 +152,36 @@ describe('mergeDailyEntryPatches', () => {
       expect(result.entriesToUpsert[0].calorieEntries?.[1].id).toBe(
         'imported-1',
       )
+    })
+
+    it('appends meals under fillGaps even when the day already has meals', () => {
+      const existing = makeEntry({
+        calorieEntries: [
+          {
+            id: 'hand-logged',
+            items: [{ id: 'i1', name: 'Homemade soup', amountKcal: 250 }],
+            createdAt: '2026-01-15T08:00:00.000Z',
+          },
+        ],
+      })
+      const patches = new Map<string, DailyEntryPatch>([
+        [
+          '2026-01-15',
+          {
+            calorieEntries: [
+              {
+                id: 'imported-1',
+                items: [{ id: 'i2', name: 'Oatmeal', amountKcal: 300 }],
+                createdAt: '2026-01-15T12:00:00.000Z',
+              },
+            ],
+          },
+        ],
+      ])
+
+      const result = mergeDailyEntryPatches(patches, [existing], 'fillGaps')
+
+      expect(result.entriesToUpsert[0].calorieEntries).toHaveLength(2)
     })
 
     it('just sets calorieEntries directly for a brand-new entry with none to merge with', () => {
@@ -126,12 +219,14 @@ describe('mergeDailyEntryPatches', () => {
         ['2026-01-15', { weightKg: 60 }],
       ])
 
-      const result = mergeDailyEntryPatches(patches, [existing])
+      // Existing has no weight — fillGaps applies weight and keeps meals.
+      const result = mergeDailyEntryPatches(patches, [existing], 'fillGaps')
 
       expect(result.entriesToUpsert[0].calorieEntries).toHaveLength(1)
       expect(result.entriesToUpsert[0].calorieEntries?.[0].id).toBe(
         'hand-logged',
       )
+      expect(result.entriesToUpsert[0].weightKg).toBe(60)
     })
   })
 
@@ -142,7 +237,7 @@ describe('mergeDailyEntryPatches', () => {
     ])
     const existing = [makeEntry({ id: 'existing-1', date: '2026-01-15' })]
 
-    const result = mergeDailyEntryPatches(patches, existing)
+    const result = mergeDailyEntryPatches(patches, existing, 'overwrite')
 
     expect(result.daysImported).toBe(2)
     expect(result.daysUpdated).toBe(1)

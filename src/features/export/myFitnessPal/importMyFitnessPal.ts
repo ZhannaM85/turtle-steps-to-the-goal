@@ -2,6 +2,7 @@ import { IndexedDbDailyEntryRepository } from '@/infrastructure/persistence/inde
 import {
   filterPatchesToFields,
   mergeDailyEntryPatches,
+  type DailyEntryImportMode,
   type DailyEntryPatch,
 } from '../mergeDailyEntryPatches'
 import {
@@ -46,6 +47,8 @@ export async function importMyFitnessPalExport(
   file: File,
   /** #369-style opt-out, same shape every other importer here already has. */
   includedFields?: ReadonlySet<keyof DailyEntryPatch>,
+  /** #496 — defaults to fillGaps inside mergeDailyEntryPatches. */
+  importMode?: DailyEntryImportMode,
 ): Promise<MyFitnessPalImportSummary> {
   const ExcelJS = (await import('exceljs')).default
   const workbook = new ExcelJS.Workbook()
@@ -126,6 +129,7 @@ export async function importMyFitnessPalExport(
   const { daysImported, daysUpdated, entriesToUpsert } = mergeDailyEntryPatches(
     patches,
     existingEntries,
+    importMode,
   )
 
   await Promise.all(

@@ -7,6 +7,7 @@ import {
 import {
   filterPatchesToFields,
   mergeDailyEntryPatches,
+  type DailyEntryImportMode,
   type DailyEntryPatch,
 } from '../mergeDailyEntryPatches'
 
@@ -39,6 +40,8 @@ export async function importZeppLifeExport(
    * omitted entirely (not just an empty set) means "import everything",
    * preserving pre-#369 behavior for any caller that doesn't pass it. */
   includedFields?: ReadonlySet<keyof DailyEntryPatch>,
+  /** #496 — defaults to fillGaps inside mergeDailyEntryPatches. */
+  importMode?: DailyEntryImportMode,
 ): Promise<ZeppLifeImportSummary> {
   const { ZipReader, BlobReader, TextWriter, ERR_INVALID_PASSWORD } =
     await import('@zip.js/zip.js')
@@ -92,7 +95,7 @@ export async function importZeppLifeExport(
 
     const existingEntries = await dailyEntryRepository.getAll()
     const { daysImported, daysUpdated, entriesToUpsert } =
-      mergeDailyEntryPatches(patches, existingEntries)
+      mergeDailyEntryPatches(patches, existingEntries, importMode)
 
     await Promise.all(
       entriesToUpsert.map((entry) => dailyEntryRepository.upsert(entry)),

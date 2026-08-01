@@ -807,6 +807,11 @@ export interface Dictionary {
      * buttons, letting a user opt out of specific data types (e.g. only
      * import steps) instead of each import always being all-or-nothing. */
     dataToImportLabel: string
+    /** #496 — conflict mode for wearable/MFP re-imports (not JSON backup). */
+    importConflictModeLabel: string
+    importConflictModeDescription: string
+    importConflictModeFillGaps: string
+    importConflictModeOverwrite: string
   }
   /** Importing a Zepp Life CSV export (#365) — a separate, distinct copy
    * from the JSON backup import above, same reasoning as `exportXlsx`
