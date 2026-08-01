@@ -507,7 +507,7 @@ describe('TodayScreen', () => {
       </MemoryRouter>,
     )
 
-    expect(await screen.findByText('79.5 kg')).toBeInTheDocument()
+    expect(await screen.findByText('79.5')).toBeInTheDocument()
     // #326 — DailyEntryForm no longer has its own standalone calories
     // readout; the loaded meal itself is the thing to check for now.
     // #473 — the meal card's header is the label alone now; its total moved
@@ -724,7 +724,8 @@ describe('TodayScreen', () => {
         </MemoryRouter>,
       )
 
-      await screen.findByText('80 kg')
+      // #516 — Weight value and unit are separate nodes now.
+      await screen.findByText('80')
       expect(screen.queryByText('vs. yesterday')).not.toBeInTheDocument()
     })
   })
@@ -1019,7 +1020,8 @@ describe('TodayScreen', () => {
       await user.click(screen.getByRole('button', { name: 'Hide stats' }))
 
       expect(screen.getByText("This week's target")).toBeInTheDocument()
-      expect(screen.getByText('70 kg')).toBeInTheDocument()
+      // #516 — Morning Weight value is its own node (unit is separate).
+      expect(screen.getByText('70')).toBeInTheDocument()
     })
   })
 
