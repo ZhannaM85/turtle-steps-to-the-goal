@@ -191,6 +191,32 @@ and #144's precedent in `docs/issues-priority.md`).
   tool for searching or aggregating — use the Grep tool instead, even for
   multi-step aggregation. Reserve Bash for things that are genuinely
   shell-only.
+- **Don't run Prettier on this repo, and prefer `npm run <script>` over a
+  bare `npx <tool> <long path list>`** (2026-08-01, after two avoidable
+  prompts in one session). Three separate findings behind this:
+  1. **Prettier gates nothing here.** Neither `ci.yml` nor
+     `deploy-pages.yml` has a `format`/`format:check` step — the gates are
+     `tsc -b`, `npm run lint`, `vitest`, and `npm run e2e` only. So a
+     formatting pass is never required to finish an issue.
+  2. **The repo is not Prettier-clean and must not be made so casually.**
+     `npm run format:check` reports ~356 files as unformatted, nearly all
+     of them files nobody touched — this machine checks out CRLF (see
+     git's own "LF will be replaced by CRLF" warnings on every `git add`).
+     Running `npm run format` (`prettier --write .`) would rewrite the
+     entire repo. Don't.
+  3. **Command *shape* decides whether the allowlist matches, and a
+     write-shaped command that misses the allowlist can't run at all.**
+     `npm run format:check`, `npx tsc -b`, and `npx vitest run <path>` all
+     auto-run unsandboxed, but `npx prettier --write <7 paths>` did not
+     match and got dispatched into the `workspace_readwrite` sandbox —
+     which **cannot be enforced on this machine at all** ("Terminal
+     unavailable: … no working sandbox backend is available. This is not a
+     permission denial"). The only way to then run it is
+     `required_permissions: ["all"]`, and *that* escalation is what shows
+     the user an approval card. Adding `npx prettier` to
+     `.cursor/permissions.json` did **not** suppress it, so treat "it
+     failed to spawn with the sandbox message" as "pick a different,
+     known-matching command shape," not as "escalate to `all`."
 - `TaskStop` (or ending a session) can leave a Windows `npm run dev`
   process orphaned holding port 5173. If a "port already in use" error
   shows up, check with `netstat -ano | findstr :5173` and `taskkill /PID
