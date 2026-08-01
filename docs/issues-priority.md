@@ -1230,6 +1230,7 @@ _Several issues surfaced live in one session while discussing a Today-screen red
 | [#511](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/511) | ✅ Done | Day screen: Collapse all / Expand all for section cards | Confirmed on-device by the user. Quiet text control above Morning. Shared persisted `useTodaySectionsCollapseStore` (replaces Stats-only store; migrates old `stats` flag). Label flips Collapse all ↔ Expand all from currently-visible sections only. |
 | [#513](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/513) | ⬜ Open | Add meal: vertically center Close with time field; make Close larger than clear-time ✕ | Reported live with screenshot after #508. Close sits above time midline; size up Close vs in-field clear ✕. `AddMealDialog` / `DialogContent`. |
 | [#514](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/514) | ⬜ Open | Add meal discard confirm: Replace Remove/Continue with Yes/No | Reported live with screenshot. Prompt is «Выйти без сохранения?» but buttons are Удалить/Продолжить (shared #494/#509 keys). Prefer Да/Нет · Yes/No. |
+| [#515](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/515) | ⬜ Open | Morning notes: restyle body-composition summary (too dense vs Weight/Sleep) | Reported live with screenshot. Five metrics wrap in one `h-12` row. Prefer StatCard-like hero+secondary or intentional 2-line grid — not a full Stats clone. |
 
 ---
 
