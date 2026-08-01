@@ -218,4 +218,42 @@ describe('CustomMetricLogSection', () => {
       screen.queryByRole('button', { name: 'Cancel editing note' }),
     ).not.toBeInTheDocument()
   })
+
+  it('wraps metrics in a bordered collapsible with a collapsed logged/total summary (#478)', async () => {
+    await db.customMetrics.put({
+      id: 'metric-1',
+      name: 'Acne',
+      inputKind: 'scale5',
+      createdAt: '2026-01-01T00:00:00.000Z',
+    })
+    await db.customMetrics.put({
+      id: 'metric-2',
+      name: 'Training',
+      inputKind: 'boolean',
+      createdAt: '2026-01-01T00:00:00.000Z',
+    })
+    await db.customMetricEntries.put({
+      id: 'entry-1',
+      metricId: 'metric-1',
+      date: '2026-03-01',
+      value: 3,
+      updatedAt: '2026-01-01T00:00:00.000Z',
+    })
+
+    const user = userEvent.setup()
+    render(<CustomMetricLogSection date="2026-03-01" />)
+
+    expect(await screen.findByLabelText('Acne')).toBeInTheDocument()
+    expect(screen.getByLabelText('Training')).toBeInTheDocument()
+
+    await user.click(
+      screen.getByRole('button', { name: 'Hide custom metrics' }),
+    )
+
+    expect(screen.queryByLabelText('Acne')).not.toBeInTheDocument()
+    expect(screen.getByText('1 logged / 2 metrics')).toBeInTheDocument()
+    expect(
+      screen.getByRole('button', { name: 'Show custom metrics' }),
+    ).toBeInTheDocument()
+  })
 })

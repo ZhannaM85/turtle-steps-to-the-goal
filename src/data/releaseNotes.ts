@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 427,
+    issue: 478,
+    date: '2026-08-01T12:51:13+03:00',
+    en: 'Custom metrics on the Day screen now sit in their own collapsible section, like Water and Meals.',
+    ru: 'Свои метрики на экране «День» теперь в отдельном сворачиваемом разделе, как вода и приёмы пищи.',
+  },
+  {
     version: 426,
     issue: 479,
     date: '2026-08-01T12:46:48+03:00',

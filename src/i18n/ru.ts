@@ -949,6 +949,10 @@ export const ru: Dictionary = {
 
     logValuesSectionLabel: 'Записать значение',
     logValuesMovedText: 'Записывайте значения за сегодня на экране «День».',
+    expandLogValuesLabel: 'Показать свои метрики',
+    collapseLogValuesLabel: 'Скрыть свои метрики',
+    logValuesCollapsedSummary: (logged, total) =>
+      `${logged} из ${total}`,
     booleanYesOption: 'Да',
     booleanNoOption: 'Нет',
     scaleValueLabel: (n) => `Оценка ${n} из 5`,

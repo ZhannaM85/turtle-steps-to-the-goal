@@ -924,6 +924,10 @@ export const en: Dictionary = {
 
     logValuesSectionLabel: 'Log a value',
     logValuesMovedText: "Log today's values from the Day screen.",
+    expandLogValuesLabel: 'Show custom metrics',
+    collapseLogValuesLabel: 'Hide custom metrics',
+    logValuesCollapsedSummary: (logged, total) =>
+      `${logged} logged / ${total} metrics`,
     booleanYesOption: 'Yes',
     booleanNoOption: 'No',
     scaleValueLabel: (n) => `Rate ${n} out of 5`,

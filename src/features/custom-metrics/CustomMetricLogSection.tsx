@@ -1,9 +1,14 @@
 import { useEffect, useState } from 'react'
-import { Check, Pencil, X } from 'lucide-react'
+import { Check, ChevronDown, Pencil, X } from 'lucide-react'
 import type { CustomMetric } from '@/domain/customMetric'
 import { useTranslation } from '@/i18n'
 import { useCustomMetricStore } from '@/stores'
 import { Button } from '@/shared/ui/button'
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from '@/shared/ui/collapsible'
 import { Input } from '@/shared/ui/input'
 import { ToggleGroup, ToggleGroupItem } from '@/shared/ui/toggle-group'
 
@@ -192,23 +197,23 @@ function MetricValueRow({
 }
 
 /**
- * Per-date custom-metric value entry (#336), mounted at the bottom of
- * `TodayScreen.tsx` (#362) — reverses #336's own original design fork
- * ("entry lives on its own dedicated screen," resolved via `AskUserQuestion`
- * before building) after live use surfaced it as an extra screen too easy to
- * forget to visit. Defining/deleting metrics and correlations stayed on
- * `CustomMetricsScreen.tsx`, reached via Settings — only the day-to-day act
- * of logging *today's* (or whichever day is being viewed) value moved.
- * Renders nothing at all if no metrics are defined yet, same "don't clutter
- * the page with an unused feature" treatment already given to other
- * optional Today sections (BMI/BMR, sleep, etc.) — a user who's never
- * touched custom metrics sees no trace of this section.
+ * Per-date custom-metric value entry (#336), mounted on `TodayScreen.tsx`
+ * (#362) after Water and before Evening — kept as its **own** section
+ * (#478), not folded into Morning or Evening, because custom metrics are
+ * user-defined and mixed (many fit neither "scale/body first thing" nor
+ * "end-of-day reflection"), and they already use a different store/model.
+ * Defining/deleting metrics and correlations stay on
+ * `CustomMetricsScreen.tsx` via Settings — only day values log here.
+ * Renders nothing if no metrics are defined yet. **#478**: wrapped in the
+ * same bordered `Collapsible` accordion Water (#476) / Meals / Macros use
+ * (default open; collapsed header shows "N logged / M metrics").
  */
 export function CustomMetricLogSection({ date }: { date: string }) {
   const t = useTranslation()
   const metrics = useCustomMetricStore((state) => state.metrics)
   const entries = useCustomMetricStore((state) => state.entries)
   const loadMetrics = useCustomMetricStore((state) => state.loadAll)
+  const [collapsed, setCollapsed] = useState(false)
 
   useEffect(() => {
     loadMetrics()
@@ -216,27 +221,65 @@ export function CustomMetricLogSection({ date }: { date: string }) {
 
   if (metrics.length === 0) return null
 
+  const loggedCount = metrics.filter((metric) =>
+    entries.some(
+      (e) =>
+        e.metricId === metric.id && e.date === date && e.value !== undefined,
+    ),
+  ).length
+
   return (
-    <section className="flex flex-col gap-2">
-      <h2 className="text-sm font-medium text-foreground">
-        {t.customMetrics.logValuesSectionLabel}
-      </h2>
-      <div className="flex flex-col gap-2">
-        {metrics.map((metric) => {
-          const entry = entries.find(
-            (e) => e.metricId === metric.id && e.date === date,
-          )
-          return (
-            <MetricValueRow
-              key={`${metric.id}:${date}`}
-              metric={metric}
-              date={date}
-              value={entry?.value}
-              note={entry?.note}
+    <section className="rounded-lg border border-border p-3">
+      <Collapsible
+        open={!collapsed}
+        onOpenChange={(open) => setCollapsed(!open)}
+      >
+        <CollapsibleTrigger asChild>
+          <button
+            type="button"
+            aria-label={
+              collapsed
+                ? t.customMetrics.expandLogValuesLabel
+                : t.customMetrics.collapseLogValuesLabel
+            }
+            className="group flex w-full items-center justify-between gap-2 text-sm font-medium text-muted-foreground hover:text-foreground"
+          >
+            <span className="flex min-w-0 flex-col items-start gap-0.5 text-left">
+              <span>{t.customMetrics.logValuesSectionLabel}</span>
+              {collapsed && (
+                <span className="text-xs font-normal text-muted-foreground">
+                  {t.customMetrics.logValuesCollapsedSummary(
+                    loggedCount,
+                    metrics.length,
+                  )}
+                </span>
+              )}
+            </span>
+            <ChevronDown
+              aria-hidden="true"
+              className="size-4 shrink-0 transition-transform group-data-[state=open]:rotate-180"
             />
-          )
-        })}
-      </div>
+          </button>
+        </CollapsibleTrigger>
+        <CollapsibleContent>
+          <div className="flex flex-col gap-2 pt-3">
+            {metrics.map((metric) => {
+              const entry = entries.find(
+                (e) => e.metricId === metric.id && e.date === date,
+              )
+              return (
+                <MetricValueRow
+                  key={`${metric.id}:${date}`}
+                  metric={metric}
+                  date={date}
+                  value={entry?.value}
+                  note={entry?.note}
+                />
+              )
+            })}
+          </div>
+        </CollapsibleContent>
+      </Collapsible>
     </section>
   )
 }

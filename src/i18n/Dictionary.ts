@@ -1474,9 +1474,14 @@ export interface Dictionary {
      * `TodayScreen.tsx` via `CustomMetricLogSection.tsx` (#362), not this
      * screen. `logValuesSectionLabel` is that section's own heading there;
      * `logValuesMovedText` is the note shown here in its place once at
-     * least one metric is defined. */
+     * least one metric is defined. #478: expand/collapse + collapsed
+     * summary for the bordered accordion wrap. */
     logValuesSectionLabel: string
     logValuesMovedText: string
+    expandLogValuesLabel: string
+    collapseLogValuesLabel: string
+    /** Collapsed-header summary, e.g. "2 logged / 3 metrics". */
+    logValuesCollapsedSummary: (logged: number, total: number) => string
     booleanYesOption: string
     booleanNoOption: string
     /** Accessible label for one of the five 1-5 scale buttons, e.g. "Rate
