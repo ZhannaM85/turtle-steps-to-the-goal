@@ -2128,7 +2128,7 @@ describe('TodayScreen', () => {
       )
 
       await screen.findByLabelText('Date')
-      expect(screen.queryByText('Log a value')).not.toBeInTheDocument()
+      expect(screen.queryByText('Custom metrics')).not.toBeInTheDocument()
     })
 
     it('logs a value for the viewed date via the bottom-of-page section', async () => {

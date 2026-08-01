@@ -927,7 +927,7 @@ export const en: Dictionary = {
     cancelLabel: 'Cancel',
     saveButton: 'Save',
 
-    logValuesSectionLabel: 'Log a value',
+    logValuesSectionLabel: 'Custom metrics',
     logValuesMovedText: "Log today's values from the Day screen.",
     expandLogValuesLabel: 'Show custom metrics',
     collapseLogValuesLabel: 'Hide custom metrics',

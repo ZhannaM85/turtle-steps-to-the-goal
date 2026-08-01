@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 431,
+    issue: 486,
+    date: '2026-08-01T13:43:57+03:00',
+    en: 'The custom metrics section on Day is now titled “Custom metrics” instead of “Log a value.”',
+    ru: 'Раздел своих метрик на экране «День» теперь называется «Свои метрики», а не «Записать значение».',
+  },
+  {
     version: 430,
     issue: 484,
     date: '2026-08-01T13:14:28+03:00',

@@ -952,7 +952,7 @@ export const ru: Dictionary = {
     cancelLabel: 'Отмена',
     saveButton: 'Сохранить',
 
-    logValuesSectionLabel: 'Записать значение',
+    logValuesSectionLabel: 'Свои метрики',
     logValuesMovedText: 'Записывайте значения за сегодня на экране «День».',
     expandLogValuesLabel: 'Показать свои метрики',
     collapseLogValuesLabel: 'Скрыть свои метрики',
