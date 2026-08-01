@@ -1,5 +1,5 @@
 import 'fake-indexeddb/auto'
-import { act, render, screen } from '@testing-library/react'
+import { act, render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { createMemoryRouter, Link, RouterProvider } from 'react-router-dom'
 import { afterEach, describe, expect, it, vi } from 'vitest'
@@ -208,5 +208,22 @@ describe('scroll to top on navigation (#185)', () => {
     await user.click(screen.getByRole('link', { name: 'Go' }))
 
     expect(scrollToSpy).not.toHaveBeenCalled()
+  })
+})
+
+describe('AppShell bottom tab active accent (#484)', () => {
+  it('marks the active tab with a primary tint, not only foreground text', () => {
+    renderShellWithInput()
+
+    const tabs = screen.getByRole('navigation', { name: 'Tabs' })
+    const dayTab = within(tabs).getByRole('link', { name: 'Day' })
+    expect(dayTab).toHaveClass('bg-primary/10', 'text-primary')
+    expect(dayTab).not.toHaveClass('text-muted-foreground')
+
+    const dashboardTab = within(tabs).getByRole('link', {
+      name: 'Dashboard',
+    })
+    expect(dashboardTab).toHaveClass('text-muted-foreground')
+    expect(dashboardTab).not.toHaveClass('bg-primary/10')
   })
 })

@@ -132,8 +132,12 @@ export function AppShell() {
                         // seen live that read as an oversized empty gap above
                         // the icons (#119) — min-h-20 (80px, +24px) keeps a
                         // meaningfully bigger target without the gap.
-                        'flex min-h-20 flex-col items-center justify-center gap-0.5 text-xs font-medium text-muted-foreground transition-colors',
-                        isActive && 'text-foreground',
+                        // #484 — active tab was only text-foreground vs muted
+                        // inactive, hard to spot; primary accent + soft tint
+                        // (mirrors desktop's bg-muted pill, with a stronger
+                        // color signal across moods).
+                        'mx-0.5 flex min-h-20 flex-col items-center justify-center gap-0.5 rounded-lg text-xs font-medium text-muted-foreground transition-colors',
+                        isActive && 'bg-primary/10 text-primary',
                       )
                     }
                   >

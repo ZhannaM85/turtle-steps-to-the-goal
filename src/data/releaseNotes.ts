@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 430,
+    issue: 484,
+    date: '2026-08-01T13:14:28+03:00',
+    en: 'The selected tab in the bottom bar is clearer now — it uses a soft accent background and primary color.',
+    ru: 'Выбранная вкладка в нижней панели теперь заметнее — мягкий акцентный фон и основной цвет.',
+  },
+  {
     version: 429,
     issue: 482,
     date: '2026-08-01T12:59:07+03:00',
