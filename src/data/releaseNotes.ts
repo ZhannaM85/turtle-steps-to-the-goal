@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 469,
+    issue: 518,
+    date: '2026-08-01T23:28:02+03:00',
+    en: 'Foods you create after a barcode is not found are now remembered, so scanning the same product again finds them offline.',
+    ru: 'Продукты, которые вы создаёте после «штрихкод не найден», теперь запоминаются — повторное сканирование того же товара находит их офлайн.',
+  },
+  {
     version: 468,
     issue: 517,
     date: '2026-08-01T23:24:08+03:00',

@@ -494,6 +494,49 @@ describe('AddMealDialog (#454)', () => {
       ).toBeInTheDocument()
       expect(screen.getByLabelText('Dish name')).toHaveValue('')
     })
+
+    it('remembers a food created after a not-found scan for the next scan (#518)', async () => {
+      vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: false }))
+      mockScanning('4607001234567')
+      const user = userEvent.setup()
+      render(<ControlledAddMealDialog {...defaultProps} />)
+
+      await user.click(screen.getByRole('button', { name: 'Scan barcode' }))
+      expect(
+        await screen.findByText(
+          'No food found for this barcode — you can still add it by hand below.',
+        ),
+      ).toBeInTheDocument()
+
+      await user.type(screen.getByLabelText('Dish name'), 'Scanned Yogurt')
+      await user.type(screen.getByLabelText('kcal/100g'), '80')
+      await user.click(screen.getByRole('button', { name: 'Save' }))
+
+      await waitFor(() =>
+        expect(
+          useMealItemStore
+            .getState()
+            .items.find((item) => item.name === 'Scanned Yogurt'),
+        ).toMatchObject({ barcode: '4607001234567' }),
+      )
+
+      // Next scan of the same code must resolve locally (confirm step),
+      // not open the not-found manual sheet again.
+      mockScanning('4607001234567')
+      await user.click(screen.getByRole('button', { name: 'Scan barcode' }))
+      const addItemButton = await screen.findByRole(
+        'button',
+        { name: '+ Add item' },
+        { timeout: 20000 },
+      )
+      expect(screen.getByText('Scanned Yogurt')).toBeInTheDocument()
+      expect(
+        screen.queryByText(
+          'No food found for this barcode — you can still add it by hand below.',
+        ),
+      ).not.toBeInTheDocument()
+      await user.click(addItemButton)
+    })
   })
 
   describe("Repeat yesterday's meal", () => {

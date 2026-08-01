@@ -321,6 +321,9 @@ export function AddMealDialog({
   const [isManualOpen, setIsManualOpen] = useState(false)
   const [manualDraft, setManualDraft] = useState(blankManualDraft)
   const [barcodeNotFoundMessage, setBarcodeNotFoundMessage] = useState(false)
+  // #518 — barcode from a not-found / Open Food Facts scan, held until the
+  // food is saved so touch(..., barcode) can make the next scan a local hit.
+  const [pendingBarcode, setPendingBarcode] = useState<string | null>(null)
   // #459 — non-null while the manual-entry sheet is editing an
   // already-added item (tapped from "This meal so far") rather than
   // building a brand-new one; changes what saveManualDraft() does on Save.
@@ -334,14 +337,19 @@ export function AddMealDialog({
 
   function touchIfPersonal(item: CalorieItem) {
     if (item.name && !curatedFoodNames.has(item.name)) {
-      touchMealItem(item.name, {
-        amountKcal: item.amountKcal,
-        proteinG: item.proteinG,
-        fatG: item.fatG,
-        carbsG: item.carbsG,
-        fiberG: item.fiberG,
-        amountG: item.amountG,
-      })
+      touchMealItem(
+        item.name,
+        {
+          amountKcal: item.amountKcal,
+          proteinG: item.proteinG,
+          fatG: item.fatG,
+          carbsG: item.carbsG,
+          fiberG: item.fiberG,
+          amountG: item.amountG,
+        },
+        undefined,
+        pendingBarcode ?? undefined,
+      )
     }
   }
 
@@ -358,11 +366,13 @@ export function AddMealDialog({
     setConfirmCarbs('')
     setConfirmFiber('')
     confirmGramsRef.current = null
+    setPendingBarcode(null)
   }
 
   /** #517 — pick → confirm step: seed quantity + editable nutrition from
    * the catalog/personal item's per-100g rates (meal-line override only). */
   function selectActiveItem(item: PickableItem, quantityOverride?: string) {
+    setPendingBarcode(null)
     setActiveItem(item)
     const qty = quantityOverride ?? defaultQuantityFor(item)
     setQuantity(qty)
@@ -651,8 +661,14 @@ export function AddMealDialog({
         fat100: result.fat100 ?? 0,
         carbs100: result.carbs100 ?? 0,
       }
+      // selectActiveItem clears pendingBarcode; re-set after so confirm →
+      // touchIfPersonal can attach it (#518).
       selectActiveItem({ source: 'food', food: syntheticFood }, '100')
+      setPendingBarcode(barcode)
     } else {
+      // #518 — keep the scanned code through manual create so the next
+      // scan of the same product is a local hit.
+      setPendingBarcode(barcode)
       setBarcodeNotFoundMessage(true)
       setIsManualOpen(true)
     }
@@ -782,8 +798,13 @@ export function AddMealDialog({
           amountG: newItem.amountG,
         },
         manualDraft.favorite || undefined,
+        // #518 — attach the not-found scan's barcode on first save so
+        // findByBarcode hits next time. Omitted when opening Add food
+        // without a prior scan (pendingBarcode null).
+        pendingBarcode ?? undefined,
       )
     }
+    setPendingBarcode(null)
     setManualDraft(blankManualDraft())
     setEditingItemId(null)
     setIsManualOpen(false)
@@ -797,6 +818,7 @@ export function AddMealDialog({
   // math is needed to round-trip it, unlike reconstructing a per100g rate.
   function startEditItem(item: CalorieItem) {
     setEditingItemId(item.id)
+    setPendingBarcode(null)
     setManualDraft({
       name: item.name ?? '',
       brand: item.brand ?? '',
@@ -811,6 +833,14 @@ export function AddMealDialog({
       emotion: item.emotion,
       favorite: false,
     })
+    setIsManualOpen(true)
+  }
+
+  function openManualAdd() {
+    // Not a barcode-not-found path — don't attach a leftover scanned code.
+    setPendingBarcode(null)
+    setBarcodeNotFoundMessage(false)
+    setEditingItemId(null)
     setIsManualOpen(true)
   }
 
@@ -1319,7 +1349,7 @@ export function AddMealDialog({
                     variant="ghost"
                     size="sm"
                     className="self-start"
-                    onClick={() => setIsManualOpen(true)}
+                    onClick={openManualAdd}
                   >
                     {t.dailyEntry.cantFindItAddManuallyLabel}
                   </Button>
@@ -1347,7 +1377,7 @@ export function AddMealDialog({
                   <QuickActionCard
                     Icon={Utensils}
                     label={t.dailyEntry.quickActionAddFoodLabel}
-                    onClick={() => setIsManualOpen(true)}
+                    onClick={openManualAdd}
                   />
                   <QuickActionCard
                     Icon={ScanBarcode}
@@ -1602,6 +1632,9 @@ export function AddMealDialog({
               setManualDraft(blankManualDraft())
               setBarcodeNotFoundMessage(false)
               setEditingItemId(null)
+              // #518 — abandoning the not-found create drops the held code
+              // (saveManualDraft clears it earlier, after a successful touch).
+              setPendingBarcode(null)
             }
           }}
           title={
