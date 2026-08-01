@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 428,
+    issue: 483,
+    date: '2026-08-01T12:55:00+03:00',
+    en: 'Weekly and monthly recap cards now show the from → to weights behind each change, not only the delta.',
+    ru: 'Карточки недельного и месячного итога теперь показывают веса «откуда → куда» за каждым изменением, а не только разницу.',
+  },
+  {
     version: 427,
     issue: 478,
     date: '2026-08-01T12:51:13+03:00',

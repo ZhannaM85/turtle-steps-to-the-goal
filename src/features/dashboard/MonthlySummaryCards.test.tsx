@@ -53,6 +53,7 @@ describe('MonthlySummaryCards', () => {
     render(<MonthlySummaryCards entries={entries} />)
 
     expect(screen.getByText('-2.0')).toBeInTheDocument()
+    expect(screen.getByText(/82\.0 → 80\.0 kg/)).toBeInTheDocument()
     expect(screen.getByText(/Average calories: 1,800|1800/)).toBeInTheDocument()
   })
 

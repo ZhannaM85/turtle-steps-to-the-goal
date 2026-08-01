@@ -108,6 +108,23 @@ export function WeeklySummaryCards({
             )
 
           const descriptionParts: string[] = []
+          // #483 — the two period averages the delta is computed from
+          // (prior → this), same "X → Y kg" shape MetTargetList/#408 uses.
+          if (
+            delta !== null &&
+            week.averageWeightKg !== null
+          ) {
+            descriptionParts.push(
+              t.goal.previousToCurrentWeightLabel(
+                formatNumber(
+                  toDisplay(week.averageWeightKg - delta),
+                  locale,
+                ),
+                formatNumber(toDisplay(week.averageWeightKg), locale),
+                unit,
+              ),
+            )
+          }
           if (week.averageCalories !== null) {
             descriptionParts.push(
               `${t.dashboard.averageCaloriesLabel}: ${formatNumber(week.averageCalories, locale, 0)}`,

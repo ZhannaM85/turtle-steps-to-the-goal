@@ -89,6 +89,22 @@ export function MonthlySummaryCards({
             )
 
           const descriptionParts: string[] = []
+          // #483 — same from→to averages treatment as WeeklySummaryCards.
+          if (
+            delta !== null &&
+            month.averageWeightKg !== null
+          ) {
+            descriptionParts.push(
+              t.goal.previousToCurrentWeightLabel(
+                formatNumber(
+                  toDisplay(month.averageWeightKg - delta),
+                  locale,
+                ),
+                formatNumber(toDisplay(month.averageWeightKg), locale),
+                unit,
+              ),
+            )
+          }
           if (month.averageCalories !== null) {
             descriptionParts.push(
               `${t.dashboard.averageCaloriesLabel}: ${formatNumber(month.averageCalories, locale, 0)}`,
