@@ -1305,3 +1305,13 @@ _Sleep correlation x-axis stretched to ~100h; backup has 20 days >24h (worst 202
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#525](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/525) | 🔍 Pending validation | Apple Health sleep import overcounts (overlaps + midnight-merge chaining) | Overlap-aware `unionIntervalSeconds`; midnight merge only for ≤4h fragments; cap import at 24h. Re-import needed to refresh stored values |
+
+---
+
+## Tier 93 — Live feedback: Settings import sources need visual segregation (2026-08-02)
+
+_Zepp Life and Apple Health share the same chip/conflict labels with no border between them, so the Settings export/import card reads as one continuous block._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#526](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/526) | ⬜ Open | Settings import section: add borders so Zepp Life vs Apple Health are distinct | Border each import source block (JSON backup, Zepp, Apple Health, MyFitnessPal) |
