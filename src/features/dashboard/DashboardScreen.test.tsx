@@ -1,7 +1,7 @@
 import 'fake-indexeddb/auto'
 import type { ReactNode } from 'react'
 import { format, subDays } from 'date-fns'
-import { act, render, screen } from '@testing-library/react'
+import { act, render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -9,6 +9,7 @@ import type { DailyEntry } from '@/domain/dailyEntry'
 import { db } from '@/infrastructure/persistence/indexeddb'
 import {
   DEFAULT_DASHBOARD_SECTION_ORDER,
+  DASHBOARD_PERIOD_CHART_KEYS,
   useDashboardPeriodStore,
   useDashboardSectionOrderStore,
   useGoalStore,
@@ -67,9 +68,12 @@ beforeEach(async () => {
     order: DEFAULT_DASHBOARD_SECTION_ORDER,
   })
   useDashboardPeriodStore.setState({
-    period: 'all',
-    customStart: '',
-    customEnd: '',
+    byChart: Object.fromEntries(
+      DASHBOARD_PERIOD_CHART_KEYS.map((key) => [
+        key,
+        { period: 'all', customStart: '', customEnd: '' },
+      ]),
+    ) as ReturnType<typeof useDashboardPeriodStore.getState>['byChart'],
   })
 })
 
@@ -269,8 +273,8 @@ describe('DashboardScreen', () => {
     expect(screen.getByText('March 2026')).toBeInTheDocument()
   })
 
-  describe('trend chart period picker (#380)', () => {
-    it("scopes the Weight trend chart to the selected period, without affecting Weekly summary", async () => {
+  describe('per-chart period picker (#536)', () => {
+    it("scopes the Weight trend chart to its own period, without affecting Weekly summary", async () => {
       const today = format(new Date(), 'yyyy-MM-dd')
       // 3 old entries (>1 year back) give 'all' enough points for a trend
       // line and their own week a Weekly summary entry; 1 more entry today
@@ -301,19 +305,20 @@ describe('DashboardScreen', () => {
       expect(screen.getByText('Weekly summary')).toBeInTheDocument()
       expect(screen.getAllByText(new RegExp(oldWeekLabel)).length).toBeGreaterThan(0)
 
-      await user.click(screen.getByRole('radio', { name: 'Week' }))
+      await user.click(
+        within(weightSection).getByRole('radio', { name: 'Week' }),
+      )
 
       // Now only "today"'s single point falls inside the window — below
       // MIN_TREND_DATA_POINTS, so the trend chart falls back to the
       // not-enough-data message instead of drawing a misleading line.
       expect(weightSection).toHaveTextContent('Not enough data yet')
       // Weekly summary is untouched by the picker (deliberately not part of
-      // #396's extended scope, unlike the correlation views below) — the
-      // old week's card still shows.
+      // period-scoped charts) — the old week's card still shows.
       expect(screen.getAllByText(new RegExp(oldWeekLabel)).length).toBeGreaterThan(0)
     })
 
-    it('scopes correlation views to the selected period too (#396)', async () => {
+    it('scopes correlation views to their own period (#396/#536)', async () => {
       // Same 4-entry shape as the test above: 3 old entries give the
       // calorie-vs-weight correlation enough distinct weeks (>= 4) under
       // 'all', but narrowing to 'week' leaves only today's single entry —
@@ -332,17 +337,24 @@ describe('DashboardScreen', () => {
 
       const user = userEvent.setup()
       render(<DashboardScreen />, { wrapper: MemoryRouter })
-      await screen.findByText('Weight trend')
+      const correlationHeading = await screen.findByText(
+        'Calories vs. weight change',
+      )
+      const correlationSection = correlationHeading.closest(
+        '.rounded-lg.border.border-border.p-3',
+      ) as HTMLElement
 
-      expect(
-        screen.getByText('Calories vs. weight change'),
-      ).toBeInTheDocument()
+      expect(correlationSection).toBeInTheDocument()
 
-      await user.click(screen.getByRole('radio', { name: 'Week' }))
+      await user.click(
+        within(correlationSection).getByRole('radio', { name: 'Week' }),
+      )
 
       expect(
         screen.queryByText('Calories vs. weight change'),
       ).not.toBeInTheDocument()
+      // Weight chart still has its own period (All) and enough points.
+      expect(screen.getByText('Weight trend')).toBeInTheDocument()
     })
   })
 

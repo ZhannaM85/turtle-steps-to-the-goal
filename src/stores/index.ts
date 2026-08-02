@@ -18,6 +18,14 @@ export {
 } from './micronutrientTrackingStore'
 export { useWeekStartStore } from './weekStartStore'
 export { useDashboardPeriodStore } from './dashboardPeriodStore'
+export type {
+  ChartPeriodSelection,
+  DashboardPeriodChartKey,
+} from './dashboardPeriodStore'
+export {
+  DASHBOARD_PERIOD_CHART_KEYS,
+  isDashboardPeriodChartKey,
+} from './dashboardPeriodStore'
 export type { WeekStart } from './weekStartStore'
 export { useFoodOverrideStore } from './foodOverrideStore'
 export { useMealLabelPresetStore } from './mealLabelPresetStore'

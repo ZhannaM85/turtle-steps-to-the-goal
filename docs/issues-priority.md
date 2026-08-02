@@ -1340,4 +1340,4 @@ _Five requests from an external review (filed in English). Ordered easier → ha
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#536](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/536) | ⬜ Open | Dashboard: per-chart time span instead of one global period | Redesign away from global `DashboardPeriodPicker` / `dashboardPeriodStore`. Per-chart D/W/M-style controls (Apple Health / brokerage reference). Open design: prefer per-chart only + optional one-shot apply-all; avoid dual persistent global+individual. |
+| [#536](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/536) | 🔍 Pending validation | Dashboard: per-chart time span instead of one global period | Removed page-level picker. Each trend/correlation section has its own All/Week/Month/Year/Custom via `ChartTitleWithToggle` + per-key `dashboardPeriodStore.byChart`; migrates prior global choice to every chart once. No dual global+individual. Summaries/heatmaps/compare unchanged. |

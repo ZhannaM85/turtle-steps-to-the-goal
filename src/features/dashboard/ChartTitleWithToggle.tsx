@@ -2,9 +2,11 @@ import type { ReactNode } from 'react'
 import { useTranslation } from '@/i18n'
 import { SectionTitleWithToggle } from '@/shared/ui/section-title-with-toggle'
 import {
+  isDashboardPeriodChartKey,
   useDashboardChartVisibilityStore,
   type DashboardChartKey,
 } from '@/stores'
+import { DashboardPeriodPicker } from './DashboardPeriodPicker'
 
 export interface ChartTitleWithToggleProps {
   chart: DashboardChartKey
@@ -26,6 +28,9 @@ export interface ChartTitleWithToggleProps {
  * `dashboardChartVisibilityStore` specifically — Today/Goal's own
  * sections use that same shared component directly, wired to their own
  * `sectionVisibilityStore` instead.
+ *
+ * #536 — when this section owns a time span, also renders the per-chart
+ * period picker under the title (only while the section is visible).
  */
 export function ChartTitleWithToggle({
   chart,
@@ -42,14 +47,19 @@ export function ChartTitleWithToggle({
   )
 
   return (
-    <SectionTitleWithToggle
-      title={title}
-      visible={visible}
-      onToggle={() => toggleVisible(chart)}
-      hideLabel={t.dashboard.hideChartLabel(title)}
-      showLabel={t.dashboard.showChartLabel(title)}
-      extraAction={extraAction}
-      dragHandle={dragHandle}
-    />
+    <div className="flex flex-col gap-1.5">
+      <SectionTitleWithToggle
+        title={title}
+        visible={visible}
+        onToggle={() => toggleVisible(chart)}
+        hideLabel={t.dashboard.hideChartLabel(title)}
+        showLabel={t.dashboard.showChartLabel(title)}
+        extraAction={extraAction}
+        dragHandle={dragHandle}
+      />
+      {visible && isDashboardPeriodChartKey(chart) && (
+        <DashboardPeriodPicker chart={chart} />
+      )}
+    </div>
   )
 }

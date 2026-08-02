@@ -30,6 +30,7 @@ import {
   useCustomMetricStore,
   useDashboardPeriodStore,
   useDashboardSectionOrderStore,
+  type DashboardPeriodChartKey,
 } from '@/stores'
 import { Button } from '@/shared/ui/button'
 import { EmptyState } from '@/shared/ui/empty-state'
@@ -41,7 +42,6 @@ import { CompareRangesView } from './CompareRangesView'
 import { CorrelationView } from './CorrelationView'
 import { CustomChartView } from './CustomChartView'
 import { CustomCorrelationView } from './CustomCorrelationView'
-import { DashboardPeriodPicker } from './DashboardPeriodPicker'
 import { FastingWindowCorrelationView } from './FastingWindowCorrelationView'
 import { FoodReactionsView } from './FoodReactionsView'
 import { LateMealCorrelationView } from './LateMealCorrelationView'
@@ -111,25 +111,29 @@ function SortableDashboardSection({
 export function DashboardScreen() {
   const t = useTranslation()
   const { goal, entries, goalTrackingStartDate, status } = useDashboardData()
-  // #380 — one global period control, originally scoped to just the 4 main
-  // trend charts below; #396 extended it to every Dashboard section that
-  // reads `entries` — see DashboardPeriodPicker's own doc comment for the
-  // scope-reversal reasoning.
-  const trendChartPeriod = useDashboardPeriodStore((state) => state.period)
-  const trendChartCustomStart = useDashboardPeriodStore(
-    (state) => state.customStart,
-  )
-  const trendChartCustomEnd = useDashboardPeriodStore(
-    (state) => state.customEnd,
-  )
-  const periodFilteredEntries = filterEntriesByTrendChartPeriod(
-    entries,
-    resolveTrendChartPeriodRange(
-      trendChartPeriod,
-      trendChartCustomStart,
-      trendChartCustomEnd,
-    ),
-  )
+  // #536 — each chart reads its own period from the store (no page-level
+  // picker). Trend charts get period props; correlation views get a
+  // per-key filtered slice.
+  const byChart = useDashboardPeriodStore((state) => state.byChart)
+  function periodProps(chart: DashboardPeriodChartKey) {
+    const selection = byChart[chart]
+    return {
+      period: selection.period,
+      customStart: selection.customStart,
+      customEnd: selection.customEnd,
+    }
+  }
+  function entriesFor(chart: DashboardPeriodChartKey) {
+    const selection = byChart[chart]
+    return filterEntriesByTrendChartPeriod(
+      entries,
+      resolveTrendChartPeriodRange(
+        selection.period,
+        selection.customStart,
+        selection.customEnd,
+      ),
+    )
+  }
   const order = useDashboardSectionOrderStore((state) => state.order)
   const setOrder = useDashboardSectionOrderStore((state) => state.setOrder)
   const resetOrder = useDashboardSectionOrderStore((state) => state.resetOrder)
@@ -185,114 +189,97 @@ export function DashboardScreen() {
     DashboardChartKey,
     (dragHandle: ReactNode) => ReactNode
   > = {
-    // #443 — these 4 pass the *full* `entries`, not `periodFilteredEntries`,
-    // plus the period/custom-range values themselves: each chart now
-    // resolves (and can page independently past) its own visible window
-    // via `useChartPeriodPager`, rather than receiving an already-fixed
-    // slice with no way to see beyond it. Every other section below is
-    // unaffected, still reading the pre-filtered `periodFilteredEntries`.
+    // #443 — these pass the *full* `entries`, not a pre-filtered slice,
+    // plus each chart's own period (#536) so `useChartPeriodPager` can page
+    // independently. Correlation views below still get a per-key filtered
+    // set (their stats change meaning with the window, not just the display).
     weight: (dragHandle) => (
       <WeightTrendChart
         entries={entries}
-        period={trendChartPeriod}
-        customStart={trendChartCustomStart}
-        customEnd={trendChartCustomEnd}
+        {...periodProps('weight')}
         dragHandle={dragHandle}
       />
     ),
     calories: (dragHandle) => (
       <CalorieTrendChart
         entries={entries}
-        period={trendChartPeriod}
-        customStart={trendChartCustomStart}
-        customEnd={trendChartCustomEnd}
+        {...periodProps('calories')}
         dragHandle={dragHandle}
       />
     ),
     macros: (dragHandle) => (
       <MacroTrendChart
         entries={entries}
-        period={trendChartPeriod}
-        customStart={trendChartCustomStart}
-        customEnd={trendChartCustomEnd}
+        {...periodProps('macros')}
         dragHandle={dragHandle}
       />
     ),
     bodyComposition: (dragHandle) => (
       <BodyCompositionTrendChart
         entries={entries}
-        period={trendChartPeriod}
-        customStart={trendChartCustomStart}
-        customEnd={trendChartCustomEnd}
+        {...periodProps('bodyComposition')}
         dragHandle={dragHandle}
       />
     ),
     electrolytes: (dragHandle) => (
       <ElectrolyteTrendChart
         entries={entries}
-        period={trendChartPeriod}
-        customStart={trendChartCustomStart}
-        customEnd={trendChartCustomEnd}
+        {...periodProps('electrolytes')}
         dragHandle={dragHandle}
       />
     ),
-    // #396 — extended the trend-chart-only period picker (#380) to every
-    // correlation view plus this chart, on the user's own explicit choice
-    // to accept the smaller-sample trade-off for correlations too. #453 —
-    // now also gets its own independent pager, same as the 4 trend charts
-    // above, so it needs the full `entries` + period info too, not the
-    // pre-filtered set.
     customChart: (dragHandle) => (
       <CustomChartView
         entries={entries}
-        period={trendChartPeriod}
-        customStart={trendChartCustomStart}
-        customEnd={trendChartCustomEnd}
+        {...periodProps('customChart')}
         dragHandle={dragHandle}
       />
     ),
     calorieWeightCorrelation: (dragHandle) => (
-      <CorrelationView entries={periodFilteredEntries} dragHandle={dragHandle} />
+      <CorrelationView
+        entries={entriesFor('calorieWeightCorrelation')}
+        dragHandle={dragHandle}
+      />
     ),
     lateMealCorrelation: (dragHandle) => (
       <LateMealCorrelationView
-        entries={periodFilteredEntries}
+        entries={entriesFor('lateMealCorrelation')}
         dragHandle={dragHandle}
       />
     ),
     mealFrequencyCorrelation: (dragHandle) => (
       <MealFrequencyCorrelationView
-        entries={periodFilteredEntries}
+        entries={entriesFor('mealFrequencyCorrelation')}
         dragHandle={dragHandle}
       />
     ),
     fastingWindowCorrelation: (dragHandle) => (
       <FastingWindowCorrelationView
-        entries={periodFilteredEntries}
+        entries={entriesFor('fastingWindowCorrelation')}
         dragHandle={dragHandle}
       />
     ),
     sleepCorrelation: (dragHandle) => (
       <SleepCorrelationView
-        entries={periodFilteredEntries}
+        entries={entriesFor('sleepCorrelation')}
         dragHandle={dragHandle}
       />
     ),
     stepsCorrelation: (dragHandle) => (
       <StepsCorrelationView
-        entries={periodFilteredEntries}
+        entries={entriesFor('stepsCorrelation')}
         dragHandle={dragHandle}
       />
     ),
     proteinCorrelation: (dragHandle) => (
       <ProteinCorrelationView
-        entries={periodFilteredEntries}
+        entries={entriesFor('proteinCorrelation')}
         dragHandle={dragHandle}
       />
     ),
     nightEatingCorrelation: (dragHandle) => (
       <NightEatingCorrelationView
-        entries={periodFilteredEntries}
+        entries={entriesFor('nightEatingCorrelation')}
         dragHandle={dragHandle}
       />
     ),
@@ -371,7 +358,6 @@ export function DashboardScreen() {
         />
       ) : (
         <>
-          <DashboardPeriodPicker />
           <DndContext
             sensors={dragSensors}
             collisionDetection={closestCenter}
