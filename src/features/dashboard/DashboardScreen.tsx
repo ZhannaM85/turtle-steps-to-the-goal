@@ -18,19 +18,13 @@ import {
 import { CSS } from '@dnd-kit/utilities'
 import { GripVertical, Pencil } from 'lucide-react'
 import { Link } from 'react-router-dom'
-import {
-  filterEntriesByTrendChartPeriod,
-  resolveTrendChartPeriodRange,
-} from '@/domain/stats'
 import { useTranslation } from '@/i18n'
 import type { DashboardChartKey } from '@/stores'
 import {
   DEFAULT_DASHBOARD_SECTION_ORDER,
   useCustomCorrelationStore,
   useCustomMetricStore,
-  useDashboardPeriodStore,
   useDashboardSectionOrderStore,
-  type DashboardPeriodChartKey,
 } from '@/stores'
 import { Button } from '@/shared/ui/button'
 import { EmptyState } from '@/shared/ui/empty-state'
@@ -111,29 +105,10 @@ function SortableDashboardSection({
 export function DashboardScreen() {
   const t = useTranslation()
   const { goal, entries, goalTrackingStartDate, status } = useDashboardData()
-  // #536 — each chart reads its own period from the store (no page-level
-  // picker). Trend charts get period props; correlation views get a
-  // per-key filtered slice.
-  const byChart = useDashboardPeriodStore((state) => state.byChart)
-  function periodProps(chart: DashboardPeriodChartKey) {
-    const selection = byChart[chart]
-    return {
-      period: selection.period,
-      customStart: selection.customStart,
-      customEnd: selection.customEnd,
-    }
-  }
-  function entriesFor(chart: DashboardPeriodChartKey) {
-    const selection = byChart[chart]
-    return filterEntriesByTrendChartPeriod(
-      entries,
-      resolveTrendChartPeriodRange(
-        selection.period,
-        selection.customStart,
-        selection.customEnd,
-      ),
-    )
-  }
+  // #536 — each chart owns its period in `dashboardPeriodStore`.
+  // #537 — this screen must NOT subscribe to `byChart`: one period toggle
+  // would re-render every section. Trend/correlation components read their
+  // own key via `useDashboardChartPeriod` / `usePeriodFilteredEntries`.
   const order = useDashboardSectionOrderStore((state) => state.order)
   const setOrder = useDashboardSectionOrderStore((state) => state.setOrder)
   const resetOrder = useDashboardSectionOrderStore((state) => state.resetOrder)
@@ -189,99 +164,50 @@ export function DashboardScreen() {
     DashboardChartKey,
     (dragHandle: ReactNode) => ReactNode
   > = {
-    // #443 — these pass the *full* `entries`, not a pre-filtered slice,
-    // plus each chart's own period (#536) so `useChartPeriodPager` can page
-    // independently. Correlation views below still get a per-key filtered
-    // set (their stats change meaning with the window, not just the display).
+    // #443/#536/#537 — pass the *full* `entries`; each chart/correlation
+    // resolves its own period from the store so a single toggle only
+    // re-renders that section.
     weight: (dragHandle) => (
-      <WeightTrendChart
-        entries={entries}
-        {...periodProps('weight')}
-        dragHandle={dragHandle}
-      />
+      <WeightTrendChart entries={entries} dragHandle={dragHandle} />
     ),
     calories: (dragHandle) => (
-      <CalorieTrendChart
-        entries={entries}
-        {...periodProps('calories')}
-        dragHandle={dragHandle}
-      />
+      <CalorieTrendChart entries={entries} dragHandle={dragHandle} />
     ),
     macros: (dragHandle) => (
-      <MacroTrendChart
-        entries={entries}
-        {...periodProps('macros')}
-        dragHandle={dragHandle}
-      />
+      <MacroTrendChart entries={entries} dragHandle={dragHandle} />
     ),
     bodyComposition: (dragHandle) => (
-      <BodyCompositionTrendChart
-        entries={entries}
-        {...periodProps('bodyComposition')}
-        dragHandle={dragHandle}
-      />
+      <BodyCompositionTrendChart entries={entries} dragHandle={dragHandle} />
     ),
     electrolytes: (dragHandle) => (
-      <ElectrolyteTrendChart
-        entries={entries}
-        {...periodProps('electrolytes')}
-        dragHandle={dragHandle}
-      />
+      <ElectrolyteTrendChart entries={entries} dragHandle={dragHandle} />
     ),
     customChart: (dragHandle) => (
-      <CustomChartView
-        entries={entries}
-        {...periodProps('customChart')}
-        dragHandle={dragHandle}
-      />
+      <CustomChartView entries={entries} dragHandle={dragHandle} />
     ),
     calorieWeightCorrelation: (dragHandle) => (
-      <CorrelationView
-        entries={entriesFor('calorieWeightCorrelation')}
-        dragHandle={dragHandle}
-      />
+      <CorrelationView entries={entries} dragHandle={dragHandle} />
     ),
     lateMealCorrelation: (dragHandle) => (
-      <LateMealCorrelationView
-        entries={entriesFor('lateMealCorrelation')}
-        dragHandle={dragHandle}
-      />
+      <LateMealCorrelationView entries={entries} dragHandle={dragHandle} />
     ),
     mealFrequencyCorrelation: (dragHandle) => (
-      <MealFrequencyCorrelationView
-        entries={entriesFor('mealFrequencyCorrelation')}
-        dragHandle={dragHandle}
-      />
+      <MealFrequencyCorrelationView entries={entries} dragHandle={dragHandle} />
     ),
     fastingWindowCorrelation: (dragHandle) => (
-      <FastingWindowCorrelationView
-        entries={entriesFor('fastingWindowCorrelation')}
-        dragHandle={dragHandle}
-      />
+      <FastingWindowCorrelationView entries={entries} dragHandle={dragHandle} />
     ),
     sleepCorrelation: (dragHandle) => (
-      <SleepCorrelationView
-        entries={entriesFor('sleepCorrelation')}
-        dragHandle={dragHandle}
-      />
+      <SleepCorrelationView entries={entries} dragHandle={dragHandle} />
     ),
     stepsCorrelation: (dragHandle) => (
-      <StepsCorrelationView
-        entries={entriesFor('stepsCorrelation')}
-        dragHandle={dragHandle}
-      />
+      <StepsCorrelationView entries={entries} dragHandle={dragHandle} />
     ),
     proteinCorrelation: (dragHandle) => (
-      <ProteinCorrelationView
-        entries={entriesFor('proteinCorrelation')}
-        dragHandle={dragHandle}
-      />
+      <ProteinCorrelationView entries={entries} dragHandle={dragHandle} />
     ),
     nightEatingCorrelation: (dragHandle) => (
-      <NightEatingCorrelationView
-        entries={entriesFor('nightEatingCorrelation')}
-        dragHandle={dragHandle}
-      />
+      <NightEatingCorrelationView entries={entries} dragHandle={dragHandle} />
     ),
     foodReactions: (dragHandle) => (
       <FoodReactionsView entries={entries} dragHandle={dragHandle} />

@@ -47,6 +47,7 @@ import { ToggleGroup, ToggleGroupItem } from '@/shared/ui/toggle-group'
 import { ChartPeriodPagerControls } from './ChartPeriodPagerControls'
 import { ChartTitleWithToggle } from './ChartTitleWithToggle'
 import { useChartPeriodPager } from './useChartPeriodPager'
+import { useDashboardChartPeriod } from './useDashboardChartPeriod'
 
 /** #371 — custom metrics (#336) cycle through this fixed palette by
  * selection order, same "generic reusable slot" precedent steps/waist/
@@ -91,8 +92,7 @@ export interface CustomChartViewProps {
    * own visible window via `useChartPeriodPager` (using `period` below),
    * same pattern #443 established for the 4 main trend charts. */
   entries: DailyEntry[]
-  /** #453 — defaults to 'all' (no paging) so every pre-#453 caller/test
-   * that never passes this behaves exactly as before. */
+  /** #453/#536 — optional test override; live UI uses the store (#537). */
   period?: TrendChartPeriod
   customStart?: string
   customEnd?: string
@@ -338,15 +338,21 @@ function useNumericSeriesConfig(): Record<
  */
 export function CustomChartView({
   entries: allEntries,
-  period = 'all',
-  customStart = '',
-  customEnd = '',
+  period: periodOverride,
+  customStart: customStartOverride,
+  customEnd: customEndOverride,
   dragHandle,
 }: CustomChartViewProps) {
   const t = useTranslation()
   const locale = useLocale()
   const dateFnsLocale = getDateFnsLocale(locale)
-  const pager = useChartPeriodPager(period, customStart, customEnd, allEntries)
+  const stored = useDashboardChartPeriod('customChart')
+  const pager = useChartPeriodPager(
+    periodOverride ?? stored.period,
+    customStartOverride ?? stored.customStart,
+    customEndOverride ?? stored.customEnd,
+    allEntries,
+  )
   const entries = pager.pagedEntries
   const seriesConfig = useNumericSeriesConfig()
   const sex = useProfileStore((state) => state.sex)

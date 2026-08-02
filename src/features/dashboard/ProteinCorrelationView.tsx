@@ -29,8 +29,10 @@ import { CorrelationStrengthLabel } from './CorrelationStrengthLabel'
 import { OutlierPointsList } from './OutlierPointsList'
 import { outlierReasonLabel } from './outlierReasonLabel'
 import { renderOutlierScatterShape } from './outlierScatterShape'
+import { usePeriodFilteredEntries } from './useDashboardChartPeriod'
 
 export interface ProteinCorrelationViewProps {
+  /** #536/#537 — full entry set; this card filters by its own stored period. */
   entries: DailyEntry[]
   /** #355 — see `CorrelationViewProps.dragHandle`'s own doc comment. */
   dragHandle?: ReactNode
@@ -55,9 +57,10 @@ export interface ProteinCorrelationViewProps {
  * real multivariate statistics.
  */
 export function ProteinCorrelationView({
-  entries,
+  entries: allEntries,
   dragHandle,
 }: ProteinCorrelationViewProps) {
+  const entries = usePeriodFilteredEntries('proteinCorrelation', allEntries)
   const t = useTranslation()
   const locale = useLocale()
   const dateFnsLocale = getDateFnsLocale(locale)

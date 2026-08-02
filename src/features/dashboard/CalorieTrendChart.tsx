@@ -26,6 +26,7 @@ import { ChartPeriodPagerControls } from './ChartPeriodPagerControls'
 import { ChartTitleWithToggle } from './ChartTitleWithToggle'
 import { resolveChartClickDate } from './chartNavigation'
 import { useChartPeriodPager } from './useChartPeriodPager'
+import { useDashboardChartPeriod } from './useDashboardChartPeriod'
 
 interface ChartPoint {
   date: string
@@ -41,6 +42,7 @@ const MIN_TREND_DATA_POINTS = 3
 export interface CalorieTrendChartProps {
   /** #443 — see `WeightTrendChartProps.entries`'s identical doc comment. */
   entries: DailyEntry[]
+  /** #443/#536 — optional test override; live UI uses the store (#537). */
   period?: TrendChartPeriod
   customStart?: string
   customEnd?: string
@@ -50,15 +52,21 @@ export interface CalorieTrendChartProps {
 
 export function CalorieTrendChart({
   entries: allEntries,
-  period = 'all',
-  customStart = '',
-  customEnd = '',
+  period: periodOverride,
+  customStart: customStartOverride,
+  customEnd: customEndOverride,
   dragHandle,
 }: CalorieTrendChartProps) {
   const t = useTranslation()
   const locale = useLocale()
   const dateFnsLocale = getDateFnsLocale(locale)
-  const pager = useChartPeriodPager(period, customStart, customEnd, allEntries)
+  const stored = useDashboardChartPeriod('calories')
+  const pager = useChartPeriodPager(
+    periodOverride ?? stored.period,
+    customStartOverride ?? stored.customStart,
+    customEndOverride ?? stored.customEnd,
+    allEntries,
+  )
   const entries = pager.pagedEntries
   // #238 — see WeightTrendChart.tsx's identical note.
   const visible = useTrendChartSeriesStore((state) => state.visible.calories)

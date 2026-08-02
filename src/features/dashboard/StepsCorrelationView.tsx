@@ -33,8 +33,10 @@ import { CorrelationStrengthLabel } from './CorrelationStrengthLabel'
 import { OutlierPointsList } from './OutlierPointsList'
 import { outlierReasonLabel } from './outlierReasonLabel'
 import { renderOutlierScatterShape } from './outlierScatterShape'
+import { usePeriodFilteredEntries } from './useDashboardChartPeriod'
 
 export interface StepsCorrelationViewProps {
+  /** #536/#537 — full entry set; this card filters by its own stored period. */
   entries: DailyEntry[]
   /** #355 — see `CorrelationViewProps.dragHandle`'s own doc comment. */
   dragHandle?: ReactNode
@@ -47,9 +49,10 @@ export interface StepsCorrelationViewProps {
  * collapsed-until-there's-an-insight behavior as #89/#116.
  */
 export function StepsCorrelationView({
-  entries,
+  entries: allEntries,
   dragHandle,
 }: StepsCorrelationViewProps) {
+  const entries = usePeriodFilteredEntries('stepsCorrelation', allEntries)
   const t = useTranslation()
   const locale = useLocale()
   const dateFnsLocale = getDateFnsLocale(locale)

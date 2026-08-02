@@ -29,8 +29,10 @@ import { CorrelationStrengthLabel } from './CorrelationStrengthLabel'
 import { OutlierPointsList } from './OutlierPointsList'
 import { outlierReasonLabel } from './outlierReasonLabel'
 import { renderOutlierScatterShape } from './outlierScatterShape'
+import { usePeriodFilteredEntries } from './useDashboardChartPeriod'
 
 export interface SleepCorrelationViewProps {
+  /** #536/#537 — full entry set; this card filters by its own stored period. */
   entries: DailyEntry[]
   /** #355 — see `CorrelationViewProps.dragHandle`'s own doc comment. */
   dragHandle?: ReactNode
@@ -43,9 +45,10 @@ export interface SleepCorrelationViewProps {
  * meal time. Same collapsed-until-there's-an-insight behavior as #89/#116.
  */
 export function SleepCorrelationView({
-  entries,
+  entries: allEntries,
   dragHandle,
 }: SleepCorrelationViewProps) {
+  const entries = usePeriodFilteredEntries('sleepCorrelation', allEntries)
   const t = useTranslation()
   const locale = useLocale()
   const dateFnsLocale = getDateFnsLocale(locale)

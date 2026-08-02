@@ -34,6 +34,7 @@ import { ChartTitleWithToggle } from './ChartTitleWithToggle'
 import { resolveChartClickDate } from './chartNavigation'
 import { OutlierPointsList } from './OutlierPointsList'
 import { useChartPeriodPager } from './useChartPeriodPager'
+import { useDashboardChartPeriod } from './useDashboardChartPeriod'
 
 // #455 — same tap-to-exclude bookkeeping the 6 correlation views already
 // share via `useOutlierExclusion`/`OutlierPointsList`, reused here directly
@@ -72,8 +73,9 @@ export interface WeightTrendChartProps {
    * since paging needs access to days outside whatever range the caller
    * would otherwise have pre-filtered to. */
   entries: DailyEntry[]
-  /** #443 — defaults to 'all' (no paging) so every pre-#443 caller/test
-   * that never passes this behaves exactly as before. */
+  /** #443/#536 — optional override for tests; live Dashboard reads the
+   * chart's own store selection via `useDashboardChartPeriod('weight')`
+   * (#537 — parent must not pass these or the whole page re-renders). */
   period?: TrendChartPeriod
   customStart?: string
   customEnd?: string
@@ -83,9 +85,9 @@ export interface WeightTrendChartProps {
 
 export function WeightTrendChart({
   entries: allEntries,
-  period = 'all',
-  customStart = '',
-  customEnd = '',
+  period: periodOverride,
+  customStart: customStartOverride,
+  customEnd: customEndOverride,
   dragHandle,
 }: WeightTrendChartProps) {
   const t = useTranslation()
@@ -100,7 +102,13 @@ export function WeightTrendChart({
   const toggleExcludedWeightDate = useOutlierExclusionStore(
     (state) => state.toggleExcluded,
   )
-  const pager = useChartPeriodPager(period, customStart, customEnd, allEntries)
+  const stored = useDashboardChartPeriod('weight')
+  const pager = useChartPeriodPager(
+    periodOverride ?? stored.period,
+    customStartOverride ?? stored.customStart,
+    customEndOverride ?? stored.customEnd,
+    allEntries,
+  )
   const entries = pager.pagedEntries
   const toDisplay = (kg: number) => (displayUnit === 'lb' ? kgToLb(kg) : kg)
   // #238 — independent per chart, someone might want the average on one

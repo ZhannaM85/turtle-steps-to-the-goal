@@ -32,8 +32,10 @@ import { CorrelationStrengthLabel } from './CorrelationStrengthLabel'
 import { OutlierPointsList } from './OutlierPointsList'
 import { outlierReasonLabel } from './outlierReasonLabel'
 import { renderOutlierScatterShape } from './outlierScatterShape'
+import { usePeriodFilteredEntries } from './useDashboardChartPeriod'
 
 export interface MealFrequencyCorrelationViewProps {
+  /** #536/#537 — full entry set; this card filters by its own stored period. */
   entries: DailyEntry[]
   /** #355 — see `CorrelationViewProps.dragHandle`'s own doc comment. */
   dragHandle?: ReactNode
@@ -48,9 +50,13 @@ export interface MealFrequencyCorrelationViewProps {
  * pattern as #89/#116.
  */
 export function MealFrequencyCorrelationView({
-  entries,
+  entries: allEntries,
   dragHandle,
 }: MealFrequencyCorrelationViewProps) {
+  const entries = usePeriodFilteredEntries(
+    'mealFrequencyCorrelation',
+    allEntries,
+  )
   const t = useTranslation()
   const locale = useLocale()
   const dateFnsLocale = getDateFnsLocale(locale)

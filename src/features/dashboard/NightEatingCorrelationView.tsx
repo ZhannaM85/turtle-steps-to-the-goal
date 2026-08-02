@@ -36,8 +36,10 @@ import { CorrelationStrengthLabel } from './CorrelationStrengthLabel'
 import { OutlierPointsList } from './OutlierPointsList'
 import { outlierReasonLabel } from './outlierReasonLabel'
 import { renderOutlierScatterShape } from './outlierScatterShape'
+import { usePeriodFilteredEntries } from './useDashboardChartPeriod'
 
 export interface NightEatingCorrelationViewProps {
+  /** #536/#537 — full entry set; this card filters by its own stored period. */
   entries: DailyEntry[]
   /** #355 — see `CorrelationViewProps.dragHandle`'s own doc comment. */
   dragHandle?: ReactNode
@@ -60,9 +62,13 @@ const YES_X = 1
  * despite the conceptual overlap, confirmed with the user.
  */
 export function NightEatingCorrelationView({
-  entries,
+  entries: allEntries,
   dragHandle,
 }: NightEatingCorrelationViewProps) {
+  const entries = usePeriodFilteredEntries(
+    'nightEatingCorrelation',
+    allEntries,
+  )
   const t = useTranslation()
   const locale = useLocale()
   const dateFnsLocale = getDateFnsLocale(locale)

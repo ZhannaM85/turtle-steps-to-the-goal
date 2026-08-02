@@ -29,8 +29,10 @@ import { CorrelationStrengthLabel } from './CorrelationStrengthLabel'
 import { OutlierPointsList } from './OutlierPointsList'
 import { outlierReasonLabel } from './outlierReasonLabel'
 import { renderOutlierScatterShape } from './outlierScatterShape'
+import { usePeriodFilteredEntries } from './useDashboardChartPeriod'
 
 export interface LateMealCorrelationViewProps {
+  /** #536/#537 — full entry set; this card filters by its own stored period. */
   entries: DailyEntry[]
   /** #355 — see `CorrelationViewProps.dragHandle`'s own doc comment. */
   dragHandle?: ReactNode
@@ -50,9 +52,10 @@ function minutesToTimeLabel(minutes: number): string {
  * insight pattern as #89.
  */
 export function LateMealCorrelationView({
-  entries,
+  entries: allEntries,
   dragHandle,
 }: LateMealCorrelationViewProps) {
+  const entries = usePeriodFilteredEntries('lateMealCorrelation', allEntries)
   const t = useTranslation()
   const locale = useLocale()
   const dateFnsLocale = getDateFnsLocale(locale)

@@ -35,6 +35,7 @@ import { ChartPeriodPagerControls } from './ChartPeriodPagerControls'
 import { ChartTitleWithToggle } from './ChartTitleWithToggle'
 import { resolveChartClickDate } from './chartNavigation'
 import { useChartPeriodPager } from './useChartPeriodPager'
+import { useDashboardChartPeriod } from './useDashboardChartPeriod'
 
 // See WeightTrendChart.tsx's identical constant/reasoning (#217).
 const MIN_TREND_DATA_POINTS = 3
@@ -59,6 +60,7 @@ function labelFor(t: Dictionary, key: ElectrolyteSeriesKey): string {
 export interface ElectrolyteTrendChartProps {
   /** #443 — see `WeightTrendChartProps.entries`'s identical doc comment. */
   entries: DailyEntry[]
+  /** #443/#536 — optional test override; live UI uses the store (#537). */
   period?: TrendChartPeriod
   customStart?: string
   customEnd?: string
@@ -76,15 +78,21 @@ export interface ElectrolyteTrendChartProps {
  */
 export function ElectrolyteTrendChart({
   entries: allEntries,
-  period = 'all',
-  customStart = '',
-  customEnd = '',
+  period: periodOverride,
+  customStart: customStartOverride,
+  customEnd: customEndOverride,
   dragHandle,
 }: ElectrolyteTrendChartProps) {
   const t = useTranslation()
   const locale = useLocale()
   const dateFnsLocale = getDateFnsLocale(locale)
-  const pager = useChartPeriodPager(period, customStart, customEnd, allEntries)
+  const stored = useDashboardChartPeriod('electrolytes')
+  const pager = useChartPeriodPager(
+    periodOverride ?? stored.period,
+    customStartOverride ?? stored.customStart,
+    customEndOverride ?? stored.customEnd,
+    allEntries,
+  )
   const entries = pager.pagedEntries
   const tracked = useMicronutrientTrackingStore((state) => state.tracked)
   const chartVisible = useDashboardChartVisibilityStore(

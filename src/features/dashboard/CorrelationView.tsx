@@ -29,8 +29,10 @@ import { CorrelationStrengthLabel } from './CorrelationStrengthLabel'
 import { OutlierPointsList } from './OutlierPointsList'
 import { outlierReasonLabel } from './outlierReasonLabel'
 import { renderOutlierScatterShape } from './outlierScatterShape'
+import { usePeriodFilteredEntries } from './useDashboardChartPeriod'
 
 export interface CorrelationViewProps {
+  /** #536/#537 — full entry set; this card filters by its own stored period. */
   entries: DailyEntry[]
   /** #355 — Dashboard's reorder-mode drag handle, forwarded into this
    * section's own `ChartTitleWithToggle` call so it renders beside the
@@ -39,7 +41,11 @@ export interface CorrelationViewProps {
   dragHandle?: ReactNode
 }
 
-export function CorrelationView({ entries, dragHandle }: CorrelationViewProps) {
+export function CorrelationView({ entries: allEntries, dragHandle }: CorrelationViewProps) {
+  const entries = usePeriodFilteredEntries(
+    'calorieWeightCorrelation',
+    allEntries,
+  )
   const t = useTranslation()
   const locale = useLocale()
   const dateFnsLocale = getDateFnsLocale(locale)
