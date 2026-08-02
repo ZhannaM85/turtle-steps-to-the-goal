@@ -1295,3 +1295,13 @@ _Follow-up after reviewing steps/protein/calories/sleep/meal-frequency charts: o
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#524](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/524) | 🔍 Pending validation | Correlation unusual-point chips should say why they were flagged (weight change vs metric) | `classifyOutlierAxes` + chip/tooltip copy: unusual weight change, unusual x-metric, or both. Sleep >24h left for manual fix via #523 |
+
+---
+
+## Tier 92 — Live feedback: Apple Health sleep import overcounts (2026-08-02)
+
+_Sleep correlation x-axis stretched to ~100h; backup has 20 days >24h (worst 2025-09-05 = 95.98h). Manual form cannot create these._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#525](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/525) | ⬜ Open | Apple Health sleep import overcounts (overlaps + midnight-merge chaining) | Root cause: naive sum of overlapping Asleep* intervals within a source + #412 ≤4h merge chaining multi-day naps. Fix: overlap union, fragment-only midnight merge, cap at 24h; user will re-import |
