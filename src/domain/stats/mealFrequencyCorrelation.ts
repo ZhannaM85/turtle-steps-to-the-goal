@@ -24,9 +24,9 @@ function average(values: number[]): number {
 }
 
 export interface MealFrequencyPoint {
-  /** The day this point's delta belongs to (the *next* calendar day after
-   * the meal-count reading) — same "date the point ends on" convention
-   * `LateMealPoint.date`/`FastingWindowPoint.date` already use. */
+  /** Day the meal count (x-axis) was logged — #523, same predictor-day
+   * navigation convention as `LateMealPoint.date`. Fasting still uses the
+   * day the fast ends (`FastingWindowPoint.date`). */
   date: string
   mealCount: number
   deltaKg: number
@@ -56,7 +56,7 @@ export function mealFrequencyPoints(entries: DailyEntry[]): MealFrequencyPoint[]
     const nextEntry = byDate.get(nextDate)
     if (!nextEntry || nextEntry.weightKg === undefined) continue
     points.push({
-      date: nextEntry.date,
+      date: entry.date,
       mealCount,
       deltaKg: nextEntry.weightKg - entry.weightKg,
     })

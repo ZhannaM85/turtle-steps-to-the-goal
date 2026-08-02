@@ -141,8 +141,8 @@ describe('proteinCorrelation', () => {
       ]
 
       const points = proteinPoints(entries)
-      const bigDayPoint = points.find((p) => p.date === day(1))!
-      const smallerHigherSharePoint = points.find((p) => p.date === day(5))!
+      const bigDayPoint = points.find((p) => p.date === day(0))!
+      const smallerHigherSharePoint = points.find((p) => p.date === day(4))!
 
       expect(bigDayPoint.proteinPercent).toBeCloseTo(20)
       expect(smallerHigherSharePoint.proteinPercent).toBeCloseTo(40)

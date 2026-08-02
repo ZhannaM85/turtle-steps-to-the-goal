@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 475,
+    issue: 523,
+    date: '2026-08-02T17:19:18+03:00',
+    en: 'Opening an unusual point on last-meal (and similar) charts now goes to the day of that meal time, not the next morning’s weigh-in.',
+    ru: 'Открытие необычной точки на графике времени последнего приёма пищи (и похожих) теперь ведёт на день этого приёма, а не на утреннее взвешивание на следующий день.',
+  },
+  {
     version: 474,
     issue: 522,
     date: '2026-08-02T16:56:31+03:00',

@@ -24,7 +24,8 @@ function average(values: number[]): number {
 }
 
 export interface StepsPoint {
-  /** #224 — stable per-point key for tap-to-exclude outlier handling. */
+  /** Day the steps (x-axis) were logged — #523, same predictor-day
+   * navigation convention as `LateMealPoint.date`. */
   date: string
   steps: number
   deltaKg: number
@@ -46,7 +47,7 @@ export function stepsPoints(entries: DailyEntry[]): StepsPoint[] {
     const nextEntry = byDate.get(nextDate)
     if (!nextEntry || nextEntry.weightKg === undefined) continue
     points.push({
-      date: nextEntry.date,
+      date: entry.date,
       steps: entry.steps,
       deltaKg: nextEntry.weightKg - entry.weightKg,
     })

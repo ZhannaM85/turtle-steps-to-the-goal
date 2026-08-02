@@ -39,10 +39,12 @@ function lastMealTimeMinutes(entry: DailyEntry): number | null {
 }
 
 export interface LateMealPoint {
-  /** The day this point's delta belongs to (the *next* calendar day after
-   * the late-meal reading) — #224's stable per-point key for tap-to-exclude
-   * outlier handling, same "date the point ends on" convention
-   * `FastingWindowPoint.date` already uses. */
+  /** The day the last-meal time (x-axis) was logged — #523: open-day /
+   * outlier chips navigate here so the meal times match the plotted
+   * value. Weight delta is still next-morning's change; previously this
+   * was the weight day, which sent people to a day whose last meal did
+   * not match the x-axis (#523 live report). Distinct from
+   * `FastingWindowPoint.date`, which stays the day the fast *ends*. */
   date: string
   minutes: number
   deltaKg: number
@@ -72,7 +74,7 @@ export function lateMealPoints(entries: DailyEntry[]): LateMealPoint[] {
     const nextEntry = byDate.get(nextDate)
     if (!nextEntry || nextEntry.weightKg === undefined) continue
     points.push({
-      date: nextEntry.date,
+      date: entry.date,
       minutes,
       deltaKg: nextEntry.weightKg - entry.weightKg,
     })

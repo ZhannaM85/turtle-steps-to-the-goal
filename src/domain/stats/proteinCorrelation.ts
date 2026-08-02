@@ -25,7 +25,8 @@ function average(values: number[]): number {
 }
 
 export interface ProteinPoint {
-  /** #224 — stable per-point key for tap-to-exclude outlier handling. */
+  /** Day the protein share (x-axis) was logged — #523, same predictor-day
+   * navigation convention as `LateMealPoint.date`. */
   date: string
   /** #322 — protein's share of that day's total calories (0-100), not raw
    * grams. Raw grams naturally correlate with total calories eaten that
@@ -60,7 +61,7 @@ export function proteinPoints(entries: DailyEntry[]): ProteinPoint[] {
     const nextEntry = byDate.get(nextDate)
     if (!nextEntry || nextEntry.weightKg === undefined) continue
     points.push({
-      date: nextEntry.date,
+      date: entry.date,
       proteinPercent: ((proteinG * 4) / kcal) * 100,
       deltaKg: nextEntry.weightKg - entry.weightKg,
     })

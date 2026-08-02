@@ -1,7 +1,7 @@
 import { addDays, format } from 'date-fns'
 import { describe, expect, it } from 'vitest'
 import type { CalorieEntry, DailyEntry } from '@/domain/dailyEntry'
-import { lateMealCorrelation } from './lateMealCorrelation'
+import { lateMealCorrelation, lateMealPoints } from './lateMealCorrelation'
 
 const DATE_FORMAT = 'yyyy-MM-dd'
 const DAY_0 = '2026-03-01'
@@ -152,5 +152,20 @@ describe('lateMealCorrelation', () => {
     const result = lateMealCorrelation(entries)
     expect(result!.laterAveragedMoreGain).toBe(true)
     expect(result!.laterGroupAvgDeltaKg).toBeCloseTo(0.75, 5)
+  })
+
+  it('keys each point to the eating day, not the next-morning weight day (#523)', () => {
+    const entries = [
+      entry(day(0), { weightKg: 80.0, calorieEntries: mealAt('10:13') }),
+      entry(day(1), { weightKg: 80.65, calorieEntries: mealAt('23:28') }),
+      entry(day(2), { weightKg: 80.5 }),
+    ]
+
+    const points = lateMealPoints(entries)
+    expect(points).toHaveLength(2)
+    expect(points[0].date).toBe(day(0))
+    expect(points[0].minutes).toBe(10 * 60 + 13)
+    expect(points[0].deltaKg).toBeCloseTo(0.65, 5)
+    expect(points[1].date).toBe(day(1))
   })
 })

@@ -21,9 +21,8 @@ function average(values: number[]): number {
 }
 
 export interface NightEatingPoint {
-  /** The day this point's delta belongs to (the *next* calendar day after
-   * the night-eating reading) — same "date the point ends on" convention
-   * `MealFrequencyPoint.date`/`LateMealPoint.date` already use. */
+  /** Day the night-eating flag (x-axis) was logged — #523, same
+   * predictor-day navigation convention as `LateMealPoint.date`. */
   date: string
   hadNightEating: boolean
   deltaKg: number
@@ -58,7 +57,7 @@ export function nightEatingPoints(entries: DailyEntry[]): NightEatingPoint[] {
     const nextEntry = byDate.get(nextDate)
     if (!nextEntry || nextEntry.weightKg === undefined) continue
     points.push({
-      date: nextEntry.date,
+      date: entry.date,
       hadNightEating: nightEating,
       deltaKg: nextEntry.weightKg - entry.weightKg,
     })

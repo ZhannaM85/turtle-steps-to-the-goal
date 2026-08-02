@@ -24,8 +24,8 @@ function average(values: number[]): number {
 }
 
 export interface SleepPoint {
-  /** #224 — stable per-point key for tap-to-exclude outlier handling, same
-   * "date the point ends on" convention as the other day-pair points. */
+  /** Day the sleep hours (x-axis) were logged — #523, same predictor-day
+   * navigation convention as `LateMealPoint.date`. */
   date: string
   hours: number
   deltaKg: number
@@ -50,7 +50,7 @@ export function sleepPoints(entries: DailyEntry[]): SleepPoint[] {
     const nextEntry = byDate.get(nextDate)
     if (!nextEntry || nextEntry.weightKg === undefined) continue
     points.push({
-      date: nextEntry.date,
+      date: entry.date,
       hours: entry.sleepHours,
       deltaKg: nextEntry.weightKg - entry.weightKg,
     })
