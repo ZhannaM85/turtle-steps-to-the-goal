@@ -27,7 +27,7 @@ export const releaseNotes: ReleaseNote[] = [
   {
     version: 479,
     issue: 527,
-    date: '2026-08-02T20:57:00+03:00',
+    date: '2026-08-02T20:58:13+03:00',
     en: 'This week’s target now shows just the unit next to the signed number (e.g. −1 kg), so it no longer reads like a weight gain.',
     ru: 'Цель на неделю теперь показывает только единицу рядом с числом со знаком (например, −1 кг) — больше не читается как набор веса.',
   },
