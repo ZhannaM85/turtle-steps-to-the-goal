@@ -10,7 +10,7 @@ interface CorrelationTooltipEntry {
   /** The full Scatter `data` object behind the point — every correlation
    * view puts its own `date` (or, for the weekly views, that week's start)
    * on it so the link below has somewhere to go. */
-  payload?: { date?: string }
+  payload?: { date?: string; outlierReason?: string }
 }
 
 export interface CorrelationChartTooltipProps {
@@ -80,6 +80,11 @@ export function CorrelationChartTooltip({
           </p>
         )
       })}
+      {payload[0]?.payload?.outlierReason && (
+        <p className="mt-1 text-muted-foreground">
+          {payload[0].payload.outlierReason}
+        </p>
+      )}
       {date && (
         <button
           type="button"

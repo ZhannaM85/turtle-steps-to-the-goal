@@ -119,8 +119,13 @@ export type {
   MetricValuePoint,
   CustomCorrelationResult,
 } from './customCorrelationEngine'
-export { outlierBounds, isOutlier, flagOutliers } from './outlierDetection'
-export type { OutlierBounds } from './outlierDetection'
+export {
+  outlierBounds,
+  isOutlier,
+  flagOutliers,
+  classifyOutlierAxes,
+} from './outlierDetection'
+export type { OutlierBounds, OutlierAxes } from './outlierDetection'
 export { calculateTdee, suggestDailyTargets } from './targetCalculator'
 export type { ActivityLevel, SuggestedDailyTargets } from './targetCalculator'
 export {

@@ -30,6 +30,7 @@ import { ChartTitleWithToggle } from './ChartTitleWithToggle'
 import { CorrelationChartTooltip } from './CorrelationChartTooltip'
 import { CorrelationStrengthLabel } from './CorrelationStrengthLabel'
 import { OutlierPointsList } from './OutlierPointsList'
+import { outlierReasonLabel } from './outlierReasonLabel'
 import { renderOutlierScatterShape } from './outlierScatterShape'
 
 export interface FastingWindowCorrelationViewProps {
@@ -61,7 +62,7 @@ export function FastingWindowCorrelationView({
   )
 
   const rawPoints = fastingWindowPoints(entries)
-  const { flags, isExcluded, toggle, includedPoints } = useOutlierExclusion(
+  const { flags, axes, isExcluded, toggle, includedPoints } = useOutlierExclusion(
     'fastingWindow',
     rawPoints,
     (p) => p.fastingHours,
@@ -71,14 +72,30 @@ export function FastingWindowCorrelationView({
 
   if (rawPoints.length === 0) return null
 
+  const metricLabel = t.dashboard.fastingHoursLegend
   const points = rawPoints.map((point, i) => ({
     date: point.date,
     fastingHours: point.fastingHours,
     delta: toDisplay(point.deltaKg),
     isOutlier: flags[i],
     isExcluded: isExcluded(point),
+    outlierReason: flags[i]
+      ? outlierReasonLabel(t.dashboard, axes[i], metricLabel)
+      : undefined,
   }))
   const outlierPoints = rawPoints.filter((_, i) => flags[i])
+  const reasonByKey = new Map(
+    rawPoints.flatMap((point, i) =>
+      flags[i]
+        ? [
+            [
+              point.date,
+              outlierReasonLabel(t.dashboard, axes[i], metricLabel),
+            ] as const,
+          ]
+        : [],
+    ),
+  )
 
   const insight = fastingWindowCorrelationFromPoints(includedPoints)
   const expanded = insight !== null || isExpanded
@@ -174,6 +191,7 @@ export function FastingWindowCorrelationView({
               locale: dateFnsLocale,
             })
           }
+          formatReason={(point) => reasonByKey.get(point.date)}
         />
       )}
       {insight ? (

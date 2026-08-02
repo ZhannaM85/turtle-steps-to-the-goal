@@ -1294,4 +1294,4 @@ _Follow-up after reviewing steps/protein/calories/sleep/meal-frequency charts: o
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#524](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/524) | ⬜ Open | Correlation unusual-point chips should say why they were flagged (weight change vs metric) | Chip/tooltip should show unusual weight change, unusual x-metric, or both. Sleep >24h left for manual fix via #523 redirect |
+| [#524](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/524) | 🔍 Pending validation | Correlation unusual-point chips should say why they were flagged (weight change vs metric) | `classifyOutlierAxes` + chip/tooltip copy: unusual weight change, unusual x-metric, or both. Sleep >24h left for manual fix via #523 |

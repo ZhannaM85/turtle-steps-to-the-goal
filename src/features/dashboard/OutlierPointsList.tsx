@@ -35,6 +35,7 @@ export function OutlierPointsList<T>({
   getKey,
   getDate,
   formatLabel,
+  formatReason,
 }: {
   points: T[]
   isExcluded: (point: T) => boolean
@@ -42,6 +43,10 @@ export function OutlierPointsList<T>({
   getKey: (point: T) => string
   getDate: (point: T) => string
   formatLabel: (point: T) => string
+  /** #524 — optional plain-language why this point is unusual (weight
+   * change vs metric). Omitted on callers that don't use 2D Tukey flags
+   * (e.g. Weight trend's day-over-day band). */
+  formatReason?: (point: T) => string | undefined
 }) {
   const t = useTranslation()
 
@@ -60,6 +65,7 @@ export function OutlierPointsList<T>({
         {points.map((point) => {
           const excluded = isExcluded(point)
           const label = formatLabel(point)
+          const reason = formatReason?.(point)
           return (
             <div key={getKey(point)} className="flex items-center gap-0.5">
               <Button
@@ -69,15 +75,25 @@ export function OutlierPointsList<T>({
                 aria-pressed={excluded}
                 aria-label={
                   excluded
-                    ? t.dashboard.restoreOutlierLabel(label)
-                    : t.dashboard.excludeOutlierLabel(label)
+                    ? t.dashboard.restoreOutlierLabel(
+                        reason ? `${label} (${reason})` : label,
+                      )
+                    : t.dashboard.excludeOutlierLabel(
+                        reason ? `${label} (${reason})` : label,
+                      )
                 }
                 onClick={() => onToggle(point)}
                 className={cn(
+                  'h-auto flex-col items-start gap-0 py-1.5',
                   excluded && 'text-muted-foreground line-through',
                 )}
               >
-                {label}
+                <span>{label}</span>
+                {reason && (
+                  <span className="text-[10px] font-normal text-muted-foreground">
+                    {reason}
+                  </span>
+                )}
               </Button>
               <Link
                 to={`/?date=${getDate(point)}`}

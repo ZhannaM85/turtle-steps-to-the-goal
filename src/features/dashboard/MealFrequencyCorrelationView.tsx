@@ -30,6 +30,7 @@ import { ChartTitleWithToggle } from './ChartTitleWithToggle'
 import { CorrelationChartTooltip } from './CorrelationChartTooltip'
 import { CorrelationStrengthLabel } from './CorrelationStrengthLabel'
 import { OutlierPointsList } from './OutlierPointsList'
+import { outlierReasonLabel } from './outlierReasonLabel'
 import { renderOutlierScatterShape } from './outlierScatterShape'
 
 export interface MealFrequencyCorrelationViewProps {
@@ -62,7 +63,7 @@ export function MealFrequencyCorrelationView({
   )
 
   const rawPoints = mealFrequencyPoints(entries)
-  const { flags, isExcluded, toggle, includedPoints } = useOutlierExclusion(
+  const { flags, axes, isExcluded, toggle, includedPoints } = useOutlierExclusion(
     'mealFrequency',
     rawPoints,
     (p) => p.mealCount,
@@ -72,14 +73,30 @@ export function MealFrequencyCorrelationView({
 
   if (rawPoints.length === 0) return null
 
+  const metricLabel = t.dashboard.mealCountLegend
   const points = rawPoints.map((point, i) => ({
     date: point.date,
     mealCount: point.mealCount,
     delta: toDisplay(point.deltaKg),
     isOutlier: flags[i],
     isExcluded: isExcluded(point),
+    outlierReason: flags[i]
+      ? outlierReasonLabel(t.dashboard, axes[i], metricLabel)
+      : undefined,
   }))
   const outlierPoints = rawPoints.filter((_, i) => flags[i])
+  const reasonByKey = new Map(
+    rawPoints.flatMap((point, i) =>
+      flags[i]
+        ? [
+            [
+              point.date,
+              outlierReasonLabel(t.dashboard, axes[i], metricLabel),
+            ] as const,
+          ]
+        : [],
+    ),
+  )
 
   const insight = mealFrequencyCorrelationFromPoints(includedPoints)
   const expanded = insight !== null || isExpanded
@@ -175,6 +192,7 @@ export function MealFrequencyCorrelationView({
               locale: dateFnsLocale,
             })
           }
+          formatReason={(point) => reasonByKey.get(point.date)}
         />
       )}
       {insight ? (

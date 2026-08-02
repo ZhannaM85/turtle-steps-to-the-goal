@@ -27,6 +27,7 @@ import { ChartTitleWithToggle } from './ChartTitleWithToggle'
 import { CorrelationChartTooltip } from './CorrelationChartTooltip'
 import { CorrelationStrengthLabel } from './CorrelationStrengthLabel'
 import { OutlierPointsList } from './OutlierPointsList'
+import { outlierReasonLabel } from './outlierReasonLabel'
 import { renderOutlierScatterShape } from './outlierScatterShape'
 
 export interface CorrelationViewProps {
@@ -62,7 +63,7 @@ export function CorrelationView({ entries, dragHandle }: CorrelationViewProps) {
 
   const weekStartsOn = useWeekStartsOn(entries)
   const rawPoints = correlationInsightPoints(entries, weekStartsOn)
-  const { flags, isExcluded, toggle, includedPoints } = useOutlierExclusion(
+  const { flags, axes, isExcluded, toggle, includedPoints } = useOutlierExclusion(
     'calorieWeight',
     rawPoints,
     (p) => p.calories,
@@ -72,6 +73,7 @@ export function CorrelationView({ entries, dragHandle }: CorrelationViewProps) {
 
   if (rawPoints.length === 0) return null
 
+  const metricLabel = t.dashboard.caloriesLegend
   const points = rawPoints.map((point, i) => ({
     // This view's points are whole weeks, not days — the tooltip's link
     // targets that week's start, exactly what `OutlierPointsList` below
@@ -81,8 +83,23 @@ export function CorrelationView({ entries, dragHandle }: CorrelationViewProps) {
     delta: toDisplay(point.delta),
     isOutlier: flags[i],
     isExcluded: isExcluded(point),
+    outlierReason: flags[i]
+      ? outlierReasonLabel(t.dashboard, axes[i], metricLabel)
+      : undefined,
   }))
   const outlierPoints = rawPoints.filter((_, i) => flags[i])
+  const reasonByKey = new Map(
+    rawPoints.flatMap((point, i) =>
+      flags[i]
+        ? [
+            [
+              point.weekStart,
+              outlierReasonLabel(t.dashboard, axes[i], metricLabel),
+            ] as const,
+          ]
+        : [],
+    ),
+  )
 
   const insight = correlationInsightFromPoints(includedPoints)
   const expanded = insight !== null || isExpanded
@@ -177,6 +194,7 @@ export function CorrelationView({ entries, dragHandle }: CorrelationViewProps) {
               locale: dateFnsLocale,
             })
           }
+          formatReason={(point) => reasonByKey.get(point.weekStart)}
         />
       )}
       {insight ? (

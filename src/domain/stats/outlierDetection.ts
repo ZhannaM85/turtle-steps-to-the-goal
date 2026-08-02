@@ -23,6 +23,12 @@ export interface OutlierBounds {
   upper: number
 }
 
+/** #524 — which axis (or both) triggered Tukey's fences for a point. */
+export interface OutlierAxes {
+  onX: boolean
+  onY: boolean
+}
+
 /** Needs at least 4 values for Q1/Q3 to mean anything — returns null (no
  * bounds, nothing ever flagged) with fewer than that. */
 export function outlierBounds(values: number[]): OutlierBounds | null {
@@ -40,20 +46,35 @@ export function isOutlier(value: number, bounds: OutlierBounds | null): boolean 
 }
 
 /**
+ * Per-point X/Y fence hits (#524) — a vacation/illness week can show up as
+ * an unusual value on either axis, so either one is enough to flag the
+ * point in the UI. Returns a parallel array (same index order as
+ * `points`); both flags false when the point is unremarkable.
+ */
+export function classifyOutlierAxes<T>(
+  points: T[],
+  getX: (point: T) => number,
+  getY: (point: T) => number,
+): OutlierAxes[] {
+  const xBounds = outlierBounds(points.map(getX))
+  const yBounds = outlierBounds(points.map(getY))
+  return points.map((point) => ({
+    onX: isOutlier(getX(point), xBounds),
+    onY: isOutlier(getY(point), yBounds),
+  }))
+}
+
+/**
  * Flags each point whose X *or* Y value falls outside its own dimension's
- * bounds — a vacation/illness week can show up as an unusual value on
- * either axis (a strange eating time, or a strange weight swing), so
- * either one is enough to flag the point. Returns a boolean parallel to
- * `points`, same index order.
+ * bounds. Thin boolean wrapper over `classifyOutlierAxes` for callers that
+ * only need yes/no (scatter fill, filter lists).
  */
 export function flagOutliers<T>(
   points: T[],
   getX: (point: T) => number,
   getY: (point: T) => number,
 ): boolean[] {
-  const xBounds = outlierBounds(points.map(getX))
-  const yBounds = outlierBounds(points.map(getY))
-  return points.map(
-    (point) => isOutlier(getX(point), xBounds) || isOutlier(getY(point), yBounds),
+  return classifyOutlierAxes(points, getX, getY).map(
+    (axes) => axes.onX || axes.onY,
   )
 }

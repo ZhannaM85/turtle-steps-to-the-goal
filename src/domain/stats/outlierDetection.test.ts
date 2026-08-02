@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest'
-import { flagOutliers, isOutlier, outlierBounds } from './outlierDetection'
+import {
+  classifyOutlierAxes,
+  flagOutliers,
+  isOutlier,
+  outlierBounds,
+} from './outlierDetection'
 
 describe('outlierBounds', () => {
   it('returns null with fewer than 4 values', () => {
@@ -81,5 +86,27 @@ describe('flagOutliers', () => {
       (p) => p.y,
     )
     expect(flags).toEqual([false, false, false, false])
+  })
+})
+
+describe('classifyOutlierAxes (#524)', () => {
+  it('reports onX for an X-only outlier and onY for a Y-only outlier', () => {
+    const points = [
+      { x: 1, y: 1 },
+      { x: 2, y: 2 },
+      { x: 3, y: 3 },
+      { x: 4, y: 4 },
+      { x: 5, y: 5 },
+      { x: 100, y: 6 },
+      { x: 7, y: 1000 },
+    ]
+
+    const axes = classifyOutlierAxes(
+      points,
+      (p) => p.x,
+      (p) => p.y,
+    )
+    expect(axes[5]).toEqual({ onX: true, onY: false })
+    expect(axes[6]).toEqual({ onX: false, onY: true })
   })
 })

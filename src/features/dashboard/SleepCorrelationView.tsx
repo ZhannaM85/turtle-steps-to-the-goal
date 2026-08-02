@@ -27,6 +27,7 @@ import { ChartTitleWithToggle } from './ChartTitleWithToggle'
 import { CorrelationChartTooltip } from './CorrelationChartTooltip'
 import { CorrelationStrengthLabel } from './CorrelationStrengthLabel'
 import { OutlierPointsList } from './OutlierPointsList'
+import { outlierReasonLabel } from './outlierReasonLabel'
 import { renderOutlierScatterShape } from './outlierScatterShape'
 
 export interface SleepCorrelationViewProps {
@@ -57,7 +58,7 @@ export function SleepCorrelationView({
   )
 
   const rawPoints = sleepPoints(entries)
-  const { flags, isExcluded, toggle, includedPoints } = useOutlierExclusion(
+  const { flags, axes, isExcluded, toggle, includedPoints } = useOutlierExclusion(
     'sleep',
     rawPoints,
     (p) => p.hours,
@@ -67,14 +68,30 @@ export function SleepCorrelationView({
 
   if (rawPoints.length === 0) return null
 
+  const metricLabel = t.dashboard.sleepHoursLegend
   const points = rawPoints.map((point, i) => ({
     date: point.date,
     hours: point.hours,
     delta: toDisplay(point.deltaKg),
     isOutlier: flags[i],
     isExcluded: isExcluded(point),
+    outlierReason: flags[i]
+      ? outlierReasonLabel(t.dashboard, axes[i], metricLabel)
+      : undefined,
   }))
   const outlierPoints = rawPoints.filter((_, i) => flags[i])
+  const reasonByKey = new Map(
+    rawPoints.flatMap((point, i) =>
+      flags[i]
+        ? [
+            [
+              point.date,
+              outlierReasonLabel(t.dashboard, axes[i], metricLabel),
+            ] as const,
+          ]
+        : [],
+    ),
+  )
 
   const insight = sleepCorrelationFromPoints(includedPoints)
   const expanded = insight !== null || isExpanded
@@ -167,6 +184,7 @@ export function SleepCorrelationView({
               locale: dateFnsLocale,
             })
           }
+          formatReason={(point) => reasonByKey.get(point.date)}
         />
       )}
       {insight ? (

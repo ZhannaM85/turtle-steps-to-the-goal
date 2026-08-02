@@ -27,6 +27,7 @@ import { ChartTitleWithToggle } from './ChartTitleWithToggle'
 import { CorrelationChartTooltip } from './CorrelationChartTooltip'
 import { CorrelationStrengthLabel } from './CorrelationStrengthLabel'
 import { OutlierPointsList } from './OutlierPointsList'
+import { outlierReasonLabel } from './outlierReasonLabel'
 import { renderOutlierScatterShape } from './outlierScatterShape'
 
 export interface ProteinCorrelationViewProps {
@@ -69,7 +70,7 @@ export function ProteinCorrelationView({
   )
 
   const rawPoints = proteinPoints(entries)
-  const { flags, isExcluded, toggle, includedPoints } = useOutlierExclusion(
+  const { flags, axes, isExcluded, toggle, includedPoints } = useOutlierExclusion(
     'protein',
     rawPoints,
     (p) => p.proteinPercent,
@@ -79,14 +80,30 @@ export function ProteinCorrelationView({
 
   if (rawPoints.length === 0) return null
 
+  const metricLabel = t.dashboard.proteinPercentOfCaloriesLabel
   const points = rawPoints.map((point, i) => ({
     date: point.date,
     proteinPercent: point.proteinPercent,
     delta: toDisplay(point.deltaKg),
     isOutlier: flags[i],
     isExcluded: isExcluded(point),
+    outlierReason: flags[i]
+      ? outlierReasonLabel(t.dashboard, axes[i], metricLabel)
+      : undefined,
   }))
   const outlierPoints = rawPoints.filter((_, i) => flags[i])
+  const reasonByKey = new Map(
+    rawPoints.flatMap((point, i) =>
+      flags[i]
+        ? [
+            [
+              point.date,
+              outlierReasonLabel(t.dashboard, axes[i], metricLabel),
+            ] as const,
+          ]
+        : [],
+    ),
+  )
 
   const insight = proteinCorrelationFromPoints(includedPoints)
   const expanded = insight !== null || isExpanded
@@ -179,6 +196,7 @@ export function ProteinCorrelationView({
               locale: dateFnsLocale,
             })
           }
+          formatReason={(point) => reasonByKey.get(point.date)}
         />
       )}
       {insight ? (

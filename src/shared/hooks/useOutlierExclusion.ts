@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { flagOutliers } from '@/domain/stats'
+import { classifyOutlierAxes, type OutlierAxes } from '@/domain/stats'
 import { useOutlierExclusionStore } from '@/stores'
 
 // Stable reference for the "no exclusions yet" case — a fresh `{}` on every
@@ -15,6 +15,9 @@ const EMPTY_EXCLUDED: Record<string, true> = {}
  * duplicating this logic per view. Each view still owns its own chart/JSX
  * (this codebase's established "one file per metric, not a generic
  * engine" convention) — only the bookkeeping is shared.
+ *
+ * #524 — also exposes per-point `axes` (`onX`/`onY`) so chips/tooltips can
+ * say *why* a point was flagged (unusual metric vs unusual weight change).
  */
 export function useOutlierExclusion<T>(
   viewKey: string,
@@ -30,10 +33,14 @@ export function useOutlierExclusion<T>(
     (state) => state.toggleExcluded,
   )
 
-  const flags = useMemo(
-    () => flagOutliers(points, getX, getY),
+  const axes: OutlierAxes[] = useMemo(
+    () => classifyOutlierAxes(points, getX, getY),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [points],
+  )
+  const flags = useMemo(
+    () => axes.map((a) => a.onX || a.onY),
+    [axes],
   )
 
   function isExcluded(point: T): boolean {
@@ -47,5 +54,5 @@ export function useOutlierExclusion<T>(
   const includedPoints = points.filter((point) => !isExcluded(point))
   const excludedCount = points.length - includedPoints.length
 
-  return { flags, isExcluded, toggle, includedPoints, excludedCount }
+  return { flags, axes, isExcluded, toggle, includedPoints, excludedCount }
 }

@@ -125,7 +125,7 @@ describe('LateMealCorrelationView', () => {
       render(<LateMealCorrelationView entries={entriesWithOneOutlier()} />, { wrapper: MemoryRouter })
 
       expect(
-        screen.getByRole('button', { name: 'Exclude 9 Mar 2026 from this pattern' }),
+        screen.getByRole('button', { name: /Exclude 9 Mar 2026/ }),
       ).toBeInTheDocument()
     })
 
@@ -136,7 +136,7 @@ describe('LateMealCorrelationView', () => {
       expect(screen.getByText(/Based on 9 days of data\./)).toBeInTheDocument()
 
       await user.click(
-        screen.getByRole('button', { name: 'Exclude 9 Mar 2026 from this pattern' }),
+        screen.getByRole('button', { name: /Exclude 9 Mar 2026/ }),
       )
 
       expect(screen.getByText(/Based on 8 days of data\./)).toBeInTheDocument()
@@ -147,12 +147,12 @@ describe('LateMealCorrelationView', () => {
       render(<LateMealCorrelationView entries={entriesWithOneOutlier()} />, { wrapper: MemoryRouter })
 
       await user.click(
-        screen.getByRole('button', { name: 'Exclude 9 Mar 2026 from this pattern' }),
+        screen.getByRole('button', { name: /Exclude 9 Mar 2026/ }),
       )
       expect(screen.getByText(/Based on 8 days of data\./)).toBeInTheDocument()
 
       await user.click(
-        screen.getByRole('button', { name: 'Restore 9 Mar 2026 to this pattern' }),
+        screen.getByRole('button', { name: /Restore 9 Mar 2026/ }),
       )
 
       expect(screen.getByText(/Based on 9 days of data\./)).toBeInTheDocument()

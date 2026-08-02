@@ -595,6 +595,11 @@ export const en: Dictionary = {
     outlierPointsHeading: 'Unusual data points',
     excludeOutlierLabel: (label) => `Exclude ${label} from this pattern`,
     restoreOutlierLabel: (label) => `Restore ${label} to this pattern`,
+    outlierReasonWeightChange: 'unusual weight change',
+    outlierReasonWeightChangeShort: 'weight change',
+    outlierReasonMetric: (metricLabel) => `unusual ${metricLabel}`,
+    outlierReasonBoth: (metricLabel, otherAxisLabel) =>
+      `unusual ${metricLabel} and ${otherAxisLabel}`,
     viewOutlierDayLabel: (label) => `Edit ${label}`,
     weeklyChangeLegend: 'weekly change',
     chartNavigationHint: 'Tap a point for details',

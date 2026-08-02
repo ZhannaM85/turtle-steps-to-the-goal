@@ -27,6 +27,7 @@ import { Button } from '@/shared/ui/button'
 import { CorrelationChartTooltip } from './CorrelationChartTooltip'
 import { CorrelationStrengthLabel } from './CorrelationStrengthLabel'
 import { OutlierPointsList } from './OutlierPointsList'
+import { outlierReasonLabel } from './outlierReasonLabel'
 import { renderOutlierScatterShape } from './outlierScatterShape'
 
 export interface CustomCorrelationViewProps {
@@ -77,7 +78,7 @@ export function CustomCorrelationView({
     entries,
     metricEntries,
   )
-  const { flags, isExcluded, toggle, includedPoints } = useOutlierExclusion(
+  const { flags, axes, isExcluded, toggle, includedPoints } = useOutlierExclusion(
     `custom:${correlation.id}`,
     rawPoints,
     (p) => p.aValue,
@@ -93,8 +94,23 @@ export function CustomCorrelationView({
     bValue: point.bValue,
     isOutlier: flags[i],
     isExcluded: isExcluded(point),
+    outlierReason: flags[i]
+      ? outlierReasonLabel(t.dashboard, axes[i], aLabel, bLabel)
+      : undefined,
   }))
   const outlierPoints = rawPoints.filter((_, i) => flags[i])
+  const reasonByKey = new Map(
+    rawPoints.flatMap((point, i) =>
+      flags[i]
+        ? [
+            [
+              point.date,
+              outlierReasonLabel(t.dashboard, axes[i], aLabel, bLabel),
+            ] as const,
+          ]
+        : [],
+    ),
+  )
 
   const insight = customCorrelationFromPoints(includedPoints)
   const expanded = insight !== null || isExpanded
@@ -173,6 +189,7 @@ export function CustomCorrelationView({
               locale: dateFnsLocale,
             })
           }
+          formatReason={(point) => reasonByKey.get(point.date)}
         />
       )}
       {insight ? (

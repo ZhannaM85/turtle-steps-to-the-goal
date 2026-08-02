@@ -124,7 +124,7 @@ describe('FastingWindowCorrelationView', () => {
       render(<FastingWindowCorrelationView entries={entriesWithOneOutlier()} />, { wrapper: MemoryRouter })
 
       expect(
-        screen.getByRole('button', { name: 'Exclude 12 Mar 2026 from this pattern' }),
+        screen.getByRole('button', { name: /Exclude 12 Mar 2026/ }),
       ).toBeInTheDocument()
     })
 
@@ -135,7 +135,7 @@ describe('FastingWindowCorrelationView', () => {
       expect(screen.getByText(/Based on 11 days of data\./)).toBeInTheDocument()
 
       await user.click(
-        screen.getByRole('button', { name: 'Exclude 12 Mar 2026 from this pattern' }),
+        screen.getByRole('button', { name: /Exclude 12 Mar 2026/ }),
       )
 
       expect(screen.getByText(/Based on 10 days of data\./)).toBeInTheDocument()
@@ -146,12 +146,12 @@ describe('FastingWindowCorrelationView', () => {
       render(<FastingWindowCorrelationView entries={entriesWithOneOutlier()} />, { wrapper: MemoryRouter })
 
       await user.click(
-        screen.getByRole('button', { name: 'Exclude 12 Mar 2026 from this pattern' }),
+        screen.getByRole('button', { name: /Exclude 12 Mar 2026/ }),
       )
       expect(screen.getByText(/Based on 10 days of data\./)).toBeInTheDocument()
 
       await user.click(
-        screen.getByRole('button', { name: 'Restore 12 Mar 2026 to this pattern' }),
+        screen.getByRole('button', { name: /Restore 12 Mar 2026/ }),
       )
 
       expect(screen.getByText(/Based on 11 days of data\./)).toBeInTheDocument()

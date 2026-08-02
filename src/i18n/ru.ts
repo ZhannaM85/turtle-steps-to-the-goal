@@ -626,6 +626,11 @@ export const ru: Dictionary = {
     outlierPointsHeading: 'Необычные точки данных',
     excludeOutlierLabel: (label) => `Исключить ${label} из этой закономерности`,
     restoreOutlierLabel: (label) => `Вернуть ${label} в эту закономерность`,
+    outlierReasonWeightChange: 'необычное изменение веса',
+    outlierReasonWeightChangeShort: 'изменение веса',
+    outlierReasonMetric: (metricLabel) => `необычн.: ${metricLabel}`,
+    outlierReasonBoth: (metricLabel, otherAxisLabel) =>
+      `необычн.: ${metricLabel} и ${otherAxisLabel}`,
     viewOutlierDayLabel: (label) => `Редактировать ${label}`,
     weeklyChangeLegend: 'изменение за неделю',
     chartNavigationHint: 'Нажмите на точку для подробностей',

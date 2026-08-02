@@ -31,6 +31,7 @@ import { ChartTitleWithToggle } from './ChartTitleWithToggle'
 import { CorrelationChartTooltip } from './CorrelationChartTooltip'
 import { CorrelationStrengthLabel } from './CorrelationStrengthLabel'
 import { OutlierPointsList } from './OutlierPointsList'
+import { outlierReasonLabel } from './outlierReasonLabel'
 import { renderOutlierScatterShape } from './outlierScatterShape'
 
 export interface StepsCorrelationViewProps {
@@ -61,7 +62,7 @@ export function StepsCorrelationView({
   )
 
   const rawPoints = stepsPoints(entries)
-  const { flags, isExcluded, toggle, includedPoints } = useOutlierExclusion(
+  const { flags, axes, isExcluded, toggle, includedPoints } = useOutlierExclusion(
     'steps',
     rawPoints,
     (p) => p.steps,
@@ -71,14 +72,30 @@ export function StepsCorrelationView({
 
   if (rawPoints.length === 0) return null
 
+  const metricLabel = t.dashboard.stepsCountLegend
   const points = rawPoints.map((point, i) => ({
     date: point.date,
     steps: point.steps,
     delta: toDisplay(point.deltaKg),
     isOutlier: flags[i],
     isExcluded: isExcluded(point),
+    outlierReason: flags[i]
+      ? outlierReasonLabel(t.dashboard, axes[i], metricLabel)
+      : undefined,
   }))
   const outlierPoints = rawPoints.filter((_, i) => flags[i])
+  const reasonByKey = new Map(
+    rawPoints.flatMap((point, i) =>
+      flags[i]
+        ? [
+            [
+              point.date,
+              outlierReasonLabel(t.dashboard, axes[i], metricLabel),
+            ] as const,
+          ]
+        : [],
+    ),
+  )
 
   // #375 — reported live: a handful of extreme step counts (e.g. a
   // double-counted day from a multi-source import) stretched the x-axis
@@ -190,6 +207,7 @@ export function StepsCorrelationView({
               locale: dateFnsLocale,
             })
           }
+          formatReason={(point) => reasonByKey.get(point.date)}
         />
       )}
       {insight ? (

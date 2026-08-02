@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 476,
+    issue: 524,
+    date: '2026-08-02T17:30:00+03:00',
+    en: 'Unusual points on correlation charts now say whether they were flagged for an unusual weight change, an unusual chart value, or both.',
+    ru: 'Необычные точки на графиках корреляций теперь поясняют, отмечены ли они из‑за необычного изменения веса, необычного значения на графике или обоих.',
+  },
+  {
     version: 475,
     issue: 523,
     date: '2026-08-02T17:20:51+03:00',

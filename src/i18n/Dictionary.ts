@@ -1050,6 +1050,13 @@ export interface Dictionary {
     outlierPointsHeading: string
     excludeOutlierLabel: (label: string) => string
     restoreOutlierLabel: (label: string) => string
+    /** #524 — why a chip/tooltip point was flagged (Tukey's on X, Y, or both).
+     * `metricLabel` is that view's x-axis legend; `otherAxisLabel` is the
+     * short Y noun when composing "unusual A and B" (defaults to weight). */
+    outlierReasonWeightChange: string
+    outlierReasonWeightChangeShort: string
+    outlierReasonMetric: (metricLabel: string) => string
+    outlierReasonBoth: (metricLabel: string, otherAxisLabel: string) => string
     /** #372 — a small separate link icon next to each outlier chip,
      * navigating to that day in History — deliberately a distinct action
      * from the chip's own tap-to-exclude (#224), not an overload of it,

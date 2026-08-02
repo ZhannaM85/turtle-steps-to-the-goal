@@ -150,7 +150,7 @@ describe('CorrelationView', () => {
       render(<CorrelationView entries={entriesWithOneOutlier()} />, { wrapper: MemoryRouter })
 
       expect(
-        screen.getByRole('button', { name: 'Exclude 6 Apr 2026 from this pattern' }),
+        screen.getByRole('button', { name: /Exclude 6 Apr 2026/ }),
       ).toBeInTheDocument()
     })
 
@@ -170,7 +170,7 @@ describe('CorrelationView', () => {
       expect(screen.getByText(/Based on 5 weeks of data\./)).toBeInTheDocument()
 
       await user.click(
-        screen.getByRole('button', { name: 'Exclude 6 Apr 2026 from this pattern' }),
+        screen.getByRole('button', { name: /Exclude 6 Apr 2026/ }),
       )
 
       expect(screen.getByText(/Based on 4 weeks of data\./)).toBeInTheDocument()
@@ -181,12 +181,12 @@ describe('CorrelationView', () => {
       render(<CorrelationView entries={entriesWithOneOutlier()} />, { wrapper: MemoryRouter })
 
       await user.click(
-        screen.getByRole('button', { name: 'Exclude 6 Apr 2026 from this pattern' }),
+        screen.getByRole('button', { name: /Exclude 6 Apr 2026/ }),
       )
       expect(screen.getByText(/Based on 4 weeks of data\./)).toBeInTheDocument()
 
       await user.click(
-        screen.getByRole('button', { name: 'Restore 6 Apr 2026 to this pattern' }),
+        screen.getByRole('button', { name: /Restore 6 Apr 2026/ }),
       )
 
       expect(screen.getByText(/Based on 5 weeks of data\./)).toBeInTheDocument()
