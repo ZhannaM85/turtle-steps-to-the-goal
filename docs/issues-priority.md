@@ -1314,4 +1314,4 @@ _Zepp Life and Apple Health share the same chip/conflict labels with no border b
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#526](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/526) | 🔍 Pending validation | Settings import section: add borders so Zepp Life vs Apple Health are distinct | Each import source (JSON backup, Zepp, Apple Health, MyFitnessPal) wrapped in `rounded-lg border border-border p-3` |
+| [#526](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/526) | ✅ Done | Settings import section: add borders so Zepp Life vs Apple Health are distinct | Confirmed on-device by the user. Each import source (JSON backup, Zepp, Apple Health, MyFitnessPal) wrapped in `rounded-lg border border-border p-3` |
