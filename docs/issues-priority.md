@@ -1285,3 +1285,13 @@ _Reported live with late-meal correlation + Day screenshots: outlier chip «13 �
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#523](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/523) | 🔍 Pending validation | Late-meal correlation outlier date is the weight day, not the eating day (~10:00 on 13 Jul vs Day log 23:28) | Math was OK (12 Jul last timed meal 10:13 → 13 Jul +0.65). Fixed by keying day-pair points to the **predictor day** (x-axis metric) for late-meal/sleep/steps/protein/meal-frequency/night-eating — outlier/open-day now lands on the day whose last meal matches the plot. Fasting unchanged (still end-of-fast day) |
+
+---
+
+## Tier 91 — Live feedback: outlier chips should explain why flagged (2026-08-02)
+
+_Follow-up after reviewing steps/protein/calories/sleep/meal-frequency charts: opening unusual-point days often looks fine because many flags are Y-axis weight swings, not broken day logs._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#524](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/524) | ⬜ Open | Correlation unusual-point chips should say why they were flagged (weight change vs metric) | Chip/tooltip should show unusual weight change, unusual x-metric, or both. Sleep >24h left for manual fix via #523 redirect |
