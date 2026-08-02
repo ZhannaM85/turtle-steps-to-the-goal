@@ -340,6 +340,12 @@ export const en: Dictionary = {
       `Rough estimate: about ${kcal} kcal/day ${direction}.`,
     deficitCaveat:
       'This is a simple arithmetic estimate (~7700 kcal ≈ 1kg of fat), not medical or nutritional advice.',
+    decreaseWeeklyTargetLabel: 'Decrease weekly target',
+    increaseWeeklyTargetLabel: 'Increase weekly target',
+    weeklyTargetStepHint: (step, unit) =>
+      `Use ± for ${step} ${unit} steps, or type any value.`,
+    aggressivePaceWarning: (kcal) =>
+      `That’s a steep weekly pace (about ${kcal} kcal/day deficit). Most people aim for around 0.5–1 kg per week — you can still save this if you mean it.`,
     dailyCalorieTargetLabel: 'Daily calories target',
     dailyCalorieTargetHint: 'Optional — leave blank to skip.',
     dailyProteinTargetLabel: 'Daily protein target',

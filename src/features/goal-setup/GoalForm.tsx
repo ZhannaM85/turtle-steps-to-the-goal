@@ -1,9 +1,14 @@
 import { useEffect, useMemo, useState } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Check, Pencil } from 'lucide-react'
+import { Check, Minus, Pencil, Plus } from 'lucide-react'
 import { useForm, useWatch } from 'react-hook-form'
 import type { Goal } from '@/domain/goal'
-import { estimatedDailyCalorieDeficitKcal, kgToLb } from '@/domain/goal'
+import {
+  estimatedDailyCalorieDeficitKcal,
+  kgToLb,
+  WEEKLY_PACE_SOFT_WARN_KG,
+  WEEKLY_PACE_STEP_KG,
+} from '@/domain/goal'
 import { suggestDailyTargets } from '@/domain/stats'
 import { formatExactNumber, formatNumber, unitLabel, useLocale, useTranslation } from '@/i18n'
 import { parseNumberInput } from '@/shared/lib/parseNumberInput'
@@ -59,6 +64,28 @@ export function GoalForm({
   const paceKg = effectiveWeeklyPaceKg(values, unit)
   const dailyDeficit =
     paceKg !== null ? estimatedDailyCalorieDeficitKcal(paceKg) : null
+  // #529 — display-unit step (~100 g). lb uses the converted 0.1 kg, rounded
+  // to 2 decimals so ± doesn't produce ugly floats.
+  const weeklyPaceStepDisplay =
+    unit === 'lb'
+      ? Math.round(kgToLb(WEEKLY_PACE_STEP_KG) * 100) / 100
+      : WEEKLY_PACE_STEP_KG
+  const showAggressivePaceWarning =
+    paceKg !== null && paceKg > WEEKLY_PACE_SOFT_WARN_KG
+
+  function adjustWeeklyPace(direction: 1 | -1) {
+    const raw = Number(values.targetWeeklyLoss)
+    const current =
+      Number.isFinite(raw) && raw > 0 ? raw : 0
+    const next =
+      Math.round((current + direction * weeklyPaceStepDisplay) * 100) / 100
+    // Schema max is 10 (display unit); floor at one step so − never hits 0.
+    const clamped = Math.min(10, Math.max(weeklyPaceStepDisplay, next))
+    setValue('targetWeeklyLoss', clamped, {
+      shouldDirty: true,
+      shouldValidate: true,
+    })
+  }
 
   // #259 — "Suggest a target": prefills (never auto-saves) the four target
   // fields below from a deterministic TDEE/macro-ratio calculation. Only
@@ -297,11 +324,39 @@ export function GoalForm({
       className="flex flex-col gap-4"
       noValidate
     >
-      <NumberInput
-        label={t.goal.targetLabel(unitLabel(unit, t))}
-        error={errors.targetWeeklyLoss?.message}
-        {...register('targetWeeklyLoss', { setValueAs: parseNumberInput })}
-      />
+      <div className="flex flex-col gap-1.5">
+        <NumberInput
+          label={t.goal.targetLabel(unitLabel(unit, t))}
+          error={errors.targetWeeklyLoss?.message}
+          hint={t.goal.weeklyTargetStepHint(
+            formatExactNumber(weeklyPaceStepDisplay, locale),
+            unitText,
+          )}
+          {...register('targetWeeklyLoss', { setValueAs: parseNumberInput })}
+        />
+        <div className="flex items-center gap-3">
+          <Button
+            type="button"
+            variant="outline"
+            size="icon-xl"
+            className="h-12"
+            aria-label={t.goal.decreaseWeeklyTargetLabel}
+            onClick={() => adjustWeeklyPace(-1)}
+          >
+            <Minus aria-hidden="true" />
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            size="icon-xl"
+            className="h-12"
+            aria-label={t.goal.increaseWeeklyTargetLabel}
+            onClick={() => adjustWeeklyPace(1)}
+          >
+            <Plus aria-hidden="true" />
+          </Button>
+        </div>
+      </div>
 
       {dailyDeficit !== null && (
         <p className="text-sm text-muted-foreground">
@@ -310,6 +365,17 @@ export function GoalForm({
             dailyDeficit >= 0 ? 'deficit' : 'surplus',
           )}{' '}
           {t.goal.deficitCaveat}
+        </p>
+      )}
+
+      {showAggressivePaceWarning && dailyDeficit !== null && (
+        <p
+          role="status"
+          className="rounded-lg border border-border bg-muted p-3 text-sm text-foreground"
+        >
+          {t.goal.aggressivePaceWarning(
+            formatNumber(Math.round(Math.abs(dailyDeficit)), locale, 0),
+          )}
         </p>
       )}
 

@@ -362,6 +362,12 @@ export const ru: Dictionary = {
       `Примерная оценка: около ${kcal} ккал/день ${direction === 'deficit' ? 'дефицита' : 'профицита'}.`,
     deficitCaveat:
       'Это простая арифметическая оценка (~7700 ккал ≈ 1 кг жира), не медицинская и не диетологическая рекомендация.',
+    decreaseWeeklyTargetLabel: 'Уменьшить цель на неделю',
+    increaseWeeklyTargetLabel: 'Увеличить цель на неделю',
+    weeklyTargetStepHint: (step, unit) =>
+      `Кнопки ± меняют на ${step} ${unit}, или введите своё значение.`,
+    aggressivePaceWarning: (kcal) =>
+      `Это очень быстрый темп (около ${kcal} ккал дефицита в день). Обычно ориентируются на 0,5–1 кг в неделю — сохранить всё равно можно, если вы так задумали.`,
     dailyCalorieTargetLabel: 'Дневная цель по калориям',
     dailyCalorieTargetHint: 'Необязательно — можно оставить пустым.',
     dailyProteinTargetLabel: 'Дневная цель по белку',

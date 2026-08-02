@@ -683,6 +683,12 @@ export interface Dictionary {
     targetRequired: string
     deficitEstimate: (kcal: number, direction: 'deficit' | 'surplus') => string
     deficitCaveat: string
+    /** #529 — ± buttons on the weekly-pace field. */
+    decreaseWeeklyTargetLabel: string
+    increaseWeeklyTargetLabel: string
+    weeklyTargetStepHint: (step: string, unit: string) => string
+    /** #529 — soft warning when pace > ~1 kg/week; does not block save. */
+    aggressivePaceWarning: (kcal: string) => string
     /** #208 — genuinely optional, unlike the weekly target above; hint
      * clarifies that leaving it blank is fine, not an error state. */
     dailyCalorieTargetLabel: string

@@ -25,10 +25,17 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 483,
+    issue: 529,
+    date: '2026-08-02T21:20:00+03:00',
+    en: 'Weekly weight-loss target now has ± buttons in 0.1 kg steps, and gently warns if the pace is steeper than about 1 kg per week — you can still save it.',
+    ru: 'У цели похудения на неделю появились кнопки ± с шагом 0,1 кг и мягкое предупреждение, если темп больше примерно 1 кг в неделю — сохранить всё равно можно.',
+  },
+  {
     version: 482,
     issue: 528,
     date: '2026-08-02T21:14:10+03:00',
-    en: 'Morning and evening section hints now say you can leave those fields empty and hide them in Settings.',
+    en: 'Morning and evening section hints now say you don’t have to fill those fields in, and can turn off unused ones in Settings.',
     ru: 'Подсказки у утреннего и вечернего блоков: поля заполнять не обязательно, ненужные можно отключить в настройках.',
   },
   {

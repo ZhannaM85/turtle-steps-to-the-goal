@@ -924,4 +924,52 @@ describe('GoalForm', () => {
     expect(onSubmit).toHaveBeenCalledTimes(1)
     expect(onSubmit.mock.calls[0][0].targetWeeklyLossKg).toBe(1.5)
   })
+
+  // #529
+  it('steps the weekly target by 0.1 kg with the ± buttons', async () => {
+    const user = userEvent.setup()
+    render(<GoalForm existingGoal={null} onSubmit={vi.fn()} />)
+
+    const input = screen.getByLabelText("This week's target (kg to lose)")
+    await user.click(
+      screen.getByRole('button', { name: 'Increase weekly target' }),
+    )
+    expect(input).toHaveValue('0.1')
+
+    await user.click(
+      screen.getByRole('button', { name: 'Increase weekly target' }),
+    )
+    expect(input).toHaveValue('0.2')
+
+    await user.click(
+      screen.getByRole('button', { name: 'Decrease weekly target' }),
+    )
+    expect(input).toHaveValue('0.1')
+  })
+
+  it('soft-warns above 1 kg/week without blocking save (#529)', async () => {
+    const user = userEvent.setup()
+    const onSubmit = vi.fn()
+    render(<GoalForm existingGoal={null} onSubmit={onSubmit} />)
+
+    expect(
+      screen.queryByRole('status'),
+    ).not.toBeInTheDocument()
+
+    await user.type(
+      screen.getByLabelText("This week's target (kg to lose)"),
+      '5',
+    )
+
+    expect(screen.getByRole('status')).toHaveTextContent(
+      /steep weekly pace/i,
+    )
+    expect(screen.getByRole('status')).toHaveTextContent('5,500')
+
+    await user.click(
+      screen.getByRole('button', { name: 'Set this week’s target' }),
+    )
+    expect(onSubmit).toHaveBeenCalledTimes(1)
+    expect(onSubmit.mock.calls[0][0].targetWeeklyLossKg).toBe(5)
+  })
 })
