@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 482,
+    issue: 528,
+    date: '2026-08-02T21:14:00+03:00',
+    en: 'Morning and evening section hints now say you can leave those fields empty and hide them in Settings.',
+    ru: 'Подсказки у утреннего и вечернего блоков теперь говорят, что поля можно не заполнять и спрятать в настройках.',
+  },
+  {
     version: 481,
     issue: 527,
     date: '2026-08-02T21:12:14+03:00',
