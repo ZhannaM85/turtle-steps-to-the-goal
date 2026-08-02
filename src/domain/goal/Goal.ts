@@ -41,6 +41,15 @@ export interface Goal {
    */
   dailyFiberTargetG?: number
   /**
+   * Optional daily electrolyte targets in milligrams (#530) — same
+   * independent optional shape as the macro targets above. Each powers
+   * Today's matching Remaining card when that nutrient is also enabled
+   * in Settings micronutrient tracking.
+   */
+  dailySodiumTargetMg?: number
+  dailyPotassiumTargetMg?: number
+  dailyMagnesiumTargetMg?: number
+  /**
    * Optional daily water target in milliliters (#258) — same shape as the
    * macro targets above, independent of them. Only meaningful once #258's
    * opt-in water tracking is also turned on in Settings, but the field

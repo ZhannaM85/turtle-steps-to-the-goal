@@ -1,6 +1,14 @@
 import { describe, expect, it } from 'vitest'
 import type { CalorieEntry, CalorieItem } from './DailyEntry'
-import { totalCarbs, totalFat, totalFiber, totalProtein } from './totalMacros'
+import {
+  totalCarbs,
+  totalFat,
+  totalFiber,
+  totalMagnesium,
+  totalPotassium,
+  totalProtein,
+  totalSodium,
+} from './totalMacros'
 
 function makeItem(overrides: Partial<CalorieItem> = {}): CalorieItem {
   return {
@@ -67,5 +75,23 @@ describe('totalProtein / totalFat / totalCarbs', () => {
       makeEntry(makeItem({ fiberG: 4 })),
     ]
     expect(totalFiber(entries)).toBe(12)
+  })
+
+  // #530 — electrolytes (mg), same undefined-vs-zero rules.
+  it('sums sodium, potassium, and magnesium independently', () => {
+    const entries = [
+      makeEntry(makeItem({ sodiumMg: 200, potassiumMg: 400 })),
+      makeEntry(makeItem()), // no electrolytes
+      makeEntry(makeItem({ sodiumMg: 100, magnesiumMg: 50 })),
+    ]
+    expect(totalSodium(entries)).toBe(300)
+    expect(totalPotassium(entries)).toBe(400)
+    expect(totalMagnesium(entries)).toBe(50)
+  })
+
+  it('returns undefined for electrolytes when none are logged', () => {
+    expect(totalSodium([makeEntry(makeItem())])).toBeUndefined()
+    expect(totalPotassium(undefined)).toBeUndefined()
+    expect(totalMagnesium([])).toBeUndefined()
   })
 })

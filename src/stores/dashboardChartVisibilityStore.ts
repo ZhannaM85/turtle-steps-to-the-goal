@@ -28,6 +28,7 @@ export type DashboardChartKey =
   | 'monthlySummary'
   | 'compareRanges'
   | 'bodyComposition'
+  | 'electrolytes'
 
 const DEFAULT_VISIBLE: Record<DashboardChartKey, boolean> = {
   weight: true,
@@ -49,6 +50,7 @@ const DEFAULT_VISIBLE: Record<DashboardChartKey, boolean> = {
   monthlySummary: true,
   compareRanges: true,
   bodyComposition: true,
+  electrolytes: true,
 }
 
 interface DashboardChartVisibilityState {
@@ -75,6 +77,19 @@ export const useDashboardChartVisibilityStore =
       {
         name: 'turtle-steps-dashboard-chart-visibility',
         storage: createJSONStorage(() => localStorage),
+        merge: (persisted, current) => {
+          const p = persisted as
+            | Partial<DashboardChartVisibilityState>
+            | undefined
+          return {
+            ...current,
+            ...p,
+            visible: {
+              ...DEFAULT_VISIBLE,
+              ...p?.visible,
+            },
+          }
+        },
       },
     ),
   )

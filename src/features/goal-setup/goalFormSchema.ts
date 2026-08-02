@@ -16,6 +16,10 @@ export function makeGoalFormSchema(t: Dictionary) {
       dailyCarbTarget: z.number().positive().max(1000).optional(),
       // #341 — same reasoning again, independent of the other four.
       dailyFiberTarget: z.number().positive().max(1000).optional(),
+      // #530 — electrolytes in mg; independent optional targets.
+      dailySodiumTarget: z.number().positive().max(20000).optional(),
+      dailyPotassiumTarget: z.number().positive().max(20000).optional(),
+      dailyMagnesiumTarget: z.number().positive().max(5000).optional(),
       // #258 — same reasoning again, independent of the macro targets.
       dailyWaterTarget: z.number().positive().max(10000).optional(),
     })

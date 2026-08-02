@@ -14,6 +14,9 @@ export type TodayCardKey =
   | 'remainingFat'
   | 'remainingCarbs'
   | 'remainingFiber'
+  | 'remainingSodium'
+  | 'remainingPotassium'
+  | 'remainingMagnesium'
   | 'remainingWater'
   | 'steps'
   | 'sleep'
@@ -24,6 +27,9 @@ export const DEFAULT_TODAY_CARD_ORDER: TodayCardKey[] = [
   'remainingFat',
   'remainingCarbs',
   'remainingFiber',
+  'remainingSodium',
+  'remainingPotassium',
+  'remainingMagnesium',
   'remainingWater',
   'steps',
   'sleep',

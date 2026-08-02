@@ -18,6 +18,9 @@ export type SectionKey =
   | 'todayRemainingFat'
   | 'todayRemainingCarbs'
   | 'todayRemainingFiber'
+  | 'todayRemainingSodium'
+  | 'todayRemainingPotassium'
+  | 'todayRemainingMagnesium'
   | 'todayRemainingWater'
   | 'todaySteps'
   | 'todaySleep'
@@ -38,6 +41,9 @@ const DEFAULT_VISIBLE: Record<SectionKey, boolean> = {
   todayRemainingFat: true,
   todayRemainingCarbs: true,
   todayRemainingFiber: true,
+  todayRemainingSodium: true,
+  todayRemainingPotassium: true,
+  todayRemainingMagnesium: true,
   todayRemainingWater: true,
   todaySteps: true,
   todaySleep: true,
@@ -64,9 +70,20 @@ export const useSectionVisibilityStore = create<SectionVisibilityState>()(
           visible: { ...state.visible, [section]: !state.visible[section] },
         })),
     }),
-    {
-      name: 'turtle-steps-section-visibility',
-      storage: createJSONStorage(() => localStorage),
-    },
+      {
+        name: 'turtle-steps-section-visibility',
+        storage: createJSONStorage(() => localStorage),
+        merge: (persisted, current) => {
+          const p = persisted as Partial<SectionVisibilityState> | undefined
+          return {
+            ...current,
+            ...p,
+            visible: {
+              ...DEFAULT_VISIBLE,
+              ...p?.visible,
+            },
+          }
+        },
+      },
   ),
 )

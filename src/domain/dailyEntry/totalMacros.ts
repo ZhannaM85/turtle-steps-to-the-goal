@@ -1,6 +1,13 @@
 import type { CalorieEntry } from './DailyEntry'
 
-type MacroField = 'proteinG' | 'fatG' | 'carbsG' | 'fiberG'
+type MacroField =
+  | 'proteinG'
+  | 'fatG'
+  | 'carbsG'
+  | 'fiberG'
+  | 'sodiumMg'
+  | 'potassiumMg'
+  | 'magnesiumMg'
 
 /** Sums a day's logged macro grams for one field, across every item of
  * every meal (#81 — flattened, not per-meal). Undefined (not 0) when no
@@ -42,4 +49,23 @@ export function totalFiber(
   entries: CalorieEntry[] | undefined,
 ): number | undefined {
   return totalMacro(entries, 'fiberG')
+}
+
+/** #530 — electrolytes in milligrams; same undefined-vs-zero rules. */
+export function totalSodium(
+  entries: CalorieEntry[] | undefined,
+): number | undefined {
+  return totalMacro(entries, 'sodiumMg')
+}
+
+export function totalPotassium(
+  entries: CalorieEntry[] | undefined,
+): number | undefined {
+  return totalMacro(entries, 'potassiumMg')
+}
+
+export function totalMagnesium(
+  entries: CalorieEntry[] | undefined,
+): number | undefined {
+  return totalMacro(entries, 'magnesiumMg')
 }

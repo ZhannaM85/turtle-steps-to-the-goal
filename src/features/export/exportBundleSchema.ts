@@ -19,6 +19,10 @@ const goalSchema = z.object({
   dailyCarbTargetG: z.number().optional(),
   // Optional daily fiber target (#341) — same reasoning again.
   dailyFiberTargetG: z.number().optional(),
+  // Optional daily electrolyte targets (#530) — same reasoning again.
+  dailySodiumTargetMg: z.number().optional(),
+  dailyPotassiumTargetMg: z.number().optional(),
+  dailyMagnesiumTargetMg: z.number().optional(),
   // Optional daily water target (#258) — same reasoning again.
   dailyWaterTargetMl: z.number().optional(),
   createdAt: z.string(),
@@ -43,6 +47,10 @@ const calorieItemSchema = z.object({
   // Dietary fiber in grams (#341) — same purely-additive/optional
   // reasoning as amountG below.
   fiberG: z.number().optional(),
+  // Electrolytes in milligrams (#531 / #530) — same additive shape.
+  sodiumMg: z.number().optional(),
+  potassiumMg: z.number().optional(),
+  magnesiumMg: z.number().optional(),
   // Portion weight in grams (#93) — purely additive/optional, same
   // no-version-bump reasoning as timeEaten below.
   amountG: z.number().optional(),

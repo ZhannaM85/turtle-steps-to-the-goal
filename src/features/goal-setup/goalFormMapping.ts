@@ -19,6 +19,9 @@ export function goalToFormValues(
     dailyFatTarget: goal.dailyFatTargetG,
     dailyCarbTarget: goal.dailyCarbTargetG,
     dailyFiberTarget: goal.dailyFiberTargetG,
+    dailySodiumTarget: goal.dailySodiumTargetMg,
+    dailyPotassiumTarget: goal.dailyPotassiumTargetMg,
+    dailyMagnesiumTarget: goal.dailyMagnesiumTargetMg,
     dailyWaterTarget: goal.dailyWaterTargetMl,
   }
 }
@@ -58,6 +61,9 @@ export function formValuesToGoal(
       dailyFatTargetG: values.dailyFatTarget,
       dailyCarbTargetG: values.dailyCarbTarget,
       dailyFiberTargetG: values.dailyFiberTarget,
+      dailySodiumTargetMg: values.dailySodiumTarget,
+      dailyPotassiumTargetMg: values.dailyPotassiumTarget,
+      dailyMagnesiumTargetMg: values.dailyMagnesiumTarget,
       dailyWaterTargetMl: values.dailyWaterTarget,
       updatedAt: now,
     }
@@ -76,6 +82,9 @@ export function formValuesToGoal(
     dailyFatTargetG: values.dailyFatTarget,
     dailyCarbTargetG: values.dailyCarbTarget,
     dailyFiberTargetG: values.dailyFiberTarget,
+    dailySodiumTargetMg: values.dailySodiumTarget,
+    dailyPotassiumTargetMg: values.dailyPotassiumTarget,
+    dailyMagnesiumTargetMg: values.dailyMagnesiumTarget,
     dailyWaterTargetMl: values.dailyWaterTarget,
     // Always today (#135) — every *new* record starts a fresh 7-day
     // tracking window from the moment it's actually saved.

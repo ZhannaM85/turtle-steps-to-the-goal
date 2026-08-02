@@ -12,7 +12,7 @@ import {
 import { suggestDailyTargets } from '@/domain/stats'
 import { formatExactNumber, formatNumber, unitLabel, useLocale, useTranslation } from '@/i18n'
 import { parseNumberInput } from '@/shared/lib/parseNumberInput'
-import { useProfileStore, useUnitStore } from '@/stores'
+import { useProfileStore, useMicronutrientTrackingStore, useUnitStore } from '@/stores'
 import { Button } from '@/shared/ui/button'
 import { NumberInput } from '@/shared/ui/number-input'
 import {
@@ -47,6 +47,7 @@ export function GoalForm({
   // rather than a second profile concept (activityLevel was added
   // specifically for this helper, see profileStore.ts).
   const { heightCm, age, sex, activityLevel } = useProfileStore()
+  const micronutrients = useMicronutrientTrackingStore((state) => state.tracked)
 
   const {
     register,
@@ -169,6 +170,9 @@ export function GoalForm({
       dailyFatTarget: '' as unknown as number | undefined,
       dailyCarbTarget: '' as unknown as number | undefined,
       dailyFiberTarget: '' as unknown as number | undefined,
+      dailySodiumTarget: '' as unknown as number | undefined,
+      dailyPotassiumTarget: '' as unknown as number | undefined,
+      dailyMagnesiumTarget: '' as unknown as number | undefined,
       dailyWaterTarget: '' as unknown as number | undefined,
     })
     setIsEditing(false)
@@ -265,6 +269,51 @@ export function GoalForm({
                   : t.goal.notSetLabel}
               </td>
             </tr>
+            {micronutrients.sodium && (
+              <tr className="border-b border-border">
+                <th
+                  scope="row"
+                  className="py-2 pr-4 text-left font-normal text-muted-foreground"
+                >
+                  {t.goal.dailySodiumTargetLabel}
+                </th>
+                <td className="py-2 text-right font-medium text-foreground">
+                  {existingGoal.dailySodiumTargetMg !== undefined
+                    ? `${formatExactNumber(existingGoal.dailySodiumTargetMg, locale)} ${t.dailyEntry.mgUnit}`
+                    : t.goal.notSetLabel}
+                </td>
+              </tr>
+            )}
+            {micronutrients.potassium && (
+              <tr className="border-b border-border">
+                <th
+                  scope="row"
+                  className="py-2 pr-4 text-left font-normal text-muted-foreground"
+                >
+                  {t.goal.dailyPotassiumTargetLabel}
+                </th>
+                <td className="py-2 text-right font-medium text-foreground">
+                  {existingGoal.dailyPotassiumTargetMg !== undefined
+                    ? `${formatExactNumber(existingGoal.dailyPotassiumTargetMg, locale)} ${t.dailyEntry.mgUnit}`
+                    : t.goal.notSetLabel}
+                </td>
+              </tr>
+            )}
+            {micronutrients.magnesium && (
+              <tr className="border-b border-border">
+                <th
+                  scope="row"
+                  className="py-2 pr-4 text-left font-normal text-muted-foreground"
+                >
+                  {t.goal.dailyMagnesiumTargetLabel}
+                </th>
+                <td className="py-2 text-right font-medium text-foreground">
+                  {existingGoal.dailyMagnesiumTargetMg !== undefined
+                    ? `${formatExactNumber(existingGoal.dailyMagnesiumTargetMg, locale)} ${t.dailyEntry.mgUnit}`
+                    : t.goal.notSetLabel}
+                </td>
+              </tr>
+            )}
             <tr>
               <th
                 scope="row"
@@ -448,6 +497,34 @@ export function GoalForm({
         error={errors.dailyFiberTarget?.message}
         {...register('dailyFiberTarget', { setValueAs: parseNumberInput })}
       />
+
+      {micronutrients.sodium && (
+        <NumberInput
+          label={t.goal.dailySodiumTargetLabel}
+          hint={t.goal.dailySodiumTargetHint}
+          unit={t.dailyEntry.mgUnit}
+          error={errors.dailySodiumTarget?.message}
+          {...register('dailySodiumTarget', { setValueAs: parseNumberInput })}
+        />
+      )}
+      {micronutrients.potassium && (
+        <NumberInput
+          label={t.goal.dailyPotassiumTargetLabel}
+          hint={t.goal.dailyPotassiumTargetHint}
+          unit={t.dailyEntry.mgUnit}
+          error={errors.dailyPotassiumTarget?.message}
+          {...register('dailyPotassiumTarget', { setValueAs: parseNumberInput })}
+        />
+      )}
+      {micronutrients.magnesium && (
+        <NumberInput
+          label={t.goal.dailyMagnesiumTargetLabel}
+          hint={t.goal.dailyMagnesiumTargetHint}
+          unit={t.dailyEntry.mgUnit}
+          error={errors.dailyMagnesiumTarget?.message}
+          {...register('dailyMagnesiumTarget', { setValueAs: parseNumberInput })}
+        />
+      )}
 
       {/* #258 — same shape again, independent of the macro targets. */}
       <NumberInput

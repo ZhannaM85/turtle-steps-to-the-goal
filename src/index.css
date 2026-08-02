@@ -93,6 +93,10 @@
    * to its siblings, same reasoning-by-similar-luminance approach as
    * every other choice on this line (no contrast-checker tool run). */
   --stat-fiber: #8a7a2f;
+  /* #530 — electrolytes Remaining progress bars (distinct hues). */
+  --stat-sodium: #a85a5a;
+  --stat-potassium: #5a8a78;
+  --stat-magnesium: #6a6a9e;
   /* #347 — reported live: the fasting-hours series in the "Compare your
    * data" chart, set to bar mode, rendered in solid black. Root cause:
    * `useNumericSeriesConfig` gave it `--chart-5`, the last of the five
@@ -179,6 +183,9 @@
   --color-stat-carbs: var(--stat-carbs);
   --color-stat-water: var(--stat-water);
   --color-stat-fiber: var(--stat-fiber);
+  --color-stat-sodium: var(--stat-sodium);
+  --color-stat-potassium: var(--stat-potassium);
+  --color-stat-magnesium: var(--stat-magnesium);
   --color-chart-fasting: var(--chart-fasting);
   --color-chart-bodyfat: var(--chart-bodyfat);
   --color-chart-sleep: var(--chart-sleep);
@@ -241,6 +248,9 @@
   --stat-carbs: #90c7a6;
   --stat-water: #8fadd6;
   --stat-fiber: #cbc06e;
+  --stat-sodium: #d99a9a;
+  --stat-potassium: #90c7b0;
+  --stat-magnesium: #a3a3d9;
   /* #347 — same dedicated fix as the light-mode value above, at the
    * lighter/pastel lightness level dark mode's own hued tokens already
    * use for everything else. */

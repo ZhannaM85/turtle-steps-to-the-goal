@@ -136,4 +136,12 @@ export type {
   BodyCompositionPoint,
   BodyCompositionSeriesKey,
 } from './bodyCompositionTrend'
+export {
+  ELECTROLYTE_SERIES_KEYS,
+  electrolytePoints,
+} from './electrolyteTrend'
+export type {
+  ElectrolytePoint,
+  ElectrolyteSeriesKey,
+} from './electrolyteTrend'
 export { effectiveDateFor } from './dayStart'

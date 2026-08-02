@@ -35,6 +35,7 @@ import { useOnlineStatus } from '@/shared/hooks'
 import {
   useFoodOverrideStore,
   useMealItemStore,
+  useMicronutrientTrackingStore,
   useRecipeStore,
   useAddMealRecentVisibilityStore,
 } from '@/stores'
@@ -47,7 +48,7 @@ import { LogRecipeDialog } from '@/features/recipes'
 import { BarcodeScannerDialog } from './BarcodeScannerDialog'
 import { EmotionPicker } from './EmotionPicker'
 import type { PickedFoodValues } from './FoodPickerDialog'
-import { foodItemFromOff, scaleOffMicros } from './foodItemFromOff'
+import { foodItemFromOff } from './foodItemFromOff'
 import { lookupBarcode } from './lookupBarcode'
 import { MealItemEditorSheet } from './MealItemEditorSheet'
 import { RepeatMealDialog } from './RepeatMealDialog'
@@ -101,6 +102,9 @@ interface ConfirmRates {
   fat100: number
   carbs100: number
   fiber100: number | undefined
+  sodium100: number | undefined
+  potassium100: number | undefined
+  magnesium100: number | undefined
 }
 
 function ratesFromPickable(item: PickableItem): ConfirmRates {
@@ -111,6 +115,9 @@ function ratesFromPickable(item: PickableItem): ConfirmRates {
       fat100: item.food.fat100,
       carbs100: item.food.carbs100,
       fiber100: item.food.fiber100,
+      sodium100: item.food.sodium100Mg,
+      potassium100: item.food.potassium100Mg,
+      magnesium100: item.food.magnesium100Mg,
     }
   }
   const rates = ratesFromAbsolute(
@@ -120,6 +127,9 @@ function ratesFromPickable(item: PickableItem): ConfirmRates {
     item.mealItem.lastCarbsG,
     item.mealItem.lastAmountG,
     item.mealItem.lastFiberG,
+    item.mealItem.lastSodiumMg,
+    item.mealItem.lastPotassiumMg,
+    item.mealItem.lastMagnesiumMg,
   )
   return {
     kcal100: rates.kcal100,
@@ -127,20 +137,25 @@ function ratesFromPickable(item: PickableItem): ConfirmRates {
     fat100: rates.fat100 ?? 0,
     carbs100: rates.carbs100 ?? 0,
     fiber100: rates.fiber100,
+    sodium100: rates.sodium100,
+    potassium100: rates.potassium100,
+    magnesium100: rates.magnesium100,
   }
 }
 
 function scaleConfirmDisplay(rates: ConfirmRates, grams: number) {
   const scale = grams / 100
+  const scaleOpt = (value: number | undefined) =>
+    value === undefined ? '' : String(Math.round(value * scale * 10) / 10)
   return {
     kcal: String(Math.round(rates.kcal100 * scale)),
     protein: String(Math.round(rates.protein100 * scale * 10) / 10),
     fat: String(Math.round(rates.fat100 * scale * 10) / 10),
     carbs: String(Math.round(rates.carbs100 * scale * 10) / 10),
-    fiber:
-      rates.fiber100 === undefined
-        ? ''
-        : String(Math.round(rates.fiber100 * scale * 10) / 10),
+    fiber: scaleOpt(rates.fiber100),
+    sodium: scaleOpt(rates.sodium100),
+    potassium: scaleOpt(rates.potassium100),
+    magnesium: scaleOpt(rates.magnesium100),
   }
 }
 
@@ -153,6 +168,9 @@ function blankManualDraft() {
     fat: '',
     carbs: '',
     fiber: '',
+    sodium: '',
+    potassium: '',
+    magnesium: '',
     note: '',
     amountG: '1',
     macroMode: 'per100g' as 'per100g' | 'perPortion',
@@ -284,6 +302,7 @@ export function AddMealDialog({
   const toggleRecentVisible = useAddMealRecentVisibilityStore(
     (state) => state.toggleRecentVisible,
   )
+  const micronutrients = useMicronutrientTrackingStore((state) => state.tracked)
   // This dialog is only mounted while open (lazy-mounted, same pattern
   // FoodPickerDialog/BarcodeScannerDialog already use), so both stores get
   // loaded fresh each time it opens — cheap, and simpler than threading a
@@ -319,6 +338,9 @@ export function AddMealDialog({
   const [confirmFat, setConfirmFat] = useState('')
   const [confirmCarbs, setConfirmCarbs] = useState('')
   const [confirmFiber, setConfirmFiber] = useState('')
+  const [confirmSodium, setConfirmSodium] = useState('')
+  const [confirmPotassium, setConfirmPotassium] = useState('')
+  const [confirmMagnesium, setConfirmMagnesium] = useState('')
   const confirmGramsRef = useRef<number | null>(null)
 
   const [isRepeatOpen, setIsRepeatOpen] = useState(false)
@@ -398,6 +420,9 @@ export function AddMealDialog({
     setConfirmFat('')
     setConfirmCarbs('')
     setConfirmFiber('')
+    setConfirmSodium('')
+    setConfirmPotassium('')
+    setConfirmMagnesium('')
     confirmGramsRef.current = null
     setPendingBarcode(null)
   }
@@ -423,6 +448,9 @@ export function AddMealDialog({
     setConfirmFat(display.fat)
     setConfirmCarbs(display.carbs)
     setConfirmFiber(display.fiber)
+    setConfirmSodium(display.sodium)
+    setConfirmPotassium(display.potassium)
+    setConfirmMagnesium(display.magnesium)
   }
 
   function applyConfirmDisplay(rates: ConfirmRates, grams: number) {
@@ -432,24 +460,52 @@ export function AddMealDialog({
     setConfirmFat(display.fat)
     setConfirmCarbs(display.carbs)
     setConfirmFiber(display.fiber)
+    setConfirmSodium(display.sodium)
+    setConfirmPotassium(display.potassium)
+    setConfirmMagnesium(display.magnesium)
   }
 
   function updateConfirmAbsolute(
-    field: 'kcal' | 'protein' | 'fat' | 'carbs' | 'fiber',
+    field:
+      | 'kcal'
+      | 'protein'
+      | 'fat'
+      | 'carbs'
+      | 'fiber'
+      | 'sodium'
+      | 'potassium'
+      | 'magnesium',
     value: string,
   ) {
     if (field === 'kcal') setConfirmKcal(value)
     else if (field === 'protein') setConfirmProtein(value)
     else if (field === 'fat') setConfirmFat(value)
     else if (field === 'carbs') setConfirmCarbs(value)
-    else setConfirmFiber(value)
+    else if (field === 'fiber') setConfirmFiber(value)
+    else if (field === 'sodium') setConfirmSodium(value)
+    else if (field === 'potassium') setConfirmPotassium(value)
+    else setConfirmMagnesium(value)
 
     if (!activeItem || !confirmRates) return
     const grams = gramsFor(activeItem)
     if (grams <= 0) return
 
-    if (field === 'fiber' && value.trim() === '') {
-      setConfirmRates({ ...confirmRates, fiber100: undefined })
+    const optionalFields = [
+      'fiber',
+      'sodium',
+      'potassium',
+      'magnesium',
+    ] as const
+    if (
+      (optionalFields as readonly string[]).includes(field) &&
+      value.trim() === ''
+    ) {
+      const key = `${field}100` as
+        | 'fiber100'
+        | 'sodium100'
+        | 'potassium100'
+        | 'magnesium100'
+      setConfirmRates({ ...confirmRates, [key]: undefined })
       return
     }
     const num = parseNumberInput(value)
@@ -472,10 +528,25 @@ export function AddMealDialog({
         ...confirmRates,
         carbs100: Math.round(rate * 10) / 10,
       })
-    } else {
+    } else if (field === 'fiber') {
       setConfirmRates({
         ...confirmRates,
         fiber100: Math.round(rate * 10) / 10,
+      })
+    } else if (field === 'sodium') {
+      setConfirmRates({
+        ...confirmRates,
+        sodium100: Math.round(rate * 10) / 10,
+      })
+    } else if (field === 'potassium') {
+      setConfirmRates({
+        ...confirmRates,
+        potassium100: Math.round(rate * 10) / 10,
+      })
+    } else {
+      setConfirmRates({
+        ...confirmRates,
+        magnesium100: Math.round(rate * 10) / 10,
       })
     }
   }
@@ -587,6 +658,18 @@ export function AddMealDialog({
           confirmRates.fiber100 === undefined
             ? undefined
             : Math.round(confirmRates.fiber100 * scale * 10) / 10,
+        sodiumMg:
+          confirmRates.sodium100 === undefined
+            ? undefined
+            : Math.round(confirmRates.sodium100 * scale * 10) / 10,
+        potassiumMg:
+          confirmRates.potassium100 === undefined
+            ? undefined
+            : Math.round(confirmRates.potassium100 * scale * 10) / 10,
+        magnesiumMg:
+          confirmRates.magnesium100 === undefined
+            ? undefined
+            : Math.round(confirmRates.magnesium100 * scale * 10) / 10,
         note: textFor(item),
         amountG: grams,
       }
@@ -602,6 +685,18 @@ export function AddMealDialog({
           food.fiber100 === undefined
             ? undefined
             : Math.round(food.fiber100 * scale * 10) / 10,
+        sodiumMg:
+          food.sodium100Mg === undefined
+            ? undefined
+            : Math.round(food.sodium100Mg * scale * 10) / 10,
+        potassiumMg:
+          food.potassium100Mg === undefined
+            ? undefined
+            : Math.round(food.potassium100Mg * scale * 10) / 10,
+        magnesiumMg:
+          food.magnesium100Mg === undefined
+            ? undefined
+            : Math.round(food.magnesium100Mg * scale * 10) / 10,
         note: food[locale],
         amountG: grams,
       }
@@ -614,6 +709,9 @@ export function AddMealDialog({
       mealItem.lastCarbsG,
       mealItem.lastAmountG,
       mealItem.lastFiberG,
+      mealItem.lastSodiumMg,
+      mealItem.lastPotassiumMg,
+      mealItem.lastMagnesiumMg,
     )
     return {
       amountKcal: Math.round(rates.kcal100 * scale),
@@ -633,6 +731,18 @@ export function AddMealDialog({
         rates.fiber100 === undefined
           ? undefined
           : Math.round(rates.fiber100 * scale * 10) / 10,
+      sodiumMg:
+        rates.sodium100 === undefined
+          ? undefined
+          : Math.round(rates.sodium100 * scale * 10) / 10,
+      potassiumMg:
+        rates.potassium100 === undefined
+          ? undefined
+          : Math.round(rates.potassium100 * scale * 10) / 10,
+      magnesiumMg:
+        rates.magnesium100 === undefined
+          ? undefined
+          : Math.round(rates.magnesium100 * scale * 10) / 10,
       note: mealItem.name,
       amountG: grams,
     }
@@ -653,11 +763,11 @@ export function AddMealDialog({
       fatG: parseOptionalMacro(confirmFat) ?? 0,
       carbsG: parseOptionalMacro(confirmCarbs) ?? 0,
       fiberG: parseOptionalMacro(confirmFiber),
+      sodiumMg: parseOptionalMacro(confirmSodium),
+      potassiumMg: parseOptionalMacro(confirmPotassium),
+      magnesiumMg: parseOptionalMacro(confirmMagnesium),
       amountG: grams,
       emotion: itemEmotion,
-      ...(activeItem.source === 'food'
-        ? scaleOffMicros(activeItem.food, grams)
-        : {}),
     }
     onAppendItems([newItem])
     // Personal last-used memory only (#50/#86) — curated catalog names are
@@ -769,6 +879,9 @@ export function AddMealDialog({
           parseOptionalMacro(draft.carbs),
           draft.amountG,
           parseOptionalMacro(draft.fiber),
+          parseOptionalMacro(draft.sodium),
+          parseOptionalMacro(draft.potassium),
+          parseOptionalMacro(draft.magnesium),
         )
         return {
           ...draft,
@@ -777,6 +890,11 @@ export function AddMealDialog({
           fat: scaled.fatG === undefined ? '' : String(scaled.fatG),
           carbs: scaled.carbsG === undefined ? '' : String(scaled.carbsG),
           fiber: scaled.fiberG === undefined ? '' : String(scaled.fiberG),
+          sodium: scaled.sodiumMg === undefined ? '' : String(scaled.sodiumMg),
+          potassium:
+            scaled.potassiumMg === undefined ? '' : String(scaled.potassiumMg),
+          magnesium:
+            scaled.magnesiumMg === undefined ? '' : String(scaled.magnesiumMg),
           amountG: convertedAmountG,
           macroMode: newMode,
         }
@@ -791,6 +909,9 @@ export function AddMealDialog({
         // portionsToGrams (which would wrongly multiply it by 100 again).
         parseOptionalMacro(draft.amountG),
         parseOptionalMacro(draft.fiber),
+        parseOptionalMacro(draft.sodium),
+        parseOptionalMacro(draft.potassium),
+        parseOptionalMacro(draft.magnesium),
       )
       return {
         ...draft,
@@ -799,6 +920,11 @@ export function AddMealDialog({
         fat: rates.fat100 === undefined ? '' : String(rates.fat100),
         carbs: rates.carbs100 === undefined ? '' : String(rates.carbs100),
         fiber: rates.fiber100 === undefined ? '' : String(rates.fiber100),
+        sodium: rates.sodium100 === undefined ? '' : String(rates.sodium100),
+        potassium:
+          rates.potassium100 === undefined ? '' : String(rates.potassium100),
+        magnesium:
+          rates.magnesium100 === undefined ? '' : String(rates.magnesium100),
         amountG: convertedAmountG,
         macroMode: newMode,
       }
@@ -826,6 +952,9 @@ export function AddMealDialog({
             parseOptionalMacro(manualDraft.carbs),
             manualDraft.amountG,
             parseOptionalMacro(manualDraft.fiber),
+            parseOptionalMacro(manualDraft.sodium),
+            parseOptionalMacro(manualDraft.potassium),
+            parseOptionalMacro(manualDraft.magnesium),
           )
         : totalFromPortion(
             amountNum,
@@ -834,6 +963,9 @@ export function AddMealDialog({
             parseOptionalMacro(manualDraft.carbs),
             manualDraft.amountG,
             parseOptionalMacro(manualDraft.fiber),
+            parseOptionalMacro(manualDraft.sodium),
+            parseOptionalMacro(manualDraft.potassium),
+            parseOptionalMacro(manualDraft.magnesium),
           )
     const barcodeToSave = pendingBarcode ?? undefined
     const favoriteToSave = manualDraft.favorite || undefined
@@ -877,6 +1009,9 @@ export function AddMealDialog({
           carbsG: newItem.carbsG,
           fiberG: newItem.fiberG,
           amountG: newItem.amountG,
+          sodiumMg: newItem.sodiumMg,
+          potassiumMg: newItem.potassiumMg,
+          magnesiumMg: newItem.magnesiumMg,
         },
         favoriteToSave,
         barcodeToSave,
@@ -901,6 +1036,9 @@ export function AddMealDialog({
       fat: item.fatG === undefined ? '' : String(item.fatG),
       carbs: item.carbsG === undefined ? '' : String(item.carbsG),
       fiber: item.fiberG === undefined ? '' : String(item.fiberG),
+      sodium: item.sodiumMg === undefined ? '' : String(item.sodiumMg),
+      potassium: item.potassiumMg === undefined ? '' : String(item.potassiumMg),
+      magnesium: item.magnesiumMg === undefined ? '' : String(item.magnesiumMg),
       note: item.noteText ?? '',
       amountG: item.amountG === undefined ? '' : String(item.amountG),
       macroMode: 'perPortion',
@@ -939,6 +1077,9 @@ export function AddMealDialog({
       fatG: value.fatG,
       carbsG: value.carbsG,
       fiberG: value.fiberG,
+      sodiumMg: value.sodiumMg,
+      potassiumMg: value.potassiumMg,
+      magnesiumMg: value.magnesiumMg,
       amountG: value.amountG,
       emotion: value.emotion,
     }))
@@ -1340,6 +1481,57 @@ export function AddMealDialog({
                   className="h-12 text-base tabular-nums"
                 />
               </div>
+              {micronutrients.sodium && (
+                <div className="flex flex-col gap-1.5">
+                  <span className="text-sm text-muted-foreground">
+                    {t.dailyEntry.sodiumLabel}
+                  </span>
+                  <Input
+                    type="text"
+                    inputMode="decimal"
+                    aria-label={t.dailyEntry.sodiumLabel}
+                    value={confirmSodium}
+                    onChange={(e) =>
+                      updateConfirmAbsolute('sodium', e.target.value)
+                    }
+                    className="h-12 text-base tabular-nums"
+                  />
+                </div>
+              )}
+              {micronutrients.potassium && (
+                <div className="flex flex-col gap-1.5">
+                  <span className="text-sm text-muted-foreground">
+                    {t.dailyEntry.potassiumLabel}
+                  </span>
+                  <Input
+                    type="text"
+                    inputMode="decimal"
+                    aria-label={t.dailyEntry.potassiumLabel}
+                    value={confirmPotassium}
+                    onChange={(e) =>
+                      updateConfirmAbsolute('potassium', e.target.value)
+                    }
+                    className="h-12 text-base tabular-nums"
+                  />
+                </div>
+              )}
+              {micronutrients.magnesium && (
+                <div className="flex flex-col gap-1.5">
+                  <span className="text-sm text-muted-foreground">
+                    {t.dailyEntry.magnesiumLabel}
+                  </span>
+                  <Input
+                    type="text"
+                    inputMode="decimal"
+                    aria-label={t.dailyEntry.magnesiumLabel}
+                    value={confirmMagnesium}
+                    onChange={(e) =>
+                      updateConfirmAbsolute('magnesium', e.target.value)
+                    }
+                    className="h-12 text-base tabular-nums"
+                  />
+                </div>
+              )}
             </div>
             <div className="flex flex-col gap-1.5">
               <span className="text-sm text-muted-foreground">
@@ -1820,6 +2012,21 @@ export function AddMealDialog({
           onFiberChange={(value) =>
             setManualDraft((draft) => ({ ...draft, fiber: value }))
           }
+          sodium={manualDraft.sodium}
+          onSodiumChange={(value) =>
+            setManualDraft((draft) => ({ ...draft, sodium: value }))
+          }
+          potassium={manualDraft.potassium}
+          onPotassiumChange={(value) =>
+            setManualDraft((draft) => ({ ...draft, potassium: value }))
+          }
+          magnesium={manualDraft.magnesium}
+          onMagnesiumChange={(value) =>
+            setManualDraft((draft) => ({ ...draft, magnesium: value }))
+          }
+          showSodium={micronutrients.sodium}
+          showPotassium={micronutrients.potassium}
+          showMagnesium={micronutrients.magnesium}
           note={manualDraft.note}
           onNoteChange={(value) =>
             setManualDraft((draft) => ({ ...draft, note: value }))
@@ -1840,6 +2047,9 @@ export function AddMealDialog({
               item.lastCarbsG,
               item.lastAmountG,
               item.lastFiberG,
+              item.lastSodiumMg,
+              item.lastPotassiumMg,
+              item.lastMagnesiumMg,
             )
             setManualDraft((draft) => ({
               ...draft,
@@ -1849,6 +2059,16 @@ export function AddMealDialog({
               fat: rates.fat100 === undefined ? '' : String(rates.fat100),
               carbs: rates.carbs100 === undefined ? '' : String(rates.carbs100),
               fiber: rates.fiber100 === undefined ? '' : String(rates.fiber100),
+              sodium:
+                rates.sodium100 === undefined ? '' : String(rates.sodium100),
+              potassium:
+                rates.potassium100 === undefined
+                  ? ''
+                  : String(rates.potassium100),
+              magnesium:
+                rates.magnesium100 === undefined
+                  ? ''
+                  : String(rates.magnesium100),
               amountG: String(rates.portions),
             }))
           }}

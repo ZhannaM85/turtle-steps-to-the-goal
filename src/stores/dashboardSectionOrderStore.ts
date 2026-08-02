@@ -13,6 +13,7 @@ export const DEFAULT_DASHBOARD_SECTION_ORDER: DashboardChartKey[] = [
   'calories',
   'macros',
   'bodyComposition',
+  'electrolytes',
   'customChart',
   'calorieWeightCorrelation',
   'lateMealCorrelation',

@@ -45,6 +45,17 @@ export interface MealItemEditorSheetProps {
    * directly; this is the one place it gets typed in). */
   fiber: string
   onFiberChange: (value: string) => void
+  /** #530 — electrolytes in mg; omit or leave empty when tracking is off. */
+  sodium?: string
+  onSodiumChange?: (value: string) => void
+  potassium?: string
+  onPotassiumChange?: (value: string) => void
+  magnesium?: string
+  onMagnesiumChange?: (value: string) => void
+  /** Which electrolyte fields to show (#530 Settings). */
+  showSodium?: boolean
+  showPotassium?: boolean
+  showMagnesium?: boolean
   amountG: string
   onAmountGChange: (value: string) => void
   macroMode: 'per100g' | 'perPortion'
@@ -217,6 +228,15 @@ export function MealItemEditorSheet({
   onCarbsChange,
   fiber,
   onFiberChange,
+  sodium = '',
+  onSodiumChange,
+  potassium = '',
+  onPotassiumChange,
+  magnesium = '',
+  onMagnesiumChange,
+  showSodium = false,
+  showPotassium = false,
+  showMagnesium = false,
   amountG,
   onAmountGChange,
   macroMode,
@@ -254,6 +274,9 @@ export function MealItemEditorSheet({
           parseOptionalMacro(carbs),
           amountG,
           parseOptionalMacro(fiber),
+          parseOptionalMacro(sodium),
+          parseOptionalMacro(potassium),
+          parseOptionalMacro(magnesium),
         )
       : totalFromPortion(
           amountNum,
@@ -262,6 +285,9 @@ export function MealItemEditorSheet({
           parseOptionalMacro(carbs),
           amountG,
           parseOptionalMacro(fiber),
+          parseOptionalMacro(sodium),
+          parseOptionalMacro(potassium),
+          parseOptionalMacro(magnesium),
         )
     : null
   const totalPreview = scaledPreview
@@ -465,6 +491,33 @@ export function MealItemEditorSheet({
                 onChange={onFiberChange}
                 onEnter={onSave}
               />
+              {showSodium && onSodiumChange && (
+                <NumberField
+                  icon="🧂"
+                  label={t.dailyEntry.sodiumLabel}
+                  value={sodium}
+                  onChange={onSodiumChange}
+                  onEnter={onSave}
+                />
+              )}
+              {showPotassium && onPotassiumChange && (
+                <NumberField
+                  icon="🍌"
+                  label={t.dailyEntry.potassiumLabel}
+                  value={potassium}
+                  onChange={onPotassiumChange}
+                  onEnter={onSave}
+                />
+              )}
+              {showMagnesium && onMagnesiumChange && (
+                <NumberField
+                  icon="🥬"
+                  label={t.dailyEntry.magnesiumLabel}
+                  value={magnesium}
+                  onChange={onMagnesiumChange}
+                  onEnter={onSave}
+                />
+              )}
             </div>
           </FormSection>
 
@@ -498,6 +551,24 @@ export function MealItemEditorSheet({
                 <p>
                   {t.dailyEntry.fiberLabel}: {scaledPreview.fiberG}
                   {t.dailyEntry.gramsUnit}
+                </p>
+              )}
+              {showSodium && scaledPreview?.sodiumMg !== undefined && (
+                <p>
+                  {t.dailyEntry.sodiumLabel}: {scaledPreview.sodiumMg}
+                  {t.dailyEntry.mgUnit}
+                </p>
+              )}
+              {showPotassium && scaledPreview?.potassiumMg !== undefined && (
+                <p>
+                  {t.dailyEntry.potassiumLabel}: {scaledPreview.potassiumMg}
+                  {t.dailyEntry.mgUnit}
+                </p>
+              )}
+              {showMagnesium && scaledPreview?.magnesiumMg !== undefined && (
+                <p>
+                  {t.dailyEntry.magnesiumLabel}: {scaledPreview.magnesiumMg}
+                  {t.dailyEntry.mgUnit}
                 </p>
               )}
               {totalPreview && todayTotalPreview && (

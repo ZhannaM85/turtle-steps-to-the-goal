@@ -12,6 +12,7 @@ import {
   useTrackedFieldsStore,
   useTrendChartSeriesStore,
   useUnitStore,
+  useMicronutrientTrackingStore,
   useWaterTrackingStore,
   useWeekStartStore,
 } from '@/stores'
@@ -34,6 +35,9 @@ beforeEach(() => {
   useWeekStartStore.setState({ weekStart: 'monday' })
   useDigestionTrackingStore.setState({ enabled: false })
   useWaterTrackingStore.setState({ enabled: false })
+  useMicronutrientTrackingStore.setState({
+    tracked: { sodium: false, potassium: false, magnesium: false },
+  })
   useDailyReminderStore.setState({ enabled: false })
   useTrendChartSeriesStore.setState({ visible: defaultTrendChartVisible })
   useTrackedFieldsStore.setState((state) => ({
@@ -59,6 +63,9 @@ afterEach(() => {
   useWeekStartStore.setState({ weekStart: 'monday' })
   useDigestionTrackingStore.setState({ enabled: false })
   useWaterTrackingStore.setState({ enabled: false })
+  useMicronutrientTrackingStore.setState({
+    tracked: { sodium: false, potassium: false, magnesium: false },
+  })
   useDailyReminderStore.setState({ enabled: false })
   useTrendChartSeriesStore.setState({ visible: defaultTrendChartVisible })
   useTrackedFieldsStore.setState((state) => ({
@@ -350,6 +357,21 @@ describe('SettingsScreen', () => {
           screen.getByRole('toolbar', { name: 'Evening' }),
         ).getByRole('button', { name: 'Ate late tonight' }),
       ).toHaveAttribute('aria-pressed', 'true')
+    })
+
+    it('defaults electrolytes off and can turn sodium on (#530)', async () => {
+      const user = userEvent.setup()
+      renderSettings()
+
+      const sodiumToggle = within(
+        screen.getByRole('toolbar', { name: 'Electrolytes' }),
+      ).getByRole('button', { name: 'Sodium' })
+      expect(sodiumToggle).toHaveAttribute('aria-pressed', 'false')
+
+      await user.click(sodiumToggle)
+
+      expect(sodiumToggle).toHaveAttribute('aria-pressed', 'true')
+      expect(useMicronutrientTrackingStore.getState().tracked.sodium).toBe(true)
     })
   })
 

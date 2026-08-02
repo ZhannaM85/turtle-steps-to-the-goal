@@ -36,6 +36,7 @@ import { EmptyState } from '@/shared/ui/empty-state'
 import { PageHeader } from '@/shared/ui/page-header'
 import { BodyCompositionTrendChart } from './BodyCompositionTrendChart'
 import { CalorieTrendChart } from './CalorieTrendChart'
+import { ElectrolyteTrendChart } from './ElectrolyteTrendChart'
 import { CompareRangesView } from './CompareRangesView'
 import { CorrelationView } from './CorrelationView'
 import { CustomChartView } from './CustomChartView'
@@ -219,6 +220,15 @@ export function DashboardScreen() {
     ),
     bodyComposition: (dragHandle) => (
       <BodyCompositionTrendChart
+        entries={entries}
+        period={trendChartPeriod}
+        customStart={trendChartCustomStart}
+        customEnd={trendChartCustomEnd}
+        dragHandle={dragHandle}
+      />
+    ),
+    electrolytes: (dragHandle) => (
+      <ElectrolyteTrendChart
         entries={entries}
         period={trendChartPeriod}
         customStart={trendChartCustomStart}

@@ -28,6 +28,10 @@ export interface PickedFoodValues {
    * doc comment); a personal item carries its own `lastFiberG` if it was
    * ever recorded. */
   fiberG?: number
+  /** #530 — electrolytes (mg) when known from OFF / library / confirm. */
+  sodiumMg?: number
+  potassiumMg?: number
+  magnesiumMg?: number
   note: string
   /** Quantity the totals were scaled from (#96) — lets the created item
    * be edited later the same per-100g + quantity way a manually-entered
@@ -338,6 +342,18 @@ export function FoodPickerDialog({
           food.fiber100 === undefined
             ? undefined
             : Math.round(food.fiber100 * scale * 10) / 10,
+        sodiumMg:
+          food.sodium100Mg === undefined
+            ? undefined
+            : Math.round(food.sodium100Mg * scale * 10) / 10,
+        potassiumMg:
+          food.potassium100Mg === undefined
+            ? undefined
+            : Math.round(food.potassium100Mg * scale * 10) / 10,
+        magnesiumMg:
+          food.magnesium100Mg === undefined
+            ? undefined
+            : Math.round(food.magnesium100Mg * scale * 10) / 10,
         note: food[locale],
         amountG: grams,
       }
@@ -350,6 +366,9 @@ export function FoodPickerDialog({
       mealItem.lastCarbsG,
       mealItem.lastAmountG,
       mealItem.lastFiberG,
+      mealItem.lastSodiumMg,
+      mealItem.lastPotassiumMg,
+      mealItem.lastMagnesiumMg,
     )
     return {
       amountKcal: Math.round(rates.kcal100 * scale),
@@ -369,6 +388,18 @@ export function FoodPickerDialog({
         rates.fiber100 === undefined
           ? undefined
           : Math.round(rates.fiber100 * scale * 10) / 10,
+      sodiumMg:
+        rates.sodium100 === undefined
+          ? undefined
+          : Math.round(rates.sodium100 * scale * 10) / 10,
+      potassiumMg:
+        rates.potassium100 === undefined
+          ? undefined
+          : Math.round(rates.potassium100 * scale * 10) / 10,
+      magnesiumMg:
+        rates.magnesium100 === undefined
+          ? undefined
+          : Math.round(rates.magnesium100 * scale * 10) / 10,
       note: mealItem.name,
       amountG: grams,
     }

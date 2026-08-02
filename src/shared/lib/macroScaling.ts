@@ -14,6 +14,10 @@ export function parseOptionalMacro(raw: string): number | undefined {
     : undefined
 }
 
+function scaleOptional(value: number | undefined, scale: number): number | undefined {
+  return value === undefined ? undefined : Math.round(value * scale * 10) / 10
+}
+
 /** Scales per-100g rates by a count of 100g portions (#96, reframed by
  * #140) — driving manual entry's kcal/protein/fat/carbs fields (per-100g
  * rates) plus a portions field everywhere else in the app
@@ -26,7 +30,8 @@ export function parseOptionalMacro(raw: string): number | undefined {
  * grams-default-100 had. `amountG` stays real grams (portions × 100)
  * since everything downstream (export, `CalorieItem.amountG`,
  * `ratesFromAbsolute` below) still reads/writes true portion weight, not
- * a portion count. */
+ * a portion count. #530 — optional sodium/potassium/magnesium per-100g
+ * rates scale the same way as fiber. */
 export function scaleFromPer100g(
   kcal100: number,
   protein100: number | undefined,
@@ -34,6 +39,9 @@ export function scaleFromPer100g(
   carbs100: number | undefined,
   rawPortions: string,
   fiber100?: number,
+  sodium100?: number,
+  potassium100?: number,
+  magnesium100?: number,
 ): {
   amountKcal: number
   proteinG: number | undefined
@@ -41,27 +49,23 @@ export function scaleFromPer100g(
   carbsG: number | undefined
   amountG: number
   fiberG: number | undefined
+  sodiumMg: number | undefined
+  potassiumMg: number | undefined
+  magnesiumMg: number | undefined
 } {
   const parsedPortions = parseNumberInput(rawPortions)
   const portions = parsedPortions && parsedPortions > 0 ? parsedPortions : 1
   const scale = portions
   return {
     amountKcal: Math.round(kcal100 * scale),
-    proteinG:
-      protein100 === undefined
-        ? undefined
-        : Math.round(protein100 * scale * 10) / 10,
-    fatG:
-      fat100 === undefined ? undefined : Math.round(fat100 * scale * 10) / 10,
-    carbsG:
-      carbs100 === undefined
-        ? undefined
-        : Math.round(carbs100 * scale * 10) / 10,
+    proteinG: scaleOptional(protein100, scale),
+    fatG: scaleOptional(fat100, scale),
+    carbsG: scaleOptional(carbs100, scale),
     amountG: Math.round(portions * 100 * 10) / 10,
-    fiberG:
-      fiber100 === undefined
-        ? undefined
-        : Math.round(fiber100 * scale * 10) / 10,
+    fiberG: scaleOptional(fiber100, scale),
+    sodiumMg: scaleOptional(sodium100, scale),
+    potassiumMg: scaleOptional(potassium100, scale),
+    magnesiumMg: scaleOptional(magnesium100, scale),
   }
 }
 
@@ -104,6 +108,9 @@ export function ratesFromAbsolute(
   carbsG: number | undefined,
   amountG: number | undefined,
   fiberG?: number,
+  sodiumMg?: number,
+  potassiumMg?: number,
+  magnesiumMg?: number,
 ): {
   kcal100: number
   protein100: number | undefined
@@ -111,22 +118,23 @@ export function ratesFromAbsolute(
   carbs100: number | undefined
   portions: number
   fiber100: number | undefined
+  sodium100: number | undefined
+  potassium100: number | undefined
+  magnesium100: number | undefined
 } {
   const grams = amountG && amountG > 0 ? amountG : 100
   const portions = grams / 100
   const scale = 1 / portions
   return {
     kcal100: Math.round(amountKcal * scale),
-    protein100:
-      proteinG === undefined
-        ? undefined
-        : Math.round(proteinG * scale * 10) / 10,
-    fat100: fatG === undefined ? undefined : Math.round(fatG * scale * 10) / 10,
-    carbs100:
-      carbsG === undefined ? undefined : Math.round(carbsG * scale * 10) / 10,
+    protein100: scaleOptional(proteinG, scale),
+    fat100: scaleOptional(fatG, scale),
+    carbs100: scaleOptional(carbsG, scale),
     portions,
-    fiber100:
-      fiberG === undefined ? undefined : Math.round(fiberG * scale * 10) / 10,
+    fiber100: scaleOptional(fiberG, scale),
+    sodium100: scaleOptional(sodiumMg, scale),
+    potassium100: scaleOptional(potassiumMg, scale),
+    magnesium100: scaleOptional(magnesiumMg, scale),
   }
 }
 
@@ -143,6 +151,9 @@ export function totalFromPortion(
   carbsG: number | undefined,
   rawAmountG: string,
   fiberG?: number,
+  sodiumMg?: number,
+  potassiumMg?: number,
+  magnesiumMg?: number,
 ): {
   amountKcal: number
   proteinG: number | undefined
@@ -150,6 +161,9 @@ export function totalFromPortion(
   carbsG: number | undefined
   amountG: number | undefined
   fiberG: number | undefined
+  sodiumMg: number | undefined
+  potassiumMg: number | undefined
+  magnesiumMg: number | undefined
 } {
   return {
     amountKcal,
@@ -158,6 +172,9 @@ export function totalFromPortion(
     carbsG,
     amountG: parseOptionalMacro(rawAmountG),
     fiberG,
+    sodiumMg,
+    potassiumMg,
+    magnesiumMg,
   }
 }
 

@@ -125,6 +125,12 @@ export interface Dictionary {
     remainingCarbLabel: string
     /** #341 — same shape as the other remaining-nutrient cards above. */
     remainingFiberLabel: string
+    /** #530 — electrolyte Remaining cards (mg). */
+    remainingSodiumLabel: string
+    remainingPotassiumLabel: string
+    remainingMagnesiumLabel: string
+    mgRemainingUnit: string
+    mgOverUnit: string
     /** #343 — same on-demand drag-reorder mechanism as
      * `dashboard.reorderSectionLabel`/`reorderSectionsButton`, scoped to
      * Today's own reorderable card group instead of Dashboard sections. */
@@ -366,6 +372,10 @@ export interface Dictionary {
      * MealItemEditorSheet.tsx's own scope note on why this doesn't ripple
      * into every macrosSummaryText call site). */
     fiberLabel: string
+    /** #530 — electrolyte labels for meal entry / Settings chips. */
+    sodiumLabel: string
+    potassiumLabel: string
+    magnesiumLabel: string
     /** Count of 100g portions (#93, reframed by #140) — e.g. "2" for 200g,
      * "1.5" for 150g, matching how nutrition labels are usually printed as
      * "per 100g" rather than typing the raw gram total. In per-100g mode
@@ -378,6 +388,8 @@ export interface Dictionary {
      * for an item entered as a direct total. */
     itemWeightLabel: string
     gramsUnit: string
+    /** #530 — milligrams for electrolyte fields/targets. */
+    mgUnit: string
     macrosSummary: (protein: string, fat: string, carbs: string) => string
     macrosSummaryCompact: (
       protein: string,
@@ -712,6 +724,13 @@ export interface Dictionary {
     /** #341 — same shape/reasoning as the other daily macro targets above. */
     dailyFiberTargetLabel: string
     dailyFiberTargetHint: string
+    /** #530 — optional daily electrolyte targets (mg). */
+    dailySodiumTargetLabel: string
+    dailySodiumTargetHint: string
+    dailyPotassiumTargetLabel: string
+    dailyPotassiumTargetHint: string
+    dailyMagnesiumTargetLabel: string
+    dailyMagnesiumTargetHint: string
     /** #258 — same shape again, independent of the macro targets. */
     dailyWaterTargetLabel: string
     dailyWaterTargetHint: string
@@ -1008,6 +1027,9 @@ export interface Dictionary {
     /** #277 — shown instead of the chart once every series is unchecked
      * via the series picker, same shape as customChartEmptyDescription. */
     bodyCompositionEmptyDescription: string
+    /** #530 — electrolytes trend (Na/K/Mg day totals). */
+    electrolytesTrendTitle: string
+    electrolytesEmptyDescription: string
     hideChartLabel: (title: string) => string
     showChartLabel: (title: string) => string
     weeklySummaryTitle: string
@@ -1381,6 +1403,8 @@ export interface Dictionary {
     trackedFieldsMorningGroupLabel: string
     trackedFieldsEveningGroupLabel: string
     trackedFieldsOtherGroupLabel: string
+    /** #530 — electrolytes subgroup inside What to track. */
+    trackedFieldsElectrolytesGroupLabel: string
     /** #233 — height/age/sex, entered once (rarely changed) purely to
      * compute BMI/BMR on Today; local preference only, not part of the
      * export bundle, same category as unit/theme/week-start. */

@@ -30,7 +30,10 @@ import {
   totalCarbs,
   totalFat,
   totalFiber,
+  totalMagnesium,
+  totalPotassium,
   totalProtein,
+  totalSodium,
   totalWaterMl,
 } from '@/domain/dailyEntry'
 import { goalWeekEnd, kgToLb } from '@/domain/goal'
@@ -70,6 +73,7 @@ import {
   useDailyReminderStore,
   useDayStartStore,
   useGoalStore,
+  useMicronutrientTrackingStore,
   useProfileStore,
   useSectionVisibilityStore,
   useTodayCardOrderStore,
@@ -403,6 +407,28 @@ export function TodayScreen() {
       : null
   const isOverFiberTarget = fiberDeltaG !== null && fiberDeltaG < 0
 
+  // #530 — electrolytes (mg); cards also require Settings tracking on.
+  const consumedSodiumMg = totalSodium(entry?.calorieEntries) ?? 0
+  const sodiumDeltaMg =
+    goal?.dailySodiumTargetMg !== undefined
+      ? goal.dailySodiumTargetMg - consumedSodiumMg
+      : null
+  const isOverSodiumTarget = sodiumDeltaMg !== null && sodiumDeltaMg < 0
+  const consumedPotassiumMg = totalPotassium(entry?.calorieEntries) ?? 0
+  const potassiumDeltaMg =
+    goal?.dailyPotassiumTargetMg !== undefined
+      ? goal.dailyPotassiumTargetMg - consumedPotassiumMg
+      : null
+  const isOverPotassiumTarget =
+    potassiumDeltaMg !== null && potassiumDeltaMg < 0
+  const consumedMagnesiumMg = totalMagnesium(entry?.calorieEntries) ?? 0
+  const magnesiumDeltaMg =
+    goal?.dailyMagnesiumTargetMg !== undefined
+      ? goal.dailyMagnesiumTargetMg - consumedMagnesiumMg
+      : null
+  const isOverMagnesiumTarget =
+    magnesiumDeltaMg !== null && magnesiumDeltaMg < 0
+
   // #266/#328 — each remaining-nutrient card's `description` shows target
   // minus consumed together (`targetMinusConsumedText`), so the consumed
   // amount is visible without the reader subtracting it themselves from
@@ -424,6 +450,20 @@ export function TodayScreen() {
   const fiberTargetText =
     goal?.dailyFiberTargetG !== undefined
       ? formatMacroGrams(goal.dailyFiberTargetG, locale, t)
+      : null
+  const formatMgAmount = (mg: number) =>
+    `${formatNumber(mg, locale, 0)} ${t.dailyEntry.mgUnit}`
+  const sodiumTargetText =
+    goal?.dailySodiumTargetMg !== undefined
+      ? formatMgAmount(goal.dailySodiumTargetMg)
+      : null
+  const potassiumTargetText =
+    goal?.dailyPotassiumTargetMg !== undefined
+      ? formatMgAmount(goal.dailyPotassiumTargetMg)
+      : null
+  const magnesiumTargetText =
+    goal?.dailyMagnesiumTargetMg !== undefined
+      ? formatMgAmount(goal.dailyMagnesiumTargetMg)
       : null
 
   // #258 — same shape again, based on the day's logged water total
@@ -462,6 +502,15 @@ export function TodayScreen() {
     : null
   const fiberPercent = goal?.dailyFiberTargetG
     ? (consumedFiberG / goal.dailyFiberTargetG) * 100
+    : null
+  const sodiumPercent = goal?.dailySodiumTargetMg
+    ? (consumedSodiumMg / goal.dailySodiumTargetMg) * 100
+    : null
+  const potassiumPercent = goal?.dailyPotassiumTargetMg
+    ? (consumedPotassiumMg / goal.dailyPotassiumTargetMg) * 100
+    : null
+  const magnesiumPercent = goal?.dailyMagnesiumTargetMg
+    ? (consumedMagnesiumMg / goal.dailyMagnesiumTargetMg) * 100
     : null
   const waterPercent = goal?.dailyWaterTargetMl
     ? (consumedWaterMl / goal.dailyWaterTargetMl) * 100
@@ -535,6 +584,7 @@ export function TodayScreen() {
   const toggleSection = useSectionVisibilityStore(
     (state) => state.toggleVisible,
   )
+  const micronutrients = useMicronutrientTrackingStore((state) => state.tracked)
   function sectionTitle(key: SectionKey, title: string) {
     return (
       <SectionTitleWithToggle
@@ -700,6 +750,90 @@ export function TodayScreen() {
         />
       ) : (
         sectionTitle('todayRemainingFiber', t.today.remainingFiberLabel)
+      )),
+    remainingSodium:
+      micronutrients.sodium &&
+      sodiumDeltaMg !== null &&
+      (sectionVisible.todayRemainingSodium ? (
+        <StatCard
+          label={t.today.remainingSodiumLabel}
+          value={formatNumber(Math.abs(sodiumDeltaMg), locale, 0)}
+          unit={
+            isOverSodiumTarget
+              ? t.today.mgOverUnit
+              : t.today.mgRemainingUnit
+          }
+          description={t.today.targetMinusConsumedText(
+            sodiumTargetText!,
+            formatMgAmount(consumedSodiumMg),
+          )}
+          progressPercent={sodiumPercent ?? undefined}
+          progressColor="var(--stat-sodium)"
+          action={statCardAction(
+            'todayRemainingSodium',
+            t.today.remainingSodiumLabel,
+          )}
+        />
+      ) : (
+        sectionTitle('todayRemainingSodium', t.today.remainingSodiumLabel)
+      )),
+    remainingPotassium:
+      micronutrients.potassium &&
+      potassiumDeltaMg !== null &&
+      (sectionVisible.todayRemainingPotassium ? (
+        <StatCard
+          label={t.today.remainingPotassiumLabel}
+          value={formatNumber(Math.abs(potassiumDeltaMg), locale, 0)}
+          unit={
+            isOverPotassiumTarget
+              ? t.today.mgOverUnit
+              : t.today.mgRemainingUnit
+          }
+          description={t.today.targetMinusConsumedText(
+            potassiumTargetText!,
+            formatMgAmount(consumedPotassiumMg),
+          )}
+          progressPercent={potassiumPercent ?? undefined}
+          progressColor="var(--stat-potassium)"
+          action={statCardAction(
+            'todayRemainingPotassium',
+            t.today.remainingPotassiumLabel,
+          )}
+        />
+      ) : (
+        sectionTitle(
+          'todayRemainingPotassium',
+          t.today.remainingPotassiumLabel,
+        )
+      )),
+    remainingMagnesium:
+      micronutrients.magnesium &&
+      magnesiumDeltaMg !== null &&
+      (sectionVisible.todayRemainingMagnesium ? (
+        <StatCard
+          label={t.today.remainingMagnesiumLabel}
+          value={formatNumber(Math.abs(magnesiumDeltaMg), locale, 0)}
+          unit={
+            isOverMagnesiumTarget
+              ? t.today.mgOverUnit
+              : t.today.mgRemainingUnit
+          }
+          description={t.today.targetMinusConsumedText(
+            magnesiumTargetText!,
+            formatMgAmount(consumedMagnesiumMg),
+          )}
+          progressPercent={magnesiumPercent ?? undefined}
+          progressColor="var(--stat-magnesium)"
+          action={statCardAction(
+            'todayRemainingMagnesium',
+            t.today.remainingMagnesiumLabel,
+          )}
+        />
+      ) : (
+        sectionTitle(
+          'todayRemainingMagnesium',
+          t.today.remainingMagnesiumLabel,
+        )
       )),
     remainingWater:
       waterDeltaMl !== null &&

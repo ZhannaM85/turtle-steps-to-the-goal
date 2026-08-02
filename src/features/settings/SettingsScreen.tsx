@@ -15,6 +15,7 @@ import {
   useTrendChartSeriesStore,
   useUnitStore,
   useWaterTrackingStore,
+  useMicronutrientTrackingStore,
   useWeekStartStore,
   type ColorScheme,
   type Mood,
@@ -80,6 +81,10 @@ export function SettingsScreen() {
   const waterTrackingEnabled = useWaterTrackingStore((state) => state.enabled)
   const setWaterTrackingEnabled = useWaterTrackingStore(
     (state) => state.setEnabled,
+  )
+  const micronutrients = useMicronutrientTrackingStore((state) => state.tracked)
+  const setMicronutrientTracked = useMicronutrientTrackingStore(
+    (state) => state.setTracked,
   )
   // #237: unified "what to track" section — the 5 fields that never had
   // their own opt-out (trackedFieldsStore) plus cycle/constipation/water
@@ -423,6 +428,37 @@ export function SettingsScreen() {
               </ToggleGroupItem>
               <ToggleGroupItem value="water" className="h-12">
                 {t.settings.waterTrackingLabel}
+              </ToggleGroupItem>
+            </ToggleGroup>
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <span className="text-xs font-medium text-muted-foreground">
+              {t.settings.trackedFieldsElectrolytesGroupLabel}
+            </span>
+            <ToggleGroup
+              type="multiple"
+              aria-label={t.settings.trackedFieldsElectrolytesGroupLabel}
+              value={(
+                ['sodium', 'potassium', 'magnesium'] as const
+              ).filter((key) => micronutrients[key])}
+              onValueChange={(value: string[]) => {
+                for (const key of ['sodium', 'potassium', 'magnesium'] as const) {
+                  const shouldBeOn = value.includes(key)
+                  if (shouldBeOn !== micronutrients[key]) {
+                    setMicronutrientTracked(key, shouldBeOn)
+                  }
+                }
+              }}
+              className="flex-wrap"
+            >
+              <ToggleGroupItem value="sodium" className="h-12">
+                {t.dailyEntry.sodiumLabel}
+              </ToggleGroupItem>
+              <ToggleGroupItem value="potassium" className="h-12">
+                {t.dailyEntry.potassiumLabel}
+              </ToggleGroupItem>
+              <ToggleGroupItem value="magnesium" className="h-12">
+                {t.dailyEntry.magnesiumLabel}
               </ToggleGroupItem>
             </ToggleGroup>
           </div>
