@@ -27,7 +27,7 @@ export const releaseNotes: ReleaseNote[] = [
   {
     version: 474,
     issue: 522,
-    date: '2026-08-02T16:55:02+03:00',
+    date: '2026-08-02T16:56:31+03:00',
     en: 'The calories-vs-weight chart no longer includes the current incomplete week, so a partial week average is not mistaken for one day’s calories.',
     ru: 'График «калории и изменение веса» больше не включает текущую незавершённую неделю — частичное среднее за неделю не выглядит как калории одного дня.',
   },
