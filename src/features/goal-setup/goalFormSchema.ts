@@ -1,27 +1,35 @@
 import { z } from 'zod'
 import type { Dictionary } from '@/i18n'
 
+/** RHF may hold `''` after reset (#241 / #534); Zod number fields reject that. */
+function optionalNumber(schema: z.ZodNumber) {
+  return z.preprocess(
+    (value) => (value === '' || value === null ? undefined : value),
+    schema.optional(),
+  )
+}
+
 export function makeGoalFormSchema(t: Dictionary) {
   return z
     .object({
-      targetWeeklyLoss: z.number().max(10).optional(),
+      targetWeeklyLoss: optionalNumber(z.number().max(10)),
       // #208 — genuinely optional, unlike targetWeeklyLoss: no superRefine
       // requiring it below, since not everyone wants a daily calories
       // target alongside the weekly weight-loss one.
-      dailyCalorieTarget: z.number().positive().max(10000).optional(),
+      dailyCalorieTarget: optionalNumber(z.number().positive().max(10000)),
       // #220 — same reasoning as dailyCalorieTarget, independent of it.
-      dailyProteinTarget: z.number().positive().max(1000).optional(),
+      dailyProteinTarget: optionalNumber(z.number().positive().max(1000)),
       // #252 — same reasoning again, each independent of the other three.
-      dailyFatTarget: z.number().positive().max(1000).optional(),
-      dailyCarbTarget: z.number().positive().max(1000).optional(),
+      dailyFatTarget: optionalNumber(z.number().positive().max(1000)),
+      dailyCarbTarget: optionalNumber(z.number().positive().max(1000)),
       // #341 — same reasoning again, independent of the other four.
-      dailyFiberTarget: z.number().positive().max(1000).optional(),
+      dailyFiberTarget: optionalNumber(z.number().positive().max(1000)),
       // #530 — electrolytes in mg; independent optional targets.
-      dailySodiumTarget: z.number().positive().max(20000).optional(),
-      dailyPotassiumTarget: z.number().positive().max(20000).optional(),
-      dailyMagnesiumTarget: z.number().positive().max(5000).optional(),
+      dailySodiumTarget: optionalNumber(z.number().positive().max(20000)),
+      dailyPotassiumTarget: optionalNumber(z.number().positive().max(20000)),
+      dailyMagnesiumTarget: optionalNumber(z.number().positive().max(5000)),
       // #258 — same reasoning again, independent of the macro targets.
-      dailyWaterTarget: z.number().positive().max(10000).optional(),
+      dailyWaterTarget: optionalNumber(z.number().positive().max(10000)),
     })
     .superRefine((data, ctx) => {
       if (!data.targetWeeklyLoss || data.targetWeeklyLoss <= 0) {

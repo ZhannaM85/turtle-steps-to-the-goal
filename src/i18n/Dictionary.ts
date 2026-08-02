@@ -743,6 +743,9 @@ export interface Dictionary {
     suggestTargetMissingProfileHint: string
     updateButton: string
     setButton: string
+    /** #534 — abandon in-progress goal edits without saving. */
+    cancelButton: string
+    confirmDiscardEditsLabel: string
     /** #382 — shown alongside `updateButton` only while there's a still-live,
      * not-yet-reached window to edit in place (the ambiguous case #181's
      * automatic edit-in-place logic used to silently resolve on its own).

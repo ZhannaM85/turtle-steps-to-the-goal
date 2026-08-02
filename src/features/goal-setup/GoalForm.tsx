@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Check, Minus, Pencil, Plus } from 'lucide-react'
 import { useForm, useWatch } from 'react-hook-form'
+import { useBlocker } from 'react-router-dom'
 import type { Goal } from '@/domain/goal'
 import {
   estimatedDailyCalorieDeficitKcal,
@@ -12,7 +13,12 @@ import {
 import { suggestDailyTargets } from '@/domain/stats'
 import { formatExactNumber, formatNumber, unitLabel, useLocale, useTranslation } from '@/i18n'
 import { parseNumberInput } from '@/shared/lib/parseNumberInput'
-import { useProfileStore, useMicronutrientTrackingStore, useUnitStore } from '@/stores'
+import {
+  useMicronutrientTrackingStore,
+  useProfileStore,
+  useUnitStore,
+  type Unit,
+} from '@/stores'
 import { Button } from '@/shared/ui/button'
 import { NumberInput } from '@/shared/ui/number-input'
 import {
@@ -21,6 +27,31 @@ import {
   goalToFormValues,
 } from './goalFormMapping'
 import { makeGoalFormSchema, type GoalFormValues } from './goalFormSchema'
+
+/** Empty display values for RHF NumberInputs (#241 / #534) — `undefined`
+ * alone does not clear uncontrolled DOM values after reset. */
+function emptyGoalFormValues(): GoalFormValues {
+  return {
+    targetWeeklyLoss: '' as unknown as number | undefined,
+    dailyCalorieTarget: '' as unknown as number | undefined,
+    dailyProteinTarget: '' as unknown as number | undefined,
+    dailyFatTarget: '' as unknown as number | undefined,
+    dailyCarbTarget: '' as unknown as number | undefined,
+    dailyFiberTarget: '' as unknown as number | undefined,
+    dailySodiumTarget: '' as unknown as number | undefined,
+    dailyPotassiumTarget: '' as unknown as number | undefined,
+    dailyMagnesiumTarget: '' as unknown as number | undefined,
+    dailyWaterTarget: '' as unknown as number | undefined,
+  }
+}
+
+function formValuesForGoal(goal: Goal | null, unit: Unit): GoalFormValues {
+  if (!goal) return emptyGoalFormValues()
+  return {
+    ...emptyGoalFormValues(),
+    ...goalToFormValues(goal, unit),
+  }
+}
 
 export interface GoalFormProps {
   existingGoal: Goal | null
@@ -55,9 +86,12 @@ export function GoalForm({
     control,
     reset,
     setValue,
-    formState: { errors },
+    formState: { errors, isDirty },
   } = useForm<GoalFormValues>({
     resolver: zodResolver(schema),
+    // Prefer `goalToFormValues` ({} when null) over empty-string defaults so
+    // untouched optional fields stay `undefined`. Empty strings are only used
+    // in `reset(emptyGoalFormValues())` to clear uncontrolled inputs (#241).
     defaultValues: goalToFormValues(existingGoal, unit),
   })
 
@@ -111,13 +145,19 @@ export function GoalForm({
     )
     setValue('dailyCalorieTarget', suggested.calorieTargetKcal, {
       shouldValidate: true,
+      shouldDirty: true,
     })
     setValue('dailyProteinTarget', suggested.proteinTargetG, {
       shouldValidate: true,
+      shouldDirty: true,
     })
-    setValue('dailyFatTarget', suggested.fatTargetG, { shouldValidate: true })
+    setValue('dailyFatTarget', suggested.fatTargetG, {
+      shouldValidate: true,
+      shouldDirty: true,
+    })
     setValue('dailyCarbTarget', suggested.carbTargetG, {
       shouldValidate: true,
+      shouldDirty: true,
     })
   }
 
@@ -150,6 +190,57 @@ export function GoalForm({
   // `formValuesToGoal` behavior to use without re-deriving it.
   const [startingNew, setStartingNew] = useState(false)
 
+  // #534 — confirm before discarding dirty edits (Cancel or leave route).
+  const [confirmDiscard, setConfirmDiscard] = useState(false)
+  const blocker = useBlocker(
+    ({ currentLocation, nextLocation }) =>
+      isEditing &&
+      isDirty &&
+      currentLocation.pathname !== nextLocation.pathname,
+  )
+
+  useEffect(() => {
+    if (blocker.state === 'blocked') {
+      setConfirmDiscard(true)
+    }
+  }, [blocker.state])
+
+  function discardEdits() {
+    if (existingGoal && !startingNew) {
+      reset(formValuesForGoal(existingGoal, unit))
+      setIsEditing(false)
+    } else if (existingGoal && startingNew) {
+      reset(formValuesForGoal(existingGoal, unit))
+      setStartingNew(false)
+      setIsEditing(false)
+    } else {
+      reset(emptyGoalFormValues())
+    }
+    setConfirmDiscard(false)
+  }
+
+  function requestCancel() {
+    if (isDirty) {
+      setConfirmDiscard(true)
+      return
+    }
+    discardEdits()
+  }
+
+  function confirmLeaveWithoutSaving() {
+    discardEdits()
+    if (blocker.state === 'blocked') {
+      blocker.proceed()
+    }
+  }
+
+  function stayOnForm() {
+    setConfirmDiscard(false)
+    if (blocker.state === 'blocked') {
+      blocker.reset()
+    }
+  }
+
   async function submit(formValues: GoalFormValues) {
     await onSubmit(formValuesToGoal(formValues, unit, existingGoal, startingNew))
     setJustSaved(true)
@@ -163,18 +254,7 @@ export function GoalForm({
     // never follows. An explicit empty string is what actually clears the
     // rendered value (confirmed with an isolated repro against a bare
     // native <input>, no custom components involved).
-    reset({
-      targetWeeklyLoss: '' as unknown as number | undefined,
-      dailyCalorieTarget: '' as unknown as number | undefined,
-      dailyProteinTarget: '' as unknown as number | undefined,
-      dailyFatTarget: '' as unknown as number | undefined,
-      dailyCarbTarget: '' as unknown as number | undefined,
-      dailyFiberTarget: '' as unknown as number | undefined,
-      dailySodiumTarget: '' as unknown as number | undefined,
-      dailyPotassiumTarget: '' as unknown as number | undefined,
-      dailyMagnesiumTarget: '' as unknown as number | undefined,
-      dailyWaterTarget: '' as unknown as number | undefined,
-    })
+    reset(emptyGoalFormValues())
     setIsEditing(false)
     setStartingNew(false)
   }
@@ -342,6 +422,7 @@ export function GoalForm({
             aria-label={t.goal.editGoalLabel}
             onClick={() => {
               setStartingNew(false)
+              reset(formValuesForGoal(existingGoal, unit))
               setIsEditing(true)
             }}
           >
@@ -353,6 +434,7 @@ export function GoalForm({
               variant="outline"
               onClick={() => {
                 setStartingNew(true)
+                reset(emptyGoalFormValues())
                 setIsEditing(true)
               }}
             >
@@ -535,9 +617,33 @@ export function GoalForm({
         {...register('dailyWaterTarget', { setValueAs: parseNumberInput })}
       />
 
+      {confirmDiscard && (
+        <div className="flex flex-col gap-2 rounded-xl bg-card p-3 ring-1 ring-foreground/10">
+          <span className="text-sm text-muted-foreground">
+            {t.goal.confirmDiscardEditsLabel}
+          </span>
+          <div className="flex items-center gap-2">
+            <Button
+              type="button"
+              variant="destructive"
+              size="sm"
+              onClick={confirmLeaveWithoutSaving}
+            >
+              {t.dailyEntry.confirmDiscardInProgressMealYes}
+            </Button>
+            <Button type="button" variant="ghost" size="sm" onClick={stayOnForm}>
+              {t.dailyEntry.confirmDiscardInProgressMealNo}
+            </Button>
+          </div>
+        </div>
+      )}
+
       <div className="flex flex-wrap items-center gap-2 self-start">
         <Button type="submit">
           {existingGoal && !startingNew ? t.goal.updateButton : t.goal.setButton}
+        </Button>
+        <Button type="button" variant="outline" onClick={requestCancel}>
+          {t.goal.cancelButton}
         </Button>
         {justSaved && (
           <span
