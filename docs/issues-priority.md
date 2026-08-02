@@ -1274,7 +1274,7 @@ _Reported live with correlation + Day screenshots and `turtle-steps-backup-2026-
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#522](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/522) | 🔍 Pending validation | Dashboard correlation calories wrong for days with after-midnight meals (shows 727 vs ~1244 on 1 Aug) | Not an after-midnight bug — 01:09 meal was already in the 1244 day total. Tooltip showed weekly *average* for the incomplete week of 1–2 Aug (Sat week-start from period filter): (1244+210)/2 = 727. Fix: `correlationInsightPoints` excludes incomplete/current weeks (`weekEnd` after `min(today, max entry date)`, plus leading weeks truncated by the period start). Sparse finished historical weeks still count |
+| [#522](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/522) | ✅ Done | Dashboard correlation calories wrong for days with after-midnight meals (shows 727 vs ~1244 on 1 Aug) | Confirmed on-device by the user. Not an after-midnight bug — 01:09 meal was already in the 1244 day total. Tooltip showed weekly *average* for the incomplete week of 1–2 Aug (Sat week-start from period filter): (1244+210)/2 = 727. Fix: `correlationInsightPoints` excludes incomplete/current weeks (`weekEnd` after `min(today, max entry date)`, plus leading weeks truncated by the period start). Sparse finished historical weeks still count |
 
 ---
 
@@ -1284,7 +1284,7 @@ _Reported live with late-meal correlation + Day screenshots: outlier chip «13 �
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#523](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/523) | 🔍 Pending validation | Late-meal correlation outlier date is the weight day, not the eating day (~10:00 on 13 Jul vs Day log 23:28) | Math was OK (12 Jul last timed meal 10:13 → 13 Jul +0.65). Fixed by keying day-pair points to the **predictor day** (x-axis metric) for late-meal/sleep/steps/protein/meal-frequency/night-eating — outlier/open-day now lands on the day whose last meal matches the plot. Fasting unchanged (still end-of-fast day) |
+| [#523](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/523) | ✅ Done | Late-meal correlation outlier date is the weight day, not the eating day (~10:00 on 13 Jul vs Day log 23:28) | Confirmed on-device by the user. Math was OK (12 Jul last timed meal 10:13 → 13 Jul +0.65). Fixed by keying day-pair points to the **predictor day** (x-axis metric) for late-meal/sleep/steps/protein/meal-frequency/night-eating — outlier/open-day now lands on the day whose last meal matches the plot. Fasting unchanged (still end-of-fast day) |
 
 ---
 
@@ -1294,7 +1294,7 @@ _Follow-up after reviewing steps/protein/calories/sleep/meal-frequency charts: o
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#524](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/524) | 🔍 Pending validation | Correlation unusual-point chips should say why they were flagged (weight change vs metric) | `classifyOutlierAxes` + chip/tooltip copy: unusual weight change, unusual x-metric, or both. Sleep >24h left for manual fix via #523 |
+| [#524](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/524) | ✅ Done | Correlation unusual-point chips should say why they were flagged (weight change vs metric) | Confirmed on-device by the user. `classifyOutlierAxes` + chip/tooltip copy: unusual weight change, unusual x-metric, or both. Sleep >24h left for manual fix via #523 |
 
 ---
 
@@ -1304,7 +1304,7 @@ _Sleep correlation x-axis stretched to ~100h; backup has 20 days >24h (worst 202
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#525](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/525) | 🔍 Pending validation | Apple Health sleep import overcounts (overlaps + midnight-merge chaining) | Overlap-aware `unionIntervalSeconds`; midnight merge only for ≤4h fragments; cap import at 24h. Re-import needed to refresh stored values |
+| [#525](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/525) | ✅ Done | Apple Health sleep import overcounts (overlaps + midnight-merge chaining) | Confirmed on-device after re-import: sleep correlation axis back to ~0–16h, no 40–100h spikes. Overlap-aware `unionIntervalSeconds`; midnight merge only for ≤4h fragments; cap import at 24h |
 
 ---
 
