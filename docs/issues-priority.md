@@ -1333,3 +1333,11 @@ _Five requests from an external review (filed in English). Ordered easier → ha
 | [#533](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/533) | ✅ Done | Add meal food search: clear (✕) icon when query is non-empty | Confirmed on-device by the user. Clear ✕ on AddMealDialog search (left of barcode) and FoodPickerDialog when non-empty; quieter `icon-xs` than barcode; clears online hits too |
 | [#534](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/534) | ✅ Done | Goal screen: Cancel button + confirm before discarding unsaved edits | Confirmed on-device by the user. Cancel next to Set/Update; dirty Cancel or route leave → Yes/No confirm (same pattern as meal discard); clean Cancel resets without prompt; `useBlocker` when editing+dirty |
 | [#535](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/535) | ⬜ Open | Food search: USDA online fallback + small bundled RU generics (OFF alternative) | Direction C after OFF 503s: USDA FoodData Central as 2nd online source + small bundled RU generics; no Calorizator scrape. Also surface OFF outage ≠ empty results. |
+
+---
+
+## Tier 95 — Dashboard period UX (2026-08-02)
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#536](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/536) | ⬜ Open | Dashboard: per-chart time span instead of one global period | Redesign away from global `DashboardPeriodPicker` / `dashboardPeriodStore`. Per-chart D/W/M-style controls (Apple Health / brokerage reference). Open design: prefer per-chart only + optional one-shot apply-all; avoid dual persistent global+individual. |
