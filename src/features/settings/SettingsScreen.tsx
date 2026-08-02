@@ -89,17 +89,21 @@ export function SettingsScreen() {
   const trackedFields = useTrackedFieldsStore((state) => state.tracked)
   const setTrackedField = useTrackedFieldsStore((state) => state.setTracked)
   type UnifiedTrackedKey = TrackedField | 'cycle' | 'constipation' | 'water'
-  const trackedFieldKeys: UnifiedTrackedKey[] = [
+  // #528 — same fields as before, grouped to match Day's Morning / Evening
+  // blocks (plus Other for toggles that live elsewhere). Weight stays
+  // always-on and is not in this list.
+  const morningTrackedKeys: UnifiedTrackedKey[] = [
     'sleep',
-    'steps',
     'bodyMeasurements',
     'bodyComposition',
+  ]
+  const eveningTrackedKeys: UnifiedTrackedKey[] = [
+    'steps',
     'note',
     'mood',
-    'cycle',
     'constipation',
-    'water',
   ]
+  const otherTrackedKeys: UnifiedTrackedKey[] = ['cycle', 'water']
   function isFieldTracked(key: UnifiedTrackedKey): boolean {
     if (key === 'cycle') return cycleTrackingEnabled
     if (key === 'constipation') return digestionTrackingEnabled
@@ -111,6 +115,17 @@ export function SettingsScreen() {
     else if (key === 'constipation') setDigestionTrackingEnabled(value)
     else if (key === 'water') setWaterTrackingEnabled(value)
     else setTrackedField(key, value)
+  }
+  function trackedGroupValueChange(
+    keys: UnifiedTrackedKey[],
+    value: string[],
+  ) {
+    for (const key of keys) {
+      const shouldBeOn = value.includes(key)
+      if (shouldBeOn !== isFieldTracked(key)) {
+        setFieldTracked(key, shouldBeOn)
+      }
+    }
   }
   const dayStartTime = useDayStartStore((state) => state.dayStartTime)
   const setDayStartTime = useDayStartStore((state) => state.setDayStartTime)
@@ -331,52 +346,82 @@ export function SettingsScreen() {
         <CardHeader>
           <CardTitle>{t.settings.trackedFieldsLabel}</CardTitle>
         </CardHeader>
-        <CardContent className="flex flex-col gap-1.5">
+        <CardContent className="flex flex-col gap-3">
           <span className="text-sm text-muted-foreground">
             {t.settings.trackedFieldsDescription}
           </span>
-          <ToggleGroup
-            type="multiple"
-            aria-label={t.settings.trackedFieldsLabel}
-            value={trackedFieldKeys.filter(isFieldTracked)}
-            onValueChange={(value: string[]) => {
-              for (const key of trackedFieldKeys) {
-                const shouldBeOn = value.includes(key)
-                if (shouldBeOn !== isFieldTracked(key)) {
-                  setFieldTracked(key, shouldBeOn)
-                }
+          <div className="flex flex-col gap-1.5">
+            <span className="text-xs font-medium text-muted-foreground">
+              {t.settings.trackedFieldsMorningGroupLabel}
+            </span>
+            <ToggleGroup
+              type="multiple"
+              aria-label={t.settings.trackedFieldsMorningGroupLabel}
+              value={morningTrackedKeys.filter(isFieldTracked)}
+              onValueChange={(value: string[]) =>
+                trackedGroupValueChange(morningTrackedKeys, value)
               }
-            }}
-            className="flex-wrap"
-          >
-            <ToggleGroupItem value="sleep" className="h-12">
-              {t.dailyEntry.sleepLabel}
-            </ToggleGroupItem>
-            <ToggleGroupItem value="steps" className="h-12">
-              {t.dailyEntry.stepsLabel}
-            </ToggleGroupItem>
-            <ToggleGroupItem value="bodyMeasurements" className="h-12">
-              {t.dailyEntry.bodyMeasurementsLabel}
-            </ToggleGroupItem>
-            <ToggleGroupItem value="bodyComposition" className="h-12">
-              {t.dailyEntry.bodyCompositionLabel}
-            </ToggleGroupItem>
-            <ToggleGroupItem value="note" className="h-12">
-              {t.dailyEntry.noteLabel}
-            </ToggleGroupItem>
-            <ToggleGroupItem value="mood" className="h-12">
-              {t.dailyEntry.dayMoodLabel}
-            </ToggleGroupItem>
-            <ToggleGroupItem value="cycle" className="h-12">
-              {t.settings.cycleTrackingLabel}
-            </ToggleGroupItem>
-            <ToggleGroupItem value="constipation" className="h-12">
-              {t.settings.digestionTrackingLabel}
-            </ToggleGroupItem>
-            <ToggleGroupItem value="water" className="h-12">
-              {t.settings.waterTrackingLabel}
-            </ToggleGroupItem>
-          </ToggleGroup>
+              className="flex-wrap"
+            >
+              <ToggleGroupItem value="sleep" className="h-12">
+                {t.dailyEntry.sleepLabel}
+              </ToggleGroupItem>
+              <ToggleGroupItem value="bodyMeasurements" className="h-12">
+                {t.dailyEntry.bodyMeasurementsLabel}
+              </ToggleGroupItem>
+              <ToggleGroupItem value="bodyComposition" className="h-12">
+                {t.dailyEntry.bodyCompositionLabel}
+              </ToggleGroupItem>
+            </ToggleGroup>
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <span className="text-xs font-medium text-muted-foreground">
+              {t.settings.trackedFieldsEveningGroupLabel}
+            </span>
+            <ToggleGroup
+              type="multiple"
+              aria-label={t.settings.trackedFieldsEveningGroupLabel}
+              value={eveningTrackedKeys.filter(isFieldTracked)}
+              onValueChange={(value: string[]) =>
+                trackedGroupValueChange(eveningTrackedKeys, value)
+              }
+              className="flex-wrap"
+            >
+              <ToggleGroupItem value="steps" className="h-12">
+                {t.dailyEntry.stepsLabel}
+              </ToggleGroupItem>
+              <ToggleGroupItem value="note" className="h-12">
+                {t.dailyEntry.noteLabel}
+              </ToggleGroupItem>
+              <ToggleGroupItem value="mood" className="h-12">
+                {t.dailyEntry.dayMoodLabel}
+              </ToggleGroupItem>
+              <ToggleGroupItem value="constipation" className="h-12">
+                {t.settings.digestionTrackingLabel}
+              </ToggleGroupItem>
+            </ToggleGroup>
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <span className="text-xs font-medium text-muted-foreground">
+              {t.settings.trackedFieldsOtherGroupLabel}
+            </span>
+            <ToggleGroup
+              type="multiple"
+              aria-label={t.settings.trackedFieldsOtherGroupLabel}
+              value={otherTrackedKeys.filter(isFieldTracked)}
+              onValueChange={(value: string[]) =>
+                trackedGroupValueChange(otherTrackedKeys, value)
+              }
+              className="flex-wrap"
+            >
+              <ToggleGroupItem value="cycle" className="h-12">
+                {t.settings.cycleTrackingLabel}
+              </ToggleGroupItem>
+              <ToggleGroupItem value="water" className="h-12">
+                {t.settings.waterTrackingLabel}
+              </ToggleGroupItem>
+            </ToggleGroup>
+          </div>
         </CardContent>
       </Card>
 

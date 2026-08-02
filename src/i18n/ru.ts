@@ -109,9 +109,12 @@ export const ru: Dictionary = {
   },
   dailyEntry: {
     morningEntriesTitle: 'Утренние записи',
-    morningEntriesSubtitle: 'Заполните утром после пробуждения',
+    // #528 — было «Заполните…» (звучало как обязательное).
+    morningEntriesSubtitle:
+      'Всё необязательно. Что показывать — в Настройках → Что отслеживать.',
     eveningEntriesTitle: 'Вечерние записи',
-    eveningEntriesSubtitle: 'Заполните перед сном',
+    eveningEntriesSubtitle:
+      'Всё необязательно. Что показывать — в Настройках → Что отслеживать.',
     expandMorningEntriesLabel: 'Показать утренние записи',
     collapseMorningEntriesLabel: 'Скрыть утренние записи',
     expandEveningEntriesLabel: 'Показать вечерние записи',
@@ -856,6 +859,9 @@ export const ru: Dictionary = {
     trackedFieldsLabel: 'Что отслеживать',
     trackedFieldsDescription:
       'Выберите, какие необязательные поля показывать на экране «День». Отключение поля скрывает его только для новых записей — уже сохранённые данные остаются видны в Истории, экспорте и на панели.',
+    trackedFieldsMorningGroupLabel: 'Утро',
+    trackedFieldsEveningGroupLabel: 'Вечер',
+    trackedFieldsOtherGroupLabel: 'Прочее',
     profileLabel: 'Профиль',
     profileDescription:
       'Необязательно — используется только для расчёта ИМТ и примерной суточной потребности в калориях (базовый обмен) на экране «День». Хранится только на этом устройстве, не входит в резервные копии.',

@@ -26,7 +26,9 @@ const DEFAULT_TRACKED: Record<TrackedField, boolean> = {
   bodyMeasurements: true,
   note: true,
   mood: true,
-  bodyComposition: true,
+  // #528 — smart-scale fields stay opt-in for new users (existing
+  // persisted prefs keep whatever they already saved).
+  bodyComposition: false,
 }
 
 interface TrackedFieldsState {

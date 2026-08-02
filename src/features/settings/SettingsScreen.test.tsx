@@ -293,16 +293,16 @@ describe('SettingsScreen', () => {
     it('defaults the previously-unconditional fields (Sleep, Steps, etc.) to on', () => {
       renderSettings()
 
-      // #369's per-field import pickers (Zepp Life/Apple Health) also have
-      // their own "Steps" chip — scope to this toggle group specifically.
-      const trackedFieldsGroup = within(
-        screen.getByRole('toolbar', { name: 'What to track' }),
-      )
+      // #528 — What to track is split into Morning / Evening / Other toolbars.
       expect(
-        trackedFieldsGroup.getByRole('button', { name: 'Sleep' }),
+        within(
+          screen.getByRole('toolbar', { name: 'Morning' }),
+        ).getByRole('button', { name: 'Sleep' }),
       ).toHaveAttribute('aria-pressed', 'true')
       expect(
-        trackedFieldsGroup.getByRole('button', { name: 'Steps' }),
+        within(
+          screen.getByRole('toolbar', { name: 'Evening' }),
+        ).getByRole('button', { name: 'Steps' }),
       ).toHaveAttribute('aria-pressed', 'true')
     })
 
@@ -310,15 +310,35 @@ describe('SettingsScreen', () => {
       const user = userEvent.setup()
       renderSettings()
 
-      // #368 gave the Apple Health field picker its own "Sleep" chip too —
-      // scope to this toggle group specifically, same as the test above.
       const sleepToggle = within(
-        screen.getByRole('toolbar', { name: 'What to track' }),
+        screen.getByRole('toolbar', { name: 'Morning' }),
       ).getByRole('button', { name: 'Sleep' })
       await user.click(sleepToggle)
 
       expect(sleepToggle).toHaveAttribute('aria-pressed', 'false')
       expect(useTrackedFieldsStore.getState().tracked.sleep).toBe(false)
+    })
+
+    it('defaults Body composition off for new users (#528)', () => {
+      // beforeEach forces every tracked field on for the other tests —
+      // re-apply the store's real defaults for this assertion.
+      useTrackedFieldsStore.setState({
+        tracked: {
+          sleep: true,
+          steps: true,
+          bodyMeasurements: true,
+          note: true,
+          mood: true,
+          bodyComposition: false,
+        },
+      })
+      renderSettings()
+
+      expect(
+        within(
+          screen.getByRole('toolbar', { name: 'Morning' }),
+        ).getByRole('button', { name: 'Body composition' }),
+      ).toHaveAttribute('aria-pressed', 'false')
     })
   })
 

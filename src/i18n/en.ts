@@ -106,9 +106,12 @@ export const en: Dictionary = {
   },
   dailyEntry: {
     morningEntriesTitle: 'Morning entries',
-    morningEntriesSubtitle: 'Fill in after waking up',
+    // #528 — was "Fill in after waking up" (read as required). Point at Settings.
+    morningEntriesSubtitle:
+      'All optional. Choose what to show in Settings → What to track.',
     eveningEntriesTitle: 'Evening entries',
-    eveningEntriesSubtitle: 'Fill in before bed',
+    eveningEntriesSubtitle:
+      'All optional. Choose what to show in Settings → What to track.',
     expandMorningEntriesLabel: 'Show morning entries',
     collapseMorningEntriesLabel: 'Hide morning entries',
     expandEveningEntriesLabel: 'Show evening entries',
@@ -828,6 +831,9 @@ export const en: Dictionary = {
     trackedFieldsLabel: 'What to track',
     trackedFieldsDescription:
       'Choose which optional fields appear on the Day screen. Turning one off just hides it going forward — anything already logged stays visible in History, Export, and the Dashboard.',
+    trackedFieldsMorningGroupLabel: 'Morning',
+    trackedFieldsEveningGroupLabel: 'Evening',
+    trackedFieldsOtherGroupLabel: 'Other',
     profileLabel: 'Profile',
     profileDescription:
       'Optional — used only to compute BMI and estimated daily calorie needs (BMR) on the Day screen. Stored on this device only, not included in backups.',

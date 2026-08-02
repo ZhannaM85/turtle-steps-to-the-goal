@@ -106,6 +106,15 @@ beforeEach(async () => {
   // a leftover add-row draft (now persisted to localStorage) from one test
   // would silently pre-fill the next one's fresh render for the same date.
   localStorage.clear()
+  // #528 — Body composition defaults off; most tests still expect the
+  // section present, so enable every tracked field for the suite. The
+  // optional-visibility describe below overrides where it needs the real
+  // defaults.
+  useTrackedFieldsStore.setState((state) => ({
+    tracked: Object.fromEntries(
+      Object.keys(state.tracked).map((key) => [key, true]),
+    ) as typeof state.tracked,
+  }))
   // #201 made MealList's add row default collapsed for a past `date` —
   // freeze "now" to this file's own fixture "today" (2026-03-01) so it
   // keeps reading as today, matching the pre-#201 always-expanded
@@ -1385,7 +1394,17 @@ describe('DailyEntryForm', () => {
       }))
     })
 
-    it('shows Sleep, Steps, Body measurements, Body composition, Note, and Mood by default', () => {
+    it('shows Sleep, Steps, Body measurements, Note, and Mood by default; Body composition is opt-in (#528)', () => {
+      useTrackedFieldsStore.setState({
+        tracked: {
+          sleep: true,
+          steps: true,
+          bodyMeasurements: true,
+          note: true,
+          mood: true,
+          bodyComposition: false,
+        },
+      })
       render(
         <DailyEntryForm date="2026-03-01" existingEntry={null} onSave={vi.fn()} />,
       )
@@ -1393,9 +1412,20 @@ describe('DailyEntryForm', () => {
       expect(screen.getByText('Sleep')).toBeInTheDocument()
       expect(screen.getByText('Steps')).toBeInTheDocument()
       expect(screen.getByText('Body measurements')).toBeInTheDocument()
-      expect(screen.getByText('Body composition')).toBeInTheDocument()
+      expect(screen.queryByText('Body composition')).not.toBeInTheDocument()
       expect(screen.getByText("Day's note")).toBeInTheDocument()
       expect(screen.getByText('Mood today')).toBeInTheDocument()
+    })
+
+    it('shows Body composition once its Settings toggle is turned on (#528)', () => {
+      useTrackedFieldsStore.setState((state) => ({
+        tracked: { ...state.tracked, bodyComposition: true },
+      }))
+      render(
+        <DailyEntryForm date="2026-03-01" existingEntry={null} onSave={vi.fn()} />,
+      )
+
+      expect(screen.getByText('Body composition')).toBeInTheDocument()
     })
 
     it('hides Body composition once its Settings toggle is turned off', () => {

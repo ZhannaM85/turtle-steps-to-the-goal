@@ -1365,6 +1365,10 @@ export interface Dictionary {
      * didn't have an opt-out at all before this. */
     trackedFieldsLabel: string
     trackedFieldsDescription: string
+    /** #528 — subgroup headings inside What to track (Morning / Evening / Other). */
+    trackedFieldsMorningGroupLabel: string
+    trackedFieldsEveningGroupLabel: string
+    trackedFieldsOtherGroupLabel: string
     /** #233 — height/age/sex, entered once (rarely changed) purely to
      * compute BMI/BMR on Today; local preference only, not part of the
      * export bundle, same category as unit/theme/week-start. */
