@@ -2,12 +2,22 @@ import 'fake-indexeddb/auto'
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { addDays, format } from 'date-fns'
+import { createMemoryRouter, RouterProvider } from 'react-router-dom'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import type { DailyEntry } from '@/domain/dailyEntry'
 import type { Goal } from '@/domain/goal'
 import { db } from '@/infrastructure/persistence/indexeddb'
 import { useGoalStore, useSectionVisibilityStore } from '@/stores'
 import { GoalScreen } from './GoalScreen'
+
+/** GoalForm's useBlocker (#534) requires a data router. */
+function renderGoalScreen() {
+  const router = createMemoryRouter(
+    [{ path: '/goal', element: <GoalScreen /> }],
+    { initialEntries: ['/goal'] },
+  )
+  return render(<RouterProvider router={router} />)
+}
 
 const DATE_FORMAT = 'yyyy-MM-dd'
 const WEEK_START = format(new Date(), DATE_FORMAT)
@@ -72,7 +82,7 @@ function resetSectionVisibility() {
 
 describe('GoalScreen', () => {
   it('shows the setup form with no summary when there is no goal yet', async () => {
-    render(<GoalScreen />)
+    renderGoalScreen()
 
     expect(
       await screen.findByRole('button', { name: 'Set this week’s target' }),
@@ -84,7 +94,7 @@ describe('GoalScreen', () => {
     await useGoalStore.getState().saveGoal(makeGoal())
     const user = userEvent.setup()
 
-    render(<GoalScreen />)
+    renderGoalScreen()
 
     expect(
       await screen.findByRole('button', { name: 'Edit goal' }),
@@ -108,7 +118,7 @@ describe('GoalScreen', () => {
       .getState()
       .saveGoal(makeGoal({ weekStart: '2026-03-09' }))
 
-    render(<GoalScreen />)
+    renderGoalScreen()
 
     expect(await screen.findByText('Mar 9, 2026 – Mar 15, 2026')).toBeInTheDocument()
   })
@@ -117,7 +127,7 @@ describe('GoalScreen', () => {
     await useGoalStore.getState().saveGoal(makeGoal())
     const user = userEvent.setup()
 
-    render(<GoalScreen />)
+    renderGoalScreen()
     await user.click(
       await screen.findByRole('button', { name: 'Edit goal' }),
     )
@@ -141,7 +151,7 @@ describe('GoalScreen', () => {
     await useGoalStore.getState().saveGoal(original)
     const user = userEvent.setup()
 
-    render(<GoalScreen />)
+    renderGoalScreen()
     await user.click(
       await screen.findByRole('button', { name: 'Edit goal' }),
     )
@@ -171,7 +181,7 @@ describe('GoalScreen', () => {
       .saveGoal(makeGoal({ weekStart: '2026-03-09' }))
     const user = userEvent.setup()
 
-    render(<GoalScreen />)
+    renderGoalScreen()
     // #386 — plain Edit now always edits in place; "Start a new goal" is
     // the explicit action that produces a new history record.
     await user.click(
@@ -208,7 +218,7 @@ describe('GoalScreen', () => {
     )
     const user = userEvent.setup()
 
-    render(<GoalScreen />)
+    renderGoalScreen()
     await screen.findByText('Mar 9, 2026 – Mar 15, 2026')
     const remainingGoalsBefore = await db.goals.count()
 
@@ -231,7 +241,7 @@ describe('GoalScreen', () => {
     await useGoalStore.getState().saveGoal(makeGoal({ targetWeeklyLossKg: 1 }))
     await seedTargetMetWeeks()
 
-    render(<GoalScreen />)
+    renderGoalScreen()
 
     const reachedDateLabel = format(addDays(new Date(), 1), 'MMM d')
     expect(
@@ -252,7 +262,7 @@ describe('GoalScreen', () => {
       .saveGoal(makeGoal({ targetWeeklyLossKg: 10 })) // unreachable target
     await seedTargetMetWeeks()
 
-    render(<GoalScreen />)
+    renderGoalScreen()
     await screen.findByRole('button', { name: 'Edit goal' })
 
     expect(screen.queryByText(/Target met on/)).not.toBeInTheDocument()
@@ -269,7 +279,7 @@ describe('GoalScreen', () => {
     await seedTargetMetWeeks()
     const user = userEvent.setup()
 
-    render(<GoalScreen />)
+    renderGoalScreen()
     await screen.findByText(/Target met on/)
     // #386 — plain Edit now always edits in place, even once the goal has
     // been reached; "Start a new goal" is the explicit action for this.
@@ -297,7 +307,7 @@ describe('GoalScreen', () => {
       const user = userEvent.setup()
       await useGoalStore.getState().saveGoal(makeGoal())
 
-      render(<GoalScreen />)
+      renderGoalScreen()
       // "This week's target" legitimately appears twice — this StatCard's
       // own label, and GoalForm's separate #244 read-only summary table
       // (untouched by this toggle) — so every query below is by role
@@ -327,7 +337,7 @@ describe('GoalScreen', () => {
       await useGoalStore.getState().saveGoal(makeGoal({ targetWeeklyLossKg: 1 }))
       await seedTargetMetWeeks()
 
-      render(<GoalScreen />)
+      renderGoalScreen()
       await screen.findByText(/Target met on/)
       const title = 'Target reached'
       expect(screen.getByText(title)).toBeInTheDocument()
@@ -355,7 +365,7 @@ describe('GoalScreen', () => {
         .getState()
         .saveGoal(makeGoal({ weekStart: '2026-03-09' }))
 
-      render(<GoalScreen />)
+      renderGoalScreen()
       // #386 — "Start a new goal" is the explicit action that produces a
       // past-targets history record; plain Edit now always edits in place.
       await user.click(
