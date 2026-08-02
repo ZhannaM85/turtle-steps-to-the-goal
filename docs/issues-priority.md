@@ -1265,3 +1265,13 @@ _Reported live with a screenshot of the Day КБЖУ section: Remaining shows le
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#521](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/521) | ✅ Done | КБЖУ Remaining card: show daily calorie target the leftover is from | Confirmed on-device by the user. Remaining macros StatCard description now leads with the same `target − consumed` line (`t.today.targetMinusConsumedText` + `formatKcal`) Stats Remaining calories already uses, then the remaining P/F/C line underneath (`whitespace-pre-line` on `StatCard` description). Omitted when no daily calorie target is set. |
+
+---
+
+## Tier 89 — Live feedback: correlation calories vs after-midnight meals (2026-08-02)
+
+_Reported live with correlation + Day screenshots and `turtle-steps-backup-2026-08-02.json`: Overview «Калории и изменение веса» tooltip shows 727 kcal for 1 Aug 2026, but that day's logged meals sum to 1244 kcal including a 01:09 post-midnight meal (328 kcal) that appears on the Day screen._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#522](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/522) | ⬜ Open | Dashboard correlation calories wrong for days with after-midnight meals (shows 727 vs ~1244 on 1 Aug) | Filed as reported. Backup `2026-08-01`: meals 17:23/461 + 22:57/455 + 01:09/328 = 1244; correlation tooltip says 727. May relate to #298's deferred correlation day-pairing / day-start follow-up (#387 fixed fasting only). Root cause not yet investigated |
