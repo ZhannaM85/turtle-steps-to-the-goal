@@ -1315,3 +1315,17 @@ _Zepp Life and Apple Health share the same chip/conflict labels with no border b
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#526](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/526) | ✅ Done | Settings import section: add borders so Zepp Life vs Apple Health are distinct | Confirmed on-device by the user. Each import source (JSON backup, Zepp, Apple Health, MyFitnessPal) wrapped in `rounded-lg border border-border p-3` |
+
+---
+
+## Tier 94 — External user feedback (2026-08-02)
+
+_Five requests from an external review (filed in English). Ordered easier → harder; #530 likely wants richer food data from #531._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#527](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/527) | ⬜ Open | Clarify weekly target copy so −X kg weight loss doesn't read as a gain | Live feedback (ru): “−1 кг похудения” misreads as +1 kg gain. Likely copy (esp. Russian); related display: #56 |
+| [#528](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/528) | ⬜ Open | Make morning / advanced body fields obviously optional and less intimidating | Live feedback: specific morning/body metrics feel required and scary without wearables/smart scale. Builds on Settings “What to track” (#237) — mostly clarity/defaults |
+| [#529](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/529) | ⬜ Open | Weekly weight-loss goal: 100g step selector (plus custom value), avoid huge kg typos | Live feedback: entering 5 kg/week honestly shows ~5500 kcal deficit. Prefer ~100 g steps + custom exact value; soft-limit/warn TBD |
+| [#531](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/531) | ⬜ Open | Expand food data from free public DBs (macros + micronutrients) | Live feedback (Cronometer-like multi-DB). Local `foods.ts` + OFF barcode (#256) are starters; local-first/offline story TBD. Feeds #530 |
+| [#530](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/530) | ⬜ Open | Micronutrient / electrolyte tracking with a personalizable nutrient dashboard | Live feedback: hard to cover micros on a low/repetitive diet; want checkboxes for what to track. Spirit of #237/#232; may split; depends on food micros (#531) |
