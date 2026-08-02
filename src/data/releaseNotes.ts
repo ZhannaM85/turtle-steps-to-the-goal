@@ -27,7 +27,7 @@ export const releaseNotes: ReleaseNote[] = [
   {
     version: 489,
     issue: 536,
-    date: '2026-08-02T00:00:00+03:00',
+    date: '2026-08-02T23:31:08+03:00',
     en: 'Dashboard charts each have their own time span (All time / Week / Month / Year / Custom) under the chart title — changing one no longer forces every chart to the same range.',
     ru: 'У каждого графика на панели свой период (Всё / Нед / Мес / Год / Свой) под заголовком — смена периода на одном графике больше не меняет все остальные.',
   },
