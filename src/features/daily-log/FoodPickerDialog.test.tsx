@@ -72,6 +72,26 @@ describe('FoodPickerDialog', () => {
     expect(screen.queryByText('Salmon')).not.toBeInTheDocument()
   })
 
+  it('clears the search field via the clear control (#533)', async () => {
+    const user = userEvent.setup()
+    render(
+      <FoodPickerDialog
+        open
+        onOpenChange={vi.fn()}
+        onAdd={vi.fn()}
+        mealItems={[]}
+      />,
+    )
+
+    const search = screen.getByLabelText('Search foods')
+    await user.type(search, 'chicken')
+    expect(screen.queryByText('Salmon')).not.toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: 'Clear search' }))
+    expect(search).toHaveValue('')
+    expect(screen.getByText('Salmon')).toBeInTheDocument()
+  })
+
   it('shows per-100g kcal and macros next to each food name (#75)', () => {
     render(
       <FoodPickerDialog

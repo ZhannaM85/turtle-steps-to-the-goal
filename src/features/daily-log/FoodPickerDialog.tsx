@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Check, Star, Trash2 } from 'lucide-react'
+import { Check, Star, Trash2, X } from 'lucide-react'
 import { type FoodItem, type FoodServing, foods } from '@/data/foods'
 import type { MealEmotion } from '@/domain/dailyEntry'
 import type { MealItem } from '@/domain/mealItem'
@@ -482,13 +482,28 @@ export function FoodPickerDialog({
       <DialogContent closeLabel={t.dailyEntry.closeFoodDialogLabel}>
         <DialogTitle>{t.dailyEntry.addFoodDialogTitle}</DialogTitle>
         <div className="flex flex-col gap-3 pt-2">
-          <Input
-            type="text"
-            aria-label={t.dailyEntry.foodSearchLabel}
-            placeholder={t.dailyEntry.foodSearchPlaceholder}
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
+          <div className="relative">
+            <Input
+              type="text"
+              aria-label={t.dailyEntry.foodSearchLabel}
+              placeholder={t.dailyEntry.foodSearchPlaceholder}
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className={cn(search !== '' && 'pr-10')}
+            />
+            {search !== '' && (
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon-xs"
+                aria-label={t.dailyEntry.clearFoodSearchLabel}
+                className="absolute top-1/2 right-1.5 -translate-y-1/2"
+                onClick={() => setSearch('')}
+              >
+                <X aria-hidden="true" className="size-3.5" />
+              </Button>
+            )}
+          </div>
           {matches.length === 0 ? (
             <p className="text-sm text-muted-foreground">
               {t.dailyEntry.noFoodResultsText}

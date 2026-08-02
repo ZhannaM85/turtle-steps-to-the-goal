@@ -230,6 +230,7 @@ export const ru: Dictionary = {
     collapseMacrosLabel: 'Скрыть калории и БЖУ',
     timeEatenLabel: 'Время',
     clearTimeLabel: 'Очистить время',
+    clearFoodSearchLabel: 'Очистить поиск',
     expandAddMealLabel: '+ Добавить ещё приём пищи',
     repeatMealLabel: (mealLabel) => `Повторить вчерашний «${mealLabel}»`,
     repeatMealDialogTitle: (mealLabel) => `Повторить «${mealLabel}»`,

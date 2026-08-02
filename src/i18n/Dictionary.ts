@@ -431,6 +431,8 @@ export interface Dictionary {
      * time picker's own Reset doesn't reliably clear the value back to
      * empty once tapped, so this sets state to '' directly instead. */
     clearTimeLabel: string
+    /** #533 — clear the Add meal / FoodPicker search field when non-empty. */
+    clearFoodSearchLabel: string
     /** #454 — the sole trigger opening the "add a meal" flyout
      * (`AddMealDialog`), for every day/position; superseded #199/#201's
      * collapse/expand accordion (and its now-removed sibling

@@ -1601,8 +1601,26 @@ export function AddMealDialog({
                   setSearch(e.target.value)
                   clearOnlineSearch()
                 }}
-                className="h-12 pr-11 text-base"
+                className={cn(
+                  'h-12 text-base',
+                  search ? 'pr-20' : 'pr-11',
+                )}
               />
+              {search !== '' && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon-xs"
+                  aria-label={t.dailyEntry.clearFoodSearchLabel}
+                  className="absolute top-1/2 right-10 -translate-y-1/2"
+                  onClick={() => {
+                    setSearch('')
+                    clearOnlineSearch()
+                  }}
+                >
+                  <X aria-hidden="true" className="size-3.5" />
+                </Button>
+              )}
               <Button
                 type="button"
                 variant="ghost"

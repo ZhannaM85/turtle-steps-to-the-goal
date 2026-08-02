@@ -226,6 +226,28 @@ describe('AddMealDialog (#454)', () => {
     expect(screen.getByText('Salmon')).toBeInTheDocument()
   })
 
+  it('shows a clear control that empties the food search (#533)', async () => {
+    const user = userEvent.setup()
+    render(<ControlledAddMealDialog {...defaultProps} />)
+
+    const search = screen.getByLabelText('Search foods')
+    expect(
+      screen.queryByRole('button', { name: 'Clear search' }),
+    ).not.toBeInTheDocument()
+
+    await user.type(search, 'Chocolate')
+    expect(search).toHaveValue('Chocolate')
+
+    await user.click(screen.getByRole('button', { name: 'Clear search' }))
+    expect(search).toHaveValue('')
+    expect(
+      screen.queryByRole('button', { name: 'Clear search' }),
+    ).not.toBeInTheDocument()
+    expect(
+      screen.getByRole('button', { name: 'Scan barcode' }),
+    ).toBeInTheDocument()
+  })
+
   it('lets the user edit kcal/macros on the confirm step before adding (#517)', async () => {
     const user = userEvent.setup()
     const onAppendItems = vi.fn()

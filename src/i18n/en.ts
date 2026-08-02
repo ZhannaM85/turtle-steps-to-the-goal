@@ -215,6 +215,7 @@ export const en: Dictionary = {
     collapseMacrosLabel: 'Hide calories & macros',
     timeEatenLabel: 'Time',
     clearTimeLabel: 'Clear time',
+    clearFoodSearchLabel: 'Clear search',
     expandAddMealLabel: '+ Add another meal',
     repeatMealLabel: (mealLabel) => `Repeat yesterday's ${mealLabel}`,
     repeatMealDialogTitle: (mealLabel) => `Repeat ${mealLabel}`,
