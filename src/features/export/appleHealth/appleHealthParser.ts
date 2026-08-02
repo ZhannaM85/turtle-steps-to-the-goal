@@ -151,15 +151,18 @@ const SLEEP_ASLEEP_VALUES = new Set([
 const SLEEP_DEEP_VALUE = 'HKCategoryValueSleepAnalysisAsleepDeep'
 const SLEEP_IN_BED_VALUE = 'HKCategoryValueSleepAnalysisInBed'
 
-interface SleepTotals {
-  asleepSeconds: number
-  deepSeconds: number
-  inBedSeconds: number
-  // #412 — the earliest/latest real timestamp folded into this bucket so
-  // far, for the cross-midnight merge in `build()` below. Not otherwise
-  // used for the totals themselves.
-  firstStartMs: number
-  lastEndMs: number
+interface SleepInterval {
+  startMs: number
+  endMs: number
+}
+
+/** Per-(wake date, source) accumulator — raw intervals, not running sums.
+ * #525: HealthKit often writes overlapping samples for the same night;
+ * seconds are derived via `unionIntervalSeconds` at merge/build time. */
+interface SleepBucket {
+  asleep: SleepInterval[]
+  deep: SleepInterval[]
+  inBed: SleepInterval[]
 }
 
 // #412 — reported live: deep sleep specifically missing for a night whose
@@ -177,6 +180,67 @@ interface SleepTotals {
 // small gap between one bucket's last end and the very next calendar
 // day's first start, which is what this threshold distinguishes.
 const SLEEP_SESSION_MERGE_GAP_MS = 4 * 60 * 60 * 1000
+
+// #525 — the ≤4h gap alone also chained polyphasic/illness days (naps every
+// few hours) into one wake date totaling 48h+. Only fold the previous
+// calendar day when it holds a *small* leftover fragment (typical
+// pre-midnight deep/core piece), not a full day's worth of sleep.
+const SLEEP_MIDNIGHT_FRAGMENT_MAX_SECONDS = 4 * 60 * 60
+
+/** Same ceiling as `sleepHoursSchema` / the daily form — import must not
+ * write values the UI itself refuses. */
+const MAX_IMPORTED_SLEEP_HOURS = 24
+
+/** Covered duration of possibly-overlapping intervals (union), in seconds. */
+export function unionIntervalSeconds(intervals: SleepInterval[]): number {
+  if (intervals.length === 0) return 0
+  const sorted = [...intervals].sort((a, b) => a.startMs - b.startMs)
+  let totalMs = 0
+  let curStart = sorted[0].startMs
+  let curEnd = sorted[0].endMs
+  for (let i = 1; i < sorted.length; i++) {
+    const next = sorted[i]
+    if (next.startMs <= curEnd) {
+      curEnd = Math.max(curEnd, next.endMs)
+    } else {
+      totalMs += curEnd - curStart
+      curStart = next.startMs
+      curEnd = next.endMs
+    }
+  }
+  totalMs += curEnd - curStart
+  return totalMs / 1000
+}
+
+function sleepBucketSpan(bucket: SleepBucket): {
+  firstStartMs: number
+  lastEndMs: number
+  asleepSeconds: number
+  deepSeconds: number
+  inBedSeconds: number
+} | null {
+  const intervals = [...bucket.asleep, ...bucket.inBed]
+  if (intervals.length === 0) return null
+  let firstStartMs = intervals[0].startMs
+  let lastEndMs = intervals[0].endMs
+  for (const iv of intervals) {
+    if (iv.startMs < firstStartMs) firstStartMs = iv.startMs
+    if (iv.endMs > lastEndMs) lastEndMs = iv.endMs
+  }
+  return {
+    firstStartMs,
+    lastEndMs,
+    asleepSeconds: unionIntervalSeconds(bucket.asleep),
+    deepSeconds: unionIntervalSeconds(bucket.deep),
+    inBedSeconds: unionIntervalSeconds(bucket.inBed),
+  }
+}
+
+function sleepHoursFromBucket(bucket: SleepBucket): number {
+  const span = sleepBucketSpan(bucket)
+  if (!span) return 0
+  return (span.asleepSeconds || span.inBedSeconds) / 3600
+}
 
 interface LatestValue {
   value: number
@@ -221,7 +285,8 @@ export class AppleHealthPatchBuilder {
   // (the calendar day a night's final interval ends on) — matches how a
   // person would actually describe "how did I sleep", reviewed the
   // following morning, not the day they happened to fall asleep on.
-  private sleepByDateAndSource = new Map<string, Map<string, SleepTotals>>()
+  // #525 — stores raw intervals; covered duration is a union at build time.
+  private sleepByDateAndSource = new Map<string, Map<string, SleepBucket>>()
   // #411 — dates with a real (non-"None") menstrual flow record. A date
   // with no record at all is simply left unset, same as this app's own
   // manual onPeriod toggle when never touched — there's no "confirmed not
@@ -296,8 +361,7 @@ export class AppleHealthPatchBuilder {
     if (!record.startDate || !record.endDate) return
     const start = parseHealthTimestamp(record.startDate)
     const end = parseHealthTimestamp(record.endDate)
-    const seconds = (end.epochMs - start.epochMs) / 1000
-    if (!(seconds > 0)) return
+    if (!(end.epochMs > start.epochMs)) return
     const isAsleep = SLEEP_ASLEEP_VALUES.has(record.value)
     const isInBed = record.value === SLEEP_IN_BED_VALUE
     if (!isAsleep && !isInBed) return // e.g. Awake — contributes to neither total
@@ -305,23 +369,23 @@ export class AppleHealthPatchBuilder {
     const source = record.sourceName ?? UNKNOWN_STEP_SOURCE
     const bySource =
       this.sleepByDateAndSource.get(end.localDate) ??
-      new Map<string, SleepTotals>()
-    const totals = bySource.get(source) ?? {
-      asleepSeconds: 0,
-      deepSeconds: 0,
-      inBedSeconds: 0,
-      firstStartMs: start.epochMs,
-      lastEndMs: end.epochMs,
+      new Map<string, SleepBucket>()
+    const bucket = bySource.get(source) ?? {
+      asleep: [],
+      deep: [],
+      inBed: [],
+    }
+    const interval: SleepInterval = {
+      startMs: start.epochMs,
+      endMs: end.epochMs,
     }
     if (isAsleep) {
-      totals.asleepSeconds += seconds
-      if (record.value === SLEEP_DEEP_VALUE) totals.deepSeconds += seconds
+      bucket.asleep.push(interval)
+      if (record.value === SLEEP_DEEP_VALUE) bucket.deep.push(interval)
     } else {
-      totals.inBedSeconds += seconds
+      bucket.inBed.push(interval)
     }
-    totals.firstStartMs = Math.min(totals.firstStartMs, start.epochMs)
-    totals.lastEndMs = Math.max(totals.lastEndMs, end.epochMs)
-    bySource.set(source, totals)
+    bySource.set(source, bucket)
     this.sleepByDateAndSource.set(end.localDate, bySource)
   }
 
@@ -330,9 +394,11 @@ export class AppleHealthPatchBuilder {
   // last end and the next day's first start is small enough that they're
   // almost certainly one continuous overnight session split only because
   // an early segment (often deep sleep) happened to end before midnight.
-  // Mutates `sleepByDateAndSource` in place; called once from `build()`
-  // before the per-date dominant-source pick below, so that pick already
-  // sees each night's segments merged under its own true wake date.
+  // #525 — also requires the previous day to be a *small fragment* (not a
+  // full day's sleep), so polyphasic/illness days with ≤4h gaps no longer
+  // chain into one impossible total. Mutates `sleepByDateAndSource` in
+  // place; called once from `build()` before the per-date dominant-source
+  // pick below.
   private mergeSleepSessionsAcrossMidnight(): void {
     const dates = [...this.sleepByDateAndSource.keys()].sort()
     for (const date of dates) {
@@ -341,18 +407,19 @@ export class AppleHealthPatchBuilder {
       const nextDate = format(addDays(parseISO(date), 1), 'yyyy-MM-dd')
       const nextBySource = this.sleepByDateAndSource.get(nextDate)
       if (!nextBySource) continue
-      for (const [source, totals] of bySource) {
-        const nextTotals = nextBySource.get(source)
-        if (!nextTotals) continue
-        const gapMs = nextTotals.firstStartMs - totals.lastEndMs
+      for (const [source, bucket] of bySource) {
+        const nextBucket = nextBySource.get(source)
+        if (!nextBucket) continue
+        const span = sleepBucketSpan(bucket)
+        const nextSpan = sleepBucketSpan(nextBucket)
+        if (!span || !nextSpan) continue
+        const gapMs = nextSpan.firstStartMs - span.lastEndMs
         if (gapMs < 0 || gapMs > SLEEP_SESSION_MERGE_GAP_MS) continue
-        nextTotals.asleepSeconds += totals.asleepSeconds
-        nextTotals.deepSeconds += totals.deepSeconds
-        nextTotals.inBedSeconds += totals.inBedSeconds
-        nextTotals.firstStartMs = Math.min(
-          nextTotals.firstStartMs,
-          totals.firstStartMs,
-        )
+        const fragmentSeconds = span.asleepSeconds || span.inBedSeconds
+        if (fragmentSeconds > SLEEP_MIDNIGHT_FRAGMENT_MAX_SECONDS) continue
+        nextBucket.asleep.push(...bucket.asleep)
+        nextBucket.deep.push(...bucket.deep)
+        nextBucket.inBed.push(...bucket.inBed)
         bySource.delete(source)
       }
       if (bySource.size === 0) this.sleepByDateAndSource.delete(date)
@@ -432,23 +499,30 @@ export class AppleHealthPatchBuilder {
       // drops deep to "—" while total sleep stays correct. Use the max
       // deepSeconds across sources for the night (never a sum — stages
       // from two devices would otherwise double-count).
-      let bestSource: SleepTotals | null = null
+      //
+      // #525 — hours come from overlap-aware unions; hard-capped at 24.
       let bestHours = 0
       let bestDeepSeconds = 0
-      for (const totals of bySource.values()) {
-        const hours = (totals.asleepSeconds || totals.inBedSeconds) / 3600
+      let hasBest = false
+      for (const bucket of bySource.values()) {
+        const hours = sleepHoursFromBucket(bucket)
         if (hours > bestHours) {
           bestHours = hours
-          bestSource = totals
+          hasBest = true
         }
-        if (totals.deepSeconds > bestDeepSeconds) {
-          bestDeepSeconds = totals.deepSeconds
+        const deepSeconds = unionIntervalSeconds(bucket.deep)
+        if (deepSeconds > bestDeepSeconds) {
+          bestDeepSeconds = deepSeconds
         }
       }
-      if (bestSource) {
-        patchFor(date).sleepHours = round2(bestHours)
+      if (hasBest) {
+        patchFor(date).sleepHours = round2(
+          Math.min(bestHours, MAX_IMPORTED_SLEEP_HOURS),
+        )
         if (bestDeepSeconds > 0) {
-          patchFor(date).deepSleepHours = round2(bestDeepSeconds / 3600)
+          patchFor(date).deepSleepHours = round2(
+            Math.min(bestDeepSeconds / 3600, MAX_IMPORTED_SLEEP_HOURS),
+          )
         }
       }
     }

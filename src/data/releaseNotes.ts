@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 477,
+    issue: 525,
+    date: '2026-08-02T17:50:00+03:00',
+    en: 'Apple Health sleep import no longer double-counts overlapping samples or chains several days of short naps into one impossible total; re-import to refresh old values.',
+    ru: 'Импорт сна из Apple Health больше не считает пересекающиеся записи дважды и не склеивает несколько дней коротких снов в одну невозможную сумму; переимпортируйте, чтобы обновить старые значения.',
+  },
+  {
     version: 476,
     issue: 524,
     date: '2026-08-02T17:33:58+03:00',

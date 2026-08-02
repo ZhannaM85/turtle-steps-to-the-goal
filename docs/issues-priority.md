@@ -1304,4 +1304,4 @@ _Sleep correlation x-axis stretched to ~100h; backup has 20 days >24h (worst 202
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#525](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/525) | ⬜ Open | Apple Health sleep import overcounts (overlaps + midnight-merge chaining) | Root cause: naive sum of overlapping Asleep* intervals within a source + #412 ≤4h merge chaining multi-day naps. Fix: overlap union, fragment-only midnight merge, cap at 24h; user will re-import |
+| [#525](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/525) | 🔍 Pending validation | Apple Health sleep import overcounts (overlaps + midnight-merge chaining) | Overlap-aware `unionIntervalSeconds`; midnight merge only for ≤4h fragments; cap import at 24h. Re-import needed to refresh stored values |

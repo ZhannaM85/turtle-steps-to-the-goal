@@ -2,7 +2,32 @@ import { describe, expect, it } from 'vitest'
 import {
   AppleHealthPatchBuilder,
   AppleHealthRecordScanner,
+  unionIntervalSeconds,
 } from './appleHealthParser'
+
+describe('unionIntervalSeconds (#525)', () => {
+  it('returns 0 for an empty list', () => {
+    expect(unionIntervalSeconds([])).toBe(0)
+  })
+
+  it('sums non-overlapping intervals', () => {
+    expect(
+      unionIntervalSeconds([
+        { startMs: 0, endMs: 3600_000 },
+        { startMs: 7200_000, endMs: 10_800_000 },
+      ]),
+    ).toBe(7200)
+  })
+
+  it('merges overlapping intervals into covered time only', () => {
+    expect(
+      unionIntervalSeconds([
+        { startMs: 0, endMs: 8 * 3600_000 },
+        { startMs: 1 * 3600_000, endMs: 7 * 3600_000 },
+      ]),
+    ).toBe(8 * 3600)
+  })
+})
 
 describe('AppleHealthRecordScanner', () => {
   it('extracts a single well-formed Record from one chunk', () => {
@@ -600,6 +625,84 @@ describe('AppleHealthPatchBuilder', () => {
         sleepHours: 7,
         deepSleepHours: 7,
       })
+    })
+
+    it('does not double-count overlapping Asleep intervals from the same source (#525)', () => {
+      const builder = new AppleHealthPatchBuilder()
+      builder.addRecord({
+        type: 'HKCategoryTypeIdentifierSleepAnalysis',
+        value: 'HKCategoryValueSleepAnalysisAsleepUnspecified',
+        startDate: '2026-01-15 00:00:00+0000',
+        endDate: '2026-01-15 08:00:00+0000',
+        sourceName: 'AutoSleep',
+      })
+      // Duplicate / reprocessed sample covering the same night.
+      builder.addRecord({
+        type: 'HKCategoryTypeIdentifierSleepAnalysis',
+        value: 'HKCategoryValueSleepAnalysisAsleepUnspecified',
+        startDate: '2026-01-15 00:30:00+0000',
+        endDate: '2026-01-15 07:30:00+0000',
+        sourceName: 'AutoSleep',
+      })
+
+      expect(builder.build().get('2026-01-15')).toEqual({ sleepHours: 8 })
+    })
+
+    it('does not chain multi-day short-gap naps into one impossible wake-date total (#525)', () => {
+      const builder = new AppleHealthPatchBuilder()
+      // Four calendar days of 3h naps with 3h gaps — old ≤4h midnight merge
+      // alone folded these into one date (~48h). Fragment cap keeps each
+      // day's own sleep on its wake date. Timestamps use +0300 so local
+      // calendar dates stay stable regardless of the runner's offset.
+      const segments: Array<[string, string]> = [
+        ['2025-09-01 01:00:00 +0300', '2025-09-01 04:00:00 +0300'],
+        ['2025-09-01 07:00:00 +0300', '2025-09-01 10:00:00 +0300'],
+        ['2025-09-01 13:00:00 +0300', '2025-09-01 16:00:00 +0300'],
+        ['2025-09-01 19:00:00 +0300', '2025-09-01 22:00:00 +0300'],
+        ['2025-09-02 01:00:00 +0300', '2025-09-02 04:00:00 +0300'],
+        ['2025-09-02 07:00:00 +0300', '2025-09-02 10:00:00 +0300'],
+        ['2025-09-02 13:00:00 +0300', '2025-09-02 16:00:00 +0300'],
+        ['2025-09-02 19:00:00 +0300', '2025-09-02 22:00:00 +0300'],
+      ]
+      for (const [startDate, endDate] of segments) {
+        builder.addRecord({
+          type: 'HKCategoryTypeIdentifierSleepAnalysis',
+          value: 'HKCategoryValueSleepAnalysisAsleepCore',
+          startDate,
+          endDate,
+          sourceName: 'Test Watch',
+        })
+      }
+
+      const patches = builder.build()
+      expect(patches.get('2025-09-01')).toEqual({ sleepHours: 12 })
+      expect(patches.get('2025-09-02')).toEqual({ sleepHours: 12 })
+      // No single day absorbed both.
+      expect(
+        [...patches.values()].some(
+          (p) => (p.sleepHours ?? 0) > 12,
+        ),
+      ).toBe(false)
+    })
+
+    it('caps imported sleepHours at 24 even when one wake date has more covered time (#525)', () => {
+      const builder = new AppleHealthPatchBuilder()
+      // 24h block ending on the 15th plus another 11h later the same wake
+      // date — union is 35h; import must match the form's max of 24.
+      builder.addRecord({
+        type: 'HKCategoryTypeIdentifierSleepAnalysis',
+        value: 'HKCategoryValueSleepAnalysisAsleepCore',
+        startDate: '2026-01-14 00:00:00+0000',
+        endDate: '2026-01-15 00:00:00+0000',
+      })
+      builder.addRecord({
+        type: 'HKCategoryTypeIdentifierSleepAnalysis',
+        value: 'HKCategoryValueSleepAnalysisAsleepCore',
+        startDate: '2026-01-15 01:00:00+0000',
+        endDate: '2026-01-15 12:00:00+0000',
+      })
+
+      expect(builder.build().get('2026-01-15')).toEqual({ sleepHours: 24 })
     })
   })
 
