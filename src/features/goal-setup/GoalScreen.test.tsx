@@ -309,7 +309,8 @@ describe('GoalScreen', () => {
 
       await user.click(hideButton)
 
-      expect(screen.queryByText('-1.0')).not.toBeInTheDocument()
+      // #527 — StatCard shows positive loss magnitude ("1.0" + "kg to lose"), not a leading minus.
+      expect(screen.queryByText('1.0')).not.toBeInTheDocument()
       expect(
         screen.getAllByText("This week's target").length,
       ).toBeGreaterThan(0)
@@ -318,7 +319,7 @@ describe('GoalScreen', () => {
       })
 
       await user.click(showButton)
-      expect(await screen.findByText('-1.0')).toBeInTheDocument()
+      expect(await screen.findByText('1.0')).toBeInTheDocument()
     })
 
     it('hides the target-reached nudge banner but keeps its title and toggle visible', async () => {
