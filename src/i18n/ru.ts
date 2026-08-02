@@ -50,7 +50,8 @@ export const ru: Dictionary = {
     title: 'День',
     description: 'Ввод данных за день, напоминание о цели на неделю',
     thisWeeksTarget: 'Цель на эту неделю',
-    toLose: (unit) => `${unit} похудения`,
+    // #527 — see en.ts: signed StatCard value + "похудения" read as a gain.
+    toLose: (unit) => unit,
     weeklyTargetFromWeight: (weight) => `от ${weight}`,
     emptyGoalTitle: 'Цель ещё не задана',
     emptyGoalDescription: 'Задайте цель на неделю, чтобы увидеть её здесь.',
