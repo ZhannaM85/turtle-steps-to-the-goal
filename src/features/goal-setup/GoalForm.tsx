@@ -194,6 +194,8 @@ export function GoalForm({
   const [startingNew, setStartingNew] = useState(false)
 
   // #534 — confirm before discarding dirty edits (Cancel or leave route).
+  // Derive nav-block UI from `blocker.state` (no setState-in-effect); Cancel
+  // still uses local `confirmDiscard`.
   const [confirmDiscard, setConfirmDiscard] = useState(false)
   const blocker = useBlocker(
     ({ currentLocation, nextLocation }) =>
@@ -201,12 +203,8 @@ export function GoalForm({
       isDirty &&
       currentLocation.pathname !== nextLocation.pathname,
   )
-
-  useEffect(() => {
-    if (blocker.state === 'blocked') {
-      setConfirmDiscard(true)
-    }
-  }, [blocker.state])
+  const showDiscardConfirm =
+    confirmDiscard || blocker.state === 'blocked'
 
   function discardEdits() {
     if (existingGoal && !startingNew) {
@@ -620,7 +618,7 @@ export function GoalForm({
         {...register('dailyWaterTarget', { setValueAs: parseNumberInput })}
       />
 
-      {confirmDiscard && (
+      {showDiscardConfirm && (
         <div className="flex flex-col gap-2 rounded-xl bg-card p-3 ring-1 ring-foreground/10">
           <span className="text-sm text-muted-foreground">
             {t.goal.confirmDiscardEditsLabel}
