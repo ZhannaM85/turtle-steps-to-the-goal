@@ -27,7 +27,7 @@ export const releaseNotes: ReleaseNote[] = [
   {
     version: 488,
     issue: 534,
-    date: '2026-08-02T00:00:00+03:00',
+    date: '2026-08-02T22:30:08+03:00',
     en: 'On Goal, Cancel restores your last saved target (or clears a new draft). If you have unsaved changes, you’ll be asked before discarding them — including when you leave the page.',
     ru: 'На экране «Цель» кнопка «Отмена» возвращает последний сохранённый целевой вес (или очищает новый черновик). При несохранённых изменениях спросят перед сбросом — в том числе при уходе со страницы.',
   },
