@@ -27,7 +27,7 @@ export const releaseNotes: ReleaseNote[] = [
   {
     version: 487,
     issue: 533,
-    date: '2026-08-02T22:20:00+03:00',
+    date: '2026-08-02T22:19:31+03:00',
     en: 'Food search has a clear (✕) button when you’ve typed something — in Add meal and Find food — so you don’t have to select-all and delete.',
     ru: 'В поиске еды появилась кнопка очистки (✕), когда есть текст — в добавлении приёма пищи и в «Найти еду», чтобы не выделять всё и не стирать вручную.',
   },
