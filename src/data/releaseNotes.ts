@@ -27,7 +27,7 @@ export const releaseNotes: ReleaseNote[] = [
   {
     version: 480,
     issue: 528,
-    date: '2026-08-02T21:02:00+03:00',
+    date: '2026-08-02T21:02:49+03:00',
     en: 'Morning and evening Day sections now say they are optional and point to Settings, where What to track is grouped by morning, evening, and other; body composition stays off until you turn it on.',
     ru: 'Утренний и вечерний блоки на экране «День» теперь явно необязательные и ведут в Настройки; «Что отслеживать» сгруппировано по утру, вечеру и прочему; состав тела по умолчанию выключен, пока вы его не включите.',
   },
