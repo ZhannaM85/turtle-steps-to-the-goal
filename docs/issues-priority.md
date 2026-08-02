@@ -1340,4 +1340,4 @@ _Five requests from an external review (filed in English). Ordered easier → ha
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#536](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/536) | 🔍 Pending validation | Dashboard: per-chart time span instead of one global period | Removed page-level picker. Each trend/correlation section has its own All/Week/Month/Year/Custom via `ChartTitleWithToggle` + per-key `dashboardPeriodStore.byChart`; migrates prior global choice to every chart once. No dual global+individual. Summaries/heatmaps/compare unchanged. |
+| [#536](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/536) | ✅ Done | Dashboard: per-chart time span instead of one global period | Confirmed on-device by the user. Removed page-level picker. Each trend/correlation section has its own All/Week/Month/Year/Custom via `ChartTitleWithToggle` + per-key `dashboardPeriodStore.byChart`; migrates prior global choice to every chart once. No dual global+individual. Summaries/heatmaps/compare unchanged. Follow-up: [#537](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/537) (slow period switch). |
