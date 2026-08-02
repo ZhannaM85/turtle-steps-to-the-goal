@@ -27,7 +27,7 @@ export const releaseNotes: ReleaseNote[] = [
   {
     version: 486,
     issue: 530,
-    date: '2026-08-02T22:00:00+03:00',
+    date: '2026-08-02T22:09:47+03:00',
     en: 'Optional electrolytes (sodium, potassium, magnesium) under Settings → What to track: set daily targets, see Remaining on Today, enter mg when adding meals, and view a Dashboard trend — all off until you turn them on.',
     ru: 'Необязательные электролиты (натрий, калий, магний) в Настройках → Что отслеживать: дневные цели, «Осталось» на экране «День», мг при добавлении еды и график на панели — всё выключено, пока вы не включите.',
   },
