@@ -534,6 +534,12 @@ export interface Dictionary {
     favoriteFoodLabel: (name: string) => string
     unfavoriteFoodLabel: (name: string) => string
     noFoodResultsText: string
+    /** #531 — explicit Open Food Facts name search (never per-keystroke). */
+    searchOnlineButton: string
+    searchingOnlineLabel: string
+    onlineFoodResultsHeading: string
+    noOnlineFoodResultsText: string
+    searchOnlineOfflineHint: string
     /** Find food's confirm button (#183) — e.g. "Add selected (3)". Also
      * used with n=1 for a single pick, replacing the old static "Add". */
     addSelectedFoodsButton: (n: number) => string

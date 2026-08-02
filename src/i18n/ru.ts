@@ -273,6 +273,11 @@ export const ru: Dictionary = {
     favoriteFoodLabel: (name) => `Добавить «${name}» в избранное`,
     unfavoriteFoodLabel: (name) => `Убрать «${name}» из избранного`,
     noFoodResultsText: 'Ничего не найдено.',
+    searchOnlineButton: 'Искать онлайн',
+    searchingOnlineLabel: 'Ищем онлайн…',
+    onlineFoodResultsHeading: 'Онлайн-результаты',
+    noOnlineFoodResultsText: 'Онлайн ничего с калориями не нашлось.',
+    searchOnlineOfflineHint: 'Подключитесь к интернету, чтобы искать онлайн.',
     addSelectedFoodsButton: (n) =>
       n > 1 ? `Добавить выбранное (${n})` : 'Добавить выбранное',
     per100gLabel: 'на 100 г',

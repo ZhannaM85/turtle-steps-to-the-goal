@@ -26,6 +26,10 @@ export interface MealItem {
   /** Dietary fiber in grams (#341) — same optional/additive shape as the
    * three macros above. */
   lastFiberG?: number
+  /** #531 — last-logged electrolytes (mg), same optional/additive shape. */
+  lastSodiumMg?: number
+  lastPotassiumMg?: number
+  lastMagnesiumMg?: number
   /** Portion weight in grams for the last time this name was manually
    * logged (#93) — same purely-additive/optional pattern as the fields
    * above, kept in sync by `touch()`. */

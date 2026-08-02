@@ -47,9 +47,15 @@ import { LogRecipeDialog } from '@/features/recipes'
 import { BarcodeScannerDialog } from './BarcodeScannerDialog'
 import { EmotionPicker } from './EmotionPicker'
 import type { PickedFoodValues } from './FoodPickerDialog'
+import { foodItemFromOff, scaleOffMicros } from './foodItemFromOff'
 import { lookupBarcode } from './lookupBarcode'
 import { MealItemEditorSheet } from './MealItemEditorSheet'
 import { RepeatMealDialog } from './RepeatMealDialog'
+import {
+  OFF_SEARCH_MIN_CHARS,
+  searchOpenFoodFacts,
+  type OffSearchHit,
+} from './searchOpenFoodFacts'
 
 // #256 — same "own repository instance, no shared store" pattern
 // MealList.tsx's own barcode-lookup instance already uses (read-only,
@@ -334,6 +340,25 @@ export function AddMealDialog({
   const [confirmRemoveItemId, setConfirmRemoveItemId] = useState<string | null>(
     null,
   )
+  // #531 — explicit Open Food Facts search (never per keystroke).
+  const [onlineHits, setOnlineHits] = useState<OffSearchHit[]>([])
+  const [onlineSearchStatus, setOnlineSearchStatus] = useState<
+    'idle' | 'loading' | 'done'
+  >('idle')
+  const onlineSearchAbortRef = useRef<AbortController | null>(null)
+
+  useEffect(() => {
+    return () => {
+      onlineSearchAbortRef.current?.abort()
+    }
+  }, [])
+
+  function clearOnlineSearch() {
+    onlineSearchAbortRef.current?.abort()
+    onlineSearchAbortRef.current = null
+    setOnlineHits([])
+    setOnlineSearchStatus('idle')
+  }
 
   function touchIfPersonal(item: CalorieItem) {
     // #518 — barcode-sourced saves must always land in the personal
@@ -352,6 +377,9 @@ export function AddMealDialog({
         carbsG: item.carbsG,
         fiberG: item.fiberG,
         amountG: item.amountG,
+        sodiumMg: item.sodiumMg,
+        potassiumMg: item.potassiumMg,
+        magnesiumMg: item.magnesiumMg,
       },
       undefined,
       pendingBarcode ?? undefined,
@@ -627,6 +655,9 @@ export function AddMealDialog({
       fiberG: parseOptionalMacro(confirmFiber),
       amountG: grams,
       emotion: itemEmotion,
+      ...(activeItem.source === 'food'
+        ? scaleOffMicros(activeItem.food, grams)
+        : {}),
     }
     onAppendItems([newItem])
     // Personal last-used memory only (#50/#86) — curated catalog names are
@@ -657,15 +688,18 @@ export function AddMealDialog({
       // Not a catalog/personal-library item yet — represented as a
       // one-off synthetic food so the same confirm-quantity step (which
       // only knows about PickableItem) can still handle it.
-      const syntheticFood: FoodItem = {
-        id: `off-${barcode}`,
-        en: result.name,
-        ru: result.name,
+      const syntheticFood = foodItemFromOff({
+        name: result.name,
+        code: barcode,
         kcal100: result.kcal100,
-        protein100: result.protein100 ?? 0,
-        fat100: result.fat100 ?? 0,
-        carbs100: result.carbs100 ?? 0,
-      }
+        protein100: result.protein100,
+        fat100: result.fat100,
+        carbs100: result.carbs100,
+        fiber100: result.fiber100,
+        sodium100Mg: result.sodium100Mg,
+        potassium100Mg: result.potassium100Mg,
+        magnesium100Mg: result.magnesium100Mg,
+      })
       // selectActiveItem clears pendingBarcode; re-set after so confirm →
       // touchIfPersonal can attach it (#518).
       selectActiveItem({ source: 'food', food: syntheticFood }, '100')
@@ -677,6 +711,28 @@ export function AddMealDialog({
       setBarcodeNotFoundMessage(true)
       setIsManualOpen(true)
     }
+  }
+
+  async function runOnlineSearch() {
+    const rawQuery = search.trim()
+    if (!isOnline || rawQuery.length < OFF_SEARCH_MIN_CHARS) return
+    onlineSearchAbortRef.current?.abort()
+    const controller = new AbortController()
+    onlineSearchAbortRef.current = controller
+    setOnlineSearchStatus('loading')
+    setOnlineHits([])
+    const hits = await searchOpenFoodFacts(rawQuery, {
+      signal: controller.signal,
+    })
+    if (controller.signal.aborted) return
+    setOnlineHits(hits)
+    setOnlineSearchStatus('done')
+  }
+
+  function pickOnlineHit(hit: OffSearchHit) {
+    const food = foodItemFromOff(hit)
+    selectActiveItem({ source: 'food', food }, '100')
+    if (hit.code) setPendingBarcode(hit.code)
   }
 
   // Converts the already-typed values across the per-100g/per-portion
@@ -1349,7 +1405,10 @@ export function AddMealDialog({
                 aria-label={t.dailyEntry.foodSearchLabel}
                 placeholder={t.dailyEntry.foodSearchPlaceholder}
                 value={search}
-                onChange={(e) => setSearch(e.target.value)}
+                onChange={(e) => {
+                  setSearch(e.target.value)
+                  clearOnlineSearch()
+                }}
                 className="h-12 pr-11 text-base"
               />
               <Button
@@ -1365,34 +1424,96 @@ export function AddMealDialog({
             </div>
 
             {query ? (
-              matches.length === 0 ? (
-                <div className="flex flex-col items-start gap-1.5">
-                  <p className="text-sm text-muted-foreground">
-                    {t.dailyEntry.noFoodResultsText}
-                  </p>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    className="self-start"
-                    onClick={openManualAdd}
-                  >
-                    {t.dailyEntry.cantFindItAddManuallyLabel}
-                  </Button>
-                </div>
-              ) : (
-                <PickableItemList
-                  items={matches}
-                  textFor={textFor}
-                  isFavorite={isFavorite}
-                  onToggleFavorite={handleToggleFavorite}
-                  onPick={(item) => {
-                    selectActiveItem(item)
-                  }}
-                  t={t}
-                  locale={locale}
-                />
-              )
+              <div className="flex flex-col gap-3">
+                {matches.length === 0 ? (
+                  <div className="flex flex-col items-start gap-1.5">
+                    <p className="text-sm text-muted-foreground">
+                      {t.dailyEntry.noFoodResultsText}
+                    </p>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="self-start"
+                      onClick={openManualAdd}
+                    >
+                      {t.dailyEntry.cantFindItAddManuallyLabel}
+                    </Button>
+                  </div>
+                ) : (
+                  <PickableItemList
+                    items={matches}
+                    textFor={textFor}
+                    isFavorite={isFavorite}
+                    onToggleFavorite={handleToggleFavorite}
+                    onPick={(item) => {
+                      selectActiveItem(item)
+                    }}
+                    t={t}
+                    locale={locale}
+                  />
+                )}
+
+                {/* #531 — explicit online search only (never per keystroke). */}
+                {search.trim().length >= OFF_SEARCH_MIN_CHARS && (
+                  <div className="flex flex-col gap-2 border-t border-border pt-3">
+                    {isOnline ? (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        className="self-start"
+                        disabled={onlineSearchStatus === 'loading'}
+                        onClick={() => {
+                          void runOnlineSearch()
+                        }}
+                      >
+                        {onlineSearchStatus === 'loading'
+                          ? t.dailyEntry.searchingOnlineLabel
+                          : t.dailyEntry.searchOnlineButton}
+                      </Button>
+                    ) : (
+                      <p className="text-sm text-muted-foreground">
+                        {t.dailyEntry.searchOnlineOfflineHint}
+                      </p>
+                    )}
+                    {onlineSearchStatus === 'done' &&
+                      (onlineHits.length === 0 ? (
+                        <p className="text-sm text-muted-foreground">
+                          {t.dailyEntry.noOnlineFoodResultsText}
+                        </p>
+                      ) : (
+                        <div className="flex flex-col gap-1.5">
+                          <span className="text-xs font-medium text-muted-foreground">
+                            {t.dailyEntry.onlineFoodResultsHeading}
+                          </span>
+                          <ul className="flex flex-col gap-1">
+                            {onlineHits.map((hit) => (
+                              <li key={`${hit.code ?? hit.name}-${hit.kcal100}`}>
+                                <button
+                                  type="button"
+                                  className="flex w-full flex-col items-start gap-0.5 rounded-lg px-3 py-2 text-left hover:bg-muted"
+                                  onClick={() => pickOnlineHit(hit)}
+                                >
+                                  <span className="text-sm font-medium text-foreground">
+                                    {hit.brand
+                                      ? `${hit.name} · ${hit.brand}`
+                                      : hit.name}
+                                  </span>
+                                  <span className="text-xs text-muted-foreground">
+                                    {formatKcal(hit.kcal100, locale, t)}
+                                    {' · '}
+                                    {t.dailyEntry.per100gLabel}
+                                  </span>
+                                </button>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      ))}
+                  </div>
+                )}
+              </div>
             ) : (
               <>
                 {/* #459 — 3 prominent bordered cards, replacing the old

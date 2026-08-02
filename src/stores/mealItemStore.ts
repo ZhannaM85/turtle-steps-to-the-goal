@@ -24,6 +24,10 @@ interface MealItemStoreState {
        * macros above. */
       fiberG?: number
       amountG?: number
+      /** #531 — electrolytes (mg). */
+      sodiumMg?: number
+      potassiumMg?: number
+      magnesiumMg?: number
     },
     /** #279 — set when a caller (the manual "Add dish" sheet, Settings'
      * own add-dish form) offers a favorite toggle right at creation time.
@@ -80,6 +84,9 @@ export const useMealItemStore = create<MealItemStoreState>((set, get) => ({
       lastCarbsG: nutrition?.carbsG ?? existing?.lastCarbsG,
       lastFiberG: nutrition?.fiberG ?? existing?.lastFiberG,
       lastAmountG: nutrition?.amountG ?? existing?.lastAmountG,
+      lastSodiumMg: nutrition?.sodiumMg ?? existing?.lastSodiumMg,
+      lastPotassiumMg: nutrition?.potassiumMg ?? existing?.lastPotassiumMg,
+      lastMagnesiumMg: nutrition?.magnesiumMg ?? existing?.lastMagnesiumMg,
       favorite: favorite ?? existing?.favorite,
       barcode: barcode ?? existing?.barcode,
     }

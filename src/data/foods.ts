@@ -56,6 +56,11 @@ export interface FoodItem {
    * record its own `fiberG` regardless of whether the curated food it was
    * inspired by has this field filled in. */
   fiber100?: number
+  /** #531 — electrolytes per 100g (mg), optional; filled from Open Food
+   * Facts online hits and left unset on most curated rows for now. */
+  sodium100Mg?: number
+  potassium100Mg?: number
+  magnesium100Mg?: number
   /** Common reference serving weights (USDA/FDA-standard where one
    * exists), seeded for a handful of foods where "how many grams" isn't
    * obvious — not attempted for most of the list. */

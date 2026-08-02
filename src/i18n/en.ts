@@ -257,6 +257,11 @@ export const en: Dictionary = {
     favoriteFoodLabel: (name) => `Add ${name} to favorites`,
     unfavoriteFoodLabel: (name) => `Remove ${name} from favorites`,
     noFoodResultsText: 'No foods found.',
+    searchOnlineButton: 'Search online',
+    searchingOnlineLabel: 'Searching online…',
+    onlineFoodResultsHeading: 'Online results',
+    noOnlineFoodResultsText: 'No online matches with usable calories.',
+    searchOnlineOfflineHint: 'Connect to the internet to search online.',
     addSelectedFoodsButton: (n) =>
       n > 1 ? `Add selected (${n})` : 'Add selected',
     per100gLabel: 'per 100g',

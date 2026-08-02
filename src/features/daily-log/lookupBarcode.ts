@@ -1,23 +1,20 @@
 import type { MealItem, MealItemRepository } from '@/domain/mealItem'
+import { parseOffProduct } from './openFoodFactsParse'
+import type { OffNutritionPer100g } from './openFoodFactsParse'
 
 export type BarcodeLookupResult =
   | { source: 'local'; item: MealItem }
-  | {
+  | ({
       source: 'openFoodFacts'
       name: string
       brand?: string
-      kcal100: number
-      protein100?: number
-      fat100?: number
-      carbs100?: number
-    }
+    } & OffNutritionPer100g)
   | { source: 'none' }
 
 const OFF_FETCH_TIMEOUT_MS = 5000
 
-function isFiniteNumber(value: unknown): value is number {
-  return typeof value === 'number' && Number.isFinite(value)
-}
+const OFF_USER_AGENT =
+  'TurtleStepsToTheGoal/1.0 (https://github.com/ZhannaM85/turtle-steps-to-the-goal)'
 
 /**
  * Local-first barcode lookup with an Open Food Facts fallback (#256).
@@ -44,8 +41,11 @@ export async function lookupBarcode(
 
   try {
     const response = await fetch(
-      `https://world.openfoodfacts.org/api/v2/product/${encodeURIComponent(barcode)}.json`,
-      { signal: AbortSignal.timeout(OFF_FETCH_TIMEOUT_MS) },
+      `https://world.openfoodfacts.org/api/v2/product/${encodeURIComponent(barcode)}.json?fields=product_name,brands,nutriments,code`,
+      {
+        signal: AbortSignal.timeout(OFF_FETCH_TIMEOUT_MS),
+        headers: { 'User-Agent': OFF_USER_AGENT },
+      },
     )
     if (!response.ok) return { source: 'none' }
 
@@ -57,39 +57,21 @@ export async function lookupBarcode(
     ) {
       return { source: 'none' }
     }
-    const product = (data as { product?: unknown }).product
-    if (typeof product !== 'object' || product === null) {
-      return { source: 'none' }
-    }
-
-    const productName = (product as { product_name?: unknown }).product_name
-    const name = typeof productName === 'string' ? productName.trim() : ''
-    if (!name) return { source: 'none' }
-
-    const nutriments = (product as { nutriments?: unknown }).nutriments
-    const nutrimentValue = (key: string): number | undefined => {
-      if (typeof nutriments !== 'object' || nutriments === null) return undefined
-      const value = (nutriments as Record<string, unknown>)[key]
-      return isFiniteNumber(value) ? value : undefined
-    }
-
-    const kcal100 = nutrimentValue('energy-kcal_100g')
-    if (kcal100 === undefined) return { source: 'none' }
-
-    const brandsField = (product as { brands?: unknown }).brands
-    const brand =
-      typeof brandsField === 'string' && brandsField.trim()
-        ? brandsField.split(',')[0].trim()
-        : undefined
+    const parsed = parseOffProduct((data as { product?: unknown }).product)
+    if (!parsed) return { source: 'none' }
 
     return {
       source: 'openFoodFacts',
-      name,
-      brand,
-      kcal100,
-      protein100: nutrimentValue('proteins_100g'),
-      fat100: nutrimentValue('fat_100g'),
-      carbs100: nutrimentValue('carbohydrates_100g'),
+      name: parsed.name,
+      brand: parsed.brand,
+      kcal100: parsed.kcal100,
+      protein100: parsed.protein100,
+      fat100: parsed.fat100,
+      carbs100: parsed.carbs100,
+      fiber100: parsed.fiber100,
+      sodium100Mg: parsed.sodium100Mg,
+      potassium100Mg: parsed.potassium100Mg,
+      magnesium100Mg: parsed.magnesium100Mg,
     }
   } catch {
     // Network failure, timeout, or malformed JSON — same as a genuine
