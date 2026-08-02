@@ -105,10 +105,10 @@ export const en: Dictionary = {
     morningEntriesTitle: 'Morning entries',
     // #528 — was "Fill in after waking up" (read as required). Point at Settings.
     morningEntriesSubtitle:
-      "You don't have to fill these in. To hide them, turn them off in Settings.",
+      "You don't have to fill these in. Turn off the ones you don't need in Settings.",
     eveningEntriesTitle: 'Evening entries',
     eveningEntriesSubtitle:
-      "You don't have to fill these in. To hide them, turn them off in Settings.",
+      "You don't have to fill these in. Turn off the ones you don't need in Settings.",
     expandMorningEntriesLabel: 'Show morning entries',
     collapseMorningEntriesLabel: 'Hide morning entries',
     expandEveningEntriesLabel: 'Show evening entries',
