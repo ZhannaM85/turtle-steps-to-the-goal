@@ -1,6 +1,25 @@
 import { z } from 'zod'
 import type { Dictionary } from '@/i18n'
 
+/**
+ * Form field shape for RHF (#534). Kept explicit (not `z.infer`) so
+ * `zodResolver` stays assignable when the schema accepts RHF’s post-`reset`
+ * empty strings via preprocess — preprocess widens Zod’s *input* to
+ * `unknown`, which otherwise breaks `Resolver<GoalFormValues>`.
+ */
+export type GoalFormValues = {
+  targetWeeklyLoss?: number
+  dailyCalorieTarget?: number
+  dailyProteinTarget?: number
+  dailyFatTarget?: number
+  dailyCarbTarget?: number
+  dailyFiberTarget?: number
+  dailySodiumTarget?: number
+  dailyPotassiumTarget?: number
+  dailyMagnesiumTarget?: number
+  dailyWaterTarget?: number
+}
+
 /** RHF may hold `''` after reset (#241 / #534); Zod number fields reject that. */
 function optionalNumber(schema: z.ZodNumber) {
   return z.preprocess(
@@ -41,5 +60,3 @@ export function makeGoalFormSchema(t: Dictionary) {
       }
     })
 }
-
-export type GoalFormValues = z.infer<ReturnType<typeof makeGoalFormSchema>>

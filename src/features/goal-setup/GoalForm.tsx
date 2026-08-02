@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Check, Minus, Pencil, Plus } from 'lucide-react'
-import { useForm, useWatch } from 'react-hook-form'
+import { useForm, useWatch, type Resolver } from 'react-hook-form'
 import { useBlocker } from 'react-router-dom'
 import type { Goal } from '@/domain/goal'
 import {
@@ -88,7 +88,10 @@ export function GoalForm({
     setValue,
     formState: { errors, isDirty },
   } = useForm<GoalFormValues>({
-    resolver: zodResolver(schema),
+    // Cast: schema preprocesses `''` → undefined (#241/#534); that widens
+    // Zod input to `unknown`, which `zodResolver` otherwise won't assign to
+    // `Resolver<GoalFormValues>`.
+    resolver: zodResolver(schema) as Resolver<GoalFormValues>,
     // Prefer `goalToFormValues` ({} when null) over empty-string defaults so
     // untouched optional fields stay `undefined`. Empty strings are only used
     // in `reset(emptyGoalFormValues())` to clear uncontrolled inputs (#241).
