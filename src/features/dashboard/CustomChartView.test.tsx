@@ -57,6 +57,7 @@ beforeEach(() => {
       note: true,
       mood: true,
       bodyComposition: true,
+      nightEating: true,
     },
   })
   useCustomMetricStore.setState({ metrics: [], entries: [] })

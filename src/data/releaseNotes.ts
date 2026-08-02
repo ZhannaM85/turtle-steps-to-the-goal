@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 485,
+    issue: 532,
+    date: '2026-08-02T21:36:00+03:00',
+    en: 'Night eating can be turned off under Settings → What to track. If you turn off every evening field, the Evening section hides on the Day screen.',
+    ru: '«Еду поздно вечером» можно отключить в Настройках → Что отслеживать. Если выключить все вечерние поля, блок «Вечерние записи» на экране «День» скрывается.',
+  },
+  {
     version: 484,
     issue: 531,
     date: '2026-08-02T21:30:47+03:00',

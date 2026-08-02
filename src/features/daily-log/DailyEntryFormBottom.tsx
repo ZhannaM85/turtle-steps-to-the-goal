@@ -34,6 +34,16 @@ export function DailyEntryFormBottom() {
   )
   const setCollapsed = useTodaySectionsCollapseStore((s) => s.setCollapsed)
 
+  // #532 — if every Evening field is off, don't leave an empty accordion.
+  const showEveningSection =
+    state.trackedFields.steps ||
+    state.trackedFields.note ||
+    state.trackedFields.mood ||
+    state.digestionTrackingEnabled ||
+    state.trackedFields.nightEating
+
+  if (!showEveningSection) return null
+
   return (
     <div className="rounded-lg border border-border p-3">
       <Collapsible
@@ -272,10 +282,9 @@ export function DailyEntryFormBottom() {
               </div>
             )}
 
-            {/* #383 — always shown (no Settings opt-in gate, unlike onPeriod/
-             * hadConstipation above): a manually-set override layered on a value
-             * already derived from today's own logged meal times, so there's no
-             * extra logging step for anyone already recording when they eat. */}
+            {/* #383 / #532 — night eating is Settings-gated like the other
+             * Evening fields (was always shown before #532). */}
+            {state.trackedFields.nightEating && (
             <div className="flex flex-col gap-1.5">
               <span className="text-sm font-medium">
                 <Moon aria-hidden="true" className="mr-1 inline size-4" />
@@ -322,6 +331,7 @@ export function DailyEntryFormBottom() {
                 </ToggleGroupItem>
               </ToggleGroup>
             </div>
+            )}
           </div>
         </CollapsibleContent>
       </Collapsible>

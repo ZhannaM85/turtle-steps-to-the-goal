@@ -3,7 +3,7 @@ import { createJSONStorage, persist } from 'zustand/middleware'
 
 /**
  * #237 — which optional daily-tracking fields appear on the Today form.
- * All default `true` (opt-out), unlike `useCycleTrackingStore`/
+ * Most default `true` (opt-out), unlike `useCycleTrackingStore`/
  * `useDigestionTrackingStore` (opt-in, off by default) — those two keep
  * their own separate stores/localStorage keys unchanged (real data
  * already in production; a merge would need a migration for no real
@@ -19,6 +19,7 @@ export type TrackedField =
   | 'note'
   | 'mood'
   | 'bodyComposition'
+  | 'nightEating'
 
 const DEFAULT_TRACKED: Record<TrackedField, boolean> = {
   sleep: true,
@@ -29,6 +30,9 @@ const DEFAULT_TRACKED: Record<TrackedField, boolean> = {
   // #528 — smart-scale fields stay opt-in for new users (existing
   // persisted prefs keep whatever they already saved).
   bodyComposition: false,
+  // #532 — was always-on (#383); default on so existing behavior stays
+  // until the user opts out in Settings.
+  nightEating: true,
 }
 
 interface TrackedFieldsState {
@@ -48,6 +52,19 @@ export const useTrackedFieldsStore = create<TrackedFieldsState>()(
     {
       name: 'turtle-steps-tracked-fields',
       storage: createJSONStorage(() => localStorage),
+      // Fill keys added after a user's first visit (e.g. #532 nightEating)
+      // from DEFAULT_TRACKED so missing keys don't read as "off".
+      merge: (persisted, current) => {
+        const p = persisted as Partial<TrackedFieldsState> | undefined
+        return {
+          ...current,
+          ...p,
+          tracked: {
+            ...DEFAULT_TRACKED,
+            ...p?.tracked,
+          },
+        }
+      },
     },
   ),
 )

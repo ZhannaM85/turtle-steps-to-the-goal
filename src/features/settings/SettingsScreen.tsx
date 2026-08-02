@@ -102,6 +102,7 @@ export function SettingsScreen() {
     'note',
     'mood',
     'constipation',
+    'nightEating',
   ]
   const otherTrackedKeys: UnifiedTrackedKey[] = ['cycle', 'water']
   function isFieldTracked(key: UnifiedTrackedKey): boolean {
@@ -398,6 +399,9 @@ export function SettingsScreen() {
               </ToggleGroupItem>
               <ToggleGroupItem value="constipation" className="h-12">
                 {t.settings.digestionTrackingLabel}
+              </ToggleGroupItem>
+              <ToggleGroupItem value="nightEating" className="h-12">
+                {t.dailyEntry.nightEatingLabel()}
               </ToggleGroupItem>
             </ToggleGroup>
           </div>

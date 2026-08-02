@@ -330,6 +330,7 @@ describe('SettingsScreen', () => {
           note: true,
           mood: true,
           bodyComposition: false,
+          nightEating: true,
         },
       })
       renderSettings()
@@ -339,6 +340,16 @@ describe('SettingsScreen', () => {
           screen.getByRole('toolbar', { name: 'Morning' }),
         ).getByRole('button', { name: 'Body composition' }),
       ).toHaveAttribute('aria-pressed', 'false')
+    })
+
+    it('includes night eating in the Evening What to track group (#532)', () => {
+      renderSettings()
+
+      expect(
+        within(
+          screen.getByRole('toolbar', { name: 'Evening' }),
+        ).getByRole('button', { name: 'Ate late tonight' }),
+      ).toHaveAttribute('aria-pressed', 'true')
     })
   })
 

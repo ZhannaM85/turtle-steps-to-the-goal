@@ -354,13 +354,14 @@ export function CustomChartView({
   const digestionTrackingEnabled = useDigestionTrackingStore(
     (state) => state.enabled,
   )
-  // #383 — nightEating has no Settings opt-in to gate behind (unlike the
-  // other two), so it's always offered.
+  const trackedFields = useTrackedFieldsStore((state) => state.tracked)
+  // #383 / #532 — night eating gates on Settings What to track, same as
+  // cycle/digestion for their boolean series.
   const availableBooleanSeries = BOOLEAN_SERIES.filter(
     (series) =>
       (series.key === 'onPeriod' && cycleTrackingEnabled) ||
       (series.key === 'hadConstipation' && digestionTrackingEnabled) ||
-      series.key === 'nightEating',
+      (series.key === 'nightEating' && trackedFields.nightEating),
   )
   // #351 — reported live: waist/hip stayed offered here even with "Body
   // measurements" tracking turned off in Settings, unlike the boolean
@@ -372,7 +373,6 @@ export function CustomChartView({
   // `selectedNumeric` if tracking is turned off after the fact — same
   // "only affects what's offered going forward" behavior the boolean
   // series already have.
-  const trackedFields = useTrackedFieldsStore((state) => state.tracked)
   const availableNumericKeys = NUMERIC_SERIES_KEYS.filter((key) => {
     if (key === 'waist' || key === 'hip') return trackedFields.bodyMeasurements
     if (key === 'bodyFat') return trackedFields.bodyComposition

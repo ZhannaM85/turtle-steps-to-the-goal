@@ -1403,6 +1403,7 @@ describe('DailyEntryForm', () => {
           note: true,
           mood: true,
           bodyComposition: false,
+          nightEating: true,
         },
       })
       render(
@@ -1415,6 +1416,35 @@ describe('DailyEntryForm', () => {
       expect(screen.queryByText('Body composition')).not.toBeInTheDocument()
       expect(screen.getByText("Day's note")).toBeInTheDocument()
       expect(screen.getByText('Mood today')).toBeInTheDocument()
+    })
+
+    it('hides night eating when its Settings toggle is off (#532)', () => {
+      useTrackedFieldsStore.setState((state) => ({
+        tracked: { ...state.tracked, nightEating: false },
+      }))
+      render(
+        <DailyEntryForm date="2026-03-01" existingEntry={null} onSave={vi.fn()} />,
+      )
+
+      expect(screen.queryByText('Ate late tonight')).not.toBeInTheDocument()
+    })
+
+    it('hides the whole Evening section when every evening field is off (#532)', () => {
+      useDigestionTrackingStore.setState({ enabled: false })
+      useTrackedFieldsStore.setState((state) => ({
+        tracked: {
+          ...state.tracked,
+          steps: false,
+          note: false,
+          mood: false,
+          nightEating: false,
+        },
+      }))
+      render(
+        <DailyEntryForm date="2026-03-01" existingEntry={null} onSave={vi.fn()} />,
+      )
+
+      expect(screen.queryByText('Evening entries')).not.toBeInTheDocument()
     })
 
     it('shows Body composition once its Settings toggle is turned on (#528)', () => {
