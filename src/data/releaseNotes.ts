@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 481,
+    issue: 527,
+    date: '2026-08-02T21:12:00+03:00',
+    en: 'This week’s weight-loss target is shown as a positive amount to lose (for example 0.1 kg to lose), not with a leading minus that could look like a gain.',
+    ru: 'Цель похудения на неделю показывается как положительная величина к потере (например, 0,1 кг похудения), без минуса впереди, который можно было принять за набор веса.',
+  },
+  {
     version: 480,
     issue: 528,
     date: '2026-08-02T21:02:49+03:00',

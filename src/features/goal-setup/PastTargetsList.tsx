@@ -77,12 +77,10 @@ function PastTargetRow({
     <tr className="border-b border-border last:border-b-0">
       <td className="py-2 pr-2 align-top">{weekRangeLabel}</td>
       <td className="py-2 pr-2 text-right align-top tabular-nums text-muted-foreground">
-        {/* Negated (#178) — a loss, same convention GoalScreen.tsx's/
-         * TodayScreen.tsx's own StatCards already use ("-0.6 kg to
-         * lose"); this list showed the raw positive targetWeeklyLossKg
-         * instead. */}
+        {/* #527 — show positive magnitude (how much to lose). The leading
+         * minus from #56/#178 made "−1 кг похудения" read as a gain. */}
         {t.goal.targetPerWeek(
-          formatNumber(-toDisplay(goal.targetWeeklyLossKg), locale),
+          formatNumber(toDisplay(goal.targetWeeklyLossKg), locale),
           unit,
         )}
       </td>

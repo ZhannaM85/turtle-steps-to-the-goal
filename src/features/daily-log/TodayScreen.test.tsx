@@ -212,13 +212,12 @@ describe('TodayScreen', () => {
     )
 
     expect(await screen.findByText("This week's target")).toBeInTheDocument()
-    expect(screen.getByText('-1.0')).toBeInTheDocument()
-    // #527 — unit alone (value is already signed as a loss); was "kg to lose".
-    // Scope to this StatCard — other cards also say "kg".
+    // #527 — positive magnitude + "to lose" (not a leading minus).
+    expect(screen.getByText('1.0')).toBeInTheDocument()
     const card = screen
       .getByText("This week's target")
       .closest('[data-slot="card"]') as HTMLElement
-    expect(within(card).getByText('kg')).toBeInTheDocument()
+    expect(within(card).getByText('kg to lose')).toBeInTheDocument()
   })
 
   // #469 — reported live: the target figure alone doesn't say which weight

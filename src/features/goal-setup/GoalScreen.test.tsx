@@ -131,7 +131,7 @@ describe('GoalScreen', () => {
       screen.getByRole('button', { name: 'Update this week’s target' }),
     )
 
-    expect(await screen.findByText('-0.5')).toBeInTheDocument()
+    expect(await screen.findByText('0.5')).toBeInTheDocument()
     const persisted = await db.goals.orderBy('createdAt').last()
     expect(persisted?.targetWeeklyLossKg).toBe(0.5)
   })
@@ -155,7 +155,7 @@ describe('GoalScreen', () => {
       screen.getByRole('button', { name: 'Update this week’s target' }),
     )
 
-    await screen.findByText('-0.5')
+    await screen.findByText('0.5')
     // Still the same one record, same id — not a second history entry
     // (the exact "two rows for the same week" bug this issue fixes).
     expect(await db.goals.count()).toBe(1)
@@ -284,7 +284,7 @@ describe('GoalScreen', () => {
       screen.getByRole('button', { name: 'Set this week’s target' }),
     )
 
-    await screen.findByText('-0.5')
+    await screen.findByText('0.5')
     // A new record was started rather than overwriting the reached one in
     // place — the original's own target stays frozen at 1kg.
     expect(await db.goals.count()).toBe(2)

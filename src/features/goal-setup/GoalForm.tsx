@@ -166,7 +166,7 @@ export function GoalForm({
               <td className="py-2 text-right font-medium text-foreground">
                 {t.goal.targetPerWeek(
                   formatNumber(
-                    -toDisplay(existingGoal.targetWeeklyLossKg),
+                    toDisplay(existingGoal.targetWeeklyLossKg),
                     locale,
                   ),
                   unitText,

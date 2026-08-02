@@ -44,12 +44,9 @@ export const en: Dictionary = {
     title: 'Day',
     description: "Entry for the day's data, this week's target reminder",
     thisWeeksTarget: "This week's target",
-    // #527 — StatCard value is already signed as a loss (#56). Appending
-    // "to lose" after e.g. "-1" read as a double negative / gain in RU
-    // ("−1 кг похудения"); EN was only slightly clearer. Unit alone is enough
-    // under "This week's target". GoalForm's targetLabel still says "to lose"
-    // because that input takes a positive magnitude.
-    toLose: (unit) => unit,
+    // #527 — positive magnitude + "to lose" (signed −X from #56 read as a
+    // gain, especially in RU with "похудения"). GoalForm targetLabel matches.
+    toLose: (unit) => `${unit} to lose`,
     weeklyTargetFromWeight: (weight) => `from ${weight}`,
     emptyGoalTitle: 'No goal set yet',
     emptyGoalDescription: 'Set a weekly target to see it here.',
