@@ -27,7 +27,7 @@ export const releaseNotes: ReleaseNote[] = [
   {
     version: 484,
     issue: 531,
-    date: '2026-08-02T21:30:00+03:00',
+    date: '2026-08-02T21:30:47+03:00',
     en: 'When a food isn’t in the local list, Add meal can Search online (Open Food Facts) on demand — not while you type — and remember it for next time.',
     ru: 'Если блюда нет в локальном списке, в добавлении еды можно нажать «Искать онлайн» (Open Food Facts) по запросу — не во время набора — и сохранить его на следующий раз.',
   },
