@@ -27,7 +27,7 @@ export const releaseNotes: ReleaseNote[] = [
   {
     version: 478,
     issue: 526,
-    date: '2026-08-02T18:10:00+03:00',
+    date: '2026-08-02T18:10:34+03:00',
     en: 'Settings now draws a border around each import source (backup, Zepp Life, Apple Health, MyFitnessPal) so they are easier to tell apart.',
     ru: 'В настройках у каждого источника импорта (копия, Zepp Life, Apple Health, MyFitnessPal) теперь своя рамка — проще понять, где чей блок.',
   },
