@@ -1275,3 +1275,13 @@ _Reported live with correlation + Day screenshots and `turtle-steps-backup-2026-
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#522](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/522) | 🔍 Pending validation | Dashboard correlation calories wrong for days with after-midnight meals (shows 727 vs ~1244 on 1 Aug) | Not an after-midnight bug — 01:09 meal was already in the 1244 day total. Tooltip showed weekly *average* for the incomplete week of 1–2 Aug (Sat week-start from period filter): (1244+210)/2 = 727. Fix: `correlationInsightPoints` excludes incomplete/current weeks (`weekEnd` after `min(today, max entry date)`, plus leading weeks truncated by the period start). Sparse finished historical weeks still count |
+
+---
+
+## Tier 90 — Live feedback: late-meal correlation outlier day mismatch (2026-08-02)
+
+_Reported live with late-meal correlation + Day screenshots: outlier chip «13 июл. 2026» at ~10:00 last-meal time, but Day 13 Jul shows last meal 23:28._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#523](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/523) | ⬜ Open | Late-meal correlation outlier date is the weight day, not the eating day (~10:00 on 13 Jul vs Day log 23:28) | Math OK: point is 12 Jul last timed meal 10:13 → 13 Jul weight +0.65. `LateMealPoint.date` is next (weight) day, so chip/open-day lands on 13 Jul whose last meal is 23:28. Same UX class as #522. Sibling day-pair correlations share the convention |
