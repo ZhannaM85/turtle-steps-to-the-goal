@@ -554,6 +554,10 @@ export interface Dictionary {
     onlineFoodResultsHeading: string
     noOnlineFoodResultsText: string
     searchOnlineOfflineHint: string
+    /** #535 — offline still searches bundled RU staples. */
+    searchOnlineOfflineBundledHint: string
+    /** #535 — OFF/USDA outage (not the same as empty results). */
+    onlineFoodUnavailableText: string
     /** Find food's confirm button (#183) — e.g. "Add selected (3)". Also
      * used with n=1 for a single pick, replacing the old static "Add". */
     addSelectedFoodsButton: (n: number) => string

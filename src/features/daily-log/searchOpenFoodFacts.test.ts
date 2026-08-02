@@ -11,10 +11,13 @@ afterEach(() => {
 })
 
 describe('searchOpenFoodFacts', () => {
-  it('returns [] without fetching when the query is too short', async () => {
+  it('returns empty without fetching when the query is too short', async () => {
     const fetchMock = vi.fn()
     vi.stubGlobal('fetch', fetchMock)
-    expect(await searchOpenFoodFacts('a')).toEqual([])
+    expect(await searchOpenFoodFacts('a')).toEqual({
+      status: 'empty',
+      hits: [],
+    })
     expect(OFF_SEARCH_MIN_CHARS).toBe(2)
     expect(fetchMock).not.toHaveBeenCalled()
   })
@@ -31,7 +34,6 @@ describe('searchOpenFoodFacts', () => {
             nutriments: { 'energy-kcal_100g': 80, proteins_100g: 4 },
           },
           {
-            // no kcal — skipped
             product_name: 'Mystery',
             nutriments: { proteins_100g: 1 },
           },
@@ -44,9 +46,10 @@ describe('searchOpenFoodFacts', () => {
     })
     vi.stubGlobal('fetch', fetchMock)
 
-    const hits = await searchOpenFoodFacts('yogurt')
-    expect(hits).toHaveLength(1)
-    expect(hits[0]).toMatchObject({
+    const result = await searchOpenFoodFacts('yogurt')
+    expect(result.status).toBe('ok')
+    expect(result.hits).toHaveLength(1)
+    expect(result.hits[0]).toMatchObject({
       name: 'Good yogurt',
       brand: 'Brand',
       kcal100: 80,
@@ -59,11 +62,25 @@ describe('searchOpenFoodFacts', () => {
     expect(url).toContain('fields=')
   })
 
-  it('returns [] on network failure', async () => {
+  it('returns unavailable on network failure (#535)', async () => {
     vi.stubGlobal(
       'fetch',
       vi.fn().mockRejectedValue(new Error('offline')),
     )
-    expect(await searchOpenFoodFacts('milk')).toEqual([])
+    expect(await searchOpenFoodFacts('milk')).toEqual({
+      status: 'unavailable',
+      hits: [],
+    })
+  })
+
+  it('returns unavailable on HTTP 503 (#535)', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({ ok: false, status: 503 }),
+    )
+    expect(await searchOpenFoodFacts('milk')).toEqual({
+      status: 'unavailable',
+      hits: [],
+    })
   })
 })

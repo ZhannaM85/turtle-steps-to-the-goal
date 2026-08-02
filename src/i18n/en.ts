@@ -272,6 +272,10 @@ export const en: Dictionary = {
     onlineFoodResultsHeading: 'Online results',
     noOnlineFoodResultsText: 'No online matches with usable calories.',
     searchOnlineOfflineHint: 'Connect to the internet to search online.',
+    searchOnlineOfflineBundledHint:
+      'You’re offline — searching the built-in staple list only.',
+    onlineFoodUnavailableText:
+      'Online food databases are temporarily unavailable. Try again later, or pick a built-in staple if one matched.',
     addSelectedFoodsButton: (n) =>
       n > 1 ? `Add selected (${n})` : 'Add selected',
     per100gLabel: 'per 100g',

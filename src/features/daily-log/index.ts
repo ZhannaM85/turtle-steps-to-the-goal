@@ -9,3 +9,10 @@ export { lookupBarcode } from './lookupBarcode'
 export type { BarcodeLookupResult } from './lookupBarcode'
 export { searchOpenFoodFacts } from './searchOpenFoodFacts'
 export type { OffSearchHit } from './searchOpenFoodFacts'
+export { searchOnlineFoods } from './searchOnlineFoods'
+export type {
+  OnlineFoodHit,
+  OnlineSearchResult,
+} from './searchOnlineFoods'
+export { searchUsdaFoods } from './searchUsdaFoods'
+export { searchRuFoodGenerics } from './ruFoodGenerics'

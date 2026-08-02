@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 490,
+    issue: 535,
+    date: '2026-08-02T00:00:00+03:00',
+    en: 'Search online now falls back to USDA when Open Food Facts is down, includes a small built-in staple list (works offline too), and says when online databases are temporarily unavailable instead of “nothing found.”',
+    ru: '«Искать онлайн» теперь переходит на USDA, если Open Food Facts недоступен, включает небольшой встроенный список обычных продуктов (и без сети), и сообщает, когда онлайн-базы временно недоступны, а не «ничего не найдено».',
+  },
+  {
     version: 489,
     issue: 536,
     date: '2026-08-02T23:31:08+03:00',

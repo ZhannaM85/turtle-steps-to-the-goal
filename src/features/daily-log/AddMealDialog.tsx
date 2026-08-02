@@ -54,9 +54,10 @@ import { MealItemEditorSheet } from './MealItemEditorSheet'
 import { RepeatMealDialog } from './RepeatMealDialog'
 import {
   OFF_SEARCH_MIN_CHARS,
-  searchOpenFoodFacts,
-  type OffSearchHit,
-} from './searchOpenFoodFacts'
+  searchOnlineFoods,
+  type OnlineFoodHit,
+  type OnlineSearchRemoteStatus,
+} from './searchOnlineFoods'
 
 // #256 — same "own repository instance, no shared store" pattern
 // MealList.tsx's own barcode-lookup instance already uses (read-only,
@@ -362,11 +363,14 @@ export function AddMealDialog({
   const [confirmRemoveItemId, setConfirmRemoveItemId] = useState<string | null>(
     null,
   )
-  // #531 — explicit Open Food Facts search (never per keystroke).
-  const [onlineHits, setOnlineHits] = useState<OffSearchHit[]>([])
+  // #531/#535 — explicit online search (never per keystroke): OFF → USDA
+  // fallback + bundled RU generics.
+  const [onlineHits, setOnlineHits] = useState<OnlineFoodHit[]>([])
   const [onlineSearchStatus, setOnlineSearchStatus] = useState<
     'idle' | 'loading' | 'done'
   >('idle')
+  const [onlineRemoteStatus, setOnlineRemoteStatus] =
+    useState<OnlineSearchRemoteStatus | null>(null)
   const onlineSearchAbortRef = useRef<AbortController | null>(null)
 
   useEffect(() => {
@@ -380,6 +384,7 @@ export function AddMealDialog({
     onlineSearchAbortRef.current = null
     setOnlineHits([])
     setOnlineSearchStatus('idle')
+    setOnlineRemoteStatus(null)
   }
 
   function touchIfPersonal(item: CalorieItem) {
@@ -825,21 +830,24 @@ export function AddMealDialog({
 
   async function runOnlineSearch() {
     const rawQuery = search.trim()
-    if (!isOnline || rawQuery.length < OFF_SEARCH_MIN_CHARS) return
+    if (rawQuery.length < OFF_SEARCH_MIN_CHARS) return
     onlineSearchAbortRef.current?.abort()
     const controller = new AbortController()
     onlineSearchAbortRef.current = controller
     setOnlineSearchStatus('loading')
     setOnlineHits([])
-    const hits = await searchOpenFoodFacts(rawQuery, {
+    setOnlineRemoteStatus(null)
+    const result = await searchOnlineFoods(rawQuery, {
       signal: controller.signal,
+      online: isOnline,
     })
     if (controller.signal.aborted) return
-    setOnlineHits(hits)
+    setOnlineHits(result.hits)
+    setOnlineRemoteStatus(result.remoteStatus)
     setOnlineSearchStatus('done')
   }
 
-  function pickOnlineHit(hit: OffSearchHit) {
+  function pickOnlineHit(hit: OnlineFoodHit) {
     const food = foodItemFromOff(hit)
     selectActiveItem({ source: 'food', food }, '100')
     if (hit.code) setPendingBarcode(hit.code)
@@ -1664,29 +1672,35 @@ export function AddMealDialog({
                   />
                 )}
 
-                {/* #531 — explicit online search only (never per keystroke). */}
+                {/* #531/#535 — explicit online search (never per keystroke).
+                 * Offline still runs the bundled RU staples catalog. */}
                 {search.trim().length >= OFF_SEARCH_MIN_CHARS && (
                   <div className="flex flex-col gap-2 border-t border-border pt-3">
-                    {isOnline ? (
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        className="self-start"
-                        disabled={onlineSearchStatus === 'loading'}
-                        onClick={() => {
-                          void runOnlineSearch()
-                        }}
-                      >
-                        {onlineSearchStatus === 'loading'
-                          ? t.dailyEntry.searchingOnlineLabel
-                          : t.dailyEntry.searchOnlineButton}
-                      </Button>
-                    ) : (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="self-start"
+                      disabled={onlineSearchStatus === 'loading'}
+                      onClick={() => {
+                        void runOnlineSearch()
+                      }}
+                    >
+                      {onlineSearchStatus === 'loading'
+                        ? t.dailyEntry.searchingOnlineLabel
+                        : t.dailyEntry.searchOnlineButton}
+                    </Button>
+                    {!isOnline && (
                       <p className="text-sm text-muted-foreground">
-                        {t.dailyEntry.searchOnlineOfflineHint}
+                        {t.dailyEntry.searchOnlineOfflineBundledHint}
                       </p>
                     )}
+                    {onlineSearchStatus === 'done' &&
+                      onlineRemoteStatus === 'unavailable' && (
+                        <p className="text-sm text-muted-foreground">
+                          {t.dailyEntry.onlineFoodUnavailableText}
+                        </p>
+                      )}
                     {onlineSearchStatus === 'done' &&
                       (onlineHits.length === 0 ? (
                         <p className="text-sm text-muted-foreground">

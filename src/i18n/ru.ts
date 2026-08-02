@@ -288,6 +288,10 @@ export const ru: Dictionary = {
     onlineFoodResultsHeading: 'Онлайн-результаты',
     noOnlineFoodResultsText: 'Онлайн ничего с калориями не нашлось.',
     searchOnlineOfflineHint: 'Подключитесь к интернету, чтобы искать онлайн.',
+    searchOnlineOfflineBundledHint:
+      'Нет сети — ищем только во встроенном списке обычных продуктов.',
+    onlineFoodUnavailableText:
+      'Онлайн-базы продуктов временно недоступны. Попробуйте позже или выберите совпадение из встроенного списка, если оно есть.',
     addSelectedFoodsButton: (n) =>
       n > 1 ? `Добавить выбранное (${n})` : 'Добавить выбранное',
     per100gLabel: 'на 100 г',
