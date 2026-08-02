@@ -27,7 +27,7 @@ export const releaseNotes: ReleaseNote[] = [
   {
     version: 491,
     issue: 537,
-    date: '2026-08-02T23:59:00+03:00',
+    date: '2026-08-02T23:59:42+03:00',
     en: 'Switching a Dashboard chart’s time span (Week / Month / Year) updates that chart quickly instead of freezing the whole page for several seconds.',
     ru: 'Смена периода на графике панели (Нед / Мес / Год) обновляет только этот график, а не зависает на несколько секунд на всей странице.',
   },
