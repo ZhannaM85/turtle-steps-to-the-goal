@@ -43,6 +43,20 @@ function entry(date: string, overrides: Partial<DailyEntry> = {}): DailyEntry {
   }
 }
 
+/** Extends the data window past the last comparable week's Sunday so
+ * #522's incomplete-week gate keeps those weeks. */
+function withCompletedWindow(
+  entries: DailyEntry[],
+  lastComparableWeekIndex: number,
+): DailyEntry[] {
+  const lastWeight =
+    [...entries].reverse().find((e) => e.weightKg !== undefined)?.weightKg ?? 80
+  return [
+    ...entries,
+    entry(weekStart(lastComparableWeekIndex + 1), { weightKg: lastWeight }),
+  ]
+}
+
 describe('CorrelationView', () => {
   it('renders nothing when there are no comparable weeks', () => {
     const { container } = render(<CorrelationView entries={[]} />, { wrapper: MemoryRouter })
@@ -50,10 +64,13 @@ describe('CorrelationView', () => {
   })
 
   it('shows the not-enough-data caveat with fewer than 4 comparable weeks', () => {
-    const entries = [
-      entry(weekStart(0), { weightKg: 90 }),
-      entry(weekStart(1), { weightKg: 88, calorieEntries: calories(1800) }),
-    ]
+    const entries = withCompletedWindow(
+      [
+        entry(weekStart(0), { weightKg: 90 }),
+        entry(weekStart(1), { weightKg: 88, calorieEntries: calories(1800) }),
+      ],
+      1,
+    )
     render(<CorrelationView entries={entries} />, { wrapper: MemoryRouter })
 
     expect(
@@ -63,10 +80,13 @@ describe('CorrelationView', () => {
 
   it('collapses the near-empty plot by default with fewer than 4 comparable weeks (#89)', async () => {
     const user = userEvent.setup()
-    const entries = [
-      entry(weekStart(0), { weightKg: 90 }),
-      entry(weekStart(1), { weightKg: 88, calorieEntries: calories(1800) }),
-    ]
+    const entries = withCompletedWindow(
+      [
+        entry(weekStart(0), { weightKg: 90 }),
+        entry(weekStart(1), { weightKg: 88, calorieEntries: calories(1800) }),
+      ],
+      1,
+    )
     const { container } = render(<CorrelationView entries={entries} />, { wrapper: MemoryRouter })
 
     expect(
@@ -84,13 +104,16 @@ describe('CorrelationView', () => {
   })
 
   it('shows the plain-language summary once there is enough data', () => {
-    const entries = [
-      entry(weekStart(0), { weightKg: 90 }),
-      entry(weekStart(1), { weightKg: 88, calorieEntries: calories(1700) }),
-      entry(weekStart(2), { weightKg: 86, calorieEntries: calories(1800) }),
-      entry(weekStart(3), { weightKg: 85.5, calorieEntries: calories(2200) }),
-      entry(weekStart(4), { weightKg: 85.3, calorieEntries: calories(2300) }),
-    ]
+    const entries = withCompletedWindow(
+      [
+        entry(weekStart(0), { weightKg: 90 }),
+        entry(weekStart(1), { weightKg: 88, calorieEntries: calories(1700) }),
+        entry(weekStart(2), { weightKg: 86, calorieEntries: calories(1800) }),
+        entry(weekStart(3), { weightKg: 85.5, calorieEntries: calories(2200) }),
+        entry(weekStart(4), { weightKg: 85.3, calorieEntries: calories(2300) }),
+      ],
+      4,
+    )
     render(<CorrelationView entries={entries} />, { wrapper: MemoryRouter })
 
     expect(
@@ -108,15 +131,19 @@ describe('CorrelationView', () => {
     // The plain-language-summary fixture's 4 clean weeks, plus a 5th whose
     // delta (-25.3kg) is wildly outside that pattern (its own calorie
     // figure, 2000, is unremarkable, so this is a clean Y-axis-only case).
+    // Trailing weight-only day keeps week 5 past #522's incomplete-week gate.
     function entriesWithOneOutlier(): DailyEntry[] {
-      return [
-        entry(weekStart(0), { weightKg: 90 }),
-        entry(weekStart(1), { weightKg: 88, calorieEntries: calories(1700) }),
-        entry(weekStart(2), { weightKg: 86, calorieEntries: calories(1800) }),
-        entry(weekStart(3), { weightKg: 85.5, calorieEntries: calories(2200) }),
-        entry(weekStart(4), { weightKg: 85.3, calorieEntries: calories(2300) }),
-        entry(weekStart(5), { weightKg: 60, calorieEntries: calories(2000) }),
-      ]
+      return withCompletedWindow(
+        [
+          entry(weekStart(0), { weightKg: 90 }),
+          entry(weekStart(1), { weightKg: 88, calorieEntries: calories(1700) }),
+          entry(weekStart(2), { weightKg: 86, calorieEntries: calories(1800) }),
+          entry(weekStart(3), { weightKg: 85.5, calorieEntries: calories(2200) }),
+          entry(weekStart(4), { weightKg: 85.3, calorieEntries: calories(2300) }),
+          entry(weekStart(5), { weightKg: 60, calorieEntries: calories(2000) }),
+        ],
+        5,
+      )
     }
 
     it('lists the flagged outlier week as an excludable button', () => {
@@ -175,13 +202,16 @@ describe('CorrelationView', () => {
 
     it('hides the card body but keeps the title and toggle visible', async () => {
       const user = userEvent.setup()
-      const entries = [
-        entry(weekStart(0), { weightKg: 90 }),
-        entry(weekStart(1), { weightKg: 88, calorieEntries: calories(1700) }),
-        entry(weekStart(2), { weightKg: 86, calorieEntries: calories(1800) }),
-        entry(weekStart(3), { weightKg: 85.5, calorieEntries: calories(2200) }),
-        entry(weekStart(4), { weightKg: 85.3, calorieEntries: calories(2300) }),
-      ]
+      const entries = withCompletedWindow(
+        [
+          entry(weekStart(0), { weightKg: 90 }),
+          entry(weekStart(1), { weightKg: 88, calorieEntries: calories(1700) }),
+          entry(weekStart(2), { weightKg: 86, calorieEntries: calories(1800) }),
+          entry(weekStart(3), { weightKg: 85.5, calorieEntries: calories(2200) }),
+          entry(weekStart(4), { weightKg: 85.3, calorieEntries: calories(2300) }),
+        ],
+        4,
+      )
       render(<CorrelationView entries={entries} />, { wrapper: MemoryRouter })
 
       expect(screen.getByText('Calories vs. weight change')).toBeInTheDocument()

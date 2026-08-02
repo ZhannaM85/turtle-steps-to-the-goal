@@ -1,4 +1,4 @@
-import type { Day } from 'date-fns'
+import { format, type Day } from 'date-fns'
 import type { DailyEntry } from '@/domain/dailyEntry'
 import {
   classifyCorrelationStrength,
@@ -37,14 +37,43 @@ export interface CorrelationInsightPoint {
  * separately (#224) so a view can filter out manually-excluded outlier
  * points before computing the summary — same "raw points vs. gated
  * insight" split every other correlation module already uses.
+ *
+ * #522 — drops incomplete weeks: a week whose calendar end is still after
+ * `asOfDate` (defaults to today), or whose start falls before the earliest
+ * entry in the set (period filter truncating the first week). Those
+ * partial averages (e.g. current week with only Mon–Tue logged) read as a
+ * single-day calorie total in the tooltip and send people to "fix" a day
+ * that isn't wrong. Sparse historical weeks that already finished are kept
+ * — average-over-logged-days is intentional there.
  */
 export function correlationInsightPoints(
   entries: DailyEntry[],
   weekStartsOn: Day = 1,
+  asOfDate?: string,
 ): CorrelationInsightPoint[] {
+  if (entries.length === 0) return []
+
+  let minDate = entries[0].date
+  let maxDate = entries[0].date
+  for (const entry of entries) {
+    if (entry.date < minDate) minDate = entry.date
+    if (entry.date > maxDate) maxDate = entry.date
+  }
+  // Period filters ending mid-week (and the live "today" window) both need
+  // the same gate: don't treat a week as finished until its Sunday/end is
+  // on or before both the clock and the last day we actually have data for.
+  const clockAsOf = asOfDate ?? format(new Date(), 'yyyy-MM-dd')
+  const effectiveAsOf = clockAsOf < maxDate ? clockAsOf : maxDate
+
   const weeks = weeklySummaries(entries, undefined, weekStartsOn)
   return weeks
-    .filter((w) => w.averageCalories !== null && w.deltaVsPriorWeekKg !== null)
+    .filter(
+      (w) =>
+        w.averageCalories !== null &&
+        w.deltaVsPriorWeekKg !== null &&
+        w.weekStart >= minDate &&
+        w.weekEnd <= effectiveAsOf,
+    )
     .map((w) => ({
       weekStart: w.weekStart,
       calories: w.averageCalories as number,
@@ -104,8 +133,9 @@ export function correlationInsightFromPoints(
 export function correlationInsight(
   entries: DailyEntry[],
   weekStartsOn: Day = 1,
+  asOfDate?: string,
 ): CorrelationInsight | null {
   return correlationInsightFromPoints(
-    correlationInsightPoints(entries, weekStartsOn),
+    correlationInsightPoints(entries, weekStartsOn, asOfDate),
   )
 }
