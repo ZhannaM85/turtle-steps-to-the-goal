@@ -1379,6 +1379,8 @@ _Water recommendation and further filings from this session (list may grow)._
 | [#555](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/555) | ⬜ Open | Meal cards: dish names break mid-word (regression from #545 wrap fix) | e.g. картофе\|лем, д\|жемом. Keep min-w-0 overflow fix; wrap at word boundaries, not mid-word |
 | [#556](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/556) | ⬜ Open | Dashboard weekly recap: use Monday–Monday calendar weeks, not goal weeks | Live ranges start Thu (goal-anchored). Goal page half-weeks OK; recap should name exact calendar week |
 | [#557](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/557) | ⬜ Open | Weekly notes on Dashboard weekly recap (edit → textarea) | Freeform week note (e.g. pasted ChatGPT advice). Key to calendar week (#556). Export in backup |
+| [#558](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/558) | ⬜ Open | Goal: optional reverse recalculate weekly pace from calories/macros (explicit button) | Pace stays primary (B). Explicit button → estimate pace from kcal; no silent bidirectional sync. Full auto-sync = separate issue if wanted |
+
 
 
 
