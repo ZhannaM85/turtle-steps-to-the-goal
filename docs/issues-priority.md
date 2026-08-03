@@ -1382,3 +1382,13 @@ _After MFP multi-year import: foods exist on day lines but not in the searchable
 |---|--------|-------|-------|
 | [#541](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/541) | ⬜ Open | Backfill personal food library from meal history / MFP import (searchable, reversible) | Performance risk on large unique sets. Prefer reversible backfill (tag + remove backfilled items, or mealItems-only restore) — not full DB wipe. Day history stays. |
 | [#542](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/542) | ⬜ Open | Propagate personal food library edits to past meal entries | Reverses #50 “library never rewrites history” for an explicit confirmed bulk update (optional date range). Depends conceptually on #541 for imported foods |
+
+---
+
+## Tier 100 — Chart gesture interactions (2026-08-03)
+
+_Live request: pinch/pan/double-tap on graphs for close date inspection — trial on one chart, extend after confirmation._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#543](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/543) | ⬜ Open | Compare Data chart: pinch-zoom / pan / double-tap gestures (trial on one chart first) | v1: Compare Data only. Pinch X-zoom, finger pan, possible double-tap reset. Extend to other charts only after on-device OK |
