@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Pencil } from 'lucide-react'
 import type { ActivityLevel, Sex } from '@/domain/stats'
+import { calculateBmi, calculateBmr } from '@/domain/stats'
 import {
   formatExactNumber,
   formatNumber,
@@ -8,6 +9,7 @@ import {
   useTranslation,
   type Dictionary,
 } from '@/i18n'
+import { useLatestWeight } from '@/shared/hooks'
 import { parseNumberInput } from '@/shared/lib/parseNumberInput'
 import { Button } from '@/shared/ui/button'
 import { Input } from '@/shared/ui/input'
@@ -44,6 +46,8 @@ export function ProfileSection() {
   const setAge = useProfileStore((state) => state.setAge)
   const setSex = useProfileStore((state) => state.setSex)
   const setActivityLevel = useProfileStore((state) => state.setActivityLevel)
+  // #550 — optional BMI/BMR under the profile grid (needs a logged weight).
+  const latestWeightKg = useLatestWeight(heightCm)
 
   const [heightInput, setHeightInput] = useState(heightCm?.toString() ?? '')
   const [ageInput, setAgeInput] = useState(age?.toString() ?? '')
@@ -90,26 +94,65 @@ export function ProfileSection() {
     const activityLevelLabel =
       activityLevelOptions(t).find((option) => option.value === activityLevel)
         ?.label ?? '—'
+    const sexLabel =
+      sex === 'female'
+        ? t.settings.sexFemaleOption
+        : sex === 'male'
+          ? t.settings.sexMaleOption
+          : '—'
+    const metrics: { label: string; value: string }[] = [
+      {
+        label: t.settings.heightLabel,
+        value:
+          heightCm === undefined
+            ? '—'
+            : `${formatExactNumber(heightCm, locale)}${t.dailyEntry.cmUnit}`,
+      },
+      {
+        label: t.settings.ageLabel,
+        value: age === undefined ? '—' : formatNumber(age, locale, 0),
+      },
+      {
+        label: t.settings.sexLabel,
+        value: sexLabel,
+      },
+      {
+        label: t.settings.activityLevelLabel,
+        value: activityLevelLabel,
+      },
+    ]
+    const bmi =
+      heightCm !== undefined && latestWeightKg !== null
+        ? calculateBmi(latestWeightKg, heightCm)
+        : null
+    const bmr =
+      heightCm !== undefined &&
+      age !== undefined &&
+      sex !== undefined &&
+      latestWeightKg !== null
+        ? calculateBmr(latestWeightKg, heightCm, age, sex)
+        : null
+
     return (
       <div className="flex flex-col gap-3">
         <p className="text-sm text-muted-foreground">
           {t.settings.profileDescription}
         </p>
-        <div className="flex h-12 items-center justify-between rounded-lg bg-muted px-3">
-          <span className="text-sm text-foreground">
-            {t.settings.profileSummary(
-              heightCm === undefined
-                ? '—'
-                : `${formatExactNumber(heightCm, locale)}${t.dailyEntry.cmUnit}`,
-              age === undefined ? '—' : formatNumber(age, locale, 0),
-              sex === 'female'
-                ? t.settings.sexFemaleOption
-                : sex === 'male'
-                  ? t.settings.sexMaleOption
-                  : '—',
-              activityLevelLabel,
-            )}
-          </span>
+        {/* #550 — body-composition-style labeled grid instead of one
+         * mid-dot summary line (same muted shell + pencil as #515). */}
+        <div className="flex items-center justify-between gap-2 rounded-lg bg-muted px-3 py-2.5">
+          <dl className="grid min-w-0 flex-1 grid-cols-2 gap-x-3 gap-y-2">
+            {metrics.map((metric) => (
+              <div key={metric.label} className="flex min-w-0 flex-col">
+                <dt className="truncate text-xs text-muted-foreground">
+                  {metric.label}
+                </dt>
+                <dd className="text-sm font-medium text-foreground">
+                  {metric.value}
+                </dd>
+              </div>
+            ))}
+          </dl>
           <Button
             type="button"
             variant="ghost"
@@ -120,6 +163,18 @@ export function ProfileSection() {
             <Pencil aria-hidden="true" />
           </Button>
         </div>
+        {(bmi !== null || bmr !== null) && (
+          <p className="text-xs text-muted-foreground">
+            {[
+              bmi !== null &&
+                `${t.today.bmiLabel} ${formatExactNumber(bmi, locale)}`,
+              bmr !== null &&
+                `${t.today.bmrLabel} ${formatNumber(bmr, locale, 0)} ${t.dailyEntry.kcalUnit}`,
+            ]
+              .filter(Boolean)
+              .join(' · ')}
+          </p>
+        )}
       </div>
     )
   }

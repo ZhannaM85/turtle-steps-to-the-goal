@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 503,
+    issue: 550,
+    date: '2026-08-03T18:52:00+03:00',
+    en: 'Settings Profile now shows height, age, sex, and activity in a clear grid instead of one crowded line.',
+    ru: 'В настройках профиль теперь показывает рост, возраст, пол и активность сеткой, а не одной плотной строкой.',
+  },
+  {
     version: 502,
     issue: 552,
     date: '2026-08-03T18:45:00+03:00',

@@ -471,7 +471,7 @@ describe('SettingsScreen', () => {
 
     // #265: saving used to leave the form exactly as it was, with no
     // indication anything happened — this is the actual fix, verified.
-    it('shows a read-only summary with an edit icon once saved, replacing the form', async () => {
+    it('shows a read-only profile grid with an edit icon once saved (#265/#550)', async () => {
       const user = userEvent.setup()
       renderSettings()
 
@@ -483,9 +483,10 @@ describe('SettingsScreen', () => {
       expect(
         screen.queryByLabelText('Height (cm)'),
       ).not.toBeInTheDocument()
-      expect(
-        screen.getByText('Height 165cm · Age 30 · Female · —'),
-      ).toBeInTheDocument()
+      // #550 — labeled grid (not the old mid-dot summary line).
+      expect(screen.getByText('165cm')).toBeInTheDocument()
+      expect(screen.getByText('30')).toBeInTheDocument()
+      expect(screen.getByText('Female')).toBeInTheDocument()
       expect(
         screen.getByRole('button', { name: 'Edit profile' }),
       ).toBeInTheDocument()
