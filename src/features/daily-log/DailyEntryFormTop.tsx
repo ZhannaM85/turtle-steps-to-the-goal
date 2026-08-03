@@ -151,7 +151,7 @@ export function DailyEntryFormTop() {
             </button>
           </CollapsibleTrigger>
           <CollapsibleContent>
-            <div className="pt-3">
+            <div className="min-w-0 max-w-full pt-3">
               <MealList
                 calorieEntries={state.calorieEntries}
                 date={state.date}

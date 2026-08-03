@@ -6,6 +6,7 @@ import {
   planMealLibraryBackfill,
 } from '@/domain/mealItem'
 import { IndexedDbMealItemRepository } from '@/infrastructure/persistence/indexeddb'
+import { normalizeTextSpaces } from '@/shared/lib/normalizeTextSpaces'
 
 const mealItemRepository = new IndexedDbMealItemRepository()
 
@@ -88,7 +89,7 @@ export const useMealItemStore = create<MealItemStoreState>((set, get) => ({
     }
   },
   touch: async (name, nutrition, favorite, barcode) => {
-    const trimmed = name.trim()
+    const trimmed = normalizeTextSpaces(name).trim()
     if (!trimmed) return
     const existing = await mealItemRepository.findByName(trimmed)
     const now = new Date().toISOString()
@@ -116,7 +117,7 @@ export const useMealItemStore = create<MealItemStoreState>((set, get) => ({
     set({ items: await mealItemRepository.getAll() })
   },
   rename: async (id, name) => {
-    const trimmed = name.trim()
+    const trimmed = normalizeTextSpaces(name).trim()
     if (!trimmed) return
     const current = get().items.find((item) => item.id === id)
     if (!current) return

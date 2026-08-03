@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 514,
+    issue: 559,
+    date: '2026-08-03T22:30:00+03:00',
+    en: 'Long dish names on Day meal cards wrap at real spaces again — non-breaking spaces from MyFitnessPal / pasted titles no longer keep a whole phrase on one overflowing line.',
+    ru: 'Длинные названия блюд на экране «День» снова переносятся по обычным пробелам — неразрывные пробелы из MyFitnessPal и вставленных названий больше не держат всю фразу в одной строке с обрезанием.',
+  },
+  {
     version: 513,
     issue: 562,
     date: '2026-08-03T21:35:00+03:00',

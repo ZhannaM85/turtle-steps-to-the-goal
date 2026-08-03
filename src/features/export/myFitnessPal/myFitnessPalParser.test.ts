@@ -52,6 +52,14 @@ describe('cellToString', () => {
   it('stringifies a number value', () => {
     expect(cellToString(42)).toBe('42')
   })
+
+  it('converts NBSP to ASCII spaces so imported dish names can wrap (#559)', () => {
+    expect(
+      cellToString(
+        'Каша\u00A0овсяная\u00A0с\u00A0джемом (Level\u00A0Kitchen)',
+      ),
+    ).toBe('Каша овсяная с джемом (Level Kitchen)')
+  })
 })
 
 describe('buildMyFitnessPalPatches', () => {
@@ -166,6 +174,30 @@ describe('buildMyFitnessPalPatches', () => {
     expect(patch?.calorieEntries).toHaveLength(1)
     expect(patch?.calorieEntries?.[0].label).toBeUndefined()
     expect(patch?.calorieEntries?.[0].items).toHaveLength(2)
+  })
+
+  it('normalizes NBSP in Foods description and brand_name (#559)', () => {
+    const rows: MyFitnessPalRow[] = [
+      {
+        type: 'Foods',
+        date: '2026-01-15',
+        description:
+          'Каша\u00A0овсяная\u00A0с\u00A0чиа\u00A0и\u00A0фруктовым\u00A0джемом',
+        calories: 121,
+        detailsJson: JSON.stringify({
+          meal: 'Breakfast',
+          brand_name: 'Level\u00A0Kitchen',
+        }),
+      },
+    ]
+
+    const breakfast = buildMyFitnessPalPatches(rows)
+      .get('2026-01-15')
+      ?.calorieEntries?.find((e) => e.label === 'Breakfast')
+    expect(breakfast?.items[0]).toMatchObject({
+      name: 'Каша овсяная с чиа и фруктовым джемом',
+      brand: 'Level Kitchen',
+    })
   })
 
   it('ignores a Foods row with no calories value', () => {

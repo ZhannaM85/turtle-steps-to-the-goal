@@ -29,6 +29,7 @@ import {
   macrosSummaryTextCompact,
 } from '@/shared/lib/macroDisplay'
 import { effectiveMealLabel } from '@/shared/lib/mealLabel'
+import { normalizeTextSpaces } from '@/shared/lib/normalizeTextSpaces'
 import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/ui/button'
 import {
@@ -305,10 +306,10 @@ export function DayDetail({
                     </span>
                   )}
                   {/* Item sub-list (#81) — a group's individual dishes, each
-                   * with its own reaction (#129). #559: no pl-4; max-w-full.
-                   * Name wrap: w-0 min-w-full + break-normal (not
-                   * break-words — WebKit mid-splits Cyrillic, #555/#559). */}
-                  <ul className="flex min-w-0 max-w-full flex-col gap-0.5">
+                   * with its own reaction (#129). #559: no pl-4; grid
+                   * minmax(0,1fr) so Safari wraps at spaces (not
+                   * break-words — WebKit mid-splits Cyrillic, #555). */}
+                  <ul className="grid min-w-0 max-w-full grid-cols-1 gap-0.5">
                     {meal.items.map((item) => {
                       const itemMacros = macrosSummaryTextCompact(
                         item.proteinG,
@@ -331,9 +332,11 @@ export function DayDetail({
                            * reaction all move down to a second row
                            * together. */}
                           {item.name && (
-                            <p className="w-0 min-w-full max-w-full break-normal hyphens-none">
-                              {item.name}
-                              {item.brand ? ` (${item.brand})` : ''}
+                            <p className="min-w-0 max-w-full break-normal hyphens-none">
+                              {normalizeTextSpaces(item.name)}
+                              {item.brand
+                                ? ` (${normalizeTextSpaces(item.brand)})`
+                                : ''}
                             </p>
                           )}
                           <p>

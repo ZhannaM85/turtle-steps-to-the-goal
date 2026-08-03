@@ -29,6 +29,7 @@ import {
   totalFromPortion,
 } from '@/shared/lib/macroScaling'
 import { parseNumberInput } from '@/shared/lib/parseNumberInput'
+import { normalizeTextSpaces } from '@/shared/lib/normalizeTextSpaces'
 import { rankBySearchMatch } from '@/shared/lib/searchRank'
 import { cn } from '@/shared/lib/utils'
 import { useOnlineStatus } from '@/shared/hooks'
@@ -944,7 +945,7 @@ export function AddMealDialog({
     if (!amountNum || amountNum <= 0) return
     // #518 — barcode not-found create must have a name so we can touch a
     // MealItem; Save is also gated via requireName on the sheet.
-    const trimmedName = manualDraft.name.trim()
+    const trimmedName = normalizeTextSpaces(manualDraft.name).trim()
     if (pendingBarcode && !trimmedName) return
     // Same per-100g-rate-x-portions vs. typed-total-directly scaling
     // MealList.tsx's own draftsToItems() uses for the identical
@@ -980,7 +981,7 @@ export function AddMealDialog({
     const newItem: CalorieItem = {
       id: editingItemId ?? crypto.randomUUID(),
       name: trimmedName || undefined,
-      brand: manualDraft.brand.trim() || undefined,
+      brand: normalizeTextSpaces(manualDraft.brand).trim() || undefined,
       ...scaled,
       emotion: manualDraft.emotion,
       noteText: manualDraft.note.trim() || undefined,

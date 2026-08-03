@@ -34,6 +34,7 @@ import {
   macrosSummaryTextCompactWithCalories,
 } from '@/shared/lib/macroDisplay'
 import { effectiveMealLabel } from '@/shared/lib/mealLabel'
+import { normalizeTextSpaces } from '@/shared/lib/normalizeTextSpaces'
 import { Button } from '@/shared/ui/button'
 import { useDayStartStore, useMealItemStore } from '@/stores'
 import { AddMealDialog } from './AddMealDialog'
@@ -135,7 +136,13 @@ function MealListItem({
       // list row with no background/border before. #473 opened the row
       // spacing up (gap-2 → gap-3), the card reading as too condensed being
       // that report's underlying complaint.
-      className="flex min-w-0 max-w-full flex-col gap-3 overflow-hidden rounded-xl bg-card p-4 ring-1 ring-foreground/10"
+      // #559 (Safari/PWA): flex + overflow-hidden clipped long names
+      // instead of wrapping (Chrome emulator looked fine). CSS grid
+      // columns are minmax(0,1fr) in Tailwind, so the line box is the
+      // card width and break-normal wraps at spaces only — no
+      // break-words (WebKit mid-splits Cyrillic, #555) and no
+      // w-0/min-w-full (Safari used that for line breaking / clip).
+      className="grid min-w-0 max-w-full grid-cols-1 gap-3 rounded-xl bg-card p-4 ring-1 ring-foreground/10"
     >
       {/* #473: `{label} — {kcal} · {time}` was one flex line, so once it
        * ran out of width the text wrapped mid-cluster and the trailing
@@ -143,7 +150,7 @@ function MealListItem({
        * only the meal name (`min-w-0 flex-1`, free to wrap) with the time
        * pinned right beside the `shrink-0` icons; kcal moved down onto the
        * totals line below. */}
-      <div className="flex items-start justify-between gap-2">
+      <div className="flex min-w-0 items-start justify-between gap-2">
         <p className="min-w-0 flex-1 text-lg font-medium">
           {effectiveMealLabel(t, position, entry.label)}
         </p>
@@ -178,21 +185,16 @@ function MealListItem({
         </div>
       </div>
       {entry.note && (
-        <p className="text-sm text-muted-foreground">{entry.note}</p>
+        <p className="min-w-0 text-sm text-muted-foreground">{entry.note}</p>
       )}
       {/* #473: one size up from the dish rows below (which stay text-sm),
        * now that the compact macro initials keep it to a single line. */}
-      <p className="text-base text-muted-foreground">{calorieSummary}</p>
+      <p className="min-w-0 text-base text-muted-foreground">{calorieSummary}</p>
       {/* Item sub-list (#81) — a group's individual dishes, shown
        * underneath its own header/note/macro-total lines above. */}
-      {/* #545: min-w-0 so flex children can shrink below intrinsic name
-       * width (same class #156 fixed for truncate). #559: no pl-4 indent;
-       * card max-w-full/overflow-hidden. #555/#559 validation: do NOT use
-       * break-words — WebKit mid-splits ordinary Cyrillic (дже|мом) even
-       * when spaces exist. Force the name box to the card width with
-       * w-0 min-w-full (defeats Safari min-content growth) + break-normal
-       * / hyphens-none so wrap is at spaces only. */}
-      <ul className="flex min-w-0 max-w-full flex-col divide-y divide-foreground/15">
+      {/* #545/#555/#559: grid (not flex-col) so Safari gets a definite
+       * column width; no pl-4 indent; wrap at spaces only. */}
+      <ul className="grid min-w-0 max-w-full grid-cols-1 divide-y divide-foreground/15">
         {entry.items.map((item) => {
           const itemMacros = macrosSummaryTextCompact(
             item.proteinG,
@@ -224,9 +226,13 @@ function MealListItem({
                 // foreground (#473 follow-up) — at full strength the dish
                 // names competed with the meal title above them. Size and
                 // weight carry the hierarchy here, not color.
-                <p className="w-0 min-w-full max-w-full break-normal hyphens-none text-base font-medium">
-                  {item.name}
-                  {item.brand ? ` (${item.brand})` : ''}
+                <p className="min-w-0 max-w-full break-normal hyphens-none text-base font-medium">
+                  {/* #559: NBSP from Level Kitchen / web paste must become
+                   * real spaces or the whole phrase won't wrap. */}
+                  {normalizeTextSpaces(item.name)}
+                  {item.brand
+                    ? ` (${normalizeTextSpaces(item.brand)})`
+                    : ''}
                 </p>
               )}
               <p className="flex items-baseline gap-1.5">
@@ -797,12 +803,12 @@ export function MealList({
   }
 
   return (
-    <div className="flex min-w-0 max-w-full flex-col gap-3">
+    <div className="grid min-w-0 max-w-full grid-cols-1 gap-3">
       {fastingWindowToastHours !== null && (
         // #456 — purely derived (see the useMemo above), so this note is
         // always accurate for whatever's currently on screen and has no
         // dismiss control of its own to go stale.
-        <div className="flex items-center gap-2 rounded-lg border border-border px-3 py-2 text-sm text-muted-foreground">
+        <div className="flex min-w-0 items-center gap-2 rounded-lg border border-border px-3 py-2 text-sm text-muted-foreground">
           <span>
             {t.dailyEntry.fastingWindowToastMessage(
               `${formatNumber(fastingWindowToastHours, locale, 1)}${t.dailyEntry.hoursUnit}`,
@@ -811,7 +817,7 @@ export function MealList({
         </div>
       )}
       {calorieEntries.length > 0 && (
-        <ul className="flex min-w-0 max-w-full flex-col gap-3">
+        <ul className="grid min-w-0 max-w-full grid-cols-1 gap-3">
           {calorieEntries.map((entry, index) => (
             <MealListItem
               key={entry.id}

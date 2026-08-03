@@ -299,20 +299,53 @@ describe('MealList', () => {
       )
 
       const name = screen.getByText(longName)
-      // #555/#559: break-words mid-splits Cyrillic on WebKit — constrain
-      // width with w-0 min-w-full instead; wrap at spaces only.
-      expect(name).toHaveClass('w-0')
-      expect(name).toHaveClass('min-w-full')
+      // #555/#559: break-words mid-splits Cyrillic on WebKit. Safari also
+      // clipped under flex+overflow-hidden; grid minmax(0,1fr) gives a
+      // definite line box so break-normal wraps at spaces only.
+      expect(name).toHaveClass('min-w-0')
       expect(name).toHaveClass('max-w-full')
       expect(name).toHaveClass('break-normal')
       expect(name).toHaveClass('hyphens-none')
       expect(name).not.toHaveClass('break-words')
+      expect(name).not.toHaveClass('w-0')
       // #559: dish list must not indent past the meal title/totals.
       const itemList = container.querySelector('ul.divide-y')
       expect(itemList).not.toHaveClass('pl-4')
+      expect(itemList).toHaveClass('grid')
+      expect(itemList).toHaveClass('grid-cols-1')
       const card = container.querySelector('li.rounded-xl')
       expect(card).toHaveClass('max-w-full')
-      expect(card).toHaveClass('overflow-hidden')
+      expect(card).toHaveClass('grid')
+      expect(card).not.toHaveClass('overflow-hidden')
+    })
+
+    it('renders NBSP in a dish name as normal spaces so the line can wrap (#559)', () => {
+      const calorieEntries: CalorieEntry[] = [
+        {
+          id: 'c1',
+          items: [
+            {
+              id: 'i1',
+              name: 'Каша\u00A0овсяная\u00A0с\u00A0джемом',
+              brand: 'Level\u00A0Kitchen',
+              amountKcal: 121,
+            },
+          ],
+          createdAt: '2026-01-01T00:00:00.000Z',
+        },
+      ]
+      render(
+        <MealList
+          calorieEntries={calorieEntries}
+          date="2026-03-01"
+          onChange={vi.fn()}
+        />,
+        { wrapper: MemoryRouter },
+      )
+
+      expect(
+        screen.getByText('Каша овсяная с джемом (Level Kitchen)'),
+      ).toBeInTheDocument()
     })
 
     it('shows a saved note underneath the dish in the read-only view', () => {

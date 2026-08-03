@@ -1,5 +1,6 @@
 import { format } from 'date-fns'
 import type { CalorieEntry, CalorieItem } from '@/domain/dailyEntry'
+import { normalizeTextSpaces } from '@/shared/lib/normalizeTextSpaces'
 import type { DailyEntryPatch } from '../mergeDailyEntryPatches'
 
 /**
@@ -65,7 +66,11 @@ export function cellToNumber(value: unknown): number | undefined {
 }
 
 export function cellToString(value: unknown): string | undefined {
-  if (typeof value === 'string') return value.trim() || undefined
+  // #559: MFP / pasted web titles often use NBSP between words — convert
+  // before trim so imported dish names wrap normally in meal cards.
+  if (typeof value === 'string') {
+    return normalizeTextSpaces(value).trim() || undefined
+  }
   if (typeof value === 'number') return String(value)
   return undefined
 }
@@ -102,8 +107,14 @@ export function buildMyFitnessPalPatches(
           meal?: string
           brand_name?: string
         }
-        meal = parsed.meal
-        brand = parsed.brand_name
+        meal =
+          typeof parsed.meal === 'string'
+            ? normalizeTextSpaces(parsed.meal).trim() || undefined
+            : undefined
+        brand =
+          typeof parsed.brand_name === 'string'
+            ? normalizeTextSpaces(parsed.brand_name).trim() || undefined
+            : undefined
       } catch {
         // Malformed details_json on this one row -- fall through with no
         // meal/brand rather than losing the whole import over one row.
@@ -112,7 +123,10 @@ export function buildMyFitnessPalPatches(
 
     const item: CalorieItem = {
       id: crypto.randomUUID(),
-      name: row.description,
+      name:
+        typeof row.description === 'string'
+          ? normalizeTextSpaces(row.description).trim() || undefined
+          : row.description,
       brand,
       amountKcal: row.calories,
       proteinG: row.proteinG,
