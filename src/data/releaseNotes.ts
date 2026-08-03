@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 528,
+    issue: 576,
+    date: '2026-08-04T01:49:29+03:00',
+    en: 'You can type spaces in a meal title again (for example “Lunch 1”).',
+    ru: 'Снова можно вводить пробелы в названии приёма пищи (например «Обед 1»).',
+  },
+  {
     version: 527,
     issue: 546,
     date: '2026-08-04T00:55:00+03:00',

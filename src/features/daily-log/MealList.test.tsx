@@ -194,6 +194,22 @@ describe('MealList', () => {
     expect(nameField).toHaveValue('Brunch')
   })
 
+  it('keeps a typed space in the meal title mid-keystroke (#576)', async () => {
+    const user = userEvent.setup()
+    render(
+      <ControlledMealList calorieEntries={[]} date="2026-03-01" />,
+      { wrapper: MemoryRouter },
+    )
+
+    await user.click(
+      screen.getByRole('button', { name: '+ Add another meal' }),
+    )
+    const nameField = screen.getByLabelText('Meal name')
+    expect(nameField).toHaveValue('Breakfast')
+    await user.type(nameField, ' 1')
+    expect(nameField).toHaveValue('Breakfast 1')
+  })
+
   it("shows an item's own quantity in grams when recorded, omits it when not (#206)", () => {
     const calorieEntries: CalorieEntry[] = [
       {

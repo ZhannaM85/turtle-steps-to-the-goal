@@ -60,19 +60,30 @@ function currentTimeHHMM(): string {
   return `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`
 }
 
-/** #563/#568 — equal to the positional default clears `CalorieEntry.label`
- * so language switches still re-translate unlabeled meals (#141). Empty
- * string is kept during editing so the name field can be cleared without
- * immediately reseeding the default; `effectiveMealLabel` / Done flush
- * still treat blank as unset. */
+/** #563/#568/#576 — mid-typing draft value for meal name. Exact match to
+ * the positional default clears `CalorieEntry.label` so language switches
+ * still re-translate unlabeled meals (#141). Empty string is kept so the
+ * field can be cleared without reseeding (#568). Do **not** trim here —
+ * trimming on every keystroke swallowed trailing spaces and blocked
+ * typing e.g. "Lunch 1" (#576). Persist via `persistedMealLabel` on Done. */
 function customMealLabelOrUndefined(
   value: string,
   position: number,
   t: Dictionary,
 ): string | undefined {
-  const trimmed = value.trim()
-  if (trimmed === defaultMealLabel(t, position)) return undefined
-  if (!trimmed) return ''
+  if (value === defaultMealLabel(t, position)) return undefined
+  return value
+}
+
+/** #568/#576 — normalize label when flushing Done: trim, blank → unset,
+ * trimmed-equal-to-default → unset (#141). */
+function persistedMealLabel(
+  value: string | undefined,
+  position: number,
+  t: Dictionary,
+): string | undefined {
+  const trimmed = value?.trim() ?? ''
+  if (!trimmed || trimmed === defaultMealLabel(t, position)) return undefined
   return trimmed
 }
 
@@ -473,13 +484,17 @@ export function MealList({
     }
     if (keepInProgressMealRef.current) {
       keepInProgressMealRef.current = false
-      // #568 — blank draft labels become unset for #141; skip the write when
-      // nothing needs normalizing so Done doesn't fire an extra onSave.
+      // #568/#576 — blank / default-after-trim → unset for #141; skip write
+      // when nothing needs normalizing so Done doesn't fire an extra onSave.
       if (inProgressMealId) {
         const inProgress = calorieEntries.find(
           (entry) => entry.id === inProgressMealId,
         )
-        const normalizedLabel = inProgress?.label?.trim() || undefined
+        const normalizedLabel = persistedMealLabel(
+          inProgress?.label,
+          newMealPosition,
+          t,
+        )
         if (inProgress && inProgress.label !== normalizedLabel) {
           setCalorieEntries(
             calorieEntries.map((entry) =>
@@ -565,10 +580,12 @@ export function MealList({
       clearEditingMealState()
       return
     }
+    const editPosition =
+      calorieEntries.findIndex((entry) => entry.id === editingMealId) + 1
     const committed: CalorieEntry = {
       ...editingMealDraft,
-      // #568 — blank draft label persists as unset (positional default / #141).
-      label: editingMealDraft.label?.trim() || undefined,
+      // #568/#576 — blank / default-after-trim → unset (positional default / #141).
+      label: persistedMealLabel(editingMealDraft.label, editPosition, t),
       note: editingMealDraft.note?.trim() || undefined,
       timeEaten: editingMealDraft.timeEaten || undefined,
     }
