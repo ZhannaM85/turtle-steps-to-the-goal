@@ -1369,7 +1369,7 @@ _Water recommendation and further filings from this session (list may grow)._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#548](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/548) | 🔍 Pending validation | Calculate a personalized daily water recommendation from weight | `waterRecommendation.ts` 30–40 ml/kg + optional hot (+300)/workout (+500) day flags. Shown on Day water section; Goal can fill mid as `dailyWaterTargetMl`. No weather API. |
+| [#548](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/548) | ✅ Done | Calculate a personalized daily water recommendation from weight | Confirmed on-device by the user. `waterRecommendation.ts` 30–40 ml/kg + optional hot/workout bumps; Day + Goal. Trim Day UI: [#561](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/561). |
 | [#549](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/549) | ⬜ Open | Day-level totals entry for calories, macros, and water without food items | Lazy path: daily kcal/macros (/water) without meal/food names. Meal-item manual entry already exists but is meal-flow heavy; water is glass/bottle only (#282). Additive vs absolute + double-count with real meals TBD |
 | [#550](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/550) | 🔍 Pending validation | Settings Profile: redesign dense mid-dot line into a body-composition-style card | Read-only view: 2×2 labeled grid + pencil (same shell as body composition #515); optional BMI/BMR line when a weight exists. |
 | [#551](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/551) | 🔍 Pending validation | Goal screen: show which weight the weekly target is based on | Goal StatCard now appends `from X kg` like Today (#469), from `baselineWeightKg` on weekStart. |
@@ -1382,6 +1382,7 @@ _Water recommendation and further filings from this session (list may grow)._
 | [#558](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/558) | 🔍 Pending validation | Goal: optional reverse recalculate weekly pace from calories/macros (explicit button) | Explicit «Estimate weekly pace from these calories» — TDEE−kcal → ~7700 kcal/kg pace + same macro split as #259; no silent bidirectional sync |
 | [#559](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/559) | 🔍 Pending validation | Day meal cards: dish block still misaligned / wraps oddly after #545/#555 | Dropped `pl-4`; then on-device jam overflow: Safari grew flex item to full name width. Fix: `max-w-full overflow-hidden` on card, block (not flex-col) dish rows, restore `break-words` so wrap uses card width |
 | [#560](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/560) | ⬜ Open | Dashboard: extend Compare Data pinch-zoom / pan / double-tap gestures to other charts | Follow-up to #543 (validated, feels good). Reuse `useChartGestureZoom` on Weight/Calorie/Macro/Body-comp trends (and other fits); correlations TBD |
+| [#561](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/561) | ⬜ Open | Remove water recommendation from Day/Today; keep it on Goal only | Follow-up to #548. Drop Day water range/hot/workout UI; Goal mid-fill stays |
 
 
 
