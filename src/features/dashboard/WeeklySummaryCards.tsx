@@ -12,7 +12,6 @@ import {
 } from '@/i18n'
 import { macrosSummaryText } from '@/shared/lib/macroDisplay'
 import { useDashboardChartVisibilityStore, useUnitStore } from '@/stores'
-import { useWeekStartsOn } from '@/shared/hooks'
 import { StatCard } from '@/shared/ui/stat-card'
 import { ChartTitleWithToggle } from './ChartTitleWithToggle'
 
@@ -39,7 +38,10 @@ export function WeeklySummaryCards({
   const displayUnit = useUnitStore((state) => state.unit)
   const toDisplay = (kg: number) => (displayUnit === 'lb' ? kgToLb(kg) : kg)
   const unit = unitLabel(displayUnit, t)
-  const weekStartsOn = useWeekStartsOn(entries)
+  // #556 — weekly recap is always Monday–Sunday calendar weeks, not the
+  // Settings "week start" preference (that still drives heatmaps /
+  // correlations / MetTargetList). Goal-anchored half-weeks stay on Goal.
+  const weekStartsOn = 1 as const
   const cardVisible = useDashboardChartVisibilityStore(
     (state) => state.visible.weeklySummary,
   )

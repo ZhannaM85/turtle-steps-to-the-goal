@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 504,
+    issue: 556,
+    date: '2026-08-03T18:55:00+03:00',
+    en: 'Dashboard weekly summaries now use Monday–Sunday calendar weeks instead of following your first-entry weekday.',
+    ru: 'Недельные сводки на обзоре теперь идут с понедельника по воскресенье, а не от дня первой записи.',
+  },
+  {
     version: 503,
     issue: 550,
     date: '2026-08-03T18:52:00+03:00',

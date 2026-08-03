@@ -188,6 +188,23 @@ describe('WeeklySummaryCards', () => {
     expect(labels[0]).not.toEqual(labels[labels.length - 1])
   })
 
+  it('buckets weeks Monday–Sunday even when Settings week-start is first-entry weekday (#556)', async () => {
+    const { useWeekStartStore } = await import('@/stores')
+    useWeekStartStore.setState({ weekStart: 'firstEntryWeekday' })
+    // Thursday 2026-07-30 as earliest entry — old preference would start weeks on Thu.
+    const entries = [
+      entry('2026-07-30', { weightKg: 59 }),
+      entry('2026-08-03', { weightKg: 59.1 }),
+    ]
+    render(<WeeklySummaryCards entries={entries} goal={null} />)
+
+    // Calendar week containing Jul 30 2026 is Mon Jul 27 – Sun Aug 2.
+    expect(screen.getByText(/Jul 27, 2026/)).toBeInTheDocument()
+    expect(screen.queryByText(/Jul 30, 2026 – Aug 5, 2026/)).not.toBeInTheDocument()
+
+    useWeekStartStore.setState({ weekStart: 'monday' })
+  })
+
   describe('whole-card show/hide toggle (#232)', () => {
     afterEach(() => {
       useDashboardChartVisibilityStore.setState((state) => ({
