@@ -1412,3 +1412,13 @@ _Reported live with Day meals screenshot: some long names (e.g. Level Kitchen sa
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#545](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/545) | ⬜ Open | Day meal cards: long dish names overflow instead of wrapping | `chore` + `layout-breaking`. Name should wrap inside the card; not investigated (nowrap / min-width:0 / no soft-break points) |
+
+---
+
+## Tier 103 — Live feedback: footer sometimes missing (2026-08-03)
+
+_Rare edge case: bottom tab nav disappears; no clear repro (edit/add, PWA background, etc.)._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#546](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/546) | ⬜ Open | Edge case: bottom tab footer sometimes disappears (no reliable repro) | `chore` + `layout-breaking`. Screenshot: Day evening section, empty space where tabs should be. Reproduce before fixing |
