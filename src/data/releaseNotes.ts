@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 499,
+    issue: 542,
+    date: '2026-08-03T16:48:05+03:00',
+    en: 'After you edit a food in the personal library, you can update matching past meal lines in one step — or keep the change in the library only.',
+    ru: 'После правки блюда в личной библиотеке можно одним шагом обновить такие же строки в истории приёмов пищи — или оставить изменение только в библиотеке.',
+  },
+  {
     version: 498,
     issue: 541,
     date: '2026-08-03T16:30:11+03:00',

@@ -854,6 +854,14 @@ export const en: Dictionary = {
       `Removed ${removed} backfilled ${removed === 1 ? 'food' : 'foods'} from the library. Your day meals were not changed.`,
     mealLibraryBackfillErrorMessage:
       'Could not update the food library. Try again.',
+    mealLibraryPropagateConfirmPrompt: (count, name) =>
+      `Update ${count} past ${count === 1 ? 'use' : 'uses'} of “${name}” in your meal history with this library change? Day notes and other foods stay as they are.`,
+    mealLibraryPropagateConfirmYes: 'Update past uses',
+    mealLibraryPropagateConfirmNo: 'Library only',
+    mealLibraryPropagateDoneMessage: (updated) =>
+      `Updated ${updated} past ${updated === 1 ? 'use' : 'uses'} in meal history.`,
+    mealLibraryPropagateErrorMessage:
+      'Could not update past meals. Try again.',
     mealItemSearchLabel: 'Search meal items',
     mealItemSearchPlaceholder: 'Search...',
     noMealItemResultsText: 'No meal items match your search.',

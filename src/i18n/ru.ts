@@ -886,6 +886,14 @@ export const ru: Dictionary = {
       `Удалено из библиотеки блюд, добавленных из истории: ${removed}. Приёмы пищи по дням не изменились.`,
     mealLibraryBackfillErrorMessage:
       'Не удалось обновить библиотеку блюд. Попробуйте ещё раз.',
+    mealLibraryPropagateConfirmPrompt: (count, name) =>
+      `Обновить ${count} ${count === 1 ? 'прошлую запись' : count < 5 ? 'прошлые записи' : 'прошлых записей'} «${name}» в истории этим изменением из библиотеки? Заметки дня и другие блюда не изменятся.`,
+    mealLibraryPropagateConfirmYes: 'Обновить в истории',
+    mealLibraryPropagateConfirmNo: 'Только библиотека',
+    mealLibraryPropagateDoneMessage: (updated) =>
+      `Обновлено записей в истории: ${updated}.`,
+    mealLibraryPropagateErrorMessage:
+      'Не удалось обновить прошлые приёмы пищи. Попробуйте ещё раз.',
     mealItemSearchLabel: 'Поиск блюд',
     mealItemSearchPlaceholder: 'Поиск...',
     noMealItemResultsText: 'Ничего не найдено.',

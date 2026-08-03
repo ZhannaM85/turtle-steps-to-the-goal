@@ -2,7 +2,13 @@ import { useEffect, useState } from 'react'
 import { Pencil, ScanBarcode, Star, Trash2 } from 'lucide-react'
 import { formatNumber, useLocale, useTranslation } from '@/i18n'
 import type { MealItem } from '@/domain/mealItem'
-import { isBackfilledMealItemSource } from '@/domain/mealItem'
+import {
+  countMealLibraryNameMatches,
+  isBackfilledMealItemSource,
+  normalizeMealLibraryName,
+  propagateMealLibraryEdit,
+  type MealLibraryPropagationPatch,
+} from '@/domain/mealItem'
 import {
   IndexedDbDailyEntryRepository,
   IndexedDbMealItemRepository,
@@ -42,7 +48,7 @@ function MealItemRow({
   onToggleFavorite,
 }: {
   item: MealItem
-  onRename: (id: string, name: string) => void
+  onRename: (id: string, name: string) => void | Promise<void>
   onDelete: (id: string) => void
   onSaveNutrition: (
     name: string,
@@ -53,7 +59,7 @@ function MealItemRow({
       carbsG: number | undefined
       amountG: number
     },
-  ) => void
+  ) => void | Promise<void>
   onToggleFavorite: (id: string) => void
 }) {
   const t = useTranslation()
@@ -74,7 +80,7 @@ function MealItemRow({
   function commit() {
     const trimmed = value.trim()
     if (trimmed && trimmed !== item.name) {
-      onRename(item.id, trimmed)
+      void onRename(item.id, trimmed)
     } else {
       setValue(item.name)
     }
@@ -174,7 +180,10 @@ function MealItemRow({
             parseOptionalMacro(carbs100),
             amountG,
           )
-    onSaveNutrition(item.name, { ...scaled, amountG: scaled.amountG ?? 100 })
+    void onSaveNutrition(item.name, {
+      ...scaled,
+      amountG: scaled.amountG ?? 100,
+    })
     setIsEditingNutrition(false)
   }
 
@@ -765,6 +774,13 @@ export function MealItemsSection() {
   const [search, setSearch] = useState('')
   const [backfillBusy, setBackfillBusy] = useState(false)
   const [backfillMessage, setBackfillMessage] = useState<string | null>(null)
+  // #542 — after a library rename/nutrition save, offer to rewrite matching
+  // past CalorieItem lines (confirm first; all-time name match).
+  const [propagateOffer, setPropagateOffer] = useState<{
+    patch: MealLibraryPropagationPatch
+    count: number
+  } | null>(null)
+  const [propagateBusy, setPropagateBusy] = useState(false)
 
   useEffect(() => {
     loadItems()
@@ -773,6 +789,66 @@ export function MealItemsSection() {
   const backfilledCount = items.filter((item) =>
     isBackfilledMealItemSource(item.source),
   ).length
+
+  async function offerPropagate(
+    matchName: string,
+    patch: Omit<MealLibraryPropagationPatch, 'matchName'>,
+  ) {
+    const entries = await dailyEntryRepositoryForBackfill.getAll()
+    const count = countMealLibraryNameMatches(entries, matchName)
+    if (count === 0) return
+    setPropagateOffer({
+      patch: { matchName, ...patch },
+      count,
+    })
+  }
+
+  async function handleRename(id: string, name: string) {
+    const oldName = items.find((item) => item.id === id)?.name
+    await rename(id, name)
+    if (
+      oldName &&
+      normalizeMealLibraryName(oldName) !== normalizeMealLibraryName(name)
+    ) {
+      await offerPropagate(oldName, { newName: name })
+    }
+  }
+
+  async function handleSaveNutrition(
+    name: string,
+    nutrition: {
+      amountKcal: number
+      proteinG: number | undefined
+      fatG: number | undefined
+      carbsG: number | undefined
+      amountG: number
+    },
+  ) {
+    await touch(name, nutrition)
+    await offerPropagate(name, { nutrition })
+  }
+
+  async function confirmPropagate() {
+    if (!propagateOffer) return
+    setPropagateBusy(true)
+    try {
+      const entries = await dailyEntryRepositoryForBackfill.getAll()
+      const result = propagateMealLibraryEdit(entries, propagateOffer.patch)
+      await Promise.all(
+        result.entriesToUpsert.map((entry) =>
+          dailyEntryRepositoryForBackfill.upsert(entry),
+        ),
+      )
+      setBackfillMessage(
+        t.settings.mealLibraryPropagateDoneMessage(result.updatedItemCount),
+      )
+      setPropagateOffer(null)
+    } catch {
+      setBackfillMessage(t.settings.mealLibraryPropagateErrorMessage)
+    } finally {
+      setPropagateBusy(false)
+    }
+  }
 
   async function handleBackfillFromHistory() {
     setBackfillBusy(true)
@@ -891,13 +967,46 @@ export function MealItemsSection() {
             <MealItemRow
               key={item.id}
               item={item}
-              onRename={rename}
+              onRename={handleRename}
               onDelete={deleteItem}
-              onSaveNutrition={touch}
+              onSaveNutrition={handleSaveNutrition}
               onToggleFavorite={toggleFavorite}
             />
           ))}
         </ul>
+      )}
+      {propagateOffer && (
+        <div
+          role="alertdialog"
+          aria-labelledby="meal-library-propagate-title"
+          className="flex flex-col gap-2 rounded-lg border border-border bg-muted/30 p-3"
+        >
+          <p id="meal-library-propagate-title" className="text-sm">
+            {t.settings.mealLibraryPropagateConfirmPrompt(
+              propagateOffer.count,
+              propagateOffer.patch.matchName,
+            )}
+          </p>
+          <div className="flex flex-wrap gap-2">
+            <Button
+              type="button"
+              size="sm"
+              disabled={propagateBusy}
+              onClick={() => void confirmPropagate()}
+            >
+              {t.settings.mealLibraryPropagateConfirmYes}
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              disabled={propagateBusy}
+              onClick={() => setPropagateOffer(null)}
+            >
+              {t.settings.mealLibraryPropagateConfirmNo}
+            </Button>
+          </div>
+        </div>
       )}
       {/* #290 — a dedicated full-screen dialog reachable instantly from
        * this button, instead of an inline form revealed at the bottom of

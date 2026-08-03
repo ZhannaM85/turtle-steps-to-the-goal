@@ -10,3 +10,12 @@ export type {
   MealLibraryBackfillCandidate,
   MealLibraryBackfillPlan,
 } from './mealLibraryBackfill'
+export {
+  countMealLibraryNameMatches,
+  propagateMealLibraryEdit,
+} from './propagateMealLibraryEdit'
+export type {
+  MealLibraryPropagationNutrition,
+  MealLibraryPropagationPatch,
+  MealLibraryPropagationResult,
+} from './propagateMealLibraryEdit'

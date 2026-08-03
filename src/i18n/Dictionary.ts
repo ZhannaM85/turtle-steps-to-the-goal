@@ -1383,6 +1383,15 @@ export interface Dictionary {
     ) => string
     mealLibraryBackfillRemovedMessage: (removed: number) => string
     mealLibraryBackfillErrorMessage: string
+    /** #542 — after editing a library food, offer to rewrite matching past lines. */
+    mealLibraryPropagateConfirmPrompt: (
+      count: number,
+      name: string,
+    ) => string
+    mealLibraryPropagateConfirmYes: string
+    mealLibraryPropagateConfirmNo: string
+    mealLibraryPropagateDoneMessage: (updated: number) => string
+    mealLibraryPropagateErrorMessage: string
     /** Filter-as-you-type above the list + "no matches" text (#179) — same
      * pattern as dailyEntry.foodSearchLabel/foodSearchPlaceholder for the
      * curated food list, mirrored here for the personal meal dictionary. */
