@@ -15,6 +15,10 @@ const CHECK_INTERVAL_MS = 5 * 60 * 1000
  * comment inline below) — the SW's own `sw.js` fetch is subject to
  * whatever caching the CDN applies to it, independent of this endpoint's
  * own `cache: 'no-store'` fetch.
+ *
+ * #553: skip network/SW work while the tab is hidden (and re-check when
+ * the user returns) so backgrounded iOS/PWA sessions don't keep waking for
+ * version polls. Interval stays; each tick no-ops when `document.hidden`.
  */
 export function useAppUpdateAvailable(): boolean {
   const [updateAvailable, setUpdateAvailable] = useState(false)
@@ -23,6 +27,8 @@ export function useAppUpdateAvailable(): boolean {
     let cancelled = false
 
     async function check() {
+      // #553 — don't fetch or nudge the SW while backgrounded.
+      if (typeof document !== 'undefined' && document.hidden) return
       try {
         const response = await fetch(
           `${import.meta.env.BASE_URL}version.json`,
@@ -53,11 +59,17 @@ export function useAppUpdateAvailable(): boolean {
       }
     }
 
+    function onVisibilityChange() {
+      if (!document.hidden) void check()
+    }
+
     check()
     const interval = setInterval(check, CHECK_INTERVAL_MS)
+    document.addEventListener('visibilitychange', onVisibilityChange)
     return () => {
       cancelled = true
       clearInterval(interval)
+      document.removeEventListener('visibilitychange', onVisibilityChange)
     }
   }, [])
 

@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 506,
+    issue: 553,
+    date: '2026-08-03T19:04:00+03:00',
+    en: 'The app checks for updates less aggressively while it’s in the background, which should reduce idle battery use a bit.',
+    ru: 'Пока приложение в фоне, проверка обновлений реже будит его — это должно чуть снизить расход батареи в простое.',
+  },
+  {
     version: 505,
     issue: 554,
     date: '2026-08-03T18:58:00+03:00',
