@@ -29,6 +29,7 @@ import {
   totalFromPortion,
 } from '@/shared/lib/macroScaling'
 import { parseNumberInput } from '@/shared/lib/parseNumberInput'
+import { mealLabelSuggestionsForLocale } from '@/shared/lib/mealLabel'
 import { normalizeTextSpaces } from '@/shared/lib/normalizeTextSpaces'
 import { rankBySearchMatch } from '@/shared/lib/searchRank'
 import { cn } from '@/shared/lib/utils'
@@ -315,14 +316,12 @@ export function AddMealDialog({
   )
   const mealLabelPresets = useMealLabelPresetStore((state) => state.presets)
   const micronutrients = useMicronutrientTrackingStore((state) => state.tracked)
-  // #563 — Breakfast/Lunch/Dinner/Snack always offered here (skip-breakfast
-  // rename without a Settings detour), then any extra Settings presets.
-  const mealLabelSuggestions = [
-    ...t.dailyEntry.defaultMealNamePresets,
-    ...mealLabelPresets.filter(
-      (preset) => !t.dailyEntry.defaultMealNamePresets.includes(preset),
-    ),
-  ]
+  // #563/#567 — Breakfast/Lunch/Dinner/Snack for the active locale, then
+  // custom Settings presets that aren't a built-in default in any locale.
+  const mealLabelSuggestions = mealLabelSuggestionsForLocale(
+    t,
+    mealLabelPresets,
+  )
   // This dialog is only mounted while open (lazy-mounted, same pattern
   // FoodPickerDialog/BarcodeScannerDialog already use), so both stores get
   // loaded fresh each time it opens — cheap, and simpler than threading a

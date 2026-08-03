@@ -5,7 +5,7 @@ import userEvent from '@testing-library/user-event'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { CalorieItem, Emotion } from '@/domain/dailyEntry'
 import { db } from '@/infrastructure/persistence/indexeddb'
-import { useFoodOverrideStore, useMealItemStore, useRecipeStore, useAddMealRecentVisibilityStore } from '@/stores'
+import { useFoodOverrideStore, useMealItemStore, useMealLabelPresetStore, useRecipeStore, useAddMealRecentVisibilityStore } from '@/stores'
 import { AddMealDialog, type AddMealDialogProps } from './AddMealDialog'
 
 // Matches FoodPickerDialog.test.tsx's own reasoning — every test here
@@ -38,6 +38,7 @@ beforeEach(async () => {
   useRecipeStore.setState({ recipes: [], status: 'idle', error: null })
   useFoodOverrideStore.setState({ overrides: [], status: 'idle', error: null })
   useAddMealRecentVisibilityStore.setState({ recentVisible: true })
+  useMealLabelPresetStore.setState({ presets: [] })
   localStorage.removeItem('turtle-steps-add-meal-recent-visibility')
 })
 
@@ -151,6 +152,20 @@ describe('AddMealDialog (#454)', () => {
     await user.type(nameField, 'Brunch')
     expect(onMealLabelChange).toHaveBeenCalledWith('Brunch')
     expect(nameField).toHaveValue('Brunch')
+  })
+
+  it('does not offer other-locale default meal names as chips (#567)', () => {
+    useMealLabelPresetStore.setState({
+      presets: ['Завтрак', 'Обед', 'Brunch'],
+    })
+    render(<ControlledAddMealDialog {...defaultProps} />)
+
+    expect(screen.getByRole('button', { name: 'Breakfast' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Brunch' })).toBeInTheDocument()
+    expect(
+      screen.queryByRole('button', { name: 'Завтрак' }),
+    ).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Обед' })).not.toBeInTheDocument()
   })
 
   it('does not auto-focus the time field on open (#487)', () => {

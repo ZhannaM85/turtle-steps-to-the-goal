@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 523,
+    issue: 567,
+    date: '2026-08-04T00:25:00+03:00',
+    en: 'Add meal name chips now only show names for your current language, not both Russian and English at once.',
+    ru: 'Подсказки названия приёма пищи теперь только на текущем языке — без смеси русского и английского.',
+  },
+  {
     version: 522,
     issue: 570,
     date: '2026-08-04T00:20:00+03:00',
