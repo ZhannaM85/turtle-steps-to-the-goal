@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 501,
+    issue: 551,
+    date: '2026-08-03T18:35:00+03:00',
+    en: 'The Goal screen’s weekly target card now shows which weight the pace is measured from.',
+    ru: 'На экране «Цель» в карточке недельной цели теперь видно, от какого веса считается темп.',
+  },
+  {
     version: 500,
     issue: 555,
     date: '2026-08-03T18:29:23+03:00',

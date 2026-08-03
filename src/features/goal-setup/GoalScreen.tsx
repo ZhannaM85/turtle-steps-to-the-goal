@@ -3,6 +3,7 @@ import { format, parseISO } from 'date-fns'
 import {
   unitLabel,
   formatNumber,
+  formatExactNumber,
   getDateFnsLocale,
   useLocale,
   useTranslation,
@@ -108,6 +109,13 @@ export function GoalScreen() {
                             { locale: dateFnsLocale },
                           ),
                         ),
+                        // #551 — same baseline as Today (#469): weight
+                        // logged on goal.weekStart, not latest weigh-in.
+                        activeGoalProgress?.baselineWeightKg !== undefined
+                          ? t.today.weeklyTargetFromWeight(
+                              `${formatExactNumber(toDisplay(activeGoalProgress.baselineWeightKg), locale)} ${unitLabel(displayUnit, t)}`,
+                            )
+                          : null,
                         // #155: named alongside the range, same badge copy
                         // PastTargetsList uses for a reached past target.
                         activeGoalReachedOn &&

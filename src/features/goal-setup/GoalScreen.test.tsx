@@ -1,5 +1,5 @@
 import 'fake-indexeddb/auto'
-import { render, screen, waitFor } from '@testing-library/react'
+import { render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { addDays, format } from 'date-fns'
 import { createMemoryRouter, RouterProvider } from 'react-router-dom'
@@ -121,6 +121,56 @@ describe('GoalScreen', () => {
     renderGoalScreen()
 
     expect(await screen.findByText('Mar 9, 2026 – Mar 15, 2026')).toBeInTheDocument()
+  })
+
+  it("doesn't show a reference weight before the goal window's own weekStart weight is logged (#551)", async () => {
+    await useGoalStore.getState().saveGoal(makeGoal({ targetWeeklyLossKg: 1 }))
+
+    renderGoalScreen()
+
+    const card = (
+      await screen.findAllByText("This week's target")
+    )[0].closest('[data-slot="card"]') as HTMLElement
+    expect(card).toBeTruthy()
+    expect(within(card).queryByText(/from .* kg/)).not.toBeInTheDocument()
+  })
+
+  it("appends the weight logged on the goal's own weekStart to the weekly target card (#551)", async () => {
+    const weekStart = '2026-03-09'
+    await useGoalStore
+      .getState()
+      .saveGoal(makeGoal({ targetWeeklyLossKg: 1, weekStart }))
+    await db.dailyEntries.put(makeEntry({ date: weekStart, weightKg: 58.8 }))
+
+    renderGoalScreen()
+
+    const card = (
+      await screen.findAllByText("This week's target")
+    )[0].closest('[data-slot="card"]') as HTMLElement
+    expect(
+      await within(card).findByText('from 58.8 kg', { exact: false }),
+    ).toBeInTheDocument()
+  })
+
+  it("shows the goal's own weekStart weight on Goal, not a later day's (#551)", async () => {
+    const weekStart = '2026-03-09'
+    await useGoalStore
+      .getState()
+      .saveGoal(makeGoal({ targetWeeklyLossKg: 1, weekStart }))
+    await db.dailyEntries.put(makeEntry({ date: weekStart, weightKg: 58.8 }))
+    await db.dailyEntries.put(
+      makeEntry({ date: '2026-03-11', weightKg: 59.6 }),
+    )
+
+    renderGoalScreen()
+
+    const card = (
+      await screen.findAllByText("This week's target")
+    )[0].closest('[data-slot="card"]') as HTMLElement
+    expect(
+      await within(card).findByText('from 58.8 kg', { exact: false }),
+    ).toBeInTheDocument()
+    expect(within(card).queryByText(/from 59\.6 kg/)).not.toBeInTheDocument()
   })
 
   it('persists an edit and updates the summary', async () => {
