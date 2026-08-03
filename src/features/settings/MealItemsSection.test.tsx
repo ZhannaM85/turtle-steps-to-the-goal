@@ -55,6 +55,21 @@ describe('MealItemsSection', () => {
     expect(screen.getByDisplayValue('Salad')).toBeInTheDocument()
   })
 
+  it('shows a food count and updates it while searching (#570)', async () => {
+    await useMealItemStore.getState().touch('Pizza')
+    await useMealItemStore.getState().touch('Salad')
+    const user = userEvent.setup()
+    render(<MealItemsSection />)
+
+    expect(await screen.findByText('2 foods')).toBeInTheDocument()
+
+    await user.type(
+      screen.getByLabelText('Search meal items'),
+      'piz',
+    )
+    expect(await screen.findByText('1 of 2 matching')).toBeInTheDocument()
+  })
+
   it('renames an item on blur', async () => {
     await useMealItemStore.getState().touch('Pizza')
     const user = userEvent.setup()

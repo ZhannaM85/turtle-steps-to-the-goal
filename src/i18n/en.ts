@@ -872,6 +872,10 @@ export const en: Dictionary = {
       "Meals you've logged before, suggested while you type. Rename or remove them here, or add one directly.",
     mealItemsEmpty:
       "Nothing yet — items appear here once you've logged a meal.",
+    mealItemsCount: (total) =>
+      `${total} ${total === 1 ? 'food' : 'foods'}`,
+    mealItemsFilteredCount: (shown, total) =>
+      `${shown} of ${total} matching`,
     mealLibraryBackfillDescription:
       'If you imported meals (or have years of history), you can copy unique dish names into this library so Find food can reuse them. You can remove only those copied items later — day history stays intact.',
     mealLibraryBackfillButton: 'Add foods from meal history',

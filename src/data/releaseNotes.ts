@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 522,
+    issue: 570,
+    date: '2026-08-04T00:20:00+03:00',
+    en: 'Settings → Meal items now shows how many foods you have saved, and how many match when you search.',
+    ru: 'В Настройках → Блюда теперь видно, сколько блюд сохранено, и сколько совпадает при поиске.',
+  },
+  {
     version: 521,
     issue: 549,
     date: '2026-08-03T23:50:00+03:00',

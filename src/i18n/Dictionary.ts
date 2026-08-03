@@ -1405,6 +1405,9 @@ export interface Dictionary {
     mealItemsLabel: string
     mealItemsDescription: string
     mealItemsEmpty: string
+    /** #570 — total personal foods in Settings → Dishes (and filtered subset). */
+    mealItemsCount: (total: number) => string
+    mealItemsFilteredCount: (shown: number, total: number) => string
     /** #541 — opt-in backfill from day meal history into the personal library. */
     mealLibraryBackfillDescription: string
     mealLibraryBackfillButton: string

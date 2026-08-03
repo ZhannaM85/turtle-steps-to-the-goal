@@ -941,13 +941,24 @@ export function MealItemsSection() {
         </p>
       )}
       {items.length > 0 && (
-        <Input
-          type="text"
-          aria-label={t.settings.mealItemSearchLabel}
-          placeholder={t.settings.mealItemSearchPlaceholder}
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
+        <>
+          {/* #570 — library size at a glance; while searching, matching subset. */}
+          <p className="text-sm text-muted-foreground" role="status">
+            {query
+              ? t.settings.mealItemsFilteredCount(
+                  visibleItems.length,
+                  items.length,
+                )
+              : t.settings.mealItemsCount(items.length)}
+          </p>
+          <Input
+            type="text"
+            aria-label={t.settings.mealItemSearchLabel}
+            placeholder={t.settings.mealItemSearchPlaceholder}
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        </>
       )}
       {query && visibleItems.length === 0 && (
         <p className="text-sm text-muted-foreground">
