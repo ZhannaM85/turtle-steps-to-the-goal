@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 505,
+    issue: 554,
+    date: '2026-08-03T18:58:00+03:00',
+    en: 'Home-screen / install icons were tightened for phones; iOS Battery may still list the app as “Web” — that’s an Apple limitation.',
+    ru: 'Иконки для домашнего экрана уточнены; в разделе «Аккумулятор» iOS приложение всё ещё может называться «Web» — это ограничение Apple.',
+  },
+  {
     version: 504,
     issue: 556,
     date: '2026-08-03T18:55:00+03:00',

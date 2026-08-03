@@ -3,7 +3,11 @@
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/png" href="/favicon-64.png" />
-    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <!-- #103 home-screen icon; #554 sizes=180×180 explicit (asset already 180).
+         iOS Battery Settings may still list PWAs as generic «Web» — that
+         surface often ignores apple-touch-icon; home screen is the
+         controllable one. -->
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
     <link rel="manifest" href="/manifest.json" />
     <!-- interactive-widget=resizes-content (found live via debug
          instrumentation, #156 follow-up): in standalone PWA mode
