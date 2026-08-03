@@ -1371,3 +1371,14 @@ _Live report (RU quick note → filed in EN): unusual weight swings need visible
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#540](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/540) | ⬜ Open | Correlation outliers: show short context for unusual weight changes (note preview or dedicated note) | Fork: truncated daily-note preview vs dedicated oddity note (+ optional auto gap hint). Do not build until user picks |
+
+---
+
+## Tier 99 — Food library from history + propagate edits (2026-08-03)
+
+_After MFP multi-year import: foods exist on day lines but not in the searchable personal library; library edits also do not rewrite past meals (#50 by design)._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#541](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/541) | ⬜ Open | Backfill personal food library from meal history / MFP import (searchable, reversible) | Performance risk on large unique sets. Prefer reversible backfill (tag + remove backfilled items, or mealItems-only restore) — not full DB wipe. Day history stays. |
+| [#542](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/542) | ⬜ Open | Propagate personal food library edits to past meal entries | Reverses #50 “library never rewrites history” for an explicit confirmed bulk update (optional date range). Depends conceptually on #541 for imported foods |
