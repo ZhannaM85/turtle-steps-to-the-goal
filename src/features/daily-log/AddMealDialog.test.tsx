@@ -360,9 +360,10 @@ describe('AddMealDialog (#454)', () => {
 
     await user.click(screen.getByRole('button', { name: 'Delete item' }))
     expect(onRemoveItem).not.toHaveBeenCalled()
-    expect(screen.getByText('Remove this food?')).toBeInTheDocument()
+    const confirm = screen.getByRole('alertdialog')
+    expect(confirm).toHaveTextContent('Remove this food?')
 
-    await user.click(screen.getByRole('button', { name: 'Remove' }))
+    await user.click(within(confirm).getByRole('button', { name: 'Remove' }))
     expect(onRemoveItem).toHaveBeenCalledWith('i1')
   })
 

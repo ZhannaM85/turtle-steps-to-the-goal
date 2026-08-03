@@ -1323,30 +1323,47 @@ export function AddMealDialog({
         )}
 
         {confirmRemoveItemId && (
-          <div className="flex flex-col gap-2 rounded-xl bg-card p-3 ring-1 ring-foreground/10">
-            <span className="text-sm text-muted-foreground">
-              {t.dailyEntry.confirmDeleteItemLabel}
-            </span>
-            <div className="flex items-center gap-2">
-              <Button
-                type="button"
-                variant="destructive"
-                size="sm"
-                onClick={() => {
-                  onRemoveItem(confirmRemoveItemId)
-                  setConfirmRemoveItemId(null)
-                }}
+          // #544: was an inline banner at the top of the scrollable
+          // Add-meal body — off-screen when the user deleted from meal
+          // composition further down, so Remove looked like a no-op.
+          // Fixed overlay (inside DialogContent so Radix modal
+          // pointer-events still work) stays centered regardless of scroll.
+          // Fullscreen DialogContent has no transform, so `fixed` is
+          // viewport-relative.
+          <div
+            className="fixed inset-0 z-[60] flex items-center justify-center bg-black/40 p-4"
+            role="alertdialog"
+            aria-modal="true"
+            aria-labelledby="confirm-remove-item-title"
+          >
+            <div className="w-full max-w-sm rounded-xl bg-card p-5 text-card-foreground shadow-lg ring-1 ring-foreground/10">
+              <p
+                id="confirm-remove-item-title"
+                className="text-sm text-muted-foreground"
               >
-                {t.dailyEntry.confirmDeleteItemYes}
-              </Button>
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                onClick={() => setConfirmRemoveItemId(null)}
-              >
-                {t.dailyEntry.confirmDeleteItemNo}
-              </Button>
+                {t.dailyEntry.confirmDeleteItemLabel}
+              </p>
+              <div className="mt-3 flex items-center gap-2">
+                <Button
+                  type="button"
+                  variant="destructive"
+                  size="sm"
+                  onClick={() => {
+                    onRemoveItem(confirmRemoveItemId)
+                    setConfirmRemoveItemId(null)
+                  }}
+                >
+                  {t.dailyEntry.confirmDeleteItemYes}
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setConfirmRemoveItemId(null)}
+                >
+                  {t.dailyEntry.confirmDeleteItemNo}
+                </Button>
+              </div>
             </div>
           </div>
         )}

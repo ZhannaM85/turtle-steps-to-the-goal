@@ -449,8 +449,9 @@ describe('MealList', () => {
       await user.click(
         within(dialog).getByRole('button', { name: 'Delete item' }),
       )
-      expect(within(dialog).getByText('Remove this food?')).toBeInTheDocument()
-      await user.click(within(dialog).getByRole('button', { name: 'Remove' }))
+      const confirm = screen.getByRole('alertdialog')
+      expect(confirm).toHaveTextContent('Remove this food?')
+      await user.click(within(confirm).getByRole('button', { name: 'Remove' }))
 
       expect(
         screen.getByRole('dialog', { name: 'Breakfast' }),
@@ -492,7 +493,9 @@ describe('MealList', () => {
       await user.click(
         within(dialog).getAllByRole('button', { name: 'Delete item' })[0]!,
       )
-      await user.click(within(dialog).getByRole('button', { name: 'Remove' }))
+      const confirm = screen.getByRole('alertdialog')
+      expect(confirm).toHaveTextContent('Remove this food?')
+      await user.click(within(confirm).getByRole('button', { name: 'Remove' }))
       expect(within(dialog).queryByText('Oatmeal')).not.toBeInTheDocument()
 
       await user.click(within(dialog).getByRole('button', { name: 'Close' }))
