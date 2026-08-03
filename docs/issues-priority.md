@@ -1341,3 +1341,13 @@ _Five requests from an external review (filed in English). Ordered easier → ha
 |---|--------|-------|-------|
 | [#536](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/536) | ✅ Done | Dashboard: per-chart time span instead of one global period | Confirmed on-device by the user. Removed page-level picker. Each trend/correlation section has its own All/Week/Month/Year/Custom via `ChartTitleWithToggle` + per-key `dashboardPeriodStore.byChart`; migrates prior global choice to every chart once. No dual global+individual. Summaries/heatmaps/compare unchanged. Follow-up: [#537](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/537) (slow period switch). |
 | [#537](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/537) | ✅ Done | Dashboard: switching chart period (Week/Month/Year) takes ~10s to update | Confirmed on-device by the user. Root cause: `DashboardScreen` subscribed to whole `byChart`, so one toggle re-rendered every section. Fix: per-chart `useDashboardChartPeriod` / `usePeriodFilteredEntries`; screen no longer reads the period store. Follow-up: [#538](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/538) (initial Dashboard load ~4–5s). |
+
+---
+
+## Tier 96 — Dashboard initial load (2026-08-03)
+
+_After #537 fixed period-switch lag, opening Dashboard itself still takes ~4–5s (acceptable, but maybe improvable)._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#538](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/538) | ⬜ Open | Dashboard: initial page load takes ~4–5 seconds (investigate possible improvements) | Follow-up to #537. User reports first open is still ~4–5s — fine for now, worth profiling later. Not yet investigated (Recharts mount volume, per-section filtering, `useDashboardData`, eager off-screen work, etc.) |
