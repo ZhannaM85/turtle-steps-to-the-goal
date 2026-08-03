@@ -9,6 +9,14 @@ interface DayStartStoreState {
    * retroactive re-bucketing of already-logged history. */
   dayStartTime: string
   setDayStartTime: (dayStartTime: string) => void
+  /**
+   * #539 / #345 — real calendar ISO date (`yyyy-MM-dd`) for which the user
+   * tapped "Start today's log now." While this equals today's real calendar
+   * date, `todayIso()` treats that calendar day as "today" even before
+   * `dayStartTime`. Stale values for past dates are ignored automatically.
+   */
+  startedEarlyForDate: string | null
+  startTodayEarly: (isoDate: string) => void
 }
 
 /**
@@ -25,10 +33,18 @@ export const useDayStartStore = create<DayStartStoreState>()(
     (set) => ({
       dayStartTime: '00:00',
       setDayStartTime: (dayStartTime) => set({ dayStartTime }),
+      startedEarlyForDate: null,
+      startTodayEarly: (isoDate) => set({ startedEarlyForDate: isoDate }),
     }),
     {
       name: 'turtle-steps-day-start',
       storage: createJSONStorage(() => localStorage),
+      // Older persisted blobs only had dayStartTime — merge keeps defaults
+      // for the new #539 field without a version bump.
+      merge: (persisted, current) => ({
+        ...current,
+        ...(persisted as Partial<DayStartStoreState>),
+      }),
     },
   ),
 )

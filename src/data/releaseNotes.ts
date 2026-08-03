@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 494,
+    issue: 539,
+    date: '2026-08-03T14:35:00+03:00',
+    en: 'After you tap “Start today’s log now,” the Today button stays on that day instead of jumping back to the previous one.',
+    ru: 'После «Начать сегодняшний день сейчас» кнопка «Сегодня» остаётся на этом дне, а не возвращает на предыдущий.',
+  },
+  {
     version: 493,
     issue: 544,
     date: '2026-08-03T11:15:29+03:00',

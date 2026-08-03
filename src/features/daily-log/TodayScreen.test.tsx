@@ -99,7 +99,7 @@ beforeEach(async () => {
   })
   useDailyReminderStore.setState({ enabled: false })
   useProfileStore.setState({ heightCm: undefined, age: undefined, sex: undefined })
-  useDayStartStore.setState({ dayStartTime: '00:00' })
+  useDayStartStore.setState({ dayStartTime: '00:00', startedEarlyForDate: null })
   useTodayCardOrderStore.persist.clearStorage()
   useTodayCardOrderStore.setState({ order: DEFAULT_TODAY_CARD_ORDER })
   useTodaySectionsCollapseStore.setState({
@@ -125,7 +125,7 @@ afterEach(async () => {
   localStorage.clear()
   useDailyReminderStore.setState({ enabled: false })
   useProfileStore.setState({ heightCm: undefined, age: undefined, sex: undefined })
-  useDayStartStore.setState({ dayStartTime: '00:00' })
+  useDayStartStore.setState({ dayStartTime: '00:00', startedEarlyForDate: null })
   useTodayCardOrderStore.persist.clearStorage()
   useTodayCardOrderStore.setState({ order: DEFAULT_TODAY_CARD_ORDER })
   useTodaySectionsCollapseStore.persist.clearStorage()
@@ -1921,6 +1921,36 @@ describe('TodayScreen', () => {
         expect(
           screen.queryByText("It's already a new day."),
         ).not.toBeInTheDocument()
+      })
+
+      it('keeps Сегодня on the early-started day after browsing away (#539)', async () => {
+        const user = userEvent.setup({ delay: null })
+        vi.useFakeTimers({ toFake: ['Date'] })
+        vi.setSystemTime(new Date('2026-07-24T01:30:00'))
+        useDayStartStore.setState({
+          dayStartTime: '03:00',
+          startedEarlyForDate: null,
+        })
+
+        render(
+          <MemoryRouter>
+            <TodayScreen />
+          </MemoryRouter>,
+        )
+
+        await user.click(
+          screen.getByRole('button', { name: "Start today's log now" }),
+        )
+        expect(screen.getByLabelText('Date')).toHaveValue('2026-07-24')
+
+        await user.click(screen.getByRole('button', { name: 'Previous day' }))
+        expect(screen.getByLabelText('Date')).toHaveValue('2026-07-23')
+
+        await user.click(screen.getByRole('button', { name: 'Today' }))
+        expect(screen.getByLabelText('Date')).toHaveValue('2026-07-24')
+        expect(useDayStartStore.getState().startedEarlyForDate).toBe(
+          '2026-07-24',
+        )
       })
 
       it('does not offer it once the real day matches the effective day', () => {

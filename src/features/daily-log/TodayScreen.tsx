@@ -162,9 +162,10 @@ export function TodayScreen() {
   // correlation day-pairing, and the fasting-window toast are unaffected
   // for now (resolved via `AskUserQuestion` when this was picked up).
   const dayStartTime = useDayStartStore((state) => state.dayStartTime)
-  function todayIso() {
-    return format(effectiveDateFor(new Date(), dayStartTime), 'yyyy-MM-dd')
-  }
+  const startedEarlyForDate = useDayStartStore(
+    (state) => state.startedEarlyForDate,
+  )
+  const startTodayEarly = useDayStartStore((state) => state.startTodayEarly)
   // #345 — the real calendar date, ignoring `dayStartTime` entirely.
   // Differs from `todayIso()` only in the gap between midnight and the
   // configured start time, i.e. exactly when someone might want to start
@@ -173,6 +174,15 @@ export function TodayScreen() {
   // since `effectiveDateFor` only ever holds `todayIso()` one calendar day
   // behind, never more.
   const realTodayIso = format(new Date(), 'yyyy-MM-dd')
+  function todayIso() {
+    // #539 — once the user opts to start today's log early (#345), keep
+    // treating the real calendar day as "today" for Today-nav / defaults
+    // until midnight rolls (stale startedEarlyForDate ≠ realTodayIso).
+    // Without this, Сегодня jumped back to the day-start-bound previous
+    // day because #345 only wrote ?date= into the URL.
+    if (startedEarlyForDate === realTodayIso) return realTodayIso
+    return format(effectiveDateFor(new Date(), dayStartTime), 'yyyy-MM-dd')
+  }
   // #200: lives in the URL (?date=), not local useState — browsing days
   // via the arrows (and any future navigation that remounts this screen)
   // would otherwise always reset to today. A search param survives a
@@ -1062,7 +1072,10 @@ export function TodayScreen() {
               variant="outline"
               size="sm"
               className="shrink-0"
-              onClick={() => setDate(realTodayIso)}
+              onClick={() => {
+                startTodayEarly(realTodayIso)
+                setDate(realTodayIso)
+              }}
             >
               {t.today.startTodayEarlyButton}
             </Button>
