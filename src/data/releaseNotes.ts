@@ -25,9 +25,16 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 509,
+    issue: 557,
+    date: '2026-08-03T19:45:00+03:00',
+    en: 'On Dashboard weekly recap, each week can have its own note (edit opens a text box) — handy for pasting advice or a short reflection for that Monday–Sunday week.',
+    ru: 'В недельной сводке на Дашборде у каждой недели может быть своя заметка (кнопка открывает текстовое поле) — удобно вставить совет или короткое размышление за эту неделю (пн–вс).',
+  },
+  {
     version: 508,
     issue: 558,
-    date: '2026-08-03T19:30:00+03:00',
+    date: '2026-08-03T19:24:49+03:00',
     en: 'On Goal, you can estimate a weekly weight pace (and a protein/fat/carb split) from the daily calorie target you typed — only when you tap the button, not automatically.',
     ru: 'В «Цели» можно оценить недельный темп (и белки/жиры/углеводы) по введённой дневной цели калорий — только по кнопке, без автоматической синхронизации.',
   },

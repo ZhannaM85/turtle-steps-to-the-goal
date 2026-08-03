@@ -9,6 +9,7 @@ import type {
   CustomMetric,
   CustomMetricEntry,
 } from '@/domain/customMetric'
+import type { WeeklyNote } from '@/domain/weeklyNote'
 
 export class AppDatabase extends Dexie {
   goals!: Table<Goal, string>
@@ -19,6 +20,7 @@ export class AppDatabase extends Dexie {
   customMetrics!: Table<CustomMetric, string>
   customMetricEntries!: Table<CustomMetricEntry, string>
   customCorrelations!: Table<CustomCorrelation, string>
+  weeklyNotes!: Table<WeeklyNote, string>
 
   constructor() {
     super('turtle-steps-to-the-goal')
@@ -262,6 +264,19 @@ export class AppDatabase extends Dexie {
             }
           }),
       )
+    // #557: freeform weekly notes keyed by Monday weekStart (ISO). New
+    // store only — no upgrade() needed.
+    this.version(13).stores({
+      goals: 'id, createdAt',
+      dailyEntries: 'id, &date',
+      mealItems: 'id, &name, &barcode',
+      foodOverrides: '&foodId',
+      recipes: 'id',
+      customMetrics: 'id',
+      customMetricEntries: 'id, metricId, &[metricId+date]',
+      customCorrelations: 'id',
+      weeklyNotes: '&weekStart',
+    })
   }
 }
 

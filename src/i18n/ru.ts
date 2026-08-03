@@ -642,6 +642,13 @@ export const ru: Dictionary = {
     weightChangeLabel: 'Изменение за неделю',
     averageCaloriesLabel: 'Средние калории',
     targetMetNote: 'цель достигнута',
+    addWeeklyNoteLabel: 'Добавить заметку недели',
+    editWeeklyNoteLabel: 'Редактировать заметку недели',
+    saveWeeklyNoteLabel: 'Сохранить заметку',
+    cancelWeeklyNoteLabel: 'Отмена',
+    weeklyNoteLabel: 'Заметка недели',
+    weeklyNotePlaceholder:
+      'Заметки за эту неделю — например, советы после разбора экспорта…',
     monthlySummaryTitle: 'Месячная сводка',
     recentAveragesTitle: 'Средние показатели',
     last7DaysLabel: 'Последние 7 дней',

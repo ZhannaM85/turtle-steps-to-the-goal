@@ -69,6 +69,7 @@ export {
 } from './todaySectionsCollapseStore'
 export { useCustomMetricStore } from './customMetricStore'
 export { useCustomCorrelationStore } from './customCorrelationStore'
+export { useWeeklyNoteStore } from './weeklyNoteStore'
 export { useCalendarMarkerVisibilityStore } from './calendarMarkerVisibilityStore'
 export type { CalendarMarkerKey } from './calendarMarkerVisibilityStore'
 export { useAddMealRecentVisibilityStore } from './addMealRecentVisibilityStore'

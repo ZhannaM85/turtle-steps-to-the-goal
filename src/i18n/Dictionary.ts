@@ -1058,6 +1058,13 @@ export interface Dictionary {
     weightChangeLabel: string
     averageCaloriesLabel: string
     targetMetNote: string
+    /** #557 — freeform note on each weekly recap card. */
+    addWeeklyNoteLabel: string
+    editWeeklyNoteLabel: string
+    saveWeeklyNoteLabel: string
+    cancelWeeklyNoteLabel: string
+    weeklyNoteLabel: string
+    weeklyNotePlaceholder: string
     /** #226 — a calendar month has one unambiguous boundary, unlike a
      * week, so no separate "monthRange" formatter is needed the way
      * weekRange is — the card's own label is just the localized month

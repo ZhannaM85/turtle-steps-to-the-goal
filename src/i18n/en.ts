@@ -613,6 +613,13 @@ export const en: Dictionary = {
     weightChangeLabel: 'Change this week',
     averageCaloriesLabel: 'Average calories',
     targetMetNote: 'target met',
+    addWeeklyNoteLabel: 'Add weekly note',
+    editWeeklyNoteLabel: 'Edit weekly note',
+    saveWeeklyNoteLabel: 'Save note',
+    cancelWeeklyNoteLabel: 'Cancel',
+    weeklyNoteLabel: 'Weekly note',
+    weeklyNotePlaceholder:
+      'Notes for this week — e.g. advice from reviewing your export…',
     monthlySummaryTitle: 'Monthly summary',
     recentAveragesTitle: 'Recent averages',
     last7DaysLabel: 'Last 7 days',

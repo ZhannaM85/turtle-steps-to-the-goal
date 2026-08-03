@@ -247,7 +247,30 @@ const customCorrelationSchema = z.object({
   createdAt: z.string(),
 })
 
+const weeklyNoteSchema = z.object({
+  weekStart: z.string(),
+  note: z.string(),
+  updatedAt: z.string(),
+})
+
 export const exportBundleSchema = z.object({
+  version: z.literal(8),
+  exportedAt: z.string(),
+  goals: z.array(goalSchema),
+  dailyEntries: z.array(dailyEntrySchema),
+  mealItems: z.array(mealItemSchema).optional(),
+  foodOverrides: z.array(foodOverrideSchema).optional(),
+  recipes: z.array(recipeSchema).optional(),
+  customMetrics: z.array(customMetricSchema).optional(),
+  customMetricEntries: z.array(customMetricEntrySchema).optional(),
+  customCorrelations: z.array(customCorrelationSchema).optional(),
+  weeklyNotes: z.array(weeklyNoteSchema).optional(),
+})
+
+export type ExportBundle = z.infer<typeof exportBundleSchema>
+
+/** Pre-#557 backups — no weekly notes table. */
+export const exportBundleSchemaV7 = z.object({
   version: z.literal(7),
   exportedAt: z.string(),
   goals: z.array(goalSchema),
@@ -260,7 +283,7 @@ export const exportBundleSchema = z.object({
   customCorrelations: z.array(customCorrelationSchema).optional(),
 })
 
-export type ExportBundle = z.infer<typeof exportBundleSchema>
+export type ExportBundleV7 = z.infer<typeof exportBundleSchemaV7>
 
 /**
  * Backups written before #271 stored a single `waterMl` running total

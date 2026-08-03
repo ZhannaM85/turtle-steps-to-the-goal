@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import { useEffect } from 'react'
 import { format, parseISO } from 'date-fns'
 import type { DailyEntry } from '@/domain/dailyEntry'
 import { kgToLb, type Goal } from '@/domain/goal'
@@ -11,9 +12,14 @@ import {
   useTranslation,
 } from '@/i18n'
 import { macrosSummaryText } from '@/shared/lib/macroDisplay'
-import { useDashboardChartVisibilityStore, useUnitStore } from '@/stores'
+import {
+  useDashboardChartVisibilityStore,
+  useUnitStore,
+  useWeeklyNoteStore,
+} from '@/stores'
 import { StatCard } from '@/shared/ui/stat-card'
 import { ChartTitleWithToggle } from './ChartTitleWithToggle'
+import { WeeklyNoteEditor } from './WeeklyNoteEditor'
 
 export interface WeeklySummaryCardsProps {
   entries: DailyEntry[]
@@ -45,6 +51,10 @@ export function WeeklySummaryCards({
   const cardVisible = useDashboardChartVisibilityStore(
     (state) => state.visible.weeklySummary,
   )
+  const loadWeeklyNotes = useWeeklyNoteStore((state) => state.loadAll)
+  useEffect(() => {
+    void loadWeeklyNotes()
+  }, [loadWeeklyNotes])
 
   const summaries = weeklySummaries(
     entries,
@@ -147,17 +157,19 @@ export function WeeklySummaryCards({
           }
 
           return (
-            <StatCard
-              key={week.weekStart}
-              label={rangeLabel}
-              value={value}
-              unit={delta === null ? undefined : unit}
-              description={
-                descriptionParts.length > 0
-                  ? descriptionParts.join(' · ')
-                  : undefined
-              }
-            />
+            <div key={week.weekStart} className="flex flex-col gap-1.5">
+              <StatCard
+                label={rangeLabel}
+                value={value}
+                unit={delta === null ? undefined : unit}
+                description={
+                  descriptionParts.length > 0
+                    ? descriptionParts.join(' · ')
+                    : undefined
+                }
+              />
+              <WeeklyNoteEditor weekStart={week.weekStart} />
+            </div>
           )
         })}
       </div>

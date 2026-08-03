@@ -8,6 +8,7 @@ import type { FoodOverride } from '@/domain/foodOverride'
 import type { Goal } from '@/domain/goal'
 import type { MealItem } from '@/domain/mealItem'
 import type { Recipe } from '@/domain/recipe'
+import type { WeeklyNote } from '@/domain/weeklyNote'
 import type { ExportBundle } from './exportBundleSchema'
 
 export function buildExportBundle(
@@ -19,9 +20,10 @@ export function buildExportBundle(
   customMetrics: CustomMetric[],
   customMetricEntries: CustomMetricEntry[],
   customCorrelations: CustomCorrelation[],
+  weeklyNotes: WeeklyNote[],
 ): ExportBundle {
   return {
-    version: 7,
+    version: 8,
     exportedAt: new Date().toISOString(),
     goals,
     dailyEntries,
@@ -31,5 +33,6 @@ export function buildExportBundle(
     customMetrics,
     customMetricEntries,
     customCorrelations,
+    weeklyNotes,
   }
 }

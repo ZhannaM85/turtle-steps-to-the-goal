@@ -106,16 +106,16 @@ describe('buildExportBundle', () => {
   it('wraps goals and entries with a version and export timestamp', () => {
     const goals = [makeGoal()]
     const entries = [makeEntry()]
-    const bundle = buildExportBundle(goals, entries, [], [], [], [], [], [])
+    const bundle = buildExportBundle(goals, entries, [], [], [], [], [], [], [])
 
-    expect(bundle.version).toBe(7)
+    expect(bundle.version).toBe(8)
     expect(bundle.goals).toEqual(goals)
     expect(bundle.dailyEntries).toEqual(entries)
     expect(() => new Date(bundle.exportedAt).toISOString()).not.toThrow()
   })
 
   it('handles no data at all (empty backup)', () => {
-    const bundle = buildExportBundle([], [], [], [], [], [], [], [])
+    const bundle = buildExportBundle([], [], [], [], [], [], [], [], [])
     expect(bundle.goals).toEqual([])
     expect(bundle.dailyEntries).toEqual([])
     expect(bundle.mealItems).toEqual([])
@@ -124,6 +124,7 @@ describe('buildExportBundle', () => {
     expect(bundle.customMetrics).toEqual([])
     expect(bundle.customMetricEntries).toEqual([])
     expect(bundle.customCorrelations).toEqual([])
+    expect(bundle.weeklyNotes).toEqual([])
   })
 
   it('includes meal items and food overrides (#113)', () => {
@@ -138,6 +139,7 @@ describe('buildExportBundle', () => {
       [],
       [],
       [],
+      [],
     )
 
     expect(bundle.mealItems).toEqual(mealItems)
@@ -146,7 +148,7 @@ describe('buildExportBundle', () => {
 
   it('includes recipes (#251)', () => {
     const recipes = [makeRecipe()]
-    const bundle = buildExportBundle([], [], [], [], recipes, [], [], [])
+    const bundle = buildExportBundle([], [], [], [], recipes, [], [], [], [])
 
     expect(bundle.recipes).toEqual(recipes)
   })
@@ -164,10 +166,33 @@ describe('buildExportBundle', () => {
       customMetrics,
       customMetricEntries,
       customCorrelations,
+      [],
     )
 
     expect(bundle.customMetrics).toEqual(customMetrics)
     expect(bundle.customMetricEntries).toEqual(customMetricEntries)
     expect(bundle.customCorrelations).toEqual(customCorrelations)
+  })
+
+  it('includes weekly notes (#557)', () => {
+    const weeklyNotes = [
+      {
+        weekStart: '2026-07-27',
+        note: 'Past week advice',
+        updatedAt: '2026-08-01T00:00:00.000Z',
+      },
+    ]
+    const bundle = buildExportBundle(
+      [],
+      [],
+      [],
+      [],
+      [],
+      [],
+      [],
+      [],
+      weeklyNotes,
+    )
+    expect(bundle.weeklyNotes).toEqual(weeklyNotes)
   })
 })

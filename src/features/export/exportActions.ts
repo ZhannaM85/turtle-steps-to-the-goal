@@ -7,6 +7,7 @@ import {
   IndexedDbGoalRepository,
   IndexedDbMealItemRepository,
   IndexedDbRecipeRepository,
+  IndexedDbWeeklyNoteRepository,
 } from '@/infrastructure/persistence/indexeddb'
 import { buildExportBundle } from './exportBundle'
 import {
@@ -16,6 +17,7 @@ import {
   exportBundleSchemaV4,
   exportBundleSchemaV5,
   exportBundleSchemaV6,
+  exportBundleSchemaV7,
   type ExportBundle,
   type ExportBundleV4,
   type ExportBundleV5,
@@ -30,6 +32,7 @@ const recipeRepository = new IndexedDbRecipeRepository()
 const customMetricRepository = new IndexedDbCustomMetricRepository()
 const customMetricEntryRepository = new IndexedDbCustomMetricEntryRepository()
 const customCorrelationRepository = new IndexedDbCustomCorrelationRepository()
+const weeklyNoteRepository = new IndexedDbWeeklyNoteRepository()
 
 export async function exportAllData(): Promise<ExportBundle> {
   const [
@@ -41,6 +44,7 @@ export async function exportAllData(): Promise<ExportBundle> {
     customMetrics,
     customMetricEntries,
     customCorrelations,
+    weeklyNotes,
   ] = await Promise.all([
     goalRepository.getAll(),
     dailyEntryRepository.getAll(),
@@ -50,6 +54,7 @@ export async function exportAllData(): Promise<ExportBundle> {
     customMetricRepository.getAll(),
     customMetricEntryRepository.getAll(),
     customCorrelationRepository.getAll(),
+    weeklyNoteRepository.getAll(),
   ])
   return buildExportBundle(
     goals,
@@ -60,6 +65,7 @@ export async function exportAllData(): Promise<ExportBundle> {
     customMetrics,
     customMetricEntries,
     customCorrelations,
+    weeklyNotes,
   )
 }
 
@@ -139,6 +145,9 @@ export async function importAllData(bundle: ExportBundle): Promise<void> {
     }),
     ...(bundle.customCorrelations ?? []).map((correlation) =>
       customCorrelationRepository.upsert(correlation),
+    ),
+    ...(bundle.weeklyNotes ?? []).map((note) =>
+      weeklyNoteRepository.upsert(note),
     ),
   ])
 }
@@ -222,13 +231,24 @@ export function parseExportBundle(raw: unknown): ExportBundle {
   const current = exportBundleSchema.safeParse(raw)
   if (current.success) return current.data
 
+  // v7 -> v8 (#557): weekly notes table added (empty when upgrading).
+  const v7 = exportBundleSchemaV7.safeParse(raw)
+  if (v7.success) {
+    return {
+      ...v7.data,
+      version: 8,
+      weeklyNotes: [],
+    }
+  }
+
   // v6 -> v7 (#271): a single waterMl total becomes a list of entries.
   const v6 = exportBundleSchemaV6.safeParse(raw)
   if (v6.success) {
     return {
       ...v6.data,
-      version: 7,
+      version: 8,
       dailyEntries: upgradeV6ToV7(v6.data.dailyEntries),
+      weeklyNotes: [],
     }
   }
 
@@ -237,8 +257,9 @@ export function parseExportBundle(raw: unknown): ExportBundle {
   if (v5.success) {
     return {
       ...v5.data,
-      version: 7,
+      version: 8,
       dailyEntries: upgradeV6ToV7(upgradeV5ToV6(v5.data.dailyEntries)),
+      weeklyNotes: [],
     }
   }
 
@@ -246,22 +267,23 @@ export function parseExportBundle(raw: unknown): ExportBundle {
   if (v4.success) {
     return {
       ...v4.data,
-      version: 7,
+      version: 8,
       dailyEntries: upgradeV6ToV7(
         upgradeV5ToV6(foldFlatMealsIntoGroups(v4.data.dailyEntries)),
       ),
+      weeklyNotes: [],
     }
   }
 
   // v3 -> v5: meal-level emotion used the day's happy/unhappy/neutral set.
   // No auto-mapping to thumbsUp/thumbsDown/bellissimo (decided when #54 was
   // scoped) — old meal emotions are cleared, not translated. Then folded
-  // into single-item groups same as the v4 path above, then on to v7.
+  // into single-item groups same as the v4 path above, then on to v8.
   const v3 = exportBundleSchemaV3.safeParse(raw)
   if (v3.success) {
     return {
       ...v3.data,
-      version: 7,
+      version: 8,
       dailyEntries: upgradeV6ToV7(
         upgradeV5ToV6(
           foldFlatMealsIntoGroups(
@@ -277,6 +299,7 @@ export function parseExportBundle(raw: unknown): ExportBundle {
           ),
         ),
       ),
+      weeklyNotes: [],
     }
   }
 
@@ -284,7 +307,7 @@ export function parseExportBundle(raw: unknown): ExportBundle {
   if (legacy.success) {
     return {
       ...legacy.data,
-      version: 7,
+      version: 8,
       dailyEntries: upgradeV6ToV7(
         upgradeV5ToV6(
           foldFlatMealsIntoGroups(
@@ -304,6 +327,7 @@ export function parseExportBundle(raw: unknown): ExportBundle {
           ),
         ),
       ),
+      weeklyNotes: [],
     }
   }
 
