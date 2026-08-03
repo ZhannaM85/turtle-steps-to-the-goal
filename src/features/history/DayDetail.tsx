@@ -305,8 +305,9 @@ export function DayDetail({
                     </span>
                   )}
                   {/* Item sub-list (#81) — a group's individual dishes, each
-                   * with its own reaction (#129). */}
-                  <ul className="flex flex-col gap-0.5 pl-4">
+                   * with its own reaction (#129). #559: no pl-4 — same
+                   * alignment as MealList (was indented vs meal header). */}
+                  <ul className="flex min-w-0 flex-col gap-0.5">
                     {meal.items.map((item) => {
                       const itemMacros = macrosSummaryTextCompact(
                         item.proteinG,
@@ -321,7 +322,7 @@ export function DayDetail({
                       return (
                         <li
                           key={item.id}
-                          className="text-xs text-muted-foreground"
+                          className="min-w-0 text-xs text-muted-foreground"
                         >
                           {/* #302 — see the matching comment on
                            * MealList.tsx's own item row: the title stands
@@ -329,7 +330,7 @@ export function DayDetail({
                            * reaction all move down to a second row
                            * together. */}
                           {item.name && (
-                            <p className="min-w-0">
+                            <p className="min-w-0 w-full">
                               {/* #555: no break-words — mid-word splits on WebKit */}
                               {item.name}
                               {item.brand ? ` (${item.brand})` : ''}

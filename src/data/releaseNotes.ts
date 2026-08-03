@@ -25,9 +25,16 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 510,
+    issue: 559,
+    date: '2026-08-03T19:50:00+03:00',
+    en: 'Dish names on Day meal cards line up with the meal title again and use the full card width, so long names wrap less awkwardly.',
+    ru: 'Названия блюд в карточках приёмов пищи снова выровнены с заголовком и используют всю ширину — длинные названия переносятся аккуратнее.',
+  },
+  {
     version: 509,
     issue: 557,
-    date: '2026-08-03T19:45:00+03:00',
+    date: '2026-08-03T19:41:46+03:00',
     en: 'On Dashboard weekly recap, each week can have its own note (edit opens a text box) — handy for pasting advice or a short reflection for that Monday–Sunday week.',
     ru: 'В недельной сводке на Дашборде у каждой недели может быть своя заметка (кнопка открывает текстовое поле) — удобно вставить совет или короткое размышление за эту неделю (пн–вс).',
   },

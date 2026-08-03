@@ -188,8 +188,10 @@ function MealListItem({
       {/* #545: min-w-0 so flex children can shrink below intrinsic name
        * width (same class of bug #156 fixed for truncate). #555: do not
        * use break-words — on WebKit that mid-broke ordinary Russian
-       * words (картофе|лем); wrap at spaces with normal overflow-wrap. */}
-      <ul className="flex min-w-0 flex-col divide-y divide-foreground/15 pl-4">
+       * words (картофе|лем); wrap at spaces with normal overflow-wrap.
+       * #559: drop pl-4 indent — dish block was stair-stepped vs the meal
+       * title/totals and stole width so long names wrapped early. */}
+      <ul className="flex min-w-0 flex-col divide-y divide-foreground/15">
         {entry.items.map((item) => {
           const itemMacros = macrosSummaryTextCompact(
             item.proteinG,
@@ -221,7 +223,7 @@ function MealListItem({
                 // foreground (#473 follow-up) — at full strength the dish
                 // names competed with the meal title above them. Size and
                 // weight carry the hierarchy here, not color.
-                <p className="min-w-0 text-base font-medium">
+                <p className="min-w-0 w-full text-base font-medium">
                   {item.name}
                   {item.brand ? ` (${item.brand})` : ''}
                 </p>
