@@ -143,8 +143,14 @@ export {
   suggestDailyTargets,
   suggestMacrosForCalorieTarget,
   estimateWeeklyLossKgFromCalorieTarget,
+  calorieKcalFromMacros,
+  suggestTargetsFromMacroAnchor,
 } from './targetCalculator'
-export type { ActivityLevel, SuggestedDailyTargets } from './targetCalculator'
+export type {
+  ActivityLevel,
+  SuggestedDailyTargets,
+  MacroRecalcAnchor,
+} from './targetCalculator'
 export {
   recommendedWaterMlRange,
   adjustWaterMlRange,

@@ -1390,6 +1390,7 @@ _Water recommendation and further filings from this session (list may grow)._
 | [#566](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/566) | 🔍 Pending validation | Add meal: remaining calories preview subtracts twice after Save | Root cause: `todayTotals` included the in-progress meal while AddMealDialog also added `items`/`totalsSoFar`. Fix: `dayTotalsExcludingMeal` for add + edit overlays. |
 | [#567](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/567) | ⬜ Open | Add meal: meal-name chips show both Russian and English presets | Live feedback (#563 follow-up): chips list Завтрак/… and Breakfast/… together. Should only show active-locale names. |
 | [#568](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/568) | ⬜ Open | Add meal: cannot clear meal title — last character repopulates | Live feedback (#563): deleting the last character of Meal name restores the default (e.g. Завтрак). Root cause not investigated at filing. |
+| [#569](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/569) | 🔍 Pending validation | Goal: contextual recalculate buttons beside the field the user edited | Compact «Recalculate from …» beside last-edited pace/calories/protein/fat/carbs; removed standalone #558 bottom button; `suggestTargetsFromMacroAnchor` for macro anchors. |
 
 
 

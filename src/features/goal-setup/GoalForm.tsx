@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Check, Minus, Pencil, Plus } from 'lucide-react'
 import { useForm, useWatch, type Resolver } from 'react-hook-form'
@@ -15,7 +15,9 @@ import {
   recommendedWaterMlRange,
   suggestDailyTargets,
   suggestMacrosForCalorieTarget,
+  suggestTargetsFromMacroAnchor,
   waterRecommendationMidMl,
+  type MacroRecalcAnchor,
 } from '@/domain/stats'
 import { formatExactNumber, formatNumber, unitLabel, useLocale, useTranslation } from '@/i18n'
 import { parseNumberInput } from '@/shared/lib/parseNumberInput'
@@ -69,6 +71,13 @@ export interface GoalFormProps {
   latestWeightKg?: number | null
 }
 
+type RecalcSource = 'pace' | 'calories' | 'protein' | 'fat' | 'carbs'
+
+function hasPositiveFieldValue(raw: unknown): boolean {
+  const n = Number(raw)
+  return Number.isFinite(n) && n > 0
+}
+
 export function GoalForm({
   existingGoal,
   onSubmit,
@@ -117,7 +126,66 @@ export function GoalForm({
   const showAggressivePaceWarning =
     paceKg !== null && paceKg > WEEKLY_PACE_SOFT_WARN_KG
 
+  // #259 — profile + weight required for suggest/recalculate helpers.
+  const canSuggestTarget =
+    latestWeightKg !== null &&
+    heightCm !== undefined &&
+    age !== undefined &&
+    sex !== undefined &&
+    activityLevel !== undefined
+
+  // #569 — contextual recalculate beside the field the user last edited.
+  const [lastEditedRecalcSource, setLastEditedRecalcSource] =
+    useState<RecalcSource | null>(null)
+  const skipMarkEditedRef = useRef(false)
+
+  function markEdited(source: RecalcSource) {
+    if (!skipMarkEditedRef.current) {
+      setLastEditedRecalcSource(source)
+    }
+  }
+
+  function runProgrammaticRecalc(update: () => void) {
+    skipMarkEditedRef.current = true
+    try {
+      update()
+    } finally {
+      skipMarkEditedRef.current = false
+    }
+    setLastEditedRecalcSource(null)
+  }
+
+  function runProgrammaticPrefill(update: () => void) {
+    skipMarkEditedRef.current = true
+    try {
+      update()
+    } finally {
+      skipMarkEditedRef.current = false
+    }
+  }
+
+  function setPaceFromCalories(calorieTargetKcal: number) {
+    if (!canSuggestTarget || latestWeightKg === null) return
+    const paceKg = estimateWeeklyLossKgFromCalorieTarget(
+      latestWeightKg,
+      heightCm,
+      age,
+      sex,
+      activityLevel,
+      calorieTargetKcal,
+    )
+    const displayPace = Math.min(
+      10,
+      Math.max(weeklyPaceStepDisplay, toDisplay(paceKg)),
+    )
+    setValue('targetWeeklyLoss', Math.round(displayPace * 100) / 100, {
+      shouldValidate: true,
+      shouldDirty: true,
+    })
+  }
+
   function adjustWeeklyPace(direction: 1 | -1) {
+    markEdited('pace')
     const raw = Number(values.targetWeeklyLoss)
     const current =
       Number.isFinite(raw) && raw > 0 ? raw : 0
@@ -136,20 +204,13 @@ export function GoalForm({
   // enabled once every input it needs actually exists; the weekly-pace
   // deficit is optional (falls back to a plain maintenance estimate, 0
   // deficit, if no weekly target has been typed in yet).
-  const canSuggestTarget =
-    latestWeightKg !== null &&
-    heightCm !== undefined &&
-    age !== undefined &&
-    sex !== undefined &&
-    activityLevel !== undefined
-  function applySuggestedTargets() {
-    if (!canSuggestTarget) return
+  function fillSuggestedTargetsFromPace() {
     const suggested = suggestDailyTargets(
-      latestWeightKg,
-      heightCm,
-      age,
-      sex,
-      activityLevel,
+      latestWeightKg!,
+      heightCm!,
+      age!,
+      sex!,
+      activityLevel!,
       dailyDeficit ?? 0,
     )
     setValue('dailyCalorieTarget', suggested.calorieTargetKcal, {
@@ -170,50 +231,159 @@ export function GoalForm({
     })
   }
 
-  // #558 — reverse of #259: explicit button estimates weekly pace (and
-  // refreshes macros) from the typed calorie target vs TDEE. Pace stays
-  // the primary field; this never runs on keystroke.
+  function applySuggestedTargets() {
+    if (!canSuggestTarget) return
+    runProgrammaticRecalc(() => fillSuggestedTargetsFromPace())
+  }
+
   const calorieTargetRaw = Number(values.dailyCalorieTarget)
   const hasCalorieTarget =
     Number.isFinite(calorieTargetRaw) && calorieTargetRaw > 0
-  const canEstimatePaceFromCalories = canSuggestTarget && hasCalorieTarget
+
   function applyPaceFromCalories() {
-    if (!canEstimatePaceFromCalories) return
-    const paceKg = estimateWeeklyLossKgFromCalorieTarget(
-      latestWeightKg,
-      heightCm,
-      age,
-      sex,
-      activityLevel,
-      calorieTargetRaw,
-    )
-    // Goal form is "to lose" in display units — clamp surplus/zero to the
-    // minimum step; schema max is 10 in the display unit (#529).
-    const displayPace = Math.min(
-      10,
-      Math.max(weeklyPaceStepDisplay, toDisplay(paceKg)),
-    )
-    setValue('targetWeeklyLoss', Math.round(displayPace * 100) / 100, {
-      shouldValidate: true,
-      shouldDirty: true,
-    })
-    const macros = suggestMacrosForCalorieTarget(
-      latestWeightKg,
-      calorieTargetRaw,
-    )
-    setValue('dailyProteinTarget', macros.proteinTargetG, {
-      shouldValidate: true,
-      shouldDirty: true,
-    })
-    setValue('dailyFatTarget', macros.fatTargetG, {
-      shouldValidate: true,
-      shouldDirty: true,
-    })
-    setValue('dailyCarbTarget', macros.carbTargetG, {
-      shouldValidate: true,
-      shouldDirty: true,
+    if (!canSuggestTarget || !hasCalorieTarget || latestWeightKg === null) return
+    runProgrammaticRecalc(() => {
+      setPaceFromCalories(calorieTargetRaw)
+      const macros = suggestMacrosForCalorieTarget(
+        latestWeightKg,
+        calorieTargetRaw,
+      )
+      setValue('dailyProteinTarget', macros.proteinTargetG, {
+        shouldValidate: true,
+        shouldDirty: true,
+      })
+      setValue('dailyFatTarget', macros.fatTargetG, {
+        shouldValidate: true,
+        shouldDirty: true,
+      })
+      setValue('dailyCarbTarget', macros.carbTargetG, {
+        shouldValidate: true,
+        shouldDirty: true,
+      })
     })
   }
+
+  function applyFromMacroAnchor(anchor: MacroRecalcAnchor) {
+    if (!canSuggestTarget || latestWeightKg === null) return
+    const proteinRaw = Number(values.dailyProteinTarget)
+    const fatRaw = Number(values.dailyFatTarget)
+    const carbRaw = Number(values.dailyCarbTarget)
+    const anchorValue =
+      anchor === 'protein'
+        ? proteinRaw
+        : anchor === 'fat'
+          ? fatRaw
+          : carbRaw
+    if (!Number.isFinite(anchorValue) || anchorValue <= 0) return
+
+    runProgrammaticRecalc(() => {
+      const suggested = suggestTargetsFromMacroAnchor(
+        latestWeightKg,
+        anchor,
+        proteinRaw,
+        Number.isFinite(fatRaw) && fatRaw > 0 ? fatRaw : undefined,
+        Number.isFinite(carbRaw) && carbRaw > 0 ? carbRaw : undefined,
+        hasCalorieTarget ? calorieTargetRaw : undefined,
+      )
+      setValue('dailyCalorieTarget', suggested.calorieTargetKcal, {
+        shouldValidate: true,
+        shouldDirty: true,
+      })
+      setValue('dailyProteinTarget', suggested.proteinTargetG, {
+        shouldValidate: true,
+        shouldDirty: true,
+      })
+      setValue('dailyFatTarget', suggested.fatTargetG, {
+        shouldValidate: true,
+        shouldDirty: true,
+      })
+      setValue('dailyCarbTarget', suggested.carbTargetG, {
+        shouldValidate: true,
+        shouldDirty: true,
+      })
+      setPaceFromCalories(suggested.calorieTargetKcal)
+    })
+  }
+
+  function recalculateButtonLabel(source: RecalcSource): string {
+    switch (source) {
+      case 'pace':
+        return t.goal.recalculateFromPaceButton
+      case 'calories':
+        return t.goal.recalculateFromCaloriesButton
+      case 'protein':
+        return t.goal.recalculateFromProteinButton
+      case 'fat':
+        return t.goal.recalculateFromFatButton
+      case 'carbs':
+        return t.goal.recalculateFromCarbsButton
+    }
+  }
+
+  function handleRecalculateFromField(source: RecalcSource) {
+    switch (source) {
+      case 'pace':
+        applySuggestedTargets()
+        break
+      case 'calories':
+        applyPaceFromCalories()
+        break
+      case 'protein':
+        applyFromMacroAnchor('protein')
+        break
+      case 'fat':
+        applyFromMacroAnchor('fat')
+        break
+      case 'carbs':
+        applyFromMacroAnchor('carbs')
+        break
+    }
+  }
+
+  function renderRecalculateFromField(
+    source: RecalcSource,
+    fieldValue: unknown,
+  ) {
+    if (
+      lastEditedRecalcSource !== source ||
+      !canSuggestTarget ||
+      !hasPositiveFieldValue(fieldValue)
+    ) {
+      return null
+    }
+    return (
+      <div className="flex flex-col gap-1">
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          className="self-start"
+          onClick={() => handleRecalculateFromField(source)}
+        >
+          {recalculateButtonLabel(source)}
+        </Button>
+        <p className="text-xs text-muted-foreground">
+          {t.goal.recalculateFromFieldCaveat}
+        </p>
+      </div>
+    )
+  }
+
+  const targetWeeklyLossRegister = register('targetWeeklyLoss', {
+    setValueAs: parseNumberInput,
+  })
+  const dailyCalorieTargetRegister = register('dailyCalorieTarget', {
+    setValueAs: parseNumberInput,
+  })
+  const dailyProteinTargetRegister = register('dailyProteinTarget', {
+    setValueAs: parseNumberInput,
+  })
+  const dailyFatTargetRegister = register('dailyFatTarget', {
+    setValueAs: parseNumberInput,
+  })
+  const dailyCarbTargetRegister = register('dailyCarbTarget', {
+    setValueAs: parseNumberInput,
+  })
 
   // #241: the button gave no visible confirmation after a successful save,
   // so a click could look like it did nothing. Brief "Saved" checkmark,
@@ -515,7 +685,11 @@ export function GoalForm({
             formatExactNumber(weeklyPaceStepDisplay, locale),
             unitText,
           )}
-          {...register('targetWeeklyLoss', { setValueAs: parseNumberInput })}
+          {...targetWeeklyLossRegister}
+          onChange={(event) => {
+            markEdited('pace')
+            void targetWeeklyLossRegister.onChange(event)
+          }}
         />
         <div className="flex items-center gap-3">
           <Button
@@ -539,6 +713,7 @@ export function GoalForm({
             <Plus aria-hidden="true" />
           </Button>
         </div>
+        {renderRecalculateFromField('pace', values.targetWeeklyLoss)}
       </div>
 
       {dailyDeficit !== null && (
@@ -575,7 +750,10 @@ export function GoalForm({
           size="sm"
           className="self-start"
           disabled={!canSuggestTarget}
-          onClick={applySuggestedTargets}
+          onClick={() => {
+            if (!canSuggestTarget) return
+            runProgrammaticPrefill(() => fillSuggestedTargetsFromPace())
+          }}
         >
           {t.goal.suggestTargetButton}
         </Button>
@@ -594,8 +772,13 @@ export function GoalForm({
         hint={t.goal.dailyCalorieTargetHint}
         unit={t.dailyEntry.kcalUnit}
         error={errors.dailyCalorieTarget?.message}
-        {...register('dailyCalorieTarget', { setValueAs: parseNumberInput })}
+        {...dailyCalorieTargetRegister}
+        onChange={(event) => {
+          markEdited('calories')
+          void dailyCalorieTargetRegister.onChange(event)
+        }}
       />
+      {renderRecalculateFromField('calories', values.dailyCalorieTarget)}
 
       {/* #220 — same shape as dailyCalorieTarget above, independent of it. */}
       <NumberInput
@@ -603,8 +786,13 @@ export function GoalForm({
         hint={t.goal.dailyProteinTargetHint}
         unit={t.dailyEntry.gramsUnit}
         error={errors.dailyProteinTarget?.message}
-        {...register('dailyProteinTarget', { setValueAs: parseNumberInput })}
+        {...dailyProteinTargetRegister}
+        onChange={(event) => {
+          markEdited('protein')
+          void dailyProteinTargetRegister.onChange(event)
+        }}
       />
+      {renderRecalculateFromField('protein', values.dailyProteinTarget)}
 
       {/* #252 — same shape again, independent of the other three. */}
       <NumberInput
@@ -612,39 +800,26 @@ export function GoalForm({
         hint={t.goal.dailyFatTargetHint}
         unit={t.dailyEntry.gramsUnit}
         error={errors.dailyFatTarget?.message}
-        {...register('dailyFatTarget', { setValueAs: parseNumberInput })}
+        {...dailyFatTargetRegister}
+        onChange={(event) => {
+          markEdited('fat')
+          void dailyFatTargetRegister.onChange(event)
+        }}
       />
+      {renderRecalculateFromField('fat', values.dailyFatTarget)}
 
       <NumberInput
         label={t.goal.dailyCarbTargetLabel}
         hint={t.goal.dailyCarbTargetHint}
         unit={t.dailyEntry.gramsUnit}
         error={errors.dailyCarbTarget?.message}
-        {...register('dailyCarbTarget', { setValueAs: parseNumberInput })}
+        {...dailyCarbTargetRegister}
+        onChange={(event) => {
+          markEdited('carbs')
+          void dailyCarbTargetRegister.onChange(event)
+        }}
       />
-
-      {/* #558 — reverse of "Suggest a target": estimate weekly pace (and
-       * macro split) from the calorie field above. Explicit only — no
-       * silent two-way sync with the pace field. */}
-      <div className="flex flex-col gap-1.5">
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          className="self-start"
-          disabled={!canEstimatePaceFromCalories}
-          onClick={applyPaceFromCalories}
-        >
-          {t.goal.estimatePaceFromCaloriesButton}
-        </Button>
-        <p className="text-sm text-muted-foreground">
-          {canSuggestTarget
-            ? hasCalorieTarget
-              ? t.goal.estimatePaceFromCaloriesCaveat
-              : t.goal.estimatePaceFromCaloriesNeedCaloriesHint
-            : t.goal.suggestTargetMissingProfileHint}
-        </p>
-      </div>
+      {renderRecalculateFromField('carbs', values.dailyCarbTarget)}
 
       {/* #341 — same shape again, independent of the other four. */}
       <NumberInput

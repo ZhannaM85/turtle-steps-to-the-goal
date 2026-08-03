@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 520,
+    issue: 569,
+    date: '2026-08-03T23:45:00+03:00',
+    en: 'On the goal screen, a Recalculate button now appears beside whichever target field you last edited (pace, calories, or macros).',
+    ru: 'На экране цели кнопка «Пересчитать» теперь появляется рядом с полем, которое вы последним редактировали (темп, калории или макросы).',
+  },
+  {
     version: 519,
     issue: 564,
     date: '2026-08-03T23:40:00+03:00',

@@ -4,6 +4,7 @@ import {
   estimateWeeklyLossKgFromCalorieTarget,
   suggestDailyTargets,
   suggestMacrosForCalorieTarget,
+  suggestTargetsFromMacroAnchor,
 } from './targetCalculator'
 
 describe('calculateTdee', () => {
@@ -75,6 +76,38 @@ describe('suggestMacrosForCalorieTarget (#558)', () => {
   })
 })
 
+describe('suggestTargetsFromMacroAnchor (#569)', () => {
+  it('keeps protein anchor and fills carbs remainder when calories exist', () => {
+    const targets = suggestTargetsFromMacroAnchor(
+      70,
+      'protein',
+      150,
+      undefined,
+      undefined,
+      1704,
+    )
+    expect(targets.proteinTargetG).toBe(150)
+    expect(targets.fatTargetG).toBe(56)
+    // carbs = (1704 - 150*4 - 56*9) / 4 = (1704 - 600 - 504) / 4 = 150
+    expect(targets.carbTargetG).toBe(150)
+    expect(targets.calorieTargetKcal).toBe(1704)
+  })
+
+  it('derives calories from macros when carbs is the anchor', () => {
+    const targets = suggestTargetsFromMacroAnchor(
+      70,
+      'carbs',
+      0,
+      undefined,
+      188,
+      undefined,
+    )
+    expect(targets.proteinTargetG).toBe(112)
+    expect(targets.fatTargetG).toBe(56)
+    expect(targets.carbTargetG).toBe(188)
+    expect(targets.calorieTargetKcal).toBe(1704)
+  })
+})
 describe('estimateWeeklyLossKgFromCalorieTarget (#558)', () => {
   it('returns ~0 when calorie target equals maintenance TDEE', () => {
     const maintenance = suggestDailyTargets(70, 165, 30, 'female', 'sedentary', 0)

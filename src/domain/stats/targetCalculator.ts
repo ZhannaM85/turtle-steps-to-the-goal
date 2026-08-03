@@ -111,3 +111,91 @@ export function estimateWeeklyLossKgFromCalorieTarget(
   const dailyDeficitKcal = Math.round(tdee) - calorieTargetKcal
   return estimatedWeeklyLossKgFromDailyDeficitKcal(dailyDeficitKcal)
 }
+
+export type MacroRecalcAnchor = 'protein' | 'fat' | 'carbs'
+
+function suggestedProteinG(weightKg: number): number {
+  return Math.round(weightKg * PROTEIN_G_PER_KG_BODYWEIGHT)
+}
+
+function suggestedFatG(weightKg: number): number {
+  return Math.round(weightKg * FAT_G_PER_KG_BODYWEIGHT)
+}
+
+export function calorieKcalFromMacros(
+  proteinG: number,
+  fatG: number,
+  carbG: number,
+): number {
+  return Math.round(
+    proteinG * KCAL_PER_G_PROTEIN +
+      fatG * KCAL_PER_G_FAT +
+      carbG * KCAL_PER_G_CARB,
+  )
+}
+
+function carbsFromCalorieRemainder(
+  calorieTargetKcal: number,
+  proteinG: number,
+  fatG: number,
+): number {
+  return Math.max(
+    0,
+    Math.round(
+      (calorieTargetKcal -
+        proteinG * KCAL_PER_G_PROTEIN -
+        fatG * KCAL_PER_G_FAT) /
+        KCAL_PER_G_CARB,
+    ),
+  )
+}
+
+/**
+ * #569 — reverse recalc when a macro field is the user's anchor. Keeps the
+ * anchored macro; fills missing protein/fat from the same g/kg defaults as
+ * {@link suggestMacrosForCalorieTarget}; aligns calories (from macros or
+ * keeps an existing calorie budget and fills carbs as the remainder).
+ * Never auto-saved — callers prefill form fields only.
+ */
+export function suggestTargetsFromMacroAnchor(
+  weightKg: number,
+  anchor: MacroRecalcAnchor,
+  proteinG: number,
+  fatG: number | undefined,
+  carbG: number | undefined,
+  calorieTargetKcal: number | undefined,
+): SuggestedDailyTargets {
+  const proteinOut =
+    anchor === 'protein'
+      ? proteinG
+      : proteinG > 0
+        ? proteinG
+        : suggestedProteinG(weightKg)
+  const fatOut =
+    anchor === 'fat'
+      ? (fatG as number)
+      : fatG !== undefined && fatG > 0
+        ? fatG
+        : suggestedFatG(weightKg)
+
+  let calorieOut: number
+  let carbOut: number
+
+  if (anchor === 'carbs') {
+    carbOut = carbG as number
+    calorieOut = calorieKcalFromMacros(proteinOut, fatOut, carbOut)
+  } else if (calorieTargetKcal !== undefined && calorieTargetKcal > 0) {
+    calorieOut = calorieTargetKcal
+    carbOut = carbsFromCalorieRemainder(calorieOut, proteinOut, fatOut)
+  } else {
+    carbOut = carbG !== undefined && carbG > 0 ? carbG : 0
+    calorieOut = calorieKcalFromMacros(proteinOut, fatOut, carbOut)
+  }
+
+  return {
+    calorieTargetKcal: calorieOut,
+    proteinTargetG: proteinOut,
+    fatTargetG: fatOut,
+    carbTargetG: carbOut,
+  }
+}

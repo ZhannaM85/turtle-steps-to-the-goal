@@ -596,33 +596,8 @@ describe('GoalForm', () => {
     })
   })
 
-  describe('estimate weekly pace from calories (#558)', () => {
-    it('stays disabled until a calorie target is entered', () => {
-      useProfileStore.setState({
-        heightCm: 165,
-        age: 30,
-        sex: 'female',
-        activityLevel: 'sedentary',
-      })
-      renderGoalForm(
-        <GoalForm
-          existingGoal={null}
-          onSubmit={vi.fn()}
-          latestWeightKg={70}
-        />,
-      )
-
-      expect(
-        screen.getByRole('button', {
-          name: 'Estimate weekly pace from these calories',
-        }),
-      ).toBeDisabled()
-      expect(
-        screen.getByText(/Enter a daily calorie target above/),
-      ).toBeInTheDocument()
-    })
-
-    it('fills weekly pace and macros from a calorie deficit vs TDEE', async () => {
+  describe('contextual recalculate buttons (#569)', () => {
+    it('shows Recalculate from calories after typing calories; click fills pace and macros', async () => {
       const user = userEvent.setup()
       useProfileStore.setState({
         heightCm: 165,
@@ -638,21 +613,50 @@ describe('GoalForm', () => {
         />,
       )
 
-      // Maintenance ≈ 1704; 550 kcal deficit ⇒ ~0.5 kg/week.
-      await user.type(screen.getByLabelText('Daily calories target'), '1154')
-      await user.click(
-        screen.getByRole('button', {
+      expect(
+        screen.queryByRole('button', {
           name: 'Estimate weekly pace from these calories',
         }),
-      )
+      ).not.toBeInTheDocument()
+
+      await user.type(screen.getByLabelText('Daily calories target'), '1154')
+      const recalcButton = screen.getByRole('button', {
+        name: 'Recalculate from calories',
+      })
+      expect(recalcButton).toBeInTheDocument()
+      await user.click(recalcButton)
 
       expect(
         screen.getByLabelText("This week's target (kg to lose)"),
       ).toHaveValue('0.5')
       expect(screen.getByLabelText('Daily protein target')).toHaveValue('112')
       expect(screen.getByLabelText('Daily fat target')).toHaveValue('56')
-      // carbs = (1154 - 112*4 - 56*9) / 4 = (1154 - 448 - 504) / 4 = 50.5 → 51
       expect(screen.getByLabelText('Daily carb target')).toHaveValue('51')
+    })
+
+    it('shows Recalculate from protein after typing protein', async () => {
+      const user = userEvent.setup()
+      useProfileStore.setState({
+        heightCm: 165,
+        age: 30,
+        sex: 'female',
+        activityLevel: 'sedentary',
+      })
+      renderGoalForm(
+        <GoalForm
+          existingGoal={null}
+          onSubmit={vi.fn()}
+          latestWeightKg={70}
+        />,
+      )
+
+      await user.type(screen.getByLabelText('Daily protein target'), '120')
+      expect(
+        screen.getByRole('button', { name: 'Recalculate from protein' }),
+      ).toBeInTheDocument()
+      expect(
+        screen.queryByRole('button', { name: 'Recalculate from calories' }),
+      ).not.toBeInTheDocument()
     })
   })
 
