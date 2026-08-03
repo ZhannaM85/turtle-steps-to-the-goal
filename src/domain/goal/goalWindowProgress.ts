@@ -108,3 +108,19 @@ export function goalWindowProgress(
     currentWeightKg: metWeightKg ?? lastWindowEntry?.weightKg,
   }
 }
+
+/**
+ * #552 — the Goal whose `[weekStart, weekEnd]` window contains `date`,
+ * if any. When several overlap (rare), the most recently created wins.
+ * Goals without `weekStart` (pre-#135) never match.
+ */
+export function goalCoveringDate(goals: Goal[], date: string): Goal | undefined {
+  const covering = goals.filter((goal) => {
+    if (!goal.weekStart) return false
+    return date >= goal.weekStart && date <= goalWeekEnd(goal.weekStart)
+  })
+  if (covering.length === 0) return undefined
+  return covering.reduce((newest, goal) =>
+    goal.createdAt > newest.createdAt ? goal : newest,
+  )
+}

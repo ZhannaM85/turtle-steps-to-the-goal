@@ -258,6 +258,43 @@ describe('TodayScreen', () => {
     ).toBeInTheDocument()
   })
 
+  it('hides the weekly target card when the selected date is outside the goal window (#552)', async () => {
+    await useGoalStore.getState().saveGoal(
+      makeGoal({
+        targetWeeklyLossKg: 0.1,
+        weekStart: '2026-07-29',
+      }),
+    )
+
+    render(
+      <MemoryRouter initialEntries={['/?date=2019-09-26']}>
+        <TodayScreen />
+      </MemoryRouter>,
+    )
+
+    expect(await screen.findByDisplayValue('2019-09-26')).toBeInTheDocument()
+    expect(screen.queryByText("This week's target")).not.toBeInTheDocument()
+    expect(screen.queryByText(/Jul 29, 2026/)).not.toBeInTheDocument()
+  })
+
+  it('shows the weekly target card when the selected date falls in the goal window (#552)', async () => {
+    await useGoalStore.getState().saveGoal(
+      makeGoal({
+        targetWeeklyLossKg: 0.1,
+        weekStart: '2026-07-29',
+      }),
+    )
+
+    render(
+      <MemoryRouter initialEntries={['/?date=2026-08-01']}>
+        <TodayScreen />
+      </MemoryRouter>,
+    )
+
+    expect(await screen.findByText("This week's target")).toBeInTheDocument()
+    expect(screen.getByText(/Jul 29, 2026/)).toBeInTheDocument()
+  })
+
   // #469 — reported live with a screenshot right after the first fix
   // shipped: it showed today's own weight (59.6 kg) instead of the weight
   // actually logged when the goal's week started 2 days earlier (58.8 kg).
@@ -292,8 +329,9 @@ describe('TodayScreen', () => {
       .getState()
       .saveGoal(makeGoal({ targetWeeklyLossKg: 1, weekStart: '2026-03-09' }))
 
+    // #552 — card only renders for dates inside the goal window.
     render(
-      <MemoryRouter>
+      <MemoryRouter initialEntries={['/?date=2026-03-12']}>
         <TodayScreen />
       </MemoryRouter>,
     )

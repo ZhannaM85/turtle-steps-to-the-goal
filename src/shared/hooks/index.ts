@@ -1,4 +1,5 @@
 // Shared React hooks
+export { useGoalCoveringDate } from './useGoalCoveringDate'
 export { useActiveGoalProgress } from './useActiveGoalProgress'
 export { useAppUpdateAvailable } from './useAppUpdateAvailable'
 export { useOnlineStatus } from './useOnlineStatus'

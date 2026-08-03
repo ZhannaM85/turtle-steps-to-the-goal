@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import type { DailyEntry } from '@/domain/dailyEntry'
 import type { Goal } from './Goal'
-import { goalWeekEnd, goalWindowProgress } from './goalWindowProgress'
+import { goalCoveringDate, goalWeekEnd, goalWindowProgress } from './goalWindowProgress'
 
 function makeGoal(overrides: Partial<Goal> = {}): Goal {
   const now = '2026-01-01T00:00:00.000Z'
@@ -173,5 +173,40 @@ describe('goalWindowProgress', () => {
 
     expect(progress?.baselineWeightKg).toBeUndefined()
     expect(progress?.currentWeightKg).toBeUndefined()
+  })
+})
+
+describe('goalCoveringDate (#552)', () => {
+  it('returns undefined when no goal window contains the date', () => {
+    const goals = [makeGoal({ weekStart: '2026-07-29' })]
+    expect(goalCoveringDate(goals, '2019-09-26')).toBeUndefined()
+  })
+
+  it('returns the goal whose week contains the date', () => {
+    const goals = [makeGoal({ id: 'g1', weekStart: '2026-07-29' })]
+    expect(goalCoveringDate(goals, '2026-08-01')?.id).toBe('g1')
+    expect(goalCoveringDate(goals, '2026-07-29')?.id).toBe('g1')
+    expect(goalCoveringDate(goals, goalWeekEnd('2026-07-29'))?.id).toBe('g1')
+  })
+
+  it('skips goals without weekStart', () => {
+    const goals = [makeGoal({ weekStart: undefined })]
+    expect(goalCoveringDate(goals, '2026-03-09')).toBeUndefined()
+  })
+
+  it('prefers the most recently created goal when windows overlap', () => {
+    const goals = [
+      makeGoal({
+        id: 'older',
+        weekStart: '2026-07-29',
+        createdAt: '2026-07-01T00:00:00.000Z',
+      }),
+      makeGoal({
+        id: 'newer',
+        weekStart: '2026-07-29',
+        createdAt: '2026-08-01T00:00:00.000Z',
+      }),
+    ]
+    expect(goalCoveringDate(goals, '2026-08-02')?.id).toBe('newer')
   })
 })

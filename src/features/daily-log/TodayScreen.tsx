@@ -48,6 +48,7 @@ import {
 } from '@/i18n'
 import {
   useActiveGoalProgress,
+  useGoalCoveringDate,
   useMaxRecordedWeight,
   usePreviousDayEntry,
 } from '@/shared/hooks'
@@ -252,6 +253,9 @@ export function TodayScreen() {
   // for the rest of the window even if the modal moment was missed.
   const activeGoalProgress = useActiveGoalProgress()
   const showTargetMetBanner = activeGoalProgress?.targetMet === true
+  // #552 — weekly target card for the selected day only (not always the
+  // active goal, which wrongly showed e.g. Jul 2026 while viewing 2019).
+  const { goal: dayGoal, progress: dayGoalProgress } = useGoalCoveringDate(date)
 
   useEffect(() => {
     loadActiveGoal()
@@ -307,7 +311,7 @@ export function TodayScreen() {
 
   const displayUnit = useUnitStore((state) => state.unit)
   const toDisplay = (kg: number) => (displayUnit === 'lb' ? kgToLb(kg) : kg)
-  const weeklyPace = goal ? toDisplay(goal.targetWeeklyLossKg) : null
+  const weeklyPace = dayGoal ? toDisplay(dayGoal.targetWeeklyLossKg) : null
 
   // Day-over-day delta (#42) — a distinct, unsmoothed number from the
   // weekly average-vs-average delta on Dashboard; only shown once both
@@ -1085,38 +1089,27 @@ export function TodayScreen() {
 
       {goalStatus === 'loading' || goalStatus === 'idle' ? (
         <p className="text-sm text-muted-foreground">{t.common.loading}</p>
-      ) : goal ? (
+      ) : dayGoal ? (
         sectionVisible.todayWeeklyTarget ? (
           <StatCard
             label={t.today.thisWeeksTarget}
             value={formatNumber(weeklyPace!, locale)}
             unit={t.today.toLose(unitLabel(displayUnit, t))}
             description={
-              goal.weekStart
+              dayGoal.weekStart
                 ? [
                     t.common.weekRangeLabel(
-                      format(parseISO(goal.weekStart), 'PP', {
+                      format(parseISO(dayGoal.weekStart), 'PP', {
                         locale: dateFnsLocale,
                       }),
-                      format(parseISO(goalWeekEnd(goal.weekStart)), 'PP', {
+                      format(parseISO(goalWeekEnd(dayGoal.weekStart)), 'PP', {
                         locale: dateFnsLocale,
                       }),
                     ),
-                    // #469 — this is a flat weekly-pace target, not derived
-                    // from any specific weight, so the figure alone reads
-                    // as ambiguous ("-0.1kg from what?"). Surfaces the
-                    // baseline it's actually measured against: the weight
-                    // logged on `goal.weekStart` itself, same
-                    // `activeGoalProgress.baselineWeightKg` #339's own
-                    // "X → Y kg" status line already reads from — not the
-                    // most recently logged weight (an earlier attempt),
-                    // which is a different day whenever this week's own
-                    // baseline weigh-in isn't the latest one logged
-                    // (reported live: showed today's weight while the
-                    // goal's window actually started 2 days earlier).
-                    activeGoalProgress?.baselineWeightKg !== undefined
+                    // #469 / #551 — baseline weight on that goal's weekStart.
+                    dayGoalProgress?.baselineWeightKg !== undefined
                       ? t.today.weeklyTargetFromWeight(
-                          `${formatExactNumber(toDisplay(activeGoalProgress.baselineWeightKg), locale)} ${unitLabel(displayUnit, t)}`,
+                          `${formatExactNumber(toDisplay(dayGoalProgress.baselineWeightKg), locale)} ${unitLabel(displayUnit, t)}`,
                         )
                       : null,
                   ]
@@ -1129,7 +1122,7 @@ export function TodayScreen() {
         ) : (
           sectionTitle('todayWeeklyTarget', t.today.thisWeeksTarget)
         )
-      ) : (
+      ) : !goal ? (
         <EmptyState
           title={t.today.emptyGoalTitle}
           description={t.today.emptyGoalDescription}
@@ -1139,7 +1132,7 @@ export function TodayScreen() {
             </Button>
           }
         />
-      )}
+      ) : null}
 
       {/* #419 — everything from here down (Morning entries plus the rest
        * of the daily-entry form further below) shares one live form-state

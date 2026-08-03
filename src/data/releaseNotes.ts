@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 502,
+    issue: 552,
+    date: '2026-08-03T18:45:00+03:00',
+    en: 'On Day, the weekly goal card only appears for dates that fall in that goal’s week — not when you browse an unrelated past day.',
+    ru: 'На экране «День» карточка недельной цели показывается только для дат этой цели — не при просмотре чужого прошлого дня.',
+  },
+  {
     version: 501,
     issue: 551,
     date: '2026-08-03T18:35:00+03:00',
