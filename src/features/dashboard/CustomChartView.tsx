@@ -360,7 +360,7 @@ export function CustomChartView({
   // #543 — pinch/pan/double-tap zoom on this chart only; reset when the
   // period window changes (picker or under-chart pager).
   const gestureResetKey = `${periodOverride ?? stored.period}|${customStartOverride ?? stored.customStart}|${customEndOverride ?? stored.customEnd}|${pager.range.start ?? ''}|${pager.range.end ?? ''}`
-  const { surfaceRef, zoomWindow, isZoomed, resetZoom } =
+  const { surfaceRef, zoomWindow, isZoomed, isGesturing, resetZoom } =
     useChartGestureZoom(gestureResetKey)
   const seriesConfig = useNumericSeriesConfig()
   const sex = useProfileStore((state) => state.sex)
@@ -775,7 +775,11 @@ export function CustomChartView({
                   tickLine={false}
                 />
               )}
-              <Tooltip content={renderTooltip} wrapperStyle={{ pointerEvents: 'auto' }} />
+              <Tooltip
+                active={isGesturing ? false : undefined}
+                content={renderTooltip}
+                wrapperStyle={{ pointerEvents: 'none' }}
+              />
               {selectedBoolean.map((seriesKey) => {
                 const series = availableBooleanSeries.find(
                   (s) => s.key === seriesKey,

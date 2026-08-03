@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 526,
+    issue: 572,
+    date: '2026-08-04T00:45:00+03:00',
+    en: 'Pinching to zoom Dashboard charts no longer fights the floating day tooltip.',
+    ru: 'Жест масштабирования графиков на Обзоре больше не мешает всплывающей подсказке дня.',
+  },
+  {
     version: 525,
     issue: 571,
     date: '2026-08-04T00:35:00+03:00',

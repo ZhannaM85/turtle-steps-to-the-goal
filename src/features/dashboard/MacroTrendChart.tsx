@@ -117,7 +117,7 @@ export function MacroTrendChart({
     allEntries,
   )
   const gestureResetKey = `${periodOverride ?? stored.period}|${customStartOverride ?? stored.customStart}|${customEndOverride ?? stored.customEnd}|${pager.range.start ?? ''}|${pager.range.end ?? ''}`
-  const { surfaceRef, zoomWindow, isZoomed, resetZoom } =
+  const { surfaceRef, zoomWindow, isZoomed, isGesturing, resetZoom } =
     useChartGestureZoom(gestureResetKey)
   const entries = pager.pagedEntries
   // #245 — see WeightTrendChart.tsx's identical note.
@@ -269,7 +269,7 @@ export function MacroTrendChart({
         {date && (
           <Link
             to={`/?date=${date}`}
-            className="mt-1.5 flex items-center gap-1 font-medium text-primary underline-offset-4 hover:underline"
+            className="pointer-events-auto mt-1.5 flex items-center gap-1 font-medium text-primary underline-offset-4 hover:underline"
           >
             {t.dashboard.viewDayLink}
             <ArrowRight aria-hidden="true" className="size-3" />
@@ -351,7 +351,11 @@ export function MacroTrendChart({
               tickLine={false}
             />
           )}
-          <Tooltip content={renderTooltip} wrapperStyle={{ pointerEvents: 'auto' }} />
+          <Tooltip
+            active={isGesturing ? false : undefined}
+            content={renderTooltip}
+            wrapperStyle={{ pointerEvents: 'none' }}
+          />
           {visibleKeys.map((key) => {
             const dataKey = realAxis ? `${key}_raw` : `${key}_norm`
             const yAxisId = axisIdFor(key)

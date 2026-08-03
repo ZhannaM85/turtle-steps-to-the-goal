@@ -39,10 +39,12 @@ function readPointCount(el: HTMLElement): number {
  */
 export function useChartGestureZoom(resetKey: string) {
   const [zoomWindow, setZoomWindow] = useState<ChartZoomWindow | null>(null)
+  const [isGesturing, setIsGesturing] = useState(false)
   const [prevResetKey, setPrevResetKey] = useState(resetKey)
   if (resetKey !== prevResetKey) {
     setPrevResetKey(resetKey)
     setZoomWindow(null)
+    setIsGesturing(false)
   }
 
   const zoomRef = useRef(zoomWindow)
@@ -77,6 +79,7 @@ export function useChartGestureZoom(resetKey: string) {
 
       if (event.touches.length === 2) {
         panRef.current = null
+        setIsGesturing(true)
         const a = event.touches[0]
         const b = event.touches[1]
         const distance = Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY)
@@ -125,7 +128,10 @@ export function useChartGestureZoom(resetKey: string) {
       if (event.touches.length === 1 && panRef.current && zoomRef.current) {
         const dx = event.touches[0].clientX - panRef.current.startX
         const dy = event.touches[0].clientY - panRef.current.startY
-        if (Math.abs(dx) > 6 || Math.abs(dy) > 6) panRef.current.moved = true
+        if (Math.abs(dx) > 6 || Math.abs(dy) > 6) {
+          panRef.current.moved = true
+          setIsGesturing(true)
+        }
         if (Math.abs(dy) > Math.abs(dx) && Math.abs(dx) < 12) return
         event.preventDefault()
         const span =
@@ -144,6 +150,7 @@ export function useChartGestureZoom(resetKey: string) {
       if (event.touches.length === 0) {
         const wasPan = panRef.current
         panRef.current = null
+        setIsGesturing(false)
 
         if (
           event.changedTouches.length === 1 &&
@@ -177,6 +184,7 @@ export function useChartGestureZoom(resetKey: string) {
     surfaceRef,
     zoomWindow,
     isZoomed: zoomWindow !== null,
+    isGesturing,
     resetZoom,
   }
 }

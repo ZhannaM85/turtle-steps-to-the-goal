@@ -70,7 +70,7 @@ export function CalorieTrendChart({
     allEntries,
   )
   const gestureResetKey = `${periodOverride ?? stored.period}|${customStartOverride ?? stored.customStart}|${customEndOverride ?? stored.customEnd}|${pager.range.start ?? ''}|${pager.range.end ?? ''}`
-  const { surfaceRef, zoomWindow, isZoomed, resetZoom } =
+  const { surfaceRef, zoomWindow, isZoomed, isGesturing, resetZoom } =
     useChartGestureZoom(gestureResetKey)
   const entries = pager.pagedEntries
   // #238 — see WeightTrendChart.tsx's identical note.
@@ -160,9 +160,8 @@ export function CalorieTrendChart({
   // Tapping/hovering a point only ever shows the tooltip (#49) — the
   // in-tooltip link is the sole way to navigate, so a stray tap elsewhere
   // on the chart doesn't yank the user away from just glancing at values.
-  // Recharts' tooltip wrapper is pointer-events:none by default (so
-  // hovering the tooltip itself doesn't interrupt mouse tracking on the
-  // chart) — wrapperStyle below re-enables it so the link is clickable.
+  // Recharts' tooltip wrapper defaults to pointer-events:none; keep that
+  // (#572 — pinch must pass through) and re-enable only on the day link.
   function renderTooltip({ active, label, payload }: TooltipContentProps) {
     if (!active || !payload || payload.length === 0) return null
     const date = resolveChartClickDate(
@@ -193,7 +192,7 @@ export function CalorieTrendChart({
         {date && (
           <Link
             to={`/?date=${date}`}
-            className="mt-1.5 flex items-center gap-1 font-medium text-primary underline-offset-4 hover:underline"
+            className="pointer-events-auto mt-1.5 flex items-center gap-1 font-medium text-primary underline-offset-4 hover:underline"
           >
             {t.dashboard.viewDayLink}
             <ArrowRight aria-hidden="true" className="size-3" />
@@ -243,8 +242,9 @@ export function CalorieTrendChart({
               tickLine={false}
             />
             <Tooltip
+              active={isGesturing ? false : undefined}
               content={renderTooltip}
-              wrapperStyle={{ pointerEvents: 'auto' }}
+              wrapperStyle={{ pointerEvents: 'none' }}
             />
             {visible.raw && (
               <Bar

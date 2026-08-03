@@ -116,7 +116,7 @@ export function WeightTrendChart({
     allEntries,
   )
   const gestureResetKey = `${periodOverride ?? stored.period}|${customStartOverride ?? stored.customStart}|${customEndOverride ?? stored.customEnd}|${pager.range.start ?? ''}|${pager.range.end ?? ''}`
-  const { surfaceRef, zoomWindow, isZoomed, resetZoom } =
+  const { surfaceRef, zoomWindow, isZoomed, isGesturing, resetZoom } =
     useChartGestureZoom(gestureResetKey)
   const entries = pager.pagedEntries
   const toDisplay = (kg: number) => (displayUnit === 'lb' ? kgToLb(kg) : kg)
@@ -310,7 +310,7 @@ export function WeightTrendChart({
         {date && (
           <Link
             to={`/?date=${date}`}
-            className="mt-1.5 flex items-center gap-1 font-medium text-primary underline-offset-4 hover:underline"
+            className="pointer-events-auto mt-1.5 flex items-center gap-1 font-medium text-primary underline-offset-4 hover:underline"
           >
             {t.dashboard.viewDayLink}
             <ArrowRight aria-hidden="true" className="size-3" />
@@ -365,8 +365,9 @@ export function WeightTrendChart({
             domain={['auto', 'auto']}
           />
           <Tooltip
+            active={isGesturing ? false : undefined}
             content={renderTooltip}
-            wrapperStyle={{ pointerEvents: 'auto' }}
+            wrapperStyle={{ pointerEvents: 'none' }}
           />
           {visible.raw && (
             <Line
