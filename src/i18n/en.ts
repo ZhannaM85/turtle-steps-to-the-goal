@@ -752,6 +752,9 @@ export const en: Dictionary = {
       `${dayCount} day${dayCount === 1 ? '' : 's'}`,
     customChartGroupedMarkersCaveat:
       'On a long range, day markers are grouped — one dot can stand for several marked days. Tap a dot to see how many, or pick a shorter period to see every day on its own.',
+    customChartZoomHint:
+      'Pinch to zoom, drag sideways to pan. Double-tap to reset.',
+    customChartResetZoomButton: 'Reset zoom',
     customChartEmptyDescription: 'Pick at least one to compare.',
     customCorrelationSummary: (aLabel, thresholdValue, direction, bLabel) =>
       `Days when "${aLabel}" was above ${thresholdValue} averaged a ${direction} "${bLabel}" than days with lower "${aLabel}".`,

@@ -1252,6 +1252,9 @@ export interface Dictionary {
      * being grouped, explaining that one dot can cover several days and
      * that a shorter period shows each of them. */
     customChartGroupedMarkersCaveat: string
+    /** #543 — shown under Compare Data while a gesture zoom is active. */
+    customChartZoomHint: string
+    customChartResetZoomButton: string
     customChartEmptyDescription: string
     /** #336 — one card per user-defined `CustomCorrelation`, rendered after
      * every fixed built-in correlation view above. Unlike those (always

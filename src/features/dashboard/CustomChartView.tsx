@@ -20,6 +20,7 @@ import {
   customChartPoints,
   NUMERIC_SERIES_KEYS,
   resolveMetricValueMap,
+  sliceByZoomWindow,
   type NumericSeriesKey,
   type Sex,
   type TrendChartPeriod,
@@ -43,9 +44,11 @@ import {
   useUnitStore,
   type ChartSeriesType,
 } from '@/stores'
+import { Button } from '@/shared/ui/button'
 import { ToggleGroup, ToggleGroupItem } from '@/shared/ui/toggle-group'
 import { ChartPeriodPagerControls } from './ChartPeriodPagerControls'
 import { ChartTitleWithToggle } from './ChartTitleWithToggle'
+import { useChartGestureZoom } from './useChartGestureZoom'
 import { useChartPeriodPager } from './useChartPeriodPager'
 import { useDashboardChartPeriod } from './useDashboardChartPeriod'
 
@@ -354,6 +357,11 @@ export function CustomChartView({
     allEntries,
   )
   const entries = pager.pagedEntries
+  // #543 — pinch/pan/double-tap zoom on this chart only; reset when the
+  // period window changes (picker or under-chart pager).
+  const gestureResetKey = `${periodOverride ?? stored.period}|${customStartOverride ?? stored.customStart}|${customEndOverride ?? stored.customEnd}|${pager.range.start ?? ''}|${pager.range.end ?? ''}`
+  const { surfaceRef, zoomWindow, isZoomed, resetZoom } =
+    useChartGestureZoom(gestureResetKey)
   const seriesConfig = useNumericSeriesConfig()
   const sex = useProfileStore((state) => state.sex)
   const cycleTrackingEnabled = useCycleTrackingStore((state) => state.enabled)
@@ -552,6 +560,7 @@ export function CustomChartView({
     }
     return row
   })
+  const displayData = sliceByZoomWindow(data, zoomWindow)
 
   function renderTooltip({ active, label }: TooltipContentProps) {
     if (!active || !label) return null
@@ -661,8 +670,18 @@ export function CustomChartView({
         </p>
       ) : (
         <>
-          <ResponsiveContainer width="100%" height={200}>
-            <ComposedChart data={data} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
+          {/* #543 — touch surface for pinch/pan; `touch-pan-y` keeps vertical
+           * page scroll as the default one-finger gesture. */}
+          <div
+            ref={surfaceRef}
+            className="touch-pan-y"
+            data-point-count={data.length}
+          >
+            <ResponsiveContainer width="100%" height={200}>
+              <ComposedChart
+                data={displayData}
+                margin={{ top: 8, right: 8, left: 0, bottom: 0 }}
+              >
               <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
               <XAxis
                 dataKey="date"
@@ -897,6 +916,22 @@ export function CustomChartView({
               })}
             </ComposedChart>
           </ResponsiveContainer>
+          </div>
+          {isZoomed && (
+            <div className="flex items-center justify-between gap-2">
+              <p className="text-xs text-muted-foreground">
+                {t.dashboard.customChartZoomHint}
+              </p>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={resetZoom}
+              >
+                {t.dashboard.customChartResetZoomButton}
+              </Button>
+            </div>
+          )}
           <div className="flex flex-wrap gap-4 text-xs text-muted-foreground">
             {selectedNumeric.map((key) => (
               <div key={key} className="flex items-center gap-1.5">

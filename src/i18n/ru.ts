@@ -784,6 +784,9 @@ export const ru: Dictionary = {
     customChartMarkerDaysText: (n) => dayCount(n),
     customChartGroupedMarkersCaveat:
       'На длинном периоде отметки дней объединяются — одна точка может обозначать несколько отмеченных дней. Нажмите на точку, чтобы увидеть их количество, или выберите период покороче, чтобы видеть каждый день отдельно.',
+    customChartZoomHint:
+      'Сведите пальцы для масштаба, сдвиньте вбок для панорамы. Двойной тап — сброс.',
+    customChartResetZoomButton: 'Сбросить масштаб',
     customChartEmptyDescription:
       'Выберите хотя бы один показатель для сравнения.',
     customCorrelationSummary: (aLabel, thresholdValue, direction, bLabel) =>

@@ -87,6 +87,14 @@ export type {
   TrendChartPeriod,
   TrendChartPeriodRange,
 } from './trendChartPeriod'
+export {
+  CHART_ZOOM_MIN_SPAN,
+  clampZoomWindow,
+  zoomWindowByScale,
+  panZoomWindow,
+  sliceByZoomWindow,
+} from './chartGestureZoom'
+export type { ChartZoomWindow } from './chartGestureZoom'
 export { foodReactionTallies, mostLikedFoods, mostDislikedFoods } from './foodReactions'
 export type { FoodReactionTally } from './foodReactions'
 export {

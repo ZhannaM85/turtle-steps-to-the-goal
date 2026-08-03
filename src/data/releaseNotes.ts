@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 497,
+    issue: 543,
+    date: '2026-08-03T16:16:47+03:00',
+    en: 'On Compare your data, you can pinch to zoom the timeline, drag sideways to pan, and double-tap (or Reset zoom) to go back.',
+    ru: 'В «Сравнении данных» можно свести пальцы для масштаба по времени, сдвинуть вбок для панорамы и двойным тапом (или «Сбросить масштаб») вернуться назад.',
+  },
+  {
     version: 496,
     issue: 538,
     date: '2026-08-03T15:55:47+03:00',
