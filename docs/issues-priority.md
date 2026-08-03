@@ -1350,7 +1350,7 @@ _One session's filings. Ordered easiest → hardest; #541 before #542. #540 paus
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#545](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/545) | ⬜ Open | Day meal cards: long dish names overflow instead of wrapping | `chore` + `layout-breaking`. Easiest — CSS wrap/`min-w-0` |
+| [#545](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/545) | 🔍 Pending validation | Day meal cards: long dish names overflow instead of wrapping | `min-w-0` + `break-words` on dish name / item list / meal card in `MealList.tsx` (same flex min-width class as #156); matching wrap on `DayDetail.tsx`. Test asserts wrap classes on a long Level Kitchen–style name. |
 | [#544](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/544) | ⬜ Open | Add meal: show remove-dish confirm as a modal (inline banner is off-screen when scrolled) | Small Dialog swap for off-screen inline confirm |
 | [#539](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/539) | ⬜ Open | Day: after Start today now, the Today button still jumps to the previous day | Early-start preference likely not applied to Today nav |
 | [#547](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/547) | ⬜ Open | Investigate: body composition only from Apr 2024 after Zepp Life import (older history expected) | Needs export sample — source vs importer |

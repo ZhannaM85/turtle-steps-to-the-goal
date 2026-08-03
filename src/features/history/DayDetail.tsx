@@ -328,7 +328,12 @@ export function DayDetail({
                            * alone on its own row, kcal/amount/macros/
                            * reaction all move down to a second row
                            * together. */}
-                          {item.name && <p>{item.name}</p>}
+                          {item.name && (
+                            <p className="min-w-0 break-words">
+                              {item.name}
+                              {item.brand ? ` (${item.brand})` : ''}
+                            </p>
+                          )}
                           <p>
                             {formatNumber(item.amountKcal, locale, 0)}{' '}
                             {t.dailyEntry.kcalUnit}

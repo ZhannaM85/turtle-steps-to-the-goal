@@ -135,7 +135,7 @@ function MealListItem({
       // list row with no background/border before. #473 opened the row
       // spacing up (gap-2 → gap-3), the card reading as too condensed being
       // that report's underlying complaint.
-      className="flex flex-col gap-3 rounded-xl bg-card p-4 ring-1 ring-foreground/10"
+      className="flex min-w-0 flex-col gap-3 rounded-xl bg-card p-4 ring-1 ring-foreground/10"
     >
       {/* #473: `{label} — {kcal} · {time}` was one flex line, so once it
        * ran out of width the text wrapped mid-cluster and the trailing
@@ -185,7 +185,10 @@ function MealListItem({
       <p className="text-base text-muted-foreground">{calorieSummary}</p>
       {/* Item sub-list (#81) — a group's individual dishes, shown
        * underneath its own header/note/macro-total lines above. */}
-      <ul className="flex flex-col divide-y divide-foreground/15 pl-4">
+      {/* #545: min-w-0 so flex children can shrink below intrinsic name
+       * width (same class of bug #156 fixed for truncate); break-words so
+       * long tokens wrap inside the card instead of overflowing. */}
+      <ul className="flex min-w-0 flex-col divide-y divide-foreground/15 pl-4">
         {entry.items.map((item) => {
           const itemMacros = macrosSummaryTextCompact(
             item.proteinG,
@@ -206,7 +209,7 @@ function MealListItem({
               // value → muted description) instead of three lines at one
               // uniform size/tone, which is what made the list read as
               // condensed even after #464/#468's size passes.
-              className="flex flex-col gap-0.5 py-3 text-sm text-muted-foreground first:pt-0 last:pb-0"
+              className="flex min-w-0 flex-col gap-0.5 py-3 text-sm text-muted-foreground first:pt-0 last:pb-0"
             >
               {/* #302: the title stands alone on its own row — kcal/amount/
                * macros/reaction all move down to a second row together,
@@ -217,7 +220,7 @@ function MealListItem({
                 // foreground (#473 follow-up) — at full strength the dish
                 // names competed with the meal title above them. Size and
                 // weight carry the hierarchy here, not color.
-                <p className="text-base font-medium">
+                <p className="min-w-0 break-words text-base font-medium">
                   {item.name}
                   {item.brand ? ` (${item.brand})` : ''}
                 </p>

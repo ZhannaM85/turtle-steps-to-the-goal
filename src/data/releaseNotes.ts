@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 492,
+    issue: 545,
+    date: '2026-08-03T11:04:06+03:00',
+    en: 'Long dish names on the Day meals list wrap inside the card instead of spilling off the screen.',
+    ru: 'Длинные названия блюд в списке приёмов пищи на экране День переносятся внутри карточки, а не вылезают за край экрана.',
+  },
+  {
     version: 491,
     issue: 537,
     date: '2026-08-02T23:59:42+03:00',

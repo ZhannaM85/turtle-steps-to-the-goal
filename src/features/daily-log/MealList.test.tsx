@@ -279,6 +279,29 @@ describe('MealList', () => {
       expect(screen.getByText('52 kcal')).toBeInTheDocument()
     })
 
+    it('wraps long dish names inside the card (#545)', () => {
+      const longName =
+        'Салат из цветной капусты с сыром и йогуртом (Level Kitchen)'
+      const calorieEntries: CalorieEntry[] = [
+        {
+          id: 'c1',
+          items: [{ id: 'i1', name: longName, amountKcal: 187 }],
+          createdAt: '2026-01-01T00:00:00.000Z',
+        },
+      ]
+      render(
+        <MealList
+          calorieEntries={calorieEntries}
+          date="2026-03-01"
+          onChange={vi.fn()}
+        />,
+        { wrapper: MemoryRouter },
+      )
+
+      const name = screen.getByText(longName)
+      expect(name).toHaveClass('min-w-0', 'break-words')
+    })
+
     it('shows a saved note underneath the dish in the read-only view', () => {
       const calorieEntries: CalorieEntry[] = [
         {
