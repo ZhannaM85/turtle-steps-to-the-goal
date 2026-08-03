@@ -1392,3 +1392,13 @@ _Live request: pinch/pan/double-tap on graphs for close date inspection — tria
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#543](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/543) | ⬜ Open | Compare Data chart: pinch-zoom / pan / double-tap gestures (trial on one chart first) | v1: Compare Data only. Pinch X-zoom, finger pan, possible double-tap reset. Extend to other charts only after on-device OK |
+
+---
+
+## Tier 101 — Live feedback: remove-dish confirm off-screen (2026-08-03)
+
+_Reported live: inline "Убрать это блюдо?" sits at top of Add meal scroll; when scrolled down, delete looks like a no-op._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#544](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/544) | ⬜ Open | Add meal: show remove-dish confirm as a modal (inline banner is off-screen when scrolled) | Replace top-of-scroll inline confirm with a centered modal so Remove/Cancel is always visible |
