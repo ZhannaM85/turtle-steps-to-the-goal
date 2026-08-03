@@ -27,7 +27,7 @@ export const releaseNotes: ReleaseNote[] = [
   {
     version: 493,
     issue: 544,
-    date: '2026-08-03T11:10:00+03:00',
+    date: '2026-08-03T11:15:29+03:00',
     en: 'When you remove a food from a meal, the confirmation appears as a centered popup so you can see it without scrolling back to the top.',
     ru: 'При удалении блюда из приёма пищи подтверждение показывается по центру экрана — не нужно прокручивать вверх, чтобы его увидеть.',
   },
