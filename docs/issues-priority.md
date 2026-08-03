@@ -1380,6 +1380,7 @@ _Water recommendation and further filings from this session (list may grow)._
 | [#556](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/556) | 🔍 Pending validation | Dashboard weekly recap: use Monday–Monday calendar weeks, not goal weeks | `WeeklySummaryCards` always passes `weekStartsOn: 1` (Mon–Sun). Settings first-entry week-start still applies to heatmaps/correlations/MetTargetList. |
 | [#557](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/557) | 🔍 Pending validation | Weekly notes on Dashboard weekly recap (edit → textarea) | Dexie `weeklyNotes` keyed by Monday `weekStart` (#556); edit → textarea on each recap card; JSON backup v8 |
 | [#558](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/558) | 🔍 Pending validation | Goal: optional reverse recalculate weekly pace from calories/macros (explicit button) | Explicit «Estimate weekly pace from these calories» — TDEE−kcal → ~7700 kcal/kg pace + same macro split as #259; no silent bidirectional sync |
+| [#559](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/559) | ⬜ Open | Day meal cards: dish block still misaligned / wraps oddly after #545/#555 | Follow-up screenshots: early wrap with empty space; dish name+kcal indented vs meal title/summary under labeled meals |
 
 
 
