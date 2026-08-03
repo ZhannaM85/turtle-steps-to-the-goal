@@ -24,6 +24,9 @@ export interface StatCardProps {
   /** #430 — optional click handler to make the card interactive, e.g.
    * scrolling to a related control section */
   onClick?: () => void
+  /** #565 — optional content below the value/description (e.g. weekly
+   * note controls inside a Dashboard week card). */
+  children?: React.ReactNode
 }
 
 export function StatCard({
@@ -36,6 +39,7 @@ export function StatCard({
   progressPercent,
   progressColor = 'var(--primary)',
   onClick,
+  children,
 }: StatCardProps) {
   return (
     // #395 — `Card`'s own base styles include `overflow-hidden` (needed
@@ -84,6 +88,7 @@ export function StatCard({
             className="mt-1"
           />
         )}
+        {children}
       </CardContent>
     </Card>
   )

@@ -20,6 +20,34 @@ describe('WeeklyNoteEditor (#557)', () => {
     ).toBeInTheDocument()
   })
 
+  it('places the add control inside the week StatCard (#565)', async () => {
+    const { WeeklySummaryCards } = await import('./WeeklySummaryCards')
+    const { format, startOfISOWeek } = await import('date-fns')
+    const weekStart = format(
+      startOfISOWeek(new Date('2026-03-02T00:00:00.000Z')),
+      'yyyy-MM-dd',
+    )
+    const now = '2026-01-01T00:00:00.000Z'
+    render(
+      <WeeklySummaryCards
+        entries={[
+          {
+            id: 'entry-1',
+            date: weekStart,
+            createdAt: now,
+            updatedAt: now,
+            weightKg: 80,
+          },
+        ]}
+        goal={null}
+      />,
+    )
+    const addNote = screen.getByRole('button', { name: 'Add weekly note' })
+    // StatCard renders inside a Card; the note control must be a descendant
+    // of that same card surface, not a sibling below it on the white section.
+    expect(addNote.closest('[data-slot="card"]')).not.toBeNull()
+  })
+
   it('shows a preview and edits via textarea', async () => {
     const user = userEvent.setup()
     useWeeklyNoteStore.setState({

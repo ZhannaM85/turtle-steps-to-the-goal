@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 516,
+    issue: 565,
+    date: '2026-08-03T23:10:00+03:00',
+    en: 'On the Dashboard weekly summary, “Add weekly note” now sits inside each week’s card so it clearly belongs to that week.',
+    ru: 'В недельной сводке на Дашборде кнопка «Добавить заметку недели» теперь внутри карточки недели — сразу видно, к какой неделе она относится.',
+  },
+  {
     version: 515,
     issue: 563,
     date: '2026-08-03T22:50:00+03:00',

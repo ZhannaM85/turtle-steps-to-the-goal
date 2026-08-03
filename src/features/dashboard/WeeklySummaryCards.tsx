@@ -165,19 +165,22 @@ export function WeeklySummaryCards({
           }
 
           return (
-            <div key={week.weekStart} className="flex flex-col gap-1.5">
-              <StatCard
-                label={rangeLabel}
-                value={value}
-                unit={delta === null ? undefined : unit}
-                description={
-                  descriptionParts.length > 0
-                    ? descriptionParts.join(' · ')
-                    : undefined
-                }
-              />
+            // #565 — weekly note lives inside the week StatCard so the
+            // action is grouped with that week's data (not on the section
+            // white background below the beige card).
+            <StatCard
+              key={week.weekStart}
+              label={rangeLabel}
+              value={value}
+              unit={delta === null ? undefined : unit}
+              description={
+                descriptionParts.length > 0
+                  ? descriptionParts.join(' · ')
+                  : undefined
+              }
+            >
               <WeeklyNoteEditor weekStart={week.weekStart} />
-            </div>
+            </StatCard>
           )
         })}
       </div>

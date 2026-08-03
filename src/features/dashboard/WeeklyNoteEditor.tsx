@@ -43,7 +43,7 @@ export function WeeklyNoteEditor({ weekStart }: WeeklyNoteEditorProps) {
 
   if (isEditing) {
     return (
-      <div className="flex flex-col gap-2 px-1">
+      <div className="mt-2 flex flex-col gap-2">
         <Textarea
           aria-label={t.dashboard.weeklyNoteLabel}
           placeholder={t.dashboard.weeklyNotePlaceholder}
@@ -79,7 +79,7 @@ export function WeeklyNoteEditor({ weekStart }: WeeklyNoteEditorProps) {
 
   if (preview) {
     return (
-      <div className="flex items-start justify-between gap-2 px-1">
+      <div className="mt-2 flex items-start justify-between gap-2">
         <p className="min-w-0 flex-1 text-sm text-muted-foreground">{preview}</p>
         <Button
           type="button"
@@ -94,8 +94,10 @@ export function WeeklyNoteEditor({ weekStart }: WeeklyNoteEditorProps) {
     )
   }
 
+  // #565 — bottom-right inside the week card so the control reads as part
+  // of that week, not a separate row on the section background.
   return (
-    <div className="px-1">
+    <div className="mt-2 flex justify-end">
       <Button
         type="button"
         variant="ghost"
