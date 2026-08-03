@@ -1393,7 +1393,7 @@ _Water recommendation and further filings from this session (list may grow)._
 | [#569](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/569) | 🔍 Pending validation | Goal: contextual recalculate buttons beside the field the user edited | Compact «Recalculate from …» beside last-edited pace/calories/protein/fat/carbs; removed standalone #558 bottom button; `suggestTargetsFromMacroAnchor` for macro anchors. |
 | [#570](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/570) | 🔍 Pending validation | Settings Dishes: show a count of how many foods are in the list | `mealItemsCount` / `mealItemsFilteredCount` above the search field (total, or “N of M matching” while filtering). |
 | [#571](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/571) | 🔍 Pending validation | Dashboard weekly note: expand/collapse so long notes are readable | `WeeklyNoteEditor` collapsed 80-char preview + Show full note / Show less; Edit unchanged. |
-| [#572](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/572) | 🔍 Pending validation | Dashboard charts: tooltip interferes with pinch-to-zoom gestures | Suppress tooltip while `isGesturing`; tooltip wrapper stays `pointer-events: none` (day link re-enabled) so pinch passes through. |
+| [#572](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/572) | ✅ Done | Dashboard charts: tooltip interferes with pinch-to-zoom gestures | Confirmed on-device by the user. Suppress tooltip while `isGesturing`; tooltip wrapper stays `pointer-events: none` (day link re-enabled) so pinch passes through. |
 
 
 
