@@ -1383,6 +1383,7 @@ _Water recommendation and further filings from this session (list may grow)._
 | [#559](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/559) | 🔍 Pending validation | Day meal cards: dish block still misaligned / wraps oddly after #545/#555 | Dropped `pl-4`; then on-device jam overflow: Safari grew flex item to full name width. Fix: `max-w-full overflow-hidden` on card, block (not flex-col) dish rows, restore `break-words` so wrap uses card width |
 | [#560](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/560) | ⬜ Open | Dashboard: extend Compare Data pinch-zoom / pan / double-tap gestures to other charts | Follow-up to #543 (validated, feels good). Reuse `useChartGestureZoom` on Weight/Calorie/Macro/Body-comp trends (and other fits); correlations TBD |
 | [#561](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/561) | ⬜ Open | Remove water recommendation from Day/Today; keep it on Goal only | Follow-up to #548. Drop Day water range/hot/workout UI; Goal mid-fill stays |
+| [#562](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/562) | ⬜ Open | Dashboard weekly recap: hide incomplete current week (completed Mon–Sun weeks only) | Follow-up to #556. Do not show the in-progress calendar week; months / last-30-days stay as-is. |
 
 
 
