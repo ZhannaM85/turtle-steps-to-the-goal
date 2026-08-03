@@ -1422,3 +1422,13 @@ _Rare edge case: bottom tab nav disappears; no clear repro (edit/add, PWA backgr
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#546](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/546) | ⬜ Open | Edge case: bottom tab footer sometimes disappears (no reliable repro) | `chore` + `layout-breaking`. Screenshot: Day evening section, empty space where tabs should be. Reproduce before fixing |
+
+---
+
+## Tier 104 — Live feedback: Zepp body composition date range (2026-08-03)
+
+_Body composition chart starts ~Apr 2024 after Zepp Life import; older history expected. Export to be provided to separate source vs app bug._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#547](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/547) | ⬜ Open | Investigate: body composition only from Apr 2024 after Zepp Life import (older history expected) | Clarified: Zepp Life (not MFP). Check whether export has pre-2024 body-comp fields or importer drops them |
