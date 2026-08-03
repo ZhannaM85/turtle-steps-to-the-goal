@@ -1344,91 +1344,19 @@ _Five requests from an external review (filed in English). Ordered easier → ha
 
 ---
 
-## Tier 96 — Dashboard initial load (2026-08-03)
+## Tier 96 — Live feedback & features (2026-08-03)
 
-_After #537 fixed period-switch lag, opening Dashboard itself still takes ~4–5s (acceptable, but maybe improvable)._
-
-| # | Status | Issue | Notes |
-|---|--------|-------|-------|
-| [#538](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/538) | ⬜ Open | Dashboard: initial page load takes ~4–5 seconds (investigate possible improvements) | Follow-up to #537. User reports first open is still ~4–5s — fine for now, worth profiling later. Not yet investigated (Recharts mount volume, per-section filtering, `useDashboardData`, eager off-screen work, etc.) |
-
----
-
-## Tier 97 — Live feedback: Start today now vs Сегодня (2026-08-03)
-
-_Reported live with screenshots: after "Начать сегодняшний день сейчас", the Сегодня button still navigates to the previous day — early-start choice may not be persisted._
+_One session's filings — Dashboard perf follow-up, Day/meal UX bugs, food library, chart gestures, outlier notes, Zepp body-comp range. Ordered easier → harder where dependencies matter (#541 before #542)._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#539](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/539) | ⬜ Open | Day: after Start today now, the Today button still jumps to the previous day | Reported live. Suspected: early-start decision not stored, so Today nav still uses the old day-boundary. Not investigated at filing |
-
----
-
-## Tier 98 — Feature: outlier context note (2026-08-03)
-
-_Live report (RU quick note → filed in EN): unusual weight swings need visible context on the tooltip (e.g. back from vacation / no weigh-in for a week). Design fork open — pause before implementing._
-
-| # | Status | Issue | Notes |
-|---|--------|-------|-------|
-| [#540](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/540) | ⬜ Open | Correlation outliers: show short context for unusual weight changes (note preview or dedicated note) | Fork: truncated daily-note preview vs dedicated oddity note (+ optional auto gap hint). Do not build until user picks |
-
----
-
-## Tier 99 — Food library from history + propagate edits (2026-08-03)
-
-_After MFP multi-year import: foods exist on day lines but not in the searchable personal library; library edits also do not rewrite past meals (#50 by design)._
-
-| # | Status | Issue | Notes |
-|---|--------|-------|-------|
-| [#541](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/541) | ⬜ Open | Backfill personal food library from meal history / MFP import (searchable, reversible) | Performance risk on large unique sets. Prefer reversible backfill (tag + remove backfilled items, or mealItems-only restore) — not full DB wipe. Day history stays. |
-| [#542](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/542) | ⬜ Open | Propagate personal food library edits to past meal entries | Reverses #50 “library never rewrites history” for an explicit confirmed bulk update (optional date range). Depends conceptually on #541 for imported foods |
-
----
-
-## Tier 100 — Chart gesture interactions (2026-08-03)
-
-_Live request: pinch/pan/double-tap on graphs for close date inspection — trial on one chart, extend after confirmation._
-
-| # | Status | Issue | Notes |
-|---|--------|-------|-------|
-| [#543](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/543) | ⬜ Open | Compare Data chart: pinch-zoom / pan / double-tap gestures (trial on one chart first) | v1: Compare Data only. Pinch X-zoom, finger pan, possible double-tap reset. Extend to other charts only after on-device OK |
-
----
-
-## Tier 101 — Live feedback: remove-dish confirm off-screen (2026-08-03)
-
-_Reported live: inline "Убрать это блюдо?" sits at top of Add meal scroll; when scrolled down, delete looks like a no-op._
-
-| # | Status | Issue | Notes |
-|---|--------|-------|-------|
+| [#538](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/538) | ⬜ Open | Dashboard: initial page load takes ~4–5 seconds (investigate possible improvements) | Follow-up to #537. First open still ~4–5s — fine for now, worth profiling later. Not yet investigated |
+| [#539](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/539) | ⬜ Open | Day: after Start today now, the Today button still jumps to the previous day | Suspected: early-start decision not stored, so Today nav still uses the old day-boundary. Not investigated at filing |
 | [#544](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/544) | ⬜ Open | Add meal: show remove-dish confirm as a modal (inline banner is off-screen when scrolled) | Replace top-of-scroll inline confirm with a centered modal so Remove/Cancel is always visible |
-
----
-
-## Tier 102 — Live feedback: dish name overflow (2026-08-03)
-
-_Reported live with Day meals screenshot: some long names (e.g. Level Kitchen salad) overflow the card; others wrap fine._
-
-| # | Status | Issue | Notes |
-|---|--------|-------|-------|
-| [#545](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/545) | ⬜ Open | Day meal cards: long dish names overflow instead of wrapping | `chore` + `layout-breaking`. Name should wrap inside the card; not investigated (nowrap / min-width:0 / no soft-break points) |
-
----
-
-## Tier 103 — Live feedback: footer sometimes missing (2026-08-03)
-
-_Rare edge case: bottom tab nav disappears; no clear repro (edit/add, PWA background, etc.)._
-
-| # | Status | Issue | Notes |
-|---|--------|-------|-------|
-| [#546](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/546) | ⬜ Open | Edge case: bottom tab footer sometimes disappears (no reliable repro) | `chore` + `layout-breaking`. Screenshot: Day evening section, empty space where tabs should be. Reproduce before fixing |
-
----
-
-## Tier 104 — Live feedback: Zepp body composition date range (2026-08-03)
-
-_Body composition chart starts ~Apr 2024 after Zepp Life import; older history expected. Export to be provided to separate source vs app bug._
-
-| # | Status | Issue | Notes |
-|---|--------|-------|-------|
+| [#545](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/545) | ⬜ Open | Day meal cards: long dish names overflow instead of wrapping | `chore` + `layout-breaking`. Name should wrap inside the card; not investigated |
+| [#546](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/546) | ⬜ Open | Edge case: bottom tab footer sometimes disappears (no reliable repro) | `chore` + `layout-breaking`. Reproduce before fixing (edit/add, PWA background, etc.) |
 | [#547](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/547) | ⬜ Open | Investigate: body composition only from Apr 2024 after Zepp Life import (older history expected) | Clarified: Zepp Life (not MFP). Check whether export has pre-2024 body-comp fields or importer drops them |
+| [#540](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/540) | ⬜ Open | Correlation outliers: show short context for unusual weight changes (note preview or dedicated note) | Fork: truncated daily-note preview vs dedicated oddity note (+ optional auto gap hint). Do not build until user picks |
+| [#543](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/543) | ⬜ Open | Compare Data chart: pinch-zoom / pan / double-tap gestures (trial on one chart first) | v1: Compare Data only. Pinch X-zoom, finger pan, possible double-tap reset. Extend after on-device OK |
+| [#541](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/541) | ⬜ Open | Backfill personal food library from meal history / MFP import (searchable, reversible) | Performance risk on large unique sets. Prefer reversible backfill (tag + remove) — not full DB wipe |
+| [#542](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/542) | ⬜ Open | Propagate personal food library edits to past meal entries | Explicit confirmed bulk update (optional date range). Depends conceptually on #541 for imported foods |
