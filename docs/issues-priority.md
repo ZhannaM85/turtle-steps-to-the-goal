@@ -1383,7 +1383,7 @@ _Water recommendation and further filings from this session (list may grow)._
 | [#559](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/559) | 🔍 Pending validation | Day meal cards: dish block still misaligned / wraps oddly after #545/#555 | Dropped `pl-4`; card `max-w-full overflow-hidden`. Validation: `break-words` still mid-broke Cyrillic (дже\|мом) — replaced with `w-0 min-w-full` + `break-normal`/`hyphens-none` (wrap at spaces only). |
 | [#560](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/560) | ⬜ Open | Dashboard: extend Compare Data pinch-zoom / pan / double-tap gestures to other charts | Follow-up to #543 (validated, feels good). Reuse `useChartGestureZoom` on Weight/Calorie/Macro/Body-comp trends (and other fits); correlations TBD |
 | [#561](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/561) | 🔍 Pending validation | Remove water recommendation from Day/Today; keep it on Goal only | Dropped Day range/hot/workout UI + `waterDayFlagsStore`; Goal mid-fill (#548) unchanged. |
-| [#562](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/562) | ⬜ Open | Dashboard weekly recap: hide incomplete current week (completed Mon–Sun weeks only) | Follow-up to #556. Do not show the in-progress calendar week; months / last-30-days stay as-is. |
+| [#562](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/562) | 🔍 Pending validation | Dashboard weekly recap: hide incomplete current week (completed Mon–Sun weeks only) | `excludeIncompleteCurrentWeek` — hide week until `weekEnd < today`; months / last-30-days unchanged. Weekly notes for the current week wait until that card appears. |
 
 
 

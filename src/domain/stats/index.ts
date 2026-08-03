@@ -1,4 +1,8 @@
-export { weeklySummaries } from './weeklySummaries'
+export {
+  weeklySummaries,
+  isCompletedCalendarWeek,
+  excludeIncompleteCurrentWeek,
+} from './weeklySummaries'
 export type { WeeklySummary } from './weeklySummaries'
 export { monthlySummaries } from './monthlySummaries'
 export type { MonthlySummary } from './monthlySummaries'

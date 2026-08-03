@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { format, startOfISOWeek } from 'date-fns'
-import { afterEach, describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import type { CalorieEntry, CalorieItem, DailyEntry } from '@/domain/dailyEntry'
 import type { Goal } from '@/domain/goal'
 import { useDashboardChartVisibilityStore } from '@/stores'
@@ -203,6 +203,21 @@ describe('WeeklySummaryCards', () => {
     expect(screen.queryByText(/Jul 30, 2026 – Aug 5, 2026/)).not.toBeInTheDocument()
 
     useWeekStartStore.setState({ weekStart: 'monday' })
+  })
+
+  it('hides the incomplete current calendar week (#562)', () => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-08-03T12:00:00'))
+    const entries = [
+      entry('2026-07-27', { weightKg: 60 }),
+      entry('2026-08-03', { weightKg: 59 }),
+    ]
+    render(<WeeklySummaryCards entries={entries} goal={null} />)
+
+    // Completed week Mon Jul 27 – Sun Aug 2 still shown; current Aug 3–9 hidden.
+    expect(screen.getByText(/Jul 27, 2026/)).toBeInTheDocument()
+    expect(screen.queryByText(/Aug 3, 2026/)).not.toBeInTheDocument()
+    vi.useRealTimers()
   })
 
   describe('whole-card show/hide toggle (#232)', () => {

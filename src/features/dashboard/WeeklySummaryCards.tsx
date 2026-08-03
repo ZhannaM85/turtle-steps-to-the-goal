@@ -3,7 +3,10 @@ import { useEffect } from 'react'
 import { format, parseISO } from 'date-fns'
 import type { DailyEntry } from '@/domain/dailyEntry'
 import { kgToLb, type Goal } from '@/domain/goal'
-import { weeklySummaries } from '@/domain/stats'
+import {
+  excludeIncompleteCurrentWeek,
+  weeklySummaries,
+} from '@/domain/stats'
 import {
   formatNumber,
   getDateFnsLocale,
@@ -47,7 +50,9 @@ export function WeeklySummaryCards({
   // #556 — weekly recap is always Monday–Sunday calendar weeks, not the
   // Settings "week start" preference (that still drives heatmaps /
   // correlations / MetTargetList). Goal-anchored half-weeks stay on Goal.
+  // #562 — hide the in-progress current week until Sunday has passed.
   const weekStartsOn = 1 as const
+  const asOfDate = format(new Date(), 'yyyy-MM-dd')
   const cardVisible = useDashboardChartVisibilityStore(
     (state) => state.visible.weeklySummary,
   )
@@ -56,11 +61,14 @@ export function WeeklySummaryCards({
     void loadWeeklyNotes()
   }, [loadWeeklyNotes])
 
-  const summaries = weeklySummaries(
-    entries,
-    goal ?? undefined,
-    weekStartsOn,
-    goalTrackingStartDate,
+  const summaries = excludeIncompleteCurrentWeek(
+    weeklySummaries(
+      entries,
+      goal ?? undefined,
+      weekStartsOn,
+      goalTrackingStartDate,
+    ),
+    asOfDate,
   )
   if (summaries.length === 0) return null
 

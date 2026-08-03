@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 513,
+    issue: 562,
+    date: '2026-08-03T21:35:00+03:00',
+    en: 'Dashboard weekly summary only lists finished Monday–Sunday weeks — the week still in progress no longer appears mid-week.',
+    ru: 'Недельная сводка на Дашборде показывает только завершённые недели (пн–вс) — текущая незавершённая неделя больше не отображается.',
+  },
+  {
     version: 512,
     issue: 561,
     date: '2026-08-03T21:30:00+03:00',

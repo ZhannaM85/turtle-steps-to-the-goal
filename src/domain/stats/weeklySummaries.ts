@@ -139,3 +139,25 @@ export function weeklySummaries(
 
   return summaries
 }
+
+/**
+ * #562 — a Mon–Sun calendar week is complete once its Sunday (`weekEnd`)
+ * is strictly before `asOfDate` (typically today). The in-progress current
+ * week stays hidden from Dashboard weekly recap until the next Monday.
+ */
+export function isCompletedCalendarWeek(
+  weekEndIso: string,
+  asOfDateIso: string,
+): boolean {
+  return weekEndIso < asOfDateIso
+}
+
+/** #562 — drop the incomplete current week from `weeklySummaries()` output. */
+export function excludeIncompleteCurrentWeek(
+  summaries: WeeklySummary[],
+  asOfDateIso: string,
+): WeeklySummary[] {
+  return summaries.filter((week) =>
+    isCompletedCalendarWeek(week.weekEnd, asOfDateIso),
+  )
+}

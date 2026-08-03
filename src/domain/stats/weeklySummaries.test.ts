@@ -2,7 +2,7 @@ import { addDays, format, startOfISOWeek } from 'date-fns'
 import { describe, expect, it } from 'vitest'
 import type { CalorieEntry, CalorieItem, DailyEntry } from '@/domain/dailyEntry'
 import type { Goal } from '@/domain/goal'
-import { weeklySummaries } from './weeklySummaries'
+import { weeklySummaries, excludeIncompleteCurrentWeek, isCompletedCalendarWeek } from './weeklySummaries'
 
 function calories(
   amountKcal: number,
@@ -242,5 +242,33 @@ describe('weeklySummaries', () => {
     expect(summaries[0].averageWeightKg).toBe(70)
     expect(summaries[1].weekStart).toBe(wednesday)
     expect(summaries[1].averageWeightKg).toBe(80)
+  })
+})
+
+describe('excludeIncompleteCurrentWeek (#562)', () => {
+  it('keeps weeks whose Sunday is before asOfDate', () => {
+    const entries = [entry(dayOf(WEEK_1_START, 0), { weightKg: 80 })]
+    const [summary] = weeklySummaries(entries)
+    // WEEK_1_START is 2026-03-02 Mon → weekEnd 2026-03-08
+    expect(
+      excludeIncompleteCurrentWeek([summary], '2026-03-09'),
+    ).toHaveLength(1)
+  })
+
+  it('drops the week that still includes asOfDate', () => {
+    const entries = [entry(dayOf(WEEK_1_START, 0), { weightKg: 80 })]
+    const [summary] = weeklySummaries(entries)
+    expect(summary.weekEnd).toBe(dayOf(WEEK_1_START, 6))
+    expect(
+      excludeIncompleteCurrentWeek([summary], dayOf(WEEK_1_START, 3)),
+    ).toHaveLength(0)
+    expect(
+      excludeIncompleteCurrentWeek([summary], dayOf(WEEK_1_START, 6)),
+    ).toHaveLength(0)
+  })
+
+  it('treats the Monday after weekEnd as the first day the week is complete', () => {
+    expect(isCompletedCalendarWeek('2026-08-09', '2026-08-10')).toBe(true)
+    expect(isCompletedCalendarWeek('2026-08-09', '2026-08-09')).toBe(false)
   })
 })
