@@ -396,6 +396,11 @@ export const en: Dictionary = {
       'Fills in the four fields below from your weight, height, age, sex, and activity level — not medical or nutritional advice. Review and edit before saving.',
     suggestTargetMissingProfileHint:
       'Log a weight, and set your height, age, sex, and activity level in Settings, to use this.',
+    estimatePaceFromCaloriesButton: 'Estimate weekly pace from these calories',
+    estimatePaceFromCaloriesCaveat:
+      'Updates the weekly pace (and protein/fat/carb split) from your daily calorie target versus estimated maintenance — a rough estimate, not medical advice. Review before saving.',
+    estimatePaceFromCaloriesNeedCaloriesHint:
+      'Enter a daily calorie target above to estimate a weekly pace from it.',
     updateButton: 'Update this week’s target',
     setButton: 'Set this week’s target',
     cancelButton: 'Cancel',

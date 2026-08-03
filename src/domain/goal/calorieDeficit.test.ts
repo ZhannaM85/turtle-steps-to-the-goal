@@ -1,5 +1,8 @@
 import { describe, expect, it } from 'vitest'
-import { estimatedDailyCalorieDeficitKcal } from './calorieDeficit'
+import {
+  estimatedDailyCalorieDeficitKcal,
+  estimatedWeeklyLossKgFromDailyDeficitKcal,
+} from './calorieDeficit'
 
 describe('estimatedDailyCalorieDeficitKcal', () => {
   it('estimates ~1100 kcal/day for a 1kg/week pace', () => {
@@ -17,5 +20,16 @@ describe('estimatedDailyCalorieDeficitKcal', () => {
 
   it('returns a negative value for a weight-gain pace', () => {
     expect(estimatedDailyCalorieDeficitKcal(-1)).toBe(-1100)
+  })
+})
+
+describe('estimatedWeeklyLossKgFromDailyDeficitKcal (#558)', () => {
+  it('inverts the daily-deficit estimate', () => {
+    expect(estimatedWeeklyLossKgFromDailyDeficitKcal(1100)).toBe(1)
+    expect(estimatedWeeklyLossKgFromDailyDeficitKcal(550)).toBe(0.5)
+  })
+
+  it('returns a negative pace for a surplus (negative deficit)', () => {
+    expect(estimatedWeeklyLossKgFromDailyDeficitKcal(-1100)).toBe(-1)
   })
 })

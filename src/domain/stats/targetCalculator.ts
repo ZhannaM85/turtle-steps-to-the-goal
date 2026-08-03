@@ -1,3 +1,4 @@
+import { estimatedWeeklyLossKgFromDailyDeficitKcal } from '@/domain/goal'
 import { calculateBmr, type Sex } from './bodyComposition'
 
 export type ActivityLevel =
@@ -61,7 +62,24 @@ export function suggestDailyTargets(
   const bmr = calculateBmr(weightKg, heightCm, age, sex)
   const tdee = calculateTdee(bmr, activityLevel)
   const calorieTargetKcal = Math.round(Math.max(0, tdee - dailyDeficitKcal))
+  return {
+    calorieTargetKcal,
+    ...suggestMacrosForCalorieTarget(weightKg, calorieTargetKcal),
+  }
+}
 
+/**
+ * Macro split for an already-chosen calorie target (#558) — same fixed
+ * g/kg protein/fat ratios and carb remainder as {@link suggestDailyTargets},
+ * without changing the calorie number itself.
+ */
+export function suggestMacrosForCalorieTarget(
+  weightKg: number,
+  calorieTargetKcal: number,
+): Pick<
+  SuggestedDailyTargets,
+  'proteinTargetG' | 'fatTargetG' | 'carbTargetG'
+> {
   const proteinTargetG = Math.round(weightKg * PROTEIN_G_PER_KG_BODYWEIGHT)
   const fatTargetG = Math.round(weightKg * FAT_G_PER_KG_BODYWEIGHT)
   const proteinKcal = proteinTargetG * KCAL_PER_G_PROTEIN
@@ -70,6 +88,26 @@ export function suggestDailyTargets(
     0,
     Math.round((calorieTargetKcal - proteinKcal - fatKcal) / KCAL_PER_G_CARB),
   )
+  return { proteinTargetG, fatTargetG, carbTargetG }
+}
 
-  return { calorieTargetKcal, proteinTargetG, fatTargetG, carbTargetG }
+/**
+ * Rough weekly kg-to-lose pace implied by a daily calorie target vs TDEE
+ * (#558). Positive = deficit / loss; negative = surplus / gain. Callers
+ * clamp or convert to the Goal form's display unit; never auto-saved.
+ */
+export function estimateWeeklyLossKgFromCalorieTarget(
+  weightKg: number,
+  heightCm: number,
+  age: number,
+  sex: Sex,
+  activityLevel: ActivityLevel,
+  calorieTargetKcal: number,
+): number {
+  const bmr = calculateBmr(weightKg, heightCm, age, sex)
+  const tdee = calculateTdee(bmr, activityLevel)
+  // Match suggestDailyTargets' rounded maintenance calorie so a round-trip
+  // (suggest → estimate) lands near the same weekly pace.
+  const dailyDeficitKcal = Math.round(tdee) - calorieTargetKcal
+  return estimatedWeeklyLossKgFromDailyDeficitKcal(dailyDeficitKcal)
 }

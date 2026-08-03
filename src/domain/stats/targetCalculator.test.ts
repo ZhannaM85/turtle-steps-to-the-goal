@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest'
-import { calculateTdee, suggestDailyTargets } from './targetCalculator'
+import {
+  calculateTdee,
+  estimateWeeklyLossKgFromCalorieTarget,
+  suggestDailyTargets,
+  suggestMacrosForCalorieTarget,
+} from './targetCalculator'
 
 describe('calculateTdee', () => {
   it('scales BMR by the sedentary multiplier', () => {
@@ -55,5 +60,45 @@ describe('suggestDailyTargets', () => {
   it('never lets carbs go negative when protein/fat already exceed the calorie budget', () => {
     const targets = suggestDailyTargets(50, 150, 25, 'female', 'sedentary', 5000)
     expect(targets.carbTargetG).toBe(0)
+  })
+})
+
+describe('suggestMacrosForCalorieTarget (#558)', () => {
+  it('matches suggestDailyTargets macros for the same calorie budget', () => {
+    const full = suggestDailyTargets(70, 165, 30, 'female', 'sedentary', 0)
+    const macros = suggestMacrosForCalorieTarget(70, full.calorieTargetKcal)
+    expect(macros).toEqual({
+      proteinTargetG: full.proteinTargetG,
+      fatTargetG: full.fatTargetG,
+      carbTargetG: full.carbTargetG,
+    })
+  })
+})
+
+describe('estimateWeeklyLossKgFromCalorieTarget (#558)', () => {
+  it('returns ~0 when calorie target equals maintenance TDEE', () => {
+    const maintenance = suggestDailyTargets(70, 165, 30, 'female', 'sedentary', 0)
+    const pace = estimateWeeklyLossKgFromCalorieTarget(
+      70,
+      165,
+      30,
+      'female',
+      'sedentary',
+      maintenance.calorieTargetKcal,
+    )
+    expect(pace).toBeCloseTo(0, 5)
+  })
+
+  it('estimates ~0.5 kg/week for a 550 kcal daily deficit vs TDEE', () => {
+    const maintenance = suggestDailyTargets(70, 165, 30, 'female', 'sedentary', 0)
+    const pace = estimateWeeklyLossKgFromCalorieTarget(
+      70,
+      165,
+      30,
+      'female',
+      'sedentary',
+      maintenance.calorieTargetKcal - 550,
+    )
+    expect(pace).toBeCloseTo(0.5, 5)
   })
 })

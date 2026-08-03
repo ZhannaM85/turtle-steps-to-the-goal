@@ -10,7 +10,13 @@ import {
   WEEKLY_PACE_SOFT_WARN_KG,
   WEEKLY_PACE_STEP_KG,
 } from '@/domain/goal'
-import { suggestDailyTargets, recommendedWaterMlRange, waterRecommendationMidMl } from '@/domain/stats'
+import {
+  estimateWeeklyLossKgFromCalorieTarget,
+  recommendedWaterMlRange,
+  suggestDailyTargets,
+  suggestMacrosForCalorieTarget,
+  waterRecommendationMidMl,
+} from '@/domain/stats'
 import { formatExactNumber, formatNumber, unitLabel, useLocale, useTranslation } from '@/i18n'
 import { parseNumberInput } from '@/shared/lib/parseNumberInput'
 import {
@@ -159,6 +165,51 @@ export function GoalForm({
       shouldDirty: true,
     })
     setValue('dailyCarbTarget', suggested.carbTargetG, {
+      shouldValidate: true,
+      shouldDirty: true,
+    })
+  }
+
+  // #558 — reverse of #259: explicit button estimates weekly pace (and
+  // refreshes macros) from the typed calorie target vs TDEE. Pace stays
+  // the primary field; this never runs on keystroke.
+  const calorieTargetRaw = Number(values.dailyCalorieTarget)
+  const hasCalorieTarget =
+    Number.isFinite(calorieTargetRaw) && calorieTargetRaw > 0
+  const canEstimatePaceFromCalories = canSuggestTarget && hasCalorieTarget
+  function applyPaceFromCalories() {
+    if (!canEstimatePaceFromCalories) return
+    const paceKg = estimateWeeklyLossKgFromCalorieTarget(
+      latestWeightKg,
+      heightCm,
+      age,
+      sex,
+      activityLevel,
+      calorieTargetRaw,
+    )
+    // Goal form is "to lose" in display units — clamp surplus/zero to the
+    // minimum step; schema max is 10 in the display unit (#529).
+    const displayPace = Math.min(
+      10,
+      Math.max(weeklyPaceStepDisplay, toDisplay(paceKg)),
+    )
+    setValue('targetWeeklyLoss', Math.round(displayPace * 100) / 100, {
+      shouldValidate: true,
+      shouldDirty: true,
+    })
+    const macros = suggestMacrosForCalorieTarget(
+      latestWeightKg,
+      calorieTargetRaw,
+    )
+    setValue('dailyProteinTarget', macros.proteinTargetG, {
+      shouldValidate: true,
+      shouldDirty: true,
+    })
+    setValue('dailyFatTarget', macros.fatTargetG, {
+      shouldValidate: true,
+      shouldDirty: true,
+    })
+    setValue('dailyCarbTarget', macros.carbTargetG, {
       shouldValidate: true,
       shouldDirty: true,
     })
@@ -571,6 +622,29 @@ export function GoalForm({
         error={errors.dailyCarbTarget?.message}
         {...register('dailyCarbTarget', { setValueAs: parseNumberInput })}
       />
+
+      {/* #558 — reverse of "Suggest a target": estimate weekly pace (and
+       * macro split) from the calorie field above. Explicit only — no
+       * silent two-way sync with the pace field. */}
+      <div className="flex flex-col gap-1.5">
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          className="self-start"
+          disabled={!canEstimatePaceFromCalories}
+          onClick={applyPaceFromCalories}
+        >
+          {t.goal.estimatePaceFromCaloriesButton}
+        </Button>
+        <p className="text-sm text-muted-foreground">
+          {canSuggestTarget
+            ? hasCalorieTarget
+              ? t.goal.estimatePaceFromCaloriesCaveat
+              : t.goal.estimatePaceFromCaloriesNeedCaloriesHint
+            : t.goal.suggestTargetMissingProfileHint}
+        </p>
+      </div>
 
       {/* #341 — same shape again, independent of the other four. */}
       <NumberInput

@@ -753,6 +753,10 @@ export interface Dictionary {
     suggestTargetButton: string
     suggestTargetCaveat: string
     suggestTargetMissingProfileHint: string
+    /** #558 — reverse estimate: weekly pace (+ macros) from calorie target. */
+    estimatePaceFromCaloriesButton: string
+    estimatePaceFromCaloriesCaveat: string
+    estimatePaceFromCaloriesNeedCaloriesHint: string
     updateButton: string
     setButton: string
     /** #534 — abandon in-progress goal edits without saving. */

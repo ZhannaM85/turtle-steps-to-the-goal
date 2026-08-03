@@ -134,7 +134,12 @@ export {
   classifyOutlierAxes,
 } from './outlierDetection'
 export type { OutlierBounds, OutlierAxes } from './outlierDetection'
-export { calculateTdee, suggestDailyTargets } from './targetCalculator'
+export {
+  calculateTdee,
+  suggestDailyTargets,
+  suggestMacrosForCalorieTarget,
+  estimateWeeklyLossKgFromCalorieTarget,
+} from './targetCalculator'
 export type { ActivityLevel, SuggestedDailyTargets } from './targetCalculator'
 export {
   recommendedWaterMlRange,

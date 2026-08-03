@@ -19,3 +19,14 @@ export function estimatedDailyCalorieDeficitKcal(
 ): number {
   return (targetWeeklyLossKg * KCAL_PER_KG_FAT) / 7
 }
+
+/**
+ * Inverse of {@link estimatedDailyCalorieDeficitKcal} (#558) — rough weekly
+ * kg pace implied by a daily calorie deficit. Same ~7700 kcal/kg arithmetic;
+ * not medical advice.
+ */
+export function estimatedWeeklyLossKgFromDailyDeficitKcal(
+  dailyDeficitKcal: number,
+): number {
+  return (dailyDeficitKcal * 7) / KCAL_PER_KG_FAT
+}

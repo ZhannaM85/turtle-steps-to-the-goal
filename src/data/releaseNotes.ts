@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 508,
+    issue: 558,
+    date: '2026-08-03T19:30:00+03:00',
+    en: 'On Goal, you can estimate a weekly weight pace (and a protein/fat/carb split) from the daily calorie target you typed — only when you tap the button, not automatically.',
+    ru: 'В «Цели» можно оценить недельный темп (и белки/жиры/углеводы) по введённой дневной цели калорий — только по кнопке, без автоматической синхронизации.',
+  },
+  {
     version: 507,
     issue: 548,
     date: '2026-08-03T19:13:04+03:00',
