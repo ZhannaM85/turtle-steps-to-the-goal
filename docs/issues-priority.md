@@ -1359,7 +1359,7 @@ _One session's filings. Ordered easiest → hardest; #541 before #542. #546 need
 | [#540](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/540) | ✅ Done | Correlation outliers: show short context for unusual weight changes (note preview or dedicated note) | Confirmed on-device by the user. Truncated Day-note preview on correlation tooltips + unusual-point chips (`dayNotePreview.ts`). No dedicated oddity field; no auto gap hint. |
 | [#541](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/541) | 🔍 Pending validation | Backfill personal food library from meal history / MFP import (searchable, reversible) | Option 1: `MealItem.source` (`history-backfill`/`mfp-import`); Settings backfill + remove; MFP import also seeds library. Cap 8000. |
 | [#542](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/542) | 🔍 Pending validation | Propagate personal food library edits to past meal entries | Name-match + confirm (“Update N past uses”); all-time; Settings after rename/nutrition save. `propagateMealLibraryEdit.ts`. |
-| [#546](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/546) | 🔍 Pending validation | Edge case: bottom tab footer sometimes disappears (no reliable repro) | Exclude date/time from keyboard-hide; `useVisualViewportShrunk` clears stuck shrink after 700ms with no keyboard focus (+ focus/pageshow/visibility re-check). |
+| [#546](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/546) | ✅ Done | Edge case: bottom tab footer sometimes disappears (no reliable repro) | Confirmed on-device by the user. Exclude date/time from keyboard-hide; `useVisualViewportShrunk` clears stuck shrink after 700ms with no keyboard focus (+ focus/pageshow/visibility re-check). |
 
 ---
 
