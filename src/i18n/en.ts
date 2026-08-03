@@ -344,11 +344,6 @@ export const en: Dictionary = {
     addGlassLabel: '+1 glass (250ml)',
     addBottleLabel: '+1 bottle (500ml)',
     removeWaterEntryLabel: (amount) => `Remove ${amount} entry`,
-    waterRecommendationRange: (low, high) =>
-      `Recommended today: ${low}–${high} L (from your weight — not medical advice)`,
-    waterRecommendationHotDay: '+300 ml if it’s hot',
-    waterRecommendationWorkout: '+500 ml after a workout',
-    waterRecommendationNeedWeight: 'Log a weight to see a water recommendation.',
     addItemSheetTitle: 'Add item',
     editItemSheetTitle: 'Edit item',
     closeItemEditorLabel: 'Close item editor',

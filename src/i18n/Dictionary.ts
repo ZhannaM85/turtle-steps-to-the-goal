@@ -689,11 +689,6 @@ export interface Dictionary {
     /** #271 — aria-label for a logged water entry's own remove (X) button,
      * e.g. "Remove 250ml entry". */
     removeWaterEntryLabel: (amount: string) => string
-    /** #548 — arithmetic ml range from weight (soft suggest, not a goal). */
-    waterRecommendationRange: (lowLiters: string, highLiters: string) => string
-    waterRecommendationHotDay: string
-    waterRecommendationWorkout: string
-    waterRecommendationNeedWeight: string
     /** Full-screen meal-item editor sheet (#122) — replaces the cramped
      * inline fields row for both adding a new meal's first item and
      * editing/adding an item within an already-existing meal. */

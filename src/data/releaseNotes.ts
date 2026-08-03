@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 512,
+    issue: 561,
+    date: '2026-08-03T21:30:00+03:00',
+    en: 'The water recommendation (liters from weight, hot/workout toggles) no longer appears on Day — only on Goal, where you can still fill the mid value.',
+    ru: 'Рекомендация по воде (литры от веса, флаги жары/тренировки) больше не показывается на «Дне» — только в «Цели», где по-прежнему можно подставить среднее значение.',
+  },
+  {
     version: 511,
     issue: 559,
     date: '2026-08-03T21:22:32+03:00',

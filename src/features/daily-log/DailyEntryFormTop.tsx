@@ -1,10 +1,5 @@
 import { ChevronDown, CupSoda, GlassWater, X } from 'lucide-react'
-import {
-  adjustWaterMlRange,
-  recommendedWaterMlRange,
-} from '@/domain/stats'
-import { formatExactNumber, formatNumber } from '@/i18n'
-import { useLatestWeight } from '@/shared/hooks'
+import { formatNumber } from '@/i18n'
 import { Button } from '@/shared/ui/button'
 import {
   Collapsible,
@@ -12,7 +7,7 @@ import {
   CollapsibleTrigger,
 } from '@/shared/ui/collapsible'
 import { StatCard } from '@/shared/ui/stat-card'
-import { useTodaySectionsCollapseStore, useWaterDayFlagsStore } from '@/stores'
+import { useTodaySectionsCollapseStore } from '@/stores'
 import { MealList } from './MealList'
 import { useDailyEntryFormStateContext } from './useDailyEntryFormStateContext'
 import { isUnusualDailyCalories } from './unusualEntryThresholds'
@@ -43,18 +38,6 @@ export function DailyEntryFormTop() {
     (s) => s.sections.water,
   )
   const setCollapsed = useTodaySectionsCollapseStore((s) => s.setCollapsed)
-  const latestWeightKg = useLatestWeight(state.weightKg)
-  const weightForWater =
-    typeof state.weightKg === 'number' && state.weightKg > 0
-      ? state.weightKg
-      : latestWeightKg
-  const waterFlags = useWaterDayFlagsStore((s) => s.flagsFor(state.date))
-  const setHotDay = useWaterDayFlagsStore((s) => s.setHotDay)
-  const setAfterWorkout = useWaterDayFlagsStore((s) => s.setAfterWorkout)
-  const waterRec =
-    weightForWater !== null && weightForWater > 0
-      ? adjustWaterMlRange(recommendedWaterMlRange(weightForWater), waterFlags)
-      : null
 
   return (
     // #510 — same `gap-6` as TodayScreen's form-area / page column so
@@ -239,39 +222,6 @@ export function DailyEntryFormTop() {
                   >
                     {t.dailyEntry.addBottleLabel}
                   </Button>
-                </div>
-                {/* #548 — weight-based range + optional hot/workout bumps. */}
-                <div className="flex flex-col gap-1.5 text-sm text-muted-foreground">
-                  {waterRec ? (
-                    <p>
-                      {t.dailyEntry.waterRecommendationRange(
-                        formatExactNumber(waterRec.lowMl / 1000, locale),
-                        formatExactNumber(waterRec.highMl / 1000, locale),
-                      )}
-                    </p>
-                  ) : (
-                    <p>{t.dailyEntry.waterRecommendationNeedWeight}</p>
-                  )}
-                  <label className="flex items-center gap-2">
-                    <input
-                      type="checkbox"
-                      checked={waterFlags.hotDay}
-                      onChange={(e) =>
-                        setHotDay(state.date, e.target.checked)
-                      }
-                    />
-                    {t.dailyEntry.waterRecommendationHotDay}
-                  </label>
-                  <label className="flex items-center gap-2">
-                    <input
-                      type="checkbox"
-                      checked={waterFlags.afterWorkout}
-                      onChange={(e) =>
-                        setAfterWorkout(state.date, e.target.checked)
-                      }
-                    />
-                    {t.dailyEntry.waterRecommendationWorkout}
-                  </label>
                 </div>
                 {state.waterEntries.length > 0 && (
                   // #488 — three chips per row on phone (was ~2 with
