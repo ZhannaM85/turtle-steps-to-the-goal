@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 517,
+    issue: 566,
+    date: '2026-08-03T23:15:00+03:00',
+    en: 'When adding a meal, remaining calories no longer drop twice after you save a dish and stay on the Add meal screen.',
+    ru: 'При добавлении приёма пищи оставшиеся калории больше не вычитаются дважды после сохранения блюда, если вы остаётесь на экране добавления.',
+  },
+  {
     version: 516,
     issue: 565,
     date: '2026-08-03T23:10:00+03:00',

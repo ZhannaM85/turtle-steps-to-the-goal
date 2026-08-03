@@ -770,4 +770,24 @@ describe('AddMealDialog (#454)', () => {
     // `.select()`, so a stray keystroke replaced the whole name.
     expect(nameInput).not.toHaveFocus()
   })
+
+  describe('remaining-calories preview (#566)', () => {
+    it('counts meal items once when todayTotals excludes this meal', () => {
+      // Caller contract (MealList): todayTotals = other meals only. If the
+      // parent also included this meal's 529 kcal in todayTotals, remaining
+      // would show 642 (double subtract) instead of 1,171.
+      render(
+        <ControlledAddMealDialog
+          {...defaultProps}
+          todayTotals={{ kcal: 300, proteinG: 0, fatG: 0, carbsG: 0 }}
+          dailyCalorieTargetKcal={2000}
+          initialItems={[{ id: 'i1', name: 'Dish', amountKcal: 529 }]}
+        />,
+      )
+
+      expect(
+        screen.getByText('1,171 kcal remaining (was 1,700 kcal remaining)'),
+      ).toBeInTheDocument()
+    })
+  })
 })

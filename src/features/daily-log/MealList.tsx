@@ -594,6 +594,21 @@ export function MealList({
     (entry) => entry.id === inProgressMealId,
   )
 
+  // #566 — day totals for AddMealDialog previews must exclude the meal
+  // whose `items` the dialog will add on top (otherwise remaining kcal is
+  // subtracted twice after the first dish is saved into calorieEntries).
+  function dayTotalsExcludingMeal(excludeId: string | null) {
+    const others = excludeId
+      ? calorieEntries.filter((entry) => entry.id !== excludeId)
+      : calorieEntries
+    return {
+      kcal: totalCalories(others) ?? 0,
+      proteinG: totalProtein(others) ?? 0,
+      fatG: totalFat(others) ?? 0,
+      carbsG: totalCarbs(others) ?? 0,
+    }
+  }
+
   // Appends one or more items to the in-progress meal, creating it (a
   // fresh CalorieEntry) on the *first* call this session and appending to
   // that same entry's `items` on every subsequent call — same
@@ -915,32 +930,9 @@ export function MealList({
           onRemoveItem={removeItemFromEditingMeal}
           onUpdateItem={updateItemInEditingMeal}
           onDeleteMeal={deleteEditingMeal}
-          todayTotals={{
-            kcal:
-              totalCalories(
-                calorieEntries.map((entry) =>
-                  entry.id === editingMealId ? editingMeal : entry,
-                ),
-              ) ?? 0,
-            proteinG:
-              totalProtein(
-                calorieEntries.map((entry) =>
-                  entry.id === editingMealId ? editingMeal : entry,
-                ),
-              ) ?? 0,
-            fatG:
-              totalFat(
-                calorieEntries.map((entry) =>
-                  entry.id === editingMealId ? editingMeal : entry,
-                ),
-              ) ?? 0,
-            carbsG:
-              totalCarbs(
-                calorieEntries.map((entry) =>
-                  entry.id === editingMealId ? editingMeal : entry,
-                ),
-              ) ?? 0,
-          }}
+          // #566 — exclude the meal being edited; the dialog adds `items`
+          // on top for remaining / "Today would be" previews.
+          todayTotals={dayTotalsExcludingMeal(editingMealId)}
           dailyCalorieTargetKcal={dailyCalorieTargetKcal}
         />
       )}
@@ -1013,12 +1005,10 @@ export function MealList({
           onAppendItems={appendItemsToNewMeal}
           onRemoveItem={removeItemFromNewMeal}
           onUpdateItem={updateItemInNewMeal}
-          todayTotals={{
-            kcal: totalCalories(calorieEntries) ?? 0,
-            proteinG: totalProtein(calorieEntries) ?? 0,
-            fatG: totalFat(calorieEntries) ?? 0,
-            carbsG: totalCarbs(calorieEntries) ?? 0,
-          }}
+          // #566 — same as edit overlay: in-progress meal is already in
+          // `calorieEntries` once the first dish is saved, and dialog
+          // `items` re-adds those kcal in the remaining preview.
+          todayTotals={dayTotalsExcludingMeal(inProgressMealId)}
           dailyCalorieTargetKcal={dailyCalorieTargetKcal}
         />
       )}

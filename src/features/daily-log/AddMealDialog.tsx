@@ -244,6 +244,9 @@ export interface AddMealDialogProps {
    * hidden). */
   onDeleteMeal?: () => void
   todayTotals?: {
+    /** Day totals for meals *other than* the one this dialog is composing
+     * (#566). The dialog adds `items` on top for "Today would be" /
+     * remaining previews — including this meal here double-subtracts. */
     kcal: number
     proteinG: number
     fatG: number
