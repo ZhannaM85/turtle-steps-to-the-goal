@@ -299,11 +299,14 @@ describe('MealList', () => {
       )
 
       const name = screen.getByText(longName)
-      // Prefer wrap at spaces; break-words only mid-splits a token longer
-      // than the card. Needed so Safari doesn't grow the flex item to the
-      // full unwrapped name width (#559 jam overflow).
-      expect(name).toHaveClass('break-words')
+      // #555/#559: break-words mid-splits Cyrillic on WebKit — constrain
+      // width with w-0 min-w-full instead; wrap at spaces only.
+      expect(name).toHaveClass('w-0')
+      expect(name).toHaveClass('min-w-full')
       expect(name).toHaveClass('max-w-full')
+      expect(name).toHaveClass('break-normal')
+      expect(name).toHaveClass('hyphens-none')
+      expect(name).not.toHaveClass('break-words')
       // #559: dish list must not indent past the meal title/totals.
       const itemList = container.querySelector('ul.divide-y')
       expect(itemList).not.toHaveClass('pl-4')

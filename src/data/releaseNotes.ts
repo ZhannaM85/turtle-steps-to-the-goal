@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 511,
+    issue: 559,
+    date: '2026-08-03T21:22:32+03:00',
+    en: 'Dish names on Day meal cards wrap at spaces only — Russian words like “джемом” no longer split mid-word.',
+    ru: 'Названия блюд на экране «День» переносятся только по пробелам — русские слова вроде «джемом» больше не рвутся посередине.',
+  },
+  {
     version: 510,
     issue: 559,
     date: '2026-08-03T19:52:44+03:00',

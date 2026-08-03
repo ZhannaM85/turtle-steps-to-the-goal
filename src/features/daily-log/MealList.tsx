@@ -186,16 +186,12 @@ function MealListItem({
       {/* Item sub-list (#81) — a group's individual dishes, shown
        * underneath its own header/note/macro-total lines above. */}
       {/* #545: min-w-0 so flex children can shrink below intrinsic name
-       * width (same class of bug #156 fixed for truncate). #559: no pl-4
-       * indent. #555 dropped break-words after mid-word Cyrillic breaks,
-       * but without it Safari let the flex item grow to the full name
-       * width so long titles (…джемом (Level Kitchen)) overflowed the
-       * card instead of wrapping — restore break-words with max-w-full /
-       * overflow-hidden on the card so the line box is the card width;
-       * overflow-wrap:break-word only splits mid-word when one token is
-       * longer than that width (normal Russian words with spaces wrap
-       * at spaces). Item rows are block (not flex-col) so the name isn't
-       * a flex item with Safari's min-content sizing quirk. */}
+       * width (same class #156 fixed for truncate). #559: no pl-4 indent;
+       * card max-w-full/overflow-hidden. #555/#559 validation: do NOT use
+       * break-words — WebKit mid-splits ordinary Cyrillic (дже|мом) even
+       * when spaces exist. Force the name box to the card width with
+       * w-0 min-w-full (defeats Safari min-content growth) + break-normal
+       * / hyphens-none so wrap is at spaces only. */}
       <ul className="flex min-w-0 max-w-full flex-col divide-y divide-foreground/15">
         {entry.items.map((item) => {
           const itemMacros = macrosSummaryTextCompact(
@@ -228,7 +224,7 @@ function MealListItem({
                 // foreground (#473 follow-up) — at full strength the dish
                 // names competed with the meal title above them. Size and
                 // weight carry the hierarchy here, not color.
-                <p className="max-w-full break-words text-base font-medium">
+                <p className="w-0 min-w-full max-w-full break-normal hyphens-none text-base font-medium">
                   {item.name}
                   {item.brand ? ` (${item.brand})` : ''}
                 </p>
