@@ -1385,6 +1385,7 @@ _Water recommendation and further filings from this session (list may grow)._
 | [#561](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/561) | 🔍 Pending validation | Remove water recommendation from Day/Today; keep it on Goal only | Dropped Day range/hot/workout UI + `waterDayFlagsStore`; Goal mid-fill (#548) unchanged. |
 | [#562](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/562) | 🔍 Pending validation | Dashboard weekly recap: hide incomplete current week (completed Mon–Sun weeks only) | `excludeIncompleteCurrentWeek` — hide week until `weekEnd < today`; months / last-30-days unchanged. Weekly notes for the current week wait until that card appears. |
 | [#563](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/563) | ⬜ Open | Allow renaming Breakfast/Lunch/Dinner while adding or editing a meal (not only in Settings) | Skipped-breakfast case: first meal still defaults to Breakfast (#141). Rename should be available in add/edit meal UI, not only via Settings presets (#110). No fixed slots (#81). |
+| [#564](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/564) | ⬜ Open | Barcode scan: tap-to-focus inside the framing rectangle (camera often soft / hold still too long) | Live feedback: scanning still needs holding still too long; camera often doesn’t focus on the barcode. Suggested: tap inside #294’s framing box to focus on that point. Follow-up to #256/#291/#294; root cause not investigated at filing |
 
 
 
