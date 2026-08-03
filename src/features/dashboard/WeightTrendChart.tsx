@@ -15,7 +15,11 @@ import {
 import { Link } from 'react-router-dom'
 import type { DailyEntry } from '@/domain/dailyEntry'
 import { kgToLb } from '@/domain/goal'
-import { rollingAverage, type TrendChartPeriod } from '@/domain/stats'
+import {
+  rollingAverage,
+  sliceByZoomWindow,
+  type TrendChartPeriod,
+} from '@/domain/stats'
 import {
   formatNumber,
   getDateFnsLocale,
@@ -29,10 +33,12 @@ import {
   useTrendChartSeriesStore,
   useUnitStore,
 } from '@/stores'
+import { Button } from '@/shared/ui/button'
 import { ChartPeriodPagerControls } from './ChartPeriodPagerControls'
 import { ChartTitleWithToggle } from './ChartTitleWithToggle'
 import { resolveChartClickDate } from './chartNavigation'
 import { OutlierPointsList } from './OutlierPointsList'
+import { useChartGestureZoom } from './useChartGestureZoom'
 import { useChartPeriodPager } from './useChartPeriodPager'
 import { useDashboardChartPeriod } from './useDashboardChartPeriod'
 
@@ -109,6 +115,9 @@ export function WeightTrendChart({
     customEndOverride ?? stored.customEnd,
     allEntries,
   )
+  const gestureResetKey = `${periodOverride ?? stored.period}|${customStartOverride ?? stored.customStart}|${customEndOverride ?? stored.customEnd}|${pager.range.start ?? ''}|${pager.range.end ?? ''}`
+  const { surfaceRef, zoomWindow, isZoomed, resetZoom } =
+    useChartGestureZoom(gestureResetKey)
   const entries = pager.pagedEntries
   const toDisplay = (kg: number) => (displayUnit === 'lb' ? kgToLb(kg) : kg)
   // #238 — independent per chart, someone might want the average on one
@@ -195,6 +204,7 @@ export function WeightTrendChart({
     merged.set(point.date, { ...merged.get(point.date), ...point })
   }
   const data = [...merged.values()].sort((a, b) => a.date.localeCompare(b.date))
+  const displayData = sliceByZoomWindow(data, zoomWindow)
 
   // The special "current value" dot (below) marks the most recent day
   // that actually has a logged weight — not just the last row in `data`,
@@ -202,7 +212,9 @@ export function WeightTrendChart({
   // something else but no weight (rollingAverage() covers every entry
   // date, not only weight-logged ones).
   const lastWeightDate = weightPoints[weightPoints.length - 1].date
-  const lastWeightIndex = data.findIndex((point) => point.date === lastWeightDate)
+  const lastWeightIndex = displayData.findIndex(
+    (point) => point.date === lastWeightDate,
+  )
 
   // #441 — reported live with a screenshot: an obvious single-point
   // data-entry-error spike rendered identically to every real point, no
@@ -324,11 +336,17 @@ export function WeightTrendChart({
           {t.dashboard.trendChartEmptyDescription}
         </p>
       ) : (
-        <ResponsiveContainer width="100%" height={180}>
-          <LineChart
-          data={data}
-          margin={{ top: 8, right: 8, left: 0, bottom: 0 }}
-        >
+        <>
+          <div
+            ref={surfaceRef}
+            className="touch-pan-y"
+            data-point-count={data.length}
+          >
+            <ResponsiveContainer width="100%" height={180}>
+              <LineChart
+                data={displayData}
+                margin={{ top: 8, right: 8, left: 0, bottom: 0 }}
+              >
           <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
           <XAxis
             dataKey="date"
@@ -367,7 +385,10 @@ export function WeightTrendChart({
                 // the user has since excluded renders dimmed instead, same
                 // treatment `outlierScatterShape.tsx` already uses for the
                 // correlation views' own excluded points.
-                if (data[index] && isWeightOutlier(data[index].date)) {
+                if (
+                  displayData[index] &&
+                  isWeightOutlier(displayData[index].date)
+                ) {
                   return (
                     <circle
                       key={index}
@@ -375,7 +396,9 @@ export function WeightTrendChart({
                       cy={cy}
                       r={4}
                       fill="var(--destructive)"
-                      opacity={isExcludedWeightDate(data[index].date) ? 0.3 : 1}
+                      opacity={
+                        isExcludedWeightDate(displayData[index].date) ? 0.3 : 1
+                      }
                     />
                   )
                 }
@@ -416,8 +439,20 @@ export function WeightTrendChart({
               isAnimationActive={false}
             />
           )}
-          </LineChart>
-        </ResponsiveContainer>
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+          {isZoomed && (
+            <div className="flex items-center justify-between gap-2">
+              <p className="text-xs text-muted-foreground">
+                {t.dashboard.customChartZoomHint}
+              </p>
+              <Button type="button" variant="ghost" size="sm" onClick={resetZoom}>
+                {t.dashboard.customChartResetZoomButton}
+              </Button>
+            </div>
+          )}
+        </>
       )}
       {/* #455 — tap-to-exclude chips for every currently-flagged point,
        * same shared component the 6 correlation views already use. */}

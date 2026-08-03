@@ -16,6 +16,7 @@ import type { DailyEntry } from '@/domain/dailyEntry'
 import {
   ELECTROLYTE_SERIES_KEYS,
   electrolytePoints,
+  sliceByZoomWindow,
   type ElectrolyteSeriesKey,
   type TrendChartPeriod,
 } from '@/domain/stats'
@@ -27,6 +28,7 @@ import {
   type Dictionary,
 } from '@/i18n'
 import { ToggleGroup, ToggleGroupItem } from '@/shared/ui/toggle-group'
+import { Button } from '@/shared/ui/button'
 import {
   useDashboardChartVisibilityStore,
   useMicronutrientTrackingStore,
@@ -34,6 +36,7 @@ import {
 import { ChartPeriodPagerControls } from './ChartPeriodPagerControls'
 import { ChartTitleWithToggle } from './ChartTitleWithToggle'
 import { resolveChartClickDate } from './chartNavigation'
+import { useChartGestureZoom } from './useChartGestureZoom'
 import { useChartPeriodPager } from './useChartPeriodPager'
 import { useDashboardChartPeriod } from './useDashboardChartPeriod'
 
@@ -93,6 +96,9 @@ export function ElectrolyteTrendChart({
     customEndOverride ?? stored.customEnd,
     allEntries,
   )
+  const gestureResetKey = `${periodOverride ?? stored.period}|${customStartOverride ?? stored.customStart}|${customEndOverride ?? stored.customEnd}|${pager.range.start ?? ''}|${pager.range.end ?? ''}`
+  const { surfaceRef, zoomWindow, isZoomed, resetZoom } =
+    useChartGestureZoom(gestureResetKey)
   const entries = pager.pagedEntries
   const tracked = useMicronutrientTrackingStore((state) => state.tracked)
   const chartVisible = useDashboardChartVisibilityStore(
@@ -242,16 +248,22 @@ export function ElectrolyteTrendChart({
     }
     return row
   })
+  const displayData = sliceByZoomWindow(data, zoomWindow)
 
   return (
     <div className="flex flex-col gap-1.5 rounded-lg border border-border p-3">
       {chartTitle}
       {seriesPicker}
-      <ResponsiveContainer width="100%" height={160}>
-        <LineChart
-          data={data}
-          margin={{ top: 8, right: 8, left: 0, bottom: 0 }}
-        >
+      <div
+        ref={surfaceRef}
+        className="touch-pan-y"
+        data-point-count={data.length}
+      >
+        <ResponsiveContainer width="100%" height={160}>
+          <LineChart
+            data={displayData}
+            margin={{ top: 8, right: 8, left: 0, bottom: 0 }}
+          >
           <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
           <XAxis
             dataKey="date"
@@ -327,6 +339,17 @@ export function ElectrolyteTrendChart({
           ))}
         </LineChart>
       </ResponsiveContainer>
+      </div>
+      {isZoomed && (
+        <div className="flex items-center justify-between gap-2">
+          <p className="text-xs text-muted-foreground">
+            {t.dashboard.customChartZoomHint}
+          </p>
+          <Button type="button" variant="ghost" size="sm" onClick={resetZoom}>
+            {t.dashboard.customChartResetZoomButton}
+          </Button>
+        </div>
+      )}
       <span className="flex flex-wrap gap-3 text-xs text-muted-foreground">
         {visibleKeys.map((key) => (
           <i key={key} className="flex items-center gap-1 not-italic">

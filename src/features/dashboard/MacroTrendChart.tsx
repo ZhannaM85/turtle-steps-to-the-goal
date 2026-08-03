@@ -14,7 +14,7 @@ import {
 } from 'recharts'
 import { Link } from 'react-router-dom'
 import type { DailyEntry } from '@/domain/dailyEntry'
-import { customChartPoints, type TrendChartPeriod } from '@/domain/stats'
+import { customChartPoints, sliceByZoomWindow, type TrendChartPeriod } from '@/domain/stats'
 import {
   formatNumber,
   getDateFnsLocale,
@@ -23,6 +23,7 @@ import {
   type Dictionary,
 } from '@/i18n'
 import { ToggleGroup, ToggleGroupItem } from '@/shared/ui/toggle-group'
+import { Button } from '@/shared/ui/button'
 import {
   MACRO_SERIES_KEYS,
   useDashboardChartVisibilityStore,
@@ -33,6 +34,7 @@ import {
 import { ChartPeriodPagerControls } from './ChartPeriodPagerControls'
 import { ChartTitleWithToggle } from './ChartTitleWithToggle'
 import { resolveChartClickDate } from './chartNavigation'
+import { useChartGestureZoom } from './useChartGestureZoom'
 import { useChartPeriodPager } from './useChartPeriodPager'
 import { useDashboardChartPeriod } from './useDashboardChartPeriod'
 
@@ -114,6 +116,9 @@ export function MacroTrendChart({
     customEndOverride ?? stored.customEnd,
     allEntries,
   )
+  const gestureResetKey = `${periodOverride ?? stored.period}|${customStartOverride ?? stored.customStart}|${customEndOverride ?? stored.customEnd}|${pager.range.start ?? ''}|${pager.range.end ?? ''}`
+  const { surfaceRef, zoomWindow, isZoomed, resetZoom } =
+    useChartGestureZoom(gestureResetKey)
   const entries = pager.pagedEntries
   // #245 — see WeightTrendChart.tsx's identical note.
   const chartVisible = useDashboardChartVisibilityStore(
@@ -226,6 +231,7 @@ export function MacroTrendChart({
     }
     return row
   })
+  const displayData = sliceByZoomWindow(data, zoomWindow)
 
   // Grams sit flush against the number ("90g") the way every other macro
   // readout in the app writes them; kcal is a spaced word.
@@ -282,8 +288,13 @@ export function MacroTrendChart({
     <div className="flex flex-col gap-1.5 rounded-lg border border-border p-3">
       {chartTitle}
       {seriesPicker}
-      <ResponsiveContainer width="100%" height={160}>
-        <ComposedChart data={data} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
+      <div
+        ref={surfaceRef}
+        className="touch-pan-y"
+        data-point-count={data.length}
+      >
+        <ResponsiveContainer width="100%" height={160}>
+          <ComposedChart data={displayData} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
           <XAxis
             dataKey="date"
@@ -389,6 +400,17 @@ export function MacroTrendChart({
           })}
         </ComposedChart>
       </ResponsiveContainer>
+      </div>
+      {isZoomed && (
+        <div className="flex items-center justify-between gap-2">
+          <p className="text-xs text-muted-foreground">
+            {t.dashboard.customChartZoomHint}
+          </p>
+          <Button type="button" variant="ghost" size="sm" onClick={resetZoom}>
+            {t.dashboard.customChartResetZoomButton}
+          </Button>
+        </div>
+      )}
       <div className="flex flex-wrap gap-4 text-xs text-muted-foreground">
         {visibleKeys.map((key) => (
           <div key={key} className="flex items-center gap-1.5">

@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 518,
+    issue: 560,
+    date: '2026-08-03T23:30:00+03:00',
+    en: 'Pinch to zoom and pan on weight, calories, macros, body composition, and electrolyte trend charts.',
+    ru: 'На графиках веса, калорий, макросов, состава тела и электролитов можно масштабировать и прокручивать жестами.',
+  },
+  {
     version: 517,
     issue: 566,
     date: '2026-08-03T23:15:00+03:00',

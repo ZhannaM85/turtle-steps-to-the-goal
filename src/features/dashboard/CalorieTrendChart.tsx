@@ -14,7 +14,7 @@ import {
 } from 'recharts'
 import { Link } from 'react-router-dom'
 import { totalCalories, type DailyEntry } from '@/domain/dailyEntry'
-import { rollingAverage, type TrendChartPeriod } from '@/domain/stats'
+import { rollingAverage, sliceByZoomWindow, type TrendChartPeriod } from '@/domain/stats'
 import {
   formatNumber,
   getDateFnsLocale,
@@ -22,9 +22,11 @@ import {
   useTranslation,
 } from '@/i18n'
 import { useDashboardChartVisibilityStore, useTrendChartSeriesStore } from '@/stores'
+import { Button } from '@/shared/ui/button'
 import { ChartPeriodPagerControls } from './ChartPeriodPagerControls'
 import { ChartTitleWithToggle } from './ChartTitleWithToggle'
 import { resolveChartClickDate } from './chartNavigation'
+import { useChartGestureZoom } from './useChartGestureZoom'
 import { useChartPeriodPager } from './useChartPeriodPager'
 import { useDashboardChartPeriod } from './useDashboardChartPeriod'
 
@@ -67,6 +69,9 @@ export function CalorieTrendChart({
     customEndOverride ?? stored.customEnd,
     allEntries,
   )
+  const gestureResetKey = `${periodOverride ?? stored.period}|${customStartOverride ?? stored.customStart}|${customEndOverride ?? stored.customEnd}|${pager.range.start ?? ''}|${pager.range.end ?? ''}`
+  const { surfaceRef, zoomWindow, isZoomed, resetZoom } =
+    useChartGestureZoom(gestureResetKey)
   const entries = pager.pagedEntries
   // #238 — see WeightTrendChart.tsx's identical note.
   const visible = useTrendChartSeriesStore((state) => state.visible.calories)
@@ -150,6 +155,7 @@ export function CalorieTrendChart({
     merged.set(point.date, { ...merged.get(point.date), ...point })
   }
   const data = [...merged.values()].sort((a, b) => a.date.localeCompare(b.date))
+  const displayData = sliceByZoomWindow(data, zoomWindow)
 
   // Tapping/hovering a point only ever shows the tooltip (#49) — the
   // in-tooltip link is the sole way to navigate, so a stray tap elsewhere
@@ -209,11 +215,17 @@ export function CalorieTrendChart({
           {t.dashboard.trendChartEmptyDescription}
         </p>
       ) : (
-        <ResponsiveContainer width="100%" height={160}>
-          <ComposedChart
-            data={data}
-            margin={{ top: 8, right: 8, left: 0, bottom: 0 }}
+        <>
+          <div
+            ref={surfaceRef}
+            className="touch-pan-y"
+            data-point-count={data.length}
           >
+            <ResponsiveContainer width="100%" height={160}>
+              <ComposedChart
+                data={displayData}
+                margin={{ top: 8, right: 8, left: 0, bottom: 0 }}
+              >
             <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
             <XAxis
               dataKey="date"
@@ -253,8 +265,20 @@ export function CalorieTrendChart({
                 isAnimationActive={false}
               />
             )}
-          </ComposedChart>
-        </ResponsiveContainer>
+              </ComposedChart>
+            </ResponsiveContainer>
+          </div>
+          {isZoomed && (
+            <div className="flex items-center justify-between gap-2">
+              <p className="text-xs text-muted-foreground">
+                {t.dashboard.customChartZoomHint}
+              </p>
+              <Button type="button" variant="ghost" size="sm" onClick={resetZoom}>
+                {t.dashboard.customChartResetZoomButton}
+              </Button>
+            </div>
+          )}
+        </>
       )}
       {/* #238: legend doubles as a show/hide toggle per series — see
        * WeightTrendChart.tsx's identical note. */}
