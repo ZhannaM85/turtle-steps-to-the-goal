@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 500,
+    issue: 555,
+    date: '2026-08-03T18:29:23+03:00',
+    en: 'Long dish names on meal cards wrap at whole words again instead of splitting in the middle of a word.',
+    ru: 'Длинные названия блюд в карточках приёмов пищи снова переносятся по словам, а не разрываются посередине слова.',
+  },
+  {
     version: 499,
     issue: 542,
     date: '2026-08-03T16:48:05+03:00',

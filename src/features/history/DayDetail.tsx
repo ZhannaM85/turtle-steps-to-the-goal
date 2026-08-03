@@ -329,7 +329,8 @@ export function DayDetail({
                            * reaction all move down to a second row
                            * together. */}
                           {item.name && (
-                            <p className="min-w-0 break-words">
+                            <p className="min-w-0">
+                              {/* #555: no break-words — mid-word splits on WebKit */}
                               {item.name}
                               {item.brand ? ` (${item.brand})` : ''}
                             </p>

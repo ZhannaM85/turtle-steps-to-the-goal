@@ -186,8 +186,9 @@ function MealListItem({
       {/* Item sub-list (#81) — a group's individual dishes, shown
        * underneath its own header/note/macro-total lines above. */}
       {/* #545: min-w-0 so flex children can shrink below intrinsic name
-       * width (same class of bug #156 fixed for truncate); break-words so
-       * long tokens wrap inside the card instead of overflowing. */}
+       * width (same class of bug #156 fixed for truncate). #555: do not
+       * use break-words — on WebKit that mid-broke ordinary Russian
+       * words (картофе|лем); wrap at spaces with normal overflow-wrap. */}
       <ul className="flex min-w-0 flex-col divide-y divide-foreground/15 pl-4">
         {entry.items.map((item) => {
           const itemMacros = macrosSummaryTextCompact(
@@ -220,7 +221,7 @@ function MealListItem({
                 // foreground (#473 follow-up) — at full strength the dish
                 // names competed with the meal title above them. Size and
                 // weight carry the hierarchy here, not color.
-                <p className="min-w-0 break-words text-base font-medium">
+                <p className="min-w-0 text-base font-medium">
                   {item.name}
                   {item.brand ? ` (${item.brand})` : ''}
                 </p>

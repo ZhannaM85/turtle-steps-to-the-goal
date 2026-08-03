@@ -279,7 +279,7 @@ describe('MealList', () => {
       expect(screen.getByText('52 kcal')).toBeInTheDocument()
     })
 
-    it('wraps long dish names inside the card (#545)', () => {
+    it('wraps long dish names inside the card without mid-word breaks (#545/#555)', () => {
       const longName =
         'Салат из цветной капусты с сыром и йогуртом (Level Kitchen)'
       const calorieEntries: CalorieEntry[] = [
@@ -299,7 +299,9 @@ describe('MealList', () => {
       )
 
       const name = screen.getByText(longName)
-      expect(name).toHaveClass('min-w-0', 'break-words')
+      expect(name).toHaveClass('min-w-0')
+      // #555: break-words mid-broke Cyrillic on WebKit — keep natural wraps.
+      expect(name).not.toHaveClass('break-words')
     })
 
     it('shows a saved note underneath the dish in the read-only view', () => {
