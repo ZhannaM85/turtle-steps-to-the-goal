@@ -33,6 +33,7 @@ import { Button } from '@/shared/ui/button'
 import { ChartTitleWithToggle } from './ChartTitleWithToggle'
 import { CorrelationChartTooltip } from './CorrelationChartTooltip'
 import { CorrelationStrengthLabel } from './CorrelationStrengthLabel'
+import { dayNotesByDate } from './dayNotePreview'
 import { OutlierPointsList } from './OutlierPointsList'
 import { outlierReasonLabel } from './outlierReasonLabel'
 import { renderOutlierScatterShape } from './outlierScatterShape'
@@ -82,6 +83,7 @@ export function NightEatingCorrelationView({
   )
 
   const rawPoints = nightEatingPoints(entries)
+  const notesByDate = dayNotesByDate(entries)
   const { flags, axes, isExcluded, toggle, includedPoints } = useOutlierExclusion(
     'nightEating',
     rawPoints,
@@ -102,6 +104,7 @@ export function NightEatingCorrelationView({
     outlierReason: flags[i]
       ? outlierReasonLabel(t.dashboard, axes[i], metricLabel)
       : undefined,
+    dayNotePreview: notesByDate.get(point.date),
   }))
   const outlierPoints = rawPoints.filter((_, i) => flags[i])
   const reasonByKey = new Map(
@@ -220,6 +223,7 @@ export function NightEatingCorrelationView({
             })
           }
           formatReason={(point) => reasonByKey.get(point.date)}
+          formatNotePreview={(point) => notesByDate.get(point.date)}
         />
       )}
       {insight ? (

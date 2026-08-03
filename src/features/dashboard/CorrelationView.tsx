@@ -26,6 +26,7 @@ import { Button } from '@/shared/ui/button'
 import { ChartTitleWithToggle } from './ChartTitleWithToggle'
 import { CorrelationChartTooltip } from './CorrelationChartTooltip'
 import { CorrelationStrengthLabel } from './CorrelationStrengthLabel'
+import { dayNotesByDate } from './dayNotePreview'
 import { OutlierPointsList } from './OutlierPointsList'
 import { outlierReasonLabel } from './outlierReasonLabel'
 import { renderOutlierScatterShape } from './outlierScatterShape'
@@ -69,6 +70,7 @@ export function CorrelationView({ entries: allEntries, dragHandle }: Correlation
 
   const weekStartsOn = useWeekStartsOn(entries)
   const rawPoints = correlationInsightPoints(entries, weekStartsOn)
+  const notesByDate = dayNotesByDate(entries)
   const { flags, axes, isExcluded, toggle, includedPoints } = useOutlierExclusion(
     'calorieWeight',
     rawPoints,
@@ -92,6 +94,7 @@ export function CorrelationView({ entries: allEntries, dragHandle }: Correlation
     outlierReason: flags[i]
       ? outlierReasonLabel(t.dashboard, axes[i], metricLabel)
       : undefined,
+    dayNotePreview: notesByDate.get(point.weekStart),
   }))
   const outlierPoints = rawPoints.filter((_, i) => flags[i])
   const reasonByKey = new Map(
@@ -201,6 +204,7 @@ export function CorrelationView({ entries: allEntries, dragHandle }: Correlation
             })
           }
           formatReason={(point) => reasonByKey.get(point.weekStart)}
+          formatNotePreview={(point) => notesByDate.get(point.weekStart)}
         />
       )}
       {insight ? (

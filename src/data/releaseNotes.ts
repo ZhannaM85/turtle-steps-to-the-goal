@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 495,
+    issue: 540,
+    date: '2026-08-03T15:38:12+03:00',
+    en: 'Unusual points on correlation charts can show a short preview of that day’s note, so you can see why a day looked odd without opening it.',
+    ru: 'Необычные точки на графиках корреляции могут показывать короткий фрагмент заметки за этот день — чтобы понять, почему день выглядит странно, не открывая его.',
+  },
+  {
     version: 494,
     issue: 539,
     date: '2026-08-03T14:45:31+03:00',

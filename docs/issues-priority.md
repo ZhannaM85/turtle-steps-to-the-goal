@@ -1346,7 +1346,7 @@ _Five requests from an external review (filed in English). Ordered easier → ha
 
 ## Tier 96 — Live feedback & features (2026-08-03)
 
-_One session's filings. Ordered easiest → hardest; #541 before #542. #540 paused on design fork; #546 needs repro; #547 needs export sample._
+_One session's filings. Ordered easiest → hardest; #541 before #542. #546 needs repro. #547 closed (Zepp export cap)._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
@@ -1356,7 +1356,7 @@ _One session's filings. Ordered easiest → hardest; #541 before #542. #540 paus
 | [#547](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/547) | ✅ Done | Investigate: body composition only from Apr 2024 after Zepp Life import (older history expected) | User Zepp export inspected: BODY CSV exactly **1000 rows**, **2024-01-10→2026-08-02** — no 2020/2018 history in the file (likely Zepp cap). Body-comp present from Jan 2024; missing multi-year data is export limitation, not importer. No code change. Optional later: Settings blurb about ~1000-row cap. |
 | [#538](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/538) | ⬜ Open | Dashboard: initial page load takes ~4–5 seconds (investigate possible improvements) | Profiling / mount cost |
 | [#543](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/543) | ⬜ Open | Compare Data chart: pinch-zoom / pan / double-tap gestures (trial on one chart first) | Gesture UX on one chart |
-| [#540](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/540) | ⬜ Open | Correlation outliers: show short context for unusual weight changes (note preview or dedicated note) | Paused — design fork not chosen |
+| [#540](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/540) | 🔍 Pending validation | Correlation outliers: show short context for unusual weight changes (note preview or dedicated note) | Chose option 1: truncated Day-note preview on correlation tooltips + unusual-point chips (`dayNotePreview.ts`). No dedicated oddity field; no auto gap hint. |
 | [#541](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/541) | ⬜ Open | Backfill personal food library from meal history / MFP import (searchable, reversible) | Perf + reversible tagging |
 | [#542](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/542) | ⬜ Open | Propagate personal food library edits to past meal entries | After #541; history rewrite UX |
 | [#546](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/546) | ⬜ Open | Edge case: bottom tab footer sometimes disappears (no reliable repro) | Hardest without repro — last |

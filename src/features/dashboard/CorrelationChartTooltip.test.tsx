@@ -84,6 +84,30 @@ describe('CorrelationChartTooltip', () => {
     ).not.toBeInTheDocument()
   })
 
+  it('shows a truncated day-note preview when present (#540)', () => {
+    renderTooltip(
+      <CorrelationChartTooltip
+        formatValue={formatValue}
+        active
+        payload={[
+          {
+            name: 'steps',
+            value: 9000,
+            dataKey: 'steps',
+            payload: {
+              date: '2026-03-01',
+              steps: 9000,
+              delta: -0.2,
+              dayNotePreview: 'Back from vacation…',
+            },
+          },
+        ]}
+      />,
+    )
+
+    expect(screen.getByText('Back from vacation…')).toBeInTheDocument()
+  })
+
   it('renders nothing while the tooltip is inactive', () => {
     const { container } = renderTooltip(
       <CorrelationChartTooltip

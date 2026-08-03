@@ -36,6 +36,7 @@ export function OutlierPointsList<T>({
   getDate,
   formatLabel,
   formatReason,
+  formatNotePreview,
 }: {
   points: T[]
   isExcluded: (point: T) => boolean
@@ -47,6 +48,8 @@ export function OutlierPointsList<T>({
    * change vs metric). Omitted on callers that don't use 2D Tukey flags
    * (e.g. Weight trend's day-over-day band). */
   formatReason?: (point: T) => string | undefined
+  /** #540 — optional truncated Day note for that point's date. */
+  formatNotePreview?: (point: T) => string | undefined
 }) {
   const t = useTranslation()
 
@@ -66,6 +69,7 @@ export function OutlierPointsList<T>({
           const excluded = isExcluded(point)
           const label = formatLabel(point)
           const reason = formatReason?.(point)
+          const notePreview = formatNotePreview?.(point)
           return (
             <div key={getKey(point)} className="flex items-center gap-0.5">
               <Button
@@ -92,6 +96,11 @@ export function OutlierPointsList<T>({
                 {reason && (
                   <span className="text-[10px] font-normal text-muted-foreground">
                     {reason}
+                  </span>
+                )}
+                {notePreview && (
+                  <span className="max-w-40 truncate text-[10px] font-normal text-muted-foreground italic">
+                    {notePreview}
                   </span>
                 )}
               </Button>

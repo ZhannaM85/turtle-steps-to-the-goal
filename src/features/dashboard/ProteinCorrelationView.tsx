@@ -26,6 +26,7 @@ import { Button } from '@/shared/ui/button'
 import { ChartTitleWithToggle } from './ChartTitleWithToggle'
 import { CorrelationChartTooltip } from './CorrelationChartTooltip'
 import { CorrelationStrengthLabel } from './CorrelationStrengthLabel'
+import { dayNotesByDate } from './dayNotePreview'
 import { OutlierPointsList } from './OutlierPointsList'
 import { outlierReasonLabel } from './outlierReasonLabel'
 import { renderOutlierScatterShape } from './outlierScatterShape'
@@ -73,6 +74,7 @@ export function ProteinCorrelationView({
   )
 
   const rawPoints = proteinPoints(entries)
+  const notesByDate = dayNotesByDate(entries)
   const { flags, axes, isExcluded, toggle, includedPoints } = useOutlierExclusion(
     'protein',
     rawPoints,
@@ -93,6 +95,7 @@ export function ProteinCorrelationView({
     outlierReason: flags[i]
       ? outlierReasonLabel(t.dashboard, axes[i], metricLabel)
       : undefined,
+    dayNotePreview: notesByDate.get(point.date),
   }))
   const outlierPoints = rawPoints.filter((_, i) => flags[i])
   const reasonByKey = new Map(
@@ -200,6 +203,7 @@ export function ProteinCorrelationView({
             })
           }
           formatReason={(point) => reasonByKey.get(point.date)}
+          formatNotePreview={(point) => notesByDate.get(point.date)}
         />
       )}
       {insight ? (
