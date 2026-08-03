@@ -50,7 +50,13 @@ import { SleepCorrelationView } from './SleepCorrelationView'
 import { StepsCorrelationView } from './StepsCorrelationView'
 import { WeeklySummaryCards } from './WeeklySummaryCards'
 import { WeightTrendChart } from './WeightTrendChart'
+import { DeferredMount } from './DeferredMount'
 import { useDashboardData } from './useDashboardData'
+
+/** #538 — first N sections mount eagerly (above the fold); the rest wait
+ * until near the viewport so initial Dashboard paint does not build every
+ * Recharts tree at once. */
+const EAGER_DASHBOARD_SECTION_COUNT = 2
 
 // #297 — drag-and-drop reordering, purely additive so it doesn't depend on
 // what a given section renders internally. #319 — the handle (and dragging
@@ -295,14 +301,19 @@ export function DashboardScreen() {
             >
               <div className="flex flex-col gap-6">
                 {order.map((key, index) => (
-                  <SortableDashboardSection
+                  <DeferredMount
                     key={key}
-                    id={key}
-                    position={index + 1}
-                    isReordering={isReordering}
+                    eager={index < EAGER_DASHBOARD_SECTION_COUNT}
+                    force={isReordering}
                   >
-                    {(dragHandle) => sectionsByKey[key](dragHandle)}
-                  </SortableDashboardSection>
+                    <SortableDashboardSection
+                      id={key}
+                      position={index + 1}
+                      isReordering={isReordering}
+                    >
+                      {(dragHandle) => sectionsByKey[key](dragHandle)}
+                    </SortableDashboardSection>
+                  </DeferredMount>
                 ))}
               </div>
             </SortableContext>
@@ -319,13 +330,14 @@ export function DashboardScreen() {
       {status !== 'loading' && status !== 'idle' && entries.length > 0 && (
         <div className="mt-6 flex flex-col gap-6">
           {customCorrelations.map((correlation) => (
-            <CustomCorrelationView
-              key={correlation.id}
-              correlation={correlation}
-              entries={entries}
-              metrics={customMetrics}
-              metricEntries={customMetricEntries}
-            />
+            <DeferredMount key={correlation.id} force={isReordering}>
+              <CustomCorrelationView
+                correlation={correlation}
+                entries={entries}
+                metrics={customMetrics}
+                metricEntries={customMetricEntries}
+              />
+            </DeferredMount>
           ))}
           <Button
             type="button"

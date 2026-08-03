@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 496,
+    issue: 538,
+    date: '2026-08-03T15:55:47+03:00',
+    en: 'Opening the Dashboard feels snappier — charts farther down the page load as you scroll instead of all at once.',
+    ru: 'Дашборд открывается быстрее — графики ниже по странице подгружаются при прокрутке, а не все сразу.',
+  },
+  {
     version: 495,
     issue: 540,
     date: '2026-08-03T15:38:12+03:00',
