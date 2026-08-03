@@ -6,6 +6,8 @@ import { useWeeklyNoteStore } from '@/stores'
 import { Button } from '@/shared/ui/button'
 import { Textarea } from '@/shared/ui/textarea'
 
+const WEEKLY_NOTE_PREVIEW_MAX_CHARS = 80
+
 export interface WeeklyNoteEditorProps {
   weekStart: string
 }
@@ -13,7 +15,8 @@ export interface WeeklyNoteEditorProps {
 /**
  * Per-week freeform note on Dashboard weekly recap (#557) — edit opens a
  * textarea; empty saves delete the row. Preview uses the same truncate
- * helper as day-note chips (#540).
+ * helper as day-note chips (#540). **#571**: long notes toggle collapsed
+ * preview ↔ full text without requiring Edit.
  */
 export function WeeklyNoteEditor({ weekStart }: WeeklyNoteEditorProps) {
   const t = useTranslation()
@@ -23,8 +26,13 @@ export function WeeklyNoteEditor({ weekStart }: WeeklyNoteEditorProps) {
   const setNote = useWeeklyNoteStore((state) => state.setNote)
   const [isEditing, setIsEditing] = useState(false)
   const [draft, setDraft] = useState('')
+  const [isExpanded, setIsExpanded] = useState(false)
 
-  const preview = truncateDayNote(savedNote, 80)
+  const truncated = truncateDayNote(savedNote, WEEKLY_NOTE_PREVIEW_MAX_CHARS)
+  const isTruncated =
+    Boolean(truncated) && truncated !== savedNote.trim()
+  const previewText =
+    isExpanded || !isTruncated ? savedNote.trim() : truncated
 
   function startEditing() {
     setDraft(savedNote)
@@ -34,6 +42,7 @@ export function WeeklyNoteEditor({ weekStart }: WeeklyNoteEditorProps) {
   async function save() {
     await setNote(weekStart, draft)
     setIsEditing(false)
+    setIsExpanded(false)
   }
 
   function cancel() {
@@ -77,19 +86,37 @@ export function WeeklyNoteEditor({ weekStart }: WeeklyNoteEditorProps) {
     )
   }
 
-  if (preview) {
+  if (previewText) {
     return (
-      <div className="mt-2 flex items-start justify-between gap-2">
-        <p className="min-w-0 flex-1 text-sm text-muted-foreground">{preview}</p>
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon-lg"
-          aria-label={t.dashboard.editWeeklyNoteLabel}
-          onClick={startEditing}
-        >
-          <Pencil aria-hidden="true" />
-        </Button>
+      <div className="mt-2 flex flex-col gap-1">
+        <div className="flex items-start justify-between gap-2">
+          <p className="min-w-0 flex-1 whitespace-pre-wrap text-sm text-muted-foreground">
+            {previewText}
+          </p>
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon-lg"
+            aria-label={t.dashboard.editWeeklyNoteLabel}
+            onClick={startEditing}
+          >
+            <Pencil aria-hidden="true" />
+          </Button>
+        </div>
+        {isTruncated && (
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            className="h-auto self-start px-0 text-muted-foreground"
+            aria-expanded={isExpanded}
+            onClick={() => setIsExpanded((open) => !open)}
+          >
+            {isExpanded
+              ? t.dashboard.collapseWeeklyNoteLabel
+              : t.dashboard.expandWeeklyNoteLabel}
+          </Button>
+        )}
       </div>
     )
   }

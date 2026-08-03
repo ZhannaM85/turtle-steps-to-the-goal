@@ -1079,6 +1079,9 @@ export interface Dictionary {
     cancelWeeklyNoteLabel: string
     weeklyNoteLabel: string
     weeklyNotePlaceholder: string
+    /** #571 — expand truncated weekly-note preview on the week card. */
+    expandWeeklyNoteLabel: string
+    collapseWeeklyNoteLabel: string
     /** #226 — a calendar month has one unambiguous boundary, unlike a
      * week, so no separate "monthRange" formatter is needed the way
      * weekRange is — the card's own label is just the localized month

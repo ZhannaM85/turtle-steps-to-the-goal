@@ -71,4 +71,30 @@ describe('WeeklyNoteEditor (#557)', () => {
 
     expect(setNote).toHaveBeenCalledWith('2026-07-27', 'Updated week note')
   })
+
+  it('expands and collapses a long weekly note preview (#571)', async () => {
+    const user = userEvent.setup()
+    const longNote =
+      'A'.repeat(90) + ' end of the advice from reviewing the export.'
+    useWeeklyNoteStore.setState({
+      notesByWeekStart: { '2026-07-27': longNote },
+      status: 'ready',
+      error: null,
+    })
+
+    render(<WeeklyNoteEditor weekStart="2026-07-27" />)
+    expect(screen.queryByText(longNote)).not.toBeInTheDocument()
+    expect(
+      screen.getByRole('button', { name: 'Show full note' }),
+    ).toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: 'Show full note' }))
+    expect(screen.getByText(longNote)).toBeInTheDocument()
+    expect(
+      screen.getByRole('button', { name: 'Show less' }),
+    ).toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: 'Show less' }))
+    expect(screen.queryByText(longNote)).not.toBeInTheDocument()
+  })
 })

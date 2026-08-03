@@ -633,6 +633,8 @@ export const en: Dictionary = {
     weeklyNoteLabel: 'Weekly note',
     weeklyNotePlaceholder:
       'Notes for this week — e.g. advice from reviewing your export…',
+    expandWeeklyNoteLabel: 'Show full note',
+    collapseWeeklyNoteLabel: 'Show less',
     monthlySummaryTitle: 'Monthly summary',
     recentAveragesTitle: 'Recent averages',
     last7DaysLabel: 'Last 7 days',

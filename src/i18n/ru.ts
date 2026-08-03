@@ -662,6 +662,8 @@ export const ru: Dictionary = {
     weeklyNoteLabel: 'Заметка недели',
     weeklyNotePlaceholder:
       'Заметки за эту неделю — например, советы после разбора экспорта…',
+    expandWeeklyNoteLabel: 'Показать полностью',
+    collapseWeeklyNoteLabel: 'Свернуть',
     monthlySummaryTitle: 'Месячная сводка',
     recentAveragesTitle: 'Средние показатели',
     last7DaysLabel: 'Последние 7 дней',

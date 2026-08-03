@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 525,
+    issue: 571,
+    date: '2026-08-04T00:35:00+03:00',
+    en: 'Long weekly notes on the Dashboard can be expanded in place to read the full text, without opening Edit.',
+    ru: 'Длинные заметки недели на Обзоре можно развернуть на месте и прочитать полностью, не открывая редактирование.',
+  },
+  {
     version: 524,
     issue: 568,
     date: '2026-08-04T00:30:00+03:00',
