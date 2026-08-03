@@ -657,6 +657,42 @@ describe('GoalForm', () => {
     })
   })
 
+  describe('pace vs calories mismatch (#574)', () => {
+    it('replaces the deficit estimate when calories imply a surplus', async () => {
+      const user = userEvent.setup()
+      useProfileStore.setState({
+        heightCm: 165,
+        age: 30,
+        sex: 'female',
+        activityLevel: 'sedentary',
+      })
+      renderGoalForm(
+        <GoalForm
+          existingGoal={null}
+          onSubmit={vi.fn()}
+          latestWeightKg={70}
+        />,
+      )
+
+      await user.type(
+        screen.getByLabelText("This week's target (kg to lose)"),
+        '0.1',
+      )
+      expect(
+        await screen.findByText(/about 110 kcal\/day deficit/),
+      ).toBeInTheDocument()
+
+      await user.type(screen.getByLabelText('Daily calories target'), '5002')
+
+      expect(
+        screen.queryByText(/about 110 kcal\/day deficit/),
+      ).not.toBeInTheDocument()
+      expect(
+        screen.getByText(/daily calories and weekly pace don’t match/i),
+      ).toBeInTheDocument()
+    })
+  })
+
   describe('read-only summary table (#244, extended #252)', () => {
     it('shows "Not set" for fat/carb targets when unset', () => {
       renderGoalForm(

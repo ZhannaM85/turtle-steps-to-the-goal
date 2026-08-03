@@ -112,3 +112,17 @@ export function estimateWeeklyLossKgFromCalorieTarget(
   return estimatedWeeklyLossKgFromDailyDeficitKcal(dailyDeficitKcal)
 }
 
+/**
+ * #574 — weekly pace (kg to lose) and the pace implied by a daily calorie
+ * target disagree when one is clearly loss and the other is maintenance
+ * or gain (or the reverse). Small near-zero band avoids floating noise.
+ */
+export function weeklyPaceDisagreesWithCalorieImpliedPace(
+  paceKg: number,
+  impliedPaceKgFromCalories: number,
+  epsilonKg = 0.05,
+): boolean {
+  const sign = (kg: number) => (kg > epsilonKg ? 1 : kg < -epsilonKg ? -1 : 0)
+  return sign(paceKg) !== sign(impliedPaceKgFromCalories)
+}
+

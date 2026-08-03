@@ -375,6 +375,8 @@ export const en: Dictionary = {
       `Rough estimate: about ${kcal} kcal/day ${direction}.`,
     deficitCaveat:
       'This is a simple arithmetic estimate (~7700 kcal ≈ 1kg of fat), not medical or nutritional advice.',
+    paceCaloriesMismatchHint:
+      'Your daily calories and weekly pace don’t match (one looks like loss, the other like maintenance or gain). Use Recalculate from calories or from weekly pace — nothing updates automatically.',
     decreaseWeeklyTargetLabel: 'Decrease weekly target',
     increaseWeeklyTargetLabel: 'Increase weekly target',
     weeklyTargetStepHint: (step, unit) =>

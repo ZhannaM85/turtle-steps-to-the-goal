@@ -4,6 +4,7 @@ import {
   estimateWeeklyLossKgFromCalorieTarget,
   suggestDailyTargets,
   suggestMacrosForCalorieTarget,
+  weeklyPaceDisagreesWithCalorieImpliedPace,
 } from './targetCalculator'
 
 describe('calculateTdee', () => {
@@ -100,5 +101,19 @@ describe('estimateWeeklyLossKgFromCalorieTarget (#558)', () => {
       maintenance.calorieTargetKcal - 550,
     )
     expect(pace).toBeCloseTo(0.5, 5)
+  })
+})
+
+describe('weeklyPaceDisagreesWithCalorieImpliedPace (#574)', () => {
+  it('flags loss pace vs surplus calories', () => {
+    expect(weeklyPaceDisagreesWithCalorieImpliedPace(0.1, -0.5)).toBe(true)
+  })
+
+  it('does not flag when both are loss', () => {
+    expect(weeklyPaceDisagreesWithCalorieImpliedPace(0.5, 0.4)).toBe(false)
+  })
+
+  it('flags loss pace vs near-maintenance calories', () => {
+    expect(weeklyPaceDisagreesWithCalorieImpliedPace(0.1, 0)).toBe(true)
   })
 })

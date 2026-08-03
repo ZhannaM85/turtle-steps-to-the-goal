@@ -723,6 +723,8 @@ export interface Dictionary {
     targetRequired: string
     deficitEstimate: (kcal: number, direction: 'deficit' | 'surplus') => string
     deficitCaveat: string
+    /** #574 — when weekly pace and daily calories imply opposite directions. */
+    paceCaloriesMismatchHint: string
     /** #529 — ± buttons on the weekly-pace field. */
     decreaseWeeklyTargetLabel: string
     increaseWeeklyTargetLabel: string

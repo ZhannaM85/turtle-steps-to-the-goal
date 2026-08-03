@@ -143,6 +143,7 @@ export {
   suggestDailyTargets,
   suggestMacrosForCalorieTarget,
   estimateWeeklyLossKgFromCalorieTarget,
+  weeklyPaceDisagreesWithCalorieImpliedPace,
 } from './targetCalculator'
 export type {
   ActivityLevel,

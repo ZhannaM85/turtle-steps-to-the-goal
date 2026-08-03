@@ -16,6 +16,7 @@ import {
   suggestDailyTargets,
   suggestMacrosForCalorieTarget,
   waterRecommendationMidMl,
+  weeklyPaceDisagreesWithCalorieImpliedPace,
 } from '@/domain/stats'
 import { formatExactNumber, formatNumber, unitLabel, useLocale, useTranslation } from '@/i18n'
 import { parseNumberInput } from '@/shared/lib/parseNumberInput'
@@ -238,6 +239,33 @@ export function GoalForm({
   const calorieTargetRaw = Number(values.dailyCalorieTarget)
   const hasCalorieTarget =
     Number.isFinite(calorieTargetRaw) && calorieTargetRaw > 0
+
+  // #574 — when calories imply gain/maintenance while pace says loss (or
+  // reverse), don't present the pace-based deficit estimate as if they match.
+  const impliedPaceKgFromCalories =
+    canSuggestTarget &&
+    hasCalorieTarget &&
+    latestWeightKg !== null &&
+    heightCm !== undefined &&
+    age !== undefined &&
+    sex !== undefined &&
+    activityLevel !== undefined
+      ? estimateWeeklyLossKgFromCalorieTarget(
+          latestWeightKg,
+          heightCm,
+          age,
+          sex,
+          activityLevel,
+          calorieTargetRaw,
+        )
+      : null
+  const paceCaloriesDisagree =
+    paceKg !== null &&
+    impliedPaceKgFromCalories !== null &&
+    weeklyPaceDisagreesWithCalorieImpliedPace(
+      paceKg,
+      impliedPaceKgFromCalories,
+    )
 
   function applyPaceFromCalories() {
     if (!canSuggestTarget || !hasCalorieTarget || latestWeightKg === null) return
@@ -649,7 +677,7 @@ export function GoalForm({
         {renderRecalculateFromField('pace', values.targetWeeklyLoss)}
       </div>
 
-      {dailyDeficit !== null && (
+      {dailyDeficit !== null && !paceCaloriesDisagree && (
         <p className="text-sm text-muted-foreground">
           {t.goal.deficitEstimate(
             Math.round(Math.abs(dailyDeficit)),
@@ -659,7 +687,13 @@ export function GoalForm({
         </p>
       )}
 
-      {showAggressivePaceWarning && dailyDeficit !== null && (
+      {paceCaloriesDisagree && (
+        <p className="text-sm text-muted-foreground">
+          {t.goal.paceCaloriesMismatchHint}
+        </p>
+      )}
+
+      {showAggressivePaceWarning && dailyDeficit !== null && !paceCaloriesDisagree && (
         <p
           role="status"
           className="rounded-lg border border-border bg-muted p-3 text-sm text-foreground"

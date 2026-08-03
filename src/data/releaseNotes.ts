@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 531,
+    issue: 574,
+    date: '2026-08-04T02:03:14+03:00',
+    en: 'If your daily calories and weekly pace don’t match (for example high calories with a loss goal), the Goal screen says so instead of showing a matching deficit estimate.',
+    ru: 'Если дневные калории и темп недели не совпадают (например много калорий при цели похудеть), на экране Цели это видно — вместо оценки дефицита, будто всё согласовано.',
+  },
+  {
     version: 530,
     issue: 575,
     date: '2026-08-04T01:58:51+03:00',
