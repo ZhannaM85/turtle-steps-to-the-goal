@@ -1371,5 +1371,7 @@ _Water recommendation and further filings from this session (list may grow)._
 |---|--------|-------|-------|
 | [#548](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/548) | ⬜ Open | Calculate a personalized daily water recommendation from weight | Arithmetic range from weight (+ optional heat/workout bumps as user flags — no weather API). Relationship to existing manual `dailyWaterTargetMl` TBD at implement time |
 | [#549](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/549) | ⬜ Open | Day-level totals entry for calories, macros, and water without food items | Lazy path: daily kcal/macros (/water) without meal/food names. Meal-item manual entry already exists but is meal-flow heavy; water is glass/bottle only (#282). Additive vs absolute + double-count with real meals TBD |
+| [#550](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/550) | ⬜ Open | Settings Profile: redesign dense mid-dot line into a body-composition-style card | Recommend body-comp grid (not 4 StatCards). Optional BMI/BMR secondary line. Pencil edit unchanged |
+
 
 
