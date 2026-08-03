@@ -1374,6 +1374,9 @@ _Water recommendation and further filings from this session (list may grow)._
 | [#550](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/550) | ⬜ Open | Settings Profile: redesign dense mid-dot line into a body-composition-style card | Recommend body-comp grid (not 4 StatCards). Optional BMI/BMR secondary line. Pencil edit unchanged |
 | [#551](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/551) | ⬜ Open | Goal screen: show which weight the weekly target is based on | Surface baseline/reference weight on weekly card or summary («from X kg»). Canonical weight = existing week/goal anchor — confirm at implement |
 | [#552](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/552) | ⬜ Open | Day: show weekly goal card only for the selected date’s week | Don’t show current Jul–Aug 2026 goal when viewing e.g. 26 Sep 2019; match week or hide if none. Related #551 |
+| [#554](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/554) | ⬜ Open | iOS Battery screen shows generic Web icon instead of app icon | Different surface from home-screen #103; may be iOS PWA limitation. Harden apple-touch/manifest; document if Battery always shows «Web» |
+| [#553](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/553) | ⬜ Open | Investigate iOS background battery use and possible memory leaks | Live: 35m screen / 7m background / 7%. Inventory SW (#163) + version poll (#115), heap/leaks; fix only clear waste |
+
 
 
 
