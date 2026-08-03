@@ -1376,6 +1376,8 @@ _Water recommendation and further filings from this session (list may grow)._
 | [#552](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/552) | ⬜ Open | Day: show weekly goal card only for the selected date’s week | Don’t show current Jul–Aug 2026 goal when viewing e.g. 26 Sep 2019; match week or hide if none. Related #551 |
 | [#554](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/554) | ⬜ Open | iOS Battery screen shows generic Web icon instead of app icon | Different surface from home-screen #103; may be iOS PWA limitation. Harden apple-touch/manifest; document if Battery always shows «Web» |
 | [#553](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/553) | ⬜ Open | Investigate iOS background battery use and possible memory leaks | Live: 35m screen / 7m background / 7%. Inventory SW (#163) + version poll (#115), heap/leaks; fix only clear waste |
+| [#555](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/555) | ⬜ Open | Meal cards: dish names break mid-word (regression from #545 wrap fix) | e.g. картофе\|лем, д\|жемом. Keep min-w-0 overflow fix; wrap at word boundaries, not mid-word |
+
 
 
 
