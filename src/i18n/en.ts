@@ -227,12 +227,14 @@ export const en: Dictionary = {
     closeFoodDialogLabel: 'Close',
     scanBarcodeButton: 'Scan barcode',
     scanBarcodeDialogTitle: 'Scan barcode',
-    scanBarcodeInstructions: 'Point your camera at the barcode.',
+    scanBarcodeInstructions:
+      'Point your camera at the barcode. Tap inside the frame to focus.',
     scanBarcodeCameraErrorMessage: (detail) =>
       `Couldn't access the camera — check camera permissions and try again.${detail ? ` (${detail})` : ''}`,
     scanBarcodeSearchingMessage: 'Searching for this product…',
     scanBarcodeStillScanningTip:
-      'Still scanning — make sure the barcode is well-lit, in focus, and fills the frame above.',
+      'Still scanning — make sure the barcode is well-lit, in focus, and fills the frame above. Tap the frame to refocus.',
+    scanBarcodeTapToFocusLabel: 'Tap to focus on barcode',
     scanBarcodeManualLabel: 'Or enter the barcode number',
     scanBarcodeManualPlaceholder: 'Barcode number',
     scanBarcodeManualSubmitLabel: 'Search',

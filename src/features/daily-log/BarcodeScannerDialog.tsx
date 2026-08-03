@@ -1,8 +1,12 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react'
 import { useTranslation } from '@/i18n'
 import { Button } from '@/shared/ui/button'
 import { Dialog, DialogContent, DialogTitle } from '@/shared/ui/dialog'
 import { Input } from '@/shared/ui/input'
+import {
+  focusVideoTrackAtPoint,
+  videoTrackFromElement,
+} from './focusVideoTrackAtPoint'
 
 export interface BarcodeScannerDialogProps {
   open: boolean
@@ -40,12 +44,18 @@ export interface BarcodeScannerDialogProps {
  * includes the underlying error's name (e.g. "NotAllowedError"), visible
  * right in the existing on-screen message — the simplest way to get any
  * debug detail back from a report without new logging infrastructure.
+ *
+ * #564 — tap inside the framing rectangle asks the camera to refocus on
+ * that point (`pointsOfInterest` / `focusMode` when the device supports
+ * them). Best-effort: quiet no-op on platforms without focus constraints
+ * (typical iOS Safari); manual entry (#291) stays the workaround.
  */
 // #294 — how long the camera-decode phase can run before the "still
 // scanning" tip appears. Long enough not to flash on every normal scan
 // (most resolve well under this), short enough that a genuinely stuck
 // scan doesn't read as broken for too long before getting a hint.
 const STILL_SCANNING_TIP_DELAY_MS = 4000
+const FOCUS_RETICLE_MS = 700
 
 export function BarcodeScannerDialog({
   open,
@@ -54,10 +64,15 @@ export function BarcodeScannerDialog({
 }: BarcodeScannerDialogProps) {
   const t = useTranslation()
   const videoRef = useRef<HTMLVideoElement>(null)
+  const frameRef = useRef<HTMLDivElement>(null)
   const [error, setError] = useState<string | null>(null)
   const [isProcessing, setIsProcessing] = useState(false)
   const [manualBarcode, setManualBarcode] = useState('')
   const [showStillScanningTip, setShowStillScanningTip] = useState(false)
+  const [focusReticle, setFocusReticle] = useState<{
+    xPct: number
+    yPct: number
+  } | null>(null)
   const controlsRef = useRef<{ stop: () => void } | null>(null)
 
   async function handleScanned(barcode: string) {
@@ -100,6 +115,20 @@ export function BarcodeScannerDialog({
             if (result) void handleScanned(result.getText())
           },
         )
+        // #564 — prefer continuous autofocus when the track exposes it
+        // (Android Chrome); ignored quietly when unsupported.
+        const track = videoTrackFromElement(videoRef.current)
+        if (track) {
+          try {
+            await track.applyConstraints({
+              advanced: [
+                { focusMode: 'continuous' } as MediaTrackConstraintSet,
+              ],
+            })
+          } catch {
+            // Device/browser has no focusMode — leave defaults.
+          }
+        }
       } catch (err) {
         if (!cancelled) {
           const detail = err instanceof Error ? err.name : undefined
@@ -131,10 +160,34 @@ export function BarcodeScannerDialog({
     return () => clearTimeout(timer)
   }, [])
 
+  useEffect(() => {
+    if (!focusReticle) return
+    const timer = setTimeout(() => setFocusReticle(null), FOCUS_RETICLE_MS)
+    return () => clearTimeout(timer)
+  }, [focusReticle])
+
   function handleManualSubmit() {
     const trimmed = manualBarcode.trim()
     if (!trimmed) return
     void handleScanned(trimmed)
+  }
+
+  async function handleFramePointerDown(
+    event: ReactPointerEvent<HTMLDivElement>,
+  ) {
+    const frame = frameRef.current
+    const video = videoRef.current
+    if (!frame || !video) return
+
+    const rect = frame.getBoundingClientRect()
+    if (rect.width <= 0 || rect.height <= 0) return
+    const xNorm = (event.clientX - rect.left) / rect.width
+    const yNorm = (event.clientY - rect.top) / rect.height
+    setFocusReticle({ xPct: xNorm * 100, yPct: yNorm * 100 })
+    await focusVideoTrackAtPoint(videoTrackFromElement(video), {
+      x: xNorm,
+      y: yNorm,
+    })
   }
 
   return (
@@ -165,15 +218,30 @@ export function BarcodeScannerDialog({
                     muted
                     playsInline
                   />
-                  {/* #294 — a framing guide over the live feed, roughly
-                   * matching a barcode's own wide-short aspect ratio, so
-                   * it's clearer where to hold it (closer to how a native
-                   * scanner's capture zone reads) rather than a plain,
-                   * unstructured camera view. Purely visual — decoding
-                   * itself isn't restricted to this region, zxing still
-                   * scans the full frame. */}
+                  {/* #294 — framing guide; #564 — tap inside to request
+                   * focus on that point (when the device supports it). */}
                   <div className="pointer-events-none absolute inset-0 flex items-center justify-center p-8">
-                    <div className="aspect-[5/2] w-full max-w-xs rounded-lg border-2 border-white/80" />
+                    <div
+                      ref={frameRef}
+                      role="button"
+                      tabIndex={0}
+                      aria-label={t.dailyEntry.scanBarcodeTapToFocusLabel}
+                      className="pointer-events-auto relative aspect-[5/2] w-full max-w-xs cursor-pointer rounded-lg border-2 border-white/80"
+                      onPointerDown={(event) => {
+                        void handleFramePointerDown(event)
+                      }}
+                    >
+                      {focusReticle && (
+                        <span
+                          aria-hidden="true"
+                          className="pointer-events-none absolute size-10 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white shadow-[0_0_0_1px_rgba(0,0,0,0.35)]"
+                          style={{
+                            left: `${focusReticle.xPct}%`,
+                            top: `${focusReticle.yPct}%`,
+                          }}
+                        />
+                      )}
+                    </div>
                   </div>
                 </div>
                 {showStillScanningTip && (

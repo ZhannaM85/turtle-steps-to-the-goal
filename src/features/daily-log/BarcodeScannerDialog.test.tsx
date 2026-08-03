@@ -42,9 +42,14 @@ describe('BarcodeScannerDialog', () => {
     )
 
     expect(
-      screen.getByText('Point your camera at the barcode.'),
+      screen.getByText(
+        'Point your camera at the barcode. Tap inside the frame to focus.',
+      ),
     ).toBeInTheDocument()
     await waitFor(() => expect(decodeFromVideoDevice).toHaveBeenCalled())
+    expect(
+      screen.getByRole('button', { name: 'Tap to focus on barcode' }),
+    ).toBeInTheDocument()
   })
 
   it('calls onScanned and closes once a barcode is decoded', async () => {

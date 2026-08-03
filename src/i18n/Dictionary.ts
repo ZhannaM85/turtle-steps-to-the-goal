@@ -476,6 +476,8 @@ export interface Dictionary {
      * dialog closed instantly on decode). */
     scanBarcodeSearchingMessage: string
     scanBarcodeStillScanningTip: string
+    /** #564 — accessible name for the tappable framing rectangle. */
+    scanBarcodeTapToFocusLabel: string
     /** #291 — manual entry, always available alongside the camera: useful
      * on its own, and a way to tell whether a report is a camera problem
      * or a lookup problem. */

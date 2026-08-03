@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 519,
+    issue: 564,
+    date: '2026-08-03T23:40:00+03:00',
+    en: 'When scanning a barcode, tap inside the frame to ask the camera to focus on that spot (works on phones that allow it).',
+    ru: 'При сканировании штрихкода нажмите внутри рамки, чтобы камера сфокусировалась на этой точке (если устройство это поддерживает).',
+  },
+  {
     version: 518,
     issue: 560,
     date: '2026-08-03T23:30:00+03:00',
