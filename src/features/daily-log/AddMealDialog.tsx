@@ -36,6 +36,7 @@ import { useOnlineStatus } from '@/shared/hooks'
 import {
   useFoodOverrideStore,
   useMealItemStore,
+  useMealLabelPresetStore,
   useMicronutrientTrackingStore,
   useRecipeStore,
   useAddMealRecentVisibilityStore,
@@ -199,14 +200,18 @@ export interface AddMealDialogProps {
   /** #509 — edit overlay: keep Done reachable after the last composition
    * row is removed so empty-meal commit can delete the saved meal. */
   showDoneWhenEmpty?: boolean
-  /** Position-derived default, or the previous meal's own custom label —
-   * computed by `MealList.tsx` exactly as it already does for the heading
-   * above the old add-row (`effectiveMealLabel`/`defaultMealLabel`). */
+  /** Position-derived default, or the meal's own custom label —
+   * computed by `MealList.tsx` via `effectiveMealLabel`/`defaultMealLabel`.
+   * Editable in the header (#563); chips offer Breakfast/Lunch/Dinner/Snack
+   * plus any Settings presets. */
   mealLabel: string
-  /** #459 — the meal's 1-based position within the day, needed only for
-   * the whole-meal delete button's aria-label (`deleteMealLabel(n)`).
-   * Undefined (and `onDeleteMeal` absent) for the in-progress "new meal"
-   * flow, which has nothing to delete yet. */
+  /** #563 — free-text or chip pick; parent stores a custom `CalorieEntry.label`
+   * (or clears it when the value matches the positional default). */
+  onMealLabelChange: (value: string) => void
+  /** #459 — the meal's 1-based position within the day, needed for the
+   * whole-meal delete button's aria-label (`deleteMealLabel(n)`) and for
+   * #563's "matches positional default → clear custom label" normalize.
+   * Always passed from MealList for both add and edit. */
   mealPosition?: number
   timeEaten: string
   onTimeEatenChange: (value: string) => void
@@ -269,6 +274,7 @@ export function AddMealDialog({
   discardConfirmLabel,
   showDoneWhenEmpty = false,
   mealLabel,
+  onMealLabelChange,
   mealPosition,
   timeEaten,
   onTimeEatenChange,
@@ -304,7 +310,16 @@ export function AddMealDialog({
   const toggleRecentVisible = useAddMealRecentVisibilityStore(
     (state) => state.toggleRecentVisible,
   )
+  const mealLabelPresets = useMealLabelPresetStore((state) => state.presets)
   const micronutrients = useMicronutrientTrackingStore((state) => state.tracked)
+  // #563 — Breakfast/Lunch/Dinner/Snack always offered here (skip-breakfast
+  // rename without a Settings detour), then any extra Settings presets.
+  const mealLabelSuggestions = [
+    ...t.dailyEntry.defaultMealNamePresets,
+    ...mealLabelPresets.filter(
+      (preset) => !t.dailyEntry.defaultMealNamePresets.includes(preset),
+    ),
+  ]
   // This dialog is only mounted while open (lazy-mounted, same pattern
   // FoodPickerDialog/BarcodeScannerDialog already use), so both stores get
   // loaded fresh each time it opens — cheap, and simpler than threading a
@@ -1259,38 +1274,62 @@ export function AddMealDialog({
           event.preventDefault()
         }}
       >
-        <div className="flex items-center justify-between gap-2 pr-10">
-          {/* #505 — match Day meal-card title weight (`text-lg font-medium`),
-           * not the shared DialogTitle semibold default. */}
-          <DialogTitle className="font-medium">{mealLabel}</DialogTitle>
-          {/* #508 — the header keeps the time control only; DialogContent's
-           * own Close owns the top-right corner alone. The #117 clear
-           * control now lives *inside* this field's border so it reads as
-           * part of the time widget rather than a second bare ✕ beside
-           * Close (the two were easy to confuse), and whole-meal delete
-           * moved down next to the Done footer. */}
-          <div className="flex h-9 items-center rounded-lg border border-input bg-transparent pr-1 transition-colors focus-within:border-ring focus-within:ring-3 focus-within:ring-ring/50 dark:bg-input/30">
+        <div className="flex flex-col gap-2 pr-10">
+          <div className="flex items-center justify-between gap-2">
+            {/* #563 — editable meal name (Breakfast→Lunch etc.) in add/edit,
+             * not only via Settings presets. DialogTitle stays for a11y /
+             * Radix naming; the visible field is the labeled Input. */}
+            <DialogTitle className="sr-only">{mealLabel}</DialogTitle>
             <Input
-              type="time"
-              aria-label={t.dailyEntry.timeEatenLabel}
-              value={timeEaten}
-              onChange={(e) => onTimeEatenChange(e.target.value)}
-              className="h-full w-24 border-transparent bg-transparent pr-0 focus-visible:border-transparent focus-visible:ring-0 dark:bg-transparent"
+              type="text"
+              aria-label={t.dailyEntry.mealLabelFieldLabel}
+              value={mealLabel}
+              onChange={(e) => onMealLabelChange(e.target.value)}
+              className="h-9 min-w-0 flex-1 text-lg font-medium"
             />
-            {/* App-level clear button (#117) — restored after being
-             * dropped in the #454 rewrite; the native time picker's own
-             * Reset control isn't reliable enough to depend on alone. */}
-            {timeEaten && (
+            {/* #508 — the header keeps the time control only; DialogContent's
+             * own Close owns the top-right corner alone. The #117 clear
+             * control now lives *inside* this field's border so it reads as
+             * part of the time widget rather than a second bare ✕ beside
+             * Close (the two were easy to confuse), and whole-meal delete
+             * moved down next to the Done footer. */}
+            <div className="flex h-9 shrink-0 items-center rounded-lg border border-input bg-transparent pr-1 transition-colors focus-within:border-ring focus-within:ring-3 focus-within:ring-ring/50 dark:bg-input/30">
+              <Input
+                type="time"
+                aria-label={t.dailyEntry.timeEatenLabel}
+                value={timeEaten}
+                onChange={(e) => onTimeEatenChange(e.target.value)}
+                className="h-full w-24 border-transparent bg-transparent pr-0 focus-visible:border-transparent focus-visible:ring-0 dark:bg-transparent"
+              />
+              {/* App-level clear button (#117) — restored after being
+               * dropped in the #454 rewrite; the native time picker's own
+               * Reset control isn't reliable enough to depend on alone. */}
+              {timeEaten && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon-xs"
+                  aria-label={t.dailyEntry.clearTimeLabel}
+                  onClick={() => onTimeEatenChange('')}
+                >
+                  <X aria-hidden="true" className="size-3.5" />
+                </Button>
+              )}
+            </div>
+          </div>
+          <div className="flex flex-wrap gap-3">
+            {mealLabelSuggestions.map((name) => (
               <Button
+                key={name}
                 type="button"
-                variant="ghost"
-                size="icon-xs"
-                aria-label={t.dailyEntry.clearTimeLabel}
-                onClick={() => onTimeEatenChange('')}
+                variant={mealLabel === name ? 'secondary' : 'outline'}
+                size="sm"
+                aria-pressed={mealLabel === name}
+                onClick={() => onMealLabelChange(name)}
               >
-                <X aria-hidden="true" className="size-3.5" />
+                {name}
               </Button>
-            )}
+            ))}
           </div>
         </div>
         {/* #505 — one vertical scale (`gap-3`/`gap-4`) instead of mixed

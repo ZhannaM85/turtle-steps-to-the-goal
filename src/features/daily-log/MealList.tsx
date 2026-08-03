@@ -33,7 +33,7 @@ import {
   macrosSummaryTextCompact,
   macrosSummaryTextCompactWithCalories,
 } from '@/shared/lib/macroDisplay'
-import { effectiveMealLabel } from '@/shared/lib/mealLabel'
+import { defaultMealLabel, effectiveMealLabel } from '@/shared/lib/mealLabel'
 import { normalizeTextSpaces } from '@/shared/lib/normalizeTextSpaces'
 import { Button } from '@/shared/ui/button'
 import { useDayStartStore, useMealItemStore } from '@/stores'
@@ -57,6 +57,18 @@ const dailyEntryRepository = new IndexedDbDailyEntryRepository()
 function currentTimeHHMM(): string {
   const now = new Date()
   return `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`
+}
+
+/** #563 — empty or equal to the positional default clears `CalorieEntry.label`
+ * so language switches still re-translate unlabeled meals (#141). */
+function customMealLabelOrUndefined(
+  value: string,
+  position: number,
+  t: Dictionary,
+): string | undefined {
+  const trimmed = value.trim()
+  if (!trimmed || trimmed === defaultMealLabel(t, position)) return undefined
+  return trimmed
 }
 
 interface MealListItemProps {
@@ -404,6 +416,11 @@ export function MealList({
   const [inProgressMealId, setInProgressMealId] = useState<string | null>(null)
   const [newMealTime, setNewMealTime] = useState(currentTimeHHMM())
   const [newMealNote, setNewMealNote] = useState('')
+  // #563 — custom label draft before the first item creates the entry
+  // (same seed pattern as newMealTime/newMealNote).
+  const [newMealLabel, setNewMealLabel] = useState<string | undefined>(
+    undefined,
+  )
   const [newMealPosition, setNewMealPosition] = useState(1)
   const [newMealPreviousMeal, setNewMealPreviousMeal] = useState<
     CalorieEntry | undefined
@@ -418,7 +435,12 @@ export function MealList({
     setNewMealTime(currentTimeHHMM())
     setNewMealNote('')
     setNewMealPosition(calorieEntries.length + 1)
-    setNewMealPreviousMeal(previousDayEntry?.calorieEntries?.[calorieEntries.length])
+    const previous =
+      previousDayEntry?.calorieEntries?.[calorieEntries.length]
+    setNewMealPreviousMeal(previous)
+    // #563 — seed from yesterday's same-position custom label (if any) so
+    // the editable field matches what we'll persist on first add.
+    setNewMealLabel(previous?.label)
     keepInProgressMealRef.current = false
     setConfirmDiscardAddMeal(false)
     setIsAddMealDialogOpen(true)
@@ -602,6 +624,7 @@ export function MealList({
         {
           id: newId,
           items: newItems,
+          label: newMealLabel,
           timeEaten: newMealTime || undefined,
           note: newMealNote.trim() || undefined,
           createdAt: new Date().toISOString(),
@@ -681,6 +704,18 @@ export function MealList({
         entry.id === inProgressMealId
           ? { ...entry, note: value.trim() || undefined }
           : entry,
+      ),
+    )
+  }
+
+  // #563 — same before/after-first-item write-through as time/note.
+  function updateNewMealLabel(value: string) {
+    const custom = customMealLabelOrUndefined(value, newMealPosition, t)
+    setNewMealLabel(custom)
+    if (!inProgressMealId) return
+    setCalorieEntries(
+      calorieEntries.map((entry) =>
+        entry.id === inProgressMealId ? { ...entry, label: custom } : entry,
       ),
     )
   }
@@ -783,6 +818,16 @@ export function MealList({
     })
   }
 
+  function updateEditingMealLabel(value: string) {
+    if (!editingMealDraft || !editingMealId) return
+    const position =
+      calorieEntries.findIndex((entry) => entry.id === editingMealId) + 1
+    setEditingMealDraft({
+      ...editingMealDraft,
+      label: customMealLabelOrUndefined(value, position, t),
+    })
+  }
+
   function deleteEditingMeal() {
     if (!editingMealId) return
     setCalorieEntries(
@@ -855,6 +900,7 @@ export function MealList({
             calorieEntries.findIndex((entry) => entry.id === editingMealId) + 1,
             editingMeal.label,
           )}
+          onMealLabelChange={updateEditingMealLabel}
           mealPosition={
             calorieEntries.findIndex((entry) => entry.id === editingMealId) + 1
           }
@@ -952,8 +998,10 @@ export function MealList({
           mealLabel={effectiveMealLabel(
             t,
             newMealPosition,
-            inProgressMeal?.label ?? newMealPreviousMeal?.label,
+            inProgressMeal?.label ?? newMealLabel,
           )}
+          onMealLabelChange={updateNewMealLabel}
+          mealPosition={newMealPosition}
           timeEaten={newMealTime}
           onTimeEatenChange={updateNewMealTime}
           note={newMealNote}

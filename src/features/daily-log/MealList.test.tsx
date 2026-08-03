@@ -151,6 +151,31 @@ describe('MealList', () => {
     expect(screen.getByText('Oatmeal')).toBeInTheDocument()
   })
 
+  it('renames Breakfast→Lunch in the add flyout and keeps it on the card (#563)', async () => {
+    const user = userEvent.setup()
+    render(
+      <ControlledMealList calorieEntries={[]} date="2026-03-01" />,
+      { wrapper: MemoryRouter },
+    )
+
+    await user.click(
+      screen.getByRole('button', { name: '+ Add another meal' }),
+    )
+    expect(screen.getByLabelText('Meal name')).toHaveValue('Breakfast')
+    await user.click(screen.getByRole('button', { name: 'Lunch' }))
+    expect(screen.getByLabelText('Meal name')).toHaveValue('Lunch')
+
+    await user.click(screen.getByRole('button', { name: 'Add food' }))
+    await user.type(screen.getByLabelText('Dish name'), 'Salad')
+    await user.type(screen.getByLabelText('kcal/100g'), '150')
+    await user.click(screen.getByRole('button', { name: 'Save' }))
+    await user.click(screen.getByRole('button', { name: 'Done' }))
+
+    expect(screen.getByText('Lunch')).toBeInTheDocument()
+    expect(screen.queryByText('Breakfast')).not.toBeInTheDocument()
+    expect(screen.getByText('Salad')).toBeInTheDocument()
+  })
+
   it("shows an item's own quantity in grams when recorded, omits it when not (#206)", () => {
     const calorieEntries: CalorieEntry[] = [
       {
@@ -401,6 +426,32 @@ describe('MealList', () => {
       expect(dialog).toBeInTheDocument()
       expect(within(dialog).getByText('This meal so far')).toBeInTheDocument()
       expect(within(dialog).getByText('Oatmeal')).toBeInTheDocument()
+    })
+
+    it('renames the meal label in the edit overlay and keeps it after Done (#563)', async () => {
+      const user = userEvent.setup()
+      render(
+        <ControlledMealList
+          calorieEntries={[
+            {
+              id: 'c1',
+              items: [{ id: 'i1', name: 'Oatmeal', amountKcal: 300 }],
+              createdAt: '2026-01-01T00:00:00.000Z',
+            },
+          ]}
+          date="2026-03-01"
+        />,
+        { wrapper: MemoryRouter },
+      )
+
+      await user.click(screen.getByRole('button', { name: 'Edit meal 1' }))
+      const dialog = screen.getByRole('dialog', { name: 'Breakfast' })
+      await user.click(within(dialog).getByRole('button', { name: 'Dinner' }))
+      expect(within(dialog).getByLabelText('Meal name')).toHaveValue('Dinner')
+      await user.click(within(dialog).getByRole('button', { name: 'Done' }))
+
+      expect(screen.getByText('Dinner')).toBeInTheDocument()
+      expect(screen.queryByText('Breakfast')).not.toBeInTheDocument()
     })
 
     it('closes the overlay when Done is clicked', async () => {

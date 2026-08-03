@@ -58,19 +58,36 @@ type ControlledProps = Omit<
   | 'onReactionChange'
   | 'note'
   | 'onNoteChange'
-> & { initialItems?: CalorieItem[] }
+  | 'mealLabel'
+  | 'onMealLabelChange'
+> & {
+  initialItems?: CalorieItem[]
+  mealLabel?: string
+  onMealLabelChange?: (value: string) => void
+}
 
 // Mirrors MealList's own real wiring (an in-progress meal's items/reaction
 // live in the *parent*, not the dialog) — a plain vi.fn() for onAppendItems
 // would never let the "meal so far" list actually grow across interactions,
 // same reasoning MealList.test.tsx's own ControlledMealList exists for.
-function ControlledAddMealDialog({ initialItems, ...props }: ControlledProps) {
+function ControlledAddMealDialog({
+  initialItems,
+  mealLabel: mealLabelProp = 'Breakfast',
+  onMealLabelChange,
+  ...props
+}: ControlledProps) {
   const [items, setItems] = useState<CalorieItem[]>(initialItems ?? [])
   const [reaction, setReaction] = useState<Emotion | undefined>(undefined)
   const [note, setNote] = useState('')
+  const [mealLabel, setMealLabel] = useState(mealLabelProp)
   return (
     <AddMealDialog
       {...props}
+      mealLabel={mealLabel}
+      onMealLabelChange={(value) => {
+        setMealLabel(value)
+        onMealLabelChange?.(value)
+      }}
       items={items}
       reaction={reaction}
       onReactionChange={setReaction}
@@ -93,6 +110,7 @@ const defaultProps = {
   open: true,
   onOpenChange: vi.fn(),
   mealLabel: 'Breakfast',
+  onMealLabelChange: vi.fn(),
   timeEaten: '08:00',
   onTimeEatenChange: vi.fn(),
   note: '',
@@ -105,7 +123,34 @@ describe('AddMealDialog (#454)', () => {
     render(<ControlledAddMealDialog {...defaultProps} />)
 
     expect(screen.getByRole('heading', { name: 'Breakfast' })).toBeInTheDocument()
+    expect(screen.getByLabelText('Meal name')).toHaveValue('Breakfast')
     expect(screen.getByLabelText('Time')).toHaveValue('08:00')
+  })
+
+  it('renames the meal via free text or a Breakfast/Lunch/Dinner chip (#563)', async () => {
+    const user = userEvent.setup()
+    const onMealLabelChange = vi.fn()
+    render(
+      <ControlledAddMealDialog
+        {...defaultProps}
+        onMealLabelChange={onMealLabelChange}
+      />,
+    )
+
+    expect(screen.getByRole('button', { name: 'Lunch' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Dinner' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Snack' })).toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: 'Lunch' }))
+    expect(onMealLabelChange).toHaveBeenCalledWith('Lunch')
+    expect(screen.getByLabelText('Meal name')).toHaveValue('Lunch')
+    expect(screen.getByRole('heading', { name: 'Lunch' })).toBeInTheDocument()
+
+    const nameField = screen.getByLabelText('Meal name')
+    await user.clear(nameField)
+    await user.type(nameField, 'Brunch')
+    expect(onMealLabelChange).toHaveBeenCalledWith('Brunch')
+    expect(nameField).toHaveValue('Brunch')
   })
 
   it('does not auto-focus the time field on open (#487)', () => {

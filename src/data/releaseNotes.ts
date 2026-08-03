@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 515,
+    issue: 563,
+    date: '2026-08-03T22:50:00+03:00',
+    en: 'When adding or editing a meal, you can rename Breakfast, Lunch, Dinner, or Snack right there (or type a custom name) — no need to open Settings.',
+    ru: 'При добавлении или изменении приёма пищи можно сразу переименовать Завтрак, Обед, Ужин или Перекус (или ввести своё название) — без перехода в Настройки.',
+  },
+  {
     version: 514,
     issue: 559,
     date: '2026-08-03T22:30:00+03:00',
