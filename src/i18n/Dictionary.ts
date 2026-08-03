@@ -677,9 +677,23 @@ export interface Dictionary {
     clearNightEatingOverrideLabel: string
     /** Opt-in water tracking (#258), a list of discrete entries rather
      * than a single running total (#271) — same gating shape as onPeriod/
-     * hadConstipation above. #282: only the two fixed-amount quick-add
-     * buttons remain (no manual "type any amount" input/confirm button). */
+     * hadConstipation above. #549: manual ml input restored alongside
+     * the two fixed-amount quick-add buttons. */
     waterLabel: string
+    /** #549 — day-level kcal/macros without meal items; additive with meals. */
+    dayTotalsLabel: string
+    dayTotalsHint: string
+    dayTotalsKcalLabel: string
+    dayTotalsProteinLabel: string
+    dayTotalsFatLabel: string
+    dayTotalsCarbsLabel: string
+    expandDayTotalsLabel: string
+    collapseDayTotalsLabel: string
+    saveDayTotalsLabel: string
+    clearDayTotalsLabel: string
+    editDayTotalsLabel: string
+    addWaterAmountLabel: string
+    saveWaterLabel: string
     /** #476 — accordion trigger wrapping the water quick-add + chips,
      * same expand/collapse aria-label pair shape as expandMealsLabel/
      * collapseMealsLabel and expandMacrosLabel/collapseMacrosLabel. */

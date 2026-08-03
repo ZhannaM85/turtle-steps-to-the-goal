@@ -53,9 +53,9 @@ export function proteinPoints(entries: DailyEntry[]): ProteinPoint[] {
 
   for (const entry of entries) {
     if (entry.weightKg === undefined) continue
-    const proteinG = totalProtein(entry.calorieEntries)
+    const proteinG = totalProtein(entry.calorieEntries, entry.dayTotals)
     if (proteinG === undefined) continue
-    const kcal = totalCalories(entry.calorieEntries)
+    const kcal = totalCalories(entry.calorieEntries, entry.dayTotals)
     if (!kcal) continue
     const nextDate = format(addDays(parseISO(entry.date), 1), 'yyyy-MM-dd')
     const nextEntry = byDate.get(nextDate)

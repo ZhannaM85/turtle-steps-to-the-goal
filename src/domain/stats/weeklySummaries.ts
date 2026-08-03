@@ -81,16 +81,16 @@ export function weeklySummaries(
       .map((e) => e.weightKg)
       .filter((v): v is number => v !== undefined)
     const calories = weekEntries
-      .map((e) => totalCalories(e.calorieEntries))
+      .map((e) => totalCalories(e.calorieEntries, e.dayTotals))
       .filter((v): v is number => v !== undefined)
     const protein = weekEntries
-      .map((e) => totalProtein(e.calorieEntries))
+      .map((e) => totalProtein(e.calorieEntries, e.dayTotals))
       .filter((v): v is number => v !== undefined)
     const fat = weekEntries
-      .map((e) => totalFat(e.calorieEntries))
+      .map((e) => totalFat(e.calorieEntries, e.dayTotals))
       .filter((v): v is number => v !== undefined)
     const carbs = weekEntries
-      .map((e) => totalCarbs(e.calorieEntries))
+      .map((e) => totalCarbs(e.calorieEntries, e.dayTotals))
       .filter((v): v is number => v !== undefined)
 
     return {

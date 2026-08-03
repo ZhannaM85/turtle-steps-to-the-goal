@@ -1,4 +1,4 @@
-import { ChevronDown, CupSoda, GlassWater, X } from 'lucide-react'
+import { Check, ChevronDown, CupSoda, GlassWater, X } from 'lucide-react'
 import { formatNumber } from '@/i18n'
 import { Button } from '@/shared/ui/button'
 import {
@@ -6,6 +6,8 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from '@/shared/ui/collapsible'
+import { Input } from '@/shared/ui/input'
+import { NumberInput } from '@/shared/ui/number-input'
 import { StatCard } from '@/shared/ui/stat-card'
 import { useTodaySectionsCollapseStore } from '@/stores'
 import { MealList } from './MealList'
@@ -33,6 +35,9 @@ export function DailyEntryFormTop() {
   )
   const mealsCollapsed = useTodaySectionsCollapseStore(
     (s) => s.sections.meals,
+  )
+  const dayTotalsCollapsed = useTodaySectionsCollapseStore(
+    (s) => s.sections.dayTotals,
   )
   const waterCollapsed = useTodaySectionsCollapseStore(
     (s) => s.sections.water,
@@ -119,6 +124,126 @@ export function DailyEntryFormTop() {
         </div>
       )}
 
+      {/* #549 — optional day-level kcal/macros without meal items; additive
+       * with meals for Remaining cards and summaries. Collapsible like Water. */}
+      <div className="rounded-lg border border-border p-3">
+        <Collapsible
+          open={!dayTotalsCollapsed}
+          onOpenChange={(open) => setCollapsed('dayTotals', !open)}
+        >
+          <CollapsibleTrigger asChild>
+            <button
+              type="button"
+              aria-label={
+                dayTotalsCollapsed
+                  ? t.dailyEntry.expandDayTotalsLabel
+                  : t.dailyEntry.collapseDayTotalsLabel
+              }
+              className="group flex w-full items-center justify-between text-sm font-medium text-muted-foreground hover:text-foreground"
+            >
+              {t.dailyEntry.dayTotalsLabel}
+              <ChevronDown
+                aria-hidden="true"
+                className="size-4 transition-transform group-data-[state=open]:rotate-180"
+              />
+            </button>
+          </CollapsibleTrigger>
+          <CollapsibleContent>
+            <div className="flex flex-col gap-3 pt-3">
+              <p className="text-xs text-muted-foreground">
+                {t.dailyEntry.dayTotalsHint}
+              </p>
+              {state.isEditingDayTotals || state.dayTotals === undefined ? (
+                <>
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <NumberInput
+                      label={t.dailyEntry.dayTotalsKcalLabel}
+                      unit={t.dailyEntry.kcalUnit}
+                      inputMode="numeric"
+                      value={state.dayTotalsKcalInput}
+                      onChange={(e) =>
+                        state.setDayTotalsKcalInput(e.target.value)
+                      }
+                    />
+                    <NumberInput
+                      label={t.dailyEntry.dayTotalsProteinLabel}
+                      unit={t.dailyEntry.gramsUnit}
+                      inputMode="numeric"
+                      value={state.dayTotalsProteinInput}
+                      onChange={(e) =>
+                        state.setDayTotalsProteinInput(e.target.value)
+                      }
+                    />
+                    <NumberInput
+                      label={t.dailyEntry.dayTotalsFatLabel}
+                      unit={t.dailyEntry.gramsUnit}
+                      inputMode="numeric"
+                      value={state.dayTotalsFatInput}
+                      onChange={(e) =>
+                        state.setDayTotalsFatInput(e.target.value)
+                      }
+                    />
+                    <NumberInput
+                      label={t.dailyEntry.dayTotalsCarbsLabel}
+                      unit={t.dailyEntry.gramsUnit}
+                      inputMode="numeric"
+                      value={state.dayTotalsCarbsInput}
+                      onChange={(e) =>
+                        state.setDayTotalsCarbsInput(e.target.value)
+                      }
+                    />
+                  </div>
+                  {state.dayTotalsError && (
+                    <p className="text-sm text-destructive">
+                      {state.dayTotalsError}
+                    </p>
+                  )}
+                  <div className="flex flex-wrap gap-2">
+                    <Button type="button" size="sm" onClick={state.saveDayTotals}>
+                      {t.dailyEntry.saveDayTotalsLabel}
+                    </Button>
+                    {state.dayTotals !== undefined && (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={state.clearDayTotals}
+                      >
+                        {t.dailyEntry.clearDayTotalsLabel}
+                      </Button>
+                    )}
+                  </div>
+                </>
+              ) : (
+                <div className="flex flex-col gap-2">
+                  {state.dayTotalsSavedSummary && (
+                    <p className="text-sm">{state.dayTotalsSavedSummary}</p>
+                  )}
+                  <div className="flex flex-wrap gap-2">
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={state.startEditDayTotals}
+                    >
+                      {t.dailyEntry.editDayTotalsLabel}
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={state.clearDayTotals}
+                    >
+                      {t.dailyEntry.clearDayTotalsLabel}
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </CollapsibleContent>
+        </Collapsible>
+      </div>
+
       {/* Meal editing extracted to its own component (#145) — reused
        * as-is by DayDetail.tsx too, so History's read-only expand-row can
        * edit/add/delete meals without needing this whole form. #468:
@@ -162,6 +287,7 @@ export function DailyEntryFormTop() {
                   state.persist({ ...state.getValues(), calorieEntries: next })
                 }}
                 dailyCalorieTargetKcal={state.dailyCalorieTargetKcal}
+                dayTotals={state.dayTotals}
               />
             </div>
           </CollapsibleContent>
@@ -205,6 +331,40 @@ export function DailyEntryFormTop() {
             </CollapsibleTrigger>
             <CollapsibleContent>
               <div className="flex flex-col gap-1.5 pt-3">
+                <div className="flex flex-wrap items-center gap-3">
+                  <Input
+                    type="text"
+                    inputMode="numeric"
+                    aria-label={t.dailyEntry.addWaterAmountLabel}
+                    aria-invalid={state.waterInputError ? true : undefined}
+                    className="h-12 w-24"
+                    value={state.waterInput}
+                    onChange={(e) => state.setWaterInput(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault()
+                        state.saveWaterInput()
+                      }
+                    }}
+                  />
+                  <span className="text-xs text-muted-foreground">
+                    {t.dailyEntry.mlUnit}
+                  </span>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon-xl"
+                    aria-label={t.dailyEntry.saveWaterLabel}
+                    onClick={state.saveWaterInput}
+                  >
+                    <Check aria-hidden="true" />
+                  </Button>
+                </div>
+                {state.waterInputError && (
+                  <p className="text-sm text-destructive">
+                    {state.waterInputError}
+                  </p>
+                )}
                 <div className="flex flex-wrap items-center gap-3">
                   <Button
                     type="button"

@@ -48,10 +48,10 @@ const SERIES_EXTRACTORS: Record<
   (entry: DailyEntry) => number | undefined
 > = {
   weight: (entry) => entry.weightKg,
-  calories: (entry) => totalCalories(entry.calorieEntries),
-  protein: (entry) => totalProtein(entry.calorieEntries),
-  fat: (entry) => totalFat(entry.calorieEntries),
-  carbs: (entry) => totalCarbs(entry.calorieEntries),
+  calories: (entry) => totalCalories(entry.calorieEntries, entry.dayTotals),
+  protein: (entry) => totalProtein(entry.calorieEntries, entry.dayTotals),
+  fat: (entry) => totalFat(entry.calorieEntries, entry.dayTotals),
+  carbs: (entry) => totalCarbs(entry.calorieEntries, entry.dayTotals),
   water: (entry) => totalWaterMl(entry.waterEntries),
   steps: (entry) => entry.steps,
   // #440

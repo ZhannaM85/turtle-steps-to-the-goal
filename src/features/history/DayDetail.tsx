@@ -98,15 +98,15 @@ export function DayDetail({
     entry.weightKg === undefined
       ? '—'
       : `${formatExactNumber(displayUnit === 'lb' ? kgToLb(entry.weightKg) : entry.weightKg, locale)} ${unitLabel(displayUnit, t)}`
-  const calories = totalCalories(entry.calorieEntries)
+  const calories = totalCalories(entry.calorieEntries, entry.dayTotals)
   const caloriesDisplay =
     calories === undefined ? '—' : formatNumber(calories, locale, 0)
   // Only shown standalone (#52) — non-standalone (EntryRow's expanded
   // panel) already has the day's macro total in the table's Calories cell.
   const dayMacrosSummary = macrosSummaryText(
-    totalProtein(entry.calorieEntries),
-    totalFat(entry.calorieEntries),
-    totalCarbs(entry.calorieEntries),
+    totalProtein(entry.calorieEntries, entry.dayTotals),
+    totalFat(entry.calorieEntries, entry.dayTotals),
+    totalCarbs(entry.calorieEntries, entry.dayTotals),
     locale,
     t,
   )
@@ -267,6 +267,7 @@ export function DayDetail({
             })
           }
           dailyCalorieTargetKcal={dailyCalorieTargetKcal}
+          dayTotals={entry.dayTotals}
         />
       ) : (
         meals.length > 0 && (

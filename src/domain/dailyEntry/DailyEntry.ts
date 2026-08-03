@@ -98,11 +98,21 @@ export interface WaterEntry {
   amountMl: number
 }
 
+/** #549 — optional day-level intake (no food names). Additive with meals. */
+export interface DayTotals {
+  amountKcal: number
+  proteinG?: number
+  fatG?: number
+  carbsG?: number
+}
+
 export interface DailyEntry {
   id: string
   date: string // ISO date, one entry per date
   weightKg?: number
   calorieEntries?: CalorieEntry[]
+  /** #549 — day-level kcal/macros without meal items; summed with meals. */
+  dayTotals?: DayTotals
   note?: string
   /** Overall mood for the day as a whole, distinct from any meal's own emotion (#44). */
   emotion?: Emotion

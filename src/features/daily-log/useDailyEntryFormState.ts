@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
-import type { DailyEntry, Emotion } from '@/domain/dailyEntry'
+import type { DailyEntry, DayTotals, Emotion } from '@/domain/dailyEntry'
 import {
   hadNightEating,
   totalCalories,
@@ -29,6 +29,7 @@ import {
   bodyFatPercentSchema,
   bodyWaterPercentSchema,
   boneMassKgSchema,
+  dayTotalsSchema,
   deepSleepHoursSchema,
   hipCmSchema,
   muscleMassKgSchema,
@@ -37,6 +38,7 @@ import {
   stepsSchema,
   visceralFatRatingSchema,
   waistCmSchema,
+  waterMlSchema,
   weightSchema,
   type DailyEntryFormValues,
 } from './dailyEntryFormSchema'
@@ -211,6 +213,18 @@ export function useDailyEntryFormState({
         initialValues.boneMassKg === undefined &&
         initialValues.bodyFatPercent === undefined),
   )
+  // #549 — day-level totals (kcal + optional macros), separate from meals.
+  const [isEditingDayTotals, setIsEditingDayTotals] = useState(
+    alwaysEditable || initialValues.dayTotals === undefined,
+  )
+  const [dayTotalsKcalInput, setDayTotalsKcalInput] = useState('')
+  const [dayTotalsProteinInput, setDayTotalsProteinInput] = useState('')
+  const [dayTotalsFatInput, setDayTotalsFatInput] = useState('')
+  const [dayTotalsCarbsInput, setDayTotalsCarbsInput] = useState('')
+  const [dayTotalsError, setDayTotalsError] = useState<string | null>(null)
+  // #549 — manual water ml input restored (#282 removed it).
+  const [waterInput, setWaterInput] = useState('')
+  const [waterInputError, setWaterInputError] = useState<string | null>(null)
 
   // Opt-in digestion tracking's on/off toggle (Settings) — the toggle
   // itself only renders on this screen when enabled, same gate DayDetail
@@ -273,6 +287,7 @@ export function useDailyEntryFormState({
     name: 'nightEatingOverride',
   })
   const waterEntries = useWatch({ control, name: 'waterEntries' }) ?? []
+  const dayTotals = useWatch({ control, name: 'dayTotals' })
   const dayEmotion = useWatch({ control, name: 'emotion' })
   const calorieEntries = useWatch({ control, name: 'calorieEntries' }) ?? []
   // #383 — the toggle always shows the *effective* value (override, or
@@ -282,19 +297,19 @@ export function useDailyEntryFormState({
     calorieEntries,
     nightEatingOverride,
   })
-  const dayTotalCalories = totalCalories(calorieEntries) ?? 0
+  const dayTotalCalories = totalCalories(calorieEntries, dayTotals) ?? 0
   // #462 — consumed macros pulled out to standalone variables so the
   // "remaining" computation below can reuse them, rather than calling
   // totalProtein/totalFat/totalCarbs a second time.
-  const consumedProteinG = totalProtein(calorieEntries)
-  const consumedFatG = totalFat(calorieEntries)
-  const consumedCarbG = totalCarbs(calorieEntries)
+  const consumedProteinG = totalProtein(calorieEntries, dayTotals)
+  const consumedFatG = totalFat(calorieEntries, dayTotals)
+  const consumedCarbG = totalCarbs(calorieEntries, dayTotals)
   const dayMacrosSummary = macrosSummaryTextWithCalories(
     // Undefined-preserving (not dayTotalCalories's `?? 0` above) — matches
     // the three macros' own "dash when unlogged" treatment, and keeps this
     // row hidden entirely on a day with nothing logged at all, same as
     // before #462 added calories in here.
-    totalCalories(calorieEntries),
+    totalCalories(calorieEntries, dayTotals),
     consumedProteinG,
     consumedFatG,
     consumedCarbG,
@@ -365,6 +380,18 @@ export function useDailyEntryFormState({
           remainingMacrosLine,
         ].join('\n')
       : remainingMacrosLine
+  // #549 — one-line saved summary for the day totals section display mode.
+  const dayTotalsSavedSummary =
+    dayTotals !== undefined
+      ? macrosSummaryTextWithCalories(
+          dayTotals.amountKcal,
+          dayTotals.proteinG,
+          dayTotals.fatG,
+          dayTotals.carbsG,
+          locale,
+          t,
+        )
+      : null
 
   const showWeightAsDisplay = !alwaysEditable && !isEditingWeight
   const showNoteAsDisplay = !alwaysEditable && !isEditingNote
@@ -508,16 +535,28 @@ export function useDailyEntryFormState({
   // #271: each quick-add tap becomes its own removable entry instead of
   // bumping a single running total — the previous single-number version
   // gave no visible feedback per add, reported as "looks like nothing
-  // happens." #282: only ever called with the two fixed quick-add amounts
-  // (250/500) now that the manual "type any amount" input is gone, so
-  // there's no untrusted value here left to validate.
+  // happens." #549: manual ml input restored alongside quick-add buttons.
   function addWaterEntry(amountMl: number) {
+    const result = waterMlSchema.safeParse(amountMl)
+    if (!result.success) {
+      setWaterInputError(t.dailyEntry.invalidValueMessage)
+      return
+    }
+    if (result.data === 0) return
+    setWaterInputError(null)
     const entries = [
       ...(getValues('waterEntries') ?? []),
-      { id: crypto.randomUUID(), amountMl },
+      { id: crypto.randomUUID(), amountMl: result.data },
     ]
     setValue('waterEntries', entries, { shouldDirty: true })
     persist({ ...getValues(), waterEntries: entries })
+  }
+
+  function saveWaterInput() {
+    const amountMl = parseNumberInput(waterInput)
+    if (amountMl === undefined) return
+    addWaterEntry(amountMl)
+    setWaterInput('')
   }
 
   function removeWaterEntry(id: string) {
@@ -526,6 +565,58 @@ export function useDailyEntryFormState({
     )
     setValue('waterEntries', entries, { shouldDirty: true })
     persist({ ...getValues(), waterEntries: entries })
+  }
+
+  function startEditDayTotals() {
+    setDayTotalsKcalInput(
+      dayTotals?.amountKcal !== undefined ? String(dayTotals.amountKcal) : '',
+    )
+    setDayTotalsProteinInput(
+      dayTotals?.proteinG !== undefined ? String(dayTotals.proteinG) : '',
+    )
+    setDayTotalsFatInput(
+      dayTotals?.fatG !== undefined ? String(dayTotals.fatG) : '',
+    )
+    setDayTotalsCarbsInput(
+      dayTotals?.carbsG !== undefined ? String(dayTotals.carbsG) : '',
+    )
+    setDayTotalsError(null)
+    setIsEditingDayTotals(true)
+  }
+
+  function saveDayTotals() {
+    const amountKcal = parseNumberInput(dayTotalsKcalInput)
+    if (amountKcal === undefined) {
+      setDayTotalsError(t.dailyEntry.invalidValueMessage)
+      return
+    }
+    const next: DayTotals = { amountKcal }
+    const proteinG = parseNumberInput(dayTotalsProteinInput)
+    const fatG = parseNumberInput(dayTotalsFatInput)
+    const carbsG = parseNumberInput(dayTotalsCarbsInput)
+    if (proteinG !== undefined) next.proteinG = proteinG
+    if (fatG !== undefined) next.fatG = fatG
+    if (carbsG !== undefined) next.carbsG = carbsG
+    const result = dayTotalsSchema.safeParse(next)
+    if (!result.success) {
+      setDayTotalsError(t.dailyEntry.invalidValueMessage)
+      return
+    }
+    setDayTotalsError(null)
+    setValue('dayTotals', result.data, { shouldDirty: true })
+    persist({ ...getValues(), dayTotals: result.data })
+    setIsEditingDayTotals(false)
+  }
+
+  function clearDayTotals() {
+    setValue('dayTotals', undefined, { shouldDirty: true })
+    persist({ ...getValues(), dayTotals: undefined })
+    setDayTotalsKcalInput('')
+    setDayTotalsProteinInput('')
+    setDayTotalsFatInput('')
+    setDayTotalsCarbsInput('')
+    setDayTotalsError(null)
+    setIsEditingDayTotals(true)
   }
 
   function saveWeight() {
@@ -892,6 +983,22 @@ export function useDailyEntryFormState({
     persist,
     dailyCalorieTargetKcal,
     date,
+    // Day totals (#549)
+    dayTotals,
+    dayTotalsSavedSummary,
+    isEditingDayTotals,
+    dayTotalsKcalInput,
+    setDayTotalsKcalInput,
+    dayTotalsProteinInput,
+    setDayTotalsProteinInput,
+    dayTotalsFatInput,
+    setDayTotalsFatInput,
+    dayTotalsCarbsInput,
+    setDayTotalsCarbsInput,
+    dayTotalsError,
+    saveDayTotals,
+    clearDayTotals,
+    startEditDayTotals,
     // Steps
     showStepsAsDisplay,
     steps,
@@ -934,6 +1041,10 @@ export function useDailyEntryFormState({
     // Water
     waterTrackingEnabled,
     waterEntries,
+    waterInput,
+    setWaterInput,
+    waterInputError,
+    saveWaterInput,
     addWaterEntry,
     removeWaterEntry,
     // Constipation

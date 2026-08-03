@@ -37,7 +37,12 @@ export function loggingConsistencySummary(
 
   const entriesByDate = new Map(entries.map((entry) => [entry.date, entry]))
   const loggedDayCalories = days
-    .map((day) => totalCalories(entriesByDate.get(day.date)?.calorieEntries))
+    .map((day) =>
+      totalCalories(
+        entriesByDate.get(day.date)?.calorieEntries,
+        entriesByDate.get(day.date)?.dayTotals,
+      ),
+    )
     .filter((value): value is number => value !== undefined)
 
   const last7DayCalories = entries
@@ -45,7 +50,7 @@ export function loggingConsistencySummary(
       const daysBefore = differenceInCalendarDays(today, parseISO(entry.date))
       return daysBefore >= 0 && daysBefore < 7
     })
-    .map((entry) => totalCalories(entry.calorieEntries))
+    .map((entry) => totalCalories(entry.calorieEntries, entry.dayTotals))
     .filter((value): value is number => value !== undefined)
 
   return {

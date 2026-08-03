@@ -2,6 +2,7 @@ export type {
   CalorieEntry,
   CalorieItem,
   DailyEntry,
+  DayTotals,
   Emotion,
   MealEmotion,
   WaterEntry,

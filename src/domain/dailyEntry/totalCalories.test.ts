@@ -39,4 +39,15 @@ describe('totalCalories', () => {
       totalCalories([makeEntry(makeItem(300), makeItem(150), makeItem(50))]),
     ).toBe(500)
   })
+
+  it('returns dayTotals kcal when there are no meals (#549)', () => {
+    expect(totalCalories(undefined, { amountKcal: 1800 })).toBe(1800)
+    expect(totalCalories([], { amountKcal: 1800 })).toBe(1800)
+  })
+
+  it('adds meals and dayTotals kcal (#549)', () => {
+    expect(
+      totalCalories([makeEntry(makeItem(300))], { amountKcal: 500 }),
+    ).toBe(800)
+  })
 })

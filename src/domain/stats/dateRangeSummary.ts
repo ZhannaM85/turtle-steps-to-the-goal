@@ -46,16 +46,16 @@ export function dateRangeSummary(
     .map((e) => e.weightKg)
     .filter((v): v is number => v !== undefined)
   const calories = inRange
-    .map((e) => totalCalories(e.calorieEntries))
+    .map((e) => totalCalories(e.calorieEntries, e.dayTotals))
     .filter((v): v is number => v !== undefined)
   const protein = inRange
-    .map((e) => totalProtein(e.calorieEntries))
+    .map((e) => totalProtein(e.calorieEntries, e.dayTotals))
     .filter((v): v is number => v !== undefined)
   const fat = inRange
-    .map((e) => totalFat(e.calorieEntries))
+    .map((e) => totalFat(e.calorieEntries, e.dayTotals))
     .filter((v): v is number => v !== undefined)
   const carbs = inRange
-    .map((e) => totalCarbs(e.calorieEntries))
+    .map((e) => totalCarbs(e.calorieEntries, e.dayTotals))
     .filter((v): v is number => v !== undefined)
 
   return {

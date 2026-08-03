@@ -8,6 +8,7 @@ import type { CalorieEntry } from '@/domain/dailyEntry'
 import { db } from '@/infrastructure/persistence/indexeddb'
 import {
   useDigestionTrackingStore,
+  useGoalStore,
   useMealItemStore,
   useMealLabelPresetStore,
   useTrackedFieldsStore,
@@ -3114,9 +3115,8 @@ describe('DailyEntryForm', () => {
       ).not.toBeInTheDocument()
     })
 
-    // #282: the manual "type any amount" input was removed after #271's
-    // validation — only the two fixed-amount quick-add buttons remain.
-    it('shows only the two quick-add buttons when enabled, no manual input', () => {
+    // #549: manual ml input restored alongside the two quick-add buttons.
+    it('shows manual ml input and quick-add buttons when enabled', () => {
       useWaterTrackingStore.setState({ enabled: true })
       render(
         <DailyEntryForm date="2026-03-01" existingEntry={null} onSave={vi.fn()} />,
@@ -3128,7 +3128,26 @@ describe('DailyEntryForm', () => {
       expect(
         screen.getByRole('button', { name: '+1 bottle (500ml)' }),
       ).toBeInTheDocument()
-      expect(screen.queryByLabelText('Water')).not.toBeInTheDocument()
+      expect(screen.getByLabelText('Water amount')).toBeInTheDocument()
+      expect(screen.getByRole('button', { name: 'Add water' })).toBeInTheDocument()
+    })
+
+    it('adds a manual ml water entry on confirm', async () => {
+      useWaterTrackingStore.setState({ enabled: true })
+      const user = userEvent.setup()
+      const onSave = vi.fn()
+      render(
+        <DailyEntryForm date="2026-03-01" existingEntry={null} onSave={onSave} />,
+      )
+
+      await user.type(screen.getByLabelText('Water amount'), '350')
+      await user.click(screen.getByRole('button', { name: 'Add water' }))
+
+      expect(onSave).toHaveBeenCalledTimes(1)
+      expect(onSave.mock.calls[0][0].waterEntries).toEqual([
+        expect.objectContaining({ amountMl: 350 }),
+      ])
+      expect(screen.getByText('350ml')).toBeInTheDocument()
     })
 
     it('adds a new entry immediately on a quick-add click, with no prior entries', async () => {
@@ -3208,6 +3227,41 @@ describe('DailyEntryForm', () => {
       ])
       expect(screen.queryByText('250ml')).not.toBeInTheDocument()
       expect(screen.getByText('500ml')).toBeInTheDocument()
+    })
+  })
+
+  describe('day totals (#549)', () => {
+    it('saves day totals and includes them in remaining macros', async () => {
+      useGoalStore.setState({
+        goal: {
+          id: 'g1',
+          targetWeeklyLossKg: 0.5,
+          dailyCalorieTargetKcal: 2000,
+          dailyProteinTargetG: 150,
+          createdAt: now,
+          updatedAt: now,
+        },
+      })
+      const user = userEvent.setup()
+      const onSave = vi.fn()
+      render(
+        <DailyEntryForm date="2026-03-01" existingEntry={null} onSave={onSave} />,
+      )
+
+      await user.type(screen.getByLabelText('Day total calories'), '500')
+      await user.type(screen.getByLabelText('Day total protein'), '30')
+      await user.click(screen.getByRole('button', { name: 'Save day totals' }))
+
+      expect(onSave).toHaveBeenCalledTimes(1)
+      expect(onSave.mock.calls[0][0].dayTotals).toEqual({
+        amountKcal: 500,
+        proteinG: 30,
+      })
+
+      const remainingSection = screen
+        .getByText('Remaining')
+        .closest('div') as HTMLElement
+      expect(within(remainingSection).getByText('1,500')).toBeInTheDocument()
     })
   })
 })

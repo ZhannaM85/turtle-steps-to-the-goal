@@ -6,6 +6,7 @@ import type {
   CalorieEntry,
   CalorieItem,
   DailyEntry,
+  DayTotals,
   Emotion,
 } from '@/domain/dailyEntry'
 import {
@@ -307,6 +308,8 @@ export interface MealListProps {
   /** This day's date — used for the "Repeat/Copy yesterday's meal(s)"
    * quick actions (fetches the day before this one). */
   date: string
+  /** #549 — day-level totals (no food names), additive with meals. */
+  dayTotals?: DayTotals
   /** #399 — the active goal's daily calorie target, when set. Threaded
    * into the add-row sheet and "Find food" dialog so the user can see how
    * many calories would be left, not just the running total, before
@@ -332,6 +335,7 @@ export function MealList({
   onChange,
   date,
   dailyCalorieTargetKcal,
+  dayTotals,
 }: MealListProps) {
   const t = useTranslation()
   const locale = useLocale()
@@ -602,10 +606,10 @@ export function MealList({
       ? calorieEntries.filter((entry) => entry.id !== excludeId)
       : calorieEntries
     return {
-      kcal: totalCalories(others) ?? 0,
-      proteinG: totalProtein(others) ?? 0,
-      fatG: totalFat(others) ?? 0,
-      carbsG: totalCarbs(others) ?? 0,
+      kcal: totalCalories(others, dayTotals) ?? 0,
+      proteinG: totalProtein(others, dayTotals) ?? 0,
+      fatG: totalFat(others, dayTotals) ?? 0,
+      carbsG: totalCarbs(others, dayTotals) ?? 0,
     }
   }
 

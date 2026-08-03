@@ -23,6 +23,7 @@ export function DaySectionsCollapseControl() {
   const activeKeys: TodaySectionKey[] = [
     'morning',
     'stats',
+    'dayTotals',
     'meals',
     'evening',
   ]

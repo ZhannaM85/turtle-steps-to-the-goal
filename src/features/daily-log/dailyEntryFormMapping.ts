@@ -8,6 +8,7 @@ export function entryToFormValues(
   return {
     weightKg: entry.weightKg,
     calorieEntries: entry.calorieEntries,
+    dayTotals: entry.dayTotals,
     note: entry.note,
     emotion: entry.emotion,
     sleepHours: entry.sleepHours,
@@ -37,6 +38,7 @@ export function formValuesToEntry(
     date,
     weightKg: values.weightKg,
     calorieEntries: values.calorieEntries,
+    dayTotals: values.dayTotals,
     note: values.note,
     emotion: values.emotion,
     sleepHours: values.sleepHours,

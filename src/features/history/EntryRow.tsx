@@ -65,13 +65,13 @@ export function EntryRow({
           displayUnit === 'lb' ? kgToLb(entry.weightKg) : entry.weightKg,
           locale,
         )
-  const calories = totalCalories(entry.calorieEntries)
+  const calories = totalCalories(entry.calorieEntries, entry.dayTotals)
   const caloriesDisplay =
     calories === undefined ? '—' : formatNumber(calories, locale, 0)
   const macrosSummary = macrosSummaryTextCompact(
-    totalProtein(entry.calorieEntries),
-    totalFat(entry.calorieEntries),
-    totalCarbs(entry.calorieEntries),
+    totalProtein(entry.calorieEntries, entry.dayTotals),
+    totalFat(entry.calorieEntries, entry.dayTotals),
+    totalCarbs(entry.calorieEntries, entry.dayTotals),
     locale,
     t,
   )

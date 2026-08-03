@@ -91,6 +91,15 @@ const dailyEntrySchema = z.object({
   date: z.string(),
   weightKg: z.number().optional(),
   calorieEntries: z.array(calorieEntrySchema).optional(),
+  // #549 — day-level kcal/macros without meal items; additive with meals.
+  dayTotals: z
+    .object({
+      amountKcal: z.number(),
+      proteinG: z.number().optional(),
+      fatG: z.number().optional(),
+      carbsG: z.number().optional(),
+    })
+    .optional(),
   note: z.string().optional(),
   emotion: dayEmotionSchema.optional(),
   // Sleep (#59) — purely additive/optional, same no-version-bump reasoning

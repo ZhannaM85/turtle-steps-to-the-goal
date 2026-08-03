@@ -94,4 +94,20 @@ describe('totalProtein / totalFat / totalCarbs', () => {
     expect(totalPotassium(undefined)).toBeUndefined()
     expect(totalMagnesium([])).toBeUndefined()
   })
+
+  // #549 — day-level totals add to meals for protein/fat/carbs.
+  it('returns dayTotals macro when there are no meals', () => {
+    expect(totalProtein(undefined, { amountKcal: 0, proteinG: 90 })).toBe(90)
+    expect(totalFat([], { amountKcal: 0, fatG: 60 })).toBe(60)
+    expect(totalCarbs(undefined, { amountKcal: 0, carbsG: 200 })).toBe(200)
+  })
+
+  it('adds meals and dayTotals macros (#549)', () => {
+    const entries = [makeEntry(makeItem({ proteinG: 20, fatG: 10, carbsG: 30 }))]
+    expect(
+      totalProtein(entries, { amountKcal: 500, proteinG: 50 }),
+    ).toBe(70)
+    expect(totalFat(entries, { amountKcal: 500, fatG: 5 })).toBe(15)
+    expect(totalCarbs(entries, { amountKcal: 500, carbsG: 20 })).toBe(50)
+  })
 })

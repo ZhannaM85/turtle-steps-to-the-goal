@@ -51,10 +51,10 @@ export function recentAverages(
   })
 
   const calories = inWindow
-    .map((entry) => totalCalories(entry.calorieEntries))
+    .map((entry) => totalCalories(entry.calorieEntries, entry.dayTotals))
     .filter((value): value is number => value !== undefined)
   const protein = inWindow
-    .map((entry) => totalProtein(entry.calorieEntries))
+    .map((entry) => totalProtein(entry.calorieEntries, entry.dayTotals))
     .filter((value): value is number => value !== undefined)
 
   return {

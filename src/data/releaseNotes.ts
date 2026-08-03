@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 521,
+    issue: 549,
+    date: '2026-08-03T23:50:00+03:00',
+    en: 'Log day totals for calories and macros without naming foods, and enter water by any amount in milliliters again.',
+    ru: 'Можно записать итоги дня по калориям и макросам без блюд и снова добавлять воду любым количеством в миллилитрах.',
+  },
+  {
     version: 520,
     issue: 569,
     date: '2026-08-03T23:45:00+03:00',

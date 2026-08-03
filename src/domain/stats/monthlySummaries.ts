@@ -62,16 +62,16 @@ export function monthlySummaries(entries: DailyEntry[]): MonthlySummary[] {
       .map((e) => e.weightKg)
       .filter((v): v is number => v !== undefined)
     const calories = monthEntries
-      .map((e) => totalCalories(e.calorieEntries))
+      .map((e) => totalCalories(e.calorieEntries, e.dayTotals))
       .filter((v): v is number => v !== undefined)
     const protein = monthEntries
-      .map((e) => totalProtein(e.calorieEntries))
+      .map((e) => totalProtein(e.calorieEntries, e.dayTotals))
       .filter((v): v is number => v !== undefined)
     const fat = monthEntries
-      .map((e) => totalFat(e.calorieEntries))
+      .map((e) => totalFat(e.calorieEntries, e.dayTotals))
       .filter((v): v is number => v !== undefined)
     const carbs = monthEntries
-      .map((e) => totalCarbs(e.calorieEntries))
+      .map((e) => totalCarbs(e.calorieEntries, e.dayTotals))
       .filter((v): v is number => v !== undefined)
 
     return {

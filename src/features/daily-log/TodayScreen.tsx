@@ -370,7 +370,7 @@ export function TodayScreen() {
   // since the redesigned card descriptions now show the consumed number
   // directly (`targetMinusConsumedText`) instead of leaving the reader to
   // work it out from just the target and the remaining amount.
-  const consumedKcal = totalCalories(entry?.calorieEntries) ?? 0
+  const consumedKcal = totalCalories(entry?.calorieEntries, entry?.dayTotals) ?? 0
   const remainingKcal =
     goal?.dailyCalorieTargetKcal !== undefined
       ? goal.dailyCalorieTargetKcal - consumedKcal
@@ -383,7 +383,7 @@ export function TodayScreen() {
   // below) instead of a flat "0g remaining". A deliberate, protein-only
   // exception: unlike a calorie ceiling, eating more protein than planned
   // is a good outcome worth calling out, not a "went over budget" one.
-  const consumedProteinG = totalProtein(entry?.calorieEntries) ?? 0
+  const consumedProteinG = totalProtein(entry?.calorieEntries, entry?.dayTotals) ?? 0
   const proteinDeltaG =
     goal?.dailyProteinTargetG !== undefined
       ? goal.dailyProteinTargetG - consumedProteinG
@@ -397,13 +397,13 @@ export function TodayScreen() {
   // #266 already gave protein), just with a neutral unit/description
   // rather than protein's positive "great job!" framing — going over
   // isn't uniformly a good outcome for fat/carbs the way extra protein is.
-  const consumedFatG = totalFat(entry?.calorieEntries) ?? 0
+  const consumedFatG = totalFat(entry?.calorieEntries, entry?.dayTotals) ?? 0
   const fatDeltaG =
     goal?.dailyFatTargetG !== undefined
       ? goal.dailyFatTargetG - consumedFatG
       : null
   const isOverFatTarget = fatDeltaG !== null && fatDeltaG < 0
-  const consumedCarbG = totalCarbs(entry?.calorieEntries) ?? 0
+  const consumedCarbG = totalCarbs(entry?.calorieEntries, entry?.dayTotals) ?? 0
   const carbDeltaG =
     goal?.dailyCarbTargetG !== undefined
       ? goal.dailyCarbTargetG - consumedCarbG

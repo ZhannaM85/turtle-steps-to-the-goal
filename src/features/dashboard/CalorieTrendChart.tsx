@@ -84,7 +84,7 @@ export function CalorieTrendChart({
   const calorieBars = entries
     .map((entry) => ({
       date: entry.date,
-      calories: totalCalories(entry.calorieEntries),
+      calories: totalCalories(entry.calorieEntries, entry.dayTotals),
     }))
     .filter(
       (point): point is { date: string; calories: number } =>
@@ -138,7 +138,7 @@ export function CalorieTrendChart({
 
   const rolling = rollingAverage(
     entries,
-    (entry) => totalCalories(entry.calorieEntries),
+    (entry) => totalCalories(entry.calorieEntries, entry.dayTotals),
     ROLLING_WINDOW_DAYS,
   )
     .filter(

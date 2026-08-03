@@ -54,12 +54,18 @@ export const hadConstipationSchema = z.boolean().optional()
 export const nightEatingOverrideSchema = z.boolean().optional()
 // Opt-in water tracking (#258), one discrete add (#271) — same gating
 // shape as onPeriod/hadConstipation above. #282 removed the manual
-// "type any amount" input (only the two fixed 250/500ml quick-add
-// buttons remain), so there's no untrusted single amount left to
-// validate — this schema now only shapes the persisted entries list.
+// input; #549 restores it alongside the two quick-add buttons.
+export const waterMlSchema = z.number().min(0).max(10000)
 const waterEntrySchema = z.object({
   id: z.string(),
   amountMl: z.number(),
+})
+// #549 — day-level kcal/macros without meal items; additive with meals.
+export const dayTotalsSchema = z.object({
+  amountKcal: z.number().positive().max(10000),
+  proteinG: macroGramsSchema.optional(),
+  fatG: macroGramsSchema.optional(),
+  carbsG: macroGramsSchema.optional(),
 })
 // Body measurements (#225) — independent optional fields, same shape as
 // sleep/steps above. Bounds are generous human ranges, not medical limits.
@@ -80,6 +86,7 @@ export const boneMassKgSchema = z.number().min(0).max(30).optional()
 export const dailyEntryFormSchema = z.object({
   weightKg: weightSchema,
   calorieEntries: z.array(calorieEntrySchema).optional(),
+  dayTotals: dayTotalsSchema.optional(),
   note: noteSchema,
   emotion: dayEmotionSchema.optional(),
   sleepHours: sleepHoursSchema,
