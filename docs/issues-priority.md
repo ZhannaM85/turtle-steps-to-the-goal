@@ -1402,3 +1402,13 @@ _Reported live: inline "Убрать это блюдо?" sits at top of Add meal
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#544](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/544) | ⬜ Open | Add meal: show remove-dish confirm as a modal (inline banner is off-screen when scrolled) | Replace top-of-scroll inline confirm with a centered modal so Remove/Cancel is always visible |
+
+---
+
+## Tier 102 — Live feedback: dish name overflow (2026-08-03)
+
+_Reported live with Day meals screenshot: some long names (e.g. Level Kitchen salad) overflow the card; others wrap fine._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#545](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/545) | ⬜ Open | Day meal cards: long dish names overflow instead of wrapping | `chore` + `layout-breaking`. Name should wrap inside the card; not investigated (nowrap / min-width:0 / no soft-break points) |
