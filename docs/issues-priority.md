@@ -1388,6 +1388,8 @@ _Water recommendation and further filings from this session (list may grow)._
 | [#564](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/564) | 🔍 Pending validation | Barcode scan: tap-to-focus inside the framing rectangle (camera often soft / hold still too long) | Tap framing box → `focusVideoTrackAtPoint` (`pointsOfInterest` / `focusMode` when supported). Continuous AF on start. Best-effort (quiet no-op on iOS); reticle + updated copy. Manual entry (#291) still the fallback. |
 | [#565](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/565) | 🔍 Pending validation | Dashboard weekly recap: put Add weekly note inside the week card | `WeeklyNoteEditor` now renders as `StatCard` children (inside the beige week card, add control bottom-right). Follow-up to #557. |
 | [#566](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/566) | 🔍 Pending validation | Add meal: remaining calories preview subtracts twice after Save | Root cause: `todayTotals` included the in-progress meal while AddMealDialog also added `items`/`totalsSoFar`. Fix: `dayTotalsExcludingMeal` for add + edit overlays. |
+| [#567](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/567) | ⬜ Open | Add meal: meal-name chips show both Russian and English presets | Live feedback (#563 follow-up): chips list Завтрак/… and Breakfast/… together. Should only show active-locale names. |
+| [#568](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/568) | ⬜ Open | Add meal: cannot clear meal title — last character repopulates | Live feedback (#563): deleting the last character of Meal name restores the default (e.g. Завтрак). Root cause not investigated at filing. |
 
 
 
