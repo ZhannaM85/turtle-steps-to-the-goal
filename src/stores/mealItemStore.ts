@@ -1,8 +1,19 @@
 import { create } from 'zustand'
-import type { MealItem } from '@/domain/mealItem'
+import type { DailyEntry } from '@/domain/dailyEntry'
+import type { MealItem, MealItemSource } from '@/domain/mealItem'
+import {
+  isBackfilledMealItemSource,
+  planMealLibraryBackfill,
+} from '@/domain/mealItem'
 import { IndexedDbMealItemRepository } from '@/infrastructure/persistence/indexeddb'
 
 const mealItemRepository = new IndexedDbMealItemRepository()
+
+export interface MealLibraryBackfillResult {
+  added: number
+  totalUniqueNamed: number
+  truncated: boolean
+}
 
 interface MealItemStoreState {
   items: MealItem[]
@@ -48,6 +59,16 @@ interface MealItemStoreState {
   /** #276 — toggles a "go-to" food, independent of `touch()`'s own
    * recency bookkeeping. */
   toggleFavorite: (id: string) => Promise<void>
+  /**
+   * #541 — add missing named dishes from day history into the library,
+   * tagged for reversible undo. Does not change day meal history.
+   */
+  backfillFromHistory: (
+    entries: readonly DailyEntry[],
+    source: MealItemSource,
+  ) => Promise<MealLibraryBackfillResult>
+  /** #541 — delete only tagged backfill rows; day history untouched. */
+  removeBackfilledItems: () => Promise<number>
 }
 
 export const useMealItemStore = create<MealItemStoreState>((set, get) => ({
@@ -89,6 +110,7 @@ export const useMealItemStore = create<MealItemStoreState>((set, get) => ({
       lastMagnesiumMg: nutrition?.magnesiumMg ?? existing?.lastMagnesiumMg,
       favorite: favorite ?? existing?.favorite,
       barcode: barcode ?? existing?.barcode,
+      source: existing?.source,
     }
     await mealItemRepository.upsert(item)
     set({ items: await mealItemRepository.getAll() })
@@ -123,5 +145,46 @@ export const useMealItemStore = create<MealItemStoreState>((set, get) => ({
       updatedAt: new Date().toISOString(),
     })
     set({ items: await mealItemRepository.getAll() })
+  },
+  backfillFromHistory: async (entries, source) => {
+    const existing = await mealItemRepository.getAll()
+    const plan = planMealLibraryBackfill(entries, existing)
+    const now = new Date().toISOString()
+    for (const candidate of plan.candidates) {
+      const item: MealItem = {
+        id: crypto.randomUUID(),
+        name: candidate.name,
+        createdAt: now,
+        updatedAt: now,
+        lastAmountKcal: candidate.amountKcal,
+        lastProteinG: candidate.proteinG,
+        lastFatG: candidate.fatG,
+        lastCarbsG: candidate.carbsG,
+        lastFiberG: candidate.fiberG,
+        lastAmountG: candidate.amountG,
+        lastSodiumMg: candidate.sodiumMg,
+        lastPotassiumMg: candidate.potassiumMg,
+        lastMagnesiumMg: candidate.magnesiumMg,
+        source,
+      }
+      await mealItemRepository.upsert(item)
+    }
+    set({ items: await mealItemRepository.getAll(), status: 'ready' })
+    return {
+      added: plan.candidates.length,
+      totalUniqueNamed: plan.totalUniqueNamed,
+      truncated: plan.truncated,
+    }
+  },
+  removeBackfilledItems: async () => {
+    const existing = await mealItemRepository.getAll()
+    const toRemove = existing.filter((item) =>
+      isBackfilledMealItemSource(item.source),
+    )
+    for (const item of toRemove) {
+      await mealItemRepository.delete(item.id)
+    }
+    set({ items: await mealItemRepository.getAll(), status: 'ready' })
+    return toRemove.length
   },
 }))

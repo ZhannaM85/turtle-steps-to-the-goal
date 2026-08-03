@@ -14,6 +14,10 @@
  * next saved with a note, and are excluded from the food-picker's search
  * until then (nothing to reuse yet).
  */
+
+/** #541 — provenance for reversible library backfills. */
+export type MealItemSource = 'history-backfill' | 'mfp-import'
+
 export interface MealItem {
   id: string
   name: string
@@ -44,4 +48,10 @@ export interface MealItem {
    * fully offline local match. Purely additive/optional; most items have
    * no barcode at all. */
   barcode?: string
+  /**
+   * #541 — how this library row was created when not from normal logging.
+   * Lets Settings remove backfilled rows without wiping day meal history.
+   * Omitted/`undefined` = user-created (manual add, touch-on-save, barcode).
+   */
+  source?: MealItemSource
 }

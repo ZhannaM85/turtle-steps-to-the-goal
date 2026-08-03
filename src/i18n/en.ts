@@ -839,6 +839,21 @@ export const en: Dictionary = {
       "Meals you've logged before, suggested while you type. Rename or remove them here, or add one directly.",
     mealItemsEmpty:
       "Nothing yet — items appear here once you've logged a meal.",
+    mealLibraryBackfillDescription:
+      'If you imported meals (or have years of history), you can copy unique dish names into this library so Find food can reuse them. You can remove only those copied items later — day history stays intact.',
+    mealLibraryBackfillButton: 'Add foods from meal history',
+    mealLibraryBackfillRemoveButton: (count) =>
+      `Remove backfilled foods (${count})`,
+    mealLibraryBackfillDoneMessage: (added) =>
+      added === 0
+        ? 'No new foods to add — everything named in your history is already in the library.'
+        : `Added ${added} ${added === 1 ? 'food' : 'foods'} from meal history.`,
+    mealLibraryBackfillTruncatedMessage: (added, totalUniqueNamed) =>
+      `Added ${added} of ${totalUniqueNamed} unique foods (capped for performance). Remove backfilled foods and try again later if you need the rest.`,
+    mealLibraryBackfillRemovedMessage: (removed) =>
+      `Removed ${removed} backfilled ${removed === 1 ? 'food' : 'foods'} from the library. Your day meals were not changed.`,
+    mealLibraryBackfillErrorMessage:
+      'Could not update the food library. Try again.',
     mealItemSearchLabel: 'Search meal items',
     mealItemSearchPlaceholder: 'Search...',
     noMealItemResultsText: 'No meal items match your search.',

@@ -871,6 +871,21 @@ export const ru: Dictionary = {
     mealItemsDescription:
       'Блюда, которые вы уже добавляли — подсказки при вводе. Здесь их можно переименовать, удалить или добавить новое.',
     mealItemsEmpty: 'Пока пусто — блюда появятся здесь после первой записи.',
+    mealLibraryBackfillDescription:
+      'Если вы импортировали приёмы пищи (или у вас многолетняя история), можно скопировать уникальные названия блюд в эту библиотеку — тогда их найдёт поиск. Позже можно удалить только эти скопированные позиции — история дней не затронется.',
+    mealLibraryBackfillButton: 'Добавить блюда из истории',
+    mealLibraryBackfillRemoveButton: (count) =>
+      `Удалить добавленные из истории (${count})`,
+    mealLibraryBackfillDoneMessage: (added) =>
+      added === 0
+        ? 'Новых блюд нет — всё, что есть в истории с названиями, уже в библиотеке.'
+        : `Добавлено блюд из истории: ${added}.`,
+    mealLibraryBackfillTruncatedMessage: (added, totalUniqueNamed) =>
+      `Добавлено ${added} из ${totalUniqueNamed} уникальных блюд (есть лимит ради производительности). Удалите добавленные из истории и повторите позже, если нужны остальные.`,
+    mealLibraryBackfillRemovedMessage: (removed) =>
+      `Удалено из библиотеки блюд, добавленных из истории: ${removed}. Приёмы пищи по дням не изменились.`,
+    mealLibraryBackfillErrorMessage:
+      'Не удалось обновить библиотеку блюд. Попробуйте ещё раз.',
     mealItemSearchLabel: 'Поиск блюд',
     mealItemSearchPlaceholder: 'Поиск...',
     noMealItemResultsText: 'Ничего не найдено.',

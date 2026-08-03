@@ -2,7 +2,11 @@ import { useEffect, useState } from 'react'
 import { Pencil, ScanBarcode, Star, Trash2 } from 'lucide-react'
 import { formatNumber, useLocale, useTranslation } from '@/i18n'
 import type { MealItem } from '@/domain/mealItem'
-import { IndexedDbMealItemRepository } from '@/infrastructure/persistence/indexeddb'
+import { isBackfilledMealItemSource } from '@/domain/mealItem'
+import {
+  IndexedDbDailyEntryRepository,
+  IndexedDbMealItemRepository,
+} from '@/infrastructure/persistence/indexeddb'
 import { useOnlineStatus } from '@/shared/hooks'
 import { formatBarcodeDisplay } from '@/shared/lib/formatBarcode'
 import { macrosSummaryTextCompact } from '@/shared/lib/macroDisplay'
@@ -27,6 +31,8 @@ import { BarcodeScannerDialog, lookupBarcode } from '@/features/daily-log'
 // #289 — read-only, one-shot lookup outside the store, same module-scope
 // pattern MealList.tsx already uses for its own barcode-scan entry point.
 const mealItemRepositoryForBarcodeLookup = new IndexedDbMealItemRepository()
+// #541 — Settings backfill reads day history once on demand.
+const dailyEntryRepositoryForBackfill = new IndexedDbDailyEntryRepository()
 
 function MealItemRow({
   item,
@@ -749,12 +755,60 @@ export function MealItemsSection() {
   const deleteItem = useMealItemStore((state) => state.deleteItem)
   const touch = useMealItemStore((state) => state.touch)
   const toggleFavorite = useMealItemStore((state) => state.toggleFavorite)
+  const backfillFromHistory = useMealItemStore(
+    (state) => state.backfillFromHistory,
+  )
+  const removeBackfilledItems = useMealItemStore(
+    (state) => state.removeBackfilledItems,
+  )
   const [isAdding, setIsAdding] = useState(false)
   const [search, setSearch] = useState('')
+  const [backfillBusy, setBackfillBusy] = useState(false)
+  const [backfillMessage, setBackfillMessage] = useState<string | null>(null)
 
   useEffect(() => {
     loadItems()
   }, [loadItems])
+
+  const backfilledCount = items.filter((item) =>
+    isBackfilledMealItemSource(item.source),
+  ).length
+
+  async function handleBackfillFromHistory() {
+    setBackfillBusy(true)
+    setBackfillMessage(null)
+    try {
+      const entries = await dailyEntryRepositoryForBackfill.getAll()
+      const result = await backfillFromHistory(entries, 'history-backfill')
+      setBackfillMessage(
+        result.truncated
+          ? t.settings.mealLibraryBackfillTruncatedMessage(
+              result.added,
+              result.totalUniqueNamed,
+            )
+          : t.settings.mealLibraryBackfillDoneMessage(result.added),
+      )
+    } catch {
+      setBackfillMessage(t.settings.mealLibraryBackfillErrorMessage)
+    } finally {
+      setBackfillBusy(false)
+    }
+  }
+
+  async function handleRemoveBackfilled() {
+    setBackfillBusy(true)
+    setBackfillMessage(null)
+    try {
+      const removed = await removeBackfilledItems()
+      setBackfillMessage(
+        t.settings.mealLibraryBackfillRemovedMessage(removed),
+      )
+    } catch {
+      setBackfillMessage(t.settings.mealLibraryBackfillErrorMessage)
+    } finally {
+      setBackfillBusy(false)
+    }
+  }
 
   // Same filter-as-you-type shape as FoodListSettingsScreen's search (#179)
   // — filters by name, case-insensitive, empty query shows everything.
@@ -775,6 +829,36 @@ export function MealItemsSection() {
       <p className="text-sm text-muted-foreground">
         {t.settings.mealItemsDescription}
       </p>
+      <p className="text-sm text-muted-foreground">
+        {t.settings.mealLibraryBackfillDescription}
+      </p>
+      <div className="flex flex-wrap gap-2">
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          disabled={backfillBusy}
+          onClick={() => void handleBackfillFromHistory()}
+        >
+          {t.settings.mealLibraryBackfillButton}
+        </Button>
+        {backfilledCount > 0 && (
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            disabled={backfillBusy}
+            onClick={() => void handleRemoveBackfilled()}
+          >
+            {t.settings.mealLibraryBackfillRemoveButton(backfilledCount)}
+          </Button>
+        )}
+      </div>
+      {backfillMessage && (
+        <p className="text-sm text-muted-foreground" role="status">
+          {backfillMessage}
+        </p>
+      )}
       {items.length === 0 && (
         <p className="text-sm text-muted-foreground">
           {t.settings.mealItemsEmpty}

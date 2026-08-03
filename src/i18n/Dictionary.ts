@@ -1372,6 +1372,17 @@ export interface Dictionary {
     mealItemsLabel: string
     mealItemsDescription: string
     mealItemsEmpty: string
+    /** #541 — opt-in backfill from day meal history into the personal library. */
+    mealLibraryBackfillDescription: string
+    mealLibraryBackfillButton: string
+    mealLibraryBackfillRemoveButton: (count: number) => string
+    mealLibraryBackfillDoneMessage: (added: number) => string
+    mealLibraryBackfillTruncatedMessage: (
+      added: number,
+      totalUniqueNamed: number,
+    ) => string
+    mealLibraryBackfillRemovedMessage: (removed: number) => string
+    mealLibraryBackfillErrorMessage: string
     /** Filter-as-you-type above the list + "no matches" text (#179) — same
      * pattern as dailyEntry.foodSearchLabel/foodSearchPlaceholder for the
      * curated food list, mirrored here for the personal meal dictionary. */

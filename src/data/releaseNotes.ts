@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 498,
+    issue: 541,
+    date: '2026-08-03T16:30:11+03:00',
+    en: 'You can add foods from your meal history into the personal library (including after MyFitnessPal import), and remove only those added foods later if you want.',
+    ru: 'Можно добавить блюда из истории приёмов пищи в личную библиотеку (в том числе после импорта MyFitnessPal) и позже удалить только эти добавленные позиции.',
+  },
+  {
     version: 497,
     issue: 543,
     date: '2026-08-03T16:16:47+03:00',

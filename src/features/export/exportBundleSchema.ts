@@ -155,6 +155,8 @@ const mealItemSchema = z.object({
   favorite: z.boolean().optional(),
   // #256 — scanned product barcode, same purely-additive reasoning.
   barcode: z.string().optional(),
+  // #541 — backfill provenance for reversible undo.
+  source: z.enum(['history-backfill', 'mfp-import']).optional(),
 })
 
 // Per-device curated-food-list customizations (#90) — same #113

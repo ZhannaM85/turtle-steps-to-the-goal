@@ -1,4 +1,5 @@
 import { IndexedDbDailyEntryRepository } from '@/infrastructure/persistence/indexeddb'
+import { useMealItemStore } from '@/stores'
 import {
   filterPatchesToFields,
   mergeDailyEntryPatches,
@@ -203,6 +204,13 @@ export async function importMyFitnessPalExport(
   await Promise.all(
     entriesToUpsert.map((entry) => dailyEntryRepository.upsert(entry)),
   )
+
+  // #541 — also seed the personal food library from imported meal lines
+  // (tagged mfp-import so Settings can undo without wiping day history).
+  const allEntries = await dailyEntryRepository.getAll()
+  await useMealItemStore
+    .getState()
+    .backfillFromHistory(allEntries, 'mfp-import')
 
   return { daysImported, daysUpdated }
 }
