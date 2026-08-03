@@ -1351,3 +1351,13 @@ _After #537 fixed period-switch lag, opening Dashboard itself still takes ~4–5
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#538](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/538) | ⬜ Open | Dashboard: initial page load takes ~4–5 seconds (investigate possible improvements) | Follow-up to #537. User reports first open is still ~4–5s — fine for now, worth profiling later. Not yet investigated (Recharts mount volume, per-section filtering, `useDashboardData`, eager off-screen work, etc.) |
+
+---
+
+## Tier 97 — Live feedback: Start today now vs Сегодня (2026-08-03)
+
+_Reported live with screenshots: after "Начать сегодняшний день сейчас", the Сегодня button still navigates to the previous day — early-start choice may not be persisted._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#539](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/539) | ⬜ Open | Day: after Start today now, the Today button still jumps to the previous day | Reported live. Suspected: early-start decision not stored, so Today nav still uses the old day-boundary. Not investigated at filing |
