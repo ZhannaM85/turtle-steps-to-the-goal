@@ -348,7 +348,9 @@ describe('MealItemsSection', () => {
       await user.click(screen.getByRole('button', { name: 'Scan barcode' }))
 
       expect(
-        screen.getByText('Point your camera at the barcode.'),
+        screen.getByText(
+          'Point your camera at the barcode. Tap inside the frame to focus.',
+        ),
       ).toBeInTheDocument()
     })
 
