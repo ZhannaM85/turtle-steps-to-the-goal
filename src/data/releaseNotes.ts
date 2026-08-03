@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 524,
+    issue: 568,
+    date: '2026-08-04T00:30:00+03:00',
+    en: 'You can clear the meal name while adding or editing a meal — it no longer jumps back to Breakfast when the last character is deleted.',
+    ru: 'Можно очистить название приёма пищи при добавлении или редактировании — оно больше не возвращается к «Завтрак», когда удаляется последний символ.',
+  },
+  {
     version: 523,
     issue: 567,
     date: '2026-08-04T00:25:00+03:00',

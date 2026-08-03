@@ -176,6 +176,24 @@ describe('MealList', () => {
     expect(screen.getByText('Salad')).toBeInTheDocument()
   })
 
+  it('allows clearing the meal name without the default reseeding (#568)', async () => {
+    const user = userEvent.setup()
+    render(
+      <ControlledMealList calorieEntries={[]} date="2026-03-01" />,
+      { wrapper: MemoryRouter },
+    )
+
+    await user.click(
+      screen.getByRole('button', { name: '+ Add another meal' }),
+    )
+    const nameField = screen.getByLabelText('Meal name')
+    expect(nameField).toHaveValue('Breakfast')
+    await user.clear(nameField)
+    expect(nameField).toHaveValue('')
+    await user.type(nameField, 'Brunch')
+    expect(nameField).toHaveValue('Brunch')
+  })
+
   it("shows an item's own quantity in grams when recorded, omits it when not (#206)", () => {
     const calorieEntries: CalorieEntry[] = [
       {

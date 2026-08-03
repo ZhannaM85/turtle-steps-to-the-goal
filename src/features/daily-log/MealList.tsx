@@ -34,7 +34,7 @@ import {
   macrosSummaryTextCompact,
   macrosSummaryTextCompactWithCalories,
 } from '@/shared/lib/macroDisplay'
-import { defaultMealLabel, effectiveMealLabel } from '@/shared/lib/mealLabel'
+import { defaultMealLabel, editableMealLabel, effectiveMealLabel } from '@/shared/lib/mealLabel'
 import { normalizeTextSpaces } from '@/shared/lib/normalizeTextSpaces'
 import { Button } from '@/shared/ui/button'
 import { useDayStartStore, useMealItemStore } from '@/stores'
@@ -60,15 +60,19 @@ function currentTimeHHMM(): string {
   return `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`
 }
 
-/** #563 — empty or equal to the positional default clears `CalorieEntry.label`
- * so language switches still re-translate unlabeled meals (#141). */
+/** #563/#568 — equal to the positional default clears `CalorieEntry.label`
+ * so language switches still re-translate unlabeled meals (#141). Empty
+ * string is kept during editing so the name field can be cleared without
+ * immediately reseeding the default; `effectiveMealLabel` / Done flush
+ * still treat blank as unset. */
 function customMealLabelOrUndefined(
   value: string,
   position: number,
   t: Dictionary,
 ): string | undefined {
   const trimmed = value.trim()
-  if (!trimmed || trimmed === defaultMealLabel(t, position)) return undefined
+  if (trimmed === defaultMealLabel(t, position)) return undefined
+  if (!trimmed) return ''
   return trimmed
 }
 
@@ -469,6 +473,15 @@ export function MealList({
     }
     if (keepInProgressMealRef.current) {
       keepInProgressMealRef.current = false
+      if (inProgressMealId) {
+        setCalorieEntries(
+          calorieEntries.map((entry) =>
+            entry.id === inProgressMealId
+              ? { ...entry, label: entry.label?.trim() || undefined }
+              : entry,
+          ),
+        )
+      }
       setInProgressMealId(null)
       setConfirmDiscardAddMeal(false)
       setIsAddMealDialogOpen(false)
@@ -546,6 +559,8 @@ export function MealList({
     }
     const committed: CalorieEntry = {
       ...editingMealDraft,
+      // #568 — blank draft label persists as unset (positional default / #141).
+      label: editingMealDraft.label?.trim() || undefined,
       note: editingMealDraft.note?.trim() || undefined,
       timeEaten: editingMealDraft.timeEaten || undefined,
     }
@@ -914,7 +929,7 @@ export function MealList({
           onCancelDiscard={() => setConfirmDiscardEditMeal(false)}
           discardConfirmLabel={t.dailyEntry.confirmDiscardEditedMealLabel}
           showDoneWhenEmpty
-          mealLabel={effectiveMealLabel(
+          mealLabel={editableMealLabel(
             t,
             calorieEntries.findIndex((entry) => entry.id === editingMealId) + 1,
             editingMeal.label,
@@ -991,7 +1006,7 @@ export function MealList({
           isConfirmingDiscard={confirmDiscardAddMeal}
           onConfirmDiscard={discardInProgressMealAndClose}
           onCancelDiscard={() => setConfirmDiscardAddMeal(false)}
-          mealLabel={effectiveMealLabel(
+          mealLabel={editableMealLabel(
             t,
             newMealPosition,
             inProgressMeal?.label ?? newMealLabel,
