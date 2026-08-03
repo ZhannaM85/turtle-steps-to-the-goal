@@ -1361,3 +1361,13 @@ _Reported live with screenshots: after "Начать сегодняшний де
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#539](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/539) | ⬜ Open | Day: after Start today now, the Today button still jumps to the previous day | Reported live. Suspected: early-start decision not stored, so Today nav still uses the old day-boundary. Not investigated at filing |
+
+---
+
+## Tier 98 — Feature: outlier context note (2026-08-03)
+
+_Live report (RU quick note → filed in EN): unusual weight swings need visible context on the tooltip (e.g. back from vacation / no weigh-in for a week). Design fork open — pause before implementing._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#540](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/540) | ⬜ Open | Correlation outliers: show short context for unusual weight changes (note preview or dedicated note) | Fork: truncated daily-note preview vs dedicated oddity note (+ optional auto gap hint). Do not build until user picks |
