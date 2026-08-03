@@ -124,8 +124,10 @@ export function DailyEntryFormTop() {
         </div>
       )}
 
-      {/* #549 — optional day-level kcal/macros without meal items; additive
-       * with meals for Remaining cards and summaries. Collapsible like Water. */}
+      {/* #549/#575 — optional day-level kcal/macros without meal items;
+       * additive with meals for Remaining. Hidden when What to track
+       * turns Day totals off (saved data kept). Collapsible like Water. */}
+      {state.trackedFields.dayTotals && (
       <div className="rounded-lg border border-border p-3">
         <Collapsible
           open={!dayTotalsCollapsed}
@@ -243,6 +245,7 @@ export function DailyEntryFormTop() {
           </CollapsibleContent>
         </Collapsible>
       </div>
+      )}
 
       {/* Meal editing extracted to its own component (#145) — reused
        * as-is by DayDetail.tsx too, so History's read-only expand-row can

@@ -338,6 +338,7 @@ describe('SettingsScreen', () => {
           mood: true,
           bodyComposition: false,
           nightEating: true,
+          dayTotals: true,
         },
       })
       renderSettings()
@@ -347,6 +348,19 @@ describe('SettingsScreen', () => {
           screen.getByRole('toolbar', { name: 'Morning' }),
         ).getByRole('button', { name: 'Body composition' }),
       ).toHaveAttribute('aria-pressed', 'false')
+    })
+
+    it('defaults Day totals on and can turn it off (#575)', async () => {
+      const user = userEvent.setup()
+      renderSettings()
+
+      const dayTotalsToggle = within(
+        screen.getByRole('toolbar', { name: 'Other' }),
+      ).getByRole('button', { name: 'Day totals' })
+      expect(dayTotalsToggle).toHaveAttribute('aria-pressed', 'true')
+      await user.click(dayTotalsToggle)
+      expect(dayTotalsToggle).toHaveAttribute('aria-pressed', 'false')
+      expect(useTrackedFieldsStore.getState().tracked.dayTotals).toBe(false)
     })
 
     it('includes night eating in the Evening What to track group (#532)', () => {

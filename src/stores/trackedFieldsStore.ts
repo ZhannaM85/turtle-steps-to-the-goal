@@ -20,6 +20,7 @@ export type TrackedField =
   | 'mood'
   | 'bodyComposition'
   | 'nightEating'
+  | 'dayTotals'
 
 const DEFAULT_TRACKED: Record<TrackedField, boolean> = {
   sleep: true,
@@ -33,6 +34,9 @@ const DEFAULT_TRACKED: Record<TrackedField, boolean> = {
   // #532 — was always-on (#383); default on so existing behavior stays
   // until the user opts out in Settings.
   nightEating: true,
+  // #575 — #549 day-level totals; default on (opt-out) so current Day UI
+  // stays until the user hides it in What to track.
+  dayTotals: true,
 }
 
 interface TrackedFieldsState {

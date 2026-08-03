@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 530,
+    issue: 575,
+    date: '2026-08-04T01:58:51+03:00',
+    en: 'You can hide Day totals under Settings → What to track if you only log meals.',
+    ru: '«Итоги дня» можно скрыть в Настройки → Что отслеживать, если вы ведёте только приёмы пищи.',
+  },
+  {
     version: 529,
     issue: 573,
     date: '2026-08-04T01:54:09+03:00',

@@ -1405,6 +1405,7 @@ describe('DailyEntryForm', () => {
           mood: true,
           bodyComposition: false,
           nightEating: true,
+          dayTotals: true,
         },
       })
       render(
@@ -1417,6 +1418,21 @@ describe('DailyEntryForm', () => {
       expect(screen.queryByText('Body composition')).not.toBeInTheDocument()
       expect(screen.getByText("Day's note")).toBeInTheDocument()
       expect(screen.getByText('Mood today')).toBeInTheDocument()
+      expect(screen.getByText('Day totals')).toBeInTheDocument()
+    })
+
+    it('hides Day totals when its Settings toggle is off (#575)', () => {
+      useTrackedFieldsStore.setState((state) => ({
+        tracked: { ...state.tracked, dayTotals: false },
+      }))
+      render(
+        <DailyEntryForm date="2026-03-01" existingEntry={null} onSave={vi.fn()} />,
+      )
+
+      expect(screen.queryByText('Day totals')).not.toBeInTheDocument()
+      expect(
+        screen.queryByLabelText('Day total calories'),
+      ).not.toBeInTheDocument()
     })
 
     it('hides night eating when its Settings toggle is off (#532)', () => {
