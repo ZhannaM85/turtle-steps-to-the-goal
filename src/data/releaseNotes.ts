@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 507,
+    issue: 548,
+    date: '2026-08-03T19:13:04+03:00',
+    en: 'When water tracking is on, Day shows a weight-based daily water range you can bump for heat or a workout — and Goal can fill a mid value as your target.',
+    ru: 'Если включён учёт воды, на экране «День» виден диапазон по весу (можно добавить жаркий день или тренировку), а в «Цели» можно подставить среднее как дневную цель.',
+  },
+  {
     version: 506,
     issue: 553,
     date: '2026-08-03T19:04:00+03:00',

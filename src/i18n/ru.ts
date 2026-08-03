@@ -365,6 +365,11 @@ export const ru: Dictionary = {
     addGlassLabel: '+1 стакан (250мл)',
     addBottleLabel: '+1 бутылка (500мл)',
     removeWaterEntryLabel: (amount) => `Удалить запись ${amount}`,
+    waterRecommendationRange: (low, high) =>
+      `Рекомендуемый объём сегодня: ${low}–${high} л (от вашего веса — не медицинская рекомендация)`,
+    waterRecommendationHotDay: '+300 мл, если жарко',
+    waterRecommendationWorkout: '+500 мл после тренировки',
+    waterRecommendationNeedWeight: 'Запишите вес, чтобы увидеть рекомендацию по воде.',
     addItemSheetTitle: 'Добавить блюдо',
     editItemSheetTitle: 'Редактировать блюдо',
     closeItemEditorLabel: 'Закрыть редактор блюда',
@@ -405,6 +410,9 @@ export const ru: Dictionary = {
     dailyMagnesiumTargetHint: 'Необязательно — можно оставить пустым.',
     dailyWaterTargetLabel: 'Дневная цель по воде',
     dailyWaterTargetHint: 'Необязательно — можно оставить пустым.',
+    useWaterRecommendationButton: 'Подставить среднее из рекомендации',
+    waterRecommendationGoalHint: (low, high) =>
+      `По последнему весу: примерно ${low}–${high} л/день (не медицинская рекомендация).`,
     suggestTargetButton: 'Предложить цель',
     suggestTargetCaveat:
       'Заполняет четыре поля ниже на основе веса, роста, возраста, пола и уровня активности — это не медицинская или диетическая рекомендация. Проверьте и при необходимости измените значения перед сохранением.',

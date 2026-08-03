@@ -137,6 +137,19 @@ export type { OutlierBounds, OutlierAxes } from './outlierDetection'
 export { calculateTdee, suggestDailyTargets } from './targetCalculator'
 export type { ActivityLevel, SuggestedDailyTargets } from './targetCalculator'
 export {
+  recommendedWaterMlRange,
+  adjustWaterMlRange,
+  waterRecommendationMidMl,
+  WATER_HOT_DAY_BUMP_ML,
+  WATER_WORKOUT_BUMP_ML,
+  WATER_ML_PER_KG_LOW,
+  WATER_ML_PER_KG_HIGH,
+} from './waterRecommendation'
+export type {
+  WaterRecommendationRange,
+  WaterRecommendationAdjustments,
+} from './waterRecommendation'
+export {
   BODY_COMPOSITION_SERIES_KEYS,
   bodyCompositionPoints,
 } from './bodyCompositionTrend'

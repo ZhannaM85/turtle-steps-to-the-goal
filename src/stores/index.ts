@@ -12,6 +12,7 @@ export { useGoalCelebrationStore } from './goalCelebrationStore'
 export { useCycleTrackingStore } from './cycleTrackingStore'
 export { useDigestionTrackingStore } from './digestionTrackingStore'
 export { useWaterTrackingStore } from './waterTrackingStore'
+export { useWaterDayFlagsStore } from './waterDayFlagsStore'
 export {
   useMicronutrientTrackingStore,
   type MicronutrientField,

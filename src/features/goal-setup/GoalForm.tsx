@@ -10,7 +10,7 @@ import {
   WEEKLY_PACE_SOFT_WARN_KG,
   WEEKLY_PACE_STEP_KG,
 } from '@/domain/goal'
-import { suggestDailyTargets } from '@/domain/stats'
+import { suggestDailyTargets, recommendedWaterMlRange, waterRecommendationMidMl } from '@/domain/stats'
 import { formatExactNumber, formatNumber, unitLabel, useLocale, useTranslation } from '@/i18n'
 import { parseNumberInput } from '@/shared/lib/parseNumberInput'
 import {
@@ -609,7 +609,8 @@ export function GoalForm({
         />
       )}
 
-      {/* #258 — same shape again, independent of the macro targets. */}
+      {/* #258 — same shape again, independent of the macro targets.
+       * #548 — soft weight-based range + optional fill of mid value. */}
       <NumberInput
         label={t.goal.dailyWaterTargetLabel}
         hint={t.goal.dailyWaterTargetHint}
@@ -617,6 +618,36 @@ export function GoalForm({
         error={errors.dailyWaterTarget?.message}
         {...register('dailyWaterTarget', { setValueAs: parseNumberInput })}
       />
+      {latestWeightKg !== null && latestWeightKg > 0 && (
+        <div className="flex flex-col gap-1.5">
+          <p className="text-sm text-muted-foreground">
+            {(() => {
+              const range = recommendedWaterMlRange(latestWeightKg)
+              return t.goal.waterRecommendationGoalHint(
+                formatExactNumber(range.lowMl / 1000, locale),
+                formatExactNumber(range.highMl / 1000, locale),
+              )
+            })()}
+          </p>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="self-start"
+            onClick={() => {
+              const mid = waterRecommendationMidMl(
+                recommendedWaterMlRange(latestWeightKg),
+              )
+              setValue('dailyWaterTarget', mid, {
+                shouldDirty: true,
+                shouldValidate: true,
+              })
+            }}
+          >
+            {t.goal.useWaterRecommendationButton}
+          </Button>
+        </div>
+      )}
 
       {showDiscardConfirm && (
         <div className="flex flex-col gap-2 rounded-xl bg-card p-3 ring-1 ring-foreground/10">
