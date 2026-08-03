@@ -1360,3 +1360,14 @@ _One session's filings. Ordered easiest → hardest; #541 before #542. #546 need
 | [#541](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/541) | 🔍 Pending validation | Backfill personal food library from meal history / MFP import (searchable, reversible) | Option 1: `MealItem.source` (`history-backfill`/`mfp-import`); Settings backfill + remove; MFP import also seeds library. Cap 8000. |
 | [#542](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/542) | 🔍 Pending validation | Propagate personal food library edits to past meal entries | Name-match + confirm (“Update N past uses”); all-time; Settings after rename/nutrition save. `propagateMealLibraryEdit.ts`. |
 | [#546](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/546) | ⬜ Open | Edge case: bottom tab footer sometimes disappears (no reliable repro) | Hardest without repro — last |
+
+---
+
+## Tier 97 — Live feedback & features (2026-08-03)
+
+_Water recommendation and further filings from this session (list may grow)._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#548](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/548) | ⬜ Open | Calculate a personalized daily water recommendation from weight | Arithmetic range from weight (+ optional heat/workout bumps as user flags — no weather API). Relationship to existing manual `dailyWaterTargetMl` TBD at implement time |
+
