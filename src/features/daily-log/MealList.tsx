@@ -473,14 +473,22 @@ export function MealList({
     }
     if (keepInProgressMealRef.current) {
       keepInProgressMealRef.current = false
+      // #568 — blank draft labels become unset for #141; skip the write when
+      // nothing needs normalizing so Done doesn't fire an extra onSave.
       if (inProgressMealId) {
-        setCalorieEntries(
-          calorieEntries.map((entry) =>
-            entry.id === inProgressMealId
-              ? { ...entry, label: entry.label?.trim() || undefined }
-              : entry,
-          ),
+        const inProgress = calorieEntries.find(
+          (entry) => entry.id === inProgressMealId,
         )
+        const normalizedLabel = inProgress?.label?.trim() || undefined
+        if (inProgress && inProgress.label !== normalizedLabel) {
+          setCalorieEntries(
+            calorieEntries.map((entry) =>
+              entry.id === inProgressMealId
+                ? { ...entry, label: normalizedLabel }
+                : entry,
+            ),
+          )
+        }
       }
       setInProgressMealId(null)
       setConfirmDiscardAddMeal(false)
