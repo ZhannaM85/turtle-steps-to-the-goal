@@ -95,6 +95,34 @@ describe('AppShell bottom tab bar visibility (#120)', () => {
 
     expect(screen.getByRole('navigation', { name: 'Tabs' })).toBeInTheDocument()
   })
+
+  it('does not hide the bottom tab bar for date inputs (#546)', async () => {
+    const user = userEvent.setup()
+    const router = createMemoryRouter(
+      [
+        {
+          element: <AppShell />,
+          children: [
+            {
+              path: '/',
+              element: (
+                <div>
+                  <label htmlFor="date-field">Date</label>
+                  <input id="date-field" type="date" />
+                </div>
+              ),
+            },
+          ],
+        },
+      ],
+      { initialEntries: ['/'] },
+    )
+    render(<RouterProvider router={router} />)
+
+    await user.click(screen.getByLabelText('Date'))
+
+    expect(screen.getByRole('navigation', { name: 'Tabs' })).toBeInTheDocument()
+  })
 })
 
 // #188: a second, independent signal alongside focus-tracking above — the
@@ -126,6 +154,7 @@ function mockVisualViewport(initialHeight: number) {
 
 describe('AppShell bottom tab bar visibility, viewport-shrink signal (#188)', () => {
   afterEach(() => {
+    vi.useRealTimers()
     Object.defineProperty(window, 'visualViewport', {
       value: undefined,
       configurable: true,
@@ -156,6 +185,24 @@ describe('AppShell bottom tab bar visibility, viewport-shrink signal (#188)', ()
     viewport.resizeTo(window.innerHeight)
 
     expect(screen.getByRole('navigation', { name: 'Tabs' })).toBeInTheDocument()
+  })
+
+  it('clears a stuck shrunk viewport when nothing is keyboard-focused (#546)', () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true })
+    const viewport = mockVisualViewport(window.innerHeight)
+    renderShellWithInput()
+
+    viewport.resizeTo(window.innerHeight - 300)
+    expect(
+      screen.queryByRole('navigation', { name: 'Tabs' }),
+    ).not.toBeInTheDocument()
+
+    act(() => {
+      vi.advanceTimersByTime(700)
+    })
+
+    expect(screen.getByRole('navigation', { name: 'Tabs' })).toBeInTheDocument()
+    vi.useRealTimers()
   })
 })
 

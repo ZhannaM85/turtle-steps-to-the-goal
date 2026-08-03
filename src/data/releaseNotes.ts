@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 527,
+    issue: 546,
+    date: '2026-08-04T00:55:00+03:00',
+    en: 'Fixed the bottom tab bar sometimes staying hidden after leaving a text field or closing the date picker.',
+    ru: 'Исправлено: нижняя панель вкладок иногда оставалась скрытой после поля ввода или закрытия выбора даты.',
+  },
+  {
     version: 526,
     issue: 572,
     date: '2026-08-04T00:45:00+03:00',

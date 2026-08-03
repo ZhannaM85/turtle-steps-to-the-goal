@@ -10,9 +10,18 @@ const NON_KEYBOARD_INPUT_TYPES = new Set([
   'color',
   'reset',
   'image',
+  // #546 — native date/time pickers are not the soft keyboard; treating
+  // them as keyboard-opening left the tab bar hidden (and sometimes stuck)
+  // around the iOS calendar/wheel UI.
+  'date',
+  'time',
+  'datetime-local',
+  'month',
+  'week',
 ])
 
-function opensKeyboard(el: Element | null): boolean {
+/** True when `el` is a control that typically opens the soft keyboard. */
+export function opensKeyboard(el: Element | null): boolean {
   if (!el) return false
   if (el.tagName === 'TEXTAREA') return true
   if (el.tagName === 'INPUT') {
