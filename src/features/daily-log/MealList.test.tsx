@@ -279,13 +279,13 @@ describe('MealList', () => {
       expect(screen.getByText('52 kcal')).toBeInTheDocument()
     })
 
-    it('wraps long dish names inside the card without mid-word breaks (#545/#555/#559)', () => {
+    it('wraps long dish names inside the card without overflowing (#545/#555/#559)', () => {
       const longName =
-        'Салат из цветной капусты с сыром и йогуртом (Level Kitchen)'
+        'Каша овсяная с чиа и фруктовым джемом (Level Kitchen)'
       const calorieEntries: CalorieEntry[] = [
         {
           id: 'c1',
-          items: [{ id: 'i1', name: longName, amountKcal: 187 }],
+          items: [{ id: 'i1', name: longName, amountKcal: 121 }],
           createdAt: '2026-01-01T00:00:00.000Z',
         },
       ]
@@ -299,13 +299,17 @@ describe('MealList', () => {
       )
 
       const name = screen.getByText(longName)
-      expect(name).toHaveClass('min-w-0')
-      expect(name).toHaveClass('w-full')
-      // #555: break-words mid-broke Cyrillic on WebKit — keep natural wraps.
-      expect(name).not.toHaveClass('break-words')
+      // Prefer wrap at spaces; break-words only mid-splits a token longer
+      // than the card. Needed so Safari doesn't grow the flex item to the
+      // full unwrapped name width (#559 jam overflow).
+      expect(name).toHaveClass('break-words')
+      expect(name).toHaveClass('max-w-full')
       // #559: dish list must not indent past the meal title/totals.
       const itemList = container.querySelector('ul.divide-y')
       expect(itemList).not.toHaveClass('pl-4')
+      const card = container.querySelector('li.rounded-xl')
+      expect(card).toHaveClass('max-w-full')
+      expect(card).toHaveClass('overflow-hidden')
     })
 
     it('shows a saved note underneath the dish in the read-only view', () => {

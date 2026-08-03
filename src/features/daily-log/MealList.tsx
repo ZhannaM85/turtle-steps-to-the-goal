@@ -135,7 +135,7 @@ function MealListItem({
       // list row with no background/border before. #473 opened the row
       // spacing up (gap-2 → gap-3), the card reading as too condensed being
       // that report's underlying complaint.
-      className="flex min-w-0 flex-col gap-3 rounded-xl bg-card p-4 ring-1 ring-foreground/10"
+      className="flex min-w-0 max-w-full flex-col gap-3 overflow-hidden rounded-xl bg-card p-4 ring-1 ring-foreground/10"
     >
       {/* #473: `{label} — {kcal} · {time}` was one flex line, so once it
        * ran out of width the text wrapped mid-cluster and the trailing
@@ -186,12 +186,17 @@ function MealListItem({
       {/* Item sub-list (#81) — a group's individual dishes, shown
        * underneath its own header/note/macro-total lines above. */}
       {/* #545: min-w-0 so flex children can shrink below intrinsic name
-       * width (same class of bug #156 fixed for truncate). #555: do not
-       * use break-words — on WebKit that mid-broke ordinary Russian
-       * words (картофе|лем); wrap at spaces with normal overflow-wrap.
-       * #559: drop pl-4 indent — dish block was stair-stepped vs the meal
-       * title/totals and stole width so long names wrapped early. */}
-      <ul className="flex min-w-0 flex-col divide-y divide-foreground/15">
+       * width (same class of bug #156 fixed for truncate). #559: no pl-4
+       * indent. #555 dropped break-words after mid-word Cyrillic breaks,
+       * but without it Safari let the flex item grow to the full name
+       * width so long titles (…джемом (Level Kitchen)) overflowed the
+       * card instead of wrapping — restore break-words with max-w-full /
+       * overflow-hidden on the card so the line box is the card width;
+       * overflow-wrap:break-word only splits mid-word when one token is
+       * longer than that width (normal Russian words with spaces wrap
+       * at spaces). Item rows are block (not flex-col) so the name isn't
+       * a flex item with Safari's min-content sizing quirk. */}
+      <ul className="flex min-w-0 max-w-full flex-col divide-y divide-foreground/15">
         {entry.items.map((item) => {
           const itemMacros = macrosSummaryTextCompact(
             item.proteinG,
@@ -212,7 +217,7 @@ function MealListItem({
               // value → muted description) instead of three lines at one
               // uniform size/tone, which is what made the list read as
               // condensed even after #464/#468's size passes.
-              className="flex min-w-0 flex-col gap-0.5 py-3 text-sm text-muted-foreground first:pt-0 last:pb-0"
+              className="min-w-0 max-w-full space-y-0.5 py-3 text-sm text-muted-foreground first:pt-0 last:pb-0"
             >
               {/* #302: the title stands alone on its own row — kcal/amount/
                * macros/reaction all move down to a second row together,
@@ -223,7 +228,7 @@ function MealListItem({
                 // foreground (#473 follow-up) — at full strength the dish
                 // names competed with the meal title above them. Size and
                 // weight carry the hierarchy here, not color.
-                <p className="min-w-0 w-full text-base font-medium">
+                <p className="max-w-full break-words text-base font-medium">
                   {item.name}
                   {item.brand ? ` (${item.brand})` : ''}
                 </p>
@@ -796,7 +801,7 @@ export function MealList({
   }
 
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex min-w-0 max-w-full flex-col gap-3">
       {fastingWindowToastHours !== null && (
         // #456 — purely derived (see the useMemo above), so this note is
         // always accurate for whatever's currently on screen and has no
@@ -810,7 +815,7 @@ export function MealList({
         </div>
       )}
       {calorieEntries.length > 0 && (
-        <ul className="flex flex-col gap-3">
+        <ul className="flex min-w-0 max-w-full flex-col gap-3">
           {calorieEntries.map((entry, index) => (
             <MealListItem
               key={entry.id}

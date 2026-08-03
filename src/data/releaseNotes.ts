@@ -27,9 +27,9 @@ export const releaseNotes: ReleaseNote[] = [
   {
     version: 510,
     issue: 559,
-    date: '2026-08-03T19:50:00+03:00',
-    en: 'Dish names on Day meal cards line up with the meal title again and use the full card width, so long names wrap less awkwardly.',
-    ru: 'Названия блюд в карточках приёмов пищи снова выровнены с заголовком и используют всю ширину — длинные названия переносятся аккуратнее.',
+    date: '2026-08-03T19:52:44+03:00',
+    en: 'Long dish names on Day meal cards wrap inside the card again (including names like oatmeal with jam) instead of running off the edge.',
+    ru: 'Длинные названия блюд на экране «День» снова переносятся внутри карточки (в том числе каша с джемом), а не вылезают за край.',
   },
   {
     version: 509,
