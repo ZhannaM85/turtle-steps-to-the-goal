@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 529,
+    issue: 573,
+    date: '2026-08-04T01:54:09+03:00',
+    en: 'On the Goal screen, Recalculate only appears for weekly pace and calories — not for protein, fat, or carbs.',
+    ru: 'На экране Цели «Пересчитать» показывается только для темпа недели и калорий — не для белка, жира или углеводов.',
+  },
+  {
     version: 528,
     issue: 576,
     date: '2026-08-04T01:49:29+03:00',

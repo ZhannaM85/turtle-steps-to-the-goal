@@ -15,9 +15,7 @@ import {
   recommendedWaterMlRange,
   suggestDailyTargets,
   suggestMacrosForCalorieTarget,
-  suggestTargetsFromMacroAnchor,
   waterRecommendationMidMl,
-  type MacroRecalcAnchor,
 } from '@/domain/stats'
 import { formatExactNumber, formatNumber, unitLabel, useLocale, useTranslation } from '@/i18n'
 import { parseNumberInput } from '@/shared/lib/parseNumberInput'
@@ -71,7 +69,7 @@ export interface GoalFormProps {
   latestWeightKg?: number | null
 }
 
-type RecalcSource = 'pace' | 'calories' | 'protein' | 'fat' | 'carbs'
+type RecalcSource = 'pace' | 'calories'
 
 function hasPositiveFieldValue(raw: unknown): boolean {
   const n = Number(raw)
@@ -134,7 +132,8 @@ export function GoalForm({
     sex !== undefined &&
     activityLevel !== undefined
 
-  // #569 — contextual recalculate beside the field the user last edited.
+  // #569/#573 — contextual recalculate beside last-edited pace or calories
+  // only (protein/fat/carbs anchors removed — inconsistent on-device).
   const [lastEditedRecalcSource, setLastEditedRecalcSource] =
     useState<RecalcSource | null>(null)
   const skipMarkEditedRef = useRef(false)
@@ -263,60 +262,12 @@ export function GoalForm({
     })
   }
 
-  function applyFromMacroAnchor(anchor: MacroRecalcAnchor) {
-    if (!canSuggestTarget || latestWeightKg === null) return
-    const proteinRaw = Number(values.dailyProteinTarget)
-    const fatRaw = Number(values.dailyFatTarget)
-    const carbRaw = Number(values.dailyCarbTarget)
-    const anchorValue =
-      anchor === 'protein'
-        ? proteinRaw
-        : anchor === 'fat'
-          ? fatRaw
-          : carbRaw
-    if (!Number.isFinite(anchorValue) || anchorValue <= 0) return
-
-    runProgrammaticRecalc(() => {
-      const suggested = suggestTargetsFromMacroAnchor(
-        latestWeightKg,
-        anchor,
-        proteinRaw,
-        Number.isFinite(fatRaw) && fatRaw > 0 ? fatRaw : undefined,
-        Number.isFinite(carbRaw) && carbRaw > 0 ? carbRaw : undefined,
-        hasCalorieTarget ? calorieTargetRaw : undefined,
-      )
-      setValue('dailyCalorieTarget', suggested.calorieTargetKcal, {
-        shouldValidate: true,
-        shouldDirty: true,
-      })
-      setValue('dailyProteinTarget', suggested.proteinTargetG, {
-        shouldValidate: true,
-        shouldDirty: true,
-      })
-      setValue('dailyFatTarget', suggested.fatTargetG, {
-        shouldValidate: true,
-        shouldDirty: true,
-      })
-      setValue('dailyCarbTarget', suggested.carbTargetG, {
-        shouldValidate: true,
-        shouldDirty: true,
-      })
-      setPaceFromCalories(suggested.calorieTargetKcal)
-    })
-  }
-
   function recalculateButtonLabel(source: RecalcSource): string {
     switch (source) {
       case 'pace':
         return t.goal.recalculateFromPaceButton
       case 'calories':
         return t.goal.recalculateFromCaloriesButton
-      case 'protein':
-        return t.goal.recalculateFromProteinButton
-      case 'fat':
-        return t.goal.recalculateFromFatButton
-      case 'carbs':
-        return t.goal.recalculateFromCarbsButton
     }
   }
 
@@ -327,15 +278,6 @@ export function GoalForm({
         break
       case 'calories':
         applyPaceFromCalories()
-        break
-      case 'protein':
-        applyFromMacroAnchor('protein')
-        break
-      case 'fat':
-        applyFromMacroAnchor('fat')
-        break
-      case 'carbs':
-        applyFromMacroAnchor('carbs')
         break
     }
   }
@@ -373,15 +315,6 @@ export function GoalForm({
     setValueAs: parseNumberInput,
   })
   const dailyCalorieTargetRegister = register('dailyCalorieTarget', {
-    setValueAs: parseNumberInput,
-  })
-  const dailyProteinTargetRegister = register('dailyProteinTarget', {
-    setValueAs: parseNumberInput,
-  })
-  const dailyFatTargetRegister = register('dailyFatTarget', {
-    setValueAs: parseNumberInput,
-  })
-  const dailyCarbTargetRegister = register('dailyCarbTarget', {
     setValueAs: parseNumberInput,
   })
 
@@ -786,13 +719,8 @@ export function GoalForm({
         hint={t.goal.dailyProteinTargetHint}
         unit={t.dailyEntry.gramsUnit}
         error={errors.dailyProteinTarget?.message}
-        {...dailyProteinTargetRegister}
-        onChange={(event) => {
-          markEdited('protein')
-          void dailyProteinTargetRegister.onChange(event)
-        }}
+        {...register('dailyProteinTarget', { setValueAs: parseNumberInput })}
       />
-      {renderRecalculateFromField('protein', values.dailyProteinTarget)}
 
       {/* #252 — same shape again, independent of the other three. */}
       <NumberInput
@@ -800,26 +728,16 @@ export function GoalForm({
         hint={t.goal.dailyFatTargetHint}
         unit={t.dailyEntry.gramsUnit}
         error={errors.dailyFatTarget?.message}
-        {...dailyFatTargetRegister}
-        onChange={(event) => {
-          markEdited('fat')
-          void dailyFatTargetRegister.onChange(event)
-        }}
+        {...register('dailyFatTarget', { setValueAs: parseNumberInput })}
       />
-      {renderRecalculateFromField('fat', values.dailyFatTarget)}
 
       <NumberInput
         label={t.goal.dailyCarbTargetLabel}
         hint={t.goal.dailyCarbTargetHint}
         unit={t.dailyEntry.gramsUnit}
         error={errors.dailyCarbTarget?.message}
-        {...dailyCarbTargetRegister}
-        onChange={(event) => {
-          markEdited('carbs')
-          void dailyCarbTargetRegister.onChange(event)
-        }}
+        {...register('dailyCarbTarget', { setValueAs: parseNumberInput })}
       />
-      {renderRecalculateFromField('carbs', values.dailyCarbTarget)}
 
       {/* #341 — same shape again, independent of the other four. */}
       <NumberInput

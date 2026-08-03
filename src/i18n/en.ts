@@ -409,9 +409,6 @@ export const en: Dictionary = {
       'Log a weight, and set your height, age, sex, and activity level in Settings, to use this.',
     recalculateFromPaceButton: 'Recalculate from weekly pace',
     recalculateFromCaloriesButton: 'Recalculate from calories',
-    recalculateFromProteinButton: 'Recalculate from protein',
-    recalculateFromFatButton: 'Recalculate from fat',
-    recalculateFromCarbsButton: 'Recalculate from carbs',
     recalculateFromFieldCaveat:
       'Rough estimate from your profile — not medical advice. Review before saving.',
     updateButton: 'Update this week’s target',

@@ -596,7 +596,7 @@ describe('GoalForm', () => {
     })
   })
 
-  describe('contextual recalculate buttons (#569)', () => {
+  describe('contextual recalculate buttons (#569/#573)', () => {
     it('shows Recalculate from calories after typing calories; click fills pace and macros', async () => {
       const user = userEvent.setup()
       useProfileStore.setState({
@@ -634,7 +634,7 @@ describe('GoalForm', () => {
       expect(screen.getByLabelText('Daily carb target')).toHaveValue('51')
     })
 
-    it('shows Recalculate from protein after typing protein', async () => {
+    it('does not show Recalculate after typing protein (#573)', async () => {
       const user = userEvent.setup()
       useProfileStore.setState({
         heightCm: 165,
@@ -652,10 +652,7 @@ describe('GoalForm', () => {
 
       await user.type(screen.getByLabelText('Daily protein target'), '120')
       expect(
-        screen.getByRole('button', { name: 'Recalculate from protein' }),
-      ).toBeInTheDocument()
-      expect(
-        screen.queryByRole('button', { name: 'Recalculate from calories' }),
+        screen.queryByRole('button', { name: /Recalculate from/ }),
       ).not.toBeInTheDocument()
     })
   })

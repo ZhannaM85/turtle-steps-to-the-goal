@@ -431,9 +431,6 @@ export const ru: Dictionary = {
       'Чтобы использовать это, запишите вес и укажите рост, возраст, пол и уровень активности в настройках.',
     recalculateFromPaceButton: 'Пересчитать по темпу недели',
     recalculateFromCaloriesButton: 'Пересчитать по калориям',
-    recalculateFromProteinButton: 'Пересчитать по белкам',
-    recalculateFromFatButton: 'Пересчитать по жирам',
-    recalculateFromCarbsButton: 'Пересчитать по углеводам',
     recalculateFromFieldCaveat:
       'Грубая оценка по вашему профилю — не медицинская рекомендация. Проверьте перед сохранением.',
     updateButton: 'Обновить цель на неделю',

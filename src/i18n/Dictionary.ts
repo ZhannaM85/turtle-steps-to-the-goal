@@ -764,12 +764,9 @@ export interface Dictionary {
     suggestTargetButton: string
     suggestTargetCaveat: string
     suggestTargetMissingProfileHint: string
-    /** #569 — contextual recalculate beside the field the user edited. */
+    /** #569/#573 — contextual recalculate beside last-edited pace or calories. */
     recalculateFromPaceButton: string
     recalculateFromCaloriesButton: string
-    recalculateFromProteinButton: string
-    recalculateFromFatButton: string
-    recalculateFromCarbsButton: string
     recalculateFromFieldCaveat: string
     updateButton: string
     setButton: string
