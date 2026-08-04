@@ -215,11 +215,30 @@ describe('TodayScreen', () => {
 
     expect(await screen.findByText("This week's target")).toBeInTheDocument()
     // #527 — positive magnitude + "to lose" (not a leading minus).
-    expect(screen.getByText('1.0')).toBeInTheDocument()
+    // #586 — formatExactNumber: whole numbers stay "1", not "1.0".
+    expect(screen.getByText('1')).toBeInTheDocument()
     const card = screen
       .getByText("This week's target")
       .closest('[data-slot="card"]') as HTMLElement
     expect(within(card).getByText('kg to lose')).toBeInTheDocument()
+  })
+
+  it('shows a two-decimal weekly pace without rounding to one decimal (#586)', async () => {
+    await useGoalStore
+      .getState()
+      .saveGoal(makeGoal({ targetWeeklyLossKg: 0.28 }))
+
+    render(
+      <MemoryRouter>
+        <TodayScreen />
+      </MemoryRouter>,
+    )
+
+    const card = (
+      await screen.findByText("This week's target")
+    ).closest('[data-slot="card"]') as HTMLElement
+    expect(within(card).getByText('0.28')).toBeInTheDocument()
+    expect(within(card).queryByText('0.3')).not.toBeInTheDocument()
   })
 
   // #469 — reported live: the target figure alone doesn't say which weight

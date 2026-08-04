@@ -1093,7 +1093,7 @@ export function TodayScreen() {
         sectionVisible.todayWeeklyTarget ? (
           <StatCard
             label={t.today.thisWeeksTarget}
-            value={formatNumber(weeklyPace!, locale)}
+            value={formatExactNumber(weeklyPace!, locale)}
             unit={t.today.toLose(unitLabel(displayUnit, t))}
             description={
               dayGoal.weekStart

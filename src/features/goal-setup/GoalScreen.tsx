@@ -2,7 +2,6 @@ import { useEffect } from 'react'
 import { format, parseISO } from 'date-fns'
 import {
   unitLabel,
-  formatNumber,
   formatExactNumber,
   getDateFnsLocale,
   useLocale,
@@ -94,7 +93,7 @@ export function GoalScreen() {
             (sectionVisible.goalWeeklyTargetCard ? (
               <StatCard
                 label={t.goal.thisWeeksTarget}
-                value={formatNumber(toDisplay(goal.targetWeeklyLossKg), locale)}
+                value={formatExactNumber(toDisplay(goal.targetWeeklyLossKg), locale)}
                 unit={t.today.toLose(unitLabel(displayUnit, t))}
                 description={
                   goal.weekStart

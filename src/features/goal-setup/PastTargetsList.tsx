@@ -5,6 +5,7 @@ import { cn } from '@/shared/lib/utils'
 import type { PastGoalRecord } from '@/domain/goal'
 import { goalWeekEnd, kgToLb } from '@/domain/goal'
 import {
+  formatExactNumber,
   formatNumber,
   getDateFnsLocale,
   unitLabel,
@@ -80,7 +81,7 @@ function PastTargetRow({
         {/* #527 — show positive magnitude (how much to lose). The leading
          * minus from #56/#178 made "−1 кг похудения" read as a gain. */}
         {t.goal.targetPerWeek(
-          formatNumber(toDisplay(goal.targetWeeklyLossKg), locale),
+          formatExactNumber(toDisplay(goal.targetWeeklyLossKg), locale),
           unit,
         )}
       </td>

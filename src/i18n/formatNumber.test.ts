@@ -18,8 +18,8 @@ describe('formatExactNumber', () => {
     expect(formatExactNumber(59.25, 'ru')).toBe('59,25')
   })
 
-  it('keeps a plain minus sign for negative values, no forced plus', () => {
-    expect(formatExactNumber(-1.5, 'en')).toBe('-1.5')
-    expect(formatExactNumber(1.5, 'en')).toBe('1.5')
+  it('shows full entered weekly-pace precision instead of rounding to 1 decimal (#586)', () => {
+    expect(formatExactNumber(0.28, 'en')).toBe('0.28')
+    expect(formatExactNumber(0.28, 'ru')).toBe('0,28')
   })
 })

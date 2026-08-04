@@ -135,6 +135,20 @@ describe('GoalScreen', () => {
     expect(within(card).queryByText(/from .* kg/)).not.toBeInTheDocument()
   })
 
+  it('shows a two-decimal weekly pace without rounding to one decimal (#586)', async () => {
+    await useGoalStore
+      .getState()
+      .saveGoal(makeGoal({ targetWeeklyLossKg: 0.28 }))
+
+    renderGoalScreen()
+
+    const card = (
+      await screen.findAllByText("This week's target")
+    )[0].closest('[data-slot="card"]') as HTMLElement
+    expect(within(card).getByText('0.28')).toBeInTheDocument()
+    expect(within(card).queryByText('0.3')).not.toBeInTheDocument()
+  })
+
   it("appends the weight logged on the goal's own weekStart to the weekly target card (#551)", async () => {
     const weekStart = '2026-03-09'
     await useGoalStore
@@ -369,8 +383,8 @@ describe('GoalScreen', () => {
 
       await user.click(hideButton)
 
-      // #527 — StatCard shows positive loss magnitude ("1.0" + "kg to lose"), not a leading minus.
-      expect(screen.queryByText('1.0')).not.toBeInTheDocument()
+      // StatCard unit (not the GoalForm summary table's "… kg/week" copy).
+      expect(screen.queryByText('kg to lose')).not.toBeInTheDocument()
       expect(
         screen.getAllByText("This week's target").length,
       ).toBeGreaterThan(0)
@@ -379,7 +393,8 @@ describe('GoalScreen', () => {
       })
 
       await user.click(showButton)
-      expect(await screen.findByText('1.0')).toBeInTheDocument()
+      expect(await screen.findByText('kg to lose')).toBeInTheDocument()
+      expect(screen.getByText('1')).toBeInTheDocument()
     })
 
     it('hides the target-reached nudge banner but keeps its title and toggle visible', async () => {

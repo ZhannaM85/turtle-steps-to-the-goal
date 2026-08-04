@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 540,
+    issue: 586,
+    date: '2026-08-04T11:39:03+03:00',
+    en: 'Your weekly weight-loss goal now shows the decimals you entered (for example 0.28) instead of rounding to one place.',
+    ru: 'Недельная цель похудения теперь показывает введённые доли (например 0,28), а не округляет до одного знака.',
+  },
+  {
     version: 539,
     issue: 581,
     date: '2026-08-04T11:18:18+03:00',
