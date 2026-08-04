@@ -1414,6 +1414,7 @@ _Backup/settings gaps and further filings from this session (list may grow)._
 | [#581](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/581) | ⬜ Open | Dashboard: pinch-zoom / pan on correlation scatter charts | Follow-up to #560 (scatters deliberately skipped). Possible — may need scatter x/y domain zoom vs time-slice. Live screenshot. |
 | [#582](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/582) | ⬜ Open | Goal: make daily fiber target customizable (not only Not set) | Live: fiber shows «Не задано» while other daily targets are settable. Parity with calories/macros/water. |
 | [#583](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/583) | ⬜ Open | Settings Dishes: clarify what macros mean (per 100g vs portion) and strengthen field borders | Live: unclear if Белки/Жиры/Углеводы are per 100g (kcal label has /100г, macros don’t); add clearer borders on those inputs. |
+| [#584](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/584) | ⬜ Open | Settings Dishes: show dish titles as plain text until pencil is tapped | Live: every dish name is an always-on input; should be read-only until pencil (like other pencil-to-edit fields). |
 
 
 
