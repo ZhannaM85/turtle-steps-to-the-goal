@@ -110,6 +110,35 @@ describe('exportAllData', () => {
     expect(bundle.locale).toBe('ru')
   })
 
+  it('includes Settings page preferences in the backup (#594)', async () => {
+    const { useUnitStore } = await import('@/stores/unitStore')
+    const { useProfileStore } = await import('@/stores/profileStore')
+    const { useDayStartStore } = await import('@/stores/dayStartStore')
+    const { useMealLabelPresetStore } = await import(
+      '@/stores/mealLabelPresetStore'
+    )
+    useUnitStore.setState({ unit: 'lb' })
+    useDayStartStore.setState({ dayStartTime: '05:30' })
+    useProfileStore.setState({
+      heightCm: 170,
+      age: 35,
+      sex: 'male',
+      activityLevel: 'moderate',
+    })
+    useMealLabelPresetStore.setState({ presets: ['Second breakfast'] })
+
+    const bundle = await exportAllData()
+    expect(bundle.settings?.unit).toBe('lb')
+    expect(bundle.settings?.dayStartTime).toBe('05:30')
+    expect(bundle.settings?.profile).toMatchObject({
+      heightCm: 170,
+      age: 35,
+      sex: 'male',
+      activityLevel: 'moderate',
+    })
+    expect(bundle.settings?.mealLabelPresets).toEqual(['Second breakfast'])
+  })
+
   it('exports all goals and entries currently stored', async () => {
     const goal = makeGoal()
     const entry = makeEntry()
@@ -200,7 +229,7 @@ describe('importAllData', () => {
 
     const backupEntry = makeEntry({ date: '2026-03-01' })
     await importAllData({
-      version: 9,
+      version: 10,
       exportedAt: new Date().toISOString(),
       goals: [],
       dailyEntries: [backupEntry],
@@ -225,7 +254,7 @@ describe('importAllData', () => {
       weightKg: 81,
     })
     await importAllData({
-      version: 9,
+      version: 10,
       exportedAt: new Date().toISOString(),
       goals: [],
       dailyEntries: [backupEntry],
@@ -250,7 +279,7 @@ describe('importAllData', () => {
       lastAmountKcal: 208,
     })
     await importAllData({
-      version: 9,
+      version: 10,
       exportedAt: new Date().toISOString(),
       goals: [],
       dailyEntries: [],
@@ -297,7 +326,7 @@ describe('importAllData', () => {
   it('imports fine when mealItems/foodOverrides are absent (older backups, #113)', async () => {
     await expect(
       importAllData({
-        version: 9,
+        version: 10,
         exportedAt: new Date().toISOString(),
         goals: [],
         dailyEntries: [],
@@ -328,7 +357,7 @@ describe('importAllData', () => {
   it('imports fine when recipes is absent (older backups, #251)', async () => {
     await expect(
       importAllData({
-        version: 9,
+        version: 10,
         exportedAt: new Date().toISOString(),
         goals: [],
         dailyEntries: [],
@@ -345,7 +374,7 @@ describe('importAllData', () => {
     useLocaleStore.setState({ locale: 'en' })
 
     await importAllData({
-      version: 9,
+      version: 10,
       exportedAt: new Date().toISOString(),
       goals: [],
       dailyEntries: [],
@@ -358,6 +387,80 @@ describe('importAllData', () => {
     expect(useLocaleStore.getState().locale).toBe('ru')
   })
 
+  it('restores Settings preferences from the backup (#594)', async () => {
+    const { useUnitStore } = await import('@/stores/unitStore')
+    const { useProfileStore } = await import('@/stores/profileStore')
+    const { useTrackedFieldsStore } = await import('@/stores/trackedFieldsStore')
+    const { useCycleTrackingStore } = await import('@/stores/cycleTrackingStore')
+    useUnitStore.setState({ unit: 'kg' })
+    useCycleTrackingStore.setState({ enabled: false })
+    useProfileStore.setState({
+      heightCm: undefined,
+      age: undefined,
+      sex: undefined,
+      activityLevel: undefined,
+    })
+    useTrackedFieldsStore.setState((state) => ({
+      tracked: { ...state.tracked, sleep: true, fiber: true },
+    }))
+
+    await importAllData({
+      version: 10,
+      exportedAt: new Date().toISOString(),
+      goals: [],
+      dailyEntries: [],
+      settings: {
+        unit: 'lb',
+        cycleTracking: true,
+        trackedFields: { sleep: false, fiber: false },
+        profile: {
+          heightCm: 160,
+          age: 28,
+          sex: 'female',
+          activityLevel: 'light',
+        },
+        mealLabelPresets: ['Tea'],
+      },
+    })
+
+    expect(useUnitStore.getState().unit).toBe('lb')
+    expect(useCycleTrackingStore.getState().enabled).toBe(true)
+    expect(useTrackedFieldsStore.getState().tracked.sleep).toBe(false)
+    expect(useTrackedFieldsStore.getState().tracked.fiber).toBe(false)
+    expect(useProfileStore.getState()).toMatchObject({
+      heightCm: 160,
+      age: 28,
+      sex: 'female',
+      activityLevel: 'light',
+    })
+    const { useMealLabelPresetStore } = await import(
+      '@/stores/mealLabelPresetStore'
+    )
+    expect(useMealLabelPresetStore.getState().presets).toEqual(['Tea'])
+  })
+
+  it('leaves Settings preferences alone when a pre-v10 backup omits them (#594)', async () => {
+    const { useUnitStore } = await import('@/stores/unitStore')
+    const { useProfileStore } = await import('@/stores/profileStore')
+    useUnitStore.setState({ unit: 'lb' })
+    useProfileStore.setState({
+      heightCm: 180,
+      age: 50,
+      sex: 'male',
+      activityLevel: 'active',
+    })
+
+    await importAllData({
+      version: 10,
+      exportedAt: new Date().toISOString(),
+      goals: [],
+      dailyEntries: [],
+    })
+
+    expect(useUnitStore.getState().unit).toBe('lb')
+    expect(useProfileStore.getState().heightCm).toBe(180)
+  })
+
   it('leaves appearance and language alone when a pre-v9 backup omits them (#578)', async () => {
     const { useThemeStore } = await import('@/stores/themeStore')
     const { useLocaleStore } = await import('@/i18n')
@@ -365,7 +468,7 @@ describe('importAllData', () => {
     useLocaleStore.setState({ locale: 'ru' })
 
     await importAllData({
-      version: 9,
+      version: 10,
       exportedAt: new Date().toISOString(),
       goals: [],
       dailyEntries: [],
@@ -378,14 +481,29 @@ describe('importAllData', () => {
 })
 
 describe('parseExportBundle', () => {
-  it('parses a valid v9 bundle', () => {
+  it('parses a valid v10 bundle', () => {
     const bundle = {
-      version: 9,
+      version: 10,
       exportedAt: '2026-01-01',
       goals: [],
       dailyEntries: [],
     }
     expect(parseExportBundle(bundle)).toEqual(bundle)
+  })
+
+  it('upgrades a v9 backup leaving settings unset (#594)', () => {
+    const v9Bundle = {
+      version: 9,
+      exportedAt: '2026-01-01',
+      goals: [],
+      dailyEntries: [],
+      appearance: { mood: 'pond' as const, colorScheme: 'light' as const },
+      locale: 'en' as const,
+    }
+    expect(parseExportBundle(v9Bundle)).toEqual({
+      ...v9Bundle,
+      version: 10,
+    })
   })
 
   it('upgrades a v8 backup leaving appearance/locale unset (#578)', () => {
@@ -398,7 +516,7 @@ describe('parseExportBundle', () => {
     }
     expect(parseExportBundle(v8Bundle)).toEqual({
       ...v8Bundle,
-      version: 9,
+      version: 10,
     })
   })
 
@@ -411,7 +529,7 @@ describe('parseExportBundle', () => {
     }
     expect(parseExportBundle(v7Bundle)).toEqual({
       ...v7Bundle,
-      version: 9,
+      version: 10,
       weeklyNotes: [],
     })
   })
@@ -435,7 +553,7 @@ describe('parseExportBundle', () => {
 
     const upgraded = parseExportBundle(v6Bundle)
 
-    expect(upgraded.version).toBe(9)
+    expect(upgraded.version).toBe(10)
     expect(upgraded.dailyEntries[0]).not.toHaveProperty('waterMl')
     expect(upgraded.dailyEntries[0].waterEntries).toEqual([
       { id: expect.any(String), amountMl: 750 },
@@ -500,7 +618,7 @@ describe('parseExportBundle', () => {
 
     const upgraded = parseExportBundle(v5Bundle)
 
-    expect(upgraded.version).toBe(9)
+    expect(upgraded.version).toBe(10)
     const [singleItemMeal, multiItemMeal] =
       upgraded.dailyEntries[0].calorieEntries!
     // Unambiguous single-item meal: the group's old reaction moves onto it.
@@ -540,7 +658,7 @@ describe('parseExportBundle', () => {
 
     const upgraded = parseExportBundle(v4Bundle)
 
-    expect(upgraded.version).toBe(9)
+    expect(upgraded.version).toBe(10)
     const group = upgraded.dailyEntries[0].calorieEntries?.[0]
     expect(group?.id).toBe('meal-1')
     expect(group).not.toHaveProperty('note')
@@ -584,7 +702,7 @@ describe('parseExportBundle', () => {
 
     const upgraded = parseExportBundle(v3Bundle)
 
-    expect(upgraded.version).toBe(9)
+    expect(upgraded.version).toBe(10)
     const group = upgraded.dailyEntries[0].calorieEntries?.[0]
     // Old-format meal emotion is cleared, not translated (#54) — and never
     // reaches the item either, since the v3 path drops it before folding.
@@ -614,7 +732,7 @@ describe('parseExportBundle', () => {
 
     const upgraded = parseExportBundle(legacyBundle)
 
-    expect(upgraded.version).toBe(9)
+    expect(upgraded.version).toBe(10)
     expect(upgraded.dailyEntries[0]).not.toHaveProperty('caloriesConsumed')
     const group = upgraded.dailyEntries[0].calorieEntries?.[0]
     expect(group?.items).toEqual([
@@ -674,7 +792,7 @@ describe('parseExportBundle', () => {
       weeklyNotes: [],
     }
     const upgraded = parseExportBundle(v8Bundle)
-    expect(upgraded.version).toBe(9)
+    expect(upgraded.version).toBe(10)
     expect(upgraded.dailyEntries[0].calorieEntries?.[0].label).toBe('4')
   })
 

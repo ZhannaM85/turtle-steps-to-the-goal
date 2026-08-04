@@ -4,8 +4,9 @@ import { createJSONStorage, persist } from 'zustand/middleware'
 /**
  * User-defined quick-pick meal names (#110), e.g. "Breakfast"/"Lunch" —
  * offered as one-tap suggestions when naming a meal group, alongside free
- * text. A local UI preference, same category as `weekStartStore` (not part
- * of the export bundle) — starts empty; `dailyEntry.defaultMealNamePresets`
+ * text. A local UI preference, same category as `weekStartStore` — included
+ * in the JSON backup `settings` blob (#594). Starts empty;
+ * `dailyEntry.defaultMealNamePresets`
  * (translated) are offered as one-click adds rather than auto-seeded here,
  * so switching app language later doesn't leave stale-language presets
  * behind for anyone who never touched this list.

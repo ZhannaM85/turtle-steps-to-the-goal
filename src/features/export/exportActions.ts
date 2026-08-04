@@ -10,7 +10,7 @@ import {
   IndexedDbWeeklyNoteRepository,
 } from '@/infrastructure/persistence/indexeddb'
 import { useLocaleStore } from '@/i18n'
-import { applyTheme, useThemeStore } from '@/stores/themeStore'
+import { useThemeStore } from '@/stores/themeStore'
 import { buildExportBundle } from './exportBundle'
 import {
   exportBundleSchema,
@@ -21,11 +21,17 @@ import {
   exportBundleSchemaV6,
   exportBundleSchemaV7,
   exportBundleSchemaV8,
+  exportBundleSchemaV9,
   type ExportBundle,
   type ExportBundleV4,
   type ExportBundleV5,
   type ExportBundleV6,
 } from './exportBundleSchema'
+import {
+  applyAppearanceAndLocale,
+  applySettingsPreferences,
+  collectSettingsPreferences,
+} from './settingsPreferences'
 
 const goalRepository = new IndexedDbGoalRepository()
 const dailyEntryRepository = new IndexedDbDailyEntryRepository()
@@ -72,6 +78,7 @@ export async function exportAllData(): Promise<ExportBundle> {
     weeklyNotes,
     { mood: theme.mood, colorScheme: theme.colorScheme },
     useLocaleStore.getState().locale,
+    collectSettingsPreferences(),
   )
 }
 
@@ -157,16 +164,10 @@ export async function importAllData(bundle: ExportBundle): Promise<void> {
     ),
   ])
 
-  // #578 — apply UI prefs after domain data. Omitted on pre-v9 backups so
-  // a restore doesn't clobber the device's current theme/language.
-  if (bundle.appearance) {
-    const { mood, colorScheme } = bundle.appearance
-    useThemeStore.setState({ mood, colorScheme })
-    applyTheme(mood, colorScheme)
-  }
-  if (bundle.locale) {
-    useLocaleStore.getState().setLocale(bundle.locale)
-  }
+  // #578 / #594 — apply UI prefs after domain data. Omitted fields /
+  // older backups leave the device's current prefs alone.
+  applyAppearanceAndLocale(bundle.appearance, bundle.locale)
+  applySettingsPreferences(bundle.settings)
 }
 
 export class InvalidBackupFileError extends Error {}
@@ -248,12 +249,21 @@ export function parseExportBundle(raw: unknown): ExportBundle {
   const current = exportBundleSchema.safeParse(raw)
   if (current.success) return current.data
 
-  // v8 -> v9 (#578): appearance + locale UI prefs added (unset when upgrading).
+  // v9 -> v10 (#594): Settings prefs blob added (unset when upgrading).
+  const v9 = exportBundleSchemaV9.safeParse(raw)
+  if (v9.success) {
+    return {
+      ...v9.data,
+      version: 10,
+    }
+  }
+
+  // v8 -> v10 (#578): appearance + locale UI prefs added (unset when upgrading).
   const v8 = exportBundleSchemaV8.safeParse(raw)
   if (v8.success) {
     return {
       ...v8.data,
-      version: 9,
+      version: 10,
     }
   }
 
@@ -262,7 +272,7 @@ export function parseExportBundle(raw: unknown): ExportBundle {
   if (v7.success) {
     return {
       ...v7.data,
-      version: 9,
+      version: 10,
       weeklyNotes: [],
     }
   }
@@ -272,7 +282,7 @@ export function parseExportBundle(raw: unknown): ExportBundle {
   if (v6.success) {
     return {
       ...v6.data,
-      version: 9,
+      version: 10,
       dailyEntries: upgradeV6ToV7(v6.data.dailyEntries),
       weeklyNotes: [],
     }
@@ -283,7 +293,7 @@ export function parseExportBundle(raw: unknown): ExportBundle {
   if (v5.success) {
     return {
       ...v5.data,
-      version: 9,
+      version: 10,
       dailyEntries: upgradeV6ToV7(upgradeV5ToV6(v5.data.dailyEntries)),
       weeklyNotes: [],
     }
@@ -293,7 +303,7 @@ export function parseExportBundle(raw: unknown): ExportBundle {
   if (v4.success) {
     return {
       ...v4.data,
-      version: 9,
+      version: 10,
       dailyEntries: upgradeV6ToV7(
         upgradeV5ToV6(foldFlatMealsIntoGroups(v4.data.dailyEntries)),
       ),
@@ -304,12 +314,12 @@ export function parseExportBundle(raw: unknown): ExportBundle {
   // v3 -> v5: meal-level emotion used the day's happy/unhappy/neutral set.
   // No auto-mapping to thumbsUp/thumbsDown/bellissimo (decided when #54 was
   // scoped) — old meal emotions are cleared, not translated. Then folded
-  // into single-item groups same as the v4 path above, then on to v9.
+  // into single-item groups same as the v4 path above, then on to v10.
   const v3 = exportBundleSchemaV3.safeParse(raw)
   if (v3.success) {
     return {
       ...v3.data,
-      version: 9,
+      version: 10,
       dailyEntries: upgradeV6ToV7(
         upgradeV5ToV6(
           foldFlatMealsIntoGroups(
@@ -333,7 +343,7 @@ export function parseExportBundle(raw: unknown): ExportBundle {
   if (legacy.success) {
     return {
       ...legacy.data,
-      version: 9,
+      version: 10,
       dailyEntries: upgradeV6ToV7(
         upgradeV5ToV6(
           foldFlatMealsIntoGroups(

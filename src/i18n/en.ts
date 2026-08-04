@@ -945,7 +945,7 @@ export const en: Dictionary = {
     trackedFieldsElectrolytesGroupLabel: 'Electrolytes',
     profileLabel: 'Profile',
     profileDescription:
-      'Optional — used only to compute BMI and estimated daily calorie needs (BMR) on the Day screen. Stored on this device only, not included in backups.',
+      'Optional — used only to compute BMI and estimated daily calorie needs (BMR) on the Day screen. Included in JSON backups with your other Settings preferences.',
     heightLabel: 'Height (cm)',
     ageLabel: 'Age',
     sexLabel: 'Sex',

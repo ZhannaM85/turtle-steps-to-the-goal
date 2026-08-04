@@ -272,8 +272,69 @@ const weeklyNoteSchema = z.object({
   updatedAt: z.string(),
 })
 
+const trendSeriesVisibleSchema = z.object({
+  raw: z.boolean(),
+  average: z.boolean(),
+})
+
+/** #594 — remaining Settings-page localStorage prefs (beyond #578 appearance/locale). */
+const settingsPreferencesSchema = z.object({
+  unit: z.enum(['kg', 'lb']).optional(),
+  weekStart: z.enum(['monday', 'firstEntryWeekday']).optional(),
+  dayStartTime: z.string().optional(),
+  mealSlotDefaultTimes: z
+    .object({
+      breakfast: z.string(),
+      lunch: z.string(),
+      snack: z.string(),
+      dinner: z.string(),
+    })
+    .optional(),
+  cycleTracking: z.boolean().optional(),
+  digestionTracking: z.boolean().optional(),
+  waterTracking: z.boolean().optional(),
+  micronutrients: z
+    .object({
+      sodium: z.boolean().optional(),
+      potassium: z.boolean().optional(),
+      magnesium: z.boolean().optional(),
+    })
+    .optional(),
+  trackedFields: z
+    .object({
+      sleep: z.boolean().optional(),
+      steps: z.boolean().optional(),
+      bodyMeasurements: z.boolean().optional(),
+      note: z.boolean().optional(),
+      mood: z.boolean().optional(),
+      bodyComposition: z.boolean().optional(),
+      nightEating: z.boolean().optional(),
+      dayTotals: z.boolean().optional(),
+      fiber: z.boolean().optional(),
+    })
+    .optional(),
+  dailyReminder: z.boolean().optional(),
+  trendChartVisible: z
+    .object({
+      weight: trendSeriesVisibleSchema.partial().optional(),
+      calories: trendSeriesVisibleSchema.partial().optional(),
+    })
+    .optional(),
+  profile: z
+    .object({
+      heightCm: z.number().optional(),
+      age: z.number().optional(),
+      sex: z.enum(['female', 'male']).optional(),
+      activityLevel: z
+        .enum(['sedentary', 'light', 'moderate', 'active', 'veryActive'])
+        .optional(),
+    })
+    .optional(),
+  mealLabelPresets: z.array(z.string()).optional(),
+})
+
 export const exportBundleSchema = z.object({
-  version: z.literal(9),
+  version: z.literal(10),
   exportedAt: z.string(),
   goals: z.array(goalSchema),
   dailyEntries: z.array(dailyEntrySchema),
@@ -294,9 +355,36 @@ export const exportBundleSchema = z.object({
     })
     .optional(),
   locale: z.enum(['en', 'ru']).optional(),
+  // #594 — rest of Settings-page prefs; optional so older backups leave
+  // the device's toggles/profile/etc. alone on import.
+  settings: settingsPreferencesSchema.optional(),
 })
 
 export type ExportBundle = z.infer<typeof exportBundleSchema>
+
+/** Pre-#594 backups — appearance/locale only, no Settings prefs blob. */
+export const exportBundleSchemaV9 = z.object({
+  version: z.literal(9),
+  exportedAt: z.string(),
+  goals: z.array(goalSchema),
+  dailyEntries: z.array(dailyEntrySchema),
+  mealItems: z.array(mealItemSchema).optional(),
+  foodOverrides: z.array(foodOverrideSchema).optional(),
+  recipes: z.array(recipeSchema).optional(),
+  customMetrics: z.array(customMetricSchema).optional(),
+  customMetricEntries: z.array(customMetricEntrySchema).optional(),
+  customCorrelations: z.array(customCorrelationSchema).optional(),
+  weeklyNotes: z.array(weeklyNoteSchema).optional(),
+  appearance: z
+    .object({
+      mood: z.enum(['pond', 'dusk', 'sage', 'tortoise', 'lagoon']),
+      colorScheme: z.enum(['light', 'dark', 'system']),
+    })
+    .optional(),
+  locale: z.enum(['en', 'ru']).optional(),
+})
+
+export type ExportBundleV9 = z.infer<typeof exportBundleSchemaV9>
 
 /** Pre-#578 backups — no appearance/locale UI prefs. */
 export const exportBundleSchemaV8 = z.object({

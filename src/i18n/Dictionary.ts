@@ -1493,8 +1493,8 @@ export interface Dictionary {
     /** #530 — electrolytes subgroup inside What to track. */
     trackedFieldsElectrolytesGroupLabel: string
     /** #233 — height/age/sex, entered once (rarely changed) purely to
-     * compute BMI/BMR on Today; local preference only, not part of the
-     * export bundle, same category as unit/theme/week-start. */
+     * compute BMI/BMR on Today; included in the JSON backup settings blob
+     * (#594), same category as unit/theme/week-start. */
     profileLabel: string
     profileDescription: string
     heightLabel: string

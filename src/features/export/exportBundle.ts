@@ -12,6 +12,7 @@ import type { WeeklyNote } from '@/domain/weeklyNote'
 import type { Locale } from '@/i18n'
 import type { ColorScheme, Mood } from '@/stores/themeStore'
 import type { ExportBundle } from './exportBundleSchema'
+import type { ExportSettingsPreferences } from './settingsPreferences'
 
 export type ExportAppearance = {
   mood: Mood
@@ -32,9 +33,12 @@ export function buildExportBundle(
   // backups still parse. Defaults keep existing call sites compiling.
   appearance: ExportAppearance = { mood: 'pond', colorScheme: 'system' },
   locale: Locale = 'en',
+  // #594 — Settings-page prefs blob; omitted only when a caller passes
+  // undefined explicitly (tests). Fresh `exportAllData` always includes it.
+  settings?: ExportSettingsPreferences,
 ): ExportBundle {
   return {
-    version: 9,
+    version: 10,
     exportedAt: new Date().toISOString(),
     goals,
     dailyEntries,
@@ -47,5 +51,6 @@ export function buildExportBundle(
     weeklyNotes,
     appearance,
     locale,
+    ...(settings !== undefined ? { settings } : {}),
   }
 }

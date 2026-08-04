@@ -5,16 +5,16 @@ import type { ActivityLevel, Sex } from '@/domain/stats'
 /**
  * Height/age/sex (#233) — one-time-ish profile settings, not a daily
  * entry, entered purely to compute BMI/BMR. Local UI preference, same
- * category as unit/theme/week-start (not part of the export bundle) —
- * consistent with every other Zustand-only preference in this app; the
- * *computed* BMI/BMR numbers aren't stored anywhere either, they're
+ * category as unit/theme/week-start. **#594** includes it in the JSON
+ * backup `settings` blob (previously deliberately excluded). The
+ * *computed* BMI/BMR numbers aren't stored anywhere either — they're
  * recalculated from this plus the day's own logged weight.
  *
  * `activityLevel` (#259) — added alongside the others for the "Suggest a
- * target" TDEE helper on GoalForm; same local-only, optional, not-in-
- * backups treatment. Deliberately reuses this existing profile concept
- * rather than introducing a second one, per #259's own "where these live
- * is an implementation decision" note.
+ * target" TDEE helper on GoalForm; same optional treatment. Deliberately
+ * reuses this existing profile concept rather than introducing a second
+ * one, per #259's own "where these live is an implementation decision"
+ * note.
  */
 export type { ActivityLevel, Sex }
 

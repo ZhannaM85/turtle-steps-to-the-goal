@@ -108,7 +108,7 @@ describe('buildExportBundle', () => {
     const entries = [makeEntry()]
     const bundle = buildExportBundle(goals, entries, [], [], [], [], [], [], [])
 
-    expect(bundle.version).toBe(9)
+    expect(bundle.version).toBe(10)
     expect(bundle.goals).toEqual(goals)
     expect(bundle.dailyEntries).toEqual(entries)
     expect(() => new Date(bundle.exportedAt).toISOString()).not.toThrow()
@@ -215,5 +215,31 @@ describe('buildExportBundle', () => {
       colorScheme: 'light',
     })
     expect(bundle.locale).toBe('ru')
+  })
+
+  it('includes Settings preferences when passed (#594)', () => {
+    const settings = {
+      unit: 'lb' as const,
+      weekStart: 'firstEntryWeekday' as const,
+      dayStartTime: '04:00',
+      cycleTracking: true,
+      profile: { heightCm: 165, age: 40, sex: 'female' as const },
+      mealLabelPresets: ['Brunch'],
+    }
+    const bundle = buildExportBundle(
+      [],
+      [],
+      [],
+      [],
+      [],
+      [],
+      [],
+      [],
+      [],
+      { mood: 'pond', colorScheme: 'system' },
+      'en',
+      settings,
+    )
+    expect(bundle.settings).toEqual(settings)
   })
 })

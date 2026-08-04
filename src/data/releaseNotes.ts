@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 552,
+    issue: 594,
+    date: '2026-08-04T17:20:00+03:00',
+    en: 'JSON backups now include Settings preferences (What to track, Profile, units, day start, default meal times, and more) so a restore brings them back too.',
+    ru: 'JSON-резервные копии теперь включают настройки (Что отслеживать, Профиль, единицы, начало дня, время приёмов пищи и другое), чтобы восстановление вернуло и их.',
+  },
+  {
     version: 551,
     issue: 595,
     date: '2026-08-04T17:10:00+03:00',
