@@ -122,6 +122,12 @@ function MealItemRow({
     setIsEditingNutrition(false)
   }
 
+  /** #589 — leave edit without saving nutrition or renaming. */
+  function cancelEditing() {
+    setValue(item.name)
+    setIsEditingNutrition(false)
+  }
+
   // Per-100g + quantity (#99), same input model #96 already uses
   // everywhere else — a MealItem's stored lastAmountKcal etc. are the
   // *last logged absolute totals*, so back-calculate a rate + quantity to
@@ -263,11 +269,11 @@ function MealItemRow({
               aria-label={t.settings.mealItemNameLabel}
               value={value}
               onChange={(e) => setValue(e.target.value)}
-              onBlur={commit}
               onKeyDown={(e) => {
                 if (e.key === 'Enter') {
                   e.preventDefault()
-                  commit()
+                  // #589 — commit name with Save / pencil close, not blur,
+                  // so Cancel can discard a typed rename.
                   ;(e.target as HTMLInputElement).blur()
                 }
               }}
@@ -422,6 +428,15 @@ function MealItemRow({
               onClick={saveNutrition}
             >
               {t.dailyEntry.saveButton}
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              aria-label={t.settings.cancelAddMealItemLabel}
+              onClick={cancelEditing}
+            >
+              {t.settings.cancelAddMealItemLabel}
             </Button>
           </div>
           {nutritionPreview && (

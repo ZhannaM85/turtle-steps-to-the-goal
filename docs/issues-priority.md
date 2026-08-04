@@ -57,7 +57,7 @@ _Backup/settings gaps and further filings from this session (list may grow)._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#589](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/589) | ⬜ Open | Settings Dishes: Cancel button next to Save in edit mode | Follow-up to #583/#584. Same row as Save, to its right; discard unsaved edits and exit edit mode. |
+| [#589](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/589) | 🔍 Pending validation | Settings Dishes: Cancel button next to Save in edit mode | Cancel to the right of Save; discards draft name/nutrition (rename no longer commits on blur mid-edit). |
 | [#590](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/590) | 🔍 Pending validation | Goal: hide fiber daily target when Fiber is off in What to track | `GoalForm` display + edit gate on `trackedFields.fiber` (same as Day Remaining fiber). |
 | [#591](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/591) | 🔍 Pending validation | Settings: default meal-time inputs overlap — match Start of day width | Stacked single-column `h-12 w-32` inputs (same as day-start); same layout on MFP slot-times dialog. |
 | [#592](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/592) | ⬜ Open | Dashboard correlation scatters: Y-axis garbage ticks (esp. when zoomed) | Late-meal + fasting-window on-device: ticks like 22185 / 39432 (not kg/lb Δ). Worse/visible when zoomed (#581). |

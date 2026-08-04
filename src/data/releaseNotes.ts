@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 548,
+    issue: 589,
+    date: '2026-08-04T16:42:00+03:00',
+    en: 'When editing a dish in Settings → Dishes, Cancel next to Save discards changes without saving.',
+    ru: 'При редактировании блюда в Настройках → Блюда кнопка Отмена рядом с Сохранить отменяет изменения без сохранения.',
+  },
+  {
     version: 547,
     issue: 590,
     date: '2026-08-04T16:36:00+03:00',

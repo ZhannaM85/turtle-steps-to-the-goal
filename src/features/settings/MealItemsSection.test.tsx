@@ -71,7 +71,7 @@ describe('MealItemsSection', () => {
     expect(await screen.findByText('1 of 2 matching')).toBeInTheDocument()
   })
 
-  it('renames an item on blur after opening edit with the pencil (#584)', async () => {
+  it('renames an item when closing edit with the pencil (#584/#589)', async () => {
     await useMealItemStore.getState().touch('Pizza')
     const user = userEvent.setup()
     render(<MealItemsSection />)
@@ -81,14 +81,10 @@ describe('MealItemsSection', () => {
     const input = screen.getByLabelText('Meal item name')
     await user.clear(input)
     await user.type(input, 'Margherita pizza')
-    await user.tab()
+    // Pencil close commits the draft name (#589: blur no longer auto-renames).
+    await user.click(screen.getByRole('button', { name: 'Edit Pizza' }))
 
-    expect(
-      await screen.findByDisplayValue('Margherita pizza'),
-    ).toBeInTheDocument()
-    // The input's own local state updates optimistically on typing, ahead
-    // of the store's async upsert — wait for the store itself to settle
-    // rather than trusting DOM timing as a proxy for persistence.
+    expect(await screen.findByText('Margherita pizza')).toBeInTheDocument()
     await waitFor(() =>
       expect(useMealItemStore.getState().items[0].name).toBe(
         'Margherita pizza',
@@ -113,6 +109,32 @@ describe('MealItemsSection', () => {
     await user.click(screen.getByRole('button', { name: 'Edit Pizza' }))
     expect(screen.queryByLabelText('Meal item name')).not.toBeInTheDocument()
     expect(screen.getByText('Pizza')).toBeInTheDocument()
+  })
+
+  it('discards in-progress edits when Cancel is pressed (#589)', async () => {
+    await useMealItemStore.getState().touch('Pizza', {
+      amountKcal: 250,
+      proteinG: 10,
+      amountG: 100,
+    })
+    const user = userEvent.setup()
+    render(<MealItemsSection />)
+
+    await screen.findByText('Pizza')
+    await user.click(screen.getByRole('button', { name: 'Edit Pizza' }))
+    const nameInput = screen.getByLabelText('Meal item name')
+    await user.clear(nameInput)
+    await user.type(nameInput, 'Changed')
+    await user.clear(screen.getByLabelText('kcal/100g — Pizza'))
+    await user.type(screen.getByLabelText('kcal/100g — Pizza'), '999')
+    await user.click(screen.getByRole('button', { name: 'Cancel' }))
+
+    expect(screen.queryByLabelText('Meal item name')).not.toBeInTheDocument()
+    expect(screen.getByText('Pizza')).toBeInTheDocument()
+    expect(useMealItemStore.getState().items[0]).toMatchObject({
+      name: 'Pizza',
+      lastAmountKcal: 250,
+    })
   })
 
   it('puts the dish name input inside the same bordered edit panel as nutrition (#583)', async () => {
