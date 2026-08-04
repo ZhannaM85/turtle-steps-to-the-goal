@@ -982,6 +982,16 @@ export const en: Dictionary = {
     mealSlotDefaultTimesLabel: 'Default meal times',
     mealSlotDefaultTimesDescription:
       'Used when importing meals that have a Breakfast/Lunch/Snack/Dinner label but no clock time (e.g. MyFitnessPal). You can also set these during import.',
+    mealSlotApplyConfirmLabel: (count) =>
+      count === 1
+        ? 'Apply these times to 1 existing meal that has no clock time?'
+        : `Apply these times to ${count} existing meals that have no clock time?`,
+    mealSlotApplyConfirmYes: 'Yes, apply',
+    mealSlotApplyConfirmNo: 'No, prefs only',
+    mealSlotApplyDoneLabel: (count) =>
+      count === 1
+        ? 'Updated 1 meal with a default time.'
+        : `Updated ${count} meals with default times.`,
     foodListLabel: 'Food list',
     foodListDescription:
       'Hide items you don’t want to see, or correct their calories/macros.',

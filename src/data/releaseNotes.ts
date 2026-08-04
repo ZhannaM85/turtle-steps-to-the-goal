@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 551,
+    issue: 595,
+    date: '2026-08-04T17:10:00+03:00',
+    en: 'After changing default meal times in Settings, you can choose to apply those clocks to existing meals that still have no time.',
+    ru: 'После изменения времени приёмов пищи по умолчанию в Настройках можно применить эти часы к уже сохранённым приёмам без времени.',
+  },
+  {
     version: 550,
     issue: 593,
     date: '2026-08-04T17:02:00+03:00',

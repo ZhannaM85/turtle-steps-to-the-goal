@@ -1014,6 +1014,16 @@ export const ru: Dictionary = {
     mealSlotDefaultTimesLabel: 'Время приёмов пищи по умолчанию',
     mealSlotDefaultTimesDescription:
       'Используется при импорте приёмов пищи с меткой Завтрак/Обед/Перекус/Ужин без времени на часах (например, MyFitnessPal). Эти же значения можно задать во время импорта.',
+    mealSlotApplyConfirmLabel: (count) =>
+      count === 1
+        ? 'Применить это время к 1 существующему приёму пищи без времени?'
+        : `Применить это время к ${count} существующим приёмам пищи без времени?`,
+    mealSlotApplyConfirmYes: 'Да, применить',
+    mealSlotApplyConfirmNo: 'Нет, только настройки',
+    mealSlotApplyDoneLabel: (count) =>
+      count === 1
+        ? 'Обновлён 1 приём пищи со временем по умолчанию.'
+        : `Обновлено приёмов пищи со временем по умолчанию: ${count}.`,
     foodListLabel: 'Список продуктов',
     foodListDescription:
       'Скройте ненужные продукты или исправьте их калорийность/БЖУ.',

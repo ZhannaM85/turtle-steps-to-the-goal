@@ -26,3 +26,7 @@ export {
   calorieEntryFat,
   calorieEntryCarbs,
 } from './calorieEntryTotals'
+export {
+  stampSlotDefaultsOnUntimedMeals,
+  countUntimedSlotMeals,
+} from './stampSlotDefaultTimes'

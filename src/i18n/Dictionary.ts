@@ -1542,6 +1542,11 @@ export interface Dictionary {
     /** #588 — remembered Breakfast/Lunch/Snack/Dinner clocks for imports. */
     mealSlotDefaultTimesLabel: string
     mealSlotDefaultTimesDescription: string
+    /** #595 — confirm applying edited defaults to existing untimed meals. */
+    mealSlotApplyConfirmLabel: (count: number) => string
+    mealSlotApplyConfirmYes: string
+    mealSlotApplyConfirmNo: string
+    mealSlotApplyDoneLabel: (count: number) => string
     foodListLabel: string
     foodListDescription: string
     manageFoodListButton: string
