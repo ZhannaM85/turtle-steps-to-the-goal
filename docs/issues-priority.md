@@ -38,3 +38,38 @@ _User asked about pulling data from Apple Health and Zepp Life. Researched via W
 | [#334](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/334) | 📋 Not started | Epic — Apple Health integration (blocked on mobile app + HealthKit bridge) | HealthKit has no public/cloud API at all — data is on-device only, readable exclusively by a native iOS app (or hybrid app with a HealthKit plugin/entitlement) the user has granted permission to. Genuinely blocked until the mobile app exists; can't be built sooner by any workaround. |
 | [#335](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/335) | 📋 Not started | Epic — Android Health Connect integration (blocked on mobile app) | Same category of blocker as #334 — Health Connect is Android's on-device health data store, no cloud API, native/hybrid-app-only access. Bonus: Zepp Life can itself sync into Health Connect, making this the official, supported route to Zepp/Amazfit data — likely preferable to ever building a direct, unofficial Zepp API integration. |
 
+---
+
+## Tier 123 — Product-owner audit batch (2026-08-04)
+
+_Filed from the product-owner audit in `C:\Users\User\Projects\docs\turtle-steps-ideas\2026-08-04-product-audit\` (outside this repo). Log-only — not implementing in the filing session. Row order is easiest → harder within the batch; items that need an `AskUserQuestion` fork before coding are called out. Skipped from filing (parked in the audit’s “discuss / P3” notes): lightweight exercise log, meal photos, extra languages._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#612](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/612) | 📋 Not started | Settings help: using two devices with local-only backups | Copy-only chore — mental model for phone↔laptop without promising sync |
+| [#611](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/611) | 📋 Not started | Copy recipe ingredients as a shopping list | Clipboard / Markdown from a recipe; no grocery integrations |
+| [#599](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/599) | 📋 Not started | Remind when a JSON backup has not been exported recently | Quiet last-export age nudge → Export; existential for local-first |
+| [#600](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/600) | 📋 Not started | Undo toast after deleting a meal | Short-lived in-memory restore; clear-all stays hard-confirm |
+| [#613](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/613) | 📋 Not started | Consistent trust/sample-size footers on correlation insight views | Chore pass on top of #224 — coherent honesty copy, not a new stats engine |
+| [#610](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/610) | 📋 Not started | Calm pace-check card when recent weekly goals miss consistently | No long-term projection (#228 still stands); factual recent-windows card only |
+| [#615](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/615) | 📋 Not started | Clearer period context when cycle tracking is on | Markers / factual note only — explicitly no ovulation predictor |
+| [#603](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/603) | 📋 Not started | Named serving descriptors for personal meal items | Parity with curated-food descriptors (#254) |
+| [#604](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/604) | 📋 Not started | Simple vs Full tracking presets for Day layout | Applies existing tracked-fields + section visibility stores — no second UI codebase |
+| [#602](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/602) | 📋 Not started | Weekly review: calm end-of-week progress and insight summary | Template strings only; reuses goal-window + averages + one insight line |
+| [#607](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/607) | 📋 Not started | Optional alcohol day signal and next-day weight correlation | Settings-gated; no beverage database |
+| [#608](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/608) | 📋 Not started | Optional password-encrypted JSON backup | Web Crypto; plaintext export remains; forgotten password = unrecoverable |
+| [#609](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/609) | 📋 Not started | Local PDF summary export for sharing outside the app | Client-side only; non-medical disclaimer on the document |
+| [#614](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/614) | 📋 Not started | Lightweight planned meals / tomorrow draft staging | **AskUserQuestion before coding** — drafts store vs planned `DailyEntry` rows |
+| [#601](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/601) | 📋 Not started | Apply day-start time consistently across analytics | Follow-up to #298; **AskUserQuestion** on analytics vs calendar midnight; forward-only |
+
+---
+
+## Tier 124 — Native-unlocked follow-ups from audit (2026-08-04)
+
+_Same audit pass. Blocked on Tier 36 Capacitor / store shell — revisit of #261 (notifications) and #231 (widgets), which were correctly closed for PWA-only._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#605](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/605) | 📋 Not started | Native local notification for the daily logging reminder | Blocked on #305+; wires existing #171 reminder preference to OS local notifications |
+| [#606](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/606) | 📋 Not started | Android home-screen glance widget | Blocked on #305+; weight + remaining kcal glance; Android-first |
+
