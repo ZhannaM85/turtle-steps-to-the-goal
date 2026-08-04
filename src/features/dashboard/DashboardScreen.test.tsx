@@ -1,6 +1,6 @@
 import 'fake-indexeddb/auto'
 import type { ReactNode } from 'react'
-import { format, subDays } from 'date-fns'
+import { format, startOfISOWeek, subDays, subWeeks } from 'date-fns'
 import { act, render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
@@ -319,21 +319,46 @@ describe('DashboardScreen', () => {
     })
 
     it('scopes correlation views to their own period (#396/#536)', async () => {
-      // Same 4-entry shape as the test above: 3 old entries give the
-      // calorie-vs-weight correlation enough distinct weeks (>= 4) under
-      // 'all', but narrowing to 'week' leaves only today's single entry —
-      // nowhere near enough for a weekly comparison.
-      const today = format(new Date(), 'yyyy-MM-dd')
+      // #585 — after #522, correlation points need finished weeks with a
+      // prior-week weight delta. Three consecutive days ~400d ago only make
+      // one week (no prior → no delta) + incomplete "today" week → rawPoints
+      // empty → CorrelationView returns null. Seed several completed weeks
+      // ending before this week (same idea as CorrelationView.test.tsx),
+      // then one entry today so the Week period has nothing comparable.
+      const today = new Date()
+      const thisMonday = startOfISOWeek(today)
+      for (let i = 0; i < 6; i++) {
+        await db.dailyEntries.put(
+          makeEntry({
+            date: format(subWeeks(thisMonday, 8 - i), 'yyyy-MM-dd'),
+            weightKg: 85 - i * 0.3,
+            calorieEntries: [
+              {
+                id: crypto.randomUUID(),
+                items: [
+                  {
+                    id: crypto.randomUUID(),
+                    amountKcal: 1600 + i * 80,
+                  },
+                ],
+                createdAt: new Date().toISOString(),
+              },
+            ],
+          }),
+        )
+      }
+      // Trailing weight in the week after the last comparable one so #522
+      // keeps those weeks finished relative to max entry date / today.
       await db.dailyEntries.put(
-        makeEntry({ date: format(subDays(new Date(), 400), 'yyyy-MM-dd') }),
+        makeEntry({
+          date: format(subWeeks(thisMonday, 1), 'yyyy-MM-dd'),
+          weightKg: 83,
+          calorieEntries: undefined,
+        }),
       )
       await db.dailyEntries.put(
-        makeEntry({ date: format(subDays(new Date(), 399), 'yyyy-MM-dd') }),
+        makeEntry({ date: format(today, 'yyyy-MM-dd') }),
       )
-      await db.dailyEntries.put(
-        makeEntry({ date: format(subDays(new Date(), 398), 'yyyy-MM-dd') }),
-      )
-      await db.dailyEntries.put(makeEntry({ date: today }))
 
       const user = userEvent.setup()
       render(<DashboardScreen />, { wrapper: MemoryRouter })
