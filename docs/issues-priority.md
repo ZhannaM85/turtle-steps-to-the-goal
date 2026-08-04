@@ -1409,6 +1409,7 @@ _Backup/settings gaps and further filings from this session (list may grow)._
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#578](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/578) | ⬜ Open | JSON backup: include appearance (theme) and language settings on export/import | Confirmed missing: `themeStore` / `localeStore` are localStorage-only; v8 bundle has goals/entries/library/etc. only. Round-trip mood + color scheme + locale on backup restore. |
+| [#579](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/579) | ⬜ Open | JSON backup import starts then stops with no error (new and ~2-week-old backups) | Live: import begins, ends after a few seconds, no error UI. Repro on fresh export and ~2-week-old backups. Root cause not investigated. |
 
 
 
