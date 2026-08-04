@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 546,
+    issue: 591,
+    date: '2026-08-04T16:35:00+03:00',
+    en: 'Default meal times in Settings no longer overlap — each clock matches the Start of day field width.',
+    ru: 'Время приёмов пищи по умолчанию в Настройках больше не накладывается — каждое поле той же ширины, что «Начало дня».',
+  },
+  {
     version: 545,
     issue: 587,
     date: '2026-08-04T15:48:00+03:00',

@@ -95,7 +95,7 @@ function SlotTimesFields({
 
   return (
     <div className="flex flex-col gap-4 pt-4">
-      <div className="grid grid-cols-2 gap-3">
+      <div className="flex flex-col gap-3">
         {SLOT_ORDER.map((slot) => (
           <div key={slot} className="flex flex-col gap-1.5">
             <Label htmlFor={`mfp-slot-time-${slot}`}>{slotLabels[slot]}</Label>
@@ -107,7 +107,7 @@ function SlotTimesFields({
                 setTimes((prev) => ({ ...prev, [slot]: e.target.value }))
               }
               disabled={submitting}
-              className="h-12"
+              className="h-12 w-32"
             />
           </div>
         ))}

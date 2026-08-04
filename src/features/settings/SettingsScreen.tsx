@@ -290,7 +290,7 @@ export function SettingsScreen() {
           <span className="text-sm text-muted-foreground">
             {t.settings.mealSlotDefaultTimesDescription}
           </span>
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+          <div className="flex flex-col gap-3">
             {(
               [
                 ['breakfast', t.dailyEntry.defaultMealNamePresets[0]],
@@ -307,7 +307,7 @@ export function SettingsScreen() {
                   aria-label={label}
                   value={mealSlotDefaultTimes[slot]}
                   onChange={(e) => setMealSlotTime(slot, e.target.value)}
-                  className="h-12"
+                  className="h-12 w-32"
                 />
               </div>
             ))}
