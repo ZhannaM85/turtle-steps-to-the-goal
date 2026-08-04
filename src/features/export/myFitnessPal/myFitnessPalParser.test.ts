@@ -152,10 +152,28 @@ describe('buildMyFitnessPalPatches', () => {
     })
     expect(breakfast?.items[1]).toMatchObject({ name: 'Banana', amountKcal: 100 })
     expect(breakfast?.createdAt).toBe('2026-01-15T12:00:00.000Z')
+    expect(breakfast?.timeEaten).toBe('08:00')
 
     const dinner = patch?.calorieEntries?.find((e) => e.label === 'Dinner')
     expect(dinner?.items).toHaveLength(1)
     expect(dinner?.items[0]).toMatchObject({ name: 'Chicken breast', brand: 'Perdue' })
+    expect(dinner?.timeEaten).toBe('19:00')
+  })
+
+  it('maps MFP Snacks label to the snack default time (#580)', () => {
+    const rows: MyFitnessPalRow[] = [
+      {
+        type: 'Foods',
+        date: '2026-01-15',
+        description: 'Yogurt',
+        calories: 150,
+        detailsJson: JSON.stringify({ meal: 'Snacks' }),
+      },
+    ]
+    const snack = buildMyFitnessPalPatches(rows)
+      .get('2026-01-15')
+      ?.calorieEntries?.find((e) => e.label === 'Snacks')
+    expect(snack?.timeEaten).toBe('16:00')
   })
 
   it('still creates an item with no label when details_json is missing or malformed', () => {

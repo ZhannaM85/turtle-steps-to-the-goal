@@ -34,7 +34,7 @@ import {
   macrosSummaryTextCompact,
   macrosSummaryTextCompactWithCalories,
 } from '@/shared/lib/macroDisplay'
-import { defaultMealLabel, editableMealLabel, effectiveMealLabel } from '@/shared/lib/mealLabel'
+import { defaultMealLabel, editableMealLabel, effectiveMealLabel, effectiveTimeEaten } from '@/shared/lib/mealLabel'
 import { normalizeTextSpaces } from '@/shared/lib/normalizeTextSpaces'
 import { Button } from '@/shared/ui/button'
 import { useDayStartStore, useMealItemStore } from '@/stores'
@@ -182,9 +182,9 @@ function MealListItem({
         <p className="min-w-0 flex-1 text-lg font-medium">
           {effectiveMealLabel(t, position, entry.label)}
         </p>
-        {entry.timeEaten && (
+        {effectiveTimeEaten(entry) && (
           <span className="shrink-0 pt-1 text-sm whitespace-nowrap text-muted-foreground">
-            {entry.timeEaten}
+            {effectiveTimeEaten(entry)}
           </span>
         )}
         <div className="flex shrink-0 items-center gap-3">

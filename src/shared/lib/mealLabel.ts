@@ -66,3 +66,36 @@ export function mealLabelSuggestionsForLocale(
     ...presets.filter((preset) => !builtIns.has(preset)),
   ]
 }
+
+/**
+ * #580 — sensible default HH:MM for a known meal-slot label when the
+ * export/import left `timeEaten` blank (MyFitnessPal Foods rows have
+ * Breakfast/Lunch/Dinner/Snacks but no clock time). Keys are lowercased;
+ * includes RU presets and MFP's plural "Snacks".
+ */
+const MEAL_SLOT_DEFAULT_TIME_HHMM: Record<string, string> = {
+  breakfast: '08:00',
+  lunch: '13:00',
+  dinner: '19:00',
+  snack: '16:00',
+  snacks: '16:00',
+  завтрак: '08:00',
+  обед: '13:00',
+  ужин: '19:00',
+  перекус: '16:00',
+}
+
+export function defaultTimeEatenForMealLabel(
+  label: string | undefined,
+): string | undefined {
+  if (label == null || label.trim() === '') return undefined
+  return MEAL_SLOT_DEFAULT_TIME_HHMM[label.trim().toLowerCase()]
+}
+
+/** Recorded time, else a slot default from the meal label (#580). */
+export function effectiveTimeEaten(meal: {
+  timeEaten?: string
+  label?: string
+}): string | undefined {
+  return meal.timeEaten ?? defaultTimeEatenForMealLabel(meal.label)
+}

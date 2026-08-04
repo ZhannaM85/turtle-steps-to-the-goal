@@ -1,4 +1,5 @@
 import { addDays, format, parseISO } from 'date-fns'
+import { effectiveTimeEaten } from '@/shared/lib/mealLabel'
 import type { DailyEntry } from '@/domain/dailyEntry'
 import {
   classifyCorrelationStrength,
@@ -29,11 +30,12 @@ function timeToMinutes(hhmm: string): number {
   return hours * 60 + minutes
 }
 
-/** The latest `timeEaten` logged across a day's meals, in minutes since
- * midnight — null if the day has no meals with a time recorded. */
+/** The latest meal time (recorded or #580 slot default) across a day's
+ * meals, in minutes since midnight — null if the day has no meals with a
+ * usable time. */
 function lastMealTimeMinutes(entry: DailyEntry): number | null {
   const times = (entry.calorieEntries ?? [])
-    .map((meal) => meal.timeEaten)
+    .map((meal) => effectiveTimeEaten(meal))
     .filter((time): time is string => time !== undefined)
   return times.length === 0 ? null : Math.max(...times.map(timeToMinutes))
 }

@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 536,
+    issue: 580,
+    date: '2026-08-04T10:41:33+03:00',
+    en: 'Imported Breakfast/Lunch/Dinner/Snack meals without a time now get sensible default times (and already-imported ones show them too).',
+    ru: 'Импортированные завтрак/обед/ужин/перекус без времени теперь получают разумное время по умолчанию (и уже импортированные тоже его показывают).',
+  },
+  {
     version: 535,
     issue: 578,
     date: '2026-08-04T10:35:24+03:00',

@@ -28,7 +28,7 @@ import {
   macrosSummaryText,
   macrosSummaryTextCompact,
 } from '@/shared/lib/macroDisplay'
-import { effectiveMealLabel } from '@/shared/lib/mealLabel'
+import { effectiveMealLabel, effectiveTimeEaten } from '@/shared/lib/mealLabel'
 import { normalizeTextSpaces } from '@/shared/lib/normalizeTextSpaces'
 import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/ui/button'
@@ -290,9 +290,9 @@ export function DayDetail({
                     {effectiveMealLabel(t, index + 1, meal.label)} —{' '}
                     {formatNumber(calorieEntryKcal(meal), locale, 0)}{' '}
                     {t.dailyEntry.kcalUnit}
-                    {meal.timeEaten && (
+                    {effectiveTimeEaten(meal) && (
                       <span className="text-muted-foreground">
-                        · {meal.timeEaten}
+                        · {effectiveTimeEaten(meal)}
                       </span>
                     )}
                   </span>

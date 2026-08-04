@@ -1,5 +1,6 @@
 import { format } from 'date-fns'
 import type { CalorieEntry, CalorieItem } from '@/domain/dailyEntry'
+import { defaultTimeEatenForMealLabel } from '@/shared/lib/mealLabel'
 import { normalizeTextSpaces } from '@/shared/lib/normalizeTextSpaces'
 import type { DailyEntryPatch } from '../mergeDailyEntryPatches'
 
@@ -149,14 +150,21 @@ export function buildMyFitnessPalPatches(
   // "now"/import time, keeps every group's own createdAt at least tied to
   // the day it actually happened on rather than the unrelated moment it
   // happened to get imported.
+  // #580 — still assign a slot-based timeEaten (Breakfast 08:00, etc.) so
+  // Day cards and late-meal/night-eating stats aren't left blank when the
+  // export only had a meal name, not a clock time.
   for (const [date, byLabel] of mealsByDateAndLabel) {
     const calorieEntries: CalorieEntry[] = [...byLabel.entries()].map(
-      ([label, items]) => ({
-        id: crypto.randomUUID(),
-        items,
-        ...(label ? { label } : {}),
-        createdAt: `${date}T12:00:00.000Z`,
-      }),
+      ([label, items]) => {
+        const timeEaten = defaultTimeEatenForMealLabel(label || undefined)
+        return {
+          id: crypto.randomUUID(),
+          items,
+          ...(label ? { label } : {}),
+          ...(timeEaten ? { timeEaten } : {}),
+          createdAt: `${date}T12:00:00.000Z`,
+        }
+      },
     )
     patches.set(date, { ...patches.get(date), calorieEntries })
   }

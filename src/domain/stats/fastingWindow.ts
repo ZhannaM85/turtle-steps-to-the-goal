@@ -1,5 +1,6 @@
 import { addDays, format, parseISO } from 'date-fns'
 import type { DailyEntry } from '@/domain/dailyEntry'
+import { effectiveTimeEaten } from '@/shared/lib/mealLabel'
 import {
   classifyCorrelationStrength,
   DAILY_STRENGTH_THRESHOLDS_KG,
@@ -72,22 +73,22 @@ function lastMealTimeMinutes(
 ): number | null {
   const dayStartMinutes = timeToMinutes(dayStartTime)
   const times = (entry.calorieEntries ?? [])
-    .map((meal) => meal.timeEaten)
+    .map((meal) => effectiveTimeEaten(meal))
     .filter((time): time is string => time !== undefined)
     .map((time) => adjustForDayStart(timeToMinutes(time), dayStartMinutes))
   return times.length === 0 ? null : Math.max(...times)
 }
 
-/** The earliest `timeEaten` logged across a day's meals, in minutes since
- * midnight (day-start-adjusted, see `adjustForDayStart`) — null if the day
- * has no meals with a time recorded. */
+/** The earliest meal time (recorded or #580 slot default) across a day's
+ * meals, in minutes since midnight (day-start-adjusted, see
+ * `adjustForDayStart`) — null if the day has no meals with a usable time. */
 function earliestMealTimeMinutes(
   entry: EntryWithMeals,
   dayStartTime: string,
 ): number | null {
   const dayStartMinutes = timeToMinutes(dayStartTime)
   const times = (entry.calorieEntries ?? [])
-    .map((meal) => meal.timeEaten)
+    .map((meal) => effectiveTimeEaten(meal))
     .filter((time): time is string => time !== undefined)
     .map((time) => adjustForDayStart(timeToMinutes(time), dayStartMinutes))
   return times.length === 0 ? null : Math.min(...times)

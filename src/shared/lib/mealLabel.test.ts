@@ -1,8 +1,10 @@
 import { describe, expect, it } from 'vitest'
 import { getDictionary } from '@/i18n'
 import {
+  defaultTimeEatenForMealLabel,
   editableMealLabel,
   effectiveMealLabel,
+  effectiveTimeEaten,
   mealLabelSuggestionsForLocale,
 } from './mealLabel'
 
@@ -35,5 +37,23 @@ describe('mealLabel helpers', () => {
     expect(
       mealLabelSuggestionsForLocale(en, ['Завтрак', 'Snack', 'Brunch']),
     ).toEqual(['Breakfast', 'Lunch', 'Dinner', 'Snack', 'Brunch'])
+  })
+
+  it('defaultTimeEatenForMealLabel maps known slots including MFP Snacks (#580)', () => {
+    expect(defaultTimeEatenForMealLabel('Breakfast')).toBe('08:00')
+    expect(defaultTimeEatenForMealLabel('Lunch')).toBe('13:00')
+    expect(defaultTimeEatenForMealLabel('Dinner')).toBe('19:00')
+    expect(defaultTimeEatenForMealLabel('Snack')).toBe('16:00')
+    expect(defaultTimeEatenForMealLabel('Snacks')).toBe('16:00')
+    expect(defaultTimeEatenForMealLabel('Завтрак')).toBe('08:00')
+    expect(defaultTimeEatenForMealLabel('Brunch')).toBeUndefined()
+    expect(defaultTimeEatenForMealLabel(undefined)).toBeUndefined()
+  })
+
+  it('effectiveTimeEaten prefers a recorded time over the slot default (#580)', () => {
+    expect(effectiveTimeEaten({ label: 'Breakfast', timeEaten: '07:15' })).toBe(
+      '07:15',
+    )
+    expect(effectiveTimeEaten({ label: 'Breakfast' })).toBe('08:00')
   })
 })
