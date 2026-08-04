@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 533,
+    issue: 583,
+    date: '2026-08-04T10:23:37+03:00',
+    en: 'In Settings → Dishes, protein/fat/carbs now show “/100g” when that mode is on (like calories), and the nutrition fields have clearer borders.',
+    ru: 'В Настройках → Блюда белки/жиры/углеводы теперь с «/100г» в этом режиме (как калории), а поля пищевой ценности с более заметной рамкой.',
+  },
+  {
     version: 532,
     issue: 577,
     date: '2026-08-04T10:17:56+03:00',

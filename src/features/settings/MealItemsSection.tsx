@@ -38,6 +38,37 @@ import { BarcodeScannerDialog, lookupBarcode } from '@/features/daily-log'
 // pattern MealList.tsx already uses for its own barcode-scan entry point.
 const mealItemRepositoryForBarcodeLookup = new IndexedDbMealItemRepository()
 // #541 — Settings backfill reads day history once on demand.
+
+/** #583 — protein/fat/carbs labels mirror kcal's /100g cue when that mode
+ * is on; portion mode keeps the plain names. */
+function macroFieldLabel(
+  macro: 'protein' | 'fat' | 'carbs',
+  macroMode: 'per100g' | 'perPortion',
+  t: ReturnType<typeof useTranslation>,
+): string {
+  if (macroMode === 'per100g') {
+    switch (macro) {
+      case 'protein':
+        return t.dailyEntry.proteinPer100gLabel
+      case 'fat':
+        return t.dailyEntry.fatPer100gLabel
+      case 'carbs':
+        return t.dailyEntry.carbsPer100gLabel
+    }
+  }
+  switch (macro) {
+    case 'protein':
+      return t.dailyEntry.proteinLabel
+    case 'fat':
+      return t.dailyEntry.fatLabel
+    case 'carbs':
+      return t.dailyEntry.carbsLabel
+  }
+}
+
+/** #583 — stronger field framing on the dense Settings Dishes nutrition
+ * inputs (muted panel + default transparent input made borders easy to miss). */
+const nutritionFieldClassName = 'border-border bg-background'
 const dailyEntryRepositoryForBackfill = new IndexedDbDailyEntryRepository()
 
 function MealItemRow({
@@ -287,7 +318,7 @@ function MealItemRow({
         </span>
       )}
       {isEditingNutrition && (
-        <div className="flex flex-col gap-1.5 rounded-lg bg-muted/40 px-2 py-1.5">
+        <div className="flex flex-col gap-1.5 rounded-lg border border-border bg-muted/40 px-2 py-1.5">
           <ToggleGroup
             type="single"
             aria-label={`${t.dailyEntry.macroModeLabel} — ${item.name}`}
@@ -304,6 +335,9 @@ function MealItemRow({
               {t.dailyEntry.macroModePerPortionOption}
             </ToggleGroupItem>
           </ToggleGroup>
+          <p className="text-xs font-medium text-foreground">
+            {t.dailyEntry.itemNutritionSectionLabel(macroMode === 'per100g')}
+          </p>
           <div className="flex flex-wrap items-end gap-2">
             <div className="flex flex-col gap-1">
               <span className="text-xs text-muted-foreground">
@@ -314,49 +348,53 @@ function MealItemRow({
               <Input
                 type="text"
                 inputMode="decimal"
-                aria-label={`${t.dailyEntry.addCaloriesLabel} — ${item.name}`}
+                aria-label={`${
+                  macroMode === 'per100g'
+                    ? t.dailyEntry.addCaloriesLabel
+                    : t.dailyEntry.addCaloriesPortionLabel
+                } — ${item.name}`}
                 value={kcal100}
                 onChange={(e) => setKcal100(e.target.value)}
-                className="h-7 w-16"
+                className={cn('h-7 w-16', nutritionFieldClassName)}
               />
             </div>
             <div className="flex flex-col gap-1">
               <span className="text-xs text-muted-foreground">
-                {t.dailyEntry.proteinLabel}
+                {macroFieldLabel('protein', macroMode, t)}
               </span>
               <Input
                 type="text"
                 inputMode="decimal"
-                aria-label={`${t.dailyEntry.proteinLabel} — ${item.name}`}
+                aria-label={`${macroFieldLabel('protein', macroMode, t)} — ${item.name}`}
                 value={protein100}
                 onChange={(e) => setProtein100(e.target.value)}
-                className="h-7 w-14"
+                className={cn('h-7 w-14', nutritionFieldClassName)}
               />
             </div>
             <div className="flex flex-col gap-1">
               <span className="text-xs text-muted-foreground">
-                {t.dailyEntry.fatLabel}
+                {macroFieldLabel('fat', macroMode, t)}
               </span>
               <Input
                 type="text"
                 inputMode="decimal"
-                aria-label={`${t.dailyEntry.fatLabel} — ${item.name}`}
+                aria-label={`${macroFieldLabel('fat', macroMode, t)} — ${item.name}`}
                 value={fat100}
                 onChange={(e) => setFat100(e.target.value)}
-                className="h-7 w-14"
+                className={cn('h-7 w-14', nutritionFieldClassName)}
               />
             </div>
             <div className="flex flex-col gap-1">
               <span className="text-xs text-muted-foreground">
-                {t.dailyEntry.carbsLabel}
+                {macroFieldLabel('carbs', macroMode, t)}
               </span>
               <Input
                 type="text"
                 inputMode="decimal"
-                aria-label={`${t.dailyEntry.carbsLabel} — ${item.name}`}
+                aria-label={`${macroFieldLabel('carbs', macroMode, t)} — ${item.name}`}
                 value={carbs100}
                 onChange={(e) => setCarbs100(e.target.value)}
-                className="h-7 w-14"
+                className={cn('h-7 w-14', nutritionFieldClassName)}
               />
             </div>
             {/* Grams is a pure memory aid in Portion mode (#111/#121), not a
@@ -374,7 +412,7 @@ function MealItemRow({
                   aria-label={`${t.dailyEntry.itemPortionsLabel} — ${item.name}`}
                   value={amountG}
                   onChange={(e) => setAmountG(e.target.value)}
-                  className="h-7 w-14"
+                  className={cn('h-7 w-14', nutritionFieldClassName)}
                 />
               </div>
             ) : (
@@ -654,7 +692,10 @@ function AddMealItemForm({
               {t.dailyEntry.macroModePerPortionOption}
             </ToggleGroupItem>
           </ToggleGroup>
-          <div className="grid grid-cols-2 gap-4">
+          <p className="text-sm font-medium text-foreground">
+            {t.dailyEntry.itemNutritionSectionLabel(macroMode === 'per100g')}
+          </p>
+          <div className="grid grid-cols-2 gap-4 rounded-lg border border-border p-3">
             <div className="flex flex-col gap-1.5">
               <span className="text-sm text-muted-foreground">
                 {macroMode === 'per100g'
@@ -664,10 +705,14 @@ function AddMealItemForm({
               <Input
                 type="text"
                 inputMode="decimal"
-                aria-label={t.dailyEntry.addCaloriesLabel}
+                aria-label={
+                  macroMode === 'per100g'
+                    ? t.dailyEntry.addCaloriesLabel
+                    : t.dailyEntry.addCaloriesPortionLabel
+                }
                 value={kcal100}
                 onChange={(e) => setKcal100(e.target.value)}
-                className="h-12 text-base"
+                className={cn('h-12 text-base', nutritionFieldClassName)}
               />
             </div>
             {macroMode === 'per100g' ? (
@@ -681,7 +726,7 @@ function AddMealItemForm({
                   aria-label={t.dailyEntry.itemPortionsLabel}
                   value={amountG}
                   onChange={(e) => setAmountG(e.target.value)}
-                  className="h-12 text-base"
+                  className={cn('h-12 text-base', nutritionFieldClassName)}
                 />
               </div>
             ) : (
@@ -694,41 +739,41 @@ function AddMealItemForm({
             )}
             <div className="flex flex-col gap-1.5">
               <span className="text-sm text-muted-foreground">
-                {t.dailyEntry.proteinLabel}
+                {macroFieldLabel('protein', macroMode, t)}
               </span>
               <Input
                 type="text"
                 inputMode="decimal"
-                aria-label={t.dailyEntry.proteinLabel}
+                aria-label={macroFieldLabel('protein', macroMode, t)}
                 value={protein100}
                 onChange={(e) => setProtein100(e.target.value)}
-                className="h-12 text-base"
+                className={cn('h-12 text-base', nutritionFieldClassName)}
               />
             </div>
             <div className="flex flex-col gap-1.5">
               <span className="text-sm text-muted-foreground">
-                {t.dailyEntry.fatLabel}
+                {macroFieldLabel('fat', macroMode, t)}
               </span>
               <Input
                 type="text"
                 inputMode="decimal"
-                aria-label={t.dailyEntry.fatLabel}
+                aria-label={macroFieldLabel('fat', macroMode, t)}
                 value={fat100}
                 onChange={(e) => setFat100(e.target.value)}
-                className="h-12 text-base"
+                className={cn('h-12 text-base', nutritionFieldClassName)}
               />
             </div>
             <div className="flex flex-col gap-1.5">
               <span className="text-sm text-muted-foreground">
-                {t.dailyEntry.carbsLabel}
+                {macroFieldLabel('carbs', macroMode, t)}
               </span>
               <Input
                 type="text"
                 inputMode="decimal"
-                aria-label={t.dailyEntry.carbsLabel}
+                aria-label={macroFieldLabel('carbs', macroMode, t)}
                 value={carbs100}
                 onChange={(e) => setCarbs100(e.target.value)}
-                className="h-12 text-base"
+                className={cn('h-12 text-base', nutritionFieldClassName)}
               />
             </div>
           </div>

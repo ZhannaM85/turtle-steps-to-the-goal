@@ -367,6 +367,13 @@ export interface Dictionary {
     proteinLabel: string
     fatLabel: string
     carbsLabel: string
+    /** #583 — per-100g cue on Settings Dishes (and anywhere else that
+     * mirrors kcal/100g), so Protein/Fat/Carbs match `addCaloriesLabel`'s
+     * `/100g` clarity when that mode is selected. Portion mode keeps the
+     * plain `proteinLabel`/`fatLabel`/`carbsLabel` above. */
+    proteinPer100gLabel: string
+    fatPer100gLabel: string
+    carbsPer100gLabel: string
     /** Dietary fiber in grams (#341) — same optional shape as the three
      * macros above, entered on the Add Dish form only (see
      * MealItemEditorSheet.tsx's own scope note on why this doesn't ripple

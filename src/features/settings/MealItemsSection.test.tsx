@@ -265,7 +265,7 @@ describe('MealItemsSection', () => {
         'Homemade granola',
       )
       await user.type(screen.getByLabelText('kcal/100g'), '450')
-      await user.type(screen.getByLabelText('Protein'), '12')
+      await user.type(screen.getByLabelText('Protein/100g'), '12')
       await user.click(screen.getByRole('button', { name: 'Save' }))
 
       expect(
@@ -342,7 +342,7 @@ describe('MealItemsSection', () => {
       )
       await user.click(screen.getByRole('radio', { name: 'Portion' }))
       await user.type(screen.getByLabelText('Meal item name'), 'Sandwich')
-      await user.type(screen.getByLabelText('kcal/100g'), '450')
+      await user.type(screen.getByLabelText('kcal'), '450')
       await user.click(screen.getByRole('button', { name: 'Save' }))
 
       await waitFor(() =>
@@ -520,7 +520,7 @@ describe('MealItemsSection', () => {
       // 150 kcal / 5g protein eaten as a 50g portion back-calculates to
       // 300 kcal/100g and 10g protein/100g; 50g is 0.5 portions of 100g.
       expect(screen.getByLabelText('kcal/100g — Pizza')).toHaveValue('300')
-      expect(screen.getByLabelText('Protein — Pizza')).toHaveValue('10')
+      expect(screen.getByLabelText('Protein/100g — Pizza')).toHaveValue('10')
       expect(screen.getByLabelText('× 100g — Pizza')).toHaveValue('0.5')
     })
 
@@ -545,7 +545,7 @@ describe('MealItemsSection', () => {
       await user.click(screen.getByRole('button', { name: 'Edit Pizza' }))
 
       await user.type(screen.getByLabelText('kcal/100g — Pizza'), '200')
-      await user.type(screen.getByLabelText('Protein — Pizza'), '20')
+      await user.type(screen.getByLabelText('Protein/100g — Pizza'), '20')
       await user.clear(screen.getByLabelText('× 100g — Pizza'))
       await user.type(screen.getByLabelText('× 100g — Pizza'), '0.5')
 
@@ -572,7 +572,7 @@ describe('MealItemsSection', () => {
       await screen.findByDisplayValue('Pizza')
       await user.click(screen.getByRole('button', { name: 'Edit Pizza' }))
       await user.click(screen.getByRole('radio', { name: 'Portion' }))
-      await user.type(screen.getByLabelText('kcal/100g — Pizza'), '450')
+      await user.type(screen.getByLabelText('kcal — Pizza'), '450')
       await user.click(screen.getByRole('button', { name: 'Save Pizza' }))
 
       await waitFor(() =>
@@ -580,6 +580,26 @@ describe('MealItemsSection', () => {
           lastAmountKcal: 450,
         }),
       )
+    })
+
+    it('shows /100g on macro labels and a nutrition heading in per-100g mode (#583)', async () => {
+      await useMealItemStore.getState().touch('Pizza', { amountKcal: 100 })
+      const user = userEvent.setup()
+      render(<MealItemsSection />)
+
+      await screen.findByDisplayValue('Pizza')
+      await user.click(screen.getByRole('button', { name: 'Edit Pizza' }))
+
+      expect(screen.getByText('Nutrition (per 100g)')).toBeInTheDocument()
+      expect(screen.getByLabelText('Protein/100g — Pizza')).toBeInTheDocument()
+      expect(screen.getByLabelText('Fat/100g — Pizza')).toBeInTheDocument()
+      expect(screen.getByLabelText('Carbs/100g — Pizza')).toBeInTheDocument()
+
+      await user.click(screen.getByRole('radio', { name: 'Portion' }))
+
+      expect(screen.getByText('Nutrition')).toBeInTheDocument()
+      expect(screen.getByLabelText('Protein — Pizza')).toBeInTheDocument()
+      expect(screen.queryByLabelText('Protein/100g — Pizza')).not.toBeInTheDocument()
     })
   })
 })
