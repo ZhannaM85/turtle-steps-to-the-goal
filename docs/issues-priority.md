@@ -59,7 +59,6 @@ _Backup/settings gaps and further filings from this session (list may grow)._
 |---|--------|-------|-------|
 | [#589](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/589) | 🔍 Pending validation | Settings Dishes: Cancel button next to Save in edit mode | Cancel to the right of Save; discards draft name/nutrition (rename no longer commits on blur mid-edit). |
 | [#590](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/590) | 🔍 Pending validation | Goal: hide fiber daily target when Fiber is off in What to track | `GoalForm` display + edit gate on `trackedFields.fiber` (same as Day Remaining fiber). |
-| [#591](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/591) | 🔍 Pending validation | Settings: default meal-time inputs overlap — match Start of day width | Stacked single-column `h-12 w-32` inputs (same as day-start); same layout on MFP slot-times dialog. |
 | [#592](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/592) | 🔍 Pending validation | Dashboard correlation scatters: Y-axis garbage ticks (esp. when zoomed) | `ZoomableScatterSurface` always publishes memoized padded full domains when unzoomed (Recharts `[0,auto]`+overflow was breaking ticks). Same fix as #593. |
 | [#593](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/593) | 🔍 Pending validation | Dashboard correlation charts: Y-axis only shows weight gain — weight loss missing | Same root as #592: unzoomed `domain={undefined}` + `allowDataOverflow` floored Y at 0. Always pass padded full domain. |
 
