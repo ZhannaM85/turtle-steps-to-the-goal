@@ -57,7 +57,6 @@ _Backup/settings gaps and further filings from this session (list may grow)._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#589](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/589) | 🔍 Pending validation | Settings Dishes: Cancel button next to Save in edit mode | Cancel to the right of Save; discards draft name/nutrition (rename no longer commits on blur mid-edit). |
 | [#592](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/592) | 🔍 Pending validation | Dashboard correlation scatters: Y-axis garbage ticks (esp. when zoomed) | `ZoomableScatterSurface` always publishes memoized padded full domains when unzoomed (Recharts `[0,auto]`+overflow was breaking ticks). Same fix as #593. |
 | [#593](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/593) | 🔍 Pending validation | Dashboard correlation charts: Y-axis only shows weight gain — weight loss missing | Same root as #592: unzoomed `domain={undefined}` + `allowDataOverflow` floored Y at 0. Always pass padded full domain. |
 
