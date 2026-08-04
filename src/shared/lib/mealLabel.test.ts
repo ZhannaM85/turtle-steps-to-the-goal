@@ -6,6 +6,7 @@ import {
   effectiveMealLabel,
   effectiveTimeEaten,
   mealLabelSuggestionsForLocale,
+  sortCalorieEntriesByLoggedTime,
 } from './mealLabel'
 
 describe('mealLabel helpers', () => {
@@ -88,5 +89,24 @@ describe('mealLabel helpers', () => {
     expect(defaultTimeEatenForMealLabel(503)).toBeUndefined()
     expect(effectiveTimeEaten({ label: 503 })).toBeUndefined()
     expect(effectiveTimeEaten({ label: 503, timeEaten: '21:30' })).toBe('21:30')
+  })
+
+  it('sortCalorieEntriesByLoggedTime is earliest-first; untimed last (#597)', () => {
+    const sorted = sortCalorieEntriesByLoggedTime([
+      { id: 'd', label: 'Dinner', timeEaten: '21:00' },
+      { id: 'l', label: 'Lunch', timeEaten: '15:00' },
+      { id: 'b', label: 'Breakfast', timeEaten: '12:00' },
+      { id: 'x', label: 'Brunch' },
+    ])
+    expect(sorted.map((m) => m.id)).toEqual(['b', 'l', 'd', 'x'])
+  })
+
+  it('sortCalorieEntriesByLoggedTime uses slot defaults when time is missing (#597)', () => {
+    const sorted = sortCalorieEntriesByLoggedTime([
+      { id: 'd', label: 'Dinner' },
+      { id: 'b', label: 'Breakfast' },
+      { id: 'l', label: 'Lunch' },
+    ])
+    expect(sorted.map((m) => m.id)).toEqual(['b', 'l', 'd'])
   })
 })

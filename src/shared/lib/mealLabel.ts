@@ -146,3 +146,29 @@ export function effectiveTimeEaten(
 ): string | undefined {
   return meal.timeEaten ?? defaultTimeEatenForMealLabel(meal.label, slotTimes)
 }
+
+/**
+ * #597 — Day meal cards: earliest effective clock first; meals with no
+ * resolvable time stay at the end (stable among ties).
+ */
+export function sortCalorieEntriesByLoggedTime<
+  T extends { timeEaten?: string; label?: string | number },
+>(
+  entries: readonly T[],
+  slotTimes: MealSlotDefaultTimes = BUILTIN_MEAL_SLOT_DEFAULT_TIMES,
+): T[] {
+  return entries
+    .map((entry, index) => ({
+      entry,
+      index,
+      time: effectiveTimeEaten(entry, slotTimes),
+    }))
+    .sort((a, b) => {
+      if (a.time == null && b.time == null) return a.index - b.index
+      if (a.time == null) return 1
+      if (b.time == null) return -1
+      const byTime = a.time.localeCompare(b.time)
+      return byTime !== 0 ? byTime : a.index - b.index
+    })
+    .map(({ entry }) => entry)
+}

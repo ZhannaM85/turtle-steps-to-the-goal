@@ -34,7 +34,7 @@ import {
   macrosSummaryTextCompact,
   macrosSummaryTextCompactWithCalories,
 } from '@/shared/lib/macroDisplay'
-import { defaultMealLabel, editableMealLabel, effectiveMealLabel, effectiveTimeEaten } from '@/shared/lib/mealLabel'
+import { defaultMealLabel, editableMealLabel, effectiveMealLabel, effectiveTimeEaten, sortCalorieEntriesByLoggedTime } from '@/shared/lib/mealLabel'
 import { normalizeTextSpaces } from '@/shared/lib/normalizeTextSpaces'
 import { Button } from '@/shared/ui/button'
 import { useDayStartStore, useMealItemStore, useMealSlotDefaultTimesStore } from '@/stores'
@@ -355,6 +355,12 @@ export function MealList({
 }: MealListProps) {
   const t = useTranslation()
   const locale = useLocale()
+  const mealSlotTimes = useMealSlotDefaultTimesStore((state) => state.times)
+  // #597 — display earliest logged/effective time first (storage order unchanged).
+  const mealsInDisplayOrder = useMemo(
+    () => sortCalorieEntriesByLoggedTime(calorieEntries, mealSlotTimes),
+    [calorieEntries, mealSlotTimes],
+  )
 
   function setCalorieEntries(next: CalorieEntry[]) {
     onChange(next)
@@ -921,9 +927,9 @@ export function MealList({
           </span>
         </div>
       )}
-      {calorieEntries.length > 0 && (
+      {mealsInDisplayOrder.length > 0 && (
         <ul className="grid min-w-0 max-w-full grid-cols-1 gap-3">
-          {calorieEntries.map((entry, index) => (
+          {mealsInDisplayOrder.map((entry, index) => (
             <MealListItem
               key={entry.id}
               entry={entry}

@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 555,
+    issue: 597,
+    date: '2026-08-04T18:55:00+03:00',
+    en: 'Meals on the Day screen are listed in order of logged time, earliest first.',
+    ru: 'Приёмы пищи на экране День теперь идут по времени — сначала более ранние.',
+  },
+  {
     version: 554,
     issue: 598,
     date: '2026-08-04T18:45:00+03:00',

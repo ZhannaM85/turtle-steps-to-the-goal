@@ -285,6 +285,50 @@ describe('MealList', () => {
     ).toBeInTheDocument()
   })
 
+  it('lists meals earliest logged time first (#597)', () => {
+    const calorieEntries: CalorieEntry[] = [
+      {
+        id: 'dinner',
+        label: 'Dinner',
+        timeEaten: '21:00',
+        items: [{ id: 'i1', name: 'Prunes', amountKcal: 121 }],
+        createdAt: '2026-01-01T00:00:00.000Z',
+      },
+      {
+        id: 'lunch',
+        label: 'Lunch',
+        timeEaten: '15:00',
+        items: [{ id: 'i2', name: 'Chicken', amountKcal: 170 }],
+        createdAt: '2026-01-01T00:00:00.000Z',
+      },
+      {
+        id: 'breakfast',
+        label: 'Breakfast',
+        timeEaten: '12:00',
+        items: [{ id: 'i3', name: 'Oats', amountKcal: 94 }],
+        createdAt: '2026-01-01T00:00:00.000Z',
+      },
+    ]
+    render(
+      <MealList
+        calorieEntries={calorieEntries}
+        date="2026-03-01"
+        onChange={vi.fn()}
+      />,
+      { wrapper: MemoryRouter },
+    )
+
+    const names = screen
+      .getAllByRole('listitem')
+      .map((li) => li.textContent ?? '')
+    const breakfastIdx = names.findIndex((text) => text.includes('Breakfast'))
+    const lunchIdx = names.findIndex((text) => text.includes('Lunch'))
+    const dinnerIdx = names.findIndex((text) => text.includes('Dinner'))
+    expect(breakfastIdx).toBeGreaterThanOrEqual(0)
+    expect(lunchIdx).toBeGreaterThan(breakfastIdx)
+    expect(dinnerIdx).toBeGreaterThan(lunchIdx)
+  })
+
   it('shows a meal without logged macros as a bare kcal figure, not a row of dashes (#473)', () => {
     const calorieEntries: CalorieEntry[] = [
       {
