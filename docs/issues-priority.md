@@ -1400,6 +1400,16 @@ _Water recommendation and further filings from this session (list may grow)._
 | [#571](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/571) | ✅ Done | Dashboard weekly note: expand/collapse so long notes are readable | Confirmed on-device by the user. `WeeklyNoteEditor` collapsed 80-char preview + Show full note / Show less; Edit unchanged. |
 | [#572](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/572) | ✅ Done | Dashboard charts: tooltip interferes with pinch-to-zoom gestures | Confirmed on-device by the user. Suppress tooltip while `isGesturing`; tooltip wrapper stays `pointer-events: none` (day link re-enabled) so pinch passes through. |
 
+---
+
+## Tier 98 — Live feedback & features (2026-08-04)
+
+_Backup/settings gaps and further filings from this session (list may grow)._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#578](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/578) | ⬜ Open | JSON backup: include appearance (theme) and language settings on export/import | Confirmed missing: `themeStore` / `localeStore` are localStorage-only; v8 bundle has goals/entries/library/etc. only. Round-trip mood + color scheme + locale on backup restore. |
+
 
 
 
