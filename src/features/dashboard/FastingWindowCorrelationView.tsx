@@ -29,6 +29,10 @@ import { Button } from '@/shared/ui/button'
 import { ChartTitleWithToggle } from './ChartTitleWithToggle'
 import { CorrelationChartTooltip } from './CorrelationChartTooltip'
 import { CorrelationStrengthLabel } from './CorrelationStrengthLabel'
+import {
+  CORRELATION_SCATTER_Y_AXIS_WIDTH,
+  formatCorrelationScatterTick,
+} from './correlationScatterAxis'
 import { dayNotesByDate } from './dayNotePreview'
 import { OutlierPointsList } from './OutlierPointsList'
 import { outlierReasonLabel } from './outlierReasonLabel'
@@ -165,7 +169,9 @@ export function FastingWindowCorrelationView({
                   name={t.dashboard.fastingHoursLegend}
                   domain={xDomain}
                   allowDataOverflow
-                  tickFormatter={(hours: number) => `${formatNumber(hours, locale, 0)}h`}
+                  tickFormatter={(hours: number) =>
+                    `${formatCorrelationScatterTick(hours, locale)}h`
+                  }
                   tick={{ fontSize: 11, fill: 'var(--muted-foreground)' }}
                   axisLine={{ stroke: 'var(--border)' }}
                   tickLine={false}
@@ -176,7 +182,10 @@ export function FastingWindowCorrelationView({
                   name={t.dashboard.nextDayChangeLegend}
                   domain={yDomain}
                   allowDataOverflow
-                  width={40}
+                  width={CORRELATION_SCATTER_Y_AXIS_WIDTH}
+                  tickFormatter={(value: number) =>
+                    formatCorrelationScatterTick(value, locale)
+                  }
                   tick={{ fontSize: 11, fill: 'var(--muted-foreground)' }}
                   axisLine={false}
                   tickLine={false}

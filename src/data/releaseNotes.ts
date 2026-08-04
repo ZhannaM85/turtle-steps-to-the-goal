@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 553,
+    issue: 596,
+    date: '2026-08-04T18:00:00+03:00',
+    en: 'Correlation chart axes now show one decimal place instead of long raw numbers.',
+    ru: 'Оси на графиках корреляций теперь показывают одно число после запятой вместо длинных сырых значений.',
+  },
+  {
     version: 552,
     issue: 594,
     date: '2026-08-04T17:20:00+03:00',
