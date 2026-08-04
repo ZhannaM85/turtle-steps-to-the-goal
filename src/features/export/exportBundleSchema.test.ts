@@ -72,4 +72,28 @@ describe('exportBundleSchema', () => {
     }
     expect(exportBundleSchema.safeParse(malformed).success).toBe(false)
   })
+
+  it('coerces numeric meal labels to strings (#579)', () => {
+    const withNumericLabel = {
+      ...validBundle,
+      dailyEntries: [
+        {
+          ...validBundle.dailyEntries[0],
+          calorieEntries: [
+            {
+              id: 'calorie-1',
+              items: [{ id: 'item-1', amountKcal: 2000 }],
+              label: 5,
+              createdAt: '2026-03-01T00:00:00.000Z',
+            },
+          ],
+        },
+      ],
+    }
+    const parsed = exportBundleSchema.safeParse(withNumericLabel)
+    expect(parsed.success).toBe(true)
+    if (parsed.success) {
+      expect(parsed.data.dailyEntries[0].calorieEntries?.[0].label).toBe('5')
+    }
+  })
 })

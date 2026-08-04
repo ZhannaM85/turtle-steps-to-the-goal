@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 538,
+    issue: 579,
+    date: '2026-08-04T11:06:15+03:00',
+    en: 'JSON backups that had numeric meal names now import again, and import errors are easier to notice.',
+    ru: 'JSON-резервные копии с числовыми названиями приёмов пищи снова импортируются, а ошибки импорта заметнее.',
+  },
+  {
     version: 537,
     issue: 582,
     date: '2026-08-04T11:00:55+03:00',

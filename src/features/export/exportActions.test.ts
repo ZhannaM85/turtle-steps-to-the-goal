@@ -650,6 +650,34 @@ describe('parseExportBundle', () => {
     expect(upgraded.dailyEntries[0].calorieEntries).toBeUndefined()
   })
 
+  it('coerces numeric meal labels when upgrading a v8 backup (#579)', () => {
+    const v8Bundle = {
+      version: 8,
+      exportedAt: '2026-01-01',
+      goals: [],
+      dailyEntries: [
+        {
+          id: 'entry-1',
+          date: '2019-12-22',
+          calorieEntries: [
+            {
+              id: 'meal-1',
+              items: [{ id: 'item-1', amountKcal: 100 }],
+              label: 4,
+              createdAt: '2019-12-22T12:00:00.000Z',
+            },
+          ],
+          createdAt: '2019-12-22T12:00:00.000Z',
+          updatedAt: '2019-12-22T12:00:00.000Z',
+        },
+      ],
+      weeklyNotes: [],
+    }
+    const upgraded = parseExportBundle(v8Bundle)
+    expect(upgraded.version).toBe(9)
+    expect(upgraded.dailyEntries[0].calorieEntries?.[0].label).toBe('4')
+  })
+
   it('throws InvalidBackupFileError for malformed JSON content', () => {
     expect(() => parseExportBundle({ not: 'a backup' })).toThrow(
       InvalidBackupFileError,

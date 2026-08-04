@@ -62,12 +62,20 @@ const calorieItemSchema = z.object({
   noteText: z.string().optional(),
 })
 
+// Domain type is `string`, but some historical rows (and thus JSON
+// backups) stored meal-slot ids as numbers. Coerce on parse so those
+// backups still import (#579) instead of failing the whole bundle.
+const mealLabelSchema = z.preprocess(
+  (value) => (typeof value === 'number' ? String(value) : value),
+  z.string().optional(),
+)
+
 const calorieEntrySchema = z.object({
   id: z.string(),
   items: z.array(calorieItemSchema),
   // Custom meal name (#110) — purely additive/optional, same
   // no-version-bump reasoning as amountG/timeEaten above.
-  label: z.string().optional(),
+  label: mealLabelSchema,
   note: z.string().optional(),
   createdAt: z.string(),
   // Time eaten (#65) — purely additive/optional, same no-version-bump
@@ -381,7 +389,7 @@ const calorieItemSchemaV5 = z.object({
 const calorieEntrySchemaV5 = z.object({
   id: z.string(),
   items: z.array(calorieItemSchemaV5),
-  label: z.string().optional(),
+  label: mealLabelSchema,
   note: z.string().optional(),
   emotion: mealEmotionSchema.optional(),
   createdAt: z.string(),
