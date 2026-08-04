@@ -75,4 +75,5 @@ _Backup/settings gaps and further filings from this session (list may grow)._
 | [#590](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/590) | ⬜ Open | Goal: hide fiber daily target when Fiber is off in What to track | Follow-up to #582. Settings Fiber off still leaves «Daily fiber target» (Не задано) on Goal — gate that row like Day fiber UI. |
 | [#591](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/591) | ⬜ Open | Settings: default meal-time inputs overlap — match Start of day width | Follow-up to #588. 2×2 HH:MM fields overlap; use same width as Start of day time input. |
 | [#592](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/592) | ⬜ Open | Dashboard correlation scatters: Y-axis garbage ticks (esp. when zoomed) | Late-meal + fasting-window on-device: ticks like 22185 / 39432 (not kg/lb Δ). Worse/visible when zoomed (#581). |
+| [#593](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/593) | ⬜ Open | Dashboard correlation charts: Y-axis only shows weight gain — weight loss missing | Regression: negative next-day Δ no longer on scatters (domain floored at 0). Related #581/#592. |
 
