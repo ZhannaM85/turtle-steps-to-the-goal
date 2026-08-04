@@ -46,6 +46,5 @@ _Water recommendation and further filings from this session (list may grow)._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#554](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/554) | 🔍 Pending validation | iOS Battery screen shows generic Web icon instead of app icon | Investigated: Battery «Web»+grid is likely iOS PWA limitation (≠ home screen). Hardened `sizes=180x180` + manifest `purpose` any/maskable. Re-add home screen to verify turtle icon there. |
 | [#553](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/553) | 🔍 Pending validation | Investigate iOS background battery use and possible memory leaks | Inventory: SW (#163) + 5‑min version poll (#115). Fix: skip poll/SW nudge while `document.hidden`, re-check on return. No clear leak found; some SW background time is expected. |
 
