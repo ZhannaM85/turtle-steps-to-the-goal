@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 541,
+    issue: 587,
+    date: '2026-08-04T13:15:00+03:00',
+    en: 'Fixed a Dashboard crash that could appear while scrolling down after recent chart zoom changes.',
+    ru: 'Исправлена ошибка на Дашборде, которая могла появляться при прокрутке вниз после недавних изменений масштаба графиков.',
+  },
+  {
     version: 540,
     issue: 586,
     date: '2026-08-04T11:39:03+03:00',

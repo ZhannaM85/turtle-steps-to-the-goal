@@ -37,6 +37,7 @@ import { dayNotesByDate } from './dayNotePreview'
 import { OutlierPointsList } from './OutlierPointsList'
 import { outlierReasonLabel } from './outlierReasonLabel'
 import { renderOutlierScatterShape } from './outlierScatterShape'
+import { scatterDomainFromValues } from '@/domain/stats'
 import { usePeriodFilteredEntries, useDashboardChartPeriod } from './useDashboardChartPeriod'
 import { ZoomableScatterSurface } from './ZoomableScatterSurface'
 
@@ -128,6 +129,22 @@ export function NightEatingCorrelationView({
   const insight = nightEatingCorrelationFromPoints(includedPoints)
   const expanded = insight !== null || isExpanded
 
+  // Pre-#581 used a fixed categorical X domain of [-0.5, 1.5] so both
+  // No/Yes ticks stay visible even when every point is in one column.
+  // #581's auto domain from xValues alone could shrink to ~[0.95, 1.05]
+  // (all Yes) and leave tick 0 outside the axis (#587).
+  const xValues = points.map((p) => p.x)
+  const yValues = points.map((p) => p.delta)
+  const baseDomain = scatterDomainFromValues(xValues, yValues)
+  const fullDomainOverride = baseDomain
+    ? {
+        xMin: -0.5,
+        xMax: 1.5,
+        yMin: baseDomain.yMin,
+        yMax: baseDomain.yMax,
+      }
+    : null
+
   const cardTitle = (
     <ChartTitleWithToggle
       chart="nightEatingCorrelation"
@@ -166,8 +183,9 @@ export function NightEatingCorrelationView({
       {expanded && (
         <ZoomableScatterSurface
           resetKey={gestureResetKey}
-          xValues={points.map((p) => p.x)}
-          yValues={points.map((p) => p.delta)}
+          xValues={xValues}
+          yValues={yValues}
+          fullDomainOverride={fullDomainOverride}
         >
           {({ xDomain, yDomain, isGesturing }) => (
             <ResponsiveContainer width="100%" height={180}>

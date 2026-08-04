@@ -15,8 +15,12 @@ export interface ZoomableScatterSurfaceProps {
   /** Optional fixed full domain (e.g. night-eating's categorical x). */
   fullDomainOverride?: ScatterZoomDomain | null
   children: (ctx: {
-    xDomain: [number, number]
-    yDomain: [number, number]
+    /** Set while zoomed, or when `fullDomainOverride` is provided. `undefined`
+     * restores Recharts auto-scale (#587 — always forcing a fresh padded
+     * `[min,max]` tuple every render regressed into RouteErrorFallback on
+     * device while scrolling Dashboard). */
+    xDomain: [number, number] | undefined
+    yDomain: [number, number] | undefined
     isGesturing: boolean
   }) => ReactNode
 }
@@ -24,6 +28,10 @@ export interface ZoomableScatterSurfaceProps {
 /**
  * #581 — wraps a correlation `ScatterChart` with pinch/pan/double-tap zoom
  * and a Reset zoom row matching trend charts (#543/#560).
+ * #587 — only push explicit axis domains while zoomed (or when the caller
+ * supplied a fixed full-domain override); otherwise leave axes on Recharts
+ * auto like pre-#581. Domain tuples are memoized by value so Recharts does
+ * not see a new array identity on every parent render.
  */
 export function ZoomableScatterSurface({
   resetKey,
@@ -60,14 +68,35 @@ export function ZoomableScatterSurface({
   const { surfaceRef, domain, isZoomed, isGesturing, resetZoom } =
     useScatterGestureZoom(resetKey, fullDomain, pointCount)
 
-  if (!domain) return null
+  // Axis domains for the chart: zoom window, else optional override, else
+  // leave undefined so Recharts auto-scales (pre-#581 default for most
+  // correlation views).
+  const axisDomain = isZoomed ? domain : fullDomainOverride ? fullDomain : null
+  const axisXMin = axisDomain?.xMin
+  const axisXMax = axisDomain?.xMax
+  const axisYMin = axisDomain?.yMin
+  const axisYMax = axisDomain?.yMax
+
+  const xDomain = useMemo((): [number, number] | undefined => {
+    if (axisXMin === undefined || axisXMax === undefined) return undefined
+    return [axisXMin, axisXMax]
+  }, [axisXMin, axisXMax])
+
+  const yDomain = useMemo((): [number, number] | undefined => {
+    if (axisYMin === undefined || axisYMax === undefined) return undefined
+    return [axisYMin, axisYMax]
+  }, [axisYMin, axisYMax])
+
+  // Still need a full domain for gesture math; without points there is nothing
+  // to plot (callers usually early-return before mounting this).
+  if (!fullDomain) return null
 
   return (
     <>
       <div ref={surfaceRef} className="touch-pan-y">
         {children({
-          xDomain: [domain.xMin, domain.xMax],
-          yDomain: [domain.yMin, domain.yMax],
+          xDomain,
+          yDomain,
           isGesturing,
         })}
       </div>
