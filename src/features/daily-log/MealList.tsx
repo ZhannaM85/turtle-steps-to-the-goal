@@ -929,23 +929,31 @@ export function MealList({
       )}
       {mealsInDisplayOrder.length > 0 && (
         <ul className="grid min-w-0 max-w-full grid-cols-1 gap-3">
-          {mealsInDisplayOrder.map((entry, index) => (
-            <MealListItem
-              key={entry.id}
-              entry={entry}
-              position={index + 1}
-              t={t}
-              locale={locale}
-              isConfirmingDelete={confirmDeleteMealId === entry.id}
-              // #461 — opens the shared AddMealDialog overlay for this
-              // meal (state-controlled, see the render block below) —
-              // no route navigation, so this screen never unmounts.
-              onStartEdit={() => openEditingMeal(entry.id)}
-              onRequestDelete={() => setConfirmDeleteMealId(entry.id)}
-              onConfirmDelete={confirmDeleteMeal}
-              onCancelDelete={() => setConfirmDeleteMealId(null)}
-            />
-          ))}
+          {mealsInDisplayOrder.map((entry) => {
+            // #597 — display order is by clock; positional default names /
+            // "Edit meal N" stay tied to storage index so an untimed
+            // Breakfast does not rename when a timed Lunch sorts above it.
+            const position =
+              calorieEntries.findIndex((candidate) => candidate.id === entry.id) +
+              1
+            return (
+              <MealListItem
+                key={entry.id}
+                entry={entry}
+                position={position}
+                t={t}
+                locale={locale}
+                isConfirmingDelete={confirmDeleteMealId === entry.id}
+                // #461 — opens the shared AddMealDialog overlay for this
+                // meal (state-controlled, see the render block below) —
+                // no route navigation, so this screen never unmounts.
+                onStartEdit={() => openEditingMeal(entry.id)}
+                onRequestDelete={() => setConfirmDeleteMealId(entry.id)}
+                onConfirmDelete={confirmDeleteMeal}
+                onCancelDelete={() => setConfirmDeleteMealId(null)}
+              />
+            )
+          })}
         </ul>
       )}
 
