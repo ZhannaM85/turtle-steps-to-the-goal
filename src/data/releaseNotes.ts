@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 549,
+    issue: 592,
+    date: '2026-08-04T17:01:00+03:00',
+    en: 'Fixed Dashboard correlation charts where the weight-change axis could show nonsense numbers, especially after pinch-zoom.',
+    ru: 'Исправлена ось изменения веса на корреляциях Дашборда, где могли появляться бессмысленные числа, особенно после масштабирования.',
+  },
+  {
     version: 548,
     issue: 589,
     date: '2026-08-04T16:42:00+03:00',

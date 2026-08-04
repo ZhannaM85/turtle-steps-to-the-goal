@@ -10,10 +10,10 @@ import {
 import { describe, expect, it } from 'vitest'
 import { ZoomableScatterSurface } from './ZoomableScatterSurface'
 
-describe('ZoomableScatterSurface (#581 / #587)', () => {
-  it('omits explicit axis domains when not zoomed and no override (#587)', () => {
-    let seenX: [number, number] | undefined = [0, 0]
-    let seenY: [number, number] | undefined = [0, 0]
+describe('ZoomableScatterSurface (#581 / #587 / #592 / #593)', () => {
+  it('publishes padded full domains when not zoomed (#592/#593)', () => {
+    let seenX: [number, number] | undefined
+    let seenY: [number, number] | undefined
 
     render(
       <MemoryRouter>
@@ -46,8 +46,33 @@ describe('ZoomableScatterSurface (#581 / #587)', () => {
       </MemoryRouter>,
     )
 
-    expect(seenX).toBeUndefined()
-    expect(seenY).toBeUndefined()
+    // 5% pad on [10,30] / [1,3]
+    expect(seenX).toEqual([9, 31])
+    expect(seenY).toEqual([0.9, 3.1])
+  })
+
+  it('includes negative Y in the unzoomed domain (#593)', () => {
+    let seenY: [number, number] | undefined
+
+    render(
+      <MemoryRouter>
+        <ZoomableScatterSurface
+          resetKey="neg"
+          xValues={[1, 2, 3]}
+          yValues={[-1.5, 0.2, 2.2]}
+        >
+          {({ yDomain }) => {
+            seenY = yDomain
+            return <div data-testid="neg-y" />
+          }}
+        </ZoomableScatterSurface>
+      </MemoryRouter>,
+    )
+
+    expect(screen.getByTestId('neg-y')).toBeInTheDocument()
+    expect(seenY).toBeDefined()
+    expect(seenY![0]).toBeLessThan(0)
+    expect(seenY![1]).toBeGreaterThan(0)
   })
 
   it('pins unzoomed domains when fullDomainOverride is provided', () => {

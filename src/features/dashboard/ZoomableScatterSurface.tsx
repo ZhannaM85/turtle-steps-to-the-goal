@@ -15,10 +15,11 @@ export interface ZoomableScatterSurfaceProps {
   /** Optional fixed full domain (e.g. night-eating's categorical x). */
   fullDomainOverride?: ScatterZoomDomain | null
   children: (ctx: {
-    /** Set while zoomed, or when `fullDomainOverride` is provided. `undefined`
-     * restores Recharts auto-scale (#587 — always forcing a fresh padded
-     * `[min,max]` tuple every render regressed into RouteErrorFallback on
-     * device while scrolling Dashboard). */
+    /** Always a memoized `[min,max]` from the padded full domain or the
+     * active zoom window. Must stay explicit: Recharts 3 +
+     * `allowDataOverflow` with `domain={undefined}` floors Y at 0 (#593)
+     * and breaks ticks when zooming (#592). Value-memoized so unzoomed
+     * re-renders do not allocate a fresh tuple (#587 crash). */
     xDomain: [number, number] | undefined
     yDomain: [number, number] | undefined
     isGesturing: boolean
@@ -28,10 +29,12 @@ export interface ZoomableScatterSurfaceProps {
 /**
  * #581 — wraps a correlation `ScatterChart` with pinch/pan/double-tap zoom
  * and a Reset zoom row matching trend charts (#543/#560).
- * #587 — only push explicit axis domains while zoomed (or when the caller
- * supplied a fixed full-domain override); otherwise leave axes on Recharts
- * auto like pre-#581. Domain tuples are memoized by value so Recharts does
- * not see a new array identity on every parent render.
+ * #587 — domain tuples are memoized by value so Recharts does not see a new
+ * array identity on every parent render (that regressed into
+ * RouteErrorFallback while scrolling Dashboard).
+ * #592/#593 — always publish the padded full domain when unzoomed (not
+ * `undefined`): with `allowDataOverflow`, Recharts auto `[0,'auto']` clips
+ * negative weight-change and produces garbage ticks under zoom.
  */
 export function ZoomableScatterSurface({
   resetKey,
@@ -68,10 +71,9 @@ export function ZoomableScatterSurface({
   const { surfaceRef, domain, isZoomed, isGesturing, resetZoom } =
     useScatterGestureZoom(resetKey, fullDomain, pointCount)
 
-  // Axis domains for the chart: zoom window, else optional override, else
-  // leave undefined so Recharts auto-scales (pre-#581 default for most
-  // correlation views).
-  const axisDomain = isZoomed ? domain : fullDomainOverride ? fullDomain : null
+  // Zoom window when zoomed; otherwise the padded full domain (always
+  // explicit — see #592/#593).
+  const axisDomain = isZoomed ? domain : fullDomain
   const axisXMin = axisDomain?.xMin
   const axisXMax = axisDomain?.xMax
   const axisYMin = axisDomain?.yMin
