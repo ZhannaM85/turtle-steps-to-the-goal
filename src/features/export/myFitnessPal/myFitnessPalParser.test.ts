@@ -176,6 +176,38 @@ describe('buildMyFitnessPalPatches', () => {
     expect(snack?.timeEaten).toBe('16:00')
   })
 
+  it('stamps remembered slot times when provided (#588)', () => {
+    const rows: MyFitnessPalRow[] = [
+      {
+        type: 'Foods',
+        date: '2026-01-15',
+        description: 'Eggs',
+        calories: 200,
+        detailsJson: JSON.stringify({ meal: 'Breakfast' }),
+      },
+      {
+        type: 'Foods',
+        date: '2026-01-15',
+        description: 'Steak',
+        calories: 500,
+        detailsJson: JSON.stringify({ meal: 'Dinner' }),
+      },
+    ]
+    const prefs = {
+      breakfast: '12:00',
+      lunch: '15:00',
+      dinner: '21:00',
+      snack: '18:00',
+    }
+    const patch = buildMyFitnessPalPatches(rows, prefs).get('2026-01-15')
+    expect(
+      patch?.calorieEntries?.find((e) => e.label === 'Breakfast')?.timeEaten,
+    ).toBe('12:00')
+    expect(
+      patch?.calorieEntries?.find((e) => e.label === 'Dinner')?.timeEaten,
+    ).toBe('21:00')
+  })
+
   it('still creates an item with no label when details_json is missing or malformed', () => {
     const rows: MyFitnessPalRow[] = [
       { type: 'Foods', date: '2026-01-15', description: 'Apple', calories: 95 },

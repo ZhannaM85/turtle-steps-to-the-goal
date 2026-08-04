@@ -991,6 +991,11 @@ export interface Dictionary {
     passwordLabel: string
     passwordSubmitButton: string
     wrongPassword: string
+    /** #588 — slot default times before stamping imported meals. */
+    slotTimesDialogTitle: string
+    slotTimesDialogDescription: string
+    slotTimesImportButton: string
+    slotTimesContinueButton: string
   }
   /** Column headers / sheet names for the Excel export (#123) — kept
    * separate from the daily-entry form's own field labels (`dailyEntry.*`)
@@ -1534,6 +1539,9 @@ export interface Dictionary {
     weekStartFirstEntry: string
     dayStartLabel: string
     dayStartDescription: string
+    /** #588 — remembered Breakfast/Lunch/Snack/Dinner clocks for imports. */
+    mealSlotDefaultTimesLabel: string
+    mealSlotDefaultTimesDescription: string
     foodListLabel: string
     foodListDescription: string
     manageFoodListButton: string

@@ -50,10 +50,33 @@ describe('mealLabel helpers', () => {
     expect(defaultTimeEatenForMealLabel(undefined)).toBeUndefined()
   })
 
+  it('defaultTimeEatenForMealLabel uses remembered slot prefs when passed (#588)', () => {
+    const prefs = {
+      breakfast: '12:00',
+      lunch: '15:00',
+      dinner: '21:00',
+      snack: '18:00',
+    }
+    expect(defaultTimeEatenForMealLabel('Breakfast', prefs)).toBe('12:00')
+    expect(defaultTimeEatenForMealLabel('Snacks', prefs)).toBe('18:00')
+    expect(defaultTimeEatenForMealLabel('Ужин', prefs)).toBe('21:00')
+  })
+
   it('effectiveTimeEaten prefers a recorded time over the slot default (#580)', () => {
     expect(effectiveTimeEaten({ label: 'Breakfast', timeEaten: '07:15' })).toBe(
       '07:15',
     )
     expect(effectiveTimeEaten({ label: 'Breakfast' })).toBe('08:00')
+    expect(
+      effectiveTimeEaten(
+        { label: 'Breakfast' },
+        {
+          breakfast: '12:00',
+          lunch: '15:00',
+          dinner: '21:00',
+          snack: '18:00',
+        },
+      ),
+    ).toBe('12:00')
   })
 })

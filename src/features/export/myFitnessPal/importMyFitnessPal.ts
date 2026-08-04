@@ -1,4 +1,5 @@
 import { IndexedDbDailyEntryRepository } from '@/infrastructure/persistence/indexeddb'
+import type { MealSlotDefaultTimes } from '@/shared/lib/mealLabel'
 import { useMealItemStore } from '@/stores'
 import {
   filterPatchesToFields,
@@ -103,6 +104,8 @@ export async function importMyFitnessPalExport(
   importMode?: DailyEntryImportMode,
   /** #500 — required when the picked file is MS-OFFCRYPTO-encrypted. */
   password?: string,
+  /** #588 — slot clocks to stamp on meals without timeEaten. */
+  slotTimes?: MealSlotDefaultTimes,
 ): Promise<MyFitnessPalImportSummary> {
   const ExcelJS = (await import('exceljs')).default
   const workbook = new ExcelJS.Workbook()
@@ -189,7 +192,7 @@ export async function importMyFitnessPalExport(
     // the issue's own resolved priority -- skipped, not an error.
   })
 
-  const rawPatches = buildMyFitnessPalPatches(rows)
+  const rawPatches = buildMyFitnessPalPatches(rows, slotTimes)
   const patches = includedFields
     ? filterPatchesToFields(rawPatches, includedFields)
     : rawPatches

@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { format } from 'date-fns'
 import { type Dictionary, useTranslation } from '@/i18n'
-import { useFoodOverrideStore, useMealItemStore, useProfileStore } from '@/stores'
+import { useFoodOverrideStore, useMealItemStore, useMealSlotDefaultTimesStore, useProfileStore } from '@/stores'
 import { Button } from '@/shared/ui/button'
 import {
   CardContent,
@@ -43,6 +43,8 @@ import {
   MyFitnessPalWrongPasswordError,
 } from './myFitnessPal/importMyFitnessPal'
 import { MyFitnessPalPasswordDialog } from './myFitnessPal/MyFitnessPalPasswordDialog'
+import { MyFitnessPalSlotTimesDialog } from './myFitnessPal/MyFitnessPalSlotTimesDialog'
+import type { MealSlotDefaultTimes } from '@/shared/lib/mealLabel'
 
 /** #369 — each source's own data types, since Zepp Life and Apple Health
  * expose different fields (Zepp: body-composition scale readings; Apple
@@ -174,12 +176,27 @@ export function ExportSection() {
   const [appleHealthImportMode, setAppleHealthImportMode] =
     useState<DailyEntryImportMode>('fillGaps')
   const myFitnessPalFileInputRef = useRef<HTMLInputElement>(null)
+  /** Skips clearing pending MFP state when closing the slot-times dialog
+   * only to open the password dialog (#588). */
+  const myFitnessPalAdvancingRef = useRef(false)
   const [myFitnessPalPendingFile, setMyFitnessPalPendingFile] =
     useState<File | null>(null)
+  const [myFitnessPalPendingSlotTimes, setMyFitnessPalPendingSlotTimes] =
+    useState<MealSlotDefaultTimes | null>(null)
+  const [myFitnessPalNeedsPassword, setMyFitnessPalNeedsPassword] =
+    useState(false)
   const [myFitnessPalDialogOpen, setMyFitnessPalDialogOpen] = useState(false)
+  const [myFitnessPalSlotTimesDialogOpen, setMyFitnessPalSlotTimesDialogOpen] =
+    useState(false)
   const [myFitnessPalPasswordError, setMyFitnessPalPasswordError] = useState<
     string | null
   >(null)
+  const mealSlotDefaultTimes = useMealSlotDefaultTimesStore(
+    (state) => state.times,
+  )
+  const setMealSlotDefaultTimes = useMealSlotDefaultTimesStore(
+    (state) => state.setTimes,
+  )
   const [myFitnessPalSelectedFields, setMyFitnessPalSelectedFields] =
     useState<Set<string>>(
       () => new Set(MYFITNESSPAL_FIELDS.map((field) => field.key)),
@@ -463,28 +480,58 @@ export function ExportSection() {
   async function handleMyFitnessPalFileSelected(file: File) {
     // #500 — encrypted Data Access Request exports are OLE (MS-OFFCRYPTO)
     // and need the email password before exceljs can read them; plain
-    // unencrypted .xlsx still imports immediately like #367.
+    // unencrypted .xlsx still works without one.
+    // #588 — always prompt for Breakfast/Lunch/Snack/Dinner default times
+    // first (prefilled from remembered prefs); password comes after when
+    // needed, then import stamps the chosen clocks.
     try {
       const buffer = await file.arrayBuffer()
-      if (isMyFitnessPalEncrypted(buffer)) {
-        setMyFitnessPalPendingFile(file)
-        setMyFitnessPalPasswordError(null)
-        setMyFitnessPalDialogOpen(true)
-        return
-      }
+      const encrypted = isMyFitnessPalEncrypted(buffer)
+      setMyFitnessPalPendingFile(file)
+      setMyFitnessPalPasswordError(null)
+      setMyFitnessPalNeedsPassword(encrypted)
+      setMyFitnessPalSlotTimesDialogOpen(true)
     } catch {
       setStatus({ kind: 'error', message: t.myFitnessPalImport.invalidFile })
+    }
+  }
+
+  function clearMyFitnessPalImportFlow() {
+    setMyFitnessPalPendingFile(null)
+    setMyFitnessPalPendingSlotTimes(null)
+    setMyFitnessPalNeedsPassword(false)
+    setMyFitnessPalPasswordError(null)
+  }
+
+  function handleMyFitnessPalSlotTimesConfirm(times: MealSlotDefaultTimes) {
+    setMealSlotDefaultTimes(times)
+    setMyFitnessPalPendingSlotTimes(times)
+    if (myFitnessPalNeedsPassword) {
+      myFitnessPalAdvancingRef.current = true
+      setMyFitnessPalSlotTimesDialogOpen(false)
+      setMyFitnessPalDialogOpen(true)
+      myFitnessPalAdvancingRef.current = false
       return
     }
-    await runMyFitnessPalImport(file)
+    setMyFitnessPalSlotTimesDialogOpen(false)
+    if (!myFitnessPalPendingFile) return
+    void runMyFitnessPalImport(myFitnessPalPendingFile, undefined, times)
   }
 
   async function handleMyFitnessPalPasswordSubmit(password: string) {
     if (!myFitnessPalPendingFile) return
-    await runMyFitnessPalImport(myFitnessPalPendingFile, password)
+    await runMyFitnessPalImport(
+      myFitnessPalPendingFile,
+      password,
+      myFitnessPalPendingSlotTimes ?? mealSlotDefaultTimes,
+    )
   }
 
-  async function runMyFitnessPalImport(file: File, password?: string) {
+  async function runMyFitnessPalImport(
+    file: File,
+    password?: string,
+    slotTimes: MealSlotDefaultTimes = mealSlotDefaultTimes,
+  ) {
     setStatus({ kind: 'importingMyFitnessPal' })
     try {
       const { daysImported, daysUpdated } = await importMyFitnessPalExport(
@@ -492,19 +539,22 @@ export function ExportSection() {
         myFitnessPalSelectedFields as ReadonlySet<keyof DailyEntryPatch>,
         myFitnessPalImportMode,
         password,
+        slotTimes,
       )
       setMyFitnessPalDialogOpen(false)
-      setMyFitnessPalPendingFile(null)
-      setMyFitnessPalPasswordError(null)
+      setMyFitnessPalSlotTimesDialogOpen(false)
+      clearMyFitnessPalImportFlow()
       setStatus({ kind: 'importedMyFitnessPal', daysImported, daysUpdated })
     } catch (err) {
       if (err instanceof MyFitnessPalWrongPasswordError) {
         setMyFitnessPalPasswordError(t.myFitnessPalImport.wrongPassword)
+        setMyFitnessPalDialogOpen(true)
         setStatus({ kind: 'idle' })
         return
       }
       setMyFitnessPalDialogOpen(false)
-      setMyFitnessPalPendingFile(null)
+      setMyFitnessPalSlotTimesDialogOpen(false)
+      clearMyFitnessPalImportFlow()
       const message =
         err instanceof MyFitnessPalInvalidFileError
           ? t.myFitnessPalImport.invalidFile
@@ -960,14 +1010,24 @@ export function ExportSection() {
         error={zeppLifePasswordError}
         submitting={status.kind === 'importingZeppLife'}
       />
+      <MyFitnessPalSlotTimesDialog
+        open={myFitnessPalSlotTimesDialogOpen}
+        onOpenChange={(open) => {
+          setMyFitnessPalSlotTimesDialogOpen(open)
+          if (!open && !myFitnessPalAdvancingRef.current) {
+            clearMyFitnessPalImportFlow()
+          }
+        }}
+        initialTimes={mealSlotDefaultTimes}
+        onConfirm={handleMyFitnessPalSlotTimesConfirm}
+        needsPasswordNext={myFitnessPalNeedsPassword}
+        submitting={status.kind === 'importingMyFitnessPal'}
+      />
       <MyFitnessPalPasswordDialog
         open={myFitnessPalDialogOpen}
         onOpenChange={(open) => {
           setMyFitnessPalDialogOpen(open)
-          if (!open) {
-            setMyFitnessPalPendingFile(null)
-            setMyFitnessPalPasswordError(null)
-          }
+          if (!open) clearMyFitnessPalImportFlow()
         }}
         onSubmit={handleMyFitnessPalPasswordSubmit}
         error={myFitnessPalPasswordError}

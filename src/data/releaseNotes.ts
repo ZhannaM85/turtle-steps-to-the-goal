@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 544,
+    issue: 588,
+    date: '2026-08-04T14:30:00+03:00',
+    en: 'When importing from MyFitnessPal, you can set Breakfast, Lunch, Snack, and Dinner default times (saved for next time, and editable in Settings).',
+    ru: 'При импорте из MyFitnessPal можно задать время по умолчанию для Завтрака, Обеда, Перекуса и Ужина (сохраняется на потом и редактируется в Настройках).',
+  },
+  {
     version: 543,
     issue: 583,
     date: '2026-08-04T13:39:18+03:00',

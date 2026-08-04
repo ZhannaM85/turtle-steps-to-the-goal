@@ -36,6 +36,7 @@ import {
   useCycleTrackingStore,
   useDigestionTrackingStore,
   useGoalStore,
+  useMealSlotDefaultTimesStore,
   useProfileStore,
   useUnitStore,
 } from '@/stores'
@@ -81,6 +82,7 @@ export function DayDetail({
   )
   // #398 — grammatically-correct verb form for the night-eating label below.
   const sex = useProfileStore((state) => state.sex)
+  const mealSlotTimes = useMealSlotDefaultTimesStore((state) => state.times)
   // #399 — passed to MealList's add-food flows for a "remaining calories"
   // preview; already loaded by HistoryScreen's own useHistoryData.
   const dailyCalorieTargetKcal = useGoalStore(
@@ -290,9 +292,9 @@ export function DayDetail({
                     {effectiveMealLabel(t, index + 1, meal.label)} —{' '}
                     {formatNumber(calorieEntryKcal(meal), locale, 0)}{' '}
                     {t.dailyEntry.kcalUnit}
-                    {effectiveTimeEaten(meal) && (
+                    {effectiveTimeEaten(meal, mealSlotTimes) && (
                       <span className="text-muted-foreground">
-                        · {effectiveTimeEaten(meal)}
+                        · {effectiveTimeEaten(meal, mealSlotTimes)}
                       </span>
                     )}
                   </span>

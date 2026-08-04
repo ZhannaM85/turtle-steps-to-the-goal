@@ -10,6 +10,7 @@ import {
   useDailyReminderStore,
   useDayStartStore,
   useDigestionTrackingStore,
+  useMealSlotDefaultTimesStore,
   useThemeStore,
   useTrackedFieldsStore,
   useTrendChartSeriesStore,
@@ -30,6 +31,7 @@ import { ExportSection } from '@/features/export'
 import { Button } from '@/shared/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
 import { Input } from '@/shared/ui/input'
+import { Label } from '@/shared/ui/label'
 import { PageHeader } from '@/shared/ui/page-header'
 import { ToggleGroup, ToggleGroupItem } from '@/shared/ui/toggle-group'
 import { ClearAllDataSection } from './ClearAllDataSection'
@@ -140,6 +142,12 @@ export function SettingsScreen() {
   }
   const dayStartTime = useDayStartStore((state) => state.dayStartTime)
   const setDayStartTime = useDayStartStore((state) => state.setDayStartTime)
+  const mealSlotDefaultTimes = useMealSlotDefaultTimesStore(
+    (state) => state.times,
+  )
+  const setMealSlotTime = useMealSlotDefaultTimesStore(
+    (state) => state.setSlotTime,
+  )
   const weekStart = useWeekStartStore((state) => state.weekStart)
   const setWeekStart = useWeekStartStore((state) => state.setWeekStart)
   const dailyReminderEnabled = useDailyReminderStore((state) => state.enabled)
@@ -271,6 +279,39 @@ export function SettingsScreen() {
             onChange={(e) => setDayStartTime(e.target.value)}
             className="h-12 w-32"
           />
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>{t.settings.mealSlotDefaultTimesLabel}</CardTitle>
+        </CardHeader>
+        <CardContent className="flex flex-col gap-3">
+          <span className="text-sm text-muted-foreground">
+            {t.settings.mealSlotDefaultTimesDescription}
+          </span>
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+            {(
+              [
+                ['breakfast', t.dailyEntry.defaultMealNamePresets[0]],
+                ['lunch', t.dailyEntry.defaultMealNamePresets[1]],
+                ['snack', t.dailyEntry.defaultMealNamePresets[3]],
+                ['dinner', t.dailyEntry.defaultMealNamePresets[2]],
+              ] as const
+            ).map(([slot, label]) => (
+              <div key={slot} className="flex flex-col gap-1.5">
+                <Label htmlFor={`settings-meal-slot-${slot}`}>{label}</Label>
+                <Input
+                  id={`settings-meal-slot-${slot}`}
+                  type="time"
+                  aria-label={label}
+                  value={mealSlotDefaultTimes[slot]}
+                  onChange={(e) => setMealSlotTime(slot, e.target.value)}
+                  className="h-12"
+                />
+              </div>
+            ))}
+          </div>
         </CardContent>
       </Card>
 

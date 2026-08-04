@@ -1,6 +1,10 @@
 import { format } from 'date-fns'
 import type { CalorieEntry, CalorieItem } from '@/domain/dailyEntry'
-import { defaultTimeEatenForMealLabel } from '@/shared/lib/mealLabel'
+import {
+  BUILTIN_MEAL_SLOT_DEFAULT_TIMES,
+  defaultTimeEatenForMealLabel,
+  type MealSlotDefaultTimes,
+} from '@/shared/lib/mealLabel'
 import { normalizeTextSpaces } from '@/shared/lib/normalizeTextSpaces'
 import type { DailyEntryPatch } from '../mergeDailyEntryPatches'
 
@@ -84,6 +88,8 @@ export function cellToString(value: unknown): string | undefined {
  */
 export function buildMyFitnessPalPatches(
   rows: MyFitnessPalRow[],
+  /** #588 — remembered/imported slot clocks; defaults match #580 builtins. */
+  slotTimes: MealSlotDefaultTimes = BUILTIN_MEAL_SLOT_DEFAULT_TIMES,
 ): Map<string, DailyEntryPatch> {
   const patches = new Map<string, DailyEntryPatch>()
   // date -> meal label ('' when details_json had none/failed to parse) -> items
@@ -150,13 +156,16 @@ export function buildMyFitnessPalPatches(
   // "now"/import time, keeps every group's own createdAt at least tied to
   // the day it actually happened on rather than the unrelated moment it
   // happened to get imported.
-  // #580 — still assign a slot-based timeEaten (Breakfast 08:00, etc.) so
-  // Day cards and late-meal/night-eating stats aren't left blank when the
-  // export only had a meal name, not a clock time.
+  // #580/#588 — assign a slot-based timeEaten from remembered prefs (or
+  // built-in clocks) so Day cards and late-meal/night-eating stats aren't
+  // left blank when the export only had a meal name, not a clock time.
   for (const [date, byLabel] of mealsByDateAndLabel) {
     const calorieEntries: CalorieEntry[] = [...byLabel.entries()].map(
       ([label, items]) => {
-        const timeEaten = defaultTimeEatenForMealLabel(label || undefined)
+        const timeEaten = defaultTimeEatenForMealLabel(
+          label || undefined,
+          slotTimes,
+        )
         return {
           id: crypto.randomUUID(),
           items,

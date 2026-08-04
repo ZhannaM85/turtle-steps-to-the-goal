@@ -67,35 +67,66 @@ export function mealLabelSuggestionsForLocale(
   ]
 }
 
+/** #580/#588 — the four named meal slots that get a default clock time. */
+export type MealSlotKey = 'breakfast' | 'lunch' | 'dinner' | 'snack'
+
+export type MealSlotDefaultTimes = Record<MealSlotKey, string>
+
 /**
- * #580 — sensible default HH:MM for a known meal-slot label when the
- * export/import left `timeEaten` blank (MyFitnessPal Foods rows have
- * Breakfast/Lunch/Dinner/Snacks but no clock time). Keys are lowercased;
- * includes RU presets and MFP's plural "Snacks".
+ * #580 built-in clocks — used until the user sets remembered prefs (#588)
+ * on import or in Settings. Kept as the pure-function default so domain
+ * callers without store access stay deterministic in tests.
  */
-const MEAL_SLOT_DEFAULT_TIME_HHMM: Record<string, string> = {
+export const BUILTIN_MEAL_SLOT_DEFAULT_TIMES: MealSlotDefaultTimes = {
   breakfast: '08:00',
   lunch: '13:00',
   dinner: '19:00',
   snack: '16:00',
-  snacks: '16:00',
-  завтрак: '08:00',
-  обед: '13:00',
-  ужин: '19:00',
-  перекус: '16:00',
 }
 
+/**
+ * Lowercased meal-slot labels → slot key. Includes RU presets and MFP's
+ * plural "Snacks" (#580).
+ */
+const MEAL_LABEL_TO_SLOT: Record<string, MealSlotKey> = {
+  breakfast: 'breakfast',
+  lunch: 'lunch',
+  dinner: 'dinner',
+  snack: 'snack',
+  snacks: 'snack',
+  завтрак: 'breakfast',
+  обед: 'lunch',
+  ужин: 'dinner',
+  перекус: 'snack',
+}
+
+export function mealSlotKeyForLabel(
+  label: string | undefined,
+): MealSlotKey | undefined {
+  if (label == null || label.trim() === '') return undefined
+  return MEAL_LABEL_TO_SLOT[label.trim().toLowerCase()]
+}
+
+/**
+ * #580/#588 — default HH:MM for a known meal-slot label when `timeEaten`
+ * is blank. Pass remembered prefs from `useMealSlotDefaultTimesStore`;
+ * omit to use the built-in clocks.
+ */
 export function defaultTimeEatenForMealLabel(
   label: string | undefined,
+  slotTimes: MealSlotDefaultTimes = BUILTIN_MEAL_SLOT_DEFAULT_TIMES,
 ): string | undefined {
-  if (label == null || label.trim() === '') return undefined
-  return MEAL_SLOT_DEFAULT_TIME_HHMM[label.trim().toLowerCase()]
+  const slot = mealSlotKeyForLabel(label)
+  return slot ? slotTimes[slot] : undefined
 }
 
-/** Recorded time, else a slot default from the meal label (#580). */
-export function effectiveTimeEaten(meal: {
-  timeEaten?: string
-  label?: string
-}): string | undefined {
-  return meal.timeEaten ?? defaultTimeEatenForMealLabel(meal.label)
+/** Recorded time, else a slot default from the meal label (#580/#588). */
+export function effectiveTimeEaten(
+  meal: {
+    timeEaten?: string
+    label?: string
+  },
+  slotTimes: MealSlotDefaultTimes = BUILTIN_MEAL_SLOT_DEFAULT_TIMES,
+): string | undefined {
+  return meal.timeEaten ?? defaultTimeEatenForMealLabel(meal.label, slotTimes)
 }

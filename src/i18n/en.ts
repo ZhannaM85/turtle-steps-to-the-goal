@@ -567,6 +567,11 @@ export const en: Dictionary = {
     passwordSubmitButton: 'Unlock and import',
     wrongPassword:
       "That password didn't work — check the export email and try again.",
+    slotTimesDialogTitle: 'Default meal times',
+    slotTimesDialogDescription:
+      "MyFitnessPal exports don't include clock times. Set when Breakfast, Lunch, Snack, and Dinner should land for this import — saved for next time.",
+    slotTimesImportButton: 'Import',
+    slotTimesContinueButton: 'Continue',
   },
   exportXlsx: {
     dailyLogSheetName: 'Daily Log',
@@ -974,6 +979,9 @@ export const en: Dictionary = {
     dayStartLabel: 'Day start time',
     dayStartDescription:
       "When your day begins on the Day screen — anything logged before this time counts toward the previous day. Only affects new entries going forward, and only the Day screen so far (streaks, summaries, and correlations elsewhere still use the real calendar day). Default midnight matches today's date exactly.",
+    mealSlotDefaultTimesLabel: 'Default meal times',
+    mealSlotDefaultTimesDescription:
+      'Used when importing meals that have a Breakfast/Lunch/Snack/Dinner label but no clock time (e.g. MyFitnessPal). You can also set these during import.',
     foodListLabel: 'Food list',
     foodListDescription:
       'Hide items you don’t want to see, or correct their calories/macros.',

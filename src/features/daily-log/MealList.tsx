@@ -37,7 +37,7 @@ import {
 import { defaultMealLabel, editableMealLabel, effectiveMealLabel, effectiveTimeEaten } from '@/shared/lib/mealLabel'
 import { normalizeTextSpaces } from '@/shared/lib/normalizeTextSpaces'
 import { Button } from '@/shared/ui/button'
-import { useDayStartStore, useMealItemStore } from '@/stores'
+import { useDayStartStore, useMealItemStore, useMealSlotDefaultTimesStore } from '@/stores'
 import { AddMealDialog } from './AddMealDialog'
 import { CopyDayMealsDialog } from './CopyDayMealsDialog'
 
@@ -113,6 +113,7 @@ function MealListItem({
   onConfirmDelete,
   onCancelDelete,
 }: MealListItemProps) {
+  const mealSlotTimes = useMealSlotDefaultTimesStore((state) => state.times)
   // #473: kcal leads this line instead of sitting in the header as a second
   // title-sized row of its own, and uses the single-initial macro names —
   // the full-word form wrapped to three lines in Russian at this width,
@@ -182,9 +183,9 @@ function MealListItem({
         <p className="min-w-0 flex-1 text-lg font-medium">
           {effectiveMealLabel(t, position, entry.label)}
         </p>
-        {effectiveTimeEaten(entry) && (
+        {effectiveTimeEaten(entry, mealSlotTimes) && (
           <span className="shrink-0 pt-1 text-sm whitespace-nowrap text-muted-foreground">
-            {effectiveTimeEaten(entry)}
+            {effectiveTimeEaten(entry, mealSlotTimes)}
           </span>
         )}
         <div className="flex shrink-0 items-center gap-3">
