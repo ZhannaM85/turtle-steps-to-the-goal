@@ -74,4 +74,5 @@ _Backup/settings gaps and further filings from this session (list may grow)._
 | [#589](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/589) | ⬜ Open | Settings Dishes: Cancel button next to Save in edit mode | Follow-up to #583/#584. Same row as Save, to its right; discard unsaved edits and exit edit mode. |
 | [#590](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/590) | ⬜ Open | Goal: hide fiber daily target when Fiber is off in What to track | Follow-up to #582. Settings Fiber off still leaves «Daily fiber target» (Не задано) on Goal — gate that row like Day fiber UI. |
 | [#591](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/591) | ⬜ Open | Settings: default meal-time inputs overlap — match Start of day width | Follow-up to #588. 2×2 HH:MM fields overlap; use same width as Start of day time input. |
+| [#592](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/592) | ⬜ Open | Dashboard late-meal correlation: Y-axis shows garbage instead of weight change | On-device: ticks like 22185 / i27515 / 72485 (not kg/lb delta). Related #581/#587. |
 
