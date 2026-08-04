@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 532,
+    issue: 577,
+    date: '2026-08-04T10:17:56+03:00',
+    en: 'When weekly pace and daily calories disagree on Goal, the mismatch hint now appears in a light orange card so it’s easier to notice.',
+    ru: 'Если на экране Цели недельный темп и дневные калории не сходятся, подсказка о расхождении теперь в светло-оранжевой карточке — её легче заметить.',
+  },
+  {
     version: 531,
     issue: 574,
     date: '2026-08-04T02:03:14+03:00',

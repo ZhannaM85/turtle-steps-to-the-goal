@@ -687,9 +687,11 @@ describe('GoalForm', () => {
       expect(
         screen.queryByText(/about 110 kcal\/day deficit/),
       ).not.toBeInTheDocument()
-      expect(
-        screen.getByText(/daily calories and weekly pace don’t match/i),
-      ).toBeInTheDocument()
+      const mismatch = screen.getByRole('status')
+      expect(mismatch).toHaveTextContent(
+        /daily calories and weekly pace don’t match/i,
+      )
+      expect(mismatch).toHaveClass('bg-amber-500/15')
     })
   })
 

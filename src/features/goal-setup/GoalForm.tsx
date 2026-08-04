@@ -688,7 +688,10 @@ export function GoalForm({
       )}
 
       {paceCaloriesDisagree && (
-        <p className="text-sm text-muted-foreground">
+        <p
+          role="status"
+          className="rounded-lg border border-amber-600/35 bg-amber-500/15 p-3 text-sm text-foreground"
+        >
           {t.goal.paceCaloriesMismatchHint}
         </p>
       )}
