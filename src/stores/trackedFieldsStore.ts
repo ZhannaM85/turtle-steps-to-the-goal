@@ -40,7 +40,7 @@ const DEFAULT_TRACKED: Record<TrackedField, boolean> = {
   dayTotals: true,
   // #582 — meal + day-totals fiber and Today's remaining-fiber card were
   // always-on since #341; default on so existing behavior stays until the
-  // user opts out. Goal's daily fiber *target* is independent (Goal form).
+  // user opts out. #590 — Goal's daily fiber target uses the same gate.
   fiber: true,
 }
 

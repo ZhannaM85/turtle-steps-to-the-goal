@@ -2,7 +2,7 @@ import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { createMemoryRouter, Link, RouterProvider } from 'react-router-dom'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { useProfileStore, useUnitStore } from '@/stores'
+import { useProfileStore, useTrackedFieldsStore, useUnitStore } from '@/stores'
 import { GoalForm } from './GoalForm'
 
 /** `useBlocker` requires a data router (#534). */
@@ -32,6 +32,9 @@ afterEach(() => {
     age: undefined,
     sex: undefined,
     activityLevel: undefined,
+  })
+  useTrackedFieldsStore.setState({
+    tracked: { ...useTrackedFieldsStore.getState().tracked, fiber: true },
   })
   vi.useRealTimers()
 })
@@ -446,6 +449,25 @@ describe('GoalForm', () => {
         screen.getByRole('button', { name: 'Use suggested fiber' }),
       )
       expect(screen.getByLabelText('Daily fiber target')).toHaveValue('25')
+    })
+
+    it('hides fiber target when Fiber is off in What to track (#590)', () => {
+      useTrackedFieldsStore.setState({
+        tracked: { ...useTrackedFieldsStore.getState().tracked, fiber: false },
+      })
+      renderGoalForm(
+        <GoalForm
+          existingGoal={{
+            id: 'g1',
+            targetWeeklyLossKg: 1,
+            dailyFiberTargetG: 25,
+            createdAt: '2026-01-01T00:00:00.000Z',
+            updatedAt: '2026-01-01T00:00:00.000Z',
+          }}
+          onSubmit={vi.fn()}
+        />,
+      )
+      expect(screen.queryByText('Daily fiber target')).not.toBeInTheDocument()
     })
   })
 

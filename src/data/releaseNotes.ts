@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 547,
+    issue: 590,
+    date: '2026-08-04T16:36:00+03:00',
+    en: 'When Fiber is turned off in Settings → What to track, the daily fiber target no longer appears on the Goal screen.',
+    ru: 'Если клетчатка выключена в Настройках → Что отслеживать, дневная цель по клетчатке больше не показывается на экране Цели.',
+  },
+  {
     version: 546,
     issue: 591,
     date: '2026-08-04T16:35:00+03:00',

@@ -24,6 +24,7 @@ import { parseNumberInput } from '@/shared/lib/parseNumberInput'
 import {
   useMicronutrientTrackingStore,
   useProfileStore,
+  useTrackedFieldsStore,
   useUnitStore,
   type Unit,
 } from '@/stores'
@@ -94,6 +95,7 @@ export function GoalForm({
   // specifically for this helper, see profileStore.ts).
   const { heightCm, age, sex, activityLevel } = useProfileStore()
   const micronutrients = useMicronutrientTrackingStore((state) => state.tracked)
+  const trackFiber = useTrackedFieldsStore((state) => state.tracked.fiber)
 
   const {
     register,
@@ -530,19 +532,21 @@ export function GoalForm({
                   : t.goal.notSetLabel}
               </td>
             </tr>
-            <tr className="border-b border-border">
-              <th
-                scope="row"
-                className="py-2 pr-4 text-left font-normal text-muted-foreground"
-              >
-                {t.goal.dailyFiberTargetLabel}
-              </th>
-              <td className="py-2 text-right font-medium text-foreground">
-                {existingGoal.dailyFiberTargetG !== undefined
-                  ? `${formatExactNumber(existingGoal.dailyFiberTargetG, locale)} ${t.dailyEntry.gramsUnit}`
-                  : t.goal.notSetLabel}
-              </td>
-            </tr>
+            {trackFiber && (
+              <tr className="border-b border-border">
+                <th
+                  scope="row"
+                  className="py-2 pr-4 text-left font-normal text-muted-foreground"
+                >
+                  {t.goal.dailyFiberTargetLabel}
+                </th>
+                <td className="py-2 text-right font-medium text-foreground">
+                  {existingGoal.dailyFiberTargetG !== undefined
+                    ? `${formatExactNumber(existingGoal.dailyFiberTargetG, locale)} ${t.dailyEntry.gramsUnit}`
+                    : t.goal.notSetLabel}
+                </td>
+              </tr>
+            )}
             {micronutrients.sodium && (
               <tr className="border-b border-border">
                 <th
@@ -789,36 +793,41 @@ export function GoalForm({
 
       {/* #341 — same shape again, independent of the other four.
        * #582 — Suggest / Recalculate also fill fiber; soft button when
-       * profile sex is known (parity with water's soft recommend). */}
-      <NumberInput
-        label={t.goal.dailyFiberTargetLabel}
-        hint={t.goal.dailyFiberTargetHint}
-        unit={t.dailyEntry.gramsUnit}
-        error={errors.dailyFiberTarget?.message}
-        {...register('dailyFiberTarget', { setValueAs: parseNumberInput })}
-      />
-      {sex !== undefined && (
-        <div className="flex flex-col gap-1.5">
-          <p className="text-sm text-muted-foreground">
-            {t.goal.fiberSuggestionHint(
-              formatExactNumber(suggestedFiberTargetG(sex), locale),
-            )}
-          </p>
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            className="self-start"
-            onClick={() => {
-              setValue('dailyFiberTarget', suggestedFiberTargetG(sex), {
-                shouldDirty: true,
-                shouldValidate: true,
-              })
-            }}
-          >
-            {t.goal.useFiberSuggestionButton}
-          </Button>
-        </div>
+       * profile sex is known (parity with water's soft recommend).
+       * #590 — hide when Fiber is off in What to track (same gate as Day). */}
+      {trackFiber && (
+        <>
+          <NumberInput
+            label={t.goal.dailyFiberTargetLabel}
+            hint={t.goal.dailyFiberTargetHint}
+            unit={t.dailyEntry.gramsUnit}
+            error={errors.dailyFiberTarget?.message}
+            {...register('dailyFiberTarget', { setValueAs: parseNumberInput })}
+          />
+          {sex !== undefined && (
+            <div className="flex flex-col gap-1.5">
+              <p className="text-sm text-muted-foreground">
+                {t.goal.fiberSuggestionHint(
+                  formatExactNumber(suggestedFiberTargetG(sex), locale),
+                )}
+              </p>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="self-start"
+                onClick={() => {
+                  setValue('dailyFiberTarget', suggestedFiberTargetG(sex), {
+                    shouldDirty: true,
+                    shouldValidate: true,
+                  })
+                }}
+              >
+                {t.goal.useFiberSuggestionButton}
+              </Button>
+            </div>
+          )}
+        </>
       )}
 
       {micronutrients.sodium && (
