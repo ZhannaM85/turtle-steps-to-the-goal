@@ -51,8 +51,9 @@ describe('MealItemsSection', () => {
 
     render(<MealItemsSection />)
 
-    expect(await screen.findByDisplayValue('Pizza')).toBeInTheDocument()
-    expect(screen.getByDisplayValue('Salad')).toBeInTheDocument()
+    expect(await screen.findByText('Pizza')).toBeInTheDocument()
+    expect(screen.getByText('Salad')).toBeInTheDocument()
+    expect(screen.queryByLabelText('Meal item name')).not.toBeInTheDocument()
   })
 
   it('shows a food count and updates it while searching (#570)', async () => {
@@ -70,12 +71,14 @@ describe('MealItemsSection', () => {
     expect(await screen.findByText('1 of 2 matching')).toBeInTheDocument()
   })
 
-  it('renames an item on blur', async () => {
+  it('renames an item on blur after opening edit with the pencil (#584)', async () => {
     await useMealItemStore.getState().touch('Pizza')
     const user = userEvent.setup()
     render(<MealItemsSection />)
 
-    const input = await screen.findByDisplayValue('Pizza')
+    await screen.findByText('Pizza')
+    await user.click(screen.getByRole('button', { name: 'Edit Pizza' }))
+    const input = screen.getByLabelText('Meal item name')
     await user.clear(input)
     await user.type(input, 'Margherita pizza')
     await user.tab()
@@ -96,16 +99,32 @@ describe('MealItemsSection', () => {
     )
   })
 
+  it('shows the dish title as plain text until the pencil is tapped (#584)', async () => {
+    await useMealItemStore.getState().touch('Pizza')
+    const user = userEvent.setup()
+    render(<MealItemsSection />)
+
+    expect(await screen.findByText('Pizza')).toBeInTheDocument()
+    expect(screen.queryByLabelText('Meal item name')).not.toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: 'Edit Pizza' }))
+    expect(screen.getByLabelText('Meal item name')).toHaveValue('Pizza')
+
+    await user.click(screen.getByRole('button', { name: 'Edit Pizza' }))
+    expect(screen.queryByLabelText('Meal item name')).not.toBeInTheDocument()
+    expect(screen.getByText('Pizza')).toBeInTheDocument()
+  })
+
   it('deletes an item', async () => {
     await useMealItemStore.getState().touch('Pizza')
     const user = userEvent.setup()
     render(<MealItemsSection />)
 
-    await screen.findByDisplayValue('Pizza')
+    await screen.findByText('Pizza')
     await user.click(screen.getByRole('button', { name: 'Delete "Pizza"' }))
 
     await waitFor(() =>
-      expect(screen.queryByDisplayValue('Pizza')).not.toBeInTheDocument(),
+      expect(screen.queryByText('Pizza')).not.toBeInTheDocument(),
     )
     expect(useMealItemStore.getState().items).toEqual([])
   })
@@ -114,7 +133,7 @@ describe('MealItemsSection', () => {
     await useMealItemStore.getState().touch('Pizza')
     render(<MealItemsSection />)
 
-    const list = (await screen.findByDisplayValue('Pizza')).closest('ul')
+    const list = (await screen.findByText('Pizza')).closest('ul')
     expect(list).toHaveClass('overflow-y-auto', 'overscroll-y-contain')
   })
 
@@ -124,7 +143,7 @@ describe('MealItemsSection', () => {
       const user = userEvent.setup()
       render(<MealItemsSection />)
 
-      await screen.findByDisplayValue('Pizza')
+      await screen.findByText('Pizza')
       await user.click(
         screen.getByRole('button', { name: 'Add Pizza to favorites' }),
       )
@@ -175,14 +194,14 @@ describe('MealItemsSection', () => {
       const user = userEvent.setup()
       render(<MealItemsSection />)
 
-      await screen.findByDisplayValue('Pizza')
+      await screen.findByText('Pizza')
       await user.type(
         screen.getByLabelText('Search meal items'),
         'piz',
       )
 
-      expect(screen.getByDisplayValue('Pizza')).toBeInTheDocument()
-      expect(screen.queryByDisplayValue('Salad')).not.toBeInTheDocument()
+      expect(screen.getByText('Pizza')).toBeInTheDocument()
+      expect(screen.queryByText('Salad')).not.toBeInTheDocument()
     })
 
     it('shows a no-results message when nothing matches', async () => {
@@ -190,13 +209,13 @@ describe('MealItemsSection', () => {
       const user = userEvent.setup()
       render(<MealItemsSection />)
 
-      await screen.findByDisplayValue('Pizza')
+      await screen.findByText('Pizza')
       await user.type(
         screen.getByLabelText('Search meal items'),
         'nonexistent',
       )
 
-      expect(screen.queryByDisplayValue('Pizza')).not.toBeInTheDocument()
+      expect(screen.queryByText('Pizza')).not.toBeInTheDocument()
       expect(
         screen.getByText('No meal items match your search.'),
       ).toBeInTheDocument()
@@ -221,7 +240,7 @@ describe('MealItemsSection', () => {
       const user = userEvent.setup()
       render(<MealItemsSection />)
 
-      await screen.findByDisplayValue('Pizza')
+      await screen.findByText('Pizza')
       expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
 
       await user.click(
@@ -269,7 +288,7 @@ describe('MealItemsSection', () => {
       await user.click(screen.getByRole('button', { name: 'Save' }))
 
       expect(
-        await screen.findByDisplayValue('Homemade granola'),
+        await screen.findByText('Homemade granola'),
       ).toBeInTheDocument()
       await waitFor(() =>
         expect(useMealItemStore.getState().items[0]).toMatchObject({
@@ -299,7 +318,7 @@ describe('MealItemsSection', () => {
       await user.type(screen.getByLabelText('kcal/100g'), '0')
       await user.click(screen.getByRole('button', { name: 'Save' }))
 
-      expect(await screen.findByDisplayValue('Tea')).toBeInTheDocument()
+      expect(await screen.findByText('Tea')).toBeInTheDocument()
     })
 
     it('disables Save until a name and a valid kcal/100g are entered', async () => {
@@ -491,7 +510,7 @@ describe('MealItemsSection', () => {
       })
       render(<MealItemsSection />)
 
-      await screen.findByDisplayValue('Pizza')
+      await screen.findByText('Pizza')
       expect(
         screen.getByText('320 kcal last logged · P 18g · F 10g · C 25g'),
       ).toBeInTheDocument()
@@ -501,7 +520,7 @@ describe('MealItemsSection', () => {
       await useMealItemStore.getState().touch('Untouched')
       render(<MealItemsSection />)
 
-      await screen.findByDisplayValue('Untouched')
+      await screen.findByText('Untouched')
       expect(screen.queryByText(/last logged/)).not.toBeInTheDocument()
     })
 
@@ -514,7 +533,7 @@ describe('MealItemsSection', () => {
       const user = userEvent.setup()
       render(<MealItemsSection />)
 
-      await screen.findByDisplayValue('Pizza')
+      await screen.findByText('Pizza')
       await user.click(screen.getByRole('button', { name: 'Edit Pizza' }))
 
       // 150 kcal / 5g protein eaten as a 50g portion back-calculates to
@@ -529,7 +548,7 @@ describe('MealItemsSection', () => {
       const user = userEvent.setup()
       render(<MealItemsSection />)
 
-      await screen.findByDisplayValue('Untouched')
+      await screen.findByText('Untouched')
       await user.click(screen.getByRole('button', { name: 'Edit Untouched' }))
 
       expect(screen.getByLabelText('kcal/100g — Untouched')).toHaveValue('')
@@ -541,7 +560,7 @@ describe('MealItemsSection', () => {
       const user = userEvent.setup()
       render(<MealItemsSection />)
 
-      await screen.findByDisplayValue('Pizza')
+      await screen.findByText('Pizza')
       await user.click(screen.getByRole('button', { name: 'Edit Pizza' }))
 
       await user.type(screen.getByLabelText('kcal/100g — Pizza'), '200')
@@ -569,7 +588,7 @@ describe('MealItemsSection', () => {
       const user = userEvent.setup()
       render(<MealItemsSection />)
 
-      await screen.findByDisplayValue('Pizza')
+      await screen.findByText('Pizza')
       await user.click(screen.getByRole('button', { name: 'Edit Pizza' }))
       await user.click(screen.getByRole('radio', { name: 'Portion' }))
       await user.type(screen.getByLabelText('kcal — Pizza'), '450')
@@ -587,7 +606,7 @@ describe('MealItemsSection', () => {
       const user = userEvent.setup()
       render(<MealItemsSection />)
 
-      await screen.findByDisplayValue('Pizza')
+      await screen.findByText('Pizza')
       await user.click(screen.getByRole('button', { name: 'Edit Pizza' }))
 
       expect(screen.getByText('Nutrition (per 100g)')).toBeInTheDocument()

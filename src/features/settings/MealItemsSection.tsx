@@ -117,6 +117,11 @@ function MealItemRow({
     }
   }
 
+  function stopEditing() {
+    commit()
+    setIsEditingNutrition(false)
+  }
+
   // Per-100g + quantity (#99), same input model #96 already uses
   // everywhere else — a MealItem's stored lastAmountKcal etc. are the
   // *last logged absolute totals*, so back-calculate a rate + quantity to
@@ -124,7 +129,9 @@ function MealItemRow({
   // name with nothing recorded yet just starts blank. Always resets to
   // per100g mode (#170) — same as restoring a suggestion elsewhere in the
   // app, since MealItem.lastAmountKcal etc. don't carry a mode of their own.
+  // #584: the same pencil also reveals the name Input (plain text until then).
   function startEditNutrition() {
+    setValue(item.name)
     if (item.lastAmountKcal === undefined) {
       setKcal100('')
       setProtein100('')
@@ -195,6 +202,7 @@ function MealItemRow({
   function saveNutrition() {
     const parsedKcal100 = parseNumberInput(kcal100)
     if (parsedKcal100 === undefined || parsedKcal100 < 0) return
+    commit()
     const scaled =
       macroMode === 'per100g'
         ? scaleFromPer100g(
@@ -211,7 +219,8 @@ function MealItemRow({
             parseOptionalMacro(carbs100),
             amountG,
           )
-    void onSaveNutrition(item.name, {
+    const nameForSave = value.trim() || item.name
+    void onSaveNutrition(nameForSave, {
       ...scaled,
       amountG: scaled.amountG ?? 100,
     })
@@ -245,21 +254,28 @@ function MealItemRow({
   return (
     <li className="flex flex-col gap-1.5">
       <div className="flex items-center gap-2">
-        <Input
-          type="text"
-          aria-label={t.settings.mealItemNameLabel}
-          value={value}
-          onChange={(e) => setValue(e.target.value)}
-          onBlur={commit}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') {
-              e.preventDefault()
-              commit()
-              ;(e.target as HTMLInputElement).blur()
-            }
-          }}
-          className="h-8 flex-1"
-        />
+        {/* #584 — plain text until pencil (same pencil opens nutrition edit). */}
+        {isEditingNutrition ? (
+          <Input
+            type="text"
+            aria-label={t.settings.mealItemNameLabel}
+            value={value}
+            onChange={(e) => setValue(e.target.value)}
+            onBlur={commit}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault()
+                commit()
+                ;(e.target as HTMLInputElement).blur()
+              }
+            }}
+            className="h-8 flex-1"
+          />
+        ) : (
+          <span className="min-w-0 flex-1 truncate text-sm text-foreground">
+            {item.name}
+          </span>
+        )}
         {/* #279 — this dish is a MealItem, same favorite mechanism #276
          * already added for FoodPickerDialog's own rows. */}
         <Button
@@ -282,9 +298,7 @@ function MealItemRow({
           size="icon-sm"
           aria-label={t.settings.editMealItemLabel(item.name)}
           onClick={() =>
-            isEditingNutrition
-              ? setIsEditingNutrition(false)
-              : startEditNutrition()
+            isEditingNutrition ? stopEditing() : startEditNutrition()
           }
         >
           <Pencil aria-hidden="true" />

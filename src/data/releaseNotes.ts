@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 534,
+    issue: 584,
+    date: '2026-08-04T10:29:22+03:00',
+    en: 'In Settings → Dishes, dish names are plain text until you tap the pencil to edit.',
+    ru: 'В Настройках → Блюда названия теперь обычный текст, пока не нажмёте карандаш для правки.',
+  },
+  {
     version: 533,
     issue: 583,
     date: '2026-08-04T10:23:37+03:00',
