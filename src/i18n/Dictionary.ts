@@ -694,6 +694,8 @@ export interface Dictionary {
     dayTotalsProteinLabel: string
     dayTotalsFatLabel: string
     dayTotalsCarbsLabel: string
+    /** #582 — optional day-level fiber, same shape as the macros above. */
+    dayTotalsFiberLabel: string
     expandDayTotalsLabel: string
     collapseDayTotalsLabel: string
     saveDayTotalsLabel: string

@@ -59,6 +59,7 @@ beforeEach(() => {
       bodyComposition: true,
       nightEating: true,
       dayTotals: true,
+      fiber: true,
     },
   })
   useCustomMetricStore.setState({ metrics: [], entries: [] })

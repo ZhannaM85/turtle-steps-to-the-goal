@@ -21,6 +21,7 @@ export type TrackedField =
   | 'bodyComposition'
   | 'nightEating'
   | 'dayTotals'
+  | 'fiber'
 
 const DEFAULT_TRACKED: Record<TrackedField, boolean> = {
   sleep: true,
@@ -37,6 +38,10 @@ const DEFAULT_TRACKED: Record<TrackedField, boolean> = {
   // #575 — #549 day-level totals; default on (opt-out) so current Day UI
   // stays until the user hides it in What to track.
   dayTotals: true,
+  // #582 — meal + day-totals fiber and Today's remaining-fiber card were
+  // always-on since #341; default on so existing behavior stays until the
+  // user opts out. Goal's daily fiber *target* is independent (Goal form).
+  fiber: true,
 }
 
 interface TrackedFieldsState {

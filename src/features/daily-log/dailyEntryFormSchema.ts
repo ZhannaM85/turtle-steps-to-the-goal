@@ -66,6 +66,8 @@ export const dayTotalsSchema = z.object({
   proteinG: macroGramsSchema.optional(),
   fatG: macroGramsSchema.optional(),
   carbsG: macroGramsSchema.optional(),
+  // #582 — optional day-level fiber, same shape as the macros above.
+  fiberG: macroGramsSchema.optional(),
 })
 // Body measurements (#225) — independent optional fields, same shape as
 // sleep/steps above. Bounds are generous human ranges, not medical limits.

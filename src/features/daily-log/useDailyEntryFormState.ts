@@ -8,7 +8,7 @@ import {
   totalFat,
   totalProtein,
 } from '@/domain/dailyEntry'
-import { useLocale, useTranslation } from '@/i18n'
+import { useLocale, useTranslation, formatNumber } from '@/i18n'
 import { usePreviousDayEntry } from '@/shared/hooks'
 import {
   formatKcal,
@@ -221,6 +221,7 @@ export function useDailyEntryFormState({
   const [dayTotalsProteinInput, setDayTotalsProteinInput] = useState('')
   const [dayTotalsFatInput, setDayTotalsFatInput] = useState('')
   const [dayTotalsCarbsInput, setDayTotalsCarbsInput] = useState('')
+  const [dayTotalsFiberInput, setDayTotalsFiberInput] = useState('')
   const [dayTotalsError, setDayTotalsError] = useState<string | null>(null)
   // #549 — manual water ml input restored (#282 removed it).
   const [waterInput, setWaterInput] = useState('')
@@ -383,14 +384,21 @@ export function useDailyEntryFormState({
   // #549 — one-line saved summary for the day totals section display mode.
   const dayTotalsSavedSummary =
     dayTotals !== undefined
-      ? macrosSummaryTextWithCalories(
-          dayTotals.amountKcal,
-          dayTotals.proteinG,
-          dayTotals.fatG,
-          dayTotals.carbsG,
-          locale,
-          t,
-        )
+      ? [
+          macrosSummaryTextWithCalories(
+            dayTotals.amountKcal,
+            dayTotals.proteinG,
+            dayTotals.fatG,
+            dayTotals.carbsG,
+            locale,
+            t,
+          ),
+          dayTotals.fiberG !== undefined
+            ? `${t.dailyEntry.fiberLabel}: ${formatNumber(dayTotals.fiberG, locale, 0)} ${t.dailyEntry.gramsUnit}`
+            : null,
+        ]
+          .filter(Boolean)
+          .join(' · ')
       : null
 
   const showWeightAsDisplay = !alwaysEditable && !isEditingWeight
@@ -580,6 +588,9 @@ export function useDailyEntryFormState({
     setDayTotalsCarbsInput(
       dayTotals?.carbsG !== undefined ? String(dayTotals.carbsG) : '',
     )
+    setDayTotalsFiberInput(
+      dayTotals?.fiberG !== undefined ? String(dayTotals.fiberG) : '',
+    )
     setDayTotalsError(null)
     setIsEditingDayTotals(true)
   }
@@ -594,9 +605,11 @@ export function useDailyEntryFormState({
     const proteinG = parseNumberInput(dayTotalsProteinInput)
     const fatG = parseNumberInput(dayTotalsFatInput)
     const carbsG = parseNumberInput(dayTotalsCarbsInput)
+    const fiberG = parseNumberInput(dayTotalsFiberInput)
     if (proteinG !== undefined) next.proteinG = proteinG
     if (fatG !== undefined) next.fatG = fatG
     if (carbsG !== undefined) next.carbsG = carbsG
+    if (fiberG !== undefined) next.fiberG = fiberG
     const result = dayTotalsSchema.safeParse(next)
     if (!result.success) {
       setDayTotalsError(t.dailyEntry.invalidValueMessage)
@@ -615,6 +628,7 @@ export function useDailyEntryFormState({
     setDayTotalsProteinInput('')
     setDayTotalsFatInput('')
     setDayTotalsCarbsInput('')
+    setDayTotalsFiberInput('')
     setDayTotalsError(null)
     setIsEditingDayTotals(true)
   }
@@ -995,6 +1009,8 @@ export function useDailyEntryFormState({
     setDayTotalsFatInput,
     dayTotalsCarbsInput,
     setDayTotalsCarbsInput,
+    dayTotalsFiberInput,
+    setDayTotalsFiberInput,
     dayTotalsError,
     saveDayTotals,
     clearDayTotals,

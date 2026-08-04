@@ -77,6 +77,13 @@ describe('totalProtein / totalFat / totalCarbs', () => {
     expect(totalFiber(entries)).toBe(12)
   })
 
+  it('adds dayTotals fiber to meal fiber (#582)', () => {
+    expect(
+      totalFiber([makeEntry(makeItem({ fiberG: 8 }))], { amountKcal: 100, fiberG: 4 }),
+    ).toBe(12)
+    expect(totalFiber(undefined, { amountKcal: 100, fiberG: 5 })).toBe(5)
+  })
+
   // #530 — electrolytes (mg), same undefined-vs-zero rules.
   it('sums sodium, potassium, and magnesium independently', () => {
     const entries = [

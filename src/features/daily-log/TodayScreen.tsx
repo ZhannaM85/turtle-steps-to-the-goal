@@ -79,6 +79,7 @@ import {
   useSectionVisibilityStore,
   useTodayCardOrderStore,
   useTodaySectionsCollapseStore,
+  useTrackedFieldsStore,
   useUnitStore,
   type SectionKey,
   type TodayCardKey,
@@ -414,7 +415,8 @@ export function TodayScreen() {
   // "over" framing like fat/carb/water above, not protein's positive one —
   // more fiber isn't obviously good the way more protein specifically is
   // framed here.
-  const consumedFiberG = totalFiber(entry?.calorieEntries) ?? 0
+  const consumedFiberG =
+    totalFiber(entry?.calorieEntries, entry?.dayTotals) ?? 0
   const fiberDeltaG =
     goal?.dailyFiberTargetG !== undefined
       ? goal.dailyFiberTargetG - consumedFiberG
@@ -599,6 +601,7 @@ export function TodayScreen() {
     (state) => state.toggleVisible,
   )
   const micronutrients = useMicronutrientTrackingStore((state) => state.tracked)
+  const trackedFields = useTrackedFieldsStore((state) => state.tracked)
   function sectionTitle(key: SectionKey, title: string) {
     return (
       <SectionTitleWithToggle
@@ -748,6 +751,7 @@ export function TodayScreen() {
         sectionTitle('todayRemainingCarbs', t.today.remainingCarbLabel)
       )),
     remainingFiber:
+      trackedFields.fiber &&
       fiberDeltaG !== null &&
       (sectionVisible.todayRemainingFiber ? (
         <StatCard

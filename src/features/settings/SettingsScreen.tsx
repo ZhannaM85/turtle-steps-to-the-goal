@@ -109,7 +109,12 @@ export function SettingsScreen() {
     'constipation',
     'nightEating',
   ]
-  const otherTrackedKeys: UnifiedTrackedKey[] = ['cycle', 'water', 'dayTotals']
+  const otherTrackedKeys: UnifiedTrackedKey[] = [
+    'cycle',
+    'water',
+    'dayTotals',
+    'fiber',
+  ]
   function isFieldTracked(key: UnifiedTrackedKey): boolean {
     if (key === 'cycle') return cycleTrackingEnabled
     if (key === 'constipation') return digestionTrackingEnabled
@@ -431,6 +436,9 @@ export function SettingsScreen() {
               </ToggleGroupItem>
               <ToggleGroupItem value="dayTotals" className="h-12">
                 {t.dailyEntry.dayTotalsLabel}
+              </ToggleGroupItem>
+              <ToggleGroupItem value="fiber" className="h-12">
+                {t.dailyEntry.fiberLabel}
               </ToggleGroupItem>
             </ToggleGroup>
           </div>

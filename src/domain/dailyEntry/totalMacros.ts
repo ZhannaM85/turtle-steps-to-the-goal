@@ -11,9 +11,9 @@ type MacroField =
 
 /** Sums a day's logged macro grams for one field, across every item of
  * every meal (#81 — flattened, not per-meal), plus optional day-level
- * totals (#549) for protein/fat/carbs. Undefined (not 0) when neither
- * meals nor dayTotals logged that macro — distinct from "logged zero",
- * same convention as totalCalories(). Items that didn't log this
+ * totals (#549/#582) for protein/fat/carbs/fiber. Undefined (not 0) when
+ * neither meals nor dayTotals logged that macro — distinct from "logged
+ * zero", same convention as totalCalories(). Items that didn't log this
  * particular macro are simply skipped, not treated as zero. */
 function totalMacro(
   entries: CalorieEntry[] | undefined,
@@ -27,7 +27,8 @@ function totalMacro(
   const dayValue =
     field === 'proteinG' ||
     field === 'fatG' ||
-    field === 'carbsG'
+    field === 'carbsG' ||
+    field === 'fiberG'
       ? dayTotals?.[field]
       : undefined
   const hasMeal = values.length > 0
@@ -58,11 +59,12 @@ export function totalCarbs(
   return totalMacro(entries, 'carbsG', dayTotals)
 }
 
-/** #341 — same shape as the three above. */
+/** #341 — same shape as the three above; #582 also adds dayTotals.fiberG. */
 export function totalFiber(
   entries: CalorieEntry[] | undefined,
+  dayTotals?: DayTotals,
 ): number | undefined {
-  return totalMacro(entries, 'fiberG')
+  return totalMacro(entries, 'fiberG', dayTotals)
 }
 
 /** #530 — electrolytes in milligrams; same undefined-vs-zero rules. */

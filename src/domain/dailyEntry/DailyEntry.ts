@@ -104,6 +104,8 @@ export interface DayTotals {
   proteinG?: number
   fatG?: number
   carbsG?: number
+  /** #582 — same optional/additive shape as the three macros above. */
+  fiberG?: number
 }
 
 export interface DailyEntry {

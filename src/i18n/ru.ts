@@ -371,6 +371,7 @@ export const ru: Dictionary = {
     dayTotalsProteinLabel: 'Белки за день',
     dayTotalsFatLabel: 'Жиры за день',
     dayTotalsCarbsLabel: 'Углеводы за день',
+    dayTotalsFiberLabel: 'Клетчатка за день',
     expandDayTotalsLabel: 'Показать итоги дня',
     collapseDayTotalsLabel: 'Скрыть итоги дня',
     saveDayTotalsLabel: 'Сохранить итоги дня',

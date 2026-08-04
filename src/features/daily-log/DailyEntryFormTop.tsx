@@ -194,6 +194,17 @@ export function DailyEntryFormTop() {
                         state.setDayTotalsCarbsInput(e.target.value)
                       }
                     />
+                    {state.trackedFields.fiber && (
+                      <NumberInput
+                        label={t.dailyEntry.dayTotalsFiberLabel}
+                        unit={t.dailyEntry.gramsUnit}
+                        inputMode="numeric"
+                        value={state.dayTotalsFiberInput}
+                        onChange={(e) =>
+                          state.setDayTotalsFiberInput(e.target.value)
+                        }
+                      />
+                    )}
                   </div>
                   {state.dayTotalsError && (
                     <p className="text-sm text-destructive">

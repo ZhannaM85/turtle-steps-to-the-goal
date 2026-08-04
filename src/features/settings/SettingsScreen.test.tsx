@@ -339,6 +339,7 @@ describe('SettingsScreen', () => {
           bodyComposition: false,
           nightEating: true,
           dayTotals: true,
+          fiber: true,
         },
       })
       renderSettings()
@@ -348,6 +349,19 @@ describe('SettingsScreen', () => {
           screen.getByRole('toolbar', { name: 'Morning' }),
         ).getByRole('button', { name: 'Body composition' }),
       ).toHaveAttribute('aria-pressed', 'false')
+    })
+
+    it('defaults Fiber on and can turn it off (#582)', async () => {
+      const user = userEvent.setup()
+      renderSettings()
+
+      const fiberToggle = within(
+        screen.getByRole('toolbar', { name: 'Other' }),
+      ).getByRole('button', { name: 'Fiber' })
+      expect(fiberToggle).toHaveAttribute('aria-pressed', 'true')
+      await user.click(fiberToggle)
+      expect(fiberToggle).toHaveAttribute('aria-pressed', 'false')
+      expect(useTrackedFieldsStore.getState().tracked.fiber).toBe(false)
     })
 
     it('defaults Day totals on and can turn it off (#575)', async () => {

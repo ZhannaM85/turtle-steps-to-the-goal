@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 542,
+    issue: 582,
+    date: '2026-08-04T13:27:32+03:00',
+    en: 'Settings → What to track now includes Fiber: turn it on to log fiber in meals and day totals, and to see remaining fiber on Day when you set a Goal target.',
+    ru: 'В Настройках → Что отслеживать теперь есть Клетчатка: включите, чтобы вводить её в блюдах и итогах дня и видеть «Осталось клетчатки» на Дне, если задана цель.',
+  },
+  {
     version: 541,
     issue: 587,
     date: '2026-08-04T13:15:00+03:00',

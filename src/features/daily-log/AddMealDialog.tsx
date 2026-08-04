@@ -41,6 +41,7 @@ import {
   useMicronutrientTrackingStore,
   useRecipeStore,
   useAddMealRecentVisibilityStore,
+  useTrackedFieldsStore,
 } from '@/stores'
 import { IndexedDbMealItemRepository } from '@/infrastructure/persistence/indexeddb'
 import { Button } from '@/shared/ui/button'
@@ -316,6 +317,7 @@ export function AddMealDialog({
   )
   const mealLabelPresets = useMealLabelPresetStore((state) => state.presets)
   const micronutrients = useMicronutrientTrackingStore((state) => state.tracked)
+  const trackFiber = useTrackedFieldsStore((state) => state.tracked.fiber)
   // #563/#567 — Breakfast/Lunch/Dinner/Snack for the active locale, then
   // custom Settings presets that aren't a built-in default in any locale.
   const mealLabelSuggestions = mealLabelSuggestionsForLocale(
@@ -1533,21 +1535,23 @@ export function AddMealDialog({
                   className="h-12 text-base tabular-nums"
                 />
               </div>
-              <div className="flex flex-col gap-1.5">
-                <span className="text-sm text-muted-foreground">
-                  {t.dailyEntry.fiberLabel}
-                </span>
-                <Input
-                  type="text"
-                  inputMode="decimal"
-                  aria-label={t.dailyEntry.fiberLabel}
-                  value={confirmFiber}
-                  onChange={(e) =>
-                    updateConfirmAbsolute('fiber', e.target.value)
-                  }
-                  className="h-12 text-base tabular-nums"
-                />
-              </div>
+              {trackFiber && (
+                <div className="flex flex-col gap-1.5">
+                  <span className="text-sm text-muted-foreground">
+                    {t.dailyEntry.fiberLabel}
+                  </span>
+                  <Input
+                    type="text"
+                    inputMode="decimal"
+                    aria-label={t.dailyEntry.fiberLabel}
+                    value={confirmFiber}
+                    onChange={(e) =>
+                      updateConfirmAbsolute('fiber', e.target.value)
+                    }
+                    className="h-12 text-base tabular-nums"
+                  />
+                </div>
+              )}
               {micronutrients.sodium && (
                 <div className="flex flex-col gap-1.5">
                   <span className="text-sm text-muted-foreground">
@@ -2103,6 +2107,7 @@ export function AddMealDialog({
           onFiberChange={(value) =>
             setManualDraft((draft) => ({ ...draft, fiber: value }))
           }
+          showFiber={trackFiber}
           sodium={manualDraft.sodium}
           onSodiumChange={(value) =>
             setManualDraft((draft) => ({ ...draft, sodium: value }))

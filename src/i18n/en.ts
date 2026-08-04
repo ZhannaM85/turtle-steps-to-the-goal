@@ -350,6 +350,7 @@ export const en: Dictionary = {
     dayTotalsProteinLabel: 'Day total protein',
     dayTotalsFatLabel: 'Day total fat',
     dayTotalsCarbsLabel: 'Day total carbs',
+    dayTotalsFiberLabel: 'Day total fiber',
     expandDayTotalsLabel: 'Show day totals',
     collapseDayTotalsLabel: 'Hide day totals',
     saveDayTotalsLabel: 'Save day totals',

@@ -45,6 +45,8 @@ export interface MealItemEditorSheetProps {
    * directly; this is the one place it gets typed in). */
   fiber: string
   onFiberChange: (value: string) => void
+  /** #582 — hide fiber when Settings → What to track turns it off. */
+  showFiber?: boolean
   /** #530 — electrolytes in mg; omit or leave empty when tracking is off. */
   sodium?: string
   onSodiumChange?: (value: string) => void
@@ -228,6 +230,7 @@ export function MealItemEditorSheet({
   onCarbsChange,
   fiber,
   onFiberChange,
+  showFiber = true,
   sodium = '',
   onSodiumChange,
   potassium = '',
@@ -483,14 +486,17 @@ export function MealItemEditorSheet({
                * macrosSummaryTextCompact-based total preview below, which
                * would ripple fiber into every other place that same
                * compact summary renders (meal-item rows, History's table
-               * cells) — deliberately out of scope for that issue. */}
-              <NumberField
-                icon="🌿"
-                label={t.dailyEntry.fiberLabel}
-                value={fiber}
-                onChange={onFiberChange}
-                onEnter={onSave}
-              />
+               * cells) — deliberately out of scope for that issue.
+               * #582 — gated by Settings → What to track → Fiber. */}
+              {showFiber && (
+                <NumberField
+                  icon="🌿"
+                  label={t.dailyEntry.fiberLabel}
+                  value={fiber}
+                  onChange={onFiberChange}
+                  onEnter={onSave}
+                />
+              )}
               {showSodium && onSodiumChange && (
                 <NumberField
                   icon="🧂"
@@ -547,7 +553,7 @@ export function MealItemEditorSheet({
                   {t.dailyEntry.computedTotalPrefix} {totalPreview}
                 </p>
               )}
-              {scaledPreview?.fiberG !== undefined && (
+              {showFiber && scaledPreview?.fiberG !== undefined && (
                 <p>
                   {t.dailyEntry.fiberLabel}: {scaledPreview.fiberG}
                   {t.dailyEntry.gramsUnit}

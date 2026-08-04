@@ -1406,6 +1406,7 @@ describe('DailyEntryForm', () => {
           bodyComposition: false,
           nightEating: true,
           dayTotals: true,
+          fiber: true,
         },
       })
       render(

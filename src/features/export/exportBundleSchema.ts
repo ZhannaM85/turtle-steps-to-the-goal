@@ -100,12 +100,14 @@ const dailyEntrySchema = z.object({
   weightKg: z.number().optional(),
   calorieEntries: z.array(calorieEntrySchema).optional(),
   // #549 — day-level kcal/macros without meal items; additive with meals.
+  // #582 — optional fiberG, same additive shape (no version bump).
   dayTotals: z
     .object({
       amountKcal: z.number(),
       proteinG: z.number().optional(),
       fatG: z.number().optional(),
       carbsG: z.number().optional(),
+      fiberG: z.number().optional(),
     })
     .optional(),
   note: z.string().optional(),
