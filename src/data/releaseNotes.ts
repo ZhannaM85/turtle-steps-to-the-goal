@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 550,
+    issue: 593,
+    date: '2026-08-04T17:02:00+03:00',
+    en: 'Correlation charts again show next-day weight loss (negative change), not only gains.',
+    ru: 'На корреляциях снова видно снижение веса на следующий день (отрицательное изменение), а не только набор.',
+  },
+  {
     version: 549,
     issue: 592,
     date: '2026-08-04T17:01:00+03:00',
