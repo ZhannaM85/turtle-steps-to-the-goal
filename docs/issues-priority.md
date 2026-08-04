@@ -58,7 +58,6 @@ _Water recommendation and further filings from this session (list may grow)._
 |---|--------|-------|-------|
 | [#554](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/554) | 🔍 Pending validation | iOS Battery screen shows generic Web icon instead of app icon | Investigated: Battery «Web»+grid is likely iOS PWA limitation (≠ home screen). Hardened `sizes=180x180` + manifest `purpose` any/maskable. Re-add home screen to verify turtle icon there. |
 | [#553](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/553) | 🔍 Pending validation | Investigate iOS background battery use and possible memory leaks | Inventory: SW (#163) + 5‑min version poll (#115). Fix: skip poll/SW nudge while `document.hidden`, re-check on return. No clear leak found; some SW background time is expected. |
-| [#574](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/574) | 🔍 Pending validation | Goal: weekly loss pace and deficit estimate stay when daily calories imply a surplus | When profile allows comparing, `weeklyPaceDisagreesWithCalorieImpliedPace` hides the pace-based deficit estimate and shows a quiet mismatch hint (nudge Recalculate; no silent sync). Follow-up: [#577](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/577) (orange card). |
 
 ---
 
