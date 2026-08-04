@@ -1412,6 +1412,7 @@ _Backup/settings gaps and further filings from this session (list may grow)._
 | [#579](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/579) | ⬜ Open | JSON backup import starts then stops with no error (new and ~2-week-old backups) | Live: import begins, ends after a few seconds, no error UI. Repro on fresh export and ~2-week-old backups. Root cause not investigated. |
 | [#580](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/580) | ⬜ Open | Set default times for Breakfast/Lunch/Dinner/Snack when imported meals have no time (e.g. MyFitnessPal) | Live: MFP-imported meals show slot labels but no eaten-at time. Assign sensible defaults per slot (incl. Snack). |
 | [#581](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/581) | ⬜ Open | Dashboard: pinch-zoom / pan on correlation scatter charts | Follow-up to #560 (scatters deliberately skipped). Possible — may need scatter x/y domain zoom vs time-slice. Live screenshot. |
+| [#582](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/582) | ⬜ Open | Goal: make daily fiber target customizable (not only Not set) | Live: fiber shows «Не задано» while other daily targets are settable. Parity with calories/macros/water. |
 
 
 
