@@ -2,7 +2,7 @@
 
 This document is updated after each issue is completed. It explains what every file does, why it exists, and how the pieces connect.
 
-Product context lives in `PROJECT_BRIEF.md`; the work queue lives in `docs/issues-priority.md`; the public-facing overview (screenshots, live link, dev setup) lives in `README.md` (#58).
+Product context lives in `PROJECT_BRIEF.md`; the active work queue lives in `docs/issues-priority.md` (closed history: `docs/issues_priority_archived.md`); the public-facing overview (screenshots, live link, dev setup) lives in `README.md` (#58).
 
 ---
 
@@ -630,7 +630,7 @@ Vitest + jsdom + `fake-indexeddb` + React Testing Library + `@testing-library/us
 
 ## Status
 
-See `docs/issues-priority.md` for full per-issue detail and the reasoning behind tier order. One row per tier below; a new tier just needs a new row appended.
+See `docs/issues-priority.md` (active) and `docs/issues_priority_archived.md` (closed) for per-issue detail and the reasoning behind tier order. One row per tier below; a new tier just needs a new row appended.
 
 | Tier | Theme | Issues | Status |
 |---|---|---|---|

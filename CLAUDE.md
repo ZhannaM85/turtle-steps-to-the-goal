@@ -66,7 +66,7 @@ that the confirmation actually happened.
 
 ## Closing a GitHub issue
 Whenever a GitHub issue is closed (implementation done, verified working), update **all three**:
-1. `docs/issues-priority.md` — mark the row done with a one-line implementation note.
+1. `docs/issues-priority.md` — mark the row done with a one-line implementation note, then **move that row** into `docs/issues_priority_archived.md` under its tier (active file stays open/pending only).
 2. `docs/ARCHITECTURE.md` — reflect whatever actually changed (new/changed files, data model, routes, etc.) in the relevant section(s). Update the `## Status` diagram too if the issue moves an epic between tiers.
 3. `src/data/releaseNotes.ts` (#63) — add one brief, user-facing entry (`{ version, issue, date, en, ru }`, most-recent-first) describing what changed. This is end-user-facing copy shown in Settings, not the implementation notes from #1/#2 — keep it to one plain sentence, no jargon, both languages. `version` is a simple incrementing counter (oldest entry = 1) — set it to the current highest version + 1 (i.e. `releaseNotes[0].version + 1`, since the array is most-recent-first); never reuse or renumber a version retroactively. This lets a reported bug be pinned to "this happened in vN" — easier to debug than a date alone, especially since several versions can ship the same day.
 

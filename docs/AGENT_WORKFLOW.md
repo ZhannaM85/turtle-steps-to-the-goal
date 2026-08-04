@@ -14,10 +14,12 @@ Pages. The original scope is `PROJECT_BRIEF.md` at the repo root. The
 living architecture doc is `docs/ARCHITECTURE.md` — read it (or the
 relevant section) before touching a feature area you haven't worked in
 this session; it explains *why* things are shaped the way they are, not
-just what's there. `docs/issues-priority.md` is the full closed/open issue
-history grouped into tiers — its Notes column is effectively a changelog of
-past decisions and their reasoning. Skim the most recent tier before
-starting new work; it's the fastest way to pick up context.
+just what's there. `docs/issues-priority.md` is the **active** open /
+pending-validation queue (grouped by tier). Closed history lives in
+`docs/issues_priority_archived.md` (split 2026-08-04 so Preview stays
+usable). Notes columns are still the changelog of past decisions —
+skim the latest open tier before starting new work; dig the archive when
+you need older reasoning.
 
 **`docs/agent-mistakes-log.md`** tracks every avoidable permission prompt
 and every skipped/out-of-order step from this contract, at the user's
