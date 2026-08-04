@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 543,
+    issue: 583,
+    date: '2026-08-04T13:39:18+03:00',
+    en: 'When editing a dish in Settings → Dishes, the border now wraps the dish name together with the nutrition fields.',
+    ru: 'При редактировании блюда в Настройках → Блюда рамка теперь охватывает и название, и поля пищевой ценности.',
+  },
+  {
     version: 542,
     issue: 582,
     date: '2026-08-04T13:27:32+03:00',

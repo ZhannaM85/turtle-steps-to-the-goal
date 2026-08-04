@@ -115,6 +115,26 @@ describe('MealItemsSection', () => {
     expect(screen.getByText('Pizza')).toBeInTheDocument()
   })
 
+  it('puts the dish name input inside the same bordered edit panel as nutrition (#583)', async () => {
+    await useMealItemStore.getState().touch('Pizza')
+    const user = userEvent.setup()
+    render(<MealItemsSection />)
+
+    await screen.findByText('Pizza')
+    await user.click(screen.getByRole('button', { name: 'Edit Pizza' }))
+
+    const nameInput = screen.getByLabelText('Meal item name')
+    // Prefer bg-muted/40 — Inputs also have a `border` class, so `.border`
+    // would match the name field itself and miss the Save control.
+    const panel = nameInput.closest('[class*="bg-muted/40"]')
+    expect(panel).not.toBeNull()
+    expect(
+      within(panel as HTMLElement).getByRole('button', {
+        name: 'Save Pizza',
+      }),
+    ).toBeInTheDocument()
+  })
+
   it('deletes an item', async () => {
     await useMealItemStore.getState().touch('Pizza')
     const user = userEvent.setup()

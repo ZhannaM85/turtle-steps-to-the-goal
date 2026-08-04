@@ -253,86 +253,67 @@ function MealItemRow({
 
   return (
     <li className="flex flex-col gap-1.5">
-      <div className="flex items-center gap-2">
-        {/* #584 — plain text until pencil (same pencil opens nutrition edit). */}
-        {isEditingNutrition ? (
-          <Input
-            type="text"
-            aria-label={t.settings.mealItemNameLabel}
-            value={value}
-            onChange={(e) => setValue(e.target.value)}
-            onBlur={commit}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                e.preventDefault()
-                commit()
-                ;(e.target as HTMLInputElement).blur()
-              }
-            }}
-            className="h-8 flex-1"
-          />
-        ) : (
-          <span className="min-w-0 flex-1 truncate text-sm text-foreground">
-            {item.name}
-          </span>
-        )}
-        {/* #279 — this dish is a MealItem, same favorite mechanism #276
-         * already added for FoodPickerDialog's own rows. */}
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon-sm"
-          aria-label={
-            item.favorite
-              ? t.dailyEntry.unfavoriteFoodLabel(item.name)
-              : t.dailyEntry.favoriteFoodLabel(item.name)
-          }
-          aria-pressed={item.favorite ?? false}
-          onClick={() => onToggleFavorite(item.id)}
-        >
-          <Star aria-hidden="true" className={cn(item.favorite && 'fill-current')} />
-        </Button>
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon-sm"
-          aria-label={t.settings.editMealItemLabel(item.name)}
-          onClick={() =>
-            isEditingNutrition ? stopEditing() : startEditNutrition()
-          }
-        >
-          <Pencil aria-hidden="true" />
-        </Button>
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon-sm"
-          aria-label={t.settings.deleteMealItemLabel(item.name)}
-          onClick={() => onDelete(item.id)}
-        >
-          <Trash2 aria-hidden="true" />
-        </Button>
-      </div>
-      {!isEditingNutrition && item.lastAmountKcal !== undefined && (
-        <span className="pl-1 text-xs text-muted-foreground">
-          {formatNumber(item.lastAmountKcal, locale, 0)} {t.dailyEntry.kcalUnit}{' '}
-          {t.dailyEntry.lastLoggedLabel} ·{' '}
-          {macrosSummaryTextCompact(
-            item.lastProteinG,
-            item.lastFatG,
-            item.lastCarbsG,
-            locale,
-            t,
-          )}
-        </span>
-      )}
-      {item.barcode && (
-        <span className="pl-1 text-xs text-muted-foreground">
-          {t.dailyEntry.itemBarcodeLabel(formatBarcodeDisplay(item.barcode))}
-        </span>
-      )}
-      {isEditingNutrition && (
+      {isEditingNutrition ? (
+        // #583 rework — one bordered panel around name + nutrition so the
+        // edit chrome reads as a single card (name was outside the border).
         <div className="flex flex-col gap-1.5 rounded-lg border border-border bg-muted/40 px-2 py-1.5">
+          <div className="flex items-center gap-2">
+            <Input
+              type="text"
+              aria-label={t.settings.mealItemNameLabel}
+              value={value}
+              onChange={(e) => setValue(e.target.value)}
+              onBlur={commit}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault()
+                  commit()
+                  ;(e.target as HTMLInputElement).blur()
+                }
+              }}
+              className={cn('h-8 flex-1', nutritionFieldClassName)}
+            />
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon-sm"
+              aria-label={
+                item.favorite
+                  ? t.dailyEntry.unfavoriteFoodLabel(item.name)
+                  : t.dailyEntry.favoriteFoodLabel(item.name)
+              }
+              aria-pressed={item.favorite ?? false}
+              onClick={() => onToggleFavorite(item.id)}
+            >
+              <Star
+                aria-hidden="true"
+                className={cn(item.favorite && 'fill-current')}
+              />
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon-sm"
+              aria-label={t.settings.editMealItemLabel(item.name)}
+              onClick={() => stopEditing()}
+            >
+              <Pencil aria-hidden="true" />
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon-sm"
+              aria-label={t.settings.deleteMealItemLabel(item.name)}
+              onClick={() => onDelete(item.id)}
+            >
+              <Trash2 aria-hidden="true" />
+            </Button>
+          </div>
+          {item.barcode && (
+            <span className="pl-1 text-xs text-muted-foreground">
+              {t.dailyEntry.itemBarcodeLabel(formatBarcodeDisplay(item.barcode))}
+            </span>
+          )}
           <ToggleGroup
             type="single"
             aria-label={`${t.dailyEntry.macroModeLabel} — ${item.name}`}
@@ -411,10 +392,6 @@ function MealItemRow({
                 className={cn('h-7 w-14', nutritionFieldClassName)}
               />
             </div>
-            {/* Grams is a pure memory aid in Portion mode (#111/#121), not a
-             * multiplier — an editable "100" next to a portion total read
-             * as confusing clutter, replaced with a plain "Portion" badge,
-             * same as everywhere else in the app. */}
             {macroMode === 'per100g' ? (
               <div className="flex flex-col gap-1">
                 <span className="text-xs text-muted-foreground">
@@ -453,6 +430,68 @@ function MealItemRow({
             </p>
           )}
         </div>
+      ) : (
+        <>
+          <div className="flex items-center gap-2">
+            {/* #584 — plain text until pencil (same pencil opens nutrition edit). */}
+            <span className="min-w-0 flex-1 truncate text-sm text-foreground">
+              {item.name}
+            </span>
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon-sm"
+              aria-label={
+                item.favorite
+                  ? t.dailyEntry.unfavoriteFoodLabel(item.name)
+                  : t.dailyEntry.favoriteFoodLabel(item.name)
+              }
+              aria-pressed={item.favorite ?? false}
+              onClick={() => onToggleFavorite(item.id)}
+            >
+              <Star
+                aria-hidden="true"
+                className={cn(item.favorite && 'fill-current')}
+              />
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon-sm"
+              aria-label={t.settings.editMealItemLabel(item.name)}
+              onClick={() => startEditNutrition()}
+            >
+              <Pencil aria-hidden="true" />
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon-sm"
+              aria-label={t.settings.deleteMealItemLabel(item.name)}
+              onClick={() => onDelete(item.id)}
+            >
+              <Trash2 aria-hidden="true" />
+            </Button>
+          </div>
+          {item.lastAmountKcal !== undefined && (
+            <span className="pl-1 text-xs text-muted-foreground">
+              {formatNumber(item.lastAmountKcal, locale, 0)}{' '}
+              {t.dailyEntry.kcalUnit} {t.dailyEntry.lastLoggedLabel} ·{' '}
+              {macrosSummaryTextCompact(
+                item.lastProteinG,
+                item.lastFatG,
+                item.lastCarbsG,
+                locale,
+                t,
+              )}
+            </span>
+          )}
+          {item.barcode && (
+            <span className="pl-1 text-xs text-muted-foreground">
+              {t.dailyEntry.itemBarcodeLabel(formatBarcodeDisplay(item.barcode))}
+            </span>
+          )}
+        </>
       )}
     </li>
   )
