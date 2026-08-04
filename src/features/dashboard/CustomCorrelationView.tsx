@@ -30,6 +30,7 @@ import { dayNotesByDate } from './dayNotePreview'
 import { OutlierPointsList } from './OutlierPointsList'
 import { outlierReasonLabel } from './outlierReasonLabel'
 import { renderOutlierScatterShape } from './outlierScatterShape'
+import { ZoomableScatterSurface } from './ZoomableScatterSurface'
 
 export interface CustomCorrelationViewProps {
   correlation: CustomCorrelation
@@ -72,6 +73,8 @@ export function CustomCorrelationView({
   const aLabel = metricRefLabel(t, correlation.metricA, metrics)
   const bLabel = metricRefLabel(t, correlation.metricB, metrics)
   const displayName = correlation.name || `${aLabel} vs. ${bLabel}`
+
+  const gestureResetKey = correlation.id
 
   const rawPoints = customCorrelationPoints(
     correlation.metricA,
@@ -142,43 +145,56 @@ export function CustomCorrelationView({
         )}
       </div>
       {expanded && (
-        <ResponsiveContainer width="100%" height={180}>
-          <ScatterChart margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
-            <XAxis
-              type="number"
-              dataKey="aValue"
-              name={aLabel}
-              tick={{ fontSize: 11, fill: 'var(--muted-foreground)' }}
-              axisLine={{ stroke: 'var(--border)' }}
-              tickLine={false}
-            />
-            <YAxis
-              type="number"
-              dataKey="bValue"
-              name={bLabel}
-              width={40}
-              tick={{ fontSize: 11, fill: 'var(--muted-foreground)' }}
-              axisLine={false}
-              tickLine={false}
-            />
-            <Tooltip
-              cursor={{ strokeDasharray: '3 3', stroke: 'var(--border)' }}
-              wrapperStyle={{ pointerEvents: 'auto' }}
-              content={
-                <CorrelationChartTooltip
-                  formatValue={(value) => formatNumber(value, locale)}
+        <ZoomableScatterSurface
+          resetKey={gestureResetKey}
+          xValues={points.map((p) => p.aValue)}
+          yValues={points.map((p) => p.bValue)}
+        >
+          {({ xDomain, yDomain, isGesturing }) => (
+            <ResponsiveContainer width="100%" height={180}>
+              <ScatterChart margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+                <XAxis
+                  type="number"
+                  dataKey="aValue"
+                  name={aLabel}
+                  domain={xDomain}
+                  allowDataOverflow
+                  tick={{ fontSize: 11, fill: 'var(--muted-foreground)' }}
+                  axisLine={{ stroke: 'var(--border)' }}
+                  tickLine={false}
                 />
-              }
-            />
-            <Scatter
-              data={points}
-              fill="var(--chart-1)"
-              isAnimationActive={false}
-              shape={renderOutlierScatterShape('var(--chart-1)')}
-            />
-          </ScatterChart>
-        </ResponsiveContainer>
+                <YAxis
+                  type="number"
+                  dataKey="bValue"
+                  name={bLabel}
+                  domain={yDomain}
+                  allowDataOverflow
+                  width={40}
+                  tick={{ fontSize: 11, fill: 'var(--muted-foreground)' }}
+                  axisLine={false}
+                  tickLine={false}
+                />
+                <Tooltip
+                  active={isGesturing ? false : undefined}
+                  cursor={{ strokeDasharray: '3 3', stroke: 'var(--border)' }}
+                  wrapperStyle={{ pointerEvents: 'auto' }}
+                  content={
+                    <CorrelationChartTooltip
+                      formatValue={(value) => formatNumber(value, locale)}
+                    />
+                  }
+                />
+                <Scatter
+                  data={points}
+                  fill="var(--chart-1)"
+                  isAnimationActive={false}
+                  shape={renderOutlierScatterShape('var(--chart-1)')}
+                />
+              </ScatterChart>
+            </ResponsiveContainer>
+          )}
+        </ZoomableScatterSurface>
       )}
       {expanded && (
         <OutlierPointsList

@@ -30,7 +30,8 @@ import { dayNotesByDate } from './dayNotePreview'
 import { OutlierPointsList } from './OutlierPointsList'
 import { outlierReasonLabel } from './outlierReasonLabel'
 import { renderOutlierScatterShape } from './outlierScatterShape'
-import { usePeriodFilteredEntries } from './useDashboardChartPeriod'
+import { usePeriodFilteredEntries, useDashboardChartPeriod } from './useDashboardChartPeriod'
+import { ZoomableScatterSurface } from './ZoomableScatterSurface'
 
 export interface ProteinCorrelationViewProps {
   /** #536/#537 — full entry set; this card filters by its own stored period. */
@@ -62,6 +63,10 @@ export function ProteinCorrelationView({
   dragHandle,
 }: ProteinCorrelationViewProps) {
   const entries = usePeriodFilteredEntries('proteinCorrelation', allEntries)
+  const { period, customStart, customEnd } = useDashboardChartPeriod(
+    'proteinCorrelation',
+  )
+  const gestureResetKey = `${period}|${customStart}|${customEnd}`
   const t = useTranslation()
   const locale = useLocale()
   const dateFnsLocale = getDateFnsLocale(locale)
@@ -150,45 +155,58 @@ export function ProteinCorrelationView({
     <div className="flex flex-col gap-1.5 rounded-lg border border-border p-3">
       {cardTitle}
       {expanded && (
-        <ResponsiveContainer width="100%" height={180}>
-          <ScatterChart margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
-            <XAxis
-              type="number"
-              dataKey="proteinPercent"
-              name={t.dashboard.proteinPercentOfCaloriesLabel}
-              tick={{ fontSize: 11, fill: 'var(--muted-foreground)' }}
-              axisLine={{ stroke: 'var(--border)' }}
-              tickLine={false}
-            />
-            <YAxis
-              type="number"
-              dataKey="delta"
-              name={t.dashboard.nextDayChangeLegend}
-              width={40}
-              tick={{ fontSize: 11, fill: 'var(--muted-foreground)' }}
-              axisLine={false}
-              tickLine={false}
-            />
-            <Tooltip
-              cursor={{ strokeDasharray: '3 3', stroke: 'var(--border)' }}
-              wrapperStyle={{ pointerEvents: 'auto' }}
-              content={
-                <CorrelationChartTooltip
-                  formatValue={(value, name) =>
-                    `${formatNumber(value, locale)}${name === t.dashboard.proteinPercentOfCaloriesLabel ? t.dailyEntry.percentUnit : ` ${unit}`}`
+        <ZoomableScatterSurface
+          resetKey={gestureResetKey}
+          xValues={points.map((p) => p.proteinPercent)}
+          yValues={points.map((p) => p.delta)}
+        >
+          {({ xDomain, yDomain, isGesturing }) => (
+            <ResponsiveContainer width="100%" height={180}>
+              <ScatterChart margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+                <XAxis
+                  type="number"
+                  dataKey="proteinPercent"
+                  name={t.dashboard.proteinPercentOfCaloriesLabel}
+                  domain={xDomain}
+                  allowDataOverflow
+                  tick={{ fontSize: 11, fill: 'var(--muted-foreground)' }}
+                  axisLine={{ stroke: 'var(--border)' }}
+                  tickLine={false}
+                />
+                <YAxis
+                  type="number"
+                  dataKey="delta"
+                  name={t.dashboard.nextDayChangeLegend}
+                  domain={yDomain}
+                  allowDataOverflow
+                  width={40}
+                  tick={{ fontSize: 11, fill: 'var(--muted-foreground)' }}
+                  axisLine={false}
+                  tickLine={false}
+                />
+                <Tooltip
+                  active={isGesturing ? false : undefined}
+                  cursor={{ strokeDasharray: '3 3', stroke: 'var(--border)' }}
+                  wrapperStyle={{ pointerEvents: 'auto' }}
+                  content={
+                    <CorrelationChartTooltip
+                      formatValue={(value, name) =>
+                        `${formatNumber(value, locale)}${name === t.dashboard.proteinPercentOfCaloriesLabel ? t.dailyEntry.percentUnit : ` ${unit}`}`
+                      }
+                    />
                   }
                 />
-              }
-            />
-            <Scatter
-              data={points}
-              fill="var(--chart-weight)"
-              isAnimationActive={false}
-              shape={renderOutlierScatterShape('var(--chart-weight)')}
-            />
-          </ScatterChart>
-        </ResponsiveContainer>
+                <Scatter
+                  data={points}
+                  fill="var(--chart-weight)"
+                  isAnimationActive={false}
+                  shape={renderOutlierScatterShape('var(--chart-weight)')}
+                />
+              </ScatterChart>
+            </ResponsiveContainer>
+          )}
+        </ZoomableScatterSurface>
       )}
       {expanded && (
         <OutlierPointsList

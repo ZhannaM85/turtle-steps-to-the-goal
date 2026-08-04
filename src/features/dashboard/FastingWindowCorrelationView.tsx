@@ -33,7 +33,8 @@ import { dayNotesByDate } from './dayNotePreview'
 import { OutlierPointsList } from './OutlierPointsList'
 import { outlierReasonLabel } from './outlierReasonLabel'
 import { renderOutlierScatterShape } from './outlierScatterShape'
-import { usePeriodFilteredEntries } from './useDashboardChartPeriod'
+import { usePeriodFilteredEntries, useDashboardChartPeriod } from './useDashboardChartPeriod'
+import { ZoomableScatterSurface } from './ZoomableScatterSurface'
 
 export interface FastingWindowCorrelationViewProps {
   /** #536/#537 — full entry set; this card filters by its own stored period. */
@@ -57,6 +58,10 @@ export function FastingWindowCorrelationView({
     'fastingWindowCorrelation',
     allEntries,
   )
+  const { period, customStart, customEnd } = useDashboardChartPeriod(
+    'fastingWindowCorrelation',
+  )
+  const gestureResetKey = `${period}|${customStart}|${customEnd}`
   const t = useTranslation()
   const locale = useLocale()
   const dateFnsLocale = getDateFnsLocale(locale)
@@ -145,48 +150,61 @@ export function FastingWindowCorrelationView({
     <div className="flex flex-col gap-1.5 rounded-lg border border-border p-3">
       {cardTitle}
       {expanded && (
-        <ResponsiveContainer width="100%" height={180}>
-          <ScatterChart margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
-            <XAxis
-              type="number"
-              dataKey="fastingHours"
-              name={t.dashboard.fastingHoursLegend}
-              tickFormatter={(hours: number) => `${formatNumber(hours, locale, 0)}h`}
-              tick={{ fontSize: 11, fill: 'var(--muted-foreground)' }}
-              axisLine={{ stroke: 'var(--border)' }}
-              tickLine={false}
-            />
-            <YAxis
-              type="number"
-              dataKey="delta"
-              name={t.dashboard.nextDayChangeLegend}
-              width={40}
-              tick={{ fontSize: 11, fill: 'var(--muted-foreground)' }}
-              axisLine={false}
-              tickLine={false}
-            />
-            <Tooltip
-              cursor={{ strokeDasharray: '3 3', stroke: 'var(--border)' }}
-              wrapperStyle={{ pointerEvents: 'auto' }}
-              content={
-                <CorrelationChartTooltip
-                  formatValue={(value, name) =>
-                    name === t.dashboard.fastingHoursLegend
-                      ? `${formatNumber(value, locale)}h`
-                      : `${formatNumber(value, locale)} ${unit}`
+        <ZoomableScatterSurface
+          resetKey={gestureResetKey}
+          xValues={points.map((p) => p.fastingHours)}
+          yValues={points.map((p) => p.delta)}
+        >
+          {({ xDomain, yDomain, isGesturing }) => (
+            <ResponsiveContainer width="100%" height={180}>
+              <ScatterChart margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+                <XAxis
+                  type="number"
+                  dataKey="fastingHours"
+                  name={t.dashboard.fastingHoursLegend}
+                  domain={xDomain}
+                  allowDataOverflow
+                  tickFormatter={(hours: number) => `${formatNumber(hours, locale, 0)}h`}
+                  tick={{ fontSize: 11, fill: 'var(--muted-foreground)' }}
+                  axisLine={{ stroke: 'var(--border)' }}
+                  tickLine={false}
+                />
+                <YAxis
+                  type="number"
+                  dataKey="delta"
+                  name={t.dashboard.nextDayChangeLegend}
+                  domain={yDomain}
+                  allowDataOverflow
+                  width={40}
+                  tick={{ fontSize: 11, fill: 'var(--muted-foreground)' }}
+                  axisLine={false}
+                  tickLine={false}
+                />
+                <Tooltip
+                  active={isGesturing ? false : undefined}
+                  cursor={{ strokeDasharray: '3 3', stroke: 'var(--border)' }}
+                  wrapperStyle={{ pointerEvents: 'auto' }}
+                  content={
+                    <CorrelationChartTooltip
+                      formatValue={(value, name) =>
+                        name === t.dashboard.fastingHoursLegend
+                          ? `${formatNumber(value, locale)}h`
+                          : `${formatNumber(value, locale)} ${unit}`
+                      }
+                    />
                   }
                 />
-              }
-            />
-            <Scatter
-              data={points}
-              fill="var(--chart-weight)"
-              isAnimationActive={false}
-              shape={renderOutlierScatterShape('var(--chart-weight)')}
-            />
-          </ScatterChart>
-        </ResponsiveContainer>
+                <Scatter
+                  data={points}
+                  fill="var(--chart-weight)"
+                  isAnimationActive={false}
+                  shape={renderOutlierScatterShape('var(--chart-weight)')}
+                />
+              </ScatterChart>
+            </ResponsiveContainer>
+          )}
+        </ZoomableScatterSurface>
       )}
       {expanded && (
         <OutlierPointsList

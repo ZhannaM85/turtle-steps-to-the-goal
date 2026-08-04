@@ -37,7 +37,8 @@ import { dayNotesByDate } from './dayNotePreview'
 import { OutlierPointsList } from './OutlierPointsList'
 import { outlierReasonLabel } from './outlierReasonLabel'
 import { renderOutlierScatterShape } from './outlierScatterShape'
-import { usePeriodFilteredEntries } from './useDashboardChartPeriod'
+import { usePeriodFilteredEntries, useDashboardChartPeriod } from './useDashboardChartPeriod'
+import { ZoomableScatterSurface } from './ZoomableScatterSurface'
 
 export interface NightEatingCorrelationViewProps {
   /** #536/#537 — full entry set; this card filters by its own stored period. */
@@ -70,6 +71,10 @@ export function NightEatingCorrelationView({
     'nightEatingCorrelation',
     allEntries,
   )
+  const { period, customStart, customEnd } = useDashboardChartPeriod(
+    'nightEatingCorrelation',
+  )
+  const gestureResetKey = `${period}|${customStart}|${customEnd}`
   const t = useTranslation()
   const locale = useLocale()
   const dateFnsLocale = getDateFnsLocale(locale)
@@ -159,56 +164,68 @@ export function NightEatingCorrelationView({
     <div className="flex flex-col gap-1.5 rounded-lg border border-border p-3">
       {cardTitle}
       {expanded && (
-        <ResponsiveContainer width="100%" height={180}>
-          <ScatterChart margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
-            <XAxis
-              type="number"
-              dataKey="x"
-              name={t.dailyEntry.nightEatingLabel(sex)}
-              domain={[-0.5, 1.5]}
-              ticks={[NO_X, YES_X]}
-              tickFormatter={(value: number) =>
-                value === YES_X
-                  ? t.dailyEntry.nightEatingYesOption
-                  : t.dailyEntry.nightEatingNoOption
-              }
-              tick={{ fontSize: 11, fill: 'var(--muted-foreground)' }}
-              axisLine={{ stroke: 'var(--border)' }}
-              tickLine={false}
-            />
-            <YAxis
-              type="number"
-              dataKey="delta"
-              name={t.dashboard.nextDayChangeLegend}
-              width={40}
-              tick={{ fontSize: 11, fill: 'var(--muted-foreground)' }}
-              axisLine={false}
-              tickLine={false}
-            />
-            <Tooltip
-              cursor={{ strokeDasharray: '3 3', stroke: 'var(--border)' }}
-              wrapperStyle={{ pointerEvents: 'auto' }}
-              content={
-                <CorrelationChartTooltip
-                  formatValue={(value, name) =>
-                    name === t.dailyEntry.nightEatingLabel(sex)
-                      ? value === YES_X
-                        ? t.dailyEntry.nightEatingYesOption
-                        : t.dailyEntry.nightEatingNoOption
-                      : `${formatNumber(value, locale)} ${unit}`
+        <ZoomableScatterSurface
+          resetKey={gestureResetKey}
+          xValues={points.map((p) => p.x)}
+          yValues={points.map((p) => p.delta)}
+        >
+          {({ xDomain, yDomain, isGesturing }) => (
+            <ResponsiveContainer width="100%" height={180}>
+              <ScatterChart margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+                <XAxis
+                  type="number"
+                  dataKey="x"
+                  name={t.dailyEntry.nightEatingLabel(sex)}
+                  domain={xDomain}
+                  allowDataOverflow
+                  ticks={[NO_X, YES_X]}
+                  tickFormatter={(value: number) =>
+                    value === YES_X
+                      ? t.dailyEntry.nightEatingYesOption
+                      : t.dailyEntry.nightEatingNoOption
+                  }
+                  tick={{ fontSize: 11, fill: 'var(--muted-foreground)' }}
+                  axisLine={{ stroke: 'var(--border)' }}
+                  tickLine={false}
+                />
+                <YAxis
+                  type="number"
+                  dataKey="delta"
+                  name={t.dashboard.nextDayChangeLegend}
+                  domain={yDomain}
+                  allowDataOverflow
+                  width={40}
+                  tick={{ fontSize: 11, fill: 'var(--muted-foreground)' }}
+                  axisLine={false}
+                  tickLine={false}
+                />
+                <Tooltip
+                  active={isGesturing ? false : undefined}
+                  cursor={{ strokeDasharray: '3 3', stroke: 'var(--border)' }}
+                  wrapperStyle={{ pointerEvents: 'auto' }}
+                  content={
+                    <CorrelationChartTooltip
+                      formatValue={(value, name) =>
+                        name === t.dailyEntry.nightEatingLabel(sex)
+                          ? value === YES_X
+                            ? t.dailyEntry.nightEatingYesOption
+                            : t.dailyEntry.nightEatingNoOption
+                          : `${formatNumber(value, locale)} ${unit}`
+                      }
+                    />
                   }
                 />
-              }
-            />
-            <Scatter
-              data={points}
-              fill="var(--chart-weight)"
-              isAnimationActive={false}
-              shape={renderOutlierScatterShape('var(--chart-weight)')}
-            />
-          </ScatterChart>
-        </ResponsiveContainer>
+                <Scatter
+                  data={points}
+                  fill="var(--chart-weight)"
+                  isAnimationActive={false}
+                  shape={renderOutlierScatterShape('var(--chart-weight)')}
+                />
+              </ScatterChart>
+            </ResponsiveContainer>
+          )}
+        </ZoomableScatterSurface>
       )}
       {expanded && (
         <OutlierPointsList

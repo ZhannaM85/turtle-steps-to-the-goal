@@ -99,6 +99,15 @@ export {
   sliceByZoomWindow,
 } from './chartGestureZoom'
 export type { ChartZoomWindow } from './chartGestureZoom'
+export {
+  SCATTER_ZOOM_MIN_FRACTION,
+  SCATTER_ZOOM_MIN_POINTS,
+  scatterDomainFromValues,
+  clampScatterDomain,
+  zoomScatterDomainByScale,
+  panScatterDomain,
+} from './scatterGestureZoom'
+export type { ScatterZoomDomain } from './scatterGestureZoom'
 export { foodReactionTallies, mostLikedFoods, mostDislikedFoods } from './foodReactions'
 export type { FoodReactionTally } from './foodReactions'
 export {

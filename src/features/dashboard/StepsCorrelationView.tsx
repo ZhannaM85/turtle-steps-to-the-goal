@@ -34,7 +34,9 @@ import { dayNotesByDate } from './dayNotePreview'
 import { OutlierPointsList } from './OutlierPointsList'
 import { outlierReasonLabel } from './outlierReasonLabel'
 import { renderOutlierScatterShape } from './outlierScatterShape'
-import { usePeriodFilteredEntries } from './useDashboardChartPeriod'
+import { scatterDomainFromValues } from '@/domain/stats/scatterGestureZoom'
+import { usePeriodFilteredEntries, useDashboardChartPeriod } from './useDashboardChartPeriod'
+import { ZoomableScatterSurface } from './ZoomableScatterSurface'
 
 export interface StepsCorrelationViewProps {
   /** #536/#537 — full entry set; this card filters by its own stored period. */
@@ -54,6 +56,10 @@ export function StepsCorrelationView({
   dragHandle,
 }: StepsCorrelationViewProps) {
   const entries = usePeriodFilteredEntries('stepsCorrelation', allEntries)
+  const { period, customStart, customEnd } = useDashboardChartPeriod(
+    'stepsCorrelation',
+  )
+  const gestureResetKey = `${period}|${customStart}|${customEnd}`
   const t = useTranslation()
   const locale = useLocale()
   const dateFnsLocale = getDateFnsLocale(locale)
@@ -114,9 +120,18 @@ export function StepsCorrelationView({
   // as before when there's too little data for the bounds to mean
   // anything (fewer than 4 points).
   const stepsBounds = outlierBounds(rawPoints.map((p) => p.steps))
-  const xDomain: [number, number | 'auto'] = stepsBounds
-    ? [0, stepsBounds.upper]
-    : [0, 'auto']
+  const xValues = points.map((p) => p.steps)
+  const yValues = points.map((p) => p.delta)
+  const baseDomain = scatterDomainFromValues(xValues, yValues)
+  const fullDomainOverride =
+    stepsBounds && baseDomain
+      ? {
+          xMin: 0,
+          xMax: stepsBounds.upper,
+          yMin: baseDomain.yMin,
+          yMax: baseDomain.yMax,
+        }
+      : baseDomain
 
   const insight = stepsCorrelationFromPoints(includedPoints)
   const expanded = insight !== null || isExpanded
@@ -157,49 +172,61 @@ export function StepsCorrelationView({
     <div className="flex flex-col gap-1.5 rounded-lg border border-border p-3">
       {cardTitle}
       {expanded && (
-        <ResponsiveContainer width="100%" height={180}>
-          <ScatterChart margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
-            <XAxis
-              type="number"
-              dataKey="steps"
-              name={t.dashboard.stepsCountLegend}
-              domain={xDomain}
-              allowDataOverflow
-              tick={{ fontSize: 11, fill: 'var(--muted-foreground)' }}
-              axisLine={{ stroke: 'var(--border)' }}
-              tickLine={false}
-            />
-            <YAxis
-              type="number"
-              dataKey="delta"
-              name={t.dashboard.nextDayChangeLegend}
-              width={40}
-              tick={{ fontSize: 11, fill: 'var(--muted-foreground)' }}
-              axisLine={false}
-              tickLine={false}
-            />
-            <Tooltip
-              cursor={{ strokeDasharray: '3 3', stroke: 'var(--border)' }}
-              wrapperStyle={{ pointerEvents: 'auto' }}
-              content={
-                <CorrelationChartTooltip
-                  formatValue={(value, name) =>
-                    name === t.dashboard.stepsCountLegend
-                      ? formatNumber(value, locale, 0)
-                      : `${formatNumber(value, locale)} ${unit}`
+        <ZoomableScatterSurface
+          resetKey={gestureResetKey}
+          xValues={xValues}
+          yValues={yValues}
+          fullDomainOverride={fullDomainOverride}
+        >
+          {({ xDomain, yDomain, isGesturing }) => (
+            <ResponsiveContainer width="100%" height={180}>
+              <ScatterChart margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+                <XAxis
+                  type="number"
+                  dataKey="steps"
+                  name={t.dashboard.stepsCountLegend}
+                  domain={xDomain}
+                  allowDataOverflow
+                  tick={{ fontSize: 11, fill: 'var(--muted-foreground)' }}
+                  axisLine={{ stroke: 'var(--border)' }}
+                  tickLine={false}
+                />
+                <YAxis
+                  type="number"
+                  dataKey="delta"
+                  name={t.dashboard.nextDayChangeLegend}
+                  domain={yDomain}
+                  allowDataOverflow
+                  width={40}
+                  tick={{ fontSize: 11, fill: 'var(--muted-foreground)' }}
+                  axisLine={false}
+                  tickLine={false}
+                />
+                <Tooltip
+                  active={isGesturing ? false : undefined}
+                  cursor={{ strokeDasharray: '3 3', stroke: 'var(--border)' }}
+                  wrapperStyle={{ pointerEvents: 'auto' }}
+                  content={
+                    <CorrelationChartTooltip
+                      formatValue={(value, name) =>
+                        name === t.dashboard.stepsCountLegend
+                          ? formatNumber(value, locale, 0)
+                          : `${formatNumber(value, locale)} ${unit}`
+                      }
+                    />
                   }
                 />
-              }
-            />
-            <Scatter
-              data={points}
-              fill="var(--chart-weight)"
-              isAnimationActive={false}
-              shape={renderOutlierScatterShape('var(--chart-weight)')}
-            />
-          </ScatterChart>
-        </ResponsiveContainer>
+                <Scatter
+                  data={points}
+                  fill="var(--chart-weight)"
+                  isAnimationActive={false}
+                  shape={renderOutlierScatterShape('var(--chart-weight)')}
+                />
+              </ScatterChart>
+            </ResponsiveContainer>
+          )}
+        </ZoomableScatterSurface>
       )}
       {expanded && (
         <OutlierPointsList

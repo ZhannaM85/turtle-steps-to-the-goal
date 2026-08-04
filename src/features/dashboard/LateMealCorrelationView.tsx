@@ -30,7 +30,9 @@ import { dayNotesByDate } from './dayNotePreview'
 import { OutlierPointsList } from './OutlierPointsList'
 import { outlierReasonLabel } from './outlierReasonLabel'
 import { renderOutlierScatterShape } from './outlierScatterShape'
-import { usePeriodFilteredEntries } from './useDashboardChartPeriod'
+import { scatterDomainFromValues } from '@/domain/stats/scatterGestureZoom'
+import { usePeriodFilteredEntries, useDashboardChartPeriod } from './useDashboardChartPeriod'
+import { ZoomableScatterSurface } from './ZoomableScatterSurface'
 
 export interface LateMealCorrelationViewProps {
   /** #536/#537 — full entry set; this card filters by its own stored period. */
@@ -57,6 +59,10 @@ export function LateMealCorrelationView({
   dragHandle,
 }: LateMealCorrelationViewProps) {
   const entries = usePeriodFilteredEntries('lateMealCorrelation', allEntries)
+  const { period, customStart, customEnd } = useDashboardChartPeriod(
+    'lateMealCorrelation',
+  )
+  const gestureResetKey = `${period}|${customStart}|${customEnd}`
   const t = useTranslation()
   const locale = useLocale()
   const dateFnsLocale = getDateFnsLocale(locale)
@@ -109,6 +115,18 @@ export function LateMealCorrelationView({
   const insight = lateMealCorrelationFromPoints(includedPoints)
   const expanded = insight !== null || isExpanded
 
+  const xValues = points.map((p) => p.minutes)
+  const yValues = points.map((p) => p.delta)
+  const baseDomain = scatterDomainFromValues(xValues, yValues)
+  const fullDomainOverride = baseDomain
+    ? {
+        xMin: 0,
+        xMax: 24 * 60,
+        yMin: baseDomain.yMin,
+        yMax: baseDomain.yMax,
+      }
+    : null
+
   const cardTitle = (
     <ChartTitleWithToggle
       chart="lateMealCorrelation"
@@ -145,49 +163,62 @@ export function LateMealCorrelationView({
     <div className="flex flex-col gap-1.5 rounded-lg border border-border p-3">
       {cardTitle}
       {expanded && (
-        <ResponsiveContainer width="100%" height={180}>
-          <ScatterChart margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
-            <XAxis
-              type="number"
-              dataKey="minutes"
-              name={t.dashboard.lateMealTimeLegend}
-              domain={[0, 24 * 60]}
-              tickFormatter={minutesToTimeLabel}
-              tick={{ fontSize: 11, fill: 'var(--muted-foreground)' }}
-              axisLine={{ stroke: 'var(--border)' }}
-              tickLine={false}
-            />
-            <YAxis
-              type="number"
-              dataKey="delta"
-              name={t.dashboard.nextDayChangeLegend}
-              width={40}
-              tick={{ fontSize: 11, fill: 'var(--muted-foreground)' }}
-              axisLine={false}
-              tickLine={false}
-            />
-            <Tooltip
-              cursor={{ strokeDasharray: '3 3', stroke: 'var(--border)' }}
-              wrapperStyle={{ pointerEvents: 'auto' }}
-              content={
-                <CorrelationChartTooltip
-                  formatValue={(value, name) =>
-                    name === t.dashboard.lateMealTimeLegend
-                      ? minutesToTimeLabel(value)
-                      : `${formatNumber(value, locale)} ${unit}`
+        <ZoomableScatterSurface
+          resetKey={gestureResetKey}
+          xValues={xValues}
+          yValues={yValues}
+          fullDomainOverride={fullDomainOverride}
+        >
+          {({ xDomain, yDomain, isGesturing }) => (
+            <ResponsiveContainer width="100%" height={180}>
+              <ScatterChart margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+                <XAxis
+                  type="number"
+                  dataKey="minutes"
+                  name={t.dashboard.lateMealTimeLegend}
+                  domain={xDomain}
+                  allowDataOverflow
+                  tickFormatter={minutesToTimeLabel}
+                  tick={{ fontSize: 11, fill: 'var(--muted-foreground)' }}
+                  axisLine={{ stroke: 'var(--border)' }}
+                  tickLine={false}
+                />
+                <YAxis
+                  type="number"
+                  dataKey="delta"
+                  name={t.dashboard.nextDayChangeLegend}
+                  domain={yDomain}
+                  allowDataOverflow
+                  width={40}
+                  tick={{ fontSize: 11, fill: 'var(--muted-foreground)' }}
+                  axisLine={false}
+                  tickLine={false}
+                />
+                <Tooltip
+                  active={isGesturing ? false : undefined}
+                  cursor={{ strokeDasharray: '3 3', stroke: 'var(--border)' }}
+                  wrapperStyle={{ pointerEvents: 'auto' }}
+                  content={
+                    <CorrelationChartTooltip
+                      formatValue={(value, name) =>
+                        name === t.dashboard.lateMealTimeLegend
+                          ? minutesToTimeLabel(value)
+                          : `${formatNumber(value, locale)} ${unit}`
+                      }
+                    />
                   }
                 />
-              }
-            />
-            <Scatter
-              data={points}
-              fill="var(--chart-weight)"
-              isAnimationActive={false}
-              shape={renderOutlierScatterShape('var(--chart-weight)')}
-            />
-          </ScatterChart>
-        </ResponsiveContainer>
+                <Scatter
+                  data={points}
+                  fill="var(--chart-weight)"
+                  isAnimationActive={false}
+                  shape={renderOutlierScatterShape('var(--chart-weight)')}
+                />
+              </ScatterChart>
+            </ResponsiveContainer>
+          )}
+        </ZoomableScatterSurface>
       )}
       {expanded && (
         <OutlierPointsList

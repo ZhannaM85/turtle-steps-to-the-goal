@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 539,
+    issue: 581,
+    date: '2026-08-04T11:18:18+03:00',
+    en: 'You can pinch-zoom and pan correlation scatter charts on the Dashboard, then reset zoom when you are done.',
+    ru: 'На Дашборде можно масштабировать и сдвигать точечные графики корреляций щипком, а затем сбросить масштаб.',
+  },
+  {
     version: 538,
     issue: 579,
     date: '2026-08-04T11:06:15+03:00',
