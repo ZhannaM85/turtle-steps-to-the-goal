@@ -40,16 +40,6 @@ _User asked about pulling data from Apple Health and Zepp Life. Researched via W
 
 ---
 
-## Tier 94 — External user feedback (2026-08-02)
-
-_Five requests from an external review (filed in English). Ordered easier → harder; #530 likely wants richer food data from #531._
-
-| # | Status | Issue | Notes |
-|---|--------|-------|-------|
-| [#535](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/535) | 🔍 Pending validation | Food search: USDA online fallback + small bundled RU generics (OFF alternative) | `searchOnlineFoods`: RU staples + OFF then USDA (per-100g datasets; `VITE_FDC_API_KEY`/`DEMO_KEY`). OFF 503/timeout surfaces as unavailable (not empty). Offline Search online still uses bundled staples. |
-
----
-
 ## Tier 97 — Live feedback & features (2026-08-03)
 
 _Water recommendation and further filings from this session (list may grow)._
