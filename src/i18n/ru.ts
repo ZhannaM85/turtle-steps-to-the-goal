@@ -418,6 +418,9 @@ export const ru: Dictionary = {
     dailyCarbTargetHint: 'Необязательно — можно оставить пустым.',
     dailyFiberTargetLabel: 'Дневная цель по клетчатке',
     dailyFiberTargetHint: 'Необязательно — можно оставить пустым.',
+    useFiberSuggestionButton: 'Подставить рекомендуемую клетчатку',
+    fiberSuggestionHint: (grams) =>
+      `Обычный ориентир для взрослых — около ${grams} г/день (грубая оценка, не медицинский совет).`,
     dailySodiumTargetLabel: 'Дневная цель по натрию',
     dailySodiumTargetHint: 'Необязательно — можно оставить пустым.',
     dailyPotassiumTargetLabel: 'Дневная цель по калию',

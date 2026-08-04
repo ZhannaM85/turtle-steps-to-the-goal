@@ -396,6 +396,9 @@ export const en: Dictionary = {
     dailyCarbTargetHint: 'Optional — leave blank to skip.',
     dailyFiberTargetLabel: 'Daily fiber target',
     dailyFiberTargetHint: 'Optional — leave blank to skip.',
+    useFiberSuggestionButton: 'Use suggested fiber',
+    fiberSuggestionHint: (grams) =>
+      `A common adult ballpark is about ${grams} g/day (rough guide, not medical advice).`,
     dailySodiumTargetLabel: 'Daily sodium target',
     dailySodiumTargetHint: 'Optional — leave blank to skip.',
     dailyPotassiumTargetLabel: 'Daily potassium target',

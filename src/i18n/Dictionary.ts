@@ -755,6 +755,9 @@ export interface Dictionary {
     /** #341 — same shape/reasoning as the other daily macro targets above. */
     dailyFiberTargetLabel: string
     dailyFiberTargetHint: string
+    /** #582 — soft fiber suggest (sex-based ballpark), same role as water's. */
+    useFiberSuggestionButton: string
+    fiberSuggestionHint: (grams: string) => string
     /** #530 — optional daily electrolyte targets (mg). */
     dailySodiumTargetLabel: string
     dailySodiumTargetHint: string

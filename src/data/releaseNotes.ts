@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 537,
+    issue: 582,
+    date: '2026-08-04T11:00:55+03:00',
+    en: 'Suggest a target on Goal now fills daily fiber too, and you can tap Use suggested fiber when it is still blank.',
+    ru: '«Предложить цель» на экране Цели теперь заполняет и клетчатку; если поле пустое, можно подставить рекомендуемое значение.',
+  },
+  {
     version: 536,
     issue: 580,
     date: '2026-08-04T10:41:33+03:00',

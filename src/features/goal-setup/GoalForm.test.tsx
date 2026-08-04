@@ -404,6 +404,49 @@ describe('GoalForm', () => {
 
       expect(screen.getByLabelText('Daily fiber target')).toHaveValue('25')
     })
+
+    it('fills fiber when Suggest a target runs (#582)', async () => {
+      const user = userEvent.setup()
+      useProfileStore.setState({
+        heightCm: 165,
+        age: 30,
+        sex: 'female',
+        activityLevel: 'sedentary',
+      })
+      renderGoalForm(
+        <GoalForm
+          existingGoal={null}
+          onSubmit={vi.fn()}
+          latestWeightKg={70}
+        />,
+      )
+
+      await user.click(
+        screen.getByRole('button', { name: 'Suggest a target' }),
+      )
+      expect(screen.getByLabelText('Daily fiber target')).toHaveValue('25')
+    })
+
+    it('offers a soft fiber suggestion when profile sex is set (#582)', async () => {
+      const user = userEvent.setup()
+      useProfileStore.setState({
+        heightCm: 165,
+        age: 30,
+        sex: 'female',
+        activityLevel: 'sedentary',
+      })
+      renderGoalForm(
+        <GoalForm existingGoal={null} onSubmit={vi.fn()} latestWeightKg={70} />,
+      )
+
+      expect(
+        screen.getByText(/common adult ballpark is about 25 g\/day/i),
+      ).toBeInTheDocument()
+      await user.click(
+        screen.getByRole('button', { name: 'Use suggested fiber' }),
+      )
+      expect(screen.getByLabelText('Daily fiber target')).toHaveValue('25')
+    })
   })
 
   describe('daily water target (#258)', () => {

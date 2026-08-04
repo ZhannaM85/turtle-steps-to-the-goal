@@ -28,6 +28,12 @@ describe('suggestDailyTargets', () => {
     expect(targets.fatTargetG).toBe(56) // round(70 * 0.8)
     // carbs = (1704 - 112*4 - 56*9) / 4 = (1704 - 448 - 504) / 4 = 188
     expect(targets.carbTargetG).toBe(188)
+    expect(targets.fiberTargetG).toBe(25)
+  })
+
+  it('suggests 38g fiber for male (#582)', () => {
+    const targets = suggestDailyTargets(80, 180, 35, 'male', 'sedentary', 0)
+    expect(targets.fiberTargetG).toBe(38)
   })
 
   it('subtracts the daily deficit from TDEE to get the calorie target', () => {

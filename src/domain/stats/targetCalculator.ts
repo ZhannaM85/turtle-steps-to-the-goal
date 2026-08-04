@@ -38,6 +38,9 @@ export interface SuggestedDailyTargets {
   proteinTargetG: number
   fatTargetG: number
   carbTargetG: number
+  /** #582 — common sex-based defaults (not medical advice), same soft
+   * "prefill for review" role as the other suggested targets. */
+  fiberTargetG: number
 }
 
 /**
@@ -50,6 +53,8 @@ export interface SuggestedDailyTargets {
  * g/kg-bodyweight ratios; carbs fill the remainder. Never auto-applied —
  * callers prefill form fields with this and let the user review/edit
  * before saving, same as everywhere else in the app that suggests a value.
+ * **#582**: also prefills a sex-based fiber target (25g female / 38g male)
+ * so Suggest doesn't leave fiber stuck on "Not set" while filling macros.
  */
 export function suggestDailyTargets(
   weightKg: number,
@@ -65,7 +70,13 @@ export function suggestDailyTargets(
   return {
     calorieTargetKcal,
     ...suggestMacrosForCalorieTarget(weightKg, calorieTargetKcal),
+    fiberTargetG: suggestedFiberTargetG(sex),
   }
+}
+
+/** #582 — widely cited adult adequate-intake ballparks (g/day), not personalized. */
+export function suggestedFiberTargetG(sex: Sex): number {
+  return sex === 'female' ? 25 : 38
 }
 
 /**

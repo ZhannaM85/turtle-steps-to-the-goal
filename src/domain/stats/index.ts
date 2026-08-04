@@ -141,6 +141,7 @@ export type { OutlierBounds, OutlierAxes } from './outlierDetection'
 export {
   calculateTdee,
   suggestDailyTargets,
+  suggestedFiberTargetG,
   suggestMacrosForCalorieTarget,
   estimateWeeklyLossKgFromCalorieTarget,
   weeklyPaceDisagreesWithCalorieImpliedPace,

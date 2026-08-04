@@ -14,6 +14,7 @@ import {
   estimateWeeklyLossKgFromCalorieTarget,
   recommendedWaterMlRange,
   suggestDailyTargets,
+  suggestedFiberTargetG,
   suggestMacrosForCalorieTarget,
   waterRecommendationMidMl,
   weeklyPaceDisagreesWithCalorieImpliedPace,
@@ -229,6 +230,10 @@ export function GoalForm({
       shouldValidate: true,
       shouldDirty: true,
     })
+    setValue('dailyFiberTarget', suggested.fiberTargetG, {
+      shouldValidate: true,
+      shouldDirty: true,
+    })
   }
 
   function applySuggestedTargets() {
@@ -287,6 +292,12 @@ export function GoalForm({
         shouldValidate: true,
         shouldDirty: true,
       })
+      if (sex !== undefined) {
+        setValue('dailyFiberTarget', suggestedFiberTargetG(sex), {
+          shouldValidate: true,
+          shouldDirty: true,
+        })
+      }
     })
   }
 
@@ -776,7 +787,9 @@ export function GoalForm({
         {...register('dailyCarbTarget', { setValueAs: parseNumberInput })}
       />
 
-      {/* #341 — same shape again, independent of the other four. */}
+      {/* #341 — same shape again, independent of the other four.
+       * #582 — Suggest / Recalculate also fill fiber; soft button when
+       * profile sex is known (parity with water's soft recommend). */}
       <NumberInput
         label={t.goal.dailyFiberTargetLabel}
         hint={t.goal.dailyFiberTargetHint}
@@ -784,6 +797,29 @@ export function GoalForm({
         error={errors.dailyFiberTarget?.message}
         {...register('dailyFiberTarget', { setValueAs: parseNumberInput })}
       />
+      {sex !== undefined && (
+        <div className="flex flex-col gap-1.5">
+          <p className="text-sm text-muted-foreground">
+            {t.goal.fiberSuggestionHint(
+              formatExactNumber(suggestedFiberTargetG(sex), locale),
+            )}
+          </p>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="self-start"
+            onClick={() => {
+              setValue('dailyFiberTarget', suggestedFiberTargetG(sex), {
+                shouldDirty: true,
+                shouldValidate: true,
+              })
+            }}
+          >
+            {t.goal.useFiberSuggestionButton}
+          </Button>
+        </div>
+      )}
 
       {micronutrients.sodium && (
         <NumberInput
