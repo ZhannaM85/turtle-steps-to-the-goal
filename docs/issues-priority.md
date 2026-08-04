@@ -38,13 +38,3 @@ _User asked about pulling data from Apple Health and Zepp Life. Researched via W
 | [#334](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/334) | 📋 Not started | Epic — Apple Health integration (blocked on mobile app + HealthKit bridge) | HealthKit has no public/cloud API at all — data is on-device only, readable exclusively by a native iOS app (or hybrid app with a HealthKit plugin/entitlement) the user has granted permission to. Genuinely blocked until the mobile app exists; can't be built sooner by any workaround. |
 | [#335](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/335) | 📋 Not started | Epic — Android Health Connect integration (blocked on mobile app) | Same category of blocker as #334 — Health Connect is Android's on-device health data store, no cloud API, native/hybrid-app-only access. Bonus: Zepp Life can itself sync into Health Connect, making this the official, supported route to Zepp/Amazfit data — likely preferable to ever building a direct, unofficial Zepp API integration. |
 
----
-
-## Tier 99 — Live feedback & features (2026-08-04)
-
-_Further filings from this session (list may grow)._
-
-| # | Status | Issue | Notes |
-|---|--------|-------|-------|
-| [#597](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/597) | 🔍 Pending validation | Day: sort meal cards by logged time (earliest first) | Display order via `sortCalorieEntriesByLoggedTime` + slot defaults; storage order unchanged; untimed last. |
-
