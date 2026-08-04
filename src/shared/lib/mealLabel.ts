@@ -16,16 +16,30 @@ export function defaultMealLabel(t: Dictionary, position: number): string {
   )
 }
 
+/**
+ * Historical rows (and some JSON backups) stored meal-slot ids as numbers
+ * (#579). Domain callers type `label?: string`, but IndexedDB may still
+ * hold a number until the next import/rewrite — coerce before `.trim()`
+ * so Dashboard correlation readers (#580/#587) do not crash.
+ */
+function coerceMealLabel(
+  label: string | number | undefined | null,
+): string | undefined {
+  if (label == null) return undefined
+  return typeof label === 'string' ? label : String(label)
+}
+
 /** A meal group's actual effective display name — its custom label (#110)
  * when one was set, else the positional default above. Empty string is
  * treated like unset so a cleared-then-saved name still re-translates (#141). */
 export function effectiveMealLabel(
   t: Dictionary,
   position: number,
-  label: string | undefined,
+  label: string | number | undefined,
 ): string {
-  if (label == null || label.trim() === '') return defaultMealLabel(t, position)
-  return label
+  const text = coerceMealLabel(label)
+  if (text == null || text.trim() === '') return defaultMealLabel(t, position)
+  return text
 }
 
 /**
@@ -36,9 +50,10 @@ export function effectiveMealLabel(
 export function editableMealLabel(
   t: Dictionary,
   position: number,
-  label: string | undefined,
+  label: string | number | undefined,
 ): string {
-  return label !== undefined ? label : defaultMealLabel(t, position)
+  const text = coerceMealLabel(label)
+  return text !== undefined ? text : defaultMealLabel(t, position)
 }
 
 /** Built-in Breakfast/Lunch/… names in every locale — used to hide
@@ -101,10 +116,11 @@ const MEAL_LABEL_TO_SLOT: Record<string, MealSlotKey> = {
 }
 
 export function mealSlotKeyForLabel(
-  label: string | undefined,
+  label: string | number | undefined,
 ): MealSlotKey | undefined {
-  if (label == null || label.trim() === '') return undefined
-  return MEAL_LABEL_TO_SLOT[label.trim().toLowerCase()]
+  const text = coerceMealLabel(label)
+  if (text == null || text.trim() === '') return undefined
+  return MEAL_LABEL_TO_SLOT[text.trim().toLowerCase()]
 }
 
 /**
@@ -113,7 +129,7 @@ export function mealSlotKeyForLabel(
  * omit to use the built-in clocks.
  */
 export function defaultTimeEatenForMealLabel(
-  label: string | undefined,
+  label: string | number | undefined,
   slotTimes: MealSlotDefaultTimes = BUILTIN_MEAL_SLOT_DEFAULT_TIMES,
 ): string | undefined {
   const slot = mealSlotKeyForLabel(label)
@@ -124,7 +140,7 @@ export function defaultTimeEatenForMealLabel(
 export function effectiveTimeEaten(
   meal: {
     timeEaten?: string
-    label?: string
+    label?: string | number
   },
   slotTimes: MealSlotDefaultTimes = BUILTIN_MEAL_SLOT_DEFAULT_TIMES,
 ): string | undefined {

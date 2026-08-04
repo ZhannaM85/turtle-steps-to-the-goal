@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 545,
+    issue: 587,
+    date: '2026-08-04T15:48:00+03:00',
+    en: 'Fixed another Dashboard crash when scrolling to correlations if older meal names were stored as numbers.',
+    ru: 'Исправлена ещё одна ошибка на Дашборде при прокрутке к корреляциям, если старые названия приёмов пищи хранились как числа.',
+  },
+  {
     version: 544,
     issue: 588,
     date: '2026-08-04T14:30:00+03:00',

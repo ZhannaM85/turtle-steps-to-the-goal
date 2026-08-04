@@ -168,4 +168,31 @@ describe('lateMealCorrelation', () => {
     expect(points[0].deltaKg).toBeCloseTo(0.65, 5)
     expect(points[1].date).toBe(day(1))
   })
+
+  it('does not throw when a meal label is a number (#587, #579 legacy data)', () => {
+    const entries = [
+      entry(day(0), {
+        weightKg: 80,
+        calorieEntries: [
+          {
+            id: 'meal-1',
+            items: [{ id: 'item-1', amountKcal: 500 }],
+            // Historical rows stored meal-slot ids as numbers; #580's
+            // effectiveTimeEaten used to call `.trim()` and crash Dashboard.
+            label: 503 as unknown as string,
+            timeEaten: '21:00',
+            createdAt: '2026-01-01T00:00:00.000Z',
+          },
+        ],
+      }),
+      entry(day(1), { weightKg: 80.2 }),
+    ]
+
+    expect(() => lateMealPoints(entries)).not.toThrow()
+    const points = lateMealPoints(entries)
+    expect(points).toHaveLength(1)
+    expect(points[0].date).toBe(day(0))
+    expect(points[0].minutes).toBe(21 * 60)
+    expect(points[0].deltaKg).toBeCloseTo(0.2, 5)
+  })
 })

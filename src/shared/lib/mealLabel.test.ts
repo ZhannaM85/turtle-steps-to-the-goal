@@ -79,4 +79,14 @@ describe('mealLabel helpers', () => {
       ),
     ).toBe('12:00')
   })
+
+  it('coerces numeric meal labels instead of throwing (#579/#587)', () => {
+    // Historical IndexedDB / backup rows used numbers as meal-slot ids;
+    // #580's slot-default path must not call `.trim()` on a non-string.
+    expect(effectiveMealLabel(en, 1, 503)).toBe('503')
+    expect(editableMealLabel(en, 1, 503)).toBe('503')
+    expect(defaultTimeEatenForMealLabel(503)).toBeUndefined()
+    expect(effectiveTimeEaten({ label: 503 })).toBeUndefined()
+    expect(effectiveTimeEaten({ label: 503, timeEaten: '21:30' })).toBe('21:30')
+  })
 })
