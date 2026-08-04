@@ -377,8 +377,6 @@ export const ru: Dictionary = {
     saveDayTotalsLabel: 'Сохранить итоги дня',
     clearDayTotalsLabel: 'Очистить',
     editDayTotalsLabel: 'Изменить',
-    addWaterAmountLabel: 'Количество воды',
-    saveWaterLabel: 'Добавить воду',
     expandWaterLabel: 'Показать воду',
     collapseWaterLabel: 'Скрыть воду',
     mlUnit: 'мл',

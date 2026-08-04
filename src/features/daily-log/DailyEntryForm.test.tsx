@@ -3132,8 +3132,8 @@ describe('DailyEntryForm', () => {
       ).not.toBeInTheDocument()
     })
 
-    // #549: manual ml input restored alongside the two quick-add buttons.
-    it('shows manual ml input and quick-add buttons when enabled', () => {
+    // #598: freeform ml input removed — glass/bottle quick-add only.
+    it('shows quick-add buttons when enabled (no freeform ml input)', () => {
       useWaterTrackingStore.setState({ enabled: true })
       render(
         <DailyEntryForm date="2026-03-01" existingEntry={null} onSave={vi.fn()} />,
@@ -3145,26 +3145,10 @@ describe('DailyEntryForm', () => {
       expect(
         screen.getByRole('button', { name: '+1 bottle (500ml)' }),
       ).toBeInTheDocument()
-      expect(screen.getByLabelText('Water amount')).toBeInTheDocument()
-      expect(screen.getByRole('button', { name: 'Add water' })).toBeInTheDocument()
-    })
-
-    it('adds a manual ml water entry on confirm', async () => {
-      useWaterTrackingStore.setState({ enabled: true })
-      const user = userEvent.setup()
-      const onSave = vi.fn()
-      render(
-        <DailyEntryForm date="2026-03-01" existingEntry={null} onSave={onSave} />,
-      )
-
-      await user.type(screen.getByLabelText('Water amount'), '350')
-      await user.click(screen.getByRole('button', { name: 'Add water' }))
-
-      expect(onSave).toHaveBeenCalledTimes(1)
-      expect(onSave.mock.calls[0][0].waterEntries).toEqual([
-        expect.objectContaining({ amountMl: 350 }),
-      ])
-      expect(screen.getByText('350ml')).toBeInTheDocument()
+      expect(screen.queryByLabelText('Water amount')).not.toBeInTheDocument()
+      expect(
+        screen.queryByRole('button', { name: 'Add water' }),
+      ).not.toBeInTheDocument()
     })
 
     it('adds a new entry immediately on a quick-add click, with no prior entries', async () => {

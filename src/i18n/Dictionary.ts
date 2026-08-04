@@ -701,8 +701,6 @@ export interface Dictionary {
     saveDayTotalsLabel: string
     clearDayTotalsLabel: string
     editDayTotalsLabel: string
-    addWaterAmountLabel: string
-    saveWaterLabel: string
     /** #476 — accordion trigger wrapping the water quick-add + chips,
      * same expand/collapse aria-label pair shape as expandMealsLabel/
      * collapseMealsLabel and expandMacrosLabel/collapseMacrosLabel. */

@@ -1,4 +1,4 @@
-import { Check, ChevronDown, CupSoda, GlassWater, X } from 'lucide-react'
+import { ChevronDown, CupSoda, GlassWater, X } from 'lucide-react'
 import { formatNumber } from '@/i18n'
 import { Button } from '@/shared/ui/button'
 import {
@@ -6,7 +6,6 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from '@/shared/ui/collapsible'
-import { Input } from '@/shared/ui/input'
 import { NumberInput } from '@/shared/ui/number-input'
 import { StatCard } from '@/shared/ui/stat-card'
 import { useTodaySectionsCollapseStore } from '@/stores'
@@ -309,14 +308,10 @@ export function DailyEntryFormTop() {
       </div>
 
       {/* #258 — opt-in water tracking, gated by its own Settings toggle.
-       * #271: each add (quick-add button or manual entry + confirm)
-       * becomes its own removable entry instead of bumping a single
-       * running total the input quietly reflected — every add now gets a
-       * persistent, visible marker. #416: moved here, after Meals, ahead
-       * of the Evening group — not folded into Morning or Evening.
-       * #476: wrapped in the same bordered `Collapsible` accordion the
-       * macros (#467) / meals (#468) sections above use — was the last
-       * plain unbordered block between those and Evening (#472). */}
+       * #271: each quick-add tap becomes its own removable entry instead of
+       * bumping a single running total. #416: after Meals, ahead of Evening.
+       * #476: bordered Collapsible accordion. #598: freeform ml input +
+       * checkmark removed — glass/bottle quick-add + chips only. */}
       {state.waterTrackingEnabled && (
         <div
           id="water-entry-section"
@@ -345,40 +340,6 @@ export function DailyEntryFormTop() {
             </CollapsibleTrigger>
             <CollapsibleContent>
               <div className="flex flex-col gap-1.5 pt-3">
-                <div className="flex flex-wrap items-center gap-3">
-                  <Input
-                    type="text"
-                    inputMode="numeric"
-                    aria-label={t.dailyEntry.addWaterAmountLabel}
-                    aria-invalid={state.waterInputError ? true : undefined}
-                    className="h-12 w-24"
-                    value={state.waterInput}
-                    onChange={(e) => state.setWaterInput(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') {
-                        e.preventDefault()
-                        state.saveWaterInput()
-                      }
-                    }}
-                  />
-                  <span className="text-xs text-muted-foreground">
-                    {t.dailyEntry.mlUnit}
-                  </span>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="icon-xl"
-                    aria-label={t.dailyEntry.saveWaterLabel}
-                    onClick={state.saveWaterInput}
-                  >
-                    <Check aria-hidden="true" />
-                  </Button>
-                </div>
-                {state.waterInputError && (
-                  <p className="text-sm text-destructive">
-                    {state.waterInputError}
-                  </p>
-                )}
                 <div className="flex flex-wrap items-center gap-3">
                   <Button
                     type="button"

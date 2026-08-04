@@ -223,9 +223,6 @@ export function useDailyEntryFormState({
   const [dayTotalsCarbsInput, setDayTotalsCarbsInput] = useState('')
   const [dayTotalsFiberInput, setDayTotalsFiberInput] = useState('')
   const [dayTotalsError, setDayTotalsError] = useState<string | null>(null)
-  // #549 — manual water ml input restored (#282 removed it).
-  const [waterInput, setWaterInput] = useState('')
-  const [waterInputError, setWaterInputError] = useState<string | null>(null)
 
   // Opt-in digestion tracking's on/off toggle (Settings) — the toggle
   // itself only renders on this screen when enabled, same gate DayDetail
@@ -541,30 +538,18 @@ export function useDailyEntryFormState({
   }
 
   // #271: each quick-add tap becomes its own removable entry instead of
-  // bumping a single running total — the previous single-number version
-  // gave no visible feedback per add, reported as "looks like nothing
-  // happens." #549: manual ml input restored alongside quick-add buttons.
+  // bumping a single running total. #598: freeform ml input removed — only
+  // glass/bottle quick-add amounts call this.
   function addWaterEntry(amountMl: number) {
     const result = waterMlSchema.safeParse(amountMl)
-    if (!result.success) {
-      setWaterInputError(t.dailyEntry.invalidValueMessage)
-      return
-    }
+    if (!result.success) return
     if (result.data === 0) return
-    setWaterInputError(null)
     const entries = [
       ...(getValues('waterEntries') ?? []),
       { id: crypto.randomUUID(), amountMl: result.data },
     ]
     setValue('waterEntries', entries, { shouldDirty: true })
     persist({ ...getValues(), waterEntries: entries })
-  }
-
-  function saveWaterInput() {
-    const amountMl = parseNumberInput(waterInput)
-    if (amountMl === undefined) return
-    addWaterEntry(amountMl)
-    setWaterInput('')
   }
 
   function removeWaterEntry(id: string) {
@@ -1057,10 +1042,6 @@ export function useDailyEntryFormState({
     // Water
     waterTrackingEnabled,
     waterEntries,
-    waterInput,
-    setWaterInput,
-    waterInputError,
-    saveWaterInput,
     addWaterEntry,
     removeWaterEntry,
     // Constipation

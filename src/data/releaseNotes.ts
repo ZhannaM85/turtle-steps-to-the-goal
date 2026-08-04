@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 554,
+    issue: 598,
+    date: '2026-08-04T18:45:00+03:00',
+    en: 'The Water card on Day no longer has a freeform ml box — use the glass or bottle buttons instead.',
+    ru: 'На карточке Вода на экране День больше нет поля мл вручную — добавляйте стаканом или бутылкой.',
+  },
+  {
     version: 553,
     issue: 596,
     date: '2026-08-04T18:00:00+03:00',

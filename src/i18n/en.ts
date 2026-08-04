@@ -356,8 +356,6 @@ export const en: Dictionary = {
     saveDayTotalsLabel: 'Save day totals',
     clearDayTotalsLabel: 'Clear',
     editDayTotalsLabel: 'Edit',
-    addWaterAmountLabel: 'Water amount',
-    saveWaterLabel: 'Add water',
     expandWaterLabel: 'Show water',
     collapseWaterLabel: 'Hide water',
     mlUnit: 'ml',
