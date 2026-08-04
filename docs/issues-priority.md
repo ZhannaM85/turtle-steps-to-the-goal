@@ -47,5 +47,4 @@ _Further filings from this session (list may grow)._
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#597](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/597) | 🔍 Pending validation | Day: sort meal cards by logged time (earliest first) | Display order via `sortCalorieEntriesByLoggedTime` + slot defaults; storage order unchanged; untimed last. |
-| [#598](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/598) | 🔍 Pending validation | Day Water card: remove freeform ml input field | Glass/bottle quick-add + chips only; dropped empty ml box + checkmark. |
 
