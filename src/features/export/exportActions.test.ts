@@ -99,6 +99,17 @@ describe('exportAllData', () => {
     expect(bundle.dailyEntries).toEqual([])
   })
 
+  it('includes current appearance and language in the backup (#578)', async () => {
+    const { useThemeStore } = await import('@/stores/themeStore')
+    const { useLocaleStore } = await import('@/i18n')
+    useThemeStore.setState({ mood: 'sage', colorScheme: 'dark' })
+    useLocaleStore.setState({ locale: 'ru' })
+
+    const bundle = await exportAllData()
+    expect(bundle.appearance).toEqual({ mood: 'sage', colorScheme: 'dark' })
+    expect(bundle.locale).toBe('ru')
+  })
+
   it('exports all goals and entries currently stored', async () => {
     const goal = makeGoal()
     const entry = makeEntry()
@@ -189,7 +200,7 @@ describe('importAllData', () => {
 
     const backupEntry = makeEntry({ date: '2026-03-01' })
     await importAllData({
-      version: 8,
+      version: 9,
       exportedAt: new Date().toISOString(),
       goals: [],
       dailyEntries: [backupEntry],
@@ -214,7 +225,7 @@ describe('importAllData', () => {
       weightKg: 81,
     })
     await importAllData({
-      version: 8,
+      version: 9,
       exportedAt: new Date().toISOString(),
       goals: [],
       dailyEntries: [backupEntry],
@@ -239,7 +250,7 @@ describe('importAllData', () => {
       lastAmountKcal: 208,
     })
     await importAllData({
-      version: 8,
+      version: 9,
       exportedAt: new Date().toISOString(),
       goals: [],
       dailyEntries: [],
@@ -286,7 +297,7 @@ describe('importAllData', () => {
   it('imports fine when mealItems/foodOverrides are absent (older backups, #113)', async () => {
     await expect(
       importAllData({
-        version: 8,
+        version: 9,
         exportedAt: new Date().toISOString(),
         goals: [],
         dailyEntries: [],
@@ -317,7 +328,7 @@ describe('importAllData', () => {
   it('imports fine when recipes is absent (older backups, #251)', async () => {
     await expect(
       importAllData({
-        version: 8,
+        version: 9,
         exportedAt: new Date().toISOString(),
         goals: [],
         dailyEntries: [],
@@ -326,17 +337,69 @@ describe('importAllData', () => {
 
     expect(await db.recipes.toArray()).toEqual([])
   })
+
+  it('restores appearance and language from the backup (#578)', async () => {
+    const { useThemeStore } = await import('@/stores/themeStore')
+    const { useLocaleStore } = await import('@/i18n')
+    useThemeStore.setState({ mood: 'pond', colorScheme: 'system' })
+    useLocaleStore.setState({ locale: 'en' })
+
+    await importAllData({
+      version: 9,
+      exportedAt: new Date().toISOString(),
+      goals: [],
+      dailyEntries: [],
+      appearance: { mood: 'lagoon', colorScheme: 'light' },
+      locale: 'ru',
+    })
+
+    expect(useThemeStore.getState().mood).toBe('lagoon')
+    expect(useThemeStore.getState().colorScheme).toBe('light')
+    expect(useLocaleStore.getState().locale).toBe('ru')
+  })
+
+  it('leaves appearance and language alone when a pre-v9 backup omits them (#578)', async () => {
+    const { useThemeStore } = await import('@/stores/themeStore')
+    const { useLocaleStore } = await import('@/i18n')
+    useThemeStore.setState({ mood: 'dusk', colorScheme: 'dark' })
+    useLocaleStore.setState({ locale: 'ru' })
+
+    await importAllData({
+      version: 9,
+      exportedAt: new Date().toISOString(),
+      goals: [],
+      dailyEntries: [],
+    })
+
+    expect(useThemeStore.getState().mood).toBe('dusk')
+    expect(useThemeStore.getState().colorScheme).toBe('dark')
+    expect(useLocaleStore.getState().locale).toBe('ru')
+  })
 })
 
 describe('parseExportBundle', () => {
-  it('parses a valid v8 bundle', () => {
+  it('parses a valid v9 bundle', () => {
     const bundle = {
-      version: 8,
+      version: 9,
       exportedAt: '2026-01-01',
       goals: [],
       dailyEntries: [],
     }
     expect(parseExportBundle(bundle)).toEqual(bundle)
+  })
+
+  it('upgrades a v8 backup leaving appearance/locale unset (#578)', () => {
+    const v8Bundle = {
+      version: 8,
+      exportedAt: '2026-01-01',
+      goals: [],
+      dailyEntries: [],
+      weeklyNotes: [],
+    }
+    expect(parseExportBundle(v8Bundle)).toEqual({
+      ...v8Bundle,
+      version: 9,
+    })
   })
 
   it('upgrades a v7 backup with empty weeklyNotes (#557)', () => {
@@ -348,7 +411,7 @@ describe('parseExportBundle', () => {
     }
     expect(parseExportBundle(v7Bundle)).toEqual({
       ...v7Bundle,
-      version: 8,
+      version: 9,
       weeklyNotes: [],
     })
   })
@@ -372,7 +435,7 @@ describe('parseExportBundle', () => {
 
     const upgraded = parseExportBundle(v6Bundle)
 
-    expect(upgraded.version).toBe(8)
+    expect(upgraded.version).toBe(9)
     expect(upgraded.dailyEntries[0]).not.toHaveProperty('waterMl')
     expect(upgraded.dailyEntries[0].waterEntries).toEqual([
       { id: expect.any(String), amountMl: 750 },
@@ -437,7 +500,7 @@ describe('parseExportBundle', () => {
 
     const upgraded = parseExportBundle(v5Bundle)
 
-    expect(upgraded.version).toBe(8)
+    expect(upgraded.version).toBe(9)
     const [singleItemMeal, multiItemMeal] =
       upgraded.dailyEntries[0].calorieEntries!
     // Unambiguous single-item meal: the group's old reaction moves onto it.
@@ -477,7 +540,7 @@ describe('parseExportBundle', () => {
 
     const upgraded = parseExportBundle(v4Bundle)
 
-    expect(upgraded.version).toBe(8)
+    expect(upgraded.version).toBe(9)
     const group = upgraded.dailyEntries[0].calorieEntries?.[0]
     expect(group?.id).toBe('meal-1')
     expect(group).not.toHaveProperty('note')
@@ -521,7 +584,7 @@ describe('parseExportBundle', () => {
 
     const upgraded = parseExportBundle(v3Bundle)
 
-    expect(upgraded.version).toBe(8)
+    expect(upgraded.version).toBe(9)
     const group = upgraded.dailyEntries[0].calorieEntries?.[0]
     // Old-format meal emotion is cleared, not translated (#54) — and never
     // reaches the item either, since the v3 path drops it before folding.
@@ -551,7 +614,7 @@ describe('parseExportBundle', () => {
 
     const upgraded = parseExportBundle(legacyBundle)
 
-    expect(upgraded.version).toBe(8)
+    expect(upgraded.version).toBe(9)
     expect(upgraded.dailyEntries[0]).not.toHaveProperty('caloriesConsumed')
     const group = upgraded.dailyEntries[0].calorieEntries?.[0]
     expect(group?.items).toEqual([

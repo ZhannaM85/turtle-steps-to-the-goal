@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 535,
+    issue: 578,
+    date: '2026-08-04T10:35:24+03:00',
+    en: 'JSON backups now include your appearance theme and language, and restore them on import.',
+    ru: 'JSON-резервные копии теперь включают тему оформления и язык и восстанавливают их при импорте.',
+  },
+  {
     version: 534,
     issue: 584,
     date: '2026-08-04T10:29:22+03:00',

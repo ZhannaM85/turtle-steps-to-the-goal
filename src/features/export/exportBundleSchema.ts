@@ -263,6 +263,33 @@ const weeklyNoteSchema = z.object({
 })
 
 export const exportBundleSchema = z.object({
+  version: z.literal(9),
+  exportedAt: z.string(),
+  goals: z.array(goalSchema),
+  dailyEntries: z.array(dailyEntrySchema),
+  mealItems: z.array(mealItemSchema).optional(),
+  foodOverrides: z.array(foodOverrideSchema).optional(),
+  recipes: z.array(recipeSchema).optional(),
+  customMetrics: z.array(customMetricSchema).optional(),
+  customMetricEntries: z.array(customMetricEntrySchema).optional(),
+  customCorrelations: z.array(customCorrelationSchema).optional(),
+  weeklyNotes: z.array(weeklyNoteSchema).optional(),
+  // #578 — appearance + language were localStorage-only; optional so a
+  // v8→v9 upgrade leaves them unset (import then doesn't overwrite the
+  // device's current UI prefs). Fresh exports always include both.
+  appearance: z
+    .object({
+      mood: z.enum(['pond', 'dusk', 'sage', 'tortoise', 'lagoon']),
+      colorScheme: z.enum(['light', 'dark', 'system']),
+    })
+    .optional(),
+  locale: z.enum(['en', 'ru']).optional(),
+})
+
+export type ExportBundle = z.infer<typeof exportBundleSchema>
+
+/** Pre-#578 backups — no appearance/locale UI prefs. */
+export const exportBundleSchemaV8 = z.object({
   version: z.literal(8),
   exportedAt: z.string(),
   goals: z.array(goalSchema),
@@ -276,7 +303,7 @@ export const exportBundleSchema = z.object({
   weeklyNotes: z.array(weeklyNoteSchema).optional(),
 })
 
-export type ExportBundle = z.infer<typeof exportBundleSchema>
+export type ExportBundleV8 = z.infer<typeof exportBundleSchemaV8>
 
 /** Pre-#557 backups — no weekly notes table. */
 export const exportBundleSchemaV7 = z.object({

@@ -108,7 +108,7 @@ describe('buildExportBundle', () => {
     const entries = [makeEntry()]
     const bundle = buildExportBundle(goals, entries, [], [], [], [], [], [], [])
 
-    expect(bundle.version).toBe(8)
+    expect(bundle.version).toBe(9)
     expect(bundle.goals).toEqual(goals)
     expect(bundle.dailyEntries).toEqual(entries)
     expect(() => new Date(bundle.exportedAt).toISOString()).not.toThrow()
@@ -194,5 +194,26 @@ describe('buildExportBundle', () => {
       weeklyNotes,
     )
     expect(bundle.weeklyNotes).toEqual(weeklyNotes)
+  })
+
+  it('includes appearance and language (#578)', () => {
+    const bundle = buildExportBundle(
+      [],
+      [],
+      [],
+      [],
+      [],
+      [],
+      [],
+      [],
+      [],
+      { mood: 'tortoise', colorScheme: 'light' },
+      'ru',
+    )
+    expect(bundle.appearance).toEqual({
+      mood: 'tortoise',
+      colorScheme: 'light',
+    })
+    expect(bundle.locale).toBe('ru')
   })
 })

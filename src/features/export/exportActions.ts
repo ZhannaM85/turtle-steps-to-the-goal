@@ -9,6 +9,8 @@ import {
   IndexedDbRecipeRepository,
   IndexedDbWeeklyNoteRepository,
 } from '@/infrastructure/persistence/indexeddb'
+import { useLocaleStore } from '@/i18n'
+import { applyTheme, useThemeStore } from '@/stores/themeStore'
 import { buildExportBundle } from './exportBundle'
 import {
   exportBundleSchema,
@@ -18,6 +20,7 @@ import {
   exportBundleSchemaV5,
   exportBundleSchemaV6,
   exportBundleSchemaV7,
+  exportBundleSchemaV8,
   type ExportBundle,
   type ExportBundleV4,
   type ExportBundleV5,
@@ -56,6 +59,7 @@ export async function exportAllData(): Promise<ExportBundle> {
     customCorrelationRepository.getAll(),
     weeklyNoteRepository.getAll(),
   ])
+  const theme = useThemeStore.getState()
   return buildExportBundle(
     goals,
     dailyEntries,
@@ -66,6 +70,8 @@ export async function exportAllData(): Promise<ExportBundle> {
     customMetricEntries,
     customCorrelations,
     weeklyNotes,
+    { mood: theme.mood, colorScheme: theme.colorScheme },
+    useLocaleStore.getState().locale,
   )
 }
 
@@ -150,6 +156,17 @@ export async function importAllData(bundle: ExportBundle): Promise<void> {
       weeklyNoteRepository.upsert(note),
     ),
   ])
+
+  // #578 — apply UI prefs after domain data. Omitted on pre-v9 backups so
+  // a restore doesn't clobber the device's current theme/language.
+  if (bundle.appearance) {
+    const { mood, colorScheme } = bundle.appearance
+    useThemeStore.setState({ mood, colorScheme })
+    applyTheme(mood, colorScheme)
+  }
+  if (bundle.locale) {
+    useLocaleStore.getState().setLocale(bundle.locale)
+  }
 }
 
 export class InvalidBackupFileError extends Error {}
@@ -231,12 +248,21 @@ export function parseExportBundle(raw: unknown): ExportBundle {
   const current = exportBundleSchema.safeParse(raw)
   if (current.success) return current.data
 
+  // v8 -> v9 (#578): appearance + locale UI prefs added (unset when upgrading).
+  const v8 = exportBundleSchemaV8.safeParse(raw)
+  if (v8.success) {
+    return {
+      ...v8.data,
+      version: 9,
+    }
+  }
+
   // v7 -> v8 (#557): weekly notes table added (empty when upgrading).
   const v7 = exportBundleSchemaV7.safeParse(raw)
   if (v7.success) {
     return {
       ...v7.data,
-      version: 8,
+      version: 9,
       weeklyNotes: [],
     }
   }
@@ -246,7 +272,7 @@ export function parseExportBundle(raw: unknown): ExportBundle {
   if (v6.success) {
     return {
       ...v6.data,
-      version: 8,
+      version: 9,
       dailyEntries: upgradeV6ToV7(v6.data.dailyEntries),
       weeklyNotes: [],
     }
@@ -257,7 +283,7 @@ export function parseExportBundle(raw: unknown): ExportBundle {
   if (v5.success) {
     return {
       ...v5.data,
-      version: 8,
+      version: 9,
       dailyEntries: upgradeV6ToV7(upgradeV5ToV6(v5.data.dailyEntries)),
       weeklyNotes: [],
     }
@@ -267,7 +293,7 @@ export function parseExportBundle(raw: unknown): ExportBundle {
   if (v4.success) {
     return {
       ...v4.data,
-      version: 8,
+      version: 9,
       dailyEntries: upgradeV6ToV7(
         upgradeV5ToV6(foldFlatMealsIntoGroups(v4.data.dailyEntries)),
       ),
@@ -278,12 +304,12 @@ export function parseExportBundle(raw: unknown): ExportBundle {
   // v3 -> v5: meal-level emotion used the day's happy/unhappy/neutral set.
   // No auto-mapping to thumbsUp/thumbsDown/bellissimo (decided when #54 was
   // scoped) — old meal emotions are cleared, not translated. Then folded
-  // into single-item groups same as the v4 path above, then on to v8.
+  // into single-item groups same as the v4 path above, then on to v9.
   const v3 = exportBundleSchemaV3.safeParse(raw)
   if (v3.success) {
     return {
       ...v3.data,
-      version: 8,
+      version: 9,
       dailyEntries: upgradeV6ToV7(
         upgradeV5ToV6(
           foldFlatMealsIntoGroups(
@@ -307,7 +333,7 @@ export function parseExportBundle(raw: unknown): ExportBundle {
   if (legacy.success) {
     return {
       ...legacy.data,
-      version: 8,
+      version: 9,
       dailyEntries: upgradeV6ToV7(
         upgradeV5ToV6(
           foldFlatMealsIntoGroups(
