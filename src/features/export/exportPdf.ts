@@ -1,4 +1,4 @@
-import { addDays, format, parseISO, type Day } from 'date-fns'
+import { format, parseISO, type Day } from 'date-fns'
 import type { DailyEntry } from '@/domain/dailyEntry'
 import { kgToLb } from '@/domain/goal'
 import { weeklySummaries, type WeeklySummary } from '@/domain/stats'
@@ -11,8 +11,6 @@ import {
   type Locale,
 } from '@/i18n'
 import type { Unit } from '@/stores/unitStore'
-
-export type PdfSummaryRangeDays = 30 | 90
 
 export interface PdfSummaryData {
   rangeStart: string
@@ -37,25 +35,20 @@ function latestNumberField(
   return latest
 }
 
-const DATE_FORMAT = 'yyyy-MM-dd'
-
 /**
- * Pure data shaping for #609's PDF (below) — anchored to `asOfDate`, not a
- * live clock, so it's deterministic to test. `rangeDays` counts backward
- * inclusive of `asOfDate` itself (30 days = `asOfDate` and the 29 before
- * it), matching how "last 30 days" reads colloquially.
+ * Pure data shaping for #609's PDF (below). `rangeStart`/`rangeEnd` are
+ * plain ISO date strings the caller resolves (#624 — a free-form date
+ * range picker, same shape `ExportSection.tsx`'s other exports already
+ * use, rather than this function owning a fixed "last N days" concept)
+ * — both inclusive, both required, so this stays deterministic to test
+ * rather than depending on a live clock.
  */
 export function buildPdfSummaryData(
   allEntries: DailyEntry[],
-  rangeDays: PdfSummaryRangeDays,
-  asOfDate: string,
+  rangeStart: string,
+  rangeEnd: string,
   weekStartsOn: Day,
 ): PdfSummaryData {
-  const rangeEnd = asOfDate
-  const rangeStart = format(
-    addDays(parseISO(asOfDate), -(rangeDays - 1)),
-    DATE_FORMAT,
-  )
   const entries = allEntries.filter(
     (entry) => entry.date >= rangeStart && entry.date <= rangeEnd,
   )

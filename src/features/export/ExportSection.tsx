@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { format } from 'date-fns'
+import { format, subDays } from 'date-fns'
 import { type Dictionary, useLocale, useTranslation } from '@/i18n'
 import {
   useFoodOverrideStore,
@@ -19,7 +19,6 @@ import {
 } from '@/shared/ui/card'
 import { Input } from '@/shared/ui/input'
 import { InfoTooltip } from '@/shared/ui/info-tooltip'
-import { ToggleGroup, ToggleGroupItem } from '@/shared/ui/toggle-group'
 import { daysSince } from '@/shared/lib/lastBackupReminder'
 import { resolveWeekStartsOn } from '@/shared/lib/resolveWeekStartsOn'
 import {
@@ -39,11 +38,7 @@ import {
 } from './exportActions'
 import { buildDailyLogCsv, CSV_BOM } from './exportCsv'
 import { buildDailyLogMarkdown } from './exportMarkdown'
-import {
-  buildPdfSummaryData,
-  buildSummaryPdf,
-  type PdfSummaryRangeDays,
-} from './exportPdf'
+import { buildPdfSummaryData, buildSummaryPdf } from './exportPdf'
 import { buildExportWorkbook } from './exportXlsx'
 import { ImportConflictModePicker } from './ImportConflictModePicker'
 import { ImportFieldPicker } from './ImportFieldPicker'
@@ -251,7 +246,19 @@ export function ExportSection() {
   const locale = useLocale()
   const unit = useUnitStore((state) => state.unit)
   const weekStart = useWeekStartStore((state) => state.weekStart)
-  const [pdfRangeDays, setPdfRangeDays] = useState<PdfSummaryRangeDays>(30)
+  // #624 — a free-form date range (own state, not the shared periodStart/
+  // periodEnd above) replaces the original fixed 30/90-day toggle. Unlike
+  // that shared picker, blank isn't a valid "everything" default here — an
+  // unbounded weight-trend chart/weekly table would defeat the "one-page
+  // summary" point — so these start prefilled with the last 90 days
+  // (matching the toggle's own prior default) rather than empty strings.
+  // The two quick-fill buttons below just overwrite these same fields.
+  const [pdfPeriodStart, setPdfPeriodStart] = useState(() =>
+    format(subDays(new Date(), 89), 'yyyy-MM-dd'),
+  )
+  const [pdfPeriodEnd, setPdfPeriodEnd] = useState(() =>
+    format(new Date(), 'yyyy-MM-dd'),
+  )
   const zeppLifeFileInputRef = useRef<HTMLInputElement>(null)
   const [zeppLifePendingFile, setZeppLifePendingFile] = useState<File | null>(
     null,
@@ -552,30 +559,30 @@ export function ExportSection() {
     }
   }
 
-  // #609 — a one-page PDF summary for sharing outside the app. Uses its own
-  // fixed 30/90-day range picker rather than the free-form period picker
-  // above (Excel/CSV/Markdown/ranged backup) — the issue calls for exactly
-  // those two options, anchored to today, not an arbitrary date range.
+  // #609/#624 — a one-page PDF summary for sharing outside the app, scoped
+  // to its own free-form date range (pdfPeriodStart/pdfPeriodEnd) — a
+  // deliberately separate picker from the shared periodStart/periodEnd
+  // above (see that state's own comment for why blank isn't a valid
+  // default here the way it is for Excel/CSV/Markdown).
   async function handleExportPdf() {
     setStatus({ kind: 'exportingPdf' })
     try {
       const bundle = await exportAllData()
-      const asOfDate = format(new Date(), 'yyyy-MM-dd')
       const earliestEntryDate = bundle.dailyEntries.reduce<string | undefined>(
         (min, entry) => (min === undefined || entry.date < min ? entry.date : min),
         undefined,
       )
       const data = buildPdfSummaryData(
         bundle.dailyEntries,
-        pdfRangeDays,
-        asOfDate,
+        pdfPeriodStart,
+        pdfPeriodEnd,
         resolveWeekStartsOn(weekStart, earliestEntryDate),
       )
       const blob = await buildSummaryPdf(data, t, locale, unit)
       const url = URL.createObjectURL(blob)
       const link = document.createElement('a')
       link.href = url
-      link.download = `turtle-steps-summary-${asOfDate}.pdf`
+      link.download = `turtle-steps-summary-${pdfPeriodEnd}.pdf`
       link.click()
       URL.revokeObjectURL(url)
       setStatus({ kind: 'exportedPdf' })
@@ -1059,39 +1066,71 @@ export function ExportSection() {
           )}
         </div>
 
-        {/* #609 — a one-page PDF summary (weight trend, weekly averages,
-         * optional body measurements, non-medical disclaimer), for sharing
-         * outside the app. Own fixed 30/90-day range, not the free period
-         * picker above. */}
+        {/* #609/#624 — a one-page PDF summary (weight trend, weekly
+         * averages, optional body measurements, non-medical disclaimer),
+         * for sharing outside the app. Own free-form date range (not the
+         * shared period picker above — see pdfPeriodStart's own comment)
+         * with two quick-fill shortcuts for the common "last 30/90 days"
+         * cases, matching the two-`Input` period-picker pattern used
+         * above rather than the original fixed 30/90-day toggle. */}
         <div className="flex flex-col gap-2">
           <p className="text-sm text-muted-foreground">
             {t.export.exportPdfBlurb}
           </p>
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-muted-foreground">
-              {t.export.exportPdfRangeLabel}
-            </span>
-            <ToggleGroup
-              type="single"
-              aria-label={t.export.exportPdfRangeLabel}
-              value={String(pdfRangeDays)}
-              onValueChange={(next) => {
-                if (next) setPdfRangeDays(Number(next) as PdfSummaryRangeDays)
+          <div className="flex flex-wrap items-center gap-2">
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={() => {
+                setPdfPeriodStart(format(subDays(new Date(), 29), 'yyyy-MM-dd'))
+                setPdfPeriodEnd(format(new Date(), 'yyyy-MM-dd'))
               }}
             >
-              <ToggleGroupItem value="30" className="text-sm">
-                {t.export.exportPdfRange30Label}
-              </ToggleGroupItem>
-              <ToggleGroupItem value="90" className="text-sm">
-                {t.export.exportPdfRange90Label}
-              </ToggleGroupItem>
-            </ToggleGroup>
+              {t.export.exportPdfRange30Label}
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={() => {
+                setPdfPeriodStart(format(subDays(new Date(), 89), 'yyyy-MM-dd'))
+                setPdfPeriodEnd(format(new Date(), 'yyyy-MM-dd'))
+              }}
+            >
+              {t.export.exportPdfRange90Label}
+            </Button>
+          </div>
+          <span className="text-sm font-medium">
+            {t.export.exportPdfRangeLabel}
+          </span>
+          <div className="flex items-center gap-2">
+            <Input
+              type="date"
+              aria-label={`${t.export.exportPdfRangeLabel} — ${t.dashboard.rangeStartLabel}`}
+              value={pdfPeriodStart}
+              max={pdfPeriodEnd}
+              onChange={(e) => setPdfPeriodStart(e.target.value)}
+              className="h-10"
+            />
+            <Input
+              type="date"
+              aria-label={`${t.export.exportPdfRangeLabel} — ${t.dashboard.rangeEndLabel}`}
+              value={pdfPeriodEnd}
+              min={pdfPeriodStart}
+              onChange={(e) => setPdfPeriodEnd(e.target.value)}
+              className="h-10"
+            />
           </div>
           <Button
             variant="outline"
             onClick={handleExportPdf}
             className="self-start"
-            disabled={status.kind === 'exportingPdf'}
+            disabled={
+              status.kind === 'exportingPdf' ||
+              !pdfPeriodStart ||
+              !pdfPeriodEnd
+            }
           >
             {status.kind === 'exportingPdf'
               ? t.export.exportingPdfButton

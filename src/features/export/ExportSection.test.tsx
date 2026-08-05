@@ -51,12 +51,19 @@ beforeEach(async () => {
     dismissedUntil: null,
   })
   // jsdom doesn't implement object URLs or real navigation on anchor clicks;
-  // ExportSection only needs these to not throw.
-  vi.stubGlobal('URL', {
-    ...URL,
-    createObjectURL: vi.fn(() => 'blob:mock'),
-    revokeObjectURL: vi.fn(),
-  })
+  // ExportSection only needs these to not throw. Assigning the two missing
+  // static methods directly onto the real `URL` (rather than
+  // `vi.stubGlobal('URL', { ...URL, ... })`, which replaces the global with
+  // a plain object spread — losing `URL`'s own constructor behavior in the
+  // process) keeps `new URL(...)` working everywhere else that needs it,
+  // including Vite's own dynamic-`import()` module resolution (#624 —
+  // exportPdf.ts dynamically imports jspdf/jspdf-autotable/its embedded
+  // font; the very first such import in a fresh module graph threw "URL is
+  // not a constructor" under the old stub, intermittently masked by
+  // whether Vite's local dep-cache from an earlier run happened to already
+  // have those pre-bundled).
+  URL.createObjectURL = vi.fn(() => 'blob:mock')
+  URL.revokeObjectURL = vi.fn()
   vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {})
 })
 
@@ -238,7 +245,7 @@ describe('ExportSection', () => {
     ).toBeInTheDocument()
   })
 
-  it('exports a PDF summary for the default 30-day range (#609)', async () => {
+  it('exports a PDF summary using the default (last-90-days) date range (#609)', async () => {
     await db.dailyEntries.put(makeEntry({ date: format(new Date(), 'yyyy-MM-dd'), weightKg: 80 }))
     const user = userEvent.setup()
 
@@ -252,13 +259,16 @@ describe('ExportSection', () => {
     ).toBeInTheDocument()
   })
 
-  it('lets you switch the PDF summary to the 90-day range before exporting (#609)', async () => {
+  it('lets a quick-fill button set the PDF summary to the last 30 days (#624)', async () => {
     const user = userEvent.setup()
 
     render(<ExportSection />)
-    const range90 = screen.getByRole('radio', { name: 'Last 90 days' })
-    await user.click(range90)
-    expect(range90).toHaveAttribute('aria-checked', 'true')
+    await user.click(screen.getByRole('button', { name: 'Last 30 days' }))
+
+    const today = format(new Date(), 'yyyy-MM-dd')
+    expect(
+      screen.getByLabelText('Summary covers — End date'),
+    ).toHaveValue(today)
 
     await user.click(
       screen.getByRole('button', { name: 'Export PDF summary' }),
@@ -267,6 +277,36 @@ describe('ExportSection', () => {
     expect(
       await screen.findByText('PDF summary downloaded.'),
     ).toBeInTheDocument()
+  })
+
+  it('exports a PDF summary for a custom, non-30/90-day date range (#624)', async () => {
+    await db.dailyEntries.put(makeEntry({ date: '2026-01-15', weightKg: 80 }))
+    const user = userEvent.setup()
+
+    render(<ExportSection />)
+    const startInput = screen.getByLabelText('Summary covers — Start date')
+    const endInput = screen.getByLabelText('Summary covers — End date')
+    fireEvent.change(startInput, { target: { value: '2026-01-01' } })
+    fireEvent.change(endInput, { target: { value: '2026-01-31' } })
+
+    await user.click(
+      screen.getByRole('button', { name: 'Export PDF summary' }),
+    )
+
+    expect(
+      await screen.findByText('PDF summary downloaded.'),
+    ).toBeInTheDocument()
+  })
+
+  it('disables the PDF export button once the date range is cleared (#624)', async () => {
+    render(<ExportSection />)
+    const startInput = screen.getByLabelText('Summary covers — Start date')
+
+    fireEvent.change(startInput, { target: { value: '' } })
+
+    expect(
+      screen.getByRole('button', { name: 'Export PDF summary' }),
+    ).toBeDisabled()
   })
 
   it('imports a valid backup file and reports the result', async () => {

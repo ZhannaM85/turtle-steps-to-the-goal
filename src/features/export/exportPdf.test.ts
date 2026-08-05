@@ -17,14 +17,14 @@ function makeEntry(overrides: Partial<DailyEntry> = {}): DailyEntry {
 }
 
 describe('buildPdfSummaryData', () => {
-  it('scopes to the last N days ending on asOfDate, inclusive', () => {
+  it('scopes to the given range, inclusive on both ends', () => {
     const entries = [
-      makeEntry({ date: '2026-07-06', weightKg: 79 }), // 30 days before asOfDate — just out of range
-      makeEntry({ date: '2026-07-07', weightKg: 80 }), // exactly 30 days back — in range
-      makeEntry({ date: '2026-08-05', weightKg: 78 }), // asOfDate itself — in range
+      makeEntry({ date: '2026-07-06', weightKg: 79 }), // just before rangeStart — out of range
+      makeEntry({ date: '2026-07-07', weightKg: 80 }), // rangeStart itself — in range
+      makeEntry({ date: '2026-08-05', weightKg: 78 }), // rangeEnd itself — in range
     ]
 
-    const data = buildPdfSummaryData(entries, 30, '2026-08-05', 1)
+    const data = buildPdfSummaryData(entries, '2026-07-07', '2026-08-05', 1)
 
     expect(data.rangeStart).toBe('2026-07-07')
     expect(data.rangeEnd).toBe('2026-08-05')
@@ -41,7 +41,7 @@ describe('buildPdfSummaryData', () => {
       makeEntry({ date: '2026-08-02', weightKg: 80 }),
     ]
 
-    const data = buildPdfSummaryData(entries, 30, '2026-08-05', 1)
+    const data = buildPdfSummaryData(entries, '2026-07-07', '2026-08-05', 1)
 
     expect(data.weightPoints.map((p) => p.date)).toEqual([
       '2026-08-01',
@@ -53,7 +53,7 @@ describe('buildPdfSummaryData', () => {
   it('excludes entries with no logged weight from the trend', () => {
     const entries = [makeEntry({ date: '2026-08-01', weightKg: undefined })]
 
-    const data = buildPdfSummaryData(entries, 30, '2026-08-05', 1)
+    const data = buildPdfSummaryData(entries, '2026-07-07', '2026-08-05', 1)
 
     expect(data.weightPoints).toEqual([])
   })
@@ -65,7 +65,7 @@ describe('buildPdfSummaryData', () => {
       makeEntry({ date: '2026-08-02', hipCm: 95 }),
     ]
 
-    const data = buildPdfSummaryData(entries, 30, '2026-08-05', 1)
+    const data = buildPdfSummaryData(entries, '2026-07-07', '2026-08-05', 1)
 
     expect(data.latestWaistCm).toEqual({ value: 79, date: '2026-08-03' })
     expect(data.latestHipCm).toEqual({ value: 95, date: '2026-08-02' })
@@ -79,12 +79,25 @@ describe('buildPdfSummaryData', () => {
       makeEntry({ date: '2026-08-02', weightKg: 82 }),
     ]
 
-    const data = buildPdfSummaryData(entries, 30, '2026-08-05', 1)
+    const data = buildPdfSummaryData(entries, '2026-07-07', '2026-08-05', 1)
 
     expect(data.weeks.length).toBeGreaterThan(0)
     for (const week of data.weeks) {
       expect(week.weekStart >= '2026-07-07').toBe(true)
     }
+  })
+
+  // #624 — the range is now a free-form picker, not a fixed 30/90-day
+  // window, so a much longer span (e.g. a full year) is a real input.
+  it('handles a range spanning many months', () => {
+    const entries = [
+      makeEntry({ date: '2025-09-01', weightKg: 85 }),
+      makeEntry({ date: '2026-08-05', weightKg: 78 }),
+    ]
+
+    const data = buildPdfSummaryData(entries, '2025-09-01', '2026-08-05', 1)
+
+    expect(data.weightPoints).toHaveLength(2)
   })
 })
 
@@ -95,7 +108,7 @@ describe('buildSummaryPdf', () => {
         makeEntry({ date: '2026-08-01', weightKg: 80, waistCm: 80 }),
         makeEntry({ date: '2026-08-04', weightKg: 79 }),
       ],
-      30,
+      '2026-07-07',
       '2026-08-05',
       1,
     )
@@ -107,7 +120,7 @@ describe('buildSummaryPdf', () => {
   })
 
   it('does not throw when there is no weight/weekly/body-measurement data at all (#609)', async () => {
-    const data = buildPdfSummaryData([], 30, '2026-08-05', 1)
+    const data = buildPdfSummaryData([], '2026-07-07', '2026-08-05', 1)
 
     const blob = await buildSummaryPdf(data, t, 'en', 'kg')
 
@@ -117,7 +130,7 @@ describe('buildSummaryPdf', () => {
   it('renders a single logged weight point without dividing by zero', async () => {
     const data = buildPdfSummaryData(
       [makeEntry({ date: '2026-08-05', weightKg: 80 })],
-      30,
+      '2026-07-07',
       '2026-08-05',
       1,
     )
@@ -136,7 +149,7 @@ describe('buildSummaryPdf', () => {
     const ru = getDictionary('ru')
     const data = buildPdfSummaryData(
       [makeEntry({ date: '2026-08-01', weightKg: 80 })],
-      30,
+      '2026-07-07',
       '2026-08-05',
       1,
     )

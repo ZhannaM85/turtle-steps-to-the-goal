@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 578,
+    issue: 624,
+    date: '2026-08-05T18:32:04+03:00',
+    en: 'The PDF summary export now lets you pick any date range, not just the last 30 or 90 days.',
+    ru: 'Теперь в экспорте PDF-сводки можно выбрать любой период, а не только последние 30 или 90 дней.',
+  },
+  {
     version: 577,
     issue: 623,
     date: '2026-08-05T18:15:22+03:00',
