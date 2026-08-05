@@ -8,7 +8,7 @@ import {
 } from '@/shared/ui/collapsible'
 import { NumberInput } from '@/shared/ui/number-input'
 import { StatCard } from '@/shared/ui/stat-card'
-import { useTodaySectionsCollapseStore } from '@/stores'
+import { usePlannedMealsTrackingStore, useTodaySectionsCollapseStore } from '@/stores'
 import { MealList } from './MealList'
 import { PlannedMealsSection } from './PlannedMealsSection'
 import { useDailyEntryFormStateContext } from './useDailyEntryFormStateContext'
@@ -43,6 +43,13 @@ export function DailyEntryFormTop() {
     (s) => s.sections.water,
   )
   const setCollapsed = useTodaySectionsCollapseStore((s) => s.setCollapsed)
+  // #626 — opt-in like cycle/digestion/water/alcohol tracking: reported
+  // live right after #614 shipped that the feature's value wasn't obvious
+  // without food search, so it moved behind a Settings toggle, off by
+  // default, instead of always showing.
+  const plannedMealsTrackingEnabled = usePlannedMealsTrackingStore(
+    (state) => state.enabled,
+  )
 
   return (
     // #510 — same `gap-6` as TodayScreen's form-area / page column so
@@ -308,14 +315,16 @@ export function DailyEntryFormTop() {
         </Collapsible>
       </div>
 
-      <PlannedMealsSection
-        date={state.date}
-        calorieEntries={state.calorieEntries}
-        onChange={(next) => {
-          state.setValue('calorieEntries', next, { shouldDirty: true })
-          state.persist({ ...state.getValues(), calorieEntries: next })
-        }}
-      />
+      {plannedMealsTrackingEnabled && (
+        <PlannedMealsSection
+          date={state.date}
+          calorieEntries={state.calorieEntries}
+          onChange={(next) => {
+            state.setValue('calorieEntries', next, { shouldDirty: true })
+            state.persist({ ...state.getValues(), calorieEntries: next })
+          }}
+        />
+      )}
 
       {/* #258 — opt-in water tracking, gated by its own Settings toggle.
        * #271: each quick-add tap becomes its own removable entry instead of

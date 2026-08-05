@@ -8,6 +8,7 @@ import {
   useDailyReminderStore,
   useDigestionTrackingStore,
   useLastBackupStore,
+  usePlannedMealsTrackingStore,
   useProfileStore,
   useThemeStore,
   useTrackedFieldsStore,
@@ -36,6 +37,7 @@ beforeEach(() => {
   useWeekStartStore.setState({ weekStart: 'monday' })
   useDigestionTrackingStore.setState({ enabled: false })
   useWaterTrackingStore.setState({ enabled: false })
+  usePlannedMealsTrackingStore.setState({ enabled: false })
   useMicronutrientTrackingStore.setState({
     tracked: { sodium: false, potassium: false, magnesium: false },
   })
@@ -71,6 +73,7 @@ afterEach(() => {
   useWeekStartStore.setState({ weekStart: 'monday' })
   useDigestionTrackingStore.setState({ enabled: false })
   useWaterTrackingStore.setState({ enabled: false })
+  usePlannedMealsTrackingStore.setState({ enabled: false })
   useMicronutrientTrackingStore.setState({
     tracked: { sodium: false, potassium: false, magnesium: false },
   })
@@ -351,6 +354,21 @@ describe('SettingsScreen', () => {
 
       expect(waterToggle).toHaveAttribute('aria-pressed', 'true')
       expect(useWaterTrackingStore.getState().enabled).toBe(true)
+    })
+
+    it('defaults planned-meals tracking to off, and switches it on when selected (#626)', async () => {
+      const user = userEvent.setup()
+      renderSettings()
+
+      const plannedMealsToggle = screen.getByRole('button', {
+        name: 'Planned meals',
+      })
+      expect(plannedMealsToggle).toHaveAttribute('aria-pressed', 'false')
+
+      await user.click(plannedMealsToggle)
+
+      expect(plannedMealsToggle).toHaveAttribute('aria-pressed', 'true')
+      expect(usePlannedMealsTrackingStore.getState().enabled).toBe(true)
     })
 
     it('defaults the previously-unconditional fields (Sleep, Steps, etc.) to on', () => {

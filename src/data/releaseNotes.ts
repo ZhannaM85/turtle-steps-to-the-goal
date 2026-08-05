@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 581,
+    issue: 626,
+    date: '2026-08-05T19:39:26+03:00',
+    en: 'Planned meals is now off by default — turn it on in Settings → What to track if you want to stage meals for tomorrow.',
+    ru: 'Запланированные приёмы пищи теперь по умолчанию отключены — включите в Настройках → Что отслеживать, если хотите планировать приёмы пищи на завтра.',
+  },
+  {
     version: 580,
     issue: 627,
     date: '2026-08-05T19:16:40+03:00',

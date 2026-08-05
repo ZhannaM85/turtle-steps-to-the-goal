@@ -1660,6 +1660,9 @@ export interface Dictionary {
     /** #607 — same opt-in shape as digestionTrackingLabel above. */
     alcoholTrackingLabel: string
     waterTrackingLabel: string
+    /** #626 — opt-in toggle for `PlannedMealsSection.tsx` (#614), same
+     * "What to track" card as the other opt-in sections above. */
+    plannedMealsTrackingLabel: string
     /** #237: unified "what to track" section — folds cycle/digestion
      * tracking's own opt-in toggles in with the 5 fields below, which
      * didn't have an opt-out at all before this. */

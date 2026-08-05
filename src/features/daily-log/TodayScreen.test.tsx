@@ -22,6 +22,7 @@ import {
   useDailyReminderStore,
   useDayStartStore,
   useGoalStore,
+  usePlannedMealsTrackingStore,
   useProfileStore,
   useSectionVisibilityStore,
   useTodayCardOrderStore,
@@ -116,6 +117,7 @@ beforeEach(async () => {
     },
   })
   useWaterTrackingStore.setState({ enabled: false })
+  usePlannedMealsTrackingStore.setState({ enabled: false })
   resetSectionVisibility()
 })
 
@@ -1629,6 +1631,31 @@ describe('TodayScreen', () => {
       const card = label.closest('[data-slot="card"]') as HTMLElement
       const bar = await within(card).findByRole('progressbar')
       expect(bar).toHaveAttribute('aria-valuenow', '100')
+    })
+
+    describe('Planned meals (#626)', () => {
+      it('does not show Planned meals by default', async () => {
+        render(
+          <MemoryRouter>
+            <TodayScreen />
+          </MemoryRouter>,
+        )
+
+        await screen.findByLabelText('Date')
+        expect(screen.queryByText('Planned meals')).not.toBeInTheDocument()
+      })
+
+      it('shows Planned meals once the Settings toggle is on', async () => {
+        usePlannedMealsTrackingStore.setState({ enabled: true })
+
+        render(
+          <MemoryRouter>
+            <TodayScreen />
+          </MemoryRouter>,
+        )
+
+        expect(await screen.findByText('Planned meals')).toBeInTheDocument()
+      })
     })
 
     describe('click-to-scroll (#430)', () => {
