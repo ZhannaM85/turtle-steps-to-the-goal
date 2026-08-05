@@ -476,6 +476,24 @@ export const ru: Dictionary = {
     confirmDeletePastTargetYes: 'Удалить',
     confirmDeletePastTargetNo: 'Отмена',
   },
+  weeklyReview: {
+    screenTitle: 'Обзор недели',
+    screenDescription:
+      'Спокойный взгляд на эту неделю — без баллов, без стыда, просто как обстоят дела.',
+    viewWeeklyReviewButton: 'Обзор недели',
+    backToGoalLabel: '← Цель',
+    noActiveGoalMessage: 'Задайте недельную цель на странице «Цель», чтобы увидеть обзор здесь.',
+    progressSectionLabel: 'Прогресс за эту неделю',
+    progressMetLabel: (date) => `Цель достигнута ${date}.`,
+    progressNotYetLabel: 'Цель этой недели ещё не достигнута — спешить некуда.',
+    progressNoBaselineYetMessage:
+      'Пока нет взвешивания в начале этой недели — прогресс появится, как только оно будет.',
+    averagesSectionLabel: 'Среднее за неделю',
+    averagesSummary: (kcal, protein) => `${kcal} ккал/день, ${protein} белка/день.`,
+    noAveragesYetMessage: 'На этой неделе пока ничего не внесено.',
+    insightSectionLabel: 'Что выделяется',
+    adjustPaceButton: 'Скорректировать темп на следующую неделю',
+  },
   export: {
     title: 'Экспорт',
     description: 'Экспорт и импорт резервной копии в формате JSON',

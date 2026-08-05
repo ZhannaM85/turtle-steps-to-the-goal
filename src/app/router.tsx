@@ -14,6 +14,7 @@ import {
   PrivacyScreen,
   RecipesSettingsScreen,
   SettingsScreen,
+  WeeklyReviewScreen,
 } from './lazyRoutes'
 
 export const routes: RouteObject[] = [
@@ -29,6 +30,8 @@ export const routes: RouteObject[] = [
       { path: '/dashboard', element: <DashboardScreen /> },
       { path: '/history', element: <HistoryScreen /> },
       { path: '/goal', element: <GoalScreen /> },
+      // #602 — calm end-of-week glance, reached from Goal.
+      { path: '/goal/weekly-review', element: <WeeklyReviewScreen /> },
       // #24: Export folded into Settings; redirect for anyone with the old
       // tab bookmarked rather than a dead link.
       { path: '/export', element: <Navigate to="/settings" replace /> },

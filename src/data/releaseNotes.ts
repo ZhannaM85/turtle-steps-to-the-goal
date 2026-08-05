@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 569,
+    issue: 602,
+    date: '2026-08-05T14:14:40+03:00',
+    en: 'A new Weekly review page (linked from Goal) gives a calm end-of-week glance: progress, average calories/protein, and one insight — no scores, no shame.',
+    ru: 'Новая страница «Обзор недели» (доступна со страницы «Цель») спокойно подводит итог недели: прогресс, средние калории/белок и одно наблюдение — без баллов и стыда.',
+  },
+  {
     version: 568,
     issue: 604,
     date: '2026-08-05T13:54:08+03:00',

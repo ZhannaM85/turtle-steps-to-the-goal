@@ -25,6 +25,11 @@ export const HistoryScreen = lazy(() =>
 export const GoalScreen = lazy(() =>
   import('@/features/goal-setup').then((m) => ({ default: m.GoalScreen })),
 )
+export const WeeklyReviewScreen = lazy(() =>
+  import('@/features/goal-setup').then((m) => ({
+    default: m.WeeklyReviewScreen,
+  })),
+)
 export const SettingsScreen = lazy(() =>
   import('@/features/settings').then((m) => ({ default: m.SettingsScreen })),
 )

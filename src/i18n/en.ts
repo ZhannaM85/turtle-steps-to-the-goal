@@ -454,6 +454,24 @@ export const en: Dictionary = {
     confirmDeletePastTargetYes: 'Delete',
     confirmDeletePastTargetNo: 'Cancel',
   },
+  weeklyReview: {
+    screenTitle: 'Weekly review',
+    screenDescription:
+      'A calm look at this week — no scores, no shame, just where things stand.',
+    viewWeeklyReviewButton: 'Weekly review',
+    backToGoalLabel: '← Goal',
+    noActiveGoalMessage: 'Set a weekly target on Goal to see a review here.',
+    progressSectionLabel: "This week's progress",
+    progressMetLabel: (date) => `Target reached on ${date}.`,
+    progressNotYetLabel: "Still working toward this week's target — no rush.",
+    progressNoBaselineYetMessage:
+      "No weigh-in logged yet for this week's start — progress will show once there is one.",
+    averagesSectionLabel: 'Average this week',
+    averagesSummary: (kcal, protein) => `${kcal} kcal/day, ${protein} protein/day.`,
+    noAveragesYetMessage: 'Nothing logged yet this week.',
+    insightSectionLabel: 'What stood out',
+    adjustPaceButton: "Adjust next week's pace",
+  },
   export: {
     title: 'Export',
     description: 'Export/import a JSON backup',

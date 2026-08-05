@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import { format, parseISO } from 'date-fns'
+import { Link } from 'react-router-dom'
 import {
   unitLabel,
   formatExactNumber,
@@ -10,6 +11,7 @@ import {
 } from '@/i18n'
 import { goalWeekEnd, kgToLb, paceCheckInsight } from '@/domain/goal'
 import { useActiveGoalProgress, useLatestWeight, usePastGoals } from '@/shared/hooks'
+import { Button } from '@/shared/ui/button'
 import { PageHeader } from '@/shared/ui/page-header'
 import { SectionTitleWithToggle } from '@/shared/ui/section-title-with-toggle'
 import { StatCard } from '@/shared/ui/stat-card'
@@ -86,6 +88,13 @@ export function GoalScreen() {
   return (
     <div className="flex flex-col gap-6">
       <PageHeader title={t.goal.title} description={t.goal.description} />
+
+      {/* #602 — one-tap entry point to the calm end-of-week glance. */}
+      <Button variant="outline" size="sm" className="self-start" asChild>
+        <Link to="/goal/weekly-review">
+          {t.weeklyReview.viewWeeklyReviewButton}
+        </Link>
+      </Button>
 
       {status === 'loading' || status === 'idle' ? (
         <p className="text-sm text-muted-foreground">{t.common.loading}</p>

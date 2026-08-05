@@ -859,6 +859,31 @@ export interface Dictionary {
     confirmDeletePastTargetYes: string
     confirmDeletePastTargetNo: string
   }
+  /**
+   * #602 — a calm, single-screen end-of-week glance, reached from Goal:
+   * this week's `goalWindowProgress`, average kcal/protein for the window
+   * (`goalWindowAverages`), and one plain-language line from the existing
+   * flagship weekly correlation (`correlationInsight` — reuses
+   * `dashboard.correlationSummary`/`correlationEmptyDescription` directly
+   * rather than duplicating that copy). Template strings only, no new
+   * scoring system, no shame copy for a missed target.
+   */
+  weeklyReview: {
+    screenTitle: string
+    screenDescription: string
+    viewWeeklyReviewButton: string
+    backToGoalLabel: string
+    noActiveGoalMessage: string
+    progressSectionLabel: string
+    progressMetLabel: (date: string) => string
+    progressNotYetLabel: string
+    progressNoBaselineYetMessage: string
+    averagesSectionLabel: string
+    averagesSummary: (kcal: string, protein: string) => string
+    noAveragesYetMessage: string
+    insightSectionLabel: string
+    adjustPaceButton: string
+  }
   export: {
     title: string
     description: string
