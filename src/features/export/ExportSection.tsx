@@ -114,6 +114,17 @@ function filterByExportPeriod<T extends { date: string }>(
   )
 }
 
+type StatusSection =
+  | 'jsonBackup'
+  | 'rangedBackup'
+  | 'excel'
+  | 'csv'
+  | 'markdown'
+  | 'jsonImport'
+  | 'zepp'
+  | 'apple'
+  | 'mfp'
+
 type Status =
   | { kind: 'idle' }
   | { kind: 'exporting' }
@@ -134,7 +145,37 @@ type Status =
   | { kind: 'importedAppleHealth'; daysImported: number; daysUpdated: number }
   | { kind: 'importingMyFitnessPal' }
   | { kind: 'importedMyFitnessPal'; daysImported: number; daysUpdated: number }
-  | { kind: 'error'; message: string }
+  /** #617 — `section` keeps the alert under the matching export/import block. */
+  | { kind: 'error'; section: StatusSection; message: string }
+
+function sectionErrorMessage(
+  status: Status,
+  section: StatusSection,
+): string | null {
+  return status.kind === 'error' && status.section === section
+    ? status.message
+    : null
+}
+
+function SectionStatus({
+  children,
+  error,
+}: {
+  children: string
+  error?: boolean
+}) {
+  if (error) {
+    return (
+      <p
+        role="alert"
+        className="rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive"
+      >
+        {children}
+      </p>
+    )
+  }
+  return <p className="text-sm text-muted-foreground">{children}</p>
+}
 
 /** "50 KB" / "1.2 MB" / "1.2 GB" — used for both usage and quota (#191:
  * quota is now shown alongside usage, so this needs a GB tier it never
@@ -258,7 +299,11 @@ export function ExportSection() {
         entries: bundle.dailyEntries.length,
       })
     } catch {
-      setStatus({ kind: 'error', message: t.export.exportFailed })
+      setStatus({
+        kind: 'error',
+        section: 'jsonBackup',
+        message: t.export.exportFailed,
+      })
     }
   }
 
@@ -300,7 +345,11 @@ export function ExportSection() {
         entries: dailyEntries.length,
       })
     } catch {
-      setStatus({ kind: 'error', message: t.export.exportFailed })
+      setStatus({
+        kind: 'error',
+        section: 'rangedBackup',
+        message: t.export.exportFailed,
+      })
     }
   }
 
@@ -338,7 +387,11 @@ export function ExportSection() {
         entries: dailyEntries.length,
       })
     } catch {
-      setStatus({ kind: 'error', message: t.export.exportExcelFailed })
+      setStatus({
+        kind: 'error',
+        section: 'excel',
+        message: t.export.exportExcelFailed,
+      })
     }
   }
 
@@ -364,7 +417,11 @@ export function ExportSection() {
       URL.revokeObjectURL(url)
       setStatus({ kind: 'exportedCsv', entries: dailyEntries.length })
     } catch {
-      setStatus({ kind: 'error', message: t.export.exportCsvFailed })
+      setStatus({
+        kind: 'error',
+        section: 'csv',
+        message: t.export.exportCsvFailed,
+      })
     }
   }
 
@@ -393,7 +450,11 @@ export function ExportSection() {
         entries: dailyEntries.length,
       })
     } catch {
-      setStatus({ kind: 'error', message: t.export.exportMarkdownFailed })
+      setStatus({
+        kind: 'error',
+        section: 'markdown',
+        message: t.export.exportMarkdownFailed,
+      })
     }
   }
 
@@ -426,7 +487,7 @@ export function ExportSection() {
           : err instanceof SyntaxError
             ? t.export.notValidJson
             : t.export.importFailed
-      setStatus({ kind: 'error', message })
+      setStatus({ kind: 'error', section: 'jsonImport', message })
     }
   }
 
@@ -484,7 +545,7 @@ export function ExportSection() {
         err instanceof ZeppLifeInvalidFileError
           ? t.zeppLifeImport.invalidFile
           : t.zeppLifeImport.importFailed
-      setStatus({ kind: 'error', message })
+      setStatus({ kind: 'error', section: 'zepp', message })
     }
   }
 
@@ -517,7 +578,7 @@ export function ExportSection() {
         err instanceof AppleHealthInvalidFileError
           ? t.appleHealthImport.invalidFile
           : t.appleHealthImport.importFailed
-      setStatus({ kind: 'error', message })
+      setStatus({ kind: 'error', section: 'apple', message })
     }
   }
 
@@ -536,7 +597,11 @@ export function ExportSection() {
       setMyFitnessPalNeedsPassword(encrypted)
       setMyFitnessPalSlotTimesDialogOpen(true)
     } catch {
-      setStatus({ kind: 'error', message: t.myFitnessPalImport.invalidFile })
+      setStatus({
+        kind: 'error',
+        section: 'mfp',
+        message: t.myFitnessPalImport.invalidFile,
+      })
     }
   }
 
@@ -603,7 +668,7 @@ export function ExportSection() {
         err instanceof MyFitnessPalInvalidFileError
           ? t.myFitnessPalImport.invalidFile
           : t.myFitnessPalImport.importFailed
-      setStatus({ kind: 'error', message })
+      setStatus({ kind: 'error', section: 'mfp', message })
     }
   }
 
@@ -637,6 +702,18 @@ export function ExportSection() {
               ? t.export.exportingButton
               : t.export.exportButton}
           </Button>
+          {status.kind === 'exported' && (
+            <SectionStatus>
+              {t.export.exportedSummary(
+                t.export.summary(status.goals, status.entries),
+              )}
+            </SectionStatus>
+          )}
+          {sectionErrorMessage(status, 'jsonBackup') && (
+            <SectionStatus error>
+              {sectionErrorMessage(status, 'jsonBackup')!}
+            </SectionStatus>
+          )}
         </div>
 
         {/* #240 — applies to Excel/CSV/Markdown below, not the JSON backup
@@ -684,6 +761,18 @@ export function ExportSection() {
               ? t.export.exportingRangedBackupButton
               : t.export.exportRangedBackupButton}
           </Button>
+          {status.kind === 'exportedRangedBackup' && (
+            <SectionStatus>
+              {t.export.exportedSummary(
+                t.export.summary(status.goals, status.entries),
+              )}
+            </SectionStatus>
+          )}
+          {sectionErrorMessage(status, 'rangedBackup') && (
+            <SectionStatus error>
+              {sectionErrorMessage(status, 'rangedBackup')!}
+            </SectionStatus>
+          )}
         </div>
 
         <div className="flex flex-col gap-2">
@@ -700,6 +789,18 @@ export function ExportSection() {
               ? t.export.exportingExcelButton
               : t.export.exportExcelButton}
           </Button>
+          {status.kind === 'exportedExcel' && (
+            <SectionStatus>
+              {t.export.exportedSummary(
+                t.export.summary(status.goals, status.entries),
+              )}
+            </SectionStatus>
+          )}
+          {sectionErrorMessage(status, 'excel') && (
+            <SectionStatus error>
+              {sectionErrorMessage(status, 'excel')!}
+            </SectionStatus>
+          )}
         </div>
 
         <div className="flex flex-col gap-2">
@@ -721,6 +822,14 @@ export function ExportSection() {
               label={t.export.exportCsvLlmTooltipLabel}
             />
           </div>
+          {status.kind === 'exportedCsv' && (
+            <SectionStatus>
+              {t.export.exportedCsvSummary(status.entries)}
+            </SectionStatus>
+          )}
+          {sectionErrorMessage(status, 'csv') && (
+            <SectionStatus error>{sectionErrorMessage(status, 'csv')!}</SectionStatus>
+          )}
         </div>
 
         <div className="flex flex-col gap-2">
@@ -737,6 +846,16 @@ export function ExportSection() {
               ? t.export.exportingMarkdownButton
               : t.export.exportMarkdownButton}
           </Button>
+          {status.kind === 'exportedMarkdown' && (
+            <SectionStatus>
+              {t.export.exportedMarkdownSummary(status.entries)}
+            </SectionStatus>
+          )}
+          {sectionErrorMessage(status, 'markdown') && (
+            <SectionStatus error>
+              {sectionErrorMessage(status, 'markdown')!}
+            </SectionStatus>
+          )}
         </div>
 
         <div className="flex flex-col gap-2 rounded-lg border border-border p-3">
@@ -764,6 +883,18 @@ export function ExportSection() {
               ? t.export.importingButton
               : t.export.importButton}
           </Button>
+          {status.kind === 'imported' && (
+            <SectionStatus>
+              {t.export.importedSummary(
+                t.export.summary(status.goals, status.entries),
+              )}
+            </SectionStatus>
+          )}
+          {sectionErrorMessage(status, 'jsonImport') && (
+            <SectionStatus error>
+              {sectionErrorMessage(status, 'jsonImport')!}
+            </SectionStatus>
+          )}
         </div>
 
         <div className="flex flex-col gap-2 rounded-lg border border-border p-3">
@@ -832,6 +963,19 @@ export function ExportSection() {
               ? t.zeppLifeImport.importingButton
               : t.zeppLifeImport.importButton}
           </Button>
+          {status.kind === 'importedZeppLife' && (
+            <SectionStatus>
+              {status.daysImported === 0
+                ? t.zeppLifeImport.importedNothingSummary
+                : t.zeppLifeImport.importedSummary(
+                    status.daysImported,
+                    status.daysUpdated,
+                  )}
+            </SectionStatus>
+          )}
+          {sectionErrorMessage(status, 'zepp') && (
+            <SectionStatus error>{sectionErrorMessage(status, 'zepp')!}</SectionStatus>
+          )}
         </div>
 
         <div className="flex flex-col gap-2 rounded-lg border border-border p-3">
@@ -897,6 +1041,19 @@ export function ExportSection() {
               ? t.appleHealthImport.importingButton(status.progress)
               : t.appleHealthImport.importButton}
           </Button>
+          {status.kind === 'importedAppleHealth' && (
+            <SectionStatus>
+              {status.daysImported === 0
+                ? t.appleHealthImport.importedNothingSummary
+                : t.appleHealthImport.importedSummary(
+                    status.daysImported,
+                    status.daysUpdated,
+                  )}
+            </SectionStatus>
+          )}
+          {sectionErrorMessage(status, 'apple') && (
+            <SectionStatus error>{sectionErrorMessage(status, 'apple')!}</SectionStatus>
+          )}
         </div>
 
         <div className="flex flex-col gap-2 rounded-lg border border-border p-3">
@@ -962,84 +1119,20 @@ export function ExportSection() {
               ? t.myFitnessPalImport.importingButton
               : t.myFitnessPalImport.importButton}
           </Button>
+          {status.kind === 'importedMyFitnessPal' && (
+            <SectionStatus>
+              {status.daysImported === 0
+                ? t.myFitnessPalImport.importedNothingSummary
+                : t.myFitnessPalImport.importedSummary(
+                    status.daysImported,
+                    status.daysUpdated,
+                  )}
+            </SectionStatus>
+          )}
+          {sectionErrorMessage(status, 'mfp') && (
+            <SectionStatus error>{sectionErrorMessage(status, 'mfp')!}</SectionStatus>
+          )}
         </div>
-
-        {status.kind === 'exported' && (
-          <p className="text-sm text-muted-foreground">
-            {t.export.exportedSummary(
-              t.export.summary(status.goals, status.entries),
-            )}
-          </p>
-        )}
-        {status.kind === 'exportedRangedBackup' && (
-          <p className="text-sm text-muted-foreground">
-            {t.export.exportedSummary(
-              t.export.summary(status.goals, status.entries),
-            )}
-          </p>
-        )}
-        {status.kind === 'exportedExcel' && (
-          <p className="text-sm text-muted-foreground">
-            {t.export.exportedSummary(
-              t.export.summary(status.goals, status.entries),
-            )}
-          </p>
-        )}
-        {status.kind === 'exportedCsv' && (
-          <p className="text-sm text-muted-foreground">
-            {t.export.exportedCsvSummary(status.entries)}
-          </p>
-        )}
-        {status.kind === 'exportedMarkdown' && (
-          <p className="text-sm text-muted-foreground">
-            {t.export.exportedMarkdownSummary(status.entries)}
-          </p>
-        )}
-        {status.kind === 'imported' && (
-          <p className="text-sm text-muted-foreground">
-            {t.export.importedSummary(
-              t.export.summary(status.goals, status.entries),
-            )}
-          </p>
-        )}
-        {status.kind === 'importedZeppLife' && (
-          <p className="text-sm text-muted-foreground">
-            {status.daysImported === 0
-              ? t.zeppLifeImport.importedNothingSummary
-              : t.zeppLifeImport.importedSummary(
-                  status.daysImported,
-                  status.daysUpdated,
-                )}
-          </p>
-        )}
-        {status.kind === 'importedAppleHealth' && (
-          <p className="text-sm text-muted-foreground">
-            {status.daysImported === 0
-              ? t.appleHealthImport.importedNothingSummary
-              : t.appleHealthImport.importedSummary(
-                  status.daysImported,
-                  status.daysUpdated,
-                )}
-          </p>
-        )}
-        {status.kind === 'importedMyFitnessPal' && (
-          <p className="text-sm text-muted-foreground">
-            {status.daysImported === 0
-              ? t.myFitnessPalImport.importedNothingSummary
-              : t.myFitnessPalImport.importedSummary(
-                  status.daysImported,
-                  status.daysUpdated,
-                )}
-          </p>
-        )}
-        {status.kind === 'error' && (
-          <p
-            role="alert"
-            className="rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive"
-          >
-            {status.message}
-          </p>
-        )}
       </CardContent>
       <ZeppLifePasswordDialog
         open={zeppLifeDialogOpen}

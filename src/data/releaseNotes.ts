@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 557,
+    issue: 617,
+    date: '2026-08-05T11:45:00+03:00',
+    en: 'Export and import messages in Settings now appear under the section that ran them instead of one shared footer.',
+    ru: 'Сообщения об экспорте и импорте в Настройках теперь показываются под тем разделом, который их запустил, а не в общем нижнем блоке.',
+  },
+  {
     version: 556,
     issue: 616,
     date: '2026-08-05T11:25:00+03:00',
