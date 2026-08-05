@@ -3,18 +3,24 @@ import { render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { db } from '@/infrastructure/persistence/indexeddb'
-import { useCustomMetricStore } from '@/stores'
+import {
+  useCustomMetricNoteDismissalStore,
+  useCustomMetricStore,
+} from '@/stores'
 import { CustomMetricLogSection } from './CustomMetricLogSection'
 
 beforeEach(async () => {
   await db.customMetrics.clear()
   await db.customMetricEntries.clear()
   useCustomMetricStore.setState({ metrics: [], entries: [], status: 'idle', error: null })
+  useCustomMetricNoteDismissalStore.setState({ dismissed: {} })
+  localStorage.clear()
 })
 
 afterEach(async () => {
   await db.customMetrics.clear()
   await db.customMetricEntries.clear()
+  localStorage.clear()
 })
 
 describe('CustomMetricLogSection', () => {
@@ -260,6 +266,74 @@ describe('CustomMetricLogSection', () => {
 
     await user.click(screen.getByRole('button', { name: 'Add note' }))
     expect(await screen.findByLabelText('Note')).toHaveValue('')
+  })
+
+  it('does not reopen the note editor on remount after Cancel (#622)', async () => {
+    await db.customMetrics.put({
+      id: 'metric-1',
+      name: 'Push-ups',
+      inputKind: 'number',
+      createdAt: '2026-01-01T00:00:00.000Z',
+    })
+    await db.customMetricEntries.put({
+      id: 'entry-1',
+      metricId: 'metric-1',
+      date: '2026-03-01',
+      value: 20,
+      updatedAt: '2026-01-01T00:00:00.000Z',
+    })
+    const user = userEvent.setup()
+    const { unmount } = render(<CustomMetricLogSection date="2026-03-01" />)
+
+    await user.click(
+      await screen.findByRole('button', { name: 'Cancel editing note' }),
+    )
+    expect(
+      screen.getByRole('button', { name: 'Add note' }),
+    ).toBeInTheDocument()
+
+    // Simulate a remount — date navigation away and back, the section's
+    // own accordion collapsing/reopening (Radix unmounts closed content by
+    // default), or a tab switch all recreate this component the same way.
+    unmount()
+    render(<CustomMetricLogSection date="2026-03-01" />)
+
+    expect(
+      await screen.findByRole('button', { name: 'Add note' }),
+    ).toBeInTheDocument()
+    expect(screen.queryByLabelText('Note')).not.toBeInTheDocument()
+  })
+
+  it('does not reopen the note editor on remount after saving a blank note', async () => {
+    await db.customMetrics.put({
+      id: 'metric-1',
+      name: 'Push-ups',
+      inputKind: 'number',
+      createdAt: '2026-01-01T00:00:00.000Z',
+    })
+    await db.customMetricEntries.put({
+      id: 'entry-1',
+      metricId: 'metric-1',
+      date: '2026-03-01',
+      value: 20,
+      updatedAt: '2026-01-01T00:00:00.000Z',
+    })
+    const user = userEvent.setup()
+    const { unmount } = render(<CustomMetricLogSection date="2026-03-01" />)
+
+    await user.click(await screen.findByRole('button', { name: 'Save note' }))
+    await waitFor(async () => {
+      const entries = await db.customMetricEntries.toArray()
+      expect(entries[0].note).toBeUndefined()
+    })
+
+    unmount()
+    render(<CustomMetricLogSection date="2026-03-01" />)
+
+    expect(
+      await screen.findByRole('button', { name: 'Add note' }),
+    ).toBeInTheDocument()
+    expect(screen.queryByLabelText('Note')).not.toBeInTheDocument()
   })
 
   it('wraps metrics in a bordered collapsible with a collapsed logged/total summary (#478)', async () => {

@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 573,
+    issue: 622,
+    date: '2026-08-05T16:13:26+03:00',
+    en: 'Fixed: a custom metric\'s note editor no longer reopens on its own after you close it.',
+    ru: 'Исправлено: поле заметки к своей метрике больше не открывается само по себе после закрытия.',
+  },
+  {
     version: 572,
     issue: 621,
     date: '2026-08-05T15:39:41+03:00',

@@ -2,7 +2,11 @@ import { useEffect, useState } from 'react'
 import { Check, ChevronDown, Pencil, Plus, X } from 'lucide-react'
 import type { CustomMetric } from '@/domain/customMetric'
 import { useTranslation } from '@/i18n'
-import { useCustomMetricStore, useTodaySectionsCollapseStore } from '@/stores'
+import {
+  useCustomMetricNoteDismissalStore,
+  useCustomMetricStore,
+  useTodaySectionsCollapseStore,
+} from '@/stores'
 import { Button } from '@/shared/ui/button'
 import {
   Collapsible,
@@ -40,11 +44,21 @@ function MetricValueRow({
   // fresh instead of needing an effect to reset `draft` on prop change.
   const [draft, setDraft] = useState(value === undefined ? '' : String(value))
   const [noteDraft, setNoteDraft] = useState(note ?? '')
+  const dismissalKey = `${metric.id}:${date}`
+  const noteDismissed = useCustomMetricNoteDismissalStore((state) =>
+    Boolean(state.dismissed[dismissalKey]),
+  )
+  const dismissNote = useCustomMetricNoteDismissalStore(
+    (state) => state.dismiss,
+  )
   // #364 reopened: reported live as still not matching the day note's own
   // read/edit toggle (`DailyEntryForm.tsx`) — a note with nothing saved yet
   // starts directly in edit mode (same `!initialValues.note` logic there),
   // an already-saved note starts in read mode with a pencil to reopen it.
-  const [isEditingNote, setIsEditingNote] = useState(!note)
+  // #622: also check `noteDismissed` — an unsaved note and an explicitly
+  // canceled one are otherwise indistinguishable (`note` is `undefined`
+  // either way), so without this the editor reopened on every remount.
+  const [isEditingNote, setIsEditingNote] = useState(!note && !noteDismissed)
 
   function commitNumber() {
     const parsed = Number(draft)
@@ -54,6 +68,10 @@ function MetricValueRow({
 
   function saveNote() {
     setEntryNote(metric.id, date, noteDraft)
+    // #622 — the store normalizes a blank draft to `undefined` (no empty
+    // note rows), same end state as Cancel, so it needs the same dismissal
+    // marker to keep the editor from reopening on the next remount.
+    if (noteDraft.trim() === '') dismissNote(dismissalKey)
     setIsEditingNote(false)
   }
 
@@ -61,6 +79,11 @@ function MetricValueRow({
   // (DailyEntryForm.tsx) already got, applied here: reverts the local draft
   // back to the last-saved note and exits edit mode without persisting.
   function cancelEditNote() {
+    // #622 — record the dismissal before an unsaved note goes back to
+    // `undefined`, so a remount can't tell it apart from "never touched"
+    // and reopen the editor. Only relevant when canceling a fresh note;
+    // reverting edits to an already-saved one needs no such marker.
+    if (!note) dismissNote(dismissalKey)
     setNoteDraft(note ?? '')
     setIsEditingNote(false)
   }
