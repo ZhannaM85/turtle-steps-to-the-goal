@@ -93,6 +93,19 @@ describe('SettingsScreen', () => {
     expect(screen.getByRole('radio', { name: 'English' })).toBeChecked()
   })
 
+  it('shows the two-devices help card above Export, with no sync promise (#612)', () => {
+    renderSettings()
+
+    const heading = screen.getByRole('heading', { name: 'Using two devices' })
+    expect(heading).toBeInTheDocument()
+    expect(
+      screen.getByText(/There is no automatic sync between devices/),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByText(/This device holds the live, up-to-date data/),
+    ).toBeInTheDocument()
+  })
+
   it('defaults to kg units', () => {
     renderSettings()
 

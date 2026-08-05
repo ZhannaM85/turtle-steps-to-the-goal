@@ -1612,6 +1612,13 @@ export interface Dictionary {
     saveFoodLabel: (name: string) => string
     restoreDefaultLabel: (name: string) => string
     hiddenBadgeLabel: string
+    /** #612 — short "Using two devices" help card, directly above Export:
+     * with no live sync (by design, local-first), phone/laptop users need
+     * the manual export/import mental model spelled out rather than
+     * guessing at it or risking a duplicate/partial restore. */
+    twoDevicesHelpLabel: string
+    twoDevicesHelpIntro: string
+    twoDevicesHelpSteps: string[]
   }
   /** #251 — multi-ingredient, servings-based templates. Reached from a
    * Settings card (settingsSectionLabel/Description, manageRecipesButton)

@@ -755,6 +755,29 @@ export function SettingsScreen() {
         </CardContent>
       </Card>
 
+      {/* #612 — mental model for phone/laptop users, right above Export:
+       * this app has no live sync (local-first by design), so the manual
+       * export/import relationship needs spelling out instead of being
+       * guessed at from the button labels alone. */}
+      <Card>
+        <CardHeader>
+          <CardTitle>{t.settings.twoDevicesHelpLabel}</CardTitle>
+        </CardHeader>
+        <CardContent className="flex flex-col gap-2">
+          <span className="text-sm text-muted-foreground">
+            {t.settings.twoDevicesHelpIntro}
+          </span>
+          <ol className="flex flex-col gap-1.5 text-sm text-muted-foreground">
+            {t.settings.twoDevicesHelpSteps.map((step, index) => (
+              <li key={step} className="flex gap-2">
+                <span aria-hidden="true">{index + 1}.</span>
+                <span>{step}</span>
+              </li>
+            ))}
+          </ol>
+        </CardContent>
+      </Card>
+
       {/* #504 — Export stays above the destructive clear/delete actions
        * (#164), after preference/list-management cards — not promoted
        * with About/Features at the top (#498 side effect, reverted). */}

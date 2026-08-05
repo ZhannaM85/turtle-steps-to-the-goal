@@ -48,7 +48,7 @@ _Filed from the product-owner audit in `C:\Users\User\Projects\docs\turtle-steps
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#612](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/612) | 📋 Not started | Settings help: using two devices with local-only backups | Copy-only chore — mental model for phone↔laptop without promising sync |
+| [#612](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/612) | 🔍 Pending validation | Settings help: using two devices with local-only backups | New "Using two devices" card directly above Export in `SettingsScreen.tsx` — intro + 3-step numbered list (this device = live data, Export = portable backup, Import = merge). No sync backend mentioned. en/ru. Awaiting on-device confirmation |
 | [#611](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/611) | 📋 Not started | Copy recipe ingredients as a shopping list | Clipboard / Markdown from a recipe; no grocery integrations |
 | [#599](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/599) | 📋 Not started | Remind when a JSON backup has not been exported recently | Quiet last-export age nudge → Export; existential for local-first |
 | [#600](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/600) | 📋 Not started | Undo toast after deleting a meal | Short-lived in-memory restore; clear-all stays hard-confirm |

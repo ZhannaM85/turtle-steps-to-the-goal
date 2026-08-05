@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 560,
+    issue: 612,
+    date: '2026-08-05T12:12:09+03:00',
+    en: 'Settings now explains how backups work if you use this app on more than one device — no automatic sync, export/import instead.',
+    ru: 'В настройках теперь объясняется, как работают резервные копии при использовании приложения на нескольких устройствах — без автосинхронизации, через экспорт/импорт.',
+  },
+  {
     version: 559,
     issue: 619,
     date: '2026-08-05T12:05:09+03:00',

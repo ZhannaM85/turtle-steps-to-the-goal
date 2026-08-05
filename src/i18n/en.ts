@@ -1044,6 +1044,14 @@ export const en: Dictionary = {
     saveFoodLabel: (name) => `Save ${name}`,
     restoreDefaultLabel: (name) => `Restore ${name} to default`,
     hiddenBadgeLabel: 'Hidden',
+    twoDevicesHelpLabel: 'Using two devices',
+    twoDevicesHelpIntro:
+      'There is no automatic sync between devices. If you use this app on more than one, keep this in mind:',
+    twoDevicesHelpSteps: [
+      'This device holds the live, up-to-date data — nothing leaves it on its own.',
+      'Export (below) creates a portable backup file you can carry to another device.',
+      'Import merges that backup into whatever is already on the other device — read its result message before relying on it, especially before a fresh install.',
+    ],
   },
   recipes: {
     settingsSectionLabel: 'Recipes',
