@@ -497,6 +497,25 @@ export const ru: Dictionary = {
     insightSectionLabel: 'Что выделяется',
     adjustPaceButton: 'Скорректировать темп на следующую неделю',
   },
+  pdfSummary: {
+    documentTitle: 'Черепашка идёт к цели — сводка',
+    rangeLabel: (start, end) => `${start} – ${end}`,
+    generatedOnLabel: (date) => `Создано ${date}`,
+    weightTrendSectionTitle: 'Динамика веса',
+    noWeightDataMessage: 'За этот период вес не внесён.',
+    weeklyAveragesSectionTitle: 'Средние по неделям',
+    weekColumnHeader: 'Неделя',
+    avgWeightColumnHeader: (unit) => `Средний вес (${unit})`,
+    weightChangeColumnHeader: 'Изменение к прошлой неделе',
+    avgCaloriesColumnHeader: 'Средние калории',
+    noWeeklyDataMessage: 'За этот период нет полных недель с записями.',
+    bodyMeasurementsSectionTitle: 'Замеры тела (последние)',
+    waistLabel: (value, date) => `Талия: ${value} см (${date})`,
+    hipLabel: (value, date) => `Бёдра: ${value} см (${date})`,
+    bodyFatLabel: (value, date) => `Процент жира: ${value}% (${date})`,
+    disclaimer:
+      'Этот документ — личная сводка, сформированная на основе самостоятельно внесённых данных в приложении «Черепашка идёт к цели». Это не медицинская рекомендация — за консультацией о состоянии здоровья обратитесь к врачу.',
+  },
   export: {
     title: 'Экспорт',
     description: 'Экспорт и импорт резервной копии в формате JSON',
@@ -555,6 +574,15 @@ export const ru: Dictionary = {
     encryptedImportSubmitButton: 'Расшифровать и импортировать',
     wrongEncryptedBackupPassword:
       'Неверный пароль или файл повреждён.',
+    exportPdfBlurb:
+      'Скачайте сводку на одну страницу PDF — динамика веса, средние по неделям и замеры тела, если они внесены — чтобы поделиться за пределами приложения, например с врачом.',
+    exportPdfButton: 'Экспорт PDF-сводки',
+    exportingPdfButton: 'Формирование…',
+    exportedPdfSummary: 'PDF-сводка скачана.',
+    exportPdfFailed: 'Не удалось создать PDF-сводку.',
+    exportPdfRangeLabel: 'Сводка охватывает',
+    exportPdfRange30Label: 'Последние 30 дней',
+    exportPdfRange90Label: 'Последние 90 дней',
     exportExcelBlurb:
       'Скачайте свои данные в формате Excel для просмотра или анализа — это не резервная копия, импортировать её обратно нельзя.',
     exportExcelButton: 'Экспорт в Excel',

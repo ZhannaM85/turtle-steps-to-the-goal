@@ -1,0 +1,129 @@
+import { describe, expect, it } from 'vitest'
+import type { DailyEntry } from '@/domain/dailyEntry'
+import { getDictionary } from '@/i18n'
+import { buildPdfSummaryData, buildSummaryPdf } from './exportPdf'
+
+const t = getDictionary('en')
+
+function makeEntry(overrides: Partial<DailyEntry> = {}): DailyEntry {
+  const now = new Date().toISOString()
+  return {
+    id: crypto.randomUUID(),
+    date: '2026-08-01',
+    createdAt: now,
+    updatedAt: now,
+    ...overrides,
+  }
+}
+
+describe('buildPdfSummaryData', () => {
+  it('scopes to the last N days ending on asOfDate, inclusive', () => {
+    const entries = [
+      makeEntry({ date: '2026-07-06', weightKg: 79 }), // 30 days before asOfDate — just out of range
+      makeEntry({ date: '2026-07-07', weightKg: 80 }), // exactly 30 days back — in range
+      makeEntry({ date: '2026-08-05', weightKg: 78 }), // asOfDate itself — in range
+    ]
+
+    const data = buildPdfSummaryData(entries, 30, '2026-08-05', 1)
+
+    expect(data.rangeStart).toBe('2026-07-07')
+    expect(data.rangeEnd).toBe('2026-08-05')
+    expect(data.weightPoints).toEqual([
+      { date: '2026-07-07', weightKg: 80 },
+      { date: '2026-08-05', weightKg: 78 },
+    ])
+  })
+
+  it('sorts weight points chronologically regardless of input order', () => {
+    const entries = [
+      makeEntry({ date: '2026-08-03', weightKg: 79 }),
+      makeEntry({ date: '2026-08-01', weightKg: 81 }),
+      makeEntry({ date: '2026-08-02', weightKg: 80 }),
+    ]
+
+    const data = buildPdfSummaryData(entries, 30, '2026-08-05', 1)
+
+    expect(data.weightPoints.map((p) => p.date)).toEqual([
+      '2026-08-01',
+      '2026-08-02',
+      '2026-08-03',
+    ])
+  })
+
+  it('excludes entries with no logged weight from the trend', () => {
+    const entries = [makeEntry({ date: '2026-08-01', weightKg: undefined })]
+
+    const data = buildPdfSummaryData(entries, 30, '2026-08-05', 1)
+
+    expect(data.weightPoints).toEqual([])
+  })
+
+  it('picks the most recently logged value for each body measurement', () => {
+    const entries = [
+      makeEntry({ date: '2026-08-01', waistCm: 80 }),
+      makeEntry({ date: '2026-08-03', waistCm: 79 }),
+      makeEntry({ date: '2026-08-02', hipCm: 95 }),
+    ]
+
+    const data = buildPdfSummaryData(entries, 30, '2026-08-05', 1)
+
+    expect(data.latestWaistCm).toEqual({ value: 79, date: '2026-08-03' })
+    expect(data.latestHipCm).toEqual({ value: 95, date: '2026-08-02' })
+    expect(data.latestBodyFatPercent).toBeNull()
+  })
+
+  it('computes weekly averages only from entries within the range', () => {
+    const entries = [
+      makeEntry({ date: '2026-06-01', weightKg: 90 }), // long before the range
+      makeEntry({ date: '2026-08-01', weightKg: 80 }),
+      makeEntry({ date: '2026-08-02', weightKg: 82 }),
+    ]
+
+    const data = buildPdfSummaryData(entries, 30, '2026-08-05', 1)
+
+    expect(data.weeks.length).toBeGreaterThan(0)
+    for (const week of data.weeks) {
+      expect(week.weekStart >= '2026-07-07').toBe(true)
+    }
+  })
+})
+
+describe('buildSummaryPdf', () => {
+  it('produces a non-empty PDF blob for a range with real data', async () => {
+    const data = buildPdfSummaryData(
+      [
+        makeEntry({ date: '2026-08-01', weightKg: 80, waistCm: 80 }),
+        makeEntry({ date: '2026-08-04', weightKg: 79 }),
+      ],
+      30,
+      '2026-08-05',
+      1,
+    )
+
+    const blob = await buildSummaryPdf(data, t, 'en', 'kg')
+
+    expect(blob.type).toBe('application/pdf')
+    expect(blob.size).toBeGreaterThan(0)
+  })
+
+  it('does not throw when there is no weight/weekly/body-measurement data at all (#609)', async () => {
+    const data = buildPdfSummaryData([], 30, '2026-08-05', 1)
+
+    const blob = await buildSummaryPdf(data, t, 'en', 'kg')
+
+    expect(blob.size).toBeGreaterThan(0)
+  })
+
+  it('renders a single logged weight point without dividing by zero', async () => {
+    const data = buildPdfSummaryData(
+      [makeEntry({ date: '2026-08-05', weightKg: 80 })],
+      30,
+      '2026-08-05',
+      1,
+    )
+
+    const blob = await buildSummaryPdf(data, t, 'en', 'kg')
+
+    expect(blob.size).toBeGreaterThan(0)
+  })
+})

@@ -891,6 +891,32 @@ export interface Dictionary {
     insightSectionLabel: string
     adjustPaceButton: string
   }
+  /**
+   * #609 — text baked directly into the generated PDF itself (`exportPdf.ts`),
+   * as opposed to `export.exportPdf*`, which are the Settings-page trigger
+   * button/blurb/status strings. Kept separate since these describe the
+   * document's own content, not the export mechanism.
+   */
+  pdfSummary: {
+    documentTitle: string
+    /** Takes the already-formatted start/end display dates. */
+    rangeLabel: (start: string, end: string) => string
+    generatedOnLabel: (date: string) => string
+    weightTrendSectionTitle: string
+    noWeightDataMessage: string
+    weeklyAveragesSectionTitle: string
+    weekColumnHeader: string
+    avgWeightColumnHeader: (unit: string) => string
+    weightChangeColumnHeader: string
+    avgCaloriesColumnHeader: string
+    noWeeklyDataMessage: string
+    bodyMeasurementsSectionTitle: string
+    waistLabel: (value: string, date: string) => string
+    hipLabel: (value: string, date: string) => string
+    bodyFatLabel: (value: string, date: string) => string
+    /** #609 acceptance criterion — must render visibly on the document. */
+    disclaimer: string
+  }
   export: {
     title: string
     description: string
@@ -962,6 +988,18 @@ export interface Dictionary {
      * `crypto.subtle.decrypt` itself throws before anything reaches
      * `importAllData`, so a wrong attempt never touches IndexedDB. */
     wrongEncryptedBackupPassword: string
+    /** #609 — a one-page PDF summary (weight trend, weekly averages,
+     * optional body measurements) for sharing outside the app, e.g. with a
+     * clinician. Document content strings live in `pdfSummary` below;
+     * these are just the trigger button/range picker/status messages. */
+    exportPdfBlurb: string
+    exportPdfButton: string
+    exportingPdfButton: string
+    exportedPdfSummary: string
+    exportPdfFailed: string
+    exportPdfRangeLabel: string
+    exportPdfRange30Label: string
+    exportPdfRange90Label: string
     exportExcelBlurb: string
     exportExcelButton: string
     exportingExcelButton: string

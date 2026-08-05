@@ -475,6 +475,25 @@ export const en: Dictionary = {
     insightSectionLabel: 'What stood out',
     adjustPaceButton: "Adjust next week's pace",
   },
+  pdfSummary: {
+    documentTitle: 'Turtle Steps — Summary',
+    rangeLabel: (start, end) => `${start} – ${end}`,
+    generatedOnLabel: (date) => `Generated on ${date}`,
+    weightTrendSectionTitle: 'Weight trend',
+    noWeightDataMessage: 'No weight logged in this period.',
+    weeklyAveragesSectionTitle: 'Weekly averages',
+    weekColumnHeader: 'Week',
+    avgWeightColumnHeader: (unit) => `Avg weight (${unit})`,
+    weightChangeColumnHeader: 'Change vs. prior week',
+    avgCaloriesColumnHeader: 'Avg calories',
+    noWeeklyDataMessage: 'No complete weeks logged in this period.',
+    bodyMeasurementsSectionTitle: 'Body measurements (most recent)',
+    waistLabel: (value, date) => `Waist: ${value} cm (${date})`,
+    hipLabel: (value, date) => `Hip: ${value} cm (${date})`,
+    bodyFatLabel: (value, date) => `Body fat: ${value}% (${date})`,
+    disclaimer:
+      'This document is a personal summary generated from self-reported data in Turtle Steps to the Goal. It is not medical advice — consult a healthcare professional for guidance about your health.',
+  },
   export: {
     title: 'Export',
     description: 'Export/import a JSON backup',
@@ -534,6 +553,15 @@ export const en: Dictionary = {
     encryptedImportSubmitButton: 'Decrypt and import',
     wrongEncryptedBackupPassword:
       'Wrong password, or the file is corrupted.',
+    exportPdfBlurb:
+      'Download a one-page PDF summary — weight trend, weekly averages, and body measurements if logged — for sharing outside the app, e.g. with a clinician.',
+    exportPdfButton: 'Export PDF summary',
+    exportingPdfButton: 'Generating…',
+    exportedPdfSummary: 'PDF summary downloaded.',
+    exportPdfFailed: 'Could not create the PDF summary.',
+    exportPdfRangeLabel: 'Summary covers',
+    exportPdfRange30Label: 'Last 30 days',
+    exportPdfRange90Label: 'Last 90 days',
     exportExcelBlurb:
       'Download your data as an Excel file for viewing or analysis — this is not a backup and can’t be imported back in.',
     exportExcelButton: 'Export as Excel',

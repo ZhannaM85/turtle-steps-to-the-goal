@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 575,
+    issue: 609,
+    date: '2026-08-05T17:06:58+03:00',
+    en: 'Added a one-page PDF summary export (weight trend, weekly averages, body measurements) for sharing outside the app, like with a doctor.',
+    ru: 'Добавлен экспорт сводки на одну страницу PDF (динамика веса, средние по неделям, замеры тела) — чтобы поделиться за пределами приложения, например с врачом.',
+  },
+  {
     version: 574,
     issue: 608,
     date: '2026-08-05T16:20:10+03:00',

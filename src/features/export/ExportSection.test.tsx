@@ -1,6 +1,7 @@
 import 'fake-indexeddb/auto'
 import { fireEvent, render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { format } from 'date-fns'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { DailyEntry } from '@/domain/dailyEntry'
 import type { Goal } from '@/domain/goal'
@@ -234,6 +235,37 @@ describe('ExportSection', () => {
     // No goals in the summary, same reasoning as the CSV export above.
     expect(
       await screen.findByText('Exported 2 entries as Markdown.'),
+    ).toBeInTheDocument()
+  })
+
+  it('exports a PDF summary for the default 30-day range (#609)', async () => {
+    await db.dailyEntries.put(makeEntry({ date: format(new Date(), 'yyyy-MM-dd'), weightKg: 80 }))
+    const user = userEvent.setup()
+
+    render(<ExportSection />)
+    await user.click(
+      screen.getByRole('button', { name: 'Export PDF summary' }),
+    )
+
+    expect(
+      await screen.findByText('PDF summary downloaded.'),
+    ).toBeInTheDocument()
+  })
+
+  it('lets you switch the PDF summary to the 90-day range before exporting (#609)', async () => {
+    const user = userEvent.setup()
+
+    render(<ExportSection />)
+    const range90 = screen.getByRole('radio', { name: 'Last 90 days' })
+    await user.click(range90)
+    expect(range90).toHaveAttribute('aria-checked', 'true')
+
+    await user.click(
+      screen.getByRole('button', { name: 'Export PDF summary' }),
+    )
+
+    expect(
+      await screen.findByText('PDF summary downloaded.'),
     ).toBeInTheDocument()
   })
 
