@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 558,
+    issue: 618,
+    date: '2026-08-05T11:48:00+03:00',
+    en: 'Apple Health import now accepts localized main XML filenames instead of only English export.xml.',
+    ru: 'Импорт Apple Health теперь принимает локализованные имена основного XML-файла, а не только английский export.xml.',
+  },
+  {
     version: 557,
     issue: 617,
     date: '2026-08-05T11:45:00+03:00',

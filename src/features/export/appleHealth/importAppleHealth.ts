@@ -19,7 +19,27 @@ export interface AppleHealthImportSummary {
   daysUpdated: number
 }
 
-const EXPORT_XML_RE = /(^|\/)export\.xml$/i
+const XML_ENTRY_RE = /\.xml$/i
+const EXPORT_CDA_RE = /(^|\/)export_cda\.xml$/i
+
+function pickAppleHealthXmlEntry<
+  T extends {
+    filename: string
+    directory?: boolean
+    uncompressedSize?: number
+  },
+>(entries: T[]): T | undefined {
+  return entries
+    .filter(
+      (entry) =>
+        !entry.directory &&
+        XML_ENTRY_RE.test(entry.filename) &&
+        !EXPORT_CDA_RE.test(entry.filename),
+    )
+    .sort(
+      (a, b) => (b.uncompressedSize ?? 0) - (a.uncompressedSize ?? 0),
+    )[0]
+}
 
 /**
  * Decrypts nothing (Apple Health's export.zip is, unlike Zepp Life's, never
@@ -56,7 +76,7 @@ export async function importAppleHealthExport(
       )
     }
 
-    const xmlEntry = entries.find((entry) => EXPORT_XML_RE.test(entry.filename))
+    const xmlEntry = pickAppleHealthXmlEntry(entries)
     if (!xmlEntry || xmlEntry.directory) {
       throw new AppleHealthInvalidFileError(
         "This doesn't look like an Apple Health export file.",

@@ -23,17 +23,24 @@ const SAMPLE_XML =
   '</HealthData>\n'
 
 /** Builds a small, unencrypted zip in-memory shaped like a real Apple
- * Health export (`apple_health_export/export.xml`, plus an unrelated
+ * Health export (the main XML filename may vary by locale, plus an unrelated
  * workout-routes file that must be ignored) — exercises
  * `importAppleHealthExport`'s actual zip.js streaming-extraction path, not
  * just the pure parsing/mapping logic already covered by
  * `appleHealthParser.test.ts`. */
-async function makeAppleHealthExportFile(xml: string): Promise<File> {
+async function makeAppleHealthExportFile(
+  xml: string,
+  xmlFilename = 'apple_health_export/export.xml',
+): Promise<File> {
   const writer = new ZipWriter(new BlobWriter('application/zip'))
-  await writer.add('apple_health_export/export.xml', new TextReader(xml))
+  await writer.add(xmlFilename, new TextReader(xml))
   await writer.add(
     'apple_health_export/workout-routes/route_2025-01-01.gpx',
     new TextReader('<gpx></gpx>'),
+  )
+  await writer.add(
+    'apple_health_export/export_cda.xml',
+    new TextReader('<ClinicalDocument></ClinicalDocument>'),
   )
   const blob = await writer.close()
   // Built from the Blob's raw bytes, not the Blob itself — see the
@@ -97,7 +104,23 @@ describe('importAppleHealthExport', () => {
     expect(stepsEntry).toMatchObject({ steps: 800 })
   })
 
-  it('throws AppleHealthInvalidFileError for a zip with no export.xml entry', async () => {
+  it('accepts a locale-specific main XML filename instead of only export.xml (#618)', async () => {
+    const file = await makeAppleHealthExportFile(
+      SAMPLE_XML,
+      'apple_health_export/экспорт.xml',
+    )
+
+    const result = await importAppleHealthExport(file)
+
+    expect(result).toEqual({ daysImported: 2, daysUpdated: 0 })
+    const weightEntry = await db.dailyEntries
+      .where('date')
+      .equals('2026-01-15')
+      .first()
+    expect(weightEntry).toMatchObject({ weightKg: 61.4 })
+  })
+
+  it('throws AppleHealthInvalidFileError for a zip with no Apple Health data XML entry', async () => {
     const writer = new ZipWriter(new BlobWriter('application/zip'))
     await writer.add('some-other-file.txt', new TextReader('not health data'))
     const blob = await writer.close()

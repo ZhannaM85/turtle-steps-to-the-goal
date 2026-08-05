@@ -84,6 +84,6 @@ _Same-day live feedback after Zepp / export work. #616 (multi-user Zepp export) 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#617](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/617) | 🔍 Pending validation | Settings Export: show import success/error under the matching source section | `ExportSection` now renders each success/error message inside its own block (JSON backup/import, ranged backup, Excel, CSV, Markdown, Zepp, Apple Health, MyFitnessPal) instead of one shared card footer. Awaiting on-device confirmation |
-| [#618](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/618) | 📋 Not started | Apple Health import: valid user export not recognized as Apple Health file | Related #366 / #381. Start by comparing zip layout / `export.xml` path to current detection; do not commit the export to the repo |
+| [#618](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/618) | 🔍 Pending validation | Apple Health import: valid user export not recognized as Apple Health file | Locale-agnostic detection: importer now picks the primary Apple Health XML by role (largest non-`export_cda.xml` XML entry) instead of requiring the English filename `export.xml`, so localized exports like `экспорт.xml` are accepted. Awaiting on-device confirmation |
 
 
