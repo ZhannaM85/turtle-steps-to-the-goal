@@ -73,4 +73,14 @@ _Same audit pass. Blocked on Tier 36 Capacitor / store shell — revisit of #261
 | [#605](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/605) | 📋 Not started | Native local notification for the daily logging reminder | Blocked on #305+; wires existing #171 reminder preference to OS local notifications |
 | [#606](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/606) | 📋 Not started | Android home-screen glance widget | Blocked on #305+; weight + remaining kcal glance; Android-first |
 
+---
+
+## Tier 126 — Export card status placement (2026-08-05)
+
+_Live feedback right after validating #616: Zepp Life success text appeared under the MyFitnessPal block because `ExportSection` renders one shared status at the card footer. Log-only._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#617](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/617) | 📋 Not started | Settings Export: show import success/error under the matching source section | Per-section status for Zepp / Apple Health / MFP / JSON (and other export actions); no import behavior change |
+
 
