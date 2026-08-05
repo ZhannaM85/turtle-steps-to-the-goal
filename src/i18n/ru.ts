@@ -1233,6 +1233,7 @@ export const ru: Dictionary = {
     saveNoteLabel: 'Сохранить заметку',
     editNoteLabel: 'Изменить заметку',
     cancelEditNoteLabel: 'Отменить редактирование заметки',
+    addNoteLabel: 'Добавить заметку',
 
     correlationsSectionLabel: 'Свои корреляции',
     emptyCorrelationsText: 'Своих корреляций пока нет.',

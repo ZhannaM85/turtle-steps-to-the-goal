@@ -1845,6 +1845,11 @@ export interface Dictionary {
     /** #437 — same #424/#437 Cancel-without-saving affordance
      * `t.dailyEntry.cancelEditNoteLabel` already gives the day note. */
     cancelEditNoteLabel: string
+    /** #620 — trigger for the "nothing logged yet" idle state, reached by
+     * canceling a fresh note that was never saved (a real idle state,
+     * distinct from the read-mode box above which is only for an actual
+     * saved note). */
+    addNoteLabel: string
 
     correlationsSectionLabel: string
     emptyCorrelationsText: string

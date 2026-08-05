@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 571,
+    issue: 620,
+    date: '2026-08-05T15:24:49+03:00',
+    en: "Canceling a brand-new custom metric note now correctly returns to \"no note yet\" instead of showing an empty box that looked saved.",
+    ru: 'Отмена новой заметки к пользовательскому показателю теперь корректно возвращает к состоянию «заметки нет», а не показывает пустой блок, будто она сохранена.',
+  },
+  {
     version: 570,
     issue: 607,
     date: '2026-08-05T15:08:20+03:00',

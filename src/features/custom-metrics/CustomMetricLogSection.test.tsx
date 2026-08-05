@@ -227,6 +227,41 @@ describe('CustomMetricLogSection', () => {
     expect(entries[0].note).toBeUndefined()
   })
 
+  it('shows an "Add note" idle state (not an empty saved-looking box) after canceling a brand-new note (#620)', async () => {
+    await db.customMetrics.put({
+      id: 'metric-1',
+      name: 'Push-ups',
+      inputKind: 'number',
+      createdAt: '2026-01-01T00:00:00.000Z',
+    })
+    await db.customMetricEntries.put({
+      id: 'entry-1',
+      metricId: 'metric-1',
+      date: '2026-03-01',
+      value: 20,
+      updatedAt: '2026-01-01T00:00:00.000Z',
+    })
+    const user = userEvent.setup()
+    render(<CustomMetricLogSection date="2026-03-01" />)
+
+    await user.click(
+      await screen.findByRole('button', { name: 'Cancel editing note' }),
+    )
+
+    // The old (buggy) fallback was the read-mode box: an empty text span
+    // plus an "Edit note" pencil, which looked like a blank note had been
+    // saved. The fix instead shows a real "nothing logged yet" trigger.
+    expect(
+      screen.getByRole('button', { name: 'Add note' }),
+    ).toBeInTheDocument()
+    expect(
+      screen.queryByRole('button', { name: 'Edit note' }),
+    ).not.toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: 'Add note' }))
+    expect(await screen.findByLabelText('Note')).toHaveValue('')
+  })
+
   it('wraps metrics in a bordered collapsible with a collapsed logged/total summary (#478)', async () => {
     await db.customMetrics.put({
       id: 'metric-1',

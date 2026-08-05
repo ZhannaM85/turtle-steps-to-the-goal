@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Check, ChevronDown, Pencil, X } from 'lucide-react'
+import { Check, ChevronDown, Pencil, Plus, X } from 'lucide-react'
 import type { CustomMetric } from '@/domain/customMetric'
 import { useTranslation } from '@/i18n'
 import { useCustomMetricStore, useTodaySectionsCollapseStore } from '@/stores'
@@ -166,9 +166,11 @@ function MetricValueRow({
             {/* #619 — always shown, including a brand-new note with nothing
              * saved yet (#437 hid it in that case, since back then there was
              * no display-mode render to fall back to). `cancelEditNote`
-             * reverts `noteDraft` to `note ?? ''`, so canceling a fresh note
-             * now lands on the read-mode branch below with an empty value
-             * and its pencil button, instead of leaving no way out. */}
+             * reverts `noteDraft` to `note ?? ''`, landing on the idle
+             * "+ Add note" branch below when nothing was ever saved (#620
+             * fix — that branch used to be the read-mode one, which showed
+             * an empty box + pencil that looked like a blank note had been
+             * saved). */}
             <Button
               type="button"
               variant="ghost"
@@ -179,7 +181,7 @@ function MetricValueRow({
               <X aria-hidden="true" />
             </Button>
           </div>
-        ) : (
+        ) : note ? (
           <div className="flex min-h-9 items-center justify-between gap-2 rounded-lg bg-muted px-2.5 py-1">
             <span className="text-sm text-foreground">{noteDraft}</span>
             <Button
@@ -192,6 +194,22 @@ function MetricValueRow({
               <Pencil aria-hidden="true" />
             </Button>
           </div>
+        ) : (
+          // #620 — nothing has ever been saved (a fresh note was opened,
+          // typed into, then canceled): a real "nothing logged" idle
+          // state, distinct from the read-mode box above, which is only
+          // for an actual saved note — that box showing empty text used
+          // to look like a blank note had been saved.
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            className="w-fit"
+            onClick={() => setIsEditingNote(true)}
+          >
+            <Plus aria-hidden="true" />
+            {t.customMetrics.addNoteLabel}
+          </Button>
         )
       )}
     </div>

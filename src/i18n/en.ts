@@ -1198,6 +1198,7 @@ export const en: Dictionary = {
     saveNoteLabel: 'Save note',
     editNoteLabel: 'Edit note',
     cancelEditNoteLabel: 'Cancel editing note',
+    addNoteLabel: 'Add note',
 
     correlationsSectionLabel: 'Custom correlations',
     emptyCorrelationsText: 'No custom correlations yet.',
