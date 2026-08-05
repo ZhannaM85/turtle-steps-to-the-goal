@@ -29,9 +29,12 @@ import type {
 import {
   importZeppLifeExport,
   ZeppLifeInvalidFileError,
+  ZeppLifeMultipleProfilesError,
   ZeppLifeWrongPasswordError,
 } from './zeppLife/importZeppLife'
 import { ZeppLifePasswordDialog } from './zeppLife/ZeppLifePasswordDialog'
+import { ZeppLifeProfileDialog } from './zeppLife/ZeppLifeProfileDialog'
+import type { ZeppBodyProfile } from './zeppLife/zeppLifeParser'
 import {
   AppleHealthInvalidFileError,
   importAppleHealthExport,
@@ -156,7 +159,16 @@ export function ExportSection() {
   const [zeppLifePendingFile, setZeppLifePendingFile] = useState<File | null>(
     null,
   )
+  const [zeppLifePendingPassword, setZeppLifePendingPassword] = useState<
+    string | null
+  >(null)
   const [zeppLifeDialogOpen, setZeppLifeDialogOpen] = useState(false)
+  const [zeppLifeProfileDialogOpen, setZeppLifeProfileDialogOpen] =
+    useState(false)
+  const [zeppLifeProfiles, setZeppLifeProfiles] = useState<ZeppBodyProfile[]>(
+    [],
+  )
+  const zeppLifeAdvancingRef = useRef(false)
   const [zeppLifePasswordError, setZeppLifePasswordError] = useState<
     string | null
   >(null)
@@ -418,13 +430,22 @@ export function ExportSection() {
     }
   }
 
+  function clearZeppLifeImportFlow() {
+    setZeppLifePendingFile(null)
+    setZeppLifePendingPassword(null)
+    setZeppLifePasswordError(null)
+    setZeppLifeProfiles([])
+  }
+
   function handleZeppLifeFileSelected(file: File) {
     setZeppLifePendingFile(file)
+    setZeppLifePendingPassword(null)
     setZeppLifePasswordError(null)
+    setZeppLifeProfiles([])
     setZeppLifeDialogOpen(true)
   }
 
-  async function handleZeppLifePasswordSubmit(password: string) {
+  async function runZeppLifeImport(password: string, selectedHeightCm?: number) {
     if (!zeppLifePendingFile) return
     setStatus({ kind: 'importingZeppLife' })
     try {
@@ -433,9 +454,11 @@ export function ExportSection() {
         password,
         zeppLifeSelectedFields as ReadonlySet<keyof DailyEntryPatch>,
         zeppLifeImportMode,
+        selectedHeightCm,
       )
       setZeppLifeDialogOpen(false)
-      setZeppLifePendingFile(null)
+      setZeppLifeProfileDialogOpen(false)
+      clearZeppLifeImportFlow()
       setStatus({ kind: 'importedZeppLife', daysImported, daysUpdated })
     } catch (err) {
       if (err instanceof ZeppLifeWrongPasswordError) {
@@ -443,14 +466,35 @@ export function ExportSection() {
         setStatus({ kind: 'idle' })
         return
       }
+      if (err instanceof ZeppLifeMultipleProfilesError) {
+        // #616 — keep file + password, advance to the profile picker.
+        setZeppLifePendingPassword(password)
+        setZeppLifeProfiles(err.profiles)
+        zeppLifeAdvancingRef.current = true
+        setZeppLifeDialogOpen(false)
+        setZeppLifeProfileDialogOpen(true)
+        zeppLifeAdvancingRef.current = false
+        setStatus({ kind: 'idle' })
+        return
+      }
       setZeppLifeDialogOpen(false)
-      setZeppLifePendingFile(null)
+      setZeppLifeProfileDialogOpen(false)
+      clearZeppLifeImportFlow()
       const message =
         err instanceof ZeppLifeInvalidFileError
           ? t.zeppLifeImport.invalidFile
           : t.zeppLifeImport.importFailed
       setStatus({ kind: 'error', message })
     }
+  }
+
+  async function handleZeppLifePasswordSubmit(password: string) {
+    await runZeppLifeImport(password)
+  }
+
+  async function handleZeppLifeProfileSubmit(heightCm: number) {
+    if (!zeppLifePendingPassword) return
+    await runZeppLifeImport(zeppLifePendingPassword, heightCm)
   }
 
   async function handleAppleHealthFileSelected(file: File) {
@@ -1001,13 +1045,22 @@ export function ExportSection() {
         open={zeppLifeDialogOpen}
         onOpenChange={(open) => {
           setZeppLifeDialogOpen(open)
-          if (!open) {
-            setZeppLifePendingFile(null)
-            setZeppLifePasswordError(null)
+          if (!open && !zeppLifeAdvancingRef.current) {
+            clearZeppLifeImportFlow()
           }
         }}
         onSubmit={handleZeppLifePasswordSubmit}
         error={zeppLifePasswordError}
+        submitting={status.kind === 'importingZeppLife'}
+      />
+      <ZeppLifeProfileDialog
+        open={zeppLifeProfileDialogOpen}
+        onOpenChange={(open) => {
+          setZeppLifeProfileDialogOpen(open)
+          if (!open) clearZeppLifeImportFlow()
+        }}
+        profiles={zeppLifeProfiles}
+        onSubmit={handleZeppLifeProfileSubmit}
         submitting={status.kind === 'importingZeppLife'}
       />
       <MyFitnessPalSlotTimesDialog

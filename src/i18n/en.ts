@@ -527,6 +527,20 @@ export const en: Dictionary = {
     passwordSubmitButton: 'Unlock and import',
     wrongPassword:
       "That password didn't work — check the export email and try again.",
+    profileDialogTitle: 'Whose scale readings?',
+    profileDialogDescription:
+      'This export has body readings for more than one height — common when a shared scale syncs to one Zepp account. Pick which person to import.',
+    profileOptionLabel: ({
+      heightCm,
+      minWeightKg,
+      maxWeightKg,
+      readingCount,
+      nickName,
+    }) => {
+      const base = `${heightCm} cm · ${minWeightKg}–${maxWeightKg} kg · ${readingCount} ${readingCount === 1 ? 'reading' : 'readings'}`
+      return nickName ? `${base} · ${nickName}` : base
+    },
+    profileSubmitButton: 'Import selected',
   },
   appleHealthImport: {
     importBlurb:

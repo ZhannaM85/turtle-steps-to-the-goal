@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 556,
+    issue: 616,
+    date: '2026-08-05T11:25:00+03:00',
+    en: 'Zepp Life import now asks which person to keep when a shared scale put two heights in one export.',
+    ru: 'Импорт из Zepp Life теперь спрашивает, чьи данные оставить, если в одном экспорте оказались измерения двух ростов с общих весов.',
+  },
+  {
     version: 555,
     issue: 597,
     date: '2026-08-04T18:55:00+03:00',

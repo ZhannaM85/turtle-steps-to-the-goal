@@ -941,6 +941,17 @@ export interface Dictionary {
     passwordLabel: string
     passwordSubmitButton: string
     wrongPassword: string
+    /** #616 — shared-scale exports with more than one BODY height. */
+    profileDialogTitle: string
+    profileDialogDescription: string
+    profileOptionLabel: (info: {
+      heightCm: number
+      minWeightKg: number
+      maxWeightKg: number
+      readingCount: number
+      nickName?: string
+    }) => string
+    profileSubmitButton: string
   }
   /** Importing an Apple Health XML export (#366) — same "distinct copy,
    * distinct feature" reasoning as `zeppLifeImport` above. No password

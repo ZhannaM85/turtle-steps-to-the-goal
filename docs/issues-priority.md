@@ -81,5 +81,6 @@ _Live report: a Zepp Life export used with the #365 importer appears to contain 
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#616](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/616) | 📋 Not started | Zepp Life import: export may contain two users' data — detect/filter on our side | Related #365 / #547 / #496. Start by inspecting the real sample; do not commit export or password to the repo |
+| [#616](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/616) | 🔍 Pending validation | Zepp Life import: export may contain two users' data — detect/filter on our side | BODY `height` cleanly splits two people (confirmed on real sample). Import now throws `ZeppLifeMultipleProfilesError` when >1 height and shows `ZeppLifeProfileDialog` (height + weight range + reading count; USER nickName when it matches). Filter BODY to chosen height; ACTIVITY unchanged (not height-keyed). Awaiting on-device confirmation |
+
 

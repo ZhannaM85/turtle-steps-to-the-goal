@@ -1,8 +1,11 @@
 import { describe, expect, it } from 'vitest'
 import {
   buildZeppLifePatches,
+  filterZeppBodyRowsByHeight,
   parseZeppActivityCsv,
   parseZeppBodyCsv,
+  parseZeppUserCsv,
+  summarizeZeppBodyProfiles,
   zeppTimeToLocalDate,
 } from './zeppLifeParser'
 
@@ -20,6 +23,7 @@ describe('parseZeppBodyCsv', () => {
       {
         time: '2026-01-15 06:09:29+0000',
         weightKg: 61.6,
+        heightCm: 165.0,
         fatRatePercent: 35.5,
         bodyWaterRatePercent: 46.0,
         boneMassKg: 2.4,
@@ -40,6 +44,7 @@ describe('parseZeppBodyCsv', () => {
       {
         time: '2026-01-15 08:38:05+0000',
         weightKg: 60.2,
+        heightCm: 165.0,
         fatRatePercent: undefined,
         bodyWaterRatePercent: undefined,
         boneMassKg: undefined,
@@ -137,5 +142,59 @@ describe('buildZeppLifePatches', () => {
     )
 
     expect(patches.get('2026-01-16')).toEqual({ steps: 5000 })
+  })
+})
+
+describe('summarizeZeppBodyProfiles / filterZeppBodyRowsByHeight (#616)', () => {
+  it('groups BODY rows by height and attaches a matching USER nickName', () => {
+    const rows = [
+      { time: '2026-01-15 06:00:00+0000', weightKg: 60, heightCm: 160 },
+      { time: '2026-01-15 08:00:00+0000', weightKg: 80, heightCm: 178 },
+      { time: '2026-01-16 06:00:00+0000', weightKg: 59.5, heightCm: 160 },
+    ]
+
+    expect(
+      summarizeZeppBodyProfiles(rows, {
+        heightCm: 178,
+        nickName: 'Alex',
+      }),
+    ).toEqual([
+      {
+        heightCm: 160,
+        readingCount: 2,
+        minWeightKg: 59.5,
+        maxWeightKg: 60,
+        nickName: undefined,
+      },
+      {
+        heightCm: 178,
+        readingCount: 1,
+        minWeightKg: 80,
+        maxWeightKg: 80,
+        nickName: 'Alex',
+      },
+    ])
+  })
+
+  it('filters BODY rows to a single height', () => {
+    const rows = [
+      { time: '2026-01-15 06:00:00+0000', weightKg: 60, heightCm: 160 },
+      { time: '2026-01-15 08:00:00+0000', weightKg: 80, heightCm: 178 },
+    ]
+
+    expect(filterZeppBodyRowsByHeight(rows, 160)).toEqual([rows[0]])
+  })
+})
+
+describe('parseZeppUserCsv (#616)', () => {
+  it('reads height and nickName from the first USER row', () => {
+    const csv =
+      'userId,gender,height,weight,nickName,avatar,birthday\n' +
+      '1,1,178.0,83.45,Alex,https://example.com/a.jpg,1976-08\n'
+
+    expect(parseZeppUserCsv(csv)).toEqual({
+      heightCm: 178,
+      nickName: 'Alex',
+    })
   })
 })

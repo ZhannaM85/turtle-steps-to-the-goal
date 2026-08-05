@@ -1,8 +1,12 @@
 import { IndexedDbDailyEntryRepository } from '@/infrastructure/persistence/indexeddb'
 import {
   buildZeppLifePatches,
+  filterZeppBodyRowsByHeight,
   parseZeppActivityCsv,
   parseZeppBodyCsv,
+  parseZeppUserCsv,
+  summarizeZeppBodyProfiles,
+  type ZeppBodyProfile,
 } from './zeppLifeParser'
 import {
   filterPatchesToFields,
@@ -16,6 +20,17 @@ const dailyEntryRepository = new IndexedDbDailyEntryRepository()
 export class ZeppLifeWrongPasswordError extends Error {}
 export class ZeppLifeInvalidFileError extends Error {}
 
+/** Thrown when BODY rows contain more than one scale height and the caller
+ * has not yet picked which person to import (#616). */
+export class ZeppLifeMultipleProfilesError extends Error {
+  readonly profiles: ZeppBodyProfile[]
+
+  constructor(profiles: ZeppBodyProfile[]) {
+    super('Zepp Life export contains multiple body profiles.')
+    this.profiles = profiles
+  }
+}
+
 export interface ZeppLifeImportSummary {
   daysImported: number
   daysUpdated: number
@@ -23,6 +38,7 @@ export interface ZeppLifeImportSummary {
 
 const BODY_ENTRY_RE = /^BODY\/BODY_.*\.csv$/
 const ACTIVITY_ENTRY_RE = /^ACTIVITY\/ACTIVITY_.*\.csv$/
+const USER_ENTRY_RE = /^USER\/USER_.*\.csv$/
 
 /**
  * Decrypts and parses a Zepp Life export zip client-side (no server
@@ -32,6 +48,11 @@ const ACTIVITY_ENTRY_RE = /^ACTIVITY\/ACTIVITY_.*\.csv$/
  * pattern `exportXlsx.ts` uses for `exceljs`, so the (AES-capable, unlike
  * lighter zip libs) dependency is only pulled into a chunk when an import
  * actually runs.
+ *
+ * #616 — when BODY rows include more than one `height` value (shared
+ * scale syncing into one Zepp account) and `selectedHeightCm` is omitted,
+ * throws `ZeppLifeMultipleProfilesError` so the UI can ask which person
+ * to keep. ACTIVITY is not height-keyed and is imported as-is.
  */
 export async function importZeppLifeExport(
   file: File,
@@ -42,6 +63,8 @@ export async function importZeppLifeExport(
   includedFields?: ReadonlySet<keyof DailyEntryPatch>,
   /** #496 — defaults to fillGaps inside mergeDailyEntryPatches. */
   importMode?: DailyEntryImportMode,
+  /** #616 — when the export has multiple heights, pass the chosen one. */
+  selectedHeightCm?: number,
 ): Promise<ZeppLifeImportSummary> {
   const { ZipReader, BlobReader, TextWriter, ERR_INVALID_PASSWORD } =
     await import('@zip.js/zip.js')
@@ -61,6 +84,7 @@ export async function importZeppLifeExport(
     const activityEntry = entries.find((e) =>
       ACTIVITY_ENTRY_RE.test(e.filename),
     )
+    const userEntry = entries.find((e) => USER_ENTRY_RE.test(e.filename))
     if (!bodyEntry && !activityEntry) {
       throw new ZeppLifeInvalidFileError(
         "This doesn't look like a Zepp Life export file.",
@@ -68,7 +92,7 @@ export async function importZeppLifeExport(
     }
 
     async function readCsv(
-      entry: typeof bodyEntry | typeof activityEntry,
+      entry: typeof bodyEntry | typeof activityEntry | typeof userEntry,
     ): Promise<string> {
       if (!entry || entry.directory) return ''
       try {
@@ -81,13 +105,24 @@ export async function importZeppLifeExport(
       }
     }
 
-    const [bodyText, activityText] = await Promise.all([
+    const [bodyText, activityText, userText] = await Promise.all([
       readCsv(bodyEntry),
       readCsv(activityEntry),
+      readCsv(userEntry),
     ])
 
-    const bodyRows = parseZeppBodyCsv(bodyText)
+    let bodyRows = parseZeppBodyCsv(bodyText)
     const activityRows = parseZeppActivityCsv(activityText)
+    const account = userText ? parseZeppUserCsv(userText) : undefined
+    const profiles = summarizeZeppBodyProfiles(bodyRows, account)
+
+    if (profiles.length > 1) {
+      if (selectedHeightCm === undefined) {
+        throw new ZeppLifeMultipleProfilesError(profiles)
+      }
+      bodyRows = filterZeppBodyRowsByHeight(bodyRows, selectedHeightCm)
+    }
+
     const rawPatches = buildZeppLifePatches(bodyRows, activityRows)
     const patches = includedFields
       ? filterPatchesToFields(rawPatches, includedFields)

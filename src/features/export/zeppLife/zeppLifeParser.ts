@@ -9,6 +9,10 @@ import type { DailyEntryPatch } from '../mergeDailyEntryPatches'
 export interface ZeppBodyRow {
   time: string
   weightKg: number
+  /** Scale profile height from the BODY CSV (`height` column). Shared
+   * household scales often write more than one height into a single export
+   * (#616) — used to group/filter which person's readings to import. */
+  heightCm?: number
   fatRatePercent?: number
   bodyWaterRatePercent?: number
   boneMassKg?: number
@@ -17,6 +21,16 @@ export interface ZeppBodyRow {
    * Confirmed against a real export + the Zepp Life UI (#458). */
   muscleMassKg?: number
   visceralFat?: number
+}
+
+/** One distinct scale-height cluster in a BODY CSV (#616). */
+export interface ZeppBodyProfile {
+  heightCm: number
+  readingCount: number
+  minWeightKg: number
+  maxWeightKg: number
+  /** From `USER/USER_*.csv` when that account's height matches this cluster. */
+  nickName?: string
 }
 
 /** One row from `ACTIVITY/ACTIVITY_*.csv` — only `steps` maps to anything
@@ -52,6 +66,7 @@ export function parseZeppBodyCsv(csvText: string): ZeppBodyRow[] {
   const timeCol = col('time')
   const weightCol = col('weight')
   if (timeCol === -1 || weightCol === -1) return []
+  const heightCol = col('height')
   const fatRateCol = col('fatRate')
   const bodyWaterRateCol = col('bodyWaterRate')
   const boneMassCol = col('boneMass')
@@ -67,6 +82,7 @@ export function parseZeppBodyCsv(csvText: string): ZeppBodyRow[] {
     rows.push({
       time,
       weightKg,
+      heightCm: parseOptionalNumber(cells[heightCol]),
       fatRatePercent: parseOptionalNumber(cells[fatRateCol]),
       bodyWaterRatePercent: parseOptionalNumber(cells[bodyWaterRateCol]),
       boneMassKg: parseOptionalNumber(cells[boneMassCol]),
@@ -75,6 +91,75 @@ export function parseZeppBodyCsv(csvText: string): ZeppBodyRow[] {
     })
   }
   return rows
+}
+
+/** Groups BODY rows by `heightCm` so a shared-scale export can offer a
+ * per-person choice before import (#616). Rows with no height are ignored
+ * here (they can't be attributed to a profile). */
+export function summarizeZeppBodyProfiles(
+  bodyRows: ZeppBodyRow[],
+  account?: { heightCm?: number; nickName?: string },
+): ZeppBodyProfile[] {
+  const byHeight = new Map<
+    number,
+    { readingCount: number; minWeightKg: number; maxWeightKg: number }
+  >()
+  for (const row of bodyRows) {
+    if (row.heightCm === undefined) continue
+    const existing = byHeight.get(row.heightCm)
+    if (!existing) {
+      byHeight.set(row.heightCm, {
+        readingCount: 1,
+        minWeightKg: row.weightKg,
+        maxWeightKg: row.weightKg,
+      })
+      continue
+    }
+    existing.readingCount += 1
+    existing.minWeightKg = Math.min(existing.minWeightKg, row.weightKg)
+    existing.maxWeightKg = Math.max(existing.maxWeightKg, row.weightKg)
+  }
+
+  return [...byHeight.entries()]
+    .sort(([a], [b]) => a - b)
+    .map(([heightCm, stats]) => ({
+      heightCm,
+      readingCount: stats.readingCount,
+      minWeightKg: stats.minWeightKg,
+      maxWeightKg: stats.maxWeightKg,
+      nickName:
+        account?.heightCm === heightCm && account.nickName
+          ? account.nickName
+          : undefined,
+    }))
+}
+
+export function filterZeppBodyRowsByHeight(
+  bodyRows: ZeppBodyRow[],
+  heightCm: number,
+): ZeppBodyRow[] {
+  return bodyRows.filter((row) => row.heightCm === heightCm)
+}
+
+/** Minimal parse of `USER/USER_*.csv` — only height + nickName are used to
+ * label a matching BODY profile (#616). */
+export function parseZeppUserCsv(
+  csvText: string,
+): { heightCm?: number; nickName?: string } | undefined {
+  const lines = splitCsvLines(csvText)
+  if (lines.length < 2) return undefined
+  const header = lines[0].split(',')
+  const heightCol = header.indexOf('height')
+  const nickNameCol = header.indexOf('nickName')
+  if (heightCol === -1 && nickNameCol === -1) return undefined
+  const cells = lines[1].split(',')
+  const heightCm =
+    heightCol === -1 ? undefined : parseOptionalNumber(cells[heightCol])
+  const nickNameRaw =
+    nickNameCol === -1 ? undefined : cells[nickNameCol]?.trim()
+  const nickName = nickNameRaw && nickNameRaw !== 'null' ? nickNameRaw : undefined
+  if (heightCm === undefined && !nickName) return undefined
+  return { heightCm, nickName }
 }
 
 const PLAIN_DATE_RE = /^\d{4}-\d{2}-\d{2}$/

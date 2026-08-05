@@ -548,6 +548,21 @@ export const ru: Dictionary = {
     passwordSubmitButton: 'Разблокировать и импортировать',
     wrongPassword:
       'Пароль не подошёл — проверьте письмо с экспортом и попробуйте снова.',
+    profileDialogTitle: 'Чьи измерения с весов?',
+    profileDialogDescription:
+      'В этом экспорте есть измерения для более чем одного роста — так бывает, когда общие весы синхронизируются в один аккаунт Zepp. Выберите, чьи данные импортировать.',
+    profileOptionLabel: ({
+      heightCm,
+      minWeightKg,
+      maxWeightKg,
+      readingCount,
+      nickName,
+    }) => {
+      const readings = `${readingCount} ${ruPluralize(readingCount, 'измерение', 'измерения', 'измерений')}`
+      const base = `${heightCm} см · ${minWeightKg}–${maxWeightKg} кг · ${readings}`
+      return nickName ? `${base} · ${nickName}` : base
+    },
+    profileSubmitButton: 'Импортировать выбранные',
   },
   appleHealthImport: {
     importBlurb:
