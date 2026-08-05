@@ -5,7 +5,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { DailyEntry } from '@/domain/dailyEntry'
 import type { Goal } from '@/domain/goal'
 import { db } from '@/infrastructure/persistence/indexeddb'
-import { useMealItemStore } from '@/stores'
+import { useLastBackupStore, useMealItemStore } from '@/stores'
 import { ExportSection } from './ExportSection'
 
 function makeGoal(overrides: Partial<Goal> = {}): Goal {
@@ -42,6 +42,13 @@ beforeEach(async () => {
   await db.dailyEntries.clear()
   await db.mealItems.clear()
   useMealItemStore.setState({ items: [], status: 'idle', error: null })
+  // #599 — no backup recorded yet by default; individual tests seed a real
+  // value where the reminder status matters.
+  useLastBackupStore.setState({
+    firstSeenAt: new Date().toISOString(),
+    lastExportedAt: null,
+    dismissedUntil: null,
+  })
   // jsdom doesn't implement object URLs or real navigation on anchor clicks;
   // ExportSection only needs these to not throw.
   vi.stubGlobal('URL', {
@@ -79,6 +86,20 @@ describe('ExportSection', () => {
     expect(
       await screen.findByText('Exported 1 goal and 2 daily entries.'),
     ).toBeInTheDocument()
+  })
+
+  it('records the backup timestamp on a successful export, but not before (#599)', async () => {
+    const user = userEvent.setup()
+    render(<ExportSection />)
+
+    expect(
+      screen.getByText("You haven't exported a backup yet."),
+    ).toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: 'Export backup' }))
+
+    expect(await screen.findByText('Last backup: today.')).toBeInTheDocument()
+    expect(useLastBackupStore.getState().lastExportedAt).not.toBeNull()
   })
 
   it(

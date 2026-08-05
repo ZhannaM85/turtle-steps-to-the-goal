@@ -483,6 +483,15 @@ export const ru: Dictionary = {
     importingButton: 'Импорт…',
     summary: (goals, entries) => `${goalCount(goals)} и ${entryCount(entries)}`,
     exportedSummary: (summary) => `Экспортировано: ${summary}.`,
+    lastBackupNeverLabel: 'Вы ещё не создавали резервную копию.',
+    lastBackupAgoLabel: (days) =>
+      days === 0
+        ? 'Последняя резервная копия: сегодня.'
+        : days === 1
+          ? 'Последняя резервная копия: вчера.'
+          : `Последняя резервная копия: ${dayCount(days)} назад.`,
+    backupReminderGoToExportLabel: 'Перейти к экспорту',
+    dismissBackupReminderLabel: 'Скрыть напоминание о резервной копии',
     exportedCsvSummary: (entries) => `Экспортировано: ${entryCount(entries)}.`,
     importedSummary: (summary) => `Импортировано: ${summary}.`,
     invalidBackup: 'Этот файл не похож на резервную копию Turtle Steps.',

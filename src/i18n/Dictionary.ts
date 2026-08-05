@@ -849,6 +849,15 @@ export interface Dictionary {
     importingButton: string
     summary: (goals: number, entries: number) => string
     exportedSummary: (summary: string) => string
+    /** #599 — factual "when did I last back up" status, shown next to the
+     * Export button and reused by the dismissible reminder banner on
+     * `SettingsScreen.tsx`. Only the complete JSON backup (this section's
+     * `handleExport`, not the ranged/Excel/CSV/Markdown exports below it)
+     * ever updates this. */
+    lastBackupNeverLabel: string
+    lastBackupAgoLabel: (days: number) => string
+    backupReminderGoToExportLabel: string
+    dismissBackupReminderLabel: string
     /** CSV export (#125) has no goals data, so it gets its own entries-only
      * summary rather than reusing `summary`/`exportedSummary` above. */
     exportedCsvSummary: (entries: number) => string

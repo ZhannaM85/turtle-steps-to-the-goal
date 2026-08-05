@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 562,
+    issue: 599,
+    date: '2026-08-05T12:38:26+03:00',
+    en: "Settings now gently reminds you if it's been a while since your last JSON backup, with a one-tap link to Export.",
+    ru: 'Настройки теперь мягко напоминают, если резервная копия JSON давно не создавалась, с переходом к экспорту в один тап.',
+  },
+  {
     version: 561,
     issue: 611,
     date: '2026-08-05T12:25:08+03:00',

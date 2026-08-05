@@ -1,7 +1,13 @@
 import { useEffect, useRef, useState } from 'react'
 import { format } from 'date-fns'
 import { type Dictionary, useTranslation } from '@/i18n'
-import { useFoodOverrideStore, useMealItemStore, useMealSlotDefaultTimesStore, useProfileStore } from '@/stores'
+import {
+  useFoodOverrideStore,
+  useLastBackupStore,
+  useMealItemStore,
+  useMealSlotDefaultTimesStore,
+  useProfileStore,
+} from '@/stores'
 import { Button } from '@/shared/ui/button'
 import {
   CardContent,
@@ -11,6 +17,7 @@ import {
 } from '@/shared/ui/card'
 import { Input } from '@/shared/ui/input'
 import { InfoTooltip } from '@/shared/ui/info-tooltip'
+import { daysSince } from '@/shared/lib/lastBackupReminder'
 import {
   exportAllData,
   importAllData,
@@ -194,6 +201,8 @@ export function ExportSection() {
   // pattern), same real profile sex every other consumer of that label
   // already reads.
   const sex = useProfileStore((state) => state.sex)
+  const recordBackupExport = useLastBackupStore((state) => state.recordExport)
+  const lastExportedAt = useLastBackupStore((state) => state.lastExportedAt)
   const [status, setStatus] = useState<Status>({ kind: 'idle' })
   const fileInputRef = useRef<HTMLInputElement>(null)
   const zeppLifeFileInputRef = useRef<HTMLInputElement>(null)
@@ -293,6 +302,10 @@ export function ExportSection() {
       link.download = `turtle-steps-backup-${format(new Date(), 'yyyy-MM-dd')}.json`
       link.click()
       URL.revokeObjectURL(url)
+      // #599 — only the complete backup resets the "last backup" reminder;
+      // the ranged/Excel/CSV/Markdown exports further down are partial or
+      // non-restorable, not a substitute for this one.
+      recordBackupExport()
       setStatus({
         kind: 'exported',
         goals: bundle.goals.length,
@@ -692,6 +705,11 @@ export function ExportSection() {
         <div className="flex flex-col gap-2">
           <p className="text-sm text-muted-foreground">
             {t.export.exportBlurb}
+          </p>
+          <p className="text-xs text-muted-foreground" role="status">
+            {lastExportedAt === null
+              ? t.export.lastBackupNeverLabel
+              : t.export.lastBackupAgoLabel(daysSince(lastExportedAt, new Date()))}
           </p>
           <Button
             onClick={handleExport}

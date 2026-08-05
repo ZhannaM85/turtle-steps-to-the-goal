@@ -7,6 +7,7 @@ import { useLocaleStore } from '@/i18n'
 import {
   useDailyReminderStore,
   useDigestionTrackingStore,
+  useLastBackupStore,
   useProfileStore,
   useThemeStore,
   useTrackedFieldsStore,
@@ -51,6 +52,13 @@ beforeEach(() => {
     sex: undefined,
     activityLevel: undefined,
   })
+  // #599 — recent by default so the backup reminder banner doesn't show up
+  // unexpectedly in unrelated tests; seeded stale explicitly where needed.
+  useLastBackupStore.setState({
+    firstSeenAt: new Date().toISOString(),
+    lastExportedAt: new Date().toISOString(),
+    dismissedUntil: null,
+  })
   document.documentElement.removeAttribute('data-mood')
   document.documentElement.classList.remove('dark')
 })
@@ -79,6 +87,13 @@ afterEach(() => {
     sex: undefined,
     activityLevel: undefined,
   })
+  // #599 — recent by default so the backup reminder banner doesn't show up
+  // unexpectedly in unrelated tests; seeded stale explicitly where needed.
+  useLastBackupStore.setState({
+    firstSeenAt: new Date().toISOString(),
+    lastExportedAt: new Date().toISOString(),
+    dismissedUntil: null,
+  })
   document.documentElement.removeAttribute('data-mood')
   document.documentElement.classList.remove('dark')
 })
@@ -104,6 +119,34 @@ describe('SettingsScreen', () => {
     expect(
       screen.getByText(/This device holds the live, up-to-date data/),
     ).toBeInTheDocument()
+  })
+
+  it('shows a stale-backup reminder that dismiss snoozes (#599)', async () => {
+    useLastBackupStore.setState({
+      firstSeenAt: '2026-01-01T00:00:00.000Z',
+      lastExportedAt: '2026-07-01T00:00:00.000Z',
+      dismissedUntil: null,
+    })
+    const user = userEvent.setup()
+    renderSettings()
+
+    // Two matches expected: the dismissible banner plus the same status
+    // line ExportSection always shows next to its own Export button.
+    expect(screen.getAllByText(/Last backup: \d+ days ago\./)).toHaveLength(2)
+    await user.click(
+      screen.getByRole('button', { name: 'Dismiss backup reminder' }),
+    )
+
+    expect(screen.getAllByText(/Last backup: \d+ days ago\./)).toHaveLength(1)
+    expect(useLastBackupStore.getState().dismissedUntil).not.toBeNull()
+  })
+
+  it('hides the backup reminder for a recent export', () => {
+    renderSettings()
+
+    expect(
+      screen.queryByRole('button', { name: 'Dismiss backup reminder' }),
+    ).not.toBeInTheDocument()
   })
 
   it('defaults to kg units', () => {

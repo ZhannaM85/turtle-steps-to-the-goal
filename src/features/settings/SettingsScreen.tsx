@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react'
+import { X } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import {
   countUntimedSlotMeals,
@@ -17,6 +18,7 @@ import {
   useDailyReminderStore,
   useDayStartStore,
   useDigestionTrackingStore,
+  useLastBackupStore,
   useMealSlotDefaultTimesStore,
   useThemeStore,
   useTrackedFieldsStore,
@@ -35,6 +37,10 @@ import {
 } from '@/stores'
 import { releaseNotes } from '@/data/releaseNotes'
 import { ExportSection } from '@/features/export'
+import {
+  backupReminderStatus,
+  BACKUP_REMINDER_SNOOZE_DAYS,
+} from '@/shared/lib/lastBackupReminder'
 import { Button } from '@/shared/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
 import { Input } from '@/shared/ui/input'
@@ -213,6 +219,28 @@ export function SettingsScreen() {
   // same derivation AboutScreen.tsx already uses.
   const currentVersion = releaseNotes[0]?.version
 
+  // #599 — quiet, dismissible nudge once the JSON backup (or the app
+  // itself, if one has never happened) has gone stale; see
+  // `lastBackupReminder.ts` for the threshold/snooze constants.
+  const backupFirstSeenAt = useLastBackupStore((state) => state.firstSeenAt)
+  const backupLastExportedAt = useLastBackupStore(
+    (state) => state.lastExportedAt,
+  )
+  const backupDismissedUntil = useLastBackupStore(
+    (state) => state.dismissedUntil,
+  )
+  const dismissBackupReminder = useLastBackupStore(
+    (state) => state.dismissReminder,
+  )
+  const backupReminder = backupReminderStatus(
+    {
+      firstSeenAt: backupFirstSeenAt,
+      lastExportedAt: backupLastExportedAt,
+      dismissedUntil: backupDismissedUntil,
+    },
+    new Date(),
+  )
+
   return (
     <div className="flex flex-col gap-4">
       <PageHeader
@@ -229,6 +257,46 @@ export function SettingsScreen() {
           )
         }
       />
+
+      {/* #599 — quiet, dismissible nudge once the backup's gone stale (see
+       * `lastBackupReminder.ts`); a snooze suppresses it for
+       * BACKUP_REMINDER_SNOOZE_DAYS rather than forever. Sits at the very
+       * top so it's seen without scrolling; the link jumps down to the
+       * Export card (`#export-section`) rather than duplicating its UI. */}
+      {backupReminder.show && (
+        <div
+          role="status"
+          className="flex items-center justify-between gap-2 rounded-lg border border-border bg-muted/40 px-3 py-2"
+        >
+          <span className="text-sm text-muted-foreground">
+            {backupReminder.days === null
+              ? t.export.lastBackupNeverLabel
+              : t.export.lastBackupAgoLabel(backupReminder.days)}
+          </span>
+          <div className="flex items-center gap-1">
+            <Button variant="outline" size="sm" asChild>
+              <a href="#export-section">
+                {t.export.backupReminderGoToExportLabel}
+              </a>
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon-sm"
+              aria-label={t.export.dismissBackupReminderLabel}
+              onClick={() => {
+                const snoozeUntil = new Date()
+                snoozeUntil.setDate(
+                  snoozeUntil.getDate() + BACKUP_REMINDER_SNOOZE_DAYS,
+                )
+                dismissBackupReminder(snoozeUntil.toISOString())
+              }}
+            >
+              <X aria-hidden="true" />
+            </Button>
+          </div>
+        </div>
+      )}
 
       {/* #498 — About / Features promoted to the top so trust and
        * capabilities aren't buried under recipes/metrics. #504 keeps
@@ -781,7 +849,7 @@ export function SettingsScreen() {
       {/* #504 — Export stays above the destructive clear/delete actions
        * (#164), after preference/list-management cards — not promoted
        * with About/Features at the top (#498 side effect, reverted). */}
-      <Card>
+      <Card id="export-section">
         <ExportSection />
       </Card>
 

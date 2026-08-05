@@ -462,6 +462,15 @@ export const en: Dictionary = {
     summary: (goals, entries) =>
       `${goalCount(goals)} and ${entryCount(entries)}`,
     exportedSummary: (summary) => `Exported ${summary}.`,
+    lastBackupNeverLabel: "You haven't exported a backup yet.",
+    lastBackupAgoLabel: (days) =>
+      days === 0
+        ? 'Last backup: today.'
+        : days === 1
+          ? 'Last backup: yesterday.'
+          : `Last backup: ${days} days ago.`,
+    backupReminderGoToExportLabel: 'Go to Export',
+    dismissBackupReminderLabel: 'Dismiss backup reminder',
     exportedCsvSummary: (entries) => `Exported ${entryCount(entries)}.`,
     importedSummary: (summary) => `Imported ${summary}.`,
     invalidBackup: "This file doesn't look like a valid Turtle Steps backup.",
