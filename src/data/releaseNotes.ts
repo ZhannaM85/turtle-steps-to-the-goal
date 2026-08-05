@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 574,
+    issue: 608,
+    date: '2026-08-05T16:20:10+03:00',
+    en: 'Added an optional password-protected backup export, for when the file might sit somewhere less trusted, like a shared computer or a synced folder.',
+    ru: 'Добавлена возможность экспортировать резервную копию под паролем — на случай, если файл окажется в менее надёжном месте, например на общем компьютере или в синхронизируемой папке.',
+  },
+  {
     version: 573,
     issue: 622,
     date: '2026-08-05T16:13:26+03:00',

@@ -930,6 +930,38 @@ export interface Dictionary {
     exportRangedBackupBlurb: string
     exportRangedBackupButton: string
     exportingRangedBackupButton: string
+    /** #608 — optional password-encrypted JSON backup via the browser's
+     * own Web Crypto (AES-GCM + PBKDF2), no third-party crypto library.
+     * A third, separate button below the ranged backup — the plain
+     * "Export backup" button above stays completely unchanged. Password
+     * only ever lives in `EncryptedBackupExportDialog`'s own local
+     * state; this app cannot recover a forgotten one (no backdoor, by
+     * design). */
+    encryptedBackupBlurb: string
+    exportEncryptedButton: string
+    exportedEncryptedSummary: string
+    exportEncryptedFailed: string
+    encryptedExportDialogTitle: string
+    encryptedExportDialogDescription: string
+    encryptedBackupUnrecoverableWarning: string
+    encryptedBackupPasswordLabel: string
+    encryptedBackupConfirmPasswordLabel: string
+    encryptedBackupPasswordMismatch: string
+    encryptingBackupButton: string
+    encryptedExportSubmitButton: string
+    closeEncryptedDialogLabel: string
+    /** Import side — `handleImportFile` detects an `EncryptedBackupEnvelope`
+     * (via `isEncryptedBackupEnvelope`) before ever trying to parse the
+     * file as a plain export bundle, and opens this dialog instead of
+     * immediately failing with `invalidBackup`. */
+    encryptedImportDialogTitle: string
+    encryptedImportDialogDescription: string
+    decryptingBackupButton: string
+    encryptedImportSubmitButton: string
+    /** Shown inline in the still-open dialog on a wrong password —
+     * `crypto.subtle.decrypt` itself throws before anything reaches
+     * `importAllData`, so a wrong attempt never touches IndexedDB. */
+    wrongEncryptedBackupPassword: string
     exportExcelBlurb: string
     exportExcelButton: string
     exportingExcelButton: string

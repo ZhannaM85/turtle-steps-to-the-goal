@@ -19,6 +19,15 @@ import { Input } from '@/shared/ui/input'
 import { InfoTooltip } from '@/shared/ui/info-tooltip'
 import { daysSince } from '@/shared/lib/lastBackupReminder'
 import {
+  decryptBackupJson,
+  encryptBackupJson,
+  isEncryptedBackupEnvelope,
+  WrongBackupPasswordError,
+  type EncryptedBackupEnvelope,
+} from './encryptedBackup'
+import { EncryptedBackupExportDialog } from './EncryptedBackupExportDialog'
+import { EncryptedBackupImportDialog } from './EncryptedBackupImportDialog'
+import {
   exportAllData,
   importAllData,
   InvalidBackupFileError,
@@ -124,10 +133,12 @@ function filterByExportPeriod<T extends { date: string }>(
 type StatusSection =
   | 'jsonBackup'
   | 'rangedBackup'
+  | 'encryptedBackup'
   | 'excel'
   | 'csv'
   | 'markdown'
   | 'jsonImport'
+  | 'encryptedImport'
   | 'zepp'
   | 'apple'
   | 'mfp'
@@ -138,6 +149,10 @@ type Status =
   | { kind: 'exported'; goals: number; entries: number }
   | { kind: 'exportingRangedBackup' }
   | { kind: 'exportedRangedBackup'; goals: number; entries: number }
+  | { kind: 'exportingEncrypted' }
+  | { kind: 'exportedEncrypted' }
+  | { kind: 'importingEncrypted' }
+  | { kind: 'importedEncrypted'; goals: number; entries: number }
   | { kind: 'exportingExcel' }
   | { kind: 'exportedExcel'; goals: number; entries: number }
   | { kind: 'exportingCsv' }
@@ -205,6 +220,19 @@ export function ExportSection() {
   const lastExportedAt = useLastBackupStore((state) => state.lastExportedAt)
   const [status, setStatus] = useState<Status>({ kind: 'idle' })
   const fileInputRef = useRef<HTMLInputElement>(null)
+  // #608 — optional password-encrypted JSON backup. Export: a dialog sets
+  // a fresh password before encrypting. Import: `handleImportFile` shares
+  // the *same* file input/picker as the plain JSON import above (it
+  // detects the encrypted envelope shape after reading the file, before
+  // deciding which path to take) — `pendingEncryptedEnvelope` holds the
+  // parsed envelope while its own password dialog is open.
+  const [isEncryptedExportDialogOpen, setIsEncryptedExportDialogOpen] =
+    useState(false)
+  const [pendingEncryptedEnvelope, setPendingEncryptedEnvelope] =
+    useState<EncryptedBackupEnvelope | null>(null)
+  const [encryptedImportError, setEncryptedImportError] = useState<
+    string | null
+  >(null)
   const zeppLifeFileInputRef = useRef<HTMLInputElement>(null)
   const [zeppLifePendingFile, setZeppLifePendingFile] = useState<File | null>(
     null,
@@ -316,6 +344,40 @@ export function ExportSection() {
         kind: 'error',
         section: 'jsonBackup',
         message: t.export.exportFailed,
+      })
+    }
+  }
+
+  // #608 — same complete bundle `handleExport` above downloads, wrapped
+  // in AES-GCM encryption keyed from the password the dialog collected.
+  // Deliberately doesn't call `recordBackupExport()` — the plain "last
+  // backup" reminder (#599) is about *a* restorable backup existing at
+  // all, and this one already satisfies that just by being a complete
+  // export; recording it a second time would just double-count the same
+  // moment, not track something new.
+  async function handleExportEncrypted(password: string) {
+    setStatus({ kind: 'exportingEncrypted' })
+    try {
+      const bundle = await exportAllData()
+      const json = JSON.stringify(bundle)
+      const envelope = await encryptBackupJson(json, password)
+      const blob = new Blob([JSON.stringify(envelope)], {
+        type: 'application/json',
+      })
+      const url = URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      link.href = url
+      link.download = `turtle-steps-backup-${format(new Date(), 'yyyy-MM-dd')}.encrypted.json`
+      link.click()
+      URL.revokeObjectURL(url)
+      recordBackupExport()
+      setIsEncryptedExportDialogOpen(false)
+      setStatus({ kind: 'exportedEncrypted' })
+    } catch {
+      setStatus({
+        kind: 'error',
+        section: 'encryptedBackup',
+        message: t.export.exportEncryptedFailed,
       })
     }
   }
@@ -471,28 +533,40 @@ export function ExportSection() {
     }
   }
 
+  // #285 — importAllData writes straight to IndexedDB via its own repository
+  // instances, bypassing useMealItemStore/useFoodOverrideStore entirely. Any
+  // already-mounted UI reading from those stores (e.g. MealItemsSection's
+  // Settings list, already open on this same page) otherwise keeps showing
+  // pre-import data until something unrelated happens to remount/reload it.
+  // Shared by the plain JSON import and #608's encrypted import below —
+  // both land on the same bundle shape once decrypted.
+  async function applyImportedBundle(bundle: ReturnType<typeof parseExportBundle>) {
+    await importAllData(bundle)
+    await Promise.all([
+      useMealItemStore.getState().loadItems(),
+      useFoodOverrideStore.getState().loadOverrides(),
+    ])
+    return { goals: bundle.goals.length, entries: bundle.dailyEntries.length }
+  }
+
   async function handleImportFile(file: File) {
     setStatus({ kind: 'importing' })
     try {
       const text = await file.text()
       const raw: unknown = JSON.parse(text)
+      // #608 — an encrypted backup is a plain JSON envelope (not the bundle
+      // itself), so it parses fine here but would fail `parseExportBundle`.
+      // Detect it first and hand off to the password dialog instead of
+      // falling through to the generic "invalid backup" error below.
+      if (isEncryptedBackupEnvelope(raw)) {
+        setPendingEncryptedEnvelope(raw)
+        setEncryptedImportError(null)
+        setStatus({ kind: 'idle' })
+        return
+      }
       const bundle = parseExportBundle(raw)
-      await importAllData(bundle)
-      // #285 — importAllData writes straight to IndexedDB via its own
-      // repository instances, bypassing useMealItemStore/useFoodOverrideStore
-      // entirely. Any already-mounted UI reading from those stores (e.g.
-      // MealItemsSection's Settings list, already open on this same page)
-      // otherwise keeps showing pre-import data until something unrelated
-      // happens to remount and reload them.
-      await Promise.all([
-        useMealItemStore.getState().loadItems(),
-        useFoodOverrideStore.getState().loadOverrides(),
-      ])
-      setStatus({
-        kind: 'imported',
-        goals: bundle.goals.length,
-        entries: bundle.dailyEntries.length,
-      })
+      const { goals, entries } = await applyImportedBundle(bundle)
+      setStatus({ kind: 'imported', goals, entries })
     } catch (err) {
       const message =
         err instanceof InvalidBackupFileError
@@ -501,6 +575,35 @@ export function ExportSection() {
             ? t.export.notValidJson
             : t.export.importFailed
       setStatus({ kind: 'error', section: 'jsonImport', message })
+    }
+  }
+
+  async function handleEncryptedImportSubmit(password: string) {
+    if (!pendingEncryptedEnvelope) return
+    setStatus({ kind: 'importingEncrypted' })
+    try {
+      const json = await decryptBackupJson(pendingEncryptedEnvelope, password)
+      const raw: unknown = JSON.parse(json)
+      const bundle = parseExportBundle(raw)
+      const { goals, entries } = await applyImportedBundle(bundle)
+      setPendingEncryptedEnvelope(null)
+      setEncryptedImportError(null)
+      setStatus({ kind: 'importedEncrypted', goals, entries })
+    } catch (err) {
+      if (err instanceof WrongBackupPasswordError) {
+        setEncryptedImportError(t.export.wrongEncryptedBackupPassword)
+        setStatus({ kind: 'idle' })
+        return
+      }
+      setPendingEncryptedEnvelope(null)
+      setEncryptedImportError(null)
+      const message =
+        err instanceof InvalidBackupFileError
+          ? t.export.invalidBackup
+          : err instanceof SyntaxError
+            ? t.export.notValidJson
+            : t.export.importFailed
+      setStatus({ kind: 'error', section: 'encryptedImport', message })
     }
   }
 
@@ -793,6 +896,31 @@ export function ExportSection() {
           )}
         </div>
 
+        {/* #608 — a third JSON export, encrypted client-side via Web Crypto
+         * (AES-GCM, password-derived key). Neither backup above changes —
+         * this is an opt-in alternative for a device the user trusts less
+         * (shared computer, cloud-synced folder), not a replacement. */}
+        <div className="flex flex-col gap-2">
+          <p className="text-sm text-muted-foreground">
+            {t.export.encryptedBackupBlurb}
+          </p>
+          <Button
+            variant="outline"
+            onClick={() => setIsEncryptedExportDialogOpen(true)}
+            className="self-start"
+          >
+            {t.export.exportEncryptedButton}
+          </Button>
+          {status.kind === 'exportedEncrypted' && (
+            <SectionStatus>{t.export.exportedEncryptedSummary}</SectionStatus>
+          )}
+          {sectionErrorMessage(status, 'encryptedBackup') && (
+            <SectionStatus error>
+              {sectionErrorMessage(status, 'encryptedBackup')!}
+            </SectionStatus>
+          )}
+        </div>
+
         <div className="flex flex-col gap-2">
           <p className="text-sm text-muted-foreground">
             {t.export.exportExcelBlurb}
@@ -911,6 +1039,21 @@ export function ExportSection() {
           {sectionErrorMessage(status, 'jsonImport') && (
             <SectionStatus error>
               {sectionErrorMessage(status, 'jsonImport')!}
+            </SectionStatus>
+          )}
+          {/* #608 — same file input/button above; an encrypted envelope is
+           * detected inside handleImportFile and routed to the password
+           * dialog instead, so its own result renders here too. */}
+          {status.kind === 'importedEncrypted' && (
+            <SectionStatus>
+              {t.export.importedSummary(
+                t.export.summary(status.goals, status.entries),
+              )}
+            </SectionStatus>
+          )}
+          {sectionErrorMessage(status, 'encryptedImport') && (
+            <SectionStatus error>
+              {sectionErrorMessage(status, 'encryptedImport')!}
             </SectionStatus>
           )}
         </div>
@@ -1196,6 +1339,24 @@ export function ExportSection() {
         onSubmit={handleMyFitnessPalPasswordSubmit}
         error={myFitnessPalPasswordError}
         submitting={status.kind === 'importingMyFitnessPal'}
+      />
+      <EncryptedBackupExportDialog
+        open={isEncryptedExportDialogOpen}
+        onOpenChange={setIsEncryptedExportDialogOpen}
+        onSubmit={handleExportEncrypted}
+        submitting={status.kind === 'exportingEncrypted'}
+      />
+      <EncryptedBackupImportDialog
+        open={pendingEncryptedEnvelope !== null}
+        onOpenChange={(open) => {
+          if (!open) {
+            setPendingEncryptedEnvelope(null)
+            setEncryptedImportError(null)
+          }
+        }}
+        onSubmit={handleEncryptedImportSubmit}
+        error={encryptedImportError}
+        submitting={status.kind === 'importingEncrypted'}
       />
     </>
   )

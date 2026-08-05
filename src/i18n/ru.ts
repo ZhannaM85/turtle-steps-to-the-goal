@@ -532,6 +532,29 @@ export const ru: Dictionary = {
       'Скачайте резервную копию JSON только за период выше, а не за всю историю — удобно, чтобы поделиться или сохранить часть данных, не выгружая всё. Не заменяет полную резервную копию выше — она остаётся единственным гарантированно полным источником для восстановления.',
     exportRangedBackupButton: 'Экспортировать копию за период',
     exportingRangedBackupButton: 'Экспорт…',
+    encryptedBackupBlurb:
+      'Защитите сам файл резервной копии паролем — например, прежде чем он окажется в папке загрузок или синхронизируемой с облаком папке. Обычная копия выше работает точно так же, независимо от этого.',
+    exportEncryptedButton: 'Зашифрованная копия',
+    exportedEncryptedSummary: 'Зашифрованная резервная копия скачана.',
+    exportEncryptedFailed: 'Не удалось создать зашифрованную резервную копию.',
+    encryptedExportDialogTitle: 'Задайте пароль для копии',
+    encryptedExportDialogDescription:
+      'Этот пароль шифрует скачиваемый файл. Введите его дважды, чтобы не ошибиться.',
+    encryptedBackupUnrecoverableWarning:
+      'Если вы забудете этот пароль, копию нельзя будет восстановить — сброса или обходного пути нет.',
+    encryptedBackupPasswordLabel: 'Пароль',
+    encryptedBackupConfirmPasswordLabel: 'Подтвердите пароль',
+    encryptedBackupPasswordMismatch: 'Пароли не совпадают.',
+    encryptingBackupButton: 'Шифрование…',
+    encryptedExportSubmitButton: 'Зашифровать и скачать',
+    closeEncryptedDialogLabel: 'Закрыть',
+    encryptedImportDialogTitle: 'Введите пароль резервной копии',
+    encryptedImportDialogDescription:
+      'Этот файл резервной копии защищён паролем. Введите пароль, которым он был зашифрован.',
+    decryptingBackupButton: 'Расшифровка…',
+    encryptedImportSubmitButton: 'Расшифровать и импортировать',
+    wrongEncryptedBackupPassword:
+      'Неверный пароль или файл повреждён.',
     exportExcelBlurb:
       'Скачайте свои данные в формате Excel для просмотра или анализа — это не резервная копия, импортировать её обратно нельзя.',
     exportExcelButton: 'Экспорт в Excel',

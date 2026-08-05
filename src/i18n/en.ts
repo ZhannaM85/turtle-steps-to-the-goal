@@ -511,6 +511,29 @@ export const en: Dictionary = {
       'Download a JSON backup scoped to the period above instead of your full history — useful for sharing or archiving a slice without the whole thing. Not a substitute for the full backup above, which stays the one guaranteed-complete restore source.',
     exportRangedBackupButton: 'Export ranged backup',
     exportingRangedBackupButton: 'Exporting…',
+    encryptedBackupBlurb:
+      'Password-protect the backup file itself, e.g. before it sits in a Downloads or cloud-synced folder. The plain backup above still works exactly the same either way.',
+    exportEncryptedButton: 'Encrypted backup',
+    exportedEncryptedSummary: 'Encrypted backup downloaded.',
+    exportEncryptedFailed: 'Could not create the encrypted backup.',
+    encryptedExportDialogTitle: 'Set a backup password',
+    encryptedExportDialogDescription:
+      'This password encrypts the downloaded file. Type it twice to catch typos.',
+    encryptedBackupUnrecoverableWarning:
+      "If you forget this password, the backup cannot be recovered — there's no reset or backdoor.",
+    encryptedBackupPasswordLabel: 'Password',
+    encryptedBackupConfirmPasswordLabel: 'Confirm password',
+    encryptedBackupPasswordMismatch: "Passwords don't match.",
+    encryptingBackupButton: 'Encrypting…',
+    encryptedExportSubmitButton: 'Encrypt and download',
+    closeEncryptedDialogLabel: 'Close',
+    encryptedImportDialogTitle: 'Enter the backup password',
+    encryptedImportDialogDescription:
+      'This backup file is password-protected. Enter the password it was encrypted with.',
+    decryptingBackupButton: 'Decrypting…',
+    encryptedImportSubmitButton: 'Decrypt and import',
+    wrongEncryptedBackupPassword:
+      'Wrong password, or the file is corrupted.',
     exportExcelBlurb:
       'Download your data as an Excel file for viewing or analysis — this is not a backup and can’t be imported back in.',
     exportExcelButton: 'Export as Excel',

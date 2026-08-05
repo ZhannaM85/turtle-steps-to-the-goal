@@ -368,6 +368,120 @@ describe('ExportSection', () => {
     ).toBeInTheDocument()
   })
 
+  it('encrypts and downloads a backup via a password (#608)', async () => {
+    await db.goals.put(makeGoal())
+    await db.dailyEntries.put(makeEntry())
+    const user = userEvent.setup()
+
+    render(<ExportSection />)
+    await user.click(screen.getByRole('button', { name: 'Encrypted backup' }))
+    await user.type(
+      await screen.findByLabelText('Password'),
+      'correct horse battery staple',
+    )
+    await user.type(
+      screen.getByLabelText('Confirm password'),
+      'correct horse battery staple',
+    )
+    await user.click(
+      screen.getByRole('button', { name: 'Encrypt and download' }),
+    )
+
+    expect(
+      await screen.findByText('Encrypted backup downloaded.'),
+    ).toBeInTheDocument()
+  })
+
+  it('shows a mismatch warning and blocks submit until both passwords match (#608)', async () => {
+    const user = userEvent.setup()
+
+    render(<ExportSection />)
+    await user.click(screen.getByRole('button', { name: 'Encrypted backup' }))
+    await user.type(await screen.findByLabelText('Password'), 'first-try')
+    await user.type(screen.getByLabelText('Confirm password'), 'second-try')
+
+    expect(screen.getByText("Passwords don't match.")).toBeInTheDocument()
+    expect(
+      screen.getByRole('button', { name: 'Encrypt and download' }),
+    ).toBeDisabled()
+  })
+
+  it('imports an encrypted backup after entering the correct password (#608)', async () => {
+    const { encryptBackupJson } = await import('./encryptedBackup')
+    const bundle = {
+      version: 4,
+      exportedAt: new Date().toISOString(),
+      goals: [makeGoal()],
+      dailyEntries: [makeEntry(), makeEntry({ date: '2026-03-02' })],
+    }
+    const envelope = await encryptBackupJson(
+      JSON.stringify(bundle),
+      'correct horse battery staple',
+    )
+    const user = userEvent.setup()
+
+    render(<ExportSection />)
+    const input = document.querySelector(
+      'input[type="file"]',
+    ) as HTMLInputElement
+    await user.upload(input, makeFile(envelope))
+
+    await user.type(
+      await screen.findByLabelText('Password'),
+      'correct horse battery staple',
+    )
+    await user.click(
+      screen.getByRole('button', { name: 'Decrypt and import' }),
+    )
+
+    expect(
+      await screen.findByText('Imported 1 goal and 2 daily entries.'),
+    ).toBeInTheDocument()
+    expect(await db.goals.toArray()).toHaveLength(1)
+    expect(await db.dailyEntries.toArray()).toHaveLength(2)
+  })
+
+  it('shows an inline error for a wrong encrypted backup password, and allows retrying (#608)', async () => {
+    const { encryptBackupJson } = await import('./encryptedBackup')
+    const bundle = {
+      version: 4,
+      exportedAt: new Date().toISOString(),
+      goals: [makeGoal()],
+      dailyEntries: [],
+    }
+    const envelope = await encryptBackupJson(
+      JSON.stringify(bundle),
+      'the-real-password',
+    )
+    const user = userEvent.setup()
+
+    render(<ExportSection />)
+    const input = document.querySelector(
+      'input[type="file"]',
+    ) as HTMLInputElement
+    await user.upload(input, makeFile(envelope))
+
+    const passwordField = await screen.findByLabelText('Password')
+    await user.type(passwordField, 'a-wrong-guess')
+    await user.click(
+      screen.getByRole('button', { name: 'Decrypt and import' }),
+    )
+
+    expect(
+      await screen.findByText('Wrong password, or the file is corrupted.'),
+    ).toBeInTheDocument()
+
+    await user.clear(passwordField)
+    await user.type(passwordField, 'the-real-password')
+    await user.click(
+      screen.getByRole('button', { name: 'Decrypt and import' }),
+    )
+
+    expect(
+      await screen.findByText('Imported 1 goal and 0 daily entries.'),
+    ).toBeInTheDocument()
+  })
+
   describe('per-field import picker (#369)', () => {
     // Weight/Steps/Body fat % appear in both the Zepp Life and Apple Health
     // pickers — scoped via `within` on each picker's own group (identified
