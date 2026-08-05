@@ -176,6 +176,11 @@ const mealItemSchema = z.object({
   barcode: z.string().optional(),
   // #541 — backfill provenance for reversible undo.
   source: z.enum(['history-backfill', 'mfp-import']).optional(),
+  // #603 — named serving descriptors, same purely-additive reasoning as
+  // every other optional field above.
+  servings: z
+    .array(z.object({ en: z.string(), ru: z.string(), grams: z.number() }))
+    .optional(),
 })
 
 // Per-device curated-food-list customizations (#90) — same #113

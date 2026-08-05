@@ -1509,6 +1509,17 @@ export interface Dictionary {
     deleteMealItemLabel: (name: string) => string
     editMealItemLabel: (name: string) => string
     saveMealItemLabel: (name: string) => string
+    /** #603 — named serving descriptors for a personal meal item, same
+     * "1 slice"/"1 cup" convenience #254 gave curated foods. Commits
+     * immediately on add/remove (own `setServings` store call), same
+     * "doesn't wait for the nutrition Save button" shape favoriting
+     * already has in this row. */
+    mealItemServingsLabel: string
+    mealItemServingNameLabel: string
+    mealItemServingNamePlaceholder: string
+    mealItemServingGramsLabel: string
+    addMealItemServingButton: string
+    removeMealItemServingLabel: (name: string) => string
     /** Opens the create-a-new-dictionary-entry form (#149) — same
      * name + per-100g nutrition fields as an existing row's own editor,
      * calling the same touch() upsert, just starting from a blank draft

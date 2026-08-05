@@ -648,6 +648,63 @@ describe('FoodPickerDialog', () => {
       ])
     })
 
+    it('offers a serving-size toggle for a personal meal item with its own named servings (#603)', async () => {
+      const user = userEvent.setup()
+      const onAdd = vi.fn()
+      const item = mealItem({
+        name: 'Soup',
+        lastAmountKcal: 300,
+        lastProteinG: 15,
+        lastFatG: 9,
+        lastCarbsG: 21,
+        lastAmountG: 300,
+        servings: [{ en: '1 bowl', ru: '1 bowl', grams: 150 }],
+      })
+      render(
+        <FoodPickerDialog
+          open
+          onOpenChange={vi.fn()}
+          onAdd={onAdd}
+          mealItems={[item]}
+        />,
+      )
+
+      await user.click(screen.getByText('Soup'))
+      expect(screen.getByRole('radio', { name: '1 bowl' })).toBeInTheDocument()
+
+      await user.click(screen.getByRole('radio', { name: '1 bowl' }))
+      await user.click(screen.getByRole('button', { name: 'Add selected' }))
+
+      // 100kcal/100g rate (300kcal/300g); 1 bowl = 150g -> scale 1.5.
+      expect(onAdd).toHaveBeenCalledWith([
+        expect.objectContaining({
+          amountKcal: 150,
+          proteinG: 7.5,
+          fatG: 4.5,
+          carbsG: 10.5,
+          amountG: 150,
+        }),
+      ])
+    })
+
+    it('does not offer a serving-size toggle for a personal item with none defined', async () => {
+      const user = userEvent.setup()
+      render(
+        <FoodPickerDialog
+          open
+          onOpenChange={vi.fn()}
+          onAdd={vi.fn()}
+          mealItems={[mealItem({ name: 'Soup' })]}
+        />,
+      )
+
+      await user.click(screen.getByText('Soup'))
+
+      expect(
+        screen.queryByRole('radio', { name: 'Grams' }),
+      ).not.toBeInTheDocument()
+    })
+
     it('reverts to the quantity field when switched back to grams', async () => {
       const user = userEvent.setup()
       render(

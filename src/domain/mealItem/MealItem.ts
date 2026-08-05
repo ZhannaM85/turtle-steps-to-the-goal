@@ -18,6 +18,21 @@
 /** #541 — provenance for reversible library backfills. */
 export type MealItemSource = 'history-backfill' | 'mfp-import'
 
+/** #603 — named serving descriptor for a personal meal item, same shape as
+ * `data/foods.ts`'s `FoodServing` (deliberately duplicated rather than
+ * imported — `MealItem` is a domain type, `data/foods.ts` is static app
+ * content, and this app's other structurally-similar-but-separate types,
+ * e.g. `RecipeIngredient` vs `CalorieItem`, already follow this same "own
+ * type per owner" precedent rather than sharing across layers). Unlike a
+ * curated food's editorially-authored `en`/`ru` pair, this is user-typed —
+ * the editor UI stores the same label in both fields rather than asking a
+ * single-language user to also supply a translation. */
+export interface MealItemServing {
+  en: string
+  ru: string
+  grams: number
+}
+
 export interface MealItem {
   id: string
   name: string
@@ -54,4 +69,9 @@ export interface MealItem {
    * Omitted/`undefined` = user-created (manual add, touch-on-save, barcode).
    */
   source?: MealItemSource
+  /** #603 — optional named serving sizes (e.g. "1 slice"), the same
+   * friendlier-than-grams convenience #254 gave curated foods. Purely a UI
+   * input path — still resolves to `amountG`/gram-based math everywhere
+   * else, same as `FoodServing`. */
+  servings?: MealItemServing[]
 }

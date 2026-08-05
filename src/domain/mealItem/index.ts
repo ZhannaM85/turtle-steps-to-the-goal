@@ -1,4 +1,4 @@
-export type { MealItem, MealItemSource } from './MealItem'
+export type { MealItem, MealItemServing, MealItemSource } from './MealItem'
 export type { MealItemRepository } from './MealItemRepository'
 export {
   MEAL_LIBRARY_BACKFILL_MAX_NEW,

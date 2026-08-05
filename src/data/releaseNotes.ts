@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 567,
+    issue: 603,
+    date: '2026-08-05T13:36:23+03:00',
+    en: 'Your own meal items can now have named servings too (like "1 slice"), editable in Settings and selectable when logging.',
+    ru: 'У ваших собственных продуктов теперь тоже можно задавать именованные порции (например, «1 кусок») — в настройках и при добавлении еды.',
+  },
+  {
     version: 566,
     issue: 615,
     date: '2026-08-05T13:17:25+03:00',

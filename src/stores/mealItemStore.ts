@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import type { DailyEntry } from '@/domain/dailyEntry'
-import type { MealItem, MealItemSource } from '@/domain/mealItem'
+import type { MealItem, MealItemServing, MealItemSource } from '@/domain/mealItem'
 import {
   isBackfilledMealItemSource,
   planMealLibraryBackfill,
@@ -60,6 +60,11 @@ interface MealItemStoreState {
   /** #276 — toggles a "go-to" food, independent of `touch()`'s own
    * recency bookkeeping. */
   toggleFavorite: (id: string) => Promise<void>
+  /** #603 — replaces this item's named serving descriptors wholesale (the
+   * editor always saves the full current list, same "whole list" shape
+   * as most small-list editors in this app, e.g. `MealLabelPresetsSection`),
+   * independent of `touch()`'s own nutrition bookkeeping. */
+  setServings: (id: string, servings: MealItemServing[]) => Promise<void>
   /**
    * #541 — add missing named dishes from day history into the library,
    * tagged for reversible undo. Does not change day meal history.
@@ -143,6 +148,16 @@ export const useMealItemStore = create<MealItemStoreState>((set, get) => ({
     await mealItemRepository.upsert({
       ...current,
       favorite: !current.favorite,
+      updatedAt: new Date().toISOString(),
+    })
+    set({ items: await mealItemRepository.getAll() })
+  },
+  setServings: async (id, servings) => {
+    const current = get().items.find((item) => item.id === id)
+    if (!current) return
+    await mealItemRepository.upsert({
+      ...current,
+      servings,
       updatedAt: new Date().toISOString(),
     })
     set({ items: await mealItemRepository.getAll() })

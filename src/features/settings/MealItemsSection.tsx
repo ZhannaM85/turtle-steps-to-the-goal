@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Pencil, ScanBarcode, Star, Trash2 } from 'lucide-react'
 import { formatNumber, useLocale, useTranslation } from '@/i18n'
-import type { MealItem } from '@/domain/mealItem'
+import type { MealItem, MealItemServing } from '@/domain/mealItem'
 import {
   countMealLibraryNameMatches,
   isBackfilledMealItemSource,
@@ -77,6 +77,7 @@ function MealItemRow({
   onDelete,
   onSaveNutrition,
   onToggleFavorite,
+  onSaveServings,
 }: {
   item: MealItem
   onRename: (id: string, name: string) => void | Promise<void>
@@ -92,6 +93,7 @@ function MealItemRow({
     },
   ) => void | Promise<void>
   onToggleFavorite: (id: string) => void
+  onSaveServings: (id: string, servings: MealItemServing[]) => void
 }) {
   const t = useTranslation()
   const locale = useLocale()
@@ -102,6 +104,11 @@ function MealItemRow({
   const [fat100, setFat100] = useState('')
   const [carbs100, setCarbs100] = useState('')
   const [amountG, setAmountG] = useState('1')
+  // #603 — draft fields for the "add a serving" row only; the list itself
+  // reads straight from `item.servings` and commits immediately on
+  // add/remove, same "doesn't wait for Save" shape favoriting already has.
+  const [draftServingName, setDraftServingName] = useState('')
+  const [draftServingGrams, setDraftServingGrams] = useState('')
   // Per 100g / Per portion entry mode (#170, extending #111's toggle from
   // manual meal entry to this screen's editor).
   const [macroMode, setMacroMode] = useState<'per100g' | 'perPortion'>(
@@ -231,6 +238,33 @@ function MealItemRow({
       amountG: scaled.amountG ?? 100,
     })
     setIsEditingNutrition(false)
+  }
+
+  // #603 — stores the same label in both `en`/`ru` rather than asking a
+  // single-language user to also type a translation; see `MealItemServing`'s
+  // own doc comment for the reasoning.
+  const draftServingGramsNum = parseNumberInput(draftServingGrams)
+  const canAddServing =
+    draftServingName.trim() !== '' &&
+    draftServingGramsNum !== undefined &&
+    draftServingGramsNum > 0
+
+  function addServing() {
+    if (!canAddServing || draftServingGramsNum === undefined) return
+    const name = draftServingName.trim()
+    onSaveServings(item.id, [
+      ...(item.servings ?? []),
+      { en: name, ru: name, grams: draftServingGramsNum },
+    ])
+    setDraftServingName('')
+    setDraftServingGrams('')
+  }
+
+  function removeServing(index: number) {
+    onSaveServings(
+      item.id,
+      (item.servings ?? []).filter((_, i) => i !== index),
+    )
   }
 
   const kcal100Num = parseNumberInput(kcal100)
@@ -444,6 +478,77 @@ function MealItemRow({
               {t.dailyEntry.computedTotalPrefix} {nutritionPreview}
             </p>
           )}
+          {/* #603 — named serving descriptors, same convenience #254 gave
+           * curated foods; picked up automatically by FoodPickerDialog's
+           * own servings toggle once at least one exists. */}
+          <div className="flex flex-col gap-1.5">
+            <p className="text-xs font-medium text-foreground">
+              {t.settings.mealItemServingsLabel}
+            </p>
+            {item.servings && item.servings.length > 0 && (
+              <ul className="flex flex-col gap-1">
+                {item.servings.map((serving, index) => (
+                  <li
+                    key={index}
+                    className="flex items-center justify-between gap-2 rounded-lg bg-muted/40 px-2 py-1 text-xs text-foreground"
+                  >
+                    <span>
+                      {serving[locale]} —{' '}
+                      {formatNumber(serving.grams, locale, 0)}g
+                    </span>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon-sm"
+                      aria-label={t.settings.removeMealItemServingLabel(
+                        serving[locale],
+                      )}
+                      onClick={() => removeServing(index)}
+                    >
+                      <Trash2 aria-hidden="true" />
+                    </Button>
+                  </li>
+                ))}
+              </ul>
+            )}
+            <div className="flex flex-wrap items-end gap-2">
+              <div className="flex flex-col gap-1">
+                <span className="text-xs text-muted-foreground">
+                  {t.settings.mealItemServingNameLabel}
+                </span>
+                <Input
+                  type="text"
+                  aria-label={`${t.settings.mealItemServingNameLabel} — ${item.name}`}
+                  placeholder={t.settings.mealItemServingNamePlaceholder}
+                  value={draftServingName}
+                  onChange={(e) => setDraftServingName(e.target.value)}
+                  className={cn('h-7 w-28', nutritionFieldClassName)}
+                />
+              </div>
+              <div className="flex flex-col gap-1">
+                <span className="text-xs text-muted-foreground">
+                  {t.settings.mealItemServingGramsLabel}
+                </span>
+                <Input
+                  type="text"
+                  inputMode="decimal"
+                  aria-label={`${t.settings.mealItemServingGramsLabel} — ${item.name}`}
+                  value={draftServingGrams}
+                  onChange={(e) => setDraftServingGrams(e.target.value)}
+                  className={cn('h-7 w-16', nutritionFieldClassName)}
+                />
+              </div>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                disabled={!canAddServing}
+                onClick={addServing}
+              >
+                {t.settings.addMealItemServingButton}
+              </Button>
+            </div>
+          </div>
         </div>
       ) : (
         <>
@@ -877,6 +982,7 @@ export function MealItemsSection() {
   const deleteItem = useMealItemStore((state) => state.deleteItem)
   const touch = useMealItemStore((state) => state.touch)
   const toggleFavorite = useMealItemStore((state) => state.toggleFavorite)
+  const setServings = useMealItemStore((state) => state.setServings)
   const backfillFromHistory = useMealItemStore(
     (state) => state.backfillFromHistory,
   )
@@ -1095,6 +1201,7 @@ export function MealItemsSection() {
               onDelete={deleteItem}
               onSaveNutrition={handleSaveNutrition}
               onToggleFavorite={toggleFavorite}
+              onSaveServings={setServings}
             />
           ))}
         </ul>

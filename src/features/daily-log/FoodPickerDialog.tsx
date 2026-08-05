@@ -242,16 +242,20 @@ export function FoodPickerDialog({
   function setQuantityFor(item: PickableItem, value: string) {
     setQuantities((prev) => ({ ...prev, [itemKey(item)]: value }))
   }
-  // #254 — resolves to the active serving descriptor only for the single
-  // selected food currently in serving mode; `undefined` (grams mode, a
-  // different item, a personal item, or a stale index left over from a
-  // previously selected food with fewer/no servings of its own) falls
-  // through to the plain quantity field everywhere below.
+  // #603 — either source can carry named servings now (a curated food's
+  // seeded `FoodServing[]`, or a personal item's own user-defined ones);
+  // structurally identical shapes, so this can return either as one type.
+  function servingsFor(item: PickableItem): FoodServing[] | undefined {
+    return item.source === 'food' ? item.food.servings : item.mealItem.servings
+  }
+  // #254/#603 — resolves to the active serving descriptor only for the
+  // single selected item currently in serving mode; `undefined` (grams
+  // mode, a different item, an item with no servings of its own, or a
+  // stale index left over from a previously selected item with fewer
+  // servings) falls through to the plain quantity field everywhere below.
   function activeServingFor(item: PickableItem): FoodServing | undefined {
-    if (item !== singleSelected || item.source !== 'food' || servingMode === 'grams') {
-      return undefined
-    }
-    return item.food.servings?.[Number(servingMode)]
+    if (item !== singleSelected || servingMode === 'grams') return undefined
+    return servingsFor(item)?.[Number(servingMode)]
   }
   function hasValidQuantity(item: PickableItem): boolean {
     const serving = activeServingFor(item)
@@ -676,34 +680,39 @@ export function FoodPickerDialog({
              * one dish is checked (a multi-pick gets its own per-row field
              * instead, above); reaction can still be fine-tuned afterward
              * via that item's own pencil once it's in the meal. */}
-            {/* #254 — a friendlier alternative to grams, only offered
-             * once a single curated food with known serving sizes is
-             * checked (a personal item, or a food with none seeded, has
-             * nothing to offer here and just shows the grams field). */}
-            {singleSelected?.source === 'food' &&
-              singleSelected.food.servings &&
-              singleSelected.food.servings.length > 0 && (
-                <ToggleGroup
-                  type="single"
-                  aria-label={t.dailyEntry.servingModeLabel}
-                  value={servingMode}
-                  onValueChange={(value) => value && setServingMode(value)}
-                  className="w-fit flex-wrap gap-2 p-1"
-                >
-                  <ToggleGroupItem value="grams" className="h-8 px-3 text-xs">
-                    {t.dailyEntry.gramsModeOption}
-                  </ToggleGroupItem>
-                  {singleSelected.food.servings.map((serving, index) => (
-                    <ToggleGroupItem
-                      key={index}
-                      value={String(index)}
-                      className="h-8 px-3 text-xs"
+            {/* #254/#603 — a friendlier alternative to grams, offered once
+             * a single item (curated food or personal meal item) with its
+             * own named servings is checked; an item with none defined
+             * has nothing to offer here and just shows the grams field. */}
+            {singleSelected &&
+              (() => {
+                const servings = servingsFor(singleSelected)
+                return (
+                  servings &&
+                  servings.length > 0 && (
+                    <ToggleGroup
+                      type="single"
+                      aria-label={t.dailyEntry.servingModeLabel}
+                      value={servingMode}
+                      onValueChange={(value) => value && setServingMode(value)}
+                      className="w-fit flex-wrap gap-2 p-1"
                     >
-                      {serving[locale]}
-                    </ToggleGroupItem>
-                  ))}
-                </ToggleGroup>
-              )}
+                      <ToggleGroupItem value="grams" className="h-8 px-3 text-xs">
+                        {t.dailyEntry.gramsModeOption}
+                      </ToggleGroupItem>
+                      {servings.map((serving, index) => (
+                        <ToggleGroupItem
+                          key={index}
+                          value={String(index)}
+                          className="h-8 px-3 text-xs"
+                        >
+                          {serving[locale]}
+                        </ToggleGroupItem>
+                      ))}
+                    </ToggleGroup>
+                  )
+                )
+              })()}
             {singleSelected &&
               (activeServingFor(singleSelected) ? (
                 <div className="flex items-center gap-2">

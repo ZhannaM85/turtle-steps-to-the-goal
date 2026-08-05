@@ -171,6 +171,37 @@ describe('MealItemsSection', () => {
     expect(useMealItemStore.getState().items).toEqual([])
   })
 
+  it('adds and removes a named serving for a personal meal item (#603)', async () => {
+    await useMealItemStore.getState().touch('Rice')
+    const user = userEvent.setup()
+    render(<MealItemsSection />)
+
+    await screen.findByText('Rice')
+    await user.click(screen.getByRole('button', { name: 'Edit Rice' }))
+    await user.type(
+      screen.getByLabelText('Serving name — Rice'),
+      '1 cup',
+    )
+    await user.type(screen.getByLabelText('Grams — Rice'), '158')
+    await user.click(screen.getByRole('button', { name: 'Add serving' }))
+
+    expect(await screen.findByText('1 cup — 158g')).toBeInTheDocument()
+    await waitFor(() =>
+      expect(useMealItemStore.getState().items[0].servings).toEqual([
+        { en: '1 cup', ru: '1 cup', grams: 158 },
+      ]),
+    )
+
+    await user.click(
+      screen.getByRole('button', { name: 'Remove serving 1 cup' }),
+    )
+
+    expect(screen.queryByText('1 cup — 158g')).not.toBeInTheDocument()
+    await waitFor(() =>
+      expect(useMealItemStore.getState().items[0].servings).toEqual([]),
+    )
+  })
+
   it('contains scroll within the list instead of letting it chain to the page (#192)', async () => {
     await useMealItemStore.getState().touch('Pizza')
     render(<MealItemsSection />)
