@@ -47,6 +47,10 @@ import { CopyDayMealsDialog } from './CopyDayMealsDialog'
 // rather than per-render or per-save.
 const curatedFoodNames = new Set(foods.flatMap((food) => [food.en, food.ru]))
 
+// #600 — how long the undo toast stays up after a meal delete, within the
+// 8-10s window the issue asked for.
+const MEAL_DELETE_UNDO_WINDOW_MS = 9000
+
 // #190: own repository instance, same no-shared-store pattern as
 // useHistoryData/useDashboardData — fetches the day *before* `date` to
 // power the "Repeat yesterday's [meal]" quick action.
@@ -549,6 +553,41 @@ export function MealList({
     null,
   )
 
+  // #600 — a short-lived undo toast after a meal delete commits, on top of
+  // (not instead of) the existing two-step confirm before that delete
+  // happens. Only the most recent delete is undoable — a second delete
+  // while the toast is still up replaces the snapshot rather than
+  // stacking, same "one at a time" shape as everywhere else in this app
+  // that surfaces a single transient confirmation.
+  const [undoDeletedMeal, setUndoDeletedMeal] = useState<{
+    entry: CalorieEntry
+    index: number
+  } | null>(null)
+
+  useEffect(() => {
+    if (!undoDeletedMeal) return
+    const timer = setTimeout(
+      () => setUndoDeletedMeal(null),
+      MEAL_DELETE_UNDO_WINDOW_MS,
+    )
+    return () => clearTimeout(timer)
+  }, [undoDeletedMeal])
+
+  function deleteMealById(id: string) {
+    const index = calorieEntries.findIndex((entry) => entry.id === id)
+    if (index === -1) return
+    setUndoDeletedMeal({ entry: calorieEntries[index], index })
+    setCalorieEntries(calorieEntries.filter((entry) => entry.id !== id))
+  }
+
+  function undoDeleteMeal() {
+    if (!undoDeletedMeal) return
+    const next = [...calorieEntries]
+    next.splice(undoDeletedMeal.index, 0, undoDeletedMeal.entry)
+    setCalorieEntries(next)
+    setUndoDeletedMeal(null)
+  }
+
   function cloneCalorieEntry(entry: CalorieEntry): CalorieEntry {
     return {
       ...entry,
@@ -896,17 +935,13 @@ export function MealList({
 
   function deleteEditingMeal() {
     if (!editingMealId) return
-    setCalorieEntries(
-      calorieEntries.filter((entry) => entry.id !== editingMealId),
-    )
+    deleteMealById(editingMealId)
     clearEditingMealState()
   }
 
   function confirmDeleteMeal() {
-    const nextEntries = calorieEntries.filter(
-      (entry) => entry.id !== confirmDeleteMealId,
-    )
-    setCalorieEntries(nextEntries)
+    if (!confirmDeleteMealId) return
+    deleteMealById(confirmDeleteMealId)
     if (editingMealId === confirmDeleteMealId) {
       clearEditingMealState()
     }
@@ -915,6 +950,24 @@ export function MealList({
 
   return (
     <div className="grid min-w-0 max-w-full grid-cols-1 gap-3">
+      {/* #600 — short-lived undo after a meal delete commits; see
+       * `deleteMealById`/`undoDeleteMeal` above. */}
+      {undoDeletedMeal && (
+        <div
+          role="status"
+          className="flex items-center justify-between gap-2 rounded-lg border border-border bg-muted/40 px-3 py-2 text-sm text-muted-foreground"
+        >
+          <span>{t.dailyEntry.mealDeletedToastMessage}</span>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={undoDeleteMeal}
+          >
+            {t.dailyEntry.undoDeleteMealButton}
+          </Button>
+        </div>
+      )}
       {fastingWindowToastHours !== null && (
         // #456 — purely derived (see the useMemo above), so this note is
         // always accurate for whatever's currently on screen and has no

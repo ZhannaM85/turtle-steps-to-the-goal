@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 563,
+    issue: 600,
+    date: '2026-08-05T12:46:59+03:00',
+    en: 'Deleting a meal now shows a brief Undo option before the change is final.',
+    ru: 'При удалении приёма пищи теперь ненадолго появляется кнопка «Отменить», прежде чем изменение станет окончательным.',
+  },
+  {
     version: 562,
     issue: 599,
     date: '2026-08-05T12:38:26+03:00',

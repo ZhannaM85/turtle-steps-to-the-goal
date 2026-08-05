@@ -1,6 +1,6 @@
 import 'fake-indexeddb/auto'
 import { useState } from 'react'
-import { render, screen, within } from '@testing-library/react'
+import { act, render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -767,6 +767,67 @@ describe('MealList', () => {
     await user.click(screen.getByRole('button', { name: 'Delete' }))
 
     expect(onChange).toHaveBeenCalledWith([])
+  })
+
+  it('restores a deleted meal via the undo toast (#600)', async () => {
+    const user = userEvent.setup()
+    render(
+      <ControlledMealList
+        calorieEntries={[
+          {
+            id: 'c1',
+            items: [{ id: 'i1', name: 'Oatmeal', amountKcal: 300 }],
+            createdAt: '2026-01-01T00:00:00.000Z',
+          },
+          {
+            id: 'c2',
+            items: [{ id: 'i2', name: 'Yogurt', amountKcal: 150 }],
+            createdAt: '2026-01-01T00:00:00.000Z',
+          },
+        ]}
+        date="2026-03-01"
+      />,
+      { wrapper: MemoryRouter },
+    )
+
+    await user.click(screen.getByRole('button', { name: 'Delete meal 1' }))
+    await user.click(screen.getByRole('button', { name: 'Delete' }))
+
+    expect(screen.queryByText('Oatmeal')).not.toBeInTheDocument()
+    expect(screen.getByText('Meal deleted.')).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Undo' }))
+
+    expect(screen.getByText('Oatmeal')).toBeInTheDocument()
+    expect(screen.queryByText('Meal deleted.')).not.toBeInTheDocument()
+  })
+
+  it('auto-clears the undo toast after its window expires (#600)', async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true })
+    const user = userEvent.setup()
+    render(
+      <ControlledMealList
+        calorieEntries={[
+          {
+            id: 'c1',
+            items: [{ id: 'i1', name: 'Oatmeal', amountKcal: 300 }],
+            createdAt: '2026-01-01T00:00:00.000Z',
+          },
+        ]}
+        date="2026-03-01"
+      />,
+      { wrapper: MemoryRouter },
+    )
+
+    await user.click(screen.getByRole('button', { name: 'Delete meal 1' }))
+    await user.click(screen.getByRole('button', { name: 'Delete' }))
+    expect(screen.getByText('Meal deleted.')).toBeInTheDocument()
+
+    act(() => {
+      vi.advanceTimersByTime(9000)
+    })
+
+    expect(screen.queryByText('Meal deleted.')).not.toBeInTheDocument()
+    vi.useRealTimers()
   })
 
   describe("copy yesterday's meals (#253)", () => {

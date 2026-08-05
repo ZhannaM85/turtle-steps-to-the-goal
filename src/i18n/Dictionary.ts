@@ -301,6 +301,15 @@ export interface Dictionary {
      * meal-delete controls (Day meal row, this dialog) remain
      * distinguishable to assistive tech. */
     deleteWholeMealButton: string
+    /** #600 — short-lived undo toast after a meal delete commits (both the
+     * list row's own two-step confirm and Add meal dialog's Delete button
+     * funnel through the same `deleteMealById`/undo state in
+     * `MealList.tsx`). Auto-clears after `MEAL_DELETE_UNDO_WINDOW_MS`;
+     * deleting a second meal while one is still showing replaces it rather
+     * than stacking. Clear-all data (Settings) is unrelated and keeps its
+     * own permanent two-step confirm. */
+    mealDeletedToastMessage: string
+    undoDeleteMealButton: string
     /** Dedicated single-meal edit route (#157) — replaces #145's inline
      * expand-in-place; a meal's pencil on Today/History now navigates
      * here instead. */
