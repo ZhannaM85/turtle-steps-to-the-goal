@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 559,
+    issue: 619,
+    date: '2026-08-05T12:05:09+03:00',
+    en: 'A custom metric note can now be closed with Cancel without saving, even before it has ever been saved.',
+    ru: 'Заметку к пользовательскому показателю теперь можно закрыть кнопкой «Отмена» без сохранения, даже если она ещё ни разу не была сохранена.',
+  },
+  {
     version: 558,
     issue: 618,
     date: '2026-08-05T11:48:00+03:00',

@@ -196,7 +196,7 @@ describe('CustomMetricLogSection', () => {
     expect(entries[0].note).toBe('felt strong')
   })
 
-  it('does not show a Cancel button for a note with nothing saved yet (#437)', async () => {
+  it('closes a brand-new note without saving via Cancel (#619)', async () => {
     await db.customMetrics.put({
       id: 'metric-1',
       name: 'Push-ups',
@@ -210,13 +210,21 @@ describe('CustomMetricLogSection', () => {
       value: 20,
       updatedAt: '2026-01-01T00:00:00.000Z',
     })
-
+    const user = userEvent.setup()
     render(<CustomMetricLogSection date="2026-03-01" />)
 
-    await screen.findByLabelText('Note')
+    const noteInput = await screen.findByLabelText('Note')
+    await user.type(noteInput, 'a draft I never meant to save')
+    await user.click(
+      screen.getByRole('button', { name: 'Cancel editing note' }),
+    )
+
+    expect(screen.queryByLabelText('Note')).not.toBeInTheDocument()
     expect(
-      screen.queryByRole('button', { name: 'Cancel editing note' }),
+      screen.queryByText('a draft I never meant to save'),
     ).not.toBeInTheDocument()
+    const entries = await db.customMetricEntries.toArray()
+    expect(entries[0].note).toBeUndefined()
   })
 
   it('wraps metrics in a bordered collapsible with a collapsed logged/total summary (#478)', async () => {

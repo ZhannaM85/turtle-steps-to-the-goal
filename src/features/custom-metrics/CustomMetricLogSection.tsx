@@ -163,19 +163,21 @@ function MetricValueRow({
             >
               <Check aria-hidden="true" />
             </Button>
-            {/* #437 — hidden when there's no saved note yet to revert to,
-             * same gating every #424 Cancel button already uses. */}
-            {Boolean(note) && (
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon-lg"
-                aria-label={t.customMetrics.cancelEditNoteLabel}
-                onClick={cancelEditNote}
-              >
-                <X aria-hidden="true" />
-              </Button>
-            )}
+            {/* #619 — always shown, including a brand-new note with nothing
+             * saved yet (#437 hid it in that case, since back then there was
+             * no display-mode render to fall back to). `cancelEditNote`
+             * reverts `noteDraft` to `note ?? ''`, so canceling a fresh note
+             * now lands on the read-mode branch below with an empty value
+             * and its pencil button, instead of leaving no way out. */}
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon-lg"
+              aria-label={t.customMetrics.cancelEditNoteLabel}
+              onClick={cancelEditNote}
+            >
+              <X aria-hidden="true" />
+            </Button>
           </div>
         ) : (
           <div className="flex min-h-9 items-center justify-between gap-2 rounded-lg bg-muted px-2.5 py-1">
