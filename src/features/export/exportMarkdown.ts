@@ -54,6 +54,7 @@ export function buildDailyLogMarkdown(
     t.exportXlsx.noteColumn,
     t.exportXlsx.onPeriodColumn,
     t.exportXlsx.hadConstipationColumn,
+    t.exportXlsx.hadAlcoholColumn,
     t.exportXlsx.nightEatingColumn(sex),
     t.exportXlsx.waterColumn,
   ]
@@ -77,6 +78,7 @@ export function buildDailyLogMarkdown(
       entry.note,
       entry.onPeriod,
       entry.hadConstipation,
+      entry.hadAlcohol,
       hadNightEating(entry),
       totalWaterMl(entry.waterEntries),
     ]),

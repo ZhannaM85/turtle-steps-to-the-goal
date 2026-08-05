@@ -356,6 +356,9 @@ export const ru: Dictionary = {
     hadConstipationLabel: 'Запор',
     hadConstipationNoOption: 'Нет',
     hadConstipationYesOption: 'Да',
+    hadAlcoholLabel: 'Алкоголь',
+    hadAlcoholNoOption: 'Нет',
+    hadAlcoholYesOption: 'Да',
     nightEatingLabel: (sex) =>
       sex === 'female'
         ? 'Ела поздно вечером'
@@ -660,6 +663,7 @@ export const ru: Dictionary = {
     noteColumn: 'Заметка',
     onPeriodColumn: 'Менструация',
     hadConstipationColumn: 'Запор',
+    hadAlcoholColumn: 'Алкоголь',
     nightEatingColumn: (sex) =>
       sex === 'female'
         ? 'Ела поздно вечером'
@@ -857,6 +861,17 @@ export const ru: Dictionary = {
       `На основе ${n} ${ruPluralize(n, 'дня', 'дней', 'дней')} данных.`,
     nightEatingCorrelationLagCaveat:
       'Сравнивает статус ночных перекусов за день с весом на следующий день — это не доказанная причинно-следственная связь: на вес изо дня в день также влияют задержка воды, соль и многие другие факторы.',
+    alcoholCorrelationTitle: 'Алкоголь и вес на следующий день',
+    alcoholCorrelationEmptyDescription:
+      'Пока недостаточно данных, чтобы увидеть закономерность — продолжайте отмечать дни с алкоголем и вес, затем загляните сюда через несколько недель.',
+    alcoholCorrelationSummary: (direction) =>
+      direction === 'more'
+        ? 'В дни, когда вы отмечали алкоголь, на следующее утро в среднем набирался больший вес, чем в дни без него.'
+        : 'В дни, когда вы отмечали алкоголь, на следующее утро в среднем набирался меньший вес, чем в дни без него.',
+    alcoholCorrelationDayCount: (n) =>
+      `На основе ${n} ${ruPluralize(n, 'дня', 'дней', 'дней')} данных.`,
+    alcoholCorrelationLagCaveat:
+      'Сравнивает отметку об алкоголе за день с весом на следующий день — это не доказанная причинно-следственная связь: на вес изо дня в день также влияют задержка воды, соль и многие другие факторы.',
     loggingConsistencyTitle: 'Регулярность записей',
     heatmapLessLabel: 'Меньше',
     heatmapMoreLabel: 'Больше',
@@ -1023,6 +1038,7 @@ export const ru: Dictionary = {
     hideReleaseNotes: 'Скрыть историю изменений',
     cycleTrackingLabel: 'Отслеживание цикла',
     digestionTrackingLabel: 'Отслеживание пищеварения',
+    alcoholTrackingLabel: 'Отслеживание алкоголя',
     waterTrackingLabel: 'Отслеживание воды',
     trackingPresetLabel: 'Пресет макета',
     trackingPresetDescription:

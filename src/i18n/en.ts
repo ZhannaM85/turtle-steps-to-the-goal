@@ -340,6 +340,9 @@ export const en: Dictionary = {
     hadConstipationLabel: 'Constipation',
     hadConstipationNoOption: 'No',
     hadConstipationYesOption: 'Yes',
+    hadAlcoholLabel: 'Alcohol',
+    hadAlcoholNoOption: 'No',
+    hadAlcoholYesOption: 'Yes',
     nightEatingLabel: () => 'Ate late tonight',
     nightEatingNoOption: 'No',
     nightEatingYesOption: 'Yes',
@@ -638,6 +641,7 @@ export const en: Dictionary = {
     noteColumn: 'Note',
     onPeriodColumn: 'On period',
     hadConstipationColumn: 'Constipation',
+    hadAlcoholColumn: 'Alcohol',
     nightEatingColumn: () => 'Ate late tonight',
     waterColumn: 'Water (ml)',
     mealColumn: 'Meal',
@@ -824,6 +828,17 @@ export const en: Dictionary = {
       `Based on ${n} day${n === 1 ? '' : 's'} of data.`,
     nightEatingCorrelationLagCaveat:
       "Compares each day's night-eating status to the very next day's weight, not a proven cause-and-effect relationship — water retention, sodium, and many other factors also affect day-to-day weight.",
+    alcoholCorrelationTitle: 'Alcohol vs. next-day weight',
+    alcoholCorrelationEmptyDescription:
+      'Not enough data yet to see a pattern — keep logging alcohol days and tracking weight, then check back in a few weeks.',
+    alcoholCorrelationSummary: (direction) =>
+      direction === 'more'
+        ? "Days you logged alcohol averaged more weight gain the next morning than days you didn't."
+        : "Days you logged alcohol averaged less weight gain the next morning than days you didn't.",
+    alcoholCorrelationDayCount: (n) =>
+      `Based on ${n} day${n === 1 ? '' : 's'} of data.`,
+    alcoholCorrelationLagCaveat:
+      "Compares each day's alcohol signal to the very next day's weight, not a proven cause-and-effect relationship — water retention, sodium, and many other factors also affect day-to-day weight.",
     loggingConsistencyTitle: 'Logging consistency',
     heatmapLessLabel: 'Less',
     heatmapMoreLabel: 'More',
@@ -990,6 +1005,7 @@ export const en: Dictionary = {
     hideReleaseNotes: 'Hide release notes',
     cycleTrackingLabel: 'Cycle tracking',
     digestionTrackingLabel: 'Digestion tracking',
+    alcoholTrackingLabel: 'Alcohol tracking',
     waterTrackingLabel: 'Water tracking',
     trackingPresetLabel: 'Layout preset',
     trackingPresetDescription:

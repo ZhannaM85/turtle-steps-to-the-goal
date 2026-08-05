@@ -29,6 +29,7 @@ import {
 import { Button } from '@/shared/ui/button'
 import { EmptyState } from '@/shared/ui/empty-state'
 import { PageHeader } from '@/shared/ui/page-header'
+import { AlcoholCorrelationView } from './AlcoholCorrelationView'
 import { BodyCompositionTrendChart } from './BodyCompositionTrendChart'
 import { CalorieTrendChart } from './CalorieTrendChart'
 import { ElectrolyteTrendChart } from './ElectrolyteTrendChart'
@@ -214,6 +215,9 @@ export function DashboardScreen() {
     ),
     nightEatingCorrelation: (dragHandle) => (
       <NightEatingCorrelationView entries={entries} dragHandle={dragHandle} />
+    ),
+    alcoholCorrelation: (dragHandle) => (
+      <AlcoholCorrelationView entries={entries} dragHandle={dragHandle} />
     ),
     foodReactions: (dragHandle) => (
       <FoodReactionsView entries={entries} dragHandle={dragHandle} />

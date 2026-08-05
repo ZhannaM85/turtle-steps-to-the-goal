@@ -40,6 +40,7 @@ export function DailyEntryFormBottom() {
     state.trackedFields.note ||
     state.trackedFields.mood ||
     state.digestionTrackingEnabled ||
+    state.alcoholTrackingEnabled ||
     state.trackedFields.nightEating
 
   if (!showEveningSection) return null
@@ -277,6 +278,32 @@ export function DailyEntryFormBottom() {
                   </ToggleGroupItem>
                   <ToggleGroupItem value="yes" className="h-12 px-6 text-base">
                     {t.dailyEntry.hadConstipationYesOption}
+                  </ToggleGroupItem>
+                </ToggleGroup>
+              </div>
+            )}
+
+            {/* #607 — opt-in alcohol day signal, same Settings-gated shape
+             * as digestion tracking above. */}
+            {state.alcoholTrackingEnabled && (
+              <div className="flex flex-col gap-1.5">
+                <span className="text-sm font-medium">
+                  {t.dailyEntry.hadAlcoholLabel}
+                </span>
+                <ToggleGroup
+                  type="single"
+                  aria-label={t.dailyEntry.hadAlcoholLabel}
+                  value={state.hadAlcohol ? 'yes' : 'no'}
+                  onValueChange={(value) =>
+                    value && state.setHadAlcohol(value === 'yes')
+                  }
+                  className="w-fit"
+                >
+                  <ToggleGroupItem value="no" className="h-12 px-6 text-base">
+                    {t.dailyEntry.hadAlcoholNoOption}
+                  </ToggleGroupItem>
+                  <ToggleGroupItem value="yes" className="h-12 px-6 text-base">
+                    {t.dailyEntry.hadAlcoholYesOption}
                   </ToggleGroupItem>
                 </ToggleGroup>
               </div>

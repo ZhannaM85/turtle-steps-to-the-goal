@@ -15,6 +15,7 @@ import {
 } from '@/i18n'
 import {
   applyTrackingPreset,
+  useAlcoholTrackingStore,
   useCycleTrackingStore,
   useDailyReminderStore,
   useDayStartStore,
@@ -95,6 +96,12 @@ export function SettingsScreen() {
   const setDigestionTrackingEnabled = useDigestionTrackingStore(
     (state) => state.setEnabled,
   )
+  const alcoholTrackingEnabled = useAlcoholTrackingStore(
+    (state) => state.enabled,
+  )
+  const setAlcoholTrackingEnabled = useAlcoholTrackingStore(
+    (state) => state.setEnabled,
+  )
   const waterTrackingEnabled = useWaterTrackingStore((state) => state.enabled)
   const setWaterTrackingEnabled = useWaterTrackingStore(
     (state) => state.setEnabled,
@@ -110,7 +117,12 @@ export function SettingsScreen() {
   // already in production; no benefit to migrating it into one store).
   const trackedFields = useTrackedFieldsStore((state) => state.tracked)
   const setTrackedField = useTrackedFieldsStore((state) => state.setTracked)
-  type UnifiedTrackedKey = TrackedField | 'cycle' | 'constipation' | 'water'
+  type UnifiedTrackedKey =
+    | TrackedField
+    | 'cycle'
+    | 'constipation'
+    | 'alcohol'
+    | 'water'
   // #528 — same fields as before, grouped to match Day's Morning / Evening
   // blocks (plus Other for toggles that live elsewhere). Weight stays
   // always-on and is not in this list.
@@ -124,6 +136,7 @@ export function SettingsScreen() {
     'note',
     'mood',
     'constipation',
+    'alcohol',
     'nightEating',
   ]
   const otherTrackedKeys: UnifiedTrackedKey[] = [
@@ -135,12 +148,14 @@ export function SettingsScreen() {
   function isFieldTracked(key: UnifiedTrackedKey): boolean {
     if (key === 'cycle') return cycleTrackingEnabled
     if (key === 'constipation') return digestionTrackingEnabled
+    if (key === 'alcohol') return alcoholTrackingEnabled
     if (key === 'water') return waterTrackingEnabled
     return trackedFields[key]
   }
   function setFieldTracked(key: UnifiedTrackedKey, value: boolean) {
     if (key === 'cycle') setCycleTrackingEnabled(value)
     else if (key === 'constipation') setDigestionTrackingEnabled(value)
+    else if (key === 'alcohol') setAlcoholTrackingEnabled(value)
     else if (key === 'water') setWaterTrackingEnabled(value)
     else setTrackedField(key, value)
   }
@@ -657,6 +672,9 @@ export function SettingsScreen() {
               </ToggleGroupItem>
               <ToggleGroupItem value="constipation" className="h-12">
                 {t.settings.digestionTrackingLabel}
+              </ToggleGroupItem>
+              <ToggleGroupItem value="alcohol" className="h-12">
+                {t.settings.alcoholTrackingLabel}
               </ToggleGroupItem>
               <ToggleGroupItem value="nightEating" className="h-12">
                 {t.dailyEntry.nightEatingLabel()}

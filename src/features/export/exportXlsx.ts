@@ -73,6 +73,11 @@ export async function buildExportWorkbook(
       width: 14,
     },
     {
+      header: t.exportXlsx.hadAlcoholColumn,
+      key: 'hadAlcohol',
+      width: 12,
+    },
+    {
       header: t.exportXlsx.nightEatingColumn(sex),
       key: 'nightEating',
       width: 14,
@@ -97,6 +102,7 @@ export async function buildExportWorkbook(
       note: entry.note,
       onPeriod: entry.onPeriod,
       hadConstipation: entry.hadConstipation,
+      hadAlcohol: entry.hadAlcohol,
       nightEating: hadNightEating(entry),
       water: totalWaterMl(entry.waterEntries),
     })

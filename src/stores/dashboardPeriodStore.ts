@@ -23,6 +23,7 @@ export const DASHBOARD_PERIOD_CHART_KEYS = [
   'stepsCorrelation',
   'proteinCorrelation',
   'nightEatingCorrelation',
+  'alcoholCorrelation',
 ] as const satisfies readonly DashboardChartKey[]
 
 export type DashboardPeriodChartKey = (typeof DASHBOARD_PERIOD_CHART_KEYS)[number]

@@ -33,6 +33,7 @@ import { normalizeTextSpaces } from '@/shared/lib/normalizeTextSpaces'
 import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/ui/button'
 import {
+  useAlcoholTrackingStore,
   useCycleTrackingStore,
   useDigestionTrackingStore,
   useGoalStore,
@@ -78,6 +79,9 @@ export function DayDetail({
   const displayUnit = useUnitStore((state) => state.unit)
   const cycleTrackingEnabled = useCycleTrackingStore((state) => state.enabled)
   const digestionTrackingEnabled = useDigestionTrackingStore(
+    (state) => state.enabled,
+  )
+  const alcoholTrackingEnabled = useAlcoholTrackingStore(
     (state) => state.enabled,
   )
   // #398 — grammatically-correct verb form for the night-eating label below.
@@ -169,6 +173,24 @@ export function DayDetail({
               }
             >
               {t.dailyEntry.hadConstipationLabel}
+            </Button>
+          )}
+          {alcoholTrackingEnabled && (
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              aria-pressed={entry.hadAlcohol ?? false}
+              className={cn(entry.hadAlcohol && 'bg-muted text-foreground')}
+              onClick={() =>
+                onSaved({
+                  ...entry,
+                  hadAlcohol: !entry.hadAlcohol,
+                  updatedAt: new Date().toISOString(),
+                })
+              }
+            >
+              {t.dailyEntry.hadAlcoholLabel}
             </Button>
           )}
           {/* #383 — always shown (no Settings opt-in, unlike onPeriod/

@@ -49,6 +49,9 @@ export const stepsSchema = z.number().min(0).max(20000).optional()
 export const onPeriodSchema = z.boolean().optional()
 // Opt-in digestion tracking — same shape/gating as onPeriod above.
 export const hadConstipationSchema = z.boolean().optional()
+// Opt-in alcohol day signal (#607) — same shape/gating as onPeriod/
+// hadConstipation above.
+export const hadAlcoholSchema = z.boolean().optional()
 // #383 — manual override for the derived night-eating value; always
 // rendered (no Settings opt-in, unlike onPeriod/hadConstipation above).
 export const nightEatingOverrideSchema = z.boolean().optional()
@@ -96,6 +99,7 @@ export const dailyEntryFormSchema = z.object({
   steps: stepsSchema,
   onPeriod: onPeriodSchema,
   hadConstipation: hadConstipationSchema,
+  hadAlcohol: hadAlcoholSchema,
   nightEatingOverride: nightEatingOverrideSchema,
   waterEntries: z.array(waterEntrySchema).optional(),
   waistCm: waistCmSchema,

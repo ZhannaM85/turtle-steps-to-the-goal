@@ -11,6 +11,7 @@ export { useMealItemStore } from './mealItemStore'
 export { useGoalCelebrationStore } from './goalCelebrationStore'
 export { useCycleTrackingStore } from './cycleTrackingStore'
 export { useDigestionTrackingStore } from './digestionTrackingStore'
+export { useAlcoholTrackingStore } from './alcoholTrackingStore'
 export { useWaterTrackingStore } from './waterTrackingStore'
 export {
   useMicronutrientTrackingStore,

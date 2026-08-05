@@ -138,6 +138,12 @@ export interface DailyEntry {
    * `true` here has no relation to the old `hadBowelMovement` field this
    * replaced; that one meant the opposite thing, so no data carried over. */
   hadConstipation?: boolean
+  /** #607 — opt-in alcohol day signal, same shape as onPeriod/hadConstipation
+   * above — only ever set when enabled in Settings (`useAlcoholTrackingStore`);
+   * the toggle itself is a local UI preference, this logged value is a
+   * normal field. A plain day-level yes/no, not a drinks count or beverage
+   * database, per the issue's own explicit scope. */
+  hadAlcohol?: boolean
   /** #383 — manual override for "did you eat late tonight," layered on top
    * of a derived value (`hadNightEating()`, `domain/dailyEntry/nightEating.ts`)
    * computed from this day's own logged meal `timeEaten` values against a

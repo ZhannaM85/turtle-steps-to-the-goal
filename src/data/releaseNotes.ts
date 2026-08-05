@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 570,
+    issue: 607,
+    date: '2026-08-05T15:08:20+03:00',
+    en: 'Alcohol is now an optional day signal (Settings-gated) with its own vs. next-day-weight insight on Dashboard, same as digestion tracking.',
+    ru: 'Алкоголь теперь можно отмечать как необязательный сигнал дня (включается в настройках), с собственным анализом связи с весом на следующий день — так же, как отслеживание пищеварения.',
+  },
+  {
     version: 569,
     issue: 602,
     date: '2026-08-05T14:14:40+03:00',

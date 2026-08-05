@@ -18,6 +18,7 @@ import {
 import { parseNumberInput } from '@/shared/lib/parseNumberInput'
 import { splitHoursMinutes } from '@/shared/lib/sleepDuration'
 import {
+  useAlcoholTrackingStore,
   useDigestionTrackingStore,
   useGoalStore,
   useProfileStore,
@@ -230,6 +231,10 @@ export function useDailyEntryFormState({
   const digestionTrackingEnabled = useDigestionTrackingStore(
     (state) => state.enabled,
   )
+  // Opt-in alcohol day signal (#607) — same gate as digestion tracking above.
+  const alcoholTrackingEnabled = useAlcoholTrackingStore(
+    (state) => state.enabled,
+  )
   // Opt-in water tracking's on/off toggle (#258) — same gate as digestion
   // tracking above.
   const waterTrackingEnabled = useWaterTrackingStore((state) => state.enabled)
@@ -280,6 +285,7 @@ export function useDailyEntryFormState({
   const bodyWaterPercent = useWatch({ control, name: 'bodyWaterPercent' })
   const boneMassKg = useWatch({ control, name: 'boneMassKg' })
   const hadConstipation = useWatch({ control, name: 'hadConstipation' })
+  const hadAlcohol = useWatch({ control, name: 'hadAlcohol' })
   const nightEatingOverride = useWatch({
     control,
     name: 'nightEatingOverride',
@@ -522,6 +528,13 @@ export function useDailyEntryFormState({
   function setHadConstipation(value: boolean) {
     setValue('hadConstipation', value, { shouldDirty: true })
     persist({ ...getValues(), hadConstipation: value })
+  }
+
+  // #607 — same "saves immediately, no confirm step" reasoning as
+  // setHadConstipation above.
+  function setHadAlcohol(value: boolean) {
+    setValue('hadAlcohol', value, { shouldDirty: true })
+    persist({ ...getValues(), hadAlcohol: value })
   }
 
   // #383 — sets an explicit override once touched, same "saves
@@ -1048,6 +1061,10 @@ export function useDailyEntryFormState({
     digestionTrackingEnabled,
     hadConstipation,
     setHadConstipation,
+    // Alcohol
+    alcoholTrackingEnabled,
+    hadAlcohol,
+    setHadAlcohol,
     // Night eating
     sex,
     nightEatingOverride,

@@ -676,6 +676,13 @@ export interface Dictionary {
     hadConstipationLabel: string
     hadConstipationNoOption: string
     hadConstipationYesOption: string
+    /** #607 — opt-in alcohol day signal, same shape/gating as
+     * hadConstipation above (DailyEntryFormBottom.tsx's Evening group,
+     * DayDetail.tsx). A plain yes/no day signal, not a drinks count or
+     * beverage database, per the issue's own explicit scope. */
+    hadAlcoholLabel: string
+    hadAlcoholNoOption: string
+    hadAlcoholYesOption: string
     /** #383 — always shown (no Settings opt-in, unlike hadConstipation
      * above): reflects a value derived from today's own logged meal times,
      * unless manually overridden via this same toggle. #398: takes the
@@ -1087,6 +1094,8 @@ export interface Dictionary {
     noteColumn: string
     onPeriodColumn: string
     hadConstipationColumn: string
+    /** #607 — same purely-additive column as hadConstipationColumn above. */
+    hadAlcoholColumn: string
     /** #383 — the *effective* value (`hadNightEating()`, override or else
      * derived from that day's own logged meal times), not the raw
      * `nightEatingOverride` field — unlike onPeriod/hadConstipation above,
@@ -1334,6 +1343,16 @@ export interface Dictionary {
     nightEatingCorrelationSummary: (direction: 'more' | 'less') => string
     nightEatingCorrelationDayCount: (n: number) => string
     nightEatingCorrelationLagCaveat: string
+    /** #607 — logged `hadAlcohol` vs. next-day weight. Same boolean-
+     * predictor shape as nightEatingCorrelation* above (plain two-group
+     * comparison, not a median split) — unlike every other correlation
+     * view here, this one is also Settings-gated (`useAlcoholTrackingStore`)
+     * and renders nothing at all when the toggle is off. */
+    alcoholCorrelationTitle: string
+    alcoholCorrelationEmptyDescription: string
+    alcoholCorrelationSummary: (direction: 'more' | 'less') => string
+    alcoholCorrelationDayCount: (n: number) => string
+    alcoholCorrelationLagCaveat: string
     /** Logging-consistency heatmap (#223) — GitHub-contribution-graph style,
      * one square per day colored by how many of the app's core fields
      * (weight/meals/sleep/steps) were logged that day, not a chosen metric. */
@@ -1568,6 +1587,8 @@ export interface Dictionary {
     hideReleaseNotes: string
     cycleTrackingLabel: string
     digestionTrackingLabel: string
+    /** #607 — same opt-in shape as digestionTrackingLabel above. */
+    alcoholTrackingLabel: string
     waterTrackingLabel: string
     /** #237: unified "what to track" section — folds cycle/digestion
      * tracking's own opt-in toggles in with the 5 fields below, which

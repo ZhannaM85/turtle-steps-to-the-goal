@@ -49,6 +49,12 @@ export type {
   NightEatingPoint,
 } from './nightEatingCorrelation'
 export {
+  alcoholCorrelation,
+  alcoholCorrelationFromPoints,
+  alcoholPoints,
+} from './alcoholCorrelation'
+export type { AlcoholCorrelation, AlcoholPoint } from './alcoholCorrelation'
+export {
   fastingWindowPoints,
   fastingWindowCorrelation,
   fastingWindowCorrelationFromPoints,

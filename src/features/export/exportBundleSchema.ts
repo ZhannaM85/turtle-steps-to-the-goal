@@ -128,6 +128,9 @@ const dailyEntrySchema = z.object({
   // equivalent here and is simply dropped on import (Zod strips unknown keys
   // by default).
   hadConstipation: z.boolean().optional(),
+  // #607 — opt-in alcohol day signal, same purely-additive/optional shape
+  // as onPeriod/hadConstipation above.
+  hadAlcohol: z.boolean().optional(),
   // #383 — manual override for the derived "did you eat late tonight"
   // value (`domain/dailyEntry/nightEating.ts`'s `hadNightEating()`);
   // purely additive, no version bump, same shape as every other optional

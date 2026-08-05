@@ -23,6 +23,7 @@ export const DEFAULT_DASHBOARD_SECTION_ORDER: DashboardChartKey[] = [
   'stepsCorrelation',
   'proteinCorrelation',
   'nightEatingCorrelation',
+  'alcoholCorrelation',
   'foodReactions',
   'loggingConsistency',
   'recentAverages',
