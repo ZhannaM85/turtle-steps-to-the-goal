@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react'
-import { Pencil, Trash2 } from 'lucide-react'
+import { Check, Clipboard, Pencil, Trash2 } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import type { Recipe } from '@/domain/recipe'
 import { recipePerServing } from '@/domain/recipe'
 import { useLocale, useTranslation } from '@/i18n'
 import { formatComputedTotal } from '@/shared/lib/macroScaling'
+import { buildRecipeShoppingListText } from '@/shared/lib/recipeShoppingList'
 import { useMealItemStore, useRecipeStore } from '@/stores'
 import { Button } from '@/shared/ui/button'
 import { PageHeader } from '@/shared/ui/page-header'
@@ -29,11 +30,27 @@ export function RecipesSettingsScreen() {
 
   const [editingRecipe, setEditingRecipe] = useState<Recipe | null>(null)
   const [isAdding, setIsAdding] = useState(false)
+  // #611 — brief "Copied" confirmation, same auto-clearing shape
+  // GoalForm.tsx's justSaved already established (2s, cleared via effect).
+  const [copiedRecipeId, setCopiedRecipeId] = useState<string | null>(null)
 
   useEffect(() => {
     loadRecipes()
     loadMealItems()
   }, [loadRecipes, loadMealItems])
+
+  useEffect(() => {
+    if (!copiedRecipeId) return
+    const timer = setTimeout(() => setCopiedRecipeId(null), 2000)
+    return () => clearTimeout(timer)
+  }, [copiedRecipeId])
+
+  async function copyIngredients(recipe: Recipe) {
+    await navigator.clipboard.writeText(
+      buildRecipeShoppingListText(recipe, locale, t),
+    )
+    setCopiedRecipeId(recipe.id)
+  }
 
   return (
     <div className="flex flex-col gap-4">
@@ -68,6 +85,23 @@ export function RecipesSettingsScreen() {
                   </span>
                 </div>
                 <div className="flex items-center gap-1">
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon-sm"
+                    aria-label={
+                      copiedRecipeId === recipe.id
+                        ? t.recipes.ingredientsCopiedLabel
+                        : t.recipes.copyIngredientsLabel(recipe.name)
+                    }
+                    onClick={() => void copyIngredients(recipe)}
+                  >
+                    {copiedRecipeId === recipe.id ? (
+                      <Check aria-hidden="true" />
+                    ) : (
+                      <Clipboard aria-hidden="true" />
+                    )}
+                  </Button>
                   <Button
                     type="button"
                     variant="ghost"

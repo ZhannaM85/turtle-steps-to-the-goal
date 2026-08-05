@@ -1645,6 +1645,14 @@ export interface Dictionary {
     ingredientsSectionLabel: string
     noIngredientsYetText: string
     removeIngredientLabel: (name: string) => string
+    /** #611 — "Copy ingredients as a shopping list" icon button on each
+     * `RecipesSettingsScreen.tsx` row, next to Edit/Delete. Clipboard-only
+     * (no Markdown-file download) — the acceptance bar was "one action
+     * copies a readable list," and every other export path in this app
+     * already goes through Settings → Export instead of duplicating a
+     * file-download mechanism per feature. */
+    copyIngredientsLabel: (name: string) => string
+    ingredientsCopiedLabel: string
     addIngredientButton: string
     ingredientNameLabel: string
     ingredientNamePlaceholder: string

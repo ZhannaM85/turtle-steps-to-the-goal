@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 561,
+    issue: 611,
+    date: '2026-08-05T12:25:08+03:00',
+    en: 'Each recipe now has a Copy button that puts its ingredients on your clipboard as a shopping list.',
+    ru: 'У каждого рецепта теперь есть кнопка «Копировать», которая помещает его ингредиенты в буфер обмена как список покупок.',
+  },
+  {
     version: 560,
     issue: 612,
     date: '2026-08-05T12:12:09+03:00',

@@ -1111,6 +1111,9 @@ export const ru: Dictionary = {
     ingredientsSectionLabel: 'Ингредиенты',
     noIngredientsYetText: 'Пока нет ингредиентов — добавьте хотя бы один ниже.',
     removeIngredientLabel: (name) => `Удалить «${name}»`,
+    copyIngredientsLabel: (name) =>
+      `Скопировать список покупок для «${name}»`,
+    ingredientsCopiedLabel: 'Скопировано',
     addIngredientButton: 'Добавить ингредиент',
     ingredientNameLabel: 'Название ингредиента',
     ingredientNamePlaceholder: 'Название ингредиента',

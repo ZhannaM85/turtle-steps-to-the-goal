@@ -1075,6 +1075,8 @@ export const en: Dictionary = {
     ingredientsSectionLabel: 'Ingredients',
     noIngredientsYetText: 'No ingredients yet — add at least one below.',
     removeIngredientLabel: (name) => `Remove ${name}`,
+    copyIngredientsLabel: (name) => `Copy ${name} ingredients as a shopping list`,
+    ingredientsCopiedLabel: 'Copied',
     addIngredientButton: 'Add ingredient',
     ingredientNameLabel: 'Ingredient name',
     ingredientNamePlaceholder: 'Ingredient name',

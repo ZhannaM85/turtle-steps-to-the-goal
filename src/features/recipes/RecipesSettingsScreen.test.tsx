@@ -2,7 +2,7 @@ import 'fake-indexeddb/auto'
 import { render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
-import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { db } from '@/infrastructure/persistence/indexeddb'
 import { useRecipeStore } from '@/stores'
 import { RecipesSettingsScreen } from './RecipesSettingsScreen'
@@ -77,6 +77,39 @@ describe('RecipesSettingsScreen', () => {
     await waitFor(async () =>
       expect((await db.recipes.toArray())[0]).toMatchObject({ servings: 6 }),
     )
+  })
+
+  it('copies the ingredients as a shopping list (#611)', async () => {
+    await db.recipes.put({
+      id: 'recipe-1',
+      name: 'Chili',
+      servings: 4,
+      ingredients: [
+        { id: 'ing-1', name: 'Ground beef', amountKcal: 800, amountG: 400 },
+        { id: 'ing-2', name: 'Kidney beans', amountKcal: 220, amountG: 240 },
+      ],
+      createdAt: '2026-01-01T00:00:00.000Z',
+      updatedAt: '2026-01-01T00:00:00.000Z',
+    })
+    const writeText = vi
+      .spyOn(navigator.clipboard, 'writeText')
+      .mockResolvedValue(undefined)
+    const user = userEvent.setup()
+    renderScreen()
+
+    await screen.findByText('Chili')
+    await user.click(
+      screen.getByRole('button', {
+        name: 'Copy Chili ingredients as a shopping list',
+      }),
+    )
+
+    expect(writeText).toHaveBeenCalledWith(
+      'Chili\n- Ground beef (400g)\n- Kidney beans (240g)',
+    )
+    expect(
+      await screen.findByRole('button', { name: 'Copied' }),
+    ).toBeInTheDocument()
   })
 
   it('deletes a recipe', async () => {
