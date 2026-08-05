@@ -276,6 +276,14 @@ and #144's precedent in `docs/issues-priority.md`).
 
 - Stage explicit filenames (`git add path/to/file.ts ...`), never `-A` or
   `.` — avoids accidentally sweeping up unrelated in-progress files.
+- **One calendar day → one `issues-priority` tier.** When filing issues,
+  if today's date already has a tier (active or archive), append rows to
+  that tier — do **not** open Tier N and Tier N+1 both dated the same
+  day. Broaden the tier title/blurb if the batch grows. Closed rows for
+  that day stay under the same tier number in the archive; open siblings
+  stay under that tier in the active file. Long-lived epics dated earlier
+  keep their original tier (don't dump unrelated same-day filings into
+  them). See `.cursor/rules/one-tier-per-day.mdc`.
 - **One commit per GitHub issue** (and per follow-up fix for that issue).
   Never combine multiple issue numbers in one commit message
   (`#494 + #489: …` is wrong). Complete → commit → push one issue before

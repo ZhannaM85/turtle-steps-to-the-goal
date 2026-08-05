@@ -4,6 +4,8 @@ Active work queue only (open, pending validation, not started, partial). Closed 
 
 Work top-to-bottom within each tier; dependencies are noted where order matters. When an issue is confirmed done, move its row to the archive (or mark Done and relocate on the next archive pass — prefer updating status here then moving closed rows to the archive file).
 
+**One calendar day → one tier** (see `.cursor/rules/one-tier-per-day.mdc` / `docs/AGENT_WORKFLOW.md`): when filing more issues on a day that already has a tier, append to that tier — do not invent Tier N+1 with the same date.
+
 ---
 
 ## Tier 36 — iOS/Android native app store release (2026-07-23)
@@ -75,22 +77,13 @@ _Same audit pass. Blocked on Tier 36 Capacitor / store shell — revisit of #261
 
 ---
 
-## Tier 126 — Export card status placement (2026-08-05)
+## Tier 125 — Live feedback (2026-08-05)
 
-_Live feedback right after validating #616: Zepp Life success text appeared under the MyFitnessPal block because `ExportSection` renders one shared status at the card footer. Log-only._
+_Same-day live feedback after Zepp / export work. #616 (multi-user Zepp export) is Done in the archive under this tier; open siblings stay here. **Do not** split further same-day filings into Tier 126+ — append to this tier._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#617](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/617) | 📋 Not started | Settings Export: show import success/error under the matching source section | Per-section status for Zepp / Apple Health / MFP / JSON (and other export actions); no import behavior change |
-
----
-
-## Tier 127 — Apple Health import recognition (2026-08-05)
-
-_Live report: a user's Apple Health export was rejected as not an Apple Health file. Log-only — sample zip (if any) stays outside the public issue._
-
-| # | Status | Issue | Notes |
-|---|--------|-------|-------|
 | [#618](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/618) | 📋 Not started | Apple Health import: valid user export not recognized as Apple Health file | Related #366 / #381. Start by comparing zip layout / `export.xml` path to current detection; do not commit the export to the repo |
 
 

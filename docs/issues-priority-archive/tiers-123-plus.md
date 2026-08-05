@@ -4,9 +4,9 @@ Closed rows from Tier 123 onward. Open / pending items stay in [`../issues-prior
 
 ---
 
-## Tier 125 — Zepp Life multi-user export (2026-08-05)
+## Tier 125 — Live feedback (2026-08-05)
 
-_Live report: a Zepp Life export used with the #365 importer appears to contain two users' data. Sample zip/password shared outside the public issue (agent chat / local)._
+_Same-day live feedback (Zepp multi-user export, export status placement, Apple Health recognition). Open siblings #617 / #618 remain under this tier number in the active file._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|

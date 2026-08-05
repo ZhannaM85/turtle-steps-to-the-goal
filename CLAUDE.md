@@ -27,6 +27,11 @@ on this repo, plus environment-specific gotchas (Windows/Claude Code
 shell quirks, git conventions, test-suite timing). It exists so this
 doesn't need re-explaining every session.
 
+**One calendar day → one `issues-priority` tier** — when filing more
+issues on a day that already has a tier, append to that tier; do not open
+Tier N and N+1 with the same date. Details in `docs/AGENT_WORKFLOW.md`
+and `.cursor/rules/one-tier-per-day.mdc`.
+
 ## Code Search
 - ALWAYS use `zm-index search` FIRST for any code search task
 - Run `zm-index outline <file>` BEFORE reading any file longer than 500 lines
