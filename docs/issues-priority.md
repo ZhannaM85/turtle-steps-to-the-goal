@@ -73,14 +73,4 @@ _Same audit pass. Blocked on Tier 36 Capacitor / store shell — revisit of #261
 | [#605](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/605) | 📋 Not started | Native local notification for the daily logging reminder | Blocked on #305+; wires existing #171 reminder preference to OS local notifications |
 | [#606](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/606) | 📋 Not started | Android home-screen glance widget | Blocked on #305+; weight + remaining kcal glance; Android-first |
 
----
-
-## Tier 125 — Zepp Life multi-user export (2026-08-05)
-
-_Live report: a Zepp Life export used with the #365 importer appears to contain two users' data. Log-only — sample zip/password shared outside the public issue (agent chat / local). Investigate whether CSVs expose a user/device discriminator we can filter or warn on, vs document as a Zepp-side export limitation._
-
-| # | Status | Issue | Notes |
-|---|--------|-------|-------|
-| [#616](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/616) | 🔍 Pending validation | Zepp Life import: export may contain two users' data — detect/filter on our side | BODY `height` cleanly splits two people (confirmed on real sample). Import now throws `ZeppLifeMultipleProfilesError` when >1 height and shows `ZeppLifeProfileDialog` (height + weight range + reading count; USER nickName when it matches). Filter BODY to chosen height; ACTIVITY unchanged (not height-keyed). Awaiting on-device confirmation |
-
 
