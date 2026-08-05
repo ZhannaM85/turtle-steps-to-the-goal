@@ -113,8 +113,8 @@ export async function importAllData(bundle: ExportBundle): Promise<void> {
     dailyEntryRepository.getAll(),
     mealItemRepository.getAll(),
   ])
-  const existingEntryIdByDate = new Map(
-    existingEntries.map((entry) => [entry.date, entry.id]),
+  const existingEntryByDate = new Map(
+    existingEntries.map((entry) => [entry.date, entry]),
   )
   const existingMealItemIdByName = new Map(
     existingMealItems.map((item) => [item.name, item.id]),
@@ -123,9 +123,16 @@ export async function importAllData(bundle: ExportBundle): Promise<void> {
   await Promise.all([
     ...bundle.goals.map((goal) => goalRepository.saveGoal(goal)),
     ...bundle.dailyEntries.map((entry) => {
-      const existingId = existingEntryIdByDate.get(entry.date)
+      // #628 — spread `existing` first: a field genuinely absent from the
+      // imported entry (an older/partial backup) then survives instead of
+      // silently being wiped by a plain `{ ...entry, id: existingId }`
+      // full-record replace. `JSON.stringify` never emits an explicit
+      // `undefined`-valued key, so this can't accidentally let an
+      // imported "cleared" field lose to a stale existing one — every key
+      // `entry` actually carries still wins/updates as before.
+      const existing = existingEntryByDate.get(entry.date)
       return dailyEntryRepository.upsert(
-        existingId ? { ...entry, id: existingId } : entry,
+        existing ? { ...existing, ...entry, id: existing.id } : entry,
       )
     }),
     ...(bundle.mealItems ?? []).map((item) => {

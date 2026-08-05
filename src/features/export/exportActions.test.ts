@@ -265,6 +265,48 @@ describe('importAllData', () => {
     expect(all[0].weightKg).toBe(81)
   })
 
+  // #628 — reported live: a day's weight showed up in a correlation view
+  // (which averages across a whole week) but was empty when the actual
+  // day was opened. Root cause: this merge only ever spread the *imported*
+  // entry's own fields (`{ ...entry, id: existingId }`), never the existing
+  // record's — so re-importing an older/partial backup (missing a field
+  // the existing entry already had) silently wiped that field, directly
+  // contradicting `t.export.importBlurb`'s own "nothing is deleted"
+  // promise. `note` (present on both) still gets a real update from the
+  // import to confirm this isn't a blanket "existing always wins" — only
+  // fields genuinely absent from the incoming entry are preserved.
+  it('preserves an existing field the imported entry does not carry, instead of wiping it (#628)', async () => {
+    const existingEntry = makeEntry({
+      id: 'local-id',
+      date: '2026-03-01',
+      weightKg: 80,
+      note: 'old note',
+    })
+    await db.dailyEntries.put(existingEntry)
+
+    // Built directly (not via `makeEntry`, which always sets `weightKg`) so
+    // the key is genuinely absent — matching a real `JSON.parse`'d backup,
+    // which never has explicit `undefined`-valued keys either.
+    const backupEntryWithoutWeight: DailyEntry = {
+      id: 'backup-id',
+      date: '2026-03-01',
+      note: 'updated note',
+      createdAt: existingEntry.createdAt,
+      updatedAt: existingEntry.createdAt,
+    }
+    await importAllData({
+      version: 10,
+      exportedAt: new Date().toISOString(),
+      goals: [],
+      dailyEntries: [backupEntryWithoutWeight],
+    })
+
+    const all = await db.dailyEntries.toArray()
+    expect(all).toHaveLength(1)
+    expect(all[0].weightKg).toBe(80)
+    expect(all[0].note).toBe('updated note')
+  })
+
   it('updates a same-name meal item by name, not id (#207, same reasoning as the daily-entry case above)', async () => {
     const existingItem = makeMealItem({
       id: 'local-id',

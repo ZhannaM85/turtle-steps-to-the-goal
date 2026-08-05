@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 582,
+    issue: 628,
+    date: '2026-08-05T20:02:12+03:00',
+    en: 'Fixed: restoring a JSON backup could silently clear a field (like weight) if the imported day was missing it, even though the current day already had it logged.',
+    ru: 'Исправлено: восстановление резервной копии JSON могло незаметно очистить поле (например, вес), если его не было в импортированном дне, даже если оно уже было внесено в текущий день.',
+  },
+  {
     version: 581,
     issue: 626,
     date: '2026-08-05T19:39:26+03:00',
