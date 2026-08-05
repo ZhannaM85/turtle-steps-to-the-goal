@@ -50,7 +50,7 @@ describe('PlannedMealsSection (#614)', () => {
     const { onChange } = renderSection('2026-08-05')
 
     await user.click(
-      screen.getByRole('button', { name: '+ Plan a meal for tomorrow' }),
+      screen.getByRole('button', { name: 'Plan a meal for tomorrow' }),
     )
     await user.type(
       screen.getByLabelText('What are you planning?'),
@@ -106,7 +106,7 @@ describe('PlannedMealsSection (#614)', () => {
     renderSection('2026-08-05')
 
     expect(
-      await screen.findByRole('button', { name: '+ Plan a meal for tomorrow' }),
+      await screen.findByRole('button', { name: 'Plan a meal for tomorrow' }),
     ).toBeInTheDocument()
     expect(screen.queryByText('Chicken and rice')).not.toBeInTheDocument()
   })

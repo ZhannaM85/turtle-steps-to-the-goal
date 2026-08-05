@@ -1311,7 +1311,7 @@ export const ru: Dictionary = {
     plannedKcalLabel: (kcal) => `${kcal} ккал`,
     addToLogButton: 'Добавить в журнал',
     discardPlannedMealLabel: (name) => `Удалить план: ${name}`,
-    addPlanTriggerLabel: '+ Запланировать на завтра',
+    addPlanTriggerLabel: 'Запланировать на завтра',
     planNameLabel: 'Что вы планируете?',
     planNamePlaceholder: 'например, курица с рисом',
     planKcalLabel: 'Калории (необязательно)',

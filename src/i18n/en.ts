@@ -1276,7 +1276,7 @@ export const en: Dictionary = {
     plannedKcalLabel: (kcal) => `${kcal} kcal`,
     addToLogButton: 'Add to log',
     discardPlannedMealLabel: (name) => `Discard planned meal: ${name}`,
-    addPlanTriggerLabel: '+ Plan a meal for tomorrow',
+    addPlanTriggerLabel: 'Plan a meal for tomorrow',
     planNameLabel: 'What are you planning?',
     planNamePlaceholder: 'e.g. Chicken and rice',
     planKcalLabel: 'Calories (optional)',

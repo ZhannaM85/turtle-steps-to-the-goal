@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 580,
+    issue: 627,
+    date: '2026-08-05T19:16:40+03:00',
+    en: 'Fixed a duplicated plus icon on the "Plan a meal for tomorrow" button.',
+    ru: 'Исправлен задвоенный значок «+» на кнопке «Запланировать на завтра».',
+  },
+  {
     version: 579,
     issue: 601,
     date: '2026-08-05T19:04:58+03:00',
