@@ -126,4 +126,24 @@ describe('buildSummaryPdf', () => {
 
     expect(blob.size).toBeGreaterThan(0)
   })
+
+  // #623 — jsPDF's standard fonts have no Cyrillic glyphs; a Russian-locale
+  // document used to render as mojibake. Embedding a real font shows up in
+  // the PDF's own object dictionary, so a raw byte scan is a real check
+  // (not just "no locale-specific throw"), without needing to render/OCR
+  // the actual PDF page image.
+  it('embeds a custom Cyrillic-capable font for a Russian-locale document', async () => {
+    const ru = getDictionary('ru')
+    const data = buildPdfSummaryData(
+      [makeEntry({ date: '2026-08-01', weightKg: 80 })],
+      30,
+      '2026-08-05',
+      1,
+    )
+
+    const blob = await buildSummaryPdf(data, ru, 'ru', 'kg')
+    const raw = await blob.text()
+
+    expect(raw).toContain('PTSans')
+  })
 })

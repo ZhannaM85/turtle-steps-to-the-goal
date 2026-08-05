@@ -106,8 +106,19 @@ export async function buildSummaryPdf(
 ): Promise<Blob> {
   const { jsPDF } = await import('jspdf')
   const { default: autoTable } = await import('jspdf-autotable')
+  // #623 — jsPDF's standard 14 fonts (the default here) have no Cyrillic
+  // glyphs at all, so a Russian-locale document rendered as mojibake
+  // without this. PT Sans covers Latin+Cyrillic in one font; see
+  // ptSansRegularFont.ts's own doc comment for provenance/licensing.
+  // Regular weight only — every `doc.text()` call below stays plain (no
+  // bold/italic) rather than doubling the embedded font payload for a
+  // second weight.
+  const { PT_SANS_REGULAR_BASE64 } = await import('./ptSansRegularFont')
 
   const doc = new jsPDF({ unit: 'mm', format: 'a4' })
+  doc.addFileToVFS('PTSans-Regular.ttf', PT_SANS_REGULAR_BASE64)
+  doc.addFont('PTSans-Regular.ttf', 'PTSans', 'normal')
+  doc.setFont('PTSans')
   const marginX = 15
   const pageWidth = doc.internal.pageSize.getWidth()
 
@@ -190,7 +201,7 @@ export async function buildSummaryPdf(
       ]),
       theme: 'grid',
       headStyles: { fillColor: [90, 90, 90] },
-      styles: { fontSize: 9 },
+      styles: { fontSize: 9, font: 'PTSans', fontStyle: 'normal' },
     })
     cursorY =
       (doc as unknown as { lastAutoTable: { finalY: number } }).lastAutoTable
@@ -249,11 +260,13 @@ export async function buildSummaryPdf(
     doc.setPage(page)
     doc.setFontSize(8)
     doc.setTextColor(110)
-    doc.setFont('helvetica', 'italic')
+    // #623 — no italic PT Sans is embedded (would double the font payload
+    // for a purely cosmetic style); the muted color + small size already
+    // read as a footnote without it.
+    doc.setFont('PTSans')
     doc.text(t.pdfSummary.disclaimer, marginX, pageHeight - 12, {
       maxWidth: pageWidth - marginX * 2,
     })
-    doc.setFont('helvetica', 'normal')
     doc.text(
       t.pdfSummary.generatedOnLabel(formatDisplayDate(data.rangeEnd, locale)),
       marginX,

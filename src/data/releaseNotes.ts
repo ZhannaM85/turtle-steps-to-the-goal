@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 577,
+    issue: 623,
+    date: '2026-08-05T18:15:22+03:00',
+    en: 'Fixed: the PDF summary export showed garbled text in Russian — it now renders correctly.',
+    ru: 'Исправлено: сводка в PDF отображала нечитаемый текст на русском — теперь текст отображается корректно.',
+  },
+  {
     version: 576,
     issue: 614,
     date: '2026-08-05T17:33:15+03:00',
