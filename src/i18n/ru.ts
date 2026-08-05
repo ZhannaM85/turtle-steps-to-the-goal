@@ -750,6 +750,8 @@ export const ru: Dictionary = {
     viewOutlierDayLabel: (label) => `Редактировать ${label}`,
     weeklyChangeLegend: 'изменение за неделю',
     chartNavigationHint: 'Нажмите на точку для подробностей',
+    cyclePeriodWeightNote:
+      'Вес часто колеблется в дни менструации — стоит иметь это в виду при чтении дневных колебаний здесь.',
     previousPeriodLabel: 'Предыдущий период',
     nextPeriodLabel: 'Следующий период',
     viewDayLink: 'Открыть этот день',

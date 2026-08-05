@@ -4,6 +4,7 @@ import { MemoryRouter } from 'react-router-dom'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import type { DailyEntry } from '@/domain/dailyEntry'
 import {
+  useCycleTrackingStore,
   useDashboardChartVisibilityStore,
   useOutlierExclusionStore,
   useTrendChartSeriesStore,
@@ -53,6 +54,33 @@ describe('WeightTrendChart', () => {
     })
 
     expect(screen.queryByText('projected')).not.toBeInTheDocument()
+  })
+
+  describe('cycle period weight note (#615)', () => {
+    afterEach(() => {
+      useCycleTrackingStore.setState({ enabled: false })
+    })
+
+    it('shows the note once cycle tracking is on', () => {
+      useCycleTrackingStore.setState({ enabled: true })
+      render(<WeightTrendChart entries={threeWeightEntries()} />, {
+        wrapper: MemoryRouter,
+      })
+
+      expect(
+        screen.getByText(/Weight often fluctuates around your period/),
+      ).toBeInTheDocument()
+    })
+
+    it('shows no note when cycle tracking is off', () => {
+      render(<WeightTrendChart entries={threeWeightEntries()} />, {
+        wrapper: MemoryRouter,
+      })
+
+      expect(
+        screen.queryByText(/Weight often fluctuates around your period/),
+      ).not.toBeInTheDocument()
+    })
   })
 
   describe('7-day rolling average overlay (#214)', () => {

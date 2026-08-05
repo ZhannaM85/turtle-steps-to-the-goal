@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 566,
+    issue: 615,
+    date: '2026-08-05T13:17:25+03:00',
+    en: 'With cycle tracking on, the weight trend chart now notes that weight often fluctuates around your period.',
+    ru: 'При включённом отслеживании цикла график изменения веса теперь напоминает, что вес часто колеблется в дни менструации.',
+  },
+  {
     version: 565,
     issue: 610,
     date: '2026-08-05T13:09:59+03:00',

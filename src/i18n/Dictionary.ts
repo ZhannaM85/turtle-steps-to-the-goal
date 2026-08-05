@@ -1205,6 +1205,12 @@ export interface Dictionary {
     viewOutlierDayLabel: (label: string) => string
     weeklyChangeLegend: string
     chartNavigationHint: string
+    /** #615 — one-line factual note on the weight trend chart, shown only
+     * when cycle tracking is on: a template fact, not a prediction — no
+     * ovulation/fertile-window logic, no per-user computed window, just a
+     * general reminder that period days are a known source of weight
+     * noise. Cycle-off users never see this string rendered anywhere. */
+    cyclePeriodWeightNote: string
     /** #443 — per-chart prev/next paging within the shared Week/Month/Year
      * period type, see `useChartPeriodPager`'s own doc comment. */
     previousPeriodLabel: string

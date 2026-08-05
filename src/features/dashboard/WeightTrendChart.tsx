@@ -28,6 +28,7 @@ import {
   useTranslation,
 } from '@/i18n'
 import {
+  useCycleTrackingStore,
   useDashboardChartVisibilityStore,
   useOutlierExclusionStore,
   useTrendChartSeriesStore,
@@ -100,6 +101,9 @@ export function WeightTrendChart({
   const locale = useLocale()
   const dateFnsLocale = getDateFnsLocale(locale)
   const displayUnit = useUnitStore((state) => state.unit)
+  // #615 — one-line factual note, cycle-tracking users only; no per-user
+  // predicted window, just a general "period days are known noise" fact.
+  const cycleTrackingEnabled = useCycleTrackingStore((state) => state.enabled)
   // #455 — hooks must run before this component's own early returns below
   // (rules-of-hooks), even though this value is only read much further down.
   const excludedWeightDates = useOutlierExclusionStore(
@@ -511,6 +515,11 @@ export function WeightTrendChart({
       {!bothHidden && (
         <p className="text-xs text-muted-foreground">
           {t.dashboard.chartNavigationHint}
+        </p>
+      )}
+      {!bothHidden && cycleTrackingEnabled && (
+        <p className="text-xs text-muted-foreground">
+          {t.dashboard.cyclePeriodWeightNote}
         </p>
       )}
       <ChartPeriodPagerControls pager={pager} />

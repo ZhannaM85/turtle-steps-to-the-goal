@@ -718,6 +718,8 @@ export const en: Dictionary = {
     viewOutlierDayLabel: (label) => `Edit ${label}`,
     weeklyChangeLegend: 'weekly change',
     chartNavigationHint: 'Tap a point for details',
+    cyclePeriodWeightNote:
+      'Weight often fluctuates around your period — worth keeping in mind when reading day-to-day swings here.',
     previousPeriodLabel: 'Previous period',
     nextPeriodLabel: 'Next period',
     viewDayLink: 'View this day',
