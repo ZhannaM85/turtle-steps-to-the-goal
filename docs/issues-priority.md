@@ -83,4 +83,14 @@ _Live feedback right after validating #616: Zepp Life success text appeared unde
 |---|--------|-------|-------|
 | [#617](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/617) | 📋 Not started | Settings Export: show import success/error under the matching source section | Per-section status for Zepp / Apple Health / MFP / JSON (and other export actions); no import behavior change |
 
+---
+
+## Tier 127 — Apple Health import recognition (2026-08-05)
+
+_Live report: a user's Apple Health export was rejected as not an Apple Health file. Log-only — sample zip (if any) stays outside the public issue._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#618](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/618) | 📋 Not started | Apple Health import: valid user export not recognized as Apple Health file | Related #366 / #381. Start by comparing zip layout / `export.xml` path to current detection; do not commit the export to the repo |
+
 
