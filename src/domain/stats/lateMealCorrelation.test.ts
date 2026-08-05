@@ -169,6 +169,36 @@ describe('lateMealCorrelation', () => {
     expect(points[1].date).toBe(day(1))
   })
 
+  // #601 — a meal logged after midnight but before the configured day-start
+  // time is really the tail of a late night, not an early morning. Without
+  // `dayStartTime`, these four post-midnight meals would sort as *earlier*
+  // than the four midday ones (raw '00:xx' < raw '12:xx') — the exact
+  // opposite of what actually happened.
+  it('sorts a meal logged after midnight but before day-start into the later group, not earlier', () => {
+    const entries = [
+      entry(day(0), { weightKg: 80.0, calorieEntries: mealAt('12:00') }),
+      entry(day(1), { weightKg: 80.1, calorieEntries: mealAt('12:30') }),
+      entry(day(2), { weightKg: 80.2, calorieEntries: mealAt('13:00') }),
+      entry(day(3), { weightKg: 80.25, calorieEntries: mealAt('13:30') }),
+      entry(day(4), { weightKg: 80.4, calorieEntries: mealAt('00:30') }),
+      entry(day(5), { weightKg: 81.2, calorieEntries: mealAt('00:45') }),
+      entry(day(6), { weightKg: 81.9, calorieEntries: mealAt('01:00') }),
+      entry(day(7), { weightKg: 82.8, calorieEntries: mealAt('01:15') }),
+      entry(day(8), { weightKg: 83.4 }),
+    ]
+
+    const withDayStart = lateMealCorrelation(entries, '04:00')
+    expect(withDayStart!.laterAveragedMoreGain).toBe(true)
+    expect(withDayStart!.laterGroupAvgDeltaKg).toBeCloseTo(0.75, 5)
+
+    // Without a day-start setting (midnight, today's existing behavior),
+    // the same post-midnight meals sort as the *earlier* group instead —
+    // confirms the two calls actually take different paths, not that the
+    // fixture happens to classify the same way regardless.
+    const withoutDayStart = lateMealCorrelation(entries)
+    expect(withoutDayStart!.laterAveragedMoreGain).toBe(false)
+  })
+
   it('does not throw when a meal label is a number (#587, #579 legacy data)', () => {
     const entries = [
       entry(day(0), {

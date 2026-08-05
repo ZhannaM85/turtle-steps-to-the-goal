@@ -159,10 +159,10 @@ export function TodayScreen() {
   // day-start time other than midnight, so someone up past midnight isn't
   // pushed onto the next calendar day before they're ready to be. Default
   // '00:00' matches the real calendar date exactly, so this is a no-op
-  // for anyone who hasn't touched the new Settings field. First-pass
-  // scope only touches this screen — streaks, weekly/monthly summaries,
-  // correlation day-pairing, and the fasting-window toast are unaffected
-  // for now (resolved via `AskUserQuestion` when this was picked up).
+  // for anyone who hasn't touched the new Settings field. #601 extended
+  // the same day-start-aware "today" to the late-meal/fasting-window
+  // correlations and "is this week still in progress" elsewhere — see
+  // `dayStartStore.ts`'s own doc comment for the current full scope.
   const dayStartTime = useDayStartStore((state) => state.dayStartTime)
   const startedEarlyForDate = useDayStartStore(
     (state) => state.startedEarlyForDate,

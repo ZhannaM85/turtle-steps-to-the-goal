@@ -195,4 +195,8 @@ export type {
   ElectrolytePoint,
   ElectrolyteSeriesKey,
 } from './electrolyteTrend'
-export { effectiveDateFor } from './dayStart'
+export {
+  adjustForDayStart,
+  effectiveDateFor,
+  todayIsoForDayStart,
+} from './dayStart'

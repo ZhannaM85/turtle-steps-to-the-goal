@@ -3,13 +3,13 @@ import { format, parseISO } from 'date-fns'
 import { Link } from 'react-router-dom'
 import type { DailyEntry } from '@/domain/dailyEntry'
 import { goalWindowAverages, goalWindowProgress } from '@/domain/goal'
-import { correlationInsight } from '@/domain/stats'
+import { correlationInsight, effectiveDateFor } from '@/domain/stats'
 import { formatNumber, getDateFnsLocale, useLocale, useTranslation } from '@/i18n'
 import { IndexedDbDailyEntryRepository } from '@/infrastructure/persistence/indexeddb'
 import { useWeekStartsOn } from '@/shared/hooks'
 import { PageHeader } from '@/shared/ui/page-header'
 import { Button } from '@/shared/ui/button'
-import { useGoalStore } from '@/stores'
+import { useDayStartStore, useGoalStore } from '@/stores'
 
 const dailyEntryRepository = new IndexedDbDailyEntryRepository()
 
@@ -43,10 +43,19 @@ export function WeeklyReviewScreen() {
   }, [])
 
   const weekStartsOn = useWeekStartsOn(entries)
-  const insight = correlationInsight(entries, weekStartsOn)
+  // #601 — "is this week still in progress"/"how far into the goal window
+  // are we" should respect day-start too, same meaning `TodayScreen.tsx`'s
+  // own "today" already uses.
+  const dayStartTime = useDayStartStore((state) => state.dayStartTime)
+  const today = effectiveDateFor(new Date(), dayStartTime)
+  const insight = correlationInsight(
+    entries,
+    weekStartsOn,
+    format(today, 'yyyy-MM-dd'),
+  )
 
   const progress = goal ? goalWindowProgress(entries, goal) : null
-  const averages = goal ? goalWindowAverages(entries, goal) : null
+  const averages = goal ? goalWindowAverages(entries, goal, today) : null
 
   return (
     <div className="flex flex-col gap-4">

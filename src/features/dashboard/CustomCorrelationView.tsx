@@ -23,6 +23,7 @@ import {
 import { formatNumber, getDateFnsLocale, useLocale, useTranslation } from '@/i18n'
 import { metricRefLabel } from '@/shared/lib/metricRefLabel'
 import { useOutlierExclusion } from '@/shared/hooks'
+import { useDayStartStore } from '@/stores'
 import { Button } from '@/shared/ui/button'
 import { CorrelationChartTooltip } from './CorrelationChartTooltip'
 import { CorrelationStrengthLabel } from './CorrelationStrengthLabel'
@@ -73,6 +74,9 @@ export function CustomCorrelationView({
   const locale = useLocale()
   const dateFnsLocale = getDateFnsLocale(locale)
   const [isExpanded, setIsExpanded] = useState(false)
+  // #601 — either side of a custom correlation can point at the built-in
+  // fastingHours series, which should respect day-start too.
+  const dayStartTime = useDayStartStore((state) => state.dayStartTime)
 
   const aLabel = metricRefLabel(t, correlation.metricA, metrics)
   const bLabel = metricRefLabel(t, correlation.metricB, metrics)
@@ -85,6 +89,7 @@ export function CustomCorrelationView({
     correlation.metricB,
     entries,
     metricEntries,
+    dayStartTime,
   )
   const notesByDate = dayNotesByDate(entries)
   const { flags, axes, isExcluded, toggle, includedPoints } = useOutlierExclusion(

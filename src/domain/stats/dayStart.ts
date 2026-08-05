@@ -1,3 +1,5 @@
+import { format } from 'date-fns'
+
 /**
  * #298 — resolves which calendar date "now" belongs to when the user has
  * configured a day-start time other than midnight (e.g. "up past midnight
@@ -20,4 +22,41 @@ export function effectiveDateFor(now: Date, dayStartTime: string): Date {
   const previousDay = new Date(now)
   previousDay.setDate(previousDay.getDate() - 1)
   return previousDay
+}
+
+/**
+ * #601 — the day-start-adjusted ISO date for "today," for every analytics
+ * path that needs to know "is this week/period still in progress" the same
+ * way the Day screen's own `TodayScreen.tsx` (`todayIso()`) already does.
+ * Thin wrapper over `effectiveDateFor` + formatting, so callers (Dashboard
+ * weekly recap, correlation "current week" gating, rolling-window
+ * averages, etc.) don't each reimplement the `format(effectiveDateFor(...))`
+ * pair.
+ */
+export function todayIsoForDayStart(
+  dayStartTime: string,
+  now: Date = new Date(),
+): string {
+  return format(effectiveDateFor(now, dayStartTime), 'yyyy-MM-dd')
+}
+
+/**
+ * #298/#621/#601 — a clock time before the day-start cutoff reads as *late*
+ * (the tail of the previous logical day), not early: shifting it forward by
+ * a full day restores its true chronological position relative to that
+ * day's other times, regardless of which calendar day's record happens to
+ * hold it. `dayStartMinutes`/the returned value are both plain minutes
+ * since midnight. Previously duplicated (unexported) in both
+ * `domain/stats/fastingWindow.ts` and `shared/lib/mealLabel.ts` — the
+ * latter couldn't import from `domain/stats` without risking a cycle back
+ * through `fastingWindow.ts`'s own `effectiveTimeEaten` import from
+ * `mealLabel.ts`; importing this file specifically (not the `domain/stats`
+ * barrel) avoids that, since `dayStart.ts` itself imports nothing from
+ * either.
+ */
+export function adjustForDayStart(
+  minutes: number,
+  dayStartMinutes: number,
+): number {
+  return minutes < dayStartMinutes ? minutes + 24 * 60 : minutes
 }

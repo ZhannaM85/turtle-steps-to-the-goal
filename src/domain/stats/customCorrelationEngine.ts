@@ -33,9 +33,10 @@ export function resolveMetricValueMap(
   ref: MetricRef,
   entries: DailyEntry[],
   customMetricEntries: CustomMetricEntry[],
+  dayStartTime = '00:00',
 ): Map<string, number> {
   if (ref.kind === 'builtin') {
-    return numericSeriesValueByDate(entries, ref.key)
+    return numericSeriesValueByDate(entries, ref.key, dayStartTime)
   }
   const byDate = new Map<string, number>()
   for (const entry of customMetricEntries) {
@@ -67,10 +68,11 @@ export function customCorrelationPoints(
   metricB: MetricRef,
   entries: DailyEntry[],
   customMetricEntries: CustomMetricEntry[],
+  dayStartTime = '00:00',
 ): MetricValuePoint[] {
   return pointsFromValueMaps(
-    resolveMetricValueMap(metricA, entries, customMetricEntries),
-    resolveMetricValueMap(metricB, entries, customMetricEntries),
+    resolveMetricValueMap(metricA, entries, customMetricEntries, dayStartTime),
+    resolveMetricValueMap(metricB, entries, customMetricEntries, dayStartTime),
   )
 }
 
@@ -131,8 +133,15 @@ export function customCorrelationInsight(
   metricB: MetricRef,
   entries: DailyEntry[],
   customMetricEntries: CustomMetricEntry[],
+  dayStartTime = '00:00',
 ): CustomCorrelationResult | null {
   return customCorrelationFromPoints(
-    customCorrelationPoints(metricA, metricB, entries, customMetricEntries),
+    customCorrelationPoints(
+      metricA,
+      metricB,
+      entries,
+      customMetricEntries,
+      dayStartTime,
+    ),
   )
 }

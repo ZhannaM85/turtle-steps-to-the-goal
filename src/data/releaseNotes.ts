@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 579,
+    issue: 601,
+    date: '2026-08-05T19:04:58+03:00',
+    en: 'The day-start time setting now also applies to the late-meal and fasting-window charts, and to "is this week finished" — not just the Day screen.',
+    ru: 'Настройка начала дня теперь применяется и к графикам позднего приёма пищи и окна голодания, и к определению «эта неделя завершена» — не только к экрану «День».',
+  },
+  {
     version: 578,
     issue: 624,
     date: '2026-08-05T18:32:04+03:00',

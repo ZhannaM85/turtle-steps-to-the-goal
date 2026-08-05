@@ -1,3 +1,4 @@
+import { adjustForDayStart } from '@/domain/stats/dayStart'
 import { getDictionary, type Dictionary, type Locale } from '@/i18n'
 
 const ALL_LOCALES: Locale[] = ['en', 'ru']
@@ -150,17 +151,6 @@ export function effectiveTimeEaten(
 function timeToMinutes(hhmm: string): number {
   const [h, m] = hhmm.split(':').map(Number)
   return h * 60 + m
-}
-
-/** #621 — a time before day-start reads as *late* (add a full day), not
- * early — same one-line adjustment `domain/stats/fastingWindow.ts`'s own
- * `adjustForDayStart` already established for exactly this "a 1am entry
- * is really the tail of last night, not the start of today" reasoning.
- * Duplicated rather than imported: neither helper is exported there,
- * both are one-liners, and `shared/lib/` doesn't otherwise depend on
- * `domain/stats/`. */
-function adjustForDayStart(minutes: number, dayStartMinutes: number): number {
-  return minutes < dayStartMinutes ? minutes + 24 * 60 : minutes
 }
 
 /**

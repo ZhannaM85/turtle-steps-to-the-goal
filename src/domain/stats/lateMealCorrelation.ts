@@ -6,6 +6,7 @@ import {
   DAILY_STRENGTH_THRESHOLDS_KG,
   type CorrelationStrength,
 } from './correlationStrength'
+import { adjustForDayStart } from './dayStart'
 
 export interface LateMealCorrelation {
   dayCount: number
@@ -32,7 +33,11 @@ function timeToMinutes(hhmm: string): number {
 
 /** The latest meal time (recorded or #580 slot default) across a day's
  * meals, in minutes since midnight — null if the day has no meals with a
- * usable time. */
+ * usable time. Deliberately *not* day-start-adjusted here — `.minutes` also
+ * doubles as `LateMealCorrelationView.tsx`'s raw scatter-chart X position,
+ * which should keep showing a meal's true wall-clock time; the day-start
+ * adjustment instead happens only where "earlier vs. later" is actually
+ * decided, in `lateMealCorrelationFromPoints` below (#601). */
 function lastMealTimeMinutes(entry: DailyEntry): number | null {
   const times = (entry.calorieEntries ?? [])
     .map((meal) => effectiveTimeEaten(meal))
@@ -91,13 +96,30 @@ export function lateMealPoints(entries: DailyEntry[]): LateMealPoint[] {
  * points first (`shared/hooks/useOutlierExclusion.ts`) and pass the
  * remainder straight in, without this function knowing exclusion exists at
  * all. `lateMealCorrelation` below is a thin wrapper over this + `lateMealPoints`.
+ *
+ * #601 — sorts/splits on `adjustForDayStart(point.minutes, ...)`, not the
+ * raw `.minutes` a point stores (which stays untouched for charting — see
+ * `lastMealTimeMinutes`'s own comment): otherwise a genuine 1am meal (a
+ * small raw-minutes value) sorted as the *earliest* meal of the day instead
+ * of what it actually was, the latest. `dayStartTime` defaults to midnight
+ * (today's existing behavior for any caller that doesn't pass one).
+ * `thresholdMinutes` can come out above 1440 when the split lands inside
+ * the adjusted (pre-day-start) range — `minutesToTimeLabel`'s own `% 24`
+ * already renders that back to the correct wall-clock hour.
  */
 export function lateMealCorrelationFromPoints(
   points: LateMealPoint[],
+  dayStartTime = '00:00',
 ): LateMealCorrelation | null {
   if (points.length < MIN_COMPARABLE_DAYS) return null
 
-  const sorted = [...points].sort((a, b) => a.minutes - b.minutes)
+  const dayStartMinutes = timeToMinutes(dayStartTime)
+  const adjustedMinutes = (point: LateMealPoint) =>
+    adjustForDayStart(point.minutes, dayStartMinutes)
+
+  const sorted = [...points].sort(
+    (a, b) => adjustedMinutes(a) - adjustedMinutes(b),
+  )
   const mid = Math.ceil(sorted.length / 2)
   const earlierGroup = sorted.slice(0, mid)
   const laterGroup = sorted.slice(mid)
@@ -106,7 +128,9 @@ export function lateMealCorrelationFromPoints(
   const earlierGroupAvgDeltaKg = average(earlierGroup.map((p) => p.deltaKg))
   const laterGroupAvgDeltaKg = average(laterGroup.map((p) => p.deltaKg))
   const rawThresholdMinutes =
-    (earlierGroup[earlierGroup.length - 1].minutes + laterGroup[0].minutes) / 2
+    (adjustedMinutes(earlierGroup[earlierGroup.length - 1]) +
+      adjustedMinutes(laterGroup[0])) /
+    2
 
   return {
     dayCount: points.length,
@@ -133,6 +157,7 @@ export function lateMealCorrelationFromPoints(
  */
 export function lateMealCorrelation(
   entries: DailyEntry[],
+  dayStartTime = '00:00',
 ): LateMealCorrelation | null {
-  return lateMealCorrelationFromPoints(lateMealPoints(entries))
+  return lateMealCorrelationFromPoints(lateMealPoints(entries), dayStartTime)
 }

@@ -15,6 +15,7 @@ import { kgToLb } from '@/domain/goal'
 import {
   correlationInsightFromPoints,
   correlationInsightPoints,
+  todayIsoForDayStart,
   weeklyCorrelationExcludesCurrentWeek,
 } from '@/domain/stats'
 import {
@@ -24,7 +25,11 @@ import {
   useLocale,
   useTranslation,
 } from '@/i18n'
-import { useDashboardChartVisibilityStore, useUnitStore } from '@/stores'
+import {
+  useDashboardChartVisibilityStore,
+  useDayStartStore,
+  useUnitStore,
+} from '@/stores'
 import { useOutlierExclusion, useWeekStartsOn } from '@/shared/hooks'
 import { Button } from '@/shared/ui/button'
 import { ChartTitleWithToggle } from './ChartTitleWithToggle'
@@ -82,13 +87,18 @@ export function CorrelationView({ entries: allEntries, dragHandle }: Correlation
   )
 
   const weekStartsOn = useWeekStartsOn(entries)
-  const rawPoints = correlationInsightPoints(entries, weekStartsOn)
+  // #601 — "is this week still in progress" should respect day-start too,
+  // same meaning `TodayScreen.tsx`'s own "today" already uses.
+  const dayStartTime = useDayStartStore((state) => state.dayStartTime)
+  const asOfDate = todayIsoForDayStart(dayStartTime)
+  const rawPoints = correlationInsightPoints(entries, weekStartsOn, asOfDate)
   // #613 — trust-footer honesty note: tells the user their current,
   // still-in-progress week is deliberately left out of the count below,
   // rather than that just looking like a silent gap (#522's own exclusion).
   const excludesCurrentWeek = weeklyCorrelationExcludesCurrentWeek(
     entries,
     weekStartsOn,
+    asOfDate,
   )
   const notesByDate = dayNotesByDate(entries)
   const { flags, axes, isExcluded, toggle, includedPoints } = useOutlierExclusion(

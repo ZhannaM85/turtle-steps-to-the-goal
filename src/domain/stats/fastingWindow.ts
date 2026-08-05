@@ -6,6 +6,7 @@ import {
   DAILY_STRENGTH_THRESHOLDS_KG,
   type CorrelationStrength,
 } from './correlationStrength'
+import { adjustForDayStart } from './dayStart'
 
 export interface FastingWindowCorrelation {
   dayCount: number
@@ -35,25 +36,6 @@ function timeToMinutes(hhmm: string): number {
   return hours * 60 + minutes
 }
 
-/**
- * #387 — reported live: a meal logged before the configured day-start
- * time (#298) gets filed under the *previous* calendar day's own
- * `DailyEntry` (`effectiveDateFor`), so a real past-midnight meal (e.g.
- * "01:22") can end up sitting alongside that day's own evening meals
- * (e.g. "19:41"). Left as raw clock minutes, `Math.max`/`Math.min` would
- * treat "01:22" as the *earliest* event of that day instead of what it
- * actually was — the latest, genuinely past real midnight. Shifting any
- * time before the cutoff forward by 24h restores its true chronological
- * position relative to that day's other meals, regardless of which
- * calendar day's bucket it happens to be stored under (a meal manually
- * backdated to an early time via History, not just one filed there live,
- * gets the same treatment — the day-start-time concept is about when a
- * *logical* day ends, not which record happens to hold the meal).
- */
-function adjustForDayStart(minutes: number, dayStartMinutes: number): number {
-  return minutes < dayStartMinutes ? minutes + 24 * 60 : minutes
-}
-
 /** Only `calorieEntries` is ever read here — callers that don't have a
  * full `DailyEntry` (e.g. #287's toast, working from a not-yet-saved
  * `CalorieEntry[]` for "today") can pass a bare `{ calorieEntries }`
@@ -62,11 +44,7 @@ type EntryWithMeals = Pick<DailyEntry, 'calorieEntries'>
 
 // #387 — defaults to midnight (today's existing behavior everywhere a
 // caller doesn't pass a real value) so this stays a purely additive
-// change; only #287's toast (the one actually reported) passes the
-// user's real day-start-time setting so far. `fastingWindowCorrelation`/
-// `customChartSeries.ts`'s own `fastingHours` series still assume midnight
-// — the same "correlation day-pairing... unaffected for now" scope #298
-// itself already called out, not newly introduced here.
+// change.
 function lastMealTimeMinutes(
   entry: EntryWithMeals,
   dayStartTime: string,
@@ -138,8 +116,17 @@ export interface FastingWindowPoint {
  * the previous day has a logged weight and at least one meal with a
  * recorded time, and the current day also has a logged weight and at
  * least one meal with a recorded time.
+ *
+ * #601 — `dayStartTime` defaults to midnight (today's existing behavior
+ * for any caller that doesn't pass one) but is otherwise threaded straight
+ * into `fastingHoursBetween`, same as #287's toast already gets — closes
+ * the "fastingWindowCorrelation/customChartSeries's fastingHours series
+ * still assume midnight" gap this file's own comments used to call out.
  */
-export function fastingWindowPoints(entries: DailyEntry[]): FastingWindowPoint[] {
+export function fastingWindowPoints(
+  entries: DailyEntry[],
+  dayStartTime = '00:00',
+): FastingWindowPoint[] {
   const byDate = new Map(entries.map((entry) => [entry.date, entry]))
   const points: FastingWindowPoint[] = []
 
@@ -148,7 +135,7 @@ export function fastingWindowPoints(entries: DailyEntry[]): FastingWindowPoint[]
     const nextDate = format(addDays(parseISO(entry.date), 1), 'yyyy-MM-dd')
     const nextEntry = byDate.get(nextDate)
     if (!nextEntry || nextEntry.weightKg === undefined) continue
-    const fastingHours = fastingHoursBetween(entry, nextEntry)
+    const fastingHours = fastingHoursBetween(entry, nextEntry, dayStartTime)
     if (fastingHours === null) continue
 
     points.push({
@@ -202,6 +189,9 @@ export function fastingWindowCorrelationFromPoints(
 
 export function fastingWindowCorrelation(
   entries: DailyEntry[],
+  dayStartTime = '00:00',
 ): FastingWindowCorrelation | null {
-  return fastingWindowCorrelationFromPoints(fastingWindowPoints(entries))
+  return fastingWindowCorrelationFromPoints(
+    fastingWindowPoints(entries, dayStartTime),
+  )
 }

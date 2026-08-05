@@ -92,6 +92,25 @@ describe('fastingWindowPoints', () => {
 
     expect(fastingWindowPoints(entries)).toEqual([])
   })
+
+  // #601 — `fastingWindowPoints` used to always call `fastingHoursBetween`
+  // with no third argument, silently defaulting to midnight regardless of
+  // the caller's real day-start-time setting (flagged in this file's own
+  // #387 comment as a known gap). Same fixture as the `fastingHoursBetween`
+  // "day-start-time awareness (#387)" tests below, just exercised through
+  // the points/correlation layer that actually feeds the Dashboard charts.
+  it('threads a real day-start time into the underlying fastingHoursBetween call', () => {
+    const entries = [
+      entry(day(0), { weightKg: 80.0, calorieEntries: mealAt('19:41', '01:22') }),
+      entry(day(1), { weightKg: 80.5, calorieEntries: mealAt('13:36') }),
+    ]
+
+    const withDayStart = fastingWindowPoints(entries, '02:00')
+    expect(withDayStart[0].fastingHours).toBeCloseTo(12.233, 2)
+
+    const withoutDayStart = fastingWindowPoints(entries)
+    expect(withoutDayStart[0].fastingHours).toBeCloseTo(17.917, 2)
+  })
 })
 
 describe('fastingWindowCorrelation', () => {
