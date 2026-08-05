@@ -1006,6 +1006,12 @@ export const ru: Dictionary = {
     cycleTrackingLabel: 'Отслеживание цикла',
     digestionTrackingLabel: 'Отслеживание пищеварения',
     waterTrackingLabel: 'Отслеживание воды',
+    trackingPresetLabel: 'Пресет макета',
+    trackingPresetDescription:
+      'Быстрая отправная точка для дня: «Просто» оставляет вес, приёмы пищи/калории и недельную цель; «Полностью» включает всё. Всё ниже по-прежнему можно настроить вручную.',
+    trackingPresetSimpleButton: 'Просто',
+    trackingPresetFullButton: 'Полностью',
+    trackingPresetAppliedLabel: 'Применено',
     trackedFieldsLabel: 'Что отслеживать',
     trackedFieldsDescription:
       'Выберите, какие необязательные поля показывать на экране «День». Отключение поля скрывает его только для новых записей — уже сохранённые данные остаются видны в Истории, экспорте и на панели.',

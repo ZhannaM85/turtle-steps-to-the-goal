@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { X } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import {
@@ -14,6 +14,7 @@ import {
   type Dictionary,
 } from '@/i18n'
 import {
+  applyTrackingPreset,
   useCycleTrackingStore,
   useDailyReminderStore,
   useDayStartStore,
@@ -30,6 +31,7 @@ import {
   type ColorScheme,
   type Mood,
   type TrackedField,
+  type TrackingPreset,
   type TrendChartKey,
   type TrendSeriesKey,
   type Unit,
@@ -240,6 +242,19 @@ export function SettingsScreen() {
     },
     new Date(),
   )
+
+  // #604 — brief "Applied" confirmation, same auto-clearing shape
+  // GoalForm.tsx's justSaved already established.
+  const [presetJustApplied, setPresetJustApplied] = useState(false)
+  useEffect(() => {
+    if (!presetJustApplied) return
+    const timer = setTimeout(() => setPresetJustApplied(false), 2000)
+    return () => clearTimeout(timer)
+  }, [presetJustApplied])
+  function handleApplyPreset(preset: TrackingPreset) {
+    applyTrackingPreset(preset)
+    setPresetJustApplied(true)
+  }
 
   return (
     <div className="flex flex-col gap-4">
@@ -545,6 +560,43 @@ export function SettingsScreen() {
                 {t.settings.dark}
               </ToggleGroupItem>
             </ToggleGroup>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* #604 — one-tap starting point for Day's density, right above the
+       * manual per-field toggles below; every field stays individually
+       * editable afterward either way. */}
+      <Card>
+        <CardHeader>
+          <CardTitle>{t.settings.trackingPresetLabel}</CardTitle>
+        </CardHeader>
+        <CardContent className="flex flex-col gap-2">
+          <span className="text-sm text-muted-foreground">
+            {t.settings.trackingPresetDescription}
+          </span>
+          <div className="flex flex-wrap items-center gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => handleApplyPreset('simple')}
+            >
+              {t.settings.trackingPresetSimpleButton}
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => handleApplyPreset('full')}
+            >
+              {t.settings.trackingPresetFullButton}
+            </Button>
+            {presetJustApplied && (
+              <span role="status" className="text-sm text-muted-foreground">
+                {t.settings.trackingPresetAppliedLabel}
+              </span>
+            )}
           </div>
         </CardContent>
       </Card>

@@ -973,6 +973,12 @@ export const en: Dictionary = {
     cycleTrackingLabel: 'Cycle tracking',
     digestionTrackingLabel: 'Digestion tracking',
     waterTrackingLabel: 'Water tracking',
+    trackingPresetLabel: 'Layout preset',
+    trackingPresetDescription:
+      "Quick starting point for Day: Simple keeps weight, meals/calories, and your weekly target; Full turns everything on. You can still adjust anything below afterward.",
+    trackingPresetSimpleButton: 'Simple',
+    trackingPresetFullButton: 'Full',
+    trackingPresetAppliedLabel: 'Applied',
     trackedFieldsLabel: 'What to track',
     trackedFieldsDescription:
       'Choose which optional fields appear on the Day screen. Turning one off just hides it going forward — anything already logged stays visible in History, Export, and the Dashboard.',

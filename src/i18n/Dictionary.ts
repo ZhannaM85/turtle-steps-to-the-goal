@@ -1547,6 +1547,19 @@ export interface Dictionary {
     /** #237: unified "what to track" section — folds cycle/digestion
      * tracking's own opt-in toggles in with the 5 fields below, which
      * didn't have an opt-out at all before this. */
+    /** #604 — one-tap Simple/Full layout presets, right above "What to
+     * track": Simple turns off the advanced optional fields + their Today
+     * stat cards (weight, meals/calories, and the weekly target stay);
+     * Full restores this app's own shipped defaults. Neither touches
+     * cycle/digestion tracking (a personal-data opt-in, not a density
+     * preference) — see `stores/trackingPreset.ts`. Purely a starting
+     * point; every field stays individually editable in the card below
+     * afterward. */
+    trackingPresetLabel: string
+    trackingPresetDescription: string
+    trackingPresetSimpleButton: string
+    trackingPresetFullButton: string
+    trackingPresetAppliedLabel: string
     trackedFieldsLabel: string
     trackedFieldsDescription: string
     /** #528 — subgroup headings inside What to track (Morning / Evening / Other). */

@@ -382,6 +382,30 @@ describe('SettingsScreen', () => {
       expect(useTrackedFieldsStore.getState().tracked.sleep).toBe(false)
     })
 
+    it('applies the Simple then Full layout preset (#604)', async () => {
+      const user = userEvent.setup()
+      renderSettings()
+
+      await user.click(screen.getByRole('button', { name: 'Simple' }))
+
+      expect(
+        within(
+          screen.getByRole('toolbar', { name: 'Morning' }),
+        ).getByRole('button', { name: 'Sleep' }),
+      ).toHaveAttribute('aria-pressed', 'false')
+      expect(useTrackedFieldsStore.getState().tracked.sleep).toBe(false)
+      expect(screen.getByText('Applied')).toBeInTheDocument()
+
+      await user.click(screen.getByRole('button', { name: 'Full' }))
+
+      expect(
+        within(
+          screen.getByRole('toolbar', { name: 'Morning' }),
+        ).getByRole('button', { name: 'Sleep' }),
+      ).toHaveAttribute('aria-pressed', 'true')
+      expect(useTrackedFieldsStore.getState().tracked.sleep).toBe(true)
+    })
+
     it('defaults Body composition off for new users (#528)', () => {
       // beforeEach forces every tracked field on for the other tests —
       // re-apply the store's real defaults for this assertion.

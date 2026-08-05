@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 568,
+    issue: 604,
+    date: '2026-08-05T13:54:08+03:00',
+    en: 'Settings now has a one-tap Simple/Full layout preset for Day — a quick starting point you can still fine-tune afterward.',
+    ru: 'В настройках теперь есть пресет макета дня «Просто»/«Полностью» в один тап — быстрая отправная точка, которую всё равно можно донастроить.',
+  },
+  {
     version: 567,
     issue: 603,
     date: '2026-08-05T13:36:23+03:00',
