@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 572,
+    issue: 621,
+    date: '2026-08-05T15:39:41+03:00',
+    en: 'A meal logged just after midnight now sorts after the evening it actually followed, instead of before it, once a custom day-start time is set.',
+    ru: 'Приём пищи, отмеченный сразу после полуночи, теперь сортируется после вечера, за которым он на самом деле следовал, а не перед ним — при заданном нестандартном времени начала дня.',
+  },
+  {
     version: 571,
     issue: 620,
     date: '2026-08-05T15:24:49+03:00',

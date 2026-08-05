@@ -360,10 +360,21 @@ export function MealList({
   const t = useTranslation()
   const locale = useLocale()
   const mealSlotTimes = useMealSlotDefaultTimesStore((state) => state.times)
-  // #597 — display earliest logged/effective time first (storage order unchanged).
+  // #387 — reported live: a meal logged before this cutoff gets filed
+  // under the *previous* day's own record (`effectiveDateFor`, #298), so
+  // without this the toast's own day-pairing math would treat that
+  // past-midnight meal as an early meal of that previous day instead of
+  // its actual latest one. See fastingWindow.ts's own `adjustForDayStart`
+  // comment for the full reasoning. #621 — also feeds the meal-list sort
+  // below, for the identical reason.
+  const dayStartTime = useDayStartStore((state) => state.dayStartTime)
+  // #597 — display earliest logged/effective time first (storage order
+  // unchanged). #621 — day-start-adjusted, so a past-midnight meal sorts
+  // after the evening it actually followed, not before it.
   const mealsInDisplayOrder = useMemo(
-    () => sortCalorieEntriesByLoggedTime(calorieEntries, mealSlotTimes),
-    [calorieEntries, mealSlotTimes],
+    () =>
+      sortCalorieEntriesByLoggedTime(calorieEntries, mealSlotTimes, dayStartTime),
+    [calorieEntries, mealSlotTimes, dayStartTime],
   )
 
   function setCalorieEntries(next: CalorieEntry[]) {
@@ -395,13 +406,6 @@ export function MealList({
     }
   }, [previousDate])
 
-  // #387 — reported live: a meal logged before this cutoff gets filed
-  // under the *previous* day's own record (`effectiveDateFor`, #298), so
-  // without this the toast's own day-pairing math would treat that
-  // past-midnight meal as an early meal of that previous day instead of
-  // its actual latest one. See fastingWindow.ts's own `adjustForDayStart`
-  // comment for the full reasoning.
-  const dayStartTime = useDayStartStore((state) => state.dayStartTime)
   // #287/#450/#456 — a quiet note shown whenever this day's first timed
   // meal and the previous day's last timed meal are both known, computed
   // as a plain derived value (not an action-triggered store, #456's own

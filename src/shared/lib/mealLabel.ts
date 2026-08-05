@@ -147,16 +147,40 @@ export function effectiveTimeEaten(
   return meal.timeEaten ?? defaultTimeEatenForMealLabel(meal.label, slotTimes)
 }
 
+function timeToMinutes(hhmm: string): number {
+  const [h, m] = hhmm.split(':').map(Number)
+  return h * 60 + m
+}
+
+/** #621 — a time before day-start reads as *late* (add a full day), not
+ * early — same one-line adjustment `domain/stats/fastingWindow.ts`'s own
+ * `adjustForDayStart` already established for exactly this "a 1am entry
+ * is really the tail of last night, not the start of today" reasoning.
+ * Duplicated rather than imported: neither helper is exported there,
+ * both are one-liners, and `shared/lib/` doesn't otherwise depend on
+ * `domain/stats/`. */
+function adjustForDayStart(minutes: number, dayStartMinutes: number): number {
+  return minutes < dayStartMinutes ? minutes + 24 * 60 : minutes
+}
+
 /**
  * #597 — Day meal cards: earliest effective clock first; meals with no
- * resolvable time stay at the end (stable among ties).
+ * resolvable time stay at the end (stable among ties). #621: reported
+ * live — a meal logged at 01:00 sorted *first*, ahead of the same day's
+ * 14:09/15:23 meals, when it was actually the last meal of a late-night
+ * session. `dayStartTime` (default `'00:00'`, purely additive — every
+ * pre-#621 caller keeps today's exact behavior) shifts any clock time
+ * before it a full day later before comparing, so a post-midnight entry
+ * sorts after the evening it actually followed instead of before it.
  */
 export function sortCalorieEntriesByLoggedTime<
   T extends { timeEaten?: string; label?: string | number },
 >(
   entries: readonly T[],
   slotTimes: MealSlotDefaultTimes = BUILTIN_MEAL_SLOT_DEFAULT_TIMES,
+  dayStartTime = '00:00',
 ): T[] {
+  const dayStartMinutes = timeToMinutes(dayStartTime)
   return entries
     .map((entry, index) => ({
       entry,
@@ -167,8 +191,9 @@ export function sortCalorieEntriesByLoggedTime<
       if (a.time == null && b.time == null) return a.index - b.index
       if (a.time == null) return 1
       if (b.time == null) return -1
-      const byTime = a.time.localeCompare(b.time)
-      return byTime !== 0 ? byTime : a.index - b.index
+      const aMinutes = adjustForDayStart(timeToMinutes(a.time), dayStartMinutes)
+      const bMinutes = adjustForDayStart(timeToMinutes(b.time), dayStartMinutes)
+      return aMinutes !== bMinutes ? aMinutes - bMinutes : a.index - b.index
     })
     .map(({ entry }) => entry)
 }

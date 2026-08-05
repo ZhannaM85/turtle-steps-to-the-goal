@@ -1191,5 +1191,39 @@ describe('MealList', () => {
 
       useDayStartStore.setState({ dayStartTime: '00:00' })
     })
+
+    it("sorts a past-midnight meal after the same day's evening meals, once a custom day-start time is set (#621)", async () => {
+      useDayStartStore.setState({ dayStartTime: '04:00' })
+      render(
+        <MealList
+          calorieEntries={[
+            {
+              id: 'night',
+              label: 'Night snack',
+              items: [{ id: 'ni', amountKcal: 242 }],
+              timeEaten: '01:00',
+              createdAt: '2026-08-05T01:00:00.000Z',
+            },
+            {
+              id: 'lunch',
+              label: 'Lunch',
+              items: [{ id: 'li', amountKcal: 175 }],
+              timeEaten: '14:09',
+              createdAt: '2026-08-04T14:09:00.000Z',
+            },
+          ]}
+          date="2026-08-04"
+          onChange={vi.fn()}
+        />,
+        { wrapper: MemoryRouter },
+      )
+
+      const labels = (await screen.findAllByText(/Night snack|Lunch/)).map(
+        (el) => el.textContent,
+      )
+      expect(labels).toEqual(['Lunch', 'Night snack'])
+
+      useDayStartStore.setState({ dayStartTime: '00:00' })
+    })
   })
 })
