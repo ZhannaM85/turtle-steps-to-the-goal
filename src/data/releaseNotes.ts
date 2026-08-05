@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 576,
+    issue: 614,
+    date: '2026-08-05T17:33:15+03:00',
+    en: 'Added lightweight meal planning: jot down a meal for tomorrow, then add it to that day’s log with one tap when you open it.',
+    ru: 'Добавлено лёгкое планирование питания: запишите приём пищи на завтра, а когда откроете этот день — добавьте в журнал в одно касание.',
+  },
+  {
     version: 575,
     issue: 609,
     date: '2026-08-05T17:06:58+03:00',

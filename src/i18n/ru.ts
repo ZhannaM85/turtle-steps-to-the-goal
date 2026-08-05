@@ -1299,6 +1299,26 @@ export const ru: Dictionary = {
     deleteCorrelationLabel: (name) => `Удалить «${name}»`,
     sameMetricErrorText: 'Выберите два разных показателя для сравнения.',
   },
+  plannedMeals: {
+    sectionLabel: 'Запланированные приёмы пищи',
+    expandSectionLabel: 'Показать запланированное',
+    collapseSectionLabel: 'Скрыть запланированное',
+    collapsedSummary: (count) =>
+      count === 0 ? 'Ничего не запланировано' : `Запланировано: ${count}`,
+    sectionBlurb:
+      'Запишите, что вы планируете съесть в другой день. Это не войдёт ни в один итог, пока вы не добавите запись в журнал того дня.',
+    stagedListLabel: 'Запланировано на этот день',
+    plannedKcalLabel: (kcal) => `${kcal} ккал`,
+    addToLogButton: 'Добавить в журнал',
+    discardPlannedMealLabel: (name) => `Удалить план: ${name}`,
+    addPlanTriggerLabel: '+ Запланировать на завтра',
+    planNameLabel: 'Что вы планируете?',
+    planNamePlaceholder: 'например, курица с рисом',
+    planKcalLabel: 'Калории (необязательно)',
+    planKcalPlaceholder: 'например, 450',
+    savePlanButton: 'Сохранить план',
+    cancelPlanLabel: 'Отмена',
+  },
   about: {
     title: 'О приложении',
     description: 'Что это за приложение и зачем оно нужно',

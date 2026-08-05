@@ -106,7 +106,18 @@ describe('buildExportBundle', () => {
   it('wraps goals and entries with a version and export timestamp', () => {
     const goals = [makeGoal()]
     const entries = [makeEntry()]
-    const bundle = buildExportBundle(goals, entries, [], [], [], [], [], [], [])
+    const bundle = buildExportBundle(
+      goals,
+      entries,
+      [],
+      [],
+      [],
+      [],
+      [],
+      [],
+      [],
+      [],
+    )
 
     expect(bundle.version).toBe(10)
     expect(bundle.goals).toEqual(goals)
@@ -115,7 +126,7 @@ describe('buildExportBundle', () => {
   })
 
   it('handles no data at all (empty backup)', () => {
-    const bundle = buildExportBundle([], [], [], [], [], [], [], [], [])
+    const bundle = buildExportBundle([], [], [], [], [], [], [], [], [], [])
     expect(bundle.goals).toEqual([])
     expect(bundle.dailyEntries).toEqual([])
     expect(bundle.mealItems).toEqual([])
@@ -125,6 +136,7 @@ describe('buildExportBundle', () => {
     expect(bundle.customMetricEntries).toEqual([])
     expect(bundle.customCorrelations).toEqual([])
     expect(bundle.weeklyNotes).toEqual([])
+    expect(bundle.plannedMeals).toEqual([])
   })
 
   it('includes meal items and food overrides (#113)', () => {
@@ -140,6 +152,7 @@ describe('buildExportBundle', () => {
       [],
       [],
       [],
+      [],
     )
 
     expect(bundle.mealItems).toEqual(mealItems)
@@ -148,7 +161,18 @@ describe('buildExportBundle', () => {
 
   it('includes recipes (#251)', () => {
     const recipes = [makeRecipe()]
-    const bundle = buildExportBundle([], [], [], [], recipes, [], [], [], [])
+    const bundle = buildExportBundle(
+      [],
+      [],
+      [],
+      [],
+      recipes,
+      [],
+      [],
+      [],
+      [],
+      [],
+    )
 
     expect(bundle.recipes).toEqual(recipes)
   })
@@ -166,6 +190,7 @@ describe('buildExportBundle', () => {
       customMetrics,
       customMetricEntries,
       customCorrelations,
+      [],
       [],
     )
 
@@ -192,12 +217,39 @@ describe('buildExportBundle', () => {
       [],
       [],
       weeklyNotes,
+      [],
     )
     expect(bundle.weeklyNotes).toEqual(weeklyNotes)
   })
 
+  it('includes planned meals (#614)', () => {
+    const plannedMeals = [
+      {
+        id: 'plan-1',
+        date: '2026-08-06',
+        name: 'Chicken and rice',
+        amountKcal: 450,
+        createdAt: '2026-08-05T20:00:00.000Z',
+      },
+    ]
+    const bundle = buildExportBundle(
+      [],
+      [],
+      [],
+      [],
+      [],
+      [],
+      [],
+      [],
+      [],
+      plannedMeals,
+    )
+    expect(bundle.plannedMeals).toEqual(plannedMeals)
+  })
+
   it('includes appearance and language (#578)', () => {
     const bundle = buildExportBundle(
+      [],
       [],
       [],
       [],
@@ -227,6 +279,7 @@ describe('buildExportBundle', () => {
       mealLabelPresets: ['Brunch'],
     }
     const bundle = buildExportBundle(
+      [],
       [],
       [],
       [],

@@ -1264,6 +1264,26 @@ export const en: Dictionary = {
     deleteCorrelationLabel: (name) => `Delete ${name}`,
     sameMetricErrorText: 'Pick two different metrics to correlate.',
   },
+  plannedMeals: {
+    sectionLabel: 'Planned meals',
+    expandSectionLabel: 'Show planned meals',
+    collapseSectionLabel: 'Hide planned meals',
+    collapsedSummary: (count) =>
+      count === 0 ? 'Nothing planned' : `${count} planned`,
+    sectionBlurb:
+        "Jot down a meal you're planning for a future day. It won't count toward any totals until you add it to that day's log.",
+    stagedListLabel: 'Planned for this day',
+    plannedKcalLabel: (kcal) => `${kcal} kcal`,
+    addToLogButton: 'Add to log',
+    discardPlannedMealLabel: (name) => `Discard planned meal: ${name}`,
+    addPlanTriggerLabel: '+ Plan a meal for tomorrow',
+    planNameLabel: 'What are you planning?',
+    planNamePlaceholder: 'e.g. Chicken and rice',
+    planKcalLabel: 'Calories (optional)',
+    planKcalPlaceholder: 'e.g. 450',
+    savePlanButton: 'Save plan',
+    cancelPlanLabel: 'Cancel',
+  },
   about: {
     title: 'About',
     description: 'What this app is, and why it exists',

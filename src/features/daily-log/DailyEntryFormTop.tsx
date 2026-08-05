@@ -10,6 +10,7 @@ import { NumberInput } from '@/shared/ui/number-input'
 import { StatCard } from '@/shared/ui/stat-card'
 import { useTodaySectionsCollapseStore } from '@/stores'
 import { MealList } from './MealList'
+import { PlannedMealsSection } from './PlannedMealsSection'
 import { useDailyEntryFormStateContext } from './useDailyEntryFormStateContext'
 import { isUnusualDailyCalories } from './unusualEntryThresholds'
 
@@ -306,6 +307,15 @@ export function DailyEntryFormTop() {
           </CollapsibleContent>
         </Collapsible>
       </div>
+
+      <PlannedMealsSection
+        date={state.date}
+        calorieEntries={state.calorieEntries}
+        onChange={(next) => {
+          state.setValue('calorieEntries', next, { shouldDirty: true })
+          state.persist({ ...state.getValues(), calorieEntries: next })
+        }}
+      />
 
       {/* #258 — opt-in water tracking, gated by its own Settings toggle.
        * #271: each quick-add tap becomes its own removable entry instead of

@@ -280,6 +280,16 @@ const weeklyNoteSchema = z.object({
   updatedAt: z.string(),
 })
 
+// #614 — lightweight planned/draft meals, separate from dailyEntries so a
+// draft can never be mistaken for logged data.
+const plannedMealSchema = z.object({
+  id: z.string(),
+  date: z.string(),
+  name: z.string(),
+  amountKcal: z.number().optional(),
+  createdAt: z.string(),
+})
+
 const trendSeriesVisibleSchema = z.object({
   raw: z.boolean(),
   average: z.boolean(),
@@ -353,6 +363,7 @@ export const exportBundleSchema = z.object({
   customMetricEntries: z.array(customMetricEntrySchema).optional(),
   customCorrelations: z.array(customCorrelationSchema).optional(),
   weeklyNotes: z.array(weeklyNoteSchema).optional(),
+  plannedMeals: z.array(plannedMealSchema).optional(),
   // #578 — appearance + language were localStorage-only; optional so a
   // v8→v9 upgrade leaves them unset (import then doesn't overwrite the
   // device's current UI prefs). Fresh exports always include both.

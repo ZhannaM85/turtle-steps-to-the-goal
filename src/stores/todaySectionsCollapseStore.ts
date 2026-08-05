@@ -8,6 +8,7 @@ export type TodaySectionKey =
   | 'macros'
   | 'dayTotals'
   | 'meals'
+  | 'plannedMeals'
   | 'water'
   | 'customMetrics'
   | 'evening'
@@ -18,6 +19,7 @@ export const TODAY_SECTION_KEYS: TodaySectionKey[] = [
   'macros',
   'dayTotals',
   'meals',
+  'plannedMeals',
   'water',
   'customMetrics',
   'evening',
@@ -29,6 +31,7 @@ const DEFAULT_SECTIONS: Record<TodaySectionKey, boolean> = {
   macros: false,
   dayTotals: false,
   meals: false,
+  plannedMeals: false,
   water: false,
   customMetrics: false,
   evening: false,

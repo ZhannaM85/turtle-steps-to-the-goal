@@ -1936,6 +1936,39 @@ export interface Dictionary {
      * needs two distinct sides. */
     sameMetricErrorText: string
   }
+  /**
+   * #614 — lightweight "stage a meal for a future day" drafts, mounted on
+   * `PlannedMealsSection.tsx` right after Meals on the Day screen. Lives in
+   * its own store (`usePlannedMealStore`), entirely separate from any
+   * `DailyEntry` — a draft can never count toward a day's totals until
+   * explicitly promoted (copied into a real logged meal). Deliberately
+   * simpler than a real meal (name + an optional rough calorie estimate,
+   * no macros/items/brand) — "lightweight" is the whole point.
+   */
+  plannedMeals: {
+    sectionLabel: string
+    expandSectionLabel: string
+    collapseSectionLabel: string
+    /** Collapsed-header summary, e.g. "2 planned" / "Nothing planned". */
+    collapsedSummary: (count: number) => string
+    /** Calm, reassuring blurb (#614 acceptance: "drafts do not distort
+     * today's totals until promoted") — shown above the drafts list/add
+     * trigger so this is clear before anyone stages anything. */
+    sectionBlurb: string
+    stagedListLabel: string
+    /** Takes the already-formatted calorie estimate, e.g. "450 kcal" —
+     * omitted from the row entirely when the draft has none. */
+    plannedKcalLabel: (kcal: string) => string
+    addToLogButton: string
+    discardPlannedMealLabel: (name: string) => string
+    addPlanTriggerLabel: string
+    planNameLabel: string
+    planNamePlaceholder: string
+    planKcalLabel: string
+    planKcalPlaceholder: string
+    savePlanButton: string
+    cancelPlanLabel: string
+  }
   about: {
     title: string
     description: string

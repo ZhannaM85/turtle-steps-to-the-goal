@@ -10,6 +10,7 @@ import type {
   CustomMetricEntry,
 } from '@/domain/customMetric'
 import type { WeeklyNote } from '@/domain/weeklyNote'
+import type { PlannedMeal } from '@/domain/plannedMeal'
 
 export class AppDatabase extends Dexie {
   goals!: Table<Goal, string>
@@ -21,6 +22,7 @@ export class AppDatabase extends Dexie {
   customMetricEntries!: Table<CustomMetricEntry, string>
   customCorrelations!: Table<CustomCorrelation, string>
   weeklyNotes!: Table<WeeklyNote, string>
+  plannedMeals!: Table<PlannedMeal, string>
 
   constructor() {
     super('turtle-steps-to-the-goal')
@@ -276,6 +278,22 @@ export class AppDatabase extends Dexie {
       customMetricEntries: 'id, metricId, &[metricId+date]',
       customCorrelations: 'id',
       weeklyNotes: '&weekStart',
+    })
+    // #614: lightweight planned/draft meals for a future date — `date` is a
+    // plain (non-unique) index since several drafts can share a target
+    // date, unlike dailyEntries' one-row-per-date `&date`. New store only,
+    // no upgrade() needed.
+    this.version(14).stores({
+      goals: 'id, createdAt',
+      dailyEntries: 'id, &date',
+      mealItems: 'id, &name, &barcode',
+      foodOverrides: '&foodId',
+      recipes: 'id',
+      customMetrics: 'id',
+      customMetricEntries: 'id, metricId, &[metricId+date]',
+      customCorrelations: 'id',
+      weeklyNotes: '&weekStart',
+      plannedMeals: 'id, date',
     })
   }
 }

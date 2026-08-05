@@ -6,6 +6,7 @@ import {
   IndexedDbFoodOverrideRepository,
   IndexedDbGoalRepository,
   IndexedDbMealItemRepository,
+  IndexedDbPlannedMealRepository,
   IndexedDbRecipeRepository,
   IndexedDbWeeklyNoteRepository,
 } from '@/infrastructure/persistence/indexeddb'
@@ -42,6 +43,7 @@ const customMetricRepository = new IndexedDbCustomMetricRepository()
 const customMetricEntryRepository = new IndexedDbCustomMetricEntryRepository()
 const customCorrelationRepository = new IndexedDbCustomCorrelationRepository()
 const weeklyNoteRepository = new IndexedDbWeeklyNoteRepository()
+const plannedMealRepository = new IndexedDbPlannedMealRepository()
 
 export async function exportAllData(): Promise<ExportBundle> {
   const [
@@ -54,6 +56,7 @@ export async function exportAllData(): Promise<ExportBundle> {
     customMetricEntries,
     customCorrelations,
     weeklyNotes,
+    plannedMeals,
   ] = await Promise.all([
     goalRepository.getAll(),
     dailyEntryRepository.getAll(),
@@ -64,6 +67,7 @@ export async function exportAllData(): Promise<ExportBundle> {
     customMetricEntryRepository.getAll(),
     customCorrelationRepository.getAll(),
     weeklyNoteRepository.getAll(),
+    plannedMealRepository.getAll(),
   ])
   const theme = useThemeStore.getState()
   return buildExportBundle(
@@ -76,6 +80,7 @@ export async function exportAllData(): Promise<ExportBundle> {
     customMetricEntries,
     customCorrelations,
     weeklyNotes,
+    plannedMeals,
     { mood: theme.mood, colorScheme: theme.colorScheme },
     useLocaleStore.getState().locale,
     collectSettingsPreferences(),
@@ -161,6 +166,12 @@ export async function importAllData(bundle: ExportBundle): Promise<void> {
     ),
     ...(bundle.weeklyNotes ?? []).map((note) =>
       weeklyNoteRepository.upsert(note),
+    ),
+    // #614 — no unique secondary index beyond id (`db.ts`: `id, date`),
+    // same "no ConstraintError risk" reasoning as recipes/customMetrics/
+    // customCorrelations above.
+    ...(bundle.plannedMeals ?? []).map((plannedMeal) =>
+      plannedMealRepository.upsert(plannedMeal),
     ),
   ])
 
