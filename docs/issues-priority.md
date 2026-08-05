@@ -79,10 +79,11 @@ _Same audit pass. Blocked on Tier 36 Capacitor / store shell — revisit of #261
 
 ## Tier 125 — Live feedback (2026-08-05)
 
-_Same-day live feedback after Zepp / export work. #616 (multi-user Zepp export) is Done in the archive under this tier; open siblings stay here. **Do not** split further same-day filings into Tier 126+ — append to this tier._
+_Same-day live feedback after Zepp / export work. **Do not** split further same-day filings into Tier 126+ — append to this tier._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
+| [#616](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/616) | 🔍 Pending validation | Zepp Life import: export may contain two users' data — detect/filter on our side | Implementation shipped, but **not yet explicitly confirmed by the user on-device**. BODY `height` splits shared-scale exports; `ZeppLifeProfileDialog` + filter by chosen height. ACTIVITY unchanged (not height-keyed). |
 | [#617](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/617) | 🔍 Pending validation | Settings Export: show import success/error under the matching source section | `ExportSection` now renders each success/error message inside its own block (JSON backup/import, ranged backup, Excel, CSV, Markdown, Zepp, Apple Health, MyFitnessPal) instead of one shared card footer. Awaiting on-device confirmation |
 | [#618](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/618) | 🔍 Pending validation | Apple Health import: valid user export not recognized as Apple Health file | Locale-agnostic detection: importer now picks the primary Apple Health XML by role (largest non-`export_cda.xml` XML entry) instead of requiring the English filename `export.xml`, so localized exports like `экспорт.xml` are accepted. Awaiting on-device confirmation |
 | [#619](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/619) | 📋 Not started | Custom metric note input: add a Cancel button to close without saving | Day screen custom-metric note row currently has only the text field + checkmark save action; add a cancel/close path without committing the draft |

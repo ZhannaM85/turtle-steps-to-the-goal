@@ -104,7 +104,11 @@ user points out.
      it done in the docs and move on without actually closing it on GitHub.
      (For live-feedback fixes awaiting on-device confirmation, leave the
      issue open, set status to 🔍 Pending validation, and add the
-     `validation` label *after* push — see CLAUDE.md.)
+     `validation` label *after* push — see CLAUDE.md. **Important:** do
+     not infer device validation from a screenshot, import/export summary,
+     local reproduction, or test pass; only move from 🔍 Pending validation
+     to closed / validated after the user explicitly confirms it worked on
+     their device.)
    - Commit (stage explicit filenames, never `git add -A`/`.`) and push.
      **One commit per issue** — never combine two issues in one subject
      (e.g. `#494 + #489: …`). Finish, commit, and push issue A before

@@ -58,6 +58,12 @@ convention (`validation`: "Implemented, awaiting on-device confirmation
 before closing") — easy to forget since only the local docs tracked the
 status before this was written down.
 
+**Do not infer that validation happened** from a successful import/export,
+a screenshot, a test pass, a Playwright run, a populated summary like
+"351 days imported," or any other indirect signal. Only close / archive /
+swap to `validated` after the user explicitly confirms the change worked
+on their device.
+
 When the user then confirms on-device and the issue is closed, swap the
 label rather than just removing it: `gh issue edit <N> --remove-label
 validation --add-label validated`. `validated` ("Implemented and confirmed
