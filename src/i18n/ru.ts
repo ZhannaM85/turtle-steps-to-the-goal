@@ -725,6 +725,8 @@ export const ru: Dictionary = {
       `На основе ${n} ${ruPluralize(n, 'недели', 'недель', 'недель')} данных.`,
     correlationLagCaveat:
       'Сравнивает средние калории за неделю с изменением веса за ту же неделю, а не показатели одного дня — на переваривание пищи нужно время, поэтому сегодняшний вес отражает то, что вы ели в предыдущие дни.',
+    correlationCurrentWeekExcludedNote:
+      'Эта неделя ещё не закончилась, поэтому она не учтена в подсчёте выше.',
     correlationExpandLabel: 'Показать график',
     correlationCollapseLabel: 'Скрыть график',
     correlationStrengthLabel: (strength) =>

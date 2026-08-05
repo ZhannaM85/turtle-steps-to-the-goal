@@ -4,6 +4,7 @@ import type { CalorieEntry, DailyEntry } from '@/domain/dailyEntry'
 import {
   correlationInsight,
   correlationInsightPoints,
+  weeklyCorrelationExcludesCurrentWeek,
 } from './correlationInsight'
 
 const DATE_FORMAT = 'yyyy-MM-dd'
@@ -188,5 +189,46 @@ describe('correlationInsight', () => {
 
     const points = correlationInsightPoints(entries)
     expect(points.some((p) => p.weekStart === weekStart(4))).toBe(true)
+  })
+})
+
+describe('weeklyCorrelationExcludesCurrentWeek (#613)', () => {
+  it('is true when the trailing week is still in progress', () => {
+    const entries = [
+      entry('2026-07-25', { weightKg: 80, calorieEntries: calories(2000) }),
+      entry('2026-07-26', { weightKg: 79.8, calorieEntries: calories(1900) }),
+      entry('2026-07-27', { weightKg: 79.5, calorieEntries: calories(2100) }),
+      entry('2026-07-28', { weightKg: 79.3, calorieEntries: calories(1850) }),
+      entry('2026-07-29', { weightKg: 79.1, calorieEntries: calories(1950) }),
+      entry('2026-07-30', { weightKg: 79.0, calorieEntries: calories(1800) }),
+      entry('2026-07-31', { weightKg: 78.8, calorieEntries: calories(1750) }),
+      // Incomplete current week (Sat-Fri): only two days logged so far.
+      entry('2026-08-01', { weightKg: 78.7, calorieEntries: calories(1244) }),
+      entry('2026-08-02', { weightKg: 78.9, calorieEntries: calories(210) }),
+    ]
+
+    expect(
+      weeklyCorrelationExcludesCurrentWeek(entries, 6, '2026-08-02'),
+    ).toBe(true)
+  })
+
+  it('is false once the same week has actually finished (data extends past its end)', () => {
+    const entries = [
+      entry('2026-07-25', { weightKg: 80, calorieEntries: calories(2000) }),
+      entry('2026-08-01', { weightKg: 78.7, calorieEntries: calories(1244) }),
+      entry('2026-08-02', { weightKg: 78.9, calorieEntries: calories(210) }),
+      // Next week's Saturday — extends maxDate past the prior week's
+      // Friday end so it counts as finished (same #522 gate the fixtures
+      // above rely on via withCompletedWindow).
+      entry('2026-08-08', { weightKg: 78.6 }),
+    ]
+
+    expect(
+      weeklyCorrelationExcludesCurrentWeek(entries, 6, '2026-08-08'),
+    ).toBe(false)
+  })
+
+  it('is false with no entries', () => {
+    expect(weeklyCorrelationExcludesCurrentWeek([])).toBe(false)
   })
 })

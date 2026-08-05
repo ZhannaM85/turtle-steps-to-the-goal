@@ -1155,6 +1155,13 @@ export interface Dictionary {
     ) => string
     correlationWeekCount: (n: number) => string
     correlationLagCaveat: string
+    /** #613 — trust-footer honesty note: this is the only correlation view
+     * that can silently drop a real, still-in-progress week from its count
+     * (#522, `weeklyCorrelationExcludesCurrentWeek`) — the 8 day-pair views
+     * have no equivalent "in-progress unit" case, so this key isn't shared
+     * with them. Shown only alongside a real insight, next to the existing
+     * sample-size/lag-caveat lines. */
+    correlationCurrentWeekExcludedNote: string
     correlationExpandLabel: string
     correlationCollapseLabel: string
     /** #224 — shared plain-language strength label, reused by every

@@ -46,13 +46,14 @@ export interface CorrelationInsightPoint {
  * that isn't wrong. Sparse historical weeks that already finished are kept
  * — average-over-logged-days is intentional there.
  */
-export function correlationInsightPoints(
+/** Shared by `correlationInsightPoints` and `weeklyCorrelationExcludesCurrentWeek`
+ * below — one place computing `effectiveAsOf`/the comparable-weeks list, so
+ * the two stay in sync instead of each re-deriving it. */
+function comparableWeeksContext(
   entries: DailyEntry[],
-  weekStartsOn: Day = 1,
-  asOfDate?: string,
-): CorrelationInsightPoint[] {
-  if (entries.length === 0) return []
-
+  weekStartsOn: Day,
+  asOfDate: string | undefined,
+) {
   let minDate = entries[0].date
   let maxDate = entries[0].date
   for (const entry of entries) {
@@ -64,8 +65,22 @@ export function correlationInsightPoints(
   // on or before both the clock and the last day we actually have data for.
   const clockAsOf = asOfDate ?? format(new Date(), 'yyyy-MM-dd')
   const effectiveAsOf = clockAsOf < maxDate ? clockAsOf : maxDate
-
   const weeks = weeklySummaries(entries, undefined, weekStartsOn)
+  return { minDate, maxDate, effectiveAsOf, weeks }
+}
+
+export function correlationInsightPoints(
+  entries: DailyEntry[],
+  weekStartsOn: Day = 1,
+  asOfDate?: string,
+): CorrelationInsightPoint[] {
+  if (entries.length === 0) return []
+
+  const { minDate, effectiveAsOf, weeks } = comparableWeeksContext(
+    entries,
+    weekStartsOn,
+    asOfDate,
+  )
   return weeks
     .filter(
       (w) =>
@@ -79,6 +94,34 @@ export function correlationInsightPoints(
       calories: w.averageCalories as number,
       delta: w.deltaVsPriorWeekKg as number,
     }))
+}
+
+/**
+ * Whether `correlationInsightPoints` above dropped a real, still-in-progress
+ * current week (#613) — distinct from the period-start truncation case
+ * (`weekStart >= minDate`, a chosen date range cutting off the first week),
+ * which isn't "current" and isn't surprising the same way. Lets the view
+ * tell users their most recent week is intentionally left out because it
+ * isn't finished yet, rather than looking like a silent gap.
+ */
+export function weeklyCorrelationExcludesCurrentWeek(
+  entries: DailyEntry[],
+  weekStartsOn: Day = 1,
+  asOfDate?: string,
+): boolean {
+  if (entries.length === 0) return false
+  const { maxDate, effectiveAsOf, weeks } = comparableWeeksContext(
+    entries,
+    weekStartsOn,
+    asOfDate,
+  )
+  return weeks.some(
+    (w) =>
+      w.averageCalories !== null &&
+      w.deltaVsPriorWeekKg !== null &&
+      w.weekStart <= maxDate &&
+      w.weekEnd > effectiveAsOf,
+  )
 }
 
 /**

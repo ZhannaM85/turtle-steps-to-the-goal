@@ -693,6 +693,8 @@ export const en: Dictionary = {
     correlationWeekCount: (n) => `Based on ${n} weeks of data.`,
     correlationLagCaveat:
       "Compares each week's average calories to that week's weight change, not same-day numbers — digestion takes time, so today's weight reflects prior days' intake.",
+    correlationCurrentWeekExcludedNote:
+      "This week isn't finished yet, so it's left out of the count above.",
     correlationExpandLabel: 'Show chart',
     correlationCollapseLabel: 'Hide chart',
     correlationStrengthLabel: (strength) =>

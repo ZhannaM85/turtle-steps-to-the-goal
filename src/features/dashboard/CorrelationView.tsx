@@ -12,7 +12,11 @@ import {
 } from 'recharts'
 import type { DailyEntry } from '@/domain/dailyEntry'
 import { kgToLb } from '@/domain/goal'
-import { correlationInsightFromPoints, correlationInsightPoints } from '@/domain/stats'
+import {
+  correlationInsightFromPoints,
+  correlationInsightPoints,
+  weeklyCorrelationExcludesCurrentWeek,
+} from '@/domain/stats'
 import {
   formatNumber,
   getDateFnsLocale,
@@ -79,6 +83,13 @@ export function CorrelationView({ entries: allEntries, dragHandle }: Correlation
 
   const weekStartsOn = useWeekStartsOn(entries)
   const rawPoints = correlationInsightPoints(entries, weekStartsOn)
+  // #613 — trust-footer honesty note: tells the user their current,
+  // still-in-progress week is deliberately left out of the count below,
+  // rather than that just looking like a silent gap (#522's own exclusion).
+  const excludesCurrentWeek = weeklyCorrelationExcludesCurrentWeek(
+    entries,
+    weekStartsOn,
+  )
   const notesByDate = dayNotesByDate(entries)
   const { flags, axes, isExcluded, toggle, includedPoints } = useOutlierExclusion(
     'calorieWeight',
@@ -246,6 +257,9 @@ export function CorrelationView({ entries: allEntries, dragHandle }: Correlation
           <p className="text-xs text-muted-foreground">
             {t.dashboard.correlationWeekCount(insight.weekCount)}{' '}
             {t.dashboard.correlationLagCaveat}
+            {excludesCurrentWeek && (
+              <> {t.dashboard.correlationCurrentWeekExcludedNote}</>
+            )}
           </p>
           <CorrelationStrengthLabel strength={insight.strength} />
         </>

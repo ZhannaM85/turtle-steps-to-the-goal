@@ -18,6 +18,7 @@ export {
   correlationInsight,
   correlationInsightPoints,
   correlationInsightFromPoints,
+  weeklyCorrelationExcludesCurrentWeek,
 } from './correlationInsight'
 export type {
   CorrelationInsight,

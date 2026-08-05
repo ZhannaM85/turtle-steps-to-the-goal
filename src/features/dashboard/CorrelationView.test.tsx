@@ -122,6 +122,46 @@ describe('CorrelationView', () => {
     expect(screen.getByText(/Based on 4 weeks of data\./)).toBeInTheDocument()
   })
 
+  it('notes when the current in-progress week is left out of the count (#613)', () => {
+    // Same 4 finished comparable weeks (1-4) as the fixture above, plus a
+    // 5th week logged only on its first day — real weight+calories, but
+    // with nothing extending past its own Sunday, #522's gate leaves it
+    // out of the count (unlike `withCompletedWindow`, deliberately not
+    // used here).
+    const entries = [
+      entry(weekStart(0), { weightKg: 90 }),
+      entry(weekStart(1), { weightKg: 88, calorieEntries: calories(1700) }),
+      entry(weekStart(2), { weightKg: 86, calorieEntries: calories(1800) }),
+      entry(weekStart(3), { weightKg: 85.5, calorieEntries: calories(2200) }),
+      entry(weekStart(4), { weightKg: 85.3, calorieEntries: calories(2300) }),
+      entry(weekStart(5), { weightKg: 85.1, calorieEntries: calories(2100) }),
+    ]
+    render(<CorrelationView entries={entries} />, { wrapper: MemoryRouter })
+
+    expect(screen.getByText(/Based on 4 weeks of data\./)).toBeInTheDocument()
+    expect(
+      screen.getByText(/This week isn't finished yet/),
+    ).toBeInTheDocument()
+  })
+
+  it('shows no current-week note once every comparable week has actually finished', () => {
+    const entries = withCompletedWindow(
+      [
+        entry(weekStart(0), { weightKg: 90 }),
+        entry(weekStart(1), { weightKg: 88, calorieEntries: calories(1700) }),
+        entry(weekStart(2), { weightKg: 86, calorieEntries: calories(1800) }),
+        entry(weekStart(3), { weightKg: 85.5, calorieEntries: calories(2200) }),
+        entry(weekStart(4), { weightKg: 85.3, calorieEntries: calories(2300) }),
+      ],
+      4,
+    )
+    render(<CorrelationView entries={entries} />, { wrapper: MemoryRouter })
+
+    expect(
+      screen.queryByText(/This week isn't finished yet/),
+    ).not.toBeInTheDocument()
+  })
+
   describe('outlier detection and exclusion (#224)', () => {
     afterEach(() => {
       localStorage.clear()

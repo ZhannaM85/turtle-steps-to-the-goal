@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 564,
+    issue: 613,
+    date: '2026-08-05T12:57:56+03:00',
+    en: 'The calories-vs-weight-change insight now says when your current, still-in-progress week was left out of the count.',
+    ru: 'Раздел о связи калорий и изменения веса теперь сообщает, когда текущая, ещё не завершённая неделя не учтена в подсчёте.',
+  },
+  {
     version: 563,
     issue: 600,
     date: '2026-08-05T12:46:59+03:00',
