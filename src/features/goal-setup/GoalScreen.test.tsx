@@ -267,6 +267,87 @@ describe('GoalScreen', () => {
     expect(await db.goals.count()).toBe(2)
   })
 
+  it('shows a calm pace-check note after 3 consecutive missed weeks (#610)', async () => {
+    const pastWeeks: Array<[string, number]> = [
+      ['2026-01-05', 90],
+      ['2026-01-12', 89.7],
+      ['2026-01-19', 89.5],
+    ]
+    for (const [weekStart, baseline] of pastWeeks) {
+      await db.goals.put(
+        makeGoal({
+          id: `pace-goal-${weekStart}`,
+          weekStart,
+          createdAt: `${weekStart}T00:00:00.000Z`,
+          updatedAt: `${weekStart}T00:00:00.000Z`,
+        }),
+      )
+      await db.dailyEntries.put(makeEntry({ date: weekStart, weightKg: baseline }))
+      await db.dailyEntries.put(
+        makeEntry({
+          date: format(addDays(new Date(`${weekStart}T00:00:00.000Z`), 2), DATE_FORMAT),
+          weightKg: baseline - 0.3, // below the 1kg target every time
+        }),
+      )
+    }
+    await useGoalStore.getState().saveGoal(makeGoal({ targetWeeklyLossKg: 1 }))
+
+    renderGoalScreen()
+
+    expect(await screen.findByText('Pace check')).toBeInTheDocument()
+    expect(
+      screen.getByText(
+        'Recent weeks moved about +0.3 kg/week vs. your 1 kg/week target — consider adjusting the weekly pace.',
+      ),
+    ).toBeInTheDocument()
+  })
+
+  it('shows no pace-check note when the last 3 weeks are not all misses', async () => {
+    // Same 3 weeks as above, but the middle one actually hits target.
+    await db.goals.put(
+      makeGoal({
+        id: 'pace-goal-1',
+        weekStart: '2026-01-05',
+        createdAt: '2026-01-05T00:00:00.000Z',
+        updatedAt: '2026-01-05T00:00:00.000Z',
+      }),
+    )
+    await db.dailyEntries.put(makeEntry({ date: '2026-01-05', weightKg: 90 }))
+    await db.dailyEntries.put(
+      makeEntry({ date: '2026-01-07', weightKg: 89.7 }),
+    )
+    await db.goals.put(
+      makeGoal({
+        id: 'pace-goal-2',
+        weekStart: '2026-01-12',
+        createdAt: '2026-01-12T00:00:00.000Z',
+        updatedAt: '2026-01-12T00:00:00.000Z',
+      }),
+    )
+    await db.dailyEntries.put(makeEntry({ date: '2026-01-12', weightKg: 89.7 }))
+    await db.dailyEntries.put(
+      makeEntry({ date: '2026-01-14', weightKg: 88.6 }), // hits the 1kg target
+    )
+    await db.goals.put(
+      makeGoal({
+        id: 'pace-goal-3',
+        weekStart: '2026-01-19',
+        createdAt: '2026-01-19T00:00:00.000Z',
+        updatedAt: '2026-01-19T00:00:00.000Z',
+      }),
+    )
+    await db.dailyEntries.put(makeEntry({ date: '2026-01-19', weightKg: 89.5 }))
+    await db.dailyEntries.put(
+      makeEntry({ date: '2026-01-21', weightKg: 89.2 }),
+    )
+    await useGoalStore.getState().saveGoal(makeGoal({ targetWeeklyLossKg: 1 }))
+
+    renderGoalScreen()
+
+    await screen.findByText('Past targets')
+    expect(screen.queryByText('Pace check')).not.toBeInTheDocument()
+  })
+
   it('deletes a past target from history after confirming (#174)', async () => {
     // Explicit, clearly-ordered createdAt (#174 CI flake) — both saves
     // otherwise default to `new Date().toISOString()` back-to-back with

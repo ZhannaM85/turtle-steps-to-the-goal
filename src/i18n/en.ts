@@ -445,6 +445,10 @@ export const en: Dictionary = {
     activeGoalReachedNudge:
       "You reached this week's target early — set a new one below whenever you're ready.",
     activeGoalReachedSectionTitle: 'Target reached',
+    paceCheckMessage: (actual, target) =>
+      `Recent weeks moved about ${actual} vs. your ${target} target — consider adjusting the weekly pace.`,
+    paceCheckPerWeekLabel: (value, unit) => `${value} ${unit}/week`,
+    paceCheckSectionTitle: 'Pace check',
     deletePastTargetLabel: (weekRange) => `Delete target for ${weekRange}`,
     confirmDeletePastTargetLabel: 'Delete this target?',
     confirmDeletePastTargetYes: 'Delete',

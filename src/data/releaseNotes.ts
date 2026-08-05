@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 565,
+    issue: 610,
+    date: '2026-08-05T13:09:59+03:00',
+    en: 'The Goal page now shows a calm pace-check note if your last 3 weekly targets were all missed the same way, with no forecast or finish-date guess.',
+    ru: 'На странице цели теперь появляется спокойная заметка о темпе, если последние 3 недельные цели не были достигнуты — без прогнозов и оценки даты финиша.',
+  },
+  {
     version: 564,
     issue: 613,
     date: '2026-08-05T12:57:56+03:00',

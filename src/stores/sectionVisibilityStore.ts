@@ -31,6 +31,7 @@ export type SectionKey =
   | 'goalWeeklyTargetCard'
   | 'goalReachedNudge'
   | 'goalPastTargets'
+  | 'goalPaceCheckNudge'
 
 const DEFAULT_VISIBLE: Record<SectionKey, boolean> = {
   todayWeeklyTarget: true,
@@ -54,6 +55,7 @@ const DEFAULT_VISIBLE: Record<SectionKey, boolean> = {
   goalWeeklyTargetCard: true,
   goalReachedNudge: true,
   goalPastTargets: true,
+  goalPaceCheckNudge: true,
 }
 
 interface SectionVisibilityState {

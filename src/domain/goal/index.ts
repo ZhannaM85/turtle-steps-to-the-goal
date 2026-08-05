@@ -18,3 +18,8 @@ export {
   isHeadingTowardGoalOnDate,
 } from './reachedGoalWindows'
 export type { ReachedGoalWindow } from './reachedGoalWindows'
+export {
+  paceCheckInsight,
+  PACE_CHECK_MIN_CONSECUTIVE_MISSES,
+} from './paceCheck'
+export type { PaceCheckInsight } from './paceCheck'

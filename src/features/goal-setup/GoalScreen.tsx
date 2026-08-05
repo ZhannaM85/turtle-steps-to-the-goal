@@ -3,11 +3,12 @@ import { format, parseISO } from 'date-fns'
 import {
   unitLabel,
   formatExactNumber,
+  formatSignedNumber,
   getDateFnsLocale,
   useLocale,
   useTranslation,
 } from '@/i18n'
-import { goalWeekEnd, kgToLb } from '@/domain/goal'
+import { goalWeekEnd, kgToLb, paceCheckInsight } from '@/domain/goal'
 import { useActiveGoalProgress, useLatestWeight, usePastGoals } from '@/shared/hooks'
 import { PageHeader } from '@/shared/ui/page-header'
 import { SectionTitleWithToggle } from '@/shared/ui/section-title-with-toggle'
@@ -29,6 +30,11 @@ export function GoalScreen() {
   const { goal, status, error, loadActiveGoal, saveGoal } = useGoalStore()
   const displayUnit = useUnitStore((state) => state.unit)
   const { records: pastTargets, deleteGoal } = usePastGoals(goal)
+  // #610 — calm pace check: null unless the last 3 completed windows all
+  // missed, so it stays silent for a mixed or generally-on-track history.
+  const paceCheck = goal
+    ? paceCheckInsight(pastTargets, goal.targetWeeklyLossKg)
+    : null
   // #155: whether the active goal's own window has already been reached
   // mid-week — drives the "Reached on [date]" badge/nudge below. #386:
   // no longer decides which record a `GoalForm` save touches — that's now
@@ -150,6 +156,36 @@ export function GoalScreen() {
               {sectionVisible.goalReachedNudge && (
                 <div className="rounded-lg border border-border px-3 py-2 text-sm text-muted-foreground">
                   {t.goal.activeGoalReachedNudge}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* #610 — calm pace check, same "quiet nudge" shape as the
+           * goalReachedNudge card above (own hideable section, no forecast
+           * chart or finish-date estimate, dismissible without blocking
+           * logging). */}
+          {paceCheck && (
+            <div className="flex flex-col gap-1.5">
+              {sectionTitle('goalPaceCheckNudge', t.goal.paceCheckSectionTitle)}
+              {sectionVisible.goalPaceCheckNudge && (
+                <div className="rounded-lg border border-border px-3 py-2 text-sm text-muted-foreground">
+                  {t.goal.paceCheckMessage(
+                    t.goal.paceCheckPerWeekLabel(
+                      formatSignedNumber(
+                        toDisplay(paceCheck.averageWeeklyDeltaKg),
+                        locale,
+                      ),
+                      unitLabel(displayUnit, t),
+                    ),
+                    t.goal.paceCheckPerWeekLabel(
+                      formatExactNumber(
+                        toDisplay(paceCheck.targetWeeklyLossKg),
+                        locale,
+                      ),
+                      unitLabel(displayUnit, t),
+                    ),
+                  )}
                 </div>
               )}
             </div>
