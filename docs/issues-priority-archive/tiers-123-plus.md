@@ -15,6 +15,7 @@ _Filed from the product-owner audit in `C:\Users\User\Projects\docs\turtle-steps
 | [#603](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/603) | ✅ Done | Named serving descriptors for personal meal items | New `MealItem.servings?` + `setServings` store action; editable in Settings' meal-item editor, selectable in `FoodPickerDialog.tsx` (same scaling as curated foods, #254). Export/import covered, no version bump. Confirmed working on-device 2026-08-06 |
 | [#612](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/612) | ✅ Done | Settings help: using two devices with local-only backups | New "Using two devices" card directly above Export in `SettingsScreen.tsx` — intro + 3-step numbered list (this device = live data, Export = portable backup, Import = merge). No sync backend mentioned. en/ru. Confirmed working on-device 2026-08-06 |
 | [#600](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/600) | ✅ Done | Undo toast after deleting a meal | `MealList.tsx`'s new `deleteMealById`/`undoDeleteMeal`; 9s toast, both delete entry points covered; clear-all stays hard-confirm, untouched. Confirmed working on-device 2026-08-06 |
+| [#604](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/604) | ✅ Done | Simple vs Full tracking presets for Day layout | New `stores/trackingPreset.ts` (`applyTrackingPreset`); "Layout preset" card in Settings above "What to track". Cycle/digestion untouched by design. Confirmed working on-device 2026-08-06 |
 
 ---
 
