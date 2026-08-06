@@ -54,6 +54,7 @@ import {
   pdfSectionAvailability,
   type CustomMetricPdfOption,
   type CustomMetricPdfSummary,
+  type PdfSectionTrackingGate,
   type PdfSections,
   type PdfSummaryData,
 } from './exportPdf'
@@ -277,6 +278,20 @@ export function ExportSection() {
     (state) => state.enabled,
   )
   const waterTrackingEnabled = useWaterTrackingStore((state) => state.enabled)
+  // #634 — built once so both `gatePdfSectionAvailability` and the
+  // `PdfSectionsDialog`'s own disabled-reason tooltip (needs the raw gate,
+  // not just the already-ANDed `availability`) read the same values.
+  const pdfTrackingGate: PdfSectionTrackingGate = {
+    sleep: trackedFields.sleep,
+    steps: trackedFields.steps,
+    bodyMeasurements: trackedFields.bodyMeasurements,
+    bodyComposition: trackedFields.bodyComposition,
+    nightEating: trackedFields.nightEating,
+    cycle: cycleTrackingEnabled,
+    digestion: digestionTrackingEnabled,
+    alcohol: alcoholTrackingEnabled,
+    water: waterTrackingEnabled,
+  }
   // #624 — a free-form date range (own state, not the shared periodStart/
   // periodEnd above) replaces the original fixed 30/90-day toggle. Unlike
   // that shared picker, blank isn't a valid "everything" default here — an
@@ -1601,20 +1616,16 @@ export function ExportSection() {
           pdfPreviewData
             ? gatePdfSectionAvailability(
                 pdfSectionAvailability(pdfPreviewData),
-                {
-                  sleep: trackedFields.sleep,
-                  steps: trackedFields.steps,
-                  bodyMeasurements: trackedFields.bodyMeasurements,
-                  bodyComposition: trackedFields.bodyComposition,
-                  nightEating: trackedFields.nightEating,
-                  cycle: cycleTrackingEnabled,
-                  digestion: digestionTrackingEnabled,
-                  alcohol: alcoholTrackingEnabled,
-                  water: waterTrackingEnabled,
-                },
+                pdfTrackingGate,
               )
             : EMPTY_PDF_SECTION_AVAILABILITY
         }
+        rawAvailability={
+          pdfPreviewData
+            ? pdfSectionAvailability(pdfPreviewData)
+            : EMPTY_PDF_SECTION_AVAILABILITY
+        }
+        trackingGate={pdfTrackingGate}
         customMetrics={pdfCustomMetricOptions}
       />
       <EncryptedBackupImportDialog

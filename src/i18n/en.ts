@@ -584,6 +584,11 @@ export const en: Dictionary = {
     pdfSectionsGenerateButton: 'Generate PDF',
     closePdfSectionsDialogLabel: 'Close',
     pdfSectionsCustomMetricsGroupLabel: 'Custom metrics',
+    pdfSectionDisabledNotTrackedTooltip:
+      'Not currently tracked — turn this on in Settings’ "What to track" to include it.',
+    pdfSectionDisabledNoDataTooltip:
+      'No data logged for this in the selected date range.',
+    pdfSectionDisabledTooltipLabel: 'Why this is disabled',
     exportExcelBlurb:
       'Download your data as an Excel file for viewing or analysis — this is not a backup and can’t be imported back in.',
     exportExcelButton: 'Export as Excel',

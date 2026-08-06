@@ -605,6 +605,11 @@ export const ru: Dictionary = {
     pdfSectionsGenerateButton: 'Создать PDF',
     closePdfSectionsDialogLabel: 'Закрыть',
     pdfSectionsCustomMetricsGroupLabel: 'Свои показатели',
+    pdfSectionDisabledNotTrackedTooltip:
+      'Сейчас не отслеживается — включите в настройках «Что отслеживать», чтобы добавить.',
+    pdfSectionDisabledNoDataTooltip:
+      'За выбранный период нет данных по этому показателю.',
+    pdfSectionDisabledTooltipLabel: 'Почему это недоступно',
     exportExcelBlurb:
       'Скачайте свои данные в формате Excel для просмотра или анализа — это не резервная копия, импортировать её обратно нельзя.',
     exportExcelButton: 'Экспорт в Excel',

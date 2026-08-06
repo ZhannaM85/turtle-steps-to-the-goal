@@ -203,6 +203,25 @@ describe('pdfSectionAvailability', () => {
 
     expect(pdfSectionAvailability(data).cycle).toBe(true)
   })
+
+  // #634 — body fat % is edited/saved alongside muscle mass/visceral fat/
+  // water/bone mass on the Day form (the "Body composition" card), not
+  // waist/hip's "Body measurements" card, so body-fat-only data (e.g. a
+  // smart-scale import with no waist/hip ever logged) must not enable the
+  // "Body measurements" section on its own.
+  it('enables bodyComposition (not bodyMeasurements) from body-fat data alone', () => {
+    const data = buildPdfSummaryData(
+      [makeEntry({ date: '2026-08-01', bodyFatPercent: 22 })],
+      '2026-08-01',
+      '2026-08-05',
+      1,
+    )
+
+    const availability = pdfSectionAvailability(data)
+
+    expect(availability.bodyComposition).toBe(true)
+    expect(availability.bodyMeasurements).toBe(false)
+  })
 })
 
 describe('gatePdfSectionAvailability', () => {

@@ -148,11 +148,9 @@ export function pdfSectionAvailability(
   return {
     weightTrend: data.weightPoints.length > 0,
     weeklyAverages: data.weeks.length > 0,
-    bodyMeasurements:
-      data.latestWaistCm !== null ||
-      data.latestHipCm !== null ||
-      data.latestBodyFatPercent !== null,
+    bodyMeasurements: data.latestWaistCm !== null || data.latestHipCm !== null,
     bodyComposition:
+      data.latestBodyFatPercent !== null ||
       data.latestMuscleMassKg !== null ||
       data.latestVisceralFatRating !== null ||
       data.latestBodyWaterPercent !== null ||
@@ -215,6 +213,36 @@ export function gatePdfSectionAvailability(
     alcohol: availability.alcohol && tracking.alcohol,
     nightEating: availability.nightEating && tracking.nightEating,
   }
+}
+
+/** #634 — a disabled toggle in `PdfSectionsDialog` can be disabled for one
+ * of two independent reasons, and the user can't tell which from the
+ * toggle alone: its Settings "What to track" gate is off (see
+ * `gatePdfSectionAvailability` above), or it's on but there's simply no
+ * data for it in the picked range. */
+export type PdfSectionDisabledReason = 'notTrackedInSettings' | 'noDataInRange'
+
+/**
+ * #634 — which of the two reasons applies for a given section, given the
+ * pure has-data check (`rawAvailability`, i.e. `pdfSectionAvailability`'s
+ * own output before gating) and the Settings tracking gate. `key in
+ * tracking` doubles as "does this section even have a tracking toggle" —
+ * `weightTrend`/`weeklyAverages` aren't in `PdfSectionTrackingGate` at all
+ * (see its own doc comment), so they can only ever be disabled for lack of
+ * data. Returns `null` when the section isn't disabled at all.
+ */
+export function pdfSectionDisabledReason(
+  key: keyof PdfSectionAvailability,
+  rawAvailability: PdfSectionAvailability,
+  tracking: PdfSectionTrackingGate,
+): PdfSectionDisabledReason | null {
+  if (key in tracking && !tracking[key as keyof PdfSectionTrackingGate]) {
+    return 'notTrackedInSettings'
+  }
+  if (!rawAvailability[key]) {
+    return 'noDataInRange'
+  }
+  return null
 }
 
 export interface CustomMetricPdfOption {
@@ -532,14 +560,6 @@ export async function buildSummaryPdf(
         ),
       )
     }
-    if (data.latestBodyFatPercent) {
-      lines.push(
-        t.pdfSummary.bodyFatLabel(
-          formatNumber(data.latestBodyFatPercent.value, locale),
-          formatDisplayDate(data.latestBodyFatPercent.date, locale),
-        ),
-      )
-    }
     if (lines.length > 0) {
       cursorY = drawSimpleSection(
         doc,
@@ -553,8 +573,20 @@ export async function buildSummaryPdf(
 
   // #630 — bioimpedance-scale fields, same "most recent value" shape as
   // body measurements above, kept as a separate section (distinct source).
+  // #634 — body fat % lives here (not bodyMeasurements above) to match the
+  // Day form's own grouping: it's edited/saved alongside muscle mass/
+  // visceral fat/water/bone mass via `saveBodyComposition`, not waist/hip's
+  // `saveBodyMeasurements`.
   if (sections.bodyComposition) {
     const lines: string[] = []
+    if (data.latestBodyFatPercent) {
+      lines.push(
+        t.pdfSummary.bodyFatLabel(
+          formatNumber(data.latestBodyFatPercent.value, locale),
+          formatDisplayDate(data.latestBodyFatPercent.date, locale),
+        ),
+      )
+    }
     if (data.latestMuscleMassKg) {
       lines.push(
         t.pdfSummary.muscleMassLabel(

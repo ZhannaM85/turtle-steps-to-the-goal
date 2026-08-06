@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 586,
+    issue: 634,
+    date: '2026-08-06T15:59:48+03:00',
+    en: 'The PDF summary export section picker no longer marks "Body measurements" available from body fat % data alone (it belongs under "Body composition" instead), and a disabled section now shows a tooltip explaining why — not tracked in Settings, or no data in the selected range.',
+    ru: 'Список разделов для PDF-сводки больше не отмечает «Замеры тела» как доступные только из-за данных о проценте жира (он относится к разделу «Состав тела»), а у недоступного раздела теперь есть подсказка с причиной — не отслеживается в настройках или нет данных за выбранный период.',
+  },
+  {
     version: 585,
     issue: 633,
     date: '2026-08-06T14:11:17+03:00',

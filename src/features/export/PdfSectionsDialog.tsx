@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useTranslation } from '@/i18n'
+import { useTranslation, type Dictionary } from '@/i18n'
 import { Button } from '@/shared/ui/button'
 import {
   Dialog,
@@ -7,11 +7,14 @@ import {
   DialogDescription,
   DialogTitle,
 } from '@/shared/ui/dialog'
+import { InfoTooltip } from '@/shared/ui/info-tooltip'
 import { ToggleGroup, ToggleGroupItem } from '@/shared/ui/toggle-group'
-import type {
-  CustomMetricPdfOption,
-  PdfSectionAvailability,
-  PdfSections,
+import {
+  pdfSectionDisabledReason,
+  type CustomMetricPdfOption,
+  type PdfSectionAvailability,
+  type PdfSectionTrackingGate,
+  type PdfSections,
 } from './exportPdf'
 
 export interface PdfSectionsDialogProps {
@@ -20,26 +23,31 @@ export interface PdfSectionsDialogProps {
   onSubmit: (sections: PdfSections) => void
   submitting: boolean
   /** #630 — whether each built-in section has data in the currently-picked
-   * date range; a section with none renders disabled rather than hidden,
-   * so the user can see what's available once they log it. */
+   * date range, ANDed with its Settings tracking gate (#633); a section
+   * with either false renders disabled rather than hidden, so the user can
+   * see what's available once they log it / turn tracking on. */
   availability: PdfSectionAvailability
+  /** #634 — the pure has-data check alone (before the tracking AND), so a
+   * disabled toggle's tooltip can tell "no data" apart from "not tracked". */
+  rawAvailability: PdfSectionAvailability
+  /** #634 — same Settings tracking gate `availability` was ANDed against,
+   * needed here again to work out *which* of the two reasons applied. */
+  trackingGate: PdfSectionTrackingGate
   /** #630 — every defined custom metric, each flagged the same way. */
   customMetrics: CustomMetricPdfOption[]
 }
 
-const BUILTIN_SECTION_KEYS: (keyof PdfSectionAvailability)[] = [
-  'weightTrend',
-  'weeklyAverages',
-  'bodyMeasurements',
-  'bodyComposition',
-  'sleep',
-  'steps',
-  'water',
-  'cycle',
-  'digestion',
-  'alcohol',
-  'nightEating',
-]
+/** #634 — text for a disabled toggle's tooltip, naming which of the two
+ * possible reasons applies (not tracked in Settings vs. no data logged in
+ * the picked range) rather than leaving the user to guess. */
+function disabledReasonText(
+  t: Dictionary,
+  reason: 'notTrackedInSettings' | 'noDataInRange',
+): string {
+  return reason === 'notTrackedInSettings'
+    ? t.export.pdfSectionDisabledNotTrackedTooltip
+    : t.export.pdfSectionDisabledNoDataTooltip
+}
 
 const CUSTOM_METRIC_PREFIX = 'custom:'
 
@@ -68,10 +76,35 @@ export function PdfSectionsDialog({
   onSubmit,
   submitting,
   availability,
+  rawAvailability,
+  trackingGate,
   customMetrics,
 }: PdfSectionsDialogProps) {
   const t = useTranslation()
   const [selected, setSelected] = useState<string[]>([])
+
+  // #634 — labels built from `t` so this can't drift from the JSX that used
+  // to spell out one `ToggleGroupItem` per section; each disabled toggle
+  // gets an `InfoTooltip` naming which of the two reasons applied.
+  const builtinSections: {
+    key: keyof PdfSectionAvailability
+    label: string
+  }[] = [
+    { key: 'weightTrend', label: t.export.pdfSectionWeightTrendLabel },
+    { key: 'weeklyAverages', label: t.export.pdfSectionWeeklyAveragesLabel },
+    {
+      key: 'bodyMeasurements',
+      label: t.export.pdfSectionBodyMeasurementsLabel,
+    },
+    { key: 'bodyComposition', label: t.dailyEntry.bodyCompositionLabel },
+    { key: 'sleep', label: t.dailyEntry.sleepLabel },
+    { key: 'steps', label: t.dailyEntry.stepsLabel },
+    { key: 'water', label: t.dailyEntry.waterLabel },
+    { key: 'cycle', label: t.dailyEntry.onPeriodLabel },
+    { key: 'digestion', label: t.dailyEntry.hadConstipationLabel },
+    { key: 'alcohol', label: t.dailyEntry.hadAlcoholLabel },
+    { key: 'nightEating', label: t.dailyEntry.nightEatingLabel() },
+  ]
 
   // Defaults to every currently-available section selected, re-derived each
   // time the dialog transitions to open (the date range, and so
@@ -86,7 +119,9 @@ export function PdfSectionsDialog({
     setPrevOpen(open)
     if (open) {
       setSelected([
-        ...BUILTIN_SECTION_KEYS.filter((key) => availability[key]),
+        ...builtinSections
+          .map(({ key }) => key)
+          .filter((key) => availability[key]),
         ...customMetrics
           .filter((metric) => metric.available)
           .map((metric) => `${CUSTOM_METRIC_PREFIX}${metric.id}`),
@@ -150,83 +185,29 @@ export function PdfSectionsDialog({
             onValueChange={handleBuiltinValueChange}
             className="flex-wrap"
           >
-            <ToggleGroupItem
-              value="weightTrend"
-              className="h-12"
-              disabled={!availability.weightTrend}
-            >
-              {t.export.pdfSectionWeightTrendLabel}
-            </ToggleGroupItem>
-            <ToggleGroupItem
-              value="weeklyAverages"
-              className="h-12"
-              disabled={!availability.weeklyAverages}
-            >
-              {t.export.pdfSectionWeeklyAveragesLabel}
-            </ToggleGroupItem>
-            <ToggleGroupItem
-              value="bodyMeasurements"
-              className="h-12"
-              disabled={!availability.bodyMeasurements}
-            >
-              {t.export.pdfSectionBodyMeasurementsLabel}
-            </ToggleGroupItem>
-            <ToggleGroupItem
-              value="bodyComposition"
-              className="h-12"
-              disabled={!availability.bodyComposition}
-            >
-              {t.dailyEntry.bodyCompositionLabel}
-            </ToggleGroupItem>
-            <ToggleGroupItem
-              value="sleep"
-              className="h-12"
-              disabled={!availability.sleep}
-            >
-              {t.dailyEntry.sleepLabel}
-            </ToggleGroupItem>
-            <ToggleGroupItem
-              value="steps"
-              className="h-12"
-              disabled={!availability.steps}
-            >
-              {t.dailyEntry.stepsLabel}
-            </ToggleGroupItem>
-            <ToggleGroupItem
-              value="water"
-              className="h-12"
-              disabled={!availability.water}
-            >
-              {t.dailyEntry.waterLabel}
-            </ToggleGroupItem>
-            <ToggleGroupItem
-              value="cycle"
-              className="h-12"
-              disabled={!availability.cycle}
-            >
-              {t.dailyEntry.onPeriodLabel}
-            </ToggleGroupItem>
-            <ToggleGroupItem
-              value="digestion"
-              className="h-12"
-              disabled={!availability.digestion}
-            >
-              {t.dailyEntry.hadConstipationLabel}
-            </ToggleGroupItem>
-            <ToggleGroupItem
-              value="alcohol"
-              className="h-12"
-              disabled={!availability.alcohol}
-            >
-              {t.dailyEntry.hadAlcoholLabel}
-            </ToggleGroupItem>
-            <ToggleGroupItem
-              value="nightEating"
-              className="h-12"
-              disabled={!availability.nightEating}
-            >
-              {t.dailyEntry.nightEatingLabel()}
-            </ToggleGroupItem>
+            {builtinSections.map(({ key, label }) => {
+              const disabled = !availability[key]
+              const reason = disabled
+                ? pdfSectionDisabledReason(key, rawAvailability, trackingGate)
+                : null
+              return (
+                <span key={key} className="inline-flex items-center gap-1">
+                  <ToggleGroupItem
+                    value={key}
+                    className="h-12"
+                    disabled={disabled}
+                  >
+                    {label}
+                  </ToggleGroupItem>
+                  {reason && (
+                    <InfoTooltip
+                      text={disabledReasonText(t, reason)}
+                      label={t.export.pdfSectionDisabledTooltipLabel}
+                    />
+                  )}
+                </span>
+              )
+            })}
           </ToggleGroup>
           {customMetrics.length > 0 && (
             <div className="flex flex-col gap-1.5">
@@ -241,14 +222,27 @@ export function PdfSectionsDialog({
                 className="flex-wrap"
               >
                 {customMetrics.map((metric) => (
-                  <ToggleGroupItem
+                  <span
                     key={metric.id}
-                    value={`${CUSTOM_METRIC_PREFIX}${metric.id}`}
-                    className="h-12"
-                    disabled={!metric.available}
+                    className="inline-flex items-center gap-1"
                   >
-                    {metric.name}
-                  </ToggleGroupItem>
+                    <ToggleGroupItem
+                      value={`${CUSTOM_METRIC_PREFIX}${metric.id}`}
+                      className="h-12"
+                      disabled={!metric.available}
+                    >
+                      {metric.name}
+                    </ToggleGroupItem>
+                    {/* #634 — custom metrics have no Settings tracking
+                     * toggle of their own (unlike the built-in sections
+                     * above), so a disabled one is always "no data". */}
+                    {!metric.available && (
+                      <InfoTooltip
+                        text={t.export.pdfSectionDisabledNoDataTooltip}
+                        label={t.export.pdfSectionDisabledTooltipLabel}
+                      />
+                    )}
+                  </span>
                 ))}
               </ToggleGroup>
             </div>

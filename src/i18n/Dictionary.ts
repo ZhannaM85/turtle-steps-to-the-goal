@@ -1042,6 +1042,12 @@ export interface Dictionary {
      * this is the one genuinely new label, heading the dynamic list of the
      * user's own custom metrics (name varies per metric, no fixed string). */
     pdfSectionsCustomMetricsGroupLabel: string
+    /** #634 — tooltip on a disabled section toggle naming which of the two
+     * reasons applies: off in Settings' "What to track", or on but no data
+     * logged for it in the picked range. */
+    pdfSectionDisabledNotTrackedTooltip: string
+    pdfSectionDisabledNoDataTooltip: string
+    pdfSectionDisabledTooltipLabel: string
     exportExcelBlurb: string
     exportExcelButton: string
     exportingExcelButton: string
