@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 585,
+    issue: 633,
+    date: '2026-08-06T14:11:17+03:00',
+    en: "The PDF summary export section picker no longer offers a section (like alcohol) that's currently turned off in Settings' What to track, even if it has old logged data from before you turned it off.",
+    ru: 'Список разделов для PDF-сводки больше не предлагает раздел (например, алкоголь), который сейчас выключен в настройках «Что отслеживать», даже если для него есть старые данные с того времени, когда он был включён.',
+  },
+  {
     version: 584,
     issue: 630,
     date: '2026-08-06T13:14:08+03:00',
