@@ -23,6 +23,7 @@ import {
   useLastBackupStore,
   useMealSlotDefaultTimesStore,
   usePlannedMealsTrackingStore,
+  useProfileStore,
   useThemeStore,
   useTrackedFieldsStore,
   useTrendChartSeriesStore,
@@ -124,6 +125,10 @@ export function SettingsScreen() {
   // already in production; no benefit to migrating it into one store).
   const trackedFields = useTrackedFieldsStore((state) => state.tracked)
   const setTrackedField = useTrackedFieldsStore((state) => state.setTracked)
+  // #638 — the night-eating toggle label below needs the real profile sex,
+  // same as every other `nightEatingLabel` caller (DayDetail.tsx etc.),
+  // instead of always falling back to the gender-neutral "Ел(а)".
+  const sex = useProfileStore((state) => state.sex)
   type UnifiedTrackedKey =
     | TrackedField
     | 'cycle'
@@ -688,7 +693,7 @@ export function SettingsScreen() {
                 {t.settings.alcoholTrackingLabel}
               </ToggleGroupItem>
               <ToggleGroupItem value="nightEating" className="h-12">
-                {t.dailyEntry.nightEatingLabel()}
+                {t.dailyEntry.nightEatingLabel(sex)}
               </ToggleGroupItem>
             </ToggleGroup>
           </div>

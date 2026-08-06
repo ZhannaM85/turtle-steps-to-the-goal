@@ -400,6 +400,19 @@ describe('SettingsScreen', () => {
       expect(useTrackedFieldsStore.getState().tracked.sleep).toBe(false)
     })
 
+    it('uses the real profile sex for the night-eating toggle label instead of the neutral placeholder (#638)', () => {
+      useLocaleStore.setState({ locale: 'ru' })
+      useProfileStore.setState({ sex: 'male' })
+      renderSettings()
+
+      expect(
+        screen.getByRole('button', { name: 'Ел поздно вечером' }),
+      ).toBeInTheDocument()
+      expect(
+        screen.queryByRole('button', { name: 'Ел(а) поздно вечером' }),
+      ).not.toBeInTheDocument()
+    })
+
     it('applies the Simple then Full layout preset (#604)', async () => {
       const user = userEvent.setup()
       renderSettings()
