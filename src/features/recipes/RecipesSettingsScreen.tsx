@@ -75,52 +75,67 @@ export function RecipesSettingsScreen() {
             return (
               <li
                 key={recipe.id}
-                className="flex items-center justify-between gap-2 rounded-lg bg-muted/40 px-3 py-2"
+                className="flex flex-col gap-1 rounded-lg bg-muted/40 px-3 py-2"
               >
-                <div className="flex flex-col">
-                  <span className="text-sm font-medium">{recipe.name}</span>
-                  <span className="text-xs text-muted-foreground">
-                    {t.recipes.servingsCountLabel(recipe.servings)} ·{' '}
-                    {formatComputedTotal(perServing, locale, t)}
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex flex-col">
+                    <span className="text-sm font-medium">{recipe.name}</span>
+                    <span className="text-xs text-muted-foreground">
+                      {t.recipes.servingsCountLabel(recipe.servings)} ·{' '}
+                      {formatComputedTotal(perServing, locale, t)}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon-sm"
+                      aria-label={
+                        copiedRecipeId === recipe.id
+                          ? t.recipes.ingredientsCopiedLabel
+                          : t.recipes.copyIngredientsLabel(recipe.name)
+                      }
+                      onClick={() => void copyIngredients(recipe)}
+                    >
+                      {copiedRecipeId === recipe.id ? (
+                        <Check aria-hidden="true" />
+                      ) : (
+                        <Clipboard aria-hidden="true" />
+                      )}
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon-sm"
+                      aria-label={t.recipes.editRecipeLabel(recipe.name)}
+                      onClick={() => setEditingRecipe(recipe)}
+                    >
+                      <Pencil aria-hidden="true" />
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon-sm"
+                      aria-label={t.recipes.deleteRecipeLabel(recipe.name)}
+                      onClick={() => deleteRecipe(recipe.id)}
+                    >
+                      <Trash2 aria-hidden="true" />
+                    </Button>
+                  </div>
+                </div>
+                {/* #636 — the icon-only swap on the button above was
+                 * reported live as too easy to miss; this visible,
+                 * auto-clearing text is the same shape as GoalForm.tsx's
+                 * `justSaved` confirmation. */}
+                {copiedRecipeId === recipe.id && (
+                  <span
+                    role="status"
+                    className="flex items-center gap-1 text-xs text-muted-foreground"
+                  >
+                    <Check aria-hidden="true" className="size-3.5" />
+                    {t.recipes.ingredientsCopiedToastMessage}
                   </span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon-sm"
-                    aria-label={
-                      copiedRecipeId === recipe.id
-                        ? t.recipes.ingredientsCopiedLabel
-                        : t.recipes.copyIngredientsLabel(recipe.name)
-                    }
-                    onClick={() => void copyIngredients(recipe)}
-                  >
-                    {copiedRecipeId === recipe.id ? (
-                      <Check aria-hidden="true" />
-                    ) : (
-                      <Clipboard aria-hidden="true" />
-                    )}
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon-sm"
-                    aria-label={t.recipes.editRecipeLabel(recipe.name)}
-                    onClick={() => setEditingRecipe(recipe)}
-                  >
-                    <Pencil aria-hidden="true" />
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon-sm"
-                    aria-label={t.recipes.deleteRecipeLabel(recipe.name)}
-                    onClick={() => deleteRecipe(recipe.id)}
-                  >
-                    <Trash2 aria-hidden="true" />
-                  </Button>
-                </div>
+                )}
               </li>
             )
           })}

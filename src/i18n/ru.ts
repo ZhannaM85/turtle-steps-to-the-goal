@@ -1258,6 +1258,7 @@ export const ru: Dictionary = {
     copyIngredientsLabel: (name) =>
       `Скопировать список покупок для «${name}»`,
     ingredientsCopiedLabel: 'Скопировано',
+    ingredientsCopiedToastMessage: 'Ингредиенты скопированы в буфер обмена',
     addIngredientButton: 'Добавить ингредиент',
     ingredientNameLabel: 'Название ингредиента',
     ingredientNamePlaceholder: 'Название ингредиента',

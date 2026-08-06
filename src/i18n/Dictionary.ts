@@ -1887,6 +1887,12 @@ export interface Dictionary {
      * file-download mechanism per feature. */
     copyIngredientsLabel: (name: string) => string
     ingredientsCopiedLabel: string
+    /** #636 — visible text confirmation shown next to the copy button,
+     * since the icon swap (`ingredientsCopiedLabel`, its aria-label) alone
+     * was reported live as too easy to miss and not specific about what
+     * got copied. Same short-lived, auto-clearing shape as `GoalForm.tsx`'s
+     * `justSaved` confirmation. */
+    ingredientsCopiedToastMessage: string
     addIngredientButton: string
     ingredientNameLabel: string
     ingredientNamePlaceholder: string

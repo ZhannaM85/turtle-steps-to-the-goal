@@ -110,6 +110,9 @@ describe('RecipesSettingsScreen', () => {
     expect(
       await screen.findByRole('button', { name: 'Copied' }),
     ).toBeInTheDocument()
+    expect(await screen.findByRole('status')).toHaveTextContent(
+      'Ingredients copied to clipboard',
+    )
   })
 
   it('deletes a recipe', async () => {
