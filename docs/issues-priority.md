@@ -80,7 +80,6 @@ _Same-day live feedback after Zepp / export work. **Do not** split further same-
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#625](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/625) | 📋 Not started | Apply day-start time to Dashboard rolling-window displays (follow-up to #601) | Recent averages, logging-consistency heatmap, trend-chart period pager — lower-stakes than #601's own correlation fixes, deliberately scoped out of that pass |
-| [#627](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/627) | 🔍 Pending validation | Planned meals trigger button shows two plus icons | Dictionary string had a literal `+` baked in on top of the already-rendered `Plus` icon; dropped from en/ru. Awaiting on-device confirmation |
 | [#628](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/628) | 🔍 Pending validation | JSON backup restore silently drops fields the existing entry has but the import doesn't | Root cause confirmed + reproduced (not MFP/Apple Health/Zepp, which already merge safely): `importAllData`'s dailyEntries merge only spread the imported entry's own fields, discarding the existing record. Fixed by spreading `existing` first. Awaiting on-device confirmation |
 
 
