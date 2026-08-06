@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 588,
+    issue: 631,
+    date: '2026-08-06T20:00:46+03:00',
+    en: 'Tapping through from an "unusual data point" on the calories-vs-weight-change chart now lands on, and labels, the day within that week that actually has the logged weight — not always the week\'s Monday, which could be empty.',
+    ru: 'Переход по «необычной точке данных» на графике калорий и изменения веса теперь ведёт на день внутри недели, где действительно зафиксирован вес — а не всегда на понедельник недели, который мог быть пустым.',
+  },
+  {
     version: 587,
     issue: 615,
     date: '2026-08-06T19:27:28+03:00',

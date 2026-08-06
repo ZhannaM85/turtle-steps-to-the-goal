@@ -136,14 +136,23 @@ export function CorrelationView({
       (p) => p.delta,
       (p) => p.weekStart,
     )
+  // #631 (reopened) — `getDate` below was fixed to resolve to this date
+  // instead of `point.weekStart`, but the chip's own label and note preview
+  // were left reading `point.weekStart` directly, so the chip could show
+  // one date while its link navigated to another. All three now read off
+  // this same resolved date.
+  const resolvedDate = (point: { weekStart: string }) =>
+    weightDateByWeekStart.get(point.weekStart) ?? point.weekStart
 
   if (rawPoints.length === 0) return null
 
   const metricLabel = t.dashboard.caloriesLegend
   const points = rawPoints.map((point, i) => ({
-    // This view's points are whole weeks, not days — the tooltip's link
-    // targets that week's start, exactly what `OutlierPointsList` below
-    // already navigates to for the same point.
+    // This view's points are whole weeks, not days — the chart's hover
+    // tooltip links to that week's start. `OutlierPointsList` below is
+    // different: for flagged weeks, its link/label/note preview all resolve
+    // to the day within the week that actually has the logged weight (#631),
+    // which won't always be this same Monday.
     date: point.weekStart,
     calories: point.calories,
     delta: toDisplay(point.delta),
@@ -278,16 +287,14 @@ export function CorrelationView({
           isExcluded={isExcluded}
           onToggle={toggle}
           getKey={(point) => point.weekStart}
-          getDate={(point) =>
-            weightDateByWeekStart.get(point.weekStart) ?? point.weekStart
-          }
+          getDate={resolvedDate}
           formatLabel={(point) =>
-            format(parseISO(point.weekStart), 'd MMM yyyy', {
+            format(parseISO(resolvedDate(point)), 'd MMM yyyy', {
               locale: dateFnsLocale,
             })
           }
           formatReason={(point) => reasonByKey.get(point.weekStart)}
-          formatNotePreview={(point) => notesByDate.get(point.weekStart)}
+          formatNotePreview={(point) => notesByDate.get(resolvedDate(point))}
         />
       )}
       {insight ? (

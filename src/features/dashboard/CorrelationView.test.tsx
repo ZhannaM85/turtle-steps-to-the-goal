@@ -216,9 +216,14 @@ describe('CorrelationView', () => {
       expect(link).toHaveAttribute('href', '/?date=2026-04-06')
     })
 
-    it("links to the day within the flagged week that actually has the logged weight, not always the week's Monday (#631)", () => {
-      // Same fixture as `entriesWithOneOutlier`, except week 5's weight is
-      // logged two days after its Monday — that Monday itself has nothing.
+    it("resolves the chip's label, note preview, and link to the same day within the flagged week that actually has the logged weight, not always the week's Monday (#631)", () => {
+      // Same fixture as `entriesWithOneOutlier`, except week 5's weight (and
+      // its note) is logged two days after its Monday — that Monday itself
+      // has nothing.
+      const loggedDate = format(
+        addDays(new Date(`${weekStart(5)}T00:00:00.000Z`), 2),
+        DATE_FORMAT,
+      )
       const entries = withCompletedWindow(
         [
           entry(weekStart(0), { weightKg: 90 }),
@@ -232,23 +237,24 @@ describe('CorrelationView', () => {
             weightKg: 85.3,
             calorieEntries: calories(2300),
           }),
-          entry(
-            format(
-              addDays(new Date(`${weekStart(5)}T00:00:00.000Z`), 2),
-              DATE_FORMAT,
-            ),
-            {
-              weightKg: 60,
-              calorieEntries: calories(2000),
-            },
-          ),
+          entry(loggedDate, {
+            weightKg: 60,
+            calorieEntries: calories(2000),
+            note: 'Back from vacation',
+          }),
         ],
         5,
       )
       render(<CorrelationView entries={entries} />, { wrapper: MemoryRouter })
 
+      // Chip label, its note preview, and its link all read 8 Apr 2026 —
+      // not the week's Monday (6 Apr 2026) that the flagged week is keyed by.
+      expect(
+        screen.getByRole('button', { name: /Exclude 8 Apr 2026/ }),
+      ).toBeInTheDocument()
+      expect(screen.getByText('Back from vacation')).toBeInTheDocument()
       const link = screen.getByRole('link', {
-        name: 'Edit 6 Apr 2026',
+        name: 'Edit 8 Apr 2026',
       })
       expect(link).toHaveAttribute('href', '/?date=2026-04-08')
     })
