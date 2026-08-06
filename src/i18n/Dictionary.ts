@@ -914,6 +914,32 @@ export interface Dictionary {
     waistLabel: (value: string, date: string) => string
     hipLabel: (value: string, date: string) => string
     bodyFatLabel: (value: string, date: string) => string
+    /** #630 — smart-scale fields, same "most recent value" shape as the
+     * bodyMeasurements group above, just a distinct section since they
+     * come from a different source (bioimpedance scale vs. tape/caliper). */
+    bodyCompositionSectionTitle: string
+    muscleMassLabel: (value: string, date: string) => string
+    visceralFatLabel: (value: string, date: string) => string
+    bodyWaterLabel: (value: string, date: string) => string
+    boneMassLabel: (value: string, date: string) => string
+    /** #630 — generic templates reused across sleep/steps/water/custom
+     * metrics instead of one dedicated string per field, since they're all
+     * "name: avg value (N days logged)" underneath. `averageValueLabel`
+     * names the field (used when a section groups more than one line, e.g.
+     * Sleep's hours + deep sleep); `averageValueOnlyLabel` omits the name
+     * when the section title already names the one line below it. */
+    averageValueLabel: (name: string, value: string, days: number) => string
+    averageValueOnlyLabel: (value: string, days: number) => string
+    /** #630 — cycle/digestion/alcohol/night eating share one section and
+     * one generic "name: N of M logged days" template, since a day's value
+     * for each is the same true/false-over-a-range shape. */
+    daySignalsSectionTitle: string
+    daySignalLabel: (
+      name: string,
+      trueDays: number,
+      loggedDays: number,
+    ) => string
+    customMetricsSectionTitle: string
     /** #609 acceptance criterion — must render visibly on the document. */
     disclaimer: string
   }
@@ -1010,6 +1036,12 @@ export interface Dictionary {
     pdfSectionBodyMeasurementsLabel: string
     pdfSectionsGenerateButton: string
     closePdfSectionsDialogLabel: string
+    /** #630 — every other tracked metric reuses its own existing label
+     * (`dailyEntry.sleepLabel`, `settings.cycleTrackingLabel`, etc.) as its
+     * toggle text rather than duplicating a near-identical string here;
+     * this is the one genuinely new label, heading the dynamic list of the
+     * user's own custom metrics (name varies per metric, no fixed string). */
+    pdfSectionsCustomMetricsGroupLabel: string
     exportExcelBlurb: string
     exportExcelButton: string
     exportingExcelButton: string

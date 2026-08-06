@@ -491,6 +491,19 @@ export const en: Dictionary = {
     waistLabel: (value, date) => `Waist: ${value} cm (${date})`,
     hipLabel: (value, date) => `Hip: ${value} cm (${date})`,
     bodyFatLabel: (value, date) => `Body fat: ${value}% (${date})`,
+    bodyCompositionSectionTitle: 'Body composition (most recent)',
+    muscleMassLabel: (value, date) => `Muscle mass: ${value} kg (${date})`,
+    visceralFatLabel: (value, date) => `Visceral fat rating: ${value} (${date})`,
+    bodyWaterLabel: (value, date) => `Body water: ${value}% (${date})`,
+    boneMassLabel: (value, date) => `Bone mass: ${value} kg (${date})`,
+    averageValueLabel: (name, value, days) =>
+      `${name}: avg ${value} (${days} days logged)`,
+    averageValueOnlyLabel: (value, days) =>
+      `Average: ${value} (${days} days logged)`,
+    daySignalsSectionTitle: 'Day signals',
+    daySignalLabel: (name, trueDays, loggedDays) =>
+      `${name}: ${trueDays} of ${loggedDays} logged days`,
+    customMetricsSectionTitle: 'Custom metrics',
     disclaimer:
       'This document is a personal summary generated from self-reported data in Turtle Steps to the Goal. It is not medical advice — consult a healthcare professional for guidance about your health.',
   },
@@ -570,6 +583,7 @@ export const en: Dictionary = {
     pdfSectionBodyMeasurementsLabel: 'Body measurements',
     pdfSectionsGenerateButton: 'Generate PDF',
     closePdfSectionsDialogLabel: 'Close',
+    pdfSectionsCustomMetricsGroupLabel: 'Custom metrics',
     exportExcelBlurb:
       'Download your data as an Excel file for viewing or analysis — this is not a backup and can’t be imported back in.',
     exportExcelButton: 'Export as Excel',

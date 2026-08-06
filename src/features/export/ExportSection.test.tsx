@@ -6,7 +6,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { DailyEntry } from '@/domain/dailyEntry'
 import type { Goal } from '@/domain/goal'
 import { db } from '@/infrastructure/persistence/indexeddb'
-import { useLastBackupStore, useMealItemStore } from '@/stores'
+import { useCustomMetricStore, useLastBackupStore, useMealItemStore } from '@/stores'
 import { ExportSection } from './ExportSection'
 
 function makeGoal(overrides: Partial<Goal> = {}): Goal {
@@ -42,7 +42,15 @@ beforeEach(async () => {
   await db.goals.clear()
   await db.dailyEntries.clear()
   await db.mealItems.clear()
+  await db.customMetrics.clear()
+  await db.customMetricEntries.clear()
   useMealItemStore.setState({ items: [], status: 'idle', error: null })
+  useCustomMetricStore.setState({
+    metrics: [],
+    entries: [],
+    status: 'idle',
+    error: null,
+  })
   // #599 — no backup recorded yet by default; individual tests seed a real
   // value where the reminder status matters.
   useLastBackupStore.setState({
@@ -71,6 +79,8 @@ afterEach(async () => {
   await db.goals.clear()
   await db.dailyEntries.clear()
   await db.mealItems.clear()
+  await db.customMetrics.clear()
+  await db.customMetricEntries.clear()
   vi.unstubAllGlobals()
   vi.restoreAllMocks()
   // jsdom has no built-in navigator.storage (#176) — reset whatever a test
@@ -325,6 +335,77 @@ describe('ExportSection', () => {
     expect(
       await screen.findByText('PDF summary downloaded.'),
     ).toBeInTheDocument()
+  })
+
+  it('disables a metric section with no data in the picked range but keeps another enabled (#630)', async () => {
+    await db.dailyEntries.put(
+      makeEntry({
+        date: format(new Date(), 'yyyy-MM-dd'),
+        weightKg: 80,
+        steps: 8000,
+      }),
+    )
+    const user = userEvent.setup()
+
+    render(<ExportSection />)
+    await user.click(
+      screen.getByRole('button', { name: 'Export PDF summary' }),
+    )
+
+    expect(await screen.findByRole('button', { name: 'Steps' })).toBeEnabled()
+    expect(screen.getByRole('button', { name: 'Water' })).toBeDisabled()
+  })
+
+  it('lists a custom metric as a selectable PDF section once it has data in the picked range (#630)', async () => {
+    const today = format(new Date(), 'yyyy-MM-dd')
+    await db.dailyEntries.put(makeEntry({ date: today, weightKg: 80 }))
+    await db.customMetrics.put({
+      id: 'metric-1',
+      name: 'Acne',
+      inputKind: 'scale5',
+      createdAt: new Date().toISOString(),
+    })
+    await db.customMetricEntries.put({
+      id: 'entry-1',
+      metricId: 'metric-1',
+      date: today,
+      value: 3,
+      updatedAt: new Date().toISOString(),
+    })
+    const user = userEvent.setup()
+
+    render(<ExportSection />)
+    await user.click(
+      screen.getByRole('button', { name: 'Export PDF summary' }),
+    )
+
+    expect(await screen.findByRole('button', { name: 'Acne' })).toBeEnabled()
+
+    await user.click(screen.getByRole('button', { name: 'Generate PDF' }))
+
+    expect(
+      await screen.findByText('PDF summary downloaded.'),
+    ).toBeInTheDocument()
+  })
+
+  it('disables a custom metric section with no data in the picked range (#630)', async () => {
+    await db.dailyEntries.put(
+      makeEntry({ date: format(new Date(), 'yyyy-MM-dd'), weightKg: 80 }),
+    )
+    await db.customMetrics.put({
+      id: 'metric-1',
+      name: 'Acne',
+      inputKind: 'scale5',
+      createdAt: new Date().toISOString(),
+    })
+    const user = userEvent.setup()
+
+    render(<ExportSection />)
+    await user.click(
+      screen.getByRole('button', { name: 'Export PDF summary' }),
+    )
+
+    expect(await screen.findByRole('button', { name: 'Acne' })).toBeDisabled()
   })
 
   it('disables the PDF export button once the date range is cleared (#624)', async () => {

@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 584,
+    issue: 630,
+    date: '2026-08-06T13:14:08+03:00',
+    en: 'The PDF summary export section picker now covers every metric you track — sleep, steps, water, cycle, digestion, alcohol, night eating, body composition, and your own custom metrics — each selectable only when your chosen date range actually has data for it.',
+    ru: 'Список разделов для PDF-сводки теперь включает все показатели, которые вы отслеживаете — сон, шаги, воду, цикл, пищеварение, алкоголь, поздние приёмы пищи, состав тела и ваши свои показатели — каждый доступен для выбора только если в выбранном периоде есть данные.',
+  },
+  {
     version: 583,
     issue: 629,
     date: '2026-08-06T12:21:20+03:00',

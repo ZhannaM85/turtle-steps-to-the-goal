@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { format, subDays } from 'date-fns'
 import { type Dictionary, useLocale, useTranslation } from '@/i18n'
 import {
+  useCustomMetricStore,
   useFoodOverrideStore,
   useLastBackupStore,
   useMealItemStore,
@@ -39,9 +40,16 @@ import {
 import { buildDailyLogCsv, CSV_BOM } from './exportCsv'
 import { buildDailyLogMarkdown } from './exportMarkdown'
 import {
+  buildCustomMetricPdfSummaries,
   buildPdfSummaryData,
   buildSummaryPdf,
+  customMetricPdfOptions,
+  EMPTY_PDF_SECTION_AVAILABILITY,
+  pdfSectionAvailability,
+  type CustomMetricPdfOption,
+  type CustomMetricPdfSummary,
   type PdfSections,
+  type PdfSummaryData,
 } from './exportPdf'
 import { buildExportWorkbook } from './exportXlsx'
 import { ImportConflictModePicker } from './ImportConflictModePicker'
@@ -265,8 +273,22 @@ export function ExportSection() {
     format(new Date(), 'yyyy-MM-dd'),
   )
   // #629 — which sections to include is picked in a dialog shown right
-  // before generation, not baked into the period picker above.
+  // before generation, not baked into the period picker above. #630 — the
+  // dialog needs to know which sections have data in the current range
+  // before it opens, so `openPdfSectionsDialog` (below) computes `data`/
+  // `customMetricSummaries` once and reuses them for both the dialog's
+  // availability and the actual generation — no reason to hit IndexedDB
+  // twice for the same, short-lived round trip.
   const [pdfSectionsDialogOpen, setPdfSectionsDialogOpen] = useState(false)
+  const [pdfPreviewData, setPdfPreviewData] = useState<PdfSummaryData | null>(
+    null,
+  )
+  const [pdfCustomMetricSummaries, setPdfCustomMetricSummaries] = useState<
+    CustomMetricPdfSummary[]
+  >([])
+  const [pdfCustomMetricOptions, setPdfCustomMetricOptions] = useState<
+    CustomMetricPdfOption[]
+  >([])
   const zeppLifeFileInputRef = useRef<HTMLInputElement>(null)
   const [zeppLifePendingFile, setZeppLifePendingFile] = useState<File | null>(
     null,
@@ -572,7 +594,13 @@ export function ExportSection() {
   // deliberately separate picker from the shared periodStart/periodEnd
   // above (see that state's own comment for why blank isn't a valid
   // default here the way it is for Excel/CSV/Markdown).
-  async function handleExportPdf(sections: PdfSections) {
+  //
+  // #630 — computes the section data/availability *before* opening
+  // PdfSectionsDialog, reusing the same transient `exportingPdf` status
+  // to disable the trigger button while this runs. `handleExportPdf`
+  // (below) reuses `pdfPreviewData`/`pdfCustomMetricSummaries` rather than
+  // reading IndexedDB a second time for the same short-lived round trip.
+  async function openPdfSectionsDialog() {
     setStatus({ kind: 'exportingPdf' })
     try {
       const bundle = await exportAllData()
@@ -586,7 +614,43 @@ export function ExportSection() {
         pdfPeriodEnd,
         resolveWeekStartsOn(weekStart, earliestEntryDate),
       )
-      const blob = await buildSummaryPdf(data, t, locale, unit, sections)
+      await useCustomMetricStore.getState().loadAll()
+      const { metrics, entries: customMetricEntries } =
+        useCustomMetricStore.getState()
+      const customMetricSummaries = buildCustomMetricPdfSummaries(
+        metrics,
+        customMetricEntries,
+        pdfPeriodStart,
+        pdfPeriodEnd,
+      )
+      setPdfPreviewData(data)
+      setPdfCustomMetricSummaries(customMetricSummaries)
+      setPdfCustomMetricOptions(
+        customMetricPdfOptions(metrics, customMetricSummaries),
+      )
+      setStatus({ kind: 'idle' })
+      setPdfSectionsDialogOpen(true)
+    } catch {
+      setStatus({
+        kind: 'error',
+        section: 'pdf',
+        message: t.export.exportPdfFailed,
+      })
+    }
+  }
+
+  async function handleExportPdf(sections: PdfSections) {
+    if (!pdfPreviewData) return
+    setStatus({ kind: 'exportingPdf' })
+    try {
+      const blob = await buildSummaryPdf(
+        pdfPreviewData,
+        t,
+        locale,
+        unit,
+        sections,
+        pdfCustomMetricSummaries,
+      )
       const url = URL.createObjectURL(blob)
       const link = document.createElement('a')
       link.href = url
@@ -1133,7 +1197,7 @@ export function ExportSection() {
           </div>
           <Button
             variant="outline"
-            onClick={() => setPdfSectionsDialogOpen(true)}
+            onClick={openPdfSectionsDialog}
             className="self-start"
             disabled={
               status.kind === 'exportingPdf' ||
@@ -1502,6 +1566,12 @@ export function ExportSection() {
         onOpenChange={setPdfSectionsDialogOpen}
         onSubmit={handleExportPdf}
         submitting={status.kind === 'exportingPdf'}
+        availability={
+          pdfPreviewData
+            ? pdfSectionAvailability(pdfPreviewData)
+            : EMPTY_PDF_SECTION_AVAILABILITY
+        }
+        customMetrics={pdfCustomMetricOptions}
       />
       <EncryptedBackupImportDialog
         open={pendingEncryptedEnvelope !== null}

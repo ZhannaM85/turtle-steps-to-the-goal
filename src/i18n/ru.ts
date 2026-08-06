@@ -513,6 +513,19 @@ export const ru: Dictionary = {
     waistLabel: (value, date) => `Талия: ${value} см (${date})`,
     hipLabel: (value, date) => `Бёдра: ${value} см (${date})`,
     bodyFatLabel: (value, date) => `Процент жира: ${value}% (${date})`,
+    bodyCompositionSectionTitle: 'Состав тела (последние)',
+    muscleMassLabel: (value, date) => `Мышечная масса: ${value} кг (${date})`,
+    visceralFatLabel: (value, date) => `Висцеральный жир: ${value} (${date})`,
+    bodyWaterLabel: (value, date) => `Вода в организме: ${value}% (${date})`,
+    boneMassLabel: (value, date) => `Костная масса: ${value} кг (${date})`,
+    averageValueLabel: (name, value, days) =>
+      `${name}: в среднем ${value} (дней с записями: ${days})`,
+    averageValueOnlyLabel: (value, days) =>
+      `В среднем: ${value} (дней с записями: ${days})`,
+    daySignalsSectionTitle: 'Дневные показатели',
+    daySignalLabel: (name, trueDays, loggedDays) =>
+      `${name}: ${trueDays} из ${loggedDays} дней с записями`,
+    customMetricsSectionTitle: 'Свои показатели',
     disclaimer:
       'Этот документ — личная сводка, сформированная на основе самостоятельно внесённых данных в приложении «Черепашка идёт к цели». Это не медицинская рекомендация — за консультацией о состоянии здоровья обратитесь к врачу.',
   },
@@ -591,6 +604,7 @@ export const ru: Dictionary = {
     pdfSectionBodyMeasurementsLabel: 'Замеры тела',
     pdfSectionsGenerateButton: 'Создать PDF',
     closePdfSectionsDialogLabel: 'Закрыть',
+    pdfSectionsCustomMetricsGroupLabel: 'Свои показатели',
     exportExcelBlurb:
       'Скачайте свои данные в формате Excel для просмотра или анализа — это не резервная копия, импортировать её обратно нельзя.',
     exportExcelButton: 'Экспорт в Excel',
