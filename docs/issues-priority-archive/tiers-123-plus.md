@@ -20,6 +20,16 @@ _Filed from the product-owner audit in `C:\Users\User\Projects\docs\turtle-steps
 
 ---
 
+## Tier 126 — Live feedback (2026-08-06)
+
+_Same-day live feedback while working through Tier 123/125's validation queue. All currently open / pending items from this tier live in the active file._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#629](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/629) | ✅ Done | PDF summary export: let user pick which sections to include | New `PdfSectionsDialog.tsx` (same multi-select `ToggleGroup` shape as Settings' "what to track" groups) shown when "Export PDF summary" is clicked; `buildSummaryPdf` gained a `PdfSections` param gating the weight-trend/weekly-averages/body-measurements blocks. Disclaimer stays unconditional per #609. Confirmed working on-device 2026-08-06 — follow-up filed for expanding to all tracked metrics |
+
+---
+
 ## Tier 125 — Live feedback (2026-08-05)
 
 _Same-day live feedback (Zepp multi-user export, export status placement, Apple Health recognition). All currently open / pending items from this tier live in the active file._
