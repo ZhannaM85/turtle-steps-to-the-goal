@@ -517,11 +517,18 @@ export function WeightTrendChart({
           {t.dashboard.chartNavigationHint}
         </p>
       )}
-      {!bothHidden && cycleTrackingEnabled && (
-        <p className="text-xs text-muted-foreground">
-          {t.dashboard.cyclePeriodWeightNote}
-        </p>
-      )}
+      {/* #615 — only shown when the currently-viewed range actually has a
+       * logged period day, not on every range regardless of content
+       * (reported live as reading like a stray/unrelated note otherwise,
+       * the same "don't reference something not actually in view" concern
+       * behind #631). */}
+      {!bothHidden &&
+        cycleTrackingEnabled &&
+        entries.some((entry) => entry.onPeriod) && (
+          <p className="text-xs text-muted-foreground">
+            {t.dashboard.cyclePeriodWeightNote}
+          </p>
+        )}
       <ChartPeriodPagerControls pager={pager} />
     </div>
   )

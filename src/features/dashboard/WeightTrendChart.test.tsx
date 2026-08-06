@@ -61,9 +61,15 @@ describe('WeightTrendChart', () => {
       useCycleTrackingStore.setState({ enabled: false })
     })
 
-    it('shows the note once cycle tracking is on', () => {
+    // #615 (refined live) — only shown when the visible range actually has
+    // a logged period day, not on every range regardless of content.
+    it('shows the note when cycle tracking is on and the visible range has a period day', () => {
       useCycleTrackingStore.setState({ enabled: true })
-      render(<WeightTrendChart entries={threeWeightEntries()} />, {
+      const entries = [
+        ...threeWeightEntries(),
+        entry('2026-03-04', { onPeriod: true }),
+      ]
+      render(<WeightTrendChart entries={entries} />, {
         wrapper: MemoryRouter,
       })
 
@@ -72,8 +78,23 @@ describe('WeightTrendChart', () => {
       ).toBeInTheDocument()
     })
 
-    it('shows no note when cycle tracking is off', () => {
+    it('shows no note when cycle tracking is on but no period is logged in the visible range', () => {
+      useCycleTrackingStore.setState({ enabled: true })
       render(<WeightTrendChart entries={threeWeightEntries()} />, {
+        wrapper: MemoryRouter,
+      })
+
+      expect(
+        screen.queryByText(/Weight often fluctuates around your period/),
+      ).not.toBeInTheDocument()
+    })
+
+    it('shows no note when cycle tracking is off, even with a period logged', () => {
+      const entries = [
+        ...threeWeightEntries(),
+        entry('2026-03-04', { onPeriod: true }),
+      ]
+      render(<WeightTrendChart entries={entries} />, {
         wrapper: MemoryRouter,
       })
 
