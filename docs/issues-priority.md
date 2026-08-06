@@ -87,4 +87,5 @@ _Same-day live feedback while working through Tier 123/125's validation queue._
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#630](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/630) | 🔲 Open | PDF summary export: offer every tracked metric as a section, not just three | Follow-up to #629. Reported live: the picker should list every metric the user tracks (built-in + custom), each toggle enabled only when the picked date range actually has logged data for it, disabled otherwise |
+| [#631](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/631) | 🔲 Open | Unusual-data-point links can land on a day with no logged data | Reported live with screenshots: the calories-vs-weight-change view's (#522) "Unusual data points" chip linked to a week-start date with a completely empty Day entry. Root cause identified: `OutlierPointsList`'s `getDate` resolves to `weekStart` for week-keyed callers, which may have no logged value itself even though that week's average was flagged |
 
