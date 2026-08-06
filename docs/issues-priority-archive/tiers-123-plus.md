@@ -23,3 +23,4 @@ _Same-day live feedback (Zepp multi-user export, export status placement, Apple 
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
+| [#616](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/616) | ✅ Done | Zepp Life import: export may contain two users' data — detect/filter on our side | BODY `height` splits shared-scale exports; `ZeppLifeProfileDialog` + filter by chosen height. ACTIVITY unchanged (not height-keyed). Confirmed working on-device 2026-08-06 (previously closed prematurely on indirect evidence, reopened, now confirmed for real) |
