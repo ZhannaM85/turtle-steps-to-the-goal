@@ -27,6 +27,7 @@ _Same-day live feedback while working through Tier 123/125's validation queue. A
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#629](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/629) | ✅ Done | PDF summary export: let user pick which sections to include | New `PdfSectionsDialog.tsx` (same multi-select `ToggleGroup` shape as Settings' "what to track" groups) shown when "Export PDF summary" is clicked; `buildSummaryPdf` gained a `PdfSections` param gating the weight-trend/weekly-averages/body-measurements blocks. Disclaimer stays unconditional per #609. Confirmed working on-device 2026-08-06 — follow-up filed for expanding to all tracked metrics |
+| [#630](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/630) | ✅ Done | PDF summary export: offer every tracked metric as a section, not just three | `PdfSummaryData`/`PdfSections` expanded to sleep, steps, water, cycle, digestion, alcohol, night eating, body composition, plus a dynamic list of the user's own custom metrics. New `pdfSectionAvailability()`/`customMetricPdfOptions()` disable a toggle with no data in the picked range rather than hiding it. Confirmed working on-device 2026-08-06 — follow-up filed as #632 (some toggles enabled without real entries) |
 
 ---
 
