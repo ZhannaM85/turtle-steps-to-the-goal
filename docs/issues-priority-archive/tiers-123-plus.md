@@ -11,6 +11,7 @@ _Filed from the product-owner audit in `C:\Users\User\Projects\docs\turtle-steps
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#607](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/607) | ✅ Done | Optional alcohol day signal and next-day weight correlation | `DailyEntry.hadAlcohol` + `useAlcoholTrackingStore`, mirrors `hadConstipation`/`nightEatingCorrelation` exactly. New `AlcoholCorrelationView` (only Settings-gated correlation view). Export/import covered. Confirmed working on-device 2026-08-06 |
+| [#609](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/609) | ✅ Done | Local PDF summary export for sharing outside the app | New `exportPdf.ts` (jsPDF + jspdf-autotable, both new deps, dynamically imported): weight trend (hand-drawn line), weekly-averages table, optional latest body measurements, non-medical disclaimer on every page. Own 30/90-day picker. Confirmed working on-device 2026-08-06 — follow-up filed as #629 (section picker modal) |
 
 ---
 
