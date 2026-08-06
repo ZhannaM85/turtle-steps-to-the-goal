@@ -4,7 +4,6 @@ import { MemoryRouter } from 'react-router-dom'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import type { DailyEntry } from '@/domain/dailyEntry'
 import {
-  useCycleTrackingStore,
   useDashboardChartVisibilityStore,
   useOutlierExclusionStore,
   useTrendChartSeriesStore,
@@ -56,53 +55,16 @@ describe('WeightTrendChart', () => {
     expect(screen.queryByText('projected')).not.toBeInTheDocument()
   })
 
-  describe('cycle period weight note (#615)', () => {
-    afterEach(() => {
-      useCycleTrackingStore.setState({ enabled: false })
-    })
-
-    // #615 (refined live) — only shown when the visible range actually has
-    // a logged period day, not on every range regardless of content.
-    it('shows the note when cycle tracking is on and the visible range has a period day', () => {
-      useCycleTrackingStore.setState({ enabled: true })
-      const entries = [
-        ...threeWeightEntries(),
-        entry('2026-03-04', { onPeriod: true }),
-      ]
-      render(<WeightTrendChart entries={entries} />, {
-        wrapper: MemoryRouter,
-      })
-
-      expect(
-        screen.getByText(/Weight often fluctuates around your period/),
-      ).toBeInTheDocument()
-    })
-
-    it('shows no note when cycle tracking is on but no period is logged in the visible range', () => {
-      useCycleTrackingStore.setState({ enabled: true })
-      render(<WeightTrendChart entries={threeWeightEntries()} />, {
-        wrapper: MemoryRouter,
-      })
-
-      expect(
-        screen.queryByText(/Weight often fluctuates around your period/),
-      ).not.toBeInTheDocument()
-    })
-
-    it('shows no note when cycle tracking is off, even with a period logged', () => {
-      const entries = [
-        ...threeWeightEntries(),
-        entry('2026-03-04', { onPeriod: true }),
-      ]
-      render(<WeightTrendChart entries={entries} />, {
-        wrapper: MemoryRouter,
-      })
-
-      expect(
-        screen.queryByText(/Weight often fluctuates around your period/),
-      ).not.toBeInTheDocument()
-    })
-  })
+  // #615 (reopened live twice) — the cycle/weight note used to be a static
+  // banner gated on "does the whole visible range contain a period day
+  // anywhere," then a 5-day proximity window; both read as unrelated noise
+  // on days with no real connection to a logged period. It now renders
+  // inside the tooltip, true only when the tooltip's own date is itself a
+  // logged period day, via `isLoggedPeriodDay` (own tests in
+  // cyclePeriodDay.test.ts) — no full-render coverage here since this
+  // codebase doesn't simulate Recharts tooltip hover/tap for line charts
+  // (see chartNavigation.ts/.test.ts for the same split between pure
+  // tooltip logic and untested Recharts wiring).
 
   describe('7-day rolling average overlay (#214)', () => {
     it('shows the rolling-average legend alongside the weight one', () => {

@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 587,
+    issue: 615,
+    date: '2026-08-06T19:27:28+03:00',
+    en: 'With cycle tracking on, tapping a weight trend point on a logged period day now shows a factual note that weight often fluctuates around your period — it no longer appears on unrelated days.',
+    ru: 'При включённом отслеживании цикла нажатие на точку графика веса в день менструации теперь показывает заметку о том, что вес часто колеблется в эти дни — она больше не появляется в никак не связанные дни.',
+  },
+  {
     version: 586,
     issue: 634,
     date: '2026-08-06T15:59:48+03:00',

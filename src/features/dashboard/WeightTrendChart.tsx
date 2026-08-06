@@ -38,6 +38,7 @@ import { Button } from '@/shared/ui/button'
 import { ChartPeriodPagerControls } from './ChartPeriodPagerControls'
 import { ChartTitleWithToggle } from './ChartTitleWithToggle'
 import { resolveChartClickDate } from './chartNavigation'
+import { isLoggedPeriodDay } from './cyclePeriodDay'
 import { OutlierPointsList } from './OutlierPointsList'
 import { useChartGestureZoom } from './useChartGestureZoom'
 import { useChartPeriodPager } from './useChartPeriodPager'
@@ -103,7 +104,17 @@ export function WeightTrendChart({
   const displayUnit = useUnitStore((state) => state.unit)
   // #615 — one-line factual note, cycle-tracking users only; no per-user
   // predicted window, just a general "period days are known noise" fact.
+  // Scoped in the tooltip below to whichever exact day is actually being
+  // looked at (via isLoggedPeriodDay) — reported live twice that any
+  // days-before/after window (first the whole viewed range, then a 5-day
+  // radius) still surfaced the note on days with no real connection to a
+  // logged period. Sourced from allEntries rather than the paged/zoomed
+  // `entries` used elsewhere below, so this stays correct regardless of
+  // which page happens to be open.
   const cycleTrackingEnabled = useCycleTrackingStore((state) => state.enabled)
+  const periodDates = allEntries
+    .filter((entry) => entry.onPeriod)
+    .map((entry) => entry.date)
   // #455 — hooks must run before this component's own early returns below
   // (rules-of-hooks), even though this value is only read much further down.
   const excludedWeightDates = useOutlierExclusionStore(
@@ -311,6 +322,15 @@ export function WeightTrendChart({
             </p>
           ),
         )}
+        {/* #615 — only when this specific tooltip date is itself a logged
+         * period day, not a days-before/after window around one (see
+         * isLoggedPeriodDay's own comment). */}
+        {cycleTrackingEnabled &&
+          isLoggedPeriodDay(String(label), periodDates) && (
+            <p className="mt-1 max-w-[220px] text-muted-foreground">
+              {t.dashboard.cyclePeriodWeightNote}
+            </p>
+          )}
         {date && (
           <Link
             to={`/?date=${date}`}
@@ -517,18 +537,6 @@ export function WeightTrendChart({
           {t.dashboard.chartNavigationHint}
         </p>
       )}
-      {/* #615 — only shown when the currently-viewed range actually has a
-       * logged period day, not on every range regardless of content
-       * (reported live as reading like a stray/unrelated note otherwise,
-       * the same "don't reference something not actually in view" concern
-       * behind #631). */}
-      {!bothHidden &&
-        cycleTrackingEnabled &&
-        entries.some((entry) => entry.onPeriod) && (
-          <p className="text-xs text-muted-foreground">
-            {t.dashboard.cyclePeriodWeightNote}
-          </p>
-        )}
       <ChartPeriodPagerControls pager={pager} />
     </div>
   )
