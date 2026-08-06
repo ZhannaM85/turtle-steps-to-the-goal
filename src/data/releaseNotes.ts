@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 583,
+    issue: 629,
+    date: '2026-08-06T12:21:20+03:00',
+    en: 'The PDF summary export now lets you choose which sections to include — weight trend, weekly averages, and body measurements — before generating it.',
+    ru: 'При экспорте сводки в PDF теперь можно выбрать, какие разделы включить — динамику веса, средние по неделям и замеры тела — перед созданием файла.',
+  },
+  {
     version: 582,
     issue: 628,
     date: '2026-08-05T20:02:12+03:00',

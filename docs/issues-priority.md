@@ -82,4 +82,13 @@ _Same-day live feedback after Zepp / export work. **Do not** split further same-
 | [#625](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/625) | 📋 Not started | Apply day-start time to Dashboard rolling-window displays (follow-up to #601) | Recent averages, logging-consistency heatmap, trend-chart period pager — lower-stakes than #601's own correlation fixes, deliberately scoped out of that pass |
 | [#628](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/628) | 🔍 Pending validation | JSON backup restore silently drops fields the existing entry has but the import doesn't | Root cause confirmed + reproduced (not MFP/Apple Health/Zepp, which already merge safely): `importAllData`'s dailyEntries merge only spread the imported entry's own fields, discarding the existing record. Fixed by spreading `existing` first. Awaiting on-device confirmation |
 
+---
+
+## Tier 126 — Live feedback (2026-08-06)
+
+_Same-day live feedback while working through Tier 123/125's validation queue._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#629](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/629) | 🔍 Pending validation | PDF summary export: let user pick which sections to include | Follow-up to #609. New `PdfSectionsDialog.tsx` (same multi-select `ToggleGroup` shape as Settings' "what to track" groups) shown when "Export PDF summary" is clicked; `buildSummaryPdf` gained a `PdfSections` param gating the weight-trend/weekly-averages/body-measurements blocks. Disclaimer stays unconditional per #609. Awaiting on-device confirmation |
 

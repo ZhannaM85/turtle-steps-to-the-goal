@@ -38,10 +38,15 @@ import {
 } from './exportActions'
 import { buildDailyLogCsv, CSV_BOM } from './exportCsv'
 import { buildDailyLogMarkdown } from './exportMarkdown'
-import { buildPdfSummaryData, buildSummaryPdf } from './exportPdf'
+import {
+  buildPdfSummaryData,
+  buildSummaryPdf,
+  type PdfSections,
+} from './exportPdf'
 import { buildExportWorkbook } from './exportXlsx'
 import { ImportConflictModePicker } from './ImportConflictModePicker'
 import { ImportFieldPicker } from './ImportFieldPicker'
+import { PdfSectionsDialog } from './PdfSectionsDialog'
 import type {
   DailyEntryImportMode,
   DailyEntryPatch,
@@ -259,6 +264,9 @@ export function ExportSection() {
   const [pdfPeriodEnd, setPdfPeriodEnd] = useState(() =>
     format(new Date(), 'yyyy-MM-dd'),
   )
+  // #629 — which sections to include is picked in a dialog shown right
+  // before generation, not baked into the period picker above.
+  const [pdfSectionsDialogOpen, setPdfSectionsDialogOpen] = useState(false)
   const zeppLifeFileInputRef = useRef<HTMLInputElement>(null)
   const [zeppLifePendingFile, setZeppLifePendingFile] = useState<File | null>(
     null,
@@ -564,7 +572,7 @@ export function ExportSection() {
   // deliberately separate picker from the shared periodStart/periodEnd
   // above (see that state's own comment for why blank isn't a valid
   // default here the way it is for Excel/CSV/Markdown).
-  async function handleExportPdf() {
+  async function handleExportPdf(sections: PdfSections) {
     setStatus({ kind: 'exportingPdf' })
     try {
       const bundle = await exportAllData()
@@ -578,13 +586,14 @@ export function ExportSection() {
         pdfPeriodEnd,
         resolveWeekStartsOn(weekStart, earliestEntryDate),
       )
-      const blob = await buildSummaryPdf(data, t, locale, unit)
+      const blob = await buildSummaryPdf(data, t, locale, unit, sections)
       const url = URL.createObjectURL(blob)
       const link = document.createElement('a')
       link.href = url
       link.download = `turtle-steps-summary-${pdfPeriodEnd}.pdf`
       link.click()
       URL.revokeObjectURL(url)
+      setPdfSectionsDialogOpen(false)
       setStatus({ kind: 'exportedPdf' })
     } catch {
       setStatus({
@@ -1124,7 +1133,7 @@ export function ExportSection() {
           </div>
           <Button
             variant="outline"
-            onClick={handleExportPdf}
+            onClick={() => setPdfSectionsDialogOpen(true)}
             className="self-start"
             disabled={
               status.kind === 'exportingPdf' ||
@@ -1487,6 +1496,12 @@ export function ExportSection() {
         onOpenChange={setIsEncryptedExportDialogOpen}
         onSubmit={handleExportEncrypted}
         submitting={status.kind === 'exportingEncrypted'}
+      />
+      <PdfSectionsDialog
+        open={pdfSectionsDialogOpen}
+        onOpenChange={setPdfSectionsDialogOpen}
+        onSubmit={handleExportPdf}
+        submitting={status.kind === 'exportingPdf'}
       />
       <EncryptedBackupImportDialog
         open={pendingEncryptedEnvelope !== null}

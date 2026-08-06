@@ -159,4 +159,49 @@ describe('buildSummaryPdf', () => {
 
     expect(raw).toContain('PTSans')
   })
+
+  // #629 — a section picker lets the user drop any of these three from the
+  // generated PDF; the disclaimer itself has no toggle (#609's own
+  // acceptance keeps it unconditional) so it's not covered here.
+  it('does not throw when every optional section is excluded', async () => {
+    const data = buildPdfSummaryData(
+      [
+        makeEntry({ date: '2026-08-01', weightKg: 80, waistCm: 80 }),
+        makeEntry({ date: '2026-08-04', weightKg: 79 }),
+      ],
+      '2026-07-07',
+      '2026-08-05',
+      1,
+    )
+
+    const blob = await buildSummaryPdf(data, t, 'en', 'kg', {
+      weightTrend: false,
+      weeklyAverages: false,
+      bodyMeasurements: false,
+    })
+
+    expect(blob.type).toBe('application/pdf')
+    expect(blob.size).toBeGreaterThan(0)
+  })
+
+  it('produces a smaller document when sections are excluded than when all are included', async () => {
+    const data = buildPdfSummaryData(
+      [
+        makeEntry({ date: '2026-08-01', weightKg: 80, waistCm: 80 }),
+        makeEntry({ date: '2026-08-04', weightKg: 79 }),
+      ],
+      '2026-07-07',
+      '2026-08-05',
+      1,
+    )
+
+    const fullBlob = await buildSummaryPdf(data, t, 'en', 'kg')
+    const trimmedBlob = await buildSummaryPdf(data, t, 'en', 'kg', {
+      weightTrend: false,
+      weeklyAverages: false,
+      bodyMeasurements: false,
+    })
+
+    expect(trimmedBlob.size).toBeLessThan(fullBlob.size)
+  })
 })

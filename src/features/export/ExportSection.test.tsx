@@ -253,6 +253,9 @@ describe('ExportSection', () => {
     await user.click(
       screen.getByRole('button', { name: 'Export PDF summary' }),
     )
+    await user.click(
+      await screen.findByRole('button', { name: 'Generate PDF' }),
+    )
 
     expect(
       await screen.findByText('PDF summary downloaded.'),
@@ -273,6 +276,9 @@ describe('ExportSection', () => {
     await user.click(
       screen.getByRole('button', { name: 'Export PDF summary' }),
     )
+    await user.click(
+      await screen.findByRole('button', { name: 'Generate PDF' }),
+    )
 
     expect(
       await screen.findByText('PDF summary downloaded.'),
@@ -292,6 +298,29 @@ describe('ExportSection', () => {
     await user.click(
       screen.getByRole('button', { name: 'Export PDF summary' }),
     )
+    await user.click(
+      await screen.findByRole('button', { name: 'Generate PDF' }),
+    )
+
+    expect(
+      await screen.findByText('PDF summary downloaded.'),
+    ).toBeInTheDocument()
+  })
+
+  it('lets the user exclude a section from the generated PDF (#629)', async () => {
+    await db.dailyEntries.put(
+      makeEntry({ date: format(new Date(), 'yyyy-MM-dd'), weightKg: 80 }),
+    )
+    const user = userEvent.setup()
+
+    render(<ExportSection />)
+    await user.click(
+      screen.getByRole('button', { name: 'Export PDF summary' }),
+    )
+    await user.click(
+      await screen.findByRole('button', { name: 'Weight trend' }),
+    )
+    await user.click(screen.getByRole('button', { name: 'Generate PDF' }))
 
     expect(
       await screen.findByText('PDF summary downloaded.'),

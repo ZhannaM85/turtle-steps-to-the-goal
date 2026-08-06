@@ -22,6 +22,21 @@ export interface PdfSummaryData {
   latestBodyFatPercent: { value: number; date: string } | null
 }
 
+/** #629 — which optional sections to render; the disclaimer footer isn't
+ * included here since it's unconditional per #609's own acceptance
+ * criteria. Defaults to all-on so existing callers/tests are unaffected. */
+export interface PdfSections {
+  weightTrend: boolean
+  weeklyAverages: boolean
+  bodyMeasurements: boolean
+}
+
+const DEFAULT_PDF_SECTIONS: PdfSections = {
+  weightTrend: true,
+  weeklyAverages: true,
+  bodyMeasurements: true,
+}
+
 function latestNumberField(
   entries: DailyEntry[],
   pick: (entry: DailyEntry) => number | undefined,
@@ -96,6 +111,7 @@ export async function buildSummaryPdf(
   t: Dictionary,
   locale: Locale,
   unit: Unit,
+  sections: PdfSections = DEFAULT_PDF_SECTIONS,
 ): Promise<Blob> {
   const { jsPDF } = await import('jspdf')
   const { default: autoTable } = await import('jspdf-autotable')
@@ -131,80 +147,86 @@ export async function buildSummaryPdf(
   doc.setTextColor(0)
 
   let cursorY = 35
-  doc.setFontSize(13)
-  doc.text(t.pdfSummary.weightTrendSectionTitle, marginX, cursorY)
-  cursorY += 6
 
-  if (data.weightPoints.length === 0) {
-    doc.setFontSize(10)
-    doc.setTextColor(110)
-    doc.text(t.pdfSummary.noWeightDataMessage, marginX, cursorY)
-    doc.setTextColor(0)
-    cursorY += 8
-  } else {
-    cursorY = drawWeightTrendChart(
-      doc,
-      data.weightPoints,
-      unit,
-      locale,
-      marginX,
-      cursorY,
-      pageWidth - marginX * 2,
-      50,
-    )
+  if (sections.weightTrend) {
+    doc.setFontSize(13)
+    doc.text(t.pdfSummary.weightTrendSectionTitle, marginX, cursorY)
+    cursorY += 6
+
+    if (data.weightPoints.length === 0) {
+      doc.setFontSize(10)
+      doc.setTextColor(110)
+      doc.text(t.pdfSummary.noWeightDataMessage, marginX, cursorY)
+      doc.setTextColor(0)
+      cursorY += 8
+    } else {
+      cursorY = drawWeightTrendChart(
+        doc,
+        data.weightPoints,
+        unit,
+        locale,
+        marginX,
+        cursorY,
+        pageWidth - marginX * 2,
+        50,
+      )
+    }
+    cursorY += 4
   }
 
-  cursorY += 4
-  doc.setFontSize(13)
-  doc.text(t.pdfSummary.weeklyAveragesSectionTitle, marginX, cursorY)
-  cursorY += 4
+  if (sections.weeklyAverages) {
+    doc.setFontSize(13)
+    doc.text(t.pdfSummary.weeklyAveragesSectionTitle, marginX, cursorY)
+    cursorY += 4
 
-  if (data.weeks.length === 0) {
-    doc.setFontSize(10)
-    doc.setTextColor(110)
-    doc.text(t.pdfSummary.noWeeklyDataMessage, marginX, cursorY + 4)
-    doc.setTextColor(0)
-    cursorY += 12
-  } else {
-    autoTable(doc, {
-      startY: cursorY,
-      margin: { left: marginX, right: marginX },
-      head: [
-        [
-          t.pdfSummary.weekColumnHeader,
-          t.pdfSummary.avgWeightColumnHeader(unitLabel(unit, t)),
-          t.pdfSummary.weightChangeColumnHeader,
-          t.pdfSummary.avgCaloriesColumnHeader,
+    if (data.weeks.length === 0) {
+      doc.setFontSize(10)
+      doc.setTextColor(110)
+      doc.text(t.pdfSummary.noWeeklyDataMessage, marginX, cursorY + 4)
+      doc.setTextColor(0)
+      cursorY += 12
+    } else {
+      autoTable(doc, {
+        startY: cursorY,
+        margin: { left: marginX, right: marginX },
+        head: [
+          [
+            t.pdfSummary.weekColumnHeader,
+            t.pdfSummary.avgWeightColumnHeader(unitLabel(unit, t)),
+            t.pdfSummary.weightChangeColumnHeader,
+            t.pdfSummary.avgCaloriesColumnHeader,
+          ],
         ],
-      ],
-      body: data.weeks.map((week) => [
-        `${formatDisplayDate(week.weekStart, locale)} – ${formatDisplayDate(week.weekEnd, locale)}`,
-        week.averageWeightKg === null
-          ? '—'
-          : formatNumber(toDisplayWeight(week.averageWeightKg, unit), locale),
-        week.deltaVsPriorWeekKg === null
-          ? '—'
-          : formatSignedNumber(
-              toDisplayWeight(week.deltaVsPriorWeekKg, unit),
-              locale,
-            ),
-        week.averageCalories === null
-          ? '—'
-          : formatNumber(week.averageCalories, locale, 0),
-      ]),
-      theme: 'grid',
-      headStyles: { fillColor: [90, 90, 90] },
-      styles: { fontSize: 9, font: 'PTSans', fontStyle: 'normal' },
-    })
-    cursorY =
-      (doc as unknown as { lastAutoTable: { finalY: number } }).lastAutoTable
-        .finalY + 10
+        body: data.weeks.map((week) => [
+          `${formatDisplayDate(week.weekStart, locale)} – ${formatDisplayDate(week.weekEnd, locale)}`,
+          week.averageWeightKg === null
+            ? '—'
+            : formatNumber(toDisplayWeight(week.averageWeightKg, unit), locale),
+          week.deltaVsPriorWeekKg === null
+            ? '—'
+            : formatSignedNumber(
+                toDisplayWeight(week.deltaVsPriorWeekKg, unit),
+                locale,
+              ),
+          week.averageCalories === null
+            ? '—'
+            : formatNumber(week.averageCalories, locale, 0),
+        ]),
+        theme: 'grid',
+        headStyles: { fillColor: [90, 90, 90] },
+        styles: { fontSize: 9, font: 'PTSans', fontStyle: 'normal' },
+      })
+      cursorY =
+        (doc as unknown as { lastAutoTable: { finalY: number } }).lastAutoTable
+          .finalY + 10
+    }
   }
 
   const hasBodyMeasurements =
-    data.latestWaistCm !== null ||
-    data.latestHipCm !== null ||
-    data.latestBodyFatPercent !== null
+    sections.bodyMeasurements &&
+    (data.latestWaistCm !== null ||
+      data.latestHipCm !== null ||
+      data.latestBodyFatPercent !== null)
   if (hasBodyMeasurements) {
     doc.setFontSize(13)
     doc.text(t.pdfSummary.bodyMeasurementsSectionTitle, marginX, cursorY)

@@ -583,6 +583,14 @@ export const ru: Dictionary = {
     exportPdfRangeLabel: 'Сводка охватывает',
     exportPdfRange30Label: 'Последние 30 дней',
     exportPdfRange90Label: 'Последние 90 дней',
+    pdfSectionsDialogTitle: 'Выберите, что включить',
+    pdfSectionsDialogDescription:
+      'Выберите, какие разделы войдут в PDF. Отказ от медицинской ответственности включается всегда.',
+    pdfSectionWeightTrendLabel: 'Динамика веса',
+    pdfSectionWeeklyAveragesLabel: 'Средние по неделям',
+    pdfSectionBodyMeasurementsLabel: 'Замеры тела',
+    pdfSectionsGenerateButton: 'Создать PDF',
+    closePdfSectionsDialogLabel: 'Закрыть',
     exportExcelBlurb:
       'Скачайте свои данные в формате Excel для просмотра или анализа — это не резервная копия, импортировать её обратно нельзя.',
     exportExcelButton: 'Экспорт в Excel',

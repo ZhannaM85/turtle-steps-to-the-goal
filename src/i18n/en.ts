@@ -562,6 +562,14 @@ export const en: Dictionary = {
     exportPdfRangeLabel: 'Summary covers',
     exportPdfRange30Label: 'Last 30 days',
     exportPdfRange90Label: 'Last 90 days',
+    pdfSectionsDialogTitle: 'Choose what to include',
+    pdfSectionsDialogDescription:
+      'Pick which sections go into the PDF. The non-medical disclaimer is always included.',
+    pdfSectionWeightTrendLabel: 'Weight trend',
+    pdfSectionWeeklyAveragesLabel: 'Weekly averages',
+    pdfSectionBodyMeasurementsLabel: 'Body measurements',
+    pdfSectionsGenerateButton: 'Generate PDF',
+    closePdfSectionsDialogLabel: 'Close',
     exportExcelBlurb:
       'Download your data as an Excel file for viewing or analysis — this is not a backup and can’t be imported back in.',
     exportExcelButton: 'Export as Excel',

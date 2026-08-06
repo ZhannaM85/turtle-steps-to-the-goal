@@ -1000,6 +1000,16 @@ export interface Dictionary {
     exportPdfRangeLabel: string
     exportPdfRange30Label: string
     exportPdfRange90Label: string
+    /** #629 — lets the user pick which optional sections (below) go into
+     * the PDF before it's generated. The disclaimer stays unconditional,
+     * so it has no corresponding toggle here. */
+    pdfSectionsDialogTitle: string
+    pdfSectionsDialogDescription: string
+    pdfSectionWeightTrendLabel: string
+    pdfSectionWeeklyAveragesLabel: string
+    pdfSectionBodyMeasurementsLabel: string
+    pdfSectionsGenerateButton: string
+    closePdfSectionsDialogLabel: string
     exportExcelBlurb: string
     exportExcelButton: string
     exportingExcelButton: string
