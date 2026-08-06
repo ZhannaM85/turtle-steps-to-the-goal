@@ -2,13 +2,18 @@ import { useEffect, useRef, useState } from 'react'
 import { format, subDays } from 'date-fns'
 import { type Dictionary, useLocale, useTranslation } from '@/i18n'
 import {
+  useAlcoholTrackingStore,
   useCustomMetricStore,
+  useCycleTrackingStore,
+  useDigestionTrackingStore,
   useFoodOverrideStore,
   useLastBackupStore,
   useMealItemStore,
   useMealSlotDefaultTimesStore,
   useProfileStore,
+  useTrackedFieldsStore,
   useUnitStore,
+  useWaterTrackingStore,
   useWeekStartStore,
 } from '@/stores'
 import { Button } from '@/shared/ui/button'
@@ -45,6 +50,7 @@ import {
   buildSummaryPdf,
   customMetricPdfOptions,
   EMPTY_PDF_SECTION_AVAILABILITY,
+  gatePdfSectionAvailability,
   pdfSectionAvailability,
   type CustomMetricPdfOption,
   type CustomMetricPdfSummary,
@@ -259,6 +265,18 @@ export function ExportSection() {
   const locale = useLocale()
   const unit = useUnitStore((state) => state.unit)
   const weekStart = useWeekStartStore((state) => state.weekStart)
+  // #633 — gates the picker's availability below against what Settings'
+  // "What to track" currently has on, not just whether a section has any
+  // logged data ever (#630's own check, `pdfSectionAvailability`).
+  const trackedFields = useTrackedFieldsStore((state) => state.tracked)
+  const cycleTrackingEnabled = useCycleTrackingStore((state) => state.enabled)
+  const digestionTrackingEnabled = useDigestionTrackingStore(
+    (state) => state.enabled,
+  )
+  const alcoholTrackingEnabled = useAlcoholTrackingStore(
+    (state) => state.enabled,
+  )
+  const waterTrackingEnabled = useWaterTrackingStore((state) => state.enabled)
   // #624 — a free-form date range (own state, not the shared periodStart/
   // periodEnd above) replaces the original fixed 30/90-day toggle. Unlike
   // that shared picker, blank isn't a valid "everything" default here — an
@@ -343,10 +361,9 @@ export function ExportSection() {
   const setMealSlotDefaultTimes = useMealSlotDefaultTimesStore(
     (state) => state.setTimes,
   )
-  const [myFitnessPalSelectedFields, setMyFitnessPalSelectedFields] =
-    useState<Set<string>>(
-      () => new Set(MYFITNESSPAL_FIELDS.map((field) => field.key)),
-    )
+  const [myFitnessPalSelectedFields, setMyFitnessPalSelectedFields] = useState<
+    Set<string>
+  >(() => new Set(MYFITNESSPAL_FIELDS.map((field) => field.key)))
   const [myFitnessPalImportMode, setMyFitnessPalImportMode] =
     useState<DailyEntryImportMode>('fillGaps')
   const [storageUsage, setStorageUsage] = useState<number | null>(null)
@@ -605,7 +622,8 @@ export function ExportSection() {
     try {
       const bundle = await exportAllData()
       const earliestEntryDate = bundle.dailyEntries.reduce<string | undefined>(
-        (min, entry) => (min === undefined || entry.date < min ? entry.date : min),
+        (min, entry) =>
+          min === undefined || entry.date < min ? entry.date : min,
         undefined,
       )
       const data = buildPdfSummaryData(
@@ -675,7 +693,9 @@ export function ExportSection() {
   // pre-import data until something unrelated happens to remount/reload it.
   // Shared by the plain JSON import and #608's encrypted import below —
   // both land on the same bundle shape once decrypted.
-  async function applyImportedBundle(bundle: ReturnType<typeof parseExportBundle>) {
+  async function applyImportedBundle(
+    bundle: ReturnType<typeof parseExportBundle>,
+  ) {
     await importAllData(bundle)
     await Promise.all([
       useMealItemStore.getState().loadItems(),
@@ -757,7 +777,10 @@ export function ExportSection() {
     setZeppLifeDialogOpen(true)
   }
 
-  async function runZeppLifeImport(password: string, selectedHeightCm?: number) {
+  async function runZeppLifeImport(
+    password: string,
+    selectedHeightCm?: number,
+  ) {
     if (!zeppLifePendingFile) return
     setStatus({ kind: 'importingZeppLife' })
     try {
@@ -947,7 +970,9 @@ export function ExportSection() {
           <p className="text-xs text-muted-foreground" role="status">
             {lastExportedAt === null
               ? t.export.lastBackupNeverLabel
-              : t.export.lastBackupAgoLabel(daysSince(lastExportedAt, new Date()))}
+              : t.export.lastBackupAgoLabel(
+                  daysSince(lastExportedAt, new Date()),
+                )}
           </p>
           <Button
             onClick={handleExport}
@@ -1109,7 +1134,9 @@ export function ExportSection() {
             </SectionStatus>
           )}
           {sectionErrorMessage(status, 'csv') && (
-            <SectionStatus error>{sectionErrorMessage(status, 'csv')!}</SectionStatus>
+            <SectionStatus error>
+              {sectionErrorMessage(status, 'csv')!}
+            </SectionStatus>
           )}
         </div>
 
@@ -1200,9 +1227,7 @@ export function ExportSection() {
             onClick={openPdfSectionsDialog}
             className="self-start"
             disabled={
-              status.kind === 'exportingPdf' ||
-              !pdfPeriodStart ||
-              !pdfPeriodEnd
+              status.kind === 'exportingPdf' || !pdfPeriodStart || !pdfPeriodEnd
             }
           >
             {status.kind === 'exportingPdf'
@@ -1350,7 +1375,9 @@ export function ExportSection() {
             </SectionStatus>
           )}
           {sectionErrorMessage(status, 'zepp') && (
-            <SectionStatus error>{sectionErrorMessage(status, 'zepp')!}</SectionStatus>
+            <SectionStatus error>
+              {sectionErrorMessage(status, 'zepp')!}
+            </SectionStatus>
           )}
         </div>
 
@@ -1428,7 +1455,9 @@ export function ExportSection() {
             </SectionStatus>
           )}
           {sectionErrorMessage(status, 'apple') && (
-            <SectionStatus error>{sectionErrorMessage(status, 'apple')!}</SectionStatus>
+            <SectionStatus error>
+              {sectionErrorMessage(status, 'apple')!}
+            </SectionStatus>
           )}
         </div>
 
@@ -1506,7 +1535,9 @@ export function ExportSection() {
             </SectionStatus>
           )}
           {sectionErrorMessage(status, 'mfp') && (
-            <SectionStatus error>{sectionErrorMessage(status, 'mfp')!}</SectionStatus>
+            <SectionStatus error>
+              {sectionErrorMessage(status, 'mfp')!}
+            </SectionStatus>
           )}
         </div>
       </CardContent>
@@ -1568,7 +1599,20 @@ export function ExportSection() {
         submitting={status.kind === 'exportingPdf'}
         availability={
           pdfPreviewData
-            ? pdfSectionAvailability(pdfPreviewData)
+            ? gatePdfSectionAvailability(
+                pdfSectionAvailability(pdfPreviewData),
+                {
+                  sleep: trackedFields.sleep,
+                  steps: trackedFields.steps,
+                  bodyMeasurements: trackedFields.bodyMeasurements,
+                  bodyComposition: trackedFields.bodyComposition,
+                  nightEating: trackedFields.nightEating,
+                  cycle: cycleTrackingEnabled,
+                  digestion: digestionTrackingEnabled,
+                  alcohol: alcoholTrackingEnabled,
+                  water: waterTrackingEnabled,
+                },
+              )
             : EMPTY_PDF_SECTION_AVAILABILITY
         }
         customMetrics={pdfCustomMetricOptions}

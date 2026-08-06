@@ -157,13 +157,63 @@ export function pdfSectionAvailability(
       data.latestVisceralFatRating !== null ||
       data.latestBodyWaterPercent !== null ||
       data.latestBoneMassKg !== null,
-    sleep: data.averageSleepHours !== null || data.averageDeepSleepHours !== null,
+    sleep:
+      data.averageSleepHours !== null || data.averageDeepSleepHours !== null,
     steps: data.averageSteps !== null,
     water: data.averageWaterMl !== null,
     cycle: data.cycle.loggedDays > 0,
     digestion: data.digestion.loggedDays > 0,
     alcohol: data.alcohol.loggedDays > 0,
     nightEating: data.nightEating.loggedDays > 0,
+  }
+}
+
+/** #633 — whether each gated section is *currently* tracked in Settings'
+ * "What to track" (`useTrackedFieldsStore`) plus the older per-field opt-in
+ * stores (`useCycleTrackingStore` etc., #237's doc comment explains why
+ * those stay separate) it was folded together with. `weightTrend`/
+ * `weeklyAverages` have no such toggle — weight itself is always tracked —
+ * so there's nothing to gate them on. */
+export interface PdfSectionTrackingGate {
+  sleep: boolean
+  steps: boolean
+  bodyMeasurements: boolean
+  bodyComposition: boolean
+  nightEating: boolean
+  cycle: boolean
+  digestion: boolean
+  alcohol: boolean
+  water: boolean
+}
+
+/**
+ * #633 — a section can have real historical data (`pdfSectionAvailability`
+ * above) from before its Settings toggle was turned off, or from a signal
+ * that was never an intentional opt-in in the first place — that's still
+ * "available" by the pure has-data check, but offering it in the picker
+ * reads as wrong when Settings currently says it isn't tracked. ANDs the
+ * two checks together per section rather than changing what "has data"
+ * means on its own (`pdfSectionAvailability`'s existing tests, e.g. an
+ * all-false boolean field still counting as available, stay valid either
+ * way — this only ever narrows the result further).
+ */
+export function gatePdfSectionAvailability(
+  availability: PdfSectionAvailability,
+  tracking: PdfSectionTrackingGate,
+): PdfSectionAvailability {
+  return {
+    weightTrend: availability.weightTrend,
+    weeklyAverages: availability.weeklyAverages,
+    bodyMeasurements:
+      availability.bodyMeasurements && tracking.bodyMeasurements,
+    bodyComposition: availability.bodyComposition && tracking.bodyComposition,
+    sleep: availability.sleep && tracking.sleep,
+    steps: availability.steps && tracking.steps,
+    water: availability.water && tracking.water,
+    cycle: availability.cycle && tracking.cycle,
+    digestion: availability.digestion && tracking.digestion,
+    alcohol: availability.alcohol && tracking.alcohol,
+    nightEating: availability.nightEating && tracking.nightEating,
   }
 }
 
@@ -197,7 +247,8 @@ function latestNumberField(
   for (const entry of entries) {
     const value = pick(entry)
     if (value === undefined) continue
-    if (!latest || entry.date > latest.date) latest = { value, date: entry.date }
+    if (!latest || entry.date > latest.date)
+      latest = { value, date: entry.date }
   }
   return latest
 }
@@ -282,8 +333,9 @@ export function buildPdfSummaryData(
   )
 
   const weightPoints = entries
-    .filter((entry): entry is DailyEntry & { weightKg: number } =>
-      entry.weightKg !== undefined,
+    .filter(
+      (entry): entry is DailyEntry & { weightKg: number } =>
+        entry.weightKg !== undefined,
     )
     .map((entry) => ({ date: entry.date, weightKg: entry.weightKg }))
     .sort((a, b) => a.date.localeCompare(b.date))
@@ -299,7 +351,10 @@ export function buildPdfSummaryData(
       entries,
       (entry) => entry.bodyFatPercent,
     ),
-    latestMuscleMassKg: latestNumberField(entries, (entry) => entry.muscleMassKg),
+    latestMuscleMassKg: latestNumberField(
+      entries,
+      (entry) => entry.muscleMassKg,
+    ),
     latestVisceralFatRating: latestNumberField(
       entries,
       (entry) => entry.visceralFatRating,
@@ -780,12 +835,7 @@ function drawWeightTrendChart(
   doc.setDrawColor(40, 100, 200)
   doc.setLineWidth(0.5)
   for (let i = 1; i < points.length; i++) {
-    doc.line(
-      toX(i - 1),
-      toY(values[i - 1]),
-      toX(i),
-      toY(values[i]),
-    )
+    doc.line(toX(i - 1), toY(values[i - 1]), toX(i), toY(values[i]))
   }
   doc.setLineWidth(0.2)
   doc.setDrawColor(0)

@@ -7,7 +7,9 @@ import {
   buildPdfSummaryData,
   buildSummaryPdf,
   customMetricPdfOptions,
+  gatePdfSectionAvailability,
   pdfSectionAvailability,
+  type PdfSectionTrackingGate,
   type PdfSections,
 } from './exportPdf'
 
@@ -203,6 +205,80 @@ describe('pdfSectionAvailability', () => {
   })
 })
 
+describe('gatePdfSectionAvailability', () => {
+  const ALL_TRACKED: PdfSectionTrackingGate = {
+    sleep: true,
+    steps: true,
+    bodyMeasurements: true,
+    bodyComposition: true,
+    nightEating: true,
+    cycle: true,
+    digestion: true,
+    alcohol: true,
+    water: true,
+  }
+
+  // #633 — a section with real logged data (e.g. alcohol entries from
+  // before the user turned tracking off in Settings) shouldn't show as
+  // selectable once Settings says it isn't currently tracked.
+  it('turns off a section with data once its Settings toggle is off', () => {
+    const data = buildPdfSummaryData(
+      [makeEntry({ date: '2026-08-01', hadAlcohol: true, waistCm: 80 })],
+      '2026-08-01',
+      '2026-08-05',
+      1,
+    )
+    const availability = pdfSectionAvailability(data)
+    expect(availability.alcohol).toBe(true)
+    expect(availability.bodyMeasurements).toBe(true)
+
+    const gated = gatePdfSectionAvailability(availability, {
+      ...ALL_TRACKED,
+      alcohol: false,
+      bodyMeasurements: false,
+    })
+
+    expect(gated.alcohol).toBe(false)
+    expect(gated.bodyMeasurements).toBe(false)
+  })
+
+  it("doesn't turn on a section that has no data just because its toggle is on", () => {
+    const data = buildPdfSummaryData([], '2026-08-01', '2026-08-05', 1)
+    const gated = gatePdfSectionAvailability(
+      pdfSectionAvailability(data),
+      ALL_TRACKED,
+    )
+
+    expect(gated.alcohol).toBe(false)
+    expect(gated.bodyMeasurements).toBe(false)
+  })
+
+  it('never gates weightTrend/weeklyAverages — weight has no tracking toggle', () => {
+    const data = buildPdfSummaryData(
+      [makeEntry({ date: '2026-08-01', weightKg: 80 })],
+      '2026-08-01',
+      '2026-08-05',
+      1,
+    )
+    const availability = pdfSectionAvailability(data)
+
+    const gated = gatePdfSectionAvailability(availability, {
+      sleep: false,
+      steps: false,
+      bodyMeasurements: false,
+      bodyComposition: false,
+      nightEating: false,
+      cycle: false,
+      digestion: false,
+      alcohol: false,
+      water: false,
+    })
+
+    expect(gated.weightTrend).toBe(availability.weightTrend)
+    expect(gated.weeklyAverages).toBe(availability.weeklyAverages)
+  })
+})
+
 describe('buildCustomMetricPdfSummaries / customMetricPdfOptions', () => {
   function makeMetric(overrides: Partial<CustomMetric> = {}): CustomMetric {
     return {
@@ -228,7 +304,10 @@ describe('buildCustomMetricPdfSummaries / customMetricPdfOptions', () => {
   }
 
   it('averages only entries within range and omits metrics with none', () => {
-    const metrics = [makeMetric(), makeMetric({ id: 'metric-2', name: 'Reps', unit: 'reps' })]
+    const metrics = [
+      makeMetric(),
+      makeMetric({ id: 'metric-2', name: 'Reps', unit: 'reps' }),
+    ]
     const entries = [
       makeMetricEntry({ date: '2026-08-01', value: 2 }),
       makeMetricEntry({ date: '2026-08-02', value: 4 }),
@@ -243,7 +322,13 @@ describe('buildCustomMetricPdfSummaries / customMetricPdfOptions', () => {
     )
 
     expect(summaries).toEqual([
-      { metricId: 'metric-1', name: 'Acne', unit: undefined, average: 3, loggedDays: 2 },
+      {
+        metricId: 'metric-1',
+        name: 'Acne',
+        unit: undefined,
+        average: 3,
+        loggedDays: 2,
+      },
     ])
   })
 
@@ -354,7 +439,13 @@ describe('buildSummaryPdf', () => {
       1,
     )
 
-    const blob = await buildSummaryPdf(data, t, 'en', 'kg', ALL_SECTIONS_EXCLUDED)
+    const blob = await buildSummaryPdf(
+      data,
+      t,
+      'en',
+      'kg',
+      ALL_SECTIONS_EXCLUDED,
+    )
 
     expect(blob.type).toBe('application/pdf')
     expect(blob.size).toBeGreaterThan(0)

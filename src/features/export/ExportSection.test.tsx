@@ -6,7 +6,11 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { DailyEntry } from '@/domain/dailyEntry'
 import type { Goal } from '@/domain/goal'
 import { db } from '@/infrastructure/persistence/indexeddb'
-import { useCustomMetricStore, useLastBackupStore, useMealItemStore } from '@/stores'
+import {
+  useCustomMetricStore,
+  useLastBackupStore,
+  useMealItemStore,
+} from '@/stores'
 import { ExportSection } from './ExportSection'
 
 function makeGoal(overrides: Partial<Goal> = {}): Goal {
@@ -120,36 +124,32 @@ describe('ExportSection', () => {
     expect(useLastBackupStore.getState().lastExportedAt).not.toBeNull()
   })
 
-  it(
-    'exports an Excel file and reports how much data was included',
-    async () => {
-      await db.goals.put(makeGoal())
-      await db.dailyEntries.put(makeEntry())
-      await db.dailyEntries.put(makeEntry({ date: '2026-03-02' }))
-      const user = userEvent.setup()
+  it('exports an Excel file and reports how much data was included', async () => {
+    await db.goals.put(makeGoal())
+    await db.dailyEntries.put(makeEntry())
+    await db.dailyEntries.put(makeEntry({ date: '2026-03-02' }))
+    const user = userEvent.setup()
 
-      render(<ExportSection />)
-      await user.click(screen.getByRole('button', { name: 'Export as Excel' }))
+    render(<ExportSection />)
+    await user.click(screen.getByRole('button', { name: 'Export as Excel' }))
 
-      // exceljs is a sizeable dynamic import (#123) — under full-suite
-      // parallel load its first transform can take longer than findByText's
-      // default 1000ms timeout, same reasoning as router.test.tsx's Dashboard
-      // chunk. The test's own timeout (3rd `it` arg, below) needs its own
-      // bump too — left at Vitest's 5000ms default, this findByText's own
-      // 5000ms wait left zero margin for render/click/import-kickoff before
-      // it even started, a real timeout race under load rather than a fluke
-      // (confirmed live: timed out during a full-suite run competing with
-      // unrelated stale background processes for CPU).
-      expect(
-        await screen.findByText(
-          'Exported 1 goal and 2 daily entries.',
-          {},
-          { timeout: 5000 },
-        ),
-      ).toBeInTheDocument()
-    },
-    10000,
-  )
+    // exceljs is a sizeable dynamic import (#123) — under full-suite
+    // parallel load its first transform can take longer than findByText's
+    // default 1000ms timeout, same reasoning as router.test.tsx's Dashboard
+    // chunk. The test's own timeout (3rd `it` arg, below) needs its own
+    // bump too — left at Vitest's 5000ms default, this findByText's own
+    // 5000ms wait left zero margin for render/click/import-kickoff before
+    // it even started, a real timeout race under load rather than a fluke
+    // (confirmed live: timed out during a full-suite run competing with
+    // unrelated stale background processes for CPU).
+    expect(
+      await screen.findByText(
+        'Exported 1 goal and 2 daily entries.',
+        {},
+        { timeout: 5000 },
+      ),
+    ).toBeInTheDocument()
+  }, 10000)
 
   it('exports a CSV file and reports how many entries were included', async () => {
     await db.goals.put(makeGoal())
@@ -245,9 +245,7 @@ describe('ExportSection', () => {
     const user = userEvent.setup()
 
     render(<ExportSection />)
-    await user.click(
-      screen.getByRole('button', { name: 'Export as Markdown' }),
-    )
+    await user.click(screen.getByRole('button', { name: 'Export as Markdown' }))
 
     // No goals in the summary, same reasoning as the CSV export above.
     expect(
@@ -256,13 +254,13 @@ describe('ExportSection', () => {
   })
 
   it('exports a PDF summary using the default (last-90-days) date range (#609)', async () => {
-    await db.dailyEntries.put(makeEntry({ date: format(new Date(), 'yyyy-MM-dd'), weightKg: 80 }))
+    await db.dailyEntries.put(
+      makeEntry({ date: format(new Date(), 'yyyy-MM-dd'), weightKg: 80 }),
+    )
     const user = userEvent.setup()
 
     render(<ExportSection />)
-    await user.click(
-      screen.getByRole('button', { name: 'Export PDF summary' }),
-    )
+    await user.click(screen.getByRole('button', { name: 'Export PDF summary' }))
     await user.click(
       await screen.findByRole('button', { name: 'Generate PDF' }),
     )
@@ -279,13 +277,11 @@ describe('ExportSection', () => {
     await user.click(screen.getByRole('button', { name: 'Last 30 days' }))
 
     const today = format(new Date(), 'yyyy-MM-dd')
-    expect(
-      screen.getByLabelText('Summary covers — End date'),
-    ).toHaveValue(today)
-
-    await user.click(
-      screen.getByRole('button', { name: 'Export PDF summary' }),
+    expect(screen.getByLabelText('Summary covers — End date')).toHaveValue(
+      today,
     )
+
+    await user.click(screen.getByRole('button', { name: 'Export PDF summary' }))
     await user.click(
       await screen.findByRole('button', { name: 'Generate PDF' }),
     )
@@ -305,9 +301,7 @@ describe('ExportSection', () => {
     fireEvent.change(startInput, { target: { value: '2026-01-01' } })
     fireEvent.change(endInput, { target: { value: '2026-01-31' } })
 
-    await user.click(
-      screen.getByRole('button', { name: 'Export PDF summary' }),
-    )
+    await user.click(screen.getByRole('button', { name: 'Export PDF summary' }))
     await user.click(
       await screen.findByRole('button', { name: 'Generate PDF' }),
     )
@@ -324,9 +318,7 @@ describe('ExportSection', () => {
     const user = userEvent.setup()
 
     render(<ExportSection />)
-    await user.click(
-      screen.getByRole('button', { name: 'Export PDF summary' }),
-    )
+    await user.click(screen.getByRole('button', { name: 'Export PDF summary' }))
     await user.click(
       await screen.findByRole('button', { name: 'Weight trend' }),
     )
@@ -348,12 +340,29 @@ describe('ExportSection', () => {
     const user = userEvent.setup()
 
     render(<ExportSection />)
-    await user.click(
-      screen.getByRole('button', { name: 'Export PDF summary' }),
-    )
+    await user.click(screen.getByRole('button', { name: 'Export PDF summary' }))
 
     expect(await screen.findByRole('button', { name: 'Steps' })).toBeEnabled()
     expect(screen.getByRole('button', { name: 'Water' })).toBeDisabled()
+  })
+
+  it('disables a section whose Settings tracking toggle is off even though it has logged data (#633)', async () => {
+    const today = format(new Date(), 'yyyy-MM-dd')
+    await db.dailyEntries.put(
+      makeEntry({ date: today, weightKg: 80, hadAlcohol: true }),
+    )
+    const user = userEvent.setup()
+
+    render(<ExportSection />)
+    await user.click(screen.getByRole('button', { name: 'Export PDF summary' }))
+
+    expect(
+      await screen.findByRole('button', { name: 'Weight trend' }),
+    ).toBeEnabled()
+    // Alcohol tracking defaults to off in Settings (`useAlcoholTrackingStore`)
+    // — real logged data from before it was toggled off shouldn't make the
+    // section selectable.
+    expect(screen.getByRole('button', { name: 'Alcohol' })).toBeDisabled()
   })
 
   it('lists a custom metric as a selectable PDF section once it has data in the picked range (#630)', async () => {
@@ -375,9 +384,7 @@ describe('ExportSection', () => {
     const user = userEvent.setup()
 
     render(<ExportSection />)
-    await user.click(
-      screen.getByRole('button', { name: 'Export PDF summary' }),
-    )
+    await user.click(screen.getByRole('button', { name: 'Export PDF summary' }))
 
     expect(await screen.findByRole('button', { name: 'Acne' })).toBeEnabled()
 
@@ -401,9 +408,7 @@ describe('ExportSection', () => {
     const user = userEvent.setup()
 
     render(<ExportSection />)
-    await user.click(
-      screen.getByRole('button', { name: 'Export PDF summary' }),
-    )
+    await user.click(screen.getByRole('button', { name: 'Export PDF summary' }))
 
     expect(await screen.findByRole('button', { name: 'Acne' })).toBeDisabled()
   })
@@ -529,7 +534,9 @@ describe('ExportSection', () => {
     render(<ExportSection />)
 
     expect(
-      await screen.findByText('~50 KB used of ~1.0 GB available on this device'),
+      await screen.findByText(
+        '~50 KB used of ~1.0 GB available on this device',
+      ),
     ).toBeInTheDocument()
   })
 
@@ -612,9 +619,7 @@ describe('ExportSection', () => {
       await screen.findByLabelText('Password'),
       'correct horse battery staple',
     )
-    await user.click(
-      screen.getByRole('button', { name: 'Decrypt and import' }),
-    )
+    await user.click(screen.getByRole('button', { name: 'Decrypt and import' }))
 
     expect(
       await screen.findByText('Imported 1 goal and 2 daily entries.'),
@@ -645,9 +650,7 @@ describe('ExportSection', () => {
 
     const passwordField = await screen.findByLabelText('Password')
     await user.type(passwordField, 'a-wrong-guess')
-    await user.click(
-      screen.getByRole('button', { name: 'Decrypt and import' }),
-    )
+    await user.click(screen.getByRole('button', { name: 'Decrypt and import' }))
 
     expect(
       await screen.findByText('Wrong password, or the file is corrupted.'),
@@ -655,9 +658,7 @@ describe('ExportSection', () => {
 
     await user.clear(passwordField)
     await user.type(passwordField, 'the-real-password')
-    await user.click(
-      screen.getByRole('button', { name: 'Decrypt and import' }),
-    )
+    await user.click(screen.getByRole('button', { name: 'Decrypt and import' }))
 
     expect(
       await screen.findByText('Imported 1 goal and 0 daily entries.'),
@@ -801,7 +802,9 @@ describe('ExportSection', () => {
       const [zeppLifeToggle] = screen.getAllByText('How do I get this file?')
       const details = zeppLifeToggle.closest('details')
       expect(details).not.toBeNull()
-      expect(within(details!).getByText(/Exercising user rights/)).toBeInTheDocument()
+      expect(
+        within(details!).getByText(/Exercising user rights/),
+      ).toBeInTheDocument()
     })
 
     it('pairs the Apple Health export steps with their own toggle', () => {
