@@ -1,5 +1,5 @@
 import { useState, type ReactNode } from 'react'
-import { format, parseISO } from 'date-fns'
+import { format, parseISO, startOfWeek } from 'date-fns'
 import { ChevronDown, ChevronUp } from 'lucide-react'
 import {
   CartesianGrid,
@@ -43,7 +43,10 @@ import { dayNotesByDate } from './dayNotePreview'
 import { OutlierPointsList } from './OutlierPointsList'
 import { outlierReasonLabel } from './outlierReasonLabel'
 import { renderOutlierScatterShape } from './outlierScatterShape'
-import { usePeriodFilteredEntries, useDashboardChartPeriod } from './useDashboardChartPeriod'
+import {
+  usePeriodFilteredEntries,
+  useDashboardChartPeriod,
+} from './useDashboardChartPeriod'
 import { ZoomableScatterSurface } from './ZoomableScatterSurface'
 
 export interface CorrelationViewProps {
@@ -56,7 +59,10 @@ export interface CorrelationViewProps {
   dragHandle?: ReactNode
 }
 
-export function CorrelationView({ entries: allEntries, dragHandle }: CorrelationViewProps) {
+export function CorrelationView({
+  entries: allEntries,
+  dragHandle,
+}: CorrelationViewProps) {
   const entries = usePeriodFilteredEntries(
     'calorieWeightCorrelation',
     allEntries,
@@ -101,13 +107,35 @@ export function CorrelationView({ entries: allEntries, dragHandle }: Correlation
     asOfDate,
   )
   const notesByDate = dayNotesByDate(entries)
-  const { flags, axes, isExcluded, toggle, includedPoints } = useOutlierExclusion(
-    'calorieWeight',
-    rawPoints,
-    (p) => p.calories,
-    (p) => p.delta,
-    (p) => p.weekStart,
-  )
+  // #631 — these points are keyed by `weekStart`, but that Monday itself
+  // often has no logged weight: `deltaVsPriorWeekKg` (what actually makes a
+  // week "unusual") is this week's *average* weight vs. the prior week's,
+  // and the days behind that average can land anywhere in the week.
+  // `weeklySummaries` only sets a week's `deltaVsPriorWeekKg` when its own
+  // `averageWeightKg` is non-null, so every flagged week is guaranteed to
+  // have at least one real weight entry somewhere inside it — this maps
+  // each week's start to the earliest such date, so the "view day" link
+  // below lands somewhere real instead of a possibly-empty Monday.
+  const weightDateByWeekStart = new Map<string, string>()
+  for (const entry of entries) {
+    if (entry.weightKg === undefined) continue
+    const ws = format(
+      startOfWeek(parseISO(entry.date), { weekStartsOn }),
+      'yyyy-MM-dd',
+    )
+    const existing = weightDateByWeekStart.get(ws)
+    if (existing === undefined || entry.date < existing) {
+      weightDateByWeekStart.set(ws, entry.date)
+    }
+  }
+  const { flags, axes, isExcluded, toggle, includedPoints } =
+    useOutlierExclusion(
+      'calorieWeight',
+      rawPoints,
+      (p) => p.calories,
+      (p) => p.delta,
+      (p) => p.weekStart,
+    )
 
   if (rawPoints.length === 0) return null
 
@@ -172,7 +200,11 @@ export function CorrelationView({ entries: allEntries, dragHandle }: Correlation
   )
 
   if (!cardVisible) {
-    return <div className="flex flex-col gap-1.5 rounded-lg border border-border p-3">{cardTitle}</div>
+    return (
+      <div className="flex flex-col gap-1.5 rounded-lg border border-border p-3">
+        {cardTitle}
+      </div>
+    )
   }
 
   return (
@@ -246,7 +278,9 @@ export function CorrelationView({ entries: allEntries, dragHandle }: Correlation
           isExcluded={isExcluded}
           onToggle={toggle}
           getKey={(point) => point.weekStart}
-          getDate={(point) => point.weekStart}
+          getDate={(point) =>
+            weightDateByWeekStart.get(point.weekStart) ?? point.weekStart
+          }
           formatLabel={(point) =>
             format(parseISO(point.weekStart), 'd MMM yyyy', {
               locale: dateFnsLocale,
