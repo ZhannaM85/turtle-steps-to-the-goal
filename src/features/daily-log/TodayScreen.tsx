@@ -75,6 +75,7 @@ import {
   useDayStartStore,
   useGoalStore,
   useMicronutrientTrackingStore,
+  usePlannedMealStore,
   useProfileStore,
   useSectionVisibilityStore,
   useTodayCardOrderStore,
@@ -245,6 +246,30 @@ export function TodayScreen() {
 
   const previousDayEntry = usePreviousDayEntry(date)
   const maxWeightKg = useMaxRecordedWeight(entry)
+  // #635 — forward date nav is capped at today by default (#138: logging a
+  // future day isn't otherwise supported), but #614's staged planned-meal
+  // drafts need at least one day past today reachable to see their
+  // promote/discard UI (`PlannedMealsSection.tsx`), and further still if a
+  // draft is staged further out — staging always targets "the day after
+  // whatever date is open," so reaching day N+2 requires first reaching
+  // N+1 (via this same forward nav) to stage it there, meaning the
+  // furthest staged date is always a real destination, not a shortcut past
+  // days with nothing on them.
+  const plannedMeals = usePlannedMealStore((state) => state.plannedMeals)
+  const loadPlannedMeals = usePlannedMealStore((state) => state.loadAll)
+  useEffect(() => {
+    loadPlannedMeals()
+  }, [loadPlannedMeals])
+  const furthestPlannedMealDate = plannedMeals.reduce<string | undefined>(
+    (max, meal) => (max === undefined || meal.date > max ? meal.date : max),
+    undefined,
+  )
+  const tomorrowIso = shiftDate(todayIso(), 1)
+  const maxNavigableDate =
+    furthestPlannedMealDate !== undefined &&
+    furthestPlannedMealDate > tomorrowIso
+      ? furthestPlannedMealDate
+      : tomorrowIso
   // #235: GoalCelebrationModal (#55) already fires the instant a save
   // crosses the target, but it's a one-time dismissible dialog — easy to
   // miss (mid-interaction, an accidental outside-tap) with no second
@@ -995,13 +1020,15 @@ export function TodayScreen() {
             ref={debug465DateRef}
             type="date"
             value={date}
-            max={todayIso()}
+            max={maxNavigableDate}
             onChange={(e) => setDate(e.target.value)}
             className="max-w-48"
           />
-          {/* Capped at today (#138), same as the date input's own `max` —
-           * logging a future day isn't supported anywhere else in the app,
-           * out of scope for "quicker than opening the picker" arrows. */}
+          {/* Capped at today+1 by default (#138: logging a future day isn't
+           * otherwise supported), extended to reach a staged planned-meal
+           * draft's own date when one exists further out (#635) — see
+           * `maxNavigableDate` above, same cap the date input's own `max`
+           * uses. */}
           <Button
             ref={debug465NextRef}
             type="button"
@@ -1009,7 +1036,7 @@ export function TodayScreen() {
             size="icon-xl"
             className="size-[2.625rem]"
             aria-label={t.today.nextDayLabel}
-            disabled={date >= todayIso()}
+            disabled={date >= maxNavigableDate}
             onClick={() => setDate((prev) => shiftDate(prev, 1))}
           >
             <ChevronRight aria-hidden="true" />

@@ -9,7 +9,7 @@ import {
   within,
 } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { format, subDays } from 'date-fns'
+import { addDays, format, subDays } from 'date-fns'
 import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { Goal } from '@/domain/goal'
@@ -23,6 +23,7 @@ import {
   useDayStartStore,
   useGoalStore,
   usePlannedMealsTrackingStore,
+  usePlannedMealStore,
   useProfileStore,
   useSectionVisibilityStore,
   useTodayCardOrderStore,
@@ -84,8 +85,10 @@ beforeEach(async () => {
   await db.dailyEntries.clear()
   await db.customMetrics.clear()
   await db.customMetricEntries.clear()
+  await db.plannedMeals.clear()
   localStorage.clear()
   useGoalStore.setState({ goal: null, status: 'idle', error: null })
+  usePlannedMealStore.setState({ plannedMeals: [], status: 'idle', error: null })
   useCustomMetricStore.setState({
     metrics: [],
     entries: [],
@@ -126,7 +129,9 @@ afterEach(async () => {
   await db.dailyEntries.clear()
   await db.customMetrics.clear()
   await db.customMetricEntries.clear()
+  await db.plannedMeals.clear()
   localStorage.clear()
+  usePlannedMealStore.setState({ plannedMeals: [], status: 'idle', error: null })
   useDailyReminderStore.setState({ enabled: false })
   useProfileStore.setState({ heightCm: undefined, age: undefined, sex: undefined })
   useDayStartStore.setState({ dayStartTime: '00:00', startedEarlyForDate: null })
@@ -540,17 +545,53 @@ describe('TodayScreen', () => {
     }
   })
 
-  it('disables the next-day arrow once already on today', async () => {
+  it('allows stepping one day past today by default, then disables the next-day arrow (#635)', async () => {
+    const user = userEvent.setup()
     render(
       <MemoryRouter>
         <TodayScreen />
       </MemoryRouter>,
     )
 
-    expect(await screen.findByLabelText('Date')).toHaveValue(
-      format(new Date(), 'yyyy-MM-dd'),
-    )
+    const today = format(new Date(), 'yyyy-MM-dd')
+    const tomorrow = format(addDays(new Date(), 1), 'yyyy-MM-dd')
+    expect(await screen.findByLabelText('Date')).toHaveValue(today)
+    expect(screen.getByRole('button', { name: 'Next day' })).not.toBeDisabled()
+
+    await user.click(screen.getByRole('button', { name: 'Next day' }))
+
+    expect(await screen.findByLabelText('Date')).toHaveValue(tomorrow)
     expect(screen.getByRole('button', { name: 'Next day' })).toBeDisabled()
+  })
+
+  it('reaches a future date with a staged planned-meal draft past the default one-day cap, and shows its promote/discard UI (#635, #614)', async () => {
+    usePlannedMealsTrackingStore.setState({ enabled: true })
+    const user = userEvent.setup()
+    const dayAfterTomorrow = format(addDays(new Date(), 2), 'yyyy-MM-dd')
+    await usePlannedMealStore
+      .getState()
+      .addPlannedMeal(dayAfterTomorrow, 'Leftover chili')
+
+    render(
+      <MemoryRouter>
+        <TodayScreen />
+      </MemoryRouter>,
+    )
+
+    await screen.findByLabelText('Date')
+    await user.click(screen.getByRole('button', { name: 'Next day' }))
+    expect(
+      await screen.findByRole('button', { name: 'Next day' }),
+    ).not.toBeDisabled()
+
+    await user.click(screen.getByRole('button', { name: 'Next day' }))
+
+    expect(await screen.findByLabelText('Date')).toHaveValue(dayAfterTomorrow)
+    expect(screen.getByRole('button', { name: 'Next day' })).toBeDisabled()
+    expect(await screen.findByText('Leftover chili')).toBeInTheDocument()
+    expect(
+      screen.getByRole('button', { name: 'Add to log' }),
+    ).toBeInTheDocument()
   })
 
   it('loads an existing entry for editing when picking a date that already has one', async () => {
