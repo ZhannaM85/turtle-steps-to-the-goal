@@ -116,7 +116,13 @@ user points out.
      **One commit per issue** — never combine two issues in one subject
      (e.g. `#494 + #489: …`). Finish, commit, and push issue A before
      starting issue B’s commit; shared docs/release notes for B land in
-     B’s own commit. See `.cursor/rules/one-commit-per-issue.mdc`.
+     B’s own commit. See `.cursor/rules/one-commit-per-issue.mdc`. **This
+     still applies when the user validates/asks to close several issues at
+     once** (2026-08-07) — each one's label swap + `gh issue close` +
+     `docs/issues-priority.md` row-move-to-archive is its own commit and
+     push, done one at a time in the order named, not batched into a
+     single "close these 3" pass just because their rows sit next to each
+     other in the doc.
 6. **End of batch:** run `gh issue list --state open --json number,title`
    as a final check. Docs saying "✅ Done" is not proof the issue is
    actually closed on GitHub — verify directly. If anything was missed,
