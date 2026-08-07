@@ -88,3 +88,13 @@ _Same-day live feedback while working through Tier 123/125's validation queue._
 | [#637](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/637) | 🔍 Pending validation | Deploy workflow: stuck GitHub Pages deployments + wasted docs-only deploy runs | Reported live 2026-08-06 — build always succeeds; `actions/deploy-pages@v4` intermittently sits at `deployment_queued` for its full 10-minute internal timeout (GitHub Pages backend not picking up the deployment, not our config). Compounded by `concurrency: group: pages` queueing every push serially, and nearly every push today being docs-only (`docs/issues-priority.md` etc.) yet still triggering a full build+deploy for no site-content change. Fixed in `9c637f9`: `paths-ignore` on docs-only pushes + `timeout-minutes` on both jobs. No "on-device" equivalent here — "validation" means watching that a docs-only commit stops triggering a deploy and the next real push deploys cleanly, not an in-app check |
 | [#638](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/638) | 🔍 Pending validation | Settings 'What to track' night-eating toggle ignores Profile gender | `SettingsScreen.tsx:691` now reads `useProfileStore`'s `sex` and passes it into `nightEatingLabel(sex)`, matching every other caller. `exportPdf.ts`/`PdfSectionsDialog.tsx` left unchanged — the issue itself flagged those as section/column labels, possibly intentionally neutral, not a hard requirement. Awaiting on-device confirmation |
 
+---
+
+## Tier 127 — Live feedback (2026-08-07)
+
+_Live discussion of a screenshot showing "Цель достигнута" badges on most recent weeks despite the actual weight barely moving. Log-only — design discussed and agreed live with the user via several rejected alternatives, not yet implemented._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#639](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/639) | 📋 Not started | Goal tracking: mid-week 'achieved' shouldn't lock in a permanent badge; gate restart to week's natural end | Root cause: `goalWindowProgress.ts`'s sticky `targetMet` (locks in from one noisy day) feeds both the mid-week celebration (#55) and the permanent history badge (`pastGoals()`/`PastTargetsList.tsx`), and `GoalForm.tsx`'s `startNewGoalButton` has no gate on `weekEnd`, so restarting right after a mid-week dip produces short, overlapping windows. Agreed direction: reframe the mid-week modal copy (not yet achieved, keep going), only evaluate/award the badge using the window's final state at natural `weekEnd`, and gate the restart button to only appear once the window has actually ended. No hard restrictions on the user (no cross-period baseline comparison). See issue for rejected alternatives and open questions |
+
