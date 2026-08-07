@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 590,
+    issue: 638,
+    date: '2026-08-06T20:26:19+03:00',
+    en: "Settings' \"What to track\" night-eating toggle now reads \"He ate\"/\"She ate\" based on your Profile gender, matching the Day screen's own toggle.",
+    ru: 'Переключатель «Ел(а) поздно вечером» в разделе «Что отслеживать» теперь учитывает пол из Профиля, как и на экране «День».',
+  },
+  {
     version: 589,
     issue: 625,
     date: '2026-08-06T22:40:37+03:00',
