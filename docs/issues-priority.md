@@ -53,29 +53,3 @@ _Same audit pass. Blocked on Tier 36 Capacitor / store shell — revisit of #261
 
 ---
 
-## Tier 125 — Live feedback (2026-08-05)
-
-_Same-day live feedback after Zepp / export work. **Do not** split further same-day filings into Tier 126+ — append to this tier._
-
-| # | Status | Issue | Notes |
-|---|--------|-------|-------|
-
----
-
-## Tier 126 — Live feedback (2026-08-06)
-
-_Same-day live feedback while working through Tier 123/125's validation queue._
-
-| # | Status | Issue | Notes |
-|---|--------|-------|-------|
-
----
-
-## Tier 127 — Live feedback (2026-08-07)
-
-_Live discussion of a screenshot showing "Цель достигнута" badges on most recent weeks despite the actual weight barely moving. Log-only — design discussed and agreed live with the user via several rejected alternatives, not yet implemented._
-
-| # | Status | Issue | Notes |
-|---|--------|-------|-------|
-| [#639](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/639) | 🔍 Pending validation | Goal tracking: mid-week 'achieved' shouldn't lock in a permanent badge; gate restart to week's natural end | New `finalTargetMet`/`goalWindowHasEnded` in `goalWindowProgress.ts` decouple the permanent record from the sticky mid-week `targetMet`; `currentWeightKg` no longer freezes at the met-date weight. `PastTargetsList`/`WeeklyReviewScreen`/`paceCheck.ts` switched to `finalTargetMet`. `GoalCelebrationModal` gained a phase-aware 'inProgress'/'complete' split (reframed mid-week copy + a new end-of-window completion modal), each with its own dismissal tracking. `GoalScreen` gained a third "missed" nudge (confirmed via `AskUserQuestion` — the issue's own open question) alongside reframed reached/completed ones. `GoalForm`'s restart button is now `disabled` until the window has actually ended, with a hint naming the unlock date — the actual fix for the overlapping-windows bug. Awaiting on-device confirmation |
-
