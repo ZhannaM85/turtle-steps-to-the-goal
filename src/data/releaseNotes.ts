@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 592,
+    issue: 635,
+    date: '2026-08-06T20:36:16+03:00',
+    en: "The Day screen's forward navigation now reaches a staged planned-meal draft even when it's beyond tomorrow, instead of stopping at today.",
+    ru: 'Переход вперёд на экране «День» теперь позволяет дойти до запланированного черновика приёма пищи, даже если он дальше завтрашнего дня, а не останавливается на сегодняшнем.',
+  },
+  {
     version: 591,
     issue: 636,
     date: '2026-08-06T20:13:52+03:00',
