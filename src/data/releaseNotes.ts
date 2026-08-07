@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 600,
+    issue: 645,
+    date: '2026-08-07T18:02:19+03:00',
+    en: 'Adding a food by scanning a barcode or picking it from search now offers the same weight/portion options as creating a new food from scratch.',
+    ru: 'При добавлении блюда через сканирование штрихкода или поиск теперь доступны те же варианты веса/порции, что и при создании нового блюда с нуля.',
+  },
+  {
     version: 599,
     issue: 644,
     date: '2026-08-07T17:17:42+03:00',

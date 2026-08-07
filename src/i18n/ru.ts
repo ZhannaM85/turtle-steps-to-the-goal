@@ -196,7 +196,6 @@ export const ru: Dictionary = {
     itemNoteLabel: 'Заметка (необязательно)',
     itemNotePlaceholder: 'Добавьте заметку...',
     deleteItemLabel: 'Удалить блюдо',
-    addItemButton: '+ Добавить блюдо',
     emotionLabel: (emotion) =>
       emotion === 'happy'
         ? 'Радостно'
@@ -276,7 +275,6 @@ export const ru: Dictionary = {
     quickActionAddFoodLabel: 'Добавить блюдо',
     mealSoFarLabel: 'Состав приёма пищи',
     wasItTastyLabel: 'Было вкусно?',
-    cancelAddToMealLabel: 'Отмена',
     doneAddingMealButton: 'Готово',
     confirmDiscardInProgressMealLabel:
       'Выйти без сохранения? Добавленные здесь блюда будут удалены.',

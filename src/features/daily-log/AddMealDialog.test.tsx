@@ -279,8 +279,9 @@ describe('AddMealDialog (#454)', () => {
 
     await user.type(screen.getByLabelText('Search foods'), 'Salmon')
     await user.click(await screen.findByText('Salmon'))
-    // Confirm-quantity step — default 100g, "+ Add item" commits it.
-    await user.click(screen.getByRole('button', { name: '+ Add item' }))
+    // #645 — picking a curated food opens the same item sheet "create a
+    // dish" uses, prefilled with its 100g rate; Save commits it as-is.
+    await user.click(screen.getByRole('button', { name: 'Save' }))
 
     expect(screen.getByText('This meal so far')).toBeInTheDocument()
     expect(screen.getByText('Salmon')).toBeInTheDocument()
@@ -325,23 +326,24 @@ describe('AddMealDialog (#454)', () => {
     await user.type(screen.getByLabelText('Search foods'), 'Salmon')
     await user.click(await screen.findByText('Salmon'))
 
-    const kcal = screen.getByLabelText('kcal')
+    // #645 — a curated food pick opens in per100g mode (the same "create a
+    // dish" sheet), so kcal/protein here are the per-100g rate, not an
+    // already-scaled absolute — corrected the same way a manually-typed
+    // rate would be.
+    const kcal = screen.getByLabelText('kcal/100g')
     const protein = screen.getByLabelText('Protein')
     await user.clear(kcal)
     await user.type(kcal, '250')
     await user.clear(protein)
     await user.type(protein, '30')
 
-    // Changing quantity rescale from the corrected per-100g rates
-    // (250 kcal / 100g → 500 at 200g; 30g protein → 60).
-    const quantity = screen.getByLabelText('Quantity (g)')
-    await user.clear(quantity)
-    await user.type(quantity, '200')
+    // × 100g portions field — 2 portions = 200g, scaling the corrected
+    // rate above to 500 kcal / 60g protein on Save.
+    const portions = screen.getByLabelText('× 100g')
+    await user.clear(portions)
+    await user.type(portions, '2')
 
-    expect(kcal).toHaveValue('500')
-    expect(protein).toHaveValue('60')
-
-    await user.click(screen.getByRole('button', { name: '+ Add item' }))
+    await user.click(screen.getByRole('button', { name: 'Save' }))
 
     expect(onAppendItems).toHaveBeenCalledTimes(1)
     expect(onAppendItems.mock.calls[0][0][0]).toMatchObject({
@@ -378,7 +380,7 @@ describe('AddMealDialog (#454)', () => {
     expect(brand).toHaveValue('')
     await user.type(brand, 'Ocean Fresh')
 
-    await user.click(screen.getByRole('button', { name: '+ Add item' }))
+    await user.click(screen.getByRole('button', { name: 'Save' }))
 
     expect(onAppendItems).toHaveBeenCalledTimes(1)
     expect(onAppendItems.mock.calls[0][0][0]).toMatchObject({
@@ -387,19 +389,63 @@ describe('AddMealDialog (#454)', () => {
     })
   })
 
+  it('offers named serving sizes for a curated food that has some, driving the same portions field (#645)', async () => {
+    const user = userEvent.setup()
+    const onAppendItems = vi.fn()
+    render(
+      <AddMealDialog
+        {...defaultProps}
+        items={[]}
+        reaction={undefined}
+        onReactionChange={vi.fn()}
+        onAppendItems={onAppendItems}
+        onRemoveItem={vi.fn()}
+      />,
+    )
+
+    await user.type(screen.getByLabelText('Search foods'), 'Egg')
+    await user.click(await screen.findByText('Egg'))
+
+    expect(screen.getByRole('radio', { name: 'Grams' })).toBeChecked()
+    await user.click(screen.getByRole('radio', { name: '1 medium' }))
+
+    await user.click(screen.getByRole('button', { name: 'Save' }))
+
+    // Egg: 155 kcal/100g, 13g protein/100g. 1 medium = 50g -> scale 0.5.
+    expect(onAppendItems).toHaveBeenCalledTimes(1)
+    expect(onAppendItems.mock.calls[0][0][0]).toMatchObject({
+      name: 'Egg',
+      amountKcal: 78,
+      proteinG: 6.5,
+      amountG: 50,
+    })
+  })
+
+  it('does not offer a serving-size toggle for a food with none seeded', async () => {
+    const user = userEvent.setup()
+    render(<ControlledAddMealDialog {...defaultProps} />)
+
+    await user.type(screen.getByLabelText('Search foods'), 'Salmon')
+    await user.click(await screen.findByText('Salmon'))
+
+    expect(
+      screen.queryByRole('radio', { name: 'Grams' }),
+    ).not.toBeInTheDocument()
+  })
+
   it('stays open across multiple adds, accumulating the meal live (persistent multi-add)', async () => {
     const user = userEvent.setup()
     render(<ControlledAddMealDialog {...defaultProps} />)
 
     await user.type(screen.getByLabelText('Search foods'), 'Salmon')
     await user.click(await screen.findByText('Salmon'))
-    await user.click(screen.getByRole('button', { name: '+ Add item' }))
+    await user.click(screen.getByRole('button', { name: 'Save' }))
 
     // Dialog is still open and searchable — add a second dish.
     await user.clear(screen.getByLabelText('Search foods'))
     await user.type(screen.getByLabelText('Search foods'), 'Chicken breast')
     await user.click(await screen.findByText('Chicken breast'))
-    await user.click(screen.getByRole('button', { name: '+ Add item' }))
+    await user.click(screen.getByRole('button', { name: 'Save' }))
 
     const mealSoFar = screen.getByText('This meal so far').closest('div')!
     expect(mealSoFar).toHaveTextContent('Salmon')
@@ -553,7 +599,7 @@ describe('AddMealDialog (#454)', () => {
   })
 
   describe('barcode scanning', () => {
-    it('resolves a local match straight to the quantity-confirm step, not the manual sheet', async () => {
+    it('resolves a local match straight to the item sheet, prefilled with its last-logged total', async () => {
       await useMealItemStore
         .getState()
         .touch(
@@ -568,32 +614,30 @@ describe('AddMealDialog (#454)', () => {
 
       await user.click(screen.getByRole('button', { name: 'Scan barcode' }))
 
-      // Waits on the quantity-confirm step itself, not on the dish name:
-      // "Protein Bar" is in the personal library too (touched above so
+      // Waits on the sheet's own Save button, not the dish name: "Protein
+      // Bar" is in the personal library too (touched above so
       // lookupBarcode resolves it locally), so it can render as a Recent
       // row while the lookup is still in flight. Waiting for the *name*
-      // could therefore resolve against that row, which the confirm step
+      // could therefore resolve against that row, which the confirm sheet
       // then unmounts — leaving a detached node and an "element could not
       // be found in the document" failure a few hundred ms in, well
-      // before any timeout. "+ Add item" only exists in the confirm step,
-      // so it can't resolve early. The long timeout still matters: the
-      // chain here (BarcodeScannerDialog's dynamic
-      // `@zxing/browser`/`@zxing/library` import, the mocked decode
-      // callback, then lookupBarcode's IndexedDB round-trip) has needed
-      // it under a full-suite CI run's load.
-      const addItemButton = await screen.findByRole(
+      // before any timeout. The long timeout still matters: the chain here
+      // (BarcodeScannerDialog's dynamic `@zxing/browser`/`@zxing/library`
+      // import, the mocked decode callback, then lookupBarcode's IndexedDB
+      // round-trip) has needed it under a full-suite CI run's load.
+      const saveButton = await screen.findByRole(
         'button',
-        { name: '+ Add item' },
+        { name: 'Save' },
         { timeout: 20000 },
       )
       expect(screen.getByDisplayValue('Protein Bar')).toBeInTheDocument()
-      // #640: the confirm step's own Dish name field is now editable
-      // (reusing the same label the manual sheet uses), so "not the manual
-      // sheet" is instead confirmed by the manual sheet's own kcal/100g
-      // field being absent.
-      expect(screen.queryByLabelText('kcal/100g')).not.toBeInTheDocument()
+      // #645 — a personal-library hit opens in perPortion mode (its own
+      // last-logged total, no rate math needed) — so the kcal field here
+      // is labeled "kcal", the same field a curated-food pick's per100g
+      // mode instead labels "kcal/100g".
+      expect(screen.getByLabelText('kcal')).toHaveValue('200')
 
-      await user.click(addItemButton)
+      await user.click(saveButton)
 
       expect(screen.getByText('This meal so far')).toBeInTheDocument()
       expect(screen.getAllByText('Protein Bar').length).toBeGreaterThan(0)
@@ -696,13 +740,13 @@ describe('AddMealDialog (#454)', () => {
         ).toMatchObject({ barcode: '4607001234567' }),
       )
 
-      // Next scan of the same code must resolve locally (confirm step),
-      // not open the not-found manual sheet again.
+      // Next scan of the same code must resolve locally (prefilled item
+      // sheet), not open the not-found sheet again.
       mockScanning('4607001234567')
       await user.click(screen.getByRole('button', { name: 'Scan barcode' }))
-      const addItemButton = await screen.findByRole(
+      const saveButton = await screen.findByRole(
         'button',
-        { name: '+ Add item' },
+        { name: 'Save' },
         { timeout: 20000 },
       )
       expect(screen.getByDisplayValue('Scanned Yogurt')).toBeInTheDocument()
@@ -711,7 +755,7 @@ describe('AddMealDialog (#454)', () => {
           'No food found for this barcode — you can still add it by hand below.',
         ),
       ).not.toBeInTheDocument()
-      await user.click(addItemButton)
+      await user.click(saveButton)
     })
 
     it('requires a dish name after a not-found scan so Custom foods can be written (#518)', async () => {

@@ -182,7 +182,6 @@ export const en: Dictionary = {
     itemNoteLabel: 'Note (optional)',
     itemNotePlaceholder: 'Add a note...',
     deleteItemLabel: 'Delete item',
-    addItemButton: '+ Add item',
     emotionLabel: (emotion) =>
       emotion === 'happy'
         ? 'Happy'
@@ -262,7 +261,6 @@ export const en: Dictionary = {
     quickActionAddFoodLabel: 'Add food',
     mealSoFarLabel: 'This meal so far',
     wasItTastyLabel: 'Was it tasty?',
-    cancelAddToMealLabel: 'Cancel',
     doneAddingMealButton: 'Done',
     confirmDiscardInProgressMealLabel:
       'Leave without saving? Foods added here will be discarded.',

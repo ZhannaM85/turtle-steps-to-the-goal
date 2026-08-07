@@ -14,7 +14,7 @@ import type { CalorieItem, Emotion, MealEmotion } from '@/domain/dailyEntry'
 import type { MealItem } from '@/domain/mealItem'
 import { formatNumber, useLocale, useTranslation } from '@/i18n'
 import { applyFoodOverrides } from '@/shared/lib/applyFoodOverrides'
-import { DAY_EMOTIONS, MEAL_EMOTIONS } from '@/shared/lib/emotionIcons'
+import { DAY_EMOTIONS } from '@/shared/lib/emotionIcons'
 import {
   formatKcal,
   formatMacroGrams,
@@ -29,7 +29,6 @@ import {
   totalFromPortion,
 } from '@/shared/lib/macroScaling'
 import { parseNumberInput } from '@/shared/lib/parseNumberInput'
-import { formatBarcodeDisplay } from '@/shared/lib/formatBarcode'
 import { mealLabelSuggestionsForLocale } from '@/shared/lib/mealLabel'
 import { normalizeTextSpaces } from '@/shared/lib/normalizeTextSpaces'
 import { rankBySearchMatch } from '@/shared/lib/searchRank'
@@ -87,82 +86,13 @@ function itemKey(item: PickableItem): string {
 // #264 — a curated food has no "last used" quantity of its own, so 100g
 // (its per-100g reference amount) is the sensible default; a personal item
 // defaults to its own last-logged amount. Same logic as FoodPickerDialog's
-// own defaultQuantityFor — duplicated rather than shared, since sharing it
-// would mean threading FoodPickerDialog's other component-scoped state
-// through as parameters too, for one small pure function; FoodPickerDialog
-// itself is untouched (it's still the "Find food" flow for editing an
-// already-existing meal, out of #454's scope).
+// own defaultQuantityFor (now only used by the separate recipe-log flow,
+// #645) — duplicated rather than shared, for one small pure function.
 function defaultQuantityFor(item: PickableItem): string {
   if (item.source === 'mealItem' && item.mealItem.lastAmountG !== undefined) {
     return String(item.mealItem.lastAmountG)
   }
   return '100'
-}
-
-/** Per-100g rates for the quantity-confirm step (#517). Quantity changes
- * rescale from these; editing the absolute kcal/macro fields back-calculates
- * into them. Meal-line only — curated catalog entries are never rewritten. */
-interface ConfirmRates {
-  kcal100: number
-  protein100: number
-  fat100: number
-  carbs100: number
-  fiber100: number | undefined
-  sodium100: number | undefined
-  potassium100: number | undefined
-  magnesium100: number | undefined
-}
-
-function ratesFromPickable(item: PickableItem): ConfirmRates {
-  if (item.source === 'food') {
-    return {
-      kcal100: item.food.kcal100,
-      protein100: item.food.protein100,
-      fat100: item.food.fat100,
-      carbs100: item.food.carbs100,
-      fiber100: item.food.fiber100,
-      sodium100: item.food.sodium100Mg,
-      potassium100: item.food.potassium100Mg,
-      magnesium100: item.food.magnesium100Mg,
-    }
-  }
-  const rates = ratesFromAbsolute(
-    item.mealItem.lastAmountKcal,
-    item.mealItem.lastProteinG,
-    item.mealItem.lastFatG,
-    item.mealItem.lastCarbsG,
-    item.mealItem.lastAmountG,
-    item.mealItem.lastFiberG,
-    item.mealItem.lastSodiumMg,
-    item.mealItem.lastPotassiumMg,
-    item.mealItem.lastMagnesiumMg,
-  )
-  return {
-    kcal100: rates.kcal100,
-    protein100: rates.protein100 ?? 0,
-    fat100: rates.fat100 ?? 0,
-    carbs100: rates.carbs100 ?? 0,
-    fiber100: rates.fiber100,
-    sodium100: rates.sodium100,
-    potassium100: rates.potassium100,
-    magnesium100: rates.magnesium100,
-  }
-}
-
-function scaleConfirmDisplay(rates: ConfirmRates, grams: number) {
-  const scale = grams / 100
-  const scaleOpt = (value: number | undefined) =>
-    value === undefined ? '' : String(Math.round(value * scale * 10) / 10)
-  return {
-    kcal: String(Math.round(rates.kcal100 * scale)),
-    protein: String(Math.round(rates.protein100 * scale * 10) / 10),
-    fat: String(Math.round(rates.fat100 * scale * 10) / 10),
-    carbs: String(Math.round(rates.carbs100 * scale * 10) / 10),
-    fiber: scaleOpt(rates.fiber100),
-    sodium: scaleOpt(rates.sodium100),
-    potassium: scaleOpt(rates.potassium100),
-    magnesium: scaleOpt(rates.magnesium100),
-  }
 }
 
 function blankManualDraft() {
@@ -265,10 +195,17 @@ export interface AddMealDialogProps {
  * all appending straight into the *same* in-progress meal (`items`, `date`'s
  * own `CalorieEntry` tracked by `MealList`) so the flyout can stay open
  * across several single-dish adds instead of closing after each one.
- * `FoodPickerDialog.tsx` (still used for editing an already-existing meal,
- * out of scope here) is untouched — this duplicates its ranking/quantity
- * logic rather than sharing it, a deliberate tradeoff to avoid risking a
- * regression in that still-active, more heavily-tested flow.
+ * `FoodPickerDialog.tsx` isn't used by this flow at all (its only remaining
+ * caller is recipe logging, a different feature) — this duplicates its
+ * ranking/quantity logic rather than sharing it, a deliberate tradeoff to
+ * avoid risking a regression in that still-active, more heavily-tested flow.
+ *
+ * #645 — every entry point (search/recent pick, barcode scan, manual
+ * "create a dish") now confirms through the same `MealItemEditorSheet`
+ * (`openPickedItemSheet` below), instead of scan/pick landing on a
+ * separate, flatter inline confirm block with no per100g/portion toggle —
+ * that duplicate screen used to exist here, alongside the sheet, purely
+ * because the pre-#645 rewrite never merged them.
  */
 export function AddMealDialog({
   open,
@@ -338,40 +275,23 @@ export function AddMealDialog({
   }, [])
 
   const [search, setSearch] = useState('')
-  // The item currently being quantity-confirmed — null shows the main
-  // search/recent/quick-actions view instead (#454's single-tap-then-
-  // return-to-search shape, replacing FoodPickerDialog's check-many-then-
-  // confirm-once model).
-  const [activeItem, setActiveItem] = useState<PickableItem | null>(null)
-  const [quantity, setQuantity] = useState('100')
+  // #645 — servings toggle (#254) for whichever picked item the manual
+  // sheet is currently confirming; undefined/empty hides the toggle
+  // entirely (the plain "create a dish from scratch" flow, and any pick
+  // with no seeded servings of its own). Only a curated/OFF `food` source
+  // ever carries these (see openPickedItemSheet below), same restriction
+  // the pre-#645 confirm step had.
+  const [activeServings, setActiveServings] = useState<
+    FoodServing[] | undefined
+  >(undefined)
   const [servingMode, setServingMode] = useState('grams')
   const [servingCount, setServingCount] = useState('1')
-  // Per-dish reaction (#129) — unchanged concept, just entered at the same
-  // confirm-quantity step a search/barcode pick already goes through.
-  const [itemEmotion, setItemEmotion] = useState<MealEmotion | undefined>(
-    undefined,
-  )
-  // #640 — editable dish name/brand on the confirm step, same meal-line
-  // override shape #517 already established for kcal/macros. Brand has no
-  // home on the reusable MealItem/FoodItem catalog types (#248 precedent:
-  // brand is meal-line-only, on CalorieItem), so it's plain local state
-  // here too, prefilled from an OFF hit's brand when scanning/searching
-  // finds one, empty otherwise.
-  const [confirmName, setConfirmName] = useState('')
-  const [confirmBrand, setConfirmBrand] = useState('')
-  // #517 — editable kcal/macros on the confirm step. Absolute display
-  // strings for the current grams; confirmRates are the per-100g source
-  // that quantity/serving changes rescale from.
-  const [confirmRates, setConfirmRates] = useState<ConfirmRates | null>(null)
-  const [confirmKcal, setConfirmKcal] = useState('')
-  const [confirmProtein, setConfirmProtein] = useState('')
-  const [confirmFat, setConfirmFat] = useState('')
-  const [confirmCarbs, setConfirmCarbs] = useState('')
-  const [confirmFiber, setConfirmFiber] = useState('')
-  const [confirmSodium, setConfirmSodium] = useState('')
-  const [confirmPotassium, setConfirmPotassium] = useState('')
-  const [confirmMagnesium, setConfirmMagnesium] = useState('')
-  const confirmGramsRef = useRef<number | null>(null)
+  // #645 — true while the sheet is confirming a search/recent/barcode pick
+  // (openPickedItemSheet) rather than a from-scratch manual create or an
+  // existing-item edit — gates the richer "Today would be" preview below
+  // (#273), which needs this draft's own prospective total folded in; the
+  // scratch/edit flows never showed that and still don't.
+  const [isConfirmingPick, setIsConfirmingPick] = useState(false)
 
   const [isRepeatOpen, setIsRepeatOpen] = useState(false)
   const [isRecipeOpen, setIsRecipeOpen] = useState(false)
@@ -442,160 +362,6 @@ export function AddMealDialog({
     )
   }
 
-  function resetActiveItem() {
-    setActiveItem(null)
-    setQuantity('100')
-    setServingMode('grams')
-    setServingCount('1')
-    setItemEmotion(undefined)
-    setConfirmName('')
-    setConfirmBrand('')
-    setConfirmRates(null)
-    setConfirmKcal('')
-    setConfirmProtein('')
-    setConfirmFat('')
-    setConfirmCarbs('')
-    setConfirmFiber('')
-    setConfirmSodium('')
-    setConfirmPotassium('')
-    setConfirmMagnesium('')
-    confirmGramsRef.current = null
-    setPendingBarcode(null)
-  }
-
-  /** #517 — pick → confirm step: seed quantity + editable nutrition from
-   * the catalog/personal item's per-100g rates (meal-line override only).
-   * #640 — also seeds the editable name/brand; `brandOverride` is only
-   * ever passed for an OFF-sourced pick, since neither MealItem nor
-   * FoodItem carries a brand of their own. */
-  function selectActiveItem(
-    item: PickableItem,
-    quantityOverride?: string,
-    brandOverride?: string,
-  ) {
-    setPendingBarcode(null)
-    setActiveItem(item)
-    const qty = quantityOverride ?? defaultQuantityFor(item)
-    setQuantity(qty)
-    setServingMode('grams')
-    setServingCount('1')
-    setItemEmotion(undefined)
-    setConfirmName(textFor(item))
-    setConfirmBrand(brandOverride ?? '')
-    const rates = ratesFromPickable(item)
-    const qtyNum = parseNumberInput(qty)
-    const grams = qtyNum && qtyNum > 0 ? qtyNum : 100
-    const display = scaleConfirmDisplay(rates, grams)
-    setConfirmRates(rates)
-    confirmGramsRef.current = grams
-    setConfirmKcal(display.kcal)
-    setConfirmProtein(display.protein)
-    setConfirmFat(display.fat)
-    setConfirmCarbs(display.carbs)
-    setConfirmFiber(display.fiber)
-    setConfirmSodium(display.sodium)
-    setConfirmPotassium(display.potassium)
-    setConfirmMagnesium(display.magnesium)
-  }
-
-  function applyConfirmDisplay(rates: ConfirmRates, grams: number) {
-    const display = scaleConfirmDisplay(rates, grams)
-    setConfirmKcal(display.kcal)
-    setConfirmProtein(display.protein)
-    setConfirmFat(display.fat)
-    setConfirmCarbs(display.carbs)
-    setConfirmFiber(display.fiber)
-    setConfirmSodium(display.sodium)
-    setConfirmPotassium(display.potassium)
-    setConfirmMagnesium(display.magnesium)
-  }
-
-  function updateConfirmAbsolute(
-    field:
-      | 'kcal'
-      | 'protein'
-      | 'fat'
-      | 'carbs'
-      | 'fiber'
-      | 'sodium'
-      | 'potassium'
-      | 'magnesium',
-    value: string,
-  ) {
-    if (field === 'kcal') setConfirmKcal(value)
-    else if (field === 'protein') setConfirmProtein(value)
-    else if (field === 'fat') setConfirmFat(value)
-    else if (field === 'carbs') setConfirmCarbs(value)
-    else if (field === 'fiber') setConfirmFiber(value)
-    else if (field === 'sodium') setConfirmSodium(value)
-    else if (field === 'potassium') setConfirmPotassium(value)
-    else setConfirmMagnesium(value)
-
-    if (!activeItem || !confirmRates) return
-    const grams = gramsFor(activeItem)
-    if (grams <= 0) return
-
-    const optionalFields = [
-      'fiber',
-      'sodium',
-      'potassium',
-      'magnesium',
-    ] as const
-    if (
-      (optionalFields as readonly string[]).includes(field) &&
-      value.trim() === ''
-    ) {
-      const key = `${field}100` as
-        | 'fiber100'
-        | 'sodium100'
-        | 'potassium100'
-        | 'magnesium100'
-      setConfirmRates({ ...confirmRates, [key]: undefined })
-      return
-    }
-    const num = parseNumberInput(value)
-    if (num === undefined) return
-    const rate = (num * 100) / grams
-    if (field === 'kcal') {
-      setConfirmRates({ ...confirmRates, kcal100: Math.round(rate) })
-    } else if (field === 'protein') {
-      setConfirmRates({
-        ...confirmRates,
-        protein100: Math.round(rate * 10) / 10,
-      })
-    } else if (field === 'fat') {
-      setConfirmRates({
-        ...confirmRates,
-        fat100: Math.round(rate * 10) / 10,
-      })
-    } else if (field === 'carbs') {
-      setConfirmRates({
-        ...confirmRates,
-        carbs100: Math.round(rate * 10) / 10,
-      })
-    } else if (field === 'fiber') {
-      setConfirmRates({
-        ...confirmRates,
-        fiber100: Math.round(rate * 10) / 10,
-      })
-    } else if (field === 'sodium') {
-      setConfirmRates({
-        ...confirmRates,
-        sodium100: Math.round(rate * 10) / 10,
-      })
-    } else if (field === 'potassium') {
-      setConfirmRates({
-        ...confirmRates,
-        potassium100: Math.round(rate * 10) / 10,
-      })
-    } else {
-      setConfirmRates({
-        ...confirmRates,
-        magnesium100: Math.round(rate * 10) / 10,
-      })
-    }
-  }
-
   const visibleFoods = applyFoodOverrides(foods, foodOverrides)
   const allMealItems: PickableItem[] = mealItems
     .filter(
@@ -650,181 +416,110 @@ export function AddMealDialog({
       )
     : []
 
-  function activeServingFor(item: PickableItem): FoodServing | undefined {
-    if (item.source !== 'food' || servingMode === 'grams') return undefined
-    return item.food.servings?.[Number(servingMode)]
-  }
-  function gramsFor(item: PickableItem): number {
-    const serving = activeServingFor(item)
-    if (serving) {
-      const countNum = parseNumberInput(servingCount)
-      const count = countNum && countNum > 0 ? countNum : 1
-      return serving.grams * count
-    }
-    const quantityNum = parseNumberInput(quantity)
-    return quantityNum && quantityNum > 0 ? quantityNum : 100
-  }
-  function hasValidQuantity(item: PickableItem): boolean {
-    const serving = activeServingFor(item)
-    if (serving) {
-      const num = parseNumberInput(servingCount)
-      return num !== undefined && num > 0
-    }
-    const num = parseNumberInput(quantity)
-    return num !== undefined && num > 0
-  }
-
-  // #517 — when grams change (quantity or serving), rescale the editable
-  // absolute fields from confirmRates. Skip when rates changed from typing
-  // into those same fields (grams unchanged).
-  useEffect(() => {
-    if (!activeItem || !confirmRates) return
-    const grams = gramsFor(activeItem)
-    if (confirmGramsRef.current === grams) return
-    confirmGramsRef.current = grams
-    applyConfirmDisplay(confirmRates, grams)
-    // gramsFor/applyConfirmDisplay are stable closures over state already
-    // listed; listing them would re-fire on every render.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [quantity, servingMode, servingCount, activeItem, confirmRates])
-
-  function scaledValuesFor(item: PickableItem): Omit<PickedFoodValues, 'emotion'> {
-    const grams = gramsFor(item)
-    const scale = grams / 100
-    // #517 — prefer the (possibly user-corrected) confirm-step rates so
-    // quantity changes and the Add commit share one source of truth.
-    if (confirmRates) {
-      return {
-        amountKcal: Math.round(confirmRates.kcal100 * scale),
-        proteinG: Math.round(confirmRates.protein100 * scale * 10) / 10,
-        fatG: Math.round(confirmRates.fat100 * scale * 10) / 10,
-        carbsG: Math.round(confirmRates.carbs100 * scale * 10) / 10,
-        fiberG:
-          confirmRates.fiber100 === undefined
-            ? undefined
-            : Math.round(confirmRates.fiber100 * scale * 10) / 10,
-        sodiumMg:
-          confirmRates.sodium100 === undefined
-            ? undefined
-            : Math.round(confirmRates.sodium100 * scale * 10) / 10,
-        potassiumMg:
-          confirmRates.potassium100 === undefined
-            ? undefined
-            : Math.round(confirmRates.potassium100 * scale * 10) / 10,
-        magnesiumMg:
-          confirmRates.magnesium100 === undefined
-            ? undefined
-            : Math.round(confirmRates.magnesium100 * scale * 10) / 10,
-        note: textFor(item),
-        amountG: grams,
-      }
-    }
+  /** #645 — pick (search/recent/barcode) → confirm step, now the same
+   * `MealItemEditorSheet` "create a dish" already used, instead of a
+   * separate flatter inline confirm block with no per100g/portion toggle.
+   * Seeds whichever `macroMode` is the direct passthrough for the picked
+   * item's own source data, no rate math needed either way: a curated/OFF
+   * `food` already carries a per-100g rate (`per100g` mode); a personal
+   * `mealItem` only knows its own last-logged *total* (`perPortion` mode).
+   * `brandOverride`/`barcodeOverride` are only ever passed for an
+   * OFF-sourced pick — neither MealItem nor FoodItem carries either of its
+   * own. */
+  function openPickedItemSheet(
+    item: PickableItem,
+    options?: { brandOverride?: string; barcodeOverride?: string },
+  ) {
+    setEditingItemId(null)
+    setBarcodeNotFoundMessage(false)
+    setPendingBarcode(options?.barcodeOverride ?? null)
+    setServingMode('grams')
+    setServingCount('1')
+    setActiveServings(item.source === 'food' ? item.food.servings : undefined)
+    setIsConfirmingPick(true)
     if (item.source === 'food') {
       const { food } = item
-      return {
-        amountKcal: Math.round(food.kcal100 * scale),
-        proteinG: Math.round(food.protein100 * scale * 10) / 10,
-        fatG: Math.round(food.fat100 * scale * 10) / 10,
-        carbsG: Math.round(food.carbs100 * scale * 10) / 10,
-        fiberG:
-          food.fiber100 === undefined
-            ? undefined
-            : Math.round(food.fiber100 * scale * 10) / 10,
-        sodiumMg:
-          food.sodium100Mg === undefined
-            ? undefined
-            : Math.round(food.sodium100Mg * scale * 10) / 10,
-        potassiumMg:
+      setManualDraft({
+        name: food[locale],
+        brand: options?.brandOverride ?? '',
+        amount: String(food.kcal100),
+        protein: String(food.protein100),
+        fat: String(food.fat100),
+        carbs: String(food.carbs100),
+        fiber: food.fiber100 === undefined ? '' : String(food.fiber100),
+        sodium:
+          food.sodium100Mg === undefined ? '' : String(food.sodium100Mg),
+        potassium:
           food.potassium100Mg === undefined
-            ? undefined
-            : Math.round(food.potassium100Mg * scale * 10) / 10,
-        magnesiumMg:
+            ? ''
+            : String(food.potassium100Mg),
+        magnesium:
           food.magnesium100Mg === undefined
-            ? undefined
-            : Math.round(food.magnesium100Mg * scale * 10) / 10,
-        note: food[locale],
-        amountG: grams,
-      }
+            ? ''
+            : String(food.magnesium100Mg),
+        note: '',
+        amountG: String(gramsToPortions(defaultQuantityFor(item))),
+        macroMode: 'per100g',
+        emotion: undefined,
+        favorite: false,
+      })
+    } else {
+      const { mealItem } = item
+      setManualDraft({
+        name: mealItem.name,
+        brand: '',
+        amount: String(mealItem.lastAmountKcal),
+        protein:
+          mealItem.lastProteinG === undefined
+            ? ''
+            : String(mealItem.lastProteinG),
+        fat: mealItem.lastFatG === undefined ? '' : String(mealItem.lastFatG),
+        carbs:
+          mealItem.lastCarbsG === undefined ? '' : String(mealItem.lastCarbsG),
+        fiber:
+          mealItem.lastFiberG === undefined ? '' : String(mealItem.lastFiberG),
+        sodium:
+          mealItem.lastSodiumMg === undefined
+            ? ''
+            : String(mealItem.lastSodiumMg),
+        potassium:
+          mealItem.lastPotassiumMg === undefined
+            ? ''
+            : String(mealItem.lastPotassiumMg),
+        magnesium:
+          mealItem.lastMagnesiumMg === undefined
+            ? ''
+            : String(mealItem.lastMagnesiumMg),
+        note: '',
+        amountG: defaultQuantityFor(item),
+        macroMode: 'perPortion',
+        emotion: undefined,
+        favorite: false,
+      })
     }
-    const { mealItem } = item
-    const rates = ratesFromAbsolute(
-      mealItem.lastAmountKcal,
-      mealItem.lastProteinG,
-      mealItem.lastFatG,
-      mealItem.lastCarbsG,
-      mealItem.lastAmountG,
-      mealItem.lastFiberG,
-      mealItem.lastSodiumMg,
-      mealItem.lastPotassiumMg,
-      mealItem.lastMagnesiumMg,
-    )
-    return {
-      amountKcal: Math.round(rates.kcal100 * scale),
-      proteinG:
-        rates.protein100 === undefined
-          ? 0
-          : Math.round(rates.protein100 * scale * 10) / 10,
-      fatG:
-        rates.fat100 === undefined
-          ? 0
-          : Math.round(rates.fat100 * scale * 10) / 10,
-      carbsG:
-        rates.carbs100 === undefined
-          ? 0
-          : Math.round(rates.carbs100 * scale * 10) / 10,
-      fiberG:
-        rates.fiber100 === undefined
-          ? undefined
-          : Math.round(rates.fiber100 * scale * 10) / 10,
-      sodiumMg:
-        rates.sodium100 === undefined
-          ? undefined
-          : Math.round(rates.sodium100 * scale * 10) / 10,
-      potassiumMg:
-        rates.potassium100 === undefined
-          ? undefined
-          : Math.round(rates.potassium100 * scale * 10) / 10,
-      magnesiumMg:
-        rates.magnesium100 === undefined
-          ? undefined
-          : Math.round(rates.magnesium100 * scale * 10) / 10,
-      note: mealItem.name,
-      amountG: grams,
-    }
+    setIsManualOpen(true)
   }
 
-  function confirmActiveItem() {
-    if (!activeItem || !hasValidQuantity(activeItem)) return
-    const kcalNum = parseNumberInput(confirmKcal)
-    if (kcalNum === undefined || kcalNum <= 0) return
-    const grams = gramsFor(activeItem)
-    // #517 — commit the editable absolute fields as shown (WYSIWYG), not a
-    // re-scale that could drift from mid-edit rounding on the rates.
-    // #640 — same WYSIWYG treatment for the editable name/brand; falls
-    // back to the source item's own name if cleared to blank, same as
-    // saveManualDraft's trimmedName guard below.
-    const newItem: CalorieItem = {
-      id: crypto.randomUUID(),
-      name: normalizeTextSpaces(confirmName).trim() || textFor(activeItem),
-      brand: normalizeTextSpaces(confirmBrand).trim() || undefined,
-      amountKcal: Math.round(kcalNum),
-      proteinG: parseOptionalMacro(confirmProtein) ?? 0,
-      fatG: parseOptionalMacro(confirmFat) ?? 0,
-      carbsG: parseOptionalMacro(confirmCarbs) ?? 0,
-      fiberG: parseOptionalMacro(confirmFiber),
-      sodiumMg: parseOptionalMacro(confirmSodium),
-      potassiumMg: parseOptionalMacro(confirmPotassium),
-      magnesiumMg: parseOptionalMacro(confirmMagnesium),
-      amountG: grams,
-      emotion: itemEmotion,
-    }
-    onAppendItems([newItem])
-    // Personal last-used memory only (#50/#86) — curated catalog names are
-    // skipped inside touchIfPersonal. Confirm-step edits are a meal-line
-    // override; they do not rewrite foods.ts / foodOverrides.
-    touchIfPersonal(newItem)
-    setSearch('')
-    resetActiveItem()
+  /** #645 — a servings-toggle pick (or its count changing) recomputes
+   * `manualDraft.amountG` in whatever unit the active `macroMode` expects
+   * — real grams in perPortion mode, a portions-of-100g count in per100g
+   * mode (`gramsToPortions`, the same conversion `changeManualDraftMode`
+   * below already applies on a macroMode switch) — so the two stay
+   * consistent regardless of which mode was active when the serving was
+   * picked. */
+  function applyServingToAmountG(servingIndexRaw: string, countRaw: string) {
+    const serving = activeServings?.[Number(servingIndexRaw)]
+    if (!serving) return
+    const countNum = parseNumberInput(countRaw)
+    const count = countNum && countNum > 0 ? countNum : 1
+    const grams = serving.grams * count
+    setManualDraft((draft) => ({
+      ...draft,
+      amountG:
+        draft.macroMode === 'perPortion'
+          ? String(grams)
+          : String(gramsToPortions(String(grams))),
+    }))
   }
 
   // #256 — resolves a scan straight to the same quantity-confirm step a
@@ -842,11 +537,11 @@ export function AddMealDialog({
         source: 'mealItem',
         mealItem: result.item as MealItem & { lastAmountKcal: number },
       }
-      selectActiveItem(item)
+      openPickedItemSheet(item)
     } else if (result.source === 'openFoodFacts') {
       // Not a catalog/personal-library item yet — represented as a
-      // one-off synthetic food so the same confirm-quantity step (which
-      // only knows about PickableItem) can still handle it.
+      // one-off synthetic food so the same confirm step (which only knows
+      // about PickableItem) can still handle it.
       const syntheticFood = foodItemFromOff({
         name: result.name,
         code: barcode,
@@ -859,17 +554,15 @@ export function AddMealDialog({
         potassium100Mg: result.potassium100Mg,
         magnesium100Mg: result.magnesium100Mg,
       })
-      // selectActiveItem clears pendingBarcode; re-set after so confirm →
-      // touchIfPersonal can attach it (#518).
-      selectActiveItem(
+      openPickedItemSheet(
         { source: 'food', food: syntheticFood },
-        '100',
-        result.brand,
+        { brandOverride: result.brand, barcodeOverride: barcode },
       )
-      setPendingBarcode(barcode)
     } else {
       // #518 — keep the scanned code through manual create so the next
       // scan of the same product is a local hit.
+      setActiveServings(undefined)
+      setIsConfirmingPick(false)
       setPendingBarcode(barcode)
       setBarcodeNotFoundMessage(true)
       setIsManualOpen(true)
@@ -897,8 +590,10 @@ export function AddMealDialog({
 
   function pickOnlineHit(hit: OnlineFoodHit) {
     const food = foodItemFromOff(hit)
-    selectActiveItem({ source: 'food', food }, '100', hit.brand)
-    if (hit.code) setPendingBarcode(hit.code)
+    openPickedItemSheet(
+      { source: 'food', food },
+      { brandOverride: hit.brand, barcodeOverride: hit.code },
+    )
   }
 
   // Converts the already-typed values across the per-100g/per-portion
@@ -1037,6 +732,12 @@ export function AddMealDialog({
       onUpdateItem(newItem)
     } else {
       onAppendItems([newItem])
+      // #645 — a search/recent/barcode pick now saves through this same
+      // function; clear the still-typed query so the browse view doesn't
+      // reappear showing a stale results list under "This meal so far"
+      // (the old separate confirm step used to clear this on its own
+      // commit, `confirmActiveItem`, since removed).
+      setSearch('')
     }
     // Close the sheet before awaiting library I/O. `onSave` is invoked as
     // `void saveManualDraft()`, so awaiting touch *before* close left the
@@ -1084,6 +785,8 @@ export function AddMealDialog({
   function startEditItem(item: CalorieItem) {
     setEditingItemId(item.id)
     setPendingBarcode(null)
+    setActiveServings(undefined)
+    setIsConfirmingPick(false)
     setManualDraft({
       name: item.name ?? '',
       brand: item.brand ?? '',
@@ -1109,6 +812,8 @@ export function AddMealDialog({
     setPendingBarcode(null)
     setBarcodeNotFoundMessage(false)
     setEditingItemId(null)
+    setActiveServings(undefined)
+    setIsConfirmingPick(false)
     setIsManualOpen(true)
   }
 
@@ -1170,33 +875,40 @@ export function AddMealDialog({
         )
       : null
 
-  // #273/#278 — the confirm-quantity step's own "Today would be" preview,
-  // restored after being dropped in the #454 rewrite: FoodPickerDialog's
-  // old checked-but-not-yet-added state showed this (kcal *and* macros,
-  // #278), and this step is the direct replacement for that flow for a
-  // catalog/personal-library pick. Includes the active item's own
-  // prospective scaled values, on top of whatever's already confirmed.
-  const activeScaled = activeItem ? scaledValuesFor(activeItem) : null
-  // #643 — the confirm-quantity step's own barcode, mirroring #519's manual
-  // sheet: only a personal-library `mealItem` pick can carry one (curated
-  // `food` catalog entries have no barcode field at all).
-  const activeItemBarcode =
-    activeItem?.source === 'mealItem' ? activeItem.mealItem.barcode : undefined
-  // #519 — show barcode on the manual Add/Edit sheet when a scan is pending
-  // or the dish name already matches a personal library item that has one.
-  const manualSheetBarcode =
-    pendingBarcode ??
-    (manualDraft.name.trim()
-      ? mealItems.find((item) => item.name === manualDraft.name.trim())
-          ?.barcode
-      : undefined)
-  const activeTodayTotalPreview =
-    activeScaled && todayTotals
+  // #273/#645 — while confirming a search/recent/barcode pick (see
+  // isConfirmingPick's own comment), the sheet's own "Today would be"
+  // preview folds this draft's own prospective total in on top of
+  // totalsSoFar — the pre-#645 confirm step's own activeTodayTotalPreview
+  // did the same, just computed from a PickableItem's rates directly
+  // instead of manualDraft. A from-scratch manual create or an
+  // existing-item edit falls back to the plain preview above, unchanged.
+  const pickedScaled = (() => {
+    if (!isConfirmingPick) return null
+    const amountNum = parseNumberInput(manualDraft.amount)
+    if (!amountNum || amountNum <= 0) return null
+    return manualDraft.macroMode === 'per100g'
+      ? scaleFromPer100g(
+          amountNum,
+          parseOptionalMacro(manualDraft.protein),
+          parseOptionalMacro(manualDraft.fat),
+          parseOptionalMacro(manualDraft.carbs),
+          manualDraft.amountG,
+        )
+      : totalFromPortion(
+          amountNum,
+          parseOptionalMacro(manualDraft.protein),
+          parseOptionalMacro(manualDraft.fat),
+          parseOptionalMacro(manualDraft.carbs),
+          manualDraft.amountG,
+        )
+  })()
+  const sheetTodayTotalPreview =
+    pickedScaled && todayTotals
       ? t.dailyEntry.todayWouldBeLabel(
-          `${formatNumber(todayTotals.kcal + totalsSoFar.kcal + activeScaled.amountKcal, locale, 0)} ${t.dailyEntry.kcalUnit} · ${macrosSummaryTextCompact(
-            todayTotals.proteinG + totalsSoFar.proteinG + (activeScaled.proteinG ?? 0),
-            todayTotals.fatG + totalsSoFar.fatG + (activeScaled.fatG ?? 0),
-            todayTotals.carbsG + totalsSoFar.carbsG + (activeScaled.carbsG ?? 0),
+          `${formatNumber(todayTotals.kcal + totalsSoFar.kcal + pickedScaled.amountKcal, locale, 0)} ${t.dailyEntry.kcalUnit} · ${macrosSummaryTextCompact(
+            todayTotals.proteinG + totalsSoFar.proteinG + (pickedScaled.proteinG ?? 0),
+            todayTotals.fatG + totalsSoFar.fatG + (pickedScaled.fatG ?? 0),
+            todayTotals.carbsG + totalsSoFar.carbsG + (pickedScaled.carbsG ?? 0),
             locale,
             t,
           )}`,
@@ -1208,19 +920,30 @@ export function AddMealDialog({
             t,
           )}`,
         )
-      : null
-  const activeTodayRemainingPreview =
-    activeScaled && todayTotals !== undefined && dailyCalorieTargetKcal !== undefined
+      : (todayTotalPreview ?? undefined)
+  const sheetTodayRemainingPreview =
+    pickedScaled &&
+    todayTotals !== undefined &&
+    dailyCalorieTargetKcal !== undefined
       ? t.dailyEntry.todayRemainingWouldBeLabel(
           formatKcal(
             dailyCalorieTargetKcal -
-              (todayTotals.kcal + totalsSoFar.kcal + activeScaled.amountKcal),
+              (todayTotals.kcal + totalsSoFar.kcal + pickedScaled.amountKcal),
             locale,
             t,
           ),
           formatKcal(dailyCalorieTargetKcal - todayTotals.kcal, locale, t),
         )
-      : null
+      : (todayRemainingPreview ?? undefined)
+
+  // #519 — show barcode on the manual Add/Edit sheet when a scan is pending
+  // or the dish name already matches a personal library item that has one.
+  const manualSheetBarcode =
+    pendingBarcode ??
+    (manualDraft.name.trim()
+      ? mealItems.find((item) => item.name === manualDraft.name.trim())
+          ?.barcode
+      : undefined)
 
   // #480 — rendered in two mutually exclusive spots: with the reaction
   // block above Done once the meal has an item, and on its own for an
@@ -1445,280 +1168,6 @@ export function AddMealDialog({
           </div>
         )}
 
-        {activeItem ? (
-          <div className="flex flex-col gap-3">
-            {/* #505 — dish name; #517 replaces the read-only kcal hero with
-             * editable kcal/macros (meal-line override). Quantity still
-             * scales from the corrected per-100g rates. #640 — name and
-             * brand are now editable here too, same meal-line-override
-             * shape, so a wrong/incomplete scanned or searched name can be
-             * fixed before the item is added. */}
-            {activeItemBarcode && (
-              <p className="text-sm text-muted-foreground">
-                {t.dailyEntry.itemBarcodeLabel(
-                  formatBarcodeDisplay(activeItemBarcode),
-                )}
-              </p>
-            )}
-            <div className="flex flex-col gap-1.5">
-              <span className="text-sm text-muted-foreground">
-                {t.dailyEntry.itemNameLabel}
-              </span>
-              <Input
-                type="text"
-                aria-label={t.dailyEntry.itemNameLabel}
-                placeholder={t.dailyEntry.itemNamePlaceholder}
-                value={confirmName}
-                onChange={(e) => setConfirmName(e.target.value)}
-                className="h-12 text-base"
-              />
-            </div>
-            <div className="flex flex-col gap-1.5">
-              <span className="text-sm text-muted-foreground">
-                {t.dailyEntry.itemBrandLabel}
-              </span>
-              <Input
-                type="text"
-                aria-label={t.dailyEntry.itemBrandLabel}
-                placeholder={t.dailyEntry.itemBrandPlaceholder}
-                value={confirmBrand}
-                onChange={(e) => setConfirmBrand(e.target.value)}
-                className="h-12 text-base"
-              />
-            </div>
-            {activeItem.source === 'food' &&
-              activeItem.food.servings &&
-              activeItem.food.servings.length > 0 && (
-                <div className="flex flex-wrap gap-2">
-                  <Button
-                    type="button"
-                    variant={servingMode === 'grams' ? 'default' : 'outline'}
-                    size="sm"
-                    onClick={() => setServingMode('grams')}
-                  >
-                    {t.dailyEntry.gramsModeOption}
-                  </Button>
-                  {activeItem.food.servings.map((serving, index) => (
-                    <Button
-                      type="button"
-                      key={index}
-                      variant={
-                        servingMode === String(index) ? 'default' : 'outline'
-                      }
-                      size="sm"
-                      onClick={() => setServingMode(String(index))}
-                    >
-                      {serving[locale]}
-                    </Button>
-                  ))}
-                </div>
-              )}
-            {activeServingFor(activeItem) ? (
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-muted-foreground">
-                  {t.dailyEntry.servingCountLabel}
-                </span>
-                <Input
-                  type="text"
-                  inputMode="decimal"
-                  aria-label={t.dailyEntry.servingCountLabel}
-                  value={servingCount}
-                  onChange={(e) => setServingCount(e.target.value)}
-                  className="h-12 w-20 text-base"
-                />
-              </div>
-            ) : (
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-muted-foreground">
-                  {t.dailyEntry.foodQuantityLabel}
-                </span>
-                <Input
-                  type="text"
-                  inputMode="decimal"
-                  aria-label={t.dailyEntry.foodQuantityLabel}
-                  value={quantity}
-                  onChange={(e) => setQuantity(e.target.value)}
-                  className="h-12 w-20 text-base"
-                />
-              </div>
-            )}
-            <div className="grid grid-cols-2 gap-3">
-              <div className="flex flex-col gap-1.5">
-                <span className="text-sm text-muted-foreground">
-                  {t.dailyEntry.addCaloriesPortionLabel}
-                </span>
-                <Input
-                  type="text"
-                  inputMode="decimal"
-                  aria-label={t.dailyEntry.addCaloriesPortionLabel}
-                  value={confirmKcal}
-                  onChange={(e) =>
-                    updateConfirmAbsolute('kcal', e.target.value)
-                  }
-                  className="h-12 text-base font-semibold tabular-nums"
-                />
-              </div>
-              <div className="flex flex-col gap-1.5">
-                <span className="text-sm text-muted-foreground">
-                  {t.dailyEntry.proteinLabel}
-                </span>
-                <Input
-                  type="text"
-                  inputMode="decimal"
-                  aria-label={t.dailyEntry.proteinLabel}
-                  value={confirmProtein}
-                  onChange={(e) =>
-                    updateConfirmAbsolute('protein', e.target.value)
-                  }
-                  className="h-12 text-base tabular-nums"
-                />
-              </div>
-              <div className="flex flex-col gap-1.5">
-                <span className="text-sm text-muted-foreground">
-                  {t.dailyEntry.fatLabel}
-                </span>
-                <Input
-                  type="text"
-                  inputMode="decimal"
-                  aria-label={t.dailyEntry.fatLabel}
-                  value={confirmFat}
-                  onChange={(e) => updateConfirmAbsolute('fat', e.target.value)}
-                  className="h-12 text-base tabular-nums"
-                />
-              </div>
-              <div className="flex flex-col gap-1.5">
-                <span className="text-sm text-muted-foreground">
-                  {t.dailyEntry.carbsLabel}
-                </span>
-                <Input
-                  type="text"
-                  inputMode="decimal"
-                  aria-label={t.dailyEntry.carbsLabel}
-                  value={confirmCarbs}
-                  onChange={(e) =>
-                    updateConfirmAbsolute('carbs', e.target.value)
-                  }
-                  className="h-12 text-base tabular-nums"
-                />
-              </div>
-              {trackFiber && (
-                <div className="flex flex-col gap-1.5">
-                  <span className="text-sm text-muted-foreground">
-                    {t.dailyEntry.fiberLabel}
-                  </span>
-                  <Input
-                    type="text"
-                    inputMode="decimal"
-                    aria-label={t.dailyEntry.fiberLabel}
-                    value={confirmFiber}
-                    onChange={(e) =>
-                      updateConfirmAbsolute('fiber', e.target.value)
-                    }
-                    className="h-12 text-base tabular-nums"
-                  />
-                </div>
-              )}
-              {micronutrients.sodium && (
-                <div className="flex flex-col gap-1.5">
-                  <span className="text-sm text-muted-foreground">
-                    {t.dailyEntry.sodiumLabel}
-                  </span>
-                  <Input
-                    type="text"
-                    inputMode="decimal"
-                    aria-label={t.dailyEntry.sodiumLabel}
-                    value={confirmSodium}
-                    onChange={(e) =>
-                      updateConfirmAbsolute('sodium', e.target.value)
-                    }
-                    className="h-12 text-base tabular-nums"
-                  />
-                </div>
-              )}
-              {micronutrients.potassium && (
-                <div className="flex flex-col gap-1.5">
-                  <span className="text-sm text-muted-foreground">
-                    {t.dailyEntry.potassiumLabel}
-                  </span>
-                  <Input
-                    type="text"
-                    inputMode="decimal"
-                    aria-label={t.dailyEntry.potassiumLabel}
-                    value={confirmPotassium}
-                    onChange={(e) =>
-                      updateConfirmAbsolute('potassium', e.target.value)
-                    }
-                    className="h-12 text-base tabular-nums"
-                  />
-                </div>
-              )}
-              {micronutrients.magnesium && (
-                <div className="flex flex-col gap-1.5">
-                  <span className="text-sm text-muted-foreground">
-                    {t.dailyEntry.magnesiumLabel}
-                  </span>
-                  <Input
-                    type="text"
-                    inputMode="decimal"
-                    aria-label={t.dailyEntry.magnesiumLabel}
-                    value={confirmMagnesium}
-                    onChange={(e) =>
-                      updateConfirmAbsolute('magnesium', e.target.value)
-                    }
-                    className="h-12 text-base tabular-nums"
-                  />
-                </div>
-              )}
-            </div>
-            <div className="flex flex-col gap-1.5">
-              <span className="text-sm text-muted-foreground">
-                {t.dailyEntry.itemEmotionLabel}
-              </span>
-              <EmotionPicker
-                value={itemEmotion}
-                onChange={setItemEmotion}
-                options={MEAL_EMOTIONS}
-                labelFor={t.dailyEntry.mealEmotionLabel}
-                contextLabel={
-                  normalizeTextSpaces(confirmName).trim() ||
-                  textFor(activeItem)
-                }
-              />
-            </div>
-            {activeTodayTotalPreview && (
-              <p className="text-base text-muted-foreground">
-                {activeTodayTotalPreview}
-              </p>
-            )}
-            {activeTodayRemainingPreview && (
-              <p className="text-base text-muted-foreground">
-                {activeTodayRemainingPreview}
-              </p>
-            )}
-            <div className="flex gap-2">
-              <Button
-                type="button"
-                variant="outline"
-                className="flex-1"
-                onClick={resetActiveItem}
-              >
-                {t.dailyEntry.cancelAddToMealLabel}
-              </Button>
-              <Button
-                type="button"
-                className="flex-1"
-                disabled={
-                  !hasValidQuantity(activeItem) ||
-                  parseNumberInput(confirmKcal) === undefined ||
-                  (parseNumberInput(confirmKcal) ?? 0) <= 0
-                }
-                onClick={confirmActiveItem}
-              >
-                {t.dailyEntry.addItemButton}
-              </Button>
-            </div>
-          </div>
-        ) : (
           <div className="flex flex-col gap-4">
             {previousMeal && previousMeal.items.length > 0 && (
               <Button
@@ -1797,7 +1246,7 @@ export function AddMealDialog({
                     isFavorite={isFavorite}
                     onToggleFavorite={handleToggleFavorite}
                     onPick={(item) => {
-                      selectActiveItem(item)
+                      openPickedItemSheet(item)
                     }}
                     t={t}
                     locale={locale}
@@ -1934,7 +1383,7 @@ export function AddMealDialog({
                         isFavorite={isFavorite}
                         onToggleFavorite={handleToggleFavorite}
                         onPick={(item) => {
-                          selectActiveItem(item)
+                          openPickedItemSheet(item)
                         }}
                         t={t}
                         locale={locale}
@@ -2100,7 +1549,6 @@ export function AddMealDialog({
              * path isn't already showing it above. */}
             {items.length === 0 && !showDoneWhenEmpty && deleteMealSection}
           </div>
-        )}
         </div>
 
         {isRepeatOpen && previousMeal && (
@@ -2138,6 +1586,10 @@ export function AddMealDialog({
               // #518 — abandoning the not-found create drops the held code
               // (saveManualDraft clears it earlier, after a successful touch).
               setPendingBarcode(null)
+              setActiveServings(undefined)
+              setServingMode('grams')
+              setServingCount('1')
+              setIsConfirmingPick(false)
             }
           }}
           title={
@@ -2202,9 +1654,22 @@ export function AddMealDialog({
           }
           macroMode={manualDraft.macroMode}
           onMacroModeChange={changeManualDraftMode}
+          servings={activeServings}
+          servingMode={servingMode}
+          onServingModeChange={(mode) => {
+            setServingMode(mode)
+            if (mode !== 'grams') applyServingToAmountG(mode, servingCount)
+          }}
+          servingCount={servingCount}
+          onServingCountChange={(value) => {
+            setServingCount(value)
+            if (servingMode !== 'grams') applyServingToAmountG(servingMode, value)
+          }}
           mealItems={mealItems}
           onSelectMealItem={(item) => {
             if (item.lastAmountKcal === undefined) return
+            setActiveServings(undefined)
+            setServingMode('grams')
             const rates = ratesFromAbsolute(
               item.lastAmountKcal,
               item.lastProteinG,
@@ -2245,8 +1710,8 @@ export function AddMealDialog({
           onFavoriteChange={(value) =>
             setManualDraft((draft) => ({ ...draft, favorite: value }))
           }
-          todayTotalPreview={todayTotalPreview ?? undefined}
-          todayRemainingPreview={todayRemainingPreview ?? undefined}
+          todayTotalPreview={sheetTodayTotalPreview}
+          todayRemainingPreview={sheetTodayRemainingPreview}
           infoMessage={
             barcodeNotFoundMessage
               ? t.dailyEntry.noFoodFoundForBarcodeMessage

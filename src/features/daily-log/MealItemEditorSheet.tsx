@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Check, Clipboard, Star } from 'lucide-react'
+import type { FoodServing } from '@/data/foods'
 import type { MealEmotion } from '@/domain/dailyEntry'
 import type { MealItem } from '@/domain/mealItem'
 import { formatNumber, useLocale, useTranslation } from '@/i18n'
@@ -63,6 +64,19 @@ export interface MealItemEditorSheetProps {
   onAmountGChange: (value: string) => void
   macroMode: 'per100g' | 'perPortion'
   onMacroModeChange: (mode: 'per100g' | 'perPortion') => void
+  /** #645 — named serving-size shortcuts (egg, slice, cup, #254) for the
+   * source curated/personal food this sheet was opened from, when it has
+   * any — a friendlier alternative to typing raw weight. Omitted (or
+   * empty) for the manual "create a new dish" flow, which has no source
+   * food to draw a servings list from. Selecting one still ends up
+   * driving `amountG` (via `onServingModeChange`/`onServingCountChange`,
+   * computed by the caller) in whatever unit the active `macroMode`
+   * expects, so switching modes afterward keeps working the normal way. */
+  servings?: FoodServing[]
+  servingMode?: string
+  onServingModeChange?: (mode: string) => void
+  servingCount?: string
+  onServingCountChange?: (value: string) => void
   mealItems: MealItem[]
   onSelectMealItem: (item: MealItem) => void
   /** This dish's own reaction (#129) — moved here from the meal group, so
@@ -245,6 +259,11 @@ export function MealItemEditorSheet({
   onAmountGChange,
   macroMode,
   onMacroModeChange,
+  servings,
+  servingMode = 'grams',
+  onServingModeChange,
+  servingCount = '1',
+  onServingCountChange,
   mealItems,
   onSelectMealItem,
   emotion,
@@ -476,6 +495,33 @@ export function MealItemEditorSheet({
               </ToggleGroupItem>
             </ToggleGroup>
 
+            {/* #645 — friendlier serving-size shortcuts (#254), same
+             * toggle pattern FoodPickerDialog's own servings picker
+             * already uses, offered here too now that this sheet is the
+             * one confirm screen for every add-a-meal entry point. */}
+            {servings && servings.length > 0 && onServingModeChange && (
+              <ToggleGroup
+                type="single"
+                aria-label={t.dailyEntry.servingModeLabel}
+                value={servingMode}
+                onValueChange={(value) => value && onServingModeChange(value)}
+                className="w-fit flex-wrap gap-2 p-1"
+              >
+                <ToggleGroupItem value="grams" className="h-8 px-3 text-xs">
+                  {t.dailyEntry.gramsModeOption}
+                </ToggleGroupItem>
+                {servings.map((serving, index) => (
+                  <ToggleGroupItem
+                    key={index}
+                    value={String(index)}
+                    className="h-8 px-3 text-xs"
+                  >
+                    {serving[locale]}
+                  </ToggleGroupItem>
+                ))}
+              </ToggleGroup>
+            )}
+
             <div className="grid grid-cols-2 gap-4">
               <NumberField
                 label={
@@ -502,16 +548,25 @@ export function MealItemEditorSheet({
                * (`changeManualDraftMode`/`updateEditItemMode`) convert
                * between the two so switching modes doesn't leave a stale
                * number read in the wrong unit. */}
-              <NumberField
-                label={
-                  macroMode === 'per100g'
-                    ? t.dailyEntry.itemPortionsLabel
-                    : t.dailyEntry.itemWeightLabel
-                }
-                value={amountG}
-                onChange={onAmountGChange}
-                onEnter={onSave}
-              />
+              {servingMode !== 'grams' && onServingCountChange ? (
+                <NumberField
+                  label={t.dailyEntry.servingCountLabel}
+                  value={servingCount}
+                  onChange={onServingCountChange}
+                  onEnter={onSave}
+                />
+              ) : (
+                <NumberField
+                  label={
+                    macroMode === 'per100g'
+                      ? t.dailyEntry.itemPortionsLabel
+                      : t.dailyEntry.itemWeightLabel
+                  }
+                  value={amountG}
+                  onChange={onAmountGChange}
+                  onEnter={onSave}
+                />
+              )}
             </div>
           </FormSection>
 

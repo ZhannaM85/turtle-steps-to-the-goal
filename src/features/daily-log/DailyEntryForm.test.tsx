@@ -2691,7 +2691,7 @@ describe('DailyEntryForm', () => {
           )
           await user.type(screen.getByLabelText('Search foods'), 'Salmon')
           await user.click(screen.getByText('Salmon', { exact: true }))
-          await user.click(screen.getByRole('button', { name: '+ Add item' }))
+          await user.click(screen.getByRole('button', { name: 'Save' }))
 
           expect(onSave).toHaveBeenCalledTimes(1)
           const entry = onSave.mock.calls[0][0].calorieEntries[0]
@@ -2727,7 +2727,7 @@ describe('DailyEntryForm', () => {
           })
           await user.type(screen.getByLabelText('Search foods'), 'Salmon')
           await user.click(screen.getByText('Salmon', { exact: true }))
-          await user.click(screen.getByRole('button', { name: '+ Add item' }))
+          await user.click(screen.getByRole('button', { name: 'Save' }))
 
           const entry = onSave.mock.calls[0][0].calorieEntries[0]
           expect(entry.timeEaten).toBe('07:30')
@@ -2784,10 +2784,12 @@ describe('DailyEntryForm', () => {
           )
           await user.type(screen.getByLabelText('Search foods'), 'Salmon')
           await user.click(screen.getByText('Salmon', { exact: true }))
-          const quantityInput = screen.getByLabelText('Quantity (g)')
-          await user.clear(quantityInput)
-          await user.type(quantityInput, '50')
-          await user.click(screen.getByRole('button', { name: '+ Add item' }))
+          // #645 — a curated food pick opens in per100g mode; 0.5 portions
+          // of the 100g rate is 50g.
+          const portionsInput = screen.getByLabelText('× 100g')
+          await user.clear(portionsInput)
+          await user.type(portionsInput, '0.5')
+          await user.click(screen.getByRole('button', { name: 'Save' }))
 
           const entry = onSave.mock.calls[0][0].calorieEntries[0]
           expect(entry.items[0].amountKcal).toBe(104)
@@ -2813,7 +2815,7 @@ describe('DailyEntryForm', () => {
           await user.click(
             screen.getByRole('button', { name: 'Bellissimo — Salmon' }),
           )
-          await user.click(screen.getByRole('button', { name: '+ Add item' }))
+          await user.click(screen.getByRole('button', { name: 'Save' }))
 
           const entry = onSave.mock.calls[0][0].calorieEntries[0]
           expect(entry.items[0].emotion).toBe('bellissimo')

@@ -374,7 +374,6 @@ export interface Dictionary {
     itemNoteLabel: string
     itemNotePlaceholder: string
     deleteItemLabel: string
-    addItemButton: string
     emotionLabel: (emotion: 'happy' | 'unhappy' | 'neutral') => string
     /** #459 — the "meal so far" footer's own "Was it tasty?" reaction
      * reuses the day-mood Emotion type/icons, but with Yes/So-so/No
@@ -556,7 +555,6 @@ export interface Dictionary {
     quickActionAddFoodLabel: string
     mealSoFarLabel: string
     wasItTastyLabel: string
-    cancelAddToMealLabel: string
     doneAddingMealButton: string
     /** #494 — confirm before X/escape discards an in-progress new meal
      * that already has foods from this flyout session (#491). */

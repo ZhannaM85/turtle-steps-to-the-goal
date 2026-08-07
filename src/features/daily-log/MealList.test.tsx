@@ -1011,7 +1011,7 @@ describe('MealList', () => {
       await user.type(screen.getByLabelText('Time'), '08:00')
       await user.type(screen.getByLabelText('Search foods'), 'Salmon')
       await user.click(await screen.findByText('Salmon'))
-      await user.click(screen.getByRole('button', { name: '+ Add item' }))
+      await user.click(screen.getByRole('button', { name: 'Save' }))
 
       expect(
         await screen.findByText('Your fasting window was 12.0h.'),
