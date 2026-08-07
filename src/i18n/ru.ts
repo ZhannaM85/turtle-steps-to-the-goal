@@ -458,7 +458,7 @@ export const ru: Dictionary = {
     startNewGoalHint:
       'Начинает новый 7-дневный период с сегодняшнего дня, а текущий переходит в «Прошлые цели».',
     startNewGoalAvailableFromLabel: (weekEndDate) =>
-      `Станет доступно, когда закончится цель на эту неделю, ${weekEndDate}.`,
+      `Станет доступно, когда закончится цель на эту неделю, ${weekEndDate}`,
     savedConfirmation: 'Сохранено',
     currentGoalTitle: 'Текущая цель',
     notSetLabel: 'Не задано',
