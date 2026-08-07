@@ -1,9 +1,10 @@
 import 'fake-indexeddb/auto'
-import { render, screen, within } from '@testing-library/react'
+import { render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { useLocaleStore } from '@/i18n'
+import { db, IndexedDbDailyEntryRepository } from '@/infrastructure/persistence/indexeddb'
 import {
   useDailyReminderStore,
   useDigestionTrackingStore,
@@ -19,6 +20,8 @@ import {
   useWeekStartStore,
 } from '@/stores'
 import { SettingsScreen } from './SettingsScreen'
+
+const dailyEntryRepository = new IndexedDbDailyEntryRepository()
 
 function renderSettings() {
   return render(<SettingsScreen />, { wrapper: MemoryRouter })
@@ -101,6 +104,10 @@ afterEach(() => {
   document.documentElement.classList.remove('dark')
 })
 
+afterEach(async () => {
+  await db.dailyEntries.clear()
+})
+
 describe('SettingsScreen', () => {
   it('renders in English by default', () => {
     renderSettings()
@@ -150,6 +157,35 @@ describe('SettingsScreen', () => {
     expect(
       screen.queryByRole('button', { name: 'Dismiss backup reminder' }),
     ).not.toBeInTheDocument()
+  })
+
+  it('backdates the reminder to the earliest logged entry once real usage history exists (#599)', async () => {
+    useLastBackupStore.setState({
+      firstSeenAt: new Date().toISOString(),
+      lastExportedAt: null,
+      dismissedUntil: null,
+    })
+    const seededNow = new Date().toISOString()
+    await dailyEntryRepository.upsert({
+      id: crypto.randomUUID(),
+      date: '2020-01-01',
+      createdAt: seededNow,
+      updatedAt: seededNow,
+    })
+
+    renderSettings()
+
+    // firstSeenAt starts as "now," so the reminder is hidden until the
+    // seeding effect backdates it past the threshold using the entry above.
+    expect(
+      screen.queryByRole('button', { name: 'Dismiss backup reminder' }),
+    ).not.toBeInTheDocument()
+
+    await waitFor(() => {
+      expect(
+        screen.getByRole('button', { name: 'Dismiss backup reminder' }),
+      ).toBeInTheDocument()
+    })
   })
 
   it('defaults to kg units', () => {

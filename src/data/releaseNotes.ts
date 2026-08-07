@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 595,
+    issue: 599,
+    date: '2026-08-07T11:56:35+03:00',
+    en: 'Fixed the backup reminder to count from your earliest logged day, not from the day this feature first appeared.',
+    ru: 'Исправлено: напоминание о резервной копии теперь считает от первой записи в дневнике, а не от дня появления этой функции.',
+  },
+  {
     version: 594,
     issue: 641,
     date: '2026-08-07T11:39:02+03:00',

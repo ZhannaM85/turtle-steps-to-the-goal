@@ -46,6 +46,7 @@ import {
   backupReminderStatus,
   BACKUP_REMINDER_SNOOZE_DAYS,
 } from '@/shared/lib/lastBackupReminder'
+import { useSeedBackupFirstSeenAt } from '@/shared/hooks/useSeedBackupFirstSeenAt'
 import { Button } from '@/shared/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
 import { Input } from '@/shared/ui/input'
@@ -255,6 +256,9 @@ export function SettingsScreen() {
   // #599 — quiet, dismissible nudge once the JSON backup (or the app
   // itself, if one has never happened) has gone stale; see
   // `lastBackupReminder.ts` for the threshold/snooze constants.
+  // Backdates `firstSeenAt` to the earliest real logging date, if any
+  // exists, before it's read below — see `useSeedBackupFirstSeenAt.ts`.
+  useSeedBackupFirstSeenAt()
   const backupFirstSeenAt = useLastBackupStore((state) => state.firstSeenAt)
   const backupLastExportedAt = useLastBackupStore(
     (state) => state.lastExportedAt,

@@ -48,7 +48,7 @@ _Filed from the product-owner audit in `C:\Users\User\Projects\docs\turtle-steps
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#599](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/599) | 🟡 Partial | Remind when a JSON backup has not been exported recently | New `useLastBackupStore` + `lastBackupReminder.ts` (14-day threshold, 7-day snooze); dismissible banner atop Settings linking to `#export-section`, plus an always-visible "Last backup: N days ago" line by the Export button. Reported live 2026-08-06 as still wrong: `firstSeenAt` stamps "now" the first time the localStorage key is created (i.e. first run of this build), not derived from real usage history — an existing user with ~1 month of never-backed-up data sees no banner because the 14-day clock silently restarts at zero on update instead of reflecting the real gap. Needs seeding from an actual usage signal (earliest `DailyEntry` date or similar) |
+| [#599](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/599) | 🔍 Pending validation | Remind when a JSON backup has not been exported recently | New `useLastBackupStore` + `lastBackupReminder.ts` (14-day threshold, 7-day snooze); dismissible banner atop Settings linking to `#export-section`, plus an always-visible "Last backup: N days ago" line by the Export button. `firstSeenAt` gap fixed: new `DailyEntryRepository.getEarliestEntryDate()` + `useLastBackupStore.backdateFirstSeenAt()` (only ever moves earlier, self-heals an already-affected device) wired in via `shared/hooks/useSeedBackupFirstSeenAt.ts`, called from `SettingsScreen` on mount. Awaiting on-device confirmation |
 
 ---
 
