@@ -1,4 +1,5 @@
-import { Star } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { Check, Clipboard, Star } from 'lucide-react'
 import type { MealEmotion } from '@/domain/dailyEntry'
 import type { MealItem } from '@/domain/mealItem'
 import { formatNumber, useLocale, useTranslation } from '@/i18n'
@@ -263,6 +264,35 @@ export function MealItemEditorSheet({
 }: MealItemEditorSheetProps) {
   const t = useTranslation()
   const locale = useLocale()
+  // #644 — same auto-clearing "Copied" shape as RecipesSettingsScreen's
+  // copiedRecipeId (#611/#636); iOS Safari's native selection handles on
+  // this row can't be dragged, so this button is the only working way to
+  // copy the barcode.
+  const [barcodeCopied, setBarcodeCopied] = useState(false)
+  // Reset if a different item's sheet opens while a "Copied" confirmation
+  // from the previous one is still showing — adjusted during render
+  // (React's recommended prop-change-reset pattern) rather than a second
+  // effect, so it doesn't trigger a lint error for cascading setState-in-
+  // effect renders.
+  const [prevBarcode, setPrevBarcode] = useState(barcode)
+  if (barcode !== prevBarcode) {
+    setPrevBarcode(barcode)
+    setBarcodeCopied(false)
+  }
+
+  useEffect(() => {
+    if (!barcodeCopied) return
+    const timer = setTimeout(() => setBarcodeCopied(false), 2000)
+    return () => clearTimeout(timer)
+  }, [barcodeCopied])
+
+  async function copyBarcode() {
+    if (!barcode) return
+    // Raw undelimited digits — what's actually stored/looked-up — not the
+    // display-grouped string shown in the label.
+    await navigator.clipboard.writeText(barcode)
+    setBarcodeCopied(true)
+  }
 
   const amountNum = parseNumberInput(amount)
   const hasValidAmount = amountNum !== undefined && amountNum > 0
@@ -332,9 +362,39 @@ export function MealItemEditorSheet({
           <p className="text-sm text-muted-foreground">{infoMessage}</p>
         )}
         {barcode && (
-          <p className="text-sm text-muted-foreground">
-            {t.dailyEntry.itemBarcodeLabel(formatBarcodeDisplay(barcode))}
-          </p>
+          <div className="flex flex-col gap-0.5">
+            <div className="flex items-center gap-1">
+              <p className="text-sm text-muted-foreground">
+                {t.dailyEntry.itemBarcodeLabel(formatBarcodeDisplay(barcode))}
+              </p>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon-sm"
+                aria-label={
+                  barcodeCopied
+                    ? t.dailyEntry.barcodeCopiedLabel
+                    : t.dailyEntry.copyBarcodeLabel
+                }
+                onClick={() => void copyBarcode()}
+              >
+                {barcodeCopied ? (
+                  <Check aria-hidden="true" />
+                ) : (
+                  <Clipboard aria-hidden="true" />
+                )}
+              </Button>
+            </div>
+            {barcodeCopied && (
+              <span
+                role="status"
+                className="flex items-center gap-1 text-xs text-muted-foreground"
+              >
+                <Check aria-hidden="true" className="size-3.5" />
+                {t.dailyEntry.barcodeCopiedToastMessage}
+              </span>
+            )}
+          </div>
         )}
         <div className="flex flex-1 flex-col gap-4 overflow-y-auto pt-4">
           <FormSection heading={t.dailyEntry.itemNameLabel}>

@@ -252,6 +252,9 @@ export const en: Dictionary = {
     noFoodFoundForBarcodeMessage:
       'No food found for this barcode — you can still add it by hand below.',
     itemBarcodeLabel: (code) => `Barcode: ${code}`,
+    copyBarcodeLabel: 'Copy barcode',
+    barcodeCopiedLabel: 'Copied',
+    barcodeCopiedToastMessage: 'Barcode copied to clipboard',
     recentFoodsLabel: 'Recent',
     showAllRecentLabel: 'Show all',
     collapseRecentLabel: 'Show less',

@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 599,
+    issue: 644,
+    date: '2026-08-07T17:17:42+03:00',
+    en: "Added a copy button next to a scanned item's barcode, since selecting the number by hand didn't work reliably.",
+    ru: 'Добавлена кнопка копирования рядом со штрихкодом отсканированного продукта, так как выделить номер вручную не всегда получалось.',
+  },
+  {
     version: 598,
     issue: 643,
     date: '2026-08-07T15:29:16+03:00',

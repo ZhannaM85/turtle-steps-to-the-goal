@@ -266,6 +266,9 @@ export const ru: Dictionary = {
     noFoodFoundForBarcodeMessage:
       'Еда с таким штрихкодом не найдена — вы можете добавить её вручную ниже.',
     itemBarcodeLabel: (code) => `Штрихкод: ${code}`,
+    copyBarcodeLabel: 'Скопировать штрихкод',
+    barcodeCopiedLabel: 'Скопировано',
+    barcodeCopiedToastMessage: 'Штрихкод скопирован в буфер обмена',
     recentFoodsLabel: 'Недавние',
     showAllRecentLabel: 'Показать все',
     collapseRecentLabel: 'Свернуть',

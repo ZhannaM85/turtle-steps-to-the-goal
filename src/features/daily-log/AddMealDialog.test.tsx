@@ -647,6 +647,30 @@ describe('AddMealDialog (#454)', () => {
       expect(screen.getByText('Barcode: 0 000000 000000')).toBeInTheDocument()
     })
 
+    it('copies the raw barcode digits to the clipboard (#644)', async () => {
+      vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: false }))
+      mockScanning('0000000000000')
+      const writeText = vi
+        .spyOn(navigator.clipboard, 'writeText')
+        .mockResolvedValue(undefined)
+      const user = userEvent.setup()
+      render(<ControlledAddMealDialog {...defaultProps} />)
+
+      await user.click(screen.getByRole('button', { name: 'Scan barcode' }))
+      await screen.findByText('Barcode: 0 000000 000000')
+
+      await user.click(screen.getByRole('button', { name: 'Copy barcode' }))
+
+      // Raw undelimited digits, not the display-grouped label text.
+      expect(writeText).toHaveBeenCalledWith('0000000000000')
+      expect(
+        await screen.findByRole('button', { name: 'Copied' }),
+      ).toBeInTheDocument()
+      expect(await screen.findByRole('status')).toHaveTextContent(
+        'Barcode copied to clipboard',
+      )
+    })
+
     it('remembers a food created after a not-found scan for the next scan (#518)', async () => {
       vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: false }))
       mockScanning('4607001234567')

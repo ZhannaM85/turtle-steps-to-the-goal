@@ -523,6 +523,17 @@ export interface Dictionary {
      * #520 — callers pass a display-grouped code via formatBarcodeDisplay
      * (e.g. `1 123456 654321`), not the raw stored digit string. */
     itemBarcodeLabel: (code: string) => string
+    /** #644 — iOS Safari's native text selection on the barcode row shows
+     * selection handles but they can't actually be dragged to select the
+     * full number, so there was no working way to copy it. Dedicated copy
+     * button instead, same clipboard + auto-clearing "Copied" shape
+     * `RecipesSettingsScreen.tsx`'s `copyIngredientsLabel`/
+     * `ingredientsCopiedLabel`/`ingredientsCopiedToastMessage` already
+     * established (#611/#636). Copies the raw undelimited digit string
+     * (what's actually stored/looked-up), not the display-grouped one. */
+    copyBarcodeLabel: string
+    barcodeCopiedLabel: string
+    barcodeCopiedToastMessage: string
     /** #454 — the "add a meal" flyout's own copy: a short recent-items
      * heading shown while the search box is empty, the fallback link to
      * manual entry once a search comes up empty, the live "meal so far"
