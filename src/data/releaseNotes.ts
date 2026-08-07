@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 593,
+    issue: 634,
+    date: '2026-08-06T16:00:13+03:00',
+    en: 'PDF export: the Body measurements section no longer turns on from body-fat-% data alone — that now correctly counts toward Body composition instead. Disabled toggles explain why (not tracked in Settings, or no data in range).',
+    ru: 'Экспорт в PDF: раздел «Замеры тела» больше не включается только из-за наличия % жира — теперь это относится к разделу «Состав тела». Неактивные переключатели объясняют причину (не включено в настройках или нет данных за период).',
+  },
+  {
     version: 592,
     issue: 635,
     date: '2026-08-06T20:36:16+03:00',
