@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 591,
+    issue: 636,
+    date: '2026-08-06T20:13:52+03:00',
+    en: 'Copying a recipe\'s ingredients now shows a visible "Ingredients copied to clipboard" confirmation, not just an icon swap.',
+    ru: 'При копировании ингредиентов рецепта теперь появляется заметное подтверждение «Ингредиенты скопированы», а не только смена иконки.',
+  },
+  {
     version: 590,
     issue: 638,
     date: '2026-08-06T20:26:19+03:00',
