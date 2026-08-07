@@ -49,7 +49,6 @@ _Filed from the product-owner audit in `C:\Users\User\Projects\docs\turtle-steps
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#599](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/599) | 🟡 Partial | Remind when a JSON backup has not been exported recently | New `useLastBackupStore` + `lastBackupReminder.ts` (14-day threshold, 7-day snooze); dismissible banner atop Settings linking to `#export-section`, plus an always-visible "Last backup: N days ago" line by the Export button. Reported live 2026-08-06 as still wrong: `firstSeenAt` stamps "now" the first time the localStorage key is created (i.e. first run of this build), not derived from real usage history — an existing user with ~1 month of never-backed-up data sees no banner because the 14-day clock silently restarts at zero on update instead of reflecting the real gap. Needs seeding from an actual usage signal (earliest `DailyEntry` date or similar) |
-| [#610](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/610) | 🔍 Pending validation | Calm pace-check card when recent weekly goals miss consistently | New `domain/goal/paceCheck.ts` (`paceCheckInsight`, 3-consecutive-miss threshold); "Pace check" nudge card on GoalScreen, same hideable shape as `goalReachedNudge`. No projection (#228 still stands). Awaiting on-device confirmation |
 
 ---
 
