@@ -20,10 +20,18 @@ export interface ReleaseNote {
  * change (not a hand-picked day) — set it via `git log -1 --format=%cI`
  * against the actual shipping commit when adding a new entry.
  *
- * Update this file as part of closing every issue, alongside
- * docs/issues-priority.md and docs/ARCHITECTURE.md — see CLAUDE.md.
+ * Update this file at implementation time, when the code actually ships —
+ * not bundled into the later closing commit alongside
+ * docs/issues-priority.md/docs/ARCHITECTURE.md (#642) — see CLAUDE.md.
  */
 export const releaseNotes: ReleaseNote[] = [
+  {
+    version: 594,
+    issue: 641,
+    date: '2026-08-07T11:39:02+03:00',
+    en: 'Fixed scanned/searched food names sometimes showing a literal &quot; instead of a real quote mark.',
+    ru: 'Исправлено: название найденного/отсканированного продукта иногда показывало &quot; вместо настоящей кавычки.',
+  },
   {
     version: 593,
     issue: 634,

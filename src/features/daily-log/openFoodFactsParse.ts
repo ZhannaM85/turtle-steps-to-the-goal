@@ -1,3 +1,5 @@
+import { decodeHtmlEntities } from '@/shared/lib/decodeHtmlEntities'
+
 /**
  * Shared Open Food Facts nutriment parsing (#256 barcode, #531 name search).
  * OFF data quality varies — callers treat a missing kcal figure as unusable.
@@ -71,13 +73,16 @@ export function parseOffProductIdentity(
   if (typeof product !== 'object' || product === null) return null
   const record = product as Record<string, unknown>
   const productName = record.product_name
-  const name = typeof productName === 'string' ? productName.trim() : ''
+  const name =
+    typeof productName === 'string'
+      ? decodeHtmlEntities(productName).trim()
+      : ''
   if (!name) return null
 
   const brandsField = record.brands
   const brand =
     typeof brandsField === 'string' && brandsField.trim()
-      ? brandsField.split(',')[0].trim()
+      ? decodeHtmlEntities(brandsField.split(',')[0].trim())
       : undefined
 
   const codeField = record.code

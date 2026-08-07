@@ -48,6 +48,19 @@ describe('parseOffProduct', () => {
     ).toEqual({ name: 'Yogurt', brand: 'Danone', code: undefined })
   })
 
+  it('decodes HTML entities in name and brand (#641)', () => {
+    expect(
+      parseOffProductIdentity({
+        product_name: 'Skyr &quot;Baked apple&quot;',
+        brands: 'Ben &amp; Jerry&#39;s, Other',
+      }),
+    ).toEqual({
+      name: 'Skyr "Baked apple"',
+      brand: "Ben & Jerry's",
+      code: undefined,
+    })
+  })
+
   it('merges identity and nutrition', () => {
     expect(
       parseOffProduct({
