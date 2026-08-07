@@ -60,6 +60,7 @@ _All other Tier 127 items from this date were filed, implemented, and closed sam
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#644](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/644) | 🔲 Open | Barcode field text can't be selected for copying — cursor doesn't move, selection won't expand | Meal item editor sheet's barcode row (added #519, touched #643); iOS text-selection handles appear but don't move/expand, so the barcode can't actually be copied. Root cause not yet investigated |
+| [#645](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/645) | 🔲 Open | Add-meal screens inconsistent: scan/existing-food confirm screen lacks the portion option that new-food creation has | Scanning a barcode and picking an existing/searched food both land on the flat-quantity confirm screen (single grams field, absolute macros); creating a brand-new food uses a different component with a weight/portion toggle and per-100g nutrition. Open design question flagged for `AskUserQuestion` at implementation time: unify the components vs. add the portion option to the confirm screen |
 
 ---
 
