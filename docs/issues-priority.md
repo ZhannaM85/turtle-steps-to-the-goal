@@ -81,7 +81,6 @@ _Same-day live feedback while working through Tier 123/125's validation queue._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#632](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/632) | 🔍 Pending validation | PDF section picker: some toggles enabled without any real entries | Implemented together with #633 — see that row; the Settings-tracking gate explains Body measurements/Alcohol/Night eating showing enabled from stale data logged before their Settings toggle was turned off (or, for Night eating, from meal-slot-default times with no night-eating-specific intent) |
 
 ---
 
