@@ -42,16 +42,6 @@ _User asked about pulling data from Apple Health and Zepp Life. Researched via W
 
 ---
 
-## Tier 123 — Product-owner audit batch (2026-08-04)
-
-_Filed from the product-owner audit in `C:\Users\User\Projects\docs\turtle-steps-ideas\2026-08-04-product-audit\` (outside this repo). Log-only — not implementing in the filing session. Row order is easiest → harder within the batch; items that need an `AskUserQuestion` fork before coding are called out. Skipped from filing (parked in the audit’s “discuss / P3” notes): lightweight exercise log, meal photos, extra languages._
-
-| # | Status | Issue | Notes |
-|---|--------|-------|-------|
-| [#599](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/599) | 🔍 Pending validation | Remind when a JSON backup has not been exported recently | New `useLastBackupStore` + `lastBackupReminder.ts` (14-day threshold, 7-day snooze); dismissible banner atop Settings linking to `#export-section`, plus an always-visible "Last backup: N days ago" line by the Export button. `firstSeenAt` gap fixed: new `DailyEntryRepository.getEarliestEntryDate()` + `useLastBackupStore.backdateFirstSeenAt()` (only ever moves earlier, self-heals an already-affected device) wired in via `shared/hooks/useSeedBackupFirstSeenAt.ts`, called from `SettingsScreen` on mount. Awaiting on-device confirmation |
-
----
-
 ## Tier 124 — Native-unlocked follow-ups from audit (2026-08-04)
 
 _Same audit pass. Blocked on Tier 36 Capacitor / store shell — revisit of #261 (notifications) and #231 (widgets), which were correctly closed for PWA-only._
