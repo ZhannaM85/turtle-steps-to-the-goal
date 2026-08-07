@@ -27,6 +27,16 @@ _Filed from the product-owner audit in `C:\Users\User\Projects\docs\turtle-steps
 
 ---
 
+## Tier 127 — Live feedback (2026-08-07)
+
+_Live discussion of a screenshot showing "Цель достигнута" badges on most recent weeks despite the actual weight barely moving. All currently open / pending items from this tier live in the active file._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#640](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/640) | ✅ Done | Scanned/searched food: dish name not editable, no brand field on review screen | `AddMealDialog.tsx`'s confirm step: dish name is now an editable `Input` (was read-only `<p>`), plus a new brand `Input`, same meal-line-override shape #517 already set for kcal/macros. Prefilled from an OFF hit's brand when scanning/searching finds one (previously silently dropped by `foodItemFromOff`); falls back to the source item's own name if cleared blank. Confirmed working on-device 2026-08-07 |
+
+---
+
 ## Tier 126 — Live feedback (2026-08-06)
 
 _Same-day live feedback while working through Tier 123/125's validation queue. All currently open / pending items from this tier live in the active file._
