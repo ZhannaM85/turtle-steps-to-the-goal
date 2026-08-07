@@ -91,7 +91,11 @@ export interface Dictionary {
     startTodayEarlyButton: string
     goalRenewalReminder: string
     reviewGoalLink: string
-    targetMetBanner: string
+    /** #639: reframed from a flat claim to a mid-week-only "keep going"
+     * nudge — this banner is now gated to hide once the window has
+     * actually ended (the goal's own weekEnd date, passed in), when the
+     * GoalScreen's own completed/missed messaging takes over instead. */
+    targetMetBanner: (weekEndDate: string) => string
     /** Quiet, opt-in nudge (#171) — only shown when the Settings toggle is
      * on and today has no entry yet. Same no-badges/no-streaks tone as
      * goalRenewalReminder above, no dismiss state to persist. */
@@ -193,10 +197,22 @@ export interface Dictionary {
      * together in TodayScreen.tsx, so those three keep their existing text
      * unchanged rather than needing a new combined string here. */
     bmrTooltipLabel: string
+    /** #639: this is now specifically the *mid-week* "crossed the target,
+     * not final yet" modal — reframed from a flat achievement claim so it
+     * doesn't imply the badge is already earned. A separate `celebrationComplete*`
+     * trio below covers the real end-of-window completion moment. */
     celebrationTitle: string
-    celebrationDescription: string
+    celebrationDescription: (weekEndDate: string) => string
     celebrationCta: string
     celebrationCloseLabel: string
+    /** #639 — the *end-of-window* completion modal, shown once a goal's
+     * window has actually ended with its final state still meeting the
+     * target (distinct from `celebration*` above, the mid-week moment).
+     * This is the point a new goal can actually be started, so its CTA
+     * text (unlike the mid-week one, which only reviews) reflects that. */
+    celebrationCompleteTitle: string
+    celebrationCompleteDescription: string
+    celebrationCompleteCta: string
     /** #353 — the Sleep StatCard's description line, e.g. "2.7h deep
      * sleep" — reported live as missing even though deep sleep is already
      * logged right below this card on the same form. */
@@ -808,6 +824,12 @@ export interface Dictionary {
      * the current window has actually run its course. */
     startNewGoalButton: string
     startNewGoalHint: string
+    /** #639 — shown instead of startNewGoalHint, and the button disabled,
+     * until the current goal's window has actually ended: restarting mid-
+     * week used to let a fresh, short window quietly replace the current
+     * one before it ran its course, producing the overlapping-windows bug
+     * this whole issue was filed for. */
+    startNewGoalAvailableFromLabel: (weekEndDate: string) => string
     savedConfirmation: string
     currentGoalTitle: string
     notSetLabel: string
@@ -839,12 +861,33 @@ export interface Dictionary {
     /** Quiet nudge (#155) on GoalScreen once the *active* goal's own window
      * has been reached mid-week — same no-badges/no-streaks tone as
      * today.goalRenewalReminder, shown alongside the targetMetOnLabel badge
-     * on the StatCard rather than replacing it. */
-    activeGoalReachedNudge: string
+     * on the StatCard rather than replacing it. #639: reframed as a
+     * "keep going," not "you can restart now" (the restart button stays
+     * disabled until the window actually ends) — takes the window's own
+     * weekEnd date. Only shown while the window is still in progress; once
+     * it ends, `goalCompletedNudge`/`goalMissedNudge` below take over. */
+    activeGoalReachedNudge: (weekEndDate: string) => string
     /** #232 — short title for the nudge's own show/hide toggle row,
      * distinct from the full-sentence body text above (same reasoning as
-     * today.targetMetSectionTitle etc.). */
+     * today.targetMetSectionTitle etc.). Reused for all three
+     * activeGoalReachedNudge/goalCompletedNudge/goalMissedNudge phases —
+     * one show/hide preference for "the goal-status nudge" as a concept,
+     * not per phase. */
     activeGoalReachedSectionTitle: string
+    /** #639 — end-of-window completion nudge: the window has ended and its
+     * final state still met the target. Persistent complement to
+     * `today.celebrationComplete*`'s one-time modal, same "second chance to
+     * notice" reasoning #235 already established for the mid-week case.
+     * No link needed — GoalForm's now-unlocked restart button sits right
+     * below on the same page. */
+    goalCompletedNudge: string
+    goalCompletedSectionTitle: string
+    /** #639 — end-of-window "soft" miss nudge: the window has ended and its
+     * final state did not meet the target. Deliberately calm/factual, no
+     * guilt language, matching this app's established tone (#599, #610) —
+     * acknowledges the outcome instead of going silent on it. */
+    goalMissedNudge: string
+    goalMissedSectionTitle: string
     /** #610 — calm, weekly-framed pace check: shown only when the last
      * `PACE_CHECK_MIN_CONSECUTIVE_MISSES` (3) completed goal windows all
      * missed. Explicitly not a long-term projection/finish-date estimate —

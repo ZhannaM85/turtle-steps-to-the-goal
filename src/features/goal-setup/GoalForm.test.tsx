@@ -931,7 +931,7 @@ describe('GoalForm', () => {
   })
 
   describe('explicit "Start a new goal" CTA (#386)', () => {
-    it('is always available alongside the pencil edit button, regardless of the existing goal\'s state', () => {
+    it('is always rendered alongside the pencil edit button, but disabled while the window is still running (#639)', () => {
       const today = new Date().toISOString().slice(0, 10)
       renderGoalForm(
         <GoalForm
@@ -947,12 +947,20 @@ describe('GoalForm', () => {
       )
 
       expect(screen.getByRole('button', { name: 'Edit goal' })).toBeInTheDocument()
+      const startNewButton = screen.getByRole('button', {
+        name: 'Start a new goal',
+      })
+      expect(startNewButton).toBeInTheDocument()
+      expect(startNewButton).toBeDisabled()
+      // Explains why, naming the date it unlocks — same "explain, don't
+      // silently disable" precedent #634's PDF section tooltips already
+      // established.
       expect(
-        screen.getByRole('button', { name: 'Start a new goal' }),
+        screen.getByText(/Available once this week's target ends, on/),
       ).toBeInTheDocument()
     })
 
-    it('remains available even once the goal has already been reached or its window has ended', () => {
+    it('is enabled once the goal window has actually ended (#639)', () => {
       renderGoalForm(
         <GoalForm
           existingGoal={{
@@ -968,18 +976,36 @@ describe('GoalForm', () => {
 
       expect(
         screen.getByRole('button', { name: 'Start a new goal' }),
-      ).toBeInTheDocument()
+      ).toBeEnabled()
     })
 
-    it('opens the form labeled as Set (not Update) once clicked', async () => {
-      const user = userEvent.setup()
-      const today = new Date().toISOString().slice(0, 10)
+    it('is enabled for a legacy goal with no weekStart at all (pre-#135)', () => {
       renderGoalForm(
         <GoalForm
           existingGoal={{
             id: 'g1',
             targetWeeklyLossKg: 1,
-            weekStart: today,
+            createdAt: '2020-01-01T00:00:00.000Z',
+            updatedAt: '2020-01-01T00:00:00.000Z',
+          }}
+          onSubmit={vi.fn()}
+        />,
+      )
+
+      expect(
+        screen.getByRole('button', { name: 'Start a new goal' }),
+      ).toBeEnabled()
+    })
+
+    it('opens the form labeled as Set (not Update) once clicked', async () => {
+      const user = userEvent.setup()
+      const endedWeekStart = '2020-01-01'
+      renderGoalForm(
+        <GoalForm
+          existingGoal={{
+            id: 'g1',
+            targetWeeklyLossKg: 1,
+            weekStart: endedWeekStart,
             createdAt: '2026-01-01T00:00:00.000Z',
             updatedAt: '2026-01-01T00:00:00.000Z',
           }}
@@ -1011,7 +1037,7 @@ describe('GoalForm', () => {
           existingGoal={{
             id: 'g1',
             targetWeeklyLossKg: 1,
-            weekStart: today,
+            weekStart: '2020-01-01', // ended, so restart is enabled
             createdAt: '2026-01-01T00:00:00.000Z',
             updatedAt: '2026-01-01T00:00:00.000Z',
           }}
@@ -1032,20 +1058,21 @@ describe('GoalForm', () => {
       expect(onSubmit).toHaveBeenCalledTimes(1)
       const goal = onSubmit.mock.calls[0][0]
       expect(goal.id).not.toBe('g1')
+      // A fresh record's own window always starts today, regardless of the
+      // superseded goal's own (ended) weekStart.
       expect(goal.weekStart).toBe(today)
       expect(goal.targetWeeklyLossKg).toBe(0.1)
     })
 
-    it('starts a fresh record even when the existing goal was already reached mid-week (#155)', async () => {
+    it('starts a fresh record once the previous window has ended, regardless of its own target value (#155)', async () => {
       const user = userEvent.setup()
       const onSubmit = vi.fn()
-      const today = new Date().toISOString().slice(0, 10)
       renderGoalForm(
         <GoalForm
           existingGoal={{
             id: 'g1',
             targetWeeklyLossKg: 0.1,
-            weekStart: today,
+            weekStart: '2020-01-01', // ended, so restart is enabled
             createdAt: '2026-01-01T00:00:00.000Z',
             updatedAt: '2026-01-01T00:00:00.000Z',
           }}

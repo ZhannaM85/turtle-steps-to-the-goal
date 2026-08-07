@@ -37,13 +37,25 @@ export interface GoalWindowProgress {
    * every day in the window is compared against. Undefined only when
    * `targetMet`/`metOnDate` are both null (no baseline weight logged yet). */
   baselineWeightKg?: number
-  /** #339 — the weight the "reached"/"missed" status is actually based
-   * on, so a past-goal row can show *which* weigh-ins it came from instead
-   * of just the status label: the weight on `metOnDate` once the target
-   * was met, otherwise the most recently logged weight within the window
-   * (undefined if the window has no logged weight at all beyond the
-   * baseline). */
+  /** #339 — the most recently logged weight within the window (undefined
+   * if there's no logged weight at all beyond the baseline), so a
+   * past-goal row can show *which* weigh-ins a status came from instead of
+   * just the label. #639: previously froze at the weight on `metOnDate`
+   * once the target was first met, even if a later day's weight regressed
+   * — always the true latest weigh-in now, which `finalTargetMet` below
+   * depends on being accurate. */
   currentWeightKg?: number
+  /** #639 — whether the window's actual *final* state (its most recently
+   * logged weight, i.e. `currentWeightKg`, vs. `baselineWeightKg`) met the
+   * target — as opposed to the sticky `targetMet` above, which stays true
+   * once crossed even if a later day's weight rises back above the
+   * threshold. This is the value a *permanent* record (the past-targets
+   * badge, the pace check) should use; `targetMet`/`metOnDate` remain
+   * correct for the one-time mid-week celebration, which deliberately
+   * doesn't flip-flop back off once shown. Only meaningful once the window
+   * has actually ended (`goalWindowHasEnded`) — same null condition as
+   * `targetMet` (no baseline weight logged yet). */
+  finalTargetMet?: boolean | null
 }
 
 /**
@@ -74,7 +86,13 @@ export function goalWindowProgress(
   )?.weightKg
 
   if (baselineWeightKg === undefined) {
-    return { weekStart, weekEnd, targetMet: null, metOnDate: null }
+    return {
+      weekStart,
+      weekEnd,
+      targetMet: null,
+      metOnDate: null,
+      finalTargetMet: null,
+    }
   }
 
   const windowEntriesSorted = entries
@@ -87,17 +105,20 @@ export function goalWindowProgress(
     .sort((a, b) => a.date.localeCompare(b.date))
 
   let metOnDate: string | null = null
-  let metWeightKg: number | undefined
   for (const entry of windowEntriesSorted) {
     const lossKg = baselineWeightKg - (entry.weightKg as number)
     if (lossKg >= goal.targetWeeklyLossKg) {
       metOnDate = entry.date
-      metWeightKg = entry.weightKg
       break
     }
   }
 
   const lastWindowEntry = windowEntriesSorted.at(-1)
+  const currentWeightKg = lastWindowEntry?.weightKg
+  const finalTargetMet =
+    currentWeightKg === undefined
+      ? null
+      : baselineWeightKg - currentWeightKg >= goal.targetWeeklyLossKg
 
   return {
     weekStart,
@@ -105,8 +126,23 @@ export function goalWindowProgress(
     targetMet: metOnDate !== null,
     metOnDate,
     baselineWeightKg,
-    currentWeightKg: metWeightKg ?? lastWindowEntry?.weightKg,
+    currentWeightKg,
+    finalTargetMet,
   }
+}
+
+/**
+ * Whether `weekEnd` (an ISO date, inclusive) has fully passed as of `today`
+ * (defaults to the real current date) — the natural end of a
+ * goal-anchored window (#639), used to gate the restart button and decide
+ * when a window's *final* state (`finalTargetMet`) rather than its
+ * running one (`targetMet`) should drive the UI.
+ */
+export function goalWindowHasEnded(
+  weekEnd: string,
+  today: string = format(new Date(), DATE_FORMAT),
+): boolean {
+  return today > weekEnd
 }
 
 /**

@@ -61,7 +61,8 @@ export const en: Dictionary = {
     goalRenewalReminder:
       "This week's target is ready to renew — worth checking in on it.",
     reviewGoalLink: 'Review goal',
-    targetMetBanner: "You reached this week's target!",
+    targetMetBanner: (weekEndDate) =>
+      `You reached this week's target — keep it up until ${weekEndDate} to earn your badge!`,
     dailyReminderText: 'No entry yet today — whenever you’re ready.',
     targetMetSectionTitle: 'Target met',
     goalRenewalReminderSectionTitle: 'Goal renewal reminder',
@@ -100,10 +101,15 @@ export const en: Dictionary = {
     bmrLabel: 'Estimated daily calories (BMR)',
     bmrUnit: 'kcal/day',
     bmrTooltipLabel: 'About estimated daily calories',
-    celebrationTitle: "You reached this week's goal!",
-    celebrationDescription: 'Nice work — want to set a target for next week?',
-    celebrationCta: "Set next week's goal",
+    celebrationTitle: "You reached this week's target!",
+    celebrationDescription: (weekEndDate) =>
+      `Keep it up until ${weekEndDate} to earn your badge.`,
+    celebrationCta: 'Review goal',
     celebrationCloseLabel: 'Close',
+    celebrationCompleteTitle: 'You completed your weekly goal!',
+    celebrationCompleteDescription:
+      'Congratulations! Ready to set the next tiny step?',
+    celebrationCompleteCta: "Set next week's goal",
     deepSleepDescription: (hours) => `${hours} deep sleep`,
   },
   dailyEntry: {
@@ -430,6 +436,8 @@ export const en: Dictionary = {
     startNewGoalButton: 'Start a new goal',
     startNewGoalHint:
       'Begins a fresh 7-day window from today instead, moving the current one to Past targets.',
+    startNewGoalAvailableFromLabel: (weekEndDate) =>
+      `Available once this week's target ends, on ${weekEndDate}.`,
     savedConfirmation: 'Saved',
     currentGoalTitle: 'Current goal',
     notSetLabel: 'Not set',
@@ -445,9 +453,15 @@ export const en: Dictionary = {
     targetNoDataLabel: 'Not enough data to tell',
     previousToCurrentWeightLabel: (previous, current, unit) =>
       `${previous} → ${current} ${unit}`,
-    activeGoalReachedNudge:
-      "You reached this week's target early — set a new one below whenever you're ready.",
+    activeGoalReachedNudge: (weekEndDate) =>
+      `You've reached this week's target — keep it up until ${weekEndDate} to earn your badge!`,
     activeGoalReachedSectionTitle: 'Target reached',
+    goalCompletedNudge:
+      "You completed this week's goal! Start a new one below whenever you're ready.",
+    goalCompletedSectionTitle: 'Goal completed',
+    goalMissedNudge:
+      "This week's target wasn't reached — that's okay. Start a new one below whenever you're ready.",
+    goalMissedSectionTitle: "This week's result",
     paceCheckMessage: (actual, target) =>
       `Recent weeks moved about ${actual} vs. your ${target} target — consider adjusting the weekly pace.`,
     paceCheckPerWeekLabel: (value, unit) => `${value} ${unit}/week`,

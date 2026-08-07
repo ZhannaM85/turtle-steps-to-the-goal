@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 597,
+    issue: 639,
+    date: '2026-08-07T13:09:47+03:00',
+    en: "Goal tracking: a badge is now only earned once the week actually ends with the target still met, not just from one good day mid-week — and 'Start a new goal' waits until the current week is over instead of letting a fresh window cut it short.",
+    ru: 'Отслеживание цели: значок теперь присваивается, только если цель на неделе действительно достигнута к её концу, а не после одного удачного дня. Кнопка «Начать новую цель» становится доступна только после окончания текущей недели.',
+  },
+  {
     version: 596,
     issue: 640,
     date: '2026-08-07T12:10:50+03:00',

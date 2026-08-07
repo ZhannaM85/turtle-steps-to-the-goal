@@ -18,6 +18,7 @@ function makeRecord(overrides: Partial<PastGoalRecord> = {}): PastGoalRecord {
       weekEnd: '2026-03-15',
       targetMet: true,
       metOnDate: '2026-03-12',
+      finalTargetMet: true,
     },
     ...overrides,
   }
@@ -55,6 +56,7 @@ describe('PastTargetsList', () => {
               metOnDate: '2026-03-12',
               baselineWeightKg: 80,
               currentWeightKg: 78.5,
+              finalTargetMet: true,
             },
           }),
         ]}
@@ -77,6 +79,7 @@ describe('PastTargetsList', () => {
               metOnDate: null,
               baselineWeightKg: 80,
               currentWeightKg: 79.7,
+              finalTargetMet: false,
             },
           }),
         ]}
@@ -97,6 +100,7 @@ describe('PastTargetsList', () => {
               weekEnd: '2026-03-15',
               targetMet: null,
               metOnDate: null,
+              finalTargetMet: null,
             },
           }),
         ]}
@@ -117,6 +121,7 @@ describe('PastTargetsList', () => {
               weekEnd: '2026-03-15',
               targetMet: false,
               metOnDate: null,
+              finalTargetMet: false,
             },
           }),
         ]}
@@ -125,6 +130,32 @@ describe('PastTargetsList', () => {
     )
 
     expect(screen.getByText('Target not met')).toBeInTheDocument()
+  })
+
+  it('labels the permanent badge from the final state, not a mid-week crossing that regressed (#639)', () => {
+    render(
+      <PastTargetsList
+        records={[
+          makeRecord({
+            progress: {
+              weekStart: '2026-03-09',
+              weekEnd: '2026-03-15',
+              targetMet: true, // crossed mid-week, on one noisy day
+              metOnDate: '2026-03-11',
+              baselineWeightKg: 80,
+              currentWeightKg: 79.6, // final state: back above threshold
+              finalTargetMet: false,
+            },
+          }),
+        ]}
+        onDelete={vi.fn()}
+      />,
+    )
+
+    expect(screen.getByText('Target not met')).toBeInTheDocument()
+    expect(
+      screen.queryByText('Target met on Mar 11, 2026'),
+    ).not.toBeInTheDocument()
   })
 
   it('labels a goal with no computable progress as not enough data', () => {

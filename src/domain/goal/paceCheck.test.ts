@@ -25,6 +25,7 @@ function missedWindow(
     metOnDate: null,
     baselineWeightKg,
     currentWeightKg,
+    finalTargetMet: false,
   }
 }
 
@@ -36,6 +37,7 @@ function hitWindow(): GoalWindowProgress {
     metOnDate: '2026-01-05',
     baselineWeightKg: 90,
     currentWeightKg: 88.5,
+    finalTargetMet: true,
   }
 }
 
@@ -81,6 +83,25 @@ describe('paceCheckInsight (#610)', () => {
       record(missedWindow(89.2, 88.9)),
     ]
     expect(paceCheckInsight(records, 1)).toBeNull()
+  })
+
+  it('counts a window as a miss when the sticky targetMet is true but the final state regressed (#639)', () => {
+    const records = [
+      record({
+        weekStart: '2026-01-01',
+        weekEnd: '2026-01-07',
+        targetMet: true, // crossed on one noisy day, then regressed
+        metOnDate: '2026-01-03',
+        baselineWeightKg: 90,
+        currentWeightKg: 89.6, // final state: only 0.4kg lost, short of 1kg
+        finalTargetMet: false,
+      }),
+      record(missedWindow(89.6, 89.3)),
+      record(missedWindow(89.3, 89.1)),
+    ]
+    const insight = paceCheckInsight(records, 1)
+    expect(insight).not.toBeNull()
+    expect(insight?.windowCount).toBe(3)
   })
 
   it('is null when a recent window was never assessed (no baseline yet)', () => {

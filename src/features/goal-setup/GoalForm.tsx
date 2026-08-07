@@ -1,11 +1,14 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { format, parseISO } from 'date-fns'
 import { Check, Minus, Pencil, Plus } from 'lucide-react'
 import { useForm, useWatch, type Resolver } from 'react-hook-form'
 import { useBlocker } from 'react-router-dom'
 import type { Goal } from '@/domain/goal'
 import {
   estimatedDailyCalorieDeficitKcal,
+  goalWeekEnd,
+  goalWindowHasEnded,
   kgToLb,
   WEEKLY_PACE_SOFT_WARN_KG,
   WEEKLY_PACE_STEP_KG,
@@ -19,7 +22,14 @@ import {
   waterRecommendationMidMl,
   weeklyPaceDisagreesWithCalorieImpliedPace,
 } from '@/domain/stats'
-import { formatExactNumber, formatNumber, unitLabel, useLocale, useTranslation } from '@/i18n'
+import {
+  formatExactNumber,
+  formatNumber,
+  getDateFnsLocale,
+  unitLabel,
+  useLocale,
+  useTranslation,
+} from '@/i18n'
 import { parseNumberInput } from '@/shared/lib/parseNumberInput'
 import {
   useMicronutrientTrackingStore,
@@ -86,6 +96,17 @@ export function GoalForm({
 }: GoalFormProps) {
   const t = useTranslation()
   const locale = useLocale()
+  const dateFnsLocale = getDateFnsLocale(locale)
+  // #639 — the restart button below is gated to only be usable once the
+  // current goal's window has actually run its course: restarting mid-
+  // week let a fresh, short window quietly replace the current one before
+  // it ended, producing the overlapping-windows bug this issue was filed
+  // for. A legacy goal with no weekStart (pre-#135) never had a real
+  // window, so it's treated as already-ended — same lenient precedent
+  // approximateEndDate (goalHistory.ts) already uses for those.
+  const activeWindowEnded = existingGoal?.weekStart
+    ? goalWindowHasEnded(goalWeekEnd(existingGoal.weekStart))
+    : true
   const unit = useUnitStore((state) => state.unit)
   const unitText = unitLabel(unit, t)
   const toDisplay = (kg: number) => (unit === 'lb' ? kgToLb(kg) : kg)
@@ -630,6 +651,7 @@ export function GoalForm({
             <Button
               type="button"
               variant="outline"
+              disabled={!activeWindowEnded}
               onClick={() => {
                 setStartingNew(true)
                 reset(emptyGoalFormValues())
@@ -639,7 +661,13 @@ export function GoalForm({
               {t.goal.startNewGoalButton}
             </Button>
             <p className="text-xs text-muted-foreground">
-              {t.goal.startNewGoalHint}
+              {activeWindowEnded || !existingGoal?.weekStart
+                ? t.goal.startNewGoalHint
+                : t.goal.startNewGoalAvailableFromLabel(
+                    format(parseISO(goalWeekEnd(existingGoal.weekStart)), 'PP', {
+                      locale: dateFnsLocale,
+                    }),
+                  )}
             </p>
           </div>
         </div>

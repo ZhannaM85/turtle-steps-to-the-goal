@@ -1,7 +1,12 @@
 import { describe, expect, it } from 'vitest'
 import type { DailyEntry } from '@/domain/dailyEntry'
 import type { Goal } from './Goal'
-import { goalCoveringDate, goalWeekEnd, goalWindowProgress } from './goalWindowProgress'
+import {
+  goalCoveringDate,
+  goalWeekEnd,
+  goalWindowHasEnded,
+  goalWindowProgress,
+} from './goalWindowProgress'
 
 function makeGoal(overrides: Partial<Goal> = {}): Goal {
   const now = '2026-01-01T00:00:00.000Z'
@@ -91,6 +96,10 @@ describe('goalWindowProgress', () => {
 
     expect(progress?.targetMet).toBe(true)
     expect(progress?.metOnDate).toBe('2026-03-10')
+    // #639: the sticky targetMet above stays true, but the window's real
+    // final state (the 90kg day) did not meet the target — this is the
+    // exact distinction the permanent history badge needs.
+    expect(progress?.finalTargetMet).toBe(false)
   })
 
   it('is the #203 regression case: a day-over-day weight increase never reads as met', () => {
@@ -135,19 +144,27 @@ describe('goalWindowProgress', () => {
 
   // #339: past-goal rows need to show which two weigh-ins a status came
   // from, not just the status label itself.
-  it('reports the baseline weight and the weight that met the target', () => {
+  it('reports the baseline weight and the most recently logged weight, not a frozen met-date snapshot (#639)', () => {
     const goal = makeGoal({ weekStart: '2026-03-09', targetWeeklyLossKg: 1 })
     const entries = [
       makeEntry('2026-03-09', 80),
       makeEntry('2026-03-10', 79.5),
       makeEntry('2026-03-11', 79), // met here
-      makeEntry('2026-03-12', 79.5), // rises again afterward
+      makeEntry('2026-03-12', 79.5), // rises again afterward — the real
+      // #639 bug: this used to be silently dropped, and currentWeightKg
+      // stayed frozen at 79 (the day it was first met) instead of
+      // reflecting the actual latest weigh-in.
     ]
 
     const progress = goalWindowProgress(entries, goal)
 
     expect(progress?.baselineWeightKg).toBe(80)
-    expect(progress?.currentWeightKg).toBe(79)
+    expect(progress?.currentWeightKg).toBe(79.5)
+    // Sticky targetMet still reads true (met on day 3), but the window's
+    // real final state (day 4, 79.5) is only a 0.5kg loss — short of the
+    // 1kg target.
+    expect(progress?.targetMet).toBe(true)
+    expect(progress?.finalTargetMet).toBe(false)
   })
 
   it('falls back to the most recently logged weight in the window when the target was never met', () => {
@@ -173,6 +190,17 @@ describe('goalWindowProgress', () => {
 
     expect(progress?.baselineWeightKg).toBeUndefined()
     expect(progress?.currentWeightKg).toBeUndefined()
+  })
+})
+
+describe('goalWindowHasEnded (#639)', () => {
+  it('is false while today is within the window', () => {
+    expect(goalWindowHasEnded('2026-03-15', '2026-03-15')).toBe(false)
+    expect(goalWindowHasEnded('2026-03-15', '2026-03-10')).toBe(false)
+  })
+
+  it('is true once today is past weekEnd', () => {
+    expect(goalWindowHasEnded('2026-03-15', '2026-03-16')).toBe(true)
   })
 })
 

@@ -36,7 +36,7 @@ import {
   totalSodium,
   totalWaterMl,
 } from '@/domain/dailyEntry'
-import { goalWeekEnd, kgToLb } from '@/domain/goal'
+import { goalWeekEnd, goalWindowHasEnded, kgToLb } from '@/domain/goal'
 import { calculateBmi, calculateBmr, effectiveDateFor } from '@/domain/stats'
 import {
   formatExactNumber,
@@ -276,9 +276,19 @@ export function TodayScreen() {
   // chance to notice it, which is exactly what was reported live. This is
   // a persistent, always-visible complement, same quiet-banner shape as
   // the #38 renewal reminder below, so the "reached" state stays visible
-  // for the rest of the window even if the modal moment was missed.
+  // for the rest of the window even if the modal moment was missed. #639:
+  // gated to the window still being in progress — once it ends, this
+  // reframed "keep going" copy would be stale; GoalScreen's own
+  // completed/missed nudge takes over there instead.
   const activeGoalProgress = useActiveGoalProgress()
-  const showTargetMetBanner = activeGoalProgress?.targetMet === true
+  const showTargetMetBanner =
+    activeGoalProgress?.targetMet === true &&
+    !goalWindowHasEnded(activeGoalProgress.weekEnd)
+  const targetMetBannerWeekEndLabel = activeGoalProgress
+    ? format(parseISO(activeGoalProgress.weekEnd), 'PP', {
+        locale: dateFnsLocale,
+      })
+    : null
   // #552 — weekly target card for the selected day only (not always the
   // active goal, which wrongly showed e.g. Jul 2026 while viewing 2019).
   const { goal: dayGoal, progress: dayGoalProgress } = useGoalCoveringDate(date)
@@ -1405,7 +1415,10 @@ export function TodayScreen() {
           {sectionTitle('todayTargetMetBanner', t.today.targetMetSectionTitle)}
           {sectionVisible.todayTargetMetBanner && (
             <div className="flex items-center justify-between gap-2 rounded-lg border border-border px-3 py-2 text-sm text-muted-foreground">
-              <span>{t.today.targetMetBanner}</span>
+              <span>
+                {targetMetBannerWeekEndLabel &&
+                  t.today.targetMetBanner(targetMetBannerWeekEndLabel)}
+              </span>
               <Link
                 to="/goal"
                 className="shrink-0 font-medium text-foreground underline-offset-4 hover:underline"

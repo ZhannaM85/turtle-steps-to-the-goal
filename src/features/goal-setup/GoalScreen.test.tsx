@@ -396,9 +396,67 @@ describe('GoalScreen', () => {
     ).toBeInTheDocument()
     expect(
       screen.getByText(
-        "You reached this week's target early — set a new one below whenever you're ready.",
+        /keep it up until .* to earn your badge/,
       ),
     ).toBeInTheDocument()
+  })
+
+  it('shows the completed nudge, not the mid-week one, once the window has ended with the target still met (#639)', async () => {
+    const endedWeekStart = format(addDays(new Date(), -8), DATE_FORMAT)
+    await useGoalStore
+      .getState()
+      .saveGoal(makeGoal({ targetWeeklyLossKg: 1, weekStart: endedWeekStart }))
+    await db.dailyEntries.put(
+      makeEntry({ date: endedWeekStart, weightKg: 80 }),
+    )
+    await db.dailyEntries.put(
+      makeEntry({
+        date: format(addDays(new Date(), -3), DATE_FORMAT),
+        weightKg: 79, // last logged entry in the window: target met
+      }),
+    )
+
+    renderGoalScreen()
+
+    expect(
+      await screen.findByText('Goal completed'),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByText(
+        "You completed this week's goal! Start a new one below whenever you're ready.",
+      ),
+    ).toBeInTheDocument()
+    expect(screen.queryByText('Target reached')).not.toBeInTheDocument()
+    expect(
+      screen.queryByText(/keep it up until .* to earn your badge/),
+    ).not.toBeInTheDocument()
+  })
+
+  it('shows a calm missed nudge, not the mid-week reached one, once the window has ended without meeting the target (#639)', async () => {
+    const endedWeekStart = format(addDays(new Date(), -8), DATE_FORMAT)
+    await useGoalStore
+      .getState()
+      .saveGoal(makeGoal({ targetWeeklyLossKg: 1, weekStart: endedWeekStart }))
+    await db.dailyEntries.put(
+      makeEntry({ date: endedWeekStart, weightKg: 80 }),
+    )
+    await db.dailyEntries.put(
+      makeEntry({
+        date: format(addDays(new Date(), -3), DATE_FORMAT),
+        weightKg: 79.8, // window ended short of the 1kg target
+      }),
+    )
+
+    renderGoalScreen()
+
+    expect(await screen.findByText("This week's result")).toBeInTheDocument()
+    expect(
+      screen.getByText(
+        "This week's target wasn't reached — that's okay. Start a new one below whenever you're ready.",
+      ),
+    ).toBeInTheDocument()
+    expect(screen.queryByText('Target reached')).not.toBeInTheDocument()
+    expect(screen.queryByText('Goal completed')).not.toBeInTheDocument()
   })
 
   it('does not show the reached badge/banner when the target has not been met', async () => {
@@ -413,19 +471,37 @@ describe('GoalScreen', () => {
     expect(screen.queryByText(/Target met on/)).not.toBeInTheDocument()
     expect(
       screen.queryByText(
-        "You reached this week's target early — set a new one below whenever you're ready.",
+        /keep it up until .* to earn your badge/,
       ),
     ).not.toBeInTheDocument()
   })
 
-  it('starts a fresh history record via the explicit "Start a new goal" CTA once the active goal has been reached (#155, redesigned for #386)', async () => {
-    const original = makeGoal({ targetWeeklyLossKg: 1 })
+  it('starts a fresh history record via the explicit "Start a new goal" CTA once the active goal has ended and was reached (#155, redesigned for #386)', async () => {
+    // #639: restart is now gated to an already-ended window — a still-
+    // running "reached" goal (the old seedTargetMetWeeks() shape) can no
+    // longer restart at all, so this exercises an ended-and-met window
+    // instead, same as the goal-completed nudge test above.
+    const endedWeekStart = format(addDays(new Date(), -8), DATE_FORMAT)
+    const original = makeGoal({
+      targetWeeklyLossKg: 1,
+      weekStart: endedWeekStart,
+    })
     await useGoalStore.getState().saveGoal(original)
-    await seedTargetMetWeeks()
+    await db.dailyEntries.put(
+      makeEntry({ date: endedWeekStart, weightKg: 80 }),
+    )
+    await db.dailyEntries.put(
+      makeEntry({
+        date: format(addDays(new Date(), -7), DATE_FORMAT),
+        weightKg: 79,
+      }),
+    )
     const user = userEvent.setup()
 
     renderGoalScreen()
-    await screen.findByText(/Target met on/)
+    // #639: once the window has ended, the StatCard's "Target met on"
+    // badge is gated off in favor of the "Goal completed" nudge below.
+    await screen.findByText('Goal completed')
     // #386 — plain Edit now always edits in place, even once the goal has
     // been reached; "Start a new goal" is the explicit action for this.
     await user.click(screen.getByRole('button', { name: 'Start a new goal' }))
@@ -492,7 +568,7 @@ describe('GoalScreen', () => {
 
       expect(
         screen.queryByText(
-          "You reached this week's target early — set a new one below whenever you're ready.",
+          /keep it up until .* to earn your badge/,
         ),
       ).not.toBeInTheDocument()
       expect(screen.getByText(title)).toBeInTheDocument()
@@ -500,7 +576,7 @@ describe('GoalScreen', () => {
       await user.click(screen.getByRole('button', { name: `Show ${title}` }))
       expect(
         screen.getByText(
-          "You reached this week's target early — set a new one below whenever you're ready.",
+          /keep it up until .* to earn your badge/,
         ),
       ).toBeInTheDocument()
     })

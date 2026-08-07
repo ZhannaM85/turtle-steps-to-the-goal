@@ -39,10 +39,15 @@ function PastTargetRow({
   const [isConfirming, setIsConfirming] = useState(false)
 
   // #177: name the day it was reached, not just a binary state —
-  // metOnDate is always set whenever targetMet is true (see
-  // goalWindowProgress.ts), targetMetLabel is a defensive fallback only.
+  // metOnDate is always set whenever finalTargetMet is true (a window
+  // whose final logged entry met the target was necessarily caught by the
+  // same scan that finds metOnDate), targetMetLabel is a defensive
+  // fallback only. #639: this permanent record uses finalTargetMet (the
+  // window's actual final state), not the sticky targetMet — a target
+  // only ever crossed on one noisy mid-week day, then regressed by the
+  // time the window ended, should not earn a permanent "met" badge.
   const statusLabel =
-    progress?.targetMet === true
+    progress?.finalTargetMet === true
       ? progress.metOnDate
         ? t.goal.targetMetOnLabel(
             format(parseISO(progress.metOnDate), 'PP', {
@@ -50,7 +55,7 @@ function PastTargetRow({
             }),
           )
         : t.goal.targetMetLabel
-      : progress?.targetMet === false
+      : progress?.finalTargetMet === false
         ? t.goal.targetMissedLabel
         : t.goal.targetNoDataLabel
 
@@ -90,7 +95,7 @@ function PastTargetRow({
           <span
             className={cn(
               'text-xs',
-              progress?.targetMet === true
+              progress?.finalTargetMet === true
                 ? 'font-medium text-foreground'
                 : 'text-muted-foreground',
             )}

@@ -66,7 +66,8 @@ export const ru: Dictionary = {
     goalRenewalReminder:
       'Цель на эту неделю пора обновить — стоит заглянуть и проверить.',
     reviewGoalLink: 'Посмотреть цель',
-    targetMetBanner: 'Вы достигли цели на эту неделю!',
+    targetMetBanner: (weekEndDate) =>
+      `Вы достигли цели на эту неделю — держитесь до ${weekEndDate}, чтобы получить значок!`,
     dailyReminderText: 'Сегодня пока нет записи — когда будете готовы.',
     targetMetSectionTitle: 'Цель достигнута',
     goalRenewalReminderSectionTitle: 'Напоминание об обновлении цели',
@@ -106,10 +107,14 @@ export const ru: Dictionary = {
     bmrUnit: 'ккал/день',
     bmrTooltipLabel: 'О примерной суточной норме калорий',
     celebrationTitle: 'Вы достигли цели на эту неделю!',
-    celebrationDescription:
-      'Отличная работа — хотите задать цель на следующую неделю?',
-    celebrationCta: 'Задать цель на следующую неделю',
+    celebrationDescription: (weekEndDate) =>
+      `Держитесь до ${weekEndDate}, чтобы получить значок.`,
+    celebrationCta: 'Посмотреть цель',
     celebrationCloseLabel: 'Закрыть',
+    celebrationCompleteTitle: 'Вы выполнили недельную цель!',
+    celebrationCompleteDescription:
+      'Поздравляем! Готовы поставить следующий маленький шаг?',
+    celebrationCompleteCta: 'Задать цель на следующую неделю',
     deepSleepDescription: (hours) => `${hours} глубокого сна`,
   },
   dailyEntry: {
@@ -452,6 +457,8 @@ export const ru: Dictionary = {
     startNewGoalButton: 'Начать новую цель',
     startNewGoalHint:
       'Начинает новый 7-дневный период с сегодняшнего дня, а текущий переходит в «Прошлые цели».',
+    startNewGoalAvailableFromLabel: (weekEndDate) =>
+      `Станет доступно, когда закончится цель на эту неделю, ${weekEndDate}.`,
     savedConfirmation: 'Сохранено',
     currentGoalTitle: 'Текущая цель',
     notSetLabel: 'Не задано',
@@ -467,9 +474,15 @@ export const ru: Dictionary = {
     targetNoDataLabel: 'Недостаточно данных',
     previousToCurrentWeightLabel: (previous, current, unit) =>
       `${previous} → ${current} ${unit}`,
-    activeGoalReachedNudge:
-      'Вы досрочно достигли цели на эту неделю — задайте новую, когда будете готовы.',
+    activeGoalReachedNudge: (weekEndDate) =>
+      `Вы достигли цели на эту неделю — держитесь до ${weekEndDate}, чтобы получить значок!`,
     activeGoalReachedSectionTitle: 'Цель достигнута',
+    goalCompletedNudge:
+      'Вы выполнили цель на эту неделю! Начните новую ниже, когда будете готовы.',
+    goalCompletedSectionTitle: 'Цель выполнена',
+    goalMissedNudge:
+      'Цель на эту неделю не достигнута — это нормально. Начните новую ниже, когда будете готовы.',
+    goalMissedSectionTitle: 'Итог недели',
     paceCheckMessage: (actual, target) =>
       `За последние недели изменение веса составило около ${actual} при целевых ${target} — возможно, стоит скорректировать недельный темп.`,
     paceCheckPerWeekLabel: (value, unit) => `${value} ${unit}/нед.`,

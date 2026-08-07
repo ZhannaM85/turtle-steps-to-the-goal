@@ -7,7 +7,12 @@ export {
   WEEKLY_PACE_SOFT_WARN_KG,
 } from './calorieDeficit'
 export { lbToKg, kgToLb } from './units'
-export { goalWeekEnd, goalWindowProgress, goalCoveringDate } from './goalWindowProgress'
+export {
+  goalWeekEnd,
+  goalWindowProgress,
+  goalWindowHasEnded,
+  goalCoveringDate,
+} from './goalWindowProgress'
 export type { GoalWindowProgress } from './goalWindowProgress'
 export { pastGoals, earliestGoalCreatedAt } from './goalHistory'
 export type { PastGoalRecord } from './goalHistory'

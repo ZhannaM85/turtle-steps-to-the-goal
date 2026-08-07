@@ -21,9 +21,13 @@ export interface PaceCheckInsight {
  * with this app's small-steps framing). Looks only at the most recent
  * `PACE_CHECK_MIN_CONSECUTIVE_MISSES` completed windows (`pastGoals()`,
  * already newest-first): if every one of them has a real, assessed
- * `targetMet: false` (no gaps — an unassessed or hit window anywhere in
- * that span breaks the "consistent miss" pattern and returns null), reports
- * the average actual weekly change to compare against `targetWeeklyLossKg`.
+ * `finalTargetMet: false` (no gaps — an unassessed or hit window anywhere
+ * in that span breaks the "consistent miss" pattern and returns null),
+ * reports the average actual weekly change to compare against
+ * `targetWeeklyLossKg`. #639: uses `finalTargetMet` (the window's actual
+ * final state), not the sticky `targetMet` — a window whose target was
+ * only ever crossed on one noisy day, then regressed, is a real miss for
+ * pattern-detection purposes even though `targetMet` itself stays true.
  */
 export function paceCheckInsight(
   recentPastRecords: PastGoalRecord[],
@@ -35,7 +39,7 @@ export function paceCheckInsight(
   const deltas: number[] = []
   for (const record of recent) {
     const progress = record.progress
-    if (!progress || progress.targetMet !== false) return null
+    if (!progress || progress.finalTargetMet !== false) return null
     if (
       progress.baselineWeightKg === undefined ||
       progress.currentWeightKg === undefined

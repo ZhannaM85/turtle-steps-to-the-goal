@@ -7,17 +7,32 @@ import { createJSONStorage, persist } from 'zustand/middleware'
  * weekStart once renewed, so comparing against just this one value is
  * enough to know "has *this* window already been celebrated," without
  * needing a growing history of every window ever celebrated.
+ *
+ * #639: the mid-week "crossed the target, keep going" moment and the
+ * end-of-window "completed!" moment are two genuinely different messages
+ * for the same window — dismissing one shouldn't suppress the other, so
+ * each phase gets its own tracked weekStart.
  */
 interface GoalCelebrationStoreState {
-  celebratedWeekStart: string | null
-  markCelebrated: (weekStart: string) => void
+  celebratedInProgressWeekStart: string | null
+  celebratedCompleteWeekStart: string | null
+  markCelebrated: (
+    weekStart: string,
+    phase: 'inProgress' | 'complete',
+  ) => void
 }
 
 export const useGoalCelebrationStore = create<GoalCelebrationStoreState>()(
   persist(
     (set) => ({
-      celebratedWeekStart: null,
-      markCelebrated: (weekStart) => set({ celebratedWeekStart: weekStart }),
+      celebratedInProgressWeekStart: null,
+      celebratedCompleteWeekStart: null,
+      markCelebrated: (weekStart, phase) =>
+        set(
+          phase === 'inProgress'
+            ? { celebratedInProgressWeekStart: weekStart }
+            : { celebratedCompleteWeekStart: weekStart },
+        ),
     }),
     {
       name: 'turtle-steps-goal-celebration',

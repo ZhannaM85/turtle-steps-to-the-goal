@@ -62,13 +62,19 @@ beforeEach(async () => {
     status: 'idle',
     error: null,
   })
-  useGoalCelebrationStore.setState({ celebratedWeekStart: null })
+  useGoalCelebrationStore.setState({
+    celebratedInProgressWeekStart: null,
+    celebratedCompleteWeekStart: null,
+  })
 })
 
 afterEach(async () => {
   await db.goals.clear()
   await db.dailyEntries.clear()
-  useGoalCelebrationStore.setState({ celebratedWeekStart: null })
+  useGoalCelebrationStore.setState({
+    celebratedInProgressWeekStart: null,
+    celebratedCompleteWeekStart: null,
+  })
 })
 
 describe('GoalCelebrationModal', () => {
@@ -81,7 +87,7 @@ describe('GoalCelebrationModal', () => {
     )
 
     expect(
-      screen.queryByText("You reached this week's goal!"),
+      screen.queryByText("You reached this week's target!"),
     ).not.toBeInTheDocument()
   })
 
@@ -97,11 +103,11 @@ describe('GoalCelebrationModal', () => {
     )
 
     expect(
-      screen.queryByText("You reached this week's goal!"),
+      screen.queryByText("You reached this week's target!"),
     ).not.toBeInTheDocument()
   })
 
-  it('shows when the current week met the target', async () => {
+  it('shows the reframed mid-week copy when the still-running week met the target (#639)', async () => {
     await useGoalStore.getState().saveGoal(makeGoal({ targetWeeklyLossKg: 1 }))
     await seedTargetMetWeeks()
     render(
@@ -111,15 +117,19 @@ describe('GoalCelebrationModal', () => {
     )
 
     expect(
-      await screen.findByText("You reached this week's goal!"),
+      await screen.findByText("You reached this week's target!"),
     ).toBeInTheDocument()
+    // Reframed — no longer claims the goal itself is done mid-week.
+    expect(
+      screen.queryByText("You completed your weekly goal!"),
+    ).not.toBeInTheDocument()
   })
 
-  it('does not show again once this week has already been celebrated', async () => {
+  it('does not show again once this week has already been celebrated in-progress', async () => {
     await useGoalStore.getState().saveGoal(makeGoal({ targetWeeklyLossKg: 1 }))
     await seedTargetMetWeeks()
     useGoalCelebrationStore.setState({
-      celebratedWeekStart: WEEK_START,
+      celebratedInProgressWeekStart: WEEK_START,
     })
     render(
       <MemoryRouter>
@@ -128,11 +138,11 @@ describe('GoalCelebrationModal', () => {
     )
 
     expect(
-      screen.queryByText("You reached this week's goal!"),
+      screen.queryByText("You reached this week's target!"),
     ).not.toBeInTheDocument()
   })
 
-  it('closing the modal persists that this week was celebrated', async () => {
+  it('closing the modal persists that this week was celebrated in-progress', async () => {
     await useGoalStore.getState().saveGoal(makeGoal({ targetWeeklyLossKg: 1 }))
     await seedTargetMetWeeks()
     const user = userEvent.setup()
@@ -142,20 +152,49 @@ describe('GoalCelebrationModal', () => {
       </MemoryRouter>,
     )
 
-    await screen.findByText("You reached this week's goal!")
+    await screen.findByText("You reached this week's target!")
     await user.click(screen.getByRole('button', { name: 'Close' }))
 
     expect(
-      screen.queryByText("You reached this week's goal!"),
+      screen.queryByText("You reached this week's target!"),
     ).not.toBeInTheDocument()
-    expect(useGoalCelebrationStore.getState().celebratedWeekStart).toBe(
-      WEEK_START,
-    )
+    expect(
+      useGoalCelebrationStore.getState().celebratedInProgressWeekStart,
+    ).toBe(WEEK_START)
   })
 
-  it('the CTA links to /goal', async () => {
+  it('the mid-week CTA reviews the goal rather than claiming it can be restarted (#639)', async () => {
     await useGoalStore.getState().saveGoal(makeGoal({ targetWeeklyLossKg: 1 }))
     await seedTargetMetWeeks()
+    render(
+      <MemoryRouter>
+        <GoalCelebrationModal />
+      </MemoryRouter>,
+    )
+
+    const cta = await screen.findByRole('link', { name: 'Review goal' })
+    expect(cta).toHaveAttribute('href', '/goal')
+  })
+
+  it('shows the completion copy once the window has actually ended with the target still met (#639)', async () => {
+    await useGoalStore.getState().saveGoal(
+      makeGoal({
+        targetWeeklyLossKg: 1,
+        weekStart: format(addDays(new Date(), -8), DATE_FORMAT), // ended
+      }),
+    )
+    await db.dailyEntries.put(
+      makeEntry({
+        date: format(addDays(new Date(), -8), DATE_FORMAT),
+        weightKg: 80,
+      }),
+    )
+    await db.dailyEntries.put(
+      makeEntry({
+        date: format(addDays(new Date(), -3), DATE_FORMAT),
+        weightKg: 79, // last logged entry in the window: target met
+      }),
+    )
     render(
       <MemoryRouter>
         <GoalCelebrationModal />
@@ -165,6 +204,42 @@ describe('GoalCelebrationModal', () => {
     const cta = await screen.findByRole('link', {
       name: "Set next week's goal",
     })
+    expect(
+      screen.getByText('You completed your weekly goal!'),
+    ).toBeInTheDocument()
     expect(cta).toHaveAttribute('href', '/goal')
+  })
+
+  it('does not show completion copy when the window ended without meeting the target (#639)', async () => {
+    await useGoalStore.getState().saveGoal(
+      makeGoal({
+        targetWeeklyLossKg: 1,
+        weekStart: format(addDays(new Date(), -8), DATE_FORMAT), // ended
+      }),
+    )
+    await db.dailyEntries.put(
+      makeEntry({
+        date: format(addDays(new Date(), -8), DATE_FORMAT),
+        weightKg: 80,
+      }),
+    )
+    await db.dailyEntries.put(
+      makeEntry({
+        date: format(addDays(new Date(), -3), DATE_FORMAT),
+        weightKg: 79.8, // window ended short of the 1kg target
+      }),
+    )
+    render(
+      <MemoryRouter>
+        <GoalCelebrationModal />
+      </MemoryRouter>,
+    )
+
+    expect(
+      screen.queryByText('You completed your weekly goal!'),
+    ).not.toBeInTheDocument()
+    expect(
+      screen.queryByText("You reached this week's target!"),
+    ).not.toBeInTheDocument()
   })
 })

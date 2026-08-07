@@ -429,21 +429,23 @@ describe('TodayScreen', () => {
     )
 
     expect(
-      screen.queryByText("You reached this week's goal!"),
+      screen.queryByText("You reached this week's target!"),
     ).not.toBeInTheDocument()
 
     await user.type(await screen.findByLabelText('Weight (kg)'), '59.8')
     await user.click(screen.getByRole('button', { name: 'Save weight' }))
 
     expect(
-      await screen.findByText("You reached this week's goal!"),
+      await screen.findByText("You reached this week's target!"),
     ).toBeInTheDocument()
 
     // #235's own persistent complement to the modal above — stays visible
     // even after the modal is dismissed, unlike the one-time dialog.
+    // #639: reframed to name when the badge is actually earned, rather
+    // than claiming the target's already fully done.
     await user.click(screen.getByRole('button', { name: /close/i }))
     expect(
-      await screen.findByText("You reached this week's target!"),
+      await screen.findByText(/keep it up until .* to earn your badge/),
     ).toBeInTheDocument()
     expect(
       screen.getByRole('link', { name: 'Review goal' }),

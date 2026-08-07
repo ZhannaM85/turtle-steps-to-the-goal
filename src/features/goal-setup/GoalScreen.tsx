@@ -9,7 +9,12 @@ import {
   useLocale,
   useTranslation,
 } from '@/i18n'
-import { goalWeekEnd, kgToLb, paceCheckInsight } from '@/domain/goal'
+import {
+  goalWeekEnd,
+  goalWindowHasEnded,
+  kgToLb,
+  paceCheckInsight,
+} from '@/domain/goal'
 import { useActiveGoalProgress, useLatestWeight, usePastGoals } from '@/shared/hooks'
 import { Button } from '@/shared/ui/button'
 import { PageHeader } from '@/shared/ui/page-header'
@@ -43,7 +48,51 @@ export function GoalScreen() {
   // an explicit choice (Edit vs. "Start a new goal"), not auto-detected
   // from this.
   const activeGoalProgress = useActiveGoalProgress()
-  const activeGoalReachedOn = activeGoalProgress?.metOnDate ?? null
+  const activeGoalWindowEnded = activeGoalProgress
+    ? goalWindowHasEnded(activeGoalProgress.weekEnd)
+    : false
+  // #639: the mid-week "reached" badge/nudge only while the window is
+  // still open — once it ends, goalNudgePhase below (completed/missed)
+  // takes over, so the two moments never show contradictory messages
+  // side by side (a sticky mid-week "reached" claim next to a corrected
+  // "not met" final verdict).
+  const activeGoalReachedOn = activeGoalWindowEnded
+    ? null
+    : (activeGoalProgress?.metOnDate ?? null)
+  // #639 — which of the three nudge moments (if any) to show below the
+  // weekly-target card: still-running-and-reached, ended-and-completed,
+  // or ended-and-missed. Uses finalTargetMet (the window's real final
+  // state), not the sticky targetMet, once the window has ended — see
+  // goalWindowProgress.ts.
+  const goalNudgePhase =
+    !activeGoalProgress || !activeGoalWindowEnded
+      ? activeGoalReachedOn
+        ? ('reachedInProgress' as const)
+        : null
+      : activeGoalProgress.finalTargetMet === true
+        ? ('completed' as const)
+        : activeGoalProgress.finalTargetMet === false
+          ? ('missed' as const)
+          : null
+  const goalNudgeWeekEndLabel = activeGoalProgress
+    ? format(parseISO(activeGoalProgress.weekEnd), 'PP', {
+        locale: dateFnsLocale,
+      })
+    : ''
+  const goalNudgeSectionTitle =
+    goalNudgePhase === 'completed'
+      ? t.goal.goalCompletedSectionTitle
+      : goalNudgePhase === 'missed'
+        ? t.goal.goalMissedSectionTitle
+        : t.goal.activeGoalReachedSectionTitle
+  const goalNudgeBody =
+    goalNudgePhase === 'completed'
+      ? t.goal.goalCompletedNudge
+      : goalNudgePhase === 'missed'
+        ? t.goal.goalMissedNudge
+        : goalNudgePhase === 'reachedInProgress'
+          ? t.goal.activeGoalReachedNudge(goalNudgeWeekEndLabel)
+          : null
   // #259 — the most recently logged weight, needed by GoalForm's "Suggest
   // a target" TDEE helper. `goal` as the refresh key isn't quite right
   // (weight logging doesn't change the goal), but there's no cheaper
@@ -152,19 +201,19 @@ export function GoalScreen() {
               sectionTitle('goalWeeklyTargetCard', t.goal.thisWeeksTarget)
             ))}
 
-          {/* #155: quiet nudge once the active goal's own window has been
-           * reached mid-week — points at the explicit "Start a new goal"
-           * CTA below (#386). Same tone/style as #38's goalRenewalReminder
-           * on TodayScreen; no link needed since the form is right below. */}
-          {activeGoalReachedOn && (
+          {/* #155/#639: quiet nudge covering three mutually-exclusive
+           * moments for the active goal's own window — still running and
+           * reached mid-week (not final yet), or ended with the target
+           * either completed or missed. Same tone/style as #38's
+           * goalRenewalReminder on TodayScreen; no link needed since the
+           * form (with the now-unlocked restart button once ended) is
+           * right below. */}
+          {goalNudgePhase && (
             <div className="flex flex-col gap-1.5">
-              {sectionTitle(
-                'goalReachedNudge',
-                t.goal.activeGoalReachedSectionTitle,
-              )}
+              {sectionTitle('goalReachedNudge', goalNudgeSectionTitle)}
               {sectionVisible.goalReachedNudge && (
                 <div className="rounded-lg border border-border px-3 py-2 text-sm text-muted-foreground">
-                  {t.goal.activeGoalReachedNudge}
+                  {goalNudgeBody}
                 </div>
               )}
             </div>
