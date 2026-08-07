@@ -6,7 +6,6 @@ import {
   endOfWeek,
   format,
   isSameMonth,
-  isToday,
   parseISO,
   startOfMonth,
   startOfWeek,
@@ -19,12 +18,14 @@ import {
   isHeadingTowardGoalOnDate,
   type ReachedGoalWindow,
 } from '@/domain/goal'
+import { todayIsoForDayStart } from '@/domain/stats'
 import { getDateFnsLocale, useLocale, useTranslation } from '@/i18n'
 import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/ui/button'
 import {
   useCalendarMarkerVisibilityStore,
   useCycleTrackingStore,
+  useDayStartStore,
   useDigestionTrackingStore,
   type CalendarMarkerKey,
 } from '@/stores'
@@ -66,6 +67,10 @@ export function CalendarView({
   )
   const [currentMonth, setCurrentMonth] = useState(() => new Date())
   const [selectedDate, setSelectedDate] = useState<string | null>(null)
+  // #625 — the bold/aria-current "today" cell should respect day-start too,
+  // same meaning `TodayScreen.tsx`'s own "today" already uses.
+  const dayStartTime = useDayStartStore((state) => state.dayStartTime)
+  const todayIso = todayIsoForDayStart(dayStartTime)
 
   const entriesByDate = new Map(entries.map((entry) => [entry.date, entry]))
 
@@ -207,7 +212,7 @@ export function CalendarView({
               type="button"
               aria-label={`${format(day, 'PPPP', { locale: dateFnsLocale })}${reachedGoalAriaSuffix}`}
               aria-pressed={selected}
-              aria-current={isToday(day) ? 'date' : undefined}
+              aria-current={dateKey === todayIso ? 'date' : undefined}
               onClick={() => selectDay(day)}
               className={cn(
                 'flex flex-col items-center gap-0.5 rounded-md py-1.5 text-sm outline-none transition-colors focus-visible:ring-3 focus-visible:ring-ring/50',
@@ -219,7 +224,7 @@ export function CalendarView({
                     : isHeadingToward
                       ? 'bg-primary/10 hover:bg-primary/20'
                       : 'hover:bg-muted',
-                !selected && isToday(day) && 'font-semibold text-primary',
+                !selected && dateKey === todayIso && 'font-semibold text-primary',
               )}
             >
               {format(day, 'd')}

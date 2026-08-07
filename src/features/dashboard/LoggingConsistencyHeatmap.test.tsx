@@ -1,7 +1,7 @@
 import { format } from 'date-fns'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { afterEach, describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import type { DailyEntry } from '@/domain/dailyEntry'
 import { useDashboardChartVisibilityStore } from '@/stores'
 import { LoggingConsistencyHeatmap } from './LoggingConsistencyHeatmap'
@@ -64,6 +64,28 @@ describe('LoggingConsistencyHeatmap', () => {
     expect(
       screen.getByText('500 kcal in the last 7 days'),
     ).toBeInTheDocument()
+  })
+
+  // #625 — "today" for this rolling window now respects day-start, same as
+  // the Day screen's own "today" already does.
+  it('keeps "today" pinned to the prior day past midnight but before day-start (#625)', async () => {
+    const { useDayStartStore } = await import('@/stores')
+    useDayStartStore.setState({ dayStartTime: '04:00' })
+    vi.useFakeTimers()
+    // Monday 2026-08-03, 01:00 — real calendar Monday, but still "Sunday
+    // night" per a 04:00 day-start.
+    vi.setSystemTime(new Date('2026-08-03T01:00:00'))
+    const entries = [entry('2026-07-27', { weightKg: 80 })] // a Monday
+
+    render(<LoggingConsistencyHeatmap entries={entries} />)
+
+    // Without the day-start adjustment, a new week row (Aug 3-9) would
+    // already start rendering once the real clock ticks past midnight.
+    expect(screen.getByText('Jul 27')).toBeInTheDocument()
+    expect(screen.queryByText('Aug 3')).not.toBeInTheDocument()
+
+    vi.useRealTimers()
+    useDayStartStore.setState({ dayStartTime: '00:00' })
   })
 
   it('gives a fully-logged day a title reflecting its full score', () => {

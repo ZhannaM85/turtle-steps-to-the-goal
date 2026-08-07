@@ -71,7 +71,7 @@ _Same-day live feedback after Zepp / export work. **Do not** split further same-
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#625](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/625) | 📋 Not started | Apply day-start time to Dashboard rolling-window displays (follow-up to #601) | Recent averages, logging-consistency heatmap, trend-chart period pager — lower-stakes than #601's own correlation fixes, deliberately scoped out of that pass |
+| [#625](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/625) | 🔍 Pending validation | Apply day-start time to Dashboard rolling-window displays (follow-up to #601) | `loggingConsistencyWeeks` gained a `today` param (was hardcoded `endOfWeek(new Date(), ...)`). `RecentAveragesCards.tsx`/`LoggingConsistencyHeatmap.tsx` now pass `effectiveDateFor(new Date(), dayStartTime)` through to `recentAverages`/`recentAverageWindowRange`/`loggingConsistencyWeeks`/`loggingConsistencySummary`. `useChartPeriodPager.ts` (shared by all 6 Dashboard trend charts) now reads `useDayStartStore` itself and defaults to the day-start-adjusted date when its own `today` param is omitted — no changes needed in the individual chart components. `CalendarView.tsx`'s cosmetic today-cell marker also switched from `isToday(day)` to a day-start-aware comparison, per the issue's own "listed for completeness" note. Awaiting on-device confirmation |
 
 ---
 

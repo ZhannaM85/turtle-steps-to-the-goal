@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { addDays } from 'date-fns'
 import type { DailyEntry } from '@/domain/dailyEntry'
 import {
+  effectiveDateFor,
   filterEntriesByTrendChartPeriod,
   isPageableTrendChartPeriod,
   resolveTrendChartPeriodRange,
@@ -9,6 +10,7 @@ import {
   type TrendChartPeriod,
   type TrendChartPeriodRange,
 } from '@/domain/stats'
+import { useDayStartStore } from '@/stores'
 
 export interface ChartPeriodPager {
   pagedEntries: DailyEntry[]
@@ -47,8 +49,12 @@ export function useChartPeriodPager(
   entries: DailyEntry[],
   // Injectable, same as `resolveTrendChartPeriodRange`'s own `today` param —
   // lets tests pin "today" instead of depending on the real system clock.
-  today: Date = new Date(),
+  // #625 — omitted (the normal case), defaults to the day-start-adjusted
+  // "today" every other rolling window already uses, not the raw clock.
+  today?: Date,
 ): ChartPeriodPager {
+  const dayStartTime = useDayStartStore((state) => state.dayStartTime)
+  const resolvedToday = today ?? effectiveDateFor(new Date(), dayStartTime)
   const [periodsBack, setPeriodsBack] = useState(0)
   // Switching the shared period *type* mid-page (e.g. Month -> Week) leaves
   // an offset that no longer means the same thing against the new window
@@ -77,7 +83,7 @@ export function useChartPeriodPager(
   }
 
   const windowSpanDays = ROLLING_WINDOW_DAYS[period] + 1
-  const anchor = addDays(today, -periodsBack * windowSpanDays)
+  const anchor = addDays(resolvedToday, -periodsBack * windowSpanDays)
   const range = resolveTrendChartPeriodRange(period, '', '', anchor)
   const pagedEntries = filterEntriesByTrendChartPeriod(entries, range)
 

@@ -25,6 +25,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 589,
+    issue: 625,
+    date: '2026-08-06T22:40:37+03:00',
+    en: 'Recent averages, the logging-consistency heatmap, and the Dashboard trend-chart Week/Month/Year windows now respect your custom day-start time the same way the Day screen already does.',
+    ru: 'Средние показатели за период, тепловая карта регулярности записей и окна Неделя/Месяц/Год на графиках трендов теперь учитывают ваше настраиваемое время начала дня так же, как это уже делает экран «День».',
+  },
+  {
     version: 588,
     issue: 631,
     date: '2026-08-06T20:00:46+03:00',

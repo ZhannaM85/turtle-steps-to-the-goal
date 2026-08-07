@@ -1,6 +1,7 @@
 import { act, renderHook } from '@testing-library/react'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import type { DailyEntry } from '@/domain/dailyEntry'
+import { useDayStartStore } from '@/stores'
 import { useChartPeriodPager } from './useChartPeriodPager'
 
 const TODAY = new Date('2026-07-28T00:00:00.000Z')
@@ -122,6 +123,32 @@ describe('useChartPeriodPager', () => {
       start: '2026-07-15',
       end: '2026-07-21',
     })
+  })
+
+  // #625 — when the caller omits `today` (the normal case), the pager
+  // should default to the day-start-adjusted "today" rather than the raw
+  // clock, same as every other rolling window.
+  it('defaults to the day-start-adjusted "today" when no override is passed', () => {
+    useDayStartStore.setState({ dayStartTime: '04:00' })
+    vi.useFakeTimers()
+    // Monday 2026-08-03, 01:00 — real calendar Monday, but still "Sunday
+    // night" per a 04:00 day-start.
+    vi.setSystemTime(new Date('2026-08-03T01:00:00'))
+    const entries = [entry('2026-07-22'), entry('2026-07-27')]
+
+    const { result } = renderHook(() =>
+      useChartPeriodPager('week', '', '', entries),
+    )
+
+    // Without the day-start adjustment the current week would already be
+    // Aug 3-9 once the real clock ticks past midnight.
+    expect(result.current.range).toEqual({
+      start: '2026-07-27',
+      end: '2026-08-02',
+    })
+
+    vi.useRealTimers()
+    useDayStartStore.setState({ dayStartTime: '00:00' })
   })
 
   it('resets the page offset back to current when the period type itself changes', () => {

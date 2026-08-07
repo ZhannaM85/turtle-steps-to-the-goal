@@ -46,13 +46,14 @@ function signalsLogged(entry: DailyEntry | undefined): number {
 export function loggingConsistencyWeeks(
   entries: DailyEntry[],
   weekStartsOn: Day = 1,
+  today: Date = new Date(),
 ): LoggingConsistencyWeek[] {
   if (entries.length === 0) return []
 
   const byDate = new Map(entries.map((entry) => [entry.date, entry]))
   const earliestDate = [...byDate.keys()].sort()[0]
   const rangeStart = startOfWeek(parseISO(earliestDate), { weekStartsOn })
-  const rangeEnd = endOfWeek(new Date(), { weekStartsOn })
+  const rangeEnd = endOfWeek(today, { weekStartsOn })
 
   const weeks: LoggingConsistencyWeek[] = []
   for (let cursor = rangeStart; cursor <= rangeEnd; cursor = addDays(cursor, 7)) {

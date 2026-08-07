@@ -118,6 +118,33 @@ describe('CalendarView', () => {
     expect(screen.getByText(/\d{4}/).textContent).toBe(initialMonth)
   })
 
+  // #625 — the bold/aria-current "today" cell now respects day-start, same
+  // as the Day screen's own "today" already does.
+  it('marks the day-start-adjusted "today" cell, not the raw calendar day, past midnight but before day-start (#625)', async () => {
+    const { useDayStartStore } = await import('@/stores')
+    useDayStartStore.setState({ dayStartTime: '04:00' })
+    vi.useFakeTimers()
+    // Monday 2026-08-03, 01:00 — real calendar Monday, but still "Sunday
+    // night" per a 04:00 day-start. CalendarView opens on the current
+    // month regardless, so both Aug 2 and Aug 3 are visible day cells.
+    vi.setSystemTime(new Date('2026-08-03T01:00:00'))
+
+    renderCalendar()
+
+    const aug2Label = format(new Date('2026-08-02T00:00:00'), 'PPPP')
+    const aug3Label = format(new Date('2026-08-03T00:00:00'), 'PPPP')
+    expect(screen.getByRole('button', { name: aug2Label })).toHaveAttribute(
+      'aria-current',
+      'date',
+    )
+    expect(
+      screen.getByRole('button', { name: aug3Label }),
+    ).not.toHaveAttribute('aria-current')
+
+    vi.useRealTimers()
+    useDayStartStore.setState({ dayStartTime: '00:00' })
+  })
+
   describe('cycle tracking toggle (#71)', () => {
     it('is hidden when the Settings toggle is off', async () => {
       const user = userEvent.setup()

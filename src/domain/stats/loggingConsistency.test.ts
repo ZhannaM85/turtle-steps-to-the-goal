@@ -68,6 +68,22 @@ describe('loggingConsistencyWeeks', () => {
     expect(week.days[0].intensity).toBe(0)
   })
 
+  // #625 — `today` is injectable so day-start-adjusted callers don't have
+  // to depend on the raw system clock.
+  it('accepts an explicit today instead of the real clock', () => {
+    const entries = [entry('2026-03-02', { weightKg: 80 })] // a Monday
+
+    const weeks = loggingConsistencyWeeks(
+      entries,
+      1,
+      new Date('2026-03-15T12:00:00.000Z'),
+    )
+
+    expect(weeks[0].weekStart).toBe('2026-03-02')
+    // 2026-03-15 falls in the second week (Mar 2-8, Mar 9-15).
+    expect(weeks).toHaveLength(2)
+  })
+
   it('respects the weekStartsOn parameter', () => {
     const entries = [entry('2026-03-02', { weightKg: 80 })] // a Monday
 

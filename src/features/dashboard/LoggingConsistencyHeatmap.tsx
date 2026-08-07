@@ -2,13 +2,14 @@ import { format, parseISO } from 'date-fns'
 import type { CSSProperties, ReactNode } from 'react'
 import type { DailyEntry } from '@/domain/dailyEntry'
 import {
+  effectiveDateFor,
   loggingConsistencySummary,
   loggingConsistencyWeeks,
   MAX_LOGGING_SIGNALS,
 } from '@/domain/stats'
 import { formatNumber, getDateFnsLocale, useLocale, useTranslation } from '@/i18n'
 import { useWeekStartsOn } from '@/shared/hooks'
-import { useDashboardChartVisibilityStore } from '@/stores'
+import { useDashboardChartVisibilityStore, useDayStartStore } from '@/stores'
 import { ChartTitleWithToggle } from './ChartTitleWithToggle'
 
 export interface LoggingConsistencyHeatmapProps {
@@ -50,8 +51,12 @@ export function LoggingConsistencyHeatmap({
   const cardVisible = useDashboardChartVisibilityStore(
     (state) => state.visible.loggingConsistency,
   )
+  // #625 — "today" for this rolling window should respect day-start too,
+  // same meaning `TodayScreen.tsx`'s own "today" already uses.
+  const dayStartTime = useDayStartStore((state) => state.dayStartTime)
+  const today = effectiveDateFor(new Date(), dayStartTime)
 
-  const weeks = loggingConsistencyWeeks(entries, weekStartsOn)
+  const weeks = loggingConsistencyWeeks(entries, weekStartsOn, today)
   if (weeks.length === 0) return null
 
   const cardTitle = (
@@ -70,7 +75,7 @@ export function LoggingConsistencyHeatmap({
   const weekdayLabels = recentWeeks[0].days.map((day) =>
     format(parseISO(day.date), 'EEEEE', { locale: dateFnsLocale }),
   )
-  const summary = loggingConsistencySummary(entries, recentWeeks)
+  const summary = loggingConsistencySummary(entries, recentWeeks, today)
   const kcalText = (kcal: number | null) =>
     kcal === null ? '—' : `${formatNumber(kcal, locale, 0)} ${t.dailyEntry.kcalUnit}`
 

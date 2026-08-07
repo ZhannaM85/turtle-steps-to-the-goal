@@ -1,7 +1,7 @@
 import { format, parseISO, subDays } from 'date-fns'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { afterEach, describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import type { CalorieEntry, CalorieItem, DailyEntry } from '@/domain/dailyEntry'
 import { recentAverageWindowRange } from '@/domain/stats'
 import { useDashboardChartVisibilityStore } from '@/stores'
@@ -37,8 +37,8 @@ function daysAgo(n: number): string {
   return format(subDays(new Date(), n), 'yyyy-MM-dd')
 }
 
-function expectedRangeLabel(windowDays: number): string {
-  const { startDate, endDate } = recentAverageWindowRange(windowDays)
+function expectedRangeLabel(windowDays: number, today?: Date): string {
+  const { startDate, endDate } = recentAverageWindowRange(windowDays, today)
   return `${format(parseISO(startDate), 'PP')} – ${format(parseISO(endDate), 'PP')}`
 }
 
@@ -76,6 +76,30 @@ describe('RecentAveragesCards', () => {
 
     expect(screen.getByText(expectedRangeLabel(7))).toBeInTheDocument()
     expect(screen.getByText(expectedRangeLabel(30))).toBeInTheDocument()
+  })
+
+  // #625 — "today" for this rolling window now respects day-start, same as
+  // the Day screen's own "today" already does.
+  it('keeps "today" pinned to the prior day past midnight but before day-start (#625)', async () => {
+    const { useDayStartStore } = await import('@/stores')
+    useDayStartStore.setState({ dayStartTime: '04:00' })
+    vi.useFakeTimers()
+    // Monday 2026-08-03, 01:00 — real calendar Monday, but still "Sunday
+    // night" per a 04:00 day-start.
+    vi.setSystemTime(new Date('2026-08-03T01:00:00'))
+    const entries = [entry('2026-08-02', { calorieEntries: calories(2000) })]
+    render(<RecentAveragesCards entries={entries} />)
+
+    const dayStartToday = new Date('2026-08-02T01:00:00')
+    // Without the day-start adjustment, the window would already end on
+    // 2026-08-03 once the real clock ticks past midnight.
+    expect(
+      screen.getByText(expectedRangeLabel(7, dayStartToday)),
+    ).toBeInTheDocument()
+    expect(screen.queryByText(/Aug 3, 2026/)).not.toBeInTheDocument()
+
+    vi.useRealTimers()
+    useDayStartStore.setState({ dayStartTime: '00:00' })
   })
 
   it('shows the average protein alongside average calories', () => {

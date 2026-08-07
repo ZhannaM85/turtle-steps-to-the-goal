@@ -1,7 +1,11 @@
 import type { ReactNode } from 'react'
 import { format, parseISO } from 'date-fns'
 import type { DailyEntry } from '@/domain/dailyEntry'
-import { recentAverages, recentAverageWindowRange } from '@/domain/stats'
+import {
+  effectiveDateFor,
+  recentAverages,
+  recentAverageWindowRange,
+} from '@/domain/stats'
 import {
   formatNumber,
   getDateFnsLocale,
@@ -10,7 +14,7 @@ import {
 } from '@/i18n'
 import { formatMacroGrams } from '@/shared/lib/macroDisplay'
 import { StatCard } from '@/shared/ui/stat-card'
-import { useDashboardChartVisibilityStore } from '@/stores'
+import { useDashboardChartVisibilityStore, useDayStartStore } from '@/stores'
 import { ChartTitleWithToggle } from './ChartTitleWithToggle'
 
 export interface RecentAveragesCardsProps {
@@ -39,11 +43,15 @@ export function RecentAveragesCards({
   const cardVisible = useDashboardChartVisibilityStore(
     (state) => state.visible.recentAverages,
   )
+  // #625 — "today" for this rolling window should respect day-start too,
+  // same meaning `TodayScreen.tsx`'s own "today" already uses.
+  const dayStartTime = useDayStartStore((state) => state.dayStartTime)
+  const today = effectiveDateFor(new Date(), dayStartTime)
 
   const windows = WINDOWS.map((windowDays) => ({
     windowDays,
-    ...recentAverages(entries, windowDays),
-    ...recentAverageWindowRange(windowDays),
+    ...recentAverages(entries, windowDays, today),
+    ...recentAverageWindowRange(windowDays, today),
   })).filter(
     (w) => w.averageCalories !== null || w.averageProteinG !== null,
   )
