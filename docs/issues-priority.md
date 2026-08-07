@@ -53,3 +53,13 @@ _Same audit pass. Blocked on Tier 36 Capacitor / store shell — revisit of #261
 
 ---
 
+## Tier 127 — Live feedback (2026-08-07)
+
+_All other Tier 127 items from this date were filed, implemented, and closed same-day — see the archive. This row continues the same tier per the one-calendar-day-one-tier rule._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#644](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/644) | 🔲 Open | Barcode field text can't be selected for copying — cursor doesn't move, selection won't expand | Meal item editor sheet's barcode row (added #519, touched #643); iOS text-selection handles appear but don't move/expand, so the barcode can't actually be copied. Root cause not yet investigated |
+
+---
+
