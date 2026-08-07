@@ -34,6 +34,7 @@ _Live discussion of a screenshot showing "Цель достигнута" badges 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#640](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/640) | ✅ Done | Scanned/searched food: dish name not editable, no brand field on review screen | `AddMealDialog.tsx`'s confirm step: dish name is now an editable `Input` (was read-only `<p>`), plus a new brand `Input`, same meal-line-override shape #517 already set for kcal/macros. Prefilled from an OFF hit's brand when scanning/searching finds one (previously silently dropped by `foodItemFromOff`); falls back to the source item's own name if cleared blank. Confirmed working on-device 2026-08-07 |
+| [#641](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/641) | ✅ Done | Scanned food name shows literal `&quot;` instead of a decoded quote | Root cause confirmed: `parseOffProductIdentity()` in `openFoodFactsParse.ts` (shared by `lookupBarcode.ts` #256 and `searchOpenFoodFacts.ts` #531) read OFF's `product_name`/`brands` raw, with no entity decoding. New `shared/lib/decodeHtmlEntities.ts` (DOMParser against a detached document, never attached to the page) applied to both name and brand. Confirmed working on-device 2026-08-07 |
 
 ---
 
