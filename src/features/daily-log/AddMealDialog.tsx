@@ -29,6 +29,7 @@ import {
   totalFromPortion,
 } from '@/shared/lib/macroScaling'
 import { parseNumberInput } from '@/shared/lib/parseNumberInput'
+import { formatBarcodeDisplay } from '@/shared/lib/formatBarcode'
 import { mealLabelSuggestionsForLocale } from '@/shared/lib/mealLabel'
 import { normalizeTextSpaces } from '@/shared/lib/normalizeTextSpaces'
 import { rankBySearchMatch } from '@/shared/lib/searchRank'
@@ -1176,6 +1177,11 @@ export function AddMealDialog({
   // catalog/personal-library pick. Includes the active item's own
   // prospective scaled values, on top of whatever's already confirmed.
   const activeScaled = activeItem ? scaledValuesFor(activeItem) : null
+  // #643 — the confirm-quantity step's own barcode, mirroring #519's manual
+  // sheet: only a personal-library `mealItem` pick can carry one (curated
+  // `food` catalog entries have no barcode field at all).
+  const activeItemBarcode =
+    activeItem?.source === 'mealItem' ? activeItem.mealItem.barcode : undefined
   // #519 — show barcode on the manual Add/Edit sheet when a scan is pending
   // or the dish name already matches a personal library item that has one.
   const manualSheetBarcode =
@@ -1447,6 +1453,13 @@ export function AddMealDialog({
              * brand are now editable here too, same meal-line-override
              * shape, so a wrong/incomplete scanned or searched name can be
              * fixed before the item is added. */}
+            {activeItemBarcode && (
+              <p className="text-sm text-muted-foreground">
+                {t.dailyEntry.itemBarcodeLabel(
+                  formatBarcodeDisplay(activeItemBarcode),
+                )}
+              </p>
+            )}
             <div className="flex flex-col gap-1.5">
               <span className="text-sm text-muted-foreground">
                 {t.dailyEntry.itemNameLabel}

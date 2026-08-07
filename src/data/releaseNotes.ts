@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 598,
+    issue: 643,
+    date: '2026-08-07T15:29:16+03:00',
+    en: "When adding a meal, a food's barcode is now shown once you pick it from your own saved foods, not only right after scanning it.",
+    ru: 'При добавлении блюда штрихкод теперь отображается и при выборе продукта из своих сохранённых, а не только сразу после сканирования.',
+  },
+  {
     version: 597,
     issue: 639,
     date: '2026-08-07T13:09:47+03:00',
