@@ -352,6 +352,41 @@ describe('AddMealDialog (#454)', () => {
     })
   })
 
+  it('lets the user edit the dish name and brand on the confirm step before adding (#640)', async () => {
+    const user = userEvent.setup()
+    const onAppendItems = vi.fn()
+    render(
+      <AddMealDialog
+        {...defaultProps}
+        items={[]}
+        reaction={undefined}
+        onReactionChange={vi.fn()}
+        onAppendItems={onAppendItems}
+        onRemoveItem={vi.fn()}
+      />,
+    )
+
+    await user.type(screen.getByLabelText('Search foods'), 'Salmon')
+    await user.click(await screen.findByText('Salmon'))
+
+    const name = screen.getByLabelText('Dish name')
+    expect(name).toHaveValue('Salmon')
+    await user.clear(name)
+    await user.type(name, 'Grilled Salmon')
+
+    const brand = screen.getByLabelText('Brand (optional)')
+    expect(brand).toHaveValue('')
+    await user.type(brand, 'Ocean Fresh')
+
+    await user.click(screen.getByRole('button', { name: '+ Add item' }))
+
+    expect(onAppendItems).toHaveBeenCalledTimes(1)
+    expect(onAppendItems.mock.calls[0][0][0]).toMatchObject({
+      name: 'Grilled Salmon',
+      brand: 'Ocean Fresh',
+    })
+  })
+
   it('stays open across multiple adds, accumulating the meal live (persistent multi-add)', async () => {
     const user = userEvent.setup()
     render(<ControlledAddMealDialog {...defaultProps} />)
@@ -551,15 +586,47 @@ describe('AddMealDialog (#454)', () => {
         { name: '+ Add item' },
         { timeout: 20000 },
       )
-      expect(screen.getByText('Protein Bar')).toBeInTheDocument()
-      expect(
-        screen.queryByLabelText('Dish name'),
-      ).not.toBeInTheDocument()
+      expect(screen.getByDisplayValue('Protein Bar')).toBeInTheDocument()
+      // #640: the confirm step's own Dish name field is now editable
+      // (reusing the same label the manual sheet uses), so "not the manual
+      // sheet" is instead confirmed by the manual sheet's own kcal/100g
+      // field being absent.
+      expect(screen.queryByLabelText('kcal/100g')).not.toBeInTheDocument()
 
       await user.click(addItemButton)
 
       expect(screen.getByText('This meal so far')).toBeInTheDocument()
       expect(screen.getAllByText('Protein Bar').length).toBeGreaterThan(0)
+    })
+
+    it('prefills the brand from an Open Food Facts match, still editable (#640)', async () => {
+      vi.stubGlobal(
+        'fetch',
+        vi.fn().mockResolvedValue({
+          ok: true,
+          json: () =>
+            Promise.resolve({
+              status: 1,
+              product: {
+                product_name: 'Icelandic Skyr',
+                brands: 'Siggis, Other',
+                nutriments: { 'energy-kcal_100g': 63 },
+              },
+            }),
+        }),
+      )
+      mockScanning('3333333333333')
+      const user = userEvent.setup()
+      render(<ControlledAddMealDialog {...defaultProps} />)
+
+      await user.click(screen.getByRole('button', { name: 'Scan barcode' }))
+
+      const brand = await screen.findByLabelText('Brand (optional)')
+      expect(brand).toHaveValue('Siggis')
+
+      await user.clear(brand)
+      await user.type(brand, "Siggi's Dairy")
+      expect(brand).toHaveValue("Siggi's Dairy")
     })
 
     it('falls back to the manual sheet when nothing matches anywhere', async () => {
@@ -614,7 +681,7 @@ describe('AddMealDialog (#454)', () => {
         { name: '+ Add item' },
         { timeout: 20000 },
       )
-      expect(screen.getByText('Scanned Yogurt')).toBeInTheDocument()
+      expect(screen.getByDisplayValue('Scanned Yogurt')).toBeInTheDocument()
       expect(
         screen.queryByText(
           'No food found for this barcode — you can still add it by hand below.',

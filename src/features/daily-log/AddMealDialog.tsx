@@ -350,6 +350,14 @@ export function AddMealDialog({
   const [itemEmotion, setItemEmotion] = useState<MealEmotion | undefined>(
     undefined,
   )
+  // #640 — editable dish name/brand on the confirm step, same meal-line
+  // override shape #517 already established for kcal/macros. Brand has no
+  // home on the reusable MealItem/FoodItem catalog types (#248 precedent:
+  // brand is meal-line-only, on CalorieItem), so it's plain local state
+  // here too, prefilled from an OFF hit's brand when scanning/searching
+  // finds one, empty otherwise.
+  const [confirmName, setConfirmName] = useState('')
+  const [confirmBrand, setConfirmBrand] = useState('')
   // #517 — editable kcal/macros on the confirm step. Absolute display
   // strings for the current grams; confirmRates are the per-100g source
   // that quantity/serving changes rescale from.
@@ -439,6 +447,8 @@ export function AddMealDialog({
     setServingMode('grams')
     setServingCount('1')
     setItemEmotion(undefined)
+    setConfirmName('')
+    setConfirmBrand('')
     setConfirmRates(null)
     setConfirmKcal('')
     setConfirmProtein('')
@@ -453,8 +463,15 @@ export function AddMealDialog({
   }
 
   /** #517 — pick → confirm step: seed quantity + editable nutrition from
-   * the catalog/personal item's per-100g rates (meal-line override only). */
-  function selectActiveItem(item: PickableItem, quantityOverride?: string) {
+   * the catalog/personal item's per-100g rates (meal-line override only).
+   * #640 — also seeds the editable name/brand; `brandOverride` is only
+   * ever passed for an OFF-sourced pick, since neither MealItem nor
+   * FoodItem carries a brand of their own. */
+  function selectActiveItem(
+    item: PickableItem,
+    quantityOverride?: string,
+    brandOverride?: string,
+  ) {
     setPendingBarcode(null)
     setActiveItem(item)
     const qty = quantityOverride ?? defaultQuantityFor(item)
@@ -462,6 +479,8 @@ export function AddMealDialog({
     setServingMode('grams')
     setServingCount('1')
     setItemEmotion(undefined)
+    setConfirmName(textFor(item))
+    setConfirmBrand(brandOverride ?? '')
     const rates = ratesFromPickable(item)
     const qtyNum = parseNumberInput(qty)
     const grams = qtyNum && qtyNum > 0 ? qtyNum : 100
@@ -780,9 +799,13 @@ export function AddMealDialog({
     const grams = gramsFor(activeItem)
     // #517 — commit the editable absolute fields as shown (WYSIWYG), not a
     // re-scale that could drift from mid-edit rounding on the rates.
+    // #640 — same WYSIWYG treatment for the editable name/brand; falls
+    // back to the source item's own name if cleared to blank, same as
+    // saveManualDraft's trimmedName guard below.
     const newItem: CalorieItem = {
       id: crypto.randomUUID(),
-      name: textFor(activeItem),
+      name: normalizeTextSpaces(confirmName).trim() || textFor(activeItem),
+      brand: normalizeTextSpaces(confirmBrand).trim() || undefined,
       amountKcal: Math.round(kcalNum),
       proteinG: parseOptionalMacro(confirmProtein) ?? 0,
       fatG: parseOptionalMacro(confirmFat) ?? 0,
@@ -837,7 +860,11 @@ export function AddMealDialog({
       })
       // selectActiveItem clears pendingBarcode; re-set after so confirm →
       // touchIfPersonal can attach it (#518).
-      selectActiveItem({ source: 'food', food: syntheticFood }, '100')
+      selectActiveItem(
+        { source: 'food', food: syntheticFood },
+        '100',
+        result.brand,
+      )
       setPendingBarcode(barcode)
     } else {
       // #518 — keep the scanned code through manual create so the next
@@ -869,7 +896,7 @@ export function AddMealDialog({
 
   function pickOnlineHit(hit: OnlineFoodHit) {
     const food = foodItemFromOff(hit)
-    selectActiveItem({ source: 'food', food }, '100')
+    selectActiveItem({ source: 'food', food }, '100', hit.brand)
     if (hit.code) setPendingBarcode(hit.code)
   }
 
@@ -1416,10 +1443,36 @@ export function AddMealDialog({
           <div className="flex flex-col gap-3">
             {/* #505 — dish name; #517 replaces the read-only kcal hero with
              * editable kcal/macros (meal-line override). Quantity still
-             * scales from the corrected per-100g rates. */}
-            <p className="text-base font-medium text-muted-foreground">
-              {textFor(activeItem)}
-            </p>
+             * scales from the corrected per-100g rates. #640 — name and
+             * brand are now editable here too, same meal-line-override
+             * shape, so a wrong/incomplete scanned or searched name can be
+             * fixed before the item is added. */}
+            <div className="flex flex-col gap-1.5">
+              <span className="text-sm text-muted-foreground">
+                {t.dailyEntry.itemNameLabel}
+              </span>
+              <Input
+                type="text"
+                aria-label={t.dailyEntry.itemNameLabel}
+                placeholder={t.dailyEntry.itemNamePlaceholder}
+                value={confirmName}
+                onChange={(e) => setConfirmName(e.target.value)}
+                className="h-12 text-base"
+              />
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <span className="text-sm text-muted-foreground">
+                {t.dailyEntry.itemBrandLabel}
+              </span>
+              <Input
+                type="text"
+                aria-label={t.dailyEntry.itemBrandLabel}
+                placeholder={t.dailyEntry.itemBrandPlaceholder}
+                value={confirmBrand}
+                onChange={(e) => setConfirmBrand(e.target.value)}
+                className="h-12 text-base"
+              />
+            </div>
             {activeItem.source === 'food' &&
               activeItem.food.servings &&
               activeItem.food.servings.length > 0 && (
@@ -1613,7 +1666,10 @@ export function AddMealDialog({
                 onChange={setItemEmotion}
                 options={MEAL_EMOTIONS}
                 labelFor={t.dailyEntry.mealEmotionLabel}
-                contextLabel={textFor(activeItem)}
+                contextLabel={
+                  normalizeTextSpaces(confirmName).trim() ||
+                  textFor(activeItem)
+                }
               />
             </div>
             {activeTodayTotalPreview && (

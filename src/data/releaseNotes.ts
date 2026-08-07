@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 596,
+    issue: 640,
+    date: '2026-08-07T12:10:50+03:00',
+    en: 'You can now edit the dish name and brand for a scanned or searched food before adding it, instead of only after.',
+    ru: 'Теперь название блюда и бренд можно исправить сразу при добавлении найденного или отсканированного продукта, а не только после.',
+  },
+  {
     version: 595,
     issue: 599,
     date: '2026-08-07T11:56:35+03:00',
