@@ -95,10 +95,13 @@ user points out.
      a local repro. GitHub Actions remains the full-suite gate on push.
      Run `npm run e2e` locally only when routes or primary UI entry points
      changed (it also gates CI — see Environment notes).
-   - Update all three docs (see `CLAUDE.md`'s "Closing a GitHub issue"
-     section — `docs/issues-priority.md`, `docs/ARCHITECTURE.md`,
-     `src/data/releaseNotes.ts`). Do this as part of finishing the issue,
-     not a later pass.
+   - Write the `src/data/releaseNotes.ts` entry now, in the implementation
+     commit (see `CLAUDE.md`'s "Writing the release note" section) — not
+     deferred to the closing commit (#642).
+   - Update the other two closing docs (see `CLAUDE.md`'s "Closing a
+     GitHub issue" section — `docs/issues-priority.md`,
+     `docs/ARCHITECTURE.md`) once the issue is actually closing/validated.
+     Do this as part of that closing pass, not a later one.
    - Close the GitHub issue with a real explanatory comment (`gh issue
      comment <n> --body "..."` then `gh issue close <n>`) — don't just mark
      it done in the docs and move on without actually closing it on GitHub.

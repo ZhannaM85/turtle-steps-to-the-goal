@@ -75,10 +75,50 @@ to one closed without any on-device check at all. `validation` means
 but `validated` stays on the closed issue forever as the visible record
 that the confirmation actually happened.
 
-## Closing a GitHub issue
-Whenever a GitHub issue is closed (implementation done, verified working), update **all three**:
-1. `docs/issues-priority.md` — mark the row done with a one-line implementation note, then **move that row** into `docs/issues_priority_archived.md` under its tier (active file stays open/pending only).
-2. `docs/ARCHITECTURE.md` — reflect whatever actually changed (new/changed files, data model, routes, etc.) in the relevant section(s). Update the `## Status` diagram too if the issue moves an epic between tiers.
-3. `src/data/releaseNotes.ts` (#63) — add one brief, user-facing entry (`{ version, issue, date, en, ru }`, most-recent-first) describing what changed. This is end-user-facing copy shown in Settings, not the implementation notes from #1/#2 — keep it to one plain sentence, no jargon, both languages. `version` is a simple incrementing counter (oldest entry = 1) — set it to the current highest version + 1 (i.e. `releaseNotes[0].version + 1`, since the array is most-recent-first); never reuse or renumber a version retroactively. This lets a reported bug be pinned to "this happened in vN" — easier to debug than a date alone, especially since several versions can ship the same day.
+## Writing the release note — at implementation time, not closing time
 
-Do this as part of finishing the issue, not as a separate later pass — `ARCHITECTURE.md` says at the top "this document is updated after each issue is completed," and it only stays true if it happens every time.
+The moment an issue's code actually ships (the implementation commit, not
+the later closing/validation commit), add its `src/data/releaseNotes.ts`
+(#63) entry in that same commit: one brief, user-facing entry (`{ version,
+issue, date, en, ru }`, most-recent-first) describing what changed. This is
+end-user-facing copy shown in Settings, not the implementation notes that
+go in `docs/issues-priority.md`/`docs/ARCHITECTURE.md` — keep it to one
+plain sentence, no jargon, both languages. `version` is a simple
+incrementing counter (oldest entry = 1) — set it to the current highest
+version + 1 (i.e. `releaseNotes[0].version + 1`, since the array is
+most-recent-first); never reuse or renumber a version retroactively. This
+lets a reported bug be pinned to "this happened in vN" — easier to debug
+than a date alone, especially since several versions can ship the same
+day.
+
+**Why split from closing (#642, 2026-08-07):** `releaseNotes.ts` lives
+under `src/`, so any commit touching it triggers a Pages deploy
+(`deploy-pages.yml`'s `paths-ignore: docs/**, *.md`, #637). Bundling it
+into the closing commit meant every closing pass — even a pure doc-row
+move for an issue that already shipped and deployed days earlier —
+triggered a redundant deploy. Writing it when the code ships instead
+means the code and its user-facing note deploy together exactly once, and
+closing stays free to be docs-only.
+
+## Closing a GitHub issue
+
+Whenever a GitHub issue is closed (implementation done, verified working),
+update **both**:
+1. `docs/issues-priority.md` — mark the row done with a one-line
+   implementation note, then **move that row** into
+   `docs/issues_priority_archived.md` under its tier (active file stays
+   open/pending only).
+2. `docs/ARCHITECTURE.md` — reflect whatever actually changed (new/changed
+   files, data model, routes, etc.) in the relevant section(s). Update the
+   `## Status` diagram too if the issue moves an epic between tiers.
+
+The `releaseNotes.ts` entry is **not** part of this pass — it was already
+written at implementation time (see above). If it's somehow missing when
+you get to closing (e.g. an older issue predating this split), add it
+here as a fallback, but the default path is: written once, at
+implementation.
+
+Do this closing pass as part of actually closing the issue, not deferred
+indefinitely — `ARCHITECTURE.md` says at the top "this document is
+updated after each issue is completed," and it only stays true if it
+happens every time.

@@ -46,6 +46,16 @@ _Same-day live feedback while working through Tier 123/125's validation queue. A
 
 ---
 
+## Tier 127 — Live feedback (2026-08-07)
+
+_Live discussion of a screenshot showing "Цель достигнута" badges on most recent weeks despite the actual weight barely moving. All currently open / pending items from this tier live in the active file._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#642](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/642) | ✅ Done | Write release-notes.ts entries during implementation, not at issue-closing time (#637 follow-up) | Docs-only, no code/behavior change. Split CLAUDE.md's "Closing a GitHub issue" section: `releaseNotes.ts` entry now written in the implementation commit (new "Writing the release note" section); closing pass is just `issues-priority.md` row-move + `ARCHITECTURE.md`, so it stays `docs/**`-only and skips the Pages deploy. `docs/AGENT_WORKFLOW.md`'s per-issue checklist updated to match. No release note (no user-facing behavior). Closed 2026-08-07 without on-device validation — pure workflow-doc change, nothing to validate on a device |
+
+---
+
 ## Tier 125 — Live feedback (2026-08-05)
 
 _Same-day live feedback (Zepp multi-user export, export status placement, Apple Health recognition). All currently open / pending items from this tier live in the active file._
