@@ -51,15 +51,3 @@ _Same audit pass. Blocked on Tier 36 Capacitor / store shell — revisit of #261
 | [#605](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/605) | 📋 Not started | Native local notification for the daily logging reminder | Blocked on #305+; wires existing #171 reminder preference to OS local notifications |
 | [#606](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/606) | 📋 Not started | Android home-screen glance widget | Blocked on #305+; weight + remaining kcal glance; Android-first |
 
----
-
-## Tier 127 — Live feedback (2026-08-07)
-
-_All other Tier 127 items from this date were filed, implemented, and closed same-day — see the archive. This row continues the same tier per the one-calendar-day-one-tier rule._
-
-| # | Status | Issue | Notes |
-|---|--------|-------|-------|
-| [#645](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/645) | 🔍 Pending validation | Add-meal screens inconsistent: scan/existing-food confirm screen lacks the portion option that new-food creation has | `AskUserQuestion` at implementation time: merge into `MealItemEditorSheet` (not bolt a toggle onto the old confirm screen). `AddMealDialog.tsx`'s inline `activeItem` confirm block (own `ConfirmRates`/absolute-only fields, no per100g/portion toggle) removed entirely; search/recent/barcode picks now open the same `MealItemEditorSheet` "create a dish" already used, via `openPickedItemSheet()` — a curated/OFF food seeds per100g mode (its own rate, no conversion), a personal item seeds perPortion mode (its own last-logged total). Also ported the picker's named-serving-size toggle (#254, e.g. "1 medium" egg) into `MealItemEditorSheet` itself, since that UI had no equivalent before. Awaiting on-device confirmation |
-
----
-
