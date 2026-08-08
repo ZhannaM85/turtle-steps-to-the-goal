@@ -38,4 +38,9 @@
     <!-- Permissions -->
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.CAMERA" />
+
+    <!-- Barcode scanning (#256) has a manual-entry fallback (#291), so a
+         camera-less device shouldn't be filtered out of the Play Store. -->
+    <uses-feature android:name="android.hardware.camera" android:required="false" />
 </manifest>

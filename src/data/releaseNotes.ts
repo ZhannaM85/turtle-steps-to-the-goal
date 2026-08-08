@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 601,
+    issue: 307,
+    date: '2026-08-08T13:15:31+03:00',
+    en: 'In the Android app, barcode scanning now properly shows the camera permission prompt instead of failing before it could appear.',
+    ru: 'В приложении для Android сканирование штрихкода теперь корректно показывает запрос разрешения на камеру, а не завершается ошибкой до его появления.',
+  },
+  {
     version: 600,
     issue: 645,
     date: '2026-08-07T18:02:19+03:00',
