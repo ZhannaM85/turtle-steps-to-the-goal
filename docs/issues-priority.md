@@ -53,3 +53,4 @@ _Same date as the #646 lint gap (already closed/archived) — appended per the o
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
+| [#653](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/653) | 🔲 Open | Android splash screen: turtle icon looks elongated/stretched | Reported live with a screenshot — the turtle badge appears oval rather than circular. Likely related to `@capacitor/assets`-generated splash assets (#311); not yet investigated |
