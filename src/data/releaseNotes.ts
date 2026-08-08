@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 610,
+    issue: 652,
+    date: '2026-08-08T20:23:53+03:00',
+    en: 'Fixed offline support being disabled by pulling to refresh — a routine pull-down no longer wipes the app’s offline cache.',
+    ru: 'Исправлено отключение офлайн-режима при обновлении жестом — обычное потягивание вниз больше не стирает офлайн-кэш приложения.',
+  },
+  {
     version: 609,
     issue: 651,
     date: '2026-08-08T18:49:35+03:00',
