@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 605,
+    issue: 311,
+    date: '2026-08-08T15:07:06+03:00',
+    en: 'The Android app now has a proper turtle app icon and launch splash screen instead of the generic default ones.',
+    ru: 'Теперь у приложения для Android есть собственная иконка с черепахой и экран запуска вместо стандартных заглушек.',
+  },
+  {
     version: 604,
     issue: 310,
     date: '2026-08-08T14:39:02+03:00',
