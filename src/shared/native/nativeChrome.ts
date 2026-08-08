@@ -1,46 +1,36 @@
-import { Capacitor, registerPlugin } from '@capacitor/core'
-import { StatusBar, Style } from '@capacitor/status-bar'
+import { Capacitor, SystemBars, SystemBarsStyle } from '@capacitor/core'
 
 /**
- * `@capacitor/status-bar`'s background/overlay APIs are documented as
- * unavailable on Android 15+, and it has no navigation-bar equivalent at
- * all — Android's own `WindowInsetsControllerCompat` handles both bars'
- * icon color uniformly instead (`MainActivity.java` makes both bars
- * transparent once, natively, so this only needs to track icon
- * light/dark). Small custom native plugin, no third-party dependency,
- * following Capacitor's own documented pattern for native code that
- * doesn't warrant a published package.
- */
-interface ThemeBridgePlugin {
-  setSystemBarsLight(options: { light: boolean }): Promise<void>
-}
-
-const ThemeBridge = registerPlugin<ThemeBridgePlugin>('ThemeBridge')
-
-/**
- * #308 — keeps the native status bar (iOS) or both system bars (Android,
- * via the custom plugin above) in sync with the app's own resolved
- * light/dark state. No-op on web — `Capacitor.isNativePlatform()` guards
- * every native call, since none of these plugins have a meaningful web
- * implementation.
+ * #308/#648 — keeps the native status bar and navigation bar (both
+ * platforms, both bars, one call — `bar` omitted applies to both) in sync
+ * with the app's own resolved light/dark state.
  *
- * Deliberately doesn't set an explicit background *color* per mood (5
- * moods × 2 schemes = 10 combinations to keep in sync): both bars are
- * transparent, so the app's own `--background` shows through and tracks
- * every mood automatically with no per-mood native code.
+ * Uses `@capacitor/core`'s built-in `SystemBars` plugin (Capacitor 8+, no
+ * separate install) rather than `@capacitor/status-bar` or a custom
+ * native plugin — the previous approach (#308) hand-rolled a
+ * `ThemeBridgePlugin.java` for Android's navigation-bar icon color since
+ * `@capacitor/status-bar` has no navigation-bar API at all, not realizing
+ * Capacitor core already ships exactly this, cross-platform, built in.
+ * `SystemBars` is also the source of #648's harmless-looking cold-boot
+ * console error ("Cannot read properties of null") — its `insetsHandling:
+ * 'css'` default fallback-injects `--safe-area-inset-*` custom properties
+ * for old WebView versions without real `env()` safe-area support, which
+ * this app doesn't consume (real `env()` support confirmed on-device via
+ * #308's `viewport-fit=cover` fix). Deliberately left at its default
+ * rather than set to `'disable'`: that also turns off the *real*
+ * inset-passthrough/keyboard-padding logic the plugin uses on modern
+ * WebView, not just the CSS fallback — not worth the regression risk to
+ * #308's confirmed-working safe-area behavior just to silence a benign
+ * console message.
+ *
+ * No-op on web — `Capacitor.isNativePlatform()` guards the call, even
+ * though `SystemBarsPluginWeb` exists, since there's no native chrome to
+ * theme in a browser tab.
  */
 export function applyNativeChromeTheme(isDark: boolean) {
   if (!Capacitor.isNativePlatform()) return
 
-  if (Capacitor.getPlatform() === 'android') {
-    void ThemeBridge.setSystemBarsLight({ light: !isDark }).catch(() => {})
-    return
-  }
-
-  // iOS: no navigation-bar concept (home indicator is safe-area, not a
-  // themeable system bar), so the official plugin alone is enough.
-  void StatusBar.setOverlaysWebView({ overlay: true }).catch(() => {})
-  void StatusBar.setStyle({ style: isDark ? Style.Dark : Style.Light }).catch(
-    () => {},
-  )
+  void SystemBars.setStyle({
+    style: isDark ? SystemBarsStyle.Dark : SystemBarsStyle.Light,
+  }).catch(() => {})
 }
