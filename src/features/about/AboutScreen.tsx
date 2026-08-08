@@ -1,13 +1,20 @@
-import { Heart } from 'lucide-react'
+import { useState } from 'react'
+import { ChevronDown, ChevronUp, Heart } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { releaseNotes } from '@/data/releaseNotes'
 import { useTranslation } from '@/i18n'
 import { Button } from '@/shared/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
+import {
+  Card,
+  CardAction,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from '@/shared/ui/card'
 import { PageHeader } from '@/shared/ui/page-header'
 import { ReleaseNotesSection } from './ReleaseNotesSection'
 
-const AUTHOR = 'zhannam85'
+const AUTHOR = 'ZhannaM85'
 const AUTHOR_GITHUB_URL = 'https://github.com/ZhannaM85'
 
 export function AboutScreen() {
@@ -17,6 +24,7 @@ export function AboutScreen() {
   // collapsed release-notes list, so a bug report can be pinned to a
   // specific version at a glance.
   const currentVersion = releaseNotes[0]?.version
+  const [isReleaseNotesExpanded, setIsReleaseNotesExpanded] = useState(false)
 
   return (
     <div className="flex flex-col gap-6">
@@ -53,24 +61,44 @@ export function AboutScreen() {
           </CardContent>
         </Card>
 
+        {/* #655 — one card, title combines both since release notes are
+         * keyed on the version number right next to them; the expand
+         * toggle moved into the header (icon-only, no more separate
+         * "Show release notes" button) next to that same title. */}
         {currentVersion !== undefined && (
           <Card>
             <CardHeader>
-              <CardTitle>{t.about.currentVersionLabel(currentVersion)}</CardTitle>
+              <CardTitle>
+                {t.settings.releaseNotesLabel} · {t.about.currentVersionLabel(currentVersion)}
+              </CardTitle>
+              <CardAction>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon-xs"
+                  aria-label={
+                    isReleaseNotesExpanded
+                      ? t.settings.hideReleaseNotes
+                      : t.settings.showReleaseNotes
+                  }
+                  aria-expanded={isReleaseNotesExpanded}
+                  onClick={() => setIsReleaseNotesExpanded((prev) => !prev)}
+                >
+                  {isReleaseNotesExpanded ? (
+                    <ChevronUp aria-hidden="true" />
+                  ) : (
+                    <ChevronDown aria-hidden="true" />
+                  )}
+                </Button>
+              </CardAction>
             </CardHeader>
+            {isReleaseNotesExpanded && (
+              <CardContent>
+                <ReleaseNotesSection />
+              </CardContent>
+            )}
           </Card>
         )}
-
-        {/* #654 — kept directly under the version card since release notes
-         * are keyed on that version number. */}
-        <Card>
-          <CardHeader>
-            <CardTitle>{t.settings.releaseNotesLabel}</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ReleaseNotesSection />
-          </CardContent>
-        </Card>
       </div>
 
       <div className="flex flex-col gap-3 text-sm text-muted-foreground">

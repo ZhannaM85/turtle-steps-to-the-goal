@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 614,
+    issue: 655,
+    date: '2026-08-08T22:14:56+03:00',
+    en: 'On the About screen, the version number and release notes are now shown together in one card, with a small icon next to the version to expand the list.',
+    ru: 'На экране «О приложении» номер версии и список изменений теперь показаны в одной карточке — рядом с версией есть значок для разворачивания списка.',
+  },
+  {
     version: 613,
     issue: 653,
     date: '2026-08-08T21:52:33+03:00',

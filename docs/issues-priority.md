@@ -52,3 +52,4 @@ _Same date as the #646 lint gap (already closed/archived) — appended per the o
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
+| [#655](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/655) | 🔍 Pending validation | About screen: merge Version and Release notes into one card | Implemented, scope grew live during the session: single `Card` combines the title as `{releaseNotes} · {currentVersion}` (`AboutScreen.tsx`), and the separate "Show release notes" text button was replaced by an icon-only `ChevronDown`/`ChevronUp` toggle in the card header (`CardAction`) next to that title — `ReleaseNotesSection.tsx` is now a dumb list, expand/collapse state lifted to `AboutScreen`. Awaiting on-device confirmation |

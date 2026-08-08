@@ -1,29 +1,13 @@
 import { render, screen } from '@testing-library/react'
-import userEvent from '@testing-library/user-event'
 import { describe, expect, it } from 'vitest'
 import { releaseNotes } from '@/data/releaseNotes'
 import { useLocaleStore } from '@/i18n'
 import { ReleaseNotesSection } from './ReleaseNotesSection'
 
 describe('ReleaseNotesSection', () => {
-  it('is collapsed by default', () => {
+  it('shows entries, most-recent-first', () => {
     render(<ReleaseNotesSection />)
 
-    expect(
-      screen.getByRole('button', { name: 'Show release notes' }),
-    ).toBeInTheDocument()
-    expect(screen.queryByText('Initial project setup.')).not.toBeInTheDocument()
-  })
-
-  it('expands to show entries, most-recent-first', async () => {
-    const user = userEvent.setup()
-    render(<ReleaseNotesSection />)
-
-    await user.click(screen.getByRole('button', { name: 'Show release notes' }))
-
-    expect(
-      screen.getByRole('button', { name: 'Hide release notes' }),
-    ).toBeInTheDocument()
     // Asserted against the data itself, not a hardcoded string — this list
     // grows every time an issue closes (see CLAUDE.md), so pinning to a
     // specific entry's text here would go stale on the very next one.
@@ -34,11 +18,8 @@ describe('ReleaseNotesSection', () => {
     )
   })
 
-  it('shows the commit time alongside the date, not just the day', async () => {
-    const user = userEvent.setup()
+  it('shows the commit time alongside the date, not just the day', () => {
     render(<ReleaseNotesSection />)
-
-    await user.click(screen.getByRole('button', { name: 'Show release notes' }))
 
     const items = screen.getAllByRole('listitem')
     const firstTimestamp = items[0].querySelector('span')?.textContent ?? ''
@@ -47,24 +28,16 @@ describe('ReleaseNotesSection', () => {
     expect(firstTimestamp).toMatch(/\d{1,2}:\d{2}/)
   })
 
-  it('shows each entry\'s version number alongside its timestamp', async () => {
-    const user = userEvent.setup()
+  it('shows each entry\'s version number alongside its timestamp', () => {
     render(<ReleaseNotesSection />)
-
-    await user.click(screen.getByRole('button', { name: 'Show release notes' }))
 
     const items = screen.getAllByRole('listitem')
     expect(items[0]).toHaveTextContent(`v${releaseNotes[0].version}`)
   })
 
-  it('shows Russian entries when the locale is Russian', async () => {
+  it('shows Russian entries when the locale is Russian', () => {
     useLocaleStore.setState({ locale: 'ru' })
-    const user = userEvent.setup()
     render(<ReleaseNotesSection />)
-
-    await user.click(
-      screen.getByRole('button', { name: 'Показать историю изменений' }),
-    )
 
     expect(screen.getByText('Начальная настройка проекта.')).toBeInTheDocument()
 
