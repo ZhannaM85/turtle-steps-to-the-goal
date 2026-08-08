@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import { createJSONStorage, persist } from 'zustand/middleware'
+import { applyNativeChromeTheme } from '@/shared/native/nativeChrome'
 
 export type Mood = 'pond' | 'dusk' | 'sage' | 'tortoise' | 'lagoon'
 /** #402 — 'system' live-tracks the OS's own `prefers-color-scheme` instead
@@ -22,11 +23,10 @@ export function resolveColorScheme(colorScheme: ColorScheme): 'light' | 'dark' {
 
 export function applyTheme(mood: Mood, colorScheme: ColorScheme) {
   if (typeof document === 'undefined') return
+  const isDark = resolveColorScheme(colorScheme) === 'dark'
   document.documentElement.dataset.mood = mood
-  document.documentElement.classList.toggle(
-    'dark',
-    resolveColorScheme(colorScheme) === 'dark',
-  )
+  document.documentElement.classList.toggle('dark', isDark)
+  applyNativeChromeTheme(isDark)
 }
 
 interface ThemeStoreState {

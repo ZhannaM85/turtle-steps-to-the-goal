@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 602,
+    issue: 308,
+    date: '2026-08-08T13:54:52+03:00',
+    en: 'In the Android app, the status bar and navigation bar now match the app’s current color theme instead of showing default system colors, and the header no longer overlaps the clock/status icons.',
+    ru: 'В приложении для Android статус-бар и навигационная панель теперь соответствуют текущей цветовой теме приложения вместо системных цветов по умолчанию, а заголовок больше не накладывается на часы/значки состояния.',
+  },
+  {
     version: 601,
     issue: 307,
     date: '2026-08-08T13:15:31+03:00',

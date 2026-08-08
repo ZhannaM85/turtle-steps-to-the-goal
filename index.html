@@ -20,9 +20,15 @@
          This meta value tells iOS 17.4+ to resize the viewport for the
          keyboard instead of whatever its own default (buggy, in
          standalone mode) behavior was doing. -->
+    <!-- viewport-fit=cover (#308): without it, env(safe-area-inset-*) is
+         spec'd to always resolve to 0 -- the page is confined to the "safe
+         area" by default rather than opting into drawing under the
+         notch/status-bar/home-indicator. All the existing safe-area padding
+         throughout the app (Dialog, AppShell's bottom nav, etc.) was a
+         silent no-op without this. -->
     <meta
       name="viewport"
-      content="width=device-width, initial-scale=1.0, interactive-widget=resizes-content"
+      content="width=device-width, initial-scale=1.0, interactive-widget=resizes-content, viewport-fit=cover"
     />
     <meta name="theme-color" content="#3e7688" />
     <!-- iOS home-screen shortcut (#103) — without these, "Add to Home

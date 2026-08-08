@@ -71,7 +71,11 @@ export function AppShell() {
       <OfflineBanner />
       <AppUpdateBanner />
       <header className="sticky top-0 z-10 border-b border-border bg-background">
-        <div className="mx-auto flex max-w-3xl items-center justify-between gap-4 px-4 py-3">
+        {/* #308: the native shell's status bar now overlays the WebView
+         * (Android 15+ enforces edge-to-edge, can't opt out) — without this
+         * top safe-area padding, the status bar's clock/icons drew directly
+         * on top of the app name text instead of above it. */}
+        <div className="mx-auto flex max-w-3xl items-center justify-between gap-4 px-4 pt-[calc(env(safe-area-inset-top)+0.75rem)] pb-3">
           <span className="text-sm font-semibold text-foreground">
             {t.nav.appName}
           </span>
