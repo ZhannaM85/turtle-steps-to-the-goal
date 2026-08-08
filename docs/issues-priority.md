@@ -47,3 +47,13 @@ _Same audit pass. Blocked on Tier 36 Capacitor / store shell — revisit of #261
 | [#605](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/605) | 📋 Not started | Native local notification for the daily logging reminder | Blocked on #305+; wires existing #171 reminder preference to OS local notifications |
 | [#606](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/606) | 📋 Not started | Android home-screen glance widget | Blocked on #305+; weight + remaining kcal glance; Android-first |
 
+---
+
+## Tier 128 — Live feedback during native Android testing (2026-08-08)
+
+_Same date as the #646 lint gap (already closed/archived) — appended per the one-tier-per-day rule rather than opening a new tier number._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#647](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/647) | 🔲 Open | Today date-navigator row: Date input renders smaller than arrows/Today button on Android | Reported live with a screenshot from the native Android app. Likely a cross-engine regression of #420 — that fix measured iOS Safari's native date-input height specifically (42px) and shrunk the row's buttons to match; Android's Chrome-based date-input control likely has a different natural height. Given #420's own history of failed blind CSS attempts, measure Android's real on-device height first rather than guessing |
+
