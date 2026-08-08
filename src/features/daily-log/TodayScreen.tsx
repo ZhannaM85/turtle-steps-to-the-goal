@@ -1024,7 +1024,25 @@ export function TodayScreen() {
            * layout space in this row regardless of the viewed date, so
            * the input's available flex space — and therefore its natural
            * width — never changes. No width constraint needed here at
-           * all once the row's own space stops varying. */}
+           * all once the row's own space stops varying.
+           * #647: this row's height mismatch turned out to be a Chromium-
+           * vs-WebKit split, not an Android-vs-iOS one — reported first on
+           * the native Android app (measured live at 32px, honoring this
+           * input's inherited `h-8` base height, vs. the 42px arrows/Today
+           * button), then reproduced identically in a plain desktop Chrome
+           * tab. An Android-only `Capacitor.getPlatform()` gate (first
+           * attempt) fixed the app but left every other Chromium context
+           * broken. Applied unconditionally instead: #420's own history
+           * establishes WebKit ignores a plain `height` class on this
+           * control regardless of value (it only ever clipped when that
+           * was paired with `overflow-hidden`, which this isn't), so an
+           * explicit 42px here should be a no-op on Safari/iOS and a real
+           * fix everywhere Chromium renders it — not yet re-confirmed on
+           * a real iPhone (no iOS device available in this environment,
+           * matching #420's own repeated "fine on Playwright/desktop,
+           * still broken on the actual phone" pattern), so treat as
+           * pending on-device iOS confirmation, not closed on reasoning
+           * alone. */}
           <Input
             id="log-date"
             ref={debug465DateRef}
@@ -1032,7 +1050,7 @@ export function TodayScreen() {
             value={date}
             max={maxNavigableDate}
             onChange={(e) => setDate(e.target.value)}
-            className="max-w-48"
+            className="max-w-48 h-[2.625rem]"
           />
           {/* Capped at today+1 by default (#138: logging a future day isn't
            * otherwise supported), extended to reach a staged planned-meal

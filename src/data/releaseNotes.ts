@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 608,
+    issue: 647,
+    date: '2026-08-08T17:43:33+03:00',
+    en: "Fixed the Today screen's date field rendering shorter than the arrows/Today button next to it on Android and in some desktop browsers.",
+    ru: 'Исправлено отображение поля даты на экране "День" — оно было ниже соседних стрелок/кнопки "Сегодня" на Android и в некоторых десктопных браузерах.',
+  },
+  {
     version: 607,
     issue: 649,
     date: '2026-08-08T16:03:27+03:00',
