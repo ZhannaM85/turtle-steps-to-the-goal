@@ -8,7 +8,9 @@
       "Bash(/c/Users/User/AppData/Local/Android/Sdk/platform-tools/adb.exe *)",
       "Bash(\"C:\\Users\\User\\AppData\\Local\\Android\\Sdk\\platform-tools\\adb.exe\" *)",
       "Bash(/c/Users/User/AppData/Local/Android/Sdk/emulator/emulator.exe *)",
-      "Bash(\"C:\\Users\\User\\AppData\\Local\\Android\\Sdk\\emulator\\emulator.exe\" *)"
+      "Bash(\"C:\\Users\\User\\AppData\\Local\\Android\\Sdk\\emulator\\emulator.exe\" *)",
+      "Bash(\"/c/Program Files/Android/Android Studio/jbr/bin/javap.exe\" *)",
+      "Bash(\"C:\\Program Files\\Android\\Android Studio\\jbr\\bin\\javap.exe\" *)"
     ]
   }
 }
