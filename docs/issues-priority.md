@@ -53,5 +53,4 @@ _Same date as the #646 lint gap (already closed/archived) — appended per the o
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#647](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/647) | 🔲 Open | Today date-navigator row: Date input renders smaller than arrows/Today button on Android | Reported live with a screenshot from the native Android app. Likely a cross-engine regression of #420 — that fix measured iOS Safari's native date-input height specifically (42px) and shrunk the row's buttons to match; Android's Chrome-based date-input control likely has a different natural height. Given #420's own history of failed blind CSS attempts, measure Android's real on-device height first rather than guessing |
 | [#651](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/651) | 🔲 Open | Android: hardware/gesture back button always closes the app, regardless of page | Reported live on the native Android app. Likely a regression of #309 (`src/shared/native/backButtonHandler.ts`) — not yet investigated, root cause TBD at implementation time |
