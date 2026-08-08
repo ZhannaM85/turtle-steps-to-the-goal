@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { AppUpdateBanner } from './AppUpdateBanner'
@@ -92,7 +92,7 @@ describe('AppUpdateBanner', () => {
     await waitFor(() => expect(update).toHaveBeenCalled())
   })
 
-  describe('Reload button (#205)', () => {
+  describe('Reload button (#205, rewritten #649)', () => {
     it('reloads directly when there is no service worker at all', async () => {
       stubUpdateFetch()
       const reload = vi.fn()
@@ -106,24 +106,34 @@ describe('AppUpdateBanner', () => {
       expect(reload).toHaveBeenCalledTimes(1)
     })
 
-    // #270: registration.update() resolving with neither `installing` nor
-    // `waiting` set means nothing new was found — nothing will ever fire
-    // controllerchange, so the previous behavior of waiting out the full
-    // bounded timeout anyway was pure wasted time. reloadForUpdate() now
-    // skips straight to reload in this case instead.
-    it('reloads quickly when update() finds nothing new, without waiting out the timeout', async () => {
+    // #649: the previous approach trusted the existing service worker to
+    // gracefully self-update via registration.update() + a bounded wait
+    // for controllerchange — reported live as getting stuck indefinitely
+    // (stale content served even after several reloads), since that
+    // depends on the CDN actually serving fresh sw.js bytes on that
+    // specific request. reloadForUpdate() now unregisters every
+    // registration and clears every cache unconditionally before
+    // reloading instead, since useAppUpdateAvailable's separate
+    // version.json check has already confirmed a newer deploy exists by
+    // the time this ever runs.
+    it('unregisters every service worker registration and clears every cache before reloading', async () => {
       stubUpdateFetch()
       const reload = vi.fn()
       vi.stubGlobal('location', { ...window.location, reload })
-      const update = vi.fn().mockResolvedValue(undefined)
-      const addEventListener = vi.fn()
+      const unregister1 = vi.fn()
+      const unregister2 = vi.fn()
       stubServiceWorker({
-        getRegistration: vi.fn().mockResolvedValue({
-          update,
-          installing: null,
-          waiting: null,
-        }),
-        addEventListener,
+        getRegistrations: vi
+          .fn()
+          .mockResolvedValue([
+            { unregister: unregister1 },
+            { unregister: unregister2 },
+          ]),
+      })
+      const cachesDelete = vi.fn().mockResolvedValue(true)
+      vi.stubGlobal('caches', {
+        keys: vi.fn().mockResolvedValue(['workbox-precache-v1']),
+        delete: cachesDelete,
       })
 
       const user = userEvent.setup()
@@ -131,121 +141,57 @@ describe('AppUpdateBanner', () => {
       await user.click(await screen.findByRole('button', { name: 'Reload' }))
 
       await waitFor(() => expect(reload).toHaveBeenCalledTimes(1))
-      // No controllerchange listener was ever registered — there was
-      // nothing to wait for.
-      expect(addEventListener).not.toHaveBeenCalled()
+      expect(unregister1).toHaveBeenCalledTimes(1)
+      expect(unregister2).toHaveBeenCalledTimes(1)
+      expect(cachesDelete).toHaveBeenCalledWith('workbox-precache-v1')
     })
 
-    it(
-      'forces an update check, then reloads anyway once a genuinely installing worker never fires controllerchange',
-      async () => {
-        stubUpdateFetch()
-        const reload = vi.fn()
-        vi.stubGlobal('location', { ...window.location, reload })
-        const update = vi.fn().mockResolvedValue(undefined)
-        stubServiceWorker({
-          getRegistration: vi.fn().mockResolvedValue({
-            update,
-            // A new worker was found and is installing, but never fires
-            // controllerchange within this test — exercises the bounded
-            // timeout as a real fallback, not the "nothing new" skip path.
-            installing: {},
-            waiting: null,
-          }),
-          addEventListener: vi.fn(),
-        })
-
-        render(<AppUpdateBanner />)
-        fireEvent.click(await screen.findByRole('button', { name: 'Reload' }))
-        await waitFor(() => expect(update).toHaveBeenCalledTimes(1))
-
-        // Reload hasn't happened yet — still within the bounded wait.
-        expect(reload).not.toHaveBeenCalled()
-
-        // Real timers throughout — the bounded wait this exercises really
-        // is on the order of seconds, and mixing userEvent/testing-library's
-        // own waitFor polling with faked timers proved unreliable (both
-        // rely on real setTimeout internally unless explicitly told
-        // otherwise, in more places than just this component's own code).
-        await waitFor(() => expect(reload).toHaveBeenCalledTimes(1), {
-          timeout: 7000,
-        })
-      },
-      10000,
-    )
-
-    it(
-      'shows a loading state and hides the button once clicked, until the reload actually happens (#242)',
-      async () => {
-        stubUpdateFetch()
-        const reload = vi.fn()
-        vi.stubGlobal('location', { ...window.location, reload })
-        const update = vi.fn().mockResolvedValue(undefined)
-        stubServiceWorker({
-          getRegistration: vi.fn().mockResolvedValue({
-            update,
-            // A genuinely installing worker that never fires
-            // controllerchange — exercises the bounded-timeout path, so
-            // the loading state has to still be showing right up to the
-            // reload.
-            installing: {},
-            waiting: null,
-          }),
-          addEventListener: vi.fn(),
-        })
-
-        const user = userEvent.setup()
-        render(<AppUpdateBanner />)
-        await user.click(
-          await screen.findByRole('button', { name: 'Reload' }),
-        )
-
-        expect(
-          screen.queryByRole('button', { name: 'Reload' }),
-        ).not.toBeInTheDocument()
-        expect(screen.getByText('Reloading…')).toBeInTheDocument()
-
-        // Real timers, same reasoning as the sibling test above.
-        await waitFor(() => expect(reload).toHaveBeenCalledTimes(1), {
-          timeout: 7000,
-        })
-      },
-      10000,
-    )
-
-    it('reloads as soon as controllerchange fires, without waiting out the full timeout', async () => {
+    it('shows a loading state and hides the button once clicked, until the reload actually happens (#242)', async () => {
       stubUpdateFetch()
       const reload = vi.fn()
       vi.stubGlobal('location', { ...window.location, reload })
-      const update = vi.fn().mockResolvedValue(undefined)
-      const addEventListener = vi.fn()
+      let resolveUnregister: () => void = () => {}
+      const unregister = vi.fn(
+        () =>
+          new Promise<void>((resolve) => {
+            resolveUnregister = resolve
+          }),
+      )
       stubServiceWorker({
-        getRegistration: vi.fn().mockResolvedValue({
-          update,
-          installing: {},
-          waiting: null,
-        }),
-        addEventListener,
+        getRegistrations: vi.fn().mockResolvedValue([{ unregister }]),
+      })
+      vi.stubGlobal('caches', {
+        keys: vi.fn().mockResolvedValue([]),
+        delete: vi.fn(),
       })
 
       const user = userEvent.setup()
       render(<AppUpdateBanner />)
       await user.click(await screen.findByRole('button', { name: 'Reload' }))
-      // Wait for the listener to actually be registered, not just for
-      // update() to have been called — those are two separate microtask
-      // ticks, and firing the handler before it's registered would be a
-      // no-op rather than a genuine test of the early-reload path.
-      await waitFor(() =>
-        expect(addEventListener).toHaveBeenCalledWith(
-          'controllerchange',
-          expect.any(Function),
-          { once: true },
-        ),
-      )
+
+      expect(
+        screen.queryByRole('button', { name: 'Reload' }),
+      ).not.toBeInTheDocument()
+      expect(screen.getByText('Reloading…')).toBeInTheDocument()
       expect(reload).not.toHaveBeenCalled()
 
-      const controllerChangeHandler = addEventListener.mock.calls[0][1] as () => void
-      controllerChangeHandler()
+      resolveUnregister()
+      await waitFor(() => expect(reload).toHaveBeenCalledTimes(1))
+    })
+
+    it('reloads even if unregister() or caches.delete() throw', async () => {
+      stubUpdateFetch()
+      const reload = vi.fn()
+      vi.stubGlobal('location', { ...window.location, reload })
+      stubServiceWorker({
+        getRegistrations: vi
+          .fn()
+          .mockRejectedValue(new Error('network error')),
+      })
+
+      const user = userEvent.setup()
+      render(<AppUpdateBanner />)
+      await user.click(await screen.findByRole('button', { name: 'Reload' }))
 
       await waitFor(() => expect(reload).toHaveBeenCalledTimes(1))
     })

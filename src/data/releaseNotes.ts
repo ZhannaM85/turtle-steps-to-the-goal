@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 607,
+    issue: 649,
+    date: '2026-08-08T16:03:27+03:00',
+    en: 'Fixed the "update available" banner sometimes never actually updating the app even after reloading several times.',
+    ru: 'Исправлена проблема, когда баннер "доступно обновление" иногда не обновлял приложение даже после нескольких перезагрузок.',
+  },
+  {
     version: 606,
     issue: 650,
     date: '2026-08-08T15:28:25+03:00',
