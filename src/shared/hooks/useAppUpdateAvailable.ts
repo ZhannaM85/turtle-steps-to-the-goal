@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { Capacitor } from '@capacitor/core'
 
 const CHECK_INTERVAL_MS = 5 * 60 * 1000
 
@@ -19,11 +20,18 @@ const CHECK_INTERVAL_MS = 5 * 60 * 1000
  * #553: skip network/SW work while the tab is hidden (and re-check when
  * the user returns) so backgrounded iOS/PWA sessions don't keep waking for
  * version polls. Interval stays; each tick no-ops when `document.hidden`.
+ *
+ * #310: never polls at all inside the native shell — `version.json` isn't
+ * bundled there so this already 404'd harmlessly before, but an explicit
+ * guard makes "no update prompt inside the native app" a real invariant
+ * rather than an accident of what happens to be missing from the bundle.
+ * The native app updates via the Play/App Store, not a page reload.
  */
 export function useAppUpdateAvailable(): boolean {
   const [updateAvailable, setUpdateAvailable] = useState(false)
 
   useEffect(() => {
+    if (Capacitor.isNativePlatform()) return
     let cancelled = false
 
     async function check() {

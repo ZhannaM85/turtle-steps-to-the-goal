@@ -4,8 +4,10 @@ import { RouterProvider } from 'react-router-dom'
 import './index.css'
 import { router } from '@/app'
 import { initBackButtonHandler } from '@/shared/native/backButtonHandler'
+import { registerServiceWorker } from '@/shared/lib/registerServiceWorker'
 
 initBackButtonHandler()
+registerServiceWorker()
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

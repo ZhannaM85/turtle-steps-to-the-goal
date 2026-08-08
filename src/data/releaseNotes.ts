@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 604,
+    issue: 310,
+    date: '2026-08-08T14:39:02+03:00',
+    en: 'In the Android app, removed the "update available" banner and background offline-caching, since updates now come from the Play Store instead of a page reload.',
+    ru: 'В приложении для Android убран баннер "доступно обновление" и фоновое офлайн-кеширование, так как обновления теперь приходят через Play Store, а не через перезагрузку страницы.',
+  },
+  {
     version: 603,
     issue: 309,
     date: '2026-08-08T14:20:39+03:00',

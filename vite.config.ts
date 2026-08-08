@@ -37,6 +37,11 @@ export default defineConfig(({ mode }) => ({
     VitePWA({
       manifest: false,
       registerType: 'autoUpdate',
+      // #310: registered manually instead (src/shared/lib/registerServiceWorker.ts),
+      // so it can be skipped entirely inside the Capacitor native shell — the
+      // service worker's offline-precache value is fully redundant there
+      // (app-shell assets are already bundled into the native app itself).
+      injectRegister: false,
       workbox: {
         // version.json (#115) must always be a real network fetch, never
         // served from the SW's cache — it's how useAppUpdateAvailable()
