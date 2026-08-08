@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { ArrowUpDown } from 'lucide-react'
-import { useSearchParams } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import type { Emotion } from '@/domain/dailyEntry'
 import { isGoalMetOnDate, isHeadingTowardGoalOnDate } from '@/domain/goal'
 import { EmotionPicker } from '@/features/daily-log'
@@ -37,6 +37,7 @@ const PAGE_SIZE = 20
 
 export function HistoryScreen() {
   const t = useTranslation()
+  const navigate = useNavigate()
   const displayUnit = useUnitStore((state) => state.unit)
   const {
     entries,
@@ -132,15 +133,15 @@ export function HistoryScreen() {
     setViewMode('list')
   }
 
-  // From the calendar's day panel (#48): jump to List view filtered to
-  // exactly this day. Reuses the existing From/To filter state (#40) —
-  // combined with the generalized defaultExpanded check below, this lands
-  // the user on List with that one row already expanded, no separate
-  // edit-from-calendar UI needed.
+  // From the calendar's day panel (#48, changed by #650): originally
+  // jumped to List view filtered to exactly this day rather than leaving
+  // History — reported live as unexpected, since "Edit this day" reads as
+  // "go edit it" rather than "filter to it here". Now navigates to the
+  // Day screen for that date via the same `?date=` deep-link TodayScreen
+  // already reads (#200) — the same mechanism History's own dashboard
+  // deep-link (#41) and reloads already rely on, not a new concept.
   function editDayFromCalendar(date: string) {
-    setDateFrom(date)
-    setDateTo(date)
-    setViewMode('list')
+    navigate(`/?date=${date}`)
   }
 
   return (

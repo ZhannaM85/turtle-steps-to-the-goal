@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 606,
+    issue: 650,
+    date: '2026-08-08T15:28:25+03:00',
+    en: 'History\'s "Edit this day" button (in the calendar view) now takes you to that day\'s full entry screen instead of just filtering the list here.',
+    ru: 'Кнопка "Редактировать этот день" в Истории (в режиме календаря) теперь открывает полный экран записи за этот день вместо простой фильтрации списка.',
+  },
+  {
     version: 605,
     issue: 311,
     date: '2026-08-08T15:07:06+03:00',
