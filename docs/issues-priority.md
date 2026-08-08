@@ -50,11 +50,3 @@ _Same audit pass. Blocked on Tier 36 Capacitor / store shell — revisit of #261
 | [#605](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/605) | 📋 Not started | Native local notification for the daily logging reminder | Blocked on #305+; wires existing #171 reminder preference to OS local notifications |
 | [#606](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/606) | 📋 Not started | Android home-screen glance widget | Blocked on #305+; weight + remaining kcal glance; Android-first |
 
----
-
-## Tier 128 — Lint/tooling gap found while implementing #307 (2026-08-08)
-
-| # | Status | Issue | Notes |
-|---|--------|-------|-------|
-| [#646](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/646) | 🔲 Open | `eslint` scans generated `android/`/`ios/` build output, breaking `npm run lint` after a native build | `eslint.config.js` only ignores `dist`; once `./gradlew.bat assembleDebug` actually runs locally, its generated `android/app/build/...native-bridge.js` gets linted and fails. Fix: add `android`/`ios` to the `ignores` array |
-
