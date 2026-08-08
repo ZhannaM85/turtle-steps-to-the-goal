@@ -1173,6 +1173,21 @@ export const ru: Dictionary = {
     dailyReminderOn: 'Вкл',
     dailyReminderOff: 'Выкл',
     dailyReminderTimeLabel: 'Напоминать в',
+    healthConnectSyncLabel: 'Health Connect',
+    healthConnectSyncDescription:
+      'Синхронизировать вес за сегодня из Health Connect — включая данные из Zepp Life, Google Fit или другого приложения. Заполняет вес, только если вы ещё не ввели его сами сегодня.',
+    healthConnectSyncButton: 'Синхронизировать из Health Connect',
+    healthConnectSyncingButton: 'Синхронизация…',
+    healthConnectUnavailableMessage: 'Health Connect не установлен на этом устройстве.',
+    healthConnectInstallButton: 'Установить Health Connect',
+    healthConnectPermissionDeniedMessage:
+      'Доступ к весу в Health Connect не предоставлен.',
+    healthConnectSyncSuccessMessage: (weight) => `Синхронизировано: ${weight}`,
+    healthConnectSyncNoDataMessage: 'В Health Connect нет веса за сегодня.',
+    healthConnectAlreadyLoggedMessage:
+      'Вы уже ввели вес за сегодня — он остаётся без изменений.',
+    healthConnectSyncErrorMessage:
+      'Не удалось синхронизировать с Health Connect. Попробуйте ещё раз.',
     trendChartsLabel: 'Графики трендов на панели',
     trendChartsDescription:
       'Какие данные показывать на графиках веса и калорий — надёжное место, чтобы вернуть показатель, если он был выключен прямо на панели.',
@@ -1389,7 +1404,10 @@ export const ru: Dictionary = {
     lastUpdatedLabel: (date) => `Обновлено: ${date}`,
     collectionHeading: 'Что мы собираем',
     collectionBody:
-      'Приложение не собирает никакие данные автоматически. Всё, что вы видите в приложении, было введено вами: вес, калории, приёмы пищи, сон, активность, цикл, заметки и любые другие поля, которые вы заполняете.',
+      'Приложение не собирает никакие данные автоматически. Всё, что вы видите в приложении, было введено вами или явно запрошено по вашей команде: вес, калории, приёмы пищи, сон, активность, цикл, заметки и любые другие поля, которые вы заполняете, а также всё, что вы решите синхронизировать из Health Connect (см. ниже) или импортировать из файла резервной копии.',
+    healthConnectPrivacyHeading: 'Health Connect (Android)',
+    healthConnectPrivacyBody:
+      'На Android нажатие «Синхронизировать из Health Connect» в настройках считывает последнее значение веса за сегодня из Health Connect — хранилища данных о здоровье Android на устройстве. Ничего не считывается автоматически, и ничего никогда не записывается обратно в Health Connect. Это происходит только при нажатии этой кнопки, требует вашего явного разрешения и считывает только вес. Синхронизированное значение хранится локально, так же как и любая другая запись — см. «Где хранятся ваши данные» ниже.',
     storageHeading: 'Где хранятся ваши данные',
     storageBody:
       'Все данные хранятся только на вашем устройстве, в собственном хранилище браузера или приложения. Нет ни аккаунта, ни серверов, ни облачной синхронизации — приложение никогда не видит ваши данные.',

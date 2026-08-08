@@ -56,6 +56,7 @@ import { PageHeader } from '@/shared/ui/page-header'
 import { ToggleGroup, ToggleGroupItem } from '@/shared/ui/toggle-group'
 import { ClearAllDataSection } from './ClearAllDataSection'
 import { DeleteRangeSection } from './DeleteRangeSection'
+import { HealthConnectSyncSection } from './HealthConnectSyncSection'
 import { MealItemsSection } from './MealItemsSection'
 import { MealLabelPresetsSection } from './MealLabelPresetsSection'
 import { ProfileSection } from './ProfileSection'
@@ -821,6 +822,20 @@ export function SettingsScreen() {
           )}
         </CardContent>
       </Card>
+
+      {/* #656 — Health Connect is an Android platform API, not available
+       * on iOS/web; gated at the call site same as the daily reminder
+       * time picker just above. */}
+      {Capacitor.getPlatform() === 'android' && (
+        <Card>
+          <CardHeader>
+            <CardTitle>{t.settings.healthConnectSyncLabel}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <HealthConnectSyncSection />
+          </CardContent>
+        </Card>
+      )}
 
       <Card>
         <CardHeader>

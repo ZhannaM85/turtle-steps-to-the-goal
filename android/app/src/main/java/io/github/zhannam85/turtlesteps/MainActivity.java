@@ -11,6 +11,14 @@ public class MainActivity extends BridgeActivity {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        // #656 — must be registered before super.onCreate(): BridgeActivity
+        // builds the Bridge (and finalizes its plugin list) synchronously
+        // inside its own onCreate, so registering after would be too late
+        // for HealthConnectPlugin's load() (and its ActivityResultLauncher
+        // registration) to ever run — confirmed by reading BridgeActivity's
+        // source rather than assuming the usual "call super first" shape.
+        registerPlugin(HealthConnectPlugin.class);
+
         super.onCreate(savedInstanceState);
 
         // #308/#648: draw the WebView edge-to-edge behind both system bars

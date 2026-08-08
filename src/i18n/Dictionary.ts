@@ -1835,6 +1835,25 @@ export interface Dictionary {
     /** #605 — only rendered on native (`Capacitor.isNativePlatform()`),
      * since the time has no effect on web/PWA's in-app-only banner. */
     dailyReminderTimeLabel: string
+    /** #656 — Android-only (`Capacitor.getPlatform() === 'android'`);
+     * Health Connect is an Android platform API, not available on iOS/web.
+     * One-time "sync now" action, not a background/ongoing toggle — see
+     * HealthConnectSyncSection.tsx's own doc comment for why. */
+    healthConnectSyncLabel: string
+    healthConnectSyncDescription: string
+    healthConnectSyncButton: string
+    healthConnectSyncingButton: string
+    healthConnectUnavailableMessage: string
+    healthConnectInstallButton: string
+    healthConnectPermissionDeniedMessage: string
+    healthConnectSyncSuccessMessage: (weight: string) => string
+    healthConnectSyncNoDataMessage: string
+    /** Distinct from healthConnectSyncSuccessMessage — mergeDailyEntryPatches'
+     * fillGaps mode (#496) never overwrites a value already logged by hand
+     * today, so this covers that case explicitly rather than claiming a
+     * sync happened when the manual entry actually won. */
+    healthConnectAlreadyLoggedMessage: string
+    healthConnectSyncErrorMessage: string
     trendChartsLabel: string
     trendChartsDescription: string
     weightTrendLabel: string
@@ -2122,6 +2141,11 @@ export interface Dictionary {
     lastUpdatedLabel: (date: string) => string
     collectionHeading: string
     collectionBody: string
+    /** #656 — required disclosure: Health Connect's own permission screen
+     * links to this page, and Play Store's Sensitive App Permissions
+     * review expects health-data access spelled out explicitly. */
+    healthConnectPrivacyHeading: string
+    healthConnectPrivacyBody: string
     storageHeading: string
     storageBody: string
     sharingHeading: string

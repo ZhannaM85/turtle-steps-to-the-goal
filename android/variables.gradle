@@ -1,5 +1,10 @@
 ext {
-    minSdkVersion = 24
+    // #335 — bumped 24 -> 26 for Health Connect (androidx.health.connect
+    // requires API 26). No installed base yet (Play Store release, Tier
+    // 36, hasn't shipped), and API 24/25 share is negligible by now — see
+    // the #335 child issue for the full reasoning, confirmed with the user
+    // before bumping.
+    minSdkVersion = 26
     compileSdkVersion = 36
     targetSdkVersion = 36
     androidxActivityVersion = '1.11.0'

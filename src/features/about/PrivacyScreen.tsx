@@ -7,7 +7,7 @@ import { PageHeader } from '@/shared/ui/page-header'
 // app's actual data handling. Kept as its own route (rather than folded
 // into `about.privacy`'s existing one-line blurb) so the store listings
 // have one fixed link that won't shift if About's own copy changes later.
-const LAST_UPDATED = '2026-07-27'
+const LAST_UPDATED = '2026-08-09'
 
 export function PrivacyScreen() {
   const t = useTranslation()
@@ -24,6 +24,13 @@ export function PrivacyScreen() {
             {t.privacyPolicy.collectionHeading}
           </p>
           <p>{t.privacyPolicy.collectionBody}</p>
+        </div>
+
+        <div className="flex flex-col gap-1">
+          <p className="font-medium text-foreground">
+            {t.privacyPolicy.healthConnectPrivacyHeading}
+          </p>
+          <p>{t.privacyPolicy.healthConnectPrivacyBody}</p>
         </div>
 
         <div className="flex flex-col gap-1">
