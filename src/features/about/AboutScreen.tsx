@@ -60,6 +60,17 @@ export function AboutScreen() {
             </CardHeader>
           </Card>
         )}
+
+        {/* #654 — kept directly under the version card since release notes
+         * are keyed on that version number. */}
+        <Card>
+          <CardHeader>
+            <CardTitle>{t.settings.releaseNotesLabel}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ReleaseNotesSection />
+          </CardContent>
+        </Card>
       </div>
 
       <div className="flex flex-col gap-3 text-sm text-muted-foreground">
@@ -83,15 +94,6 @@ export function AboutScreen() {
         />
         {t.about.madeBy(AUTHOR)}
       </a>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>{t.settings.releaseNotesLabel}</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <ReleaseNotesSection />
-        </CardContent>
-      </Card>
     </div>
   )
 }
