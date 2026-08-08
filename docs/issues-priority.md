@@ -42,7 +42,7 @@ _Same audit pass. Blocked on Tier 36 Capacitor / store shell — revisit of #261
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#605](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/605) | 📋 Not started | Native local notification for the daily logging reminder | Blocked on #305+; wires existing #171 reminder preference to OS local notifications |
+| [#605](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/605) | 🔍 Pending validation | Native local notification for the daily logging reminder | `@capacitor/local-notifications`; `useDailyReminderStore` gains `reminderTime` ('HH:MM', default 20:00, `AskUserQuestion`-confirmed as a new Settings time picker rather than a fixed default). `shared/native/dailyReminderNotification.ts` schedules/cancels via a store subscription (native only — web/PWA keeps the existing in-app banner unchanged). Deliberately unconditional (fires regardless of whether today's entry exists) — a background OS notification can't check IndexedDB state at delivery time. Pending on-device confirmation |
 | [#606](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/606) | 📋 Not started | Android home-screen glance widget | Blocked on #305+; weight + remaining kcal glance; Android-first |
 
 ---
