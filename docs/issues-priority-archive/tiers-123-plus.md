@@ -28,6 +28,16 @@ _Filed from the product-owner audit in `C:\Users\User\Projects\docs\turtle-steps
 
 ---
 
+## Tier 124 — Native-unlocked follow-ups from audit (2026-08-04)
+
+_Same audit pass. Blocked on Tier 36 Capacitor / store shell — revisit of #261 (notifications) and #231 (widgets), which were correctly closed for PWA-only. #606 still open/pending in the active file._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#605](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/605) | ✅ Done | Native local notification for the daily logging reminder | New `@capacitor/local-notifications` dependency; `useDailyReminderStore` gains `reminderTime` ('HH:MM', default 20:00, `AskUserQuestion`-confirmed as a real Settings time picker rather than a fixed default). `shared/native/dailyReminderNotification.ts` schedules/cancels via a store subscription (native only — web/PWA keeps the existing in-app banner unchanged). Deliberately unconditional (fires regardless of whether today's entry exists) — a background OS notification can't check IndexedDB state at delivery time. Confirmed working on-device 2026-08-08 — verified end-to-end via `adb` (`dumpsys alarm`/`dumpsys notification` showed the scheduled alarm and posted notification with correct title/body) and a real lock-screen screenshot |
+
+---
+
 ## Tier 127 — Live feedback (2026-08-07)
 
 _Live discussion of a screenshot showing "Цель достигнута" badges on most recent weeks despite the actual weight barely moving. All currently open / pending items from this tier live in the active file._
