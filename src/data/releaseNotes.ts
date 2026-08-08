@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 613,
+    issue: 653,
+    date: '2026-08-08T21:52:33+03:00',
+    en: 'Fixed the turtle icon on the Android cold-launch splash screen looking stretched into an oval instead of round.',
+    ru: 'Исправлен вид значка черепахи на экране запуска Android — он больше не выглядит вытянутым овалом вместо круга.',
+  },
+  {
     version: 612,
     issue: 654,
     date: '2026-08-08T21:31:00+03:00',

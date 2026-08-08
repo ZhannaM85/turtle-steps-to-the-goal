@@ -24,6 +24,17 @@
 
 
     <style name="AppTheme.NoActionBarLaunch" parent="Theme.SplashScreen">
-        <item name="android:background">@drawable/splash</item>
+        <!-- #653: @drawable/splash_screen_bg wraps the raw @capacitor/assets-
+             generated @drawable/splash bitmap with android:gravity="center"
+             instead of referencing it directly. A plain windowBackground
+             bitmap defaults to Gravity.FILL, which stretches non-uniformly
+             to the exact window bounds; since each density bucket's splash
+             bitmap is generated for a fixed reference aspect ratio that
+             rarely matches a real device's screen exactly, that stretch
+             turned the circular turtle badge into a visible oval on-device.
+             Centering at native size avoids the stretch. Survives re-running
+             `npx capacitor-assets generate` since it only touches
+             @drawable/splash, not this wrapper. -->
+        <item name="android:background">@drawable/splash_screen_bg</item>
     </style>
 </resources>
