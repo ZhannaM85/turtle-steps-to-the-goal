@@ -52,4 +52,3 @@ _Same date as the #646 lint gap (already closed/archived) — appended per the o
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#654](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/654) | 🔍 Pending validation | About screen: move Release notes section directly under the version number | Implemented — Release notes card moved into the leading cards group, directly under the Version card (`AboutScreen.tsx`). Awaiting on-device confirmation |
