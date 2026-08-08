@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 611,
+    issue: 605,
+    date: '2026-08-08T21:00:03+03:00',
+    en: 'The daily reminder can now send a real notification at a chosen time in the native app, not just an in-app note.',
+    ru: 'Ежедневное напоминание теперь может присылать настоящее уведомление в выбранное время в нативном приложении, а не только заметку внутри приложения.',
+  },
+  {
     version: 610,
     issue: 652,
     date: '2026-08-08T20:23:53+03:00',

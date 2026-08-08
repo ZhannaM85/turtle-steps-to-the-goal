@@ -332,6 +332,7 @@ const settingsPreferencesSchema = z.object({
     })
     .optional(),
   dailyReminder: z.boolean().optional(),
+  dailyReminderTime: z.string().optional(),
   trendChartVisible: z
     .object({
       weight: trendSeriesVisibleSchema.partial().optional(),

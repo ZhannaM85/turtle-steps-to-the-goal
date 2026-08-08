@@ -100,6 +100,13 @@ export interface Dictionary {
      * on and today has no entry yet. Same no-badges/no-streaks tone as
      * goalRenewalReminder above, no dismiss state to persist. */
     dailyReminderText: string
+    /** #605 — the native OS notification's own title/body, distinct from
+     * `dailyReminderText` above: that one only ever shows in-app when
+     * today genuinely has no entry, but a scheduled OS notification has
+     * no way to check that at delivery time, so this copy stays neutral
+     * rather than presupposing "no entry yet." */
+    dailyReminderNotificationTitle: string
+    dailyReminderNotificationBody: string
     /** #232 — short titles for the show/hide toggle row above each of the
      * three banners, distinct from their own full-sentence body text
      * above (`goalRenewalReminder`/`targetMetBanner`/`dailyReminderText`)
@@ -1818,12 +1825,16 @@ export interface Dictionary {
       activityLevel: string,
     ) => string
     /** Opt-in "haven't logged today" reminder (#171) — off by default, same
-     * shape as cycle/digestion tracking. Deliberately just an in-app
-     * banner on Today, not a real push notification. */
+     * shape as cycle/digestion tracking. Originally just an in-app banner
+     * on Today; #605 adds a real OS notification at `dailyReminderTime`
+     * on native platforms only (web/PWA keeps the banner only). */
     dailyReminderLabel: string
     dailyReminderDescription: string
     dailyReminderOn: string
     dailyReminderOff: string
+    /** #605 — only rendered on native (`Capacitor.isNativePlatform()`),
+     * since the time has no effect on web/PWA's in-app-only banner. */
+    dailyReminderTimeLabel: string
     trendChartsLabel: string
     trendChartsDescription: string
     weightTrendLabel: string

@@ -69,6 +69,9 @@ export const ru: Dictionary = {
     targetMetBanner: (weekEndDate) =>
       `Вы достигли цели на эту неделю — держитесь до ${weekEndDate}, чтобы получить значок!`,
     dailyReminderText: 'Сегодня пока нет записи — когда будете готовы.',
+    dailyReminderNotificationTitle: 'Черепашка идёт к цели',
+    dailyReminderNotificationBody:
+      'Небольшое напоминание внести запись за сегодня, когда будете готовы.',
     targetMetSectionTitle: 'Цель достигнута',
     goalRenewalReminderSectionTitle: 'Напоминание об обновлении цели',
     dailyReminderSectionTitle: 'Ежедневное напоминание',
@@ -1166,9 +1169,10 @@ export const ru: Dictionary = {
       `Рост ${height} · Возраст ${age} · ${sex} · ${activityLevel}`,
     dailyReminderLabel: 'Ежедневное напоминание',
     dailyReminderDescription:
-      'Необязательно — показывает спокойную заметку на экране «День», если вы ещё ничего не записали. По умолчанию выключено.',
+      'Необязательно — показывает спокойную заметку на экране «День», если вы ещё ничего не записали, а в нативном приложении также присылает ежедневное уведомление. По умолчанию выключено.',
     dailyReminderOn: 'Вкл',
     dailyReminderOff: 'Выкл',
+    dailyReminderTimeLabel: 'Напоминать в',
     trendChartsLabel: 'Графики трендов на панели',
     trendChartsDescription:
       'Какие данные показывать на графиках веса и калорий — надёжное место, чтобы вернуть показатель, если он был выключен прямо на панели.',

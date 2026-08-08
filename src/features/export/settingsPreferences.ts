@@ -40,6 +40,7 @@ export function collectSettingsPreferences(): ExportSettingsPreferences {
       ...useTrackedFieldsStore.getState().tracked,
     },
     dailyReminder: useDailyReminderStore.getState().enabled,
+    dailyReminderTime: useDailyReminderStore.getState().reminderTime,
     trendChartVisible: {
       weight: { ...useTrendChartSeriesStore.getState().visible.weight },
       calories: { ...useTrendChartSeriesStore.getState().visible.calories },
@@ -98,6 +99,11 @@ export function applySettingsPreferences(
   }
   if (settings.dailyReminder !== undefined) {
     useDailyReminderStore.setState({ enabled: settings.dailyReminder })
+  }
+  if (settings.dailyReminderTime !== undefined) {
+    useDailyReminderStore.setState({
+      reminderTime: settings.dailyReminderTime,
+    })
   }
   if (settings.trendChartVisible) {
     useTrendChartSeriesStore.setState((state) => ({

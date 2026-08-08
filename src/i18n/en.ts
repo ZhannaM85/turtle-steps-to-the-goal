@@ -64,6 +64,9 @@ export const en: Dictionary = {
     targetMetBanner: (weekEndDate) =>
       `You reached this week's target — keep it up until ${weekEndDate} to earn your badge!`,
     dailyReminderText: 'No entry yet today — whenever you’re ready.',
+    dailyReminderNotificationTitle: 'Turtle Steps',
+    dailyReminderNotificationBody:
+      'A quiet reminder to log today, whenever you’re ready.',
     targetMetSectionTitle: 'Target met',
     goalRenewalReminderSectionTitle: 'Goal renewal reminder',
     dailyReminderSectionTitle: 'Daily reminder',
@@ -1134,9 +1137,10 @@ export const en: Dictionary = {
       `Height ${height} · Age ${age} · ${sex} · ${activityLevel}`,
     dailyReminderLabel: 'Daily reminder',
     dailyReminderDescription:
-      'Optional — shows a quiet note on the Day screen if you haven’t logged anything yet. Off by default.',
+      'Optional — shows a quiet note on the Day screen if you haven’t logged anything yet, plus a daily notification in the native app. Off by default.',
     dailyReminderOn: 'On',
     dailyReminderOff: 'Off',
+    dailyReminderTimeLabel: 'Remind me at',
     trendChartsLabel: 'Dashboard trend charts',
     trendChartsDescription:
       'Which series show on the Weight and Calorie trend charts — a safe place to bring one back if it was turned off on the Dashboard itself.',

@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { Capacitor } from '@capacitor/core'
 import { X } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import {
@@ -236,6 +237,10 @@ export function SettingsScreen() {
   const dailyReminderEnabled = useDailyReminderStore((state) => state.enabled)
   const setDailyReminderEnabled = useDailyReminderStore(
     (state) => state.setEnabled,
+  )
+  const dailyReminderTime = useDailyReminderStore((state) => state.reminderTime)
+  const setDailyReminderTime = useDailyReminderStore(
+    (state) => state.setReminderTime,
   )
   // #238: a safety net independent of the Dashboard's own legend toggles —
   // reported live that turning both series off there made the toggle
@@ -797,6 +802,23 @@ export function SettingsScreen() {
               {t.settings.dailyReminderOn}
             </ToggleGroupItem>
           </ToggleGroup>
+          {/* #605 — only meaningful on native: web/PWA's reminder is still
+           * just the in-app banner, which has no time of its own. */}
+          {dailyReminderEnabled && Capacitor.isNativePlatform() && (
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="settings-daily-reminder-time">
+                {t.settings.dailyReminderTimeLabel}
+              </Label>
+              <Input
+                id="settings-daily-reminder-time"
+                type="time"
+                aria-label={t.settings.dailyReminderTimeLabel}
+                value={dailyReminderTime}
+                onChange={(e) => setDailyReminderTime(e.target.value)}
+                className="h-12 w-32"
+              />
+            </div>
+          )}
         </CardContent>
       </Card>
 
