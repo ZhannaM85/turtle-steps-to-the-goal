@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 603,
+    issue: 309,
+    date: '2026-08-08T14:20:39+03:00',
+    en: 'In the Android app, the hardware/gesture back button now properly closes dialogs and navigates within the app instead of exiting unexpectedly.',
+    ru: 'В приложении для Android аппаратная/жестовая кнопка "назад" теперь корректно закрывает диалоги и перемещает по приложению вместо неожиданного выхода.',
+  },
+  {
     version: 602,
     issue: 308,
     date: '2026-08-08T13:54:52+03:00',

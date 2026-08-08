@@ -86,6 +86,13 @@ export function AppShell() {
                   <NavLink
                     to={item.to}
                     end={item.end}
+                    // #309: the 5 top-level tabs are peers, not a drill-down
+                    // stack — without `replace`, hopping between tabs kept
+                    // pushing new history entries, so the native Android
+                    // back button (which reads the real WebView history)
+                    // walked through old tab visits instead of exiting from
+                    // whichever tab you're currently on.
+                    replace
                     className={({ isActive }) =>
                       cn(
                         'inline-flex rounded-lg px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground',
@@ -131,6 +138,7 @@ export function AppShell() {
                   <NavLink
                     to={item.to}
                     end={item.end}
+                    replace
                     className="flex min-h-20 flex-col items-center justify-center text-xs font-medium"
                   >
                     {({ isActive }) => (
