@@ -144,6 +144,21 @@ function shiftDate(date: string, days: number) {
   return format(addDays(parseISO(date), days), 'yyyy-MM-dd')
 }
 
+// #647 — feature-detect (not UA-sniff) WebKit specifically: `-webkit-
+// touch-callout` is a real, still-unimplemented-elsewhere CSS property
+// WebKit alone supports, so this is stable across Safari/desktop, Safari/
+// iOS, and every other iOS browser (Apple mandates WebKit under any iOS
+// browser's own UA string, CriOS/FxiOS included) — computed once at
+// module load since the engine never changes at runtime. `window.CSS`
+// (not the bare global) since this file already imports a same-named
+// `CSS` from `@dnd-kit/utilities` for drag-transform strings. jsdom (the
+// test environment) has no `CSS.supports` at all, so this also guards on
+// it being callable, not just present.
+const isWebKitEngine =
+  typeof window !== 'undefined' &&
+  typeof window.CSS?.supports === 'function' &&
+  window.CSS.supports('-webkit-touch-callout', 'none')
+
 export function TodayScreen() {
   const t = useTranslation()
   const locale = useLocale()
@@ -1030,19 +1045,25 @@ export function TodayScreen() {
            * the native Android app (measured live at 32px, honoring this
            * input's inherited `h-8` base height, vs. the 42px arrows/Today
            * button), then reproduced identically in a plain desktop Chrome
-           * tab. An Android-only `Capacitor.getPlatform()` gate (first
-           * attempt) fixed the app but left every other Chromium context
-           * broken. Applied unconditionally instead: #420's own history
-           * establishes WebKit ignores a plain `height` class on this
-           * control regardless of value (it only ever clipped when that
-           * was paired with `overflow-hidden`, which this isn't), so an
-           * explicit 42px here should be a no-op on Safari/iOS and a real
-           * fix everywhere Chromium renders it — not yet re-confirmed on
-           * a real iPhone (no iOS device available in this environment,
-           * matching #420's own repeated "fine on Playwright/desktop,
-           * still broken on the actual phone" pattern), so treat as
-           * pending on-device iOS confirmation, not closed on reasoning
-           * alone. */}
+           * tab; confirmed fixed on-device (native Android) and via
+           * headless Chromium measurement (42×42 all four elements).
+           * Second attempt applied the `h-[2.625rem]` override
+           * unconditionally, reasoning that WebKit ignores a plain
+           * `height` class on this control regardless of value (per
+           * #420's history — it only ever clipped when paired with
+           * `overflow-hidden`, which this isn't) so it'd be a no-op on
+           * Safari. Reported live as broken on real iOS Safari/PWA
+           * instead (screenshots): the input rendered *taller* than the
+           * buttons, not a no-op — an explicit height, even matching
+           * WebKit's own natural size, apparently isn't equivalent to no
+           * height at all, unlike on Chromium. Exactly #420's own
+           * "confirmed via Playwright/desktop, still broken on the actual
+           * phone" pattern repeating. Gated on `isWebKitEngine` instead:
+           * Chromium/Blink (Android app, Android/desktop Chrome — both
+           * confirmed above) gets the override; WebKit (Safari desktop,
+           * and every iOS browser, all WebKit-based regardless of UA)
+           * stays fully unconstrained, matching the state already
+           * confirmed working pre-#647. */}
           <Input
             id="log-date"
             ref={debug465DateRef}
@@ -1050,7 +1071,9 @@ export function TodayScreen() {
             value={date}
             max={maxNavigableDate}
             onChange={(e) => setDate(e.target.value)}
-            className="max-w-48 h-[2.625rem]"
+            className={
+              isWebKitEngine ? 'max-w-48' : 'max-w-48 h-[2.625rem]'
+            }
           />
           {/* Capped at today+1 by default (#138: logging a future day isn't
            * otherwise supported), extended to reach a staged planned-meal

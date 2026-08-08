@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 609,
+    issue: 651,
+    date: '2026-08-08T18:49:35+03:00',
+    en: 'Fixed the Android back button exiting the app from every tab instead of returning to the Day tab first.',
+    ru: 'Исправлена кнопка "Назад" на Android — теперь она сначала возвращает на вкладку "День" вместо выхода из приложения с любой вкладки.',
+  },
+  {
     version: 608,
     issue: 647,
     date: '2026-08-08T17:43:33+03:00',
