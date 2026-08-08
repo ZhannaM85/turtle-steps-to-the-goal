@@ -53,3 +53,4 @@ _Same date as the #646 lint gap (already closed/archived) — appended per the o
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#653](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/653) | 🔲 Open | Android splash screen: turtle icon looks elongated/stretched | Reported live with a screenshot — the turtle badge appears oval rather than circular. Likely related to `@capacitor/assets`-generated splash assets (#311); not yet investigated |
+| [#654](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/654) | 🔲 Open | About screen: move Release notes section directly under the version number | Reported live with an annotated screenshot — "Version N" and the collapsible "Release notes" section currently sit far apart (description/privacy text between them); move release notes to sit directly under the version card |
