@@ -47,7 +47,7 @@ export function AppUpdateBanner() {
           size="sm"
           onClick={() => {
             setReloading(true)
-            void reloadForUpdate()
+            void reloadForUpdate({ force: true })
           }}
         >
           {t.update.reloadButton}
