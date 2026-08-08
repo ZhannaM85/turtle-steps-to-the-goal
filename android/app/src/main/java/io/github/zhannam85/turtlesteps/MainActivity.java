@@ -1,5 +1,7 @@
 package io.github.zhannam85.turtlesteps;
 
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
 import androidx.core.view.WindowCompat;
@@ -27,5 +29,40 @@ public class MainActivity extends BridgeActivity {
         WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
         getWindow().setStatusBarColor(Color.TRANSPARENT);
         getWindow().setNavigationBarColor(Color.TRANSPARENT);
+
+        handleWidgetTap(getIntent());
+    }
+
+    // #606 — the widget's PendingIntent targets this singleTask activity
+    // directly, so an already-running instance gets onNewIntent rather than
+    // a fresh onCreate; handle both so "tap opens Day" works whether the
+    // app was already open (e.g. left on Settings) or fully closed.
+    @Override
+    public void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+        handleWidgetTap(intent);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        // Covers the realistic "log something, return to the home screen to
+        // glance at the widget" flow promptly, on top of the widget's own
+        // updatePeriodMillis backstop (Android's enforced ~30 min minimum).
+        TurtleWidgetProvider.updateAllWidgets(this);
+    }
+
+    // Writes a flag to the same SharedPreferences file widgetDataSync.ts
+    // reads/writes, rather than calling into the WebView's JS directly —
+    // see that file's OPEN_DAY_REQUESTED_KEY doc comment for why (a real
+    // race against the WebView's own JS not being loaded/listening yet on
+    // a cold start).
+    private void handleWidgetTap(Intent intent) {
+        if (intent == null || !intent.getBooleanExtra(TurtleWidgetProvider.EXTRA_OPEN_DAY, false)) {
+            return;
+        }
+        SharedPreferences prefs = getSharedPreferences("CapacitorStorage", MODE_PRIVATE);
+        prefs.edit().putString("widgetOpenDayRequested", "true").apply();
     }
 }

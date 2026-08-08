@@ -5,10 +5,12 @@ import './index.css'
 import { router } from '@/app'
 import { initBackButtonHandler } from '@/shared/native/backButtonHandler'
 import { initDailyReminderNotification } from '@/shared/native/dailyReminderNotification'
+import { initWidgetDataSync } from '@/shared/native/widgetDataSync'
 import { registerServiceWorker } from '@/shared/lib/registerServiceWorker'
 
 initBackButtonHandler()
 initDailyReminderNotification()
+initWidgetDataSync()
 registerServiceWorker()
 
 createRoot(document.getElementById('root')!).render(

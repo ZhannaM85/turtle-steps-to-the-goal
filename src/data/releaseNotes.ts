@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 615,
+    issue: 606,
+    date: '2026-08-08T22:48:55+03:00',
+    en: 'Added an Android home-screen widget showing today\'s weight and remaining calories at a glance — tap it to open the app.',
+    ru: 'Добавлен виджет для главного экрана Android с весом за сегодня и оставшимися калориями — нажмите, чтобы открыть приложение.',
+  },
+  {
     version: 614,
     issue: 655,
     date: '2026-08-08T22:14:56+03:00',

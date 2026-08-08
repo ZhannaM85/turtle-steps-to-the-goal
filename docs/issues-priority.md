@@ -42,7 +42,7 @@ _Same audit pass. Blocked on Tier 36 Capacitor / store shell — revisit of #261
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#606](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/606) | 📋 Not started | Android home-screen glance widget | Blocked on #305+; weight + remaining kcal glance; Android-first |
+| [#606](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/606) | 🔍 Pending validation | Android home-screen glance widget | Implemented — `TurtleWidgetProvider.java` (RemoteViews, `res/layout/widget_turtle_glance.xml`) reads a JSON snapshot written by `src/shared/native/widgetDataSync.ts` (new `@capacitor/preferences` dependency, `"CapacitorStorage"` SharedPreferences file) whenever the daily entry/goal/unit/locale stores change — values pre-formatted in JS since the widget has no access to this app's i18n/unit-conversion logic. Weight shows "—" if not logged today; the remaining-kcal row is hidden if no daily calorie target is set. Refreshes via the widget's own `updatePeriodMillis` (Android's ~30 min enforced minimum) plus an explicit refresh from `MainActivity#onPause`. Tap opens Day: since `MainActivity` is `singleTask` (a plain launch intent would just resume whatever screen was last open), the tap intent's extra is turned into a flag in the same SharedPreferences file, consumed by `widgetDataSync.ts` on the next `@capacitor/app` `appStateChange` resume event (`router.navigate('/')`) rather than a racy direct JS-injection call from Java. `assembleDebug` build verified clean. Awaiting on-device confirmation |
 
 ---
 

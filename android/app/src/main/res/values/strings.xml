@@ -4,4 +4,7 @@
     <string name="title_activity_main">Turtle Steps</string>
     <string name="package_name">io.github.zhannam85.turtlesteps</string>
     <string name="custom_url_scheme">io.github.zhannam85.turtlesteps</string>
+    <!-- #606 — shown on Android's "Add widget" picker screen (API 26+; a
+         harmless no-op attribute below that). -->
+    <string name="widget_description">Today\'s weight and remaining calories at a glance</string>
 </resources>
