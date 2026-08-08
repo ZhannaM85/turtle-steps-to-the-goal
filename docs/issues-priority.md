@@ -32,7 +32,7 @@ _User asked about pulling data from Apple Health and Zepp Life. Researched via W
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#334](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/334) | 📋 Not started | Epic — Apple Health integration (blocked on mobile app + HealthKit bridge) | HealthKit has no public/cloud API at all — data is on-device only, readable exclusively by a native iOS app (or hybrid app with a HealthKit plugin/entitlement) the user has granted permission to. Genuinely blocked until the mobile app exists; can't be built sooner by any workaround. |
-| [#335](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/335) | 📋 Not started | Epic — Android Health Connect integration (blocked on mobile app) | Same category of blocker as #334 — Health Connect is Android's on-device health data store, no cloud API, native/hybrid-app-only access. Bonus: Zepp Life can itself sync into Health Connect, making this the official, supported route to Zepp/Amazfit data — likely preferable to ever building a direct, unofficial Zepp API integration. |
+| [#335](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/335) | 🔨 In progress | Epic — Android Health Connect integration | No longer blocked (mobile app shipped, #305+) — now a tracking issue only, split into three focused children under Tier 128 (2026-08-08) rather than one giant implementation, matching how #304 was split: [#656](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/656) (weight sync, foundation — SDK dependency, `minSdk` 24→26 bump, permission flow, sync trigger, privacy policy), [#657](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/657) (steps sync), [#658](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/658) (sleep sync). Bonus noted at filing time: Zepp Life can itself sync into Health Connect, making this the official, supported route to Zepp/Amazfit data — likely preferable to ever building a direct, unofficial Zepp API integration. |
 
 ---
 
@@ -46,10 +46,13 @@ _Same audit pass. Blocked on Tier 36 Capacitor / store shell — revisit of #261
 
 ---
 
-## Tier 128 — Live feedback during native Android testing (2026-08-08)
+## Tier 128 — Live feedback and native-follow-up work during Android testing (2026-08-08)
 
-_Same date as the #646 lint gap (already closed/archived) — appended per the one-tier-per-day rule rather than opening a new tier number._
+_Same date as the #646 lint gap (already closed/archived) — appended per the one-tier-per-day rule rather than opening a new tier number. Grew from live splash/About-screen bug reports into the #606 widget and #335's Health Connect epic split, all worked in the same continuous session._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
+| [#656](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/656) | 🔨 In progress | Android Health Connect: weight sync (foundation) | Child of #335. New `androidx.health.connect:connect-client:1.1.0` dependency, `minSdk` bump 24→26 (confirmed with the user — no installed base yet, negligible API 24/25 share by 2026), availability check + calm fallback, `READ_WEIGHT` permission flow, one-time "Sync from Health Connect" Settings trigger, manual-value-wins merge, privacy policy update |
+| [#657](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/657) | 📋 Not started | Android Health Connect: steps sync | Child of #335, depends on #656's foundation. Separate `READ_STEPS` permission scope; cumulative-total merge semantics differ from weight's manual-wins rule |
+| [#658](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/658) | 📋 Not started | Android Health Connect: sleep sync | Child of #335, depends on #656's foundation. Separate `READ_SLEEP` permission scope; duration-based merge, closer to weight's manual-wins reasoning than steps' |
 | [#655](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/655) | 🔍 Pending validation | About screen: merge Version and Release notes into one card | Implemented, scope grew live during the session: single `Card` combines the title as `{releaseNotes} · {currentVersion}` (`AboutScreen.tsx`), and the separate "Show release notes" text button was replaced by an icon-only `ChevronDown`/`ChevronUp` toggle in the card header (`CardAction`) next to that title — `ReleaseNotesSection.tsx` is now a dumb list, expand/collapse state lifted to `AboutScreen`. Awaiting on-device confirmation |
