@@ -24,6 +24,7 @@ import {
   useLastBackupStore,
   useMealSlotDefaultTimesStore,
   useNutritionFactsStore,
+  useEntryComparisonStore,
   usePlannedMealsTrackingStore,
   useProfileStore,
   useThemeStore,
@@ -246,6 +247,12 @@ export function SettingsScreen() {
   )
   const nutritionFactsEnabled = useNutritionFactsStore((state) => state.enabled)
   const setNutritionFactsEnabled = useNutritionFactsStore(
+    (state) => state.setEnabled,
+  )
+  const entryComparisonEnabled = useEntryComparisonStore(
+    (state) => state.enabled,
+  )
+  const setEntryComparisonEnabled = useEntryComparisonStore(
     (state) => state.setEnabled,
   )
   // #238: a safety net independent of the Dashboard's own legend toggles —
@@ -849,6 +856,32 @@ export function SettingsScreen() {
             </ToggleGroupItem>
             <ToggleGroupItem value="on" className="h-12">
               {t.settings.nutritionFactsOn}
+            </ToggleGroupItem>
+          </ToggleGroup>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>{t.settings.entryComparisonLabel}</CardTitle>
+        </CardHeader>
+        <CardContent className="flex flex-col gap-1.5">
+          <span className="text-sm text-muted-foreground">
+            {t.settings.entryComparisonDescription}
+          </span>
+          <ToggleGroup
+            type="single"
+            aria-label={t.settings.entryComparisonLabel}
+            value={entryComparisonEnabled ? 'on' : 'off'}
+            onValueChange={(value) =>
+              value && setEntryComparisonEnabled(value === 'on')
+            }
+          >
+            <ToggleGroupItem value="off" className="h-12">
+              {t.settings.entryComparisonOff}
+            </ToggleGroupItem>
+            <ToggleGroupItem value="on" className="h-12">
+              {t.settings.entryComparisonOn}
             </ToggleGroupItem>
           </ToggleGroup>
         </CardContent>

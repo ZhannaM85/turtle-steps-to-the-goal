@@ -362,6 +362,17 @@ export const ru: Dictionary = {
     bodyWaterShortLabel: 'Вода',
     boneMassShortLabel: 'Кости',
     bodyFatShortLabel: 'Жир',
+    entryComparisonComparedToYesterday: (arrow, amount) =>
+      `${arrow} ${amount} по сравнению со вчера`,
+    entryComparisonComparedToDate: (arrow, amount, dateLabel) =>
+      `${arrow} ${amount} по сравнению с ${dateLabel}`,
+    entryComparisonVsYesterday: (arrow, amount) =>
+      `${arrow} ${amount} к вчера`,
+    entryComparisonVsDate: (arrow, amount, dateLabel) =>
+      `${arrow} ${amount} к ${dateLabel}`,
+    entryComparisonVs30DaysAgo: (arrow, amount) =>
+      `${arrow} ${amount} к 30 дням назад`,
+    entryComparisonInfoLabel: 'Сравнение с предыдущими днями',
     onPeriodLabel: 'Менструация',
     hadConstipationLabel: 'Запор',
     hadConstipationNoOption: 'Нет',
@@ -1181,6 +1192,11 @@ export const ru: Dictionary = {
       'Небольшие поощрительные заметки на экране «День» и при сохранении приёма пищи, когда записанное соответствует распространённой рекомендации по питанию (например, богатый белком приём пищи, сбалансированная тарелка). По умолчанию включено — можно выключить в любой момент.',
     nutritionFactsOn: 'Вкл',
     nutritionFactsOff: 'Выкл',
+    entryComparisonLabel: 'Сравнение при вводе',
+    entryComparisonDescription:
+      'Пока вы вводите дневное значение, показывать стрелку вверх/вниз относительно предыдущего записанного дня (цвет зависит от того, хорош ли такой сдвиг для этого показателя). После сохранения значок «i» показывает то же сравнение и сравнение ровно с 30 днями назад. По умолчанию включено — можно выключить в любой момент.',
+    entryComparisonOn: 'Вкл',
+    entryComparisonOff: 'Выкл',
     dailyReminderTimeLabel: 'Напоминать в',
     healthConnectSyncLabel: 'Health Connect',
     healthConnectSyncDescription:

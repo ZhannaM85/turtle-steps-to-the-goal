@@ -347,6 +347,17 @@ export const en: Dictionary = {
     bodyWaterShortLabel: 'Water',
     boneMassShortLabel: 'Bone',
     bodyFatShortLabel: 'Body fat',
+    entryComparisonComparedToYesterday: (arrow, amount) =>
+      `${arrow} ${amount} compared to yesterday`,
+    entryComparisonComparedToDate: (arrow, amount, dateLabel) =>
+      `${arrow} ${amount} compared to ${dateLabel}`,
+    entryComparisonVsYesterday: (arrow, amount) =>
+      `${arrow} ${amount} vs yesterday`,
+    entryComparisonVsDate: (arrow, amount, dateLabel) =>
+      `${arrow} ${amount} vs ${dateLabel}`,
+    entryComparisonVs30DaysAgo: (arrow, amount) =>
+      `${arrow} ${amount} vs 30 days ago`,
+    entryComparisonInfoLabel: 'Comparison with previous days',
     onPeriodLabel: 'On period',
     hadConstipationLabel: 'Constipation',
     hadConstipationNoOption: 'No',
@@ -1149,6 +1160,11 @@ export const en: Dictionary = {
       'Small encouraging notes on the Day screen and when saving a meal, when what you logged matches a common nutrition guideline (e.g. a protein-rich meal, a balanced plate). On by default — turn off anytime.',
     nutritionFactsOn: 'On',
     nutritionFactsOff: 'Off',
+    entryComparisonLabel: 'Entry comparisons',
+    entryComparisonDescription:
+      'While typing a daily value, show an up/down arrow versus the previous logged day (colored by whether that change is good for that metric). After save, an info icon shows the same comparison plus versus exactly 30 days ago. On by default — turn off anytime.',
+    entryComparisonOn: 'On',
+    entryComparisonOff: 'Off',
     dailyReminderTimeLabel: 'Remind me at',
     healthConnectSyncLabel: 'Health Connect',
     healthConnectSyncDescription:

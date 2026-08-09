@@ -709,6 +709,28 @@ export interface Dictionary {
     bodyWaterShortLabel: string
     boneMassShortLabel: string
     bodyFatShortLabel: string
+    /**
+     * #664 — live arrow + short text under an input while editing, and the
+     * post-save ⓘ tooltip. `amount` already includes the signed magnitude
+     * and unit (e.g. "0.5 kg"); `dateLabel` is a localized month+day.
+     */
+    entryComparisonComparedToYesterday: (
+      arrow: string,
+      amount: string,
+    ) => string
+    entryComparisonComparedToDate: (
+      arrow: string,
+      amount: string,
+      dateLabel: string,
+    ) => string
+    entryComparisonVsYesterday: (arrow: string, amount: string) => string
+    entryComparisonVsDate: (
+      arrow: string,
+      amount: string,
+      dateLabel: string,
+    ) => string
+    entryComparisonVs30DaysAgo: (arrow: string, amount: string) => string
+    entryComparisonInfoLabel: string
     onPeriodLabel: string
     /** Opt-in digestion tracking's per-day toggle, on both Today and in
      * DayDetail.tsx — tracks the problem (constipation), not the normal
@@ -1853,6 +1875,11 @@ export interface Dictionary {
     nutritionFactsDescription: string
     nutritionFactsOn: string
     nutritionFactsOff: string
+    /** #664 — live up/down arrows + post-save ⓘ on daily input fields. */
+    entryComparisonLabel: string
+    entryComparisonDescription: string
+    entryComparisonOn: string
+    entryComparisonOff: string
     /** #605 — only rendered on native (`Capacitor.isNativePlatform()`),
      * since the time has no effect on web/PWA's in-app-only banner. */
     dailyReminderTimeLabel: string

@@ -31,3 +31,16 @@ export {
   stampSlotDefaultsOnUntimedMeals,
   countUntimedSlotMeals,
 } from './stampSlotDefaultTimes'
+export {
+  ENTRY_FIELD_COMPARISON_VALENCE,
+  comparisonDirection,
+  comparisonTone,
+  exactlyDaysBefore,
+  fieldValueOnEntry,
+  findFieldValueOnDate,
+  findMostRecentPriorFieldValue,
+  type ComparableEntryField,
+  type ComparisonTone,
+  type ComparisonValence,
+  type FieldBaseline,
+} from './entryFieldComparison'

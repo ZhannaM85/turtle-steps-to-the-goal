@@ -17,6 +17,10 @@ import {
   muscleMassKgSchema,
   visceralFatRatingSchema,
 } from './dailyEntryFormSchema'
+import {
+  EntryFieldComparisonInfo,
+  EntryFieldComparisonLive,
+} from './EntryFieldComparison'
 import { useDailyEntryFormStateContext } from './useDailyEntryFormStateContext'
 
 /**
@@ -43,39 +47,54 @@ export function DailyEntryFormMorning() {
   // singled out as a headline value.
   const bodyCompositionMetrics = [
     {
+      field: 'muscleMassKg' as const,
       label: t.dailyEntry.muscleMassShortLabel,
+      unit: 'kg' as const,
       value:
         state.muscleMassKg === undefined
           ? '—'
           : `${formatExactNumber(state.muscleMassKg, locale)}${t.dailyEntry.kgUnit}`,
+      numericValue: state.muscleMassKg,
     },
     {
+      field: 'visceralFatRating' as const,
       label: t.dailyEntry.visceralFatShortLabel,
+      unit: 'none' as const,
       value:
         state.visceralFatRating === undefined
           ? '—'
           : formatExactNumber(state.visceralFatRating, locale),
+      numericValue: state.visceralFatRating,
     },
     {
+      field: 'bodyWaterPercent' as const,
       label: t.dailyEntry.bodyWaterShortLabel,
+      unit: 'percent' as const,
       value:
         state.bodyWaterPercent === undefined
           ? '—'
           : `${formatExactNumber(state.bodyWaterPercent, locale)}${t.dailyEntry.percentUnit}`,
+      numericValue: state.bodyWaterPercent,
     },
     {
+      field: 'boneMassKg' as const,
       label: t.dailyEntry.boneMassShortLabel,
+      unit: 'kg' as const,
       value:
         state.boneMassKg === undefined
           ? '—'
           : `${formatExactNumber(state.boneMassKg, locale)}${t.dailyEntry.kgUnit}`,
+      numericValue: state.boneMassKg,
     },
     {
+      field: 'bodyFatPercent' as const,
       label: t.dailyEntry.bodyFatShortLabel,
+      unit: 'percent' as const,
       value:
         state.bodyFatPercent === undefined
           ? '—'
           : `${formatExactNumber(state.bodyFatPercent, locale)}${t.dailyEntry.percentUnit}`,
+      numericValue: state.bodyFatPercent,
     },
   ]
 
@@ -96,6 +115,16 @@ export function DailyEntryFormMorning() {
       },
     }
   }
+
+  // #664 — sleep is typed as hours+minutes local state; convert for live compare.
+  const sleepHoursText = parseNumberInput(state.sleepHoursPart)
+  const sleepMinutesText = parseNumberInput(state.sleepMinutesPart)
+  const liveSleepHours =
+    sleepHoursText === undefined && sleepMinutesText === undefined
+      ? undefined
+      : (sleepHoursText ?? 0) + (sleepMinutesText ?? 0) / 60
+
+  const comparison = state.entryComparisonBaselines
 
   return (
     <div className="rounded-lg border border-border p-3">
@@ -132,8 +161,15 @@ export function DailyEntryFormMorning() {
           <div className="flex flex-col gap-4 pt-4">
             {state.showWeightAsDisplay ? (
               <div className="flex flex-col gap-1.5">
-                <span className="text-sm font-medium">
+                <span className="flex items-center gap-1 text-sm font-medium">
                   {t.dailyEntry.weightLabel}
+                  <EntryFieldComparisonInfo
+                    field="weightKg"
+                    currentValue={state.weightKg}
+                    prior={comparison.prior('weightKg')}
+                    day30Value={comparison.day30Value('weightKg')}
+                    unit="kg"
+                  />
                 </span>
                 <div className="flex min-h-12 items-center justify-between gap-2 rounded-lg bg-muted px-3 py-2">
                   {/* #516 — Weight is the Day screen's primary morning
@@ -206,6 +242,12 @@ export function DailyEntryFormMorning() {
                     <Check aria-hidden="true" />
                   </Button>
                 </div>
+                <EntryFieldComparisonLive
+                  field="weightKg"
+                  currentValue={state.weightKg}
+                  prior={comparison.prior('weightKg')}
+                  unit="kg"
+                />
                 {state.errors.weightKg && (
                   <p className="text-sm text-destructive">
                     {state.errors.weightKg.message}
@@ -248,8 +290,15 @@ export function DailyEntryFormMorning() {
             {state.trackedFields.sleep &&
               (state.showSleepAsDisplay ? (
                 <div className="flex flex-col gap-1.5">
-                  <span className="text-sm font-medium">
+                  <span className="flex items-center gap-1 text-sm font-medium">
                     {t.dailyEntry.sleepLabel}
+                    <EntryFieldComparisonInfo
+                      field="sleepHours"
+                      currentValue={state.sleepHours}
+                      prior={comparison.prior('sleepHours')}
+                      day30Value={comparison.day30Value('sleepHours')}
+                      unit="hours"
+                    />
                   </span>
                   <div className="flex h-12 items-center justify-between rounded-lg bg-muted px-3">
                     <span className="text-sm text-foreground">
@@ -413,6 +462,12 @@ export function DailyEntryFormMorning() {
                       <Check aria-hidden="true" />
                     </Button>
                   </div>
+                  <EntryFieldComparisonLive
+                    field="sleepHours"
+                    currentValue={liveSleepHours}
+                    prior={comparison.prior('sleepHours')}
+                    unit="hours"
+                  />
                   {(state.errors.sleepHours || state.errors.deepSleepHours) && (
                     <p className="text-sm text-destructive">
                       {state.errors.sleepHours?.message ??
@@ -573,8 +628,15 @@ export function DailyEntryFormMorning() {
                           key={metric.label}
                           className="flex min-w-0 flex-col"
                         >
-                          <dt className="truncate text-xs text-muted-foreground">
-                            {metric.label}
+                          <dt className="flex min-w-0 items-center gap-0.5 truncate text-xs text-muted-foreground">
+                            <span className="truncate">{metric.label}</span>
+                            <EntryFieldComparisonInfo
+                              field={metric.field}
+                              currentValue={metric.numericValue}
+                              prior={comparison.prior(metric.field)}
+                              day30Value={comparison.day30Value(metric.field)}
+                              unit={metric.unit}
+                            />
                           </dt>
                           <dd className="text-sm font-medium tabular-nums text-foreground">
                             {metric.value}
@@ -665,6 +727,12 @@ export function DailyEntryFormMorning() {
                           {t.dailyEntry.kgUnit}
                         </span>
                       </div>
+                      <EntryFieldComparisonLive
+                        field="muscleMassKg"
+                        currentValue={state.muscleMassKg}
+                        prior={comparison.prior('muscleMassKg')}
+                        unit="kg"
+                      />
                     </div>
                     <div className="col-start-2 row-start-1 flex flex-col gap-1">
                       <span className="flex min-h-8 items-end text-xs text-muted-foreground">
@@ -691,6 +759,12 @@ export function DailyEntryFormMorning() {
                           )}
                         />
                       </div>
+                      <EntryFieldComparisonLive
+                        field="visceralFatRating"
+                        currentValue={state.visceralFatRating}
+                        prior={comparison.prior('visceralFatRating')}
+                        unit="none"
+                      />
                     </div>
                     <div className="col-start-1 row-start-2 flex flex-col gap-1">
                       <span className="flex min-h-8 items-end text-xs text-muted-foreground">
@@ -720,6 +794,12 @@ export function DailyEntryFormMorning() {
                           {t.dailyEntry.percentUnit}
                         </span>
                       </div>
+                      <EntryFieldComparisonLive
+                        field="bodyWaterPercent"
+                        currentValue={state.bodyWaterPercent}
+                        prior={comparison.prior('bodyWaterPercent')}
+                        unit="percent"
+                      />
                     </div>
                     <div className="col-start-2 row-start-2 flex flex-col gap-1">
                       <span className="flex min-h-8 items-end text-xs text-muted-foreground">
@@ -749,6 +829,12 @@ export function DailyEntryFormMorning() {
                           {t.dailyEntry.kgUnit}
                         </span>
                       </div>
+                      <EntryFieldComparisonLive
+                        field="boneMassKg"
+                        currentValue={state.boneMassKg}
+                        prior={comparison.prior('boneMassKg')}
+                        unit="kg"
+                      />
                     </div>
                     <div className="col-start-1 row-start-3 flex flex-col gap-1">
                       <span className="flex min-h-8 items-end text-xs text-muted-foreground">
@@ -778,6 +864,12 @@ export function DailyEntryFormMorning() {
                           {t.dailyEntry.percentUnit}
                         </span>
                       </div>
+                      <EntryFieldComparisonLive
+                        field="bodyFatPercent"
+                        currentValue={state.bodyFatPercent}
+                        prior={comparison.prior('bodyFatPercent')}
+                        unit="percent"
+                      />
                     </div>
                     {/* #424 — added as a 4th grid column at Save's own row (not
                      * a new row/placement scheme), so Save's already-live-

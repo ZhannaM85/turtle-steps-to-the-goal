@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 622,
+    issue: 664,
+    date: '2026-08-09T16:30:00+03:00',
+    en: 'While entering weight, steps, sleep, or body composition, see a quick up/down comparison versus the previous logged day (color shows whether that change is good for that metric). After save, an info icon shows the same plus versus exactly 30 days ago. Turn off anytime in Settings.',
+    ru: 'При вводе веса, шагов, сна или состава тела — быстрое сравнение вверх/вниз с предыдущим записанным днём (цвет показывает, хорош ли такой сдвиг для этого показателя). После сохранения значок «i» показывает то же и сравнение ровно с 30 днями назад. Можно выключить в Настройках.',
+  },
+  {
     version: 621,
     issue: 665,
     date: '2026-08-09T16:09:51+03:00',

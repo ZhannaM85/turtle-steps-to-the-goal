@@ -12,6 +12,10 @@ import { Input } from '@/shared/ui/input'
 import { Textarea } from '@/shared/ui/textarea'
 import { ToggleGroup, ToggleGroupItem } from '@/shared/ui/toggle-group'
 import { useTodaySectionsCollapseStore } from '@/stores'
+import {
+  EntryFieldComparisonInfo,
+  EntryFieldComparisonLive,
+} from './EntryFieldComparison'
 import { EmotionPicker } from './EmotionPicker'
 import { useDailyEntryFormStateContext } from './useDailyEntryFormStateContext'
 
@@ -44,6 +48,8 @@ export function DailyEntryFormBottom() {
     state.trackedFields.nightEating
 
   if (!showEveningSection) return null
+
+  const comparison = state.entryComparisonBaselines
 
   return (
     <div className="rounded-lg border border-border p-3">
@@ -81,8 +87,15 @@ export function DailyEntryFormBottom() {
             {state.trackedFields.steps &&
               (state.showStepsAsDisplay ? (
                 <div className="flex flex-col gap-1.5">
-                  <span className="text-sm font-medium">
+                  <span className="flex items-center gap-1 text-sm font-medium">
                     {t.dailyEntry.stepsLabel}
+                    <EntryFieldComparisonInfo
+                      field="steps"
+                      currentValue={state.steps}
+                      prior={comparison.prior('steps')}
+                      day30Value={comparison.day30Value('steps')}
+                      unit="none"
+                    />
                   </span>
                   <div className="flex h-12 items-center justify-between rounded-lg bg-muted px-3">
                     <span className="text-sm text-foreground">
@@ -145,6 +158,12 @@ export function DailyEntryFormBottom() {
                       <Check aria-hidden="true" />
                     </Button>
                   </div>
+                  <EntryFieldComparisonLive
+                    field="steps"
+                    currentValue={state.steps}
+                    prior={comparison.prior('steps')}
+                    unit="none"
+                  />
                   {state.errors.steps && (
                     <p className="text-sm text-destructive">
                       {state.errors.steps.message}

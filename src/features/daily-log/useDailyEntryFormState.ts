@@ -9,7 +9,7 @@ import {
   totalProtein,
 } from '@/domain/dailyEntry'
 import { useLocale, useTranslation, formatNumber } from '@/i18n'
-import { usePreviousDayEntry } from '@/shared/hooks'
+import { usePreviousDayEntry, useEntryFieldComparisonBaselines } from '@/shared/hooks'
 import {
   formatKcal,
   formatMacroGrams,
@@ -117,6 +117,8 @@ export function useDailyEntryFormState({
   // checks below. `null` when there's no entry for that date (nothing to
   // compare against, so no delta warning is possible).
   const previousDayEntry = usePreviousDayEntry(date)
+  // #664 — prior-day / exactly-30-days-ago baselines for live arrows + ⓘ.
+  const entryComparisonBaselines = useEntryFieldComparisonBaselines(date)
   // A stable identity for this day's entry, reused across every independent
   // save in this session (weight, note, each meal) so they all update the
   // same record instead of each save inventing a new id. Computed once —
@@ -955,6 +957,8 @@ export function useDailyEntryFormState({
     alwaysEditable,
     errors,
     register,
+    // #664
+    entryComparisonBaselines,
     // Weight
     weightKg,
     showWeightAsDisplay,

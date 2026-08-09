@@ -41,7 +41,7 @@ export function InfoTooltip({
           side="top"
           align="start"
           sideOffset={6}
-          className="z-50 max-w-64 rounded-lg border border-border bg-popover px-3 py-2 text-xs text-popover-foreground shadow-md outline-none"
+          className="z-50 max-w-64 whitespace-pre-line rounded-lg border border-border bg-popover px-3 py-2 text-xs text-popover-foreground shadow-md outline-none"
         >
           {text}
           <PopoverPrimitive.Arrow className="fill-popover" />
