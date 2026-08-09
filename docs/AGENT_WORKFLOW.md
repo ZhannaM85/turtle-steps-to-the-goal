@@ -133,7 +133,14 @@ user points out.
    touches, no extra config/toggles, no broader test coverage than the new
    behavior actually needs. Don't go spelunking through unrelated code
    "just in case" — read what the change actually depends on, not the
-   whole neighborhood. If something genuinely needed to implement
+   whole neighborhood. **Prefer targeted reads over full-file reads**,
+   even for the file most central to the change: `zm-index outline` (or
+   `Grep` for the relevant symbol/section) first, then `Read` with
+   `offset`/`limit` around just the lines that matter, instead of reading
+   an entire large file (e.g. a 900+ line component or 1000+ line test
+   file) end to end. Accept the small risk of missing a peripheral
+   existing pattern this way — it's cheaper than paying full-file-read
+   cost by default "to be safe." If something genuinely needed to implement
    correctly is missing or ambiguous (an unstated design choice, an
    unclear scope boundary, a precondition the issue doesn't specify),
    **ask the user instead of guessing** — same bar as the design-fork
