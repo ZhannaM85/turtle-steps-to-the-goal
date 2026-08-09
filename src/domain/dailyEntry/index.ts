@@ -25,6 +25,7 @@ export {
   calorieEntryProtein,
   calorieEntryFat,
   calorieEntryCarbs,
+  calorieEntryFiber,
 } from './calorieEntryTotals'
 export {
   stampSlotDefaultsOnUntimedMeals,

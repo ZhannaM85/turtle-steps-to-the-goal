@@ -1,6 +1,6 @@
 import type { CalorieEntry } from './DailyEntry'
 
-type MacroField = 'proteinG' | 'fatG' | 'carbsG'
+type MacroField = 'proteinG' | 'fatG' | 'carbsG' | 'fiberG'
 
 /** Sums one meal group's items (#81) — always a real number, never
  * undefined, since a group always has at least one item. */
@@ -31,4 +31,9 @@ export function calorieEntryFat(entry: CalorieEntry): number | undefined {
 
 export function calorieEntryCarbs(entry: CalorieEntry): number | undefined {
   return calorieEntryMacro(entry, 'carbsG')
+}
+
+/** #663 — same shape as the three above, for nutrition-facts evaluation. */
+export function calorieEntryFiber(entry: CalorieEntry): number | undefined {
+  return calorieEntryMacro(entry, 'fiberG')
 }

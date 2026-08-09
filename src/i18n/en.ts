@@ -70,6 +70,7 @@ export const en: Dictionary = {
     targetMetSectionTitle: 'Target met',
     goalRenewalReminderSectionTitle: 'Goal renewal reminder',
     dailyReminderSectionTitle: 'Daily reminder',
+    nutritionFactsSectionTitle: 'Nutrition highlights',
     vsYesterdayLabel: 'vs. yesterday',
     vsMaxWeightLabel: 'vs. highest weight',
     remainingCaloriesLabel: 'Remaining calories',
@@ -1143,6 +1144,11 @@ export const en: Dictionary = {
       'Optional — shows a quiet note on the Day screen if you haven’t logged anything yet, plus a daily notification in the native app. Off by default.',
     dailyReminderOn: 'On',
     dailyReminderOff: 'Off',
+    nutritionFactsLabel: 'Nutrition highlights',
+    nutritionFactsDescription:
+      'Optional — small encouraging notes on the Day screen and when saving a meal, when what you logged matches a common nutrition guideline (e.g. a protein-rich meal, a balanced plate). Off by default.',
+    nutritionFactsOn: 'On',
+    nutritionFactsOff: 'Off',
     dailyReminderTimeLabel: 'Remind me at',
     healthConnectSyncLabel: 'Health Connect',
     healthConnectSyncDescription:
@@ -1233,6 +1239,22 @@ export const en: Dictionary = {
       'Export (below) creates a portable backup file you can carry to another device.',
       'Import merges that backup into whatever is already on the other device — read its result message before relying on it, especially before a fresh install.',
     ],
+  },
+  nutritionFacts: {
+    proteinRichMeal: 'Protein-rich meal — a solid amount for supporting muscle.',
+    excellentFiberMeal: 'Excellent source of fiber in this meal.',
+    balancedPlateMeal:
+      'Nicely balanced plate — a healthy mix of protein, fat, and carbs.',
+    highQualityCarbsMeal: 'Good source of high-fiber carbs in this meal.',
+    dailyFiberGoal: "You've hit today's fiber goal.",
+    sodiumConsciousDay: 'Nice work keeping sodium in check today.',
+    potassiumRichDay: 'Great potassium intake today.',
+    goodPotassiumSodiumRatio: 'Good potassium-to-sodium balance today.',
+    magnesiumRichDay: 'Great magnesium intake today.',
+    wellHydrated: 'Well hydrated today.',
+    onTargetCalories: "Right on target with today's calories.",
+    proteinSpreadThroughDay: "Protein spread nicely across today's meals.",
+    balancedDay: 'Well-balanced macros for the day overall.',
   },
   recipes: {
     settingsSectionLabel: 'Recipes',

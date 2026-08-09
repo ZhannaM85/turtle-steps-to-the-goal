@@ -23,6 +23,7 @@ import {
   useDigestionTrackingStore,
   useLastBackupStore,
   useMealSlotDefaultTimesStore,
+  useNutritionFactsStore,
   usePlannedMealsTrackingStore,
   useProfileStore,
   useThemeStore,
@@ -242,6 +243,10 @@ export function SettingsScreen() {
   const dailyReminderTime = useDailyReminderStore((state) => state.reminderTime)
   const setDailyReminderTime = useDailyReminderStore(
     (state) => state.setReminderTime,
+  )
+  const nutritionFactsEnabled = useNutritionFactsStore((state) => state.enabled)
+  const setNutritionFactsEnabled = useNutritionFactsStore(
+    (state) => state.setEnabled,
   )
   // #238: a safety net independent of the Dashboard's own legend toggles —
   // reported live that turning both series off there made the toggle
@@ -820,6 +825,32 @@ export function SettingsScreen() {
               />
             </div>
           )}
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>{t.settings.nutritionFactsLabel}</CardTitle>
+        </CardHeader>
+        <CardContent className="flex flex-col gap-1.5">
+          <span className="text-sm text-muted-foreground">
+            {t.settings.nutritionFactsDescription}
+          </span>
+          <ToggleGroup
+            type="single"
+            aria-label={t.settings.nutritionFactsLabel}
+            value={nutritionFactsEnabled ? 'on' : 'off'}
+            onValueChange={(value) =>
+              value && setNutritionFactsEnabled(value === 'on')
+            }
+          >
+            <ToggleGroupItem value="off" className="h-12">
+              {t.settings.nutritionFactsOff}
+            </ToggleGroupItem>
+            <ToggleGroupItem value="on" className="h-12">
+              {t.settings.nutritionFactsOn}
+            </ToggleGroupItem>
+          </ToggleGroup>
         </CardContent>
       </Card>
 

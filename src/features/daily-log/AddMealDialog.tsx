@@ -12,6 +12,10 @@ import {
 import { type FoodItem, type FoodServing, foods } from '@/data/foods'
 import type { CalorieItem, Emotion, MealEmotion } from '@/domain/dailyEntry'
 import type { MealItem } from '@/domain/mealItem'
+import {
+  evaluateMealNutritionFacts,
+  type NutritionFactId,
+} from '@/domain/nutritionFacts'
 import { formatNumber, useLocale, useTranslation } from '@/i18n'
 import { applyFoodOverrides } from '@/shared/lib/applyFoodOverrides'
 import { DAY_EMOTIONS } from '@/shared/lib/emotionIcons'
@@ -39,6 +43,7 @@ import {
   useMealItemStore,
   useMealLabelPresetStore,
   useMicronutrientTrackingStore,
+  useNutritionFactsStore,
   useRecipeStore,
   useAddMealRecentVisibilityStore,
   useTrackedFieldsStore,
@@ -186,6 +191,10 @@ export interface AddMealDialogProps {
     carbsG: number
   }
   dailyCalorieTargetKcal?: number
+  /** #663 — per-meal nutrition facts already satisfied by today's *other*
+   * meals (MealList's `otherMealsSatisfiedFactIds`), so this dialog's own
+   * inline praise only shows a fact the first time a meal hits it today. */
+  alreadySatisfiedFactIds?: NutritionFactId[]
 }
 
 /**
@@ -233,6 +242,7 @@ export function AddMealDialog({
   onDeleteMeal,
   todayTotals,
   dailyCalorieTargetKcal,
+  alreadySatisfiedFactIds,
 }: AddMealDialogProps) {
   const t = useTranslation()
   const locale = useLocale()
@@ -256,6 +266,8 @@ export function AddMealDialog({
   const mealLabelPresets = useMealLabelPresetStore((state) => state.presets)
   const micronutrients = useMicronutrientTrackingStore((state) => state.tracked)
   const trackFiber = useTrackedFieldsStore((state) => state.tracked.fiber)
+  // #663 — gates the inline meal-composition praise below, off by default.
+  const nutritionFactsEnabled = useNutritionFactsStore((state) => state.enabled)
   // #563/#567 — Breakfast/Lunch/Dinner/Snack for the active locale, then
   // custom Settings presets that aren't a built-in default in any locale.
   const mealLabelSuggestions = mealLabelSuggestionsForLocale(
@@ -854,9 +866,18 @@ export function AddMealDialog({
       proteinG: sum.proteinG + (item.proteinG ?? 0),
       fatG: sum.fatG + (item.fatG ?? 0),
       carbsG: sum.carbsG + (item.carbsG ?? 0),
+      fiberG: sum.fiberG + (item.fiberG ?? 0),
     }),
-    { kcal: 0, proteinG: 0, fatG: 0, carbsG: 0 },
+    { kcal: 0, proteinG: 0, fatG: 0, carbsG: 0, fiberG: 0 },
   )
+
+  // #663 — only facts this meal is the *first* one today to satisfy (the
+  // "once per day per fact" cap).
+  const newlySatisfiedFactIds = nutritionFactsEnabled
+    ? evaluateMealNutritionFacts(totalsSoFar).filter(
+        (id) => !alreadySatisfiedFactIds?.includes(id),
+      )
+    : []
   const todayTotalPreview = todayTotals
     ? t.dailyEntry.todayWouldBeLabel(
         `${formatNumber(todayTotals.kcal + totalsSoFar.kcal, locale, 0)} ${t.dailyEntry.kcalUnit}`,
@@ -1475,6 +1496,16 @@ export function AddMealDialog({
                   <p className="text-base text-muted-foreground">
                     {todayRemainingPreview}
                   </p>
+                )}
+                {newlySatisfiedFactIds.length > 0 && (
+                  <div
+                    role="status"
+                    className="flex flex-col gap-1 rounded-lg border border-border px-3 py-2 text-sm text-muted-foreground"
+                  >
+                    {newlySatisfiedFactIds.map((factId) => (
+                      <span key={factId}>{t.nutritionFacts[factId]}</span>
+                    ))}
+                  </div>
                 )}
                 {/* pb-20 (reported live) — clears space for the sticky
                  * Done bar below, so it never overlaps/covers these

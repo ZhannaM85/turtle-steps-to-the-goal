@@ -5,7 +5,7 @@ import userEvent from '@testing-library/user-event'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { CalorieItem, Emotion } from '@/domain/dailyEntry'
 import { db } from '@/infrastructure/persistence/indexeddb'
-import { useFoodOverrideStore, useMealItemStore, useMealLabelPresetStore, useRecipeStore, useAddMealRecentVisibilityStore } from '@/stores'
+import { useFoodOverrideStore, useMealItemStore, useMealLabelPresetStore, useNutritionFactsStore, useRecipeStore, useAddMealRecentVisibilityStore } from '@/stores'
 import { AddMealDialog, type AddMealDialogProps } from './AddMealDialog'
 
 // Matches FoodPickerDialog.test.tsx's own reasoning — every test here
@@ -39,6 +39,7 @@ beforeEach(async () => {
   useFoodOverrideStore.setState({ overrides: [], status: 'idle', error: null })
   useAddMealRecentVisibilityStore.setState({ recentVisible: true })
   useMealLabelPresetStore.setState({ presets: [] })
+  useNutritionFactsStore.setState({ enabled: false })
   localStorage.removeItem('turtle-steps-add-meal-recent-visibility')
 })
 
@@ -938,6 +939,50 @@ describe('AddMealDialog (#454)', () => {
       expect(
         screen.getByText('1,171 kcal remaining (was 1,700 kcal remaining)'),
       ).toBeInTheDocument()
+    })
+  })
+
+  describe('nutrition facts inline praise (#663)', () => {
+    it('does not show by default, even with a qualifying item', () => {
+      render(
+        <ControlledAddMealDialog
+          {...defaultProps}
+          initialItems={[{ id: 'i1', name: 'Chicken', amountKcal: 200, proteinG: 25 }]}
+        />,
+      )
+
+      expect(
+        screen.queryByText('Protein-rich meal', { exact: false }),
+      ).not.toBeInTheDocument()
+    })
+
+    it('shows a satisfied fact once enabled', () => {
+      useNutritionFactsStore.setState({ enabled: true })
+      render(
+        <ControlledAddMealDialog
+          {...defaultProps}
+          initialItems={[{ id: 'i1', name: 'Chicken', amountKcal: 200, proteinG: 25 }]}
+        />,
+      )
+
+      expect(
+        screen.getByText('Protein-rich meal', { exact: false }),
+      ).toBeInTheDocument()
+    })
+
+    it('does not re-show a fact another meal today already satisfied', () => {
+      useNutritionFactsStore.setState({ enabled: true })
+      render(
+        <ControlledAddMealDialog
+          {...defaultProps}
+          initialItems={[{ id: 'i1', name: 'Chicken', amountKcal: 200, proteinG: 25 }]}
+          alreadySatisfiedFactIds={['proteinRichMeal']}
+        />,
+      )
+
+      expect(
+        screen.queryByText('Protein-rich meal', { exact: false }),
+      ).not.toBeInTheDocument()
     })
   })
 })

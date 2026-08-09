@@ -75,6 +75,7 @@ export const ru: Dictionary = {
     targetMetSectionTitle: 'Цель достигнута',
     goalRenewalReminderSectionTitle: 'Напоминание об обновлении цели',
     dailyReminderSectionTitle: 'Ежедневное напоминание',
+    nutritionFactsSectionTitle: 'Заметки о питании',
     vsYesterdayLabel: 'по сравнению со вчера',
     vsMaxWeightLabel: 'по сравнению с максимальным весом',
     remainingCaloriesLabel: 'Осталось калорий',
@@ -1175,6 +1176,11 @@ export const ru: Dictionary = {
       'Необязательно — показывает спокойную заметку на экране «День», если вы ещё ничего не записали, а в нативном приложении также присылает ежедневное уведомление. По умолчанию выключено.',
     dailyReminderOn: 'Вкл',
     dailyReminderOff: 'Выкл',
+    nutritionFactsLabel: 'Заметки о питании',
+    nutritionFactsDescription:
+      'Необязательно — небольшие поощрительные заметки на экране «День» и при сохранении приёма пищи, когда записанное соответствует распространённой рекомендации по питанию (например, богатый белком приём пищи, сбалансированная тарелка). По умолчанию выключено.',
+    nutritionFactsOn: 'Вкл',
+    nutritionFactsOff: 'Выкл',
     dailyReminderTimeLabel: 'Напоминать в',
     healthConnectSyncLabel: 'Health Connect',
     healthConnectSyncDescription:
@@ -1266,6 +1272,23 @@ export const ru: Dictionary = {
       '«Экспорт» (ниже) создаёт файл резервной копии, который можно перенести на другое устройство.',
       '«Импорт» объединяет эту копию с тем, что уже есть на другом устройстве — прочитайте сообщение о результате, прежде чем полагаться на него, особенно после новой установки.',
     ],
+  },
+  nutritionFacts: {
+    proteinRichMeal: 'Богатый белком приём пищи — хорошая доза для поддержки мышц.',
+    excellentFiberMeal: 'Отличный источник клетчатки в этом приёме пищи.',
+    balancedPlateMeal:
+      'Хорошо сбалансированная тарелка — здоровое сочетание белков, жиров и углеводов.',
+    highQualityCarbsMeal:
+      'Хороший источник богатых клетчаткой углеводов в этом приёме пищи.',
+    dailyFiberGoal: 'Вы достигли сегодняшней цели по клетчатке.',
+    sodiumConsciousDay: 'Отлично держите натрий под контролем сегодня.',
+    potassiumRichDay: 'Отличное потребление калия сегодня.',
+    goodPotassiumSodiumRatio: 'Хороший баланс калия и натрия сегодня.',
+    magnesiumRichDay: 'Отличное потребление магния сегодня.',
+    wellHydrated: 'Хорошая гидратация сегодня.',
+    onTargetCalories: 'Точно в цель по калориям сегодня.',
+    proteinSpreadThroughDay: 'Белок хорошо распределён по приёмам пищи сегодня.',
+    balancedDay: 'Хорошо сбалансированные БЖУ за день в целом.',
   },
   recipes: {
     settingsSectionLabel: 'Рецепты',

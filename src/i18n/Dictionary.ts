@@ -1,3 +1,4 @@
+import type { NutritionFactId } from '@/domain/nutritionFacts'
 import type { Sex } from '@/domain/stats/bodyComposition'
 
 export interface Dictionary {
@@ -115,6 +116,10 @@ export interface Dictionary {
     targetMetSectionTitle: string
     goalRenewalReminderSectionTitle: string
     dailyReminderSectionTitle: string
+    /** #663 — section title for the nutrition-facts encouragement card,
+     * same show/hide-toggle-row pattern as the three section titles
+     * above. */
+    nutritionFactsSectionTitle: string
     vsYesterdayLabel: string
     vsMaxWeightLabel: string
     /** #208 — only shown once the active goal has a dailyCalorieTargetKcal
@@ -1837,6 +1842,13 @@ export interface Dictionary {
     dailyReminderDescription: string
     dailyReminderOn: string
     dailyReminderOff: string
+    /** #663 — opt-in nutrition-facts encouragement, same on/off shape as
+     * dailyReminder above. Gates both the Day screen's card and the
+     * meal-composition screen's inline praise. */
+    nutritionFactsLabel: string
+    nutritionFactsDescription: string
+    nutritionFactsOn: string
+    nutritionFactsOff: string
     /** #605 — only rendered on native (`Capacitor.isNativePlatform()`),
      * since the time has no effect on web/PWA's in-app-only banner. */
     dailyReminderTimeLabel: string
@@ -1941,6 +1953,11 @@ export interface Dictionary {
     twoDevicesHelpIntro: string
     twoDevicesHelpSteps: string[]
   }
+  /** #663 — one short praise sentence per nutrition fact, keyed by
+   * `NutritionFactId` so en.ts/ru.ts are required to cover every fact.
+   * Shown on the Day screen's nutrition-facts card and inline on the
+   * meal-composition screen, gated by `settings.nutritionFactsLabel`. */
+  nutritionFacts: Record<NutritionFactId, string>
   /** #251 — multi-ingredient, servings-based templates. Reached from a
    * Settings card (settingsSectionLabel/Description, manageRecipesButton)
    * into `RecipesSettingsScreen.tsx`'s management screen, which opens

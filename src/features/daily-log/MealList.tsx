@@ -12,6 +12,7 @@ import type {
 import {
   calorieEntryCarbs,
   calorieEntryFat,
+  calorieEntryFiber,
   calorieEntryKcal,
   calorieEntryProtein,
   totalCalories,
@@ -19,6 +20,10 @@ import {
   totalFat,
   totalProtein,
 } from '@/domain/dailyEntry'
+import {
+  evaluateMealNutritionFacts,
+  type NutritionFactId,
+} from '@/domain/nutritionFacts'
 import { fastingHoursBetween } from '@/domain/stats'
 import {
   formatNumber,
@@ -703,6 +708,26 @@ export function MealList({
     }
   }
 
+  // #663 — per-meal nutrition facts already satisfied by today's *other*
+  // meals, so AddMealDialog's inline praise only surfaces a fact the first
+  // time a meal hits it today (the "once per day per fact" cap), not again
+  // for every later meal that also happens to qualify.
+  function otherMealsSatisfiedFactIds(excludeId: string | null): NutritionFactId[] {
+    const others = excludeId
+      ? calorieEntries.filter((entry) => entry.id !== excludeId)
+      : calorieEntries
+    const facts = new Set<NutritionFactId>()
+    for (const entry of others) {
+      evaluateMealNutritionFacts({
+        proteinG: calorieEntryProtein(entry) ?? 0,
+        fatG: calorieEntryFat(entry) ?? 0,
+        carbsG: calorieEntryCarbs(entry) ?? 0,
+        fiberG: calorieEntryFiber(entry) ?? 0,
+      }).forEach((id) => facts.add(id))
+    }
+    return Array.from(facts)
+  }
+
   // Appends one or more items to the in-progress meal, creating it (a
   // fresh CalorieEntry) on the *first* call this session and appending to
   // that same entry's `items` on every subsequent call — same
@@ -1050,6 +1075,7 @@ export function MealList({
           // on top for remaining / "Today would be" previews.
           todayTotals={dayTotalsExcludingMeal(editingMealId)}
           dailyCalorieTargetKcal={dailyCalorieTargetKcal}
+          alreadySatisfiedFactIds={otherMealsSatisfiedFactIds(editingMealId)}
         />
       )}
 
@@ -1126,6 +1152,7 @@ export function MealList({
           // `items` re-adds those kcal in the remaining preview.
           todayTotals={dayTotalsExcludingMeal(inProgressMealId)}
           dailyCalorieTargetKcal={dailyCalorieTargetKcal}
+          alreadySatisfiedFactIds={otherMealsSatisfiedFactIds(inProgressMealId)}
         />
       )}
     </div>

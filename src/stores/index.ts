@@ -78,4 +78,5 @@ export { useCalendarMarkerVisibilityStore } from './calendarMarkerVisibilityStor
 export type { CalendarMarkerKey } from './calendarMarkerVisibilityStore'
 export { useAddMealRecentVisibilityStore } from './addMealRecentVisibilityStore'
 export { useLastBackupStore } from './lastBackupStore'
+export { useNutritionFactsStore } from './nutritionFactsStore'
 export { applyTrackingPreset, type TrackingPreset } from './trackingPreset'

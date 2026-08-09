@@ -37,6 +37,7 @@ import {
   totalWaterMl,
 } from '@/domain/dailyEntry'
 import { goalWeekEnd, goalWindowHasEnded, kgToLb } from '@/domain/goal'
+import { evaluateDayNutritionFacts } from '@/domain/nutritionFacts'
 import { calculateBmi, calculateBmr, effectiveDateFor } from '@/domain/stats'
 import {
   formatExactNumber,
@@ -75,6 +76,7 @@ import {
   useDayStartStore,
   useGoalStore,
   useMicronutrientTrackingStore,
+  useNutritionFactsStore,
   usePlannedMealStore,
   useProfileStore,
   useSectionVisibilityStore,
@@ -628,6 +630,22 @@ export function TodayScreen() {
       goal.weekStart &&
       goalWindowHasEnded(goal.weekEnd ?? goalWeekEnd(goal.weekStart)),
   )
+
+  // Opt-in, off by default (#663) — praise for hitting a common nutrition
+  // guideline (protein-rich meal, balanced macros, daily fiber goal, ...).
+  // evaluateDayNutritionFacts already dedupes per-meal facts across the
+  // whole day, so "once per day per fact" falls out of using a Set rather
+  // than needing separate dismiss/shown-state.
+  const nutritionFactsEnabled = useNutritionFactsStore((state) => state.enabled)
+  const nutritionFacts = nutritionFactsEnabled
+    ? evaluateDayNutritionFacts({
+        calorieEntries: entry?.calorieEntries,
+        dayTotals: entry?.dayTotals,
+        waterEntries: entry?.waterEntries,
+        goal: goal ?? undefined,
+      })
+    : []
+  const showNutritionFacts = nutritionFacts.length > 0
 
   // Opt-in, off by default (#171) — only while actually viewing today
   // (not a past/future day pulled up via the date arrows) and only once
@@ -1501,6 +1519,22 @@ export function TodayScreen() {
           {sectionVisible.todayDailyReminder && (
             <div className="rounded-lg border border-border px-3 py-2 text-sm text-muted-foreground">
               {t.today.dailyReminderText}
+            </div>
+          )}
+        </div>
+      )}
+
+      {showNutritionFacts && (
+        <div className="flex flex-col gap-1.5">
+          {sectionTitle(
+            'todayNutritionFacts',
+            t.today.nutritionFactsSectionTitle,
+          )}
+          {sectionVisible.todayNutritionFacts && (
+            <div className="flex flex-col gap-1 rounded-lg border border-border px-3 py-2 text-sm text-muted-foreground">
+              {nutritionFacts.map((factId) => (
+                <span key={factId}>{t.nutritionFacts[factId]}</span>
+              ))}
             </div>
           )}
         </div>

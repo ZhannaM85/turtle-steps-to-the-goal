@@ -22,6 +22,7 @@ import {
   useDailyReminderStore,
   useDayStartStore,
   useGoalStore,
+  useNutritionFactsStore,
   usePlannedMealsTrackingStore,
   usePlannedMealStore,
   useProfileStore,
@@ -121,6 +122,7 @@ beforeEach(async () => {
   })
   useWaterTrackingStore.setState({ enabled: false })
   usePlannedMealsTrackingStore.setState({ enabled: false })
+  useNutritionFactsStore.setState({ enabled: false })
   resetSectionVisibility()
 })
 
@@ -775,6 +777,70 @@ describe('TodayScreen', () => {
 
       expect(
         screen.queryByText(REMINDER_TEXT, { exact: false }),
+      ).not.toBeInTheDocument()
+    })
+  })
+
+  describe('nutrition facts (#663)', () => {
+    async function saveHighProteinMeal() {
+      await useDailyEntryStore.getState().saveEntry(
+        makeEntry({
+          calorieEntries: [
+            {
+              id: crypto.randomUUID(),
+              items: [
+                { id: crypto.randomUUID(), amountKcal: 200, proteinG: 25 },
+              ],
+              createdAt: new Date().toISOString(),
+            },
+          ],
+        }),
+      )
+      useDailyEntryStore.setState({ entry: null, date: null, status: 'idle' })
+    }
+
+    it('does not show by default, even with a qualifying meal logged', async () => {
+      await saveHighProteinMeal()
+
+      render(
+        <MemoryRouter>
+          <TodayScreen />
+        </MemoryRouter>,
+      )
+
+      await screen.findByText('No goal set yet')
+      expect(
+        screen.queryByText('Protein-rich meal', { exact: false }),
+      ).not.toBeInTheDocument()
+    })
+
+    it('shows a satisfied fact once enabled', async () => {
+      useNutritionFactsStore.setState({ enabled: true })
+      await saveHighProteinMeal()
+
+      render(
+        <MemoryRouter>
+          <TodayScreen />
+        </MemoryRouter>,
+      )
+
+      expect(
+        await screen.findByText('Protein-rich meal', { exact: false }),
+      ).toBeInTheDocument()
+    })
+
+    it('does not show once enabled with nothing qualifying logged', async () => {
+      useNutritionFactsStore.setState({ enabled: true })
+
+      render(
+        <MemoryRouter>
+          <TodayScreen />
+        </MemoryRouter>,
+      )
+
+      await screen.findByText('No goal set yet')
+      expect(
+        screen.queryByText('Protein-rich meal', { exact: false }),
       ).not.toBeInTheDocument()
     })
   })

@@ -27,6 +27,7 @@ export type SectionKey =
   | 'todayTargetMetBanner'
   | 'todayGoalRenewalReminder'
   | 'todayDailyReminder'
+  | 'todayNutritionFacts'
   | 'todayBmi'
   | 'goalWeeklyTargetCard'
   | 'goalReachedNudge'
@@ -51,6 +52,7 @@ const DEFAULT_VISIBLE: Record<SectionKey, boolean> = {
   todayTargetMetBanner: true,
   todayGoalRenewalReminder: true,
   todayDailyReminder: true,
+  todayNutritionFacts: true,
   todayBmi: true,
   goalWeeklyTargetCard: true,
   goalReachedNudge: true,
