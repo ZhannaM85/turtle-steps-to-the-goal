@@ -127,6 +127,18 @@ user points out.
    as a final check. Docs saying "✅ Done" is not proof the issue is
    actually closed on GitHub — verify directly. If anything was missed,
    close it properly (with a comment) before considering the batch done.
+7. **Spend tokens responsibly — don't over-engineer, don't over-investigate.**
+   Implement the smallest change that correctly satisfies the issue as
+   written: no speculative abstractions, no refactors beyond what the fix
+   touches, no extra config/toggles, no broader test coverage than the new
+   behavior actually needs. Don't go spelunking through unrelated code
+   "just in case" — read what the change actually depends on, not the
+   whole neighborhood. If something genuinely needed to implement
+   correctly is missing or ambiguous (an unstated design choice, an
+   unclear scope boundary, a precondition the issue doesn't specify),
+   **ask the user instead of guessing** — same bar as the design-fork
+   pause in #4 above. (2026-08-09, #659: explicit user instruction,
+   generalized into a standing rule here.)
 
 ## Release notes vs. implementation notes
 
