@@ -191,6 +191,33 @@ describe('goalWindowProgress', () => {
     expect(progress?.baselineWeightKg).toBeUndefined()
     expect(progress?.currentWeightKg).toBeUndefined()
   })
+
+  // #659 — an explicit weekEnd overrides the weekStart+6 default everywhere
+  // the window's end is read, including which entries count.
+  it('prefers an explicit goal.weekEnd over the weekStart+6 default', () => {
+    const goal = makeGoal({ weekStart: '2026-03-09', weekEnd: '2026-03-11' })
+
+    const progress = goalWindowProgress([], goal)
+
+    expect(progress?.weekEnd).toBe('2026-03-11')
+  })
+
+  it('excludes entries after an explicit, earlier weekEnd', () => {
+    const goal = makeGoal({
+      weekStart: '2026-03-09',
+      weekEnd: '2026-03-11',
+      targetWeeklyLossKg: 1,
+    })
+    const entries = [
+      makeEntry('2026-03-09', 80),
+      makeEntry('2026-03-12', 78), // after the shortened window — excluded
+    ]
+
+    const progress = goalWindowProgress(entries, goal)
+
+    expect(progress?.targetMet).toBe(false)
+    expect(progress?.currentWeightKg).toBe(80)
+  })
 })
 
 describe('goalWindowHasEnded (#639)', () => {
@@ -236,5 +263,14 @@ describe('goalCoveringDate (#552)', () => {
       }),
     ]
     expect(goalCoveringDate(goals, '2026-08-02')?.id).toBe('newer')
+  })
+
+  // #659
+  it('prefers an explicit goal.weekEnd over the weekStart+6 default', () => {
+    const goals = [
+      makeGoal({ id: 'g1', weekStart: '2026-07-29', weekEnd: '2026-07-31' }),
+    ]
+    expect(goalCoveringDate(goals, '2026-07-31')?.id).toBe('g1')
+    expect(goalCoveringDate(goals, '2026-08-01')).toBeUndefined()
   })
 })

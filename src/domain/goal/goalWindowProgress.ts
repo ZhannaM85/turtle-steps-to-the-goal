@@ -79,7 +79,7 @@ export function goalWindowProgress(
   const weekStart = goal.weekStart
   if (!weekStart) return null
 
-  const weekEnd = goalWeekEnd(weekStart)
+  const weekEnd = goal.weekEnd ?? goalWeekEnd(weekStart)
 
   const baselineWeightKg = entries.find(
     (entry) => entry.date === weekStart,
@@ -153,7 +153,7 @@ export function goalWindowHasEnded(
 export function goalCoveringDate(goals: Goal[], date: string): Goal | undefined {
   const covering = goals.filter((goal) => {
     if (!goal.weekStart) return false
-    return date >= goal.weekStart && date <= goalWeekEnd(goal.weekStart)
+    return date >= goal.weekStart && date <= (goal.weekEnd ?? goalWeekEnd(goal.weekStart))
   })
   if (covering.length === 0) return undefined
   return covering.reduce((newest, goal) =>

@@ -66,7 +66,7 @@ function PastTargetRow({
   const weekRangeLabel = goal.weekStart
     ? t.common.weekRangeLabel(
         format(parseISO(goal.weekStart), 'PP', { locale: dateFnsLocale }),
-        format(parseISO(goalWeekEnd(goal.weekStart)), 'PP', {
+        format(parseISO(goal.weekEnd ?? goalWeekEnd(goal.weekStart)), 'PP', {
           locale: dateFnsLocale,
         }),
       )

@@ -624,7 +624,9 @@ export function TodayScreen() {
   // than only the single day it happened to end. Still no dismiss state
   // to persist, matching the app's no-pressure tone (no badges/streaks).
   const showGoalRenewalReminder = Boolean(
-    goal && goal.weekStart && todayIso() >= goalWeekEnd(goal.weekStart),
+    goal &&
+      goal.weekStart &&
+      todayIso() >= (goal.weekEnd ?? goalWeekEnd(goal.weekStart)),
   )
 
   // Opt-in, off by default (#171) — only while actually viewing today
@@ -1184,9 +1186,11 @@ export function TodayScreen() {
                       format(parseISO(dayGoal.weekStart), 'PP', {
                         locale: dateFnsLocale,
                       }),
-                      format(parseISO(goalWeekEnd(dayGoal.weekStart)), 'PP', {
-                        locale: dateFnsLocale,
-                      }),
+                      format(
+                        parseISO(dayGoal.weekEnd ?? goalWeekEnd(dayGoal.weekStart)),
+                        'PP',
+                        { locale: dateFnsLocale },
+                      ),
                     ),
                     // #469 / #551 — baseline weight on that goal's weekStart.
                     dayGoalProgress?.baselineWeightKg !== undefined

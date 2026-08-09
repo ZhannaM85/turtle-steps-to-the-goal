@@ -1,14 +1,28 @@
 import { format } from 'date-fns'
 import type { Goal } from '@/domain/goal'
-import { kgToLb, lbToKg } from '@/domain/goal'
+import { goalWeekEnd, kgToLb, lbToKg } from '@/domain/goal'
 import type { Unit } from '@/stores'
 import type { GoalFormValues } from './goalFormSchema'
+
+/**
+ * #659 — default for the form's editable "ends on" field: the goal's own
+ * `weekEnd` if it has one, else the fixed `weekStart + 6` window end. Falls
+ * back to today's own `weekStart + 6` when there's no goal yet (brand-new
+ * setup, or "Start a new goal") — the same date `formValuesToGoal` below
+ * stamps a fresh record's `weekStart` to on save, so the field's default
+ * matches what that save would actually produce.
+ */
+export function defaultWeekEndDate(goal: Goal | null): string {
+  if (goal?.weekEnd) return goal.weekEnd
+  const weekStart = goal?.weekStart ?? format(new Date(), 'yyyy-MM-dd')
+  return goalWeekEnd(weekStart)
+}
 
 export function goalToFormValues(
   goal: Goal | null,
   unit: Unit,
 ): Partial<GoalFormValues> {
-  if (!goal) return {}
+  if (!goal) return { weekEndDate: defaultWeekEndDate(null) }
 
   const fromKg = (kg: number) => (unit === 'lb' ? kgToLb(kg) : kg)
 
@@ -23,6 +37,7 @@ export function goalToFormValues(
     dailyPotassiumTarget: goal.dailyPotassiumTargetMg,
     dailyMagnesiumTarget: goal.dailyMagnesiumTargetMg,
     dailyWaterTarget: goal.dailyWaterTargetMl,
+    weekEndDate: defaultWeekEndDate(goal),
   }
 }
 
@@ -65,6 +80,7 @@ export function formValuesToGoal(
       dailyPotassiumTargetMg: values.dailyPotassiumTarget,
       dailyMagnesiumTargetMg: values.dailyMagnesiumTarget,
       dailyWaterTargetMl: values.dailyWaterTarget,
+      weekEnd: values.weekEndDate || undefined,
       updatedAt: now,
     }
   }
@@ -89,6 +105,7 @@ export function formValuesToGoal(
     // Always today (#135) — every *new* record starts a fresh 7-day
     // tracking window from the moment it's actually saved.
     weekStart: format(new Date(), 'yyyy-MM-dd'),
+    weekEnd: values.weekEndDate || undefined,
     createdAt: now,
     updatedAt: now,
   }

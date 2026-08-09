@@ -400,6 +400,9 @@ export const en: Dictionary = {
       `Use ± for ${step} ${unit} steps, or type any value.`,
     aggressivePaceWarning: (kcal) =>
       `That’s a steep weekly pace (about ${kcal} kcal/day deficit). Most people aim for around 0.5–1 kg per week — you can still save this if you mean it.`,
+    weekEndDateLabel: 'Ends on',
+    weekEndDateHint:
+      'Defaults to 7 days after the window starts. Change it if your week should end on a different day.',
     dailyCalorieTargetLabel: 'Daily calories target',
     dailyCalorieTargetHint: 'Optional — leave blank to skip.',
     dailyProteinTargetLabel: 'Daily protein target',

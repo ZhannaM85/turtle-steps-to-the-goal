@@ -19,7 +19,7 @@ export function goalWindowAverages(
   today: Date = new Date(),
 ): RecentAverages {
   if (!goal.weekStart) return { averageCalories: null, averageProteinG: null }
-  const weekEnd = goalWeekEnd(goal.weekStart)
+  const weekEnd = goal.weekEnd ?? goalWeekEnd(goal.weekStart)
   const todayStr = format(today, 'yyyy-MM-dd')
   const referenceDate = todayStr < weekEnd ? today : parseISO(weekEnd)
   const windowDays =

@@ -39,8 +39,11 @@ import {
   type Unit,
 } from '@/stores'
 import { Button } from '@/shared/ui/button'
+import { Input } from '@/shared/ui/input'
+import { Label } from '@/shared/ui/label'
 import { NumberInput } from '@/shared/ui/number-input'
 import {
+  defaultWeekEndDate,
   effectiveWeeklyPaceKg,
   formValuesToGoal,
   goalToFormValues,
@@ -61,6 +64,11 @@ function emptyGoalFormValues(): GoalFormValues {
     dailyPotassiumTarget: '' as unknown as number | undefined,
     dailyMagnesiumTarget: '' as unknown as number | undefined,
     dailyWaterTarget: '' as unknown as number | undefined,
+    // #659 — unlike the NumberInputs above, always prefilled with a real
+    // default rather than cleared to '' (an empty date picker is just
+    // confusing, and there's no uncontrolled-DOM-value bug to work around
+    // here since the value always changes on reset).
+    weekEndDate: defaultWeekEndDate(null),
   }
 }
 
@@ -105,7 +113,9 @@ export function GoalForm({
   // window, so it's treated as already-ended — same lenient precedent
   // approximateEndDate (goalHistory.ts) already uses for those.
   const activeWindowEnded = existingGoal?.weekStart
-    ? goalWindowHasEnded(goalWeekEnd(existingGoal.weekStart))
+    ? goalWindowHasEnded(
+        existingGoal.weekEnd ?? goalWeekEnd(existingGoal.weekStart),
+      )
     : true
   const unit = useUnitStore((state) => state.unit)
   const unitText = unitLabel(unit, t)
@@ -409,6 +419,15 @@ export function GoalForm({
   // `formValuesToGoal` behavior to use without re-deriving it.
   const [startingNew, setStartingNew] = useState(false)
 
+  // #659 — the earliest valid "ends on" date: the window this save will
+  // actually anchor to. Editing in place keeps the existing weekStart;
+  // starting fresh (or no goal yet) always anchors to today, same as
+  // `formValuesToGoal`'s own weekStart stamp.
+  const weekEndMinDate =
+    !startingNew && existingGoal?.weekStart
+      ? existingGoal.weekStart
+      : format(new Date(), 'yyyy-MM-dd')
+
   // #534 — confirm before discarding dirty edits (Cancel or leave route).
   // Derive nav-block UI from `blocker.state` (no setState-in-effect); Cancel
   // still uses local `confirmDiscard`.
@@ -664,9 +683,14 @@ export function GoalForm({
               {activeWindowEnded || !existingGoal?.weekStart
                 ? t.goal.startNewGoalHint
                 : t.goal.startNewGoalAvailableFromLabel(
-                    format(parseISO(goalWeekEnd(existingGoal.weekStart)), 'PP', {
-                      locale: dateFnsLocale,
-                    }),
+                    format(
+                      parseISO(
+                        existingGoal.weekEnd ??
+                          goalWeekEnd(existingGoal.weekStart),
+                      ),
+                      'PP',
+                      { locale: dateFnsLocale },
+                    ),
                   )}
             </p>
           </div>
@@ -749,6 +773,24 @@ export function GoalForm({
           )}
         </p>
       )}
+
+      {/* #659 — editable end date for this window, defaulting to the
+       * existing weekStart+6 computation (see defaultWeekEndDate) so
+       * nothing changes unless it's actually touched. `min` matches
+       * whatever weekStart this save will anchor to, same pattern as
+       * DeleteRangeSection's date-range pair (native constraint, no
+       * separate Zod cross-field check). */}
+      <div className="flex flex-col gap-1.5">
+        <Label htmlFor="goal-week-end-date">{t.goal.weekEndDateLabel}</Label>
+        <Input
+          id="goal-week-end-date"
+          type="date"
+          min={weekEndMinDate}
+          className="max-w-48"
+          {...register('weekEndDate')}
+        />
+        <p className="text-sm text-muted-foreground">{t.goal.weekEndDateHint}</p>
+      </div>
 
       {/* #259 — deterministic TDEE/macro-ratio suggestion, prefills but
        * never auto-saves the four fields below. Disabled until every

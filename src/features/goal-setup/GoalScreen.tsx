@@ -167,7 +167,7 @@ export function GoalScreen() {
                             locale: dateFnsLocale,
                           }),
                           format(
-                            parseISO(goalWeekEnd(goal.weekStart)),
+                            parseISO(goal.weekEnd ?? goalWeekEnd(goal.weekStart)),
                             'PP',
                             { locale: dateFnsLocale },
                           ),

@@ -18,6 +18,10 @@ export type GoalFormValues = {
   dailyPotassiumTarget?: number
   dailyMagnesiumTarget?: number
   dailyWaterTarget?: number
+  /** #659 — the window's editable "ends on" date (ISO). Always prefilled
+   * (see `defaultWeekEndDate` in goalFormMapping.ts), never left blank by
+   * the app itself. */
+  weekEndDate?: string
 }
 
 /** RHF may hold `''` after reset (#241 / #534); Zod number fields reject that. */
@@ -49,6 +53,10 @@ export function makeGoalFormSchema(t: Dictionary) {
       dailyMagnesiumTarget: optionalNumber(z.number().positive().max(5000)),
       // #258 — same reasoning again, independent of the macro targets.
       dailyWaterTarget: optionalNumber(z.number().positive().max(10000)),
+      // #659 — bounded by the `min` attribute on the date input itself
+      // (the window's start), same as the existing DeleteRangeSection date
+      // pair; no separate Zod cross-field check.
+      weekEndDate: z.string().optional(),
     })
     .superRefine((data, ctx) => {
       if (!data.targetWeeklyLoss || data.targetWeeklyLoss <= 0) {

@@ -13,6 +13,17 @@ export interface Goal {
    */
   weekStart?: string
   /**
+   * Optional explicit end date for the window `weekStart` anchors (#659).
+   * Defaults to `weekStart + 6 days` (`goalWeekEnd`) everywhere it's read
+   * when unset — this field only exists so a window whose `weekStart`
+   * landed on an inconvenient weekday (e.g. save-timing put it on a
+   * Tuesday when the user expects Monday–Sunday) can be edited to end on
+   * a different day, without touching `weekStart` itself or the separate
+   * `weekStartStore` "Week starts on" setting (#135's calendar-grid-
+   * independent windows, deliberately out of scope here).
+   */
+  weekEnd?: string
+  /**
    * Optional daily calories target (#208) — independent of
    * targetWeeklyLossKg, purely additive so an existing goal without one
    * just reads as "no daily target set" rather than needing a migration.

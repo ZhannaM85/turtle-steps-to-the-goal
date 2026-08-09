@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react'
+import { fireEvent, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { createMemoryRouter, Link, RouterProvider } from 'react-router-dom'
 import { afterEach, describe, expect, it, vi } from 'vitest'
@@ -1095,6 +1095,68 @@ describe('GoalForm', () => {
 
       expect(onSubmit).toHaveBeenCalledTimes(1)
       expect(onSubmit.mock.calls[0][0].id).not.toBe('g1')
+    })
+  })
+
+  describe('editable end date (#659)', () => {
+    it('defaults to weekStart + 6 days and submits it unchanged', async () => {
+      vi.useFakeTimers({ toFake: ['Date'] })
+      vi.setSystemTime(new Date('2026-07-24T12:00:00'))
+      const user = userEvent.setup({ delay: null })
+      const onSubmit = vi.fn()
+      renderGoalForm(<GoalForm existingGoal={null} onSubmit={onSubmit} />)
+
+      expect(screen.getByLabelText('Ends on')).toHaveValue('2026-07-30')
+
+      await user.type(
+        screen.getByLabelText("This week's target (kg to lose)"),
+        '1',
+      )
+      await user.click(
+        screen.getByRole('button', { name: 'Set this week’s target' }),
+      )
+
+      expect(onSubmit.mock.calls[0][0].weekEnd).toBe('2026-07-30')
+    })
+
+    it('submits a custom end date when edited', async () => {
+      const user = userEvent.setup()
+      const onSubmit = vi.fn()
+      renderGoalForm(<GoalForm existingGoal={null} onSubmit={onSubmit} />)
+
+      await user.type(
+        screen.getByLabelText("This week's target (kg to lose)"),
+        '1',
+      )
+      fireEvent.change(screen.getByLabelText('Ends on'), {
+        target: { value: '2026-08-05' },
+      })
+      await user.click(
+        screen.getByRole('button', { name: 'Set this week’s target' }),
+      )
+
+      expect(onSubmit.mock.calls[0][0].weekEnd).toBe('2026-08-05')
+    })
+
+    it('pre-fills from an existing goal’s own weekEnd, not the +6 default', async () => {
+      const user = userEvent.setup()
+      renderGoalForm(
+        <GoalForm
+          existingGoal={{
+            id: 'g1',
+            targetWeeklyLossKg: 1,
+            weekStart: '2026-07-28',
+            weekEnd: '2026-08-02',
+            createdAt: '2026-01-01T00:00:00.000Z',
+            updatedAt: '2026-01-01T00:00:00.000Z',
+          }}
+          onSubmit={vi.fn()}
+        />,
+      )
+
+      await user.click(screen.getByRole('button', { name: 'Edit goal' }))
+
+      expect(screen.getByLabelText('Ends on')).toHaveValue('2026-08-02')
     })
   })
 
