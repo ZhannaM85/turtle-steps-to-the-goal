@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 619,
+    issue: 662,
+    date: '2026-08-09T15:12:31+03:00',
+    en: 'Fixed the "time to renew your goal" reminder showing a day early, alongside the still-active "goal achieved" banner.',
+    ru: 'Исправлено: напоминание «пора обновить цель» появлялось на день раньше срока, одновременно с баннером «цель достигнута».',
+  },
+  {
     version: 618,
     issue: 660,
     date: '2026-08-09T13:53:59+03:00',

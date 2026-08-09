@@ -631,7 +631,7 @@ describe('TodayScreen', () => {
 
   describe('goal renewal reminder (#135: anchored to goal.weekStart, not a calendar week)', () => {
     it("shows once the goal's 7-day window has run its course", async () => {
-      const weekStart = format(subDays(new Date(), 6), 'yyyy-MM-dd') // weekEnd == today
+      const weekStart = format(subDays(new Date(), 7), 'yyyy-MM-dd') // weekEnd yesterday
       await useGoalStore
         .getState()
         .saveGoal(makeGoal({ targetWeeklyLossKg: 1, weekStart }))
@@ -649,6 +649,28 @@ describe('TodayScreen', () => {
         'href',
         '/goal',
       )
+    })
+
+    // #662 — this and the target-met banner/renew button all previously used
+    // slightly different boundaries for "the window is over" (this card said
+    // so a day early, on weekEnd itself), so a user could see "hold on until
+    // Aug 9" and "time to renew" at once, with the renew button still
+    // disabled. All three now agree: the window isn't over until the day
+    // after weekEnd.
+    it("does not show on the window's exact last day, only the day after", async () => {
+      const weekStart = format(subDays(new Date(), 6), 'yyyy-MM-dd') // weekEnd == today
+      await useGoalStore
+        .getState()
+        .saveGoal(makeGoal({ targetWeeklyLossKg: 1, weekStart }))
+
+      render(
+        <MemoryRouter>
+          <TodayScreen />
+        </MemoryRouter>,
+      )
+
+      await screen.findByText("This week's target")
+      expect(screen.queryByText(/ready to renew/)).not.toBeInTheDocument()
     })
 
     it('keeps showing on later visits if the window is overdue, not just its exact last day', async () => {

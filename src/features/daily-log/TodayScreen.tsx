@@ -626,7 +626,7 @@ export function TodayScreen() {
   const showGoalRenewalReminder = Boolean(
     goal &&
       goal.weekStart &&
-      todayIso() >= (goal.weekEnd ?? goalWeekEnd(goal.weekStart)),
+      goalWindowHasEnded(goal.weekEnd ?? goalWeekEnd(goal.weekStart)),
   )
 
   // Opt-in, off by default (#171) — only while actually viewing today
