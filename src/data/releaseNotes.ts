@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 621,
+    issue: 665,
+    date: '2026-08-09T16:09:51+03:00',
+    en: 'On the last day of a goal week, “keep it up through …” now clearly includes that day (same fix in Russian: “до конца …”).',
+    ru: 'В последний день цели формулировка «держитесь до конца …» теперь ясно включает этот день (то же уточнение в английском: “through”).',
+  },
+  {
     version: 620,
     issue: 663,
     date: '2026-08-09T15:56:46+03:00',

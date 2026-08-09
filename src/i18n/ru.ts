@@ -67,7 +67,7 @@ export const ru: Dictionary = {
       'Цель на эту неделю пора обновить — стоит заглянуть и проверить.',
     reviewGoalLink: 'Посмотреть цель',
     targetMetBanner: (weekEndDate) =>
-      `Вы достигли цели на эту неделю — держитесь до ${weekEndDate}, чтобы получить значок!`,
+      `Вы достигли цели на эту неделю — держитесь до конца ${weekEndDate}, чтобы получить значок!`,
     dailyReminderText: 'Сегодня пока нет записи — когда будете готовы.',
     dailyReminderNotificationTitle: 'Черепашка идёт к цели',
     dailyReminderNotificationBody:
@@ -112,7 +112,7 @@ export const ru: Dictionary = {
     bmrTooltipLabel: 'О примерной суточной норме калорий',
     celebrationTitle: 'Вы достигли цели на эту неделю!',
     celebrationDescription: (weekEndDate) =>
-      `Держитесь до ${weekEndDate}, чтобы получить значок.`,
+      `Держитесь до конца ${weekEndDate}, чтобы получить значок.`,
     celebrationCta: 'Посмотреть цель',
     celebrationCloseLabel: 'Закрыть',
     celebrationCompleteTitle: 'Вы выполнили недельную цель!',
@@ -483,7 +483,7 @@ export const ru: Dictionary = {
     previousToCurrentWeightLabel: (previous, current, unit) =>
       `${previous} → ${current} ${unit}`,
     activeGoalReachedNudge: (weekEndDate) =>
-      `Вы достигли цели на эту неделю — держитесь до ${weekEndDate}, чтобы получить значок!`,
+      `Вы достигли цели на эту неделю — держитесь до конца ${weekEndDate}, чтобы получить значок!`,
     activeGoalReachedSectionTitle: 'Цель достигнута',
     goalCompletedNudge:
       'Вы выполнили цель на эту неделю! Начните новую ниже, когда будете готовы.',

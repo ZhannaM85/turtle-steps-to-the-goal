@@ -396,7 +396,7 @@ describe('GoalScreen', () => {
     ).toBeInTheDocument()
     expect(
       screen.getByText(
-        /keep it up until .* to earn your badge/,
+        /keep it up through .* to earn your badge/,
       ),
     ).toBeInTheDocument()
   })
@@ -428,7 +428,7 @@ describe('GoalScreen', () => {
     ).toBeInTheDocument()
     expect(screen.queryByText('Target reached')).not.toBeInTheDocument()
     expect(
-      screen.queryByText(/keep it up until .* to earn your badge/),
+      screen.queryByText(/keep it up through .* to earn your badge/),
     ).not.toBeInTheDocument()
   })
 
@@ -471,7 +471,7 @@ describe('GoalScreen', () => {
     expect(screen.queryByText(/Target met on/)).not.toBeInTheDocument()
     expect(
       screen.queryByText(
-        /keep it up until .* to earn your badge/,
+        /keep it up through .* to earn your badge/,
       ),
     ).not.toBeInTheDocument()
   })
@@ -568,7 +568,7 @@ describe('GoalScreen', () => {
 
       expect(
         screen.queryByText(
-          /keep it up until .* to earn your badge/,
+          /keep it up through .* to earn your badge/,
         ),
       ).not.toBeInTheDocument()
       expect(screen.getByText(title)).toBeInTheDocument()
@@ -576,7 +576,7 @@ describe('GoalScreen', () => {
       await user.click(screen.getByRole('button', { name: `Show ${title}` }))
       expect(
         screen.getByText(
-          /keep it up until .* to earn your badge/,
+          /keep it up through .* to earn your badge/,
         ),
       ).toBeInTheDocument()
     })

@@ -62,7 +62,7 @@ export const en: Dictionary = {
       "This week's target is ready to renew — worth checking in on it.",
     reviewGoalLink: 'Review goal',
     targetMetBanner: (weekEndDate) =>
-      `You reached this week's target — keep it up until ${weekEndDate} to earn your badge!`,
+      `You reached this week's target — keep it up through ${weekEndDate} to earn your badge!`,
     dailyReminderText: 'No entry yet today — whenever you’re ready.',
     dailyReminderNotificationTitle: 'Turtle Steps',
     dailyReminderNotificationBody:
@@ -107,7 +107,7 @@ export const en: Dictionary = {
     bmrTooltipLabel: 'About estimated daily calories',
     celebrationTitle: "You reached this week's target!",
     celebrationDescription: (weekEndDate) =>
-      `Keep it up until ${weekEndDate} to earn your badge.`,
+      `Keep it up through ${weekEndDate} to earn your badge.`,
     celebrationCta: 'Review goal',
     celebrationCloseLabel: 'Close',
     celebrationCompleteTitle: 'You completed your weekly goal!',
@@ -462,7 +462,7 @@ export const en: Dictionary = {
     previousToCurrentWeightLabel: (previous, current, unit) =>
       `${previous} → ${current} ${unit}`,
     activeGoalReachedNudge: (weekEndDate) =>
-      `You've reached this week's target — keep it up until ${weekEndDate} to earn your badge!`,
+      `You've reached this week's target — keep it up through ${weekEndDate} to earn your badge!`,
     activeGoalReachedSectionTitle: 'Target reached',
     goalCompletedNudge:
       "You completed this week's goal! Start a new one below whenever you're ready.",

@@ -95,7 +95,9 @@ export interface Dictionary {
     /** #639: reframed from a flat claim to a mid-week-only "keep going"
      * nudge — this banner is now gated to hide once the window has
      * actually ended (the goal's own weekEnd date, passed in), when the
-     * GoalScreen's own completed/missed messaging takes over instead. */
+     * GoalScreen's own completed/missed messaging takes over instead.
+     * #665: RU uses "до конца {weekEnd}" (and EN "through") so the last
+     * day reads as still included — bare "до {date}" is exclusive in RU. */
     targetMetBanner: (weekEndDate: string) => string
     /** Quiet, opt-in nudge (#171) — only shown when the Settings toggle is
      * on and today has no entry yet. Same no-badges/no-streaks tone as
@@ -212,7 +214,8 @@ export interface Dictionary {
     /** #639: this is now specifically the *mid-week* "crossed the target,
      * not final yet" modal — reframed from a flat achievement claim so it
      * doesn't imply the badge is already earned. A separate `celebrationComplete*`
-     * trio below covers the real end-of-window completion moment. */
+     * trio below covers the real end-of-window completion moment.
+     * #665: same inclusive last-day phrasing as `targetMetBanner`. */
     celebrationTitle: string
     celebrationDescription: (weekEndDate: string) => string
     celebrationCta: string
@@ -891,7 +894,8 @@ export interface Dictionary {
      * "keep going," not "you can restart now" (the restart button stays
      * disabled until the window actually ends) — takes the window's own
      * weekEnd date. Only shown while the window is still in progress; once
-     * it ends, `goalCompletedNudge`/`goalMissedNudge` below take over. */
+     * it ends, `goalCompletedNudge`/`goalMissedNudge` below take over.
+     * #665: same inclusive last-day phrasing as `today.targetMetBanner`. */
     activeGoalReachedNudge: (weekEndDate: string) => string
     /** #232 — short title for the nudge's own show/hide toggle row,
      * distinct from the full-sentence body text above (same reasoning as

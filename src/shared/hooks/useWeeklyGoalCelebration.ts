@@ -32,7 +32,7 @@ export function useWeeklyGoalCelebration(): {
   shouldCelebrate: boolean
   phase: GoalCelebrationPhase
   /** The active goal window's own end date — the 'inProgress' phase's
-   * copy names it ("keep it up until X"). Null whenever shouldCelebrate
+   * copy names it ("keep it up through X"). Null whenever shouldCelebrate
    * is false, since there's nothing to render either way. */
   weekEnd: string | null
   dismiss: () => void
