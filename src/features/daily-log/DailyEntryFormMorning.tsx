@@ -615,8 +615,13 @@ export function DailyEntryFormMorning() {
                    * top-aligned with row 2 specifically) each missed live
                    * feedback before landing here. `w-fit` on the grid keeps its
                    * columns sized to their (narrow, `w-16`) field content
-                   * instead of splitting the card's full width evenly. */}
-                  <div className="grid w-fit grid-cols-[auto_auto_auto_auto] gap-x-6 gap-y-3">
+                   * instead of splitting the card's full width evenly.
+                   * #660 — `gap-y-4` (was `gap-y-3`) widens the gap between
+                   * one row's input and the next row's label, so it reads
+                   * clearly larger than each label's own `gap-1` to its
+                   * input below (see the `min-h-8` spans' `items-end` for
+                   * the other half of the fix). */}
+                  <div className="grid w-fit grid-cols-[auto_auto_auto_auto] gap-x-6 gap-y-4">
                     <div className="col-start-1 row-start-1 flex flex-col gap-1">
                       {/* #446 — a fixed min-h reserves the same vertical space
                        * whether or not this particular label actually wraps, so
@@ -625,8 +630,15 @@ export function DailyEntryFormMorning() {
                        * wrapping to 2 lines here used to push just *that*
                        * column's input down, misaligning it from the others in
                        * the same row). min-h-8 (32px) fits 2 lines at this
-                       * text-xs size, the tallest any of these 5 labels wrap to. */}
-                      <span className="min-h-8 text-xs text-muted-foreground">
+                       * text-xs size, the tallest any of these 5 labels wrap to.
+                       * #660 — `flex items-end` bottom-aligns the label text
+                       * within that reserved height, so a single-line label
+                       * (most of these, in most locales) sits flush against
+                       * its own input below instead of floating in the
+                       * middle of the 32px box — which had been reading as
+                       * roughly the same gap as the space to the *next*
+                       * field's label. */}
+                      <span className="flex min-h-8 items-end text-xs text-muted-foreground">
                         {t.dailyEntry.muscleMassLabel}
                       </span>
                       <div className="flex items-center gap-1">
@@ -655,7 +667,7 @@ export function DailyEntryFormMorning() {
                       </div>
                     </div>
                     <div className="col-start-2 row-start-1 flex flex-col gap-1">
-                      <span className="min-h-8 text-xs text-muted-foreground">
+                      <span className="flex min-h-8 items-end text-xs text-muted-foreground">
                         {t.dailyEntry.visceralFatLabel}
                       </span>
                       <div className="flex items-center gap-1">
@@ -681,7 +693,7 @@ export function DailyEntryFormMorning() {
                       </div>
                     </div>
                     <div className="col-start-1 row-start-2 flex flex-col gap-1">
-                      <span className="min-h-8 text-xs text-muted-foreground">
+                      <span className="flex min-h-8 items-end text-xs text-muted-foreground">
                         {t.dailyEntry.bodyWaterLabel}
                       </span>
                       <div className="flex items-center gap-1">
@@ -710,7 +722,7 @@ export function DailyEntryFormMorning() {
                       </div>
                     </div>
                     <div className="col-start-2 row-start-2 flex flex-col gap-1">
-                      <span className="min-h-8 text-xs text-muted-foreground">
+                      <span className="flex min-h-8 items-end text-xs text-muted-foreground">
                         {t.dailyEntry.boneMassLabel}
                       </span>
                       <div className="flex items-center gap-1">
@@ -739,7 +751,7 @@ export function DailyEntryFormMorning() {
                       </div>
                     </div>
                     <div className="col-start-1 row-start-3 flex flex-col gap-1">
-                      <span className="min-h-8 text-xs text-muted-foreground">
+                      <span className="flex min-h-8 items-end text-xs text-muted-foreground">
                         {t.dailyEntry.bodyFatLabel}
                       </span>
                       <div className="flex items-center gap-1">

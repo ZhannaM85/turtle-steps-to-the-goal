@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 618,
+    issue: 660,
+    date: '2026-08-09T13:53:59+03:00',
+    en: 'Tightened label spacing in the Body Composition entry so each field label sits closer to its own input.',
+    ru: 'Уточнены отступы подписей в разделе «Состав тела» — теперь каждая подпись ближе к своему полю.',
+  },
+  {
     version: 617,
     issue: 659,
     date: '2026-08-09T13:09:28+03:00',
