@@ -1,6 +1,6 @@
 import { format, subDays } from 'date-fns'
 import { describe, expect, it } from 'vitest'
-import type { Goal } from '@/domain/goal'
+import { goalWeekEnd, type Goal } from '@/domain/goal'
 import {
   effectiveWeeklyPaceKg,
   formValuesToGoal,
@@ -21,7 +21,10 @@ function makeGoal(overrides: Partial<Goal> = {}): Goal {
 
 describe('goalToFormValues', () => {
   it('returns sensible defaults when there is no existing goal', () => {
-    expect(goalToFormValues(null, 'kg')).toEqual({})
+    const today = format(new Date(), 'yyyy-MM-dd')
+    expect(goalToFormValues(null, 'kg')).toEqual({
+      weekEndDate: goalWeekEnd(today),
+    })
   })
 
   it('maps a kg goal straight through', () => {
