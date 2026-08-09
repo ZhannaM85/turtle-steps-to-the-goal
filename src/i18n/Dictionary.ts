@@ -1846,9 +1846,9 @@ export interface Dictionary {
     dailyReminderDescription: string
     dailyReminderOn: string
     dailyReminderOff: string
-    /** #663 — opt-in nutrition-facts encouragement, same on/off shape as
-     * dailyReminder above. Gates both the Day screen's card and the
-     * meal-composition screen's inline praise. */
+    /** #663 — nutrition-facts encouragement (on by default), same on/off
+     * shape as dailyReminder above. Gates both the Day screen's card and
+     * the meal-composition screen's inline praise. */
     nutritionFactsLabel: string
     nutritionFactsDescription: string
     nutritionFactsOn: string

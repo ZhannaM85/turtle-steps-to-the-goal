@@ -36,8 +36,8 @@ export const releaseNotes: ReleaseNote[] = [
     version: 620,
     issue: 663,
     date: '2026-08-09T15:56:46+03:00',
-    en: 'Optional Nutrition highlights — quiet encouraging notes on the Day screen and when saving a meal, when what you logged matches a common guideline (protein-rich meal, balanced plate, fiber goal, and more). Off by default in Settings.',
-    ru: 'Необязательные «Заметки о питании» — спокойные поощрительные заметки на экране «День» и при сохранении приёма пищи, когда записанное соответствует распространённой рекомендации (богатый белком приём пищи, сбалансированная тарелка, цель по клетчатке и др.). По умолчанию выключено в Настройках.',
+    en: 'Nutrition highlights — quiet encouraging notes on the Day screen and when saving a meal, when what you logged matches a common guideline (protein-rich meal, balanced plate, fiber goal, and more). On by default; turn off anytime in Settings.',
+    ru: '«Заметки о питании» — спокойные поощрительные заметки на экране «День» и при сохранении приёма пищи, когда записанное соответствует распространённой рекомендации (богатый белком приём пищи, сбалансированная тарелка, цель по клетчатке и др.). По умолчанию включено; можно выключить в Настройках.',
   },
   {
     version: 619,

@@ -943,20 +943,7 @@ describe('AddMealDialog (#454)', () => {
   })
 
   describe('nutrition facts inline praise (#663)', () => {
-    it('does not show by default, even with a qualifying item', () => {
-      render(
-        <ControlledAddMealDialog
-          {...defaultProps}
-          initialItems={[{ id: 'i1', name: 'Chicken', amountKcal: 200, proteinG: 25 }]}
-        />,
-      )
-
-      expect(
-        screen.queryByText('Protein-rich meal', { exact: false }),
-      ).not.toBeInTheDocument()
-    })
-
-    it('shows a satisfied fact once enabled', () => {
+    it('shows a satisfied fact by default', () => {
       useNutritionFactsStore.setState({ enabled: true })
       render(
         <ControlledAddMealDialog
@@ -968,6 +955,20 @@ describe('AddMealDialog (#454)', () => {
       expect(
         screen.getByText('Protein-rich meal', { exact: false }),
       ).toBeInTheDocument()
+    })
+
+    it('does not show once disabled', () => {
+      useNutritionFactsStore.setState({ enabled: false })
+      render(
+        <ControlledAddMealDialog
+          {...defaultProps}
+          initialItems={[{ id: 'i1', name: 'Chicken', amountKcal: 200, proteinG: 25 }]}
+        />,
+      )
+
+      expect(
+        screen.queryByText('Protein-rich meal', { exact: false }),
+      ).not.toBeInTheDocument()
     })
 
     it('does not re-show a fact another meal today already satisfied', () => {

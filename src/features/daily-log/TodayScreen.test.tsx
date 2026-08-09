@@ -799,22 +799,7 @@ describe('TodayScreen', () => {
       useDailyEntryStore.setState({ entry: null, date: null, status: 'idle' })
     }
 
-    it('does not show by default, even with a qualifying meal logged', async () => {
-      await saveHighProteinMeal()
-
-      render(
-        <MemoryRouter>
-          <TodayScreen />
-        </MemoryRouter>,
-      )
-
-      await screen.findByText('No goal set yet')
-      expect(
-        screen.queryByText('Protein-rich meal', { exact: false }),
-      ).not.toBeInTheDocument()
-    })
-
-    it('shows a satisfied fact once enabled', async () => {
+    it('shows a satisfied fact by default once a qualifying meal is logged', async () => {
       useNutritionFactsStore.setState({ enabled: true })
       await saveHighProteinMeal()
 
@@ -829,7 +814,23 @@ describe('TodayScreen', () => {
       ).toBeInTheDocument()
     })
 
-    it('does not show once enabled with nothing qualifying logged', async () => {
+    it('does not show once disabled, even with a qualifying meal logged', async () => {
+      useNutritionFactsStore.setState({ enabled: false })
+      await saveHighProteinMeal()
+
+      render(
+        <MemoryRouter>
+          <TodayScreen />
+        </MemoryRouter>,
+      )
+
+      await screen.findByText('No goal set yet')
+      expect(
+        screen.queryByText('Protein-rich meal', { exact: false }),
+      ).not.toBeInTheDocument()
+    })
+
+    it('does not show with nothing qualifying logged', async () => {
       useNutritionFactsStore.setState({ enabled: true })
 
       render(

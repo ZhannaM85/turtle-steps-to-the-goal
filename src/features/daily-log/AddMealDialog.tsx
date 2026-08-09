@@ -266,7 +266,7 @@ export function AddMealDialog({
   const mealLabelPresets = useMealLabelPresetStore((state) => state.presets)
   const micronutrients = useMicronutrientTrackingStore((state) => state.tracked)
   const trackFiber = useTrackedFieldsStore((state) => state.tracked.fiber)
-  // #663 — gates the inline meal-composition praise below, off by default.
+  // #663 — gates the inline meal-composition praise below, on by default.
   const nutritionFactsEnabled = useNutritionFactsStore((state) => state.enabled)
   // #563/#567 — Breakfast/Lunch/Dinner/Snack for the active locale, then
   // custom Settings presets that aren't a built-in default in any locale.

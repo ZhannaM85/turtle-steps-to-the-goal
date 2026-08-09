@@ -631,8 +631,8 @@ export function TodayScreen() {
       goalWindowHasEnded(goal.weekEnd ?? goalWeekEnd(goal.weekStart)),
   )
 
-  // Opt-in, off by default (#663) — praise for hitting a common nutrition
-  // guideline (protein-rich meal, balanced macros, daily fiber goal, ...).
+  // On by default (#663) — praise for hitting a common nutrition guideline
+  // (protein-rich meal, balanced macros, daily fiber goal, ...).
   // evaluateDayNutritionFacts already dedupes per-meal facts across the
   // whole day, so "once per day per fact" falls out of using a Set rather
   // than needing separate dismiss/shown-state.

@@ -1146,7 +1146,7 @@ export const en: Dictionary = {
     dailyReminderOff: 'Off',
     nutritionFactsLabel: 'Nutrition highlights',
     nutritionFactsDescription:
-      'Optional — small encouraging notes on the Day screen and when saving a meal, when what you logged matches a common nutrition guideline (e.g. a protein-rich meal, a balanced plate). Off by default.',
+      'Small encouraging notes on the Day screen and when saving a meal, when what you logged matches a common nutrition guideline (e.g. a protein-rich meal, a balanced plate). On by default — turn off anytime.',
     nutritionFactsOn: 'On',
     nutritionFactsOff: 'Off',
     dailyReminderTimeLabel: 'Remind me at',
