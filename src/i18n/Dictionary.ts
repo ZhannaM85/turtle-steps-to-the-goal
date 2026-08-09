@@ -1766,6 +1766,40 @@ export interface Dictionary {
     deleteMealItemLabel: (name: string) => string
     editMealItemLabel: (name: string) => string
     saveMealItemLabel: (name: string) => string
+    /** #661 — share a personal library food via OS share sheet / QR. */
+    shareMealItemLabel: (name: string) => string
+    shareFoodDialogTitle: string
+    shareFoodDialogDescription: (name: string) => string
+    shareFoodCloseLabel: string
+    shareFoodQrAlt: (name: string) => string
+    shareFoodQrHint: string
+    shareFoodNativeShareButton: string
+    shareFoodCopyLinkButton: string
+    shareFoodLinkCopiedLabel: string
+    shareFoodShareTitle: (name: string) => string
+    shareFoodShareText: (name: string) => string
+    shareFoodShareFailedMessage: string
+    importSharedFoodButton: string
+    importSharedFoodEntryTitle: string
+    importSharedFoodEntryDescription: string
+    importSharedFoodScanQrButton: string
+    importSharedFoodScanQrTitle: string
+    importSharedFoodScanQrInstructions: string
+    importSharedFoodPasteLabel: string
+    importSharedFoodPastePlaceholder: string
+    importSharedFoodPasteSubmitButton: string
+    importSharedFoodPasteInvalidMessage: string
+    importSharedFoodDialogTitle: string
+    importSharedFoodDialogDescription: string
+    importSharedFoodBrandLabel: string
+    importSharedFoodBrandHint: string
+    importSharedFoodBarcodeLabel: string
+    importSharedFoodGramsLabel: string
+    importSharedFoodMatchMessage: (name: string) => string
+    importSharedFoodAddButton: string
+    importSharedFoodUpdateButton: string
+    importSharedFoodSkipButton: string
+    importSharedFoodCancelButton: string
     /** #603 — named serving descriptors for a personal meal item, same
      * "1 slice"/"1 cup" convenience #254 gave curated foods. Commits
      * immediately on add/remove (own `setServings` store call), same

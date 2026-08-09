@@ -16,6 +16,16 @@ export interface BarcodeScannerDialogProps {
    * finished" instead of closing instantly and leaving that whole gap with
    * no visible feedback at all. */
   onScanned: (barcode: string) => void | Promise<void>
+  /**
+   * #661 — `product` (default) = retail UPC/EAN only; `qr` = QR codes for
+   * shared-food deep links. Kept as a small enum rather than exposing
+   * zxing format enums to callers.
+   */
+  scanKind?: 'product' | 'qr'
+  /** Optional title override (#661 QR import). */
+  title?: string
+  /** Optional instructions override (#661 QR import). */
+  instructions?: string
 }
 
 /**
@@ -61,6 +71,9 @@ export function BarcodeScannerDialog({
   open,
   onOpenChange,
   onScanned,
+  scanKind = 'product',
+  title,
+  instructions,
 }: BarcodeScannerDialogProps) {
   const t = useTranslation()
   const videoRef = useRef<HTMLVideoElement>(null)
@@ -100,13 +113,19 @@ export function BarcodeScannerDialog({
         // of the ~18 symbologies it checks by default, including 2D
         // formats like QR/Aztec/PDF417 this app never needs) means less
         // work per frame, so a genuine barcode in view gets found faster.
+        // #661 — QR import flips this to QR_CODE only for shared-food links.
         const hints = new Map()
-        hints.set(DecodeHintType.POSSIBLE_FORMATS, [
-          BarcodeFormat.UPC_A,
-          BarcodeFormat.UPC_E,
-          BarcodeFormat.EAN_13,
-          BarcodeFormat.EAN_8,
-        ])
+        hints.set(
+          DecodeHintType.POSSIBLE_FORMATS,
+          scanKind === 'qr'
+            ? [BarcodeFormat.QR_CODE]
+            : [
+                BarcodeFormat.UPC_A,
+                BarcodeFormat.UPC_E,
+                BarcodeFormat.EAN_13,
+                BarcodeFormat.EAN_8,
+              ],
+        )
         const reader = new BrowserMultiFormatReader(hints)
         controlsRef.current = await reader.decodeFromVideoDevice(
           undefined,
@@ -197,7 +216,9 @@ export function BarcodeScannerDialog({
         closeLabel={t.dailyEntry.closeItemEditorLabel}
         className="flex flex-col gap-4"
       >
-        <DialogTitle>{t.dailyEntry.scanBarcodeDialogTitle}</DialogTitle>
+        <DialogTitle>
+          {title ?? t.dailyEntry.scanBarcodeDialogTitle}
+        </DialogTitle>
         {isProcessing ? (
           <p className="text-sm text-muted-foreground">
             {t.dailyEntry.scanBarcodeSearchingMessage}
@@ -209,7 +230,7 @@ export function BarcodeScannerDialog({
             ) : (
               <>
                 <p className="text-sm text-muted-foreground">
-                  {t.dailyEntry.scanBarcodeInstructions}
+                  {instructions ?? t.dailyEntry.scanBarcodeInstructions}
                 </p>
                 <div className="relative flex-1">
                   <video
@@ -226,7 +247,11 @@ export function BarcodeScannerDialog({
                       role="button"
                       tabIndex={0}
                       aria-label={t.dailyEntry.scanBarcodeTapToFocusLabel}
-                      className="pointer-events-auto relative aspect-[5/2] w-full max-w-xs cursor-pointer rounded-lg border-2 border-white/80"
+                      className={
+                        scanKind === 'qr'
+                          ? 'pointer-events-auto relative aspect-square w-full max-w-xs cursor-pointer rounded-lg border-2 border-white/80'
+                          : 'pointer-events-auto relative aspect-[5/2] w-full max-w-xs cursor-pointer rounded-lg border-2 border-white/80'
+                      }
                       onPointerDown={(event) => {
                         void handleFramePointerDown(event)
                       }}
@@ -251,35 +276,37 @@ export function BarcodeScannerDialog({
                 )}
               </>
             )}
-            <div className="flex flex-col gap-1.5">
-              <span className="text-sm text-muted-foreground">
-                {t.dailyEntry.scanBarcodeManualLabel}
-              </span>
-              <div className="flex gap-2">
-                <Input
-                  type="text"
-                  inputMode="numeric"
-                  aria-label={t.dailyEntry.scanBarcodeManualLabel}
-                  placeholder={t.dailyEntry.scanBarcodeManualPlaceholder}
-                  value={manualBarcode}
-                  onChange={(e) => setManualBarcode(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
-                      e.preventDefault()
-                      handleManualSubmit()
-                    }
-                  }}
-                  className="h-12 flex-1 text-base"
-                />
-                <Button
-                  type="button"
-                  disabled={!manualBarcode.trim()}
-                  onClick={handleManualSubmit}
-                >
-                  {t.dailyEntry.scanBarcodeManualSubmitLabel}
-                </Button>
+            {scanKind === 'product' ? (
+              <div className="flex flex-col gap-1.5">
+                <span className="text-sm text-muted-foreground">
+                  {t.dailyEntry.scanBarcodeManualLabel}
+                </span>
+                <div className="flex gap-2">
+                  <Input
+                    type="text"
+                    inputMode="numeric"
+                    aria-label={t.dailyEntry.scanBarcodeManualLabel}
+                    placeholder={t.dailyEntry.scanBarcodeManualPlaceholder}
+                    value={manualBarcode}
+                    onChange={(e) => setManualBarcode(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault()
+                        handleManualSubmit()
+                      }
+                    }}
+                    className="h-12 flex-1 text-base"
+                  />
+                  <Button
+                    type="button"
+                    disabled={!manualBarcode.trim()}
+                    onClick={handleManualSubmit}
+                  >
+                    {t.dailyEntry.scanBarcodeManualSubmitLabel}
+                  </Button>
+                </div>
               </div>
-            </div>
+            ) : null}
           </>
         )}
       </DialogContent>

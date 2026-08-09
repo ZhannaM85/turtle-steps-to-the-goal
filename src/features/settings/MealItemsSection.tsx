@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Pencil, ScanBarcode, Star, Trash2 } from 'lucide-react'
+import { Pencil, ScanBarcode, Share2, Star, Trash2 } from 'lucide-react'
 import { formatNumber, useLocale, useTranslation } from '@/i18n'
 import type { MealItem, MealItemServing } from '@/domain/mealItem'
 import {
@@ -33,6 +33,7 @@ import { Dialog, DialogContent, DialogTitle } from '@/shared/ui/dialog'
 import { Input } from '@/shared/ui/input'
 import { ToggleGroup, ToggleGroupItem } from '@/shared/ui/toggle-group'
 import { BarcodeScannerDialog, lookupBarcode } from '@/features/daily-log'
+import { ShareFoodDialog, useFoodShareUiStore } from '@/features/food-share'
 
 // #289 — read-only, one-shot lookup outside the store, same module-scope
 // pattern MealList.tsx already uses for its own barcode-scan entry point.
@@ -78,6 +79,7 @@ function MealItemRow({
   onSaveNutrition,
   onToggleFavorite,
   onSaveServings,
+  onShare,
 }: {
   item: MealItem
   onRename: (id: string, name: string) => void | Promise<void>
@@ -94,6 +96,7 @@ function MealItemRow({
   ) => void | Promise<void>
   onToggleFavorite: (id: string) => void
   onSaveServings: (id: string, servings: MealItemServing[]) => void
+  onShare: (item: MealItem) => void
 }) {
   const t = useTranslation()
   const locale = useLocale()
@@ -343,6 +346,15 @@ function MealItemRow({
               type="button"
               variant="ghost"
               size="icon-sm"
+              aria-label={t.settings.shareMealItemLabel(item.name)}
+              onClick={() => onShare(item)}
+            >
+              <Share2 aria-hidden="true" />
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon-sm"
               aria-label={t.settings.deleteMealItemLabel(item.name)}
               onClick={() => onDelete(item.id)}
             >
@@ -582,6 +594,15 @@ function MealItemRow({
               onClick={() => startEditNutrition()}
             >
               <Pencil aria-hidden="true" />
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon-sm"
+              aria-label={t.settings.shareMealItemLabel(item.name)}
+              onClick={() => onShare(item)}
+            >
+              <Share2 aria-hidden="true" />
             </Button>
             <Button
               type="button"
@@ -989,10 +1010,12 @@ export function MealItemsSection() {
   const removeBackfilledItems = useMealItemStore(
     (state) => state.removeBackfilledItems,
   )
+  const setFoodShareEntryOpen = useFoodShareUiStore((s) => s.setEntryOpen)
   const [isAdding, setIsAdding] = useState(false)
   const [search, setSearch] = useState('')
   const [backfillBusy, setBackfillBusy] = useState(false)
   const [backfillMessage, setBackfillMessage] = useState<string | null>(null)
+  const [shareItem, setShareItem] = useState<MealItem | null>(null)
   // #542 — after a library rename/nutrition save, offer to rewrite matching
   // past CalorieItem lines (confirm first; all-time name match).
   const [propagateOffer, setPropagateOffer] = useState<{
@@ -1202,6 +1225,7 @@ export function MealItemsSection() {
               onSaveNutrition={handleSaveNutrition}
               onToggleFavorite={toggleFavorite}
               onSaveServings={setServings}
+              onShare={setShareItem}
             />
           ))}
         </ul>
@@ -1242,15 +1266,26 @@ export function MealItemsSection() {
       {/* #290 — a dedicated full-screen dialog reachable instantly from
        * this button, instead of an inline form revealed at the bottom of
        * a potentially long, already-scrolled list. */}
-      <Button
-        type="button"
-        variant="outline"
-        size="sm"
-        className="self-start"
-        onClick={() => setIsAdding(true)}
-      >
-        {t.settings.addMealItemButton}
-      </Button>
+      <div className="flex flex-wrap gap-2">
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          className="self-start"
+          onClick={() => setIsAdding(true)}
+        >
+          {t.settings.addMealItemButton}
+        </Button>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          className="self-start"
+          onClick={() => setFoodShareEntryOpen(true)}
+        >
+          {t.settings.importSharedFoodButton}
+        </Button>
+      </div>
       {isAdding && (
         <AddMealItemForm
           onAdd={(name, nutrition, favorite, barcode) => {
@@ -1260,6 +1295,13 @@ export function MealItemsSection() {
           onCancel={() => setIsAdding(false)}
         />
       )}
+      <ShareFoodDialog
+        open={shareItem !== null}
+        onOpenChange={(open) => {
+          if (!open) setShareItem(null)
+        }}
+        item={shareItem}
+      />
     </div>
   )
 }

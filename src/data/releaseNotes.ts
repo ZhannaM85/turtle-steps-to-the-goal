@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 623,
+    issue: 661,
+    date: '2026-08-09T17:05:00+03:00',
+    en: 'Share a custom food from Settings with someone else via the phone share sheet or a QR code; they review the details before adding it to their own food list.',
+    ru: 'Можно поделиться своим блюдом из Настроек через системный лист «Поделиться» или QR-код; получатель сначала проверяет данные, затем добавляет блюдо в свой список.',
+  },
+  {
     version: 622,
     issue: 664,
     date: '2026-08-09T16:30:00+03:00',

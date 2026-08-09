@@ -1094,6 +1094,48 @@ export const en: Dictionary = {
     deleteMealItemLabel: (name) => `Delete "${name}"`,
     editMealItemLabel: (name) => `Edit ${name}`,
     saveMealItemLabel: (name) => `Save ${name}`,
+    shareMealItemLabel: (name) => `Share ${name}`,
+    shareFoodDialogTitle: 'Share food',
+    shareFoodDialogDescription: (name) =>
+      `Send “${name}” to someone else via the share sheet or a QR code. They can review it before adding it to their food list.`,
+    shareFoodCloseLabel: 'Close',
+    shareFoodQrAlt: (name) => `QR code for ${name}`,
+    shareFoodQrHint:
+      'The other person can scan this QR code in Settings → Import shared food.',
+    shareFoodNativeShareButton: 'Share…',
+    shareFoodCopyLinkButton: 'Copy link',
+    shareFoodLinkCopiedLabel: 'Copied',
+    shareFoodShareTitle: (name) => `Food: ${name}`,
+    shareFoodShareText: (name) =>
+      `Here’s “${name}” from Turtle Steps — open the link to review and add it to your food list.`,
+    shareFoodShareFailedMessage: 'Could not open the share sheet. Try copying the link instead.',
+    importSharedFoodButton: 'Import shared food',
+    importSharedFoodEntryTitle: 'Import shared food',
+    importSharedFoodEntryDescription:
+      'Scan a QR code from another person’s share screen, or paste the share link.',
+    importSharedFoodScanQrButton: 'Scan QR code',
+    importSharedFoodScanQrTitle: 'Scan shared food QR',
+    importSharedFoodScanQrInstructions:
+      'Point the camera at the QR code on the other person’s screen.',
+    importSharedFoodPasteLabel: 'Or paste a share link',
+    importSharedFoodPastePlaceholder: 'Paste link here',
+    importSharedFoodPasteSubmitButton: 'Continue',
+    importSharedFoodPasteInvalidMessage:
+      'That doesn’t look like a shared food link. Check the link or QR and try again.',
+    importSharedFoodDialogTitle: 'Review shared food',
+    importSharedFoodDialogDescription:
+      'Check the details, then add this food to your list — or update a matching one you already have.',
+    importSharedFoodBrandLabel: 'Brand (optional)',
+    importSharedFoodBrandHint:
+      'For your reference — the food list stores the name only. Put the brand in the name if you want to keep it.',
+    importSharedFoodBarcodeLabel: 'Barcode (optional)',
+    importSharedFoodGramsLabel: 'Grams',
+    importSharedFoodMatchMessage: (name) =>
+      `You already have “${name}”. You can update it with these details, or skip.`,
+    importSharedFoodAddButton: 'Add to my foods',
+    importSharedFoodUpdateButton: 'Update existing',
+    importSharedFoodSkipButton: 'Skip',
+    importSharedFoodCancelButton: 'Cancel',
     mealItemServingsLabel: 'Named servings',
     mealItemServingNameLabel: 'Serving name',
     mealItemServingNamePlaceholder: 'e.g. 1 slice',

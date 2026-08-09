@@ -1126,6 +1126,49 @@ export const ru: Dictionary = {
     deleteMealItemLabel: (name) => `Удалить «${name}»`,
     editMealItemLabel: (name) => `Изменить «${name}»`,
     saveMealItemLabel: (name) => `Сохранить «${name}»`,
+    shareMealItemLabel: (name) => `Поделиться «${name}»`,
+    shareFoodDialogTitle: 'Поделиться блюдом',
+    shareFoodDialogDescription: (name) =>
+      `Отправьте «${name}» другому человеку через системный лист «Поделиться» или QR-код. Перед добавлением в свой список блюд можно всё проверить.`,
+    shareFoodCloseLabel: 'Закрыть',
+    shareFoodQrAlt: (name) => `QR-код для «${name}»`,
+    shareFoodQrHint:
+      'Другой человек может отсканировать этот QR-код в Настройки → Импорт общего блюда.',
+    shareFoodNativeShareButton: 'Поделиться…',
+    shareFoodCopyLinkButton: 'Копировать ссылку',
+    shareFoodLinkCopiedLabel: 'Скопировано',
+    shareFoodShareTitle: (name) => `Блюдо: ${name}`,
+    shareFoodShareText: (name) =>
+      `Вот «${name}» из Turtle Steps — откройте ссылку, чтобы проверить и добавить блюдо в свой список.`,
+    shareFoodShareFailedMessage:
+      'Не удалось открыть лист «Поделиться». Попробуйте скопировать ссылку.',
+    importSharedFoodButton: 'Импорт общего блюда',
+    importSharedFoodEntryTitle: 'Импорт общего блюда',
+    importSharedFoodEntryDescription:
+      'Отсканируйте QR-код с экрана другого человека или вставьте ссылку.',
+    importSharedFoodScanQrButton: 'Сканировать QR-код',
+    importSharedFoodScanQrTitle: 'Сканировать QR общего блюда',
+    importSharedFoodScanQrInstructions:
+      'Наведите камеру на QR-код на экране другого человека.',
+    importSharedFoodPasteLabel: 'Или вставьте ссылку',
+    importSharedFoodPastePlaceholder: 'Вставьте ссылку сюда',
+    importSharedFoodPasteSubmitButton: 'Продолжить',
+    importSharedFoodPasteInvalidMessage:
+      'Это не похоже на ссылку общего блюда. Проверьте ссылку или QR и попробуйте снова.',
+    importSharedFoodDialogTitle: 'Проверка общего блюда',
+    importSharedFoodDialogDescription:
+      'Проверьте данные и добавьте блюдо в свой список — или обновите совпадающее, если оно уже есть.',
+    importSharedFoodBrandLabel: 'Бренд (необязательно)',
+    importSharedFoodBrandHint:
+      'Только для справки — в списке блюд хранится только название. Добавьте бренд в название, если хотите его сохранить.',
+    importSharedFoodBarcodeLabel: 'Штрихкод (необязательно)',
+    importSharedFoodGramsLabel: 'Граммы',
+    importSharedFoodMatchMessage: (name) =>
+      `У вас уже есть «${name}». Можно обновить его этими данными или пропустить.`,
+    importSharedFoodAddButton: 'Добавить в мои блюда',
+    importSharedFoodUpdateButton: 'Обновить существующее',
+    importSharedFoodSkipButton: 'Пропустить',
+    importSharedFoodCancelButton: 'Отмена',
     mealItemServingsLabel: 'Именованные порции',
     mealItemServingNameLabel: 'Название порции',
     mealItemServingNamePlaceholder: 'например, 1 кусок',

@@ -75,6 +75,24 @@ interface MealItemStoreState {
   ) => Promise<MealLibraryBackfillResult>
   /** #541 — delete only tagged backfill rows; day history untouched. */
   removeBackfilledItems: () => Promise<number>
+  /**
+   * #661 — add or update a personal library row from a shared-food import
+   * review. When `existingId` is set (barcode/name match), that row is
+   * updated in place; otherwise a new row is created.
+   */
+  applySharedFood: (input: {
+    name: string
+    barcode?: string
+    nutrition: {
+      amountKcal?: number
+      proteinG?: number
+      fatG?: number
+      carbsG?: number
+      amountG?: number
+    }
+    servings?: MealItemServing[]
+    existingId?: string
+  }) => Promise<void>
 }
 
 export const useMealItemStore = create<MealItemStoreState>((set, get) => ({
@@ -202,5 +220,68 @@ export const useMealItemStore = create<MealItemStoreState>((set, get) => ({
     }
     set({ items: await mealItemRepository.getAll(), status: 'ready' })
     return toRemove.length
+  },
+  applySharedFood: async ({ name, barcode, nutrition, servings, existingId }) => {
+    const trimmed = normalizeTextSpaces(name).trim()
+    if (!trimmed) return
+    const now = new Date().toISOString()
+    const current = existingId
+      ? get().items.find((item) => item.id === existingId)
+      : undefined
+
+    if (current) {
+      // Rename collision: same as rename() — drop this id if another row
+      // already owns the target name.
+      const nameOwner = await mealItemRepository.findByName(trimmed)
+      if (nameOwner && nameOwner.id !== current.id) {
+        await mealItemRepository.delete(current.id)
+        await mealItemRepository.upsert({
+          ...nameOwner,
+          updatedAt: now,
+          lastAmountKcal: nutrition.amountKcal ?? nameOwner.lastAmountKcal,
+          lastProteinG: nutrition.proteinG ?? nameOwner.lastProteinG,
+          lastFatG: nutrition.fatG ?? nameOwner.lastFatG,
+          lastCarbsG: nutrition.carbsG ?? nameOwner.lastCarbsG,
+          lastAmountG: nutrition.amountG ?? nameOwner.lastAmountG,
+          barcode: barcode ?? nameOwner.barcode,
+          servings: servings ?? nameOwner.servings,
+        })
+      } else {
+        await mealItemRepository.upsert({
+          ...current,
+          name: trimmed,
+          updatedAt: now,
+          lastAmountKcal: nutrition.amountKcal ?? current.lastAmountKcal,
+          lastProteinG: nutrition.proteinG ?? current.lastProteinG,
+          lastFatG: nutrition.fatG ?? current.lastFatG,
+          lastCarbsG: nutrition.carbsG ?? current.lastCarbsG,
+          lastAmountG: nutrition.amountG ?? current.lastAmountG,
+          barcode: barcode ?? current.barcode,
+          servings: servings ?? current.servings,
+        })
+      }
+    } else {
+      const existingByName = await mealItemRepository.findByName(trimmed)
+      const item: MealItem = {
+        ...(existingByName ?? {
+          id: crypto.randomUUID(),
+          name: trimmed,
+          createdAt: now,
+        }),
+        name: trimmed,
+        updatedAt: now,
+        lastAmountKcal: nutrition.amountKcal ?? existingByName?.lastAmountKcal,
+        lastProteinG: nutrition.proteinG ?? existingByName?.lastProteinG,
+        lastFatG: nutrition.fatG ?? existingByName?.lastFatG,
+        lastCarbsG: nutrition.carbsG ?? existingByName?.lastCarbsG,
+        lastAmountG: nutrition.amountG ?? existingByName?.lastAmountG,
+        favorite: existingByName?.favorite,
+        barcode: barcode ?? existingByName?.barcode,
+        source: existingByName?.source,
+        servings: servings ?? existingByName?.servings,
+      }
+      await mealItemRepository.upsert(item)
+    }
+    set({ items: await mealItemRepository.getAll(), status: 'ready' })
   },
 }))

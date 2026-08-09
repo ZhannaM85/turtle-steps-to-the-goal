@@ -8,6 +8,7 @@ import {
   Target,
   type LucideIcon,
 } from 'lucide-react'
+import { SharedFoodImportHost } from '@/features/food-share'
 import { useTranslation, type Dictionary } from '@/i18n'
 import { useIsTextInputFocused, useVisualViewportShrunk } from '@/shared/hooks'
 import { cn } from '@/shared/lib/utils'
@@ -117,6 +118,9 @@ export function AppShell() {
           <Outlet />
         </Suspense>
       </main>
+
+      {/* #661 — shared-food deep link + import dialogs (Settings opens entry). */}
+      <SharedFoodImportHost />
 
       {/* Taller tap targets + horizontal safe-area padding (#112) — the
        * original min-h-14 bar sat flush against the screen edges
