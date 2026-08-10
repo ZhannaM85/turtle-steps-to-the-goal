@@ -119,14 +119,16 @@ user points out.
    - Run the **affected** test file(s) only (`npx vitest run path/to/File.test.tsx`
      — the file(s) whose behavior changed, plus direct consumers if a shared
      helper/UI primitive/i18n key changed). Do **not** default to the full
-     suite while iterating. **Before push**, run `npx vitest run` (full)
-     when the change is risky/cross-cutting — shared UI primitives,
-     stores/domain used widely (e.g. `goalWindowProgress`), test helpers,
-     global i18n keys — **or** when you are fixing a commit that already
-     failed CI. One full suite is enough; do not re-run it in a loop or
-     chase unrelated flakes (re-run that file alone; if green, ignore).
-     Do not sit polling Actions after push unless the user asks — paste the
-     run URL and move on. See `.cursor/rules/fast-ci-verification.mdc`.
+     suite while iterating **or before push**. Touching a shared module
+     (e.g. `goalWindowProgress`) is **not** by itself a reason for full
+     `npx vitest run` — if the dedicated unit tests for the change are
+     green, commit and push (2026-08-10: user interrupted an agent that
+     blocked on full suite after #676 HARD LOCK unit tests already passed).
+     Full suite **once** only when fixing a commit that already failed CI,
+     the user asks, or a broad rewrite lacks unit coverage. Do not sit
+     polling Actions after push unless the user asks — paste the run URL
+     and move on. See `.cursor/rules/fast-ci-verification.mdc` and
+     `CLAUDE.md` "Local verification — no overkill".
      GitHub Actions remains the full-suite gate on push. Run `npm run e2e`
      locally only when routes or primary UI entry points changed (it also
      gates CI — see Environment notes).
@@ -309,11 +311,13 @@ and #144's precedent in `docs/issues-priority.md`).
 - Full test suite (`npx vitest run` with no path) currently 600+ tests /
   2–4+ minutes under this environment's load — **not** part of the default
   per-issue checklist (changed 2026-08-01: affected tests only by default;
-  full suite only for risky/cross-cutting changes or CI repro). When you
-  *do* run it in the background, the harness notifies you when it finishes —
-  don't re-run it or poll its output file in a loop waiting for it, and
-  don't idle: move on to the next queued issue's research/targeted tests
-  while it runs; only that issue's final commit+close needs the result.
+  tightened 2026-08-10: shared-file touch ≠ automatic full suite). Full
+  suite only for CI repro, explicit user ask, or broad rewrite without
+  unit coverage. When you *do* run it in the background, the harness
+  notifies you when it finishes — don't re-run it or poll its output file
+  in a loop waiting for it, and don't idle: move on to the next queued
+  issue's research/targeted tests while it runs; only that issue's final
+  commit+close needs the result.
 - **E2E suite (#161)**: `npm run e2e` (Playwright, `playwright.config.ts`,
   specs in `e2e/`) — a deliberately small, black-box UI suite (no direct
   IndexedDB seeding), not a replacement for the ad hoc seeded-Playwright

@@ -57,6 +57,15 @@ and `.cursor/rules/one-tier-per-day.mdc`.
   time in `GoalForm`. Guarded by the `#676 HARD LOCK` test in
   `goalWindowProgress.test.ts` — do not delete or soften it.
 
+## Local verification — no overkill
+
+Default gate: `tsc -b` → lint → **affected** `vitest run path/to/File.test.ts`
+only. Do **not** block on a full `npx vitest run` just because a shared file
+(e.g. `goalWindowProgress`) was touched — if the dedicated unit tests for the
+change are green, commit and push. Full suite once only when CI already failed
+on this change, the user asks, or a broad unshared rewrite lacks unit coverage.
+See `.cursor/rules/fast-ci-verification.mdc`.
+
 ## Implementing a GitHub issue
 
 The moment an issue's implementation is pushed and its `docs/issues-priority.md`
