@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 646,
+    issue: 686,
+    date: '2026-08-10T21:00:00+03:00',
+    en: 'While this week’s goal is still running, “Start a new goal” stays disabled again until the window ends.',
+    ru: 'Пока текущая цель ещё идёт, кнопка «Начать новую цель» снова недоступна до конца окна.',
+  },
+  {
     version: 645,
     issue: 676,
     date: '2026-08-10T20:50:00+03:00',

@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { format, parseISO } from 'date-fns'
 import { Check, Minus, Pencil, Plus, Trash2 } from 'lucide-react'
 import { useForm, useWatch, type Resolver } from 'react-hook-form'
 import { useBlocker } from 'react-router-dom'
@@ -7,6 +8,7 @@ import type { Goal } from '@/domain/goal'
 import {
   estimatedDailyCalorieDeficitKcal,
   goalWeekEnd,
+  goalWindowHasEnded,
   draftWindowOverlapsOthers,
   kgToLb,
   WEEKLY_PACE_SOFT_WARN_KG,
@@ -24,6 +26,7 @@ import {
 import {
   formatExactNumber,
   formatNumber,
+  getDateFnsLocale,
   unitLabel,
   useLocale,
   useTranslation,
@@ -99,8 +102,10 @@ export interface GoalFormProps {
    * stays disabled. */
   latestWeightKg?: number | null
   /** #667 — whether `existingGoal`'s own window has concluded
-   * (`goalWindowConcluded`). Retained for callers; #683 no longer gates
-   * "Start a new goal" on window end (overlap is a warning only). */
+   * (`goalWindowConcluded`). #686 restores #639/#667 gating of
+   * "Start a new goal" until the window has ended (or concluded early on
+   * weekEnd). #683/#685 soft overlap warning still applies once starting
+   * new is allowed — it does not replace this disable. */
   activeGoalConcluded?: boolean
   /** #685 — other saved goals (active + past) used for the soft overlap
    * warning. When omitted, falls back to `existingGoal` alone so unit
@@ -120,10 +125,24 @@ export function GoalForm({
   onSubmit,
   onDelete,
   latestWeightKg = null,
+  activeGoalConcluded,
   overlapGoals,
 }: GoalFormProps) {
   const t = useTranslation()
   const locale = useLocale()
+  const dateFnsLocale = getDateFnsLocale(locale)
+  // #639/#686 — restart only once the current window has run its course.
+  // #683 briefly removed this gate (overlap warning only); that let a
+  // fresh window start mid-week. Legacy goals with no weekStart are
+  // treated as already-ended. #667 prefers the caller's live
+  // `activeGoalConcluded` (true once reached on weekEnd itself) when
+  // provided, else the plain calendar check.
+  const activeWindowEnded = existingGoal?.weekStart
+    ? (activeGoalConcluded ??
+      goalWindowHasEnded(
+        existingGoal.weekEnd ?? goalWeekEnd(existingGoal.weekStart),
+      ))
+    : true
   const unit = useUnitStore((state) => state.unit)
   const unitText = unitLabel(unit, t)
   const toDisplay = (kg: number) => (unit === 'lb' ? kgToLb(kg) : kg)
@@ -839,6 +858,7 @@ export function GoalForm({
               <Button
                 type="button"
                 variant="outline"
+                disabled={!showingDeletedSnapshot && !activeWindowEnded}
                 onClick={() => {
                   setJustDeletedGoal(null)
                   setStartingNew(true)
@@ -849,7 +869,20 @@ export function GoalForm({
                 {t.goal.startNewGoalButton}
               </Button>
               <p className="text-xs text-muted-foreground">
-                {t.goal.startNewGoalHint}
+                {showingDeletedSnapshot ||
+                activeWindowEnded ||
+                !existingGoal?.weekStart
+                  ? t.goal.startNewGoalHint
+                  : t.goal.startNewGoalAvailableFromLabel(
+                      format(
+                        parseISO(
+                          existingGoal.weekEnd ??
+                            goalWeekEnd(existingGoal.weekStart),
+                        ),
+                        'PP',
+                        { locale: dateFnsLocale },
+                      ),
+                    )}
               </p>
             </div>
           </div>

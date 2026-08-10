@@ -996,7 +996,7 @@ describe('GoalForm', () => {
   })
 
   describe('explicit "Start a new goal" CTA (#386)', () => {
-    it('is always enabled, including while the window is still running (#683)', () => {
+    it('is always rendered alongside the pencil edit button, but disabled while the window is still running (#639, #686 regression from #683)', () => {
       const today = new Date().toISOString().slice(0, 10)
       renderGoalForm(
         <GoalForm
@@ -1017,9 +1017,12 @@ describe('GoalForm', () => {
         name: 'Start a new goal',
       })
       expect(startNewButton).toBeInTheDocument()
-      expect(startNewButton).toBeEnabled()
+      expect(startNewButton).toBeDisabled()
+      // Explains why, naming the date it unlocks — same "explain, don't
+      // silently disable" precedent #634's PDF section tooltips already
+      // established.
       expect(
-        screen.getByText(/Begins a fresh window/),
+        screen.getByText(/Available once this week's target ends, on/),
       ).toBeInTheDocument()
     })
 
@@ -1298,6 +1301,9 @@ describe('GoalForm', () => {
           }}
           onSubmit={onSubmit}
           onDelete={vi.fn()}
+          // #686 — Start-new is mid-window disabled again; unlock via the
+          // #667 early-conclude path so this still covers soft overlap.
+          activeGoalConcluded
         />,
       )
 
