@@ -94,6 +94,13 @@ user points out.
    tool (Playwright, dev server, etc.) between "user reported a bug" and
    "issue filed" — confirmed directly by the user, who interrupted exactly
    this sequence mid-session on 2026-07-19.
+
+   **Do not open a separate GitHub issue for deploy / CI failures** caused
+   by a product change just pushed (stale test assertion, lint, typecheck,
+   e2e flake tied to that change). Fix it as a follow-up commit under the
+   **parent issue** that introduced the breakage (same `#N:` subject
+   prefix), not a new chore issue. (2026-08-10: user direction after #680
+   was filed for a Pages-deploy test failure that belonged under #678.)
 3. **Prioritize easiest → hardest** within a batch unless told otherwise.
 4. **Once told to proceed automatically**, keep implementing the queued
    issues one after another without pausing for confirmation on routine
