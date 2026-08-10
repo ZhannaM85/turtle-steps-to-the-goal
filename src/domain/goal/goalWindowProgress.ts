@@ -53,14 +53,18 @@ export interface GoalWindowProgress {
    * — always the true latest weigh-in now, which `finalTargetMet` below
    * depends on being accurate. */
   currentWeightKg?: number
+  /** #681 — weight on `metOnDate` when the sticky target was first
+   * crossed. Past Targets uses this for the "to" weigh-in next to a
+   * reached status so a later regression doesn't rewrite the record of
+   * the day that actually met the goal. */
+  metOnWeightKg?: number
   /** #639 — whether the window's actual *final* state (its most recently
    * logged weight, i.e. `currentWeightKg`, vs. `baselineWeightKg`) met the
    * target — as opposed to the sticky `targetMet` above, which stays true
    * once crossed even if a later day's weight rises back above the
-   * threshold. This is the value a *permanent* record (the past-targets
-   * badge, the pace check) should use; `targetMet`/`metOnDate` remain
-   * correct for the one-time mid-week celebration, which deliberately
-   * doesn't flip-flop back off once shown. Only meaningful once the window
+   * threshold. Pace check (#610) still uses this; Past Targets (#681)
+   * uses sticky `targetMet`/`metOnDate` so a mid-window reach that later
+   * regressed still counts as reached. Only meaningful once the window
    * has actually ended (`goalWindowHasEnded`) — same null condition as
    * `targetMet` (no baseline weight logged yet). */
   finalTargetMet?: boolean | null
@@ -176,10 +180,12 @@ export function goalWindowProgress(
     .sort((a, b) => a.date.localeCompare(b.date))
 
   let metOnDate: string | null = null
+  let metOnWeightKg: number | undefined
   for (const entry of windowEntriesSorted) {
     const lossKg = baselineWeightKg - (entry.weightKg as number)
     if (lossKg >= goal.targetWeeklyLossKg) {
       metOnDate = entry.date
+      metOnWeightKg = entry.weightKg as number
       break
     }
   }
@@ -198,6 +204,10 @@ export function goalWindowProgress(
     metOnDate,
     baselineWeightKg,
     currentWeightKg,
+    /** Weight on `metOnDate` when the target was first crossed (#681) —
+     * Past Targets shows this as the "to" weigh-in for a sticky reach,
+     * even if a later day in the window regressed. */
+    metOnWeightKg,
     finalTargetMet,
   }
 }

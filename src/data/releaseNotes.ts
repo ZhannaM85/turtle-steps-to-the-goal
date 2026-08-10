@@ -26,9 +26,16 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 640,
+    issue: 681,
+    date: '2026-08-10T19:16:00+03:00',
+    en: 'Fixed: Past Targets now keeps a week as reached on the day you hit the target, even if a later weigh-in in that week went back up.',
+    ru: 'Исправлено: в «Прошлых целях» неделя остаётся достигнутой в день, когда цель была выполнена, даже если более поздний вес за ту же неделю снова вырос.',
+  },
+  {
     version: 639,
     issue: 677,
-    date: '2026-08-10T19:05:00+03:00',
+    date: '2026-08-10T19:15:00+03:00',
     en: 'Fixed: deleting the current goal now stays deleted after you refresh the page — an older goal is no longer brought back automatically.',
     ru: 'Исправлено: удаление текущей цели теперь сохраняется после обновления страницы — более старая цель больше не возвращается сама.',
   },
