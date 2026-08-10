@@ -25,8 +25,10 @@ stays on your own device in the browser's IndexedDB.
 - Explore trends, calendar history, weekly/monthly summaries, and fixed or
   user-defined correlations.
 - Create custom metrics for anything else you want to observe.
-- Import data from Zepp Life, Apple Health, and MyFitnessPal; export backups,
-  Excel, CSV, or Markdown.
+- Import data from Zepp Life, Apple Health, and MyFitnessPal **export files**;
+  export backups, Excel, CSV, or Markdown. (No live Android Health Connect
+  sync from Zepp Life — that path was tried and closed as not planned; see
+  `docs/ARCHITECTURE.md` → “Android Health Connect — not planned”.)
 - Use the installable PWA in English or Russian, with light/dark mode and
   several color themes.
 
