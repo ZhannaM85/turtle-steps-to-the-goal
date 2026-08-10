@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 635,
+    issue: 678,
+    date: '2026-08-10T14:51:52+03:00',
+    en: 'Once this week’s goal window has ended, it now also appears under Past Targets — even before you start a new goal.',
+    ru: 'Когда окно текущей цели уже завершилось, она теперь также появляется в «Прошлых целях» — даже до постановки новой.',
+  },
+  {
     version: 634,
     issue: 679,
     date: '2026-08-10T14:39:33+03:00',

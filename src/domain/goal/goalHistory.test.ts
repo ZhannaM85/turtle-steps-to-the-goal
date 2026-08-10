@@ -47,17 +47,84 @@ describe('earliestGoalCreatedAt', () => {
 })
 
 describe('pastGoals', () => {
-  it('returns nothing when only one goal has ever been saved', () => {
+  it('returns nothing when only one goal has ever been saved and its window is still live', () => {
+    const goals = [
+      makeGoal({
+        id: 'g1',
+        createdAt: '2026-01-01T00:00:00Z',
+        weekStart: '2026-08-04',
+      }),
+    ]
+    expect(pastGoals(goals, [], '2026-08-06')).toEqual([])
+  })
+
+  it('returns nothing for a single goal with no weekStart (cannot conclude)', () => {
     const goals = [makeGoal({ id: 'g1', createdAt: '2026-01-01T00:00:00Z' })]
     expect(pastGoals(goals, [])).toEqual([])
   })
 
-  it('excludes the most recently created goal (the active one)', () => {
+  it('excludes the most recently created goal while its window is still live', () => {
     const goals = [
-      makeGoal({ id: 'g1', createdAt: '2026-01-01T00:00:00Z' }),
-      makeGoal({ id: 'g2', createdAt: '2026-01-08T00:00:00Z' }),
+      makeGoal({
+        id: 'g1',
+        createdAt: '2026-01-01T00:00:00Z',
+        weekStart: '2026-01-01',
+      }),
+      makeGoal({
+        id: 'g2',
+        createdAt: '2026-01-08T00:00:00Z',
+        weekStart: '2026-08-04',
+      }),
     ]
-    const result = pastGoals(goals, [])
+    const result = pastGoals(goals, [], '2026-08-06')
+    expect(result).toHaveLength(1)
+    expect(result[0].goal.id).toBe('g1')
+  })
+
+  it('includes the active goal once its window has concluded (#678)', () => {
+    const goals = [
+      makeGoal({
+        id: 'g1',
+        createdAt: '2026-01-01T00:00:00Z',
+        weekStart: '2026-01-01',
+      }),
+      makeGoal({
+        id: 'g2',
+        createdAt: '2026-08-04T00:00:00Z',
+        weekStart: '2026-08-04',
+      }),
+    ]
+    // g2's weekEnd is 2026-08-10; today past that → concluded.
+    const result = pastGoals(goals, [], '2026-08-11')
+    expect(result.map((r) => r.goal.id)).toEqual(['g2', 'g1'])
+  })
+
+  it('includes a sole concluded goal in Past Targets before a new one is set (#678)', () => {
+    const goals = [
+      makeGoal({
+        id: 'g1',
+        createdAt: '2026-08-04T00:00:00Z',
+        weekStart: '2026-08-04',
+      }),
+    ]
+    const result = pastGoals(goals, [], '2026-08-11')
+    expect(result).toHaveLength(1)
+    expect(result[0].goal.id).toBe('g1')
+  })
+
+  it('includes the active goal on weekEnd itself when the target was reached that day (#678)', () => {
+    const goals = [
+      makeGoal({
+        id: 'g1',
+        createdAt: '2026-08-04T00:00:00Z',
+        weekStart: '2026-08-04',
+        targetWeeklyLossKg: 0.2,
+        baselineWeightKg: 70,
+      }),
+    ]
+    const entries = [entry('2026-08-10', { weightKg: 69.7 })]
+    // weekEnd is 2026-08-10; reached that day → goalWindowConcluded.
+    const result = pastGoals(goals, entries, '2026-08-10')
     expect(result).toHaveLength(1)
     expect(result[0].goal.id).toBe('g1')
   })

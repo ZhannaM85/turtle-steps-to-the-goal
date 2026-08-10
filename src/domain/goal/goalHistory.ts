@@ -1,6 +1,13 @@
+import { format } from 'date-fns'
 import type { DailyEntry } from '@/domain/dailyEntry'
 import type { Goal } from './Goal'
-import { goalWindowProgress, type GoalWindowProgress } from './goalWindowProgress'
+import {
+  goalWindowConcluded,
+  goalWindowProgress,
+  type GoalWindowProgress,
+} from './goalWindowProgress'
+
+const DATE_FORMAT = 'yyyy-MM-dd'
 
 export interface PastGoalRecord {
   goal: Goal
@@ -38,29 +45,48 @@ export function earliestGoalCreatedAt(goals: Goal[]): string | undefined {
 }
 
 /**
- * Every goal except the currently active one (#147) — the most-recently-
- * created, which `GoalRepository.getActiveGoal()` already surfaces via
- * `GoalScreen`'s main StatCard, so repeating it here would be redundant.
- * Newest-first. Each save creates its own historical `Goal` record unless
- * it was an in-place edit of the still-live active goal (#181 —
- * `formValuesToGoal` only starts a fresh record once the previous one's
- * window has actually ended), so this is a plain read over
- * `GoalRepository.getAll()` — no separate history log to maintain.
+ * Past Targets (#147, #678) — newest-first, each paired with its own
+ * `goalWindowProgress()`. Each save creates its own historical `Goal`
+ * record unless it was an in-place edit of the still-live active goal
+ * (#181), so this is a plain read over `GoalRepository.getAll()`.
+ *
+ * The most-recently-created ("active") goal is excluded while its window
+ * is still live — it's already shown by `GoalScreen`'s main StatCard, so
+ * repeating it would be redundant. Once the window has concluded
+ * (`goalWindowConcluded`, #667), it appears here too even before a new
+ * goal replaces it (#678), so a finished week isn't invisible until the
+ * user gets around to starting the next one. While live it still only
+ * lives in the main card.
  */
-export function pastGoals(goals: Goal[], entries: DailyEntry[]): PastGoalRecord[] {
-  if (goals.length <= 1) return []
+export function pastGoals(
+  goals: Goal[],
+  entries: DailyEntry[],
+  today: string = format(new Date(), DATE_FORMAT),
+): PastGoalRecord[] {
+  if (goals.length === 0) return []
 
   const newestFirst = [...goals].sort((a, b) =>
     b.createdAt.localeCompare(a.createdAt),
   )
-  return newestFirst.slice(1).map((goal, i) => ({
-    goal,
-    progress: goalWindowProgress(entries, goal),
-    // newestFirst[i] is the goal one slot newer than this one — i.e. the
-    // goal that superseded it (see loop math: this element is
-    // newestFirst[i + 1]).
-    approximateEndDate: goal.weekStart
-      ? undefined
-      : newestFirst[i].createdAt.slice(0, 10),
-  }))
+  const active = newestFirst[0]
+  const activeProgress = goalWindowProgress(entries, active)
+  const includeActive =
+    activeProgress != null && goalWindowConcluded(activeProgress, today)
+  const startIndex = includeActive ? 0 : 1
+  if (startIndex >= newestFirst.length) return []
+
+  return newestFirst.slice(startIndex).map((goal, i) => {
+    const newestFirstIndex = startIndex + i
+    return {
+      goal,
+      progress: goalWindowProgress(entries, goal),
+      // The goal one slot newer in newestFirst superseded this one. The
+      // included active goal (index 0) has no superseder.
+      approximateEndDate: goal.weekStart
+        ? undefined
+        : newestFirstIndex > 0
+          ? newestFirst[newestFirstIndex - 1].createdAt.slice(0, 10)
+          : undefined,
+    }
+  })
 }

@@ -13,7 +13,9 @@ const dailyEntryRepository = new IndexedDbDailyEntryRepository()
  * for GoalScreen's history section. `refreshKey` should change whenever a
  * goal might have just been saved, so a freshly-created historical record
  * shows up without needing a reload — same convention as
- * `useMaxRecordedWeight`.
+ * `useMaxRecordedWeight`. #678: also re-fetches when the active goal's
+ * identity/window changes so a just-concluded active goal can appear in
+ * Past Targets before a new one is set.
  *
  * Also owns deletion (#174): `deleteGoal` removes a single history record
  * and re-fetches on its own (a plain save doesn't change `refreshKey` for
