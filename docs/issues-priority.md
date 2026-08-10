@@ -63,4 +63,3 @@ _Live bug reports from the app, filed as reported._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#683](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/683) | 🔍 Pending validation | Do not restrict goal start date; warn on overlap with previous goal | Implemented — Starts on always editable (incl. edit-in-place; `formValuesToGoal` persists weekStart). "Start a new goal" always enabled (#639 gate removed). Soft `goalWindowOverlapWarning` when draft window overlaps the previous goal while starting new; save never blocked. Helper `goalWindowsOverlap` / `inclusiveDateRangesOverlap`. Awaiting on-device confirmation |
