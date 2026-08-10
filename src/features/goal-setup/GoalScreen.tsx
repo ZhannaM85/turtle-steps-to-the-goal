@@ -68,17 +68,17 @@ export function GoalScreen() {
     : (activeGoalProgress?.metOnDate ?? null)
   // #639 — which of the three nudge moments (if any) to show below the
   // weekly-target card: still-running-and-reached, ended-and-completed,
-  // or ended-and-missed. #681: once the window has concluded, use sticky
-  // `targetMet` (same as Past Targets) so a mid-window reach that later
-  // regressed still reads as completed — not `finalTargetMet`.
+  // or ended-and-missed. Uses finalTargetMet (the window's real final
+  // state), not the sticky targetMet, once the window has concluded —
+  // see goalWindowProgress.ts.
   const goalNudgePhase =
     !activeGoalProgress || !activeGoalConcluded
       ? activeGoalReachedOn
         ? ('reachedInProgress' as const)
         : null
-      : activeGoalProgress.targetMet === true
+      : activeGoalProgress.finalTargetMet === true
         ? ('completed' as const)
-        : activeGoalProgress.targetMet === false
+        : activeGoalProgress.finalTargetMet === false
           ? ('missed' as const)
           : null
   const goalNudgeWeekEndLabel = activeGoalProgress

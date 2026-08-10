@@ -86,7 +86,7 @@ describe('WeeklyReviewScreen (#602)', () => {
     ).toBeInTheDocument()
   })
 
-  it('still shows reached once the (already-ended) window regressed by its final entry (#681)', async () => {
+  it('does not show reached once the (already-ended) window regressed by its final entry (#639)', async () => {
     await useGoalStore.getState().saveGoal(makeGoal({ targetWeeklyLossKg: 1 }))
     await db.dailyEntries.put(entry('2026-03-02', { weightKg: 80 }))
     await db.dailyEntries.put(entry('2026-03-04', { weightKg: 78.5 })) // met mid-week
@@ -95,8 +95,9 @@ describe('WeeklyReviewScreen (#602)', () => {
     renderScreen()
 
     expect(
-      await screen.findByText(/Target reached on/),
+      await screen.findByText("Still working toward this week's target — no rush."),
     ).toBeInTheDocument()
+    expect(screen.queryByText(/Target reached on/)).not.toBeInTheDocument()
   })
 
   it('shows the calorie/protein average once something is logged this week', async () => {

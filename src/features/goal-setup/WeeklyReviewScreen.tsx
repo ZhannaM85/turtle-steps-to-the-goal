@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom'
 import type { DailyEntry } from '@/domain/dailyEntry'
 import {
   goalWindowAverages,
+  goalWindowHasEnded,
   goalWindowProgress,
 } from '@/domain/goal'
 import { correlationInsight, effectiveDateFor } from '@/domain/stats'
@@ -84,10 +85,15 @@ export function WeeklyReviewScreen() {
               {t.weeklyReview.progressSectionLabel}
             </h2>
             <p className="text-sm text-muted-foreground">
-              {/* #681: sticky `targetMet`/`metOnDate` (same as Past Targets)
-               * — a mid-window reach that later regressed still reads as
-               * reached, not `finalTargetMet`. */}
-              {progress.targetMet && progress.metOnDate
+              {/* #639: once the window has actually ended, the "met" verdict
+               * here should reflect its real final state (finalTargetMet),
+               * not the sticky targetMet — otherwise a target only ever
+               * crossed on one noisy mid-week day, then regressed, would
+               * still read "reached" on this glance after the window
+               * closed, same bug the permanent history badge had. */}
+              {(goalWindowHasEnded(progress.weekEnd)
+                ? progress.finalTargetMet
+                : progress.targetMet) && progress.metOnDate
                 ? t.weeklyReview.progressMetLabel(
                     format(parseISO(progress.metOnDate), 'PP', {
                       locale: dateFnsLocale,

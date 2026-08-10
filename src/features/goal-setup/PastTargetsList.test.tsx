@@ -155,19 +155,18 @@ describe('PastTargetsList', () => {
     expect(screen.getByText('Target not met')).toBeInTheDocument()
   })
 
-  it('labels a sticky mid-week reach as met even if the final weigh-in regressed (#681)', () => {
+  it('labels the permanent badge from the final state, not a mid-week crossing that regressed (#639)', () => {
     render(
       <PastTargetsList
         records={[
           makeRecord({
             progress: {
-              weekStart: '2026-08-04',
-              weekEnd: '2026-08-09',
-              targetMet: true,
-              metOnDate: '2026-08-08',
-              baselineWeightKg: 58.75,
-              currentWeightKg: 58.65, // final state: back above threshold
-              metOnWeightKg: 58.4,
+              weekStart: '2026-03-09',
+              weekEnd: '2026-03-15',
+              targetMet: true, // crossed mid-week, on one noisy day
+              metOnDate: '2026-03-11',
+              baselineWeightKg: 80,
+              currentWeightKg: 79.6, // final state: back above threshold
               finalTargetMet: false,
             },
           }),
@@ -176,9 +175,10 @@ describe('PastTargetsList', () => {
       />,
     )
 
-    expect(screen.getByText('Target met on Aug 8, 2026')).toBeInTheDocument()
-    expect(screen.getByText('58.75 → 58.4 kg')).toBeInTheDocument()
-    expect(screen.queryByText('Target not met')).not.toBeInTheDocument()
+    expect(screen.getByText('Target not met')).toBeInTheDocument()
+    expect(
+      screen.queryByText('Target met on Mar 11, 2026'),
+    ).not.toBeInTheDocument()
   })
 
   it('labels a goal with no computable progress as not enough data', () => {

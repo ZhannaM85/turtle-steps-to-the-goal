@@ -37,14 +37,16 @@ function PastTargetRow({
   // per-row delete.
   const [isConfirming, setIsConfirming] = useState(false)
 
-  // #177: name the day it was reached, not just a binary state.
-  // #681: permanent Past Targets badge uses sticky `targetMet`/`metOnDate`
-  // (once reached in the window, stays reached) — not `finalTargetMet`,
-  // which #639 briefly used and which treated a mid-week reach that later
-  // regressed as a miss (e.g. Aug 8 hit 58.4 from 58.75, then Aug 9 at
-  // 58.65 read as "not met").
+  // #177: name the day it was reached, not just a binary state —
+  // metOnDate is always set whenever finalTargetMet is true (a window
+  // whose final logged entry met the target was necessarily caught by the
+  // same scan that finds metOnDate), targetMetLabel is a defensive
+  // fallback only. #639: this permanent record uses finalTargetMet (the
+  // window's actual final state), not the sticky targetMet — a target
+  // only ever crossed on one noisy mid-week day, then regressed by the
+  // time the window ended, should not earn a permanent "met" badge.
   const statusLabel =
-    progress?.targetMet === true
+    progress?.finalTargetMet === true
       ? progress.metOnDate
         ? t.goal.targetMetOnLabel(
             format(parseISO(progress.metOnDate), 'PP', {
@@ -52,14 +54,9 @@ function PastTargetRow({
             }),
           )
         : t.goal.targetMetLabel
-      : progress?.targetMet === false
+      : progress?.finalTargetMet === false
         ? t.goal.targetMissedLabel
         : t.goal.targetNoDataLabel
-
-  const statusToWeightKg =
-    progress?.targetMet === true && progress.metOnWeightKg !== undefined
-      ? progress.metOnWeightKg
-      : progress?.currentWeightKg
 
   // #181: a legacy goal (no weekStart, saved before #135) has no real
   // window — approximateEndDate (from goalHistory.ts) derives a
@@ -97,7 +94,7 @@ function PastTargetRow({
           <span
             className={cn(
               'text-xs',
-              progress?.targetMet === true
+              progress?.finalTargetMet === true
                 ? 'font-medium text-foreground'
                 : 'text-muted-foreground',
             )}
@@ -106,19 +103,19 @@ function PastTargetRow({
           </span>
           {/* #339 — which two weigh-ins the status above is based on;
            * both undefined only when weekStart itself never got a logged
-           * weight, i.e. progress.targetMet is still null.
-           * #681 — when reached, prefer the weight on metOnDate over the
-           * window's latest weigh-in so a later regression doesn't rewrite
-           * the "to" number next to a sticky reached status. */}
+           * weight, i.e. progress.targetMet is still null. */}
           {progress?.baselineWeightKg !== undefined &&
-            statusToWeightKg !== undefined && (
+            progress.currentWeightKg !== undefined && (
               <span className="text-xs tabular-nums text-muted-foreground">
                 {t.goal.previousToCurrentWeightLabel(
                   formatExactNumber(
                     toDisplay(progress.baselineWeightKg),
                     locale,
                   ),
-                  formatExactNumber(toDisplay(statusToWeightKg), locale),
+                  formatExactNumber(
+                    toDisplay(progress.currentWeightKg),
+                    locale,
+                  ),
                   unit,
                 )}
               </span>
@@ -168,9 +165,7 @@ function PastTargetRow({
  * A plain history of past weekly targets (#147) — when each was set and
  * whether it was reached, same "plain record, not a badge" visual language
  * `MetTargetList` already established for History's met-target list.
- * Renders nothing when `records` is empty (no concluded/superseded goals
- * yet — a still-live sole active goal is excluded by `pastGoals()` until
- * its window concludes, #678).
+ * Renders nothing once there's no history yet (a single goal ever saved).
  */
 export function PastTargetsList({ records, onDelete }: PastTargetsListProps) {
   const t = useTranslation()

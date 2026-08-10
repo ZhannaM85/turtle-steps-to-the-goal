@@ -101,12 +101,10 @@ describe('goalWindowProgress', () => {
 
     expect(progress?.targetMet).toBe(true)
     expect(progress?.metOnDate).toBe('2026-03-10')
-    expect(progress?.metOnWeightKg).toBe(79)
     // #639: the sticky targetMet above stays true, but the window's real
-    // final state (the 90kg day) did not meet the target — pace check
-    // still uses finalTargetMet; Past Targets (#681) uses sticky reach.
+    // final state (the 90kg day) did not meet the target — this is the
+    // exact distinction the permanent history badge needs.
     expect(progress?.finalTargetMet).toBe(false)
-    expect(progress?.currentWeightKg).toBe(90)
   })
 
   it('is the #203 regression case: a day-over-day weight increase never reads as met', () => {

@@ -21,10 +21,12 @@ export type GoalCelebrationPhase = 'inProgress' | 'complete'
  *   verdict, so nothing to walk back once shown.
  * - 'complete': fires once the window has concluded (`goalWindowConcluded`
  *   — either the calendar has actually passed weekEnd, or the target was
- *   reached on weekEnd itself, #667) *and* sticky `targetMet` is true
- *   (#681 — same as Past Targets). A mid-window reach that later
- *   regressed still gets this phase; `finalTargetMet` is reserved for
- *   pace-check pattern detection.
+ *   reached on weekEnd itself, #667) *and* its real final state
+ *   (`finalTargetMet`) still met the target — the moment a new goal can
+ *   actually be started. A window that crossed the target mid-week but
+ *   regressed by the end never reaches this phase at all, matching the
+ *   permanent history badge (`PastTargetsList.tsx`), which uses the same
+ *   `finalTargetMet`.
  *
  * Independent of #38's separate end-of-window renewal banner.
  */
@@ -59,7 +61,7 @@ export function useWeeklyGoalCelebration(): {
 
   if (goalWindowConcluded(progress)) {
     const shouldCelebrate =
-      progress.targetMet === true &&
+      progress.finalTargetMet === true &&
       progress.weekStart !== celebratedCompleteWeekStart
     return {
       shouldCelebrate,
