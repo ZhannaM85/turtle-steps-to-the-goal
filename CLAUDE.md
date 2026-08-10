@@ -102,15 +102,20 @@ closing stays free to be docs-only.
 
 ## Closing a GitHub issue
 
-Whenever a GitHub issue is closed (implementation done, verified working),
-update **both**:
-1. `docs/issues-priority.md` — mark the row done with a one-line
-   implementation note, then **move that row** into
-   `docs/issues_priority_archived.md` under its tier (active file stays
-   open/pending only).
-2. `docs/ARCHITECTURE.md` — reflect whatever actually changed (new/changed
-   files, data model, routes, etc.) in the relevant section(s). Update the
-   `## Status` diagram too if the issue moves an epic between tiers.
+Keep closes lean (see `.cursor/rules/lean-issue-close.mdc`). Default path:
+
+1. GitHub: swap `validation` → `validated`, comment, close.
+2. `docs/issues-priority.md` — one-line done note, **move that row** into
+   the matching tier under `docs/issues-priority-archive/` (active file
+   stays open/pending only).
+
+3. `docs/ARCHITECTURE.md` — **only** when the issue changed product
+   architecture and the relevant section is still wrong (short targeted
+   edit). Skip for CI/test-only / docs-only closes.
+
+Do **not** bundle AGENT_WORKFLOW / mistakes-log / new cursor rules /
+release-note hunts into the close. Policy “next time don’t X” is a
+separate follow-up.
 
 The `releaseNotes.ts` entry is **not** part of this pass — it was already
 written at implementation time (see above). If it's somehow missing when
@@ -118,7 +123,3 @@ you get to closing (e.g. an older issue predating this split), add it
 here as a fallback, but the default path is: written once, at
 implementation.
 
-Do this closing pass as part of actually closing the issue, not deferred
-indefinitely — `ARCHITECTURE.md` says at the top "this document is
-updated after each issue is completed," and it only stays true if it
-happens every time.
