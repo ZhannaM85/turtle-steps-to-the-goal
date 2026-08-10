@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 629,
+    issue: 675,
+    date: '2026-08-10T13:12:11+03:00',
+    en: "Fixed: the Goal page's weekly target card now shows your starting weight even on a goal's first day, before that day's weigh-in is logged, using your most recent prior weight instead.",
+    ru: 'Исправлено: карточка недельной цели на странице «Цели» теперь показывает начальный вес даже в первый день цели, до того как вес за этот день внесён — используя последний известный вес.',
+  },
+  {
     version: 628,
     issue: 668,
     date: '2026-08-10T12:31:00+03:00',

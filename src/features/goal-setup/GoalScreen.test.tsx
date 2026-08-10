@@ -135,6 +135,28 @@ describe('GoalScreen', () => {
     expect(within(card).queryByText(/from .* kg/)).not.toBeInTheDocument()
   })
 
+  it("falls back to the most recently logged weight when the goal's own weekStart has no weigh-in yet (#675)", async () => {
+    const weekStart = format(new Date(), DATE_FORMAT)
+    await db.dailyEntries.put(
+      makeEntry({
+        date: format(addDays(new Date(), -2), DATE_FORMAT),
+        weightKg: 61.4,
+      }),
+    )
+    await useGoalStore
+      .getState()
+      .saveGoal(makeGoal({ targetWeeklyLossKg: 1, weekStart }))
+
+    renderGoalScreen()
+
+    const card = (
+      await screen.findAllByText("This week's target")
+    )[0].closest('[data-slot="card"]') as HTMLElement
+    expect(
+      await within(card).findByText('from 61.4 kg', { exact: false }),
+    ).toBeInTheDocument()
+  })
+
   it('shows a two-decimal weekly pace without rounding to one decimal (#586)', async () => {
     await useGoalStore
       .getState()

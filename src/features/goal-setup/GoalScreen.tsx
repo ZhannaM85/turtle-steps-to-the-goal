@@ -181,11 +181,22 @@ export function GoalScreen() {
                         ),
                         // #551 — same baseline as Today (#469): weight
                         // logged on goal.weekStart, not latest weigh-in.
+                        // #675 — falls back to the most recently logged
+                        // weight (already fetched below for the "Suggest a
+                        // target" helper) only when weekStart itself has no
+                        // weigh-in yet, e.g. a goal started today with
+                        // nothing logged today — otherwise the card omitted
+                        // the baseline line entirely instead of showing the
+                        // closest available figure.
                         activeGoalProgress?.baselineWeightKg !== undefined
                           ? t.today.weeklyTargetFromWeight(
                               `${formatExactNumber(toDisplay(activeGoalProgress.baselineWeightKg), locale)} ${unitLabel(displayUnit, t)}`,
                             )
-                          : null,
+                          : latestWeightKg !== null
+                            ? t.today.weeklyTargetFromWeight(
+                                `${formatExactNumber(toDisplay(latestWeightKg), locale)} ${unitLabel(displayUnit, t)}`,
+                              )
+                            : null,
                         // #155: named alongside the range, same badge copy
                         // PastTargetsList uses for a reached past target.
                         activeGoalReachedOn &&
