@@ -431,6 +431,94 @@ describe('DailyEntryForm', () => {
       expect(screen.getByLabelText('Weight (kg)')).toBeInTheDocument()
     })
 
+    describe('deleting a weight entry (#670)', () => {
+      it('has no Delete button for a brand-new entry with nothing saved yet', () => {
+        render(
+          <DailyEntryForm date="2026-03-01" existingEntry={null} onSave={vi.fn()} />,
+        )
+
+        expect(
+          screen.queryByRole('button', { name: 'Delete weight' }),
+        ).not.toBeInTheDocument()
+      })
+
+      it('asks for confirmation before deleting, and does nothing on Cancel', async () => {
+        const user = userEvent.setup()
+        const onSave = vi.fn()
+        render(
+          <DailyEntryForm
+            date="2026-03-01"
+            existingEntry={{
+              id: 'e1',
+              date: '2026-03-01',
+              weightKg: 80,
+              createdAt: now,
+              updatedAt: now,
+            }}
+            onSave={onSave}
+          />,
+        )
+
+        await user.click(screen.getByRole('button', { name: 'Delete weight' }))
+        expect(screen.getByText('Delete this entry?')).toBeInTheDocument()
+
+        await user.click(screen.getByRole('button', { name: 'Cancel' }))
+        expect(onSave).not.toHaveBeenCalled()
+        expectWeightDisplay('80')
+      })
+
+      it('deletes the weight entry and reopens an empty editable field, without showing NaN', async () => {
+        const user = userEvent.setup()
+        const onSave = vi.fn()
+        render(
+          <DailyEntryForm
+            date="2026-03-01"
+            existingEntry={{
+              id: 'e1',
+              date: '2026-03-01',
+              weightKg: 80,
+              createdAt: now,
+              updatedAt: now,
+            }}
+            onSave={onSave}
+          />,
+        )
+
+        await user.click(screen.getByRole('button', { name: 'Delete weight' }))
+        await user.click(screen.getByRole('button', { name: 'Delete' }))
+
+        expect(onSave).toHaveBeenCalledTimes(1)
+        expect(onSave.mock.calls[0][0].weightKg).toBeUndefined()
+        expect(screen.getByLabelText('Weight (kg)')).toHaveValue('')
+        expect(screen.queryByText(/NaN/)).not.toBeInTheDocument()
+      })
+
+      it('also offers Delete from the always-editable form (History inline edit)', async () => {
+        const user = userEvent.setup()
+        const onSave = vi.fn()
+        render(
+          <DailyEntryForm
+            date="2026-03-01"
+            existingEntry={{
+              id: 'e1',
+              date: '2026-03-01',
+              weightKg: 80,
+              createdAt: now,
+              updatedAt: now,
+            }}
+            onSave={onSave}
+            alwaysEditable
+          />,
+        )
+
+        await user.click(screen.getByRole('button', { name: 'Delete weight' }))
+        await user.click(screen.getByRole('button', { name: 'Delete' }))
+
+        expect(onSave).toHaveBeenCalledTimes(1)
+        expect(onSave.mock.calls[0][0].weightKg).toBeUndefined()
+      })
+    })
+
     describe('leaving edit mode without saving (#424)', () => {
       it('has no Cancel button for a brand-new entry with nothing saved yet', () => {
         render(

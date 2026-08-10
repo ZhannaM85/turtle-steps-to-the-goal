@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 627,
+    issue: 670,
+    date: '2026-08-10T12:19:00+03:00',
+    en: 'Added: you can now delete a logged weight entry (today or any past date) on the Day page, with a confirmation step first.',
+    ru: 'Добавлено: теперь можно удалить запись веса (за сегодня или любую прошлую дату) на странице дня — с подтверждением перед удалением.',
+  },
+  {
     version: 626,
     issue: 669,
     date: '2026-08-10T12:04:00+03:00',

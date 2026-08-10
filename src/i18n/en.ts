@@ -147,6 +147,7 @@ export const en: Dictionary = {
     saveNoteLabel: 'Save note',
     cancelEditWeightLabel: 'Cancel editing weight',
     cancelEditNoteLabel: 'Cancel editing note',
+    deleteWeightLabel: 'Delete weight',
     invalidValueMessage: 'Invalid value.',
     unusualWeightWarning:
       "That's an unusual weight — please double-check it before saving.",

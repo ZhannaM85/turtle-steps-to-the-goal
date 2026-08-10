@@ -147,6 +147,13 @@ export function useDailyEntryFormState({
   const [isEditingWeight, setIsEditingWeight] = useState(
     alwaysEditable || initialValues.weightKg === undefined,
   )
+  // #670 — two-step confirm before deleting a logged weight entry, same
+  // shape as MealList's/EntryRow's/PastTargetsList's own inline
+  // confirmDelete flows (a muted label + destructive Yes / ghost No),
+  // rather than a heavier Dialog-component modal this codebase doesn't
+  // otherwise use for delete confirmations.
+  const [isConfirmingDeleteWeight, setIsConfirmingDeleteWeight] =
+    useState(false)
   // #218: the exact value a Save tap flagged as unusual (not the same as
   // "is the current field value unusual" — a second tap should only skip
   // straight to saving if the value hasn't changed since the warning
@@ -266,6 +273,7 @@ export function useDailyEntryFormState({
     register,
     getValues,
     setValue,
+    reset,
     control,
     setError,
     clearErrors,
@@ -425,6 +433,10 @@ export function useDailyEntryFormState({
   // permits it, since that context never reaches the display-mode branch
   // and cancel there just clears the input back to blank, safely.
   const canCancelWeightEdit = alwaysEditable || initialValues.weightKg !== undefined
+  // #670 — unlike canCancelWeightEdit above, NOT widened by alwaysEditable:
+  // there has to be an actual saved value to delete, regardless of which
+  // edit affordance (pencil-toggle vs. always-editable input) is showing it.
+  const canDeleteWeight = initialValues.weightKg !== undefined
   const canCancelNoteEdit = alwaysEditable || Boolean(initialValues.note)
   const canCancelSleepEdit =
     alwaysEditable ||
@@ -678,6 +690,33 @@ export function useDailyEntryFormState({
     clearErrors('weightKg')
     setPendingUnusualWeight(null)
     setIsEditingWeight(false)
+  }
+
+  function requestDeleteWeight() {
+    setIsConfirmingDeleteWeight(true)
+  }
+
+  function cancelDeleteWeight() {
+    setIsConfirmingDeleteWeight(false)
+  }
+
+  // #670 — clears the persisted weight entirely (not just the input), then
+  // reopens edit mode (empty input) rather than leaving showWeightAsDisplay
+  // on with no value — that combination is exactly the #669 NaN bug this
+  // would otherwise reintroduce. Uses `reset()`, not `setValue()`: the
+  // weight Input unmounts in display/confirm mode, and a plain `setValue`
+  // on an unmounted `register()`-bound field doesn't survive the field
+  // remounting back into edit mode below — the uncontrolled input falls
+  // back to its original `useForm({ defaultValues })` value (confirmed with
+  // an isolated repro) instead of showing empty. `reset()` re-baselines
+  // `defaultValues` itself, which the remounted input's ref sync reads from.
+  function confirmDeleteWeight() {
+    const next = { ...getValues(), weightKg: undefined }
+    reset(next)
+    persist(next)
+    setIsConfirmingDeleteWeight(false)
+    setPendingUnusualWeight(null)
+    setIsEditingWeight(true)
   }
 
   function saveNote() {
@@ -973,6 +1012,11 @@ export function useDailyEntryFormState({
     discardUnusualWeightWarning,
     canCancelWeightEdit,
     cancelEditWeight,
+    isConfirmingDeleteWeight,
+    canDeleteWeight,
+    requestDeleteWeight,
+    confirmDeleteWeight,
+    cancelDeleteWeight,
     // Sleep
     trackedFields,
     sleepHours,

@@ -152,6 +152,7 @@ export const ru: Dictionary = {
     saveNoteLabel: 'Сохранить заметку',
     cancelEditWeightLabel: 'Отменить редактирование веса',
     cancelEditNoteLabel: 'Отменить редактирование заметки',
+    deleteWeightLabel: 'Удалить вес',
     invalidValueMessage: 'Неверное значение.',
     unusualWeightWarning:
       'Необычное значение веса — проверьте, прежде чем сохранить.',

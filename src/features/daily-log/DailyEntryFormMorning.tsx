@@ -1,4 +1,4 @@
-import { Check, ChevronDown, Pencil, Sun, X } from 'lucide-react'
+import { Check, ChevronDown, Pencil, Sun, Trash2, X } from 'lucide-react'
 import { formatExactNumber } from '@/i18n'
 import { splitHoursMinutes } from '@/shared/lib/sleepDuration'
 import { parseNumberInput } from '@/shared/lib/parseNumberInput'
@@ -159,7 +159,37 @@ export function DailyEntryFormMorning() {
         </CollapsibleTrigger>
         <CollapsibleContent>
           <div className="flex flex-col gap-4 pt-4">
-            {state.showWeightAsDisplay ? (
+            {state.isConfirmingDeleteWeight ? (
+              // #670 — same two-step inline confirm shape as
+              // MealListItem's/EntryRow's own confirmDelete states (muted
+              // label + destructive Yes / ghost No) rather than a modal.
+              <div className="flex flex-col gap-1.5">
+                <span className="text-sm font-medium">
+                  {t.dailyEntry.weightLabel}
+                </span>
+                <div className="flex min-h-12 items-center gap-2 rounded-lg bg-muted px-3 py-2">
+                  <span className="text-sm text-muted-foreground">
+                    {t.history.confirmDeleteLabel}
+                  </span>
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    size="sm"
+                    onClick={state.confirmDeleteWeight}
+                  >
+                    {t.history.confirmDeleteYes}
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={state.cancelDeleteWeight}
+                  >
+                    {t.history.confirmDeleteNo}
+                  </Button>
+                </div>
+              </div>
+            ) : state.showWeightAsDisplay ? (
               <div className="flex flex-col gap-1.5">
                 <span className="flex items-center gap-1 text-sm font-medium">
                   {t.dailyEntry.weightLabel}
@@ -184,15 +214,30 @@ export function DailyEntryFormMorning() {
                       {t.common.kg}
                     </span>
                   </span>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon-xl"
-                    aria-label={t.dailyEntry.editWeightLabel}
-                    onClick={() => state.setIsEditingWeight(true)}
-                  >
-                    <Pencil aria-hidden="true" />
-                  </Button>
+                  <span className="flex items-center gap-1">
+                    {/* #670 — delete a logged weight entry (today or any
+                     * date), gated on there actually being a saved value. */}
+                    {state.canDeleteWeight && (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon-xl"
+                        aria-label={t.dailyEntry.deleteWeightLabel}
+                        onClick={state.requestDeleteWeight}
+                      >
+                        <Trash2 aria-hidden="true" />
+                      </Button>
+                    )}
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon-xl"
+                      aria-label={t.dailyEntry.editWeightLabel}
+                      onClick={() => state.setIsEditingWeight(true)}
+                    >
+                      <Pencil aria-hidden="true" />
+                    </Button>
+                  </span>
                 </div>
               </div>
             ) : (
@@ -217,6 +262,20 @@ export function DailyEntryFormMorning() {
                       setValueAs: parseNumberInput,
                     })}
                   />
+                  {/* #670 — same delete affordance as the display-mode pill
+                   * above, offered here too since History's inline "Edit
+                   * entry" (alwaysEditable) never shows that display mode. */}
+                  {state.canDeleteWeight && (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon-xl"
+                      aria-label={t.dailyEntry.deleteWeightLabel}
+                      onClick={state.requestDeleteWeight}
+                    >
+                      <Trash2 aria-hidden="true" />
+                    </Button>
+                  )}
                   {/* #424 — leave edit mode without saving, same affordance
                    * MealList.tsx's #169 Cancel button already established. Hidden
                    * when there's no established value to actually revert to (a
