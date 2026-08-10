@@ -64,4 +64,3 @@ _Live bug reports from the app, filed as reported._
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#676](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/676) | 🔍 Pending validation | Goal card: baseline weight shifts when the start-day weight is logged after the goal is set | Reopened: #681 read-path preferred live weekStart over snapshot. Restored snapshot-first in `resolveBaselineWeightKg` + HARD LOCK test + CLAUDE.md Hard locks. Awaiting on-device confirmation |
-| [#686](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/686) | 🔍 Pending validation | Regression: Start a new goal stays enabled while current goal window is still in progress | Regression from #683 (removed #639/#667 mid-window disable). Restored `activeWindowEnded` gate + `startNewGoalAvailableFromLabel`; kept #683/#685 soft overlap warning once starting is allowed. Awaiting on-device confirmation |
