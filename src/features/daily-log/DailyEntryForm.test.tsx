@@ -535,6 +535,33 @@ describe('DailyEntryForm', () => {
           screen.getByRole('button', { name: 'Delete weight' }),
         ).toBeInTheDocument()
       })
+
+      it('hides Delete again immediately after confirming a delete, without a remount (#673)', async () => {
+        const user = userEvent.setup()
+        render(
+          <DailyEntryForm
+            date="2026-03-01"
+            existingEntry={{
+              id: 'e1',
+              date: '2026-03-01',
+              weightKg: 80,
+              createdAt: now,
+              updatedAt: now,
+            }}
+            onSave={vi.fn()}
+          />,
+        )
+
+        await user.click(screen.getByRole('button', { name: 'Delete weight' }))
+        await user.click(screen.getByRole('button', { name: 'Delete' }))
+
+        expect(
+          screen.queryByRole('button', { name: 'Delete weight' }),
+        ).not.toBeInTheDocument()
+        expect(
+          screen.queryByRole('button', { name: 'Cancel editing weight' }),
+        ).not.toBeInTheDocument()
+      })
     })
 
     describe('leaving edit mode without saving (#424)', () => {
