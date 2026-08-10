@@ -16,10 +16,19 @@ import { createJSONStorage, persist } from 'zustand/middleware'
 interface GoalCelebrationStoreState {
   celebratedInProgressWeekStart: string | null
   celebratedCompleteWeekStart: string | null
+  /** #667 — once a goal's target is confirmed reached on the window's own
+   * last day, this locks that in for the window: `DailyEntry` keeps a
+   * single `weightKg` per date with no edit history, so without a
+   * persisted lock, a later same-day re-weigh that overwrites today's
+   * entry with a heavier value would quietly un-reach the goal (flip
+   * `finalTargetMet` back to false) and re-block the new-goal restart
+   * button it had just unlocked. */
+  reachedOnLastDayWeekStart: string | null
   markCelebrated: (
     weekStart: string,
     phase: 'inProgress' | 'complete',
   ) => void
+  markReachedOnLastDay: (weekStart: string) => void
 }
 
 export const useGoalCelebrationStore = create<GoalCelebrationStoreState>()(
@@ -27,12 +36,15 @@ export const useGoalCelebrationStore = create<GoalCelebrationStoreState>()(
     (set) => ({
       celebratedInProgressWeekStart: null,
       celebratedCompleteWeekStart: null,
+      reachedOnLastDayWeekStart: null,
       markCelebrated: (weekStart, phase) =>
         set(
           phase === 'inProgress'
             ? { celebratedInProgressWeekStart: weekStart }
             : { celebratedCompleteWeekStart: weekStart },
         ),
+      markReachedOnLastDay: (weekStart) =>
+        set({ reachedOnLastDayWeekStart: weekStart }),
     }),
     {
       name: 'turtle-steps-goal-celebration',

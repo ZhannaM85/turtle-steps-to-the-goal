@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 625,
+    issue: 667,
+    date: '2026-08-10T11:56:00+03:00',
+    en: 'Fixed: reaching your weekly goal on the last day of the week now celebrates and unlocks starting a new goal right away, instead of waiting until the next day.',
+    ru: 'Исправлено: достижение недельной цели в последний день недели теперь сразу показывает поздравление и открывает возможность начать новую цель, а не откладывает это на следующий день.',
+  },
+  {
     version: 624,
     issue: 666,
     date: '2026-08-10T11:50:00+03:00',

@@ -65,6 +65,7 @@ beforeEach(async () => {
   useGoalCelebrationStore.setState({
     celebratedInProgressWeekStart: null,
     celebratedCompleteWeekStart: null,
+    reachedOnLastDayWeekStart: null,
   })
 })
 
@@ -74,6 +75,7 @@ afterEach(async () => {
   useGoalCelebrationStore.setState({
     celebratedInProgressWeekStart: null,
     celebratedCompleteWeekStart: null,
+    reachedOnLastDayWeekStart: null,
   })
 })
 
@@ -241,5 +243,32 @@ describe('GoalCelebrationModal', () => {
     expect(
       screen.queryByText("You reached this week's target!"),
     ).not.toBeInTheDocument()
+  })
+
+  it('shows the completion copy immediately when the target is reached on the window\'s own last day, not deferred to the next day (#667)', async () => {
+    const weekStart = format(addDays(new Date(), -6), DATE_FORMAT) // weekEnd is today
+    await useGoalStore.getState().saveGoal(
+      makeGoal({ targetWeeklyLossKg: 1, weekStart }),
+    )
+    await db.dailyEntries.put(makeEntry({ date: weekStart, weightKg: 80 }))
+    await db.dailyEntries.put(
+      makeEntry({
+        date: format(new Date(), DATE_FORMAT), // today, the window's last day
+        weightKg: 79, // meets the 1kg target today
+      }),
+    )
+    render(
+      <MemoryRouter>
+        <GoalCelebrationModal />
+      </MemoryRouter>,
+    )
+
+    const cta = await screen.findByRole('link', {
+      name: "Set next week's goal",
+    })
+    expect(
+      screen.getByText('You completed your weekly goal!'),
+    ).toBeInTheDocument()
+    expect(cta).toHaveAttribute('href', '/goal')
   })
 })

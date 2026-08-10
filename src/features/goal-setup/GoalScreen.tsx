@@ -11,7 +11,7 @@ import {
 } from '@/i18n'
 import {
   goalWeekEnd,
-  goalWindowHasEnded,
+  goalWindowConcluded,
   kgToLb,
   paceCheckInsight,
 } from '@/domain/goal'
@@ -48,24 +48,30 @@ export function GoalScreen() {
   // an explicit choice (Edit vs. "Start a new goal"), not auto-detected
   // from this.
   const activeGoalProgress = useActiveGoalProgress()
-  const activeGoalWindowEnded = activeGoalProgress
-    ? goalWindowHasEnded(activeGoalProgress.weekEnd)
-    : false
+  // #667: concluded also once the target was reached on the window's own
+  // last day, not just once the calendar has actually passed weekEnd —
+  // see goalWindowConcluded. Stays `undefined` (not `false`) while
+  // there's no progress yet, so the `??` fallback in GoalForm still
+  // reaches its own plain calendar check instead of being clobbered by a
+  // premature "not concluded" from missing data.
+  const activeGoalConcluded = activeGoalProgress
+    ? goalWindowConcluded(activeGoalProgress)
+    : undefined
   // #639: the mid-week "reached" badge/nudge only while the window is
   // still open — once it ends, goalNudgePhase below (completed/missed)
   // takes over, so the two moments never show contradictory messages
   // side by side (a sticky mid-week "reached" claim next to a corrected
   // "not met" final verdict).
-  const activeGoalReachedOn = activeGoalWindowEnded
+  const activeGoalReachedOn = activeGoalConcluded
     ? null
     : (activeGoalProgress?.metOnDate ?? null)
   // #639 — which of the three nudge moments (if any) to show below the
   // weekly-target card: still-running-and-reached, ended-and-completed,
   // or ended-and-missed. Uses finalTargetMet (the window's real final
-  // state), not the sticky targetMet, once the window has ended — see
-  // goalWindowProgress.ts.
+  // state), not the sticky targetMet, once the window has concluded —
+  // see goalWindowProgress.ts.
   const goalNudgePhase =
-    !activeGoalProgress || !activeGoalWindowEnded
+    !activeGoalProgress || !activeGoalConcluded
       ? activeGoalReachedOn
         ? ('reachedInProgress' as const)
         : null
@@ -253,6 +259,7 @@ export function GoalScreen() {
             existingGoal={goal}
             onSubmit={saveGoal}
             latestWeightKg={latestWeightKg}
+            activeGoalConcluded={activeGoalConcluded}
           />
 
           <PastTargetsList records={pastTargets} onDelete={deleteGoal} />

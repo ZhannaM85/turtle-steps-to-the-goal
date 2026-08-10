@@ -979,6 +979,27 @@ describe('GoalForm', () => {
       ).toBeEnabled()
     })
 
+    it('is enabled immediately when the caller reports the window concluded early, even though the plain calendar check alone would still say running (#667)', () => {
+      const today = new Date().toISOString().slice(0, 10)
+      renderGoalForm(
+        <GoalForm
+          existingGoal={{
+            id: 'g1',
+            targetWeeklyLossKg: 1,
+            weekStart: today, // weekEnd is today — calendar check alone: not ended
+            createdAt: '2026-01-01T00:00:00.000Z',
+            updatedAt: '2026-01-01T00:00:00.000Z',
+          }}
+          onSubmit={vi.fn()}
+          activeGoalConcluded // reached on the window's own last day
+        />,
+      )
+
+      expect(
+        screen.getByRole('button', { name: 'Start a new goal' }),
+      ).toBeEnabled()
+    })
+
     it('is enabled for a legacy goal with no weekStart at all (pre-#135)', () => {
       renderGoalForm(
         <GoalForm

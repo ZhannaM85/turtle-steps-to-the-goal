@@ -11,6 +11,7 @@ export {
   goalWeekEnd,
   goalWindowProgress,
   goalWindowHasEnded,
+  goalWindowConcluded,
   goalCoveringDate,
 } from './goalWindowProgress'
 export type { GoalWindowProgress } from './goalWindowProgress'

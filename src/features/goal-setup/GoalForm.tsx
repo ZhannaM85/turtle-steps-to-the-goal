@@ -88,6 +88,12 @@ export interface GoalFormProps {
    * loading or if nothing's ever been logged, in which case the helper
    * stays disabled. */
   latestWeightKg?: number | null
+  /** #667 — whether `existingGoal`'s own window has concluded
+   * (`goalWindowConcluded`: calendar passed weekEnd, or reached on
+   * weekEnd itself), from the caller's own live `useActiveGoalProgress`.
+   * Preferred over the plain calendar check below when provided; falls
+   * back to it (unchanged prior behavior) when omitted. */
+  activeGoalConcluded?: boolean
 }
 
 type RecalcSource = 'pace' | 'calories'
@@ -101,6 +107,7 @@ export function GoalForm({
   existingGoal,
   onSubmit,
   latestWeightKg = null,
+  activeGoalConcluded,
 }: GoalFormProps) {
   const t = useTranslation()
   const locale = useLocale()
@@ -112,10 +119,15 @@ export function GoalForm({
   // for. A legacy goal with no weekStart (pre-#135) never had a real
   // window, so it's treated as already-ended — same lenient precedent
   // approximateEndDate (goalHistory.ts) already uses for those.
+  // #667 — prefers the caller's own live `activeGoalConcluded` (also true
+  // once reached on weekEnd itself, not just once the calendar has
+  // actually passed it) when provided, falling back to the plain calendar
+  // check otherwise.
   const activeWindowEnded = existingGoal?.weekStart
-    ? goalWindowHasEnded(
+    ? (activeGoalConcluded ??
+      goalWindowHasEnded(
         existingGoal.weekEnd ?? goalWeekEnd(existingGoal.weekStart),
-      )
+      ))
     : true
   const unit = useUnitStore((state) => state.unit)
   const unitText = unitLabel(unit, t)

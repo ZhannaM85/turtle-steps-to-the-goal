@@ -1,4 +1,4 @@
-import { goalWindowHasEnded } from '@/domain/goal'
+import { goalWindowConcluded } from '@/domain/goal'
 import { useGoalCelebrationStore } from '@/stores'
 import { useActiveGoalProgress } from './useActiveGoalProgress'
 
@@ -19,12 +19,14 @@ export type GoalCelebrationPhase = 'inProgress' | 'complete'
  *   mid-window. Deliberately doesn't flip-flop back off if a later day's
  *   weight regresses — this is a "you're on track" moment, not a final
  *   verdict, so nothing to walk back once shown.
- * - 'complete': fires once the window has actually ended
- *   (`goalWindowHasEnded`) *and* its real final state (`finalTargetMet`)
- *   still met the target — the moment a new goal can actually be started.
- *   A window that crossed the target mid-week but regressed by the end
- *   never reaches this phase at all, matching the permanent history badge
- *   (`PastTargetsList.tsx`), which uses the same `finalTargetMet`.
+ * - 'complete': fires once the window has concluded (`goalWindowConcluded`
+ *   — either the calendar has actually passed weekEnd, or the target was
+ *   reached on weekEnd itself, #667) *and* its real final state
+ *   (`finalTargetMet`) still met the target — the moment a new goal can
+ *   actually be started. A window that crossed the target mid-week but
+ *   regressed by the end never reaches this phase at all, matching the
+ *   permanent history badge (`PastTargetsList.tsx`), which uses the same
+ *   `finalTargetMet`.
  *
  * Independent of #38's separate end-of-window renewal banner.
  */
@@ -57,7 +59,7 @@ export function useWeeklyGoalCelebration(): {
     }
   }
 
-  if (goalWindowHasEnded(progress.weekEnd)) {
+  if (goalWindowConcluded(progress)) {
     const shouldCelebrate =
       progress.finalTargetMet === true &&
       progress.weekStart !== celebratedCompleteWeekStart

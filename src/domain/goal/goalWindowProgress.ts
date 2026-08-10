@@ -146,6 +146,26 @@ export function goalWindowHasEnded(
 }
 
 /**
+ * Whether a goal's window should be treated as concluded for UI purposes
+ * (#667) — either the calendar has actually passed `weekEnd`
+ * (`goalWindowHasEnded`), or the target was reached on `weekEnd` itself.
+ * The latter is not covered by `goalWindowHasEnded` (still false on that
+ * exact day), but nothing logged later in the window can change the
+ * outcome once its own last day already has a qualifying entry, so
+ * there's no reason to defer the same-day celebration/new-goal unlock to
+ * the next calendar day the way an ordinary calendar-end wait would.
+ */
+export function goalWindowConcluded(
+  progress: Pick<GoalWindowProgress, 'weekEnd' | 'finalTargetMet'>,
+  today: string = format(new Date(), DATE_FORMAT),
+): boolean {
+  return (
+    goalWindowHasEnded(progress.weekEnd, today) ||
+    (today === progress.weekEnd && progress.finalTargetMet === true)
+  )
+}
+
+/**
  * #552 — the Goal whose `[weekStart, weekEnd]` window contains `date`,
  * if any. When several overlap (rare), the most recently created wins.
  * Goals without `weekStart` (pre-#135) never match.

@@ -4,6 +4,7 @@ import type { Goal } from './Goal'
 import {
   goalCoveringDate,
   goalWeekEnd,
+  goalWindowConcluded,
   goalWindowHasEnded,
   goalWindowProgress,
 } from './goalWindowProgress'
@@ -228,6 +229,50 @@ describe('goalWindowHasEnded (#639)', () => {
 
   it('is true once today is past weekEnd', () => {
     expect(goalWindowHasEnded('2026-03-15', '2026-03-16')).toBe(true)
+  })
+})
+
+describe('goalWindowConcluded (#667)', () => {
+  it('is true once the calendar has actually passed weekEnd, same as goalWindowHasEnded', () => {
+    expect(
+      goalWindowConcluded(
+        { weekEnd: '2026-03-15', finalTargetMet: false },
+        '2026-03-16',
+      ),
+    ).toBe(true)
+  })
+
+  it('is true on weekEnd itself when the target was reached that day', () => {
+    expect(
+      goalWindowConcluded(
+        { weekEnd: '2026-03-15', finalTargetMet: true },
+        '2026-03-15',
+      ),
+    ).toBe(true)
+  })
+
+  it('is false on weekEnd itself when the target was not (yet) reached', () => {
+    expect(
+      goalWindowConcluded(
+        { weekEnd: '2026-03-15', finalTargetMet: false },
+        '2026-03-15',
+      ),
+    ).toBe(false)
+    expect(
+      goalWindowConcluded(
+        { weekEnd: '2026-03-15', finalTargetMet: null },
+        '2026-03-15',
+      ),
+    ).toBe(false)
+  })
+
+  it('is false before weekEnd even if the target was already reached mid-week', () => {
+    expect(
+      goalWindowConcluded(
+        { weekEnd: '2026-03-15', finalTargetMet: true },
+        '2026-03-12',
+      ),
+    ).toBe(false)
   })
 })
 
