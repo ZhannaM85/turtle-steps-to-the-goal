@@ -112,12 +112,17 @@ user points out.
    - Run the **affected** test file(s) only (`npx vitest run path/to/File.test.tsx`
      — the file(s) whose behavior changed, plus direct consumers if a shared
      helper/UI primitive/i18n key changed). Do **not** default to the full
-     suite. Reserve `npx vitest run` (no path) for risky/cross-cutting
-     changes: shared UI primitives, stores/domain used widely, test helpers,
-     global i18n keys, or anything that has already failed in CI and needs
-     a local repro. GitHub Actions remains the full-suite gate on push.
-     Run `npm run e2e` locally only when routes or primary UI entry points
-     changed (it also gates CI — see Environment notes).
+     suite while iterating. **Before push**, run `npx vitest run` (full)
+     when the change is risky/cross-cutting — shared UI primitives,
+     stores/domain used widely (e.g. `goalWindowProgress`), test helpers,
+     global i18n keys — **or** when you are fixing a commit that already
+     failed CI. One full suite is enough; do not re-run it in a loop or
+     chase unrelated flakes (re-run that file alone; if green, ignore).
+     Do not sit polling Actions after push unless the user asks — paste the
+     run URL and move on. See `.cursor/rules/fast-ci-verification.mdc`.
+     GitHub Actions remains the full-suite gate on push. Run `npm run e2e`
+     locally only when routes or primary UI entry points changed (it also
+     gates CI — see Environment notes).
    - Write the `src/data/releaseNotes.ts` entry now, in the implementation
      commit (see `CLAUDE.md`'s "Writing the release note" section) — not
      deferred to the closing commit (#642).
