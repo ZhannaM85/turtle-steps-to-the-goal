@@ -34,7 +34,8 @@ export function GoalScreen() {
   const t = useTranslation()
   const locale = useLocale()
   const dateFnsLocale = getDateFnsLocale(locale)
-  const { goal, status, error, loadActiveGoal, saveGoal } = useGoalStore()
+  const { goal, status, error, loadActiveGoal, saveGoal, deleteGoal: deleteActiveGoal } =
+    useGoalStore()
   const displayUnit = useUnitStore((state) => state.unit)
   const { records: pastTargets, deleteGoal } = usePastGoals(goal)
   // #610 — calm pace check: null unless the last 3 completed windows all
@@ -258,6 +259,7 @@ export function GoalScreen() {
           <GoalForm
             existingGoal={goal}
             onSubmit={saveGoal}
+            onDelete={deleteActiveGoal}
             latestWeightKg={latestWeightKg}
             activeGoalConcluded={activeGoalConcluded}
           />

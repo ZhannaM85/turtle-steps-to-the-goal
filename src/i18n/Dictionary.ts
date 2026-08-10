@@ -889,6 +889,13 @@ export interface Dictionary {
     currentGoalTitle: string
     notSetLabel: string
     editGoalLabel: string
+    /** #668 — deletes the currently active goal entirely (not just a past
+     * target — see pastTargetsTitle's own deletePastTargetLabel below for
+     * that). Two-step inline confirm, same shape as confirmDiscardEditsLabel
+     * above; reuses history.confirmDelete's Yes/No since this is a real
+     * delete, not a discard. */
+    deleteGoalLabel: string
+    confirmDeleteGoalLabel: string
     /** Goal history section (#147) — every past (non-active) target. */
     pastTargetsTitle: string
     weekColumnLabel: string

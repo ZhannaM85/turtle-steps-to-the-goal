@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 628,
+    issue: 668,
+    date: '2026-08-10T12:31:00+03:00',
+    en: 'Added: you can now delete your current goal on the Goal page (with a confirmation step first), not just edit it.',
+    ru: 'Добавлено: теперь можно удалить текущую цель на странице «Цели» (с подтверждением перед удалением), а не только редактировать её.',
+  },
+  {
     version: 627,
     issue: 670,
     date: '2026-08-10T12:19:00+03:00',

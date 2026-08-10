@@ -41,7 +41,8 @@ afterEach(() => {
 
 describe('GoalForm', () => {
   it('defaults to kg units', () => {
-    renderGoalForm(<GoalForm existingGoal={null} onSubmit={vi.fn()} />)
+    renderGoalForm(<GoalForm existingGoal={null} onSubmit={vi.fn()}
+          onDelete={vi.fn()} />)
 
     expect(
       screen.getByLabelText("This week's target (kg to lose)"),
@@ -52,7 +53,8 @@ describe('GoalForm', () => {
     const user = userEvent.setup()
     const onSubmit = vi.fn()
     useUnitStore.setState({ unit: 'lb' })
-    renderGoalForm(<GoalForm existingGoal={null} onSubmit={onSubmit} />)
+    renderGoalForm(<GoalForm existingGoal={null} onSubmit={onSubmit}
+      onDelete={vi.fn()} />)
 
     const input = screen.getByLabelText("This week's target (lb to lose)")
     await user.type(input, '2.2')
@@ -66,7 +68,8 @@ describe('GoalForm', () => {
 
   it('shows a validation error when the weekly target is left empty', async () => {
     const user = userEvent.setup()
-    renderGoalForm(<GoalForm existingGoal={null} onSubmit={vi.fn()} />)
+    renderGoalForm(<GoalForm existingGoal={null} onSubmit={vi.fn()}
+          onDelete={vi.fn()} />)
 
     await user.click(
       screen.getByRole('button', { name: 'Set this week’s target' }),
@@ -79,7 +82,8 @@ describe('GoalForm', () => {
 
   it('shows the calorie deficit estimate with a non-medical-advice caveat once the target is valid', async () => {
     const user = userEvent.setup()
-    renderGoalForm(<GoalForm existingGoal={null} onSubmit={vi.fn()} />)
+    renderGoalForm(<GoalForm existingGoal={null} onSubmit={vi.fn()}
+          onDelete={vi.fn()} />)
 
     await user.type(
       screen.getByLabelText("This week's target (kg to lose)"),
@@ -97,7 +101,8 @@ describe('GoalForm', () => {
   it('submits a Goal with canonical kg values', async () => {
     const user = userEvent.setup()
     const onSubmit = vi.fn()
-    renderGoalForm(<GoalForm existingGoal={null} onSubmit={onSubmit} />)
+    renderGoalForm(<GoalForm existingGoal={null} onSubmit={onSubmit}
+      onDelete={vi.fn()} />)
 
     await user.type(
       screen.getByLabelText("This week's target (kg to lose)"),
@@ -117,7 +122,8 @@ describe('GoalForm', () => {
     it('is optional — submits fine when left blank', async () => {
       const user = userEvent.setup()
       const onSubmit = vi.fn()
-      renderGoalForm(<GoalForm existingGoal={null} onSubmit={onSubmit} />)
+      renderGoalForm(<GoalForm existingGoal={null} onSubmit={onSubmit}
+      onDelete={vi.fn()} />)
 
       await user.type(
         screen.getByLabelText("This week's target (kg to lose)"),
@@ -136,7 +142,8 @@ describe('GoalForm', () => {
     it('submits the value when filled in', async () => {
       const user = userEvent.setup()
       const onSubmit = vi.fn()
-      renderGoalForm(<GoalForm existingGoal={null} onSubmit={onSubmit} />)
+      renderGoalForm(<GoalForm existingGoal={null} onSubmit={onSubmit}
+      onDelete={vi.fn()} />)
 
       await user.type(
         screen.getByLabelText("This week's target (kg to lose)"),
@@ -166,6 +173,7 @@ describe('GoalForm', () => {
             updatedAt: '2026-01-01T00:00:00.000Z',
           }}
           onSubmit={vi.fn()}
+          onDelete={vi.fn()}
         />,
       )
 
@@ -183,7 +191,8 @@ describe('GoalForm', () => {
     it('is optional — submits fine when left blank', async () => {
       const user = userEvent.setup()
       const onSubmit = vi.fn()
-      renderGoalForm(<GoalForm existingGoal={null} onSubmit={onSubmit} />)
+      renderGoalForm(<GoalForm existingGoal={null} onSubmit={onSubmit}
+      onDelete={vi.fn()} />)
 
       await user.type(
         screen.getByLabelText("This week's target (kg to lose)"),
@@ -200,7 +209,8 @@ describe('GoalForm', () => {
     it('submits the value when filled in', async () => {
       const user = userEvent.setup()
       const onSubmit = vi.fn()
-      renderGoalForm(<GoalForm existingGoal={null} onSubmit={onSubmit} />)
+      renderGoalForm(<GoalForm existingGoal={null} onSubmit={onSubmit}
+      onDelete={vi.fn()} />)
 
       await user.type(
         screen.getByLabelText("This week's target (kg to lose)"),
@@ -227,6 +237,7 @@ describe('GoalForm', () => {
             updatedAt: '2026-01-01T00:00:00.000Z',
           }}
           onSubmit={vi.fn()}
+          onDelete={vi.fn()}
         />,
       )
 
@@ -242,7 +253,8 @@ describe('GoalForm', () => {
     it('is optional — submits fine when left blank', async () => {
       const user = userEvent.setup()
       const onSubmit = vi.fn()
-      renderGoalForm(<GoalForm existingGoal={null} onSubmit={onSubmit} />)
+      renderGoalForm(<GoalForm existingGoal={null} onSubmit={onSubmit}
+      onDelete={vi.fn()} />)
 
       await user.type(
         screen.getByLabelText("This week's target (kg to lose)"),
@@ -259,7 +271,8 @@ describe('GoalForm', () => {
     it('submits the value when filled in', async () => {
       const user = userEvent.setup()
       const onSubmit = vi.fn()
-      renderGoalForm(<GoalForm existingGoal={null} onSubmit={onSubmit} />)
+      renderGoalForm(<GoalForm existingGoal={null} onSubmit={onSubmit}
+      onDelete={vi.fn()} />)
 
       await user.type(
         screen.getByLabelText("This week's target (kg to lose)"),
@@ -286,6 +299,7 @@ describe('GoalForm', () => {
             updatedAt: '2026-01-01T00:00:00.000Z',
           }}
           onSubmit={vi.fn()}
+          onDelete={vi.fn()}
         />,
       )
 
@@ -299,7 +313,8 @@ describe('GoalForm', () => {
     it('is optional — submits fine when left blank', async () => {
       const user = userEvent.setup()
       const onSubmit = vi.fn()
-      renderGoalForm(<GoalForm existingGoal={null} onSubmit={onSubmit} />)
+      renderGoalForm(<GoalForm existingGoal={null} onSubmit={onSubmit}
+      onDelete={vi.fn()} />)
 
       await user.type(
         screen.getByLabelText("This week's target (kg to lose)"),
@@ -316,7 +331,8 @@ describe('GoalForm', () => {
     it('submits the value when filled in', async () => {
       const user = userEvent.setup()
       const onSubmit = vi.fn()
-      renderGoalForm(<GoalForm existingGoal={null} onSubmit={onSubmit} />)
+      renderGoalForm(<GoalForm existingGoal={null} onSubmit={onSubmit}
+      onDelete={vi.fn()} />)
 
       await user.type(
         screen.getByLabelText("This week's target (kg to lose)"),
@@ -343,6 +359,7 @@ describe('GoalForm', () => {
             updatedAt: '2026-01-01T00:00:00.000Z',
           }}
           onSubmit={vi.fn()}
+          onDelete={vi.fn()}
         />,
       )
 
@@ -356,7 +373,8 @@ describe('GoalForm', () => {
     it('is optional — submits fine when left blank', async () => {
       const user = userEvent.setup()
       const onSubmit = vi.fn()
-      renderGoalForm(<GoalForm existingGoal={null} onSubmit={onSubmit} />)
+      renderGoalForm(<GoalForm existingGoal={null} onSubmit={onSubmit}
+      onDelete={vi.fn()} />)
 
       await user.type(
         screen.getByLabelText("This week's target (kg to lose)"),
@@ -373,7 +391,8 @@ describe('GoalForm', () => {
     it('submits the value when filled in', async () => {
       const user = userEvent.setup()
       const onSubmit = vi.fn()
-      renderGoalForm(<GoalForm existingGoal={null} onSubmit={onSubmit} />)
+      renderGoalForm(<GoalForm existingGoal={null} onSubmit={onSubmit}
+      onDelete={vi.fn()} />)
 
       await user.type(
         screen.getByLabelText("This week's target (kg to lose)"),
@@ -400,6 +419,7 @@ describe('GoalForm', () => {
             updatedAt: '2026-01-01T00:00:00.000Z',
           }}
           onSubmit={vi.fn()}
+          onDelete={vi.fn()}
         />,
       )
 
@@ -420,6 +440,7 @@ describe('GoalForm', () => {
         <GoalForm
           existingGoal={null}
           onSubmit={vi.fn()}
+          onDelete={vi.fn()}
           latestWeightKg={70}
         />,
       )
@@ -439,7 +460,8 @@ describe('GoalForm', () => {
         activityLevel: 'sedentary',
       })
       renderGoalForm(
-        <GoalForm existingGoal={null} onSubmit={vi.fn()} latestWeightKg={70} />,
+        <GoalForm existingGoal={null} onSubmit={vi.fn()}
+          onDelete={vi.fn()} latestWeightKg={70} />,
       )
 
       expect(
@@ -465,6 +487,7 @@ describe('GoalForm', () => {
             updatedAt: '2026-01-01T00:00:00.000Z',
           }}
           onSubmit={vi.fn()}
+          onDelete={vi.fn()}
         />,
       )
       expect(screen.queryByText('Daily fiber target')).not.toBeInTheDocument()
@@ -475,7 +498,8 @@ describe('GoalForm', () => {
     it('is optional — submits fine when left blank', async () => {
       const user = userEvent.setup()
       const onSubmit = vi.fn()
-      renderGoalForm(<GoalForm existingGoal={null} onSubmit={onSubmit} />)
+      renderGoalForm(<GoalForm existingGoal={null} onSubmit={onSubmit}
+      onDelete={vi.fn()} />)
 
       await user.type(
         screen.getByLabelText("This week's target (kg to lose)"),
@@ -492,7 +516,8 @@ describe('GoalForm', () => {
     it('submits the value when filled in', async () => {
       const user = userEvent.setup()
       const onSubmit = vi.fn()
-      renderGoalForm(<GoalForm existingGoal={null} onSubmit={onSubmit} />)
+      renderGoalForm(<GoalForm existingGoal={null} onSubmit={onSubmit}
+      onDelete={vi.fn()} />)
 
       await user.type(
         screen.getByLabelText("This week's target (kg to lose)"),
@@ -519,6 +544,7 @@ describe('GoalForm', () => {
             updatedAt: '2026-01-01T00:00:00.000Z',
           }}
           onSubmit={vi.fn()}
+          onDelete={vi.fn()}
         />,
       )
 
@@ -538,6 +564,7 @@ describe('GoalForm', () => {
             updatedAt: '2026-01-01T00:00:00.000Z',
           }}
           onSubmit={vi.fn()}
+          onDelete={vi.fn()}
         />,
       )
 
@@ -548,7 +575,8 @@ describe('GoalForm', () => {
 
   describe('suggest a target (#259)', () => {
     it('disables the button and shows a hint when profile data is incomplete', () => {
-      renderGoalForm(<GoalForm existingGoal={null} onSubmit={vi.fn()} />)
+      renderGoalForm(<GoalForm existingGoal={null} onSubmit={vi.fn()}
+          onDelete={vi.fn()} />)
 
       expect(
         screen.getByRole('button', { name: 'Suggest a target' }),
@@ -566,7 +594,8 @@ describe('GoalForm', () => {
         activityLevel: 'sedentary',
       })
       renderGoalForm(
-        <GoalForm existingGoal={null} onSubmit={vi.fn()} latestWeightKg={null} />,
+        <GoalForm existingGoal={null} onSubmit={vi.fn()}
+          onDelete={vi.fn()} latestWeightKg={null} />,
       )
 
       expect(
@@ -586,6 +615,7 @@ describe('GoalForm', () => {
         <GoalForm
           existingGoal={null}
           onSubmit={vi.fn()}
+          onDelete={vi.fn()}
           latestWeightKg={70}
         />,
       )
@@ -618,6 +648,7 @@ describe('GoalForm', () => {
         <GoalForm
           existingGoal={null}
           onSubmit={vi.fn()}
+          onDelete={vi.fn()}
           latestWeightKg={70}
         />,
       )
@@ -650,7 +681,8 @@ describe('GoalForm', () => {
         activityLevel: 'sedentary',
       })
       renderGoalForm(
-        <GoalForm existingGoal={null} onSubmit={onSubmit} latestWeightKg={70} />,
+        <GoalForm existingGoal={null} onSubmit={onSubmit}
+      onDelete={vi.fn()} latestWeightKg={70} />,
       )
 
       await user.click(
@@ -674,6 +706,7 @@ describe('GoalForm', () => {
         <GoalForm
           existingGoal={null}
           onSubmit={vi.fn()}
+          onDelete={vi.fn()}
           latestWeightKg={70}
         />,
       )
@@ -711,6 +744,7 @@ describe('GoalForm', () => {
         <GoalForm
           existingGoal={null}
           onSubmit={vi.fn()}
+          onDelete={vi.fn()}
           latestWeightKg={70}
         />,
       )
@@ -735,6 +769,7 @@ describe('GoalForm', () => {
         <GoalForm
           existingGoal={null}
           onSubmit={vi.fn()}
+          onDelete={vi.fn()}
           latestWeightKg={70}
         />,
       )
@@ -771,6 +806,7 @@ describe('GoalForm', () => {
             updatedAt: '2026-01-01T00:00:00.000Z',
           }}
           onSubmit={vi.fn()}
+          onDelete={vi.fn()}
         />,
       )
 
@@ -791,6 +827,7 @@ describe('GoalForm', () => {
             updatedAt: '2026-01-01T00:00:00.000Z',
           }}
           onSubmit={vi.fn()}
+          onDelete={vi.fn()}
         />,
       )
 
@@ -810,6 +847,7 @@ describe('GoalForm', () => {
           updatedAt: '2026-01-01T00:00:00.000Z',
         }}
         onSubmit={vi.fn()}
+          onDelete={vi.fn()}
       />,
     )
 
@@ -844,6 +882,7 @@ describe('GoalForm', () => {
             updatedAt: '2026-01-01T00:00:00.000Z',
           }}
           onSubmit={onSubmit}
+      onDelete={vi.fn()}
         />,
       )
 
@@ -876,6 +915,7 @@ describe('GoalForm', () => {
             updatedAt: '2026-01-01T00:00:00.000Z',
           }}
           onSubmit={onSubmit}
+      onDelete={vi.fn()}
         />,
       )
 
@@ -914,6 +954,7 @@ describe('GoalForm', () => {
             updatedAt: '2020-01-01T00:00:00.000Z',
           }}
           onSubmit={onSubmit}
+      onDelete={vi.fn()}
         />,
       )
 
@@ -943,6 +984,7 @@ describe('GoalForm', () => {
             updatedAt: '2026-01-01T00:00:00.000Z',
           }}
           onSubmit={vi.fn()}
+          onDelete={vi.fn()}
         />,
       )
 
@@ -971,6 +1013,7 @@ describe('GoalForm', () => {
             updatedAt: '2020-01-01T00:00:00.000Z',
           }}
           onSubmit={vi.fn()}
+          onDelete={vi.fn()}
         />,
       )
 
@@ -991,6 +1034,7 @@ describe('GoalForm', () => {
             updatedAt: '2026-01-01T00:00:00.000Z',
           }}
           onSubmit={vi.fn()}
+          onDelete={vi.fn()}
           activeGoalConcluded // reached on the window's own last day
         />,
       )
@@ -1010,6 +1054,7 @@ describe('GoalForm', () => {
             updatedAt: '2020-01-01T00:00:00.000Z',
           }}
           onSubmit={vi.fn()}
+          onDelete={vi.fn()}
         />,
       )
 
@@ -1031,6 +1076,7 @@ describe('GoalForm', () => {
             updatedAt: '2026-01-01T00:00:00.000Z',
           }}
           onSubmit={vi.fn()}
+          onDelete={vi.fn()}
         />,
       )
 
@@ -1063,6 +1109,7 @@ describe('GoalForm', () => {
             updatedAt: '2026-01-01T00:00:00.000Z',
           }}
           onSubmit={onSubmit}
+      onDelete={vi.fn()}
         />,
       )
 
@@ -1098,6 +1145,7 @@ describe('GoalForm', () => {
             updatedAt: '2026-01-01T00:00:00.000Z',
           }}
           onSubmit={onSubmit}
+      onDelete={vi.fn()}
         />,
       )
 
@@ -1125,7 +1173,8 @@ describe('GoalForm', () => {
       vi.setSystemTime(new Date('2026-07-24T12:00:00'))
       const user = userEvent.setup({ delay: null })
       const onSubmit = vi.fn()
-      renderGoalForm(<GoalForm existingGoal={null} onSubmit={onSubmit} />)
+      renderGoalForm(<GoalForm existingGoal={null} onSubmit={onSubmit}
+      onDelete={vi.fn()} />)
 
       expect(screen.getByLabelText('Ends on')).toHaveValue('2026-07-30')
 
@@ -1143,7 +1192,8 @@ describe('GoalForm', () => {
     it('submits a custom end date when edited', async () => {
       const user = userEvent.setup()
       const onSubmit = vi.fn()
-      renderGoalForm(<GoalForm existingGoal={null} onSubmit={onSubmit} />)
+      renderGoalForm(<GoalForm existingGoal={null} onSubmit={onSubmit}
+      onDelete={vi.fn()} />)
 
       await user.type(
         screen.getByLabelText("This week's target (kg to lose)"),
@@ -1172,6 +1222,7 @@ describe('GoalForm', () => {
             updatedAt: '2026-01-01T00:00:00.000Z',
           }}
           onSubmit={vi.fn()}
+          onDelete={vi.fn()}
         />,
       )
 
@@ -1189,7 +1240,8 @@ describe('GoalForm', () => {
     // starts already in edit mode.
     const user = userEvent.setup()
     const onSubmit = vi.fn()
-    renderGoalForm(<GoalForm existingGoal={null} onSubmit={onSubmit} />)
+    renderGoalForm(<GoalForm existingGoal={null} onSubmit={onSubmit}
+      onDelete={vi.fn()} />)
 
     await user.type(
       screen.getByLabelText("This week's target (kg to lose)"),
@@ -1212,7 +1264,8 @@ describe('GoalForm', () => {
   it('accepts a comma as the decimal separator', async () => {
     const user = userEvent.setup()
     const onSubmit = vi.fn()
-    renderGoalForm(<GoalForm existingGoal={null} onSubmit={onSubmit} />)
+    renderGoalForm(<GoalForm existingGoal={null} onSubmit={onSubmit}
+      onDelete={vi.fn()} />)
 
     await user.type(
       screen.getByLabelText("This week's target (kg to lose)"),
@@ -1229,7 +1282,8 @@ describe('GoalForm', () => {
   // #529
   it('steps the weekly target by 0.1 kg with the ± buttons', async () => {
     const user = userEvent.setup()
-    renderGoalForm(<GoalForm existingGoal={null} onSubmit={vi.fn()} />)
+    renderGoalForm(<GoalForm existingGoal={null} onSubmit={vi.fn()}
+          onDelete={vi.fn()} />)
 
     const input = screen.getByLabelText("This week's target (kg to lose)")
     await user.click(
@@ -1251,7 +1305,8 @@ describe('GoalForm', () => {
   it('soft-warns above 1 kg/week without blocking save (#529)', async () => {
     const user = userEvent.setup()
     const onSubmit = vi.fn()
-    renderGoalForm(<GoalForm existingGoal={null} onSubmit={onSubmit} />)
+    renderGoalForm(<GoalForm existingGoal={null} onSubmit={onSubmit}
+      onDelete={vi.fn()} />)
 
     expect(
       screen.queryByRole('status'),
@@ -1283,14 +1338,16 @@ describe('GoalForm', () => {
     }
 
     it('shows a Cancel button next to Set / Update', () => {
-      renderGoalForm(<GoalForm existingGoal={null} onSubmit={vi.fn()} />)
+      renderGoalForm(<GoalForm existingGoal={null} onSubmit={vi.fn()}
+          onDelete={vi.fn()} />)
       expect(screen.getByRole('button', { name: 'Cancel' })).toBeInTheDocument()
     })
 
     it('returns to the summary without prompting when Cancel is clean', async () => {
       const user = userEvent.setup()
       renderGoalForm(
-        <GoalForm existingGoal={existingGoal} onSubmit={vi.fn()} />,
+        <GoalForm existingGoal={existingGoal} onSubmit={vi.fn()}
+          onDelete={vi.fn()} />,
       )
 
       await user.click(screen.getByRole('button', { name: 'Edit goal' }))
@@ -1312,7 +1369,8 @@ describe('GoalForm', () => {
     it('asks before discarding dirty edits; No keeps the form', async () => {
       const user = userEvent.setup()
       renderGoalForm(
-        <GoalForm existingGoal={existingGoal} onSubmit={vi.fn()} />,
+        <GoalForm existingGoal={existingGoal} onSubmit={vi.fn()}
+          onDelete={vi.fn()} />,
       )
 
       await user.click(screen.getByRole('button', { name: 'Edit goal' }))
@@ -1346,7 +1404,8 @@ describe('GoalForm', () => {
     it('discards dirty edits and returns to the summary on Yes', async () => {
       const user = userEvent.setup()
       renderGoalForm(
-        <GoalForm existingGoal={existingGoal} onSubmit={vi.fn()} />,
+        <GoalForm existingGoal={existingGoal} onSubmit={vi.fn()}
+          onDelete={vi.fn()} />,
       )
 
       await user.click(screen.getByRole('button', { name: 'Edit goal' }))
@@ -1369,7 +1428,8 @@ describe('GoalForm', () => {
     it('blocks leaving the route when dirty and allows proceed on Yes', async () => {
       const user = userEvent.setup()
       renderGoalForm(
-        <GoalForm existingGoal={existingGoal} onSubmit={vi.fn()} />,
+        <GoalForm existingGoal={existingGoal} onSubmit={vi.fn()}
+          onDelete={vi.fn()} />,
       )
 
       await user.click(screen.getByRole('button', { name: 'Edit goal' }))
@@ -1391,6 +1451,71 @@ describe('GoalForm', () => {
       await user.click(screen.getByRole('button', { name: 'Yes' }))
 
       expect(screen.getByText('other screen')).toBeInTheDocument()
+    })
+  })
+
+  describe('Delete goal (#668)', () => {
+    const existingGoal = {
+      id: 'g1',
+      targetWeeklyLossKg: 1,
+      createdAt: '2026-01-01T00:00:00.000Z',
+      updatedAt: '2026-01-01T00:00:00.000Z',
+    }
+
+    it('shows a Delete goal button next to Edit for an existing goal', () => {
+      renderGoalForm(
+        <GoalForm existingGoal={existingGoal} onSubmit={vi.fn()}
+          onDelete={vi.fn()} />,
+      )
+
+      expect(
+        screen.getByRole('button', { name: 'Delete goal' }),
+      ).toBeInTheDocument()
+    })
+
+    it('has no Delete goal button when there is no existing goal', () => {
+      renderGoalForm(<GoalForm existingGoal={null} onSubmit={vi.fn()}
+          onDelete={vi.fn()} />)
+
+      expect(
+        screen.queryByRole('button', { name: 'Delete goal' }),
+      ).not.toBeInTheDocument()
+    })
+
+    it('asks for confirmation before deleting, and does nothing on Cancel', async () => {
+      const user = userEvent.setup()
+      const onDelete = vi.fn()
+      renderGoalForm(
+        <GoalForm existingGoal={existingGoal} onSubmit={vi.fn()}
+          onDelete={onDelete} />,
+      )
+
+      await user.click(screen.getByRole('button', { name: 'Delete goal' }))
+      expect(
+        screen.getByText("Delete this goal? This can't be undone."),
+      ).toBeInTheDocument()
+
+      await user.click(screen.getByRole('button', { name: 'Cancel' }))
+
+      expect(onDelete).not.toHaveBeenCalled()
+      expect(
+        screen.queryByText("Delete this goal? This can't be undone."),
+      ).not.toBeInTheDocument()
+      expect(screen.getByRole('button', { name: 'Edit goal' })).toBeInTheDocument()
+    })
+
+    it('deletes the goal on confirmation', async () => {
+      const user = userEvent.setup()
+      const onDelete = vi.fn()
+      renderGoalForm(
+        <GoalForm existingGoal={existingGoal} onSubmit={vi.fn()}
+          onDelete={onDelete} />,
+      )
+
+      await user.click(screen.getByRole('button', { name: 'Delete goal' }))
+      await user.click(screen.getByRole('button', { name: 'Delete' }))
+
+      expect(onDelete).toHaveBeenCalledTimes(1)
     })
   })
 })

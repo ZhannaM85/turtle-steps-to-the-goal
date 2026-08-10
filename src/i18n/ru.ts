@@ -483,6 +483,8 @@ export const ru: Dictionary = {
     currentGoalTitle: 'Текущая цель',
     notSetLabel: 'Не задано',
     editGoalLabel: 'Редактировать цель',
+    deleteGoalLabel: 'Удалить цель',
+    confirmDeleteGoalLabel: 'Удалить эту цель? Это действие нельзя отменить.',
     pastTargetsTitle: 'Прошлые цели',
     weekColumnLabel: 'Неделя',
     targetColumnLabel: 'Цель',

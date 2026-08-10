@@ -53,4 +53,25 @@ describe('useGoalStore', () => {
 
     expect(useGoalStore.getState().goal).toEqual(goal)
   })
+
+  describe('deleteGoal (#668)', () => {
+    it('removes the active goal from state and the repository', async () => {
+      const goal = makeGoal()
+      await useGoalStore.getState().saveGoal(goal)
+
+      await useGoalStore.getState().deleteGoal()
+
+      expect(useGoalStore.getState().goal).toBeNull()
+      useGoalStore.setState({ goal: null, status: 'idle' })
+      await useGoalStore.getState().loadActiveGoal()
+      expect(useGoalStore.getState().goal).toBeNull()
+    })
+
+    it('is a no-op when there is no active goal', async () => {
+      await useGoalStore.getState().deleteGoal()
+
+      expect(useGoalStore.getState().goal).toBeNull()
+      expect(useGoalStore.getState().status).toBe('idle')
+    })
+  })
 })

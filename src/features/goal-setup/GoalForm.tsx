@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { format, parseISO } from 'date-fns'
-import { Check, Minus, Pencil, Plus } from 'lucide-react'
+import { Check, Minus, Pencil, Plus, Trash2 } from 'lucide-react'
 import { useForm, useWatch, type Resolver } from 'react-hook-form'
 import { useBlocker } from 'react-router-dom'
 import type { Goal } from '@/domain/goal'
@@ -83,6 +83,11 @@ function formValuesForGoal(goal: Goal | null, unit: Unit): GoalFormValues {
 export interface GoalFormProps {
   existingGoal: Goal | null
   onSubmit: (goal: Goal) => void | Promise<void>
+  /** #668 — deletes `existingGoal` entirely (not just discards in-progress
+   * edits, see requestCancel below). Only ever called with an existing
+   * goal present — the read-only view this button lives in doesn't render
+   * without one. */
+  onDelete: () => void | Promise<void>
   /** #259 — the most recently logged weight (always kg, unconverted),
    * needed by the "Suggest a target" TDEE helper below. `null` while
    * loading or if nothing's ever been logged, in which case the helper
@@ -106,6 +111,7 @@ function hasPositiveFieldValue(raw: unknown): boolean {
 export function GoalForm({
   existingGoal,
   onSubmit,
+  onDelete,
   latestWeightKg = null,
   activeGoalConcluded,
 }: GoalFormProps) {
@@ -489,6 +495,27 @@ export function GoalForm({
     }
   }
 
+  // #668 — same two-step inline confirm shape as showDiscardConfirm above,
+  // but a separate state/card: this deletes the whole goal record, not
+  // just discards in-progress edits, so it needs its own distinct wording
+  // and shouldn't share a flag with the unrelated cancel-edits flow.
+  const [confirmDelete, setConfirmDelete] = useState(false)
+
+  function requestDeleteGoal() {
+    setConfirmDelete(true)
+  }
+
+  function cancelDeleteGoal() {
+    setConfirmDelete(false)
+  }
+
+  async function confirmDeleteGoal() {
+    await onDelete()
+    setConfirmDelete(false)
+    setStartingNew(false)
+    reset(emptyGoalFormValues())
+  }
+
   async function submit(formValues: GoalFormValues) {
     await onSubmit(formValuesToGoal(formValues, unit, existingGoal, startingNew))
     setJustSaved(true)
@@ -659,54 +686,94 @@ export function GoalForm({
             </tr>
           </tbody>
         </table>
-        {/* #386 — two always-available, explicit actions (reported live:
-         * the previous single button silently deciding which one it meant,
-         * based on internal state, was confusing even to an experienced
-         * user) — Edit always touches this same record; "Start a new
-         * goal" always creates a fresh one, closing this one out. */}
-        <div className="flex flex-wrap items-center gap-2">
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon-xl"
-            aria-label={t.goal.editGoalLabel}
-            onClick={() => {
-              setStartingNew(false)
-              reset(formValuesForGoal(existingGoal, unit))
-              setIsEditing(true)
-            }}
-          >
-            <Pencil aria-hidden="true" />
-          </Button>
-          <div className="flex flex-col gap-1">
+        {/* #668 — same inline confirm card as showDiscardConfirm below,
+         * replacing the action row entirely while active (rather than
+         * leaving Edit/Delete/Start new goal clickable alongside it). */}
+        {confirmDelete ? (
+          <div className="flex flex-col gap-2 rounded-xl bg-card p-3 ring-1 ring-foreground/10">
+            <span className="text-sm text-muted-foreground">
+              {t.goal.confirmDeleteGoalLabel}
+            </span>
+            <div className="flex items-center gap-2">
+              <Button
+                type="button"
+                variant="destructive"
+                size="sm"
+                onClick={confirmDeleteGoal}
+              >
+                {t.history.confirmDeleteYes}
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={cancelDeleteGoal}
+              >
+                {t.history.confirmDeleteNo}
+              </Button>
+            </div>
+          </div>
+        ) : (
+          /* #386 — two always-available, explicit actions (reported live:
+           * the previous single button silently deciding which one it meant,
+           * based on internal state, was confusing even to an experienced
+           * user) — Edit always touches this same record; "Start a new
+           * goal" always creates a fresh one, closing this one out. #668
+           * added Delete alongside Edit, same pairing as the Day page's
+           * weight display (Pencil + Trash2). */
+          <div className="flex flex-wrap items-center gap-2">
             <Button
               type="button"
-              variant="outline"
-              disabled={!activeWindowEnded}
+              variant="ghost"
+              size="icon-xl"
+              aria-label={t.goal.editGoalLabel}
               onClick={() => {
-                setStartingNew(true)
-                reset(emptyGoalFormValues())
+                setStartingNew(false)
+                reset(formValuesForGoal(existingGoal, unit))
                 setIsEditing(true)
               }}
             >
-              {t.goal.startNewGoalButton}
+              <Pencil aria-hidden="true" />
             </Button>
-            <p className="text-xs text-muted-foreground">
-              {activeWindowEnded || !existingGoal?.weekStart
-                ? t.goal.startNewGoalHint
-                : t.goal.startNewGoalAvailableFromLabel(
-                    format(
-                      parseISO(
-                        existingGoal.weekEnd ??
-                          goalWeekEnd(existingGoal.weekStart),
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon-xl"
+              aria-label={t.goal.deleteGoalLabel}
+              onClick={requestDeleteGoal}
+            >
+              <Trash2 aria-hidden="true" />
+            </Button>
+            <div className="flex flex-col gap-1">
+              <Button
+                type="button"
+                variant="outline"
+                disabled={!activeWindowEnded}
+                onClick={() => {
+                  setStartingNew(true)
+                  reset(emptyGoalFormValues())
+                  setIsEditing(true)
+                }}
+              >
+                {t.goal.startNewGoalButton}
+              </Button>
+              <p className="text-xs text-muted-foreground">
+                {activeWindowEnded || !existingGoal?.weekStart
+                  ? t.goal.startNewGoalHint
+                  : t.goal.startNewGoalAvailableFromLabel(
+                      format(
+                        parseISO(
+                          existingGoal.weekEnd ??
+                            goalWeekEnd(existingGoal.weekStart),
+                        ),
+                        'PP',
+                        { locale: dateFnsLocale },
                       ),
-                      'PP',
-                      { locale: dateFnsLocale },
-                    ),
-                  )}
-            </p>
+                    )}
+              </p>
+            </div>
           </div>
-        </div>
+        )}
       </div>
     )
   }

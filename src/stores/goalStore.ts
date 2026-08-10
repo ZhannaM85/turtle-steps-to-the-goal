@@ -10,9 +10,12 @@ interface GoalStoreState {
   error: string | null
   loadActiveGoal: () => Promise<void>
   saveGoal: (goal: Goal) => Promise<void>
+  /** #668 — deletes the active goal record entirely (GoalRepository's
+   * deleteGoal is a plain by-id removal; no-op if there's nothing active). */
+  deleteGoal: () => Promise<void>
 }
 
-export const useGoalStore = create<GoalStoreState>((set) => ({
+export const useGoalStore = create<GoalStoreState>((set, get) => ({
   goal: null,
   status: 'idle',
   error: null,
@@ -31,5 +34,11 @@ export const useGoalStore = create<GoalStoreState>((set) => ({
   saveGoal: async (goal) => {
     await goalRepository.saveGoal(goal)
     set({ goal, status: 'ready' })
+  },
+  deleteGoal: async () => {
+    const { goal } = get()
+    if (!goal) return
+    await goalRepository.deleteGoal(goal.id)
+    set({ goal: null, status: 'ready' })
   },
 }))

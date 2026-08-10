@@ -462,6 +462,8 @@ export const en: Dictionary = {
     currentGoalTitle: 'Current goal',
     notSetLabel: 'Not set',
     editGoalLabel: 'Edit goal',
+    deleteGoalLabel: 'Delete goal',
+    confirmDeleteGoalLabel: "Delete this goal? This can't be undone.",
     pastTargetsTitle: 'Past targets',
     weekColumnLabel: 'Week',
     targetColumnLabel: 'Target',
