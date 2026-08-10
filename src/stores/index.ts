@@ -80,4 +80,8 @@ export { useAddMealRecentVisibilityStore } from './addMealRecentVisibilityStore'
 export { useLastBackupStore } from './lastBackupStore'
 export { useNutritionFactsStore } from './nutritionFactsStore'
 export { useEntryComparisonStore } from './entryComparisonStore'
+export {
+  useMealLibrarySortStore,
+  type MealLibrarySort,
+} from './mealLibrarySortStore'
 export { applyTrackingPreset, type TrackingPreset } from './trackingPreset'

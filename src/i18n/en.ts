@@ -1070,6 +1070,11 @@ export const en: Dictionary = {
       `${total} ${total === 1 ? 'food' : 'foods'}`,
     mealItemsFilteredCount: (shown, total) =>
       `${shown} of ${total} matching`,
+    mealItemsSortLabel: 'Sort by',
+    mealItemsSortTitleAsc: 'Title A→Z',
+    mealItemsSortTitleDesc: 'Title Z→A',
+    mealItemsSortAddedNewest: 'Date added (newest first)',
+    mealItemsSortAddedOldest: 'Date added (oldest first)',
     mealLibraryBackfillDescription:
       'If you imported meals (or have years of history), you can copy unique dish names into this library so Find food can reuse them. You can remove only those copied items later — day history stays intact.',
     mealLibraryBackfillButton: 'Add foods from meal history',

@@ -3,7 +3,7 @@ import { render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { db } from '@/infrastructure/persistence/indexeddb'
-import { useMealItemStore } from '@/stores'
+import { useMealItemStore, useMealLibrarySortStore } from '@/stores'
 import { MealItemsSection } from './MealItemsSection'
 
 // #289 — same real-class mock as MealList.test.tsx's own barcode-scanning
@@ -28,10 +28,13 @@ function mockScanning(barcode: string) {
 beforeEach(async () => {
   await db.mealItems.clear()
   useMealItemStore.setState({ items: [], status: 'idle', error: null })
+  useMealLibrarySortStore.setState({ sort: 'title-asc' })
+  localStorage.removeItem('turtle-steps-meal-library-sort')
 })
 
 afterEach(async () => {
   await db.mealItems.clear()
+  localStorage.removeItem('turtle-steps-meal-library-sort')
 })
 
 describe('MealItemsSection', () => {
@@ -69,6 +72,64 @@ describe('MealItemsSection', () => {
       'piz',
     )
     expect(await screen.findByText('1 of 2 matching')).toBeInTheDocument()
+  })
+
+  it('sorts by title and by date added (#684)', async () => {
+    await db.mealItems.bulkPut([
+      {
+        id: 'salad',
+        name: 'Salad',
+        createdAt: '2026-08-01T00:00:00.000Z',
+        updatedAt: '2026-08-01T00:00:00.000Z',
+      },
+      {
+        id: 'pizza',
+        name: 'Pizza',
+        createdAt: '2026-08-10T00:00:00.000Z',
+        updatedAt: '2026-08-10T00:00:00.000Z',
+      },
+      {
+        id: 'apple',
+        name: 'Apple',
+        createdAt: '2026-08-05T00:00:00.000Z',
+        updatedAt: '2026-08-05T00:00:00.000Z',
+      },
+    ])
+    await useMealItemStore.getState().loadItems()
+    const user = userEvent.setup()
+    render(<MealItemsSection />)
+
+    expect(await screen.findByText('Apple')).toBeInTheDocument()
+    const list = screen.getByRole('list')
+    const orderOf = (...labels: string[]) => {
+      const text = list.textContent ?? ''
+      return labels.map((label) => text.indexOf(label))
+    }
+
+    let positions = orderOf('Apple', 'Pizza', 'Salad')
+    expect(positions[0]).toBeLessThan(positions[1])
+    expect(positions[1]).toBeLessThan(positions[2])
+
+    await user.selectOptions(screen.getByLabelText('Sort by'), 'title-desc')
+    positions = orderOf('Salad', 'Pizza', 'Apple')
+    expect(positions[0]).toBeLessThan(positions[1])
+    expect(positions[1]).toBeLessThan(positions[2])
+
+    await user.selectOptions(
+      screen.getByLabelText('Sort by'),
+      'added-newest',
+    )
+    positions = orderOf('Pizza', 'Apple', 'Salad')
+    expect(positions[0]).toBeLessThan(positions[1])
+    expect(positions[1]).toBeLessThan(positions[2])
+
+    await user.selectOptions(
+      screen.getByLabelText('Sort by'),
+      'added-oldest',
+    )
+    positions = orderOf('Salad', 'Apple', 'Pizza')
+    expect(positions[0]).toBeLessThan(positions[1])
+    expect(positions[1]).toBeLessThan(positions[2])
   })
 
   it('renames an item when closing edit with the pencil (#584/#589)', async () => {

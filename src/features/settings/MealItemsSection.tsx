@@ -25,12 +25,16 @@ import {
   totalFromPortion,
 } from '@/shared/lib/macroScaling'
 import { parseNumberInput } from '@/shared/lib/parseNumberInput'
-import { rankBySearchMatch } from '@/shared/lib/searchRank'
+import {
+  isMealLibrarySort,
+  sortMealLibraryItems,
+} from '@/shared/lib/sortMealLibraryItems'
 import { cn } from '@/shared/lib/utils'
-import { useMealItemStore } from '@/stores'
+import { useMealItemStore, useMealLibrarySortStore } from '@/stores'
 import { Button } from '@/shared/ui/button'
 import { Dialog, DialogContent, DialogTitle } from '@/shared/ui/dialog'
 import { Input } from '@/shared/ui/input'
+import { Label } from '@/shared/ui/label'
 import { ToggleGroup, ToggleGroupItem } from '@/shared/ui/toggle-group'
 import { BarcodeScannerDialog, lookupBarcode } from '@/features/daily-log'
 import { ShareFoodDialog, useFoodShareUiStore } from '@/features/food-share'
@@ -997,6 +1001,7 @@ function AddMealItemForm({
 
 export function MealItemsSection() {
   const t = useTranslation()
+  const locale = useLocale()
   const items = useMealItemStore((state) => state.items)
   const loadItems = useMealItemStore((state) => state.loadItems)
   const rename = useMealItemStore((state) => state.rename)
@@ -1011,6 +1016,8 @@ export function MealItemsSection() {
     (state) => state.removeBackfilledItems,
   )
   const setFoodShareEntryOpen = useFoodShareUiStore((s) => s.setEntryOpen)
+  const sort = useMealLibrarySortStore((state) => state.sort)
+  const setSort = useMealLibrarySortStore((state) => state.setSort)
   const [isAdding, setIsAdding] = useState(false)
   const [search, setSearch] = useState('')
   const [backfillBusy, setBackfillBusy] = useState(false)
@@ -1130,17 +1137,12 @@ export function MealItemsSection() {
 
   // Same filter-as-you-type shape as FoodListSettingsScreen's search (#179)
   // — filters by name, case-insensitive, empty query shows everything.
-  // #204: rankBySearchMatch reorders (doesn't change) the filtered result
-  // so exact/whole-word matches surface above ones where the query only
-  // occurs mid-word.
+  // #684 — then sort by the Settings preference (title A↔Z or date added).
   const query = search.trim().toLowerCase()
-  const visibleItems = query
-    ? rankBySearchMatch(
-        items.filter((item) => item.name.toLowerCase().includes(query)),
-        query,
-        (item) => item.name,
-      )
+  const filteredItems = query
+    ? items.filter((item) => item.name.toLowerCase().includes(query))
     : items
+  const visibleItems = sortMealLibraryItems(filteredItems, sort, locale)
 
   return (
     <div className="flex flex-col gap-3">
@@ -1193,6 +1195,33 @@ export function MealItemsSection() {
                 )
               : t.settings.mealItemsCount(items.length)}
           </p>
+          {/* #684 — sort near count/search; preference persisted in localStorage. */}
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="meal-library-sort">
+              {t.settings.mealItemsSortLabel}
+            </Label>
+            <select
+              id="meal-library-sort"
+              aria-label={t.settings.mealItemsSortLabel}
+              className="h-8 w-full min-w-0 rounded-lg border border-input bg-transparent px-2.5 py-1 text-base outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 md:text-sm dark:bg-input/30"
+              value={sort}
+              onChange={(e) => {
+                const next = e.target.value
+                if (isMealLibrarySort(next)) setSort(next)
+              }}
+            >
+              <option value="title-asc">{t.settings.mealItemsSortTitleAsc}</option>
+              <option value="title-desc">
+                {t.settings.mealItemsSortTitleDesc}
+              </option>
+              <option value="added-newest">
+                {t.settings.mealItemsSortAddedNewest}
+              </option>
+              <option value="added-oldest">
+                {t.settings.mealItemsSortAddedOldest}
+              </option>
+            </select>
+          </div>
           <Input
             type="text"
             aria-label={t.settings.mealItemSearchLabel}

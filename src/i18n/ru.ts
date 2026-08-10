@@ -1102,6 +1102,11 @@ export const ru: Dictionary = {
       total === 1 ? '1 блюдо' : `${total} блюд`,
     mealItemsFilteredCount: (shown, total) =>
       `Найдено ${shown} из ${total}`,
+    mealItemsSortLabel: 'Сортировка',
+    mealItemsSortTitleAsc: 'Название А→Я',
+    mealItemsSortTitleDesc: 'Название Я→А',
+    mealItemsSortAddedNewest: 'Дата добавления (сначала новые)',
+    mealItemsSortAddedOldest: 'Дата добавления (сначала старые)',
     mealLibraryBackfillDescription:
       'Если вы импортировали приёмы пищи (или у вас многолетняя история), можно скопировать уникальные названия блюд в эту библиотеку — тогда их найдёт поиск. Позже можно удалить только эти скопированные позиции — история дней не затронется.',
     mealLibraryBackfillButton: 'Добавить блюда из истории',

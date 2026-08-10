@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 642,
+    issue: 684,
+    date: '2026-08-10T19:55:00+03:00',
+    en: 'Settings → Dishes can be sorted by title (A–Z / Z–A) or by date added.',
+    ru: 'В Настройки → Блюда можно сортировать по названию (А–Я / Я–А) или по дате добавления.',
+  },
+  {
     version: 641,
     issue: 681,
     date: '2026-08-10T19:45:00+03:00',
