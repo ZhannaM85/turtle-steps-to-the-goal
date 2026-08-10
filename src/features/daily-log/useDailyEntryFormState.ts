@@ -635,7 +635,12 @@ export function useDailyEntryFormState({
 
   function saveWeight() {
     const result = weightSchema.safeParse(getValues('weightKg'))
-    if (!result.success) {
+    // #669 — weightSchema allows `undefined` (a day can go untracked), but an
+    // empty *Save* tap on the weight field specifically isn't a valid way to
+    // clear it: it used to fall through to `persist()` and flip the field to
+    // its read-only display, which then rendered `formatExactNumber(undefined)`
+    // (Intl formats that as literal "NaN"/"не число") instead of being blocked.
+    if (!result.success || result.data === undefined) {
       setError('weightKg', { message: t.dailyEntry.invalidValueMessage })
       setPendingUnusualWeight(null)
       return
@@ -644,12 +649,11 @@ export function useDailyEntryFormState({
     // #401 — a value can pass the absolute plausibility band above while
     // still being an unusual jump from yesterday's own logged weight.
     const isUnusual =
-      result.data !== undefined &&
-      (isUnusualWeightKg(result.data) ||
-        (previousDayEntry?.weightKg !== undefined &&
-          isUnusualWeightDeltaKg(result.data, previousDayEntry.weightKg)))
+      isUnusualWeightKg(result.data) ||
+      (previousDayEntry?.weightKg !== undefined &&
+        isUnusualWeightDeltaKg(result.data, previousDayEntry.weightKg))
     if (isUnusual && pendingUnusualWeight !== result.data) {
-      setPendingUnusualWeight(result.data!)
+      setPendingUnusualWeight(result.data)
       return
     }
     setPendingUnusualWeight(null)

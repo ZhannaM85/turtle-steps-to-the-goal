@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 626,
+    issue: 669,
+    date: '2026-08-10T12:04:00+03:00',
+    en: 'Fixed: saving an empty weight value on the Day page is now blocked with an error, instead of being saved and shown as "NaN".',
+    ru: 'Исправлено: сохранение пустого значения веса на странице дня теперь блокируется с ошибкой, а не сохраняется и не отображается как «не число».',
+  },
+  {
     version: 625,
     issue: 667,
     date: '2026-08-10T11:56:00+03:00',

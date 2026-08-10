@@ -405,6 +405,32 @@ describe('DailyEntryForm', () => {
       expectWeightDisplay('79.5')
     })
 
+    it('blocks saving an empty weight instead of clearing it and showing NaN (#669)', async () => {
+      const user = userEvent.setup()
+      const onSave = vi.fn()
+      render(
+        <DailyEntryForm
+          date="2026-03-01"
+          existingEntry={{
+            id: 'e1',
+            date: '2026-03-01',
+            weightKg: 80,
+            createdAt: now,
+            updatedAt: now,
+          }}
+          onSave={onSave}
+        />,
+      )
+
+      await user.click(screen.getByRole('button', { name: 'Edit weight' }))
+      await user.clear(screen.getByLabelText('Weight (kg)'))
+      await user.click(screen.getByRole('button', { name: 'Save weight' }))
+
+      expect(await screen.findByText(/Invalid value/)).toBeInTheDocument()
+      expect(onSave).not.toHaveBeenCalled()
+      expect(screen.getByLabelText('Weight (kg)')).toBeInTheDocument()
+    })
+
     describe('leaving edit mode without saving (#424)', () => {
       it('has no Cancel button for a brand-new entry with nothing saved yet', () => {
         render(
