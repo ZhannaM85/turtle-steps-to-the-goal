@@ -514,6 +514,10 @@ export function GoalForm({
   // so the same read-only view stays up ("just display the previous
   // goal," per the user) until Edit or "Start a new goal" is actually
   // tapped — same buttons already used for an ordinary concluded goal.
+  // #677 — must win over a later `existingGoal` if anything reloads the
+  // store and promotes the previous history record to "active"
+  // (`getActiveGoal` = newest remaining `createdAt`); preferring
+  // `existingGoal ?? snapshot` showed that older goal's numbers instead.
   const [justDeletedGoal, setJustDeletedGoal] = useState<Goal | null>(null)
 
   function requestDeleteGoal() {
@@ -525,7 +529,11 @@ export function GoalForm({
   }
 
   async function confirmDeleteGoal() {
-    setJustDeletedGoal(existingGoal)
+    // Capture before await — `existingGoal` may change once `onDelete`
+    // resolves (store null, or a reload promoting an older goal).
+    const snapshot = existingGoal
+    if (!snapshot) return
+    setJustDeletedGoal(snapshot)
     await onDelete()
     setConfirmDelete(false)
     setStartingNew(false)
@@ -542,6 +550,7 @@ export function GoalForm({
         latestWeightKg,
       ),
     )
+    setJustDeletedGoal(null)
     setJustSaved(true)
     // Explicitly requested, twice: the fields should actually clear once
     // Update is clicked, not just show a confirmation next to them — the
@@ -558,10 +567,10 @@ export function GoalForm({
     setStartingNew(false)
   }
 
-  // #674 — falls back to the just-deleted snapshot so this view-mode
-  // branch stays reachable (and showing real data) even once the store's
-  // `existingGoal` itself has gone null.
-  const displayGoal = existingGoal ?? justDeletedGoal
+  // #674/#677 — snapshot first: once set, it must keep winning over a
+  // post-delete `existingGoal` that `loadActiveGoal`/`getActiveGoal` may
+  // refill with an older record (newest remaining after the delete).
+  const displayGoal = justDeletedGoal ?? existingGoal
   if (!isEditing && displayGoal) {
     return (
       <div className="flex flex-col gap-2">
@@ -756,17 +765,26 @@ export function GoalForm({
               size="icon-xl"
               aria-label={t.goal.editGoalLabel}
               onClick={() => {
+                // #674 — Edit after delete opens a blank create form, not
+                // the removed record. Keep the snapshot so Cancel can
+                // return to it (discardEdits null-existingGoal branch).
                 setStartingNew(false)
-                reset(formValuesForGoal(existingGoal, unit))
+                if (justDeletedGoal && !existingGoal) {
+                  reset(emptyGoalFormValues())
+                } else {
+                  setJustDeletedGoal(null)
+                  reset(formValuesForGoal(existingGoal, unit))
+                }
                 setIsEditing(true)
               }}
             >
               <Pencil aria-hidden="true" />
             </Button>
-            {/* #674 — hidden once `existingGoal` itself is already gone
-             * (only `justDeletedGoal`'s snapshot is being shown) — nothing
-             * left to delete. */}
-            {existingGoal && (
+            {/* #674/#677 — hidden once we've taken a delete snapshot
+             * (even if `loadActiveGoal` later promotes an older goal into
+             * `existingGoal` — that record isn't what the user just
+             * deleted, and Delete on it here would be the wrong target). */}
+            {existingGoal && !justDeletedGoal && (
               <Button
                 type="button"
                 variant="ghost"
@@ -781,8 +799,9 @@ export function GoalForm({
               <Button
                 type="button"
                 variant="outline"
-                disabled={!activeWindowEnded}
+                disabled={!justDeletedGoal && !activeWindowEnded}
                 onClick={() => {
+                  setJustDeletedGoal(null)
                   setStartingNew(true)
                   reset(emptyGoalFormValues())
                   setIsEditing(true)
@@ -791,7 +810,9 @@ export function GoalForm({
                 {t.goal.startNewGoalButton}
               </Button>
               <p className="text-xs text-muted-foreground">
-                {activeWindowEnded || !existingGoal?.weekStart
+                {justDeletedGoal ||
+                activeWindowEnded ||
+                !existingGoal?.weekStart
                   ? t.goal.startNewGoalHint
                   : t.goal.startNewGoalAvailableFromLabel(
                       format(

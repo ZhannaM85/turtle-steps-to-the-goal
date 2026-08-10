@@ -17,7 +17,12 @@ function makeGoal(overrides: Partial<Goal> = {}): Goal {
 
 beforeEach(async () => {
   await db.goals.clear()
-  useGoalStore.setState({ goal: null, status: 'idle', error: null })
+  useGoalStore.setState({
+    goal: null,
+    status: 'idle',
+    error: null,
+    skipPromotingNextActive: false,
+  })
 })
 
 afterEach(async () => {
@@ -62,7 +67,11 @@ describe('useGoalStore', () => {
       await useGoalStore.getState().deleteGoal()
 
       expect(useGoalStore.getState().goal).toBeNull()
-      useGoalStore.setState({ goal: null, status: 'idle' })
+      useGoalStore.setState({
+        goal: null,
+        status: 'idle',
+        skipPromotingNextActive: false,
+      })
       await useGoalStore.getState().loadActiveGoal()
       expect(useGoalStore.getState().goal).toBeNull()
     })
@@ -72,6 +81,40 @@ describe('useGoalStore', () => {
 
       expect(useGoalStore.getState().goal).toBeNull()
       expect(useGoalStore.getState().status).toBe('idle')
+    })
+
+    it('does not promote the previous goal via loadActiveGoal in-session (#677)', async () => {
+      const older = makeGoal({
+        id: 'older',
+        targetWeeklyLossKg: 0.1,
+        createdAt: '2026-07-28T00:00:00.000Z',
+      })
+      const active = makeGoal({
+        id: 'active',
+        targetWeeklyLossKg: 0.2,
+        createdAt: '2026-08-04T00:00:00.000Z',
+      })
+      await useGoalStore.getState().saveGoal(older)
+      await useGoalStore.getState().saveGoal(active)
+
+      await useGoalStore.getState().deleteGoal()
+      await useGoalStore.getState().loadActiveGoal()
+
+      expect(useGoalStore.getState().goal).toBeNull()
+      expect(await db.goals.get('older')).toEqual(older)
+      expect(await db.goals.get('active')).toBeUndefined()
+    })
+
+    it('soft-reloads without flipping status through loading (#677)', async () => {
+      const goal = makeGoal()
+      await useGoalStore.getState().saveGoal(goal)
+      expect(useGoalStore.getState().status).toBe('ready')
+
+      const pending = useGoalStore.getState().loadActiveGoal()
+      expect(useGoalStore.getState().status).toBe('ready')
+      await pending
+      expect(useGoalStore.getState().status).toBe('ready')
+      expect(useGoalStore.getState().goal).toEqual(goal)
     })
   })
 })

@@ -1607,5 +1607,50 @@ describe('GoalForm', () => {
         screen.getByRole('button', { name: 'Set this week’s target' }),
       ).toBeInTheDocument()
     })
+
+    it('keeps the deleted goal visible even if existingGoal flips to an older record (#677)', async () => {
+      const deleted = {
+        id: 'g-deleted',
+        targetWeeklyLossKg: 0.2,
+        createdAt: '2026-08-04T00:00:00.000Z',
+        updatedAt: '2026-08-04T00:00:00.000Z',
+      }
+      const older = {
+        id: 'g-older',
+        targetWeeklyLossKg: 0.1,
+        createdAt: '2026-07-28T00:00:00.000Z',
+        updatedAt: '2026-07-28T00:00:00.000Z',
+      }
+
+      function PromoteAfterDeleteHarness() {
+        const [goal, setGoal] = useState<typeof deleted | typeof older | null>(
+          deleted,
+        )
+        return (
+          <GoalForm
+            existingGoal={goal}
+            onSubmit={vi.fn()}
+            onDelete={async () => {
+              setGoal(null)
+              // Simulate loadActiveGoal promoting the previous history
+              // record (`getActiveGoal` = newest remaining).
+              setGoal(older)
+            }}
+          />
+        )
+      }
+
+      const user = userEvent.setup()
+      renderGoalForm(<PromoteAfterDeleteHarness />)
+
+      await user.click(screen.getByRole('button', { name: 'Delete goal' }))
+      await user.click(screen.getByRole('button', { name: 'Delete' }))
+
+      expect(screen.getByText('0.2 kg/week')).toBeInTheDocument()
+      expect(screen.queryByText('0.1 kg/week')).not.toBeInTheDocument()
+      expect(
+        screen.queryByRole('button', { name: 'Delete goal' }),
+      ).not.toBeInTheDocument()
+    })
   })
 })
