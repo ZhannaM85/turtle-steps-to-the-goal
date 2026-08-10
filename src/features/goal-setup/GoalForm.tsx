@@ -469,6 +469,12 @@ export function GoalForm({
       setIsEditing(false)
     } else {
       reset(emptyGoalFormValues())
+      // #674 — without this, canceling out of a blank create form left
+      // `isEditing` stuck `true` (harmless before, since there was no
+      // `existingGoal`-less view-mode to return to) — now that
+      // `justDeletedGoal` gives a null-`existingGoal` view-mode state,
+      // this is needed so Cancel actually returns to it.
+      setIsEditing(false)
     }
     setConfirmDiscard(false)
   }
@@ -500,6 +506,15 @@ export function GoalForm({
   // just discards in-progress edits, so it needs its own distinct wording
   // and shouldn't share a flag with the unrelated cancel-edits flow.
   const [confirmDelete, setConfirmDelete] = useState(false)
+  // #674 — reported live: once `onDelete()` clears the store's `goal` to
+  // `null`, `existingGoal` goes null too, so the view-mode branch below
+  // (gated on `existingGoal`) skipped straight to the full empty create
+  // form — jarring, and disliked per #668's own closing note. Keeps a
+  // local snapshot of the goal right as it's deleted, purely for display,
+  // so the same read-only view stays up ("just display the previous
+  // goal," per the user) until Edit or "Start a new goal" is actually
+  // tapped — same buttons already used for an ordinary concluded goal.
+  const [justDeletedGoal, setJustDeletedGoal] = useState<Goal | null>(null)
 
   function requestDeleteGoal() {
     setConfirmDelete(true)
@@ -510,6 +525,7 @@ export function GoalForm({
   }
 
   async function confirmDeleteGoal() {
+    setJustDeletedGoal(existingGoal)
     await onDelete()
     setConfirmDelete(false)
     setStartingNew(false)
@@ -534,7 +550,11 @@ export function GoalForm({
     setStartingNew(false)
   }
 
-  if (!isEditing && existingGoal) {
+  // #674 — falls back to the just-deleted snapshot so this view-mode
+  // branch stays reachable (and showing real data) even once the store's
+  // `existingGoal` itself has gone null.
+  const displayGoal = existingGoal ?? justDeletedGoal
+  if (!isEditing && displayGoal) {
     return (
       <div className="flex flex-col gap-2">
         <h2 className="text-sm font-medium text-foreground">
@@ -552,7 +572,7 @@ export function GoalForm({
               <td className="py-2 text-right font-medium text-foreground">
                 {t.goal.targetPerWeek(
                   formatExactNumber(
-                    toDisplay(existingGoal.targetWeeklyLossKg),
+                    toDisplay(displayGoal.targetWeeklyLossKg),
                     locale,
                   ),
                   unitText,
@@ -567,8 +587,8 @@ export function GoalForm({
                 {t.goal.dailyCalorieTargetLabel}
               </th>
               <td className="py-2 text-right font-medium text-foreground">
-                {existingGoal.dailyCalorieTargetKcal !== undefined
-                  ? `${formatNumber(existingGoal.dailyCalorieTargetKcal, locale, 0)} ${t.dailyEntry.kcalUnit}`
+                {displayGoal.dailyCalorieTargetKcal !== undefined
+                  ? `${formatNumber(displayGoal.dailyCalorieTargetKcal, locale, 0)} ${t.dailyEntry.kcalUnit}`
                   : t.goal.notSetLabel}
               </td>
             </tr>
@@ -580,8 +600,8 @@ export function GoalForm({
                 {t.goal.dailyProteinTargetLabel}
               </th>
               <td className="py-2 text-right font-medium text-foreground">
-                {existingGoal.dailyProteinTargetG !== undefined
-                  ? `${formatExactNumber(existingGoal.dailyProteinTargetG, locale)} ${t.dailyEntry.gramsUnit}`
+                {displayGoal.dailyProteinTargetG !== undefined
+                  ? `${formatExactNumber(displayGoal.dailyProteinTargetG, locale)} ${t.dailyEntry.gramsUnit}`
                   : t.goal.notSetLabel}
               </td>
             </tr>
@@ -593,8 +613,8 @@ export function GoalForm({
                 {t.goal.dailyFatTargetLabel}
               </th>
               <td className="py-2 text-right font-medium text-foreground">
-                {existingGoal.dailyFatTargetG !== undefined
-                  ? `${formatExactNumber(existingGoal.dailyFatTargetG, locale)} ${t.dailyEntry.gramsUnit}`
+                {displayGoal.dailyFatTargetG !== undefined
+                  ? `${formatExactNumber(displayGoal.dailyFatTargetG, locale)} ${t.dailyEntry.gramsUnit}`
                   : t.goal.notSetLabel}
               </td>
             </tr>
@@ -606,8 +626,8 @@ export function GoalForm({
                 {t.goal.dailyCarbTargetLabel}
               </th>
               <td className="py-2 text-right font-medium text-foreground">
-                {existingGoal.dailyCarbTargetG !== undefined
-                  ? `${formatExactNumber(existingGoal.dailyCarbTargetG, locale)} ${t.dailyEntry.gramsUnit}`
+                {displayGoal.dailyCarbTargetG !== undefined
+                  ? `${formatExactNumber(displayGoal.dailyCarbTargetG, locale)} ${t.dailyEntry.gramsUnit}`
                   : t.goal.notSetLabel}
               </td>
             </tr>
@@ -620,8 +640,8 @@ export function GoalForm({
                   {t.goal.dailyFiberTargetLabel}
                 </th>
                 <td className="py-2 text-right font-medium text-foreground">
-                  {existingGoal.dailyFiberTargetG !== undefined
-                    ? `${formatExactNumber(existingGoal.dailyFiberTargetG, locale)} ${t.dailyEntry.gramsUnit}`
+                  {displayGoal.dailyFiberTargetG !== undefined
+                    ? `${formatExactNumber(displayGoal.dailyFiberTargetG, locale)} ${t.dailyEntry.gramsUnit}`
                     : t.goal.notSetLabel}
                 </td>
               </tr>
@@ -635,8 +655,8 @@ export function GoalForm({
                   {t.goal.dailySodiumTargetLabel}
                 </th>
                 <td className="py-2 text-right font-medium text-foreground">
-                  {existingGoal.dailySodiumTargetMg !== undefined
-                    ? `${formatExactNumber(existingGoal.dailySodiumTargetMg, locale)} ${t.dailyEntry.mgUnit}`
+                  {displayGoal.dailySodiumTargetMg !== undefined
+                    ? `${formatExactNumber(displayGoal.dailySodiumTargetMg, locale)} ${t.dailyEntry.mgUnit}`
                     : t.goal.notSetLabel}
                 </td>
               </tr>
@@ -650,8 +670,8 @@ export function GoalForm({
                   {t.goal.dailyPotassiumTargetLabel}
                 </th>
                 <td className="py-2 text-right font-medium text-foreground">
-                  {existingGoal.dailyPotassiumTargetMg !== undefined
-                    ? `${formatExactNumber(existingGoal.dailyPotassiumTargetMg, locale)} ${t.dailyEntry.mgUnit}`
+                  {displayGoal.dailyPotassiumTargetMg !== undefined
+                    ? `${formatExactNumber(displayGoal.dailyPotassiumTargetMg, locale)} ${t.dailyEntry.mgUnit}`
                     : t.goal.notSetLabel}
                 </td>
               </tr>
@@ -665,8 +685,8 @@ export function GoalForm({
                   {t.goal.dailyMagnesiumTargetLabel}
                 </th>
                 <td className="py-2 text-right font-medium text-foreground">
-                  {existingGoal.dailyMagnesiumTargetMg !== undefined
-                    ? `${formatExactNumber(existingGoal.dailyMagnesiumTargetMg, locale)} ${t.dailyEntry.mgUnit}`
+                  {displayGoal.dailyMagnesiumTargetMg !== undefined
+                    ? `${formatExactNumber(displayGoal.dailyMagnesiumTargetMg, locale)} ${t.dailyEntry.mgUnit}`
                     : t.goal.notSetLabel}
                 </td>
               </tr>
@@ -679,8 +699,8 @@ export function GoalForm({
                 {t.goal.dailyWaterTargetLabel}
               </th>
               <td className="py-2 text-right font-medium text-foreground">
-                {existingGoal.dailyWaterTargetMl !== undefined
-                  ? `${formatExactNumber(existingGoal.dailyWaterTargetMl, locale)} ${t.dailyEntry.mlUnit}`
+                {displayGoal.dailyWaterTargetMl !== undefined
+                  ? `${formatExactNumber(displayGoal.dailyWaterTargetMl, locale)} ${t.dailyEntry.mlUnit}`
                   : t.goal.notSetLabel}
               </td>
             </tr>
@@ -735,15 +755,20 @@ export function GoalForm({
             >
               <Pencil aria-hidden="true" />
             </Button>
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon-xl"
-              aria-label={t.goal.deleteGoalLabel}
-              onClick={requestDeleteGoal}
-            >
-              <Trash2 aria-hidden="true" />
-            </Button>
+            {/* #674 — hidden once `existingGoal` itself is already gone
+             * (only `justDeletedGoal`'s snapshot is being shown) — nothing
+             * left to delete. */}
+            {existingGoal && (
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon-xl"
+                aria-label={t.goal.deleteGoalLabel}
+                onClick={requestDeleteGoal}
+              >
+                <Trash2 aria-hidden="true" />
+              </Button>
+            )}
             <div className="flex flex-col gap-1">
               <Button
                 type="button"

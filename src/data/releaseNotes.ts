@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 632,
+    issue: 674,
+    date: '2026-08-10T13:50:31+03:00',
+    en: "Fixed: deleting your current goal on the Goal page now keeps showing it in read-only view instead of dropping straight into a blank create-goal form.",
+    ru: 'Исправлено: удаление текущей цели на странице «Цели» теперь оставляет её видимой в режиме просмотра, а не сразу открывает пустую форму создания цели.',
+  },
+  {
     version: 631,
     issue: 672,
     date: '2026-08-10T13:26:15+03:00',

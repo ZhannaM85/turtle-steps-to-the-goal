@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { fireEvent, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { createMemoryRouter, Link, RouterProvider } from 'react-router-dom'
@@ -1516,6 +1517,72 @@ describe('GoalForm', () => {
       await user.click(screen.getByRole('button', { name: 'Delete' }))
 
       expect(onDelete).toHaveBeenCalledTimes(1)
+    })
+  })
+
+  describe('post-delete view-mode state (#674)', () => {
+    const existingGoal = {
+      id: 'g1',
+      targetWeeklyLossKg: 1,
+      createdAt: '2026-01-01T00:00:00.000Z',
+      updatedAt: '2026-01-01T00:00:00.000Z',
+    }
+
+    // Mirrors GoalScreen.tsx's real wiring: `onDelete` resolving is what
+    // flips the store's (here, local) `goal` to `null` and re-renders
+    // GoalForm with a null `existingGoal` prop, same as the live app.
+    function DeletableGoalHarness() {
+      const [goal, setGoal] = useState<typeof existingGoal | null>(
+        existingGoal,
+      )
+      return (
+        <GoalForm
+          existingGoal={goal}
+          onSubmit={vi.fn()}
+          onDelete={() => setGoal(null)}
+        />
+      )
+    }
+
+    it('keeps showing the deleted goal in view mode instead of falling into an empty form', async () => {
+      const user = userEvent.setup()
+      renderGoalForm(<DeletableGoalHarness />)
+
+      await user.click(screen.getByRole('button', { name: 'Delete goal' }))
+      await user.click(screen.getByRole('button', { name: 'Delete' }))
+
+      expect(screen.getByText('1 kg/week')).toBeInTheDocument()
+      expect(
+        screen.queryByLabelText("This week's target (kg to lose)"),
+      ).not.toBeInTheDocument()
+    })
+
+    it('hides the Delete button once the goal is already deleted', async () => {
+      const user = userEvent.setup()
+      renderGoalForm(<DeletableGoalHarness />)
+
+      await user.click(screen.getByRole('button', { name: 'Delete goal' }))
+      await user.click(screen.getByRole('button', { name: 'Delete' }))
+
+      expect(
+        screen.queryByRole('button', { name: 'Delete goal' }),
+      ).not.toBeInTheDocument()
+    })
+
+    it('opens a blank form when Edit is tapped after a delete', async () => {
+      const user = userEvent.setup()
+      renderGoalForm(<DeletableGoalHarness />)
+
+      await user.click(screen.getByRole('button', { name: 'Delete goal' }))
+      await user.click(screen.getByRole('button', { name: 'Delete' }))
+      await user.click(screen.getByRole('button', { name: 'Edit goal' }))
+
+      expect(
+        screen.getByLabelText("This week's target (kg to lose)"),
+      ).toHaveValue('')
+      expect(
+        screen.getByRole('button', { name: 'Set this week’s target' }),
+      ).toBeInTheDocument()
     })
   })
 })
