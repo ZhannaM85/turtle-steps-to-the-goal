@@ -10,6 +10,7 @@ export { lbToKg, kgToLb } from './units'
 export {
   goalWeekEnd,
   goalWindowProgress,
+  resolveBaselineWeightKg,
   goalWindowHasEnded,
   goalWindowConcluded,
   goalCoveringDate,

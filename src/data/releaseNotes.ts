@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 638,
+    issue: 676,
+    date: '2026-08-10T15:45:00+03:00',
+    en: 'Fixed again: the weekly goal’s starting (“from”) weight stays locked after you set the goal — logging today’s weight no longer changes it.',
+    ru: 'Исправлено повторно: начальный вес цели («от») остаётся зафиксированным после постановки цели — внесение сегодняшнего веса его больше не меняет.',
+  },
+  {
     version: 637,
     issue: 671,
     date: '2026-08-10T15:16:57+03:00',

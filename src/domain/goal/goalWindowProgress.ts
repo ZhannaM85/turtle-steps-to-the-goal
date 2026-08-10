@@ -67,6 +67,47 @@ export interface GoalWindowProgress {
 }
 
 /**
+ * #676 — resolve the weight every day in the window is compared against.
+ * Prefers `goal.baselineWeightKg` (frozen at creation). When that field is
+ * missing, recovers a creation-time baseline without letting a later
+ * same-day weigh-in redefine it (see call-site comment in
+ * `goalWindowProgress`).
+ */
+export function resolveBaselineWeightKg(
+  goal: Goal,
+  entries: DailyEntry[],
+): number | undefined {
+  if (goal.baselineWeightKg !== undefined) return goal.baselineWeightKg
+
+  const weekStart = goal.weekStart
+  if (!weekStart) return undefined
+
+  const priorWeightKg = latestWeightBefore(entries, weekStart)
+  const weekStartEntry = entries.find(
+    (entry) => entry.date === weekStart && entry.weightKg !== undefined,
+  )
+  if (weekStartEntry?.weightKg === undefined) return priorWeightKg
+
+  // Post-creation edit/log of the start day — not a creation-time baseline.
+  if (weekStartEntry.updatedAt > goal.createdAt) return priorWeightKg
+
+  return weekStartEntry.weightKg
+}
+
+function latestWeightBefore(
+  entries: DailyEntry[],
+  beforeDate: string,
+): number | undefined {
+  const prior = entries
+    .filter(
+      (entry) =>
+        entry.date < beforeDate && entry.weightKg !== undefined,
+    )
+    .sort((a, b) => a.date.localeCompare(b.date))
+  return prior.at(-1)?.weightKg
+}
+
+/**
  * Progress within a goal's own anchored window (#135), the direct
  * replacement for reading `weeklySummaries()`'s last calendar-week entry —
  * that function stays calendar-grid-based for Dashboard/History's
@@ -90,16 +131,22 @@ export function goalWindowProgress(
   const weekEnd = goal.weekEnd ?? goalWeekEnd(weekStart)
 
   // #676 — prefers the frozen snapshot captured once at goal-creation time
-  // (`formValuesToGoal`) over a live weekStart-day lookup, so this (and
-  // every targetMet/history result derived from it below) can't silently
-  // shift just because a weigh-in for weekStart itself came in *after* the
-  // goal was already created. Falls back to the old live lookup for a
-  // goal saved before this field existed (`goal.baselineWeightKg` is
-  // `undefined` there, same as one that's never had *any* weight logged
-  // for its own weekStart yet).
-  const baselineWeightKg =
-    goal.baselineWeightKg ??
-    entries.find((entry) => entry.date === weekStart)?.weightKg
+  // (`formValuesToGoal`) over any live lookup, so this (and every
+  // targetMet/history result derived from it below) can't silently shift
+  // just because a weigh-in for weekStart itself came in *after* the goal
+  // was already created.
+  //
+  // Reopened incomplete (2026-08-10): a goal can still lack the snapshot
+  // (async `latestWeightKg` race at save, or a record from before #676).
+  // The old fallback (`entries.find(weekStart)`) reintroduced the exact
+  // bug for those — logging the start-day weight after creating the goal
+  // redefined the baseline. Refined fallback: a weekStart weigh-in whose
+  // `updatedAt` is strictly after `goal.createdAt` is treated as
+  // post-creation and ignored; use the most recent weight from a day
+  // before `weekStart` instead. A weekStart weigh-in that already existed
+  // when the goal was saved (updatedAt <= createdAt) still counts, matching
+  // pre-#676 goals whose intentional baseline was that morning's weigh-in.
+  const baselineWeightKg = resolveBaselineWeightKg(goal, entries)
 
   if (baselineWeightKg === undefined) {
     return {

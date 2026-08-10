@@ -22,15 +22,19 @@ function makeGoal(overrides: Partial<Goal> = {}): Goal {
 }
 
 let idCounter = 0
-function makeEntry(date: string, weightKg?: number): DailyEntry {
+function makeEntry(
+  date: string,
+  weightKg?: number,
+  timestamps: { createdAt?: string; updatedAt?: string } = {},
+): DailyEntry {
   idCounter += 1
   const now = '2026-01-01T00:00:00.000Z'
   return {
     id: `entry-${idCounter}`,
     date,
     weightKg,
-    createdAt: now,
-    updatedAt: now,
+    createdAt: timestamps.createdAt ?? now,
+    updatedAt: timestamps.updatedAt ?? now,
   }
 }
 
@@ -183,7 +187,7 @@ describe('goalWindowProgress', () => {
     expect(progress?.currentWeightKg).toBe(79.7)
   })
 
-  it('leaves baselineWeightKg/currentWeightKg undefined until weekStart has a logged weight', () => {
+  it('leaves baselineWeightKg/currentWeightKg undefined when nothing before or on weekStart is logged', () => {
     const goal = makeGoal({ weekStart: '2026-03-09', targetWeeklyLossKg: 1 })
     const entries = [makeEntry('2026-03-10', 70)]
 
@@ -223,17 +227,66 @@ describe('goalWindowProgress', () => {
       expect(progress?.metOnDate).toBe('2026-03-09')
     })
 
-    it("falls back to weekStart's own logged weight for a goal saved before this field existed", () => {
+    it("falls back to weekStart's own logged weight for a goal saved before this field existed, when that weigh-in already existed at creation", () => {
       const goal = makeGoal({
         weekStart: '2026-03-09',
         targetWeeklyLossKg: 1,
         baselineWeightKg: undefined,
+        createdAt: '2026-03-09T12:00:00.000Z',
       })
-      const entries = [makeEntry('2026-03-09', 80)]
+      // Weighed in the morning, goal saved at noon — updatedAt <= createdAt.
+      const entries = [
+        makeEntry('2026-03-09', 80, {
+          createdAt: '2026-03-09T08:00:00.000Z',
+          updatedAt: '2026-03-09T08:00:00.000Z',
+        }),
+      ]
 
       const progress = goalWindowProgress(entries, goal)
 
       expect(progress?.baselineWeightKg).toBe(80)
+    })
+
+    it('ignores a post-creation weekStart weigh-in and keeps the prior-day weight when the snapshot is missing (reopen)', () => {
+      const goal = makeGoal({
+        weekStart: '2026-08-10',
+        targetWeeklyLossKg: 0.1,
+        baselineWeightKg: undefined,
+        createdAt: '2026-08-10T10:00:00.000Z',
+      })
+      const entries = [
+        makeEntry('2026-08-09', 58.65, {
+          createdAt: '2026-08-09T07:00:00.000Z',
+          updatedAt: '2026-08-09T07:00:00.000Z',
+        }),
+        makeEntry('2026-08-10', 58.9, {
+          createdAt: '2026-08-10T15:00:00.000Z',
+          updatedAt: '2026-08-10T15:00:00.000Z',
+        }),
+      ]
+
+      const progress = goalWindowProgress(entries, goal)
+
+      expect(progress?.baselineWeightKg).toBe(58.65)
+    })
+
+    it('uses the prior-day weight when weekStart has no weigh-in yet and the snapshot is missing', () => {
+      const goal = makeGoal({
+        weekStart: '2026-08-10',
+        targetWeeklyLossKg: 0.1,
+        baselineWeightKg: undefined,
+        createdAt: '2026-08-10T10:00:00.000Z',
+      })
+      const entries = [
+        makeEntry('2026-08-09', 58.65, {
+          createdAt: '2026-08-09T07:00:00.000Z',
+          updatedAt: '2026-08-09T07:00:00.000Z',
+        }),
+      ]
+
+      const progress = goalWindowProgress(entries, goal)
+
+      expect(progress?.baselineWeightKg).toBe(58.65)
     })
   })
 

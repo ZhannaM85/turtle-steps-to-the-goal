@@ -31,6 +31,7 @@ import {
   useTranslation,
 } from '@/i18n'
 import { parseNumberInput } from '@/shared/lib/parseNumberInput'
+import { IndexedDbDailyEntryRepository } from '@/infrastructure/persistence/indexeddb'
 import {
   useMicronutrientTrackingStore,
   useProfileStore,
@@ -49,6 +50,8 @@ import {
   goalToFormValues,
 } from './goalFormMapping'
 import { makeGoalFormSchema, type GoalFormValues } from './goalFormSchema'
+
+const dailyEntryRepository = new IndexedDbDailyEntryRepository()
 
 /** Empty display values for RHF NumberInputs (#241 / #534) — `undefined`
  * alone does not clear uncontrolled DOM values after reset. */
@@ -549,13 +552,37 @@ export function GoalForm({
   }
 
   async function submit(formValues: GoalFormValues) {
+    // #676 reopen — `latestWeightKg` comes from an async hook that starts
+    // as `null`; saving a fresh goal before it resolves used to omit
+    // `baselineWeightKg`, and the live weekStart fallback then let a later
+    // same-day weigh-in redefine "from". Look the weight up synchronously
+    // at submit time whenever the prop is still empty on a fresh save.
+    let weightForBaseline = latestWeightKg
+    const savingFresh = startingNew || !existingGoal
+    if (savingFresh && weightForBaseline === null) {
+      try {
+        const entries = await dailyEntryRepository.getAll()
+        const withWeight = entries.filter(
+          (entry): entry is typeof entry & { weightKg: number } =>
+            entry.weightKg !== undefined,
+        )
+        if (withWeight.length > 0) {
+          weightForBaseline = withWeight.reduce((a, b) =>
+            a.date > b.date ? a : b,
+          ).weightKg
+        }
+      } catch {
+        // Snapshot stays undefined; resolveBaselineWeightKg still recovers
+        // from prior-day weights for display/target-met.
+      }
+    }
     await onSubmit(
       formValuesToGoal(
         formValues,
         unit,
         existingGoal,
         startingNew,
-        latestWeightKg,
+        weightForBaseline,
       ),
     )
     setJustDeletedGoal(null)
