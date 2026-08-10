@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 634,
+    issue: 679,
+    date: '2026-08-10T14:39:33+03:00',
+    en: "Fixed: the weekly goal card on the Day page now shows the starting weight it's tracking from, matching the Goal page.",
+    ru: 'Исправлено: карточка недельной цели на странице «День» теперь показывает начальный вес отсчёта, как и на странице «Цели».',
+  },
+  {
     version: 633,
     issue: 676,
     date: '2026-08-10T14:03:44+03:00',

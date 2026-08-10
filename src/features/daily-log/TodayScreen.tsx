@@ -50,6 +50,7 @@ import {
 import {
   useActiveGoalProgress,
   useGoalCoveringDate,
+  useLatestWeight,
   useMaxRecordedWeight,
   usePreviousDayEntry,
 } from '@/shared/hooks'
@@ -309,6 +310,11 @@ export function TodayScreen() {
   // #552 — weekly target card for the selected day only (not always the
   // active goal, which wrongly showed e.g. Jul 2026 while viewing 2019).
   const { goal: dayGoal, progress: dayGoalProgress } = useGoalCoveringDate(date)
+  // #679 — same #675 fallback GoalScreen's own weekly-target card uses: a
+  // goal with no logged weight yet on its own weekStart (and no frozen
+  // #676 snapshot either) has no baselineWeightKg, so without this the "от
+  // X кг" line just never appeared until that day's weight was entered.
+  const latestWeightKg = useLatestWeight(dayGoal)
 
   useEffect(() => {
     loadActiveGoal()
@@ -1211,11 +1217,18 @@ export function TodayScreen() {
                       ),
                     ),
                     // #469 / #551 — baseline weight on that goal's weekStart.
+                    // #679: falls back to the most recently logged weight,
+                    // same as GoalScreen's card, rather than omitting the
+                    // line entirely when weekStart itself has no weigh-in.
                     dayGoalProgress?.baselineWeightKg !== undefined
                       ? t.today.weeklyTargetFromWeight(
                           `${formatExactNumber(toDisplay(dayGoalProgress.baselineWeightKg), locale)} ${unitLabel(displayUnit, t)}`,
                         )
-                      : null,
+                      : latestWeightKg !== null
+                        ? t.today.weeklyTargetFromWeight(
+                            `${formatExactNumber(toDisplay(latestWeightKg), locale)} ${unitLabel(displayUnit, t)}`,
+                          )
+                        : null,
                   ]
                     .filter(Boolean)
                     .join(' · ')
