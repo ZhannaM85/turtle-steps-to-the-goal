@@ -36,16 +36,6 @@ _User asked about pulling data from Apple Health and Zepp Life. Researched via W
 
 ---
 
-## Tier 124 — Native-unlocked follow-ups from audit (2026-08-04)
-
-_Same audit pass. Blocked on Tier 36 Capacitor / store shell — revisit of #261 (notifications) and #231 (widgets), which were correctly closed for PWA-only._
-
-| # | Status | Issue | Notes |
-|---|--------|-------|-------|
-| [#606](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/606) | 🔍 Pending validation | Android home-screen glance widget | Implemented — `TurtleWidgetProvider.java` (RemoteViews, `res/layout/widget_turtle_glance.xml`) reads a JSON snapshot written by `src/shared/native/widgetDataSync.ts` (new `@capacitor/preferences` dependency, `"CapacitorStorage"` SharedPreferences file) whenever the daily entry/goal/unit/locale stores change — values pre-formatted in JS since the widget has no access to this app's i18n/unit-conversion logic. Weight shows "—" if not logged today; the remaining-kcal row is hidden if no daily calorie target is set. Refreshes via the widget's own `updatePeriodMillis` (Android's ~30 min enforced minimum) plus an explicit refresh from `MainActivity#onPause`. Tap opens Day: since `MainActivity` is `singleTask` (a plain launch intent would just resume whatever screen was last open), the tap intent's extra is turned into a flag in the same SharedPreferences file, consumed by `widgetDataSync.ts` on the next `@capacitor/app` `appStateChange` resume event (`router.navigate('/')`) rather than a racy direct JS-injection call from Java. `assembleDebug` build verified clean. Awaiting on-device confirmation |
-
----
-
 ## Tier 128 — Live feedback and native-follow-up work during Android testing (2026-08-08)
 
 _Same date as the #646 lint gap (already closed/archived) — appended per the one-tier-per-day rule rather than opening a new tier number. Grew from live splash/About-screen bug reports into the #606 widget and #335's Health Connect epic split, all worked in the same continuous session._
