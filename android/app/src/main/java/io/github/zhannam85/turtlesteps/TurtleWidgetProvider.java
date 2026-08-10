@@ -13,7 +13,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 /**
- * #606 — home-screen glance widget. Reads the same "CapacitorStorage"
+ * #606 / #687 — home-screen glance widget. Reads the same "CapacitorStorage"
  * SharedPreferences file @capacitor/preferences writes to from JS
  * (src/shared/native/widgetDataSync.ts), rather than a custom native
  * plugin — the widget only ever needs to read a small pre-formatted JSON
@@ -55,7 +55,10 @@ public class TurtleWidgetProvider extends AppWidgetProvider {
         String raw = prefs.getString(SNAPSHOT_KEY, null);
 
         String weightText = "—";
-        String remainingKcalText = null;
+        String remainingKcalText = "—";
+        String stepsText = null;
+        String foodText = null;
+        String noteLoggedText = null;
 
         if (raw != null) {
             try {
@@ -66,18 +69,25 @@ public class TurtleWidgetProvider extends AppWidgetProvider {
                 if (!snapshot.isNull("remainingKcalText")) {
                     remainingKcalText = snapshot.getString("remainingKcalText");
                 }
+                if (!snapshot.isNull("stepsText")) {
+                    stepsText = snapshot.getString("stepsText");
+                }
+                if (!snapshot.isNull("foodText")) {
+                    foodText = snapshot.getString("foodText");
+                }
+                if (!snapshot.isNull("noteLoggedText")) {
+                    noteLoggedText = snapshot.getString("noteLoggedText");
+                }
             } catch (JSONException ignored) {
                 // Corrupt/unexpected snapshot — fall back to the "not logged" defaults above.
             }
         }
 
         views.setTextViewText(R.id.widget_weight, weightText);
-        if (remainingKcalText != null) {
-            views.setViewVisibility(R.id.widget_remaining_kcal, View.VISIBLE);
-            views.setTextViewText(R.id.widget_remaining_kcal, remainingKcalText);
-        } else {
-            views.setViewVisibility(R.id.widget_remaining_kcal, View.GONE);
-        }
+        views.setTextViewText(R.id.widget_remaining_kcal, remainingKcalText);
+        setOptionalRow(views, R.id.widget_steps, stepsText);
+        setOptionalRow(views, R.id.widget_food, foodText);
+        setOptionalRow(views, R.id.widget_note_logged, noteLoggedText);
 
         Intent launchIntent = new Intent(context, MainActivity.class);
         launchIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -91,5 +101,14 @@ public class TurtleWidgetProvider extends AppWidgetProvider {
         views.setOnClickPendingIntent(R.id.widget_root, pendingIntent);
 
         appWidgetManager.updateAppWidget(appWidgetId, views);
+    }
+
+    private static void setOptionalRow(RemoteViews views, int viewId, String text) {
+        if (text != null) {
+            views.setViewVisibility(viewId, View.VISIBLE);
+            views.setTextViewText(viewId, text);
+        } else {
+            views.setViewVisibility(viewId, View.GONE);
+        }
     }
 }

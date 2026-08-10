@@ -6,5 +6,5 @@
     <string name="custom_url_scheme">io.github.zhannam85.turtlesteps</string>
     <!-- #606 — shown on Android's "Add widget" picker screen (API 26+; a
          harmless no-op attribute below that). -->
-    <string name="widget_description">Today\'s weight and remaining calories at a glance</string>
+    <string name="widget_description">Today\'s weight, calories, steps, and food at a glance</string>
 </resources>

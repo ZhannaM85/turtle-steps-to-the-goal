@@ -3,11 +3,21 @@ import { Capacitor } from '@capacitor/core'
 import { Preferences } from '@capacitor/preferences'
 import { format } from 'date-fns'
 import { router } from '@/app'
+import type { DailyEntry } from '@/domain/dailyEntry'
 import { totalCalories } from '@/domain/dailyEntry'
+import type { Goal } from '@/domain/goal'
 import { kgToLb } from '@/domain/goal'
-import { formatExactNumber, formatNumber, getDictionary, unitLabel, useLocaleStore } from '@/i18n'
+import {
+  formatExactNumber,
+  formatNumber,
+  getDictionary,
+  type Locale,
+  unitLabel,
+  useLocaleStore,
+} from '@/i18n'
 import { IndexedDbDailyEntryRepository } from '@/infrastructure/persistence/indexeddb'
 import { useDailyEntryStore, useGoalStore, useUnitStore } from '@/stores'
+import type { Unit } from '@/stores'
 
 /** Read by `TurtleWidgetProvider.java` from the same SharedPreferences file. */
 export const WIDGET_DATA_KEY = 'widgetSnapshot'
@@ -24,16 +34,28 @@ const OPEN_DAY_REQUESTED_KEY = 'widgetOpenDayRequested'
 
 const dailyEntryRepository = new IndexedDbDailyEntryRepository()
 
+/** Pre-formatted glance fields for `TurtleWidgetProvider` (#606, #687). */
+export type WidgetSnapshot = {
+  date: string
+  weightText: string | null
+  /** Always set — "—" when no daily calorie target (#687 calm empty). */
+  remainingKcalText: string
+  stepsText: string | null
+  foodText: string | null
+  /** Short indicator only; full note text is too long for a tile (#687). */
+  noteLoggedText: string | null
+}
+
 /**
- * #606 — the home-screen glance widget lives in a separate native Android
- * process (RemoteViews) and can't reach into the WebView's IndexedDB
- * directly, so this pushes a small pre-formatted snapshot (today's weight,
- * remaining kcal) to native storage whenever relevant data changes.
- * `@capacitor/preferences` is backed by Android SharedPreferences under a
- * fixed `"CapacitorStorage"` file — `TurtleWidgetProvider.java` reads that
- * same file directly, no custom native plugin needed. Values are formatted
- * here (locale + kg/lb unit), not in Java, since the widget has no access
- * to this app's i18n/unit-conversion logic.
+ * #606 / #687 — the home-screen glance widget lives in a separate native
+ * Android process (RemoteViews) and can't reach into the WebView's
+ * IndexedDB directly, so this pushes a small pre-formatted snapshot to
+ * native storage whenever relevant data changes. `@capacitor/preferences`
+ * is backed by Android SharedPreferences under a fixed `"CapacitorStorage"`
+ * file — `TurtleWidgetProvider.java` reads that same file directly, no
+ * custom native plugin needed. Values are formatted here (locale + kg/lb
+ * unit), not in Java, since the widget has no access to this app's
+ * i18n/unit-conversion logic.
  */
 export function initWidgetDataSync() {
   if (Capacitor.getPlatform() !== 'android') return
@@ -63,6 +85,22 @@ async function syncWidgetSnapshot() {
   const { goal } = useGoalStore.getState()
   const { unit } = useUnitStore.getState()
   const { locale } = useLocaleStore.getState()
+
+  await Preferences.set({
+    key: WIDGET_DATA_KEY,
+    value: JSON.stringify(buildWidgetSnapshot({ date, entry, goal, unit, locale })),
+  })
+}
+
+/** Pure formatter for the widget JSON snapshot — unit-tested for #687. */
+export function buildWidgetSnapshot(input: {
+  date: string
+  entry: DailyEntry | undefined
+  goal: Goal | null
+  unit: Unit
+  locale: Locale
+}): WidgetSnapshot {
+  const { date, entry, goal, unit, locale } = input
   const t = getDictionary(locale)
   const toDisplay = (kg: number) => (unit === 'lb' ? kgToLb(kg) : kg)
 
@@ -79,13 +117,35 @@ async function syncWidgetSnapshot() {
       : null
   const remainingKcalText =
     remainingKcal === null
-      ? null
+      ? '—'
       : `${formatNumber(Math.abs(remainingKcal), locale, 0)} ${
           remainingKcal < 0 ? t.today.kcalOverUnit : t.today.kcalRemainingUnit
         }`
 
-  await Preferences.set({
-    key: WIDGET_DATA_KEY,
-    value: JSON.stringify({ date, weightText, remainingKcalText }),
-  })
+  const stepsText =
+    entry?.steps !== undefined
+      ? `${formatNumber(entry.steps, locale, 0)} ${t.dashboard.stepsCountLegend}`
+      : null
+
+  const mealCount = entry?.calorieEntries?.length ?? 0
+  const foodKcal = totalCalories(entry?.calorieEntries, entry?.dayTotals)
+  const foodParts: string[] = []
+  if (mealCount > 0) {
+    foodParts.push(`${formatNumber(mealCount, locale, 0)} ${t.dashboard.mealCountLegend}`)
+  }
+  if (foodKcal !== undefined) {
+    foodParts.push(`${formatNumber(foodKcal, locale, 0)} ${t.dailyEntry.kcalUnit}`)
+  }
+  const foodText = foodParts.length > 0 ? foodParts.join(' · ') : null
+
+  const noteLoggedText = entry?.note?.trim() ? t.dailyEntry.noteLabel : null
+
+  return {
+    date,
+    weightText,
+    remainingKcalText,
+    stepsText,
+    foodText,
+    noteLoggedText,
+  }
 }

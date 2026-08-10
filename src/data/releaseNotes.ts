@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 647,
+    issue: 687,
+    date: '2026-08-10T22:20:00+03:00',
+    en: 'The Android home-screen widget now also shows remaining calories, steps, meals/food kcal, and whether today’s note is logged.',
+    ru: 'Виджет Android на экране «Домой» теперь также показывает оставшиеся калории, шаги, приёмы пищи/ккал и есть ли заметка за день.',
+  },
+  {
     version: 646,
     issue: 686,
     date: '2026-08-10T21:00:00+03:00',

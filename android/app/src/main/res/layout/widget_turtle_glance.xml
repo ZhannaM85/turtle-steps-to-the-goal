@@ -26,12 +26,40 @@
         android:textStyle="bold"
         android:textColor="@color/widget_text_primary" />
 
+    <!-- #687 — always visible; "—" when no daily calorie target. -->
     <TextView
         android:id="@+id/widget_remaining_kcal"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="2dp"
+        android:text="—"
         android:textSize="13sp"
+        android:textColor="@color/widget_text_secondary" />
+
+    <TextView
+        android:id="@+id/widget_steps"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="2dp"
+        android:textSize="13sp"
+        android:textColor="@color/widget_text_secondary"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/widget_food"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="2dp"
+        android:textSize="13sp"
+        android:textColor="@color/widget_text_secondary"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/widget_note_logged"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="2dp"
+        android:textSize="12sp"
         android:textColor="@color/widget_text_secondary"
         android:visibility="gone" />
 </LinearLayout>
