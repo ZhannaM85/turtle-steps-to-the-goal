@@ -32,14 +32,6 @@ _User asked about pulling data from Apple Health and Zepp Life. Researched via W
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#334](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/334) | 📋 Not started | Epic — Apple Health integration (blocked on mobile app + HealthKit bridge) | HealthKit has no public/cloud API at all — data is on-device only, readable exclusively by a native iOS app (or hybrid app with a HealthKit plugin/entitlement) the user has granted permission to. Genuinely blocked until the mobile app exists; can't be built sooner by any workaround. |
-| [#335](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/335) | 🔨 In progress | Epic — Android Health Connect integration | No longer blocked (mobile app shipped, #305+) — now a tracking issue only, split into three focused children under Tier 128 (2026-08-08) rather than one giant implementation, matching how #304 was split: [#656](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/656) (weight sync, foundation — SDK dependency, `minSdk` 24→26 bump, permission flow, sync trigger, privacy policy), [#657](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/657) (steps sync), [#658](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/658) (sleep sync). Bonus noted at filing time: Zepp Life can itself sync into Health Connect, making this the official, supported route to Zepp/Amazfit data — likely preferable to ever building a direct, unofficial Zepp API integration. |
+| [#335](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/335) | 🔨 In progress | Epic — Android Health Connect integration | Closing children as not planned (#656/#658); epic close next. |
 
 ---
-
-## Tier 128 — Live feedback and native-follow-up work during Android testing (2026-08-08)
-
-_Same date as the #646 lint gap (already closed/archived) — appended per the one-tier-per-day rule rather than opening a new tier number. Grew from live splash/About-screen bug reports into the #606 widget and #335's Health Connect epic split, all worked in the same continuous session._
-
-| # | Status | Issue | Notes |
-|---|--------|-------|-------|
-| [#658](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/658) | 📋 Not started | Android Health Connect: sleep sync | Child of #335, depends on #656's foundation. Separate `READ_SLEEP` permission scope; duration-based merge, closer to weight's manual-wins reasoning than steps' |

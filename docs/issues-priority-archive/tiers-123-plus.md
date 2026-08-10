@@ -112,6 +112,7 @@ _Same-day live feedback (Zepp multi-user export, export status placement, Apple 
 | [#655](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/655) | ✅ Done | About screen: merge Version and Release notes into one card | Follow-up to #654. Implemented, scope grew live during the session: single `Card` combines the title as `{releaseNotes} · {currentVersion}` (`AboutScreen.tsx`), and the separate "Show release notes" text button was replaced by an icon-only `ChevronDown`/`ChevronUp` toggle in the card header (`CardAction`) next to that title — `ReleaseNotesSection.tsx` is now a dumb list, expand/collapse state lifted to `AboutScreen`. Confirmed working on-device 2026-08-09 |
 | [#657](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/657) | ✅ Done | Android Health Connect: steps sync | Child of #335. Confirmed working on-device 2026-08-10. |
 | [#656](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/656) | ❌ Closed, not planned | Android Health Connect: weight sync (foundation) | Won't do / not validated. Zepp Life does not feed weight into HC or Google Fit on-device; cannot confirm Sync without inventing HC data. |
+| [#658](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/658) | ❌ Closed, not planned | Android Health Connect: sleep sync | Won't do — not started; epic abandoned after Zepp Life → HC path proved unavailable on-device. |
 
 ---
 
