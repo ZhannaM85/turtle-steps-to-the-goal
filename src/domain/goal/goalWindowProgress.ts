@@ -88,8 +88,15 @@ export function resolveBaselineWeightKg(
   )
   if (weekStartEntry?.weightKg === undefined) return priorWeightKg
 
-  // Post-creation edit/log of the start day — not a creation-time baseline.
-  if (weekStartEntry.updatedAt > goal.createdAt) return priorWeightKg
+  // Post-creation edit/log of the start day — prefer the prior-day weight
+  // when one exists (the reopen bug: set goal, then log weekStart). If
+  // nothing earlier is known, still use the weekStart weigh-in: it's the
+  // only baseline available, and test/setup data often inserts that row
+  // after the goal record (so updatedAt > createdAt) without meaning the
+  // weigh-in is "late" in the product sense.
+  if (weekStartEntry.updatedAt > goal.createdAt) {
+    return priorWeightKg ?? weekStartEntry.weightKg
+  }
 
   return weekStartEntry.weightKg
 }
@@ -142,10 +149,11 @@ export function goalWindowProgress(
   // bug for those — logging the start-day weight after creating the goal
   // redefined the baseline. Refined fallback: a weekStart weigh-in whose
   // `updatedAt` is strictly after `goal.createdAt` is treated as
-  // post-creation and ignored; use the most recent weight from a day
-  // before `weekStart` instead. A weekStart weigh-in that already existed
-  // when the goal was saved (updatedAt <= createdAt) still counts, matching
-  // pre-#676 goals whose intentional baseline was that morning's weigh-in.
+  // post-creation when a prior-day weight exists (keep that prior); if
+  // nothing earlier is known, still use the weekStart weigh-in so
+  // target-met math isn't left blank. A weekStart weigh-in that already
+  // existed when the goal was saved (updatedAt <= createdAt) still counts
+  // as usual.
   const baselineWeightKg = resolveBaselineWeightKg(goal, entries)
 
   if (baselineWeightKg === undefined) {
