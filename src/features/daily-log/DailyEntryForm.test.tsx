@@ -517,6 +517,24 @@ describe('DailyEntryForm', () => {
         expect(onSave).toHaveBeenCalledTimes(1)
         expect(onSave.mock.calls[0][0].weightKg).toBeUndefined()
       })
+
+      it("offers Delete right after the first weight save this session, without a remount (#672)", async () => {
+        const user = userEvent.setup()
+        render(
+          <DailyEntryForm date="2026-03-01" existingEntry={null} onSave={vi.fn()} />,
+        )
+
+        expect(
+          screen.queryByRole('button', { name: 'Delete weight' }),
+        ).not.toBeInTheDocument()
+
+        await user.type(screen.getByLabelText('Weight (kg)'), '80')
+        await user.click(screen.getByRole('button', { name: 'Save weight' }))
+
+        expect(
+          screen.getByRole('button', { name: 'Delete weight' }),
+        ).toBeInTheDocument()
+      })
     })
 
     describe('leaving edit mode without saving (#424)', () => {

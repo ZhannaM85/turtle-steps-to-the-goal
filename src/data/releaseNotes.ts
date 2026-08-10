@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 631,
+    issue: 672,
+    date: '2026-08-10T13:26:15+03:00',
+    en: "Fixed: the delete-weight icon on the Day page now appears right after your first weight save of the day, and disappears right after a delete — no page refresh needed either way.",
+    ru: 'Исправлено: значок удаления веса на странице дня теперь появляется сразу после первого сохранения веса за день и исчезает сразу после удаления — без обновления страницы.',
+  },
+  {
     version: 630,
     issue: 671,
     date: '2026-08-10T13:18:10+03:00',

@@ -154,6 +154,19 @@ export function useDailyEntryFormState({
   // otherwise use for delete confirmations.
   const [isConfirmingDeleteWeight, setIsConfirmingDeleteWeight] =
     useState(false)
+  // #672 — canCancelWeightEdit/canDeleteWeight below used to derive
+  // straight from `initialValues.weightKg`, which is frozen at mount
+  // (see initialValues' own comment) and never re-synced after a save made
+  // later in this same session. That meant the very first weight save of
+  // the day (nothing existed at mount) left Trash hidden until a full page
+  // reload re-mounted the component with a fresh `existingEntry` — and,
+  // symmetrically, deleting a weight left Trash/Cancel visible even though
+  // there was nothing left to act on, reading like the delete hadn't taken
+  // effect (#673). Tracked as live state instead, updated by saveWeight/
+  // confirmDeleteWeight themselves rather than re-derived from a stale prop.
+  const [hasSavedWeight, setHasSavedWeight] = useState(
+    initialValues.weightKg !== undefined,
+  )
   // #218: the exact value a Save tap flagged as unusual (not the same as
   // "is the current field value unusual" — a second tap should only skip
   // straight to saving if the value hasn't changed since the warning
@@ -432,11 +445,11 @@ export function useDailyEntryFormState({
   // state above already uses (negated) — `alwaysEditable` itself always
   // permits it, since that context never reaches the display-mode branch
   // and cancel there just clears the input back to blank, safely.
-  const canCancelWeightEdit = alwaysEditable || initialValues.weightKg !== undefined
+  const canCancelWeightEdit = alwaysEditable || hasSavedWeight
   // #670 — unlike canCancelWeightEdit above, NOT widened by alwaysEditable:
   // there has to be an actual saved value to delete, regardless of which
   // edit affordance (pencil-toggle vs. always-editable input) is showing it.
-  const canDeleteWeight = initialValues.weightKg !== undefined
+  const canDeleteWeight = hasSavedWeight
   const canCancelNoteEdit = alwaysEditable || Boolean(initialValues.note)
   const canCancelSleepEdit =
     alwaysEditable ||
@@ -670,6 +683,7 @@ export function useDailyEntryFormState({
     }
     setPendingUnusualWeight(null)
     setIsEditingWeight(false)
+    setHasSavedWeight(true)
     persist(getValues())
   }
 
@@ -717,6 +731,12 @@ export function useDailyEntryFormState({
     setIsConfirmingDeleteWeight(false)
     setPendingUnusualWeight(null)
     setIsEditingWeight(true)
+    // #672/#673 — without this, canDeleteWeight/canCancelWeightEdit stayed
+    // stuck true (derived from the mount-frozen initialValues), so the
+    // reopened edit-mode input kept showing a live Trash button and a
+    // Cancel that would revert straight back to the just-deleted value —
+    // reading as "delete didn't actually do anything."
+    setHasSavedWeight(false)
   }
 
   function saveNote() {
