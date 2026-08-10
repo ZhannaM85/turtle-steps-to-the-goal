@@ -15,27 +15,35 @@ export interface GoalWindowProgress {
   weekStart: string
   weekEnd: string
   /** Whether some day within [weekStart, weekEnd] has logged a weight at
-   * least `goal.targetWeeklyLossKg` below whatever was logged on
-   * `weekStart` itself (#203 — day-over-day, not an average). Null until
-   * `weekStart` itself has a logged weight to compare against; there's no
-   * substitute/fallback baseline (e.g. the prior week's average, #203's
-   * predecessor design), so an early save on a day after `weekStart` but
-   * before `weekStart` itself is logged can't be assessed yet. */
+   * least `goal.targetWeeklyLossKg` below `baselineWeightKg` below (#203 —
+   * day-over-day, not an average). Null until a baseline exists at all —
+   * for a goal saved since #676, that's the frozen snapshot from the
+   * moment it was created, so this is assessable from `weekStart` day one;
+   * for an older goal that predates that field, it's still whatever was
+   * logged on `weekStart` itself (no substitute/fallback baseline there,
+   * e.g. the prior week's average, #203's predecessor design — an early
+   * save on a day after `weekStart` but before `weekStart` itself is
+   * logged can't be assessed yet for that case). */
   targetMet: boolean | null
   /** The first date (within [weekStart, weekEnd]) whose logged weight was
-   * at least `goal.targetWeeklyLossKg` below `weekStart`'s own logged
-   * weight. Null if it never happened, or there isn't yet a baseline to
-   * compare against. `weekStart` itself is included in the days checked —
-   * its own delta against itself is always 0, so it can never satisfy a
-   * positive target, ruling out the "reached on day zero" case without a
-   * separate guard for it. Stays set once found even if a later day's
-   * weight rises back above the threshold — a goal reached once stays
-   * reached for its window, matching useWeeklyGoalCelebration's existing
-   * "once met, stays met" reasoning. */
+   * at least `goal.targetWeeklyLossKg` below `baselineWeightKg`. Null if it
+   * never happened, or there isn't yet a baseline to compare against.
+   * `weekStart` itself is included in the days checked — pre-#676, its own
+   * delta against itself (then always the baseline) was always 0, ruling
+   * out a "reached on day zero" result without a separate guard; #676's
+   * frozen baseline can differ from `weekStart`'s own logged weight, so
+   * that's no longer guaranteed — a goal can now genuinely read as met
+   * from its very first day, which is correct given the baseline reflects
+   * whatever was already true before the goal was even set. Stays set once
+   * found even if a later day's weight rises back above the threshold — a
+   * goal reached once stays reached for its window, matching
+   * useWeeklyGoalCelebration's existing "once met, stays met" reasoning. */
   metOnDate: string | null
-  /** #339 — the weight logged on `weekStart` itself, i.e. the baseline
-   * every day in the window is compared against. Undefined only when
-   * `targetMet`/`metOnDate` are both null (no baseline weight logged yet). */
+  /** #339 — the baseline every day in the window is compared against.
+   * #676: prefers `goal.baselineWeightKg` (the snapshot frozen at creation
+   * time) when present; falls back to the weight logged on `weekStart`
+   * itself for a goal saved before that field existed. Undefined only when
+   * neither is available (no baseline weight known at all yet). */
   baselineWeightKg?: number
   /** #339 — the most recently logged weight within the window (undefined
    * if there's no logged weight at all beyond the baseline), so a
@@ -81,9 +89,17 @@ export function goalWindowProgress(
 
   const weekEnd = goal.weekEnd ?? goalWeekEnd(weekStart)
 
-  const baselineWeightKg = entries.find(
-    (entry) => entry.date === weekStart,
-  )?.weightKg
+  // #676 — prefers the frozen snapshot captured once at goal-creation time
+  // (`formValuesToGoal`) over a live weekStart-day lookup, so this (and
+  // every targetMet/history result derived from it below) can't silently
+  // shift just because a weigh-in for weekStart itself came in *after* the
+  // goal was already created. Falls back to the old live lookup for a
+  // goal saved before this field existed (`goal.baselineWeightKg` is
+  // `undefined` there, same as one that's never had *any* weight logged
+  // for its own weekStart yet).
+  const baselineWeightKg =
+    goal.baselineWeightKg ??
+    entries.find((entry) => entry.date === weekStart)?.weightKg
 
   if (baselineWeightKg === undefined) {
     return {

@@ -533,7 +533,15 @@ export function GoalForm({
   }
 
   async function submit(formValues: GoalFormValues) {
-    await onSubmit(formValuesToGoal(formValues, unit, existingGoal, startingNew))
+    await onSubmit(
+      formValuesToGoal(
+        formValues,
+        unit,
+        existingGoal,
+        startingNew,
+        latestWeightKg,
+      ),
+    )
     setJustSaved(true)
     // Explicitly requested, twice: the fields should actually clear once
     // Update is clicked, not just show a confirmation next to them — the

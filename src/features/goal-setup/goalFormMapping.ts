@@ -83,6 +83,11 @@ export function formValuesToGoal(
   unit: Unit,
   existingGoal: Goal | null = null,
   startNew = false,
+  // #676 — the most recently known weight at save time, used only by the
+  // fresh-record branch below to capture Goal.baselineWeightKg. Always kg
+  // regardless of `unit` — same "unconverted" convention GoalForm's own
+  // `latestWeightKg` prop already uses for its TDEE helper.
+  latestWeightKg: number | null = null,
 ): Goal {
   const toKg = (value: number) => (unit === 'lb' ? lbToKg(value) : value)
   const now = new Date().toISOString()
@@ -131,6 +136,14 @@ export function formValuesToGoal(
     // see freshWeekStart above.
     weekStart: freshWeekStart(existingGoal),
     weekEnd: values.weekEndDate || undefined,
+    // #676 — frozen once, here, at the moment this record is first
+    // created; never touched again (the edit-in-place branch above spreads
+    // `...existingGoal`, which already carries an existing snapshot
+    // through untouched). `latestWeightKg` is whatever's most recently
+    // known right now — the goal's own `weekStart` weigh-in if that's
+    // already logged, else whatever came before it — same fallback #675
+    // uses for the card's own display before a real snapshot exists.
+    baselineWeightKg: latestWeightKg ?? undefined,
     createdAt: now,
     updatedAt: now,
   }

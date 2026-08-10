@@ -25,6 +25,12 @@ const goalSchema = z.object({
   dailyMagnesiumTargetMg: z.number().optional(),
   // Optional daily water target (#258) — same reasoning again.
   dailyWaterTargetMl: z.number().optional(),
+  // #676 — the weight snapshot captured once when the goal was created,
+  // used as the fixed baseline for both display and target-met tracking
+  // (see Goal.ts). Same purely-additive/optional reasoning as the fields
+  // above: a bundle written before this field existed just parses with it
+  // undefined, same as a goal that predates it.
+  baselineWeightKg: z.number().optional(),
   createdAt: z.string(),
   updatedAt: z.string(),
 })

@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 633,
+    issue: 676,
+    date: '2026-08-10T14:03:44+03:00',
+    en: "Fixed: a goal's starting weight is now captured once when you set the goal and stays fixed after that — logging a weight later the same day no longer changes it.",
+    ru: 'Исправлено: начальный вес цели теперь фиксируется один раз при её постановке и больше не меняется — внесение веса позже в тот же день на него не влияет.',
+  },
+  {
     version: 632,
     issue: 674,
     date: '2026-08-10T13:50:31+03:00',

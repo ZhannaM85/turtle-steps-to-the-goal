@@ -102,6 +102,46 @@ describe('formValuesToGoal', () => {
     expect(goal.targetWeeklyLossKg).toBeCloseTo(0.998, 2)
   })
 
+  describe('baseline weight snapshot (#676)', () => {
+    it('captures the passed-in latestWeightKg as baselineWeightKg on a fresh record', () => {
+      const goal = formValuesToGoal(baseValues, 'kg', null, false, 58.65)
+      expect(goal.baselineWeightKg).toBe(58.65)
+    })
+
+    it('leaves baselineWeightKg undefined on a fresh record when no weight is known yet', () => {
+      const goal = formValuesToGoal(baseValues, 'kg', null, false, null)
+      expect(goal.baselineWeightKg).toBeUndefined()
+    })
+
+    it('captures baselineWeightKg the same way when starting a fresh record via startNew', () => {
+      const existingGoal = makeGoal({ id: 'goal-1', weekStart: '2026-01-01' })
+      const goal = formValuesToGoal(baseValues, 'kg', existingGoal, true, 61.4)
+      expect(goal.baselineWeightKg).toBe(61.4)
+    })
+
+    it('leaves an existing baselineWeightKg untouched when editing the same goal in place', () => {
+      const today = format(new Date(), 'yyyy-MM-dd')
+      const existingGoal = makeGoal({
+        id: 'goal-1',
+        weekStart: today,
+        baselineWeightKg: 58.65,
+      })
+
+      // A later weigh-in (e.g. 58.9, logged after the goal was set) is
+      // passed as latestWeightKg here — it must not overwrite the frozen
+      // snapshot on an in-place edit.
+      const goal = formValuesToGoal(
+        { targetWeeklyLoss: 1 },
+        'kg',
+        existingGoal,
+        false,
+        58.9,
+      )
+
+      expect(goal.baselineWeightKg).toBe(58.65)
+    })
+  })
+
   it('carries the optional daily calorie target through to a fresh record (#208)', () => {
     const goal = formValuesToGoal(
       { targetWeeklyLoss: 1, dailyCalorieTarget: 1800 },

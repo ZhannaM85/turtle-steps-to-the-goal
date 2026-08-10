@@ -67,6 +67,29 @@ describe('GoalForm', () => {
     expect(onSubmit.mock.calls[0][0].targetWeeklyLossKg).toBeCloseTo(1, 1)
   })
 
+  it("captures the current latestWeightKg as the fresh goal's baselineWeightKg (#676)", async () => {
+    const user = userEvent.setup()
+    const onSubmit = vi.fn()
+    renderGoalForm(
+      <GoalForm
+        existingGoal={null}
+        onSubmit={onSubmit}
+        onDelete={vi.fn()}
+        latestWeightKg={58.65}
+      />,
+    )
+
+    await user.type(
+      screen.getByLabelText("This week's target (kg to lose)"),
+      '1',
+    )
+    await user.click(
+      screen.getByRole('button', { name: 'Set this week’s target' }),
+    )
+
+    expect(onSubmit.mock.calls[0][0].baselineWeightKg).toBe(58.65)
+  })
+
   it('shows a validation error when the weekly target is left empty', async () => {
     const user = userEvent.setup()
     renderGoalForm(<GoalForm existingGoal={null} onSubmit={vi.fn()}

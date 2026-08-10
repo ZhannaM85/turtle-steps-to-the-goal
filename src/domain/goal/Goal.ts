@@ -69,6 +69,24 @@ export interface Goal {
    * water" stat; nothing else reads it.
    */
   dailyWaterTargetMl?: number
+  /**
+   * Optional starting-weight snapshot (#676), captured once when this
+   * record was first created (`formValuesToGoal`'s fresh-record branch,
+   * from whatever weight was most recently known at that moment — the
+   * same value #675's card-display fallback used) and never touched
+   * again, including by later "edit in place" saves of this same record.
+   * Reported live: without this, the card's baseline line — and the
+   * target-met/history comparison it's tied to — could silently shift
+   * once a weigh-in for the goal's own `weekStart` day came in *after*
+   * the goal was already created, since both used to be derived live
+   * from whatever was logged on `weekStart` (`goalWindowProgress.ts`).
+   * `goalWindowProgress` now prefers this persisted value over that live
+   * lookup when present, falling back to it for a goal saved before this
+   * field existed. Optional so an old goal never re-saved since #676
+   * just reads as "no frozen baseline yet," same precedent every other
+   * purely-additive field on this type follows.
+   */
+  baselineWeightKg?: number
   createdAt: string
   updatedAt: string
 }

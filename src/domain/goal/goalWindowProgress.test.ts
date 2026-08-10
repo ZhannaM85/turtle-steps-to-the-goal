@@ -193,6 +193,50 @@ describe('goalWindowProgress', () => {
     expect(progress?.currentWeightKg).toBeUndefined()
   })
 
+  describe('frozen baseline snapshot (#676)', () => {
+    it("prefers goal.baselineWeightKg over weekStart's own logged weight", () => {
+      const goal = makeGoal({
+        weekStart: '2026-03-09',
+        targetWeeklyLossKg: 1,
+        baselineWeightKg: 58.65,
+      })
+      // A weigh-in for weekStart itself, logged *after* the goal was
+      // created — must not override the frozen snapshot.
+      const entries = [makeEntry('2026-03-09', 58.9)]
+
+      const progress = goalWindowProgress(entries, goal)
+
+      expect(progress?.baselineWeightKg).toBe(58.65)
+    })
+
+    it('is assessable from weekStart day one when a frozen baseline exists, even with no weekStart weigh-in yet', () => {
+      const goal = makeGoal({
+        weekStart: '2026-03-09',
+        targetWeeklyLossKg: 0.1,
+        baselineWeightKg: 58.65,
+      })
+      const entries = [makeEntry('2026-03-09', 58.5)] // 0.15kg below baseline
+
+      const progress = goalWindowProgress(entries, goal)
+
+      expect(progress?.targetMet).toBe(true)
+      expect(progress?.metOnDate).toBe('2026-03-09')
+    })
+
+    it("falls back to weekStart's own logged weight for a goal saved before this field existed", () => {
+      const goal = makeGoal({
+        weekStart: '2026-03-09',
+        targetWeeklyLossKg: 1,
+        baselineWeightKg: undefined,
+      })
+      const entries = [makeEntry('2026-03-09', 80)]
+
+      const progress = goalWindowProgress(entries, goal)
+
+      expect(progress?.baselineWeightKg).toBe(80)
+    })
+  })
+
   // #659 — an explicit weekEnd overrides the weekStart+6 default everywhere
   // the window's end is read, including which entries count.
   it('prefers an explicit goal.weekEnd over the weekStart+6 default', () => {
