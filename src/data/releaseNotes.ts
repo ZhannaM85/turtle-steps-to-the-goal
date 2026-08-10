@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 639,
+    issue: 677,
+    date: '2026-08-10T19:05:00+03:00',
+    en: 'Fixed: deleting the current goal now stays deleted after you refresh the page — an older goal is no longer brought back automatically.',
+    ru: 'Исправлено: удаление текущей цели теперь сохраняется после обновления страницы — более старая цель больше не возвращается сама.',
+  },
+  {
     version: 638,
     issue: 676,
     date: '2026-08-10T15:45:00+03:00',

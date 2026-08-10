@@ -17,6 +17,8 @@ function makeGoal(overrides: Partial<Goal> = {}): Goal {
 
 beforeEach(async () => {
   await db.goals.clear()
+  localStorage.clear()
+  useGoalStore.persist.clearStorage()
   useGoalStore.setState({
     goal: null,
     status: 'idle',
@@ -27,6 +29,8 @@ beforeEach(async () => {
 
 afterEach(async () => {
   await db.goals.clear()
+  localStorage.clear()
+  useGoalStore.persist.clearStorage()
 })
 
 describe('useGoalStore', () => {
@@ -103,6 +107,43 @@ describe('useGoalStore', () => {
       expect(useGoalStore.getState().goal).toBeNull()
       expect(await db.goals.get('older')).toEqual(older)
       expect(await db.goals.get('active')).toBeUndefined()
+    })
+
+    it('keeps skipPromotingNextActive across a simulated page refresh (#677)', async () => {
+      const older = makeGoal({
+        id: 'older',
+        targetWeeklyLossKg: 0.1,
+        createdAt: '2026-07-28T00:00:00.000Z',
+      })
+      const active = makeGoal({
+        id: 'active',
+        targetWeeklyLossKg: 0.2,
+        createdAt: '2026-08-04T00:00:00.000Z',
+      })
+      await useGoalStore.getState().saveGoal(older)
+      await useGoalStore.getState().saveGoal(active)
+      await useGoalStore.getState().deleteGoal()
+
+      const stored = localStorage.getItem('turtle-steps-goal')
+      expect(stored).toBeTruthy()
+      expect(JSON.parse(stored!).state.skipPromotingNextActive).toBe(true)
+
+      // Simulate a full reload: wipe in-memory state (including the flag),
+      // restore the persisted blob, then rehydrate — setState alone would
+      // also write through persist and clobber the stored true.
+      useGoalStore.setState({
+        goal: null,
+        status: 'idle',
+        error: null,
+        skipPromotingNextActive: false,
+      })
+      localStorage.setItem('turtle-steps-goal', stored!)
+      await useGoalStore.persist.rehydrate()
+
+      expect(useGoalStore.getState().skipPromotingNextActive).toBe(true)
+      await useGoalStore.getState().loadActiveGoal()
+      expect(useGoalStore.getState().goal).toBeNull()
+      expect(await db.goals.get('older')).toEqual(older)
     })
 
     it('soft-reloads without flipping status through loading (#677)', async () => {
