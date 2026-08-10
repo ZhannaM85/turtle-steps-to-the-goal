@@ -40,9 +40,9 @@ export interface GoalWindowProgress {
    * useWeeklyGoalCelebration's existing "once met, stays met" reasoning. */
   metOnDate: string | null
   /** #339 — the baseline every day in the window is compared against.
-   * #681: the weigh-in on `weekStart` when one exists; otherwise the
-   * creation-time `goal.baselineWeightKg` snapshot (#676) or a prior-day
-   * fallback. Undefined only when neither is available. */
+   * #676 HARD LOCK: creation-time `goal.baselineWeightKg` when present;
+   * otherwise weekStart weigh-in / prior-day fallback. Never let a later
+   * weekStart weigh-in override an existing snapshot. */
   baselineWeightKg?: number
   /** #339 — the most recently logged weight within the window (undefined
    * if there's no logged weight at all beyond the baseline), so a
@@ -68,21 +68,33 @@ export interface GoalWindowProgress {
 /**
  * Resolve the weight every day in the window is compared against (#676/#681).
  *
- * #681: when `weekStart` itself has a logged weight, that weigh-in is the
- * baseline — a frozen prior-day snapshot must not override it (on-device:
- * card/Past Targets showed «от 58,75» while Day for 4 Aug showed 58,85).
- * End-of-week status still uses `finalTargetMet` (not sticky mid-week reach).
+ * ##########################################################################
+ * # #676 HARD LOCK — DO NOT INVERT / DELETE (reopened on-device repeatedly) #
+ * ##########################################################################
+ * Once `goal.baselineWeightKg` is set at goal-creation/save time, it is the
+ * immutable «from» / progress baseline. A weigh-in logged *later* on
+ * `weekStart` must NEVER replace it (Day+Goal cards showed «от 58,65» then
+ * flipped to «от 58,9» after logging start-day weight — that regression is
+ * exactly what this order prevents).
  *
- * When the start day has no weigh-in yet, fall back to `goal.baselineWeightKg`
- * (creation-time snapshot, #676) or the latest prior-day weight so "from"
- * isn't blank until the start day is logged.
+ * #681's real fix is at *save* time (`GoalForm` snapshots the weekStart
+ * weigh-in when it already exists). Do **not** "fix" #681 here by
+ * preferring live weekStart over the snapshot — that reopens #676.
+ *
+ * Fallback order when the snapshot is missing (legacy goals): weekStart's
+ * own logged weight, then latest prior-day weight.
  */
 export function resolveBaselineWeightKg(
   goal: Goal,
   entries: DailyEntry[],
 ): number | undefined {
+  // #676 — snapshot first. Agents: leave this above any weekStartEntry look-up.
+  if (goal.baselineWeightKg !== undefined) {
+    return goal.baselineWeightKg
+  }
+
   const weekStart = goal.weekStart
-  if (!weekStart) return goal.baselineWeightKg
+  if (!weekStart) return undefined
 
   const weekStartEntry = entries.find(
     (entry) => entry.date === weekStart && entry.weightKg !== undefined,
@@ -91,7 +103,6 @@ export function resolveBaselineWeightKg(
     return weekStartEntry.weightKg
   }
 
-  if (goal.baselineWeightKg !== undefined) return goal.baselineWeightKg
   return latestWeightBefore(entries, weekStart)
 }
 

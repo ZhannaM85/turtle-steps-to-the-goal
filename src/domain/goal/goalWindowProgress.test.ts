@@ -7,6 +7,7 @@ import {
   goalWindowConcluded,
   goalWindowHasEnded,
   goalWindowProgress,
+  resolveBaselineWeightKg,
 } from './goalWindowProgress'
 
 function makeGoal(overrides: Partial<Goal> = {}): Goal {
@@ -198,62 +199,9 @@ describe('goalWindowProgress', () => {
   })
 
   describe('baseline resolution (#676 / #681)', () => {
-    it('prefers weekStart weigh-in over a frozen prior-day snapshot (#681)', () => {
-      const goal = makeGoal({
-        weekStart: '2026-08-04',
-        weekEnd: '2026-08-09',
-        targetWeeklyLossKg: 0.2,
-        baselineWeightKg: 58.75, // wrongly frozen from the day before
-      })
-      const entries = [
-        makeEntry('2026-08-04', 58.85),
-        makeEntry('2026-08-08', 58.4),
-        makeEntry('2026-08-09', 58.65),
-      ]
-
-      const progress = goalWindowProgress(entries, goal)
-
-      expect(progress?.baselineWeightKg).toBe(58.85)
-      // End-of-window: 58.85 → 58.65 = 0.2 kg loss → met (finalTargetMet)
-      expect(progress?.currentWeightKg).toBe(58.65)
-      expect(progress?.finalTargetMet).toBe(true)
-    })
-
-    it('uses the frozen snapshot when weekStart has no weigh-in yet (#676)', () => {
-      const goal = makeGoal({
-        weekStart: '2026-03-09',
-        targetWeeklyLossKg: 0.1,
-        baselineWeightKg: 58.65,
-      })
-      const entries = [makeEntry('2026-03-10', 58.5)]
-
-      const progress = goalWindowProgress(entries, goal)
-
-      expect(progress?.baselineWeightKg).toBe(58.65)
-      expect(progress?.targetMet).toBe(true)
-      expect(progress?.metOnDate).toBe('2026-03-10')
-    })
-
-    it("falls back to weekStart's own logged weight for a goal saved before the snapshot field existed", () => {
-      const goal = makeGoal({
-        weekStart: '2026-03-09',
-        targetWeeklyLossKg: 1,
-        baselineWeightKg: undefined,
-        createdAt: '2026-03-09T12:00:00.000Z',
-      })
-      const entries = [
-        makeEntry('2026-03-09', 80, {
-          createdAt: '2026-03-09T08:00:00.000Z',
-          updatedAt: '2026-03-09T08:00:00.000Z',
-        }),
-      ]
-
-      const progress = goalWindowProgress(entries, goal)
-
-      expect(progress?.baselineWeightKg).toBe(80)
-    })
-
-    it('uses weekStart weigh-in even when logged after goal creation (#681)', () => {
+    it('#676 HARD LOCK: keeps the frozen snapshot when weekStart is logged later (DO NOT INVERT)', () => {
+      // Reopened on-device repeatedly: agents "fixed" #681 by preferring
+      // live weekStart over baselineWeightKg — that is wrong. Snapshot wins.
       const goal = makeGoal({
         weekStart: '2026-08-10',
         targetWeeklyLossKg: 0.1,
@@ -273,7 +221,62 @@ describe('goalWindowProgress', () => {
 
       const progress = goalWindowProgress(entries, goal)
 
-      expect(progress?.baselineWeightKg).toBe(58.9)
+      expect(progress?.baselineWeightKg).toBe(58.65)
+      expect(resolveBaselineWeightKg(goal, entries)).toBe(58.65)
+    })
+
+    it('uses the frozen snapshot when weekStart has no weigh-in yet (#676)', () => {
+      const goal = makeGoal({
+        weekStart: '2026-03-09',
+        targetWeeklyLossKg: 0.1,
+        baselineWeightKg: 58.65,
+      })
+      const entries = [makeEntry('2026-03-10', 58.5)]
+
+      const progress = goalWindowProgress(entries, goal)
+
+      expect(progress?.baselineWeightKg).toBe(58.65)
+      expect(progress?.targetMet).toBe(true)
+      expect(progress?.metOnDate).toBe('2026-03-10')
+    })
+
+    it('keeps a frozen snapshot even when it differs from weekStart weigh-in (#676 over #681 read-path)', () => {
+      // #681's correct fix is save-time snapshotting of weekStart when it
+      // already has a weigh-in — not overriding snapshots at read time.
+      const goal = makeGoal({
+        weekStart: '2026-08-04',
+        weekEnd: '2026-08-09',
+        targetWeeklyLossKg: 0.2,
+        baselineWeightKg: 58.75,
+      })
+      const entries = [
+        makeEntry('2026-08-04', 58.85),
+        makeEntry('2026-08-08', 58.4),
+        makeEntry('2026-08-09', 58.65),
+      ]
+
+      const progress = goalWindowProgress(entries, goal)
+
+      expect(progress?.baselineWeightKg).toBe(58.75)
+    })
+
+    it("falls back to weekStart's own logged weight for a goal saved before the snapshot field existed", () => {
+      const goal = makeGoal({
+        weekStart: '2026-03-09',
+        targetWeeklyLossKg: 1,
+        baselineWeightKg: undefined,
+        createdAt: '2026-03-09T12:00:00.000Z',
+      })
+      const entries = [
+        makeEntry('2026-03-09', 80, {
+          createdAt: '2026-03-09T08:00:00.000Z',
+          updatedAt: '2026-03-09T08:00:00.000Z',
+        }),
+      ]
+
+      const progress = goalWindowProgress(entries, goal)
+
+      expect(progress?.baselineWeightKg).toBe(80)
     })
 
     it('uses the prior-day weight when weekStart has no weigh-in yet and the snapshot is missing', () => {

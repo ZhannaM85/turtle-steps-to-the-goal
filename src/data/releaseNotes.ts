@@ -26,9 +26,16 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 645,
+    issue: 676,
+    date: '2026-08-10T20:50:00+03:00',
+    en: 'The weekly goal card’s starting (“from”) weight stays fixed after you set the goal — logging that day’s weight later no longer changes it.',
+    ru: 'Стартовый вес («от») на карточке недельной цели больше не меняется после установки цели — запись веса в тот же день его не перезаписывает.',
+  },
+  {
     version: 644,
     issue: 685,
-    date: '2026-08-10T20:30:00+03:00',
+    date: '2026-08-10T20:43:30+03:00',
     en: 'Starting or editing a goal that overlaps a previous one now shows an orange warning — saving is still allowed.',
     ru: 'При старте или правке цели, пересекающейся с предыдущей, теперь показывается оранжевое предупреждение — сохранить по-прежнему можно.',
   },

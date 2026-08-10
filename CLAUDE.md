@@ -48,6 +48,15 @@ and `.cursor/rules/one-tier-per-day.mdc`.
 - `zm-index callers "functionName"`   # find call sites
 - `zm-index stats`                    # check index health
 
+## Hard locks (do not invert)
+
+- **#676 goal baseline:** `resolveBaselineWeightKg` must return
+  `goal.baselineWeightKg` first when set. Never prefer a later
+  `weekStart` weigh-in over that snapshot (reopened on-device repeatedly
+  when agents "fixed" #681 at read time). #681's fix belongs at *save*
+  time in `GoalForm`. Guarded by the `#676 HARD LOCK` test in
+  `goalWindowProgress.test.ts` — do not delete or soften it.
+
 ## Implementing a GitHub issue
 
 The moment an issue's implementation is pushed and its `docs/issues-priority.md`

@@ -80,9 +80,11 @@ export interface Goal {
    * once a weigh-in for the goal's own `weekStart` day came in *after*
    * the goal was already created, since both used to be derived live
    * from whatever was logged on `weekStart` (`goalWindowProgress.ts`).
-   * `goalWindowProgress` now prefers this persisted value over that live
-   * lookup when present, falling back to it for a goal saved before this
-   * field existed. Optional so an old goal never re-saved since #676
+   * `goalWindowProgress` / `resolveBaselineWeightKg` MUST prefer this
+   * persisted snapshot over any live `weekStart` weigh-in when present
+   * (#676 HARD LOCK — do not invert; see CLAUDE.md Hard locks).
+   * Legacy goals without the field fall back to live weekStart / prior-day.
+   * Optional so an old goal never re-saved since #676
    * just reads as "no frozen baseline yet," same precedent every other
    * purely-additive field on this type follows.
    */
