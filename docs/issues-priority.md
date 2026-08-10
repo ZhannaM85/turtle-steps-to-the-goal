@@ -63,4 +63,3 @@ _Live bug reports from the app, filed as reported._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#676](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/676) | 🔍 Pending validation | Goal card: baseline weight shifts when the start-day weight is logged after the goal is set | Reopened: #681 read-path preferred live weekStart over snapshot. Restored snapshot-first in `resolveBaselineWeightKg` + HARD LOCK test + CLAUDE.md Hard locks. Awaiting on-device confirmation |
