@@ -57,6 +57,29 @@ user points out.
    sensitive for a public issue (this repo is public) — build it directly
    and document it under the "Private (no public GitHub issue, by
    request)" section of `docs/issues-priority.md` instead.
+
+   **Hard exception to step (3) — live/rapid-fire reporting sessions.**
+   When the user is testing the app and reporting findings one after
+   another (multiple issues landing in quick succession, faster than each
+   can be fully processed, or explicitly "logging" mode), stop at step (2)
+   for *every* item in that burst — do not proceed to step (3) and
+   implement, no matter how fully specified the fix is (exact root cause
+   named, exact replacement text given) and no matter how directive the
+   phrasing sounds ("you need to modify...", "fix this by..."). A live
+   report is not the same thing as authorization to implement it *right
+   now* — treat every item in the burst identically. Only start
+   implementing once the user gives a **separate, standalone signal that
+   the burst is over and it's time to build** — e.g. "ok let's implement,"
+   "go ahead and address #N," or a return to the one-at-a-time
+   confirm-then-close pattern. If genuinely unsure whether the burst has
+   ended, ask rather than assume — guessing "time to implement" is exactly
+   the failure this exists to prevent. (2026-08-10: filed #678 correctly
+   mid-burst, then immediately started implementing it in the same turn —
+   this exact carve-out already existed in agent memory beforehand, which
+   proves memory alone isn't reliably consulted at the moment step 3 of
+   this very rule reads as the obvious next action; it has to live here,
+   in the loudest, most-consulted instruction in the file, not only in a
+   softer side-channel.)
 2. **Scrutinize before filing — but only using what you already know, don't
    go dig for it.** If something is *immediately* obvious without opening
    files or running anything (e.g. it's already documented as by-design, or
