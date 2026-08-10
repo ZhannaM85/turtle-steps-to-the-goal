@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 641,
+    issue: 681,
+    date: '2026-08-10T19:45:00+03:00',
+    en: 'Fixed: the weekly goal’s starting (“from”) weight now matches the weigh-in on the goal’s start day, so Past Targets and the goal card no longer use an older day’s weight.',
+    ru: 'Исправлено: начальный вес цели («от») теперь совпадает с взвешиванием в день начала цели — «Прошлые цели» и карточка больше не берут вес с предыдущего дня.',
+  },
+  {
     version: 640,
     issue: 677,
     date: '2026-08-10T19:40:00+03:00',

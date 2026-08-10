@@ -559,28 +559,37 @@ export function GoalForm({
   }
 
   async function submit(formValues: GoalFormValues) {
-    // #676 reopen — `latestWeightKg` comes from an async hook that starts
-    // as `null`; saving a fresh goal before it resolves used to omit
-    // `baselineWeightKg`, and the live weekStart fallback then let a later
-    // same-day weigh-in redefine "from". Look the weight up synchronously
-    // at submit time whenever the prop is still empty on a fresh save.
+    // #676/#681 — prefer the weigh-in on this save's weekStart for the
+    // frozen snapshot; fall back to latestWeightKg / latest any-day weight.
     let weightForBaseline = latestWeightKg
     const savingFresh = startingNew || !existingGoal
-    if (savingFresh && weightForBaseline === null) {
+    const weekStartForBaseline =
+      (typeof formValues.weekStartDate === 'string' &&
+        formValues.weekStartDate) ||
+      defaultWeekStartDate(startingNew ? existingGoal : null)
+    if (savingFresh) {
       try {
         const entries = await dailyEntryRepository.getAll()
-        const withWeight = entries.filter(
-          (entry): entry is typeof entry & { weightKg: number } =>
+        const onStart = entries.find(
+          (entry) =>
+            entry.date === weekStartForBaseline &&
             entry.weightKg !== undefined,
         )
-        if (withWeight.length > 0) {
-          weightForBaseline = withWeight.reduce((a, b) =>
-            a.date > b.date ? a : b,
-          ).weightKg
+        if (onStart?.weightKg !== undefined) {
+          weightForBaseline = onStart.weightKg
+        } else if (weightForBaseline === null) {
+          const withWeight = entries.filter(
+            (entry): entry is typeof entry & { weightKg: number } =>
+              entry.weightKg !== undefined,
+          )
+          if (withWeight.length > 0) {
+            weightForBaseline = withWeight.reduce((a, b) =>
+              a.date > b.date ? a : b,
+            ).weightKg
+          }
         }
       } catch {
-        // Snapshot stays undefined; resolveBaselineWeightKg still recovers
-        // from prior-day weights for display/target-met.
+        // Snapshot stays undefined; resolveBaselineWeightKg still recovers.
       }
     }
     await onSubmit(

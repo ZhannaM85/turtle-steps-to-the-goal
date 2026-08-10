@@ -197,44 +197,50 @@ describe('goalWindowProgress', () => {
     expect(progress?.currentWeightKg).toBeUndefined()
   })
 
-  describe('frozen baseline snapshot (#676)', () => {
-    it("prefers goal.baselineWeightKg over weekStart's own logged weight", () => {
+  describe('baseline resolution (#676 / #681)', () => {
+    it('prefers weekStart weigh-in over a frozen prior-day snapshot (#681)', () => {
       const goal = makeGoal({
-        weekStart: '2026-03-09',
-        targetWeeklyLossKg: 1,
-        baselineWeightKg: 58.65,
+        weekStart: '2026-08-04',
+        weekEnd: '2026-08-09',
+        targetWeeklyLossKg: 0.2,
+        baselineWeightKg: 58.75, // wrongly frozen from the day before
       })
-      // A weigh-in for weekStart itself, logged *after* the goal was
-      // created — must not override the frozen snapshot.
-      const entries = [makeEntry('2026-03-09', 58.9)]
+      const entries = [
+        makeEntry('2026-08-04', 58.85),
+        makeEntry('2026-08-08', 58.4),
+        makeEntry('2026-08-09', 58.65),
+      ]
 
       const progress = goalWindowProgress(entries, goal)
 
-      expect(progress?.baselineWeightKg).toBe(58.65)
+      expect(progress?.baselineWeightKg).toBe(58.85)
+      // End-of-window: 58.85 → 58.65 = 0.2 kg loss → met (finalTargetMet)
+      expect(progress?.currentWeightKg).toBe(58.65)
+      expect(progress?.finalTargetMet).toBe(true)
     })
 
-    it('is assessable from weekStart day one when a frozen baseline exists, even with no weekStart weigh-in yet', () => {
+    it('uses the frozen snapshot when weekStart has no weigh-in yet (#676)', () => {
       const goal = makeGoal({
         weekStart: '2026-03-09',
         targetWeeklyLossKg: 0.1,
         baselineWeightKg: 58.65,
       })
-      const entries = [makeEntry('2026-03-09', 58.5)] // 0.15kg below baseline
+      const entries = [makeEntry('2026-03-10', 58.5)]
 
       const progress = goalWindowProgress(entries, goal)
 
+      expect(progress?.baselineWeightKg).toBe(58.65)
       expect(progress?.targetMet).toBe(true)
-      expect(progress?.metOnDate).toBe('2026-03-09')
+      expect(progress?.metOnDate).toBe('2026-03-10')
     })
 
-    it("falls back to weekStart's own logged weight for a goal saved before this field existed, when that weigh-in already existed at creation", () => {
+    it("falls back to weekStart's own logged weight for a goal saved before the snapshot field existed", () => {
       const goal = makeGoal({
         weekStart: '2026-03-09',
         targetWeeklyLossKg: 1,
         baselineWeightKg: undefined,
         createdAt: '2026-03-09T12:00:00.000Z',
       })
-      // Weighed in the morning, goal saved at noon — updatedAt <= createdAt.
       const entries = [
         makeEntry('2026-03-09', 80, {
           createdAt: '2026-03-09T08:00:00.000Z',
@@ -247,11 +253,11 @@ describe('goalWindowProgress', () => {
       expect(progress?.baselineWeightKg).toBe(80)
     })
 
-    it('ignores a post-creation weekStart weigh-in and keeps the prior-day weight when the snapshot is missing (reopen)', () => {
+    it('uses weekStart weigh-in even when logged after goal creation (#681)', () => {
       const goal = makeGoal({
         weekStart: '2026-08-10',
         targetWeeklyLossKg: 0.1,
-        baselineWeightKg: undefined,
+        baselineWeightKg: 58.65,
         createdAt: '2026-08-10T10:00:00.000Z',
       })
       const entries = [
@@ -259,25 +265,6 @@ describe('goalWindowProgress', () => {
           createdAt: '2026-08-09T07:00:00.000Z',
           updatedAt: '2026-08-09T07:00:00.000Z',
         }),
-        makeEntry('2026-08-10', 58.9, {
-          createdAt: '2026-08-10T15:00:00.000Z',
-          updatedAt: '2026-08-10T15:00:00.000Z',
-        }),
-      ]
-
-      const progress = goalWindowProgress(entries, goal)
-
-      expect(progress?.baselineWeightKg).toBe(58.65)
-    })
-
-    it('still uses a post-creation weekStart weigh-in when no prior-day weight exists', () => {
-      const goal = makeGoal({
-        weekStart: '2026-08-10',
-        targetWeeklyLossKg: 0.1,
-        baselineWeightKg: undefined,
-        createdAt: '2026-08-10T10:00:00.000Z',
-      })
-      const entries = [
         makeEntry('2026-08-10', 58.9, {
           createdAt: '2026-08-10T15:00:00.000Z',
           updatedAt: '2026-08-10T15:00:00.000Z',
