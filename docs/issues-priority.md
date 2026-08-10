@@ -63,3 +63,4 @@ _Live bug reports from the app, filed as reported._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
+| [#685](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/685) | 📋 Not started | Follow-up from #683: goal start overlap warning missing; show in orange | On-device: start before previous goal end shows no warning. Soft orange warning expected; save still allowed. |
