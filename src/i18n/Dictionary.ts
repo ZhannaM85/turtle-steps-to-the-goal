@@ -824,6 +824,8 @@ export interface Dictionary {
      * `defaultWeekStartDate`, including the same-day-reach bump). */
     weekStartDateLabel: string
     weekStartDateHint: string
+    /** #683 — soft warning when the draft window overlaps a previous goal. */
+    goalWindowOverlapWarning: string
     /** #659 — editable end date for the goal's own window, alongside the
      * pace fields above (`goalWeekEnd`'s `weekStart + 6` default, unless
      * overridden). */

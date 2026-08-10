@@ -170,7 +170,7 @@ describe('formValuesToGoal', () => {
   })
 
   describe('editing the current week in place (#181)', () => {
-    it("reuses the same id/createdAt/weekStart when the existing goal's window is still live", () => {
+    it("reuses the same id/createdAt when the existing goal's window is still live", () => {
       const today = format(new Date(), 'yyyy-MM-dd')
       const existingGoal = makeGoal({
         id: 'goal-1',
@@ -190,6 +190,30 @@ describe('formValuesToGoal', () => {
       expect(goal.weekStart).toBe(today)
       expect(goal.targetWeeklyLossKg).toBe(2)
       expect(goal.updatedAt).not.toBe(existingGoal.updatedAt)
+    })
+
+    it('updates weekStart in place when the form provides a new start date (#683)', () => {
+      const existingGoal = makeGoal({
+        id: 'goal-1',
+        weekStart: '2026-08-04',
+        weekEnd: '2026-08-10',
+        createdAt: '2026-01-01T00:00:00.000Z',
+        targetWeeklyLossKg: 1,
+      })
+
+      const goal = formValuesToGoal(
+        {
+          targetWeeklyLoss: 1,
+          weekStartDate: '2026-08-06',
+          weekEndDate: '2026-08-12',
+        },
+        'kg',
+        existingGoal,
+      )
+
+      expect(goal.id).toBe('goal-1')
+      expect(goal.weekStart).toBe('2026-08-06')
+      expect(goal.weekEnd).toBe('2026-08-12')
     })
 
     it('updates the daily calorie target in place too (#208)', () => {

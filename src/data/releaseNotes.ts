@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 643,
+    issue: 683,
+    date: '2026-08-10T20:05:00+03:00',
+    en: 'Goal start date is always editable, and overlapping a previous goal only warns — it no longer blocks saving or starting a new goal.',
+    ru: 'Дату начала цели можно выбирать свободно; пересечение с предыдущей целью только предупреждает — сохранение и новая цель больше не блокируются.',
+  },
+  {
     version: 642,
     issue: 684,
     date: '2026-08-10T19:55:00+03:00',

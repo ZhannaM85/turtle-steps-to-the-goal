@@ -96,10 +96,10 @@ export function formValuesToGoal(
   const now = new Date().toISOString()
 
   if (!startNew && existingGoal) {
-    // Same id/createdAt/weekStart (#181) — editing the current goal in
-    // place, not starting a new historical record. Dexie's put() upserts
-    // by id, so this overwrites rather than inserting. weekStart stays
-    // on the original window (#181); weekEnd remains editable (#659).
+    // Same id/createdAt (#181) — editing the current goal in place, not
+    // starting a new historical record. Dexie's put() upserts by id.
+    // #683 — weekStart is editable like weekEnd (#659); blank keeps the
+    // previous stamp.
     return {
       ...existingGoal,
       targetWeeklyLossKg: toKg(values.targetWeeklyLoss as number),
@@ -112,6 +112,7 @@ export function formValuesToGoal(
       dailyPotassiumTargetMg: values.dailyPotassiumTarget,
       dailyMagnesiumTargetMg: values.dailyMagnesiumTarget,
       dailyWaterTargetMl: values.dailyWaterTarget,
+      weekStart: values.weekStartDate || existingGoal.weekStart,
       weekEnd: values.weekEndDate || undefined,
       updatedAt: now,
     }

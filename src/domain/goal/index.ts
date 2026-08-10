@@ -15,6 +15,11 @@ export {
   goalWindowConcluded,
   goalCoveringDate,
 } from './goalWindowProgress'
+export {
+  goalWindowRange,
+  goalWindowsOverlap,
+  inclusiveDateRangesOverlap,
+} from './goalWindowOverlap'
 export type { GoalWindowProgress } from './goalWindowProgress'
 export { pastGoals, earliestGoalCreatedAt } from './goalHistory'
 export type { PastGoalRecord } from './goalHistory'

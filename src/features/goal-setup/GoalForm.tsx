@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { format, parseISO } from 'date-fns'
 import { Check, Minus, Pencil, Plus, Trash2 } from 'lucide-react'
 import { useForm, useWatch, type Resolver } from 'react-hook-form'
 import { useBlocker } from 'react-router-dom'
@@ -8,7 +7,7 @@ import type { Goal } from '@/domain/goal'
 import {
   estimatedDailyCalorieDeficitKcal,
   goalWeekEnd,
-  goalWindowHasEnded,
+  goalWindowsOverlap,
   kgToLb,
   WEEKLY_PACE_SOFT_WARN_KG,
   WEEKLY_PACE_STEP_KG,
@@ -25,7 +24,6 @@ import {
 import {
   formatExactNumber,
   formatNumber,
-  getDateFnsLocale,
   unitLabel,
   useLocale,
   useTranslation,
@@ -101,10 +99,8 @@ export interface GoalFormProps {
    * stays disabled. */
   latestWeightKg?: number | null
   /** #667 — whether `existingGoal`'s own window has concluded
-   * (`goalWindowConcluded`: calendar passed weekEnd, or reached on
-   * weekEnd itself), from the caller's own live `useActiveGoalProgress`.
-   * Preferred over the plain calendar check below when provided; falls
-   * back to it (unchanged prior behavior) when omitted. */
+   * (`goalWindowConcluded`). Retained for callers; #683 no longer gates
+   * "Start a new goal" on window end (overlap is a warning only). */
   activeGoalConcluded?: boolean
 }
 
@@ -120,28 +116,9 @@ export function GoalForm({
   onSubmit,
   onDelete,
   latestWeightKg = null,
-  activeGoalConcluded,
 }: GoalFormProps) {
   const t = useTranslation()
   const locale = useLocale()
-  const dateFnsLocale = getDateFnsLocale(locale)
-  // #639 — the restart button below is gated to only be usable once the
-  // current goal's window has actually run its course: restarting mid-
-  // week let a fresh, short window quietly replace the current one before
-  // it ended, producing the overlapping-windows bug this issue was filed
-  // for. A legacy goal with no weekStart (pre-#135) never had a real
-  // window, so it's treated as already-ended — same lenient precedent
-  // approximateEndDate (goalHistory.ts) already uses for those.
-  // #667 — prefers the caller's own live `activeGoalConcluded` (also true
-  // once reached on weekEnd itself, not just once the calendar has
-  // actually passed it) when provided, falling back to the plain calendar
-  // check otherwise.
-  const activeWindowEnded = existingGoal?.weekStart
-    ? (activeGoalConcluded ??
-      goalWindowHasEnded(
-        existingGoal.weekEnd ?? goalWeekEnd(existingGoal.weekStart),
-      ))
-    : true
   const unit = useUnitStore((state) => state.unit)
   const unitText = unitLabel(unit, t)
   const toDisplay = (kg: number) => (unit === 'lb' ? kgToLb(kg) : kg)
@@ -453,9 +430,21 @@ export function GoalForm({
       ? existingGoal.weekStart
       : defaultWeekStartDate(startingNew ? existingGoal : null))
 
-  // #671 — start date is editable when creating / starting a new goal;
-  // editing the current goal in place keeps the original weekStart (#181).
-  const weekStartLocked = Boolean(existingGoal && !startingNew)
+  // #683 — draft window vs the goal being left behind when starting new
+  // (or any prior still passed as existingGoal while startingNew). Warn
+  // only; never blocks pick/save.
+  const draftWeekStart =
+    (typeof values.weekStartDate === 'string' && values.weekStartDate) ||
+    defaultWeekStartDate(startingNew ? existingGoal : null)
+  const draftWeekEnd =
+    (typeof values.weekEndDate === 'string' && values.weekEndDate) ||
+    goalWeekEnd(draftWeekStart)
+  const showOverlapWarning =
+    Boolean(startingNew && existingGoal) &&
+    goalWindowsOverlap(
+      { weekStart: draftWeekStart, weekEnd: draftWeekEnd },
+      existingGoal!,
+    )
 
   // #534 — confirm before discarding dirty edits (Cancel or leave route).
   // Derive nav-block UI from `blocker.state` (no setState-in-effect); Cancel
@@ -844,7 +833,6 @@ export function GoalForm({
               <Button
                 type="button"
                 variant="outline"
-                disabled={!showingDeletedSnapshot && !activeWindowEnded}
                 onClick={() => {
                   setJustDeletedGoal(null)
                   setStartingNew(true)
@@ -855,20 +843,7 @@ export function GoalForm({
                 {t.goal.startNewGoalButton}
               </Button>
               <p className="text-xs text-muted-foreground">
-                {showingDeletedSnapshot ||
-                activeWindowEnded ||
-                !existingGoal?.weekStart
-                  ? t.goal.startNewGoalHint
-                  : t.goal.startNewGoalAvailableFromLabel(
-                      format(
-                        parseISO(
-                          existingGoal.weekEnd ??
-                            goalWeekEnd(existingGoal.weekStart),
-                        ),
-                        'PP',
-                        { locale: dateFnsLocale },
-                      ),
-                    )}
+                {t.goal.startNewGoalHint}
               </p>
             </div>
           </div>
@@ -952,22 +927,20 @@ export function GoalForm({
         </p>
       )}
 
-      {/* #671 — editable start date (new / start-new only; locked when
-       * editing the current goal in place so #181's stable weekStart
-       * stays put). Changing it resets "ends on" to start+6 so the pair
-       * stays a coherent default week; the end field remains separately
-       * editable afterwards (#659). */}
+      {/* #671/#683 — editable start date always (including edit-in-place).
+       * Changing it resets "ends on" to start+6 so the pair stays a
+       * coherent default week; the end field remains separately editable
+       * afterwards (#659). */}
       <div className="flex flex-col gap-1.5">
         <Label htmlFor="goal-week-start-date">{t.goal.weekStartDateLabel}</Label>
         <Input
           id="goal-week-start-date"
           type="date"
           className="max-w-48"
-          disabled={weekStartLocked}
           {...register('weekStartDate', {
             onChange: (event) => {
               const nextStart = event.target.value
-              if (!nextStart || weekStartLocked) return
+              if (!nextStart) return
               setValue('weekEndDate', goalWeekEnd(nextStart), {
                 shouldDirty: true,
               })
@@ -995,6 +968,15 @@ export function GoalForm({
         />
         <p className="text-sm text-muted-foreground">{t.goal.weekEndDateHint}</p>
       </div>
+
+      {showOverlapWarning && (
+        <p
+          role="status"
+          className="rounded-lg border border-border bg-muted p-3 text-sm text-foreground"
+        >
+          {t.goal.goalWindowOverlapWarning}
+        </p>
+      )}
 
       {/* #259 — deterministic TDEE/macro-ratio suggestion, prefills but
        * never auto-saves the four fields below. Disabled until every

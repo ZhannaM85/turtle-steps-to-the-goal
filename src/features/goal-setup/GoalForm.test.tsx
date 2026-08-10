@@ -996,7 +996,7 @@ describe('GoalForm', () => {
   })
 
   describe('explicit "Start a new goal" CTA (#386)', () => {
-    it('is always rendered alongside the pencil edit button, but disabled while the window is still running (#639)', () => {
+    it('is always enabled, including while the window is still running (#683)', () => {
       const today = new Date().toISOString().slice(0, 10)
       renderGoalForm(
         <GoalForm
@@ -1017,12 +1017,9 @@ describe('GoalForm', () => {
         name: 'Start a new goal',
       })
       expect(startNewButton).toBeInTheDocument()
-      expect(startNewButton).toBeDisabled()
-      // Explains why, naming the date it unlocks — same "explain, don't
-      // silently disable" precedent #634's PDF section tooltips already
-      // established.
+      expect(startNewButton).toBeEnabled()
       expect(
-        screen.getByText(/Available once this week's target ends, on/),
+        screen.getByText(/Begins a fresh window/),
       ).toBeInTheDocument()
     })
 
@@ -1259,8 +1256,8 @@ describe('GoalForm', () => {
     })
   })
 
-  describe('editable start date (#671)', () => {
-    it('locks the start date when editing the current goal in place', async () => {
+  describe('editable start date (#671/#683)', () => {
+    it('keeps the start date editable when editing the current goal in place (#683)', async () => {
       const user = userEvent.setup()
       renderGoalForm(
         <GoalForm
@@ -1281,7 +1278,47 @@ describe('GoalForm', () => {
 
       const startInput = screen.getByLabelText('Starts on')
       expect(startInput).toHaveValue('2026-07-28')
-      expect(startInput).toBeDisabled()
+      expect(startInput).not.toBeDisabled()
+    })
+
+    it('warns when a new goal window overlaps the previous one, without blocking save (#683)', async () => {
+      vi.useFakeTimers({ toFake: ['Date'] })
+      vi.setSystemTime(new Date('2026-08-08T12:00:00'))
+      const user = userEvent.setup({ delay: null })
+      const onSubmit = vi.fn()
+      renderGoalForm(
+        <GoalForm
+          existingGoal={{
+            id: 'g1',
+            targetWeeklyLossKg: 0.2,
+            weekStart: '2026-08-04',
+            weekEnd: '2026-08-10',
+            createdAt: '2026-08-04T00:00:00.000Z',
+            updatedAt: '2026-08-04T00:00:00.000Z',
+          }}
+          onSubmit={onSubmit}
+          onDelete={vi.fn()}
+        />,
+      )
+
+      await user.click(
+        screen.getByRole('button', { name: 'Start a new goal' }),
+      )
+
+      expect(
+        screen.getByText(/This window overlaps a previous goal/),
+      ).toBeInTheDocument()
+
+      await user.type(
+        screen.getByLabelText("This week's target (kg to lose)"),
+        '1',
+      )
+      await user.click(
+        screen.getByRole('button', { name: 'Set this week’s target' }),
+      )
+
+      expect(onSubmit).toHaveBeenCalledTimes(1)
+      vi.useRealTimers()
     })
 
     it('prefills tomorrow when starting a new goal on a last-day reach (#671)', async () => {

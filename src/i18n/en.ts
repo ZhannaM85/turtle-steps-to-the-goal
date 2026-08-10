@@ -415,7 +415,9 @@ export const en: Dictionary = {
       `That’s a steep weekly pace (about ${kcal} kcal/day deficit). Most people aim for around 0.5–1 kg per week — you can still save this if you mean it.`,
     weekStartDateLabel: 'Starts on',
     weekStartDateHint:
-      'Defaults to today (or tomorrow if you’re restarting on the day the previous goal ended). Change it if this window should begin on a different day.',
+      'Defaults to today (or tomorrow if you’re restarting on the day the previous goal ended). Change freely — overlapping a previous goal only shows a warning, it does not block saving.',
+    goalWindowOverlapWarning:
+      'This window overlaps a previous goal. You can still save — just check that the dates are what you meant.',
     weekEndDateLabel: 'Ends on',
     weekEndDateHint:
       'Defaults to 7 days after the window starts. Change it if your week should end on a different day.',
@@ -458,7 +460,7 @@ export const en: Dictionary = {
     confirmDiscardEditsLabel: 'Leave without saving your goal changes?',
     startNewGoalButton: 'Start a new goal',
     startNewGoalHint:
-      'Begins a fresh 7-day window from today instead, moving the current one to Past targets.',
+      'Begins a fresh window (defaults from today). If it overlaps the previous goal, you’ll see a warning — saving is still allowed.',
     startNewGoalAvailableFromLabel: (weekEndDate) =>
       `Available once this week's target ends, on ${weekEndDate}.`,
     savedConfirmation: 'Saved',
