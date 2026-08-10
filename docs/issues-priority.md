@@ -63,4 +63,4 @@ _Live bug reports from the app, filed as reported._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#685](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/685) | 🔍 Pending validation | Follow-up from #683: goal start overlap warning missing; show in orange | Soft warning now checks active+past goals (not only Start-new vs existingGoal); orange styling. Edit-in-place overlapping a previous window warns too. Awaiting on-device confirmation |
+| [#676](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/676) | 🔍 Pending validation | Goal card: baseline weight shifts when the start-day weight is logged after the goal is set | Reopened: #681 read-path preferred live weekStart over snapshot. Restored snapshot-first in `resolveBaselineWeightKg` + HARD LOCK test + `.cursor/rules/goal-baseline-immutable.mdc`. Awaiting on-device confirmation |
