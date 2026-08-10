@@ -268,12 +268,16 @@ describe('GoalScreen', () => {
     const user = userEvent.setup()
 
     renderGoalScreen()
+    // #678 — concluded active goal already appears in Past Targets before
+    // a replacement is saved (weekStart 2026-03-09 ended long ago). The
+    // same window string also shows on the main card / Current goal table,
+    // so only assert the Past Targets heading here.
+    expect(await screen.findByText('Past targets')).toBeInTheDocument()
     // #386 — plain Edit now always edits in place; "Start a new goal" is
     // the explicit action that produces a new history record.
     await user.click(
       await screen.findByRole('button', { name: 'Start a new goal' }),
     )
-    expect(screen.queryByText('Past targets')).not.toBeInTheDocument()
 
     const weeklyTargetInput = screen.getByLabelText(
       "This week's target (kg to lose)",
