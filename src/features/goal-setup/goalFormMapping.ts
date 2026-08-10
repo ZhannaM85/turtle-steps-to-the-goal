@@ -5,24 +5,49 @@ import type { Unit } from '@/stores'
 import type { GoalFormValues } from './goalFormSchema'
 
 /**
+ * #671 — default for the form's editable "starts on" field (and the
+ * stamp `formValuesToGoal` uses when the field is left at its default).
+ * Usually today; bumped one day forward when restarting on the exact day
+ * the previous goal's own weekEnd was reached, so the two inclusive
+ * windows don't share that day (see `freshWeekStart` history in #671).
+ */
+export function defaultWeekStartDate(existingGoal: Goal | null = null): string {
+  const today = format(new Date(), 'yyyy-MM-dd')
+  if (!existingGoal?.weekStart) return today
+  const existingWeekEnd =
+    existingGoal.weekEnd ?? goalWeekEnd(existingGoal.weekStart)
+  if (existingWeekEnd !== today) return today
+  return format(addDays(parseISO(existingWeekEnd), 1), 'yyyy-MM-dd')
+}
+
+/**
  * #659 — default for the form's editable "ends on" field: the goal's own
  * `weekEnd` if it has one, else the fixed `weekStart + 6` window end. Falls
- * back to today's own `weekStart + 6` when there's no goal yet (brand-new
- * setup, or "Start a new goal") — the same date `formValuesToGoal` below
- * stamps a fresh record's `weekStart` to on save, so the field's default
- * matches what that save would actually produce.
+ * back to `defaultWeekStartDate(priorGoal) + 6` when there's no goal yet
+ * (brand-new setup, or "Start a new goal") — so the end default tracks the
+ * same start stamp a fresh save would use, including #671's one-day bump.
  */
-export function defaultWeekEndDate(goal: Goal | null): string {
+export function defaultWeekEndDate(
+  goal: Goal | null,
+  priorGoal: Goal | null = null,
+): string {
   if (goal?.weekEnd) return goal.weekEnd
-  const weekStart = goal?.weekStart ?? format(new Date(), 'yyyy-MM-dd')
+  const weekStart = goal?.weekStart ?? defaultWeekStartDate(priorGoal)
   return goalWeekEnd(weekStart)
 }
 
 export function goalToFormValues(
   goal: Goal | null,
   unit: Unit,
+  priorGoal: Goal | null = null,
 ): Partial<GoalFormValues> {
-  if (!goal) return { weekEndDate: defaultWeekEndDate(null) }
+  if (!goal) {
+    const weekStartDate = defaultWeekStartDate(priorGoal)
+    return {
+      weekStartDate,
+      weekEndDate: goalWeekEnd(weekStartDate),
+    }
+  }
 
   const fromKg = (kg: number) => (unit === 'lb' ? kgToLb(kg) : kg)
 
@@ -37,31 +62,9 @@ export function goalToFormValues(
     dailyPotassiumTarget: goal.dailyPotassiumTargetMg,
     dailyMagnesiumTarget: goal.dailyMagnesiumTargetMg,
     dailyWaterTarget: goal.dailyWaterTargetMl,
+    weekStartDate: goal.weekStart ?? defaultWeekStartDate(null),
     weekEndDate: defaultWeekEndDate(goal),
   }
-}
-
-/**
- * #671 — a fresh record's weekStart defaults to today, but #667 unlocked
- * restarting on the exact day the old goal's own weekEnd was reached
- * (GoalForm's "Start a new goal" button only enables once
- * `goalWindowConcluded`, which is true either once the calendar has passed
- * weekEnd or once weekEnd is reached today), so "today" can now equal
- * existingGoal's weekEnd — giving the new goal weekStart === old goal's
- * weekEnd, a one-day overlap in the two windows' inclusive
- * [weekStart, weekEnd] ranges. Only that exact same-day case is bumped, to
- * the day right after; an already-ended window's weekEnd already sits
- * before today (no overlap risk), and a genuinely still-live window
- * shouldn't reach this function at all given the button's own gating, so
- * #386's plain "always today" behavior is otherwise unchanged.
- */
-function freshWeekStart(existingGoal: Goal | null): string {
-  const today = format(new Date(), 'yyyy-MM-dd')
-  if (!existingGoal?.weekStart) return today
-  const existingWeekEnd =
-    existingGoal.weekEnd ?? goalWeekEnd(existingGoal.weekStart)
-  if (existingWeekEnd !== today) return today
-  return format(addDays(parseISO(existingWeekEnd), 1), 'yyyy-MM-dd')
 }
 
 /**
@@ -95,7 +98,8 @@ export function formValuesToGoal(
   if (!startNew && existingGoal) {
     // Same id/createdAt/weekStart (#181) — editing the current goal in
     // place, not starting a new historical record. Dexie's put() upserts
-    // by id, so this overwrites rather than inserting.
+    // by id, so this overwrites rather than inserting. weekStart stays
+    // on the original window (#181); weekEnd remains editable (#659).
     return {
       ...existingGoal,
       targetWeeklyLossKg: toKg(values.targetWeeklyLoss as number),
@@ -130,11 +134,10 @@ export function formValuesToGoal(
     dailyPotassiumTargetMg: values.dailyPotassiumTarget,
     dailyMagnesiumTargetMg: values.dailyMagnesiumTarget,
     dailyWaterTargetMl: values.dailyWaterTarget,
-    // Today (#135) — every *new* record starts a fresh 7-day tracking
-    // window from the moment it's actually saved. #671: bumped forward a
-    // day when today would otherwise overlap existingGoal's own window —
-    // see freshWeekStart above.
-    weekStart: freshWeekStart(existingGoal),
+    // #671 — prefer the form's editable start date (defaults via
+    // `defaultWeekStartDate`, including the same-day-reach bump); fall
+    // back to that helper if the field was cleared.
+    weekStart: values.weekStartDate || defaultWeekStartDate(existingGoal),
     weekEnd: values.weekEndDate || undefined,
     // #676 — frozen once, here, at the moment this record is first
     // created; never touched again (the edit-in-place branch above spreads

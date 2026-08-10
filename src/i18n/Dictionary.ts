@@ -820,6 +820,10 @@ export interface Dictionary {
     weeklyTargetStepHint: (step: string, unit: string) => string
     /** #529 — soft warning when pace > ~1 kg/week; does not block save. */
     aggressivePaceWarning: (kcal: string) => string
+    /** #671 — editable start date for a new goal's window (defaults via
+     * `defaultWeekStartDate`, including the same-day-reach bump). */
+    weekStartDateLabel: string
+    weekStartDateHint: string
     /** #659 — editable end date for the goal's own window, alongside the
      * pace fields above (`goalWeekEnd`'s `weekStart + 6` default, unless
      * overridden). */

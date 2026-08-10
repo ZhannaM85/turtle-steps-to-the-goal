@@ -1200,6 +1200,7 @@ describe('GoalForm', () => {
       renderGoalForm(<GoalForm existingGoal={null} onSubmit={onSubmit}
       onDelete={vi.fn()} />)
 
+      expect(screen.getByLabelText('Starts on')).toHaveValue('2026-07-24')
       expect(screen.getByLabelText('Ends on')).toHaveValue('2026-07-30')
 
       await user.type(
@@ -1210,7 +1211,9 @@ describe('GoalForm', () => {
         screen.getByRole('button', { name: 'Set this week’s target' }),
       )
 
+      expect(onSubmit.mock.calls[0][0].weekStart).toBe('2026-07-24')
       expect(onSubmit.mock.calls[0][0].weekEnd).toBe('2026-07-30')
+      vi.useRealTimers()
     })
 
     it('submits a custom end date when edited', async () => {
@@ -1253,6 +1256,89 @@ describe('GoalForm', () => {
       await user.click(screen.getByRole('button', { name: 'Edit goal' }))
 
       expect(screen.getByLabelText('Ends on')).toHaveValue('2026-08-02')
+    })
+  })
+
+  describe('editable start date (#671)', () => {
+    it('locks the start date when editing the current goal in place', async () => {
+      const user = userEvent.setup()
+      renderGoalForm(
+        <GoalForm
+          existingGoal={{
+            id: 'g1',
+            targetWeeklyLossKg: 1,
+            weekStart: '2026-07-28',
+            weekEnd: '2026-08-02',
+            createdAt: '2026-01-01T00:00:00.000Z',
+            updatedAt: '2026-01-01T00:00:00.000Z',
+          }}
+          onSubmit={vi.fn()}
+          onDelete={vi.fn()}
+        />,
+      )
+
+      await user.click(screen.getByRole('button', { name: 'Edit goal' }))
+
+      const startInput = screen.getByLabelText('Starts on')
+      expect(startInput).toHaveValue('2026-07-28')
+      expect(startInput).toBeDisabled()
+    })
+
+    it('prefills tomorrow when starting a new goal on a last-day reach (#671)', async () => {
+      vi.useFakeTimers({ toFake: ['Date'] })
+      vi.setSystemTime(new Date('2026-08-10T12:00:00'))
+      const user = userEvent.setup({ delay: null })
+      renderGoalForm(
+        <GoalForm
+          existingGoal={{
+            id: 'g1',
+            targetWeeklyLossKg: 0.2,
+            weekStart: '2026-08-04',
+            weekEnd: '2026-08-10',
+            createdAt: '2026-08-04T00:00:00.000Z',
+            updatedAt: '2026-08-04T00:00:00.000Z',
+          }}
+          onSubmit={vi.fn()}
+          onDelete={vi.fn()}
+          activeGoalConcluded
+        />,
+      )
+
+      await user.click(
+        screen.getByRole('button', { name: 'Start a new goal' }),
+      )
+
+      expect(screen.getByLabelText('Starts on')).toHaveValue('2026-08-11')
+      expect(screen.getByLabelText('Starts on')).not.toBeDisabled()
+      expect(screen.getByLabelText('Ends on')).toHaveValue('2026-08-17')
+      vi.useRealTimers()
+    })
+
+    it('submits a custom start date and shifts the end default with it', async () => {
+      vi.useFakeTimers({ toFake: ['Date'] })
+      vi.setSystemTime(new Date('2026-07-24T12:00:00'))
+      const user = userEvent.setup({ delay: null })
+      const onSubmit = vi.fn()
+      renderGoalForm(
+        <GoalForm existingGoal={null} onSubmit={onSubmit} onDelete={vi.fn()} />,
+      )
+
+      fireEvent.change(screen.getByLabelText('Starts on'), {
+        target: { value: '2026-07-26' },
+      })
+      expect(screen.getByLabelText('Ends on')).toHaveValue('2026-08-01')
+
+      await user.type(
+        screen.getByLabelText("This week's target (kg to lose)"),
+        '1',
+      )
+      await user.click(
+        screen.getByRole('button', { name: 'Set this week’s target' }),
+      )
+
+      expect(onSubmit.mock.calls[0][0].weekStart).toBe('2026-07-26')
+      expect(onSubmit.mock.calls[0][0].weekEnd).toBe('2026-08-01')
+      vi.useRealTimers()
     })
   })
 

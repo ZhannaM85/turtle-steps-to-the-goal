@@ -43,7 +43,7 @@ import { Input } from '@/shared/ui/input'
 import { Label } from '@/shared/ui/label'
 import { NumberInput } from '@/shared/ui/number-input'
 import {
-  defaultWeekEndDate,
+  defaultWeekStartDate,
   effectiveWeeklyPaceKg,
   formValuesToGoal,
   goalToFormValues,
@@ -52,7 +52,8 @@ import { makeGoalFormSchema, type GoalFormValues } from './goalFormSchema'
 
 /** Empty display values for RHF NumberInputs (#241 / #534) — `undefined`
  * alone does not clear uncontrolled DOM values after reset. */
-function emptyGoalFormValues(): GoalFormValues {
+function emptyGoalFormValues(priorGoal: Goal | null = null): GoalFormValues {
+  const weekStartDate = defaultWeekStartDate(priorGoal)
   return {
     targetWeeklyLoss: '' as unknown as number | undefined,
     dailyCalorieTarget: '' as unknown as number | undefined,
@@ -64,11 +65,14 @@ function emptyGoalFormValues(): GoalFormValues {
     dailyPotassiumTarget: '' as unknown as number | undefined,
     dailyMagnesiumTarget: '' as unknown as number | undefined,
     dailyWaterTarget: '' as unknown as number | undefined,
-    // #659 — unlike the NumberInputs above, always prefilled with a real
-    // default rather than cleared to '' (an empty date picker is just
-    // confusing, and there's no uncontrolled-DOM-value bug to work around
-    // here since the value always changes on reset).
-    weekEndDate: defaultWeekEndDate(null),
+    // #671/#659 — always prefilled with real dates rather than cleared to
+    // '' (an empty date picker is just confusing, and there's no
+    // uncontrolled-DOM-value bug to work around here since the value
+    // always changes on reset). Start defaults via defaultWeekStartDate
+    // so a same-day restart after a last-day reach bumps to tomorrow;
+    // end tracks that start + 6.
+    weekStartDate,
+    weekEndDate: goalWeekEnd(weekStartDate),
   }
 }
 
@@ -437,14 +441,18 @@ export function GoalForm({
   // `formValuesToGoal` behavior to use without re-deriving it.
   const [startingNew, setStartingNew] = useState(false)
 
-  // #659 — the earliest valid "ends on" date: the window this save will
-  // actually anchor to. Editing in place keeps the existing weekStart;
-  // starting fresh (or no goal yet) always anchors to today, same as
-  // `formValuesToGoal`'s own weekStart stamp.
+  // #671/#659 — "ends on" cannot precede the window start this save will
+  // use. Prefer the live form start date; when editing in place without a
+  // typed override, fall back to the existing goal's weekStart.
   const weekEndMinDate =
-    !startingNew && existingGoal?.weekStart
+    (typeof values.weekStartDate === 'string' && values.weekStartDate) ||
+    (!startingNew && existingGoal?.weekStart
       ? existingGoal.weekStart
-      : format(new Date(), 'yyyy-MM-dd')
+      : defaultWeekStartDate(startingNew ? existingGoal : null))
+
+  // #671 — start date is editable when creating / starting a new goal;
+  // editing the current goal in place keeps the original weekStart (#181).
+  const weekStartLocked = Boolean(existingGoal && !startingNew)
 
   // #534 — confirm before discarding dirty edits (Cancel or leave route).
   // Derive nav-block UI from `blocker.state` (no setState-in-effect); Cancel
@@ -803,7 +811,7 @@ export function GoalForm({
                 onClick={() => {
                   setJustDeletedGoal(null)
                   setStartingNew(true)
-                  reset(emptyGoalFormValues())
+                  reset(emptyGoalFormValues(existingGoal))
                   setIsEditing(true)
                 }}
               >
@@ -907,12 +915,38 @@ export function GoalForm({
         </p>
       )}
 
+      {/* #671 — editable start date (new / start-new only; locked when
+       * editing the current goal in place so #181's stable weekStart
+       * stays put). Changing it resets "ends on" to start+6 so the pair
+       * stays a coherent default week; the end field remains separately
+       * editable afterwards (#659). */}
+      <div className="flex flex-col gap-1.5">
+        <Label htmlFor="goal-week-start-date">{t.goal.weekStartDateLabel}</Label>
+        <Input
+          id="goal-week-start-date"
+          type="date"
+          className="max-w-48"
+          disabled={weekStartLocked}
+          {...register('weekStartDate', {
+            onChange: (event) => {
+              const nextStart = event.target.value
+              if (!nextStart || weekStartLocked) return
+              setValue('weekEndDate', goalWeekEnd(nextStart), {
+                shouldDirty: true,
+              })
+            },
+          })}
+        />
+        <p className="text-sm text-muted-foreground">
+          {t.goal.weekStartDateHint}
+        </p>
+      </div>
+
       {/* #659 — editable end date for this window, defaulting to the
-       * existing weekStart+6 computation (see defaultWeekEndDate) so
-       * nothing changes unless it's actually touched. `min` matches
-       * whatever weekStart this save will anchor to, same pattern as
-       * DeleteRangeSection's date-range pair (native constraint, no
-       * separate Zod cross-field check). */}
+       * start+6 computation so nothing changes unless it's actually
+       * touched. `min` matches whatever weekStart this save will anchor
+       * to, same pattern as DeleteRangeSection's date-range pair (native
+       * constraint, no separate Zod cross-field check). */}
       <div className="flex flex-col gap-1.5">
         <Label htmlFor="goal-week-end-date">{t.goal.weekEndDateLabel}</Label>
         <Input

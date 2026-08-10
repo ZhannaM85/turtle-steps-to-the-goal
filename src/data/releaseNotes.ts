@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 637,
+    issue: 671,
+    date: '2026-08-10T15:16:57+03:00',
+    en: 'You can now see and change when a new weekly goal starts — handy if you’re restarting the day the previous one ended.',
+    ru: 'Теперь можно увидеть и изменить дату начала новой недельной цели — удобно, если вы начинаете её в день окончания предыдущей.',
+  },
+  {
     version: 636,
     issue: 677,
     date: '2026-08-10T15:05:10+03:00',

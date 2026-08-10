@@ -23,6 +23,7 @@ describe('goalToFormValues', () => {
   it('returns sensible defaults when there is no existing goal', () => {
     const today = format(new Date(), 'yyyy-MM-dd')
     expect(goalToFormValues(null, 'kg')).toEqual({
+      weekStartDate: today,
       weekEndDate: goalWeekEnd(today),
     })
   })
@@ -362,6 +363,28 @@ describe('formValuesToGoal', () => {
 
       expect(goal.id).not.toBe('goal-1')
       expect(goal.weekStart).toBe(format(addDays(new Date(), 1), 'yyyy-MM-dd'))
+    })
+
+    it('uses an explicit weekStartDate from the form when starting a new goal (#671)', () => {
+      const existingGoal = makeGoal({
+        id: 'goal-1',
+        weekStart: format(subDays(new Date(), 6), 'yyyy-MM-dd'),
+        weekEnd: format(new Date(), 'yyyy-MM-dd'),
+      })
+
+      const goal = formValuesToGoal(
+        {
+          targetWeeklyLoss: 1,
+          weekStartDate: '2026-08-12',
+          weekEndDate: '2026-08-18',
+        },
+        'kg',
+        existingGoal,
+        true,
+      )
+
+      expect(goal.weekStart).toBe('2026-08-12')
+      expect(goal.weekEnd).toBe('2026-08-18')
     })
 
     it('starts a fresh record when startNew is passed even for an already-ended window', () => {
