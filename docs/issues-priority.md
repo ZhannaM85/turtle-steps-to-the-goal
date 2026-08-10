@@ -49,7 +49,9 @@ _Same date as the #646 lint gap (already closed/archived) — appended per the o
 
 ## Tier 131 — Live feedback (2026-08-10)
 
-_Live bug reports from the app, filed as reported._
+_Live bug reports from the app, filed as reported. Also #606 widget follow-ups from on-device validation the same day._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
+| [#687](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/687) | 📋 Not started | Android glance widget: richer today fields (kcal, steps, food) | Follow-up to #606. Extend glance snapshot beyond weight — remaining kcal (calm empty if no target), steps, compact food signal; prefer note-logged indicator over full day note. Keep tap → Day. |
+| [#688](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/688) | 📋 Not started | Android glance widget: turtle mark and design-mood polish | Follow-up to #606. Add turtle/favicon on the widget; surfaces/typography closer to app cream/ink/soft-green mood (light + dark), within RemoteViews limits. |
