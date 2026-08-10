@@ -525,18 +525,13 @@ export function GoalForm({
   // #677 — goals are a stack: delete pops the top; the previous goal
   // becomes `existingGoal` and must win over any deleted snapshot.
   const [justDeletedGoal, setJustDeletedGoal] = useState<Goal | null>(null)
-
-  // #677 — once the store promotes the previous goal after a stack pop,
-  // drop the deleted snapshot so Delete/Edit bind to the new active goal.
-  useEffect(() => {
-    if (
-      existingGoal &&
-      justDeletedGoal &&
-      existingGoal.id !== justDeletedGoal.id
-    ) {
-      setJustDeletedGoal(null)
-    }
-  }, [existingGoal, justDeletedGoal])
+  // #677 — derive "empty-stack snapshot still applies" instead of
+  // clearing state in an effect (react-hooks/set-state-in-effect).
+  // When the store promotes a previous goal, ignore the snapshot for
+  // Delete / Start-new chrome so those bind to the new active goal.
+  const showingDeletedSnapshot =
+    justDeletedGoal != null &&
+    (existingGoal == null || existingGoal.id === justDeletedGoal.id)
 
   function requestDeleteGoal() {
     setConfirmDelete(true)
@@ -620,7 +615,8 @@ export function GoalForm({
 
   // #674/#677 — prefer the live store goal (previous after stack pop).
   // Snapshot only fills in when the stack is empty after delete.
-  const displayGoal = existingGoal ?? justDeletedGoal
+  const displayGoal =
+    existingGoal ?? (showingDeletedSnapshot ? justDeletedGoal : null)
   if (!isEditing && displayGoal) {
     return (
       <div className="flex flex-col gap-2">
@@ -819,7 +815,7 @@ export function GoalForm({
                 // the removed record. Keep the snapshot so Cancel can
                 // return to it (discardEdits null-existingGoal branch).
                 setStartingNew(false)
-                if (justDeletedGoal && !existingGoal) {
+                if (showingDeletedSnapshot && !existingGoal) {
                   reset(emptyGoalFormValues())
                 } else {
                   setJustDeletedGoal(null)
@@ -830,11 +826,10 @@ export function GoalForm({
             >
               <Pencil aria-hidden="true" />
             </Button>
-            {/* #674/#677 — hidden once we've taken a delete snapshot
-             * (even if `loadActiveGoal` later promotes an older goal into
-             * `existingGoal` — that record isn't what the user just
-             * deleted, and Delete on it here would be the wrong target). */}
-            {existingGoal && !justDeletedGoal && (
+            {/* #674/#677 — hidden while the empty-stack delete snapshot
+             * is showing. After a stack pop (#677), showingDeletedSnapshot
+             * is false so Delete binds to the newly promoted goal. */}
+            {existingGoal && !showingDeletedSnapshot && (
               <Button
                 type="button"
                 variant="ghost"
@@ -849,7 +844,7 @@ export function GoalForm({
               <Button
                 type="button"
                 variant="outline"
-                disabled={!justDeletedGoal && !activeWindowEnded}
+                disabled={!showingDeletedSnapshot && !activeWindowEnded}
                 onClick={() => {
                   setJustDeletedGoal(null)
                   setStartingNew(true)
@@ -860,7 +855,7 @@ export function GoalForm({
                 {t.goal.startNewGoalButton}
               </Button>
               <p className="text-xs text-muted-foreground">
-                {justDeletedGoal ||
+                {showingDeletedSnapshot ||
                 activeWindowEnded ||
                 !existingGoal?.weekStart
                   ? t.goal.startNewGoalHint
