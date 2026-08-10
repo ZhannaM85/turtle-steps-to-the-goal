@@ -520,16 +520,23 @@ export function GoalForm({
   // #674 — reported live: once `onDelete()` clears the store's `goal` to
   // `null`, `existingGoal` goes null too, so the view-mode branch below
   // (gated on `existingGoal`) skipped straight to the full empty create
-  // form — jarring, and disliked per #668's own closing note. Keeps a
-  // local snapshot of the goal right as it's deleted, purely for display,
-  // so the same read-only view stays up ("just display the previous
-  // goal," per the user) until Edit or "Start a new goal" is actually
-  // tapped — same buttons already used for an ordinary concluded goal.
-  // #677 — must win over a later `existingGoal` if anything reloads the
-  // store and promotes the previous history record to "active"
-  // (`getActiveGoal` = newest remaining `createdAt`); preferring
-  // `existingGoal ?? snapshot` showed that older goal's numbers instead.
+  // form. Keeps a local snapshot only when the stack is empty after
+  // delete (no previous goal to promote).
+  // #677 — goals are a stack: delete pops the top; the previous goal
+  // becomes `existingGoal` and must win over any deleted snapshot.
   const [justDeletedGoal, setJustDeletedGoal] = useState<Goal | null>(null)
+
+  // #677 — once the store promotes the previous goal after a stack pop,
+  // drop the deleted snapshot so Delete/Edit bind to the new active goal.
+  useEffect(() => {
+    if (
+      existingGoal &&
+      justDeletedGoal &&
+      existingGoal.id !== justDeletedGoal.id
+    ) {
+      setJustDeletedGoal(null)
+    }
+  }, [existingGoal, justDeletedGoal])
 
   function requestDeleteGoal() {
     setConfirmDelete(true)
@@ -540,10 +547,10 @@ export function GoalForm({
   }
 
   async function confirmDeleteGoal() {
-    // Capture before await — `existingGoal` may change once `onDelete`
-    // resolves (store null, or a reload promoting an older goal).
     const snapshot = existingGoal
     if (!snapshot) return
+    // Snapshot first for the empty-stack case (#674); cleared below when
+    // delete promotes a previous goal (#677).
     setJustDeletedGoal(snapshot)
     await onDelete()
     setConfirmDelete(false)
@@ -602,10 +609,9 @@ export function GoalForm({
     setStartingNew(false)
   }
 
-  // #674/#677 — snapshot first: once set, it must keep winning over a
-  // post-delete `existingGoal` that `loadActiveGoal`/`getActiveGoal` may
-  // refill with an older record (newest remaining after the delete).
-  const displayGoal = justDeletedGoal ?? existingGoal
+  // #674/#677 — prefer the live store goal (previous after stack pop).
+  // Snapshot only fills in when the stack is empty after delete.
+  const displayGoal = existingGoal ?? justDeletedGoal
   if (!isEditing && displayGoal) {
     return (
       <div className="flex flex-col gap-2">

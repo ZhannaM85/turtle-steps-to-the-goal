@@ -1694,33 +1694,35 @@ describe('GoalForm', () => {
       ).toBeInTheDocument()
     })
 
-    it('keeps the deleted goal visible even if existingGoal flips to an older record (#677)', async () => {
+    it('shows the previous goal after delete when the store promotes it (#677 stack)', async () => {
       const deleted = {
         id: 'g-deleted',
+        targetWeeklyLossKg: 0.3,
+        weekStart: '2026-08-10',
+        weekEnd: '2026-08-16',
+        createdAt: '2026-08-10T00:00:00.000Z',
+        updatedAt: '2026-08-10T00:00:00.000Z',
+      }
+      const previous = {
+        id: 'g-previous',
         targetWeeklyLossKg: 0.2,
+        weekStart: '2026-08-04',
+        weekEnd: '2026-08-09',
         createdAt: '2026-08-04T00:00:00.000Z',
         updatedAt: '2026-08-04T00:00:00.000Z',
       }
-      const older = {
-        id: 'g-older',
-        targetWeeklyLossKg: 0.1,
-        createdAt: '2026-07-28T00:00:00.000Z',
-        updatedAt: '2026-07-28T00:00:00.000Z',
-      }
 
       function PromoteAfterDeleteHarness() {
-        const [goal, setGoal] = useState<typeof deleted | typeof older | null>(
-          deleted,
-        )
+        const [goal, setGoal] = useState<
+          typeof deleted | typeof previous | null
+        >(deleted)
         return (
           <GoalForm
             existingGoal={goal}
             onSubmit={vi.fn()}
             onDelete={async () => {
-              setGoal(null)
-              // Simulate loadActiveGoal promoting the previous history
-              // record (`getActiveGoal` = newest remaining).
-              setGoal(older)
+              // Stack pop: store promotes newest remaining (#677).
+              setGoal(previous)
             }}
           />
         )
@@ -1733,10 +1735,10 @@ describe('GoalForm', () => {
       await user.click(screen.getByRole('button', { name: 'Delete' }))
 
       expect(screen.getByText('0.2 kg/week')).toBeInTheDocument()
-      expect(screen.queryByText('0.1 kg/week')).not.toBeInTheDocument()
+      expect(screen.queryByText('0.3 kg/week')).not.toBeInTheDocument()
       expect(
-        screen.queryByRole('button', { name: 'Delete goal' }),
-      ).not.toBeInTheDocument()
+        screen.getByRole('button', { name: 'Delete goal' }),
+      ).toBeInTheDocument()
     })
   })
 })

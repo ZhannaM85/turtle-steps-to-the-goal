@@ -17,20 +17,15 @@ function makeGoal(overrides: Partial<Goal> = {}): Goal {
 
 beforeEach(async () => {
   await db.goals.clear()
-  localStorage.clear()
-  useGoalStore.persist.clearStorage()
   useGoalStore.setState({
     goal: null,
     status: 'idle',
     error: null,
-    skipPromotingNextActive: false,
   })
 })
 
 afterEach(async () => {
   await db.goals.clear()
-  localStorage.clear()
-  useGoalStore.persist.clearStorage()
 })
 
 describe('useGoalStore', () => {
@@ -63,19 +58,15 @@ describe('useGoalStore', () => {
     expect(useGoalStore.getState().goal).toEqual(goal)
   })
 
-  describe('deleteGoal (#668)', () => {
-    it('removes the active goal from state and the repository', async () => {
+  describe('deleteGoal (#668 / #677 stack)', () => {
+    it('removes the only goal from state and the repository', async () => {
       const goal = makeGoal()
       await useGoalStore.getState().saveGoal(goal)
 
       await useGoalStore.getState().deleteGoal()
 
       expect(useGoalStore.getState().goal).toBeNull()
-      useGoalStore.setState({
-        goal: null,
-        status: 'idle',
-        skipPromotingNextActive: false,
-      })
+      useGoalStore.setState({ goal: null, status: 'idle' })
       await useGoalStore.getState().loadActiveGoal()
       expect(useGoalStore.getState().goal).toBeNull()
     })
@@ -87,66 +78,53 @@ describe('useGoalStore', () => {
       expect(useGoalStore.getState().status).toBe('idle')
     })
 
-    it('does not promote the previous goal via loadActiveGoal in-session (#677)', async () => {
+    it('pops the stack and promotes the previous goal (#677)', async () => {
       const older = makeGoal({
         id: 'older',
-        targetWeeklyLossKg: 0.1,
-        createdAt: '2026-07-28T00:00:00.000Z',
+        targetWeeklyLossKg: 0.2,
+        weekStart: '2026-08-04',
+        weekEnd: '2026-08-09',
+        createdAt: '2026-08-04T00:00:00.000Z',
       })
       const active = makeGoal({
         id: 'active',
-        targetWeeklyLossKg: 0.2,
-        createdAt: '2026-08-04T00:00:00.000Z',
+        targetWeeklyLossKg: 0.3,
+        weekStart: '2026-08-10',
+        weekEnd: '2026-08-16',
+        createdAt: '2026-08-10T00:00:00.000Z',
       })
       await useGoalStore.getState().saveGoal(older)
       await useGoalStore.getState().saveGoal(active)
 
       await useGoalStore.getState().deleteGoal()
-      await useGoalStore.getState().loadActiveGoal()
 
-      expect(useGoalStore.getState().goal).toBeNull()
+      expect(useGoalStore.getState().goal).toEqual(older)
       expect(await db.goals.get('older')).toEqual(older)
       expect(await db.goals.get('active')).toBeUndefined()
     })
 
-    it('keeps skipPromotingNextActive across a simulated page refresh (#677)', async () => {
+    it('still promotes the previous goal after a simulated page refresh (#677)', async () => {
       const older = makeGoal({
         id: 'older',
-        targetWeeklyLossKg: 0.1,
-        createdAt: '2026-07-28T00:00:00.000Z',
+        targetWeeklyLossKg: 0.2,
+        createdAt: '2026-08-04T00:00:00.000Z',
       })
       const active = makeGoal({
         id: 'active',
-        targetWeeklyLossKg: 0.2,
-        createdAt: '2026-08-04T00:00:00.000Z',
+        targetWeeklyLossKg: 0.3,
+        createdAt: '2026-08-10T00:00:00.000Z',
       })
       await useGoalStore.getState().saveGoal(older)
       await useGoalStore.getState().saveGoal(active)
       await useGoalStore.getState().deleteGoal()
 
-      const stored = localStorage.getItem('turtle-steps-goal')
-      expect(stored).toBeTruthy()
-      expect(JSON.parse(stored!).state.skipPromotingNextActive).toBe(true)
-
-      // Simulate a full reload: wipe in-memory state (including the flag),
-      // restore the persisted blob, then rehydrate — setState alone would
-      // also write through persist and clobber the stored true.
-      useGoalStore.setState({
-        goal: null,
-        status: 'idle',
-        error: null,
-        skipPromotingNextActive: false,
-      })
-      localStorage.setItem('turtle-steps-goal', stored!)
-      await useGoalStore.persist.rehydrate()
-
-      expect(useGoalStore.getState().skipPromotingNextActive).toBe(true)
+      useGoalStore.setState({ goal: null, status: 'idle', error: null })
       await useGoalStore.getState().loadActiveGoal()
-      expect(useGoalStore.getState().goal).toBeNull()
-      expect(await db.goals.get('older')).toEqual(older)
+
+      expect(useGoalStore.getState().goal).toEqual(older)
     })
 
-    it('soft-reloads without flipping status through loading (#677)', async () => {
+    it('soft-reloads without flipping status through loading', async () => {
       const goal = makeGoal()
       await useGoalStore.getState().saveGoal(goal)
       expect(useGoalStore.getState().status).toBe('ready')

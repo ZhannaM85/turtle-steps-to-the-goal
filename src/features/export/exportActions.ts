@@ -11,7 +11,6 @@ import {
   IndexedDbWeeklyNoteRepository,
 } from '@/infrastructure/persistence/indexeddb'
 import { useLocaleStore } from '@/i18n'
-import { useGoalStore } from '@/stores/goalStore'
 import { useThemeStore } from '@/stores/themeStore'
 import { buildExportBundle } from './exportBundle'
 import {
@@ -187,10 +186,6 @@ export async function importAllData(bundle: ExportBundle): Promise<void> {
   // older backups leave the device's current prefs alone.
   applyAppearanceAndLocale(bundle.appearance, bundle.locale)
   applySettingsPreferences(bundle.settings)
-
-  // #677 — an import brings its own goals; don't keep suppressing
-  // getActiveGoal after a prior in-app "delete active" on this device.
-  useGoalStore.setState({ skipPromotingNextActive: false })
 }
 
 export class InvalidBackupFileError extends Error {}

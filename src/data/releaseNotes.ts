@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 640,
+    issue: 677,
+    date: '2026-08-10T19:40:00+03:00',
+    en: 'Deleting the current weekly goal now brings back the previous one (and keeps it after refresh), instead of leaving a blank form.',
+    ru: 'Удаление текущей недельной цели снова показывает предыдущую (и после обновления страницы) — вместо пустой формы.',
+  },
+  {
     version: 639,
     issue: 677,
     date: '2026-08-10T19:05:00+03:00',
