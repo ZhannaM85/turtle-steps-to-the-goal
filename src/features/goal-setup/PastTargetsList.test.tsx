@@ -64,7 +64,30 @@ describe('PastTargetsList', () => {
       />,
     )
 
-    expect(screen.getByText('80.0 → 78.5 kg')).toBeInTheDocument()
+    expect(screen.getByText('80 → 78.5 kg')).toBeInTheDocument()
+  })
+
+  it('preserves entered precision beyond 1 decimal instead of rounding it away (#666)', () => {
+    render(
+      <PastTargetsList
+        records={[
+          makeRecord({
+            progress: {
+              weekStart: '2026-03-09',
+              weekEnd: '2026-03-15',
+              targetMet: true,
+              metOnDate: '2026-03-12',
+              baselineWeightKg: 58.9,
+              currentWeightKg: 58.85,
+              finalTargetMet: true,
+            },
+          }),
+        ]}
+        onDelete={vi.fn()}
+      />,
+    )
+
+    expect(screen.getByText('58.9 → 58.85 kg')).toBeInTheDocument()
   })
 
   it('shows the previous vs. latest logged weight even when the target was missed (#339)', () => {
@@ -87,7 +110,7 @@ describe('PastTargetsList', () => {
       />,
     )
 
-    expect(screen.getByText('80.0 → 79.7 kg')).toBeInTheDocument()
+    expect(screen.getByText('80 → 79.7 kg')).toBeInTheDocument()
   })
 
   it('omits the weigh-in line when no baseline weight was ever logged', () => {

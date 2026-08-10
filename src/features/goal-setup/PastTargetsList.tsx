@@ -6,7 +6,6 @@ import type { PastGoalRecord } from '@/domain/goal'
 import { goalWeekEnd, kgToLb } from '@/domain/goal'
 import {
   formatExactNumber,
-  formatNumber,
   getDateFnsLocale,
   unitLabel,
   useLocale,
@@ -109,8 +108,14 @@ function PastTargetRow({
             progress.currentWeightKg !== undefined && (
               <span className="text-xs tabular-nums text-muted-foreground">
                 {t.goal.previousToCurrentWeightLabel(
-                  formatNumber(toDisplay(progress.baselineWeightKg), locale),
-                  formatNumber(toDisplay(progress.currentWeightKg), locale),
+                  formatExactNumber(
+                    toDisplay(progress.baselineWeightKg),
+                    locale,
+                  ),
+                  formatExactNumber(
+                    toDisplay(progress.currentWeightKg),
+                    locale,
+                  ),
                   unit,
                 )}
               </span>

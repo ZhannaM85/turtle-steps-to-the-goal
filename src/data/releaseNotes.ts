@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 624,
+    issue: 666,
+    date: '2026-08-10T11:50:00+03:00',
+    en: 'Fixed: the Goal page\'s past-targets list now shows the weigh-in you actually logged (e.g. 58.85 kg) instead of rounding it to one decimal place.',
+    ru: 'Исправлено: в списке прошлых целей на странице «Цели» теперь показывается фактически введённый вес (например, 58,85 кг), а не округлённый до одного знака.',
+  },
+  {
     version: 623,
     issue: 661,
     date: '2026-08-09T17:05:00+03:00',
