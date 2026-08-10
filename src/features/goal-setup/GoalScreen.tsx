@@ -273,6 +273,10 @@ export function GoalScreen() {
             onDelete={deleteActiveGoal}
             latestWeightKg={latestWeightKg}
             activeGoalConcluded={activeGoalConcluded}
+            overlapGoals={[
+              ...(goal ? [goal] : []),
+              ...pastTargets.map((record) => record.goal),
+            ]}
           />
 
           <PastTargetsList records={pastTargets} onDelete={deleteGoal} />

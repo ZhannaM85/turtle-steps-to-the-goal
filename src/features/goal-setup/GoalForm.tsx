@@ -7,7 +7,7 @@ import type { Goal } from '@/domain/goal'
 import {
   estimatedDailyCalorieDeficitKcal,
   goalWeekEnd,
-  goalWindowsOverlap,
+  draftWindowOverlapsOthers,
   kgToLb,
   WEEKLY_PACE_SOFT_WARN_KG,
   WEEKLY_PACE_STEP_KG,
@@ -102,6 +102,10 @@ export interface GoalFormProps {
    * (`goalWindowConcluded`). Retained for callers; #683 no longer gates
    * "Start a new goal" on window end (overlap is a warning only). */
   activeGoalConcluded?: boolean
+  /** #685 — other saved goals (active + past) used for the soft overlap
+   * warning. When omitted, falls back to `existingGoal` alone so unit
+   * tests that only pass the previous goal still cover the #683 path. */
+  overlapGoals?: Array<Pick<Goal, 'id' | 'weekStart' | 'weekEnd'>>
 }
 
 type RecalcSource = 'pace' | 'calories'
@@ -116,6 +120,7 @@ export function GoalForm({
   onSubmit,
   onDelete,
   latestWeightKg = null,
+  overlapGoals,
 }: GoalFormProps) {
   const t = useTranslation()
   const locale = useLocale()
@@ -430,21 +435,22 @@ export function GoalForm({
       ? existingGoal.weekStart
       : defaultWeekStartDate(startingNew ? existingGoal : null))
 
-  // #683 — draft window vs the goal being left behind when starting new
-  // (or any prior still passed as existingGoal while startingNew). Warn
-  // only; never blocks pick/save.
+  // #683/#685 — draft window vs other saved goals (active + past). Warn
+  // only; never blocks pick/save. Edit-in-place excludes the goal being
+  // edited so the form doesn't warn against itself; "Start a new goal"
+  // keeps the previous goal in the check. Orange styling (#685).
   const draftWeekStart =
     (typeof values.weekStartDate === 'string' && values.weekStartDate) ||
     defaultWeekStartDate(startingNew ? existingGoal : null)
   const draftWeekEnd =
     (typeof values.weekEndDate === 'string' && values.weekEndDate) ||
     goalWeekEnd(draftWeekStart)
-  const showOverlapWarning =
-    Boolean(startingNew && existingGoal) &&
-    goalWindowsOverlap(
-      { weekStart: draftWeekStart, weekEnd: draftWeekEnd },
-      existingGoal!,
-    )
+  const overlapCandidates = overlapGoals ?? (existingGoal ? [existingGoal] : [])
+  const showOverlapWarning = draftWindowOverlapsOthers(
+    { weekStart: draftWeekStart, weekEnd: draftWeekEnd },
+    overlapCandidates,
+    !startingNew && existingGoal ? existingGoal.id : undefined,
+  )
 
   // #534 — confirm before discarding dirty edits (Cancel or leave route).
   // Derive nav-block UI from `blocker.state` (no setState-in-effect); Cancel
@@ -972,7 +978,7 @@ export function GoalForm({
       {showOverlapWarning && (
         <p
           role="status"
-          className="rounded-lg border border-border bg-muted p-3 text-sm text-foreground"
+          className="rounded-lg border border-orange-600/40 bg-orange-500/15 p-3 text-sm text-orange-950 dark:text-orange-100"
         >
           {t.goal.goalWindowOverlapWarning}
         </p>

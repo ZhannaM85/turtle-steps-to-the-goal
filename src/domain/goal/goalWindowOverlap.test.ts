@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import {
+  draftWindowOverlapsOthers,
   goalWindowsOverlap,
   inclusiveDateRangesOverlap,
 } from './goalWindowOverlap'
@@ -60,6 +61,39 @@ describe('goalWindowsOverlap (#683)', () => {
       goalWindowsOverlap(
         { weekStart: undefined },
         { weekStart: '2026-08-10' },
+      ),
+    ).toBe(false)
+  })
+})
+
+describe('draftWindowOverlapsOthers (#685)', () => {
+  const previous = {
+    id: 'prev',
+    weekStart: '2026-08-04',
+    weekEnd: '2026-08-09',
+  }
+  const active = {
+    id: 'active',
+    weekStart: '2026-08-10',
+    weekEnd: '2026-08-16',
+  }
+
+  it('detects overlap with a previous goal while editing another', () => {
+    expect(
+      draftWindowOverlapsOthers(
+        { weekStart: '2026-08-08', weekEnd: '2026-08-14' },
+        [active, previous],
+        'active',
+      ),
+    ).toBe(true)
+  })
+
+  it('does not warn against the goal being edited in place', () => {
+    expect(
+      draftWindowOverlapsOthers(
+        { weekStart: '2026-08-10', weekEnd: '2026-08-16' },
+        [active, previous],
+        'active',
       ),
     ).toBe(false)
   })

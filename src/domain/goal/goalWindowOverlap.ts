@@ -35,3 +35,20 @@ export function goalWindowsOverlap(
   if (!ar || !br) return false
   return inclusiveDateRangesOverlap(ar.start, ar.end, br.start, br.end)
 }
+
+/**
+ * Soft overlap check for GoalForm (#683/#685) — true when `draft` shares any
+ * day with another goal's window. `excludeId` skips the goal being edited
+ * in place so a form never warns against itself.
+ */
+export function draftWindowOverlapsOthers(
+  draft: Pick<Goal, 'weekStart' | 'weekEnd'>,
+  others: Array<Pick<Goal, 'id' | 'weekStart' | 'weekEnd'>>,
+  excludeId?: string,
+): boolean {
+  return others.some(
+    (goal) =>
+      (excludeId === undefined || goal.id !== excludeId) &&
+      goalWindowsOverlap(draft, goal),
+  )
+}

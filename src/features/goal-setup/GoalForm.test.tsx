@@ -1321,6 +1321,46 @@ describe('GoalForm', () => {
       vi.useRealTimers()
     })
 
+    it('warns in orange when edit-in-place start overlaps a previous goal (#685)', async () => {
+      const user = userEvent.setup()
+      const previousGoal = {
+        id: 'g-prev',
+        targetWeeklyLossKg: 0.2,
+        weekStart: '2026-08-04',
+        weekEnd: '2026-08-09',
+        createdAt: '2026-08-04T00:00:00.000Z',
+        updatedAt: '2026-08-04T00:00:00.000Z',
+      }
+      const activeGoal = {
+        id: 'g-active',
+        targetWeeklyLossKg: 0.1,
+        weekStart: '2026-08-10',
+        weekEnd: '2026-08-16',
+        createdAt: '2026-08-10T00:00:00.000Z',
+        updatedAt: '2026-08-10T00:00:00.000Z',
+      }
+      renderGoalForm(
+        <GoalForm
+          existingGoal={activeGoal}
+          overlapGoals={[activeGoal, previousGoal]}
+          onSubmit={vi.fn()}
+          onDelete={vi.fn()}
+        />,
+      )
+
+      await user.click(screen.getByRole('button', { name: 'Edit goal' }))
+      expect(
+        screen.queryByText(/This window overlaps a previous goal/),
+      ).not.toBeInTheDocument()
+
+      await user.clear(screen.getByLabelText('Starts on'))
+      await user.type(screen.getByLabelText('Starts on'), '2026-08-08')
+
+      const warning = screen.getByText(/This window overlaps a previous goal/)
+      expect(warning).toBeInTheDocument()
+      expect(warning.className).toMatch(/orange/)
+    })
+
     it('prefills tomorrow when starting a new goal on a last-day reach (#671)', async () => {
       vi.useFakeTimers({ toFake: ['Date'] })
       vi.setSystemTime(new Date('2026-08-10T12:00:00'))

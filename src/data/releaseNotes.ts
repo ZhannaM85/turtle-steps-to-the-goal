@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 644,
+    issue: 685,
+    date: '2026-08-10T20:30:00+03:00',
+    en: 'Starting or editing a goal that overlaps a previous one now shows an orange warning — saving is still allowed.',
+    ru: 'При старте или правке цели, пересекающейся с предыдущей, теперь показывается оранжевое предупреждение — сохранить по-прежнему можно.',
+  },
+  {
     version: 643,
     issue: 683,
     date: '2026-08-10T20:05:00+03:00',

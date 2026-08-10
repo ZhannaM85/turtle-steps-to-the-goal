@@ -18,6 +18,7 @@ export {
 export {
   goalWindowRange,
   goalWindowsOverlap,
+  draftWindowOverlapsOthers,
   inclusiveDateRangesOverlap,
 } from './goalWindowOverlap'
 export type { GoalWindowProgress } from './goalWindowProgress'
