@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 648,
+    issue: 688,
+    date: '2026-08-10T22:25:00+03:00',
+    en: 'The Android home-screen widget now shows the turtle icon and colors closer to the app’s look.',
+    ru: 'Виджет Android на экране «Домой» теперь с иконкой черепахи и цветами ближе к оформлению приложения.',
+  },
+  {
     version: 647,
     issue: 687,
     date: '2026-08-10T22:20:00+03:00',

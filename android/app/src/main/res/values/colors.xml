@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- #606 widget colors. Match #311's splash/icon background choice
-         (splashBackgroundColor '#ffffff' / dark '#0f181c') rather than
-         inventing a separate palette for the widget alone. -->
-    <color name="widget_background">#FFFFFF</color>
-    <color name="widget_text_primary">#1F2A1F</color>
-    <color name="widget_text_secondary">#4B5D4B</color>
+    <!-- #688 — closer to Pond light mood (index.css card/bg/primary)
+         rather than a stark white tile. -->
+    <color name="widget_background">#EDF3F4</color>
+    <color name="widget_text_primary">#16232A</color>
+    <color name="widget_text_secondary">#5A6B72</color>
+    <color name="widget_accent">#3E7688</color>
 </resources>
