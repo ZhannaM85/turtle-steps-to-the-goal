@@ -1,4 +1,4 @@
-import { format } from 'date-fns'
+import { addDays, format, parseISO } from 'date-fns'
 import type { Goal } from '@/domain/goal'
 import { goalWeekEnd, kgToLb, lbToKg } from '@/domain/goal'
 import type { Unit } from '@/stores'
@@ -39,6 +39,29 @@ export function goalToFormValues(
     dailyWaterTarget: goal.dailyWaterTargetMl,
     weekEndDate: defaultWeekEndDate(goal),
   }
+}
+
+/**
+ * #671 — a fresh record's weekStart defaults to today, but #667 unlocked
+ * restarting on the exact day the old goal's own weekEnd was reached
+ * (GoalForm's "Start a new goal" button only enables once
+ * `goalWindowConcluded`, which is true either once the calendar has passed
+ * weekEnd or once weekEnd is reached today), so "today" can now equal
+ * existingGoal's weekEnd — giving the new goal weekStart === old goal's
+ * weekEnd, a one-day overlap in the two windows' inclusive
+ * [weekStart, weekEnd] ranges. Only that exact same-day case is bumped, to
+ * the day right after; an already-ended window's weekEnd already sits
+ * before today (no overlap risk), and a genuinely still-live window
+ * shouldn't reach this function at all given the button's own gating, so
+ * #386's plain "always today" behavior is otherwise unchanged.
+ */
+function freshWeekStart(existingGoal: Goal | null): string {
+  const today = format(new Date(), 'yyyy-MM-dd')
+  if (!existingGoal?.weekStart) return today
+  const existingWeekEnd =
+    existingGoal.weekEnd ?? goalWeekEnd(existingGoal.weekStart)
+  if (existingWeekEnd !== today) return today
+  return format(addDays(parseISO(existingWeekEnd), 1), 'yyyy-MM-dd')
 }
 
 /**
@@ -102,9 +125,11 @@ export function formValuesToGoal(
     dailyPotassiumTargetMg: values.dailyPotassiumTarget,
     dailyMagnesiumTargetMg: values.dailyMagnesiumTarget,
     dailyWaterTargetMl: values.dailyWaterTarget,
-    // Always today (#135) — every *new* record starts a fresh 7-day
-    // tracking window from the moment it's actually saved.
-    weekStart: format(new Date(), 'yyyy-MM-dd'),
+    // Today (#135) — every *new* record starts a fresh 7-day tracking
+    // window from the moment it's actually saved. #671: bumped forward a
+    // day when today would otherwise overlap existingGoal's own window —
+    // see freshWeekStart above.
+    weekStart: freshWeekStart(existingGoal),
     weekEnd: values.weekEndDate || undefined,
     createdAt: now,
     updatedAt: now,

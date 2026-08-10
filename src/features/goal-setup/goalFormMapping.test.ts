@@ -1,4 +1,4 @@
-import { format, subDays } from 'date-fns'
+import { addDays, format, subDays } from 'date-fns'
 import { describe, expect, it } from 'vitest'
 import { goalWeekEnd, type Goal } from '@/domain/goal'
 import {
@@ -302,6 +302,26 @@ describe('formValuesToGoal', () => {
       expect(goal.id).not.toBe('goal-1')
       expect(goal.weekStart).toBe(today)
       expect(goal.targetWeeklyLossKg).toBe(0.1)
+    })
+
+    it("avoids overlapping the previous goal's window when restarting the same day its weekEnd was reached (#671)", () => {
+      const today = format(new Date(), 'yyyy-MM-dd')
+      const weekStart = format(subDays(new Date(), 6), 'yyyy-MM-dd')
+      const existingGoal = makeGoal({
+        id: 'goal-1',
+        weekStart,
+        weekEnd: today,
+      })
+
+      const goal = formValuesToGoal(
+        { targetWeeklyLoss: 1 },
+        'kg',
+        existingGoal,
+        true,
+      )
+
+      expect(goal.id).not.toBe('goal-1')
+      expect(goal.weekStart).toBe(format(addDays(new Date(), 1), 'yyyy-MM-dd'))
     })
 
     it('starts a fresh record when startNew is passed even for an already-ended window', () => {

@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 630,
+    issue: 671,
+    date: '2026-08-10T13:18:10+03:00',
+    en: 'Fixed: starting a new goal on the exact day the old one was reached no longer overlaps its window by one day — the new goal now starts the following day.',
+    ru: 'Исправлено: если начать новую цель в тот же день, когда была достигнута старая, окна целей больше не пересекаются на один день — новая цель теперь начинается со следующего дня.',
+  },
+  {
     version: 629,
     issue: 675,
     date: '2026-08-10T13:12:11+03:00',
