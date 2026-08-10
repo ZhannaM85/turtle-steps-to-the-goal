@@ -53,5 +53,4 @@ _Live bug reports from the app, filed as reported. Also #606 widget follow-ups f
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#687](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/687) | 🔍 Pending validation | Android glance widget: richer today fields (kcal, steps, food) | Follow-up to #606. Snapshot now includes always-visible remaining kcal ("—" if no target), steps, compact food (meal count · kcal), and day-note indicator (label only). `buildWidgetSnapshot` + unit tests; RemoteViews rows in `widget_turtle_glance.xml` / `TurtleWidgetProvider`. Awaiting on-device confirmation |
 | [#688](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/688) | 🔍 Pending validation | Android glance widget: turtle mark and design-mood polish | Follow-up to #606. Header row with `@mipmap/ic_launcher_round` + accent title; Pond-mood surfaces (`#EDF3F4` / dark `#0F181C`) and teal stroke. Awaiting on-device confirmation |
