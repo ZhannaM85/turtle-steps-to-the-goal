@@ -49,6 +49,7 @@ import {
   effectiveWeeklyPaceKg,
   formValuesToGoal,
   goalToFormValues,
+  resolveWeightForFreshBaseline,
 } from './goalFormMapping'
 import { makeGoalFormSchema, type GoalFormValues } from './goalFormSchema'
 
@@ -568,8 +569,7 @@ export function GoalForm({
   }
 
   async function submit(formValues: GoalFormValues) {
-    // #676/#681 — prefer the weigh-in on this save's weekStart for the
-    // frozen snapshot; fall back to latestWeightKg / latest any-day weight.
+    // #676/#681 — freeze baseline at save time (weekStart weigh-in preferred).
     let weightForBaseline = latestWeightKg
     const savingFresh = startingNew || !existingGoal
     const weekStartForBaseline =
@@ -579,24 +579,11 @@ export function GoalForm({
     if (savingFresh) {
       try {
         const entries = await dailyEntryRepository.getAll()
-        const onStart = entries.find(
-          (entry) =>
-            entry.date === weekStartForBaseline &&
-            entry.weightKg !== undefined,
+        weightForBaseline = resolveWeightForFreshBaseline(
+          weekStartForBaseline,
+          latestWeightKg,
+          entries,
         )
-        if (onStart?.weightKg !== undefined) {
-          weightForBaseline = onStart.weightKg
-        } else if (weightForBaseline === null) {
-          const withWeight = entries.filter(
-            (entry): entry is typeof entry & { weightKg: number } =>
-              entry.weightKg !== undefined,
-          )
-          if (withWeight.length > 0) {
-            weightForBaseline = withWeight.reduce((a, b) =>
-              a.date > b.date ? a : b,
-            ).weightKg
-          }
-        }
       } catch {
         // Snapshot stays undefined; resolveBaselineWeightKg still recovers.
       }

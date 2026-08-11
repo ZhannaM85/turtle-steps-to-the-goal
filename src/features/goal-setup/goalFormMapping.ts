@@ -21,6 +21,35 @@ export function defaultWeekStartDate(existingGoal: Goal | null = null): string {
 }
 
 /**
+ * #681 / #676 — weight to freeze as `Goal.baselineWeightKg` on a *fresh*
+ * goal save. Prefer the weigh-in already logged on this save's weekStart;
+ * else the caller's `latestWeightKg`; else the most recent any-day
+ * weigh-in. Read-time resolution must still prefer the frozen snapshot
+ * (`resolveBaselineWeightKg`) — never invert that for #681.
+ */
+export function resolveWeightForFreshBaseline(
+  weekStart: string,
+  latestWeightKg: number | null,
+  entries: ReadonlyArray<{ date: string; weightKg?: number }>,
+): number | null {
+  const onStart = entries.find(
+    (entry) => entry.date === weekStart && entry.weightKg !== undefined,
+  )
+  if (onStart?.weightKg !== undefined) {
+    return onStart.weightKg
+  }
+  if (latestWeightKg !== null) {
+    return latestWeightKg
+  }
+  const withWeight = entries.filter(
+    (entry): entry is { date: string; weightKg: number } =>
+      entry.weightKg !== undefined,
+  )
+  if (withWeight.length === 0) return null
+  return withWeight.reduce((a, b) => (a.date > b.date ? a : b)).weightKg
+}
+
+/**
  * #659 — default for the form's editable "ends on" field: the goal's own
  * `weekEnd` if it has one, else the fixed `weekStart + 6` window end. Falls
  * back to `defaultWeekStartDate(priorGoal) + 6` when there's no goal yet
