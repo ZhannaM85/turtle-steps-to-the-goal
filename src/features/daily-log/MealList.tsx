@@ -42,7 +42,7 @@ import {
 import { defaultMealLabel, editableMealLabel, effectiveMealLabel, effectiveTimeEaten, sortCalorieEntriesByLoggedTime } from '@/shared/lib/mealLabel'
 import { normalizeTextSpaces } from '@/shared/lib/normalizeTextSpaces'
 import { Button } from '@/shared/ui/button'
-import { useDayStartStore, useMealItemStore, useMealSlotDefaultTimesStore } from '@/stores'
+import { useCopyYesterdayMealsStore, useDayStartStore, useMealItemStore, useMealSlotDefaultTimesStore } from '@/stores'
 import { AddMealDialog } from './AddMealDialog'
 import { CopyDayMealsDialog } from './CopyDayMealsDialog'
 
@@ -373,6 +373,11 @@ export function MealList({
   // comment for the full reasoning. #621 — also feeds the meal-list sort
   // below, for the identical reason.
   const dayStartTime = useDayStartStore((state) => state.dayStartTime)
+  // #692 — opt-in; off by default so the full-width control doesn't
+  // dominate empty days for people who rarely use it.
+  const copyYesterdayMealsEnabled = useCopyYesterdayMealsStore(
+    (state) => state.enabled,
+  )
   // #597 — display earliest logged/effective time first (storage order
   // unchanged). #621 — day-start-adjusted, so a past-midnight meal sorts
   // after the evening it actually followed, not before it.
@@ -1081,8 +1086,9 @@ export function MealList({
 
       {/* #253 — a day-level action, so it's independent of the add row's
        * own collapse state below and always offered (when available)
-       * regardless of how many meals today already has. */}
-      {previousDayMealGroups.length > 0 && (
+       * regardless of how many meals today already has.
+       * #692 — gated behind Settings opt-in (default off). */}
+      {copyYesterdayMealsEnabled && previousDayMealGroups.length > 0 && (
         <>
           <Button
             type="button"

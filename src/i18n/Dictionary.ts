@@ -1864,6 +1864,8 @@ export interface Dictionary {
     /** #626 — opt-in toggle for `PlannedMealsSection.tsx` (#614), same
      * "What to track" card as the other opt-in sections above. */
     plannedMealsTrackingLabel: string
+    /** #692 — opt-in for Day's "Copy yesterday's meals" control (default off). */
+    copyYesterdayMealsTrackingLabel: string
     /** #237: unified "what to track" section — folds cycle/digestion
      * tracking's own opt-in toggles in with the 5 fields below, which
      * didn't have an opt-out at all before this. */

@@ -1175,6 +1175,7 @@ export const en: Dictionary = {
     alcoholTrackingLabel: 'Alcohol tracking',
     waterTrackingLabel: 'Water tracking',
     plannedMealsTrackingLabel: 'Planned meals',
+    copyYesterdayMealsTrackingLabel: "Copy yesterday's meals",
     trackingPresetLabel: 'Layout preset',
     trackingPresetDescription:
       "Quick starting point for Day: Simple keeps weight, meals/calories, and your weekly target; Full turns everything on. You can still adjust anything below afterward.",

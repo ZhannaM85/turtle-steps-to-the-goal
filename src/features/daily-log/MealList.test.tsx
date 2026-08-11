@@ -6,7 +6,7 @@ import { MemoryRouter } from 'react-router-dom'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { CalorieEntry, DailyEntry } from '@/domain/dailyEntry'
 import { db } from '@/infrastructure/persistence/indexeddb'
-import { useDayStartStore, useMealItemStore, useRecipeStore } from '@/stores'
+import { useCopyYesterdayMealsStore, useDayStartStore, useMealItemStore, useRecipeStore } from '@/stores'
 import { MealList } from './MealList'
 
 // #301 — a plain `onChange={vi.fn()}` never feeds a save back into
@@ -857,6 +857,33 @@ describe('MealList', () => {
   describe("copy yesterday's meals (#253)", () => {
     beforeEach(() => {
       vi.setSystemTime(new Date('2026-03-02T12:00:00.000Z'))
+      // #692 — feature is Settings opt-in (default off); enable for these tests.
+      useCopyYesterdayMealsStore.setState({ enabled: true })
+    })
+
+    it('hides the control when Settings opt-in is off (#692)', async () => {
+      useCopyYesterdayMealsStore.setState({ enabled: false })
+      await db.dailyEntries.put(
+        makeDailyEntry({
+          date: '2026-03-01',
+          calorieEntries: [
+            {
+              id: 'y1',
+              items: [{ id: 'yi1', name: 'Eggs', amountKcal: 150 }],
+              createdAt: '2026-03-01T08:00:00.000Z',
+            },
+          ],
+        }),
+      )
+      render(
+        <MealList calorieEntries={[]} date="2026-03-02" onChange={vi.fn()} />,
+        { wrapper: MemoryRouter },
+      )
+
+      await screen.findByRole('button', { name: '+ Add a meal' })
+      expect(
+        screen.queryByRole('button', { name: "Copy yesterday's meals" }),
+      ).not.toBeInTheDocument()
     })
 
     it('copies every meal from the source day, cloning only the food data', async () => {

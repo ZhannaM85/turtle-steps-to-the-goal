@@ -13,6 +13,7 @@ export { useCycleTrackingStore } from './cycleTrackingStore'
 export { useDigestionTrackingStore } from './digestionTrackingStore'
 export { useAlcoholTrackingStore } from './alcoholTrackingStore'
 export { usePlannedMealsTrackingStore } from './plannedMealsTrackingStore'
+export { useCopyYesterdayMealsStore } from './copyYesterdayMealsStore'
 export { useWaterTrackingStore } from './waterTrackingStore'
 export {
   useMicronutrientTrackingStore,

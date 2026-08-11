@@ -10,6 +10,7 @@ import {
   useDigestionTrackingStore,
   useLastBackupStore,
   usePlannedMealsTrackingStore,
+  useCopyYesterdayMealsStore,
   useProfileStore,
   useThemeStore,
   useTrackedFieldsStore,
@@ -41,6 +42,7 @@ beforeEach(() => {
   useDigestionTrackingStore.setState({ enabled: false })
   useWaterTrackingStore.setState({ enabled: false })
   usePlannedMealsTrackingStore.setState({ enabled: false })
+  useCopyYesterdayMealsStore.setState({ enabled: false })
   useMicronutrientTrackingStore.setState({
     tracked: { sodium: false, potassium: false, magnesium: false },
   })
@@ -77,6 +79,7 @@ afterEach(() => {
   useDigestionTrackingStore.setState({ enabled: false })
   useWaterTrackingStore.setState({ enabled: false })
   usePlannedMealsTrackingStore.setState({ enabled: false })
+  useCopyYesterdayMealsStore.setState({ enabled: false })
   useMicronutrientTrackingStore.setState({
     tracked: { sodium: false, potassium: false, magnesium: false },
   })
@@ -405,6 +408,21 @@ describe('SettingsScreen', () => {
 
       expect(plannedMealsToggle).toHaveAttribute('aria-pressed', 'true')
       expect(usePlannedMealsTrackingStore.getState().enabled).toBe(true)
+    })
+
+    it("defaults copy-yesterday-meals to off, and switches it on when selected (#692)", async () => {
+      const user = userEvent.setup()
+      renderSettings()
+
+      const copyToggle = screen.getByRole('button', {
+        name: "Copy yesterday's meals",
+      })
+      expect(copyToggle).toHaveAttribute('aria-pressed', 'false')
+
+      await user.click(copyToggle)
+
+      expect(copyToggle).toHaveAttribute('aria-pressed', 'true')
+      expect(useCopyYesterdayMealsStore.getState().enabled).toBe(true)
     })
 
     it('defaults the previously-unconditional fields (Sleep, Steps, etc.) to on', () => {

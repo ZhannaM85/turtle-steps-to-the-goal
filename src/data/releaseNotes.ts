@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 650,
+    issue: 692,
+    date: '2026-08-11T12:05:00+03:00',
+    en: '“Copy yesterday’s meals” is off by default — turn it on in Settings → What to track if you want it on the Day screen.',
+    ru: '«Скопировать вчерашние приёмы пищи» по умолчанию выключено — включите в Настройки → Что отслеживать, если нужна кнопка на экране Дня.',
+  },
+  {
     version: 649,
     issue: 691,
     date: '2026-08-11T11:55:00+03:00',

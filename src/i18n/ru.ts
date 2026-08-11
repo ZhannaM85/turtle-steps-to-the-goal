@@ -1208,6 +1208,7 @@ export const ru: Dictionary = {
     alcoholTrackingLabel: 'Отслеживание алкоголя',
     waterTrackingLabel: 'Отслеживание воды',
     plannedMealsTrackingLabel: 'Запланированные приёмы пищи',
+    copyYesterdayMealsTrackingLabel: 'Копировать вчерашние приёмы пищи',
     trackingPresetLabel: 'Пресет макета',
     trackingPresetDescription:
       'Быстрая отправная точка для дня: «Просто» оставляет вес, приёмы пищи/калории и недельную цель; «Полностью» включает всё. Всё ниже по-прежнему можно настроить вручную.',

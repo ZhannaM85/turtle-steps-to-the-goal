@@ -43,6 +43,6 @@ _iOS waits on a Mac; Android Play path waits on #316 (developer account). Meanwh
 |---|--------|-------|-------|
 | [#689](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/689) | 🔍 Pending validation | Goal lifecycle hard-lock / regression pack | `goalLifecycleHardLock.test.tsx` locks #676/#681/#667/#671/#686/#677; extracted `resolveWeightForFreshBaseline` for #681 save-time. |
 | [#691](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/691) | 🔍 Pending validation | Day screen: «Add another meal» when day has no meals | Conditional copy: empty day → `addMealLabel` («+ Добавить приём пищи» / «+ Add a meal»); with meals → existing `expandAddMealLabel` («ещё» / «another»). |
-| [#692](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/692) | 📋 Not started | Day screen: Copy yesterday meals is oversized / rarely used | Large control (`copyYesterdayMealsLabel`) dominates empty-day meals UI; unused ~1 month. UX fork: shrink/de-emphasize vs Settings feature flag vs other progressive disclosure. Related #691. |
+| [#692](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/692) | 🔍 Pending validation | Day screen: Copy yesterday meals is oversized / rarely used | Opt-in Settings toggle (`useCopyYesterdayMealsStore`, default off) in What to track → Other; Day button only when enabled and yesterday has meals. |
 
 ---
