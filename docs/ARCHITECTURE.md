@@ -669,7 +669,9 @@ Vitest + jsdom + `fake-indexeddb` + React Testing Library + `@testing-library/us
 
 **#694 (2026-08-11):** native `syncRecentWeights` (default last 7 local calendar days) returns latest kg per day; Settings Sync applies the batch with the same overwrite helper. Zepp Life still does not feed HC — this is for HC-native sources.
 
-**Open follow-ups:** [#657](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/657) steps; [#658](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/658) sleep.
+**#657 (2026-08-11):** `READ_STEPS` + `syncRecentSteps` (sum StepsRecord counts per local day over the same 7-day window); same Sync button requests weight+steps together and merges both into daily entries. Privacy copy updated.
+
+**Open follow-ups:** [#658](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/658) sleep.
 
 ---
 

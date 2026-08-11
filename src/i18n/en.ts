@@ -1225,20 +1225,20 @@ export const en: Dictionary = {
     dailyReminderTimeLabel: 'Remind me at',
     healthConnectSyncLabel: 'Health Connect',
     healthConnectSyncDescription:
-      'Sync weight from Health Connect for today and the last several days — including weight other apps have written there. Each Sync pulls the latest value per day and updates this app (safe to tap again after you change the source).',
+      'Sync weight and steps from Health Connect for today and the last several days — including data other apps have written there. Each Sync pulls the latest values per day and updates this app (safe to tap again after you change the source).',
     healthConnectSyncButton: 'Sync from Health Connect',
     healthConnectSyncingButton: 'Syncing…',
     healthConnectUnavailableMessage:
       'Health Connect isn’t installed on this device.',
     healthConnectInstallButton: 'Install Health Connect',
     healthConnectPermissionDeniedMessage:
-      'Permission to read weight from Health Connect was denied.',
+      'Permission to read Health Connect data was denied.',
     healthConnectSyncSuccessMessage: (dayCount, todayWeight) =>
       todayWeight === undefined
         ? `Synced ${dayCount} day${dayCount === 1 ? '' : 's'}.`
         : `Synced ${dayCount} day${dayCount === 1 ? '' : 's'}; today ${todayWeight}.`,
     healthConnectSyncNoDataMessage:
-      'No weight in Health Connect for the last 7 days.',
+      'No weight or steps in Health Connect for the last 7 days.',
     healthConnectSyncErrorMessage: 'Couldn’t sync from Health Connect. Try again.',
     trendChartsLabel: 'Dashboard trend charts',
     trendChartsDescription:
@@ -1473,7 +1473,7 @@ export const en: Dictionary = {
       "Turtle Steps doesn't collect any data automatically. Everything you see in the app was entered by you, or explicitly pulled in at your request — weight, calories, meals, sleep, activity, cycle, notes, and any other field you choose to fill in, plus anything you choose to sync from Health Connect (see below) or import from a backup file.",
     healthConnectPrivacyHeading: 'Health Connect (Android)',
     healthConnectPrivacyBody:
-      "On Android, tapping \"Sync from Health Connect\" in Settings reads your most recent weight entry for today from Health Connect, Android's on-device health data store — nothing is read automatically, and nothing is ever written back to Health Connect. This only happens when you tap that button, requires your explicit permission grant, and only ever reads weight. The synced value is stored locally the same as any other entry — see \"Where your data lives\" below.",
+      "On Android, tapping \"Sync from Health Connect\" in Settings reads recent weight and step totals (today plus the last several days) from Health Connect, Android's on-device health data store — nothing is read automatically, and nothing is ever written back to Health Connect. This only happens when you tap that button, requires your explicit permission grant, and only ever reads weight and steps. Synced values are stored locally the same as any other entry — see \"Where your data lives\" below.",
     storageHeading: 'Where your data lives',
     storageBody:
       "All data is stored locally on your own device, in your browser's or app's own storage. There is no account, no server, and no cloud sync — Turtle Steps never sees your data.",

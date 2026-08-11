@@ -1,8 +1,10 @@
 import { describe, expect, it } from 'vitest'
 import type { DailyEntry } from '@/domain/dailyEntry'
 import {
+  applyHealthConnectDayReadings,
   applyHealthConnectWeight,
   applyHealthConnectWeights,
+  mergeHealthConnectNativeReadings,
 } from './applyHealthConnectWeight'
 
 function entry(overrides: Partial<DailyEntry> & { date: string }): DailyEntry {
@@ -58,5 +60,41 @@ describe('applyHealthConnectWeights (#694)', () => {
     expect(result).toHaveLength(1)
     expect(result[0].date).toBe('2026-08-09')
     expect(result[0].weightKg).toBe(60)
+  })
+})
+
+describe('applyHealthConnectDayReadings (#657)', () => {
+  it('overwrites steps alongside weight for the same day', () => {
+    const existing = entry({ date: '2026-08-11', weightKg: 59, steps: 100 })
+    const result = applyHealthConnectDayReadings(
+      [{ date: '2026-08-11', weightKg: 58.5, steps: 8000 }],
+      [existing],
+    )
+    expect(result[0].weightKg).toBe(58.5)
+    expect(result[0].steps).toBe(8000)
+  })
+
+  it('can sync steps-only when weight is absent from HC', () => {
+    const result = applyHealthConnectDayReadings(
+      [{ date: '2026-08-11', steps: 5000 }],
+      [],
+    )
+    expect(result[0].steps).toBe(5000)
+    expect(result[0].weightKg).toBeUndefined()
+  })
+})
+
+describe('mergeHealthConnectNativeReadings', () => {
+  it('joins weight and steps rows by date', () => {
+    const merged = mergeHealthConnectNativeReadings(
+      [{ date: '2026-08-11', weightKg: 58 }],
+      [
+        { date: '2026-08-11', steps: 7000 },
+        { date: '2026-08-10', steps: 6000 },
+      ],
+    )
+    expect(merged).toHaveLength(2)
+    const today = merged.find((r) => r.date === '2026-08-11')
+    expect(today).toEqual({ date: '2026-08-11', weightKg: 58, steps: 7000 })
   })
 })

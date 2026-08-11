@@ -7,8 +7,9 @@ import { HealthConnect } from '@/shared/native/healthConnect'
 import { Button } from '@/shared/ui/button'
 import { useUnitStore } from '@/stores'
 import {
-  applyHealthConnectWeights,
+  applyHealthConnectDayReadings,
   HEALTH_CONNECT_RECENT_DAYS,
+  mergeHealthConnectNativeReadings,
 } from './applyHealthConnectWeight'
 
 const dailyEntryRepository = new IndexedDbDailyEntryRepository()
@@ -21,11 +22,10 @@ type SyncState =
   | { phase: 'success'; summary: string }
 
 /**
- * #656 / #693 / #694 — Android-only (rendered from `SettingsScreen.tsx`
+ * #656 / #693 / #694 / #657 — Android-only (rendered from `SettingsScreen.tsx`
  * behind a `Capacitor.getPlatform() === 'android'` gate). On-demand Sync
- * pulls the latest Health Connect weight per day for a recent window
- * (default 7 days) and overwrites local values — tap again after updating
- * the source to refresh today or past days.
+ * pulls recent Health Connect weight + steps (default 7 days) and overwrites
+ * local values.
  */
 export function HealthConnectSyncSection() {
   const t = useTranslation()
@@ -51,16 +51,29 @@ export function HealthConnectSyncSection() {
   async function handleSync() {
     setState({ phase: 'syncing' })
     try {
-      const { granted } = await HealthConnect.requestWeightPermission()
-      if (!granted) {
+      const permission = await HealthConnect.requestWeightPermission()
+      if (!permission.granted) {
         setState({ phase: 'permissionDenied' })
         return
       }
 
-      const { weights } = await HealthConnect.syncRecentWeights({
-        days: HEALTH_CONNECT_RECENT_DAYS,
-      })
-      if (weights.length === 0) {
+      const weightGranted = permission.weightGranted !== false
+      const stepsGranted = permission.stepsGranted !== false
+
+      const [weightResult, stepsResult] = await Promise.all([
+        weightGranted
+          ? HealthConnect.syncRecentWeights({ days: HEALTH_CONNECT_RECENT_DAYS })
+          : Promise.resolve({ weights: [] }),
+        stepsGranted
+          ? HealthConnect.syncRecentSteps({ days: HEALTH_CONNECT_RECENT_DAYS })
+          : Promise.resolve({ steps: [] }),
+      ])
+
+      const readings = mergeHealthConnectNativeReadings(
+        weightResult.weights,
+        stepsResult.steps,
+      )
+      if (readings.length === 0) {
         setState({ phase: 'noData' })
         return
       }
@@ -71,13 +84,13 @@ export function HealthConnectSyncSection() {
         'yyyy-MM-dd',
       )
       const existing = await dailyEntryRepository.getRange(rangeStart, today)
-      const toUpsert = applyHealthConnectWeights(weights, existing)
+      const toUpsert = applyHealthConnectDayReadings(readings, existing)
       await Promise.all(toUpsert.map((entry) => dailyEntryRepository.upsert(entry)))
 
-      const todayReading = weights.find((w) => w.date === today)
-      const dayCount = weights.length
+      const todayReading = readings.find((w) => w.date === today)
+      const dayCount = readings.length
       const todayText =
-        todayReading === undefined
+        todayReading?.weightKg === undefined
           ? undefined
           : (() => {
               const displayKg =

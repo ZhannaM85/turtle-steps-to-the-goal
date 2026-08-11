@@ -8,6 +8,7 @@ import androidx.activity.result.contract.ActivityResultContract;
 import androidx.health.connect.client.HealthConnectClient;
 import androidx.health.connect.client.PermissionController;
 import androidx.health.connect.client.permission.HealthPermission;
+import androidx.health.connect.client.records.StepsRecord;
 import androidx.health.connect.client.records.WeightRecord;
 import androidx.health.connect.client.request.ReadRecordsRequest;
 import androidx.health.connect.client.response.ReadRecordsResponse;
@@ -69,8 +70,14 @@ public class HealthConnectPlugin extends Plugin {
             if (call == null) {
                 return;
             }
+            boolean weightGranted = grantedPermissions.contains(HealthPermission.READ_WEIGHT);
+            boolean stepsGranted = grantedPermissions.contains(HealthPermission.READ_STEPS);
             JSObject result = new JSObject();
-            result.put("granted", grantedPermissions.contains(HealthPermission.READ_WEIGHT));
+            // #657 — Sync can proceed with either scope; Settings uses the
+            // flags to pull only what was allowed.
+            result.put("granted", weightGranted || stepsGranted);
+            result.put("weightGranted", weightGranted);
+            result.put("stepsGranted", stepsGranted);
             call.resolve(result);
         });
     }
@@ -103,11 +110,13 @@ public class HealthConnectPlugin extends Plugin {
         call.resolve();
     }
 
+    /** #656 / #657 — request weight + steps in one Health Connect consent. */
     @PluginMethod
     public void requestWeightPermission(PluginCall call) {
         pendingPermissionCall = call;
         Set<String> permissions = new HashSet<>();
         permissions.add(HealthPermission.READ_WEIGHT);
+        permissions.add(HealthPermission.READ_STEPS);
         permissionLauncher.launch(permissions);
     }
 
@@ -166,6 +175,38 @@ public class HealthConnectPlugin extends Plugin {
     }
 
     /**
+     * #657 — sum of StepsRecord counts per local calendar day over a recent
+     * window (default 7 days including today).
+     */
+    @PluginMethod
+    public void syncRecentSteps(PluginCall call) {
+        try {
+            int days = call.getInt("days", 7);
+            if (days < 1) {
+                days = 1;
+            }
+            LocalDate end = LocalDate.now();
+            LocalDate start = end.minusDays(days - 1L);
+            Map<LocalDate, Long> byDay = readStepsTotalByDay(start, end);
+
+            JSArray steps = new JSArray();
+            for (Map.Entry<LocalDate, Long> entry : byDay.entrySet()) {
+                JSObject row = new JSObject();
+                row.put("date", entry.getKey().format(DateTimeFormatter.ISO_LOCAL_DATE));
+                row.put("steps", entry.getValue().intValue());
+                steps.put(row);
+            }
+            JSObject result = new JSObject();
+            result.put("steps", steps);
+            call.resolve(result);
+        } catch (SecurityException e) {
+            call.reject("Health Connect permission not granted", "not_permitted");
+        } catch (Exception e) {
+            call.reject("Failed to read from Health Connect: " + e.getMessage(), e);
+        }
+    }
+
+    /**
      * Reads WeightRecords in [start, end] (inclusive local dates) and keeps
      * the latest reading per local calendar day (device zone).
      */
@@ -205,5 +246,43 @@ public class HealthConnectPlugin extends Plugin {
             }
         }
         return latestByDay;
+    }
+
+    /**
+     * Sums StepsRecord counts in [start, end] by the record's local start day.
+     */
+    private Map<LocalDate, Long> readStepsTotalByDay(LocalDate start, LocalDate end)
+        throws Exception {
+        HealthConnectClient client = HealthConnectClient.getOrCreate(getContext(), PROVIDER_PACKAGE);
+        ZoneId zone = ZoneId.systemDefault();
+        LocalDateTime rangeStart = LocalDateTime.of(start, LocalTime.MIN);
+        LocalDateTime rangeEnd = end.equals(LocalDate.now())
+            ? LocalDateTime.now()
+            : LocalDateTime.of(end, LocalTime.MAX);
+        ReadRecordsRequest<StepsRecord> request = new ReadRecordsRequest<>(
+            JvmClassMappingKt.getKotlinClass(StepsRecord.class),
+            TimeRangeFilter.between(rangeStart, rangeEnd),
+            Collections.emptySet(),
+            true,
+            5000,
+            null
+        );
+        ReadRecordsResponse<StepsRecord> response = BuildersKt.runBlocking(
+            Dispatchers.getIO(),
+            (scope, continuation) -> client.readRecords(request, continuation)
+        );
+
+        Map<LocalDate, Long> totals = new LinkedHashMap<>();
+        for (StepsRecord record : response.getRecords()) {
+            Instant startTime = record.getStartTime();
+            LocalDate day = startTime.atZone(zone).toLocalDate();
+            if (day.isBefore(start) || day.isAfter(end)) {
+                continue;
+            }
+            long count = record.getCount();
+            Long prev = totals.get(day);
+            totals.put(day, prev == null ? count : prev + count);
+        }
+        return totals;
     }
 }

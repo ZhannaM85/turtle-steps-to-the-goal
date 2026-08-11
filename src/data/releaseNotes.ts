@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 653,
+    issue: 657,
+    date: '2026-08-11T15:20:00+03:00',
+    en: 'Sync from Health Connect can also pull step counts for today and recent days (Android).',
+    ru: 'Синхронизация с Health Connect также может подтянуть шаги за сегодня и недавние дни (Android).',
+  },
+  {
     version: 652,
     issue: 694,
     date: '2026-08-11T15:00:00+03:00',
