@@ -661,7 +661,7 @@ Vitest + jsdom + `fake-indexeddb` + React Testing Library + `@testing-library/us
 
 ## Android Health Connect — not planned (#335, 2026-08-10)
 
-**Decision:** do not pursue Android Health Connect as the wearable/weight sync path into Turtle Steps. Epic [#335](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/335) and children [#656](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/656) / [#658](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/658) were closed **not planned** (`wontfix`), **not** `validated`. [#657](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/657) (steps) had already been closed earlier as done and was left as-is.
+**Decision:** do not pursue Android Health Connect as the wearable/weight sync path into Turtle Steps. Epic [#335](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/335) and children [#656](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/656) / [#657](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/657) / [#658](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/658) were closed **not planned** (`wontfix`), **not** `validated`.
 
 **Why (on-device, 2026-08-10):** the need was automatic sync from **Zepp Life** into the native app. Filing assumed Zepp/Mi would write into Health Connect and Turtle Steps would only read HC (#656’s one-tap weight sync). That chain failed for this stack:
 
