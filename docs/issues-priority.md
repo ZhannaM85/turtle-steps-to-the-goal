@@ -35,13 +35,3 @@ _User asked about pulling data from Apple Health and Zepp Life. Researched via W
 | [#335](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/335) | 🔲 Open | Epic — Android Health Connect integration | **Reopened 2026-08-11.** Won't-do assumed Zepp Life must feed HC; user confirmed HC weight sync works from HC-native sources without Zepp. Children #656/#657/#658 reopened; refresh gaps #693/#694. Zepp history stays on #365 file import. |
 
 ---
-
-## Tier 132 — Regression / CI hardening + live UX (2026-08-11)
-
-_iOS waits on a Mac; Android Play path waits on #316. Closed rows for this day live in the archive. **Reopened Health Connect** (independent of Zepp Life) + live sync refresh reports appended same day._
-
-| # | Status | Issue | Notes |
-|---|--------|-------|-------|
-| [#694](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/694) | 🔍 Pending validation | Health Connect weight sync: sync / refresh past days, not only today | `syncRecentWeights` (7 days) + overwrite batch via `applyHealthConnectWeights`. |
-
----

@@ -175,7 +175,7 @@ _Live bug reports from the app, filed as reported._
 
 ## Tier 132 — Regression / CI hardening + live UX (2026-08-11)
 
-_iOS waits on a Mac; Android Play path waits on #316. Meanwhile: goal-lifecycle Vitest hard-lock pack, Playwright multi-screen goal flows, survey-doc housekeeping, live Day-screen UX. Open Health Connect reopen + refresh issues for this day live in the active `issues-priority.md` Tier 132._
+_iOS waits on a Mac; Android Play path waits on #316. Meanwhile: goal-lifecycle Vitest hard-lock pack, Playwright multi-screen goal flows, survey-doc housekeeping, live Day-screen UX. Health Connect reopen + refresh issues for this day closed as validated on-device 2026-08-11._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
@@ -187,3 +187,4 @@ _iOS waits on a Mac; Android Play path waits on #316. Meanwhile: goal-lifecycle 
 | [#657](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/657) | ✅ Done | Android Health Connect: steps sync | Confirmed on-device 2026-08-11 (`syncRecentSteps`). |
 | [#658](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/658) | ✅ Done | Android Health Connect: sleep sync | Confirmed on-device 2026-08-11 (`syncRecentSleep`). |
 | [#693](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/693) | ✅ Done | Health Connect weight sync: allow refreshing when today's weight is already set | Confirmed on-device 2026-08-11 — Sync overwrites today's weight. |
+| [#694](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/694) | ✅ Done | Health Connect weight sync: sync / refresh past days, not only today | Confirmed on-device 2026-08-11 — Sync pulls last 7 days. |
