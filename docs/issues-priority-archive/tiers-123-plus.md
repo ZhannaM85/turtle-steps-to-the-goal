@@ -170,3 +170,13 @@ _Live bug reports from the app, filed as reported._
 | [#676](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/676) | ✅ Done | Goal card: baseline weight shifts when the start-day weight is logged after the goal is set | Snapshot-first `resolveBaselineWeightKg` restored after #681 regression; HARD LOCK + CLAUDE.md. Confirmed working on-device 2026-08-10. |
 | [#687](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/687) | ✅ Done | Android glance widget: richer today fields (kcal, steps, food) | Confirmed on-device 2026-08-10: remaining kcal, steps, food, day-note indicator. |
 | [#688](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/688) | ✅ Done | Android glance widget: turtle mark and design-mood polish | Confirmed on-device 2026-08-10: turtle icon + Pond-mood colors. |
+
+---
+
+## Tier 132 — Regression / CI hardening while store releases blocked (2026-08-11)
+
+_iOS waits on a Mac; Android Play path waits on #316. Meanwhile: goal-lifecycle Vitest hard-lock pack, Playwright multi-screen goal flows, survey-doc housekeeping._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#690](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/690) | ✅ Done | E2E: goal baseline + Past Targets multi-screen flows | `e2e/goal-flows.spec.ts`; validated 2026-08-11. |
