@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react'
+import { act, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { BarcodeScannerDialog } from './BarcodeScannerDialog'
@@ -127,9 +127,38 @@ describe('BarcodeScannerDialog', () => {
     )
 
     expect(
-      screen.queryByText('Still scanning — make sure the barcode is well-lit, in focus, and fills the frame above.'),
+      screen.queryByText(
+        'Still scanning — make sure the barcode is well-lit, in focus, and fills the frame above. Tap the frame to refocus.',
+      ),
     ).not.toBeInTheDocument()
     expect(setTimeoutSpy).toHaveBeenCalledWith(expect.any(Function), 4000)
+  })
+
+  it('keeps manual entry pinned when the still-scanning tip appears (#695)', async () => {
+    const setTimeoutSpy = vi.spyOn(window, 'setTimeout')
+    decodeFromVideoDevice.mockResolvedValue({ stop: vi.fn() })
+    render(
+      <BarcodeScannerDialog open onOpenChange={vi.fn()} onScanned={vi.fn()} />,
+    )
+
+    const tipCall = setTimeoutSpy.mock.calls.find(
+      (call) => call[1] === 4000,
+    )
+    expect(tipCall).toBeDefined()
+    await act(async () => {
+      ;(tipCall![0] as () => void)()
+    })
+
+    expect(
+      await screen.findByText(
+        'Still scanning — make sure the barcode is well-lit, in focus, and fills the frame above. Tap the frame to refocus.',
+      ),
+    ).toBeInTheDocument()
+    const manual = screen.getByLabelText('Or enter the barcode number')
+    expect(manual).toBeInTheDocument()
+    expect(manual.closest('[data-barcode-manual-entry]')).toHaveClass(
+      'shrink-0',
+    )
   })
 
   it('restricts decoding to retail barcode formats for speed (#294)', async () => {

@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 655,
+    issue: 695,
+    date: '2026-08-11T16:22:39+03:00',
+    en: 'On the barcode scanner, the manual entry field stays visible when the “still scanning” tip appears.',
+    ru: 'В сканере штрихкода поле ручного ввода остаётся видимым, когда появляется подсказка «всё ещё сканируем».',
+  },
+  {
     version: 654,
     issue: 658,
     date: '2026-08-11T15:40:00+03:00',

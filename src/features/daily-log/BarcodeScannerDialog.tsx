@@ -59,6 +59,11 @@ export interface BarcodeScannerDialogProps {
  * that point (`pointsOfInterest` / `focusMode` when the device supports
  * them). Best-effort: quiet no-op on platforms without focus constraints
  * (typical iOS Safari); manual entry (#291) stays the workaround.
+ *
+ * #695 — dialog is a non-scrolling flex column: camera region
+ * `flex-1 min-h-0` shrinks when the still-scanning tip appears; manual
+ * entry stays `shrink-0` at the bottom with safe-area padding so it is
+ * not clipped off-screen (PWA and Android).
  */
 // #294 — how long the camera-decode phase can run before the "still
 // scanning" tip appears. Long enough not to flash on every normal scan
@@ -214,9 +219,14 @@ export function BarcodeScannerDialog({
       <DialogContent
         size="fullscreen"
         closeLabel={t.dailyEntry.closeItemEditorLabel}
-        className="flex flex-col gap-4"
+        // #695 — pin manual entry in the dialog viewport: overflow-hidden +
+        // flex column so the camera region shrinks when the still-scanning
+        // tip appears, instead of growing past the fold and clipping the
+        // input. pb-0 moves bottom safe-area onto the pinned strip
+        // (same #459/#481 pattern as AddMealDialog).
+        className="flex flex-col gap-4 overflow-hidden pb-0"
       >
-        <DialogTitle>
+        <DialogTitle className="shrink-0 pr-8">
           {title ?? t.dailyEntry.scanBarcodeDialogTitle}
         </DialogTitle>
         {isProcessing ? (
@@ -225,59 +235,64 @@ export function BarcodeScannerDialog({
           </p>
         ) : (
           <>
-            {error ? (
-              <p className="text-sm text-destructive">{error}</p>
-            ) : (
-              <>
-                <p className="text-sm text-muted-foreground">
-                  {instructions ?? t.dailyEntry.scanBarcodeInstructions}
-                </p>
-                <div className="relative flex-1">
-                  <video
-                    ref={videoRef}
-                    className="h-full w-full rounded-lg bg-black object-cover"
-                    muted
-                    playsInline
-                  />
-                  {/* #294 — framing guide; #564 — tap inside to request
-                   * focus on that point (when the device supports it). */}
-                  <div className="pointer-events-none absolute inset-0 flex items-center justify-center p-8">
-                    <div
-                      ref={frameRef}
-                      role="button"
-                      tabIndex={0}
-                      aria-label={t.dailyEntry.scanBarcodeTapToFocusLabel}
-                      className={
-                        scanKind === 'qr'
-                          ? 'pointer-events-auto relative aspect-square w-full max-w-xs cursor-pointer rounded-lg border-2 border-white/80'
-                          : 'pointer-events-auto relative aspect-[5/2] w-full max-w-xs cursor-pointer rounded-lg border-2 border-white/80'
-                      }
-                      onPointerDown={(event) => {
-                        void handleFramePointerDown(event)
-                      }}
-                    >
-                      {focusReticle && (
-                        <span
-                          aria-hidden="true"
-                          className="pointer-events-none absolute size-10 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white shadow-[0_0_0_1px_rgba(0,0,0,0.35)]"
-                          style={{
-                            left: `${focusReticle.xPct}%`,
-                            top: `${focusReticle.yPct}%`,
-                          }}
-                        />
-                      )}
+            <div className="flex min-h-0 flex-1 flex-col gap-4">
+              {error ? (
+                <p className="shrink-0 text-sm text-destructive">{error}</p>
+              ) : (
+                <>
+                  <p className="shrink-0 text-sm text-muted-foreground">
+                    {instructions ?? t.dailyEntry.scanBarcodeInstructions}
+                  </p>
+                  <div className="relative min-h-32 flex-1 overflow-hidden rounded-lg bg-black">
+                    <video
+                      ref={videoRef}
+                      className="absolute inset-0 h-full w-full object-cover"
+                      muted
+                      playsInline
+                    />
+                    {/* #294 — framing guide; #564 — tap inside to request
+                     * focus on that point (when the device supports it). */}
+                    <div className="pointer-events-none absolute inset-0 flex items-center justify-center p-8">
+                      <div
+                        ref={frameRef}
+                        role="button"
+                        tabIndex={0}
+                        aria-label={t.dailyEntry.scanBarcodeTapToFocusLabel}
+                        className={
+                          scanKind === 'qr'
+                            ? 'pointer-events-auto relative aspect-square w-full max-w-xs cursor-pointer rounded-lg border-2 border-white/80'
+                            : 'pointer-events-auto relative aspect-[5/2] w-full max-w-xs cursor-pointer rounded-lg border-2 border-white/80'
+                        }
+                        onPointerDown={(event) => {
+                          void handleFramePointerDown(event)
+                        }}
+                      >
+                        {focusReticle && (
+                          <span
+                            aria-hidden="true"
+                            className="pointer-events-none absolute size-10 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white shadow-[0_0_0_1px_rgba(0,0,0,0.35)]"
+                            style={{
+                              left: `${focusReticle.xPct}%`,
+                              top: `${focusReticle.yPct}%`,
+                            }}
+                          />
+                        )}
+                      </div>
                     </div>
                   </div>
-                </div>
-                {showStillScanningTip && (
-                  <p className="text-sm text-muted-foreground">
-                    {t.dailyEntry.scanBarcodeStillScanningTip}
-                  </p>
-                )}
-              </>
-            )}
+                  {showStillScanningTip && (
+                    <p className="shrink-0 text-sm text-muted-foreground">
+                      {t.dailyEntry.scanBarcodeStillScanningTip}
+                    </p>
+                  )}
+                </>
+              )}
+            </div>
             {scanKind === 'product' ? (
-              <div className="flex flex-col gap-1.5">
+              <div
+                data-barcode-manual-entry=""
+                className="flex shrink-0 flex-col gap-1.5 pb-[calc(env(safe-area-inset-bottom)+1.25rem)]"
+              >
                 <span className="text-sm text-muted-foreground">
                   {t.dailyEntry.scanBarcodeManualLabel}
                 </span>
