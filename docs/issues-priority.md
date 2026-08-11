@@ -35,12 +35,13 @@ _User asked about pulling data from Apple Health and Zepp Life. Researched via W
 
 ---
 
-## Tier 132 — Regression / CI hardening while store releases blocked (2026-08-11)
+## Tier 132 — Regression / CI hardening + live UX (2026-08-11)
 
-_iOS waits on a Mac; Android Play path waits on #316 (developer account). Meanwhile: file a goal-lifecycle Vitest hard-lock pack for the reopen cluster (#676/#681/#686/…), expand Playwright only for true multi-screen goal flows, and housekeeping (stale #657 GitHub state, outdated `potential-improvements.md` CI rows)._
+_iOS waits on a Mac; Android Play path waits on #316 (developer account). Meanwhile: file a goal-lifecycle Vitest hard-lock pack for the reopen cluster (#676/#681/#686/…), expand Playwright only for true multi-screen goal flows, and housekeeping (stale #657 GitHub state, outdated `potential-improvements.md` CI rows). Also live Day-screen UX from on-device use._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#689](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/689) | 📋 Not started | Goal lifecycle hard-lock / regression pack | Vitest pack locking #676 snapshot-first, #681 save-time baseline, #667 last-day unlock, #671 no overlap, #686 Start-new mid-window disable, #677 delete stack pop. |
+| [#689](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/689) | 🔍 Pending validation | Goal lifecycle hard-lock / regression pack | `goalLifecycleHardLock.test.tsx` locks #676/#681/#667/#671/#686/#677; extracted `resolveWeightForFreshBaseline` for #681 save-time. |
+| [#691](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/691) | 📋 Not started | Day screen: «Add another meal» when day has no meals | `expandAddMealLabel` still says RU «ещё» / EN «another» on an empty day (0 kcal, no meal rows). Neutral copy always, or conditional first-vs-subsequent. UX wording not locked. |
 
 ---
