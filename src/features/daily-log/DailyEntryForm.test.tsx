@@ -2918,7 +2918,7 @@ describe('DailyEntryForm', () => {
           )
 
           await user.click(
-            screen.getByRole('button', { name: '+ Add a meal' }),
+            screen.getByRole('button', { name: '+ Add another meal' }),
           )
           await user.type(screen.getByLabelText('Search foods'), 'Salmon')
           await user.click(screen.getByText('Salmon', { exact: true }))
