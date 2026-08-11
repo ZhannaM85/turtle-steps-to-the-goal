@@ -42,7 +42,6 @@ _iOS waits on a Mac; Android Play path waits on #316. Closed rows for this day l
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#656](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/656) | 🔍 Pending validation | Android Health Connect: weight sync (foundation) | **Reopened 2026-08-11.** Code shipped earlier; user confirmed Sync imported today's weight from HC on-device. Still needs explicit close after #693/#694 land (or confirm foundation-only). `wontfix` removed. |
 | [#657](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/657) | 🔍 Pending validation | Android Health Connect: steps sync | Implemented for real this pass (`syncRecentSteps` + READ_STEPS). Earlier “validated” close had no native steps code. |
 | [#658](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/658) | 🔍 Pending validation | Android Health Connect: sleep sync | `READ_SLEEP` + `syncRecentSleep` (wake-up day attribution; deep stages when present). |
 | [#693](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/693) | 🔍 Pending validation | Health Connect weight sync: allow refreshing when today's weight is already set | Sync uses `overwrite` via `applyHealthConnectWeight`; removed already-logged block. Copy updated EN/RU. |
