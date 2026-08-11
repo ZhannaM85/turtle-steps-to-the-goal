@@ -42,6 +42,6 @@ _iOS waits on a Mac; Android Play path waits on #316 (developer account). Meanwh
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#689](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/689) | 📋 Not started | Goal lifecycle hard-lock / regression pack | Vitest pack locking #676 snapshot-first, #681 save-time baseline, #667 last-day unlock, #671 no overlap, #686 Start-new mid-window disable, #677 delete stack pop. Log-only until picked up. |
-| [#690](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/690) | 📋 Not started | E2E: goal baseline + Past Targets multi-screen flows | Expand #161 Playwright: create goal → baseline across Goal/Today; Past Targets shows reached after concluded met window. |
+| [#690](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/690) | 🔍 Pending validation | E2E: goal baseline + Past Targets multi-screen flows | Added `e2e/goal-flows.spec.ts`: create goal → `from X kg` on Goal + Day; past concluded met window → Past Targets "Target met". Playwright green locally. |
 
 ---

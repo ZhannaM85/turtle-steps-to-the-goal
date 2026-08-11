@@ -1,11 +1,10 @@
 import { defineConfig, devices } from '@playwright/test'
 
 /**
- * Starter E2E suite (#161) — a deliberately small set of black-box,
- * UI-only flows (no direct IndexedDB seeding, unlike the ad hoc scratchpad
- * scripts used for one-off live verification in earlier sessions), scoped
- * to the two flows judged most worth the maintenance cost: daily-log
- * add/edit, and the export/import backup round-trip.
+ * Playwright E2E suite (#161, extended #690) — deliberately small set of
+ * black-box, UI-only flows (no direct IndexedDB seeding): daily-log
+ * add/edit, export/import backup round-trip, and multi-screen goal
+ * baseline + Past Targets reach checks.
  */
 export default defineConfig({
   testDir: './e2e',
