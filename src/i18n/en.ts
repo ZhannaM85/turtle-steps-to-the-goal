@@ -231,6 +231,7 @@ export const en: Dictionary = {
     timeEatenLabel: 'Time',
     clearTimeLabel: 'Clear time',
     clearFoodSearchLabel: 'Clear search',
+    addMealLabel: '+ Add a meal',
     expandAddMealLabel: '+ Add another meal',
     repeatMealLabel: (mealLabel) => `Repeat yesterday's ${mealLabel}`,
     repeatMealDialogTitle: (mealLabel) => `Repeat ${mealLabel}`,

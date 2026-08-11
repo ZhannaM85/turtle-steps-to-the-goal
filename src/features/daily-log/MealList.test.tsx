@@ -86,6 +86,30 @@ describe('MealList', () => {
     )
 
     expect(
+      screen.getByRole('button', { name: '+ Add a meal' }),
+    ).toBeInTheDocument()
+    expect(
+      screen.queryByRole('button', { name: '+ Add another meal' }),
+    ).not.toBeInTheDocument()
+  })
+
+  it('says Add another meal once the day already has a meal (#691)', () => {
+    render(
+      <MealList
+        calorieEntries={[
+          {
+            id: 'm1',
+            items: [{ id: 'i1', amountKcal: 200 }],
+            createdAt: '2026-03-01T08:00:00.000Z',
+          },
+        ]}
+        date="2026-03-01"
+        onChange={vi.fn()}
+      />,
+      { wrapper: MemoryRouter },
+    )
+
+    expect(
       screen.getByRole('button', { name: '+ Add another meal' }),
     ).toBeInTheDocument()
   })
@@ -98,7 +122,7 @@ describe('MealList', () => {
     )
 
     await user.click(
-      screen.getByRole('button', { name: '+ Add another meal' }),
+      screen.getByRole('button', { name: '+ Add a meal' }),
     )
     await user.click(screen.getByRole('button', { name: 'Add food' }))
     await user.type(screen.getByLabelText('Dish name'), 'Oatmeal')
@@ -140,7 +164,7 @@ describe('MealList', () => {
     )
 
     await user.click(
-      screen.getByRole('button', { name: '+ Add another meal' }),
+      screen.getByRole('button', { name: '+ Add a meal' }),
     )
     await user.click(screen.getByRole('button', { name: 'Add food' }))
     await user.type(screen.getByLabelText('Dish name'), 'Oatmeal')
@@ -159,7 +183,7 @@ describe('MealList', () => {
     )
 
     await user.click(
-      screen.getByRole('button', { name: '+ Add another meal' }),
+      screen.getByRole('button', { name: '+ Add a meal' }),
     )
     expect(screen.getByLabelText('Meal name')).toHaveValue('Breakfast')
     await user.click(screen.getByRole('button', { name: 'Lunch' }))
@@ -184,7 +208,7 @@ describe('MealList', () => {
     )
 
     await user.click(
-      screen.getByRole('button', { name: '+ Add another meal' }),
+      screen.getByRole('button', { name: '+ Add a meal' }),
     )
     const nameField = screen.getByLabelText('Meal name')
     expect(nameField).toHaveValue('Breakfast')
@@ -202,7 +226,7 @@ describe('MealList', () => {
     )
 
     await user.click(
-      screen.getByRole('button', { name: '+ Add another meal' }),
+      screen.getByRole('button', { name: '+ Add a meal' }),
     )
     const nameField = screen.getByLabelText('Meal name')
     expect(nameField).toHaveValue('Breakfast')
@@ -941,7 +965,7 @@ describe('MealList', () => {
         { wrapper: MemoryRouter },
       )
 
-      await screen.findByRole('button', { name: '+ Add another meal' })
+      await screen.findByRole('button', { name: '+ Add a meal' })
       expect(
         screen.queryByRole('button', { name: "Copy yesterday's meals" }),
       ).not.toBeInTheDocument()
@@ -971,7 +995,7 @@ describe('MealList', () => {
       })
 
       await user.click(
-        screen.getByRole('button', { name: '+ Add another meal' }),
+        screen.getByRole('button', { name: '+ Add a meal' }),
       )
       await user.clear(screen.getByLabelText('Time'))
       await user.type(screen.getByLabelText('Time'), '08:00')
@@ -1005,7 +1029,7 @@ describe('MealList', () => {
       })
 
       await user.click(
-        screen.getByRole('button', { name: '+ Add another meal' }),
+        screen.getByRole('button', { name: '+ Add a meal' }),
       )
       await user.clear(screen.getByLabelText('Time'))
       await user.type(screen.getByLabelText('Time'), '08:00')
@@ -1025,7 +1049,7 @@ describe('MealList', () => {
       })
 
       await user.click(
-        screen.getByRole('button', { name: '+ Add another meal' }),
+        screen.getByRole('button', { name: '+ Add a meal' }),
       )
       await user.clear(screen.getByLabelText('Time'))
       await user.type(screen.getByLabelText('Time'), '08:00')
@@ -1059,7 +1083,7 @@ describe('MealList', () => {
       })
 
       await user.click(
-        screen.getByRole('button', { name: '+ Add another meal' }),
+        screen.getByRole('button', { name: '+ Add a meal' }),
       )
       await user.clear(screen.getByLabelText('Time'))
       await user.type(screen.getByLabelText('Time'), '08:00')
@@ -1095,7 +1119,7 @@ describe('MealList', () => {
       })
 
       await user.click(
-        screen.getByRole('button', { name: '+ Add another meal' }),
+        screen.getByRole('button', { name: '+ Add a meal' }),
       )
       await user.clear(screen.getByLabelText('Time'))
       await user.type(screen.getByLabelText('Time'), '08:00')
@@ -1176,7 +1200,7 @@ describe('MealList', () => {
       })
 
       await user.click(
-        screen.getByRole('button', { name: '+ Add another meal' }),
+        screen.getByRole('button', { name: '+ Add a meal' }),
       )
       await user.clear(screen.getByLabelText('Time'))
       await user.type(screen.getByLabelText('Time'), '13:36')

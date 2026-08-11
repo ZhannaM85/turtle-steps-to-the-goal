@@ -35,7 +35,10 @@ function render(ui: ReactElement) {
 // fullscreen dialog), so `queryByRole` — which respects that, unlike
 // `getByText` — reliably tells the two cases apart.
 async function openAddItemFlow(user: ReturnType<typeof userEvent.setup>) {
-  const trigger = screen.queryByRole('button', { name: '+ Add another meal' })
+  // #691 — empty day: "+ Add a meal"; day with meals: "+ Add another meal".
+  const trigger =
+    screen.queryByRole('button', { name: '+ Add a meal' }) ??
+    screen.queryByRole('button', { name: '+ Add another meal' })
   if (trigger) await user.click(trigger)
   await user.click(screen.getByRole('button', { name: 'Add food' }))
 }
@@ -1832,7 +1835,7 @@ describe('DailyEntryForm', () => {
       )
 
       await user.click(
-        screen.getByRole('button', { name: '+ Add another meal' }),
+        screen.getByRole('button', { name: '+ Add a meal' }),
       )
       expect(
         screen.getByRole('heading', { name: 'Breakfast' }),
@@ -1895,7 +1898,7 @@ describe('DailyEntryForm', () => {
       // not part of the per-item sheet — has to be typed once the flyout
       // is open, before diving into manual entry for the item itself.
       await user.click(
-        screen.getByRole('button', { name: '+ Add another meal' }),
+        screen.getByRole('button', { name: '+ Add a meal' }),
       )
       await user.type(
         screen.getByLabelText('Meal note'),
@@ -2750,7 +2753,7 @@ describe('DailyEntryForm', () => {
 
           // Time lives in the flyout's own header (#454) — open it first.
           await user.click(
-            screen.getByRole('button', { name: '+ Add another meal' }),
+            screen.getByRole('button', { name: '+ Add a meal' }),
           )
           fireEvent.change(screen.getByLabelText('Time'), {
             target: { value: '08:15' },
@@ -2777,7 +2780,7 @@ describe('DailyEntryForm', () => {
           )
 
           await user.click(
-            screen.getByRole('button', { name: '+ Add another meal' }),
+            screen.getByRole('button', { name: '+ Add a meal' }),
           )
           fireEvent.change(screen.getByLabelText('Time'), {
             target: { value: '' },
@@ -2802,7 +2805,7 @@ describe('DailyEntryForm', () => {
           )
 
           await user.click(
-            screen.getByRole('button', { name: '+ Add another meal' }),
+            screen.getByRole('button', { name: '+ Add a meal' }),
           )
 
           // #357: Time now defaults to the current time (not blank), so the
@@ -2846,7 +2849,7 @@ describe('DailyEntryForm', () => {
           )
 
           await user.click(
-            screen.getByRole('button', { name: '+ Add another meal' }),
+            screen.getByRole('button', { name: '+ Add a meal' }),
           )
           await user.type(screen.getByLabelText('Search foods'), 'Salmon')
           await user.click(screen.getByText('Salmon', { exact: true }))
@@ -2879,7 +2882,7 @@ describe('DailyEntryForm', () => {
           )
 
           await user.click(
-            screen.getByRole('button', { name: '+ Add another meal' }),
+            screen.getByRole('button', { name: '+ Add a meal' }),
           )
           fireEvent.change(screen.getByLabelText('Time'), {
             target: { value: '07:30' },
@@ -2915,7 +2918,7 @@ describe('DailyEntryForm', () => {
           )
 
           await user.click(
-            screen.getByRole('button', { name: '+ Add another meal' }),
+            screen.getByRole('button', { name: '+ Add a meal' }),
           )
           await user.type(screen.getByLabelText('Search foods'), 'Salmon')
           await user.click(screen.getByText('Salmon', { exact: true }))
@@ -2939,7 +2942,7 @@ describe('DailyEntryForm', () => {
           )
 
           await user.click(
-            screen.getByRole('button', { name: '+ Add another meal' }),
+            screen.getByRole('button', { name: '+ Add a meal' }),
           )
           await user.type(screen.getByLabelText('Search foods'), 'Salmon')
           await user.click(screen.getByText('Salmon', { exact: true }))
@@ -2967,7 +2970,7 @@ describe('DailyEntryForm', () => {
           )
 
           await user.click(
-            screen.getByRole('button', { name: '+ Add another meal' }),
+            screen.getByRole('button', { name: '+ Add a meal' }),
           )
           await user.type(screen.getByLabelText('Search foods'), 'Salmon')
           await user.click(screen.getByText('Salmon', { exact: true }))

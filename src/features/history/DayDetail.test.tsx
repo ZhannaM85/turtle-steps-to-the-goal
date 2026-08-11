@@ -234,7 +234,7 @@ describe('DayDetail', () => {
         screen.queryByRole('button', { name: /Edit meal/ }),
       ).not.toBeInTheDocument()
       expect(
-        screen.queryByRole('button', { name: '+ Add another meal' }),
+        screen.queryByRole('button', { name: '+ Add a meal' }),
       ).not.toBeInTheDocument()
     })
 
@@ -274,7 +274,7 @@ describe('DayDetail', () => {
       render(<DayDetail entry={makeEntry()} onSaved={vi.fn()} />)
 
       expect(
-        screen.getByRole('button', { name: '+ Add another meal' }),
+        screen.getByRole('button', { name: '+ Add a meal' }),
       ).toBeInTheDocument()
     })
   })

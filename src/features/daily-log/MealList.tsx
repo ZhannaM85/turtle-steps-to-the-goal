@@ -1117,7 +1117,10 @@ export function MealList({
         className="w-full"
         onClick={openAddMealDialog}
       >
-        {t.dailyEntry.expandAddMealLabel}
+        {/* #691 — «another» / «ещё» only once the day already has a meal. */}
+        {calorieEntries.length === 0
+          ? t.dailyEntry.addMealLabel
+          : t.dailyEntry.expandAddMealLabel}
       </Button>
       {isAddMealDialogOpen && (
         <AddMealDialog

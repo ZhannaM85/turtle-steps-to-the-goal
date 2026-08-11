@@ -245,6 +245,7 @@ export const ru: Dictionary = {
     timeEatenLabel: 'Время',
     clearTimeLabel: 'Очистить время',
     clearFoodSearchLabel: 'Очистить поиск',
+    addMealLabel: '+ Добавить приём пищи',
     expandAddMealLabel: '+ Добавить ещё приём пищи',
     repeatMealLabel: (mealLabel) => `Повторить вчерашний «${mealLabel}»`,
     repeatMealDialogTitle: (mealLabel) => `Повторить «${mealLabel}»`,

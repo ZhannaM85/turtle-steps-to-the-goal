@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 649,
+    issue: 691,
+    date: '2026-08-11T11:55:00+03:00',
+    en: 'On an empty day, the meal button now says “Add a meal” instead of “Add another meal.”',
+    ru: 'В пустой день кнопка теперь говорит «Добавить приём пищи», а не «Добавить ещё приём пищи».',
+  },
+  {
     version: 648,
     issue: 688,
     date: '2026-08-10T22:25:00+03:00',

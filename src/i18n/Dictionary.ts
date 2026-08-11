@@ -483,11 +483,12 @@ export interface Dictionary {
     clearTimeLabel: string
     /** #533 — clear the Add meal / FoodPicker search field when non-empty. */
     clearFoodSearchLabel: string
-    /** #454 — the sole trigger opening the "add a meal" flyout
-     * (`AddMealDialog`), for every day/position; superseded #199/#201's
-     * collapse/expand accordion (and its now-removed sibling
-     * `collapseAddMealLabel`), which this same string already read as its
-     * "re-expand" link text, so the copy itself didn't need to change. */
+    /** #691 — empty-day trigger opening the "add a meal" flyout
+     * (`AddMealDialog`); no «another» / «ещё» because nothing is logged yet. */
+    addMealLabel: string
+    /** #454 — same trigger when the day already has ≥1 meal; superseded
+     * #199/#201's collapse/expand accordion (and its now-removed sibling
+     * `collapseAddMealLabel`). #691 keeps «another» / «ещё» only here. */
     expandAddMealLabel: string
     /** #190: "Repeat yesterday's [meal]" quick action on the add row —
      * only shown when the day before has a meal at this same position
