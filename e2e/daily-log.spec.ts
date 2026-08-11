@@ -15,7 +15,8 @@ test('logs a meal, then edits its calories via the pencil', async ({ page }) => 
   // item" button, which no longer exists on the main page itself). #459
   // replaced the empty-search state's plain "Can't find it? Add manually"
   // link with a row of quick-action cards — "Add food" is the same handler.
-  await page.getByRole('button', { name: '+ Add another meal' }).click()
+  // #691 — empty day uses "+ Add a meal" (not "another").
+  await page.getByRole('button', { name: '+ Add a meal' }).click()
   await page.getByRole('button', { name: 'Add food' }).click()
   await page.getByLabel('kcal/100g').fill('300')
   await page.getByRole('button', { name: 'Save', exact: true }).click()
