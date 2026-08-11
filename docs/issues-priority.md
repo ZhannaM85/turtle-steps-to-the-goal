@@ -32,5 +32,20 @@ _User asked about pulling data from Apple Health and Zepp Life. Researched via W
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#334](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/334) | 📋 Not started | Epic — Apple Health integration (blocked on mobile app + HealthKit bridge) | HealthKit has no public/cloud API at all — data is on-device only, readable exclusively by a native iOS app (or hybrid app with a HealthKit plugin/entitlement) the user has granted permission to. Genuinely blocked until the mobile app exists; can't be built sooner by any workaround. |
+| [#335](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/335) | 🔲 Open | Epic — Android Health Connect integration | **Reopened 2026-08-11.** Won't-do assumed Zepp Life must feed HC; user confirmed HC weight sync works from HC-native sources without Zepp. Children #656/#657/#658 reopened; refresh gaps #693/#694. Zepp history stays on #365 file import. |
+
+---
+
+## Tier 132 — Regression / CI hardening + live UX (2026-08-11)
+
+_iOS waits on a Mac; Android Play path waits on #316. Closed rows for this day live in the archive. **Reopened Health Connect** (independent of Zepp Life) + live sync refresh reports appended same day._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#656](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/656) | 🔍 Pending validation | Android Health Connect: weight sync (foundation) | **Reopened 2026-08-11.** Code shipped earlier; user confirmed Sync imported today's weight from HC on-device. Still needs explicit close after #693/#694 land (or confirm foundation-only). `wontfix` removed. |
+| [#657](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/657) | 🔍 Pending validation | Android Health Connect: steps sync | **Reopened 2026-08-11.** Previously implemented and once confirmed on-device before wontfix; re-validate under revised epic scope. |
+| [#658](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/658) | 📋 Not started | Android Health Connect: sleep sync | **Reopened 2026-08-11.** Never started; back on roadmap with #335. |
+| [#693](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/693) | 📋 Not started | Health Connect weight sync: allow refreshing when today's weight is already set | Live: Sync refuses update («already entered weight for today»). Need overwrite/refresh on explicit Sync after source weight changes. |
+| [#694](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/694) | 📋 Not started | Health Connect weight sync: sync / refresh past days, not only today | Live: yesterday's HC weight not pulled — sync is today-only (`syncTodayWeight`). |
 
 ---

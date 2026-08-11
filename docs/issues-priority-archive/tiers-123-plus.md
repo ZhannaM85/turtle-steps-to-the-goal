@@ -110,9 +110,9 @@ _Same-day live feedback (Zepp multi-user export, export status placement, Apple 
 | [#653](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/653) | ✅ Done | Android splash screen: turtle icon looks elongated/stretched | Reported live with a screenshot after #311's own "confirmed correct" splash. Root cause: `styles.xml`'s `AppTheme.NoActionBarLaunch` set `android:background` directly to the raw `@capacitor/assets`-generated `@drawable/splash` bitmap, which defaults to `Gravity.FILL` (non-uniform stretch to exact window bounds) — since each density bucket's bitmap targets a fixed reference aspect ratio that rarely matches a real device's screen exactly, the circular badge stretched into an oval. Fixed with a new `drawable/splash_screen_bg.xml` wrapper (`android:gravity="center"`) so the bitmap draws at native size instead of stretching; survives future `capacitor-assets generate` reruns since it only touches `@drawable/splash`, not the wrapper. Confirmed working on-device 2026-08-08 |
 | [#654](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/654) | ✅ Done | About screen: move Release notes section directly under the version number | Reported live with an annotated screenshot — "Version N" and the collapsible "Release notes" section sat far apart (description/privacy text between them). Release notes card moved into the leading cards group, directly under the Version card (`AboutScreen.tsx`). Confirmed working on-device 2026-08-08 |
 | [#655](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/655) | ✅ Done | About screen: merge Version and Release notes into one card | Follow-up to #654. Implemented, scope grew live during the session: single `Card` combines the title as `{releaseNotes} · {currentVersion}` (`AboutScreen.tsx`), and the separate "Show release notes" text button was replaced by an icon-only `ChevronDown`/`ChevronUp` toggle in the card header (`CardAction`) next to that title — `ReleaseNotesSection.tsx` is now a dumb list, expand/collapse state lifted to `AboutScreen`. Confirmed working on-device 2026-08-09 |
-| [#657](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/657) | ❌ Closed, not planned | Android Health Connect: steps sync | Won't do / not validated. Same as #656/#658 — no reliable Zepp Life → HC path; user cannot confirm on-device. |
-| [#656](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/656) | ❌ Closed, not planned | Android Health Connect: weight sync (foundation) | Won't do / not validated. Zepp Life does not feed weight into HC or Google Fit on-device; cannot confirm Sync without inventing HC data. |
-| [#658](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/658) | ❌ Closed, not planned | Android Health Connect: sleep sync | Won't do — not started; epic abandoned after Zepp Life → HC path proved unavailable on-device. |
+| [#657](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/657) | ↩️ Reopened 2026-08-11 | Android Health Connect: steps sync | Was won't-do with epic; reopened — see active Tier 132. |
+| [#656](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/656) | ↩️ Reopened 2026-08-11 | Android Health Connect: weight sync (foundation) | Was won't-do (unvalidated / no Zepp→HC); user later confirmed HC weight sync on-device — see active Tier 132. |
+| [#658](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/658) | ↩️ Reopened 2026-08-11 | Android Health Connect: sleep sync | Was won't-do / not started; reopened with #335 — see active Tier 132. |
 
 ---
 
@@ -175,7 +175,7 @@ _Live bug reports from the app, filed as reported._
 
 ## Tier 132 — Regression / CI hardening + live UX (2026-08-11)
 
-_iOS waits on a Mac; Android Play path waits on #316. Meanwhile: goal-lifecycle Vitest hard-lock pack, Playwright multi-screen goal flows, survey-doc housekeeping, live Day-screen UX._
+_iOS waits on a Mac; Android Play path waits on #316. Meanwhile: goal-lifecycle Vitest hard-lock pack, Playwright multi-screen goal flows, survey-doc housekeeping, live Day-screen UX. Open Health Connect reopen + refresh issues for this day live in the active `issues-priority.md` Tier 132._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
