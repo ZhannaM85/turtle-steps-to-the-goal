@@ -42,7 +42,6 @@ _iOS waits on a Mac; Android Play path waits on #316. Closed rows for this day l
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#693](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/693) | 🔍 Pending validation | Health Connect weight sync: allow refreshing when today's weight is already set | Sync uses `overwrite` via `applyHealthConnectWeight`; removed already-logged block. Copy updated EN/RU. |
 | [#694](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/694) | 🔍 Pending validation | Health Connect weight sync: sync / refresh past days, not only today | `syncRecentWeights` (7 days) + overwrite batch via `applyHealthConnectWeights`. |
 
 ---

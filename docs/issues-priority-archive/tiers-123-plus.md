@@ -186,3 +186,4 @@ _iOS waits on a Mac; Android Play path waits on #316. Meanwhile: goal-lifecycle 
 | [#656](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/656) | ✅ Done | Android Health Connect: weight sync (foundation) | Confirmed on-device 2026-08-11 with HC-native sources (weight sync). |
 | [#657](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/657) | ✅ Done | Android Health Connect: steps sync | Confirmed on-device 2026-08-11 (`syncRecentSteps`). |
 | [#658](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/658) | ✅ Done | Android Health Connect: sleep sync | Confirmed on-device 2026-08-11 (`syncRecentSleep`). |
+| [#693](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/693) | ✅ Done | Health Connect weight sync: allow refreshing when today's weight is already set | Confirmed on-device 2026-08-11 — Sync overwrites today's weight. |
