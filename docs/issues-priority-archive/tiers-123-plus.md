@@ -173,10 +173,11 @@ _Live bug reports from the app, filed as reported._
 
 ---
 
-## Tier 132 — Regression / CI hardening while store releases blocked (2026-08-11)
+## Tier 132 — Regression / CI hardening + live UX (2026-08-11)
 
-_iOS waits on a Mac; Android Play path waits on #316. Meanwhile: goal-lifecycle Vitest hard-lock pack, Playwright multi-screen goal flows, survey-doc housekeeping._
+_iOS waits on a Mac; Android Play path waits on #316. Meanwhile: goal-lifecycle Vitest hard-lock pack, Playwright multi-screen goal flows, survey-doc housekeeping, live Day-screen UX._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#690](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/690) | ✅ Done | E2E: goal baseline + Past Targets multi-screen flows | `e2e/goal-flows.spec.ts`; validated 2026-08-11. |
+| [#691](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/691) | ✅ Done | Day screen: «Add another meal» when day has no meals | Conditional empty-day vs with-meals copy; validated on-device 2026-08-11. |
