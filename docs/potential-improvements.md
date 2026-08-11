@@ -15,9 +15,9 @@ Anything that risks conflicting with the app's established "no pressure, small s
 
 | Item | Status | Notes |
 |---|---|---|
-| CI doesn't run tests or lint before deploying | [#159](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/159) Open | Confirmed still true at filing time — `deploy-pages.yml` only runs `tsc -b` |
-| No CI on pull requests | [#160](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/160) Open | Low urgency given the current solo-dev direct-to-main workflow |
-| No end-to-end/visual regression testing | [#161](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/161) Open | Framed as a decision to make (worth the investment or not), not a straightforward build |
+| CI doesn't run tests or lint before deploying | [#159](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/159) ✅ Done | `deploy-pages.yml` runs typecheck, lint, Vitest, and Playwright before Pages deploy |
+| No CI on pull requests | [#160](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/160) ✅ Done | `.github/workflows/ci.yml` runs the same gates on pull requests |
+| No end-to-end/visual regression testing | [#161](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/161) ✅ Done (E2E; no visual suite) | Playwright smoke (#161) for meal log/edit + backup round-trip; further multi-screen goal flows in #690. Visual/screenshot regression still not adopted (deliberate — cost vs. reopen class) |
 
 ## Performance / technical debt
 
