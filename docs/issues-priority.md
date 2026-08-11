@@ -34,13 +34,3 @@ _User asked about pulling data from Apple Health and Zepp Life. Researched via W
 | [#334](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/334) | 📋 Not started | Epic — Apple Health integration (blocked on mobile app + HealthKit bridge) | HealthKit has no public/cloud API at all — data is on-device only, readable exclusively by a native iOS app (or hybrid app with a HealthKit plugin/entitlement) the user has granted permission to. Genuinely blocked until the mobile app exists; can't be built sooner by any workaround. |
 
 ---
-
-## Tier 132 — Regression / CI hardening + live UX (2026-08-11)
-
-_iOS waits on a Mac; Android Play path waits on #316. Closed siblings for this day live in the archive. Open live UX from on-device barcode scan._
-
-| # | Status | Issue | Notes |
-|---|--------|-------|-------|
-| [#695](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/695) | 🔍 Pending validation | Barcode scanner: manual input clipped at bottom when still-scanning message shows | Flex column + `overflow-hidden`/`pb-0`; camera `flex-1 min-h-0` shrinks when tip shows; manual entry `shrink-0` with safe-area. Awaiting on-device check (PWA + Android). |
-
----
