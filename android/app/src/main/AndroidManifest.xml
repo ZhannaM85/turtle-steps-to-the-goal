@@ -75,6 +75,7 @@
     <!-- #656 / #657 -->
     <uses-permission android:name="android.permission.health.READ_WEIGHT" />
     <uses-permission android:name="android.permission.health.READ_STEPS" />
+    <uses-permission android:name="android.permission.health.READ_SLEEP" />
 
     <!-- Barcode scanning (#256) has a manual-entry fallback (#291), so a
          camera-less device shouldn't be filtered out of the Play Store. -->

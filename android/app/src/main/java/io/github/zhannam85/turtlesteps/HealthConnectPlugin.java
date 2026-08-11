@@ -8,6 +8,7 @@ import androidx.activity.result.contract.ActivityResultContract;
 import androidx.health.connect.client.HealthConnectClient;
 import androidx.health.connect.client.PermissionController;
 import androidx.health.connect.client.permission.HealthPermission;
+import androidx.health.connect.client.records.SleepSessionRecord;
 import androidx.health.connect.client.records.StepsRecord;
 import androidx.health.connect.client.records.WeightRecord;
 import androidx.health.connect.client.request.ReadRecordsRequest;
@@ -20,6 +21,7 @@ import com.getcapacitor.Plugin;
 import com.getcapacitor.PluginCall;
 import com.getcapacitor.PluginMethod;
 import com.getcapacitor.annotation.CapacitorPlugin;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -72,12 +74,13 @@ public class HealthConnectPlugin extends Plugin {
             }
             boolean weightGranted = grantedPermissions.contains(HealthPermission.READ_WEIGHT);
             boolean stepsGranted = grantedPermissions.contains(HealthPermission.READ_STEPS);
+            boolean sleepGranted = grantedPermissions.contains(HealthPermission.READ_SLEEP);
             JSObject result = new JSObject();
-            // #657 — Sync can proceed with either scope; Settings uses the
-            // flags to pull only what was allowed.
-            result.put("granted", weightGranted || stepsGranted);
+            // #657 / #658 — Sync can proceed with any granted scope.
+            result.put("granted", weightGranted || stepsGranted || sleepGranted);
             result.put("weightGranted", weightGranted);
             result.put("stepsGranted", stepsGranted);
+            result.put("sleepGranted", sleepGranted);
             call.resolve(result);
         });
     }
@@ -110,13 +113,14 @@ public class HealthConnectPlugin extends Plugin {
         call.resolve();
     }
 
-    /** #656 / #657 — request weight + steps in one Health Connect consent. */
+    /** #656 / #657 / #658 — request weight + steps + sleep in one consent. */
     @PluginMethod
     public void requestWeightPermission(PluginCall call) {
         pendingPermissionCall = call;
         Set<String> permissions = new HashSet<>();
         permissions.add(HealthPermission.READ_WEIGHT);
         permissions.add(HealthPermission.READ_STEPS);
+        permissions.add(HealthPermission.READ_SLEEP);
         permissionLauncher.launch(permissions);
     }
 
@@ -207,6 +211,42 @@ public class HealthConnectPlugin extends Plugin {
     }
 
     /**
+     * #658 — sleep hours (and deep sleep when stages exist) per wake-up day
+     * over a recent window. Sessions are attributed to the local calendar
+     * date of their end time (morning you woke up).
+     */
+    @PluginMethod
+    public void syncRecentSleep(PluginCall call) {
+        try {
+            int days = call.getInt("days", 7);
+            if (days < 1) {
+                days = 1;
+            }
+            LocalDate end = LocalDate.now();
+            LocalDate start = end.minusDays(days - 1L);
+            Map<LocalDate, double[]> byDay = readSleepHoursByWakeDay(start, end);
+
+            JSArray sleep = new JSArray();
+            for (Map.Entry<LocalDate, double[]> entry : byDay.entrySet()) {
+                JSObject row = new JSObject();
+                row.put("date", entry.getKey().format(DateTimeFormatter.ISO_LOCAL_DATE));
+                row.put("sleepHours", entry.getValue()[0]);
+                if (entry.getValue()[1] > 0) {
+                    row.put("deepSleepHours", entry.getValue()[1]);
+                }
+                sleep.put(row);
+            }
+            JSObject result = new JSObject();
+            result.put("sleep", sleep);
+            call.resolve(result);
+        } catch (SecurityException e) {
+            call.reject("Health Connect permission not granted", "not_permitted");
+        } catch (Exception e) {
+            call.reject("Failed to read from Health Connect: " + e.getMessage(), e);
+        }
+    }
+
+    /**
      * Reads WeightRecords in [start, end] (inclusive local dates) and keeps
      * the latest reading per local calendar day (device zone).
      */
@@ -284,5 +324,57 @@ public class HealthConnectPlugin extends Plugin {
             totals.put(day, prev == null ? count : prev + count);
         }
         return totals;
+    }
+
+    /**
+     * Sleep sessions ending in [start, end] (wake-up day). Query starts one
+     * day earlier so overnight sessions that began the previous evening are
+     * included. Returns [sleepHours, deepSleepHours] per wake day.
+     */
+    private Map<LocalDate, double[]> readSleepHoursByWakeDay(LocalDate start, LocalDate end)
+        throws Exception {
+        HealthConnectClient client = HealthConnectClient.getOrCreate(getContext(), PROVIDER_PACKAGE);
+        ZoneId zone = ZoneId.systemDefault();
+        LocalDateTime rangeStart = LocalDateTime.of(start.minusDays(1), LocalTime.MIN);
+        LocalDateTime rangeEnd = end.equals(LocalDate.now())
+            ? LocalDateTime.now()
+            : LocalDateTime.of(end, LocalTime.MAX);
+        ReadRecordsRequest<SleepSessionRecord> request = new ReadRecordsRequest<>(
+            JvmClassMappingKt.getKotlinClass(SleepSessionRecord.class),
+            TimeRangeFilter.between(rangeStart, rangeEnd),
+            Collections.emptySet(),
+            true,
+            500,
+            null
+        );
+        ReadRecordsResponse<SleepSessionRecord> response = BuildersKt.runBlocking(
+            Dispatchers.getIO(),
+            (scope, continuation) -> client.readRecords(request, continuation)
+        );
+
+        Map<LocalDate, double[]> byDay = new LinkedHashMap<>();
+        for (SleepSessionRecord record : response.getRecords()) {
+            Instant endTime = record.getEndTime();
+            LocalDate wakeDay = endTime.atZone(zone).toLocalDate();
+            if (wakeDay.isBefore(start) || wakeDay.isAfter(end)) {
+                continue;
+            }
+            double hours = Duration.between(record.getStartTime(), endTime).toMillis() / 3_600_000.0;
+            double deepHours = 0;
+            for (SleepSessionRecord.Stage stage : record.getStages()) {
+                if (stage.getStage() == SleepSessionRecord.STAGE_TYPE_DEEP) {
+                    deepHours += Duration.between(stage.getStartTime(), stage.getEndTime()).toMillis()
+                        / 3_600_000.0;
+                }
+            }
+            double[] prev = byDay.get(wakeDay);
+            if (prev == null) {
+                byDay.put(wakeDay, new double[] { hours, deepHours });
+            } else {
+                prev[0] += hours;
+                prev[1] += deepHours;
+            }
+        }
+        return byDay;
     }
 }

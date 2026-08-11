@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 654,
+    issue: 658,
+    date: '2026-08-11T15:40:00+03:00',
+    en: 'Sync from Health Connect can also pull sleep (and deep sleep when available) for today and recent days (Android).',
+    ru: 'Синхронизация с Health Connect также может подтянуть сон (и глубокий сон, если есть) за сегодня и недавние дни (Android).',
+  },
+  {
     version: 653,
     issue: 657,
     date: '2026-08-11T15:20:00+03:00',

@@ -22,10 +22,9 @@ type SyncState =
   | { phase: 'success'; summary: string }
 
 /**
- * #656 / #693 / #694 / #657 — Android-only (rendered from `SettingsScreen.tsx`
- * behind a `Capacitor.getPlatform() === 'android'` gate). On-demand Sync
- * pulls recent Health Connect weight + steps (default 7 days) and overwrites
- * local values.
+ * #656 / #693 / #694 / #657 / #658 — Android-only. On-demand Sync pulls
+ * recent Health Connect weight, steps, and sleep (default 7 days) and
+ * overwrites local values.
  */
 export function HealthConnectSyncSection() {
   const t = useTranslation()
@@ -59,19 +58,24 @@ export function HealthConnectSyncSection() {
 
       const weightGranted = permission.weightGranted !== false
       const stepsGranted = permission.stepsGranted !== false
+      const sleepGranted = permission.sleepGranted !== false
 
-      const [weightResult, stepsResult] = await Promise.all([
+      const [weightResult, stepsResult, sleepResult] = await Promise.all([
         weightGranted
           ? HealthConnect.syncRecentWeights({ days: HEALTH_CONNECT_RECENT_DAYS })
           : Promise.resolve({ weights: [] }),
         stepsGranted
           ? HealthConnect.syncRecentSteps({ days: HEALTH_CONNECT_RECENT_DAYS })
           : Promise.resolve({ steps: [] }),
+        sleepGranted
+          ? HealthConnect.syncRecentSleep({ days: HEALTH_CONNECT_RECENT_DAYS })
+          : Promise.resolve({ sleep: [] }),
       ])
 
       const readings = mergeHealthConnectNativeReadings(
         weightResult.weights,
         stepsResult.steps,
+        sleepResult.sleep,
       )
       if (readings.length === 0) {
         setState({ phase: 'noData' })

@@ -85,16 +85,35 @@ describe('applyHealthConnectDayReadings (#657)', () => {
 })
 
 describe('mergeHealthConnectNativeReadings', () => {
-  it('joins weight and steps rows by date', () => {
+  it('joins weight, steps, and sleep rows by date', () => {
     const merged = mergeHealthConnectNativeReadings(
       [{ date: '2026-08-11', weightKg: 58 }],
       [
         { date: '2026-08-11', steps: 7000 },
         { date: '2026-08-10', steps: 6000 },
       ],
+      [{ date: '2026-08-11', sleepHours: 7.5, deepSleepHours: 1.2 }],
     )
     expect(merged).toHaveLength(2)
     const today = merged.find((r) => r.date === '2026-08-11')
-    expect(today).toEqual({ date: '2026-08-11', weightKg: 58, steps: 7000 })
+    expect(today).toEqual({
+      date: '2026-08-11',
+      weightKg: 58,
+      steps: 7000,
+      sleepHours: 7.5,
+      deepSleepHours: 1.2,
+    })
+  })
+})
+
+describe('applyHealthConnectDayReadings sleep (#658)', () => {
+  it('overwrites sleepHours and deepSleepHours', () => {
+    const existing = entry({ date: '2026-08-11', sleepHours: 6, deepSleepHours: 1 })
+    const result = applyHealthConnectDayReadings(
+      [{ date: '2026-08-11', sleepHours: 7.5, deepSleepHours: 1.8 }],
+      [existing],
+    )
+    expect(result[0].sleepHours).toBe(7.5)
+    expect(result[0].deepSleepHours).toBe(1.8)
   })
 })

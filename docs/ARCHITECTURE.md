@@ -671,7 +671,9 @@ Vitest + jsdom + `fake-indexeddb` + React Testing Library + `@testing-library/us
 
 **#657 (2026-08-11):** `READ_STEPS` + `syncRecentSteps` (sum StepsRecord counts per local day over the same 7-day window); same Sync button requests weight+steps together and merges both into daily entries. Privacy copy updated.
 
-**Open follow-ups:** [#658](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/658) sleep.
+**#658 (2026-08-11):** `READ_SLEEP` + `syncRecentSleep` — SleepSessionRecord duration attributed to the wake-up (end) local day; deep sleep summed from `STAGE_TYPE_DEEP` when stages exist. Same Sync button / overwrite merge.
+
+**Open follow-ups:** on-device validation for #656/#693/#694/#657/#658 (native rebuild required).
 
 ---
 
