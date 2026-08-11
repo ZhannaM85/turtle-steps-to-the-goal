@@ -179,6 +179,7 @@ _iOS waits on a Mac; Android Play path waits on #316. Meanwhile: goal-lifecycle 
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
+| [#689](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/689) | ✅ Done | Goal lifecycle hard-lock / regression pack | `goalLifecycleHardLock.test.tsx` + save-time baseline helper; validated 2026-08-11. |
 | [#690](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/690) | ✅ Done | E2E: goal baseline + Past Targets multi-screen flows | `e2e/goal-flows.spec.ts`; validated 2026-08-11. |
 | [#691](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/691) | ✅ Done | Day screen: «Add another meal» when day has no meals | Conditional empty-day vs with-meals copy; validated on-device 2026-08-11. |
 | [#692](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/692) | ✅ Done | Day screen: Copy yesterday meals is oversized / rarely used | Settings opt-in default off; validated on-device 2026-08-11. |

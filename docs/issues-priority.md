@@ -34,13 +34,3 @@ _User asked about pulling data from Apple Health and Zepp Life. Researched via W
 | [#334](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/334) | 📋 Not started | Epic — Apple Health integration (blocked on mobile app + HealthKit bridge) | HealthKit has no public/cloud API at all — data is on-device only, readable exclusively by a native iOS app (or hybrid app with a HealthKit plugin/entitlement) the user has granted permission to. Genuinely blocked until the mobile app exists; can't be built sooner by any workaround. |
 
 ---
-
-## Tier 132 — Regression / CI hardening + live UX (2026-08-11)
-
-_iOS waits on a Mac; Android Play path waits on #316 (developer account). Meanwhile: file a goal-lifecycle Vitest hard-lock pack for the reopen cluster (#676/#681/#686/…), expand Playwright only for true multi-screen goal flows, and housekeeping (stale #657 GitHub state, outdated `potential-improvements.md` CI rows). Also live Day-screen UX from on-device use._
-
-| # | Status | Issue | Notes |
-|---|--------|-------|-------|
-| [#689](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/689) | 🔍 Pending validation | Goal lifecycle hard-lock / regression pack | `goalLifecycleHardLock.test.tsx` locks #676/#681/#667/#671/#686/#677; extracted `resolveWeightForFreshBaseline` for #681 save-time. |
-
----
