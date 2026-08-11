@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 652,
+    issue: 694,
+    date: '2026-08-11T15:00:00+03:00',
+    en: 'Sync from Health Connect now pulls weight for today and the last several days — not only today.',
+    ru: 'Синхронизация с Health Connect теперь подтягивает вес за сегодня и несколько прошлых дней — не только за сегодня.',
+  },
+  {
     version: 651,
     issue: 693,
     date: '2026-08-11T14:45:00+03:00',

@@ -1225,7 +1225,7 @@ export const en: Dictionary = {
     dailyReminderTimeLabel: 'Remind me at',
     healthConnectSyncLabel: 'Health Connect',
     healthConnectSyncDescription:
-      'Sync today’s weight from Health Connect — including weight other apps have written there. Each Sync pulls the latest value and updates today’s weight (safe to tap again after you update the source).',
+      'Sync weight from Health Connect for today and the last several days — including weight other apps have written there. Each Sync pulls the latest value per day and updates this app (safe to tap again after you change the source).',
     healthConnectSyncButton: 'Sync from Health Connect',
     healthConnectSyncingButton: 'Syncing…',
     healthConnectUnavailableMessage:
@@ -1233,8 +1233,12 @@ export const en: Dictionary = {
     healthConnectInstallButton: 'Install Health Connect',
     healthConnectPermissionDeniedMessage:
       'Permission to read weight from Health Connect was denied.',
-    healthConnectSyncSuccessMessage: (weight) => `Synced: ${weight}`,
-    healthConnectSyncNoDataMessage: 'No weight logged in Health Connect today.',
+    healthConnectSyncSuccessMessage: (dayCount, todayWeight) =>
+      todayWeight === undefined
+        ? `Synced ${dayCount} day${dayCount === 1 ? '' : 's'}.`
+        : `Synced ${dayCount} day${dayCount === 1 ? '' : 's'}; today ${todayWeight}.`,
+    healthConnectSyncNoDataMessage:
+      'No weight in Health Connect for the last 7 days.',
     healthConnectSyncErrorMessage: 'Couldn’t sync from Health Connect. Try again.',
     trendChartsLabel: 'Dashboard trend charts',
     trendChartsDescription:

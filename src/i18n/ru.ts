@@ -1258,15 +1258,19 @@ export const ru: Dictionary = {
     dailyReminderTimeLabel: 'Напоминать в',
     healthConnectSyncLabel: 'Health Connect',
     healthConnectSyncDescription:
-      'Синхронизировать вес за сегодня из Health Connect — включая вес, который записали другие приложения. Каждая синхронизация подтягивает последнее значение и обновляет вес за сегодня (можно нажать снова после обновления в источнике).',
+      'Синхронизировать вес из Health Connect за сегодня и несколько прошлых дней — включая вес, который записали другие приложения. Каждая синхронизация подтягивает последнее значение за день и обновляет приложение (можно нажать снова после изменения в источнике).',
     healthConnectSyncButton: 'Синхронизировать из Health Connect',
     healthConnectSyncingButton: 'Синхронизация…',
     healthConnectUnavailableMessage: 'Health Connect не установлен на этом устройстве.',
     healthConnectInstallButton: 'Установить Health Connect',
     healthConnectPermissionDeniedMessage:
       'Доступ к весу в Health Connect не предоставлен.',
-    healthConnectSyncSuccessMessage: (weight) => `Синхронизировано: ${weight}`,
-    healthConnectSyncNoDataMessage: 'В Health Connect нет веса за сегодня.',
+    healthConnectSyncSuccessMessage: (dayCount, todayWeight) =>
+      todayWeight === undefined
+        ? `Синхронизировано дней: ${dayCount}.`
+        : `Синхронизировано дней: ${dayCount}; сегодня ${todayWeight}.`,
+    healthConnectSyncNoDataMessage:
+      'В Health Connect нет веса за последние 7 дней.',
     healthConnectSyncErrorMessage:
       'Не удалось синхронизировать с Health Connect. Попробуйте ещё раз.',
     trendChartsLabel: 'Графики трендов на панели',

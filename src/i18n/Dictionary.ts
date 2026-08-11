@@ -1954,7 +1954,7 @@ export interface Dictionary {
     healthConnectUnavailableMessage: string
     healthConnectInstallButton: string
     healthConnectPermissionDeniedMessage: string
-    healthConnectSyncSuccessMessage: (weight: string) => string
+    healthConnectSyncSuccessMessage: (dayCount: number, todayWeight?: string) => string
     healthConnectSyncNoDataMessage: string
     healthConnectSyncErrorMessage: string
     trendChartsLabel: string

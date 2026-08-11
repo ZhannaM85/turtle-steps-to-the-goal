@@ -667,7 +667,9 @@ Vitest + jsdom + `fake-indexeddb` + React Testing Library + `@testing-library/us
 
 **#693 (2026-08-11):** Settings Sync uses `mergeDailyEntryPatches(..., 'overwrite')` via `applyHealthConnectWeight` — an explicit Sync tap refreshes today's weight from HC even when a local value already exists. File importers keep #496 `fillGaps` by default.
 
-**Open follow-ups:** [#694](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/694) past-day sync; [#657](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/657) steps; [#658](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/658) sleep.
+**#694 (2026-08-11):** native `syncRecentWeights` (default last 7 local calendar days) returns latest kg per day; Settings Sync applies the batch with the same overwrite helper. Zepp Life still does not feed HC — this is for HC-native sources.
+
+**Open follow-ups:** [#657](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/657) steps; [#658](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/658) sleep.
 
 ---
 
