@@ -42,6 +42,5 @@ _iOS waits on a Mac; Android Play path waits on #316 (developer account). Meanwh
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#689](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/689) | 🔍 Pending validation | Goal lifecycle hard-lock / regression pack | `goalLifecycleHardLock.test.tsx` locks #676/#681/#667/#671/#686/#677; extracted `resolveWeightForFreshBaseline` for #681 save-time. |
-| [#692](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/692) | 🔍 Pending validation | Day screen: Copy yesterday meals is oversized / rarely used | Opt-in Settings toggle (`useCopyYesterdayMealsStore`, default off) in What to track → Other; Day button only when enabled and yesterday has meals. |
 
 ---
