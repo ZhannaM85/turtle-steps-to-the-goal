@@ -1225,7 +1225,7 @@ export const en: Dictionary = {
     dailyReminderTimeLabel: 'Remind me at',
     healthConnectSyncLabel: 'Health Connect',
     healthConnectSyncDescription:
-      'Sync today’s weight from Health Connect — including anything Zepp Life, Google Fit, or another app has written there. Only fills in weight if you haven’t already logged it yourself today.',
+      'Sync today’s weight from Health Connect — including weight other apps have written there. Each Sync pulls the latest value and updates today’s weight (safe to tap again after you update the source).',
     healthConnectSyncButton: 'Sync from Health Connect',
     healthConnectSyncingButton: 'Syncing…',
     healthConnectUnavailableMessage:
@@ -1235,8 +1235,6 @@ export const en: Dictionary = {
       'Permission to read weight from Health Connect was denied.',
     healthConnectSyncSuccessMessage: (weight) => `Synced: ${weight}`,
     healthConnectSyncNoDataMessage: 'No weight logged in Health Connect today.',
-    healthConnectAlreadyLoggedMessage:
-      'You’ve already logged a weight today — that stays as-is.',
     healthConnectSyncErrorMessage: 'Couldn’t sync from Health Connect. Try again.',
     trendChartsLabel: 'Dashboard trend charts',
     trendChartsDescription:

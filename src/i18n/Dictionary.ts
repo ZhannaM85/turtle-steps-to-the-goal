@@ -1956,11 +1956,6 @@ export interface Dictionary {
     healthConnectPermissionDeniedMessage: string
     healthConnectSyncSuccessMessage: (weight: string) => string
     healthConnectSyncNoDataMessage: string
-    /** Distinct from healthConnectSyncSuccessMessage — mergeDailyEntryPatches'
-     * fillGaps mode (#496) never overwrites a value already logged by hand
-     * today, so this covers that case explicitly rather than claiming a
-     * sync happened when the manual entry actually won. */
-    healthConnectAlreadyLoggedMessage: string
     healthConnectSyncErrorMessage: string
     trendChartsLabel: string
     trendChartsDescription: string

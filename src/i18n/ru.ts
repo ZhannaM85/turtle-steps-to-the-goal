@@ -1258,7 +1258,7 @@ export const ru: Dictionary = {
     dailyReminderTimeLabel: 'Напоминать в',
     healthConnectSyncLabel: 'Health Connect',
     healthConnectSyncDescription:
-      'Синхронизировать вес за сегодня из Health Connect — включая данные из Zepp Life, Google Fit или другого приложения. Заполняет вес, только если вы ещё не ввели его сами сегодня.',
+      'Синхронизировать вес за сегодня из Health Connect — включая вес, который записали другие приложения. Каждая синхронизация подтягивает последнее значение и обновляет вес за сегодня (можно нажать снова после обновления в источнике).',
     healthConnectSyncButton: 'Синхронизировать из Health Connect',
     healthConnectSyncingButton: 'Синхронизация…',
     healthConnectUnavailableMessage: 'Health Connect не установлен на этом устройстве.',
@@ -1267,8 +1267,6 @@ export const ru: Dictionary = {
       'Доступ к весу в Health Connect не предоставлен.',
     healthConnectSyncSuccessMessage: (weight) => `Синхронизировано: ${weight}`,
     healthConnectSyncNoDataMessage: 'В Health Connect нет веса за сегодня.',
-    healthConnectAlreadyLoggedMessage:
-      'Вы уже ввели вес за сегодня — он остаётся без изменений.',
     healthConnectSyncErrorMessage:
       'Не удалось синхронизировать с Health Connect. Попробуйте ещё раз.',
     trendChartsLabel: 'Графики трендов на панели',

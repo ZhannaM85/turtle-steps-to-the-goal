@@ -1,15 +1,12 @@
 import { useEffect, useState } from 'react'
 import { format } from 'date-fns'
 import { kgToLb } from '@/domain/goal'
-import {
-  type DailyEntryPatch,
-  mergeDailyEntryPatches,
-} from '@/features/export/mergeDailyEntryPatches'
 import { formatExactNumber, unitLabel, useLocale, useTranslation } from '@/i18n'
 import { IndexedDbDailyEntryRepository } from '@/infrastructure/persistence/indexeddb'
 import { HealthConnect } from '@/shared/native/healthConnect'
 import { Button } from '@/shared/ui/button'
 import { useUnitStore } from '@/stores'
+import { applyHealthConnectWeight } from './applyHealthConnectWeight'
 
 const dailyEntryRepository = new IndexedDbDailyEntryRepository()
 
@@ -17,20 +14,15 @@ type SyncState =
   | { phase: 'checking' }
   | { phase: 'unavailable' | 'updateRequired' }
   | { phase: 'ready' | 'syncing' }
-  | { phase: 'permissionDenied' | 'noData' | 'alreadyLogged' | 'error' }
+  | { phase: 'permissionDenied' | 'noData' | 'error' }
   | { phase: 'success'; weightText: string }
 
 /**
- * #656 — Android-only (rendered from `SettingsScreen.tsx` behind a
- * `Capacitor.getPlatform() === 'android'` gate, same as this file's
- * existing native-only bits). A one-time "sync now" action, not a
- * background/ongoing toggle — matches this app's local-first, user-in-
- * control philosophy and avoids WorkManager battery/complexity cost for
- * a feature that's easy enough to trigger on demand. Merge behavior:
- * mergeDailyEntryPatches' default 'fillGaps' mode, the same policy #496
- * already established for every other external-source import (Zepp
- * Life, Apple Health, MyFitnessPal) — a manual weight entry made today
- * always wins over a synced one.
+ * #656 / #693 — Android-only (rendered from `SettingsScreen.tsx` behind a
+ * `Capacitor.getPlatform() === 'android'` gate). A one-time "sync now"
+ * action, not a background/ongoing toggle — matches this app's local-first,
+ * user-in-control philosophy. #693: Sync uses overwrite so tapping again
+ * refreshes today's weight from Health Connect after the source updates.
  */
 export function HealthConnectSyncSection() {
   const t = useTranslation()
@@ -70,20 +62,9 @@ export function HealthConnectSyncSection() {
 
       const date = format(new Date(), 'yyyy-MM-dd')
       const existing = await dailyEntryRepository.getByDate(date)
-      const patch: DailyEntryPatch = { weightKg }
-      const { entriesToUpsert } = mergeDailyEntryPatches(
-        new Map([[date, patch]]),
-        existing ? [existing] : [],
-      )
+      const next = applyHealthConnectWeight(date, weightKg, existing)
+      await dailyEntryRepository.upsert(next)
 
-      if (entriesToUpsert.length === 0) {
-        // Today's entry already has a manual weight — fillGaps mode
-        // correctly left it untouched, so this isn't the same as success.
-        setState({ phase: 'alreadyLogged' })
-        return
-      }
-
-      await dailyEntryRepository.upsert(entriesToUpsert[0])
       const displayWeightKg = unit === 'lb' ? kgToLb(weightKg) : weightKg
       const weightText = `${formatExactNumber(displayWeightKg, locale)} ${unitLabel(unit, t)}`
       setState({ phase: 'success', weightText })
@@ -140,11 +121,6 @@ export function HealthConnectSyncSection() {
       {state.phase === 'noData' && (
         <p className="text-sm text-muted-foreground">
           {t.settings.healthConnectSyncNoDataMessage}
-        </p>
-      )}
-      {state.phase === 'alreadyLogged' && (
-        <p className="text-sm text-muted-foreground">
-          {t.settings.healthConnectAlreadyLoggedMessage}
         </p>
       )}
       {state.phase === 'error' && (
