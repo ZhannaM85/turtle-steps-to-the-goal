@@ -112,7 +112,7 @@ _Same-day live feedback (Zepp multi-user export, export status placement, Apple 
 | [#655](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/655) | ✅ Done | About screen: merge Version and Release notes into one card | Follow-up to #654. Implemented, scope grew live during the session: single `Card` combines the title as `{releaseNotes} · {currentVersion}` (`AboutScreen.tsx`), and the separate "Show release notes" text button was replaced by an icon-only `ChevronDown`/`ChevronUp` toggle in the card header (`CardAction`) next to that title — `ReleaseNotesSection.tsx` is now a dumb list, expand/collapse state lifted to `AboutScreen`. Confirmed working on-device 2026-08-09 |
 | [#657](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/657) | ✅ Done | Android Health Connect: steps sync | Reopened then validated on-device 2026-08-11 — see Tier 132 archive. |
 | [#656](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/656) | ✅ Done | Android Health Connect: weight sync (foundation) | Reopened then validated on-device 2026-08-11 — see Tier 132 archive. |
-| [#658](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/658) | ↩️ Reopened 2026-08-11 | Android Health Connect: sleep sync | Was won't-do / not started; reopened with #335 — see active Tier 132. |
+| [#658](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/658) | ✅ Done | Android Health Connect: sleep sync | Reopened then validated on-device 2026-08-11 — see Tier 132 archive. |
 
 ---
 
@@ -185,3 +185,4 @@ _iOS waits on a Mac; Android Play path waits on #316. Meanwhile: goal-lifecycle 
 | [#692](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/692) | ✅ Done | Day screen: Copy yesterday meals is oversized / rarely used | Settings opt-in default off; validated on-device 2026-08-11. |
 | [#656](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/656) | ✅ Done | Android Health Connect: weight sync (foundation) | Confirmed on-device 2026-08-11 with HC-native sources (weight sync). |
 | [#657](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/657) | ✅ Done | Android Health Connect: steps sync | Confirmed on-device 2026-08-11 (`syncRecentSteps`). |
+| [#658](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/658) | ✅ Done | Android Health Connect: sleep sync | Confirmed on-device 2026-08-11 (`syncRecentSleep`). |
