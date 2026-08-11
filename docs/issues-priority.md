@@ -32,6 +32,5 @@ _User asked about pulling data from Apple Health and Zepp Life. Researched via W
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#334](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/334) | 📋 Not started | Epic — Apple Health integration (blocked on mobile app + HealthKit bridge) | HealthKit has no public/cloud API at all — data is on-device only, readable exclusively by a native iOS app (or hybrid app with a HealthKit plugin/entitlement) the user has granted permission to. Genuinely blocked until the mobile app exists; can't be built sooner by any workaround. |
-| [#335](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/335) | 🔲 Open | Epic — Android Health Connect integration | **Reopened 2026-08-11.** Won't-do assumed Zepp Life must feed HC; user confirmed HC weight sync works from HC-native sources without Zepp. Children #656/#657/#658 reopened; refresh gaps #693/#694. Zepp history stays on #365 file import. |
 
 ---
