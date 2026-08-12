@@ -67,3 +67,5 @@ App Store distribution (#313).
    camera permission prompt (copy comes from `NSCameraUsageDescription` in
    `ios/App/App/Info.plist`). Grant → live preview; deny → #291 manual
    barcode entry should still work.
+
+A free Apple ID cannot distribute via TestFlight; that still needs #313.
