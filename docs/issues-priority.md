@@ -40,6 +40,6 @@ _Live on-device iOS feedback while validating the Capacitor shell (#306). #696 a
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#697](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/697) | ⬜ Open | iOS splash: turtle logo too small / looks missing; unassigned Splash assets | Cold launch shows mostly blank white — `Splash.imageset` from #311 uses heavily padded `resources/icon.png`, so the turtle is tiny under `LaunchScreen` `scaleAspectFill`. Xcode warns about 3 unassigned orphan `splash-2732x2732*.png` files. Fix: delete orphans + regenerate iOS splash with larger `--logoSplashScale` without regressing Android (#311/#653). |
+| [#697](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/697) | 🔍 Pending validation | iOS splash: turtle logo too small / looks missing; unassigned Splash assets | Deleted orphan `splash-2732x2732*.png` (Xcode unassigned-children warning). Regenerated iOS splash only with `--logoSplashScale 0.65` (default 0.2 left the padded `resources/icon.png` logo tiny under `LaunchScreen` `scaleAspectFill`). Android assets untouched. Needs on-device cold-launch confirm: clear turtle badge, no Xcode Splash warning. |
 
 ---

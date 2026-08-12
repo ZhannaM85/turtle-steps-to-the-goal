@@ -69,4 +69,11 @@ App Store distribution (#313).
    `ios/App/App/Info.plist`). Grant → live preview; deny → #291 manual
    barcode entry should still work.
 
+**iOS splash regenerate (#697):** if splash assets need regenerating, use a
+larger logo scale than the `@capacitor/assets` default (`0.2`), or the
+padded `resources/icon.png` (#311) looks tiny on cold launch:
+`npx @capacitor/assets generate --ios --iconBackgroundColor '#ffffff' --iconBackgroundColorDark '#0f181c' --splashBackgroundColor '#ffffff' --splashBackgroundColorDark '#0f181c' --logoSplashScale 0.65`
+Do **not** pass `--android` unless intentionally refreshing Android too
+(#653 splash wrapper is hand-authored and survives splash PNG rewrites).
+
 A free Apple ID cannot distribute via TestFlight; that still needs #313.
