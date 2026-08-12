@@ -49,18 +49,23 @@ access, no USB needed after pairing.
 Studio — pick the connected device from the target dropdown and hit Run
 instead of the CLI steps above.
 
-## iOS — needs a Mac, not possible from this Windows machine
+## iOS — Mac + Xcode (free Apple ID is enough for device debug)
 
-Building or running the iOS project requires Xcode, which is macOS-only —
-there's no Windows workaround, and Capacitor doesn't change that. This is
-exactly why #304 planned Android first.
+Building or running the iOS project requires Xcode (macOS-only). A **free**
+Apple ID is enough to install a debug build on your own iPhone — the paid
+$99/year Apple Developer Program is only needed later for TestFlight /
+App Store distribution (#313).
 
-Once a Mac is available:
+1. Sync web assets into the native project when needed:
+   `npm run build` then `npx cap sync ios` (plain `npm run build`, not the
+   Pages `--base=…` deploy build — see ARCHITECTURE).
+2. Open `ios/App/App.xcworkspace` in Xcode — the `.xcworkspace`, not
+   `.xcodeproj`.
+3. Signing & Capabilities → Team: sign in with your Apple ID (Personal Team).
+4. Connect an iPhone via USB, select it as the run target, hit Run.
+5. **#306 camera check:** open Add meal → barcode scanner. Expect the iOS
+   camera permission prompt (copy comes from `NSCameraUsageDescription` in
+   `ios/App/App/Info.plist`). Grant → live preview; deny → #291 manual
+   barcode entry should still work.
 
-1. Open `ios/App/App.xcworkspace` in Xcode — the `.xcworkspace`, not
-   `.xcodeproj` (the project uses CocoaPods/SPM).
-2. Sign in with an Apple ID. A **free** account is enough to run on your
-   own physical device for local testing — the paid $99/year Apple
-   Developer Program is only needed later, for TestFlight/App Store
-   distribution (#313).
-3. Connect an iPhone via USB, select it as the run target, hit Run.
+A free Apple ID cannot distribute via TestFlight; that still needs #313.

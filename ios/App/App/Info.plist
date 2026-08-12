@@ -24,6 +24,13 @@
 	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<!-- #306 — barcode scanning uses @zxing/browser over getUserMedia;
+	     without this key iOS denies camera access (and App Store rejects).
+	     Same pattern as Android #307: no Capacitor Camera plugin needed —
+	     WKWebView forwards the web permission prompt once the usage
+	     description exists. -->
+	<key>NSCameraUsageDescription</key>
+	<string>Camera access is used to scan food barcodes.</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
