@@ -189,3 +189,13 @@ _iOS waits on a Mac; Android Play path waits on #316. Meanwhile: goal-lifecycle 
 | [#693](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/693) | ✅ Done | Health Connect weight sync: allow refreshing when today's weight is already set | Confirmed on-device 2026-08-11 — Sync overwrites today's weight. |
 | [#694](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/694) | ✅ Done | Health Connect weight sync: sync / refresh past days, not only today | Confirmed on-device 2026-08-11 — Sync pulls last 7 days. |
 | [#695](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/695) | ✅ Done | Barcode scanner: manual input clipped at bottom when still-scanning message shows | Confirmed on Android 2026-08-11 — manual entry stays usable when still-scanning tip shows. |
+
+---
+
+## Tier 133 — Live feedback (2026-08-12)
+
+_Live report: body-composition Overview chart is hard to read when all series are shown together._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#696](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/696) | ✅ Done | Allow graph customization for body composition | Per-series line/bar/dots on body composition chart; confirmed on-device 2026-08-12. |
