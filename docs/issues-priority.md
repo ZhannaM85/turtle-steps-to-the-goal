@@ -40,6 +40,6 @@ _Live on-device iOS feedback while validating the Capacitor shell (#306). #696 a
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#697](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/697) | 🔍 Pending validation | iOS splash: turtle logo too small / looks missing; unassigned Splash assets | On-device recording (2026-08-12): cold launch ~3.5s shows blank dark gray, no turtle. Root causes: (1) Capacitor `LaunchScreen` used `UIImageView` as root view — only `systemBackgroundColor` showed; (2) splash PNGs still had a tiny logo. Fix: rewrite `LaunchScreen.storyboard` to UIView + full-bleed Splash imageView; compose Splash assets with ~43% centered cropped turtle; delete orphan unassigned PNGs. **Must delete the app from the phone before reinstall** (iOS caches launch screens). |
+| [#697](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/697) | 🔍 Pending validation | iOS splash: turtle logo too small / looks missing; unassigned Splash assets | 2026-08-12 22:14 recording still blank dark (~1s, no turtle) — reinstall tested older build; dark-mode `Splash` was a tiny logo on charcoal. Fix v3: `SplashLogo` @2x/@3x filenames corrected; white LaunchScreen + centered logo; drop dark Splash variants; Cap splash holds ~600ms after first paint. **Must Xcode rebuild + delete native app** (not only reinstall old IPA). |
 
 ---
