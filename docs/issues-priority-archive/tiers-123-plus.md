@@ -194,7 +194,7 @@ _iOS waits on a Mac; Android Play path waits on #316. Meanwhile: goal-lifecycle 
 
 ## Tier 133 — Live feedback (2026-08-12)
 
-_Live report: body-composition Overview chart is hard to read when all series are shown together._
+_Live report: body-composition Overview chart is hard to read when all series are shown together. Same day: iOS splash sizing (#697) stays in the active priority file._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|

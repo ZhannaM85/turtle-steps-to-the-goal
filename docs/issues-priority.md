@@ -33,3 +33,13 @@ _User asked about pulling data from Apple Health and Zepp Life. Researched via W
 | [#334](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/334) | 📋 Not started | Epic — Apple Health integration (blocked on mobile app + HealthKit bridge) | HealthKit has no public/cloud API at all — data is on-device only, readable exclusively by a native iOS app (or hybrid app with a HealthKit plugin/entitlement) the user has granted permission to. Genuinely blocked until the mobile app exists; can't be built sooner by any workaround. |
 
 ---
+
+## Tier 133 — Live feedback (2026-08-12)
+
+_Live on-device iOS feedback while validating the Capacitor shell (#306). #696 already archived under this same-day tier._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#697](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/697) | ⬜ Open | iOS splash: turtle logo too small / looks missing; unassigned Splash assets | Cold launch shows mostly blank white — `Splash.imageset` from #311 uses heavily padded `resources/icon.png`, so the turtle is tiny under `LaunchScreen` `scaleAspectFill`. Xcode warns about 3 unassigned orphan `splash-2732x2732*.png` files. Fix: delete orphans + regenerate iOS splash with larger `--logoSplashScale` without regressing Android (#311/#653). |
+
+---
