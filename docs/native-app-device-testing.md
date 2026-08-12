@@ -59,8 +59,9 @@ App Store distribution (#313).
 1. Sync web assets into the native project when needed:
    `npm run build` then `npx cap sync ios` (plain `npm run build`, not the
    Pages `--base=…` deploy build — see ARCHITECTURE).
-2. Open `ios/App/App.xcworkspace` in Xcode — the `.xcworkspace`, not
-   `.xcodeproj`.
+2. Open `ios/App/App.xcodeproj` in Xcode (this Capacitor project uses
+   Swift Package Manager / `CapApp-SPM`, so there is no top-level
+   `.xcworkspace` — that only appears with CocoaPods).
 3. Signing & Capabilities → Team: sign in with your Apple ID (Personal Team).
 4. Connect an iPhone via USB, select it as the run target, hit Run.
 5. **#306 camera check:** open Add meal → barcode scanner. Expect the iOS
