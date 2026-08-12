@@ -207,6 +207,7 @@ by stripping every interior blank line back out).
 | 169 | 2026-08-10 | Prompted | While fixing #679, ran `cd "..." && date --iso-8601=seconds 2>&1 \|\| powershell -Command "Get-Date -Format o"` via Bash to get a timestamp for the `releaseNotes.ts` entry — `&&`/`\|\|` chaining plus a redirect, three compound shapes in one call | CLAUDE.md "⚠️ Shell safety" — corrected by using the PowerShell tool with a single plain `Get-Date -Format o` call instead |
 | 170 | 2026-08-10 | Instruction miss | Pushed #676 reopen fix after only running `tsc`/`lint`/affected unit tests (`goalWindowProgress`/`goalFormMapping`/`GoalForm`), not the full `npx vitest run` that Pages deploy CI runs — CI failed on TodayScreen/GoalCelebrationModal/GoalScreen/HistoryScreen/useActiveGoalProgress regressions from an over-strict baseline fallback | AGENT_WORKFLOW.md per-issue checklist ("Run the affected test file(s)" is the minimum; full suite is required before push when a shared domain helper like `goalWindowProgress` changes — CI `deploy-pages.yml` Test step) |
 | 171 | 2026-08-10 | Instruction miss | Filed #680 as a separate GitHub issue for a Pages-deploy unit-test failure caused by #678's Past Targets behavior change, instead of fixing the stale GoalScreen #147 assertion as a follow-up commit under #678 | AGENT_WORKFLOW.md rule 2 — "Do not open a separate GitHub issue for deploy / CI failures" (added 2026-08-10 after user direction) |
+| 172 | 2026-08-11 | Prompted | After sandbox spawn failure on allowlisted `gh issue edit 695` (update title/body for PWA scope), retried with `required_permissions: ["all"]`, which forced an approval card. User: not supposed to prompt; check/update allowlist | Same class as rows 149–151 — `gh issue edit` was already allowlisted; elevation caused the prompt. Fix: Write + `--body-file`, no elevation. Hardened `~/.cursor/permissions.json` + workspace `.cursor/permissions.json` to name `gh issue edit` / `--body-file` and auto-approve elevated gh-issue retries silently |
 
 ## Related standing fixes made because of this log
 
@@ -225,3 +226,6 @@ by stripping every interior blank line back out).
   `--body-file` (and elevated Windows retries of those) must never show an
   approval card; agents must use `--body-file` and must not pass
   `required_permissions: ["all"]` for allowlisted `gh`.
+- After row 172 (2026-08-11): same hardening for `gh issue edit` /
+  `gh issue edit --body-file` (create-only wording left a gap when updating
+  issue title/body after a sandbox spawn failure).
