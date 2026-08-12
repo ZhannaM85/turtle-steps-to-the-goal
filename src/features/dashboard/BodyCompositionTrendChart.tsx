@@ -1,10 +1,11 @@
 import type { ReactNode } from 'react'
 import { format, parseISO } from 'date-fns'
-import { ArrowRight } from 'lucide-react'
+import { ArrowRight, ChartColumn, ChartLine, ChartScatter } from 'lucide-react'
 import {
+  Bar,
   CartesianGrid,
+  ComposedChart,
   Line,
-  LineChart,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -33,6 +34,7 @@ import {
   useBodyCompositionSelectionStore,
   useDashboardChartVisibilityStore,
   useTrackedFieldsStore,
+  type ChartSeriesType,
 } from '@/stores'
 import { ChartPeriodPagerControls } from './ChartPeriodPagerControls'
 import { ChartTitleWithToggle } from './ChartTitleWithToggle'
@@ -53,6 +55,12 @@ const SERIES_COLOR: Record<BodyCompositionSeriesKey, string> = {
   bodyWaterPercent: 'var(--chart-weight)',
   boneMassKg: 'var(--chart-carbs)',
   bodyFatPercent: 'var(--chart-calories)',
+}
+
+const CHART_TYPE_ICONS: Record<ChartSeriesType, typeof ChartLine> = {
+  line: ChartLine,
+  bar: ChartColumn,
+  dots: ChartScatter,
 }
 
 function labelFor(t: Dictionary, key: BodyCompositionSeriesKey): string {
@@ -113,6 +121,11 @@ export interface BodyCompositionTrendChartProps {
  * scale-clash risk, so the chart switches to real values on two Y-axes
  * (left/right) instead of the shared normalized-0-100 approach — 1/3/4/5
  * selected keeps that normalized behavior, just for the chosen subset.
+ *
+ * #696: per-series line/bar/dots in the legend (same icon radiogroups as
+ * `MacroTrendChart` / `CustomChartView`), persisted alongside the chip
+ * selection — `LineChart` became `ComposedChart` so a series can render as
+ * a `Bar`.
  */
 export function BodyCompositionTrendChart({
   entries: allEntries,
@@ -142,6 +155,12 @@ export function BodyCompositionTrendChart({
   const selected = useBodyCompositionSelectionStore((state) => state.selected)
   const setSelected = useBodyCompositionSelectionStore(
     (state) => state.setSelected,
+  )
+  const chartTypes = useBodyCompositionSelectionStore(
+    (state) => state.chartTypes,
+  )
+  const setChartType = useBodyCompositionSelectionStore(
+    (state) => state.setChartType,
   )
 
   if (!trackedFields.bodyComposition) return null
@@ -199,6 +218,12 @@ export function BodyCompositionTrendChart({
   // gets its own real, visible axis too instead of falling through to the
   // hidden normalized-0-100 one meant for the 3+/ambiguous-scale case.
   const singleAxis = visibleKeys.length === 1
+  const realAxis = dualAxis || singleAxis
+
+  function axisIdFor(key: BodyCompositionSeriesKey): string {
+    if (dualAxis) return key === visibleKeys[0] ? 'left' : 'right'
+    return singleAxis ? 'single' : 'normalized'
+  }
 
   const seriesPicker = (
     <ToggleGroup
@@ -311,7 +336,7 @@ export function BodyCompositionTrendChart({
         data-point-count={data.length}
       >
         <ResponsiveContainer width="100%" height={160}>
-          <LineChart
+          <ComposedChart
             data={displayData}
             margin={{ top: 8, right: 8, left: 0, bottom: 0 }}
           >
@@ -356,6 +381,7 @@ export function BodyCompositionTrendChart({
             />
           ) : (
             <YAxis
+              yAxisId="normalized"
               width={40}
               domain={[0, 100]}
               tick={false}
@@ -368,28 +394,52 @@ export function BodyCompositionTrendChart({
             content={renderTooltip}
             wrapperStyle={{ pointerEvents: 'none' }}
           />
-          {visibleKeys.map((key, index) => (
-            <Line
-              key={key}
-              yAxisId={
-                dualAxis
-                  ? index === 0
-                    ? 'left'
-                    : 'right'
-                  : singleAxis
-                    ? 'single'
-                    : undefined
-              }
-              type="monotone"
-              dataKey={dualAxis || singleAxis ? `${key}_raw` : `${key}_norm`}
-              stroke={SERIES_COLOR[key]}
-              strokeWidth={2}
-              dot={false}
-              connectNulls={false}
-              isAnimationActive={false}
-            />
-          ))}
-        </LineChart>
+          {visibleKeys.map((key) => {
+            const dataKey = realAxis ? `${key}_raw` : `${key}_norm`
+            const yAxisId = axisIdFor(key)
+            if (chartTypes[key] === 'bar') {
+              return (
+                <Bar
+                  key={key}
+                  yAxisId={yAxisId}
+                  dataKey={dataKey}
+                  fill={SERIES_COLOR[key]}
+                  radius={[2, 2, 0, 0]}
+                  maxBarSize={14}
+                  minPointSize={3}
+                  isAnimationActive={false}
+                />
+              )
+            }
+            if (chartTypes[key] === 'dots') {
+              return (
+                <Line
+                  key={key}
+                  yAxisId={yAxisId}
+                  type="monotone"
+                  dataKey={dataKey}
+                  stroke="transparent"
+                  dot={{ r: 3, fill: SERIES_COLOR[key], strokeWidth: 0 }}
+                  connectNulls={false}
+                  isAnimationActive={false}
+                />
+              )
+            }
+            return (
+              <Line
+                key={key}
+                yAxisId={yAxisId}
+                type="monotone"
+                dataKey={dataKey}
+                stroke={SERIES_COLOR[key]}
+                strokeWidth={2}
+                dot={false}
+                connectNulls={false}
+                isAnimationActive={false}
+              />
+            )
+          })}
+        </ComposedChart>
       </ResponsiveContainer>
       </div>
       {isZoomed && (
@@ -402,18 +452,53 @@ export function BodyCompositionTrendChart({
           </Button>
         </div>
       )}
-      <span className="flex flex-wrap gap-3 text-xs text-muted-foreground">
+      <div className="flex flex-wrap gap-4 text-xs text-muted-foreground">
         {visibleKeys.map((key) => (
-          <i key={key} className="flex items-center gap-1 not-italic">
+          <div key={key} className="flex items-center gap-1.5">
             <span
               aria-hidden="true"
               className="size-2 rounded-sm"
               style={{ background: SERIES_COLOR[key] }}
             />
             {labelFor(t, key)}
-          </i>
+            <ToggleGroup
+              type="single"
+              aria-label={t.dashboard.customChartTypeGroupLabel(labelFor(t, key))}
+              value={chartTypes[key]}
+              onValueChange={(value) => {
+                if (!value) return
+                setChartType(key, value as ChartSeriesType)
+              }}
+              className="gap-0 bg-transparent p-0"
+            >
+              {(['line', 'bar', 'dots'] satisfies ChartSeriesType[]).map(
+                (option) => {
+                  const Icon = CHART_TYPE_ICONS[option]
+                  const optionLabel = {
+                    line: t.dashboard.customChartTypeLine,
+                    bar: t.dashboard.customChartTypeBar,
+                    dots: t.dashboard.customChartTypeDots,
+                  }[option]
+                  return (
+                    <ToggleGroupItem
+                      key={option}
+                      value={option}
+                      aria-label={optionLabel}
+                    >
+                      <Icon aria-hidden="true" />
+                    </ToggleGroupItem>
+                  )
+                },
+              )}
+            </ToggleGroup>
+          </div>
         ))}
-      </span>
+      </div>
+      {!realAxis && (
+        <p className="text-xs text-muted-foreground">
+          {t.dashboard.customChartNormalizedCaveat}
+        </p>
+      )}
       <p className="text-xs text-muted-foreground">
         {t.dashboard.chartNavigationHint}
       </p>

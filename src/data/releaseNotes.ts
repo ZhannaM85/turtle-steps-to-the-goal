@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 657,
+    issue: 696,
+    date: '2026-08-12T19:29:34+03:00',
+    en: 'On the body composition chart, you can choose line, bar, or dots for each metric.',
+    ru: 'На графике состава тела для каждого показателя можно выбрать линию, столбцы или точки.',
+  },
+  {
     version: 656,
     issue: 306,
     date: '2026-08-12T11:12:17+03:00',

@@ -41,6 +41,6 @@ _Live report: body-composition Overview chart is hard to read when all series ar
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#696](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/696) | 📋 Not started | Allow graph customization for body composition | Overview → Состав тела: let the user choose which metrics are visible on the chart (all five overlaid is hard to read). Persist selection if practical. |
+| [#696](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/696) | 🔍 Pending validation | Allow graph customization for body composition | Series chips already existed (#277). #696 adds per-series line/bar/dots (Macro/#501 pattern): `chartTypes` on `bodyCompositionSelectionStore`, `LineChart` → `ComposedChart`, legend icon radiogroups. |
 
 ---

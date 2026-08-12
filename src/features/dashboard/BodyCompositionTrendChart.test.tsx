@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react'
+import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 import { afterEach, describe, expect, it } from 'vitest'
@@ -134,6 +134,13 @@ describe('BodyCompositionTrendChart', () => {
     afterEach(() => {
       useBodyCompositionSelectionStore.setState({
         selected: [...BODY_COMPOSITION_SERIES_KEYS],
+        chartTypes: {
+          muscleMassKg: 'line',
+          visceralFatRating: 'line',
+          bodyWaterPercent: 'line',
+          boneMassKg: 'line',
+          bodyFatPercent: 'line',
+        },
       })
     })
 
@@ -199,6 +206,56 @@ describe('BodyCompositionTrendChart', () => {
       expect(screen.getAllByText('Body water')).toHaveLength(1)
       expect(screen.getAllByText('Bone mass')).toHaveLength(1)
       expect(screen.getAllByText('Body fat')).toHaveLength(1)
+    })
+  })
+
+  describe('per-series chart type (#696)', () => {
+    afterEach(() => {
+      useBodyCompositionSelectionStore.setState({
+        selected: [...BODY_COMPOSITION_SERIES_KEYS],
+        chartTypes: {
+          muscleMassKg: 'line',
+          visceralFatRating: 'line',
+          bodyWaterPercent: 'line',
+          boneMassKg: 'line',
+          bodyFatPercent: 'line',
+        },
+      })
+    })
+
+    it('defaults every selected series to the line type', () => {
+      render(<BodyCompositionTrendChart entries={threeDaysOfData} />, {
+        wrapper: MemoryRouter,
+      })
+
+      const muscleTypes = screen.getByRole('radiogroup', {
+        name: 'Chart type for Muscle mass',
+      })
+      expect(
+        within(muscleTypes).getByRole('radio', { name: 'Line' }),
+      ).toHaveAttribute('aria-checked', 'true')
+    })
+
+    it('switches one series to bars without touching the others', async () => {
+      const user = userEvent.setup()
+      render(<BodyCompositionTrendChart entries={threeDaysOfData} />, {
+        wrapper: MemoryRouter,
+      })
+
+      const muscleTypes = screen.getByRole('radiogroup', {
+        name: 'Chart type for Muscle mass',
+      })
+      const fatTypes = screen.getByRole('radiogroup', {
+        name: 'Chart type for Body fat',
+      })
+      await user.click(within(muscleTypes).getByRole('radio', { name: 'Bar' }))
+
+      expect(
+        within(muscleTypes).getByRole('radio', { name: 'Bar' }),
+      ).toHaveAttribute('aria-checked', 'true')
+      expect(
+        within(fatTypes).getByRole('radio', { name: 'Line' }),
+      ).toHaveAttribute('aria-checked', 'true')
     })
   })
 })
