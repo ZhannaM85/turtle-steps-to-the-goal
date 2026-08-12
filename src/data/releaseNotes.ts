@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 656,
+    issue: 306,
+    date: '2026-08-12T11:10:56+03:00',
+    en: 'On iOS, the barcode scanner can request camera permission inside the native app.',
+    ru: 'В iOS-приложении сканер штрихкода может запросить доступ к камере.',
+  },
+  {
     version: 655,
     issue: 695,
     date: '2026-08-11T16:27:00+03:00',
