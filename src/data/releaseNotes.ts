@@ -28,7 +28,7 @@ export const releaseNotes: ReleaseNote[] = [
   {
     version: 657,
     issue: 696,
-    date: '2026-08-12T19:29:34+03:00',
+    date: '2026-08-12T19:30:02+03:00',
     en: 'On the body composition chart, you can choose line, bar, or dots for each metric.',
     ru: 'На графике состава тела для каждого показателя можно выбрать линию, столбцы или точки.',
   },
