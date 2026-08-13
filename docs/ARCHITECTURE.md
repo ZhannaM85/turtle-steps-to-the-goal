@@ -645,7 +645,7 @@ Vitest + jsdom + `fake-indexeddb` + React Testing Library + `@testing-library/us
 
 | Piece | Notes |
 |-------|-------|
-| Vite 8 + React 19 + TS strict | `moduleResolution: bundler`; `baseUrl` removed (deprecated under TS 6.x), `paths` alone is sufficient. |
+| Vite 8 + React 19 + TS strict | `moduleResolution: bundler`; `baseUrl` removed (deprecated under TS 6.x), `paths` alone is sufficient. **#704**: `vite.cspPlugin.ts` injects a production-only CSP `<meta>` after HTML transform (`script-src 'self' 'unsafe-eval'` + sha256 of remaining inline scripts, including #17's theme script). `'unsafe-eval'` is required for `vm-browserify` inside the lazy `officecrypto-tool` chunk (#500 encrypted MyFitnessPal). Skipped on `vite dev` so HMR inline modules are not blocked. `style-src` keeps `'unsafe-inline'` for React `style={{}}` and the #102 spinner `<style>`. |
 | Tailwind CSS v4 (`@tailwindcss/vite`) | CSS-first config. |
 | Path alias | `@/ → src/` (`vite.config.ts`, `tsconfig`). |
 | ESLint + Prettier | Deliberately not oxlint (create-vite's newer default) — the brief calls for ESLint+Prettier specifically. Flat config; `eslint-plugin-react-hooks` via `reactHooks.configs.flat['recommended-latest']`. `react-refresh/only-export-components` is scoped off for `src/shared/ui/**` only, where shadcn's `cva()` variant exports trip a false positive. |

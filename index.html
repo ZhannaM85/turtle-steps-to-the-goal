@@ -41,6 +41,8 @@
       // Pre-paint theme application (issue #17): mirrors src/stores/themeStore.ts's
       // applyTheme()/defaults, duplicated here in plain JS since this must run
       // before the bundled JS loads, to avoid a flash of the wrong mood/scheme.
+      // #704: production CSP hashes this exact inline script in vite.cspPlugin.ts
+      // (build-only — a hash in this file would break Vite HMR). Do not delete.
       ;(function () {
         var MOODS = ['pond', 'dusk', 'sage', 'tortoise', 'lagoon']
         var mood = 'pond'

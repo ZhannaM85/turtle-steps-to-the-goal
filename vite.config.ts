@@ -5,12 +5,14 @@ import tailwindcss from '@tailwindcss/vite'
 import { VitePWA } from 'vite-plugin-pwa'
 import { nodePolyfills } from 'vite-plugin-node-polyfills'
 import { defaultExclude } from 'vitest/config'
+import { contentSecurityPolicyPlugin } from './vite.cspPlugin.ts'
 
 // https://vite.dev/config/
 export default defineConfig(({ mode }) => ({
   plugins: [
     react(),
     tailwindcss(),
+    contentSecurityPolicyPlugin(),
     // #500 — `officecrypto-tool` (MS-OFFCRYPTO decrypt for password-
     // protected MyFitnessPal .xlsx) reads Node's `crypto`/`buffer` and
     // touches `process` at module scope, so the browser needs all three
