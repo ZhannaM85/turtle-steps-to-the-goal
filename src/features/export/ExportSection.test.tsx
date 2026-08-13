@@ -446,6 +446,25 @@ describe('ExportSection', () => {
     expect(await db.dailyEntries.toArray()).toHaveLength(2)
   })
 
+  it('rejects a JSON backup larger than 200 MB before parsing (#703)', async () => {
+    const user = userEvent.setup()
+    const huge = makeFile({ version: 4 })
+    Object.defineProperty(huge, 'size', { value: 200 * 1024 * 1024 + 1 })
+
+    render(<ExportSection />)
+    const input = document.querySelector(
+      'input[type="file"]',
+    ) as HTMLInputElement
+    await user.upload(input, huge)
+
+    expect(
+      await screen.findByText(
+        'This file is too large to import (maximum 200 MB).',
+      ),
+    ).toBeInTheDocument()
+    expect(await db.goals.toArray()).toHaveLength(0)
+  })
+
   it('refreshes the already-loaded meal-item store after import, not just IndexedDB (#285)', async () => {
     // Simulates useMealItemStore already having loaded (stale) data before
     // the import runs — e.g. MealItemsSection already mounted on this same

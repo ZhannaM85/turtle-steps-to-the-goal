@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 659,
+    issue: 703,
+    date: '2026-08-13T11:55:00+03:00',
+    en: 'Import now refuses files larger than 200 MB, so a huge zip cannot freeze the app.',
+    ru: 'Импорт отклоняет файлы больше 200 МБ, чтобы огромный архив не мог заморозить приложение.',
+  },
+  {
     version: 658,
     issue: 697,
     date: '2026-08-12T22:35:22+03:00',

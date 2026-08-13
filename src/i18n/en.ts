@@ -578,6 +578,7 @@ export const en: Dictionary = {
     notValidJson: "That file isn't valid JSON.",
     exportFailed: 'Export failed.',
     importFailed: 'Import failed.',
+    fileTooLarge: 'This file is too large to import (maximum 200 MB).',
     exportPeriodLabel: 'Export period',
     exportPeriodDescription:
       'Optional — applies to Excel, CSV, and Markdown below, and the ranged backup below that, not the full JSON backup above. Leave blank to export everything.',

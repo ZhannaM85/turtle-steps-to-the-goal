@@ -1084,6 +1084,9 @@ export interface Dictionary {
     notValidJson: string
     exportFailed: string
     importFailed: string
+    /** #703 — shown when a JSON/zip/xlsx import is larger than
+     * `MAX_IMPORT_FILE_BYTES` (200 MB). Same copy for every import picker. */
+    fileTooLarge: string
     /** Excel export (#123) — a separate, human-readable view of the same
      * data, distinct from the JSON backup above: not re-importable, so its
      * own blurb/button/error copy rather than reusing the JSON ones. */

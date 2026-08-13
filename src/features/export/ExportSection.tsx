@@ -59,6 +59,10 @@ import {
   type PdfSummaryData,
 } from './exportPdf'
 import { buildExportWorkbook } from './exportXlsx'
+import {
+  assertImportFileWithinSizeLimit,
+  ImportFileTooLargeError,
+} from './importFileSize'
 import { ImportConflictModePicker } from './ImportConflictModePicker'
 import { ImportFieldPicker } from './ImportFieldPicker'
 import { PdfSectionsDialog } from './PdfSectionsDialog'
@@ -722,6 +726,7 @@ export function ExportSection() {
   async function handleImportFile(file: File) {
     setStatus({ kind: 'importing' })
     try {
+      assertImportFileWithinSizeLimit(file)
       const text = await file.text()
       const raw: unknown = JSON.parse(text)
       // #608 — an encrypted backup is a plain JSON envelope (not the bundle
@@ -739,7 +744,9 @@ export function ExportSection() {
       setStatus({ kind: 'imported', goals, entries })
     } catch (err) {
       const message =
-        err instanceof InvalidBackupFileError
+        err instanceof ImportFileTooLargeError
+          ? t.export.fileTooLarge
+          : err instanceof InvalidBackupFileError
           ? t.export.invalidBackup
           : err instanceof SyntaxError
             ? t.export.notValidJson
@@ -785,6 +792,19 @@ export function ExportSection() {
   }
 
   function handleZeppLifeFileSelected(file: File) {
+    try {
+      assertImportFileWithinSizeLimit(file)
+    } catch (err) {
+      if (err instanceof ImportFileTooLargeError) {
+        setStatus({
+          kind: 'error',
+          section: 'zepp',
+          message: t.export.fileTooLarge,
+        })
+        return
+      }
+      throw err
+    }
     setZeppLifePendingFile(file)
     setZeppLifePendingPassword(null)
     setZeppLifePasswordError(null)
@@ -850,6 +870,7 @@ export function ExportSection() {
   async function handleAppleHealthFileSelected(file: File) {
     setStatus({ kind: 'importingAppleHealth', progress: 0 })
     try {
+      assertImportFileWithinSizeLimit(file)
       const { daysImported, daysUpdated } = await importAppleHealthExport(
         file,
         (fraction) => {
@@ -864,7 +885,9 @@ export function ExportSection() {
       setStatus({ kind: 'importedAppleHealth', daysImported, daysUpdated })
     } catch (err) {
       const message =
-        err instanceof AppleHealthInvalidFileError
+        err instanceof ImportFileTooLargeError
+          ? t.export.fileTooLarge
+          : err instanceof AppleHealthInvalidFileError
           ? t.appleHealthImport.invalidFile
           : t.appleHealthImport.importFailed
       setStatus({ kind: 'error', section: 'apple', message })
@@ -879,17 +902,21 @@ export function ExportSection() {
     // first (prefilled from remembered prefs); password comes after when
     // needed, then import stamps the chosen clocks.
     try {
+      assertImportFileWithinSizeLimit(file)
       const buffer = await file.arrayBuffer()
       const encrypted = isMyFitnessPalEncrypted(buffer)
       setMyFitnessPalPendingFile(file)
       setMyFitnessPalPasswordError(null)
       setMyFitnessPalNeedsPassword(encrypted)
       setMyFitnessPalSlotTimesDialogOpen(true)
-    } catch {
+    } catch (err) {
       setStatus({
         kind: 'error',
         section: 'mfp',
-        message: t.myFitnessPalImport.invalidFile,
+        message:
+          err instanceof ImportFileTooLargeError
+            ? t.export.fileTooLarge
+            : t.myFitnessPalImport.invalidFile,
       })
     }
   }
