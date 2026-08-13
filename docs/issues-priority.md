@@ -40,6 +40,5 @@ _Logged while blocked on Apple Developer enrollment. Library CVEs via `npm audit
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#712](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/712) | 🔍 Pending validation | Correlation scatter: tap sometimes fails to open tooltip | Shared `trigger="click"` on all ZoomableScatter tooltips; pan `preventDefault` only after >6px move so taps still synthesize clicks when zoomed. |
 
 ---
