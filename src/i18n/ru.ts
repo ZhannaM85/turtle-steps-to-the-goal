@@ -814,6 +814,8 @@ export const ru: Dictionary = {
       'Выберите хотя бы один показатель для отображения.',
     notEnoughTrendDataMessage:
       'Пока недостаточно данных, чтобы показать тенденцию — добавьте ещё несколько дней и загляните позже.',
+    dashboardSectionEmptyDescription:
+      'Пока здесь нечего показать — продолжайте вести дневник или расширьте период, если вы его сузили.',
     trendChartPeriodLabel: 'Период',
     trendChartPeriodAllOption: 'Всё',
     trendChartPeriodWeekOption: 'Нед',

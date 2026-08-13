@@ -96,7 +96,6 @@ export function CalorieTrendChart({
   // stops rendering entirely (rather than showing the pager) when paging
   // is inactive.
   if (calorieBars.length === 0) {
-    if (!pager.showPager) return null
     return (
       <div className="flex flex-col gap-1.5 rounded-lg border border-border p-3">
         <ChartTitleWithToggle

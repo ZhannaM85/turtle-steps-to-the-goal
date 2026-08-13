@@ -1365,6 +1365,9 @@ export interface Dictionary {
      * means anything (e.g. two far-apart points connected by a straight
      * line can visually read as a confident trend that isn't real). */
     notEnoughTrendDataMessage: string
+    /** #708 — generic empty copy when a Dashboard section stays mounted
+     * but has nothing to plot yet (or the period filter left it empty). */
+    dashboardSectionEmptyDescription: string
     /** #380 — one global period control above the Weight/Calorie/Macro/
      * Body composition trend charts (resolved via `AskUserQuestion`: one
      * shared control, not a picker per chart), mirroring #240's "Export

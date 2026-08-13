@@ -25,15 +25,25 @@ function entry(items: CalorieItem[]): DailyEntry {
 }
 
 describe('FoodReactionsView', () => {
-  it('renders nothing when no item has ever been logged with a reaction', () => {
+  it('shows empty state when no item has ever been logged with a reaction', () => {
     const entries = [entry([item('Rice', undefined)])]
-    const { container } = render(<FoodReactionsView entries={entries} />)
-    expect(container).toBeEmptyDOMElement()
+    render(<FoodReactionsView entries={entries} />)
+    expect(screen.getByText('Food reactions')).toBeInTheDocument()
+    expect(
+      screen.getByText(
+        'Nothing to show here yet — keep logging, or widen the date range if you filtered it.',
+      ),
+    ).toBeInTheDocument()
   })
 
-  it('renders nothing with no entries at all', () => {
-    const { container } = render(<FoodReactionsView entries={[]} />)
-    expect(container).toBeEmptyDOMElement()
+  it('shows empty state with no entries at all', () => {
+    render(<FoodReactionsView entries={[]} />)
+    expect(screen.getByText('Food reactions')).toBeInTheDocument()
+    expect(
+      screen.getByText(
+        'Nothing to show here yet — keep logging, or widen the date range if you filtered it.',
+      ),
+    ).toBeInTheDocument()
   })
 
   it('lists a food under Most liked with its reaction count', () => {

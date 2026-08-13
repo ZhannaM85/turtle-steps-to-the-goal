@@ -33,6 +33,7 @@ import { Button } from '@/shared/ui/button'
 import { ChartTitleWithToggle } from './ChartTitleWithToggle'
 import { CorrelationChartTooltip } from './CorrelationChartTooltip'
 import { CorrelationStrengthLabel } from './CorrelationStrengthLabel'
+import { EmptyDashboardSection } from './EmptyDashboardSection'
 import {
   CORRELATION_SCATTER_Y_AXIS_WIDTH,
   formatCorrelationScatterTick,
@@ -102,7 +103,17 @@ export function NightEatingCorrelationView({
     (p) => p.date,
   )
 
-  if (rawPoints.length === 0) return null
+  if (rawPoints.length === 0) {
+    return (
+      <EmptyDashboardSection
+        chart="nightEatingCorrelation"
+        title={t.dashboard.nightEatingCorrelationTitle}
+        description={t.dashboard.nightEatingCorrelationEmptyDescription}
+        dragHandle={dragHandle}
+        visible={cardVisible}
+      />
+    )
+  }
 
   const metricLabel = t.dailyEntry.nightEatingLabel(sex)
   const points = rawPoints.map((point, i) => ({

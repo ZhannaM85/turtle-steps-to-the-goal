@@ -33,6 +33,7 @@ import { Button } from '@/shared/ui/button'
 import { ChartTitleWithToggle } from './ChartTitleWithToggle'
 import { CorrelationChartTooltip } from './CorrelationChartTooltip'
 import { CorrelationStrengthLabel } from './CorrelationStrengthLabel'
+import { EmptyDashboardSection } from './EmptyDashboardSection'
 import {
   CORRELATION_SCATTER_Y_AXIS_WIDTH,
   formatCorrelationScatterTick,
@@ -95,7 +96,17 @@ export function FastingWindowCorrelationView({
     (p) => p.date,
   )
 
-  if (rawPoints.length === 0) return null
+  if (rawPoints.length === 0) {
+    return (
+      <EmptyDashboardSection
+        chart="fastingWindowCorrelation"
+        title={t.dashboard.fastingWindowTitle}
+        description={t.dashboard.fastingWindowEmptyDescription}
+        dragHandle={dragHandle}
+        visible={cardVisible}
+      />
+    )
+  }
 
   const metricLabel = t.dashboard.fastingHoursLegend
   const points = rawPoints.map((point, i) => ({

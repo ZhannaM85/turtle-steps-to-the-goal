@@ -14,6 +14,7 @@ import { macrosSummaryText } from '@/shared/lib/macroDisplay'
 import { useDashboardChartVisibilityStore, useUnitStore } from '@/stores'
 import { StatCard } from '@/shared/ui/stat-card'
 import { ChartTitleWithToggle } from './ChartTitleWithToggle'
+import { EmptyDashboardSection } from './EmptyDashboardSection'
 
 export interface MonthlySummaryCardsProps {
   entries: DailyEntry[]
@@ -44,7 +45,17 @@ export function MonthlySummaryCards({
   )
 
   const summaries = monthlySummaries(entries)
-  if (summaries.length === 0) return null
+  if (summaries.length === 0) {
+    return (
+      <EmptyDashboardSection
+        chart="monthlySummary"
+        title={t.dashboard.monthlySummaryTitle}
+        description={t.dashboard.dashboardSectionEmptyDescription}
+        dragHandle={dragHandle}
+        visible={cardVisible}
+      />
+    )
+  }
 
   const cardTitle = (
     <ChartTitleWithToggle

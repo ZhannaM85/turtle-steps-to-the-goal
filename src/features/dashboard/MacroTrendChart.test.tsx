@@ -55,12 +55,17 @@ beforeEach(() => {
 })
 
 describe('MacroTrendChart', () => {
-  it('renders nothing when no entry has any macro or calories logged', () => {
+  it('shows empty state when no entry has any macro or calories logged', () => {
     const entries = [entry('2026-03-01', { weightKg: 80 })]
-    const { container } = render(<MacroTrendChart entries={entries} />, {
+    render(<MacroTrendChart entries={entries} />, {
       wrapper: MemoryRouter,
     })
-    expect(container).toBeEmptyDOMElement()
+    expect(screen.getByText('Protein, fat & carbs')).toBeInTheDocument()
+    expect(
+      screen.getByText(
+        'Not enough data yet to show a trend — log a few more days and check back.',
+      ),
+    ).toBeInTheDocument()
   })
 
   it('renders the title, a chip per series, and a legend entry for each selected series', () => {

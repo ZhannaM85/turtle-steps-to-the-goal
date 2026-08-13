@@ -24,6 +24,7 @@ import {
 } from '@/stores'
 import { StatCard } from '@/shared/ui/stat-card'
 import { ChartTitleWithToggle } from './ChartTitleWithToggle'
+import { EmptyDashboardSection } from './EmptyDashboardSection'
 import { WeeklyNoteEditor } from './WeeklyNoteEditor'
 
 export interface WeeklySummaryCardsProps {
@@ -75,7 +76,17 @@ export function WeeklySummaryCards({
     ),
     asOfDate,
   )
-  if (summaries.length === 0) return null
+  if (summaries.length === 0) {
+    return (
+      <EmptyDashboardSection
+        chart="weeklySummary"
+        title={t.dashboard.weeklySummaryTitle}
+        description={t.dashboard.dashboardSectionEmptyDescription}
+        dragHandle={dragHandle}
+        visible={cardVisible}
+      />
+    )
+  }
 
   const cardTitle = (
     <ChartTitleWithToggle

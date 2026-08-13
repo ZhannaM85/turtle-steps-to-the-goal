@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 662,
+    issue: 708,
+    date: '2026-08-13T14:10:00+03:00',
+    en: 'Dashboard graphs stay visible with a short empty note when there is not enough data, instead of vanishing.',
+    ru: 'Графики на панели остаются на месте с короткой заметкой, если данных мало, а не исчезают.',
+  },
+  {
     version: 661,
     issue: 709,
     date: '2026-08-13T13:51:00+03:00',

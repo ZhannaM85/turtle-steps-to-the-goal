@@ -43,13 +43,20 @@ describe('BodyCompositionTrendChart', () => {
     }))
   })
 
-  it('renders nothing when no entry has any of the 5 fields logged', () => {
+  it('shows empty state when no entry has any of the 5 fields logged', () => {
+    useTrackedFieldsStore.setState((state) => ({
+      tracked: { ...state.tracked, bodyComposition: true },
+    }))
     const entries = [entry('2026-03-01', { weightKg: 80 })]
-    const { container } = render(
-      <BodyCompositionTrendChart entries={entries} />,
-      { wrapper: MemoryRouter },
-    )
-    expect(container).toBeEmptyDOMElement()
+    render(<BodyCompositionTrendChart entries={entries} />, {
+      wrapper: MemoryRouter,
+    })
+    expect(screen.getByText('Body composition')).toBeInTheDocument()
+    expect(
+      screen.getByText(
+        'Not enough data yet to show a trend — log a few more days and check back.',
+      ),
+    ).toBeInTheDocument()
   })
 
   it('renders nothing when body composition tracking is turned off', () => {

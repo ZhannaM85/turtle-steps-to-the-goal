@@ -35,6 +35,7 @@ import { Button } from '@/shared/ui/button'
 import { ChartTitleWithToggle } from './ChartTitleWithToggle'
 import { CorrelationChartTooltip } from './CorrelationChartTooltip'
 import { CorrelationStrengthLabel } from './CorrelationStrengthLabel'
+import { EmptyDashboardSection } from './EmptyDashboardSection'
 import {
   CORRELATION_SCATTER_Y_AXIS_WIDTH,
   formatCorrelationScatterTick,
@@ -144,7 +145,17 @@ export function CorrelationView({
   const resolvedDate = (point: { weekStart: string }) =>
     weightDateByWeekStart.get(point.weekStart) ?? point.weekStart
 
-  if (rawPoints.length === 0) return null
+  if (rawPoints.length === 0) {
+    return (
+      <EmptyDashboardSection
+        chart="calorieWeightCorrelation"
+        title={t.dashboard.correlationTitle}
+        description={t.dashboard.correlationEmptyDescription}
+        dragHandle={dragHandle}
+        visible={cardVisible}
+      />
+    )
+  }
 
   const metricLabel = t.dashboard.caloriesLegend
   const points = rawPoints.map((point, i) => ({

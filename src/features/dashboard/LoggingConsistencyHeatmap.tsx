@@ -11,6 +11,7 @@ import { formatNumber, getDateFnsLocale, useLocale, useTranslation } from '@/i18
 import { useWeekStartsOn } from '@/shared/hooks'
 import { useDashboardChartVisibilityStore, useDayStartStore } from '@/stores'
 import { ChartTitleWithToggle } from './ChartTitleWithToggle'
+import { EmptyDashboardSection } from './EmptyDashboardSection'
 
 export interface LoggingConsistencyHeatmapProps {
   entries: DailyEntry[]
@@ -57,7 +58,17 @@ export function LoggingConsistencyHeatmap({
   const today = effectiveDateFor(new Date(), dayStartTime)
 
   const weeks = loggingConsistencyWeeks(entries, weekStartsOn, today)
-  if (weeks.length === 0) return null
+  if (weeks.length === 0) {
+    return (
+      <EmptyDashboardSection
+        chart="loggingConsistency"
+        title={t.dashboard.loggingConsistencyTitle}
+        description={t.dashboard.dashboardSectionEmptyDescription}
+        dragHandle={dragHandle}
+        visible={cardVisible}
+      />
+    )
+  }
 
   const cardTitle = (
     <ChartTitleWithToggle

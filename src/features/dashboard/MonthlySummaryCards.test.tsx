@@ -32,9 +32,14 @@ function entry(date: string, overrides: Partial<DailyEntry> = {}): DailyEntry {
 }
 
 describe('MonthlySummaryCards', () => {
-  it('renders nothing when there are no entries', () => {
-    const { container } = render(<MonthlySummaryCards entries={[]} />)
-    expect(container).toBeEmptyDOMElement()
+  it('shows empty state when there are no entries', () => {
+    render(<MonthlySummaryCards entries={[]} />)
+    expect(screen.getByText('Monthly summary')).toBeInTheDocument()
+    expect(
+      screen.getByText(
+        'Nothing to show here yet — keep logging, or widen the date range if you filtered it.',
+      ),
+    ).toBeInTheDocument()
   })
 
   it('shows a dash for the first month (no prior month to compare)', () => {

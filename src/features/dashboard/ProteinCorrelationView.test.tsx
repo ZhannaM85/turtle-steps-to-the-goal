@@ -43,9 +43,14 @@ function entry(date: string, overrides: Partial<DailyEntry> = {}): DailyEntry {
 }
 
 describe('ProteinCorrelationView', () => {
-  it('renders nothing with no comparable day-pairs at all', () => {
-    const { container } = render(<ProteinCorrelationView entries={[]} />, { wrapper: MemoryRouter })
-    expect(container).toBeEmptyDOMElement()
+  it('shows empty state with no comparable day-pairs at all', () => {
+    render(<ProteinCorrelationView entries={[]} />, { wrapper: MemoryRouter })
+    expect(screen.getByText('Protein vs. next-day weight')).toBeInTheDocument()
+    expect(
+      screen.getByText(
+        'Not enough data yet to see a pattern — log protein and keep tracking weight, then check back in a few weeks.',
+      ),
+    ).toBeInTheDocument()
   })
 
   it('shows the not-enough-data caveat with fewer than 8 comparable day-pairs', () => {

@@ -66,9 +66,14 @@ beforeEach(() => {
 })
 
 describe('CustomChartView', () => {
-  it('renders nothing with no entries at all', () => {
-    const { container } = render(<CustomChartView entries={[]} />)
-    expect(container).toBeEmptyDOMElement()
+  it('shows empty state with no entries at all', () => {
+    render(<CustomChartView entries={[]} />)
+    expect(screen.getByText('Compare your data')).toBeInTheDocument()
+    expect(
+      screen.getByText(
+        'Not enough data yet to show a trend — log a few more days and check back.',
+      ),
+    ).toBeInTheDocument()
   })
 
   it('renders the title and a checkbox for every numeric series', () => {

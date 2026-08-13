@@ -56,11 +56,14 @@ function makeGoal(overrides: Partial<Goal> = {}): Goal {
 }
 
 describe('WeeklySummaryCards', () => {
-  it('renders nothing when there are no entries', () => {
-    const { container } = render(
-      <WeeklySummaryCards entries={[]} goal={null} />,
-    )
-    expect(container).toBeEmptyDOMElement()
+  it('shows empty state when there are no entries', () => {
+    render(<WeeklySummaryCards entries={[]} goal={null} />)
+    expect(screen.getByText('Weekly summary')).toBeInTheDocument()
+    expect(
+      screen.getByText(
+        'Nothing to show here yet — keep logging, or widen the date range if you filtered it.',
+      ),
+    ).toBeInTheDocument()
   })
 
   it('shows a dash for the first week (no prior week to compare)', () => {

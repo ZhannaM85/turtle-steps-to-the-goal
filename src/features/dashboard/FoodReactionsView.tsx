@@ -6,6 +6,7 @@ import { useTranslation, type Dictionary } from '@/i18n'
 import { MEAL_EMOTIONS } from '@/shared/lib/emotionIcons'
 import { useDashboardChartVisibilityStore } from '@/stores'
 import { ChartTitleWithToggle } from './ChartTitleWithToggle'
+import { EmptyDashboardSection } from './EmptyDashboardSection'
 
 export interface FoodReactionsViewProps {
   entries: DailyEntry[]
@@ -90,7 +91,17 @@ export function FoodReactionsView({ entries, dragHandle }: FoodReactionsViewProp
     (state) => state.visible.foodReactions,
   )
 
-  if (liked.length === 0 && disliked.length === 0) return null
+  if (liked.length === 0 && disliked.length === 0) {
+    return (
+      <EmptyDashboardSection
+        chart="foodReactions"
+        title={t.dashboard.foodReactionsTitle}
+        description={t.dashboard.dashboardSectionEmptyDescription}
+        dragHandle={dragHandle}
+        visible={cardVisible}
+      />
+    )
+  }
 
   const cardTitle = (
     <ChartTitleWithToggle

@@ -30,6 +30,7 @@ import { Button } from '@/shared/ui/button'
 import { ChartTitleWithToggle } from './ChartTitleWithToggle'
 import { CorrelationChartTooltip } from './CorrelationChartTooltip'
 import { CorrelationStrengthLabel } from './CorrelationStrengthLabel'
+import { EmptyDashboardSection } from './EmptyDashboardSection'
 import {
   CORRELATION_SCATTER_Y_AXIS_WIDTH,
   formatCorrelationScatterTick,
@@ -85,7 +86,17 @@ export function StepsCorrelationView({
     (p) => p.date,
   )
 
-  if (rawPoints.length === 0) return null
+  if (rawPoints.length === 0) {
+    return (
+      <EmptyDashboardSection
+        chart="stepsCorrelation"
+        title={t.dashboard.stepsCorrelationTitle}
+        description={t.dashboard.stepsCorrelationEmptyDescription}
+        dragHandle={dragHandle}
+        visible={cardVisible}
+      />
+    )
+  }
 
   const metricLabel = t.dashboard.stepsCountLegend
   const points = rawPoints.map((point, i) => ({

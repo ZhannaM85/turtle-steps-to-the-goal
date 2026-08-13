@@ -30,6 +30,7 @@ import { Button } from '@/shared/ui/button'
 import { ChartTitleWithToggle } from './ChartTitleWithToggle'
 import { CorrelationChartTooltip } from './CorrelationChartTooltip'
 import { CorrelationStrengthLabel } from './CorrelationStrengthLabel'
+import { EmptyDashboardSection } from './EmptyDashboardSection'
 import {
   CORRELATION_SCATTER_Y_AXIS_WIDTH,
   formatCorrelationScatterTick,
@@ -95,7 +96,17 @@ export function LateMealCorrelationView({
     (p) => p.date,
   )
 
-  if (rawPoints.length === 0) return null
+  if (rawPoints.length === 0) {
+    return (
+      <EmptyDashboardSection
+        chart="lateMealCorrelation"
+        title={t.dashboard.lateMealTitle}
+        description={t.dashboard.lateMealEmptyDescription}
+        dragHandle={dragHandle}
+        visible={cardVisible}
+      />
+    )
+  }
 
   const metricLabel = t.dashboard.lateMealTimeLegend
   const points = rawPoints.map((point, i) => ({

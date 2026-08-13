@@ -159,7 +159,6 @@ export function WeightTrendChart({
   // With paging inactive ('all'/'custom', every pre-#443 caller), this
   // stays the exact `return null` it always was.
   if (weightPoints.length === 0) {
-    if (!pager.showPager) return null
     return (
       <div className="flex flex-col gap-1.5 rounded-lg border border-border p-3">
         <ChartTitleWithToggle

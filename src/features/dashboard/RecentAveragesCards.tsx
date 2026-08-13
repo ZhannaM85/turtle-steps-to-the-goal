@@ -16,6 +16,7 @@ import { formatMacroGrams } from '@/shared/lib/macroDisplay'
 import { StatCard } from '@/shared/ui/stat-card'
 import { useDashboardChartVisibilityStore, useDayStartStore } from '@/stores'
 import { ChartTitleWithToggle } from './ChartTitleWithToggle'
+import { EmptyDashboardSection } from './EmptyDashboardSection'
 
 export interface RecentAveragesCardsProps {
   entries: DailyEntry[]
@@ -56,7 +57,17 @@ export function RecentAveragesCards({
     (w) => w.averageCalories !== null || w.averageProteinG !== null,
   )
 
-  if (windows.length === 0) return null
+  if (windows.length === 0) {
+    return (
+      <EmptyDashboardSection
+        chart="recentAverages"
+        title={t.dashboard.recentAveragesTitle}
+        description={t.dashboard.dashboardSectionEmptyDescription}
+        dragHandle={dragHandle}
+        visible={cardVisible}
+      />
+    )
+  }
 
   const cardTitle = (
     <ChartTitleWithToggle

@@ -26,6 +26,7 @@ import { Button } from '@/shared/ui/button'
 import { ChartTitleWithToggle } from './ChartTitleWithToggle'
 import { CorrelationChartTooltip } from './CorrelationChartTooltip'
 import { CorrelationStrengthLabel } from './CorrelationStrengthLabel'
+import { EmptyDashboardSection } from './EmptyDashboardSection'
 import {
   CORRELATION_SCATTER_Y_AXIS_WIDTH,
   formatCorrelationScatterTick,
@@ -92,7 +93,17 @@ export function ProteinCorrelationView({
     (p) => p.date,
   )
 
-  if (rawPoints.length === 0) return null
+  if (rawPoints.length === 0) {
+    return (
+      <EmptyDashboardSection
+        chart="proteinCorrelation"
+        title={t.dashboard.proteinCorrelationTitle}
+        description={t.dashboard.proteinCorrelationEmptyDescription}
+        dragHandle={dragHandle}
+        visible={cardVisible}
+      />
+    )
+  }
 
   const metricLabel = t.dashboard.proteinPercentOfCaloriesLabel
   const points = rawPoints.map((point, i) => ({

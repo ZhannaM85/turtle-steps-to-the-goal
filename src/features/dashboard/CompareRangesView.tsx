@@ -17,6 +17,7 @@ import { Input } from '@/shared/ui/input'
 import { StatCard } from '@/shared/ui/stat-card'
 import { useDashboardChartVisibilityStore, useUnitStore } from '@/stores'
 import { ChartTitleWithToggle } from './ChartTitleWithToggle'
+import { EmptyDashboardSection } from './EmptyDashboardSection'
 
 export interface CompareRangesViewProps {
   entries: DailyEntry[]
@@ -82,7 +83,17 @@ export function CompareRangesView({
     (state) => state.visible.compareRanges,
   )
 
-  if (entries.length === 0) return null
+  if (entries.length === 0) {
+    return (
+      <EmptyDashboardSection
+        chart="compareRanges"
+        title={t.dashboard.compareRangesTitle}
+        description={t.dashboard.dashboardSectionEmptyDescription}
+        dragHandle={dragHandle}
+        visible={cardVisible}
+      />
+    )
+  }
 
   const cardTitle = (
     <ChartTitleWithToggle

@@ -24,9 +24,14 @@ function entry(date: string, overrides: Partial<DailyEntry> = {}): DailyEntry {
 }
 
 describe('LoggingConsistencyHeatmap', () => {
-  it('renders nothing when there are no entries', () => {
-    const { container } = render(<LoggingConsistencyHeatmap entries={[]} />)
-    expect(container).toBeEmptyDOMElement()
+  it('shows empty state when there are no entries', () => {
+    render(<LoggingConsistencyHeatmap entries={[]} />)
+    expect(screen.getByText('Logging consistency')).toBeInTheDocument()
+    expect(
+      screen.getByText(
+        'Nothing to show here yet — keep logging, or widen the date range if you filtered it.',
+      ),
+    ).toBeInTheDocument()
   })
 
   it('renders the title and a legend once there is at least one entry', () => {

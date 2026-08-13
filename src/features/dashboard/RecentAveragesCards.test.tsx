@@ -43,15 +43,25 @@ function expectedRangeLabel(windowDays: number, today?: Date): string {
 }
 
 describe('RecentAveragesCards', () => {
-  it('renders nothing when there are no entries', () => {
-    const { container } = render(<RecentAveragesCards entries={[]} />)
-    expect(container).toBeEmptyDOMElement()
+  it('shows empty state when there are no entries', () => {
+    render(<RecentAveragesCards entries={[]} />)
+    expect(screen.getByText('Recent averages')).toBeInTheDocument()
+    expect(
+      screen.getByText(
+        'Nothing to show here yet — keep logging, or widen the date range if you filtered it.',
+      ),
+    ).toBeInTheDocument()
   })
 
-  it('renders nothing when nothing was logged within either window', () => {
+  it('shows empty state when nothing was logged within either window', () => {
     const entries = [entry(daysAgo(60), { calorieEntries: calories(2000) })]
-    const { container } = render(<RecentAveragesCards entries={entries} />)
-    expect(container).toBeEmptyDOMElement()
+    render(<RecentAveragesCards entries={entries} />)
+    expect(screen.getByText('Recent averages')).toBeInTheDocument()
+    expect(
+      screen.getByText(
+        'Nothing to show here yet — keep logging, or widen the date range if you filtered it.',
+      ),
+    ).toBeInTheDocument()
   })
 
   it('shows separate 7-day and 30-day average calorie cards', () => {

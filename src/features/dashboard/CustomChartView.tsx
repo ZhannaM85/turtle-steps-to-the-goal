@@ -438,14 +438,16 @@ export function CustomChartView({
     />
   )
 
-  // #453 — see WeightTrendChart.tsx's identical note on why this only
-  // stops rendering entirely (rather than showing the pager) when paging
-  // is inactive.
+  // #708 — keep the card visible with title + empty copy when there are
+  // no entries (same pattern as WeightTrendChart). Pager stays so a
+  // paged-to empty window can still page back (#453).
   if (entries.length === 0) {
-    if (!pager.showPager) return null
     return (
       <div className="flex flex-col gap-3 rounded-lg border border-border p-3">
         {cardTitle}
+        <p className="text-sm text-muted-foreground">
+          {t.dashboard.notEnoughTrendDataMessage}
+        </p>
         <ChartPeriodPagerControls pager={pager} />
       </div>
     )

@@ -61,11 +61,18 @@ function withCompletedWindow(
 }
 
 describe('CorrelationView', () => {
-  it('renders nothing when there are no comparable weeks', () => {
-    const { container } = render(<CorrelationView entries={[]} />, {
+  it('shows the empty-state card when there are no comparable weeks', () => {
+    render(<CorrelationView entries={[]} />, {
       wrapper: MemoryRouter,
     })
-    expect(container).toBeEmptyDOMElement()
+    expect(
+      screen.getByText('Calories vs. weight change'),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByText(
+        'Not enough data yet to see a pattern — keep logging and check back in a few weeks.',
+      ),
+    ).toBeInTheDocument()
   })
 
   it('shows the not-enough-data caveat with fewer than 4 comparable weeks', () => {

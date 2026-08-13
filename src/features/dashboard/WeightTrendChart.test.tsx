@@ -32,11 +32,16 @@ function threeWeightEntries(): DailyEntry[] {
 }
 
 describe('WeightTrendChart', () => {
-  it('renders nothing when there are no weight entries', () => {
-    const { container } = render(<WeightTrendChart entries={[]} />, {
+  it('shows empty state when there are no weight entries', () => {
+    render(<WeightTrendChart entries={[]} />, {
       wrapper: MemoryRouter,
     })
-    expect(container).toBeEmptyDOMElement()
+    expect(screen.getByText('Weight trend')).toBeInTheDocument()
+    expect(
+      screen.getByText(
+        'Not enough data yet to show a trend — log a few more days and check back.',
+      ),
+    ).toBeInTheDocument()
   })
 
   it('renders the weight legend when there is enough weight data', () => {

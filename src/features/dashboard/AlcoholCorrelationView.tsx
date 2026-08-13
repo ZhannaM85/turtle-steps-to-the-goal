@@ -34,6 +34,7 @@ import { Button } from '@/shared/ui/button'
 import { ChartTitleWithToggle } from './ChartTitleWithToggle'
 import { CorrelationChartTooltip } from './CorrelationChartTooltip'
 import { CorrelationStrengthLabel } from './CorrelationStrengthLabel'
+import { EmptyDashboardSection } from './EmptyDashboardSection'
 import {
   CORRELATION_SCATTER_Y_AXIS_WIDTH,
   formatCorrelationScatterTick,
@@ -101,7 +102,19 @@ export function AlcoholCorrelationView({
     (p) => p.date,
   )
 
-  if (!alcoholTrackingEnabled || rawPoints.length === 0) return null
+  if (!alcoholTrackingEnabled) return null
+
+  if (rawPoints.length === 0) {
+    return (
+      <EmptyDashboardSection
+        chart="alcoholCorrelation"
+        title={t.dashboard.alcoholCorrelationTitle}
+        description={t.dashboard.alcoholCorrelationEmptyDescription}
+        dragHandle={dragHandle}
+        visible={cardVisible}
+      />
+    )
+  }
 
   const metricLabel = t.dailyEntry.hadAlcoholLabel
   const points = rawPoints.map((point, i) => ({

@@ -36,11 +36,16 @@ function threeCalorieEntries(): DailyEntry[] {
 }
 
 describe('CalorieTrendChart', () => {
-  it('renders nothing when there are no calorie entries', () => {
-    const { container } = render(<CalorieTrendChart entries={[]} />, {
+  it('shows empty state when there are no calorie entries', () => {
+    render(<CalorieTrendChart entries={[]} />, {
       wrapper: MemoryRouter,
     })
-    expect(container).toBeEmptyDOMElement()
+    expect(screen.getByText('Calorie trend')).toBeInTheDocument()
+    expect(
+      screen.getByText(
+        'Not enough data yet to show a trend — log a few more days and check back.',
+      ),
+    ).toBeInTheDocument()
   })
 
   it('renders the calorie and rolling-average legends when there is enough data', () => {

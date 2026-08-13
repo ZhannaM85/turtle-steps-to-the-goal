@@ -787,6 +787,8 @@ export const en: Dictionary = {
     trendChartEmptyDescription: 'Pick at least one series to show.',
     notEnoughTrendDataMessage:
       'Not enough data yet to show a trend — log a few more days and check back.',
+    dashboardSectionEmptyDescription:
+      'Nothing to show here yet — keep logging, or widen the date range if you filtered it.',
     trendChartPeriodLabel: 'Chart period',
     trendChartPeriodAllOption: 'All time',
     trendChartPeriodWeekOption: 'Week',

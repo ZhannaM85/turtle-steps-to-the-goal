@@ -59,9 +59,18 @@ const TEN_PAIR_ENTRIES: DailyEntry[] = [
 ]
 
 describe('FastingWindowCorrelationView', () => {
-  it('renders nothing with no comparable day-pairs at all', () => {
-    const { container } = render(<FastingWindowCorrelationView entries={[]} />, { wrapper: MemoryRouter })
-    expect(container).toBeEmptyDOMElement()
+  it('shows empty state with no comparable day-pairs at all', () => {
+    render(<FastingWindowCorrelationView entries={[]} />, {
+      wrapper: MemoryRouter,
+    })
+    expect(
+      screen.getByText('Fasting window vs. next-day weight'),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByText(
+        'Not enough data yet to see a pattern — log meal times on consecutive days and keep tracking weight, then check back in a few weeks.',
+      ),
+    ).toBeInTheDocument()
   })
 
   it('shows the not-enough-data caveat with fewer than 10 comparable day-pairs', () => {

@@ -66,11 +66,16 @@ describe('AlcoholCorrelationView (#607)', () => {
     expect(container).toBeEmptyDOMElement()
   })
 
-  it('renders nothing with no comparable day-pairs at all', () => {
-    const { container } = render(<AlcoholCorrelationView entries={[]} />, {
+  it('shows empty state with no comparable day-pairs at all', () => {
+    render(<AlcoholCorrelationView entries={[]} />, {
       wrapper: MemoryRouter,
     })
-    expect(container).toBeEmptyDOMElement()
+    expect(screen.getByText('Alcohol vs. next-day weight')).toBeInTheDocument()
+    expect(
+      screen.getByText(
+        'Not enough data yet to see a pattern — keep logging alcohol days and tracking weight, then check back in a few weeks.',
+      ),
+    ).toBeInTheDocument()
   })
 
   it('shows the not-enough-data caveat with fewer than 8 comparable day-pairs', () => {

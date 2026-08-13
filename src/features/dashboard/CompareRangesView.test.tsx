@@ -19,9 +19,14 @@ function entry(date: string, overrides: Partial<DailyEntry> = {}): DailyEntry {
 }
 
 describe('CompareRangesView', () => {
-  it('renders nothing when there are no entries', () => {
-    const { container } = render(<CompareRangesView entries={[]} />)
-    expect(container).toBeEmptyDOMElement()
+  it('shows empty state when there are no entries', () => {
+    render(<CompareRangesView entries={[]} />)
+    expect(screen.getByText('Compare date ranges')).toBeInTheDocument()
+    expect(
+      screen.getByText(
+        'Nothing to show here yet — keep logging, or widen the date range if you filtered it.',
+      ),
+    ).toBeInTheDocument()
   })
 
   it('defaults to comparing this month against last month', () => {

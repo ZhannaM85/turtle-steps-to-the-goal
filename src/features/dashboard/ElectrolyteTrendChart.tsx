@@ -122,11 +122,10 @@ export function ElectrolyteTrendChart({
     />
   )
 
-  // #443 — see WeightTrendChart.tsx's identical note on why this only
-  // stops rendering entirely (rather than showing the pager) when paging
-  // is inactive.
+  // #708 — keep the card visible with title + empty copy when there are
+  // no points (enabledKeys.length === 0 still returns null above). Pager
+  // stays so a paged-to empty window can still page back (#443).
   if (points.length === 0) {
-    if (!pager.showPager) return null
     return (
       <div className="flex flex-col gap-1.5 rounded-lg border border-border p-3">
         {chartTitle}

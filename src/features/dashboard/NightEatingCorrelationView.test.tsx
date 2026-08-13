@@ -31,11 +31,18 @@ function entry(date: string, overrides: Partial<DailyEntry> = {}): DailyEntry {
 }
 
 describe('NightEatingCorrelationView', () => {
-  it('renders nothing with no comparable day-pairs at all', () => {
-    const { container } = render(<NightEatingCorrelationView entries={[]} />, {
+  it('shows empty state with no comparable day-pairs at all', () => {
+    render(<NightEatingCorrelationView entries={[]} />, {
       wrapper: MemoryRouter,
     })
-    expect(container).toBeEmptyDOMElement()
+    expect(
+      screen.getByText('Night eating vs. next-day weight'),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByText(
+        'Not enough data yet to see a pattern — keep logging meal times (or the night-eating toggle directly) and tracking weight, then check back in a few weeks.',
+      ),
+    ).toBeInTheDocument()
   })
 
   it('shows the not-enough-data caveat with fewer than 8 comparable day-pairs', () => {
