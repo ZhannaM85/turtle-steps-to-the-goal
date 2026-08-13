@@ -40,6 +40,6 @@ _Logged while blocked on Apple Developer enrollment. Library CVEs via `npm audit
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#715](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/715) | ⬜ Open | Add food: portion weight change must rescale kcal/macros; keep per-100g as source of truth | Live repro: reuse prior food at 280 kcal / 50 g; change to 20 g still shows 280 kcal; switch to 100g tab → 1400 kcal/100g. Expected: density stays (560/100g), portion edits rescale totals; active Порция/100 г tab needs clearer highlight |
+| [#715](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/715) | 🔍 Pending validation | Add food: portion weight change must rescale kcal/macros; keep per-100g as source of truth | Fixed: personal items with known `lastAmountG` open in per-100g via `ratesFromAbsolute`; Portion-mode weight edits rescale from a density baseline (`scaleTotalsByWeightChange`); 100g/Portion tabs get a stronger active ring. Validate: reuse 280 kcal/50g → change to 20g → totals drop (~112); switch to 100g still ~560/100g; tabs visually clear |
 
 ---

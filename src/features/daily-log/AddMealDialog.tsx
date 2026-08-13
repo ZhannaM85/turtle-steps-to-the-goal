@@ -30,6 +30,7 @@ import {
   portionsToGrams,
   ratesFromAbsolute,
   scaleFromPer100g,
+  scaleTotalsByWeightChange,
   totalFromPortion,
 } from '@/shared/lib/macroScaling'
 import { parseNumberInput } from '@/shared/lib/parseNumberInput'
@@ -117,6 +118,86 @@ function blankManualDraft() {
     macroMode: 'per100g' as 'per100g' | 'perPortion',
     emotion: undefined as MealEmotion | undefined,
     favorite: false,
+  }
+}
+
+type ManualDraft = ReturnType<typeof blankManualDraft>
+
+/** #715 — fixed density baseline for Portion-mode weight edits. Scaling
+ * from the previous keystroke's grams breaks while typing ("50" → "5" →
+ * "20"); always multiply from the last committed nutrition+weight pair. */
+type PortionScaleBase = {
+  grams: number
+  amount: string
+  protein: string
+  fat: string
+  carbs: string
+  fiber: string
+  sodium: string
+  potassium: string
+  magnesium: string
+}
+
+function portionScaleBaseFromDraft(
+  draft: ManualDraft,
+): PortionScaleBase | null {
+  if (draft.macroMode !== 'perPortion') return null
+  const grams = parseOptionalMacro(draft.amountG)
+  if (!grams || grams <= 0) return null
+  const amountNum = parseNumberInput(draft.amount)
+  if (!amountNum || amountNum <= 0) return null
+  return {
+    grams,
+    amount: draft.amount,
+    protein: draft.protein,
+    fat: draft.fat,
+    carbs: draft.carbs,
+    fiber: draft.fiber,
+    sodium: draft.sodium,
+    potassium: draft.potassium,
+    magnesium: draft.magnesium,
+  }
+}
+
+function applyPortionWeightToDraft(
+  draft: ManualDraft,
+  nextAmountG: string,
+  base: PortionScaleBase | null,
+): ManualDraft {
+  const nextGrams = parseOptionalMacro(nextAmountG)
+  if (!base || !nextGrams || nextGrams <= 0) {
+    return { ...draft, amountG: nextAmountG }
+  }
+  const amountNum = parseNumberInput(base.amount)
+  if (!amountNum || amountNum <= 0) {
+    return { ...draft, amountG: nextAmountG }
+  }
+  const scaled = scaleTotalsByWeightChange(
+    amountNum,
+    parseOptionalMacro(base.protein),
+    parseOptionalMacro(base.fat),
+    parseOptionalMacro(base.carbs),
+    base.grams,
+    nextGrams,
+    parseOptionalMacro(base.fiber),
+    parseOptionalMacro(base.sodium),
+    parseOptionalMacro(base.potassium),
+    parseOptionalMacro(base.magnesium),
+  )
+  if (!scaled) return { ...draft, amountG: nextAmountG }
+  return {
+    ...draft,
+    amountG: nextAmountG,
+    amount: String(scaled.amountKcal),
+    protein: scaled.proteinG === undefined ? '' : String(scaled.proteinG),
+    fat: scaled.fatG === undefined ? '' : String(scaled.fatG),
+    carbs: scaled.carbsG === undefined ? '' : String(scaled.carbsG),
+    fiber: scaled.fiberG === undefined ? '' : String(scaled.fiberG),
+    sodium: scaled.sodiumMg === undefined ? '' : String(scaled.sodiumMg),
+    potassium:
+      scaled.potassiumMg === undefined ? '' : String(scaled.potassiumMg),
+    magnesium:
+      scaled.magnesiumMg === undefined ? '' : String(scaled.magnesiumMg),
   }
 }
 
@@ -310,6 +391,9 @@ export function AddMealDialog({
   const [isBarcodeOpen, setIsBarcodeOpen] = useState(false)
   const [isManualOpen, setIsManualOpen] = useState(false)
   const [manualDraft, setManualDraft] = useState(blankManualDraft)
+  // #715 — Portion-mode weight edits scale from this baseline, not the
+  // previous keystroke (see portionScaleBaseFromDraft).
+  const portionScaleBaseRef = useRef<PortionScaleBase | null>(null)
   const [barcodeNotFoundMessage, setBarcodeNotFoundMessage] = useState(false)
   // #518 — barcode from a not-found / Open Food Facts scan, held until the
   // food is saved so touch(..., barcode) can make the next scan a local hit.
@@ -432,12 +516,14 @@ export function AddMealDialog({
    * `MealItemEditorSheet` "create a dish" already used, instead of a
    * separate flatter inline confirm block with no per100g/portion toggle.
    * Seeds whichever `macroMode` is the direct passthrough for the picked
-   * item's own source data, no rate math needed either way: a curated/OFF
-   * `food` already carries a per-100g rate (`per100g` mode); a personal
-   * `mealItem` only knows its own last-logged *total* (`perPortion` mode).
-   * `brandOverride`/`barcodeOverride` are only ever passed for an
-   * OFF-sourced pick — neither MealItem nor FoodItem carries either of its
-   * own. */
+   * item's own source data: a curated/OFF `food` already carries a
+   * per-100g rate (`per100g` mode). A personal `mealItem` with a recorded
+   * last weight (#715) also opens in `per100g` via `ratesFromAbsolute` so
+   * density stays the source of truth when quantity changes; without
+   * `lastAmountG` it still opens in `perPortion` from the last-logged
+   * total alone. `brandOverride`/`barcodeOverride` are only ever passed
+   * for an OFF-sourced pick — neither MealItem nor FoodItem carries
+   * either of its own. */
   function openPickedItemSheet(
     item: PickableItem,
     options?: { brandOverride?: string; barcodeOverride?: string },
@@ -451,7 +537,7 @@ export function AddMealDialog({
     setIsConfirmingPick(true)
     if (item.source === 'food') {
       const { food } = item
-      setManualDraft({
+      const draft = {
         name: food[locale],
         brand: options?.brandOverride ?? '',
         amount: String(food.kcal100),
@@ -471,43 +557,97 @@ export function AddMealDialog({
             : String(food.magnesium100Mg),
         note: '',
         amountG: String(gramsToPortions(defaultQuantityFor(item))),
-        macroMode: 'per100g',
+        macroMode: 'per100g' as const,
         emotion: undefined,
         favorite: false,
-      })
+      }
+      portionScaleBaseRef.current = null
+      setManualDraft(draft)
     } else {
       const { mealItem } = item
-      setManualDraft({
-        name: mealItem.name,
-        brand: '',
-        amount: String(mealItem.lastAmountKcal),
-        protein:
-          mealItem.lastProteinG === undefined
-            ? ''
-            : String(mealItem.lastProteinG),
-        fat: mealItem.lastFatG === undefined ? '' : String(mealItem.lastFatG),
-        carbs:
-          mealItem.lastCarbsG === undefined ? '' : String(mealItem.lastCarbsG),
-        fiber:
-          mealItem.lastFiberG === undefined ? '' : String(mealItem.lastFiberG),
-        sodium:
-          mealItem.lastSodiumMg === undefined
-            ? ''
-            : String(mealItem.lastSodiumMg),
-        potassium:
-          mealItem.lastPotassiumMg === undefined
-            ? ''
-            : String(mealItem.lastPotassiumMg),
-        magnesium:
-          mealItem.lastMagnesiumMg === undefined
-            ? ''
-            : String(mealItem.lastMagnesiumMg),
-        note: '',
-        amountG: defaultQuantityFor(item),
-        macroMode: 'perPortion',
-        emotion: undefined,
-        favorite: false,
-      })
+      const lastGrams = mealItem.lastAmountG
+      if (
+        lastGrams !== undefined &&
+        lastGrams > 0 &&
+        mealItem.lastAmountKcal !== undefined
+      ) {
+        // #715 — known weight → density is source of truth (per-100g).
+        const rates = ratesFromAbsolute(
+          mealItem.lastAmountKcal,
+          mealItem.lastProteinG,
+          mealItem.lastFatG,
+          mealItem.lastCarbsG,
+          lastGrams,
+          mealItem.lastFiberG,
+          mealItem.lastSodiumMg,
+          mealItem.lastPotassiumMg,
+          mealItem.lastMagnesiumMg,
+        )
+        const draft: ManualDraft = {
+          name: mealItem.name,
+          brand: '',
+          amount: String(rates.kcal100),
+          protein:
+            rates.protein100 === undefined ? '' : String(rates.protein100),
+          fat: rates.fat100 === undefined ? '' : String(rates.fat100),
+          carbs: rates.carbs100 === undefined ? '' : String(rates.carbs100),
+          fiber: rates.fiber100 === undefined ? '' : String(rates.fiber100),
+          sodium: rates.sodium100 === undefined ? '' : String(rates.sodium100),
+          potassium:
+            rates.potassium100 === undefined
+              ? ''
+              : String(rates.potassium100),
+          magnesium:
+            rates.magnesium100 === undefined
+              ? ''
+              : String(rates.magnesium100),
+          note: '',
+          amountG: String(rates.portions),
+          macroMode: 'per100g',
+          emotion: undefined,
+          favorite: false,
+        }
+        portionScaleBaseRef.current = null
+        setManualDraft(draft)
+      } else {
+        const draft: ManualDraft = {
+          name: mealItem.name,
+          brand: '',
+          amount: String(mealItem.lastAmountKcal),
+          protein:
+            mealItem.lastProteinG === undefined
+              ? ''
+              : String(mealItem.lastProteinG),
+          fat: mealItem.lastFatG === undefined ? '' : String(mealItem.lastFatG),
+          carbs:
+            mealItem.lastCarbsG === undefined
+              ? ''
+              : String(mealItem.lastCarbsG),
+          fiber:
+            mealItem.lastFiberG === undefined
+              ? ''
+              : String(mealItem.lastFiberG),
+          sodium:
+            mealItem.lastSodiumMg === undefined
+              ? ''
+              : String(mealItem.lastSodiumMg),
+          potassium:
+            mealItem.lastPotassiumMg === undefined
+              ? ''
+              : String(mealItem.lastPotassiumMg),
+          magnesium:
+            mealItem.lastMagnesiumMg === undefined
+              ? ''
+              : String(mealItem.lastMagnesiumMg),
+          note: '',
+          amountG: defaultQuantityFor(item),
+          macroMode: 'perPortion',
+          emotion: undefined,
+          favorite: false,
+        }
+        portionScaleBaseRef.current = portionScaleBaseFromDraft(draft)
+        setManualDraft(draft)
+      }
     }
     setIsManualOpen(true)
   }
@@ -518,20 +658,30 @@ export function AddMealDialog({
    * mode (`gramsToPortions`, the same conversion `changeManualDraftMode`
    * below already applies on a macroMode switch) — so the two stay
    * consistent regardless of which mode was active when the serving was
-   * picked. */
+   * picked. #715 — in Portion mode this also rescales kcal/macros from
+   * the density baseline. */
   function applyServingToAmountG(servingIndexRaw: string, countRaw: string) {
     const serving = activeServings?.[Number(servingIndexRaw)]
     if (!serving) return
     const countNum = parseNumberInput(countRaw)
     const count = countNum && countNum > 0 ? countNum : 1
     const grams = serving.grams * count
-    setManualDraft((draft) => ({
-      ...draft,
-      amountG:
-        draft.macroMode === 'perPortion'
-          ? String(grams)
-          : String(gramsToPortions(String(grams))),
-    }))
+    setManualDraft((draft) => {
+      if (draft.macroMode === 'perPortion') {
+        const next = applyPortionWeightToDraft(
+          draft,
+          String(grams),
+          portionScaleBaseRef.current,
+        )
+        // Serving pick commits a new weight+totals pair — refresh baseline.
+        portionScaleBaseRef.current = portionScaleBaseFromDraft(next)
+        return next
+      }
+      return {
+        ...draft,
+        amountG: String(gramsToPortions(String(grams))),
+      }
+    })
   }
 
   // #256 — resolves a scan straight to the same quantity-confirm step a
@@ -632,7 +782,9 @@ export function AddMealDialog({
           : String(gramsToPortions(draft.amountG))
       const amountNum = parseNumberInput(draft.amount)
       if (!amountNum || amountNum <= 0) {
-        return { ...draft, amountG: convertedAmountG, macroMode: newMode }
+        const next = { ...draft, amountG: convertedAmountG, macroMode: newMode }
+        portionScaleBaseRef.current = portionScaleBaseFromDraft(next)
+        return next
       }
       if (newMode === 'perPortion') {
         const scaled = scaleFromPer100g(
@@ -646,7 +798,7 @@ export function AddMealDialog({
           parseOptionalMacro(draft.potassium),
           parseOptionalMacro(draft.magnesium),
         )
-        return {
+        const next: ManualDraft = {
           ...draft,
           amount: String(scaled.amountKcal),
           protein: scaled.proteinG === undefined ? '' : String(scaled.proteinG),
@@ -661,6 +813,8 @@ export function AddMealDialog({
           amountG: convertedAmountG,
           macroMode: newMode,
         }
+        portionScaleBaseRef.current = portionScaleBaseFromDraft(next)
+        return next
       }
       const rates = ratesFromAbsolute(
         amountNum,
@@ -676,7 +830,7 @@ export function AddMealDialog({
         parseOptionalMacro(draft.potassium),
         parseOptionalMacro(draft.magnesium),
       )
-      return {
+      const next: ManualDraft = {
         ...draft,
         amount: String(rates.kcal100),
         protein: rates.protein100 === undefined ? '' : String(rates.protein100),
@@ -691,6 +845,49 @@ export function AddMealDialog({
         amountG: convertedAmountG,
         macroMode: newMode,
       }
+      portionScaleBaseRef.current = null
+      return next
+    })
+  }
+
+  /** #715 — Portion mode: changing weight rescales kcal/macros from the
+   * density baseline. Per-100g mode only updates the portions count; rates
+   * stay put and the live preview multiplies. */
+  function changeManualDraftAmountG(value: string) {
+    setManualDraft((draft) => {
+      if (draft.macroMode !== 'perPortion') {
+        return { ...draft, amountG: value }
+      }
+      return applyPortionWeightToDraft(
+        draft,
+        value,
+        portionScaleBaseRef.current,
+      )
+    })
+  }
+
+  function patchManualDraftNutrition(
+    patch: Partial<
+      Pick<
+        ManualDraft,
+        | 'amount'
+        | 'protein'
+        | 'fat'
+        | 'carbs'
+        | 'fiber'
+        | 'sodium'
+        | 'potassium'
+        | 'magnesium'
+      >
+    >,
+  ) {
+    setManualDraft((draft) => {
+      const next = { ...draft, ...patch }
+      // Nutrition edits in Portion mode redefine density — refresh baseline.
+      if (next.macroMode === 'perPortion') {
+        portionScaleBaseRef.current = portionScaleBaseFromDraft(next)
+      }
+      return next
     })
   }
 
@@ -799,7 +996,7 @@ export function AddMealDialog({
     setPendingBarcode(null)
     setActiveServings(undefined)
     setIsConfirmingPick(false)
-    setManualDraft({
+    const draft: ManualDraft = {
       name: item.name ?? '',
       brand: item.brand ?? '',
       amount: String(item.amountKcal),
@@ -815,7 +1012,9 @@ export function AddMealDialog({
       macroMode: 'perPortion',
       emotion: item.emotion,
       favorite: false,
-    })
+    }
+    portionScaleBaseRef.current = portionScaleBaseFromDraft(draft)
+    setManualDraft(draft)
     setIsManualOpen(true)
   }
 
@@ -1612,6 +1811,7 @@ export function AddMealDialog({
             setIsManualOpen(next)
             if (!next) {
               setManualDraft(blankManualDraft())
+              portionScaleBaseRef.current = null
               setBarcodeNotFoundMessage(false)
               setEditingItemId(null)
               // #518 — abandoning the not-found create drops the held code
@@ -1640,37 +1840,29 @@ export function AddMealDialog({
             setManualDraft((draft) => ({ ...draft, brand: value }))
           }
           amount={manualDraft.amount}
-          onAmountChange={(value) =>
-            setManualDraft((draft) => ({ ...draft, amount: value }))
-          }
+          onAmountChange={(value) => patchManualDraftNutrition({ amount: value })}
           protein={manualDraft.protein}
           onProteinChange={(value) =>
-            setManualDraft((draft) => ({ ...draft, protein: value }))
+            patchManualDraftNutrition({ protein: value })
           }
           fat={manualDraft.fat}
-          onFatChange={(value) =>
-            setManualDraft((draft) => ({ ...draft, fat: value }))
-          }
+          onFatChange={(value) => patchManualDraftNutrition({ fat: value })}
           carbs={manualDraft.carbs}
-          onCarbsChange={(value) =>
-            setManualDraft((draft) => ({ ...draft, carbs: value }))
-          }
+          onCarbsChange={(value) => patchManualDraftNutrition({ carbs: value })}
           fiber={manualDraft.fiber}
-          onFiberChange={(value) =>
-            setManualDraft((draft) => ({ ...draft, fiber: value }))
-          }
+          onFiberChange={(value) => patchManualDraftNutrition({ fiber: value })}
           showFiber={trackFiber}
           sodium={manualDraft.sodium}
           onSodiumChange={(value) =>
-            setManualDraft((draft) => ({ ...draft, sodium: value }))
+            patchManualDraftNutrition({ sodium: value })
           }
           potassium={manualDraft.potassium}
           onPotassiumChange={(value) =>
-            setManualDraft((draft) => ({ ...draft, potassium: value }))
+            patchManualDraftNutrition({ potassium: value })
           }
           magnesium={manualDraft.magnesium}
           onMagnesiumChange={(value) =>
-            setManualDraft((draft) => ({ ...draft, magnesium: value }))
+            patchManualDraftNutrition({ magnesium: value })
           }
           showSodium={micronutrients.sodium}
           showPotassium={micronutrients.potassium}
@@ -1680,9 +1872,7 @@ export function AddMealDialog({
             setManualDraft((draft) => ({ ...draft, note: value }))
           }
           amountG={manualDraft.amountG}
-          onAmountGChange={(value) =>
-            setManualDraft((draft) => ({ ...draft, amountG: value }))
-          }
+          onAmountGChange={changeManualDraftAmountG}
           macroMode={manualDraft.macroMode}
           onMacroModeChange={changeManualDraftMode}
           servings={activeServings}
@@ -1712,6 +1902,7 @@ export function AddMealDialog({
               item.lastPotassiumMg,
               item.lastMagnesiumMg,
             )
+            portionScaleBaseRef.current = null
             setManualDraft((draft) => ({
               ...draft,
               amount: String(rates.kcal100),
@@ -1731,6 +1922,8 @@ export function AddMealDialog({
                   ? ''
                   : String(rates.magnesium100),
               amountG: String(rates.portions),
+              // #715 — ratesFromAbsolute fills per-100g fields; stay in that mode.
+              macroMode: 'per100g',
             }))
           }}
           emotion={manualDraft.emotion}

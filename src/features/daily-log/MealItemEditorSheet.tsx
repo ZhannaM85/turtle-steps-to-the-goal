@@ -481,14 +481,14 @@ export function MealItemEditorSheet({
             >
               <ToggleGroupItem
                 value="per100g"
-                className="h-10 flex-1 gap-1.5 px-4 text-sm"
+                className="h-10 flex-1 gap-1.5 px-4 text-sm data-[state=on]:bg-background data-[state=on]:font-semibold data-[state=on]:text-foreground data-[state=on]:ring-2 data-[state=on]:ring-primary/45 data-[state=on]:shadow-sm data-[state=off]:opacity-70"
               >
                 <span aria-hidden="true">⚖️</span>
                 {t.dailyEntry.macroModePer100gOption}
               </ToggleGroupItem>
               <ToggleGroupItem
                 value="perPortion"
-                className="h-10 flex-1 gap-1.5 px-4 text-sm"
+                className="h-10 flex-1 gap-1.5 px-4 text-sm data-[state=on]:bg-background data-[state=on]:font-semibold data-[state=on]:text-foreground data-[state=on]:ring-2 data-[state=on]:ring-primary/45 data-[state=on]:shadow-sm data-[state=off]:opacity-70"
               >
                 <span aria-hidden="true">🍜</span>
                 {t.dailyEntry.macroModePerPortionOption}

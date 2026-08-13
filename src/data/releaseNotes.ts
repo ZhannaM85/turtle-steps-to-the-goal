@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 668,
+    issue: 715,
+    date: '2026-08-13T18:32:00+03:00',
+    en: 'Changing portion weight when adding a reused food now rescales calories and macros, and keeps kcal per 100g as the source of truth. The 100g / Portion tabs are also easier to tell apart.',
+    ru: 'При добавлении ранее сохранённого блюда изменение веса порции снова пересчитывает калории и БЖУ, а ккал на 100 г остаются источником правды. Вкладки «100 г» / «Порция» лучше отличаются.',
+  },
+  {
     version: 667,
     issue: 714,
     date: '2026-08-13T16:40:00+03:00',

@@ -422,6 +422,59 @@ describe('AddMealDialog (#454)', () => {
     })
   })
 
+  it('keeps per-100g density when reusing a personal item and shrinking portion weight (#715)', async () => {
+    await useMealItemStore.getState().touch('Cookie', {
+      amountKcal: 280,
+      proteinG: 5,
+      fatG: 18.6,
+      carbsG: 22.6,
+      amountG: 50,
+    })
+    const user = userEvent.setup()
+    const onAppendItems = vi.fn()
+    render(
+      <AddMealDialog
+        {...defaultProps}
+        items={[]}
+        reaction={undefined}
+        onReactionChange={vi.fn()}
+        onAppendItems={onAppendItems}
+        onRemoveItem={vi.fn()}
+      />,
+    )
+
+    await user.click(await screen.findByText('Cookie'))
+
+    // Known lastAmountG → open in per-100g with density as source of truth.
+    expect(screen.getByLabelText('kcal/100g')).toHaveValue('560')
+    expect(screen.getByLabelText('× 100g')).toHaveValue('0.5')
+
+    await user.clear(screen.getByLabelText('× 100g'))
+    await user.type(screen.getByLabelText('× 100g'), '0.2')
+
+    expect(
+      screen.getByText('Total: 112 kcal · P 2g · F 7g · C 9g'),
+    ).toBeInTheDocument()
+
+    await user.click(screen.getByRole('radio', { name: 'Portion' }))
+    expect(screen.getByLabelText('kcal')).toHaveValue('112')
+    expect(screen.getByLabelText('Weight (g)')).toHaveValue('20')
+
+    await user.clear(screen.getByLabelText('Weight (g)'))
+    await user.type(screen.getByLabelText('Weight (g)'), '50')
+    expect(screen.getByLabelText('kcal')).toHaveValue('280')
+
+    await user.click(screen.getByRole('radio', { name: '100g' }))
+    expect(screen.getByLabelText('kcal/100g')).toHaveValue('560')
+
+    await user.click(screen.getByRole('button', { name: 'Save' }))
+    expect(onAppendItems.mock.calls[0][0][0]).toMatchObject({
+      name: 'Cookie',
+      amountKcal: 280,
+      amountG: 50,
+    })
+  })
+
   it('does not offer a serving-size toggle for a food with none seeded', async () => {
     const user = userEvent.setup()
     render(<ControlledAddMealDialog {...defaultProps} />)
