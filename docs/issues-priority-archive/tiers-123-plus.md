@@ -200,3 +200,13 @@ _Live report: body-composition Overview chart is hard to read when all series ar
 |---|--------|-------|-------|
 | [#696](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/696) | ✅ Done | Allow graph customization for body composition | Per-series line/bar/dots on body composition chart; confirmed on-device 2026-08-12. |
 | [#697](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/697) | ✅ Done | iOS splash: turtle logo too small / looks missing; unassigned Splash assets | SplashLogo + Cap splash hold; confirmed on-device 2026-08-12 — centered turtle on white cold launch. |
+
+---
+
+## Tier 134 — Security + live feedback (2026-08-13)
+
+_Logged while blocked on Apple Developer enrollment. Library CVEs via `npm audit` / Dependabot (#698–#701), then own-code hardening (#702–#704). Full tree had 27 findings; production-only had 5. Do **not** `npm audit fix --force`. Explicitly **not** filed: virus scanning of imports, DOMPurify on every text field, blocking images in meal-name inputs (plain text; no HTML-render sink today). Also live UI feedback from the same day (#707)._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#698](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/698) | ✅ Done | Upgrade react-router-dom past the RSC CSRF advisory | Confirmed on-device 2026-08-13 — navigation still works after 7.18.2. |
