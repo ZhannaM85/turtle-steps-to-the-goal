@@ -40,5 +40,7 @@ _Logged while blocked on Apple Developer enrollment. Library CVEs via `npm audit
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
+| [#711](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/711) | 📋 Not started | Correlation tooltip: max-width and wrap long day notes | Follow-up after #710. Cap tooltip width on mobile; wrap day-note text instead of one-line ellipsis. |
+| [#712](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/712) | 📋 Not started | Correlation scatter: tap sometimes fails to open tooltip | Follow-up after #710. Intermittent — gesture/zoom layer likely captures pointer; fix reliable tap-to-tooltip without breaking pinch/pan. |
 
 ---
