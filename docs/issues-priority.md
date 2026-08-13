@@ -42,6 +42,5 @@ _Logged while blocked on Apple Developer enrollment. Library CVEs via `npm audit
 |---|--------|-------|-------|
 | [#707](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/707) | 🔍 Pending validation | Show sleep vs-yesterday delta as hours and minutes, not decimal hours | Live + ⓘ sleep comparisons now use `formatSleepDuration` (e.g. 1ч 27м / 1h 27m) instead of decimal hours. Confirm the line under «Часов сна» on the Day form. |
 | [#709](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/709) | 🔍 Pending validation | Settings: list all Dashboard graphs with show/hide toggles | New Settings card «Dashboard graphs» / «Графики на панели» lists every `DashboardChartKey` On/Off via `dashboardChartVisibilityStore` (same as eye toggles). Custom correlations still under Custom metrics. Confirm Settings list matches Dashboard titles and toggling Off hides the card. |
-| [#708](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/708) | 🔍 Pending validation | Dashboard graphs must not silently disappear when empty | Empty built-in sections keep title + empty copy (`EmptyDashboardSection` / trend empty messages). Feature-gated omit stays (alcohol off, body-comp/electrolytes tracking off). Confirm calories-vs-weight still shows when period has no weeks. |
 
 ---
