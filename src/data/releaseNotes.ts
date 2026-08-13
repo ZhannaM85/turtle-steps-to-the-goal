@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 667,
+    issue: 714,
+    date: '2026-08-13T16:40:00+03:00',
+    en: 'Late-meal correlation now treats a post-midnight snack on the same day log as later than an evening meal, using your day-start setting.',
+    ru: 'Корреляция «последний приём пищи» теперь считает ночной перекус на том же дне позже вечернего — с учётом настройки начала дня.',
+  },
+  {
     version: 666,
     issue: 713,
     date: '2026-08-13T16:30:00+03:00',

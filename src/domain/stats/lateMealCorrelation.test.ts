@@ -169,6 +169,38 @@ describe('lateMealCorrelation', () => {
     expect(points[1].date).toBe(day(1))
   })
 
+  // #714 — same DailyEntry can hold evening dinner + post-midnight snack;
+  // raw Math.max(minutes) wrongly picked 19:41 over 01:22.
+  it('picks post-midnight snack over earlier evening meal when day-start says so (#714)', () => {
+    const entries = [
+      entry(day(0), {
+        weightKg: 80,
+        calorieEntries: [
+          ...mealAt('19:41'),
+          ...mealAt('01:22'),
+        ],
+      }),
+      entry(day(1), { weightKg: 79.9 }),
+    ]
+
+    const points = lateMealPoints(entries, '04:00')
+    expect(points).toHaveLength(1)
+    expect(points[0].minutes).toBe(1 * 60 + 22)
+  })
+
+  it('still returns wall-clock minutes for the chart X axis (#714)', () => {
+    const entries = [
+      entry(day(0), {
+        weightKg: 80,
+        calorieEntries: [...mealAt('19:41'), ...mealAt('01:22')],
+      }),
+      entry(day(1), { weightKg: 79.9 }),
+    ]
+    const points = lateMealPoints(entries, '04:00')
+    // Not the day-start-adjusted value (01:22 + 24h).
+    expect(points[0].minutes).toBeLessThan(24 * 60)
+  })
+
   // #601 — a meal logged after midnight but before the configured day-start
   // time is really the tail of a late night, not an early morning. Without
   // `dayStartTime`, these four post-midnight meals would sort as *earlier*

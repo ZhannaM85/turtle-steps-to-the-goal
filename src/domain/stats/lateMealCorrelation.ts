@@ -32,17 +32,36 @@ function timeToMinutes(hhmm: string): number {
 }
 
 /** The latest meal time (recorded or #580 slot default) across a day's
- * meals, in minutes since midnight — null if the day has no meals with a
- * usable time. Deliberately *not* day-start-adjusted here — `.minutes` also
- * doubles as `LateMealCorrelationView.tsx`'s raw scatter-chart X position,
- * which should keep showing a meal's true wall-clock time; the day-start
- * adjustment instead happens only where "earlier vs. later" is actually
- * decided, in `lateMealCorrelationFromPoints` below (#601). */
-function lastMealTimeMinutes(entry: DailyEntry): number | null {
+ * meals, in **wall-clock** minutes since midnight — null if the day has no
+ * meals with a usable time.
+ *
+ * #714 — pick the chronologically last meal using `adjustForDayStart` (same
+ * idea as `fastingWindow.ts`), then return that meal's raw wall-clock
+ * minutes. Otherwise a snack at 01:22 on the same `DailyEntry` as 19:41 loses
+ * to `Math.max` of raw minutes. Plotted X stays wall-clock; median split
+ * still adjusts in `lateMealCorrelationFromPoints` (#601). */
+function lastMealTimeMinutes(
+  entry: DailyEntry,
+  dayStartTime = '00:00',
+): number | null {
+  const dayStartMinutes = timeToMinutes(dayStartTime)
   const times = (entry.calorieEntries ?? [])
     .map((meal) => effectiveTimeEaten(meal))
     .filter((time): time is string => time !== undefined)
-  return times.length === 0 ? null : Math.max(...times.map(timeToMinutes))
+    .map(timeToMinutes)
+  if (times.length === 0) return null
+
+  let bestWall = times[0]
+  let bestAdjusted = adjustForDayStart(bestWall, dayStartMinutes)
+  for (let i = 1; i < times.length; i += 1) {
+    const wall = times[i]
+    const adjusted = adjustForDayStart(wall, dayStartMinutes)
+    if (adjusted > bestAdjusted) {
+      bestWall = wall
+      bestAdjusted = adjusted
+    }
+  }
+  return bestWall
 }
 
 export interface LateMealPoint {
@@ -69,13 +88,16 @@ export interface LateMealPoint {
  * also has a logged weight — the delta needs both endpoints, same
  * reasoning as `TodayScreen`'s vs-yesterday stat (#42).
  */
-export function lateMealPoints(entries: DailyEntry[]): LateMealPoint[] {
+export function lateMealPoints(
+  entries: DailyEntry[],
+  dayStartTime = '00:00',
+): LateMealPoint[] {
   const byDate = new Map(entries.map((entry) => [entry.date, entry]))
   const points: LateMealPoint[] = []
 
   for (const entry of entries) {
     if (entry.weightKg === undefined) continue
-    const minutes = lastMealTimeMinutes(entry)
+    const minutes = lastMealTimeMinutes(entry, dayStartTime)
     if (minutes === null) continue
     const nextDate = format(addDays(parseISO(entry.date), 1), 'yyyy-MM-dd')
     const nextEntry = byDate.get(nextDate)
@@ -159,5 +181,8 @@ export function lateMealCorrelation(
   entries: DailyEntry[],
   dayStartTime = '00:00',
 ): LateMealCorrelation | null {
-  return lateMealCorrelationFromPoints(lateMealPoints(entries), dayStartTime)
+  return lateMealCorrelationFromPoints(
+    lateMealPoints(entries, dayStartTime),
+    dayStartTime,
+  )
 }

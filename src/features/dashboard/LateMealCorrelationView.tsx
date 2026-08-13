@@ -91,7 +91,7 @@ export function LateMealCorrelationView({
   // "earlier," matching the Day screen's own meal-list ordering (#621).
   const dayStartTime = useDayStartStore((state) => state.dayStartTime)
 
-  const rawPoints = lateMealPoints(entries)
+  const rawPoints = lateMealPoints(entries, dayStartTime)
   const notesByDate = dayNotesByDate(entries)
   const { flags, axes, isExcluded, toggle, includedPoints } = useOutlierExclusion(
     'lateMeal',
