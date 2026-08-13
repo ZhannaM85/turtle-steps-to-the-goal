@@ -46,6 +46,7 @@ import {
 } from '@/stores'
 import { releaseNotes } from '@/data/releaseNotes'
 import { ExportSection } from '@/features/export'
+import { DashboardChartsVisibilitySection } from './DashboardChartsVisibilitySection'
 import {
   backupReminderStatus,
   BACKUP_REMINDER_SNOOZE_DAYS,
@@ -914,6 +915,15 @@ export function SettingsScreen() {
           </CardContent>
         </Card>
       )}
+
+      <Card>
+        <CardHeader>
+          <CardTitle>{t.settings.dashboardChartsLabel}</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <DashboardChartsVisibilitySection />
+        </CardContent>
+      </Card>
 
       <Card>
         <CardHeader>

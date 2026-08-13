@@ -1274,6 +1274,11 @@ export const ru: Dictionary = {
       'В Health Connect нет веса, шагов или сна за последние 7 дней.',
     healthConnectSyncErrorMessage:
       'Не удалось синхронизировать с Health Connect. Попробуйте ещё раз.',
+    dashboardChartsLabel: 'Графики на панели',
+    dashboardChartsDescription:
+      'Все встроенные разделы панели. Выключите, чтобы скрыть на панели; включите снова здесь или значком глаза на карточке. Пользовательские корреляции — в «Свои метрики».',
+    dashboardChartsOn: 'Вкл',
+    dashboardChartsOff: 'Выкл',
     trendChartsLabel: 'Графики трендов на панели',
     trendChartsDescription:
       'Какие данные показывать на графиках веса и калорий — надёжное место, чтобы вернуть показатель, если он был выключен прямо на панели.',

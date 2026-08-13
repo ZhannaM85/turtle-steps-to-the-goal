@@ -1960,6 +1960,11 @@ export interface Dictionary {
     healthConnectSyncSuccessMessage: (dayCount: number, todayWeight?: string) => string
     healthConnectSyncNoDataMessage: string
     healthConnectSyncErrorMessage: string
+    /** #709 — catalog of every built-in Dashboard section (show/hide). */
+    dashboardChartsLabel: string
+    dashboardChartsDescription: string
+    dashboardChartsOn: string
+    dashboardChartsOff: string
     trendChartsLabel: string
     trendChartsDescription: string
     weightTrendLabel: string

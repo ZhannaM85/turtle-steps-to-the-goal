@@ -1241,6 +1241,11 @@ export const en: Dictionary = {
     healthConnectSyncNoDataMessage:
       'No weight, steps, or sleep in Health Connect for the last 7 days.',
     healthConnectSyncErrorMessage: 'Couldn’t sync from Health Connect. Try again.',
+    dashboardChartsLabel: 'Dashboard graphs',
+    dashboardChartsDescription:
+      'Every built-in Dashboard section. Turn one off to hide it on the Dashboard; turn it back on here or with the eye icon on the card. Custom correlations are managed under Custom metrics.',
+    dashboardChartsOn: 'On',
+    dashboardChartsOff: 'Off',
     trendChartsLabel: 'Dashboard trend charts',
     trendChartsDescription:
       'Which series show on the Weight and Calorie trend charts — a safe place to bring one back if it was turned off on the Dashboard itself.',

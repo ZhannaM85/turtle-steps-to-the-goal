@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 661,
+    issue: 709,
+    date: '2026-08-13T13:51:00+03:00',
+    en: 'Settings now lists every Dashboard graph so you can turn sections on or off in one place.',
+    ru: 'В настройках теперь есть список всех графиков панели — можно включать и выключать разделы в одном месте.',
+  },
+  {
     version: 660,
     issue: 707,
     date: '2026-08-13T13:20:00+03:00',
