@@ -34,3 +34,16 @@ _User asked about pulling data from Apple Health and Zepp Life. Researched via W
 | [#334](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/334) | 📋 Not started | Epic — Apple Health integration (blocked on mobile app + HealthKit bridge) | HealthKit has no public/cloud API at all — data is on-device only, readable exclusively by a native iOS app (or hybrid app with a HealthKit plugin/entitlement) the user has granted permission to. Genuinely blocked until the mobile app exists; can't be built sooner by any workaround. |
 
 ---
+
+## Tier 134 — Dependency vulnerabilities (2026-08-13)
+
+_Logged while blocked on Apple Developer enrollment. `npm audit` (2026-08-13) vs Veracode-style SCA: GitHub Dependabot alerts + `npm audit` are the free equivalent. Full tree had 27 findings; production-only (`npm audit --omit=dev`) had 5 (3 high, 2 moderate). Order below is easiest → hardest. Do **not** `npm audit fix --force` (it wanted to downgrade `exceljs` to 3.4.0 and Capacitor CLI to 8.4.2)._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#698](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/698) | 📋 Not started | Upgrade react-router-dom past the RSC CSRF advisory | Direct dep `react-router-dom@^7.18.1`, [GHSA-qwww-vcr4-c8h2](https://github.com/advisories/GHSA-qwww-vcr4-c8h2) (high). Vite SPA, not RSC — likely unreachable. Clean non-force `npm audit fix` path. |
+| [#699](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/699) | 📋 Not started | Patch brace-expansion in the production lockfile | Transitive via `exceljs` → glob. [GHSA-mh99-v99m-4gvg](https://github.com/advisories/GHSA-mh99-v99m-4gvg) / [GHSA-rgw5-rvv9-x895](https://github.com/advisories/GHSA-rgw5-rvv9-x895) (high DoS). `npm audit fix` without `--force`. |
+| [#700](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/700) | 📋 Not started | Resolve exceljs uuid advisory without downgrading exceljs | `uuid` [GHSA-w5hq-g745-h8pq](https://github.com/advisories/GHSA-w5hq-g745-h8pq) (moderate) via `exceljs@^4.4.0`. Force-fix would downgrade to exceljs 3.4.0 — forbidden (#123 chose exceljs over SheetJS `xlsx`). Override, wait for upstream, or accept risk. |
+| [#701](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/701) | 📋 Not started | Triage Capacitor CLI and other devDependency advisories | The other 22 findings (incl. critical `tar` via `@capacitor/cli`). Do not ship; do not downgrade Capacitor 8.5 or `vite-plugin-node-polyfills` to 0.2.0. Forward bumps only; leftover alerts explicitly accepted. |
+
+---
