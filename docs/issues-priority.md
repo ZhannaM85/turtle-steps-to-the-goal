@@ -34,9 +34,9 @@ _User asked about pulling data from Apple Health and Zepp Life. Researched via W
 
 ---
 
-## Tier 134 — Security (2026-08-13)
+## Tier 134 — Security + live feedback (2026-08-13)
 
-_Logged while blocked on Apple Developer enrollment. Library CVEs via `npm audit` / Dependabot (#698–#701), then own-code hardening (#702–#704). Full tree had 27 findings; production-only had 5. Do **not** `npm audit fix --force`. Explicitly **not** filed: virus scanning of imports, DOMPurify on every text field, blocking images in meal-name inputs (plain text; no HTML-render sink today)._
+_Logged while blocked on Apple Developer enrollment. Library CVEs via `npm audit` / Dependabot (#698–#701), then own-code hardening (#702–#704). Full tree had 27 findings; production-only had 5. Do **not** `npm audit fix --force`. Explicitly **not** filed: virus scanning of imports, DOMPurify on every text field, blocking images in meal-name inputs (plain text; no HTML-render sink today). Also live UI feedback from the same day (#707)._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
@@ -48,5 +48,6 @@ _Logged while blocked on Apple Developer enrollment. Library CVEs via `npm audit
 | [#703](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/703) | 🔍 Pending validation | Cap import file size before parsing JSON, zip, and Excel | `assertImportFileWithinSizeLimit` (200 MiB) on JSON / Zepp / Apple Health / MFP pickers before parse. en/ru `export.fileTooLarge`. Confirm a normal backup and a real Health zip still import; a huge file shows the error. |
 | [#704](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/704) | 🔍 Pending validation | Add a Content-Security-Policy without breaking the theme script | Production-only CSP meta via `vite.cspPlugin.ts` (hashes #17 theme script at build; no CSP on `vite dev`). `'unsafe-eval'` only for `vm-browserify` / encrypted MFP (#500). Confirm cold load (mood/scheme, no FOUC), import/export, PWA update, barcode OFF lookup. |
 | [#706](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/706) | 🔍 Pending validation | Fix CodeQL alerts in exportMarkdown and vite.cspPlugin | Escaped `\` in `mdField` before `|`; CSP plugin end-tag `/<\/script\b[^>]*>/`. Confirm next CodeQL run clears alerts 1–2 (or Security tab empty). |
+| [#707](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/707) | 📋 Not started | Show sleep vs-yesterday delta as hours and minutes, not decimal hours | Day form «Часов сна» comparison shows e.g. «↑ 1,45ч» — display as h+m (e.g. 1ч 27м) instead. Logged from live screenshot; not investigated. |
 
 ---
