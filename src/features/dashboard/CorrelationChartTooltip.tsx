@@ -1,5 +1,5 @@
 import { format, parseISO } from 'date-fns'
-import { ArrowRight } from 'lucide-react'
+import { ArrowRight, X } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { getDateFnsLocale, useLocale, useTranslation } from '@/i18n'
 
@@ -24,6 +24,9 @@ export interface CorrelationChartTooltipProps {
    * wanted. Kept per-view because the units differ wildly (steps, hours,
    * kcal, a Yes/No label). */
   formatValue: (value: number, name: string) => string
+  /** #713 — hide the click-triggered tooltip (Recharts no longer
+   * dismisses on outside tap after #712). */
+  onClose?: () => void
   /** Injected by recharts, which clones this element with the live tooltip
    * props — never passed by the callers themselves. */
   active?: boolean
@@ -51,9 +54,13 @@ export interface CorrelationChartTooltipProps {
  * have been the click, unmounting the link before navigation. Navigate on
  * `pointerdown` instead (and stop the event) so the route change wins the
  * race against tooltip teardown.
+ *
+ * #711 — max-width + wrapping day notes. #713 — explicit close control for
+ * click-triggered tooltips that no longer dismiss on tap-away alone.
  */
 export function CorrelationChartTooltip({
   formatValue,
+  onClose,
   active,
   payload,
 }: CorrelationChartTooltipProps) {
@@ -67,15 +74,30 @@ export function CorrelationChartTooltip({
 
   return (
     <div
+      data-correlation-tooltip
       // #711 — cap width on phone Overview; day notes wrap instead of one
       // long line that stretches the popover across most of the screen.
-      className="max-w-[min(18rem,85vw)] rounded-lg border border-border bg-popover px-3 py-2 text-xs text-popover-foreground shadow-md"
+      className="relative max-w-[min(18rem,85vw)] rounded-lg border border-border bg-popover px-3 py-2 text-xs text-popover-foreground shadow-md"
       onMouseMove={(e) => e.stopPropagation()}
       onTouchMove={(e) => e.stopPropagation()}
       onPointerDown={(e) => e.stopPropagation()}
     >
+      {onClose && (
+        <button
+          type="button"
+          aria-label={t.dashboard.correlationTooltipCloseLabel}
+          className="absolute top-1 right-1 rounded-md p-1 text-muted-foreground hover:bg-muted hover:text-foreground"
+          onPointerDown={(e) => {
+            e.preventDefault()
+            e.stopPropagation()
+            onClose()
+          }}
+        >
+          <X aria-hidden="true" className="size-3.5" />
+        </button>
+      )}
       {date && (
-        <p className="mb-1 font-medium">
+        <p className={`mb-1 font-medium ${onClose ? 'pr-6' : ''}`}>
           {format(parseISO(date), 'PP', { locale: dateFnsLocale })}
         </p>
       )}

@@ -28,6 +28,7 @@ import { CorrelationChartTooltip } from './CorrelationChartTooltip'
 import {
   CORRELATION_SCATTER_TOOLTIP_TRIGGER,
   CORRELATION_SCATTER_TOOLTIP_WRAPPER_STYLE,
+  handleCorrelationScatterChartClick,
 } from './correlationScatterTooltip'
 import { CorrelationStrengthLabel } from './CorrelationStrengthLabel'
 import { EmptyDashboardSection } from './EmptyDashboardSection'
@@ -167,9 +168,24 @@ export function SleepCorrelationView({
           xValues={points.map((p) => p.hours)}
           yValues={points.map((p) => p.delta)}
         >
-          {({ xDomain, yDomain, isGesturing }) => (
+          {({
+            xDomain,
+            yDomain,
+            tooltipActive,
+            dismissTooltip,
+            revealTooltip,
+          }) => (
             <ResponsiveContainer width="100%" height={180}>
-              <ScatterChart margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
+              <ScatterChart
+                margin={{ top: 8, right: 8, left: 0, bottom: 0 }}
+                onClick={(state) =>
+                  handleCorrelationScatterChartClick(
+                    state,
+                    dismissTooltip,
+                    revealTooltip,
+                  )
+                }
+              >
                 <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
                 <XAxis
                   type="number"
@@ -200,11 +216,12 @@ export function SleepCorrelationView({
                 />
                 <Tooltip
                   trigger={CORRELATION_SCATTER_TOOLTIP_TRIGGER}
-                  active={isGesturing ? false : undefined}
+                  active={tooltipActive}
                   cursor={{ strokeDasharray: '3 3', stroke: 'var(--border)' }}
                   wrapperStyle={CORRELATION_SCATTER_TOOLTIP_WRAPPER_STYLE}
                   content={
                     <CorrelationChartTooltip
+                      onClose={dismissTooltip}
                       formatValue={(value, name) =>
                         `${formatNumber(value, locale)}${name === t.dashboard.sleepHoursLegend ? 'h' : ` ${unit}`}`
                       }

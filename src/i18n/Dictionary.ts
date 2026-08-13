@@ -1484,6 +1484,8 @@ export interface Dictionary {
     previousPeriodLabel: string
     nextPeriodLabel: string
     viewDayLink: string
+    /** #713 — accessible label for the correlation scatter tooltip ✕. */
+    correlationTooltipCloseLabel: string
     /** Latest-meal-time vs. next-day weight chart (#116) — distinct from
      * the calories-vs-weekly-change correlation above (correlationTitle
      * etc.): this pairs each day's latest meal time with the *next*

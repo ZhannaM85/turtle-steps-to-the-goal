@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 666,
+    issue: 713,
+    date: '2026-08-13T16:30:00+03:00',
+    en: 'Correlation chart tooltips have a close button, and tapping empty chart space dismisses them again after tap-to-open.',
+    ru: 'У подсказок на графиках корреляций снова есть закрытие: кнопка «×» и нажатие по пустому месту графика.',
+  },
+  {
     version: 665,
     issue: 712,
     date: '2026-08-13T15:55:00+03:00',

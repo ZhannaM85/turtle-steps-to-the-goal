@@ -869,6 +869,7 @@ export const en: Dictionary = {
     previousPeriodLabel: 'Previous period',
     nextPeriodLabel: 'Next period',
     viewDayLink: 'View this day',
+    correlationTooltipCloseLabel: 'Close',
     lateMealTitle: 'Meal timing vs. next-day weight',
     lateMealEmptyDescription:
       'Not enough data yet to see a pattern — log meal times and keep tracking weight, then check back in a few weeks.',

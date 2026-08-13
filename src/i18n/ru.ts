@@ -899,6 +899,7 @@ export const ru: Dictionary = {
     previousPeriodLabel: 'Предыдущий период',
     nextPeriodLabel: 'Следующий период',
     viewDayLink: 'Открыть этот день',
+    correlationTooltipCloseLabel: 'Закрыть',
     lateMealTitle: 'Время последнего приёма пищи и вес на следующий день',
     lateMealEmptyDescription:
       'Пока недостаточно данных, чтобы увидеть закономерность — записывайте время приёмов пищи и продолжайте отслеживать вес, затем загляните сюда через несколько недель.',

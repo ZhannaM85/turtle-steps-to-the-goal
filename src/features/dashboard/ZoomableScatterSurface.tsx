@@ -1,4 +1,4 @@
-import { useMemo, type ReactNode } from 'react'
+import { useMemo, useState, type ReactNode } from 'react'
 import {
   scatterDomainFromValues,
   type ScatterZoomDomain,
@@ -23,6 +23,13 @@ export interface ZoomableScatterSurfaceProps {
     xDomain: [number, number] | undefined
     yDomain: [number, number] | undefined
     isGesturing: boolean
+    /**
+     * #713 — pass to `<Tooltip active={...} />`. False while gesturing or
+     * after dismiss; undefined lets Recharts own click-open.
+     */
+    tooltipActive: boolean | undefined
+    dismissTooltip: () => void
+    revealTooltip: () => void
   }) => ReactNode
 }
 
@@ -35,6 +42,7 @@ export interface ZoomableScatterSurfaceProps {
  * #592/#593 — always publish the padded full domain when unzoomed (not
  * `undefined`): with `allowDataOverflow`, Recharts auto `[0,'auto']` clips
  * negative weight-change and produces garbage ticks under zoom.
+ * #713 — owns tooltip suppress/reveal so click-triggered tooltips can close.
  */
 export function ZoomableScatterSurface({
   resetKey,
@@ -44,6 +52,7 @@ export function ZoomableScatterSurface({
   children,
 }: ZoomableScatterSurfaceProps) {
   const t = useTranslation()
+  const [tooltipSuppressed, setTooltipSuppressed] = useState(false)
   const xMin = xValues.length > 0 ? Math.min(...xValues) : 0
   const xMax = xValues.length > 0 ? Math.max(...xValues) : 0
   const yMin = yValues.length > 0 ? Math.min(...yValues) : 0
@@ -93,6 +102,9 @@ export function ZoomableScatterSurface({
   // to plot (callers usually early-return before mounting this).
   if (!fullDomain) return null
 
+  const tooltipActive =
+    isGesturing || tooltipSuppressed ? false : undefined
+
   return (
     <>
       <div ref={surfaceRef} className="touch-pan-y">
@@ -100,6 +112,9 @@ export function ZoomableScatterSurface({
           xDomain,
           yDomain,
           isGesturing,
+          tooltipActive,
+          dismissTooltip: () => setTooltipSuppressed(true),
+          revealTooltip: () => setTooltipSuppressed(false),
         })}
       </div>
       {isZoomed && (

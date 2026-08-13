@@ -40,7 +40,7 @@ _Logged while blocked on Apple Developer enrollment. Library CVEs via `npm audit
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#713](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/713) | 📋 Not started | Correlation tooltip: dismiss after click (close control or tap-away) | Side effect of #712 click trigger — tooltip sticks open; prefer ✕ on shared `CorrelationChartTooltip` and/or restore outside-tap dismiss. |
+| [#713](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/713) | 🔍 Pending validation | Correlation tooltip: dismiss after click (close control or tap-away) | ✕ on shared `CorrelationChartTooltip`; `ZoomableScatterSurface` suppress/reveal; empty-chart click dismisses. |
 | [#714](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/714) | 📋 Not started | Late-meal correlation: post-midnight meal loses to earlier evening time | Live: 27 Jul with 19:41 + 01:22 snack → chart shows 19:41. `lastMealTimeMinutes` uses raw `Math.max` minutes; need day-start-aware pick (like fasting window) while keeping wall-clock X. |
 
 ---

@@ -1,6 +1,6 @@
 import { fireEvent, render, screen } from '@testing-library/react'
 import { createMemoryRouter, RouterProvider } from 'react-router-dom'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { CorrelationChartTooltip } from './CorrelationChartTooltip'
 
 // The shape Recharts 3 builds for a Scatter point: one entry per axis, each
@@ -136,6 +136,23 @@ describe('CorrelationChartTooltip', () => {
     const note = screen.getByText(longNote)
     expect(note.className).toMatch(/break-words/)
     expect(note.className).toMatch(/whitespace-normal/)
+  })
+
+  it('shows a close control that calls onClose (#713)', () => {
+    const onClose = vi.fn()
+    renderTooltip(
+      <CorrelationChartTooltip
+        formatValue={formatValue}
+        active
+        onClose={onClose}
+        payload={payloadFor('2026-03-01')}
+      />,
+    )
+
+    fireEvent.pointerDown(
+      screen.getByRole('button', { name: /Close/ }),
+    )
+    expect(onClose).toHaveBeenCalledOnce()
   })
 
   it('renders nothing while the tooltip is inactive', () => {
