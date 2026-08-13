@@ -216,3 +216,4 @@ _Logged while blocked on Apple Developer enrollment. Library CVEs via `npm audit
 | [#702](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/702) | ✅ Done | Enable GitHub CodeQL for our TypeScript | Confirmed on-device 2026-08-13 — CodeQL scans appear under Security → Code scanning. |
 | [#703](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/703) | ✅ Done | Cap import file size before parsing JSON, zip, and Excel | Confirmed on-device 2026-08-13 — normal imports work; oversized files rejected. |
 | [#704](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/704) | ✅ Done | Add a Content-Security-Policy without breaking the theme script | Confirmed on-device 2026-08-13 — cold load, theme, import/export, PWA update OK with CSP. |
+| [#706](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/706) | ✅ Done | Fix CodeQL alerts in exportMarkdown and vite.cspPlugin | Confirmed on-device 2026-08-13 — CodeQL alerts cleared. |
