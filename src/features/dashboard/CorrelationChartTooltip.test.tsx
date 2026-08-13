@@ -108,6 +108,36 @@ describe('CorrelationChartTooltip', () => {
     expect(screen.getByText('Back from vacation…')).toBeInTheDocument()
   })
 
+  it('caps tooltip width and lets long day notes wrap (#711)', () => {
+    const longNote =
+      'Came back from vacation and still settling into normal meals and sleep.'
+    const { container } = renderTooltip(
+      <CorrelationChartTooltip
+        formatValue={formatValue}
+        active
+        payload={[
+          {
+            name: 'steps',
+            value: 9000,
+            dataKey: 'steps',
+            payload: {
+              date: '2026-03-01',
+              steps: 9000,
+              delta: -0.2,
+              dayNotePreview: longNote,
+            },
+          },
+        ]}
+      />,
+    )
+
+    const root = container.querySelector('[class*="max-w-"]')
+    expect(root?.className).toMatch(/max-w-\[min\(18rem,85vw\)\]/)
+    const note = screen.getByText(longNote)
+    expect(note.className).toMatch(/break-words/)
+    expect(note.className).toMatch(/whitespace-normal/)
+  })
+
   it('renders nothing while the tooltip is inactive', () => {
     const { container } = renderTooltip(
       <CorrelationChartTooltip

@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 664,
+    issue: 711,
+    date: '2026-08-13T15:45:00+03:00',
+    en: 'Correlation chart tooltips stay narrower on phones, and long day notes wrap instead of stretching one ellipsis line.',
+    ru: 'Подсказки на графиках корреляций на телефоне уже не растягиваются; длинные заметки дня переносятся, а не одной строкой с многоточием.',
+  },
+  {
     version: 663,
     issue: 710,
     date: '2026-08-13T15:20:00+03:00',

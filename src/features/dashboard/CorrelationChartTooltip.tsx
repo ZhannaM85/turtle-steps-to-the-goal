@@ -67,7 +67,9 @@ export function CorrelationChartTooltip({
 
   return (
     <div
-      className="rounded-lg border border-border bg-popover px-3 py-2 text-xs text-popover-foreground shadow-md"
+      // #711 — cap width on phone Overview; day notes wrap instead of one
+      // long line that stretches the popover across most of the screen.
+      className="max-w-[min(18rem,85vw)] rounded-lg border border-border bg-popover px-3 py-2 text-xs text-popover-foreground shadow-md"
       onMouseMove={(e) => e.stopPropagation()}
       onTouchMove={(e) => e.stopPropagation()}
       onPointerDown={(e) => e.stopPropagation()}
@@ -91,7 +93,7 @@ export function CorrelationChartTooltip({
         </p>
       )}
       {payload[0]?.payload?.dayNotePreview && (
-        <p className="mt-1 text-muted-foreground italic">
+        <p className="mt-1 break-words whitespace-normal text-muted-foreground italic">
           {payload[0].payload.dayNotePreview}
         </p>
       )}
