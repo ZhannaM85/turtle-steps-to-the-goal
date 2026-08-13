@@ -36,9 +36,10 @@ _User asked about pulling data from Apple Health and Zepp Life. Researched via W
 
 ## Tier 134 — Security + live feedback (2026-08-13)
 
-_Logged while blocked on Apple Developer enrollment. Library CVEs via `npm audit` / Dependabot (#698–#701), then own-code hardening (#702–#704). Full tree had 27 findings; production-only had 5. Do **not** `npm audit fix --force`. Explicitly **not** filed: virus scanning of imports, DOMPurify on every text field, blocking images in meal-name inputs (plain text; no HTML-render sink today). Also live UI feedback from the same day (#707)._
+_Logged while blocked on Apple Developer enrollment. Library CVEs via `npm audit` / Dependabot (#698–#701), then own-code hardening (#702–#704). Full tree had 27 findings; production-only had 5. Do **not** `npm audit fix --force`. Explicitly **not** filed: virus scanning of imports, DOMPurify on every text field, blocking images in meal-name inputs (plain text; no HTML-render sink today). Also live UI feedback from the same day (#707, #715)._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
+| [#715](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/715) | ⬜ Open | Add food: portion weight change must rescale kcal/macros; keep per-100g as source of truth | Live repro: reuse prior food at 280 kcal / 50 g; change to 20 g still shows 280 kcal; switch to 100g tab → 1400 kcal/100g. Expected: density stays (560/100g), portion edits rescale totals; active Порция/100 г tab needs clearer highlight |
 
 ---
