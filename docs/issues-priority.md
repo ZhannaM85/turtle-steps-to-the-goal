@@ -34,9 +34,9 @@ _User asked about pulling data from Apple Health and Zepp Life. Researched via W
 
 ---
 
-## Tier 134 — Dependency vulnerabilities (2026-08-13)
+## Tier 134 — Security (2026-08-13)
 
-_Logged while blocked on Apple Developer enrollment. `npm audit` (2026-08-13) vs Veracode-style SCA: GitHub Dependabot alerts + `npm audit` are the free equivalent. Full tree had 27 findings; production-only (`npm audit --omit=dev`) had 5 (3 high, 2 moderate). Order below is easiest → hardest. Do **not** `npm audit fix --force` (it wanted to downgrade `exceljs` to 3.4.0 and Capacitor CLI to 8.4.2)._
+_Logged while blocked on Apple Developer enrollment. Library CVEs via `npm audit` / Dependabot (#698–#701), then own-code hardening (#702–#704). Full tree had 27 findings; production-only had 5. Do **not** `npm audit fix --force`. Explicitly **not** filed: virus scanning of imports, DOMPurify on every text field, blocking images in meal-name inputs (plain text; no HTML-render sink today)._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
@@ -44,5 +44,8 @@ _Logged while blocked on Apple Developer enrollment. `npm audit` (2026-08-13) vs
 | [#699](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/699) | 📋 Not started | Patch brace-expansion in the production lockfile | Transitive via `exceljs` → glob. [GHSA-mh99-v99m-4gvg](https://github.com/advisories/GHSA-mh99-v99m-4gvg) / [GHSA-rgw5-rvv9-x895](https://github.com/advisories/GHSA-rgw5-rvv9-x895) (high DoS). `npm audit fix` without `--force`. |
 | [#700](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/700) | 📋 Not started | Resolve exceljs uuid advisory without downgrading exceljs | `uuid` [GHSA-w5hq-g745-h8pq](https://github.com/advisories/GHSA-w5hq-g745-h8pq) (moderate) via `exceljs@^4.4.0`. Force-fix would downgrade to exceljs 3.4.0 — forbidden (#123 chose exceljs over SheetJS `xlsx`). Override, wait for upstream, or accept risk. |
 | [#701](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/701) | 📋 Not started | Triage Capacitor CLI and other devDependency advisories | The other 22 findings (incl. critical `tar` via `@capacitor/cli`). Do not ship; do not downgrade Capacitor 8.5 or `vite-plugin-node-polyfills` to 0.2.0. Forward bumps only; leftover alerts explicitly accepted. |
+| [#702](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/702) | 📋 Not started | Enable GitHub CodeQL for our TypeScript | Free SAST (Veracode-code analogue). Default setup or `codeql.yml`. No DOMPurify-on-every-field. |
+| [#703](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/703) | 📋 Not started | Cap import file size before parsing JSON, zip, and Excel | Reject huge files before parse; keep real Health exports possible. Not a virus scanner. |
+| [#704](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/704) | 📋 Not started | Add a Content-Security-Policy without breaking the theme script | Defense in depth; must keep `index.html` #17 pre-paint theme script (hash/nonce). |
 
 ---
