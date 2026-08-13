@@ -172,10 +172,11 @@ export function useScatterGestureZoom(
       if (event.touches.length === 1 && panRef.current && zoomRef.current) {
         const dx = event.touches[0].clientX - panRef.current.startX
         const dy = event.touches[0].clientY - panRef.current.startY
-        if (Math.abs(dx) > 6 || Math.abs(dy) > 6) {
-          panRef.current.moved = true
-          setIsGesturing(true)
-        }
+        // #712 — finger jitter on a tap must not call preventDefault / start
+        // pan, or the browser cancels the click Recharts needs for tooltip.
+        if (Math.abs(dx) <= 6 && Math.abs(dy) <= 6) return
+        panRef.current.moved = true
+        setIsGesturing(true)
         event.preventDefault()
         const dxRatio = dx / panRef.current.widthPx
         const dyRatio = dy / panRef.current.heightPx

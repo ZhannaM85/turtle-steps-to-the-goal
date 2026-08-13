@@ -41,6 +41,6 @@ _Logged while blocked on Apple Developer enrollment. Library CVEs via `npm audit
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#711](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/711) | 🔍 Pending validation | Correlation tooltip: max-width and wrap long day notes | Shared `CorrelationChartTooltip` + `dayNotesByDate` tooltip budget (160 chars). Cap `max-w-[min(18rem,85vw)]`; note uses `break-words` / wrap. Chips still CSS-truncate. |
-| [#712](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/712) | 📋 Not started | Correlation scatter: tap sometimes fails to open tooltip | Follow-up after #710. Intermittent — gesture/zoom layer likely captures pointer; fix reliable tap-to-tooltip without breaking pinch/pan. |
+| [#712](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/712) | 🔍 Pending validation | Correlation scatter: tap sometimes fails to open tooltip | Shared `trigger="click"` on all ZoomableScatter tooltips; pan `preventDefault` only after >6px move so taps still synthesize clicks when zoomed. |
 
 ---

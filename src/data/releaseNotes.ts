@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 665,
+    issue: 712,
+    date: '2026-08-13T15:55:00+03:00',
+    en: 'Tapping a point on Dashboard correlation charts opens the tooltip more reliably, including after you have zoomed the scatter.',
+    ru: 'Нажатие на точку на графиках корреляций на панели надёжнее открывает подсказку — в том числе после увеличения графика.',
+  },
+  {
     version: 664,
     issue: 711,
     date: '2026-08-13T15:45:00+03:00',

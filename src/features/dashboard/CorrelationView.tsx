@@ -30,6 +30,10 @@ import { useOutlierExclusion } from '@/shared/hooks'
 import { Button } from '@/shared/ui/button'
 import { ChartTitleWithToggle } from './ChartTitleWithToggle'
 import { CorrelationChartTooltip } from './CorrelationChartTooltip'
+import {
+  CORRELATION_SCATTER_TOOLTIP_TRIGGER,
+  CORRELATION_SCATTER_TOOLTIP_WRAPPER_STYLE,
+} from './correlationScatterTooltip'
 import { CorrelationStrengthLabel } from './CorrelationStrengthLabel'
 import { EmptyDashboardSection } from './EmptyDashboardSection'
 import {
@@ -228,9 +232,10 @@ export function CorrelationView({
                   tickLine={false}
                 />
                 <Tooltip
+                  trigger={CORRELATION_SCATTER_TOOLTIP_TRIGGER}
                   active={isGesturing ? false : undefined}
                   cursor={{ strokeDasharray: '3 3', stroke: 'var(--border)' }}
-                  wrapperStyle={{ pointerEvents: 'auto' }}
+                  wrapperStyle={CORRELATION_SCATTER_TOOLTIP_WRAPPER_STYLE}
                   content={
                     <CorrelationChartTooltip
                       formatValue={(value, name) =>
