@@ -40,6 +40,6 @@ _Logged while blocked on Apple Developer enrollment. Library CVEs via `npm audit
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#710](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/710) | 📋 Not started | Calories vs weight: use previous-day calories (day-pair), not weekly averages | Follow-up after #708. Revisit #216: replace weekly `CorrelationView` with day-pair (prior-day kcal → next-day weight delta), like protein/sleep. Same Dashboard slot. |
+| [#710](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/710) | 🔍 Pending validation | Calories vs weight: use previous-day calories (day-pair), not weekly averages | `calorieDayCorrelation` + `CorrelationView` now day-pair (kcal → next-day weight), like steps/protein. Title «Calories vs. next-day weight» / «Калории и вес на следующий день». Confirm Overview card with Week period shows points when you have consecutive logged days. |
 
 ---

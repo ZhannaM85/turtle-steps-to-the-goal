@@ -1,6 +1,6 @@
 import 'fake-indexeddb/auto'
 import type { ReactNode } from 'react'
-import { format, startOfISOWeek, subDays, subWeeks } from 'date-fns'
+import { addDays, format, startOfISOWeek, subDays, subWeeks } from 'date-fns'
 import { act, render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
@@ -319,26 +319,23 @@ describe('DashboardScreen', () => {
     })
 
     it('scopes correlation views to their own period (#396/#536)', async () => {
-      // #585 — after #522, correlation points need finished weeks with a
-      // prior-week weight delta. Three consecutive days ~400d ago only make
-      // one week (no prior → no delta) + incomplete "today" week → rawPoints
-      // empty → CorrelationView returns null. Seed several completed weeks
-      // ending before this week (same idea as CorrelationView.test.tsx),
-      // then one entry today so the Week period has nothing comparable.
+      // #710 — day-pair: seed consecutive days weeks ago so All has points;
+      // Week period (current week only) leaves no pairs → empty-state card.
       const today = new Date()
       const thisMonday = startOfISOWeek(today)
-      for (let i = 0; i < 6; i++) {
+      const pastMonday = subWeeks(thisMonday, 6)
+      for (let i = 0; i < 9; i++) {
         await db.dailyEntries.put(
           makeEntry({
-            date: format(subWeeks(thisMonday, 8 - i), 'yyyy-MM-dd'),
-            weightKg: 85 - i * 0.3,
+            date: format(addDays(pastMonday, i), 'yyyy-MM-dd'),
+            weightKg: 85 - i * 0.1,
             calorieEntries: [
               {
                 id: crypto.randomUUID(),
                 items: [
                   {
                     id: crypto.randomUUID(),
-                    amountKcal: 1600 + i * 80,
+                    amountKcal: 1400 + i * 100,
                   },
                 ],
                 createdAt: new Date().toISOString(),
@@ -347,15 +344,6 @@ describe('DashboardScreen', () => {
           }),
         )
       }
-      // Trailing weight in the week after the last comparable one so #522
-      // keeps those weeks finished relative to max entry date / today.
-      await db.dailyEntries.put(
-        makeEntry({
-          date: format(subWeeks(thisMonday, 1), 'yyyy-MM-dd'),
-          weightKg: 83,
-          calorieEntries: undefined,
-        }),
-      )
       await db.dailyEntries.put(
         makeEntry({ date: format(today, 'yyyy-MM-dd') }),
       )
@@ -363,7 +351,7 @@ describe('DashboardScreen', () => {
       const user = userEvent.setup()
       render(<DashboardScreen />, { wrapper: MemoryRouter })
       const correlationHeading = await screen.findByText(
-        'Calories vs. weight change',
+        'Calories vs. next-day weight',
       )
       const correlationSection = correlationHeading.closest(
         '.rounded-lg.border.border-border.p-3',
@@ -375,14 +363,13 @@ describe('DashboardScreen', () => {
         within(correlationSection).getByRole('radio', { name: 'Week' }),
       )
 
-      // #708 — empty period keeps the card mounted (title + empty copy)
-      // instead of returning null; scoping still drops the plot/insight.
+      // #708 — empty period keeps the card mounted (title + empty copy).
       expect(
-        screen.getByText('Calories vs. weight change'),
+        screen.getByText('Calories vs. next-day weight'),
       ).toBeInTheDocument()
       expect(
         screen.getByText(
-          'Not enough data yet to see a pattern — keep logging and check back in a few weeks.',
+          'Not enough data yet to see a pattern — log calories and keep tracking weight, then check back in a few weeks.',
         ),
       ).toBeInTheDocument()
       // Weight chart still has its own period (All) and enough points.

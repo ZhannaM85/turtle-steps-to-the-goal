@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 663,
+    issue: 710,
+    date: '2026-08-13T15:20:00+03:00',
+    en: 'Calories vs. weight on the Dashboard now compares each day’s calories to the next day’s weight, not weekly averages — so a week filter still has enough points.',
+    ru: '«Калории и вес» на панели теперь сравнивает калории за день с весом на следующий день, а не недельные средние — даже за период «Нед» хватает точек.',
+  },
+  {
     version: 662,
     issue: 708,
     date: '2026-08-13T14:10:00+03:00',

@@ -832,16 +832,17 @@ export const en: Dictionary = {
       `Range B averaged ${delta} ${unit} vs. Range A.`,
     emptyTitle: 'No entries yet',
     emptyDescription: 'Log a few days on the Day screen to see trends here.',
-    correlationTitle: 'Calories vs. weight change',
+    correlationTitle: 'Calories vs. next-day weight',
     correlationEmptyDescription:
-      'Not enough data yet to see a pattern — keep logging and check back in a few weeks.',
+      'Not enough data yet to see a pattern — log calories and keep tracking weight, then check back in a few weeks.',
     correlationSummary: (thresholdKcal, direction) =>
       direction === 'lower'
-        ? `Weeks under ${thresholdKcal} kcal/day averaged more loss than weeks over that.`
-        : `Weeks over ${thresholdKcal} kcal/day averaged more loss than weeks under that.`,
-    correlationWeekCount: (n) => `Based on ${n} weeks of data.`,
+        ? `Days under ${thresholdKcal} kcal averaged more weight gain the next morning than days over that.`
+        : `Days over ${thresholdKcal} kcal averaged more weight gain the next morning than days under that.`,
+    correlationDayCount: (n) =>
+      `Based on ${n} day${n === 1 ? '' : 's'} of data.`,
     correlationLagCaveat:
-      "Compares each week's average calories to that week's weight change, not same-day numbers — digestion takes time, so today's weight reflects prior days' intake.",
+      "Compares each day's calories to the very next day's weight, not a proven cause-and-effect relationship — water retention, sodium, and many other factors also affect day-to-day weight.",
     correlationCurrentWeekExcludedNote:
       "This week isn't finished yet, so it's left out of the count above.",
     correlationExpandLabel: 'Show chart',

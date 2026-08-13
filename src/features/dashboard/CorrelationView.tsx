@@ -1,5 +1,5 @@
 import { useState, type ReactNode } from 'react'
-import { format, parseISO, startOfWeek } from 'date-fns'
+import { format, parseISO } from 'date-fns'
 import { ChevronDown, ChevronUp } from 'lucide-react'
 import {
   CartesianGrid,
@@ -13,10 +13,10 @@ import {
 import type { DailyEntry } from '@/domain/dailyEntry'
 import { kgToLb } from '@/domain/goal'
 import {
-  correlationInsightFromPoints,
-  correlationInsightPoints,
-  todayIsoForDayStart,
-  weeklyCorrelationExcludesCurrentWeek,
+  calorieDayCorrelationFromPoints,
+  calorieDayPoints,
+  outlierBounds,
+  scatterDomainFromValues,
 } from '@/domain/stats'
 import {
   formatNumber,
@@ -25,12 +25,8 @@ import {
   useLocale,
   useTranslation,
 } from '@/i18n'
-import {
-  useDashboardChartVisibilityStore,
-  useDayStartStore,
-  useUnitStore,
-} from '@/stores'
-import { useOutlierExclusion, useWeekStartsOn } from '@/shared/hooks'
+import { useDashboardChartVisibilityStore, useUnitStore } from '@/stores'
+import { useOutlierExclusion } from '@/shared/hooks'
 import { Button } from '@/shared/ui/button'
 import { ChartTitleWithToggle } from './ChartTitleWithToggle'
 import { CorrelationChartTooltip } from './CorrelationChartTooltip'
@@ -60,6 +56,11 @@ export interface CorrelationViewProps {
   dragHandle?: ReactNode
 }
 
+/**
+ * #710 — day-pair calories vs next-day weight (same shape as
+ * `StepsCorrelationView`), replacing the weekly-average card that lived
+ * here through #7/#216/#522. Same Dashboard slot (`calorieWeightCorrelation`).
+ */
 export function CorrelationView({
   entries: allEntries,
   dragHandle,
@@ -78,72 +79,21 @@ export function CorrelationView({
   const displayUnit = useUnitStore((state) => state.unit)
   const toDisplay = (kg: number) => (displayUnit === 'lb' ? kgToLb(kg) : kg)
   const unit = unitLabel(displayUnit, t)
-  // The plot itself is collapsed by default until there's an actual
-  // insight to show (#89) — with under MIN_COMPARABLE_WEEKS worth of data
-  // it's just a near-empty scatter for the first several weeks of use,
-  // which read as broken rather than "come back later". The caveat text
-  // explaining that stays visible either way; only the chart is opt-in.
-  // Once real data exists, the chart renders expanded by default — no
-  // toggle shown, since there's now something worth seeing at a glance.
   const [isExpanded, setIsExpanded] = useState(false)
-  // #247 — whole-card show/hide, same mechanism #245 gave the trend
-  // charts. Distinct from isExpanded above, which is this card's own
-  // internal "show the scatter plot" toggle.
   const cardVisible = useDashboardChartVisibilityStore(
     (state) => state.visible.calorieWeightCorrelation,
   )
 
-  const weekStartsOn = useWeekStartsOn(entries)
-  // #601 — "is this week still in progress" should respect day-start too,
-  // same meaning `TodayScreen.tsx`'s own "today" already uses.
-  const dayStartTime = useDayStartStore((state) => state.dayStartTime)
-  const asOfDate = todayIsoForDayStart(dayStartTime)
-  const rawPoints = correlationInsightPoints(entries, weekStartsOn, asOfDate)
-  // #613 — trust-footer honesty note: tells the user their current,
-  // still-in-progress week is deliberately left out of the count below,
-  // rather than that just looking like a silent gap (#522's own exclusion).
-  const excludesCurrentWeek = weeklyCorrelationExcludesCurrentWeek(
-    entries,
-    weekStartsOn,
-    asOfDate,
-  )
+  const rawPoints = calorieDayPoints(entries)
   const notesByDate = dayNotesByDate(entries)
-  // #631 — these points are keyed by `weekStart`, but that Monday itself
-  // often has no logged weight: `deltaVsPriorWeekKg` (what actually makes a
-  // week "unusual") is this week's *average* weight vs. the prior week's,
-  // and the days behind that average can land anywhere in the week.
-  // `weeklySummaries` only sets a week's `deltaVsPriorWeekKg` when its own
-  // `averageWeightKg` is non-null, so every flagged week is guaranteed to
-  // have at least one real weight entry somewhere inside it — this maps
-  // each week's start to the earliest such date, so the "view day" link
-  // below lands somewhere real instead of a possibly-empty Monday.
-  const weightDateByWeekStart = new Map<string, string>()
-  for (const entry of entries) {
-    if (entry.weightKg === undefined) continue
-    const ws = format(
-      startOfWeek(parseISO(entry.date), { weekStartsOn }),
-      'yyyy-MM-dd',
-    )
-    const existing = weightDateByWeekStart.get(ws)
-    if (existing === undefined || entry.date < existing) {
-      weightDateByWeekStart.set(ws, entry.date)
-    }
-  }
   const { flags, axes, isExcluded, toggle, includedPoints } =
     useOutlierExclusion(
       'calorieWeight',
       rawPoints,
       (p) => p.calories,
-      (p) => p.delta,
-      (p) => p.weekStart,
+      (p) => p.deltaKg,
+      (p) => p.date,
     )
-  // #631 (reopened) — `getDate` below was fixed to resolve to this date
-  // instead of `point.weekStart`, but the chip's own label and note preview
-  // were left reading `point.weekStart` directly, so the chip could show
-  // one date while its link navigated to another. All three now read off
-  // this same resolved date.
-  const resolvedDate = (point: { weekStart: string }) =>
-    weightDateByWeekStart.get(point.weekStart) ?? point.weekStart
 
   if (rawPoints.length === 0) {
     return (
@@ -159,20 +109,15 @@ export function CorrelationView({
 
   const metricLabel = t.dashboard.caloriesLegend
   const points = rawPoints.map((point, i) => ({
-    // This view's points are whole weeks, not days — the chart's hover
-    // tooltip links to that week's start. `OutlierPointsList` below is
-    // different: for flagged weeks, its link/label/note preview all resolve
-    // to the day within the week that actually has the logged weight (#631),
-    // which won't always be this same Monday.
-    date: point.weekStart,
+    date: point.date,
     calories: point.calories,
-    delta: toDisplay(point.delta),
+    delta: toDisplay(point.deltaKg),
     isOutlier: flags[i],
     isExcluded: isExcluded(point),
     outlierReason: flags[i]
       ? outlierReasonLabel(t.dashboard, axes[i], metricLabel)
       : undefined,
-    dayNotePreview: notesByDate.get(point.weekStart),
+    dayNotePreview: notesByDate.get(point.date),
   }))
   const outlierPoints = rawPoints.filter((_, i) => flags[i])
   const reasonByKey = new Map(
@@ -180,7 +125,7 @@ export function CorrelationView({
       flags[i]
         ? [
             [
-              point.weekStart,
+              point.date,
               outlierReasonLabel(t.dashboard, axes[i], metricLabel),
             ] as const,
           ]
@@ -188,7 +133,21 @@ export function CorrelationView({
     ),
   )
 
-  const insight = correlationInsightFromPoints(includedPoints)
+  const calorieBounds = outlierBounds(rawPoints.map((p) => p.calories))
+  const xValues = points.map((p) => p.calories)
+  const yValues = points.map((p) => p.delta)
+  const baseDomain = scatterDomainFromValues(xValues, yValues)
+  const fullDomainOverride =
+    calorieBounds && baseDomain
+      ? {
+          xMin: 0,
+          xMax: calorieBounds.upper,
+          yMin: baseDomain.yMin,
+          yMax: baseDomain.yMax,
+        }
+      : baseDomain
+
+  const insight = calorieDayCorrelationFromPoints(includedPoints)
   const expanded = insight !== null || isExpanded
 
   const cardTitle = (
@@ -233,8 +192,9 @@ export function CorrelationView({
       {expanded && (
         <ZoomableScatterSurface
           resetKey={gestureResetKey}
-          xValues={points.map((p) => p.calories)}
-          yValues={points.map((p) => p.delta)}
+          xValues={xValues}
+          yValues={yValues}
+          fullDomainOverride={fullDomainOverride}
         >
           {({ xDomain, yDomain, isGesturing }) => (
             <ResponsiveContainer width="100%" height={180}>
@@ -256,7 +216,7 @@ export function CorrelationView({
                 <YAxis
                   type="number"
                   dataKey="delta"
-                  name={t.dashboard.weeklyChangeLegend}
+                  name={t.dashboard.nextDayChangeLegend}
                   domain={yDomain}
                   allowDataOverflow
                   width={CORRELATION_SCATTER_Y_AXIS_WIDTH}
@@ -275,7 +235,7 @@ export function CorrelationView({
                     <CorrelationChartTooltip
                       formatValue={(value, name) =>
                         name === t.dashboard.caloriesLegend
-                          ? formatNumber(value, locale, 0)
+                          ? `${formatNumber(value, locale, 0)} ${t.dailyEntry.kcalUnit}`
                           : `${formatNumber(value, locale)} ${unit}`
                       }
                     />
@@ -283,9 +243,9 @@ export function CorrelationView({
                 />
                 <Scatter
                   data={points}
-                  fill="var(--chart-weight)"
+                  fill="var(--chart-calories)"
                   isAnimationActive={false}
-                  shape={renderOutlierScatterShape('var(--chart-weight)')}
+                  shape={renderOutlierScatterShape('var(--chart-calories)')}
                 />
               </ScatterChart>
             </ResponsiveContainer>
@@ -297,31 +257,28 @@ export function CorrelationView({
           points={outlierPoints}
           isExcluded={isExcluded}
           onToggle={toggle}
-          getKey={(point) => point.weekStart}
-          getDate={resolvedDate}
+          getKey={(point) => point.date}
+          getDate={(point) => point.date}
           formatLabel={(point) =>
-            format(parseISO(resolvedDate(point)), 'd MMM yyyy', {
+            format(parseISO(point.date), 'd MMM yyyy', {
               locale: dateFnsLocale,
             })
           }
-          formatReason={(point) => reasonByKey.get(point.weekStart)}
-          formatNotePreview={(point) => notesByDate.get(resolvedDate(point))}
+          formatReason={(point) => reasonByKey.get(point.date)}
+          formatNotePreview={(point) => notesByDate.get(point.date)}
         />
       )}
       {insight ? (
         <>
           <p className="text-sm text-foreground">
             {t.dashboard.correlationSummary(
-              insight.thresholdKcal,
-              insight.lowerAveragedMoreLoss ? 'lower' : 'higher',
+              formatNumber(insight.thresholdKcal, locale, 0),
+              insight.lowerAveragedMoreGain ? 'lower' : 'higher',
             )}
           </p>
           <p className="text-xs text-muted-foreground">
-            {t.dashboard.correlationWeekCount(insight.weekCount)}{' '}
+            {t.dashboard.correlationDayCount(insight.dayCount)}{' '}
             {t.dashboard.correlationLagCaveat}
-            {excludesCurrentWeek && (
-              <> {t.dashboard.correlationCurrentWeekExcludedNote}</>
-            )}
           </p>
           <CorrelationStrengthLabel strength={insight.strength} />
         </>

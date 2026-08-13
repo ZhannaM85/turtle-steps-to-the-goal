@@ -1433,17 +1433,14 @@ export interface Dictionary {
     correlationTitle: string
     correlationEmptyDescription: string
     correlationSummary: (
-      thresholdKcal: number,
+      thresholdKcal: number | string,
       direction: 'lower' | 'higher',
     ) => string
-    correlationWeekCount: (n: number) => string
+    /** #710 — day-pair sample size (was weekly `correlationWeekCount`). */
+    correlationDayCount: (n: number) => string
     correlationLagCaveat: string
-    /** #613 — trust-footer honesty note: this is the only correlation view
-     * that can silently drop a real, still-in-progress week from its count
-     * (#522, `weeklyCorrelationExcludesCurrentWeek`) — the 8 day-pair views
-     * have no equivalent "in-progress unit" case, so this key isn't shared
-     * with them. Shown only alongside a real insight, next to the existing
-     * sample-size/lag-caveat lines. */
+    /** Kept for older copy / unused after #710 day-pair switch; weekly
+     * `CorrelationView` no longer shows this. */
     correlationCurrentWeekExcludedNote: string
     correlationExpandLabel: string
     correlationCollapseLabel: string

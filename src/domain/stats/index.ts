@@ -25,6 +25,15 @@ export type {
   CorrelationInsightPoint,
 } from './correlationInsight'
 export {
+  calorieDayCorrelation,
+  calorieDayCorrelationFromPoints,
+  calorieDayPoints,
+} from './calorieDayCorrelation'
+export type {
+  CalorieDayCorrelation,
+  CalorieDayPoint,
+} from './calorieDayCorrelation'
+export {
   lateMealCorrelation,
   lateMealCorrelationFromPoints,
   lateMealPoints,
