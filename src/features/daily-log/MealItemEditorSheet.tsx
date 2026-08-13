@@ -62,6 +62,9 @@ export interface MealItemEditorSheetProps {
   showMagnesium?: boolean
   amountG: string
   onAmountGChange: (value: string) => void
+  /** #715 — commit Portion-mode density baseline when Weight (g) blurs
+   * (after a first-time weight entry that did not rescale). */
+  onAmountGBlur?: () => void
   macroMode: 'per100g' | 'perPortion'
   onMacroModeChange: (mode: 'per100g' | 'perPortion') => void
   /** #645 — named serving-size shortcuts (egg, slice, cup, #254) for the
@@ -168,6 +171,7 @@ function NumberField({
   icon,
   value,
   onChange,
+  onBlur,
   onEnter,
 }: {
   label: string
@@ -178,6 +182,7 @@ function NumberField({
   icon?: string
   value: string
   onChange: (value: string) => void
+  onBlur?: () => void
   onEnter: () => void
 }) {
   return (
@@ -196,6 +201,7 @@ function NumberField({
         aria-label={label}
         value={value}
         onChange={(e) => onChange(e.target.value)}
+        onBlur={onBlur}
         onKeyDown={(e) => {
           if (e.key === 'Enter') {
             e.preventDefault()
@@ -257,6 +263,7 @@ export function MealItemEditorSheet({
   showMagnesium = false,
   amountG,
   onAmountGChange,
+  onAmountGBlur,
   macroMode,
   onMacroModeChange,
   servings,
@@ -564,6 +571,9 @@ export function MealItemEditorSheet({
                   }
                   value={amountG}
                   onChange={onAmountGChange}
+                  onBlur={
+                    macroMode === 'perPortion' ? onAmountGBlur : undefined
+                  }
                   onEnter={onSave}
                 />
               )}

@@ -114,7 +114,10 @@ function blankManualDraft() {
     potassium: '',
     magnesium: '',
     note: '',
-    amountG: '1',
+    // #715 — leave blank (scaleFromPer100g still defaults missing portions
+    // to 1). A seeded "1" → 100g on a Portion-mode switch invented a fake
+    // density baseline so typing Weight after kcal rescaled the total.
+    amountG: '',
     macroMode: 'per100g' as 'per100g' | 'perPortion',
     emotion: undefined as MealEmotion | undefined,
     favorite: false,
@@ -782,7 +785,21 @@ export function AddMealDialog({
           : String(gramsToPortions(draft.amountG))
       const amountNum = parseNumberInput(draft.amount)
       if (!amountNum || amountNum <= 0) {
-        const next = { ...draft, amountG: convertedAmountG, macroMode: newMode }
+        // #715 — without nutrition yet, don't invent a Portion weight from
+        // a blank/default portions field (that became a fake 100g baseline
+        // when the user typed kcal then Weight). An explicitly typed
+        // portions count still converts to grams.
+        const nextAmountG =
+          newMode === 'perPortion'
+            ? parseOptionalMacro(draft.amountG)
+              ? String(portionsToGrams(draft.amountG) ?? '')
+              : ''
+            : convertedAmountG
+        const next = {
+          ...draft,
+          amountG: nextAmountG,
+          macroMode: newMode,
+        }
         portionScaleBaseRef.current = portionScaleBaseFromDraft(next)
         return next
       }
@@ -852,18 +869,28 @@ export function AddMealDialog({
 
   /** #715 — Portion mode: changing weight rescales kcal/macros from the
    * density baseline. Per-100g mode only updates the portions count; rates
-   * stay put and the live preview multiplies. */
+   * stay put and the live preview multiplies.
+   *
+   * Baseline is set on open / mode-switch / nutrition edits — not while
+   * typing Weight for the first time (otherwise "1" of "150" becomes a
+   * 1g density and 450 kcal explodes to 67500). No baseline → record
+   * grams only (blank Portion create: type kcal, then weight). */
   function changeManualDraftAmountG(value: string) {
     setManualDraft((draft) => {
       if (draft.macroMode !== 'perPortion') {
         return { ...draft, amountG: value }
       }
-      return applyPortionWeightToDraft(
-        draft,
-        value,
-        portionScaleBaseRef.current,
-      )
+      const nextGrams = parseOptionalMacro(value)
+      const base = portionScaleBaseRef.current
+      if (!base || !nextGrams || nextGrams <= 0) {
+        return { ...draft, amountG: value }
+      }
+      return applyPortionWeightToDraft(draft, value, base)
     })
+  }
+
+  function commitPortionScaleBase() {
+    portionScaleBaseRef.current = portionScaleBaseFromDraft(manualDraft)
   }
 
   function patchManualDraftNutrition(
@@ -1873,6 +1900,7 @@ export function AddMealDialog({
           }
           amountG={manualDraft.amountG}
           onAmountGChange={changeManualDraftAmountG}
+          onAmountGBlur={commitPortionScaleBase}
           macroMode={manualDraft.macroMode}
           onMacroModeChange={changeManualDraftMode}
           servings={activeServings}
