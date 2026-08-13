@@ -40,6 +40,5 @@ _Logged while blocked on Apple Developer enrollment. Library CVEs via `npm audit
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#714](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/714) | 🔍 Pending validation | Late-meal correlation: post-midnight meal loses to earlier evening time | `lastMealTimeMinutes` picks via `adjustForDayStart`; `lateMealPoints(entries, dayStartTime)` from view store. Wall-clock X kept. |
 
 ---
