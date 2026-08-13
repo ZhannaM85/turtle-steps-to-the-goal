@@ -36,4 +36,11 @@ describe('contentSecurityPolicyPlugin (#704)', () => {
     expect(csp).toContain('https://world.openfoodfacts.org')
     expect(csp).toContain('https://api.nal.usda.gov')
   })
+
+  it('matches script end tags with trailing attributes (#706)', () => {
+    const html =
+      '<html><head><script>var x = 1</script foo="bar"></head></html>'
+    const scripts = inlineScriptContents(html)
+    expect(scripts).toEqual(['var x = 1'])
+  })
 })

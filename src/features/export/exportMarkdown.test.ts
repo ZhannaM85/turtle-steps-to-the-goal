@@ -70,6 +70,14 @@ describe('buildDailyLogMarkdown', () => {
     expect(row).toContain('Salad \\| with a newline here')
   })
 
+  it('escapes backslashes before pipes (#706)', () => {
+    const entry = makeEntry({ note: 'path\\to|file' })
+    const markdown = buildDailyLogMarkdown([entry], t)
+    const [, , row] = markdown.split('\n')
+
+    expect(row).toContain('path\\\\to\\|file')
+  })
+
   it('sorts entries by date ascending, regardless of input order', () => {
     const entries = [
       makeEntry({ id: 'e2', date: '2026-03-02', weightKg: 79 }),

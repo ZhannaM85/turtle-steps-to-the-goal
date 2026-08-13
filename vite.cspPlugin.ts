@@ -25,7 +25,9 @@ export function sha256CspHash(content: string): string {
 
 export function inlineScriptContents(html: string): string[] {
   const contents: string[] = []
-  const re = /<script\b([^>]*)>([\s\S]*?)<\/script>/gi
+  // #706 — allow attributes/whitespace on the end tag (`</script foo="bar">`)
+  // so CodeQL `js/bad-tag-filter` is satisfied; we only hash our own built HTML.
+  const re = /<script\b([^>]*)>([\s\S]*?)<\/script\b[^>]*>/gi
   let match: RegExpExecArray | null
   while ((match = re.exec(html)) !== null) {
     const attrs = match[1] ?? ''

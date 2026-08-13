@@ -15,7 +15,10 @@ function mdField(value: string | number | boolean | undefined): string {
   // A raw pipe would split into extra columns, and a raw newline would
   // break the row onto its own line — both escaped/collapsed rather than
   // rejected, same spirit as exportCsv.ts's RFC 4180 quoting.
+  // #706 — escape backslashes first so `\|` stays a literal escape of `|`
+  // (CodeQL `js/incomplete-sanitization`).
   return String(value)
+    .replace(/\\/g, '\\\\')
     .replace(/\|/g, '\\|')
     .replace(/\r?\n/g, ' ')
 }
