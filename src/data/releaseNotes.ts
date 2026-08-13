@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 658,
+    issue: 697,
+    date: '2026-08-12T22:35:22+03:00',
+    en: 'On iOS, the cold-launch splash shows a larger, clearer turtle logo.',
+    ru: 'В iOS при холодном запуске на заставке крупнее и заметнее логотип черепахи.',
+  },
+  {
     version: 657,
     issue: 696,
     date: '2026-08-12T19:30:02+03:00',

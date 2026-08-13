@@ -194,8 +194,9 @@ _iOS waits on a Mac; Android Play path waits on #316. Meanwhile: goal-lifecycle 
 
 ## Tier 133 — Live feedback (2026-08-12)
 
-_Live report: body-composition Overview chart is hard to read when all series are shown together._
+_Live report: body-composition Overview chart is hard to read when all series are shown together; iOS splash turtle missing/too small on cold launch._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#696](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/696) | ✅ Done | Allow graph customization for body composition | Per-series line/bar/dots on body composition chart; confirmed on-device 2026-08-12. |
+| [#697](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/697) | ✅ Done | iOS splash: turtle logo too small / looks missing; unassigned Splash assets | SplashLogo + Cap splash hold; confirmed on-device 2026-08-12 — centered turtle on white cold launch. |

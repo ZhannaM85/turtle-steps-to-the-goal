@@ -59,13 +59,21 @@ App Store distribution (#313).
 1. Sync web assets into the native project when needed:
    `npm run build` then `npx cap sync ios` (plain `npm run build`, not the
    Pages `--base=…` deploy build — see ARCHITECTURE).
-2. Open `ios/App/App.xcworkspace` in Xcode — the `.xcworkspace`, not
-   `.xcodeproj`.
+2. Open `ios/App/App.xcodeproj` in Xcode (this Capacitor project uses
+   Swift Package Manager / `CapApp-SPM`, so there is no top-level
+   `.xcworkspace` — that only appears with CocoaPods).
 3. Signing & Capabilities → Team: sign in with your Apple ID (Personal Team).
 4. Connect an iPhone via USB, select it as the run target, hit Run.
 5. **#306 camera check:** open Add meal → barcode scanner. Expect the iOS
    camera permission prompt (copy comes from `NSCameraUsageDescription` in
    `ios/App/App/Info.plist`). Grant → live preview; deny → #291 manual
    barcode entry should still work.
+
+**iOS splash regenerate (#697):** if splash assets need regenerating, use a
+larger logo scale than the `@capacitor/assets` default (`0.2`), or the
+padded `resources/icon.png` (#311) looks tiny on cold launch:
+`npx @capacitor/assets generate --ios --iconBackgroundColor '#ffffff' --iconBackgroundColorDark '#0f181c' --splashBackgroundColor '#ffffff' --splashBackgroundColorDark '#0f181c' --logoSplashScale 0.65`
+Do **not** pass `--android` unless intentionally refreshing Android too
+(#653 splash wrapper is hand-authored and survives splash PNG rewrites).
 
 A free Apple ID cannot distribute via TestFlight; that still needs #313.
