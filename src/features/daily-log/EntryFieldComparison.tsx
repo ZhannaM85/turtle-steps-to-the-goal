@@ -14,6 +14,7 @@ import {
   type Locale,
 } from '@/i18n'
 import { useDebouncedValue } from '@/shared/hooks'
+import { formatSleepDuration } from '@/shared/lib/sleepDuration'
 import { cn } from '@/shared/lib/utils'
 import { InfoTooltip } from '@/shared/ui/info-tooltip'
 import { useEntryComparisonStore } from '@/stores'
@@ -26,19 +27,17 @@ function formatComparisonAmount(
   absDelta: number,
   unit: EntryComparisonUnit,
   locale: Locale,
-  labels: { kg: string; percent: string; hours: string },
+  labels: { kg: string; percent: string; hours: string; minutes: string },
 ): string {
-  const magnitude =
-    unit === 'none'
-      ? formatExactNumber(absDelta, locale)
-      : formatExactNumber(absDelta, locale)
+  if (unit === 'hours') {
+    return formatSleepDuration(absDelta, labels.hours, labels.minutes)
+  }
+  const magnitude = formatExactNumber(absDelta, locale)
   switch (unit) {
     case 'kg':
       return `${magnitude} ${labels.kg}`
     case 'percent':
       return `${magnitude}${labels.percent}`
-    case 'hours':
-      return `${magnitude}${labels.hours}`
     case 'none':
       return magnitude
   }
@@ -54,7 +53,7 @@ function buildComparisonLine(args: {
   field: ComparableEntryField
   unit: EntryComparisonUnit
   locale: Locale
-  unitLabels: { kg: string; percent: string; hours: string }
+  unitLabels: { kg: string; percent: string; hours: string; minutes: string }
   phrasing: 'liveYesterday' | 'liveDate' | 'tipYesterday' | 'tipDate' | 'tip30'
   dateLabel?: string
   t: ReturnType<typeof useTranslation>
@@ -135,6 +134,7 @@ export function EntryFieldComparisonLive({
     kg: t.dailyEntry.kgUnit,
     percent: t.dailyEntry.percentUnit,
     hours: t.dailyEntry.hoursUnit,
+    minutes: t.dailyEntry.minutesUnit,
   }
   const line = buildComparisonLine({
     current: debouncedValue,
@@ -186,6 +186,7 @@ export function EntryFieldComparisonInfo({
     kg: t.dailyEntry.kgUnit,
     percent: t.dailyEntry.percentUnit,
     hours: t.dailyEntry.hoursUnit,
+    minutes: t.dailyEntry.minutesUnit,
   }
 
   const lines: string[] = []

@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 660,
+    issue: 707,
+    date: '2026-08-13T13:20:00+03:00',
+    en: 'Sleep compared with yesterday is shown as hours and minutes, not a decimal like 1.45h.',
+    ru: 'Сравнение сна со вчера показывается в часах и минутах, а не десятичной дробью вроде 1,45ч.',
+  },
+  {
     version: 659,
     issue: 703,
     date: '2026-08-13T12:00:02+03:00',

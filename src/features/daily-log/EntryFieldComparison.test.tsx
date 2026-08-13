@@ -70,6 +70,22 @@ describe('EntryFieldComparison (#664)', () => {
     expect(screen.queryByText(/compared to yesterday/)).toBeNull()
   })
 
+  it('shows a sleep delta as hours and minutes, not decimal hours (#707)', async () => {
+    render(
+      <EntryFieldComparisonLive
+        field="sleepHours"
+        currentValue={9 + 37 / 60}
+        prior={{ date: '2026-08-12', value: 8 + 10 / 60, isYesterday: true }}
+        unit="hours"
+      />,
+    )
+    await vi.advanceTimersByTimeAsync(300)
+    expect(
+      screen.getByText(/↑ 1h 27m compared to yesterday/),
+    ).toBeInTheDocument()
+    expect(screen.queryByText(/1\.45/)).toBeNull()
+  })
+
   it('renders an info tooltip with yesterday and 30-day lines after save', async () => {
     render(
       <EntryFieldComparisonInfo
