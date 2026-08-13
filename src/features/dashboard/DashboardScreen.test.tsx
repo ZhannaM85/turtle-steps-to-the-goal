@@ -375,9 +375,16 @@ describe('DashboardScreen', () => {
         within(correlationSection).getByRole('radio', { name: 'Week' }),
       )
 
+      // #708 — empty period keeps the card mounted (title + empty copy)
+      // instead of returning null; scoping still drops the plot/insight.
       expect(
-        screen.queryByText('Calories vs. weight change'),
-      ).not.toBeInTheDocument()
+        screen.getByText('Calories vs. weight change'),
+      ).toBeInTheDocument()
+      expect(
+        screen.getByText(
+          'Not enough data yet to see a pattern — keep logging and check back in a few weeks.',
+        ),
+      ).toBeInTheDocument()
       // Weight chart still has its own period (All) and enough points.
       expect(screen.getByText('Weight trend')).toBeInTheDocument()
     })
