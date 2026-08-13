@@ -40,7 +40,6 @@ _Logged while blocked on Apple Developer enrollment. Library CVEs via `npm audit
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#709](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/709) | 🔍 Pending validation | Settings: list all Dashboard graphs with show/hide toggles | New Settings card «Dashboard graphs» / «Графики на панели» lists every `DashboardChartKey` On/Off via `dashboardChartVisibilityStore` (same as eye toggles). Custom correlations still under Custom metrics. Confirm Settings list matches Dashboard titles and toggling Off hides the card. |
 | [#710](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/710) | 📋 Not started | Calories vs weight: use previous-day calories (day-pair), not weekly averages | Follow-up after #708. Revisit #216: replace weekly `CorrelationView` with day-pair (prior-day kcal → next-day weight delta), like protein/sleep. Same Dashboard slot. |
 
 ---
