@@ -30,6 +30,7 @@ import {
   useTodayCardOrderStore,
   useTodaySectionsCollapseStore,
   useWaterTrackingStore,
+  useLocalTransferStore,
 } from '@/stores'
 import { TodayScreen } from './TodayScreen'
 
@@ -2541,5 +2542,28 @@ describe('TodayScreen', () => {
         })
       })
     })
+  })
+
+  it('shows the day-log refresh control only when Another copy is on (#720)', async () => {
+    render(
+      <MemoryRouter>
+        <TodayScreen />
+      </MemoryRouter>,
+    )
+
+    expect(await screen.findByRole('heading', { name: 'Day' })).toBeInTheDocument()
+    expect(
+      screen.queryByRole('button', {
+        name: 'Send or receive this day’s log',
+      }),
+    ).not.toBeInTheDocument()
+
+    useLocalTransferStore.getState().setEnabled(true)
+
+    expect(
+      await screen.findByRole('button', {
+        name: 'Send or receive this day’s log',
+      }),
+    ).toBeInTheDocument()
   })
 })

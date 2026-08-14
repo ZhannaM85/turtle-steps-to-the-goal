@@ -23,8 +23,10 @@ import {
   ChevronLeft,
   ChevronRight,
   GripVertical,
+  RefreshCw,
 } from 'lucide-react'
 import { Link, useSearchParams } from 'react-router-dom'
+import { SendDaySnippetDialog } from '@/features/local-transfer/SendDaySnippetDialog'
 import {
   totalCalories,
   totalCarbs,
@@ -76,6 +78,7 @@ import {
   useDailyReminderStore,
   useDayStartStore,
   useGoalStore,
+  useLocalTransferStore,
   useMicronutrientTrackingStore,
   useNutritionFactsStore,
   usePlannedMealStore,
@@ -173,6 +176,8 @@ export function TodayScreen() {
     loadEntry,
     saveEntry,
   } = useDailyEntryStore()
+  const localTransferEnabled = useLocalTransferStore((state) => state.enabled)
+  const [sendDayOpen, setSendDayOpen] = useState(false)
   // #298 — "today" (this screen's default date, and the cap on how far
   // forward the date arrows/picker can go) accounts for a configured
   // day-start time other than midnight, so someone up past midnight isn't
@@ -993,7 +998,29 @@ export function TodayScreen() {
   return (
     <div className="flex flex-col gap-6">
       <GoalCelebrationModal />
-      <PageHeader title={t.today.title} description={t.today.description} />
+      <PageHeader
+        title={t.today.title}
+        description={t.today.description}
+        action={
+          localTransferEnabled ? (
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon-xl"
+              aria-label={t.today.sendDayLogLabel}
+              onClick={() => setSendDayOpen(true)}
+            >
+              <RefreshCw />
+            </Button>
+          ) : undefined
+        }
+      />
+      <SendDaySnippetDialog
+        open={sendDayOpen}
+        onOpenChange={setSendDayOpen}
+        date={date}
+        entry={entry}
+      />
 
       {/* #239: previously sat below the stat cards — the page title never
        * changes, but this does as you page between days, so it used to

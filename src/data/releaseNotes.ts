@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 687,
+    issue: 720,
+    date: '2026-08-14T15:45:00+03:00',
+    en: 'With “Another copy” on in Settings, Day has a refresh control to send this day’s log to another Turtle Steps via copy or share.',
+    ru: 'Если в Настройках включена «Другая копия», на экране «День» появляется обновление — можно отправить запись за день в другую копию Turtle Steps через копирование или «Поделиться».',
+  },
+  {
     version: 686,
     issue: 719,
     date: '2026-08-14T15:40:00+03:00',
