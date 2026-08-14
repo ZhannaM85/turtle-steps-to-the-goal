@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 674,
+    issue: 732,
+    date: '2026-08-14T12:35:00+03:00',
+    en: 'The 100g / Portion tabs in recipes and the dishes list now match the 40px size used when editing a dish.',
+    ru: 'Вкладки «100 г» / «Порция» в рецептах и списке блюд теперь той же высоты 40px, что и при редактировании блюда.',
+  },
+  {
     version: 673,
     issue: 730,
     date: '2026-08-14T12:28:00+03:00',

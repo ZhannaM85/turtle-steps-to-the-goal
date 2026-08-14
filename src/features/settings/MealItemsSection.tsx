@@ -379,10 +379,10 @@ function MealItemRow({
             }
             className="w-fit gap-2 p-0.5"
           >
-            <ToggleGroupItem value="per100g" className="h-7 px-3 text-xs">
+            <ToggleGroupItem value="per100g" className="h-10 px-4 text-sm">
               {t.dailyEntry.macroModePer100gOption}
             </ToggleGroupItem>
-            <ToggleGroupItem value="perPortion" className="h-7 px-3 text-xs">
+            <ToggleGroupItem value="perPortion" className="h-10 px-4 text-sm">
               {t.dailyEntry.macroModePerPortionOption}
             </ToggleGroupItem>
           </ToggleGroup>

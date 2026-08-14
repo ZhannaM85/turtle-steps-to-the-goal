@@ -32,6 +32,24 @@ describe('RecipeEditorDialog', () => {
     ).toBeInTheDocument()
   })
 
+  it('uses the same 40px 100g/Portion tabs as the dish sheet (#732)', () => {
+    render(
+      <RecipeEditorDialog
+        open
+        onOpenChange={vi.fn()}
+        recipe={null}
+        mealItems={[]}
+        onSave={vi.fn()}
+      />,
+    )
+
+    const per100g = screen.getByRole('radio', { name: '100g' })
+    const portion = screen.getByRole('radio', { name: 'Portion' })
+    expect(per100g).toHaveClass('h-10')
+    expect(portion).toHaveClass('h-10')
+    expect(per100g).not.toHaveClass('h-7')
+  })
+
   it('prefills fields when editing an existing recipe', () => {
     const recipe: Recipe = {
       id: 'recipe-1',

@@ -64,7 +64,7 @@ _Split from Tier 135 at the user’s request so the audit is not mixed with the 
 | [#727](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/727) | 🔍 Pending validation | Food picker Add must use the xl footer CTA | size xl + w-full (#474). Recipe Save+Cancel lg left alone |
 | [#728](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/728) | 🔍 Pending validation | Align Goal and Add-metric primary actions with the footer-CTA rule | Used documented lg Save + ghost Cancel (RecipeEditor), not a third default-size pair |
 | [#730](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/730) | 🔍 Pending validation | Unify Add meal name/time/note heights with the dish sheet | Name/time/note now h-12. Close stays size-9 (#513) |
-| [#732](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/732) | 📋 Not started | One size for 100g/Portion tabs | h-10 on dish sheet vs h-7 on recipe/inline add. Settings h-12 chips out of scope |
+| [#732](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/732) | 🔍 Pending validation | One size for 100g/Portion tabs | Recipe + inline add now h-10 like the dish sheet. Settings chips untouched |
 | [#729](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/729) | 📋 Not started | Grow leftover 28px macro grids (food list, recipes, inline add) | #122 already removed this from daily log |
 | [#731](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/731) | 📋 Not started | One field-label recipe (shared Label) | Stop mixing 14px medium / 14px muted / 12px muted |
 | [#735](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/735) | 📋 Not started | Pick one section-shell chrome (Card vs border-lg) | StatCards hairline-xl vs accordion/chart/Export border-lg |
