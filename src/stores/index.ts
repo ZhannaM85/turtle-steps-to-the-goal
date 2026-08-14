@@ -80,6 +80,10 @@ export type { CalendarMarkerKey } from './calendarMarkerVisibilityStore'
 export { useAddMealRecentVisibilityStore } from './addMealRecentVisibilityStore'
 export { useLastBackupStore } from './lastBackupStore'
 export { useNutritionFactsStore } from './nutritionFactsStore'
+export {
+  isLocalTransferEnabled,
+  useLocalTransferStore,
+} from './localTransferStore'
 export { useEntryComparisonStore } from './entryComparisonStore'
 export {
   useMealLibrarySortStore,

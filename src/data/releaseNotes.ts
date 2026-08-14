@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 682,
+    issue: 738,
+    date: '2026-08-14T13:35:00+03:00',
+    en: 'You can turn on “Send to another copy” in Settings if you use more than one Turtle Steps (PWA and the phone app). It stays off for everyone else.',
+    ru: 'В Настройках можно включить «Отправка в другую копию», если у вас несколько приложений Turtle Steps (PWA и приложение на телефоне). Для остальных оно выключено.',
+  },
+  {
     version: 681,
     issue: 737,
     date: '2026-08-14T14:00:00+03:00',

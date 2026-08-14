@@ -27,6 +27,7 @@ import {
   useEntryComparisonStore,
   usePlannedMealsTrackingStore,
   useCopyYesterdayMealsStore,
+  useLocalTransferStore,
   useProfileStore,
   useThemeStore,
   useTrackedFieldsStore,
@@ -265,6 +266,10 @@ export function SettingsScreen() {
     (state) => state.enabled,
   )
   const setEntryComparisonEnabled = useEntryComparisonStore(
+    (state) => state.setEnabled,
+  )
+  const localTransferEnabled = useLocalTransferStore((state) => state.enabled)
+  const setLocalTransferEnabled = useLocalTransferStore(
     (state) => state.setEnabled,
   )
   // #238: a safety net independent of the Dashboard's own legend toggles —
@@ -889,6 +894,32 @@ export function SettingsScreen() {
             </ToggleGroupItem>
             <ToggleGroupItem value="on" className="h-12">
               {t.settings.entryComparisonOn}
+            </ToggleGroupItem>
+          </ToggleGroup>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>{t.settings.localTransferLabel}</CardTitle>
+        </CardHeader>
+        <CardContent className="flex flex-col gap-1.5">
+          <span className="text-sm text-muted-foreground">
+            {t.settings.localTransferDescription}
+          </span>
+          <ToggleGroup
+            type="single"
+            aria-label={t.settings.localTransferLabel}
+            value={localTransferEnabled ? 'on' : 'off'}
+            onValueChange={(value) =>
+              value && setLocalTransferEnabled(value === 'on')
+            }
+          >
+            <ToggleGroupItem value="off" className="h-12">
+              {t.settings.localTransferOff}
+            </ToggleGroupItem>
+            <ToggleGroupItem value="on" className="h-12">
+              {t.settings.localTransferOn}
             </ToggleGroupItem>
           </ToggleGroup>
         </CardContent>

@@ -1945,6 +1945,11 @@ export interface Dictionary {
     entryComparisonDescription: string
     entryComparisonOn: string
     entryComparisonOff: string
+    /** #738 — send a logged meal to another app copy; off by default. */
+    localTransferLabel: string
+    localTransferDescription: string
+    localTransferOn: string
+    localTransferOff: string
     /** #605 — only rendered on native (`Capacitor.isNativePlatform()`),
      * since the time has no effect on web/PWA's in-app-only banner. */
     dailyReminderTimeLabel: string

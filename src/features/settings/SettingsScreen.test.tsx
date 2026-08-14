@@ -11,6 +11,7 @@ import {
   useLastBackupStore,
   usePlannedMealsTrackingStore,
   useCopyYesterdayMealsStore,
+  useLocalTransferStore,
   useProfileStore,
   useThemeStore,
   useTrackedFieldsStore,
@@ -43,6 +44,7 @@ beforeEach(() => {
   useWaterTrackingStore.setState({ enabled: false })
   usePlannedMealsTrackingStore.setState({ enabled: false })
   useCopyYesterdayMealsStore.setState({ enabled: false })
+  useLocalTransferStore.setState({ enabled: false })
   useMicronutrientTrackingStore.setState({
     tracked: { sodium: false, potassium: false, magnesium: false },
   })
@@ -80,6 +82,7 @@ afterEach(() => {
   useWaterTrackingStore.setState({ enabled: false })
   usePlannedMealsTrackingStore.setState({ enabled: false })
   useCopyYesterdayMealsStore.setState({ enabled: false })
+  useLocalTransferStore.setState({ enabled: false })
   useMicronutrientTrackingStore.setState({
     tracked: { sodium: false, potassium: false, magnesium: false },
   })
@@ -585,6 +588,25 @@ describe('SettingsScreen', () => {
     )
 
     expect(useDailyReminderStore.getState().enabled).toBe(true)
+  })
+
+  it('defaults send-to-another-copy to off, and switches it on when selected (#738)', async () => {
+    const user = userEvent.setup()
+    renderSettings()
+
+    expect(
+      within(
+        screen.getByRole('radiogroup', { name: 'Send to another copy' }),
+      ).getByRole('radio', { name: 'Off' }),
+    ).toBeChecked()
+
+    await user.click(
+      within(
+        screen.getByRole('radiogroup', { name: 'Send to another copy' }),
+      ).getByRole('radio', { name: 'On' }),
+    )
+
+    expect(useLocalTransferStore.getState().enabled).toBe(true)
   })
 
   it('includes the export/import section (folded in from the old Export tab, #24)', () => {
