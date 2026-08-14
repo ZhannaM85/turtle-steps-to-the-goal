@@ -142,6 +142,10 @@ export interface Dictionary {
     sendDayNothingLogged: string
     sendDayShareTitle: (date: string) => string
     sendDayShareText: (date: string) => string
+    /** #722 — QR of the same day-log URL, or a fallback if too large. */
+    sendDayQrAlt: string
+    sendDayQrHint: string
+    sendDayQrTooLarge: string
     /** #721 — paste a day snippet on the send sheet / deep link. */
     receiveDayPasteLabel: string
     receiveDayPastePlaceholder: string

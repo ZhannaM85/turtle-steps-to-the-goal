@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 689,
+    issue: 722,
+    date: '2026-08-14T18:55:00+03:00',
+    en: 'When sending a day’s log, a QR code appears so another phone can scan it. If the day is too large for a reliable code, copy or share the link instead.',
+    ru: 'При отправке записи за день появляется QR-код, чтобы другой телефон мог его отсканировать. Если день слишком большой для надёжного кода, скопируйте ссылку или поделитесь ею.',
+  },
+  {
     version: 688,
     issue: 721,
     date: '2026-08-14T15:50:00+03:00',

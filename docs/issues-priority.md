@@ -46,7 +46,7 @@ _Retargeted 2026-08-14: **full day entry** (sleep, weight, meals, steps, water, 
 | [#719](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/719) | 🔍 Pending validation | Apply day snippet: confirm, fill blanks, ask before overwrite | Fill empty; confirm overwrite; append meals; never wipe the day |
 | [#720](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/720) | 🔍 Pending validation | Day screen: refresh control + what-to-send sheet | Toggle off → no icon. Whole day. Copy/share. Paste/QR later |
 | [#721](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/721) | 🔍 Pending validation | Receive day snippet (paste, deep link, not full backup) | Confirm shell; `?shareDay=` does not run Epic 8 backup import |
-| [#722](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/722) | 📋 Not started | Show day-snippet QR on the send sheet | Other-device path; oversized → copy/share. Depends on #718, #720 |
+| [#722](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/722) | 🔍 Pending validation | Show day-snippet QR on the send sheet | Same URL as copy/share. Over QR budget → copy/share + explanation, no broken code |
 | [#723](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/723) | 📋 Not started | Scan day-snippet QR (reuse #661, photo fallback) | Distinguish food-share vs day snippet. Depends on #722, #719 |
 | [#724](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/724) | 📋 Not started | iOS: open day snippet from share sheet / URL | Android handlers stay on #717 later list until #304. Depends on #721 |
 

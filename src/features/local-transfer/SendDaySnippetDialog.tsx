@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
-import { Check, Copy, Share2 } from 'lucide-react'
+import { Check, Copy, QrCode, Share2 } from 'lucide-react'
 import type { DailyEntry } from '@/domain/dailyEntry'
+import { generateQrDataUrl } from '@/features/food-share/generateQrDataUrl'
 import { useTranslation } from '@/i18n'
 import { Button } from '@/shared/ui/button'
 import {
@@ -14,7 +15,9 @@ import { Label } from '@/shared/ui/label'
 import {
   buildDaySnippetUrl,
   dailyEntryToDaySnippet,
+  daySnippetFitsQr,
   daySnippetHasSendableContent,
+  encodeDaySnippetPayload,
   parseDaySnippetFromText,
 } from './daySnippetPayload'
 import { useDayTransferUiStore } from './dayTransferUiStore'
@@ -27,8 +30,9 @@ export interface SendDaySnippetDialogProps {
 }
 
 /**
- * #720 — what-to-send sheet from Day’s refresh control. Whole day first.
- * QR is #722. Paste/receive is #721.
+ * #720 / #722 — what-to-send sheet from Day’s refresh control. Whole day
+ * first, then copy/share and a QR of the same URL when it fits.
+ * Paste/receive is #721.
  */
 export function SendDaySnippetDialog({
   open,
@@ -70,10 +74,15 @@ function SendDaySnippetBody({
     entry && entry.date === date ? dailyEntryToDaySnippet(entry) : null
   const canSend = payload ? daySnippetHasSendableContent(payload) : false
   const shareUrl = canSend && payload ? buildDaySnippetUrl(payload) : null
+  const qrFits =
+    canSend && payload
+      ? daySnippetFitsQr(encodeDaySnippetPayload(payload))
+      : false
   const [copied, setCopied] = useState(false)
   const [shareError, setShareError] = useState<string | null>(null)
   const [pasteValue, setPasteValue] = useState('')
   const [pasteError, setPasteError] = useState<string | null>(null)
+  const [qrDataUrl, setQrDataUrl] = useState<string | null>(null)
   const canNativeShare =
     typeof navigator !== 'undefined' && typeof navigator.share === 'function'
 
@@ -82,6 +91,21 @@ function SendDaySnippetBody({
     const timer = setTimeout(() => setCopied(false), 2000)
     return () => clearTimeout(timer)
   }, [copied])
+
+  useEffect(() => {
+    if (!shareUrl || !qrFits) return
+    let cancelled = false
+    void generateQrDataUrl(shareUrl)
+      .then((dataUrl) => {
+        if (!cancelled) setQrDataUrl(dataUrl)
+      })
+      .catch(() => {
+        if (!cancelled) setQrDataUrl(null)
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [shareUrl, qrFits])
 
   async function handleNativeShare() {
     if (!shareUrl || !canNativeShare) return
@@ -140,6 +164,28 @@ function SendDaySnippetBody({
       {shareError ? (
         <p className="text-sm text-destructive">{shareError}</p>
       ) : null}
+      {qrFits ? (
+        <div className="flex flex-col items-center gap-2">
+          {qrDataUrl ? (
+            <img
+              src={qrDataUrl}
+              alt={t.today.sendDayQrAlt}
+              width={256}
+              height={256}
+              className="rounded-lg border border-border bg-white p-2"
+            />
+          ) : (
+            <div className="flex h-64 w-64 items-center justify-center rounded-lg border border-dashed border-border text-muted-foreground">
+              <QrCode aria-hidden="true" className="size-10 opacity-40" />
+            </div>
+          )}
+          <p className="text-center text-xs text-muted-foreground">
+            {t.today.sendDayQrHint}
+          </p>
+        </div>
+      ) : (
+        <p className="text-sm text-muted-foreground">{t.today.sendDayQrTooLarge}</p>
+      )}
       <ReceiveDayPaste
         pasteValue={pasteValue}
         pasteError={pasteError}

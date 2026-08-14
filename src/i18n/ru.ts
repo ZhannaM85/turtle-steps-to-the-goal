@@ -112,6 +112,10 @@ export const ru: Dictionary = {
     sendDayNothingLogged: 'За этот день пока ничего не записано.',
     sendDayShareTitle: (date) => `Черепашка идёт к цели — ${date}`,
     sendDayShareText: (date) => `Запись за ${date}`,
+    sendDayQrAlt: 'QR-код записи за этот день',
+    sendDayQrHint: 'Наведите камеру другого телефона, чтобы посмотреть этот день.',
+    sendDayQrTooLarge:
+      'Запись за день слишком большая для надёжного QR-кода. Скопируйте ссылку или поделитесь ею.',
     receiveDayPasteLabel: 'Вставить ссылку',
     receiveDayPastePlaceholder: 'Вставьте ссылку на день из Turtle Steps',
     receiveDayPasteSubmit: 'Посмотреть',

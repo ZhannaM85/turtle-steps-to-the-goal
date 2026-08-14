@@ -101,6 +101,10 @@ export const en: Dictionary = {
     sendDayNothingLogged: 'Nothing is logged on this day yet.',
     sendDayShareTitle: (date) => `Turtle Steps — ${date}`,
     sendDayShareText: (date) => `Day log for ${date}`,
+    sendDayQrAlt: 'QR code for this day’s log',
+    sendDayQrHint: 'Scan with another phone to preview this day.',
+    sendDayQrTooLarge:
+      'This day’s log is too large for a reliable QR code. Copy or share the link instead.',
     receiveDayPasteLabel: 'Paste a link',
     receiveDayPastePlaceholder: 'Paste a Turtle Steps day link',
     receiveDayPasteSubmit: 'Preview',
