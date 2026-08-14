@@ -265,7 +265,7 @@ export function FoodListSettingsScreen() {
           {t.dailyEntry.noFoodResultsText}
         </p>
       ) : (
-        <ul className="flex flex-col divide-y divide-border rounded-lg border border-border">
+        <ul className="flex flex-col divide-y divide-foreground/15 rounded-lg border border-border">
           {visibleFoods.map((food) => (
             <FoodRow
               key={food.id}

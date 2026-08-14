@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 678,
+    issue: 733,
+    date: '2026-08-14T13:35:00+03:00',
+    en: 'Dividers in the Settings food list now match the clearer lines used between dishes on a meal card.',
+    ru: 'Разделители в списке продуктов в настройках теперь такие же заметные, как линии между блюдами в карточке приёма пищи.',
+  },
+  {
     version: 677,
     issue: 735,
     date: '2026-08-14T13:30:00+03:00',
