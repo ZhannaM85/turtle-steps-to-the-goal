@@ -386,12 +386,12 @@ function MealItemRow({
               {t.dailyEntry.macroModePerPortionOption}
             </ToggleGroupItem>
           </ToggleGroup>
-          <p className="text-xs font-medium text-foreground">
+          <p className="text-sm font-medium text-foreground">
             {t.dailyEntry.itemNutritionSectionLabel(macroMode === 'per100g')}
           </p>
-          <div className="flex flex-wrap items-end gap-2">
-            <div className="flex flex-col gap-1">
-              <span className="text-xs text-muted-foreground">
+          <div className="grid grid-cols-2 gap-4">
+            <div className="flex flex-col gap-1.5">
+              <span className="text-sm text-muted-foreground">
                 {macroMode === 'per100g'
                   ? t.dailyEntry.addCaloriesLabel
                   : t.dailyEntry.addCaloriesPortionLabel}
@@ -406,51 +406,12 @@ function MealItemRow({
                 } — ${item.name}`}
                 value={kcal100}
                 onChange={(e) => setKcal100(e.target.value)}
-                className={cn('h-7 w-16', nutritionFieldClassName)}
-              />
-            </div>
-            <div className="flex flex-col gap-1">
-              <span className="text-xs text-muted-foreground">
-                {macroFieldLabel('protein', macroMode, t)}
-              </span>
-              <Input
-                type="text"
-                inputMode="decimal"
-                aria-label={`${macroFieldLabel('protein', macroMode, t)} — ${item.name}`}
-                value={protein100}
-                onChange={(e) => setProtein100(e.target.value)}
-                className={cn('h-7 w-14', nutritionFieldClassName)}
-              />
-            </div>
-            <div className="flex flex-col gap-1">
-              <span className="text-xs text-muted-foreground">
-                {macroFieldLabel('fat', macroMode, t)}
-              </span>
-              <Input
-                type="text"
-                inputMode="decimal"
-                aria-label={`${macroFieldLabel('fat', macroMode, t)} — ${item.name}`}
-                value={fat100}
-                onChange={(e) => setFat100(e.target.value)}
-                className={cn('h-7 w-14', nutritionFieldClassName)}
-              />
-            </div>
-            <div className="flex flex-col gap-1">
-              <span className="text-xs text-muted-foreground">
-                {macroFieldLabel('carbs', macroMode, t)}
-              </span>
-              <Input
-                type="text"
-                inputMode="decimal"
-                aria-label={`${macroFieldLabel('carbs', macroMode, t)} — ${item.name}`}
-                value={carbs100}
-                onChange={(e) => setCarbs100(e.target.value)}
-                className={cn('h-7 w-14', nutritionFieldClassName)}
+                className={cn('h-12 text-base', nutritionFieldClassName)}
               />
             </div>
             {macroMode === 'per100g' ? (
-              <div className="flex flex-col gap-1">
-                <span className="text-xs text-muted-foreground">
+              <div className="flex flex-col gap-1.5">
+                <span className="text-sm text-muted-foreground">
                   {t.dailyEntry.itemPortionsLabel}
                 </span>
                 <Input
@@ -459,17 +420,58 @@ function MealItemRow({
                   aria-label={`${t.dailyEntry.itemPortionsLabel} — ${item.name}`}
                   value={amountG}
                   onChange={(e) => setAmountG(e.target.value)}
-                  className={cn('h-7 w-14', nutritionFieldClassName)}
+                  className={cn('h-12 text-base', nutritionFieldClassName)}
                 />
               </div>
             ) : (
-              <div className="flex flex-col gap-1">
-                <span className="text-xs text-muted-foreground">&nbsp;</span>
-                <span className="flex h-7 items-center text-xs text-muted-foreground">
+              <div className="flex flex-col gap-1.5">
+                <span className="text-sm text-muted-foreground">&nbsp;</span>
+                <span className="flex h-12 items-center text-base text-muted-foreground">
                   {t.dailyEntry.macroModePerPortionOption}
                 </span>
               </div>
             )}
+            <div className="flex flex-col gap-1.5">
+              <span className="text-sm text-muted-foreground">
+                {macroFieldLabel('protein', macroMode, t)}
+              </span>
+              <Input
+                type="text"
+                inputMode="decimal"
+                aria-label={`${macroFieldLabel('protein', macroMode, t)} — ${item.name}`}
+                value={protein100}
+                onChange={(e) => setProtein100(e.target.value)}
+                className={cn('h-12 text-base', nutritionFieldClassName)}
+              />
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <span className="text-sm text-muted-foreground">
+                {macroFieldLabel('fat', macroMode, t)}
+              </span>
+              <Input
+                type="text"
+                inputMode="decimal"
+                aria-label={`${macroFieldLabel('fat', macroMode, t)} — ${item.name}`}
+                value={fat100}
+                onChange={(e) => setFat100(e.target.value)}
+                className={cn('h-12 text-base', nutritionFieldClassName)}
+              />
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <span className="text-sm text-muted-foreground">
+                {macroFieldLabel('carbs', macroMode, t)}
+              </span>
+              <Input
+                type="text"
+                inputMode="decimal"
+                aria-label={`${macroFieldLabel('carbs', macroMode, t)} — ${item.name}`}
+                value={carbs100}
+                onChange={(e) => setCarbs100(e.target.value)}
+                className={cn('h-12 text-base', nutritionFieldClassName)}
+              />
+            </div>
+          </div>
+          <div className="flex flex-wrap gap-2">
             <Button
               type="button"
               variant="outline"

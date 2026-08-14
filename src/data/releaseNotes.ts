@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 675,
+    issue: 729,
+    date: '2026-08-14T12:45:00+03:00',
+    en: 'Calorie and macro fields in the food list, recipes, and dishes editor are now the same 48px size as the dish sheet.',
+    ru: 'Поля калорий и БЖУ в списке продуктов, рецептах и редакторе блюд теперь той же высоты 48px, что и в карточке блюда.',
+  },
+  {
     version: 674,
     issue: 732,
     date: '2026-08-14T12:35:00+03:00',

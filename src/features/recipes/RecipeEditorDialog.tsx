@@ -355,9 +355,9 @@ export function RecipeEditorDialog({
                 {t.dailyEntry.macroModePerPortionOption}
               </ToggleGroupItem>
             </ToggleGroup>
-            <div className="flex flex-wrap items-end gap-2">
-              <div className="flex flex-col gap-1">
-                <span className="text-xs text-muted-foreground">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="flex flex-col gap-1.5">
+                <span className="text-sm text-muted-foreground">
                   {draftMacroMode === 'per100g'
                     ? t.dailyEntry.addCaloriesLabel
                     : t.dailyEntry.addCaloriesPortionLabel}
@@ -368,51 +368,12 @@ export function RecipeEditorDialog({
                   aria-label={t.dailyEntry.addCaloriesLabel}
                   value={draftKcal100}
                   onChange={(e) => setDraftKcal100(e.target.value)}
-                  className="h-7 w-16"
-                />
-              </div>
-              <div className="flex flex-col gap-1">
-                <span className="text-xs text-muted-foreground">
-                  {t.dailyEntry.proteinLabel}
-                </span>
-                <Input
-                  type="text"
-                  inputMode="decimal"
-                  aria-label={t.dailyEntry.proteinLabel}
-                  value={draftProtein100}
-                  onChange={(e) => setDraftProtein100(e.target.value)}
-                  className="h-7 w-14"
-                />
-              </div>
-              <div className="flex flex-col gap-1">
-                <span className="text-xs text-muted-foreground">
-                  {t.dailyEntry.fatLabel}
-                </span>
-                <Input
-                  type="text"
-                  inputMode="decimal"
-                  aria-label={t.dailyEntry.fatLabel}
-                  value={draftFat100}
-                  onChange={(e) => setDraftFat100(e.target.value)}
-                  className="h-7 w-14"
-                />
-              </div>
-              <div className="flex flex-col gap-1">
-                <span className="text-xs text-muted-foreground">
-                  {t.dailyEntry.carbsLabel}
-                </span>
-                <Input
-                  type="text"
-                  inputMode="decimal"
-                  aria-label={t.dailyEntry.carbsLabel}
-                  value={draftCarbs100}
-                  onChange={(e) => setDraftCarbs100(e.target.value)}
-                  className="h-7 w-14"
+                  className="h-12 text-base"
                 />
               </div>
               {draftMacroMode === 'per100g' ? (
-                <div className="flex flex-col gap-1">
-                  <span className="text-xs text-muted-foreground">
+                <div className="flex flex-col gap-1.5">
+                  <span className="text-sm text-muted-foreground">
                     {t.dailyEntry.itemPortionsLabel}
                   </span>
                   <Input
@@ -421,27 +382,67 @@ export function RecipeEditorDialog({
                     aria-label={t.dailyEntry.itemPortionsLabel}
                     value={draftAmountG}
                     onChange={(e) => setDraftAmountG(e.target.value)}
-                    className="h-7 w-14"
+                    className="h-12 text-base"
                   />
                 </div>
               ) : (
-                <div className="flex flex-col gap-1">
-                  <span className="text-xs text-muted-foreground">&nbsp;</span>
-                  <span className="flex h-7 items-center text-xs text-muted-foreground">
+                <div className="flex flex-col gap-1.5">
+                  <span className="text-sm text-muted-foreground">&nbsp;</span>
+                  <span className="flex h-12 items-center text-base text-muted-foreground">
                     {t.dailyEntry.macroModePerPortionOption}
                   </span>
                 </div>
               )}
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                disabled={!canAddIngredient}
-                onClick={addIngredient}
-              >
-                {t.recipes.addIngredientButton}
-              </Button>
+              <div className="flex flex-col gap-1.5">
+                <span className="text-sm text-muted-foreground">
+                  {t.dailyEntry.proteinLabel}
+                </span>
+                <Input
+                  type="text"
+                  inputMode="decimal"
+                  aria-label={t.dailyEntry.proteinLabel}
+                  value={draftProtein100}
+                  onChange={(e) => setDraftProtein100(e.target.value)}
+                  className="h-12 text-base"
+                />
+              </div>
+              <div className="flex flex-col gap-1.5">
+                <span className="text-sm text-muted-foreground">
+                  {t.dailyEntry.fatLabel}
+                </span>
+                <Input
+                  type="text"
+                  inputMode="decimal"
+                  aria-label={t.dailyEntry.fatLabel}
+                  value={draftFat100}
+                  onChange={(e) => setDraftFat100(e.target.value)}
+                  className="h-12 text-base"
+                />
+              </div>
+              <div className="flex flex-col gap-1.5">
+                <span className="text-sm text-muted-foreground">
+                  {t.dailyEntry.carbsLabel}
+                </span>
+                <Input
+                  type="text"
+                  inputMode="decimal"
+                  aria-label={t.dailyEntry.carbsLabel}
+                  value={draftCarbs100}
+                  onChange={(e) => setDraftCarbs100(e.target.value)}
+                  className="h-12 text-base"
+                />
+              </div>
             </div>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="self-start"
+              disabled={!canAddIngredient}
+              onClick={addIngredient}
+            >
+              {t.recipes.addIngredientButton}
+            </Button>
             {draftNutritionPreview && (
               <p className="text-xs text-muted-foreground">
                 {t.dailyEntry.computedTotalPrefix} {draftNutritionPreview}

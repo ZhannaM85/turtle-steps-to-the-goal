@@ -80,9 +80,9 @@ function FoodRow({
     return (
       <li className="flex flex-col gap-1.5 rounded-lg bg-muted/40 px-2 py-1.5">
         <span className="text-sm font-medium">{name}</span>
-        <div className="flex flex-wrap items-end gap-2">
-          <div className="flex flex-col gap-1">
-            <span className="text-xs text-muted-foreground">
+        <div className="grid grid-cols-2 gap-4">
+          <div className="flex flex-col gap-1.5">
+            <span className="text-sm text-muted-foreground">
               {t.dailyEntry.kcalUnit}
             </span>
             <Input
@@ -91,11 +91,11 @@ function FoodRow({
               aria-label={`${t.dailyEntry.kcalUnit} — ${name}`}
               value={kcal}
               onChange={(e) => setKcal(e.target.value)}
-              className="h-7 w-16"
+              className="h-12 text-base"
             />
           </div>
-          <div className="flex flex-col gap-1">
-            <span className="text-xs text-muted-foreground">
+          <div className="flex flex-col gap-1.5">
+            <span className="text-sm text-muted-foreground">
               {t.dailyEntry.proteinLabel}
             </span>
             <Input
@@ -104,11 +104,11 @@ function FoodRow({
               aria-label={`${t.dailyEntry.proteinLabel} — ${name}`}
               value={protein}
               onChange={(e) => setProtein(e.target.value)}
-              className="h-7 w-14"
+              className="h-12 text-base"
             />
           </div>
-          <div className="flex flex-col gap-1">
-            <span className="text-xs text-muted-foreground">
+          <div className="flex flex-col gap-1.5">
+            <span className="text-sm text-muted-foreground">
               {t.dailyEntry.fatLabel}
             </span>
             <Input
@@ -117,11 +117,11 @@ function FoodRow({
               aria-label={`${t.dailyEntry.fatLabel} — ${name}`}
               value={fat}
               onChange={(e) => setFat(e.target.value)}
-              className="h-7 w-14"
+              className="h-12 text-base"
             />
           </div>
-          <div className="flex flex-col gap-1">
-            <span className="text-xs text-muted-foreground">
+          <div className="flex flex-col gap-1.5">
+            <span className="text-sm text-muted-foreground">
               {t.dailyEntry.carbsLabel}
             </span>
             <Input
@@ -130,19 +130,20 @@ function FoodRow({
               aria-label={`${t.dailyEntry.carbsLabel} — ${name}`}
               value={carbs}
               onChange={(e) => setCarbs(e.target.value)}
-              className="h-7 w-14"
+              className="h-12 text-base"
             />
           </div>
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            aria-label={t.settings.saveFoodLabel(name)}
-            onClick={save}
-          >
-            {t.dailyEntry.saveButton}
-          </Button>
         </div>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          className="self-start"
+          aria-label={t.settings.saveFoodLabel(name)}
+          onClick={save}
+        >
+          {t.dailyEntry.saveButton}
+        </Button>
       </li>
     )
   }

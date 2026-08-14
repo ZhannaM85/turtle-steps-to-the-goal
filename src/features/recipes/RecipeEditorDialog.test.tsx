@@ -48,6 +48,7 @@ describe('RecipeEditorDialog', () => {
     expect(per100g).toHaveClass('h-10')
     expect(portion).toHaveClass('h-10')
     expect(per100g).not.toHaveClass('h-7')
+    expect(screen.getByLabelText('kcal/100g')).toHaveClass('h-12')
   })
 
   it('prefills fields when editing an existing recipe', () => {
