@@ -1055,7 +1055,7 @@ export function ExportSection() {
               value={periodStart}
               max={periodEnd || undefined}
               onChange={(e) => setPeriodStart(e.target.value)}
-              className="h-10"
+              className="h-12"
             />
             <Input
               type="date"
@@ -1063,7 +1063,7 @@ export function ExportSection() {
               value={periodEnd}
               min={periodStart || undefined}
               onChange={(e) => setPeriodEnd(e.target.value)}
-              className="h-10"
+              className="h-12"
             />
           </div>
         </div>
@@ -1253,7 +1253,7 @@ export function ExportSection() {
               value={pdfPeriodStart}
               max={pdfPeriodEnd}
               onChange={(e) => setPdfPeriodStart(e.target.value)}
-              className="h-10"
+              className="h-12"
             />
             <Input
               type="date"
@@ -1261,7 +1261,7 @@ export function ExportSection() {
               value={pdfPeriodEnd}
               min={pdfPeriodStart}
               onChange={(e) => setPdfPeriodEnd(e.target.value)}
-              className="h-10"
+              className="h-12"
             />
           </div>
           <Button

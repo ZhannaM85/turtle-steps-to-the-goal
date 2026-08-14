@@ -129,7 +129,7 @@ export function CompareRangesView({
               value={startA}
               max={endA}
               onChange={(e) => setStartA(e.target.value)}
-              className="h-10"
+              className="h-12"
             />
             <Input
               type="date"
@@ -137,7 +137,7 @@ export function CompareRangesView({
               value={endA}
               min={startA}
               onChange={(e) => setEndA(e.target.value)}
-              className="h-10"
+              className="h-12"
             />
           </div>
         </div>
@@ -152,7 +152,7 @@ export function CompareRangesView({
               value={startB}
               max={endB}
               onChange={(e) => setStartB(e.target.value)}
-              className="h-10"
+              className="h-12"
             />
             <Input
               type="date"
@@ -160,7 +160,7 @@ export function CompareRangesView({
               value={endB}
               min={startB}
               onChange={(e) => setEndB(e.target.value)}
-              className="h-10"
+              className="h-12"
             />
           </div>
         </div>

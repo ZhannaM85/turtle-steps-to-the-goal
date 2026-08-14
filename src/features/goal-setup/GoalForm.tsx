@@ -962,7 +962,7 @@ export function GoalForm({
         <Input
           id="goal-week-start-date"
           type="date"
-          className="max-w-48"
+          className="h-12 max-w-48"
           {...register('weekStartDate', {
             onChange: (event) => {
               const nextStart = event.target.value
@@ -989,7 +989,7 @@ export function GoalForm({
           id="goal-week-end-date"
           type="date"
           min={weekEndMinDate}
-          className="max-w-48"
+          className="h-12 max-w-48"
           {...register('weekEndDate')}
         />
         <p className="text-sm text-muted-foreground">{t.goal.weekEndDateHint}</p>

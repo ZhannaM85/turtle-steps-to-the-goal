@@ -73,7 +73,7 @@ export function DashboardPeriodPicker({ chart }: DashboardPeriodPickerProps) {
             value={customStart}
             max={customEnd || undefined}
             onChange={(e) => setCustomStart(chart, e.target.value)}
-            className="h-10"
+            className="h-12"
           />
           <Input
             type="date"
@@ -81,7 +81,7 @@ export function DashboardPeriodPicker({ chart }: DashboardPeriodPickerProps) {
             value={customEnd}
             min={customStart || undefined}
             onChange={(e) => setCustomEnd(chart, e.target.value)}
-            className="h-10"
+            className="h-12"
           />
         </div>
       )}

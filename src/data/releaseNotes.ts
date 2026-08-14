@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 669,
+    issue: 725,
+    date: '2026-08-14T12:02:00+03:00',
+    en: 'Date fields on the dashboard, export, delete-range, and goal screens now match the 48px height already used in History.',
+    ru: 'Поля даты на дашборде, в экспорте, удалении диапазона и целях теперь той же высоты 48px, что и в Истории.',
+  },
+  {
     version: 668,
     issue: 715,
     date: '2026-08-13T18:32:00+03:00',

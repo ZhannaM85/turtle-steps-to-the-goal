@@ -96,7 +96,7 @@ export function DeleteRangeSection() {
             setStart(e.target.value)
             setStep({ kind: 'idle' })
           }}
-          className="h-10"
+          className="h-12"
           disabled={isBusy}
         />
         <Input
@@ -108,7 +108,7 @@ export function DeleteRangeSection() {
             setEnd(e.target.value)
             setStep({ kind: 'idle' })
           }}
-          className="h-10"
+          className="h-12"
           disabled={isBusy}
         />
       </div>
