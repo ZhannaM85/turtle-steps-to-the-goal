@@ -34,21 +34,21 @@ _User asked about pulling data from Apple Health and Zepp Life. Researched via W
 
 ---
 
-## Tier 135 — Send a logged snippet to another copy (2026-08-14)
+## Tier 135 — Sync a day's log to another copy (2026-08-14)
 
-_Same-phone PWA ↔ iOS is the snippet main case (clipboard / share sheet); QR stays so an Android (or laptop) copy can join later. Not a full backup — one logged meal, append, confirm before apply. Reuse #661 transport. **Full snippet inventory (later kinds, Android intents, overwrite-on-edit, …) lives on #717’s body** so those rows are not lost; they are not separate GitHub issues until we pull one off. UI consistency (#716 and follow-ups) was split out to Tier 136 at the user’s request (same calendar day, two topics)._
+_Retargeted 2026-08-14: **full day entry** (sleep, weight, meals, steps, water, …), not a meal and not #661 food-share. Same-phone PWA ↔ iOS; QR for another device. Settings toggle off by default; when on, **refresh on Day** → what to send (whole day first) → clipboard/share/QR. Apply fills blanks and asks before overwrite. Reuse #661 transport only. Full backup stays Export/Import. UI consistency is Tier 136._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#717](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/717) | 📋 Not started | Epic: Send a logged snippet to another copy (clipboard / share / QR) | Tracking + complete later-backlog checklist. Local-only; no cloud/live sync. Full Export/Import remains the empty-app clone path |
-| [#738](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/738) | 🔍 Pending validation | Hide send-to-another-copy behind a Settings toggle (off by default) | Settings card + `useLocalTransferStore` (off default, not in backup). #720–#724 must gate on `isLocalTransferEnabled()`. Validate: Settings shows Off; On persists after reload; no send/receive UI until later issues |
-| [#718](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/718) | 🔍 Pending validation | Snippet envelope + meal schema (encode/decode) | `mealSnippetPayload.ts`: `kind: meal`, base64url, `?shareMeal=`, QR budget 1200 chars. No ids on the wire. Validate: n/a in UI yet — plumbing for #719+ |
-| [#719](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/719) | 📋 Not started | Apply meal snippet: confirm, append, skip duplicates | New ids; ISO date not “today”; never replace the day. Depends on #718 |
-| [#720](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/720) | 📋 Not started | Send meal to another copy (clipboard + share sheet) | Meal-row entry; reuse #661 share helpers. Depends on #718 |
-| [#721](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/721) | 📋 Not started | Receive meal snippet (paste, deep link, not full backup) | Day + Settings paste; must not run Epic 8 backup import. Depends on #719 |
-| [#722](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/722) | 📋 Not started | Show meal-snippet QR on the send sheet | Other-device path; oversized → copy/share, not a broken QR. Depends on #718, #720 |
-| [#723](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/723) | 📋 Not started | Scan meal-snippet QR (reuse #661, photo fallback) | Distinguish food-share vs meal snippet. Depends on #722, #719 |
-| [#724](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/724) | 📋 Not started | iOS: open meal snippet from share sheet / URL | Android handlers stay on #717 later list until #304. Depends on #721 |
+| [#717](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/717) | 📋 Not started | Epic: Sync a day's log to another copy (Day refresh + clipboard / share / QR) | Tracking. Local-only. Meal-row v1 was wrong; children retargeted |
+| [#738](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/738) | 🔍 Pending validation | Hide day-sync behind a Settings toggle (off by default) | Store shipped. **Copy still says meal — rewrite.** Day refresh is #720. Toggle on/off still the gate |
+| [#718](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/718) | 📋 Not started | Day-entry snippet envelope (encode/decode) | Meal-only `kind: meal` on main is **superseded**. Replace with one-date `DailyEntry`. Validation label removed |
+| [#719](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/719) | 📋 Not started | Apply day snippet: confirm, fill blanks, ask before overwrite | Fill empty sleep/etc.; confirm overwrite; append meals; never wipe the day. Depends on #718 |
+| [#720](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/720) | 📋 Not started | Day screen: refresh control + what-to-send sheet | Main send UX. Toggle off → no icon. Whole day first. Depends on #718, #738 |
+| [#721](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/721) | 📋 Not started | Receive day snippet (paste, deep link, not full backup) | Confirm shell; must not run Epic 8 backup import. Depends on #719 |
+| [#722](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/722) | 📋 Not started | Show day-snippet QR on the send sheet | Other-device path; oversized → copy/share. Depends on #718, #720 |
+| [#723](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/723) | 📋 Not started | Scan day-snippet QR (reuse #661, photo fallback) | Distinguish food-share vs day snippet. Depends on #722, #719 |
+| [#724](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/724) | 📋 Not started | iOS: open day snippet from share sheet / URL | Android handlers stay on #717 later list until #304. Depends on #721 |
 
 ---
 
