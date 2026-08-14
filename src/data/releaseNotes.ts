@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 679,
+    issue: 734,
+    date: '2026-08-14T13:40:00+03:00',
+    en: 'When weekly pace and daily calories disagree on Goal, the hint now uses the same quiet notice style as the other Goal warnings.',
+    ru: 'Если недельный темп и дневные калории на цели не сходятся, подсказка теперь в том же спокойном оформлении, что и остальные предупреждения на цели.',
+  },
+  {
     version: 678,
     issue: 733,
     date: '2026-08-14T13:35:00+03:00',

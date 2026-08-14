@@ -933,10 +933,12 @@ export function GoalForm({
         </p>
       )}
 
+      {/* #734 — muted notice (same chrome as aggressive-pace below), not
+       * raw amber. Calendar constipation dots stay `bg-amber-500`. */}
       {paceCaloriesDisagree && (
         <p
           role="status"
-          className="rounded-lg border border-amber-600/35 bg-amber-500/15 p-3 text-sm text-foreground"
+          className="rounded-lg border border-border bg-muted p-3 text-sm text-foreground"
         >
           {t.goal.paceCaloriesMismatchHint}
         </p>

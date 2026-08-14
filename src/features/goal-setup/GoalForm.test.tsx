@@ -815,7 +815,7 @@ describe('GoalForm', () => {
       expect(mismatch).toHaveTextContent(
         /daily calories and weekly pace don’t match/i,
       )
-      expect(mismatch).toHaveClass('bg-amber-500/15')
+      expect(mismatch).toHaveClass('bg-muted')
     })
   })
 
