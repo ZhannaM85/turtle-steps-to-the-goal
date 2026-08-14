@@ -954,6 +954,23 @@ describe('AddMealDialog (#454)', () => {
     expect(done).not.toHaveClass('h-8')
   })
 
+  it('matches dish-sheet 48px height on meal name, time, and note (#730)', () => {
+    render(
+      <AddMealDialog
+        {...defaultProps}
+        items={[{ id: 'i1', amountKcal: 200 }]}
+        reaction={undefined}
+        onReactionChange={vi.fn()}
+        onAppendItems={vi.fn()}
+        onRemoveItem={vi.fn()}
+      />,
+    )
+
+    expect(screen.getByLabelText('Meal name')).toHaveClass('h-12')
+    expect(screen.getByLabelText('Time').parentElement).toHaveClass('h-12')
+    expect(screen.getByLabelText('Meal note')).toHaveClass('h-12')
+  })
+
   it('does not auto-focus the dish name when editing an existing item (#475)', async () => {
     const user = userEvent.setup()
     render(

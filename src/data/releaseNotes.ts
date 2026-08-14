@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 673,
+    issue: 730,
+    date: '2026-08-14T12:28:00+03:00',
+    en: 'Add meal name, time, and note fields now match the 48px height of the dish editor.',
+    ru: 'Поля названия, времени и заметки при добавлении приёма пищи теперь той же высоты 48px, что и в редакторе блюда.',
+  },
+  {
     version: 672,
     issue: 728,
     date: '2026-08-14T12:20:00+03:00',

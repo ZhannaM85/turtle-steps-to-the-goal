@@ -1203,7 +1203,7 @@ export function AddMealDialog({
       placeholder={t.dailyEntry.mealNotePlaceholder(mealLabel)}
       value={note}
       onChange={(e) => onNoteChange(e.target.value)}
-      className="h-10 text-sm"
+      className="h-12 text-base"
     />
   )
 
@@ -1260,9 +1260,9 @@ export function AddMealDialog({
       <DialogContent
         size="fullscreen"
         closeLabel={t.dailyEntry.closeFoodDialogLabel}
-        // #513 — share the h-9 time row's vertical band (top = content
-        // padding, hit area size-9) and upsize the ✕ vs in-field clear
-        // (size-3.5) so modal dismiss reads as the stronger chrome.
+        // #513 — Close stays size-9 in the top-right; #730 grew the name/
+        // time row to h-12 to match the dish sheet, but Close is not the
+        // time widget and should not grow with it.
         closeClassName="top-[calc(env(safe-area-inset-top)+1.25rem)] size-9 [&_svg]:size-5"
         // #459 sticky footer — confirmed live via devtools that the real
         // bleed-through cause was DialogContent's own bottom safe-area
@@ -1290,7 +1290,7 @@ export function AddMealDialog({
               aria-label={t.dailyEntry.mealLabelFieldLabel}
               value={mealLabel}
               onChange={(e) => onMealLabelChange(e.target.value)}
-              className="h-9 min-w-0 flex-1 text-lg font-medium"
+              className="h-12 min-w-0 flex-1 text-lg font-medium"
             />
             {/* #508 — the header keeps the time control only; DialogContent's
              * own Close owns the top-right corner alone. The #117 clear
@@ -1298,7 +1298,7 @@ export function AddMealDialog({
              * part of the time widget rather than a second bare ✕ beside
              * Close (the two were easy to confuse), and whole-meal delete
              * moved down next to the Done footer. */}
-            <div className="flex h-9 shrink-0 items-center rounded-lg border border-input bg-transparent pr-1 transition-colors focus-within:border-ring focus-within:ring-3 focus-within:ring-ring/50 dark:bg-input/30">
+            <div className="flex h-12 shrink-0 items-center rounded-lg border border-input bg-transparent pr-1 transition-colors focus-within:border-ring focus-within:ring-3 focus-within:ring-ring/50 dark:bg-input/30">
               <Input
                 type="time"
                 aria-label={t.dailyEntry.timeEatenLabel}
