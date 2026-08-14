@@ -443,7 +443,7 @@ export function CustomChartView({
   // paged-to empty window can still page back (#453).
   if (entries.length === 0) {
     return (
-      <div className="flex flex-col gap-3 rounded-lg border border-border p-3">
+      <div className="flex flex-col gap-3 section-shell p-3">
         {cardTitle}
         <p className="text-sm text-muted-foreground">
           {t.dashboard.notEnoughTrendDataMessage}
@@ -454,7 +454,7 @@ export function CustomChartView({
   }
 
   if (!cardVisible) {
-    return <div className="flex flex-col gap-3 rounded-lg border border-border p-3">{cardTitle}</div>
+    return <div className="flex flex-col gap-3 section-shell p-3">{cardTitle}</div>
   }
 
   // #330 — real dual axis only when exactly 2 numeric series are picked;
@@ -625,7 +625,7 @@ export function CustomChartView({
   }
 
   return (
-    <div className="flex flex-col gap-3 rounded-lg border border-border p-3">
+    <div className="flex flex-col gap-3 section-shell p-3">
       {cardTitle}
       <ToggleGroup
         type="multiple"

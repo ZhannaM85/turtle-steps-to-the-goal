@@ -23,7 +23,7 @@ export function EmptyDashboardSection({
   visible,
 }: EmptyDashboardSectionProps) {
   return (
-    <div className="flex flex-col gap-1.5 rounded-lg border border-border p-3">
+    <div className="flex flex-col gap-1.5 section-shell p-3">
       <ChartTitleWithToggle
         chart={chart}
         title={title}

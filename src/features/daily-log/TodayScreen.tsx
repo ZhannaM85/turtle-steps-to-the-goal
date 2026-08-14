@@ -1311,10 +1311,10 @@ export function TodayScreen() {
          * visually separate pieces (the trigger had its own border box,
          * the cards below had none linking them together) — reported live
          * as looking detached. One shared bordered container now wraps
-         * both, same `rounded-lg border border-border p-3` treatment
+         * both, same `section-shell p-3` treatment
          * `DailyEntryFormMorning`/`DailyEntryFormBottom` already use for
          * their own grouped sections. */}
-        <div className="rounded-lg border border-border p-3">
+        <div className="section-shell p-3">
         <Collapsible
           open={!statsCollapsed}
           onOpenChange={(open) => setStatsCollapsed('stats', !open)}

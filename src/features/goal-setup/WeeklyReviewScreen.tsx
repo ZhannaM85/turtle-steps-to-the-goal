@@ -80,7 +80,7 @@ export function WeeklyReviewScreen() {
         </p>
       ) : (
         <>
-          <section className="flex flex-col gap-1.5 rounded-lg border border-border p-3">
+          <section className="flex flex-col gap-1.5 section-shell p-3">
             <h2 className="text-sm font-medium text-foreground">
               {t.weeklyReview.progressSectionLabel}
             </h2>
@@ -105,7 +105,7 @@ export function WeeklyReviewScreen() {
             </p>
           </section>
 
-          <section className="flex flex-col gap-1.5 rounded-lg border border-border p-3">
+          <section className="flex flex-col gap-1.5 section-shell p-3">
             <h2 className="text-sm font-medium text-foreground">
               {t.weeklyReview.averagesSectionLabel}
             </h2>
@@ -122,7 +122,7 @@ export function WeeklyReviewScreen() {
             </p>
           </section>
 
-          <section className="flex flex-col gap-1.5 rounded-lg border border-border p-3">
+          <section className="flex flex-col gap-1.5 section-shell p-3">
             <h2 className="text-sm font-medium text-foreground">
               {t.weeklyReview.insightSectionLabel}
             </h2>

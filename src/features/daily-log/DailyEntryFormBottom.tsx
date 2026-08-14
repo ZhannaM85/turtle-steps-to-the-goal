@@ -52,7 +52,7 @@ export function DailyEntryFormBottom() {
   const comparison = state.entryComparisonBaselines
 
   return (
-    <div className="rounded-lg border border-border p-3">
+    <div className="section-shell p-3">
       <Collapsible
         open={!collapsed}
         onOpenChange={(open) => setCollapsed('evening', !open)}

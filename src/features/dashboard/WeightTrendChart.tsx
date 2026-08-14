@@ -160,7 +160,7 @@ export function WeightTrendChart({
   // stays the exact `return null` it always was.
   if (weightPoints.length === 0) {
     return (
-      <div className="flex flex-col gap-1.5 rounded-lg border border-border p-3">
+      <div className="flex flex-col gap-1.5 section-shell p-3">
         <ChartTitleWithToggle
           chart="weight"
           title={t.dashboard.weightTrendTitle}
@@ -183,12 +183,12 @@ export function WeightTrendChart({
   )
 
   if (!chartVisible) {
-    return <div className="flex flex-col gap-1.5 rounded-lg border border-border p-3">{chartTitle}</div>
+    return <div className="flex flex-col gap-1.5 section-shell p-3">{chartTitle}</div>
   }
 
   if (weightPoints.length < MIN_TREND_DATA_POINTS) {
     return (
-      <div className="flex flex-col gap-1.5 rounded-lg border border-border p-3">
+      <div className="flex flex-col gap-1.5 section-shell p-3">
         {chartTitle}
         <p className="text-sm text-muted-foreground">
           {t.dashboard.notEnoughTrendDataMessage}
@@ -346,7 +346,7 @@ export function WeightTrendChart({
   const bothHidden = !visible.raw && !visible.average
 
   return (
-    <div className="flex flex-col gap-1.5 rounded-lg border border-border p-3">
+    <div className="flex flex-col gap-1.5 section-shell p-3">
       {chartTitle}
       {bothHidden ? (
         // #238 regression, caught live: this used to be an early return

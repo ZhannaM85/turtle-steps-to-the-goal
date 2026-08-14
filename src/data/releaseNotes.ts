@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 677,
+    issue: 735,
+    date: '2026-08-14T13:30:00+03:00',
+    en: 'Day sections, charts, and Export now share one outlined panel style, separate from the number cards.',
+    ru: 'Секции дня, графики и экспорт теперь в одной рамке, отдельно от карточек с цифрами.',
+  },
+  {
     version: 676,
     issue: 731,
     date: '2026-08-14T13:05:00+03:00',

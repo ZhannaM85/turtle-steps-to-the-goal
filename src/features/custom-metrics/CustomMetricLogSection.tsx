@@ -276,7 +276,7 @@ export function CustomMetricLogSection({ date }: { date: string }) {
   ).length
 
   return (
-    <section className="rounded-lg border border-border p-3">
+    <section className="section-shell p-3">
       <Collapsible
         open={!collapsed}
         onOpenChange={(open) => setCollapsed('customMetrics', !open)}

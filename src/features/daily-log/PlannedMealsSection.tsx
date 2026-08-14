@@ -94,7 +94,7 @@ export function PlannedMealsSection({
   }
 
   return (
-    <section className="rounded-lg border border-border p-3">
+    <section className="section-shell p-3">
       <Collapsible
         open={!collapsed}
         onOpenChange={(open) => setCollapsed('plannedMeals', !open)}

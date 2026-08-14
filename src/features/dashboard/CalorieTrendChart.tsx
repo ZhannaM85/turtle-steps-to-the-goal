@@ -97,7 +97,7 @@ export function CalorieTrendChart({
   // is inactive.
   if (calorieBars.length === 0) {
     return (
-      <div className="flex flex-col gap-1.5 rounded-lg border border-border p-3">
+      <div className="flex flex-col gap-1.5 section-shell p-3">
         <ChartTitleWithToggle
           chart="calories"
           title={t.dashboard.calorieTrendTitle}
@@ -120,12 +120,12 @@ export function CalorieTrendChart({
   )
 
   if (!chartVisible) {
-    return <div className="flex flex-col gap-1.5 rounded-lg border border-border p-3">{chartTitle}</div>
+    return <div className="flex flex-col gap-1.5 section-shell p-3">{chartTitle}</div>
   }
 
   if (calorieBars.length < MIN_TREND_DATA_POINTS) {
     return (
-      <div className="flex flex-col gap-1.5 rounded-lg border border-border p-3">
+      <div className="flex flex-col gap-1.5 section-shell p-3">
         {chartTitle}
         <p className="text-sm text-muted-foreground">
           {t.dashboard.notEnoughTrendDataMessage}
@@ -204,7 +204,7 @@ export function CalorieTrendChart({
   const bothHidden = !visible.raw && !visible.average
 
   return (
-    <div className="flex flex-col gap-1.5 rounded-lg border border-border p-3">
+    <div className="flex flex-col gap-1.5 section-shell p-3">
       {chartTitle}
       {bothHidden ? (
         // #238 regression, caught live — see WeightTrendChart.tsx's

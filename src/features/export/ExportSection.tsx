@@ -1286,7 +1286,7 @@ export function ExportSection() {
           )}
         </div>
 
-        <div className="flex flex-col gap-2 rounded-lg border border-border p-3">
+        <div className="flex flex-col gap-2 section-shell p-3">
           <p className="text-sm text-muted-foreground">
             {t.export.importBlurb}
           </p>
@@ -1340,7 +1340,7 @@ export function ExportSection() {
           )}
         </div>
 
-        <div className="flex flex-col gap-2 rounded-lg border border-border p-3">
+        <div className="flex flex-col gap-2 section-shell p-3">
           <p className="text-sm text-muted-foreground">
             {t.zeppLifeImport.importBlurb}
           </p>
@@ -1423,7 +1423,7 @@ export function ExportSection() {
           )}
         </div>
 
-        <div className="flex flex-col gap-2 rounded-lg border border-border p-3">
+        <div className="flex flex-col gap-2 section-shell p-3">
           <p className="text-sm text-muted-foreground">
             {t.appleHealthImport.importBlurb}
           </p>
@@ -1503,7 +1503,7 @@ export function ExportSection() {
           )}
         </div>
 
-        <div className="flex flex-col gap-2 rounded-lg border border-border p-3">
+        <div className="flex flex-col gap-2 section-shell p-3">
           <p className="text-sm text-muted-foreground">
             {t.myFitnessPalImport.importBlurb}
           </p>

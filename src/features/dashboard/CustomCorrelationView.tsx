@@ -136,7 +136,7 @@ export function CustomCorrelationView({
   const expanded = insight !== null || isExpanded
 
   return (
-    <div className="flex flex-col gap-1.5 rounded-lg border border-border p-3">
+    <div className="flex flex-col gap-1.5 section-shell p-3">
       <div className="flex items-center justify-between gap-2">
         <h3 className="text-sm font-medium text-foreground">{displayName}</h3>
         {insight === null && (

@@ -185,14 +185,14 @@ export function CorrelationView({
 
   if (!cardVisible) {
     return (
-      <div className="flex flex-col gap-1.5 rounded-lg border border-border p-3">
+      <div className="flex flex-col gap-1.5 section-shell p-3">
         {cardTitle}
       </div>
     )
   }
 
   return (
-    <div className="flex flex-col gap-1.5 rounded-lg border border-border p-3">
+    <div className="flex flex-col gap-1.5 section-shell p-3">
       {cardTitle}
       {expanded && (
         <ZoomableScatterSurface

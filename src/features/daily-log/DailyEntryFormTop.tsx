@@ -79,7 +79,7 @@ export function DailyEntryFormTop() {
        * reported live as looking visually inconsistent with those
        * cards otherwise. */}
       {(state.dayMacrosSummary || state.dayRemainingMacrosSummary) && (
-        <div className="rounded-lg border border-border p-3">
+        <div className="section-shell p-3">
           <Collapsible
             open={!macrosCollapsed}
             onOpenChange={(open) => setCollapsed('macros', !open)}
@@ -135,7 +135,7 @@ export function DailyEntryFormTop() {
        * additive with meals for Remaining. Hidden when What to track
        * turns Day totals off (saved data kept). Collapsible like Water. */}
       {state.trackedFields.dayTotals && (
-      <div className="rounded-lg border border-border p-3">
+      <div className="section-shell p-3">
         <Collapsible
           open={!dayTotalsCollapsed}
           onOpenChange={(open) => setCollapsed('dayTotals', !open)}
@@ -274,7 +274,7 @@ export function DailyEntryFormTop() {
        * paired with removing the meal cards' own broken drag-to-reorder
        * handles, tracked separately as a future on-demand-mode
        * replacement in #471). */}
-      <div className="rounded-lg border border-border p-3">
+      <div className="section-shell p-3">
         <Collapsible
           open={!mealsCollapsed}
           onOpenChange={(open) => setCollapsed('meals', !open)}
@@ -334,7 +334,7 @@ export function DailyEntryFormTop() {
       {state.waterTrackingEnabled && (
         <div
           id="water-entry-section"
-          className="rounded-lg border border-border p-3"
+          className="section-shell p-3"
         >
           <Collapsible
             open={!waterCollapsed}

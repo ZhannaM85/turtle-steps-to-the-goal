@@ -66,13 +66,13 @@ export function MonthlySummaryCards({
   )
 
   if (!cardVisible) {
-    return <div className="flex flex-col gap-3 rounded-lg border border-border p-3">{cardTitle}</div>
+    return <div className="flex flex-col gap-3 section-shell p-3">{cardTitle}</div>
   }
 
   const monthsMostRecentFirst = [...summaries].reverse()
 
   return (
-    <div className="flex flex-col gap-3 rounded-lg border border-border p-3">
+    <div className="flex flex-col gap-3 section-shell p-3">
       {cardTitle}
       {/* #379 — same scroll-cap treatment as WeeklySummaryCards, for the
        * same reason (a multi-year import adds a card per calendar month). */}

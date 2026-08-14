@@ -895,7 +895,7 @@ function AddMealItemForm({
           <p className="text-sm font-medium text-foreground">
             {t.dailyEntry.itemNutritionSectionLabel(macroMode === 'per100g')}
           </p>
-          <div className="grid grid-cols-2 gap-4 rounded-lg border border-border p-3">
+          <div className="grid grid-cols-2 gap-4 section-shell p-3">
             <div className="flex flex-col gap-1.5">
               <span className="text-sm text-muted-foreground">
                 {macroMode === 'per100g'

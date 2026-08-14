@@ -10,7 +10,7 @@ export function DeferredMount({
   children,
   eager = false,
   force = false,
-  placeholderClassName = 'min-h-48 rounded-lg border border-border bg-muted/20',
+  placeholderClassName = 'min-h-48 section-shell bg-muted/20',
 }: {
   children: ReactNode
   /** Mount immediately (first sections above the fold). */
