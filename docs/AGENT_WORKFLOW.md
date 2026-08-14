@@ -350,6 +350,11 @@ and #144's precedent in `docs/issues-priority.md`).
 
 ## Git conventions
 
+- **Always `git pull` before making changes** (edits, priority-doc rows,
+  commits). This repo is usually `main`; do not start a batch on a stale
+  tree even if the user said they already pulled. See
+  `.cursor/rules/always-pull-before-changes.mdc`. Stop and ask if pull
+  conflicts or the working tree is already dirty with unrelated work.
 - Stage explicit filenames (`git add path/to/file.ts ...`), never `-A` or
   `.` — avoids accidentally sweeping up unrelated in-progress files.
 - **One calendar day → one `issues-priority` tier.** When filing issues,
