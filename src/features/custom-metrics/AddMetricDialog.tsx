@@ -106,18 +106,17 @@ export function AddMetricDialog({
               />
             </div>
           )}
-          <div className="flex gap-2">
+          <div className="flex justify-end gap-3 pt-4">
             <Button
               type="button"
-              variant="outline"
-              className="flex-1"
+              variant="ghost"
               onClick={() => onOpenChange(false)}
             >
               {t.customMetrics.cancelLabel}
             </Button>
             <Button
               type="button"
-              className="flex-1"
+              size="lg"
               disabled={!name.trim()}
               onClick={handleSave}
             >

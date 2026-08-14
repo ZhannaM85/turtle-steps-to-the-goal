@@ -1536,6 +1536,17 @@ describe('GoalForm', () => {
       expect(screen.getByRole('button', { name: 'Cancel' })).toBeInTheDocument()
     })
 
+    it('Save and Cancel use the documented lg + ghost pair (#728)', () => {
+      renderGoalForm(
+        <GoalForm existingGoal={null} onSubmit={vi.fn()} onDelete={vi.fn()} />,
+      )
+      const save = screen.getByRole('button', { name: 'Set this week’s target' })
+      const cancel = screen.getByRole('button', { name: 'Cancel' })
+      expect(save).toHaveClass('h-9')
+      expect(cancel).toHaveClass('h-8')
+      expect(save).not.toHaveClass('h-8')
+    })
+
     it('returns to the summary without prompting when Cancel is clean', async () => {
       const user = userEvent.setup()
       renderGoalForm(

@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 672,
+    issue: 728,
+    date: '2026-08-14T12:20:00+03:00',
+    en: 'Goal and Add-metric Save/Cancel now match the same right-aligned pair used on recipe dialogs.',
+    ru: 'Кнопки Сохранить/Отмена на цели и при добавлении метрики теперь как в диалогах рецептов.',
+  },
+  {
     version: 671,
     issue: 727,
     date: '2026-08-14T12:12:00+03:00',

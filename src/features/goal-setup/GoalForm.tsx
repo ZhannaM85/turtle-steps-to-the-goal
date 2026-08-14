@@ -1201,22 +1201,22 @@ export function GoalForm({
         </div>
       )}
 
-      <div className="flex flex-wrap items-center gap-2 self-start">
-        <Button type="submit">
-          {existingGoal && !startingNew ? t.goal.updateButton : t.goal.setButton}
-        </Button>
-        <Button type="button" variant="outline" onClick={requestCancel}>
-          {t.goal.cancelButton}
-        </Button>
+      <div className="flex flex-wrap items-center justify-end gap-3">
         {justSaved && (
           <span
             role="status"
-            className="flex items-center gap-1 text-sm text-muted-foreground"
+            className="mr-auto flex items-center gap-1 text-sm text-muted-foreground"
           >
             <Check aria-hidden="true" className="size-4" />
             {t.goal.savedConfirmation}
           </span>
         )}
+        <Button type="button" variant="ghost" onClick={requestCancel}>
+          {t.goal.cancelButton}
+        </Button>
+        <Button type="submit" size="lg">
+          {existingGoal && !startingNew ? t.goal.updateButton : t.goal.setButton}
+        </Button>
       </div>
     </form>
   )
