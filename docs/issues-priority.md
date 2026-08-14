@@ -34,16 +34,6 @@ _User asked about pulling data from Apple Health and Zepp Life. Researched via W
 
 ---
 
-## Tier 134 — Security + live feedback (2026-08-13)
-
-_Logged while blocked on Apple Developer enrollment. Library CVEs via `npm audit` / Dependabot (#698–#701), then own-code hardening (#702–#704). Full tree had 27 findings; production-only had 5. Do **not** `npm audit fix --force`. Explicitly **not** filed: virus scanning of imports, DOMPurify on every text field, blocking images in meal-name inputs (plain text; no HTML-render sink today). Also live UI feedback from the same day (#707, #715)._
-
-| # | Status | Issue | Notes |
-|---|--------|-------|-------|
-| [#715](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/715) | 🔍 Pending validation | Add food: portion weight change must rescale kcal/macros; keep per-100g as source of truth | Fixed: personal items with known `lastAmountG` open in per-100g via `ratesFromAbsolute`; Portion-mode weight edits rescale from a density baseline (`scaleTotalsByWeightChange`); 100g/Portion tabs get a stronger active ring. Validate: reuse 280 kcal/50g → change to 20g → totals drop (~112); switch to 100g still ~560/100g; tabs visually clear |
-
----
-
 ## Tier 135 — Send a logged snippet to another copy (2026-08-14)
 
 _Same-phone PWA ↔ iOS is the snippet main case (clipboard / share sheet); QR stays so an Android (or laptop) copy can join later. Not a full backup — one logged meal, append, confirm before apply. Reuse #661 transport. **Full snippet inventory (later kinds, Android intents, overwrite-on-edit, …) lives on #717’s body** so those rows are not lost; they are not separate GitHub issues until we pull one off. UI consistency (#716 and follow-ups) was split out to Tier 136 at the user’s request (same calendar day, two topics)._
