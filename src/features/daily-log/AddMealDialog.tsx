@@ -53,6 +53,7 @@ import { IndexedDbMealItemRepository } from '@/infrastructure/persistence/indexe
 import { Button } from '@/shared/ui/button'
 import { Dialog, DialogContent, DialogTitle } from '@/shared/ui/dialog'
 import { Input } from '@/shared/ui/input'
+import { Label } from '@/shared/ui/label'
 import { SectionTitleWithToggle } from '@/shared/ui/section-title-with-toggle'
 import { LogRecipeDialog } from '@/features/recipes'
 import { BarcodeScannerDialog } from './BarcodeScannerDialog'
@@ -1280,12 +1281,14 @@ export function AddMealDialog({
         }}
       >
         <div className="flex flex-col gap-2 pr-10">
+          <Label htmlFor="add-meal-name">{t.dailyEntry.mealLabelFieldLabel}</Label>
           <div className="flex items-center justify-between gap-2">
             {/* #563 — editable meal name (Breakfast→Lunch etc.) in add/edit,
              * not only via Settings presets. DialogTitle stays for a11y /
              * Radix naming; the visible field is the labeled Input. */}
             <DialogTitle className="sr-only">{mealLabel}</DialogTitle>
             <Input
+              id="add-meal-name"
               type="text"
               aria-label={t.dailyEntry.mealLabelFieldLabel}
               value={mealLabel}

@@ -15,6 +15,7 @@ import { parseNumberInput } from '@/shared/lib/parseNumberInput'
 import { Button } from '@/shared/ui/button'
 import { Dialog, DialogContent, DialogTitle } from '@/shared/ui/dialog'
 import { Input } from '@/shared/ui/input'
+import { Label } from '@/shared/ui/label'
 import { ToggleGroup, ToggleGroupItem } from '@/shared/ui/toggle-group'
 // Imported from their own files, not the daily-log barrel (@/features/daily-log)
 // — that barrel also re-exports MealList.tsx, which itself imports this
@@ -233,12 +234,10 @@ export function RecipeEditorDialog({
         </DialogTitle>
         <div className="flex flex-1 flex-col gap-5 overflow-y-auto pt-4">
           <div className="flex flex-col gap-1.5">
-            <span className="text-sm text-muted-foreground">
-              {t.recipes.recipeNameLabel}
-            </span>
+            <Label htmlFor="recipe-name">{t.recipes.recipeNameLabel}</Label>
             <Input
+              id="recipe-name"
               type="text"
-              aria-label={t.recipes.recipeNameLabel}
               placeholder={t.recipes.recipeNamePlaceholder}
               value={name}
               onChange={(e) => setName(e.target.value)}
@@ -247,13 +246,11 @@ export function RecipeEditorDialog({
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <span className="text-sm text-muted-foreground">
-              {t.recipes.servingsFieldLabel}
-            </span>
+            <Label htmlFor="recipe-servings">{t.recipes.servingsFieldLabel}</Label>
             <Input
+              id="recipe-servings"
               type="text"
               inputMode="decimal"
-              aria-label={t.recipes.servingsFieldLabel}
               value={servings}
               onChange={(e) => setServings(e.target.value)}
               className="h-12 w-24 text-base"
@@ -261,9 +258,7 @@ export function RecipeEditorDialog({
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <span className="text-sm font-medium text-foreground">
-              {t.recipes.ingredientsSectionLabel}
-            </span>
+            <Label>{t.recipes.ingredientsSectionLabel}</Label>
             {ingredients.length === 0 ? (
               <p className="text-sm text-muted-foreground">
                 {t.recipes.noIngredientsYetText}
@@ -357,12 +352,13 @@ export function RecipeEditorDialog({
             </ToggleGroup>
             <div className="grid grid-cols-2 gap-4">
               <div className="flex flex-col gap-1.5">
-                <span className="text-sm text-muted-foreground">
+                <Label htmlFor="recipe-ingredient-kcal">
                   {draftMacroMode === 'per100g'
                     ? t.dailyEntry.addCaloriesLabel
                     : t.dailyEntry.addCaloriesPortionLabel}
-                </span>
+                </Label>
                 <Input
+                  id="recipe-ingredient-kcal"
                   type="text"
                   inputMode="decimal"
                   aria-label={t.dailyEntry.addCaloriesLabel}
@@ -373,10 +369,11 @@ export function RecipeEditorDialog({
               </div>
               {draftMacroMode === 'per100g' ? (
                 <div className="flex flex-col gap-1.5">
-                  <span className="text-sm text-muted-foreground">
+                  <Label htmlFor="recipe-ingredient-portions">
                     {t.dailyEntry.itemPortionsLabel}
-                  </span>
+                  </Label>
                   <Input
+                    id="recipe-ingredient-portions"
                     type="text"
                     inputMode="decimal"
                     aria-label={t.dailyEntry.itemPortionsLabel}
@@ -394,10 +391,11 @@ export function RecipeEditorDialog({
                 </div>
               )}
               <div className="flex flex-col gap-1.5">
-                <span className="text-sm text-muted-foreground">
+                <Label htmlFor="recipe-ingredient-protein">
                   {t.dailyEntry.proteinLabel}
-                </span>
+                </Label>
                 <Input
+                  id="recipe-ingredient-protein"
                   type="text"
                   inputMode="decimal"
                   aria-label={t.dailyEntry.proteinLabel}
@@ -407,10 +405,11 @@ export function RecipeEditorDialog({
                 />
               </div>
               <div className="flex flex-col gap-1.5">
-                <span className="text-sm text-muted-foreground">
+                <Label htmlFor="recipe-ingredient-fat">
                   {t.dailyEntry.fatLabel}
-                </span>
+                </Label>
                 <Input
+                  id="recipe-ingredient-fat"
                   type="text"
                   inputMode="decimal"
                   aria-label={t.dailyEntry.fatLabel}
@@ -420,10 +419,11 @@ export function RecipeEditorDialog({
                 />
               </div>
               <div className="flex flex-col gap-1.5">
-                <span className="text-sm text-muted-foreground">
+                <Label htmlFor="recipe-ingredient-carbs">
                   {t.dailyEntry.carbsLabel}
-                </span>
+                </Label>
                 <Input
+                  id="recipe-ingredient-carbs"
                   type="text"
                   inputMode="decimal"
                   aria-label={t.dailyEntry.carbsLabel}

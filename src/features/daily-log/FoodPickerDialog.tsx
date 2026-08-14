@@ -15,6 +15,7 @@ import { useFoodOverrideStore, useMealItemStore } from '@/stores'
 import { Button } from '@/shared/ui/button'
 import { Dialog, DialogContent, DialogTitle } from '@/shared/ui/dialog'
 import { Input } from '@/shared/ui/input'
+import { Label } from '@/shared/ui/label'
 import { ToggleGroup, ToggleGroupItem } from '@/shared/ui/toggle-group'
 import { EmotionPicker } from './EmotionPicker'
 
@@ -716,10 +717,11 @@ export function FoodPickerDialog({
             {singleSelected &&
               (activeServingFor(singleSelected) ? (
                 <div className="flex items-center gap-2">
-                  <span className="text-sm text-muted-foreground">
+                  <Label htmlFor="food-picker-serving-count">
                     {t.dailyEntry.servingCountLabel}
-                  </span>
+                  </Label>
                   <Input
+                    id="food-picker-serving-count"
                     type="text"
                     inputMode="decimal"
                     aria-label={t.dailyEntry.servingCountLabel}
@@ -730,10 +732,11 @@ export function FoodPickerDialog({
                 </div>
               ) : (
                 <div className="flex items-center gap-2">
-                  <span className="text-sm text-muted-foreground">
+                  <Label htmlFor="food-picker-quantity">
                     {t.dailyEntry.foodQuantityLabel}
-                  </span>
+                  </Label>
                   <Input
+                    id="food-picker-quantity"
                     type="text"
                     inputMode="decimal"
                     aria-label={t.dailyEntry.foodQuantityLabel}
@@ -747,9 +750,7 @@ export function FoodPickerDialog({
               ))}
             {singleSelected && (
               <div className="flex flex-col gap-1.5">
-                <span className="text-sm text-muted-foreground">
-                  {t.dailyEntry.itemEmotionLabel}
-                </span>
+                <Label>{t.dailyEntry.itemEmotionLabel}</Label>
                 <EmotionPicker
                   value={emotion}
                   onChange={setEmotion}

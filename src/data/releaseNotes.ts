@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 676,
+    issue: 731,
+    date: '2026-08-14T13:05:00+03:00',
+    en: 'Field labels now use the same medium-weight style across Profile, Compare ranges, recipes, food list, and Add meal.',
+    ru: 'Подписи полей теперь одного начертания — в профиле, сравнении периодов, рецептах, списке продуктов и при добавлении приёма пищи.',
+  },
+  {
     version: 675,
     issue: 729,
     date: '2026-08-14T12:45:00+03:00',

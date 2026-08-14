@@ -13,6 +13,7 @@ import { useLatestWeight } from '@/shared/hooks'
 import { parseNumberInput } from '@/shared/lib/parseNumberInput'
 import { Button } from '@/shared/ui/button'
 import { Input } from '@/shared/ui/input'
+import { Label } from '@/shared/ui/label'
 import { ToggleGroup, ToggleGroupItem } from '@/shared/ui/toggle-group'
 import { useProfileStore } from '@/stores'
 import { ageSchema, heightCmSchema } from './profileFormSchema'
@@ -186,10 +187,9 @@ export function ProfileSection() {
       </p>
       <div className="flex flex-wrap items-end gap-3">
         <div className="flex flex-col gap-1">
-          <span className="text-xs text-muted-foreground">
-            {t.settings.heightLabel}
-          </span>
+          <Label htmlFor="profile-height">{t.settings.heightLabel}</Label>
           <Input
+            id="profile-height"
             type="text"
             inputMode="decimal"
             aria-label={t.settings.heightLabel}
@@ -206,10 +206,9 @@ export function ProfileSection() {
           />
         </div>
         <div className="flex flex-col gap-1">
-          <span className="text-xs text-muted-foreground">
-            {t.settings.ageLabel}
-          </span>
+          <Label htmlFor="profile-age">{t.settings.ageLabel}</Label>
           <Input
+            id="profile-age"
             type="text"
             inputMode="numeric"
             aria-label={t.settings.ageLabel}
@@ -226,9 +225,7 @@ export function ProfileSection() {
           />
         </div>
         <div className="flex flex-col gap-1">
-          <span className="text-xs text-muted-foreground">
-            {t.settings.sexLabel}
-          </span>
+          <Label>{t.settings.sexLabel}</Label>
           <ToggleGroup
             type="single"
             aria-label={t.settings.sexLabel}
@@ -248,9 +245,7 @@ export function ProfileSection() {
        * unrelated to the BMI/BMR stats the fields above power. Its own row
        * since 5 options wouldn't fit inline with the rest on mobile. */}
       <div className="flex flex-col gap-1">
-        <span className="text-xs text-muted-foreground">
-          {t.settings.activityLevelLabel}
-        </span>
+        <Label>{t.settings.activityLevelLabel}</Label>
         <ToggleGroup
           type="single"
           aria-label={t.settings.activityLevelLabel}

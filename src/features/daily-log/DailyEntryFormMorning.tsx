@@ -9,6 +9,7 @@ import {
   CollapsibleTrigger,
 } from '@/shared/ui/collapsible'
 import { Input } from '@/shared/ui/input'
+import { Label } from '@/shared/ui/label'
 import { useTodaySectionsCollapseStore } from '@/stores'
 import {
   bodyFatPercentSchema,
@@ -398,11 +399,12 @@ export function DailyEntryFormMorning() {
                   </span>
                   <div className="flex flex-wrap items-end gap-3">
                     <div className="flex flex-col gap-1">
-                      <span className="text-xs text-muted-foreground">
+                      <Label htmlFor="sleep-hours-part">
                         {t.dailyEntry.sleepHoursLabel}
-                      </span>
+                      </Label>
                       <div className="flex items-center gap-1">
                         <Input
+                          id="sleep-hours-part"
                           type="text"
                           inputMode="numeric"
                           aria-label={`${t.dailyEntry.sleepHoursLabel} — ${t.dailyEntry.hoursFieldLabel}`}
@@ -449,9 +451,7 @@ export function DailyEntryFormMorning() {
                       </div>
                     </div>
                     <div className="flex flex-col gap-1">
-                      <span className="text-xs text-muted-foreground">
-                        {t.dailyEntry.deepSleepLabel}
-                      </span>
+                      <Label>{t.dailyEntry.deepSleepLabel}</Label>
                       <div className="flex items-center gap-1">
                         <Input
                           type="text"
@@ -579,9 +579,7 @@ export function DailyEntryFormMorning() {
                   </span>
                   <div className="flex flex-wrap items-end gap-3">
                     <div className="flex flex-col gap-1">
-                      <span className="text-xs text-muted-foreground">
-                        {t.dailyEntry.waistLabel}
-                      </span>
+                      <Label>{t.dailyEntry.waistLabel}</Label>
                       <div className="flex items-center gap-1">
                         <Input
                           type="text"
@@ -605,9 +603,7 @@ export function DailyEntryFormMorning() {
                       </div>
                     </div>
                     <div className="flex flex-col gap-1">
-                      <span className="text-xs text-muted-foreground">
-                        {t.dailyEntry.hipLabel}
-                      </span>
+                      <Label>{t.dailyEntry.hipLabel}</Label>
                       <div className="flex items-center gap-1">
                         <Input
                           type="text"
@@ -759,9 +755,9 @@ export function DailyEntryFormMorning() {
                        * middle of the 32px box — which had been reading as
                        * roughly the same gap as the space to the *next*
                        * field's label. */}
-                      <span className="flex min-h-8 items-end text-xs text-muted-foreground">
+                      <Label className="min-h-8 items-end">
                         {t.dailyEntry.muscleMassLabel}
-                      </span>
+                      </Label>
                       <div className="flex items-center gap-1">
                         <Input
                           type="text"
@@ -794,9 +790,9 @@ export function DailyEntryFormMorning() {
                       />
                     </div>
                     <div className="col-start-2 row-start-1 flex flex-col gap-1">
-                      <span className="flex min-h-8 items-end text-xs text-muted-foreground">
+                      <Label className="min-h-8 items-end">
                         {t.dailyEntry.visceralFatLabel}
-                      </span>
+                      </Label>
                       <div className="flex items-center gap-1">
                         <Input
                           type="text"
@@ -826,9 +822,9 @@ export function DailyEntryFormMorning() {
                       />
                     </div>
                     <div className="col-start-1 row-start-2 flex flex-col gap-1">
-                      <span className="flex min-h-8 items-end text-xs text-muted-foreground">
+                      <Label className="min-h-8 items-end">
                         {t.dailyEntry.bodyWaterLabel}
-                      </span>
+                      </Label>
                       <div className="flex items-center gap-1">
                         <Input
                           type="text"
@@ -861,9 +857,9 @@ export function DailyEntryFormMorning() {
                       />
                     </div>
                     <div className="col-start-2 row-start-2 flex flex-col gap-1">
-                      <span className="flex min-h-8 items-end text-xs text-muted-foreground">
+                      <Label className="min-h-8 items-end">
                         {t.dailyEntry.boneMassLabel}
-                      </span>
+                      </Label>
                       <div className="flex items-center gap-1">
                         <Input
                           type="text"
@@ -896,9 +892,9 @@ export function DailyEntryFormMorning() {
                       />
                     </div>
                     <div className="col-start-1 row-start-3 flex flex-col gap-1">
-                      <span className="flex min-h-8 items-end text-xs text-muted-foreground">
+                      <Label className="min-h-8 items-end">
                         {t.dailyEntry.bodyFatLabel}
-                      </span>
+                      </Label>
                       <div className="flex items-center gap-1">
                         <Input
                           type="text"

@@ -14,6 +14,7 @@ import {
 } from '@/i18n'
 import { macrosSummaryText } from '@/shared/lib/macroDisplay'
 import { Input } from '@/shared/ui/input'
+import { Label } from '@/shared/ui/label'
 import { StatCard } from '@/shared/ui/stat-card'
 import { useDashboardChartVisibilityStore, useUnitStore } from '@/stores'
 import { ChartTitleWithToggle } from './ChartTitleWithToggle'
@@ -119,9 +120,7 @@ export function CompareRangesView({
       {cardTitle}
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <div className="flex flex-col gap-1.5">
-          <span className="text-xs text-muted-foreground">
-            {t.dashboard.rangeALabel}
-          </span>
+          <Label>{t.dashboard.rangeALabel}</Label>
           <div className="flex items-center gap-2">
             <Input
               type="date"
@@ -142,9 +141,7 @@ export function CompareRangesView({
           </div>
         </div>
         <div className="flex flex-col gap-1.5">
-          <span className="text-xs text-muted-foreground">
-            {t.dashboard.rangeBLabel}
-          </span>
+          <Label>{t.dashboard.rangeBLabel}</Label>
           <div className="flex items-center gap-2">
             <Input
               type="date"

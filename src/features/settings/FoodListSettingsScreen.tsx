@@ -12,6 +12,7 @@ import { cn } from '@/shared/lib/utils'
 import { useFoodOverrideStore } from '@/stores'
 import { Button } from '@/shared/ui/button'
 import { Input } from '@/shared/ui/input'
+import { Label } from '@/shared/ui/label'
 import { PageHeader } from '@/shared/ui/page-header'
 
 interface FoodRowProps {
@@ -82,10 +83,11 @@ function FoodRow({
         <span className="text-sm font-medium">{name}</span>
         <div className="grid grid-cols-2 gap-4">
           <div className="flex flex-col gap-1.5">
-            <span className="text-sm text-muted-foreground">
+            <Label htmlFor={`food-kcal-${food.id}`}>
               {t.dailyEntry.kcalUnit}
-            </span>
+            </Label>
             <Input
+              id={`food-kcal-${food.id}`}
               type="text"
               inputMode="decimal"
               aria-label={`${t.dailyEntry.kcalUnit} — ${name}`}
@@ -95,10 +97,11 @@ function FoodRow({
             />
           </div>
           <div className="flex flex-col gap-1.5">
-            <span className="text-sm text-muted-foreground">
+            <Label htmlFor={`food-protein-${food.id}`}>
               {t.dailyEntry.proteinLabel}
-            </span>
+            </Label>
             <Input
+              id={`food-protein-${food.id}`}
               type="text"
               inputMode="decimal"
               aria-label={`${t.dailyEntry.proteinLabel} — ${name}`}
@@ -108,10 +111,11 @@ function FoodRow({
             />
           </div>
           <div className="flex flex-col gap-1.5">
-            <span className="text-sm text-muted-foreground">
+            <Label htmlFor={`food-fat-${food.id}`}>
               {t.dailyEntry.fatLabel}
-            </span>
+            </Label>
             <Input
+              id={`food-fat-${food.id}`}
               type="text"
               inputMode="decimal"
               aria-label={`${t.dailyEntry.fatLabel} — ${name}`}
@@ -121,10 +125,11 @@ function FoodRow({
             />
           </div>
           <div className="flex flex-col gap-1.5">
-            <span className="text-sm text-muted-foreground">
+            <Label htmlFor={`food-carbs-${food.id}`}>
               {t.dailyEntry.carbsLabel}
-            </span>
+            </Label>
             <Input
+              id={`food-carbs-${food.id}`}
               type="text"
               inputMode="decimal"
               aria-label={`${t.dailyEntry.carbsLabel} — ${name}`}

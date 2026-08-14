@@ -66,7 +66,7 @@ _Split from Tier 135 at the user’s request so the audit is not mixed with the 
 | [#730](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/730) | 🔍 Pending validation | Unify Add meal name/time/note heights with the dish sheet | Name/time/note now h-12. Close stays size-9 (#513) |
 | [#732](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/732) | 🔍 Pending validation | One size for 100g/Portion tabs | Recipe + inline add now h-10 like the dish sheet. Settings chips untouched |
 | [#729](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/729) | 🔍 Pending validation | Grow leftover 28px macro grids (food list, recipes, inline add) | Food-list / recipe / dishes inline macros now h-12 2-col like the dish sheet |
-| [#731](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/731) | 📋 Not started | One field-label recipe (shared Label) | Stop mixing 14px medium / 14px muted / 12px muted |
+| [#731](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/731) | 🔍 Pending validation | One field-label recipe (shared Label) | Visible field labels use Label (text-sm font-medium). Hints/units stay muted. Icon-only stays aria-label |
 | [#735](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/735) | 📋 Not started | Pick one section-shell chrome (Card vs border-lg) | StatCards hairline-xl vs accordion/chart/Export border-lg |
 | [#733](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/733) | 📋 Not started | Match Settings food-list dividers to meal cards | divide-foreground/15 (#464) vs divide-border |
 | [#734](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/734) | 📋 Not started | Goal mismatch banner: named warning token, not raw amber | Calendar constipation dots can stay amber |

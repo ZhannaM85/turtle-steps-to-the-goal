@@ -675,9 +675,7 @@ export function SettingsScreen() {
             {t.settings.trackedFieldsDescription}
           </span>
           <div className="flex flex-col gap-1.5">
-            <span className="text-xs font-medium text-muted-foreground">
-              {t.settings.trackedFieldsMorningGroupLabel}
-            </span>
+            <Label>{t.settings.trackedFieldsMorningGroupLabel}</Label>
             <ToggleGroup
               type="multiple"
               aria-label={t.settings.trackedFieldsMorningGroupLabel}
@@ -699,9 +697,7 @@ export function SettingsScreen() {
             </ToggleGroup>
           </div>
           <div className="flex flex-col gap-1.5">
-            <span className="text-xs font-medium text-muted-foreground">
-              {t.settings.trackedFieldsEveningGroupLabel}
-            </span>
+            <Label>{t.settings.trackedFieldsEveningGroupLabel}</Label>
             <ToggleGroup
               type="multiple"
               aria-label={t.settings.trackedFieldsEveningGroupLabel}
@@ -732,9 +728,7 @@ export function SettingsScreen() {
             </ToggleGroup>
           </div>
           <div className="flex flex-col gap-1.5">
-            <span className="text-xs font-medium text-muted-foreground">
-              {t.settings.trackedFieldsOtherGroupLabel}
-            </span>
+            <Label>{t.settings.trackedFieldsOtherGroupLabel}</Label>
             <ToggleGroup
               type="multiple"
               aria-label={t.settings.trackedFieldsOtherGroupLabel}
@@ -765,9 +759,7 @@ export function SettingsScreen() {
             </ToggleGroup>
           </div>
           <div className="flex flex-col gap-1.5">
-            <span className="text-xs font-medium text-muted-foreground">
-              {t.settings.trackedFieldsElectrolytesGroupLabel}
-            </span>
+            <Label>{t.settings.trackedFieldsElectrolytesGroupLabel}</Label>
             <ToggleGroup
               type="multiple"
               aria-label={t.settings.trackedFieldsElectrolytesGroupLabel}
