@@ -54,7 +54,13 @@ export const NumberInput = React.forwardRef<HTMLInputElement, NumberInputProps>(
             inputMode="decimal"
             aria-invalid={error ? true : undefined}
             aria-describedby={describedBy}
-            className={cn(unit && 'pr-10', className)}
+            className={cn(
+              // #726 — standalone numeric fields match Morning weight/sleep
+              // (h-12). Input's own default stays h-8 for compact rows.
+              'h-12',
+              unit && 'pr-10',
+              className,
+            )}
             {...props}
           />
           {unit && (

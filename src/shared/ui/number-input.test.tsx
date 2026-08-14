@@ -12,6 +12,7 @@ describe('NumberInput', () => {
     // still surfaces the right on-screen keyboard.
     expect(input).toHaveAttribute('type', 'text')
     expect(input).toHaveAttribute('inputMode', 'decimal')
+    expect(input).toHaveClass('h-12')
   })
 
   it('displays the unit suffix', () => {

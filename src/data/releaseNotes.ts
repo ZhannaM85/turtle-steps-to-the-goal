@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 670,
+    issue: 726,
+    date: '2026-08-14T12:08:00+03:00',
+    en: 'Goal and day-total number fields are now the same 48px height as morning weight and sleep.',
+    ru: 'Числовые поля цели и итогов дня теперь той же высоты 48px, что и утренний вес и сон.',
+  },
+  {
     version: 669,
     issue: 725,
     date: '2026-08-14T12:02:00+03:00',

@@ -60,7 +60,7 @@ _Split from Tier 135 at the user’s request so the audit is not mixed with the 
 |---|--------|-------|-------|
 | [#716](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/716) | 📋 Not started | Audit UI consistency (button sizes, inputs, forms) | Investigation delivered. Tracking parent for #725–#737. Do not implement here |
 | [#725](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/725) | 🔍 Pending validation | Unify date inputs to 48px (h-12) | Dashboard/Export/delete-range/Goal week dates now h-12. Day WebKit exception (#647) kept |
-| [#726](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/726) | 📋 Not started | Grow Goal and Day-totals number fields to 48px | Match Morning weight/sleep h-12 |
+| [#726](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/726) | 🔍 Pending validation | Grow Goal and Day-totals number fields to 48px | NumberInput default is now h-12; Input default stays h-8 |
 | [#727](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/727) | 📋 Not started | Food picker Add must use the xl footer CTA | #474 size xl + w-full |
 | [#728](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/728) | 📋 Not started | Align Goal and Add-metric primary actions with the footer-CTA rule | xl full-width or documented lg+Cancel — not a third default-size pair |
 | [#730](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/730) | 📋 Not started | Unify Add meal name/time/note heights with the dish sheet | Name/time h-9, note h-10, dish sheet h-12. Close size-9 (#513) can stay |
