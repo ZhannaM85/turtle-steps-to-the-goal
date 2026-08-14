@@ -596,13 +596,13 @@ describe('SettingsScreen', () => {
 
     expect(
       within(
-        screen.getByRole('radiogroup', { name: 'Send to another copy' }),
+        screen.getByRole('radiogroup', { name: 'Another copy' }),
       ).getByRole('radio', { name: 'Off' }),
     ).toBeChecked()
 
     await user.click(
       within(
-        screen.getByRole('radiogroup', { name: 'Send to another copy' }),
+        screen.getByRole('radiogroup', { name: 'Another copy' }),
       ).getByRole('radio', { name: 'On' }),
     )
 

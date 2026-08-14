@@ -1227,9 +1227,9 @@ export const en: Dictionary = {
       'While typing a daily value, show an up/down arrow versus the previous logged day (colored by whether that change is good for that metric). After save, an info icon shows the same comparison plus versus exactly 30 days ago. On by default — turn off anytime.',
     entryComparisonOn: 'On',
     entryComparisonOff: 'Off',
-    localTransferLabel: 'Send to another copy',
+    localTransferLabel: 'Another copy',
     localTransferDescription:
-      'Copy a logged meal to another Turtle Steps on this phone or another device (clipboard, share, or QR). Most people only use one copy — leave this off. Turn it on in each copy that should send or receive.',
+      'Send this day’s log (sleep, weight, meals, and the rest) to another Turtle Steps on this phone or another device. Leave off if you only use one copy. Turn it on in each copy that should send or receive.',
     localTransferOn: 'On',
     localTransferOff: 'Off',
     dailyReminderTimeLabel: 'Remind me at',

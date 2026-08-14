@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 684,
+    issue: 738,
+    date: '2026-08-14T15:21:00+03:00',
+    en: '“Another copy” in Settings is about this day’s log (sleep, weight, meals, and the rest) between your own Turtle Steps copies — not sending a meal to someone else.',
+    ru: '«Другая копия» в Настройках — это запись за день (сон, вес, еда и остальное) между вашими копиями Turtle Steps, а не отправка приёма пищи другому человеку.',
+  },
+  {
     version: 683,
     issue: 718,
     date: '2026-08-14T13:45:00+03:00',

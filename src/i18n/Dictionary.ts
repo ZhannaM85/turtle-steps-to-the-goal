@@ -1945,7 +1945,7 @@ export interface Dictionary {
     entryComparisonDescription: string
     entryComparisonOn: string
     entryComparisonOff: string
-    /** #738 — send a logged meal to another app copy; off by default. */
+    /** #738 — send this day’s log to another app copy; off by default. */
     localTransferLabel: string
     localTransferDescription: string
     localTransferOn: string
