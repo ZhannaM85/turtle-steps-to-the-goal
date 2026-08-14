@@ -34,6 +34,23 @@ _User asked about pulling data from Apple Health and Zepp Life. Researched via W
 
 ---
 
+## Tier 135 — Send snippet to another copy (2026-08-14)
+
+_Same-phone PWA ↔ iOS is the main case (clipboard / share sheet); QR stays so an Android (or laptop) copy can join later. Not a full backup — one logged meal, append, confirm before apply. Reuse #661 transport. **Full inventory (later kinds, Android intents, overwrite-on-edit, …) lives on the epic body** so those rows are not lost; they are not separate GitHub issues until we pull one off._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#717](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/717) | 📋 Not started | Epic: Send a logged snippet to another copy (clipboard / share / QR) | Tracking + complete later-backlog checklist. Local-only; no cloud/live sync. Full Export/Import remains the empty-app clone path |
+| [#718](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/718) | 📋 Not started | Snippet envelope + meal schema (encode/decode) | v1 `kind: meal` only; size budget for QR |
+| [#719](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/719) | 📋 Not started | Apply meal snippet: confirm, append, skip duplicates | New ids; ISO date not “today”; never replace the day. Depends on #718 |
+| [#720](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/720) | 📋 Not started | Send meal to another copy (clipboard + share sheet) | Meal-row entry; reuse #661 share helpers. Depends on #718 |
+| [#721](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/721) | 📋 Not started | Receive meal snippet (paste, deep link, not full backup) | Day + Settings paste; must not run Epic 8 backup import. Depends on #719 |
+| [#722](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/722) | 📋 Not started | Show meal-snippet QR on the send sheet | Other-device path; oversized → copy/share, not a broken QR. Depends on #718, #720 |
+| [#723](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/723) | 📋 Not started | Scan meal-snippet QR (reuse #661, photo fallback) | Distinguish food-share vs meal snippet. Depends on #722, #719 |
+| [#724](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/724) | 📋 Not started | iOS: open meal snippet from share sheet / URL | Android handlers stay on #717 later list until #304. Depends on #721 |
+
+---
+
 ## Tier 134 — Security + live feedback (2026-08-13)
 
 _Logged while blocked on Apple Developer enrollment. Library CVEs via `npm audit` / Dependabot (#698–#701), then own-code hardening (#702–#704). Full tree had 27 findings; production-only had 5. Do **not** `npm audit fix --force`. Explicitly **not** filed: virus scanning of imports, DOMPurify on every text field, blocking images in meal-name inputs (plain text; no HTML-render sink today). Also live UI feedback from the same day (#707, #715)._
