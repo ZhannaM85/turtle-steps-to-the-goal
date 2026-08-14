@@ -43,3 +43,13 @@ _Logged while blocked on Apple Developer enrollment. Library CVEs via `npm audit
 | [#715](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/715) | 🔍 Pending validation | Add food: portion weight change must rescale kcal/macros; keep per-100g as source of truth | Fixed: personal items with known `lastAmountG` open in per-100g via `ratesFromAbsolute`; Portion-mode weight edits rescale from a density baseline (`scaleTotalsByWeightChange`); 100g/Portion tabs get a stronger active ring. Validate: reuse 280 kcal/50g → change to 20g → totals drop (~112); switch to 100g still ~560/100g; tabs visually clear |
 
 ---
+
+## Tier 135 — UI consistency audit (2026-08-14)
+
+_Complaint that button sizes, inputs, and forms do not share one visual language. Tracking issue for a code audit of `src/shared/ui/` vs call sites (#420 / #474 / #126/#139 conventions). Findings on the GitHub issue; do not start visual rewrites until we pick which items to fix._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#716](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/716) | 📋 Not started | Audit UI consistency (button sizes, inputs, forms) | Code audit done this session. Highest-signal: date fields at 48/42/40/32px; Goal/Day-totals NumberInput still 32px vs Morning h-12; FoodPicker Add not `xl`; Add meal header/note vs dish sheet; leftover h-7 macro grids. Pick follow-ups before implementing. |
+
+---
