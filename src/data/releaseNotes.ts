@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 681,
+    issue: 737,
+    date: '2026-08-14T14:00:00+03:00',
+    en: 'Overlay charts are easier to read: bars are more transparent, protein and calories no longer share a brown, and body-composition series have their own colors.',
+    ru: 'Наложенные графики читаются проще: столбцы прозрачнее, белок и калории больше не одного коричневого, а состав тела — своих цветов.',
+  },
+  {
     version: 680,
     issue: 736,
     date: '2026-08-14T13:50:00+03:00',

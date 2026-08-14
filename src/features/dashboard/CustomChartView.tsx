@@ -204,9 +204,11 @@ function useNumericSeriesConfig(): Record<
       formatAxisTick: (value) => formatNumber(value, locale, 0),
       unit: t.dailyEntry.kcalUnit,
     },
+    // #737 — overlay protein uses the Today remaining-protein purple so
+    // it does not share a warm-brown with calories sand on the same chart.
     protein: {
       label: t.dailyEntry.proteinLabel,
-      color: 'var(--chart-protein)',
+      color: 'var(--stat-protein)',
       formatRaw: (value) =>
         `${formatNumber(value, locale, 0)}${t.dailyEntry.gramsUnit}`,
       formatAxisTick: (value) => formatNumber(value, locale, 0),
@@ -826,6 +828,7 @@ export function CustomChartView({
                       yAxisId={yAxisId}
                       dataKey={dataKey}
                       fill={seriesConfig[key].color}
+                      fillOpacity={0.4}
                       radius={[2, 2, 0, 0]}
                       maxBarSize={14}
                       // #198: a day whose value happens to be the visible
@@ -889,6 +892,7 @@ export function CustomChartView({
                       yAxisId="normalized"
                       dataKey={`${metricId}_norm`}
                       fill={color}
+                      fillOpacity={0.4}
                       radius={[2, 2, 0, 0]}
                       maxBarSize={14}
                       minPointSize={3}
@@ -942,15 +946,20 @@ export function CustomChartView({
               </Button>
             </div>
           )}
-          <div className="flex flex-wrap gap-4 text-xs text-muted-foreground">
+          <div className="flex flex-col gap-2 text-xs text-muted-foreground">
             {selectedNumeric.map((key) => (
-              <div key={key} className="flex items-center gap-1.5">
+              <div
+                key={key}
+                className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2"
+              >
+                <div className="flex min-w-0 items-center gap-1.5">
                 <span
                   aria-hidden="true"
                   className="size-2 rounded-sm"
                   style={{ background: seriesConfig[key].color }}
                 />
                 {seriesConfig[key].label}
+                </div>
                 <ToggleGroup
                   type="single"
                   aria-label={t.dashboard.customChartTypeGroupLabel(
@@ -1005,13 +1014,18 @@ export function CustomChartView({
               const metric = customMetrics.find((m) => m.id === metricId)
               if (!metric) return null
               return (
-                <div key={metricId} className="flex items-center gap-1.5">
+                <div
+                  key={metricId}
+                  className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2"
+                >
+                  <div className="flex min-w-0 items-center gap-1.5">
                   <span
                     aria-hidden="true"
                     className="size-2 rounded-sm"
                     style={{ background: customMetricColor(index) }}
                   />
                   {metric.name}
+                  </div>
                   <ToggleGroup
                     type="single"
                     aria-label={t.dashboard.customChartTypeGroupLabel(

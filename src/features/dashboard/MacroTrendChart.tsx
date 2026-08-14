@@ -41,8 +41,10 @@ import { useDashboardChartPeriod } from './useDashboardChartPeriod'
 // See WeightTrendChart.tsx's identical constant/reasoning (#217).
 const MIN_TREND_DATA_POINTS = 3
 
+// #737 — protein uses --stat-protein (purple) so it does not share a
+// warm-brown with calories sand on this overlay.
 const SERIES_COLOR: Record<MacroSeriesKey, string> = {
-  protein: 'var(--chart-protein)',
+  protein: 'var(--stat-protein)',
   fat: 'var(--chart-fat)',
   carbs: 'var(--chart-carbs)',
   calories: 'var(--chart-calories)',
@@ -365,6 +367,7 @@ export function MacroTrendChart({
                   yAxisId={yAxisId}
                   dataKey={dataKey}
                   fill={SERIES_COLOR[key]}
+                  fillOpacity={0.4}
                   radius={[2, 2, 0, 0]}
                   maxBarSize={14}
                   // #198 — see CustomChartView.tsx's identical note.
@@ -414,15 +417,20 @@ export function MacroTrendChart({
           </Button>
         </div>
       )}
-      <div className="flex flex-wrap gap-4 text-xs text-muted-foreground">
+      <div className="flex flex-col gap-2 text-xs text-muted-foreground">
         {visibleKeys.map((key) => (
-          <div key={key} className="flex items-center gap-1.5">
+          <div
+            key={key}
+            className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2"
+          >
+            <div className="flex min-w-0 items-center gap-1.5">
             <span
               aria-hidden="true"
               className="size-2 rounded-sm"
               style={{ background: SERIES_COLOR[key] }}
             />
             {labelFor(t, key)}
+            </div>
             <ToggleGroup
               type="single"
               aria-label={t.dashboard.customChartTypeGroupLabel(labelFor(t, key))}

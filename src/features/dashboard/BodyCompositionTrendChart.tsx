@@ -46,15 +46,15 @@ import { useDashboardChartPeriod } from './useDashboardChartPeriod'
 // See WeightTrendChart.tsx's identical constant/reasoning (#217).
 const MIN_TREND_DATA_POINTS = 3
 
-// Reuses the app's existing 5 chart-color tokens (#53's macro-chart set +
-// --chart-weight) rather than defining 5 new ones — already proven legible
-// in both light/dark across every mood theme, no new tokens to verify.
+// #737 — dedicated hues, not the macro/weight/calorie tokens (muscle
+// must not read as "the protein color"). Reuses existing --stat-* /
+// --chart-bodyfat identities rather than new unaudited hexes.
 const SERIES_COLOR: Record<BodyCompositionSeriesKey, string> = {
-  muscleMassKg: 'var(--chart-protein)',
-  visceralFatRating: 'var(--chart-fat)',
-  bodyWaterPercent: 'var(--chart-weight)',
-  boneMassKg: 'var(--chart-carbs)',
-  bodyFatPercent: 'var(--chart-calories)',
+  muscleMassKg: 'var(--stat-fiber)',
+  visceralFatRating: 'var(--stat-sodium)',
+  bodyWaterPercent: 'var(--stat-water)',
+  boneMassKg: 'var(--stat-magnesium)',
+  bodyFatPercent: 'var(--chart-bodyfat)',
 }
 
 const CHART_TYPE_ICONS: Record<ChartSeriesType, typeof ChartLine> = {
@@ -403,6 +403,7 @@ export function BodyCompositionTrendChart({
                   yAxisId={yAxisId}
                   dataKey={dataKey}
                   fill={SERIES_COLOR[key]}
+                  fillOpacity={0.4}
                   radius={[2, 2, 0, 0]}
                   maxBarSize={14}
                   minPointSize={3}
@@ -451,15 +452,20 @@ export function BodyCompositionTrendChart({
           </Button>
         </div>
       )}
-      <div className="flex flex-wrap gap-4 text-xs text-muted-foreground">
+      <div className="flex flex-col gap-2 text-xs text-muted-foreground">
         {visibleKeys.map((key) => (
-          <div key={key} className="flex items-center gap-1.5">
+          <div
+            key={key}
+            className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2"
+          >
+            <div className="flex min-w-0 items-center gap-1.5">
             <span
               aria-hidden="true"
               className="size-2 rounded-sm"
               style={{ background: SERIES_COLOR[key] }}
             />
             {labelFor(t, key)}
+            </div>
             <ToggleGroup
               type="single"
               aria-label={t.dashboard.customChartTypeGroupLabel(labelFor(t, key))}
