@@ -114,10 +114,7 @@ function blankManualDraft() {
     potassium: '',
     magnesium: '',
     note: '',
-    // #715 — leave blank (scaleFromPer100g still defaults missing portions
-    // to 1). A seeded "1" → 100g on a Portion-mode switch invented a fake
-    // density baseline so typing Weight after kcal rescaled the total.
-    amountG: '',
+    amountG: '1',
     macroMode: 'per100g' as 'per100g' | 'perPortion',
     emotion: undefined as MealEmotion | undefined,
     favorite: false,
@@ -786,12 +783,13 @@ export function AddMealDialog({
       const amountNum = parseNumberInput(draft.amount)
       if (!amountNum || amountNum <= 0) {
         // #715 — without nutrition yet, don't invent a Portion weight from
-        // a blank/default portions field (that became a fake 100g baseline
-        // when the user typed kcal then Weight). An explicitly typed
-        // portions count still converts to grams.
+        // the per-100g default of 1 portion (100g). That became a fake
+        // density baseline when the user typed kcal then Weight. An
+        // explicit non-default portions count still converts to grams.
+        const portions = parseOptionalMacro(draft.amountG)
         const nextAmountG =
           newMode === 'perPortion'
-            ? parseOptionalMacro(draft.amountG)
+            ? portions && portions !== 1
               ? String(portionsToGrams(draft.amountG) ?? '')
               : ''
             : convertedAmountG
