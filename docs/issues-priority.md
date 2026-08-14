@@ -72,6 +72,6 @@ _Split from Tier 135 at the user’s request so the audit is not mixed with the 
 | [#734](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/734) | 🔍 Pending validation | Goal mismatch banner: named warning token, not raw amber | Same muted notice as aggressive-pace (`border-border bg-muted`). Calendar constipation dots stay amber |
 | [#736](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/736) | 🔍 Pending validation | Use shared Textarea, TextField, and Select instead of one-offs | Dish note → Textarea. Unused TextField removed (#731 Label+Input). Native Select primitive for meal-library sort + correlation pickers |
 | [#737](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/737) | 🔍 Pending validation | Chart overlay readability (bar opacity, series colors, legend alignment) | Bars 40% fill. Overlay protein uses --stat-protein. Body-comp uses --stat-* / --chart-bodyfat. Type controls in a column |
-| [#739](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/739) | 📋 Not started | Add dish name: caret sometimes shifted from typed text (iOS) | Intermittent. Screenshot: «Салат» with caret at left padding. Suggestions + Gboard + AutoFill bar. Not investigated |
+| [#739](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/739) | 🔍 Pending validation | Add dish name: caret sometimes shifted from typed text (iOS) | Fullscreen dialog `transform-none`; dish field id/name not “name”; autocomplete off. Intermittent |
 
 ---

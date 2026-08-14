@@ -62,7 +62,11 @@ function DialogContent({
           // is positioned against the padding edge, so its own top/right
           // also include safe-area — see the Close className below.
           size === 'fullscreen' &&
-            'fixed inset-0 z-50 h-dvh w-full overflow-y-auto rounded-none bg-card pt-[calc(env(safe-area-inset-top)+1.25rem)] pr-5 pb-[calc(env(safe-area-inset-bottom)+1.25rem)] pl-5 text-card-foreground shadow-lg outline-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
+            // #739 — no transform on fullscreen sheets: iOS WebKit draws
+            // the text caret against an untransformed box, so a leftover
+            // scale/translate from enter animation (or inherit) shows the
+            // caret shifted from the typed letters. Fade-only open/close.
+            'fixed inset-0 z-50 h-dvh w-full transform-none overflow-y-auto rounded-none bg-card pt-[calc(env(safe-area-inset-top)+1.25rem)] pr-5 pb-[calc(env(safe-area-inset-bottom)+1.25rem)] pl-5 text-card-foreground shadow-lg outline-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
           className,
         )}
         {...props}

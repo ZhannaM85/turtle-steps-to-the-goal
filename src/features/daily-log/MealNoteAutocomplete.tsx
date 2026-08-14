@@ -65,8 +65,14 @@ export function MealNoteAutocomplete({
     <div ref={containerRef} className="relative flex-1">
       <Input
         id={listInputId}
+        name={listInputId}
         type="text"
         autoComplete="off"
+        autoCorrect="off"
+        autoCapitalize="sentences"
+        spellCheck={true}
+        enterKeyHint="done"
+        inputMode="text"
         aria-label={ariaLabel}
         placeholder={placeholder}
         value={value}

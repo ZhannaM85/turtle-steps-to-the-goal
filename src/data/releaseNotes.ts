@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 692,
+    issue: 739,
+    date: '2026-08-14T19:30:00+03:00',
+    en: 'The caret in Dish name on Add dish should line up with the letters you type, instead of sitting off to the side.',
+    ru: 'Курсор в поле «Название блюда» при добавлении блюда должен совпадать с буквами, а не стоять сбоку.',
+  },
+  {
     version: 691,
     issue: 724,
     date: '2026-08-14T19:20:00+03:00',

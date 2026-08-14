@@ -427,7 +427,7 @@ export function MealItemEditorSheet({
           <FormSection heading={t.dailyEntry.itemNameLabel}>
             <div className="flex items-center gap-2">
               <MealNoteAutocomplete
-                listInputId="item-editor-name"
+                listInputId="item-editor-dish-title"
                 ariaLabel={t.dailyEntry.itemNameLabel}
                 placeholder={t.dailyEntry.itemNamePlaceholder}
                 value={name}
@@ -435,7 +435,7 @@ export function MealItemEditorSheet({
                 onSelectItem={onSelectMealItem}
                 onSubmit={onSave}
                 suggestions={mealItems}
-                className="h-12 text-base font-medium"
+                className="h-12 text-base"
               />
               {/* #279 — favorites a manually-typed dish right at creation
                * time, via useMealItemStore.touch's favorite argument. Same

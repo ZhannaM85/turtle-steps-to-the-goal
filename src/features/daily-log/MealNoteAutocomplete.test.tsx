@@ -128,4 +128,22 @@ describe('MealNoteAutocomplete (#86)', () => {
 
     expect(onSubmit).toHaveBeenCalledTimes(1)
   })
+
+  it('does not advertise itself as a contact/name field to the OS (#739)', () => {
+    render(
+      <MealNoteAutocomplete
+        value="Салат"
+        onChange={vi.fn()}
+        onSubmit={vi.fn()}
+        suggestions={[]}
+        ariaLabel="Dish name"
+        placeholder="Add a dish?"
+        listInputId="item-editor-dish-title"
+      />,
+    )
+    const input = screen.getByLabelText('Dish name')
+    expect(input).toHaveAttribute('autocomplete', 'off')
+    expect(input).toHaveAttribute('name', 'item-editor-dish-title')
+    expect(input.getAttribute('name')).not.toMatch(/^name$/i)
+  })
 })
