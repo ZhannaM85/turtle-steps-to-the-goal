@@ -75,6 +75,47 @@ export const ru: Dictionary = {
     targetMetSectionTitle: 'Цель достигнута',
     goalRenewalReminderSectionTitle: 'Напоминание об обновлении цели',
     dailyReminderSectionTitle: 'Ежедневное напоминание',
+    importDayTitle: 'Добавить запись за этот день?',
+    importDayDescription: (date) =>
+      `Пустые поля за ${date} заполнятся. Уже записанное останется, если вы не выберете замену.`,
+    importDayDisabled:
+      'Включите «Другая копия» в Настройках, чтобы принимать запись за день.',
+    importDayFillCount: (n) =>
+      n === 1
+        ? 'Заполнится 1 пустое поле.'
+        : n < 5
+          ? `Заполнятся ${n} пустых поля.`
+          : `Заполнятся ${n} пустых полей.`,
+    importDayConflictCount: (n) =>
+      n === 1
+        ? '1 поле уже заполнено другим значением:'
+        : n < 5
+          ? `${n} поля уже заполнены другим значением:`
+          : `${n} полей уже заполнены другим значением:`,
+    importDayMealCount: (add, skip) =>
+      `Приёмов пищи добавить: ${add}${skip ? `, уже есть и пропущены: ${skip}` : ''}.`,
+    importDayWaterCount: (add, skip) =>
+      `Записей воды добавить: ${add}${skip ? `, уже есть и пропущены: ${skip}` : ''}.`,
+    importDayNothingToApply: 'В этой копии уже есть всё из этого сниппета.',
+    importDayAddMissing: 'Добавить недостающее',
+    importDayAddAndReplace: 'Добавить и заменить перечисленное',
+    importDayCancel: 'Отмена',
+    sendDayLogLabel: 'Отправить или принять запись за день',
+    sendDayDialogTitle: 'Запись за день',
+    sendDayDialogDescription:
+      'Отправьте весь день в другую копию Turtle Steps или вставьте полученную ссылку.',
+    sendDayWholeDayLabel: 'Весь день',
+    sendDayCopyButton: 'Копировать ссылку',
+    sendDayShareButton: 'Поделиться',
+    sendDayCopied: 'Скопировано',
+    sendDayShareFailed: 'Не удалось поделиться. Скопируйте ссылку.',
+    sendDayNothingLogged: 'За этот день пока ничего не записано.',
+    sendDayShareTitle: (date) => `Черепашка идёт к цели — ${date}`,
+    sendDayShareText: (date) => `Запись за ${date}`,
+    receiveDayPasteLabel: 'Вставить ссылку',
+    receiveDayPastePlaceholder: 'Вставьте ссылку на день из Turtle Steps',
+    receiveDayPasteSubmit: 'Посмотреть',
+    receiveDayPasteInvalid: 'Это не похоже на запись за день из Turtle Steps.',
     nutritionFactsSectionTitle: 'Заметки о питании',
     vsYesterdayLabel: 'по сравнению со вчера',
     vsMaxWeightLabel: 'по сравнению с максимальным весом',

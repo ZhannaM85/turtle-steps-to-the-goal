@@ -118,6 +118,35 @@ export interface Dictionary {
     targetMetSectionTitle: string
     goalRenewalReminderSectionTitle: string
     dailyReminderSectionTitle: string
+    /** #719 — confirm before applying a day snippet from another copy. */
+    importDayTitle: string
+    importDayDescription: (date: string) => string
+    importDayDisabled: string
+    importDayFillCount: (n: number) => string
+    importDayConflictCount: (n: number) => string
+    importDayMealCount: (add: number, skip: number) => string
+    importDayWaterCount: (add: number, skip: number) => string
+    importDayNothingToApply: string
+    importDayAddMissing: string
+    importDayAddAndReplace: string
+    importDayCancel: string
+    /** #720 — Day-screen send control (gated by #738). */
+    sendDayLogLabel: string
+    sendDayDialogTitle: string
+    sendDayDialogDescription: string
+    sendDayWholeDayLabel: string
+    sendDayCopyButton: string
+    sendDayShareButton: string
+    sendDayCopied: string
+    sendDayShareFailed: string
+    sendDayNothingLogged: string
+    sendDayShareTitle: (date: string) => string
+    sendDayShareText: (date: string) => string
+    /** #721 — paste a day snippet on the send sheet / deep link. */
+    receiveDayPasteLabel: string
+    receiveDayPastePlaceholder: string
+    receiveDayPasteSubmit: string
+    receiveDayPasteInvalid: string
     /** #663 — section title for the nutrition-facts encouragement card,
      * same show/hide-toggle-row pattern as the three section titles
      * above. */

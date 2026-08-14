@@ -70,6 +70,41 @@ export const en: Dictionary = {
     targetMetSectionTitle: 'Target met',
     goalRenewalReminderSectionTitle: 'Goal renewal reminder',
     dailyReminderSectionTitle: 'Daily reminder',
+    importDayTitle: 'Add this day’s log?',
+    importDayDescription: (date) =>
+      `This will fill empty fields on ${date}. Existing values stay unless you choose to replace them.`,
+    importDayDisabled:
+      'Turn on “Another copy” in Settings before receiving a day’s log.',
+    importDayFillCount: (n) =>
+      n === 1 ? '1 empty field will be filled.' : `${n} empty fields will be filled.`,
+    importDayConflictCount: (n) =>
+      n === 1
+        ? '1 field already has a different value:'
+        : `${n} fields already have a different value:`,
+    importDayMealCount: (add, skip) =>
+      `${add} meal${add === 1 ? '' : 's'} to add${skip ? `, ${skip} already here skipped` : ''}.`,
+    importDayWaterCount: (add, skip) =>
+      `${add} water log${add === 1 ? '' : 's'} to add${skip ? `, ${skip} already here skipped` : ''}.`,
+    importDayNothingToApply: 'This copy already has everything from that snippet.',
+    importDayAddMissing: 'Add missing',
+    importDayAddAndReplace: 'Add missing and replace listed',
+    importDayCancel: 'Cancel',
+    sendDayLogLabel: 'Send or receive this day’s log',
+    sendDayDialogTitle: 'This day’s log',
+    sendDayDialogDescription:
+      'Send the whole day to another Turtle Steps copy, or paste one you received.',
+    sendDayWholeDayLabel: 'Whole day',
+    sendDayCopyButton: 'Copy link',
+    sendDayShareButton: 'Share',
+    sendDayCopied: 'Copied',
+    sendDayShareFailed: 'Couldn’t share. Copy the link instead.',
+    sendDayNothingLogged: 'Nothing is logged on this day yet.',
+    sendDayShareTitle: (date) => `Turtle Steps — ${date}`,
+    sendDayShareText: (date) => `Day log for ${date}`,
+    receiveDayPasteLabel: 'Paste a link',
+    receiveDayPastePlaceholder: 'Paste a Turtle Steps day link',
+    receiveDayPasteSubmit: 'Preview',
+    receiveDayPasteInvalid: 'That doesn’t look like a day’s log from Turtle Steps.',
     nutritionFactsSectionTitle: 'Nutrition highlights',
     vsYesterdayLabel: 'vs. yesterday',
     vsMaxWeightLabel: 'vs. highest weight',

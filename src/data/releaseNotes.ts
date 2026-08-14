@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 686,
+    issue: 719,
+    date: '2026-08-14T15:40:00+03:00',
+    en: 'A day’s log from another Turtle Steps copy is previewed first: empty fields are filled, and anything already logged is replaced only if you say so.',
+    ru: 'Запись за день из другой копии Turtle Steps сначала показывается: пустые поля заполняются, а уже записанное заменяется только если вы это подтвердите.',
+  },
+  {
     version: 685,
     issue: 718,
     date: '2026-08-14T15:30:00+03:00',
