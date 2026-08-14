@@ -294,7 +294,7 @@ describe('DashboardScreen', () => {
       render(<DashboardScreen />, { wrapper: MemoryRouter })
       const weightHeading = await screen.findByText('Weight trend')
       const weightSection = weightHeading.closest(
-        '.rounded-lg.border.border-border.p-3',
+        '.section-shell',
       ) as HTMLElement
 
       // 'all' (the default): 4 points is enough for a trend line.
@@ -354,7 +354,7 @@ describe('DashboardScreen', () => {
         'Calories vs. next-day weight',
       )
       const correlationSection = correlationHeading.closest(
-        '.rounded-lg.border.border-border.p-3',
+        '.section-shell',
       ) as HTMLElement
 
       expect(correlationSection).toBeInTheDocument()
