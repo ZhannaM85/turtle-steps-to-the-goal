@@ -5,11 +5,13 @@ import { Capacitor } from '@capacitor/core'
 import { SplashScreen } from '@capacitor/splash-screen'
 import './index.css'
 import { router } from '@/app'
+import { initAppUrlOpen } from '@/shared/native/initAppUrlOpen'
 import { initBackButtonHandler } from '@/shared/native/backButtonHandler'
 import { initDailyReminderNotification } from '@/shared/native/dailyReminderNotification'
 import { initWidgetDataSync } from '@/shared/native/widgetDataSync'
 import { registerServiceWorker } from '@/shared/lib/registerServiceWorker'
 
+initAppUrlOpen()
 initBackButtonHandler()
 initDailyReminderNotification()
 initWidgetDataSync()

@@ -24,6 +24,22 @@
 	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<!-- #724 — so iOS can open a day-log / food-share link in this app
+	     (“Open in Turtle Steps”). Query params are applied in JS
+	     (`initAppUrlOpen`). Android intents stay on #717 until Play. -->
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLName</key>
+			<string>io.github.zhannam85.turtlesteps</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>turtlesteps</string>
+			</array>
+		</dict>
+	</array>
 	<!-- #306 — barcode scanning uses @zxing/browser over getUserMedia;
 	     without this key iOS denies camera access (and App Store rejects).
 	     Same pattern as Android #307: no Capacitor Camera plugin needed —

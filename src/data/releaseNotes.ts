@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 691,
+    issue: 724,
+    date: '2026-08-14T19:20:00+03:00',
+    en: 'On the iPhone app, opening a day’s log link (including from Share) shows the preview first. Nothing is added until you confirm.',
+    ru: 'В приложении на iPhone открытие ссылки на запись за день (в том числе из «Поделиться») сначала показывает просмотр. Ничего не добавляется, пока вы не подтвердите.',
+  },
+  {
     version: 690,
     issue: 723,
     date: '2026-08-14T19:10:00+03:00',
