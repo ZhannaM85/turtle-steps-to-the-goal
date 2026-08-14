@@ -42,7 +42,7 @@ _Retargeted 2026-08-14: **full day entry** (sleep, weight, meals, steps, water, 
 |---|--------|-------|-------|
 | [#717](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/717) | 📋 Not started | Epic: Sync a day's log to another copy (Day refresh + clipboard / share / QR) | Tracking. Local-only. Meal-row v1 was wrong; children retargeted |
 | [#738](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/738) | 🔍 Pending validation | Hide day-sync behind a Settings toggle (off by default) | Store shipped. Copy rewritten to **day log**, not a meal. Day refresh is #720 |
-| [#718](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/718) | 📋 Not started | Day-entry snippet envelope (encode/decode) | Meal-only `kind: meal` on main is **superseded**. Replace with one-date `DailyEntry`. Validation label removed |
+| [#718](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/718) | 🔍 Pending validation | Day-entry snippet envelope (encode/decode) | `kind: 'day'` + compact `DailyEntry` on `shareDay`. Meal-only envelope removed |
 | [#719](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/719) | 📋 Not started | Apply day snippet: confirm, fill blanks, ask before overwrite | Fill empty sleep/etc.; confirm overwrite; append meals; never wipe the day. Depends on #718 |
 | [#720](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/720) | 📋 Not started | Day screen: refresh control + what-to-send sheet | Main send UX. Toggle off → no icon. Whole day first. Depends on #718, #738 |
 | [#721](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/721) | 📋 Not started | Receive day snippet (paste, deep link, not full backup) | Confirm shell; must not run Epic 8 backup import. Depends on #719 |

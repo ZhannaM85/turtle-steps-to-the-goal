@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 685,
+    issue: 718,
+    date: '2026-08-14T15:30:00+03:00',
+    en: 'A day’s log can now be packed into a small snippet for another Turtle Steps copy (sleep, weight, meals, and the rest). Sending and receiving from the Day screen comes next.',
+    ru: 'Запись за день теперь можно упаковать в короткий сниппет для другой копии Turtle Steps (сон, вес, еда и остальное). Отправка и приём с экрана «День» будут следующим шагом.',
+  },
+  {
     version: 684,
     issue: 738,
     date: '2026-08-14T15:21:00+03:00',
