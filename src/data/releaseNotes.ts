@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 688,
+    issue: 721,
+    date: '2026-08-14T15:50:00+03:00',
+    en: 'You can paste a day’s log link, or open one, and preview it before anything is added. A full backup file is not imported this way.',
+    ru: 'Ссылку на запись за день можно вставить или открыть и сначала посмотреть, прежде чем что-то добавится. Полный файл резервной копии так не импортируется.',
+  },
+  {
     version: 687,
     issue: 720,
     date: '2026-08-14T15:45:00+03:00',
