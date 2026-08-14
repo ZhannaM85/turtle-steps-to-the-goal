@@ -44,13 +44,12 @@ _Logged while blocked on Apple Developer enrollment. Library CVEs via `npm audit
 
 ---
 
-## Tier 135 — UI audit + send snippet to another copy (2026-08-14)
+## Tier 135 — Send a logged snippet to another copy (2026-08-14)
 
-_Same calendar day: UI consistency audit (#716), then send-a-logged-snippet between app copies (#717–#724). Same-phone PWA ↔ iOS is the snippet main case (clipboard / share sheet); QR stays so an Android (or laptop) copy can join later. Not a full backup — one logged meal, append, confirm before apply. Reuse #661 transport. **Full snippet inventory (later kinds, Android intents, overwrite-on-edit, …) lives on #717’s body** so those rows are not lost; they are not separate GitHub issues until we pull one off._
+_Same-phone PWA ↔ iOS is the snippet main case (clipboard / share sheet); QR stays so an Android (or laptop) copy can join later. Not a full backup — one logged meal, append, confirm before apply. Reuse #661 transport. **Full snippet inventory (later kinds, Android intents, overwrite-on-edit, …) lives on #717’s body** so those rows are not lost; they are not separate GitHub issues until we pull one off. UI consistency (#716 and follow-ups) was split out to Tier 136 at the user’s request (same calendar day, two topics)._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#716](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/716) | 📋 Not started | Audit UI consistency (button sizes, inputs, forms) | Code audit done this session. Highest-signal: date fields at 48/42/40/32px; Goal/Day-totals NumberInput still 32px vs Morning h-12; FoodPicker Add not `xl`; Add meal header/note vs dish sheet; leftover h-7 macro grids. Pick follow-ups before implementing. |
 | [#717](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/717) | 📋 Not started | Epic: Send a logged snippet to another copy (clipboard / share / QR) | Tracking + complete later-backlog checklist. Local-only; no cloud/live sync. Full Export/Import remains the empty-app clone path |
 | [#718](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/718) | 📋 Not started | Snippet envelope + meal schema (encode/decode) | v1 `kind: meal` only; size budget for QR |
 | [#719](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/719) | 📋 Not started | Apply meal snippet: confirm, append, skip duplicates | New ids; ISO date not “today”; never replace the day. Depends on #718 |
@@ -59,5 +58,28 @@ _Same calendar day: UI consistency audit (#716), then send-a-logged-snippet betw
 | [#722](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/722) | 📋 Not started | Show meal-snippet QR on the send sheet | Other-device path; oversized → copy/share, not a broken QR. Depends on #718, #720 |
 | [#723](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/723) | 📋 Not started | Scan meal-snippet QR (reuse #661, photo fallback) | Distinguish food-share vs meal snippet. Depends on #722, #719 |
 | [#724](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/724) | 📋 Not started | iOS: open meal snippet from share sheet / URL | Android handlers stay on #717 later list until #304. Depends on #721 |
+
+---
+
+## Tier 136 — UI consistency (2026-08-14)
+
+_Split from Tier 135 at the user’s request so the audit is not mixed with the snippet epic (same calendar day, two topics). #716 is the investigation; children are the agreed work list. Not a design-system rewrite. Out of scope: StatCard gain de-emphasis (#29), iOS input zoom guard, heatmap 10px, dense meal-row icons, overlay-only shadows, `--input` vs `--border` (#11), recipe Save+Cancel `lg` (#474 exception)._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#716](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/716) | 📋 Not started | Audit UI consistency (button sizes, inputs, forms) | Investigation delivered. Tracking parent for #725–#737. Do not implement here |
+| [#725](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/725) | 📋 Not started | Unify date inputs to 48px (h-12) | History already h-12; Dashboard/Export/delete-range h-10; Goal inherits h-8. Keep Day WebKit exception (#647) |
+| [#726](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/726) | 📋 Not started | Grow Goal and Day-totals number fields to 48px | Match Morning weight/sleep h-12 |
+| [#727](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/727) | 📋 Not started | Food picker Add must use the xl footer CTA | #474 size xl + w-full |
+| [#728](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/728) | 📋 Not started | Align Goal and Add-metric primary actions with the footer-CTA rule | xl full-width or documented lg+Cancel — not a third default-size pair |
+| [#730](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/730) | 📋 Not started | Unify Add meal name/time/note heights with the dish sheet | Name/time h-9, note h-10, dish sheet h-12. Close size-9 (#513) can stay |
+| [#732](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/732) | 📋 Not started | One size for 100g/Portion tabs | h-10 on dish sheet vs h-7 on recipe/inline add. Settings h-12 chips out of scope |
+| [#729](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/729) | 📋 Not started | Grow leftover 28px macro grids (food list, recipes, inline add) | #122 already removed this from daily log |
+| [#731](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/731) | 📋 Not started | One field-label recipe (shared Label) | Stop mixing 14px medium / 14px muted / 12px muted |
+| [#735](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/735) | 📋 Not started | Pick one section-shell chrome (Card vs border-lg) | StatCards hairline-xl vs accordion/chart/Export border-lg |
+| [#733](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/733) | 📋 Not started | Match Settings food-list dividers to meal cards | divide-foreground/15 (#464) vs divide-border |
+| [#734](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/734) | 📋 Not started | Goal mismatch banner: named warning token, not raw amber | Calendar constipation dots can stay amber |
+| [#736](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/736) | 📋 Not started | Use shared Textarea, TextField, and Select instead of one-offs | Raw textarea; unused TextField; two native selects |
+| [#737](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/737) | 📋 Not started | Chart overlay readability (bar opacity, series colors, legend alignment) | Not a mood rewrite. Same family as #323/#347/#350 |
 
 ---
