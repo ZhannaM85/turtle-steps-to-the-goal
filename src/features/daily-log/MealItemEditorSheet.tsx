@@ -18,6 +18,7 @@ import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/ui/button'
 import { Dialog, DialogContent, DialogTitle } from '@/shared/ui/dialog'
 import { Input } from '@/shared/ui/input'
+import { Textarea } from '@/shared/ui/textarea'
 import { ToggleGroup, ToggleGroupItem } from '@/shared/ui/toggle-group'
 import { EmotionPicker } from './EmotionPicker'
 import { MealNoteAutocomplete } from './MealNoteAutocomplete'
@@ -726,14 +727,13 @@ export function MealItemEditorSheet({
           </FormSection>
 
           <FormSection heading={t.dailyEntry.itemNoteLabel}>
-            <textarea
+            <Textarea
               aria-label={t.dailyEntry.itemNoteLabel}
               placeholder={t.dailyEntry.itemNotePlaceholder}
               value={note}
               maxLength={NOTE_MAX_LENGTH}
               onChange={(e) => onNoteChange(e.target.value)}
               rows={2}
-              className="w-full resize-none rounded-lg border border-input bg-transparent px-2.5 py-2 text-base outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
             />
             <span className="self-end text-xs text-muted-foreground">
               {note.length}/{NOTE_MAX_LENGTH}

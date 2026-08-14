@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 680,
+    issue: 736,
+    date: '2026-08-14T13:50:00+03:00',
+    en: 'Dish notes, meal-library sort, and Compare-your-data pickers now use the same text and dropdown fields as the rest of the app.',
+    ru: 'Заметки к блюду, сортировка библиотеки и выбор метрик в «Сравнить свои данные» теперь в тех же полях, что и в остальном приложении.',
+  },
+  {
     version: 679,
     issue: 734,
     date: '2026-08-14T13:40:00+03:00',

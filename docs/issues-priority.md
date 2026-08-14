@@ -70,7 +70,7 @@ _Split from Tier 135 at the user’s request so the audit is not mixed with the 
 | [#735](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/735) | 🔍 Pending validation | Pick one section-shell chrome (Card vs border-lg) | Two named chromes: number card (Card/StatCard) vs section-shell utility for charts/accordions/Export. Shadows stay overlay-only |
 | [#733](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/733) | 🔍 Pending validation | Match Settings food-list dividers to meal cards | divide-foreground/15 like meal dishes (#464) |
 | [#734](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/734) | 🔍 Pending validation | Goal mismatch banner: named warning token, not raw amber | Same muted notice as aggressive-pace (`border-border bg-muted`). Calendar constipation dots stay amber |
-| [#736](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/736) | 📋 Not started | Use shared Textarea, TextField, and Select instead of one-offs | Raw textarea; unused TextField; two native selects |
+| [#736](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/736) | 🔍 Pending validation | Use shared Textarea, TextField, and Select instead of one-offs | Dish note → Textarea. Unused TextField removed (#731 Label+Input). Native Select primitive for meal-library sort + correlation pickers |
 | [#737](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/737) | 📋 Not started | Chart overlay readability (bar opacity, series colors, legend alignment) | Not a mood rewrite. Same family as #323/#347/#350 |
 
 ---

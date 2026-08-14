@@ -7,6 +7,7 @@ import { Button } from '@/shared/ui/button'
 import { Dialog, DialogContent, DialogTitle } from '@/shared/ui/dialog'
 import { Input } from '@/shared/ui/input'
 import { Label } from '@/shared/ui/label'
+import { Select } from '@/shared/ui/select'
 
 export interface AddCorrelationDialogProps {
   open: boolean
@@ -34,16 +35,12 @@ function decodeRef(value: string): MetricRef {
   return { kind: 'builtin', key: value.slice('builtin:'.length) as NumericSeriesKey }
 }
 
-const selectClassName =
-  'h-8 w-full min-w-0 rounded-lg border border-input bg-transparent px-2.5 py-1 text-base outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 md:text-sm dark:bg-input/30'
-
 /**
  * Defines a new `CustomCorrelation` (#336) — picks any two metrics, built-
  * in or custom, to pair on the same day (see `CustomCorrelation`'s own doc
  * comment for why same-day, not this app's usual next-day-weight-delta
- * shape). A plain native `<select>` for each side rather than a custom
- * combobox — this app has no dedicated Select component, and defining a
- * correlation is rare enough not to warrant building one just for this.
+ * shape). Shared `Select` (#736) for each side — native chrome matching
+ * `Input`, not a combobox.
  */
 export function AddCorrelationDialog({
   open,
@@ -99,9 +96,8 @@ export function AddCorrelationDialog({
             <Label htmlFor="custom-correlation-metric-a">
               {t.customMetrics.metricALabel}
             </Label>
-            <select
+            <Select
               id="custom-correlation-metric-a"
-              className={selectClassName}
               value={metricAValue}
               onChange={(e) => setMetricAValue(e.target.value)}
             >
@@ -110,15 +106,14 @@ export function AddCorrelationDialog({
                   {option.label}
                 </option>
               ))}
-            </select>
+            </Select>
           </div>
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="custom-correlation-metric-b">
               {t.customMetrics.metricBLabel}
             </Label>
-            <select
+            <Select
               id="custom-correlation-metric-b"
-              className={selectClassName}
               value={metricBValue}
               onChange={(e) => setMetricBValue(e.target.value)}
             >
@@ -127,7 +122,7 @@ export function AddCorrelationDialog({
                   {option.label}
                 </option>
               ))}
-            </select>
+            </Select>
           </div>
           {sameMetric && (
             <p className="text-sm text-destructive">

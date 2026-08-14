@@ -35,6 +35,7 @@ import { Button } from '@/shared/ui/button'
 import { Dialog, DialogContent, DialogTitle } from '@/shared/ui/dialog'
 import { Input } from '@/shared/ui/input'
 import { Label } from '@/shared/ui/label'
+import { Select } from '@/shared/ui/select'
 import { ToggleGroup, ToggleGroupItem } from '@/shared/ui/toggle-group'
 import { BarcodeScannerDialog, lookupBarcode } from '@/features/daily-log'
 import { ShareFoodDialog, useFoodShareUiStore } from '@/features/food-share'
@@ -1202,10 +1203,9 @@ export function MealItemsSection() {
             <Label htmlFor="meal-library-sort">
               {t.settings.mealItemsSortLabel}
             </Label>
-            <select
+            <Select
               id="meal-library-sort"
               aria-label={t.settings.mealItemsSortLabel}
-              className="h-8 w-full min-w-0 rounded-lg border border-input bg-transparent px-2.5 py-1 text-base outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 md:text-sm dark:bg-input/30"
               value={sort}
               onChange={(e) => {
                 const next = e.target.value
@@ -1222,7 +1222,7 @@ export function MealItemsSection() {
               <option value="added-oldest">
                 {t.settings.mealItemsSortAddedOldest}
               </option>
-            </select>
+            </Select>
           </div>
           <Input
             type="text"
