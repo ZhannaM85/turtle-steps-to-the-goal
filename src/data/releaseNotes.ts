@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 671,
+    issue: 727,
+    date: '2026-08-14T12:12:00+03:00',
+    en: 'The food picker Add button is now the same full-width 48px action used on other sheets.',
+    ru: 'Кнопка «Добавить» в выборе блюд теперь той же полной ширины и высоты 48px, что и на других экранах.',
+  },
+  {
     version: 670,
     issue: 726,
     date: '2026-08-14T12:08:00+03:00',

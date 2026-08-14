@@ -773,7 +773,13 @@ export function FoodPickerDialog({
                 {todayRemainingPreview}
               </p>
             )}
-            <Button type="button" disabled={!canAdd} onClick={handleAdd}>
+            <Button
+              type="button"
+              size="xl"
+              className="w-full"
+              disabled={!canAdd}
+              onClick={handleAdd}
+            >
               {t.dailyEntry.addSelectedFoodsButton(selectedItems.length)}
             </Button>
           </div>

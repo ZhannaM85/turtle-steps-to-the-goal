@@ -141,6 +141,22 @@ describe('FoodPickerDialog', () => {
     expect(screen.getByRole('button', { name: 'Add selected' })).toBeEnabled()
   })
 
+  it('the footer Add button uses the xl full-width CTA (#727)', () => {
+    render(
+      <FoodPickerDialog
+        open
+        onOpenChange={vi.fn()}
+        onAdd={vi.fn()}
+        mealItems={[]}
+      />,
+    )
+
+    const add = screen.getByRole('button', { name: 'Add selected' })
+    expect(add).toHaveClass('h-12')
+    expect(add).toHaveClass('w-full')
+    expect(add).not.toHaveClass('h-8')
+  })
+
   it('scales the checked food by quantity and hands back computed macros', async () => {
     const user = userEvent.setup()
     const onAdd = vi.fn()
