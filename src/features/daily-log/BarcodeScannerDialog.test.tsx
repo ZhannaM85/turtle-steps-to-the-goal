@@ -225,4 +225,23 @@ describe('BarcodeScannerDialog', () => {
       ).toBeInTheDocument()
     })
   })
+
+  it('offers scan-from-photo instead of manual barcode entry in QR mode (#723)', async () => {
+    decodeFromVideoDevice.mockResolvedValue({ stop: vi.fn() })
+    render(
+      <BarcodeScannerDialog
+        open
+        onOpenChange={vi.fn()}
+        onScanned={vi.fn()}
+        scanKind="qr"
+        title="Scan a day’s log"
+      />,
+    )
+
+    expect(await screen.findByText('Scan a day’s log')).toBeInTheDocument()
+    expect(screen.getByText('Scan from photo')).toBeInTheDocument()
+    expect(
+      screen.queryByLabelText('Or enter the barcode number'),
+    ).not.toBeInTheDocument()
+  })
 })

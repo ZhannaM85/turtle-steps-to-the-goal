@@ -151,6 +151,11 @@ export interface Dictionary {
     receiveDayPastePlaceholder: string
     receiveDayPasteSubmit: string
     receiveDayPasteInvalid: string
+    receiveDayScanQrButton: string
+    receiveDayScanQrTitle: string
+    receiveDayScanQrInstructions: string
+    receiveDayScanIsFood: string
+    receiveDayScanUnreadable: string
     /** #663 — section title for the nutrition-facts encouragement card,
      * same show/hide-toggle-row pattern as the three section titles
      * above. */
@@ -562,6 +567,9 @@ export interface Dictionary {
     scanBarcodeStillScanningTip: string
     /** #564 — accessible name for the tappable framing rectangle. */
     scanBarcodeTapToFocusLabel: string
+    /** #723 — QR scan-from-photo fallback (shared food + day snippet). */
+    scanQrFromPhotoLabel: string
+    scanQrFromPhotoUnreadable: string
     /** #291 — manual entry, always available alongside the camera: useful
      * on its own, and a way to tell whether a report is a camera problem
      * or a lookup problem. */
@@ -1851,6 +1859,7 @@ export interface Dictionary {
     importSharedFoodPastePlaceholder: string
     importSharedFoodPasteSubmitButton: string
     importSharedFoodPasteInvalidMessage: string
+    importSharedFoodIsDaySnippet: string
     importSharedFoodDialogTitle: string
     importSharedFoodDialogDescription: string
     importSharedFoodBrandLabel: string

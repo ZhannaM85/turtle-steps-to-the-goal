@@ -115,5 +115,8 @@ describe('SendDaySnippetDialog (#720, #722)', () => {
     expect(
       screen.getByText('Nothing is logged on this day yet.'),
     ).toBeInTheDocument()
+    expect(
+      screen.getByRole('button', { name: 'Scan QR code' }),
+    ).toBeInTheDocument()
   })
 })

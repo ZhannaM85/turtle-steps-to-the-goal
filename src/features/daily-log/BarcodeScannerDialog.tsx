@@ -1,8 +1,9 @@
-import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react'
+import { useEffect, useRef, useState, type ChangeEvent, type PointerEvent as ReactPointerEvent } from 'react'
 import { useTranslation } from '@/i18n'
 import { Button } from '@/shared/ui/button'
 import { Dialog, DialogContent, DialogTitle } from '@/shared/ui/dialog'
 import { Input } from '@/shared/ui/input'
+import { decodeQrFromImageFile } from './decodeQrFromImageFile'
 import {
   focusVideoTrackAtPoint,
   videoTrackFromElement,
@@ -91,6 +92,7 @@ export function BarcodeScannerDialog({
     xPct: number
     yPct: number
   } | null>(null)
+  const [photoError, setPhotoError] = useState<string | null>(null)
   const controlsRef = useRef<{ stop: () => void } | null>(null)
 
   async function handleScanned(barcode: string) {
@@ -194,6 +196,19 @@ export function BarcodeScannerDialog({
     const trimmed = manualBarcode.trim()
     if (!trimmed) return
     void handleScanned(trimmed)
+  }
+
+  async function handlePhotoSelected(event: ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0]
+    event.target.value = ''
+    if (!file) return
+    setPhotoError(null)
+    try {
+      const text = await decodeQrFromImageFile(file)
+      await handleScanned(text)
+    } catch {
+      setPhotoError(t.dailyEntry.scanQrFromPhotoUnreadable)
+    }
   }
 
   async function handleFramePointerDown(
@@ -321,7 +336,25 @@ export function BarcodeScannerDialog({
                   </Button>
                 </div>
               </div>
-            ) : null}
+            ) : (
+              <div className="flex shrink-0 flex-col gap-1.5 pb-[calc(env(safe-area-inset-bottom)+1.25rem)]">
+                <input
+                  id="scan-qr-from-photo"
+                  type="file"
+                  accept="image/*"
+                  className="sr-only"
+                  onChange={(event) => void handlePhotoSelected(event)}
+                />
+                <Button type="button" variant="outline" asChild>
+                  <label htmlFor="scan-qr-from-photo">
+                    {t.dailyEntry.scanQrFromPhotoLabel}
+                  </label>
+                </Button>
+                {photoError ? (
+                  <p className="text-sm text-destructive">{photoError}</p>
+                ) : null}
+              </div>
+            )}
           </>
         )}
       </DialogContent>

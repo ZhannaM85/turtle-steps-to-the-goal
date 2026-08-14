@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 690,
+    issue: 723,
+    date: '2026-08-14T19:10:00+03:00',
+    en: 'You can scan a day’s log QR with the camera or a photo. A food-share code is not added as a day, and a day code is not added as a food.',
+    ru: 'QR записи за день можно сканировать камерой или с фото. Код общего блюда не добавляется как день, а код дня — не как блюдо.',
+  },
+  {
     version: 689,
     issue: 722,
     date: '2026-08-14T18:55:00+03:00',

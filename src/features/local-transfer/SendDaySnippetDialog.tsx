@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Check, Copy, QrCode, Share2 } from 'lucide-react'
 import type { DailyEntry } from '@/domain/dailyEntry'
+import { BarcodeScannerDialog } from '@/features/daily-log/BarcodeScannerDialog'
 import { generateQrDataUrl } from '@/features/food-share/generateQrDataUrl'
 import { useTranslation } from '@/i18n'
 import { Button } from '@/shared/ui/button'
@@ -12,6 +13,7 @@ import {
 } from '@/shared/ui/dialog'
 import { Input } from '@/shared/ui/input'
 import { Label } from '@/shared/ui/label'
+import { classifyShareScan } from './classifyShareScan'
 import {
   buildDaySnippetUrl,
   dailyEntryToDaySnippet,
@@ -30,9 +32,7 @@ export interface SendDaySnippetDialogProps {
 }
 
 /**
- * #720 / #722 — what-to-send sheet from Day’s refresh control. Whole day
- * first, then copy/share and a QR of the same URL when it fits.
- * Paste/receive is #721.
+ * #720 / #722 / #723 — send sheet: copy/share/QR, paste, or scan a QR.
  */
 export function SendDaySnippetDialog({
   open,
@@ -83,6 +83,7 @@ function SendDaySnippetBody({
   const [pasteValue, setPasteValue] = useState('')
   const [pasteError, setPasteError] = useState<string | null>(null)
   const [qrDataUrl, setQrDataUrl] = useState<string | null>(null)
+  const [scanOpen, setScanOpen] = useState(false)
   const canNativeShare =
     typeof navigator !== 'undefined' && typeof navigator.share === 'function'
 
@@ -128,75 +129,98 @@ function SendDaySnippetBody({
     setCopied(true)
   }
 
-  if (!canSend || !shareUrl) {
-    return (
-      <div className="flex flex-col gap-4 pt-2">
-        <p className="text-sm text-muted-foreground">{t.today.sendDayNothingLogged}</p>
-        <ReceiveDayPaste
-          pasteValue={pasteValue}
-          pasteError={pasteError}
-          setPasteValue={setPasteValue}
-          setPasteError={setPasteError}
-          onParsed={(parsed) => {
-            onOpenChange(false)
-            openConfirm(parsed)
-          }}
-        />
-      </div>
+  function handleQrScanned(text: string) {
+    const kind = classifyShareScan(text)
+    if (kind === 'day') {
+      const parsed = parseDaySnippetFromText(text)
+      if (parsed) {
+        onOpenChange(false)
+        openConfirm(parsed)
+      }
+      return
+    }
+    setPasteError(
+      kind === 'food'
+        ? t.today.receiveDayScanIsFood
+        : t.today.receiveDayScanUnreadable,
     )
   }
 
+  const receive = (
+    <ReceiveDayPaste
+      pasteValue={pasteValue}
+      pasteError={pasteError}
+      setPasteValue={setPasteValue}
+      setPasteError={setPasteError}
+      onScan={() => setScanOpen(true)}
+      onParsed={(parsed) => {
+        onOpenChange(false)
+        openConfirm(parsed)
+      }}
+    />
+  )
+
   return (
-    <div className="flex flex-col gap-3 pt-2">
-      <p className="text-sm font-medium">{t.today.sendDayWholeDayLabel}</p>
-      <div className="flex flex-wrap gap-2">
-        <Button type="button" onClick={() => void handleCopy()}>
-          {copied ? <Check /> : <Copy />}
-          {copied ? t.today.sendDayCopied : t.today.sendDayCopyButton}
-        </Button>
-        {canNativeShare ? (
-          <Button type="button" variant="outline" onClick={() => void handleNativeShare()}>
-            <Share2 />
-            {t.today.sendDayShareButton}
-          </Button>
-        ) : null}
-      </div>
-      {shareError ? (
-        <p className="text-sm text-destructive">{shareError}</p>
-      ) : null}
-      {qrFits ? (
-        <div className="flex flex-col items-center gap-2">
-          {qrDataUrl ? (
-            <img
-              src={qrDataUrl}
-              alt={t.today.sendDayQrAlt}
-              width={256}
-              height={256}
-              className="rounded-lg border border-border bg-white p-2"
-            />
-          ) : (
-            <div className="flex h-64 w-64 items-center justify-center rounded-lg border border-dashed border-border text-muted-foreground">
-              <QrCode aria-hidden="true" className="size-10 opacity-40" />
-            </div>
-          )}
-          <p className="text-center text-xs text-muted-foreground">
-            {t.today.sendDayQrHint}
-          </p>
+    <>
+      {!canSend || !shareUrl ? (
+        <div className="flex flex-col gap-4 pt-2">
+          <p className="text-sm text-muted-foreground">{t.today.sendDayNothingLogged}</p>
+          {receive}
         </div>
       ) : (
-        <p className="text-sm text-muted-foreground">{t.today.sendDayQrTooLarge}</p>
+        <div className="flex flex-col gap-3 pt-2">
+          <p className="text-sm font-medium">{t.today.sendDayWholeDayLabel}</p>
+          <div className="flex flex-wrap gap-2">
+            <Button type="button" onClick={() => void handleCopy()}>
+              {copied ? <Check /> : <Copy />}
+              {copied ? t.today.sendDayCopied : t.today.sendDayCopyButton}
+            </Button>
+            {canNativeShare ? (
+              <Button type="button" variant="outline" onClick={() => void handleNativeShare()}>
+                <Share2 />
+                {t.today.sendDayShareButton}
+              </Button>
+            ) : null}
+          </div>
+          {shareError ? (
+            <p className="text-sm text-destructive">{shareError}</p>
+          ) : null}
+          {qrFits ? (
+            <div className="flex flex-col items-center gap-2">
+              {qrDataUrl ? (
+                <img
+                  src={qrDataUrl}
+                  alt={t.today.sendDayQrAlt}
+                  width={256}
+                  height={256}
+                  className="rounded-lg border border-border bg-white p-2"
+                />
+              ) : (
+                <div className="flex h-64 w-64 items-center justify-center rounded-lg border border-dashed border-border text-muted-foreground">
+                  <QrCode aria-hidden="true" className="size-10 opacity-40" />
+                </div>
+              )}
+              <p className="text-center text-xs text-muted-foreground">
+                {t.today.sendDayQrHint}
+              </p>
+            </div>
+          ) : (
+            <p className="text-sm text-muted-foreground">{t.today.sendDayQrTooLarge}</p>
+          )}
+          {receive}
+        </div>
       )}
-      <ReceiveDayPaste
-        pasteValue={pasteValue}
-        pasteError={pasteError}
-        setPasteValue={setPasteValue}
-        setPasteError={setPasteError}
-        onParsed={(parsed) => {
-          onOpenChange(false)
-          openConfirm(parsed)
-        }}
-      />
-    </div>
+      {scanOpen ? (
+        <BarcodeScannerDialog
+          open={scanOpen}
+          onOpenChange={setScanOpen}
+          scanKind="qr"
+          title={t.today.receiveDayScanQrTitle}
+          instructions={t.today.receiveDayScanQrInstructions}
+          onScanned={handleQrScanned}
+        />
+      ) : null}
+    </>
   )
 }
 
@@ -206,12 +230,14 @@ function ReceiveDayPaste({
   setPasteValue,
   setPasteError,
   onParsed,
+  onScan,
 }: {
   pasteValue: string
   pasteError: string | null
   setPasteValue: (value: string) => void
   setPasteError: (value: string | null) => void
   onParsed: (payload: NonNullable<ReturnType<typeof parseDaySnippetFromText>>) => void
+  onScan: () => void
 }) {
   const t = useTranslation()
 
@@ -228,6 +254,9 @@ function ReceiveDayPaste({
 
   return (
     <div className="flex flex-col gap-1.5">
+      <Button type="button" variant="outline" className="self-start" onClick={onScan}>
+        {t.today.receiveDayScanQrButton}
+      </Button>
       <Label htmlFor="receive-day-paste">{t.today.receiveDayPasteLabel}</Label>
       <Input
         id="receive-day-paste"

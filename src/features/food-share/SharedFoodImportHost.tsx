@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { BarcodeScannerDialog } from '@/features/daily-log/BarcodeScannerDialog'
+import { classifyShareScan } from '@/features/local-transfer/classifyShareScan'
 import { useTranslation } from '@/i18n'
 import { useMealItemStore } from '@/stores/mealItemStore'
 import { Button } from '@/shared/ui/button'
@@ -69,13 +70,18 @@ export function SharedFoodImportHost() {
   }
 
   async function handleQrScanned(text: string) {
-    const decoded = parseSharedFoodFromText(text)
-    if (!decoded) {
-      setPasteError(t.settings.importSharedFoodPasteInvalidMessage)
-      setEntryOpen(true)
+    const kind = classifyShareScan(text)
+    if (kind === 'food') {
+      const decoded = parseSharedFoodFromText(text)
+      if (decoded) openImport(decoded)
       return
     }
-    openImport(decoded)
+    setPasteError(
+      kind === 'day'
+        ? t.settings.importSharedFoodIsDaySnippet
+        : t.settings.importSharedFoodPasteInvalidMessage,
+    )
+    setEntryOpen(true)
   }
 
   return (

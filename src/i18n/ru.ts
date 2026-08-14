@@ -120,6 +120,14 @@ export const ru: Dictionary = {
     receiveDayPastePlaceholder: 'Вставьте ссылку на день из Turtle Steps',
     receiveDayPasteSubmit: 'Посмотреть',
     receiveDayPasteInvalid: 'Это не похоже на запись за день из Turtle Steps.',
+    receiveDayScanQrButton: 'Сканировать QR-код',
+    receiveDayScanQrTitle: 'Сканировать запись за день',
+    receiveDayScanQrInstructions:
+      'Наведите камеру на QR на другом телефоне или выберите фото с ним.',
+    receiveDayScanIsFood:
+      'Этот QR — общее блюдо, а не запись за день. Импортируйте его в Настройках → Блюда.',
+    receiveDayScanUnreadable:
+      'Не удалось прочитать это как запись за день. Попробуйте снова или вставьте ссылку.',
     nutritionFactsSectionTitle: 'Заметки о питании',
     vsYesterdayLabel: 'по сравнению со вчера',
     vsMaxWeightLabel: 'по сравнению с максимальным весом',
@@ -310,6 +318,9 @@ export const ru: Dictionary = {
     scanBarcodeStillScanningTip:
       'Всё ещё сканируем — убедитесь, что штрихкод хорошо освещён, в фокусе и полностью помещается в кадр выше. Нажмите на рамку, чтобы перефокусироваться.',
     scanBarcodeTapToFocusLabel: 'Нажмите, чтобы сфокусироваться на штрихкоде',
+    scanQrFromPhotoLabel: 'Сканировать из фото',
+    scanQrFromPhotoUnreadable:
+      'Не удалось прочитать QR-код на этом фото. Попробуйте другой снимок или камеру.',
     scanBarcodeManualLabel: 'Или введите номер штрихкода',
     scanBarcodeManualPlaceholder: 'Номер штрихкода',
     scanBarcodeManualSubmitLabel: 'Найти',
@@ -1218,6 +1229,8 @@ export const ru: Dictionary = {
     importSharedFoodPasteSubmitButton: 'Продолжить',
     importSharedFoodPasteInvalidMessage:
       'Это не похоже на ссылку общего блюда. Проверьте ссылку или QR и попробуйте снова.',
+    importSharedFoodIsDaySnippet:
+      'Этот QR — запись за день, а не общее блюдо. Откройте его с экрана День → отправить/принять.',
     importSharedFoodDialogTitle: 'Проверка общего блюда',
     importSharedFoodDialogDescription:
       'Проверьте данные и добавьте блюдо в свой список — или обновите совпадающее, если оно уже есть.',

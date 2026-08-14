@@ -109,6 +109,14 @@ export const en: Dictionary = {
     receiveDayPastePlaceholder: 'Paste a Turtle Steps day link',
     receiveDayPasteSubmit: 'Preview',
     receiveDayPasteInvalid: 'That doesn’t look like a day’s log from Turtle Steps.',
+    receiveDayScanQrButton: 'Scan QR code',
+    receiveDayScanQrTitle: 'Scan a day’s log',
+    receiveDayScanQrInstructions:
+      'Point the camera at the QR on the other phone, or pick a photo of it.',
+    receiveDayScanIsFood:
+      'That QR is a shared food, not a day’s log. Import it from Settings → Meal items.',
+    receiveDayScanUnreadable:
+      'Couldn’t read that as a day’s log. Try again, or paste the link.',
     nutritionFactsSectionTitle: 'Nutrition highlights',
     vsYesterdayLabel: 'vs. yesterday',
     vsMaxWeightLabel: 'vs. highest weight',
@@ -290,6 +298,9 @@ export const en: Dictionary = {
     scanBarcodeStillScanningTip:
       'Still scanning — make sure the barcode is well-lit, in focus, and fills the frame above. Tap the frame to refocus.',
     scanBarcodeTapToFocusLabel: 'Tap to focus on barcode',
+    scanQrFromPhotoLabel: 'Scan from photo',
+    scanQrFromPhotoUnreadable:
+      'Couldn’t read a QR code in that photo. Try another picture or the camera.',
     scanBarcodeManualLabel: 'Or enter the barcode number',
     scanBarcodeManualPlaceholder: 'Barcode number',
     scanBarcodeManualSubmitLabel: 'Search',
@@ -1180,6 +1191,8 @@ export const en: Dictionary = {
     importSharedFoodPasteSubmitButton: 'Continue',
     importSharedFoodPasteInvalidMessage:
       'That doesn’t look like a shared food link. Check the link or QR and try again.',
+    importSharedFoodIsDaySnippet:
+      'That QR is a day’s log, not a shared food. Open it from Day → send/receive.',
     importSharedFoodDialogTitle: 'Review shared food',
     importSharedFoodDialogDescription:
       'Check the details, then add this food to your list — or update a matching one you already have.',
