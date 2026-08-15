@@ -54,7 +54,7 @@ _Retargeted 2026-08-14: **full day entry** (sleep, weight, meals, steps, water, 
 
 ## Tier 136 — UI consistency (2026-08-14)
 
-_Split from Tier 135 at the user’s request so the audit is not mixed with the snippet epic (same calendar day, two topics). #716 is the investigation; children are the agreed work list. Not a design-system rewrite. Out of scope: StatCard gain de-emphasis (#29), iOS input zoom guard, heatmap 10px, dense meal-row icons, overlay-only shadows, `--input` vs `--border` (#11), recipe Save+Cancel `lg` (#474 exception). Same-day live UI report: #739 (shifted caret)._
+_Split from Tier 135 at the user’s request so the audit is not mixed with the snippet epic (same calendar day, two topics). #716 is the investigation; children are the agreed work list. Not a design-system rewrite. Out of scope: StatCard gain de-emphasis (#29), iOS input zoom guard, heatmap 10px, dense meal-row icons, overlay-only shadows, `--input` vs `--border` (#11), recipe Save+Cancel `lg` (#474 exception)._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
@@ -72,6 +72,5 @@ _Split from Tier 135 at the user’s request so the audit is not mixed with the 
 | [#734](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/734) | 🔍 Pending validation | Goal mismatch banner: named warning token, not raw amber | Same muted notice as aggressive-pace (`border-border bg-muted`). Calendar constipation dots stay amber |
 | [#736](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/736) | 🔍 Pending validation | Use shared Textarea, TextField, and Select instead of one-offs | Dish note → Textarea. Unused TextField removed (#731 Label+Input). Native Select primitive for meal-library sort + correlation pickers |
 | [#737](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/737) | 🔍 Pending validation | Chart overlay readability (bar opacity, series colors, legend alignment) | Bars 40% fill. Overlay protein uses --stat-protein. Body-comp uses --stat-* / --chart-bodyfat. Type controls in a column |
-| [#739](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/739) | 🔍 Pending validation | Add dish name: caret sometimes shifted from typed text (iOS) | Fullscreen dialog `transform-none`; dish field id/name not “name”; autocomplete off. Intermittent |
 
 ---

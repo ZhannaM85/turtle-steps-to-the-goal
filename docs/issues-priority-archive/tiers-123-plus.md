@@ -229,6 +229,16 @@ _Logged while blocked on Apple Developer enrollment. Library CVEs via `npm audit
 
 ---
 
+## Tier 136 — UI consistency (2026-08-14)
+
+_Closed rows only. Open / pending children of #716 stay in the active file._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#739](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/739) | ✅ Done | Add dish name: caret sometimes shifted from typed text (iOS) | Fullscreen dialog `transform-none`; dish field id/name not “name”; autocomplete off. Confirmed on-device 2026-08-15 |
+
+---
+
 ## Tier 137 — Live feedback (2026-08-15)
 
 _On-device: the Day header circular-arrows control (#720) reads as page refresh, not day-log share/send._
