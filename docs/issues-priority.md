@@ -75,3 +75,13 @@ _Split from Tier 135 at the user’s request so the audit is not mixed with the 
 | [#739](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/739) | 🔍 Pending validation | Add dish name: caret sometimes shifted from typed text (iOS) | Fullscreen dialog `transform-none`; dish field id/name not “name”; autocomplete off. Intermittent |
 
 ---
+
+## Tier 137 — Live feedback (2026-08-15)
+
+_On-device: the Day header circular-arrows control (#720) reads as page refresh, not day-log share/send._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#740](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/740) | 📋 Not started | Day screen: replace refresh icon (looks like page reload) | #720 control. Circular arrows read as refresh. Glyph/label only; send-sheet behavior unchanged |
+
+---
