@@ -251,6 +251,7 @@ _Closed rows only. Open / pending children of #716 stay in the active file._
 | [#725](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/725) | ✅ Done | Unify date inputs to 48px (h-12) | Dashboard/Export/delete-range/Goal week dates now h-12. Day WebKit exception (#647) kept. Confirmed on-device 2026-08-15 |
 | [#726](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/726) | ✅ Done | Grow Goal and Day-totals number fields to 48px | NumberInput default is now h-12; Input default stays h-8. Confirmed on-device 2026-08-15 |
 | [#727](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/727) | ✅ Done | Food picker Add must use the xl footer CTA | size xl + w-full (#474). Recipe Save+Cancel lg left alone. Confirmed on-device 2026-08-15 |
+| [#728](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/728) | ✅ Done | Align Goal and Add-metric primary actions with the footer-CTA rule | Used documented lg Save + ghost Cancel (RecipeEditor). Confirmed on-device 2026-08-15 |
 
 ---
 

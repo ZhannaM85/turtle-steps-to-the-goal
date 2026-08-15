@@ -58,7 +58,6 @@ _Split from Tier 135 at the user’s request so the audit is not mixed with the 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#716](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/716) | 🔍 Pending validation | Audit UI consistency (button sizes, inputs, forms) | Investigation delivered. Tracking parent for #725–#737. Do not implement here |
-| [#728](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/728) | 🔍 Pending validation | Align Goal and Add-metric primary actions with the footer-CTA rule | Used documented lg Save + ghost Cancel (RecipeEditor), not a third default-size pair |
 | [#730](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/730) | 🔍 Pending validation | Unify Add meal name/time/note heights with the dish sheet | Name/time/note now h-12. Close stays size-9 (#513) |
 | [#729](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/729) | 🔍 Pending validation | Grow leftover 28px macro grids (food list, recipes, inline add) | Food-list / recipe / dishes inline macros now h-12 2-col like the dish sheet |
 | [#731](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/731) | 🔍 Pending validation | One field-label recipe (shared Label) | Visible field labels use Label (text-sm font-medium). Hints/units stay muted. Icon-only stays aria-label |
