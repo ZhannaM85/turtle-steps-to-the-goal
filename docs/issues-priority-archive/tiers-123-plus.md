@@ -258,6 +258,7 @@ _Closed rows only. Open / pending children of #716 stay in the active file._
 | [#733](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/733) | ✅ Done | Match Settings food-list dividers to meal cards | divide-foreground/15 like meal dishes (#464). Confirmed on-device 2026-08-15 |
 | [#734](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/734) | ✅ Done | Goal mismatch banner: named warning token, not raw amber | Same muted notice as aggressive-pace (`border-border bg-muted`). Confirmed on-device 2026-08-15 |
 | [#735](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/735) | ✅ Done | Pick one section-shell chrome (Card vs border-lg) | Two named chromes: number card (Card/StatCard) vs section-shell utility. Confirmed on-device 2026-08-15 |
+| [#736](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/736) | ✅ Done | Use shared Textarea, TextField, and Select instead of one-offs | Dish note → Textarea. Unused TextField removed. Native Select for meal-library sort + correlation pickers. Confirmed on-device 2026-08-15 |
 
 ---
 
