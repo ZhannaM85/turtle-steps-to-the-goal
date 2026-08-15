@@ -248,6 +248,7 @@ _Closed rows only. Open / pending children of #716 stay in the active file._
 | [#739](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/739) | ✅ Done | Add dish name: caret sometimes shifted from typed text (iOS) | Fullscreen dialog `transform-none`; dish field id/name not “name”; autocomplete off. Confirmed on-device 2026-08-15 |
 | [#732](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/732) | ✅ Done | One size for 100g/Portion tabs | Recipe + inline add now h-10 like the dish sheet. Settings chips untouched. Confirmed on-device 2026-08-15 |
 | [#737](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/737) | ✅ Done | Chart overlay readability (bar opacity, series colors, legend alignment) | Bars 40% fill. Overlay protein uses --stat-protein. Body-comp uses --stat-* / --chart-bodyfat. Confirmed on-device 2026-08-15 |
+| [#725](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/725) | ✅ Done | Unify date inputs to 48px (h-12) | Dashboard/Export/delete-range/Goal week dates now h-12. Day WebKit exception (#647) kept. Confirmed on-device 2026-08-15 |
 
 ---
 
