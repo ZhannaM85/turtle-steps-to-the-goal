@@ -82,6 +82,6 @@ _On-device: the Day header circular-arrows control (#720) reads as page refresh,
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#740](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/740) | 📋 Not started | Day screen: replace refresh icon (looks like page reload) | #720 control. Circular arrows read as refresh. Glyph/label only; send-sheet behavior unchanged |
+| [#740](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/740) | 🔍 Pending validation | Day screen: replace refresh icon (looks like page reload) | Share2 (same as food-share / send sheet), not RefreshCw. aria-label already send/receive |
 
 ---

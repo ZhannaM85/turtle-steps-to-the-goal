@@ -23,7 +23,7 @@ import {
   ChevronLeft,
   ChevronRight,
   GripVertical,
-  RefreshCw,
+  Share2,
 } from 'lucide-react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { SendDaySnippetDialog } from '@/features/local-transfer/SendDaySnippetDialog'
@@ -1010,7 +1010,7 @@ export function TodayScreen() {
               aria-label={t.today.sendDayLogLabel}
               onClick={() => setSendDayOpen(true)}
             >
-              <RefreshCw />
+              <Share2 aria-hidden="true" />
             </Button>
           ) : undefined
         }

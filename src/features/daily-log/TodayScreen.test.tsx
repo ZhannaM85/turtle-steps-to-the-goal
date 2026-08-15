@@ -2544,7 +2544,7 @@ describe('TodayScreen', () => {
     })
   })
 
-  it('shows the day-log refresh control only when Another copy is on (#720)', async () => {
+  it('shows the day-log share control only when Another copy is on (#720, #740)', async () => {
     render(
       <MemoryRouter>
         <TodayScreen />

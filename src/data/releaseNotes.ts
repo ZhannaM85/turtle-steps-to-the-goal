@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 693,
+    issue: 740,
+    date: '2026-08-15T16:10:00+03:00',
+    en: 'On Day, the button to send this day’s log to another copy now uses a share icon, so it no longer looks like a page refresh.',
+    ru: 'На экране «День» кнопка отправки записи в другую копию теперь со значком «поделиться», а не как обновление страницы.',
+  },
+  {
     version: 692,
     issue: 739,
     date: '2026-08-14T19:30:00+03:00',
