@@ -58,7 +58,6 @@ _Split from Tier 135 at the user’s request so the audit is not mixed with the 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#716](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/716) | 🔍 Pending validation | Audit UI consistency (button sizes, inputs, forms) | Investigation delivered. Tracking parent for #725–#737. Do not implement here |
-| [#726](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/726) | 🔍 Pending validation | Grow Goal and Day-totals number fields to 48px | NumberInput default is now h-12; Input default stays h-8 |
 | [#727](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/727) | 🔍 Pending validation | Food picker Add must use the xl footer CTA | size xl + w-full (#474). Recipe Save+Cancel lg left alone |
 | [#728](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/728) | 🔍 Pending validation | Align Goal and Add-metric primary actions with the footer-CTA rule | Used documented lg Save + ghost Cancel (RecipeEditor), not a third default-size pair |
 | [#730](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/730) | 🔍 Pending validation | Unify Add meal name/time/note heights with the dish sheet | Name/time/note now h-12. Close stays size-9 (#513) |
