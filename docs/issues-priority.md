@@ -41,7 +41,6 @@ _Retargeted 2026-08-14: **full day entry** (sleep, weight, meals, steps, water, 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#717](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/717) | 🔍 Pending validation | Epic: Sync a day's log to another copy (Day refresh + clipboard / share / QR) | Tracking. Children #738 + #718–#724 shipped; later list (slices, Android intents) stays on the epic |
-| [#738](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/738) | 🔍 Pending validation | Hide day-sync behind a Settings toggle (off by default) | Store shipped. Copy rewritten to **day log**, not a meal. Day refresh is #720 |
 | [#718](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/718) | 🔍 Pending validation | Day-entry snippet envelope (encode/decode) | `kind: 'day'` + compact `DailyEntry` on `shareDay`. Meal-only envelope removed |
 | [#719](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/719) | 🔍 Pending validation | Apply day snippet: confirm, fill blanks, ask before overwrite | Fill empty; confirm overwrite; append meals; never wipe the day |
 | [#720](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/720) | 🔍 Pending validation | Day screen: refresh control + what-to-send sheet | Toggle off → no icon. Whole day. Copy/share. Paste/QR later |

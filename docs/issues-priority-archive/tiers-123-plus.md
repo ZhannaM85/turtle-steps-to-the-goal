@@ -229,6 +229,16 @@ _Logged while blocked on Apple Developer enrollment. Library CVEs via `npm audit
 
 ---
 
+## Tier 135 — Sync a day's log to another copy (2026-08-14)
+
+_Closed rows only. Open / pending children of #717 stay in the active file._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#738](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/738) | ✅ Done | Hide day-sync behind a Settings toggle (off by default) | Store shipped. Copy rewritten to **day log**, not a meal. Confirmed on-device 2026-08-15 |
+
+---
+
 ## Tier 136 — UI consistency (2026-08-14)
 
 _Closed rows only. Open / pending children of #716 stay in the active file._
