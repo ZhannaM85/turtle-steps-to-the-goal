@@ -58,7 +58,6 @@ _Split from Tier 135 at the user’s request so the audit is not mixed with the 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#716](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/716) | 🔍 Pending validation | Audit UI consistency (button sizes, inputs, forms) | Investigation delivered. Tracking parent for #725–#737. Do not implement here |
-| [#735](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/735) | 🔍 Pending validation | Pick one section-shell chrome (Card vs border-lg) | Two named chromes: number card (Card/StatCard) vs section-shell utility for charts/accordions/Export. Shadows stay overlay-only |
 | [#736](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/736) | 🔍 Pending validation | Use shared Textarea, TextField, and Select instead of one-offs | Dish note → Textarea. Unused TextField removed (#731 Label+Input). Native Select primitive for meal-library sort + correlation pickers |
 
 ---
