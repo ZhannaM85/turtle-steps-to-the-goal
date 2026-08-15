@@ -254,6 +254,7 @@ _Closed rows only. Open / pending children of #716 stay in the active file._
 | [#728](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/728) | ✅ Done | Align Goal and Add-metric primary actions with the footer-CTA rule | Used documented lg Save + ghost Cancel (RecipeEditor). Confirmed on-device 2026-08-15 |
 | [#729](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/729) | ✅ Done | Grow leftover 28px macro grids (food list, recipes, inline add) | Food-list / recipe / dishes inline macros now h-12 2-col like the dish sheet. Confirmed on-device 2026-08-15 |
 | [#730](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/730) | ✅ Done | Unify Add meal name/time/note heights with the dish sheet | Name/time/note now h-12. Close stays size-9 (#513). Confirmed on-device 2026-08-15 |
+| [#731](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/731) | ✅ Done | One field-label recipe (shared Label) | Visible field labels use Label (text-sm font-medium). Hints/units stay muted. Confirmed on-device 2026-08-15 |
 
 ---
 
