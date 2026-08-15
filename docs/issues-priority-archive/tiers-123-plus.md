@@ -226,3 +226,13 @@ _Logged while blocked on Apple Developer enrollment. Library CVEs via `npm audit
 | [#713](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/713) | ✅ Done | Correlation tooltip: dismiss after click (close control or tap-away) | Confirmed on-device 2026-08-13 — ✕ / tap-away dismiss works. |
 | [#714](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/714) | ✅ Done | Late-meal correlation: post-midnight meal loses to earlier evening time | Confirmed on-device 2026-08-13 — 01:22 wins over 19:41 with day-start. |
 | [#715](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/715) | ✅ Done | Add food: portion weight change must rescale kcal/macros; keep per-100g as source of truth | Confirmed on-device 2026-08-14 — portion weight rescales from per-100g; tabs stay clear. |
+
+---
+
+## Tier 137 — Live feedback (2026-08-15)
+
+_On-device: the Day header circular-arrows control (#720) reads as page refresh, not day-log share/send._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#740](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/740) | ✅ Done | Day screen: replace refresh icon (looks like page reload) | Share2 (same as food-share / send sheet), not RefreshCw. Confirmed on-device 2026-08-15 |
