@@ -60,3 +60,11 @@ _Split from Tier 135 at the user’s request so the audit is not mixed with the 
 | [#716](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/716) | 🔍 Pending validation | Audit UI consistency (button sizes, inputs, forms) | Investigation delivered. Tracking parent for #725–#737. Do not implement here |
 
 ---
+
+## Tier 138 — Live feedback (2026-08-16)
+
+_On-device: opening the QR modal blinks, then the app freezes._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#741](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/741) | 📋 Not started | QR modal blinks when opened, then the app freezes | Recording `IMG_9772.MP4`. Likely #722 show / #723 scan (or #661 food-share). Root cause not yet investigated. |
