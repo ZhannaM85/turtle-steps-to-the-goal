@@ -70,14 +70,20 @@ function SendDaySnippetBody({
 }) {
   const t = useTranslation()
   const openConfirm = useDayTransferUiStore((state) => state.openConfirm)
-  const payload =
-    entry && entry.date === date ? dailyEntryToDaySnippet(entry) : null
-  const canSend = payload ? daySnippetHasSendableContent(payload) : false
-  const shareUrl = canSend && payload ? buildDaySnippetUrl(payload) : null
-  const qrFits =
-    canSend && payload
-      ? daySnippetFitsQr(encodeDaySnippetPayload(payload))
-      : false
+  // Snapshot once on mount (body only mounts while the sheet is open), same
+  // as ShareFoodDialog. Recomputing `dailyEntryToDaySnippet` each render
+  // used to mint a new `createdAt` and regenerate the QR forever (#741).
+  const [{ canSend, shareUrl, qrFits }] = useState(() => {
+    const payload =
+      entry && entry.date === date ? dailyEntryToDaySnippet(entry) : null
+    const canSend = payload ? daySnippetHasSendableContent(payload) : false
+    const shareUrl = canSend && payload ? buildDaySnippetUrl(payload) : null
+    const qrFits =
+      canSend && payload
+        ? daySnippetFitsQr(encodeDaySnippetPayload(payload))
+        : false
+    return { canSend, shareUrl, qrFits }
+  })
   const [copied, setCopied] = useState(false)
   const [shareError, setShareError] = useState<string | null>(null)
   const [pasteValue, setPasteValue] = useState('')

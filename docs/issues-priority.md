@@ -67,4 +67,4 @@ _On-device and Chrome localhost: opening the day-log send sheet blinks, then the
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#741](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/741) | 📋 Not started | QR modal blinks when opened, then the app freezes | Day send sheet (#722). Phone recording + Chrome localhost. Console: aria-hidden blocked because a focused button stayed inside a hidden ancestor. |
+| [#741](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/741) | 🔍 Pending validation | QR modal blinks when opened, then the app freezes | Send sheet snapshot + stable snippet `createdAt` (entry `updatedAt`). QR no longer re-encodes every render. |

@@ -2,6 +2,7 @@ import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import type { DailyEntry } from '@/domain/dailyEntry'
+import { generateQrDataUrl } from '@/features/food-share/generateQrDataUrl'
 import {
   dailyEntryToDaySnippet,
   daySnippetFitsQr,
@@ -101,6 +102,33 @@ describe('SendDaySnippetDialog (#720, #722)', () => {
     ).not.toBeInTheDocument()
     await user.click(screen.getByRole('button', { name: 'Copy link' }))
     expect(writeText).toHaveBeenCalled()
+  })
+
+  it('does not regenerate the QR when the parent re-renders (#741)', async () => {
+    const qr = vi.mocked(generateQrDataUrl)
+    qr.mockClear()
+    const { rerender } = render(
+      <SendDaySnippetDialog
+        open
+        onOpenChange={() => {}}
+        date="2026-08-14"
+        entry={entry}
+      />,
+    )
+    expect(
+      await screen.findByRole('img', { name: 'QR code for this day’s log' }),
+    ).toBeInTheDocument()
+    const callsAfterOpen = qr.mock.calls.length
+    expect(callsAfterOpen).toBeGreaterThan(0)
+    rerender(
+      <SendDaySnippetDialog
+        open
+        onOpenChange={() => {}}
+        date="2026-08-14"
+        entry={{ ...entry }}
+      />,
+    )
+    expect(qr).toHaveBeenCalledTimes(callsAfterOpen)
   })
 
   it('shows nothing-logged when the day is empty', () => {

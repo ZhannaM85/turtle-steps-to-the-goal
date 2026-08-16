@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 694,
+    issue: 741,
+    date: '2026-08-16T11:30:00+03:00',
+    en: 'The QR on the send-this-day sheet no longer flickers, and opening it should not freeze the app.',
+    ru: 'QR-код в окне отправки дня больше не мигает, и приложение не зависает при его открытии.',
+  },
+  {
     version: 693,
     issue: 740,
     date: '2026-08-15T16:10:00+03:00',

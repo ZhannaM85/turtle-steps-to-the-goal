@@ -154,6 +154,14 @@ describe('daySnippetPayload (#718)', () => {
     expect(decodeDaySnippetPayload(backup)).toBeNull()
   })
 
+  it('uses a stable createdAt so the share URL does not change every call (#741)', () => {
+    const first = dailyEntryToDaySnippet(sleepAndBreakfast)
+    const second = dailyEntryToDaySnippet(sleepAndBreakfast)
+    expect(first.createdAt).toBe(sleepAndBreakfast.updatedAt)
+    expect(second.createdAt).toBe(first.createdAt)
+    expect(encodeDaySnippetPayload(first)).toBe(encodeDaySnippetPayload(second))
+  })
+
   it('does not parse a shareFood or shareMeal link as a day snippet', () => {
     expect(
       parseDaySnippetFromText('https://example.com/?shareFood=abc'),

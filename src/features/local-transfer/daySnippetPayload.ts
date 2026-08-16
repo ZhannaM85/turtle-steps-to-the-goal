@@ -199,7 +199,10 @@ export function dailyEntryToDaySnippet(
   const payload: DaySnippetPayload = {
     v: 1,
     kind: 'day',
-    createdAt: options?.createdAt ?? new Date().toISOString(),
+    // #741 — must be stable across calls for the same entry. Wall-clock
+    // `new Date()` made `shareDay` (and the QR) a new string every render,
+    // so the send sheet re-encoded in a loop, flickered, then froze.
+    createdAt: options?.createdAt ?? entry.updatedAt ?? entry.createdAt,
     date: entry.date,
   }
   if (options?.sender) payload.sender = options.sender
