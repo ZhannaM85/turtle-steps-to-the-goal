@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 699,
+    issue: 747,
+    date: '2026-08-17T15:10:00+03:00',
+    en: 'Filling body composition from a Russian Zepp screenshot now reads muscle and bone as well, and keeps 17 August from being read as 17 April.',
+    ru: 'Заполнение состава тела по русскому скриншоту Zepp теперь подставляет и мышцы, и кости, а 17 августа больше не читается как 17 апреля.',
+  },
+  {
     version: 698,
     issue: 749,
     date: '2026-08-17T15:00:00+03:00',

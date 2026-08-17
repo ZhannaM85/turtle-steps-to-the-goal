@@ -110,7 +110,8 @@ const FIELD_SPECS: FieldSpec[] = [
   },
 ]
 
-const SKIP_LINE_RE = /bmi|body\s*age|возраст\s*тела|индекс\s*массы/i
+const SKIP_LINE_RE =
+  /bmi|имт|body\s*age|возраст\s*тела|индекс\s*массы|белок|протеин|protein|basal|обмен|ккал|kcal/i
 
 const NUMBER_RE = /(\d{1,3}(?:[.,]\d{1,2})?)\s*(%|％|kg|кг)?/gi
 
@@ -134,19 +135,40 @@ function isoDate(year: number, month: number, day: number): string | undefined {
   return `${year}-${mm}-${dd}`
 }
 
+/** eng tessdata often reads Russian `августа` as `апреля` (April vs August). */
+function preferAsOfMonthForOcr(
+  parsedMonth: number,
+  asOfMonth: number,
+): number {
+  if (parsedMonth === 4 && asOfMonth === 8) return 8
+  return parsedMonth
+}
+
 function parseScreenshotDate(
   text: string,
   asOfDate: string,
 ): string | undefined {
-  const match = DATE_RE.exec(text)
-  if (!match) return undefined
-  const day = Number(match[1])
-  const month = MONTHS[match[2]!.toLowerCase()]
-  if (!month || !Number.isFinite(day)) return undefined
   const asOfYear = Number(asOfDate.slice(0, 4))
-  const year = match[3] ? Number(match[3]) : asOfYear
-  if (!Number.isFinite(year)) return undefined
-  return isoDate(year, month, day)
+  const asOfMonth = Number(asOfDate.slice(5, 7))
+  const asOfDay = Number(asOfDate.slice(8, 10))
+  const matches = text.matchAll(new RegExp(DATE_RE.source, 'gi'))
+  let fallback: string | undefined
+  for (const match of matches) {
+    const day = Number(match[1])
+    let month = MONTHS[match[2]!.toLowerCase()]
+    if (!month || !Number.isFinite(day)) continue
+    const yearFromText = Boolean(match[3])
+    const year = yearFromText ? Number(match[3]) : asOfYear
+    if (!Number.isFinite(year)) continue
+    if (day === asOfDay && !yearFromText) {
+      month = preferAsOfMonthForOcr(month, asOfMonth)
+    }
+    const iso = isoDate(year, month, day)
+    if (!iso) continue
+    if (day === asOfDay && month === asOfMonth) return iso
+    fallback ??= iso
+  }
+  return fallback
 }
 
 function numbersOn(line: string): { value: number; unit: string | undefined }[] {
@@ -219,13 +241,28 @@ function fillFromLabeledLines(
 }
 
 /**
+ * "Didn't reach goals" / "не достигли цели" headers must not wipe the
+ * metric Tesseract glued onto the same line (#747). Drop a цели/goal
+ * line only when it has no kg/% reading (e.g. "Reached 6 goals").
+ */
+function isGoalsHeaderWithoutMeasurement(line: string): boolean {
+  if (!/goal|цел/i.test(line)) return false
+  return !numbersOn(line).some(
+    (c) => c.unit === 'kg' || c.unit === '%' || c.unit === '％',
+  )
+}
+
+/**
  * When labels OCR poorly, classify leftover numbers by unit + typical range.
  * Zepp's list order is BMI, fat %, muscle kg, water %, visceral, bone kg.
  */
 function textForUnlabeled(text: string): string {
   return text
     .split(/\r?\n/)
-    .filter((line) => !SKIP_LINE_RE.test(line) && !/goal|цел/i.test(line))
+    .filter(
+      (line) =>
+        !SKIP_LINE_RE.test(line) && !isGoalsHeaderWithoutMeasurement(line),
+    )
     .join(' ')
 }
 
@@ -270,20 +307,23 @@ function fillFromUnlabeledFallback(
     }
   }
   if (reading.muscleMassKg === undefined) {
-    const muscle = all.find(
-      (c) =>
-        c.unit === 'kg' && c.value >= 15 && c.value <= 60 && !used.has(c.value),
-    )
+    const muscle = all.find((c) => {
+      if (c.value < 15 || c.value > 80 || used.has(c.value)) return false
+      if (c.unit === 'kg') return true
+      // OCR often drops "кг"; still take a non-integer in the muscle band.
+      return c.unit === undefined && !Number.isInteger(c.value)
+    })
     if (muscle) {
       reading.muscleMassKg = muscle.value
       used.add(muscle.value)
     }
   }
   if (reading.boneMassKg === undefined) {
-    const bone = all.find(
-      (c) =>
-        c.unit === 'kg' && c.value >= 0.8 && c.value <= 5 && !used.has(c.value),
-    )
+    const bone = all.find((c) => {
+      if (c.value < 0.8 || c.value > 5 || used.has(c.value)) return false
+      if (c.unit === 'kg') return true
+      return c.unit === undefined && !Number.isInteger(c.value)
+    })
     if (bone) {
       reading.boneMassKg = bone.value
       used.add(bone.value)
