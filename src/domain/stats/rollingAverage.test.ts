@@ -161,9 +161,12 @@ describe('rollingAverage', () => {
     const largeMs = performance.now() - largeStart
 
     // A quadratic implementation would take ~100x as long for 10x the
-    // entries; a linear one takes ~10x. Generous 30x ceiling absorbs
-    // measurement noise on a small (sub-millisecond-scale) baseline
-    // without masking a real quadratic regression.
-    expect(largeMs).toBeLessThan(Math.max(smallMs, 1) * 30)
+    // entries (historically 150+ seconds for ~2,190). A linear one
+    // takes ~10x. The 30x ratio still applies when the small run is a
+    // useful baseline; a 500ms floor absorbs CI scheduling noise that
+    // can stretch a millisecond-scale linear run (2026-08-17: 70ms vs
+    // a 68ms budget from a ~2ms 200-entry run at the end of a 5+
+    // minute suite) without masking a real O(n²) regression.
+    expect(largeMs).toBeLessThan(Math.max(Math.max(smallMs, 1) * 30, 500))
   })
 })
