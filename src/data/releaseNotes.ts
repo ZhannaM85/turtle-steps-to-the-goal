@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 704,
+    issue: 751,
+    date: '2026-08-17T17:15:00+03:00',
+    en: 'CSV, Excel, and Markdown exports now write sleep and deep sleep as hours and minutes (like 10h 33m), not as decimal hours.',
+    ru: 'Экспорт в CSV, Excel и Markdown теперь записывает сон и глубокий сон часами и минутами (например 10ч 33м), а не десятичными часами.',
+  },
+  {
     version: 703,
     issue: 744,
     date: '2026-08-17T17:40:00+03:00',

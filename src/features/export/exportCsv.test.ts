@@ -88,7 +88,7 @@ describe('buildDailyLogCsv', () => {
     // #394 — nightEating is blank here (not false): the one logged meal has
     // no timeEaten, so hadNightEating() has no signal to derive from.
     expect(row).toBe(
-      '2026-03-01,79.5,300,10,5,20,7,1.5,8000,80,95,22,Happy,Felt good,true,,,,,,,,,,,,',
+      '2026-03-01,79.5,300,10,5,20,7h 0m,1h 30m,8000,80,95,22,Happy,Felt good,true,,,,,,,,,,,,',
     )
   })
 
@@ -216,7 +216,31 @@ describe('buildDailyLogCsv', () => {
 
     expect(header).toContain('Sleep (h)')
     expect(header).not.toContain('Alcohol')
-    expect(row.split(',')[header.split(',').indexOf('Sleep (h)')]).toBe('7')
+    expect(row.split(',')[header.split(',').indexOf('Sleep (h)')]).toBe(
+      '7h 0m',
+    )
+  })
+
+  it('writes sleep and deep sleep as hours and minutes, not decimal hours (#751)', () => {
+    const entry = makeEntry({ sleepHours: 10.55, deepSleepHours: 3.43 })
+    const csv = buildDailyLogCsv([entry], t)
+    const [header, row] = dailyTable(csv).split('\r\n')
+    const cells = row.split(',')
+
+    expect(cells[header.split(',').indexOf('Sleep (h)')]).toBe('10h 33m')
+    expect(cells[header.split(',').indexOf('Deep sleep (h)')]).toBe('3h 26m')
+  })
+
+  it('uses locale sleep units in CSV (#751)', () => {
+    const csv = buildDailyLogCsv(
+      [makeEntry({ sleepHours: 10.55 })],
+      getDictionary('ru'),
+    )
+    const [header, row] = dailyTable(csv).split('\r\n')
+
+    expect(row.split(',')[header.split(',').indexOf('Сон (ч)')]).toBe(
+      '10ч 33м',
+    )
   })
 
   it('keeps a tracked column when some days are blank (#744)', () => {

@@ -15,6 +15,7 @@ import type { CustomMetric, CustomMetricEntry } from '@/domain/customMetric'
 import type { Sex } from '@/domain/stats'
 import type { Dictionary } from '@/i18n'
 import { effectiveMealLabel } from '@/shared/lib/mealLabel'
+import { formatSleepDuration } from '@/shared/lib/sleepDuration'
 
 /** #743 — extra collections the daily-log table can project into columns.
  * #744 — optional `tracking` omits columns whose Settings gate is off. */
@@ -108,6 +109,19 @@ function isIncluded<T>(
   return tracking[column.gatedBy]
 }
 
+/** #751 — analysis exports print h+m like the Day card, not decimal hours. */
+function exportedSleepDuration(
+  hours: number | undefined,
+  t: Dictionary,
+): string | undefined {
+  if (hours === undefined) return undefined
+  return formatSleepDuration(
+    hours,
+    t.dailyEntry.hoursUnit,
+    t.dailyEntry.minutesUnit,
+  )
+}
+
 function dailyLogColumns(
   t: Dictionary,
   sex?: Sex,
@@ -134,12 +148,12 @@ function dailyLogColumns(
     },
     {
       header: t.exportXlsx.sleepHoursColumn,
-      value: (entry) => entry.sleepHours,
+      value: (entry) => exportedSleepDuration(entry.sleepHours, t),
       gatedBy: 'sleep',
     },
     {
       header: t.exportXlsx.deepSleepHoursColumn,
-      value: (entry) => entry.deepSleepHours,
+      value: (entry) => exportedSleepDuration(entry.deepSleepHours, t),
       gatedBy: 'sleep',
     },
     {
