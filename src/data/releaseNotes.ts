@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 701,
+    issue: 750,
+    date: '2026-08-17T16:50:00+03:00',
+    en: 'On Day, body composition edit and screenshot icons sit on the title row so the five readings have the full width underneath and no longer overlap.',
+    ru: 'На экране «День» значки состава тела стоят в строке заголовка, чтобы пять показателей занимали всю ширину и больше не наезжали друг на друга.',
+  },
+  {
     version: 700,
     issue: 748,
     date: '2026-08-17T16:40:00+03:00',

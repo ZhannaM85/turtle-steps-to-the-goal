@@ -814,38 +814,13 @@ export function DailyEntryFormMorning() {
                 </div>
               ) : state.showBodyCompositionAsDisplay ? (
                 <div className="flex flex-col gap-1.5">
-                  <span className="text-sm font-medium">
-                    {t.dailyEntry.bodyCompositionLabel}
-                  </span>
-                  {/* #515 — the five readings used to share one fixed-height
-                   * `·`-separated line, which wrapped like accidental
-                   * overflow next to Weight's and Sleep's clean single lines.
-                   * Same muted shell and pencil, but the values now sit in a
-                   * deliberate two-row grid where each metric keeps the same
-                   * visual weight — the wrap is the layout, not a symptom. */}
-                  <div className="flex items-center justify-between gap-2 rounded-lg bg-muted px-3 py-2.5">
-                    <dl className="grid min-w-0 flex-1 grid-cols-3 gap-x-3 gap-y-2">
-                      {bodyCompositionMetrics.map((metric) => (
-                        <div
-                          key={metric.label}
-                          className="flex min-w-0 flex-col"
-                        >
-                          <dt className="flex min-w-0 items-center gap-0.5 truncate text-xs text-muted-foreground">
-                            <span className="truncate">{metric.label}</span>
-                            <EntryFieldComparisonInfo
-                              field={metric.field}
-                              currentValue={metric.numericValue}
-                              prior={comparison.prior(metric.field)}
-                              day30Value={comparison.day30Value(metric.field)}
-                              unit={metric.unit}
-                            />
-                          </dt>
-                          <dd className="text-sm font-medium tabular-nums text-foreground">
-                            {metric.value}
-                          </dd>
-                        </div>
-                      ))}
-                    </dl>
+                  {/* #750 — screenshot + pencil + trash sit on the title
+                   * row (same as edit mode) so the five-value grid can use
+                   * the full width underneath instead of colliding. */}
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-sm font-medium">
+                      {t.dailyEntry.bodyCompositionLabel}
+                    </span>
                     <div className="flex shrink-0 items-center gap-3">
                       <ZeppScreenshotFillControl
                         asOfDate={state.date}
@@ -874,6 +849,31 @@ export function DailyEntryFormMorning() {
                         </Button>
                       )}
                     </div>
+                  </div>
+                  {/* #515 — two-row grid, each metric the same visual weight. */}
+                  <div className="rounded-lg bg-muted px-3 py-2.5">
+                    <dl className="grid grid-cols-3 gap-x-3 gap-y-2">
+                      {bodyCompositionMetrics.map((metric) => (
+                        <div
+                          key={metric.label}
+                          className="flex min-w-0 flex-col"
+                        >
+                          <dt className="flex min-w-0 items-center gap-0.5 truncate text-xs text-muted-foreground">
+                            <span className="truncate">{metric.label}</span>
+                            <EntryFieldComparisonInfo
+                              field={metric.field}
+                              currentValue={metric.numericValue}
+                              prior={comparison.prior(metric.field)}
+                              day30Value={comparison.day30Value(metric.field)}
+                              unit={metric.unit}
+                            />
+                          </dt>
+                          <dd className="text-sm font-medium tabular-nums text-foreground">
+                            {metric.value}
+                          </dd>
+                        </div>
+                      ))}
+                    </dl>
                   </div>
                 </div>
               ) : (

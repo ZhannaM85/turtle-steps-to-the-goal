@@ -64,9 +64,8 @@ function expectMealCard(label: string, kcalText: string) {
 // Scoping to the section keeps short values like a visceral-fat rating from
 // matching an unrelated number elsewhere in the form.
 function expectBodyCompositionValues(values: string[]) {
-  const section = screen
-    .getByText('Body composition')
-    .closest('div') as HTMLElement
+  const heading = screen.getByText('Body composition')
+  const section = heading.closest('div')?.parentElement as HTMLElement
   for (const value of values) {
     expect(within(section).getByText(value)).toBeInTheDocument()
   }
@@ -1161,6 +1160,53 @@ describe('DailyEntryForm', () => {
       expect(onSave.mock.calls[0][0].boneMassKg).toBe(2.3)
       expect(onSave.mock.calls[0][0].bodyFatPercent).toBe(22)
       expectBodyCompositionValues(['30kg', '5', '48%', '2.3kg', '22%'])
+    })
+
+    it('puts screenshot, edit, and delete on the title row so the grid is full width (#750)', () => {
+      render(
+        <DailyEntryForm
+          date="2026-03-01"
+          existingEntry={{
+            id: 'e1',
+            date: '2026-03-01',
+            muscleMassKg: 37.61,
+            visceralFatRating: 5,
+            bodyWaterPercent: 48,
+            boneMassKg: 2.33,
+            bodyFatPercent: 32.7,
+            createdAt: now,
+            updatedAt: now,
+          }}
+          onSave={vi.fn()}
+        />,
+      )
+
+      const titleRow = screen.getByText('Body composition').closest(
+        'div',
+      ) as HTMLElement
+      expect(
+        within(titleRow).getByRole('button', {
+          name: 'Fill from Zepp screenshot',
+        }),
+      ).toBeInTheDocument()
+      expect(
+        within(titleRow).getByRole('button', {
+          name: 'Edit body composition',
+        }),
+      ).toBeInTheDocument()
+      expect(
+        within(titleRow).getByRole('button', {
+          name: 'Delete body composition',
+        }),
+      ).toBeInTheDocument()
+      expect(within(titleRow).queryByText('37.61kg')).not.toBeInTheDocument()
+      expectBodyCompositionValues([
+        '37.61kg',
+        '5',
+        '48%',
+        '2.33kg',
+        '32.7%',
+      ])
     })
 
     it('rejects an out-of-range visceral fat value and does not save', async () => {
