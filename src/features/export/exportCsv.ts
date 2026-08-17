@@ -1,14 +1,14 @@
 import type { DailyEntry } from '@/domain/dailyEntry'
-import {
-  hadNightEating,
-  totalCalories,
-  totalCarbs,
-  totalFat,
-  totalProtein,
-  totalWaterMl,
-} from '@/domain/dailyEntry'
 import type { Sex } from '@/domain/stats'
 import type { Dictionary } from '@/i18n'
+import {
+  dailyLogHeaderValues,
+  dailyLogRowValues,
+  mealLogHeaderValues,
+  mealLogRows,
+  mealLogRowValues,
+  type DailyLogExportExtras,
+} from './dailyLogExport'
 
 /** UTF-8 byte-order mark — prepend to the CSV Blob so Excel correctly
  * detects the encoding and doesn't mangle Cyrillic notes/mood labels if
@@ -29,6 +29,13 @@ function csvRow(values: (string | number | boolean | undefined)[]): string {
   return values.map(csvField).join(',')
 }
 
+function csvTable(
+  header: (string | number | boolean | undefined)[],
+  rows: (string | number | boolean | undefined)[][],
+): string {
+  return [csvRow(header), ...rows.map(csvRow)].join('\r\n')
+}
+
 /**
  * Same "Daily Log" shape as exportXlsx.ts's first sheet (#123), as flat
  * CSV text — no `exceljs` dependency needed for this, CSV is simple enough
@@ -37,59 +44,26 @@ function csvRow(values: (string | number | boolean | undefined)[]): string {
  * per row) and parses more reliably than a binary .xlsx.
  *
  * #225: waist/hip/body fat columns added alongside sleep/steps.
+ * #743: Daily Log also includes body composition, fiber, electrolytes, and
+ * custom-metric columns; a second Meals table follows after a blank line
+ * (Excel already had that sheet — CSV/Markdown had been one table only).
  */
 export function buildDailyLogCsv(
   dailyEntries: DailyEntry[],
   t: Dictionary,
   sex?: Sex,
+  extras?: DailyLogExportExtras,
 ): string {
   const sortedEntries = [...dailyEntries].sort((a, b) =>
     a.date.localeCompare(b.date),
   )
-  const header = csvRow([
-    t.exportXlsx.dateColumn,
-    t.exportXlsx.weightColumn,
-    t.exportXlsx.caloriesColumn,
-    t.exportXlsx.proteinColumn,
-    t.exportXlsx.fatColumn,
-    t.exportXlsx.carbsColumn,
-    t.exportXlsx.sleepHoursColumn,
-    t.exportXlsx.deepSleepHoursColumn,
-    t.exportXlsx.stepsColumn,
-    t.exportXlsx.waistColumn,
-    t.exportXlsx.hipColumn,
-    t.exportXlsx.bodyFatColumn,
-    t.exportXlsx.moodColumn,
-    t.exportXlsx.noteColumn,
-    t.exportXlsx.onPeriodColumn,
-    t.exportXlsx.hadConstipationColumn,
-    t.exportXlsx.hadAlcoholColumn,
-    t.exportXlsx.nightEatingColumn(sex),
-    t.exportXlsx.waterColumn,
-  ])
-  const rows = sortedEntries.map((entry) =>
-    csvRow([
-      entry.date,
-      entry.weightKg,
-      totalCalories(entry.calorieEntries, entry.dayTotals),
-      totalProtein(entry.calorieEntries, entry.dayTotals),
-      totalFat(entry.calorieEntries, entry.dayTotals),
-      totalCarbs(entry.calorieEntries, entry.dayTotals),
-      entry.sleepHours,
-      entry.deepSleepHours,
-      entry.steps,
-      entry.waistCm,
-      entry.hipCm,
-      entry.bodyFatPercent,
-      entry.emotion && t.dailyEntry.emotionLabel(entry.emotion),
-      entry.note,
-      entry.onPeriod,
-      entry.hadConstipation,
-      entry.hadAlcohol,
-      hadNightEating(entry),
-      totalWaterMl(entry.waterEntries),
-    ]),
+  const daily = csvTable(
+    dailyLogHeaderValues(t, sex, extras),
+    sortedEntries.map((entry) => dailyLogRowValues(entry, t, extras)),
   )
-  // CRLF line endings per RFC 4180.
-  return [header, ...rows].join('\r\n')
+  const meals = csvTable(
+    mealLogHeaderValues(t),
+    mealLogRows(sortedEntries, t).map(mealLogRowValues),
+  )
+  return `${daily}\r\n\r\n${meals}`
 }

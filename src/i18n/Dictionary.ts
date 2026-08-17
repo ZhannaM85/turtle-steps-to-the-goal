@@ -1404,6 +1404,19 @@ export interface Dictionary {
      * so this column header is gender-correct too. */
     nightEatingColumn: (sex?: Sex) => string
     waterColumn: string
+    /** #743 — body composition + day fiber/electrolytes on the Daily Log table. */
+    muscleMassColumn: string
+    visceralFatColumn: string
+    bodyWaterColumn: string
+    boneMassColumn: string
+    fiberColumn: string
+    sodiumColumn: string
+    potassiumColumn: string
+    magnesiumColumn: string
+    /** #743 — whole-meal `CalorieEntry.reaction` (#454), distinct from per-item Reaction. */
+    mealReactionColumn: string
+    /** #743 — per-item `CalorieItem.noteText`, distinct from the meal note. */
+    itemNoteColumn: string
     mealColumn: string
     itemColumn: string
     brandColumn: string

@@ -537,6 +537,10 @@ export function ExportSection() {
         dailyEntries,
         t,
         sex,
+        {
+          customMetrics: bundle.customMetrics,
+          customMetricEntries: bundle.customMetricEntries,
+        },
       )
       const buffer = await workbook.xlsx.writeBuffer()
       const blob = new Blob([buffer], {
@@ -574,7 +578,10 @@ export function ExportSection() {
         periodStart,
         periodEnd,
       )
-      const csv = buildDailyLogCsv(dailyEntries, t, sex)
+      const csv = buildDailyLogCsv(dailyEntries, t, sex, {
+        customMetrics: bundle.customMetrics,
+        customMetricEntries: bundle.customMetricEntries,
+      })
       const blob = new Blob([CSV_BOM, csv], { type: 'text/csv' })
       const url = URL.createObjectURL(blob)
       const link = document.createElement('a')
@@ -604,7 +611,10 @@ export function ExportSection() {
         periodStart,
         periodEnd,
       )
-      const markdown = buildDailyLogMarkdown(dailyEntries, t, sex)
+      const markdown = buildDailyLogMarkdown(dailyEntries, t, sex, {
+        customMetrics: bundle.customMetrics,
+        customMetricEntries: bundle.customMetricEntries,
+      })
       const blob = new Blob([markdown], { type: 'text/markdown' })
       const url = URL.createObjectURL(blob)
       const link = document.createElement('a')

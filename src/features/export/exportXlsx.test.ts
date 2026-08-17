@@ -96,6 +96,36 @@ describe('buildExportWorkbook', () => {
     // #394 — nightEating is blank here (not false): the one logged meal has
     // no timeEaten, so hadNightEating() has no signal to derive from.
     expect(row[17]).toBeUndefined()
+    expect(dailyLog.getRow(1).values).toEqual([
+      undefined,
+      'Date',
+      'Weight (kg)',
+      'Calories (kcal)',
+      'Protein (g)',
+      'Fat (g)',
+      'Carbs (g)',
+      'Sleep (h)',
+      'Deep sleep (h)',
+      'Steps',
+      'Waist (cm)',
+      'Hip (cm)',
+      'Body fat (%)',
+      'Mood',
+      'Note',
+      'On period',
+      'Constipation',
+      'Alcohol',
+      'Ate late tonight',
+      'Water (ml)',
+      'Muscle (kg)',
+      'Visceral fat',
+      'Body water (%)',
+      'Bone (kg)',
+      'Fiber (g)',
+      'Sodium (mg)',
+      'Potassium (mg)',
+      'Magnesium (mg)',
+    ])
   })
 
   it('writes one Meals row per logged item, using the meal label or positional fallback', async () => {
@@ -135,17 +165,65 @@ describe('buildExportWorkbook', () => {
     const rows = sheetRows(meals)
 
     expect(rows).toHaveLength(2)
-    // [date, meal, item, brand, calories, protein, fat, carbs, grams, time, reaction, note]
+    // [date, meal, item, brand, calories, protein, fat, carbs, fiber, sodium,
+    //  potassium, magnesium, grams, time, reaction, mealReaction, itemNote, note]
     expect(rows[0][2]).toBe('Breakfast')
     expect(rows[0][3]).toBe('Toast')
     expect(rows[0][4]).toBeUndefined()
     expect(rows[0][5]).toBe(150)
-    expect(rows[0][9]).toBe(60)
-    expect(rows[0][10]).toBe('08:00')
-    expect(rows[0][11]).toBe('Thumbs up')
+    expect(rows[0][13]).toBe(60)
+    expect(rows[0][14]).toBe('08:00')
+    expect(rows[0][15]).toBe('Thumbs up')
     expect(rows[1][2]).toBe('Lunch')
     expect(rows[1][3]).toBe('Chicken breast')
     expect(rows[1][4]).toBe('Perdue')
+  })
+
+  it('exports body composition, fiber, electrolytes, meal reaction, and item note (#743)', async () => {
+    const entry = makeEntry({
+      muscleMassKg: 45.2,
+      visceralFatRating: 8,
+      bodyWaterPercent: 55,
+      boneMassKg: 2.4,
+      calorieEntries: [
+        {
+          id: 'meal-1',
+          label: 'Breakfast',
+          reaction: 'happy',
+          note: 'Meal note',
+          items: [
+            {
+              id: 'item-1',
+              name: 'Toast',
+              amountKcal: 150,
+              fiberG: 2,
+              sodiumMg: 200,
+              potassiumMg: 80,
+              magnesiumMg: 15,
+              noteText: 'Crispy',
+            },
+          ],
+          createdAt: '2026-03-01T00:00:00.000Z',
+        },
+      ],
+    })
+    const workbook = await buildExportWorkbook([], [entry], t)
+    const dailyRow = sheetRows(workbook.getWorksheet('Daily Log')!)[0]
+    const mealRow = sheetRows(workbook.getWorksheet('Meals')!)[0]
+
+    expect(dailyRow[20]).toBe(45.2)
+    expect(dailyRow[21]).toBe(8)
+    expect(dailyRow[22]).toBe(55)
+    expect(dailyRow[23]).toBe(2.4)
+    expect(dailyRow[24]).toBe(2)
+    expect(dailyRow[25]).toBe(200)
+    expect(mealRow[9]).toBe(2)
+    expect(mealRow[10]).toBe(200)
+    expect(mealRow[11]).toBe(80)
+    expect(mealRow[12]).toBe(15)
+    expect(mealRow[16]).toBe('Happy')
+    expect(mealRow[17]).toBe('Crispy')
+    expect(mealRow[18]).toBe('Meal note')
   })
 
   it('writes one Goals row per goal', async () => {

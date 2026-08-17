@@ -1,14 +1,14 @@
 import type { DailyEntry } from '@/domain/dailyEntry'
-import {
-  hadNightEating,
-  totalCalories,
-  totalCarbs,
-  totalFat,
-  totalProtein,
-  totalWaterMl,
-} from '@/domain/dailyEntry'
 import type { Sex } from '@/domain/stats'
 import type { Dictionary } from '@/i18n'
+import {
+  dailyLogHeaderValues,
+  dailyLogRowValues,
+  mealLogHeaderValues,
+  mealLogRows,
+  mealLogRowValues,
+  type DailyLogExportExtras,
+} from './dailyLogExport'
 
 function mdField(value: string | number | boolean | undefined): string {
   if (value === undefined) return ''
@@ -27,64 +27,39 @@ function mdRow(values: (string | number | boolean | undefined)[]): string {
   return `| ${values.map(mdField).join(' | ')} |`
 }
 
+function mdTable(
+  headers: string[],
+  rows: (string | number | boolean | undefined)[][],
+): string {
+  const headerRow = mdRow(headers)
+  const separatorRow = `| ${headers.map(() => '---').join(' | ')} |`
+  return [headerRow, separatorRow, ...rows.map(mdRow)].join('\n')
+}
+
 /**
  * Same "Daily Log" table shape as exportCsv.ts's `buildDailyLogCsv` (#219)
  * — a GitHub-flavored Markdown table instead of CSV, for pasting into a
  * notes app or a Markdown-rendering chat tool rather than a spreadsheet.
+ *
+ * #743: same extra Daily Log columns as CSV/Excel, plus a second Meals
+ * table after a blank line.
  */
 export function buildDailyLogMarkdown(
   dailyEntries: DailyEntry[],
   t: Dictionary,
   sex?: Sex,
+  extras?: DailyLogExportExtras,
 ): string {
   const sortedEntries = [...dailyEntries].sort((a, b) =>
     a.date.localeCompare(b.date),
   )
-  const headers = [
-    t.exportXlsx.dateColumn,
-    t.exportXlsx.weightColumn,
-    t.exportXlsx.caloriesColumn,
-    t.exportXlsx.proteinColumn,
-    t.exportXlsx.fatColumn,
-    t.exportXlsx.carbsColumn,
-    t.exportXlsx.sleepHoursColumn,
-    t.exportXlsx.deepSleepHoursColumn,
-    t.exportXlsx.stepsColumn,
-    t.exportXlsx.waistColumn,
-    t.exportXlsx.hipColumn,
-    t.exportXlsx.bodyFatColumn,
-    t.exportXlsx.moodColumn,
-    t.exportXlsx.noteColumn,
-    t.exportXlsx.onPeriodColumn,
-    t.exportXlsx.hadConstipationColumn,
-    t.exportXlsx.hadAlcoholColumn,
-    t.exportXlsx.nightEatingColumn(sex),
-    t.exportXlsx.waterColumn,
-  ]
-  const headerRow = mdRow(headers)
-  const separatorRow = `| ${headers.map(() => '---').join(' | ')} |`
-  const rows = sortedEntries.map((entry) =>
-    mdRow([
-      entry.date,
-      entry.weightKg,
-      totalCalories(entry.calorieEntries, entry.dayTotals),
-      totalProtein(entry.calorieEntries, entry.dayTotals),
-      totalFat(entry.calorieEntries, entry.dayTotals),
-      totalCarbs(entry.calorieEntries, entry.dayTotals),
-      entry.sleepHours,
-      entry.deepSleepHours,
-      entry.steps,
-      entry.waistCm,
-      entry.hipCm,
-      entry.bodyFatPercent,
-      entry.emotion && t.dailyEntry.emotionLabel(entry.emotion),
-      entry.note,
-      entry.onPeriod,
-      entry.hadConstipation,
-      entry.hadAlcohol,
-      hadNightEating(entry),
-      totalWaterMl(entry.waterEntries),
-    ]),
+  const daily = mdTable(
+    dailyLogHeaderValues(t, sex, extras),
+    sortedEntries.map((entry) => dailyLogRowValues(entry, t, extras)),
   )
-  return [headerRow, separatorRow, ...rows].join('\n')
+  const meals = mdTable(
+    mealLogHeaderValues(t),
+    mealLogRows(sortedEntries, t).map(mealLogRowValues),
+  )
+  return `${daily}\n\n${meals}`
 }

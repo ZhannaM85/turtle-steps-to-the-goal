@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 702,
+    issue: 743,
+    date: '2026-08-17T17:20:00+03:00',
+    en: 'CSV, Excel, and Markdown exports now include meals plus the rest of what you log on a day: body composition, fiber, electrolytes, and custom metrics.',
+    ru: 'Экспорт в CSV, Excel и Markdown теперь включает приёмы пищи и остальные поля дня: состав тела, клетчатку, электролиты и свои метрики.',
+  },
+  {
     version: 701,
     issue: 750,
     date: '2026-08-17T16:50:00+03:00',

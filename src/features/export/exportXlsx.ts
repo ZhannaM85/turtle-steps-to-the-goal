@@ -1,22 +1,35 @@
 import type ExcelJS from 'exceljs'
-import type { CalorieEntry, DailyEntry } from '@/domain/dailyEntry'
-import {
-  hadNightEating,
-  totalCalories,
-  totalCarbs,
-  totalFat,
-  totalProtein,
-  totalWaterMl,
-} from '@/domain/dailyEntry'
+import type { DailyEntry } from '@/domain/dailyEntry'
 import type { Goal } from '@/domain/goal'
 import type { Sex } from '@/domain/stats'
 import type { Dictionary } from '@/i18n'
-import { effectiveMealLabel } from '@/shared/lib/mealLabel'
+import {
+  dailyLogHeaderValues,
+  dailyLogRowValues,
+  mealLogHeaderValues,
+  mealLogRows,
+  mealLogRowValues,
+  type DailyLogExportExtras,
+} from './dailyLogExport'
 
 const DATE_FORMAT = 'yyyy-mm-dd'
 
 function toDate(isoDate: string): Date {
   return new Date(`${isoDate}T00:00:00`)
+}
+
+function excelRow(
+  values: (string | number | boolean | undefined)[],
+): (Date | string | number | boolean | undefined)[] {
+  const [date, ...rest] = values
+  return [typeof date === 'string' ? toDate(date) : date, ...rest]
+}
+
+function columnsFromHeaders(headers: string[]): { header: string; width: number }[] {
+  return headers.map((header) => ({
+    header,
+    width: header.length > 18 ? 18 : 14,
+  }))
 }
 
 /**
@@ -32,12 +45,17 @@ function toDate(isoDate: string): Date {
  * so it's only pulled into a chunk when this function actually runs —
  * ExportSection.tsx can import this module normally without paying for
  * the library on every Settings page load.
+ *
+ * #743: Daily Log columns include body composition, fiber, electrolytes,
+ * and custom metrics; Meals gained fiber, electrolytes, whole-meal
+ * reaction, and per-item note (meal note stays).
  */
 export async function buildExportWorkbook(
   goals: Goal[],
   dailyEntries: DailyEntry[],
   t: Dictionary,
   sex?: Sex,
+  extras?: DailyLogExportExtras,
 ): Promise<ExcelJS.Workbook> {
   const ExcelJS = (await import('exceljs')).default
   const workbook = new ExcelJS.Workbook()
@@ -47,111 +65,20 @@ export async function buildExportWorkbook(
   )
 
   const dailyLogSheet = workbook.addWorksheet(t.exportXlsx.dailyLogSheetName)
-  dailyLogSheet.columns = [
-    { header: t.exportXlsx.dateColumn, key: 'date', width: 12 },
-    { header: t.exportXlsx.weightColumn, key: 'weight', width: 12 },
-    { header: t.exportXlsx.caloriesColumn, key: 'calories', width: 14 },
-    { header: t.exportXlsx.proteinColumn, key: 'protein', width: 12 },
-    { header: t.exportXlsx.fatColumn, key: 'fat', width: 10 },
-    { header: t.exportXlsx.carbsColumn, key: 'carbs', width: 12 },
-    { header: t.exportXlsx.sleepHoursColumn, key: 'sleepHours', width: 12 },
-    {
-      header: t.exportXlsx.deepSleepHoursColumn,
-      key: 'deepSleepHours',
-      width: 14,
-    },
-    { header: t.exportXlsx.stepsColumn, key: 'steps', width: 10 },
-    { header: t.exportXlsx.waistColumn, key: 'waist', width: 12 },
-    { header: t.exportXlsx.hipColumn, key: 'hip', width: 12 },
-    { header: t.exportXlsx.bodyFatColumn, key: 'bodyFat', width: 12 },
-    { header: t.exportXlsx.moodColumn, key: 'mood', width: 10 },
-    { header: t.exportXlsx.noteColumn, key: 'note', width: 30 },
-    { header: t.exportXlsx.onPeriodColumn, key: 'onPeriod', width: 12 },
-    {
-      header: t.exportXlsx.hadConstipationColumn,
-      key: 'hadConstipation',
-      width: 14,
-    },
-    {
-      header: t.exportXlsx.hadAlcoholColumn,
-      key: 'hadAlcohol',
-      width: 12,
-    },
-    {
-      header: t.exportXlsx.nightEatingColumn(sex),
-      key: 'nightEating',
-      width: 14,
-    },
-    { header: t.exportXlsx.waterColumn, key: 'water', width: 12 },
-  ]
+  dailyLogSheet.columns = columnsFromHeaders(
+    dailyLogHeaderValues(t, sex, extras),
+  )
   for (const entry of sortedEntries) {
-    dailyLogSheet.addRow({
-      date: toDate(entry.date),
-      weight: entry.weightKg,
-      calories: totalCalories(entry.calorieEntries, entry.dayTotals),
-      protein: totalProtein(entry.calorieEntries, entry.dayTotals),
-      fat: totalFat(entry.calorieEntries, entry.dayTotals),
-      carbs: totalCarbs(entry.calorieEntries, entry.dayTotals),
-      sleepHours: entry.sleepHours,
-      deepSleepHours: entry.deepSleepHours,
-      steps: entry.steps,
-      waist: entry.waistCm,
-      hip: entry.hipCm,
-      bodyFat: entry.bodyFatPercent,
-      mood: entry.emotion && t.dailyEntry.emotionLabel(entry.emotion),
-      note: entry.note,
-      onPeriod: entry.onPeriod,
-      hadConstipation: entry.hadConstipation,
-      hadAlcohol: entry.hadAlcohol,
-      nightEating: hadNightEating(entry),
-      water: totalWaterMl(entry.waterEntries),
-    })
+    dailyLogSheet.addRow(excelRow(dailyLogRowValues(entry, t, extras)))
   }
-  dailyLogSheet.getColumn('date').numFmt = DATE_FORMAT
+  dailyLogSheet.getColumn(1).numFmt = DATE_FORMAT
 
   const mealsSheet = workbook.addWorksheet(t.exportXlsx.mealsSheetName)
-  mealsSheet.columns = [
-    { header: t.exportXlsx.dateColumn, key: 'date', width: 12 },
-    { header: t.exportXlsx.mealColumn, key: 'meal', width: 16 },
-    { header: t.exportXlsx.itemColumn, key: 'item', width: 24 },
-    { header: t.exportXlsx.brandColumn, key: 'brand', width: 16 },
-    { header: t.exportXlsx.caloriesColumn, key: 'calories', width: 14 },
-    { header: t.exportXlsx.proteinColumn, key: 'protein', width: 12 },
-    { header: t.exportXlsx.fatColumn, key: 'fat', width: 10 },
-    { header: t.exportXlsx.carbsColumn, key: 'carbs', width: 12 },
-    { header: t.exportXlsx.gramsColumn, key: 'grams', width: 10 },
-    { header: t.exportXlsx.timeColumn, key: 'time', width: 10 },
-    { header: t.exportXlsx.reactionColumn, key: 'reaction', width: 12 },
-    { header: t.exportXlsx.noteColumn, key: 'note', width: 30 },
-  ]
-  for (const entry of sortedEntries) {
-    ;(entry.calorieEntries ?? []).forEach(
-      (meal: CalorieEntry, index: number) => {
-        const mealLabel = effectiveMealLabel(t, index + 1, meal.label)
-        for (const item of meal.items) {
-          mealsSheet.addRow({
-            date: toDate(entry.date),
-            meal: mealLabel,
-            item: item.name,
-            brand: item.brand,
-            calories: item.amountKcal,
-            protein: item.proteinG,
-            fat: item.fatG,
-            carbs: item.carbsG,
-            grams: item.amountG,
-            time: meal.timeEaten,
-            // Per-dish reaction (#129) — used to be one shared value for
-            // every item in the meal; each row now reflects that item's
-            // own reaction instead.
-            reaction:
-              item.emotion && t.dailyEntry.mealEmotionLabel(item.emotion),
-            note: meal.note,
-          })
-        }
-      },
-    )
+  mealsSheet.columns = columnsFromHeaders(mealLogHeaderValues(t))
+  for (const row of mealLogRows(sortedEntries, t)) {
+    mealsSheet.addRow(excelRow(mealLogRowValues(row)))
   }
-  mealsSheet.getColumn('date').numFmt = DATE_FORMAT
+  mealsSheet.getColumn(1).numFmt = DATE_FORMAT
 
   const goalsSheet = workbook.addWorksheet(t.exportXlsx.goalsSheetName)
   goalsSheet.columns = [
