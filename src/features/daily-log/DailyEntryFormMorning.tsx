@@ -381,28 +381,21 @@ export function DailyEntryFormMorning() {
                 </div>
               ) : state.showSleepAsDisplay ? (
                 <div className="flex flex-col gap-1.5">
-                  <span className="flex items-center gap-1 text-sm font-medium">
-                    {t.dailyEntry.sleepLabel}
-                    <EntryFieldComparisonInfo
-                      field="sleepHours"
-                      currentValue={state.sleepHours}
-                      prior={comparison.prior('sleepHours')}
-                      day30Value={comparison.day30Value('sleepHours')}
-                      unit="hours"
-                    />
-                  </span>
-                  <div className="flex h-12 items-center justify-between rounded-lg bg-muted px-3">
-                    <span className="text-sm text-foreground">
-                      {t.dailyEntry.sleepSummary(
-                        state.sleepHours === undefined
-                          ? '—'
-                          : `${splitHoursMinutes(state.sleepHours).hours}${t.dailyEntry.hoursUnit} ${splitHoursMinutes(state.sleepHours).minutes}${t.dailyEntry.minutesUnit}`,
-                        state.deepSleepHours === undefined
-                          ? '—'
-                          : `${splitHoursMinutes(state.deepSleepHours).hours}${t.dailyEntry.hoursUnit} ${splitHoursMinutes(state.deepSleepHours).minutes}${t.dailyEntry.minutesUnit}`,
-                      )}
+                  {/* #752 — screenshot + pencil + trash sit on the title
+                   * row (same as Body composition #750) so the duration
+                   * card is text only. */}
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="flex items-center gap-1 text-sm font-medium">
+                      {t.dailyEntry.sleepLabel}
+                      <EntryFieldComparisonInfo
+                        field="sleepHours"
+                        currentValue={state.sleepHours}
+                        prior={comparison.prior('sleepHours')}
+                        day30Value={comparison.day30Value('sleepHours')}
+                        unit="hours"
+                      />
                     </span>
-                    <span className="flex items-center gap-3">
+                    <div className="flex shrink-0 items-center gap-3">
                       <AutoSleepScreenshotFillControl
                         asOfDate={state.date}
                         onConfirm={state.applySleepPatch}
@@ -436,6 +429,18 @@ export function DailyEntryFormMorning() {
                         >
                           <Trash2 aria-hidden="true" />
                         </Button>
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex h-12 items-center rounded-lg bg-muted px-3">
+                    <span className="text-sm text-foreground">
+                      {t.dailyEntry.sleepSummary(
+                        state.sleepHours === undefined
+                          ? '—'
+                          : `${splitHoursMinutes(state.sleepHours).hours}${t.dailyEntry.hoursUnit} ${splitHoursMinutes(state.sleepHours).minutes}${t.dailyEntry.minutesUnit}`,
+                        state.deepSleepHours === undefined
+                          ? '—'
+                          : `${splitHoursMinutes(state.deepSleepHours).hours}${t.dailyEntry.hoursUnit} ${splitHoursMinutes(state.deepSleepHours).minutes}${t.dailyEntry.minutesUnit}`,
                       )}
                     </span>
                   </div>

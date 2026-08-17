@@ -843,6 +843,42 @@ describe('DailyEntryForm', () => {
       expect(screen.getByLabelText('Deep sleep — minutes')).toHaveValue('30')
     })
 
+    it('puts screenshot, edit, and delete on the title row (#752)', () => {
+      render(
+        <DailyEntryForm
+          date="2026-03-01"
+          existingEntry={{
+            id: 'e1',
+            date: '2026-03-01',
+            sleepHours: 7,
+            deepSleepHours: 1.5,
+            createdAt: now,
+            updatedAt: now,
+          }}
+          onSave={vi.fn()}
+        />,
+      )
+
+      const titleRow = screen.getByText('Sleep').closest('div') as HTMLElement
+      expect(
+        within(titleRow).getByRole('button', {
+          name: 'Fill from AutoSleep screenshot',
+        }),
+      ).toBeInTheDocument()
+      expect(
+        within(titleRow).getByRole('button', { name: 'Edit sleep' }),
+      ).toBeInTheDocument()
+      expect(
+        within(titleRow).getByRole('button', { name: 'Delete sleep' }),
+      ).toBeInTheDocument()
+      expect(
+        within(titleRow).queryByText('7h 0m slept · 1h 30m deep'),
+      ).not.toBeInTheDocument()
+      expect(
+        screen.getByText('7h 0m slept · 1h 30m deep'),
+      ).toBeInTheDocument()
+    })
+
     describe('leaving edit mode without saving (#424)', () => {
       it('has no Cancel button for a brand-new entry with nothing saved yet', () => {
         render(

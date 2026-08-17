@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 705,
+    issue: 752,
+    date: '2026-08-17T17:23:00+03:00',
+    en: 'Sleep screenshot, edit, and delete icons now sit on the title row, same as Body composition.',
+    ru: 'У сна кнопки скриншота, правки и удаления теперь стоят в строке заголовка, как у состава тела.',
+  },
+  {
     version: 704,
     issue: 751,
     date: '2026-08-17T17:15:00+03:00',
