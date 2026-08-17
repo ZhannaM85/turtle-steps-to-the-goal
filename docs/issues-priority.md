@@ -36,7 +36,7 @@ _User asked about pulling data from Apple Health and Zepp Life. Researched via W
 
 ## Tier 139 — Live feedback (2026-08-17)
 
-_Zepp screenshot OCR for daily body composition (#742), CSV/export completeness from live use of a week's daily-log CSV, and Day-screen delete consistency._
+_Zepp screenshot OCR (#742), CSV/export completeness, Day delete/icon consistency, and AutoSleep screenshot fill._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
@@ -46,3 +46,4 @@ _Zepp screenshot OCR for daily body composition (#742), CSV/export completeness 
 | [#745](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/745) | 📋 Not started | Add trash to delete sleep and body composition, with the same confirm as weight | Weight has Trash + Pencil (#670); Sleep and Body composition (and Body measurements) are pencil-only. Same trash + inline Yes/No confirm as weight; clear that card's saved fields. |
 | [#746](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/746) | 📋 Not started | Day edit/delete icons: same order, gap, and sizing on weight and meals | Weight is Trash then Pencil (`icon-xl`, `gap-1`); meals are Pencil then Trash (`icon-sm`, `gap-3`). Canonical: Pencil then Trash (History already). Same gap on the pair. Keep morning `icon-xl` vs meal `icon-sm` unless meal icons should grow. #745 should follow this order. |
 | [#747](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/747) | 📋 Not started | #742 follow-up: Russian Zepp screenshot leaves muscle and bone empty | Live RU Zepp “goals” screenshot: fat/water/visceral filled; muscle 56,57 kg and bone 3,03 kg stayed empty; date hint showed 2026-04-17 for 17 августа. Parser has some RU aliases but no fixture for this Zepp layout. |
+| [#748](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/748) | 📋 Not started | Fill sleep and deep sleep from an AutoSleep screenshot | Same pick → on-device OCR → confirm → save as #742, on the Sleep card. Parse 10h 33m + deep 3h 26m; ignore quality 7h 59m and in-bed 11:54. Wake date = Monday of SUNDAY 16 → MONDAY 17. Text fixture only. |
