@@ -269,3 +269,13 @@ _On-device: the Day header circular-arrows control (#720) reads as page refresh,
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#740](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/740) | ✅ Done | Day screen: replace refresh icon (looks like page reload) | Share2 (same as food-share / send sheet), not RefreshCw. Confirmed on-device 2026-08-15 |
+
+---
+
+## Tier 138 — Live feedback (2026-08-16)
+
+_On-device and Chrome localhost: opening the day-log send sheet blinks, then the app freezes._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#741](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/741) | ✅ Done | QR modal blinks when opened, then the app freezes | Send sheet snapshot + stable snippet `createdAt`. Confirmed on-device 2026-08-17 |

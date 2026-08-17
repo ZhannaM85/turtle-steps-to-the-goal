@@ -58,13 +58,3 @@ _Split from Tier 135 at the user’s request so the audit is not mixed with the 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#716](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/716) | 🔍 Pending validation | Audit UI consistency (button sizes, inputs, forms) | Investigation delivered. Tracking parent for #725–#737. Do not implement here |
-
----
-
-## Tier 138 — Live feedback (2026-08-16)
-
-_On-device and Chrome localhost: opening the day-log send sheet blinks, then the app freezes._
-
-| # | Status | Issue | Notes |
-|---|--------|-------|-------|
-| [#741](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/741) | 🔍 Pending validation | QR modal blinks when opened, then the app freezes | Send sheet snapshot + stable snippet `createdAt` (entry `updatedAt`). QR no longer re-encodes every render. |
