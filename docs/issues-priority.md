@@ -31,13 +31,3 @@ _User asked about pulling data from Apple Health and Zepp Life. Researched via W
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#334](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/334) | 📋 Not started | Epic — Apple Health integration (blocked on mobile app + HealthKit bridge) | HealthKit has no public/cloud API at all — data is on-device only, readable exclusively by a native iOS app (or hybrid app with a HealthKit plugin/entitlement) the user has granted permission to. Genuinely blocked until the mobile app exists; can't be built sooner by any workaround. |
-
----
-
-## Tier 135 — Sync a day's log to another copy (2026-08-14)
-
-_Retargeted 2026-08-14: **full day entry** (sleep, weight, meals, steps, water, …), not a meal and not #661 food-share. Same-phone PWA ↔ iOS; QR for another device. Settings toggle off by default; when on, **refresh on Day** → what to send (whole day first) → clipboard/share/QR. Apply fills blanks and asks before overwrite. Reuse #661 transport only. Full backup stays Export/Import. UI consistency is Tier 136._
-
-| # | Status | Issue | Notes |
-|---|--------|-------|-------|
-| [#723](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/723) | 🔍 Pending validation | Scan day-snippet QR (reuse #661, photo fallback) | Send sheet Scan QR + photo. Food QR is not applied as a day; food import rejects day QRs |
