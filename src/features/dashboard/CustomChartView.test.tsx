@@ -60,6 +60,8 @@ beforeEach(() => {
       nightEating: true,
       dayTotals: true,
       fiber: true,
+      zeppScreenshot: true,
+      autoSleepScreenshot: true,
     },
   })
   useCustomMetricStore.setState({ metrics: [], entries: [] })

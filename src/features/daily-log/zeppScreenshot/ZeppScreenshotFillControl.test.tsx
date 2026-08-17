@@ -2,6 +2,7 @@ import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { useLocaleStore } from '@/i18n'
+import { useTrackedFieldsStore } from '@/stores'
 import { ZeppScreenshotFillControl } from './ZeppScreenshotFillControl'
 
 vi.mock('./recognizeZeppScreenshot', () => ({
@@ -22,6 +23,9 @@ describe('ZeppScreenshotFillControl', () => {
   beforeEach(() => {
     localStorage.clear()
     useLocaleStore.setState({ locale: 'en' })
+    useTrackedFieldsStore.setState((state) => ({
+      tracked: { ...state.tracked, zeppScreenshot: true },
+    }))
   })
 
   it('shows parsed values and confirms them', async () => {
@@ -53,5 +57,20 @@ describe('ZeppScreenshotFillControl', () => {
       boneMassKg: 2.33,
       bodyFatPercent: 32.7,
     })
+  })
+
+  it('renders nothing when the Zepp screenshot toggle is off (#749)', () => {
+    useTrackedFieldsStore.setState((state) => ({
+      tracked: { ...state.tracked, zeppScreenshot: false },
+    }))
+    const { container } = render(
+      <ZeppScreenshotFillControl asOfDate="2026-08-17" onConfirm={vi.fn()} />,
+    )
+    expect(container.querySelector('input[type="file"]')).toBeNull()
+    expect(
+      screen.queryByRole('button', {
+        name: 'Fill from Zepp screenshot',
+      }),
+    ).not.toBeInTheDocument()
   })
 })

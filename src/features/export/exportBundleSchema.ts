@@ -335,6 +335,8 @@ const settingsPreferencesSchema = z.object({
       nightEating: z.boolean().optional(),
       dayTotals: z.boolean().optional(),
       fiber: z.boolean().optional(),
+      zeppScreenshot: z.boolean().optional(),
+      autoSleepScreenshot: z.boolean().optional(),
     })
     .optional(),
   dailyReminder: z.boolean().optional(),

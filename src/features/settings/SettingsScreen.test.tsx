@@ -508,6 +508,8 @@ describe('SettingsScreen', () => {
           nightEating: true,
           dayTotals: true,
           fiber: true,
+          zeppScreenshot: true,
+          autoSleepScreenshot: true,
         },
       })
       renderSettings()
@@ -553,6 +555,49 @@ describe('SettingsScreen', () => {
           screen.getByRole('toolbar', { name: 'Evening' }),
         ).getByRole('button', { name: 'Ate late tonight' }),
       ).toHaveAttribute('aria-pressed', 'true')
+    })
+
+    it('lists screenshot toggles only when the parent field is tracked (#749)', async () => {
+      const user = userEvent.setup()
+      renderSettings()
+
+      const screenshots = screen.getByRole('toolbar', {
+        name: 'From screenshots',
+      })
+      expect(
+        within(screenshots).getByRole('button', {
+          name: 'AutoSleep screenshot',
+        }),
+      ).toHaveAttribute('aria-pressed', 'true')
+      expect(
+        within(screenshots).getByRole('button', {
+          name: 'Zepp body composition screenshot',
+        }),
+      ).toHaveAttribute('aria-pressed', 'true')
+
+      await user.click(
+        within(screen.getByRole('toolbar', { name: 'Morning' })).getByRole(
+          'button',
+          { name: 'Sleep' },
+        ),
+      )
+      expect(
+        screen.queryByRole('button', { name: 'AutoSleep screenshot' }),
+      ).not.toBeInTheDocument()
+      expect(
+        screen.getByRole('button', {
+          name: 'Zepp body composition screenshot',
+        }),
+      ).toBeInTheDocument()
+
+      await user.click(
+        screen.getByRole('button', {
+          name: 'Zepp body composition screenshot',
+        }),
+      )
+      expect(useTrackedFieldsStore.getState().tracked.zeppScreenshot).toBe(
+        false,
+      )
     })
 
     it('defaults electrolytes off and can turn sodium on (#530)', async () => {

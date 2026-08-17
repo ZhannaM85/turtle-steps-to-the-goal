@@ -193,6 +193,14 @@ export function SettingsScreen() {
     else if (key === 'copyYesterdayMeals') setCopyYesterdayMealsEnabled(value)
     else setTrackedField(key, value)
   }
+  // #749 — only listed when the parent field is on, so someone who does
+  // not track sleep never sees an AutoSleep screenshot toggle.
+  const screenshotTrackedKeys: UnifiedTrackedKey[] = [
+    ...(isFieldTracked('sleep') ? (['autoSleepScreenshot'] as const) : []),
+    ...(isFieldTracked('bodyComposition')
+      ? (['zeppScreenshot'] as const)
+      : []),
+  ]
   function trackedGroupValueChange(
     keys: UnifiedTrackedKey[],
     value: string[],
@@ -792,6 +800,34 @@ export function SettingsScreen() {
               </ToggleGroupItem>
             </ToggleGroup>
           </div>
+          {screenshotTrackedKeys.length > 0 && (
+            <div className="flex flex-col gap-1.5">
+              <Label>{t.settings.trackedFieldsScreenshotsGroupLabel}</Label>
+              <ToggleGroup
+                type="multiple"
+                aria-label={t.settings.trackedFieldsScreenshotsGroupLabel}
+                value={screenshotTrackedKeys.filter(isFieldTracked)}
+                onValueChange={(value: string[]) =>
+                  trackedGroupValueChange(screenshotTrackedKeys, value)
+                }
+                className="flex-wrap"
+              >
+                {screenshotTrackedKeys.includes('autoSleepScreenshot') && (
+                  <ToggleGroupItem
+                    value="autoSleepScreenshot"
+                    className="h-12"
+                  >
+                    {t.settings.autoSleepScreenshotTrackingLabel}
+                  </ToggleGroupItem>
+                )}
+                {screenshotTrackedKeys.includes('zeppScreenshot') && (
+                  <ToggleGroupItem value="zeppScreenshot" className="h-12">
+                    {t.settings.zeppScreenshotTrackingLabel}
+                  </ToggleGroupItem>
+                )}
+              </ToggleGroup>
+            </div>
+          )}
         </CardContent>
       </Card>
 

@@ -1299,6 +1299,9 @@ export const ru: Dictionary = {
     trackedFieldsEveningGroupLabel: 'Вечер',
     trackedFieldsOtherGroupLabel: 'Прочее',
     trackedFieldsElectrolytesGroupLabel: 'Электролиты',
+    trackedFieldsScreenshotsGroupLabel: 'Со скриншотов',
+    zeppScreenshotTrackingLabel: 'Скриншот состава тела Zepp',
+    autoSleepScreenshotTrackingLabel: 'Скриншот AutoSleep',
     profileLabel: 'Профиль',
     profileDescription:
       'Необязательно — используется только для расчёта ИМТ и примерной суточной потребности в калориях (базовый обмен) на экране «День». Входит в JSON-резервные копии вместе с остальными настройками.',

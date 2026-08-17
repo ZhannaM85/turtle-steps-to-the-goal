@@ -22,6 +22,8 @@ export type TrackedField =
   | 'nightEating'
   | 'dayTotals'
   | 'fiber'
+  | 'zeppScreenshot'
+  | 'autoSleepScreenshot'
 
 const DEFAULT_TRACKED: Record<TrackedField, boolean> = {
   sleep: true,
@@ -42,6 +44,10 @@ const DEFAULT_TRACKED: Record<TrackedField, boolean> = {
   // always-on since #341; default on so existing behavior stays until the
   // user opts out. #590 — Goal's daily fiber target uses the same gate.
   fiber: true,
+  // #749 — screenshot fill is opt-out (on by default). Each toggle is
+  // only listed in Settings when its parent field is tracked.
+  zeppScreenshot: true,
+  autoSleepScreenshot: true,
 }
 
 interface TrackedFieldsState {

@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 698,
+    issue: 749,
+    date: '2026-08-17T15:00:00+03:00',
+    en: 'Settings → What to track now has separate on/off switches for filling from a Zepp screenshot and from an AutoSleep screenshot. Each switch only appears if you track that field.',
+    ru: 'В «Настройки → Что отслеживать» отдельные переключатели для заполнения по скриншоту Zepp и AutoSleep. Каждый виден, только если вы отслеживаете это поле.',
+  },
+  {
     version: 697,
     issue: 745,
     date: '2026-08-17T14:50:00+03:00',

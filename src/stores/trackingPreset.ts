@@ -29,6 +29,8 @@ const SIMPLE_TRACKED_FIELDS: Record<TrackedField, boolean> = {
   nightEating: false,
   dayTotals: false,
   fiber: false,
+  zeppScreenshot: true,
+  autoSleepScreenshot: true,
 }
 
 /** The app's own out-of-the-box defaults (`trackedFieldsStore.ts`'s
@@ -46,6 +48,8 @@ const FULL_TRACKED_FIELDS: Record<TrackedField, boolean> = {
   nightEating: true,
   dayTotals: true,
   fiber: true,
+  zeppScreenshot: true,
+  autoSleepScreenshot: true,
 }
 
 /** Today's own stat-card sections tied to the fields above — hidden

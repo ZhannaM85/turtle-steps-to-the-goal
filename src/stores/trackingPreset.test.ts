@@ -26,6 +26,8 @@ describe('applyTrackingPreset (#604)', () => {
       nightEating: false,
       dayTotals: false,
       fiber: false,
+      zeppScreenshot: true,
+      autoSleepScreenshot: true,
     })
     expect(useWaterTrackingStore.getState().enabled).toBe(false)
     expect(useMicronutrientTrackingStore.getState().tracked).toEqual({
@@ -74,6 +76,8 @@ describe('applyTrackingPreset (#604)', () => {
       nightEating: true,
       dayTotals: true,
       fiber: true,
+      zeppScreenshot: true,
+      autoSleepScreenshot: true,
     })
     const visible = useSectionVisibilityStore.getState().visible
     expect(visible.todayVsYesterday).toBe(true)

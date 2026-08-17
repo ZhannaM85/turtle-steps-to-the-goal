@@ -1952,6 +1952,11 @@ export interface Dictionary {
     trackedFieldsOtherGroupLabel: string
     /** #530 — electrolytes subgroup inside What to track. */
     trackedFieldsElectrolytesGroupLabel: string
+    /** #749 — screenshot-fill toggles, listed only when the parent field
+     * (sleep / body composition) is tracked. */
+    trackedFieldsScreenshotsGroupLabel: string
+    zeppScreenshotTrackingLabel: string
+    autoSleepScreenshotTrackingLabel: string
     /** #233 — height/age/sex, entered once (rarely changed) purely to
      * compute BMI/BMR on Today; included in the JSON backup settings blob
      * (#594), same category as unit/theme/week-start. */

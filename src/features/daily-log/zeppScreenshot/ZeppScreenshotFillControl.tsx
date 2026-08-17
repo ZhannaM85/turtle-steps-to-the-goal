@@ -8,6 +8,7 @@ import {
 } from '@/i18n'
 import { parseNumberInput } from '@/shared/lib/parseNumberInput'
 import { Button } from '@/shared/ui/button'
+import { useTrackedFieldsStore } from '@/stores'
 import {
   Dialog,
   DialogContent,
@@ -38,6 +39,9 @@ export function ZeppScreenshotFillControl({
   asOfDate,
   onConfirm,
 }: ZeppScreenshotFillControlProps) {
+  const zeppScreenshotEnabled = useTrackedFieldsStore(
+    (state) => state.tracked.zeppScreenshot,
+  )
   const t = useTranslation()
   const locale = useLocale()
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -109,6 +113,8 @@ export function ZeppScreenshotFillControl({
       boneMassKg: parseNumberInput(boneMassKg),
       bodyFatPercent: parseNumberInput(bodyFatPercent),
     })
+
+  if (!zeppScreenshotEnabled) return null
 
   return (
     <>

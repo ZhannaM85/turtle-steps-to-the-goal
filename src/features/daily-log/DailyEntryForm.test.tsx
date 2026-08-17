@@ -1710,6 +1710,8 @@ describe('DailyEntryForm', () => {
           nightEating: true,
           dayTotals: true,
           fiber: true,
+          zeppScreenshot: true,
+          autoSleepScreenshot: true,
         },
       })
       render(

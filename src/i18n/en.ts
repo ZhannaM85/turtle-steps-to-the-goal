@@ -1261,6 +1261,9 @@ export const en: Dictionary = {
     trackedFieldsEveningGroupLabel: 'Evening',
     trackedFieldsOtherGroupLabel: 'Other',
     trackedFieldsElectrolytesGroupLabel: 'Electrolytes',
+    trackedFieldsScreenshotsGroupLabel: 'From screenshots',
+    zeppScreenshotTrackingLabel: 'Zepp body composition screenshot',
+    autoSleepScreenshotTrackingLabel: 'AutoSleep screenshot',
     profileLabel: 'Profile',
     profileDescription:
       'Optional — used only to compute BMI and estimated daily calorie needs (BMR) on the Day screen. Included in JSON backups with your other Settings preferences.',
