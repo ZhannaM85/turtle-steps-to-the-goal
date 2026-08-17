@@ -236,6 +236,7 @@ _Closed rows only. Open / pending children of #717 stay in the active file._
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#738](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/738) | ✅ Done | Hide day-sync behind a Settings toggle (off by default) | Store shipped. Copy rewritten to **day log**, not a meal. Confirmed on-device 2026-08-15 |
+| [#722](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/722) | ✅ Done | Show day-snippet QR on the send sheet | Same URL as copy/share. Over QR budget → copy/share + explanation. Confirmed on-device 2026-08-17 |
 
 ---
 
