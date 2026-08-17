@@ -40,5 +40,4 @@ _Retargeted 2026-08-14: **full day entry** (sleep, weight, meals, steps, water, 
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#720](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/720) | 🔍 Pending validation | Day screen: refresh control + what-to-send sheet | Toggle off → no icon. Whole day. Copy/share. Paste/QR later |
 | [#723](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/723) | 🔍 Pending validation | Scan day-snippet QR (reuse #661, photo fallback) | Send sheet Scan QR + photo. Food QR is not applied as a day; food import rejects day QRs |

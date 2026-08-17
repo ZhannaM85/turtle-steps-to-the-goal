@@ -242,6 +242,7 @@ _Closed rows only. Open / pending children of #717 stay in the active file._
 | [#717](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/717) | ✅ Done | Epic: Sync a day's log to another copy (Day refresh + clipboard / share / QR) | Tracking. Children #738 + #718–#724 shipped. Confirmed on-device 2026-08-17 |
 | [#718](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/718) | ✅ Done | Day-entry snippet envelope (encode/decode) | `kind: 'day'` + compact `DailyEntry` on `shareDay`. Confirmed on-device 2026-08-17 |
 | [#719](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/719) | ✅ Done | Apply day snippet: confirm, fill blanks, ask before overwrite | Fill empty; confirm overwrite; append meals; never wipe the day. Confirmed on-device 2026-08-17 |
+| [#720](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/720) | ✅ Done | Day screen: refresh control + what-to-send sheet | Toggle off → no icon. Whole day. Copy/share. Confirmed on-device 2026-08-17 |
 
 ---
 
