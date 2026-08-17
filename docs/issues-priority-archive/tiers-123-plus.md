@@ -298,3 +298,4 @@ _Zepp screenshot OCR (#742), CSV/export completeness, Day delete/icon consistenc
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#749](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/749) | ✅ Done | Separate Settings toggles for Zepp and AutoSleep screenshot fill | Confirmed on-device 2026-08-17 — per-source What-to-track toggles (default on). |
+| [#747](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/747) | ✅ Done | #742 follow-up: Russian Zepp screenshot leaves muscle and bone empty | Confirmed on-device 2026-08-17 — RU goals screenshot fills muscle/bone; August not April. |
