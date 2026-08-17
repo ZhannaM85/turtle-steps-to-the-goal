@@ -36,7 +36,7 @@ _User asked about pulling data from Apple Health and Zepp Life. Researched via W
 
 ## Tier 139 — Live feedback (2026-08-17)
 
-_Zepp screenshot OCR (#742), CSV/export completeness, Day delete/icon consistency, AutoSleep screenshot fill, and a Settings opt-out for reading from images._
+_Zepp screenshot OCR (#742), CSV/export completeness, Day delete/icon consistency, AutoSleep screenshot fill, Settings opt-out for reading from images, and Body composition display layout._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
@@ -48,3 +48,4 @@ _Zepp screenshot OCR (#742), CSV/export completeness, Day delete/icon consistenc
 | [#747](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/747) | 🔍 Pending validation | #742 follow-up: Russian Zepp screenshot leaves muscle and bone empty | RU “goals” fixture: keep kg values glued onto цели headers; unlabeled muscle/bone no longer require a unit; OCR апреля→августа when the open day is 17 August. |
 | [#748](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/748) | 📋 Not started | Fill sleep and deep sleep from an AutoSleep screenshot | Same pick → on-device OCR → confirm → save as #742, on the Sleep card. Parse 10h 33m + deep 3h 26m; ignore quality 7h 59m and in-bed 11:54. Wake date = Monday of SUNDAY 16 → MONDAY 17. Text fixture only. |
 | [#749](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/749) | 🔍 Pending validation | Separate Settings toggles for Zepp and AutoSleep screenshot fill | Per-source What-to-track toggles (default on). Zepp OCR toggle only if body composition is tracked; AutoSleep only if sleep is tracked. Off hides that source’s ImageUp. AutoSleep button ships with #748. |
+| [#750](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/750) | 📋 Not started | Body composition display: move icons to the title row so the five readings fit | Screenshot + pencil + trash squeeze the #515 grid (labels truncate, values collide). Icons on the title row; grid full width below. Same as edit mode. Weight/Sleep/measurements unchanged. |
