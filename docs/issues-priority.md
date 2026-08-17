@@ -31,3 +31,13 @@ _User asked about pulling data from Apple Health and Zepp Life. Researched via W
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#334](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/334) | 📋 Not started | Epic — Apple Health integration (blocked on mobile app + HealthKit bridge) | HealthKit has no public/cloud API at all — data is on-device only, readable exclusively by a native iOS app (or hybrid app with a HealthKit plugin/entitlement) the user has granted permission to. Genuinely blocked until the mobile app exists; can't be built sooner by any workaround. |
+
+---
+
+## Tier 139 — Zepp screenshot body composition (2026-08-17)
+
+_Daily body-composition entry is still five numbers typed by hand. The existing Zepp zip import (#365) already maps those fields, but that GDPR email/zip is too slow to generate every morning. Screenshot OCR on the Day screen is the daily path; zip import stays for history backfill._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#742](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/742) | 📋 Not started | Fill body composition from a Zepp Life screenshot | On-device OCR from the Zepp “reached goals” / body-composition list → confirm dialog (editable) → save into that day’s `bodyFatPercent` / `muscleMassKg` / `bodyWaterPercent` / `visceralFatRating` / `boneMassKg`. English + Russian labels; comma decimals; optional date from the screenshot header. No cloud, no LLM. Zip import unchanged. |
