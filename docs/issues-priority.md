@@ -40,7 +40,6 @@ _Retargeted 2026-08-14: **full day entry** (sleep, weight, meals, steps, water, 
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#718](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/718) | 🔍 Pending validation | Day-entry snippet envelope (encode/decode) | `kind: 'day'` + compact `DailyEntry` on `shareDay`. Meal-only envelope removed |
 | [#719](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/719) | 🔍 Pending validation | Apply day snippet: confirm, fill blanks, ask before overwrite | Fill empty; confirm overwrite; append meals; never wipe the day |
 | [#720](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/720) | 🔍 Pending validation | Day screen: refresh control + what-to-send sheet | Toggle off → no icon. Whole day. Copy/share. Paste/QR later |
 | [#723](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/723) | 🔍 Pending validation | Scan day-snippet QR (reuse #661, photo fallback) | Send sheet Scan QR + photo. Food QR is not applied as a day; food import rejects day QRs |
