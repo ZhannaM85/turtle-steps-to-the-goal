@@ -238,6 +238,7 @@ _Closed rows only. Open / pending children of #717 stay in the active file._
 | [#738](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/738) | ✅ Done | Hide day-sync behind a Settings toggle (off by default) | Store shipped. Copy rewritten to **day log**, not a meal. Confirmed on-device 2026-08-15 |
 | [#722](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/722) | ✅ Done | Show day-snippet QR on the send sheet | Same URL as copy/share. Over QR budget → copy/share + explanation. Confirmed on-device 2026-08-17 |
 | [#724](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/724) | ✅ Done | iOS: open day snippet from share sheet / URL | `turtlesteps://` + `appUrlOpen` → same confirm as #721. Confirmed on-device 2026-08-17 |
+| [#721](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/721) | ✅ Done | Receive day snippet (paste, deep link, not full backup) | Confirm shell; `?shareDay=` does not run Epic 8 backup import. Confirmed on-device 2026-08-17 |
 
 ---
 
