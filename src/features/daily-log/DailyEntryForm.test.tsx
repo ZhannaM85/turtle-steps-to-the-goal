@@ -462,7 +462,15 @@ describe('DailyEntryForm', () => {
           />,
         )
 
-        await user.click(screen.getByRole('button', { name: 'Delete weight' }))
+        const edit = screen.getByRole('button', { name: 'Edit weight' })
+        const remove = screen.getByRole('button', { name: 'Delete weight' })
+        // #746 — Pencil then Trash, same document order as meals.
+        expect(
+          edit.compareDocumentPosition(remove) &
+            Node.DOCUMENT_POSITION_FOLLOWING,
+        ).toBeTruthy()
+
+        await user.click(remove)
         expect(screen.getByText('Delete this entry?')).toBeInTheDocument()
 
         await user.click(screen.getByRole('button', { name: 'Cancel' }))

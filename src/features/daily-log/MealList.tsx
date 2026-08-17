@@ -198,6 +198,8 @@ function MealListItem({
           </span>
         )}
         <div className="flex shrink-0 items-center gap-3">
+          {/* #746 — Pencil then Trash (canonical Day/History order).
+           * gap-3 matches Weight's display-mode pair and #127. */}
           <Button
             type="button"
             variant="ghost"

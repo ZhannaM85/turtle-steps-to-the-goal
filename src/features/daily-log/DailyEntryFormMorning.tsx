@@ -216,9 +216,20 @@ export function DailyEntryFormMorning() {
                       {t.common.kg}
                     </span>
                   </span>
-                  <span className="flex items-center gap-1">
-                    {/* #670 — delete a logged weight entry (today or any
-                     * date), gated on there actually being a saved value. */}
+                  <span className="flex items-center gap-3">
+                    {/* #746 — Pencil then Trash, same order as meals and
+                     * History; gap-3 matches MealList and #127's mobile
+                     * spacing for adjacent icon buttons. #670 — delete a
+                     * logged weight, gated on a saved value. */}
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon-xl"
+                      aria-label={t.dailyEntry.editWeightLabel}
+                      onClick={() => state.setIsEditingWeight(true)}
+                    >
+                      <Pencil aria-hidden="true" />
+                    </Button>
                     {state.canDeleteWeight && (
                       <Button
                         type="button"
@@ -230,15 +241,6 @@ export function DailyEntryFormMorning() {
                         <Trash2 aria-hidden="true" />
                       </Button>
                     )}
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon-xl"
-                      aria-label={t.dailyEntry.editWeightLabel}
-                      onClick={() => state.setIsEditingWeight(true)}
-                    >
-                      <Pencil aria-hidden="true" />
-                    </Button>
                   </span>
                 </div>
               </div>

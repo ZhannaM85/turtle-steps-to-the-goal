@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 696,
+    issue: 746,
+    date: '2026-08-17T14:40:00+03:00',
+    en: 'On Day, the edit and delete icons now sit in the same order on weight and meals: pencil, then trash.',
+    ru: 'На экране «День» значки «изменить» и «удалить» у веса и приёмов пищи теперь в одном порядке: карандаш, затем корзина.',
+  },
+  {
     version: 695,
     issue: 742,
     date: '2026-08-17T14:05:00+03:00',

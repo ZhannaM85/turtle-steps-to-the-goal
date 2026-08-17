@@ -293,16 +293,17 @@ describe('MealList', () => {
     expect(time.previousElementSibling).toBe(title)
 
     const iconCluster = time.nextElementSibling
+    const editMeal = within(iconCluster as HTMLElement).getByRole('button', {
+      name: 'Edit meal 1',
+    })
+    const deleteMeal = within(iconCluster as HTMLElement).getByRole('button', {
+      name: 'Delete meal 1',
+    })
+    // #746 — Pencil then Trash (same order as Weight / History).
     expect(
-      within(iconCluster as HTMLElement).getByRole('button', {
-        name: 'Edit meal 1',
-      }),
-    ).toBeInTheDocument()
-    expect(
-      within(iconCluster as HTMLElement).getByRole('button', {
-        name: 'Delete meal 1',
-      }),
-    ).toBeInTheDocument()
+      editMeal.compareDocumentPosition(deleteMeal) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy()
 
     expect(
       screen.getByText('175 kcal · P 20g · F — · C —'),
