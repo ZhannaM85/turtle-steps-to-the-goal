@@ -809,6 +809,38 @@ export function useDailyEntryFormState({
     )
   }
 
+  /** #748 — fill parsed AutoSleep screenshot values, then the usual save path. */
+  function applySleepPatch(patch: {
+    sleepHours?: number
+    deepSleepHours?: number
+  }) {
+    const sleepHoursValue = patch.sleepHours ?? getValues().sleepHours
+    const deepSleepHoursValue =
+      patch.deepSleepHours ?? getValues().deepSleepHours
+    const hoursResult = sleepHoursSchema.safeParse(sleepHoursValue)
+    const deepHoursResult = deepSleepHoursSchema.safeParse(deepSleepHoursValue)
+    if (!hoursResult.success || !deepHoursResult.success) return
+    const sleepParts = splitHoursMinutes(sleepHoursValue)
+    const deepParts = splitHoursMinutes(deepSleepHoursValue)
+    setSleepHoursPart(sleepParts.hours)
+    setSleepMinutesPart(sleepParts.minutes)
+    setDeepSleepHoursPart(deepParts.hours)
+    setDeepSleepMinutesPart(deepParts.minutes)
+    clearErrors('sleepHours')
+    clearErrors('deepSleepHours')
+    setValue('sleepHours', sleepHoursValue, { shouldDirty: true })
+    setValue('deepSleepHours', deepSleepHoursValue, { shouldDirty: true })
+    setIsEditingSleep(false)
+    persist({
+      ...getValues(),
+      sleepHours: sleepHoursValue,
+      deepSleepHours: deepSleepHoursValue,
+    })
+    setHasSavedSleep(
+      sleepHoursValue !== undefined || deepSleepHoursValue !== undefined,
+    )
+  }
+
   // #424 — same "revert to session-start value" shape as cancelEditWeight
   // above, plus resetting the hours/minutes sub-fields local state (not
   // react-hook-form fields, see combineHoursMinutes' own comment) back to
@@ -1184,6 +1216,7 @@ export function useDailyEntryFormState({
     deepSleepMinutesPart,
     setDeepSleepMinutesPart,
     saveSleep,
+    applySleepPatch,
     canCancelSleepEdit,
     cancelEditSleep,
     isConfirmingDeleteSleep,

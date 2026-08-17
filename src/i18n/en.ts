@@ -414,6 +414,18 @@ export const en: Dictionary = {
     zeppScreenshotCloseLabel: 'Close',
     zeppScreenshotDateHint: (date) =>
       `This screenshot looks like ${date}. It will still save to the day you have open.`,
+    fillSleepFromScreenshotLabel: 'Fill from AutoSleep screenshot',
+    autoSleepScreenshotDialogTitle: 'From AutoSleep screenshot',
+    autoSleepScreenshotDialogDescription:
+      'Check the numbers, then save. Nothing is written until you confirm.',
+    autoSleepScreenshotReadingLabel: 'Reading the screenshot…',
+    autoSleepScreenshotNoValues:
+      'Could not read sleep from this image. Use a screenshot of AutoSleep Today.',
+    autoSleepScreenshotFailed: 'Could not read this image. Try another screenshot.',
+    autoSleepScreenshotSaveLabel: 'Save these numbers',
+    autoSleepScreenshotCloseLabel: 'Close',
+    autoSleepScreenshotDateHint: (date) =>
+      `This screenshot looks like ${date}. It will still save to the day you have open.`,
     entryComparisonComparedToYesterday: (arrow, amount) =>
       `${arrow} ${amount} compared to yesterday`,
     entryComparisonComparedToDate: (arrow, amount, dateLabel) =>

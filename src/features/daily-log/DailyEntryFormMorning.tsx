@@ -22,6 +22,7 @@ import {
   EntryFieldComparisonInfo,
   EntryFieldComparisonLive,
 } from './EntryFieldComparison'
+import { AutoSleepScreenshotFillControl } from './autoSleepScreenshot/AutoSleepScreenshotFillControl'
 import { useDailyEntryFormStateContext } from './useDailyEntryFormStateContext'
 import { ZeppScreenshotFillControl } from './zeppScreenshot/ZeppScreenshotFillControl'
 
@@ -402,6 +403,10 @@ export function DailyEntryFormMorning() {
                       )}
                     </span>
                     <span className="flex items-center gap-3">
+                      <AutoSleepScreenshotFillControl
+                        asOfDate={state.date}
+                        onConfirm={state.applySleepPatch}
+                      />
                       <Button
                         type="button"
                         variant="ghost"
@@ -437,9 +442,15 @@ export function DailyEntryFormMorning() {
                 </div>
               ) : (
                 <div className="flex flex-col gap-1.5">
-                  <span className="text-sm font-medium">
-                    {t.dailyEntry.sleepLabel}
-                  </span>
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-sm font-medium">
+                      {t.dailyEntry.sleepLabel}
+                    </span>
+                    <AutoSleepScreenshotFillControl
+                      asOfDate={state.date}
+                      onConfirm={state.applySleepPatch}
+                    />
+                  </div>
                   <div className="flex flex-wrap items-end gap-3">
                     <div className="flex flex-col gap-1">
                       <Label htmlFor="sleep-hours-part">

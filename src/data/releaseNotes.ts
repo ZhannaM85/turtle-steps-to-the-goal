@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 700,
+    issue: 748,
+    date: '2026-08-17T16:40:00+03:00',
+    en: 'On Day, you can fill sleep and deep sleep from an AutoSleep screenshot the same way as body composition from Zepp: pick a photo, check the numbers, then save.',
+    ru: 'На экране «День» сон и глубокий сон можно заполнить по скриншоту AutoSleep так же, как состав тела по Zepp: выбрать фото, проверить цифры и сохранить.',
+  },
+  {
     version: 699,
     issue: 747,
     date: '2026-08-17T15:10:00+03:00',

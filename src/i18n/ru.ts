@@ -435,6 +435,18 @@ export const ru: Dictionary = {
     zeppScreenshotCloseLabel: 'Закрыть',
     zeppScreenshotDateHint: (date) =>
       `На скриншоте дата ${date}. Сохранится на тот день, который сейчас открыт.`,
+    fillSleepFromScreenshotLabel: 'Заполнить из скриншота AutoSleep',
+    autoSleepScreenshotDialogTitle: 'Из скриншота AutoSleep',
+    autoSleepScreenshotDialogDescription:
+      'Проверьте цифры и сохраните. Ничего не запишется, пока вы не подтвердите.',
+    autoSleepScreenshotReadingLabel: 'Читаю скриншот…',
+    autoSleepScreenshotNoValues:
+      'Не удалось прочитать сон на этом изображении. Нужен скриншот AutoSleep за сегодня.',
+    autoSleepScreenshotFailed: 'Не удалось прочитать изображение. Попробуйте другой скриншот.',
+    autoSleepScreenshotSaveLabel: 'Сохранить эти числа',
+    autoSleepScreenshotCloseLabel: 'Закрыть',
+    autoSleepScreenshotDateHint: (date) =>
+      `На скриншоте дата ${date}. Сохранится на тот день, который сейчас открыт.`,
     entryComparisonComparedToYesterday: (arrow, amount) =>
       `${arrow} ${amount} по сравнению со вчера`,
     entryComparisonComparedToDate: (arrow, amount, dateLabel) =>
