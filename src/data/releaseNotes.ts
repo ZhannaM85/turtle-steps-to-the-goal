@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 697,
+    issue: 745,
+    date: '2026-08-17T14:50:00+03:00',
+    en: 'On Day, you can delete sleep, body measurements, and body composition the same way as weight: trash icon, then confirm.',
+    ru: 'На экране «День» сон, измерения тела и состав тела можно удалить так же, как вес: значок корзины и подтверждение.',
+  },
+  {
     version: 696,
     issue: 746,
     date: '2026-08-17T14:40:00+03:00',

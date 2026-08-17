@@ -206,6 +206,9 @@ export const ru: Dictionary = {
     cancelEditWeightLabel: 'Отменить редактирование веса',
     cancelEditNoteLabel: 'Отменить редактирование заметки',
     deleteWeightLabel: 'Удалить вес',
+    deleteSleepLabel: 'Удалить сон',
+    deleteBodyMeasurementsLabel: 'Удалить измерения тела',
+    deleteBodyCompositionLabel: 'Удалить состав тела',
     invalidValueMessage: 'Неверное значение.',
     unusualWeightWarning:
       'Необычное значение веса — проверьте, прежде чем сохранить.',

@@ -351,7 +351,34 @@ export function DailyEntryFormMorning() {
             )}
 
             {state.trackedFields.sleep &&
-              (state.showSleepAsDisplay ? (
+              (state.isConfirmingDeleteSleep ? (
+                <div className="flex flex-col gap-1.5">
+                  <span className="text-sm font-medium">
+                    {t.dailyEntry.sleepLabel}
+                  </span>
+                  <div className="flex min-h-12 items-center gap-2 rounded-lg bg-muted px-3 py-2">
+                    <span className="text-sm text-muted-foreground">
+                      {t.history.confirmDeleteLabel}
+                    </span>
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="sm"
+                      onClick={state.confirmDeleteSleep}
+                    >
+                      {t.history.confirmDeleteYes}
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={state.cancelDeleteSleep}
+                    >
+                      {t.history.confirmDeleteNo}
+                    </Button>
+                  </div>
+                </div>
+              ) : state.showSleepAsDisplay ? (
                 <div className="flex flex-col gap-1.5">
                   <span className="flex items-center gap-1 text-sm font-medium">
                     {t.dailyEntry.sleepLabel}
@@ -374,25 +401,38 @@ export function DailyEntryFormMorning() {
                           : `${splitHoursMinutes(state.deepSleepHours).hours}${t.dailyEntry.hoursUnit} ${splitHoursMinutes(state.deepSleepHours).minutes}${t.dailyEntry.minutesUnit}`,
                       )}
                     </span>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon-xl"
-                      aria-label={t.dailyEntry.editSleepLabel}
-                      onClick={() => {
-                        const parts = splitHoursMinutes(state.sleepHours)
-                        const deepParts = splitHoursMinutes(
-                          state.deepSleepHours,
-                        )
-                        state.setSleepHoursPart(parts.hours)
-                        state.setSleepMinutesPart(parts.minutes)
-                        state.setDeepSleepHoursPart(deepParts.hours)
-                        state.setDeepSleepMinutesPart(deepParts.minutes)
-                        state.setIsEditingSleep(true)
-                      }}
-                    >
-                      <Pencil aria-hidden="true" />
-                    </Button>
+                    <span className="flex items-center gap-3">
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon-xl"
+                        aria-label={t.dailyEntry.editSleepLabel}
+                        onClick={() => {
+                          const parts = splitHoursMinutes(state.sleepHours)
+                          const deepParts = splitHoursMinutes(
+                            state.deepSleepHours,
+                          )
+                          state.setSleepHoursPart(parts.hours)
+                          state.setSleepMinutesPart(parts.minutes)
+                          state.setDeepSleepHoursPart(deepParts.hours)
+                          state.setDeepSleepMinutesPart(deepParts.minutes)
+                          state.setIsEditingSleep(true)
+                        }}
+                      >
+                        <Pencil aria-hidden="true" />
+                      </Button>
+                      {state.canDeleteSleep && (
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon-xl"
+                          aria-label={t.dailyEntry.deleteSleepLabel}
+                          onClick={state.requestDeleteSleep}
+                        >
+                          <Trash2 aria-hidden="true" />
+                        </Button>
+                      )}
+                    </span>
                   </div>
                 </div>
               ) : (
@@ -502,6 +542,18 @@ export function DailyEntryFormMorning() {
                         </span>
                       </div>
                     </div>
+                    {/* #745 */}
+                    {state.canDeleteSleep && (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon-xl"
+                        aria-label={t.dailyEntry.deleteSleepLabel}
+                        onClick={state.requestDeleteSleep}
+                      >
+                        <Trash2 aria-hidden="true" />
+                      </Button>
+                    )}
                     {/* #424 */}
                     {state.canCancelSleepEdit && (
                       <Button
@@ -548,7 +600,34 @@ export function DailyEntryFormMorning() {
              * Body composition — both are physical measurements typically
              * taken in the morning, same as Weight. */}
             {state.trackedFields.bodyMeasurements &&
-              (state.showBodyMeasurementsAsDisplay ? (
+              (state.isConfirmingDeleteBodyMeasurements ? (
+                <div className="flex flex-col gap-1.5">
+                  <span className="text-sm font-medium">
+                    {t.dailyEntry.bodyMeasurementsLabel}
+                  </span>
+                  <div className="flex min-h-12 items-center gap-2 rounded-lg bg-muted px-3 py-2">
+                    <span className="text-sm text-muted-foreground">
+                      {t.history.confirmDeleteLabel}
+                    </span>
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="sm"
+                      onClick={state.confirmDeleteBodyMeasurements}
+                    >
+                      {t.history.confirmDeleteYes}
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={state.cancelDeleteBodyMeasurements}
+                    >
+                      {t.history.confirmDeleteNo}
+                    </Button>
+                  </div>
+                </div>
+              ) : state.showBodyMeasurementsAsDisplay ? (
                 <div className="flex flex-col gap-1.5">
                   <span className="text-sm font-medium">
                     {t.dailyEntry.bodyMeasurementsLabel}
@@ -564,15 +643,30 @@ export function DailyEntryFormMorning() {
                           : `${formatExactNumber(state.hipCm, locale)}${t.dailyEntry.cmUnit}`,
                       )}
                     </span>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon-xl"
-                      aria-label={t.dailyEntry.editBodyMeasurementsLabel}
-                      onClick={() => state.setIsEditingBodyMeasurements(true)}
-                    >
-                      <Pencil aria-hidden="true" />
-                    </Button>
+                    <span className="flex items-center gap-3">
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon-xl"
+                        aria-label={t.dailyEntry.editBodyMeasurementsLabel}
+                        onClick={() =>
+                          state.setIsEditingBodyMeasurements(true)
+                        }
+                      >
+                        <Pencil aria-hidden="true" />
+                      </Button>
+                      {state.canDeleteBodyMeasurements && (
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon-xl"
+                          aria-label={t.dailyEntry.deleteBodyMeasurementsLabel}
+                          onClick={state.requestDeleteBodyMeasurements}
+                        >
+                          <Trash2 aria-hidden="true" />
+                        </Button>
+                      )}
+                    </span>
                   </div>
                 </div>
               ) : (
@@ -629,6 +723,17 @@ export function DailyEntryFormMorning() {
                         </span>
                       </div>
                     </div>
+                    {state.canDeleteBodyMeasurements && (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon-xl"
+                        aria-label={t.dailyEntry.deleteBodyMeasurementsLabel}
+                        onClick={state.requestDeleteBodyMeasurements}
+                      >
+                        <Trash2 aria-hidden="true" />
+                      </Button>
+                    )}
                     {/* #424 */}
                     {state.canCancelBodyMeasurementsEdit && (
                       <Button
@@ -669,7 +774,34 @@ export function DailyEntryFormMorning() {
              * reasoning applies. #742: screenshot fill from Zepp Life in addition
              * to typing. */}
             {state.trackedFields.bodyComposition &&
-              (state.showBodyCompositionAsDisplay ? (
+              (state.isConfirmingDeleteBodyComposition ? (
+                <div className="flex flex-col gap-1.5">
+                  <span className="text-sm font-medium">
+                    {t.dailyEntry.bodyCompositionLabel}
+                  </span>
+                  <div className="flex min-h-12 items-center gap-2 rounded-lg bg-muted px-3 py-2">
+                    <span className="text-sm text-muted-foreground">
+                      {t.history.confirmDeleteLabel}
+                    </span>
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="sm"
+                      onClick={state.confirmDeleteBodyComposition}
+                    >
+                      {t.history.confirmDeleteYes}
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={state.cancelDeleteBodyComposition}
+                    >
+                      {t.history.confirmDeleteNo}
+                    </Button>
+                  </div>
+                </div>
+              ) : state.showBodyCompositionAsDisplay ? (
                 <div className="flex flex-col gap-1.5">
                   <span className="text-sm font-medium">
                     {t.dailyEntry.bodyCompositionLabel}
@@ -703,7 +835,7 @@ export function DailyEntryFormMorning() {
                         </div>
                       ))}
                     </dl>
-                    <div className="flex shrink-0 items-center">
+                    <div className="flex shrink-0 items-center gap-3">
                       <ZeppScreenshotFillControl
                         asOfDate={state.date}
                         onConfirm={state.applyBodyCompositionPatch}
@@ -713,23 +845,49 @@ export function DailyEntryFormMorning() {
                         variant="ghost"
                         size="icon-xl"
                         aria-label={t.dailyEntry.editBodyCompositionLabel}
-                        onClick={() => state.setIsEditingBodyComposition(true)}
+                        onClick={() =>
+                          state.setIsEditingBodyComposition(true)
+                        }
                       >
                         <Pencil aria-hidden="true" />
                       </Button>
+                      {state.canDeleteBodyComposition && (
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon-xl"
+                          aria-label={t.dailyEntry.deleteBodyCompositionLabel}
+                          onClick={state.requestDeleteBodyComposition}
+                        >
+                          <Trash2 aria-hidden="true" />
+                        </Button>
+                      )}
                     </div>
                   </div>
                 </div>
               ) : (
                 <div className="flex flex-col gap-1.5">
-                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center justify-between gap-2">
                     <span className="text-sm font-medium">
                       {t.dailyEntry.bodyCompositionLabel}
                     </span>
-                    <ZeppScreenshotFillControl
-                      asOfDate={state.date}
-                      onConfirm={state.applyBodyCompositionPatch}
-                    />
+                    <span className="flex items-center gap-3">
+                      <ZeppScreenshotFillControl
+                        asOfDate={state.date}
+                        onConfirm={state.applyBodyCompositionPatch}
+                      />
+                      {state.canDeleteBodyComposition && (
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon-xl"
+                          aria-label={t.dailyEntry.deleteBodyCompositionLabel}
+                          onClick={state.requestDeleteBodyComposition}
+                        >
+                          <Trash2 aria-hidden="true" />
+                        </Button>
+                      )}
+                    </span>
                   </div>
                   {/* #427 — 5 fields plus the Save button don't wrap evenly in a
                    * single `flex flex-wrap` row the way Sleep's 2/Body

@@ -195,6 +195,9 @@ export const en: Dictionary = {
     cancelEditWeightLabel: 'Cancel editing weight',
     cancelEditNoteLabel: 'Cancel editing note',
     deleteWeightLabel: 'Delete weight',
+    deleteSleepLabel: 'Delete sleep',
+    deleteBodyMeasurementsLabel: 'Delete body measurements',
+    deleteBodyCompositionLabel: 'Delete body composition',
     invalidValueMessage: 'Invalid value.',
     unusualWeightWarning:
       "That's an unusual weight — please double-check it before saving.",

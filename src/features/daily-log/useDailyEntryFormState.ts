@@ -167,6 +167,28 @@ export function useDailyEntryFormState({
   const [hasSavedWeight, setHasSavedWeight] = useState(
     initialValues.weightKg !== undefined,
   )
+  // #745 — same live "anything saved in this card" flag as weight (#672),
+  // so Trash appears after the first save of the day and hides after delete
+  // without waiting for a remount.
+  const [hasSavedSleep, setHasSavedSleep] = useState(
+    initialValues.sleepHours !== undefined ||
+      initialValues.deepSleepHours !== undefined,
+  )
+  const [hasSavedBodyMeasurements, setHasSavedBodyMeasurements] = useState(
+    initialValues.waistCm !== undefined || initialValues.hipCm !== undefined,
+  )
+  const [hasSavedBodyComposition, setHasSavedBodyComposition] = useState(
+    initialValues.muscleMassKg !== undefined ||
+      initialValues.visceralFatRating !== undefined ||
+      initialValues.bodyWaterPercent !== undefined ||
+      initialValues.boneMassKg !== undefined ||
+      initialValues.bodyFatPercent !== undefined,
+  )
+  const [isConfirmingDeleteSleep, setIsConfirmingDeleteSleep] = useState(false)
+  const [isConfirmingDeleteBodyMeasurements, setIsConfirmingDeleteBodyMeasurements] =
+    useState(false)
+  const [isConfirmingDeleteBodyComposition, setIsConfirmingDeleteBodyComposition] =
+    useState(false)
   // #218: the exact value a Save tap flagged as unusual (not the same as
   // "is the current field value unusual" — a second tap should only skip
   // straight to saving if the value hasn't changed since the warning
@@ -451,22 +473,15 @@ export function useDailyEntryFormState({
   // edit affordance (pencil-toggle vs. always-editable input) is showing it.
   const canDeleteWeight = hasSavedWeight
   const canCancelNoteEdit = alwaysEditable || Boolean(initialValues.note)
-  const canCancelSleepEdit =
-    alwaysEditable ||
-    initialValues.sleepHours !== undefined ||
-    initialValues.deepSleepHours !== undefined
+  const canCancelSleepEdit = alwaysEditable || hasSavedSleep
+  const canDeleteSleep = hasSavedSleep
   const canCancelStepsEdit = alwaysEditable || initialValues.steps !== undefined
   const canCancelBodyMeasurementsEdit =
-    alwaysEditable ||
-    initialValues.waistCm !== undefined ||
-    initialValues.hipCm !== undefined
+    alwaysEditable || hasSavedBodyMeasurements
+  const canDeleteBodyMeasurements = hasSavedBodyMeasurements
   const canCancelBodyCompositionEdit =
-    alwaysEditable ||
-    initialValues.muscleMassKg !== undefined ||
-    initialValues.visceralFatRating !== undefined ||
-    initialValues.bodyWaterPercent !== undefined ||
-    initialValues.boneMassKg !== undefined ||
-    initialValues.bodyFatPercent !== undefined
+    alwaysEditable || hasSavedBodyComposition
+  const canDeleteBodyComposition = hasSavedBodyComposition
 
   // #237: Mood is a standalone, always-interactive field (no separate
   // edit/display toggle the way Sleep/Steps/Note have — EmotionPicker is
@@ -789,6 +804,9 @@ export function useDailyEntryFormState({
       sleepHours: sleepHoursValue,
       deepSleepHours: deepSleepHoursValue,
     })
+    setHasSavedSleep(
+      sleepHoursValue !== undefined || deepSleepHoursValue !== undefined,
+    )
   }
 
   // #424 — same "revert to session-start value" shape as cancelEditWeight
@@ -805,6 +823,34 @@ export function useDailyEntryFormState({
     clearErrors('sleepHours')
     clearErrors('deepSleepHours')
     setIsEditingSleep(false)
+  }
+
+  function requestDeleteSleep() {
+    setIsConfirmingDeleteSleep(true)
+  }
+
+  function cancelDeleteSleep() {
+    setIsConfirmingDeleteSleep(false)
+  }
+
+  // #745 — same reset+persist+reopen-edit shape as confirmDeleteWeight.
+  function confirmDeleteSleep() {
+    const next = {
+      ...getValues(),
+      sleepHours: undefined,
+      deepSleepHours: undefined,
+    }
+    reset(next)
+    persist(next)
+    setSleepHoursPart('')
+    setSleepMinutesPart('')
+    setDeepSleepHoursPart('')
+    setDeepSleepMinutesPart('')
+    setIsConfirmingDeleteSleep(false)
+    clearErrors('sleepHours')
+    clearErrors('deepSleepHours')
+    setIsEditingSleep(true)
+    setHasSavedSleep(false)
   }
 
   function saveSteps() {
@@ -840,6 +886,9 @@ export function useDailyEntryFormState({
     clearErrors('hipCm')
     setIsEditingBodyMeasurements(false)
     persist(getValues())
+    setHasSavedBodyMeasurements(
+      waistResult.data !== undefined || hipResult.data !== undefined,
+    )
   }
 
   // #424
@@ -849,6 +898,25 @@ export function useDailyEntryFormState({
     clearErrors('waistCm')
     clearErrors('hipCm')
     setIsEditingBodyMeasurements(false)
+  }
+
+  function requestDeleteBodyMeasurements() {
+    setIsConfirmingDeleteBodyMeasurements(true)
+  }
+
+  function cancelDeleteBodyMeasurements() {
+    setIsConfirmingDeleteBodyMeasurements(false)
+  }
+
+  function confirmDeleteBodyMeasurements() {
+    const next = { ...getValues(), waistCm: undefined, hipCm: undefined }
+    reset(next)
+    persist(next)
+    setIsConfirmingDeleteBodyMeasurements(false)
+    clearErrors('waistCm')
+    clearErrors('hipCm')
+    setIsEditingBodyMeasurements(true)
+    setHasSavedBodyMeasurements(false)
   }
 
   function saveBodyComposition() {
@@ -960,6 +1028,13 @@ export function useDailyEntryFormState({
     setPendingUnusualBodyComposition(null)
     setIsEditingBodyComposition(false)
     persist(getValues())
+    setHasSavedBodyComposition(
+      current.muscleMassKg !== undefined ||
+        current.visceralFatRating !== undefined ||
+        current.bodyWaterPercent !== undefined ||
+        current.boneMassKg !== undefined ||
+        current.bodyFatPercent !== undefined,
+    )
   }
 
   /** #742 — fill parsed screenshot values, then the usual save path
@@ -1007,6 +1082,36 @@ export function useDailyEntryFormState({
     clearErrors('bodyFatPercent')
     setPendingUnusualBodyComposition(null)
     setIsEditingBodyComposition(false)
+  }
+
+  function requestDeleteBodyComposition() {
+    setIsConfirmingDeleteBodyComposition(true)
+  }
+
+  function cancelDeleteBodyComposition() {
+    setIsConfirmingDeleteBodyComposition(false)
+  }
+
+  function confirmDeleteBodyComposition() {
+    const next = {
+      ...getValues(),
+      muscleMassKg: undefined,
+      visceralFatRating: undefined,
+      bodyWaterPercent: undefined,
+      boneMassKg: undefined,
+      bodyFatPercent: undefined,
+    }
+    reset(next)
+    persist(next)
+    setIsConfirmingDeleteBodyComposition(false)
+    setPendingUnusualBodyComposition(null)
+    clearErrors('muscleMassKg')
+    clearErrors('visceralFatRating')
+    clearErrors('bodyWaterPercent')
+    clearErrors('boneMassKg')
+    clearErrors('bodyFatPercent')
+    setIsEditingBodyComposition(true)
+    setHasSavedBodyComposition(false)
   }
 
   // #435 — the hard schema bounds `saveBodyComposition()` already checks
@@ -1081,6 +1186,11 @@ export function useDailyEntryFormState({
     saveSleep,
     canCancelSleepEdit,
     cancelEditSleep,
+    isConfirmingDeleteSleep,
+    canDeleteSleep,
+    requestDeleteSleep,
+    confirmDeleteSleep,
+    cancelDeleteSleep,
     // Meals/macros
     dayTotalCalories,
     dayMacrosSummary,
@@ -1127,6 +1237,11 @@ export function useDailyEntryFormState({
     saveBodyMeasurements,
     canCancelBodyMeasurementsEdit,
     cancelEditBodyMeasurements,
+    isConfirmingDeleteBodyMeasurements,
+    canDeleteBodyMeasurements,
+    requestDeleteBodyMeasurements,
+    confirmDeleteBodyMeasurements,
+    cancelDeleteBodyMeasurements,
     // Body composition
     muscleMassKg,
     visceralFatRating,
@@ -1141,6 +1256,11 @@ export function useDailyEntryFormState({
     discardUnusualBodyCompositionWarning,
     canCancelBodyCompositionEdit,
     cancelEditBodyComposition,
+    isConfirmingDeleteBodyComposition,
+    canDeleteBodyComposition,
+    requestDeleteBodyComposition,
+    confirmDeleteBodyComposition,
+    cancelDeleteBodyComposition,
     validateBodyCompositionFieldOnBlur,
     // Note
     note,

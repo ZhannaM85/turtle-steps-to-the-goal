@@ -334,6 +334,11 @@ export interface Dictionary {
      * a confirmation step; reuses the generic `history.confirmDelete*`
      * strings for that step, same as `deleteMealLabel`'s confirm flow. */
     deleteWeightLabel: string
+    /** #745 — same trash + confirm as deleteWeightLabel, for the Sleep /
+     * Body measurements / Body composition morning cards. */
+    deleteSleepLabel: string
+    deleteBodyMeasurementsLabel: string
+    deleteBodyCompositionLabel: string
     /** #436 — every hard-bounds field validator in `useDailyEntryFormState.ts`
      * (weight, note, sleep/deep sleep, steps, waist/hip, the 5 body-
      * composition fields) used to set its error message straight from

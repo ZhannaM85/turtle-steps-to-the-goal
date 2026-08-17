@@ -575,6 +575,139 @@ describe('DailyEntryForm', () => {
       })
     })
 
+    describe('deleting sleep / body measurements / body composition (#745)', () => {
+      it('has no Delete sleep button when nothing is saved', () => {
+        render(
+          <DailyEntryForm date="2026-03-01" existingEntry={null} onSave={vi.fn()} />,
+        )
+        expect(
+          screen.queryByRole('button', { name: 'Delete sleep' }),
+        ).not.toBeInTheDocument()
+      })
+
+      it('asks before deleting sleep, and Cancel keeps the values', async () => {
+        const user = userEvent.setup()
+        const onSave = vi.fn()
+        render(
+          <DailyEntryForm
+            date="2026-03-01"
+            existingEntry={{
+              id: 'e1',
+              date: '2026-03-01',
+              sleepHours: 8,
+              deepSleepHours: 2,
+              createdAt: now,
+              updatedAt: now,
+            }}
+            onSave={onSave}
+          />,
+        )
+
+        const edit = screen.getByRole('button', { name: 'Edit sleep' })
+        const remove = screen.getByRole('button', { name: 'Delete sleep' })
+        expect(
+          edit.compareDocumentPosition(remove) &
+            Node.DOCUMENT_POSITION_FOLLOWING,
+        ).toBeTruthy()
+
+        await user.click(remove)
+        expect(screen.getByText('Delete this entry?')).toBeInTheDocument()
+        await user.click(screen.getByRole('button', { name: 'Cancel' }))
+        expect(onSave).not.toHaveBeenCalled()
+        expect(screen.getByText(/8h 0m slept/)).toBeInTheDocument()
+      })
+
+      it('clears sleep and deep sleep on confirm', async () => {
+        const user = userEvent.setup()
+        const onSave = vi.fn()
+        render(
+          <DailyEntryForm
+            date="2026-03-01"
+            existingEntry={{
+              id: 'e1',
+              date: '2026-03-01',
+              sleepHours: 8,
+              deepSleepHours: 2,
+              createdAt: now,
+              updatedAt: now,
+            }}
+            onSave={onSave}
+          />,
+        )
+
+        await user.click(screen.getByRole('button', { name: 'Delete sleep' }))
+        await user.click(screen.getByRole('button', { name: 'Delete' }))
+
+        expect(onSave).toHaveBeenCalledTimes(1)
+        expect(onSave.mock.calls[0][0].sleepHours).toBeUndefined()
+        expect(onSave.mock.calls[0][0].deepSleepHours).toBeUndefined()
+        expect(
+          screen.queryByRole('button', { name: 'Delete sleep' }),
+        ).not.toBeInTheDocument()
+      })
+
+      it('clears body measurements on confirm', async () => {
+        const user = userEvent.setup()
+        const onSave = vi.fn()
+        render(
+          <DailyEntryForm
+            date="2026-03-01"
+            existingEntry={{
+              id: 'e1',
+              date: '2026-03-01',
+              waistCm: 70,
+              hipCm: 95,
+              createdAt: now,
+              updatedAt: now,
+            }}
+            onSave={onSave}
+          />,
+        )
+
+        await user.click(
+          screen.getByRole('button', { name: 'Delete body measurements' }),
+        )
+        await user.click(screen.getByRole('button', { name: 'Delete' }))
+
+        expect(onSave.mock.calls[0][0].waistCm).toBeUndefined()
+        expect(onSave.mock.calls[0][0].hipCm).toBeUndefined()
+      })
+
+      it('clears all body composition fields on confirm', async () => {
+        const user = userEvent.setup()
+        const onSave = vi.fn()
+        render(
+          <DailyEntryForm
+            date="2026-03-01"
+            existingEntry={{
+              id: 'e1',
+              date: '2026-03-01',
+              muscleMassKg: 30,
+              visceralFatRating: 5,
+              bodyWaterPercent: 48,
+              boneMassKg: 2.3,
+              bodyFatPercent: 32,
+              createdAt: now,
+              updatedAt: now,
+            }}
+            onSave={onSave}
+          />,
+        )
+
+        await user.click(
+          screen.getByRole('button', { name: 'Delete body composition' }),
+        )
+        await user.click(screen.getByRole('button', { name: 'Delete' }))
+
+        const saved = onSave.mock.calls[0][0]
+        expect(saved.muscleMassKg).toBeUndefined()
+        expect(saved.visceralFatRating).toBeUndefined()
+        expect(saved.bodyWaterPercent).toBeUndefined()
+        expect(saved.boneMassKg).toBeUndefined()
+        expect(saved.bodyFatPercent).toBeUndefined()
+      })
+    })
+
     describe('leaving edit mode without saving (#424)', () => {
       it('has no Cancel button for a brand-new entry with nothing saved yet', () => {
         render(
