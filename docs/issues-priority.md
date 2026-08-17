@@ -34,10 +34,11 @@ _User asked about pulling data from Apple Health and Zepp Life. Researched via W
 
 ---
 
-## Tier 139 — Zepp screenshot body composition (2026-08-17)
+## Tier 139 — Live feedback (2026-08-17)
 
-_Daily body-composition entry is still five numbers typed by hand. The existing Zepp zip import (#365) already maps those fields, but that GDPR email/zip is too slow to generate every morning. Screenshot OCR on the Day screen is the daily path; zip import stays for history backfill._
+_Zepp screenshot OCR for daily body composition (#742), plus CSV/export completeness from live use of a week's daily-log CSV._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#742](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/742) | 🔍 Pending validation | Fill body composition from a Zepp Life screenshot | Day Body composition: pick a Zepp screenshot → on-device Tesseract (same-origin worker/core/lang, no CDN) → confirm dialog (editable) → save. Zip import unchanged. |
+| [#743](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/743) | 📋 Not started | CSV export is missing meals, foods, times, and other logged fields | CSV/Markdown are one row/day (Excel Daily Log too). Meals never included (#125 kept CSV to one table). Also missing from Daily Log: body composition, fiber, electrolytes, custom metrics. Recommended: keep daily table + add a second Meals table in the same file (Excel already has that sheet). JSON backup already complete. |
