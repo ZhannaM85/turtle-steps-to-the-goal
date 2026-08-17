@@ -288,3 +288,13 @@ _On-device and Chrome localhost: opening the day-log send sheet blinks, then the
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#741](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/741) | ✅ Done | QR modal blinks when opened, then the app freezes | Send sheet snapshot + stable snippet `createdAt`. Confirmed on-device 2026-08-17 |
+
+---
+
+## Tier 139 — Live feedback (2026-08-17)
+
+_Zepp screenshot OCR (#742), CSV/export completeness, Day delete/icon consistency, AutoSleep screenshot fill, Settings opt-out for reading from images, and Body composition display layout._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#749](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/749) | ✅ Done | Separate Settings toggles for Zepp and AutoSleep screenshot fill | Confirmed on-device 2026-08-17 — per-source What-to-track toggles (default on). |
