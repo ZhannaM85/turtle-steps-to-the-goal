@@ -962,6 +962,33 @@ export function useDailyEntryFormState({
     persist(getValues())
   }
 
+  /** #742 — fill parsed screenshot values, then the usual save path
+   * (schema + unusual-jump confirm). Unparsed fields stay as they were. */
+  function applyBodyCompositionPatch(patch: {
+    muscleMassKg?: number
+    visceralFatRating?: number
+    bodyWaterPercent?: number
+    boneMassKg?: number
+    bodyFatPercent?: number
+  }) {
+    if (patch.muscleMassKg !== undefined) {
+      setValue('muscleMassKg', patch.muscleMassKg)
+    }
+    if (patch.visceralFatRating !== undefined) {
+      setValue('visceralFatRating', patch.visceralFatRating)
+    }
+    if (patch.bodyWaterPercent !== undefined) {
+      setValue('bodyWaterPercent', patch.bodyWaterPercent)
+    }
+    if (patch.boneMassKg !== undefined) {
+      setValue('boneMassKg', patch.boneMassKg)
+    }
+    if (patch.bodyFatPercent !== undefined) {
+      setValue('bodyFatPercent', patch.bodyFatPercent)
+    }
+    saveBodyComposition()
+  }
+
   function discardUnusualBodyCompositionWarning() {
     setPendingUnusualBodyComposition(null)
   }
@@ -1109,6 +1136,7 @@ export function useDailyEntryFormState({
     showBodyCompositionAsDisplay,
     setIsEditingBodyComposition,
     saveBodyComposition,
+    applyBodyCompositionPatch,
     pendingUnusualBodyComposition,
     discardUnusualBodyCompositionWarning,
     canCancelBodyCompositionEdit,

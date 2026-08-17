@@ -23,6 +23,7 @@ import {
   EntryFieldComparisonLive,
 } from './EntryFieldComparison'
 import { useDailyEntryFormStateContext } from './useDailyEntryFormStateContext'
+import { ZeppScreenshotFillControl } from './zeppScreenshot/ZeppScreenshotFillControl'
 
 /**
  * #419 — the "Morning entries" group (Weight/Sleep/Body measurements/Body
@@ -663,7 +664,8 @@ export function DailyEntryFormMorning() {
              * under one edit toggle, same shape as Body measurements above —
              * a distinct group since these come from a smart scale, not a
              * tape measure/caliper, but the same "occasional related numbers"
-             * reasoning applies. Manual entry only, no device integration. */}
+             * reasoning applies. #742: screenshot fill from Zepp Life in addition
+             * to typing. */}
             {state.trackedFields.bodyComposition &&
               (state.showBodyCompositionAsDisplay ? (
                 <div className="flex flex-col gap-1.5">
@@ -699,22 +701,34 @@ export function DailyEntryFormMorning() {
                         </div>
                       ))}
                     </dl>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon-xl"
-                      aria-label={t.dailyEntry.editBodyCompositionLabel}
-                      onClick={() => state.setIsEditingBodyComposition(true)}
-                    >
-                      <Pencil aria-hidden="true" />
-                    </Button>
+                    <div className="flex shrink-0 items-center">
+                      <ZeppScreenshotFillControl
+                        asOfDate={state.date}
+                        onConfirm={state.applyBodyCompositionPatch}
+                      />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon-xl"
+                        aria-label={t.dailyEntry.editBodyCompositionLabel}
+                        onClick={() => state.setIsEditingBodyComposition(true)}
+                      >
+                        <Pencil aria-hidden="true" />
+                      </Button>
+                    </div>
                   </div>
                 </div>
               ) : (
                 <div className="flex flex-col gap-1.5">
-                  <span className="text-sm font-medium">
-                    {t.dailyEntry.bodyCompositionLabel}
-                  </span>
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-sm font-medium">
+                      {t.dailyEntry.bodyCompositionLabel}
+                    </span>
+                    <ZeppScreenshotFillControl
+                      asOfDate={state.date}
+                      onConfirm={state.applyBodyCompositionPatch}
+                    />
+                  </div>
                   {/* #427 — 5 fields plus the Save button don't wrap evenly in a
                    * single `flex flex-wrap` row the way Sleep's 2/Body
                    * measurements' 2 do (2 then 3, stranding the button on its

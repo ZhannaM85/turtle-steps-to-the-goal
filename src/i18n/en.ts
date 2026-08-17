@@ -399,6 +399,18 @@ export const en: Dictionary = {
     bodyWaterShortLabel: 'Water',
     boneMassShortLabel: 'Bone',
     bodyFatShortLabel: 'Body fat',
+    fillBodyCompositionFromScreenshotLabel: 'Fill from Zepp screenshot',
+    zeppScreenshotDialogTitle: 'From Zepp screenshot',
+    zeppScreenshotDialogDescription:
+      'Check the numbers, then save. Nothing is written until you confirm.',
+    zeppScreenshotReadingLabel: 'Reading the screenshot…',
+    zeppScreenshotNoValues:
+      'Could not read body composition from this image. Use a screenshot of the Zepp measurement list.',
+    zeppScreenshotFailed: 'Could not read this image. Try another screenshot.',
+    zeppScreenshotSaveLabel: 'Save these numbers',
+    zeppScreenshotCloseLabel: 'Close',
+    zeppScreenshotDateHint: (date) =>
+      `This screenshot looks like ${date}. It will still save to the day you have open.`,
     entryComparisonComparedToYesterday: (arrow, amount) =>
       `${arrow} ${amount} compared to yesterday`,
     entryComparisonComparedToDate: (arrow, amount, dateLabel) =>

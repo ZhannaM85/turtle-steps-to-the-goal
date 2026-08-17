@@ -22,6 +22,7 @@ describe('contentSecurityPolicyPlugin (#704)', () => {
     const csp = buildProductionCsp(indexHtml)
     expect(csp).toContain(`'sha256-${sha256CspHash(scripts[0]!)}'`)
     expect(csp).toContain("script-src 'self' 'unsafe-eval'")
+    expect(csp).toContain("'wasm-unsafe-eval'")
     expect(csp).not.toMatch(/script-src[^;]*'unsafe-inline'/)
   })
 

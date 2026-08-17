@@ -6,6 +6,7 @@ import { VitePWA } from 'vite-plugin-pwa'
 import { nodePolyfills } from 'vite-plugin-node-polyfills'
 import { defaultExclude } from 'vitest/config'
 import { contentSecurityPolicyPlugin } from './vite.cspPlugin.ts'
+import { copyTesseractAssetsPlugin } from './vite.tesseractPlugin.ts'
 
 // https://vite.dev/config/
 export default defineConfig(({ mode }) => ({
@@ -13,6 +14,7 @@ export default defineConfig(({ mode }) => ({
     react(),
     tailwindcss(),
     contentSecurityPolicyPlugin(),
+    copyTesseractAssetsPlugin(),
     // #500 — `officecrypto-tool` (MS-OFFCRYPTO decrypt for password-
     // protected MyFitnessPal .xlsx) reads Node's `crypto`/`buffer` and
     // touches `process` at module scope, so the browser needs all three
@@ -58,11 +60,14 @@ export default defineConfig(({ mode }) => ({
         // #497: Features/Capabilities screenshots live in public/screenshots
         // and are only needed on /features — keep them out of the SW precache
         // so routine app updates don't re-download ~1.6MB of PNGs.
+        // #742: Tesseract worker/core/lang (~few MB) only load when filling
+        // body composition from a screenshot.
         globIgnores: [
           'version.json',
           '**/exceljs*.js',
           '**/officecrypto-tool*.js',
           'screenshots/**',
+          'tesseract/**',
         ],
       },
     }),

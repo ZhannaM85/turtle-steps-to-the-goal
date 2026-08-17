@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 695,
+    issue: 742,
+    date: '2026-08-17T14:05:00+03:00',
+    en: 'On Day, you can fill body composition from a Zepp Life screenshot instead of typing the five numbers.',
+    ru: 'На экране «День» состав тела можно заполнить по скриншоту Zepp Life, не вводя пять чисел вручную.',
+  },
+  {
     version: 694,
     issue: 741,
     date: '2026-08-16T11:30:00+03:00',

@@ -420,6 +420,18 @@ export const ru: Dictionary = {
     bodyWaterShortLabel: 'Вода',
     boneMassShortLabel: 'Кости',
     bodyFatShortLabel: 'Жир',
+    fillBodyCompositionFromScreenshotLabel: 'Заполнить из скриншота Zepp',
+    zeppScreenshotDialogTitle: 'Из скриншота Zepp',
+    zeppScreenshotDialogDescription:
+      'Проверьте цифры и сохраните. Ничего не запишется, пока вы не подтвердите.',
+    zeppScreenshotReadingLabel: 'Читаю скриншот…',
+    zeppScreenshotNoValues:
+      'Не удалось прочитать состав тела на этом изображении. Нужен скриншот списка измерений Zepp.',
+    zeppScreenshotFailed: 'Не удалось прочитать изображение. Попробуйте другой скриншот.',
+    zeppScreenshotSaveLabel: 'Сохранить эти числа',
+    zeppScreenshotCloseLabel: 'Закрыть',
+    zeppScreenshotDateHint: (date) =>
+      `На скриншоте дата ${date}. Сохранится на тот день, который сейчас открыт.`,
     entryComparisonComparedToYesterday: (arrow, amount) =>
       `${arrow} ${amount} по сравнению со вчера`,
     entryComparisonComparedToDate: (arrow, amount, dateLabel) =>

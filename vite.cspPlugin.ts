@@ -12,7 +12,8 @@ import type { Plugin } from 'vite'
  *
  * `script-src` includes `'unsafe-eval'` for `vite-plugin-node-polyfills`'s
  * `vm` shim (`vm-browserify` calls `eval`), which `officecrypto-tool` needs
- * to decrypt password-protected MyFitnessPal .xlsx (#500). Inline XSS is
+ * to decrypt password-protected MyFitnessPal .xlsx (#500), and
+ * `'wasm-unsafe-eval'` for Tesseract.js WebAssembly (#742). Inline XSS is
  * still blocked: hashes disable `'unsafe-inline'` for scripts (CSP3).
  *
  * `style-src` keeps `'unsafe-inline'` (no style hashes): React/`style={{}}`
@@ -47,7 +48,7 @@ export function buildProductionCsp(html: string): string {
     "default-src 'none'",
     "base-uri 'self'",
     "form-action 'self'",
-    `script-src ${scriptSrc}`,
+    `script-src ${scriptSrc} 'wasm-unsafe-eval'`,
     "style-src 'self' 'unsafe-inline'",
     "img-src 'self' data: blob:",
     "font-src 'self'",

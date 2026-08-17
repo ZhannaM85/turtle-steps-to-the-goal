@@ -40,4 +40,4 @@ _Daily body-composition entry is still five numbers typed by hand. The existing 
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#742](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/742) | 📋 Not started | Fill body composition from a Zepp Life screenshot | On-device OCR from the Zepp “reached goals” / body-composition list → confirm dialog (editable) → save into that day’s `bodyFatPercent` / `muscleMassKg` / `bodyWaterPercent` / `visceralFatRating` / `boneMassKg`. English + Russian labels; comma decimals; optional date from the screenshot header. No cloud, no LLM. Zip import unchanged. |
+| [#742](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/742) | 🔍 Pending validation | Fill body composition from a Zepp Life screenshot | Day Body composition: pick a Zepp screenshot → on-device Tesseract (same-origin worker/core/lang, no CDN) → confirm dialog (editable) → save. Zip import unchanged. |

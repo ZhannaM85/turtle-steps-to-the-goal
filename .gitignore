@@ -34,6 +34,10 @@ coverage
 # a stale value.
 public/version.json
 
+# #742 — copied from node_modules on each Vite build; traineddata is committed.
+public/tesseract/core/
+public/tesseract/worker.min.js
+
 # Playwright E2E suite (#161)
 /test-results/
 /playwright-report/

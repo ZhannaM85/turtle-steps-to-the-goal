@@ -755,6 +755,16 @@ export interface Dictionary {
     bodyWaterShortLabel: string
     boneMassShortLabel: string
     bodyFatShortLabel: string
+    /** #742 — fill the five body-composition fields from a Zepp screenshot. */
+    fillBodyCompositionFromScreenshotLabel: string
+    zeppScreenshotDialogTitle: string
+    zeppScreenshotDialogDescription: string
+    zeppScreenshotReadingLabel: string
+    zeppScreenshotNoValues: string
+    zeppScreenshotFailed: string
+    zeppScreenshotSaveLabel: string
+    zeppScreenshotCloseLabel: string
+    zeppScreenshotDateHint: (date: string) => string
     /**
      * #664 — live arrow + short text under an input while editing, and the
      * post-save ⓘ tooltip. `amount` already includes the signed magnitude
