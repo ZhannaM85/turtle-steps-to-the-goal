@@ -10,6 +10,7 @@ import {
   useLastBackupStore,
   useMealItemStore,
   useMealSlotDefaultTimesStore,
+  useMicronutrientTrackingStore,
   useProfileStore,
   useTrackedFieldsStore,
   useUnitStore,
@@ -282,6 +283,7 @@ export function ExportSection() {
     (state) => state.enabled,
   )
   const waterTrackingEnabled = useWaterTrackingStore((state) => state.enabled)
+  const micronutrients = useMicronutrientTrackingStore((state) => state.tracked)
   // #634 — built once so both `gatePdfSectionAvailability` and the
   // `PdfSectionsDialog`'s own disabled-reason tooltip (needs the raw gate,
   // not just the already-ANDed `availability`) read the same values.
@@ -295,6 +297,26 @@ export function ExportSection() {
     digestion: digestionTrackingEnabled,
     alcohol: alcoholTrackingEnabled,
     water: waterTrackingEnabled,
+  }
+  // #744 — analysis CSV/Excel/Markdown omit a column when its Settings
+  // gate is off. JSON backup stays complete. Custom metrics have no
+  // What-to-track toggle and always keep their columns.
+  const analysisExportTracking = {
+    sleep: trackedFields.sleep,
+    steps: trackedFields.steps,
+    bodyMeasurements: trackedFields.bodyMeasurements,
+    note: trackedFields.note,
+    mood: trackedFields.mood,
+    bodyComposition: trackedFields.bodyComposition,
+    nightEating: trackedFields.nightEating,
+    fiber: trackedFields.fiber,
+    cycle: cycleTrackingEnabled,
+    digestion: digestionTrackingEnabled,
+    alcohol: alcoholTrackingEnabled,
+    water: waterTrackingEnabled,
+    sodium: micronutrients.sodium,
+    potassium: micronutrients.potassium,
+    magnesium: micronutrients.magnesium,
   }
   // #624 — a free-form date range (own state, not the shared periodStart/
   // periodEnd above) replaces the original fixed 30/90-day toggle. Unlike
@@ -540,6 +562,7 @@ export function ExportSection() {
         {
           customMetrics: bundle.customMetrics,
           customMetricEntries: bundle.customMetricEntries,
+          tracking: analysisExportTracking,
         },
       )
       const buffer = await workbook.xlsx.writeBuffer()
@@ -581,6 +604,7 @@ export function ExportSection() {
       const csv = buildDailyLogCsv(dailyEntries, t, sex, {
         customMetrics: bundle.customMetrics,
         customMetricEntries: bundle.customMetricEntries,
+        tracking: analysisExportTracking,
       })
       const blob = new Blob([CSV_BOM, csv], { type: 'text/csv' })
       const url = URL.createObjectURL(blob)
@@ -614,6 +638,7 @@ export function ExportSection() {
       const markdown = buildDailyLogMarkdown(dailyEntries, t, sex, {
         customMetrics: bundle.customMetrics,
         customMetricEntries: bundle.customMetricEntries,
+        tracking: analysisExportTracking,
       })
       const blob = new Blob([markdown], { type: 'text/markdown' })
       const url = URL.createObjectURL(blob)

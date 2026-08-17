@@ -62,8 +62,10 @@ export function buildDailyLogCsv(
     sortedEntries.map((entry) => dailyLogRowValues(entry, t, extras)),
   )
   const meals = csvTable(
-    mealLogHeaderValues(t),
-    mealLogRows(sortedEntries, t).map(mealLogRowValues),
+    mealLogHeaderValues(t, extras),
+    mealLogRows(sortedEntries, t).map((row) =>
+      mealLogRowValues(row, t, extras),
+    ),
   )
   return `${daily}\r\n\r\n${meals}`
 }

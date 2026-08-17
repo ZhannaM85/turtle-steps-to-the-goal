@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import type { DailyEntry } from '@/domain/dailyEntry'
 import { getDictionary } from '@/i18n'
+import type { AnalysisExportTrackingGate } from './dailyLogExport'
 import { buildDailyLogCsv } from './exportCsv'
 
 const t = getDictionary('en')
@@ -31,6 +32,24 @@ function makeEntry(overrides: Partial<DailyEntry> = {}): DailyEntry {
 
 function dailyTable(csv: string): string {
   return csv.split('\r\n\r\n')[0] ?? csv
+}
+
+const ALL_TRACKED: AnalysisExportTrackingGate = {
+  sleep: true,
+  steps: true,
+  bodyMeasurements: true,
+  note: true,
+  mood: true,
+  bodyComposition: true,
+  nightEating: true,
+  fiber: true,
+  cycle: true,
+  digestion: true,
+  alcohol: true,
+  water: true,
+  sodium: true,
+  potassium: true,
+  magnesium: true,
 }
 
 describe('buildDailyLogCsv', () => {
@@ -186,5 +205,67 @@ describe('buildDailyLogCsv', () => {
 
     expect(header.endsWith(',Acne,Reps (reps)')).toBe(true)
     expect(row.endsWith(',3,')).toBe(true)
+  })
+
+  it('omits a Daily Log column when its Settings gate is off, even if days have values (#744)', () => {
+    const entry = makeEntry({ hadAlcohol: true, sleepHours: 7 })
+    const csv = buildDailyLogCsv([entry], t, undefined, {
+      tracking: { ...ALL_TRACKED, alcohol: false },
+    })
+    const [header, row] = dailyTable(csv).split('\r\n')
+
+    expect(header).toContain('Sleep (h)')
+    expect(header).not.toContain('Alcohol')
+    expect(row.split(',')[header.split(',').indexOf('Sleep (h)')]).toBe('7')
+  })
+
+  it('keeps a tracked column when some days are blank (#744)', () => {
+    const csv = buildDailyLogCsv([makeEntry()], t, undefined, {
+      tracking: ALL_TRACKED,
+    })
+    const [header] = dailyTable(csv).split('\r\n')
+
+    expect(header).toContain('Sleep (h)')
+    expect(header).toContain('Alcohol')
+    expect(header).toContain('Water (ml)')
+  })
+
+  it('omits meal fiber and electrolyte columns when those gates are off (#744)', () => {
+    const entry = makeEntry({
+      calorieEntries: [
+        {
+          id: 'meal-1',
+          label: 'Breakfast',
+          items: [
+            {
+              id: 'item-1',
+              name: 'Toast',
+              amountKcal: 150,
+              fiberG: 2,
+              sodiumMg: 200,
+            },
+          ],
+          createdAt: '2026-03-01T00:00:00.000Z',
+        },
+      ],
+    })
+    const csv = buildDailyLogCsv([entry], t, undefined, {
+      tracking: {
+        ...ALL_TRACKED,
+        fiber: false,
+        sodium: false,
+        potassium: false,
+        magnesium: false,
+      },
+    })
+    const [, meals] = csv.split('\r\n\r\n')
+    const [header, row] = meals.split('\r\n')
+
+    expect(header).toContain('Meal')
+    expect(header).toContain('Item')
+    expect(header).toContain('Calories (kcal)')
+    expect(header).not.toContain('Fiber (g)')
+    expect(header).not.toContain('Sodium (mg)')
+    expect(row).toContain('Breakfast,Toast,,150')
   })
 })

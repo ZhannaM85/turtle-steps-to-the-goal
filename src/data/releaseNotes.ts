@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 703,
+    issue: 744,
+    date: '2026-08-17T17:40:00+03:00',
+    en: 'CSV, Excel, and Markdown exports now include only the fields you currently track in Settings — a backup JSON file still has everything.',
+    ru: 'Экспорт в CSV, Excel и Markdown теперь включает только поля, которые вы сейчас отмечаете в настройках — JSON-резервная копия по-прежнему полная.',
+  },
+  {
     version: 702,
     issue: 743,
     date: '2026-08-17T17:20:00+03:00',

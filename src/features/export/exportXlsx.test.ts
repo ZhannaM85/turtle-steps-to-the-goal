@@ -226,6 +226,42 @@ describe('buildExportWorkbook', () => {
     expect(mealRow[18]).toBe('Meal note')
   })
 
+  it('omits gated Daily Log columns when tracking is off (#744)', async () => {
+    const workbook = await buildExportWorkbook(
+      [],
+      [makeEntry({ hadAlcohol: true })],
+      t,
+      undefined,
+      {
+        tracking: {
+          sleep: true,
+          steps: true,
+          bodyMeasurements: true,
+          note: true,
+          mood: true,
+          bodyComposition: false,
+          nightEating: true,
+          fiber: true,
+          cycle: false,
+          digestion: false,
+          alcohol: false,
+          water: false,
+          sodium: false,
+          potassium: false,
+          magnesium: false,
+        },
+      },
+    )
+    const headers = workbook.getWorksheet('Daily Log')!.getRow(1).values as unknown[]
+
+    expect(headers).toContain('Sleep (h)')
+    expect(headers).not.toContain('Alcohol')
+    expect(headers).not.toContain('Muscle (kg)')
+    expect(headers).not.toContain('On period')
+    expect(headers).toContain('Weight (kg)')
+    expect(headers).toContain('Calories (kcal)')
+  })
+
   it('writes one Goals row per goal', async () => {
     const workbook = await buildExportWorkbook(
       [makeGoal({ targetWeeklyLossKg: 0.5 })],

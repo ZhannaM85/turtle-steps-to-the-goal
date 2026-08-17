@@ -16,10 +16,36 @@ import type { Sex } from '@/domain/stats'
 import type { Dictionary } from '@/i18n'
 import { effectiveMealLabel } from '@/shared/lib/mealLabel'
 
-/** #743 — extra collections the daily-log table can project into columns. */
+/** #743 — extra collections the daily-log table can project into columns.
+ * #744 — optional `tracking` omits columns whose Settings gate is off. */
 export interface DailyLogExportExtras {
   customMetrics?: CustomMetric[]
   customMetricEntries?: CustomMetricEntry[]
+  tracking?: AnalysisExportTrackingGate
+}
+
+/**
+ * #744 — Settings → What to track (and the older opt-in stores) for
+ * analysis exports. JSON backup stays complete and does not use this.
+ * A missing `tracking` object means "include every column" (unit tests
+ * and any caller that wants the full #743 layout).
+ */
+export interface AnalysisExportTrackingGate {
+  sleep: boolean
+  steps: boolean
+  bodyMeasurements: boolean
+  note: boolean
+  mood: boolean
+  bodyComposition: boolean
+  nightEating: boolean
+  fiber: boolean
+  cycle: boolean
+  digestion: boolean
+  alcohol: boolean
+  water: boolean
+  sodium: boolean
+  potassium: boolean
+  magnesium: boolean
 }
 
 export interface MealLogRow {
@@ -41,6 +67,14 @@ export interface MealLogRow {
   mealReaction: string | undefined
   itemNote: string | undefined
   note: string | undefined
+}
+
+type ExportCell = string | number | boolean | undefined
+
+interface ProjectedColumn<T> {
+  header: string
+  value: (row: T) => ExportCell
+  gatedBy?: keyof AnalysisExportTrackingGate
 }
 
 function sortedCustomMetrics(
@@ -65,128 +99,231 @@ function customMetricHeader(metric: CustomMetric): string {
   return metric.unit ? `${metric.name} (${metric.unit})` : metric.name
 }
 
+function isIncluded<T>(
+  column: ProjectedColumn<T>,
+  tracking?: AnalysisExportTrackingGate,
+): boolean {
+  if (!column.gatedBy) return true
+  if (!tracking) return true
+  return tracking[column.gatedBy]
+}
+
+function dailyLogColumns(
+  t: Dictionary,
+  sex?: Sex,
+  extras?: DailyLogExportExtras,
+): ProjectedColumn<DailyEntry>[] {
+  const columns: ProjectedColumn<DailyEntry>[] = [
+    { header: t.exportXlsx.dateColumn, value: (entry) => entry.date },
+    { header: t.exportXlsx.weightColumn, value: (entry) => entry.weightKg },
+    {
+      header: t.exportXlsx.caloriesColumn,
+      value: (entry) => totalCalories(entry.calorieEntries, entry.dayTotals),
+    },
+    {
+      header: t.exportXlsx.proteinColumn,
+      value: (entry) => totalProtein(entry.calorieEntries, entry.dayTotals),
+    },
+    {
+      header: t.exportXlsx.fatColumn,
+      value: (entry) => totalFat(entry.calorieEntries, entry.dayTotals),
+    },
+    {
+      header: t.exportXlsx.carbsColumn,
+      value: (entry) => totalCarbs(entry.calorieEntries, entry.dayTotals),
+    },
+    {
+      header: t.exportXlsx.sleepHoursColumn,
+      value: (entry) => entry.sleepHours,
+      gatedBy: 'sleep',
+    },
+    {
+      header: t.exportXlsx.deepSleepHoursColumn,
+      value: (entry) => entry.deepSleepHours,
+      gatedBy: 'sleep',
+    },
+    {
+      header: t.exportXlsx.stepsColumn,
+      value: (entry) => entry.steps,
+      gatedBy: 'steps',
+    },
+    {
+      header: t.exportXlsx.waistColumn,
+      value: (entry) => entry.waistCm,
+      gatedBy: 'bodyMeasurements',
+    },
+    {
+      header: t.exportXlsx.hipColumn,
+      value: (entry) => entry.hipCm,
+      gatedBy: 'bodyMeasurements',
+    },
+    {
+      header: t.exportXlsx.bodyFatColumn,
+      value: (entry) => entry.bodyFatPercent,
+      gatedBy: 'bodyComposition',
+    },
+    {
+      header: t.exportXlsx.moodColumn,
+      value: (entry) =>
+        entry.emotion && t.dailyEntry.emotionLabel(entry.emotion),
+      gatedBy: 'mood',
+    },
+    {
+      header: t.exportXlsx.noteColumn,
+      value: (entry) => entry.note,
+      gatedBy: 'note',
+    },
+    {
+      header: t.exportXlsx.onPeriodColumn,
+      value: (entry) => entry.onPeriod,
+      gatedBy: 'cycle',
+    },
+    {
+      header: t.exportXlsx.hadConstipationColumn,
+      value: (entry) => entry.hadConstipation,
+      gatedBy: 'digestion',
+    },
+    {
+      header: t.exportXlsx.hadAlcoholColumn,
+      value: (entry) => entry.hadAlcohol,
+      gatedBy: 'alcohol',
+    },
+    {
+      header: t.exportXlsx.nightEatingColumn(sex),
+      value: (entry) => hadNightEating(entry),
+      gatedBy: 'nightEating',
+    },
+    {
+      header: t.exportXlsx.waterColumn,
+      value: (entry) => totalWaterMl(entry.waterEntries),
+      gatedBy: 'water',
+    },
+    {
+      header: t.exportXlsx.muscleMassColumn,
+      value: (entry) => entry.muscleMassKg,
+      gatedBy: 'bodyComposition',
+    },
+    {
+      header: t.exportXlsx.visceralFatColumn,
+      value: (entry) => entry.visceralFatRating,
+      gatedBy: 'bodyComposition',
+    },
+    {
+      header: t.exportXlsx.bodyWaterColumn,
+      value: (entry) => entry.bodyWaterPercent,
+      gatedBy: 'bodyComposition',
+    },
+    {
+      header: t.exportXlsx.boneMassColumn,
+      value: (entry) => entry.boneMassKg,
+      gatedBy: 'bodyComposition',
+    },
+    {
+      header: t.exportXlsx.fiberColumn,
+      value: (entry) => totalFiber(entry.calorieEntries, entry.dayTotals),
+      gatedBy: 'fiber',
+    },
+    {
+      header: t.exportXlsx.sodiumColumn,
+      value: (entry) => totalSodium(entry.calorieEntries),
+      gatedBy: 'sodium',
+    },
+    {
+      header: t.exportXlsx.potassiumColumn,
+      value: (entry) => totalPotassium(entry.calorieEntries),
+      gatedBy: 'potassium',
+    },
+    {
+      header: t.exportXlsx.magnesiumColumn,
+      value: (entry) => totalMagnesium(entry.calorieEntries),
+      gatedBy: 'magnesium',
+    },
+    ...sortedCustomMetrics(extras).map((metric) => ({
+      header: customMetricHeader(metric),
+      value: (entry: DailyEntry) =>
+        customMetricValue(metric.id, entry.date, extras),
+    })),
+  ]
+  return columns.filter((column) => isIncluded(column, extras?.tracking))
+}
+
+function mealLogColumns(
+  t: Dictionary,
+  extras?: DailyLogExportExtras,
+): ProjectedColumn<MealLogRow>[] {
+  const columns: ProjectedColumn<MealLogRow>[] = [
+    { header: t.exportXlsx.dateColumn, value: (row) => row.date },
+    { header: t.exportXlsx.mealColumn, value: (row) => row.meal },
+    { header: t.exportXlsx.itemColumn, value: (row) => row.item },
+    { header: t.exportXlsx.brandColumn, value: (row) => row.brand },
+    { header: t.exportXlsx.caloriesColumn, value: (row) => row.calories },
+    { header: t.exportXlsx.proteinColumn, value: (row) => row.protein },
+    { header: t.exportXlsx.fatColumn, value: (row) => row.fat },
+    { header: t.exportXlsx.carbsColumn, value: (row) => row.carbs },
+    {
+      header: t.exportXlsx.fiberColumn,
+      value: (row) => row.fiber,
+      gatedBy: 'fiber',
+    },
+    {
+      header: t.exportXlsx.sodiumColumn,
+      value: (row) => row.sodium,
+      gatedBy: 'sodium',
+    },
+    {
+      header: t.exportXlsx.potassiumColumn,
+      value: (row) => row.potassium,
+      gatedBy: 'potassium',
+    },
+    {
+      header: t.exportXlsx.magnesiumColumn,
+      value: (row) => row.magnesium,
+      gatedBy: 'magnesium',
+    },
+    { header: t.exportXlsx.gramsColumn, value: (row) => row.grams },
+    { header: t.exportXlsx.timeColumn, value: (row) => row.time },
+    { header: t.exportXlsx.reactionColumn, value: (row) => row.reaction },
+    {
+      header: t.exportXlsx.mealReactionColumn,
+      value: (row) => row.mealReaction,
+    },
+    { header: t.exportXlsx.itemNoteColumn, value: (row) => row.itemNote },
+    { header: t.exportXlsx.noteColumn, value: (row) => row.note },
+  ]
+  return columns.filter((column) => isIncluded(column, extras?.tracking))
+}
+
 export function dailyLogHeaderValues(
   t: Dictionary,
   sex?: Sex,
   extras?: DailyLogExportExtras,
 ): string[] {
-  return [
-    t.exportXlsx.dateColumn,
-    t.exportXlsx.weightColumn,
-    t.exportXlsx.caloriesColumn,
-    t.exportXlsx.proteinColumn,
-    t.exportXlsx.fatColumn,
-    t.exportXlsx.carbsColumn,
-    t.exportXlsx.sleepHoursColumn,
-    t.exportXlsx.deepSleepHoursColumn,
-    t.exportXlsx.stepsColumn,
-    t.exportXlsx.waistColumn,
-    t.exportXlsx.hipColumn,
-    t.exportXlsx.bodyFatColumn,
-    t.exportXlsx.moodColumn,
-    t.exportXlsx.noteColumn,
-    t.exportXlsx.onPeriodColumn,
-    t.exportXlsx.hadConstipationColumn,
-    t.exportXlsx.hadAlcoholColumn,
-    t.exportXlsx.nightEatingColumn(sex),
-    t.exportXlsx.waterColumn,
-    t.exportXlsx.muscleMassColumn,
-    t.exportXlsx.visceralFatColumn,
-    t.exportXlsx.bodyWaterColumn,
-    t.exportXlsx.boneMassColumn,
-    t.exportXlsx.fiberColumn,
-    t.exportXlsx.sodiumColumn,
-    t.exportXlsx.potassiumColumn,
-    t.exportXlsx.magnesiumColumn,
-    ...sortedCustomMetrics(extras).map(customMetricHeader),
-  ]
+  return dailyLogColumns(t, sex, extras).map((column) => column.header)
 }
 
 export function dailyLogRowValues(
   entry: DailyEntry,
   t: Dictionary,
   extras?: DailyLogExportExtras,
-): (string | number | boolean | undefined)[] {
-  return [
-    entry.date,
-    entry.weightKg,
-    totalCalories(entry.calorieEntries, entry.dayTotals),
-    totalProtein(entry.calorieEntries, entry.dayTotals),
-    totalFat(entry.calorieEntries, entry.dayTotals),
-    totalCarbs(entry.calorieEntries, entry.dayTotals),
-    entry.sleepHours,
-    entry.deepSleepHours,
-    entry.steps,
-    entry.waistCm,
-    entry.hipCm,
-    entry.bodyFatPercent,
-    entry.emotion && t.dailyEntry.emotionLabel(entry.emotion),
-    entry.note,
-    entry.onPeriod,
-    entry.hadConstipation,
-    entry.hadAlcohol,
-    hadNightEating(entry),
-    totalWaterMl(entry.waterEntries),
-    entry.muscleMassKg,
-    entry.visceralFatRating,
-    entry.bodyWaterPercent,
-    entry.boneMassKg,
-    totalFiber(entry.calorieEntries, entry.dayTotals),
-    totalSodium(entry.calorieEntries),
-    totalPotassium(entry.calorieEntries),
-    totalMagnesium(entry.calorieEntries),
-    ...sortedCustomMetrics(extras).map((metric) =>
-      customMetricValue(metric.id, entry.date, extras),
-    ),
-  ]
+): ExportCell[] {
+  return dailyLogColumns(t, undefined, extras).map((column) =>
+    column.value(entry),
+  )
 }
 
-export function mealLogHeaderValues(t: Dictionary): string[] {
-  return [
-    t.exportXlsx.dateColumn,
-    t.exportXlsx.mealColumn,
-    t.exportXlsx.itemColumn,
-    t.exportXlsx.brandColumn,
-    t.exportXlsx.caloriesColumn,
-    t.exportXlsx.proteinColumn,
-    t.exportXlsx.fatColumn,
-    t.exportXlsx.carbsColumn,
-    t.exportXlsx.fiberColumn,
-    t.exportXlsx.sodiumColumn,
-    t.exportXlsx.potassiumColumn,
-    t.exportXlsx.magnesiumColumn,
-    t.exportXlsx.gramsColumn,
-    t.exportXlsx.timeColumn,
-    t.exportXlsx.reactionColumn,
-    t.exportXlsx.mealReactionColumn,
-    t.exportXlsx.itemNoteColumn,
-    t.exportXlsx.noteColumn,
-  ]
+export function mealLogHeaderValues(
+  t: Dictionary,
+  extras?: DailyLogExportExtras,
+): string[] {
+  return mealLogColumns(t, extras).map((column) => column.header)
 }
 
 export function mealLogRowValues(
   row: MealLogRow,
-): (string | number | boolean | undefined)[] {
-  return [
-    row.date,
-    row.meal,
-    row.item,
-    row.brand,
-    row.calories,
-    row.protein,
-    row.fat,
-    row.carbs,
-    row.fiber,
-    row.sodium,
-    row.potassium,
-    row.magnesium,
-    row.grams,
-    row.time,
-    row.reaction,
-    row.mealReaction,
-    row.itemNote,
-    row.note,
-  ]
+  t: Dictionary,
+  extras?: DailyLogExportExtras,
+): ExportCell[] {
+  return mealLogColumns(t, extras).map((column) => column.value(row))
 }
 
 export function mealLogRows(
