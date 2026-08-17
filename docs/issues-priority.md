@@ -46,7 +46,6 @@ _Retargeted 2026-08-14: **full day entry** (sleep, weight, meals, steps, water, 
 | [#720](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/720) | 🔍 Pending validation | Day screen: refresh control + what-to-send sheet | Toggle off → no icon. Whole day. Copy/share. Paste/QR later |
 | [#721](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/721) | 🔍 Pending validation | Receive day snippet (paste, deep link, not full backup) | Confirm shell; `?shareDay=` does not run Epic 8 backup import |
 | [#723](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/723) | 🔍 Pending validation | Scan day-snippet QR (reuse #661, photo fallback) | Send sheet Scan QR + photo. Food QR is not applied as a day; food import rejects day QRs |
-| [#724](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/724) | 🔍 Pending validation | iOS: open day snippet from share sheet / URL | `turtlesteps://` + `appUrlOpen` → same confirm as #721. Android intents still later |
 
 ---
 
