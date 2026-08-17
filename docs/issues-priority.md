@@ -45,13 +45,3 @@ _Retargeted 2026-08-14: **full day entry** (sleep, weight, meals, steps, water, 
 | [#719](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/719) | 🔍 Pending validation | Apply day snippet: confirm, fill blanks, ask before overwrite | Fill empty; confirm overwrite; append meals; never wipe the day |
 | [#720](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/720) | 🔍 Pending validation | Day screen: refresh control + what-to-send sheet | Toggle off → no icon. Whole day. Copy/share. Paste/QR later |
 | [#723](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/723) | 🔍 Pending validation | Scan day-snippet QR (reuse #661, photo fallback) | Send sheet Scan QR + photo. Food QR is not applied as a day; food import rejects day QRs |
-
----
-
-## Tier 136 — UI consistency (2026-08-14)
-
-_Split from Tier 135 at the user’s request so the audit is not mixed with the snippet epic (same calendar day, two topics). #716 is the investigation; children are the agreed work list. Not a design-system rewrite. Out of scope: StatCard gain de-emphasis (#29), iOS input zoom guard, heatmap 10px, dense meal-row icons, overlay-only shadows, `--input` vs `--border` (#11), recipe Save+Cancel `lg` (#474 exception)._
-
-| # | Status | Issue | Notes |
-|---|--------|-------|-------|
-| [#716](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/716) | 🔍 Pending validation | Audit UI consistency (button sizes, inputs, forms) | Investigation delivered. Tracking parent for #725–#737. Do not implement here |
