@@ -937,18 +937,24 @@ export function useDailyEntryFormState({
   }
 
   function saveBodyComposition() {
+    // #753 — RHF can hold `''` for a cleared/never-filled optional field
+    // (same empty-string leftover #241/#534 preprocess on the Goal form).
+    // `z.number().optional()` rejects that as invalid; parse to undefined
+    // so a blank save is allowed, same as Sleep's hours+minutes combiner.
     const muscleResult = muscleMassKgSchema.safeParse(
-      getValues('muscleMassKg'),
+      parseNumberInput(getValues('muscleMassKg')),
     )
     const visceralResult = visceralFatRatingSchema.safeParse(
-      getValues('visceralFatRating'),
+      parseNumberInput(getValues('visceralFatRating')),
     )
     const waterResult = bodyWaterPercentSchema.safeParse(
-      getValues('bodyWaterPercent'),
+      parseNumberInput(getValues('bodyWaterPercent')),
     )
-    const boneResult = boneMassKgSchema.safeParse(getValues('boneMassKg'))
+    const boneResult = boneMassKgSchema.safeParse(
+      parseNumberInput(getValues('boneMassKg')),
+    )
     const bodyFatResult = bodyFatPercentSchema.safeParse(
-      getValues('bodyFatPercent'),
+      parseNumberInput(getValues('bodyFatPercent')),
     )
     if (!muscleResult.success) {
       setError('muscleMassKg', {
@@ -1043,8 +1049,17 @@ export function useDailyEntryFormState({
       return
     }
     setPendingUnusualBodyComposition(null)
+    setValue('muscleMassKg', current.muscleMassKg, { shouldDirty: true })
+    setValue('visceralFatRating', current.visceralFatRating, {
+      shouldDirty: true,
+    })
+    setValue('bodyWaterPercent', current.bodyWaterPercent, {
+      shouldDirty: true,
+    })
+    setValue('boneMassKg', current.boneMassKg, { shouldDirty: true })
+    setValue('bodyFatPercent', current.bodyFatPercent, { shouldDirty: true })
     setIsEditingBodyComposition(false)
-    persist(getValues())
+    persist({ ...getValues(), ...current })
     setHasSavedBodyComposition(
       current.muscleMassKg !== undefined ||
         current.visceralFatRating !== undefined ||
@@ -1155,7 +1170,7 @@ export function useDailyEntryFormState({
       | typeof boneMassKgSchema
       | typeof bodyFatPercentSchema,
   ) {
-    const result = schema.safeParse(getValues(field))
+    const result = schema.safeParse(parseNumberInput(getValues(field)))
     if (!result.success) {
       setError(field, { message: t.dailyEntry.invalidValueMessage })
     } else {

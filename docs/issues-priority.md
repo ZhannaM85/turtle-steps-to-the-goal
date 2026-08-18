@@ -56,4 +56,4 @@ _On-device: Morning entries. Sleep and body composition should save with empty v
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#753](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/753) | 📋 Not started | Allow saving empty sleep and body composition | Screenshot 19 Aug 2026: empty Weight shows «Неверное значение»; Sleep/Body composition show dashes. Empty save must succeed and leave those metrics unset. Root cause not yet investigated. |
+| [#753](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/753) | 🔍 Pending validation | Allow saving empty sleep and body composition | Empty/`''` optional fields parse as unset (not «Invalid value»). Save persists blanks; blur on an empty body-comp field is not an error. Weight still blocks empty save (#669). |

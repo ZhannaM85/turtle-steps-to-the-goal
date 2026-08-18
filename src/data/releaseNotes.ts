@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 707,
+    issue: 753,
+    date: '2026-08-18T14:12:00+03:00',
+    en: 'You can save Sleep and Body composition with empty fields. Those metrics just stay unset.',
+    ru: 'Сон и состав тела можно сохранить с пустыми полями — эти значения просто остаются незаполненными.',
+  },
+  {
     version: 706,
     issue: 751,
     date: '2026-08-18T10:30:00+03:00',

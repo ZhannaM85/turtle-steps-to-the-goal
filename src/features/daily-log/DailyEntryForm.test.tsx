@@ -795,6 +795,48 @@ describe('DailyEntryForm', () => {
       expect(screen.getByText('8h 0m slept · — deep')).toBeInTheDocument()
     })
 
+    it('saves when every sleep field is left empty (#753)', async () => {
+      const user = userEvent.setup()
+      const onSave = vi.fn()
+      render(
+        <DailyEntryForm
+          date="2026-03-01"
+          existingEntry={null}
+          onSave={onSave}
+        />,
+      )
+
+      await user.click(screen.getByRole('button', { name: 'Save sleep' }))
+
+      expect(screen.queryByText(/Invalid value/)).not.toBeInTheDocument()
+      expect(onSave).toHaveBeenCalledTimes(1)
+      expect(onSave.mock.calls[0][0].sleepHours).toBeUndefined()
+      expect(onSave.mock.calls[0][0].deepSleepHours).toBeUndefined()
+      expect(screen.getByText('— slept · — deep')).toBeInTheDocument()
+    })
+
+    it('saves after the sleep fields are typed then cleared (#753)', async () => {
+      const user = userEvent.setup()
+      const onSave = vi.fn()
+      render(
+        <DailyEntryForm
+          date="2026-03-01"
+          existingEntry={null}
+          onSave={onSave}
+        />,
+      )
+
+      const hours = screen.getByLabelText('Hours slept — hours')
+      await user.type(hours, '8')
+      await user.clear(hours)
+      await user.click(screen.getByRole('button', { name: 'Save sleep' }))
+
+      expect(screen.queryByText(/Invalid value/)).not.toBeInTheDocument()
+      expect(onSave).toHaveBeenCalledTimes(1)
+      expect(onSave.mock.calls[0][0].sleepHours).toBeUndefined()
+      expect(screen.getByText('— slept · — deep')).toBeInTheDocument()
+    })
+
     it('rejects an out-of-range value and does not save', async () => {
       const user = userEvent.setup()
       const onSave = vi.fn()
@@ -1198,6 +1240,83 @@ describe('DailyEntryForm', () => {
       expectBodyCompositionValues(['30kg', '5', '48%', '2.3kg', '22%'])
     })
 
+    it('saves when every body composition field is left empty (#753)', async () => {
+      const user = userEvent.setup()
+      const onSave = vi.fn()
+      render(
+        <DailyEntryForm
+          date="2026-03-01"
+          existingEntry={null}
+          onSave={onSave}
+        />,
+      )
+
+      await user.click(
+        screen.getByRole('button', { name: 'Save body composition' }),
+      )
+
+      expect(screen.queryByText(/Invalid value/)).not.toBeInTheDocument()
+      expect(onSave).toHaveBeenCalledTimes(1)
+      const saved = onSave.mock.calls[0][0]
+      expect(saved.muscleMassKg).toBeUndefined()
+      expect(saved.visceralFatRating).toBeUndefined()
+      expect(saved.bodyWaterPercent).toBeUndefined()
+      expect(saved.boneMassKg).toBeUndefined()
+      expect(saved.bodyFatPercent).toBeUndefined()
+      expect(
+        screen.getByRole('button', { name: 'Edit body composition' }),
+      ).toBeInTheDocument()
+    })
+
+    it('saves after body composition fields are typed then cleared (#753)', async () => {
+      const user = userEvent.setup()
+      const onSave = vi.fn()
+      render(
+        <DailyEntryForm
+          date="2026-03-01"
+          existingEntry={null}
+          onSave={onSave}
+        />,
+      )
+
+      const muscle = screen.getByLabelText('Muscle mass (kg)')
+      await user.type(muscle, '30')
+      await user.clear(muscle)
+      await user.click(
+        screen.getByRole('button', { name: 'Save body composition' }),
+      )
+
+      expect(screen.queryByText(/Invalid value/)).not.toBeInTheDocument()
+      expect(onSave).toHaveBeenCalledTimes(1)
+      expect(onSave.mock.calls[0][0].muscleMassKg).toBeUndefined()
+      expect(
+        screen.getByRole('button', { name: 'Edit body composition' }),
+      ).toBeInTheDocument()
+    })
+
+    it('saves body composition with only some fields filled (#753)', async () => {
+      const user = userEvent.setup()
+      const onSave = vi.fn()
+      render(
+        <DailyEntryForm
+          date="2026-03-01"
+          existingEntry={null}
+          onSave={onSave}
+        />,
+      )
+
+      await user.type(screen.getByLabelText('Muscle mass (kg)'), '30')
+      await user.click(
+        screen.getByRole('button', { name: 'Save body composition' }),
+      )
+
+      expect(screen.queryByText(/Invalid value/)).not.toBeInTheDocument()
+      expect(onSave).toHaveBeenCalledTimes(1)
+      expect(onSave.mock.calls[0][0].muscleMassKg).toBe(30)
+      expect(onSave.mock.calls[0][0].visceralFatRating).toBeUndefined()
+      expect(onSave.mock.calls[0][0].bodyFatPercent).toBeUndefined()
+    })
+
     it('puts screenshot, edit, and delete on the title row so the grid is full width (#750)', () => {
       render(
         <DailyEntryForm
@@ -1305,6 +1424,18 @@ describe('DailyEntryForm', () => {
         // "2" alone would be a perfectly valid visceral fat rating -- this
         // confirms validation isn't running on every keystroke.
         await user.type(screen.getByLabelText('Visceral fat'), '2')
+
+        expect(screen.queryByText(/Invalid value/)).not.toBeInTheDocument()
+      })
+
+      it('does not treat a blurred empty field as invalid (#753)', async () => {
+        const user = userEvent.setup()
+        render(
+          <DailyEntryForm date="2026-03-01" existingEntry={null} onSave={vi.fn()} />,
+        )
+
+        await user.click(screen.getByLabelText('Muscle mass (kg)'))
+        await user.tab()
 
         expect(screen.queryByText(/Invalid value/)).not.toBeInTheDocument()
       })
