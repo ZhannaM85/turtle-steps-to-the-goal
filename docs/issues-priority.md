@@ -41,7 +41,6 @@ _Zepp screenshot OCR (#742), CSV/export completeness, and Settings opt-out for r
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#743](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/743) | 🔍 Pending validation | CSV export is missing meals, foods, times, and other logged fields | Daily Log gained body composition, fiber, electrolytes, custom-metric columns. CSV/Markdown keep the daily table and add a second Meals table (blank line between). Meals also export item fiber/electrolytes, item note, and whole-meal reaction. JSON backup unchanged. |
-| [#744](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/744) | 🔍 Pending validation | CSV, Excel, and Markdown exports should include only currently tracked fields | Gate columns via `DailyLogExportExtras.tracking` (What to track + cycle/digestion/alcohol/water + electrolytes). Always keep date, weight, calorie/macro totals, meal rows, and custom-metric columns. JSON backup stays complete. Do not drop a tracked column just because some days are blank. |
 
 ---
 
