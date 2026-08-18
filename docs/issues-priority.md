@@ -34,16 +34,6 @@ _User asked about pulling data from Apple Health and Zepp Life. Researched via W
 
 ---
 
-## Tier 139 — Live feedback (2026-08-17)
-
-_Zepp screenshot OCR (#742), CSV/export completeness, and Settings opt-out for reading from images._
-
-| # | Status | Issue | Notes |
-|---|--------|-------|-------|
-| [#743](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/743) | 🔍 Pending validation | CSV export is missing meals, foods, times, and other logged fields | Daily Log gained body composition, fiber, electrolytes, custom-metric columns. CSV/Markdown keep the daily table and add a second Meals table (blank line between). Meals also export item fiber/electrolytes, item note, and whole-meal reaction. JSON backup unchanged. |
-
----
-
 ## Tier 140 — Live feedback (2026-08-18)
 
 _On-device: Morning entries. Sleep and body composition should save with empty values (fields are optional)._
