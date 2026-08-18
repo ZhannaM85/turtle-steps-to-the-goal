@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 710,
+    issue: 753,
+    date: '2026-08-19T01:05:00+03:00',
+    en: 'Saving Sleep or Body composition with every field empty now shows Invalid value, like empty Weight, instead of storing dashes.',
+    ru: 'Сохранение сна или состава тела со всеми пустыми полями теперь показывает «Неверное значение», как пустой вес, а не записывает прочерки.',
+  },
+  {
     version: 709,
     issue: 754,
     date: '2026-08-19T00:50:00+03:00',

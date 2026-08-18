@@ -36,11 +36,11 @@ _User asked about pulling data from Apple Health and Zepp Life. Researched via W
 
 ## Tier 140 — Live feedback (2026-08-18)
 
-_On-device: Morning entries. Empty sleep/body composition can save; 0 should show Invalid value like Weight._
+_On-device: Morning entries. Empty or 0 sleep/body composition Save should show Invalid value like Weight._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#753](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/753) | 🔍 Pending validation | Reject zero sleep and body composition (Invalid value like Weight) | Empty/`''` unset still allowed. Typed **0** fails `.positive()` schema — red border + «Неверное значение» like Weight; not persisted. |
+| [#753](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/753) | 🔍 Pending validation | Reject zero sleep and body composition (Invalid value like Weight) | Empty Save and typed 0 both show red «Неверное значение» like Weight; not persisted. Partial fill still allowed. Reproduced on-device 2026-08-19 (dashes after empty Save). |
 
 ---
 

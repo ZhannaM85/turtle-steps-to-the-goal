@@ -795,7 +795,7 @@ describe('DailyEntryForm', () => {
       expect(screen.getByText('8h 0m slept · — deep')).toBeInTheDocument()
     })
 
-    it('saves when every sleep field is left empty (#753)', async () => {
+    it('rejects an empty Save and does not persist dashes (#753)', async () => {
       const user = userEvent.setup()
       const onSave = vi.fn()
       render(
@@ -808,11 +808,11 @@ describe('DailyEntryForm', () => {
 
       await user.click(screen.getByRole('button', { name: 'Save sleep' }))
 
-      expect(screen.queryByText(/Invalid value/)).not.toBeInTheDocument()
-      expect(onSave).toHaveBeenCalledTimes(1)
-      expect(onSave.mock.calls[0][0].sleepHours).toBeUndefined()
-      expect(onSave.mock.calls[0][0].deepSleepHours).toBeUndefined()
-      expect(screen.getByText('— slept · — deep')).toBeInTheDocument()
+      expect(await screen.findByText(/Invalid value/)).toBeInTheDocument()
+      expect(onSave).not.toHaveBeenCalled()
+      expect(
+        screen.getByRole('button', { name: 'Save sleep' }),
+      ).toBeInTheDocument()
     })
 
     it('rejects a typed 0 and does not save (#753)', async () => {
@@ -833,7 +833,7 @@ describe('DailyEntryForm', () => {
       expect(onSave).not.toHaveBeenCalled()
     })
 
-    it('saves after the sleep fields are typed then cleared (#753)', async () => {
+    it('rejects Save after sleep fields are typed then cleared (#753)', async () => {
       const user = userEvent.setup()
       const onSave = vi.fn()
       render(
@@ -849,10 +849,8 @@ describe('DailyEntryForm', () => {
       await user.clear(hours)
       await user.click(screen.getByRole('button', { name: 'Save sleep' }))
 
-      expect(screen.queryByText(/Invalid value/)).not.toBeInTheDocument()
-      expect(onSave).toHaveBeenCalledTimes(1)
-      expect(onSave.mock.calls[0][0].sleepHours).toBeUndefined()
-      expect(screen.getByText('— slept · — deep')).toBeInTheDocument()
+      expect(await screen.findByText(/Invalid value/)).toBeInTheDocument()
+      expect(onSave).not.toHaveBeenCalled()
     })
 
     it('rejects an out-of-range value and does not save', async () => {
@@ -1258,7 +1256,7 @@ describe('DailyEntryForm', () => {
       expectBodyCompositionValues(['30kg', '5', '48%', '2.3kg', '22%'])
     })
 
-    it('saves when every body composition field is left empty (#753)', async () => {
+    it('rejects an empty Save and does not persist dashes (#753)', async () => {
       const user = userEvent.setup()
       const onSave = vi.fn()
       render(
@@ -1273,16 +1271,10 @@ describe('DailyEntryForm', () => {
         screen.getByRole('button', { name: 'Save body composition' }),
       )
 
-      expect(screen.queryByText(/Invalid value/)).not.toBeInTheDocument()
-      expect(onSave).toHaveBeenCalledTimes(1)
-      const saved = onSave.mock.calls[0][0]
-      expect(saved.muscleMassKg).toBeUndefined()
-      expect(saved.visceralFatRating).toBeUndefined()
-      expect(saved.bodyWaterPercent).toBeUndefined()
-      expect(saved.boneMassKg).toBeUndefined()
-      expect(saved.bodyFatPercent).toBeUndefined()
+      expect(await screen.findByText(/Invalid value/)).toBeInTheDocument()
+      expect(onSave).not.toHaveBeenCalled()
       expect(
-        screen.getByRole('button', { name: 'Edit body composition' }),
+        screen.getByRole('button', { name: 'Save body composition' }),
       ).toBeInTheDocument()
     })
 
@@ -1306,7 +1298,7 @@ describe('DailyEntryForm', () => {
       expect(onSave).not.toHaveBeenCalled()
     })
 
-    it('saves after body composition fields are typed then cleared (#753)', async () => {
+    it('rejects Save after body composition fields are typed then cleared (#753)', async () => {
       const user = userEvent.setup()
       const onSave = vi.fn()
       render(
@@ -1324,12 +1316,8 @@ describe('DailyEntryForm', () => {
         screen.getByRole('button', { name: 'Save body composition' }),
       )
 
-      expect(screen.queryByText(/Invalid value/)).not.toBeInTheDocument()
-      expect(onSave).toHaveBeenCalledTimes(1)
-      expect(onSave.mock.calls[0][0].muscleMassKg).toBeUndefined()
-      expect(
-        screen.getByRole('button', { name: 'Edit body composition' }),
-      ).toBeInTheDocument()
+      expect(await screen.findByText(/Invalid value/)).toBeInTheDocument()
+      expect(onSave).not.toHaveBeenCalled()
     })
 
     it('saves body composition with only some fields filled (#753)', async () => {

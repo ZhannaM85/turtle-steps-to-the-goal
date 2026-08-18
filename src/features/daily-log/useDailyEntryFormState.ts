@@ -779,6 +779,16 @@ export function useDailyEntryFormState({
       })
       return
     }
+    // #753 — empty Save is not a valid way to log sleep, same as Weight
+    // (#669). 0 is already rejected by `.positive()`. One of the two
+    // fields may still be left unset.
+    if (hoursResult.data === undefined && deepHoursResult.data === undefined) {
+      setError('sleepHours', { message: t.dailyEntry.invalidValueMessage })
+      setError('deepSleepHours', {
+        message: t.dailyEntry.invalidValueMessage,
+      })
+      return
+    }
     clearErrors('sleepHours')
     clearErrors('deepSleepHours')
     setValue('sleepHours', sleepHoursValue, { shouldDirty: true })
@@ -939,8 +949,8 @@ export function useDailyEntryFormState({
   function saveBodyComposition() {
     // #753 — RHF can hold `''` for a cleared/never-filled optional field
     // (same empty-string leftover #241/#534 preprocess on the Goal form).
-    // `z.number().optional()` rejects that as invalid; parse to undefined
-    // so a blank save is allowed, same as Sleep's hours+minutes combiner.
+    // Parse to undefined so a *partial* save can leave some fields unset;
+    // a fully empty Save is rejected below, same as Weight (#669).
     const muscleResult = muscleMassKgSchema.safeParse(
       parseNumberInput(getValues('muscleMassKg')),
     )
@@ -982,6 +992,24 @@ export function useDailyEntryFormState({
       setError('bodyFatPercent', {
         message: t.dailyEntry.invalidValueMessage,
       })
+      return
+    }
+    // #753 — empty Save is not a valid way to log body composition, same
+    // as Weight (#669). 0 is already rejected by `.positive()`. Some of
+    // the five fields may still be left unset.
+    if (
+      muscleResult.data === undefined &&
+      visceralResult.data === undefined &&
+      waterResult.data === undefined &&
+      boneResult.data === undefined &&
+      bodyFatResult.data === undefined
+    ) {
+      const message = t.dailyEntry.invalidValueMessage
+      setError('muscleMassKg', { message })
+      setError('visceralFatRating', { message })
+      setError('bodyWaterPercent', { message })
+      setError('boneMassKg', { message })
+      setError('bodyFatPercent', { message })
       return
     }
     clearErrors('muscleMassKg')

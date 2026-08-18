@@ -39,7 +39,8 @@ const calorieEntrySchema = z.object({
 export const weightSchema = z.number().min(20).max(400).optional()
 export const noteSchema = z.string().max(500).optional()
 // Sleep (#59) — independent optional fields, no cross-check between them.
-// #753: empty/`undefined` is unset (allowed); 0 is Invalid value like Weight.
+// #753: 0 is Invalid value; a fully empty Save is blocked in saveSleep
+// like Weight (#669). A single field may still be left unset.
 export const sleepHoursSchema = z.number().positive().max(24).optional()
 export const deepSleepHoursSchema = z.number().positive().max(24).optional()
 // Steps (#60) — optional, independent of everything else. Capped at 20,000
@@ -84,7 +85,8 @@ export const bodyFatPercentSchema = z.number().positive().max(100).optional()
 // range under ~10) rather than a physical measurement. #401 follow-up:
 // schema max values match the absolute plausibility bounds that catch
 // typos (e.g. muscle mass 7888kg, water 478%) before soft warnings run.
-// #753: empty/`undefined` is unset (allowed); 0 is Invalid value like Weight.
+// #753: 0 is Invalid value; a fully empty Save is blocked in
+// saveBodyComposition like Weight (#669). Some fields may still be unset.
 export const muscleMassKgSchema = z.number().positive().max(100).optional()
 export const visceralFatRatingSchema = z.number().positive().max(20).optional()
 export const bodyWaterPercentSchema = z.number().positive().max(100).optional()
