@@ -293,7 +293,7 @@ _On-device and Chrome localhost: opening the day-log send sheet blinks, then the
 
 ## Tier 139 — Live feedback (2026-08-17)
 
-_Zepp screenshot OCR (#742), CSV/export completeness, Day delete/icon consistency, AutoSleep screenshot fill, Settings opt-out for reading from images, and Body composition display layout._
+_Zepp screenshot OCR (#742), CSV/export completeness, Day delete/icon consistency, AutoSleep screenshot fill, Settings opt-out for reading from images, Body composition display layout, and Sleep icon placement._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
@@ -301,3 +301,4 @@ _Zepp screenshot OCR (#742), CSV/export completeness, Day delete/icon consistenc
 | [#747](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/747) | ✅ Done | #742 follow-up: Russian Zepp screenshot leaves muscle and bone empty | Confirmed on-device 2026-08-17 — RU goals screenshot fills muscle/bone; August not April. |
 | [#742](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/742) | ✅ Done | Fill body composition from a Zepp Life screenshot | Confirmed on-device 2026-08-17 — pick screenshot → confirm five fields → save. Zip import unchanged. |
 | [#745](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/745) | ✅ Done | Add trash to delete sleep and body composition, with the same confirm as weight | Confirmed on-device 2026-08-17 — Trash + inline Yes/No on Sleep, Body composition, and Body measurements. |
+| [#752](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/752) | ✅ Done | Sleep display: move action icons to the title row (match Body composition) | Confirmed on-device 2026-08-19 — ImageUp / Pencil / Trash on the `Сон` header row; duration card is text only. |

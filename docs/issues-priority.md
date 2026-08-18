@@ -36,7 +36,7 @@ _User asked about pulling data from Apple Health and Zepp Life. Researched via W
 
 ## Tier 139 — Live feedback (2026-08-17)
 
-_Zepp screenshot OCR (#742), CSV/export completeness, Day delete/icon consistency, AutoSleep screenshot fill, Settings opt-out for reading from images, Body composition display layout, sleep export format, and Sleep icon placement._
+_Zepp screenshot OCR (#742), CSV/export completeness, Day delete/icon consistency, AutoSleep screenshot fill, Settings opt-out for reading from images, Body composition display layout, and sleep export format._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
@@ -46,7 +46,6 @@ _Zepp screenshot OCR (#742), CSV/export completeness, Day delete/icon consistenc
 | [#748](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/748) | 🔍 Pending validation | Fill sleep and deep sleep from an AutoSleep screenshot | ImageUp on the Sleep card (gated by #749). Parse Today 10h 33m + deep 3h 26m; ignore quality and in-bed. Wake date = Monday of SUNDAY 16 → MONDAY 17. |
 | [#750](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/750) | 🔍 Pending validation | Body composition display: move icons to the title row so the five readings fit | Screenshot + pencil + trash on the title row; #515 grid full width below. Weight/Sleep/measurements unchanged. |
 | [#751](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/751) | 🔍 Pending validation | Export sleep as hours and minutes, not decimal hours | CSV/Excel/Markdown print `10h 33m` / `10ч 33м` via `formatSleepDuration` (not `10.55`). JSON backup stays numeric. Follow-up: AutoSleep confirm was still decimal (`5,9 ч`); now hours+minutes fields like the Day editor. PDF averages use the same h+m formatter. |
-| [#752](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/752) | 🔍 Pending validation | Sleep display: move action icons to the title row (match Body composition) | ImageUp / Pencil / Trash on the `Сон` header row like #750; duration card is text only. Weight unchanged. |
 
 ---
 
