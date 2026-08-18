@@ -51,3 +51,13 @@ _On-device: Morning entries. Sleep and body composition should save with empty v
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#753](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/753) | 🔍 Pending validation | Allow saving empty sleep and body composition | Empty/`''` optional fields parse as unset (not «Invalid value»). Save persists blanks; blur on an empty body-comp field is not an error. Weight still blocks empty save (#669). |
+
+---
+
+## Tier 141 — Live feedback (2026-08-19)
+
+_On-device after #744: foods are in the export; meal time is not._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#754](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/754) | 📋 Not started | Export includes foods but not meal time | #744 follow-up. CSV/Excel/Markdown meal rows still omit `timeEaten`. Foods are present. JSON backup unchanged. |
