@@ -47,3 +47,13 @@ _Zepp screenshot OCR (#742), CSV/export completeness, Day delete/icon consistenc
 | [#750](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/750) | 🔍 Pending validation | Body composition display: move icons to the title row so the five readings fit | Screenshot + pencil + trash on the title row; #515 grid full width below. Weight/Sleep/measurements unchanged. |
 | [#751](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/751) | 🔍 Pending validation | Export sleep as hours and minutes, not decimal hours | CSV/Excel/Markdown print `10h 33m` / `10ч 33м` via `formatSleepDuration` (not `10.55`). JSON backup stays numeric. Follow-up: AutoSleep confirm was still decimal (`5,9 ч`); now hours+minutes fields like the Day editor. PDF averages use the same h+m formatter. |
 | [#752](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/752) | 🔍 Pending validation | Sleep display: move action icons to the title row (match Body composition) | ImageUp / Pencil / Trash on the `Сон` header row like #750; duration card is text only. Weight unchanged. |
+
+---
+
+## Tier 140 — Live feedback (2026-08-18)
+
+_On-device: Morning entries. Sleep and body composition should save with empty values (fields are optional)._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#753](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/753) | 📋 Not started | Allow saving empty sleep and body composition | Screenshot 19 Aug 2026: empty Weight shows «Неверное значение»; Sleep/Body composition show dashes. Empty save must succeed and leave those metrics unset. Root cause not yet investigated. |
