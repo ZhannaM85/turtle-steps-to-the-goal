@@ -48,14 +48,41 @@ describe('AutoSleepScreenshotFillControl', () => {
     expect(
       await screen.findByRole('button', { name: 'Save these numbers' }),
     ).toBeInTheDocument()
-    expect(screen.getByLabelText('Hours slept')).toHaveValue('10.55')
-    expect(screen.getByLabelText('Deep sleep')).toHaveValue('3.43')
+    expect(screen.getByLabelText('Hours slept — hours')).toHaveValue('10')
+    expect(screen.getByLabelText('Hours slept — minutes')).toHaveValue('33')
+    expect(screen.getByLabelText('Deep sleep — hours')).toHaveValue('3')
+    expect(screen.getByLabelText('Deep sleep — minutes')).toHaveValue('26')
+    expect(screen.queryByDisplayValue('10.55')).not.toBeInTheDocument()
 
     await user.click(screen.getByRole('button', { name: 'Save these numbers' }))
     expect(onConfirm).toHaveBeenCalledWith({
       sleepHours: 10.55,
-      deepSleepHours: 3.43,
+      deepSleepHours: 3 + 26 / 60,
     })
+  })
+
+  it('shows hours and minutes in Russian, not decimal hours (#751)', async () => {
+    useLocaleStore.setState({ locale: 'ru' })
+    const user = userEvent.setup()
+    const { container } = render(
+      <AutoSleepScreenshotFillControl
+        asOfDate="2026-08-17"
+        onConfirm={vi.fn()}
+      />,
+    )
+
+    const file = new File(['fake-png'], 'autosleep.png', { type: 'image/png' })
+    const input = container.querySelector('input[type="file"]')
+    await user.upload(input as HTMLInputElement, file)
+
+    expect(
+      await screen.findByRole('button', { name: 'Сохранить эти числа' }),
+    ).toBeInTheDocument()
+    expect(screen.getByLabelText('Часов сна — часов')).toHaveValue('10')
+    expect(screen.getByLabelText('Часов сна — минут')).toHaveValue('33')
+    expect(screen.getByLabelText('Глубокий сон — часов')).toHaveValue('3')
+    expect(screen.getByLabelText('Глубокий сон — минут')).toHaveValue('26')
+    expect(screen.queryByDisplayValue('10,55')).not.toBeInTheDocument()
   })
 
   it('renders nothing when the AutoSleep screenshot toggle is off (#749)', () => {

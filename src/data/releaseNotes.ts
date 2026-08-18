@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 706,
+    issue: 751,
+    date: '2026-08-18T10:30:00+03:00',
+    en: 'The AutoSleep screenshot confirm and the PDF summary now show sleep as hours and minutes (like 5h 54m), not decimal hours.',
+    ru: 'Подтверждение скриншота AutoSleep и PDF-сводка теперь показывают сон часами и минутами (например 5ч 54м), а не десятичными часами.',
+  },
+  {
     version: 705,
     issue: 752,
     date: '2026-08-17T17:23:00+03:00',

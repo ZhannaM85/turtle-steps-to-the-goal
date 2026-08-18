@@ -1,13 +1,13 @@
 import { useRef, useState } from 'react'
 import { ImageUp } from 'lucide-react'
+import { useTranslation } from '@/i18n'
 import {
-  formatExactNumber,
-  useLocale,
-  useTranslation,
-  type Locale,
-} from '@/i18n'
-import { parseNumberInput } from '@/shared/lib/parseNumberInput'
+  combineHoursMinutes,
+  splitHoursMinutes,
+} from '@/shared/lib/sleepDuration'
 import { Button } from '@/shared/ui/button'
+import { Input } from '@/shared/ui/input'
+import { Label } from '@/shared/ui/label'
 import { useTrackedFieldsStore } from '@/stores'
 import {
   Dialog,
@@ -15,7 +15,6 @@ import {
   DialogDescription,
   DialogTitle,
 } from '@/shared/ui/dialog'
-import { NumberInput } from '@/shared/ui/number-input'
 import {
   hasAutoSleepValues,
   parseAutoSleepText,
@@ -28,11 +27,52 @@ export interface AutoSleepScreenshotFillControlProps {
   onConfirm: (reading: AutoSleepReading) => void
 }
 
-function fieldToInput(
-  value: number | undefined,
-  locale: Locale,
-): string {
-  return value === undefined ? '' : formatExactNumber(value, locale)
+function DurationFields({
+  label,
+  hours,
+  minutes,
+  hoursUnit,
+  minutesUnit,
+  hoursFieldLabel,
+  minutesFieldLabel,
+  onHoursChange,
+  onMinutesChange,
+}: {
+  label: string
+  hours: string
+  minutes: string
+  hoursUnit: string
+  minutesUnit: string
+  hoursFieldLabel: string
+  minutesFieldLabel: string
+  onHoursChange: (value: string) => void
+  onMinutesChange: (value: string) => void
+}) {
+  return (
+    <div className="flex flex-col gap-1">
+      <Label>{label}</Label>
+      <div className="flex items-center gap-1">
+        <Input
+          type="text"
+          inputMode="numeric"
+          aria-label={`${label} — ${hoursFieldLabel}`}
+          className="h-12 w-12"
+          value={hours}
+          onChange={(e) => onHoursChange(e.target.value)}
+        />
+        <span className="text-xs text-muted-foreground">{hoursUnit}</span>
+        <Input
+          type="text"
+          inputMode="numeric"
+          aria-label={`${label} — ${minutesFieldLabel}`}
+          className="h-12 w-12"
+          value={minutes}
+          onChange={(e) => onMinutesChange(e.target.value)}
+        />
+        <span className="text-xs text-muted-foreground">{minutesUnit}</span>
+      </div>
+    </div>
+  )
 }
 
 export function AutoSleepScreenshotFillControl({
@@ -43,19 +83,22 @@ export function AutoSleepScreenshotFillControl({
     (state) => state.tracked.autoSleepScreenshot,
   )
   const t = useTranslation()
-  const locale = useLocale()
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [open, setOpen] = useState(false)
   const [readingStatus, setReadingStatus] = useState<
     'idle' | 'reading' | 'ready' | 'empty' | 'failed'
   >('idle')
-  const [sleepHours, setSleepHours] = useState('')
-  const [deepSleepHours, setDeepSleepHours] = useState('')
+  const [sleepHoursPart, setSleepHoursPart] = useState('')
+  const [sleepMinutesPart, setSleepMinutesPart] = useState('')
+  const [deepSleepHoursPart, setDeepSleepHoursPart] = useState('')
+  const [deepSleepMinutesPart, setDeepSleepMinutesPart] = useState('')
   const [screenshotDate, setScreenshotDate] = useState<string | undefined>()
 
   function resetFields() {
-    setSleepHours('')
-    setDeepSleepHours('')
+    setSleepHoursPart('')
+    setSleepMinutesPart('')
+    setDeepSleepHoursPart('')
+    setDeepSleepMinutesPart('')
     setScreenshotDate(undefined)
   }
 
@@ -71,8 +114,12 @@ export function AutoSleepScreenshotFillControl({
         setReadingStatus('empty')
         return
       }
-      setSleepHours(fieldToInput(reading.sleepHours, locale))
-      setDeepSleepHours(fieldToInput(reading.deepSleepHours, locale))
+      const sleepParts = splitHoursMinutes(reading.sleepHours)
+      const deepParts = splitHoursMinutes(reading.deepSleepHours)
+      setSleepHoursPart(sleepParts.hours)
+      setSleepMinutesPart(sleepParts.minutes)
+      setDeepSleepHoursPart(deepParts.hours)
+      setDeepSleepMinutesPart(deepParts.minutes)
       setScreenshotDate(reading.date)
       setReadingStatus('ready')
     } catch {
@@ -80,11 +127,18 @@ export function AutoSleepScreenshotFillControl({
     }
   }
 
-  function handleConfirm() {
-    const reading: AutoSleepReading = {
-      sleepHours: parseNumberInput(sleepHours),
-      deepSleepHours: parseNumberInput(deepSleepHours),
+  function readingFromFields(): AutoSleepReading {
+    return {
+      sleepHours: combineHoursMinutes(sleepHoursPart, sleepMinutesPart),
+      deepSleepHours: combineHoursMinutes(
+        deepSleepHoursPart,
+        deepSleepMinutesPart,
+      ),
     }
+  }
+
+  function handleConfirm() {
+    const reading = readingFromFields()
     if (!hasAutoSleepValues(reading)) return
     onConfirm(reading)
     setOpen(false)
@@ -93,11 +147,7 @@ export function AutoSleepScreenshotFillControl({
   }
 
   const canSave =
-    readingStatus === 'ready' &&
-    hasAutoSleepValues({
-      sleepHours: parseNumberInput(sleepHours),
-      deepSleepHours: parseNumberInput(deepSleepHours),
-    })
+    readingStatus === 'ready' && hasAutoSleepValues(readingFromFields())
 
   if (!autoSleepScreenshotEnabled) return null
 
@@ -161,17 +211,27 @@ export function AutoSleepScreenshotFillControl({
                     {t.dailyEntry.autoSleepScreenshotDateHint(screenshotDate)}
                   </p>
                 )}
-                <NumberInput
+                <DurationFields
                   label={t.dailyEntry.sleepHoursLabel}
-                  unit={t.dailyEntry.hoursUnit}
-                  value={sleepHours}
-                  onChange={(e) => setSleepHours(e.target.value)}
+                  hours={sleepHoursPart}
+                  minutes={sleepMinutesPart}
+                  hoursUnit={t.dailyEntry.hoursUnit}
+                  minutesUnit={t.dailyEntry.minutesUnit}
+                  hoursFieldLabel={t.dailyEntry.hoursFieldLabel}
+                  minutesFieldLabel={t.dailyEntry.minutesFieldLabel}
+                  onHoursChange={setSleepHoursPart}
+                  onMinutesChange={setSleepMinutesPart}
                 />
-                <NumberInput
+                <DurationFields
                   label={t.dailyEntry.deepSleepLabel}
-                  unit={t.dailyEntry.hoursUnit}
-                  value={deepSleepHours}
-                  onChange={(e) => setDeepSleepHours(e.target.value)}
+                  hours={deepSleepHoursPart}
+                  minutes={deepSleepMinutesPart}
+                  hoursUnit={t.dailyEntry.hoursUnit}
+                  minutesUnit={t.dailyEntry.minutesUnit}
+                  hoursFieldLabel={t.dailyEntry.hoursFieldLabel}
+                  minutesFieldLabel={t.dailyEntry.minutesFieldLabel}
+                  onHoursChange={setDeepSleepHoursPart}
+                  onMinutesChange={setDeepSleepMinutesPart}
                 />
                 <Button
                   type="button"

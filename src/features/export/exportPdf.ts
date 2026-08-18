@@ -15,6 +15,7 @@ import {
   type Dictionary,
   type Locale,
 } from '@/i18n'
+import { formatSleepDuration } from '@/shared/lib/sleepDuration'
 import type { Unit } from '@/stores/unitStore'
 
 interface LatestField {
@@ -639,7 +640,11 @@ export async function buildSummaryPdf(
       lines.push(
         t.pdfSummary.averageValueLabel(
           t.dailyEntry.sleepHoursLabel,
-          `${formatNumber(data.averageSleepHours.average, locale)} ${t.dailyEntry.hoursUnit}`,
+          formatSleepDuration(
+            data.averageSleepHours.average,
+            t.dailyEntry.hoursUnit,
+            t.dailyEntry.minutesUnit,
+          ),
           data.averageSleepHours.loggedDays,
         ),
       )
@@ -648,7 +653,11 @@ export async function buildSummaryPdf(
       lines.push(
         t.pdfSummary.averageValueLabel(
           t.dailyEntry.deepSleepLabel,
-          `${formatNumber(data.averageDeepSleepHours.average, locale)} ${t.dailyEntry.hoursUnit}`,
+          formatSleepDuration(
+            data.averageDeepSleepHours.average,
+            t.dailyEntry.hoursUnit,
+            t.dailyEntry.minutesUnit,
+          ),
           data.averageDeepSleepHours.loggedDays,
         ),
       )

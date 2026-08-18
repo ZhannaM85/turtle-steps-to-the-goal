@@ -1,3 +1,5 @@
+import { parseNumberInput } from './parseNumberInput'
+
 /** Sleep is stored as decimal hours (`sleepHours`/`deepSleepHours`), but
  * reads unnaturally that way ("9.4 hours") compared to how people actually
  * think and talk about it ("9h 23m") — the same reasoning #69 already used
@@ -12,6 +14,17 @@ export function splitHoursMinutes(value: number | undefined): {
   const hours = Math.floor(value)
   const minutes = Math.round((value - hours) * 60)
   return { hours: String(hours), minutes: String(minutes) }
+}
+
+/** Inverse of `splitHoursMinutes` for hours+minutes text fields (#69, #751). */
+export function combineHoursMinutes(
+  hoursText: string,
+  minutesText: string,
+): number | undefined {
+  const hours = parseNumberInput(hoursText)
+  const minutes = parseNumberInput(minutesText)
+  if (hours === undefined && minutes === undefined) return undefined
+  return (hours ?? 0) + (minutes ?? 0) / 60
 }
 
 /** `formatSleepDuration(9.383, 'h', 'm')` -> `'9h 23m'`. */

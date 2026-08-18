@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest'
-import { formatSleepDuration, splitHoursMinutes } from './sleepDuration'
+import {
+  combineHoursMinutes,
+  formatSleepDuration,
+  splitHoursMinutes,
+} from './sleepDuration'
 
 describe('splitHoursMinutes', () => {
   it('returns blank strings for undefined', () => {
@@ -16,6 +20,22 @@ describe('splitHoursMinutes', () => {
 
   it('rounds minutes to the nearest whole number', () => {
     expect(splitHoursMinutes(2.383)).toEqual({ hours: '2', minutes: '23' })
+  })
+})
+
+describe('combineHoursMinutes', () => {
+  it('returns undefined when both parts are blank', () => {
+    expect(combineHoursMinutes('', '')).toBeUndefined()
+  })
+
+  it('treats a missing part as zero', () => {
+    expect(combineHoursMinutes('8', '')).toBe(8)
+    expect(combineHoursMinutes('', '30')).toBe(0.5)
+  })
+
+  it('combines whole hours and minutes into decimal hours', () => {
+    expect(combineHoursMinutes('10', '33')).toBe(10.55)
+    expect(combineHoursMinutes('3', '26')).toBe(3 + 26 / 60)
   })
 })
 

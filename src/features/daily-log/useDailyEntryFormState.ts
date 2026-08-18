@@ -16,7 +16,10 @@ import {
   macrosSummaryTextWithCalories,
 } from '@/shared/lib/macroDisplay'
 import { parseNumberInput } from '@/shared/lib/parseNumberInput'
-import { splitHoursMinutes } from '@/shared/lib/sleepDuration'
+import {
+  combineHoursMinutes,
+  splitHoursMinutes,
+} from '@/shared/lib/sleepDuration'
 import {
   useAlcoholTrackingStore,
   useDigestionTrackingStore,
@@ -73,24 +76,6 @@ export interface DailyEntryFormProps {
    * just be redundant. Itemized calorie editing is unaffected either way.
    */
   alwaysEditable?: boolean
-}
-
-/** Sleep is stored as decimal hours (`sleepHours`/`deepSleepHours`), but
- * entered as separate hours+minutes fields (#69) — typing "7.5" on a mobile
- * numeric keypad was awkward, whole hours + whole minutes is the natural
- * way people think about sleep duration. `splitHoursMinutes` moved to
- * `shared/lib/sleepDuration.ts` (#358) so `TodayScreen.tsx`'s Sleep
- * `StatCard` can reuse the identical conversion for its own read-only
- * display; this combining direction (form input -> decimal) is still only
- * needed here. */
-function combineHoursMinutes(
-  hoursText: string,
-  minutesText: string,
-): number | undefined {
-  const hours = parseNumberInput(hoursText)
-  const minutes = parseNumberInput(minutesText)
-  if (hours === undefined && minutes === undefined) return undefined
-  return (hours ?? 0) + (minutes ?? 0) / 60
 }
 
 /**
