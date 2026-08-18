@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 708,
+    issue: 753,
+    date: '2026-08-19T00:41:00+03:00',
+    en: 'Sleep and body composition no longer accept 0. That shows as an invalid value, like an empty weight; leaving the fields blank is still allowed.',
+    ru: 'Сон и состав тела больше не принимают 0 — показывается «Неверное значение», как у пустого веса. Пустые поля по-прежнему можно сохранить.',
+  },
+  {
     version: 707,
     issue: 753,
     date: '2026-08-18T14:12:00+03:00',

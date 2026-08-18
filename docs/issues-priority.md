@@ -40,7 +40,7 @@ _On-device: Morning entries. Empty sleep/body composition can save; 0 should sho
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#753](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/753) | 🔲 Open | Reject zero sleep and body composition (Invalid value like Weight) | Empty/`''` unset still allowed. On-device 2026-08-19: 0 still saves. Show red border + «Неверное значение» like Weight; do not persist 0. |
+| [#753](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/753) | 🔍 Pending validation | Reject zero sleep and body composition (Invalid value like Weight) | Empty/`''` unset still allowed. Typed **0** fails `.positive()` schema — red border + «Неверное значение» like Weight; not persisted. |
 
 ---
 

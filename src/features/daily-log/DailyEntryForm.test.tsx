@@ -815,6 +815,24 @@ describe('DailyEntryForm', () => {
       expect(screen.getByText('— slept · — deep')).toBeInTheDocument()
     })
 
+    it('rejects a typed 0 and does not save (#753)', async () => {
+      const user = userEvent.setup()
+      const onSave = vi.fn()
+      render(
+        <DailyEntryForm
+          date="2026-03-01"
+          existingEntry={null}
+          onSave={onSave}
+        />,
+      )
+
+      await user.type(screen.getByLabelText('Hours slept — hours'), '0')
+      await user.click(screen.getByRole('button', { name: 'Save sleep' }))
+
+      expect(await screen.findByText(/Invalid value/)).toBeInTheDocument()
+      expect(onSave).not.toHaveBeenCalled()
+    })
+
     it('saves after the sleep fields are typed then cleared (#753)', async () => {
       const user = userEvent.setup()
       const onSave = vi.fn()
@@ -1268,6 +1286,26 @@ describe('DailyEntryForm', () => {
       ).toBeInTheDocument()
     })
 
+    it('rejects a typed 0 and does not save (#753)', async () => {
+      const user = userEvent.setup()
+      const onSave = vi.fn()
+      render(
+        <DailyEntryForm
+          date="2026-03-01"
+          existingEntry={null}
+          onSave={onSave}
+        />,
+      )
+
+      await user.type(screen.getByLabelText('Muscle mass (kg)'), '0')
+      await user.click(
+        screen.getByRole('button', { name: 'Save body composition' }),
+      )
+
+      expect(await screen.findByText(/Invalid value/)).toBeInTheDocument()
+      expect(onSave).not.toHaveBeenCalled()
+    })
+
     it('saves after body composition fields are typed then cleared (#753)', async () => {
       const user = userEvent.setup()
       const onSave = vi.fn()
@@ -1426,6 +1464,18 @@ describe('DailyEntryForm', () => {
         await user.type(screen.getByLabelText('Visceral fat'), '2')
 
         expect(screen.queryByText(/Invalid value/)).not.toBeInTheDocument()
+      })
+
+      it('treats a blurred 0 as invalid (#753)', async () => {
+        const user = userEvent.setup()
+        render(
+          <DailyEntryForm date="2026-03-01" existingEntry={null} onSave={vi.fn()} />,
+        )
+
+        await user.type(screen.getByLabelText('Muscle mass (kg)'), '0')
+        await user.tab()
+
+        expect(await screen.findByText(/Invalid value/)).toBeInTheDocument()
       })
 
       it('does not treat a blurred empty field as invalid (#753)', async () => {
