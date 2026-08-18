@@ -41,13 +41,3 @@ _On-device: Morning entries. Empty or 0 sleep/body composition Save should show 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#753](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/753) | 🔍 Pending validation | Reject zero sleep and body composition (Invalid value like Weight) | Empty Save and typed 0 both show red «Неверное значение» like Weight; not persisted. Partial fill still allowed. Reproduced on-device 2026-08-19 (dashes after empty Save). |
-
----
-
-## Tier 141 — Live feedback (2026-08-19)
-
-_On-device after #744: foods are in the export; meal time is not._
-
-| # | Status | Issue | Notes |
-|---|--------|-------|-------|
-| [#754](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/754) | 🔍 Pending validation | Export includes foods but not meal time | CSV/Excel/Markdown Time uses `effectiveTimeEaten` (stored time or slot default). JSON backup unchanged. |
