@@ -36,11 +36,11 @@ _User asked about pulling data from Apple Health and Zepp Life. Researched via W
 
 ## Tier 140 — Live feedback (2026-08-18)
 
-_On-device: Morning entries. Sleep and body composition should save with empty values (fields are optional)._
+_On-device: Morning entries. Empty sleep/body composition can save; 0 should show Invalid value like Weight._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#753](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/753) | 🔍 Pending validation | Allow saving empty sleep and body composition | Empty/`''` optional fields parse as unset (not «Invalid value»). Save persists blanks; blur on an empty body-comp field is not an error. Weight still blocks empty save (#669). |
+| [#753](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/753) | 🔲 Open | Reject zero sleep and body composition (Invalid value like Weight) | Empty/`''` unset still allowed. On-device 2026-08-19: 0 still saves. Show red border + «Неверное значение» like Weight; do not persist 0. |
 
 ---
 
