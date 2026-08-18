@@ -293,7 +293,7 @@ _On-device and Chrome localhost: opening the day-log send sheet blinks, then the
 
 ## Tier 139 — Live feedback (2026-08-17)
 
-_Zepp screenshot OCR (#742), CSV/export completeness, Day delete/icon consistency, AutoSleep screenshot fill, Settings opt-out for reading from images, Body composition display layout, and Sleep icon placement._
+_Zepp screenshot OCR (#742), CSV/export completeness, Day delete/icon consistency, AutoSleep screenshot fill, Settings opt-out for reading from images, Body composition display layout, Sleep icon placement, and sleep export format._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
@@ -302,3 +302,4 @@ _Zepp screenshot OCR (#742), CSV/export completeness, Day delete/icon consistenc
 | [#742](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/742) | ✅ Done | Fill body composition from a Zepp Life screenshot | Confirmed on-device 2026-08-17 — pick screenshot → confirm five fields → save. Zip import unchanged. |
 | [#745](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/745) | ✅ Done | Add trash to delete sleep and body composition, with the same confirm as weight | Confirmed on-device 2026-08-17 — Trash + inline Yes/No on Sleep, Body composition, and Body measurements. |
 | [#752](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/752) | ✅ Done | Sleep display: move action icons to the title row (match Body composition) | Confirmed on-device 2026-08-19 — ImageUp / Pencil / Trash on the `Сон` header row; duration card is text only. |
+| [#751](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/751) | ✅ Done | Export sleep as hours and minutes, not decimal hours | Confirmed on-device 2026-08-19 — CSV/Excel/Markdown and AutoSleep confirm use h+m; JSON backup stays numeric. |
