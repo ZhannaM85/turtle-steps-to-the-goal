@@ -50,4 +50,4 @@ _On-device after #744: foods are in the export; meal time is not._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#754](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/754) | 📋 Not started | Export includes foods but not meal time | #744 follow-up. CSV/Excel/Markdown meal rows still omit `timeEaten`. Foods are present. JSON backup unchanged. |
+| [#754](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/754) | 🔍 Pending validation | Export includes foods but not meal time | CSV/Excel/Markdown Time uses `effectiveTimeEaten` (stored time or slot default). JSON backup unchanged. |

@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 709,
+    issue: 754,
+    date: '2026-08-19T00:50:00+03:00',
+    en: 'CSV, Excel, and Markdown meal rows now include the meal time shown on the Day screen.',
+    ru: 'В CSV, Excel и Markdown у приёмов пищи теперь есть время, как на экране День.',
+  },
+  {
     version: 708,
     issue: 753,
     date: '2026-08-19T00:41:00+03:00',

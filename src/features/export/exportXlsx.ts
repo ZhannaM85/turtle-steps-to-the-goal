@@ -77,7 +77,7 @@ export async function buildExportWorkbook(
 
   const mealsSheet = workbook.addWorksheet(t.exportXlsx.mealsSheetName)
   mealsSheet.columns = columnsFromHeaders(mealLogHeaderValues(t, extras))
-  for (const row of mealLogRows(sortedEntries, t)) {
+  for (const row of mealLogRows(sortedEntries, t, extras)) {
     mealsSheet.addRow(excelRow(mealLogRowValues(row, t, extras)))
   }
   mealsSheet.getColumn(1).numFmt = DATE_FORMAT

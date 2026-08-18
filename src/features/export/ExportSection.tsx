@@ -563,6 +563,7 @@ export function ExportSection() {
           customMetrics: bundle.customMetrics,
           customMetricEntries: bundle.customMetricEntries,
           tracking: analysisExportTracking,
+          mealSlotTimes: mealSlotDefaultTimes,
         },
       )
       const buffer = await workbook.xlsx.writeBuffer()
@@ -605,6 +606,7 @@ export function ExportSection() {
         customMetrics: bundle.customMetrics,
         customMetricEntries: bundle.customMetricEntries,
         tracking: analysisExportTracking,
+        mealSlotTimes: mealSlotDefaultTimes,
       })
       const blob = new Blob([CSV_BOM, csv], { type: 'text/csv' })
       const url = URL.createObjectURL(blob)
@@ -639,6 +641,7 @@ export function ExportSection() {
         customMetrics: bundle.customMetrics,
         customMetricEntries: bundle.customMetricEntries,
         tracking: analysisExportTracking,
+        mealSlotTimes: mealSlotDefaultTimes,
       })
       const blob = new Blob([markdown], { type: 'text/markdown' })
       const url = URL.createObjectURL(blob)

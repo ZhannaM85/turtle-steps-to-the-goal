@@ -14,7 +14,7 @@ import {
 import type { CustomMetric, CustomMetricEntry } from '@/domain/customMetric'
 import type { Sex } from '@/domain/stats'
 import type { Dictionary } from '@/i18n'
-import { effectiveMealLabel } from '@/shared/lib/mealLabel'
+import { effectiveMealLabel, effectiveTimeEaten, type MealSlotDefaultTimes } from '@/shared/lib/mealLabel'
 import { formatSleepDuration } from '@/shared/lib/sleepDuration'
 
 /** #743 — extra collections the daily-log table can project into columns.
@@ -23,6 +23,8 @@ export interface DailyLogExportExtras {
   customMetrics?: CustomMetric[]
   customMetricEntries?: CustomMetricEntry[]
   tracking?: AnalysisExportTrackingGate
+  /** #754 — Settings slot clocks so Time matches Day's `effectiveTimeEaten`. */
+  mealSlotTimes?: MealSlotDefaultTimes
 }
 
 /**
@@ -343,6 +345,7 @@ export function mealLogRowValues(
 export function mealLogRows(
   dailyEntries: DailyEntry[],
   t: Dictionary,
+  extras?: DailyLogExportExtras,
 ): MealLogRow[] {
   const sortedEntries = [...dailyEntries].sort((a, b) =>
     a.date.localeCompare(b.date),
@@ -367,7 +370,7 @@ export function mealLogRows(
             potassium: item.potassiumMg,
             magnesium: item.magnesiumMg,
             grams: item.amountG,
-            time: meal.timeEaten,
+            time: effectiveTimeEaten(meal, extras?.mealSlotTimes),
             reaction:
               item.emotion && t.dailyEntry.mealEmotionLabel(item.emotion),
             mealReaction:

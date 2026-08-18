@@ -59,7 +59,7 @@ export function buildDailyLogMarkdown(
   )
   const meals = mdTable(
     mealLogHeaderValues(t, extras),
-    mealLogRows(sortedEntries, t).map((row) =>
+    mealLogRows(sortedEntries, t, extras).map((row) =>
       mealLogRowValues(row, t, extras),
     ),
   )

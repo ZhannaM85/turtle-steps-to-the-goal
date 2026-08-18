@@ -124,5 +124,6 @@ describe('buildDailyLogMarkdown', () => {
     expect(meals.startsWith(MEALS_HEADER)).toBe(true)
     expect(row).toContain('| Breakfast | Toast |')
     expect(row).toContain('| 150 |')
+    expect(row).toContain('| 08:00 |')
   })
 })

@@ -292,4 +292,47 @@ describe('buildDailyLogCsv', () => {
     expect(header).not.toContain('Sodium (mg)')
     expect(row).toContain('Breakfast,Toast,,150')
   })
+
+  it('fills meal Time from the Breakfast slot default when timeEaten is missing (#754)', () => {
+    const entry = makeEntry({
+      calorieEntries: [
+        {
+          id: 'meal-1',
+          label: 'Breakfast',
+          items: [{ id: 'item-1', name: 'Toast', amountKcal: 150 }],
+          createdAt: '2026-03-01T00:00:00.000Z',
+        },
+      ],
+    })
+    const csv = buildDailyLogCsv([entry], t)
+    const [, meals] = csv.split('\r\n\r\n')
+    const [header, row] = meals.split('\r\n')
+
+    expect(row.split(',')[header.split(',').indexOf('Time')]).toBe('08:00')
+  })
+
+  it('uses remembered slot clocks for meal Time when passed (#754)', () => {
+    const entry = makeEntry({
+      calorieEntries: [
+        {
+          id: 'meal-1',
+          label: 'Breakfast',
+          items: [{ id: 'item-1', name: 'Toast', amountKcal: 150 }],
+          createdAt: '2026-03-01T00:00:00.000Z',
+        },
+      ],
+    })
+    const csv = buildDailyLogCsv([entry], t, undefined, {
+      mealSlotTimes: {
+        breakfast: '09:15',
+        lunch: '13:00',
+        dinner: '19:00',
+        snack: '16:00',
+      },
+    })
+    const [, meals] = csv.split('\r\n\r\n')
+    const [header, row] = meals.split('\r\n')
+
+    expect(row.split(',')[header.split(',').indexOf('Time')]).toBe('09:15')
+  })
 })
