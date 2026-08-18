@@ -36,14 +36,13 @@ _User asked about pulling data from Apple Health and Zepp Life. Researched via W
 
 ## Tier 139 — Live feedback (2026-08-17)
 
-_Zepp screenshot OCR (#742), CSV/export completeness, Day delete/icon consistency, AutoSleep screenshot fill, and Settings opt-out for reading from images._
+_Zepp screenshot OCR (#742), CSV/export completeness, Day delete/icon consistency, and Settings opt-out for reading from images._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#743](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/743) | 🔍 Pending validation | CSV export is missing meals, foods, times, and other logged fields | Daily Log gained body composition, fiber, electrolytes, custom-metric columns. CSV/Markdown keep the daily table and add a second Meals table (blank line between). Meals also export item fiber/electrolytes, item note, and whole-meal reaction. JSON backup unchanged. |
 | [#744](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/744) | 🔍 Pending validation | CSV, Excel, and Markdown exports should include only currently tracked fields | Gate columns via `DailyLogExportExtras.tracking` (What to track + cycle/digestion/alcohol/water + electrolytes). Always keep date, weight, calorie/macro totals, meal rows, and custom-metric columns. JSON backup stays complete. Do not drop a tracked column just because some days are blank. |
 | [#746](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/746) | 🔍 Pending validation | Day edit/delete icons: same order, gap, and sizing on weight and meals | Weight was Trash then Pencil (`gap-1`); meals were Pencil then Trash (`gap-3`). Canonical: Pencil then Trash, `gap-3` on both pairs (matches #127). Morning stays `icon-xl`, meals stay `icon-sm`. |
-| [#748](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/748) | 🔍 Pending validation | Fill sleep and deep sleep from an AutoSleep screenshot | ImageUp on the Sleep card (gated by #749). Parse Today 10h 33m + deep 3h 26m; ignore quality and in-bed. Wake date = Monday of SUNDAY 16 → MONDAY 17. |
 
 ---
 
