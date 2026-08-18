@@ -311,6 +311,16 @@ _Zepp screenshot OCR (#742), CSV/export completeness, Day delete/icon consistenc
 
 ---
 
+## Tier 140 — Live feedback (2026-08-18)
+
+_On-device: Morning entries. Empty or 0 sleep/body composition Save should show Invalid value like Weight._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#753](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/753) | ✅ Done | Reject zero sleep and body composition (Invalid value like Weight) | Confirmed on-device 2026-08-19 — empty Save and typed 0 show «Неверное значение» like Weight; partial fill still allowed. |
+
+---
+
 ## Tier 141 — Live feedback (2026-08-19)
 
 _On-device after #744: foods are in the export; meal time is not._
