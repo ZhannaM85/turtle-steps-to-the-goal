@@ -31,3 +31,13 @@ _User asked about pulling data from Apple Health and Zepp Life. Researched via W
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#334](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/334) | 📋 Not started | Epic — Apple Health integration (blocked on mobile app + HealthKit bridge) | HealthKit has no public/cloud API at all — data is on-device only, readable exclusively by a native iOS app (or hybrid app with a HealthKit plugin/entitlement) the user has granted permission to. Genuinely blocked until the mobile app exists; can't be built sooner by any workaround. |
+
+---
+
+## Tier 142 — Live feedback (2026-08-20)
+
+_On-device: Day screen meal list order._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#755](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/755) | ⬜ Open | Day screen lists 11:00 meal above 08:27 on the same day | 19 Aug: meal logged yesterday at 08:27 sits below a meal logged today at 11:00 onto yesterday. Expected clock order. |
