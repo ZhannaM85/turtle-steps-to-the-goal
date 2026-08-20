@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 712,
+    issue: 756,
+    date: '2026-08-20T22:50:00+03:00',
+    en: 'The fasting window no longer jumps to 33 hours when breakfast is earlier than your usual day-start time.',
+    ru: 'Окно голодания больше не становится 33 часами, если завтрак раньше обычного времени начала суток.',
+  },
+  {
     version: 711,
     issue: 755,
     date: '2026-08-20T22:35:00+03:00',

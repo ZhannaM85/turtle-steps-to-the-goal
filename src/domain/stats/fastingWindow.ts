@@ -80,6 +80,10 @@ function earliestMealTimeMinutes(
  * pairs this with a weight delta for correlation purposes) — used
  * directly by #287's "your fasting window was X hours" toast, which has
  * no reason to care whether weight was logged that day at all.
+ *
+ * #756 — `adjustForDayStart` (shared with meal sort) only wraps late-night
+ * hours before 06:00, so an 08:27 breakfast after starting the day early
+ * is the first meal (~10h from 22:54), not a wrapped tail (~33.6h).
  */
 export function fastingHoursBetween(
   previousDayEntry: EntryWithMeals,

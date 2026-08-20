@@ -222,5 +222,23 @@ describe('fastingHoursBetween (#287)', () => {
 
       expect(fastingHoursBetween(previous, current, '02:00')).toBe(12)
     })
+
+    // #756 — live: 18 Aug dinner 22:54, 19 Aug lunch 08:27, day-start after
+    // 08:27 (Start today's log now). Wrapping 08:27 as a late-night tail
+    // produced 33.6h instead of ~9.6h.
+    it('does not add an extra 24h when breakfast is before a late-morning day-start (#756)', () => {
+      const previous = { calorieEntries: mealAt('22:54') }
+      const current = { calorieEntries: mealAt('08:27') }
+
+      expect(fastingHoursBetween(previous, current, '10:00')).toBeCloseTo(9.55, 2)
+      expect(fastingHoursBetween(previous, current, '04:00')).toBeCloseTo(9.55, 2)
+    })
+
+    it('uses 08:27 as the first meal, not 11:00, when day-start is 10:00 (#756)', () => {
+      const previous = { calorieEntries: mealAt('22:54') }
+      const current = { calorieEntries: mealAt('11:00', '08:27') }
+
+      expect(fastingHoursBetween(previous, current, '10:00')).toBeCloseTo(9.55, 2)
+    })
   })
 })
