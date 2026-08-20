@@ -130,4 +130,13 @@ describe('mealLabel helpers', () => {
     const sorted = sortCalorieEntriesByLoggedTime(meals)
     expect(sorted.map((m) => m.id)).toEqual(['night', 'lunch'])
   })
+
+  it('keeps 08:27 before 11:00 when day-start is 10:00 (#755)', () => {
+    const meals = [
+      { id: 'later', label: 'Lunch two', timeEaten: '11:00' },
+      { id: 'earlier', label: 'Lunch', timeEaten: '08:27' },
+    ]
+    const sorted = sortCalorieEntriesByLoggedTime(meals, undefined, '10:00')
+    expect(sorted.map((m) => m.id)).toEqual(['earlier', 'later'])
+  })
 })

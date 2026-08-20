@@ -159,9 +159,10 @@ function timeToMinutes(hhmm: string): number {
  * live — a meal logged at 01:00 sorted *first*, ahead of the same day's
  * 14:09/15:23 meals, when it was actually the last meal of a late-night
  * session. `dayStartTime` (default `'00:00'`, purely additive — every
- * pre-#621 caller keeps today's exact behavior) shifts any clock time
- * before it a full day later before comparing, so a post-midnight entry
- * sorts after the evening it actually followed instead of before it.
+ * pre-#621 caller keeps today's exact behavior) shifts late-night clocks
+ * a full day later before comparing (`adjustForDayStart`, cap 06:00 —
+ * #755), so a post-midnight entry sorts after the evening it actually
+ * followed, while an 08:27 breakfast stays before 11:00.
  */
 export function sortCalorieEntriesByLoggedTime<
   T extends { timeEaten?: string; label?: string | number },

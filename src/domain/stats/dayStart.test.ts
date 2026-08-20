@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest'
-import { adjustForDayStart, effectiveDateFor, todayIsoForDayStart } from './dayStart'
+import {
+  OVERNIGHT_WRAP_BEFORE_MINUTES,
+  adjustForDayStart,
+  effectiveDateFor,
+  todayIsoForDayStart,
+} from './dayStart'
 
 describe('effectiveDateFor', () => {
   it('returns the same calendar day when dayStartTime is midnight (default, unchanged behavior)', () => {
@@ -56,5 +61,24 @@ describe('adjustForDayStart', () => {
 
   it('treats a time exactly at the cutoff as not needing adjustment', () => {
     expect(adjustForDayStart(240, 240)).toBe(240)
+  })
+
+  // #755 — 08:27 breakfast after "Start today's log now", day-start 10:00.
+  it('does not wrap a morning breakfast when day-start is later than 06:00', () => {
+    const breakfast = 8 * 60 + 27
+    const lunch = 11 * 60
+    const dayStart = 10 * 60
+    expect(adjustForDayStart(breakfast, dayStart)).toBe(breakfast)
+    expect(adjustForDayStart(lunch, dayStart)).toBe(lunch)
+    expect(adjustForDayStart(breakfast, dayStart)).toBeLessThan(
+      adjustForDayStart(lunch, dayStart),
+    )
+  })
+
+  it('still wraps a past-midnight snack when day-start is later than 06:00', () => {
+    const snack = 1 * 60 + 22
+    const dayStart = 10 * 60
+    expect(adjustForDayStart(snack, dayStart)).toBe(snack + 24 * 60)
+    expect(OVERNIGHT_WRAP_BEFORE_MINUTES).toBe(6 * 60)
   })
 })

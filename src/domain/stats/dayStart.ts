@@ -41,6 +41,16 @@ export function todayIsoForDayStart(
 }
 
 /**
+ * Latest clock time treated as a late-night tail when shifting for
+ * day-start. Breakfasts at or after this stay morning even if Settings
+ * day-start is later — #755/#756: "Start today's log now" (#345) files an
+ * 08:27 meal onto a day whose cutoff is 09:00/10:00; wrapping that
+ * breakfast as if it were 01:22 put it after 11:00 and added 24h to the
+ * fasting window.
+ */
+export const OVERNIGHT_WRAP_BEFORE_MINUTES = 6 * 60
+
+/**
  * #298/#621/#601 — a clock time before the day-start cutoff reads as *late*
  * (the tail of the previous logical day), not early: shifting it forward by
  * a full day restores its true chronological position relative to that
@@ -53,10 +63,15 @@ export function todayIsoForDayStart(
  * `mealLabel.ts`; importing this file specifically (not the `domain/stats`
  * barrel) avoids that, since `dayStart.ts` itself imports nothing from
  * either.
+ *
+ * #755 — wrap only late-night hours (before 06:00 *and* before day-start).
+ * A 04:00 cutoff is unchanged (#621). A 10:00 cutoff still wraps 01:22,
+ * but not 08:27.
  */
 export function adjustForDayStart(
   minutes: number,
   dayStartMinutes: number,
 ): number {
-  return minutes < dayStartMinutes ? minutes + 24 * 60 : minutes
+  const wrapBefore = Math.min(dayStartMinutes, OVERNIGHT_WRAP_BEFORE_MINUTES)
+  return minutes < wrapBefore ? minutes + 24 * 60 : minutes
 }

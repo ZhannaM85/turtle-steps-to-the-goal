@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 711,
+    issue: 755,
+    date: '2026-08-20T22:35:00+03:00',
+    en: 'Meals on a day stay in clock order, so an 8am meal is listed before an 11am meal even if you started the day early.',
+    ru: 'Приёмы пищи за день идут по часам: еда в 8:00 стоит выше еды в 11:00, даже если день начали раньше обычного.',
+  },
+  {
     version: 710,
     issue: 753,
     date: '2026-08-19T01:05:00+03:00',
