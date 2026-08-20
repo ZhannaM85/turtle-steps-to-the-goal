@@ -36,8 +36,9 @@ _User asked about pulling data from Apple Health and Zepp Life. Researched via W
 
 ## Tier 142 — Live feedback (2026-08-20)
 
-_On-device: Day screen meal list order._
+_On-device: Day screen meal list order, and fasting window with an early day-start._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#755](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/755) | ⬜ Open | Day screen lists 11:00 meal above 08:27 on the same day | 19 Aug: meal logged yesterday at 08:27 sits below a meal logged today at 11:00 onto yesterday. Expected clock order. |
+| [#756](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/756) | ⬜ Open | Early day-start: fasting window shows 33h instead of ~10h | 18 Aug Ужин 22:54 → 19 Aug Обед 08:27 should be ~10h; Day shows 33.6h. Related #298. |
