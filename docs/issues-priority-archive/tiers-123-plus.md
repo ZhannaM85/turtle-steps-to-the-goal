@@ -337,4 +337,5 @@ _On-device: Day screen meal list order, and fasting window with an early day-sta
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
+| [#755](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/755) | ✅ Done | Day screen lists 11:00 meal above 08:27 on the same day | Confirmed on-device 2026-08-21 — 08:27 lists before 11:00. Same 06:00 wrap cap as #756. |
 | [#756](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/756) | ✅ Done | Early day-start: fasting window shows 33h instead of ~10h | Confirmed on-device 2026-08-21 — 22:54 → 08:27 is ~9.6h. `adjustForDayStart` wrap capped at 06:00. |
