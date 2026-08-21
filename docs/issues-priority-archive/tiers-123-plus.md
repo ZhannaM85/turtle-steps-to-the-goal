@@ -328,3 +328,13 @@ _On-device after #744: foods are in the export; meal time is not._
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#754](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/754) | ✅ Done | Export includes foods but not meal time | Confirmed on-device 2026-08-19 — CSV/Excel/Markdown Time matches Day (`effectiveTimeEaten`). JSON backup unchanged. |
+
+---
+
+## Tier 142 — Live feedback (2026-08-20)
+
+_On-device: Day screen meal list order, and fasting window with an early day-start._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#756](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/756) | ✅ Done | Early day-start: fasting window shows 33h instead of ~10h | Confirmed on-device 2026-08-21 — 22:54 → 08:27 is ~9.6h. `adjustForDayStart` wrap capped at 06:00. |
