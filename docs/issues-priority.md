@@ -36,8 +36,9 @@ _User asked about pulling data from Apple Health and Zepp Life. Researched via W
 
 ## Tier 143 — Live feedback (2026-08-24)
 
-_On-device: English Zepp Life goals screenshot could not be read._
+_On-device: English Zepp Life goals screenshot could not be read, and the header date is 23 Aug while Today is 24 Aug._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#757](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/757) | ⬜ Open | #742 follow-up: English Zepp goals screenshot with Bone mass first is not read | 23 Aug 06:11: Bone mass 2,37 kg Insufficient at top; Body fat 34,6% under “needs attention”; Muscle 36,92 kg, Water 46,6%, Visceral fat 5 under Reached 4 goals. |
+| [#758](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/758) | ⬜ Open | #742 follow-up: 23 August Zepp screenshot should fill 23 Aug when Today is 24 Aug | Header 23 August at 06:11. Filling from 24 Aug must offer 23 Aug, not write onto Today. Depends on #757 reading the image. |
