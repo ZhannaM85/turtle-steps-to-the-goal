@@ -40,6 +40,6 @@ _On-device: English Zepp Life goals screenshot could not be read; AutoSleep Hist
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#757](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/757) | ⬜ Open | #742 follow-up: English Zepp goals screenshot with Bone mass first is not read | 23 Aug 06:11: Bone mass 2,37 kg Insufficient at top; Body fat 34,6% under “needs attention”; Muscle 36,92 kg, Water 46,6%, Visceral fat 5 under Reached 4 goals. |
+| [#757](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/757) | 🔍 Pending validation | #742 follow-up: English Zepp goals screenshot with Bone mass first is not read | Fixture + parser: Bone mass first, attention header, concatenated OCR. Clock times / “1 item needs attention” / BMI on the same line are not the five fields. |
 | [#758](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/758) | ⬜ Open | #742 follow-up: 23 August Zepp screenshot should fill 23 Aug when Today is 24 Aug | Header 23 August at 06:11. Filling from 24 Aug must offer 23 Aug, not write onto Today. Depends on #757 reading the image. |
 | [#759](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/759) | ⬜ Open | Fill sleep from an AutoSleep History screenshot (not only Today) | History Sun Aug 23: Asleep 5:10, Deep 1:48 (`H:MM`, not `Xh Ym`). Ignore quality/in-bed. Offer 23 Aug when Today is 24 Aug. |

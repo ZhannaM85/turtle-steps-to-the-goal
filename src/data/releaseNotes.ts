@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 713,
+    issue: 757,
+    date: '2026-08-24T09:15:00+03:00',
+    en: 'A Zepp body-composition screenshot is read even when bone mass is listed first and some items sit under “needs attention.”',
+    ru: 'Скриншот состава тела из Zepp читается, даже если костная масса стоит первой, а часть показателей — в блоке «требует внимания».',
+  },
+  {
     version: 712,
     issue: 756,
     date: '2026-08-20T22:50:00+03:00',

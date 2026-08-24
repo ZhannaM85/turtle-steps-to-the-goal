@@ -113,6 +113,9 @@ const FIELD_SPECS: FieldSpec[] = [
 const SKIP_LINE_RE =
   /bmi|имт|body\s*age|возраст\s*тела|индекс\s*массы|белок|протеин|protein|basal|обмен|ккал|kcal/i
 
+/** Section chrome on the English goals screen (#757) — not a metric. */
+const ATTENTION_COUNT_RE = /\d+\s+items?\s+needs?\s+your\s+attention/i
+
 const NUMBER_RE = /(\d{1,3}(?:[.,]\d{1,2})?)\s*(%|％|kg|кг)?/gi
 
 function parseDecimal(raw: string): number | undefined {
@@ -173,9 +176,19 @@ function parseScreenshotDate(
 
 function numbersOn(line: string): { value: number; unit: string | undefined }[] {
   const found: { value: number; unit: string | undefined }[] = []
+  // #757 — clock times, "1 item needs your attention", and BMI/body-age
+  // must not be read as the five tracked fields (especially when OCR
+  // concatenates the goals screen into one line that also contains BMI).
+  const stripped = line
+    .replace(/\b\d{1,2}:\d{2}\b/g, ' ')
+    .replace(ATTENTION_COUNT_RE, ' ')
+    .replace(
+      /\b(?:bmi|имт|body\s*age|возраст\s*тела|индекс\s*массы)\s*[\d.,]+/gi,
+      ' ',
+    )
   NUMBER_RE.lastIndex = 0
   let match: RegExpExecArray | null
-  while ((match = NUMBER_RE.exec(line)) !== null) {
+  while ((match = NUMBER_RE.exec(stripped)) !== null) {
     const value = parseDecimal(match[1]!)
     if (value === undefined) continue
     if (value >= 1900 && value <= 2100) continue
@@ -222,17 +235,29 @@ function fillFromLabeledLines(
 ): void {
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i]!
-    if (SKIP_LINE_RE.test(line)) continue
+    if (
+      SKIP_LINE_RE.test(line) &&
+      !FIELD_SPECS.some((spec) => spec.label.test(line))
+    ) {
+      continue
+    }
     for (const spec of FIELD_SPECS) {
       if (reading[spec.key] !== undefined) continue
       if (!spec.label.test(line)) continue
       if (
         spec.key === 'bodyFatPercent' &&
-        /visceral|висцеральн/i.test(line)
+        /visceral|висцеральн/i.test(line) &&
+        !/body\s*fat|процент\s*жира/i.test(line)
       ) {
         continue
       }
+      const labelMatch = spec.label.exec(line)
+      const afterLabel =
+        labelMatch != null
+          ? line.slice(labelMatch.index + labelMatch[0].length)
+          : line
       const value =
+        pickForSpec(spec, numbersOn(afterLabel)) ??
         pickForSpec(spec, numbersOn(line)) ??
         pickForSpec(spec, numbersOn(lineWindow(lines, i)))
       if (value !== undefined) reading[spec.key] = value
@@ -246,6 +271,7 @@ function fillFromLabeledLines(
  * line only when it has no kg/% reading (e.g. "Reached 6 goals").
  */
 function isGoalsHeaderWithoutMeasurement(line: string): boolean {
+  if (ATTENTION_COUNT_RE.test(line) && !/%|kg|кг|％/i.test(line)) return true
   if (!/goal|цел/i.test(line)) return false
   return !numbersOn(line).some(
     (c) => c.unit === 'kg' || c.unit === '%' || c.unit === '％',
@@ -259,10 +285,16 @@ function isGoalsHeaderWithoutMeasurement(line: string): boolean {
 function textForUnlabeled(text: string): string {
   return text
     .split(/\r?\n/)
-    .filter(
-      (line) =>
-        !SKIP_LINE_RE.test(line) && !isGoalsHeaderWithoutMeasurement(line),
-    )
+    .filter((line) => {
+      if (isGoalsHeaderWithoutMeasurement(line)) return false
+      if (
+        SKIP_LINE_RE.test(line) &&
+        !FIELD_SPECS.some((spec) => spec.label.test(line))
+      ) {
+        return false
+      }
+      return true
+    })
     .join(' ')
 }
 

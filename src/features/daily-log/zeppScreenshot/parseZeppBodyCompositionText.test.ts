@@ -20,6 +20,25 @@ Other items
 Body age 46
 `
 
+/** #757 — English goals list with Bone mass first (Insufficient), Body fat under attention. */
+const ZEPP_EN_BONE_FIRST = `
+Zhanna
+23 August at 06:11
+once a week.
+1203
+Didn't reach goals
+Reach goal
+Bone mass 2,37 kg Insufficient
+1 item needs your attention
+Body fat 34,6 % Normal
+Reached 4 goals
+BMI 22,1 Normal
+Muscle 36,92 kg Normal
+Water 46,6 % Normal
+Visceral fat 5 Normal
+Other items
+`
+
 const TURTLE_STEPS_RU = `
 Дата
 17 Aug 2026
@@ -66,6 +85,40 @@ describe('parseZeppBodyCompositionText', () => {
       visceralFatRating: 5,
       boneMassKg: 2.33,
       date: '2026-08-17',
+    })
+  })
+
+  it('reads an English goals screenshot when Bone mass is listed first (#757)', () => {
+    expect(parseZeppBodyCompositionText(ZEPP_EN_BONE_FIRST, '2026-08-23')).toEqual(
+      {
+        bodyFatPercent: 34.6,
+        muscleMassKg: 36.92,
+        bodyWaterPercent: 46.6,
+        visceralFatRating: 5,
+        boneMassKg: 2.37,
+        date: '2026-08-23',
+      },
+    )
+  })
+
+  it('does not treat 06:11 or "1 item needs your attention" as body-comp values (#757)', () => {
+    const reading = parseZeppBodyCompositionText(
+      ZEPP_EN_BONE_FIRST,
+      '2026-08-23',
+    )
+    expect(reading.visceralFatRating).toBe(5)
+    expect(reading.boneMassKg).toBe(2.37)
+  })
+
+  it('still reads the five fields when OCR concatenates the goals screen into one line (#757)', () => {
+    const text = ZEPP_EN_BONE_FIRST.replace(/\s+/g, ' ').trim()
+    expect(parseZeppBodyCompositionText(text, '2026-08-23')).toMatchObject({
+      bodyFatPercent: 34.6,
+      muscleMassKg: 36.92,
+      bodyWaterPercent: 46.6,
+      visceralFatRating: 5,
+      boneMassKg: 2.37,
+      date: '2026-08-23',
     })
   })
 
