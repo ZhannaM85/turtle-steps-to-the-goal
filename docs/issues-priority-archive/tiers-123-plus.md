@@ -339,3 +339,13 @@ _On-device: Day screen meal list order, and fasting window with an early day-sta
 |---|--------|-------|-------|
 | [#755](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/755) | ✅ Done | Day screen lists 11:00 meal above 08:27 on the same day | Confirmed on-device 2026-08-21 — 08:27 lists before 11:00. Same 06:00 wrap cap as #756. |
 | [#756](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/756) | ✅ Done | Early day-start: fasting window shows 33h instead of ~10h | Confirmed on-device 2026-08-21 — 22:54 → 08:27 is ~9.6h. `adjustForDayStart` wrap capped at 06:00. |
+
+---
+
+## Tier 143 — Live feedback (2026-08-24)
+
+_On-device: English Zepp Life goals screenshot could not be read; AutoSleep History screenshots are not parsed yet._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#757](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/757) | ✅ Done | #742 follow-up: English Zepp goals screenshot with Bone mass first is not read | Confirmed on-device 2026-08-24 — Bone mass first / attention header fills the five body-composition fields. |

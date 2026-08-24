@@ -36,9 +36,8 @@ _User asked about pulling data from Apple Health and Zepp Life. Researched via W
 
 ## Tier 143 — Live feedback (2026-08-24)
 
-_On-device: English Zepp Life goals screenshot could not be read; AutoSleep History screenshots are not parsed yet._
+_On-device: AutoSleep History screenshots are not parsed yet._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#757](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/757) | 🔍 Pending validation | #742 follow-up: English Zepp goals screenshot with Bone mass first is not read | Fixture + parser: Bone mass first, attention header, concatenated OCR. Clock times / “1 item needs attention” / BMI on the same line are not the five fields. |
 | [#758](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/758) | 🔍 Pending validation | Fill sleep from an AutoSleep History screenshot (not only Today) | History tiles Asleep `5:10` + Deep `1:48` (`H:MM`). Ignores quality/in-bed/week chart. Same Sleep ImageUp as #748. |
