@@ -2,10 +2,13 @@ import { describe, expect, it } from 'vitest'
 import {
   applyDarkScreenshotOcrFilter,
   meanLuma,
+  ocrCanvasSize,
+  OCR_MAX_EDGE,
+  prepareAutoSleepScreenshotForOcr,
   shouldInvertForOcr,
 } from './prepareScreenshotForOcr'
 
-describe('prepareScreenshotForOcr (#758)', () => {
+describe('prepareScreenshotForOcr (#758, #761)', () => {
   it('treats a dark pixel as needing invert', () => {
     const rgba = new Uint8ClampedArray([20, 20, 20, 255])
     expect(meanLuma(rgba)).toBeLessThan(110)
@@ -22,5 +25,28 @@ describe('prepareScreenshotForOcr (#758)', () => {
     applyDarkScreenshotOcrFilter(rgba)
     expect([...rgba.slice(0, 3)]).toEqual([255, 255, 255])
     expect([...rgba.slice(4, 7)]).toEqual([0, 0, 0])
+  })
+
+  it('keeps a screenshot already within the OCR max edge', () => {
+    expect(ocrCanvasSize(400, 800)).toEqual({ width: 400, height: 800 })
+  })
+
+  it('scales a phone screenshot so the long edge is OCR_MAX_EDGE', () => {
+    expect(ocrCanvasSize(1170, 2532)).toEqual({
+      width: Math.max(1, Math.round((1170 * OCR_MAX_EDGE) / 2532)),
+      height: OCR_MAX_EDGE,
+    })
+  })
+
+  it('returns the original blob when createImageBitmap is missing', async () => {
+    const original = globalThis.createImageBitmap
+    try {
+      // @ts-expect-error — simulate environments without ImageBitmap
+      delete globalThis.createImageBitmap
+      const blob = new Blob(['x'], { type: 'image/png' })
+      expect(await prepareAutoSleepScreenshotForOcr(blob)).toBe(blob)
+    } finally {
+      globalThis.createImageBitmap = original
+    }
   })
 })

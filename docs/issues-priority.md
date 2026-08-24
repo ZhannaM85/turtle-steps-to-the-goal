@@ -40,4 +40,4 @@ _On-device: AutoSleep History scan took ~3 minutes._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#761](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/761) | ⬜ Open | AutoSleep History screenshot fill takes about 3 minutes | After #758: two full Tesseract passes (plain, then invert). Too slow for the confirm dialog. |
+| [#761](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/761) | 🔍 Pending validation | AutoSleep History screenshot fill takes about 3 minutes | One Tesseract pass: invert+threshold first when the shot is dark, downscale long edge to 800. Awaiting on-device timing. |

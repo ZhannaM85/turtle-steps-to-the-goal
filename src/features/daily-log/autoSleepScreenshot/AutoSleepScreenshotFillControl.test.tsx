@@ -4,6 +4,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { useLocaleStore } from '@/i18n'
 import { useTrackedFieldsStore } from '@/stores'
 import { AutoSleepScreenshotFillControl } from './AutoSleepScreenshotFillControl'
+import { recognizeOnDeviceScreenshot } from '../recognizeOnDeviceScreenshot'
 
 vi.mock('../recognizeOnDeviceScreenshot', () => ({
   recognizeOnDeviceScreenshot: vi.fn(async () =>
@@ -21,9 +22,14 @@ vi.mock('../recognizeOnDeviceScreenshot', () => ({
   ),
 }))
 
+vi.mock('../prepareScreenshotForOcr', () => ({
+  prepareAutoSleepScreenshotForOcr: vi.fn(async (image: Blob) => image),
+}))
+
 describe('AutoSleepScreenshotFillControl', () => {
   beforeEach(() => {
     localStorage.clear()
+    vi.mocked(recognizeOnDeviceScreenshot).mockClear()
     useLocaleStore.setState({ locale: 'en' })
     useTrackedFieldsStore.setState((state) => ({
       tracked: { ...state.tracked, autoSleepScreenshot: true },
@@ -53,6 +59,7 @@ describe('AutoSleepScreenshotFillControl', () => {
     expect(screen.getByLabelText('Deep sleep — hours')).toHaveValue('3')
     expect(screen.getByLabelText('Deep sleep — minutes')).toHaveValue('26')
     expect(screen.queryByDisplayValue('10.55')).not.toBeInTheDocument()
+    expect(vi.mocked(recognizeOnDeviceScreenshot)).toHaveBeenCalledTimes(1)
 
     await user.click(screen.getByRole('button', { name: 'Save these numbers' }))
     expect(onConfirm).toHaveBeenCalledWith({

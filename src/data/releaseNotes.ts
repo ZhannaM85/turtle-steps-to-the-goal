@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 718,
+    issue: 761,
+    date: '2026-08-24T22:20:00+03:00',
+    en: 'Filling sleep from an AutoSleep screenshot is much quicker.',
+    ru: 'Заполнение сна из скриншота AutoSleep занимает гораздо меньше времени.',
+  },
+  {
     version: 717,
     issue: 758,
     date: '2026-08-24T21:20:00+03:00',
