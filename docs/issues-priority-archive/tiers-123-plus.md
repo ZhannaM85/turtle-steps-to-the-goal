@@ -349,3 +349,4 @@ _On-device: English Zepp Life goals screenshot could not be read; AutoSleep Hist
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#757](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/757) | ✅ Done | #742 follow-up: English Zepp goals screenshot with Bone mass first is not read | Confirmed on-device 2026-08-24 — Bone mass first / attention header fills the five body-composition fields. |
+| [#758](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/758) | ✅ Done | Fill sleep from an AutoSleep History screenshot (not only Today) | Confirmed on-device 2026-08-24 — Asleep 5:10 / Deep 1:48. Scan took ~3 min (follow-up). |

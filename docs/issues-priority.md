@@ -36,9 +36,8 @@ _User asked about pulling data from Apple Health and Zepp Life. Researched via W
 
 ## Tier 143 — Live feedback (2026-08-24)
 
-_On-device: AutoSleep History screenshots are not parsed yet; app was blank with no internet._
+_On-device: app was blank with no internet._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#758](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/758) | 🔍 Pending validation | Fill sleep from an AutoSleep History screenshot (not only Today) | On-device: Tesseract missed tile numbers on the dark screen. Invert+threshold retry; Asleep `5:10` / Deep `1:48`. |
 | [#760](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/760) | 🔍 Pending validation | App is blank when there is no internet | SW now skipWaiting/clientsClaim + register even after `load`. Open once online, then reopen offline. |
