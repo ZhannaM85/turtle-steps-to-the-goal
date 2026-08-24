@@ -82,6 +82,20 @@ describe('parseAutoSleepText', () => {
     })
   })
 
+  it('still reads Asleep and Deep when OCR concatenates the History grid (#758)', () => {
+    const text = `
+SLEEP Sun Aug 23, 2026 1:53-10:33
+Avg. — 7h 45m
+RATING 78% ASLEEP 5:10 QUALITY 4:20
+IN BED AT 00:45 → 06:00 DEEP SLEEP 1:48 HEARTRATE 74
+`
+    expect(parseAutoSleepText(text, '2026-08-24')).toEqual({
+      sleepHours: 5.17,
+      deepSleepHours: 1.8,
+      date: '2026-08-23',
+    })
+  })
+
   it('ignores History quality, in-bed, averages, and week chips (#758)', () => {
     const reading = parseAutoSleepText(AUTOSLEEP_HISTORY, '2026-08-24')
     expect(reading.sleepHours).toBe(5.17)

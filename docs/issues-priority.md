@@ -40,5 +40,5 @@ _On-device: AutoSleep History screenshots are not parsed yet; app was blank with
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#758](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/758) | 🔍 Pending validation | Fill sleep from an AutoSleep History screenshot (not only Today) | History tiles Asleep `5:10` + Deep `1:48` (`H:MM`). Ignores quality/in-bed/week chart. Same Sleep ImageUp as #748. |
+| [#758](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/758) | 🔍 Pending validation | Fill sleep from an AutoSleep History screenshot (not only Today) | On-device 24 Aug: concatenated History grid was not read (Today-only error). Parser now takes Asleep/Deep H:MM from the full OCR text. |
 | [#760](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/760) | ⬜ Open | App is blank when there is no internet | On-device: white screen, status bar only. Root cause not yet investigated. |

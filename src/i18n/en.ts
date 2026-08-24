@@ -420,7 +420,7 @@ export const en: Dictionary = {
       'Check the numbers, then save. Nothing is written until you confirm.',
     autoSleepScreenshotReadingLabel: 'Reading the screenshot…',
     autoSleepScreenshotNoValues:
-      'Could not read sleep from this image. Use a screenshot of AutoSleep Today.',
+      'Could not read sleep from this image. Use an AutoSleep Today or History screenshot.',
     autoSleepScreenshotFailed: 'Could not read this image. Try another screenshot.',
     autoSleepScreenshotSaveLabel: 'Save these numbers',
     autoSleepScreenshotCloseLabel: 'Close',

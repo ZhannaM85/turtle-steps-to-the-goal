@@ -441,7 +441,7 @@ export const ru: Dictionary = {
       'Проверьте цифры и сохраните. Ничего не запишется, пока вы не подтвердите.',
     autoSleepScreenshotReadingLabel: 'Читаю скриншот…',
     autoSleepScreenshotNoValues:
-      'Не удалось прочитать сон на этом изображении. Нужен скриншот AutoSleep за сегодня.',
+      'Не удалось прочитать сон на этом изображении. Нужен скриншот AutoSleep (Today или History).',
     autoSleepScreenshotFailed: 'Не удалось прочитать изображение. Попробуйте другой скриншот.',
     autoSleepScreenshotSaveLabel: 'Сохранить эти числа',
     autoSleepScreenshotCloseLabel: 'Закрыть',

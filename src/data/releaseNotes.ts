@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 715,
+    issue: 758,
+    date: '2026-08-24T19:35:00+03:00',
+    en: 'Sleep and deep sleep are read from an AutoSleep History screenshot even when the tiles sit on the same line as rating or quality.',
+    ru: 'Сон и глубокий сон со скриншота AutoSleep History читаются, даже если плитки стоят в одной строке с рейтингом или качеством.',
+  },
+  {
     version: 714,
     issue: 758,
     date: '2026-08-24T09:45:00+03:00',

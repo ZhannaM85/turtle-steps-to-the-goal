@@ -60,6 +60,10 @@ const HISTORY_DATE_RE = new RegExp(
 
 const CLOCK_DURATION_RE = /\b(\d{1,2}):(\d{2})\b/g
 
+/** History tiles: `ASLEEP 5:10` / `DEEP SLEEP 1:48` (#758). */
+const HISTORY_ASLEEP_RE = /\basleep\b[^\d]{0,40}(\d{1,2}):(\d{2})/i
+const HISTORY_DEEP_RE = /deep\s*sleep\b[^\d]{0,40}(\d{1,2}):(\d{2})/i
+
 function roundHours(value: number): number {
   return Math.round(value * 100) / 100
 }
@@ -114,19 +118,48 @@ function durationsOn(line: string): number[] {
   return found
 }
 
+function clockToHours(
+  hoursText: string,
+  minutesText: string,
+): number | undefined {
+  const hours = Number(hoursText)
+  const minutes = Number(minutesText)
+  if (!Number.isFinite(hours) || !Number.isFinite(minutes)) return undefined
+  if (minutes >= 60) return undefined
+  const value = roundHours(hours + minutes / 60)
+  if (value < 0.25 || value > 16) return undefined
+  return value
+}
+
+/**
+ * #758 on-device: Tesseract glues the 2×3 History grid into one line
+ * (`RATING 78% ASLEEP 5:10 QUALITY 4:20` / `IN BED … DEEP SLEEP 1:48`).
+ * Read the H:MM immediately after each tile label from the full text so
+ * skip-words on the same line cannot drop the two fields.
+ */
+function historyLabeledClocks(text: string): {
+  sleepHours?: number
+  deepSleepHours?: number
+} {
+  const flat = text.replace(/\u00a0/g, ' ').replace(/\s+/g, ' ')
+  const asleep = HISTORY_ASLEEP_RE.exec(flat)
+  const deep = HISTORY_DEEP_RE.exec(flat)
+  return {
+    sleepHours: asleep
+      ? clockToHours(asleep[1]!, asleep[2]!)
+      : undefined,
+    deepSleepHours: deep ? clockToHours(deep[1]!, deep[2]!) : undefined,
+  }
+}
+
 /** History tiles use `5:10` / `1:48`, not `5h 10m` (#758). */
 function clockDurationsOn(line: string): number[] {
   const found: number[] = []
   CLOCK_DURATION_RE.lastIndex = 0
   let match: RegExpExecArray | null
   while ((match = CLOCK_DURATION_RE.exec(line)) !== null) {
-    const hours = Number(match[1])
-    const minutes = Number(match[2])
-    if (!Number.isFinite(hours) || !Number.isFinite(minutes)) continue
-    if (minutes >= 60) continue
-    const value = roundHours(hours + minutes / 60)
-    if (value < 0.25 || value > 16) continue
-    found.push(value)
+    const value = clockToHours(match[1]!, match[2]!)
+    if (value !== undefined) found.push(value)
   }
   return found
 }
@@ -146,6 +179,13 @@ export function parseAutoSleepText(
   asOfDate: string,
 ): AutoSleepReading {
   const reading: AutoSleepReading = {}
+  const historyClocks = historyLabeledClocks(text)
+  if (historyClocks.sleepHours !== undefined) {
+    reading.sleepHours = historyClocks.sleepHours
+  }
+  if (historyClocks.deepSleepHours !== undefined) {
+    reading.deepSleepHours = historyClocks.deepSleepHours
+  }
   const lines = text
     .replace(/\u00a0/g, ' ')
     .split(/\r?\n/)
@@ -155,7 +195,7 @@ export function parseAutoSleepText(
   const kept: { line: string; hours: number }[] = []
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i]!
-    if (SKIP_LINE_RE.test(line)) continue
+    if (SKIP_LINE_RE.test(line) && historyTileKind(line) === null) continue
     const hours = durationsOn(line)
     const tile = historyTileKind(line)
     if (tile) {
@@ -170,14 +210,18 @@ export function parseAutoSleepText(
   }
 
   const deep = kept.find((item) => /deep/i.test(item.line))
-  if (deep) reading.deepSleepHours = deep.hours
+  if (deep && reading.deepSleepHours === undefined) {
+    reading.deepSleepHours = deep.hours
+  }
 
   const labeledSleep = kept.find(
     (item) =>
       /(?:^|\b)(?:sleep|asleep|today)(?:\b|$)/i.test(item.line) &&
       !/deep/i.test(item.line),
   )
-  if (labeledSleep) reading.sleepHours = labeledSleep.hours
+  if (labeledSleep && reading.sleepHours === undefined) {
+    reading.sleepHours = labeledSleep.hours
+  }
 
   if (reading.sleepHours === undefined) {
     const remaining = kept
