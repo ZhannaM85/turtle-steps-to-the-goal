@@ -31,3 +31,13 @@ _User asked about pulling data from Apple Health and Zepp Life. Researched via W
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#334](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/334) | 📋 Not started | Epic — Apple Health integration (blocked on mobile app + HealthKit bridge) | HealthKit has no public/cloud API at all — data is on-device only, readable exclusively by a native iOS app (or hybrid app with a HealthKit plugin/entitlement) the user has granted permission to. Genuinely blocked until the mobile app exists; can't be built sooner by any workaround. |
+
+---
+
+## Tier 143 — Live feedback (2026-08-24)
+
+_On-device: English Zepp Life goals screenshot could not be read._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#757](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/757) | ⬜ Open | #742 follow-up: English Zepp goals screenshot with Bone mass first is not read | 23 Aug 06:11: Bone mass 2,37 kg Insufficient at top; Body fat 34,6% under “needs attention”; Muscle 36,92 kg, Water 46,6%, Visceral fat 5 under Reached 4 goals. |
