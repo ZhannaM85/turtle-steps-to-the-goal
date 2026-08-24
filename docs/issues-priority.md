@@ -36,8 +36,9 @@ _User asked about pulling data from Apple Health and Zepp Life. Researched via W
 
 ## Tier 143 — Live feedback (2026-08-24)
 
-_On-device: app was blank with no internet._
+_On-device: app was blank with no internet; AutoSleep History scan took ~3 minutes._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#760](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/760) | 🔍 Pending validation | App is blank when there is no internet | SW now skipWaiting/clientsClaim + register even after `load`. Open once online, then reopen offline. |
+| [#761](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/761) | ⬜ Open | AutoSleep History screenshot fill takes about 3 minutes | After #758: two full Tesseract passes (plain, then invert). Too slow for the confirm dialog. |
