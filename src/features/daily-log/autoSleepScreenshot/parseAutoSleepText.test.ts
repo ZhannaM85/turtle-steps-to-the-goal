@@ -16,6 +16,27 @@ Efficiency 89%
 HR 70
 `
 
+/** #758 — AutoSleep History day tiles (H:MM), not the Today `Xh Ym` summary. */
+const AUTOSLEEP_HISTORY = `
+SLEEP
+Sun Aug 23, 2026
+1:53-10:33
+Avg. — 7h 45m
+Mon 17 10:33
+Tue 18 6:09
+Wed 19 1:53
+Thu 20 3:30
+Fri 21 4:47
+Sat 22
+Sun 23 5:10
+RATING 78%
+ASLEEP 5:10
+QUALITY 4:20
+IN BED AT 00:45 → 06:00
+DEEP SLEEP 1:48
+HEARTRATE 74
+`
+
 describe('parseAutoSleepText', () => {
   it('reads sleep, deep sleep, and the wake date from an English AutoSleep Today screen (#748)', () => {
     expect(parseAutoSleepText(AUTOSLEEP_TODAY, '2026-08-17')).toEqual({
@@ -51,5 +72,21 @@ describe('parseAutoSleepText', () => {
     const reading = parseAutoSleepText('hello world', '2026-08-17')
     expect(hasAutoSleepValues(reading)).toBe(false)
     expect(reading.date).toBeUndefined()
+  })
+
+  it('reads Asleep and Deep sleep from an English AutoSleep History screen (#758)', () => {
+    expect(parseAutoSleepText(AUTOSLEEP_HISTORY, '2026-08-24')).toEqual({
+      sleepHours: 5.17,
+      deepSleepHours: 1.8,
+      date: '2026-08-23',
+    })
+  })
+
+  it('ignores History quality, in-bed, averages, and week chips (#758)', () => {
+    const reading = parseAutoSleepText(AUTOSLEEP_HISTORY, '2026-08-24')
+    expect(reading.sleepHours).toBe(5.17)
+    expect(reading.deepSleepHours).toBe(1.8)
+    expect(reading.sleepHours).not.toBe(7.75)
+    expect(reading.deepSleepHours).not.toBe(4.33)
   })
 })

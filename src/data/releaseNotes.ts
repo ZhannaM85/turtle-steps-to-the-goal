@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 714,
+    issue: 758,
+    date: '2026-08-24T09:45:00+03:00',
+    en: 'Sleep can be filled from an AutoSleep History screenshot, not only the Today summary.',
+    ru: 'Сон можно заполнить со скриншота AutoSleep History, не только с экрана Today.',
+  },
+  {
     version: 713,
     issue: 757,
     date: '2026-08-24T09:15:00+03:00',
