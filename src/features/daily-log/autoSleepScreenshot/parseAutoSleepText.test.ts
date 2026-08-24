@@ -103,4 +103,37 @@ IN BED AT 00:45 → 06:00 DEEP SLEEP 1:48 HEARTRATE 74
     expect(reading.sleepHours).not.toBe(7.75)
     expect(reading.deepSleepHours).not.toBe(4.33)
   })
+
+  it('reads Asleep 5:10 and Deep 1:48 from inverted-threshold History OCR (#758)', () => {
+    const text = `
+21:28 we &
+SLEEP Sun Aug 23, 2026
+1:53-10:33 Avg. —7h 45m
+v7 18 19 20 a 22 BE
+10:33 6:09 «1:53 3:30 sa 5:10
+24
+00:45 :
+> 06:00 1:48 74
+Today Clock History Settings
+`
+    expect(parseAutoSleepText(text, '2026-08-24')).toEqual({
+      sleepHours: 5.17,
+      deepSleepHours: 1.8,
+      date: '2026-08-23',
+    })
+  })
+
+  it('reads Asleep from 78% | 5:10 | 4:20 after invert (#758)', () => {
+    const text = `
+SLEEP Sun Aug 23, 2026
+78% | 5:10 | 4:20
+00:45
+> 06:00 1:48 74
+`
+    expect(parseAutoSleepText(text, '2026-08-24')).toMatchObject({
+      sleepHours: 5.17,
+      deepSleepHours: 1.8,
+      date: '2026-08-23',
+    })
+  })
 })

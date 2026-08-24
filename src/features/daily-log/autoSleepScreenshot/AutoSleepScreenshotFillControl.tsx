@@ -21,6 +21,7 @@ import {
   type AutoSleepReading,
 } from './parseAutoSleepText'
 import { recognizeOnDeviceScreenshot } from '../recognizeOnDeviceScreenshot'
+import { enhanceDarkScreenshotForOcr } from '../prepareScreenshotForOcr'
 
 export interface AutoSleepScreenshotFillControlProps {
   asOfDate: string
@@ -109,7 +110,18 @@ export function AutoSleepScreenshotFillControl({
     resetFields()
     try {
       const text = await recognizeOnDeviceScreenshot(file)
-      const reading = parseAutoSleepText(text, asOfDate)
+      let reading = parseAutoSleepText(text, asOfDate)
+      if (!hasAutoSleepValues(reading)) {
+        try {
+          const enhanced = await enhanceDarkScreenshotForOcr(file)
+          if (enhanced) {
+            const enhancedText = await recognizeOnDeviceScreenshot(enhanced)
+            reading = parseAutoSleepText(enhancedText, asOfDate)
+          }
+        } catch {
+          // Keep the first-pass empty result.
+        }
+      }
       if (!hasAutoSleepValues(reading)) {
         setReadingStatus('empty')
         return

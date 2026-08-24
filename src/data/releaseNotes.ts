@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 717,
+    issue: 758,
+    date: '2026-08-24T21:20:00+03:00',
+    en: 'AutoSleep History screenshots are inverted before reading, so sleep 5:10 and deep sleep 1:48 can be filled from the dark tiles.',
+    ru: 'Скриншоты AutoSleep History перед чтением инвертируются, чтобы сон 5:10 и глубокий сон 1:48 заполнялись с тёмных плиток.',
+  },
+  {
     version: 716,
     issue: 760,
     date: '2026-08-24T19:45:00+03:00',

@@ -152,6 +152,54 @@ function historyLabeledClocks(text: string): {
   }
 }
 
+/** `78% | 5:10 | 4:20` after invert+threshold: first clock after % is Asleep. */
+function asleepFromRatingPercent(text: string): number | undefined {
+  const match = /(\d{1,3})\s*%[^\d]{0,24}(\d{1,2}):(\d{2})/.exec(text)
+  if (!match) return undefined
+  return clockToHours(match[2]!, match[3]!)
+}
+
+/**
+ * History week chips: Asleep for the header day is the H:MM just before
+ * the next day's date (`5:10` then `24` when the header is Aug 23).
+ */
+function asleepBeforeNextDayChip(
+  text: string,
+  date: string | undefined,
+): number | undefined {
+  if (!date) return undefined
+  const day = Number(date.slice(8, 10))
+  if (!Number.isFinite(day) || day < 1 || day > 30) return undefined
+  const next = String(day + 1)
+  const re = new RegExp(`(\\d{1,2}):(\\d{2})\\D{0,20}${next}\\b`, 'g')
+  let last: RegExpExecArray | null = null
+  let match: RegExpExecArray | null
+  while ((match = re.exec(text)) !== null) last = match
+  if (!last) return undefined
+  return clockToHours(last[1]!, last[2]!)
+}
+
+/**
+ * Deep tile H:MM after invert+threshold (no "DEEP SLEEP" label). Last
+ * duration under 4h, skipping `00:xx` in-bed.
+ */
+function lastShortClockDuration(text: string): number | undefined {
+  const stripped = text.replace(
+    /\b\d{1,2}:\d{2}\s*[-–]\s*\d{1,2}:\d{2}\b/g,
+    ' ',
+  )
+  CLOCK_DURATION_RE.lastIndex = 0
+  let last: number | undefined
+  let match: RegExpExecArray | null
+  while ((match = CLOCK_DURATION_RE.exec(stripped)) !== null) {
+    if (Number(match[1]) === 0) continue
+    const value = clockToHours(match[1]!, match[2]!)
+    if (value === undefined || value >= 4) continue
+    last = value
+  }
+  return last
+}
+
 /** History tiles use `5:10` / `1:48`, not `5h 10m` (#758). */
 function clockDurationsOn(line: string): number[] {
   const found: number[] = []
@@ -179,12 +227,24 @@ export function parseAutoSleepText(
   asOfDate: string,
 ): AutoSleepReading {
   const reading: AutoSleepReading = {}
+  const date = parseWakeDate(text.replace(/\u00a0/g, ' '), asOfDate)
+  if (date) reading.date = date
+
   const historyClocks = historyLabeledClocks(text)
   if (historyClocks.sleepHours !== undefined) {
     reading.sleepHours = historyClocks.sleepHours
   }
   if (historyClocks.deepSleepHours !== undefined) {
     reading.deepSleepHours = historyClocks.deepSleepHours
+  }
+  if (reading.sleepHours === undefined) {
+    reading.sleepHours = asleepFromRatingPercent(text)
+  }
+  if (reading.sleepHours === undefined) {
+    reading.sleepHours = asleepBeforeNextDayChip(text, reading.date)
+  }
+  if (reading.deepSleepHours === undefined) {
+    reading.deepSleepHours = lastShortClockDuration(text)
   }
   const lines = text
     .replace(/\u00a0/g, ' ')
@@ -241,7 +301,5 @@ export function parseAutoSleepText(
     }
   }
 
-  const date = parseWakeDate(text.replace(/\u00a0/g, ' '), asOfDate)
-  if (date) reading.date = date
   return reading
 }
