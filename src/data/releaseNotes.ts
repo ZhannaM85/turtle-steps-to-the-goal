@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 716,
+    issue: 760,
+    date: '2026-08-24T19:45:00+03:00',
+    en: 'The app should still open when there is no internet, after it has been opened online at least once.',
+    ru: 'Приложение должно открываться без интернета, если его хотя бы раз открывали с сетью.',
+  },
+  {
     version: 715,
     issue: 758,
     date: '2026-08-24T19:35:00+03:00',

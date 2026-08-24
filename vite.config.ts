@@ -47,6 +47,18 @@ export default defineConfig(({ mode }) => ({
       // (app-shell assets are already bundled into the native app itself).
       injectRegister: false,
       workbox: {
+        // #760 — `injectRegister: false` (above) also skipped the
+        // autoUpdate inject that used to call skipWaiting/clientsClaim.
+        // Without these, a newly installed worker stays `waiting` and
+        // never controls the page, so iOS standalone has nothing to
+        // serve offline and shows a blank white screen.
+        skipWaiting: true,
+        clientsClaim: true,
+        navigateFallback: 'index.html',
+        maximumFileSizeToCacheInBytes: 8 * 1024 * 1024,
+        globPatterns: [
+          '**/*.{js,css,html,ico,png,svg,woff,woff2,webmanifest}',
+        ],
         // version.json (#115) must always be a real network fetch, never
         // served from the SW's cache — it's how useAppUpdateAvailable()
         // detects a newer deploy exists at all. Excluding it from the
