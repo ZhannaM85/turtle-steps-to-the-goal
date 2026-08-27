@@ -136,4 +136,30 @@ SLEEP Sun Aug 23, 2026
       date: '2026-08-23',
     })
   })
+
+  it('reads Deep 3h10m from Today OCR even when status bar has 1:00 (#762)', () => {
+    // Real eng Tesseract text from the on-device AutoSleep Today shot
+    // (WEDNESDAY 26 → THURSDAY 27): Sleep Rating shows icon-only
+    // 8h29m / 7h24m / 3h10m; status bar OCR starts with `1:00`.
+    const text = `
+1:00 6B oe 22 7
+WEDNESDAY 26 > THURSDAY 27
+8h 29m G
+Sleep Efficiency: 95%.
+Sleep Session
+AWAKE
+DEEP ne ob 1 on
+00:46 - 09:39 € 8:29 / 8:53
+Time Asleep Sleep Rating
+TODAY &€8h29m
+8h 29m 7h 24m
+SLEEP BANK @®3h10m
+18,9% Credit 073
+`
+    expect(parseAutoSleepText(text, '2026-08-27')).toEqual({
+      sleepHours: 8.48,
+      deepSleepHours: 3.17,
+      date: '2026-08-27',
+    })
+  })
 })

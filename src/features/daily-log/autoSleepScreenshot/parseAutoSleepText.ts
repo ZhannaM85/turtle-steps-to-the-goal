@@ -21,7 +21,8 @@ const WEEKDAY =
   'sunday|monday|tuesday|wednesday|thursday|friday|saturday|sun|mon|tue|tues|wed|thu|thur|thurs|fri|sat'
 
 const RANGE_RE = new RegExp(
-  `(?:${WEEKDAY})\\s+(\\d{1,2})\\s*[→\\-–]\\s*(?:${WEEKDAY})\\s+(\\d{1,2})`,
+  // OCR often turns the AutoSleep arrow into `>` (#762).
+  `(?:${WEEKDAY})\\s+(\\d{1,2})\\s*[→\\-–>]\\s*(?:${WEEKDAY})\\s+(\\d{1,2})`,
   'i',
 )
 
@@ -213,7 +214,9 @@ function clockDurationsOn(line: string): number[] {
 }
 
 function historyTileKind(line: string): 'deep' | 'asleep' | null {
-  if (/deep/i.test(line)) return 'deep'
+  // Require "deep sleep" — bare "DEEP" is the Today hypnogram Y-axis; using it
+  // as a tile pulls the next line's `00:46 - 09:39` as deep (#762).
+  if (/deep\s*sleep/i.test(line)) return 'deep'
   if (/\basleep\b/i.test(line)) return 'asleep'
   return null
 }
@@ -230,6 +233,7 @@ export function parseAutoSleepText(
   const date = parseWakeDate(text.replace(/\u00a0/g, ' '), asOfDate)
   if (date) reading.date = date
 
+  // High-confidence History labels (`ASLEEP 5:10` / `DEEP SLEEP 1:48`).
   const historyClocks = historyLabeledClocks(text)
   if (historyClocks.sleepHours !== undefined) {
     reading.sleepHours = historyClocks.sleepHours
@@ -237,15 +241,10 @@ export function parseAutoSleepText(
   if (historyClocks.deepSleepHours !== undefined) {
     reading.deepSleepHours = historyClocks.deepSleepHours
   }
-  if (reading.sleepHours === undefined) {
-    reading.sleepHours = asleepFromRatingPercent(text)
-  }
-  if (reading.sleepHours === undefined) {
-    reading.sleepHours = asleepBeforeNextDayChip(text, reading.date)
-  }
-  if (reading.deepSleepHours === undefined) {
-    reading.deepSleepHours = lastShortClockDuration(text)
-  }
+
+  // Today `Xh Ym` (and History lines that still carry that shape) before
+  // History H:MM heuristics — otherwise a status-bar `1:00` via
+  // lastShortClockDuration locks deep sleep and blocks real `3h10m` (#762).
   const lines = text
     .replace(/\u00a0/g, ' ')
     .split(/\r?\n/)
@@ -299,6 +298,17 @@ export function parseAutoSleepText(
     if (smaller.length > 0) {
       reading.deepSleepHours = Math.min(...smaller)
     }
+  }
+
+  // History-only fallbacks when tiles have no `Xh Ym` / labels (#758).
+  if (reading.sleepHours === undefined) {
+    reading.sleepHours = asleepFromRatingPercent(text)
+  }
+  if (reading.sleepHours === undefined) {
+    reading.sleepHours = asleepBeforeNextDayChip(text, reading.date)
+  }
+  if (reading.deepSleepHours === undefined) {
+    reading.deepSleepHours = lastShortClockDuration(text)
   }
 
   return reading

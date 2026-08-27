@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 719,
+    issue: 762,
+    date: '2026-08-27T12:12:00+03:00',
+    en: 'AutoSleep Today screenshots fill deep sleep correctly (for example 3h 10m instead of 1h 0m).',
+    ru: 'Скриншоты AutoSleep Today правильно заполняют глубокий сон (например 3ч 10м вместо 1ч 0м).',
+  },
+  {
     version: 718,
     issue: 761,
     date: '2026-08-24T22:20:00+03:00',
