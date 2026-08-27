@@ -32,13 +32,3 @@ _User asked about pulling data from Apple Health and Zepp Life. Researched via W
 |---|--------|-------|-------|
 | [#334](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/334) | 📋 Not started | Epic — Apple Health integration (blocked on mobile app + HealthKit bridge) | HealthKit has no public/cloud API at all — data is on-device only, readable exclusively by a native iOS app (or hybrid app with a HealthKit plugin/entitlement) the user has granted permission to. Genuinely blocked until the mobile app exists; can't be built sooner by any workaround. |
 
----
-
-## Tier 144 — Live feedback (2026-08-27)
-
-_AutoSleep Today screenshot fill: total sleep OK, deep sleep wrong._
-
-| # | Status | Issue | Notes |
-|---|--------|-------|-------|
-| [#762](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/762) | 🔍 Pending validation | Incorrectly reads deep sleep from AutoSleep Today screenshot | Parser ran History H:MM fallbacks before Today `Xh Ym`, and bare hypnogram `DEEP` pulled `00:46` from the session range — deep became 1h 0m / ~46m instead of **3h 10m**. Fix: `Xh Ym` first; only `deep sleep` is a History tile; accept OCR `>`. |
-

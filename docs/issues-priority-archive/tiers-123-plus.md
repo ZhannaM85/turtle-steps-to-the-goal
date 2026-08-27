@@ -352,3 +352,13 @@ _On-device: English Zepp Life goals screenshot could not be read; AutoSleep Hist
 | [#758](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/758) | ✅ Done | Fill sleep from an AutoSleep History screenshot (not only Today) | Confirmed on-device 2026-08-24 — Asleep 5:10 / Deep 1:48. Scan took ~3 min (follow-up). |
 | [#760](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/760) | ✅ Done | App is blank when there is no internet | Confirmed on-device 2026-08-24 — app opens offline after a prior online visit. |
 | [#761](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/761) | ✅ Done | AutoSleep History screenshot fill takes about 3 minutes | Confirmed on-device 2026-08-25 — one OCR pass; scan is much quicker. |
+
+---
+
+## Tier 144 — Live feedback (2026-08-27)
+
+_AutoSleep Today screenshot fill: total sleep OK, deep sleep wrong._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#762](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/762) | ✅ Done | Incorrectly reads deep sleep from AutoSleep Today screenshot | Confirmed on-device 2026-08-27 — deep sleep fills correctly (e.g. 3h 10m). |
