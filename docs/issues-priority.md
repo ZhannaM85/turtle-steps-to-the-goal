@@ -36,8 +36,10 @@ _User asked about pulling data from Apple Health and Zepp Life. Researched via W
 
 ## Tier 145 — Morning notes & eating reason (2026-08-28)
 
-_Evening already has a day's note; add a matching morning note, opt-in and off by default. Same-day ask: optional per-meal "why am I eating" behind a toggle, then user-defined extra reasons._
+_Evening already has a day's note; add a matching morning note, opt-in and off by default. Same-day ask: optional per-meal "why am I eating" behind a toggle, then user-defined extra reasons. Follow-ups: edit custom reasons; show/edit built-in reasons in Settings._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
+| [#767](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/767) | 📋 Not started | Settings: no way to edit a custom eating reason | #765 follow-up. Trash + Add only; no pencil. Rename in place. Open question: should renaming update past meals that stored that string? |
+| [#766](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/766) | 📋 Not started | Settings: show built-in eating reasons and allow editing them | #765 follow-up. Show the six defaults in Your reasons, not only custom labels. User can edit a built-in label. Same Why am I eating? toggle. |
 
