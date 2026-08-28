@@ -51,7 +51,7 @@ beforeEach(async () => {
   await db.recipes.clear()
   useMealItemStore.setState({ items: [], status: 'idle', error: null })
   useRecipeStore.setState({ recipes: [], status: 'idle', error: null })
-  useEatingReasonTrackingStore.setState({ enabled: false })
+  useEatingReasonTrackingStore.setState({ enabled: false, customReasons: [] })
   localStorage.clear()
   // #201 made the add row's default collapsed state depend on whether
   // `date` is in the past relative to the real clock — freeze "now" to
@@ -333,6 +333,27 @@ describe('MealList', () => {
     expect(
       screen.queryByLabelText('Why am I eating?'),
     ).not.toBeInTheDocument()
+  })
+
+  it('shows a custom eating reason as the saved text (#765)', () => {
+    render(
+      <MealList
+        calorieEntries={[
+          {
+            id: 'c1',
+            label: 'Lunch',
+            eatingReason: 'Tired after work',
+            items: [{ id: 'i1', name: 'Skyr', amountKcal: 175 }],
+            createdAt: '2026-01-01T00:00:00.000Z',
+          },
+        ]}
+        date="2026-03-01"
+        onChange={vi.fn()}
+      />,
+      { wrapper: MemoryRouter },
+    )
+
+    expect(screen.getByText('Tired after work')).toBeInTheDocument()
   })
 
   it('lists meals earliest logged time first (#597)', () => {

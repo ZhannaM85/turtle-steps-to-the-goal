@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import type { CalorieItem, EatingReason, Emotion } from '@/domain/dailyEntry'
+import type { CalorieItem, Emotion } from '@/domain/dailyEntry'
 import { db } from '@/infrastructure/persistence/indexeddb'
 import { useFoodOverrideStore, useMealItemStore, useMealLabelPresetStore, useNutritionFactsStore, useRecipeStore, useAddMealRecentVisibilityStore, useEatingReasonTrackingStore } from '@/stores'
 import { AddMealDialog, type AddMealDialogProps } from './AddMealDialog'
@@ -40,7 +40,7 @@ beforeEach(async () => {
   useAddMealRecentVisibilityStore.setState({ recentVisible: true })
   useMealLabelPresetStore.setState({ presets: [] })
   useNutritionFactsStore.setState({ enabled: false })
-  useEatingReasonTrackingStore.setState({ enabled: false })
+  useEatingReasonTrackingStore.setState({ enabled: false, customReasons: [] })
   localStorage.removeItem('turtle-steps-add-meal-recent-visibility')
 })
 
@@ -83,7 +83,7 @@ function ControlledAddMealDialog({
 }: ControlledProps) {
   const [items, setItems] = useState<CalorieItem[]>(initialItems ?? [])
   const [reaction, setReaction] = useState<Emotion | undefined>(undefined)
-  const [eatingReason, setEatingReason] = useState<EatingReason | undefined>(
+  const [eatingReason, setEatingReason] = useState<string | undefined>(
     undefined,
   )
   const [note, setNote] = useState('')
@@ -567,6 +567,19 @@ describe('AddMealDialog (#454)', () => {
 
     await user.selectOptions(select, 'hunger')
     expect(select).toHaveValue('hunger')
+  })
+
+  it('lists custom eating reasons in the dropdown (#765)', async () => {
+    const user = userEvent.setup()
+    useEatingReasonTrackingStore.setState({
+      enabled: true,
+      customReasons: ['Tired after work'],
+    })
+    render(<ControlledAddMealDialog {...defaultProps} />)
+
+    const select = screen.getByLabelText('Why am I eating?')
+    await user.selectOptions(select, 'Tired after work')
+    expect(select).toHaveValue('Tired after work')
   })
 
   it('asks before removing an item from the meal so far (#509)', async () => {

@@ -44,7 +44,7 @@ beforeEach(() => {
   useDigestionTrackingStore.setState({ enabled: false })
   useWaterTrackingStore.setState({ enabled: false })
   usePlannedMealsTrackingStore.setState({ enabled: false })
-  useEatingReasonTrackingStore.setState({ enabled: false })
+  useEatingReasonTrackingStore.setState({ enabled: false, customReasons: [] })
   useCopyYesterdayMealsStore.setState({ enabled: false })
   useLocalTransferStore.setState({ enabled: false })
   useMicronutrientTrackingStore.setState({
@@ -83,7 +83,7 @@ afterEach(() => {
   useDigestionTrackingStore.setState({ enabled: false })
   useWaterTrackingStore.setState({ enabled: false })
   usePlannedMealsTrackingStore.setState({ enabled: false })
-  useEatingReasonTrackingStore.setState({ enabled: false })
+  useEatingReasonTrackingStore.setState({ enabled: false, customReasons: [] })
   useCopyYesterdayMealsStore.setState({ enabled: false })
   useLocalTransferStore.setState({ enabled: false })
   useMicronutrientTrackingStore.setState({
@@ -429,6 +429,32 @@ describe('SettingsScreen', () => {
 
       expect(eatingReasonToggle).toHaveAttribute('aria-pressed', 'true')
       expect(useEatingReasonTrackingStore.getState().enabled).toBe(true)
+    })
+
+    it('lets the user add a custom eating reason next to the toggle (#765)', async () => {
+      const user = userEvent.setup()
+      renderSettings()
+
+      expect(screen.queryByText('Your reasons')).not.toBeInTheDocument()
+
+      await user.click(
+        screen.getByRole('button', { name: 'Why am I eating?' }),
+      )
+
+      const editor = screen.getByText('Your reasons').closest('div')
+      expect(editor).toBeTruthy()
+      await user.type(
+        within(editor as HTMLElement).getByLabelText('Add a reason'),
+        'Tired after work',
+      )
+      await user.click(
+        within(editor as HTMLElement).getByRole('button', { name: 'Add' }),
+      )
+
+      expect(screen.getByText('Tired after work')).toBeInTheDocument()
+      expect(useEatingReasonTrackingStore.getState().customReasons).toEqual([
+        'Tired after work',
+      ])
     })
 
     it("defaults copy-yesterday-meals to off, and switches it on when selected (#692)", async () => {

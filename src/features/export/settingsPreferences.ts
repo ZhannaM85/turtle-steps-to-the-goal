@@ -5,6 +5,7 @@ import {
   useDayStartStore,
   useDigestionTrackingStore,
   useMealLabelPresetStore,
+  useEatingReasonTrackingStore,
   useMealSlotDefaultTimesStore,
   useMicronutrientTrackingStore,
   useProfileStore,
@@ -52,6 +53,9 @@ export function collectSettingsPreferences(): ExportSettingsPreferences {
       activityLevel: profile.activityLevel,
     },
     mealLabelPresets: [...useMealLabelPresetStore.getState().presets],
+    customEatingReasons: [
+      ...useEatingReasonTrackingStore.getState().customReasons,
+    ],
   }
 }
 
@@ -130,6 +134,11 @@ export function applySettingsPreferences(
   if (settings.mealLabelPresets) {
     useMealLabelPresetStore.setState({
       presets: [...settings.mealLabelPresets],
+    })
+  }
+  if (settings.customEatingReasons) {
+    useEatingReasonTrackingStore.setState({
+      customReasons: [...settings.customEatingReasons],
     })
   }
 }

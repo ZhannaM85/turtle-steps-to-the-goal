@@ -126,6 +126,12 @@ describe('exportAllData', () => {
       activityLevel: 'moderate',
     })
     useMealLabelPresetStore.setState({ presets: ['Second breakfast'] })
+    const { useEatingReasonTrackingStore } = await import(
+      '@/stores/eatingReasonTrackingStore'
+    )
+    useEatingReasonTrackingStore.setState({
+      customReasons: ['Tired after work'],
+    })
 
     const bundle = await exportAllData()
     expect(bundle.settings?.unit).toBe('lb')
@@ -137,6 +143,7 @@ describe('exportAllData', () => {
       activityLevel: 'moderate',
     })
     expect(bundle.settings?.mealLabelPresets).toEqual(['Second breakfast'])
+    expect(bundle.settings?.customEatingReasons).toEqual(['Tired after work'])
   })
 
   it('exports all goals and entries currently stored', async () => {
@@ -462,6 +469,7 @@ describe('importAllData', () => {
           activityLevel: 'light',
         },
         mealLabelPresets: ['Tea'],
+        customEatingReasons: ['Tired after work'],
       },
     })
 
@@ -479,6 +487,12 @@ describe('importAllData', () => {
       '@/stores/mealLabelPresetStore'
     )
     expect(useMealLabelPresetStore.getState().presets).toEqual(['Tea'])
+    const { useEatingReasonTrackingStore } = await import(
+      '@/stores/eatingReasonTrackingStore'
+    )
+    expect(useEatingReasonTrackingStore.getState().customReasons).toEqual([
+      'Tired after work',
+    ])
   })
 
   it('leaves Settings preferences alone when a pre-v10 backup omits them (#594)', async () => {

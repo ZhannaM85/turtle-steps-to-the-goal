@@ -1,14 +1,17 @@
 import { useEffect, useRef, useState } from 'react'
 import { Capacitor } from '@capacitor/core'
-import { X } from 'lucide-react'
+import { Trash2, X } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import {
   countUntimedSlotMeals,
+  EATING_REASONS,
+  isBuiltInEatingReason,
   stampSlotDefaultsOnUntimedMeals,
 } from '@/domain/dailyEntry'
 import type { MealSlotKey } from '@/shared/lib/mealLabel'
 import { IndexedDbDailyEntryRepository } from '@/infrastructure/persistence/indexeddb/dailyEntryRepository'
 import {
+  getDictionary,
   useLocaleStore,
   useTranslation,
   type Locale,
@@ -85,6 +88,100 @@ function moodOptions(t: Dictionary): { value: Mood; label: string }[] {
     { value: 'tortoise', label: t.settings.moodTortoise },
     { value: 'lagoon', label: t.settings.moodLagoon },
   ]
+}
+
+const ALL_LOCALES: Locale[] = ['en', 'ru']
+
+function isReservedCustomEatingReason(label: string): boolean {
+  const trimmed = label.trim()
+  if (!trimmed) return true
+  if (isBuiltInEatingReason(trimmed.toLowerCase())) return true
+  const lower = trimmed.toLowerCase()
+  return ALL_LOCALES.some((locale) => {
+    const dict = getDictionary(locale)
+    if (dict.dailyEntry.eatingReasonNoneOption.toLowerCase() === lower) {
+      return true
+    }
+    return EATING_REASONS.some(
+      (reason) =>
+        dict.dailyEntry.eatingReasonLabel(reason).toLowerCase() === lower,
+    )
+  })
+}
+
+function CustomEatingReasonsEditor() {
+  const t = useTranslation()
+  const customReasons = useEatingReasonTrackingStore(
+    (state) => state.customReasons,
+  )
+  const addCustomReason = useEatingReasonTrackingStore(
+    (state) => state.addCustomReason,
+  )
+  const removeCustomReason = useEatingReasonTrackingStore(
+    (state) => state.removeCustomReason,
+  )
+  const [newReason, setNewReason] = useState('')
+
+  function submitNewReason() {
+    if (isReservedCustomEatingReason(newReason)) return
+    addCustomReason(newReason)
+    setNewReason('')
+  }
+
+  return (
+    <div className="flex flex-col gap-2 rounded-lg border border-border/60 p-3">
+      <Label>{t.settings.customEatingReasonsLabel}</Label>
+      <p className="text-sm text-muted-foreground">
+        {t.settings.customEatingReasonsDescription}
+      </p>
+      {customReasons.length === 0 ? (
+        <p className="text-sm text-muted-foreground">
+          {t.settings.customEatingReasonsEmpty}
+        </p>
+      ) : (
+        <ul className="flex flex-col gap-2">
+          {customReasons.map((reason) => (
+            <li key={reason} className="flex items-center gap-2">
+              <span className="flex-1 text-sm">{reason}</span>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon-sm"
+                aria-label={t.settings.deleteCustomEatingReasonLabel(reason)}
+                onClick={() => removeCustomReason(reason)}
+              >
+                <Trash2 aria-hidden="true" />
+              </Button>
+            </li>
+          ))}
+        </ul>
+      )}
+      <div className="flex items-center gap-2">
+        <Input
+          type="text"
+          aria-label={t.settings.customEatingReasonsPlaceholder}
+          placeholder={t.settings.customEatingReasonsPlaceholder}
+          value={newReason}
+          onChange={(e) => setNewReason(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault()
+              submitNewReason()
+            }
+          }}
+          className="h-8 flex-1"
+        />
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={submitNewReason}
+        >
+          {t.dailyEntry.addButton}
+        </Button>
+      </div>
+    </div>
+  )
 }
 
 export function SettingsScreen() {
@@ -788,6 +885,7 @@ export function SettingsScreen() {
                 {t.settings.copyYesterdayMealsTrackingLabel}
               </ToggleGroupItem>
             </ToggleGroup>
+            {eatingReasonTrackingEnabled && <CustomEatingReasonsEditor />}
           </div>
           <div className="flex flex-col gap-1.5">
             <Label>{t.settings.trackedFieldsElectrolytesGroupLabel}</Label>

@@ -24,6 +24,12 @@ export const EATING_REASONS: EatingReason[] = [
   'company',
 ]
 
+export function isBuiltInEatingReason(
+  value: string,
+): value is EatingReason {
+  return (EATING_REASONS as readonly string[]).includes(value)
+}
+
 /**
  * One food/dish within a meal (#81) — e.g. "soup", "bread", "cheese" all
  * eaten together at lunch. A meal (`CalorieEntry`) groups 1+ of these;
@@ -101,10 +107,11 @@ export interface CalorieEntry {
    * ambiguity, and its own smiley/neutral/frown framing matches the day
    * mood's icon set, not the per-item thumbs/bellissimo one. */
   reaction?: Emotion
-  /** #764 — why this meal happened (hunger, habit, …). Optional; gated
-   * by Settings → What to track. Distinct from `reaction` (was it tasty)
-   * and from per-item `emotion`. */
-  eatingReason?: EatingReason
+  /** #764 / #765 — why this meal happened. Built-in ids (`EatingReason`)
+   * or a custom label authored in Settings. Optional; gated by Settings
+   * → What to track. Distinct from `reaction` (was it tasty) and from
+   * per-item `emotion`. */
+  eatingReason?: string
 }
 
 /**

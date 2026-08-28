@@ -16,6 +16,7 @@ import {
   calorieEntryFiber,
   calorieEntryKcal,
   calorieEntryProtein,
+  isBuiltInEatingReason,
   totalCalories,
   totalCarbs,
   totalFat,
@@ -249,7 +250,9 @@ function MealListItem({
             aria-hidden="true"
             className={cn(
               'size-2.5 shrink-0 rounded-full',
-              EATING_REASON_DOT_CLASS[entry.eatingReason],
+              isBuiltInEatingReason(entry.eatingReason)
+                ? EATING_REASON_DOT_CLASS[entry.eatingReason]
+                : 'bg-teal-500',
             )}
           />
           <span>{t.dailyEntry.eatingReasonLabel(entry.eatingReason)}</span>
@@ -490,7 +493,7 @@ export function MealList({
   // #764 — seed before the first item creates the entry (same pattern as
   // newMealNote/newMealTime). Not copied from yesterday: situational.
   const [newMealEatingReason, setNewMealEatingReason] = useState<
-    EatingReason | undefined
+    string | undefined
   >(undefined)
   // #563 — custom label draft before the first item creates the entry
   // (same seed pattern as newMealTime/newMealNote).
@@ -881,7 +884,7 @@ export function MealList({
     )
   }
 
-  function updateNewMealEatingReason(value: EatingReason | undefined) {
+  function updateNewMealEatingReason(value: string | undefined) {
     setNewMealEatingReason(value)
     if (!inProgressMealId) return
     setCalorieEntries(
@@ -1003,7 +1006,7 @@ export function MealList({
     })
   }
 
-  function setEditingMealEatingReason(value: EatingReason | undefined) {
+  function setEditingMealEatingReason(value: string | undefined) {
     if (!editingMealDraft) return
     setEditingMealDraft({ ...editingMealDraft, eatingReason: value })
   }

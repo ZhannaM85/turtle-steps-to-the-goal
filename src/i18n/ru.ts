@@ -291,7 +291,9 @@ export const ru: Dictionary = {
               ? 'Стресс / эмоции'
               : reason === 'boredom'
                 ? 'Скука'
-                : 'Просто за компанию',
+                : reason === 'company'
+                  ? 'Просто за компанию'
+                  : reason,
     proteinLabel: 'Белки',
     fatLabel: 'Жиры',
     carbsLabel: 'Углеводы',
@@ -1329,6 +1331,12 @@ export const ru: Dictionary = {
     waterTrackingLabel: 'Отслеживание воды',
     plannedMealsTrackingLabel: 'Запланированные приёмы пищи',
     eatingReasonTrackingLabel: 'Почему я сейчас ем?',
+    customEatingReasonsLabel: 'Свои причины',
+    customEatingReasonsDescription:
+      'Они появятся в списке при добавлении приёма пищи вместе со стандартными.',
+    customEatingReasonsPlaceholder: 'Добавить причину',
+    customEatingReasonsEmpty: 'Пока пусто — добавьте причину ниже.',
+    deleteCustomEatingReasonLabel: (name) => `Удалить «${name}»`,
     copyYesterdayMealsTrackingLabel: 'Копировать вчерашние приёмы пищи',
     trackingPresetLabel: 'Пресет макета',
     trackingPresetDescription:

@@ -325,6 +325,27 @@ describe('buildDailyLogCsv', () => {
     expect(headerWithout).not.toContain('Why eating')
   })
 
+  it('exports a custom eating reason as the saved text (#765)', () => {
+    const entry = makeEntry({
+      calorieEntries: [
+        {
+          id: 'meal-1',
+          label: 'Breakfast',
+          eatingReason: 'Tired after work',
+          items: [{ id: 'item-1', name: 'Toast', amountKcal: 150 }],
+          createdAt: '2026-03-01T00:00:00.000Z',
+        },
+      ],
+    })
+    const csv = buildDailyLogCsv([entry], t)
+    const [, meals] = csv.split('\r\n\r\n')
+    const [header, row] = meals.split('\r\n')
+
+    expect(
+      row.split(',')[header.split(',').indexOf('Why eating')],
+    ).toBe('Tired after work')
+  })
+
   it('fills meal Time from the Breakfast slot default when timeEaten is missing (#754)', () => {
     const entry = makeEntry({
       calorieEntries: [

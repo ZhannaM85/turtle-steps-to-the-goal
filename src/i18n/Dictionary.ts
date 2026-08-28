@@ -1,5 +1,4 @@
 import type { NutritionFactId } from '@/domain/nutritionFacts'
-import type { EatingReason } from '@/domain/dailyEntry'
 import type { Sex } from '@/domain/stats/bodyComposition'
 
 export interface Dictionary {
@@ -460,7 +459,7 @@ export interface Dictionary {
     /** #764 — why this meal happened; optional. */
     eatingReasonFieldLabel: string
     eatingReasonNoneOption: string
-    eatingReasonLabel: (reason: EatingReason) => string
+    eatingReasonLabel: (reason: string) => string
     proteinLabel: string
     fatLabel: string
     carbsLabel: string
@@ -1966,6 +1965,12 @@ export interface Dictionary {
     plannedMealsTrackingLabel: string
     /** #764 — opt-in "Why am I eating?" on Add meal. */
     eatingReasonTrackingLabel: string
+    /** #765 — extra reason labels shown in the Add-meal dropdown. */
+    customEatingReasonsLabel: string
+    customEatingReasonsDescription: string
+    customEatingReasonsPlaceholder: string
+    customEatingReasonsEmpty: string
+    deleteCustomEatingReasonLabel: (name: string) => string
     /** #692 — opt-in for Day's "Copy yesterday's meals" control (default off). */
     copyYesterdayMealsTrackingLabel: string
     /** #237: unified "what to track" section — folds cycle/digestion

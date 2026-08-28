@@ -272,7 +272,9 @@ export const en: Dictionary = {
               ? 'Stress / emotions'
               : reason === 'boredom'
                 ? 'Boredom'
-                : 'Just for company',
+                : reason === 'company'
+                  ? 'Just for company'
+                  : reason,
     proteinLabel: 'Protein',
     fatLabel: 'Fat',
     carbsLabel: 'Carbs',
@@ -1292,6 +1294,12 @@ export const en: Dictionary = {
     waterTrackingLabel: 'Water tracking',
     plannedMealsTrackingLabel: 'Planned meals',
     eatingReasonTrackingLabel: 'Why am I eating?',
+    customEatingReasonsLabel: 'Your reasons',
+    customEatingReasonsDescription:
+      'These show up in the meal dropdown along with the built-in list.',
+    customEatingReasonsPlaceholder: 'Add a reason',
+    customEatingReasonsEmpty: 'No extra reasons yet — add one below.',
+    deleteCustomEatingReasonLabel: (name) => `Delete "${name}"`,
     copyYesterdayMealsTrackingLabel: "Copy yesterday's meals",
     trackingPresetLabel: 'Layout preset',
     trackingPresetDescription:

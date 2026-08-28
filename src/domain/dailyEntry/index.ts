@@ -8,7 +8,7 @@ export type {
   MealEmotion,
   WaterEntry,
 } from './DailyEntry'
-export { EATING_REASONS } from './DailyEntry'
+export { EATING_REASONS, isBuiltInEatingReason } from './DailyEntry'
 export type { DailyEntryRepository } from './DailyEntryRepository'
 export { totalCalories } from './totalCalories'
 export {

@@ -277,6 +277,7 @@ describe('buildExportBundle', () => {
       cycleTracking: true,
       profile: { heightCm: 165, age: 40, sex: 'female' as const },
       mealLabelPresets: ['Brunch'],
+      customEatingReasons: ['Tired after work'],
     }
     const bundle = buildExportBundle(
       [],

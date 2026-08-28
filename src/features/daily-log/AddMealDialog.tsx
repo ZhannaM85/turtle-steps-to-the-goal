@@ -12,8 +12,8 @@ import {
 import { type FoodItem, type FoodServing, foods } from '@/data/foods'
 import {
   EATING_REASONS,
+  isBuiltInEatingReason,
   type CalorieItem,
-  type EatingReason,
   type Emotion,
   type MealEmotion,
 } from '@/domain/dailyEntry'
@@ -259,10 +259,11 @@ export interface AddMealDialogProps {
   items: CalorieItem[]
   reaction: Emotion | undefined
   onReactionChange: (reaction: Emotion | undefined) => void
-  /** #764 — why this meal happened. Optional; only shown when Settings
-   * tracking is on. Can be set before the first food lands. */
-  eatingReason?: EatingReason
-  onEatingReasonChange?: (reason: EatingReason | undefined) => void
+  /** #764 / #765 — why this meal happened. Optional; only shown when
+   * Settings tracking is on. Built-in id or a custom Settings label.
+   * Can be set before the first food lands. */
+  eatingReason?: string
+  onEatingReasonChange?: (reason: string | undefined) => void
   onAppendItems: (items: CalorieItem[]) => void
   onRemoveItem: (itemId: string) => void
   /** #459 — edit-in-place for an already-added item (tap its row in "This
@@ -345,6 +346,9 @@ export function AddMealDialog({
   const isOnline = useOnlineStatus()
   const eatingReasonTrackingEnabled = useEatingReasonTrackingStore(
     (state) => state.enabled,
+  )
+  const customEatingReasons = useEatingReasonTrackingStore(
+    (state) => state.customReasons,
   )
 
   const mealItems = useMealItemStore((state) => state.items)
@@ -1457,9 +1461,7 @@ export function AddMealDialog({
                   value={eatingReason ?? ''}
                   onChange={(e) => {
                     const next = e.target.value
-                    onEatingReasonChange(
-                      next === '' ? undefined : (next as EatingReason),
-                    )
+                    onEatingReasonChange(next === '' ? undefined : next)
                   }}
                 >
                   <option value="">
@@ -1468,6 +1470,17 @@ export function AddMealDialog({
                   {EATING_REASONS.map((reason) => (
                     <option key={reason} value={reason}>
                       {t.dailyEntry.eatingReasonLabel(reason)}
+                    </option>
+                  ))}
+                  {(
+                    eatingReason &&
+                    !isBuiltInEatingReason(eatingReason) &&
+                    !customEatingReasons.includes(eatingReason)
+                      ? [...customEatingReasons, eatingReason]
+                      : customEatingReasons
+                  ).map((reason) => (
+                    <option key={reason} value={reason}>
+                      {reason}
                     </option>
                   ))}
                 </Select>

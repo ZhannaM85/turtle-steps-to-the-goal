@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 722,
+    issue: 765,
+    date: '2026-08-28T11:50:00+03:00',
+    en: 'You can add your own “why am I eating” reasons in Settings; they appear in the meal dropdown.',
+    ru: 'В Настройках можно добавить свои причины «почему я ем» — они появятся в списке приёма пищи.',
+  },
+  {
     version: 721,
     issue: 764,
     date: '2026-08-28T11:32:00+03:00',
