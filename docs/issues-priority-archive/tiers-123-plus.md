@@ -362,3 +362,13 @@ _AutoSleep Today screenshot fill: total sleep OK, deep sleep wrong._
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#762](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/762) | ✅ Done | Incorrectly reads deep sleep from AutoSleep Today screenshot | Confirmed on-device 2026-08-27 — deep sleep fills correctly (e.g. 3h 10m). |
+
+---
+
+## Tier 145 — Morning notes & eating reason (2026-08-28)
+
+_Evening already has a day's note; add a matching morning note, opt-in and off by default. Same-day ask: optional per-meal "why am I eating" behind a toggle, then user-defined extra reasons._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#763](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/763) | ✅ Done | Add morning notes (opt-in, off by default) | Confirmed on-device 2026-08-28 — Settings → What to track → Morning; Day after Body composition. |
