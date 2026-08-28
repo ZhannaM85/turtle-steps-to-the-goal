@@ -1337,6 +1337,7 @@ export const ru: Dictionary = {
     customEatingReasonsPlaceholder: 'Добавить причину',
     customEatingReasonsEmpty: 'Пока пусто — добавьте причину ниже.',
     deleteCustomEatingReasonLabel: (name) => `Удалить «${name}»`,
+    editCustomEatingReasonLabel: (name) => `Изменить «${name}»`,
     copyYesterdayMealsTrackingLabel: 'Копировать вчерашние приёмы пищи',
     trackingPresetLabel: 'Пресет макета',
     trackingPresetDescription:

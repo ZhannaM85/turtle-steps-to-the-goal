@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState } from 'react'
 import { Capacitor } from '@capacitor/core'
-import { Trash2, X } from 'lucide-react'
+import { Pencil, Trash2, X } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import {
   countUntimedSlotMeals,
   EATING_REASONS,
   isBuiltInEatingReason,
+  rewriteMealEatingReason,
   stampSlotDefaultsOnUntimedMeals,
 } from '@/domain/dailyEntry'
 import type { MealSlotKey } from '@/shared/lib/mealLabel'
@@ -120,12 +121,36 @@ function CustomEatingReasonsEditor() {
   const removeCustomReason = useEatingReasonTrackingStore(
     (state) => state.removeCustomReason,
   )
+  const renameCustomReason = useEatingReasonTrackingStore(
+    (state) => state.renameCustomReason,
+  )
   const [newReason, setNewReason] = useState('')
+  const [editingReason, setEditingReason] = useState<string | null>(null)
+  const [editDraft, setEditDraft] = useState('')
 
   function submitNewReason() {
     if (isReservedCustomEatingReason(newReason)) return
     addCustomReason(newReason)
     setNewReason('')
+  }
+
+  async function commitEdit(from: string) {
+    const trimmed = editDraft.trim()
+    if (!trimmed || trimmed === from) {
+      setEditingReason(null)
+      return
+    }
+    if (isReservedCustomEatingReason(trimmed)) return
+    renameCustomReason(from, trimmed)
+    if (useEatingReasonTrackingStore.getState().customReasons.includes(from)) {
+      return
+    }
+    const repo = new IndexedDbDailyEntryRepository()
+    const changed = rewriteMealEatingReason(await repo.getAll(), from, trimmed)
+    for (const entry of changed) {
+      await repo.upsert(entry)
+    }
+    setEditingReason(null)
   }
 
   return (
@@ -142,16 +167,54 @@ function CustomEatingReasonsEditor() {
         <ul className="flex flex-col gap-2">
           {customReasons.map((reason) => (
             <li key={reason} className="flex items-center gap-2">
-              <span className="flex-1 text-sm">{reason}</span>
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon-sm"
-                aria-label={t.settings.deleteCustomEatingReasonLabel(reason)}
-                onClick={() => removeCustomReason(reason)}
-              >
-                <Trash2 aria-hidden="true" />
-              </Button>
+              {editingReason === reason ? (
+                <Input
+                  type="text"
+                  aria-label={t.settings.editCustomEatingReasonLabel(reason)}
+                  value={editDraft}
+                  onChange={(e) => setEditDraft(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault()
+                      void commitEdit(reason)
+                    }
+                    if (e.key === 'Escape') {
+                      e.preventDefault()
+                      setEditingReason(null)
+                    }
+                  }}
+                  className="h-8 flex-1"
+                />
+              ) : (
+                <span className="flex-1 text-sm">{reason}</span>
+              )}
+              <div className="flex shrink-0 items-center gap-3">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon-sm"
+                  aria-label={t.settings.editCustomEatingReasonLabel(reason)}
+                  onClick={() => {
+                    if (editingReason === reason) {
+                      void commitEdit(reason)
+                      return
+                    }
+                    setEditingReason(reason)
+                    setEditDraft(reason)
+                  }}
+                >
+                  <Pencil aria-hidden="true" />
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon-sm"
+                  aria-label={t.settings.deleteCustomEatingReasonLabel(reason)}
+                  onClick={() => removeCustomReason(reason)}
+                >
+                  <Trash2 aria-hidden="true" />
+                </Button>
+              </div>
             </li>
           ))}
         </ul>

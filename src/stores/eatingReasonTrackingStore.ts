@@ -18,6 +18,7 @@ interface EatingReasonTrackingStoreState {
   setEnabled: (enabled: boolean) => void
   addCustomReason: (label: string) => void
   removeCustomReason: (label: string) => void
+  renameCustomReason: (from: string, to: string) => void
 }
 
 function normalizeCustomEatingReason(label: string): string | undefined {
@@ -56,6 +57,27 @@ export const useEatingReasonTrackingStore =
               (reason) => reason !== label,
             ),
           })),
+        renameCustomReason: (from, to) =>
+          set((state) => {
+            const trimmed = normalizeCustomEatingReason(to)
+            if (!trimmed || trimmed === from) return state
+            if (isBuiltInEatingReason(trimmed.toLowerCase())) return state
+            if (!state.customReasons.includes(from)) return state
+            if (
+              state.customReasons.some(
+                (reason) =>
+                  reason !== from &&
+                  reason.toLowerCase() === trimmed.toLowerCase(),
+              )
+            ) {
+              return state
+            }
+            return {
+              customReasons: state.customReasons.map((reason) =>
+                reason === from ? trimmed : reason,
+              ),
+            }
+          }),
       }),
       {
         name: 'turtle-steps-eating-reason-tracking',

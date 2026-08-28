@@ -457,6 +457,54 @@ describe('SettingsScreen', () => {
       ])
     })
 
+    it('lets the user rename a custom eating reason and updates logged meals (#767)', async () => {
+      const user = userEvent.setup()
+      const now = '2026-03-01T00:00:00.000Z'
+      await dailyEntryRepository.upsert({
+        id: 'entry-1',
+        date: '2026-03-01',
+        createdAt: now,
+        updatedAt: now,
+        calorieEntries: [
+          {
+            id: 'meal-1',
+            items: [{ id: 'item-1', name: 'Toast', amountKcal: 150 }],
+            eatingReason: 'Tired after work',
+            createdAt: now,
+          },
+        ],
+      })
+      useEatingReasonTrackingStore.setState({
+        enabled: true,
+        customReasons: ['Tired after work'],
+      })
+      renderSettings()
+
+      const editor = screen.getByText('Your reasons').closest('div')
+      expect(editor).toBeTruthy()
+      await user.click(
+        within(editor as HTMLElement).getByRole('button', {
+          name: 'Edit "Tired after work"',
+        }),
+      )
+      const nameField = within(editor as HTMLElement).getByDisplayValue(
+        'Tired after work',
+      )
+      await user.clear(nameField)
+      await user.type(nameField, 'Just wanted something tasty')
+      await user.keyboard('{Enter}')
+
+      await waitFor(() => {
+        expect(
+          useEatingReasonTrackingStore.getState().customReasons,
+        ).toEqual(['Just wanted something tasty'])
+      })
+      const stored = await dailyEntryRepository.getByDate('2026-03-01')
+      expect(stored?.calorieEntries?.[0].eatingReason).toBe(
+        'Just wanted something tasty',
+      )
+    })
+
     it("defaults copy-yesterday-meals to off, and switches it on when selected (#692)", async () => {
       const user = userEvent.setup()
       renderSettings()

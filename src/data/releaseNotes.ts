@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 723,
+    issue: 767,
+    date: '2026-08-28T12:25:00+03:00',
+    en: 'You can rename a custom “why am I eating” reason in Settings. Meals that used the old name are updated.',
+    ru: 'В Настройках можно переименовать свою причину «почему я ем». Приёмы с старым названием обновятся.',
+  },
+  {
     version: 722,
     issue: 765,
     date: '2026-08-28T11:50:00+03:00',

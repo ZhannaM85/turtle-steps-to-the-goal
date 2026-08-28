@@ -9,6 +9,7 @@ export type {
   WaterEntry,
 } from './DailyEntry'
 export { EATING_REASONS, isBuiltInEatingReason } from './DailyEntry'
+export { rewriteMealEatingReason } from './rewriteMealEatingReason'
 export type { DailyEntryRepository } from './DailyEntryRepository'
 export { totalCalories } from './totalCalories'
 export {
