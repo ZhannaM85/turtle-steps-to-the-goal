@@ -573,6 +573,28 @@ describe('AddMealDialog (#454)', () => {
     expect(select).toHaveValue('hunger')
   })
 
+  it('lists HALT eating reasons in the dropdown (#769)', async () => {
+    const user = userEvent.setup()
+    useEatingReasonTrackingStore.setState({ enabled: true })
+    render(<ControlledAddMealDialog {...defaultProps} />)
+
+    const select = screen.getByLabelText('Why am I eating?')
+    expect(
+      within(select).getByRole('option', { name: 'Hunger' }),
+    ).toBeInTheDocument()
+    expect(
+      within(select).getByRole('option', { name: 'Angry' }),
+    ).toBeInTheDocument()
+    expect(
+      within(select).getByRole('option', { name: 'Lonely' }),
+    ).toBeInTheDocument()
+    expect(
+      within(select).getByRole('option', { name: 'Tired' }),
+    ).toBeInTheDocument()
+    await user.selectOptions(select, 'tired')
+    expect(select).toHaveValue('tired')
+  })
+
   it('lists custom eating reasons in the dropdown (#765)', async () => {
     const user = userEvent.setup()
     useEatingReasonTrackingStore.setState({

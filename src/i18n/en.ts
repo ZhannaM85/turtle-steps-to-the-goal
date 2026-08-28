@@ -264,17 +264,23 @@ export const en: Dictionary = {
     eatingReasonLabel: (reason) =>
       reason === 'hunger'
         ? 'Hunger'
-        : reason === 'habit'
-          ? 'Habit'
-          : reason === 'craving'
-            ? 'Craving a specific food'
-            : reason === 'stress'
-              ? 'Stress / emotions'
-              : reason === 'boredom'
-                ? 'Boredom'
-                : reason === 'company'
-                  ? 'Just for company'
-                  : reason,
+        : reason === 'angry'
+          ? 'Angry'
+          : reason === 'lonely'
+            ? 'Lonely'
+            : reason === 'tired'
+              ? 'Tired'
+              : reason === 'habit'
+                ? 'Habit'
+                : reason === 'craving'
+                  ? 'Craving a specific food'
+                  : reason === 'stress'
+                    ? 'Stress / emotions'
+                    : reason === 'boredom'
+                      ? 'Boredom'
+                      : reason === 'company'
+                        ? 'Just for company'
+                        : reason,
     proteinLabel: 'Protein',
     fatLabel: 'Fat',
     carbsLabel: 'Carbs',

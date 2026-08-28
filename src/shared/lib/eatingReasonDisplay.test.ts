@@ -7,6 +7,9 @@ describe('eatingReasonDisplayLabel (#766)', () => {
 
   it('uses the locale default for a built-in with no override', () => {
     expect(eatingReasonDisplayLabel('hunger', t)).toBe('Hunger')
+    expect(eatingReasonDisplayLabel('angry', t)).toBe('Angry')
+    expect(eatingReasonDisplayLabel('lonely', t)).toBe('Lonely')
+    expect(eatingReasonDisplayLabel('tired', t)).toBe('Tired')
   })
 
   it('uses the override for a built-in when set', () => {

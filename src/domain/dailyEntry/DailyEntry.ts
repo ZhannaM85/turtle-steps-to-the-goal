@@ -6,9 +6,13 @@ export type Emotion = 'happy' | 'unhappy' | 'neutral'
  * chef's-kiss "this was amazing" tier above thumbs up). */
 export type MealEmotion = 'thumbsUp' | 'thumbsDown' | 'bellissimo'
 
-/** #764 — why this meal happened. Optional, opt-in in Settings. */
+/** #764 / #769 — why this meal happened. Optional, opt-in in Settings.
+ * HALT (#769): Hungry (`hunger`), Angry, Lonely, Tired. */
 export type EatingReason =
   | 'hunger'
+  | 'angry'
+  | 'lonely'
+  | 'tired'
   | 'habit'
   | 'craving'
   | 'stress'
@@ -17,6 +21,9 @@ export type EatingReason =
 
 export const EATING_REASONS: EatingReason[] = [
   'hunger',
+  'angry',
+  'lonely',
+  'tired',
   'habit',
   'craving',
   'stress',

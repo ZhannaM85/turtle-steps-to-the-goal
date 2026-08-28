@@ -54,6 +54,9 @@ import { CopyDayMealsDialog } from './CopyDayMealsDialog'
  * cannot style option colors, so the legend lives here only). */
 const EATING_REASON_DOT_CLASS: Record<EatingReason, string> = {
   hunger: 'bg-green-500',
+  angry: 'bg-red-500',
+  lonely: 'bg-pink-500',
+  tired: 'bg-slate-500',
   habit: 'bg-yellow-400',
   craving: 'bg-orange-500',
   stress: 'bg-blue-500',

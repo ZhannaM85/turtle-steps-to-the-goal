@@ -339,6 +339,27 @@ describe('MealList', () => {
     ).not.toBeInTheDocument()
   })
 
+  it('shows HALT eating reasons on the card (#769)', () => {
+    render(
+      <MealList
+        calorieEntries={[
+          {
+            id: 'c1',
+            label: 'Lunch',
+            eatingReason: 'lonely',
+            items: [{ id: 'i1', name: 'Skyr', amountKcal: 175 }],
+            createdAt: '2026-01-01T00:00:00.000Z',
+          },
+        ]}
+        date="2026-03-01"
+        onChange={vi.fn()}
+      />,
+      { wrapper: MemoryRouter },
+    )
+
+    expect(screen.getByText('Lonely')).toBeInTheDocument()
+  })
+
   it('shows a custom eating reason as the saved text (#765)', () => {
     render(
       <MealList

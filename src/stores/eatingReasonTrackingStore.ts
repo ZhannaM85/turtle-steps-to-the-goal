@@ -8,7 +8,8 @@ const MAX_CUSTOM_EATING_REASON_LENGTH = 80
 /**
  * #764 — opt-in "Why am I eating?" on Add meal. Off by default.
  * #765 — user-authored extra reasons, shown in the same dropdown.
- * #766 — optional display-label overrides for the six built-ins.
+ * #766 — optional display-label overrides for the built-in reasons.
+ * #769 — HALT built-ins (Hungry / Angry / Lonely / Tired).
  * Local UI preference only (the on/off switch is not in the export
  * bundle); logged `eatingReason` values still travel with JSON backups,
  * and the custom *list* plus builtin overrides are included in the

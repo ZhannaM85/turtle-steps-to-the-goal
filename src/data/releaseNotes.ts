@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 726,
+    issue: 769,
+    date: '2026-08-28T21:40:00+03:00',
+    en: 'Why-am-I-eating now includes HALT: Hunger, Angry, Lonely, and Tired.',
+    ru: 'В «почему я ем» теперь есть HALT: голод, злость, одиночество и усталость.',
+  },
+  {
     version: 725,
     issue: 768,
     date: '2026-08-28T14:00:00+03:00',

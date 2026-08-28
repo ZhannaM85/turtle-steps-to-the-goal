@@ -367,6 +367,9 @@ const settingsPreferencesSchema = z.object({
   builtinEatingReasonLabels: z
     .object({
       hunger: z.string().optional(),
+      angry: z.string().optional(),
+      lonely: z.string().optional(),
+      tired: z.string().optional(),
       habit: z.string().optional(),
       craving: z.string().optional(),
       stress: z.string().optional(),

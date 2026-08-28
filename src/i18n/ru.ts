@@ -283,17 +283,23 @@ export const ru: Dictionary = {
     eatingReasonLabel: (reason) =>
       reason === 'hunger'
         ? 'Голод'
-        : reason === 'habit'
-          ? 'Привычка'
-          : reason === 'craving'
-            ? 'Хочется конкретного продукта'
-            : reason === 'stress'
-              ? 'Стресс / эмоции'
-              : reason === 'boredom'
-                ? 'Скука'
-                : reason === 'company'
-                  ? 'Просто за компанию'
-                  : reason,
+        : reason === 'angry'
+          ? 'Злость'
+          : reason === 'lonely'
+            ? 'Одиночество'
+            : reason === 'tired'
+              ? 'Усталость'
+              : reason === 'habit'
+                ? 'Привычка'
+                : reason === 'craving'
+                  ? 'Хочется конкретного продукта'
+                  : reason === 'stress'
+                    ? 'Стресс / эмоции'
+                    : reason === 'boredom'
+                      ? 'Скука'
+                      : reason === 'company'
+                        ? 'Просто за компанию'
+                        : reason,
     proteinLabel: 'Белки',
     fatLabel: 'Жиры',
     carbsLabel: 'Углеводы',

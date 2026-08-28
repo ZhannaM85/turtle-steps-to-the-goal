@@ -439,6 +439,21 @@ describe('SettingsScreen', () => {
       expect(useEatingReasonTrackingStore.getState().enabled).toBe(true)
     })
 
+    it('lists HALT eating reasons under Your reasons (#769)', async () => {
+      const user = userEvent.setup()
+      renderSettings()
+      await user.click(
+        screen.getByRole('button', { name: 'Why am I eating?' }),
+      )
+
+      const editor = screen.getByText('Your reasons').closest('div')
+      expect(editor).toBeTruthy()
+      expect(within(editor as HTMLElement).getByText('Hunger')).toBeInTheDocument()
+      expect(within(editor as HTMLElement).getByText('Angry')).toBeInTheDocument()
+      expect(within(editor as HTMLElement).getByText('Lonely')).toBeInTheDocument()
+      expect(within(editor as HTMLElement).getByText('Tired')).toBeInTheDocument()
+    })
+
     it('lets the user add a custom eating reason next to the toggle (#765)', async () => {
       const user = userEvent.setup()
       renderSettings()

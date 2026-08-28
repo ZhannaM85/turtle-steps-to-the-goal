@@ -40,5 +40,5 @@ _Evening already has a day's note; add a matching morning note, opt-in and off b
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#769](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/769) | 📋 Not started | Add HALT eating reasons (Hungry, Angry, Lonely, Tired) | Hungry already exists as Hunger. Add Angry, Lonely, Tired to the built-in list. Keep habit/craving/stress/boredom/company. |
+| [#769](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/769) | 🔍 Pending validation | Add HALT eating reasons (Hungry, Angry, Lonely, Tired) | Hungry is the existing Hunger row. Added angry / lonely / tired built-ins. Other reasons kept. |
 
