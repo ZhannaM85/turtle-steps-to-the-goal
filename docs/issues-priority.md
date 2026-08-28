@@ -32,3 +32,13 @@ _User asked about pulling data from Apple Health and Zepp Life. Researched via W
 |---|--------|-------|-------|
 | [#334](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/334) | 📋 Not started | Epic — Apple Health integration (blocked on mobile app + HealthKit bridge) | HealthKit has no public/cloud API at all — data is on-device only, readable exclusively by a native iOS app (or hybrid app with a HealthKit plugin/entitlement) the user has granted permission to. Genuinely blocked until the mobile app exists; can't be built sooner by any workaround. |
 
+---
+
+## Tier 145 — Morning notes (2026-08-28)
+
+_Evening already has a day's note; add a matching morning note, opt-in and off by default._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#763](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/763) | 📋 Not started | Add morning notes (opt-in, off by default) | Separate field from evening "Day's note". Day screen, after Body composition. Same textarea / save / display+pencil as evening notes. Settings → What to track → Morning group; off by default (Simple and Full stay off, same as Body composition). Hide input when off; already-logged text stays in History/Export. |
+
