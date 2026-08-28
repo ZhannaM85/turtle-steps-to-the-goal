@@ -40,5 +40,4 @@ _Evening already has a day's note; add a matching morning note, opt-in and off b
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#765](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/765) | 🔍 Pending validation | Custom eating reasons (Settings list → dropdown) | Native select cannot take free text. User adds own labels in Settings next to the #764 toggle (visible when the toggle is on). Those options appear in the Add-meal dropdown after the six built-ins. Persist the custom string on the meal; deleting a Settings label does not wipe already-logged cards. JSON settings blob + export column. |
 

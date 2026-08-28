@@ -373,3 +373,4 @@ _Evening already has a day's note; add a matching morning note, opt-in and off b
 |---|--------|-------|-------|
 | [#763](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/763) | ✅ Done | Add morning notes (opt-in, off by default) | Confirmed on-device 2026-08-28 — Settings → What to track → Morning; Day after Body composition. |
 | [#764](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/764) | ✅ Done | Mark why you are eating (opt-in, off by default) | Confirmed on-device 2026-08-28 — Settings toggle, Add meal dropdown, Day card. |
+| [#765](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/765) | ✅ Done | Custom eating reasons (Settings list → dropdown) | Confirmed on-device 2026-08-28 — custom labels in Settings appear in the Add-meal dropdown. |
