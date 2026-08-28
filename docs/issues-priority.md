@@ -41,5 +41,4 @@ _Evening already has a day's note; add a matching morning note, opt-in and off b
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#767](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/767) | 🔍 Pending validation | Settings: no way to edit a custom eating reason | Pencil then Trash. Rename in place; matching logged meals are rewritten to the new label. |
-| [#766](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/766) | 🔍 Pending validation | Settings: show built-in eating reasons and allow editing them | Built-ins listed in Your reasons (pencil only). Override is display-only; meals still store ids. |
 
