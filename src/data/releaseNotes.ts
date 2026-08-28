@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 724,
+    issue: 766,
+    date: '2026-08-28T13:40:00+03:00',
+    en: 'You can rename the built-in “why am I eating” reasons in Settings. They show up with your own labels in the meal dropdown.',
+    ru: 'В Настройках можно переименовать стандартные причины «почему я ем». В списке приёма пищи они появятся с вашими названиями.',
+  },
+  {
     version: 723,
     issue: 767,
     date: '2026-08-28T12:25:00+03:00',

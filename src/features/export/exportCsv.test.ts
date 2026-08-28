@@ -346,6 +346,29 @@ describe('buildDailyLogCsv', () => {
     ).toBe('Tired after work')
   })
 
+  it('exports an edited built-in eating reason label (#766)', () => {
+    const entry = makeEntry({
+      calorieEntries: [
+        {
+          id: 'meal-1',
+          label: 'Breakfast',
+          eatingReason: 'hunger',
+          items: [{ id: 'item-1', name: 'Toast', amountKcal: 150 }],
+          createdAt: '2026-03-01T00:00:00.000Z',
+        },
+      ],
+    })
+    const csv = buildDailyLogCsv([entry], t, undefined, {
+      eatingReasonLabelOverrides: { hunger: 'Stomach growl' },
+    })
+    const [, meals] = csv.split('\r\n\r\n')
+    const [header, row] = meals.split('\r\n')
+
+    expect(
+      row.split(',')[header.split(',').indexOf('Why eating')],
+    ).toBe('Stomach growl')
+  })
+
   it('fills meal Time from the Breakfast slot default when timeEaten is missing (#754)', () => {
     const entry = makeEntry({
       calorieEntries: [

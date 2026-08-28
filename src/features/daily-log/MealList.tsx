@@ -42,10 +42,11 @@ import {
   macrosSummaryTextCompactWithCalories,
 } from '@/shared/lib/macroDisplay'
 import { defaultMealLabel, editableMealLabel, effectiveMealLabel, effectiveTimeEaten, sortCalorieEntriesByLoggedTime } from '@/shared/lib/mealLabel'
+import { eatingReasonDisplayLabel } from '@/shared/lib/eatingReasonDisplay'
 import { normalizeTextSpaces } from '@/shared/lib/normalizeTextSpaces'
 import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/ui/button'
-import { useCopyYesterdayMealsStore, useDayStartStore, useMealItemStore, useMealSlotDefaultTimesStore } from '@/stores'
+import { useCopyYesterdayMealsStore, useDayStartStore, useEatingReasonTrackingStore, useMealItemStore, useMealSlotDefaultTimesStore } from '@/stores'
 import { AddMealDialog } from './AddMealDialog'
 import { CopyDayMealsDialog } from './CopyDayMealsDialog'
 
@@ -137,6 +138,9 @@ function MealListItem({
   onCancelDelete,
 }: MealListItemProps) {
   const mealSlotTimes = useMealSlotDefaultTimesStore((state) => state.times)
+  const builtinLabelOverrides = useEatingReasonTrackingStore(
+    (state) => state.builtinLabelOverrides,
+  )
   // #473: kcal leads this line instead of sitting in the header as a second
   // title-sized row of its own, and uses the single-initial macro names —
   // the full-word form wrapped to three lines in Russian at this width,
@@ -255,7 +259,13 @@ function MealListItem({
                 : 'bg-teal-500',
             )}
           />
-          <span>{t.dailyEntry.eatingReasonLabel(entry.eatingReason)}</span>
+          <span>
+            {eatingReasonDisplayLabel(
+              entry.eatingReason,
+              t,
+              builtinLabelOverrides,
+            )}
+          </span>
         </p>
       )}
       {/* Item sub-list (#81) — a group's individual dishes, shown

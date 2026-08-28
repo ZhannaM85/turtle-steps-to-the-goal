@@ -40,7 +40,11 @@ beforeEach(async () => {
   useAddMealRecentVisibilityStore.setState({ recentVisible: true })
   useMealLabelPresetStore.setState({ presets: [] })
   useNutritionFactsStore.setState({ enabled: false })
-  useEatingReasonTrackingStore.setState({ enabled: false, customReasons: [] })
+  useEatingReasonTrackingStore.setState({
+    enabled: false,
+    customReasons: [],
+    builtinLabelOverrides: {},
+  })
   localStorage.removeItem('turtle-steps-add-meal-recent-visibility')
 })
 
@@ -580,6 +584,22 @@ describe('AddMealDialog (#454)', () => {
     const select = screen.getByLabelText('Why am I eating?')
     await user.selectOptions(select, 'Tired after work')
     expect(select).toHaveValue('Tired after work')
+  })
+
+  it('shows an edited built-in eating reason label while keeping the id (#766)', async () => {
+    const user = userEvent.setup()
+    useEatingReasonTrackingStore.setState({
+      enabled: true,
+      builtinLabelOverrides: { hunger: 'Stomach growl' },
+    })
+    render(<ControlledAddMealDialog {...defaultProps} />)
+
+    const select = screen.getByLabelText('Why am I eating?')
+    expect(
+      within(select).getByRole('option', { name: 'Stomach growl' }),
+    ).toHaveValue('hunger')
+    await user.selectOptions(select, 'hunger')
+    expect(select).toHaveValue('hunger')
   })
 
   it('asks before removing an item from the meal so far (#509)', async () => {

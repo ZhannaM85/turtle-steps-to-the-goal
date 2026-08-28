@@ -1296,7 +1296,7 @@ export const en: Dictionary = {
     eatingReasonTrackingLabel: 'Why am I eating?',
     customEatingReasonsLabel: 'Your reasons',
     customEatingReasonsDescription:
-      'These show up in the meal dropdown along with the built-in list.',
+      'Built-in reasons plus any you add. They all show up in the meal dropdown.',
     customEatingReasonsPlaceholder: 'Add a reason',
     customEatingReasonsEmpty: 'No extra reasons yet — add one below.',
     deleteCustomEatingReasonLabel: (name) => `Delete "${name}"`,

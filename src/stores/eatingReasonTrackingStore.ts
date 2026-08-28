@@ -1,24 +1,31 @@
 import { create } from 'zustand'
 import { createJSONStorage, persist } from 'zustand/middleware'
-import { isBuiltInEatingReason } from '@/domain/dailyEntry'
+import { isBuiltInEatingReason, type EatingReason } from '@/domain/dailyEntry'
+import type { EatingReasonLabelOverrides } from '@/shared/lib/eatingReasonDisplay'
 
 const MAX_CUSTOM_EATING_REASON_LENGTH = 80
 
 /**
  * #764 — opt-in "Why am I eating?" on Add meal. Off by default.
  * #765 — user-authored extra reasons, shown in the same dropdown.
+ * #766 — optional display-label overrides for the six built-ins.
  * Local UI preference only (the on/off switch is not in the export
  * bundle); logged `eatingReason` values still travel with JSON backups,
- * and the custom *list* is included in the settings blob like meal-name
- * presets.
+ * and the custom *list* plus builtin overrides are included in the
+ * settings blob like meal-name presets.
  */
 interface EatingReasonTrackingStoreState {
   enabled: boolean
   customReasons: string[]
+  builtinLabelOverrides: EatingReasonLabelOverrides
   setEnabled: (enabled: boolean) => void
   addCustomReason: (label: string) => void
   removeCustomReason: (label: string) => void
   renameCustomReason: (from: string, to: string) => void
+  setBuiltinLabelOverride: (
+    reason: EatingReason,
+    label: string | undefined,
+  ) => void
 }
 
 function normalizeCustomEatingReason(label: string): string | undefined {
@@ -36,6 +43,7 @@ export const useEatingReasonTrackingStore =
       (set) => ({
         enabled: false,
         customReasons: [],
+        builtinLabelOverrides: {},
         setEnabled: (enabled) => set({ enabled }),
         addCustomReason: (label) =>
           set((state) => {
@@ -77,6 +85,20 @@ export const useEatingReasonTrackingStore =
                 reason === from ? trimmed : reason,
               ),
             }
+          }),
+        setBuiltinLabelOverride: (reason, label) =>
+          set((state) => {
+            const next = { ...state.builtinLabelOverrides }
+            const trimmed = label?.trim()
+            if (!trimmed) {
+              delete next[reason]
+            } else {
+              next[reason] =
+                trimmed.length > MAX_CUSTOM_EATING_REASON_LENGTH
+                  ? trimmed.slice(0, MAX_CUSTOM_EATING_REASON_LENGTH).trim()
+                  : trimmed
+            }
+            return { builtinLabelOverrides: next }
           }),
       }),
       {

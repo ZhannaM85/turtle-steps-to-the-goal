@@ -15,6 +15,7 @@ import type { CustomMetric, CustomMetricEntry } from '@/domain/customMetric'
 import type { Sex } from '@/domain/stats'
 import type { Dictionary } from '@/i18n'
 import { effectiveMealLabel, effectiveTimeEaten, type MealSlotDefaultTimes } from '@/shared/lib/mealLabel'
+import { eatingReasonDisplayLabel, type EatingReasonLabelOverrides } from '@/shared/lib/eatingReasonDisplay'
 import { formatSleepDuration } from '@/shared/lib/sleepDuration'
 
 /** #743 — extra collections the daily-log table can project into columns.
@@ -25,6 +26,8 @@ export interface DailyLogExportExtras {
   tracking?: AnalysisExportTrackingGate
   /** #754 — Settings slot clocks so Time matches Day's `effectiveTimeEaten`. */
   mealSlotTimes?: MealSlotDefaultTimes
+  /** #766 — display-label overrides for built-in eating reasons. */
+  eatingReasonLabelOverrides?: EatingReasonLabelOverrides
 }
 
 /**
@@ -390,7 +393,11 @@ export function mealLogRows(
               meal.reaction && t.dailyEntry.emotionLabel(meal.reaction),
             eatingReason:
               meal.eatingReason &&
-              t.dailyEntry.eatingReasonLabel(meal.eatingReason),
+              eatingReasonDisplayLabel(
+                meal.eatingReason,
+                t,
+                extras?.eatingReasonLabelOverrides,
+              ),
             itemNote: item.noteText,
             note: meal.note,
           })

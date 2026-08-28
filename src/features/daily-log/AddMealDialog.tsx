@@ -24,6 +24,7 @@ import {
 } from '@/domain/nutritionFacts'
 import { formatNumber, useLocale, useTranslation } from '@/i18n'
 import { applyFoodOverrides } from '@/shared/lib/applyFoodOverrides'
+import { eatingReasonDisplayLabel } from '@/shared/lib/eatingReasonDisplay'
 import { DAY_EMOTIONS } from '@/shared/lib/emotionIcons'
 import {
   formatKcal,
@@ -349,6 +350,9 @@ export function AddMealDialog({
   )
   const customEatingReasons = useEatingReasonTrackingStore(
     (state) => state.customReasons,
+  )
+  const builtinLabelOverrides = useEatingReasonTrackingStore(
+    (state) => state.builtinLabelOverrides,
   )
 
   const mealItems = useMealItemStore((state) => state.items)
@@ -1469,7 +1473,11 @@ export function AddMealDialog({
                   </option>
                   {EATING_REASONS.map((reason) => (
                     <option key={reason} value={reason}>
-                      {t.dailyEntry.eatingReasonLabel(reason)}
+                      {eatingReasonDisplayLabel(
+                        reason,
+                        t,
+                        builtinLabelOverrides,
+                      )}
                     </option>
                   ))}
                   {(

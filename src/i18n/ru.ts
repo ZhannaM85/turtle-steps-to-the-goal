@@ -1333,7 +1333,7 @@ export const ru: Dictionary = {
     eatingReasonTrackingLabel: 'Почему я сейчас ем?',
     customEatingReasonsLabel: 'Свои причины',
     customEatingReasonsDescription:
-      'Они появятся в списке при добавлении приёма пищи вместе со стандартными.',
+      'Стандартные причины и те, что вы добавите. Все они появятся в списке приёма пищи.',
     customEatingReasonsPlaceholder: 'Добавить причину',
     customEatingReasonsEmpty: 'Пока пусто — добавьте причину ниже.',
     deleteCustomEatingReasonLabel: (name) => `Удалить «${name}»`,

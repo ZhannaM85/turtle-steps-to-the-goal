@@ -8,6 +8,7 @@ import {
   isBuiltInEatingReason,
   rewriteMealEatingReason,
   stampSlotDefaultsOnUntimedMeals,
+  type EatingReason,
 } from '@/domain/dailyEntry'
 import type { MealSlotKey } from '@/shared/lib/mealLabel'
 import { IndexedDbDailyEntryRepository } from '@/infrastructure/persistence/indexeddb/dailyEntryRepository'
@@ -58,6 +59,7 @@ import {
   BACKUP_REMINDER_SNOOZE_DAYS,
 } from '@/shared/lib/lastBackupReminder'
 import { useSeedBackupFirstSeenAt } from '@/shared/hooks/useSeedBackupFirstSeenAt'
+import { eatingReasonDisplayLabel } from '@/shared/lib/eatingReasonDisplay'
 import { Button } from '@/shared/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
 import { Input } from '@/shared/ui/input'
@@ -93,11 +95,17 @@ function moodOptions(t: Dictionary): { value: Mood; label: string }[] {
 
 const ALL_LOCALES: Locale[] = ['en', 'ru']
 
-function isReservedCustomEatingReason(label: string): boolean {
+function isReservedCustomEatingReason(
+  label: string,
+  extraReserved: string[] = [],
+): boolean {
   const trimmed = label.trim()
   if (!trimmed) return true
   if (isBuiltInEatingReason(trimmed.toLowerCase())) return true
   const lower = trimmed.toLowerCase()
+  if (extraReserved.some((reason) => reason.toLowerCase() === lower)) {
+    return true
+  }
   return ALL_LOCALES.some((locale) => {
     const dict = getDictionary(locale)
     if (dict.dailyEntry.eatingReasonNoneOption.toLowerCase() === lower) {
@@ -115,6 +123,9 @@ function CustomEatingReasonsEditor() {
   const customReasons = useEatingReasonTrackingStore(
     (state) => state.customReasons,
   )
+  const builtinLabelOverrides = useEatingReasonTrackingStore(
+    (state) => state.builtinLabelOverrides,
+  )
   const addCustomReason = useEatingReasonTrackingStore(
     (state) => state.addCustomReason,
   )
@@ -124,23 +135,54 @@ function CustomEatingReasonsEditor() {
   const renameCustomReason = useEatingReasonTrackingStore(
     (state) => state.renameCustomReason,
   )
+  const setBuiltinLabelOverride = useEatingReasonTrackingStore(
+    (state) => state.setBuiltinLabelOverride,
+  )
   const [newReason, setNewReason] = useState('')
   const [editingReason, setEditingReason] = useState<string | null>(null)
   const [editDraft, setEditDraft] = useState('')
 
+  function displayLabel(reason: string): string {
+    return eatingReasonDisplayLabel(reason, t, builtinLabelOverrides)
+  }
+
+  function extraReservedLabels(exceptBuiltin?: EatingReason): string[] {
+    const overrideLabels = EATING_REASONS.flatMap((reason) => {
+      if (reason === exceptBuiltin) return []
+      const label = builtinLabelOverrides[reason]
+      return label ? [label] : []
+    })
+    return [...overrideLabels, ...customReasons]
+  }
+
   function submitNewReason() {
-    if (isReservedCustomEatingReason(newReason)) return
+    if (isReservedCustomEatingReason(newReason, extraReservedLabels())) return
     addCustomReason(newReason)
     setNewReason('')
   }
 
-  async function commitEdit(from: string) {
+  function commitBuiltinEdit(reason: EatingReason) {
+    const trimmed = editDraft.trim()
+    const defaultLabel = t.dailyEntry.eatingReasonLabel(reason)
+    if (!trimmed || trimmed === defaultLabel) {
+      setBuiltinLabelOverride(reason, undefined)
+      setEditingReason(null)
+      return
+    }
+    if (isReservedCustomEatingReason(trimmed, extraReservedLabels(reason))) {
+      return
+    }
+    setBuiltinLabelOverride(reason, trimmed)
+    setEditingReason(null)
+  }
+
+  async function commitCustomEdit(from: string) {
     const trimmed = editDraft.trim()
     if (!trimmed || trimmed === from) {
       setEditingReason(null)
       return
     }
-    if (isReservedCustomEatingReason(trimmed)) return
+    if (isReservedCustomEatingReason(trimmed, extraReservedLabels())) return
     renameCustomReason(from, trimmed)
     if (useEatingReasonTrackingStore.getState().customReasons.includes(from)) {
       return
@@ -153,30 +195,40 @@ function CustomEatingReasonsEditor() {
     setEditingReason(null)
   }
 
+  function commitRowEdit(key: string) {
+    if (isBuiltInEatingReason(key)) {
+      commitBuiltinEdit(key)
+      return
+    }
+    void commitCustomEdit(key)
+  }
+
+  function startEdit(key: string, currentLabel: string) {
+    setEditingReason(key)
+    setEditDraft(currentLabel)
+  }
+
   return (
     <div className="flex flex-col gap-2 rounded-lg border border-border/60 p-3">
       <Label>{t.settings.customEatingReasonsLabel}</Label>
       <p className="text-sm text-muted-foreground">
         {t.settings.customEatingReasonsDescription}
       </p>
-      {customReasons.length === 0 ? (
-        <p className="text-sm text-muted-foreground">
-          {t.settings.customEatingReasonsEmpty}
-        </p>
-      ) : (
-        <ul className="flex flex-col gap-2">
-          {customReasons.map((reason) => (
+      <ul className="flex flex-col gap-2">
+        {EATING_REASONS.map((reason) => {
+          const label = displayLabel(reason)
+          return (
             <li key={reason} className="flex items-center gap-2">
               {editingReason === reason ? (
                 <Input
                   type="text"
-                  aria-label={t.settings.editCustomEatingReasonLabel(reason)}
+                  aria-label={t.settings.editCustomEatingReasonLabel(label)}
                   value={editDraft}
                   onChange={(e) => setEditDraft(e.target.value)}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter') {
                       e.preventDefault()
-                      void commitEdit(reason)
+                      commitRowEdit(reason)
                     }
                     if (e.key === 'Escape') {
                       e.preventDefault()
@@ -186,39 +238,78 @@ function CustomEatingReasonsEditor() {
                   className="h-8 flex-1"
                 />
               ) : (
-                <span className="flex-1 text-sm">{reason}</span>
+                <span className="flex-1 text-sm">{label}</span>
               )}
-              <div className="flex shrink-0 items-center gap-3">
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon-sm"
-                  aria-label={t.settings.editCustomEatingReasonLabel(reason)}
-                  onClick={() => {
-                    if (editingReason === reason) {
-                      void commitEdit(reason)
-                      return
-                    }
-                    setEditingReason(reason)
-                    setEditDraft(reason)
-                  }}
-                >
-                  <Pencil aria-hidden="true" />
-                </Button>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon-sm"
-                  aria-label={t.settings.deleteCustomEatingReasonLabel(reason)}
-                  onClick={() => removeCustomReason(reason)}
-                >
-                  <Trash2 aria-hidden="true" />
-                </Button>
-              </div>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon-sm"
+                aria-label={t.settings.editCustomEatingReasonLabel(label)}
+                onClick={() => {
+                  if (editingReason === reason) {
+                    commitRowEdit(reason)
+                    return
+                  }
+                  startEdit(reason, label)
+                }}
+              >
+                <Pencil aria-hidden="true" />
+              </Button>
             </li>
-          ))}
-        </ul>
-      )}
+          )
+        })}
+        {customReasons.map((reason) => (
+          <li key={reason} className="flex items-center gap-2">
+            {editingReason === reason ? (
+              <Input
+                type="text"
+                aria-label={t.settings.editCustomEatingReasonLabel(reason)}
+                value={editDraft}
+                onChange={(e) => setEditDraft(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault()
+                    void commitCustomEdit(reason)
+                  }
+                  if (e.key === 'Escape') {
+                    e.preventDefault()
+                    setEditingReason(null)
+                  }
+                }}
+                className="h-8 flex-1"
+              />
+            ) : (
+              <span className="flex-1 text-sm">{reason}</span>
+            )}
+            <div className="flex shrink-0 items-center gap-3">
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon-sm"
+                aria-label={t.settings.editCustomEatingReasonLabel(reason)}
+                onClick={() => {
+                  if (editingReason === reason) {
+                    void commitCustomEdit(reason)
+                    return
+                  }
+                  startEdit(reason, reason)
+                }}
+              >
+                <Pencil aria-hidden="true" />
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon-sm"
+                aria-label={t.settings.deleteCustomEatingReasonLabel(reason)}
+                onClick={() => removeCustomReason(reason)}
+              >
+                <Trash2 aria-hidden="true" />
+              </Button>
+            </div>
+          </li>
+        ))}
+      </ul>
       <div className="flex items-center gap-2">
         <Input
           type="text"

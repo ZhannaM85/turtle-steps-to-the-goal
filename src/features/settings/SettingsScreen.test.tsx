@@ -44,7 +44,11 @@ beforeEach(() => {
   useDigestionTrackingStore.setState({ enabled: false })
   useWaterTrackingStore.setState({ enabled: false })
   usePlannedMealsTrackingStore.setState({ enabled: false })
-  useEatingReasonTrackingStore.setState({ enabled: false, customReasons: [] })
+  useEatingReasonTrackingStore.setState({
+    enabled: false,
+    customReasons: [],
+    builtinLabelOverrides: {},
+  })
   useCopyYesterdayMealsStore.setState({ enabled: false })
   useLocalTransferStore.setState({ enabled: false })
   useMicronutrientTrackingStore.setState({
@@ -83,7 +87,11 @@ afterEach(() => {
   useDigestionTrackingStore.setState({ enabled: false })
   useWaterTrackingStore.setState({ enabled: false })
   usePlannedMealsTrackingStore.setState({ enabled: false })
-  useEatingReasonTrackingStore.setState({ enabled: false, customReasons: [] })
+  useEatingReasonTrackingStore.setState({
+    enabled: false,
+    customReasons: [],
+    builtinLabelOverrides: {},
+  })
   useCopyYesterdayMealsStore.setState({ enabled: false })
   useLocalTransferStore.setState({ enabled: false })
   useMicronutrientTrackingStore.setState({
@@ -455,6 +463,56 @@ describe('SettingsScreen', () => {
       expect(useEatingReasonTrackingStore.getState().customReasons).toEqual([
         'Tired after work',
       ])
+    })
+
+    it('lists built-in eating reasons and lets the user rename one (#766)', async () => {
+      const user = userEvent.setup()
+      const now = '2026-03-01T00:00:00.000Z'
+      await dailyEntryRepository.upsert({
+        id: 'entry-1',
+        date: '2026-03-01',
+        createdAt: now,
+        updatedAt: now,
+        calorieEntries: [
+          {
+            id: 'meal-1',
+            items: [{ id: 'item-1', name: 'Toast', amountKcal: 150 }],
+            eatingReason: 'hunger',
+            createdAt: now,
+          },
+        ],
+      })
+      useEatingReasonTrackingStore.setState({ enabled: true })
+      renderSettings()
+
+      const editor = screen.getByText('Your reasons').closest('div')
+      expect(editor).toBeTruthy()
+      expect(
+        within(editor as HTMLElement).getByText('Hunger'),
+      ).toBeInTheDocument()
+      expect(
+        within(editor as HTMLElement).queryByRole('button', {
+          name: 'Delete "Hunger"',
+        }),
+      ).not.toBeInTheDocument()
+
+      await user.click(
+        within(editor as HTMLElement).getByRole('button', {
+          name: 'Edit "Hunger"',
+        }),
+      )
+      const nameField = within(editor as HTMLElement).getByDisplayValue(
+        'Hunger',
+      )
+      await user.clear(nameField)
+      await user.type(nameField, 'Stomach growl')
+      await user.keyboard('{Enter}')
+
+      expect(
+        useEatingReasonTrackingStore.getState().builtinLabelOverrides.hunger,
+      ).toBe('Stomach growl')
+      const stored = await dailyEntryRepository.getByDate('2026-03-01')
+      expect(stored?.calorieEntries?.[0].eatingReason).toBe('hunger')
     })
 
     it('lets the user rename a custom eating reason and updates logged meals (#767)', async () => {

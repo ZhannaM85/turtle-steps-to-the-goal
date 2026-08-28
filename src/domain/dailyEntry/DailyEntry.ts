@@ -107,10 +107,11 @@ export interface CalorieEntry {
    * ambiguity, and its own smiley/neutral/frown framing matches the day
    * mood's icon set, not the per-item thumbs/bellissimo one. */
   reaction?: Emotion
-  /** #764 / #765 — why this meal happened. Built-in ids (`EatingReason`)
-   * or a custom label authored in Settings. Optional; gated by Settings
-   * → What to track. Distinct from `reaction` (was it tasty) and from
-   * per-item `emotion`. */
+  /** #764 / #765 / #766 — why this meal happened. Built-in ids
+   * (`EatingReason`) or a custom label authored in Settings. Built-in
+   * display names can be overridden in Settings without rewriting this
+   * stored id. Optional; gated by Settings → What to track. Distinct
+   * from `reaction` (was it tasty) and from per-item `emotion`. */
   eatingReason?: string
 }
 

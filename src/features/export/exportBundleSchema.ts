@@ -364,6 +364,16 @@ const settingsPreferencesSchema = z.object({
     .optional(),
   mealLabelPresets: z.array(z.string()).optional(),
   customEatingReasons: z.array(z.string()).optional(),
+  builtinEatingReasonLabels: z
+    .object({
+      hunger: z.string().optional(),
+      habit: z.string().optional(),
+      craving: z.string().optional(),
+      stress: z.string().optional(),
+      boredom: z.string().optional(),
+      company: z.string().optional(),
+    })
+    .optional(),
 })
 
 export const exportBundleSchema = z.object({

@@ -131,6 +131,7 @@ describe('exportAllData', () => {
     )
     useEatingReasonTrackingStore.setState({
       customReasons: ['Tired after work'],
+      builtinLabelOverrides: { hunger: 'Stomach growl' },
     })
 
     const bundle = await exportAllData()
@@ -144,6 +145,9 @@ describe('exportAllData', () => {
     })
     expect(bundle.settings?.mealLabelPresets).toEqual(['Second breakfast'])
     expect(bundle.settings?.customEatingReasons).toEqual(['Tired after work'])
+    expect(bundle.settings?.builtinEatingReasonLabels).toEqual({
+      hunger: 'Stomach growl',
+    })
   })
 
   it('exports all goals and entries currently stored', async () => {
@@ -470,6 +474,7 @@ describe('importAllData', () => {
         },
         mealLabelPresets: ['Tea'],
         customEatingReasons: ['Tired after work'],
+        builtinEatingReasonLabels: { hunger: 'Stomach growl' },
       },
     })
 
@@ -493,6 +498,9 @@ describe('importAllData', () => {
     expect(useEatingReasonTrackingStore.getState().customReasons).toEqual([
       'Tired after work',
     ])
+    expect(
+      useEatingReasonTrackingStore.getState().builtinLabelOverrides,
+    ).toEqual({ hunger: 'Stomach growl' })
   })
 
   it('leaves Settings preferences alone when a pre-v10 backup omits them (#594)', async () => {

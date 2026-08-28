@@ -56,6 +56,9 @@ export function collectSettingsPreferences(): ExportSettingsPreferences {
     customEatingReasons: [
       ...useEatingReasonTrackingStore.getState().customReasons,
     ],
+    builtinEatingReasonLabels: {
+      ...useEatingReasonTrackingStore.getState().builtinLabelOverrides,
+    },
   }
 }
 
@@ -136,9 +139,14 @@ export function applySettingsPreferences(
       presets: [...settings.mealLabelPresets],
     })
   }
-  if (settings.customEatingReasons) {
+  if (settings.customEatingReasons || settings.builtinEatingReasonLabels) {
     useEatingReasonTrackingStore.setState({
-      customReasons: [...settings.customEatingReasons],
+      ...(settings.customEatingReasons
+        ? { customReasons: [...settings.customEatingReasons] }
+        : {}),
+      ...(settings.builtinEatingReasonLabels
+        ? { builtinLabelOverrides: { ...settings.builtinEatingReasonLabels } }
+        : {}),
     })
   }
 }

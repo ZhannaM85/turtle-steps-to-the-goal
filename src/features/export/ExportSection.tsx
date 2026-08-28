@@ -287,6 +287,9 @@ export function ExportSection() {
   const eatingReasonTrackingEnabled = useEatingReasonTrackingStore(
     (state) => state.enabled,
   )
+  const eatingReasonLabelOverrides = useEatingReasonTrackingStore(
+    (state) => state.builtinLabelOverrides,
+  )
   const micronutrients = useMicronutrientTrackingStore((state) => state.tracked)
   // #634 — built once so both `gatePdfSectionAvailability` and the
   // `PdfSectionsDialog`'s own disabled-reason tooltip (needs the raw gate,
@@ -570,6 +573,7 @@ export function ExportSection() {
           customMetricEntries: bundle.customMetricEntries,
           tracking: analysisExportTracking,
           mealSlotTimes: mealSlotDefaultTimes,
+          eatingReasonLabelOverrides,
         },
       )
       const buffer = await workbook.xlsx.writeBuffer()
@@ -613,6 +617,7 @@ export function ExportSection() {
         customMetricEntries: bundle.customMetricEntries,
         tracking: analysisExportTracking,
         mealSlotTimes: mealSlotDefaultTimes,
+        eatingReasonLabelOverrides,
       })
       const blob = new Blob([CSV_BOM, csv], { type: 'text/csv' })
       const url = URL.createObjectURL(blob)
@@ -648,6 +653,7 @@ export function ExportSection() {
         customMetricEntries: bundle.customMetricEntries,
         tracking: analysisExportTracking,
         mealSlotTimes: mealSlotDefaultTimes,
+        eatingReasonLabelOverrides,
       })
       const blob = new Blob([markdown], { type: 'text/markdown' })
       const url = URL.createObjectURL(blob)
