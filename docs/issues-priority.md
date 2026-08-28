@@ -32,3 +32,13 @@ _User asked about pulling data from Apple Health and Zepp Life. Researched via W
 |---|--------|-------|-------|
 | [#334](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/334) | 📋 Not started | Epic — Apple Health integration (blocked on mobile app + HealthKit bridge) | HealthKit has no public/cloud API at all — data is on-device only, readable exclusively by a native iOS app (or hybrid app with a HealthKit plugin/entitlement) the user has granted permission to. Genuinely blocked until the mobile app exists; can't be built sooner by any workaround. |
 
+---
+
+## Tier 145 — Morning notes & eating reason (2026-08-28)
+
+_Evening already has a day's note; add a matching morning note, opt-in and off by default. Same-day follow-ups: why-am-I-eating reasons, including HALT (Hungry, Angry, Lonely, Tired)._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#769](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/769) | 📋 Not started | Add HALT eating reasons (Hungry, Angry, Lonely, Tired) | Hungry already exists as Hunger. Add Angry, Lonely, Tired to the built-in list. Keep habit/craving/stress/boredom/company. |
+
