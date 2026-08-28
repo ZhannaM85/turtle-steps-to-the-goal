@@ -515,6 +515,44 @@ describe('SettingsScreen', () => {
       expect(stored?.calorieEntries?.[0].eatingReason).toBe('hunger')
     })
 
+    it('shows a save icon while editing and returns to view mode on tap (#768)', async () => {
+      const user = userEvent.setup()
+      useEatingReasonTrackingStore.setState({ enabled: true })
+      renderSettings()
+
+      const editor = screen.getByText('Your reasons').closest('div')
+      expect(editor).toBeTruthy()
+      const box = editor as HTMLElement
+
+      await user.click(
+        within(box).getByRole('button', { name: 'Edit "Hunger"' }),
+      )
+      expect(
+        within(box).getByRole('button', { name: 'Save "Hunger"' }),
+      ).toBeInTheDocument()
+      expect(
+        within(box).queryByRole('button', { name: 'Edit "Hunger"' }),
+      ).not.toBeInTheDocument()
+
+      const nameField = within(box).getByDisplayValue('Hunger')
+      await user.clear(nameField)
+      await user.type(nameField, 'Stomach growl')
+      await user.click(
+        within(box).getByRole('button', { name: 'Save "Hunger"' }),
+      )
+
+      expect(
+        useEatingReasonTrackingStore.getState().builtinLabelOverrides.hunger,
+      ).toBe('Stomach growl')
+      expect(within(box).getByText('Stomach growl')).toBeInTheDocument()
+      expect(
+        within(box).queryByDisplayValue('Stomach growl'),
+      ).not.toBeInTheDocument()
+      expect(
+        within(box).getByRole('button', { name: 'Edit "Stomach growl"' }),
+      ).toBeInTheDocument()
+    })
+
     it('lets the user rename a custom eating reason and updates logged meals (#767)', async () => {
       const user = userEvent.setup()
       const now = '2026-03-01T00:00:00.000Z'

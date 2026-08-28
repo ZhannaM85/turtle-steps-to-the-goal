@@ -40,5 +40,5 @@ _Evening already has a day's note; add a matching morning note, opt-in and off b
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#768](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/768) | 📋 Not started | Settings: show a save icon while editing an eating reason | While the name field is open, pencil stays. Show a check/save icon; tap commits and returns the row to view mode. Built-in and custom. |
+| [#768](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/768) | 🔍 Pending validation | Settings: show a save icon while editing an eating reason | While the name field is open, Check replaces Pencil; tap commits and returns the row to view mode. Built-in and custom. |
 

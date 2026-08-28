@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 725,
+    issue: 768,
+    date: '2026-08-28T14:00:00+03:00',
+    en: 'While you rename a “why am I eating” reason, a save icon appears. Tap it to keep the new name.',
+    ru: 'Пока вы переименовываете причину «почему я ем», появляется значок сохранения. Нажмите его, чтобы оставить новое название.',
+  },
+  {
     version: 724,
     issue: 766,
     date: '2026-08-28T13:40:00+03:00',

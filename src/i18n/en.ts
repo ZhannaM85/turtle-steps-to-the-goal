@@ -1301,6 +1301,7 @@ export const en: Dictionary = {
     customEatingReasonsEmpty: 'No extra reasons yet — add one below.',
     deleteCustomEatingReasonLabel: (name) => `Delete "${name}"`,
     editCustomEatingReasonLabel: (name) => `Edit "${name}"`,
+    saveCustomEatingReasonLabel: (name) => `Save "${name}"`,
     copyYesterdayMealsTrackingLabel: "Copy yesterday's meals",
     trackingPresetLabel: 'Layout preset',
     trackingPresetDescription:

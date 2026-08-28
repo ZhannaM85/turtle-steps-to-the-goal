@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { Capacitor } from '@capacitor/core'
-import { Pencil, Trash2, X } from 'lucide-react'
+import { Check, Pencil, Trash2, X } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import {
   countUntimedSlotMeals,
@@ -244,7 +244,11 @@ function CustomEatingReasonsEditor() {
                 type="button"
                 variant="ghost"
                 size="icon-sm"
-                aria-label={t.settings.editCustomEatingReasonLabel(label)}
+                aria-label={
+                  editingReason === reason
+                    ? t.settings.saveCustomEatingReasonLabel(label)
+                    : t.settings.editCustomEatingReasonLabel(label)
+                }
                 onClick={() => {
                   if (editingReason === reason) {
                     commitRowEdit(reason)
@@ -253,7 +257,11 @@ function CustomEatingReasonsEditor() {
                   startEdit(reason, label)
                 }}
               >
-                <Pencil aria-hidden="true" />
+                {editingReason === reason ? (
+                  <Check aria-hidden="true" />
+                ) : (
+                  <Pencil aria-hidden="true" />
+                )}
               </Button>
             </li>
           )
@@ -286,7 +294,11 @@ function CustomEatingReasonsEditor() {
                 type="button"
                 variant="ghost"
                 size="icon-sm"
-                aria-label={t.settings.editCustomEatingReasonLabel(reason)}
+                aria-label={
+                  editingReason === reason
+                    ? t.settings.saveCustomEatingReasonLabel(reason)
+                    : t.settings.editCustomEatingReasonLabel(reason)
+                }
                 onClick={() => {
                   if (editingReason === reason) {
                     void commitCustomEdit(reason)
@@ -295,7 +307,11 @@ function CustomEatingReasonsEditor() {
                   startEdit(reason, reason)
                 }}
               >
-                <Pencil aria-hidden="true" />
+                {editingReason === reason ? (
+                  <Check aria-hidden="true" />
+                ) : (
+                  <Pencil aria-hidden="true" />
+                )}
               </Button>
               <Button
                 type="button"

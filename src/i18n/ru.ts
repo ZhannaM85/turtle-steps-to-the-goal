@@ -1338,6 +1338,7 @@ export const ru: Dictionary = {
     customEatingReasonsEmpty: 'Пока пусто — добавьте причину ниже.',
     deleteCustomEatingReasonLabel: (name) => `Удалить «${name}»`,
     editCustomEatingReasonLabel: (name) => `Изменить «${name}»`,
+    saveCustomEatingReasonLabel: (name) => `Сохранить «${name}»`,
     copyYesterdayMealsTrackingLabel: 'Копировать вчерашние приёмы пищи',
     trackingPresetLabel: 'Пресет макета',
     trackingPresetDescription:

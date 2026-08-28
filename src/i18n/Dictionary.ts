@@ -1973,6 +1973,8 @@ export interface Dictionary {
     deleteCustomEatingReasonLabel: (name: string) => string
     /** #767 — rename a custom reason already on the list. */
     editCustomEatingReasonLabel: (name: string) => string
+    /** #768 — check icon while that rename field is open. */
+    saveCustomEatingReasonLabel: (name: string) => string
     /** #692 — opt-in for Day's "Copy yesterday's meals" control (default off). */
     copyYesterdayMealsTrackingLabel: string
     /** #237: unified "what to track" section — folds cycle/digestion
