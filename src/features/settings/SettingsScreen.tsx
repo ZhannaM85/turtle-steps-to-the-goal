@@ -120,6 +120,8 @@ function isReservedCustomEatingReason(
 
 function CustomEatingReasonsEditor() {
   const t = useTranslation()
+  const enabled = useEatingReasonTrackingStore((state) => state.enabled)
+  const setEnabled = useEatingReasonTrackingStore((state) => state.setEnabled)
   const customReasons = useEatingReasonTrackingStore(
     (state) => state.customReasons,
   )
@@ -210,11 +212,23 @@ function CustomEatingReasonsEditor() {
 
   return (
     <div className="flex flex-col gap-2 rounded-lg border border-border/60 p-3">
-      <Label>{t.settings.customEatingReasonsLabel}</Label>
-      <p className="text-sm text-muted-foreground">
-        {t.settings.customEatingReasonsDescription}
-      </p>
-      <ul className="flex flex-col gap-2">
+      <ToggleGroup
+        type="multiple"
+        aria-label={t.settings.eatingReasonTrackingLabel}
+        value={enabled ? ['eatingReason'] : []}
+        onValueChange={(value) => setEnabled(value.includes('eatingReason'))}
+      >
+        <ToggleGroupItem value="eatingReason" className="h-12">
+          {t.settings.eatingReasonTrackingLabel}
+        </ToggleGroupItem>
+      </ToggleGroup>
+      {enabled ? (
+        <>
+          <Label>{t.settings.customEatingReasonsLabel}</Label>
+          <p className="text-sm text-muted-foreground">
+            {t.settings.customEatingReasonsDescription}
+          </p>
+          <ul className="flex max-h-96 flex-col gap-2 overflow-y-auto overscroll-y-contain">
         {EATING_REASONS.map((reason) => {
           const label = displayLabel(reason)
           return (
@@ -325,8 +339,8 @@ function CustomEatingReasonsEditor() {
             </div>
           </li>
         ))}
-      </ul>
-      <div className="flex items-center gap-2">
+          </ul>
+          <div className="flex items-center gap-2">
         <Input
           type="text"
           aria-label={t.settings.customEatingReasonsPlaceholder}
@@ -349,7 +363,9 @@ function CustomEatingReasonsEditor() {
         >
           {t.dailyEntry.addButton}
         </Button>
-      </div>
+          </div>
+        </>
+      ) : null}
     </div>
   )
 }
@@ -449,7 +465,6 @@ export function SettingsScreen() {
     'dayTotals',
     'fiber',
     'plannedMeals',
-    'eatingReason',
     'copyYesterdayMeals',
   ]
   function isFieldTracked(key: UnifiedTrackedKey): boolean {
@@ -1048,14 +1063,11 @@ export function SettingsScreen() {
               <ToggleGroupItem value="plannedMeals" className="h-12">
                 {t.settings.plannedMealsTrackingLabel}
               </ToggleGroupItem>
-              <ToggleGroupItem value="eatingReason" className="h-12">
-                {t.settings.eatingReasonTrackingLabel}
-              </ToggleGroupItem>
               <ToggleGroupItem value="copyYesterdayMeals" className="h-12">
                 {t.settings.copyYesterdayMealsTrackingLabel}
               </ToggleGroupItem>
             </ToggleGroup>
-            {eatingReasonTrackingEnabled && <CustomEatingReasonsEditor />}
+            <CustomEatingReasonsEditor />
           </div>
           <div className="flex flex-col gap-1.5">
             <Label>{t.settings.trackedFieldsElectrolytesGroupLabel}</Label>

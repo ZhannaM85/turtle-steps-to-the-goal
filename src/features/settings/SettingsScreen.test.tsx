@@ -439,6 +439,50 @@ describe('SettingsScreen', () => {
       expect(useEatingReasonTrackingStore.getState().enabled).toBe(true)
     })
 
+    it('keeps Why am I eating with Your reasons in one block (#770)', async () => {
+      const user = userEvent.setup()
+      renderSettings()
+
+      expect(
+        within(screen.getByRole('toolbar', { name: 'Other' })).queryByRole(
+          'button',
+          { name: 'Why am I eating?' },
+        ),
+      ).not.toBeInTheDocument()
+      expect(
+        within(screen.getByRole('toolbar', { name: 'Other' })).getByRole(
+          'button',
+          { name: "Copy yesterday's meals" },
+        ),
+      ).toBeInTheDocument()
+
+      await user.click(
+        screen.getByRole('button', { name: 'Why am I eating?' }),
+      )
+
+      const list = screen.getByText('Hunger').closest('ul')
+      expect(list).toHaveClass(
+        'overflow-y-auto',
+        'overscroll-y-contain',
+        'max-h-96',
+      )
+      const block = list?.parentElement
+      expect(block).toBeTruthy()
+      expect(
+        within(block as HTMLElement).getByRole('button', {
+          name: 'Why am I eating?',
+        }),
+      ).toBeInTheDocument()
+      expect(
+        within(block as HTMLElement).getByText('Your reasons'),
+      ).toBeInTheDocument()
+      expect(
+        within(block as HTMLElement).queryByRole('button', {
+          name: "Copy yesterday's meals",
+        }),
+      ).not.toBeInTheDocument()
+    })
+
     it('lists HALT eating reasons under Your reasons (#769)', async () => {
       const user = userEvent.setup()
       renderSettings()

@@ -40,5 +40,5 @@ _Evening already has a day's note; add a matching morning note, opt-in and off b
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#770](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/770) | 📋 Not started | Settings: put Why am I eating and Your reasons in one block | Toggle sits in What to track; Copy yesterday's meals splits it from the reasons list. One block + scrollbar when the list grows. |
+| [#770](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/770) | 🔍 Pending validation | Settings: put Why am I eating and Your reasons in one block | Toggle + reasons in one bordered block under Other (not in the chip row with Copy yesterday). List scrolls (`max-h-96`). |
 

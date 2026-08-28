@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 727,
+    issue: 770,
+    date: '2026-08-28T22:40:00+03:00',
+    en: 'Why am I eating and your reasons list now sit together in Settings, with a scrollable list if you add many.',
+    ru: '«Почему я ем» и список своих причин теперь в одном блоке в Настройках; длинный список прокручивается.',
+  },
+  {
     version: 726,
     issue: 769,
     date: '2026-08-28T21:40:00+03:00',
