@@ -197,6 +197,9 @@ export function useDailyEntryFormState({
   const [isEditingNote, setIsEditingNote] = useState(
     alwaysEditable || !initialValues.note,
   )
+  const [isEditingMorningNote, setIsEditingMorningNote] = useState(
+    alwaysEditable || !initialValues.morningNote,
+  )
   const [isEditingSleep, setIsEditingSleep] = useState(
     alwaysEditable ||
       (initialValues.sleepHours === undefined &&
@@ -304,6 +307,7 @@ export function useDailyEntryFormState({
 
   const weightKg = useWatch({ control, name: 'weightKg' })
   const note = useWatch({ control, name: 'note' })
+  const morningNote = useWatch({ control, name: 'morningNote' })
   const sleepHours = useWatch({ control, name: 'sleepHours' })
   const deepSleepHours = useWatch({ control, name: 'deepSleepHours' })
   const steps = useWatch({ control, name: 'steps' })
@@ -436,6 +440,7 @@ export function useDailyEntryFormState({
 
   const showWeightAsDisplay = !alwaysEditable && !isEditingWeight
   const showNoteAsDisplay = !alwaysEditable && !isEditingNote
+  const showMorningNoteAsDisplay = !alwaysEditable && !isEditingMorningNote
   const showSleepAsDisplay = !alwaysEditable && !isEditingSleep
   const showStepsAsDisplay = !alwaysEditable && !isEditingSteps
   const showBodyMeasurementsAsDisplay =
@@ -458,6 +463,8 @@ export function useDailyEntryFormState({
   // edit affordance (pencil-toggle vs. always-editable input) is showing it.
   const canDeleteWeight = hasSavedWeight
   const canCancelNoteEdit = alwaysEditable || Boolean(initialValues.note)
+  const canCancelMorningNoteEdit =
+    alwaysEditable || Boolean(initialValues.morningNote)
   const canCancelSleepEdit = alwaysEditable || hasSavedSleep
   const canDeleteSleep = hasSavedSleep
   const canCancelStepsEdit = alwaysEditable || initialValues.steps !== undefined
@@ -506,6 +513,9 @@ export function useDailyEntryFormState({
       note: noteSchema.safeParse(values.note).success
         ? values.note
         : initialValues.note,
+      morningNote: noteSchema.safeParse(values.morningNote).success
+        ? values.morningNote
+        : initialValues.morningNote,
       sleepHours: sleepHoursSchema.safeParse(values.sleepHours).success
         ? values.sleepHours
         : initialValues.sleepHours,
@@ -756,6 +766,23 @@ export function useDailyEntryFormState({
     setValue('note', initialValues.note)
     clearErrors('note')
     setIsEditingNote(false)
+  }
+
+  function saveMorningNote() {
+    const result = noteSchema.safeParse(getValues('morningNote'))
+    if (!result.success) {
+      setError('morningNote', { message: t.dailyEntry.invalidValueMessage })
+      return
+    }
+    clearErrors('morningNote')
+    setIsEditingMorningNote(false)
+    persist(getValues())
+  }
+
+  function cancelEditMorningNote() {
+    setValue('morningNote', initialValues.morningNote)
+    clearErrors('morningNote')
+    setIsEditingMorningNote(false)
   }
 
   function saveSleep() {
@@ -1330,6 +1357,13 @@ export function useDailyEntryFormState({
     saveNote,
     canCancelNoteEdit,
     cancelEditNote,
+    // Morning note (#763)
+    morningNote,
+    showMorningNoteAsDisplay,
+    setIsEditingMorningNote,
+    saveMorningNote,
+    canCancelMorningNoteEdit,
+    cancelEditMorningNote,
     // Mood
     dayEmotion,
     saveMood,

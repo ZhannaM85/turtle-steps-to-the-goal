@@ -97,6 +97,8 @@ export const dailyEntryFormSchema = z.object({
   calorieEntries: z.array(calorieEntrySchema).optional(),
   dayTotals: dayTotalsSchema.optional(),
   note: noteSchema,
+  // #763 — same 500-char cap as evening `note`; separate field.
+  morningNote: noteSchema,
   emotion: dayEmotionSchema.optional(),
   sleepHours: sleepHoursSchema,
   deepSleepHours: deepSleepHoursSchema,

@@ -44,6 +44,12 @@ describe('entryToFormValues', () => {
       ),
     ).toMatchObject({ waistCm: 80, hipCm: 95, bodyFatPercent: 22 })
   })
+
+  it('maps a morning note (#763)', () => {
+    expect(
+      entryToFormValues(makeEntry({ morningNote: 'night snack' })),
+    ).toMatchObject({ morningNote: 'night snack' })
+  })
 })
 
 describe('formValuesToEntry', () => {

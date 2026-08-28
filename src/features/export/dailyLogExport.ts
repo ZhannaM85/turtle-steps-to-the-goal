@@ -38,6 +38,7 @@ export interface AnalysisExportTrackingGate {
   steps: boolean
   bodyMeasurements: boolean
   note: boolean
+  morningNote: boolean
   mood: boolean
   bodyComposition: boolean
   nightEating: boolean
@@ -183,6 +184,11 @@ function dailyLogColumns(
       value: (entry) =>
         entry.emotion && t.dailyEntry.emotionLabel(entry.emotion),
       gatedBy: 'mood',
+    },
+    {
+      header: t.exportXlsx.morningNoteColumn,
+      value: (entry) => entry.morningNote,
+      gatedBy: 'morningNote',
     },
     {
       header: t.exportXlsx.noteColumn,

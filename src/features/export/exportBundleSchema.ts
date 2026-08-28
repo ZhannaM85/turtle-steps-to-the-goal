@@ -117,6 +117,8 @@ const dailyEntrySchema = z.object({
     })
     .optional(),
   note: z.string().optional(),
+  // #763 — opt-in morning free-text, purely additive.
+  morningNote: z.string().optional(),
   emotion: dayEmotionSchema.optional(),
   // Sleep (#59) — purely additive/optional, same no-version-bump reasoning
   // as macros above.
@@ -330,6 +332,7 @@ const settingsPreferencesSchema = z.object({
       steps: z.boolean().optional(),
       bodyMeasurements: z.boolean().optional(),
       note: z.boolean().optional(),
+      morningNote: z.boolean().optional(),
       mood: z.boolean().optional(),
       bodyComposition: z.boolean().optional(),
       nightEating: z.boolean().optional(),

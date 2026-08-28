@@ -158,6 +158,7 @@ export function SettingsScreen() {
     'sleep',
     'bodyMeasurements',
     'bodyComposition',
+    'morningNote',
   ]
   const eveningTrackedKeys: UnifiedTrackedKey[] = [
     'steps',
@@ -706,6 +707,9 @@ export function SettingsScreen() {
               </ToggleGroupItem>
               <ToggleGroupItem value="bodyComposition" className="h-12">
                 {t.dailyEntry.bodyCompositionLabel}
+              </ToggleGroupItem>
+              <ToggleGroupItem value="morningNote" className="h-12">
+                {t.dailyEntry.morningNoteLabel}
               </ToggleGroupItem>
             </ToggleGroup>
           </div>

@@ -90,12 +90,13 @@ describe('buildExportWorkbook', () => {
     expect(row[11]).toBe(95)
     expect(row[12]).toBe(22)
     expect(row[13]).toBe('Happy')
-    expect(row[14]).toBe('Felt good')
-    expect(row[15]).toBe(true)
-    expect(row[16]).toBeUndefined()
+    expect(row[14]).toBeUndefined()
+    expect(row[15]).toBe('Felt good')
+    expect(row[16]).toBe(true)
+    expect(row[17]).toBeUndefined()
     // #394 — nightEating is blank here (not false): the one logged meal has
     // no timeEaten, so hadNightEating() has no signal to derive from.
-    expect(row[17]).toBeUndefined()
+    expect(row[18]).toBeUndefined()
     expect(dailyLog.getRow(1).values).toEqual([
       undefined,
       'Date',
@@ -111,6 +112,7 @@ describe('buildExportWorkbook', () => {
       'Hip (cm)',
       'Body fat (%)',
       'Mood',
+      'Morning note',
       'Note',
       'On period',
       'Constipation',
@@ -211,12 +213,12 @@ describe('buildExportWorkbook', () => {
     const dailyRow = sheetRows(workbook.getWorksheet('Daily Log')!)[0]
     const mealRow = sheetRows(workbook.getWorksheet('Meals')!)[0]
 
-    expect(dailyRow[20]).toBe(45.2)
-    expect(dailyRow[21]).toBe(8)
-    expect(dailyRow[22]).toBe(55)
-    expect(dailyRow[23]).toBe(2.4)
-    expect(dailyRow[24]).toBe(2)
-    expect(dailyRow[25]).toBe(200)
+    expect(dailyRow[21]).toBe(45.2)
+    expect(dailyRow[22]).toBe(8)
+    expect(dailyRow[23]).toBe(55)
+    expect(dailyRow[24]).toBe(2.4)
+    expect(dailyRow[25]).toBe(2)
+    expect(dailyRow[26]).toBe(200)
     expect(mealRow[9]).toBe(2)
     expect(mealRow[10]).toBe(200)
     expect(mealRow[11]).toBe(80)
@@ -238,6 +240,7 @@ describe('buildExportWorkbook', () => {
           steps: true,
           bodyMeasurements: true,
           note: true,
+          morningNote: true,
           mood: true,
           bodyComposition: false,
           nightEating: true,

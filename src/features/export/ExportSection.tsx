@@ -306,6 +306,7 @@ export function ExportSection() {
     steps: trackedFields.steps,
     bodyMeasurements: trackedFields.bodyMeasurements,
     note: trackedFields.note,
+    morningNote: trackedFields.morningNote,
     mood: trackedFields.mood,
     bodyComposition: trackedFields.bodyComposition,
     nightEating: trackedFields.nightEating,

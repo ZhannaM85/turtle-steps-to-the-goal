@@ -319,10 +319,15 @@ export interface Dictionary {
     kcalUnit: string
     noteLabel: string
     noteFieldPlaceholder: string
+    /** #763 — opt-in morning free-text, parallel to evening noteLabel. */
+    morningNoteLabel: string
+    morningNoteFieldPlaceholder: string
     editWeightLabel: string
     editNoteLabel: string
+    editMorningNoteLabel: string
     saveWeightLabel: string
     saveNoteLabel: string
+    saveMorningNoteLabel: string
     /** #424 — same "leave edit mode without saving" affordance
      * cancelEditMealLabel already established for meals, applied to
      * Weight/Sleep/Steps/Body measurements/Body composition. #437 extends
@@ -330,6 +335,7 @@ export interface Dictionary {
      * customMetrics below). */
     cancelEditWeightLabel: string
     cancelEditNoteLabel: string
+    cancelEditMorningNoteLabel: string
     /** #670 — deletes a logged weight entry (today or any past date) after
      * a confirmation step; reuses the generic `history.confirmDelete*`
      * strings for that step, same as `deleteMealLabel`'s confirm flow. */
@@ -1392,6 +1398,8 @@ export interface Dictionary {
     bodyFatColumn: string
     moodColumn: string
     noteColumn: string
+    /** #763 — morning free-text, distinct from evening noteColumn. */
+    morningNoteColumn: string
     onPeriodColumn: string
     hadConstipationColumn: string
     /** #607 — same purely-additive column as hadConstipationColumn above. */

@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 720,
+    issue: 763,
+    date: '2026-08-28T11:25:00+03:00',
+    en: 'You can turn on a morning note on the Day screen (Settings → What to track). It is off by default.',
+    ru: 'На экране «День» можно включить утреннюю заметку (Настройки → Что отслеживать). По умолчанию выключена.',
+  },
+  {
     version: 719,
     issue: 762,
     date: '2026-08-27T12:12:00+03:00',

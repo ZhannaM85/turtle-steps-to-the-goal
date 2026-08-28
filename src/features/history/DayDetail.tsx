@@ -97,7 +97,10 @@ export function DayDetail({
   const DayEmotionIcon = DAY_EMOTIONS.find(
     (e) => e.value === entry.emotion,
   )?.Icon
-  const hasNoteOrMood = Boolean(entry.note) || Boolean(DayEmotionIcon)
+  const hasNoteOrMood =
+    Boolean(entry.note) ||
+    Boolean(entry.morningNote) ||
+    Boolean(DayEmotionIcon)
   const hasDetails = hasNoteOrMood || meals.length > 0
 
   const weightDisplay =
@@ -242,6 +245,12 @@ export function DayDetail({
               </Button>
             )}
           </span>
+        </div>
+      )}
+
+      {entry.morningNote && (
+        <div className="text-sm text-muted-foreground">
+          {entry.morningNote}
         </div>
       )}
 

@@ -116,6 +116,9 @@ export interface DailyEntry {
   /** #549 — day-level kcal/macros without meal items; summed with meals. */
   dayTotals?: DayTotals
   note?: string
+  /** #763 — opt-in morning free-text, distinct from evening `note`. Gated
+   * by `trackedFields.morningNote` (off by default). */
+  morningNote?: string
   /** Overall mood for the day as a whole, distinct from any meal's own emotion (#44). */
   emotion?: Emotion
   /** Sleep (#59) — both optional and independent, same as the rest of this

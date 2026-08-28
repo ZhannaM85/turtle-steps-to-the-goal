@@ -10,6 +10,7 @@ import {
 } from '@/shared/ui/collapsible'
 import { Input } from '@/shared/ui/input'
 import { Label } from '@/shared/ui/label'
+import { Textarea } from '@/shared/ui/textarea'
 import { useTodaySectionsCollapseStore } from '@/stores'
 import {
   bodyFatPercentSchema,
@@ -1183,6 +1184,71 @@ export function DailyEntryFormMorning() {
                         </Button>
                       </div>
                     </div>
+                  )}
+                </div>
+              ))}
+
+            {state.trackedFields.morningNote &&
+              (state.showMorningNoteAsDisplay ? (
+                <div className="flex flex-col gap-1.5">
+                  <span className="text-sm font-medium">
+                    {t.dailyEntry.morningNoteLabel}
+                  </span>
+                  <div className="flex min-h-12 items-center justify-between gap-2 rounded-lg bg-muted px-3 py-1.5">
+                    <span className="flex items-center gap-1.5 text-sm text-foreground">
+                      {state.morningNote}
+                    </span>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon-xl"
+                      aria-label={t.dailyEntry.editMorningNoteLabel}
+                      onClick={() => state.setIsEditingMorningNote(true)}
+                    >
+                      <Pencil aria-hidden="true" />
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex flex-col gap-1.5">
+                  <span className="text-sm font-medium">
+                    {t.dailyEntry.morningNoteLabel}
+                  </span>
+                  <div className="flex items-end gap-3">
+                    <Textarea
+                      aria-label={t.dailyEntry.morningNoteLabel}
+                      aria-invalid={
+                        state.errors.morningNote ? true : undefined
+                      }
+                      placeholder={t.dailyEntry.morningNoteFieldPlaceholder}
+                      className="flex-1"
+                      {...state.register('morningNote')}
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="icon-xl"
+                      aria-label={t.dailyEntry.saveMorningNoteLabel}
+                      onClick={state.saveMorningNote}
+                    >
+                      <Check aria-hidden="true" />
+                    </Button>
+                    {state.canCancelMorningNoteEdit && (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon-xl"
+                        aria-label={t.dailyEntry.cancelEditMorningNoteLabel}
+                        onClick={state.cancelEditMorningNote}
+                      >
+                        <X aria-hidden="true" />
+                      </Button>
+                    )}
+                  </div>
+                  {state.errors.morningNote && (
+                    <p className="text-sm text-destructive">
+                      {state.errors.morningNote.message}
+                    </p>
                   )}
                 </div>
               ))}

@@ -55,6 +55,7 @@ beforeEach(() => {
       steps: true,
       bodyMeasurements: true,
       note: true,
+      morningNote: true,
       mood: true,
       bodyComposition: true,
       nightEating: true,

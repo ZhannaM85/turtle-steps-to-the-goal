@@ -17,6 +17,7 @@ export type TrackedField =
   | 'steps'
   | 'bodyMeasurements'
   | 'note'
+  | 'morningNote'
   | 'mood'
   | 'bodyComposition'
   | 'nightEating'
@@ -30,6 +31,9 @@ const DEFAULT_TRACKED: Record<TrackedField, boolean> = {
   steps: true,
   bodyMeasurements: true,
   note: true,
+  // #763 — morning notes stay opt-in (existing persisted prefs keep
+  // whatever they already saved; missing key fills as false).
+  morningNote: false,
   mood: true,
   // #528 — smart-scale fields stay opt-in for new users (existing
   // persisted prefs keep whatever they already saved).

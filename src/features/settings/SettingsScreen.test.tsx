@@ -503,6 +503,7 @@ describe('SettingsScreen', () => {
           steps: true,
           bodyMeasurements: true,
           note: true,
+          morningNote: false,
           mood: true,
           bodyComposition: false,
           nightEating: true,
@@ -518,6 +519,32 @@ describe('SettingsScreen', () => {
         within(
           screen.getByRole('toolbar', { name: 'Morning' }),
         ).getByRole('button', { name: 'Body composition' }),
+      ).toHaveAttribute('aria-pressed', 'false')
+    })
+
+    it('defaults Morning note off for new users (#763)', () => {
+      useTrackedFieldsStore.setState({
+        tracked: {
+          sleep: true,
+          steps: true,
+          bodyMeasurements: true,
+          note: true,
+          morningNote: false,
+          mood: true,
+          bodyComposition: false,
+          nightEating: true,
+          dayTotals: true,
+          fiber: true,
+          zeppScreenshot: true,
+          autoSleepScreenshot: true,
+        },
+      })
+      renderSettings()
+
+      expect(
+        within(
+          screen.getByRole('toolbar', { name: 'Morning' }),
+        ).getByRole('button', { name: 'Morning note' }),
       ).toHaveAttribute('aria-pressed', 'false')
     })
 

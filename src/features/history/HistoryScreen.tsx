@@ -82,7 +82,8 @@ export function HistoryScreen() {
     if (dateTo !== '' && entry.date > dateTo) return false
     if (
       normalizedSearch !== '' &&
-      !(entry.note ?? '').toLowerCase().includes(normalizedSearch)
+      !(entry.note ?? '').toLowerCase().includes(normalizedSearch) &&
+      !(entry.morningNote ?? '').toLowerCase().includes(normalizedSearch)
     ) {
       return false
     }

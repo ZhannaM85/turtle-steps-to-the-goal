@@ -92,6 +92,20 @@ describe('DayDetail', () => {
     expect(screen.getByText('Thumbs up')).toBeInTheDocument()
   })
 
+  it('shows a morning note when one is logged (#763)', () => {
+    render(
+      <DayDetail
+        entry={makeEntry({
+          morningNote: 'night snack, regretting it',
+        })}
+      />,
+    )
+
+    expect(
+      screen.getByText('night snack, regretting it'),
+    ).toBeInTheDocument()
+  })
+
   it("shows an item's own quantity in grams when recorded, omits it when not (#206)", () => {
     render(
       <DayDetail

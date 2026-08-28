@@ -1893,6 +1893,116 @@ describe('DailyEntryForm', () => {
     })
   })
 
+  describe('morning note (#763)', () => {
+    it('saves a new morning note independently via its own Save button', async () => {
+      const user = userEvent.setup()
+      const onSave = vi.fn()
+      render(
+        <DailyEntryForm
+          date="2026-03-01"
+          existingEntry={null}
+          onSave={onSave}
+        />,
+      )
+
+      await user.type(
+        screen.getByLabelText('Morning note'),
+        'night snack, regretting it',
+      )
+      await user.click(
+        screen.getByRole('button', { name: 'Save morning note' }),
+      )
+
+      expect(onSave).toHaveBeenCalledTimes(1)
+      expect(onSave.mock.calls[0][0].morningNote).toBe(
+        'night snack, regretting it',
+      )
+      expect(screen.getByText('night snack, regretting it')).toBeInTheDocument()
+    })
+
+    it('shows an existing morning note as read-only text with a pencil', async () => {
+      const user = userEvent.setup()
+      const onSave = vi.fn()
+      render(
+        <DailyEntryForm
+          date="2026-03-01"
+          existingEntry={{
+            id: 'e1',
+            date: '2026-03-01',
+            morningNote: 'woke up heavy',
+            createdAt: now,
+            updatedAt: now,
+          }}
+          onSave={onSave}
+        />,
+      )
+
+      expect(screen.getByText('woke up heavy')).toBeInTheDocument()
+      await user.click(
+        screen.getByRole('button', { name: 'Edit morning note' }),
+      )
+      const input = screen.getByLabelText('Morning note')
+      await user.clear(input)
+      await user.type(input, 'updated morning')
+      await user.click(
+        screen.getByRole('button', { name: 'Save morning note' }),
+      )
+
+      expect(onSave.mock.calls[0][0].morningNote).toBe('updated morning')
+      expect(screen.getByText('updated morning')).toBeInTheDocument()
+    })
+
+    it('lets Enter insert a newline instead of saving', async () => {
+      const user = userEvent.setup()
+      const onSave = vi.fn()
+      render(
+        <DailyEntryForm
+          date="2026-03-01"
+          existingEntry={null}
+          onSave={onSave}
+        />,
+      )
+
+      const input = screen.getByLabelText('Morning note')
+      await user.type(input, 'line one{Enter}line two')
+
+      expect(onSave).not.toHaveBeenCalled()
+      expect(input).toHaveValue('line one\nline two')
+    })
+
+    it('discards a typed change and reverts to the saved morning note', async () => {
+      const user = userEvent.setup()
+      const onSave = vi.fn()
+      render(
+        <DailyEntryForm
+          date="2026-03-01"
+          existingEntry={{
+            id: 'e1',
+            date: '2026-03-01',
+            morningNote: 'woke up heavy',
+            createdAt: now,
+            updatedAt: now,
+          }}
+          onSave={onSave}
+        />,
+      )
+
+      await user.click(
+        screen.getByRole('button', { name: 'Edit morning note' }),
+      )
+      const input = screen.getByLabelText('Morning note')
+      await user.clear(input)
+      await user.type(input, 'a change I want to discard')
+      await user.click(
+        screen.getByRole('button', { name: 'Cancel editing morning note' }),
+      )
+
+      expect(onSave).not.toHaveBeenCalled()
+      expect(screen.getByText('woke up heavy')).toBeInTheDocument()
+      expect(screen.queryByLabelText('Morning note')).not.toBeInTheDocument()
+    })
+  })
+
   describe('mood (#237: promoted to its own standalone, always-interactive field)', () => {
     it('saves immediately when a mood is picked, with no separate save step', async () => {
       const user = userEvent.setup()
@@ -1949,13 +2059,14 @@ describe('DailyEntryForm', () => {
       }))
     })
 
-    it('shows Sleep, Steps, Body measurements, Note, and Mood by default; Body composition is opt-in (#528)', () => {
+    it('shows Sleep, Steps, Body measurements, Note, and Mood by default; Body composition and Morning note are opt-in (#528, #763)', () => {
       useTrackedFieldsStore.setState({
         tracked: {
           sleep: true,
           steps: true,
           bodyMeasurements: true,
           note: true,
+          morningNote: false,
           mood: true,
           bodyComposition: false,
           nightEating: true,
@@ -1973,6 +2084,7 @@ describe('DailyEntryForm', () => {
       expect(screen.getByText('Steps')).toBeInTheDocument()
       expect(screen.getByText('Body measurements')).toBeInTheDocument()
       expect(screen.queryByText('Body composition')).not.toBeInTheDocument()
+      expect(screen.queryByText('Morning note')).not.toBeInTheDocument()
       expect(screen.getByText("Day's note")).toBeInTheDocument()
       expect(screen.getByText('Mood today')).toBeInTheDocument()
       expect(screen.getByText('Day totals')).toBeInTheDocument()
@@ -2019,6 +2131,28 @@ describe('DailyEntryForm', () => {
       )
 
       expect(screen.queryByText('Evening entries')).not.toBeInTheDocument()
+    })
+
+    it('shows Morning note once its Settings toggle is turned on (#763)', () => {
+      useTrackedFieldsStore.setState((state) => ({
+        tracked: { ...state.tracked, morningNote: true },
+      }))
+      render(
+        <DailyEntryForm date="2026-03-01" existingEntry={null} onSave={vi.fn()} />,
+      )
+
+      expect(screen.getByText('Morning note')).toBeInTheDocument()
+    })
+
+    it('hides Morning note once its Settings toggle is turned off (#763)', () => {
+      useTrackedFieldsStore.setState((state) => ({
+        tracked: { ...state.tracked, morningNote: false },
+      }))
+      render(
+        <DailyEntryForm date="2026-03-01" existingEntry={null} onSave={vi.fn()} />,
+      )
+
+      expect(screen.queryByText('Morning note')).not.toBeInTheDocument()
     })
 
     it('shows Body composition once its Settings toggle is turned on (#528)', () => {

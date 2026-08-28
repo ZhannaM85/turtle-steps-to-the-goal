@@ -9,7 +9,7 @@ const t = getDictionary('en')
 const DAILY_HEADER =
   'Date,Weight (kg),Calories (kcal),Protein (g),Fat (g),Carbs (g),' +
   'Sleep (h),Deep sleep (h),Steps,Waist (cm),Hip (cm),Body fat (%),' +
-  'Mood,Note,On period,Constipation,Alcohol,Ate late tonight,Water (ml),' +
+  'Mood,Morning note,Note,On period,Constipation,Alcohol,Ate late tonight,Water (ml),' +
   'Muscle (kg),Visceral fat,Body water (%),Bone (kg),Fiber (g),' +
   'Sodium (mg),Potassium (mg),Magnesium (mg)'
 
@@ -39,6 +39,7 @@ const ALL_TRACKED: AnalysisExportTrackingGate = {
   steps: true,
   bodyMeasurements: true,
   note: true,
+  morningNote: true,
   mood: true,
   bodyComposition: true,
   nightEating: true,
@@ -88,7 +89,7 @@ describe('buildDailyLogCsv', () => {
     // #394 — nightEating is blank here (not false): the one logged meal has
     // no timeEaten, so hadNightEating() has no signal to derive from.
     expect(row).toBe(
-      '2026-03-01,79.5,300,10,5,20,7h 0m,1h 30m,8000,80,95,22,Happy,Felt good,true,,,,,,,,,,,,',
+      '2026-03-01,79.5,300,10,5,20,7h 0m,1h 30m,8000,80,95,22,Happy,,Felt good,true,,,,,,,,,,,,',
     )
   })
 
