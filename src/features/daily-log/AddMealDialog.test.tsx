@@ -3,9 +3,9 @@ import { useState } from 'react'
 import { render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import type { CalorieItem, Emotion } from '@/domain/dailyEntry'
+import type { CalorieItem, EatingReason, Emotion } from '@/domain/dailyEntry'
 import { db } from '@/infrastructure/persistence/indexeddb'
-import { useFoodOverrideStore, useMealItemStore, useMealLabelPresetStore, useNutritionFactsStore, useRecipeStore, useAddMealRecentVisibilityStore } from '@/stores'
+import { useFoodOverrideStore, useMealItemStore, useMealLabelPresetStore, useNutritionFactsStore, useRecipeStore, useAddMealRecentVisibilityStore, useEatingReasonTrackingStore } from '@/stores'
 import { AddMealDialog, type AddMealDialogProps } from './AddMealDialog'
 
 // Matches FoodPickerDialog.test.tsx's own reasoning — every test here
@@ -40,6 +40,7 @@ beforeEach(async () => {
   useAddMealRecentVisibilityStore.setState({ recentVisible: true })
   useMealLabelPresetStore.setState({ presets: [] })
   useNutritionFactsStore.setState({ enabled: false })
+  useEatingReasonTrackingStore.setState({ enabled: false })
   localStorage.removeItem('turtle-steps-add-meal-recent-visibility')
 })
 
@@ -58,6 +59,8 @@ type ControlledProps = Omit<
   | 'onAppendItems'
   | 'onRemoveItem'
   | 'onReactionChange'
+  | 'eatingReason'
+  | 'onEatingReasonChange'
   | 'note'
   | 'onNoteChange'
   | 'mealLabel'
@@ -80,6 +83,9 @@ function ControlledAddMealDialog({
 }: ControlledProps) {
   const [items, setItems] = useState<CalorieItem[]>(initialItems ?? [])
   const [reaction, setReaction] = useState<Emotion | undefined>(undefined)
+  const [eatingReason, setEatingReason] = useState<EatingReason | undefined>(
+    undefined,
+  )
   const [note, setNote] = useState('')
   const [mealLabel, setMealLabel] = useState(mealLabelProp)
   return (
@@ -93,6 +99,8 @@ function ControlledAddMealDialog({
       items={items}
       reaction={reaction}
       onReactionChange={setReaction}
+      eatingReason={eatingReason}
+      onEatingReasonChange={setEatingReason}
       note={note}
       onNoteChange={setNote}
       onAppendItems={(newItems) => setItems((prev) => [...prev, ...newItems])}
@@ -537,6 +545,28 @@ describe('AddMealDialog (#454)', () => {
 
     expect(screen.queryByText('Was it tasty?')).not.toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'Done' })).not.toBeInTheDocument()
+  })
+
+  it('hides the why-eating dropdown while tracking is off (#764)', () => {
+    render(<ControlledAddMealDialog {...defaultProps} />)
+
+    expect(
+      screen.queryByLabelText('Why am I eating?'),
+    ).not.toBeInTheDocument()
+  })
+
+  it('shows the why-eating dropdown above search when tracking is on (#764)', async () => {
+    const user = userEvent.setup()
+    useEatingReasonTrackingStore.setState({ enabled: true })
+    render(<ControlledAddMealDialog {...defaultProps} />)
+
+    const select = screen.getByLabelText('Why am I eating?')
+    expect(select).toBeInTheDocument()
+    expect(select.compareDocumentPosition(screen.getByLabelText('Search foods')) &
+      Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+
+    await user.selectOptions(select, 'hunger')
+    expect(select).toHaveValue('hunger')
   })
 
   it('asks before removing an item from the meal so far (#509)', async () => {

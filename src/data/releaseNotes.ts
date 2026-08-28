@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 721,
+    issue: 764,
+    date: '2026-08-28T11:32:00+03:00',
+    en: 'You can optionally mark why you are eating when adding a meal (Settings → What to track). It is off by default.',
+    ru: 'При добавлении приёма пищи можно отметить, почему вы едите (Настройки → Что отслеживать). По умолчанию выключено.',
+  },
+  {
     version: 720,
     issue: 763,
     date: '2026-08-28T11:25:00+03:00',

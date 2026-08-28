@@ -10,7 +10,13 @@ import {
   X,
 } from 'lucide-react'
 import { type FoodItem, type FoodServing, foods } from '@/data/foods'
-import type { CalorieItem, Emotion, MealEmotion } from '@/domain/dailyEntry'
+import {
+  EATING_REASONS,
+  type CalorieItem,
+  type EatingReason,
+  type Emotion,
+  type MealEmotion,
+} from '@/domain/dailyEntry'
 import type { MealItem } from '@/domain/mealItem'
 import {
   evaluateMealNutritionFacts,
@@ -47,6 +53,7 @@ import {
   useNutritionFactsStore,
   useRecipeStore,
   useAddMealRecentVisibilityStore,
+  useEatingReasonTrackingStore,
   useTrackedFieldsStore,
 } from '@/stores'
 import { IndexedDbMealItemRepository } from '@/infrastructure/persistence/indexeddb'
@@ -54,6 +61,7 @@ import { Button } from '@/shared/ui/button'
 import { Dialog, DialogContent, DialogTitle } from '@/shared/ui/dialog'
 import { Input } from '@/shared/ui/input'
 import { Label } from '@/shared/ui/label'
+import { Select } from '@/shared/ui/select'
 import { SectionTitleWithToggle } from '@/shared/ui/section-title-with-toggle'
 import { LogRecipeDialog } from '@/features/recipes'
 import { BarcodeScannerDialog } from './BarcodeScannerDialog'
@@ -251,6 +259,10 @@ export interface AddMealDialogProps {
   items: CalorieItem[]
   reaction: Emotion | undefined
   onReactionChange: (reaction: Emotion | undefined) => void
+  /** #764 — why this meal happened. Optional; only shown when Settings
+   * tracking is on. Can be set before the first food lands. */
+  eatingReason?: EatingReason
+  onEatingReasonChange?: (reason: EatingReason | undefined) => void
   onAppendItems: (items: CalorieItem[]) => void
   onRemoveItem: (itemId: string) => void
   /** #459 — edit-in-place for an already-added item (tap its row in "This
@@ -318,6 +330,8 @@ export function AddMealDialog({
   items,
   reaction,
   onReactionChange,
+  eatingReason,
+  onEatingReasonChange,
   onAppendItems,
   onRemoveItem,
   onUpdateItem,
@@ -329,6 +343,9 @@ export function AddMealDialog({
   const t = useTranslation()
   const locale = useLocale()
   const isOnline = useOnlineStatus()
+  const eatingReasonTrackingEnabled = useEatingReasonTrackingStore(
+    (state) => state.enabled,
+  )
 
   const mealItems = useMealItemStore((state) => state.items)
   const touchMealItem = useMealItemStore((state) => state.touch)
@@ -1427,6 +1444,34 @@ export function AddMealDialog({
               >
                 {t.dailyEntry.repeatMealLabel(mealLabel)}
               </Button>
+            )}
+            {eatingReasonTrackingEnabled && onEatingReasonChange && (
+              <div className="flex flex-col gap-1.5">
+                <Label htmlFor="add-meal-eating-reason">
+                  {t.dailyEntry.eatingReasonFieldLabel}
+                </Label>
+                <Select
+                  id="add-meal-eating-reason"
+                  aria-label={t.dailyEntry.eatingReasonFieldLabel}
+                  className="h-12 text-base"
+                  value={eatingReason ?? ''}
+                  onChange={(e) => {
+                    const next = e.target.value
+                    onEatingReasonChange(
+                      next === '' ? undefined : (next as EatingReason),
+                    )
+                  }}
+                >
+                  <option value="">
+                    {t.dailyEntry.eatingReasonNoneOption}
+                  </option>
+                  {EATING_REASONS.map((reason) => (
+                    <option key={reason} value={reason}>
+                      {t.dailyEntry.eatingReasonLabel(reason)}
+                    </option>
+                  ))}
+                </Select>
+              </div>
             )}
             <div className="relative">
               <Input

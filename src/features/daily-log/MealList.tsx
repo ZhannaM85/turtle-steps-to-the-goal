@@ -7,6 +7,7 @@ import type {
   CalorieItem,
   DailyEntry,
   DayTotals,
+  EatingReason,
   Emotion,
 } from '@/domain/dailyEntry'
 import {
@@ -41,10 +42,22 @@ import {
 } from '@/shared/lib/macroDisplay'
 import { defaultMealLabel, editableMealLabel, effectiveMealLabel, effectiveTimeEaten, sortCalorieEntriesByLoggedTime } from '@/shared/lib/mealLabel'
 import { normalizeTextSpaces } from '@/shared/lib/normalizeTextSpaces'
+import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/ui/button'
 import { useCopyYesterdayMealsStore, useDayStartStore, useMealItemStore, useMealSlotDefaultTimesStore } from '@/stores'
 import { AddMealDialog } from './AddMealDialog'
 import { CopyDayMealsDialog } from './CopyDayMealsDialog'
+
+/** #764 — Day-card dots for why this meal happened (native <select>
+ * cannot style option colors, so the legend lives here only). */
+const EATING_REASON_DOT_CLASS: Record<EatingReason, string> = {
+  hunger: 'bg-green-500',
+  habit: 'bg-yellow-400',
+  craving: 'bg-orange-500',
+  stress: 'bg-blue-500',
+  boredom: 'bg-purple-500',
+  company: 'bg-zinc-300 dark:bg-zinc-500',
+}
 
 // Every curated food's name in either locale (#150) — names an item picked
 // via FoodPickerDialog can carry, distinct from a name the user actually
@@ -230,6 +243,18 @@ function MealListItem({
       {/* #473: one size up from the dish rows below (which stay text-sm),
        * now that the compact macro initials keep it to a single line. */}
       <p className="min-w-0 text-base text-muted-foreground">{calorieSummary}</p>
+      {entry.eatingReason && (
+        <p className="flex min-w-0 items-center gap-1.5 text-sm text-muted-foreground">
+          <span
+            aria-hidden="true"
+            className={cn(
+              'size-2.5 shrink-0 rounded-full',
+              EATING_REASON_DOT_CLASS[entry.eatingReason],
+            )}
+          />
+          <span>{t.dailyEntry.eatingReasonLabel(entry.eatingReason)}</span>
+        </p>
+      )}
       {/* Item sub-list (#81) — a group's individual dishes, shown
        * underneath its own header/note/macro-total lines above. */}
       {/* #545/#555/#559: grid (not flex-col) so Safari gets a definite
@@ -462,6 +487,11 @@ export function MealList({
   const [inProgressMealId, setInProgressMealId] = useState<string | null>(null)
   const [newMealTime, setNewMealTime] = useState(currentTimeHHMM())
   const [newMealNote, setNewMealNote] = useState('')
+  // #764 — seed before the first item creates the entry (same pattern as
+  // newMealNote/newMealTime). Not copied from yesterday: situational.
+  const [newMealEatingReason, setNewMealEatingReason] = useState<
+    EatingReason | undefined
+  >(undefined)
   // #563 — custom label draft before the first item creates the entry
   // (same seed pattern as newMealTime/newMealNote).
   const [newMealLabel, setNewMealLabel] = useState<string | undefined>(
@@ -480,6 +510,7 @@ export function MealList({
     setInProgressMealId(null)
     setNewMealTime(currentTimeHHMM())
     setNewMealNote('')
+    setNewMealEatingReason(undefined)
     setNewMealPosition(calorieEntries.length + 1)
     const previous =
       previousDayEntry?.calorieEntries?.[calorieEntries.length]
@@ -768,6 +799,7 @@ export function MealList({
           label: newMealLabel,
           timeEaten: newMealTime || undefined,
           note: newMealNote.trim() || undefined,
+          eatingReason: newMealEatingReason,
           createdAt: new Date().toISOString(),
         },
       ]
@@ -844,6 +876,18 @@ export function MealList({
       calorieEntries.map((entry) =>
         entry.id === inProgressMealId
           ? { ...entry, note: value.trim() || undefined }
+          : entry,
+      ),
+    )
+  }
+
+  function updateNewMealEatingReason(value: EatingReason | undefined) {
+    setNewMealEatingReason(value)
+    if (!inProgressMealId) return
+    setCalorieEntries(
+      calorieEntries.map((entry) =>
+        entry.id === inProgressMealId
+          ? { ...entry, eatingReason: value }
           : entry,
       ),
     )
@@ -957,6 +1001,11 @@ export function MealList({
       ...editingMealDraft,
       note: value || undefined,
     })
+  }
+
+  function setEditingMealEatingReason(value: EatingReason | undefined) {
+    if (!editingMealDraft) return
+    setEditingMealDraft({ ...editingMealDraft, eatingReason: value })
   }
 
   function updateEditingMealLabel(value: string) {
@@ -1074,6 +1123,8 @@ export function MealList({
           items={editingMeal.items}
           reaction={editingMeal.reaction}
           onReactionChange={setEditingMealReaction}
+          eatingReason={editingMeal.eatingReason}
+          onEatingReasonChange={setEditingMealEatingReason}
           onAppendItems={appendItemsToEditingMeal}
           onRemoveItem={removeItemFromEditingMeal}
           onUpdateItem={updateItemInEditingMeal}
@@ -1155,6 +1206,8 @@ export function MealList({
           items={inProgressMeal?.items ?? []}
           reaction={inProgressMeal?.reaction}
           onReactionChange={setNewMealReaction}
+          eatingReason={inProgressMeal?.eatingReason ?? newMealEatingReason}
+          onEatingReasonChange={updateNewMealEatingReason}
           onAppendItems={appendItemsToNewMeal}
           onRemoveItem={removeItemFromNewMeal}
           onUpdateItem={updateItemInNewMeal}

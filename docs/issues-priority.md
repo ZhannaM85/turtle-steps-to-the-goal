@@ -41,5 +41,5 @@ _Evening already has a day's note; add a matching morning note, opt-in and off b
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#763](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/763) | 🔍 Pending validation | Add morning notes (opt-in, off by default) | Separate field from evening "Day's note". Day screen, after Body composition. Same textarea / save / display+pencil as evening notes. Settings → What to track → Morning group; off by default (Simple and Full stay off, same as Body composition). Hide input when off; already-logged text stays in History/Export. |
-| [#764](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/764) | 📋 Not started | Mark why you are eating (opt-in, off by default) | Per-meal reason dropdown above search on Add meal. Optional. Settings → What to track, off by default. Show on Day meal card under the calorie/macro summary. JSON + Meals CSV/Excel. No Dashboard insights in v1. |
+| [#764](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/764) | 🔍 Pending validation | Mark why you are eating (opt-in, off by default) | Per-meal reason dropdown above search on Add meal. Optional. Settings → What to track, off by default. Show on Day meal card under the calorie/macro summary. JSON + Meals CSV/Excel. No Dashboard insights in v1. |
 

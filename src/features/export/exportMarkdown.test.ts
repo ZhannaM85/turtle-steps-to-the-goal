@@ -17,7 +17,7 @@ const DAILY_SEPARATOR = `| ${Array.from({ length: 28 }, () => '---').join(' | ')
 const MEALS_HEADER =
   '| Date | Meal | Item | Brand | Calories (kcal) | Protein (g) | Fat (g) | Carbs (g) | ' +
   'Fiber (g) | Sodium (mg) | Potassium (mg) | Magnesium (mg) | Grams | Time | ' +
-  'Reaction | Meal reaction | Item note | Note |'
+  'Reaction | Meal reaction | Why eating | Item note | Note |'
 
 function makeEntry(overrides: Partial<DailyEntry> = {}): DailyEntry {
   const now = '2026-03-01T00:00:00.000Z'
@@ -38,7 +38,7 @@ function dailyTable(markdown: string): string {
 describe('buildDailyLogMarkdown', () => {
   it('writes Daily Log and Meals header tables when there are no entries', () => {
     const markdown = buildDailyLogMarkdown([], t)
-    const mealsSeparator = `| ${Array.from({ length: 18 }, () => '---').join(' | ')} |`
+    const mealsSeparator = `| ${Array.from({ length: 19 }, () => '---').join(' | ')} |`
 
     expect(markdown).toBe(
       `${DAILY_HEADER}\n${DAILY_SEPARATOR}\n\n${MEALS_HEADER}\n${mealsSeparator}`,

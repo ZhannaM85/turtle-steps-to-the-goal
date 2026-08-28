@@ -3,10 +3,12 @@ export type {
   CalorieItem,
   DailyEntry,
   DayTotals,
+  EatingReason,
   Emotion,
   MealEmotion,
   WaterEntry,
 } from './DailyEntry'
+export { EATING_REASONS } from './DailyEntry'
 export type { DailyEntryRepository } from './DailyEntryRepository'
 export { totalCalories } from './totalCalories'
 export {

@@ -259,6 +259,20 @@ export const en: Dictionary = {
           : 'Bellissimo',
     itemEmotionLabel: 'Reaction',
     dayMoodLabel: 'Mood today',
+    eatingReasonFieldLabel: 'Why am I eating?',
+    eatingReasonNoneOption: 'Not specified',
+    eatingReasonLabel: (reason) =>
+      reason === 'hunger'
+        ? 'Hunger'
+        : reason === 'habit'
+          ? 'Habit'
+          : reason === 'craving'
+            ? 'Craving a specific food'
+            : reason === 'stress'
+              ? 'Stress / emotions'
+              : reason === 'boredom'
+                ? 'Boredom'
+                : 'Just for company',
     proteinLabel: 'Protein',
     fatLabel: 'Fat',
     carbsLabel: 'Carbs',
@@ -858,6 +872,7 @@ export const en: Dictionary = {
     potassiumColumn: 'Potassium (mg)',
     magnesiumColumn: 'Magnesium (mg)',
     mealReactionColumn: 'Meal reaction',
+    eatingReasonColumn: 'Why eating',
     itemNoteColumn: 'Item note',
     mealColumn: 'Meal',
     itemColumn: 'Item',
@@ -1276,6 +1291,7 @@ export const en: Dictionary = {
     alcoholTrackingLabel: 'Alcohol tracking',
     waterTrackingLabel: 'Water tracking',
     plannedMealsTrackingLabel: 'Planned meals',
+    eatingReasonTrackingLabel: 'Why am I eating?',
     copyYesterdayMealsTrackingLabel: "Copy yesterday's meals",
     trackingPresetLabel: 'Layout preset',
     trackingPresetDescription:

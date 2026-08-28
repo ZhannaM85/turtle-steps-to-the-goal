@@ -1,4 +1,5 @@
 import type { NutritionFactId } from '@/domain/nutritionFacts'
+import type { EatingReason } from '@/domain/dailyEntry'
 import type { Sex } from '@/domain/stats/bodyComposition'
 
 export interface Dictionary {
@@ -456,6 +457,10 @@ export interface Dictionary {
      * ("Thumbs up"), this is the static section heading ("Reaction"). */
     itemEmotionLabel: string
     dayMoodLabel: string
+    /** #764 — why this meal happened; optional. */
+    eatingReasonFieldLabel: string
+    eatingReasonNoneOption: string
+    eatingReasonLabel: (reason: EatingReason) => string
     proteinLabel: string
     fatLabel: string
     carbsLabel: string
@@ -1423,6 +1428,8 @@ export interface Dictionary {
     magnesiumColumn: string
     /** #743 — whole-meal `CalorieEntry.reaction` (#454), distinct from per-item Reaction. */
     mealReactionColumn: string
+    /** #764 — why this meal happened. */
+    eatingReasonColumn: string
     /** #743 — per-item `CalorieItem.noteText`, distinct from the meal note. */
     itemNoteColumn: string
     mealColumn: string
@@ -1957,6 +1964,8 @@ export interface Dictionary {
     /** #626 — opt-in toggle for `PlannedMealsSection.tsx` (#614), same
      * "What to track" card as the other opt-in sections above. */
     plannedMealsTrackingLabel: string
+    /** #764 — opt-in "Why am I eating?" on Add meal. */
+    eatingReasonTrackingLabel: string
     /** #692 — opt-in for Day's "Copy yesterday's meals" control (default off). */
     copyYesterdayMealsTrackingLabel: string
     /** #237: unified "what to track" section — folds cycle/digestion

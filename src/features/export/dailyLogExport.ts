@@ -50,6 +50,7 @@ export interface AnalysisExportTrackingGate {
   sodium: boolean
   potassium: boolean
   magnesium: boolean
+  eatingReason: boolean
 }
 
 export interface MealLogRow {
@@ -69,6 +70,7 @@ export interface MealLogRow {
   time: string | undefined
   reaction: string | undefined
   mealReaction: string | undefined
+  eatingReason: string | undefined
   itemNote: string | undefined
   note: string | undefined
 }
@@ -309,6 +311,11 @@ function mealLogColumns(
       header: t.exportXlsx.mealReactionColumn,
       value: (row) => row.mealReaction,
     },
+    {
+      header: t.exportXlsx.eatingReasonColumn,
+      value: (row) => row.eatingReason,
+      gatedBy: 'eatingReason',
+    },
     { header: t.exportXlsx.itemNoteColumn, value: (row) => row.itemNote },
     { header: t.exportXlsx.noteColumn, value: (row) => row.note },
   ]
@@ -381,6 +388,9 @@ export function mealLogRows(
               item.emotion && t.dailyEntry.mealEmotionLabel(item.emotion),
             mealReaction:
               meal.reaction && t.dailyEntry.emotionLabel(meal.reaction),
+            eatingReason:
+              meal.eatingReason &&
+              t.dailyEntry.eatingReasonLabel(meal.eatingReason),
             itemNote: item.noteText,
             note: meal.note,
           })

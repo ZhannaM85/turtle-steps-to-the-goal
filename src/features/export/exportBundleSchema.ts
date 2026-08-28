@@ -91,6 +91,10 @@ const calorieEntrySchema = z.object({
   // (not mealEmotionSchema, the per-dish one) — same no-version-bump
   // reasoning as every other optional field above.
   reaction: dayEmotionSchema.optional(),
+  // #764 — why this meal happened. Purely additive/optional.
+  eatingReason: z
+    .enum(['hunger', 'habit', 'craving', 'stress', 'boredom', 'company'])
+    .optional(),
 })
 
 // #271: one discrete water/hydration add — replaces v6's single waterMl

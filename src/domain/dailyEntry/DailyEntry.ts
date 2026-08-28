@@ -6,6 +6,24 @@ export type Emotion = 'happy' | 'unhappy' | 'neutral'
  * chef's-kiss "this was amazing" tier above thumbs up). */
 export type MealEmotion = 'thumbsUp' | 'thumbsDown' | 'bellissimo'
 
+/** #764 — why this meal happened. Optional, opt-in in Settings. */
+export type EatingReason =
+  | 'hunger'
+  | 'habit'
+  | 'craving'
+  | 'stress'
+  | 'boredom'
+  | 'company'
+
+export const EATING_REASONS: EatingReason[] = [
+  'hunger',
+  'habit',
+  'craving',
+  'stress',
+  'boredom',
+  'company',
+]
+
 /**
  * One food/dish within a meal (#81) — e.g. "soup", "bread", "cheese" all
  * eaten together at lunch. A meal (`CalorieEntry`) groups 1+ of these;
@@ -83,6 +101,10 @@ export interface CalorieEntry {
    * ambiguity, and its own smiley/neutral/frown framing matches the day
    * mood's icon set, not the per-item thumbs/bellissimo one. */
   reaction?: Emotion
+  /** #764 — why this meal happened (hunger, habit, …). Optional; gated
+   * by Settings → What to track. Distinct from `reaction` (was it tasty)
+   * and from per-item `emotion`. */
+  eatingReason?: EatingReason
 }
 
 /**

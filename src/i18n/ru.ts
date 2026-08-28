@@ -278,6 +278,20 @@ export const ru: Dictionary = {
           : 'Объедение',
     itemEmotionLabel: 'Реакция',
     dayMoodLabel: 'Настроение за день',
+    eatingReasonFieldLabel: 'Почему я сейчас ем?',
+    eatingReasonNoneOption: 'Не указано',
+    eatingReasonLabel: (reason) =>
+      reason === 'hunger'
+        ? 'Голод'
+        : reason === 'habit'
+          ? 'Привычка'
+          : reason === 'craving'
+            ? 'Хочется конкретного продукта'
+            : reason === 'stress'
+              ? 'Стресс / эмоции'
+              : reason === 'boredom'
+                ? 'Скука'
+                : 'Просто за компанию',
     proteinLabel: 'Белки',
     fatLabel: 'Жиры',
     carbsLabel: 'Углеводы',
@@ -889,6 +903,7 @@ export const ru: Dictionary = {
     potassiumColumn: 'Калий (мг)',
     magnesiumColumn: 'Магний (мг)',
     mealReactionColumn: 'Реакция на приём',
+    eatingReasonColumn: 'Почему ем',
     itemNoteColumn: 'Заметка к блюду',
     mealColumn: 'Приём пищи',
     itemColumn: 'Блюдо',
@@ -1313,6 +1328,7 @@ export const ru: Dictionary = {
     alcoholTrackingLabel: 'Отслеживание алкоголя',
     waterTrackingLabel: 'Отслеживание воды',
     plannedMealsTrackingLabel: 'Запланированные приёмы пищи',
+    eatingReasonTrackingLabel: 'Почему я сейчас ем?',
     copyYesterdayMealsTrackingLabel: 'Копировать вчерашние приёмы пищи',
     trackingPresetLabel: 'Пресет макета',
     trackingPresetDescription:

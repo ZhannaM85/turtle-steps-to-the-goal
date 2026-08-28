@@ -15,6 +15,7 @@ import {
   useTrackedFieldsStore,
   useUnitStore,
   useWaterTrackingStore,
+  useEatingReasonTrackingStore,
   useWeekStartStore,
 } from '@/stores'
 import { Button } from '@/shared/ui/button'
@@ -283,6 +284,9 @@ export function ExportSection() {
     (state) => state.enabled,
   )
   const waterTrackingEnabled = useWaterTrackingStore((state) => state.enabled)
+  const eatingReasonTrackingEnabled = useEatingReasonTrackingStore(
+    (state) => state.enabled,
+  )
   const micronutrients = useMicronutrientTrackingStore((state) => state.tracked)
   // #634 — built once so both `gatePdfSectionAvailability` and the
   // `PdfSectionsDialog`'s own disabled-reason tooltip (needs the raw gate,
@@ -318,6 +322,7 @@ export function ExportSection() {
     sodium: micronutrients.sodium,
     potassium: micronutrients.potassium,
     magnesium: micronutrients.magnesium,
+    eatingReason: eatingReasonTrackingEnabled,
   }
   // #624 — a free-form date range (own state, not the shared periodStart/
   // periodEnd above) replaces the original fixed 30/90-day toggle. Unlike

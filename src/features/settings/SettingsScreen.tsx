@@ -26,6 +26,7 @@ import {
   useNutritionFactsStore,
   useEntryComparisonStore,
   usePlannedMealsTrackingStore,
+  useEatingReasonTrackingStore,
   useCopyYesterdayMealsStore,
   useLocalTransferStore,
   useProfileStore,
@@ -122,6 +123,12 @@ export function SettingsScreen() {
   const setPlannedMealsTrackingEnabled = usePlannedMealsTrackingStore(
     (state) => state.setEnabled,
   )
+  const eatingReasonTrackingEnabled = useEatingReasonTrackingStore(
+    (state) => state.enabled,
+  )
+  const setEatingReasonTrackingEnabled = useEatingReasonTrackingStore(
+    (state) => state.setEnabled,
+  )
   const copyYesterdayMealsEnabled = useCopyYesterdayMealsStore(
     (state) => state.enabled,
   )
@@ -150,6 +157,7 @@ export function SettingsScreen() {
     | 'alcohol'
     | 'water'
     | 'plannedMeals'
+    | 'eatingReason'
     | 'copyYesterdayMeals'
   // #528 — same fields as before, grouped to match Day's Morning / Evening
   // blocks (plus Other for toggles that live elsewhere). Weight stays
@@ -174,6 +182,7 @@ export function SettingsScreen() {
     'dayTotals',
     'fiber',
     'plannedMeals',
+    'eatingReason',
     'copyYesterdayMeals',
   ]
   function isFieldTracked(key: UnifiedTrackedKey): boolean {
@@ -182,6 +191,7 @@ export function SettingsScreen() {
     if (key === 'alcohol') return alcoholTrackingEnabled
     if (key === 'water') return waterTrackingEnabled
     if (key === 'plannedMeals') return plannedMealsTrackingEnabled
+    if (key === 'eatingReason') return eatingReasonTrackingEnabled
     if (key === 'copyYesterdayMeals') return copyYesterdayMealsEnabled
     return trackedFields[key]
   }
@@ -191,6 +201,7 @@ export function SettingsScreen() {
     else if (key === 'alcohol') setAlcoholTrackingEnabled(value)
     else if (key === 'water') setWaterTrackingEnabled(value)
     else if (key === 'plannedMeals') setPlannedMealsTrackingEnabled(value)
+    else if (key === 'eatingReason') setEatingReasonTrackingEnabled(value)
     else if (key === 'copyYesterdayMeals') setCopyYesterdayMealsEnabled(value)
     else setTrackedField(key, value)
   }
@@ -769,6 +780,9 @@ export function SettingsScreen() {
               </ToggleGroupItem>
               <ToggleGroupItem value="plannedMeals" className="h-12">
                 {t.settings.plannedMealsTrackingLabel}
+              </ToggleGroupItem>
+              <ToggleGroupItem value="eatingReason" className="h-12">
+                {t.settings.eatingReasonTrackingLabel}
               </ToggleGroupItem>
               <ToggleGroupItem value="copyYesterdayMeals" className="h-12">
                 {t.settings.copyYesterdayMealsTrackingLabel}

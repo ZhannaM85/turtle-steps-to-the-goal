@@ -16,7 +16,7 @@ const DAILY_HEADER =
 const MEALS_HEADER =
   'Date,Meal,Item,Brand,Calories (kcal),Protein (g),Fat (g),Carbs (g),' +
   'Fiber (g),Sodium (mg),Potassium (mg),Magnesium (mg),Grams,Time,' +
-  'Reaction,Meal reaction,Item note,Note'
+  'Reaction,Meal reaction,Why eating,Item note,Note'
 
 function makeEntry(overrides: Partial<DailyEntry> = {}): DailyEntry {
   const now = '2026-03-01T00:00:00.000Z'
@@ -51,6 +51,7 @@ const ALL_TRACKED: AnalysisExportTrackingGate = {
   sodium: true,
   potassium: true,
   magnesium: true,
+  eatingReason: true,
 }
 
 describe('buildDailyLogCsv', () => {
@@ -171,7 +172,7 @@ describe('buildDailyLogCsv', () => {
 
     expect(header).toBe(MEALS_HEADER)
     expect(row).toBe(
-      '2026-03-01,Breakfast,Toast,,150,,,,2,200,,,60,08:00,Thumbs up,Happy,Crispy,Meal note',
+      '2026-03-01,Breakfast,Toast,,150,,,,2,200,,,60,08:00,Thumbs up,Happy,,Crispy,Meal note',
     )
   })
 
@@ -292,6 +293,36 @@ describe('buildDailyLogCsv', () => {
     expect(header).not.toContain('Fiber (g)')
     expect(header).not.toContain('Sodium (mg)')
     expect(row).toContain('Breakfast,Toast,,150')
+  })
+
+  it('exports why-eating on the Meals sheet and omits the column when tracking is off (#764)', () => {
+    const entry = makeEntry({
+      calorieEntries: [
+        {
+          id: 'meal-1',
+          label: 'Breakfast',
+          eatingReason: 'hunger',
+          items: [{ id: 'item-1', name: 'Toast', amountKcal: 150 }],
+          createdAt: '2026-03-01T00:00:00.000Z',
+        },
+      ],
+    })
+    const withColumn = buildDailyLogCsv([entry], t)
+    const [, mealsWith] = withColumn.split('\r\n\r\n')
+    const [headerWith, rowWith] = mealsWith.split('\r\n')
+
+    expect(headerWith).toContain('Why eating')
+    expect(
+      rowWith.split(',')[headerWith.split(',').indexOf('Why eating')],
+    ).toBe('Hunger')
+
+    const withoutColumn = buildDailyLogCsv([entry], t, undefined, {
+      tracking: { ...ALL_TRACKED, eatingReason: false },
+    })
+    const [, mealsWithout] = withoutColumn.split('\r\n\r\n')
+    const [headerWithout] = mealsWithout.split('\r\n')
+
+    expect(headerWithout).not.toContain('Why eating')
   })
 
   it('fills meal Time from the Breakfast slot default when timeEaten is missing (#754)', () => {

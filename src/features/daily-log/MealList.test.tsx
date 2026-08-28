@@ -6,7 +6,7 @@ import { MemoryRouter } from 'react-router-dom'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { CalorieEntry, DailyEntry } from '@/domain/dailyEntry'
 import { db } from '@/infrastructure/persistence/indexeddb'
-import { useCopyYesterdayMealsStore, useDayStartStore, useMealItemStore, useRecipeStore } from '@/stores'
+import { useCopyYesterdayMealsStore, useDayStartStore, useEatingReasonTrackingStore, useMealItemStore, useRecipeStore } from '@/stores'
 import { MealList } from './MealList'
 
 // #301 — a plain `onChange={vi.fn()}` never feeds a save back into
@@ -51,6 +51,7 @@ beforeEach(async () => {
   await db.recipes.clear()
   useMealItemStore.setState({ items: [], status: 'idle', error: null })
   useRecipeStore.setState({ recipes: [], status: 'idle', error: null })
+  useEatingReasonTrackingStore.setState({ enabled: false })
   localStorage.clear()
   // #201 made the add row's default collapsed state depend on whether
   // `date` is in the past relative to the real clock — freeze "now" to
@@ -308,6 +309,30 @@ describe('MealList', () => {
     expect(
       screen.getByText('175 kcal · P 20g · F — · C —'),
     ).toBeInTheDocument()
+  })
+
+  it('shows a logged eating reason under the calorie summary even when tracking is off (#764)', () => {
+    render(
+      <MealList
+        calorieEntries={[
+          {
+            id: 'c1',
+            label: 'Lunch',
+            eatingReason: 'habit',
+            items: [{ id: 'i1', name: 'Skyr', amountKcal: 175, proteinG: 20 }],
+            createdAt: '2026-01-01T00:00:00.000Z',
+          },
+        ]}
+        date="2026-03-01"
+        onChange={vi.fn()}
+      />,
+      { wrapper: MemoryRouter },
+    )
+
+    expect(screen.getByText('Habit')).toBeInTheDocument()
+    expect(
+      screen.queryByLabelText('Why am I eating?'),
+    ).not.toBeInTheDocument()
   })
 
   it('lists meals earliest logged time first (#597)', () => {

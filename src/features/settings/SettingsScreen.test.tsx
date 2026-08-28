@@ -10,6 +10,7 @@ import {
   useDigestionTrackingStore,
   useLastBackupStore,
   usePlannedMealsTrackingStore,
+  useEatingReasonTrackingStore,
   useCopyYesterdayMealsStore,
   useLocalTransferStore,
   useProfileStore,
@@ -43,6 +44,7 @@ beforeEach(() => {
   useDigestionTrackingStore.setState({ enabled: false })
   useWaterTrackingStore.setState({ enabled: false })
   usePlannedMealsTrackingStore.setState({ enabled: false })
+  useEatingReasonTrackingStore.setState({ enabled: false })
   useCopyYesterdayMealsStore.setState({ enabled: false })
   useLocalTransferStore.setState({ enabled: false })
   useMicronutrientTrackingStore.setState({
@@ -81,6 +83,7 @@ afterEach(() => {
   useDigestionTrackingStore.setState({ enabled: false })
   useWaterTrackingStore.setState({ enabled: false })
   usePlannedMealsTrackingStore.setState({ enabled: false })
+  useEatingReasonTrackingStore.setState({ enabled: false })
   useCopyYesterdayMealsStore.setState({ enabled: false })
   useLocalTransferStore.setState({ enabled: false })
   useMicronutrientTrackingStore.setState({
@@ -411,6 +414,21 @@ describe('SettingsScreen', () => {
 
       expect(plannedMealsToggle).toHaveAttribute('aria-pressed', 'true')
       expect(usePlannedMealsTrackingStore.getState().enabled).toBe(true)
+    })
+
+    it('defaults why-eating tracking to off, and switches it on when selected (#764)', async () => {
+      const user = userEvent.setup()
+      renderSettings()
+
+      const eatingReasonToggle = screen.getByRole('button', {
+        name: 'Why am I eating?',
+      })
+      expect(eatingReasonToggle).toHaveAttribute('aria-pressed', 'false')
+
+      await user.click(eatingReasonToggle)
+
+      expect(eatingReasonToggle).toHaveAttribute('aria-pressed', 'true')
+      expect(useEatingReasonTrackingStore.getState().enabled).toBe(true)
     })
 
     it("defaults copy-yesterday-meals to off, and switches it on when selected (#692)", async () => {
