@@ -14,7 +14,6 @@ _AutoSleep Today deep sleep (z-icon vs star), Zepp goals screenshot body composi
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#772](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/772) | 🔍 Pending validation | AutoSleep Sleep Rating: use z-icon duration as deep sleep, not star/quality | Sleep Rating legend is icon-only (moon / star / z / heart). Parser already skips the word “quality”, but this screen has no words — star `Xh Ym` can become deep. Unlabeled leftover ≥ 4h is not deep sleep; if the z duration is missing from OCR, deep stays empty. Sister: #771. |
 | [#773](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/773) | 🔍 Pending validation | Zepp goals screenshot: muscle mass filled with BMI, not Мышцы (order changes by goal status) | On-device 2026-08-29: muscle 26,3 кг (= ИМТ) instead of Мышцы 56,88 кг; visceral 12 vs 14. Label map still first (`мышц` → muscle). Unlabeled fallback prefers the largest kg, skips BMI-like 18–35 without a unit, and ignores “N элементов / достигнуто N”. Follow-up to #742/#757. |
 | [#774](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/774) | 🔍 Pending validation | Allow multi-select for Why am I eating? | On-device 2026-08-29: dropdown is single-select. Want Hunger + Loneliness (etc.) on the same meal. Follow-up to #764. Picker stays open for several picks; «Не указано» clears. `eatingReasons[]` when 2+; `eatingReason` stays the first pick so old meals/backups still work. |
 

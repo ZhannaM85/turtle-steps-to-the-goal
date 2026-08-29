@@ -389,3 +389,4 @@ _AutoSleep Today deep sleep (z-icon vs star), Zepp goals screenshot body composi
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#771](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/771) | ✅ Done | AutoSleep Today screenshot fill: deep sleep 7h 10m instead of 45 minutes (z icon) | Confirmed on-device 2026-08-29 — Today screenshot fills the short z-icon deep-sleep time, not the star/quality hours. |
+| [#772](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/772) | ✅ Done | AutoSleep Sleep Rating: use z-icon duration as deep sleep, not star/quality | Confirmed on-device 2026-08-29 — Sleep Rating uses the z-icon duration as deep sleep, not the star/quality hours. |
