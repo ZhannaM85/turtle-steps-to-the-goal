@@ -162,4 +162,36 @@ SLEEP BANK @®3h10m
       date: '2026-08-27',
     })
   })
+
+  it('reads Deep 0h 45m from Sleep Rating, not star 7h 10m (#771)', () => {
+    const text = `
+FRIDAY 28 > SATURDAY 29
+9h 22m
+Sleep Efficiency: 93%.
+AWAKE LIGHT STILL DEEP
+23:42 - 09:45
+Time Asleep Sleep Rating
+TODAY 9h 22m
+9h 22m 7h 10m 0h 45m
+73
+`
+    expect(parseAutoSleepText(text, '2026-08-29')).toEqual({
+      sleepHours: 9.37,
+      deepSleepHours: 0.75,
+      date: '2026-08-29',
+    })
+  })
+
+  it('does not take hypnogram DEEP glued to 7h 10m as deep sleep (#771)', () => {
+    const text = `
+SATURDAY 29
+DEEP 7h 10m
+9h 22m
+0h 45m
+`
+    expect(parseAutoSleepText(text, '2026-08-29')).toMatchObject({
+      sleepHours: 9.37,
+      deepSleepHours: 0.75,
+    })
+  })
 })

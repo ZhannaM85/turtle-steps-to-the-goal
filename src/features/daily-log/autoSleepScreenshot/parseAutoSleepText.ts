@@ -181,6 +181,15 @@ function asleepBeforeNextDayChip(
 }
 
 /**
+ * Sleep Rating star/quality is often 6–8h. Hypnogram Y-axis `DEEP` can
+ * glue onto that duration. Real deep sleep (z icon) is the short one.
+ * Same 4h cap as lastShortClockDuration (#762, #771).
+ */
+function isPlausibleDeepHours(hours: number): boolean {
+  return hours < 4
+}
+
+/**
  * Deep tile H:MM after invert+threshold (no "DEEP SLEEP" label). Last
  * duration under 4h, skipping `00:xx` in-bed.
  */
@@ -268,11 +277,6 @@ export function parseAutoSleepText(
     }
   }
 
-  const deep = kept.find((item) => /deep/i.test(item.line))
-  if (deep && reading.deepSleepHours === undefined) {
-    reading.deepSleepHours = deep.hours
-  }
-
   const labeledSleep = kept.find(
     (item) =>
       /(?:^|\b)(?:sleep|asleep|today)(?:\b|$)/i.test(item.line) &&
@@ -283,12 +287,18 @@ export function parseAutoSleepText(
   }
 
   if (reading.sleepHours === undefined) {
-    const remaining = kept
-      .map((item) => item.hours)
-      .filter((hours) => hours !== reading.deepSleepHours)
+    const remaining = kept.map((item) => item.hours)
     if (remaining.length > 0) {
       reading.sleepHours = Math.max(...remaining)
     }
+  }
+
+  // Do not take hypnogram `DEEP` + star/quality `7h 10m` as deep (#771).
+  const labeledDeep = kept.find(
+    (item) => /deep/i.test(item.line) && isPlausibleDeepHours(item.hours),
+  )
+  if (labeledDeep && reading.deepSleepHours === undefined) {
+    reading.deepSleepHours = labeledDeep.hours
   }
 
   if (reading.deepSleepHours === undefined && reading.sleepHours !== undefined) {

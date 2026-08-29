@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 728,
+    issue: 771,
+    date: '2026-08-29T13:05:00+03:00',
+    en: 'AutoSleep screenshot fill uses the short deep-sleep time (z icon), not the longer quality hours next to the star.',
+    ru: 'Заполнение из скриншота AutoSleep берёт короткий глубокий сон (значок z), а не долгие часы качества у звезды.',
+  },
+  {
     version: 727,
     issue: 770,
     date: '2026-08-28T22:40:00+03:00',
