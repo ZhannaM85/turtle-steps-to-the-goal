@@ -15,6 +15,7 @@ _AutoSleep Today screenshot fill: deep sleep wrong again (Sleep Rating z-icon vs
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#771](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/771) | 📋 Not started | AutoSleep Today screenshot fill: deep sleep 7h 10m instead of 45 minutes (z icon) | On-device 2026-08-29: total sleep 9h 22m correct; confirm dialog deep sleep 7h 10m (star / quality) instead of 0h 45m (circled z). Follow-up to #762. Sister: #772. |
+| [#772](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/772) | 📋 Not started | AutoSleep Sleep Rating: use z-icon duration as deep sleep, not star/quality | Sleep Rating legend is icon-only (moon / star / z / heart). Parser already skips the word “quality”, but this screen has no words — star `Xh Ym` can become deep. Durable rule: shortest of the three legend durations = deep; never substitute quality if z is missing from OCR. Sister: #771. |
 
 ---
 
