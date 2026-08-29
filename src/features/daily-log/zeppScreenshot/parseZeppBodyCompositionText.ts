@@ -116,6 +116,10 @@ const SKIP_LINE_RE =
 /** Section chrome on the English goals screen (#757) — not a metric. */
 const ATTENTION_COUNT_RE = /\d+\s+items?\s+needs?\s+your\s+attention/i
 
+/** Russian goals headers: "6 элементов не достигли цели" / "Достигнуто 2 цели" (#773). */
+const GOAL_COUNT_RE =
+  /\d+\s+элемент\w*|(?:достигнут[оае]|reached)\s+\d+|\d+\s+цел\w*/gi
+
 const NUMBER_RE = /(\d{1,3}(?:[.,]\d{1,2})?)\s*(%|％|kg|кг)?/gi
 
 function parseDecimal(raw: string): number | undefined {
@@ -179,9 +183,11 @@ function numbersOn(line: string): { value: number; unit: string | undefined }[] 
   // #757 — clock times, "1 item needs your attention", and BMI/body-age
   // must not be read as the five tracked fields (especially when OCR
   // concatenates the goals screen into one line that also contains BMI).
+  GOAL_COUNT_RE.lastIndex = 0
   const stripped = line
     .replace(/\b\d{1,2}:\d{2}\b/g, ' ')
     .replace(ATTENTION_COUNT_RE, ' ')
+    .replace(GOAL_COUNT_RE, ' ')
     .replace(
       /\b(?:bmi|имт|body\s*age|возраст\s*тела|индекс\s*массы)\s*[\d.,]+/gi,
       ' ',
@@ -280,7 +286,7 @@ function isGoalsHeaderWithoutMeasurement(line: string): boolean {
 
 /**
  * When labels OCR poorly, classify leftover numbers by unit + typical range.
- * Zepp's list order is BMI, fat %, muscle kg, water %, visceral, bone kg.
+ * Do not assume Zepp row order — unmet vs met goals reorders the list (#773).
  */
 function textForUnlabeled(text: string): string {
   return text
@@ -339,12 +345,23 @@ function fillFromUnlabeledFallback(
     }
   }
   if (reading.muscleMassKg === undefined) {
-    const muscle = all.find((c) => {
-      if (c.value < 15 || c.value > 80 || used.has(c.value)) return false
-      if (c.unit === 'kg') return true
-      // OCR often drops "кг"; still take a non-integer in the muscle band.
-      return c.unit === undefined && !Number.isInteger(c.value)
-    })
+    // Prefer kg, then the largest leftover — first-in-range was BMI 26.3
+    // when Мышцы 56.88 kg sat in a later "reached goals" block (#773).
+    const inBand = all.filter(
+      (c) => c.value >= 15 && c.value <= 80 && !used.has(c.value),
+    )
+    const withKg = inBand.filter((c) => c.unit === 'kg')
+    const unlabeled = inBand.filter(
+      (c) =>
+        c.unit === undefined &&
+        !Number.isInteger(c.value) &&
+        (c.value < 18 || c.value > 35),
+    )
+    const pool = withKg.length > 0 ? withKg : unlabeled
+    const muscle =
+      pool.length === 0
+        ? undefined
+        : pool.reduce((best, c) => (c.value > best.value ? c : best))
     if (muscle) {
       reading.muscleMassKg = muscle.value
       used.add(muscle.value)

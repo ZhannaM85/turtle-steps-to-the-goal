@@ -61,6 +61,21 @@ const TURTLE_STEPS_RU = `
 %
 `
 
+const ZEPP_RU_GOALS_UNMET_FIRST = `
+Антон Мышковский
+29 августа в 11:43
+6 элементов не достигли цели
+ИМТ 26,3 Выше среднего
+Жир 28,0 % Высокий
+Вода 49,3 % Недостаточный
+Основной обмен 1 541 ккал
+Висцеральный жир 14 Выше среднего
+Костная масса 3,05 кг Недостаточный
+Достигнуто 2 цели
+Мышцы 56,88 кг Нормальный
+Белок 18,9 % Отличный
+`
+
 const ZEPP_RU_GOALS = `
 Антон Мышковский
 17 августа в 11:30
@@ -148,6 +163,45 @@ describe('parseZeppBodyCompositionText', () => {
       boneMassKg: 3.03,
       date: '2026-08-17',
     })
+  })
+
+  it('maps Мышцы to muscle mass when unmet/met sections reorder the list (#773)', () => {
+    expect(
+      parseZeppBodyCompositionText(ZEPP_RU_GOALS_UNMET_FIRST, '2026-08-29'),
+    ).toEqual({
+      bodyFatPercent: 28,
+      muscleMassKg: 56.88,
+      bodyWaterPercent: 49.3,
+      visceralFatRating: 14,
+      boneMassKg: 3.05,
+      date: '2026-08-29',
+    })
+  })
+
+  it('does not take unlabeled BMI 26.3 as muscle when Мышцы kg comes later (#773)', () => {
+    const text = `
+29 августа
+26,3
+Жир 28,0 %
+Вода 49,3 %
+Висцеральный жир 14
+Костная масса 3,05 кг
+56,88 кг
+`
+    expect(parseZeppBodyCompositionText(text, '2026-08-29')).toMatchObject({
+      bodyFatPercent: 28,
+      muscleMassKg: 56.88,
+      bodyWaterPercent: 49.3,
+      visceralFatRating: 14,
+      boneMassKg: 3.05,
+    })
+  })
+
+  it('leaves muscle empty rather than filling unlabeled BMI (#773)', () => {
+    const text = '29 августа\n26,3\nЖир 28,0 %\nВода 49,3 %\nВисцеральный жир 14\nКостная масса 3,05 кг'
+    const reading = parseZeppBodyCompositionText(text, '2026-08-29')
+    expect(reading.muscleMassKg).toBeUndefined()
+    expect(reading.bodyFatPercent).toBe(28)
   })
 
   it('keeps kg readings glued onto цели headers when labels OCR poorly (#747)', () => {

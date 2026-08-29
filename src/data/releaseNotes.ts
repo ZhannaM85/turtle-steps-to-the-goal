@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 730,
+    issue: 773,
+    date: '2026-08-29T13:20:00+03:00',
+    en: 'Zepp screenshot fill maps muscle mass from the Мышцы line even when that row sits under “goals reached,” and no longer treats BMI as muscle.',
+    ru: 'Заполнение из скриншота Zepp берёт мышечную массу из строки «Мышцы», даже если она в блоке достигнутых целей, и больше не путает её с ИМТ.',
+  },
+  {
     version: 729,
     issue: 772,
     date: '2026-08-29T13:12:00+03:00',
