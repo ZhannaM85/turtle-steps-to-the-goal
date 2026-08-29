@@ -1,9 +1,13 @@
-/** Dark AutoSleep History tiles: invert + threshold so Tesseract can read H:MM (#758). */
+/** Dark AutoSleep screens: invert so light text becomes dark for Tesseract (#758). */
 const DARK_MEAN_LUMA = 110
-const INVERTED_BLACK_MAX = 90
 
-/** Cap the long edge so one Tesseract pass is not a full-resolution phone screenshot (#761). */
-export const OCR_MAX_EDGE = 800
+/**
+ * Cap the long edge so one Tesseract pass is not a full-resolution phone
+ * screenshot (#761). 800px plus a hard B/W threshold wiped Sleep Rating
+ * z-icon `0h 45m` (`SLEEP BANK @0h45m` → `O0h asm`). 1600 keeps that
+ * short duration readable without a second OCR pass (#771).
+ */
+export const OCR_MAX_EDGE = 1600
 
 export function meanLuma(rgba: Uint8ClampedArray): number {
   let sum = 0
@@ -19,11 +23,14 @@ export function shouldInvertForOcr(rgba: Uint8ClampedArray): boolean {
   return meanLuma(rgba) < DARK_MEAN_LUMA
 }
 
-/** In-place: grayscale invert, then black/white at `INVERTED_BLACK_MAX`. */
+/**
+ * In-place grayscale invert. Do not hard-threshold: mid-gray z-icon
+ * `0h 45m` becomes white and disappears (#771).
+ */
 export function applyDarkScreenshotOcrFilter(rgba: Uint8ClampedArray): void {
   for (let i = 0; i < rgba.length; i += 4) {
     const y = 0.299 * rgba[i]! + 0.587 * rgba[i + 1]! + 0.114 * rgba[i + 2]!
-    const v = 255 - y < INVERTED_BLACK_MAX ? 0 : 255
+    const v = Math.round(255 - y)
     rgba[i] = v
     rgba[i + 1] = v
     rgba[i + 2] = v
@@ -44,7 +51,7 @@ export function ocrCanvasSize(
 }
 
 /**
- * One AutoSleep OCR input: downscale, and invert+threshold when the shot is dark.
+ * One AutoSleep OCR input: downscale, and invert when the shot is dark.
  * Canvas / bitmap failures return the original so we still OCR once (#761).
  */
 export async function prepareAutoSleepScreenshotForOcr(

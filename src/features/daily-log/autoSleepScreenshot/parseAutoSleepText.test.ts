@@ -209,6 +209,46 @@ TODAY 9h 22m
     })
   })
 
+  it('reads z-icon 0h 45m glued onto SLEEP BANK from Today OCR (#771)', () => {
+    // Real eng Tesseract text (grayscale invert, no hard threshold): the
+    // circled-z duration sits on Time Asleep's SLEEP BANK line, not on
+    // Sleep Rating (`9h22m 7h10m`). Hard threshold turned this into
+    // `O0h asm` / `oh4sm` and deep stayed empty.
+    const text = `
+09:59 ure
+FRIDAY 28 > SATURDAY 29
+9h 22m G
+Sleep Efficiency: 93%.
+Sleep Session
+AWAKE LJ
+DEEP u t
+23:42 - 09:45 € 9:22 / 10:03
+Time Asleep Sleep Rating
+TODAY © 9h 22m
+9h22m *& 7h10m
+SLEEP BANK @0h45m
+0,6% debt OE
+`
+    expect(parseAutoSleepText(text, '2026-08-29')).toEqual({
+      sleepHours: 9.37,
+      deepSleepHours: 0.75,
+      date: '2026-08-29',
+    })
+  })
+
+  it('reads Oh45m when Tesseract turns the leading 0 into O (#771)', () => {
+    const text = `
+SATURDAY 29
+TODAY 9h 22m
+9h22m 7h10m
+SLEEP BANK Oh45m
+`
+    expect(parseAutoSleepText(text, '2026-08-29')).toMatchObject({
+      sleepHours: 9.37,
+      deepSleepHours: 0.75,
+    })
+  })
+
   it('leaves deep empty when Sleep Rating has no z-icon duration (#772)', () => {
     const text = `
 SATURDAY 29

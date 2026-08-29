@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 732,
+    issue: 771,
+    date: '2026-08-29T14:10:00+03:00',
+    en: 'AutoSleep screenshot fill keeps the small deep-sleep time (for example 45 minutes) readable instead of leaving deep sleep blank.',
+    ru: 'Заполнение из скриншота AutoSleep больше не теряет короткое время глубокого сна (например 45 минут) и не оставляет это поле пустым.',
+  },
+  {
     version: 731,
     issue: 771,
     date: '2026-08-29T13:40:00+03:00',

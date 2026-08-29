@@ -8,7 +8,7 @@ import {
   shouldInvertForOcr,
 } from './prepareScreenshotForOcr'
 
-describe('prepareScreenshotForOcr (#758, #761)', () => {
+describe('prepareScreenshotForOcr (#758, #761, #771)', () => {
   it('treats a dark pixel as needing invert', () => {
     const rgba = new Uint8ClampedArray([20, 20, 20, 255])
     expect(meanLuma(rgba)).toBeLessThan(110)
@@ -20,11 +20,11 @@ describe('prepareScreenshotForOcr (#758, #761)', () => {
     expect(shouldInvertForOcr(rgba)).toBe(false)
   })
 
-  it('inverts a dark background so light text becomes black', () => {
+  it('inverts a dark background so light text becomes dark gray', () => {
     const rgba = new Uint8ClampedArray([30, 30, 30, 255, 250, 250, 250, 255])
     applyDarkScreenshotOcrFilter(rgba)
-    expect([...rgba.slice(0, 3)]).toEqual([255, 255, 255])
-    expect([...rgba.slice(4, 7)]).toEqual([0, 0, 0])
+    expect([...rgba.slice(0, 3)]).toEqual([225, 225, 225])
+    expect([...rgba.slice(4, 7)]).toEqual([5, 5, 5])
   })
 
   it('keeps a screenshot already within the OCR max edge', () => {

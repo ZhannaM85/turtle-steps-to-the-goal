@@ -239,6 +239,8 @@ export function parseAutoSleepText(
   asOfDate: string,
 ): AutoSleepReading {
   const reading: AutoSleepReading = {}
+  // Tesseract often reads the 0 in z-icon `0h 45m` as O (`Oh45m`).
+  text = text.replace(/\b[oO](?=\s*h\s*\d{1,2}\s*m)/g, '0')
   const date = parseWakeDate(text.replace(/\u00a0/g, ' '), asOfDate)
   if (date) reading.date = date
 
