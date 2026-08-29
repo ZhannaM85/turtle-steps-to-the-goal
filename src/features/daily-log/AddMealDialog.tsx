@@ -1223,11 +1223,10 @@ export function AddMealDialog({
   // #508 — whole-meal delete (#459) used to be a trash icon in the header,
   // one tap away from Close; a destructive action must not sit next to
   // dismiss. It's a quiet labelled secondary at the end of the body now,
-  // by the sticky Done footer, with #459's two-step confirm unchanged.
+  // above the Done footer (#775), with #459's two-step confirm unchanged.
   // Like `mealNoteField` above it renders in one of two mutually exclusive
-  // spots, because the sticky footer only exists once the meal has an item.
-  // Only meaningful while editing an already-saved meal (MealList's #461
-  // overlay) — the in-progress "new meal" flow leaves onDeleteMeal
+  // spots. Only meaningful while editing an already-saved meal (MealList's
+  // #461 overlay) — the in-progress "new meal" flow leaves onDeleteMeal
   // undefined.
   const deleteMealSection =
     onDeleteMeal && mealPosition !== undefined ? (
@@ -1277,14 +1276,12 @@ export function AddMealDialog({
         // time row to h-12 to match the dish sheet, but Close is not the
         // time widget and should not grow with it.
         closeClassName="top-[calc(env(safe-area-inset-top)+1.25rem)] size-9 [&_svg]:size-5"
-        // #459 sticky footer — confirmed live via devtools that the real
-        // bleed-through cause was DialogContent's own bottom safe-area
-        // padding: `sticky bottom-0` sticks to the *padding* edge of the
-        // scrolling container, so that padding strip stayed below the
-        // stuck footer, and scrolled content was still visible flowing
-        // through it. Zeroed here (this dialog only, via the merged
-        // className) to remove that gap entirely.
-        className="pb-0"
+        // #775 — do not use `sticky` for Done: it does not pin inside this
+        // `fixed` + `overflow-y-auto` DialogContent (same as #280 on the
+        // dish sheet). Flex column + inner scroll, footer `shrink-0`.
+        // `pb-0` still cancels fullscreen bottom safe-area so the footer
+        // can own that inset itself.
+        className="flex flex-col overflow-hidden pb-0"
         onOpenAutoFocus={(event) => {
           // #487 — Radix FocusScope otherwise focuses the header
           // `type="time"` input on open, which presents the native time
@@ -1292,6 +1289,7 @@ export function AddMealDialog({
           event.preventDefault()
         }}
       >
+        <div className="min-h-0 flex-1 overflow-y-auto">
         <div className="flex flex-col gap-2 pr-10">
           <Label htmlFor="add-meal-name">{t.dailyEntry.mealLabelFieldLabel}</Label>
           <div className="flex items-center justify-between gap-2">
@@ -1753,14 +1751,13 @@ export function AddMealDialog({
                     ))}
                   </div>
                 )}
-                {/* pb-20 (reported live) — clears space for the sticky
-                 * Done bar below, so it never overlaps/covers these
-                 * reaction buttons once scrolled all the way down.
-                 * #480 (2nd pass) — meal note lives here with the
+                {/* #480 (2nd pass) — meal note lives here with the
                  * reaction block (above Done), not under the quick-
                  * action cards. Placeholder is meal-aware copy, not
-                 * the reaction's "Was it tasty?" wording. */}
-                <div className="flex flex-col gap-3 pt-2 pb-20">
+                 * the reaction's "Was it tasty?" wording.
+                 * #775 — Done is a flex footer below this scroll region,
+                 * so the old pb-20 sticky clearance is not needed. */}
+                <div className="flex flex-col gap-3 pt-2 pb-4">
                   <span className="text-sm text-muted-foreground">
                     {t.dailyEntry.wasItTastyLabel}
                   </span>
@@ -1775,58 +1772,47 @@ export function AddMealDialog({
                   />
                   {mealNoteField}
                   {/* #508 — whole-meal delete lives down here, well away
-                   * from the header's Close. It has to be *inside* this
-                   * pb-20 block, not between it and the footer: with short
-                   * content the page doesn't scroll, so the sticky Done bar
-                   * covers anything that flows into that last strip (seen
-                   * live — the button was invisible under it). */}
+                   * from the header's Close. #775's flex footer sits below
+                   * the scroll region, so this no longer has to hide under
+                   * a sticky strip. */}
                   {deleteMealSection}
                 </div>
                   </>
                 )}
                 {items.length === 0 && showDoneWhenEmpty && (
-                  <div className="flex flex-col gap-3 pb-20">
+                  <div className="flex flex-col gap-3 pb-4">
                     {deleteMealSection}
                   </div>
                 )}
-                {/* Sticky footer (reported live — the button was scrolled
-                 * out of view under a long enough item/Recent list). The
-                 * bleed-through bug traced to DialogContent's own bottom
-                 * padding (zeroed via its className prop above, see that
-                 * comment) — *this* div's own pb is safe to use for visual
-                 * clearance below the button, since it's this opaque box's
-                 * own interior space, not a gap the scrolled content can
-                 * show through. */}
-                {/* #481 — DialogContent is edge-to-edge with safe-area in
-                 * its own padding; this dialog zeros that bottom padding
-                 * (`pb-0` above) so sticky sticks to the true viewport
-                 * edge, so the safe-area clearance has to live here. */}
-                <div className="sticky bottom-0 border-t border-border bg-card pt-3 pb-[calc(env(safe-area-inset-bottom)+0.75rem)]">
-                  <Button
-                    type="button"
-                    size="xl"
-                    className="w-full"
-                    onClick={() => {
-                      // #491 — Done confirms keep; X / escape only call
-                      // onOpenChange(false), which MealList treats as discard
-                      // for an in-progress new meal. #509 — edit Done
-                      // flushes the draft the same way.
-                      onDone?.()
-                      onOpenChange(false)
-                    }}
-                  >
-                    {t.dailyEntry.doneAddingMealButton}
-                  </Button>
-                </div>
               </div>
             )}
             {/* #508 — an emptied saved meal has no "meal so far" block and
-             * therefore no sticky footer, so delete has to render here to
+             * therefore no Done footer, so delete has to render here to
              * stay reachable at all — only when #509's edit empty-Done
              * path isn't already showing it above. */}
             {items.length === 0 && !showDoneWhenEmpty && deleteMealSection}
           </div>
         </div>
+        </div>
+        {(items.length > 0 || showDoneWhenEmpty) && (
+          <div className="shrink-0 border-t border-border bg-card pt-3 pb-[calc(env(safe-area-inset-bottom)+0.75rem)]">
+            <Button
+              type="button"
+              size="xl"
+              className="w-full"
+              onClick={() => {
+                // #491 — Done confirms keep; X / escape only call
+                // onOpenChange(false), which MealList treats as discard
+                // for an in-progress new meal. #509 — edit Done
+                // flushes the draft the same way.
+                onDone?.()
+                onOpenChange(false)
+              }}
+            >
+              {t.dailyEntry.doneAddingMealButton}
+            </Button>
+          </div>
+        )}
 
         {isRepeatOpen && previousMeal && (
           <RepeatMealDialog

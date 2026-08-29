@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 735,
+    issue: 775,
+    date: '2026-08-29T15:00:00+03:00',
+    en: 'The Done button on meal editing stays fully visible at the bottom — you no longer have to scroll to see all of it.',
+    ru: 'Кнопка «Готово» при редактировании приёма пищи полностью видна снизу — больше не нужно прокручивать, чтобы увидеть её целиком.',
+  },
+  {
     version: 734,
     issue: 773,
     date: '2026-08-29T14:50:00+03:00',

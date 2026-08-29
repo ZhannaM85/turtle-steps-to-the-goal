@@ -248,7 +248,7 @@ describe('AddMealDialog (#454)', () => {
         />,
       )
 
-      // No items means no "meal so far" block and so no sticky Done footer
+      // No items means no "meal so far" block and so no Done footer
       // to sit above — the control has to render in the browse body instead.
       expect(
         screen.getByRole('button', { name: 'Delete meal 1' }),
@@ -1056,6 +1056,23 @@ describe('AddMealDialog (#454)', () => {
     const done = screen.getByRole('button', { name: 'Done' })
     expect(done).toHaveClass('h-12')
     expect(done).not.toHaveClass('h-8')
+  })
+
+  it('pins Done in a flex footer instead of sticky inside the scroll (#775)', () => {
+    render(
+      <AddMealDialog
+        {...defaultProps}
+        items={[{ id: 'i1', amountKcal: 200 }]}
+        reaction={undefined}
+        onReactionChange={vi.fn()}
+        onAppendItems={vi.fn()}
+        onRemoveItem={vi.fn()}
+      />,
+    )
+
+    const done = screen.getByRole('button', { name: 'Done' })
+    expect(done.parentElement).toHaveClass('shrink-0')
+    expect(done.parentElement).not.toHaveClass('sticky')
   })
 
   it('matches dish-sheet 48px height on meal name, time, and note (#730)', () => {
