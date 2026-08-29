@@ -379,3 +379,13 @@ _Evening already has a day's note; add a matching morning note, opt-in and off b
 | [#768](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/768) | ✅ Done | Settings: show a save icon while editing an eating reason | Confirmed on-device 2026-08-28 — Check while editing; tap commits and returns the row to view mode. |
 | [#769](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/769) | ✅ Done | Add HALT eating reasons (Hungry, Angry, Lonely, Tired) | Confirmed on-device 2026-08-28 — Hungry is existing Hunger; added Angry, Lonely, Tired. |
 | [#770](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/770) | ✅ Done | Settings: put Why am I eating and Your reasons in one block | Confirmed on-device 2026-08-29 — toggle + reasons in one block; list scrolls. |
+
+---
+
+## Tier 146 — Live feedback (2026-08-29)
+
+_AutoSleep Today deep sleep (z-icon vs star), Zepp goals screenshot body composition, and Why-am-I-eating multi-select._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#771](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/771) | ✅ Done | AutoSleep Today screenshot fill: deep sleep 7h 10m instead of 45 minutes (z icon) | Confirmed on-device 2026-08-29 — Today screenshot fills the short z-icon deep-sleep time, not the star/quality hours. |
