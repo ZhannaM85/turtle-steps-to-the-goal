@@ -8,6 +8,16 @@ Work top-to-bottom within each tier; dependencies are noted where order matters.
 
 ---
 
+## Tier 146 — Live feedback (2026-08-29)
+
+_AutoSleep Today screenshot fill: deep sleep wrong again (Sleep Rating z-icon vs star/quality)._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#771](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/771) | 📋 Not started | AutoSleep Today screenshot fill: deep sleep 7h 10m instead of 45 minutes (z icon) | On-device 2026-08-29: total sleep 9h 22m correct; confirm dialog deep sleep 7h 10m (star / quality) instead of 0h 45m (circled z). Follow-up to #762. Sister: #772. |
+
+---
+
 ## Tier 36 — iOS/Android native app store release (2026-07-23)
 
 _The next big initiative, at the user's request: ship this PWA as installable native apps on the App Store and Play Store. Structured as one epic plus 14 focused child issues rather than a single giant checklist, matching how the rest of this repo's backlog works. Recommended approach (Capacitor, wrapping the existing Vite build rather than a rewrite) is documented in the epic; not yet implemented, filed for planning/sequencing only. **Reordered Android-first** (2026-07-23, at the user's request) — no developer accounts exist yet and the user is on Windows; iOS specifically requires a Mac to build/sign/submit (no way around it, Capacitor included), while Android needs only Android Studio (free, runs on Windows) and a one-time $25 fee vs. Apple's recurring $99/year. Getting-started checklist (accounts, tools, what to expect) saved outside this repo at `C:\Users\User\Projects\docs\turtle-steps-ideas\ios-android-release-checklist.md`, not duplicated here. Row order below is the new intended sequence, not issue-number order._
