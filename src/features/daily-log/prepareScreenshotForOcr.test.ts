@@ -3,8 +3,10 @@ import {
   applyDarkScreenshotOcrFilter,
   meanLuma,
   ocrCanvasSize,
+  ocrCanvasSizeAtLeast,
   OCR_MAX_EDGE,
   prepareAutoSleepScreenshotForOcr,
+  prepareZeppScreenshotForOcr,
   shouldInvertForOcr,
 } from './prepareScreenshotForOcr'
 
@@ -38,6 +40,20 @@ describe('prepareScreenshotForOcr (#758, #761, #771)', () => {
     })
   })
 
+  it('upscales a small Zepp photo so the long edge is OCR_MAX_EDGE (#773)', () => {
+    expect(ocrCanvasSizeAtLeast(471, 1024)).toEqual({
+      width: Math.max(1, Math.round((471 * OCR_MAX_EDGE) / 1024)),
+      height: OCR_MAX_EDGE,
+    })
+  })
+
+  it('does not downscale a large Zepp screenshot (#773)', () => {
+    expect(ocrCanvasSizeAtLeast(1170, 2532)).toEqual({
+      width: 1170,
+      height: 2532,
+    })
+  })
+
   it('returns the original blob when createImageBitmap is missing', async () => {
     const original = globalThis.createImageBitmap
     try {
@@ -45,6 +61,18 @@ describe('prepareScreenshotForOcr (#758, #761, #771)', () => {
       delete globalThis.createImageBitmap
       const blob = new Blob(['x'], { type: 'image/png' })
       expect(await prepareAutoSleepScreenshotForOcr(blob)).toBe(blob)
+    } finally {
+      globalThis.createImageBitmap = original
+    }
+  })
+
+  it('returns the original blob for Zepp when createImageBitmap is missing (#773)', async () => {
+    const original = globalThis.createImageBitmap
+    try {
+      // @ts-expect-error — simulate environments without ImageBitmap
+      delete globalThis.createImageBitmap
+      const blob = new Blob(['x'], { type: 'image/png' })
+      expect(await prepareZeppScreenshotForOcr(blob)).toBe(blob)
     } finally {
       globalThis.createImageBitmap = original
     }

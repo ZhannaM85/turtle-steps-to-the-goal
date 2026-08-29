@@ -76,51 +76,62 @@ interface FieldSpec {
   max: number
 }
 
-// Visceral before body-fat so "visceral fat" does not land on fat %.
+// Visceral before body-fat so "visceral fat" / OCR `Kup` does not land on fat %.
+// eng tessdata on Russian Zepp UI emits Latin lookalikes (#773):
+// `BucuepanbHbiit Kup` = висцеральный жир, `Mbiwupi` = мышцы, `Bona` = вода,
+// `KoctHaa` = костная, `Kup` = жир.
 const FIELD_SPECS: FieldSpec[] = [
   {
     key: 'visceralFatRating',
-    label: /visceral(?:\s*fat)?|висцеральн/i,
+    label: /visceral(?:\s*fat)?|висцеральн|bucuepan/i,
     min: 1,
     max: 20,
   },
   {
     key: 'boneMassKg',
-    label: /bone(?:\s*mass)?|костн/i,
+    label: /bone(?:\s*mass)?|костн|koct/i,
     min: 0.5,
     max: 8,
   },
   {
     key: 'muscleMassKg',
-    label: /muscle|мышц/i,
+    label: /muscle|мышц|mbiwup/i,
     min: 10,
     max: 80,
   },
   {
     key: 'bodyWaterPercent',
-    label: /(?:body\s*)?water|вода|воде|водой/i,
+    label: /(?:body\s*)?water|вода|воде|водой|\bbona\b/i,
     min: 20,
     max: 80,
   },
   {
     key: 'bodyFatPercent',
-    label: /body\s*fat|fat\s*%|процент\s*жира|жир|\bfat\b/i,
+    label: /body\s*fat|fat\s*%|процент\s*жира|жир|\bfat\b|\bkup\b/i,
     min: 3,
     max: 60,
   },
 ]
 
 const SKIP_LINE_RE =
-  /bmi|имт|body\s*age|возраст\s*тела|индекс\s*массы|белок|протеин|protein|basal|обмен|ккал|kcal/i
+  /bmi|имт|\bimt\b|body\s*age|возраст\s*тела|индекс\s*массы|белок|benox|протеин|protein|basal|обмен|06meh|ккал|kkan|kcal/i
 
 /** Section chrome on the English goals screen (#757) — not a metric. */
 const ATTENTION_COUNT_RE = /\d+\s+items?\s+needs?\s+your\s+attention/i
 
 /** Russian goals headers: "6 элементов не достигли цели" / "Достигнуто 2 цели" (#773). */
 const GOAL_COUNT_RE =
-  /\d+\s+элемент\w*|(?:достигнут[оае]|reached)\s+\d+|\d+\s+цел\w*/gi
+  /\d+\s+(?:элемент\w*|anement\w*)|(?:достигнут[оае]|reached|aocturr\w*)\s+\d+|\d+\s+(?:цел\w*|yenu\w*)/gi
 
-const NUMBER_RE = /(\d{1,3}(?:[.,]\d{1,2})?)\s*(%|％|kg|кг)?/gi
+const NUMBER_RE = /(\d{1,3}(?:[.,]\d{1,2})?)\s*(%|％|kg|кг|kr)?/gi
+
+const VISCERAL_LABEL_RE = /visceral|висцеральн|bucuepan/i
+
+/** Thin `1` in `14` often OCR as `l` / `I` / `|`, or as `1 4` (#773). */
+function restoreOcrVisceralDigits(line: string): string {
+  if (!VISCERAL_LABEL_RE.test(line)) return line
+  return line.replace(/\b[lI|](\d)\b/g, '1$1').replace(/\b1\s+(\d)\b/g, '1$1')
+}
 
 function parseDecimal(raw: string): number | undefined {
   const n = Number(raw.replace(',', '.'))
@@ -189,7 +200,7 @@ function numbersOn(line: string): { value: number; unit: string | undefined }[] 
     .replace(ATTENTION_COUNT_RE, ' ')
     .replace(GOAL_COUNT_RE, ' ')
     .replace(
-      /\b(?:bmi|имт|body\s*age|возраст\s*тела|индекс\s*массы)\s*[\d.,]+/gi,
+      /\b(?:bmi|имт|imt|body\s*age|возраст\s*тела|индекс\s*массы)\s*[\d.,]+/gi,
       ' ',
     )
   NUMBER_RE.lastIndex = 0
@@ -198,9 +209,10 @@ function numbersOn(line: string): { value: number; unit: string | undefined }[] 
     const value = parseDecimal(match[1]!)
     if (value === undefined) continue
     if (value >= 1900 && value <= 2100) continue
+    const rawUnit = match[2]?.toLowerCase()
     found.push({
       value,
-      unit: match[2]?.toLowerCase() === 'кг' ? 'kg' : match[2]?.toLowerCase(),
+      unit: rawUnit === 'кг' || rawUnit === 'kr' ? 'kg' : rawUnit,
     })
   }
   return found
@@ -252,20 +264,26 @@ function fillFromLabeledLines(
       if (!spec.label.test(line)) continue
       if (
         spec.key === 'bodyFatPercent' &&
-        /visceral|висцеральн/i.test(line) &&
+        VISCERAL_LABEL_RE.test(line) &&
         !/body\s*fat|процент\s*жира/i.test(line)
       ) {
         continue
       }
-      const labelMatch = spec.label.exec(line)
+      const source =
+        spec.key === 'visceralFatRating' ? restoreOcrVisceralDigits(line) : line
+      const labelMatch = spec.label.exec(source)
       const afterLabel =
         labelMatch != null
-          ? line.slice(labelMatch.index + labelMatch[0].length)
-          : line
+          ? source.slice(labelMatch.index + labelMatch[0].length)
+          : source
+      const windowText =
+        spec.key === 'visceralFatRating'
+          ? restoreOcrVisceralDigits(lineWindow(lines, i))
+          : lineWindow(lines, i)
       const value =
         pickForSpec(spec, numbersOn(afterLabel)) ??
-        pickForSpec(spec, numbersOn(line)) ??
-        pickForSpec(spec, numbersOn(lineWindow(lines, i)))
+        pickForSpec(spec, numbersOn(source)) ??
+        pickForSpec(spec, numbersOn(windowText))
       if (value !== undefined) reading[spec.key] = value
     }
   }

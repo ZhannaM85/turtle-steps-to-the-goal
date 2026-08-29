@@ -265,6 +265,83 @@ describe('parseZeppBodyCompositionText', () => {
     })
   })
 
+  it('reads visceral 14 from eng-tessdata Latin lookalikes of the Russian goals screen (#773)', () => {
+    const text = `
+12:24 17 @
+AHTOH MbiuiKoBCKHii A
+< 2 aryeraa tas G
+6 anementos He focturnn Yenn
+IMT 26,3
+puule cpenHero
+Kup 28,0%
+pIcoKnit
+Bona 49,3%
+jenocraTouniit
+Q OcHoBHol 06meH 1 541 kkan
+Uenn He aoctarHyTo
+BucuepanbHbiit Kup 14
+pile cpenHero
+KoctHaa macca 3,05 kr
+jenocraTounbiii
+Aocturryto 2 yenu
+Mbiwupi 56,88 kr
+Hopmanbiii
+Benox 18,9 %
+`
+    expect(parseZeppBodyCompositionText(text, '2026-08-29')).toMatchObject({
+      bodyFatPercent: 28,
+      muscleMassKg: 56.88,
+      bodyWaterPercent: 49.3,
+      visceralFatRating: 14,
+      boneMassKg: 3.05,
+    })
+  })
+
+  it('restores OCR l4 / I4 as visceral 14 (#773)', () => {
+    expect(
+      parseZeppBodyCompositionText(
+        'BucuepanbHbiit Kup l4\nKup 28,0%\nBona 49,3%\nMbiwupi 56,88 kr\nKoctHaa macca 3,05 kr',
+        '2026-08-29',
+      ).visceralFatRating,
+    ).toBe(14)
+    expect(
+      parseZeppBodyCompositionText(
+        'BucuepanbHbiit Kup I4\nKup 28,0%\nBona 49,3%\nMbiwupi 56,88 kr\nKoctHaa macca 3,05 kr',
+        '2026-08-29',
+      ).visceralFatRating,
+    ).toBe(14)
+  })
+
+  it('does not take the 29 August day from an OCR’d name as muscle (#773)', () => {
+    const text = `
+AHTOH MbiwKoBCKHii
+29 aryeraa
+Kup 28,0%
+Bona 49,3%
+BucuepanbHbiit Kup 14
+KoctHaa macca 3,05 kr
+Mbiwupi 56,88 kr
+`
+    expect(parseZeppBodyCompositionText(text, '2026-08-29')).toMatchObject({
+      muscleMassKg: 56.88,
+      visceralFatRating: 14,
+    })
+  })
+
+  it('does not take basal 1 541 or IMT as visceral / muscle (#773)', () => {
+    const reading = parseZeppBodyCompositionText(
+      `
+IMT 26,3
+OcHoBHol 06meH 1 541 kkan
+BucuepanbHbiit Kup 14
+Mbiwupi 56,88 kr
+`,
+      '2026-08-29',
+    )
+    expect(reading.visceralFatRating).toBe(14)
+    expect(reading.muscleMassKg).toBe(56.88)
+  })
+
   it('returns empty when the text is unrelated', () => {
     const reading = parseZeppBodyCompositionText('hello world', '2026-08-17')
     expect(hasZeppBodyCompositionValues(reading)).toBe(false)

@@ -50,6 +50,21 @@ export function ocrCanvasSize(
   }
 }
 
+/** Zepp goals rows are light-on-light; upscale small phone photos so a thin `1` in `14` is readable (#773). */
+export function ocrCanvasSizeAtLeast(
+  width: number,
+  height: number,
+  minEdge = OCR_MAX_EDGE,
+): { width: number; height: number } {
+  const edge = Math.max(width, height)
+  if (edge >= minEdge) return { width, height }
+  const scale = minEdge / edge
+  return {
+    width: Math.max(1, Math.round(width * scale)),
+    height: Math.max(1, Math.round(height * scale)),
+  }
+}
+
 /**
  * One AutoSleep OCR input: downscale, and invert when the shot is dark.
  * Canvas / bitmap failures return the original so we still OCR once (#761).
@@ -77,6 +92,42 @@ export async function prepareAutoSleepScreenshotForOcr(
       applyDarkScreenshotOcrFilter(imageData.data)
       ctx.putImageData(imageData, 0, 0)
     }
+    const blob = await new Promise<Blob | null>((resolve) => {
+      canvas.toBlob((next) => resolve(next), 'image/png')
+    })
+    return blob ?? image
+  } catch {
+    return image
+  } finally {
+    bitmap.close()
+  }
+}
+
+/**
+ * Upscale a small Zepp screenshot for Tesseract. Do not invert (light UI)
+ * and do not downscale a large shot (thin digits such as the `1` in `14`).
+ */
+export async function prepareZeppScreenshotForOcr(
+  image: Blob,
+): Promise<Blob> {
+  if (typeof createImageBitmap !== 'function') return image
+  let bitmap: ImageBitmap
+  try {
+    bitmap = await createImageBitmap(image)
+  } catch {
+    return image
+  }
+  try {
+    const { width, height } = ocrCanvasSizeAtLeast(bitmap.width, bitmap.height)
+    if (width === bitmap.width && height === bitmap.height) return image
+    const canvas = document.createElement('canvas')
+    canvas.width = width
+    canvas.height = height
+    const ctx = canvas.getContext('2d')
+    if (!ctx) return image
+    ctx.imageSmoothingEnabled = true
+    ctx.imageSmoothingQuality = 'high'
+    ctx.drawImage(bitmap, 0, 0, width, height)
     const blob = await new Promise<Blob | null>((resolve) => {
       canvas.toBlob((next) => resolve(next), 'image/png')
     })

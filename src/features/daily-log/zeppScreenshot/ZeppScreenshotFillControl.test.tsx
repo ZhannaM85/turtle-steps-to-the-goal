@@ -19,6 +19,10 @@ vi.mock('./recognizeZeppScreenshot', () => ({
   ),
 }))
 
+vi.mock('../prepareScreenshotForOcr', () => ({
+  prepareZeppScreenshotForOcr: vi.fn(async (image: Blob) => image),
+}))
+
 describe('ZeppScreenshotFillControl', () => {
   beforeEach(() => {
     localStorage.clear()

@@ -22,6 +22,7 @@ import {
   type ZeppBodyCompositionReading,
 } from './parseZeppBodyCompositionText'
 import { recognizeZeppScreenshot } from './recognizeZeppScreenshot'
+import { prepareZeppScreenshotForOcr } from '../prepareScreenshotForOcr'
 
 export interface ZeppScreenshotFillControlProps {
   asOfDate: string
@@ -71,7 +72,8 @@ export function ZeppScreenshotFillControl({
     setReadingStatus('reading')
     resetFields()
     try {
-      const text = await recognizeZeppScreenshot(file)
+      const prepared = await prepareZeppScreenshotForOcr(file)
+      const text = await recognizeZeppScreenshot(prepared)
       const reading = parseZeppBodyCompositionText(text, asOfDate)
       if (!hasZeppBodyCompositionValues(reading)) {
         setReadingStatus('empty')

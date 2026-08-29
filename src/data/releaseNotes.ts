@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 734,
+    issue: 773,
+    date: '2026-08-29T14:50:00+03:00',
+    en: 'Zepp screenshot fill now reads visceral fat 14 from the Russian goals screen instead of dropping the 1 and saving 4.',
+    ru: 'Заполнение из скриншота Zepp теперь читает висцеральный жир 14 с русского экрана целей, а не отбрасывает единицу и не сохраняет 4.',
+  },
+  {
     version: 733,
     issue: 774,
     date: '2026-08-29T14:20:00+03:00',
