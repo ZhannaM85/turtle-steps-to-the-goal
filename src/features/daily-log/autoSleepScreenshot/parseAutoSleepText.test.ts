@@ -194,4 +194,15 @@ DEEP 7h 10m
       deepSleepHours: 0.75,
     })
   })
+
+  it('leaves deep empty when Sleep Rating has no z-icon duration (#772)', () => {
+    const text = `
+SATURDAY 29
+TODAY 9h 22m
+9h 22m 7h 10m
+`
+    const reading = parseAutoSleepText(text, '2026-08-29')
+    expect(reading.sleepHours).toBe(9.37)
+    expect(reading.deepSleepHours).toBeUndefined()
+  })
 })

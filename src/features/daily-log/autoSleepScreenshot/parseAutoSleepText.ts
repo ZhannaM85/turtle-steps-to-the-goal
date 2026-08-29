@@ -304,7 +304,10 @@ export function parseAutoSleepText(
   if (reading.deepSleepHours === undefined && reading.sleepHours !== undefined) {
     const smaller = kept
       .map((item) => item.hours)
-      .filter((hours) => hours < reading.sleepHours!)
+      .filter(
+        (hours) =>
+          hours < reading.sleepHours! && isPlausibleDeepHours(hours),
+      )
     if (smaller.length > 0) {
       reading.deepSleepHours = Math.min(...smaller)
     }

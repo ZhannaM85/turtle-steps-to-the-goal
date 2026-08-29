@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 729,
+    issue: 772,
+    date: '2026-08-29T13:12:00+03:00',
+    en: 'If AutoSleep’s short deep-sleep time is missing from the screenshot, that field stays empty instead of filling quality hours.',
+    ru: 'Если на скриншоте AutoSleep нет короткого глубокого сна, поле остаётся пустым — часы качества туда не подставляются.',
+  },
+  {
     version: 728,
     issue: 771,
     date: '2026-08-29T13:05:00+03:00',
