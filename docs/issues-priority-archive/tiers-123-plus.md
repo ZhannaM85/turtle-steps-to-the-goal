@@ -384,7 +384,7 @@ _Evening already has a day's note; add a matching morning note, opt-in and off b
 
 ## Tier 146 — Live feedback (2026-08-29)
 
-_AutoSleep Today deep sleep (z-icon vs star), Zepp goals screenshot body composition, and Why-am-I-eating multi-select._
+_AutoSleep Today deep sleep (z-icon vs star), Zepp goals screenshot body composition, Why-am-I-eating multi-select, and meal-edit Done button clipping._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
@@ -392,3 +392,4 @@ _AutoSleep Today deep sleep (z-icon vs star), Zepp goals screenshot body composi
 | [#772](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/772) | ✅ Done | AutoSleep Sleep Rating: use z-icon duration as deep sleep, not star/quality | Confirmed on-device 2026-08-29 — Sleep Rating uses the z-icon duration as deep sleep, not the star/quality hours. |
 | [#773](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/773) | ✅ Done | Zepp goals screenshot: muscle mass filled with BMI, not Мышцы (order changes by goal status) | Confirmed on-device 2026-08-29 — muscle from Мышцы (not BMI), visceral fat 14. |
 | [#774](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/774) | ✅ Done | Allow multi-select for Why am I eating? | Confirmed on-device 2026-08-29 — several reasons can stay selected on one meal. |
+| [#775](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/775) | ✅ Done | Meal editing Done button is clipped until you scroll | Confirmed on-device 2026-08-29 — Done stays fully visible without scrolling. |

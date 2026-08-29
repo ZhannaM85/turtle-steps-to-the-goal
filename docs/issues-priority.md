@@ -8,16 +8,6 @@ Work top-to-bottom within each tier; dependencies are noted where order matters.
 
 ---
 
-## Tier 146 — Live feedback (2026-08-29)
-
-_Meal-edit Done button clipping._
-
-| # | Status | Issue | Notes |
-|---|--------|-------|-------|
-| [#775](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/775) | 🔍 Pending validation | Meal editing Done button is clipped until you scroll | On-device 2026-08-29 (iPhone): opening meal edit, «Готово» is only half-visible at the bottom until you scroll. Same on browse/search and on composition (items + note). Sticky footer from #481/#508 failed inside fullscreen DialogContent (same as #280 on the dish sheet). Flex column + inner scroll, Done `shrink-0` below it. |
-
----
-
 ## Tier 36 — iOS/Android native app store release (2026-07-23)
 
 _The next big initiative, at the user's request: ship this PWA as installable native apps on the App Store and Play Store. Structured as one epic plus 14 focused child issues rather than a single giant checklist, matching how the rest of this repo's backlog works. Recommended approach (Capacitor, wrapping the existing Vite build rather than a rewrite) is documented in the epic; not yet implemented, filed for planning/sequencing only. **Reordered Android-first** (2026-07-23, at the user's request) — no developer accounts exist yet and the user is on Windows; iOS specifically requires a Mac to build/sign/submit (no way around it, Capacitor included), while Android needs only Android Studio (free, runs on Windows) and a one-time $25 fee vs. Apple's recurring $99/year. Getting-started checklist (accounts, tools, what to expect) saved outside this repo at `C:\Users\User\Projects\docs\turtle-steps-ideas\ios-android-release-checklist.md`, not duplicated here. Row order below is the new intended sequence, not issue-number order._
