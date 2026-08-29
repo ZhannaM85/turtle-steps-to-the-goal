@@ -195,6 +195,20 @@ DEEP 7h 10m
     })
   })
 
+  it('still reads 0h 45m when OCR glues it onto the Sleep Rating title (#771)', () => {
+    const text = `
+FRIDAY 28 > SATURDAY 29
+9h 22m
+Sleep Efficiency: 93%.
+Time Asleep Sleep Rating 9h 22m 7h 10m 0h 45m
+TODAY 9h 22m
+`
+    expect(parseAutoSleepText(text, '2026-08-29')).toMatchObject({
+      sleepHours: 9.37,
+      deepSleepHours: 0.75,
+    })
+  })
+
   it('leaves deep empty when Sleep Rating has no z-icon duration (#772)', () => {
     const text = `
 SATURDAY 29

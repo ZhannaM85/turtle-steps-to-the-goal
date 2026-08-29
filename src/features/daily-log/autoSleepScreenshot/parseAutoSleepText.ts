@@ -15,7 +15,7 @@ const DURATION_RE =
   /(\d{1,2})\s*h(?:ou?rs?)?\s*(\d{1,2})\s*m(?:in(?:utes?)?)?/gi
 
 const SKIP_LINE_RE =
-  /quality|in\s*bed|time\s*in\s*bed|efficiency|awake|heart\s*rate|\bbpm\b|rating|heartrate|\bavg\b|average/i
+  /quality|in\s*bed|time\s*in\s*bed|efficiency|awake|heart\s*rate|\bbpm\b|heartrate|\bavg\b|average/i
 
 const WEEKDAY =
   'sunday|monday|tuesday|wednesday|thursday|friday|saturday|sun|mon|tue|tues|wed|thu|thur|thurs|fri|sat'
@@ -310,6 +310,18 @@ export function parseAutoSleepText(
       )
     if (smaller.length > 0) {
       reading.deepSleepHours = Math.min(...smaller)
+    }
+  }
+
+  // OCR often glues the Sleep Rating legend onto the title line
+  // (`Sleep Rating 9h 22m 7h 10m 0h 45m`). That used to be skipped for
+  // the word "rating", so z-icon `0h 45m` never entered `kept` (#771).
+  if (reading.deepSleepHours === undefined && reading.sleepHours !== undefined) {
+    const fromAll = durationsOn(text.replace(/\s+/g, ' ')).filter(
+      (hours) => hours < reading.sleepHours! && isPlausibleDeepHours(hours),
+    )
+    if (fromAll.length > 0) {
+      reading.deepSleepHours = Math.min(...fromAll)
     }
   }
 

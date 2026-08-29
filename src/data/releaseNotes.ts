@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 731,
+    issue: 771,
+    date: '2026-08-29T13:40:00+03:00',
+    en: 'AutoSleep screenshot fill now reads the short deep-sleep time even when it sits on the Sleep Rating card.',
+    ru: 'Заполнение из скриншота AutoSleep теперь читает короткий глубокий сон, даже если он на карточке Sleep Rating.',
+  },
+  {
     version: 730,
     issue: 773,
     date: '2026-08-29T13:20:00+03:00',
