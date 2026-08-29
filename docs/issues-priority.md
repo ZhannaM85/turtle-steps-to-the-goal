@@ -10,12 +10,13 @@ Work top-to-bottom within each tier; dependencies are noted where order matters.
 
 ## Tier 146 — Live feedback (2026-08-29)
 
-_AutoSleep Today screenshot fill: deep sleep wrong again (Sleep Rating z-icon vs star/quality)._
+_AutoSleep Today deep sleep (z-icon vs star) and Zepp goals screenshot body composition._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#771](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/771) | 📋 Not started | AutoSleep Today screenshot fill: deep sleep 7h 10m instead of 45 minutes (z icon) | On-device 2026-08-29: total sleep 9h 22m correct; confirm dialog deep sleep 7h 10m (star / quality) instead of 0h 45m (circled z). Follow-up to #762. Sister: #772. |
 | [#772](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/772) | 📋 Not started | AutoSleep Sleep Rating: use z-icon duration as deep sleep, not star/quality | Sleep Rating legend is icon-only (moon / star / z / heart). Parser already skips the word “quality”, but this screen has no words — star `Xh Ym` can become deep. Durable rule: shortest of the three legend durations = deep; never substitute quality if z is missing from OCR. Sister: #771. |
+| [#773](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/773) | 📋 Not started | Zepp goals screenshot: muscle mass filled with BMI, not Мышцы (order changes by goal status) | On-device 2026-08-29: muscle 26,3 кг (= ИМТ) instead of Мышцы 56,88 кг; visceral 12 vs 14. Map by label (Мышцы → мышечная масса); unmet/met sections reorder the list. Follow-up to #742/#757. |
 
 ---
 
