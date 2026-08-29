@@ -10,12 +10,13 @@ Work top-to-bottom within each tier; dependencies are noted where order matters.
 
 ## Tier 146 — Live feedback (2026-08-29)
 
-_AutoSleep Today deep sleep (z-icon vs star), Zepp goals screenshot body composition, and Why-am-I-eating multi-select._
+_AutoSleep Today deep sleep (z-icon vs star), Zepp goals screenshot body composition, Why-am-I-eating multi-select, and meal-edit Done button clipping._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#773](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/773) | 🔍 Pending validation | Zepp goals screenshot: muscle mass filled with BMI, not Мышцы (order changes by goal status) | On-device 2026-08-29: muscle 26,3 кг (= ИМТ) instead of Мышцы 56,88 кг; visceral 12 vs 14. Label map still first (`мышц` → muscle). Unlabeled fallback prefers the largest kg, skips BMI-like 18–35 without a unit, and ignores “N элементов / достигнуто N”. Follow-up to #742/#757. |
 | [#774](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/774) | 🔍 Pending validation | Allow multi-select for Why am I eating? | On-device 2026-08-29: dropdown is single-select. Want Hunger + Loneliness (etc.) on the same meal. Follow-up to #764. Picker stays open for several picks; «Не указано» clears. `eatingReasons[]` when 2+; `eatingReason` stays the first pick so old meals/backups still work. |
+| [#775](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/775) | ⬜ Open | Meal editing Done button is clipped until you scroll | On-device 2026-08-29 (iPhone): opening meal edit, «Готово» is only half-visible at the bottom until you scroll. Same on browse/search and on composition (items + note). Sticky footer from #481/#508 (`pb-0` on DialogContent, `env(safe-area-inset-bottom)` on Done). Not investigated. |
 
 ---
 
