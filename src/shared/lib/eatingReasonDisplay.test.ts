@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest'
 import { getDictionary } from '@/i18n'
-import { eatingReasonDisplayLabel } from './eatingReasonDisplay'
+import {
+  eatingReasonDisplayLabel,
+  formatEatingReasonsLine,
+} from './eatingReasonDisplay'
 
 describe('eatingReasonDisplayLabel (#766)', () => {
   const t = getDictionary('en')
@@ -21,6 +24,16 @@ describe('eatingReasonDisplayLabel (#766)', () => {
   it('returns a custom reason as stored', () => {
     expect(eatingReasonDisplayLabel('Tired after work', t)).toBe(
       'Tired after work',
+    )
+  })
+})
+
+describe('formatEatingReasonsLine (#774)', () => {
+  const t = getDictionary('en')
+
+  it('joins several labels', () => {
+    expect(formatEatingReasonsLine(['hunger', 'lonely'], t)).toBe(
+      'Hunger, Lonely',
     )
   })
 })

@@ -406,6 +406,28 @@ describe('MealList', () => {
     expect(screen.queryByText('Hunger')).not.toBeInTheDocument()
   })
 
+  it('shows several eating reasons on the card (#774)', () => {
+    render(
+      <MealList
+        calorieEntries={[
+          {
+            id: 'c1',
+            label: 'Lunch',
+            eatingReason: 'hunger',
+            eatingReasons: ['hunger', 'lonely'],
+            items: [{ id: 'i1', name: 'Skyr', amountKcal: 175 }],
+            createdAt: '2026-01-01T00:00:00.000Z',
+          },
+        ]}
+        date="2026-03-01"
+        onChange={vi.fn()}
+      />,
+      { wrapper: MemoryRouter },
+    )
+
+    expect(screen.getByText('Hunger, Lonely')).toBeInTheDocument()
+  })
+
   it('lists meals earliest logged time first (#597)', () => {
     const calorieEntries: CalorieEntry[] = [
       {

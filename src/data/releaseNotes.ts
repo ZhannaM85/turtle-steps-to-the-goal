@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 733,
+    issue: 774,
+    date: '2026-08-29T14:20:00+03:00',
+    en: 'You can pick more than one reason for Why am I eating? on the same meal (for example hunger and loneliness).',
+    ru: 'В «Почему я сейчас ем?» можно выбрать несколько причин сразу (например голод и одиночество).',
+  },
+  {
     version: 732,
     issue: 771,
     date: '2026-08-29T14:10:00+03:00',

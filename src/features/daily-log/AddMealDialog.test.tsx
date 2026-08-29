@@ -63,8 +63,8 @@ type ControlledProps = Omit<
   | 'onAppendItems'
   | 'onRemoveItem'
   | 'onReactionChange'
-  | 'eatingReason'
-  | 'onEatingReasonChange'
+  | 'eatingReasons'
+  | 'onEatingReasonsChange'
   | 'note'
   | 'onNoteChange'
   | 'mealLabel'
@@ -87,9 +87,7 @@ function ControlledAddMealDialog({
 }: ControlledProps) {
   const [items, setItems] = useState<CalorieItem[]>(initialItems ?? [])
   const [reaction, setReaction] = useState<Emotion | undefined>(undefined)
-  const [eatingReason, setEatingReason] = useState<string | undefined>(
-    undefined,
-  )
+  const [eatingReasons, setEatingReasons] = useState<string[]>([])
   const [note, setNote] = useState('')
   const [mealLabel, setMealLabel] = useState(mealLabelProp)
   return (
@@ -103,8 +101,8 @@ function ControlledAddMealDialog({
       items={items}
       reaction={reaction}
       onReactionChange={setReaction}
-      eatingReason={eatingReason}
-      onEatingReasonChange={setEatingReason}
+      eatingReasons={eatingReasons}
+      onEatingReasonsChange={setEatingReasons}
       note={note}
       onNoteChange={setNote}
       onAppendItems={(newItems) => setItems((prev) => [...prev, ...newItems])}
@@ -564,13 +562,16 @@ describe('AddMealDialog (#454)', () => {
     useEatingReasonTrackingStore.setState({ enabled: true })
     render(<ControlledAddMealDialog {...defaultProps} />)
 
-    const select = screen.getByLabelText('Why am I eating?')
-    expect(select).toBeInTheDocument()
-    expect(select.compareDocumentPosition(screen.getByLabelText('Search foods')) &
-      Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+    const trigger = screen.getByRole('button', { name: 'Why am I eating?' })
+    expect(trigger).toBeInTheDocument()
+    expect(
+      trigger.compareDocumentPosition(screen.getByLabelText('Search foods')) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy()
 
-    await user.selectOptions(select, 'hunger')
-    expect(select).toHaveValue('hunger')
+    await user.click(trigger)
+    await user.click(screen.getByRole('option', { name: 'Hunger' }))
+    expect(trigger).toHaveTextContent('Hunger')
   })
 
   it('lists HALT eating reasons in the dropdown (#769)', async () => {
@@ -578,21 +579,15 @@ describe('AddMealDialog (#454)', () => {
     useEatingReasonTrackingStore.setState({ enabled: true })
     render(<ControlledAddMealDialog {...defaultProps} />)
 
-    const select = screen.getByLabelText('Why am I eating?')
-    expect(
-      within(select).getByRole('option', { name: 'Hunger' }),
-    ).toBeInTheDocument()
-    expect(
-      within(select).getByRole('option', { name: 'Angry' }),
-    ).toBeInTheDocument()
-    expect(
-      within(select).getByRole('option', { name: 'Lonely' }),
-    ).toBeInTheDocument()
-    expect(
-      within(select).getByRole('option', { name: 'Tired' }),
-    ).toBeInTheDocument()
-    await user.selectOptions(select, 'tired')
-    expect(select).toHaveValue('tired')
+    await user.click(screen.getByRole('button', { name: 'Why am I eating?' }))
+    expect(screen.getByRole('option', { name: 'Hunger' })).toBeInTheDocument()
+    expect(screen.getByRole('option', { name: 'Angry' })).toBeInTheDocument()
+    expect(screen.getByRole('option', { name: 'Lonely' })).toBeInTheDocument()
+    expect(screen.getByRole('option', { name: 'Tired' })).toBeInTheDocument()
+    await user.click(screen.getByRole('option', { name: 'Tired' }))
+    expect(screen.getByRole('button', { name: 'Why am I eating?' })).toHaveTextContent(
+      'Tired',
+    )
   })
 
   it('lists custom eating reasons in the dropdown (#765)', async () => {
@@ -603,9 +598,11 @@ describe('AddMealDialog (#454)', () => {
     })
     render(<ControlledAddMealDialog {...defaultProps} />)
 
-    const select = screen.getByLabelText('Why am I eating?')
-    await user.selectOptions(select, 'Tired after work')
-    expect(select).toHaveValue('Tired after work')
+    await user.click(screen.getByRole('button', { name: 'Why am I eating?' }))
+    await user.click(screen.getByRole('option', { name: 'Tired after work' }))
+    expect(screen.getByRole('button', { name: 'Why am I eating?' })).toHaveTextContent(
+      'Tired after work',
+    )
   })
 
   it('shows an edited built-in eating reason label while keeping the id (#766)', async () => {
@@ -616,12 +613,34 @@ describe('AddMealDialog (#454)', () => {
     })
     render(<ControlledAddMealDialog {...defaultProps} />)
 
-    const select = screen.getByLabelText('Why am I eating?')
-    expect(
-      within(select).getByRole('option', { name: 'Stomach growl' }),
-    ).toHaveValue('hunger')
-    await user.selectOptions(select, 'hunger')
-    expect(select).toHaveValue('hunger')
+    const trigger = screen.getByRole('button', { name: 'Why am I eating?' })
+    await user.click(trigger)
+    await user.click(screen.getByRole('option', { name: 'Stomach growl' }))
+    expect(trigger).toHaveTextContent('Stomach growl')
+  })
+
+  it('lets the user pick more than one why-eating reason (#774)', async () => {
+    const user = userEvent.setup()
+    useEatingReasonTrackingStore.setState({ enabled: true })
+    render(<ControlledAddMealDialog {...defaultProps} />)
+
+    const trigger = screen.getByRole('button', { name: 'Why am I eating?' })
+    await user.click(trigger)
+    await user.click(screen.getByRole('option', { name: 'Hunger' }))
+    await user.click(screen.getByRole('option', { name: 'Lonely' }))
+
+    expect(trigger).toHaveTextContent('Hunger, Lonely')
+    expect(screen.getByRole('option', { name: 'Hunger' })).toHaveAttribute(
+      'aria-selected',
+      'true',
+    )
+    expect(screen.getByRole('option', { name: 'Lonely' })).toHaveAttribute(
+      'aria-selected',
+      'true',
+    )
+
+    await user.click(screen.getByRole('option', { name: 'Not specified' }))
+    expect(trigger).toHaveTextContent('Not specified')
   })
 
   it('asks before removing an item from the meal so far (#509)', async () => {

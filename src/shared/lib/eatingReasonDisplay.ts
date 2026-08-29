@@ -17,3 +17,14 @@ export function eatingReasonDisplayLabel(
   }
   return t.dailyEntry.eatingReasonLabel(reason)
 }
+
+/** #774 — comma-separated labels in list order. */
+export function formatEatingReasonsLine(
+  reasons: string[],
+  t: Dictionary,
+  overrides?: EatingReasonLabelOverrides,
+): string {
+  return reasons
+    .map((reason) => eatingReasonDisplayLabel(reason, t, overrides))
+    .join(', ')
+}

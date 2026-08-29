@@ -11,12 +11,14 @@ import type {
   Emotion,
 } from '@/domain/dailyEntry'
 import {
+  applyEatingReasons,
   calorieEntryCarbs,
   calorieEntryFat,
   calorieEntryFiber,
   calorieEntryKcal,
   calorieEntryProtein,
   isBuiltInEatingReason,
+  mealEatingReasons,
   totalCalories,
   totalCarbs,
   totalFat,
@@ -35,6 +37,7 @@ import {
   type Locale,
 } from '@/i18n'
 import { IndexedDbDailyEntryRepository } from '@/infrastructure/persistence/indexeddb'
+import { formatEatingReasonsLine } from '@/shared/lib/eatingReasonDisplay'
 import { MEAL_EMOTIONS } from '@/shared/lib/emotionIcons'
 import {
   formatMacroGrams,
@@ -42,7 +45,6 @@ import {
   macrosSummaryTextCompactWithCalories,
 } from '@/shared/lib/macroDisplay'
 import { defaultMealLabel, editableMealLabel, effectiveMealLabel, effectiveTimeEaten, sortCalorieEntriesByLoggedTime } from '@/shared/lib/mealLabel'
-import { eatingReasonDisplayLabel } from '@/shared/lib/eatingReasonDisplay'
 import { normalizeTextSpaces } from '@/shared/lib/normalizeTextSpaces'
 import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/ui/button'
@@ -50,8 +52,7 @@ import { useCopyYesterdayMealsStore, useDayStartStore, useEatingReasonTrackingSt
 import { AddMealDialog } from './AddMealDialog'
 import { CopyDayMealsDialog } from './CopyDayMealsDialog'
 
-/** #764 — Day-card dots for why this meal happened (native <select>
- * cannot style option colors, so the legend lives here only). */
+/** #764 — Day-card dots for why this meal happened. */
 const EATING_REASON_DOT_CLASS: Record<EatingReason, string> = {
   hunger: 'bg-green-500',
   angry: 'bg-red-500',
@@ -156,6 +157,7 @@ function MealListItem({
     locale,
     t,
   )
+  const eatingReasons = mealEatingReasons(entry)
 
   if (isConfirmingDelete) {
     return (
@@ -251,20 +253,23 @@ function MealListItem({
       {/* #473: one size up from the dish rows below (which stay text-sm),
        * now that the compact macro initials keep it to a single line. */}
       <p className="min-w-0 text-base text-muted-foreground">{calorieSummary}</p>
-      {entry.eatingReason && (
-        <p className="flex min-w-0 items-center gap-1.5 text-sm text-muted-foreground">
-          <span
-            aria-hidden="true"
-            className={cn(
-              'size-2.5 shrink-0 rounded-full',
-              isBuiltInEatingReason(entry.eatingReason)
-                ? EATING_REASON_DOT_CLASS[entry.eatingReason]
-                : 'bg-teal-500',
-            )}
-          />
+      {eatingReasons.length > 0 && (
+        <p className="flex min-w-0 flex-wrap items-center gap-1.5 text-sm text-muted-foreground">
+          {eatingReasons.map((reason) => (
+            <span
+              key={reason}
+              aria-hidden="true"
+              className={cn(
+                'size-2.5 shrink-0 rounded-full',
+                isBuiltInEatingReason(reason)
+                  ? EATING_REASON_DOT_CLASS[reason]
+                  : 'bg-teal-500',
+              )}
+            />
+          ))}
           <span>
-            {eatingReasonDisplayLabel(
-              entry.eatingReason,
+            {formatEatingReasonsLine(
+              eatingReasons,
               t,
               builtinLabelOverrides,
             )}
@@ -505,9 +510,9 @@ export function MealList({
   const [newMealNote, setNewMealNote] = useState('')
   // #764 — seed before the first item creates the entry (same pattern as
   // newMealNote/newMealTime). Not copied from yesterday: situational.
-  const [newMealEatingReason, setNewMealEatingReason] = useState<
-    string | undefined
-  >(undefined)
+  const [newMealEatingReasons, setNewMealEatingReasons] = useState<string[]>(
+    [],
+  )
   // #563 — custom label draft before the first item creates the entry
   // (same seed pattern as newMealTime/newMealNote).
   const [newMealLabel, setNewMealLabel] = useState<string | undefined>(
@@ -526,7 +531,7 @@ export function MealList({
     setInProgressMealId(null)
     setNewMealTime(currentTimeHHMM())
     setNewMealNote('')
-    setNewMealEatingReason(undefined)
+    setNewMealEatingReasons([])
     setNewMealPosition(calorieEntries.length + 1)
     const previous =
       previousDayEntry?.calorieEntries?.[calorieEntries.length]
@@ -807,17 +812,17 @@ export function MealList({
     } else {
       const newId = crypto.randomUUID()
       setInProgressMealId(newId)
+      const created: CalorieEntry = {
+        id: newId,
+        items: newItems,
+        label: newMealLabel,
+        timeEaten: newMealTime || undefined,
+        note: newMealNote.trim() || undefined,
+        createdAt: new Date().toISOString(),
+      }
       nextEntries = [
         ...calorieEntries,
-        {
-          id: newId,
-          items: newItems,
-          label: newMealLabel,
-          timeEaten: newMealTime || undefined,
-          note: newMealNote.trim() || undefined,
-          eatingReason: newMealEatingReason,
-          createdAt: new Date().toISOString(),
-        },
+        applyEatingReasons(created, newMealEatingReasons),
       ]
     }
     setCalorieEntries(nextEntries)
@@ -897,13 +902,13 @@ export function MealList({
     )
   }
 
-  function updateNewMealEatingReason(value: string | undefined) {
-    setNewMealEatingReason(value)
+  function updateNewMealEatingReasons(reasons: string[]) {
+    setNewMealEatingReasons(reasons)
     if (!inProgressMealId) return
     setCalorieEntries(
       calorieEntries.map((entry) =>
         entry.id === inProgressMealId
-          ? { ...entry, eatingReason: value }
+          ? applyEatingReasons(entry, reasons)
           : entry,
       ),
     )
@@ -1019,9 +1024,9 @@ export function MealList({
     })
   }
 
-  function setEditingMealEatingReason(value: string | undefined) {
+  function setEditingMealEatingReasons(reasons: string[]) {
     if (!editingMealDraft) return
-    setEditingMealDraft({ ...editingMealDraft, eatingReason: value })
+    setEditingMealDraft(applyEatingReasons(editingMealDraft, reasons))
   }
 
   function updateEditingMealLabel(value: string) {
@@ -1139,8 +1144,8 @@ export function MealList({
           items={editingMeal.items}
           reaction={editingMeal.reaction}
           onReactionChange={setEditingMealReaction}
-          eatingReason={editingMeal.eatingReason}
-          onEatingReasonChange={setEditingMealEatingReason}
+          eatingReasons={mealEatingReasons(editingMeal)}
+          onEatingReasonsChange={setEditingMealEatingReasons}
           onAppendItems={appendItemsToEditingMeal}
           onRemoveItem={removeItemFromEditingMeal}
           onUpdateItem={updateItemInEditingMeal}
@@ -1222,8 +1227,12 @@ export function MealList({
           items={inProgressMeal?.items ?? []}
           reaction={inProgressMeal?.reaction}
           onReactionChange={setNewMealReaction}
-          eatingReason={inProgressMeal?.eatingReason ?? newMealEatingReason}
-          onEatingReasonChange={updateNewMealEatingReason}
+          eatingReasons={
+            inProgressMeal
+              ? mealEatingReasons(inProgressMeal)
+              : newMealEatingReasons
+          }
+          onEatingReasonsChange={updateNewMealEatingReasons}
           onAppendItems={appendItemsToNewMeal}
           onRemoveItem={removeItemFromNewMeal}
           onUpdateItem={updateItemInNewMeal}

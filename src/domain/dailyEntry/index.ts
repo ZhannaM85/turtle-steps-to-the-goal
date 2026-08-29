@@ -10,6 +10,11 @@ export type {
 } from './DailyEntry'
 export { EATING_REASONS, isBuiltInEatingReason } from './DailyEntry'
 export { rewriteMealEatingReason } from './rewriteMealEatingReason'
+export {
+  applyEatingReasons,
+  mealEatingReasons,
+  orderEatingReasons,
+} from './mealEatingReasons'
 export type { DailyEntryRepository } from './DailyEntryRepository'
 export { totalCalories } from './totalCalories'
 export {

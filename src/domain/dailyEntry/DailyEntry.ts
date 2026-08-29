@@ -118,8 +118,14 @@ export interface CalorieEntry {
    * (`EatingReason`) or a custom label authored in Settings. Built-in
    * display names can be overridden in Settings without rewriting this
    * stored id. Optional; gated by Settings → What to track. Distinct
-   * from `reaction` (was it tasty) and from per-item `emotion`. */
+   * from `reaction` (was it tasty) and from per-item `emotion`.
+   * **#774**: still the first (or only) pick so older backups keep a
+   * string; several picks also live on `eatingReasons`. */
   eatingReason?: string
+  /** #774 — all picks when more than one; omit when unset or a single
+   * `eatingReason`. Read via `mealEatingReasons` so a #764 meal still
+   * works. */
+  eatingReasons?: string[]
 }
 
 /**

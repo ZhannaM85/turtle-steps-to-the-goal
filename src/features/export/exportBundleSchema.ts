@@ -93,6 +93,8 @@ const calorieEntrySchema = z.object({
   reaction: dayEmotionSchema.optional(),
   // #764 — why this meal happened. Built-in id or a #765 custom label.
   eatingReason: z.string().optional(),
+  // #774 — all picks when more than one; omitted for a single reason.
+  eatingReasons: z.array(z.string()).optional(),
 })
 
 // #271: one discrete water/hydration add — replaces v6's single waterMl

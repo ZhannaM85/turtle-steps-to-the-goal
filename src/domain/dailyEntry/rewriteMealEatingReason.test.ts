@@ -61,4 +61,30 @@ describe('rewriteMealEatingReason (#767)', () => {
       rewriteMealEatingReason([entry], 'Tired after work', 'Other'),
     ).toEqual([])
   })
+
+  it('rewrites a custom reason inside a multi-select list (#774)', () => {
+    const entry = makeEntry({
+      calorieEntries: [
+        {
+          id: 'm1',
+          items: [{ id: 'i1', amountKcal: 100 }],
+          eatingReason: 'hunger',
+          eatingReasons: ['hunger', 'Tired after work'],
+          createdAt: '2026-03-01T00:00:00.000Z',
+        },
+      ],
+    })
+
+    const changed = rewriteMealEatingReason(
+      [entry],
+      'Tired after work',
+      'Just wanted something tasty',
+    )
+
+    expect(changed[0].calorieEntries?.[0].eatingReason).toBe('hunger')
+    expect(changed[0].calorieEntries?.[0].eatingReasons).toEqual([
+      'hunger',
+      'Just wanted something tasty',
+    ])
+  })
 })

@@ -369,6 +369,26 @@ describe('buildDailyLogCsv', () => {
     ).toBe('Stomach growl')
   })
 
+  it('exports several why-eating reasons as one quoted cell (#774)', () => {
+    const entry = makeEntry({
+      calorieEntries: [
+        {
+          id: 'meal-1',
+          label: 'Breakfast',
+          eatingReason: 'hunger',
+          eatingReasons: ['hunger', 'lonely'],
+          items: [{ id: 'item-1', name: 'Toast', amountKcal: 150 }],
+          createdAt: '2026-03-01T00:00:00.000Z',
+        },
+      ],
+    })
+    const csv = buildDailyLogCsv([entry], t)
+    const [, meals] = csv.split('\r\n\r\n')
+    const row = meals.split('\r\n')[1]
+
+    expect(row).toContain('"Hunger, Lonely"')
+  })
+
   it('fills meal Time from the Breakfast slot default when timeEaten is missing (#754)', () => {
     const entry = makeEntry({
       calorieEntries: [

@@ -10,13 +10,7 @@ import {
   X,
 } from 'lucide-react'
 import { type FoodItem, type FoodServing, foods } from '@/data/foods'
-import {
-  EATING_REASONS,
-  isBuiltInEatingReason,
-  type CalorieItem,
-  type Emotion,
-  type MealEmotion,
-} from '@/domain/dailyEntry'
+import type { CalorieItem, Emotion, MealEmotion } from '@/domain/dailyEntry'
 import type { MealItem } from '@/domain/mealItem'
 import {
   evaluateMealNutritionFacts,
@@ -24,7 +18,6 @@ import {
 } from '@/domain/nutritionFacts'
 import { formatNumber, useLocale, useTranslation } from '@/i18n'
 import { applyFoodOverrides } from '@/shared/lib/applyFoodOverrides'
-import { eatingReasonDisplayLabel } from '@/shared/lib/eatingReasonDisplay'
 import { DAY_EMOTIONS } from '@/shared/lib/emotionIcons'
 import {
   formatKcal,
@@ -62,10 +55,10 @@ import { Button } from '@/shared/ui/button'
 import { Dialog, DialogContent, DialogTitle } from '@/shared/ui/dialog'
 import { Input } from '@/shared/ui/input'
 import { Label } from '@/shared/ui/label'
-import { Select } from '@/shared/ui/select'
 import { SectionTitleWithToggle } from '@/shared/ui/section-title-with-toggle'
 import { LogRecipeDialog } from '@/features/recipes'
 import { BarcodeScannerDialog } from './BarcodeScannerDialog'
+import { EatingReasonPicker } from './EatingReasonPicker'
 import { EmotionPicker } from './EmotionPicker'
 import type { PickedFoodValues } from './FoodPickerDialog'
 import { foodItemFromOff } from './foodItemFromOff'
@@ -260,11 +253,11 @@ export interface AddMealDialogProps {
   items: CalorieItem[]
   reaction: Emotion | undefined
   onReactionChange: (reaction: Emotion | undefined) => void
-  /** #764 / #765 — why this meal happened. Optional; only shown when
-   * Settings tracking is on. Built-in id or a custom Settings label.
-   * Can be set before the first food lands. */
-  eatingReason?: string
-  onEatingReasonChange?: (reason: string | undefined) => void
+  /** #764 / #774 — why this meal happened. Optional; only shown when
+   * Settings tracking is on. Built-in ids and/or custom Settings labels.
+   * Can be set before the first food lands. Empty = not specified. */
+  eatingReasons?: string[]
+  onEatingReasonsChange?: (reasons: string[]) => void
   onAppendItems: (items: CalorieItem[]) => void
   onRemoveItem: (itemId: string) => void
   /** #459 — edit-in-place for an already-added item (tap its row in "This
@@ -332,8 +325,8 @@ export function AddMealDialog({
   items,
   reaction,
   onReactionChange,
-  eatingReason,
-  onEatingReasonChange,
+  eatingReasons = [],
+  onEatingReasonsChange,
   onAppendItems,
   onRemoveItem,
   onUpdateItem,
@@ -347,12 +340,6 @@ export function AddMealDialog({
   const isOnline = useOnlineStatus()
   const eatingReasonTrackingEnabled = useEatingReasonTrackingStore(
     (state) => state.enabled,
-  )
-  const customEatingReasons = useEatingReasonTrackingStore(
-    (state) => state.customReasons,
-  )
-  const builtinLabelOverrides = useEatingReasonTrackingStore(
-    (state) => state.builtinLabelOverrides,
   )
 
   const mealItems = useMealItemStore((state) => state.items)
@@ -1453,46 +1440,12 @@ export function AddMealDialog({
                 {t.dailyEntry.repeatMealLabel(mealLabel)}
               </Button>
             )}
-            {eatingReasonTrackingEnabled && onEatingReasonChange && (
-              <div className="flex flex-col gap-1.5">
-                <Label htmlFor="add-meal-eating-reason">
-                  {t.dailyEntry.eatingReasonFieldLabel}
-                </Label>
-                <Select
-                  id="add-meal-eating-reason"
-                  aria-label={t.dailyEntry.eatingReasonFieldLabel}
-                  className="h-12 text-base"
-                  value={eatingReason ?? ''}
-                  onChange={(e) => {
-                    const next = e.target.value
-                    onEatingReasonChange(next === '' ? undefined : next)
-                  }}
-                >
-                  <option value="">
-                    {t.dailyEntry.eatingReasonNoneOption}
-                  </option>
-                  {EATING_REASONS.map((reason) => (
-                    <option key={reason} value={reason}>
-                      {eatingReasonDisplayLabel(
-                        reason,
-                        t,
-                        builtinLabelOverrides,
-                      )}
-                    </option>
-                  ))}
-                  {(
-                    eatingReason &&
-                    !isBuiltInEatingReason(eatingReason) &&
-                    !customEatingReasons.includes(eatingReason)
-                      ? [...customEatingReasons, eatingReason]
-                      : customEatingReasons
-                  ).map((reason) => (
-                    <option key={reason} value={reason}>
-                      {reason}
-                    </option>
-                  ))}
-                </Select>
-              </div>
+            {eatingReasonTrackingEnabled && onEatingReasonsChange && (
+              <EatingReasonPicker
+                id="add-meal-eating-reason"
+                value={eatingReasons}
+                onChange={onEatingReasonsChange}
+              />
             )}
             <div className="relative">
               <Input

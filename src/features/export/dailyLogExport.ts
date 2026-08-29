@@ -1,6 +1,7 @@
 import type { CalorieEntry, DailyEntry } from '@/domain/dailyEntry'
 import {
   hadNightEating,
+  mealEatingReasons,
   totalCalories,
   totalCarbs,
   totalFat,
@@ -15,7 +16,7 @@ import type { CustomMetric, CustomMetricEntry } from '@/domain/customMetric'
 import type { Sex } from '@/domain/stats'
 import type { Dictionary } from '@/i18n'
 import { effectiveMealLabel, effectiveTimeEaten, type MealSlotDefaultTimes } from '@/shared/lib/mealLabel'
-import { eatingReasonDisplayLabel, type EatingReasonLabelOverrides } from '@/shared/lib/eatingReasonDisplay'
+import { formatEatingReasonsLine, type EatingReasonLabelOverrides } from '@/shared/lib/eatingReasonDisplay'
 import { formatSleepDuration } from '@/shared/lib/sleepDuration'
 
 /** #743 — extra collections the daily-log table can project into columns.
@@ -371,6 +372,15 @@ export function mealLogRows(
     ;(entry.calorieEntries ?? []).forEach(
       (meal: CalorieEntry, index: number) => {
         const mealLabel = effectiveMealLabel(t, index + 1, meal.label)
+        const reasons = mealEatingReasons(meal)
+        const eatingReasonLine =
+          reasons.length > 0
+            ? formatEatingReasonsLine(
+                reasons,
+                t,
+                extras?.eatingReasonLabelOverrides,
+              )
+            : undefined
         for (const item of meal.items) {
           rows.push({
             date: entry.date,
@@ -391,13 +401,7 @@ export function mealLogRows(
               item.emotion && t.dailyEntry.mealEmotionLabel(item.emotion),
             mealReaction:
               meal.reaction && t.dailyEntry.emotionLabel(meal.reaction),
-            eatingReason:
-              meal.eatingReason &&
-              eatingReasonDisplayLabel(
-                meal.eatingReason,
-                t,
-                extras?.eatingReasonLabelOverrides,
-              ),
+            eatingReason: eatingReasonLine,
             itemNote: item.noteText,
             note: meal.note,
           })
