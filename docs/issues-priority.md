@@ -14,7 +14,6 @@ _Day page weekly-goal completed modal; barcode scanner; complete-week celebratio
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#779](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/779) | 🔍 Pending validation | Settings: manually add a barcode to a food that was saved earlier | Edit panel has a Barcode field; Save writes `MealItem.barcode` (spaces stripped). Unique-index collision with another food is a no-op. |
 | [#784](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/784) | 🔍 Pending validation | Settings: barcode typed on an existing food does not stay after save | On-device 2026-08-30: «Паста творожная десертн…» saved a barcode; list had no «Штрихкод» line and edit reopened empty. Barcode/brand now upsert first and the editor waits; nutrition/propagate runs after. Follow-up to #779. |
 
 ---
