@@ -77,6 +77,16 @@ function macroFieldLabel(
 const nutritionFieldClassName = 'border-border bg-background'
 const dailyEntryRepositoryForBackfill = new IndexedDbDailyEntryRepository()
 
+/** #789 — Settings list search matches name or barcode (spaces ignored). */
+function mealItemMatchesSearch(item: MealItem, rawQuery: string): boolean {
+  const query = rawQuery.trim().toLowerCase()
+  if (!query) return true
+  if (item.name.toLowerCase().includes(query)) return true
+  if (!item.barcode) return false
+  const queryDigits = query.replace(/\s+/g, '')
+  return item.barcode.replace(/\s+/g, '').includes(queryDigits)
+}
+
 function MealItemRow({
   item,
   onRename,
@@ -1261,11 +1271,11 @@ export function MealItemsSection() {
   }
 
   // Same filter-as-you-type shape as FoodListSettingsScreen's search (#179)
-  // — filters by name, case-insensitive, empty query shows everything.
-  // #684 — then sort by the Settings preference (title A↔Z or date added).
+  // — name, case-insensitive; **#789** also matches barcode digits (spaces
+  // ignored). Empty query shows everything. #684 — then sort.
   const query = search.trim().toLowerCase()
   const filteredItems = query
-    ? items.filter((item) => item.name.toLowerCase().includes(query))
+    ? items.filter((item) => mealItemMatchesSearch(item, search))
     : items
   const visibleItems = sortMealLibraryItems(filteredItems, sort, locale)
   // #786 — hide the leftover-food banner as soon as that row is gone (do

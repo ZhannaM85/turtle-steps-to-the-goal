@@ -382,6 +382,21 @@ describe('MealItemsSection', () => {
       ).toBeInTheDocument()
     })
 
+    it('filters the list by barcode digits (#789)', async () => {
+      await useMealItemStore
+        .getState()
+        .touch('Peas', { amountKcal: 44 }, undefined, '4810268023378')
+      await useMealItemStore.getState().touch('Pizza', { amountKcal: 200 })
+      const user = userEvent.setup()
+      render(<MealItemsSection />)
+
+      await screen.findByText('Pizza')
+      await user.type(screen.getByLabelText('Search meal items'), '8023')
+
+      expect(await screen.findByText('Peas')).toBeInTheDocument()
+      expect(screen.queryByText('Pizza')).not.toBeInTheDocument()
+    })
+
     it('does not show the search field in the empty state', async () => {
       render(<MealItemsSection />)
 

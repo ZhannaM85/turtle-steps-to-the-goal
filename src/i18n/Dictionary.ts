@@ -1882,6 +1882,7 @@ export interface Dictionary {
      * pattern as dailyEntry.foodSearchLabel/foodSearchPlaceholder for the
      * curated food list, mirrored here for the personal meal dictionary. */
     mealItemSearchLabel: string
+    /** #789 — name or barcode. */
     mealItemSearchPlaceholder: string
     noMealItemResultsText: string
     mealItemNameLabel: string

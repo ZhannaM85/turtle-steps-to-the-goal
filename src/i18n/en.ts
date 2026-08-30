@@ -1224,7 +1224,7 @@ export const en: Dictionary = {
     mealLibraryPropagateErrorMessage:
       'Could not update past meals. Try again.',
     mealItemSearchLabel: 'Search meal items',
-    mealItemSearchPlaceholder: 'Search...',
+    mealItemSearchPlaceholder: 'Name or barcode...',
     noMealItemResultsText: 'No meal items match your search.',
     mealItemNameLabel: 'Meal item name',
     mealItemBarcodeLabel: 'Barcode',

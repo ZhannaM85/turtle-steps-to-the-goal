@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 750,
+    issue: 789,
+    date: '2026-08-30T15:20:00+03:00',
+    en: 'You can search saved foods by barcode as well as by name.',
+    ru: 'Сохранённые блюда можно искать не только по названию, но и по штрихкоду.',
+  },
+  {
     version: 749,
     issue: 786,
     date: '2026-08-30T14:55:00+03:00',

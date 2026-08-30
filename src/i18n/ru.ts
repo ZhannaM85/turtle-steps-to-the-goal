@@ -1260,7 +1260,7 @@ export const ru: Dictionary = {
     mealLibraryPropagateErrorMessage:
       'Не удалось обновить прошлые приёмы пищи. Попробуйте ещё раз.',
     mealItemSearchLabel: 'Поиск блюд',
-    mealItemSearchPlaceholder: 'Поиск...',
+    mealItemSearchPlaceholder: 'Название или штрихкод...',
     noMealItemResultsText: 'Ничего не найдено.',
     mealItemNameLabel: 'Название блюда',
     mealItemBarcodeLabel: 'Штрихкод',
