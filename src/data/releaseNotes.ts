@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 743,
+    issue: 782,
+    date: '2026-08-30T12:50:00+03:00',
+    en: 'While you edit a saved food, the name field uses the full row so long names are not cut off next to the icons.',
+    ru: 'Пока вы правите сохранённое блюдо, поле названия занимает всю ширину — длинные имена больше не обрезаются рядом с иконками.',
+  },
+  {
     version: 742,
     issue: 781,
     date: '2026-08-30T12:40:00+03:00',

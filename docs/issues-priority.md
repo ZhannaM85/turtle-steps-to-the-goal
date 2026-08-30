@@ -19,7 +19,7 @@ _Day page weekly-goal completed modal; barcode scanner; complete-week celebratio
 | [#779](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/779) | 🔍 Pending validation | Settings: manually add a barcode to a food that was saved earlier | Edit panel has a Barcode field; Save writes `MealItem.barcode` (spaces stripped). Unique-index collision with another food is a no-op. |
 | [#780](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/780) | 🔍 Pending validation | Settings food list: pencil should become save while editing | Same #768 pattern: view = pencil, edit = check (`saveMealItemLabel`). Tap commits name/nutrition/barcode. Bottom Save still present as “Save”. |
 | [#781](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/781) | 🔍 Pending validation | Settings food list: add a brand field on an existing food | `MealItem.brand` + Settings edit field (`itemBrandLabel`). View mode shows the brand when set. |
-| [#782](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/782) | 📋 Not started | Settings food list: expand the food name field while editing | On-device 2026-08-30: name sits in a short pill next to the icon cluster and truncates («Паста творожная д»). Give it more room while editing. |
+| [#782](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/782) | 🔍 Pending validation | Settings food list: expand the food name field while editing | Name sits on its own row (`h-12 w-full`); icons move to the label row, matching Add food. |
 
 ---
 

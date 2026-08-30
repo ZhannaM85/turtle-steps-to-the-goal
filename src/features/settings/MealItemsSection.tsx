@@ -328,7 +328,58 @@ function MealItemRow({
         // #583 rework — one bordered panel around name + nutrition so the
         // edit chrome reads as a single card (name was outside the border).
         <div className="flex flex-col gap-1.5 rounded-lg border border-border bg-muted/40 px-2 py-1.5">
-          <div className="flex items-center gap-2">
+          <div className="flex flex-col gap-1.5">
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-sm text-muted-foreground">
+                {t.settings.mealItemNameLabel}
+              </span>
+              <div className="flex items-center gap-1">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon-sm"
+                  aria-label={
+                    item.favorite
+                      ? t.dailyEntry.unfavoriteFoodLabel(item.name)
+                      : t.dailyEntry.favoriteFoodLabel(item.name)
+                  }
+                  aria-pressed={item.favorite ?? false}
+                  onClick={() => onToggleFavorite(item.id)}
+                >
+                  <Star
+                    aria-hidden="true"
+                    className={cn(item.favorite && 'fill-current')}
+                  />
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon-sm"
+                  aria-label={t.settings.saveMealItemLabel(item.name)}
+                  onClick={() => saveNutrition()}
+                >
+                  <Check aria-hidden="true" />
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon-sm"
+                  aria-label={t.settings.shareMealItemLabel(item.name)}
+                  onClick={() => onShare(item)}
+                >
+                  <Share2 aria-hidden="true" />
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon-sm"
+                  aria-label={t.settings.deleteMealItemLabel(item.name)}
+                  onClick={() => onDelete(item.id)}
+                >
+                  <Trash2 aria-hidden="true" />
+                </Button>
+              </div>
+            </div>
             <Input
               type="text"
               aria-label={t.settings.mealItemNameLabel}
@@ -342,52 +393,8 @@ function MealItemRow({
                   ;(e.target as HTMLInputElement).blur()
                 }
               }}
-              className={cn('h-8 flex-1', nutritionFieldClassName)}
+              className={cn('h-12 w-full text-base', nutritionFieldClassName)}
             />
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon-sm"
-              aria-label={
-                item.favorite
-                  ? t.dailyEntry.unfavoriteFoodLabel(item.name)
-                  : t.dailyEntry.favoriteFoodLabel(item.name)
-              }
-              aria-pressed={item.favorite ?? false}
-              onClick={() => onToggleFavorite(item.id)}
-            >
-              <Star
-                aria-hidden="true"
-                className={cn(item.favorite && 'fill-current')}
-              />
-            </Button>
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon-sm"
-              aria-label={t.settings.saveMealItemLabel(item.name)}
-              onClick={() => saveNutrition()}
-            >
-              <Check aria-hidden="true" />
-            </Button>
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon-sm"
-              aria-label={t.settings.shareMealItemLabel(item.name)}
-              onClick={() => onShare(item)}
-            >
-              <Share2 aria-hidden="true" />
-            </Button>
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon-sm"
-              aria-label={t.settings.deleteMealItemLabel(item.name)}
-              onClick={() => onDelete(item.id)}
-            >
-              <Trash2 aria-hidden="true" />
-            </Button>
           </div>
           <div className="flex flex-col gap-1.5">
             <span className="text-sm text-muted-foreground">

@@ -221,6 +221,7 @@ describe('MealItemsSection', () => {
         name: 'Save Pizza',
       }),
     ).toBeInTheDocument()
+    expect(nameInput).toHaveClass('h-12', 'w-full')
   })
 
   it('deletes an item', async () => {
