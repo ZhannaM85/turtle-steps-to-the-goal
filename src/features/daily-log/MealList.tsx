@@ -1139,7 +1139,7 @@ export function MealList({
         // #456 — purely derived (see the useMemo above), so this note is
         // always accurate for whatever's currently on screen and has no
         // dismiss control of its own to go stale.
-        <div className="flex min-w-0 items-center gap-2 rounded-lg border border-border px-3 py-2 text-sm text-muted-foreground">
+        <div className="flex min-w-0 items-center gap-2 rounded-lg border border-border py-2 text-sm text-muted-foreground">
           <span>
             {t.dailyEntry.fastingWindowToastMessage(
               `${formatNumber(fastingWindowToastHours, locale, 1)}${t.dailyEntry.hoursUnit}`,

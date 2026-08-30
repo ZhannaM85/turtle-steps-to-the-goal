@@ -1157,6 +1157,40 @@ describe('MealList', () => {
       ).toBeInTheDocument()
     })
 
+    it('does not inset the fasting-window note past the Meals header padding (#793)', async () => {
+      await db.dailyEntries.put(
+        makeDailyEntry({
+          date: '2026-02-28',
+          calorieEntries: [
+            {
+              id: 'y1',
+              items: [{ id: 'yi1', amountKcal: 400 }],
+              timeEaten: '20:00',
+              createdAt: '2026-02-28T20:00:00.000Z',
+            },
+          ],
+        }),
+      )
+      render(
+        <MealList
+          calorieEntries={[
+            {
+              id: 't1',
+              items: [{ id: 'ti1', amountKcal: 300 }],
+              timeEaten: '08:00',
+              createdAt: '2026-03-01T08:00:00.000Z',
+            },
+          ]}
+          date="2026-03-01"
+          onChange={vi.fn()}
+        />,
+        { wrapper: MemoryRouter },
+      )
+
+      const note = await screen.findByText('Your fasting window was 12.0h.')
+      expect(note.closest('div')?.className).not.toMatch(/\bpx-3\b/)
+    })
+
     it("shows the toast when the day's first timed meal is added via search", async () => {
       await db.dailyEntries.put(
         makeDailyEntry({

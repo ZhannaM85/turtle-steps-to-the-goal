@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 754,
+    issue: 793,
+    date: '2026-08-30T21:55:00+03:00',
+    en: 'The fasting-window note under Meals lines up with the Meals heading.',
+    ru: 'Заметка об окне голодания под «Приёмы пищи» выровнена по заголовку раздела.',
+  },
+  {
     version: 753,
     issue: 792,
     date: '2026-08-30T21:30:00+03:00',
