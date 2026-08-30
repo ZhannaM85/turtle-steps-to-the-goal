@@ -187,7 +187,12 @@ export const useMealItemStore = create<MealItemStoreState>((set, get) => ({
     set({ items: await mealItemRepository.getAll() })
   },
   setBarcode: async (id, barcode) => {
-    const current = get().items.find((item) => item.id === id)
+    let current = get().items.find((item) => item.id === id)
+    if (!current) {
+      current = (await mealItemRepository.getAll()).find(
+        (item) => item.id === id,
+      )
+    }
     if (!current) return
     const trimmed = barcode?.replace(/\s+/g, '').trim()
     const next: MealItem = {

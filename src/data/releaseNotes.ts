@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 744,
+    issue: 784,
+    date: '2026-08-30T12:45:00+03:00',
+    en: 'A barcode you type onto a saved food is stored as soon as you save, and then shows on the list and when you edit it again.',
+    ru: 'Штрихкод, который вы указываете у сохранённого блюда, записывается сразу при сохранении и потом виден в списке и при повторном редактировании.',
+  },
+  {
     version: 743,
     issue: 782,
     date: '2026-08-30T12:50:00+03:00',

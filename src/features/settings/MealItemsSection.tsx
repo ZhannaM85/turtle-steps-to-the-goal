@@ -130,10 +130,10 @@ function MealItemRow({
     'per100g',
   )
 
-  function commit() {
+  async function commit() {
     const trimmed = value.trim()
     if (trimmed && trimmed !== item.name) {
-      void onRename(item.id, trimmed)
+      await onRename(item.id, trimmed)
     } else {
       setValue(item.name)
     }
@@ -226,22 +226,20 @@ function MealItemRow({
     setMacroMode(newMode)
   }
 
-  function saveNutrition() {
+  async function saveNutrition() {
     const nextBarcode = barcodeDraft.replace(/\s+/g, '').trim() || undefined
     const nextBrand = brandDraft.trim() || undefined
     const parsedKcal100 = parseNumberInput(kcal100)
+    // #784 — write barcode/brand first and wait, then nutrition. Closing
+    // before those upserts (and after a slow history-propagate scan) left
+    // the editor looking saved while MealItem.barcode was still empty.
+    await commit()
+    await onSaveBarcode(item.id, nextBarcode)
+    await onSaveBrand(item.id, nextBrand)
     if (parsedKcal100 === undefined || parsedKcal100 < 0) {
-      if (nextBarcode !== (item.barcode ?? undefined)) {
-        void Promise.resolve(onSaveBarcode(item.id, nextBarcode))
-      }
-      if (nextBrand !== (item.brand ?? undefined)) {
-        void Promise.resolve(onSaveBrand(item.id, nextBrand))
-      }
-      commit()
       setIsEditingNutrition(false)
       return
     }
-    commit()
     const scaled =
       macroMode === 'per100g'
         ? scaleFromPer100g(
@@ -259,14 +257,9 @@ function MealItemRow({
             amountG,
           )
     const nameForSave = value.trim() || item.name
-    void Promise.resolve(
-      onSaveNutrition(nameForSave, {
-        ...scaled,
-        amountG: scaled.amountG ?? 100,
-      }),
-    ).then(async () => {
-      await onSaveBarcode(item.id, nextBarcode)
-      await onSaveBrand(item.id, nextBrand)
+    await onSaveNutrition(nameForSave, {
+      ...scaled,
+      amountG: scaled.amountG ?? 100,
     })
     setIsEditingNutrition(false)
   }
@@ -356,7 +349,7 @@ function MealItemRow({
                   variant="ghost"
                   size="icon-sm"
                   aria-label={t.settings.saveMealItemLabel(item.name)}
-                  onClick={() => saveNutrition()}
+                  onClick={() => void saveNutrition()}
                 >
                   <Check aria-hidden="true" />
                 </Button>
@@ -529,7 +522,7 @@ function MealItemRow({
               type="button"
               variant="outline"
               size="sm"
-              onClick={saveNutrition}
+              onClick={() => void saveNutrition()}
             >
               {t.dailyEntry.saveButton}
             </Button>

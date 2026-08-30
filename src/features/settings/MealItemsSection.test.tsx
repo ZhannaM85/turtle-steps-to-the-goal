@@ -173,7 +173,9 @@ describe('MealItemsSection', () => {
     ).not.toBeInTheDocument()
 
     await user.click(screen.getByRole('button', { name: 'Save Pizza' }))
-    expect(screen.queryByLabelText('Meal item name')).not.toBeInTheDocument()
+    await waitFor(() => {
+      expect(screen.queryByLabelText('Meal item name')).not.toBeInTheDocument()
+    })
     expect(screen.getByText('Pizza')).toBeInTheDocument()
   })
 
@@ -760,6 +762,38 @@ describe('MealItemsSection', () => {
           '4601234567890',
         ),
       )
+    })
+
+    it('keeps a newly typed barcode on an already-logged food after save (#784)', async () => {
+      await useMealItemStore
+        .getState()
+        .touch('Peas', { amountKcal: 44 }, undefined, '3083681187090')
+      await useMealItemStore.getState().touch('Pizza', {
+        amountKcal: 134,
+        proteinG: 8,
+        fatG: 4,
+        carbsG: 16,
+      })
+      const user = userEvent.setup()
+      render(<MealItemsSection />)
+
+      await screen.findByText('Pizza')
+      await user.click(screen.getByRole('button', { name: 'Edit Pizza' }))
+      await user.type(
+        screen.getByLabelText('Barcode — Pizza'),
+        '4601234567890',
+      )
+      await user.click(screen.getByRole('button', { name: 'Save Pizza' }))
+
+      await waitFor(() =>
+        expect(
+          useMealItemStore.getState().items.find((i) => i.name === 'Pizza')
+            ?.barcode,
+        ).toBe('4601234567890'),
+      )
+      expect(
+        await screen.findByText('Barcode: 4 601234 567890'),
+      ).toBeInTheDocument()
     })
 
     it('saves a typed brand onto an existing food (#781)', async () => {
