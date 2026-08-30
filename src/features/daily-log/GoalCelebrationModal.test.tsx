@@ -1,5 +1,5 @@
 import 'fake-indexeddb/auto'
-import { render, screen } from '@testing-library/react'
+import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { addDays, format } from 'date-fns'
 import { MemoryRouter } from 'react-router-dom'
@@ -295,6 +295,131 @@ describe('GoalCelebrationModal', () => {
     ).not.toBeInTheDocument()
     expect(
       await screen.findByText("You reached this week's target!"),
+    ).toBeInTheDocument()
+  })
+
+  it('still offers the complete modal even if a prior dismiss was persisted (#778)', async () => {
+    const weekStart = format(addDays(new Date(), -6), DATE_FORMAT)
+    await useGoalStore.getState().saveGoal(
+      makeGoal({ targetWeeklyLossKg: 1, weekStart }),
+    )
+    await db.dailyEntries.put(makeEntry({ date: weekStart, weightKg: 80 }))
+    await db.dailyEntries.put(
+      makeEntry({
+        date: format(new Date(), DATE_FORMAT),
+        weightKg: 79,
+      }),
+    )
+    useGoalCelebrationStore.setState({
+      celebratedCompleteWeekStart: weekStart,
+    })
+    render(
+      <MemoryRouter>
+        <GoalCelebrationModal />
+      </MemoryRouter>,
+    )
+
+    expect(
+      await screen.findByText('You completed your weekly goal!'),
+    ).toBeInTheDocument()
+  })
+
+  it('shows the complete modal again after remount even if it was closed this visit (#778)', async () => {
+    const weekStart = format(addDays(new Date(), -6), DATE_FORMAT)
+    await useGoalStore.getState().saveGoal(
+      makeGoal({ targetWeeklyLossKg: 1, weekStart }),
+    )
+    await db.dailyEntries.put(makeEntry({ date: weekStart, weightKg: 80 }))
+    await db.dailyEntries.put(
+      makeEntry({
+        date: format(new Date(), DATE_FORMAT),
+        weightKg: 79,
+      }),
+    )
+    const user = userEvent.setup()
+    const { unmount } = render(
+      <MemoryRouter>
+        <GoalCelebrationModal />
+      </MemoryRouter>,
+    )
+
+    await screen.findByText('You completed your weekly goal!')
+    await user.click(screen.getByRole('button', { name: 'Close' }))
+    expect(
+      screen.queryByText('You completed your weekly goal!'),
+    ).not.toBeInTheDocument()
+    unmount()
+
+    render(
+      <MemoryRouter>
+        <GoalCelebrationModal />
+      </MemoryRouter>,
+    )
+    expect(
+      await screen.findByText('You completed your weekly goal!'),
+    ).toBeInTheDocument()
+  })
+
+  it('shows the complete modal again after last-day weight is deleted and logged again (#778)', async () => {
+    const today = format(new Date(), DATE_FORMAT)
+    const weekStart = format(addDays(new Date(), -6), DATE_FORMAT)
+    await useGoalStore.getState().saveGoal(
+      makeGoal({ targetWeeklyLossKg: 1, weekStart }),
+    )
+    await db.dailyEntries.put(makeEntry({ date: weekStart, weightKg: 80 }))
+    const lastDay = makeEntry({ date: today, weightKg: 79 })
+    await db.dailyEntries.put(lastDay)
+    useDailyEntryStore.setState({
+      date: today,
+      entry: lastDay,
+      status: 'idle',
+      error: null,
+    })
+    const user = userEvent.setup()
+    render(
+      <MemoryRouter>
+        <GoalCelebrationModal />
+      </MemoryRouter>,
+    )
+
+    await screen.findByText('You completed your weekly goal!')
+    await user.click(screen.getByRole('button', { name: 'Close' }))
+    expect(
+      screen.queryByText('You completed your weekly goal!'),
+    ).not.toBeInTheDocument()
+
+    const withoutWeight: DailyEntry = {
+      ...lastDay,
+      weightKg: undefined,
+      updatedAt: new Date().toISOString(),
+    }
+    await db.dailyEntries.put(withoutWeight)
+    useDailyEntryStore.setState({
+      date: today,
+      entry: withoutWeight,
+      status: 'idle',
+      error: null,
+    })
+    await waitFor(() => {
+      expect(
+        screen.queryByText('You completed your weekly goal!'),
+      ).not.toBeInTheDocument()
+    })
+
+    const withWeightAgain: DailyEntry = {
+      ...lastDay,
+      weightKg: 79,
+      updatedAt: new Date().toISOString(),
+    }
+    await db.dailyEntries.put(withWeightAgain)
+    useDailyEntryStore.setState({
+      date: today,
+      entry: withWeightAgain,
+      status: 'idle',
+      error: null,
+    })
+    expect(
+      await screen.findByText('You completed your weekly goal!'),
     ).toBeInTheDocument()
   })
 })

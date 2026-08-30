@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 738,
+    issue: 778,
+    date: '2026-08-30T11:45:00+03:00',
+    en: 'If you close the “weekly goal completed” celebration, it can show again until you set next week’s goal — for example after you delete Sunday’s weight and log it again.',
+    ru: 'Если закрыть поздравление «выполнили недельную цель», оно может появиться снова, пока вы не зададите цель на следующую неделю — например после того, как удалите воскресный вес и запишете его ещё раз.',
+  },
+  {
     version: 737,
     issue: 777,
     date: '2026-08-30T11:40:00+03:00',

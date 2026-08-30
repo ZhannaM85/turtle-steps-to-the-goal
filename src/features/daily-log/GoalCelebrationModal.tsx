@@ -18,8 +18,9 @@ import {
  * separate end-of-week banner. #639: now phase-aware — 'inProgress'
  * (mid-week, reframed to not claim final achievement) and 'complete'
  * (the window actually ended with its target still met, the moment a new
- * goal can be started) are two different one-time moments for the same
- * window; see `useWeeklyGoalCelebration.ts`.
+ * goal can be started) are two different moments for the same window;
+ * see `useWeeklyGoalCelebration.ts`. #778: the complete-week dialog can
+ * be offered again after close until a new goal is set.
  */
 export function GoalCelebrationModal() {
   const t = useTranslation()
