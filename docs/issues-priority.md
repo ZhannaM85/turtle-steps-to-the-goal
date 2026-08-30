@@ -16,6 +16,7 @@ _Day page weekly-goal completed modal; barcode scanner; complete-week celebratio
 |---|--------|-------|-------|
 | [#786](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/786) | 🔲 Open | Settings: barcode-moved banner still offers to open a food after it is deleted | After #785 move, Open «йогурт» then delete that food: search stays «йогурт», «Найдено 0 из 142», banner + Open link remain. Dismiss when the leftover row is gone. |
 | [#787](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/787) | 🔲 Open | Settings: confirm before deleting a saved food | Trash on a library food deletes immediately. Confirm modal naming the food; cancel leaves it. Past day meals by that name stay. |
+| [#788](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/788) | 🔲 Open | Scan then edit creates a new food without the barcode instead of updating the existing one | Root of #784/#785. Local scan + rename/macros `touch`es by name and drops the code; original keeps the barcode. «Ver 2Паста…» newest, no barcode; original still had 4810268023378. Update the barcode’s MealItem in place. |
 
 ---
 
