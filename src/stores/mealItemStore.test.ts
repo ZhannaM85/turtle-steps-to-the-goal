@@ -213,6 +213,32 @@ describe('useMealItemStore', () => {
     ).toBe('0123456789012')
   })
 
+  it('setBarcode returns the other food name when the code is taken (#784)', async () => {
+    await useMealItemStore
+      .getState()
+      .touch('Pizza', { amountKcal: 400 }, undefined, '0123456789012')
+    await useMealItemStore.getState().touch('Salad', { amountKcal: 100 })
+    const salad = useMealItemStore
+      .getState()
+      .items.find((i) => i.name === 'Salad')!
+
+    const result = await useMealItemStore
+      .getState()
+      .setBarcode(salad.id, '0123456789012')
+
+    expect(result).toEqual({ takenBy: 'Pizza' })
+  })
+
+  it('touch after setBarcode keeps the new barcode (#784)', async () => {
+    await useMealItemStore.getState().touch('Pizza', { amountKcal: 134 })
+    const id = useMealItemStore.getState().items[0].id
+
+    await useMealItemStore.getState().setBarcode(id, '4601234567890')
+    await useMealItemStore.getState().touch('Pizza', { amountKcal: 134 })
+
+    expect(useMealItemStore.getState().items[0].barcode).toBe('4601234567890')
+  })
+
   it('setBrand attaches a brand to an existing item (#781)', async () => {
     await useMealItemStore.getState().touch('Pizza', { amountKcal: 400 })
     const id = useMealItemStore.getState().items[0].id

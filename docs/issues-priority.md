@@ -14,7 +14,7 @@ _Day page weekly-goal completed modal; barcode scanner; complete-week celebratio
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#784](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/784) | 🔍 Pending validation | Settings: barcode typed on an existing food does not stay after save | On-device 2026-08-30: «Паста творожная десертн…» saved a barcode; list had no «Штрихкод» line and edit reopened empty. Barcode/brand now upsert first and the editor waits; nutrition/propagate runs after. Follow-up to #779. |
+| [#784](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/784) | 🔍 Pending validation | Settings: barcode typed on an existing food does not stay after save | Reproduced on v744: brand «Савушкин продукт» stuck, «Штрихкод» line missing. Barcode is unique (`&barcode`); brand is not — a silent collision skip saved brand and dropped the code. `touch()` also put an explicit undefined barcode. Fix: barcode last, collision names the other food, editor stays open. Follow-up to #779. |
 
 ---
 

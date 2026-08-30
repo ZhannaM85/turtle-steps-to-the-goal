@@ -796,6 +796,80 @@ describe('MealItemsSection', () => {
       ).toBeInTheDocument()
     })
 
+    it('keeps barcode and brand together after nutrition save (#784)', async () => {
+      await useMealItemStore.getState().touch('Pizza', {
+        amountKcal: 134,
+        proteinG: 8,
+        fatG: 4,
+        carbsG: 16,
+      })
+      const user = userEvent.setup()
+      render(<MealItemsSection />)
+
+      await screen.findByText('Pizza')
+      await user.click(screen.getByRole('button', { name: 'Edit Pizza' }))
+      await user.type(
+        screen.getByLabelText('Brand (optional) — Pizza'),
+        'Savushkin',
+      )
+      await user.type(
+        screen.getByLabelText('Barcode — Pizza'),
+        '4810168012345',
+      )
+      await user.click(screen.getByRole('button', { name: 'Save Pizza' }))
+
+      await waitFor(() => {
+        const pizza = useMealItemStore
+          .getState()
+          .items.find((i) => i.name === 'Pizza')
+        expect(pizza?.brand).toBe('Savushkin')
+        expect(pizza?.barcode).toBe('4810168012345')
+      })
+    })
+
+    it('names the other food when the typed barcode is already taken (#784)', async () => {
+      await useMealItemStore
+        .getState()
+        .touch('Peas', { amountKcal: 44 }, undefined, '3083681187090')
+      await useMealItemStore.getState().touch('Pizza', {
+        amountKcal: 134,
+        proteinG: 8,
+        fatG: 4,
+        carbsG: 16,
+      })
+      const user = userEvent.setup()
+      render(<MealItemsSection />)
+
+      await screen.findByText('Pizza')
+      await user.click(screen.getByRole('button', { name: 'Edit Pizza' }))
+      await user.type(
+        screen.getByLabelText('Brand (optional) — Pizza'),
+        'Savushkin',
+      )
+      await user.type(
+        screen.getByLabelText('Barcode — Pizza'),
+        '3083681187090',
+      )
+      await user.click(screen.getByRole('button', { name: 'Save Pizza' }))
+
+      expect(
+        await screen.findByRole('alert'),
+      ).toHaveTextContent('This barcode is already on “Peas”.')
+      expect(screen.getByRole('button', { name: 'Save Pizza' })).toBeInTheDocument()
+      expect(
+        useMealItemStore.getState().items.find((i) => i.name === 'Pizza')
+          ?.barcode,
+      ).toBeUndefined()
+      expect(
+        useMealItemStore.getState().items.find((i) => i.name === 'Pizza')
+          ?.brand,
+      ).toBe('Savushkin')
+      expect(
+        useMealItemStore.getState().items.find((i) => i.name === 'Peas')
+          ?.barcode,
+      ).toBe('3083681187090')
+    })
+
     it('saves a typed brand onto an existing food (#781)', async () => {
       await useMealItemStore.getState().touch('Pizza', { amountKcal: 200 })
       const user = userEvent.setup()

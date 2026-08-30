@@ -1888,6 +1888,9 @@ export interface Dictionary {
     /** #779 — field on an existing saved food so a barcode can be typed
      * later; stored as `MealItem.barcode` for `lookupBarcode`. */
     mealItemBarcodeLabel: string
+    /** #784 — unique `&barcode` index; shown when save would steal another
+     * food's code instead of silently dropping the typed value. */
+    mealItemBarcodeTakenMessage: (name: string) => string
     deleteMealItemLabel: (name: string) => string
     editMealItemLabel: (name: string) => string
     saveMealItemLabel: (name: string) => string

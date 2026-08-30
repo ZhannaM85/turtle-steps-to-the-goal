@@ -101,7 +101,10 @@ function MealItemRow({
       amountG: number
     },
   ) => void | Promise<void>
-  onSaveBarcode: (id: string, barcode: string | undefined) => void | Promise<void>
+  onSaveBarcode: (
+    id: string,
+    barcode: string | undefined,
+  ) => Promise<{ takenBy?: string }>
   onSaveBrand: (id: string, brand: string | undefined) => void | Promise<void>
   onToggleFavorite: (id: string) => void
   onSaveServings: (id: string, servings: MealItemServing[]) => void
@@ -119,6 +122,7 @@ function MealItemRow({
   // #779 — typed onto an existing food so the next scan matches locally.
   const [barcodeDraft, setBarcodeDraft] = useState(item.barcode ?? '')
   const [brandDraft, setBrandDraft] = useState(item.brand ?? '')
+  const [barcodeError, setBarcodeError] = useState('')
   // #603 — draft fields for the "add a serving" row only; the list itself
   // reads straight from `item.servings` and commits immediately on
   // add/remove, same "doesn't wait for Save" shape favoriting already has.
@@ -144,6 +148,7 @@ function MealItemRow({
     setValue(item.name)
     setBarcodeDraft(item.barcode ?? '')
     setBrandDraft(item.brand ?? '')
+    setBarcodeError('')
     setIsEditingNutrition(false)
   }
 
@@ -159,6 +164,7 @@ function MealItemRow({
     setValue(item.name)
     setBarcodeDraft(item.barcode ?? '')
     setBrandDraft(item.brand ?? '')
+    setBarcodeError('')
     if (item.lastAmountKcal === undefined) {
       setKcal100('')
       setProtein100('')
@@ -230,37 +236,43 @@ function MealItemRow({
     const nextBarcode = barcodeDraft.replace(/\s+/g, '').trim() || undefined
     const nextBrand = brandDraft.trim() || undefined
     const parsedKcal100 = parseNumberInput(kcal100)
-    // #784 — write barcode/brand first and wait, then nutrition. Closing
-    // before those upserts (and after a slow history-propagate scan) left
-    // the editor looking saved while MealItem.barcode was still empty.
+    // #784 — brand is not unique and is not rewritten by `touch()`. Barcode
+    // is unique (`&barcode`) and `touch()` used to put an explicit undefined
+    // barcode field. Write nutrition first, barcode last, and surface a
+    // collision instead of silently dropping the code.
     await commit()
-    await onSaveBarcode(item.id, nextBarcode)
     await onSaveBrand(item.id, nextBrand)
-    if (parsedKcal100 === undefined || parsedKcal100 < 0) {
-      setIsEditingNutrition(false)
+    if (parsedKcal100 !== undefined && parsedKcal100 >= 0) {
+      const scaled =
+        macroMode === 'per100g'
+          ? scaleFromPer100g(
+              parsedKcal100,
+              parseOptionalMacro(protein100),
+              parseOptionalMacro(fat100),
+              parseOptionalMacro(carbs100),
+              amountG,
+            )
+          : totalFromPortion(
+              parsedKcal100,
+              parseOptionalMacro(protein100),
+              parseOptionalMacro(fat100),
+              parseOptionalMacro(carbs100),
+              amountG,
+            )
+      const nameForSave = value.trim() || item.name
+      await onSaveNutrition(nameForSave, {
+        ...scaled,
+        amountG: scaled.amountG ?? 100,
+      })
+    }
+    const barcodeResult = await onSaveBarcode(item.id, nextBarcode)
+    if (barcodeResult.takenBy) {
+      setBarcodeError(
+        t.settings.mealItemBarcodeTakenMessage(barcodeResult.takenBy),
+      )
       return
     }
-    const scaled =
-      macroMode === 'per100g'
-        ? scaleFromPer100g(
-            parsedKcal100,
-            parseOptionalMacro(protein100),
-            parseOptionalMacro(fat100),
-            parseOptionalMacro(carbs100),
-            amountG,
-          )
-        : totalFromPortion(
-            parsedKcal100,
-            parseOptionalMacro(protein100),
-            parseOptionalMacro(fat100),
-            parseOptionalMacro(carbs100),
-            amountG,
-          )
-    const nameForSave = value.trim() || item.name
-    await onSaveNutrition(nameForSave, {
-      ...scaled,
-      amountG: scaled.amountG ?? 100,
-    })
+    setBarcodeError('')
     setIsEditingNutrition(false)
   }
 
@@ -412,9 +424,18 @@ function MealItemRow({
               aria-label={`${t.settings.mealItemBarcodeLabel} — ${item.name}`}
               placeholder={t.dailyEntry.scanBarcodeManualPlaceholder}
               value={barcodeDraft}
-              onChange={(e) => setBarcodeDraft(e.target.value)}
+              onChange={(e) => {
+                setBarcodeDraft(e.target.value)
+                if (barcodeError) setBarcodeError('')
+              }}
               className={cn('h-12 text-base', nutritionFieldClassName)}
+              aria-invalid={barcodeError ? true : undefined}
             />
+            {barcodeError ? (
+              <p className="text-sm text-destructive" role="alert">
+                {barcodeError}
+              </p>
+            ) : null}
           </div>
           <ToggleGroup
             type="single"

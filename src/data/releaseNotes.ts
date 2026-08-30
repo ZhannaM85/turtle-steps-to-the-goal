@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 745,
+    issue: 784,
+    date: '2026-08-30T13:30:00+03:00',
+    en: 'If a barcode you type on a saved food is already used by another food, you now see which one — and a unique barcode stays after save.',
+    ru: 'Если штрихкод, который вы указываете у сохранённого блюда, уже есть у другого, теперь видно у какого — и уникальный штрихкод после сохранения остаётся.',
+  },
+  {
     version: 744,
     issue: 784,
     date: '2026-08-30T12:45:00+03:00',

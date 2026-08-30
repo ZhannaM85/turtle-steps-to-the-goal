@@ -67,8 +67,12 @@ interface MealItemStoreState {
   setServings: (id: string, servings: MealItemServing[]) => Promise<void>
   /** #779 — attach or clear a barcode on an existing library row so a
    * later scan hits `findByBarcode`. Empty/whitespace clears. If another
-   * row already owns that code (unique index), this is a no-op. */
-  setBarcode: (id: string, barcode: string | undefined) => Promise<void>
+   * row already owns that code (unique `&barcode` index, #256), returns
+   * `{ takenBy }` instead of silently skipping (#784). */
+  setBarcode: (
+    id: string,
+    barcode: string | undefined,
+  ) => Promise<{ takenBy?: string }>
   /** #781 — attach or clear a brand on an existing library row. */
   setBrand: (id: string, brand: string | undefined) => Promise<void>
   /**
@@ -139,8 +143,15 @@ export const useMealItemStore = create<MealItemStoreState>((set, get) => ({
       lastPotassiumMg: nutrition?.potassiumMg ?? existing?.lastPotassiumMg,
       lastMagnesiumMg: nutrition?.magnesiumMg ?? existing?.lastMagnesiumMg,
       favorite: favorite ?? existing?.favorite,
-      barcode: barcode ?? existing?.barcode,
       source: existing?.source,
+    }
+    // #784 — only write barcode when the caller passed a 4th arg. An
+    // explicit `barcode: undefined` on the put overwrote the spread and
+    // could drop a code `setBarcode` had just stored; brand is not in this
+    // object at all, which is why brand stuck and barcode did not.
+    if (barcode !== undefined) {
+      if (barcode) item.barcode = barcode
+      else delete item.barcode
     }
     await mealItemRepository.upsert(item)
     set({ items: await mealItemRepository.getAll() })
@@ -193,7 +204,7 @@ export const useMealItemStore = create<MealItemStoreState>((set, get) => ({
         (item) => item.id === id,
       )
     }
-    if (!current) return
+    if (!current) return {}
     const trimmed = barcode?.replace(/\s+/g, '').trim()
     const next: MealItem = {
       ...current,
@@ -201,13 +212,26 @@ export const useMealItemStore = create<MealItemStoreState>((set, get) => ({
     }
     if (trimmed) {
       const collision = await mealItemRepository.findByBarcode(trimmed)
-      if (collision && collision.id !== id) return
+      if (collision && collision.id !== id) {
+        return { takenBy: collision.name }
+      }
       next.barcode = trimmed
     } else {
       delete next.barcode
     }
-    await mealItemRepository.upsert(next)
+    try {
+      await mealItemRepository.upsert(next)
+    } catch (err) {
+      if (trimmed) {
+        const collision = await mealItemRepository.findByBarcode(trimmed)
+        if (collision && collision.id !== id) {
+          return { takenBy: collision.name }
+        }
+      }
+      throw err
+    }
     set({ items: await mealItemRepository.getAll() })
+    return {}
   },
   setBrand: async (id, brand) => {
     const current = get().items.find((item) => item.id === id)

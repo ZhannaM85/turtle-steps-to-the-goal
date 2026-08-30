@@ -1228,6 +1228,8 @@ export const en: Dictionary = {
     noMealItemResultsText: 'No meal items match your search.',
     mealItemNameLabel: 'Meal item name',
     mealItemBarcodeLabel: 'Barcode',
+    mealItemBarcodeTakenMessage: (name) =>
+      `This barcode is already on “${name}”.`,
     deleteMealItemLabel: (name) => `Delete "${name}"`,
     editMealItemLabel: (name) => `Edit ${name}`,
     saveMealItemLabel: (name) => `Save ${name}`,

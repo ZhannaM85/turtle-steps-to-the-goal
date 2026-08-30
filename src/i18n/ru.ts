@@ -1264,6 +1264,8 @@ export const ru: Dictionary = {
     noMealItemResultsText: 'Ничего не найдено.',
     mealItemNameLabel: 'Название блюда',
     mealItemBarcodeLabel: 'Штрихкод',
+    mealItemBarcodeTakenMessage: (name) =>
+      `Этот штрихкод уже указан у «${name}».`,
     deleteMealItemLabel: (name) => `Удалить «${name}»`,
     editMealItemLabel: (name) => `Изменить «${name}»`,
     saveMealItemLabel: (name) => `Сохранить «${name}»`,
