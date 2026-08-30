@@ -17,6 +17,7 @@ _Day page weekly-goal completed modal; barcode scanner; complete-week celebratio
 | [#786](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/786) | 🔍 Pending validation | Settings: barcode-moved banner still offers to open a food after it is deleted | After #785 move, deleting the leftover food dismisses the banner and clears a search stuck on that name. |
 | [#787](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/787) | 🔍 Pending validation | Settings: confirm before deleting a saved food | Trash opens a confirm dialog naming the food; Cancel leaves it. Past day meals by that name stay. |
 | [#788](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/788) | 🔍 Pending validation | Scan then edit creates a new food without the barcode instead of updating the existing one | Root of #784/#785. `touch` now finds by barcode when a code is passed and updates that row (name/nutrition) in place. Local scan keeps `pendingBarcode` so a rename after scan does not create a barcode-less copy. |
+| [#789](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/789) | 🔲 Open | Settings: search saved foods by barcode | Search is name-only; typing barcode digits (e.g. 602) shows 0 of 141. Match `MealItem.barcode` as well (ignore spaces). |
 
 ---
 
