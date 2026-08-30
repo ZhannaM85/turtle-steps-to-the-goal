@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 741,
+    issue: 780,
+    date: '2026-08-30T12:30:00+03:00',
+    en: 'While you edit a saved food, the pencil becomes a check so you can save from the row.',
+    ru: 'Пока вы правите сохранённое блюдо, карандаш становится галочкой — можно сохранить прямо в строке.',
+  },
+  {
     version: 740,
     issue: 779,
     date: '2026-08-30T12:20:00+03:00',

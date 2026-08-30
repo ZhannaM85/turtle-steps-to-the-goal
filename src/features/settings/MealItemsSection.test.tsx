@@ -132,7 +132,7 @@ describe('MealItemsSection', () => {
     expect(positions[1]).toBeLessThan(positions[2])
   })
 
-  it('renames an item when closing edit with the pencil (#584/#589)', async () => {
+  it('renames an item when saving edit with the check (#584/#589/#780)', async () => {
     await useMealItemStore.getState().touch('Pizza')
     const user = userEvent.setup()
     render(<MealItemsSection />)
@@ -142,8 +142,7 @@ describe('MealItemsSection', () => {
     const input = screen.getByLabelText('Meal item name')
     await user.clear(input)
     await user.type(input, 'Margherita pizza')
-    // Pencil close commits the draft name (#589: blur no longer auto-renames).
-    await user.click(screen.getByRole('button', { name: 'Edit Pizza' }))
+    await user.click(screen.getByRole('button', { name: 'Save Pizza' }))
 
     expect(await screen.findByText('Margherita pizza')).toBeInTheDocument()
     await waitFor(() =>
@@ -166,8 +165,14 @@ describe('MealItemsSection', () => {
 
     await user.click(screen.getByRole('button', { name: 'Edit Pizza' }))
     expect(screen.getByLabelText('Meal item name')).toHaveValue('Pizza')
+    expect(
+      screen.getByRole('button', { name: 'Save Pizza' }),
+    ).toBeInTheDocument()
+    expect(
+      screen.queryByRole('button', { name: 'Edit Pizza' }),
+    ).not.toBeInTheDocument()
 
-    await user.click(screen.getByRole('button', { name: 'Edit Pizza' }))
+    await user.click(screen.getByRole('button', { name: 'Save Pizza' }))
     expect(screen.queryByLabelText('Meal item name')).not.toBeInTheDocument()
     expect(screen.getByText('Pizza')).toBeInTheDocument()
   })

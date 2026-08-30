@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Pencil, ScanBarcode, Share2, Star, Trash2 } from 'lucide-react'
+import { Check, Pencil, ScanBarcode, Share2, Star, Trash2 } from 'lucide-react'
 import { formatNumber, useLocale, useTranslation } from '@/i18n'
 import type { MealItem, MealItemServing } from '@/domain/mealItem'
 import {
@@ -136,11 +136,6 @@ function MealItemRow({
     }
   }
 
-  function stopEditing() {
-    commit()
-    setIsEditingNutrition(false)
-  }
-
   /** #589 — leave edit without saving nutrition or renaming. */
   function cancelEditing() {
     setValue(item.name)
@@ -230,12 +225,11 @@ function MealItemRow({
     const nextBarcode = barcodeDraft.replace(/\s+/g, '').trim() || undefined
     const parsedKcal100 = parseNumberInput(kcal100)
     if (parsedKcal100 === undefined || parsedKcal100 < 0) {
-      // #779 — barcode-only save on a food with no macros yet.
       if (nextBarcode !== (item.barcode ?? undefined)) {
-        commit()
         void Promise.resolve(onSaveBarcode(item.id, nextBarcode))
-        setIsEditingNutrition(false)
       }
+      commit()
+      setIsEditingNutrition(false)
       return
     }
     commit()
@@ -331,7 +325,7 @@ function MealItemRow({
               onKeyDown={(e) => {
                 if (e.key === 'Enter') {
                   e.preventDefault()
-                  // #589 — commit name with Save / pencil close, not blur,
+                  // #589 — commit name with Save / check, not blur,
                   // so Cancel can discard a typed rename.
                   ;(e.target as HTMLInputElement).blur()
                 }
@@ -359,10 +353,10 @@ function MealItemRow({
               type="button"
               variant="ghost"
               size="icon-sm"
-              aria-label={t.settings.editMealItemLabel(item.name)}
-              onClick={() => stopEditing()}
+              aria-label={t.settings.saveMealItemLabel(item.name)}
+              onClick={() => saveNutrition()}
             >
-              <Pencil aria-hidden="true" />
+              <Check aria-hidden="true" />
             </Button>
             <Button
               type="button"
@@ -503,7 +497,6 @@ function MealItemRow({
               type="button"
               variant="outline"
               size="sm"
-              aria-label={t.settings.saveMealItemLabel(item.name)}
               onClick={saveNutrition}
             >
               {t.dailyEntry.saveButton}
