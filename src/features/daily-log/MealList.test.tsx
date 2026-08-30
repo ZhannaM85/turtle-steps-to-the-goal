@@ -1153,7 +1153,7 @@ describe('MealList', () => {
       await user.click(screen.getByRole('button', { name: 'Save' }))
 
       expect(
-        await screen.findByText('Your fasting window was 12.0h.'),
+        await screen.findByText('Your fasting window was 12h.'),
       ).toBeInTheDocument()
     })
 
@@ -1187,8 +1187,10 @@ describe('MealList', () => {
         { wrapper: MemoryRouter },
       )
 
-      const note = await screen.findByText('Your fasting window was 12.0h.')
+      const note = await screen.findByText('Your fasting window was 12h.')
       expect(note.closest('div')?.className).not.toMatch(/\bpx-3\b/)
+      expect(note.className).toMatch(/\bborder-border\b/)
+      expect(note.className).toMatch(/\bbg-muted\b/)
     })
 
     it("shows the toast when the day's first timed meal is added via search", async () => {
@@ -1220,7 +1222,7 @@ describe('MealList', () => {
       await user.click(screen.getByRole('button', { name: 'Save' }))
 
       expect(
-        await screen.findByText('Your fasting window was 12.0h.'),
+        await screen.findByText('Your fasting window was 12h.'),
       ).toBeInTheDocument()
     })
 
@@ -1273,7 +1275,7 @@ describe('MealList', () => {
       await user.type(screen.getByLabelText('Dish name'), 'Oatmeal')
       await user.type(screen.getByLabelText('kcal/100g'), '300')
       await user.click(screen.getByRole('button', { name: 'Save' }))
-      await screen.findByText('Your fasting window was 12.0h.')
+      await screen.findByText('Your fasting window was 12h.')
       await user.click(screen.getByRole('button', { name: 'Done' }))
 
       expect(
@@ -1309,7 +1311,7 @@ describe('MealList', () => {
       await user.type(screen.getByLabelText('Dish name'), 'Oatmeal')
       await user.type(screen.getByLabelText('kcal/100g'), '300')
       await user.click(screen.getByRole('button', { name: 'Save' }))
-      await screen.findByText('Your fasting window was 12.0h.')
+      await screen.findByText('Your fasting window was 12h.')
       await user.click(screen.getByRole('button', { name: 'Done' }))
 
       await user.click(screen.getByRole('button', { name: 'Delete meal 1' }))
@@ -1351,7 +1353,7 @@ describe('MealList', () => {
       )
 
       expect(
-        await screen.findByText('Your fasting window was 9.0h.'),
+        await screen.findByText('Your fasting window was 9h.'),
       ).toBeInTheDocument()
     })
 
@@ -1392,7 +1394,7 @@ describe('MealList', () => {
       await user.click(screen.getByRole('button', { name: 'Save' }))
 
       expect(
-        await screen.findByText('Your fasting window was 12.2h.'),
+        await screen.findByText('Your fasting window was 12h 14m.'),
       ).toBeInTheDocument()
 
       useDayStartStore.setState({ dayStartTime: '00:00' })

@@ -77,6 +77,18 @@ const curatedFoodNames = new Set(foods.flatMap((food) => [food.en, food.ru]))
 // 8-10s window the issue asked for.
 const MEAL_DELETE_UNDO_WINDOW_MS = 9000
 
+/** #794 — `fastingHoursBetween` returns a float; show hours + minutes. */
+function hoursMinutesFromDecimalHours(value: number): {
+  hours: number
+  minutes: number
+} {
+  const totalMinutes = Math.round(value * 60)
+  return {
+    hours: Math.floor(totalMinutes / 60),
+    minutes: totalMinutes % 60,
+  }
+}
+
 // #190: own repository instance, same no-shared-store pattern as
 // useHistoryData/useDashboardData — fetches the day *before* `date` to
 // power the "Repeat yesterday's [meal]" quick action.
@@ -506,6 +518,10 @@ export function MealList({
         : null,
     [previousDayEntry, calorieEntries, dayStartTime],
   )
+  const fastingWindowParts =
+    fastingWindowToastHours === null
+      ? null
+      : hoursMinutesFromDecimalHours(fastingWindowToastHours)
 
   const lastMealAt = useMemo(() => {
     if (!sinceLastMealTimerEnabled) return null
@@ -1135,17 +1151,21 @@ export function MealList({
           </Button>
         </div>
       )}
-      {fastingWindowToastHours !== null && (
+      {fastingWindowParts && (
         // #456 — purely derived (see the useMemo above), so this note is
         // always accurate for whatever's currently on screen and has no
         // dismiss control of its own to go stale.
-        <div className="flex min-w-0 items-center gap-2 rounded-lg border border-border py-2 text-sm text-muted-foreground">
-          <span>
+        // #794 — compact badge (border + muted fill), hours+minutes not
+        // a one-decimal float. Left-aligned so it stays with the Meals
+        // heading (#793).
+        <p className="min-w-0">
+          <span className="inline-block rounded-md border border-border bg-muted px-2 py-0.5 text-sm tabular-nums text-muted-foreground">
             {t.dailyEntry.fastingWindowToastMessage(
-              `${formatNumber(fastingWindowToastHours, locale, 1)}${t.dailyEntry.hoursUnit}`,
+              fastingWindowParts.hours,
+              fastingWindowParts.minutes,
             )}
           </span>
-        </div>
+        </p>
       )}
       {mealsInDisplayOrder.length > 0 && (
         <ul className="grid min-w-0 max-w-full grid-cols-1 gap-3">

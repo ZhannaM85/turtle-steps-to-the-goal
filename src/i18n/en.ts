@@ -365,7 +365,10 @@ export const en: Dictionary = {
     confirmDeleteItemLabel: 'Remove this food?',
     confirmDeleteItemYes: 'Remove',
     confirmDeleteItemNo: 'Cancel',
-    fastingWindowToastMessage: (hours) => `Your fasting window was ${hours}.`,
+    fastingWindowToastMessage: (hours, minutes) =>
+      minutes === 0
+        ? `Your fasting window was ${hours}h.`
+        : `Your fasting window was ${hours}h ${minutes}m.`,
     foodSearchLabel: 'Search foods',
     foodSearchPlaceholder: 'Search…',
     foodQuantityLabel: 'Quantity (g)',

@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 755,
+    issue: 794,
+    date: '2026-08-30T22:05:00+03:00',
+    en: 'The fasting-window note under Meals now shows hours and minutes (13h 36m) and looks more like a badge.',
+    ru: 'Заметка об окне голодания под «Приёмы пищи» показывает часы и минуты (13 ч 36 м) и выглядит как бейдж.',
+  },
+  {
     version: 754,
     issue: 793,
     date: '2026-08-30T21:55:00+03:00',

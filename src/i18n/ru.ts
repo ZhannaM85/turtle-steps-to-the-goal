@@ -384,8 +384,10 @@ export const ru: Dictionary = {
     confirmDeleteItemLabel: 'Убрать это блюдо?',
     confirmDeleteItemYes: 'Убрать',
     confirmDeleteItemNo: 'Отмена',
-    fastingWindowToastMessage: (hours) =>
-      `Ваше окно голодания составило ${hours}.`,
+    fastingWindowToastMessage: (hours, minutes) =>
+      minutes === 0
+        ? `Ваше окно голодания составило ${hours} ч.`
+        : `Ваше окно голодания составило ${hours} ч ${minutes} м.`,
     foodSearchLabel: 'Поиск продуктов',
     foodSearchPlaceholder: 'Поиск…',
     foodQuantityLabel: 'Количество (г)',

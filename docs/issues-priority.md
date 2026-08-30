@@ -16,7 +16,7 @@ _Day page weekly-goal completed modal; barcode scanner; complete-week celebratio
 |---|--------|-------|-------|
 | [#792](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/792) | 🔍 Pending validation | Day: show hours since previous meal on each meal card | Same #791 toggle. Sub-header under the meal title: gap from the previous meal (first meal of the day uses yesterday's last). Hours+minutes, no live tick. |
 | [#793](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/793) | 🔍 Pending validation | Day: align fasting-window note with Meals header | Removed extra horizontal padding so the note starts in line with the Meals heading. |
-| [#794](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/794) | 🔲 Open | Day: fasting window as 13h 36m badge, not 13.6h | Decimal 13.6h → 13h 36m; bordered badge with a distinct background. |
+| [#794](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/794) | 🔍 Pending validation | Day: fasting window as 13h 36m badge, not 13.6h | Hours+minutes (`13h 36m` / `13 ч 36 м`); bordered muted badge under Meals. |
 
 ---
 

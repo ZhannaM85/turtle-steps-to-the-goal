@@ -653,8 +653,9 @@ export interface Dictionary {
      * day's first meal with a recorded time, if the previous day also had
      * one — not a background/push notification (see #261, closed as
      * infeasible for that). `fastingHoursBetween` (domain/stats, #257)
-     * does the actual elapsed-hours math. */
-    fastingWindowToastMessage: (hours: string) => string
+     * does the actual elapsed-hours math. #794 — hours + minutes, not a
+     * one-decimal float (`13h 36m` / `13 ч 36 м`). */
+    fastingWindowToastMessage: (hours: number, minutes: number) => string
     foodSearchLabel: string
     foodSearchPlaceholder: string
     foodQuantityLabel: string
