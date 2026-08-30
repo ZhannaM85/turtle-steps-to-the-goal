@@ -271,4 +271,30 @@ describe('GoalCelebrationModal', () => {
     ).toBeInTheDocument()
     expect(cta).toHaveAttribute('href', '/goal')
   })
+
+  it('does not show completion copy on weekEnd until that day’s weight is logged (#776)', async () => {
+    const weekStart = format(addDays(new Date(), -6), DATE_FORMAT) // weekEnd is today
+    await useGoalStore.getState().saveGoal(
+      makeGoal({ targetWeeklyLossKg: 1, weekStart }),
+    )
+    await db.dailyEntries.put(makeEntry({ date: weekStart, weightKg: 80 }))
+    await db.dailyEntries.put(
+      makeEntry({
+        date: format(addDays(new Date(), -1), DATE_FORMAT), // yesterday, not today
+        weightKg: 79, // mid-week hit; no last-day weigh-in yet
+      }),
+    )
+    render(
+      <MemoryRouter>
+        <GoalCelebrationModal />
+      </MemoryRouter>,
+    )
+
+    expect(
+      screen.queryByText('You completed your weekly goal!'),
+    ).not.toBeInTheDocument()
+    expect(
+      await screen.findByText("You reached this week's target!"),
+    ).toBeInTheDocument()
+  })
 })

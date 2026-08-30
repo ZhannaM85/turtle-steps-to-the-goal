@@ -120,10 +120,26 @@ describe('#689 goal lifecycle HARD LOCK pack', () => {
       const progress = {
         weekEnd,
         finalTargetMet: true as boolean | null,
+        currentWeightDate: weekEnd,
       }
 
       expect(goalWindowConcluded(progress, weekEnd)).toBe(true)
       expect(goalWindowConcluded(progress, weekStart)).toBe(false)
+    })
+
+    it('#776 HARD LOCK: weekEnd + mid-week finalTargetMet without last-day weigh-in is not concluded', () => {
+      const weekEnd = format(new Date(), 'yyyy-MM-dd')
+      const priorDay = format(subDays(new Date(), 1), 'yyyy-MM-dd')
+      expect(
+        goalWindowConcluded(
+          {
+            weekEnd,
+            finalTargetMet: true,
+            currentWeightDate: priorDay,
+          },
+          weekEnd,
+        ),
+      ).toBe(false)
     })
 
     it('enables Start a new goal when activeGoalConcluded is true mid calendar window', () => {

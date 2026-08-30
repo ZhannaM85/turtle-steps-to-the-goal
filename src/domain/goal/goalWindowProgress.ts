@@ -52,6 +52,10 @@ export interface GoalWindowProgress {
    * — always the true latest weigh-in now, which `finalTargetMet` below
    * depends on being accurate. */
   currentWeightKg?: number
+  /** Date of `currentWeightKg` (the latest weigh-in in the window). #776
+   * uses this so a mid-week hit cannot conclude the window on `weekEnd`
+   * until that last day itself has a logged weight. */
+  currentWeightDate?: string
   /** #639 — whether the window's actual *final* state (its most recently
    * logged weight, i.e. `currentWeightKg`, vs. `baselineWeightKg`) met the
    * target — as opposed to the sticky `targetMet` above, which stays true
@@ -177,6 +181,7 @@ export function goalWindowProgress(
 
   const lastWindowEntry = windowEntriesSorted.at(-1)
   const currentWeightKg = lastWindowEntry?.weightKg
+  const currentWeightDate = lastWindowEntry?.date
   const finalTargetMet =
     currentWeightKg === undefined
       ? null
@@ -189,6 +194,7 @@ export function goalWindowProgress(
     metOnDate,
     baselineWeightKg,
     currentWeightKg,
+    currentWeightDate,
     finalTargetMet,
   }
 }
@@ -209,21 +215,30 @@ export function goalWindowHasEnded(
 
 /**
  * Whether a goal's window should be treated as concluded for UI purposes
- * (#667) — either the calendar has actually passed `weekEnd`
- * (`goalWindowHasEnded`), or the target was reached on `weekEnd` itself.
- * The latter is not covered by `goalWindowHasEnded` (still false on that
- * exact day), but nothing logged later in the window can change the
- * outcome once its own last day already has a qualifying entry, so
- * there's no reason to defer the same-day celebration/new-goal unlock to
- * the next calendar day the way an ordinary calendar-end wait would.
+ * (#667, #776) — either the calendar has actually passed `weekEnd`
+ * (`goalWindowHasEnded`), or the target was reached on `weekEnd` itself
+ * *and that last day has a logged weight*. The latter is not covered by
+ * `goalWindowHasEnded` (still false on that exact day), but nothing
+ * logged later in the window can change the outcome once its own last day
+ * already has a qualifying entry, so there's no reason to defer the
+ * same-day celebration/new-goal unlock to the next calendar day.
+ *
+ * #776: a mid-week `finalTargetMet` (Saturday's weigh-in still meeting
+ * the target) must not conclude the window on Sunday morning with an
+ * empty last-day weight field — wait until `weekEnd` itself is logged.
  */
 export function goalWindowConcluded(
-  progress: Pick<GoalWindowProgress, 'weekEnd' | 'finalTargetMet'>,
+  progress: Pick<
+    GoalWindowProgress,
+    'weekEnd' | 'finalTargetMet' | 'currentWeightDate'
+  >,
   today: string = format(new Date(), DATE_FORMAT),
 ): boolean {
+  if (goalWindowHasEnded(progress.weekEnd, today)) return true
   return (
-    goalWindowHasEnded(progress.weekEnd, today) ||
-    (today === progress.weekEnd && progress.finalTargetMet === true)
+    today === progress.weekEnd &&
+    progress.finalTargetMet === true &&
+    progress.currentWeightDate === progress.weekEnd
   )
 }
 

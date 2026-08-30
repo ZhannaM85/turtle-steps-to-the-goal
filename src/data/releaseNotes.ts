@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 736,
+    issue: 776,
+    date: '2026-08-30T11:30:00+03:00',
+    en: 'The “you completed your weekly goal” celebration waits until you log weight on the last day of the week, instead of appearing with an empty Sunday weigh-in.',
+    ru: 'Поздравление «вы выполнили недельную цель» появляется только после того, как вы запишете вес в последний день недели, а не при пустом взвешивании в воскресенье.',
+  },
+  {
     version: 735,
     issue: 775,
     date: '2026-08-29T15:00:00+03:00',

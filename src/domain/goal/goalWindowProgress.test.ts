@@ -166,6 +166,7 @@ describe('goalWindowProgress', () => {
 
     expect(progress?.baselineWeightKg).toBe(80)
     expect(progress?.currentWeightKg).toBe(79.5)
+    expect(progress?.currentWeightDate).toBe('2026-03-12')
     // Sticky targetMet still reads true (met on day 3), but the window's
     // real final state (day 4, 79.5) is only a 0.5kg loss — short of the
     // 1kg target.
@@ -186,6 +187,7 @@ describe('goalWindowProgress', () => {
     expect(progress?.targetMet).toBe(false)
     expect(progress?.baselineWeightKg).toBe(80)
     expect(progress?.currentWeightKg).toBe(79.7)
+    expect(progress?.currentWeightDate).toBe('2026-03-11')
   })
 
   it('leaves baselineWeightKg/currentWeightKg undefined when nothing before or on weekStart is logged', () => {
@@ -351,7 +353,11 @@ describe('goalWindowConcluded (#667)', () => {
   it('is true on weekEnd itself when the target was reached that day', () => {
     expect(
       goalWindowConcluded(
-        { weekEnd: '2026-03-15', finalTargetMet: true },
+        {
+          weekEnd: '2026-03-15',
+          finalTargetMet: true,
+          currentWeightDate: '2026-03-15',
+        },
         '2026-03-15',
       ),
     ).toBe(true)
@@ -367,6 +373,25 @@ describe('goalWindowConcluded (#667)', () => {
     expect(
       goalWindowConcluded(
         { weekEnd: '2026-03-15', finalTargetMet: null },
+        '2026-03-15',
+      ),
+    ).toBe(false)
+  })
+
+  it('is false on weekEnd when the target was met earlier but last-day weight is not logged yet (#776)', () => {
+    expect(
+      goalWindowConcluded(
+        {
+          weekEnd: '2026-03-15',
+          finalTargetMet: true,
+          currentWeightDate: '2026-03-14',
+        },
+        '2026-03-15',
+      ),
+    ).toBe(false)
+    expect(
+      goalWindowConcluded(
+        { weekEnd: '2026-03-15', finalTargetMet: true },
         '2026-03-15',
       ),
     ).toBe(false)
