@@ -63,6 +63,10 @@ export interface MealItem {
    * same barcode is an instant, fully offline local match. Purely
    * additive/optional; most items have no barcode at all. */
   barcode?: string
+  /** #781 — optional brand on a library food (same cosmetic role as
+   * `CalorieItem.brand`, stored on the reusable item so Settings can edit
+   * it later). Purely additive; omitted on most items. */
+  brand?: string
   /**
    * #541 — how this library row was created when not from normal logging.
    * Lets Settings remove backfilled rows without wiping day meal history.

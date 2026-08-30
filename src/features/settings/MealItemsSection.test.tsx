@@ -761,6 +761,27 @@ describe('MealItemsSection', () => {
       )
     })
 
+    it('saves a typed brand onto an existing food (#781)', async () => {
+      await useMealItemStore.getState().touch('Pizza', { amountKcal: 200 })
+      const user = userEvent.setup()
+      render(<MealItemsSection />)
+
+      await screen.findByText('Pizza')
+      expect(
+        screen.queryByLabelText('Brand (optional) — Pizza'),
+      ).not.toBeInTheDocument()
+      await user.click(screen.getByRole('button', { name: 'Edit Pizza' }))
+      await user.type(
+        screen.getByLabelText('Brand (optional) — Pizza'),
+        'Perdue',
+      )
+      await user.click(screen.getByRole('button', { name: 'Save Pizza' }))
+
+      await waitFor(() =>
+        expect(useMealItemStore.getState().items[0].brand).toBe('Perdue'),
+      )
+    })
+
     it('shows /100g on macro labels and a nutrition heading in per-100g mode (#583)', async () => {
       await useMealItemStore.getState().touch('Pizza', { amountKcal: 100 })
       const user = userEvent.setup()

@@ -69,6 +69,8 @@ interface MealItemStoreState {
    * later scan hits `findByBarcode`. Empty/whitespace clears. If another
    * row already owns that code (unique index), this is a no-op. */
   setBarcode: (id: string, barcode: string | undefined) => Promise<void>
+  /** #781 — attach or clear a brand on an existing library row. */
+  setBrand: (id: string, brand: string | undefined) => Promise<void>
   /**
    * #541 — add missing named dishes from day history into the library,
    * tagged for reversible undo. Does not change day meal history.
@@ -198,6 +200,22 @@ export const useMealItemStore = create<MealItemStoreState>((set, get) => ({
       next.barcode = trimmed
     } else {
       delete next.barcode
+    }
+    await mealItemRepository.upsert(next)
+    set({ items: await mealItemRepository.getAll() })
+  },
+  setBrand: async (id, brand) => {
+    const current = get().items.find((item) => item.id === id)
+    if (!current) return
+    const trimmed = brand?.trim()
+    const next: MealItem = {
+      ...current,
+      updatedAt: new Date().toISOString(),
+    }
+    if (trimmed) {
+      next.brand = trimmed
+    } else {
+      delete next.brand
     }
     await mealItemRepository.upsert(next)
     set({ items: await mealItemRepository.getAll() })

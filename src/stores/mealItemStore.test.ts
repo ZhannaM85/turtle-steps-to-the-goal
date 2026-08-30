@@ -213,6 +213,25 @@ describe('useMealItemStore', () => {
     ).toBe('0123456789012')
   })
 
+  it('setBrand attaches a brand to an existing item (#781)', async () => {
+    await useMealItemStore.getState().touch('Pizza', { amountKcal: 400 })
+    const id = useMealItemStore.getState().items[0].id
+
+    await useMealItemStore.getState().setBrand(id, '  Perdue  ')
+
+    expect(useMealItemStore.getState().items[0].brand).toBe('Perdue')
+  })
+
+  it('setBrand clears a brand when given empty text (#781)', async () => {
+    await useMealItemStore.getState().touch('Pizza', { amountKcal: 400 })
+    const id = useMealItemStore.getState().items[0].id
+    await useMealItemStore.getState().setBrand(id, 'Perdue')
+
+    await useMealItemStore.getState().setBrand(id, '  ')
+
+    expect(useMealItemStore.getState().items[0].brand).toBeUndefined()
+  })
+
   it('deleteItem removes an item', async () => {
     await useMealItemStore.getState().touch('Pizza')
     const id = useMealItemStore.getState().items[0].id

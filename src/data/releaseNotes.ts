@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 742,
+    issue: 781,
+    date: '2026-08-30T12:40:00+03:00',
+    en: 'You can add a brand on a food you saved earlier, same as when you log a new dish.',
+    ru: 'Можно указать бренд у блюда, которое уже сохранено — как при добавлении нового.',
+  },
+  {
     version: 741,
     issue: 780,
     date: '2026-08-30T12:30:00+03:00',

@@ -83,6 +83,7 @@ function MealItemRow({
   onDelete,
   onSaveNutrition,
   onSaveBarcode,
+  onSaveBrand,
   onToggleFavorite,
   onSaveServings,
   onShare,
@@ -101,6 +102,7 @@ function MealItemRow({
     },
   ) => void | Promise<void>
   onSaveBarcode: (id: string, barcode: string | undefined) => void | Promise<void>
+  onSaveBrand: (id: string, brand: string | undefined) => void | Promise<void>
   onToggleFavorite: (id: string) => void
   onSaveServings: (id: string, servings: MealItemServing[]) => void
   onShare: (item: MealItem) => void
@@ -116,6 +118,7 @@ function MealItemRow({
   const [amountG, setAmountG] = useState('1')
   // #779 — typed onto an existing food so the next scan matches locally.
   const [barcodeDraft, setBarcodeDraft] = useState(item.barcode ?? '')
+  const [brandDraft, setBrandDraft] = useState(item.brand ?? '')
   // #603 — draft fields for the "add a serving" row only; the list itself
   // reads straight from `item.servings` and commits immediately on
   // add/remove, same "doesn't wait for Save" shape favoriting already has.
@@ -140,6 +143,7 @@ function MealItemRow({
   function cancelEditing() {
     setValue(item.name)
     setBarcodeDraft(item.barcode ?? '')
+    setBrandDraft(item.brand ?? '')
     setIsEditingNutrition(false)
   }
 
@@ -154,6 +158,7 @@ function MealItemRow({
   function startEditNutrition() {
     setValue(item.name)
     setBarcodeDraft(item.barcode ?? '')
+    setBrandDraft(item.brand ?? '')
     if (item.lastAmountKcal === undefined) {
       setKcal100('')
       setProtein100('')
@@ -223,10 +228,14 @@ function MealItemRow({
 
   function saveNutrition() {
     const nextBarcode = barcodeDraft.replace(/\s+/g, '').trim() || undefined
+    const nextBrand = brandDraft.trim() || undefined
     const parsedKcal100 = parseNumberInput(kcal100)
     if (parsedKcal100 === undefined || parsedKcal100 < 0) {
       if (nextBarcode !== (item.barcode ?? undefined)) {
         void Promise.resolve(onSaveBarcode(item.id, nextBarcode))
+      }
+      if (nextBrand !== (item.brand ?? undefined)) {
+        void Promise.resolve(onSaveBrand(item.id, nextBrand))
       }
       commit()
       setIsEditingNutrition(false)
@@ -255,7 +264,10 @@ function MealItemRow({
         ...scaled,
         amountG: scaled.amountG ?? 100,
       }),
-    ).then(() => onSaveBarcode(item.id, nextBarcode))
+    ).then(async () => {
+      await onSaveBarcode(item.id, nextBarcode)
+      await onSaveBrand(item.id, nextBrand)
+    })
     setIsEditingNutrition(false)
   }
 
@@ -376,6 +388,19 @@ function MealItemRow({
             >
               <Trash2 aria-hidden="true" />
             </Button>
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <span className="text-sm text-muted-foreground">
+              {t.dailyEntry.itemBrandLabel}
+            </span>
+            <Input
+              type="text"
+              aria-label={`${t.dailyEntry.itemBrandLabel} — ${item.name}`}
+              placeholder={t.dailyEntry.itemBrandPlaceholder}
+              value={brandDraft}
+              onChange={(e) => setBrandDraft(e.target.value)}
+              className={cn('h-12 text-base', nutritionFieldClassName)}
+            />
           </div>
           <div className="flex flex-col gap-1.5">
             <span className="text-sm text-muted-foreground">
@@ -651,6 +676,11 @@ function MealItemRow({
                 locale,
                 t,
               )}
+            </span>
+          )}
+          {item.brand && (
+            <span className="pl-1 text-xs text-muted-foreground">
+              {item.brand}
             </span>
           )}
           {item.barcode && (
@@ -1032,6 +1062,7 @@ export function MealItemsSection() {
   const toggleFavorite = useMealItemStore((state) => state.toggleFavorite)
   const setServings = useMealItemStore((state) => state.setServings)
   const setBarcode = useMealItemStore((state) => state.setBarcode)
+  const setBrand = useMealItemStore((state) => state.setBrand)
   const backfillFromHistory = useMealItemStore(
     (state) => state.backfillFromHistory,
   )
@@ -1275,6 +1306,7 @@ export function MealItemsSection() {
               onDelete={deleteItem}
               onSaveNutrition={handleSaveNutrition}
               onSaveBarcode={setBarcode}
+              onSaveBrand={setBrand}
               onToggleFavorite={toggleFavorite}
               onSaveServings={setServings}
               onShare={setShareItem}
