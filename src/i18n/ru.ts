@@ -1261,6 +1261,7 @@ export const ru: Dictionary = {
       'Не удалось обновить прошлые приёмы пищи. Попробуйте ещё раз.',
     mealItemSearchLabel: 'Поиск блюд',
     mealItemSearchPlaceholder: 'Название или штрихкод...',
+    mealItemSearchClearLabel: 'Очистить поиск',
     noMealItemResultsText: 'Ничего не найдено.',
     mealItemNameLabel: 'Название блюда',
     mealItemBarcodeLabel: 'Штрихкод',

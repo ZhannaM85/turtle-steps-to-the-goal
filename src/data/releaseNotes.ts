@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 751,
+    issue: 790,
+    date: '2026-08-30T15:32:00+03:00',
+    en: 'Saved-foods search in Settings has an X to clear the query in one tap.',
+    ru: 'В поиске сохранённых блюд в Настройках появился крестик, чтобы очистить запрос одним нажатием.',
+  },
+  {
     version: 750,
     issue: 789,
     date: '2026-08-30T15:20:00+03:00',

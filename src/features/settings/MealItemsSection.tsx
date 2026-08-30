@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { Check, Pencil, ScanBarcode, Share2, Star, Trash2 } from 'lucide-react'
+import { Check, Pencil, ScanBarcode, Share2, Star, Trash2, X } from 'lucide-react'
 import { formatNumber, useLocale, useTranslation } from '@/i18n'
 import type { MealItem, MealItemServing } from '@/domain/mealItem'
 import {
@@ -1373,13 +1373,28 @@ export function MealItemsSection() {
               </option>
             </Select>
           </div>
-          <Input
-            type="text"
-            aria-label={t.settings.mealItemSearchLabel}
-            placeholder={t.settings.mealItemSearchPlaceholder}
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
+          <div className="relative">
+            <Input
+              type="text"
+              aria-label={t.settings.mealItemSearchLabel}
+              placeholder={t.settings.mealItemSearchPlaceholder}
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className={cn(search !== '' && 'pr-10')}
+            />
+            {search !== '' && (
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon-xs"
+                aria-label={t.settings.mealItemSearchClearLabel}
+                className="absolute top-1/2 right-1.5 -translate-y-1/2"
+                onClick={() => setSearch('')}
+              >
+                <X aria-hidden="true" className="size-3.5" />
+              </Button>
+            )}
+          </div>
         </>
       )}
       {shownMovedOffer && (

@@ -1884,6 +1884,8 @@ export interface Dictionary {
     mealItemSearchLabel: string
     /** #789 — name or barcode. */
     mealItemSearchPlaceholder: string
+    /** #790 — in-field X when the search query is not empty. */
+    mealItemSearchClearLabel: string
     noMealItemResultsText: string
     mealItemNameLabel: string
     /** #779 — field on an existing saved food so a barcode can be typed

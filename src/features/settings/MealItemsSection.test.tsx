@@ -397,6 +397,29 @@ describe('MealItemsSection', () => {
       expect(screen.queryByText('Pizza')).not.toBeInTheDocument()
     })
 
+    it('clears the search field via the clear control (#790)', async () => {
+      await useMealItemStore.getState().touch('Pizza')
+      await useMealItemStore.getState().touch('Salad')
+      const user = userEvent.setup()
+      render(<MealItemsSection />)
+
+      await screen.findByText('Pizza')
+      expect(
+        screen.queryByRole('button', { name: 'Clear search' }),
+      ).not.toBeInTheDocument()
+
+      const search = screen.getByLabelText('Search meal items')
+      await user.type(search, 'piz')
+      expect(screen.queryByText('Salad')).not.toBeInTheDocument()
+
+      await user.click(screen.getByRole('button', { name: 'Clear search' }))
+      expect(search).toHaveValue('')
+      expect(screen.getByText('Salad')).toBeInTheDocument()
+      expect(
+        screen.queryByRole('button', { name: 'Clear search' }),
+      ).not.toBeInTheDocument()
+    })
+
     it('does not show the search field in the empty state', async () => {
       render(<MealItemsSection />)
 
