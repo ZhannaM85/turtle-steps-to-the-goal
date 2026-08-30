@@ -14,7 +14,6 @@ _Day page weekly-goal completed modal; barcode scanner; complete-week celebratio
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#786](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/786) | 🔍 Pending validation | Settings: barcode-moved banner still offers to open a food after it is deleted | After #785 move, deleting the leftover food dismisses the banner and clears a search stuck on that name. |
 | [#790](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/790) | 🔍 Pending validation | Settings: clear icon on saved-foods search | X inside the right edge of the search field when it is not empty (same pattern as the add-food picker). Tap clears the query. |
 
 ---
