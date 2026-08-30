@@ -944,6 +944,44 @@ describe('MealItemsSection', () => {
       ).toBeInTheDocument()
     })
 
+    it('dismisses the open-other banner after that food is deleted (#786)', async () => {
+      await useMealItemStore
+        .getState()
+        .touch('Peas', { amountKcal: 44 }, undefined, '3083681187090')
+      await useMealItemStore.getState().touch('Pizza', {
+        amountKcal: 134,
+        proteinG: 8,
+        fatG: 4,
+        carbsG: 16,
+      })
+      const user = userEvent.setup()
+      render(<MealItemsSection />)
+
+      await screen.findByText('Pizza')
+      await user.click(screen.getByRole('button', { name: 'Edit Pizza' }))
+      await user.type(
+        screen.getByLabelText('Barcode — Pizza'),
+        '3083681187090',
+      )
+      await user.click(screen.getByRole('button', { name: 'Save Pizza' }))
+      await user.click(
+        await screen.findByRole('button', { name: 'Move barcode here' }),
+      )
+      await user.click(
+        await screen.findByRole('button', { name: 'Open “Peas”' }),
+      )
+      await user.click(screen.getByRole('button', { name: 'Delete "Peas"' }))
+      await user.click(screen.getByRole('button', { name: 'Delete' }))
+
+      await waitFor(() => {
+        expect(
+          screen.queryByText(/Barcode moved off/),
+        ).not.toBeInTheDocument()
+      })
+      expect(screen.getByLabelText('Search meal items')).toHaveValue('')
+      expect(await screen.findByText('Pizza')).toBeInTheDocument()
+    })
+
     it('saves a typed brand onto an existing food (#781)', async () => {
       await useMealItemStore.getState().touch('Pizza', { amountKcal: 200 })
       const user = userEvent.setup()

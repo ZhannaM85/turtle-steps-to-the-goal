@@ -1268,6 +1268,13 @@ export function MealItemsSection() {
     ? items.filter((item) => item.name.toLowerCase().includes(query))
     : items
   const visibleItems = sortMealLibraryItems(filteredItems, sort, locale)
+  // #786 — hide the leftover-food banner as soon as that row is gone (do
+  // not wait for an effect). Search is cleared in confirm-delete below.
+  const shownMovedOffer =
+    barcodeMovedOffer &&
+    items.some((item) => item.id === barcodeMovedOffer.id)
+      ? barcodeMovedOffer
+      : null
 
   useEffect(() => {
     if (!focusItemId) return
@@ -1365,24 +1372,24 @@ export function MealItemsSection() {
           />
         </>
       )}
-      {barcodeMovedOffer && (
+      {shownMovedOffer && (
         <div
           className="flex flex-col gap-1.5 rounded-lg border border-border bg-muted/30 p-3"
           role="status"
         >
           <p className="text-sm">
-            {t.settings.mealItemBarcodeMovedMessage(barcodeMovedOffer.name)}
+            {t.settings.mealItemBarcodeMovedMessage(shownMovedOffer.name)}
           </p>
           <Button
             type="button"
             variant="link"
             className="h-auto self-start px-0"
             onClick={() => {
-              setSearch(barcodeMovedOffer.name)
-              setFocusItemId(barcodeMovedOffer.id)
+              setSearch(shownMovedOffer.name)
+              setFocusItemId(shownMovedOffer.id)
             }}
           >
-            {t.settings.mealItemBarcodeOpenOtherLabel(barcodeMovedOffer.name)}
+            {t.settings.mealItemBarcodeOpenOtherLabel(shownMovedOffer.name)}
           </Button>
         </div>
       )}
@@ -1518,8 +1525,21 @@ export function MealItemsSection() {
                   type="button"
                   variant="destructive"
                   onClick={() => {
-                    void deleteItem(pendingDelete.id)
+                    const deleted = pendingDelete
+                    void deleteItem(deleted.id)
                     setPendingDelete(null)
+                    if (barcodeMovedOffer?.id === deleted.id) {
+                      setBarcodeMovedOffer(null)
+                      if (
+                        search.trim().toLowerCase() ===
+                        deleted.name.toLowerCase()
+                      ) {
+                        setSearch('')
+                      }
+                      setFocusItemId((current) =>
+                        current === deleted.id ? null : current,
+                      )
+                    }
                   }}
                 >
                   {t.history.confirmDeleteYes}

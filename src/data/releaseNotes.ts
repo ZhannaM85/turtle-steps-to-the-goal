@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 749,
+    issue: 786,
+    date: '2026-08-30T14:55:00+03:00',
+    en: 'After you move a barcode and delete the leftover food, the prompt to open that food goes away.',
+    ru: 'Если вы перенесли штрихкод и удалили оставшееся блюдо, предложение открыть его больше не остаётся на экране.',
+  },
+  {
     version: 748,
     issue: 787,
     date: '2026-08-30T14:50:00+03:00',
