@@ -15,7 +15,6 @@ _Day page weekly-goal completed modal; barcode scanner; complete-week celebratio
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#778](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/778) | 🔍 Pending validation | Complete-week celebration: keep offering until the next goal is set | Complete-phase dismiss is session-only. **Wrong trigger:** remount/app-open shows it again — follow-up #783 (show only after weight save). |
-| [#783](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/783) | 🔍 Pending validation | Complete-week celebration: show only after saving weight, not on every app open | On-device 2026-08-30 after #778: modal on every app reopen with 60,2 кг already saved. Gated on in-memory `weightSaveGeneration` from Day weight save; dismiss stays closed across remounts until the next weight save. |
 | [#779](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/779) | 🔍 Pending validation | Settings: manually add a barcode to a food that was saved earlier | Edit panel has a Barcode field; Save writes `MealItem.barcode` (spaces stripped). Unique-index collision with another food is a no-op. |
 | [#784](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/784) | 🔍 Pending validation | Settings: barcode typed on an existing food does not stay after save | On-device 2026-08-30: «Паста творожная десертн…» saved a barcode; list had no «Штрихкод» line and edit reopened empty. Barcode/brand now upsert first and the editor waits; nutrition/propagate runs after. Follow-up to #779. |
 
