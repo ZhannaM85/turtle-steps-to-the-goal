@@ -112,6 +112,8 @@ export const ru: Dictionary = {
     sendDayNothingLogged: 'За этот день пока ничего не записано.',
     sendDayShareTitle: (date) => `Черепашка идёт к цели — ${date}`,
     sendDayShareText: (date) => `Запись за ${date}`,
+    sendDaySaveCsvButton: 'Сохранить как CSV',
+    sendDaySaveCsvFailed: 'Не удалось сохранить CSV.',
     sendDayQrAlt: 'QR-код записи за этот день',
     sendDayQrHint: 'Наведите камеру другого телефона, чтобы посмотреть этот день.',
     sendDayQrTooLarge:

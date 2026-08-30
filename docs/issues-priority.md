@@ -16,7 +16,7 @@ _Day page weekly-goal completed modal; barcode scanner; complete-week celebratio
 |---|--------|-------|-------|
 | [#793](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/793) | 🔍 Pending validation | Day: align fasting-window note with Meals header | Removed extra horizontal padding so the note starts in line with the Meals heading. |
 | [#794](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/794) | 🔍 Pending validation | Day: fasting window as 13h 36m badge, not 13.6h | Hours+minutes (`13h 36m` / `13 ч 36 м`); bordered muted badge under Meals. |
-| [#795](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/795) | 🔲 Open | Day: save as CSV from the share sheet | One-day CSV for quick LLM paste; reuse Settings Daily Log CSV builder. |
+| [#795](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/795) | 🔍 Pending validation | Day: save as CSV from the share sheet | One-day Daily Log CSV (same builder as Settings) for a quick LLM paste. |
 
 ---
 

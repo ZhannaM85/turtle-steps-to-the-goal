@@ -146,5 +146,34 @@ describe('SendDaySnippetDialog (#720, #722)', () => {
     expect(
       screen.getByRole('button', { name: 'Scan QR code' }),
     ).toBeInTheDocument()
+    expect(
+      screen.queryByRole('button', { name: 'Save as CSV' }),
+    ).not.toBeInTheDocument()
+  })
+
+  it('downloads a one-day CSV from the share sheet (#795)', async () => {
+    const user = userEvent.setup()
+    URL.createObjectURL = vi.fn(() => 'blob:mock')
+    URL.revokeObjectURL = vi.fn()
+    const click = vi
+      .spyOn(HTMLAnchorElement.prototype, 'click')
+      .mockImplementation(() => {})
+
+    render(
+      <SendDaySnippetDialog
+        open
+        onOpenChange={() => {}}
+        date="2026-08-14"
+        entry={entry}
+      />,
+    )
+
+    await user.click(screen.getByRole('button', { name: 'Save as CSV' }))
+    expect(URL.createObjectURL).toHaveBeenCalled()
+    const blob = vi.mocked(URL.createObjectURL).mock.calls[0]?.[0] as Blob
+    expect(blob.type).toBe('text/csv')
+    const text = await blob.text()
+    expect(text).toContain('2026-08-14')
+    expect(click).toHaveBeenCalled()
   })
 })

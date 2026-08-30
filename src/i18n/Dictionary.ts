@@ -142,6 +142,9 @@ export interface Dictionary {
     sendDayNothingLogged: string
     sendDayShareTitle: (date: string) => string
     sendDayShareText: (date: string) => string
+    /** #795 — one-day CSV from this sheet for pasting into an LLM. */
+    sendDaySaveCsvButton: string
+    sendDaySaveCsvFailed: string
     /** #722 — QR of the same day-log URL, or a fallback if too large. */
     sendDayQrAlt: string
     sendDayQrHint: string

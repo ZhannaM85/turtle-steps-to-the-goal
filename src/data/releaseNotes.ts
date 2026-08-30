@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 756,
+    issue: 795,
+    date: '2026-08-30T22:15:00+03:00',
+    en: 'You can save this day’s log as a CSV from the Day share sheet, to paste into ChatGPT or another assistant.',
+    ru: 'С экрана «Поделиться» за день можно сохранить запись как CSV — чтобы вставить в ChatGPT или другой помощник.',
+  },
+  {
     version: 755,
     issue: 794,
     date: '2026-08-30T22:05:00+03:00',

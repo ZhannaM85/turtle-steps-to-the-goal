@@ -101,6 +101,8 @@ export const en: Dictionary = {
     sendDayNothingLogged: 'Nothing is logged on this day yet.',
     sendDayShareTitle: (date) => `Turtle Steps — ${date}`,
     sendDayShareText: (date) => `Day log for ${date}`,
+    sendDaySaveCsvButton: 'Save as CSV',
+    sendDaySaveCsvFailed: 'Couldn’t save the CSV.',
     sendDayQrAlt: 'QR code for this day’s log',
     sendDayQrHint: 'Scan with another phone to preview this day.',
     sendDayQrTooLarge:

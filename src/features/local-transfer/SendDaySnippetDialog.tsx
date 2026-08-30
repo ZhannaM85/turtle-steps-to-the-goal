@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
-import { Check, Copy, QrCode, Share2 } from 'lucide-react'
+import { Check, Copy, FileDown, QrCode, Share2 } from 'lucide-react'
 import type { DailyEntry } from '@/domain/dailyEntry'
 import { BarcodeScannerDialog } from '@/features/daily-log/BarcodeScannerDialog'
+import { buildDailyLogCsv, CSV_BOM } from '@/features/export/exportCsv'
 import { generateQrDataUrl } from '@/features/food-share/generateQrDataUrl'
 import { useTranslation } from '@/i18n'
 import { Button } from '@/shared/ui/button'
@@ -13,6 +14,12 @@ import {
 } from '@/shared/ui/dialog'
 import { Input } from '@/shared/ui/input'
 import { Label } from '@/shared/ui/label'
+import {
+  useCustomMetricStore,
+  useEatingReasonTrackingStore,
+  useMealSlotDefaultTimesStore,
+  useProfileStore,
+} from '@/stores'
 import { classifyShareScan } from './classifyShareScan'
 import {
   buildDaySnippetUrl,
@@ -33,6 +40,8 @@ export interface SendDaySnippetDialogProps {
 
 /**
  * #720 / #722 / #723 — send sheet: copy/share/QR, paste, or scan a QR.
+ * #795 — Save as CSV for a one-day LLM paste, same Daily Log builder as
+ * Settings.
  */
 export function SendDaySnippetDialog({
   open,
@@ -86,6 +95,7 @@ function SendDaySnippetBody({
   })
   const [copied, setCopied] = useState(false)
   const [shareError, setShareError] = useState<string | null>(null)
+  const [csvError, setCsvError] = useState<string | null>(null)
   const [pasteValue, setPasteValue] = useState('')
   const [pasteError, setPasteError] = useState<string | null>(null)
   const [qrDataUrl, setQrDataUrl] = useState<string | null>(null)
@@ -133,6 +143,34 @@ function SendDaySnippetBody({
     if (!shareUrl) return
     await navigator.clipboard.writeText(shareUrl)
     setCopied(true)
+  }
+
+  function handleSaveCsv() {
+    if (!entry || entry.date !== date) return
+    setCsvError(null)
+    try {
+      const csv = buildDailyLogCsv(
+        [entry],
+        t,
+        useProfileStore.getState().sex,
+        {
+          customMetrics: useCustomMetricStore.getState().metrics,
+          customMetricEntries: useCustomMetricStore.getState().entries,
+          mealSlotTimes: useMealSlotDefaultTimesStore.getState().times,
+          eatingReasonLabelOverrides:
+            useEatingReasonTrackingStore.getState().builtinLabelOverrides,
+        },
+      )
+      const blob = new Blob([CSV_BOM, csv], { type: 'text/csv' })
+      const url = URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      link.href = url
+      link.download = `turtle-steps-daily-log-${date}.csv`
+      link.click()
+      URL.revokeObjectURL(url)
+    } catch {
+      setCsvError(t.today.sendDaySaveCsvFailed)
+    }
   }
 
   function handleQrScanned(text: string) {
@@ -187,9 +225,16 @@ function SendDaySnippetBody({
                 {t.today.sendDayShareButton}
               </Button>
             ) : null}
+            <Button type="button" variant="outline" onClick={handleSaveCsv}>
+              <FileDown />
+              {t.today.sendDaySaveCsvButton}
+            </Button>
           </div>
           {shareError ? (
             <p className="text-sm text-destructive">{shareError}</p>
+          ) : null}
+          {csvError ? (
+            <p className="text-sm text-destructive">{csvError}</p>
           ) : null}
           {qrFits ? (
             <div className="flex flex-col items-center gap-2">
