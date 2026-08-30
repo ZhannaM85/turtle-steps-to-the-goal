@@ -16,6 +16,7 @@ _Day page weekly-goal completed modal; barcode scanner; complete-week celebratio
 |---|--------|-------|-------|
 | [#786](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/786) | 🔍 Pending validation | Settings: barcode-moved banner still offers to open a food after it is deleted | After #785 move, deleting the leftover food dismisses the banner and clears a search stuck on that name. |
 | [#789](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/789) | 🔍 Pending validation | Settings: search saved foods by barcode | Search is name-only; typing barcode digits (e.g. 602) showed 0 of 141. Filter now matches `MealItem.barcode` (spaces ignored). Placeholder: name or barcode. |
+| [#790](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/790) | 🔲 Open | Settings: clear icon on saved-foods search | Search field has no X; clearing means select-all + delete with the keyboard open. Same in-field clear as the add-food picker (#533). |
 
 ---
 
