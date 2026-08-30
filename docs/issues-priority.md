@@ -20,6 +20,7 @@ _Day page weekly-goal completed modal; barcode scanner; complete-week celebratio
 | [#780](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/780) | 🔍 Pending validation | Settings food list: pencil should become save while editing | Same #768 pattern: view = pencil, edit = check (`saveMealItemLabel`). Tap commits name/nutrition/barcode. Bottom Save still present as “Save”. |
 | [#781](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/781) | 🔍 Pending validation | Settings food list: add a brand field on an existing food | `MealItem.brand` + Settings edit field (`itemBrandLabel`). View mode shows the brand when set. |
 | [#782](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/782) | 🔍 Pending validation | Settings food list: expand the food name field while editing | Name sits on its own row (`h-12 w-full`); icons move to the label row, matching Add food. |
+| [#784](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/784) | 📋 Not started | Settings: barcode typed on an existing food does not stay after save | On-device 2026-08-30: «Паста творожная десертн…» saved a barcode; list has no «Штрихкод» line and edit reopens empty. Nutrition save + history propagate run first; barcode is a second write; editor closes without waiting. Follow-up to #779. |
 
 ---
 
