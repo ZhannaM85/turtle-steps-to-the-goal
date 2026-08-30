@@ -9,15 +9,15 @@ import { MealItemsSection } from './MealItemsSection'
 // #289 — same real-class mock as MealList.test.tsx's own barcode-scanning
 // tests (vi.fn().mockImplementation(() => ({...})) doesn't reliably
 // support `new`, which BarcodeScannerDialog calls under the hood).
-const decodeFromVideoDevice = vi.fn()
+const decodeFromConstraints = vi.fn()
 vi.mock('@zxing/browser', () => ({
   BrowserMultiFormatReader: class {
-    decodeFromVideoDevice = decodeFromVideoDevice
+    decodeFromConstraints = decodeFromConstraints
   },
 }))
 
 function mockScanning(barcode: string) {
-  decodeFromVideoDevice.mockImplementation(
+  decodeFromConstraints.mockImplementation(
     async (_deviceId: unknown, _videoElement: unknown, callback: (result: unknown) => void) => {
       callback({ getText: () => barcode })
       return { stop: vi.fn() }

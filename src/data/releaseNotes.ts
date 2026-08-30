@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 737,
+    issue: 777,
+    date: '2026-08-30T11:40:00+03:00',
+    en: 'Barcode scanning asks the rear camera for a sharper picture and keeps trying to focus, so close-up barcodes are less likely to stay blurry.',
+    ru: 'Сканер штрихкода берёт более чёткую картинку с задней камеры и продолжает пытаться сфокусироваться, чтобы близкие штрихкоды реже оставались размытыми.',
+  },
+  {
     version: 736,
     issue: 776,
     date: '2026-08-30T11:30:00+03:00',

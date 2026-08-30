@@ -56,10 +56,15 @@ export interface BarcodeScannerDialogProps {
  * right in the existing on-screen message — the simplest way to get any
  * debug detail back from a report without new logging infrastructure.
  *
- * #564 — tap inside the framing rectangle asks the camera to refocus on
- * that point (`pointsOfInterest` / `focusMode` when the device supports
- * them). Best-effort: quiet no-op on platforms without focus constraints
- * (typical iOS Safari); manual entry (#291) stays the workaround.
+ * #564 — tap the preview asks the camera to refocus (`pointsOfInterest` /
+ * `focusMode` when the device supports them). Best-effort: quiet no-op
+ * on platforms without focus constraints (typical iOS Safari).
+ *
+ * #777 — iOS Safari still has no `BarcodeDetector` and no focus constraints,
+ * so swapping the decoder library would not un-blur the preview. Instead:
+ * rear-camera + high-res `decodeFromConstraints` (more pixels for a slightly
+ * soft close-up), ZXing `TRY_HARDER`, and periodic center refocus while
+ * the scan is running. Manual entry (#291) stays the fallback.
  *
  * #695 — dialog is a non-scrolling flex column: camera region
  * `flex-1 min-h-0` shrinks when the still-scanning tip appears; manual
@@ -72,6 +77,18 @@ export interface BarcodeScannerDialogProps {
 // scan doesn't read as broken for too long before getting a hint.
 const STILL_SCANNING_TIP_DELAY_MS = 4000
 const FOCUS_RETICLE_MS = 700
+/** #777 — nudge autofocus back to the preview center while the scan is
+ * stuck; no-op on iOS where focus constraints are unsupported. */
+const AUTO_REFOCUS_INTERVAL_MS = 1500
+
+const REAR_CAMERA_CONSTRAINTS: MediaStreamConstraints = {
+  audio: false,
+  video: {
+    facingMode: { ideal: 'environment' },
+    width: { ideal: 1920 },
+    height: { ideal: 1080 },
+  },
+}
 
 export function BarcodeScannerDialog({
   open,
@@ -83,7 +100,6 @@ export function BarcodeScannerDialog({
 }: BarcodeScannerDialogProps) {
   const t = useTranslation()
   const videoRef = useRef<HTMLVideoElement>(null)
-  const frameRef = useRef<HTMLDivElement>(null)
   const [error, setError] = useState<string | null>(null)
   const [isProcessing, setIsProcessing] = useState(false)
   const [manualBarcode, setManualBarcode] = useState('')
@@ -109,6 +125,13 @@ export function BarcodeScannerDialog({
 
   useEffect(() => {
     let cancelled = false
+    let refocusTimer: ReturnType<typeof setInterval> | undefined
+
+    async function nudgeFocus(point: { x: number; y: number }) {
+      const track = videoTrackFromElement(videoRef.current)
+      if (!track) return
+      await focusVideoTrackAtPoint(track, point)
+    }
 
     async function start() {
       try {
@@ -121,6 +144,8 @@ export function BarcodeScannerDialog({
         // formats like QR/Aztec/PDF417 this app never needs) means less
         // work per frame, so a genuine barcode in view gets found faster.
         // #661 — QR import flips this to QR_CODE only for shared-food links.
+        // #777 — TRY_HARDER spends more time per frame so a slightly soft
+        // close-up (typical iPhone pouch scan) still has a chance.
         const hints = new Map()
         hints.set(
           DecodeHintType.POSSIBLE_FORMATS,
@@ -133,16 +158,19 @@ export function BarcodeScannerDialog({
                 BarcodeFormat.EAN_8,
               ],
         )
-        const reader = new BrowserMultiFormatReader(hints)
-        controlsRef.current = await reader.decodeFromVideoDevice(
-          undefined,
+        hints.set(DecodeHintType.TRY_HARDER, true)
+        const reader = new BrowserMultiFormatReader(hints, {
+          delayBetweenScanAttempts: 200,
+        })
+        controlsRef.current = await reader.decodeFromConstraints(
+          REAR_CAMERA_CONSTRAINTS,
           videoRef.current,
           (result) => {
             if (result) void handleScanned(result.getText())
           },
         )
-        // #564 — prefer continuous autofocus when the track exposes it
-        // (Android Chrome); ignored quietly when unsupported.
+        // #564 / #777 — prefer continuous autofocus when the track exposes
+        // it (Android Chrome); ignored quietly when unsupported (iOS).
         const track = videoTrackFromElement(videoRef.current)
         if (track) {
           try {
@@ -155,6 +183,12 @@ export function BarcodeScannerDialog({
             // Device/browser has no focusMode — leave defaults.
           }
         }
+        if (cancelled) return
+        await nudgeFocus({ x: 0.5, y: 0.5 })
+        if (cancelled) return
+        refocusTimer = setInterval(() => {
+          void nudgeFocus({ x: 0.5, y: 0.5 })
+        }, AUTO_REFOCUS_INTERVAL_MS)
       } catch (err) {
         if (!cancelled) {
           const detail = err instanceof Error ? err.name : undefined
@@ -167,6 +201,7 @@ export function BarcodeScannerDialog({
 
     return () => {
       cancelled = true
+      if (refocusTimer) clearInterval(refocusTimer)
       controlsRef.current?.stop()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -212,13 +247,12 @@ export function BarcodeScannerDialog({
   }
 
   async function handleFramePointerDown(
-    event: ReactPointerEvent<HTMLDivElement>,
+    event: ReactPointerEvent<HTMLButtonElement>,
   ) {
-    const frame = frameRef.current
     const video = videoRef.current
-    if (!frame || !video) return
+    if (!video) return
 
-    const rect = frame.getBoundingClientRect()
+    const rect = event.currentTarget.getBoundingClientRect()
     if (rect.width <= 0 || rect.height <= 0) return
     const xNorm = (event.clientX - rect.left) / rect.width
     const yNorm = (event.clientY - rect.top) / rect.height
@@ -265,34 +299,36 @@ export function BarcodeScannerDialog({
                       muted
                       playsInline
                     />
-                    {/* #294 — framing guide; #564 — tap inside to request
-                     * focus on that point (when the device supports it). */}
+                    {/* #294 — framing guide; #564/#777 — tap the preview
+                     * (not only the inner box) to request focus. Overlay
+                     * stays visual so the video can receive the tap. */}
+                    <button
+                      type="button"
+                      aria-label={t.dailyEntry.scanBarcodeTapToFocusLabel}
+                      className="absolute inset-0 cursor-pointer border-0 bg-transparent p-0"
+                      onPointerDown={(event) => {
+                        void handleFramePointerDown(event)
+                      }}
+                    >
+                      {focusReticle && (
+                        <span
+                          aria-hidden="true"
+                          className="pointer-events-none absolute size-10 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white shadow-[0_0_0_1px_rgba(0,0,0,0.35)]"
+                          style={{
+                            left: `${focusReticle.xPct}%`,
+                            top: `${focusReticle.yPct}%`,
+                          }}
+                        />
+                      )}
+                    </button>
                     <div className="pointer-events-none absolute inset-0 flex items-center justify-center p-8">
                       <div
-                        ref={frameRef}
-                        role="button"
-                        tabIndex={0}
-                        aria-label={t.dailyEntry.scanBarcodeTapToFocusLabel}
                         className={
                           scanKind === 'qr'
-                            ? 'pointer-events-auto relative aspect-square w-full max-w-xs cursor-pointer rounded-lg border-2 border-white/80'
-                            : 'pointer-events-auto relative aspect-[5/2] w-full max-w-xs cursor-pointer rounded-lg border-2 border-white/80'
+                            ? 'aspect-square w-full max-w-xs rounded-lg border-2 border-white/80'
+                            : 'aspect-[5/2] w-full max-w-xs rounded-lg border-2 border-white/80'
                         }
-                        onPointerDown={(event) => {
-                          void handleFramePointerDown(event)
-                        }}
-                      >
-                        {focusReticle && (
-                          <span
-                            aria-hidden="true"
-                            className="pointer-events-none absolute size-10 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white shadow-[0_0_0_1px_rgba(0,0,0,0.35)]"
-                            style={{
-                              left: `${focusReticle.xPct}%`,
-                              top: `${focusReticle.yPct}%`,
-                            }}
-                          />
-                        )}
-                      </div>
+                      />
                     </div>
                   </div>
                   {showStillScanningTip && (

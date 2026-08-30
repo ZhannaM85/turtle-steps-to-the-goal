@@ -14,15 +14,15 @@ import { AddMealDialog, type AddMealDialogProps } from './AddMealDialog'
 // that test still has headroom under this timeout.
 vi.setConfig({ testTimeout: 30000 })
 
-const decodeFromVideoDevice = vi.fn()
+const decodeFromConstraints = vi.fn()
 vi.mock('@zxing/browser', () => ({
   BrowserMultiFormatReader: class {
-    decodeFromVideoDevice = decodeFromVideoDevice
+    decodeFromConstraints = decodeFromConstraints
   },
 }))
 
 function mockScanning(barcode: string) {
-  decodeFromVideoDevice.mockImplementation(
+  decodeFromConstraints.mockImplementation(
     async (_deviceId: unknown, _videoElement: unknown, callback: (result: unknown) => void) => {
       callback({ getText: () => barcode })
       return { stop: vi.fn() }
@@ -52,7 +52,7 @@ afterEach(async () => {
   await db.mealItems.clear()
   await db.recipes.clear()
   await db.foodOverrides.clear()
-  decodeFromVideoDevice.mockReset()
+  decodeFromConstraints.mockReset()
   vi.unstubAllGlobals()
 })
 

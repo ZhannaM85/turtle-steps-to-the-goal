@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { BarcodeScannerDialog } from './BarcodeScannerDialog'
 
-const decodeFromVideoDevice = vi.fn()
+const decodeFromConstraints = vi.fn()
 // #294 — captures the constructor's hints argument so a test can verify
 // the component actually restricts decoding to retail formats, without
 // the mock needing to replicate zxing's own real hint-processing.
@@ -13,10 +13,10 @@ vi.mock('@zxing/browser', () => ({
   // A real class, not `vi.fn().mockImplementation(() => ({...}))` — vitest
   // warns that pattern doesn't reliably support `new` (this component
   // calls `new BrowserMultiFormatReader()`). Instances share the one
-  // module-level decodeFromVideoDevice mock so each test can reconfigure
+  // module-level decodeFromConstraints mock so each test can reconfigure
   // its behavior directly.
   BrowserMultiFormatReader: class {
-    decodeFromVideoDevice = decodeFromVideoDevice
+    decodeFromConstraints = decodeFromConstraints
     constructor(hints?: Map<unknown, unknown>) {
       capturedHints = hints
     }
@@ -36,7 +36,7 @@ afterEach(() => {
 
 describe('BarcodeScannerDialog', () => {
   it('shows instructions and a live camera preview while scanning', async () => {
-    decodeFromVideoDevice.mockResolvedValue({ stop: vi.fn() })
+    decodeFromConstraints.mockResolvedValue({ stop: vi.fn() })
     render(
       <BarcodeScannerDialog open onOpenChange={vi.fn()} onScanned={vi.fn()} />,
     )
@@ -46,7 +46,7 @@ describe('BarcodeScannerDialog', () => {
         'Point your camera at the barcode. Tap inside the frame to focus.',
       ),
     ).toBeInTheDocument()
-    await waitFor(() => expect(decodeFromVideoDevice).toHaveBeenCalled())
+    await waitFor(() => expect(decodeFromConstraints).toHaveBeenCalled())
     expect(
       screen.getByRole('button', { name: 'Tap to focus on barcode' }),
     ).toBeInTheDocument()
@@ -55,7 +55,7 @@ describe('BarcodeScannerDialog', () => {
   it('calls onScanned and closes once a barcode is decoded', async () => {
     const onScanned = vi.fn()
     const onOpenChange = vi.fn()
-    decodeFromVideoDevice.mockImplementation(
+    decodeFromConstraints.mockImplementation(
       async (_deviceId, _videoElement, callback) => {
         callback({ getText: () => '0123456789012' })
         return { stop: vi.fn() }
@@ -75,7 +75,7 @@ describe('BarcodeScannerDialog', () => {
   })
 
   it('shows an error message including the underlying error name when camera access fails (#291)', async () => {
-    decodeFromVideoDevice.mockRejectedValue(new Error('Permission denied'))
+    decodeFromConstraints.mockRejectedValue(new Error('Permission denied'))
     render(
       <BarcodeScannerDialog open onOpenChange={vi.fn()} onScanned={vi.fn()} />,
     )
@@ -92,7 +92,7 @@ describe('BarcodeScannerDialog', () => {
     const onScanned = vi.fn(
       () => new Promise<void>((resolve) => (resolveScan = resolve)),
     )
-    decodeFromVideoDevice.mockImplementation(
+    decodeFromConstraints.mockImplementation(
       async (_deviceId, _videoElement, callback) => {
         callback({ getText: () => '0123456789012' })
         return { stop: vi.fn() }
@@ -121,7 +121,7 @@ describe('BarcodeScannerDialog', () => {
     // callback firing and updating state is the same well-exercised
     // setState-then-rerender path every other test in this file relies on.
     const setTimeoutSpy = vi.spyOn(window, 'setTimeout')
-    decodeFromVideoDevice.mockResolvedValue({ stop: vi.fn() })
+    decodeFromConstraints.mockResolvedValue({ stop: vi.fn() })
     render(
       <BarcodeScannerDialog open onOpenChange={vi.fn()} onScanned={vi.fn()} />,
     )
@@ -136,7 +136,7 @@ describe('BarcodeScannerDialog', () => {
 
   it('keeps manual entry pinned when the still-scanning tip appears (#695)', async () => {
     const setTimeoutSpy = vi.spyOn(window, 'setTimeout')
-    decodeFromVideoDevice.mockResolvedValue({ stop: vi.fn() })
+    decodeFromConstraints.mockResolvedValue({ stop: vi.fn() })
     render(
       <BarcodeScannerDialog open onOpenChange={vi.fn()} onScanned={vi.fn()} />,
     )
@@ -162,12 +162,12 @@ describe('BarcodeScannerDialog', () => {
   })
 
   it('restricts decoding to retail barcode formats for speed (#294)', async () => {
-    decodeFromVideoDevice.mockResolvedValue({ stop: vi.fn() })
+    decodeFromConstraints.mockResolvedValue({ stop: vi.fn() })
     render(
       <BarcodeScannerDialog open onOpenChange={vi.fn()} onScanned={vi.fn()} />,
     )
 
-    await waitFor(() => expect(decodeFromVideoDevice).toHaveBeenCalled())
+    await waitFor(() => expect(decodeFromConstraints).toHaveBeenCalled())
     const { BarcodeFormat, DecodeHintType } = await import('@zxing/library')
     expect(capturedHints?.get(DecodeHintType.POSSIBLE_FORMATS)).toEqual([
       BarcodeFormat.UPC_A,
@@ -177,11 +177,41 @@ describe('BarcodeScannerDialog', () => {
     ])
   })
 
+  it('uses a high-res rear camera and TRY_HARDER so slightly soft close-ups still decode (#777)', async () => {
+    decodeFromConstraints.mockResolvedValue({ stop: vi.fn() })
+    render(
+      <BarcodeScannerDialog open onOpenChange={vi.fn()} onScanned={vi.fn()} />,
+    )
+
+    await waitFor(() => expect(decodeFromConstraints).toHaveBeenCalled())
+    const { DecodeHintType } = await import('@zxing/library')
+    expect(capturedHints?.get(DecodeHintType.TRY_HARDER)).toBe(true)
+    expect(decodeFromConstraints.mock.calls[0][0]).toEqual({
+      audio: false,
+      video: {
+        facingMode: { ideal: 'environment' },
+        width: { ideal: 1920 },
+        height: { ideal: 1080 },
+      },
+    })
+  })
+
+  it('schedules periodic center refocus while the camera is running (#777)', async () => {
+    const setIntervalSpy = vi.spyOn(window, 'setInterval')
+    decodeFromConstraints.mockResolvedValue({ stop: vi.fn() })
+    render(
+      <BarcodeScannerDialog open onOpenChange={vi.fn()} onScanned={vi.fn()} />,
+    )
+
+    await waitFor(() => expect(decodeFromConstraints).toHaveBeenCalled())
+    expect(setIntervalSpy).toHaveBeenCalledWith(expect.any(Function), 1500)
+  })
+
   describe('manual barcode entry (#291)', () => {
     it('calls onScanned with the typed barcode and closes', async () => {
       const onScanned = vi.fn()
       const onOpenChange = vi.fn()
-      decodeFromVideoDevice.mockResolvedValue({ stop: vi.fn() })
+      decodeFromConstraints.mockResolvedValue({ stop: vi.fn() })
       const user = userEvent.setup()
 
       render(
@@ -205,7 +235,7 @@ describe('BarcodeScannerDialog', () => {
     })
 
     it('disables the search button until something is typed', async () => {
-      decodeFromVideoDevice.mockResolvedValue({ stop: vi.fn() })
+      decodeFromConstraints.mockResolvedValue({ stop: vi.fn() })
       render(
         <BarcodeScannerDialog open onOpenChange={vi.fn()} onScanned={vi.fn()} />,
       )
@@ -214,7 +244,7 @@ describe('BarcodeScannerDialog', () => {
     })
 
     it('is still available when the camera fails, so a report can isolate the two', async () => {
-      decodeFromVideoDevice.mockRejectedValue(new Error('NotAllowedError'))
+      decodeFromConstraints.mockRejectedValue(new Error('NotAllowedError'))
       render(
         <BarcodeScannerDialog open onOpenChange={vi.fn()} onScanned={vi.fn()} />,
       )
@@ -227,7 +257,7 @@ describe('BarcodeScannerDialog', () => {
   })
 
   it('offers scan-from-photo instead of manual barcode entry in QR mode (#723)', async () => {
-    decodeFromVideoDevice.mockResolvedValue({ stop: vi.fn() })
+    decodeFromConstraints.mockResolvedValue({ stop: vi.fn() })
     render(
       <BarcodeScannerDialog
         open

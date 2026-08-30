@@ -15,7 +15,7 @@ _Day page weekly-goal completed modal; barcode scanner focus._
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#776](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/776) | 🔍 Pending validation | Day: weekly-goal completed modal shows on Sunday before weight is logged | `goalWindowConcluded` on weekEnd now requires that day's weigh-in (`currentWeightDate === weekEnd`), not a mid-week `finalTargetMet`. Complete modal + new-goal unlock wait until Sunday weight is saved; #667 last-day reach still unlocks once that weight is in. |
-| [#777](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/777) | 📋 Not started | Barcode scanner stays unfocused too long — improve or switch library | On-device iPhone 2026-08-30: camera preview stays very blurry; «Всё ещё сканируем» with barcode in the frame. Tap-to-focus (#564) not enough. User: different library or improve current `@zxing/browser`. Related: #256, #294. |
+| [#777](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/777) | 🔍 Pending validation | Barcode scanner stays unfocused too long — improve or switch library | Did not swap `@zxing/browser` — iOS Safari still has no `BarcodeDetector` / focus constraints, so a new decoder would not un-blur the preview. #777: rear-camera high-res `decodeFromConstraints`, ZXing `TRY_HARDER`, tap-anywhere-on-preview + periodic center refocus. Manual entry (#291) still the fallback. |
 
 ---
 
