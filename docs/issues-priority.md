@@ -10,12 +10,15 @@ Work top-to-bottom within each tier; dependencies are noted where order matters.
 
 ## Tier 147 — Live feedback (2026-08-30)
 
-_Day page weekly-goal completed modal; barcode scanner focus; complete-week celebration re-offer; manual barcode on saved foods._
+_Day page weekly-goal completed modal; barcode scanner focus; complete-week celebration re-offer; Settings food list (barcode, save icon, name field, brand)._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#778](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/778) | 🔍 Pending validation | Complete-week celebration: keep offering until the next goal is set | Complete-phase dismiss is session-only (no `celebratedCompleteWeekStart` lock). Closing hides it until last-day weight is removed or the screen remounts; logging Sunday weight again offers it until a new goal is started. Mid-week in-progress dismiss still persists. |
 | [#779](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/779) | 📋 Not started | Settings: manually add a barcode to a food that was saved earlier | On-device 2026-08-30: expanded saved food (e.g. «Паста творожная…») has no barcode field. User wants to type a barcode later so the next scan matches that personal item. Related: #256, #289. |
+| [#780](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/780) | 📋 Not started | Settings food list: pencil should become save while editing | On-device 2026-08-30: expanded «Паста творожная…» keeps the pencil while the keyboard is open; no save on the row. Pencil in view → check/save in edit, tap commits. Same pattern as #768. |
+| [#781](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/781) | 📋 Not started | Settings food list: add a brand field on an existing food | On-device 2026-08-30: expanded saved food has name + macros, no brand. User wants to store brand on foods added earlier. Same editor as #779. |
+| [#782](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/782) | 📋 Not started | Settings food list: expand the food name field while editing | On-device 2026-08-30: name sits in a short pill next to the icon cluster and truncates («Паста творожная д»). Give it more room while editing. |
 
 ---
 
