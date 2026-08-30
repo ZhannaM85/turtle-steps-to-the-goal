@@ -226,18 +226,37 @@ describe('MealItemsSection', () => {
     expect(nameInput).toHaveClass('h-12', 'w-full')
   })
 
-  it('deletes an item', async () => {
+  it('deletes an item after confirmation (#787)', async () => {
     await useMealItemStore.getState().touch('Pizza')
     const user = userEvent.setup()
     render(<MealItemsSection />)
 
     await screen.findByText('Pizza')
     await user.click(screen.getByRole('button', { name: 'Delete "Pizza"' }))
+    expect(
+      await screen.findByRole('heading', {
+        name: 'Delete “Pizza” from the food list?',
+      }),
+    ).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Delete' }))
 
     await waitFor(() =>
       expect(screen.queryByText('Pizza')).not.toBeInTheDocument(),
     )
     expect(useMealItemStore.getState().items).toEqual([])
+  })
+
+  it('keeps an item when delete confirmation is cancelled (#787)', async () => {
+    await useMealItemStore.getState().touch('Pizza')
+    const user = userEvent.setup()
+    render(<MealItemsSection />)
+
+    await screen.findByText('Pizza')
+    await user.click(screen.getByRole('button', { name: 'Delete "Pizza"' }))
+    await user.click(screen.getByRole('button', { name: 'Cancel' }))
+
+    expect(await screen.findByText('Pizza')).toBeInTheDocument()
+    expect(useMealItemStore.getState().items).toHaveLength(1)
   })
 
   it('adds and removes a named serving for a personal meal item (#603)', async () => {

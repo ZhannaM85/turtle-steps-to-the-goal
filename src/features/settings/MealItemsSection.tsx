@@ -1147,6 +1147,7 @@ export function MealItemsSection() {
   const [backfillBusy, setBackfillBusy] = useState(false)
   const [backfillMessage, setBackfillMessage] = useState<string | null>(null)
   const [shareItem, setShareItem] = useState<MealItem | null>(null)
+  const [pendingDelete, setPendingDelete] = useState<MealItem | null>(null)
   // #542 — after a library rename/nutrition save, offer to rewrite matching
   // past CalorieItem lines (confirm first; all-time name match).
   const [propagateOffer, setPropagateOffer] = useState<{
@@ -1407,7 +1408,10 @@ export function MealItemsSection() {
               key={item.id}
               item={item}
               onRename={handleRename}
-              onDelete={deleteItem}
+              onDelete={(id) => {
+                const item = items.find((row) => row.id === id)
+                if (item) setPendingDelete(item)
+              }}
               onSaveNutrition={handleSaveNutrition}
               onSaveBarcode={setBarcode}
               onReassignBarcode={reassignBarcode}
@@ -1485,6 +1489,46 @@ export function MealItemsSection() {
           onCancel={() => setIsAdding(false)}
         />
       )}
+      <Dialog
+        open={pendingDelete !== null}
+        onOpenChange={(open) => {
+          if (!open) setPendingDelete(null)
+        }}
+      >
+        <DialogContent
+          closeLabel={t.settings.mealItemDeleteConfirmCloseLabel}
+        >
+          {pendingDelete ? (
+            <div className="flex flex-col gap-3">
+              <DialogTitle>
+                {t.settings.mealItemDeleteConfirmTitle(pendingDelete.name)}
+              </DialogTitle>
+              <p className="text-sm text-muted-foreground">
+                {t.settings.mealItemDeleteConfirmDescription}
+              </p>
+              <div className="flex justify-end gap-3 pt-2">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  onClick={() => setPendingDelete(null)}
+                >
+                  {t.history.confirmDeleteNo}
+                </Button>
+                <Button
+                  type="button"
+                  variant="destructive"
+                  onClick={() => {
+                    void deleteItem(pendingDelete.id)
+                    setPendingDelete(null)
+                  }}
+                >
+                  {t.history.confirmDeleteYes}
+                </Button>
+              </div>
+            </div>
+          ) : null}
+        </DialogContent>
+      </Dialog>
       <ShareFoodDialog
         open={shareItem !== null}
         onOpenChange={(open) => {

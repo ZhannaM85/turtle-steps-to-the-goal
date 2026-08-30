@@ -1235,6 +1235,11 @@ export const en: Dictionary = {
       `Barcode moved off “${name}”. You can delete that food if you no longer need it.`,
     mealItemBarcodeOpenOtherLabel: (name) => `Open “${name}”`,
     deleteMealItemLabel: (name) => `Delete "${name}"`,
+    mealItemDeleteConfirmTitle: (name) =>
+      `Delete “${name}” from the food list?`,
+    mealItemDeleteConfirmDescription:
+      'Past meals that used this name stay in your history.',
+    mealItemDeleteConfirmCloseLabel: 'Close delete confirmation',
     editMealItemLabel: (name) => `Edit ${name}`,
     saveMealItemLabel: (name) => `Save ${name}`,
     shareMealItemLabel: (name) => `Share ${name}`,

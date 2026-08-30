@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 748,
+    issue: 787,
+    date: '2026-08-30T14:50:00+03:00',
+    en: 'Deleting a saved food asks you to confirm first. Past meals that used that name are not removed.',
+    ru: 'Перед удалением сохранённого блюда теперь нужно подтверждение. Прошлые приёмы пищи с этим названием не удаляются.',
+  },
+  {
     version: 747,
     issue: 788,
     date: '2026-08-30T14:45:00+03:00',

@@ -1897,6 +1897,11 @@ export interface Dictionary {
     mealItemBarcodeMovedMessage: (name: string) => string
     mealItemBarcodeOpenOtherLabel: (name: string) => string
     deleteMealItemLabel: (name: string) => string
+    /** #787 — confirm before removing a library food. Past day meals keep
+     * the name; this is not a history wipe. */
+    mealItemDeleteConfirmTitle: (name: string) => string
+    mealItemDeleteConfirmDescription: string
+    mealItemDeleteConfirmCloseLabel: string
     editMealItemLabel: (name: string) => string
     saveMealItemLabel: (name: string) => string
     /** #661 — share a personal library food via OS share sheet / QR. */

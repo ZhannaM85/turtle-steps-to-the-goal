@@ -1271,6 +1271,11 @@ export const ru: Dictionary = {
       `Штрихкод снят с «${name}». Это блюдо можно удалить, если оно больше не нужно.`,
     mealItemBarcodeOpenOtherLabel: (name) => `Открыть «${name}»`,
     deleteMealItemLabel: (name) => `Удалить «${name}»`,
+    mealItemDeleteConfirmTitle: (name) =>
+      `Удалить «${name}» из списка блюд?`,
+    mealItemDeleteConfirmDescription:
+      'Прошлые приёмы пищи с этим названием в истории не изменятся.',
+    mealItemDeleteConfirmCloseLabel: 'Закрыть подтверждение удаления',
     editMealItemLabel: (name) => `Изменить «${name}»`,
     saveMealItemLabel: (name) => `Сохранить «${name}»`,
     shareMealItemLabel: (name) => `Поделиться «${name}»`,
