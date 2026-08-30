@@ -10,11 +10,12 @@ Work top-to-bottom within each tier; dependencies are noted where order matters.
 
 ## Tier 147 — Live feedback (2026-08-30)
 
-_Day page: end-of-week “weekly goal completed” celebration modal._
+_Day page weekly-goal completed modal; barcode scanner focus._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#776](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/776) | 📋 Not started | Day: weekly-goal completed modal shows on Sunday before weight is logged | On-device 2026-08-30 (Sunday): Day shows «Вы выполнили недельную цель!» while Вес (кг) is still empty. Should wait until Sunday’s weight is saved. Related: #639, #667. |
+| [#777](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/777) | 📋 Not started | Barcode scanner stays unfocused too long — improve or switch library | On-device iPhone 2026-08-30: camera preview stays very blurry; «Всё ещё сканируем» with barcode in the frame. Tap-to-focus (#564) not enough. User: different library or improve current `@zxing/browser`. Related: #256, #294. |
 
 ---
 
