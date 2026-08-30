@@ -14,7 +14,7 @@ _Day page weekly-goal completed modal; barcode scanner; complete-week celebratio
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#793](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/793) | 🔍 Pending validation | Day: align fasting-window note with Meals header | Removed extra horizontal padding so the note starts in line with the Meals heading. |
+| [#793](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/793) | 🔍 Pending validation | Day: since-last-meal on meal cards should look like a badge | Retargeted: per-meal `13h 36m since last meal` chip (border, muted fill, inner padding), aligned with the meal name — not the fasting-window note. |
 | [#795](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/795) | 🔍 Pending validation | Day: save as CSV from the share sheet | One-day Daily Log CSV (same builder as Settings) for a quick LLM paste. |
 
 ---

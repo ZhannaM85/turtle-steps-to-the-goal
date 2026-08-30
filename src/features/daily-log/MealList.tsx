@@ -265,8 +265,10 @@ function MealListItem({
         </div>
       </div>
       {sincePreviousMeal && (
+        // #793 — bordered chip (not plain muted text), inner padding so
+        // the time is not flush; left-aligned with the meal title.
         <p className="min-w-0">
-          <span className="inline-block rounded-md bg-muted px-2 py-0.5 text-sm tabular-nums text-muted-foreground">
+          <span className="inline-block rounded-md border border-border bg-muted px-2.5 py-1 text-sm tabular-nums text-muted-foreground">
             {t.dailyEntry.sinceLastMealOnCard(
               sincePreviousMeal.hours,
               sincePreviousMeal.minutes,
@@ -1156,8 +1158,7 @@ export function MealList({
         // always accurate for whatever's currently on screen and has no
         // dismiss control of its own to go stale.
         // #794 — compact badge (border + muted fill), hours+minutes not
-        // a one-decimal float. Left-aligned so it stays with the Meals
-        // heading (#793).
+        // a one-decimal float. Left-aligned with the Meals heading.
         <p className="min-w-0">
           <span className="inline-block rounded-md border border-border bg-muted px-2 py-0.5 text-sm tabular-nums text-muted-foreground">
             {t.dailyEntry.fastingWindowToastMessage(

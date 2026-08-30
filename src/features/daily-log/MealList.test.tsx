@@ -1157,7 +1157,7 @@ describe('MealList', () => {
       ).toBeInTheDocument()
     })
 
-    it('does not inset the fasting-window note past the Meals header padding (#793)', async () => {
+    it('does not inset the fasting-window note past the Meals header padding', async () => {
       await db.dailyEntries.put(
         makeDailyEntry({
           date: '2026-02-28',
@@ -1626,7 +1626,11 @@ describe('MealList', () => {
       )
 
       expect(await screen.findByText('10h since last meal')).toBeInTheDocument()
-      expect(screen.getByText('2h 30m since last meal')).toBeInTheDocument()
+      const badge = screen.getByText('2h 30m since last meal')
+      expect(badge).toBeInTheDocument()
+      expect(badge.className).toMatch(/\bborder-border\b/)
+      expect(badge.className).toMatch(/\bbg-muted\b/)
+      expect(badge.className).toMatch(/\bpx-2\.5\b/)
     })
 
     it('still shows the card badge on a past day', async () => {
