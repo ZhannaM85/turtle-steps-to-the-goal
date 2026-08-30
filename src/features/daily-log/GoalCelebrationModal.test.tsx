@@ -1,5 +1,5 @@
 import 'fake-indexeddb/auto'
-import { render, screen, waitFor } from '@testing-library/react'
+import { act, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { addDays, format } from 'date-fns'
 import { MemoryRouter } from 'react-router-dom'
@@ -40,6 +40,14 @@ function makeEntry(overrides: Partial<DailyEntry> = {}): DailyEntry {
   }
 }
 
+/** IndexedDB fetch in useActiveGoalProgress is async; wait so a late
+ * complete-modal show would fail a "must stay hidden" assertion. */
+async function flushProgress() {
+  await act(async () => {
+    await new Promise((r) => setTimeout(r, 50))
+  })
+}
+
 /** Seeds weekStart's own weight (80kg) as the day-over-day baseline (#203)
  * plus a later day 1kg below it (79kg), meeting a 1kg target. */
 async function seedTargetMetWeeks() {
@@ -61,6 +69,8 @@ beforeEach(async () => {
     entry: null,
     status: 'idle',
     error: null,
+    weightSaveGeneration: 0,
+    completeOfferDismissedGeneration: null,
   })
   useGoalCelebrationStore.setState({
     celebratedInProgressWeekStart: null,
@@ -178,7 +188,38 @@ describe('GoalCelebrationModal', () => {
     expect(cta).toHaveAttribute('href', '/goal')
   })
 
-  it('shows the completion copy once the window has actually ended with the target still met (#639)', async () => {
+  it('does not show the completion copy on mount just because the window already ended (#783)', async () => {
+    await useGoalStore.getState().saveGoal(
+      makeGoal({
+        targetWeeklyLossKg: 1,
+        weekStart: format(addDays(new Date(), -8), DATE_FORMAT), // ended
+      }),
+    )
+    await db.dailyEntries.put(
+      makeEntry({
+        date: format(addDays(new Date(), -8), DATE_FORMAT),
+        weightKg: 80,
+      }),
+    )
+    await db.dailyEntries.put(
+      makeEntry({
+        date: format(addDays(new Date(), -3), DATE_FORMAT),
+        weightKg: 79,
+      }),
+    )
+    render(
+      <MemoryRouter>
+        <GoalCelebrationModal />
+      </MemoryRouter>,
+    )
+
+    await flushProgress()
+    expect(
+      screen.queryByText('You completed your weekly goal!'),
+    ).not.toBeInTheDocument()
+  })
+
+  it('shows the completion copy after a weight save when the window ended with the target still met (#639, #783)', async () => {
     await useGoalStore.getState().saveGoal(
       makeGoal({
         targetWeeklyLossKg: 1,
@@ -202,6 +243,12 @@ describe('GoalCelebrationModal', () => {
         <GoalCelebrationModal />
       </MemoryRouter>,
     )
+
+    await flushProgress()
+    expect(
+      screen.queryByText('You completed your weekly goal!'),
+    ).not.toBeInTheDocument()
+    useDailyEntryStore.getState().noteWeightSaved()
 
     const cta = await screen.findByRole('link', {
       name: "Set next week's goal",
@@ -245,7 +292,7 @@ describe('GoalCelebrationModal', () => {
     ).not.toBeInTheDocument()
   })
 
-  it('shows the completion copy immediately when the target is reached on the window\'s own last day, not deferred to the next day (#667)', async () => {
+  it('shows the completion copy after a weight save when the target is reached on the window\'s own last day (#667, #783)', async () => {
     const weekStart = format(addDays(new Date(), -6), DATE_FORMAT) // weekEnd is today
     await useGoalStore.getState().saveGoal(
       makeGoal({ targetWeeklyLossKg: 1, weekStart }),
@@ -262,6 +309,12 @@ describe('GoalCelebrationModal', () => {
         <GoalCelebrationModal />
       </MemoryRouter>,
     )
+
+    await flushProgress()
+    expect(
+      screen.queryByText('You completed your weekly goal!'),
+    ).not.toBeInTheDocument()
+    useDailyEntryStore.getState().noteWeightSaved()
 
     const cta = await screen.findByRole('link', {
       name: "Set next week's goal",
@@ -298,7 +351,7 @@ describe('GoalCelebrationModal', () => {
     ).toBeInTheDocument()
   })
 
-  it('still offers the complete modal even if a prior dismiss was persisted (#778)', async () => {
+  it('still offers the complete modal after a weight save even if a prior dismiss was persisted (#778, #783)', async () => {
     const weekStart = format(addDays(new Date(), -6), DATE_FORMAT)
     await useGoalStore.getState().saveGoal(
       makeGoal({ targetWeeklyLossKg: 1, weekStart }),
@@ -319,12 +372,17 @@ describe('GoalCelebrationModal', () => {
       </MemoryRouter>,
     )
 
+    await flushProgress()
+    expect(
+      screen.queryByText('You completed your weekly goal!'),
+    ).not.toBeInTheDocument()
+    useDailyEntryStore.getState().noteWeightSaved()
     expect(
       await screen.findByText('You completed your weekly goal!'),
     ).toBeInTheDocument()
   })
 
-  it('shows the complete modal again after remount even if it was closed this visit (#778)', async () => {
+  it('does not show the complete modal again after remount once it was closed this visit (#783)', async () => {
     const weekStart = format(addDays(new Date(), -6), DATE_FORMAT)
     await useGoalStore.getState().saveGoal(
       makeGoal({ targetWeeklyLossKg: 1, weekStart }),
@@ -336,6 +394,7 @@ describe('GoalCelebrationModal', () => {
         weightKg: 79,
       }),
     )
+    useDailyEntryStore.getState().noteWeightSaved()
     const user = userEvent.setup()
     const { unmount } = render(
       <MemoryRouter>
@@ -355,12 +414,13 @@ describe('GoalCelebrationModal', () => {
         <GoalCelebrationModal />
       </MemoryRouter>,
     )
+    await flushProgress()
     expect(
-      await screen.findByText('You completed your weekly goal!'),
-    ).toBeInTheDocument()
+      screen.queryByText('You completed your weekly goal!'),
+    ).not.toBeInTheDocument()
   })
 
-  it('shows the complete modal again after last-day weight is deleted and logged again (#778)', async () => {
+  it('shows the complete modal again after last-day weight is deleted and logged again (#778, #783)', async () => {
     const today = format(new Date(), DATE_FORMAT)
     const weekStart = format(addDays(new Date(), -6), DATE_FORMAT)
     await useGoalStore.getState().saveGoal(
@@ -375,6 +435,7 @@ describe('GoalCelebrationModal', () => {
       status: 'idle',
       error: null,
     })
+    useDailyEntryStore.getState().noteWeightSaved()
     const user = userEvent.setup()
     render(
       <MemoryRouter>
@@ -418,6 +479,7 @@ describe('GoalCelebrationModal', () => {
       status: 'idle',
       error: null,
     })
+    useDailyEntryStore.getState().noteWeightSaved()
     expect(
       await screen.findByText('You completed your weekly goal!'),
     ).toBeInTheDocument()

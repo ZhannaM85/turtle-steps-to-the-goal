@@ -9,13 +9,12 @@ import { createJSONStorage, persist } from 'zustand/middleware'
  * needing a growing history of every window ever celebrated.
  *
  * #639: the mid-week "crossed the target, keep going" moment is still a
- * one-time persisted dismiss (`celebratedInProgressWeekStart`). #778: the
- * end-of-window "completed!" moment is no longer permanently dismissed —
- * closing it only hides it until the offer resets (last-day weight
- * deleted, then logged again) or the screen remounts; it keeps being
- * offered until a new goal is set. `celebratedCompleteWeekStart` remains
- * in the persisted shape so older clients don't crash on rehydrate, but
- * the complete-phase hook no longer reads it.
+ * one-time persisted dismiss (`celebratedInProgressWeekStart`). #783: the
+ * end-of-window "completed!" moment fires only after a weight save this
+ * session (`noteWeightSaved`), not on app open; dismiss stays closed until
+ * the next weight save. `celebratedCompleteWeekStart` remains in the
+ * persisted shape so older clients don't crash on rehydrate, but the
+ * complete-phase hook no longer reads it.
  */
 interface GoalCelebrationStoreState {
   celebratedInProgressWeekStart: string | null

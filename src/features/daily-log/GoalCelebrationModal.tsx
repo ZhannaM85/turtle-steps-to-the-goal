@@ -19,8 +19,8 @@ import {
  * (mid-week, reframed to not claim final achievement) and 'complete'
  * (the window actually ended with its target still met, the moment a new
  * goal can be started) are two different moments for the same window;
- * see `useWeeklyGoalCelebration.ts`. #778: the complete-week dialog can
- * be offered again after close until a new goal is set.
+ * see `useWeeklyGoalCelebration.ts`. #783: the complete-week dialog
+ * fires after a weight save, not on every app open.
  */
 export function GoalCelebrationModal() {
   const t = useTranslation()

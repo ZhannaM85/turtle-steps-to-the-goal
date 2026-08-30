@@ -1,6 +1,5 @@
-import { useState } from 'react'
 import { goalWindowConcluded } from '@/domain/goal'
-import { useGoalCelebrationStore } from '@/stores'
+import { useDailyEntryStore, useGoalCelebrationStore } from '@/stores'
 import { useActiveGoalProgress } from './useActiveGoalProgress'
 
 /** Which celebration moment is currently relevant for the active goal's
@@ -21,10 +20,10 @@ export type GoalCelebrationPhase = 'inProgress' | 'complete'
  *   weight regresses.
  * - 'complete': fires once the window has concluded (`goalWindowConcluded`
  *   — calendar past weekEnd, or last-day weigh-in that still meets the
- *   target, #667 / #776). #778: dismissing this is **session-only**.
- *   Closing the dialog hides it until the complete offer goes away
- *   (weight deleted, window no longer met) and comes back, or until the
- *   component remounts — it keeps being offered until a new goal is set.
+ *   target, #667 / #776) **and** a weight save happened this session
+ *   (#783). Opening Day / remounting the app is not enough — that was
+ *   the #778 remount-always-offer bug. Dismiss stays closed until the
+ *   next weight save (edit+save, or delete and log again) or a new goal.
  *   A persisted `celebratedCompleteWeekStart` from older builds is ignored.
  *
  * Independent of #38's separate end-of-window renewal banner.
@@ -45,20 +44,25 @@ export function useWeeklyGoalCelebration(): {
   const markCelebrated = useGoalCelebrationStore(
     (state) => state.markCelebrated,
   )
-  const [completeDismissed, setCompleteDismissed] = useState(false)
+  const weightSaveGeneration = useDailyEntryStore(
+    (state) => state.weightSaveGeneration,
+  )
+  const completeOfferDismissedGeneration = useDailyEntryStore(
+    (state) => state.completeOfferDismissedGeneration,
+  )
+  const dismissCompleteOffer = useDailyEntryStore(
+    (state) => state.dismissCompleteOffer,
+  )
 
   const completeEligible =
     progress != null &&
     goalWindowConcluded(progress) &&
     progress.finalTargetMet === true
 
-  // Reset session dismiss when the complete-week offer is no longer
-  // active (e.g. Sunday weight deleted) so logging that weight again
-  // can show the modal (#778). Adjusting during render, not an effect —
-  // see react.dev/learn/you-might-not-need-an-effect.
-  if (!completeEligible && completeDismissed) {
-    setCompleteDismissed(false)
-  }
+  const shouldCelebrateComplete =
+    completeEligible &&
+    weightSaveGeneration > 0 &&
+    completeOfferDismissedGeneration !== weightSaveGeneration
 
   if (progress === null) {
     return {
@@ -71,10 +75,10 @@ export function useWeeklyGoalCelebration(): {
 
   if (goalWindowConcluded(progress)) {
     return {
-      shouldCelebrate: completeEligible && !completeDismissed,
+      shouldCelebrate: shouldCelebrateComplete,
       phase: 'complete',
       weekEnd: progress.weekEnd,
-      dismiss: () => setCompleteDismissed(true),
+      dismiss: dismissCompleteOffer,
     }
   }
 

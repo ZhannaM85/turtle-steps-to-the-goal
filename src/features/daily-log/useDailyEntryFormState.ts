@@ -22,6 +22,7 @@ import {
 } from '@/shared/lib/sleepDuration'
 import {
   useAlcoholTrackingStore,
+  useDailyEntryStore,
   useDigestionTrackingStore,
   useGoalStore,
   useProfileStore,
@@ -695,6 +696,9 @@ export function useDailyEntryFormState({
     setIsEditingWeight(false)
     setHasSavedWeight(true)
     persist(getValues())
+    // #783 — complete-week celebration is gated on a real weight save,
+    // not on opening Day with an already-logged Sunday weigh-in.
+    useDailyEntryStore.getState().noteWeightSaved()
   }
 
   function discardUnusualWeightWarning() {

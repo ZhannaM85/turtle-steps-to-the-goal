@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 739,
+    issue: 783,
+    date: '2026-08-30T12:05:00+03:00',
+    en: 'The “weekly goal completed” celebration now appears after you save today’s weight, not every time you open the app.',
+    ru: 'Поздравление «выполнили недельную цель» появляется после сохранения сегодняшнего веса, а не каждый раз при открытии приложения.',
+  },
+  {
     version: 738,
     issue: 778,
     date: '2026-08-30T11:45:00+03:00',

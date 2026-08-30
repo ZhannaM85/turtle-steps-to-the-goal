@@ -30,6 +30,8 @@ beforeEach(async () => {
     entry: null,
     status: 'idle',
     error: null,
+    weightSaveGeneration: 0,
+    completeOfferDismissedGeneration: null,
   })
 })
 
