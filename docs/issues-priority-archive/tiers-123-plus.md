@@ -393,3 +393,13 @@ _AutoSleep Today deep sleep (z-icon vs star), Zepp goals screenshot body composi
 | [#773](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/773) | ✅ Done | Zepp goals screenshot: muscle mass filled with BMI, not Мышцы (order changes by goal status) | Confirmed on-device 2026-08-29 — muscle from Мышцы (not BMI), visceral fat 14. |
 | [#774](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/774) | ✅ Done | Allow multi-select for Why am I eating? | Confirmed on-device 2026-08-29 — several reasons can stay selected on one meal. |
 | [#775](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/775) | ✅ Done | Meal editing Done button is clipped until you scroll | Confirmed on-device 2026-08-29 — Done stays fully visible without scrolling. |
+
+---
+
+## Tier 147 — Live feedback (2026-08-30)
+
+_Day page weekly-goal completed modal; barcode scanner focus; complete-week celebration re-offer; manual barcode on saved foods._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#777](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/777) | ✅ Done | Barcode scanner stays unfocused too long — improve or switch library | Confirmed on-device 2026-08-30 — sharper rear-camera scan and periodic refocus (library not swapped). |
