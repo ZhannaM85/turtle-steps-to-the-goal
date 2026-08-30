@@ -75,6 +75,7 @@ export {
   clockOnDayToDate,
   resolveLastMealInstant,
   elapsedParts,
+  gapsSincePreviousMeal,
 } from './lastMealInstant'
 export type {
   ResolveLastMealInstantArgs,

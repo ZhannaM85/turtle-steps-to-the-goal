@@ -95,6 +95,48 @@ export function resolveLastMealInstant({
   return clockOnDayToDate(previousDate, previousClock, dayStartTime)
 }
 
+/**
+ * #792 — hours+minutes from the previous timed meal to this one, in
+ * display order. The first meal of the day uses yesterday's last meal
+ * (overnight fast). Untimed meals get `null` and are skipped as a
+ * predecessor.
+ */
+export function gapsSincePreviousMeal(
+  meals: readonly MealWithTime[],
+  dateIso: string,
+  previousDate: string,
+  previousEntries: readonly MealWithTime[] | undefined,
+  dayStartTime: string,
+  slotTimes?: MealSlotDefaultTimes,
+): (ElapsedParts | null)[] {
+  const yesterdayClock = previousEntries
+    ? lastMealClock(previousEntries, dayStartTime, slotTimes)
+    : null
+  const yesterdayInstant = yesterdayClock
+    ? clockOnDayToDate(previousDate, yesterdayClock, dayStartTime)
+    : null
+
+  const instants: (Date | null)[] = meals.map((meal) => {
+    const clock = effectiveTimeEaten(meal, slotTimes)
+    if (!clock) return null
+    return clockOnDayToDate(dateIso, clock, dayStartTime)
+  })
+
+  return instants.map((thisInstant, index) => {
+    if (!thisInstant) return null
+    let previous: Date | null = null
+    for (let i = index - 1; i >= 0; i--) {
+      if (instants[i]) {
+        previous = instants[i]
+        break
+      }
+    }
+    if (!previous) previous = yesterdayInstant
+    if (!previous) return null
+    return elapsedParts(previous, thisInstant)
+  })
+}
+
 export interface ElapsedParts {
   hours: number
   minutes: number

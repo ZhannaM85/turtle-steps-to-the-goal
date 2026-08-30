@@ -1518,4 +1518,109 @@ describe('MealList', () => {
       expect(screen.getByText(expectedDuration(from!))).toBeInTheDocument()
     })
   })
+
+  describe('hours since previous meal on each card (#792)', () => {
+    it('is hidden when the Settings toggle is off', () => {
+      render(
+        <MealList
+          calorieEntries={[
+            {
+              id: 'b',
+              label: 'Breakfast',
+              items: [{ id: 'i1', amountKcal: 300 }],
+              timeEaten: '08:00',
+              createdAt: '2026-03-01T08:00:00.000Z',
+            },
+            {
+              id: 'l',
+              label: 'Lunch',
+              items: [{ id: 'i2', amountKcal: 500 }],
+              timeEaten: '10:30',
+              createdAt: '2026-03-01T10:30:00.000Z',
+            },
+          ]}
+          date="2026-03-01"
+          onChange={vi.fn()}
+        />,
+        { wrapper: MemoryRouter },
+      )
+
+      expect(
+        screen.queryByText('2h 30m since last meal'),
+      ).not.toBeInTheDocument()
+    })
+
+    it('shows the gap from the previous meal under the title', async () => {
+      useSinceLastMealTimerStore.setState({ enabled: true })
+      await db.dailyEntries.put(
+        makeDailyEntry({
+          date: '2026-02-28',
+          calorieEntries: [
+            {
+              id: 'y1',
+              items: [{ id: 'yi1', amountKcal: 400 }],
+              timeEaten: '22:00',
+              createdAt: '2026-02-28T22:00:00.000Z',
+            },
+          ],
+        }),
+      )
+      render(
+        <MealList
+          calorieEntries={[
+            {
+              id: 'b',
+              label: 'Breakfast',
+              items: [{ id: 'i1', amountKcal: 300 }],
+              timeEaten: '08:00',
+              createdAt: '2026-03-01T08:00:00.000Z',
+            },
+            {
+              id: 'l',
+              label: 'Lunch',
+              items: [{ id: 'i2', amountKcal: 500 }],
+              timeEaten: '10:30',
+              createdAt: '2026-03-01T10:30:00.000Z',
+            },
+          ]}
+          date="2026-03-01"
+          onChange={vi.fn()}
+        />,
+        { wrapper: MemoryRouter },
+      )
+
+      expect(await screen.findByText('10h since last meal')).toBeInTheDocument()
+      expect(screen.getByText('2h 30m since last meal')).toBeInTheDocument()
+    })
+
+    it('still shows the card badge on a past day', async () => {
+      useSinceLastMealTimerStore.setState({ enabled: true })
+      render(
+        <MealList
+          calorieEntries={[
+            {
+              id: 'b',
+              label: 'Breakfast',
+              items: [{ id: 'i1', amountKcal: 300 }],
+              timeEaten: '08:00',
+              createdAt: '2026-02-28T08:00:00.000Z',
+            },
+            {
+              id: 'l',
+              label: 'Lunch',
+              items: [{ id: 'i2', amountKcal: 500 }],
+              timeEaten: '10:30',
+              createdAt: '2026-02-28T10:30:00.000Z',
+            },
+          ]}
+          date="2026-02-28"
+          onChange={vi.fn()}
+        />,
+        { wrapper: MemoryRouter },
+      )
+
+      expect(await screen.findByText('2h 30m since last meal')).toBeInTheDocument()
+      expect(screen.queryByText('Since last meal')).not.toBeInTheDocument()
+    })
+  })
 })

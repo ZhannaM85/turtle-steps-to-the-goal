@@ -314,6 +314,10 @@ export const en: Dictionary = {
     sinceLastMealLabel: 'Since last meal',
     sinceLastMealDuration: (hours, minutes, seconds) =>
       `${hours}h ${minutes}m ${String(seconds).padStart(2, '0')}s`,
+    sinceLastMealOnCard: (hours, minutes) =>
+      minutes === 0
+        ? `${hours}h since last meal`
+        : `${hours}h ${minutes}m since last meal`,
     repeatMealLabel: (mealLabel) => `Repeat yesterday's ${mealLabel}`,
     repeatMealDialogTitle: (mealLabel) => `Repeat ${mealLabel}`,
     copyYesterdayMealsLabel: "Copy yesterday's meals",
@@ -1371,7 +1375,7 @@ export const en: Dictionary = {
     nutritionFactsOff: 'Off',
     sinceLastMealTimerLabel: 'Time since last meal',
     sinceLastMealTimerDescription:
-      'On the Day screen, show how long it has been since your last meal — useful for intermittent fasting. Off by default.',
+      'On the Day screen, show how long it has been since your last meal, and how long had passed before each meal — useful for intermittent fasting. Off by default.',
     sinceLastMealTimerOn: 'On',
     sinceLastMealTimerOff: 'Off',
     entryComparisonLabel: 'Entry comparisons',

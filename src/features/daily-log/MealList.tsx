@@ -28,7 +28,8 @@ import {
   evaluateMealNutritionFacts,
   type NutritionFactId,
 } from '@/domain/nutritionFacts'
-import { fastingHoursBetween, resolveLastMealInstant, todayIsoForDayStart } from '@/domain/stats'
+import type { ElapsedParts } from '@/domain/stats'
+import { fastingHoursBetween, gapsSincePreviousMeal, resolveLastMealInstant, todayIsoForDayStart } from '@/domain/stats'
 import {
   formatNumber,
   useLocale,
@@ -122,6 +123,8 @@ interface MealListItemProps {
   t: Dictionary
   locale: Locale
   isConfirmingDelete: boolean
+  /** #792 — static gap from the previous meal; omitted when unknown. */
+  sincePreviousMeal: ElapsedParts | null
   /** #461 — opens this meal in the shared AddMealDialog overlay (state-
    * controlled, no route navigation — see MealList's own onStartEdit
    * wiring) instead of the old #145 inline-fields expand-in-place. */
@@ -137,6 +140,7 @@ function MealListItem({
   t,
   locale,
   isConfirmingDelete,
+  sincePreviousMeal,
   onStartEdit,
   onRequestDelete,
   onConfirmDelete,
@@ -248,6 +252,16 @@ function MealListItem({
           </Button>
         </div>
       </div>
+      {sincePreviousMeal && (
+        <p className="min-w-0">
+          <span className="inline-block rounded-md bg-muted px-2 py-0.5 text-sm tabular-nums text-muted-foreground">
+            {t.dailyEntry.sinceLastMealOnCard(
+              sincePreviousMeal.hours,
+              sincePreviousMeal.minutes,
+            )}
+          </span>
+        </p>
+      )}
       {entry.note && (
         <p className="min-w-0 text-sm text-muted-foreground">{entry.note}</p>
       )}
@@ -508,6 +522,26 @@ export function MealList({
     sinceLastMealTimerEnabled,
     date,
     calorieEntries,
+    previousDate,
+    previousDayEntry,
+    dayStartTime,
+    mealSlotTimes,
+  ])
+
+  const gapsSincePrevious = useMemo(() => {
+    if (!sinceLastMealTimerEnabled) return null
+    return gapsSincePreviousMeal(
+      mealsInDisplayOrder,
+      date,
+      previousDate,
+      previousDayEntry?.calorieEntries,
+      dayStartTime,
+      mealSlotTimes,
+    )
+  }, [
+    sinceLastMealTimerEnabled,
+    mealsInDisplayOrder,
+    date,
     previousDate,
     previousDayEntry,
     dayStartTime,
@@ -1115,7 +1149,7 @@ export function MealList({
       )}
       {mealsInDisplayOrder.length > 0 && (
         <ul className="grid min-w-0 max-w-full grid-cols-1 gap-3">
-          {mealsInDisplayOrder.map((entry) => {
+          {mealsInDisplayOrder.map((entry, index) => {
             // #597 — display order is by clock; positional default names /
             // "Edit meal N" stay tied to storage index so an untimed
             // Breakfast does not rename when a timed Lunch sorts above it.
@@ -1130,6 +1164,7 @@ export function MealList({
                 t={t}
                 locale={locale}
                 isConfirmingDelete={confirmDeleteMealId === entry.id}
+                sincePreviousMeal={gapsSincePrevious?.[index] ?? null}
                 // #461 — opens the shared AddMealDialog overlay for this
                 // meal (state-controlled, see the render block below) —
                 // no route navigation, so this screen never unmounts.

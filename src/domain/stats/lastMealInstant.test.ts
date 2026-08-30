@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import {
   clockOnDayToDate,
   elapsedParts,
+  gapsSincePreviousMeal,
   lastMealClock,
   resolveLastMealInstant,
 } from './lastMealInstant'
@@ -68,5 +69,49 @@ describe('lastMealInstant (#791)', () => {
       minutes: 0,
       seconds: 0,
     })
+  })
+})
+
+describe('gapsSincePreviousMeal (#792)', () => {
+  it('uses yesterday for the first meal and the prior meal for later ones', () => {
+    expect(
+      gapsSincePreviousMeal(
+        [{ timeEaten: '08:00' }, { timeEaten: '10:30' }],
+        '2026-08-30',
+        '2026-08-29',
+        [{ timeEaten: '22:00' }],
+        '00:00',
+      ),
+    ).toEqual([
+      { hours: 10, minutes: 0, seconds: 0 },
+      { hours: 2, minutes: 30, seconds: 0 },
+    ])
+  })
+
+  it('skips an untimed meal as a predecessor', () => {
+    expect(
+      gapsSincePreviousMeal(
+        [{}, { timeEaten: '12:00' }],
+        '2026-08-30',
+        '2026-08-29',
+        [{ timeEaten: '20:00' }],
+        '00:00',
+      ),
+    ).toEqual([
+      null,
+      { hours: 16, minutes: 0, seconds: 0 },
+    ])
+  })
+
+  it('returns null when there is no previous timed meal', () => {
+    expect(
+      gapsSincePreviousMeal(
+        [{ timeEaten: '08:00' }],
+        '2026-08-30',
+        '2026-08-29',
+        undefined,
+        '00:00',
+      ),
+    ).toEqual([null])
   })
 })

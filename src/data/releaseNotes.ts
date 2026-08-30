@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 753,
+    issue: 792,
+    date: '2026-08-30T21:30:00+03:00',
+    en: 'Each meal can show how long it had been since the previous meal, under the meal name.',
+    ru: 'На карточке каждого приёма пищи можно видеть, сколько прошло с предыдущего приёма.',
+  },
+  {
     version: 752,
     issue: 791,
     date: '2026-08-30T19:40:00+03:00',

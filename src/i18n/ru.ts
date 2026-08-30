@@ -333,6 +333,10 @@ export const ru: Dictionary = {
     sinceLastMealLabel: 'С последнего приёма',
     sinceLastMealDuration: (hours, minutes, seconds) =>
       `${hours} ч ${minutes} м ${String(seconds).padStart(2, '0')} с`,
+    sinceLastMealOnCard: (hours, minutes) =>
+      minutes === 0
+        ? `${hours} ч с последнего приёма`
+        : `${hours} ч ${minutes} м с последнего приёма`,
     repeatMealLabel: (mealLabel) => `Повторить вчерашний «${mealLabel}»`,
     repeatMealDialogTitle: (mealLabel) => `Повторить «${mealLabel}»`,
     copyYesterdayMealsLabel: 'Скопировать вчерашние приёмы пищи',
@@ -1408,7 +1412,7 @@ export const ru: Dictionary = {
     nutritionFactsOff: 'Выкл',
     sinceLastMealTimerLabel: 'Время с последнего приёма',
     sinceLastMealTimerDescription:
-      'На экране «День» показывать, сколько прошло с последнего приёма пищи — удобно для интервального голодания. По умолчанию выключено.',
+      'На экране «День» показывать, сколько прошло с последнего приёма пищи, и сколько прошло перед каждым приёмом — удобно для интервального голодания. По умолчанию выключено.',
     sinceLastMealTimerOn: 'Вкл',
     sinceLastMealTimerOff: 'Выкл',
     entryComparisonLabel: 'Сравнение при вводе',

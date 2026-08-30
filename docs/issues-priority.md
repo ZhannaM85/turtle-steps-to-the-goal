@@ -14,7 +14,7 @@ _Day page weekly-goal completed modal; barcode scanner; complete-week celebratio
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#792](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/792) | 🔲 Open | Day: show hours since previous meal on each meal card | Same #791 toggle. Sub-header under the meal title: gap from the previous meal (first meal of the day uses yesterday's last). Hours+minutes, no live tick. |
+| [#792](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/792) | 🔍 Pending validation | Day: show hours since previous meal on each meal card | Same #791 toggle. Sub-header under the meal title: gap from the previous meal (first meal of the day uses yesterday's last). Hours+minutes, no live tick. |
 
 ---
 

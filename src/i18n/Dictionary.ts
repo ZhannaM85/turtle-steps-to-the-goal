@@ -546,6 +546,8 @@ export interface Dictionary {
     /** #791 — live elapsed time since last meal (IF timer). */
     sinceLastMealLabel: string
     sinceLastMealDuration: (hours: number, minutes: number, seconds: number) => string
+    /** #792 — static gap on a meal card (hours + minutes, no seconds). */
+    sinceLastMealOnCard: (hours: number, minutes: number) => string
     /** #190: "Repeat yesterday's [meal]" quick action on the add row —
      * only shown when the day before has a meal at this same position
      * (#141's positional identity, not label matching). Clones that
