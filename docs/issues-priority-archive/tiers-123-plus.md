@@ -402,4 +402,5 @@ _Day page weekly-goal completed modal; barcode scanner focus; complete-week cele
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
+| [#776](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/776) | ✅ Done | Day: weekly-goal completed modal shows on Sunday before weight is logged | Closed 2026-08-30 without end-of-week on-device check (this week's complete modal was already dismissed before Sunday's weigh-in). Will reopen if it still appears before last-day weight next Sunday. |
 | [#777](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/777) | ✅ Done | Barcode scanner stays unfocused too long — improve or switch library | Confirmed on-device 2026-08-30 — sharper rear-camera scan and periodic refocus (library not swapped). |

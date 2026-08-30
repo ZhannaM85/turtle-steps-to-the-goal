@@ -14,7 +14,6 @@ _Day page weekly-goal completed modal; barcode scanner focus; complete-week cele
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#776](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/776) | 🔍 Pending validation | Day: weekly-goal completed modal shows on Sunday before weight is logged | `goalWindowConcluded` on weekEnd now requires that day's weigh-in (`currentWeightDate === weekEnd`), not a mid-week `finalTargetMet`. Complete modal + new-goal unlock wait until Sunday weight is saved; #667 last-day reach still unlocks once that weight is in. |
 | [#778](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/778) | 🔍 Pending validation | Complete-week celebration: keep offering until the next goal is set | Complete-phase dismiss is session-only (no `celebratedCompleteWeekStart` lock). Closing hides it until last-day weight is removed or the screen remounts; logging Sunday weight again offers it until a new goal is started. Mid-week in-progress dismiss still persists. |
 | [#779](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/779) | 📋 Not started | Settings: manually add a barcode to a food that was saved earlier | On-device 2026-08-30: expanded saved food (e.g. «Паста творожная…») has no barcode field. User wants to type a barcode later so the next scan matches that personal item. Related: #256, #289. |
 
