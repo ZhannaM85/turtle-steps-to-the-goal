@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 747,
+    issue: 788,
+    date: '2026-08-30T14:45:00+03:00',
+    en: 'If you scan a barcode and then change the name, that same saved food is updated — a second copy without the barcode is not created.',
+    ru: 'Если вы отсканировали штрихкод и потом изменили название, обновляется то же сохранённое блюдо — вторая копия без штрихкода больше не создаётся.',
+  },
+  {
     version: 746,
     issue: 785,
     date: '2026-08-30T13:55:00+03:00',

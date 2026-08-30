@@ -801,6 +801,42 @@ describe('AddMealDialog (#454)', () => {
       expect(screen.getAllByText('Protein Bar').length).toBeGreaterThan(0)
     })
 
+    it('renaming after a local barcode scan updates that food in place (#788)', async () => {
+      await useMealItemStore
+        .getState()
+        .touch(
+          'Yogurt',
+          { amountKcal: 50, proteinG: 4 },
+          undefined,
+          '0123456789012',
+        )
+      const id = useMealItemStore.getState().items[0].id
+      mockScanning('0123456789012')
+      const user = userEvent.setup()
+      render(<ControlledAddMealDialog {...defaultProps} />)
+
+      await user.click(screen.getByRole('button', { name: 'Scan barcode' }))
+      const saveButton = await screen.findByRole(
+        'button',
+        { name: 'Save' },
+        { timeout: 20000 },
+      )
+      const nameField = screen.getByLabelText('Dish name')
+      await user.clear(nameField)
+      await user.type(nameField, 'Pasta dessert')
+      await user.click(saveButton)
+
+      await waitFor(() => {
+        const items = useMealItemStore.getState().items
+        expect(items).toHaveLength(1)
+        expect(items[0]).toMatchObject({
+          id,
+          name: 'Pasta dessert',
+          barcode: '0123456789012',
+        })
+      })
+    })
+
     it('prefills the brand from an Open Food Facts match, still editable (#640)', async () => {
       vi.stubGlobal(
         'fetch',

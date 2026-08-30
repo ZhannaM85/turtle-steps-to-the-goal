@@ -534,9 +534,9 @@ export function AddMealDialog({
    * last weight (#715) also opens in `per100g` via `ratesFromAbsolute` so
    * density stays the source of truth when quantity changes; without
    * `lastAmountG` it still opens in `perPortion` from the last-logged
-   * total alone. `brandOverride`/`barcodeOverride` are only ever passed
-   * for an OFF-sourced pick — neither MealItem nor FoodItem carries
-   * either of its own. */
+   * total alone. `brandOverride` is OFF-only. **#788**: `barcodeOverride`
+   * is also passed for a local library hit so a renamed save updates that
+   * barcode's MealItem in place. */
   function openPickedItemSheet(
     item: PickableItem,
     options?: { brandOverride?: string; barcodeOverride?: string },
@@ -712,7 +712,9 @@ export function AddMealDialog({
         source: 'mealItem',
         mealItem: result.item as MealItem & { lastAmountKcal: number },
       }
-      openPickedItemSheet(item)
+      // #788 — keep the scanned code on save so a renamed title updates
+      // this MealItem in place instead of creating a barcode-less duplicate.
+      openPickedItemSheet(item, { barcodeOverride: barcode })
     } else if (result.source === 'openFoodFacts') {
       // Not a catalog/personal-library item yet — represented as a
       // one-off synthetic food so the same confirm step (which only knows

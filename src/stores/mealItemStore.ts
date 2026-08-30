@@ -24,7 +24,10 @@ interface MealItemStoreState {
   /** Upsert-by-name (#50): called whenever a meal is saved with a note.
    * Bumps updatedAt on an existing item rather than duplicating it.
    * `nutrition` (#86) records the last-used kcal/macros for this name, so
-   * the food picker can offer it as something reusable later. */
+   * the food picker can offer it as something reusable later.
+   * **#788**: when `barcode` is passed and already on a library row,
+   * that row is updated in place (name/nutrition) instead of creating a
+   * second food. */
   touch: (
     name: string,
     nutrition?: {
@@ -131,14 +134,30 @@ export const useMealItemStore = create<MealItemStoreState>((set, get) => ({
   touch: async (name, nutrition, favorite, barcode) => {
     const trimmed = normalizeTextSpaces(name).trim()
     if (!trimmed) return
-    const existing = await mealItemRepository.findByName(trimmed)
+    const code = barcode?.replace(/\s+/g, '').trim() || undefined
+    let existing = await mealItemRepository.findByName(trimmed)
+    let nextName = trimmed
+    // #788 — a barcode identifies the physical product. If this code is
+    // already on a library row, update that row in place (including a
+    // renamed title) instead of creating a second food without the code.
+    if (code) {
+      const byCode = await mealItemRepository.findByBarcode(code)
+      if (byCode) {
+        existing = byCode
+        const nameTaken = await mealItemRepository.findByName(trimmed)
+        if (nameTaken && nameTaken.id !== byCode.id) {
+          nextName = byCode.name
+        }
+      }
+    }
     const now = new Date().toISOString()
     const item: MealItem = {
       ...(existing ?? {
         id: crypto.randomUUID(),
-        name: trimmed,
+        name: nextName,
         createdAt: now,
       }),
+      name: nextName,
       updatedAt: now,
       lastAmountKcal: nutrition?.amountKcal ?? existing?.lastAmountKcal,
       lastProteinG: nutrition?.proteinG ?? existing?.lastProteinG,
@@ -157,7 +176,7 @@ export const useMealItemStore = create<MealItemStoreState>((set, get) => ({
     // could drop a code `setBarcode` had just stored; brand is not in this
     // object at all, which is why brand stuck and barcode did not.
     if (barcode !== undefined) {
-      if (barcode) item.barcode = barcode
+      if (code) item.barcode = code
       else delete item.barcode
     }
     await mealItemRepository.upsert(item)

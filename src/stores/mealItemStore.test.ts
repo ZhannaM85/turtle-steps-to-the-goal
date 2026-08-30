@@ -172,6 +172,30 @@ describe('useMealItemStore', () => {
     )
   })
 
+  it('touch with a barcode renames that coded food instead of creating a duplicate (#788)', async () => {
+    await useMealItemStore
+      .getState()
+      .touch('Yogurt', { amountKcal: 50 }, undefined, '4810268023378')
+    const id = useMealItemStore.getState().items[0].id
+
+    await useMealItemStore.getState().touch(
+      'Pasta dessert',
+      { amountKcal: 134, proteinG: 8, fatG: 4, carbsG: 16 },
+      undefined,
+      '4810268023378',
+    )
+
+    const items = useMealItemStore.getState().items
+    expect(items).toHaveLength(1)
+    expect(items[0]).toMatchObject({
+      id,
+      name: 'Pasta dessert',
+      barcode: '4810268023378',
+      lastAmountKcal: 134,
+      lastProteinG: 8,
+    })
+  })
+
   it('setBarcode attaches a code to an existing item (#779)', async () => {
     await useMealItemStore.getState().touch('Pizza', { amountKcal: 400 })
     const id = useMealItemStore.getState().items[0].id
