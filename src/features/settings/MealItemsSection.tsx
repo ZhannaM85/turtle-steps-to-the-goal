@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Check, Pencil, ScanBarcode, Share2, Star, Trash2 } from 'lucide-react'
 import { formatNumber, useLocale, useTranslation } from '@/i18n'
 import type { MealItem, MealItemServing } from '@/domain/mealItem'
@@ -83,6 +83,8 @@ function MealItemRow({
   onDelete,
   onSaveNutrition,
   onSaveBarcode,
+  onReassignBarcode,
+  onBarcodeMoved,
   onSaveBrand,
   onToggleFavorite,
   onSaveServings,
@@ -104,7 +106,13 @@ function MealItemRow({
   onSaveBarcode: (
     id: string,
     barcode: string | undefined,
-  ) => Promise<{ takenBy?: string }>
+  ) => Promise<{ takenBy?: string; takenById?: string }>
+  onReassignBarcode: (
+    fromId: string,
+    toId: string,
+    barcode: string,
+  ) => void | Promise<void>
+  onBarcodeMoved: (other: { id: string; name: string }) => void
   onSaveBrand: (id: string, brand: string | undefined) => void | Promise<void>
   onToggleFavorite: (id: string) => void
   onSaveServings: (id: string, servings: MealItemServing[]) => void
@@ -123,6 +131,10 @@ function MealItemRow({
   const [barcodeDraft, setBarcodeDraft] = useState(item.barcode ?? '')
   const [brandDraft, setBrandDraft] = useState(item.brand ?? '')
   const [barcodeError, setBarcodeError] = useState('')
+  const [barcodeTaken, setBarcodeTaken] = useState<{
+    id: string
+    name: string
+  } | null>(null)
   // #603 — draft fields for the "add a serving" row only; the list itself
   // reads straight from `item.servings` and commits immediately on
   // add/remove, same "doesn't wait for Save" shape favoriting already has.
@@ -149,6 +161,7 @@ function MealItemRow({
     setBarcodeDraft(item.barcode ?? '')
     setBrandDraft(item.brand ?? '')
     setBarcodeError('')
+    setBarcodeTaken(null)
     setIsEditingNutrition(false)
   }
 
@@ -165,6 +178,7 @@ function MealItemRow({
     setBarcodeDraft(item.barcode ?? '')
     setBrandDraft(item.brand ?? '')
     setBarcodeError('')
+    setBarcodeTaken(null)
     if (item.lastAmountKcal === undefined) {
       setKcal100('')
       setProtein100('')
@@ -266,14 +280,31 @@ function MealItemRow({
       })
     }
     const barcodeResult = await onSaveBarcode(item.id, nextBarcode)
-    if (barcodeResult.takenBy) {
+    if (barcodeResult.takenBy && barcodeResult.takenById) {
       setBarcodeError(
         t.settings.mealItemBarcodeTakenMessage(barcodeResult.takenBy),
       )
+      setBarcodeTaken({
+        id: barcodeResult.takenById,
+        name: barcodeResult.takenBy,
+      })
       return
     }
     setBarcodeError('')
+    setBarcodeTaken(null)
     setIsEditingNutrition(false)
+  }
+
+  async function moveBarcodeHere() {
+    if (!barcodeTaken) return
+    const nextBarcode = barcodeDraft.replace(/\s+/g, '').trim()
+    if (!nextBarcode) return
+    const other = barcodeTaken
+    await onReassignBarcode(other.id, item.id, nextBarcode)
+    setBarcodeError('')
+    setBarcodeTaken(null)
+    setIsEditingNutrition(false)
+    onBarcodeMoved(other)
   }
 
   // #603 — stores the same label in both `en`/`ru` rather than asking a
@@ -328,7 +359,7 @@ function MealItemRow({
       : null
 
   return (
-    <li className="flex flex-col gap-1.5">
+    <li className="flex flex-col gap-1.5" data-meal-item-id={item.id}>
       {isEditingNutrition ? (
         // #583 rework — one bordered panel around name + nutrition so the
         // edit chrome reads as a single card (name was outside the border).
@@ -427,6 +458,7 @@ function MealItemRow({
               onChange={(e) => {
                 setBarcodeDraft(e.target.value)
                 if (barcodeError) setBarcodeError('')
+                if (barcodeTaken) setBarcodeTaken(null)
               }}
               className={cn('h-12 text-base', nutritionFieldClassName)}
               aria-invalid={barcodeError ? true : undefined}
@@ -435,6 +467,16 @@ function MealItemRow({
               <p className="text-sm text-destructive" role="alert">
                 {barcodeError}
               </p>
+            ) : null}
+            {barcodeTaken ? (
+              <Button
+                type="button"
+                variant="outline"
+                className="h-12 w-full text-base"
+                onClick={() => void moveBarcodeHere()}
+              >
+                {t.settings.mealItemBarcodeMoveHereButton}
+              </Button>
             ) : null}
           </div>
           <ToggleGroup
@@ -1083,6 +1125,7 @@ export function MealItemsSection() {
   const toggleFavorite = useMealItemStore((state) => state.toggleFavorite)
   const setServings = useMealItemStore((state) => state.setServings)
   const setBarcode = useMealItemStore((state) => state.setBarcode)
+  const reassignBarcode = useMealItemStore((state) => state.reassignBarcode)
   const setBrand = useMealItemStore((state) => state.setBrand)
   const backfillFromHistory = useMealItemStore(
     (state) => state.backfillFromHistory,
@@ -1095,6 +1138,12 @@ export function MealItemsSection() {
   const setSort = useMealLibrarySortStore((state) => state.setSort)
   const [isAdding, setIsAdding] = useState(false)
   const [search, setSearch] = useState('')
+  const [barcodeMovedOffer, setBarcodeMovedOffer] = useState<{
+    id: string
+    name: string
+  } | null>(null)
+  const [focusItemId, setFocusItemId] = useState<string | null>(null)
+  const listRef = useRef<HTMLUListElement>(null)
   const [backfillBusy, setBackfillBusy] = useState(false)
   const [backfillMessage, setBackfillMessage] = useState<string | null>(null)
   const [shareItem, setShareItem] = useState<MealItem | null>(null)
@@ -1219,6 +1268,16 @@ export function MealItemsSection() {
     : items
   const visibleItems = sortMealLibraryItems(filteredItems, sort, locale)
 
+  useEffect(() => {
+    if (!focusItemId) return
+    const row = listRef.current?.querySelector(
+      `[data-meal-item-id="${focusItemId}"]`,
+    )
+    if (row instanceof HTMLElement && typeof row.scrollIntoView === 'function') {
+      row.scrollIntoView({ block: 'nearest' })
+    }
+  }, [focusItemId, search])
+
   return (
     <div className="flex flex-col gap-3">
       <p className="text-sm text-muted-foreground">
@@ -1305,6 +1364,27 @@ export function MealItemsSection() {
           />
         </>
       )}
+      {barcodeMovedOffer && (
+        <div
+          className="flex flex-col gap-1.5 rounded-lg border border-border bg-muted/30 p-3"
+          role="status"
+        >
+          <p className="text-sm">
+            {t.settings.mealItemBarcodeMovedMessage(barcodeMovedOffer.name)}
+          </p>
+          <Button
+            type="button"
+            variant="link"
+            className="h-auto self-start px-0"
+            onClick={() => {
+              setSearch(barcodeMovedOffer.name)
+              setFocusItemId(barcodeMovedOffer.id)
+            }}
+          >
+            {t.settings.mealItemBarcodeOpenOtherLabel(barcodeMovedOffer.name)}
+          </Button>
+        </div>
+      )}
       {query && visibleItems.length === 0 && (
         <p className="text-sm text-muted-foreground">
           {t.settings.noMealItemResultsText}
@@ -1318,7 +1398,10 @@ export function MealItemsSection() {
         // this list's top/bottom edge from "chaining" up to scroll the
         // whole page instead — without it, the browser inconsistently
         // decided which scrollable ancestor a given gesture belonged to.
-        <ul className="flex max-h-96 flex-col gap-2 overflow-y-auto overscroll-y-contain">
+        <ul
+          ref={listRef}
+          className="flex max-h-96 flex-col gap-2 overflow-y-auto overscroll-y-contain"
+        >
           {visibleItems.map((item) => (
             <MealItemRow
               key={item.id}
@@ -1327,6 +1410,8 @@ export function MealItemsSection() {
               onDelete={deleteItem}
               onSaveNutrition={handleSaveNutrition}
               onSaveBarcode={setBarcode}
+              onReassignBarcode={reassignBarcode}
+              onBarcodeMoved={setBarcodeMovedOffer}
               onSaveBrand={setBrand}
               onToggleFavorite={toggleFavorite}
               onSaveServings={setServings}

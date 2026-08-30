@@ -1266,6 +1266,10 @@ export const ru: Dictionary = {
     mealItemBarcodeLabel: 'Штрихкод',
     mealItemBarcodeTakenMessage: (name) =>
       `Этот штрихкод уже указан у «${name}».`,
+    mealItemBarcodeMoveHereButton: 'Перенести штрихкод сюда',
+    mealItemBarcodeMovedMessage: (name) =>
+      `Штрихкод снят с «${name}». Это блюдо можно удалить, если оно больше не нужно.`,
+    mealItemBarcodeOpenOtherLabel: (name) => `Открыть «${name}»`,
     deleteMealItemLabel: (name) => `Удалить «${name}»`,
     editMealItemLabel: (name) => `Изменить «${name}»`,
     saveMealItemLabel: (name) => `Сохранить «${name}»`,

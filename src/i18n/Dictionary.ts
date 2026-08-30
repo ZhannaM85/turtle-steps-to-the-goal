@@ -1891,6 +1891,11 @@ export interface Dictionary {
     /** #784 — unique `&barcode` index; shown when save would steal another
      * food's code instead of silently dropping the typed value. */
     mealItemBarcodeTakenMessage: (name: string) => string
+    /** #785 — take the unique code off the named food and put it on this
+     * one; then a link to jump to that leftover row. */
+    mealItemBarcodeMoveHereButton: string
+    mealItemBarcodeMovedMessage: (name: string) => string
+    mealItemBarcodeOpenOtherLabel: (name: string) => string
     deleteMealItemLabel: (name: string) => string
     editMealItemLabel: (name: string) => string
     saveMealItemLabel: (name: string) => string

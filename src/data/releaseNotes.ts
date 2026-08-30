@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 746,
+    issue: 785,
+    date: '2026-08-30T13:55:00+03:00',
+    en: 'If a barcode is already on another saved food, you can move it here, then open that other food if you want to delete it.',
+    ru: 'Если штрихкод уже указан у другого сохранённого блюда, его можно перенести сюда, а затем открыть то блюдо, если хотите его удалить.',
+  },
+  {
     version: 745,
     issue: 784,
     date: '2026-08-30T13:30:00+03:00',

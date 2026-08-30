@@ -72,7 +72,14 @@ interface MealItemStoreState {
   setBarcode: (
     id: string,
     barcode: string | undefined,
-  ) => Promise<{ takenBy?: string }>
+  ) => Promise<{ takenBy?: string; takenById?: string }>
+  /** #785 — take a code off `fromId` and put it on `toId`. Does not
+   * merge names, macros, or history. */
+  reassignBarcode: (
+    fromId: string,
+    toId: string,
+    barcode: string,
+  ) => Promise<void>
   /** #781 — attach or clear a brand on an existing library row. */
   setBrand: (id: string, brand: string | undefined) => Promise<void>
   /**
@@ -213,7 +220,7 @@ export const useMealItemStore = create<MealItemStoreState>((set, get) => ({
     if (trimmed) {
       const collision = await mealItemRepository.findByBarcode(trimmed)
       if (collision && collision.id !== id) {
-        return { takenBy: collision.name }
+        return { takenBy: collision.name, takenById: collision.id }
       }
       next.barcode = trimmed
     } else {
@@ -225,13 +232,19 @@ export const useMealItemStore = create<MealItemStoreState>((set, get) => ({
       if (trimmed) {
         const collision = await mealItemRepository.findByBarcode(trimmed)
         if (collision && collision.id !== id) {
-          return { takenBy: collision.name }
+          return { takenBy: collision.name, takenById: collision.id }
         }
       }
       throw err
     }
     set({ items: await mealItemRepository.getAll() })
     return {}
+  },
+  reassignBarcode: async (fromId, toId, barcode) => {
+    const trimmed = barcode.replace(/\s+/g, '').trim()
+    if (!trimmed || fromId === toId) return
+    await get().setBarcode(fromId, undefined)
+    await get().setBarcode(toId, trimmed)
   },
   setBrand: async (id, brand) => {
     const current = get().items.find((item) => item.id === id)

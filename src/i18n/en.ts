@@ -1230,6 +1230,10 @@ export const en: Dictionary = {
     mealItemBarcodeLabel: 'Barcode',
     mealItemBarcodeTakenMessage: (name) =>
       `This barcode is already on “${name}”.`,
+    mealItemBarcodeMoveHereButton: 'Move barcode here',
+    mealItemBarcodeMovedMessage: (name) =>
+      `Barcode moved off “${name}”. You can delete that food if you no longer need it.`,
+    mealItemBarcodeOpenOtherLabel: (name) => `Open “${name}”`,
     deleteMealItemLabel: (name) => `Delete "${name}"`,
     editMealItemLabel: (name) => `Edit ${name}`,
     saveMealItemLabel: (name) => `Save ${name}`,

@@ -14,7 +14,7 @@ _Day page weekly-goal completed modal; barcode scanner; complete-week celebratio
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#785](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/785) | 🔲 Open | Settings: move a taken barcode onto this food, then open the other food | Follow-up to #784. Collision on «Паста творожная…» vs «йогурт»: offer move-barcode-here (do not merge names/macros/history), then a link to jump to the leftover food so it can be deleted. |
+| [#785](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/785) | 🔍 Pending validation | Settings: move a taken barcode onto this food, then open the other food | Follow-up to #784. Collision on «Паста творожная…» vs «йогурт»: Move barcode here (clear other, attach here — no merge), then Open «йогурт» filters/scrolls to that leftover row so it can be deleted. |
 
 ---
 

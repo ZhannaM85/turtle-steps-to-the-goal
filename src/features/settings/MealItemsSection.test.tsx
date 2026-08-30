@@ -857,6 +857,9 @@ describe('MealItemsSection', () => {
       ).toHaveTextContent('This barcode is already on “Peas”.')
       expect(screen.getByRole('button', { name: 'Save Pizza' })).toBeInTheDocument()
       expect(
+        screen.getByRole('button', { name: 'Move barcode here' }),
+      ).toBeInTheDocument()
+      expect(
         useMealItemStore.getState().items.find((i) => i.name === 'Pizza')
           ?.barcode,
       ).toBeUndefined()
@@ -868,6 +871,58 @@ describe('MealItemsSection', () => {
         useMealItemStore.getState().items.find((i) => i.name === 'Peas')
           ?.barcode,
       ).toBe('3083681187090')
+    })
+
+    it('moves a taken barcode here and links to the other food (#785)', async () => {
+      await useMealItemStore
+        .getState()
+        .touch('Peas', { amountKcal: 44 }, undefined, '3083681187090')
+      await useMealItemStore.getState().touch('Pizza', {
+        amountKcal: 134,
+        proteinG: 8,
+        fatG: 4,
+        carbsG: 16,
+      })
+      const user = userEvent.setup()
+      render(<MealItemsSection />)
+
+      await screen.findByText('Pizza')
+      await user.click(screen.getByRole('button', { name: 'Edit Pizza' }))
+      await user.type(
+        screen.getByLabelText('Barcode — Pizza'),
+        '3083681187090',
+      )
+      await user.click(screen.getByRole('button', { name: 'Save Pizza' }))
+
+      expect(
+        await screen.findByRole('alert'),
+      ).toHaveTextContent('This barcode is already on “Peas”.')
+      await user.click(
+        screen.getByRole('button', { name: 'Move barcode here' }),
+      )
+
+      await waitFor(() => {
+        expect(
+          useMealItemStore.getState().items.find((i) => i.name === 'Pizza')
+            ?.barcode,
+        ).toBe('3083681187090')
+      })
+      expect(
+        useMealItemStore.getState().items.find((i) => i.name === 'Peas')
+          ?.barcode,
+      ).toBeUndefined()
+
+      expect(
+        await screen.findByText(
+          'Barcode moved off “Peas”. You can delete that food if you no longer need it.',
+        ),
+      ).toBeInTheDocument()
+      await user.click(screen.getByRole('button', { name: 'Open “Peas”' }))
+
+      expect(screen.getByLabelText('Search meal items')).toHaveValue('Peas')
+      expect(
+        await screen.findByRole('button', { name: 'Delete "Peas"' }),
+      ).toBeInTheDocument()
     })
 
     it('saves a typed brand onto an existing food (#781)', async () => {

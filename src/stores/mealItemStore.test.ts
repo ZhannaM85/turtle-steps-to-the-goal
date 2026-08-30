@@ -218,6 +218,9 @@ describe('useMealItemStore', () => {
       .getState()
       .touch('Pizza', { amountKcal: 400 }, undefined, '0123456789012')
     await useMealItemStore.getState().touch('Salad', { amountKcal: 100 })
+    const pizza = useMealItemStore
+      .getState()
+      .items.find((i) => i.name === 'Pizza')!
     const salad = useMealItemStore
       .getState()
       .items.find((i) => i.name === 'Salad')!
@@ -226,7 +229,33 @@ describe('useMealItemStore', () => {
       .getState()
       .setBarcode(salad.id, '0123456789012')
 
-    expect(result).toEqual({ takenBy: 'Pizza' })
+    expect(result).toEqual({ takenBy: 'Pizza', takenById: pizza.id })
+  })
+
+  it('reassignBarcode moves a code from one food to another (#785)', async () => {
+    await useMealItemStore
+      .getState()
+      .touch('Pizza', { amountKcal: 400 }, undefined, '0123456789012')
+    await useMealItemStore.getState().touch('Salad', { amountKcal: 100 })
+    const pizza = useMealItemStore
+      .getState()
+      .items.find((i) => i.name === 'Pizza')!
+    const salad = useMealItemStore
+      .getState()
+      .items.find((i) => i.name === 'Salad')!
+
+    await useMealItemStore
+      .getState()
+      .reassignBarcode(pizza.id, salad.id, '0123456789012')
+
+    expect(
+      useMealItemStore.getState().items.find((i) => i.name === 'Pizza')
+        ?.barcode,
+    ).toBeUndefined()
+    expect(
+      useMealItemStore.getState().items.find((i) => i.name === 'Salad')
+        ?.barcode,
+    ).toBe('0123456789012')
   })
 
   it('touch after setBarcode keeps the new barcode (#784)', async () => {
