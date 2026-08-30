@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 740,
+    issue: 779,
+    date: '2026-08-30T12:20:00+03:00',
+    en: 'You can type a barcode onto a food you saved earlier, so the next scan finds that item.',
+    ru: 'Можно вручную указать штрихкод у блюда, которое уже сохранено — следующий скан найдёт именно его.',
+  },
+  {
     version: 739,
     issue: 783,
     date: '2026-08-30T12:05:00+03:00',

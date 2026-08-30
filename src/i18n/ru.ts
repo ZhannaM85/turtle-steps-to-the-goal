@@ -1263,6 +1263,7 @@ export const ru: Dictionary = {
     mealItemSearchPlaceholder: 'Поиск...',
     noMealItemResultsText: 'Ничего не найдено.',
     mealItemNameLabel: 'Название блюда',
+    mealItemBarcodeLabel: 'Штрихкод',
     deleteMealItemLabel: (name) => `Удалить «${name}»`,
     editMealItemLabel: (name) => `Изменить «${name}»`,
     saveMealItemLabel: (name) => `Сохранить «${name}»`,

@@ -1227,6 +1227,7 @@ export const en: Dictionary = {
     mealItemSearchPlaceholder: 'Search...',
     noMealItemResultsText: 'No meal items match your search.',
     mealItemNameLabel: 'Meal item name',
+    mealItemBarcodeLabel: 'Barcode',
     deleteMealItemLabel: (name) => `Delete "${name}"`,
     editMealItemLabel: (name) => `Edit ${name}`,
     saveMealItemLabel: (name) => `Save ${name}`,

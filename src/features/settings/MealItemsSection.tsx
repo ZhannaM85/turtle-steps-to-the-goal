@@ -82,6 +82,7 @@ function MealItemRow({
   onRename,
   onDelete,
   onSaveNutrition,
+  onSaveBarcode,
   onToggleFavorite,
   onSaveServings,
   onShare,
@@ -99,6 +100,7 @@ function MealItemRow({
       amountG: number
     },
   ) => void | Promise<void>
+  onSaveBarcode: (id: string, barcode: string | undefined) => void | Promise<void>
   onToggleFavorite: (id: string) => void
   onSaveServings: (id: string, servings: MealItemServing[]) => void
   onShare: (item: MealItem) => void
@@ -112,6 +114,8 @@ function MealItemRow({
   const [fat100, setFat100] = useState('')
   const [carbs100, setCarbs100] = useState('')
   const [amountG, setAmountG] = useState('1')
+  // #779 — typed onto an existing food so the next scan matches locally.
+  const [barcodeDraft, setBarcodeDraft] = useState(item.barcode ?? '')
   // #603 — draft fields for the "add a serving" row only; the list itself
   // reads straight from `item.servings` and commits immediately on
   // add/remove, same "doesn't wait for Save" shape favoriting already has.
@@ -140,6 +144,7 @@ function MealItemRow({
   /** #589 — leave edit without saving nutrition or renaming. */
   function cancelEditing() {
     setValue(item.name)
+    setBarcodeDraft(item.barcode ?? '')
     setIsEditingNutrition(false)
   }
 
@@ -153,6 +158,7 @@ function MealItemRow({
   // #584: the same pencil also reveals the name Input (plain text until then).
   function startEditNutrition() {
     setValue(item.name)
+    setBarcodeDraft(item.barcode ?? '')
     if (item.lastAmountKcal === undefined) {
       setKcal100('')
       setProtein100('')
@@ -221,8 +227,17 @@ function MealItemRow({
   }
 
   function saveNutrition() {
+    const nextBarcode = barcodeDraft.replace(/\s+/g, '').trim() || undefined
     const parsedKcal100 = parseNumberInput(kcal100)
-    if (parsedKcal100 === undefined || parsedKcal100 < 0) return
+    if (parsedKcal100 === undefined || parsedKcal100 < 0) {
+      // #779 — barcode-only save on a food with no macros yet.
+      if (nextBarcode !== (item.barcode ?? undefined)) {
+        commit()
+        void Promise.resolve(onSaveBarcode(item.id, nextBarcode))
+        setIsEditingNutrition(false)
+      }
+      return
+    }
     commit()
     const scaled =
       macroMode === 'per100g'
@@ -241,10 +256,12 @@ function MealItemRow({
             amountG,
           )
     const nameForSave = value.trim() || item.name
-    void onSaveNutrition(nameForSave, {
-      ...scaled,
-      amountG: scaled.amountG ?? 100,
-    })
+    void Promise.resolve(
+      onSaveNutrition(nameForSave, {
+        ...scaled,
+        amountG: scaled.amountG ?? 100,
+      }),
+    ).then(() => onSaveBarcode(item.id, nextBarcode))
     setIsEditingNutrition(false)
   }
 
@@ -366,11 +383,20 @@ function MealItemRow({
               <Trash2 aria-hidden="true" />
             </Button>
           </div>
-          {item.barcode && (
-            <span className="pl-1 text-xs text-muted-foreground">
-              {t.dailyEntry.itemBarcodeLabel(formatBarcodeDisplay(item.barcode))}
+          <div className="flex flex-col gap-1.5">
+            <span className="text-sm text-muted-foreground">
+              {t.settings.mealItemBarcodeLabel}
             </span>
-          )}
+            <Input
+              type="text"
+              inputMode="numeric"
+              aria-label={`${t.settings.mealItemBarcodeLabel} — ${item.name}`}
+              placeholder={t.dailyEntry.scanBarcodeManualPlaceholder}
+              value={barcodeDraft}
+              onChange={(e) => setBarcodeDraft(e.target.value)}
+              className={cn('h-12 text-base', nutritionFieldClassName)}
+            />
+          </div>
           <ToggleGroup
             type="single"
             aria-label={`${t.dailyEntry.macroModeLabel} — ${item.name}`}
@@ -1012,6 +1038,7 @@ export function MealItemsSection() {
   const touch = useMealItemStore((state) => state.touch)
   const toggleFavorite = useMealItemStore((state) => state.toggleFavorite)
   const setServings = useMealItemStore((state) => state.setServings)
+  const setBarcode = useMealItemStore((state) => state.setBarcode)
   const backfillFromHistory = useMealItemStore(
     (state) => state.backfillFromHistory,
   )
@@ -1254,6 +1281,7 @@ export function MealItemsSection() {
               onRename={handleRename}
               onDelete={deleteItem}
               onSaveNutrition={handleSaveNutrition}
+              onSaveBarcode={setBarcode}
               onToggleFavorite={toggleFavorite}
               onSaveServings={setServings}
               onShare={setShareItem}

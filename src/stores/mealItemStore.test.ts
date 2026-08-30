@@ -172,6 +172,47 @@ describe('useMealItemStore', () => {
     )
   })
 
+  it('setBarcode attaches a code to an existing item (#779)', async () => {
+    await useMealItemStore.getState().touch('Pizza', { amountKcal: 400 })
+    const id = useMealItemStore.getState().items[0].id
+
+    await useMealItemStore.getState().setBarcode(id, '1 123456 654321')
+
+    expect(useMealItemStore.getState().items[0].barcode).toBe('1123456654321')
+  })
+
+  it('setBarcode clears a barcode when given empty text (#779)', async () => {
+    await useMealItemStore
+      .getState()
+      .touch('Pizza', { amountKcal: 400 }, undefined, '0123456789012')
+    const id = useMealItemStore.getState().items[0].id
+
+    await useMealItemStore.getState().setBarcode(id, '  ')
+
+    expect(useMealItemStore.getState().items[0].barcode).toBeUndefined()
+  })
+
+  it('setBarcode does not steal a code already on another item (#779)', async () => {
+    await useMealItemStore
+      .getState()
+      .touch('Pizza', { amountKcal: 400 }, undefined, '0123456789012')
+    await useMealItemStore.getState().touch('Salad', { amountKcal: 100 })
+    const salad = useMealItemStore
+      .getState()
+      .items.find((i) => i.name === 'Salad')!
+
+    await useMealItemStore.getState().setBarcode(salad.id, '0123456789012')
+
+    expect(
+      useMealItemStore.getState().items.find((i) => i.name === 'Salad')
+        ?.barcode,
+    ).toBeUndefined()
+    expect(
+      useMealItemStore.getState().items.find((i) => i.name === 'Pizza')
+        ?.barcode,
+    ).toBe('0123456789012')
+  })
+
   it('deleteItem removes an item', async () => {
     await useMealItemStore.getState().touch('Pizza')
     const id = useMealItemStore.getState().items[0].id

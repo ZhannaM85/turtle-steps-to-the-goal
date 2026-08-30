@@ -735,6 +735,27 @@ describe('MealItemsSection', () => {
       )
     })
 
+    it('saves a typed barcode onto an existing food without one (#779)', async () => {
+      await useMealItemStore.getState().touch('Pizza', { amountKcal: 200 })
+      const user = userEvent.setup()
+      render(<MealItemsSection />)
+
+      await screen.findByText('Pizza')
+      expect(screen.queryByLabelText('Barcode — Pizza')).not.toBeInTheDocument()
+      await user.click(screen.getByRole('button', { name: 'Edit Pizza' }))
+      await user.type(
+        screen.getByLabelText('Barcode — Pizza'),
+        '4601234567890',
+      )
+      await user.click(screen.getByRole('button', { name: 'Save Pizza' }))
+
+      await waitFor(() =>
+        expect(useMealItemStore.getState().items[0].barcode).toBe(
+          '4601234567890',
+        ),
+      )
+    })
+
     it('shows /100g on macro labels and a nutrition heading in per-100g mode (#583)', async () => {
       await useMealItemStore.getState().touch('Pizza', { amountKcal: 100 })
       const user = userEvent.setup()

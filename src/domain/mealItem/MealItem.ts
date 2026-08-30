@@ -59,9 +59,9 @@ export interface MealItem {
   favorite?: boolean
   /** Scanned product barcode (#256) — set the first time this item is
    * created via a barcode scan (local match or an Open Food Facts
-   * fallback), so every later scan of the same barcode is an instant,
-   * fully offline local match. Purely additive/optional; most items have
-   * no barcode at all. */
+   * fallback), or later from Settings (#779), so every later scan of the
+   * same barcode is an instant, fully offline local match. Purely
+   * additive/optional; most items have no barcode at all. */
   barcode?: string
   /**
    * #541 — how this library row was created when not from normal logging.

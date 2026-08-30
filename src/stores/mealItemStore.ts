@@ -65,6 +65,10 @@ interface MealItemStoreState {
    * as most small-list editors in this app, e.g. `MealLabelPresetsSection`),
    * independent of `touch()`'s own nutrition bookkeeping. */
   setServings: (id: string, servings: MealItemServing[]) => Promise<void>
+  /** #779 — attach or clear a barcode on an existing library row so a
+   * later scan hits `findByBarcode`. Empty/whitespace clears. If another
+   * row already owns that code (unique index), this is a no-op. */
+  setBarcode: (id: string, barcode: string | undefined) => Promise<void>
   /**
    * #541 — add missing named dishes from day history into the library,
    * tagged for reversible undo. Does not change day meal history.
@@ -178,6 +182,24 @@ export const useMealItemStore = create<MealItemStoreState>((set, get) => ({
       servings,
       updatedAt: new Date().toISOString(),
     })
+    set({ items: await mealItemRepository.getAll() })
+  },
+  setBarcode: async (id, barcode) => {
+    const current = get().items.find((item) => item.id === id)
+    if (!current) return
+    const trimmed = barcode?.replace(/\s+/g, '').trim()
+    const next: MealItem = {
+      ...current,
+      updatedAt: new Date().toISOString(),
+    }
+    if (trimmed) {
+      const collision = await mealItemRepository.findByBarcode(trimmed)
+      if (collision && collision.id !== id) return
+      next.barcode = trimmed
+    } else {
+      delete next.barcode
+    }
+    await mealItemRepository.upsert(next)
     set({ items: await mealItemRepository.getAll() })
   },
   backfillFromHistory: async (entries, source) => {
