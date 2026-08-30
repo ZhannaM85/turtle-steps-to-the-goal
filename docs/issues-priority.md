@@ -14,7 +14,7 @@ _Day page weekly-goal completed modal; barcode scanner; complete-week celebratio
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#791](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/791) | 🔲 Open | Day: live timer since last meal (intermittent fasting) | Between last meal and Add meal. Settings toggle, off by default. Tick seconds while visible; on wake recompute from last meal time (no background interval). If today has no meal, use yesterday's last. Hide on past days. |
+| [#791](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/791) | 🔍 Pending validation | Day: live timer since last meal (intermittent fasting) | Between last meal and Add meal. Settings toggle, off by default. Isolated child ticks seconds while visible; on wake recomputes from last meal clock. If today has no meal, uses yesterday's last. Hidden on past days. |
 
 ---
 

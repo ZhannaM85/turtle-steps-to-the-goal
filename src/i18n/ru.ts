@@ -330,6 +330,9 @@ export const ru: Dictionary = {
     clearFoodSearchLabel: 'Очистить поиск',
     addMealLabel: '+ Добавить приём пищи',
     expandAddMealLabel: '+ Добавить ещё приём пищи',
+    sinceLastMealLabel: 'С последнего приёма',
+    sinceLastMealDuration: (hours, minutes, seconds) =>
+      `${hours} ч ${minutes} м ${String(seconds).padStart(2, '0')} с`,
     repeatMealLabel: (mealLabel) => `Повторить вчерашний «${mealLabel}»`,
     repeatMealDialogTitle: (mealLabel) => `Повторить «${mealLabel}»`,
     copyYesterdayMealsLabel: 'Скопировать вчерашние приёмы пищи',
@@ -1403,6 +1406,11 @@ export const ru: Dictionary = {
       'Небольшие поощрительные заметки на экране «День» и при сохранении приёма пищи, когда записанное соответствует распространённой рекомендации по питанию (например, богатый белком приём пищи, сбалансированная тарелка). По умолчанию включено — можно выключить в любой момент.',
     nutritionFactsOn: 'Вкл',
     nutritionFactsOff: 'Выкл',
+    sinceLastMealTimerLabel: 'Время с последнего приёма',
+    sinceLastMealTimerDescription:
+      'На экране «День» показывать, сколько прошло с последнего приёма пищи — удобно для интервального голодания. По умолчанию выключено.',
+    sinceLastMealTimerOn: 'Вкл',
+    sinceLastMealTimerOff: 'Выкл',
     entryComparisonLabel: 'Сравнение при вводе',
     entryComparisonDescription:
       'Пока вы вводите дневное значение, показывать стрелку вверх/вниз относительно предыдущего записанного дня (цвет зависит от того, хорош ли такой сдвиг для этого показателя). После сохранения значок «i» показывает то же сравнение и сравнение ровно с 30 днями назад. По умолчанию включено — можно выключить в любой момент.',

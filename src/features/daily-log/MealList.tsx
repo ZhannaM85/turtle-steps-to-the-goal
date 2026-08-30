@@ -28,7 +28,7 @@ import {
   evaluateMealNutritionFacts,
   type NutritionFactId,
 } from '@/domain/nutritionFacts'
-import { fastingHoursBetween } from '@/domain/stats'
+import { fastingHoursBetween, resolveLastMealInstant, todayIsoForDayStart } from '@/domain/stats'
 import {
   formatNumber,
   useLocale,
@@ -48,9 +48,10 @@ import { defaultMealLabel, editableMealLabel, effectiveMealLabel, effectiveTimeE
 import { normalizeTextSpaces } from '@/shared/lib/normalizeTextSpaces'
 import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/ui/button'
-import { useCopyYesterdayMealsStore, useDayStartStore, useEatingReasonTrackingStore, useMealItemStore, useMealSlotDefaultTimesStore } from '@/stores'
+import { useCopyYesterdayMealsStore, useDayStartStore, useEatingReasonTrackingStore, useMealItemStore, useMealSlotDefaultTimesStore, useSinceLastMealTimerStore } from '@/stores'
 import { AddMealDialog } from './AddMealDialog'
 import { CopyDayMealsDialog } from './CopyDayMealsDialog'
+import { SinceLastMealTimer } from './SinceLastMealTimer'
 
 /** #764 — Day-card dots for why this meal happened. */
 const EATING_REASON_DOT_CLASS: Record<EatingReason, string> = {
@@ -426,6 +427,11 @@ export function MealList({
   const copyYesterdayMealsEnabled = useCopyYesterdayMealsStore(
     (state) => state.enabled,
   )
+  // #791 — opt-in; off by default. Isolated child ticks seconds so this
+  // list does not re-render every second.
+  const sinceLastMealTimerEnabled = useSinceLastMealTimerStore(
+    (state) => state.enabled,
+  )
   // #597 — display earliest logged/effective time first (storage order
   // unchanged). #621 — day-start-adjusted, so a past-midnight meal sorts
   // after the evening it actually followed, not before it.
@@ -486,6 +492,27 @@ export function MealList({
         : null,
     [previousDayEntry, calorieEntries, dayStartTime],
   )
+
+  const lastMealAt = useMemo(() => {
+    if (!sinceLastMealTimerEnabled) return null
+    if (date !== todayIsoForDayStart(dayStartTime)) return null
+    return resolveLastMealInstant({
+      todayDate: date,
+      todayEntries: calorieEntries,
+      previousDate,
+      previousEntries: previousDayEntry?.calorieEntries,
+      dayStartTime,
+      slotTimes: mealSlotTimes,
+    })
+  }, [
+    sinceLastMealTimerEnabled,
+    date,
+    calorieEntries,
+    previousDate,
+    previousDayEntry,
+    dayStartTime,
+    mealSlotTimes,
+  ])
 
   // #253: whole-day sibling of the above — CopyDayMealsDialog's own
   // preview/selective-pick sheet, extended over every meal group in the
@@ -1190,6 +1217,7 @@ export function MealList({
       {/* #454 — this used to be an inline accordion (a collapse/expand
        * toggle behind a whole card of triggers); now it's a single
        * trigger opening a dedicated full-screen flyout instead. */}
+      {lastMealAt && <SinceLastMealTimer from={lastMealAt} />}
       <Button
         type="button"
         variant="outline"

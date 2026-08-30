@@ -33,6 +33,7 @@ import {
   usePlannedMealsTrackingStore,
   useEatingReasonTrackingStore,
   useCopyYesterdayMealsStore,
+  useSinceLastMealTimerStore,
   useLocalTransferStore,
   useProfileStore,
   useThemeStore,
@@ -562,6 +563,12 @@ export function SettingsScreen() {
   )
   const nutritionFactsEnabled = useNutritionFactsStore((state) => state.enabled)
   const setNutritionFactsEnabled = useNutritionFactsStore(
+    (state) => state.setEnabled,
+  )
+  const sinceLastMealTimerEnabled = useSinceLastMealTimerStore(
+    (state) => state.enabled,
+  )
+  const setSinceLastMealTimerEnabled = useSinceLastMealTimerStore(
     (state) => state.setEnabled,
   )
   const entryComparisonEnabled = useEntryComparisonStore(
@@ -1202,6 +1209,32 @@ export function SettingsScreen() {
             </ToggleGroupItem>
             <ToggleGroupItem value="on" className="h-12">
               {t.settings.nutritionFactsOn}
+            </ToggleGroupItem>
+          </ToggleGroup>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>{t.settings.sinceLastMealTimerLabel}</CardTitle>
+        </CardHeader>
+        <CardContent className="flex flex-col gap-1.5">
+          <span className="text-sm text-muted-foreground">
+            {t.settings.sinceLastMealTimerDescription}
+          </span>
+          <ToggleGroup
+            type="single"
+            aria-label={t.settings.sinceLastMealTimerLabel}
+            value={sinceLastMealTimerEnabled ? 'on' : 'off'}
+            onValueChange={(value) =>
+              value && setSinceLastMealTimerEnabled(value === 'on')
+            }
+          >
+            <ToggleGroupItem value="off" className="h-12">
+              {t.settings.sinceLastMealTimerOff}
+            </ToggleGroupItem>
+            <ToggleGroupItem value="on" className="h-12">
+              {t.settings.sinceLastMealTimerOn}
             </ToggleGroupItem>
           </ToggleGroup>
         </CardContent>

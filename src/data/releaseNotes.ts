@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 752,
+    issue: 791,
+    date: '2026-08-30T19:40:00+03:00',
+    en: 'You can turn on a timer on the Day screen that shows how long it has been since your last meal.',
+    ru: 'На экране «День» можно включить таймер, который показывает, сколько прошло с последнего приёма пищи.',
+  },
+  {
     version: 751,
     issue: 790,
     date: '2026-08-30T15:32:00+03:00',

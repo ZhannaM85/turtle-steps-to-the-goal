@@ -311,6 +311,9 @@ export const en: Dictionary = {
     clearFoodSearchLabel: 'Clear search',
     addMealLabel: '+ Add a meal',
     expandAddMealLabel: '+ Add another meal',
+    sinceLastMealLabel: 'Since last meal',
+    sinceLastMealDuration: (hours, minutes, seconds) =>
+      `${hours}h ${minutes}m ${String(seconds).padStart(2, '0')}s`,
     repeatMealLabel: (mealLabel) => `Repeat yesterday's ${mealLabel}`,
     repeatMealDialogTitle: (mealLabel) => `Repeat ${mealLabel}`,
     copyYesterdayMealsLabel: "Copy yesterday's meals",
@@ -1366,6 +1369,11 @@ export const en: Dictionary = {
       'Small encouraging notes on the Day screen and when saving a meal, when what you logged matches a common nutrition guideline (e.g. a protein-rich meal, a balanced plate). On by default — turn off anytime.',
     nutritionFactsOn: 'On',
     nutritionFactsOff: 'Off',
+    sinceLastMealTimerLabel: 'Time since last meal',
+    sinceLastMealTimerDescription:
+      'On the Day screen, show how long it has been since your last meal — useful for intermittent fasting. Off by default.',
+    sinceLastMealTimerOn: 'On',
+    sinceLastMealTimerOff: 'Off',
     entryComparisonLabel: 'Entry comparisons',
     entryComparisonDescription:
       'While typing a daily value, show an up/down arrow versus the previous logged day (colored by whether that change is good for that metric). After save, an info icon shows the same comparison plus versus exactly 30 days ago. On by default — turn off anytime.',

@@ -71,6 +71,16 @@ export {
 } from './fastingWindow'
 export type { FastingWindowPoint, FastingWindowCorrelation } from './fastingWindow'
 export {
+  lastMealClock,
+  clockOnDayToDate,
+  resolveLastMealInstant,
+  elapsedParts,
+} from './lastMealInstant'
+export type {
+  ResolveLastMealInstantArgs,
+  ElapsedParts,
+} from './lastMealInstant'
+export {
   sleepCorrelation,
   sleepCorrelationFromPoints,
   sleepPoints,

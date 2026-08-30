@@ -5,8 +5,9 @@ import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { CalorieEntry, DailyEntry } from '@/domain/dailyEntry'
+import { elapsedParts, resolveLastMealInstant } from '@/domain/stats'
 import { db } from '@/infrastructure/persistence/indexeddb'
-import { useCopyYesterdayMealsStore, useDayStartStore, useEatingReasonTrackingStore, useMealItemStore, useRecipeStore } from '@/stores'
+import { useCopyYesterdayMealsStore, useDayStartStore, useEatingReasonTrackingStore, useMealItemStore, useRecipeStore, useSinceLastMealTimerStore } from '@/stores'
 import { MealList } from './MealList'
 
 // #301 — a plain `onChange={vi.fn()}` never feeds a save back into
@@ -56,6 +57,7 @@ beforeEach(async () => {
     customReasons: [],
     builtinLabelOverrides: {},
   })
+  useSinceLastMealTimerStore.setState({ enabled: false })
   localStorage.clear()
   // #201 made the add row's default collapsed state depend on whether
   // `date` is in the past relative to the real clock — freeze "now" to
@@ -1394,6 +1396,126 @@ describe('MealList', () => {
       expect(labels).toEqual(['Lunch', 'Night snack'])
 
       useDayStartStore.setState({ dayStartTime: '00:00' })
+    })
+  })
+
+  describe('since-last-meal timer (#791)', () => {
+    beforeEach(() => {
+      vi.useFakeTimers({ toFake: ['Date', 'setInterval', 'clearInterval'] })
+      vi.setSystemTime(new Date('2026-03-01T12:00:00.000Z'))
+    })
+
+    function expectedDuration(from: Date): string {
+      const parts = elapsedParts(from, new Date())
+      return `${parts.hours}h ${parts.minutes}m ${String(parts.seconds).padStart(2, '0')}s`
+    }
+
+    it('is hidden when the Settings toggle is off', () => {
+      render(
+        <MealList
+          calorieEntries={[
+            {
+              id: 'c1',
+              items: [{ id: 'i1', amountKcal: 175 }],
+              timeEaten: '10:00',
+              createdAt: '2026-03-01T10:00:00.000Z',
+            },
+          ]}
+          date="2026-03-01"
+          onChange={vi.fn()}
+        />,
+        { wrapper: MemoryRouter },
+      )
+
+      expect(screen.queryByText('Since last meal')).not.toBeInTheDocument()
+    })
+
+    it('shows elapsed time since today\'s last meal when enabled', () => {
+      useSinceLastMealTimerStore.setState({ enabled: true })
+      const entries: CalorieEntry[] = [
+        {
+          id: 'c1',
+          items: [{ id: 'i1', amountKcal: 175 }],
+          timeEaten: '10:00',
+          createdAt: '2026-03-01T10:00:00.000Z',
+        },
+      ]
+      render(
+        <MealList
+          calorieEntries={entries}
+          date="2026-03-01"
+          onChange={vi.fn()}
+        />,
+        { wrapper: MemoryRouter },
+      )
+
+      expect(screen.getByText('Since last meal')).toBeInTheDocument()
+      const from = resolveLastMealInstant({
+        todayDate: '2026-03-01',
+        todayEntries: entries,
+        previousDate: '2026-02-28',
+        previousEntries: undefined,
+        dayStartTime: '00:00',
+      })
+      expect(from).not.toBeNull()
+      expect(screen.getByText(expectedDuration(from!))).toBeInTheDocument()
+    })
+
+    it('is hidden on a past day even when the toggle is on', () => {
+      useSinceLastMealTimerStore.setState({ enabled: true })
+      render(
+        <MealList
+          calorieEntries={[
+            {
+              id: 'c1',
+              items: [{ id: 'i1', amountKcal: 175 }],
+              timeEaten: '10:00',
+              createdAt: '2026-02-28T10:00:00.000Z',
+            },
+          ]}
+          date="2026-02-28"
+          onChange={vi.fn()}
+        />,
+        { wrapper: MemoryRouter },
+      )
+
+      expect(screen.queryByText('Since last meal')).not.toBeInTheDocument()
+    })
+
+    it("uses yesterday's last meal when today has none yet", async () => {
+      useSinceLastMealTimerStore.setState({ enabled: true })
+      await db.dailyEntries.put(
+        makeDailyEntry({
+          date: '2026-02-28',
+          calorieEntries: [
+            {
+              id: 'y1',
+              items: [{ id: 'yi1', amountKcal: 400 }],
+              timeEaten: '20:00',
+              createdAt: '2026-02-28T20:00:00.000Z',
+            },
+          ],
+        }),
+      )
+      render(
+        <MealList calorieEntries={[]} date="2026-03-01" onChange={vi.fn()} />,
+        { wrapper: MemoryRouter },
+      )
+
+      expect(await screen.findByText('Since last meal')).toBeInTheDocument()
+      const from = resolveLastMealInstant({
+        todayDate: '2026-03-01',
+        todayEntries: [],
+        previousDate: '2026-02-28',
+        previousEntries: [
+          {
+            timeEaten: '20:00',
+          },
+        ],
+        dayStartTime: '00:00',
+      })
+      expect(from).not.toBeNull()
+      expect(screen.getByText(expectedDuration(from!))).toBeInTheDocument()
     })
   })
 })
