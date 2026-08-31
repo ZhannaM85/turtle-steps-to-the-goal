@@ -422,3 +422,13 @@ _Day page weekly-goal completed modal; barcode scanner focus; complete-week cele
 | [#793](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/793) | ✅ Done | Day: since-last-meal on meal cards should look like a badge | Confirmed on-device 2026-08-31 — per-meal since-last-meal chip. Follow-up: drop the badge look and left-align under the meal name. |
 | [#794](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/794) | ✅ Done | Day: fasting window as 13h 36m badge, not 13.6h | Confirmed on-device 2026-08-30 — hours+minutes on the Meals fasting-window note; bordered muted badge. |
 | [#795](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/795) | ✅ Done | Day: save as CSV from the share sheet | Confirmed on-device 2026-08-31 — Save as CSV on the Day share sheet; one-day Daily Log CSV. |
+
+---
+
+## Tier 148 — Live feedback (2026-08-31)
+
+_Day meal-card since-last-meal; nutrition notes on meals vs general card._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#796](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/796) | ✅ Done | Day: since-last-meal on meal cards should be plain text, not a badge | Confirmed on-device 2026-08-31 — plain text under the meal name, no chip border. |
