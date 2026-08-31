@@ -265,15 +265,12 @@ function MealListItem({
         </div>
       </div>
       {sincePreviousMeal && (
-        // #793 — bordered chip (not plain muted text), inner padding so
-        // the time is not flush; left-aligned with the meal title.
-        <p className="min-w-0">
-          <span className="inline-block rounded-md border border-border bg-muted px-2.5 py-1 text-sm tabular-nums text-muted-foreground">
-            {t.dailyEntry.sinceLastMealOnCard(
-              sincePreviousMeal.hours,
-              sincePreviousMeal.minutes,
-            )}
-          </span>
+        // #796 — plain muted text under the meal name (not a bordered chip).
+        <p className="min-w-0 text-sm tabular-nums text-muted-foreground">
+          {t.dailyEntry.sinceLastMealOnCard(
+            sincePreviousMeal.hours,
+            sincePreviousMeal.minutes,
+          )}
         </p>
       )}
       {entry.note && (

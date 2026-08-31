@@ -1626,14 +1626,15 @@ describe('MealList', () => {
       )
 
       expect(await screen.findByText('10h since last meal')).toBeInTheDocument()
-      const badge = screen.getByText('2h 30m since last meal')
-      expect(badge).toBeInTheDocument()
-      expect(badge.className).toMatch(/\bborder-border\b/)
-      expect(badge.className).toMatch(/\bbg-muted\b/)
-      expect(badge.className).toMatch(/\bpx-2\.5\b/)
+      const line = screen.getByText('2h 30m since last meal')
+      expect(line).toBeInTheDocument()
+      expect(line.tagName).toBe('P')
+      expect(line.className).not.toMatch(/\bborder-border\b/)
+      expect(line.className).not.toMatch(/\bbg-muted\b/)
+      expect(line.className).not.toMatch(/\bpx-2\.5\b/)
     })
 
-    it('still shows the card badge on a past day', async () => {
+    it('still shows the since-last-meal line on a past day', async () => {
       useSinceLastMealTimerStore.setState({ enabled: true })
       render(
         <MealList

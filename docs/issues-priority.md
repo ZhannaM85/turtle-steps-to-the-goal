@@ -14,7 +14,7 @@ _Day meal-card since-last-meal; nutrition notes on meals vs general card._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#796](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/796) | ⬜ Open | Day: since-last-meal on meal cards should be plain text, not a badge | Follow-up to #793: remove the chip border; left-align the line under the meal name. |
+| [#796](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/796) | 🔍 Pending validation | Day: since-last-meal on meal cards should be plain text, not a badge | Follow-up to #793: remove the chip border; left-align the line under the meal name. |
 | [#797](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/797) | ⬜ Open | Day: put meal nutrition notes on that meal; drop the general notes card | Meal-level lines in Заметки о питании don't name the meal. Move them onto that meal; drop the general card (day-level “today” lines would go unless a slimmer day summary stays). |
 
 ---

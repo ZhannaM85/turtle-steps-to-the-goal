@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 758,
+    issue: 796,
+    date: '2026-08-31T11:45:00+03:00',
+    en: 'Hours since the previous meal under each meal name is plain text again, lined up with the meal name — not a bordered badge.',
+    ru: 'Время с предыдущего приёма под названием еды снова обычный текст, вровень с названием — без рамки-бейджа.',
+  },
+  {
     version: 757,
     issue: 793,
     date: '2026-08-30T22:40:00+03:00',
