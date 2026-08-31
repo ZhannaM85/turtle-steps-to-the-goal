@@ -7,7 +7,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { CalorieEntry, DailyEntry } from '@/domain/dailyEntry'
 import { elapsedParts, resolveLastMealInstant } from '@/domain/stats'
 import { db } from '@/infrastructure/persistence/indexeddb'
-import { useCopyYesterdayMealsStore, useDayStartStore, useEatingReasonTrackingStore, useMealItemStore, useRecipeStore, useSinceLastMealTimerStore } from '@/stores'
+import { useCopyYesterdayMealsStore, useDayStartStore, useEatingReasonTrackingStore, useMealItemStore, useNutritionFactsStore, useRecipeStore, useSinceLastMealTimerStore } from '@/stores'
 import { MealList } from './MealList'
 
 // #301 — a plain `onChange={vi.fn()}` never feeds a save back into
@@ -1662,6 +1662,100 @@ describe('MealList', () => {
 
       expect(await screen.findByText('2h 30m since last meal')).toBeInTheDocument()
       expect(screen.queryByText('Since last meal')).not.toBeInTheDocument()
+    })
+  })
+
+  describe('per-meal nutrition facts (#797)', () => {
+    beforeEach(() => {
+      useNutritionFactsStore.setState({ enabled: true })
+    })
+
+    it('shows meal-level notes on that meal', () => {
+      render(
+        <MealList
+          calorieEntries={[
+            {
+              id: 'd',
+              label: 'Dinner',
+              items: [
+                {
+                  id: 'i1',
+                  amountKcal: 160,
+                  proteinG: 20,
+                  fiberG: 5,
+                  carbsG: 12,
+                },
+              ],
+              timeEaten: '18:13',
+              createdAt: '2026-03-01T18:13:00.000Z',
+            },
+          ]}
+          date="2026-03-01"
+          onChange={vi.fn()}
+        />,
+        { wrapper: MemoryRouter },
+      )
+
+      expect(
+        screen.getByText('Protein-rich meal', { exact: false }),
+      ).toBeInTheDocument()
+      expect(
+        screen.getByText('Excellent source of fiber', { exact: false }),
+      ).toBeInTheDocument()
+    })
+
+    it('shows the same fact on each qualifying meal, not once for the day', () => {
+      render(
+        <MealList
+          calorieEntries={[
+            {
+              id: 'b',
+              label: 'Breakfast',
+              items: [{ id: 'i1', amountKcal: 300, proteinG: 22 }],
+              timeEaten: '08:00',
+              createdAt: '2026-03-01T08:00:00.000Z',
+            },
+            {
+              id: 'l',
+              label: 'Lunch',
+              items: [{ id: 'i2', amountKcal: 400, proteinG: 25 }],
+              timeEaten: '13:00',
+              createdAt: '2026-03-01T13:00:00.000Z',
+            },
+          ]}
+          date="2026-03-01"
+          onChange={vi.fn()}
+        />,
+        { wrapper: MemoryRouter },
+      )
+
+      expect(
+        screen.getAllByText('Protein-rich meal', { exact: false }),
+      ).toHaveLength(2)
+    })
+
+    it('does not show when nutrition facts are off', () => {
+      useNutritionFactsStore.setState({ enabled: false })
+      render(
+        <MealList
+          calorieEntries={[
+            {
+              id: 'd',
+              label: 'Dinner',
+              items: [{ id: 'i1', amountKcal: 200, proteinG: 25 }],
+              timeEaten: '18:00',
+              createdAt: '2026-03-01T18:00:00.000Z',
+            },
+          ]}
+          date="2026-03-01"
+          onChange={vi.fn()}
+        />,
+        { wrapper: MemoryRouter },
+      )
+
+      expect(
+        screen.queryByText('Protein-rich meal', { exact: false }),
+      ).not.toBeInTheDocument()
     })
   })
 })

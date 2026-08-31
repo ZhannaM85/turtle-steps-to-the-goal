@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 759,
+    issue: 797,
+    date: '2026-08-31T11:50:00+03:00',
+    en: 'Notes about a specific meal now sit on that meal. The Nutrition highlights card only keeps day-wide notes, like hydration or hitting your calorie target.',
+    ru: 'Заметки про конкретный приём пищи теперь на карточке этой еды. В «Заметках о питании» остаются только заметки за день — гидратация, цель по калориям и похожие.',
+  },
+  {
     version: 758,
     issue: 796,
     date: '2026-08-31T11:45:00+03:00',

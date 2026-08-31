@@ -49,7 +49,7 @@ import { defaultMealLabel, editableMealLabel, effectiveMealLabel, effectiveTimeE
 import { normalizeTextSpaces } from '@/shared/lib/normalizeTextSpaces'
 import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/ui/button'
-import { useCopyYesterdayMealsStore, useDayStartStore, useEatingReasonTrackingStore, useMealItemStore, useMealSlotDefaultTimesStore, useSinceLastMealTimerStore } from '@/stores'
+import { useCopyYesterdayMealsStore, useDayStartStore, useEatingReasonTrackingStore, useMealItemStore, useMealSlotDefaultTimesStore, useNutritionFactsStore, useSinceLastMealTimerStore } from '@/stores'
 import { AddMealDialog } from './AddMealDialog'
 import { CopyDayMealsDialog } from './CopyDayMealsDialog'
 import { SinceLastMealTimer } from './SinceLastMealTimer'
@@ -175,6 +175,15 @@ function MealListItem({
     t,
   )
   const eatingReasons = mealEatingReasons(entry)
+  const nutritionFactsEnabled = useNutritionFactsStore((state) => state.enabled)
+  const mealNutritionFacts = nutritionFactsEnabled
+    ? evaluateMealNutritionFacts({
+        proteinG: calorieEntryProtein(entry) ?? 0,
+        fatG: calorieEntryFat(entry) ?? 0,
+        carbsG: calorieEntryCarbs(entry) ?? 0,
+        fiberG: calorieEntryFiber(entry) ?? 0,
+      })
+    : []
 
   if (isConfirmingDelete) {
     return (
@@ -279,6 +288,13 @@ function MealListItem({
       {/* #473: one size up from the dish rows below (which stay text-sm),
        * now that the compact macro initials keep it to a single line. */}
       <p className="min-w-0 text-base text-muted-foreground">{calorieSummary}</p>
+      {mealNutritionFacts.length > 0 && (
+        <div className="flex min-w-0 flex-col gap-1 text-sm text-muted-foreground">
+          {mealNutritionFacts.map((factId) => (
+            <p key={factId}>{t.nutritionFacts[factId]}</p>
+          ))}
+        </div>
+      )}
       {eatingReasons.length > 0 && (
         <p className="flex min-w-0 flex-wrap items-center gap-1.5 text-sm text-muted-foreground">
           {eatingReasons.map((reason) => (

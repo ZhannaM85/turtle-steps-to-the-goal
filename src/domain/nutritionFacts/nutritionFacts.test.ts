@@ -152,12 +152,13 @@ describe('evaluateDayNutritionFacts', () => {
     ).not.toContain('proteinSpreadThroughDay')
   })
 
-  it('folds in per-meal facts satisfied by any meal that day, deduplicated', () => {
+  it('does not include per-meal facts — those belong on that meal (#797)', () => {
     const entries = [
       makeEntry([makeItem({ amountKcal: 100, proteinG: 20 })]),
       makeEntry([makeItem({ amountKcal: 100, proteinG: 25 })]),
     ]
     const facts = evaluateDayNutritionFacts({ calorieEntries: entries })
-    expect(facts.filter((id) => id === 'proteinRichMeal')).toHaveLength(1)
+    expect(facts).not.toContain('proteinRichMeal')
+    expect(facts).toContain('proteinSpreadThroughDay')
   })
 })

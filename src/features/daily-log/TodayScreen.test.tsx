@@ -845,6 +845,45 @@ describe('TodayScreen', () => {
         screen.queryByText('Protein-rich meal', { exact: false }),
       ).not.toBeInTheDocument()
     })
+
+    it('does not list meal-level facts in the general Nutrition highlights card (#797)', async () => {
+      useNutritionFactsStore.setState({ enabled: true })
+      await saveHighProteinMeal()
+
+      render(
+        <MemoryRouter>
+          <TodayScreen />
+        </MemoryRouter>,
+      )
+
+      expect(
+        await screen.findByText('Protein-rich meal', { exact: false }),
+      ).toBeInTheDocument()
+      expect(
+        screen.queryByRole('heading', { name: 'Nutrition highlights' }),
+      ).not.toBeInTheDocument()
+    })
+
+    it('still lists day-level facts in Nutrition highlights', async () => {
+      useNutritionFactsStore.setState({ enabled: true })
+      await useDailyEntryStore.getState().saveEntry(
+        makeEntry({
+          waterEntries: [{ id: 'w1', amountMl: 2000 }],
+        }),
+      )
+      useDailyEntryStore.setState({ entry: null, date: null, status: 'idle' })
+
+      render(
+        <MemoryRouter>
+          <TodayScreen />
+        </MemoryRouter>,
+      )
+
+      expect(
+        await screen.findByRole('heading', { name: 'Nutrition highlights' }),
+      ).toBeInTheDocument()
+      expect(screen.getByText('Well hydrated today.')).toBeInTheDocument()
+    })
   })
 
   describe('delta vs yesterday', () => {

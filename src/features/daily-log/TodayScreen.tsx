@@ -643,10 +643,9 @@ export function TodayScreen() {
   )
 
   // On by default (#663) — praise for hitting a common nutrition guideline
-  // (protein-rich meal, balanced macros, daily fiber goal, ...).
-  // evaluateDayNutritionFacts already dedupes per-meal facts across the
-  // whole day, so "once per day per fact" falls out of using a Set rather
-  // than needing separate dismiss/shown-state.
+  // (daily fiber goal, hydration, calorie target, ...).
+  // #797 — this card is day-level facts only; per-meal facts render on
+  // that meal in MealList so it is clear which meal they refer to.
   const nutritionFactsEnabled = useNutritionFactsStore((state) => state.enabled)
   const nutritionFacts = nutritionFactsEnabled
     ? evaluateDayNutritionFacts({

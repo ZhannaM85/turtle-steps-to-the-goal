@@ -1,7 +1,4 @@
 import {
-  calorieEntryCarbs,
-  calorieEntryFat,
-  calorieEntryFiber,
   calorieEntryProtein,
   totalCalories,
   totalCarbs,
@@ -82,8 +79,8 @@ function isBalancedMacroSplit({ proteinG, fatG, carbsG }: MacroSplit): boolean {
 }
 
 /** Evaluates the 4 per-meal facts against one meal's macro totals — reused
- * by both the meal-composition screen (an in-progress meal, not yet a
- * saved CalorieEntry) and the Day screen's per-meal union below. */
+ * by the meal-composition screen, Day meal cards (#797), and AddMealDialog
+ * inline praise. */
 export function evaluateMealNutritionFacts(
   totals: MealNutritionTotals,
 ): NutritionFactId[] {
@@ -104,12 +101,9 @@ export interface DayNutritionFactsInput {
   goal?: Goal
 }
 
-/** Evaluates the 9 day-level facts, then folds in every per-meal fact
- * satisfied by any meal logged that day (deduplicated) — this is the
- * Day screen card's full list. "Once per day per fact" (#663) falls out of
- * this by construction (a Set, not a per-meal list) rather than needing a
- * separate dismiss/shown-state, matching this app's existing no-dismiss-
- * state pattern for its other quiet nudges. */
+/** Evaluates the 9 day-level facts for the Day screen card. Per-meal
+ * facts (protein-rich, fiber, balanced plate, high-fiber carbs) belong
+ * on that meal (#797), not in this list. */
 export function evaluateDayNutritionFacts(
   input: DayNutritionFactsInput,
 ): NutritionFactId[] {
@@ -159,16 +153,6 @@ export function evaluateDayNutritionFacts(
     (entry) => (calorieEntryProtein(entry) ?? 0) >= 20,
   ).length
   if (mealsWithHighProtein >= 2) facts.add('proteinSpreadThroughDay')
-
-  for (const entry of calorieEntries ?? []) {
-    const mealFacts = evaluateMealNutritionFacts({
-      proteinG: calorieEntryProtein(entry) ?? 0,
-      fatG: calorieEntryFat(entry) ?? 0,
-      carbsG: calorieEntryCarbs(entry) ?? 0,
-      fiberG: calorieEntryFiber(entry) ?? 0,
-    })
-    mealFacts.forEach((id) => facts.add(id))
-  }
 
   return Array.from(facts)
 }
