@@ -31,13 +31,3 @@ _User asked about pulling data from Apple Health and Zepp Life. Researched via W
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#334](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/334) | 📋 Not started | Epic — Apple Health integration (blocked on mobile app + HealthKit bridge) | HealthKit has no public/cloud API at all — data is on-device only, readable exclusively by a native iOS app (or hybrid app with a HealthKit plugin/entitlement) the user has granted permission to. Genuinely blocked until the mobile app exists; can't be built sooner by any workaround. |
-
----
-
-## Tier 149 — Live feedback (2026-09-01)
-
-_Morning-card action icons on Weight vs Sleep._
-
-| # | Status | Issue | Notes |
-|---|--------|-------|-------|
-| [#798](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/798) | 🔍 Pending validation | Day: align edit/delete icons on Weight and Sleep morning cards | Weight display pencil/trash moved onto the title row (same as Sleep #752 / Body composition #750); large #516 value stays in the muted card. |
