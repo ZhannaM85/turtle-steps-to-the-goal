@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 760,
+    issue: 798,
+    date: '2026-09-01T13:50:00+03:00',
+    en: 'Edit and delete on the Weight card now sit on the title row, lined up with the same icons on Sleep.',
+    ru: 'Карандаш и корзина на карточке веса теперь в строке заголовка — вровень с теми же значками у сна.',
+  },
+  {
     version: 759,
     issue: 797,
     date: '2026-08-31T11:50:00+03:00',

@@ -40,4 +40,4 @@ _Morning-card action icons on Weight vs Sleep._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#798](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/798) | ⬜ Open | Day: align edit/delete icons on Weight and Sleep morning cards | Live report 2026-09-01: pencil/trash on Weight sit on the value row and further left than Sleep (and Body composition), which keep actions on the header row. Icons should stack in the same column. |
+| [#798](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/798) | 🔍 Pending validation | Day: align edit/delete icons on Weight and Sleep morning cards | Weight display pencil/trash moved onto the title row (same as Sleep #752 / Body composition #750); large #516 value stays in the muted card. |

@@ -195,30 +195,21 @@ export function DailyEntryFormMorning() {
               </div>
             ) : state.showWeightAsDisplay ? (
               <div className="flex flex-col gap-1.5">
-                <span className="flex items-center gap-1 text-sm font-medium">
-                  {t.dailyEntry.weightLabel}
-                  <EntryFieldComparisonInfo
-                    field="weightKg"
-                    currentValue={state.weightKg}
-                    prior={comparison.prior('weightKg')}
-                    day30Value={comparison.day30Value('weightKg')}
-                    unit="kg"
-                  />
-                </span>
-                <div className="flex min-h-12 items-center justify-between gap-2 rounded-lg bg-muted px-3 py-2">
-                  {/* #516 — Weight is the Day screen's primary morning
-                   * figure (unlike body composition's five peers). Same
-                   * muted shell + pencil as Sleep; value sized up so the
-                   * hierarchy is obvious at a glance. */}
-                  <span className="flex min-w-0 items-baseline gap-1.5">
-                    <span className="text-2xl font-semibold tabular-nums text-foreground">
-                      {formatExactNumber(state.weightKg!, locale)}
-                    </span>
-                    <span className="text-sm text-muted-foreground">
-                      {t.common.kg}
-                    </span>
+                {/* #798 — pencil + trash on the title row (same as Sleep
+                 * #752 / Body composition #750) so they stack in one
+                 * column. Large #516 value stays in the muted card. */}
+                <div className="flex items-center justify-between gap-2">
+                  <span className="flex items-center gap-1 text-sm font-medium">
+                    {t.dailyEntry.weightLabel}
+                    <EntryFieldComparisonInfo
+                      field="weightKg"
+                      currentValue={state.weightKg}
+                      prior={comparison.prior('weightKg')}
+                      day30Value={comparison.day30Value('weightKg')}
+                      unit="kg"
+                    />
                   </span>
-                  <span className="flex items-center gap-3">
+                  <span className="flex shrink-0 items-center gap-3">
                     {/* #746 — Pencil then Trash, same order as meals and
                      * History; gap-3 matches MealList and #127's mobile
                      * spacing for adjacent icon buttons. #670 — delete a
@@ -243,6 +234,19 @@ export function DailyEntryFormMorning() {
                         <Trash2 aria-hidden="true" />
                       </Button>
                     )}
+                  </span>
+                </div>
+                <div className="flex min-h-12 items-center rounded-lg bg-muted px-3 py-2">
+                  {/* #516 — Weight is the Day screen's primary morning
+                   * figure (unlike body composition's five peers). Value
+                   * sized up so the hierarchy is obvious at a glance. */}
+                  <span className="flex min-w-0 items-baseline gap-1.5">
+                    <span className="text-2xl font-semibold tabular-nums text-foreground">
+                      {formatExactNumber(state.weightKg!, locale)}
+                    </span>
+                    <span className="text-sm text-muted-foreground">
+                      {t.common.kg}
+                    </span>
                   </span>
                 </div>
               </div>

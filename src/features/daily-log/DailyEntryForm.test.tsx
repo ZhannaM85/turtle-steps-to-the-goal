@@ -72,8 +72,11 @@ function expectBodyCompositionValues(values: string[]) {
 }
 
 // #516 — Weight value and unit are separate nodes (large value, muted unit).
+// #798 — heading's closest div is the title row (icons only); the value
+// lives in the sibling muted card, so walk up to the section.
 function expectWeightDisplay(value: string) {
-  const section = screen.getByText('Weight (kg)').closest('div') as HTMLElement
+  const heading = screen.getByText('Weight (kg)')
+  const section = heading.closest('div')?.parentElement as HTMLElement
   const valueEl = within(section).getByText(value)
   expect(valueEl).toHaveClass('text-2xl', 'font-semibold')
   expect(within(section).getByText('kg')).toBeInTheDocument()
@@ -405,6 +408,32 @@ describe('DailyEntryForm', () => {
       expect(onSave).toHaveBeenCalledTimes(1)
       expect(onSave.mock.calls[0][0].weightKg).toBe(79.5)
       expectWeightDisplay('79.5')
+    })
+
+    it('puts edit and delete on the title row so they stack with Sleep (#798)', () => {
+      render(
+        <DailyEntryForm
+          date="2026-03-01"
+          existingEntry={{
+            id: 'e1',
+            date: '2026-03-01',
+            weightKg: 80,
+            createdAt: now,
+            updatedAt: now,
+          }}
+          onSave={vi.fn()}
+        />,
+      )
+
+      const titleRow = screen.getByText('Weight (kg)').closest('div') as HTMLElement
+      expect(
+        within(titleRow).getByRole('button', { name: 'Edit weight' }),
+      ).toBeInTheDocument()
+      expect(
+        within(titleRow).getByRole('button', { name: 'Delete weight' }),
+      ).toBeInTheDocument()
+      expect(within(titleRow).queryByText('80')).not.toBeInTheDocument()
+      expectWeightDisplay('80')
     })
 
     it('blocks saving an empty weight instead of clearing it and showing NaN (#669)', async () => {
