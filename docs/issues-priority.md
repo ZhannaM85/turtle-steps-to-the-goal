@@ -31,3 +31,13 @@ _User asked about pulling data from Apple Health and Zepp Life. Researched via W
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#334](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/334) | 📋 Not started | Epic — Apple Health integration (blocked on mobile app + HealthKit bridge) | HealthKit has no public/cloud API at all — data is on-device only, readable exclusively by a native iOS app (or hybrid app with a HealthKit plugin/entitlement) the user has granted permission to. Genuinely blocked until the mobile app exists; can't be built sooner by any workaround. |
+
+---
+
+## Tier 150 — Live feedback (2026-09-02)
+
+_Barcode scan macros; share a dish from meal entry._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#801](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/801) | ⬜ Open | Meal entry: share a dish with QR code and link, like Settings | Live report 2026-09-02: sharing a food from Settings (QR + link) is inconvenient while logging. Add a share control on each dish in the meal composition list (next to edit/delete) that opens the same share modal. |
