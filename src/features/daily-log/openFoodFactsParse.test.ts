@@ -33,6 +33,22 @@ describe('parseOffNutriments', () => {
       magnesium100Mg: 25,
     })
   })
+
+  it('rounds serving-converted _100g floats to 1 decimal (#799)', () => {
+    expect(
+      parseOffNutriments({
+        'energy-kcal_100g': 198.823529411765,
+        proteins_100g: 1.58823529411765,
+        fat_100g: 14.4117647058824,
+        carbohydrates_100g: 15.7058823529412,
+      }),
+    ).toEqual({
+      kcal100: 198.8,
+      protein100: 1.6,
+      fat100: 14.4,
+      carbs100: 15.7,
+    })
+  })
 })
 
 describe('parseOffProduct', () => {

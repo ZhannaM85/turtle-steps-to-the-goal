@@ -867,6 +867,40 @@ describe('AddMealDialog (#454)', () => {
       expect(brand).toHaveValue("Siggi's Dairy")
     })
 
+    it('rounds serving-converted Open Food Facts macros to 1 decimal (#799)', async () => {
+      vi.stubGlobal(
+        'fetch',
+        vi.fn().mockResolvedValue({
+          ok: true,
+          json: () =>
+            Promise.resolve({
+              status: 1,
+              product: {
+                product_name: 'Салат Из Свеклы С Чесноком',
+                brands: 'Перекресток',
+                nutriments: {
+                  'energy-kcal_100g': 198.823529411765,
+                  proteins_100g: 1.58823529411765,
+                  fat_100g: 14.4117647058824,
+                  carbohydrates_100g: 15.7058823529412,
+                },
+              },
+            }),
+        }),
+      )
+      mockScanning('4640168955550')
+      const user = userEvent.setup()
+      render(<ControlledAddMealDialog {...defaultProps} />)
+
+      await user.click(screen.getByRole('button', { name: 'Scan barcode' }))
+      await screen.findByLabelText('Brand (optional)')
+
+      expect(screen.getByLabelText('kcal/100g')).toHaveValue('198.8')
+      expect(screen.getByLabelText('Protein')).toHaveValue('1.6')
+      expect(screen.getByLabelText('Fat')).toHaveValue('14.4')
+      expect(screen.getByLabelText('Carbs')).toHaveValue('15.7')
+    })
+
     it('falls back to the manual sheet when nothing matches anywhere', async () => {
       vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: false }))
       mockScanning('0000000000000')

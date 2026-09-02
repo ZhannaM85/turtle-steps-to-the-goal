@@ -35,6 +35,18 @@ function nutrimentValue(
   return isFiniteNumber(value) ? value : undefined
 }
 
+/** 1 decimal — same as `scaleOptional` in macroScaling.ts. OFF often
+ * stores serving-converted `_100g` floats like 198.823529411765 (#799). */
+function roundToOneDecimal(value: number): number {
+  return Math.round(value * 10) / 10
+}
+
+function roundOptionalToOneDecimal(
+  value: number | undefined,
+): number | undefined {
+  return value === undefined ? undefined : roundToOneDecimal(value)
+}
+
 /**
  * Parses OFF `nutriments` into per-100g values this app understands.
  * Returns `null` when energy-kcal_100g is missing (can't log without kcal).
@@ -53,11 +65,15 @@ export function parseOffNutriments(
   const magnesium = nutrimentValue(record, 'magnesium_100g')
 
   return {
-    kcal100,
-    protein100: nutrimentValue(record, 'proteins_100g'),
-    fat100: nutrimentValue(record, 'fat_100g'),
-    carbs100: nutrimentValue(record, 'carbohydrates_100g'),
-    fiber100: nutrimentValue(record, 'fiber_100g'),
+    kcal100: roundToOneDecimal(kcal100),
+    protein100: roundOptionalToOneDecimal(
+      nutrimentValue(record, 'proteins_100g'),
+    ),
+    fat100: roundOptionalToOneDecimal(nutrimentValue(record, 'fat_100g')),
+    carbs100: roundOptionalToOneDecimal(
+      nutrimentValue(record, 'carbohydrates_100g'),
+    ),
+    fiber100: roundOptionalToOneDecimal(nutrimentValue(record, 'fiber_100g')),
     sodium100Mg:
       sodiumG === undefined ? undefined : Math.round(sodiumG * 1000),
     potassium100Mg:

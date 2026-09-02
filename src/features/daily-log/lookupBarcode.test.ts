@@ -95,6 +95,42 @@ describe('lookupBarcode', () => {
     })
   })
 
+  it('rounds Open Food Facts serving-converted floats to 1 decimal (#799)', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({
+          status: 1,
+          product: {
+            product_name: 'Салат Из Свеклы С Чесноком',
+            brands: 'Перекресток',
+            nutriments: {
+              'energy-kcal_100g': 198.823529411765,
+              proteins_100g: 1.58823529411765,
+              fat_100g: 14.4117647058824,
+              carbohydrates_100g: 15.7058823529412,
+            },
+          },
+        }),
+      }),
+    )
+
+    const result = await lookupBarcode(
+      '4640168955550',
+      fakeRepository(undefined),
+      true,
+    )
+
+    expect(result).toMatchObject({
+      source: 'openFoodFacts',
+      kcal100: 198.8,
+      protein100: 1.6,
+      fat100: 14.4,
+      carbs100: 15.7,
+    })
+  })
+
   it('falls back to none when Open Food Facts has no match (status 0)', async () => {
     vi.stubGlobal(
       'fetch',

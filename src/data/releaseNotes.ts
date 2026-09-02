@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 761,
+    issue: 799,
+    date: '2026-09-02T18:25:00+03:00',
+    en: 'Scanned foods no longer fill calories and macros with long leftover decimals — values round to one place after the dot.',
+    ru: 'После сканирования калории и БЖУ больше не приходят с длинным хвостом после запятой — округляются до одного знака.',
+  },
+  {
     version: 760,
     issue: 798,
     date: '2026-09-01T13:50:00+03:00',

@@ -40,4 +40,4 @@ _Barcode scan filling Add dish with unrounded floating-point macros._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#799](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/799) | ⬜ Open | Add dish: scanned food macros show too many decimal places | Live report 2026-09-02: after scanning some foods (e.g. barcode 4640168955550, Перекресток beet salad), kcal/100g and protein/fat/carbs fill as long floats like `198.823529411765` / `1.58823529411765` instead of a short rounded number. |
+| [#799](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/799) | 🔍 Pending validation | Add dish: scanned food macros show too many decimal places | `parseOffNutriments` now rounds kcal/macros/fiber to 1 decimal (same as `scaleOptional`) so serving-converted Open Food Facts floats like `198.823529411765` become `198.8` in the Add dish sheet. |
