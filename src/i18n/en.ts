@@ -355,6 +355,7 @@ export const en: Dictionary = {
     collapseRecentLabel: 'Show less',
     cantFindItAddManuallyLabel: "Can't find it? Add manually",
     quickActionAddFoodLabel: 'Add food',
+    quickActionImportSharedFoodLabel: 'Shared food',
     mealSoFarLabel: 'This meal so far',
     wasItTastyLabel: 'Was it tasty?',
     doneAddingMealButton: 'Done',

@@ -3,6 +3,7 @@ import {
   ChefHat,
   type LucideIcon,
   Pencil,
+  QrCode,
   ScanBarcode,
   Share2,
   Star,
@@ -61,6 +62,8 @@ import {
   calorieItemToShareMealItem,
   findMatchingMealItem,
   ShareFoodDialog,
+  useFoodShareUiStore,
+  type SharedFoodImportResult,
 } from '@/features/food-share'
 import { LogRecipeDialog } from '@/features/recipes'
 import { BarcodeScannerDialog } from './BarcodeScannerDialog'
@@ -131,6 +134,28 @@ function blankManualDraft() {
 }
 
 type ManualDraft = ReturnType<typeof blankManualDraft>
+
+/** #802 — turn a confirmed shared-food import into a meal line. Skip when
+ * kcal is blank so we don't add a 0-kcal junk row. */
+function calorieItemFromImportedFood(
+  result: SharedFoodImportResult,
+): CalorieItem | null {
+  const name = result.name.trim()
+  const amountKcal = result.nutrition.amountKcal
+  if (!name || amountKcal === undefined || !Number.isFinite(amountKcal)) {
+    return null
+  }
+  return {
+    id: crypto.randomUUID(),
+    name,
+    brand: result.brand,
+    amountKcal,
+    proteinG: result.nutrition.proteinG,
+    fatG: result.nutrition.fatG,
+    carbsG: result.nutrition.carbsG,
+    amountG: result.nutrition.amountG,
+  }
+}
 
 /** #715 — fixed density baseline for Portion-mode weight edits. Scaling
  * from the previous keystroke's grams breaks while typing ("50" → "5" →
@@ -384,6 +409,13 @@ export function AddMealDialog({
     loadRecipes()
     loadFoodOverrides()
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  // #802 — drop the "also add to this meal" listener when the flyout closes.
+  useEffect(() => {
+    return () => {
+      useFoodShareUiStore.getState().setOnImported(null)
+    }
   }, [])
 
   const [search, setSearch] = useState('')
@@ -1597,11 +1629,11 @@ export function AddMealDialog({
               </div>
             ) : (
               <>
-                {/* #459 — 3 prominent bordered cards, replacing the old
-                 * small plain-text links at the bottom. "Scan barcode" is
-                 * a deliberate second entry point alongside the search
-                 * bar's own scan icon, matching the mockup exactly. */}
-                <div className="grid grid-cols-3 gap-3">
+                {/* #459 — bordered quick-action cards. #802 added a fourth
+                 * Shared-food tile, so the row is 2×2 instead of three
+                 * cramped columns. "Scan barcode" is still a second entry
+                 * point alongside the search bar's own scan icon. */}
+                <div className="grid grid-cols-2 gap-3">
                   <QuickActionCard
                     Icon={Utensils}
                     label={t.dailyEntry.quickActionAddFoodLabel}
@@ -1617,6 +1649,17 @@ export function AddMealDialog({
                     Icon={ChefHat}
                     label={t.recipes.logRecipeButton}
                     onClick={() => setIsRecipeOpen(true)}
+                  />
+                  <QuickActionCard
+                    Icon={QrCode}
+                    label={t.dailyEntry.quickActionImportSharedFoodLabel}
+                    onClick={() => {
+                      useFoodShareUiStore.getState().setOnImported((result) => {
+                        const item = calorieItemFromImportedFood(result)
+                        if (item) onAppendItems([item])
+                      })
+                      useFoodShareUiStore.getState().setEntryOpen(true)
+                    }}
                   />
                 </div>
                 {recentItems.length > 0 && (
@@ -2028,8 +2071,8 @@ export function AddMealDialog({
 }
 
 // #459 — the quick-action row's own bordered-card treatment (icon + label,
-// evenly sized via the parent's grid-cols-3), replacing the old plain-text
-// ghost-link row.
+// evenly sized via the parent's grid). Replacing the old plain-text
+// ghost-link row. #802 switched the parent from 3 columns to 2×2.
 function QuickActionCard({
   Icon,
   label,

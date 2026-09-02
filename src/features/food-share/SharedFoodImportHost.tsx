@@ -156,6 +156,9 @@ export function SharedFoodImportHost() {
             servings: result.servings,
             existingId: result.existingId,
           })
+          // #802 — Add meal may have registered a listener so this dish
+          // also lands in the open meal, not only the food library.
+          useFoodShareUiStore.getState().onImported?.(result)
         }}
       />
     </>

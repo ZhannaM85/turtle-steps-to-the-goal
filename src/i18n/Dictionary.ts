@@ -632,11 +632,13 @@ export interface Dictionary {
      * "Show all" had no way back. */
     collapseRecentLabel: string
     cantFindItAddManuallyLabel: string
-    /** #459 — the quick-action row's own 3 bordered cards (Add food / Scan
-     * barcode / Create recipe), replacing the old plain-text links.
+    /** #459 — the quick-action row's bordered cards (Add food / Scan
+     * barcode / Log recipe), replacing the old plain-text links.
      * scanBarcodeButton/recipes.logRecipeButton are reused for the other
-     * two cards' labels. */
+     * two cards' labels. **#802** adds a fourth tile for shared-food QR/link. */
     quickActionAddFoodLabel: string
+    /** #802 — scan a food-share QR or paste a share link into this meal. */
+    quickActionImportSharedFoodLabel: string
     mealSoFarLabel: string
     wasItTastyLabel: string
     doneAddingMealButton: string

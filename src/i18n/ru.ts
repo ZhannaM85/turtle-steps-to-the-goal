@@ -374,6 +374,7 @@ export const ru: Dictionary = {
     collapseRecentLabel: 'Свернуть',
     cantFindItAddManuallyLabel: 'Не нашли? Добавить вручную',
     quickActionAddFoodLabel: 'Добавить блюдо',
+    quickActionImportSharedFoodLabel: 'QR / ссылка',
     mealSoFarLabel: 'Состав приёма пищи',
     wasItTastyLabel: 'Было вкусно?',
     doneAddingMealButton: 'Готово',

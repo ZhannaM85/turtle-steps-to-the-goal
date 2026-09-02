@@ -1,9 +1,15 @@
 import 'fake-indexeddb/auto'
 import { useState } from 'react'
+import { MemoryRouter } from 'react-router-dom'
 import { render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { CalorieItem, Emotion } from '@/domain/dailyEntry'
+import {
+  SharedFoodImportHost,
+  useFoodShareUiStore,
+} from '@/features/food-share'
+import { buildShareFoodUrl } from '@/features/food-share/buildShareFoodUrl'
 import { db } from '@/infrastructure/persistence/indexeddb'
 import { useFoodOverrideStore, useMealItemStore, useMealLabelPresetStore, useNutritionFactsStore, useRecipeStore, useAddMealRecentVisibilityStore, useEatingReasonTrackingStore } from '@/stores'
 import { AddMealDialog, type AddMealDialogProps } from './AddMealDialog'
@@ -48,6 +54,12 @@ beforeEach(async () => {
     enabled: false,
     customReasons: [],
     builtinLabelOverrides: {},
+  })
+  useFoodShareUiStore.setState({
+    entryOpen: false,
+    importOpen: false,
+    payload: null,
+    onImported: null,
   })
   localStorage.removeItem('turtle-steps-add-meal-recent-visibility')
 })
@@ -317,6 +329,44 @@ describe('AddMealDialog (#454)', () => {
     ).toBeInTheDocument()
     expect(
       screen.getByRole('button', { name: 'Copy link' }),
+    ).toBeInTheDocument()
+  })
+
+  it('adds a shared-food paste to this meal so far (#802)', async () => {
+    const user = userEvent.setup()
+    const shareUrl = buildShareFoodUrl(
+      {
+        v: 1,
+        name: 'Shared yogurt',
+        amountKcal: 120,
+        proteinG: 8,
+        fatG: 4,
+        carbsG: 12,
+        amountG: 150,
+      },
+      { origin: 'https://example.test', baseUrl: '/' },
+    )
+
+    render(
+      <MemoryRouter>
+        <SharedFoodImportHost />
+        <ControlledAddMealDialog {...defaultProps} />
+      </MemoryRouter>,
+    )
+
+    await user.click(screen.getByRole('button', { name: 'Shared food' }))
+    await user.type(
+      screen.getByPlaceholderText('Paste link here'),
+      shareUrl,
+    )
+    await user.click(screen.getByRole('button', { name: 'Continue' }))
+    await user.click(screen.getByRole('button', { name: 'Add to my foods' }))
+
+    expect(await screen.findByText('This meal so far')).toBeInTheDocument()
+    const mealSoFar = screen.getByText('This meal so far').closest('div')!
+    expect(mealSoFar).toHaveTextContent('Shared yogurt')
+    expect(
+      screen.getByRole('button', { name: 'Share Shared yogurt' }),
     ).toBeInTheDocument()
   })
 

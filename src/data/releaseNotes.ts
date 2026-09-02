@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 765,
+    issue: 802,
+    date: '2026-09-02T23:55:00+03:00',
+    en: 'Add meal now has Shared food — scan a QR code or paste a share link to add that dish to this meal.',
+    ru: 'В «Добавить приём пищи» появилось «QR / ссылка» — отсканируйте QR-код или вставьте ссылку, чтобы добавить блюдо в этот приём.',
+  },
+  {
     version: 764,
     issue: 801,
     date: '2026-09-02T23:40:00+03:00',

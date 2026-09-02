@@ -1,6 +1,7 @@
 export { ShareFoodDialog } from './ShareFoodDialog'
 export { SharedFoodImportHost } from './SharedFoodImportHost'
 export { useFoodShareUiStore } from './foodShareUiStore'
+export type { SharedFoodImportResult } from './foodShareUiStore'
 export {
   encodeSharedFoodPayload,
   decodeSharedFoodPayload,
