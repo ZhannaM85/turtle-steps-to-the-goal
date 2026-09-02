@@ -36,8 +36,9 @@ _User asked about pulling data from Apple Health and Zepp Life. Researched via W
 
 ## Tier 150 — Live feedback (2026-09-02)
 
-_Barcode scan macros; share a dish from meal entry._
+_Barcode scan macros; share a dish from meal entry; import a shared food via QR/link._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#801](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/801) | ⬜ Open | Meal entry: share a dish with QR code and link, like Settings | Live report 2026-09-02: sharing a food from Settings (QR + link) is inconvenient while logging. Add a share control on each dish in the meal composition list (next to edit/delete) that opens the same share modal. |
+| [#802](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/802) | ⬜ Open | Add meal: scan a food-share QR code or paste a share link | Follow-up to #801: on the Add meal action row (Add dish / Scan barcode / Log recipe), add a way to scan a food-share QR or paste a share link so the dish can be added to this meal. |
