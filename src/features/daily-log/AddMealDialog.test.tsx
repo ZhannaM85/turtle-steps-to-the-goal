@@ -730,7 +730,7 @@ describe('AddMealDialog (#454)', () => {
       expect(mealSoFar).toHaveTextContent('Homemade soup')
     })
 
-    it('caps typed kcal and macros at one decimal place (#800)', async () => {
+    it('caps typed kcal and macros at two decimal places (#800)', async () => {
       const user = userEvent.setup()
       render(<ControlledAddMealDialog {...defaultProps} />)
 
@@ -740,10 +740,10 @@ describe('AddMealDialog (#454)', () => {
       await user.type(screen.getByLabelText('Fat'), '14.45558844')
       await user.type(screen.getByLabelText('Carbs'), '15.70588')
 
-      expect(screen.getByLabelText('kcal/100g')).toHaveValue('198.8')
-      expect(screen.getByLabelText('Protein')).toHaveValue('1.6')
-      expect(screen.getByLabelText('Fat')).toHaveValue('14.4')
-      expect(screen.getByLabelText('Carbs')).toHaveValue('15.7')
+      expect(screen.getByLabelText('kcal/100g')).toHaveValue('198.82')
+      expect(screen.getByLabelText('Protein')).toHaveValue('1.66')
+      expect(screen.getByLabelText('Fat')).toHaveValue('14.45')
+      expect(screen.getByLabelText('Carbs')).toHaveValue('15.70')
     })
 
     it('does not race two writes to the personal food library for the same dish (regression)', async () => {

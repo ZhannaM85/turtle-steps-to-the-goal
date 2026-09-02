@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 763,
+    issue: 800,
+    date: '2026-09-02T19:35:00+03:00',
+    en: 'Calories and macros on Add dish now allow up to two digits after the decimal.',
+    ru: 'В «Добавить блюдо» у калорий и БЖУ можно ввести до двух знаков после запятой.',
+  },
+  {
     version: 762,
     issue: 800,
     date: '2026-09-02T19:15:00+03:00',

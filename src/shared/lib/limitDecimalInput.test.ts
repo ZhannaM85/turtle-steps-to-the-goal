@@ -1,32 +1,32 @@
 import { describe, expect, it } from 'vitest'
 import {
-  limitToOneDecimalPlace,
-  roundToOneDecimalPlace,
+  limitToMaxFractionDigits,
+  roundToMaxFractionDigits,
 } from './limitDecimalInput'
 
-describe('limitToOneDecimalPlace (#800)', () => {
+describe('limitToMaxFractionDigits (#800)', () => {
   it('leaves integers and a trailing separator alone', () => {
-    expect(limitToOneDecimalPlace('199')).toBe('199')
-    expect(limitToOneDecimalPlace('1.')).toBe('1.')
-    expect(limitToOneDecimalPlace('1,')).toBe('1,')
-    expect(limitToOneDecimalPlace('')).toBe('')
+    expect(limitToMaxFractionDigits('199', 2)).toBe('199')
+    expect(limitToMaxFractionDigits('1.', 2)).toBe('1.')
+    expect(limitToMaxFractionDigits('1,', 2)).toBe('1,')
+    expect(limitToMaxFractionDigits('', 2)).toBe('')
   })
 
-  it('keeps one fraction digit and drops the rest', () => {
-    expect(limitToOneDecimalPlace('1.6')).toBe('1.6')
-    expect(limitToOneDecimalPlace('1.66')).toBe('1.6')
-    expect(limitToOneDecimalPlace('1.66662580')).toBe('1.6')
-    expect(limitToOneDecimalPlace('14.45558844')).toBe('14.4')
-    expect(limitToOneDecimalPlace('1,66662580')).toBe('1,6')
+  it('keeps up to two fraction digits and drops the rest', () => {
+    expect(limitToMaxFractionDigits('1.6', 2)).toBe('1.6')
+    expect(limitToMaxFractionDigits('1.66', 2)).toBe('1.66')
+    expect(limitToMaxFractionDigits('1.66662580', 2)).toBe('1.66')
+    expect(limitToMaxFractionDigits('14.45558844', 2)).toBe('14.45')
+    expect(limitToMaxFractionDigits('1,66662580', 2)).toBe('1,66')
   })
 })
 
-describe('roundToOneDecimalPlace (#800)', () => {
-  it('rounds paste to 1 decimal and keeps comma vs dot', () => {
-    expect(roundToOneDecimalPlace('1.66662580')).toBe('1.7')
-    expect(roundToOneDecimalPlace('14.45558844')).toBe('14.5')
-    expect(roundToOneDecimalPlace('1,66662580')).toBe('1,7')
-    expect(roundToOneDecimalPlace('199')).toBe('199')
-    expect(roundToOneDecimalPlace('  ')).toBe('')
+describe('roundToMaxFractionDigits (#800)', () => {
+  it('rounds paste to 2 decimals and keeps comma vs dot', () => {
+    expect(roundToMaxFractionDigits('1.66662580', 2)).toBe('1.67')
+    expect(roundToMaxFractionDigits('14.45558844', 2)).toBe('14.46')
+    expect(roundToMaxFractionDigits('1,66662580', 2)).toBe('1,67')
+    expect(roundToMaxFractionDigits('199', 2)).toBe('199')
+    expect(roundToMaxFractionDigits('  ', 2)).toBe('')
   })
 })
