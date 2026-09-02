@@ -31,3 +31,13 @@ _User asked about pulling data from Apple Health and Zepp Life. Researched via W
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#334](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/334) | 📋 Not started | Epic — Apple Health integration (blocked on mobile app + HealthKit bridge) | HealthKit has no public/cloud API at all — data is on-device only, readable exclusively by a native iOS app (or hybrid app with a HealthKit plugin/entitlement) the user has granted permission to. Genuinely blocked until the mobile app exists; can't be built sooner by any workaround. |
+
+---
+
+## Tier 150 — Live feedback (2026-09-02)
+
+_Barcode scan filling Add dish with unrounded floating-point macros._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#799](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/799) | ⬜ Open | Add dish: scanned food macros show too many decimal places | Live report 2026-09-02: after scanning some foods (e.g. barcode 4640168955550, Перекресток beet salad), kcal/100g and protein/fat/carbs fill as long floats like `198.823529411765` / `1.58823529411765` instead of a short rounded number. |
