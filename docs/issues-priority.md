@@ -36,8 +36,9 @@ _User asked about pulling data from Apple Health and Zepp Life. Researched via W
 
 ## Tier 150 — Live feedback (2026-09-02)
 
-_Barcode scan filling Add dish with unrounded floating-point macros._
+_Barcode scan filling Add dish with unrounded floating-point macros; typed nutrition decimals._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#799](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/799) | 🔍 Pending validation | Add dish: scanned food macros show too many decimal places | `parseOffNutriments` now rounds kcal/macros/fiber to 1 decimal (same as `scaleOptional`) so serving-converted Open Food Facts floats like `198.823529411765` become `198.8` in the Add dish sheet. |
+| [#800](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/800) | ⬜ Open | Add dish: restrict kcal and macros to one decimal place | Follow-up to #799: scanned values round, but the fields still accept any typed/pasted precision. Cap kcal/protein/fat/carbs/fiber at 1 decimal (ignore extra digits while typing; round paste). Quantity out of scope. |
