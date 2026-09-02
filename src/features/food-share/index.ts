@@ -4,6 +4,8 @@ export { useFoodShareUiStore } from './foodShareUiStore'
 export {
   encodeSharedFoodPayload,
   decodeSharedFoodPayload,
+  calorieItemToShareMealItem,
+  findMatchingMealItem,
   mealItemToSharedFoodPayload,
   parseSharedFoodFromText,
   SHARE_FOOD_QUERY_PARAM,

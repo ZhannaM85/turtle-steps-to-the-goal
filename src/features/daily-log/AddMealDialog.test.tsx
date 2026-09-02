@@ -21,6 +21,10 @@ vi.mock('@zxing/browser', () => ({
   },
 }))
 
+vi.mock('@/features/food-share/generateQrDataUrl', () => ({
+  generateQrDataUrl: vi.fn(async () => 'data:image/png;base64,qq'),
+}))
+
 function mockScanning(barcode: string) {
   decodeFromConstraints.mockImplementation(
     async (_deviceId: unknown, _videoElement: unknown, callback: (result: unknown) => void) => {
@@ -296,6 +300,24 @@ describe('AddMealDialog (#454)', () => {
 
     expect(screen.getByText('This meal so far')).toBeInTheDocument()
     expect(screen.getByText('Salmon')).toBeInTheDocument()
+  })
+
+  it('opens the food-share dialog from a dish in this meal so far (#801)', async () => {
+    const user = userEvent.setup()
+    render(<ControlledAddMealDialog {...defaultProps} />)
+
+    await user.type(screen.getByLabelText('Search foods'), 'Salmon')
+    await user.click(await screen.findByText('Salmon'))
+    await user.click(screen.getByRole('button', { name: 'Save' }))
+
+    await user.click(screen.getByRole('button', { name: 'Share Salmon' }))
+
+    expect(
+      screen.getByRole('heading', { name: 'Share food' }),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByRole('button', { name: 'Copy link' }),
+    ).toBeInTheDocument()
   })
 
   it('shows a clear control that empties the food search (#533)', async () => {

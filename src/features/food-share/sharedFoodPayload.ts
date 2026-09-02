@@ -10,6 +10,7 @@
  *   brand field; brand rides in the payload for review display only).
  */
 import { z } from 'zod'
+import type { CalorieItem } from '@/domain/dailyEntry'
 import type { MealItem, MealItemServing } from '@/domain/mealItem'
 import { normalizeMealLibraryName } from '@/domain/mealItem'
 import { ratesFromAbsolute, scaleFromPer100g } from '@/shared/lib/macroScaling'
@@ -111,6 +112,43 @@ export function mealItemToSharedFoodPayload(item: MealItem): SharedFoodPayload {
     }))
   }
   return payload
+}
+
+/**
+ * #801 — map a logged meal dish onto a `MealItem` so `ShareFoodDialog`
+ * can reuse the Settings share path. Overlay library barcode/servings
+ * when a personal item matches; logged macros always win (the portion
+ * actually in this meal).
+ */
+export function calorieItemToShareMealItem(
+  item: Pick<
+    CalorieItem,
+    | 'id'
+    | 'name'
+    | 'amountKcal'
+    | 'proteinG'
+    | 'fatG'
+    | 'carbsG'
+    | 'amountG'
+  >,
+  library?: MealItem,
+): MealItem | null {
+  const name = item.name?.trim()
+  if (!name) return null
+  const createdAt = library?.createdAt ?? '1970-01-01T00:00:00.000Z'
+  return {
+    id: library?.id ?? item.id,
+    name,
+    createdAt,
+    updatedAt: library?.updatedAt ?? createdAt,
+    lastAmountKcal: item.amountKcal,
+    lastProteinG: item.proteinG,
+    lastFatG: item.fatG,
+    lastCarbsG: item.carbsG,
+    lastAmountG: item.amountG,
+    barcode: library?.barcode,
+    servings: library?.servings,
+  }
 }
 
 /**

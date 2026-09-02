@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import type { MealItem } from '@/domain/mealItem'
 import {
+  calorieItemToShareMealItem,
   decodeSharedFoodPayload,
   encodeSharedFoodPayload,
   findMatchingMealItem,
@@ -111,6 +112,54 @@ describe('sharedFoodPayload (#661)', () => {
     expect(
       findMatchingMealItem({ v: 1, name: 'Missing' }, items),
     ).toBeUndefined()
+  })
+
+  it('maps a logged dish onto a shareable MealItem (#801)', () => {
+    expect(
+      calorieItemToShareMealItem({
+        id: 'c1',
+        name: '  Soup  ',
+        amountKcal: 180,
+        proteinG: 8,
+        fatG: 4,
+        carbsG: 20,
+        amountG: 250,
+      }),
+    ).toMatchObject({
+      id: 'c1',
+      name: 'Soup',
+      lastAmountKcal: 180,
+      lastProteinG: 8,
+      lastFatG: 4,
+      lastCarbsG: 20,
+      lastAmountG: 250,
+    })
+  })
+
+  it('returns null when the dish has no name (#801)', () => {
+    expect(
+      calorieItemToShareMealItem({ id: 'c1', amountKcal: 10 }),
+    ).toBeNull()
+  })
+
+  it('overlays library barcode and servings on a logged dish (#801)', () => {
+    const library = item({
+      id: 'lib',
+      name: 'Soup',
+      barcode: '999',
+      servings: [{ en: 'bowl', ru: 'bowl', grams: 200 }],
+    })
+    expect(
+      calorieItemToShareMealItem(
+        { id: 'c1', name: 'Soup', amountKcal: 180, amountG: 200 },
+        library,
+      ),
+    ).toMatchObject({
+      id: 'lib',
+      barcode: '999',
+      lastAmountKcal: 180,
+      servings: [{ en: 'bowl', ru: 'bowl', grams: 200 }],
+    })
   })
 
   it('parses share URLs and raw payloads', () => {

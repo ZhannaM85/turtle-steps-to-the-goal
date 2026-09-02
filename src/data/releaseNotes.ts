@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 764,
+    issue: 801,
+    date: '2026-09-02T23:40:00+03:00',
+    en: 'Each dish in a meal you are logging now has Share, with the same QR code and link as in Settings.',
+    ru: 'У каждого блюда в приёме пищи, который вы записываете, теперь есть «Поделиться» — тот же QR-код и ссылка, что в Настройках.',
+  },
+  {
     version: 763,
     issue: 800,
     date: '2026-09-02T19:35:00+03:00',

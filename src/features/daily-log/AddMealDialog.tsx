@@ -4,6 +4,7 @@ import {
   type LucideIcon,
   Pencil,
   ScanBarcode,
+  Share2,
   Star,
   Trash2,
   Utensils,
@@ -56,6 +57,11 @@ import { Dialog, DialogContent, DialogTitle } from '@/shared/ui/dialog'
 import { Input } from '@/shared/ui/input'
 import { Label } from '@/shared/ui/label'
 import { SectionTitleWithToggle } from '@/shared/ui/section-title-with-toggle'
+import {
+  calorieItemToShareMealItem,
+  findMatchingMealItem,
+  ShareFoodDialog,
+} from '@/features/food-share'
 import { LogRecipeDialog } from '@/features/recipes'
 import { BarcodeScannerDialog } from './BarcodeScannerDialog'
 import { EatingReasonPicker } from './EatingReasonPicker'
@@ -415,6 +421,8 @@ export function AddMealDialog({
   // already-added item (tapped from "This meal so far") rather than
   // building a brand-new one; changes what saveManualDraft() does on Save.
   const [editingItemId, setEditingItemId] = useState<string | null>(null)
+  // #801 — composition-row Share opens Settings' ShareFoodDialog.
+  const [shareItem, setShareItem] = useState<MealItem | null>(null)
   const [showAllRecent, setShowAllRecent] = useState(false)
   const [isConfirmingMealDelete, setIsConfirmingMealDelete] = useState(false)
   // #509 — trash on a composition row asks first; not a hard delete.
@@ -1270,6 +1278,7 @@ export function AddMealDialog({
     ) : null
 
   return (
+    <>
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
         size="fullscreen"
@@ -1683,6 +1692,7 @@ export function AddMealDialog({
                       locale,
                       t,
                     )
+                    const shareName = item.name?.trim()
                     return (
                       <li
                         key={item.id}
@@ -1719,6 +1729,29 @@ export function AddMealDialog({
                           >
                             <Pencil aria-hidden="true" />
                           </Button>
+                          {shareName ? (
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="icon-sm"
+                              aria-label={t.settings.shareMealItemLabel(
+                                shareName,
+                              )}
+                              onClick={() => {
+                                const library = findMatchingMealItem(
+                                  { v: 1, name: shareName },
+                                  mealItems,
+                                )
+                                const next = calorieItemToShareMealItem(
+                                  item,
+                                  library,
+                                )
+                                if (next) setShareItem(next)
+                              }}
+                            >
+                              <Share2 aria-hidden="true" />
+                            </Button>
+                          ) : null}
                           <Button
                             type="button"
                             variant="ghost"
@@ -1983,6 +2016,14 @@ export function AddMealDialog({
         />
       </DialogContent>
     </Dialog>
+    <ShareFoodDialog
+      open={shareItem !== null}
+      onOpenChange={(open) => {
+        if (!open) setShareItem(null)
+      }}
+      item={shareItem}
+    />
+    </>
   )
 }
 
