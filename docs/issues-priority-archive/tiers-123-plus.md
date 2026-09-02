@@ -443,3 +443,13 @@ _Morning-card action icons on Weight vs Sleep._
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#798](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/798) | ✅ Done | Day: align edit/delete icons on Weight and Sleep morning cards | Confirmed on-device 2026-09-01 — Weight pencil/trash on the title row, stacked with Sleep. |
+
+---
+
+## Tier 150 — Live feedback (2026-09-02)
+
+_Barcode scan filling Add dish with unrounded floating-point macros; typed nutrition decimals._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#799](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/799) | ✅ Done | Add dish: scanned food macros show too many decimal places | Confirmed on-device 2026-09-02 — scanned kcal/macros round instead of a long decimal tail. |
