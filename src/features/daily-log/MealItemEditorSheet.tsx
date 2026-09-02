@@ -6,6 +6,10 @@ import type { MealItem } from '@/domain/mealItem'
 import { formatNumber, useLocale, useTranslation } from '@/i18n'
 import { MEAL_EMOTIONS } from '@/shared/lib/emotionIcons'
 import { formatBarcodeDisplay } from '@/shared/lib/formatBarcode'
+import {
+  limitToOneDecimalPlace,
+  roundToOneDecimalPlace,
+} from '@/shared/lib/limitDecimalInput'
 import { formatMacroGrams } from '@/shared/lib/macroDisplay'
 import {
   formatComputedTotal,
@@ -174,6 +178,7 @@ function NumberField({
   onChange,
   onBlur,
   onEnter,
+  maxFractionDigits,
 }: {
   label: string
   /** Leading emoji (#344 redesign) — e.g. 🌿 for protein, 💧 for fat.
@@ -185,6 +190,8 @@ function NumberField({
   onChange: (value: string) => void
   onBlur?: () => void
   onEnter: () => void
+  /** #800 — kcal/macros cap at 1 decimal; quantity fields omit this. */
+  maxFractionDigits?: 1
 }) {
   return (
     <div className="flex flex-col gap-1.5">
@@ -201,7 +208,21 @@ function NumberField({
         inputMode="decimal"
         aria-label={label}
         value={value}
-        onChange={(e) => onChange(e.target.value)}
+        onChange={(e) =>
+          onChange(
+            maxFractionDigits === 1
+              ? limitToOneDecimalPlace(e.target.value)
+              : e.target.value,
+          )
+        }
+        onPaste={
+          maxFractionDigits === 1
+            ? (e) => {
+                e.preventDefault()
+                onChange(roundToOneDecimalPlace(e.clipboardData.getData('text')))
+              }
+            : undefined
+        }
         onBlur={onBlur}
         onKeyDown={(e) => {
           if (e.key === 'Enter') {
@@ -540,6 +561,7 @@ export function MealItemEditorSheet({
                 value={amount}
                 onChange={onAmountChange}
                 onEnter={onSave}
+                maxFractionDigits={1}
               />
               {/* #111/#121: in per-100g mode this is a portions-*count*
                * multiplier ("× 100g"). #121 originally made it a
@@ -593,6 +615,7 @@ export function MealItemEditorSheet({
                 value={protein}
                 onChange={onProteinChange}
                 onEnter={onSave}
+                maxFractionDigits={1}
               />
               <NumberField
                 icon="💧"
@@ -600,6 +623,7 @@ export function MealItemEditorSheet({
                 value={fat}
                 onChange={onFatChange}
                 onEnter={onSave}
+                maxFractionDigits={1}
               />
               <NumberField
                 icon="🟤"
@@ -607,6 +631,7 @@ export function MealItemEditorSheet({
                 value={carbs}
                 onChange={onCarbsChange}
                 onEnter={onSave}
+                maxFractionDigits={1}
               />
               {/* #341 — its own field rather than folded into the shared
                * macrosSummaryTextCompact-based total preview below, which
@@ -621,6 +646,7 @@ export function MealItemEditorSheet({
                   value={fiber}
                   onChange={onFiberChange}
                   onEnter={onSave}
+                  maxFractionDigits={1}
                 />
               )}
               {showSodium && onSodiumChange && (

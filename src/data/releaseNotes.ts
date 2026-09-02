@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 762,
+    issue: 800,
+    date: '2026-09-02T19:15:00+03:00',
+    en: 'Calories and macros on Add dish only keep one digit after the decimal — extra digits are ignored as you type.',
+    ru: 'В «Добавить блюдо» у калорий и БЖУ остаётся только один знак после запятой — лишние цифры при вводе отбрасываются.',
+  },
+  {
     version: 761,
     issue: 799,
     date: '2026-09-02T18:25:00+03:00',
