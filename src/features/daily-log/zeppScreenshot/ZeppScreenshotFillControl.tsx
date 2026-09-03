@@ -1,11 +1,13 @@
 import { useRef, useState } from 'react'
 import { ImageUp } from 'lucide-react'
+import type { ComparableEntryField, FieldBaseline } from '@/domain/dailyEntry'
 import {
   formatExactNumber,
   useLocale,
   useTranslation,
   type Locale,
 } from '@/i18n'
+import { useEntryFieldComparisonBaselines } from '@/shared/hooks'
 import { parseNumberInput } from '@/shared/lib/parseNumberInput'
 import { Button } from '@/shared/ui/button'
 import { useTrackedFieldsStore } from '@/stores'
@@ -16,6 +18,10 @@ import {
   DialogTitle,
 } from '@/shared/ui/dialog'
 import { NumberInput } from '@/shared/ui/number-input'
+import {
+  EntryFieldComparisonLive,
+  type EntryComparisonUnit,
+} from '../EntryFieldComparison'
 import {
   hasZeppBodyCompositionValues,
   parseZeppBodyCompositionText,
@@ -36,6 +42,41 @@ function fieldToInput(
   return value === undefined ? '' : formatExactNumber(value, locale)
 }
 
+function ConfirmField({
+  label,
+  unit,
+  value,
+  onChange,
+  field,
+  prior,
+  comparisonUnit,
+}: {
+  label: string
+  unit?: string
+  value: string
+  onChange: (next: string) => void
+  field: ComparableEntryField
+  prior: FieldBaseline | null
+  comparisonUnit: EntryComparisonUnit
+}) {
+  return (
+    <div className="flex flex-col gap-1">
+      <NumberInput
+        label={label}
+        unit={unit}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+      />
+      <EntryFieldComparisonLive
+        field={field}
+        currentValue={parseNumberInput(value)}
+        prior={prior}
+        unit={comparisonUnit}
+      />
+    </div>
+  )
+}
+
 export function ZeppScreenshotFillControl({
   asOfDate,
   onConfirm,
@@ -45,6 +86,7 @@ export function ZeppScreenshotFillControl({
   )
   const t = useTranslation()
   const locale = useLocale()
+  const comparison = useEntryFieldComparisonBaselines(asOfDate)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [open, setOpen] = useState(false)
   const [readingStatus, setReadingStatus] = useState<
@@ -178,34 +220,49 @@ export function ZeppScreenshotFillControl({
                     {t.dailyEntry.zeppScreenshotDateHint(screenshotDate)}
                   </p>
                 )}
-                <NumberInput
+                <ConfirmField
                   label={t.dailyEntry.muscleMassLabel}
                   unit={t.dailyEntry.kgUnit}
                   value={muscleMassKg}
-                  onChange={(e) => setMuscleMassKg(e.target.value)}
+                  onChange={setMuscleMassKg}
+                  field="muscleMassKg"
+                  prior={comparison.prior('muscleMassKg')}
+                  comparisonUnit="kg"
                 />
-                <NumberInput
+                <ConfirmField
                   label={t.dailyEntry.visceralFatLabel}
                   value={visceralFatRating}
-                  onChange={(e) => setVisceralFatRating(e.target.value)}
+                  onChange={setVisceralFatRating}
+                  field="visceralFatRating"
+                  prior={comparison.prior('visceralFatRating')}
+                  comparisonUnit="none"
                 />
-                <NumberInput
+                <ConfirmField
                   label={t.dailyEntry.bodyWaterLabel}
                   unit={t.dailyEntry.percentUnit}
                   value={bodyWaterPercent}
-                  onChange={(e) => setBodyWaterPercent(e.target.value)}
+                  onChange={setBodyWaterPercent}
+                  field="bodyWaterPercent"
+                  prior={comparison.prior('bodyWaterPercent')}
+                  comparisonUnit="percent"
                 />
-                <NumberInput
+                <ConfirmField
                   label={t.dailyEntry.boneMassLabel}
                   unit={t.dailyEntry.kgUnit}
                   value={boneMassKg}
-                  onChange={(e) => setBoneMassKg(e.target.value)}
+                  onChange={setBoneMassKg}
+                  field="boneMassKg"
+                  prior={comparison.prior('boneMassKg')}
+                  comparisonUnit="kg"
                 />
-                <NumberInput
+                <ConfirmField
                   label={t.dailyEntry.bodyFatLabel}
                   unit={t.dailyEntry.percentUnit}
                   value={bodyFatPercent}
-                  onChange={(e) => setBodyFatPercent(e.target.value)}
+                  onChange={setBodyFatPercent}
+                  field="bodyFatPercent"
+                  prior={comparison.prior('bodyFatPercent')}
+                  comparisonUnit="percent"
                 />
                 <Button
                   type="button"

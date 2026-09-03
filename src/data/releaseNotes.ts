@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 766,
+    issue: 805,
+    date: '2026-09-03T13:30:00+03:00',
+    en: 'The From Zepp screenshot screen now shows the same vs-yesterday changes as typing body composition by hand.',
+    ru: 'На экране «Из скриншота Zepp» теперь те же изменения относительно вчера, что и при ручном вводе состава тела.',
+  },
+  {
     version: 765,
     issue: 802,
     date: '2026-09-02T23:55:00+03:00',
