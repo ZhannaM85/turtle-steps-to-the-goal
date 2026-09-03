@@ -497,6 +497,8 @@ describe('DailyEntryForm', () => {
           edit.compareDocumentPosition(remove) &
             Node.DOCUMENT_POSITION_FOLLOWING,
         ).toBeTruthy()
+        // #807 — same tight gap as title ⓘ, not #127's wider control gap.
+        expect(edit.parentElement).toHaveClass('gap-1')
 
         await user.click(remove)
         expect(screen.getByText('Delete this entry?')).toBeInTheDocument()

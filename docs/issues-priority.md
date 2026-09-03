@@ -40,4 +40,4 @@ _Day header icon spacing after screenshot-fill ⓘ._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#807](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/807) | 📋 Not started | Day: unify header icon spacing (edit/trash vs info) | Weight pencil+trash uses `gap-3` (#127 / #746 / #798); title ⓘ and ImageUp+ⓘ (#806) use `gap-1`. Sleep/Body composition also `gap-3` between screenshot-fill, pencil, and trash. Make adjacent header icons consistent; match the tighter info gap. |
+| [#807](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/807) | 🔍 Pending validation | Day: unify header icon spacing (edit/trash vs info) | Title-row / meal-card icon clusters (Weight, Sleep, Body composition, Body measurements, meal cards) use `gap-1` to match ⓘ / ImageUp+ⓘ. Input+save rows stay `gap-3`. |

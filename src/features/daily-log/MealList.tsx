@@ -246,9 +246,9 @@ function MealListItem({
             {effectiveTimeEaten(entry, mealSlotTimes)}
           </span>
         )}
-        <div className="flex shrink-0 items-center gap-3">
+        <div className="flex shrink-0 items-center gap-1">
           {/* #746 — Pencil then Trash (canonical Day/History order).
-           * gap-3 matches Weight's display-mode pair and #127. */}
+           * #807 — gap-1 matches Weight title-row icons and ⓘ clusters. */}
           <Button
             type="button"
             variant="ghost"

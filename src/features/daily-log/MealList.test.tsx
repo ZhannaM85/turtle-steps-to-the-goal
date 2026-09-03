@@ -311,6 +311,8 @@ describe('MealList', () => {
       editMeal.compareDocumentPosition(deleteMeal) &
         Node.DOCUMENT_POSITION_FOLLOWING,
     ).toBeTruthy()
+    // #807 — same tight gap as Day title-row ⓘ / edit-trash clusters.
+    expect(iconCluster).toHaveClass('gap-1')
 
     expect(
       screen.getByText('175 kcal · P 20g · F — · C —'),

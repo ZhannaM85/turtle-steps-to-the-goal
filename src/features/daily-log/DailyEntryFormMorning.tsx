@@ -209,10 +209,10 @@ export function DailyEntryFormMorning() {
                       unit="kg"
                     />
                   </span>
-                  <span className="flex shrink-0 items-center gap-3">
+                  <span className="flex shrink-0 items-center gap-1">
                     {/* #746 — Pencil then Trash, same order as meals and
-                     * History; gap-3 matches MealList and #127's mobile
-                     * spacing for adjacent icon buttons. #670 — delete a
+                     * History. #807 — gap-1 matches title ⓘ / ImageUp+ⓘ,
+                     * not #127's wider control gap. #670 — delete a
                      * logged weight, gated on a saved value. */}
                     <Button
                       type="button"
@@ -400,7 +400,7 @@ export function DailyEntryFormMorning() {
                         unit="hours"
                       />
                     </span>
-                    <div className="flex shrink-0 items-center gap-3">
+                    <div className="flex shrink-0 items-center gap-1">
                       <AutoSleepScreenshotFillControl
                         asOfDate={state.date}
                         onConfirm={state.applySleepPatch}
@@ -664,7 +664,7 @@ export function DailyEntryFormMorning() {
                           : `${formatExactNumber(state.hipCm, locale)}${t.dailyEntry.cmUnit}`,
                       )}
                     </span>
-                    <span className="flex items-center gap-3">
+                    <span className="flex items-center gap-1">
                       <Button
                         type="button"
                         variant="ghost"
@@ -831,7 +831,7 @@ export function DailyEntryFormMorning() {
                     <span className="text-sm font-medium">
                       {t.dailyEntry.bodyCompositionLabel}
                     </span>
-                    <div className="flex shrink-0 items-center gap-3">
+                    <div className="flex shrink-0 items-center gap-1">
                       <ZeppScreenshotFillControl
                         asOfDate={state.date}
                         onConfirm={state.applyBodyCompositionPatch}
@@ -892,7 +892,7 @@ export function DailyEntryFormMorning() {
                     <span className="text-sm font-medium">
                       {t.dailyEntry.bodyCompositionLabel}
                     </span>
-                    <span className="flex items-center gap-3">
+                    <span className="flex items-center gap-1">
                       <ZeppScreenshotFillControl
                         asOfDate={state.date}
                         onConfirm={state.applyBodyCompositionPatch}

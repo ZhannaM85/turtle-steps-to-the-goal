@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 768,
+    issue: 807,
+    date: '2026-09-03T15:10:00+03:00',
+    en: 'Edit and delete icons on Day sit as close together as the info icons next to them.',
+    ru: 'Иконки правки и удаления на экране Дня стоят так же близко, как соседние значки подсказки.',
+  },
+  {
     version: 767,
     issue: 806,
     date: '2026-09-03T13:45:00+03:00',
