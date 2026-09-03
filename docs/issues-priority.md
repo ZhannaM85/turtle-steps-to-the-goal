@@ -47,8 +47,9 @@ _Barcode scan macros; share a dish from meal entry; import a shared food via QR/
 
 ## Tier 151 — Live feedback (2026-09-03)
 
-_Zepp screenshot confirm missing the vs-yesterday diffs that manual body-composition edit already shows._
+_Zepp screenshot confirm diffs; screenshot-fill icons need a discoverable explanation._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#805](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/805) | 📋 Not started | Zepp screenshot confirm: show vs-yesterday diffs like manual body composition | Manual Body composition edit already shows #664 arrows under each field. The **From Zepp screenshot** confirm modal lists the five parsed values with no diffs. Reuse #664 helpers; respect the Settings comparison toggle. AutoSleep confirm out of scope. |
+| [#806](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/806) | 📋 Not started | Screenshot-fill icons: explain what to upload (info or Capabilities) | Sleep / Body composition ImageUp icons have no cue what they are or which app screenshot to pick. Design fork: Day `InfoTooltip` vs a Capabilities (`/features`) item. Settings **From screenshots** (#749) only toggles the icons, it does not explain them. |
