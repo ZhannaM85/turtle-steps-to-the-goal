@@ -454,3 +454,4 @@ _Barcode scan filling Add dish with unrounded floating-point macros; typed nutri
 |---|--------|-------|-------|
 | [#799](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/799) | ✅ Done | Add dish: scanned food macros show too many decimal places | Confirmed on-device 2026-09-02 — scanned kcal/macros round instead of a long decimal tail. |
 | [#800](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/800) | ✅ Done | Add dish: restrict kcal and macros to two decimal places | Confirmed on-device 2026-09-02 — kcal/macros cap at two decimal places. |
+| [#801](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/801) | ✅ Done | Meal entry: share a dish with QR code and link, like Settings | Confirmed on-device 2026-09-03 — Share2 on each named dish opens the Settings share dialog. |

@@ -40,7 +40,6 @@ _Barcode scan macros; share a dish from meal entry; import a shared food via QR/
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#801](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/801) | 🔍 Pending validation | Meal entry: share a dish with QR code and link, like Settings | Share2 on each named dish in Add meal composition (between edit and delete) opens the existing Settings `ShareFoodDialog`. Logged macros map via `calorieItemToShareMealItem`; library barcode/servings overlay when the name matches. |
 | [#802](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/802) | 🔍 Pending validation | Add meal: scan a food-share QR code or paste a share link | Fourth quick action (2×2 grid) opens the existing import UI. After review, the dish is written to the food library *and* appended to this meal. |
 
 ---
