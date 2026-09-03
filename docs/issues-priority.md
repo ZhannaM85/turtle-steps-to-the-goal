@@ -36,9 +36,8 @@ _User asked about pulling data from Apple Health and Zepp Life. Researched via W
 
 ## Tier 151 — Live feedback (2026-09-03)
 
-_Zepp screenshot confirm diffs; screenshot-fill icons need a discoverable explanation._
+_Screenshot-fill icons need a discoverable explanation._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#805](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/805) | 🔍 Pending validation | Zepp screenshot confirm: show vs-yesterday diffs like manual body composition | Confirm dialog reuses `EntryFieldComparisonLive` (#664) under each parsed field; Settings comparison toggle still hides them. AutoSleep confirm untouched. |
 | [#806](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/806) | 🔍 Pending validation | Screenshot-fill icons: explain what to upload (info or Capabilities) | Day ⓘ next to each ImageUp (Zepp / AutoSleep) plus a Daily logging item on Features (`/features`). Settings **From screenshots** toggles unchanged. |

@@ -456,3 +456,13 @@ _Barcode scan filling Add dish with unrounded floating-point macros; typed nutri
 | [#800](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/800) | ✅ Done | Add dish: restrict kcal and macros to two decimal places | Confirmed on-device 2026-09-02 — kcal/macros cap at two decimal places. |
 | [#801](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/801) | ✅ Done | Meal entry: share a dish with QR code and link, like Settings | Confirmed on-device 2026-09-03 — Share2 on each named dish opens the Settings share dialog. |
 | [#802](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/802) | ✅ Done | Add meal: scan a food-share QR code or paste a share link | Confirmed on-device 2026-09-03 — scan/paste import appends the dish to the open meal and the food library. |
+
+---
+
+## Tier 151 — Live feedback (2026-09-03)
+
+_Zepp screenshot confirm diffs; screenshot-fill icons need a discoverable explanation._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#805](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/805) | ✅ Done | Zepp screenshot confirm: show vs-yesterday diffs like manual body composition | Confirmed on-device 2026-09-03 — vs-yesterday arrows under each parsed field in the Zepp confirm dialog. |
