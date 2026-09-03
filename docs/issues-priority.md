@@ -33,11 +33,3 @@ _User asked about pulling data from Apple Health and Zepp Life. Researched via W
 | [#334](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/334) | 📋 Not started | Epic — Apple Health integration (blocked on mobile app + HealthKit bridge) | HealthKit has no public/cloud API at all — data is on-device only, readable exclusively by a native iOS app (or hybrid app with a HealthKit plugin/entitlement) the user has granted permission to. Genuinely blocked until the mobile app exists; can't be built sooner by any workaround. |
 
 ---
-
-## Tier 151 — Live feedback (2026-09-03)
-
-_Day header icon spacing after screenshot-fill ⓘ._
-
-| # | Status | Issue | Notes |
-|---|--------|-------|-------|
-| [#807](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/807) | 🔍 Pending validation | Day: unify header icon spacing (edit/trash vs info) | Title-row ImageUp / ⓘ / pencil / trash are one `gap-1` row of `icon-sm` (ⓘ `size-7`). Screenshot fill no longer nests a second flex. In-card Save/Cancel stay `icon-xl`. |
