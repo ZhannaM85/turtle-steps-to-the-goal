@@ -34,16 +34,6 @@ _User asked about pulling data from Apple Health and Zepp Life. Researched via W
 
 ---
 
-## Tier 150 — Live feedback (2026-09-02)
-
-_Barcode scan macros; share a dish from meal entry; import a shared food via QR/link._
-
-| # | Status | Issue | Notes |
-|---|--------|-------|-------|
-| [#802](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/802) | 🔍 Pending validation | Add meal: scan a food-share QR code or paste a share link | Fourth quick action (2×2 grid) opens the existing import UI. After review, the dish is written to the food library *and* appended to this meal. |
-
----
-
 ## Tier 151 — Live feedback (2026-09-03)
 
 _Zepp screenshot confirm diffs; screenshot-fill icons need a discoverable explanation._
