@@ -42,3 +42,13 @@ _Barcode scan macros; share a dish from meal entry; import a shared food via QR/
 |---|--------|-------|-------|
 | [#801](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/801) | 🔍 Pending validation | Meal entry: share a dish with QR code and link, like Settings | Share2 on each named dish in Add meal composition (between edit and delete) opens the existing Settings `ShareFoodDialog`. Logged macros map via `calorieItemToShareMealItem`; library barcode/servings overlay when the name matches. |
 | [#802](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/802) | 🔍 Pending validation | Add meal: scan a food-share QR code or paste a share link | Fourth quick action (2×2 grid) opens the existing import UI. After review, the dish is written to the food library *and* appended to this meal. |
+
+---
+
+## Tier 151 — Live feedback (2026-09-03)
+
+_Zepp screenshot confirm missing the vs-yesterday diffs that manual body-composition edit already shows._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#805](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/805) | 📋 Not started | Zepp screenshot confirm: show vs-yesterday diffs like manual body composition | Manual Body composition edit already shows #664 arrows under each field. The **From Zepp screenshot** confirm modal lists the five parsed values with no diffs. Reuse #664 helpers; respect the Settings comparison toggle. AutoSleep confirm out of scope. |
