@@ -455,6 +455,9 @@ export const en: Dictionary = {
     zeppScreenshotCloseLabel: 'Close',
     zeppScreenshotDateHint: (date) =>
       `This screenshot looks like ${date}. It will still save to the day you have open.`,
+    zeppScreenshotHelpLabel: 'About filling from a Zepp screenshot',
+    zeppScreenshotHelpText:
+      'Choose a screenshot from Zepp Life’s body composition or reached-goals screen. Check the numbers, then save — nothing is recorded until you confirm.',
     fillSleepFromScreenshotLabel: 'Fill from AutoSleep screenshot',
     autoSleepScreenshotDialogTitle: 'From AutoSleep screenshot',
     autoSleepScreenshotDialogDescription:
@@ -467,6 +470,9 @@ export const en: Dictionary = {
     autoSleepScreenshotCloseLabel: 'Close',
     autoSleepScreenshotDateHint: (date) =>
       `This screenshot looks like ${date}. It will still save to the day you have open.`,
+    autoSleepScreenshotHelpLabel: 'About filling from an AutoSleep screenshot',
+    autoSleepScreenshotHelpText:
+      'Choose a screenshot from AutoSleep (Today or History). Check the hours, then save — nothing is recorded until you confirm.',
     entryComparisonComparedToYesterday: (arrow, amount) =>
       `${arrow} ${amount} compared to yesterday`,
     entryComparisonComparedToDate: (arrow, amount, dateLabel) =>
@@ -1683,6 +1689,7 @@ export const en: Dictionary = {
           'Log sleep, steps, water, and mood alongside your weight',
           'Create number, yes/no, or five-point custom metrics for anything else that matters to you',
           'Optional menstrual cycle and digestion tracking — off by default, and never shown unless you turn it on',
+          'Fill sleep from an AutoSleep screenshot, or body composition from a Zepp Life screenshot — tap the image icon on Day, then confirm the numbers before they are saved',
         ],
       },
       {

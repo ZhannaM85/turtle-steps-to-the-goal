@@ -791,6 +791,9 @@ export interface Dictionary {
     zeppScreenshotSaveLabel: string
     zeppScreenshotCloseLabel: string
     zeppScreenshotDateHint: (date: string) => string
+    /** #806 — ⓘ next to the Zepp ImageUp on Day. */
+    zeppScreenshotHelpLabel: string
+    zeppScreenshotHelpText: string
     /** #748 — fill sleep + deep sleep from an AutoSleep screenshot. */
     fillSleepFromScreenshotLabel: string
     autoSleepScreenshotDialogTitle: string
@@ -801,6 +804,9 @@ export interface Dictionary {
     autoSleepScreenshotSaveLabel: string
     autoSleepScreenshotCloseLabel: string
     autoSleepScreenshotDateHint: (date: string) => string
+    /** #806 — ⓘ next to the AutoSleep ImageUp on Day. */
+    autoSleepScreenshotHelpLabel: string
+    autoSleepScreenshotHelpText: string
     /**
      * #664 — live arrow + short text under an input while editing, and the
      * post-save ⓘ tooltip. `amount` already includes the signed magnitude

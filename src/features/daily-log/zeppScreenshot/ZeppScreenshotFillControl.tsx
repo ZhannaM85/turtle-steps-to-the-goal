@@ -10,6 +10,7 @@ import {
 import { useEntryFieldComparisonBaselines } from '@/shared/hooks'
 import { parseNumberInput } from '@/shared/lib/parseNumberInput'
 import { Button } from '@/shared/ui/button'
+import { InfoTooltip } from '@/shared/ui/info-tooltip'
 import { useTrackedFieldsStore } from '@/stores'
 import {
   Dialog,
@@ -173,15 +174,21 @@ export function ZeppScreenshotFillControl({
           void handleFile(file)
         }}
       />
-      <Button
-        type="button"
-        variant="ghost"
-        size="icon-xl"
-        aria-label={t.dailyEntry.fillBodyCompositionFromScreenshotLabel}
-        onClick={() => fileInputRef.current?.click()}
-      >
-        <ImageUp aria-hidden="true" />
-      </Button>
+      <div className="flex items-center gap-1">
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon-xl"
+          aria-label={t.dailyEntry.fillBodyCompositionFromScreenshotLabel}
+          onClick={() => fileInputRef.current?.click()}
+        >
+          <ImageUp aria-hidden="true" />
+        </Button>
+        <InfoTooltip
+          text={t.dailyEntry.zeppScreenshotHelpText}
+          label={t.dailyEntry.zeppScreenshotHelpLabel}
+        />
+      </div>
       <Dialog
         open={open}
         onOpenChange={(next) => {

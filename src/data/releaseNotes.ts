@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 767,
+    issue: 806,
+    date: '2026-09-03T13:45:00+03:00',
+    en: 'Sleep and Body composition screenshot buttons now have a short explanation, and Features describes what to upload.',
+    ru: 'У кнопок скриншота для сна и состава тела появилось короткое пояснение, а в «Возможностях» написано, что загружать.',
+  },
+  {
     version: 766,
     issue: 805,
     date: '2026-09-03T13:30:00+03:00',

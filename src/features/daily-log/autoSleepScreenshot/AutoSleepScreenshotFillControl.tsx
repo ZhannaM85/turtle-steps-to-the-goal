@@ -6,6 +6,7 @@ import {
   splitHoursMinutes,
 } from '@/shared/lib/sleepDuration'
 import { Button } from '@/shared/ui/button'
+import { InfoTooltip } from '@/shared/ui/info-tooltip'
 import { Input } from '@/shared/ui/input'
 import { Label } from '@/shared/ui/label'
 import { useTrackedFieldsStore } from '@/stores'
@@ -166,15 +167,21 @@ export function AutoSleepScreenshotFillControl({
           void handleFile(file)
         }}
       />
-      <Button
-        type="button"
-        variant="ghost"
-        size="icon-xl"
-        aria-label={t.dailyEntry.fillSleepFromScreenshotLabel}
-        onClick={() => fileInputRef.current?.click()}
-      >
-        <ImageUp aria-hidden="true" />
-      </Button>
+      <div className="flex items-center gap-1">
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon-xl"
+          aria-label={t.dailyEntry.fillSleepFromScreenshotLabel}
+          onClick={() => fileInputRef.current?.click()}
+        >
+          <ImageUp aria-hidden="true" />
+        </Button>
+        <InfoTooltip
+          text={t.dailyEntry.autoSleepScreenshotHelpText}
+          label={t.dailyEntry.autoSleepScreenshotHelpLabel}
+        />
+      </div>
       <Dialog
         open={open}
         onOpenChange={(next) => {

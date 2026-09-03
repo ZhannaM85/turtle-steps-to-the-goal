@@ -474,6 +474,9 @@ export const ru: Dictionary = {
     zeppScreenshotCloseLabel: 'Закрыть',
     zeppScreenshotDateHint: (date) =>
       `На скриншоте дата ${date}. Сохранится на тот день, который сейчас открыт.`,
+    zeppScreenshotHelpLabel: 'О заполнении из скриншота Zepp',
+    zeppScreenshotHelpText:
+      'Выберите скриншот состава тела или достигнутых целей из Zepp Life. Проверьте цифры и сохраните — ничего не запишется, пока вы не подтвердите.',
     fillSleepFromScreenshotLabel: 'Заполнить из скриншота AutoSleep',
     autoSleepScreenshotDialogTitle: 'Из скриншота AutoSleep',
     autoSleepScreenshotDialogDescription:
@@ -486,6 +489,9 @@ export const ru: Dictionary = {
     autoSleepScreenshotCloseLabel: 'Закрыть',
     autoSleepScreenshotDateHint: (date) =>
       `На скриншоте дата ${date}. Сохранится на тот день, который сейчас открыт.`,
+    autoSleepScreenshotHelpLabel: 'О заполнении из скриншота AutoSleep',
+    autoSleepScreenshotHelpText:
+      'Выберите скриншот AutoSleep (Today или History). Проверьте часы и сохраните — ничего не запишется, пока вы не подтвердите.',
     entryComparisonComparedToYesterday: (arrow, amount) =>
       `${arrow} ${amount} по сравнению со вчера`,
     entryComparisonComparedToDate: (arrow, amount, dateLabel) =>
@@ -1722,6 +1728,7 @@ export const ru: Dictionary = {
           'Записывайте сон, шаги, воду и настроение вместе с весом',
           'Создавайте числовые, логические или пятибалльные метрики для всего остального, что важно именно вам',
           'Опциональное отслеживание менструального цикла и пищеварения — по умолчанию выключено и не показывается, пока вы сами не включите',
+          'Заполняйте сон из скриншота AutoSleep, а состав тела — из скриншота Zepp Life: нажмите значок изображения на экране «День» и подтвердите цифры, прежде чем они сохранятся',
         ],
       },
       {

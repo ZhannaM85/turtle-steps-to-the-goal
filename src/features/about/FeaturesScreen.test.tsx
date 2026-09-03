@@ -48,6 +48,9 @@ describe('FeaturesScreen', () => {
     expect(
       screen.getByText(/Zepp Life, Apple Health, or MyFitnessPal/),
     ).toBeInTheDocument()
+    expect(
+      screen.getByText(/Fill sleep from an AutoSleep screenshot/),
+    ).toBeInTheDocument()
   })
 
   it('shows a screenshot for every category (#497)', () => {

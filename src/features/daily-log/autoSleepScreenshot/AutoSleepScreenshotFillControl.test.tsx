@@ -108,5 +108,29 @@ describe('AutoSleepScreenshotFillControl', () => {
         name: 'Fill from AutoSleep screenshot',
       }),
     ).not.toBeInTheDocument()
+    expect(
+      screen.queryByRole('button', {
+        name: 'About filling from an AutoSleep screenshot',
+      }),
+    ).not.toBeInTheDocument()
+  })
+
+  it('explains what screenshot to upload (#806)', async () => {
+    const user = userEvent.setup()
+    render(
+      <AutoSleepScreenshotFillControl
+        asOfDate="2026-08-17"
+        onConfirm={vi.fn()}
+      />,
+    )
+
+    await user.click(
+      screen.getByRole('button', {
+        name: 'About filling from an AutoSleep screenshot',
+      }),
+    )
+    expect(
+      await screen.findByText(/screenshot from AutoSleep \(Today or History\)/),
+    ).toBeInTheDocument()
   })
 })
