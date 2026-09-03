@@ -217,7 +217,7 @@ export function DailyEntryFormMorning() {
                     <Button
                       type="button"
                       variant="ghost"
-                      size="icon-xl"
+                      size="icon-sm"
                       aria-label={t.dailyEntry.editWeightLabel}
                       onClick={() => state.setIsEditingWeight(true)}
                     >
@@ -227,7 +227,7 @@ export function DailyEntryFormMorning() {
                       <Button
                         type="button"
                         variant="ghost"
-                        size="icon-xl"
+                        size="icon-sm"
                         aria-label={t.dailyEntry.deleteWeightLabel}
                         onClick={state.requestDeleteWeight}
                       >
@@ -408,7 +408,7 @@ export function DailyEntryFormMorning() {
                       <Button
                         type="button"
                         variant="ghost"
-                        size="icon-xl"
+                        size="icon-sm"
                         aria-label={t.dailyEntry.editSleepLabel}
                         onClick={() => {
                           const parts = splitHoursMinutes(state.sleepHours)
@@ -428,7 +428,7 @@ export function DailyEntryFormMorning() {
                         <Button
                           type="button"
                           variant="ghost"
-                          size="icon-xl"
+                          size="icon-sm"
                           aria-label={t.dailyEntry.deleteSleepLabel}
                           onClick={state.requestDeleteSleep}
                         >
@@ -456,10 +456,12 @@ export function DailyEntryFormMorning() {
                     <span className="text-sm font-medium">
                       {t.dailyEntry.sleepLabel}
                     </span>
-                    <AutoSleepScreenshotFillControl
-                      asOfDate={state.date}
-                      onConfirm={state.applySleepPatch}
-                    />
+                    <div className="flex shrink-0 items-center gap-1">
+                      <AutoSleepScreenshotFillControl
+                        asOfDate={state.date}
+                        onConfirm={state.applySleepPatch}
+                      />
+                    </div>
                   </div>
                   <div className="flex flex-wrap items-end gap-3">
                     <div className="flex flex-col gap-1">
@@ -839,7 +841,7 @@ export function DailyEntryFormMorning() {
                       <Button
                         type="button"
                         variant="ghost"
-                        size="icon-xl"
+                        size="icon-sm"
                         aria-label={t.dailyEntry.editBodyCompositionLabel}
                         onClick={() =>
                           state.setIsEditingBodyComposition(true)
@@ -851,7 +853,7 @@ export function DailyEntryFormMorning() {
                         <Button
                           type="button"
                           variant="ghost"
-                          size="icon-xl"
+                          size="icon-sm"
                           aria-label={t.dailyEntry.deleteBodyCompositionLabel}
                           onClick={state.requestDeleteBodyComposition}
                         >
@@ -901,7 +903,7 @@ export function DailyEntryFormMorning() {
                         <Button
                           type="button"
                           variant="ghost"
-                          size="icon-xl"
+                          size="icon-sm"
                           aria-label={t.dailyEntry.deleteBodyCompositionLabel}
                           onClick={state.requestDeleteBodyComposition}
                         >

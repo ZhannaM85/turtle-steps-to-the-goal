@@ -40,4 +40,4 @@ _Day header icon spacing after screenshot-fill ⓘ._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#807](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/807) | 🔍 Pending validation | Day: unify header icon spacing (edit/trash vs info) | Title-row / meal-card icon clusters (Weight, Sleep, Body composition, Body measurements, meal cards) use `gap-1` to match ⓘ / ImageUp+ⓘ. Input+save rows stay `gap-3`. |
+| [#807](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/807) | 🔍 Pending validation | Day: unify header icon spacing (edit/trash vs info) | Title-row ImageUp / ⓘ / pencil / trash are one `gap-1` row of `icon-sm` (ⓘ `size-7`). Screenshot fill no longer nests a second flex. In-card Save/Cancel stay `icon-xl`. |

@@ -167,21 +167,23 @@ export function AutoSleepScreenshotFillControl({
           void handleFile(file)
         }}
       />
-      <div className="flex items-center gap-1">
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon-xl"
-          aria-label={t.dailyEntry.fillSleepFromScreenshotLabel}
-          onClick={() => fileInputRef.current?.click()}
-        >
-          <ImageUp aria-hidden="true" />
-        </Button>
-        <InfoTooltip
-          text={t.dailyEntry.autoSleepScreenshotHelpText}
-          label={t.dailyEntry.autoSleepScreenshotHelpLabel}
-        />
-      </div>
+      {/* #807 — no inner flex wrapper: ImageUp + ⓘ must be siblings of
+       * pencil/trash in the title-row `gap-1` cluster. Same `icon-sm`
+       * box as those buttons so ⓘ isn’t a 16px control next to 48px ones. */}
+      <Button
+        type="button"
+        variant="ghost"
+        size="icon-sm"
+        aria-label={t.dailyEntry.fillSleepFromScreenshotLabel}
+        onClick={() => fileInputRef.current?.click()}
+      >
+        <ImageUp aria-hidden="true" />
+      </Button>
+      <InfoTooltip
+        text={t.dailyEntry.autoSleepScreenshotHelpText}
+        label={t.dailyEntry.autoSleepScreenshotHelpLabel}
+        className="size-7"
+      />
       <Dialog
         open={open}
         onOpenChange={(next) => {
