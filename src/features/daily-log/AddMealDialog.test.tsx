@@ -876,6 +876,10 @@ describe('AddMealDialog (#454)', () => {
         { name: 'Save' },
         { timeout: 20000 },
       )
+      expect(saveButton).toBeInTheDocument()
+      expect(
+        screen.queryByRole('heading', { name: 'Scan barcode' }),
+      ).not.toBeInTheDocument()
       expect(screen.getByDisplayValue('Protein Bar')).toBeInTheDocument()
       // #645 — a personal-library hit opens in perPortion mode (its own
       // last-logged total, no rate math needed) — so the kcal field here
@@ -1003,6 +1007,11 @@ describe('AddMealDialog (#454)', () => {
         ),
       ).toBeInTheDocument()
       expect(screen.getByLabelText('Dish name')).toHaveValue('')
+      // #808 — scanner must be gone before Add dish auto-focuses, otherwise
+      // two stacked fullscreen dialogs put the caret off the letters.
+      expect(
+        screen.queryByRole('heading', { name: 'Scan barcode' }),
+      ).not.toBeInTheDocument()
       // #519 — pending scan code is visible on the Add food sheet.
       expect(screen.getByText('Barcode: 0 000000 000000')).toBeInTheDocument()
     })

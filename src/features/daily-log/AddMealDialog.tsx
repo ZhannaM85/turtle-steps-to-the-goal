@@ -449,6 +449,12 @@ export function AddMealDialog({
   // #518 — barcode from a not-found / Open Food Facts scan, held until the
   // food is saved so touch(..., barcode) can make the next scan a local hit.
   const [pendingBarcode, setPendingBarcode] = useState<string | null>(null)
+  // #808 — scanner still mounted when Add dish opened (lookup ran, then
+  // `setIsManualOpen(true)`, then the scanner's `finally` closed). Two
+  // stacked fullscreen dialogs + auto-focus left the caret off the
+  // letters until blur/refocus. Queue the editor until the scanner
+  // actually unmounts.
+  const pendingManualOpenAfterBarcodeRef = useRef(false)
   // #459 — non-null while the manual-entry sheet is editing an
   // already-added item (tapped from "This meal so far") rather than
   // building a brand-new one; changes what saveManualDraft() does on Save.
@@ -579,7 +585,13 @@ export function AddMealDialog({
    * barcode's MealItem in place. */
   function openPickedItemSheet(
     item: PickableItem,
-    options?: { brandOverride?: string; barcodeOverride?: string },
+    options?: {
+      brandOverride?: string
+      barcodeOverride?: string
+      /** #808 — barcode path: seed the draft now, open the sheet after
+       * the scanner unmounts so the two fullscreen dialogs never stack. */
+      deferOpen?: boolean
+    },
   ) {
     setEditingItemId(null)
     setBarcodeNotFoundMessage(false)
@@ -702,6 +714,10 @@ export function AddMealDialog({
         setManualDraft(draft)
       }
     }
+    if (options?.deferOpen) {
+      pendingManualOpenAfterBarcodeRef.current = true
+      return
+    }
     setIsManualOpen(true)
   }
 
@@ -754,7 +770,10 @@ export function AddMealDialog({
       }
       // #788 — keep the scanned code on save so a renamed title updates
       // this MealItem in place instead of creating a barcode-less duplicate.
-      openPickedItemSheet(item, { barcodeOverride: barcode })
+      openPickedItemSheet(item, {
+        barcodeOverride: barcode,
+        deferOpen: true,
+      })
     } else if (result.source === 'openFoodFacts') {
       // Not a catalog/personal-library item yet — represented as a
       // one-off synthetic food so the same confirm step (which only knows
@@ -773,7 +792,11 @@ export function AddMealDialog({
       })
       openPickedItemSheet(
         { source: 'food', food: syntheticFood },
-        { brandOverride: result.brand, barcodeOverride: barcode },
+        {
+          brandOverride: result.brand,
+          barcodeOverride: barcode,
+          deferOpen: true,
+        },
       )
     } else {
       // #518 — keep the scanned code through manual create so the next
@@ -782,7 +805,8 @@ export function AddMealDialog({
       setIsConfirmingPick(false)
       setPendingBarcode(barcode)
       setBarcodeNotFoundMessage(true)
-      setIsManualOpen(true)
+      // #808 — open after the scanner unmounts, not while it is still up.
+      pendingManualOpenAfterBarcodeRef.current = true
     }
   }
 
@@ -1912,7 +1936,13 @@ export function AddMealDialog({
         {isBarcodeOpen && (
           <BarcodeScannerDialog
             open={isBarcodeOpen}
-            onOpenChange={setIsBarcodeOpen}
+            onOpenChange={(open) => {
+              setIsBarcodeOpen(open)
+              if (!open && pendingManualOpenAfterBarcodeRef.current) {
+                pendingManualOpenAfterBarcodeRef.current = false
+                setIsManualOpen(true)
+              }
+            }}
             onScanned={handleScanned}
           />
         )}

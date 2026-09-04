@@ -145,5 +145,6 @@ describe('MealNoteAutocomplete (#86)', () => {
     expect(input).toHaveAttribute('autocomplete', 'off')
     expect(input).toHaveAttribute('name', 'item-editor-dish-title')
     expect(input.getAttribute('name')).not.toMatch(/^name$/i)
+    expect(input).toHaveAttribute('role', 'combobox')
   })
 })

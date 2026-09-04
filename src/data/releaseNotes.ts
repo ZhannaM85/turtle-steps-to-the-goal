@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 770,
+    issue: 808,
+    date: '2026-09-04T19:20:00+03:00',
+    en: 'After a barcode miss, Add dish should open only once the scanner is gone, so the cursor sits on the letters you type.',
+    ru: 'Если штрихкод не найден, «Добавить блюдо» открывается уже без сканера, чтобы курсор стоял на буквах.',
+  },
+  {
     version: 769,
     issue: 808,
     date: '2026-09-04T18:50:00+03:00',

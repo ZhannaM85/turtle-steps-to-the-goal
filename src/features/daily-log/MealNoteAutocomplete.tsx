@@ -67,6 +67,12 @@ export function MealNoteAutocomplete({
         id={listInputId}
         name={listInputId}
         type="text"
+        // #739 / #808 — combobox (not a plain name field) so iOS is less
+        // likely to offer Contact AutoFill, which paints the caret off
+        // the typed letters. id/name stay off the word "name".
+        role="combobox"
+        aria-autocomplete="list"
+        aria-expanded={isOpen}
         autoComplete="off"
         autoCorrect="off"
         autoCapitalize="sentences"
