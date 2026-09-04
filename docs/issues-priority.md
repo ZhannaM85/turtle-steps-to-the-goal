@@ -33,13 +33,3 @@ _User asked about pulling data from Apple Health and Zepp Life. Researched via W
 | [#334](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/334) | 📋 Not started | Epic — Apple Health integration (blocked on mobile app + HealthKit bridge) | HealthKit has no public/cloud API at all — data is on-device only, readable exclusively by a native iOS app (or hybrid app with a HealthKit plugin/entitlement) the user has granted permission to. Genuinely blocked until the mobile app exists; can't be built sooner by any workaround. |
 
 ---
-
-## Tier 152 — Live feedback (2026-09-04)
-
-_Add dish caret misaligned (quantity, then after barcode scanner)._
-
-| # | Status | Issue | Notes |
-|---|--------|-------|-------|
-| [#808](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/808) | 🔍 Pending validation | Add dish: caret sometimes misaligned in quantity field | Reopened 2026-09-04 — still happens when Add dish opens after a barcode miss. Scanner now unmounts before the editor; dish field is a combobox so iOS is less likely to Contact-AutoFill. |
-
----
