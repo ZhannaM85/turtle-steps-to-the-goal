@@ -468,3 +468,13 @@ _Zepp screenshot confirm diffs; screenshot-fill icons need a discoverable explan
 | [#805](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/805) | ✅ Done | Zepp screenshot confirm: show vs-yesterday diffs like manual body composition | Confirmed on-device 2026-09-03 — vs-yesterday arrows under each parsed field in the Zepp confirm dialog. |
 | [#806](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/806) | ✅ Done | Screenshot-fill icons: explain what to upload (info or Capabilities) | Confirmed on-device 2026-09-03 — ⓘ next to each ImageUp plus a Daily logging item on Features. |
 | [#807](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/807) | ✅ Done | Day: unify header icon spacing (edit/trash vs info) | Confirmed on-device 2026-09-03 — title-row screenshot / ⓘ / edit / trash share one tight gap. |
+
+---
+
+## Tier 152 — Live feedback (2026-09-04)
+
+_Add dish quantity field caret sometimes misaligned._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#808](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/808) | ✅ Done | Add dish: caret sometimes misaligned in quantity field | Closed 2026-09-04 without on-device confirmation at the user's request — intermittent, cannot check on a device right now. Reopen if the caret still floats below the digits. |
