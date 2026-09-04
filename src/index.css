@@ -560,6 +560,37 @@ html body[data-scroll-locked] {
   @apply rounded-lg border border-border;
 }
 
+/*
+ * #808 — opacity-only open/close for fullscreen DialogContent.
+ * tw-animate `animate-in` always interpolates `transform` in its enter
+ * keyframes (even when scale/translate stay at identity). Blink/WebKit
+ * then paint the text caret against that transformed box, so a leftover
+ * compositing layer leaves the caret floating below the digits until
+ * blur/refocus.
+ */
+@keyframes dialog-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes dialog-fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+@utility dialog-fade-in {
+  animation: dialog-fade-in 150ms ease-out both;
+}
+@utility dialog-fade-out {
+  animation: dialog-fade-out 150ms ease-in both;
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

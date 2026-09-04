@@ -40,6 +40,6 @@ _Add dish quantity field caret sometimes misaligned._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#808](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/808) | 📋 Not started | Add dish: caret sometimes misaligned in quantity field | Intermittent: caret floats below the digits on × 100 г; blur/refocus usually fixes. Screenshot on the issue. |
+| [#808](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/808) | 🔍 Pending validation | Add dish: caret sometimes misaligned in quantity field | Intermittent: caret floats below the digits on × 100 г; blur/refocus usually fixes. Screenshot on the issue. `Input` `py-0`/`leading-normal`; fullscreen sheets fade without transform (`dialog-fade-*`). |
 
 ---

@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 769,
+    issue: 808,
+    date: '2026-09-04T18:50:00+03:00',
+    en: 'The cursor in Add dish quantity fields should sit on the digits, not float below them.',
+    ru: 'Курсор в поле количества на «Добавить блюдо» должен стоять на цифрах, а не висеть ниже.',
+  },
+  {
     version: 768,
     issue: 807,
     date: '2026-09-03T15:10:00+03:00',
