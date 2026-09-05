@@ -40,6 +40,6 @@ _Day date-navigator height regression._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#809](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/809) | 📋 Not started | Day: date input shorter than arrows/Today button (regression of #647) | Reported live on iOS with screenshots. Native date input in the Day date-navigator is shorter than the flanking arrows (and the Today button when visible). Previously fixed in #420 (same-row-same-height), then #647 (Chromium height override vs unconstrained WebKit), with #725 keeping the Day WebKit exception. Root cause not yet investigated. |
+| [#809](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/809) | 🔍 Pending validation | Day: date input shorter than arrows/Today button (regression of #647) | #808’s Input `py-0` (caret alignment) shrank WebKit’s unconstrained native date height below the 42px arrows. Restored `py-1` on this field only; #647 engine gate unchanged (no explicit height on WebKit). Awaiting on-device confirmation. |
 
 ---

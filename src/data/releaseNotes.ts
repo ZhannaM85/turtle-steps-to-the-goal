@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 771,
+    issue: 809,
+    date: '2026-09-05T21:40:00+03:00',
+    en: 'The date field on the Day screen should match the height of the arrows beside it again.',
+    ru: 'Поле даты на экране «День» снова должно совпадать по высоте со стрелками рядом.',
+  },
+  {
     version: 770,
     issue: 808,
     date: '2026-09-04T19:20:00+03:00',

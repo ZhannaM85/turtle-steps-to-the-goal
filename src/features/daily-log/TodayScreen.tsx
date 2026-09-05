@@ -1115,7 +1115,14 @@ export function TodayScreen() {
            * confirmed above) gets the override; WebKit (Safari desktop,
            * and every iOS browser, all WebKit-based regardless of UA)
            * stays fully unconstrained, matching the state already
-           * confirmed working pre-#647. */}
+           * confirmed working pre-#647.
+           * #809: #808 set Input to `py-0` (caret alignment on typed
+           * fields). WebKit still ignores a plain height on this native
+           * date control, so that padding cut shrank the unconstrained
+           * box below the 42px arrows/Today button. Restore `py-1` on
+           * this field only — do not put an explicit height back on
+           * WebKit (#647's second attempt already proved that makes the
+           * input taller than the buttons). */}
           <Input
             id="log-date"
             ref={debug465DateRef}
@@ -1124,7 +1131,9 @@ export function TodayScreen() {
             max={maxNavigableDate}
             onChange={(e) => setDate(e.target.value)}
             className={
-              isWebKitEngine ? 'max-w-48' : 'max-w-48 h-[2.625rem]'
+              isWebKitEngine
+                ? 'max-w-48 py-1'
+                : 'max-w-48 h-[2.625rem] py-1'
             }
           />
           {/* Capped at today+1 by default (#138: logging a future day isn't

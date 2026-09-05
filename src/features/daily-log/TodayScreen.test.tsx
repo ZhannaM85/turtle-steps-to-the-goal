@@ -2000,6 +2000,11 @@ describe('TodayScreen', () => {
         'h-[2.625rem]',
       )
     })
+
+    it('keeps pre-#808 padding on the Date input so WebKit height still matches the arrows (#809)', async () => {
+      renderToday()
+      expect(await screen.findByLabelText('Date')).toHaveClass('py-1')
+    })
   })
 
   describe('dismissible insight sections (#232)', () => {
