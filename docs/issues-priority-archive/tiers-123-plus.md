@@ -478,3 +478,13 @@ _Add dish caret misaligned (quantity, then after barcode scanner)._
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#808](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/808) | ✅ Done | Add dish: caret sometimes misaligned in quantity field | Closed 2026-09-04 without on-device confirmation — intermittent; user asked to close for now. Reopen if the caret still sits off the letters. |
+
+---
+
+## Tier 153 — Live feedback (2026-09-05)
+
+_Day date-navigator height regression._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#809](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/809) | ✅ Done | Day: date input shorter than arrows/Today button (regression of #647) | Confirmed on-device 2026-09-05 — date field matches the arrows/Today button again after restoring `py-1` on that field. |
