@@ -2326,7 +2326,13 @@ describe('TodayScreen', () => {
         </MemoryRouter>,
       )
 
+      // Date lives in the sticky navigator even while the form is still
+      // "Loading…" — wait for the form itself (#809 CI: this assertion
+      // raced under full-suite load).
       await screen.findByLabelText('Date')
+      await waitFor(() => {
+        expect(screen.queryAllByText('Loading…')).toHaveLength(0)
+      })
       expect(
         screen
           .getAllByText('Steps')
