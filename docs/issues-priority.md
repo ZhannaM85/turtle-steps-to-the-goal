@@ -33,3 +33,13 @@ _User asked about pulling data from Apple Health and Zepp Life. Researched via W
 | [#334](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/334) | 📋 Not started | Epic — Apple Health integration (blocked on mobile app + HealthKit bridge) | HealthKit has no public/cloud API at all — data is on-device only, readable exclusively by a native iOS app (or hybrid app with a HealthKit plugin/entitlement) the user has granted permission to. Genuinely blocked until the mobile app exists; can't be built sooner by any workaround. |
 
 ---
+
+## Tier 153 — Live feedback (2026-09-05)
+
+_Day date-navigator height regression._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#809](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/809) | 📋 Not started | Day: date input shorter than arrows/Today button (regression of #647) | Reported live on iOS with screenshots. Native date input in the Day date-navigator is shorter than the flanking arrows (and the Today button when visible). Previously fixed in #420 (same-row-same-height), then #647 (Chromium height override vs unconstrained WebKit), with #725 keeping the Day WebKit exception. Root cause not yet investigated. |
+
+---
