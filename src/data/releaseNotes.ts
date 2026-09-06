@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 775,
+    issue: 813,
+    date: '2026-09-06T20:20:00+03:00',
+    en: 'Most eaten recently can rank dishes by calorie share as well as by how often you logged them.',
+    ru: '«Чаще всего недавно» можно сортировать и по доле калорий, и по числу записей.',
+  },
+  {
     version: 774,
     issue: 812,
     date: '2026-09-06T20:10:00+03:00',

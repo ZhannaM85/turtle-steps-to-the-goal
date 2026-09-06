@@ -45,14 +45,14 @@ describe('foodFrequency (#812)', () => {
     ])
   })
 
-  it('ranks by times logged, ties broken by name', () => {
+  it('ranks by summed kcal when asked (#813)', () => {
     const entries = [
-      entry('2026-09-01', [item('Banana', 90), item('Apple', 80)]),
-      entry('2026-09-02', [item('Banana', 90)]),
+      entry('2026-09-01', [item('Milk', 50), item('Milk', 50)]),
+      entry('2026-09-02', [item('Napoleon', 400)]),
     ]
-    expect(mostEatenFoods(entries).map((row) => row.name)).toEqual([
-      'Banana',
-      'Apple',
+    expect(mostEatenFoods(entries, 'kcal').map((row) => row.name)).toEqual([
+      'Napoleon',
+      'Milk',
     ])
   })
 })

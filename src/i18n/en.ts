@@ -1112,6 +1112,10 @@ export const en: Dictionary = {
     mostEatenTitle: 'Most eaten recently',
     mostEatenDescription:
       'Dishes you logged most often in the last 7 and 30 days — not a weight correlation.',
+    mostEatenModeGroupLabel: 'Rank by',
+    mostEatenCountModeLabel: 'Count',
+    mostEatenKcalModeLabel: 'kcal',
+    mostEatenKcalValue: (kcal, percent) => `${kcal} kcal (${percent}%)`,
     customChartTitle: 'Compare your data',
     customChartWeightLabel: 'Weight',
     customChartCaloriesLabel: 'Calories',

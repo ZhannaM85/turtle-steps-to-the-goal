@@ -1147,6 +1147,10 @@ export const ru: Dictionary = {
     mostEatenTitle: 'Чаще всего недавно',
     mostEatenDescription:
       'Блюда, которые вы записывали чаще всего за последние 7 и 30 дней — не корреляция с весом.',
+    mostEatenModeGroupLabel: 'Сортировка',
+    mostEatenCountModeLabel: 'Раз',
+    mostEatenKcalModeLabel: 'ккал',
+    mostEatenKcalValue: (kcal, percent) => `${kcal} ккал (${percent}%)`,
     customChartTitle: 'Сравнение данных',
     customChartWeightLabel: 'Вес',
     customChartCaloriesLabel: 'Калории',

@@ -1723,6 +1723,10 @@ export interface Dictionary {
     /** #812 — ranked dishes by times logged in last 7 / 30 days. */
     mostEatenTitle: string
     mostEatenDescription: string
+    mostEatenModeGroupLabel: string
+    mostEatenCountModeLabel: string
+    mostEatenKcalModeLabel: string
+    mostEatenKcalValue: (kcal: string, percent: number) => string
     /** Customizable multi-series chart (#132) — checkboxes toggle which
      * series overlay on one chart. Weight/Calories/Fasting hours get their
      * own Title-case labels here since dailyEntry's weightLegend/

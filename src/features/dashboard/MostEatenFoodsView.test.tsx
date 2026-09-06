@@ -77,4 +77,24 @@ describe('MostEatenFoodsView (#812)', () => {
     expect(screen.queryByText('Milk')).not.toBeInTheDocument()
     expect(screen.getByText(title)).toBeInTheDocument()
   })
+
+  it('ranks by kcal share when kcal is selected (#813)', async () => {
+    const user = userEvent.setup()
+    render(
+      <MostEatenFoodsView
+        entries={[
+          entry(todayIso(), [
+            item('Milk', 50),
+            item('Milk', 50),
+            item('Napoleon', 400),
+          ]),
+        ]}
+      />,
+    )
+    await user.click(screen.getByRole('radio', { name: 'kcal' }))
+    const napoleonRows = screen.getAllByText('Napoleon')
+    expect(napoleonRows.length).toBeGreaterThan(0)
+    expect(screen.getAllByText('400 kcal (80%)').length).toBeGreaterThan(0)
+    expect(screen.getAllByText('100 kcal (20%)').length).toBeGreaterThan(0)
+  })
 })

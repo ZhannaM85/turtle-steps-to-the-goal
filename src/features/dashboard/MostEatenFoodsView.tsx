@@ -1,11 +1,14 @@
-import type { ReactNode } from 'react'
+import { useState, type ReactNode } from 'react'
 import type { DailyEntry } from '@/domain/dailyEntry'
 import {
   effectiveDateFor,
   entriesInRecentWindow,
+  foodFrequencyTallies,
   mostEatenFoods,
+  type FoodFrequencyRankBy,
 } from '@/domain/stats'
-import { useTranslation } from '@/i18n'
+import { formatNumber, useLocale, useTranslation } from '@/i18n'
+import { ToggleGroup, ToggleGroupItem } from '@/shared/ui/toggle-group'
 import { useDashboardChartVisibilityStore, useDayStartStore } from '@/stores'
 import { ChartTitleWithToggle } from './ChartTitleWithToggle'
 import { EmptyDashboardSection } from './EmptyDashboardSection'
@@ -19,25 +22,34 @@ export interface MostEatenFoodsViewProps {
 const WINDOWS = [7, 30] as const
 
 /**
- * Which named dishes showed up most often in the last 7 / 30 days (#812).
- * Not a correlation — a frequency ranking, same rolling windows as
- * Recent averages. Grouped by trimmed dish name.
+ * Which named dishes showed up most often in the last 7 / 30 days (#812),
+ * with a Count | kcal toggle (#813). Not a correlation.
  */
 export function MostEatenFoodsView({
   entries,
   dragHandle,
 }: MostEatenFoodsViewProps) {
   const t = useTranslation()
+  const locale = useLocale()
+  const [rankBy, setRankBy] = useState<FoodFrequencyRankBy>('count')
   const dayStartTime = useDayStartStore((state) => state.dayStartTime)
   const today = effectiveDateFor(new Date(), dayStartTime)
   const cardVisible = useDashboardChartVisibilityStore(
     (state) => state.visible.mostEatenRecently,
   )
 
-  const windows = WINDOWS.map((windowDays) => ({
-    windowDays,
-    foods: mostEatenFoods(entriesInRecentWindow(entries, windowDays, today)),
-  }))
+  const windows = WINDOWS.map((windowDays) => {
+    const inWindow = entriesInRecentWindow(entries, windowDays, today)
+    const namedKcalTotal = foodFrequencyTallies(inWindow).reduce(
+      (sum, row) => sum + row.kcal,
+      0,
+    )
+    return {
+      windowDays,
+      namedKcalTotal,
+      foods: mostEatenFoods(inWindow, rankBy),
+    }
+  })
   const hasRows = windows.some((w) => w.foods.length > 0)
 
   if (!hasRows) {
@@ -70,6 +82,22 @@ export function MostEatenFoodsView({
       <p className="text-sm text-muted-foreground">
         {t.dashboard.mostEatenDescription}
       </p>
+      <ToggleGroup
+        type="single"
+        aria-label={t.dashboard.mostEatenModeGroupLabel}
+        value={rankBy}
+        onValueChange={(value) => {
+          if (value === 'count' || value === 'kcal') setRankBy(value)
+        }}
+        className="w-fit flex-wrap"
+      >
+        <ToggleGroupItem value="count">
+          {t.dashboard.mostEatenCountModeLabel}
+        </ToggleGroupItem>
+        <ToggleGroupItem value="kcal">
+          {t.dashboard.mostEatenKcalModeLabel}
+        </ToggleGroupItem>
+      </ToggleGroup>
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         {windows.map((w) => (
           <RankingList
@@ -82,7 +110,15 @@ export function MostEatenFoodsView({
             rows={w.foods.map((food) => ({
               key: food.name,
               label: food.name,
-              value: String(food.count),
+              value:
+                rankBy === 'kcal'
+                  ? t.dashboard.mostEatenKcalValue(
+                      formatNumber(food.kcal, locale, 0),
+                      w.namedKcalTotal > 0
+                        ? Math.round((food.kcal / w.namedKcalTotal) * 100)
+                        : 0,
+                    )
+                  : String(food.count),
             }))}
           />
         ))}
