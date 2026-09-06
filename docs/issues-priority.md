@@ -36,7 +36,7 @@ _User asked about pulling data from Apple Health and Zepp Life. Researched via W
 
 ## Tier 154 — Live feedback (2026-09-06)
 
-_Meal name templates in Settings; Dashboard descriptive leaderboards (most-eaten, eating reasons, meal names, time-of-day)._
+_Meal name templates in Settings; Dashboard descriptive leaderboards (most-eaten, eating reasons, meal names, time-of-day). #817 is leftover English defaults after #811._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
@@ -47,5 +47,6 @@ _Meal name templates in Settings; Dashboard descriptive leaderboards (most-eaten
 | [#814](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/814) | 🔍 Pending validation | Dashboard: eating-reasons tally (last 7 / 30 days) | `EatingReasonsTallyView` — ranked counts; multi-pick increments each reason. Hidden when eating-reason tracking is off. |
 | [#815](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/815) | 🔍 Pending validation | Dashboard: when meals happened (time-of-day buckets) | Four buckets (morning 05:00–11:59, afternoon 12:00–16:59, evening 17:00–22:59, night 23:00–04:59). Untimed meals noted, not bucketed. Distinct from #116 / #383. |
 | [#816](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/816) | 🔍 Pending validation | Dashboard: meal-name frequency recently (last 7 / 30 days) | Ranked via `effectiveMealLabel` (custom label or positional Breakfast/Lunch/…). Distinct from #812 (dishes) and #338 (meal count vs weight). |
+| [#817](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/817) | 📋 Not started | Settings: leftover English meal-name templates should follow the UI language | One-time replace of stored Breakfast/Lunch/Snack/Dinner with locale names (Завтрак/Обед/Перекус/Ужин). Leave custom names. No rewrite on every language switch (#110 / #142). |
 
 ---
