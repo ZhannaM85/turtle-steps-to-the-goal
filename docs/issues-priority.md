@@ -36,12 +36,16 @@ _User asked about pulling data from Apple Health and Zepp Life. Researched via W
 
 ## Tier 154 — Live feedback (2026-09-06)
 
-_Meal name templates in Settings; plus a Dashboard most-eaten-recently card._
+_Meal name templates in Settings; Dashboard descriptive leaderboards (most-eaten, eating reasons, meal names, time-of-day)._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#810](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/810) | 📋 Not started | Settings: disable meal-name template Add until the field has text | «Добавить» looks enabled next to empty «Добавить шаблон». Submit already no-ops on blank; disable until non-whitespace, same as other add-rows. |
 | [#811](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/811) | 📋 Not started | Settings: meal-name templates should be editable | List only has trash, unlike dishes above (pencil + trash). English Breakfast/Lunch/Snack/Dinner are stored literals from when they were added — not live i18n; language switch does not rewrite them (#110/#142). Editing (and optionally replacing the four known English defaults with current-locale names) is the fix. |
-| [#812](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/812) | 📋 Not started | Dashboard: most-eaten-recently leaderboard (not a correlation) | Ranked top 5–10 dishes by times logged in last 7 / 30 days (same rolling windows as Recent averages). Group by trimmed dish name; hideable card near Food reactions, not in the correlation list. Distinct from #338 (meal count vs weight) and #128 (liked/disliked). |
+| [#812](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/812) | 📋 Not started | Dashboard: most-eaten-recently leaderboard (not a correlation) | Ranked top 5–10 dishes by times logged in last 7 / 30 days (same rolling windows as Recent averages). Group by trimmed dish name; hideable card near Food reactions, not in the correlation list. Distinct from #338 (meal count vs weight) and #128 (liked/disliked). kcal-share toggle is #813. |
+| [#813](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/813) | 📋 Not started | Dashboard: Count \| kcal toggle on most-eaten-recently card | Same card as #812. Count = times reached for; kcal = summed amountKcal (+ optional % of named-item kcal). dayTotals have no names — leave them out. Implement with or right after #812. |
+| [#814](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/814) | 📋 Not started | Dashboard: eating-reasons tally (last 7 / 30 days) | Ranked why-meals-happened counts; multi-pick (#774) increments each selected reason. Card only when eating-reason tracking is on. Not a correlation. |
+| [#815](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/815) | 📋 Not started | Dashboard: when meals happened (time-of-day buckets) | Four buckets (morning / afternoon / evening / night), last 7 / 30 days. Skip meals with no timeEaten. Night starts at 23:00 (#410). Distinct from #116 / #383 (timing vs weight). |
+| [#816](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/816) | 📋 Not started | Dashboard: meal-name frequency recently (last 7 / 30 days) | Ranked Breakfast/Lunch/Snack/Dinner (or custom labels) by how often they appeared. Count via effectiveMealLabel. Distinct from #812 (dishes) and #338 (meal count vs weight). |
 
 ---
