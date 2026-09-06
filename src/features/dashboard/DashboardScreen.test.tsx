@@ -385,7 +385,14 @@ describe('DashboardScreen', () => {
 
     render(<DashboardScreen />, { wrapper: MemoryRouter })
 
-    expect(await screen.findByText('Recent averages')).toBeInTheDocument()
-    expect(screen.getByText('Last 7 days')).toBeInTheDocument()
+    const recentAveragesHeading = await screen.findByText('Recent averages')
+    const recentAveragesSection = recentAveragesHeading.closest(
+      '.section-shell',
+    ) as HTMLElement
+    // #816 — meal-name (and sibling) leaderboards also label columns
+    // "Last 7 days"; keep this assertion on the Recent averages card.
+    expect(
+      within(recentAveragesSection).getByText('Last 7 days'),
+    ).toBeInTheDocument()
   })
 })
