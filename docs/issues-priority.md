@@ -36,11 +36,12 @@ _User asked about pulling data from Apple Health and Zepp Life. Researched via W
 
 ## Tier 154 — Live feedback (2026-09-06)
 
-_Meal name templates in Settings: Add enabled while empty; saved presets not editable (and leftover English names)._
+_Meal name templates in Settings; plus a Dashboard most-eaten-recently card._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#810](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/810) | 📋 Not started | Settings: disable meal-name template Add until the field has text | «Добавить» looks enabled next to empty «Добавить шаблон». Submit already no-ops on blank; disable until non-whitespace, same as other add-rows. |
 | [#811](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/811) | 📋 Not started | Settings: meal-name templates should be editable | List only has trash, unlike dishes above (pencil + trash). English Breakfast/Lunch/Snack/Dinner are stored literals from when they were added — not live i18n; language switch does not rewrite them (#110/#142). Editing (and optionally replacing the four known English defaults with current-locale names) is the fix. |
+| [#812](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/812) | 📋 Not started | Dashboard: most-eaten-recently leaderboard (not a correlation) | Ranked top 5–10 dishes by times logged in last 7 / 30 days (same rolling windows as Recent averages). Group by trimmed dish name; hideable card near Food reactions, not in the correlation list. Distinct from #338 (meal count vs weight) and #128 (liked/disliked). |
 
 ---
