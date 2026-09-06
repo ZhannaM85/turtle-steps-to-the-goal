@@ -57,6 +57,34 @@ export function editableMealLabel(
   return text !== undefined ? text : defaultMealLabel(t, position)
 }
 
+/**
+ * #817 — leftover English built-in templates (Breakfast/Lunch/Dinner/Snack)
+ * become the active locale's names. Custom names are unchanged. If the
+ * translated name is already in the list, the English leftover is dropped
+ * instead of duplicating. English locale is a no-op so this is not a
+ * rewrite on every language switch (#110 / #142).
+ */
+export function localizeLeftoverEnglishMealPresets(
+  presets: readonly string[],
+  locale: Locale,
+): string[] {
+  if (locale === 'en') return [...presets]
+  const englishNames = getDictionary('en').dailyEntry.defaultMealNamePresets
+  const localeNames = getDictionary(locale).dailyEntry.defaultMealNamePresets
+  const byEnglish = new Map(
+    englishNames.map((name, index) => [name, localeNames[index] ?? name]),
+  )
+  const result: string[] = []
+  const seen = new Set<string>()
+  for (const preset of presets) {
+    const next = byEnglish.get(preset) ?? preset
+    if (seen.has(next)) continue
+    seen.add(next)
+    result.push(next)
+  }
+  return result
+}
+
 /** Built-in Breakfast/Lunch/… names in every locale — used to hide
  * other-locale defaults from Add-meal chips (#567). */
 export function allLocaleDefaultMealNames(): Set<string> {

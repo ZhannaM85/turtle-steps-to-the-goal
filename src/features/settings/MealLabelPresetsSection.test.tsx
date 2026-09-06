@@ -158,4 +158,26 @@ describe('MealLabelPresetsSection', () => {
       screen.getByRole('button', { name: 'Добавить «Обед»' }),
     ).toBeInTheDocument()
   })
+
+  it('replaces leftover English defaults with the active locale (#817)', async () => {
+    useMealLabelPresetStore.setState({
+      presets: ['Breakfast', 'Lunch', 'Snack', 'Dinner', 'Ночная еда'],
+    })
+    useLocaleStore.setState({ locale: 'ru' })
+    render(<MealLabelPresetsSection />)
+
+    expect(await screen.findByText('Завтрак')).toBeInTheDocument()
+    expect(screen.getByText('Обед')).toBeInTheDocument()
+    expect(screen.getByText('Перекус')).toBeInTheDocument()
+    expect(screen.getByText('Ужин')).toBeInTheDocument()
+    expect(screen.getByText('Ночная еда')).toBeInTheDocument()
+    expect(screen.queryByText('Breakfast')).not.toBeInTheDocument()
+    expect(useMealLabelPresetStore.getState().presets).toEqual([
+      'Завтрак',
+      'Обед',
+      'Перекус',
+      'Ужин',
+      'Ночная еда',
+    ])
+  })
 })

@@ -1,6 +1,7 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Check, Pencil, Trash2 } from 'lucide-react'
-import { getDictionary, useTranslation, type Locale } from '@/i18n'
+import { getDictionary, useLocale, useTranslation, type Locale } from '@/i18n'
+import { localizeLeftoverEnglishMealPresets } from '@/shared/lib/mealLabel'
 import { useMealLabelPresetStore } from '@/stores'
 import { Button } from '@/shared/ui/button'
 import { Input } from '@/shared/ui/input'
@@ -9,6 +10,7 @@ const ALL_LOCALES: Locale[] = ['en', 'ru']
 
 export function MealLabelPresetsSection() {
   const t = useTranslation()
+  const locale = useLocale()
   const presets = useMealLabelPresetStore((state) => state.presets)
   const addPreset = useMealLabelPresetStore((state) => state.addPreset)
   const renamePreset = useMealLabelPresetStore((state) => state.renamePreset)
@@ -16,6 +18,17 @@ export function MealLabelPresetsSection() {
   const [newPreset, setNewPreset] = useState('')
   const [editingPreset, setEditingPreset] = useState<string | null>(null)
   const [editDraft, setEditDraft] = useState('')
+
+  useEffect(() => {
+    const next = localizeLeftoverEnglishMealPresets(presets, locale)
+    if (
+      next.length === presets.length &&
+      next.every((name, index) => name === presets[index])
+    ) {
+      return
+    }
+    useMealLabelPresetStore.setState({ presets: next })
+  }, [locale, presets])
 
   function submitNewPreset() {
     if (!newPreset.trim()) return

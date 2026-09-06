@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 779,
+    issue: 817,
+    date: '2026-09-06T21:35:00+03:00',
+    en: 'Leftover English meal-name templates (Breakfast, Lunch, and the others) are renamed to match the language you use in the app. Names you wrote yourself stay as they are.',
+    ru: 'Старые английские шаблоны названий приёма пищи (Breakfast, Lunch и остальные) переименовываются на язык приложения. Свои названия не меняются.',
+  },
+  {
     version: 778,
     issue: 816,
     date: '2026-09-06T20:50:00+03:00',

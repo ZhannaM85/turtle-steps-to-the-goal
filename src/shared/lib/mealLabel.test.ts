@@ -5,6 +5,7 @@ import {
   editableMealLabel,
   effectiveMealLabel,
   effectiveTimeEaten,
+  localizeLeftoverEnglishMealPresets,
   mealLabelSuggestionsForLocale,
   sortCalorieEntriesByLoggedTime,
 } from './mealLabel'
@@ -38,6 +39,23 @@ describe('mealLabel helpers', () => {
     expect(
       mealLabelSuggestionsForLocale(en, ['Завтрак', 'Snack', 'Brunch']),
     ).toEqual(['Breakfast', 'Lunch', 'Dinner', 'Snack', 'Brunch'])
+  })
+
+  it('localizeLeftoverEnglishMealPresets rewrites English built-ins only (#817)', () => {
+    expect(
+      localizeLeftoverEnglishMealPresets(
+        ['Breakfast', 'Lunch', 'Snack', 'Dinner', 'Ночная еда'],
+        'ru',
+      ),
+    ).toEqual(['Завтрак', 'Обед', 'Перекус', 'Ужин', 'Ночная еда'])
+
+    expect(
+      localizeLeftoverEnglishMealPresets(['Breakfast', 'Завтрак', 'Brunch'], 'ru'),
+    ).toEqual(['Завтрак', 'Brunch'])
+
+    expect(
+      localizeLeftoverEnglishMealPresets(['Breakfast', 'Brunch'], 'en'),
+    ).toEqual(['Breakfast', 'Brunch'])
   })
 
   it('defaultTimeEatenForMealLabel maps known slots including MFP Snacks (#580)', () => {
