@@ -1727,6 +1727,9 @@ export interface Dictionary {
     mostEatenCountModeLabel: string
     mostEatenKcalModeLabel: string
     mostEatenKcalValue: (kcal: string, percent: number) => string
+    /** #814 — ranked eating reasons in last 7 / 30 days. */
+    eatingReasonsTallyTitle: string
+    eatingReasonsTallyDescription: string
     /** Customizable multi-series chart (#132) — checkboxes toggle which
      * series overlay on one chart. Weight/Calories/Fasting hours get their
      * own Title-case labels here since dailyEntry's weightLegend/

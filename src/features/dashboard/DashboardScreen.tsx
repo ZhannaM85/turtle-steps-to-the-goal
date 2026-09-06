@@ -40,6 +40,7 @@ import { CustomCorrelationView } from './CustomCorrelationView'
 import { FastingWindowCorrelationView } from './FastingWindowCorrelationView'
 import { FoodReactionsView } from './FoodReactionsView'
 import { MostEatenFoodsView } from './MostEatenFoodsView'
+import { EatingReasonsTallyView } from './EatingReasonsTallyView'
 import { LateMealCorrelationView } from './LateMealCorrelationView'
 import { MealFrequencyCorrelationView } from './MealFrequencyCorrelationView'
 import { MacroTrendChart } from './MacroTrendChart'
@@ -225,6 +226,9 @@ export function DashboardScreen() {
     ),
     mostEatenRecently: (dragHandle) => (
       <MostEatenFoodsView entries={entries} dragHandle={dragHandle} />
+    ),
+    eatingReasonsTally: (dragHandle) => (
+      <EatingReasonsTallyView entries={entries} dragHandle={dragHandle} />
     ),
     loggingConsistency: (dragHandle) => (
       <LoggingConsistencyHeatmap entries={entries} dragHandle={dragHandle} />

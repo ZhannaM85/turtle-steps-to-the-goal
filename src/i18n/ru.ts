@@ -1151,6 +1151,9 @@ export const ru: Dictionary = {
     mostEatenCountModeLabel: 'Раз',
     mostEatenKcalModeLabel: 'ккал',
     mostEatenKcalValue: (kcal, percent) => `${kcal} ккал (${percent}%)`,
+    eatingReasonsTallyTitle: 'Почему недавно были приёмы пищи',
+    eatingReasonsTallyDescription:
+      'Как часто выбиралась каждая причина за последние 7 и 30 дней — не корреляция с весом.',
     customChartTitle: 'Сравнение данных',
     customChartWeightLabel: 'Вес',
     customChartCaloriesLabel: 'Калории',
@@ -1769,6 +1772,7 @@ export const ru: Dictionary = {
           'Создайте свой график сравнения любых двух отслеживаемых показателей',
           'Меняйте порядок разделов Дашборда так, как удобно вам',
           'Смотрите, какие блюда вы записывали чаще всего за последние 7 и 30 дней',
+          'Смотрите, какие причины приёмов пищи встречались чаще всего',
         ],
       },
       {

@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 776,
+    issue: 814,
+    date: '2026-09-06T20:30:00+03:00',
+    en: 'Overview can show which eating reasons came up most often in the last 7 and 30 days.',
+    ru: 'На обзоре можно увидеть, какие причины приёмов пищи встречались чаще всего за последние 7 и 30 дней.',
+  },
+  {
     version: 775,
     issue: 813,
     date: '2026-09-06T20:20:00+03:00',

@@ -139,6 +139,8 @@ export { foodReactionTallies, mostLikedFoods, mostDislikedFoods } from './foodRe
 export type { FoodReactionTally } from './foodReactions'
 export { foodFrequencyTallies, mostEatenFoods } from './foodFrequency'
 export type { FoodFrequencyTally, FoodFrequencyRankBy } from './foodFrequency'
+export { eatingReasonTallies } from './eatingReasonFrequency'
+export type { EatingReasonTally } from './eatingReasonFrequency'
 export {
   customChartPoints,
   booleanFlagDates,

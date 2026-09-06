@@ -1116,6 +1116,9 @@ export const en: Dictionary = {
     mostEatenCountModeLabel: 'Count',
     mostEatenKcalModeLabel: 'kcal',
     mostEatenKcalValue: (kcal, percent) => `${kcal} kcal (${percent}%)`,
+    eatingReasonsTallyTitle: 'Why meals happened recently',
+    eatingReasonsTallyDescription:
+      'How often each reason was picked in the last 7 and 30 days — not a weight correlation.',
     customChartTitle: 'Compare your data',
     customChartWeightLabel: 'Weight',
     customChartCaloriesLabel: 'Calories',
@@ -1730,6 +1733,7 @@ export const en: Dictionary = {
           'Build your own comparison chart from any two tracked metrics',
           "Reorder the Dashboard's sections to match what matters to you",
           'See which dishes you logged most often in the last 7 and 30 days',
+          'See which eating reasons came up most often recently',
         ],
       },
       {
