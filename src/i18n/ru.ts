@@ -1154,6 +1154,15 @@ export const ru: Dictionary = {
     eatingReasonsTallyTitle: 'Почему недавно были приёмы пищи',
     eatingReasonsTallyDescription:
       'Как часто выбиралась каждая причина за последние 7 и 30 дней — не корреляция с весом.',
+    mealTimeBucketsTitle: 'Когда были приёмы пищи',
+    mealTimeBucketsDescription:
+      'Приёмы пищи по времени суток за последние 7 и 30 дней — не корреляция с весом.',
+    mealTimeBucketMorning: 'Утро',
+    mealTimeBucketAfternoon: 'День',
+    mealTimeBucketEvening: 'Вечер',
+    mealTimeBucketNight: 'Ночь',
+    mealTimeBucketsMissingTime: (n) =>
+      `У ${n} ${ruPluralize(n, 'приёма', 'приёмов', 'приёмов')} пищи не указано время.`,
     customChartTitle: 'Сравнение данных',
     customChartWeightLabel: 'Вес',
     customChartCaloriesLabel: 'Калории',
@@ -1773,6 +1782,7 @@ export const ru: Dictionary = {
           'Меняйте порядок разделов Дашборда так, как удобно вам',
           'Смотрите, какие блюда вы записывали чаще всего за последние 7 и 30 дней',
           'Смотрите, какие причины приёмов пищи встречались чаще всего',
+          'Смотрите, когда были приёмы пищи: утро, день, вечер, ночь',
         ],
       },
       {

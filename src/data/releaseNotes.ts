@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 777,
+    issue: 815,
+    date: '2026-09-06T20:40:00+03:00',
+    en: 'Overview can show when meals happened — morning, afternoon, evening, or night — in the last 7 and 30 days.',
+    ru: 'На обзоре можно увидеть, когда были приёмы пищи — утро, день, вечер или ночь — за последние 7 и 30 дней.',
+  },
+  {
     version: 776,
     issue: 814,
     date: '2026-09-06T20:30:00+03:00',

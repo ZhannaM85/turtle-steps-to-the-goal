@@ -41,6 +41,7 @@ import { FastingWindowCorrelationView } from './FastingWindowCorrelationView'
 import { FoodReactionsView } from './FoodReactionsView'
 import { MostEatenFoodsView } from './MostEatenFoodsView'
 import { EatingReasonsTallyView } from './EatingReasonsTallyView'
+import { MealTimeBucketsView } from './MealTimeBucketsView'
 import { LateMealCorrelationView } from './LateMealCorrelationView'
 import { MealFrequencyCorrelationView } from './MealFrequencyCorrelationView'
 import { MacroTrendChart } from './MacroTrendChart'
@@ -229,6 +230,9 @@ export function DashboardScreen() {
     ),
     eatingReasonsTally: (dragHandle) => (
       <EatingReasonsTallyView entries={entries} dragHandle={dragHandle} />
+    ),
+    mealTimeBuckets: (dragHandle) => (
+      <MealTimeBucketsView entries={entries} dragHandle={dragHandle} />
     ),
     loggingConsistency: (dragHandle) => (
       <LoggingConsistencyHeatmap entries={entries} dragHandle={dragHandle} />

@@ -1119,6 +1119,15 @@ export const en: Dictionary = {
     eatingReasonsTallyTitle: 'Why meals happened recently',
     eatingReasonsTallyDescription:
       'How often each reason was picked in the last 7 and 30 days — not a weight correlation.',
+    mealTimeBucketsTitle: 'When meals happened',
+    mealTimeBucketsDescription:
+      'Meals by time of day in the last 7 and 30 days — not a weight correlation.',
+    mealTimeBucketMorning: 'Morning',
+    mealTimeBucketAfternoon: 'Afternoon',
+    mealTimeBucketEvening: 'Evening',
+    mealTimeBucketNight: 'Night',
+    mealTimeBucketsMissingTime: (n) =>
+      `${n} meal${n === 1 ? '' : 's'} had no time logged.`,
     customChartTitle: 'Compare your data',
     customChartWeightLabel: 'Weight',
     customChartCaloriesLabel: 'Calories',
@@ -1734,6 +1743,7 @@ export const en: Dictionary = {
           "Reorder the Dashboard's sections to match what matters to you",
           'See which dishes you logged most often in the last 7 and 30 days',
           'See which eating reasons came up most often recently',
+          'See when meals clustered: morning, afternoon, evening, night',
         ],
       },
       {

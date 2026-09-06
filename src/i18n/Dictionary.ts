@@ -1730,6 +1730,14 @@ export interface Dictionary {
     /** #814 — ranked eating reasons in last 7 / 30 days. */
     eatingReasonsTallyTitle: string
     eatingReasonsTallyDescription: string
+    /** #815 — meals by morning/afternoon/evening/night. */
+    mealTimeBucketsTitle: string
+    mealTimeBucketsDescription: string
+    mealTimeBucketMorning: string
+    mealTimeBucketAfternoon: string
+    mealTimeBucketEvening: string
+    mealTimeBucketNight: string
+    mealTimeBucketsMissingTime: (n: number) => string
     /** Customizable multi-series chart (#132) — checkboxes toggle which
      * series overlay on one chart. Weight/Calories/Fasting hours get their
      * own Title-case labels here since dailyEntry's weightLegend/

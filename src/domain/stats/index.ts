@@ -142,6 +142,17 @@ export type { FoodFrequencyTally, FoodFrequencyRankBy } from './foodFrequency'
 export { eatingReasonTallies } from './eatingReasonFrequency'
 export type { EatingReasonTally } from './eatingReasonFrequency'
 export {
+  mealTimeBucket,
+  mealTimeBucketTallies,
+  hasTimedMeal,
+  MEAL_TIME_BUCKETS,
+} from './mealTimeBuckets'
+export type {
+  MealTimeBucket,
+  MealTimeBucketTally,
+  MealTimeBucketResult,
+} from './mealTimeBuckets'
+export {
   customChartPoints,
   booleanFlagDates,
   booleanFlagMarkers,
