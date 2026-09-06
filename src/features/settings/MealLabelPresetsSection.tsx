@@ -82,6 +82,7 @@ export function MealLabelPresetsSection() {
           type="button"
           variant="outline"
           size="sm"
+          disabled={!newPreset.trim()}
           onClick={submitNewPreset}
         >
           {t.dailyEntry.addButton}

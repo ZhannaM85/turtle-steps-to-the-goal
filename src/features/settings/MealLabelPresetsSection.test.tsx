@@ -30,6 +30,20 @@ describe('MealLabelPresetsSection', () => {
     expect(screen.getByText('Lunch')).toBeInTheDocument()
   })
 
+  it('disables Add until the field has non-whitespace text (#810)', async () => {
+    const user = userEvent.setup()
+    render(<MealLabelPresetsSection />)
+
+    const addButton = screen.getByRole('button', { name: 'Add' })
+    expect(addButton).toBeDisabled()
+
+    await user.type(screen.getByLabelText('Add a preset'), '   ')
+    expect(addButton).toBeDisabled()
+
+    await user.type(screen.getByLabelText('Add a preset'), 'Brunch')
+    expect(addButton).toBeEnabled()
+  })
+
   it('adds a new preset via the input and button', async () => {
     const user = userEvent.setup()
     render(<MealLabelPresetsSection />)

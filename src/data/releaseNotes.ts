@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 772,
+    issue: 810,
+    date: '2026-09-06T19:50:00+03:00',
+    en: 'The Add button for meal name templates stays off until you type a name.',
+    ru: 'Кнопка «Добавить» для шаблонов названий приёма пищи неактивна, пока поле пустое.',
+  },
+  {
     version: 771,
     issue: 809,
     date: '2026-09-05T21:40:00+03:00',
