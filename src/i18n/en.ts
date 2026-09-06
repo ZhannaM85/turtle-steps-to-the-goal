@@ -1323,6 +1323,8 @@ export const en: Dictionary = {
     addPresetPlaceholder: 'Add a preset',
     addDefaultPresetLabel: (name) => `Add "${name}"`,
     deletePresetLabel: (name) => `Delete "${name}"`,
+    editPresetLabel: (name) => `Edit "${name}"`,
+    savePresetLabel: (name) => `Save "${name}"`,
     releaseNotesLabel: 'Release notes',
     showReleaseNotes: 'Show release notes',
     hideReleaseNotes: 'Hide release notes',

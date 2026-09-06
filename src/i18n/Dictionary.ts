@@ -1988,6 +1988,9 @@ export interface Dictionary {
     addPresetPlaceholder: string
     addDefaultPresetLabel: (name: string) => string
     deletePresetLabel: (name: string) => string
+    /** #811 — rename a saved meal-name preset in Settings. */
+    editPresetLabel: (name: string) => string
+    savePresetLabel: (name: string) => string
     releaseNotesLabel: string
     showReleaseNotes: string
     hideReleaseNotes: string

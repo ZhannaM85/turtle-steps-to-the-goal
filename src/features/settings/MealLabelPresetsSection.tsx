@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Trash2 } from 'lucide-react'
+import { Check, Pencil, Trash2 } from 'lucide-react'
 import { getDictionary, useTranslation, type Locale } from '@/i18n'
 import { useMealLabelPresetStore } from '@/stores'
 import { Button } from '@/shared/ui/button'
@@ -11,13 +11,27 @@ export function MealLabelPresetsSection() {
   const t = useTranslation()
   const presets = useMealLabelPresetStore((state) => state.presets)
   const addPreset = useMealLabelPresetStore((state) => state.addPreset)
+  const renamePreset = useMealLabelPresetStore((state) => state.renamePreset)
   const removePreset = useMealLabelPresetStore((state) => state.removePreset)
   const [newPreset, setNewPreset] = useState('')
+  const [editingPreset, setEditingPreset] = useState<string | null>(null)
+  const [editDraft, setEditDraft] = useState('')
 
   function submitNewPreset() {
     if (!newPreset.trim()) return
     addPreset(newPreset)
     setNewPreset('')
+  }
+
+  function startEdit(preset: string) {
+    setEditingPreset(preset)
+    setEditDraft(preset)
+  }
+
+  function commitEdit(from: string) {
+    if (!editDraft.trim()) return
+    renamePreset(from, editDraft)
+    setEditingPreset(null)
   }
 
   // Built-in suggestions are offered as one-click adds rather than
@@ -49,16 +63,61 @@ export function MealLabelPresetsSection() {
         <ul className="flex flex-col gap-2">
           {presets.map((preset) => (
             <li key={preset} className="flex items-center gap-2">
-              <span className="flex-1 text-sm">{preset}</span>
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon-sm"
-                aria-label={t.settings.deletePresetLabel(preset)}
-                onClick={() => removePreset(preset)}
-              >
-                <Trash2 aria-hidden="true" />
-              </Button>
+              {editingPreset === preset ? (
+                <Input
+                  type="text"
+                  aria-label={t.settings.editPresetLabel(preset)}
+                  value={editDraft}
+                  onChange={(e) => setEditDraft(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault()
+                      commitEdit(preset)
+                    }
+                    if (e.key === 'Escape') {
+                      e.preventDefault()
+                      setEditingPreset(null)
+                    }
+                  }}
+                  className="h-8 flex-1"
+                />
+              ) : (
+                <span className="flex-1 text-sm">{preset}</span>
+              )}
+              <div className="flex shrink-0 items-center gap-1">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon-sm"
+                  aria-label={
+                    editingPreset === preset
+                      ? t.settings.savePresetLabel(preset)
+                      : t.settings.editPresetLabel(preset)
+                  }
+                  onClick={() => {
+                    if (editingPreset === preset) {
+                      commitEdit(preset)
+                      return
+                    }
+                    startEdit(preset)
+                  }}
+                >
+                  {editingPreset === preset ? (
+                    <Check aria-hidden="true" />
+                  ) : (
+                    <Pencil aria-hidden="true" />
+                  )}
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon-sm"
+                  aria-label={t.settings.deletePresetLabel(preset)}
+                  onClick={() => removePreset(preset)}
+                >
+                  <Trash2 aria-hidden="true" />
+                </Button>
+              </div>
             </li>
           ))}
         </ul>

@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 773,
+    issue: 811,
+    date: '2026-09-06T19:55:00+03:00',
+    en: 'Meal name templates in Settings can be renamed, not only deleted.',
+    ru: 'Шаблоны названий приёма пищи в настройках можно переименовать, а не только удалить.',
+  },
+  {
     version: 772,
     issue: 810,
     date: '2026-09-06T19:50:00+03:00',

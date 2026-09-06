@@ -14,6 +14,7 @@ import { createJSONStorage, persist } from 'zustand/middleware'
 interface MealLabelPresetStoreState {
   presets: string[]
   addPreset: (name: string) => void
+  renamePreset: (from: string, to: string) => void
   removePreset: (name: string) => void
 }
 
@@ -26,6 +27,17 @@ export const useMealLabelPresetStore = create<MealLabelPresetStoreState>()(
           const trimmed = name.trim()
           if (!trimmed || state.presets.includes(trimmed)) return state
           return { presets: [...state.presets, trimmed] }
+        }),
+      renamePreset: (from, to) =>
+        set((state) => {
+          const trimmed = to.trim()
+          if (!trimmed) return state
+          const index = state.presets.indexOf(from)
+          if (index === -1) return state
+          if (trimmed !== from && state.presets.includes(trimmed)) return state
+          const presets = [...state.presets]
+          presets[index] = trimmed
+          return { presets }
         }),
       removePreset: (name) =>
         set((state) => ({

@@ -1359,6 +1359,8 @@ export const ru: Dictionary = {
     addPresetPlaceholder: 'Добавить шаблон',
     addDefaultPresetLabel: (name) => `Добавить «${name}»`,
     deletePresetLabel: (name) => `Удалить «${name}»`,
+    editPresetLabel: (name) => `Изменить «${name}»`,
+    savePresetLabel: (name) => `Сохранить «${name}»`,
     releaseNotesLabel: 'История изменений',
     showReleaseNotes: 'Показать историю изменений',
     hideReleaseNotes: 'Скрыть историю изменений',

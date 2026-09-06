@@ -77,6 +77,60 @@ describe('MealLabelPresetsSection', () => {
     expect(useMealLabelPresetStore.getState().presets).toEqual([])
   })
 
+  it('renames a preset via the pencil (#811)', async () => {
+    useMealLabelPresetStore.setState({ presets: ['Breakfast'] })
+    const user = userEvent.setup()
+    render(<MealLabelPresetsSection />)
+
+    await user.click(screen.getByRole('button', { name: 'Edit "Breakfast"' }))
+    const input = screen.getByLabelText('Edit "Breakfast"')
+    await user.clear(input)
+    await user.type(input, 'Завтрак')
+    await user.click(screen.getByRole('button', { name: 'Save "Breakfast"' }))
+
+    expect(screen.getByText('Завтрак')).toBeInTheDocument()
+    expect(useMealLabelPresetStore.getState().presets).toEqual(['Завтрак'])
+  })
+
+  it('renames a preset on Enter and cancels on Escape (#811)', async () => {
+    useMealLabelPresetStore.setState({ presets: ['Lunch'] })
+    const user = userEvent.setup()
+    render(<MealLabelPresetsSection />)
+
+    await user.click(screen.getByRole('button', { name: 'Edit "Lunch"' }))
+    await user.type(screen.getByLabelText('Edit "Lunch"'), ' 2{Enter}')
+    expect(useMealLabelPresetStore.getState().presets).toEqual(['Lunch 2'])
+
+    await user.click(screen.getByRole('button', { name: 'Edit "Lunch 2"' }))
+    await user.type(screen.getByLabelText('Edit "Lunch 2"'), '{Escape}')
+    expect(useMealLabelPresetStore.getState().presets).toEqual(['Lunch 2'])
+    expect(screen.getByText('Lunch 2')).toBeInTheDocument()
+  })
+
+  it('does not rename onto a duplicate or empty name (#811)', async () => {
+    useMealLabelPresetStore.setState({ presets: ['Breakfast', 'Lunch'] })
+    const user = userEvent.setup()
+    render(<MealLabelPresetsSection />)
+
+    await user.click(screen.getByRole('button', { name: 'Edit "Breakfast"' }))
+    const input = screen.getByLabelText('Edit "Breakfast"')
+    await user.clear(input)
+    await user.type(input, 'Lunch')
+    await user.click(screen.getByRole('button', { name: 'Save "Breakfast"' }))
+    expect(useMealLabelPresetStore.getState().presets).toEqual([
+      'Breakfast',
+      'Lunch',
+    ])
+
+    await user.click(screen.getByRole('button', { name: 'Edit "Breakfast"' }))
+    await user.clear(screen.getByLabelText('Edit "Breakfast"'))
+    await user.click(screen.getByRole('button', { name: 'Save "Breakfast"' }))
+    expect(useMealLabelPresetStore.getState().presets).toEqual([
+      'Breakfast',
+      'Lunch',
+    ])
+  })
+
   it('offers built-in defaults as one-click adds', async () => {
     const user = userEvent.setup()
     render(<MealLabelPresetsSection />)
