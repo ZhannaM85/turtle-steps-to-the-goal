@@ -26,6 +26,7 @@ export type DashboardChartKey =
   | 'mostEatenRecently'
   | 'eatingReasonsTally'
   | 'mealTimeBuckets'
+  | 'mealNameFrequency'
   | 'loggingConsistency'
   | 'recentAverages'
   | 'weeklySummary'
@@ -52,6 +53,7 @@ const DEFAULT_VISIBLE: Record<DashboardChartKey, boolean> = {
   mostEatenRecently: true,
   eatingReasonsTally: true,
   mealTimeBuckets: true,
+  mealNameFrequency: true,
   loggingConsistency: true,
   recentAverages: true,
   weeklySummary: true,

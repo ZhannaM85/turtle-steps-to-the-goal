@@ -1738,6 +1738,9 @@ export interface Dictionary {
     mealTimeBucketEvening: string
     mealTimeBucketNight: string
     mealTimeBucketsMissingTime: (n: number) => string
+    /** #816 — meal slot names (Breakfast / Lunch / custom) recently. */
+    mealNameFrequencyTitle: string
+    mealNameFrequencyDescription: string
     /** Customizable multi-series chart (#132) — checkboxes toggle which
      * series overlay on one chart. Weight/Calories/Fasting hours get their
      * own Title-case labels here since dailyEntry's weightLegend/

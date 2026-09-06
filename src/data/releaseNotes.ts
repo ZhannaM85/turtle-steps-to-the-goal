@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 778,
+    issue: 816,
+    date: '2026-09-06T20:50:00+03:00',
+    en: 'Overview can show how often each meal name (Breakfast, Lunch, or a custom label) showed up in the last 7 and 30 days.',
+    ru: 'На обзоре можно увидеть, как часто встречалось каждое название приёма пищи за последние 7 и 30 дней.',
+  },
+  {
     version: 777,
     issue: 815,
     date: '2026-09-06T20:40:00+03:00',

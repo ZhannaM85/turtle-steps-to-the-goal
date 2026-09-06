@@ -1163,6 +1163,9 @@ export const ru: Dictionary = {
     mealTimeBucketNight: 'Ночь',
     mealTimeBucketsMissingTime: (n) =>
       `У ${n} ${ruPluralize(n, 'приёма', 'приёмов', 'приёмов')} пищи не указано время.`,
+    mealNameFrequencyTitle: 'Названия приёмов пищи недавно',
+    mealNameFrequencyDescription:
+      'Как часто встречалось каждое название приёма пищи за последние 7 и 30 дней — не рейтинг блюд.',
     customChartTitle: 'Сравнение данных',
     customChartWeightLabel: 'Вес',
     customChartCaloriesLabel: 'Калории',
@@ -1783,6 +1786,7 @@ export const ru: Dictionary = {
           'Смотрите, какие блюда вы записывали чаще всего за последние 7 и 30 дней',
           'Смотрите, какие причины приёмов пищи встречались чаще всего',
           'Смотрите, когда были приёмы пищи: утро, день, вечер, ночь',
+          'Смотрите, как часто встречалось каждое название приёма пищи',
         ],
       },
       {

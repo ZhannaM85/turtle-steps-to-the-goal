@@ -152,6 +152,8 @@ export type {
   MealTimeBucketTally,
   MealTimeBucketResult,
 } from './mealTimeBuckets'
+export { mealNameTallies } from './mealNameFrequency'
+export type { MealNameTally } from './mealNameFrequency'
 export {
   customChartPoints,
   booleanFlagDates,

@@ -1128,6 +1128,9 @@ export const en: Dictionary = {
     mealTimeBucketNight: 'Night',
     mealTimeBucketsMissingTime: (n) =>
       `${n} meal${n === 1 ? '' : 's'} had no time logged.`,
+    mealNameFrequencyTitle: 'Meal names recently',
+    mealNameFrequencyDescription:
+      'How often each meal name showed up in the last 7 and 30 days — not a dish ranking.',
     customChartTitle: 'Compare your data',
     customChartWeightLabel: 'Weight',
     customChartCaloriesLabel: 'Calories',
@@ -1744,6 +1747,7 @@ export const en: Dictionary = {
           'See which dishes you logged most often in the last 7 and 30 days',
           'See which eating reasons came up most often recently',
           'See when meals clustered: morning, afternoon, evening, night',
+          'See how often each meal name (Breakfast, Lunch, …) showed up recently',
         ],
       },
       {

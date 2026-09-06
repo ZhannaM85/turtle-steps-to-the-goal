@@ -42,6 +42,7 @@ import { FoodReactionsView } from './FoodReactionsView'
 import { MostEatenFoodsView } from './MostEatenFoodsView'
 import { EatingReasonsTallyView } from './EatingReasonsTallyView'
 import { MealTimeBucketsView } from './MealTimeBucketsView'
+import { MealNameFrequencyView } from './MealNameFrequencyView'
 import { LateMealCorrelationView } from './LateMealCorrelationView'
 import { MealFrequencyCorrelationView } from './MealFrequencyCorrelationView'
 import { MacroTrendChart } from './MacroTrendChart'
@@ -233,6 +234,9 @@ export function DashboardScreen() {
     ),
     mealTimeBuckets: (dragHandle) => (
       <MealTimeBucketsView entries={entries} dragHandle={dragHandle} />
+    ),
+    mealNameFrequency: (dragHandle) => (
+      <MealNameFrequencyView entries={entries} dragHandle={dragHandle} />
     ),
     loggingConsistency: (dragHandle) => (
       <LoggingConsistencyHeatmap entries={entries} dragHandle={dragHandle} />
