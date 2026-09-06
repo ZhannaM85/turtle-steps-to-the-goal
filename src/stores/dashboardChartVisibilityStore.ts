@@ -23,6 +23,7 @@ export type DashboardChartKey =
   | 'nightEatingCorrelation'
   | 'alcoholCorrelation'
   | 'foodReactions'
+  | 'mostEatenRecently'
   | 'loggingConsistency'
   | 'recentAverages'
   | 'weeklySummary'
@@ -46,6 +47,7 @@ const DEFAULT_VISIBLE: Record<DashboardChartKey, boolean> = {
   nightEatingCorrelation: true,
   alcoholCorrelation: true,
   foodReactions: true,
+  mostEatenRecently: true,
   loggingConsistency: true,
   recentAverages: true,
   weeklySummary: true,

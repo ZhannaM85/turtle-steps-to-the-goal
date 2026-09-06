@@ -1720,6 +1720,9 @@ export interface Dictionary {
     foodReactionsTitle: string
     mostLikedFoodsTitle: string
     mostDislikedFoodsTitle: string
+    /** #812 — ranked dishes by times logged in last 7 / 30 days. */
+    mostEatenTitle: string
+    mostEatenDescription: string
     /** Customizable multi-series chart (#132) — checkboxes toggle which
      * series overlay on one chart. Weight/Calories/Fasting hours get their
      * own Title-case labels here since dailyEntry's weightLegend/

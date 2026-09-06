@@ -33,6 +33,17 @@ export function recentAverageWindowRange(
   return { startDate, endDate }
 }
 
+export function entriesInRecentWindow(
+  entries: DailyEntry[],
+  windowDays: number,
+  today: Date = new Date(),
+): DailyEntry[] {
+  return entries.filter((entry) => {
+    const daysBefore = differenceInCalendarDays(today, parseISO(entry.date))
+    return daysBefore >= 0 && daysBefore < windowDays
+  })
+}
+
 /**
  * Averages calories/protein over the trailing `windowDays` days counting
  * back from `today` (inclusive) — anchored to the real current date, not
@@ -45,10 +56,7 @@ export function recentAverages(
   windowDays: number,
   today: Date = new Date(),
 ): RecentAverages {
-  const inWindow = entries.filter((entry) => {
-    const daysBefore = differenceInCalendarDays(today, parseISO(entry.date))
-    return daysBefore >= 0 && daysBefore < windowDays
-  })
+  const inWindow = entriesInRecentWindow(entries, windowDays, today)
 
   const calories = inWindow
     .map((entry) => totalCalories(entry.calorieEntries, entry.dayTotals))

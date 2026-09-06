@@ -8,7 +8,7 @@ export { monthlySummaries } from './monthlySummaries'
 export type { MonthlySummary } from './monthlySummaries'
 export { rollingAverage } from './rollingAverage'
 export type { NumericEntryField, RollingAveragePoint } from './rollingAverage'
-export { recentAverages, recentAverageWindowRange } from './recentAverages'
+export { recentAverages, recentAverageWindowRange, entriesInRecentWindow } from './recentAverages'
 export type {
   RecentAverages,
   RecentAverageWindowRange,
@@ -137,6 +137,8 @@ export {
 export type { ScatterZoomDomain } from './scatterGestureZoom'
 export { foodReactionTallies, mostLikedFoods, mostDislikedFoods } from './foodReactions'
 export type { FoodReactionTally } from './foodReactions'
+export { foodFrequencyTallies, mostEatenFoods } from './foodFrequency'
+export type { FoodFrequencyTally, FoodFrequencyRankBy } from './foodFrequency'
 export {
   customChartPoints,
   booleanFlagDates,

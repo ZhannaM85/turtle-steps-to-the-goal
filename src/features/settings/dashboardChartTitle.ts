@@ -39,6 +39,8 @@ export function dashboardChartTitle(
       return t.dashboard.alcoholCorrelationTitle
     case 'foodReactions':
       return t.dashboard.foodReactionsTitle
+    case 'mostEatenRecently':
+      return t.dashboard.mostEatenTitle
     case 'loggingConsistency':
       return t.dashboard.loggingConsistencyTitle
     case 'recentAverages':

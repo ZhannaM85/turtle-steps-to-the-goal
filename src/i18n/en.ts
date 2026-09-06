@@ -1109,6 +1109,9 @@ export const en: Dictionary = {
     foodReactionsTitle: 'Food reactions',
     mostLikedFoodsTitle: 'Most liked',
     mostDislikedFoodsTitle: 'Most disliked',
+    mostEatenTitle: 'Most eaten recently',
+    mostEatenDescription:
+      'Dishes you logged most often in the last 7 and 30 days — not a weight correlation.',
     customChartTitle: 'Compare your data',
     customChartWeightLabel: 'Weight',
     customChartCaloriesLabel: 'Calories',
@@ -1722,6 +1725,7 @@ export const en: Dictionary = {
           'Track waist, hip, body fat, muscle mass, visceral fat, body water, and bone mass over time',
           'Build your own comparison chart from any two tracked metrics',
           "Reorder the Dashboard's sections to match what matters to you",
+          'See which dishes you logged most often in the last 7 and 30 days',
         ],
       },
       {
