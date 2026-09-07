@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import {
   defaultDailyLogStem,
   exportPeriodFileStamp,
+  exportPeriodForPreset,
   resolveExportFileStem,
 } from './exportPeriodFileStamp'
 
@@ -46,5 +47,23 @@ describe('resolveExportFileStem (#821)', () => {
 
   it('keeps a custom stem and strips an extension', () => {
     expect(resolveExportFileStem('my-week.csv', '', '', today)).toBe('my-week')
+  })
+})
+
+describe('exportPeriodForPreset (#819)', () => {
+  it('fills week / month / year / all from today', () => {
+    expect(exportPeriodForPreset('week', today, 1)).toEqual({
+      start: '2026-09-07',
+      end: '2026-09-13',
+    })
+    expect(exportPeriodForPreset('month', today)).toEqual({
+      start: '2026-09-01',
+      end: '2026-09-30',
+    })
+    expect(exportPeriodForPreset('year', today)).toEqual({
+      start: '2026-01-01',
+      end: '2026-12-31',
+    })
+    expect(exportPeriodForPreset('all', today)).toEqual({ start: '', end: '' })
   })
 })

@@ -1186,6 +1186,11 @@ export interface Dictionary {
     exportPeriodLabel: string
     exportPeriodDescription: string
     exportFileNameLabel: string
+    exportRangeWeek: string
+    exportRangeMonth: string
+    exportRangeYear: string
+    exportRangeAll: string
+    exportRangeCustom: string
     /** #370 — reverses #240's original "JSON backup always stays complete"
      * decision: a second, clearly separate button below the period picker,
      * not the same button becoming range-aware. */

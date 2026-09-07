@@ -19,13 +19,14 @@ import {
   useWeekStartStore,
 } from '@/stores'
 import { Button } from '@/shared/ui/button'
+import { Input } from '@/shared/ui/input'
+import { ToggleGroup, ToggleGroupItem } from '@/shared/ui/toggle-group'
 import {
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
 } from '@/shared/ui/card'
-import { Input } from '@/shared/ui/input'
 import { InfoTooltip } from '@/shared/ui/info-tooltip'
 import { daysSince } from '@/shared/lib/lastBackupReminder'
 import { resolveWeekStartsOn } from '@/shared/lib/resolveWeekStartsOn'
@@ -45,7 +46,12 @@ import {
   parseExportBundle,
 } from './exportActions'
 import { buildDailyLogCsv, CSV_BOM } from './exportCsv'
-import { exportPeriodFileStamp, resolveExportFileStem } from './exportPeriodFileStamp'
+import {
+  exportPeriodFileStamp,
+  exportPeriodForPreset,
+  resolveExportFileStem,
+  type ExportRangePreset,
+} from './exportPeriodFileStamp'
 import { buildDailyLogMarkdown } from './exportMarkdown'
 import {
   buildCustomMetricPdfSummaries,
@@ -423,26 +429,33 @@ export function ExportSection() {
   // filterByExportPeriod's own note).
   const [periodStart, setPeriodStart] = useState('')
   const [periodEnd, setPeriodEnd] = useState('')
+  const [rangePreset, setRangePreset] = useState<ExportRangePreset>('all')
   const [fileStem, setFileStem] = useState(() =>
     `turtle-steps-daily-log-${exportPeriodFileStamp('', '')}`,
   )
 
-  function setPeriodStartAndMaybeStem(next: string) {
+  function setPeriodRange(start: string, end: string, preset: ExportRangePreset) {
     setFileStem((prev) => {
       const oldDefault = `turtle-steps-daily-log-${exportPeriodFileStamp(periodStart, periodEnd)}`
-      const nextDefault = `turtle-steps-daily-log-${exportPeriodFileStamp(next, periodEnd)}`
+      const nextDefault = `turtle-steps-daily-log-${exportPeriodFileStamp(start, end)}`
       return prev === oldDefault || !prev.trim() ? nextDefault : prev
     })
-    setPeriodStart(next)
+    setPeriodStart(start)
+    setPeriodEnd(end)
+    setRangePreset(preset)
   }
 
-  function setPeriodEndAndMaybeStem(next: string) {
-    setFileStem((prev) => {
-      const oldDefault = `turtle-steps-daily-log-${exportPeriodFileStamp(periodStart, periodEnd)}`
-      const nextDefault = `turtle-steps-daily-log-${exportPeriodFileStamp(periodStart, next)}`
-      return prev === oldDefault || !prev.trim() ? nextDefault : prev
-    })
-    setPeriodEnd(next)
+  function applyRangePreset(preset: ExportRangePreset) {
+    if (preset === 'custom') {
+      setRangePreset('custom')
+      return
+    }
+    const bounds = exportPeriodForPreset(
+      preset,
+      new Date(),
+      resolveWeekStartsOn(weekStart, undefined),
+    )
+    setPeriodRange(bounds.start, bounds.end, preset)
   }
 
   // Best-effort (#176) — navigator.storage is unavailable in some browsers
@@ -1120,13 +1133,40 @@ export function ExportSection() {
           <p className="text-sm text-muted-foreground">
             {t.export.exportPeriodDescription}
           </p>
+          <ToggleGroup
+            type="single"
+            aria-label={t.export.exportPeriodLabel}
+            value={rangePreset}
+            onValueChange={(value) => {
+              if (value) applyRangePreset(value as ExportRangePreset)
+            }}
+            className="flex flex-wrap justify-start"
+          >
+            <ToggleGroupItem value="week" className="h-12">
+              {t.export.exportRangeWeek}
+            </ToggleGroupItem>
+            <ToggleGroupItem value="month" className="h-12">
+              {t.export.exportRangeMonth}
+            </ToggleGroupItem>
+            <ToggleGroupItem value="year" className="h-12">
+              {t.export.exportRangeYear}
+            </ToggleGroupItem>
+            <ToggleGroupItem value="all" className="h-12">
+              {t.export.exportRangeAll}
+            </ToggleGroupItem>
+            <ToggleGroupItem value="custom" className="h-12">
+              {t.export.exportRangeCustom}
+            </ToggleGroupItem>
+          </ToggleGroup>
           <div className="flex items-center gap-2">
             <Input
               type="date"
               aria-label={`${t.export.exportPeriodLabel} — ${t.dashboard.rangeStartLabel}`}
               value={periodStart}
               max={periodEnd || undefined}
-              onChange={(e) => setPeriodStartAndMaybeStem(e.target.value)}
+              onChange={(e) =>
+                setPeriodRange(e.target.value, periodEnd, 'custom')
+              }
               className="h-12"
             />
             <Input
@@ -1134,7 +1174,9 @@ export function ExportSection() {
               aria-label={`${t.export.exportPeriodLabel} — ${t.dashboard.rangeEndLabel}`}
               value={periodEnd}
               min={periodStart || undefined}
-              onChange={(e) => setPeriodEndAndMaybeStem(e.target.value)}
+              onChange={(e) =>
+                setPeriodRange(periodStart, e.target.value, 'custom')
+              }
               className="h-12"
             />
           </div>

@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 782,
+    issue: 819,
+    date: '2026-09-07T13:30:00+03:00',
+    en: 'Export period can be set with Week, Month, Year, All, or Custom — Custom keeps the two date fields.',
+    ru: 'Период экспорта можно выбрать как Неделя, Месяц, Год, Все или Свой. «Свой» оставляет два поля с датами.',
+  },
+  {
     version: 781,
     issue: 821,
     date: '2026-09-07T13:20:00+03:00',
