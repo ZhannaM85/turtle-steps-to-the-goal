@@ -497,6 +497,7 @@ _Meal name templates in Settings; Dashboard descriptive leaderboards._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
+| [#810](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/810) | ✅ Done | Settings: disable meal-name template Add until the field has text | Confirmed on-device 2026-09-07 — Add stays disabled until the template field has text. |
 | [#813](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/813) | ✅ Done | Dashboard: Count \| kcal toggle on most-eaten-recently card | Confirmed on-device 2026-09-07 — Count \| kcal toggle on most-eaten-recently. |
 | [#814](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/814) | ✅ Done | Dashboard: eating-reasons tally (last 7 / 30 days) | Confirmed on-device 2026-09-07 — eating-reasons tally for last 7 / 30 days. |
 | [#815](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/815) | ✅ Done | Dashboard: when meals happened (time-of-day buckets) | Confirmed on-device 2026-09-07 — meal time-of-day buckets. |

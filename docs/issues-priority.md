@@ -40,7 +40,6 @@ _Meal name templates in Settings; Dashboard descriptive leaderboards (most-eaten
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#810](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/810) | 🔍 Pending validation | Settings: disable meal-name template Add until the field has text | Add is `disabled` until the field has non-whitespace text (`MealLabelPresetsSection`). |
 | [#811](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/811) | 🔍 Pending validation | Settings: meal-name templates should be editable | Pencil + check inline rename (`renamePreset`), same pattern as custom eating reasons. Does not auto-replace leftover English defaults. |
 | [#812](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/812) | 🔍 Pending validation | Dashboard: most-eaten-recently leaderboard (not a correlation) | `MostEatenFoodsView` — top 8 dishes by times logged in last 7 / 30 days (`foodFrequency.ts`), grouped by trimmed name. Hideable card after Food reactions. kcal-share toggle is #813. |
 
