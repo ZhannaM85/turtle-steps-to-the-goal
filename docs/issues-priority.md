@@ -57,7 +57,6 @@ _Night food as its own Day card (#825 hides extras when No); Settings export/pin
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#819](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/819) | 🔍 Pending validation | Settings: export range presets like my-money (week / month / year / all / custom) | Pills above the date fields. Week uses Settings week-start (Monday if no first-entry yet). All clears dates. Typing dates selects Custom. |
 | [#823](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/823) | 🔍 Pending validation | Dashboard: Personal eating patterns (what tends to happen after a meal) | `EatingPatternsView` after meal-name frequency. Consecutive timed meals → gap to next episode (≠ hunger). Up to 3 insights (carb gap, evening→night) with N and a calculation note. |
 | [#825](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/825) | ⬜ Open | Day: hide night-food remember and reason when No | Follow-up to #818. Hide «Помню, как ела» and Reason when Нет is selected; show them when Да. |
 | [#826](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/826) | ⬜ Open | Settings: make all cards collapsible with expand all / collapse all | Follow-up to #820. Header collapse on every Settings card (incl. About); Expand all / Collapse all like Day. |

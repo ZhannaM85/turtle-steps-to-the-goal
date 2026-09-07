@@ -498,6 +498,7 @@ _Night food as its own Day card; Settings export/pin; Dashboard patterns; Depend
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#818](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/818) | ✅ Done | Day: night food as its own card, with reason, include in export | Confirmed on-device 2026-09-07 — own Night food card with remember + reason; follow-up to hide extras when No. |
+| [#819](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/819) | ✅ Done | Settings: export range presets like my-money (week / month / year / all / custom) | Confirmed on-device 2026-09-07 — pills work; follow-up so week/month/year end today (past periods). |
 | [#820](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/820) | ✅ Done | Settings: pin cards to top; About the app always stays first | Confirmed on-device 2026-09-07 — pin works; About stays first. Follow-up for collapsible cards. |
 | [#821](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/821) | ✅ Done | Settings: rename export file before save (input, default name) | Confirmed on-device 2026-09-07 — export file name field with default stem. |
 | [#822](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/822) | ✅ Done | Settings: put export date range in the filename | Confirmed on-device 2026-09-07 — export period is in the download filename. |
