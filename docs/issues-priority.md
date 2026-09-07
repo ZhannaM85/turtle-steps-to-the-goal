@@ -50,7 +50,7 @@ _Night food as its own Day card (#825 hides extras when No); Settings export/pin
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#825](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/825) | ⬜ Open | Day: hide night-food remember and reason when No | Follow-up to #818. Hide «Помню, как ела» and Reason when Нет is selected; show them when Да. |
+| [#825](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/825) | 🔍 Pending validation | Day: hide night-food remember and reason when No | Hide extras unless Yes (`nightEatingOverride === true`). Unset also hides. |
 | [#826](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/826) | ⬜ Open | Settings: make all cards collapsible with expand all / collapse all | Follow-up to #820. Header collapse on every Settings card (incl. About); Expand all / Collapse all like Day. |
 | [#827](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/827) | ⬜ Open | Settings: export week/month/year should be past periods ending today | Follow-up to #819. Trailing week/month/year with today as end — not the current calendar period that includes empty future days. |
 

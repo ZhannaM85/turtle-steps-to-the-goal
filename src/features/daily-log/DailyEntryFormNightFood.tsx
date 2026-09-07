@@ -7,6 +7,7 @@ import { useDailyEntryFormStateContext } from './useDailyEntryFormStateContext'
 /**
  * #818 — Night food as its own Day card (Yes/No + remember + reason),
  * not nested under Evening. Still gated by Settings night-eating tracking.
+ * #825 — remember + reason only when Yes; hidden when No or unset.
  */
 export function DailyEntryFormNightFood() {
   const state = useDailyEntryFormStateContext()
@@ -52,99 +53,108 @@ export function DailyEntryFormNightFood() {
           </ToggleGroupItem>
         </ToggleGroup>
 
-        <div className="flex flex-col gap-1.5">
-          <span className="text-sm font-medium">
-            {t.dailyEntry.nightEatingRememberLabel(state.sex)}
-          </span>
-          <ToggleGroup
-            type="single"
-            aria-label={t.dailyEntry.nightEatingRememberLabel(state.sex)}
-            value={state.nightEatingRemember ?? ''}
-            onValueChange={(value) =>
-              state.setNightEatingRemember(
-                value === ''
-                  ? undefined
-                  : value === 'yes' || value === 'partial' || value === 'no'
-                    ? value
-                    : undefined,
-              )
-            }
-            className="w-fit"
-          >
-            <ToggleGroupItem value="yes" className="h-12 px-6 text-base">
-              {t.dailyEntry.nightEatingRememberYesOption}
-            </ToggleGroupItem>
-            <ToggleGroupItem value="partial" className="h-12 px-6 text-base">
-              {t.dailyEntry.nightEatingRememberPartialOption}
-            </ToggleGroupItem>
-            <ToggleGroupItem value="no" className="h-12 px-6 text-base">
-              {t.dailyEntry.nightEatingRememberNoOption}
-            </ToggleGroupItem>
-          </ToggleGroup>
-        </div>
-
-        {state.showNightEatingReasonAsDisplay ? (
-          <div className="flex flex-col gap-1.5">
-            <span className="text-sm font-medium">
-              {t.dailyEntry.nightEatingReasonLabel}
-            </span>
-            <div className="flex min-h-12 items-center justify-between gap-2 rounded-lg bg-muted px-3 py-1.5">
-              <span className="flex items-center gap-1.5 text-sm text-foreground">
-                {state.nightEatingReason}
+        {state.nightEatingOverride === true && (
+          <>
+            <div className="flex flex-col gap-1.5">
+              <span className="text-sm font-medium">
+                {t.dailyEntry.nightEatingRememberLabel(state.sex)}
               </span>
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon-xl"
-                aria-label={t.dailyEntry.editNightEatingReasonLabel}
-                onClick={() => state.setIsEditingNightEatingReason(true)}
-              >
-                <Pencil aria-hidden="true" />
-              </Button>
-            </div>
-          </div>
-        ) : (
-          <div className="flex flex-col gap-1.5">
-            <span className="text-sm font-medium">
-              {t.dailyEntry.nightEatingReasonLabel}
-            </span>
-            <div className="flex items-end gap-3">
-              <Textarea
-                aria-label={t.dailyEntry.nightEatingReasonLabel}
-                aria-invalid={
-                  state.errors.nightEatingReason ? true : undefined
+              <ToggleGroup
+                type="single"
+                aria-label={t.dailyEntry.nightEatingRememberLabel(state.sex)}
+                value={state.nightEatingRemember ?? ''}
+                onValueChange={(value) =>
+                  state.setNightEatingRemember(
+                    value === ''
+                      ? undefined
+                      : value === 'yes' ||
+                          value === 'partial' ||
+                          value === 'no'
+                        ? value
+                        : undefined,
+                  )
                 }
-                placeholder={t.dailyEntry.nightEatingReasonFieldPlaceholder}
-                className="flex-1"
-                {...state.register('nightEatingReason')}
-              />
-              <Button
-                type="button"
-                variant="outline"
-                size="icon-xl"
-                aria-label={t.dailyEntry.saveNightEatingReasonLabel}
-                onClick={state.saveNightEatingReason}
+                className="w-fit"
               >
-                <Check aria-hidden="true" />
-              </Button>
-              {state.canCancelNightEatingReasonEdit && (
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon-xl"
-                  aria-label={t.dailyEntry.cancelEditNightEatingReasonLabel}
-                  onClick={state.cancelEditNightEatingReason}
+                <ToggleGroupItem value="yes" className="h-12 px-6 text-base">
+                  {t.dailyEntry.nightEatingRememberYesOption}
+                </ToggleGroupItem>
+                <ToggleGroupItem
+                  value="partial"
+                  className="h-12 px-6 text-base"
                 >
-                  <X aria-hidden="true" />
-                </Button>
-              )}
+                  {t.dailyEntry.nightEatingRememberPartialOption}
+                </ToggleGroupItem>
+                <ToggleGroupItem value="no" className="h-12 px-6 text-base">
+                  {t.dailyEntry.nightEatingRememberNoOption}
+                </ToggleGroupItem>
+              </ToggleGroup>
             </div>
-            {state.errors.nightEatingReason && (
-              <p className="text-sm text-destructive">
-                {state.errors.nightEatingReason.message}
-              </p>
+
+            {state.showNightEatingReasonAsDisplay ? (
+              <div className="flex flex-col gap-1.5">
+                <span className="text-sm font-medium">
+                  {t.dailyEntry.nightEatingReasonLabel}
+                </span>
+                <div className="flex min-h-12 items-center justify-between gap-2 rounded-lg bg-muted px-3 py-1.5">
+                  <span className="flex items-center gap-1.5 text-sm text-foreground">
+                    {state.nightEatingReason}
+                  </span>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon-xl"
+                    aria-label={t.dailyEntry.editNightEatingReasonLabel}
+                    onClick={() => state.setIsEditingNightEatingReason(true)}
+                  >
+                    <Pencil aria-hidden="true" />
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <div className="flex flex-col gap-1.5">
+                <span className="text-sm font-medium">
+                  {t.dailyEntry.nightEatingReasonLabel}
+                </span>
+                <div className="flex items-end gap-3">
+                  <Textarea
+                    aria-label={t.dailyEntry.nightEatingReasonLabel}
+                    aria-invalid={
+                      state.errors.nightEatingReason ? true : undefined
+                    }
+                    placeholder={t.dailyEntry.nightEatingReasonFieldPlaceholder}
+                    className="flex-1"
+                    {...state.register('nightEatingReason')}
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon-xl"
+                    aria-label={t.dailyEntry.saveNightEatingReasonLabel}
+                    onClick={state.saveNightEatingReason}
+                  >
+                    <Check aria-hidden="true" />
+                  </Button>
+                  {state.canCancelNightEatingReasonEdit && (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon-xl"
+                      aria-label={t.dailyEntry.cancelEditNightEatingReasonLabel}
+                      onClick={state.cancelEditNightEatingReason}
+                    >
+                      <X aria-hidden="true" />
+                    </Button>
+                  )}
+                </div>
+                {state.errors.nightEatingReason && (
+                  <p className="text-sm text-destructive">
+                    {state.errors.nightEatingReason.message}
+                  </p>
+                )}
+              </div>
             )}
-          </div>
+          </>
         )}
       </div>
     </div>

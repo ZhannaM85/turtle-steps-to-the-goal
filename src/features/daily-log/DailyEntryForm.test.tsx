@@ -3861,6 +3861,42 @@ describe('DailyEntryForm', () => {
       ).not.toBeInTheDocument()
     })
 
+    it('hides remember and reason until Yes is selected (#825)', () => {
+      render(
+        <DailyEntryForm date="2026-03-01" existingEntry={null} onSave={vi.fn()} />,
+      )
+
+      expect(
+        screen.queryByRole('radiogroup', { name: 'I remember how I ate' }),
+      ).not.toBeInTheDocument()
+      expect(
+        screen.queryByRole('textbox', { name: 'Reason' }),
+      ).not.toBeInTheDocument()
+    })
+
+    it('hides remember and reason when No is selected (#825)', () => {
+      render(
+        <DailyEntryForm
+          date="2026-03-01"
+          existingEntry={{
+            id: 'entry-1',
+            date: '2026-03-01',
+            nightEatingOverride: false,
+            createdAt: now,
+            updatedAt: now,
+          }}
+          onSave={vi.fn()}
+        />,
+      )
+
+      expect(
+        screen.queryByRole('radiogroup', { name: 'I remember how I ate' }),
+      ).not.toBeInTheDocument()
+      expect(
+        screen.queryByRole('textbox', { name: 'Reason' }),
+      ).not.toBeInTheDocument()
+    })
+
     it('saves remember how I ate immediately (#818)', async () => {
       const user = userEvent.setup()
       const onSave = vi.fn()
@@ -3868,13 +3904,17 @@ describe('DailyEntryForm', () => {
         <DailyEntryForm date="2026-03-01" existingEntry={null} onSave={onSave} />,
       )
 
+      const nightFood = within(
+        screen.getByRole('radiogroup', { name: 'Ate late tonight' }),
+      )
+      await user.click(nightFood.getByRole('radio', { name: 'Yes' }))
       const remember = within(
         screen.getByRole('radiogroup', { name: 'I remember how I ate' }),
       )
       await user.click(remember.getByRole('radio', { name: 'Partially' }))
 
       expect(onSave).toHaveBeenCalled()
-      expect(onSave.mock.calls[0][0].nightEatingRemember).toBe('partial')
+      expect(onSave.mock.calls.at(-1)?.[0].nightEatingRemember).toBe('partial')
     })
 
     it('saves night food reason on check (#818)', async () => {
@@ -3884,6 +3924,10 @@ describe('DailyEntryForm', () => {
         <DailyEntryForm date="2026-03-01" existingEntry={null} onSave={onSave} />,
       )
 
+      const nightFood = within(
+        screen.getByRole('radiogroup', { name: 'Ate late tonight' }),
+      )
+      await user.click(nightFood.getByRole('radio', { name: 'Yes' }))
       await user.type(
         screen.getByRole('textbox', { name: 'Reason' }),
         'could not sleep',
@@ -3891,7 +3935,9 @@ describe('DailyEntryForm', () => {
       await user.click(screen.getByRole('button', { name: 'Save reason' }))
 
       expect(onSave).toHaveBeenCalled()
-      expect(onSave.mock.calls[0][0].nightEatingReason).toBe('could not sleep')
+      expect(onSave.mock.calls.at(-1)?.[0].nightEatingReason).toBe(
+        'could not sleep',
+      )
     })
 
   })

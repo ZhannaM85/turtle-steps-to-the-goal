@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 786,
+    issue: 825,
+    date: '2026-09-07T18:50:00+03:00',
+    en: 'Night food remember and reason questions only show when you pick Yes.',
+    ru: 'Вопросы «помню, как ела» и причина ночной еды показываются только если выбрано Да.',
+  },
+  {
     version: 785,
     issue: 823,
     date: '2026-09-07T14:40:00+03:00',
