@@ -50,3 +50,13 @@ _Meal name templates in Settings; Dashboard descriptive leaderboards (most-eaten
 | [#817](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/817) | 🔍 Pending validation | Settings: leftover English meal-name templates should follow the UI language | `localizeLeftoverEnglishMealPresets` rewrites stored Breakfast/Lunch/Dinner/Snack to the active locale once (Settings section). Custom names kept; duplicates dropped. English locale is a no-op (#110 / #142). |
 
 ---
+
+## Tier 155 — Live feedback (2026-09-07)
+
+_Night food as its own Day card (out of Evening), plus reason / remember fields and export._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#818](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/818) | 📋 Not started | Day: night food as its own card, with reason, include in export | Split #383's Yes/No out of Evening (`DailyEntryFormBottom`) into its own moon-icon card (title/hint per mock). Add remember Да/Частично/Нет + reason text field (not #764 meal chips). JSON + Excel/CSV columns for the new fields. |
+
+---
