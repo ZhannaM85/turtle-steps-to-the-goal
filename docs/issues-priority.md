@@ -53,10 +53,11 @@ _Meal name templates in Settings; Dashboard descriptive leaderboards (most-eaten
 
 ## Tier 155 — Live feedback (2026-09-07)
 
-_Night food as its own Day card (out of Evening), plus reason / remember fields and export._
+_Night food as its own Day card (out of Evening); Settings export range presets like my-money._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#818](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/818) | 📋 Not started | Day: night food as its own card, with reason, include in export | Split #383's Yes/No out of Evening (`DailyEntryFormBottom`) into its own moon-icon card (title/hint per mock). Add remember Да/Частично/Нет + reason text field (not #764 meal chips). JSON + Excel/CSV columns for the new fields. |
+| [#819](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/819) | 📋 Not started | Settings: export range presets like my-money (week / month / year / all / custom) | Keep existing from/to fields. Add pill row (Неделя / Месяц / Год / Все / Свой) as in my-money; Week/Month/Year fill dates from today, All = no filter, Custom = the two date boxes. Period formats only — not full JSON backup. |
 
 ---
