@@ -9,7 +9,7 @@ const t = getDictionary('en')
 const DAILY_HEADER =
   'Date,Weight (kg),Calories (kcal),Protein (g),Fat (g),Carbs (g),' +
   'Sleep (h),Deep sleep (h),Steps,Waist (cm),Hip (cm),Body fat (%),' +
-  'Mood,Morning note,Note,On period,Constipation,Alcohol,Ate late tonight,Water (ml),' +
+  'Mood,Morning note,Note,On period,Constipation,Alcohol,Ate late tonight,I remember how I ate,Night food reason,Water (ml),' +
   'Muscle (kg),Visceral fat,Body water (%),Bone (kg),Fiber (g),' +
   'Sodium (mg),Potassium (mg),Magnesium (mg)'
 
@@ -90,7 +90,7 @@ describe('buildDailyLogCsv', () => {
     // #394 — nightEating is blank here (not false): the one logged meal has
     // no timeEaten, so hadNightEating() has no signal to derive from.
     expect(row).toBe(
-      '2026-03-01,79.5,300,10,5,20,7h 0m,1h 30m,8000,80,95,22,Happy,,Felt good,true,,,,,,,,,,,,',
+      '2026-03-01,79.5,300,10,5,20,7h 0m,1h 30m,8000,80,95,22,Happy,,Felt good,true,,,,,,,,,,,,,,',
     )
   })
 
@@ -110,6 +110,22 @@ describe('buildDailyLogCsv', () => {
     const nightEatingIndex = header.split(',').indexOf('Ate late tonight')
 
     expect(row.split(',')[nightEatingIndex]).toBe('true')
+  })
+
+  it('exports night food remember and reason columns (#818)', () => {
+    const entry = makeEntry({
+      nightEatingOverride: true,
+      nightEatingRemember: 'partial',
+      nightEatingReason: 'could not sleep',
+    })
+    const csv = buildDailyLogCsv([entry], t)
+    const [header, row] = dailyTable(csv).split('\r\n')
+    const cells = row.split(',')
+    const rememberIndex = header.split(',').indexOf('I remember how I ate')
+    const reasonIndex = header.split(',').indexOf('Night food reason')
+
+    expect(cells[rememberIndex]).toBe('Partially')
+    expect(cells[reasonIndex]).toBe('could not sleep')
   })
 
   it('quotes fields containing a comma and escapes embedded quotes', () => {

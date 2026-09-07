@@ -19,6 +19,9 @@ export type EatingReason =
   | 'boredom'
   | 'company'
 
+/** #818 — how clearly night food is remembered (Night food card). */
+export type NightEatingRemember = 'yes' | 'partial' | 'no'
+
 export const EATING_REASONS: EatingReason[] = [
   'hunger',
   'angry',
@@ -199,8 +202,14 @@ export interface DailyEntry {
    * late-night snack that was never logged as a meal at all. Unlike
    * onPeriod/hadConstipation above, not gated behind a Settings opt-in —
    * this needs no extra logging step for anyone already logging meal
-   * times, so it's always on. */
+   * times, so it's always on. #532 later gated the Day UI via Settings
+   * "What to track"; the stored fields still travel with backups. */
   nightEatingOverride?: boolean
+  /** #818 — how clearly the night food is remembered. Independent of the
+   * Yes/No override; only meaningful when night-eating tracking is on. */
+  nightEatingRemember?: NightEatingRemember
+  /** #818 — free-text reason on the Night food card (not #764 meal chips). */
+  nightEatingReason?: string
   /** Opt-in water/hydration tracking (#258, list shape #271), same gating
    * as onPeriod/hadConstipation above — only ever set when enabled in
    * Settings (`useWaterTrackingStore`). A list of discrete adds rather than

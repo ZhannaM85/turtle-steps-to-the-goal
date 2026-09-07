@@ -94,6 +94,7 @@ import {
 import { CustomMetricLogSection } from '@/features/custom-metrics'
 import { DailyEntryFormBottom } from './DailyEntryFormBottom'
 import { DailyEntryFormMorning } from './DailyEntryFormMorning'
+import { DailyEntryFormNightFood } from './DailyEntryFormNightFood'
 import { DailyEntryFormStateProvider } from './DailyEntryFormStateContext'
 import { DailyEntryFormTop } from './DailyEntryFormTop'
 import { DaySectionsCollapseControl } from './DaySectionsCollapseControl'
@@ -1591,6 +1592,7 @@ export function TodayScreen() {
         <DailyEntryFormTop />
         <CustomMetricLogSection date={date} />
         <DailyEntryFormBottom />
+        <DailyEntryFormNightFood />
       </DailyEntryFormStateProvider>
       </div>
       )}

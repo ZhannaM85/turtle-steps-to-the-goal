@@ -57,6 +57,11 @@ export const hadAlcoholSchema = z.boolean().optional()
 // #383 — manual override for the derived night-eating value; always
 // rendered (no Settings opt-in, unlike onPeriod/hadConstipation above).
 export const nightEatingOverrideSchema = z.boolean().optional()
+// #818 — Night food card extras (remember + free-text reason).
+export const nightEatingRememberSchema = z
+  .enum(['yes', 'partial', 'no'])
+  .optional()
+export const nightEatingReasonSchema = noteSchema
 // Opt-in water tracking (#258), one discrete add (#271) — same gating
 // shape as onPeriod/hadConstipation above. #282 removed the manual
 // input; #549 restores it alongside the two quick-add buttons.
@@ -107,6 +112,8 @@ export const dailyEntryFormSchema = z.object({
   hadConstipation: hadConstipationSchema,
   hadAlcohol: hadAlcoholSchema,
   nightEatingOverride: nightEatingOverrideSchema,
+  nightEatingRemember: nightEatingRememberSchema,
+  nightEatingReason: nightEatingReasonSchema,
   waterEntries: z.array(waterEntrySchema).optional(),
   waistCm: waistCmSchema,
   hipCm: hipCmSchema,

@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 784,
+    issue: 818,
+    date: '2026-09-07T14:10:00+03:00',
+    en: 'Night food is its own Day card, with remember how you ate and a reason field. Both export with your daily log.',
+    ru: 'Ночная еда — отдельная карточка на дне, с «помню, как ела» и полем причины. Оба поля уходят в экспорт дневника.',
+  },
+  {
     version: 783,
     issue: 820,
     date: '2026-09-07T13:50:00+03:00',

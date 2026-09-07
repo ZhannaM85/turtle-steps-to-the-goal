@@ -57,7 +57,7 @@ _Night food as its own Day card; Settings export/pin; Dashboard patterns; Depend
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#818](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/818) | 📋 Not started | Day: night food as its own card, with reason, include in export | Split #383's Yes/No out of Evening (`DailyEntryFormBottom`) into its own moon-icon card (title/hint per mock). Add remember Да/Частично/Нет + reason text field (not #764 meal chips). JSON + Excel/CSV columns for the new fields. |
+| [#818](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/818) | 🔍 Pending validation | Day: night food as its own card, with reason, include in export | Own `DailyEntryFormNightFood` card (moon + title + hint). Remember Да/Частично/Нет + reason text/check. JSON + Excel/CSV columns. |
 | [#819](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/819) | 🔍 Pending validation | Settings: export range presets like my-money (week / month / year / all / custom) | Pills above the date fields. Week uses Settings week-start (Monday if no first-entry yet). All clears dates. Typing dates selects Custom. |
 | [#820](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/820) | 🔍 Pending validation | Settings: pin cards to top; About the app always stays first | Pin button on each Settings card except About. Flex `order`: About -2000, pinned -1000+, rest 0. Persisted `turtle-steps-settings-pins`. |
 | [#821](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/821) | 🔍 Pending validation | Settings: rename export file before save (input, default name) | File name field under the period dates; empty → `defaultDailyLogStem`. Applies to Excel/CSV/Markdown/ranged JSON. Full backup / encrypted unchanged. |

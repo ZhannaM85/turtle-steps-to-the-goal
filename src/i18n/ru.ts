@@ -518,6 +518,27 @@ export const ru: Dictionary = {
           : 'Ел(а) поздно вечером',
     nightEatingNoOption: 'Нет',
     nightEatingYesOption: 'Да',
+    nightFoodCardTitle: 'Ночная еда',
+    nightFoodCardHint: (sex) =>
+      sex === 'female'
+        ? 'Еда после того, как легла спать'
+        : sex === 'male'
+          ? 'Еда после того, как лёг спать'
+          : 'Еда после того, как лёг(ла) спать',
+    nightEatingRememberLabel: (sex) =>
+      sex === 'female'
+        ? 'Помню, как ела'
+        : sex === 'male'
+          ? 'Помню, как ел'
+          : 'Помню, как ел(а)',
+    nightEatingRememberYesOption: 'Да',
+    nightEatingRememberPartialOption: 'Частично',
+    nightEatingRememberNoOption: 'Нет',
+    nightEatingReasonLabel: 'Причина',
+    nightEatingReasonFieldPlaceholder: 'Почему была ночная еда',
+    saveNightEatingReasonLabel: 'Сохранить причину',
+    editNightEatingReasonLabel: 'Изменить причину',
+    cancelEditNightEatingReasonLabel: 'Отменить редактирование причины',
     clearNightEatingOverrideLabel: 'Сбросить',
     waterLabel: 'Вода',
     dayTotalsLabel: 'Итоги дня',
@@ -925,6 +946,13 @@ export const ru: Dictionary = {
         : sex === 'male'
           ? 'Ел поздно вечером'
           : 'Ел(а) поздно вечером',
+    nightEatingRememberColumn: (sex) =>
+      sex === 'female'
+        ? 'Помню, как ела'
+        : sex === 'male'
+          ? 'Помню, как ел'
+          : 'Помню, как ел(а)',
+    nightEatingReasonColumn: 'Причина ночной еды',
     waterColumn: 'Вода (мл)',
     muscleMassColumn: 'Мышцы (кг)',
     visceralFatColumn: 'Висцеральный жир',

@@ -118,6 +118,8 @@ describe('buildExportWorkbook', () => {
       'Constipation',
       'Alcohol',
       'Ate late tonight',
+      'I remember how I ate',
+      'Night food reason',
       'Water (ml)',
       'Muscle (kg)',
       'Visceral fat',
@@ -214,12 +216,12 @@ describe('buildExportWorkbook', () => {
     const dailyRow = sheetRows(workbook.getWorksheet('Daily Log')!)[0]
     const mealRow = sheetRows(workbook.getWorksheet('Meals')!)[0]
 
-    expect(dailyRow[21]).toBe(45.2)
-    expect(dailyRow[22]).toBe(8)
-    expect(dailyRow[23]).toBe(55)
-    expect(dailyRow[24]).toBe(2.4)
-    expect(dailyRow[25]).toBe(2)
-    expect(dailyRow[26]).toBe(200)
+    expect(dailyRow[23]).toBe(45.2)
+    expect(dailyRow[24]).toBe(8)
+    expect(dailyRow[25]).toBe(55)
+    expect(dailyRow[26]).toBe(2.4)
+    expect(dailyRow[27]).toBe(2)
+    expect(dailyRow[28]).toBe(200)
     expect(mealRow[9]).toBe(2)
     expect(mealRow[10]).toBe(200)
     expect(mealRow[11]).toBe(80)

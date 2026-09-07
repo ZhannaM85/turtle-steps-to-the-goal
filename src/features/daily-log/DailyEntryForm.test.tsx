@@ -2144,6 +2144,7 @@ describe('DailyEntryForm', () => {
       )
 
       expect(screen.queryByText('Ate late tonight')).not.toBeInTheDocument()
+      expect(screen.queryByText('Night food')).not.toBeInTheDocument()
     })
 
     it('hides the whole Evening section when every evening field is off (#532)', () => {
@@ -3840,6 +3841,57 @@ describe('DailyEntryForm', () => {
       expect(
         screen.queryByText(/Auto-detected from your meals/i),
       ).not.toBeInTheDocument()
+    })
+
+    it('renders Night food as its own card, not under Evening (#818)', () => {
+      render(
+        <DailyEntryForm date="2026-03-01" existingEntry={null} onSave={vi.fn()} />,
+      )
+
+      expect(screen.getByText('Night food')).toBeInTheDocument()
+      expect(
+        screen.getByText('Food after going to sleep'),
+      ).toBeInTheDocument()
+      const evening = screen
+        .getByText('Evening entries')
+        .closest('.section-shell')
+      expect(evening).toBeTruthy()
+      expect(
+        within(evening as HTMLElement).queryByText('Night food'),
+      ).not.toBeInTheDocument()
+    })
+
+    it('saves remember how I ate immediately (#818)', async () => {
+      const user = userEvent.setup()
+      const onSave = vi.fn()
+      render(
+        <DailyEntryForm date="2026-03-01" existingEntry={null} onSave={onSave} />,
+      )
+
+      const remember = within(
+        screen.getByRole('radiogroup', { name: 'I remember how I ate' }),
+      )
+      await user.click(remember.getByRole('radio', { name: 'Partially' }))
+
+      expect(onSave).toHaveBeenCalled()
+      expect(onSave.mock.calls[0][0].nightEatingRemember).toBe('partial')
+    })
+
+    it('saves night food reason on check (#818)', async () => {
+      const user = userEvent.setup()
+      const onSave = vi.fn()
+      render(
+        <DailyEntryForm date="2026-03-01" existingEntry={null} onSave={onSave} />,
+      )
+
+      await user.type(
+        screen.getByRole('textbox', { name: 'Reason' }),
+        'could not sleep',
+      )
+      await user.click(screen.getByRole('button', { name: 'Save reason' }))
+
+      expect(onSave).toHaveBeenCalled()
+      expect(onSave.mock.calls[0][0].nightEatingReason).toBe('could not sleep')
     })
 
   })

@@ -853,6 +853,18 @@ export interface Dictionary {
     nightEatingLabel: (sex?: Sex) => string
     nightEatingNoOption: string
     nightEatingYesOption: string
+    /** #818 — standalone Night food card title (not nested under Evening). */
+    nightFoodCardTitle: string
+    nightFoodCardHint: (sex?: Sex) => string
+    nightEatingRememberLabel: (sex?: Sex) => string
+    nightEatingRememberYesOption: string
+    nightEatingRememberPartialOption: string
+    nightEatingRememberNoOption: string
+    nightEatingReasonLabel: string
+    nightEatingReasonFieldPlaceholder: string
+    saveNightEatingReasonLabel: string
+    editNightEatingReasonLabel: string
+    cancelEditNightEatingReasonLabel: string
     /** #413 — History's own single-button night-eating toggle (unlike
      * Today's two-option ToggleGroup, #406) has no built-in third click
      * state, so a small separate "×" button clears an explicit override
@@ -1438,6 +1450,8 @@ export interface Dictionary {
      * widened to a function like `dailyEntry.nightEatingLabel` (#398/#407),
      * so this column header is gender-correct too. */
     nightEatingColumn: (sex?: Sex) => string
+    nightEatingRememberColumn: (sex?: Sex) => string
+    nightEatingReasonColumn: string
     waterColumn: string
     /** #743 — body composition + day fiber/electrolytes on the Daily Log table. */
     muscleMassColumn: string

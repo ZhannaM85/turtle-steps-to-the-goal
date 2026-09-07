@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
-import type { DailyEntry, DayTotals, Emotion } from '@/domain/dailyEntry'
+import type { DailyEntry, DayTotals, Emotion, NightEatingRemember } from '@/domain/dailyEntry'
 import {
   hadNightEating,
   totalCalories,
@@ -201,6 +201,9 @@ export function useDailyEntryFormState({
   const [isEditingMorningNote, setIsEditingMorningNote] = useState(
     alwaysEditable || !initialValues.morningNote,
   )
+  const [isEditingNightEatingReason, setIsEditingNightEatingReason] = useState(
+    alwaysEditable || !initialValues.nightEatingReason,
+  )
   const [isEditingSleep, setIsEditingSleep] = useState(
     alwaysEditable ||
       (initialValues.sleepHours === undefined &&
@@ -325,6 +328,14 @@ export function useDailyEntryFormState({
     control,
     name: 'nightEatingOverride',
   })
+  const nightEatingRemember = useWatch({
+    control,
+    name: 'nightEatingRemember',
+  })
+  const nightEatingReason = useWatch({
+    control,
+    name: 'nightEatingReason',
+  })
   const waterEntries = useWatch({ control, name: 'waterEntries' }) ?? []
   const dayTotals = useWatch({ control, name: 'dayTotals' })
   const dayEmotion = useWatch({ control, name: 'emotion' })
@@ -442,6 +453,8 @@ export function useDailyEntryFormState({
   const showWeightAsDisplay = !alwaysEditable && !isEditingWeight
   const showNoteAsDisplay = !alwaysEditable && !isEditingNote
   const showMorningNoteAsDisplay = !alwaysEditable && !isEditingMorningNote
+  const showNightEatingReasonAsDisplay =
+    !alwaysEditable && !isEditingNightEatingReason
   const showSleepAsDisplay = !alwaysEditable && !isEditingSleep
   const showStepsAsDisplay = !alwaysEditable && !isEditingSteps
   const showBodyMeasurementsAsDisplay =
@@ -466,6 +479,8 @@ export function useDailyEntryFormState({
   const canCancelNoteEdit = alwaysEditable || Boolean(initialValues.note)
   const canCancelMorningNoteEdit =
     alwaysEditable || Boolean(initialValues.morningNote)
+  const canCancelNightEatingReasonEdit =
+    alwaysEditable || Boolean(initialValues.nightEatingReason)
   const canCancelSleepEdit = alwaysEditable || hasSavedSleep
   const canDeleteSleep = hasSavedSleep
   const canCancelStepsEdit = alwaysEditable || initialValues.steps !== undefined
@@ -517,6 +532,9 @@ export function useDailyEntryFormState({
       morningNote: noteSchema.safeParse(values.morningNote).success
         ? values.morningNote
         : initialValues.morningNote,
+      nightEatingReason: noteSchema.safeParse(values.nightEatingReason).success
+        ? values.nightEatingReason
+        : initialValues.nightEatingReason,
       sleepHours: sleepHoursSchema.safeParse(values.sleepHours).success
         ? values.sleepHours
         : initialValues.sleepHours,
@@ -586,6 +604,30 @@ export function useDailyEntryFormState({
   function setNightEatingOverride(value: boolean | undefined) {
     setValue('nightEatingOverride', value, { shouldDirty: true })
     persist({ ...getValues(), nightEatingOverride: value })
+  }
+
+  function setNightEatingRemember(value: NightEatingRemember | undefined) {
+    setValue('nightEatingRemember', value, { shouldDirty: true })
+    persist({ ...getValues(), nightEatingRemember: value })
+  }
+
+  function saveNightEatingReason() {
+    const result = noteSchema.safeParse(getValues('nightEatingReason'))
+    if (!result.success) {
+      setError('nightEatingReason', {
+        message: t.dailyEntry.invalidValueMessage,
+      })
+      return
+    }
+    clearErrors('nightEatingReason')
+    setIsEditingNightEatingReason(false)
+    persist(getValues())
+  }
+
+  function cancelEditNightEatingReason() {
+    setValue('nightEatingReason', initialValues.nightEatingReason)
+    clearErrors('nightEatingReason')
+    setIsEditingNightEatingReason(false)
   }
 
   // #271: each quick-add tap becomes its own removable entry instead of
@@ -1389,6 +1431,14 @@ export function useDailyEntryFormState({
     nightEatingOverride,
     nightEatingEffective,
     setNightEatingOverride,
+    nightEatingRemember,
+    setNightEatingRemember,
+    nightEatingReason,
+    showNightEatingReasonAsDisplay,
+    setIsEditingNightEatingReason,
+    saveNightEatingReason,
+    canCancelNightEatingReasonEdit,
+    cancelEditNightEatingReason,
   }
 }
 

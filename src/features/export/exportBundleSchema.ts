@@ -148,6 +148,9 @@ const dailyEntrySchema = z.object({
   // purely additive, no version bump, same shape as every other optional
   // field added since v7.
   nightEatingOverride: z.boolean().optional(),
+  // #818 — Night food remember + reason; purely additive, no version bump.
+  nightEatingRemember: z.enum(['yes', 'partial', 'no']).optional(),
+  nightEatingReason: z.string().optional(),
   // Opt-in water tracking (#258, list shape #271) — a list of discrete
   // adds rather than a single running total; see upgradeV6ToV7 in
   // exportActions.ts for the migration from the old waterMl number.

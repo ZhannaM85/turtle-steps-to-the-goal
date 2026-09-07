@@ -44,8 +44,7 @@ export function DailyEntryFormBottom() {
     state.trackedFields.note ||
     state.trackedFields.mood ||
     state.digestionTrackingEnabled ||
-    state.alcoholTrackingEnabled ||
-    state.trackedFields.nightEating
+    state.alcoholTrackingEnabled
 
   if (!showEveningSection) return null
 
@@ -326,57 +325,6 @@ export function DailyEntryFormBottom() {
                   </ToggleGroupItem>
                 </ToggleGroup>
               </div>
-            )}
-
-            {/* #383 / #532 — night eating is Settings-gated like the other
-             * Evening fields (was always shown before #532). */}
-            {state.trackedFields.nightEating && (
-            <div className="flex flex-col gap-1.5">
-              <span className="text-sm font-medium">
-                <Moon aria-hidden="true" className="mr-1 inline size-4" />
-                {t.dailyEntry.nightEatingLabel(state.sex)}
-              </span>
-              <ToggleGroup
-                type="single"
-                aria-label={t.dailyEntry.nightEatingLabel(state.sex)}
-                // #423 — the toggle's pressed/unpressed state reflects only the
-                // explicit `nightEatingOverride` (three states: 'yes'/'no'/
-                // undefined→''), never `nightEatingEffective`'s meal-derived
-                // fallback. Conflating the two made an auto-computed answer
-                // visually indistinguishable from a real manual pick — clearing
-                // an override on a day with real logged meals could "land back"
-                // on Yes or No instead of showing nothing selected, reported
-                // live with screenshots (a 7pm dinner correctly derives to "not
-                // late," so Clear appeared to snap to No). `''` for the
-                // undefined case keeps Radix's `useControllableState` in
-                // controlled mode (#406's own earlier fix) — the same real,
-                // defined "no item matches" value it already needed, just now
-                // driven by a value that can never coincide with a real answer.
-                // Tap-the-active-item-again is Radix's own built-in deselect, the
-                // only way to clear an override (#428 removed the explicit "×"
-                // Clear button this used to sit alongside).
-                value={
-                  state.nightEatingOverride === undefined
-                    ? ''
-                    : state.nightEatingOverride
-                      ? 'yes'
-                      : 'no'
-                }
-                onValueChange={(value) =>
-                  state.setNightEatingOverride(
-                    value === '' ? undefined : value === 'yes',
-                  )
-                }
-                className="w-fit"
-              >
-                <ToggleGroupItem value="no" className="h-12 px-6 text-base">
-                  {t.dailyEntry.nightEatingNoOption}
-                </ToggleGroupItem>
-                <ToggleGroupItem value="yes" className="h-12 px-6 text-base">
-                  {t.dailyEntry.nightEatingYesOption}
-                </ToggleGroupItem>
-              </ToggleGroup>
-            </div>
             )}
           </div>
         </CollapsibleContent>

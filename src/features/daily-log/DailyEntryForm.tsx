@@ -1,5 +1,6 @@
 import { DailyEntryFormBottom } from './DailyEntryFormBottom'
 import { DailyEntryFormMorning } from './DailyEntryFormMorning'
+import { DailyEntryFormNightFood } from './DailyEntryFormNightFood'
 import { DailyEntryFormStateProvider } from './DailyEntryFormStateContext'
 import { DailyEntryFormTop } from './DailyEntryFormTop'
 import type { DailyEntryFormProps } from './useDailyEntryFormState'
@@ -32,6 +33,7 @@ export function DailyEntryForm(props: DailyEntryFormProps) {
         <DailyEntryFormMorning />
         <DailyEntryFormTop />
         <DailyEntryFormBottom />
+        <DailyEntryFormNightFood />
       </form>
     </DailyEntryFormStateProvider>
   )

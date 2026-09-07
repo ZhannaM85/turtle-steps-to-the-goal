@@ -6,6 +6,7 @@ export type {
   EatingReason,
   Emotion,
   MealEmotion,
+  NightEatingRemember,
   WaterEntry,
 } from './DailyEntry'
 export { EATING_REASONS, isBuiltInEatingReason } from './DailyEntry'

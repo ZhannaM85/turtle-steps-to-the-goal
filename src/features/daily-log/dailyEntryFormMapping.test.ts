@@ -107,4 +107,21 @@ describe('formValuesToEntry', () => {
 
     expect(entry.nightEatingOverride).toBe(true)
   })
+
+  it('round-trips night food remember and reason (#818)', () => {
+    const entry = formValuesToEntry(
+      {
+        nightEatingOverride: true,
+        nightEatingRemember: 'partial',
+        nightEatingReason: 'could not sleep',
+      },
+      '2026-03-01',
+      { id: 'entry-1', createdAt: '2026-03-01T00:00:00.000Z' },
+    )
+
+    expect(entry.nightEatingRemember).toBe('partial')
+    expect(entry.nightEatingReason).toBe('could not sleep')
+    expect(entryToFormValues(entry).nightEatingRemember).toBe('partial')
+    expect(entryToFormValues(entry).nightEatingReason).toBe('could not sleep')
+  })
 })
