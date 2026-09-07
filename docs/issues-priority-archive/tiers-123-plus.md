@@ -488,3 +488,13 @@ _Day date-navigator height regression._
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#809](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/809) | ✅ Done | Day: date input shorter than arrows/Today button (regression of #647) | Confirmed on-device 2026-09-05 — date field matches the arrows/Today button again after restoring `py-1` on that field. |
+
+---
+
+## Tier 155 — Live feedback (2026-09-07)
+
+_Night food as its own Day card; Settings export/pin; Dashboard patterns; Dependabot._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#824](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/824) | ✅ Done | Chore: clear open Dependabot npm alerts (sharp, minimatch, uuid, elliptic) | Confirmed 2026-09-07 — no open Dependabot PRs after the lockfile overrides. |
