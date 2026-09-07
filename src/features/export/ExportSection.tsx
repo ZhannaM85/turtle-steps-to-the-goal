@@ -45,7 +45,7 @@ import {
   parseExportBundle,
 } from './exportActions'
 import { buildDailyLogCsv, CSV_BOM } from './exportCsv'
-import { exportPeriodFileStamp } from './exportPeriodFileStamp'
+import { exportPeriodFileStamp, resolveExportFileStem } from './exportPeriodFileStamp'
 import { buildDailyLogMarkdown } from './exportMarkdown'
 import {
   buildCustomMetricPdfSummaries,
@@ -423,6 +423,27 @@ export function ExportSection() {
   // filterByExportPeriod's own note).
   const [periodStart, setPeriodStart] = useState('')
   const [periodEnd, setPeriodEnd] = useState('')
+  const [fileStem, setFileStem] = useState(() =>
+    `turtle-steps-daily-log-${exportPeriodFileStamp('', '')}`,
+  )
+
+  function setPeriodStartAndMaybeStem(next: string) {
+    setFileStem((prev) => {
+      const oldDefault = `turtle-steps-daily-log-${exportPeriodFileStamp(periodStart, periodEnd)}`
+      const nextDefault = `turtle-steps-daily-log-${exportPeriodFileStamp(next, periodEnd)}`
+      return prev === oldDefault || !prev.trim() ? nextDefault : prev
+    })
+    setPeriodStart(next)
+  }
+
+  function setPeriodEndAndMaybeStem(next: string) {
+    setFileStem((prev) => {
+      const oldDefault = `turtle-steps-daily-log-${exportPeriodFileStamp(periodStart, periodEnd)}`
+      const nextDefault = `turtle-steps-daily-log-${exportPeriodFileStamp(periodStart, next)}`
+      return prev === oldDefault || !prev.trim() ? nextDefault : prev
+    })
+    setPeriodEnd(next)
+  }
 
   // Best-effort (#176) — navigator.storage is unavailable in some browsers
   // and estimate() itself can reject; either way, just show nothing rather
@@ -535,7 +556,7 @@ export function ExportSection() {
       const url = URL.createObjectURL(blob)
       const link = document.createElement('a')
       link.href = url
-      link.download = `turtle-steps-backup-ranged-${exportPeriodFileStamp(periodStart, periodEnd)}.json`
+      link.download = `${resolveExportFileStem(fileStem, periodStart, periodEnd)}.json`
       link.click()
       URL.revokeObjectURL(url)
       setStatus({
@@ -584,7 +605,7 @@ export function ExportSection() {
       const url = URL.createObjectURL(blob)
       const link = document.createElement('a')
       link.href = url
-      link.download = `turtle-steps-export-${exportPeriodFileStamp(periodStart, periodEnd)}.xlsx`
+      link.download = `${resolveExportFileStem(fileStem, periodStart, periodEnd)}.xlsx`
       link.click()
       URL.revokeObjectURL(url)
       setStatus({
@@ -624,7 +645,7 @@ export function ExportSection() {
       const url = URL.createObjectURL(blob)
       const link = document.createElement('a')
       link.href = url
-      link.download = `turtle-steps-daily-log-${exportPeriodFileStamp(periodStart, periodEnd)}.csv`
+      link.download = `${resolveExportFileStem(fileStem, periodStart, periodEnd)}.csv`
       link.click()
       URL.revokeObjectURL(url)
       setStatus({ kind: 'exportedCsv', entries: dailyEntries.length })
@@ -660,7 +681,7 @@ export function ExportSection() {
       const url = URL.createObjectURL(blob)
       const link = document.createElement('a')
       link.href = url
-      link.download = `turtle-steps-daily-log-${exportPeriodFileStamp(periodStart, periodEnd)}.md`
+      link.download = `${resolveExportFileStem(fileStem, periodStart, periodEnd)}.md`
       link.click()
       URL.revokeObjectURL(url)
       setStatus({
@@ -1105,7 +1126,7 @@ export function ExportSection() {
               aria-label={`${t.export.exportPeriodLabel} — ${t.dashboard.rangeStartLabel}`}
               value={periodStart}
               max={periodEnd || undefined}
-              onChange={(e) => setPeriodStart(e.target.value)}
+              onChange={(e) => setPeriodStartAndMaybeStem(e.target.value)}
               className="h-12"
             />
             <Input
@@ -1113,10 +1134,22 @@ export function ExportSection() {
               aria-label={`${t.export.exportPeriodLabel} — ${t.dashboard.rangeEndLabel}`}
               value={periodEnd}
               min={periodStart || undefined}
-              onChange={(e) => setPeriodEnd(e.target.value)}
+              onChange={(e) => setPeriodEndAndMaybeStem(e.target.value)}
               className="h-12"
             />
           </div>
+          <label className="flex flex-col gap-1.5">
+            <span className="text-sm font-medium">
+              {t.export.exportFileNameLabel}
+            </span>
+            <Input
+              type="text"
+              aria-label={t.export.exportFileNameLabel}
+              value={fileStem}
+              onChange={(e) => setFileStem(e.target.value)}
+              className="h-12"
+            />
+          </label>
         </div>
 
         {/* #370 — a second, clearly separate JSON export from the always-

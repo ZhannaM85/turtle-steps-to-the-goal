@@ -704,6 +704,7 @@ export const en: Dictionary = {
     importFailed: 'Import failed.',
     fileTooLarge: 'This file is too large to import (maximum 200 MB).',
     exportPeriodLabel: 'Export period',
+    exportFileNameLabel: 'File name',
     exportPeriodDescription:
       'Optional — applies to Excel, CSV, and Markdown below, and the ranged backup below that, not the full JSON backup above. Leave blank to export everything.',
     exportRangedBackupBlurb:

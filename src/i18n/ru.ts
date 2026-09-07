@@ -728,6 +728,7 @@ export const ru: Dictionary = {
     importFailed: 'Не удалось выполнить импорт.',
     fileTooLarge: 'Этот файл слишком большой для импорта (максимум 200 МБ).',
     exportPeriodLabel: 'Период экспорта',
+    exportFileNameLabel: 'Имя файла',
     exportPeriodDescription:
       'Необязательно — применяется к Excel, CSV и Markdown ниже, а также к экспорту копии за период ниже, но не к полной резервной копии JSON выше. Оставьте пустым, чтобы экспортировать всё.',
     exportRangedBackupBlurb:

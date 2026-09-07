@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest'
-import { exportPeriodFileStamp } from './exportPeriodFileStamp'
+import {
+  defaultDailyLogStem,
+  exportPeriodFileStamp,
+  resolveExportFileStem,
+} from './exportPeriodFileStamp'
 
 const today = new Date(2026, 8, 7)
 
@@ -30,5 +34,17 @@ describe('exportPeriodFileStamp (#822)', () => {
     expect(exportPeriodFileStamp('', '2026-09-06', today)).toBe(
       'until-2026-09-06',
     )
+  })
+})
+
+describe('resolveExportFileStem (#821)', () => {
+  it('falls back to the daily-log default when empty', () => {
+    expect(resolveExportFileStem('  ', '2026-08-31', '2026-09-06', today)).toBe(
+      defaultDailyLogStem('2026-08-31', '2026-09-06', today),
+    )
+  })
+
+  it('keeps a custom stem and strips an extension', () => {
+    expect(resolveExportFileStem('my-week.csv', '', '', today)).toBe('my-week')
   })
 })

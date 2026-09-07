@@ -22,3 +22,23 @@ export function exportPeriodFileStamp(
   if (end) return `until-${end}`
   return format(today, 'yyyy-MM-dd')
 }
+
+export function defaultDailyLogStem(
+  periodStart: string,
+  periodEnd: string,
+  today: Date = new Date(),
+): string {
+  return `turtle-steps-daily-log-${exportPeriodFileStamp(periodStart, periodEnd, today)}`
+}
+
+/** Stem for the download `a[download]` (#821). Empty / whitespace uses the default. */
+export function resolveExportFileStem(
+  raw: string,
+  periodStart: string,
+  periodEnd: string,
+  today: Date = new Date(),
+): string {
+  let stem = raw.trim().replace(/[\\/:*?"<>|]+/g, '-')
+  stem = stem.replace(/\.(csv|md|xlsx|json|pdf)$/i, '')
+  return stem || defaultDailyLogStem(periodStart, periodEnd, today)
+}

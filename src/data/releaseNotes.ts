@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 781,
+    issue: 821,
+    date: '2026-09-07T13:20:00+03:00',
+    en: 'You can rename the Excel, CSV, Markdown, or ranged-backup file before saving. The field starts with the usual name; leave it blank to keep that default.',
+    ru: 'Перед сохранением можно задать имя файла Excel, CSV, Markdown или копии за период. Поле сразу заполнено обычным именем; пустое значение оставляет его как есть.',
+  },
+  {
     version: 780,
     issue: 822,
     date: '2026-09-07T13:15:00+03:00',

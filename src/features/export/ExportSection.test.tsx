@@ -232,6 +232,28 @@ describe('ExportSection', () => {
     expect(downloads.at(-1)).not.toContain('to-')
   })
 
+  it('uses the File name field for CSV (#821)', async () => {
+    await db.goals.put(makeGoal())
+    await db.dailyEntries.put(makeEntry({ date: '2026-03-01' }))
+    const user = userEvent.setup()
+    const downloads: string[] = []
+    vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(
+      function (this: HTMLAnchorElement) {
+        downloads.push(this.download)
+      },
+    )
+
+    render(<ExportSection />)
+    fireEvent.change(screen.getByLabelText('File name'), {
+      target: { value: 'my-week' },
+    })
+    await user.click(screen.getByRole('button', { name: 'Export as CSV' }))
+    expect(
+      await screen.findByText('Exported 1 daily entry.'),
+    ).toBeInTheDocument()
+    expect(downloads.at(-1)).toBe('my-week.csv')
+  })
+
   it('scopes the ranged backup to the chosen period, keeping all goals (#370)', async () => {
     await db.goals.put(makeGoal())
     await db.dailyEntries.put(makeEntry({ date: '2026-02-15' }))
