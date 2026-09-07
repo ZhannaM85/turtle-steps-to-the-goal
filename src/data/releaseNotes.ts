@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 780,
+    issue: 822,
+    date: '2026-09-07T13:15:00+03:00',
+    en: 'Period Excel, CSV, Markdown, and ranged-backup files now include the from–to dates in the filename, so copies for different ranges are easy to tell apart.',
+    ru: 'В именах Excel, CSV, Markdown и резервной копии за период теперь есть даты с–по, чтобы разные диапазоны было проще отличить.',
+  },
+  {
     version: 779,
     issue: 817,
     date: '2026-09-06T21:35:00+03:00',

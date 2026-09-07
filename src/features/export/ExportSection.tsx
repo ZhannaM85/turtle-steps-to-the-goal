@@ -45,6 +45,7 @@ import {
   parseExportBundle,
 } from './exportActions'
 import { buildDailyLogCsv, CSV_BOM } from './exportCsv'
+import { exportPeriodFileStamp } from './exportPeriodFileStamp'
 import { buildDailyLogMarkdown } from './exportMarkdown'
 import {
   buildCustomMetricPdfSummaries,
@@ -534,7 +535,7 @@ export function ExportSection() {
       const url = URL.createObjectURL(blob)
       const link = document.createElement('a')
       link.href = url
-      link.download = `turtle-steps-backup-ranged-${format(new Date(), 'yyyy-MM-dd')}.json`
+      link.download = `turtle-steps-backup-ranged-${exportPeriodFileStamp(periodStart, periodEnd)}.json`
       link.click()
       URL.revokeObjectURL(url)
       setStatus({
@@ -583,7 +584,7 @@ export function ExportSection() {
       const url = URL.createObjectURL(blob)
       const link = document.createElement('a')
       link.href = url
-      link.download = `turtle-steps-export-${format(new Date(), 'yyyy-MM-dd')}.xlsx`
+      link.download = `turtle-steps-export-${exportPeriodFileStamp(periodStart, periodEnd)}.xlsx`
       link.click()
       URL.revokeObjectURL(url)
       setStatus({
@@ -623,7 +624,7 @@ export function ExportSection() {
       const url = URL.createObjectURL(blob)
       const link = document.createElement('a')
       link.href = url
-      link.download = `turtle-steps-daily-log-${format(new Date(), 'yyyy-MM-dd')}.csv`
+      link.download = `turtle-steps-daily-log-${exportPeriodFileStamp(periodStart, periodEnd)}.csv`
       link.click()
       URL.revokeObjectURL(url)
       setStatus({ kind: 'exportedCsv', entries: dailyEntries.length })
@@ -659,7 +660,7 @@ export function ExportSection() {
       const url = URL.createObjectURL(blob)
       const link = document.createElement('a')
       link.href = url
-      link.download = `turtle-steps-daily-log-${format(new Date(), 'yyyy-MM-dd')}.md`
+      link.download = `turtle-steps-daily-log-${exportPeriodFileStamp(periodStart, periodEnd)}.md`
       link.click()
       URL.revokeObjectURL(url)
       setStatus({
@@ -741,7 +742,7 @@ export function ExportSection() {
       const url = URL.createObjectURL(blob)
       const link = document.createElement('a')
       link.href = url
-      link.download = `turtle-steps-summary-${pdfPeriodEnd}.pdf`
+      link.download = `turtle-steps-summary-${exportPeriodFileStamp(pdfPeriodStart, pdfPeriodEnd)}.pdf`
       link.click()
       URL.revokeObjectURL(url)
       setPdfSectionsDialogOpen(false)

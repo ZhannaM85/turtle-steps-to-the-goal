@@ -195,6 +195,43 @@ describe('ExportSection', () => {
     ).toBeInTheDocument()
   })
 
+  it('puts the chosen period in period-export filenames (#822)', async () => {
+    await db.goals.put(makeGoal())
+    await db.dailyEntries.put(makeEntry({ date: '2026-03-01' }))
+    const user = userEvent.setup()
+    const downloads: string[] = []
+    vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(
+      function (this: HTMLAnchorElement) {
+        downloads.push(this.download)
+      },
+    )
+
+    render(<ExportSection />)
+    fireEvent.change(screen.getByLabelText('Export period — Start date'), {
+      target: { value: '2026-03-01' },
+    })
+    fireEvent.change(screen.getByLabelText('Export period — End date'), {
+      target: { value: '2026-03-31' },
+    })
+
+    await user.click(screen.getByRole('button', { name: 'Export as CSV' }))
+    expect(
+      await screen.findByText('Exported 1 daily entry.'),
+    ).toBeInTheDocument()
+    expect(downloads.at(-1)).toBe(
+      'turtle-steps-daily-log-2026-03-01-to-2026-03-31.csv',
+    )
+
+    await user.click(screen.getByRole('button', { name: 'Export backup' }))
+    expect(
+      await screen.findByText('Exported 1 goal and 1 daily entry.'),
+    ).toBeInTheDocument()
+    expect(downloads.at(-1)).toMatch(
+      /^turtle-steps-backup-\d{4}-\d{2}-\d{2}\.json$/,
+    )
+    expect(downloads.at(-1)).not.toContain('to-')
+  })
+
   it('scopes the ranged backup to the chosen period, keeping all goals (#370)', async () => {
     await db.goals.put(makeGoal())
     await db.dailyEntries.put(makeEntry({ date: '2026-02-15' }))
