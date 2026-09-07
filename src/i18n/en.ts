@@ -1150,6 +1150,26 @@ export const en: Dictionary = {
     mealNameFrequencyTitle: 'Meal names recently',
     mealNameFrequencyDescription:
       'How often each meal name showed up in the last 7 and 30 days — not a dish ranking.',
+    eatingPatternsTitle: 'Personal eating patterns',
+    eatingPatternsDescription:
+      'What tends to happen after a meal in your data — time until the next eating episode, not a count of dishes.',
+    eatingPatternsLearningDescription:
+      'We’re still learning your patterns… Keep logging meals with times. Insights stay hidden until the sample is large enough.',
+    eatingPatternsCaveat:
+      'Your data suggests a relationship, not a cause. Correlation is not causation, and this is not medical advice.',
+    eatingPatternsDetailsLabel: 'How this was calculated',
+    eatingPatternsDetailsBody:
+      'Each interval is from one timed meal to the next timed meal (including across midnight). That is time until the next eating episode. Time until hunger is used only when you logged hunger as the next meal’s reason — it is never inferred from the gap. Higher- vs lower-carb uses a median split of carb calories. Evening is 17:00–22:59; night is 23:00–04:59.',
+    eatingPatternsSampleSize: (n) =>
+      `Based on ${n} meal-to-meal interval${n === 1 ? '' : 's'}.`,
+    eatingPatternsCarbGap: (higher, lower) =>
+      `In your recent data, higher-carb meals were followed by the next eating episode after ${higher} on average, versus ${lower} after lower-carb meals.`,
+    eatingPatternsCarbGapCraving: (k, n) =>
+      `The next episode was logged as craving a specific food in ${k} of ${n} higher-carb cases.`,
+    eatingPatternsEveningNight: (nightCount, eveningCount, average) =>
+      `Your data suggests night eating often follows an evening meal (${nightCount} of ${eveningCount}). Average time to that next episode: ${average}.`,
+    eatingPatternsEveningNightReason: (reason, k) =>
+      `Most common reason for that next episode: ${reason} (${k}).`,
     customChartTitle: 'Compare your data',
     customChartWeightLabel: 'Weight',
     customChartCaloriesLabel: 'Calories',

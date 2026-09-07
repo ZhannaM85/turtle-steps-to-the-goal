@@ -29,6 +29,7 @@ export const DEFAULT_DASHBOARD_SECTION_ORDER: DashboardChartKey[] = [
   'eatingReasonsTally',
   'mealTimeBuckets',
   'mealNameFrequency',
+  'eatingPatterns',
   'loggingConsistency',
   'recentAverages',
   'weeklySummary',

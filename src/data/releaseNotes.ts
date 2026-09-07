@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 785,
+    issue: 823,
+    date: '2026-09-07T14:40:00+03:00',
+    en: 'Dashboard shows personal eating patterns: what tends to happen after a meal, with sample size and no cause-and-effect claims.',
+    ru: 'На сводке появились закономерности: что обычно бывает после приёма пищи, с размером выборки и без заявлений о причине.',
+  },
+  {
     version: 784,
     issue: 818,
     date: '2026-09-07T14:10:00+03:00',

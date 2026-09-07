@@ -1761,6 +1761,22 @@ export interface Dictionary {
     /** #816 — meal slot names (Breakfast / Lunch / custom) recently. */
     mealNameFrequencyTitle: string
     mealNameFrequencyDescription: string
+    /** #823 — what tends to happen after a meal (not a count table). */
+    eatingPatternsTitle: string
+    eatingPatternsDescription: string
+    eatingPatternsLearningDescription: string
+    eatingPatternsCaveat: string
+    eatingPatternsDetailsLabel: string
+    eatingPatternsDetailsBody: string
+    eatingPatternsSampleSize: (n: number) => string
+    eatingPatternsCarbGap: (higher: string, lower: string) => string
+    eatingPatternsCarbGapCraving: (k: number, n: number) => string
+    eatingPatternsEveningNight: (
+      nightCount: number,
+      eveningCount: number,
+      average: string,
+    ) => string
+    eatingPatternsEveningNightReason: (reason: string, k: number) => string
     /** Customizable multi-series chart (#132) — checkboxes toggle which
      * series overlay on one chart. Weight/Calories/Fasting hours get their
      * own Title-case labels here since dailyEntry's weightLegend/

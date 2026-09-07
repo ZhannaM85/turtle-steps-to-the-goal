@@ -47,6 +47,8 @@ export function dashboardChartTitle(
       return t.dashboard.mealTimeBucketsTitle
     case 'mealNameFrequency':
       return t.dashboard.mealNameFrequencyTitle
+    case 'eatingPatterns':
+      return t.dashboard.eatingPatternsTitle
     case 'loggingConsistency':
       return t.dashboard.loggingConsistencyTitle
     case 'recentAverages':

@@ -155,6 +155,15 @@ export type {
 export { mealNameTallies } from './mealNameFrequency'
 export type { MealNameTally } from './mealNameFrequency'
 export {
+  eatingEpisodeLinks,
+  eatingPatternInsights,
+  MIN_EATING_PATTERN_PAIRS,
+} from './eatingPatterns'
+export type {
+  EatingEpisodeLink,
+  EatingPatternInsight,
+} from './eatingPatterns'
+export {
   customChartPoints,
   booleanFlagDates,
   booleanFlagMarkers,
