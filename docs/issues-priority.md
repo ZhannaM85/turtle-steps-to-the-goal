@@ -53,7 +53,7 @@ _Meal name templates in Settings; Dashboard descriptive leaderboards (most-eaten
 
 ## Tier 155 — Live feedback (2026-09-07)
 
-_Night food as its own Day card; Settings export range presets; pin Settings cards below About._
+_Night food as its own Day card; Settings export presets, pin-to-top, and export filenames._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
@@ -61,5 +61,6 @@ _Night food as its own Day card; Settings export range presets; pin Settings car
 | [#819](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/819) | 📋 Not started | Settings: export range presets like my-money (week / month / year / all / custom) | Keep existing from/to fields. Add pill row (Неделя / Месяц / Год / Все / Свой) as in my-money; Week/Month/Year fill dates from today, All = no filter, Custom = the two date boxes. Period formats only — not full JSON backup. |
 | [#820](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/820) | 📋 Not started | Settings: pin cards to top; About the app always stays first | Pin Settings section cards (Export, Food sharing, others) below **О проекте**, which stays first even when pins exist. Persist locally; unpin restores normal order. |
 | [#821](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/821) | 📋 Not started | Settings: rename export file before save (input, default name) | Text field on the export card, pre-filled with `turtle-steps-daily-log-YYYY-MM-DD`; empty falls back to default. Stem only — format extension unchanged. |
+| [#822](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/822) | 📋 Not started | Settings: put export date range in the filename | Period exports should include from–to dates in the name (not only the export day). Unbounded/full export can keep the single-date default. Follows selected from/to (incl. #819 when it lands). |
 
 ---
