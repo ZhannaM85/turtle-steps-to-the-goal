@@ -53,7 +53,7 @@ _Meal name templates in Settings; Dashboard descriptive leaderboards (most-eaten
 
 ## Tier 155 — Live feedback (2026-09-07)
 
-_Night food as its own Day card; Settings export/pin; Dashboard patterns; Dependabot._
+_Night food as its own Day card (#825 hides extras when No); Settings export/pin; Dashboard patterns; Dependabot._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
@@ -62,5 +62,6 @@ _Night food as its own Day card; Settings export/pin; Dashboard patterns; Depend
 | [#821](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/821) | 🔍 Pending validation | Settings: rename export file before save (input, default name) | File name field under the period dates; empty → `defaultDailyLogStem`. Applies to Excel/CSV/Markdown/ranged JSON. Full backup / encrypted unchanged. |
 | [#822](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/822) | 🔍 Pending validation | Settings: put export date range in the filename | `exportPeriodFileStamp`: both dates → `start-to-end`; blank-blank keeps today. Used by Excel/CSV/Markdown/ranged JSON/PDF. Full JSON backup still today-only. |
 | [#823](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/823) | 🔍 Pending validation | Dashboard: Personal eating patterns (what tends to happen after a meal) | `EatingPatternsView` after meal-name frequency. Consecutive timed meals → gap to next episode (≠ hunger). Up to 3 insights (carb gap, evening→night) with N and a calculation note. |
+| [#825](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/825) | ⬜ Open | Day: hide night-food remember and reason when No | Follow-up to #818. Hide «Помню, как ела» and Reason when Нет is selected; show them when Да. |
 
 ---
