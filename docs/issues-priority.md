@@ -53,7 +53,7 @@ _Meal name templates in Settings; Dashboard descriptive leaderboards (most-eaten
 
 ## Tier 155 — Live feedback (2026-09-07)
 
-_Night food as its own Day card; Settings export/pin; Dashboard personal eating patterns._
+_Night food as its own Day card; Settings export/pin; Dashboard patterns; Dependabot._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
@@ -63,5 +63,6 @@ _Night food as its own Day card; Settings export/pin; Dashboard personal eating 
 | [#821](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/821) | 📋 Not started | Settings: rename export file before save (input, default name) | Text field on the export card, pre-filled with `turtle-steps-daily-log-YYYY-MM-DD`; empty falls back to default. Stem only — format extension unchanged. |
 | [#822](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/822) | 📋 Not started | Settings: put export date range in the filename | Period exports should include from–to dates in the name (not only the export day). Unbounded/full export can keep the single-date default. Follows selected from/to (incl. #819 when it lands). |
 | [#823](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/823) | 📋 Not started | Dashboard: Personal eating patterns (what tends to happen after a meal) | Not another #812–#816 count card. Meal → composition → time to **next eating episode** (≠ hunger unless logged) → next reason / night? 1–3 data-backed insights, sample size, no causation. Motivating Q: why night eating. |
+| [#824](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/824) | 📋 Not started | Chore: clear open Dependabot npm alerts (sharp, minimatch, uuid, elliptic) | 4 open alerts (2 high / 1 moderate / 1 low), all transitive dev deps. Bump/override; elliptic has no patched release listed. https://github.com/ZhannaM85/turtle-steps-to-the-goal/security/dependabot |
 
 ---
