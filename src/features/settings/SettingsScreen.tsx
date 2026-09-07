@@ -62,8 +62,9 @@ import {
 import { useSeedBackupFirstSeenAt } from '@/shared/hooks/useSeedBackupFirstSeenAt'
 import { eatingReasonDisplayLabel } from '@/shared/lib/eatingReasonDisplay'
 import { Button } from '@/shared/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
+import { CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
 import { SettingsPinnableCard } from './SettingsPinnableCard'
+import { SettingsCardsCollapseControl } from './SettingsCardsCollapseControl'
 import { Input } from '@/shared/ui/input'
 import { Label } from '@/shared/ui/label'
 import { PageHeader } from '@/shared/ui/page-header'
@@ -655,6 +656,8 @@ export function SettingsScreen() {
       />
       </div>
 
+      <SettingsCardsCollapseControl />
+
       {/* #599 — quiet, dismissible nudge once the backup's gone stale (see
        * `lastBackupReminder.ts`); a snooze suppresses it for
        * BACKUP_REMINDER_SNOOZE_DAYS rather than forever. Sits at the very
@@ -700,7 +703,7 @@ export function SettingsScreen() {
        * capabilities aren't buried under recipes/metrics. #504 keeps
        * Export in its prior lower placement (backup/storage with the
        * destructive clear/delete group), not at the top with these cards. */}
-      <Card style={{ order: -2000 }}>
+      <SettingsPinnableCard pinId="about" pinnable={false} style={{ order: -2000 }}>
         <CardHeader>
           <CardTitle>{t.settings.aboutLabel}</CardTitle>
         </CardHeader>
@@ -712,7 +715,7 @@ export function SettingsScreen() {
             <Link to="/about">{t.settings.viewAboutButton}</Link>
           </Button>
         </CardContent>
-      </Card>
+      </SettingsPinnableCard>
 
       <SettingsPinnableCard pinId="features">
         <CardHeader>

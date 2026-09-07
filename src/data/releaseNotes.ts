@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 788,
+    issue: 826,
+    date: '2026-09-07T19:15:00+03:00',
+    en: 'Settings cards can be collapsed, with Expand all and Collapse all like on Day.',
+    ru: 'Карточки в настройках можно сворачивать, с «Развернуть все» и «Свернуть все», как на дне.',
+  },
+  {
     version: 787,
     issue: 827,
     date: '2026-09-07T19:00:00+03:00',

@@ -22,6 +22,7 @@ import {
   useWaterTrackingStore,
   useWeekStartStore,
   useSettingsPinStore,
+  useSettingsCardsCollapseStore,
 } from '@/stores'
 import { SettingsScreen } from './SettingsScreen'
 
@@ -39,6 +40,7 @@ const defaultTrendChartVisible = {
 beforeEach(() => {
   localStorage.clear()
   useSettingsPinStore.setState({ pinned: [] })
+  useSettingsCardsCollapseStore.getState().expandAll()
   useLocaleStore.setState({ locale: 'en' })
   useThemeStore.setState({ mood: 'pond', colorScheme: 'light' })
   useUnitStore.setState({ unit: 'kg' })
@@ -1050,6 +1052,40 @@ describe('SettingsScreen', () => {
         true,
       )
     })
+  })
+
+  it('collapses a Settings card body and keeps About unpinnable (#826)', async () => {
+    const user = userEvent.setup()
+    renderSettings()
+    const aboutCard = screen.getByRole('heading', { name: 'About' }).closest(
+      '[data-slot=card]',
+    )
+    expect(aboutCard).toBeTruthy()
+    await user.click(
+      within(aboutCard as HTMLElement).getByRole('button', {
+        name: 'Collapse',
+      }),
+    )
+    expect(
+      within(aboutCard as HTMLElement).getByRole('button', { name: 'Expand' }),
+    ).toHaveAttribute('aria-expanded', 'false')
+    expect(aboutCard).toHaveClass('[&_[data-slot=card-content]]:hidden')
+    expect(
+      within(aboutCard as HTMLElement).queryByRole('button', {
+        name: 'Pin to top',
+      }),
+    ).not.toBeInTheDocument()
+  })
+
+  it('collapses all Settings cards from the Day-style control (#826)', async () => {
+    const user = userEvent.setup()
+    renderSettings()
+    await user.click(screen.getByRole('button', { name: 'Collapse all' }))
+    expect(screen.getByRole('button', { name: 'Expand all' })).toBeInTheDocument()
+    const aboutCard = screen.getByRole('heading', { name: 'About' }).closest(
+      '[data-slot=card]',
+    )
+    expect(aboutCard).toHaveClass('[&_[data-slot=card-content]]:hidden')
   })
 
   it('pins Export below About (#820)', async () => {

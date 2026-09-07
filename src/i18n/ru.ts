@@ -1573,6 +1573,8 @@ export const ru: Dictionary = {
     viewAboutButton: 'Открыть «О проекте»',
     pinCardLabel: 'Закрепить сверху',
     unpinCardLabel: 'Открепить',
+    collapseCardLabel: 'Свернуть',
+    expandCardLabel: 'Развернуть',
     featuresLabel: 'Возможности',
     featuresDescription: 'Всё, что умеет приложение, со скриншотами.',
     viewFeaturesButton: 'Открыть «Возможности»',

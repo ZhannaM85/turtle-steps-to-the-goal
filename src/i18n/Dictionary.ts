@@ -2210,6 +2210,8 @@ export interface Dictionary {
     viewAboutButton: string
     pinCardLabel: string
     unpinCardLabel: string
+    collapseCardLabel: string
+    expandCardLabel: string
     /** #498 — Features/Capabilities entry at the top of Settings (same
      * card shape as About), linking to `/features`. Distinct from
      * about.viewFeaturesLabel's longer About-page CTA. */

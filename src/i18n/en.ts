@@ -1521,6 +1521,8 @@ export const en: Dictionary = {
     viewAboutButton: 'View About',
     pinCardLabel: 'Pin to top',
     unpinCardLabel: 'Unpin',
+    collapseCardLabel: 'Collapse',
+    expandCardLabel: 'Expand',
     featuresLabel: 'Features',
     featuresDescription: 'Everything the app can do, with screenshots.',
     viewFeaturesButton: 'View Features',

@@ -77,6 +77,12 @@ export { useCustomMetricNoteDismissalStore } from './customMetricNoteDismissalSt
 export { useCustomCorrelationStore } from './customCorrelationStore'
 export { useWeeklyNoteStore } from './weeklyNoteStore'
 export { useSettingsPinStore } from './settingsPinStore'
+export {
+  SETTINGS_CARD_KEYS,
+  anySettingsCardExpanded,
+  useSettingsCardsCollapseStore,
+  type SettingsCardKey,
+} from './settingsCardsCollapseStore'
 export { usePlannedMealStore } from './plannedMealStore'
 export { useCalendarMarkerVisibilityStore } from './calendarMarkerVisibilityStore'
 export type { CalendarMarkerKey } from './calendarMarkerVisibilityStore'
