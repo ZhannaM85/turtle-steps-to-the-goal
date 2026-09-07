@@ -498,6 +498,7 @@ _Meal name templates in Settings; Dashboard descriptive leaderboards._
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#814](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/814) | ✅ Done | Dashboard: eating-reasons tally (last 7 / 30 days) | Confirmed on-device 2026-09-07 — eating-reasons tally for last 7 / 30 days. |
+| [#816](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/816) | ✅ Done | Dashboard: meal-name frequency recently (last 7 / 30 days) | Confirmed on-device 2026-09-07 — meal-name frequency for last 7 / 30 days. |
 | [#817](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/817) | ✅ Done | Settings: leftover English meal-name templates should follow the UI language | Confirmed on-device 2026-09-07 — leftover English Breakfast/Lunch/Dinner/Snack follow the UI language. |
 
 ---

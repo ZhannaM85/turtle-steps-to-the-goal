@@ -45,7 +45,6 @@ _Meal name templates in Settings; Dashboard descriptive leaderboards (most-eaten
 | [#812](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/812) | 🔍 Pending validation | Dashboard: most-eaten-recently leaderboard (not a correlation) | `MostEatenFoodsView` — top 8 dishes by times logged in last 7 / 30 days (`foodFrequency.ts`), grouped by trimmed name. Hideable card after Food reactions. kcal-share toggle is #813. |
 | [#813](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/813) | 🔍 Pending validation | Dashboard: Count \| kcal toggle on most-eaten-recently card | Same `MostEatenFoodsView` as #812. Count = times logged; kcal = summed amountKcal + % of named-item kcal. dayTotals ignored. |
 | [#815](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/815) | 🔍 Pending validation | Dashboard: when meals happened (time-of-day buckets) | Four buckets (morning 05:00–11:59, afternoon 12:00–16:59, evening 17:00–22:59, night 23:00–04:59). Untimed meals noted, not bucketed. Distinct from #116 / #383. |
-| [#816](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/816) | 🔍 Pending validation | Dashboard: meal-name frequency recently (last 7 / 30 days) | Ranked via `effectiveMealLabel` (custom label or positional Breakfast/Lunch/…). Distinct from #812 (dishes) and #338 (meal count vs weight). |
 
 ---
 
