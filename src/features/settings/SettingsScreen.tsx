@@ -63,6 +63,7 @@ import { useSeedBackupFirstSeenAt } from '@/shared/hooks/useSeedBackupFirstSeenA
 import { eatingReasonDisplayLabel } from '@/shared/lib/eatingReasonDisplay'
 import { Button } from '@/shared/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
+import { SettingsPinnableCard } from './SettingsPinnableCard'
 import { Input } from '@/shared/ui/input'
 import { Label } from '@/shared/ui/label'
 import { PageHeader } from '@/shared/ui/page-header'
@@ -637,7 +638,8 @@ export function SettingsScreen() {
 
   return (
     <div className="flex flex-col gap-4">
-      <PageHeader
+      <div style={{ order: -4000 }}>
+        <PageHeader
         title={t.settings.title}
         description={t.settings.description}
         action={
@@ -651,6 +653,7 @@ export function SettingsScreen() {
           )
         }
       />
+      </div>
 
       {/* #599 — quiet, dismissible nudge once the backup's gone stale (see
        * `lastBackupReminder.ts`); a snooze suppresses it for
@@ -660,6 +663,7 @@ export function SettingsScreen() {
       {backupReminder.show && (
         <div
           role="status"
+          style={{ order: -3000 }}
           className="flex items-center justify-between gap-2 rounded-lg border border-border bg-muted/40 px-3 py-2"
         >
           <span className="text-sm text-muted-foreground">
@@ -696,7 +700,7 @@ export function SettingsScreen() {
        * capabilities aren't buried under recipes/metrics. #504 keeps
        * Export in its prior lower placement (backup/storage with the
        * destructive clear/delete group), not at the top with these cards. */}
-      <Card>
+      <Card style={{ order: -2000 }}>
         <CardHeader>
           <CardTitle>{t.settings.aboutLabel}</CardTitle>
         </CardHeader>
@@ -710,7 +714,7 @@ export function SettingsScreen() {
         </CardContent>
       </Card>
 
-      <Card>
+      <SettingsPinnableCard pinId="features">
         <CardHeader>
           <CardTitle>{t.settings.featuresLabel}</CardTitle>
         </CardHeader>
@@ -722,9 +726,9 @@ export function SettingsScreen() {
             <Link to="/features">{t.settings.viewFeaturesButton}</Link>
           </Button>
         </CardContent>
-      </Card>
+      </SettingsPinnableCard>
 
-      <Card>
+      <SettingsPinnableCard pinId="units">
         <CardHeader>
           <CardTitle>{t.settings.unitsLabel}</CardTitle>
         </CardHeader>
@@ -743,9 +747,9 @@ export function SettingsScreen() {
             </ToggleGroupItem>
           </ToggleGroup>
         </CardContent>
-      </Card>
+      </SettingsPinnableCard>
 
-      <Card>
+      <SettingsPinnableCard pinId="weekStart">
         <CardHeader>
           <CardTitle>{t.settings.weekStartLabel}</CardTitle>
         </CardHeader>
@@ -767,9 +771,9 @@ export function SettingsScreen() {
             </ToggleGroupItem>
           </ToggleGroup>
         </CardContent>
-      </Card>
+      </SettingsPinnableCard>
 
-      <Card>
+      <SettingsPinnableCard pinId="dayStart">
         <CardHeader>
           <CardTitle>{t.settings.dayStartLabel}</CardTitle>
         </CardHeader>
@@ -785,9 +789,9 @@ export function SettingsScreen() {
             className="h-12 w-32"
           />
         </CardContent>
-      </Card>
+      </SettingsPinnableCard>
 
-      <Card>
+      <SettingsPinnableCard pinId="mealSlotTimes">
         <CardHeader>
           <CardTitle>{t.settings.mealSlotDefaultTimesLabel}</CardTitle>
         </CardHeader>
@@ -862,9 +866,9 @@ export function SettingsScreen() {
             </p>
           )}
         </CardContent>
-      </Card>
+      </SettingsPinnableCard>
 
-      <Card>
+      <SettingsPinnableCard pinId="language">
         <CardHeader>
           <CardTitle>{t.settings.languageLabel}</CardTitle>
         </CardHeader>
@@ -883,9 +887,9 @@ export function SettingsScreen() {
             </ToggleGroupItem>
           </ToggleGroup>
         </CardContent>
-      </Card>
+      </SettingsPinnableCard>
 
-      <Card>
+      <SettingsPinnableCard pinId="appearance">
         <CardHeader>
           <CardTitle>{t.settings.appearanceLabel}</CardTitle>
         </CardHeader>
@@ -941,12 +945,12 @@ export function SettingsScreen() {
             </ToggleGroup>
           </div>
         </CardContent>
-      </Card>
+      </SettingsPinnableCard>
 
       {/* #604 — one-tap starting point for Day's density, right above the
        * manual per-field toggles below; every field stays individually
        * editable afterward either way. */}
-      <Card>
+      <SettingsPinnableCard pinId="trackingPreset">
         <CardHeader>
           <CardTitle>{t.settings.trackingPresetLabel}</CardTitle>
         </CardHeader>
@@ -978,9 +982,9 @@ export function SettingsScreen() {
             )}
           </div>
         </CardContent>
-      </Card>
+      </SettingsPinnableCard>
 
-      <Card>
+      <SettingsPinnableCard pinId="trackedFields">
         <CardHeader>
           <CardTitle>{t.settings.trackedFieldsLabel}</CardTitle>
         </CardHeader>
@@ -1134,18 +1138,18 @@ export function SettingsScreen() {
             </div>
           )}
         </CardContent>
-      </Card>
+      </SettingsPinnableCard>
 
-      <Card>
+      <SettingsPinnableCard pinId="profile">
         <CardHeader>
           <CardTitle>{t.settings.profileLabel}</CardTitle>
         </CardHeader>
         <CardContent>
           <ProfileSection />
         </CardContent>
-      </Card>
+      </SettingsPinnableCard>
 
-      <Card>
+      <SettingsPinnableCard pinId="dailyReminder">
         <CardHeader>
           <CardTitle>{t.settings.dailyReminderLabel}</CardTitle>
         </CardHeader>
@@ -1186,9 +1190,9 @@ export function SettingsScreen() {
             </div>
           )}
         </CardContent>
-      </Card>
+      </SettingsPinnableCard>
 
-      <Card>
+      <SettingsPinnableCard pinId="nutritionFacts">
         <CardHeader>
           <CardTitle>{t.settings.nutritionFactsLabel}</CardTitle>
         </CardHeader>
@@ -1212,9 +1216,9 @@ export function SettingsScreen() {
             </ToggleGroupItem>
           </ToggleGroup>
         </CardContent>
-      </Card>
+      </SettingsPinnableCard>
 
-      <Card>
+      <SettingsPinnableCard pinId="sinceLastMealTimer">
         <CardHeader>
           <CardTitle>{t.settings.sinceLastMealTimerLabel}</CardTitle>
         </CardHeader>
@@ -1238,9 +1242,9 @@ export function SettingsScreen() {
             </ToggleGroupItem>
           </ToggleGroup>
         </CardContent>
-      </Card>
+      </SettingsPinnableCard>
 
-      <Card>
+      <SettingsPinnableCard pinId="entryComparison">
         <CardHeader>
           <CardTitle>{t.settings.entryComparisonLabel}</CardTitle>
         </CardHeader>
@@ -1264,9 +1268,9 @@ export function SettingsScreen() {
             </ToggleGroupItem>
           </ToggleGroup>
         </CardContent>
-      </Card>
+      </SettingsPinnableCard>
 
-      <Card>
+      <SettingsPinnableCard pinId="localTransfer">
         <CardHeader>
           <CardTitle>{t.settings.localTransferLabel}</CardTitle>
         </CardHeader>
@@ -1290,32 +1294,32 @@ export function SettingsScreen() {
             </ToggleGroupItem>
           </ToggleGroup>
         </CardContent>
-      </Card>
+      </SettingsPinnableCard>
 
       {/* #656 — Health Connect is an Android platform API, not available
        * on iOS/web; gated at the call site same as the daily reminder
        * time picker just above. */}
       {Capacitor.getPlatform() === 'android' && (
-        <Card>
+        <SettingsPinnableCard pinId="healthConnect">
           <CardHeader>
             <CardTitle>{t.settings.healthConnectSyncLabel}</CardTitle>
           </CardHeader>
           <CardContent>
             <HealthConnectSyncSection />
           </CardContent>
-        </Card>
+        </SettingsPinnableCard>
       )}
 
-      <Card>
+      <SettingsPinnableCard pinId="dashboardCharts">
         <CardHeader>
           <CardTitle>{t.settings.dashboardChartsLabel}</CardTitle>
         </CardHeader>
         <CardContent>
           <DashboardChartsVisibilitySection />
         </CardContent>
-      </Card>
+      </SettingsPinnableCard>
 
-      <Card>
+      <SettingsPinnableCard pinId="trendCharts">
         <CardHeader>
           <CardTitle>{t.settings.trendChartsLabel}</CardTitle>
         </CardHeader>
@@ -1362,27 +1366,27 @@ export function SettingsScreen() {
             </div>
           ))}
         </CardContent>
-      </Card>
+      </SettingsPinnableCard>
 
-      <Card>
+      <SettingsPinnableCard pinId="mealItems">
         <CardHeader>
           <CardTitle>{t.settings.mealItemsLabel}</CardTitle>
         </CardHeader>
         <CardContent>
           <MealItemsSection />
         </CardContent>
-      </Card>
+      </SettingsPinnableCard>
 
-      <Card>
+      <SettingsPinnableCard pinId="mealNamePresets">
         <CardHeader>
           <CardTitle>{t.settings.mealNamePresetsLabel}</CardTitle>
         </CardHeader>
         <CardContent>
           <MealLabelPresetsSection />
         </CardContent>
-      </Card>
+      </SettingsPinnableCard>
 
-      <Card>
+      <SettingsPinnableCard pinId="foodList">
         <CardHeader>
           <CardTitle>{t.settings.foodListLabel}</CardTitle>
         </CardHeader>
@@ -1394,12 +1398,12 @@ export function SettingsScreen() {
             <Link to="/settings/foods">{t.settings.manageFoodListButton}</Link>
           </Button>
         </CardContent>
-      </Card>
+      </SettingsPinnableCard>
 
       {/* #251 — same "description + link button" shape as the Food list
        * card above, reached from Settings rather than adding another
        * bottom-nav tab. */}
-      <Card>
+      <SettingsPinnableCard pinId="recipes">
         <CardHeader>
           <CardTitle>{t.recipes.settingsSectionLabel}</CardTitle>
         </CardHeader>
@@ -1411,11 +1415,11 @@ export function SettingsScreen() {
             <Link to="/settings/recipes">{t.recipes.manageRecipesButton}</Link>
           </Button>
         </CardContent>
-      </Card>
+      </SettingsPinnableCard>
 
       {/* #336 — same "description + link button" shape as Recipes/Food
        * list above. */}
-      <Card>
+      <SettingsPinnableCard pinId="customMetrics">
         <CardHeader>
           <CardTitle>{t.customMetrics.settingsSectionLabel}</CardTitle>
         </CardHeader>
@@ -1429,13 +1433,13 @@ export function SettingsScreen() {
             </Link>
           </Button>
         </CardContent>
-      </Card>
+      </SettingsPinnableCard>
 
       {/* #612 — mental model for phone/laptop users, right above Export:
        * this app has no live sync (local-first by design), so the manual
        * export/import relationship needs spelling out instead of being
        * guessed at from the button labels alone. */}
-      <Card>
+      <SettingsPinnableCard pinId="twoDevicesHelp">
         <CardHeader>
           <CardTitle>{t.settings.twoDevicesHelpLabel}</CardTitle>
         </CardHeader>
@@ -1452,39 +1456,39 @@ export function SettingsScreen() {
             ))}
           </ol>
         </CardContent>
-      </Card>
+      </SettingsPinnableCard>
 
       {/* #504 — Export stays above the destructive clear/delete actions
        * (#164), after preference/list-management cards — not promoted
        * with About/Features at the top (#498 side effect, reverted). */}
-      <Card id="export-section">
+      <SettingsPinnableCard pinId="export" id="export-section">
         <ExportSection />
-      </Card>
+      </SettingsPinnableCard>
 
       {/* #377 — a smaller-blast-radius destructive action than "clear
        * everything" below, so it goes right before it in this same
        * end-of-page destructive-actions group (#164's own placement
        * reasoning: irreversible actions belong at the end, not mixed in
        * among routine preference toggles). */}
-      <Card>
+      <SettingsPinnableCard pinId="deleteRange">
         <CardHeader>
           <CardTitle>{t.settings.deleteRangeLabel}</CardTitle>
         </CardHeader>
         <CardContent>
           <DeleteRangeSection />
         </CardContent>
-      </Card>
+      </SettingsPinnableCard>
 
       {/* Last (#164) — a destructive, irreversible action belongs at the
        * end of the page, not mixed in among routine preference toggles. */}
-      <Card>
+      <SettingsPinnableCard pinId="clearAllData">
         <CardHeader>
           <CardTitle>{t.settings.clearAllDataLabel}</CardTitle>
         </CardHeader>
         <CardContent>
           <ClearAllDataSection />
         </CardContent>
-      </Card>
+      </SettingsPinnableCard>
     </div>
   )
 }

@@ -1523,6 +1523,8 @@ export const ru: Dictionary = {
     aboutDescription:
       'Что это за приложение, кто его сделал, и заметки о выпусках.',
     viewAboutButton: 'Открыть «О проекте»',
+    pinCardLabel: 'Закрепить сверху',
+    unpinCardLabel: 'Открепить',
     featuresLabel: 'Возможности',
     featuresDescription: 'Всё, что умеет приложение, со скриншотами.',
     viewFeaturesButton: 'Открыть «Возможности»',

@@ -21,6 +21,7 @@ import {
   useMicronutrientTrackingStore,
   useWaterTrackingStore,
   useWeekStartStore,
+  useSettingsPinStore,
 } from '@/stores'
 import { SettingsScreen } from './SettingsScreen'
 
@@ -37,6 +38,7 @@ const defaultTrendChartVisible = {
 
 beforeEach(() => {
   localStorage.clear()
+  useSettingsPinStore.setState({ pinned: [] })
   useLocaleStore.setState({ locale: 'en' })
   useThemeStore.setState({ mood: 'pond', colorScheme: 'light' })
   useUnitStore.setState({ unit: 'kg' })
@@ -1048,5 +1050,23 @@ describe('SettingsScreen', () => {
         true,
       )
     })
+  })
+
+  it('pins Export below About (#820)', async () => {
+    const user = userEvent.setup()
+    renderSettings()
+    const exportCard = screen.getByRole('heading', { name: 'Export' }).closest(
+      '[data-slot=card]',
+    )
+    expect(exportCard).toBeTruthy()
+    await user.click(
+      within(exportCard as HTMLElement).getByRole('button', {
+        name: 'Pin to top',
+      }),
+    )
+    expect(exportCard).toHaveStyle({ order: '-1000' })
+    expect(
+      screen.getByRole('heading', { name: 'About' }).closest('[data-slot=card]'),
+    ).toHaveStyle({ order: '-2000' })
   })
 })

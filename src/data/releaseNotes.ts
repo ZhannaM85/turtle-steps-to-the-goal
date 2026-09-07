@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 783,
+    issue: 820,
+    date: '2026-09-07T13:50:00+03:00',
+    en: 'Settings cards can be pinned to the top. About the app always stays first.',
+    ru: 'Карточки в настройках можно закрепить сверху. «О проекте» всегда остаётся первой.',
+  },
+  {
     version: 782,
     issue: 819,
     date: '2026-09-07T13:30:00+03:00',
