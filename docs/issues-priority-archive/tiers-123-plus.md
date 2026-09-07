@@ -491,6 +491,16 @@ _Day date-navigator height regression._
 
 ---
 
+## Tier 154 — Live feedback (2026-09-06)
+
+_Meal name templates in Settings; Dashboard descriptive leaderboards._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#817](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/817) | ✅ Done | Settings: leftover English meal-name templates should follow the UI language | Confirmed on-device 2026-09-07 — leftover English Breakfast/Lunch/Dinner/Snack follow the UI language. |
+
+---
+
 ## Tier 155 — Live feedback (2026-09-07)
 
 _Night food as its own Day card; Settings export/pin; Dashboard patterns; Dependabot._
