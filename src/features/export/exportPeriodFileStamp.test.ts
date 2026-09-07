@@ -50,19 +50,19 @@ describe('resolveExportFileStem (#821)', () => {
   })
 })
 
-describe('exportPeriodForPreset (#819)', () => {
-  it('fills week / month / year / all from today', () => {
-    expect(exportPeriodForPreset('week', today, 1)).toEqual({
-      start: '2026-09-07',
-      end: '2026-09-13',
+describe('exportPeriodForPreset (#819, #827)', () => {
+  it('uses trailing week / month / year ending today', () => {
+    expect(exportPeriodForPreset('week', today)).toEqual({
+      start: '2026-09-01',
+      end: '2026-09-07',
     })
     expect(exportPeriodForPreset('month', today)).toEqual({
-      start: '2026-09-01',
-      end: '2026-09-30',
+      start: '2026-08-07',
+      end: '2026-09-07',
     })
     expect(exportPeriodForPreset('year', today)).toEqual({
-      start: '2026-01-01',
-      end: '2026-12-31',
+      start: '2025-09-07',
+      end: '2026-09-07',
     })
     expect(exportPeriodForPreset('all', today)).toEqual({ start: '', end: '' })
   })

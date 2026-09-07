@@ -1,13 +1,4 @@
-import {
-  endOfMonth,
-  endOfWeek,
-  endOfYear,
-  format,
-  startOfMonth,
-  startOfWeek,
-  startOfYear,
-  type Day,
-} from 'date-fns'
+import { format, subDays, subMonths, subYears } from 'date-fns'
 
 /**
  * Date stamp for period-aware export filenames (#822).
@@ -34,24 +25,21 @@ export function exportPeriodFileStamp(
 
 export type ExportRangePreset = 'week' | 'month' | 'year' | 'all' | 'custom'
 
-/** Calendar bounds for #819 pills. `custom` is the date fields, not this helper. */
+/** Trailing bounds for #819 pills, ending today (#827). `custom` is the date fields. */
 export function exportPeriodForPreset(
   preset: Exclude<ExportRangePreset, 'custom'>,
   today: Date = new Date(),
-  weekStartsOn: Day = 1,
 ): { start: string; end: string } {
   const iso = (d: Date) => format(d, 'yyyy-MM-dd')
   if (preset === 'all') return { start: '', end: '' }
+  const end = iso(today)
   if (preset === 'week') {
-    return {
-      start: iso(startOfWeek(today, { weekStartsOn })),
-      end: iso(endOfWeek(today, { weekStartsOn })),
-    }
+    return { start: iso(subDays(today, 6)), end }
   }
   if (preset === 'month') {
-    return { start: iso(startOfMonth(today)), end: iso(endOfMonth(today)) }
+    return { start: iso(subMonths(today, 1)), end }
   }
-  return { start: iso(startOfYear(today)), end: iso(endOfYear(today)) }
+  return { start: iso(subYears(today, 1)), end }
 }
 
 export function defaultDailyLogStem(

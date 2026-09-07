@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 787,
+    issue: 827,
+    date: '2026-09-07T19:00:00+03:00',
+    en: 'Export Week, Month, and Year now cover the past period ending today, not empty future days.',
+    ru: 'Экспорт за неделю, месяц и год теперь берёт прошедший период до сегодня, без пустых будущих дней.',
+  },
+  {
     version: 786,
     issue: 825,
     date: '2026-09-07T18:50:00+03:00',

@@ -450,11 +450,7 @@ export function ExportSection() {
       setRangePreset('custom')
       return
     }
-    const bounds = exportPeriodForPreset(
-      preset,
-      new Date(),
-      resolveWeekStartsOn(weekStart, undefined),
-    )
+    const bounds = exportPeriodForPreset(preset, new Date())
     setPeriodRange(bounds.start, bounds.end, preset)
   }
 
