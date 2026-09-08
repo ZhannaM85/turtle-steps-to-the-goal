@@ -12,6 +12,8 @@ export type TodaySectionKey =
   | 'water'
   | 'customMetrics'
   | 'evening'
+  | 'nightFood'
+  | 'nextMorningWeight'
 
 export const TODAY_SECTION_KEYS: TodaySectionKey[] = [
   'morning',
@@ -23,9 +25,11 @@ export const TODAY_SECTION_KEYS: TodaySectionKey[] = [
   'water',
   'customMetrics',
   'evening',
+  'nightFood',
+  'nextMorningWeight',
 ]
 
-const DEFAULT_SECTIONS: Record<TodaySectionKey, boolean> = {
+export const DEFAULT_TODAY_SECTIONS: Record<TodaySectionKey, boolean> = {
   morning: false,
   stats: false,
   macros: false,
@@ -35,6 +39,8 @@ const DEFAULT_SECTIONS: Record<TodaySectionKey, boolean> = {
   water: false,
   customMetrics: false,
   evening: false,
+  nightFood: false,
+  nextMorningWeight: false,
 }
 
 interface TodaySectionsCollapseState {
@@ -55,7 +61,7 @@ interface TodaySectionsCollapseState {
  * present, then drops the old key.
  */
 function seedSectionsFromLegacyStatsStore(): Record<TodaySectionKey, boolean> {
-  const sections = { ...DEFAULT_SECTIONS }
+  const sections = { ...DEFAULT_TODAY_SECTIONS }
   try {
     const raw = localStorage.getItem('turtle-steps-today-stats-collapse')
     if (!raw) return sections
@@ -87,12 +93,25 @@ export const useTodaySectionsCollapseStore =
           }),
         expandAll: () =>
           set({
-            sections: { ...DEFAULT_SECTIONS },
+            sections: { ...DEFAULT_TODAY_SECTIONS },
           }),
       }),
       {
         name: 'turtle-steps-today-sections-collapse',
         storage: createJSONStorage(() => localStorage),
+        merge: (persistedState, currentState) => {
+          const persisted = persistedState as
+            | Partial<TodaySectionsCollapseState>
+            | undefined
+          return {
+            ...currentState,
+            ...persisted,
+            sections: {
+              ...DEFAULT_TODAY_SECTIONS,
+              ...(persisted?.sections ?? {}),
+            },
+          }
+        },
       },
     ),
   )

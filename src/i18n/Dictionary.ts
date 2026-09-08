@@ -293,6 +293,11 @@ export interface Dictionary {
     collapseMorningEntriesLabel: string
     expandEveningEntriesLabel: string
     collapseEveningEntriesLabel: string
+    /** #831 — Night food / Next Morning Weight accordions, same pair. */
+    expandNightFoodCardLabel: string
+    collapseNightFoodCardLabel: string
+    expandNextMorningWeightCardLabel: string
+    collapseNextMorningWeightCardLabel: string
     weightLabel: string
     /** Label/aria-label for the manual add row's kcal field (#96) — a
      * per-100g rate, not the total eaten; scaled by the quantity field to

@@ -1,33 +1,62 @@
-import { Check, Moon, Pencil, X } from 'lucide-react'
+import { Check, ChevronDown, Moon, Pencil, X } from 'lucide-react'
 import { Button } from '@/shared/ui/button'
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from '@/shared/ui/collapsible'
 import { Textarea } from '@/shared/ui/textarea'
 import { ToggleGroup, ToggleGroupItem } from '@/shared/ui/toggle-group'
+import { useTodaySectionsCollapseStore } from '@/stores'
 import { useDailyEntryFormStateContext } from './useDailyEntryFormStateContext'
 
 /**
  * #818 — Night food as its own Day card (Yes/No + remember + reason),
  * not nested under Evening. Still gated by Settings night-eating tracking.
  * #825 — remember + reason only when Yes; hidden when No or unset.
+ * #831 — same accordion as Evening (chevron + Collapse all).
  */
 export function DailyEntryFormNightFood() {
   const state = useDailyEntryFormStateContext()
   const { t } = state
+  const collapsed = useTodaySectionsCollapseStore((s) => s.sections.nightFood)
+  const setCollapsed = useTodaySectionsCollapseStore((s) => s.setCollapsed)
 
   if (!state.trackedFields.nightEating) return null
 
   return (
     <div className="section-shell p-3">
-      <div className="flex flex-col gap-0.5">
-        <span className="flex items-center gap-1.5 text-sm font-medium">
-          <Moon aria-hidden="true" className="size-4" />
-          {t.dailyEntry.nightFoodCardTitle}
-        </span>
-        <span className="text-xs text-muted-foreground">
-          {t.dailyEntry.nightFoodCardHint(state.sex)}
-        </span>
-      </div>
-
-      <div className="flex flex-col gap-4 pt-4">
+      <Collapsible
+        open={!collapsed}
+        onOpenChange={(open) => setCollapsed('nightFood', !open)}
+      >
+        <CollapsibleTrigger asChild>
+          <button
+            type="button"
+            aria-label={
+              collapsed
+                ? t.dailyEntry.expandNightFoodCardLabel
+                : t.dailyEntry.collapseNightFoodCardLabel
+            }
+            className="group flex w-full flex-col gap-0.5 text-left"
+          >
+            <span className="flex items-center justify-between gap-1.5">
+              <span className="flex items-center gap-1.5 text-sm font-medium">
+                <Moon aria-hidden="true" className="size-4" />
+                {t.dailyEntry.nightFoodCardTitle}
+              </span>
+              <ChevronDown
+                aria-hidden="true"
+                className="size-4 text-muted-foreground transition-transform group-data-[state=open]:rotate-180"
+              />
+            </span>
+            <span className="text-xs text-muted-foreground">
+              {t.dailyEntry.nightFoodCardHint(state.sex)}
+            </span>
+          </button>
+        </CollapsibleTrigger>
+        <CollapsibleContent>
+          <div className="flex flex-col gap-4 pt-4">
         <ToggleGroup
           type="single"
           aria-label={t.dailyEntry.nightEatingLabel(state.sex)}
@@ -156,7 +185,9 @@ export function DailyEntryFormNightFood() {
             )}
           </>
         )}
-      </div>
+          </div>
+        </CollapsibleContent>
+      </Collapsible>
     </div>
   )
 }

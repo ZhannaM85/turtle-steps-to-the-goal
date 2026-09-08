@@ -11,6 +11,8 @@ import {
   useGoalStore,
   useMealItemStore,
   useMealLabelPresetStore,
+  useTodaySectionsCollapseStore,
+  DEFAULT_TODAY_SECTIONS,
   useTrackedFieldsStore,
   useWaterTrackingStore,
 } from '@/stores'
@@ -112,6 +114,9 @@ beforeEach(async () => {
   // a leftover add-row draft (now persisted to localStorage) from one test
   // would silently pre-fill the next one's fresh render for the same date.
   localStorage.clear()
+  useTodaySectionsCollapseStore.setState({
+    sections: { ...DEFAULT_TODAY_SECTIONS },
+  })
   // #528 — Body composition defaults off; most tests still expect the
   // section present, so enable every tracked field for the suite. The
   // optional-visibility describe below overrides where it needs the real
@@ -3861,6 +3866,24 @@ describe('DailyEntryForm', () => {
       ).not.toBeInTheDocument()
     })
 
+    it('collapses Night food like Evening (#831)', async () => {
+      const user = userEvent.setup()
+      render(
+        <DailyEntryForm date="2026-03-01" existingEntry={null} onSave={vi.fn()} />,
+      )
+
+      expect(
+        screen.getByRole('radiogroup', { name: 'Ate late tonight' }),
+      ).toBeInTheDocument()
+      await user.click(screen.getByRole('button', { name: 'Hide night food' }))
+      expect(
+        screen.queryByRole('radiogroup', { name: 'Ate late tonight' }),
+      ).not.toBeInTheDocument()
+      expect(
+        screen.getByRole('button', { name: 'Show night food' }),
+      ).toBeInTheDocument()
+    })
+
     it('hides remember and reason until Yes is selected (#825)', () => {
       render(
         <DailyEntryForm date="2026-03-01" existingEntry={null} onSave={vi.fn()} />,
@@ -4141,6 +4164,39 @@ describe('DailyEntryForm', () => {
       ).toBeInTheDocument()
       expect(screen.getByText('59.95')).toBeInTheDocument()
       expect(screen.getByText('+0.3 kg')).toBeInTheDocument()
+    })
+
+    it('collapses Next Morning Weight like Evening (#831)', async () => {
+      await db.dailyEntries.put({
+        id: 'next-1',
+        date: '2026-03-02',
+        weightKg: 59.95,
+        createdAt: now,
+        updatedAt: now,
+      })
+      const user = userEvent.setup()
+      render(
+        <DailyEntryForm
+          date="2026-03-01"
+          existingEntry={{
+            id: 'e1',
+            date: '2026-03-01',
+            weightKg: 59.65,
+            createdAt: now,
+            updatedAt: now,
+          }}
+          onSave={vi.fn()}
+        />,
+      )
+
+      expect(await screen.findByText('59.95')).toBeInTheDocument()
+      await user.click(
+        screen.getByRole('button', { name: 'Hide next morning weight' }),
+      )
+      expect(screen.queryByText('59.95')).not.toBeInTheDocument()
+      expect(
+        screen.getByRole('button', { name: 'Show next morning weight' }),
+      ).toBeInTheDocument()
     })
 
     it('omits the signed change when this day has no weight', async () => {

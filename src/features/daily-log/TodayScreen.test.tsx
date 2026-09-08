@@ -29,6 +29,7 @@ import {
   useSectionVisibilityStore,
   useTodayCardOrderStore,
   useTodaySectionsCollapseStore,
+  DEFAULT_TODAY_SECTIONS,
   useWaterTrackingStore,
   useLocalTransferStore,
 } from '@/stores'
@@ -109,17 +110,7 @@ beforeEach(async () => {
   useTodayCardOrderStore.persist.clearStorage()
   useTodayCardOrderStore.setState({ order: DEFAULT_TODAY_CARD_ORDER })
   useTodaySectionsCollapseStore.setState({
-    sections: {
-      morning: false,
-      stats: false,
-      macros: false,
-      dayTotals: false,
-      meals: false,
-      plannedMeals: false,
-      water: false,
-      customMetrics: false,
-      evening: false,
-    },
+    sections: { ...DEFAULT_TODAY_SECTIONS },
   })
   useWaterTrackingStore.setState({ enabled: false })
   usePlannedMealsTrackingStore.setState({ enabled: false })
@@ -142,17 +133,7 @@ afterEach(async () => {
   useTodayCardOrderStore.setState({ order: DEFAULT_TODAY_CARD_ORDER })
   useTodaySectionsCollapseStore.persist.clearStorage()
   useTodaySectionsCollapseStore.setState({
-    sections: {
-      morning: false,
-      stats: false,
-      macros: false,
-      dayTotals: false,
-      meals: false,
-      plannedMeals: false,
-      water: false,
-      customMetrics: false,
-      evening: false,
-    },
+    sections: { ...DEFAULT_TODAY_SECTIONS },
   })
   resetSectionVisibility()
   vi.useRealTimers()
@@ -1224,6 +1205,9 @@ describe('TodayScreen', () => {
         true,
       )
       expect(useTodaySectionsCollapseStore.getState().sections.evening).toBe(
+        true,
+      )
+      expect(useTodaySectionsCollapseStore.getState().sections.nightFood).toBe(
         true,
       )
 

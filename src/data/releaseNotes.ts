@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 792,
+    issue: 831,
+    date: '2026-09-08T13:50:00+03:00',
+    en: 'Night food and Next Morning Weight on Day can be collapsed, including with Collapse all.',
+    ru: '«Ночная еда» и «Вес следующим утром» на дне можно сворачивать, в том числе через «Свернуть все».',
+  },
+  {
     version: 791,
     issue: 829,
     date: '2026-09-08T13:30:00+03:00',

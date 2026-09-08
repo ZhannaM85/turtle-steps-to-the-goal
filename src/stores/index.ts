@@ -68,6 +68,7 @@ export {
 } from './todayCardOrderStore'
 export {
   anyTodaySectionExpanded,
+  DEFAULT_TODAY_SECTIONS,
   TODAY_SECTION_KEYS,
   useTodaySectionsCollapseStore,
   type TodaySectionKey,

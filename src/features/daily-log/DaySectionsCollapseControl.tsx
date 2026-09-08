@@ -1,3 +1,5 @@
+import { nextMorningWeight } from '@/domain/dailyEntry'
+import { useNextDayEntry } from '@/shared/hooks'
 import {
   anyTodaySectionExpanded,
   useCustomMetricStore,
@@ -5,6 +7,10 @@ import {
   type TodaySectionKey,
 } from '@/stores'
 import { useDailyEntryFormStateContext } from './useDailyEntryFormStateContext'
+
+function asWeightKg(value: unknown): number | undefined {
+  return typeof value === 'number' && Number.isFinite(value) ? value : undefined
+}
 
 /**
  * #511 — quiet Collapse all / Expand all for Today's top-level section
@@ -19,6 +25,7 @@ export function DaySectionsCollapseControl() {
   const collapseAll = useTodaySectionsCollapseStore((s) => s.collapseAll)
   const expandAll = useTodaySectionsCollapseStore((s) => s.expandAll)
   const hasCustomMetrics = useCustomMetricStore((s) => s.metrics.length > 0)
+  const nextDayEntry = useNextDayEntry(state.date)
 
   const activeKeys: TodaySectionKey[] = [
     'morning',
@@ -35,6 +42,14 @@ export function DaySectionsCollapseControl() {
   }
   if (hasCustomMetrics) {
     activeKeys.push('customMetrics')
+  }
+  if (state.trackedFields.nightEating) {
+    activeKeys.push('nightFood')
+  }
+  if (
+    nextMorningWeight(asWeightKg(state.weightKg), nextDayEntry?.weightKg)
+  ) {
+    activeKeys.push('nextMorningWeight')
   }
 
   const anyExpanded = anyTodaySectionExpanded(sections, activeKeys)
