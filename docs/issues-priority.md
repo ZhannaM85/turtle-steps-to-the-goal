@@ -34,16 +34,6 @@ _User asked about pulling data from Apple Health and Zepp Life. Researched via W
 
 ---
 
-## Tier 154 — Live feedback (2026-09-06)
-
-_Meal name templates in Settings; Dashboard descriptive leaderboards (most-eaten, eating reasons, meal names, time-of-day). #817 is leftover English defaults after #811._
-
-| # | Status | Issue | Notes |
-|---|--------|-------|-------|
-| [#812](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/812) | 🔍 Pending validation | Dashboard: most-eaten-recently leaderboard (not a correlation) | `MostEatenFoodsView` — top 8 dishes by times logged in last 7 / 30 days (`foodFrequency.ts`), grouped by trimmed name. Hideable card after Food reactions. kcal-share toggle is #813. |
-
----
-
 ## Tier 155 — Live feedback (2026-09-07)
 
 _Night food as its own Day card (#825 hides extras when No); Settings export/pin/collapse; Dashboard patterns; Dependabot._
