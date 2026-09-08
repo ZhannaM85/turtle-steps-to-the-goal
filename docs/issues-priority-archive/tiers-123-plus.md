@@ -521,3 +521,4 @@ _Night food as its own Day card; Settings export/pin; Dashboard patterns; Depend
 | [#822](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/822) | ✅ Done | Settings: put export date range in the filename | Confirmed on-device 2026-09-07 — export period is in the download filename. |
 | [#823](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/823) | ✅ Done | Dashboard: Personal eating patterns (what tends to happen after a meal) | Confirmed on-device 2026-09-07 — Personal eating patterns card. |
 | [#824](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/824) | ✅ Done | Chore: clear open Dependabot npm alerts (sharp, minimatch, uuid, elliptic) | Confirmed 2026-09-07 — no open Dependabot PRs after the lockfile overrides. |
+| [#825](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/825) | ✅ Done | Day: hide night-food remember and reason when No | Confirmed on-device 2026-09-08 — extras hidden unless Yes. |

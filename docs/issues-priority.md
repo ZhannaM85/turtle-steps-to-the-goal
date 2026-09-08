@@ -36,11 +36,10 @@ _User asked about pulling data from Apple Health and Zepp Life. Researched via W
 
 ## Tier 155 — Live feedback (2026-09-07)
 
-_Night food as its own Day card (#825 hides extras when No); Settings export/pin/collapse; Dashboard patterns; Dependabot._
+_Settings export/pin/collapse; Dashboard patterns; Dependabot._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#825](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/825) | 🔍 Pending validation | Day: hide night-food remember and reason when No | Hide extras unless Yes (`nightEatingOverride === true`). Unset also hides. |
 | [#826](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/826) | 🔍 Pending validation | Settings: make all cards collapsible with expand all / collapse all | Header/chevron collapse on every Settings card (incl. About); Expand all / Collapse all like Day. Pin from #820 kept. |
 | [#827](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/827) | 🔍 Pending validation | Settings: export week/month/year should be past periods ending today | `exportPeriodForPreset`: trailing 7 days / 1 month / 1 year ending today. All and Custom unchanged. |
 
