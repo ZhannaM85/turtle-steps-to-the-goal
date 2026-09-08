@@ -55,3 +55,11 @@ _Night food as its own Day card (#825 hides extras when No); Settings export/pin
 | [#827](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/827) | 🔍 Pending validation | Settings: export week/month/year should be past periods ending today | `exportPeriodForPreset`: trailing 7 days / 1 month / 1 year ending today. All and Custom unchanged. |
 
 ---
+
+## Tier 156 — Live feedback (2026-09-08)
+
+_Weekly goal marked completed on the last day after a gain, even though the target had only been hit the day before._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#828](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/828) | 📋 Not started | Goal: last-day weight gain still marks the week completed | Backup 2026-09-08: 0,4 kg from 84 kg (2–8 Sept); met 83,6 on 7 Sept; 84,3 on 8 Sept. `#667` `reachedOnLastDay` lock stamps from yesterday’s `finalTargetMet`, then `#776` concludes on today’s save and `#783` fires the complete celebration. Last-day miss should read missed, same day. |
