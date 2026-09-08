@@ -534,3 +534,4 @@ _Weekly goal last-day completion; Day Next Morning Weight; All export dates/file
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#829](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/829) | ✅ Done | Day: Next Morning Weight card from the following day's weigh-in | Confirmed on-device 2026-09-08 — card shows D+1 weight and signed delta. Follow-up #831: Night food and Next Morning Weight are not collapsible. |
+| [#830](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/830) | ✅ Done | Settings: All export leaves date inputs empty and filename is today only | Confirmed on-device 2026-09-08 — All fills first logged day through today and uses that range in the filename. |
