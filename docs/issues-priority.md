@@ -36,9 +36,8 @@ _User asked about pulling data from Apple Health and Zepp Life. Researched via W
 
 ## Tier 156 — Live feedback (2026-09-08)
 
-_Weekly goal last-day completion; Day Night food / Next Morning Weight collapse._
+_Weekly goal last-day completion._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#828](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/828) | 🔍 Pending validation | Goal: last-day weight gain still marks the week completed | Backup 2026-09-08: 0,4 kg from 84 kg (2–8 Sept); met 83,6 on 7 Sept; 84,3 on 8 Sept. `#667` `reachedOnLastDay` lock stamps from yesterday’s `finalTargetMet`, then `#776` concludes on today’s save and `#783` fires the complete celebration. Last-day miss should read missed, same day. |
-| [#831](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/831) | 🔍 Pending validation | Day: Night food and Next Morning Weight cards are not collapsible | Follow-up to #829 on-device. Evening has a header chevron and is in Collapse all (#511). Night food and Next Morning Weight sit below it with no accordion. Same persist + Collapse all as Morning/Evening. |
