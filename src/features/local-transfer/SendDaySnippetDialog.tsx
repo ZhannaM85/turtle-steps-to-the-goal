@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react'
+import { addDays, format, parseISO } from 'date-fns'
 import { Check, Copy, FileDown, QrCode, Share2 } from 'lucide-react'
 import type { DailyEntry } from '@/domain/dailyEntry'
 import { BarcodeScannerDialog } from '@/features/daily-log/BarcodeScannerDialog'
 import { buildDailyLogCsv, CSV_BOM } from '@/features/export/exportCsv'
 import { generateQrDataUrl } from '@/features/food-share/generateQrDataUrl'
 import { useTranslation } from '@/i18n'
+import { IndexedDbDailyEntryRepository } from '@/infrastructure/persistence/indexeddb'
 import { Button } from '@/shared/ui/button'
 import {
   Dialog,
@@ -30,6 +32,8 @@ import {
   parseDaySnippetFromText,
 } from './daySnippetPayload'
 import { useDayTransferUiStore } from './dayTransferUiStore'
+
+const dailyEntryRepository = new IndexedDbDailyEntryRepository()
 
 export interface SendDaySnippetDialogProps {
   open: boolean
@@ -145,10 +149,16 @@ function SendDaySnippetBody({
     setCopied(true)
   }
 
-  function handleSaveCsv() {
+  async function handleSaveCsv() {
     if (!entry || entry.date !== date) return
     setCsvError(null)
     try {
+      const nextDate = format(addDays(parseISO(date), 1), 'yyyy-MM-dd')
+      const next = await dailyEntryRepository.getByDate(nextDate)
+      const nextMorningWeightByDate: Record<string, number> = {}
+      if (next?.weightKg !== undefined) {
+        nextMorningWeightByDate[date] = next.weightKg
+      }
       const csv = buildDailyLogCsv(
         [entry],
         t,
@@ -159,6 +169,7 @@ function SendDaySnippetBody({
           mealSlotTimes: useMealSlotDefaultTimesStore.getState().times,
           eatingReasonLabelOverrides:
             useEatingReasonTrackingStore.getState().builtinLabelOverrides,
+          nextMorningWeightByDate,
         },
       )
       const blob = new Blob([CSV_BOM, csv], { type: 'text/csv' })

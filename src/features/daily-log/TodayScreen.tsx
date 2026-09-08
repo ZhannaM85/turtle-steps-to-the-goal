@@ -94,6 +94,7 @@ import {
 import { CustomMetricLogSection } from '@/features/custom-metrics'
 import { DailyEntryFormBottom } from './DailyEntryFormBottom'
 import { DailyEntryFormMorning } from './DailyEntryFormMorning'
+import { DailyEntryFormNextMorningWeight } from './DailyEntryFormNextMorningWeight'
 import { DailyEntryFormNightFood } from './DailyEntryFormNightFood'
 import { DailyEntryFormStateProvider } from './DailyEntryFormStateContext'
 import { DailyEntryFormTop } from './DailyEntryFormTop'
@@ -1593,6 +1594,7 @@ export function TodayScreen() {
         <CustomMetricLogSection date={date} />
         <DailyEntryFormBottom />
         <DailyEntryFormNightFood />
+        <DailyEntryFormNextMorningWeight />
       </DailyEntryFormStateProvider>
       </div>
       )}

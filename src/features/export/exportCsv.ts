@@ -37,6 +37,40 @@ function csvTable(
 }
 
 /**
+ * #829 — `next_morning_weight` only on one-day CSV when the caller passes
+ * `extras.nextMorningWeightByDate` (Send day). Interval Settings CSV does
+ * not pass that map, so Excel/Markdown/range CSV stay unchanged.
+ */
+function withNextMorningWeightColumn(
+  headers: (string | number | boolean | undefined)[],
+  rows: (string | number | boolean | undefined)[][],
+  sortedEntries: DailyEntry[],
+  t: Dictionary,
+  extras?: DailyLogExportExtras,
+): [
+  (string | number | boolean | undefined)[],
+  (string | number | boolean | undefined)[][],
+] {
+  if (extras?.nextMorningWeightByDate === undefined) {
+    return [headers, rows]
+  }
+  return [
+    [
+      headers[0],
+      headers[1],
+      t.exportXlsx.nextMorningWeightColumn,
+      ...headers.slice(2),
+    ],
+    rows.map((row, index) => [
+      row[0],
+      row[1],
+      extras.nextMorningWeightByDate?.[sortedEntries[index]!.date],
+      ...row.slice(2),
+    ]),
+  ]
+}
+
+/**
  * Same "Daily Log" shape as exportXlsx.ts's first sheet (#123), as flat
  * CSV text — no `exceljs` dependency needed for this, CSV is simple enough
  * to hand-write. Meant for pasting into an LLM conversation for analysis
@@ -58,8 +92,13 @@ export function buildDailyLogCsv(
     a.date.localeCompare(b.date),
   )
   const daily = csvTable(
-    dailyLogHeaderValues(t, sex, extras),
-    sortedEntries.map((entry) => dailyLogRowValues(entry, t, extras)),
+    ...withNextMorningWeightColumn(
+      dailyLogHeaderValues(t, sex, extras),
+      sortedEntries.map((entry) => dailyLogRowValues(entry, t, extras)),
+      sortedEntries,
+      t,
+      extras,
+    ),
   )
   const meals = csvTable(
     mealLogHeaderValues(t, extras),

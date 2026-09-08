@@ -4086,4 +4086,107 @@ describe('DailyEntryForm', () => {
       expect(within(remainingSection).getByText('1,500')).toBeInTheDocument()
     })
   })
+
+  describe('Next Morning Weight (#829)', () => {
+    afterEach(async () => {
+      await db.dailyEntries.clear()
+    })
+
+    it('hides the card when the next calendar day has no weight', async () => {
+      render(
+        <DailyEntryForm
+          date="2026-03-01"
+          existingEntry={{
+            id: 'e1',
+            date: '2026-03-01',
+            weightKg: 59.65,
+            createdAt: now,
+            updatedAt: now,
+          }}
+          onSave={vi.fn()}
+        />,
+      )
+
+      expect(screen.getByText('Night food')).toBeInTheDocument()
+      await expect(
+        screen.findByText('Next Morning Weight', {}, { timeout: 250 }),
+      ).rejects.toThrow()
+    })
+
+    it('shows the next morning weight and signed change when both days have weight', async () => {
+      await db.dailyEntries.put({
+        id: 'next-1',
+        date: '2026-03-02',
+        weightKg: 59.95,
+        createdAt: now,
+        updatedAt: now,
+      })
+      render(
+        <DailyEntryForm
+          date="2026-03-01"
+          existingEntry={{
+            id: 'e1',
+            date: '2026-03-01',
+            weightKg: 59.65,
+            createdAt: now,
+            updatedAt: now,
+          }}
+          onSave={vi.fn()}
+        />,
+      )
+
+      expect(await screen.findByText('Next Morning Weight')).toBeInTheDocument()
+      expect(
+        screen.getByText('Weight the following morning'),
+      ).toBeInTheDocument()
+      expect(screen.getByText('59.95')).toBeInTheDocument()
+      expect(screen.getByText('+0.3 kg')).toBeInTheDocument()
+    })
+
+    it('omits the signed change when this day has no weight', async () => {
+      await db.dailyEntries.put({
+        id: 'next-1',
+        date: '2026-03-02',
+        weightKg: 59.95,
+        createdAt: now,
+        updatedAt: now,
+      })
+      render(
+        <DailyEntryForm date="2026-03-01" existingEntry={null} onSave={vi.fn()} />,
+      )
+
+      expect(await screen.findByText('Next Morning Weight')).toBeInTheDocument()
+      expect(screen.getByText('59.95')).toBeInTheDocument()
+      expect(screen.queryByText('+0.3 kg')).not.toBeInTheDocument()
+    })
+
+    it('does not skip ahead to a later day if the next calendar day is empty', async () => {
+      await db.dailyEntries.put({
+        id: 'later',
+        date: '2026-03-03',
+        weightKg: 60.1,
+        createdAt: now,
+        updatedAt: now,
+      })
+      render(
+        <DailyEntryForm
+          date="2026-03-01"
+          existingEntry={{
+            id: 'e1',
+            date: '2026-03-01',
+            weightKg: 59.65,
+            createdAt: now,
+            updatedAt: now,
+          }}
+          onSave={vi.fn()}
+        />,
+      )
+
+      expect(screen.getByText('Night food')).toBeInTheDocument()
+      await expect(
+        screen.findByText('Next Morning Weight', {}, { timeout: 250 }),
+      ).rejects.toThrow()
+      expect(screen.queryByText('60.1')).not.toBeInTheDocument()
+    })
+  })
 })

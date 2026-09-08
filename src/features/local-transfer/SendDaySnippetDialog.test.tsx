@@ -1,8 +1,10 @@
-import { render, screen } from '@testing-library/react'
+import 'fake-indexeddb/auto'
+import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import type { DailyEntry } from '@/domain/dailyEntry'
 import { generateQrDataUrl } from '@/features/food-share/generateQrDataUrl'
+import { db } from '@/infrastructure/persistence/indexeddb'
 import {
   dailyEntryToDaySnippet,
   daySnippetFitsQr,
@@ -44,8 +46,9 @@ function bulkyEntry(): DailyEntry {
 }
 
 describe('SendDaySnippetDialog (#720, #722)', () => {
-  afterEach(() => {
+  afterEach(async () => {
     vi.restoreAllMocks()
+    await db.dailyEntries.clear()
   })
 
   it('copies a shareDay link and shows a QR for a typical day', async () => {
@@ -169,11 +172,49 @@ describe('SendDaySnippetDialog (#720, #722)', () => {
     )
 
     await user.click(screen.getByRole('button', { name: 'Save as CSV' }))
-    expect(URL.createObjectURL).toHaveBeenCalled()
+    await waitFor(() => expect(URL.createObjectURL).toHaveBeenCalled())
     const blob = vi.mocked(URL.createObjectURL).mock.calls[0]?.[0] as Blob
     expect(blob.type).toBe('text/csv')
     const text = await blob.text()
     expect(text).toContain('2026-08-14')
+    expect(text).toContain('next_morning_weight')
+    expect(click).toHaveBeenCalled()
+  })
+
+  it('fills next_morning_weight from the following day’s weigh-in (#829)', async () => {
+    await db.dailyEntries.put({
+      id: 'next',
+      date: '2026-08-15',
+      weightKg: 59.95,
+      createdAt: entry.createdAt,
+      updatedAt: entry.updatedAt,
+    })
+    const user = userEvent.setup()
+    URL.createObjectURL = vi.fn(() => 'blob:mock')
+    URL.revokeObjectURL = vi.fn()
+    const click = vi
+      .spyOn(HTMLAnchorElement.prototype, 'click')
+      .mockImplementation(() => {})
+
+    render(
+      <SendDaySnippetDialog
+        open
+        onOpenChange={() => {}}
+        date="2026-08-14"
+        entry={{ ...entry, weightKg: 59.65 }}
+      />,
+    )
+
+    await user.click(screen.getByRole('button', { name: 'Save as CSV' }))
+    await waitFor(() => expect(URL.createObjectURL).toHaveBeenCalled())
+    const blob = vi.mocked(URL.createObjectURL).mock.calls[0]?.[0] as Blob
+    const text = await blob.text()
+    const header = text.split('\r\n')[0] ?? ''
+    const row = text.split('\r\n')[1] ?? ''
+    expect(header.startsWith('Date,Weight (kg),next_morning_weight,')).toBe(
+      true,
+    )
+    expect(row.split(',')[2]).toBe('59.95')
     expect(click).toHaveBeenCalled()
   })
 })

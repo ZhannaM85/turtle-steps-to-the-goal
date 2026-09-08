@@ -29,6 +29,12 @@ export interface DailyLogExportExtras {
   mealSlotTimes?: MealSlotDefaultTimes
   /** #766 — display-label overrides for built-in eating reasons. */
   eatingReasonLabelOverrides?: EatingReasonLabelOverrides
+  /**
+   * #829 — next calendar day's weight, keyed by the exported day's date.
+   * Consumed only by one-day CSV (`buildDailyLogCsv` / Send day). Do not
+   * pass this on interval Settings exports (CSV/Excel/Markdown).
+   */
+  nextMorningWeightByDate?: Record<string, number>
 }
 
 /**

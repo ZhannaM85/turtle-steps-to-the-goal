@@ -525,6 +525,8 @@ export const ru: Dictionary = {
         : sex === 'male'
           ? 'Еда после того, как лёг спать'
           : 'Еда после того, как лёг(ла) спать',
+    nextMorningWeightCardTitle: 'Вес следующим утром',
+    nextMorningWeightCardHint: 'Вес на следующее утро',
     nightEatingRememberLabel: (sex) =>
       sex === 'female'
         ? 'Помню, как ела'
@@ -924,6 +926,7 @@ export const ru: Dictionary = {
     goalsSheetName: 'Цели',
     dateColumn: 'Дата',
     weightColumn: 'Вес (кг)',
+    nextMorningWeightColumn: 'next_morning_weight',
     caloriesColumn: 'Калории (ккал)',
     proteinColumn: 'Белки (г)',
     fatColumn: 'Жиры (г)',

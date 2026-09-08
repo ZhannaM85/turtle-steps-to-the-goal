@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 791,
+    issue: 829,
+    date: '2026-09-08T13:30:00+03:00',
+    en: 'Day shows Next Morning Weight — the following day’s weigh-in and how it changed from this day’s weight.',
+    ru: 'На дне появился «Вес следующим утром» — вес следующего дня и насколько он изменился относительно сегодняшнего.',
+  },
+  {
     version: 790,
     issue: 828,
     date: '2026-09-08T12:45:00+03:00',

@@ -29,6 +29,7 @@ export {
 } from './totalMacros'
 export { totalWaterMl } from './totalWaterMl'
 export { hadNightEating } from './nightEating'
+export { nextMorningWeight } from './nextMorningWeight'
 export {
   calorieEntryKcal,
   calorieEntryProtein,

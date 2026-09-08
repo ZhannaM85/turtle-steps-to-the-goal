@@ -856,6 +856,9 @@ export interface Dictionary {
     /** #818 — standalone Night food card title (not nested under Evening). */
     nightFoodCardTitle: string
     nightFoodCardHint: (sex?: Sex) => string
+    /** #829 — read-only card: next calendar day's weigh-in + signed delta. */
+    nextMorningWeightCardTitle: string
+    nextMorningWeightCardHint: string
     nightEatingRememberLabel: (sex?: Sex) => string
     nightEatingRememberYesOption: string
     nightEatingRememberPartialOption: string
@@ -1423,6 +1426,8 @@ export interface Dictionary {
     goalsSheetName: string
     dateColumn: string
     weightColumn: string
+    /** #829 — one-day CSV only (`next_morning_weight`); not on range exports. */
+    nextMorningWeightColumn: string
     caloriesColumn: string
     proteinColumn: string
     fatColumn: string
