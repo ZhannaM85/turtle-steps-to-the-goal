@@ -34,16 +34,6 @@ _User asked about pulling data from Apple Health and Zepp Life. Researched via W
 
 ---
 
-## Tier 155 — Live feedback (2026-09-07)
-
-_Settings export range presets; Dashboard patterns; Dependabot._
-
-| # | Status | Issue | Notes |
-|---|--------|-------|-------|
-| [#827](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/827) | 🔍 Pending validation | Settings: export week/month/year should be past periods ending today | `exportPeriodForPreset`: trailing 7 days / 1 month / 1 year ending today. All and Custom unchanged. |
-
----
-
 ## Tier 156 — Live feedback (2026-09-08)
 
 _Weekly goal marked completed on the last day after a gain; Day Next Morning Weight card._
