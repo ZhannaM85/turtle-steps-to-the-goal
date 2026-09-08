@@ -524,3 +524,13 @@ _Night food as its own Day card; Settings export/pin; Dashboard patterns; Depend
 | [#825](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/825) | ✅ Done | Day: hide night-food remember and reason when No | Confirmed on-device 2026-09-08 — extras hidden unless Yes. |
 | [#826](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/826) | ✅ Done | Settings: make all cards collapsible with expand all / collapse all | Confirmed on-device 2026-09-08 — Settings cards collapse; Expand all / Collapse all. |
 | [#827](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/827) | ✅ Done | Settings: export week/month/year should be past periods ending today | Confirmed on-device 2026-09-08 — week/month/year are trailing periods ending today. Follow-up #830: All date inputs empty and filename is today only. |
+
+---
+
+## Tier 156 — Live feedback (2026-09-08)
+
+_Weekly goal last-day completion; Day Next Morning Weight; All export dates/filename._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#829](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/829) | ✅ Done | Day: Next Morning Weight card from the following day's weigh-in | Confirmed on-device 2026-09-08 — card shows D+1 weight and signed delta. Follow-up: Night food and Next Morning Weight are not collapsible. |
