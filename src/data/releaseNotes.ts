@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 790,
+    issue: 828,
+    date: '2026-09-08T12:45:00+03:00',
+    en: 'If you hit this week’s target yesterday but gain weight on the last day, the week is marked missed, not completed.',
+    ru: 'Если цель недели была достигнута вчера, но в последний день вес вырос, неделя отмечается как невыполненная, а не выполненная.',
+  },
+  {
     version: 789,
     issue: 830,
     date: '2026-09-08T12:30:00+03:00',

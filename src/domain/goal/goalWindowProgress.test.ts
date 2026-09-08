@@ -363,7 +363,7 @@ describe('goalWindowConcluded (#667)', () => {
     ).toBe(true)
   })
 
-  it('is false on weekEnd itself when the target was not (yet) reached', () => {
+  it('is false on weekEnd itself when the last-day weight is not logged yet', () => {
     expect(
       goalWindowConcluded(
         { weekEnd: '2026-03-15', finalTargetMet: false },
@@ -376,6 +376,19 @@ describe('goalWindowConcluded (#667)', () => {
         '2026-03-15',
       ),
     ).toBe(false)
+  })
+
+  it('is true on weekEnd itself when that day is logged as a miss (#828)', () => {
+    expect(
+      goalWindowConcluded(
+        {
+          weekEnd: '2026-03-15',
+          finalTargetMet: false,
+          currentWeightDate: '2026-03-15',
+        },
+        '2026-03-15',
+      ),
+    ).toBe(true)
   })
 
   it('is false on weekEnd when the target was met earlier but last-day weight is not logged yet (#776)', () => {

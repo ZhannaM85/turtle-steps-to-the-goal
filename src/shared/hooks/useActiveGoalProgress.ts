@@ -49,13 +49,16 @@ export function useActiveGoalProgress(): GoalWindowProgress | null {
   // #667 — reaching the target on the window's own last day locks the
   // final state in immediately, so a later same-day re-weigh that
   // overwrites today's entry with a heavier value can't quietly un-reach
-  // it (see goalCelebrationStore.ts).
+  // it (see goalCelebrationStore.ts). #828: only stamp that lock when
+  // weekEnd's own weigh-in met the target — a prior day's hit must not
+  // freeze the week as completed before (or after) a last-day gain.
   useEffect(() => {
     if (!progress) return
     const today = format(new Date(), DATE_FORMAT)
     if (
       today === progress.weekEnd &&
       progress.finalTargetMet === true &&
+      progress.currentWeightDate === progress.weekEnd &&
       reachedOnLastDayWeekStart !== progress.weekStart
     ) {
       markReachedOnLastDay(progress.weekStart)

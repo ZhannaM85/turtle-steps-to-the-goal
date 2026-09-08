@@ -38,7 +38,7 @@ import {
   totalSodium,
   totalWaterMl,
 } from '@/domain/dailyEntry'
-import { goalWeekEnd, goalWindowHasEnded, kgToLb } from '@/domain/goal'
+import { goalWeekEnd, goalWindowConcluded, goalWindowHasEnded, kgToLb } from '@/domain/goal'
 import { evaluateDayNutritionFacts } from '@/domain/nutritionFacts'
 import { calculateBmi, calculateBmr, effectiveDateFor } from '@/domain/stats'
 import {
@@ -307,7 +307,7 @@ export function TodayScreen() {
   const activeGoalProgress = useActiveGoalProgress()
   const showTargetMetBanner =
     activeGoalProgress?.targetMet === true &&
-    !goalWindowHasEnded(activeGoalProgress.weekEnd)
+    !goalWindowConcluded(activeGoalProgress)
   const targetMetBannerWeekEndLabel = activeGoalProgress
     ? format(parseISO(activeGoalProgress.weekEnd), 'PP', {
         locale: dateFnsLocale,

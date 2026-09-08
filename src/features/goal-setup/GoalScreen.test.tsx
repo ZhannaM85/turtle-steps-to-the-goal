@@ -485,6 +485,34 @@ describe('GoalScreen', () => {
     expect(screen.queryByText('Goal completed')).not.toBeInTheDocument()
   })
 
+  it('shows missed on weekEnd after a last-day gain even if yesterday met (#828)', async () => {
+    const weekStart = format(addDays(new Date(), -6), DATE_FORMAT)
+    const yesterday = format(addDays(new Date(), -1), DATE_FORMAT)
+    const today = format(new Date(), DATE_FORMAT)
+    await useGoalStore.getState().saveGoal(
+      makeGoal({
+        targetWeeklyLossKg: 0.4,
+        weekStart,
+        weekEnd: today,
+        baselineWeightKg: 84,
+      }),
+    )
+    await db.dailyEntries.put(makeEntry({ date: weekStart, weightKg: 84.2 }))
+    await db.dailyEntries.put(makeEntry({ date: yesterday, weightKg: 83.6 }))
+    await db.dailyEntries.put(makeEntry({ date: today, weightKg: 84.3 }))
+
+    renderGoalScreen()
+
+    expect(await screen.findByText("This week's result")).toBeInTheDocument()
+    expect(
+      screen.getByText(
+        "This week's target wasn't reached — that's okay. Start a new one below whenever you're ready.",
+      ),
+    ).toBeInTheDocument()
+    expect(screen.queryByText('Goal completed')).not.toBeInTheDocument()
+    expect(screen.queryByText('Target reached')).not.toBeInTheDocument()
+  })
+
   it('does not show the reached badge/banner when the target has not been met', async () => {
     await useGoalStore
       .getState()

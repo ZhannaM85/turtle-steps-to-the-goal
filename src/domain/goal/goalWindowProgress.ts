@@ -215,17 +215,19 @@ export function goalWindowHasEnded(
 
 /**
  * Whether a goal's window should be treated as concluded for UI purposes
- * (#667, #776) — either the calendar has actually passed `weekEnd`
- * (`goalWindowHasEnded`), or the target was reached on `weekEnd` itself
- * *and that last day has a logged weight*. The latter is not covered by
- * `goalWindowHasEnded` (still false on that exact day), but nothing
- * logged later in the window can change the outcome once its own last day
- * already has a qualifying entry, so there's no reason to defer the
- * same-day celebration/new-goal unlock to the next calendar day.
+ * (#667, #776, #828) — either the calendar has actually passed `weekEnd`
+ * (`goalWindowHasEnded`), or `weekEnd` itself already has a logged weight
+ * (hit or miss). The latter is not covered by `goalWindowHasEnded` (still
+ * false on that exact day), but nothing logged later in the window can
+ * change the outcome once its own last day has an entry, so there's no
+ * reason to defer the same-day completed/missed nudge to the next
+ * calendar day.
  *
  * #776: a mid-week `finalTargetMet` (Saturday's weigh-in still meeting
  * the target) must not conclude the window on Sunday morning with an
  * empty last-day weight field — wait until `weekEnd` itself is logged.
+ * #828: once that last-day weight exists, a miss concludes too — do not
+ * keep a sticky "completed" / "keep it up" claim after a last-day gain.
  */
 export function goalWindowConcluded(
   progress: Pick<
@@ -237,8 +239,8 @@ export function goalWindowConcluded(
   if (goalWindowHasEnded(progress.weekEnd, today)) return true
   return (
     today === progress.weekEnd &&
-    progress.finalTargetMet === true &&
-    progress.currentWeightDate === progress.weekEnd
+    progress.currentWeightDate === progress.weekEnd &&
+    progress.finalTargetMet != null
   )
 }
 

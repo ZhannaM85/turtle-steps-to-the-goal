@@ -105,4 +105,29 @@ describe('useActiveGoalProgress: locking in a last-day reach (#667)', () => {
       useGoalCelebrationStore.getState().reachedOnLastDayWeekStart,
     ).toBeNull()
   })
+
+  it('does not lock from a prior-day hit on weekEnd before today is logged (#828)', async () => {
+    const yesterday = format(addDays(new Date(), -1), DATE_FORMAT)
+    await useGoalStore.getState().saveGoal(makeGoal())
+    await db.dailyEntries.put(makeEntry({ date: WEEK_START, weightKg: 80 }))
+    await db.dailyEntries.put(makeEntry({ date: yesterday, weightKg: 79 }))
+
+    const { result } = renderHook(() => useActiveGoalProgress())
+
+    await waitFor(() => expect(result.current?.currentWeightKg).toBe(79))
+    expect(result.current?.finalTargetMet).toBe(true)
+    expect(
+      useGoalCelebrationStore.getState().reachedOnLastDayWeekStart,
+    ).toBeNull()
+
+    const todayGain = makeEntry({ date: TODAY, weightKg: 81 })
+    await db.dailyEntries.put(todayGain)
+    useDailyEntryStore.setState({ entry: todayGain })
+
+    await waitFor(() => expect(result.current?.currentWeightKg).toBe(81))
+    expect(result.current?.finalTargetMet).toBe(false)
+    expect(
+      useGoalCelebrationStore.getState().reachedOnLastDayWeekStart,
+    ).toBeNull()
+  })
 })
