@@ -64,6 +64,16 @@ describe('exportPeriodForPreset (#819, #827)', () => {
       start: '2025-09-07',
       end: '2026-09-07',
     })
+  })
+
+  it('leaves All blank until a first logged day is known (#830)', () => {
     expect(exportPeriodForPreset('all', today)).toEqual({ start: '', end: '' })
+  })
+
+  it('fills All from the first logged day through today (#830)', () => {
+    expect(exportPeriodForPreset('all', today, '2026-03-01')).toEqual({
+      start: '2026-03-01',
+      end: '2026-09-07',
+    })
   })
 })

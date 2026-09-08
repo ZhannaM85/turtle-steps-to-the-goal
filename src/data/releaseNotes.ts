@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 789,
+    issue: 830,
+    date: '2026-09-08T12:30:00+03:00',
+    en: 'Choosing All for a period export fills the date range from your first logged day through today, and uses that range in the file name.',
+    ru: 'Выбор «Все» для экспорта за период заполняет даты с первого записанного дня по сегодня и ставит этот диапазон в имя файла.',
+  },
+  {
     version: 788,
     issue: 826,
     date: '2026-09-07T19:15:00+03:00',

@@ -3,9 +3,11 @@ import { format, subDays, subMonths, subYears } from 'date-fns'
 /**
  * Date stamp for period-aware export filenames (#822).
  *
- * Blank from/to (full / unbounded period) keeps today's calendar date, matching
- * the pre-#822 `turtle-steps-daily-log-YYYY-MM-DD` default. A selected range
- * uses ISO from-to so several period copies in Files are distinguishable.
+ * Blank from/to (no data yet, or an unbounded custom range) keeps today's
+ * calendar date, matching the pre-#822 `turtle-steps-daily-log-YYYY-MM-DD`
+ * default. A selected range uses ISO from-to so several period copies in
+ * Files are distinguishable. #830 fills All with first-logged-day → today
+ * so it no longer falls through to the today-only stamp.
  */
 export function exportPeriodFileStamp(
   periodStart: string,
@@ -25,13 +27,19 @@ export function exportPeriodFileStamp(
 
 export type ExportRangePreset = 'week' | 'month' | 'year' | 'all' | 'custom'
 
-/** Trailing bounds for #819 pills, ending today (#827). `custom` is the date fields. */
+/** Trailing bounds for #819 pills, ending today (#827). `custom` is the date fields.
+ *  #830: All is first logged day → today when `earliestEntryDate` is known. */
 export function exportPeriodForPreset(
   preset: Exclude<ExportRangePreset, 'custom'>,
   today: Date = new Date(),
+  earliestEntryDate?: string,
 ): { start: string; end: string } {
   const iso = (d: Date) => format(d, 'yyyy-MM-dd')
-  if (preset === 'all') return { start: '', end: '' }
+  if (preset === 'all') {
+    const start = earliestEntryDate?.trim() ?? ''
+    if (!start) return { start: '', end: '' }
+    return { start, end: iso(today) }
+  }
   const end = iso(today)
   if (preset === 'week') {
     return { start: iso(subDays(today, 6)), end }

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { format, subDays } from 'date-fns'
 import { type Dictionary, useLocale, useTranslation } from '@/i18n'
+import { IndexedDbDailyEntryRepository } from '@/infrastructure/persistence/indexeddb'
 import {
   useAlcoholTrackingStore,
   useCustomMetricStore,
@@ -101,6 +102,8 @@ import {
 import { MyFitnessPalPasswordDialog } from './myFitnessPal/MyFitnessPalPasswordDialog'
 import { MyFitnessPalSlotTimesDialog } from './myFitnessPal/MyFitnessPalSlotTimesDialog'
 import type { MealSlotDefaultTimes } from '@/shared/lib/mealLabel'
+
+const dailyEntryRepository = new IndexedDbDailyEntryRepository()
 
 /** #369 — each source's own data types, since Zepp Life and Apple Health
  * expose different fields (Zepp: body-composition scale readings; Apple
@@ -433,8 +436,11 @@ export function ExportSection() {
   const [fileStem, setFileStem] = useState(() =>
     `turtle-steps-daily-log-${exportPeriodFileStamp('', '')}`,
   )
+  const earliestEntryDateRef = useRef<string | undefined>(undefined)
+  const skipAllAutofillRef = useRef(false)
 
   function setPeriodRange(start: string, end: string, preset: ExportRangePreset) {
+    if (preset !== 'all') skipAllAutofillRef.current = true
     setFileStem((prev) => {
       const oldDefault = `turtle-steps-daily-log-${exportPeriodFileStamp(periodStart, periodEnd)}`
       const nextDefault = `turtle-steps-daily-log-${exportPeriodFileStamp(start, end)}`
@@ -447,12 +453,41 @@ export function ExportSection() {
 
   function applyRangePreset(preset: ExportRangePreset) {
     if (preset === 'custom') {
+      skipAllAutofillRef.current = true
       setRangePreset('custom')
       return
     }
-    const bounds = exportPeriodForPreset(preset, new Date())
+    if (preset !== 'all') skipAllAutofillRef.current = true
+    const bounds = exportPeriodForPreset(
+      preset,
+      new Date(),
+      earliestEntryDateRef.current,
+    )
     setPeriodRange(bounds.start, bounds.end, preset)
   }
+
+  // #830 — All starts blank until we know the first logged day, then fills
+  // first-day → today so the date fields and filename show the real span.
+  useEffect(() => {
+    let cancelled = false
+    dailyEntryRepository.getEarliestEntryDate().then((earliest) => {
+      if (cancelled) return
+      earliestEntryDateRef.current = earliest
+      if (skipAllAutofillRef.current) return
+      const bounds = exportPeriodForPreset('all', new Date(), earliest)
+      setFileStem((prev) => {
+        const oldDefault = `turtle-steps-daily-log-${exportPeriodFileStamp('', '')}`
+        const nextDefault = `turtle-steps-daily-log-${exportPeriodFileStamp(bounds.start, bounds.end)}`
+        return prev === oldDefault || !prev.trim() ? nextDefault : prev
+      })
+      setPeriodStart(bounds.start)
+      setPeriodEnd(bounds.end)
+      setRangePreset('all')
+    })
+    return () => {
+      cancelled = true
+    }
+  }, [])
 
   // Best-effort (#176) — navigator.storage is unavailable in some browsers
   // and estimate() itself can reject; either way, just show nothing rather

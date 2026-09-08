@@ -1,5 +1,5 @@
 import 'fake-indexeddb/auto'
-import { fireEvent, render, screen, within } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { format } from 'date-fns'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -230,6 +230,29 @@ describe('ExportSection', () => {
       /^turtle-steps-backup-\d{4}-\d{2}-\d{2}\.json$/,
     )
     expect(downloads.at(-1)).not.toContain('to-')
+  })
+
+  it('fills All dates from the first logged day through today (#830)', async () => {
+    await db.dailyEntries.put(makeEntry({ date: '2026-03-01' }))
+    await db.dailyEntries.put(makeEntry({ date: '2026-06-15' }))
+    const user = userEvent.setup()
+    render(<ExportSection />)
+    const today = format(new Date(), 'yyyy-MM-dd')
+    const start = screen.getByLabelText('Export period — Start date')
+    await waitFor(() => expect(start).toHaveValue('2026-03-01'))
+    expect(screen.getByLabelText('Export period — End date')).toHaveValue(today)
+    expect(screen.getByLabelText('File name')).toHaveValue(
+      `turtle-steps-daily-log-2026-03-01-to-${today}`,
+    )
+
+    await user.click(screen.getByRole('radio', { name: 'Week' }))
+    await user.click(screen.getByRole('radio', { name: 'All' }))
+    expect(screen.getByLabelText('Export period — Start date')).toHaveValue(
+      '2026-03-01',
+    )
+    expect(screen.getByLabelText('File name')).toHaveValue(
+      `turtle-steps-daily-log-2026-03-01-to-${today}`,
+    )
   })
 
   it('uses the File name field for CSV (#821)', async () => {
