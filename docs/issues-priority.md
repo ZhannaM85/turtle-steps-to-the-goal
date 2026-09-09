@@ -41,13 +41,3 @@ _Weekly goal last-day completion._
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#828](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/828) | 🔍 Pending validation | Goal: last-day weight gain still marks the week completed | Backup 2026-09-08: 0,4 kg from 84 kg (2–8 Sept); met 83,6 on 7 Sept; 84,3 on 8 Sept. `#667` `reachedOnLastDay` lock stamps from yesterday’s `finalTargetMet`, then `#776` concludes on today’s save and `#783` fires the complete celebration. Last-day miss should read missed, same day. |
-
----
-
-## Tier 157 — Live feedback (2026-09-09)
-
-_Next Morning Weight export label._
-
-| # | Status | Issue | Notes |
-|---|--------|-------|-------|
-| [#832](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/832) | 🔍 Pending validation | Export: show translated Next Morning Weight header, not `next_morning_weight` | Follow-up to #829. One-day Daily Log (RU screenshot): Вес (кг) is translated; the next column is the raw key. Use the Day card title (EN: Next Morning Weight; RU: Вес следующим утром). Still one-day only. |
