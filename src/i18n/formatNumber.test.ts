@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { formatExactNumber } from './formatNumber'
+import { formatExactNumber, formatSignedExactNumber } from './formatNumber'
 
 describe('formatExactNumber', () => {
   it('shows full entered precision instead of rounding to 1 decimal', () => {
@@ -21,5 +21,20 @@ describe('formatExactNumber', () => {
   it('shows full entered weekly-pace precision instead of rounding to 1 decimal (#586)', () => {
     expect(formatExactNumber(0.28, 'en')).toBe('0.28')
     expect(formatExactNumber(0.28, 'ru')).toBe('0,28')
+  })
+})
+
+describe('formatSignedExactNumber (#833)', () => {
+  it('shows a +50 g weigh-in delta instead of rounding to 0.0', () => {
+    expect(formatSignedExactNumber(60 - 59.95, 'en')).toBe('+0.05')
+    expect(formatSignedExactNumber(60 - 59.95, 'ru')).toBe('+0,05')
+  })
+
+  it('keeps an explicit minus for a small loss', () => {
+    expect(formatSignedExactNumber(59.95 - 60, 'en')).toBe('-0.05')
+  })
+
+  it('does not pad a whole-kilogram delta', () => {
+    expect(formatSignedExactNumber(1, 'en')).toBe('+1')
   })
 })

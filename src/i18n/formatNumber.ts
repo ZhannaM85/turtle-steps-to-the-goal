@@ -36,3 +36,16 @@ export function formatExactNumber(value: number, locale: Locale): string {
     maximumFractionDigits: 2,
   }).format(value)
 }
+
+/** #833 — signed form of formatExactNumber for weigh-in deltas (50 g
+ * must show as +0.05 / +0,05, not round to 0.0 via formatSignedNumber). */
+export function formatSignedExactNumber(
+  value: number,
+  locale: Locale,
+): string {
+  return new Intl.NumberFormat(locale === 'ru' ? 'ru-RU' : 'en-US', {
+    signDisplay: 'exceptZero',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2,
+  }).format(value)
+}

@@ -3,7 +3,7 @@ import { nextMorningWeight } from '@/domain/dailyEntry'
 import { kgToLb } from '@/domain/goal'
 import {
   formatExactNumber,
-  formatSignedNumber,
+  formatSignedExactNumber,
   unitLabel,
   useLocale,
 } from '@/i18n'
@@ -86,7 +86,7 @@ export function DailyEntryFormNextMorningWeight() {
             </div>
             {derived.changeKg !== null && (
               <span className="text-sm text-muted-foreground">
-                {formatSignedNumber(toDisplay(derived.changeKg), locale)} {unit}
+                {formatSignedExactNumber(toDisplay(derived.changeKg), locale)} {unit}
               </span>
             )}
           </div>

@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 794,
+    issue: 833,
+    date: '2026-09-09T12:40:00+03:00',
+    en: 'Next Morning Weight on Day shows small changes like +0.05 kg instead of rounding them to 0.0 kg.',
+    ru: '«Вес следующим утром» на дне показывает небольшие изменения вроде +0,05 кг, а не округляет их до 0,0 кг.',
+  },
+  {
     version: 793,
     issue: 832,
     date: '2026-09-09T12:30:00+03:00',
