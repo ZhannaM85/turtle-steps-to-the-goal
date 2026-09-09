@@ -31,13 +31,3 @@ _User asked about pulling data from Apple Health and Zepp Life. Researched via W
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#334](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/334) | 📋 Not started | Epic — Apple Health integration (blocked on mobile app + HealthKit bridge) | HealthKit has no public/cloud API at all — data is on-device only, readable exclusively by a native iOS app (or hybrid app with a HealthKit plugin/entitlement) the user has granted permission to. Genuinely blocked until the mobile app exists; can't be built sooner by any workaround. |
-
----
-
-## Tier 156 — Live feedback (2026-09-08)
-
-_Weekly goal last-day completion._
-
-| # | Status | Issue | Notes |
-|---|--------|-------|-------|
-| [#828](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/828) | 🔍 Pending validation | Goal: last-day weight gain still marks the week completed | Backup 2026-09-08: 0,4 kg from 84 kg (2–8 Sept); met 83,6 on 7 Sept; 84,3 on 8 Sept. `#667` `reachedOnLastDay` lock stamps from yesterday’s `finalTargetMet`, then `#776` concludes on today’s save and `#783` fires the complete celebration. Last-day miss should read missed, same day. |
