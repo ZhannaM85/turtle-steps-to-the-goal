@@ -46,9 +46,8 @@ _Weekly goal last-day completion._
 
 ## Tier 157 — Live feedback (2026-09-09)
 
-_Next Morning Weight export label and delta precision._
+_Next Morning Weight export label._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#832](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/832) | 🔍 Pending validation | Export: show translated Next Morning Weight header, not `next_morning_weight` | Follow-up to #829. One-day Daily Log (RU screenshot): Вес (кг) is translated; the next column is the raw key. Use the Day card title (EN: Next Morning Weight; RU: Вес следующим утром). Still one-day only. |
-| [#833](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/833) | 🔍 Pending validation | Day: Next Morning Weight delta shows 0,0 kg for a +50 g change | Follow-up to #829. 8 Sep 2026: card shows 60 kg and 0,0 kg; real change is +50 g (59.95 → 60.00). Show signed delta at logged precision (e.g. +0,05 kg). |

@@ -536,3 +536,13 @@ _Weekly goal last-day completion; Day Next Morning Weight; All export dates/file
 | [#829](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/829) | ✅ Done | Day: Next Morning Weight card from the following day's weigh-in | Confirmed on-device 2026-09-08 — card shows D+1 weight and signed delta. Follow-up #831: Night food and Next Morning Weight are not collapsible. Follow-up #832: one-day export header is the key `next_morning_weight` instead of the translated label. Follow-up #833: +50 g delta displays as 0,0 kg. |
 | [#830](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/830) | ✅ Done | Settings: All export leaves date inputs empty and filename is today only | Confirmed on-device 2026-09-08 — All fills first logged day through today and uses that range in the filename. |
 | [#831](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/831) | ✅ Done | Day: Night food and Next Morning Weight cards are not collapsible | Confirmed on-device 2026-09-08 — Night food and Next Morning Weight collapse with the same chevron and Collapse all as Morning/Evening. |
+
+---
+
+## Tier 157 — Live feedback (2026-09-09)
+
+_Next Morning Weight delta precision._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#833](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/833) | ✅ Done | Day: Next Morning Weight delta shows 0,0 kg for a +50 g change | Confirmed on-device 2026-09-09 — +50 g Next Morning Weight delta shows as +0,05 kg instead of 0,0 kg. |
