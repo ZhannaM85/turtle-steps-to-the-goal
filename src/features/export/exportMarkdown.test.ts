@@ -127,10 +127,10 @@ describe('buildDailyLogMarkdown', () => {
     expect(row).toContain('| 08:00 |')
   })
 
-  it('does not add next_morning_weight even when extras include the map (#829)', () => {
+  it('does not add Next Morning Weight even when extras include the map (#829)', () => {
     const markdown = buildDailyLogMarkdown([makeEntry()], t, undefined, {
       nextMorningWeightByDate: { '2026-03-01': 59.95 },
     })
-    expect(markdown).not.toContain('next_morning_weight')
+    expect(markdown).not.toContain(t.exportXlsx.nextMorningWeightColumn)
   })
 })

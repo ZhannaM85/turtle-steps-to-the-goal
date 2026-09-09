@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 793,
+    issue: 832,
+    date: '2026-09-09T12:30:00+03:00',
+    en: 'One-day Daily Log CSV uses the translated Next Morning Weight column name instead of the internal key.',
+    ru: 'В однодневном CSV дневника колонка «Вес следующим утром» показывается переводом, а не внутренним ключом.',
+  },
+  {
     version: 792,
     issue: 831,
     date: '2026-09-08T13:50:00+03:00',

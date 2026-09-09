@@ -249,7 +249,7 @@ describe('buildDailyLogCsv', () => {
     expect(cells[header.split(',').indexOf('Deep sleep (h)')]).toBe('3h 26m')
   })
 
-  it('adds next_morning_weight after Weight when extras include the map (#829)', () => {
+  it('adds Next Morning Weight after Weight when extras include the map (#829, #832)', () => {
     const csv = buildDailyLogCsv(
       [makeEntry({ date: '2026-03-01', weightKg: 59.65 })],
       t,
@@ -259,25 +259,38 @@ describe('buildDailyLogCsv', () => {
     const [header, row] = dailyTable(csv).split('\r\n')
     const cells = row.split(',')
 
-    expect(header.startsWith('Date,Weight (kg),next_morning_weight,')).toBe(
-      true,
-    )
+    expect(
+      header.startsWith('Date,Weight (kg),Next Morning Weight,'),
+    ).toBe(true)
     expect(cells[2]).toBe('59.95')
   })
 
-  it('leaves next_morning_weight empty when the following day has no weight (#829)', () => {
+  it('leaves Next Morning Weight empty when the following day has no weight (#829)', () => {
     const csv = buildDailyLogCsv([makeEntry()], t, undefined, {
       nextMorningWeightByDate: {},
     })
     const [header, row] = dailyTable(csv).split('\r\n')
 
-    expect(header).toContain('next_morning_weight')
+    expect(header).toContain('Next Morning Weight')
     expect(row.split(',')[2]).toBe('')
   })
 
-  it('does not add next_morning_weight without the extras map (#829)', () => {
+  it('does not add Next Morning Weight without the extras map (#829)', () => {
     const csv = buildDailyLogCsv([makeEntry()], t)
-    expect(dailyTable(csv)).not.toContain('next_morning_weight')
+    expect(dailyTable(csv)).not.toContain('Next Morning Weight')
+  })
+
+  it('uses the translated Next Morning Weight header in ru (#832)', () => {
+    const ru = getDictionary('ru')
+    const csv = buildDailyLogCsv(
+      [makeEntry({ date: '2026-03-01', weightKg: 59.65 })],
+      ru,
+      undefined,
+      { nextMorningWeightByDate: { '2026-03-01': 59.95 } },
+    )
+    const [header] = dailyTable(csv).split('\r\n')
+    expect(header).toContain('Вес следующим утром')
+    expect(header).not.toContain('next_morning_weight')
   })
 
   it('uses locale sleep units in CSV (#751)', () => {

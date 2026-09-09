@@ -1431,7 +1431,7 @@ export interface Dictionary {
     goalsSheetName: string
     dateColumn: string
     weightColumn: string
-    /** #829 — one-day CSV only (`next_morning_weight`); not on range exports. */
+    /** #829 / #832 — one-day CSV only; translated header, not on range exports. */
     nextMorningWeightColumn: string
     caloriesColumn: string
     proteinColumn: string

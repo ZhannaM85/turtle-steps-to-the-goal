@@ -895,7 +895,7 @@ export const en: Dictionary = {
     goalsSheetName: 'Goals',
     dateColumn: 'Date',
     weightColumn: 'Weight (kg)',
-    nextMorningWeightColumn: 'next_morning_weight',
+    nextMorningWeightColumn: 'Next Morning Weight',
     caloriesColumn: 'Calories (kcal)',
     proteinColumn: 'Protein (g)',
     fatColumn: 'Fat (g)',

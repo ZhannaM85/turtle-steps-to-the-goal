@@ -930,7 +930,7 @@ export const ru: Dictionary = {
     goalsSheetName: 'Цели',
     dateColumn: 'Дата',
     weightColumn: 'Вес (кг)',
-    nextMorningWeightColumn: 'next_morning_weight',
+    nextMorningWeightColumn: 'Вес следующим утром',
     caloriesColumn: 'Калории (ккал)',
     proteinColumn: 'Белки (г)',
     fatColumn: 'Жиры (г)',

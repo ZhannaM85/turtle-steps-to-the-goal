@@ -37,9 +37,10 @@ function csvTable(
 }
 
 /**
- * #829 — `next_morning_weight` only on one-day CSV when the caller passes
- * `extras.nextMorningWeightByDate` (Send day). Interval Settings CSV does
- * not pass that map, so Excel/Markdown/range CSV stay unchanged.
+ * #829 / #832 — Next Morning Weight column only on one-day CSV when the
+ * caller passes `extras.nextMorningWeightByDate` (Send day). Header is
+ * `t.exportXlsx.nextMorningWeightColumn`. Interval Settings CSV does not
+ * pass that map, so Excel/Markdown/range CSV stay unchanged.
  */
 function withNextMorningWeightColumn(
   headers: (string | number | boolean | undefined)[],
