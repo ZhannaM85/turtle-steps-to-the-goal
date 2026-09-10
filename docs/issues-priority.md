@@ -40,5 +40,4 @@ _Meal vs-yesterday kcal arrows + Settings What-to-track rows + note-row height/a
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#837](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/837) | 🔍 Pending validation | Settings: What to track — one row per toggle + short definitions | One switch per row under Morning / Evening / Other (plus Electrolytes / From screenshots); short EN/RU definition under each label; intro kept; #836 meal-kcal toggle uses the same row. |
 | [#840](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/840) | 🔍 Pending validation | Day: note input + save checkmark height and vertical align | Shared `NoteEditRow`: 48px floor + stretch/center save (and cancel). Night food thoughts, Day note, plus same-pattern morning note / night-food reason. |
