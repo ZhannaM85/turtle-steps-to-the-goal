@@ -36,8 +36,8 @@ _User asked about pulling data from Apple Health and Zepp Life. Researched via W
 
 ## Tier 158 — Live feedback (2026-09-10)
 
-_Meal vs-yesterday kcal arrows + Settings What-to-track rows + note-row height/align._
+_Meal vs-yesterday kcal arrows + Settings What-to-track rows + note-row height/align + placeholder centering._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#840](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/840) | 🔍 Pending validation | Day: note input + save checkmark height and vertical align | Shared `NoteEditRow`: 48px floor + stretch/center save (and cancel). Night food thoughts, Day note, plus same-pattern morning note / night-food reason. |
+| [#841](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/841) | 📋 Not started | Day: note field placeholder should be vertically centered | Empty note placeholder top-aligned in tall field; shared note-row; follow-up to #840. |
