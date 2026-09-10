@@ -10,7 +10,6 @@ import {
 } from '@/shared/ui/collapsible'
 import { Input } from '@/shared/ui/input'
 import { Label } from '@/shared/ui/label'
-import { Textarea } from '@/shared/ui/textarea'
 import { useTodaySectionsCollapseStore } from '@/stores'
 import {
   bodyFatPercentSchema,
@@ -23,6 +22,7 @@ import {
   EntryFieldComparisonInfo,
   EntryFieldComparisonLive,
 } from './EntryFieldComparison'
+import { NoteEditRow } from './NoteEditRow'
 import { AutoSleepScreenshotFillControl } from './autoSleepScreenshot/AutoSleepScreenshotFillControl'
 import { useDailyEntryFormStateContext } from './useDailyEntryFormStateContext'
 import { ZeppScreenshotFillControl } from './zeppScreenshot/ZeppScreenshotFillControl'
@@ -1220,37 +1220,24 @@ export function DailyEntryFormMorning() {
                   <span className="text-sm font-medium">
                     {t.dailyEntry.morningNoteLabel}
                   </span>
-                  <div className="flex items-end gap-3">
-                    <Textarea
-                      aria-label={t.dailyEntry.morningNoteLabel}
-                      aria-invalid={
-                        state.errors.morningNote ? true : undefined
-                      }
-                      placeholder={t.dailyEntry.morningNoteFieldPlaceholder}
-                      className="flex-1"
-                      {...state.register('morningNote')}
-                    />
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="icon-xl"
-                      aria-label={t.dailyEntry.saveMorningNoteLabel}
-                      onClick={state.saveMorningNote}
-                    >
-                      <Check aria-hidden="true" />
-                    </Button>
-                    {state.canCancelMorningNoteEdit && (
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon-xl"
-                        aria-label={t.dailyEntry.cancelEditMorningNoteLabel}
-                        onClick={state.cancelEditMorningNote}
-                      >
-                        <X aria-hidden="true" />
-                      </Button>
-                    )}
-                  </div>
+                  <NoteEditRow
+                    textareaProps={{
+                      'aria-label': t.dailyEntry.morningNoteLabel,
+                      'aria-invalid': state.errors.morningNote
+                        ? true
+                        : undefined,
+                      placeholder: t.dailyEntry.morningNoteFieldPlaceholder,
+                      ...state.register('morningNote'),
+                    }}
+                    saveLabel={t.dailyEntry.saveMorningNoteLabel}
+                    onSave={state.saveMorningNote}
+                    cancelLabel={t.dailyEntry.cancelEditMorningNoteLabel}
+                    onCancel={
+                      state.canCancelMorningNoteEdit
+                        ? state.cancelEditMorningNote
+                        : undefined
+                    }
+                  />
                   {state.errors.morningNote && (
                     <p className="text-sm text-destructive">
                       {state.errors.morningNote.message}

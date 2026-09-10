@@ -9,7 +9,6 @@ import {
   CollapsibleTrigger,
 } from '@/shared/ui/collapsible'
 import { Input } from '@/shared/ui/input'
-import { Textarea } from '@/shared/ui/textarea'
 import { ToggleGroup, ToggleGroupItem } from '@/shared/ui/toggle-group'
 import { useTodaySectionsCollapseStore } from '@/stores'
 import {
@@ -17,6 +16,7 @@ import {
   EntryFieldComparisonLive,
 } from './EntryFieldComparison'
 import { EmotionPicker } from './EmotionPicker'
+import { NoteEditRow } from './NoteEditRow'
 import { useDailyEntryFormStateContext } from './useDailyEntryFormStateContext'
 
 /**
@@ -206,45 +206,25 @@ export function DailyEntryFormBottom() {
                   <span className="text-sm font-medium">
                     {t.dailyEntry.noteLabel}
                   </span>
-                  <div className="flex items-end gap-3">
-                    {/* #417 — auto-growing textarea, not the single-line Input the
-                     * other fields use: a longer note needs to be readable while
-                     * editing, not scrolled sideways in a fixed-height row. Enter
-                     * now inserts a newline (the textarea default) instead of
-                     * submitting — with multi-line content expected, Ctrl/Cmd
-                     * hijacking Enter to save would fight normal text editing. */}
-                    <Textarea
-                      aria-label={t.dailyEntry.noteLabel}
-                      aria-invalid={state.errors.note ? true : undefined}
-                      placeholder={t.dailyEntry.noteFieldPlaceholder}
-                      className="flex-1"
-                      {...state.register('note')}
-                    />
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="icon-xl"
-                      aria-label={t.dailyEntry.saveNoteLabel}
-                      onClick={state.saveNote}
-                    >
-                      <Check aria-hidden="true" />
-                    </Button>
-                    {/* #437 — same #424 Cancel-without-saving affordance,
-                     * extended to the day note. Hidden when there's nothing
-                     * saved yet to revert to (a brand-new note auto-opens here
-                     * with no display-mode render to safely fall back to). */}
-                    {state.canCancelNoteEdit && (
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon-xl"
-                        aria-label={t.dailyEntry.cancelEditNoteLabel}
-                        onClick={state.cancelEditNote}
-                      >
-                        <X aria-hidden="true" />
-                      </Button>
-                    )}
-                  </div>
+                  {/* #417 / #437 — auto-growing note + save, and cancel
+                   * when there's a saved value to revert to. #840 layout
+                   * lives in NoteEditRow (shared with Night food thoughts). */}
+                  <NoteEditRow
+                    textareaProps={{
+                      'aria-label': t.dailyEntry.noteLabel,
+                      'aria-invalid': state.errors.note ? true : undefined,
+                      placeholder: t.dailyEntry.noteFieldPlaceholder,
+                      ...state.register('note'),
+                    }}
+                    saveLabel={t.dailyEntry.saveNoteLabel}
+                    onSave={state.saveNote}
+                    cancelLabel={t.dailyEntry.cancelEditNoteLabel}
+                    onCancel={
+                      state.canCancelNoteEdit
+                        ? state.cancelEditNote
+                        : undefined
+                    }
+                  />
                   {state.errors.note && (
                     <p className="text-sm text-destructive">
                       {state.errors.note.message}

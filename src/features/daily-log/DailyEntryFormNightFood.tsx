@@ -1,13 +1,13 @@
-import { Check, ChevronDown, Moon, Pencil, X } from 'lucide-react'
+import { ChevronDown, Moon, Pencil } from 'lucide-react'
 import { Button } from '@/shared/ui/button'
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
 } from '@/shared/ui/collapsible'
-import { Textarea } from '@/shared/ui/textarea'
 import { ToggleGroup, ToggleGroupItem } from '@/shared/ui/toggle-group'
 import { useTodaySectionsCollapseStore } from '@/stores'
+import { NoteEditRow } from './NoteEditRow'
 import { useDailyEntryFormStateContext } from './useDailyEntryFormStateContext'
 
 /**
@@ -146,37 +146,25 @@ export function DailyEntryFormNightFood() {
                 <span className="text-sm font-medium">
                   {t.dailyEntry.nightEatingReasonLabel}
                 </span>
-                <div className="flex items-end gap-3">
-                  <Textarea
-                    aria-label={t.dailyEntry.nightEatingReasonLabel}
-                    aria-invalid={
-                      state.errors.nightEatingReason ? true : undefined
-                    }
-                    placeholder={t.dailyEntry.nightEatingReasonFieldPlaceholder}
-                    className="flex-1"
-                    {...state.register('nightEatingReason')}
-                  />
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="icon-xl"
-                    aria-label={t.dailyEntry.saveNightEatingReasonLabel}
-                    onClick={state.saveNightEatingReason}
-                  >
-                    <Check aria-hidden="true" />
-                  </Button>
-                  {state.canCancelNightEatingReasonEdit && (
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon-xl"
-                      aria-label={t.dailyEntry.cancelEditNightEatingReasonLabel}
-                      onClick={state.cancelEditNightEatingReason}
-                    >
-                      <X aria-hidden="true" />
-                    </Button>
-                  )}
-                </div>
+                <NoteEditRow
+                  textareaProps={{
+                    'aria-label': t.dailyEntry.nightEatingReasonLabel,
+                    'aria-invalid': state.errors.nightEatingReason
+                      ? true
+                      : undefined,
+                    placeholder:
+                      t.dailyEntry.nightEatingReasonFieldPlaceholder,
+                    ...state.register('nightEatingReason'),
+                  }}
+                  saveLabel={t.dailyEntry.saveNightEatingReasonLabel}
+                  onSave={state.saveNightEatingReason}
+                  cancelLabel={t.dailyEntry.cancelEditNightEatingReasonLabel}
+                  onCancel={
+                    state.canCancelNightEatingReasonEdit
+                      ? state.cancelEditNightEatingReason
+                      : undefined
+                  }
+                />
                 {state.errors.nightEatingReason && (
                   <p className="text-sm text-destructive">
                     {state.errors.nightEatingReason.message}
@@ -246,41 +234,27 @@ export function DailyEntryFormNightFood() {
                 <span className="text-sm font-medium">
                   {t.dailyEntry.nightEatingNoThoughtsLabel}
                 </span>
-                <div className="flex items-end gap-3">
-                  <Textarea
-                    aria-label={t.dailyEntry.nightEatingNoThoughtsLabel}
-                    aria-invalid={
-                      state.errors.nightEatingNoThoughts ? true : undefined
-                    }
-                    placeholder={
-                      t.dailyEntry.nightEatingNoThoughtsFieldPlaceholder
-                    }
-                    className="flex-1"
-                    {...state.register('nightEatingNoThoughts')}
-                  />
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="icon-xl"
-                    aria-label={t.dailyEntry.saveNightEatingNoThoughtsLabel}
-                    onClick={state.saveNightEatingNoThoughts}
-                  >
-                    <Check aria-hidden="true" />
-                  </Button>
-                  {state.canCancelNightEatingNoThoughtsEdit && (
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon-xl"
-                      aria-label={
-                        t.dailyEntry.cancelEditNightEatingNoThoughtsLabel
-                      }
-                      onClick={state.cancelEditNightEatingNoThoughts}
-                    >
-                      <X aria-hidden="true" />
-                    </Button>
-                  )}
-                </div>
+                <NoteEditRow
+                  textareaProps={{
+                    'aria-label': t.dailyEntry.nightEatingNoThoughtsLabel,
+                    'aria-invalid': state.errors.nightEatingNoThoughts
+                      ? true
+                      : undefined,
+                    placeholder:
+                      t.dailyEntry.nightEatingNoThoughtsFieldPlaceholder,
+                    ...state.register('nightEatingNoThoughts'),
+                  }}
+                  saveLabel={t.dailyEntry.saveNightEatingNoThoughtsLabel}
+                  onSave={state.saveNightEatingNoThoughts}
+                  cancelLabel={
+                    t.dailyEntry.cancelEditNightEatingNoThoughtsLabel
+                  }
+                  onCancel={
+                    state.canCancelNightEatingNoThoughtsEdit
+                      ? state.cancelEditNightEatingNoThoughts
+                      : undefined
+                  }
+                />
                 {state.errors.nightEatingNoThoughts && (
                   <p className="text-sm text-destructive">
                     {state.errors.nightEatingNoThoughts.message}

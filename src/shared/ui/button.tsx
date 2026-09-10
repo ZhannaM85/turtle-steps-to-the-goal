@@ -62,6 +62,11 @@ const buttonVariants = cva(
         // inline list-row controls (meal-item pencil/delete/drag, which stay
         // icon-sm/icon-xs).
         'icon-xl': 'size-12',
+        // #840 — same 48px width as icon-xl, but height stretches with a
+        // sibling auto-growing textarea so same-row-same-height (#420)
+        // still holds when the field is taller than 48px. Base
+        // items-center keeps the icon vertically centered.
+        'icon-stretch': 'h-auto min-h-12 w-12 self-stretch',
       },
     },
     defaultVariants: {

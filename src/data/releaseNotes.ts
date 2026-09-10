@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 798,
+    issue: 840,
+    date: '2026-09-10T12:00:00+03:00',
+    en: 'On Day, the note field and its save checkmark now match in height and stay lined up as the note grows — including Night food thoughts.',
+    ru: 'На экране «День» поле заметки и галочка сохранения теперь одной высоты и остаются выровненными, когда текст становится длиннее — в том числе «Какие мысли?» в ночной еде.',
+  },
+  {
     version: 797,
     issue: 837,
     date: '2026-09-10T11:50:00+03:00',
