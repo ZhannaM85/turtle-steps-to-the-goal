@@ -111,6 +111,23 @@ export function mealLabelSuggestionsForLocale(
   ]
 }
 
+/**
+ * #843 — add-meal may reuse yesterday's same-position title only when that
+ * name is a built-in / Settings template (the same chips the flyout
+ * offers). Free-text custom names stay off the default so they are not
+ * invented at log time; add the name in Settings first, then pick it.
+ */
+export function seedAddMealLabelFromPrevious(
+  previousLabel: string | number | undefined,
+  allowedTemplates: readonly string[],
+): string | undefined {
+  const text = coerceMealLabel(previousLabel)
+  if (text == null) return undefined
+  const trimmed = text.trim()
+  if (!trimmed) return undefined
+  return allowedTemplates.includes(trimmed) ? trimmed : undefined
+}
+
 /** #580/#588 — the four named meal slots that get a default clock time. */
 export type MealSlotKey = 'breakfast' | 'lunch' | 'dinner' | 'snack'
 

@@ -7,7 +7,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { CalorieEntry, DailyEntry } from '@/domain/dailyEntry'
 import { elapsedParts, resolveLastMealInstant } from '@/domain/stats'
 import { db } from '@/infrastructure/persistence/indexeddb'
-import { useCopyYesterdayMealsStore, useDayStartStore, useEatingReasonTrackingStore, useMealItemStore, useMealKcalVsYesterdayStore, useNutritionFactsStore, useRecipeStore, useSinceLastMealTimerStore } from '@/stores'
+import { useCopyYesterdayMealsStore, useDayStartStore, useEatingReasonTrackingStore, useMealItemStore, useMealKcalVsYesterdayStore, useMealLabelPresetStore, useNutritionFactsStore, useRecipeStore, useSinceLastMealTimerStore } from '@/stores'
 import { MealList } from './MealList'
 
 // #301 — a plain `onChange={vi.fn()}` never feeds a save back into
@@ -59,6 +59,7 @@ beforeEach(async () => {
   })
   useSinceLastMealTimerStore.setState({ enabled: false })
   useMealKcalVsYesterdayStore.setState({ enabled: true })
+  useMealLabelPresetStore.setState({ presets: [] })
   localStorage.clear()
   // #201 made the add row's default collapsed state depend on whether
   // `date` is in the past relative to the real clock — freeze "now" to
@@ -224,6 +225,103 @@ describe('MealList', () => {
     expect(nameField).toHaveValue('')
     await user.type(nameField, 'Brunch')
     expect(nameField).toHaveValue('Brunch')
+  })
+
+  it('does not prefill yesterday’s free-text title on a new meal (#843)', async () => {
+    await db.dailyEntries.put(
+      makeDailyEntry({
+        date: '2026-02-28',
+        calorieEntries: [
+          {
+            id: 'y1',
+            label: 'Lunch',
+            items: [{ id: 'yi1', name: 'Soup', amountKcal: 200 }],
+            createdAt: '2026-02-28T13:00:00.000Z',
+          },
+          {
+            id: 'y2',
+            label: 'Lunch two',
+            items: [{ id: 'yi2', name: 'Eggs', amountKcal: 150 }],
+            createdAt: '2026-02-28T14:00:00.000Z',
+          },
+        ],
+      }),
+    )
+    const user = userEvent.setup()
+    render(
+      <ControlledMealList
+        calorieEntries={[
+          {
+            id: 't1',
+            label: 'Lunch',
+            items: [{ id: 'i1', name: 'Salad', amountKcal: 180 }],
+            createdAt: '2026-03-01T13:00:00.000Z',
+          },
+        ]}
+        date="2026-03-01"
+      />,
+      { wrapper: MemoryRouter },
+    )
+
+    await screen.findByText('↓ 20 kcal compared to yesterday')
+    await user.click(
+      screen.getByRole('button', { name: '+ Add another meal' }),
+    )
+
+    expect(screen.getByLabelText('Meal name')).toHaveValue('Lunch')
+    expect(
+      screen.getByRole('button', { name: "Repeat yesterday's Lunch" }),
+    ).toBeInTheDocument()
+    expect(screen.queryByDisplayValue('Lunch two')).not.toBeInTheDocument()
+    expect(
+      screen.queryByRole('button', { name: /Lunch two/ }),
+    ).not.toBeInTheDocument()
+  })
+
+  it('prefills yesterday’s same-position title when it is a Settings template (#843)', async () => {
+    useMealLabelPresetStore.setState({ presets: ['Night food'] })
+    await db.dailyEntries.put(
+      makeDailyEntry({
+        date: '2026-02-28',
+        calorieEntries: [
+          {
+            id: 'y1',
+            items: [{ id: 'yi1', name: 'Soup', amountKcal: 200 }],
+            createdAt: '2026-02-28T13:00:00.000Z',
+          },
+          {
+            id: 'y2',
+            label: 'Night food',
+            items: [{ id: 'yi2', name: 'Yogurt', amountKcal: 120 }],
+            createdAt: '2026-02-28T22:00:00.000Z',
+          },
+        ],
+      }),
+    )
+    const user = userEvent.setup()
+    render(
+      <ControlledMealList
+        calorieEntries={[
+          {
+            id: 't1',
+            items: [{ id: 'i1', name: 'Salad', amountKcal: 180 }],
+            createdAt: '2026-03-01T13:00:00.000Z',
+          },
+        ]}
+        date="2026-03-01"
+      />,
+      { wrapper: MemoryRouter },
+    )
+
+    await screen.findByText('↓ 20 kcal compared to yesterday')
+    await user.click(
+      screen.getByRole('button', { name: '+ Add another meal' }),
+    )
+
+    expect(screen.getByLabelText('Meal name')).toHaveValue('Night food')
+    expect(
+      screen.getByRole('button', { name: "Repeat yesterday's Night food" }),
+    ).toBeInTheDocument()
   })
 
   it('keeps a typed space in the meal title mid-keystroke (#576)', async () => {

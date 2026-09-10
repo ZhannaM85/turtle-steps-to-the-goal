@@ -41,3 +41,4 @@ _Night food No-path «What helped?» follow-up._
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#842](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/842) | 🔍 Pending validation | Day: Night food No — replace thoughts with What helped? | Replaced No-path thoughts note with «Что помогло?» / «What helped?» (`nightEatingNoWhatHelped`). Historical `nightEatingNoThoughts` left on the old key, not migrated; Daily Log CSV/Excel/Markdown export the new field only. |
+| [#843](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/843) | 🔍 Pending validation | New meal pre-fills custom title from prior day | `openAddMealDialog` no longer copies yesterday’s same-position free-text `label` into the new-meal title. Prefill only when that name is a built-in / Settings template (`seedAddMealLabelFromPrevious`); Repeat / note placeholder then use the template or positional default, not «Обед два». |

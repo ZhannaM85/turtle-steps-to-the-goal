@@ -7,6 +7,7 @@ import {
   effectiveTimeEaten,
   localizeLeftoverEnglishMealPresets,
   mealLabelSuggestionsForLocale,
+  seedAddMealLabelFromPrevious,
   sortCalorieEntriesByLoggedTime,
 } from './mealLabel'
 
@@ -24,6 +25,18 @@ describe('mealLabel helpers', () => {
     expect(editableMealLabel(en, 1, undefined)).toBe('Breakfast')
     expect(editableMealLabel(en, 1, '')).toBe('')
     expect(editableMealLabel(en, 1, 'Brunch')).toBe('Brunch')
+  })
+
+  it('seedAddMealLabelFromPrevious keeps templates and drops free-text (#843)', () => {
+    const templates = mealLabelSuggestionsForLocale(en, ['Night food'])
+    expect(seedAddMealLabelFromPrevious('Lunch', templates)).toBe('Lunch')
+    expect(seedAddMealLabelFromPrevious('Night food', templates)).toBe(
+      'Night food',
+    )
+    expect(seedAddMealLabelFromPrevious('Lunch two', templates)).toBeUndefined()
+    expect(seedAddMealLabelFromPrevious('Обед два', templates)).toBeUndefined()
+    expect(seedAddMealLabelFromPrevious('', templates)).toBeUndefined()
+    expect(seedAddMealLabelFromPrevious(undefined, templates)).toBeUndefined()
   })
 
   it('mealLabelSuggestionsForLocale hides other-locale built-ins (#567)', () => {

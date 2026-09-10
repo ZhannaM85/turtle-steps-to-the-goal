@@ -9,10 +9,9 @@ import { Dialog, DialogContent, DialogTitle } from '@/shared/ui/dialog'
 export interface RepeatMealDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
-  /** The label shown in the dialog title — the *new* meal's own effective
-   * label (position-derived default, or `previousMeal.label` if it had a
-   * custom one), not necessarily identical to how yesterday's meal reads,
-   * matching what `repeatMealLabel` already shows on the trigger button. */
+  /** The label shown in the dialog title — the *new* meal's own title
+   * (positional default or a Settings/built-in template, #843), matching
+   * what `repeatMealLabel` already shows on the trigger button. */
   mealLabel: string
   items: CalorieItem[]
   /** Called with just the checked subset (#202) — cloning (fresh ids,

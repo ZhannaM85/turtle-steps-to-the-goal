@@ -253,10 +253,11 @@ export interface AddMealDialogProps {
   /** #509 — edit overlay: keep Done reachable after the last composition
    * row is removed so empty-meal commit can delete the saved meal. */
   showDoneWhenEmpty?: boolean
-  /** Position-derived default, or the meal's own custom label —
-   * computed by `MealList.tsx` via `effectiveMealLabel`/`defaultMealLabel`.
+  /** Position-derived default, a Settings/built-in template, or the meal's
+   * own saved label — computed by `MealList.tsx` via `editableMealLabel`.
    * Editable in the header (#563); chips offer Breakfast/Lunch/Dinner/Snack
-   * plus any Settings presets. */
+   * plus any Settings presets. New meals do not prefill free-text names
+   * from yesterday (#843). */
   mealLabel: string
   /** #563 — free-text or chip pick; parent stores a custom `CalorieEntry.label`
    * (or clears it when the value matches the positional default). */

@@ -47,11 +47,11 @@ import {
   macrosSummaryTextCompact,
   macrosSummaryTextCompactWithCalories,
 } from '@/shared/lib/macroDisplay'
-import { defaultMealLabel, editableMealLabel, effectiveMealLabel, effectiveTimeEaten, sortCalorieEntriesByLoggedTime } from '@/shared/lib/mealLabel'
+import { defaultMealLabel, editableMealLabel, effectiveMealLabel, effectiveTimeEaten, mealLabelSuggestionsForLocale, seedAddMealLabelFromPrevious, sortCalorieEntriesByLoggedTime } from '@/shared/lib/mealLabel'
 import { normalizeTextSpaces } from '@/shared/lib/normalizeTextSpaces'
 import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/ui/button'
-import { useCopyYesterdayMealsStore, useDayStartStore, useEatingReasonTrackingStore, useMealItemStore, useMealSlotDefaultTimesStore, useMealKcalVsYesterdayStore, useNutritionFactsStore, useSinceLastMealTimerStore } from '@/stores'
+import { useCopyYesterdayMealsStore, useDayStartStore, useEatingReasonTrackingStore, useMealItemStore, useMealLabelPresetStore, useMealSlotDefaultTimesStore, useMealKcalVsYesterdayStore, useNutritionFactsStore, useSinceLastMealTimerStore } from '@/stores'
 import { AddMealDialog } from './AddMealDialog'
 import { CopyDayMealsDialog } from './CopyDayMealsDialog'
 import { SinceLastMealTimer } from './SinceLastMealTimer'
@@ -492,6 +492,7 @@ export function MealList({
   const copyYesterdayMealsEnabled = useCopyYesterdayMealsStore(
     (state) => state.enabled,
   )
+  const mealLabelPresets = useMealLabelPresetStore((state) => state.presets)
   const mealKcalVsYesterdayEnabled = useMealKcalVsYesterdayStore(
     (state) => state.enabled,
   )
@@ -699,9 +700,15 @@ export function MealList({
     const previous =
       previousDayEntry?.calorieEntries?.[calorieEntries.length]
     setNewMealPreviousMeal(previous)
-    // #563 — seed from yesterday's same-position custom label (if any) so
-    // the editable field matches what we'll persist on first add.
-    setNewMealLabel(previous?.label)
+    // #843 — reuse yesterday's same-position title only when it is a
+    // Settings / built-in template. Free-text names (e.g. «Обед два»)
+    // must not prefill the field or the Repeat/note copy.
+    setNewMealLabel(
+      seedAddMealLabelFromPrevious(
+        previous?.label,
+        mealLabelSuggestionsForLocale(t, mealLabelPresets),
+      ),
+    )
     keepInProgressMealRef.current = false
     setConfirmDiscardAddMeal(false)
     setIsAddMealDialogOpen(true)

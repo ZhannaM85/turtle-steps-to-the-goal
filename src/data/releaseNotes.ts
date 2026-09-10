@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 801,
+    issue: 843,
+    date: '2026-09-10T18:00:00+03:00',
+    en: 'Adding a meal no longer fills in a custom name from yesterday — pick a name from your meal templates instead.',
+    ru: 'При добавлении приёма пищи больше не подставляется вчерашнее своё название — выберите имя из шаблонов.',
+  },
+  {
     version: 800,
     issue: 842,
     date: '2026-09-10T13:05:00+03:00',
