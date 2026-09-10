@@ -257,7 +257,7 @@ export interface AddMealDialogProps {
    * own saved label — computed by `MealList.tsx` via `editableMealLabel`.
    * Editable in the header (#563); chips offer Breakfast/Lunch/Dinner/Snack
    * plus any Settings presets. New meals do not prefill free-text names
-   * from yesterday (#843). */
+   * from yesterday (#843) and skip template names already used today (#844). */
   mealLabel: string
   /** #563 — free-text or chip pick; parent stores a custom `CalorieEntry.label`
    * (or clears it when the value matches the positional default). */

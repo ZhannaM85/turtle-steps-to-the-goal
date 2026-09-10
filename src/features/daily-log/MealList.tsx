@@ -47,7 +47,7 @@ import {
   macrosSummaryTextCompact,
   macrosSummaryTextCompactWithCalories,
 } from '@/shared/lib/macroDisplay'
-import { defaultMealLabel, editableMealLabel, effectiveMealLabel, effectiveTimeEaten, mealLabelSuggestionsForLocale, seedAddMealLabelFromPrevious, sortCalorieEntriesByLoggedTime } from '@/shared/lib/mealLabel'
+import { defaultMealLabel, editableMealLabel, effectiveMealLabel, effectiveTimeEaten, mealLabelSuggestionsForLocale, nextUnusedMealTemplate, sortCalorieEntriesByLoggedTime } from '@/shared/lib/mealLabel'
 import { normalizeTextSpaces } from '@/shared/lib/normalizeTextSpaces'
 import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/ui/button'
@@ -700,14 +700,28 @@ export function MealList({
     const previous =
       previousDayEntry?.calorieEntries?.[calorieEntries.length]
     setNewMealPreviousMeal(previous)
-    // #843 — reuse yesterday's same-position title only when it is a
-    // Settings / built-in template. Free-text names (e.g. «Обед два»)
-    // must not prefill the field or the Repeat/note copy.
+    // #844 — next unused built-in / Settings template in list order,
+    // starting at this meal's position, skipping names already logged
+    // today. #843 — titles still come from templates only (never
+    // yesterday's free-text). Empty string when every template is used
+    // so `editableMealLabel` does not fall back to a used positional name.
+    const templates = mealLabelSuggestionsForLocale(t, mealLabelPresets)
+    const usedToday = calorieEntries.map((entry, index) =>
+      effectiveMealLabel(t, index + 1, entry.label),
+    )
+    const nextTemplate = nextUnusedMealTemplate(
+      templates,
+      usedToday,
+      calorieEntries.length,
+    )
     setNewMealLabel(
-      seedAddMealLabelFromPrevious(
-        previous?.label,
-        mealLabelSuggestionsForLocale(t, mealLabelPresets),
-      ),
+      nextTemplate === undefined
+        ? ''
+        : customMealLabelOrUndefined(
+            nextTemplate,
+            calorieEntries.length + 1,
+            t,
+          ),
     )
     keepInProgressMealRef.current = false
     setConfirmDiscardAddMeal(false)

@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 802,
+    issue: 844,
+    date: '2026-09-10T18:45:00+03:00',
+    en: 'Adding another meal now fills in the next meal name you have not used yet today, instead of repeating one you already logged.',
+    ru: 'Когда добавляете ещё один приём пищи, подставляется следующее неиспользованное сегодня название, а не то, что уже есть в дневнике.',
+  },
+  {
     version: 801,
     issue: 843,
     date: '2026-09-10T18:00:00+03:00',

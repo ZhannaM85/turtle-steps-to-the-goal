@@ -7,6 +7,7 @@ import {
   effectiveTimeEaten,
   localizeLeftoverEnglishMealPresets,
   mealLabelSuggestionsForLocale,
+  nextUnusedMealTemplate,
   seedAddMealLabelFromPrevious,
   sortCalorieEntriesByLoggedTime,
 } from './mealLabel'
@@ -37,6 +38,40 @@ describe('mealLabel helpers', () => {
     expect(seedAddMealLabelFromPrevious('Обед два', templates)).toBeUndefined()
     expect(seedAddMealLabelFromPrevious('', templates)).toBeUndefined()
     expect(seedAddMealLabelFromPrevious(undefined, templates)).toBeUndefined()
+  })
+
+  it('nextUnusedMealTemplate skips names already used today (#844)', () => {
+    const templates = mealLabelSuggestionsForLocale(en, ['Night food'])
+    expect(nextUnusedMealTemplate(templates, [], 0)).toBe('Breakfast')
+    expect(nextUnusedMealTemplate(templates, ['Breakfast'], 1)).toBe('Lunch')
+    expect(nextUnusedMealTemplate(templates, ['Lunch'], 1)).toBe('Dinner')
+    expect(nextUnusedMealTemplate(templates, ['Lunch', 'Dinner'], 2)).toBe(
+      'Snack',
+    )
+    expect(
+      nextUnusedMealTemplate(
+        templates,
+        ['Breakfast', 'Lunch', 'Dinner', 'Snack'],
+        4,
+      ),
+    ).toBe('Night food')
+    expect(
+      nextUnusedMealTemplate(
+        templates,
+        ['Breakfast', 'Lunch', 'Dinner', 'Snack', 'Night food'],
+        5,
+      ),
+    ).toBeUndefined()
+    expect(
+      nextUnusedMealTemplate(
+        templates,
+        ['Lunch', 'Dinner', 'Snack', 'Night food'],
+        4,
+      ),
+    ).toBe('Breakfast')
+
+    const ruTemplates = mealLabelSuggestionsForLocale(ru, [])
+    expect(nextUnusedMealTemplate(ruTemplates, ['Обед'], 1)).toBe('Ужин')
   })
 
   it('mealLabelSuggestionsForLocale hides other-locale built-ins (#567)', () => {

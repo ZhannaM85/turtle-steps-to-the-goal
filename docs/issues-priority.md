@@ -41,3 +41,4 @@ _Night food No-path «What helped?» follow-up._
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#842](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/842) | 🔍 Pending validation | Day: Night food No — replace thoughts with What helped? | Replaced No-path thoughts note with «Что помогло?» / «What helped?» (`nightEatingNoWhatHelped`). Historical `nightEatingNoThoughts` left on the old key, not migrated; Daily Log CSV/Excel/Markdown export the new field only. |
+| [#844](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/844) | 🔍 Pending validation | New meal still defaults to «Обед» when lunch already logged today | `nextUnusedMealTemplate` walks built-in + Settings templates from the new meal’s position, skips names already used today, wraps once. Repeat still copies yesterday’s foods under that unused title. #843: still no free-text titles from prior days. |

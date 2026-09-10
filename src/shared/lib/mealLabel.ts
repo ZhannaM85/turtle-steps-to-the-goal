@@ -116,6 +116,11 @@ export function mealLabelSuggestionsForLocale(
  * name is a built-in / Settings template (the same chips the flyout
  * offers). Free-text custom names stay off the default so they are not
  * invented at log time; add the name in Settings first, then pick it.
+ *
+ * #844 — new-meal title seeding no longer uses this for the field default
+ * (`nextUnusedMealTemplate` walks unused templates instead). Kept as the
+ * template-vs-free-text filter so a prior-day custom name cannot sneak
+ * back in if a caller still has a yesterday label in hand.
  */
 export function seedAddMealLabelFromPrevious(
   previousLabel: string | number | undefined,
@@ -126,6 +131,30 @@ export function seedAddMealLabelFromPrevious(
   const trimmed = text.trim()
   if (!trimmed) return undefined
   return allowedTemplates.includes(trimmed) ? trimmed : undefined
+}
+
+/**
+ * #844 — first Settings/built-in template not already used today, walking
+ * `allowedTemplates` (built-ins, then Settings meal-name templates) from
+ * `startIndex` (the new meal's 0-based position) and wrapping once.
+ * Returns undefined when every template is already used so the field can
+ * stay unset for a chip pick, instead of repeating a used name.
+ */
+export function nextUnusedMealTemplate(
+  allowedTemplates: readonly string[],
+  usedToday: readonly string[],
+  startIndex = 0,
+): string | undefined {
+  if (allowedTemplates.length === 0) return undefined
+  const used = new Set(
+    usedToday.map((label) => label.trim()).filter((label) => label !== ''),
+  )
+  const len = allowedTemplates.length
+  for (let i = 0; i < len; i++) {
+    const candidate = allowedTemplates[(startIndex + i) % len]
+    if (!used.has(candidate)) return candidate
+  }
+  return undefined
 }
 
 /** #580/#588 — the four named meal slots that get a default clock time. */

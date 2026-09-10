@@ -268,9 +268,11 @@ describe('MealList', () => {
       screen.getByRole('button', { name: '+ Add another meal' }),
     )
 
-    expect(screen.getByLabelText('Meal name')).toHaveValue('Lunch')
+    // #844 — Lunch is already used today, so the next unused template
+    // (Dinner) is the default. Yesterday's free-text «Lunch two» stays off.
+    expect(screen.getByLabelText('Meal name')).toHaveValue('Dinner')
     expect(
-      screen.getByRole('button', { name: "Repeat yesterday's Lunch" }),
+      screen.getByRole('button', { name: "Repeat yesterday's Dinner" }),
     ).toBeInTheDocument()
     expect(screen.queryByDisplayValue('Lunch two')).not.toBeInTheDocument()
     expect(
@@ -278,7 +280,7 @@ describe('MealList', () => {
     ).not.toBeInTheDocument()
   })
 
-  it('prefills yesterday’s same-position title when it is a Settings template (#843)', async () => {
+  it('prefills the next unused template, not yesterday’s same-position template (#843/#844)', async () => {
     useMealLabelPresetStore.setState({ presets: ['Night food'] })
     await db.dailyEntries.put(
       makeDailyEntry({
@@ -318,10 +320,110 @@ describe('MealList', () => {
       screen.getByRole('button', { name: '+ Add another meal' }),
     )
 
-    expect(screen.getByLabelText('Meal name')).toHaveValue('Night food')
+    // Unlabeled first meal displays as Breakfast; next unused is Lunch.
+    // Repeat still copies yesterday's foods under that unused title.
+    expect(screen.getByLabelText('Meal name')).toHaveValue('Lunch')
     expect(
-      screen.getByRole('button', { name: "Repeat yesterday's Night food" }),
+      screen.getByRole('button', { name: "Repeat yesterday's Lunch" }),
     ).toBeInTheDocument()
+    expect(screen.queryByDisplayValue('Night food')).not.toBeInTheDocument()
+    expect(
+      screen.queryByRole('button', { name: "Repeat yesterday's Night food" }),
+    ).not.toBeInTheDocument()
+  })
+
+  it('does not default a new meal to a template already used today (#844)', async () => {
+    await db.dailyEntries.put(
+      makeDailyEntry({
+        date: '2026-02-28',
+        calorieEntries: [
+          {
+            id: 'y1',
+            label: 'Lunch',
+            items: [{ id: 'yi1', name: 'Soup', amountKcal: 200 }],
+            createdAt: '2026-02-28T13:00:00.000Z',
+          },
+          {
+            id: 'y2',
+            label: 'Lunch',
+            items: [{ id: 'yi2', name: 'Eggs', amountKcal: 150 }],
+            createdAt: '2026-02-28T14:00:00.000Z',
+          },
+        ],
+      }),
+    )
+    const user = userEvent.setup()
+    render(
+      <ControlledMealList
+        calorieEntries={[
+          {
+            id: 't1',
+            label: 'Lunch',
+            items: [{ id: 'i1', name: 'Salad', amountKcal: 180 }],
+            createdAt: '2026-03-01T13:00:00.000Z',
+          },
+        ]}
+        date="2026-03-01"
+      />,
+      { wrapper: MemoryRouter },
+    )
+
+    await screen.findByText('↓ 20 kcal compared to yesterday')
+    await user.click(
+      screen.getByRole('button', { name: '+ Add another meal' }),
+    )
+
+    expect(screen.getByLabelText('Meal name')).toHaveValue('Dinner')
+    expect(screen.queryByDisplayValue('Lunch')).not.toBeInTheDocument()
+    expect(
+      screen.getByRole('button', { name: "Repeat yesterday's Dinner" }),
+    ).toBeInTheDocument()
+    expect(
+      screen.queryByRole('button', { name: "Repeat yesterday's Lunch" }),
+    ).not.toBeInTheDocument()
+  })
+
+  it('uses a Settings template once the built-ins are taken today (#844)', async () => {
+    useMealLabelPresetStore.setState({ presets: ['Night food'] })
+    const user = userEvent.setup()
+    render(
+      <ControlledMealList
+        calorieEntries={[
+          {
+            id: 't1',
+            label: 'Breakfast',
+            items: [{ id: 'i1', name: 'Oats', amountKcal: 200 }],
+            createdAt: '2026-03-01T08:00:00.000Z',
+          },
+          {
+            id: 't2',
+            label: 'Lunch',
+            items: [{ id: 'i2', name: 'Salad', amountKcal: 180 }],
+            createdAt: '2026-03-01T13:00:00.000Z',
+          },
+          {
+            id: 't3',
+            label: 'Dinner',
+            items: [{ id: 'i3', name: 'Fish', amountKcal: 400 }],
+            createdAt: '2026-03-01T19:00:00.000Z',
+          },
+          {
+            id: 't4',
+            label: 'Snack',
+            items: [{ id: 'i4', name: 'Apple', amountKcal: 80 }],
+            createdAt: '2026-03-01T16:00:00.000Z',
+          },
+        ]}
+        date="2026-03-01"
+      />,
+      { wrapper: MemoryRouter },
+    )
+
+    await user.click(
+      screen.getByRole('button', { name: '+ Add another meal' }),
+    )
+
+    expect(screen.getByLabelText('Meal name')).toHaveValue('Night food')
   })
 
   it('keeps a typed space in the meal title mid-keystroke (#576)', async () => {
