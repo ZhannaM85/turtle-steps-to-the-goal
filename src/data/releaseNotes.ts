@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 803,
+    issue: 845,
+    date: '2026-09-10T19:05:00+03:00',
+    en: 'When adding a meal, the name can no longer be typed — tap a meal-name template instead. You can still change those names in Settings.',
+    ru: 'При добавлении приёма пищи название больше нельзя ввести с клавиатуры — выберите шаблон. Свои названия по-прежнему задаются в Настройках.',
+  },
+  {
     version: 802,
     issue: 844,
     date: '2026-09-10T18:45:00+03:00',

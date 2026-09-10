@@ -242,6 +242,7 @@ export const ru: Dictionary = {
     backLabel: 'Назад',
     mealNotFoundText: 'Этот приём пищи не найден.',
     mealLabelFieldLabel: 'Название приёма пищи',
+    clearMealLabelFieldLabel: 'Очистить название приёма пищи',
     defaultMealNamePresets: ['Завтрак', 'Обед', 'Ужин', 'Перекус'],
     saveButton: 'Сохранить',
     saveAndAddAnotherButton: 'Сохранить и добавить ещё',

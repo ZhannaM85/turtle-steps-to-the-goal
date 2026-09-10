@@ -414,6 +414,8 @@ export interface Dictionary {
     /** Custom meal name field (#110) — aria-label composed with mealLabel(n),
      * same pattern as itemNameLabel etc. */
     mealLabelFieldLabel: string
+    /** #845 — clear the read-only meal name selection (does not enable typing). */
+    clearMealLabelFieldLabel: string
     /** Built-in quick-pick suggestions for the custom meal name field
      * (#110) — offered as one-click adds in Settings, not auto-seeded into
      * useMealLabelPresetStore (so a later language switch doesn't leave

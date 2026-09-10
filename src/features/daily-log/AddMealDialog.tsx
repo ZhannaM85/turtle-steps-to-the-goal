@@ -1361,18 +1361,38 @@ export function AddMealDialog({
         <div className="flex flex-col gap-2 pr-10">
           <Label htmlFor="add-meal-name">{t.dailyEntry.mealLabelFieldLabel}</Label>
           <div className="flex items-center justify-between gap-2">
-            {/* #563 — editable meal name (Breakfast→Lunch etc.) in add/edit,
-             * not only via Settings presets. DialogTitle stays for a11y /
-             * Radix naming; the visible field is the labeled Input. */}
+            {/* #563/#845 — meal name is a chip-selected label, not free
+             * text. DialogTitle stays for a11y / Radix naming; the visible
+             * field is the labeled read-only Input. Clear/X empties the
+             * selection without enabling typing. */}
             <DialogTitle className="sr-only">{mealLabel}</DialogTitle>
-            <Input
-              id="add-meal-name"
-              type="text"
-              aria-label={t.dailyEntry.mealLabelFieldLabel}
-              value={mealLabel}
-              onChange={(e) => onMealLabelChange(e.target.value)}
-              className="h-12 min-w-0 flex-1 text-lg font-medium"
-            />
+            <div className="relative min-w-0 flex-1">
+              <Input
+                id="add-meal-name"
+                type="text"
+                readOnly
+                inputMode="none"
+                autoComplete="off"
+                aria-label={t.dailyEntry.mealLabelFieldLabel}
+                value={mealLabel}
+                className={cn(
+                  'h-12 min-w-0 w-full cursor-default text-lg font-medium caret-transparent',
+                  mealLabel !== '' && 'pr-9',
+                )}
+              />
+              {mealLabel !== '' && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon-xs"
+                  aria-label={t.dailyEntry.clearMealLabelFieldLabel}
+                  className="absolute top-1/2 right-1.5 -translate-y-1/2"
+                  onClick={() => onMealLabelChange('')}
+                >
+                  <X aria-hidden="true" className="size-3.5" />
+                </Button>
+              )}
+            </div>
             {/* #508 — the header keeps the time control only; DialogContent's
              * own Close owns the top-right corner alone. The #117 clear
              * control now lives *inside* this field's border so it reads as

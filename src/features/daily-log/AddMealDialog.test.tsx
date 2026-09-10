@@ -155,7 +155,7 @@ describe('AddMealDialog (#454)', () => {
     expect(screen.getByLabelText('Time')).toHaveValue('08:00')
   })
 
-  it('renames the meal via free text or a Breakfast/Lunch/Dinner chip (#563)', async () => {
+  it('renames the meal via a Breakfast/Lunch/Dinner chip, not free text (#563/#845)', async () => {
     const user = userEvent.setup()
     const onMealLabelChange = vi.fn()
     render(
@@ -175,10 +175,30 @@ describe('AddMealDialog (#454)', () => {
     expect(screen.getByRole('heading', { name: 'Lunch' })).toBeInTheDocument()
 
     const nameField = screen.getByLabelText('Meal name')
-    await user.clear(nameField)
+    expect(nameField).toHaveAttribute('readonly')
     await user.type(nameField, 'Brunch')
-    expect(onMealLabelChange).toHaveBeenCalledWith('Brunch')
-    expect(nameField).toHaveValue('Brunch')
+    expect(onMealLabelChange).not.toHaveBeenCalledWith('Brunch')
+    expect(nameField).toHaveValue('Lunch')
+  })
+
+  it('clears the meal name without enabling typing (#845)', async () => {
+    const user = userEvent.setup()
+    const onMealLabelChange = vi.fn()
+    render(
+      <ControlledAddMealDialog
+        {...defaultProps}
+        onMealLabelChange={onMealLabelChange}
+      />,
+    )
+
+    await user.click(screen.getByRole('button', { name: 'Clear meal name' }))
+    expect(onMealLabelChange).toHaveBeenCalledWith('')
+    const nameField = screen.getByLabelText('Meal name')
+    expect(nameField).toHaveValue('')
+    expect(nameField).toHaveAttribute('readonly')
+    expect(
+      screen.queryByRole('button', { name: 'Clear meal name' }),
+    ).not.toBeInTheDocument()
   })
 
   it('does not offer other-locale default meal names as chips (#567)', () => {

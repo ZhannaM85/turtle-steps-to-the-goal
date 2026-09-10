@@ -209,7 +209,7 @@ describe('MealList', () => {
     expect(screen.getByText('Salad')).toBeInTheDocument()
   })
 
-  it('allows clearing the meal name without the default reseeding (#568)', async () => {
+  it('allows clearing the meal name without the default reseeding (#568/#845)', async () => {
     const user = userEvent.setup()
     render(
       <ControlledMealList calorieEntries={[]} date="2026-03-01" />,
@@ -221,10 +221,9 @@ describe('MealList', () => {
     )
     const nameField = screen.getByLabelText('Meal name')
     expect(nameField).toHaveValue('Breakfast')
-    await user.clear(nameField)
+    expect(nameField).toHaveAttribute('readonly')
+    await user.click(screen.getByRole('button', { name: 'Clear meal name' }))
     expect(nameField).toHaveValue('')
-    await user.type(nameField, 'Brunch')
-    expect(nameField).toHaveValue('Brunch')
   })
 
   it('does not prefill yesterday’s free-text title on a new meal (#843)', async () => {
@@ -426,7 +425,7 @@ describe('MealList', () => {
     expect(screen.getByLabelText('Meal name')).toHaveValue('Night food')
   })
 
-  it('keeps a typed space in the meal title mid-keystroke (#576)', async () => {
+  it('does not accept typed text in the meal name field (#845)', async () => {
     const user = userEvent.setup()
     render(
       <ControlledMealList calorieEntries={[]} date="2026-03-01" />,
@@ -438,8 +437,8 @@ describe('MealList', () => {
     )
     const nameField = screen.getByLabelText('Meal name')
     expect(nameField).toHaveValue('Breakfast')
-    await user.type(nameField, ' 1')
-    expect(nameField).toHaveValue('Breakfast 1')
+    await user.type(nameField, 'Brunch')
+    expect(nameField).toHaveValue('Breakfast')
   })
 
   it("shows an item's own quantity in grams when recorded, omits it when not (#206)", () => {
