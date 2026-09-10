@@ -36,10 +36,11 @@ _User asked about pulling data from Apple Health and Zepp Life. Researched via W
 
 ## Tier 158 — Live feedback (2026-09-10)
 
-_Night food No-path «What helped?» follow-up._
+_Night food No-path «What helped?» follow-up; tooling follow-ups from Dependabot PR #838 review._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#842](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/842) | 🔍 Pending validation | Day: Night food No — replace thoughts with What helped? | Replaced No-path thoughts note with «Что помогло?» / «What helped?» (`nightEatingNoWhatHelped`). Historical `nightEatingNoThoughts` left on the old key, not migrated; Daily Log CSV/Excel/Markdown export the new field only. |
 | [#844](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/844) | 🔍 Pending validation | New meal still defaults to «Обед» when lunch already logged today | `nextUnusedMealTemplate` walks built-in + Settings templates from the new meal’s position, skips names already used today, wraps once. Repeat still copies yesterday’s foods under that unused title. #843: still no free-text titles from prior days. |
 | [#845](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/845) | 🔍 Pending validation | Meal name field should be read-only; set only via template chips | Add/edit «Название приёма пищи» is `readOnly` (no `onChange` typing); chips set the value; X clears without enabling typing. #844 unused-template default unchanged. Repeat copies foods under the selected template chip. |
+| [#846](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/846) | 📋 Not started | Upgrade Vitest 4.x → 5.x (deliberate major migration) | Optional/low priority. Not needed for GHSA-82fw-gwwq-j7x9 (fixed in 4.1.11). #838’s Vitest 5 jump failed CI on matcher typing — do as a quiet-window migration with the official guide, not via that Dependabot PR. |
