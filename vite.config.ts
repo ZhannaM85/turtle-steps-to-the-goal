@@ -100,6 +100,11 @@ export default defineConfig(({ mode }) => ({
   test: {
     environment: 'jsdom',
     setupFiles: ['./test/setup.ts'],
+    // Vitest 5 evaluates shared modules once per file under isolation; on
+    // Windows that pushes several suite files past the old 5s default
+    // (#846). Isolated re-runs of those files were green — raise the
+    // budget instead of turning isolate off.
+    testTimeout: 15_000,
     // e2e/ (#161) holds Playwright specs, run via `npm run e2e`
     // (playwright.config.ts), not Vitest — they use Playwright's own
     // test()/expect(), which crashes if Vitest's default **/*.spec.ts
