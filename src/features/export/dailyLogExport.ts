@@ -245,6 +245,21 @@ function dailyLogColumns(
       gatedBy: 'nightEating',
     },
     {
+      header: t.exportXlsx.nightEatingNoEasyColumn,
+      value: (entry) =>
+        entry.nightEatingNoEasy === true
+          ? t.dailyEntry.nightEatingYesOption
+          : entry.nightEatingNoEasy === false
+            ? t.dailyEntry.nightEatingNoOption
+            : undefined,
+      gatedBy: 'nightEating',
+    },
+    {
+      header: t.exportXlsx.nightEatingNoThoughtsColumn,
+      value: (entry) => entry.nightEatingNoThoughts,
+      gatedBy: 'nightEating',
+    },
+    {
       header: t.exportXlsx.waterColumn,
       value: (entry) => totalWaterMl(entry.waterEntries),
       gatedBy: 'water',

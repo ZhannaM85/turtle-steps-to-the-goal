@@ -204,6 +204,8 @@ export function useDailyEntryFormState({
   const [isEditingNightEatingReason, setIsEditingNightEatingReason] = useState(
     alwaysEditable || !initialValues.nightEatingReason,
   )
+  const [isEditingNightEatingNoThoughts, setIsEditingNightEatingNoThoughts] =
+    useState(alwaysEditable || !initialValues.nightEatingNoThoughts)
   const [isEditingSleep, setIsEditingSleep] = useState(
     alwaysEditable ||
       (initialValues.sleepHours === undefined &&
@@ -336,6 +338,14 @@ export function useDailyEntryFormState({
     control,
     name: 'nightEatingReason',
   })
+  const nightEatingNoEasy = useWatch({
+    control,
+    name: 'nightEatingNoEasy',
+  })
+  const nightEatingNoThoughts = useWatch({
+    control,
+    name: 'nightEatingNoThoughts',
+  })
   const waterEntries = useWatch({ control, name: 'waterEntries' }) ?? []
   const dayTotals = useWatch({ control, name: 'dayTotals' })
   const dayEmotion = useWatch({ control, name: 'emotion' })
@@ -455,6 +465,8 @@ export function useDailyEntryFormState({
   const showMorningNoteAsDisplay = !alwaysEditable && !isEditingMorningNote
   const showNightEatingReasonAsDisplay =
     !alwaysEditable && !isEditingNightEatingReason
+  const showNightEatingNoThoughtsAsDisplay =
+    !alwaysEditable && !isEditingNightEatingNoThoughts
   const showSleepAsDisplay = !alwaysEditable && !isEditingSleep
   const showStepsAsDisplay = !alwaysEditable && !isEditingSteps
   const showBodyMeasurementsAsDisplay =
@@ -481,6 +493,8 @@ export function useDailyEntryFormState({
     alwaysEditable || Boolean(initialValues.morningNote)
   const canCancelNightEatingReasonEdit =
     alwaysEditable || Boolean(initialValues.nightEatingReason)
+  const canCancelNightEatingNoThoughtsEdit =
+    alwaysEditable || Boolean(initialValues.nightEatingNoThoughts)
   const canCancelSleepEdit = alwaysEditable || hasSavedSleep
   const canDeleteSleep = hasSavedSleep
   const canCancelStepsEdit = alwaysEditable || initialValues.steps !== undefined
@@ -535,6 +549,10 @@ export function useDailyEntryFormState({
       nightEatingReason: noteSchema.safeParse(values.nightEatingReason).success
         ? values.nightEatingReason
         : initialValues.nightEatingReason,
+      nightEatingNoThoughts: noteSchema.safeParse(values.nightEatingNoThoughts)
+        .success
+        ? values.nightEatingNoThoughts
+        : initialValues.nightEatingNoThoughts,
       sleepHours: sleepHoursSchema.safeParse(values.sleepHours).success
         ? values.sleepHours
         : initialValues.sleepHours,
@@ -628,6 +646,30 @@ export function useDailyEntryFormState({
     setValue('nightEatingReason', initialValues.nightEatingReason)
     clearErrors('nightEatingReason')
     setIsEditingNightEatingReason(false)
+  }
+
+  function setNightEatingNoEasy(value: boolean | undefined) {
+    setValue('nightEatingNoEasy', value, { shouldDirty: true })
+    persist({ ...getValues(), nightEatingNoEasy: value })
+  }
+
+  function saveNightEatingNoThoughts() {
+    const result = noteSchema.safeParse(getValues('nightEatingNoThoughts'))
+    if (!result.success) {
+      setError('nightEatingNoThoughts', {
+        message: t.dailyEntry.invalidValueMessage,
+      })
+      return
+    }
+    clearErrors('nightEatingNoThoughts')
+    setIsEditingNightEatingNoThoughts(false)
+    persist(getValues())
+  }
+
+  function cancelEditNightEatingNoThoughts() {
+    setValue('nightEatingNoThoughts', initialValues.nightEatingNoThoughts)
+    clearErrors('nightEatingNoThoughts')
+    setIsEditingNightEatingNoThoughts(false)
   }
 
   // #271: each quick-add tap becomes its own removable entry instead of
@@ -1439,6 +1481,14 @@ export function useDailyEntryFormState({
     saveNightEatingReason,
     canCancelNightEatingReasonEdit,
     cancelEditNightEatingReason,
+    nightEatingNoEasy,
+    setNightEatingNoEasy,
+    nightEatingNoThoughts,
+    showNightEatingNoThoughtsAsDisplay,
+    setIsEditingNightEatingNoThoughts,
+    saveNightEatingNoThoughts,
+    canCancelNightEatingNoThoughtsEdit,
+    cancelEditNightEatingNoThoughts,
   }
 }
 

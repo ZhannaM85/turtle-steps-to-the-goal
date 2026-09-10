@@ -3895,6 +3895,12 @@ describe('DailyEntryForm', () => {
       expect(
         screen.queryByRole('textbox', { name: 'Reason' }),
       ).not.toBeInTheDocument()
+      expect(
+        screen.queryByRole('radiogroup', { name: 'Was it easy?' }),
+      ).not.toBeInTheDocument()
+      expect(
+        screen.queryByRole('textbox', { name: 'Any thoughts?' }),
+      ).not.toBeInTheDocument()
     })
 
     it('hides remember and reason when No is selected (#825)', () => {
@@ -3918,6 +3924,101 @@ describe('DailyEntryForm', () => {
       expect(
         screen.queryByRole('textbox', { name: 'Reason' }),
       ).not.toBeInTheDocument()
+    })
+
+    it('shows No-path follow-ups when No is selected (#835)', () => {
+      render(
+        <DailyEntryForm
+          date="2026-03-01"
+          existingEntry={{
+            id: 'entry-1',
+            date: '2026-03-01',
+            nightEatingOverride: false,
+            createdAt: now,
+            updatedAt: now,
+          }}
+          onSave={vi.fn()}
+        />,
+      )
+
+      expect(
+        screen.getByRole('radiogroup', { name: 'Was it easy?' }),
+      ).toBeInTheDocument()
+      expect(
+        screen.getByRole('textbox', { name: 'Any thoughts?' }),
+      ).toBeInTheDocument()
+      expect(
+        screen.queryByRole('radiogroup', { name: 'I remember how I ate' }),
+      ).not.toBeInTheDocument()
+      expect(
+        screen.queryByRole('textbox', { name: 'Reason' }),
+      ).not.toBeInTheDocument()
+    })
+
+    it('hides No-path follow-ups when Yes is selected (#835)', () => {
+      render(
+        <DailyEntryForm
+          date="2026-03-01"
+          existingEntry={{
+            id: 'entry-1',
+            date: '2026-03-01',
+            nightEatingOverride: true,
+            createdAt: now,
+            updatedAt: now,
+          }}
+          onSave={vi.fn()}
+        />,
+      )
+
+      expect(
+        screen.queryByRole('radiogroup', { name: 'Was it easy?' }),
+      ).not.toBeInTheDocument()
+      expect(
+        screen.queryByRole('textbox', { name: 'Any thoughts?' }),
+      ).not.toBeInTheDocument()
+    })
+
+    it('saves No-path easy immediately (#835)', async () => {
+      const user = userEvent.setup()
+      const onSave = vi.fn()
+      render(
+        <DailyEntryForm date="2026-03-01" existingEntry={null} onSave={onSave} />,
+      )
+
+      const nightFood = within(
+        screen.getByRole('radiogroup', { name: 'Ate late tonight' }),
+      )
+      await user.click(nightFood.getByRole('radio', { name: 'No' }))
+      const easy = within(
+        screen.getByRole('radiogroup', { name: 'Was it easy?' }),
+      )
+      await user.click(easy.getByRole('radio', { name: 'Yes' }))
+
+      expect(onSave).toHaveBeenCalled()
+      expect(onSave.mock.calls.at(-1)?.[0].nightEatingNoEasy).toBe(true)
+    })
+
+    it('saves No-path thoughts on check (#835)', async () => {
+      const user = userEvent.setup()
+      const onSave = vi.fn()
+      render(
+        <DailyEntryForm date="2026-03-01" existingEntry={null} onSave={onSave} />,
+      )
+
+      const nightFood = within(
+        screen.getByRole('radiogroup', { name: 'Ate late tonight' }),
+      )
+      await user.click(nightFood.getByRole('radio', { name: 'No' }))
+      await user.type(
+        screen.getByRole('textbox', { name: 'Any thoughts?' }),
+        'tea helped',
+      )
+      await user.click(screen.getByRole('button', { name: 'Save thoughts' }))
+
+      expect(onSave).toHaveBeenCalled()
+      expect(onSave.mock.calls.at(-1)?.[0].nightEatingNoThoughts).toBe(
+        'tea helped',
+      )
     })
 
     it('saves remember how I ate immediately (#818)', async () => {

@@ -210,6 +210,11 @@ export interface DailyEntry {
   nightEatingRemember?: NightEatingRemember
   /** #818 — free-text reason on the Night food card (not #764 meal chips). */
   nightEatingReason?: string
+  /** #835 — No-path only: was skipping night food easy? Hidden unless
+   * `nightEatingOverride === false`. Independent of Yes-path remember/reason. */
+  nightEatingNoEasy?: boolean
+  /** #835 — No-path only: free-text thoughts when night food is No. */
+  nightEatingNoThoughts?: string
   /** Opt-in water/hydration tracking (#258, list shape #271), same gating
    * as onPeriod/hadConstipation above — only ever set when enabled in
    * Settings (`useWaterTrackingStore`). A list of discrete adds rather than

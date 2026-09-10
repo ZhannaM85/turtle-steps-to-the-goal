@@ -234,6 +234,26 @@ describe('importAllData', () => {
     expect(all[0].bodyFatPercent).toBe(22)
   })
 
+  it('round-trips night food No-path fields through parseExportBundle (#835)', async () => {
+    const entry = makeEntry({
+      nightEatingOverride: false,
+      nightEatingNoEasy: false,
+      nightEatingNoThoughts: 'tea helped',
+    })
+    await db.dailyEntries.put(entry)
+    const bundle = await exportAllData()
+
+    await db.dailyEntries.clear()
+
+    const parsed = parseExportBundle(JSON.parse(JSON.stringify(bundle)))
+    await importAllData(parsed)
+
+    const all = await db.dailyEntries.toArray()
+    expect(all[0].nightEatingOverride).toBe(false)
+    expect(all[0].nightEatingNoEasy).toBe(false)
+    expect(all[0].nightEatingNoThoughts).toBe('tea helped')
+  })
+
   it('merges into existing data instead of wiping it', async () => {
     const existingEntry = makeEntry({ date: '2026-03-02' })
     await db.dailyEntries.put(existingEntry)
