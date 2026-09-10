@@ -548,3 +548,13 @@ _Next Morning Weight export label and delta precision._
 |---|--------|-------|-------|
 | [#832](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/832) | ✅ Done | Export: show translated Next Morning Weight header, not `next_morning_weight` | Confirmed on-device 2026-09-09 — one-day export uses the translated Next Morning Weight header instead of the raw key `next_morning_weight`. |
 | [#833](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/833) | ✅ Done | Day: Next Morning Weight delta shows 0,0 kg for a +50 g change | Confirmed on-device 2026-09-09 — +50 g Next Morning Weight delta shows as +0,05 kg instead of 0,0 kg. |
+
+---
+
+## Tier 158 — Live feedback (2026-09-10)
+
+_Night-food No-path follow-ups._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#835](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/835) | ✅ Done | Day: Night food No path — allow follow-up inputs + export | Confirmed on-device 2026-09-10 — Night food No shows Was it easy? + Any thoughts?; Yes remember/reason unchanged; exports include new fields. |

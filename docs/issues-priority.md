@@ -36,10 +36,10 @@ _User asked about pulling data from Apple Health and Zepp Life. Researched via W
 
 ## Tier 158 — Live feedback (2026-09-10)
 
-_Night-food No-path follow-ups + meal vs-yesterday kcal arrows + Settings What-to-track rows._
+_Meal vs-yesterday kcal arrows + Settings What-to-track rows + note-row height/align._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#835](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/835) | 🔍 Pending validation | Day: Night food No path — allow follow-up inputs + export | No-path follow-ups: Yes/No “Was it easy?” + note-style “Any thoughts?”; Yes remember/reason stay Yes-only (#825); JSON + Excel/CSV/Markdown columns; follow-up to #818/#825. |
 | [#836](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/836) | 📋 Not started | Day: meal vs-yesterday kcal arrows (same label) + Settings toggle | Match meal label vs yesterday; under macros; kcal only; green less / red more; Settings toggle; screenshots in discussion. |
 | [#837](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/837) | 📋 Not started | Settings: What to track — one row per toggle + short definitions | Replace chip grid with one row per toggle + EN/RU definitions (sources e.g. AutoSleep/Zepp); keep history-safe intro; align #836 toggle pattern. |
+| [#840](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/840) | 📋 Not started | Day: note input + save checkmark height and vertical align | Height mismatch + vertical misalignment on Night food Any thoughts? and Day note; shared note-row fix preferred; follow-up to #835. |
