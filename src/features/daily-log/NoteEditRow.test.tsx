@@ -16,7 +16,7 @@ describe('NoteEditRow (#840)', () => {
     const textarea = screen.getByRole('textbox', { name: 'Any thoughts?' })
     const save = screen.getByRole('button', { name: 'Save thoughts' })
 
-    expect(textarea).toHaveClass('min-h-12')
+    expect(textarea).toHaveClass('min-h-12', 'py-[11px]', 'leading-6')
     expect(textarea.parentElement).toHaveClass('items-stretch')
     expect(save).toHaveClass('h-auto', 'min-h-12', 'w-12', 'self-stretch')
     expect(save).toHaveAttribute('data-size', 'icon-stretch')
@@ -48,5 +48,26 @@ describe('NoteEditRow (#840)', () => {
     await user.click(cancel)
     expect(onSave).toHaveBeenCalledTimes(1)
     expect(onCancel).toHaveBeenCalledTimes(1)
+  })
+
+  it('keeps the stretch save control when centering a single-line empty note (#841)', () => {
+    render(
+      <NoteEditRow
+        textareaProps={{
+          'aria-label': "Day's note",
+          placeholder: 'How was the day?',
+        }}
+        saveLabel="Save note"
+        onSave={() => {}}
+      />,
+    )
+
+    const textarea = screen.getByRole('textbox', { name: "Day's note" })
+    const save = screen.getByRole('button', { name: 'Save note' })
+
+    expect(textarea).toHaveAttribute('placeholder', 'How was the day?')
+    expect(textarea).toHaveClass('min-h-12', 'py-[11px]', 'leading-6')
+    expect(save).toHaveClass('h-auto', 'min-h-12', 'w-12', 'self-stretch')
+    expect(save).toHaveAttribute('data-size', 'icon-stretch')
   })
 })

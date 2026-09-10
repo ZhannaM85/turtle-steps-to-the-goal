@@ -40,4 +40,4 @@ _Meal vs-yesterday kcal arrows + Settings What-to-track rows + note-row height/a
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#841](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/841) | 📋 Not started | Day: note field placeholder should be vertically centered | Empty note placeholder top-aligned in tall field; shared note-row; follow-up to #840. |
+| [#841](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/841) | 🔍 Pending validation | Day: note field placeholder should be vertically centered | Shared `NoteEditRow`: 11px vertical pad + `leading-6` so empty/single-line placeholder is centered in the 48px floor; multi-line growth and #840 stretch checkmark unchanged. |

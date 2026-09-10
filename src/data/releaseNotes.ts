@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 799,
+    issue: 841,
+    date: '2026-09-10T12:25:00+03:00',
+    en: 'On Day, the empty note placeholder now sits in the middle of the field instead of at the top — including Night food thoughts.',
+    ru: 'На экране «День» подсказка в пустом поле заметки теперь стоит по центру, а не сверху — в том числе «Какие мысли?» в ночной еде.',
+  },
+  {
     version: 798,
     issue: 840,
     date: '2026-09-10T12:00:00+03:00',
