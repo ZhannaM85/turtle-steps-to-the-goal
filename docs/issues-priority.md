@@ -36,9 +36,10 @@ _User asked about pulling data from Apple Health and Zepp Life. Researched via W
 
 ## Tier 158 — Live feedback (2026-09-10)
 
-_Night-food No-path follow-ups + meal vs-yesterday kcal arrows._
+_Night-food No-path follow-ups + meal vs-yesterday kcal arrows + Settings What-to-track rows._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#835](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/835) | 📋 Not started | Day: Night food No path — allow follow-up inputs + export | No-path follow-ups (Was it easy? / Any thoughts?); Yes remember/reason stay Yes-only (#825); include in exports; follow-up to #818/#825. |
 | [#836](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/836) | 📋 Not started | Day: meal vs-yesterday kcal arrows (same label) + Settings toggle | Match meal label vs yesterday; under macros; kcal only; green less / red more; Settings toggle; screenshots in discussion. |
+| [#837](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/837) | 📋 Not started | Settings: What to track — one row per toggle + short definitions | Replace chip grid with one row per toggle + EN/RU definitions (sources e.g. AutoSleep/Zepp); keep history-safe intro; align #836 toggle pattern. |
