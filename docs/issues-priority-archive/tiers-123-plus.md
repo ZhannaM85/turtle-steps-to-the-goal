@@ -558,3 +558,4 @@ _Night-food No-path follow-ups._
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#835](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/835) | ✅ Done | Day: Night food No path — allow follow-up inputs + export | Confirmed on-device 2026-09-10 — Night food No shows Was it easy? + Any thoughts?; Yes remember/reason unchanged; exports include new fields. |
+| [#836](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/836) | ✅ Done | Day: meal vs-yesterday kcal arrows (same label) + Settings toggle | Confirmed on-device 2026-09-10 — meal vs-yesterday kcal arrows by label under macros; Settings toggle. |
