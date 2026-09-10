@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 796,
+    issue: 836,
+    date: '2026-09-10T11:20:00+03:00',
+    en: 'Each meal on Day can show a small up or down arrow for calories compared with yesterday’s meal of the same name — turn it off in Settings → What to track.',
+    ru: 'На карточке приёма пищи в Дне может появляться стрелка калорий по сравнению со вчерашним приёмом с тем же названием — выключить можно в Настройках → Что отслеживать.',
+  },
+  {
     version: 795,
     issue: 835,
     date: '2026-09-10T10:35:00+03:00',

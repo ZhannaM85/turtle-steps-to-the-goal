@@ -1419,6 +1419,7 @@ export const en: Dictionary = {
     editCustomEatingReasonLabel: (name) => `Edit "${name}"`,
     saveCustomEatingReasonLabel: (name) => `Save "${name}"`,
     copyYesterdayMealsTrackingLabel: "Copy yesterday's meals",
+    mealKcalVsYesterdayTrackingLabel: 'Meal kcal vs yesterday',
     trackingPresetLabel: 'Layout preset',
     trackingPresetDescription:
       "Quick starting point for Day: Simple keeps weight, meals/calories, and your weekly target; Full turns everything on. You can still adjust anything below afterward.",

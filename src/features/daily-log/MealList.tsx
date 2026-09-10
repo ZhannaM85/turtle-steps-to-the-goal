@@ -19,6 +19,7 @@ import {
   calorieEntryProtein,
   isBuiltInEatingReason,
   mealEatingReasons,
+  mealKcalDeltasByLabel,
   totalCalories,
   totalCarbs,
   totalFat,
@@ -41,6 +42,7 @@ import { IndexedDbDailyEntryRepository } from '@/infrastructure/persistence/inde
 import { formatEatingReasonsLine } from '@/shared/lib/eatingReasonDisplay'
 import { MEAL_EMOTIONS } from '@/shared/lib/emotionIcons'
 import {
+  formatKcal,
   formatMacroGrams,
   macrosSummaryTextCompact,
   macrosSummaryTextCompactWithCalories,
@@ -49,7 +51,7 @@ import { defaultMealLabel, editableMealLabel, effectiveMealLabel, effectiveTimeE
 import { normalizeTextSpaces } from '@/shared/lib/normalizeTextSpaces'
 import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/ui/button'
-import { useCopyYesterdayMealsStore, useDayStartStore, useEatingReasonTrackingStore, useMealItemStore, useMealSlotDefaultTimesStore, useNutritionFactsStore, useSinceLastMealTimerStore } from '@/stores'
+import { useCopyYesterdayMealsStore, useDayStartStore, useEatingReasonTrackingStore, useMealItemStore, useMealSlotDefaultTimesStore, useMealKcalVsYesterdayStore, useNutritionFactsStore, useSinceLastMealTimerStore } from '@/stores'
 import { AddMealDialog } from './AddMealDialog'
 import { CopyDayMealsDialog } from './CopyDayMealsDialog'
 import { SinceLastMealTimer } from './SinceLastMealTimer'
@@ -137,6 +139,9 @@ interface MealListItemProps {
   isConfirmingDelete: boolean
   /** #792 — static gap from the previous meal; omitted when unknown. */
   sincePreviousMeal: ElapsedParts | null
+  /** #836 — kcal vs yesterday's same-label meal; omitted when unknown
+   * or equal, or when the Settings toggle is off. */
+  kcalVsYesterdayDelta: number | null
   /** #461 — opens this meal in the shared AddMealDialog overlay (state-
    * controlled, no route navigation — see MealList's own onStartEdit
    * wiring) instead of the old #145 inline-fields expand-in-place. */
@@ -153,6 +158,7 @@ function MealListItem({
   locale,
   isConfirmingDelete,
   sincePreviousMeal,
+  kcalVsYesterdayDelta,
   onStartEdit,
   onRequestDelete,
   onConfirmDelete,
@@ -288,6 +294,24 @@ function MealListItem({
       {/* #473: one size up from the dish rows below (which stay text-sm),
        * now that the compact macro initials keep it to a single line. */}
       <p className="min-w-0 text-base text-muted-foreground">{calorieSummary}</p>
+      {kcalVsYesterdayDelta !== null && (
+        // #836 — quiet one-delta line under the macros summary. Less than
+        // yesterday is good (emerald), more is bad (orange) — same tones as
+        // body/sleep entry comparisons (#664).
+        <p
+          className={cn(
+            'min-w-0 text-xs',
+            kcalVsYesterdayDelta < 0
+              ? 'text-emerald-600 dark:text-emerald-400'
+              : 'text-orange-600 dark:text-orange-400',
+          )}
+        >
+          {t.dailyEntry.entryComparisonComparedToYesterday(
+            kcalVsYesterdayDelta < 0 ? '↓' : '↑',
+            formatKcal(Math.abs(kcalVsYesterdayDelta), locale, t),
+          )}
+        </p>
+      )}
       {mealNutritionFacts.length > 0 && (
         <div className="flex min-w-0 flex-col gap-1 text-sm text-muted-foreground">
           {mealNutritionFacts.map((factId) => (
@@ -468,6 +492,9 @@ export function MealList({
   const copyYesterdayMealsEnabled = useCopyYesterdayMealsStore(
     (state) => state.enabled,
   )
+  const mealKcalVsYesterdayEnabled = useMealKcalVsYesterdayStore(
+    (state) => state.enabled,
+  )
   // #791 — opt-in; off by default. Isolated child ticks seconds so this
   // list does not re-render every second.
   const sinceLastMealTimerEnabled = useSinceLastMealTimerStore(
@@ -577,6 +604,50 @@ export function MealList({
     previousDayEntry,
     dayStartTime,
     mealSlotTimes,
+  ])
+
+  // #836 — vs-yesterday kcal by display label, aligned with
+  // mealsInDisplayOrder. Yesterday's meals use the same time-sort +
+  // storage-index labels so unlabeled Breakfast/Lunch still match.
+  const mealKcalDeltas = useMemo(() => {
+    if (!mealKcalVsYesterdayEnabled) {
+      return mealsInDisplayOrder.map(() => null)
+    }
+    const yesterdayEntries = previousDayEntry?.calorieEntries
+    if (!yesterdayEntries?.length) {
+      return mealsInDisplayOrder.map(() => null)
+    }
+    const labeledToday = mealsInDisplayOrder.map((entry) => ({
+      label: effectiveMealLabel(
+        t,
+        calorieEntries.findIndex((candidate) => candidate.id === entry.id) + 1,
+        entry.label,
+      ),
+      kcal: calorieEntryKcal(entry),
+    }))
+    const yesterdaySorted = sortCalorieEntriesByLoggedTime(
+      yesterdayEntries,
+      mealSlotTimes,
+      dayStartTime,
+    )
+    const labeledYesterday = yesterdaySorted.map((entry) => ({
+      label: effectiveMealLabel(
+        t,
+        yesterdayEntries.findIndex((candidate) => candidate.id === entry.id) +
+          1,
+        entry.label,
+      ),
+      kcal: calorieEntryKcal(entry),
+    }))
+    return mealKcalDeltasByLabel(labeledToday, labeledYesterday)
+  }, [
+    mealKcalVsYesterdayEnabled,
+    mealsInDisplayOrder,
+    previousDayEntry,
+    calorieEntries,
+    mealSlotTimes,
+    dayStartTime,
+    t,
   ])
 
   // #253: whole-day sibling of the above — CopyDayMealsDialog's own
@@ -1199,6 +1270,7 @@ export function MealList({
                 locale={locale}
                 isConfirmingDelete={confirmDeleteMealId === entry.id}
                 sincePreviousMeal={gapsSincePrevious?.[index] ?? null}
+                kcalVsYesterdayDelta={mealKcalDeltas[index] ?? null}
                 // #461 — opens the shared AddMealDialog overlay for this
                 // meal (state-controlled, see the render block below) —
                 // no route navigation, so this screen never unmounts.

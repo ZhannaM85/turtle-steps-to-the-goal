@@ -12,6 +12,7 @@ import {
   usePlannedMealsTrackingStore,
   useEatingReasonTrackingStore,
   useCopyYesterdayMealsStore,
+  useMealKcalVsYesterdayStore,
   useLocalTransferStore,
   useProfileStore,
   useThemeStore,
@@ -54,6 +55,7 @@ beforeEach(() => {
     builtinLabelOverrides: {},
   })
   useCopyYesterdayMealsStore.setState({ enabled: false })
+  useMealKcalVsYesterdayStore.setState({ enabled: true })
   useLocalTransferStore.setState({ enabled: false })
   useMicronutrientTrackingStore.setState({
     tracked: { sodium: false, potassium: false, magnesium: false },
@@ -97,6 +99,7 @@ afterEach(() => {
     builtinLabelOverrides: {},
   })
   useCopyYesterdayMealsStore.setState({ enabled: false })
+  useMealKcalVsYesterdayStore.setState({ enabled: true })
   useLocalTransferStore.setState({ enabled: false })
   useMicronutrientTrackingStore.setState({
     tracked: { sodium: false, potassium: false, magnesium: false },
@@ -677,6 +680,21 @@ describe('SettingsScreen', () => {
 
       expect(copyToggle).toHaveAttribute('aria-pressed', 'true')
       expect(useCopyYesterdayMealsStore.getState().enabled).toBe(true)
+    })
+
+    it('defaults meal kcal vs yesterday on, and switches it off when selected (#836)', async () => {
+      const user = userEvent.setup()
+      renderSettings()
+
+      const toggle = within(
+        screen.getByRole('toolbar', { name: 'Other' }),
+      ).getByRole('button', { name: 'Meal kcal vs yesterday' })
+      expect(toggle).toHaveAttribute('aria-pressed', 'true')
+
+      await user.click(toggle)
+
+      expect(toggle).toHaveAttribute('aria-pressed', 'false')
+      expect(useMealKcalVsYesterdayStore.getState().enabled).toBe(false)
     })
 
     it('defaults the previously-unconditional fields (Sleep, Steps, etc.) to on', () => {

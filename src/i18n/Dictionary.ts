@@ -2093,6 +2093,9 @@ export interface Dictionary {
     saveCustomEatingReasonLabel: (name: string) => string
     /** #692 — opt-in for Day's "Copy yesterday's meals" control (default off). */
     copyYesterdayMealsTrackingLabel: string
+    /** #836 — Day meal-card vs-yesterday kcal arrows (default on, same
+     * family as entry comparisons #664). */
+    mealKcalVsYesterdayTrackingLabel: string
     /** #237: unified "what to track" section — folds cycle/digestion
      * tracking's own opt-in toggles in with the 5 fields below, which
      * didn't have an opt-out at all before this. */

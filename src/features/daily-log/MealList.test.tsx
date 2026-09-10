@@ -7,7 +7,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { CalorieEntry, DailyEntry } from '@/domain/dailyEntry'
 import { elapsedParts, resolveLastMealInstant } from '@/domain/stats'
 import { db } from '@/infrastructure/persistence/indexeddb'
-import { useCopyYesterdayMealsStore, useDayStartStore, useEatingReasonTrackingStore, useMealItemStore, useNutritionFactsStore, useRecipeStore, useSinceLastMealTimerStore } from '@/stores'
+import { useCopyYesterdayMealsStore, useDayStartStore, useEatingReasonTrackingStore, useMealItemStore, useMealKcalVsYesterdayStore, useNutritionFactsStore, useRecipeStore, useSinceLastMealTimerStore } from '@/stores'
 import { MealList } from './MealList'
 
 // #301 — a plain `onChange={vi.fn()}` never feeds a save back into
@@ -58,6 +58,7 @@ beforeEach(async () => {
     builtinLabelOverrides: {},
   })
   useSinceLastMealTimerStore.setState({ enabled: false })
+  useMealKcalVsYesterdayStore.setState({ enabled: true })
   localStorage.clear()
   // #201 made the add row's default collapsed state depend on whether
   // `date` is in the past relative to the real clock — freeze "now" to
@@ -1757,6 +1758,184 @@ describe('MealList', () => {
 
       expect(
         screen.queryByText('Protein-rich meal', { exact: false }),
+      ).not.toBeInTheDocument()
+    })
+  })
+
+  describe('meal kcal vs yesterday (#836)', () => {
+    beforeEach(() => {
+      vi.setSystemTime(new Date('2026-03-02T12:00:00.000Z'))
+      useMealKcalVsYesterdayStore.setState({ enabled: true })
+    })
+
+    async function seedYesterdayMeals(
+      meals: NonNullable<DailyEntry['calorieEntries']>,
+    ) {
+      await db.dailyEntries.put(
+        makeDailyEntry({
+          date: '2026-03-01',
+          calorieEntries: meals,
+        }),
+      )
+    }
+
+    it('shows a green down-arrow when the same-label meal has fewer kcal', async () => {
+      await seedYesterdayMeals([
+        {
+          id: 'y-lunch',
+          label: 'Lunch',
+          items: [{ id: 'yi1', amountKcal: 550 }],
+          createdAt: '2026-03-01T13:00:00.000Z',
+        },
+      ])
+      render(
+        <MealList
+          calorieEntries={[
+            {
+              id: 'lunch',
+              label: 'Lunch',
+              items: [{ id: 'i1', amountKcal: 500 }],
+              createdAt: '2026-03-02T13:00:00.000Z',
+            },
+          ]}
+          date="2026-03-02"
+          onChange={vi.fn()}
+        />,
+        { wrapper: MemoryRouter },
+      )
+
+      const line = await screen.findByText('↓ 50 kcal compared to yesterday')
+      expect(line.className).toMatch(/emerald/)
+    })
+
+    it('shows an up-arrow when the same-label meal has more kcal', async () => {
+      await seedYesterdayMeals([
+        {
+          id: 'y-dinner',
+          label: 'Dinner',
+          items: [{ id: 'yi1', amountKcal: 700 }],
+          createdAt: '2026-03-01T19:00:00.000Z',
+        },
+      ])
+      render(
+        <MealList
+          calorieEntries={[
+            {
+              id: 'dinner',
+              label: 'Dinner',
+              items: [{ id: 'i1', amountKcal: 800 }],
+              createdAt: '2026-03-02T19:00:00.000Z',
+            },
+          ]}
+          date="2026-03-02"
+          onChange={vi.fn()}
+        />,
+        { wrapper: MemoryRouter },
+      )
+
+      const line = await screen.findByText('↑ 100 kcal compared to yesterday')
+      expect(line.className).toMatch(/orange/)
+    })
+
+    it('matches custom labels like Обед два, not a different lunch', async () => {
+      await seedYesterdayMeals([
+        {
+          id: 'y-obed',
+          label: 'Обед',
+          items: [{ id: 'yi1', amountKcal: 500 }],
+          createdAt: '2026-03-01T13:00:00.000Z',
+        },
+        {
+          id: 'y-obed-2',
+          label: 'Обед два',
+          items: [{ id: 'yi2', amountKcal: 400 }],
+          createdAt: '2026-03-01T14:00:00.000Z',
+        },
+      ])
+      render(
+        <MealList
+          calorieEntries={[
+            {
+              id: 'obed-2',
+              label: 'Обед два',
+              items: [{ id: 'i1', amountKcal: 350 }],
+              createdAt: '2026-03-02T14:00:00.000Z',
+            },
+          ]}
+          date="2026-03-02"
+          onChange={vi.fn()}
+        />,
+        { wrapper: MemoryRouter },
+      )
+
+      expect(
+        await screen.findByText('↓ 50 kcal compared to yesterday'),
+      ).toBeInTheDocument()
+      expect(
+        screen.queryByText('↓ 150 kcal compared to yesterday'),
+      ).not.toBeInTheDocument()
+    })
+
+    it('hides the arrow when yesterday has no meal with that label', async () => {
+      useCopyYesterdayMealsStore.setState({ enabled: true })
+      await seedYesterdayMeals([
+        {
+          id: 'y-breakfast',
+          items: [{ id: 'yi1', amountKcal: 400 }],
+          createdAt: '2026-03-01T08:00:00.000Z',
+        },
+      ])
+      render(
+        <MealList
+          calorieEntries={[
+            {
+              id: 'lunch',
+              label: 'Lunch',
+              items: [{ id: 'i1', amountKcal: 500 }],
+              createdAt: '2026-03-02T13:00:00.000Z',
+            },
+          ]}
+          date="2026-03-02"
+          onChange={vi.fn()}
+        />,
+        { wrapper: MemoryRouter },
+      )
+
+      await screen.findByRole('button', { name: "Copy yesterday's meals" })
+      expect(
+        screen.queryByText(/compared to yesterday/),
+      ).not.toBeInTheDocument()
+    })
+
+    it('hides the arrow when the Settings toggle is off', async () => {
+      useMealKcalVsYesterdayStore.setState({ enabled: false })
+      await seedYesterdayMeals([
+        {
+          id: 'y-lunch',
+          label: 'Lunch',
+          items: [{ id: 'yi1', amountKcal: 550 }],
+          createdAt: '2026-03-01T13:00:00.000Z',
+        },
+      ])
+      render(
+        <MealList
+          calorieEntries={[
+            {
+              id: 'lunch',
+              label: 'Lunch',
+              items: [{ id: 'i1', amountKcal: 500 }],
+              createdAt: '2026-03-02T13:00:00.000Z',
+            },
+          ]}
+          date="2026-03-02"
+          onChange={vi.fn()}
+        />,
+        { wrapper: MemoryRouter },
+      )
+
+      await screen.findByText('Lunch')
+      expect(
+        screen.queryByText(/compared to yesterday/),
       ).not.toBeInTheDocument()
     })
   })

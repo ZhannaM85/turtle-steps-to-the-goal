@@ -33,6 +33,7 @@ import {
   usePlannedMealsTrackingStore,
   useEatingReasonTrackingStore,
   useCopyYesterdayMealsStore,
+  useMealKcalVsYesterdayStore,
   useSinceLastMealTimerStore,
   useLocalTransferStore,
   useProfileStore,
@@ -421,6 +422,12 @@ export function SettingsScreen() {
   const setCopyYesterdayMealsEnabled = useCopyYesterdayMealsStore(
     (state) => state.setEnabled,
   )
+  const mealKcalVsYesterdayEnabled = useMealKcalVsYesterdayStore(
+    (state) => state.enabled,
+  )
+  const setMealKcalVsYesterdayEnabled = useMealKcalVsYesterdayStore(
+    (state) => state.setEnabled,
+  )
   const micronutrients = useMicronutrientTrackingStore((state) => state.tracked)
   const setMicronutrientTracked = useMicronutrientTrackingStore(
     (state) => state.setTracked,
@@ -445,6 +452,7 @@ export function SettingsScreen() {
     | 'plannedMeals'
     | 'eatingReason'
     | 'copyYesterdayMeals'
+    | 'mealKcalVsYesterday'
   // #528 — same fields as before, grouped to match Day's Morning / Evening
   // blocks (plus Other for toggles that live elsewhere). Weight stays
   // always-on and is not in this list.
@@ -469,6 +477,7 @@ export function SettingsScreen() {
     'fiber',
     'plannedMeals',
     'copyYesterdayMeals',
+    'mealKcalVsYesterday',
   ]
   function isFieldTracked(key: UnifiedTrackedKey): boolean {
     if (key === 'cycle') return cycleTrackingEnabled
@@ -478,6 +487,7 @@ export function SettingsScreen() {
     if (key === 'plannedMeals') return plannedMealsTrackingEnabled
     if (key === 'eatingReason') return eatingReasonTrackingEnabled
     if (key === 'copyYesterdayMeals') return copyYesterdayMealsEnabled
+    if (key === 'mealKcalVsYesterday') return mealKcalVsYesterdayEnabled
     return trackedFields[key]
   }
   function setFieldTracked(key: UnifiedTrackedKey, value: boolean) {
@@ -488,6 +498,7 @@ export function SettingsScreen() {
     else if (key === 'plannedMeals') setPlannedMealsTrackingEnabled(value)
     else if (key === 'eatingReason') setEatingReasonTrackingEnabled(value)
     else if (key === 'copyYesterdayMeals') setCopyYesterdayMealsEnabled(value)
+    else if (key === 'mealKcalVsYesterday') setMealKcalVsYesterdayEnabled(value)
     else setTrackedField(key, value)
   }
   // #749 — only listed when the parent field is on, so someone who does
@@ -1079,6 +1090,9 @@ export function SettingsScreen() {
               </ToggleGroupItem>
               <ToggleGroupItem value="copyYesterdayMeals" className="h-12">
                 {t.settings.copyYesterdayMealsTrackingLabel}
+              </ToggleGroupItem>
+              <ToggleGroupItem value="mealKcalVsYesterday" className="h-12">
+                {t.settings.mealKcalVsYesterdayTrackingLabel}
               </ToggleGroupItem>
             </ToggleGroup>
             <CustomEatingReasonsEditor />

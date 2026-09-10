@@ -1470,6 +1470,7 @@ export const ru: Dictionary = {
     editCustomEatingReasonLabel: (name) => `Изменить «${name}»`,
     saveCustomEatingReasonLabel: (name) => `Сохранить «${name}»`,
     copyYesterdayMealsTrackingLabel: 'Копировать вчерашние приёмы пищи',
+    mealKcalVsYesterdayTrackingLabel: 'Ккал приёма со вчера',
     trackingPresetLabel: 'Пресет макета',
     trackingPresetDescription:
       'Быстрая отправная точка для дня: «Просто» оставляет вес, приёмы пищи/калории и недельную цель; «Полностью» включает всё. Всё ниже по-прежнему можно настроить вручную.',
