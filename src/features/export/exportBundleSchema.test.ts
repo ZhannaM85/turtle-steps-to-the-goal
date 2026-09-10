@@ -96,4 +96,27 @@ describe('exportBundleSchema', () => {
       expect(parsed.data.dailyEntries[0].calorieEntries?.[0].label).toBe('5')
     }
   })
+
+  it('accepts optional timeDrunk on water entries (#849)', () => {
+    const withTime = {
+      ...validBundle,
+      dailyEntries: [
+        {
+          ...validBundle.dailyEntries[0],
+          waterEntries: [
+            { id: 'w1', amountMl: 250, timeDrunk: '08:15' },
+            { id: 'w2', amountMl: 500 },
+          ],
+        },
+      ],
+    }
+    const parsed = exportBundleSchema.safeParse(withTime)
+    expect(parsed.success).toBe(true)
+    if (parsed.success) {
+      expect(parsed.data.dailyEntries[0].waterEntries).toEqual([
+        { id: 'w1', amountMl: 250, timeDrunk: '08:15' },
+        { id: 'w2', amountMl: 500 },
+      ])
+    }
+  })
 })

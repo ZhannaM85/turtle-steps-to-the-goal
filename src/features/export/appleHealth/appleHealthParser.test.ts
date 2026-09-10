@@ -357,6 +357,11 @@ describe('AppleHealthPatchBuilder', () => {
     const patch = builder.build().get('2026-01-15')
     expect(patch?.waterEntries).toHaveLength(2)
     expect(patch?.waterEntries?.map((e) => e.amountMl)).toEqual([250, 300])
+    expect(patch?.waterEntries?.[0].timeDrunk).toMatch(/^\d{2}:\d{2}$/)
+    expect(patch?.waterEntries?.[1].timeDrunk).toMatch(/^\d{2}:\d{2}$/)
+    expect(patch?.waterEntries?.[0].timeDrunk).not.toBe(
+      patch?.waterEntries?.[1].timeDrunk,
+    )
   })
 
   it('keeps only the latest same-day BodyMass reading, not the first-seen one', () => {

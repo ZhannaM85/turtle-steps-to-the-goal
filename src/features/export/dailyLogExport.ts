@@ -449,3 +449,56 @@ export function mealLogRows(
   }
   return rows
 }
+
+export interface WaterLogRow {
+  date: string
+  amountMl: number
+  time: string | undefined
+}
+
+/** #849 — analysis exports include a Water table unless Settings gated water off. */
+export function includeWaterLogTable(
+  extras?: DailyLogExportExtras,
+): boolean {
+  if (!extras?.tracking) return true
+  return extras.tracking.water
+}
+
+function waterLogColumns(t: Dictionary): ProjectedColumn<WaterLogRow>[] {
+  return [
+    { header: t.exportXlsx.dateColumn, value: (row) => row.date },
+    {
+      header: t.exportXlsx.waterAmountColumn,
+      value: (row) => row.amountMl,
+    },
+    { header: t.exportXlsx.timeColumn, value: (row) => row.time },
+  ]
+}
+
+export function waterLogHeaderValues(t: Dictionary): string[] {
+  return waterLogColumns(t).map((column) => column.header)
+}
+
+export function waterLogRowValues(
+  row: WaterLogRow,
+  t: Dictionary,
+): ExportCell[] {
+  return waterLogColumns(t).map((column) => column.value(row))
+}
+
+export function waterLogRows(dailyEntries: DailyEntry[]): WaterLogRow[] {
+  const sortedEntries = [...dailyEntries].sort((a, b) =>
+    a.date.localeCompare(b.date),
+  )
+  const rows: WaterLogRow[] = []
+  for (const entry of sortedEntries) {
+    for (const water of entry.waterEntries ?? []) {
+      rows.push({
+        date: entry.date,
+        amountMl: water.amountMl,
+        time: water.timeDrunk,
+      })
+    }
+  }
+  return rows
+}

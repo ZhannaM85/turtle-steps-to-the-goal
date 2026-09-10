@@ -4127,10 +4127,14 @@ describe('DailyEntryForm', () => {
       await user.click(screen.getByRole('button', { name: '+1 glass (250ml)' }))
 
       expect(onSave).toHaveBeenCalledTimes(1)
-      expect(onSave.mock.calls[0][0].waterEntries).toEqual([
-        expect.objectContaining({ amountMl: 250 }),
-      ])
-      expect(screen.getByText('250ml')).toBeInTheDocument()
+      const saved = onSave.mock.calls[0][0].waterEntries[0]
+      expect(saved).toEqual(
+        expect.objectContaining({
+          amountMl: 250,
+          timeDrunk: expect.stringMatching(/^\d{2}:\d{2}$/),
+        }),
+      )
+      expect(screen.getByText(`250ml · ${saved.timeDrunk}`)).toBeInTheDocument()
     })
 
     it('adds to already-logged entries rather than replacing them', async () => {
@@ -4158,8 +4162,17 @@ describe('DailyEntryForm', () => {
       expect(onSave).toHaveBeenCalledTimes(1)
       expect(onSave.mock.calls[0][0].waterEntries).toEqual([
         expect.objectContaining({ id: 'w1', amountMl: 500 }),
-        expect.objectContaining({ amountMl: 500 }),
+        expect.objectContaining({
+          amountMl: 500,
+          timeDrunk: expect.stringMatching(/^\d{2}:\d{2}$/),
+        }),
       ])
+      expect(screen.getByText('500ml')).toBeInTheDocument()
+      expect(
+        screen.getByText(
+          `500ml · ${onSave.mock.calls[0][0].waterEntries[1].timeDrunk}`,
+        ),
+      ).toBeInTheDocument()
     })
 
     it('removes a logged entry via its own remove button', async () => {
@@ -4193,6 +4206,80 @@ describe('DailyEntryForm', () => {
       ])
       expect(screen.queryByText('250ml')).not.toBeInTheDocument()
       expect(screen.getByText('500ml')).toBeInTheDocument()
+    })
+
+    it('stamps the current time on a quick-add and shows it on the chip (#849)', async () => {
+      useWaterTrackingStore.setState({ enabled: true })
+      const user = userEvent.setup()
+      const onSave = vi.fn()
+      render(
+        <DailyEntryForm date="2026-03-01" existingEntry={null} onSave={onSave} />,
+      )
+
+      await user.click(screen.getByRole('button', { name: '+1 bottle (500ml)' }))
+
+      const saved = onSave.mock.calls[0][0].waterEntries[0]
+      expect(saved.timeDrunk).toMatch(/^\d{2}:\d{2}$/)
+      expect(screen.getByText(`500ml · ${saved.timeDrunk}`)).toBeInTheDocument()
+    })
+
+    it('opens an edit dialog from a chip tap and saves a new time (#849)', async () => {
+      useWaterTrackingStore.setState({ enabled: true })
+      const user = userEvent.setup()
+      const onSave = vi.fn()
+      render(
+        <DailyEntryForm
+          date="2026-03-01"
+          existingEntry={{
+            id: 'entry-1',
+            date: '2026-03-01',
+            waterEntries: [{ id: 'w1', amountMl: 500 }],
+            createdAt: now,
+            updatedAt: now,
+          }}
+          onSave={onSave}
+        />,
+      )
+
+      await user.click(screen.getByRole('button', { name: 'Edit 500ml entry' }))
+      expect(screen.getByRole('heading', { name: 'Edit water' })).toBeInTheDocument()
+      fireEvent.change(screen.getByLabelText('Time'), {
+        target: { value: '07:30' },
+      })
+      await user.click(
+        within(screen.getByRole('dialog')).getByRole('button', { name: 'Save' }),
+      )
+
+      expect(onSave.mock.calls.at(-1)?.[0].waterEntries).toEqual([
+        expect.objectContaining({ id: 'w1', amountMl: 500, timeDrunk: '07:30' }),
+      ])
+      expect(screen.getByText('500ml · 07:30')).toBeInTheDocument()
+    })
+
+    it('does not open the edit dialog when the remove button is clicked (#849)', async () => {
+      useWaterTrackingStore.setState({ enabled: true })
+      const user = userEvent.setup()
+      render(
+        <DailyEntryForm
+          date="2026-03-01"
+          existingEntry={{
+            id: 'entry-1',
+            date: '2026-03-01',
+            waterEntries: [{ id: 'w1', amountMl: 250, timeDrunk: '10:15' }],
+            createdAt: now,
+            updatedAt: now,
+          }}
+          onSave={vi.fn()}
+        />,
+      )
+
+      await user.click(
+        screen.getByRole('button', { name: 'Remove 250ml entry' }),
+      )
+
+      expect(
+        screen.queryByRole('heading', { name: 'Edit water' }),
+      ).not.toBeInTheDocument()
     })
   })
 

@@ -19,6 +19,8 @@ const MEALS_HEADER =
   'Fiber (g) | Sodium (mg) | Potassium (mg) | Magnesium (mg) | Grams | Time | ' +
   'Reaction | Meal reaction | Why eating | Item note | Note |'
 
+const WATER_HEADER = '| Date | Amount (ml) | Time |'
+
 function makeEntry(overrides: Partial<DailyEntry> = {}): DailyEntry {
   const now = '2026-03-01T00:00:00.000Z'
   return {
@@ -39,9 +41,10 @@ describe('buildDailyLogMarkdown', () => {
   it('writes Daily Log and Meals header tables when there are no entries', () => {
     const markdown = buildDailyLogMarkdown([], t)
     const mealsSeparator = `| ${Array.from({ length: 19 }, () => '---').join(' | ')} |`
+    const waterSeparator = `| ${Array.from({ length: 3 }, () => '---').join(' | ')} |`
 
     expect(markdown).toBe(
-      `${DAILY_HEADER}\n${DAILY_SEPARATOR}\n\n${MEALS_HEADER}\n${mealsSeparator}`,
+      `${DAILY_HEADER}\n${DAILY_SEPARATOR}\n\n${MEALS_HEADER}\n${mealsSeparator}\n\n${WATER_HEADER}\n${waterSeparator}`,
     )
   })
 
@@ -125,6 +128,22 @@ describe('buildDailyLogMarkdown', () => {
     expect(row).toContain('| Breakfast | Toast |')
     expect(row).toContain('| 150 |')
     expect(row).toContain('| 08:00 |')
+  })
+
+  it('appends a Water table with amount and time per entry (#849)', () => {
+    const entry = makeEntry({
+      waterEntries: [
+        { id: 'w1', amountMl: 250, timeDrunk: '08:15' },
+        { id: 'w2', amountMl: 500 },
+      ],
+    })
+    const markdown = buildDailyLogMarkdown([entry], t)
+    const [, , water] = markdown.split('\n\n')
+    const [, , row1, row2] = water.split('\n')
+
+    expect(water.startsWith(WATER_HEADER)).toBe(true)
+    expect(row1).toBe('| 2026-03-01 | 250 | 08:15 |')
+    expect(row2).toBe('| 2026-03-01 | 500 |  |')
   })
 
   it('does not add Next Morning Weight even when extras include the map (#829)', () => {

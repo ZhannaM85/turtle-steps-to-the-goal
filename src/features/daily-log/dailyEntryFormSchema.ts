@@ -73,6 +73,8 @@ export const waterMlSchema = z.number().min(0).max(10000)
 const waterEntrySchema = z.object({
   id: z.string(),
   amountMl: z.number(),
+  // #849 — optional HH:MM drink time; older entries omit it.
+  timeDrunk: timeEatenSchema,
 })
 // #549 — day-level kcal/macros without meal items; additive with meals.
 export const dayTotalsSchema = z.object({

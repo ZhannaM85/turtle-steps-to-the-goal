@@ -37,12 +37,13 @@ function sheetRows(sheet: Worksheet): unknown[][] {
 }
 
 describe('buildExportWorkbook', () => {
-  it('creates the three expected sheets', async () => {
+  it('creates the four expected sheets', async () => {
     const workbook = await buildExportWorkbook([], [], t)
 
     expect(workbook.worksheets.map((s) => s.name)).toEqual([
       'Daily Log',
       'Meals',
+      'Water',
       'Goals',
     ])
   })
@@ -289,6 +290,7 @@ describe('buildExportWorkbook', () => {
 
     expect(sheetRows(workbook.getWorksheet('Daily Log')!)).toHaveLength(0)
     expect(sheetRows(workbook.getWorksheet('Meals')!)).toHaveLength(0)
+    expect(sheetRows(workbook.getWorksheet('Water')!)).toHaveLength(0)
     expect(sheetRows(workbook.getWorksheet('Goals')!)).toHaveLength(0)
   })
 
@@ -302,5 +304,57 @@ describe('buildExportWorkbook', () => {
 
     expect(rows[0][2]).toBe(80)
     expect(rows[1][2]).toBe(79)
+  })
+
+  it('writes one Water row per logged entry with amount and time (#849)', async () => {
+    const entry = makeEntry({
+      waterEntries: [
+        { id: 'w1', amountMl: 250, timeDrunk: '08:15' },
+        { id: 'w2', amountMl: 500 },
+      ],
+    })
+    const workbook = await buildExportWorkbook([], [entry], t)
+    const water = workbook.getWorksheet('Water')!
+    const rows = sheetRows(water)
+
+    expect(rows).toHaveLength(2)
+    expect(rows[0][2]).toBe(250)
+    expect(rows[0][3]).toBe('08:15')
+    expect(rows[1][2]).toBe(500)
+    expect(rows[1][3]).toBeUndefined()
+  })
+
+  it('omits the Water sheet when water tracking is gated off (#849)', async () => {
+    const entry = makeEntry({
+      waterEntries: [{ id: 'w1', amountMl: 250, timeDrunk: '08:15' }],
+    })
+    const workbook = await buildExportWorkbook([], [entry], t, undefined, {
+      tracking: {
+        sleep: true,
+        steps: true,
+        bodyMeasurements: true,
+        note: true,
+        morningNote: true,
+        mood: true,
+        bodyComposition: true,
+        nightEating: true,
+        fiber: true,
+        cycle: true,
+        digestion: true,
+        alcohol: true,
+        water: false,
+        sodium: true,
+        potassium: true,
+        magnesium: true,
+        eatingReason: true,
+      },
+    })
+
+    expect(workbook.getWorksheet('Water')).toBeUndefined()
+    expect(workbook.worksheets.map((s) => s.name)).toEqual([
+      'Daily Log',
+      'Meals',
+      'Goals',
+    ])
   })
 })

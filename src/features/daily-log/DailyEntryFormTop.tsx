@@ -1,18 +1,35 @@
+import { type FormEvent, useState } from 'react'
 import { ChevronDown, CupSoda, GlassWater, X } from 'lucide-react'
+import type { WaterEntry } from '@/domain/dailyEntry'
 import { formatNumber } from '@/i18n'
+import { parseNumberInput } from '@/shared/lib/parseNumberInput'
 import { Button } from '@/shared/ui/button'
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
 } from '@/shared/ui/collapsible'
+import { Dialog, DialogContent, DialogTitle } from '@/shared/ui/dialog'
+import { Input } from '@/shared/ui/input'
+import { Label } from '@/shared/ui/label'
 import { NumberInput } from '@/shared/ui/number-input'
 import { StatCard } from '@/shared/ui/stat-card'
 import { usePlannedMealsTrackingStore, useTodaySectionsCollapseStore } from '@/stores'
+import { waterMlSchema } from './dailyEntryFormSchema'
 import { MealList } from './MealList'
 import { PlannedMealsSection } from './PlannedMealsSection'
 import { useDailyEntryFormStateContext } from './useDailyEntryFormStateContext'
 import { isUnusualDailyCalories } from './unusualEntryThresholds'
+
+function formatWaterChipText(amountText: string, timeDrunk?: string): string {
+  return timeDrunk ? `${amountText} · ${timeDrunk}` : amountText
+}
+
+function normalizeTimeHHMM(value: string): string | undefined {
+  const hhmm = value.trim().slice(0, 5)
+  if (!hhmm) return undefined
+  return /^([01]\d|2[0-3]):[0-5]\d$/.test(hhmm) ? hhmm : undefined
+}
 
 /**
  * #416/#419 — Meals and Water, which sit between the Morning
@@ -50,6 +67,39 @@ export function DailyEntryFormTop() {
   const plannedMealsTrackingEnabled = usePlannedMealsTrackingStore(
     (state) => state.enabled,
   )
+  const [editingWaterId, setEditingWaterId] = useState<string | null>(null)
+  const [editAmount, setEditAmount] = useState('')
+  const [editTime, setEditTime] = useState('')
+  const [editAmountError, setEditAmountError] = useState<string | undefined>()
+  const editingWater = state.waterEntries.find(
+    (entry) => entry.id === editingWaterId,
+  )
+
+  function openWaterEdit(entry: WaterEntry) {
+    setEditingWaterId(entry.id)
+    setEditAmount(String(entry.amountMl))
+    setEditTime(entry.timeDrunk ?? '')
+    setEditAmountError(undefined)
+  }
+
+  function saveWaterEdit(event: FormEvent) {
+    event.preventDefault()
+    if (!editingWater) return
+    let amountMl = editingWater.amountMl
+    if (editAmount.trim() !== '') {
+      const parsed = waterMlSchema.safeParse(parseNumberInput(editAmount))
+      if (!parsed.success || parsed.data === 0) {
+        setEditAmountError(t.dailyEntry.invalidValueMessage)
+        return
+      }
+      amountMl = parsed.data
+    }
+    state.updateWaterEntry(editingWater.id, {
+      amountMl,
+      timeDrunk: normalizeTimeHHMM(editTime),
+    })
+    setEditingWaterId(null)
+  }
 
   return (
     // #510 — same `gap-6` as TodayScreen's form-area / page column so
@@ -378,11 +428,16 @@ export function DailyEntryFormTop() {
                   </Button>
                 </div>
                 {state.waterEntries.length > 0 && (
-                  // #488 — three chips per row on phone (was ~2 with
-                  // flex-wrap); each chip fills its grid cell.
-                  <div className="grid grid-cols-3 gap-2">
+                  // #488 — three chips per row was the volume-only layout.
+                  // #849 adds HH:MM on the same chip (`500мл · 10:15`), so
+                  // two columns keeps the time readable on a phone.
+                  <div className="grid grid-cols-2 gap-2">
                     {state.waterEntries.map((entry) => {
                       const amountText = `${formatNumber(entry.amountMl, locale, 0)}${t.dailyEntry.mlUnit}`
+                      const chipText = formatWaterChipText(
+                        amountText,
+                        entry.timeDrunk,
+                      )
                       // No literal "bottle" icon exists in lucide-react —
                       // CupSoda is the closest distinct large-container
                       // icon available, used for anything past a typical
@@ -394,11 +449,20 @@ export function DailyEntryFormTop() {
                           key={entry.id}
                           className="flex min-w-0 items-center justify-center gap-1 rounded-full bg-muted py-1 pr-1 pl-2 text-sm"
                         >
-                          <Icon
-                            aria-hidden="true"
-                            className="size-4 text-muted-foreground"
-                          />
-                          {amountText}
+                          <button
+                            type="button"
+                            className="flex min-w-0 flex-1 items-center justify-center gap-1"
+                            aria-label={t.dailyEntry.editWaterEntryLabel(
+                              amountText,
+                            )}
+                            onClick={() => openWaterEdit(entry)}
+                          >
+                            <Icon
+                              aria-hidden="true"
+                              className="size-4 shrink-0 text-muted-foreground"
+                            />
+                            <span className="truncate">{chipText}</span>
+                          </button>
                           <Button
                             type="button"
                             variant="ghost"
@@ -420,6 +484,48 @@ export function DailyEntryFormTop() {
               </div>
             </CollapsibleContent>
           </Collapsible>
+          <Dialog
+            open={editingWaterId !== null}
+            onOpenChange={(open) => {
+              if (!open) setEditingWaterId(null)
+            }}
+          >
+            <DialogContent closeLabel={t.dailyEntry.closeFoodDialogLabel}>
+              <DialogTitle>
+                {t.dailyEntry.editWaterEntryDialogTitle}
+              </DialogTitle>
+              <form
+                className="flex flex-col gap-3 pt-3"
+                onSubmit={saveWaterEdit}
+              >
+                <NumberInput
+                  label={t.dailyEntry.waterAmountLabel}
+                  unit={t.dailyEntry.mlUnit}
+                  value={editAmount}
+                  error={editAmountError}
+                  onChange={(event) => {
+                    setEditAmount(event.target.value)
+                    setEditAmountError(undefined)
+                  }}
+                />
+                <div className="flex flex-col gap-1.5">
+                  <Label htmlFor="water-entry-time">
+                    {t.dailyEntry.timeEatenLabel}
+                  </Label>
+                  <Input
+                    id="water-entry-time"
+                    type="time"
+                    aria-label={t.dailyEntry.timeEatenLabel}
+                    value={editTime}
+                    onChange={(event) => setEditTime(event.target.value)}
+                  />
+                </div>
+                <Button type="submit" size="xl" className="w-full">
+                  {t.dailyEntry.saveButton}
+                </Button>
+              </form>
+            </DialogContent>
+          </Dialog>
         </div>
       )}
     </div>

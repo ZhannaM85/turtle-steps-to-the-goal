@@ -18,6 +18,8 @@ const MEALS_HEADER =
   'Fiber (g),Sodium (mg),Potassium (mg),Magnesium (mg),Grams,Time,' +
   'Reaction,Meal reaction,Why eating,Item note,Note'
 
+const WATER_HEADER = 'Date,Amount (ml),Time'
+
 function makeEntry(overrides: Partial<DailyEntry> = {}): DailyEntry {
   const now = '2026-03-01T00:00:00.000Z'
   return {
@@ -58,7 +60,9 @@ describe('buildDailyLogCsv', () => {
   it('writes the Daily Log header and a Meals header when there are no entries', () => {
     const csv = buildDailyLogCsv([], t)
 
-    expect(csv).toBe(`${DAILY_HEADER}\r\n\r\n${MEALS_HEADER}`)
+    expect(csv).toBe(
+      `${DAILY_HEADER}\r\n\r\n${MEALS_HEADER}\r\n\r\n${WATER_HEADER}`,
+    )
   })
 
   it('writes one row per entry with totals computed across meals', () => {
@@ -514,5 +518,33 @@ describe('buildDailyLogCsv', () => {
     const [header, row] = meals.split('\r\n')
 
     expect(row.split(',')[header.split(',').indexOf('Time')]).toBe('09:15')
+  })
+
+  it('appends a Water table with amount and time per entry (#849)', () => {
+    const entry = makeEntry({
+      waterEntries: [
+        { id: 'w1', amountMl: 250, timeDrunk: '08:15' },
+        { id: 'w2', amountMl: 500 },
+      ],
+    })
+    const csv = buildDailyLogCsv([entry], t)
+    const [, , water] = csv.split('\r\n\r\n')
+    const [header, row1, row2] = water.split('\r\n')
+
+    expect(header).toBe(WATER_HEADER)
+    expect(row1).toBe('2026-03-01,250,08:15')
+    expect(row2).toBe('2026-03-01,500,')
+  })
+
+  it('omits the Water table when water tracking is gated off (#849)', () => {
+    const entry = makeEntry({
+      waterEntries: [{ id: 'w1', amountMl: 250, timeDrunk: '08:15' }],
+    })
+    const csv = buildDailyLogCsv([entry], t, undefined, {
+      tracking: { ...ALL_TRACKED, water: false },
+    })
+
+    expect(csv.split('\r\n\r\n')).toHaveLength(2)
+    expect(csv).not.toContain('Amount (ml)')
   })
 })

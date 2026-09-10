@@ -4,9 +4,13 @@ import type { Dictionary } from '@/i18n'
 import {
   dailyLogHeaderValues,
   dailyLogRowValues,
+  includeWaterLogTable,
   mealLogHeaderValues,
   mealLogRows,
   mealLogRowValues,
+  waterLogHeaderValues,
+  waterLogRows,
+  waterLogRowValues,
   type DailyLogExportExtras,
 } from './dailyLogExport'
 
@@ -82,6 +86,7 @@ function withNextMorningWeightColumn(
  * #743: Daily Log also includes body composition, fiber, electrolytes, and
  * custom-metric columns; a second Meals table follows after a blank line
  * (Excel already had that sheet — CSV/Markdown had been one table only).
+ * #849: a third Water table (date, amount, time) follows Meals.
  */
 export function buildDailyLogCsv(
   dailyEntries: DailyEntry[],
@@ -107,5 +112,12 @@ export function buildDailyLogCsv(
       mealLogRowValues(row, t, extras),
     ),
   )
-  return `${daily}\r\n\r\n${meals}`
+  if (!includeWaterLogTable(extras)) {
+    return `${daily}\r\n\r\n${meals}`
+  }
+  const water = csvTable(
+    waterLogHeaderValues(t),
+    waterLogRows(sortedEntries).map((row) => waterLogRowValues(row, t)),
+  )
+  return `${daily}\r\n\r\n${meals}\r\n\r\n${water}`
 }

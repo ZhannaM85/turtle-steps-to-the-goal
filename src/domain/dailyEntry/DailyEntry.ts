@@ -142,6 +142,10 @@ export interface CalorieEntry {
 export interface WaterEntry {
   id: string
   amountMl: number
+  /** #849 — "HH:MM" 24-hour, when this water was drunk. Same time-of-day
+   * shape as `CalorieEntry.timeEaten`. Optional so older entries (and
+   * v6→v7 bucketed totals) stay valid without a stamp. */
+  timeDrunk?: string
 }
 
 /** #549 — optional day-level intake (no food names). Additive with meals. */

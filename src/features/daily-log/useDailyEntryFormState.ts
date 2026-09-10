@@ -682,14 +682,17 @@ export function useDailyEntryFormState({
 
   // #271: each quick-add tap becomes its own removable entry instead of
   // bumping a single running total. #598: freeform ml input removed — only
-  // glass/bottle quick-add amounts call this.
+  // glass/bottle quick-add amounts call this. #849: stamp current HH:MM
+  // so Day chips and export can show when this glass/bottle was logged.
   function addWaterEntry(amountMl: number) {
     const result = waterMlSchema.safeParse(amountMl)
     if (!result.success) return
     if (result.data === 0) return
+    const now = new Date()
+    const timeDrunk = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`
     const entries = [
       ...(getValues('waterEntries') ?? []),
-      { id: crypto.randomUUID(), amountMl: result.data },
+      { id: crypto.randomUUID(), amountMl: result.data, timeDrunk },
     ]
     setValue('waterEntries', entries, { shouldDirty: true })
     persist({ ...getValues(), waterEntries: entries })
@@ -699,6 +702,22 @@ export function useDailyEntryFormState({
     const entries = (getValues('waterEntries') ?? []).filter(
       (entry) => entry.id !== id,
     )
+    setValue('waterEntries', entries, { shouldDirty: true })
+    persist({ ...getValues(), waterEntries: entries })
+  }
+
+  function updateWaterEntry(
+    id: string,
+    patch: { amountMl: number; timeDrunk?: string },
+  ) {
+    const entries = (getValues('waterEntries') ?? []).map((entry) => {
+      if (entry.id !== id) return entry
+      return {
+        id: entry.id,
+        amountMl: patch.amountMl,
+        ...(patch.timeDrunk ? { timeDrunk: patch.timeDrunk } : {}),
+      }
+    })
     setValue('waterEntries', entries, { shouldDirty: true })
     persist({ ...getValues(), waterEntries: entries })
   }
@@ -1468,6 +1487,7 @@ export function useDailyEntryFormState({
     waterEntries,
     addWaterEntry,
     removeWaterEntry,
+    updateWaterEntry,
     // Constipation
     digestionTrackingEnabled,
     hadConstipation,

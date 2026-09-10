@@ -917,6 +917,10 @@ export interface Dictionary {
     /** #271 — aria-label for a logged water entry's own remove (X) button,
      * e.g. "Remove 250ml entry". */
     removeWaterEntryLabel: (amount: string) => string
+    /** #849 — aria-label for tapping a water chip to edit time/amount. */
+    editWaterEntryLabel: (amount: string) => string
+    editWaterEntryDialogTitle: string
+    waterAmountLabel: string
     /** Full-screen meal-item editor sheet (#122) — replaces the cramped
      * inline fields row for both adding a new meal's first item and
      * editing/adding an item within an already-existing meal. */
@@ -1437,6 +1441,8 @@ export interface Dictionary {
   exportXlsx: {
     dailyLogSheetName: string
     mealsSheetName: string
+    /** #849 — per-entry water table (date, amount, time). */
+    waterEntriesSheetName: string
     goalsSheetName: string
     dateColumn: string
     weightColumn: string
@@ -1475,6 +1481,9 @@ export interface Dictionary {
     nightEatingNoEasyColumn: string
     nightEatingNoWhatHelpedColumn: string
     waterColumn: string
+    /** #849 — amount column on the per-entry Water table, distinct from
+     * the Daily Log day's total waterColumn. */
+    waterAmountColumn: string
     /** #743 — body composition + day fiber/electrolytes on the Daily Log table. */
     muscleMassColumn: string
     visceralFatColumn: string

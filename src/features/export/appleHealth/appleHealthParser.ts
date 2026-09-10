@@ -347,7 +347,12 @@ export class AppleHealthPatchBuilder {
       }
       case HK_TYPE.dietaryWater: {
         const entries = this.waterEntriesByDate.get(localDate) ?? []
-        entries.push({ id: crypto.randomUUID(), amountMl: numeric })
+        entries.push({
+          id: crypto.randomUUID(),
+          amountMl: numeric,
+          // #849 — same local HH:MM as a manual quick-add stamp.
+          timeDrunk: format(new Date(epochMs), 'HH:mm'),
+        })
         this.waterEntriesByDate.set(localDate, entries)
         break
       }

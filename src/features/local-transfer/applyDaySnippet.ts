@@ -52,7 +52,7 @@ export interface DaySnippetApplyPlan {
   conflicts: DaySnippetConflict[]
   mealsToAppend: DaySnippetMeal[]
   mealsSkippedDuplicates: number
-  waterToAppend: Array<{ amountMl: number }>
+  waterToAppend: Array<{ amountMl: number; timeDrunk?: string }>
   waterSkippedDuplicates: number
 }
 
@@ -185,7 +185,7 @@ export function planDaySnippetApply(
 
   const existingWater = existing?.waterEntries ?? []
   const existingWaterKeys = new Set(existingWater.map((w) => w.amountMl))
-  const waterToAppend: Array<{ amountMl: number }> = []
+  const waterToAppend: Array<{ amountMl: number; timeDrunk?: string }> = []
   let waterSkippedDuplicates = 0
   for (const water of payload.waterEntries ?? []) {
     if (existingWaterKeys.has(water.amountMl)) {
@@ -242,6 +242,7 @@ export function applyDaySnippetPlan(
     const minted: WaterEntry[] = plan.waterToAppend.map((water) => ({
       id: crypto.randomUUID(),
       amountMl: water.amountMl,
+      ...(water.timeDrunk ? { timeDrunk: water.timeDrunk } : {}),
     }))
     next.waterEntries = [...(next.waterEntries ?? []), ...minted]
   }

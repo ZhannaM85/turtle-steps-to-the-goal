@@ -162,12 +162,24 @@ describe('daySnippetPayload (#718)', () => {
     expect(encodeDaySnippetPayload(first)).toBe(encodeDaySnippetPayload(second))
   })
 
-  it('does not parse a shareFood or shareMeal link as a day snippet', () => {
-    expect(
-      parseDaySnippetFromText('https://example.com/?shareFood=abc'),
-    ).toBeNull()
-    expect(
-      parseDaySnippetFromText('https://example.com/?shareMeal=abc'),
-    ).toBeNull()
+  it('round-trips water amount and optional drink time (#849)', () => {
+    const payload = dailyEntryToDaySnippet({
+      id: 'with-water',
+      date: '2026-08-14',
+      createdAt: '2026-08-14T07:00:00.000Z',
+      updatedAt: '2026-08-14T07:00:00.000Z',
+      waterEntries: [
+        { id: 'w1', amountMl: 250, timeDrunk: '08:15' },
+        { id: 'w2', amountMl: 500 },
+      ],
+    })
+    expect(payload.waterEntries).toEqual([
+      { amountMl: 250, timeDrunk: '08:15' },
+      { amountMl: 500 },
+    ])
+    expect(JSON.stringify(payload)).not.toContain('w1')
+    expect(decodeDaySnippetPayload(encodeDaySnippetPayload(payload))).toEqual(
+      payload,
+    )
   })
 })

@@ -102,6 +102,9 @@ const calorieEntrySchema = z.object({
 const waterEntrySchema = z.object({
   id: z.string(),
   amountMl: z.number(),
+  // #849 — optional HH:MM drink time; older entries omit it. No version
+  // bump: same purely-additive optional as timeEaten on meals.
+  timeDrunk: z.string().optional(),
 })
 
 const dailyEntrySchema = z.object({

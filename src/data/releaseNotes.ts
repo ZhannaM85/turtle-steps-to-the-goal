@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 804,
+    issue: 849,
+    date: '2026-09-10T22:25:00+03:00',
+    en: 'Each water log now saves the time you added it, shows that time on the Day chips, and includes it when you export.',
+    ru: 'Каждый приём воды теперь сохраняет время, показывает его на чипах на экране «День» и попадает в экспорт.',
+  },
+  {
     version: 803,
     issue: 845,
     date: '2026-09-10T19:05:00+03:00',

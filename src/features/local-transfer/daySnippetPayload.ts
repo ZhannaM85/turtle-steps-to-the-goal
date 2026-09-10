@@ -57,6 +57,7 @@ const daySnippetMealSchema = z.object({
 
 const daySnippetWaterSchema = z.object({
   amountMl: z.number(),
+  timeDrunk: z.string().min(1).optional(),
 })
 
 const daySnippetTotalsSchema = z.object({
@@ -232,6 +233,7 @@ export function dailyEntryToDaySnippet(
   if (entry.waterEntries && entry.waterEntries.length > 0) {
     payload.waterEntries = entry.waterEntries.map((water: WaterEntry) => ({
       amountMl: water.amountMl,
+      ...(water.timeDrunk ? { timeDrunk: water.timeDrunk } : {}),
     }))
   }
   if (entry.waistCm !== undefined) payload.waistCm = entry.waistCm

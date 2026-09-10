@@ -6,9 +6,13 @@ import type { Dictionary } from '@/i18n'
 import {
   dailyLogHeaderValues,
   dailyLogRowValues,
+  includeWaterLogTable,
   mealLogHeaderValues,
   mealLogRows,
   mealLogRowValues,
+  waterLogHeaderValues,
+  waterLogRows,
+  waterLogRowValues,
   type DailyLogExportExtras,
 } from './dailyLogExport'
 
@@ -81,6 +85,15 @@ export async function buildExportWorkbook(
     mealsSheet.addRow(excelRow(mealLogRowValues(row, t, extras)))
   }
   mealsSheet.getColumn(1).numFmt = DATE_FORMAT
+
+  if (includeWaterLogTable(extras)) {
+    const waterSheet = workbook.addWorksheet(t.exportXlsx.waterEntriesSheetName)
+    waterSheet.columns = columnsFromHeaders(waterLogHeaderValues(t))
+    for (const row of waterLogRows(sortedEntries)) {
+      waterSheet.addRow(excelRow(waterLogRowValues(row, t)))
+    }
+    waterSheet.getColumn(1).numFmt = DATE_FORMAT
+  }
 
   const goalsSheet = workbook.addWorksheet(t.exportXlsx.goalsSheetName)
   goalsSheet.columns = [
