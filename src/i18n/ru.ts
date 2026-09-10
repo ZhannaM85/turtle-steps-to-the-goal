@@ -1487,6 +1487,48 @@ export const ru: Dictionary = {
     trackedFieldsScreenshotsGroupLabel: 'Со скриншотов',
     zeppScreenshotTrackingLabel: 'Скриншот состава тела Zepp',
     autoSleepScreenshotTrackingLabel: 'Скриншот AutoSleep',
+    trackedFieldHintSleep:
+      'Часы сна и глубокий сон на экране «День». Можно ввести вручную, заполнить со скриншота AutoSleep или синхронизировать через Health Connect.',
+    trackedFieldHintBodyMeasurements:
+      'Талия, бёдра и процент жира на экране «День». Вводятся вручную.',
+    trackedFieldHintBodyComposition:
+      'Мышцы, висцеральный жир, вода и костная масса на экране «День». Вручную, со скриншота Zepp или из файла экспорта Zepp Life.',
+    trackedFieldHintMorningNote:
+      'Короткое утреннее текстовое поле на экране «День».',
+    trackedFieldHintSteps:
+      'Число шагов на экране «День». Вручную или через Health Connect.',
+    trackedFieldHintNote: 'Вечерняя свободная заметка на экране «День».',
+    trackedFieldHintMood: 'Выбор общего настроения дня.',
+    trackedFieldHintDigestion: 'Да/нет по запору в вечернем блоке дня.',
+    trackedFieldHintAlcohol: 'Да/нет по алкоголю в вечернем блоке дня.',
+    trackedFieldHintNightEating:
+      'Карточка «Ночная еда» на экране «День» — да/нет и несколько уточняющих вопросов.',
+    trackedFieldHintCycle:
+      'Отмечает дни цикла в Истории и на графике веса. Это не поле карточки «День».',
+    trackedFieldHintWater:
+      'Журнал воды на экране «День», с быстрым добавлением стакана или бутылки.',
+    trackedFieldHintDayTotals:
+      'Блок «Итоги дня» для калорий и БЖУ, включая значения без разбора по приёмам пищи.',
+    trackedFieldHintFiber:
+      'Клетчатка в приёмах пищи, итогах дня, цели и «Осталось».',
+    trackedFieldHintPlannedMeals:
+      'Заготовки приёмов пищи на другой день. Черновики не входят в итоги сегодня.',
+    trackedFieldHintCopyYesterdayMeals:
+      'Кнопка на экране «День», которая копирует вчерашние приёмы пищи в сегодня.',
+    trackedFieldHintMealKcalVsYesterday:
+      'На карточке приёма пищи — стрелка калорий относительно вчерашнего приёма с тем же названием (зелёная, если меньше, красная, если больше).',
+    trackedFieldHintEatingReason:
+      'Причины при добавлении или изменении приёма пищи.',
+    trackedFieldHintSodium:
+      'Натрий в приёмах пищи и итогах дня, плюс «Осталось», если задана цель.',
+    trackedFieldHintPotassium:
+      'Калий в приёмах пищи и итогах дня, плюс «Осталось», если задана цель.',
+    trackedFieldHintMagnesium:
+      'Магний в приёмах пищи и итогах дня, плюс «Осталось», если задана цель.',
+    trackedFieldHintAutoSleepScreenshot:
+      'На блоке сна — кнопка прочитать часы со скриншота AutoSleep. Ничего не сохраняется, пока вы не подтвердите.',
+    trackedFieldHintZeppScreenshot:
+      'На блоке состава тела — кнопка прочитать числа со скриншота Zepp. Ничего не сохраняется, пока вы не подтвердите.',
     profileLabel: 'Профиль',
     profileDescription:
       'Необязательно — используется только для расчёта ИМТ и примерной суточной потребности в калориях (базовый обмен) на экране «День». Входит в JSON-резервные копии вместе с остальными настройками.',

@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 797,
+    issue: 837,
+    date: '2026-09-10T11:50:00+03:00',
+    en: 'Settings → What to track now lists one switch per row, with a short note about what each option shows on Day.',
+    ru: 'В Настройках → Что отслеживать каждый пункт — отдельная строка с переключателем и короткой подсказкой, что появится на экране «День».',
+  },
+  {
     version: 796,
     issue: 836,
     date: '2026-09-10T11:20:00+03:00',

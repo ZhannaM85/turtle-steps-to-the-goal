@@ -33,6 +33,16 @@ function renderSettings() {
   return render(<SettingsScreen />, { wrapper: MemoryRouter })
 }
 
+function trackedSwitch(name: string, groupName?: string) {
+  if (groupName) {
+    return within(screen.getByRole('group', { name: groupName })).getByRole(
+      'switch',
+      { name },
+    )
+  }
+  return screen.getByRole('switch', { name })
+}
+
 const defaultTrendChartVisible = {
   weight: { raw: true, average: true },
   calories: { raw: true, average: true },
@@ -390,14 +400,12 @@ describe('SettingsScreen', () => {
       const user = userEvent.setup()
       renderSettings()
 
-      const digestionToggle = screen.getByRole('button', {
-        name: 'Digestion tracking',
-      })
-      expect(digestionToggle).toHaveAttribute('aria-pressed', 'false')
+      const digestionToggle = trackedSwitch('Digestion tracking', 'Evening')
+      expect(digestionToggle).not.toBeChecked()
 
       await user.click(digestionToggle)
 
-      expect(digestionToggle).toHaveAttribute('aria-pressed', 'true')
+      expect(digestionToggle).toBeChecked()
       expect(useDigestionTrackingStore.getState().enabled).toBe(true)
     })
 
@@ -405,14 +413,12 @@ describe('SettingsScreen', () => {
       const user = userEvent.setup()
       renderSettings()
 
-      const waterToggle = screen.getByRole('button', {
-        name: 'Water tracking',
-      })
-      expect(waterToggle).toHaveAttribute('aria-pressed', 'false')
+      const waterToggle = trackedSwitch('Water tracking', 'Other')
+      expect(waterToggle).not.toBeChecked()
 
       await user.click(waterToggle)
 
-      expect(waterToggle).toHaveAttribute('aria-pressed', 'true')
+      expect(waterToggle).toBeChecked()
       expect(useWaterTrackingStore.getState().enabled).toBe(true)
     })
 
@@ -420,14 +426,12 @@ describe('SettingsScreen', () => {
       const user = userEvent.setup()
       renderSettings()
 
-      const plannedMealsToggle = screen.getByRole('button', {
-        name: 'Planned meals',
-      })
-      expect(plannedMealsToggle).toHaveAttribute('aria-pressed', 'false')
+      const plannedMealsToggle = trackedSwitch('Planned meals', 'Other')
+      expect(plannedMealsToggle).not.toBeChecked()
 
       await user.click(plannedMealsToggle)
 
-      expect(plannedMealsToggle).toHaveAttribute('aria-pressed', 'true')
+      expect(plannedMealsToggle).toBeChecked()
       expect(usePlannedMealsTrackingStore.getState().enabled).toBe(true)
     })
 
@@ -435,14 +439,12 @@ describe('SettingsScreen', () => {
       const user = userEvent.setup()
       renderSettings()
 
-      const eatingReasonToggle = screen.getByRole('button', {
-        name: 'Why am I eating?',
-      })
-      expect(eatingReasonToggle).toHaveAttribute('aria-pressed', 'false')
+      const eatingReasonToggle = trackedSwitch('Why am I eating?', 'Other')
+      expect(eatingReasonToggle).not.toBeChecked()
 
       await user.click(eatingReasonToggle)
 
-      expect(eatingReasonToggle).toHaveAttribute('aria-pressed', 'true')
+      expect(eatingReasonToggle).toBeChecked()
       expect(useEatingReasonTrackingStore.getState().enabled).toBe(true)
     })
 
@@ -450,22 +452,12 @@ describe('SettingsScreen', () => {
       const user = userEvent.setup()
       renderSettings()
 
+      expect(trackedSwitch('Why am I eating?', 'Other')).not.toBeChecked()
       expect(
-        within(screen.getByRole('toolbar', { name: 'Other' })).queryByRole(
-          'button',
-          { name: 'Why am I eating?' },
-        ),
-      ).not.toBeInTheDocument()
-      expect(
-        within(screen.getByRole('toolbar', { name: 'Other' })).getByRole(
-          'button',
-          { name: "Copy yesterday's meals" },
-        ),
+        trackedSwitch("Copy yesterday's meals", 'Other'),
       ).toBeInTheDocument()
 
-      await user.click(
-        screen.getByRole('button', { name: 'Why am I eating?' }),
-      )
+      await user.click(trackedSwitch('Why am I eating?', 'Other'))
 
       const list = screen.getByText('Hunger').closest('ul')
       expect(list).toHaveClass(
@@ -476,7 +468,7 @@ describe('SettingsScreen', () => {
       const block = list?.parentElement
       expect(block).toBeTruthy()
       expect(
-        within(block as HTMLElement).getByRole('button', {
+        within(block as HTMLElement).getByRole('switch', {
           name: 'Why am I eating?',
         }),
       ).toBeInTheDocument()
@@ -484,7 +476,7 @@ describe('SettingsScreen', () => {
         within(block as HTMLElement).getByText('Your reasons'),
       ).toBeInTheDocument()
       expect(
-        within(block as HTMLElement).queryByRole('button', {
+        within(block as HTMLElement).queryByRole('switch', {
           name: "Copy yesterday's meals",
         }),
       ).not.toBeInTheDocument()
@@ -494,7 +486,7 @@ describe('SettingsScreen', () => {
       const user = userEvent.setup()
       renderSettings()
       await user.click(
-        screen.getByRole('button', { name: 'Why am I eating?' }),
+        trackedSwitch('Why am I eating?', 'Other'),
       )
 
       const editor = screen.getByText('Your reasons').closest('div')
@@ -512,7 +504,7 @@ describe('SettingsScreen', () => {
       expect(screen.queryByText('Your reasons')).not.toBeInTheDocument()
 
       await user.click(
-        screen.getByRole('button', { name: 'Why am I eating?' }),
+        trackedSwitch('Why am I eating?', 'Other'),
       )
 
       const editor = screen.getByText('Your reasons').closest('div')
@@ -671,14 +663,12 @@ describe('SettingsScreen', () => {
       const user = userEvent.setup()
       renderSettings()
 
-      const copyToggle = screen.getByRole('button', {
-        name: "Copy yesterday's meals",
-      })
-      expect(copyToggle).toHaveAttribute('aria-pressed', 'false')
+      const copyToggle = trackedSwitch("Copy yesterday's meals", 'Other')
+      expect(copyToggle).not.toBeChecked()
 
       await user.click(copyToggle)
 
-      expect(copyToggle).toHaveAttribute('aria-pressed', 'true')
+      expect(copyToggle).toBeChecked()
       expect(useCopyYesterdayMealsStore.getState().enabled).toBe(true)
     })
 
@@ -686,43 +676,31 @@ describe('SettingsScreen', () => {
       const user = userEvent.setup()
       renderSettings()
 
-      const toggle = within(
-        screen.getByRole('toolbar', { name: 'Other' }),
-      ).getByRole('button', { name: 'Meal kcal vs yesterday' })
-      expect(toggle).toHaveAttribute('aria-pressed', 'true')
+      const toggle = trackedSwitch('Meal kcal vs yesterday', 'Other')
+      expect(toggle).toBeChecked()
 
       await user.click(toggle)
 
-      expect(toggle).toHaveAttribute('aria-pressed', 'false')
+      expect(toggle).not.toBeChecked()
       expect(useMealKcalVsYesterdayStore.getState().enabled).toBe(false)
     })
 
     it('defaults the previously-unconditional fields (Sleep, Steps, etc.) to on', () => {
       renderSettings()
 
-      // #528 — What to track is split into Morning / Evening / Other toolbars.
-      expect(
-        within(
-          screen.getByRole('toolbar', { name: 'Morning' }),
-        ).getByRole('button', { name: 'Sleep' }),
-      ).toHaveAttribute('aria-pressed', 'true')
-      expect(
-        within(
-          screen.getByRole('toolbar', { name: 'Evening' }),
-        ).getByRole('button', { name: 'Steps' }),
-      ).toHaveAttribute('aria-pressed', 'true')
+      // #528 — What to track is split into Morning / Evening / Other groups.
+      expect(trackedSwitch('Sleep', 'Morning')).toBeChecked()
+      expect(trackedSwitch('Steps', 'Evening')).toBeChecked()
     })
 
     it('turns a field off, updating the store', async () => {
       const user = userEvent.setup()
       renderSettings()
 
-      const sleepToggle = within(
-        screen.getByRole('toolbar', { name: 'Morning' }),
-      ).getByRole('button', { name: 'Sleep' })
+      const sleepToggle = trackedSwitch('Sleep', 'Morning')
       await user.click(sleepToggle)
 
-      expect(sleepToggle).toHaveAttribute('aria-pressed', 'false')
+      expect(sleepToggle).not.toBeChecked()
       expect(useTrackedFieldsStore.getState().tracked.sleep).toBe(false)
     })
 
@@ -732,10 +710,10 @@ describe('SettingsScreen', () => {
       renderSettings()
 
       expect(
-        screen.getByRole('button', { name: 'Ел поздно вечером' }),
+        screen.getByRole('switch', { name: 'Ел поздно вечером' }),
       ).toBeInTheDocument()
       expect(
-        screen.queryByRole('button', { name: 'Ел(а) поздно вечером' }),
+        screen.queryByRole('switch', { name: 'Ел(а) поздно вечером' }),
       ).not.toBeInTheDocument()
     })
 
@@ -745,21 +723,13 @@ describe('SettingsScreen', () => {
 
       await user.click(screen.getByRole('button', { name: 'Simple' }))
 
-      expect(
-        within(
-          screen.getByRole('toolbar', { name: 'Morning' }),
-        ).getByRole('button', { name: 'Sleep' }),
-      ).toHaveAttribute('aria-pressed', 'false')
+      expect(trackedSwitch('Sleep', 'Morning')).not.toBeChecked()
       expect(useTrackedFieldsStore.getState().tracked.sleep).toBe(false)
       expect(screen.getByText('Applied')).toBeInTheDocument()
 
       await user.click(screen.getByRole('button', { name: 'Full' }))
 
-      expect(
-        within(
-          screen.getByRole('toolbar', { name: 'Morning' }),
-        ).getByRole('button', { name: 'Sleep' }),
-      ).toHaveAttribute('aria-pressed', 'true')
+      expect(trackedSwitch('Sleep', 'Morning')).toBeChecked()
       expect(useTrackedFieldsStore.getState().tracked.sleep).toBe(true)
     })
 
@@ -784,11 +754,7 @@ describe('SettingsScreen', () => {
       })
       renderSettings()
 
-      expect(
-        within(
-          screen.getByRole('toolbar', { name: 'Morning' }),
-        ).getByRole('button', { name: 'Body composition' }),
-      ).toHaveAttribute('aria-pressed', 'false')
+      expect(trackedSwitch('Body composition', 'Morning')).not.toBeChecked()
     })
 
     it('defaults Morning note off for new users (#763)', () => {
@@ -810,23 +776,17 @@ describe('SettingsScreen', () => {
       })
       renderSettings()
 
-      expect(
-        within(
-          screen.getByRole('toolbar', { name: 'Morning' }),
-        ).getByRole('button', { name: 'Morning note' }),
-      ).toHaveAttribute('aria-pressed', 'false')
+      expect(trackedSwitch('Morning note', 'Morning')).not.toBeChecked()
     })
 
     it('defaults Fiber on and can turn it off (#582)', async () => {
       const user = userEvent.setup()
       renderSettings()
 
-      const fiberToggle = within(
-        screen.getByRole('toolbar', { name: 'Other' }),
-      ).getByRole('button', { name: 'Fiber' })
-      expect(fiberToggle).toHaveAttribute('aria-pressed', 'true')
+      const fiberToggle = trackedSwitch('Fiber', 'Other')
+      expect(fiberToggle).toBeChecked()
       await user.click(fiberToggle)
-      expect(fiberToggle).toHaveAttribute('aria-pressed', 'false')
+      expect(fiberToggle).not.toBeChecked()
       expect(useTrackedFieldsStore.getState().tracked.fiber).toBe(false)
     })
 
@@ -834,60 +794,49 @@ describe('SettingsScreen', () => {
       const user = userEvent.setup()
       renderSettings()
 
-      const dayTotalsToggle = within(
-        screen.getByRole('toolbar', { name: 'Other' }),
-      ).getByRole('button', { name: 'Day totals' })
-      expect(dayTotalsToggle).toHaveAttribute('aria-pressed', 'true')
+      const dayTotalsToggle = trackedSwitch('Day totals', 'Other')
+      expect(dayTotalsToggle).toBeChecked()
       await user.click(dayTotalsToggle)
-      expect(dayTotalsToggle).toHaveAttribute('aria-pressed', 'false')
+      expect(dayTotalsToggle).not.toBeChecked()
       expect(useTrackedFieldsStore.getState().tracked.dayTotals).toBe(false)
     })
 
     it('includes night eating in the Evening What to track group (#532)', () => {
       renderSettings()
 
-      expect(
-        within(
-          screen.getByRole('toolbar', { name: 'Evening' }),
-        ).getByRole('button', { name: 'Ate late tonight' }),
-      ).toHaveAttribute('aria-pressed', 'true')
+      expect(trackedSwitch('Ate late tonight', 'Evening')).toBeChecked()
     })
 
     it('lists screenshot toggles only when the parent field is tracked (#749)', async () => {
       const user = userEvent.setup()
       renderSettings()
 
-      const screenshots = screen.getByRole('toolbar', {
+      const screenshots = screen.getByRole('group', {
         name: 'From screenshots',
       })
       expect(
-        within(screenshots).getByRole('button', {
+        within(screenshots).getByRole('switch', {
           name: 'AutoSleep screenshot',
         }),
-      ).toHaveAttribute('aria-pressed', 'true')
+      ).toBeChecked()
       expect(
-        within(screenshots).getByRole('button', {
+        within(screenshots).getByRole('switch', {
           name: 'Zepp body composition screenshot',
         }),
-      ).toHaveAttribute('aria-pressed', 'true')
+      ).toBeChecked()
 
-      await user.click(
-        within(screen.getByRole('toolbar', { name: 'Morning' })).getByRole(
-          'button',
-          { name: 'Sleep' },
-        ),
-      )
+      await user.click(trackedSwitch('Sleep', 'Morning'))
       expect(
-        screen.queryByRole('button', { name: 'AutoSleep screenshot' }),
+        screen.queryByRole('switch', { name: 'AutoSleep screenshot' }),
       ).not.toBeInTheDocument()
       expect(
-        screen.getByRole('button', {
+        screen.getByRole('switch', {
           name: 'Zepp body composition screenshot',
         }),
       ).toBeInTheDocument()
 
       await user.click(
-        screen.getByRole('button', {
+        screen.getByRole('switch', {
           name: 'Zepp body composition screenshot',
         }),
       )
@@ -900,15 +849,43 @@ describe('SettingsScreen', () => {
       const user = userEvent.setup()
       renderSettings()
 
-      const sodiumToggle = within(
-        screen.getByRole('toolbar', { name: 'Electrolytes' }),
-      ).getByRole('button', { name: 'Sodium' })
-      expect(sodiumToggle).toHaveAttribute('aria-pressed', 'false')
+      const sodiumToggle = trackedSwitch('Sodium', 'Electrolytes')
+      expect(sodiumToggle).not.toBeChecked()
 
       await user.click(sodiumToggle)
 
-      expect(sodiumToggle).toHaveAttribute('aria-pressed', 'true')
+      expect(sodiumToggle).toBeChecked()
       expect(useMicronutrientTrackingStore.getState().tracked.sodium).toBe(true)
+    })
+
+    it('renders one switch per row with a short definition (#837)', () => {
+      renderSettings()
+
+      expect(
+        screen.queryByRole('toolbar', { name: 'Morning' }),
+      ).not.toBeInTheDocument()
+      expect(screen.getByRole('group', { name: 'Morning' })).toBeInTheDocument()
+      expect(trackedSwitch('Sleep', 'Morning')).toBeChecked()
+      expect(
+        within(screen.getByRole('group', { name: 'Morning' })).getByText(
+          /AutoSleep screenshot/,
+        ),
+      ).toBeInTheDocument()
+      expect(
+        within(screen.getByRole('group', { name: 'Morning' })).getByText(
+          /Zepp screenshot/,
+        ),
+      ).toBeInTheDocument()
+      expect(
+        within(screen.getByRole('group', { name: 'Other' })).getByText(
+          /green if less, red if more/,
+        ),
+      ).toBeInTheDocument()
+      expect(
+        screen.getByText(
+          /Turning one off just hides it going forward/,
+        ),
+      ).toBeInTheDocument()
     })
   })
 

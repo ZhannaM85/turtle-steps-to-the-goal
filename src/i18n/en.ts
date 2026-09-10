@@ -1436,6 +1436,47 @@ export const en: Dictionary = {
     trackedFieldsScreenshotsGroupLabel: 'From screenshots',
     zeppScreenshotTrackingLabel: 'Zepp body composition screenshot',
     autoSleepScreenshotTrackingLabel: 'AutoSleep screenshot',
+    trackedFieldHintSleep:
+      'Hours slept and deep sleep on Day. Type them in, fill from an AutoSleep screenshot, or sync with Health Connect.',
+    trackedFieldHintBodyMeasurements:
+      'Waist, hip, and body fat on Day. Entered by hand.',
+    trackedFieldHintBodyComposition:
+      'Muscle, visceral fat, body water, and bone mass on Day. Type them in, fill from a Zepp screenshot, or import a Zepp Life file.',
+    trackedFieldHintMorningNote: 'A short morning text field on Day.',
+    trackedFieldHintSteps:
+      'Step count on Day. Type it in or sync with Health Connect.',
+    trackedFieldHintNote: 'Evening free-text note on Day.',
+    trackedFieldHintMood: 'Overall mood picker on Day.',
+    trackedFieldHintDigestion: 'Constipation yes/no on Day evening.',
+    trackedFieldHintAlcohol: 'Alcohol yes/no on Day evening.',
+    trackedFieldHintNightEating:
+      'Night food card on Day — yes/no and a few follow-up questions.',
+    trackedFieldHintCycle:
+      'Marks period days in History and on the weight chart. Not a Day card field.',
+    trackedFieldHintWater:
+      'Water log on Day, with glass and bottle quick-add.',
+    trackedFieldHintDayTotals:
+      'Day totals block for calories and macros, including amounts not logged as meals.',
+    trackedFieldHintFiber:
+      'Fiber on meals, Day totals, Goal, and Remaining.',
+    trackedFieldHintPlannedMeals:
+      'Stage meals for another day. Drafts are not added to today’s totals.',
+    trackedFieldHintCopyYesterdayMeals:
+      'A Day button that copies yesterday’s meals into today.',
+    trackedFieldHintMealKcalVsYesterday:
+      'On each meal card, an up/down arrow for calories vs yesterday’s meal with the same name (green if less, red if more).',
+    trackedFieldHintEatingReason:
+      'Reason chips when adding or editing a meal.',
+    trackedFieldHintSodium:
+      'Sodium on Day meals and totals, plus Remaining when a Goal target is set.',
+    trackedFieldHintPotassium:
+      'Potassium on Day meals and totals, plus Remaining when a Goal target is set.',
+    trackedFieldHintMagnesium:
+      'Magnesium on Day meals and totals, plus Remaining when a Goal target is set.',
+    trackedFieldHintAutoSleepScreenshot:
+      'On Day Sleep, a button to read hours from an AutoSleep screenshot. Nothing is saved until you confirm.',
+    trackedFieldHintZeppScreenshot:
+      'On Day Body composition, a button to read numbers from a Zepp screenshot. Nothing is saved until you confirm.',
     profileLabel: 'Profile',
     profileDescription:
       'Optional — used only to compute BMI and estimated daily calorie needs (BMR) on the Day screen. Included in JSON backups with your other Settings preferences.',

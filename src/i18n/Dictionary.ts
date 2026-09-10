@@ -2125,6 +2125,30 @@ export interface Dictionary {
     trackedFieldsScreenshotsGroupLabel: string
     zeppScreenshotTrackingLabel: string
     autoSleepScreenshotTrackingLabel: string
+    /** #837 — one-line definition under each What-to-track row. */
+    trackedFieldHintSleep: string
+    trackedFieldHintBodyMeasurements: string
+    trackedFieldHintBodyComposition: string
+    trackedFieldHintMorningNote: string
+    trackedFieldHintSteps: string
+    trackedFieldHintNote: string
+    trackedFieldHintMood: string
+    trackedFieldHintDigestion: string
+    trackedFieldHintAlcohol: string
+    trackedFieldHintNightEating: string
+    trackedFieldHintCycle: string
+    trackedFieldHintWater: string
+    trackedFieldHintDayTotals: string
+    trackedFieldHintFiber: string
+    trackedFieldHintPlannedMeals: string
+    trackedFieldHintCopyYesterdayMeals: string
+    trackedFieldHintMealKcalVsYesterday: string
+    trackedFieldHintEatingReason: string
+    trackedFieldHintSodium: string
+    trackedFieldHintPotassium: string
+    trackedFieldHintMagnesium: string
+    trackedFieldHintAutoSleepScreenshot: string
+    trackedFieldHintZeppScreenshot: string
     /** #233 — height/age/sex, entered once (rarely changed) purely to
      * compute BMI/BMR on Today; included in the JSON backup settings blob
      * (#594), same category as unit/theme/week-start. */
