@@ -14,6 +14,7 @@ import { useDailyEntryFormStateContext } from './useDailyEntryFormStateContext'
  * #818 — Night food as its own Day card (Yes/No + remember + reason),
  * not nested under Evening. Still gated by Settings night-eating tracking.
  * #825 — remember + reason only when Yes; hidden when No or unset.
+ * #835 — No path has its own follow-ups (was it easy? / any thoughts?).
  * #831 — same accordion as Evening (chevron + Collapse all).
  */
 export function DailyEntryFormNightFood() {
@@ -179,6 +180,110 @@ export function DailyEntryFormNightFood() {
                 {state.errors.nightEatingReason && (
                   <p className="text-sm text-destructive">
                     {state.errors.nightEatingReason.message}
+                  </p>
+                )}
+              </div>
+            )}
+          </>
+        )}
+
+        {state.nightEatingOverride === false && (
+          <>
+            <div className="flex flex-col gap-1.5">
+              <span className="text-sm font-medium">
+                {t.dailyEntry.nightEatingNoEasyLabel}
+              </span>
+              <ToggleGroup
+                type="single"
+                aria-label={t.dailyEntry.nightEatingNoEasyLabel}
+                value={
+                  state.nightEatingNoEasy === undefined
+                    ? ''
+                    : state.nightEatingNoEasy
+                      ? 'yes'
+                      : 'no'
+                }
+                onValueChange={(value) =>
+                  state.setNightEatingNoEasy(
+                    value === '' ? undefined : value === 'yes',
+                  )
+                }
+                className="w-fit"
+              >
+                <ToggleGroupItem value="no" className="h-12 px-6 text-base">
+                  {t.dailyEntry.nightEatingNoOption}
+                </ToggleGroupItem>
+                <ToggleGroupItem value="yes" className="h-12 px-6 text-base">
+                  {t.dailyEntry.nightEatingYesOption}
+                </ToggleGroupItem>
+              </ToggleGroup>
+            </div>
+
+            {state.showNightEatingNoThoughtsAsDisplay ? (
+              <div className="flex flex-col gap-1.5">
+                <span className="text-sm font-medium">
+                  {t.dailyEntry.nightEatingNoThoughtsLabel}
+                </span>
+                <div className="flex min-h-12 items-center justify-between gap-2 rounded-lg bg-muted px-3 py-1.5">
+                  <span className="flex items-center gap-1.5 text-sm text-foreground">
+                    {state.nightEatingNoThoughts}
+                  </span>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon-xl"
+                    aria-label={t.dailyEntry.editNightEatingNoThoughtsLabel}
+                    onClick={() =>
+                      state.setIsEditingNightEatingNoThoughts(true)
+                    }
+                  >
+                    <Pencil aria-hidden="true" />
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <div className="flex flex-col gap-1.5">
+                <span className="text-sm font-medium">
+                  {t.dailyEntry.nightEatingNoThoughtsLabel}
+                </span>
+                <div className="flex items-end gap-3">
+                  <Textarea
+                    aria-label={t.dailyEntry.nightEatingNoThoughtsLabel}
+                    aria-invalid={
+                      state.errors.nightEatingNoThoughts ? true : undefined
+                    }
+                    placeholder={
+                      t.dailyEntry.nightEatingNoThoughtsFieldPlaceholder
+                    }
+                    className="flex-1"
+                    {...state.register('nightEatingNoThoughts')}
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon-xl"
+                    aria-label={t.dailyEntry.saveNightEatingNoThoughtsLabel}
+                    onClick={state.saveNightEatingNoThoughts}
+                  >
+                    <Check aria-hidden="true" />
+                  </Button>
+                  {state.canCancelNightEatingNoThoughtsEdit && (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon-xl"
+                      aria-label={
+                        t.dailyEntry.cancelEditNightEatingNoThoughtsLabel
+                      }
+                      onClick={state.cancelEditNightEatingNoThoughts}
+                    >
+                      <X aria-hidden="true" />
+                    </Button>
+                  )}
+                </div>
+                {state.errors.nightEatingNoThoughts && (
+                  <p className="text-sm text-destructive">
+                    {state.errors.nightEatingNoThoughts.message}
                   </p>
                 )}
               </div>

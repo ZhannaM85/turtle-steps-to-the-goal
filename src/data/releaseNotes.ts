@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 795,
+    issue: 835,
+    date: '2026-09-10T10:35:00+03:00',
+    en: 'Choosing No on Night food now lets you add whether it was easy and any thoughts — those answers are included in backups and Daily Log exports.',
+    ru: 'Если на карточке «Ночная еда» выбрать Нет, можно отметить, было ли легко, и записать мысли — эти ответы входят в резервные копии и экспорт дневника.',
+  },
+  {
     version: 794,
     issue: 833,
     date: '2026-09-09T12:40:00+03:00',
