@@ -41,4 +41,3 @@ _Dependabot / security follow-ups from the same day as the Vitest 5 and js-yaml 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#848](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/848) | 🔍 Pending validation | Bump sharp override 0.35.3 → 0.35.4 (Dependabot #61) | Override + lockfile bumped; clears GHSA-rgj7-g3m4-5g8c. `sharp` is `@capacitor/assets` transitive (dev-only). |
-| [#849](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/849) | 🔍 Pending validation | Water entries: log drink time on chips + include in export | Auto-stamp HH:MM on quick-add; chip `500мл · 10:15` (2 columns); tap chip to edit time (amount optional); × deletes; CSV/Excel/Markdown/JSON include per-entry time+volume; historical entries without time stay blank. |
