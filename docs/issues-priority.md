@@ -31,3 +31,13 @@ _User asked about pulling data from Apple Health and Zepp Life. Researched via W
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#334](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/334) | 📋 Not started | Epic — Apple Health integration (blocked on mobile app + HealthKit bridge) | HealthKit has no public/cloud API at all — data is on-device only, readable exclusively by a native iOS app (or hybrid app with a HealthKit plugin/entitlement) the user has granted permission to. Genuinely blocked until the mobile app exists; can't be built sooner by any workaround. |
+
+---
+
+## Tier 158 — Live feedback (2026-09-10)
+
+_Night food No-path «What helped?» follow-up._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#842](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/842) | 🔍 Pending validation | Day: Night food No — replace thoughts with What helped? | Replaced No-path thoughts note with «Что помогло?» / «What helped?» (`nightEatingNoWhatHelped`). Historical `nightEatingNoThoughts` left on the old key, not migrated; Daily Log CSV/Excel/Markdown export the new field only. |

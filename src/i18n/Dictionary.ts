@@ -873,13 +873,13 @@ export interface Dictionary {
     saveNightEatingReasonLabel: string
     editNightEatingReasonLabel: string
     cancelEditNightEatingReasonLabel: string
-    /** #835 — Night food No-path follow-ups (not Yes remember/reason). */
+    /** #835 / #842 — Night food No-path follow-ups (not Yes remember/reason). */
     nightEatingNoEasyLabel: string
-    nightEatingNoThoughtsLabel: string
-    nightEatingNoThoughtsFieldPlaceholder: string
-    saveNightEatingNoThoughtsLabel: string
-    editNightEatingNoThoughtsLabel: string
-    cancelEditNightEatingNoThoughtsLabel: string
+    nightEatingNoWhatHelpedLabel: string
+    nightEatingNoWhatHelpedFieldPlaceholder: string
+    saveNightEatingNoWhatHelpedLabel: string
+    editNightEatingNoWhatHelpedLabel: string
+    cancelEditNightEatingNoWhatHelpedLabel: string
     /** #413 — History's own single-button night-eating toggle (unlike
      * Today's two-option ToggleGroup, #406) has no built-in third click
      * state, so a small separate "×" button clears an explicit override
@@ -1469,9 +1469,9 @@ export interface Dictionary {
     nightEatingColumn: (sex?: Sex) => string
     nightEatingRememberColumn: (sex?: Sex) => string
     nightEatingReasonColumn: string
-    /** #835 — Night food No-path columns, same nightEating gate as remember/reason. */
+    /** #835 / #842 — Night food No-path columns, same nightEating gate as remember/reason. */
     nightEatingNoEasyColumn: string
-    nightEatingNoThoughtsColumn: string
+    nightEatingNoWhatHelpedColumn: string
     waterColumn: string
     /** #743 — body composition + day fiber/electrolytes on the Daily Log table. */
     muscleMassColumn: string

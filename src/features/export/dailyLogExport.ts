@@ -255,8 +255,8 @@ function dailyLogColumns(
       gatedBy: 'nightEating',
     },
     {
-      header: t.exportXlsx.nightEatingNoThoughtsColumn,
-      value: (entry) => entry.nightEatingNoThoughts,
+      header: t.exportXlsx.nightEatingNoWhatHelpedColumn,
+      value: (entry) => entry.nightEatingNoWhatHelped,
       gatedBy: 'nightEating',
     },
     {

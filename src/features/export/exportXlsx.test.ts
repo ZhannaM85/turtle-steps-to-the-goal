@@ -121,7 +121,7 @@ describe('buildExportWorkbook', () => {
       'I remember how I ate',
       'Night food reason',
       'Was it easy?',
-      'Night food thoughts',
+      'What helped?',
       'Water (ml)',
       'Muscle (kg)',
       'Visceral fat',

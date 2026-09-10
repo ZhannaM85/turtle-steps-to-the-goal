@@ -204,8 +204,8 @@ export function useDailyEntryFormState({
   const [isEditingNightEatingReason, setIsEditingNightEatingReason] = useState(
     alwaysEditable || !initialValues.nightEatingReason,
   )
-  const [isEditingNightEatingNoThoughts, setIsEditingNightEatingNoThoughts] =
-    useState(alwaysEditable || !initialValues.nightEatingNoThoughts)
+  const [isEditingNightEatingNoWhatHelped, setIsEditingNightEatingNoWhatHelped] =
+    useState(alwaysEditable || !initialValues.nightEatingNoWhatHelped)
   const [isEditingSleep, setIsEditingSleep] = useState(
     alwaysEditable ||
       (initialValues.sleepHours === undefined &&
@@ -342,9 +342,9 @@ export function useDailyEntryFormState({
     control,
     name: 'nightEatingNoEasy',
   })
-  const nightEatingNoThoughts = useWatch({
+  const nightEatingNoWhatHelped = useWatch({
     control,
-    name: 'nightEatingNoThoughts',
+    name: 'nightEatingNoWhatHelped',
   })
   const waterEntries = useWatch({ control, name: 'waterEntries' }) ?? []
   const dayTotals = useWatch({ control, name: 'dayTotals' })
@@ -465,8 +465,8 @@ export function useDailyEntryFormState({
   const showMorningNoteAsDisplay = !alwaysEditable && !isEditingMorningNote
   const showNightEatingReasonAsDisplay =
     !alwaysEditable && !isEditingNightEatingReason
-  const showNightEatingNoThoughtsAsDisplay =
-    !alwaysEditable && !isEditingNightEatingNoThoughts
+  const showNightEatingNoWhatHelpedAsDisplay =
+    !alwaysEditable && !isEditingNightEatingNoWhatHelped
   const showSleepAsDisplay = !alwaysEditable && !isEditingSleep
   const showStepsAsDisplay = !alwaysEditable && !isEditingSteps
   const showBodyMeasurementsAsDisplay =
@@ -493,8 +493,8 @@ export function useDailyEntryFormState({
     alwaysEditable || Boolean(initialValues.morningNote)
   const canCancelNightEatingReasonEdit =
     alwaysEditable || Boolean(initialValues.nightEatingReason)
-  const canCancelNightEatingNoThoughtsEdit =
-    alwaysEditable || Boolean(initialValues.nightEatingNoThoughts)
+  const canCancelNightEatingNoWhatHelpedEdit =
+    alwaysEditable || Boolean(initialValues.nightEatingNoWhatHelped)
   const canCancelSleepEdit = alwaysEditable || hasSavedSleep
   const canDeleteSleep = hasSavedSleep
   const canCancelStepsEdit = alwaysEditable || initialValues.steps !== undefined
@@ -549,10 +549,11 @@ export function useDailyEntryFormState({
       nightEatingReason: noteSchema.safeParse(values.nightEatingReason).success
         ? values.nightEatingReason
         : initialValues.nightEatingReason,
-      nightEatingNoThoughts: noteSchema.safeParse(values.nightEatingNoThoughts)
-        .success
-        ? values.nightEatingNoThoughts
-        : initialValues.nightEatingNoThoughts,
+      nightEatingNoWhatHelped: noteSchema.safeParse(
+        values.nightEatingNoWhatHelped,
+      ).success
+        ? values.nightEatingNoWhatHelped
+        : initialValues.nightEatingNoWhatHelped,
       sleepHours: sleepHoursSchema.safeParse(values.sleepHours).success
         ? values.sleepHours
         : initialValues.sleepHours,
@@ -593,7 +594,14 @@ export function useDailyEntryFormState({
   }
 
   function persist(values: DailyEntryFormValues) {
-    onSave(formValuesToEntry(sanitizeForPersist(values), date, entryIdentity))
+    onSave(
+      formValuesToEntry(
+        sanitizeForPersist(values),
+        date,
+        entryIdentity,
+        existingEntry,
+      ),
+    )
   }
 
   // Saves immediately on tap, same as every other independent field here
@@ -653,23 +661,23 @@ export function useDailyEntryFormState({
     persist({ ...getValues(), nightEatingNoEasy: value })
   }
 
-  function saveNightEatingNoThoughts() {
-    const result = noteSchema.safeParse(getValues('nightEatingNoThoughts'))
+  function saveNightEatingNoWhatHelped() {
+    const result = noteSchema.safeParse(getValues('nightEatingNoWhatHelped'))
     if (!result.success) {
-      setError('nightEatingNoThoughts', {
+      setError('nightEatingNoWhatHelped', {
         message: t.dailyEntry.invalidValueMessage,
       })
       return
     }
-    clearErrors('nightEatingNoThoughts')
-    setIsEditingNightEatingNoThoughts(false)
+    clearErrors('nightEatingNoWhatHelped')
+    setIsEditingNightEatingNoWhatHelped(false)
     persist(getValues())
   }
 
-  function cancelEditNightEatingNoThoughts() {
-    setValue('nightEatingNoThoughts', initialValues.nightEatingNoThoughts)
-    clearErrors('nightEatingNoThoughts')
-    setIsEditingNightEatingNoThoughts(false)
+  function cancelEditNightEatingNoWhatHelped() {
+    setValue('nightEatingNoWhatHelped', initialValues.nightEatingNoWhatHelped)
+    clearErrors('nightEatingNoWhatHelped')
+    setIsEditingNightEatingNoWhatHelped(false)
   }
 
   // #271: each quick-add tap becomes its own removable entry instead of
@@ -1483,12 +1491,12 @@ export function useDailyEntryFormState({
     cancelEditNightEatingReason,
     nightEatingNoEasy,
     setNightEatingNoEasy,
-    nightEatingNoThoughts,
-    showNightEatingNoThoughtsAsDisplay,
-    setIsEditingNightEatingNoThoughts,
-    saveNightEatingNoThoughts,
-    canCancelNightEatingNoThoughtsEdit,
-    cancelEditNightEatingNoThoughts,
+    nightEatingNoWhatHelped,
+    showNightEatingNoWhatHelpedAsDisplay,
+    setIsEditingNightEatingNoWhatHelped,
+    saveNightEatingNoWhatHelped,
+    canCancelNightEatingNoWhatHelpedEdit,
+    cancelEditNightEatingNoWhatHelped,
   }
 }
 

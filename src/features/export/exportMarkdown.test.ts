@@ -8,7 +8,7 @@ const t = getDictionary('en')
 const DAILY_HEADER =
   '| Date | Weight (kg) | Calories (kcal) | Protein (g) | Fat (g) | Carbs (g) | ' +
   'Sleep (h) | Deep sleep (h) | Steps | Waist (cm) | Hip (cm) | Body fat (%) | ' +
-  'Mood | Morning note | Note | On period | Constipation | Alcohol | Ate late tonight | I remember how I ate | Night food reason | Was it easy? | Night food thoughts | Water (ml) | ' +
+  'Mood | Morning note | Note | On period | Constipation | Alcohol | Ate late tonight | I remember how I ate | Night food reason | Was it easy? | What helped? | Water (ml) | ' +
   'Muscle (kg) | Visceral fat | Body water (%) | Bone (kg) | Fiber (g) | ' +
   'Sodium (mg) | Potassium (mg) | Magnesium (mg) |'
 

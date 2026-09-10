@@ -208,7 +208,7 @@ export function DailyEntryFormBottom() {
                   </span>
                   {/* #417 / #437 — auto-growing note + save, and cancel
                    * when there's a saved value to revert to. #840 layout
-                   * lives in NoteEditRow (shared with Night food thoughts). */}
+                   * lives in NoteEditRow (shared with Night food what helped). */}
                   <NoteEditRow
                     textareaProps={{
                       'aria-label': t.dailyEntry.noteLabel,

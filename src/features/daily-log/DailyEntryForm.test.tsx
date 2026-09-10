@@ -3899,6 +3899,9 @@ describe('DailyEntryForm', () => {
         screen.queryByRole('radiogroup', { name: 'Was it easy?' }),
       ).not.toBeInTheDocument()
       expect(
+        screen.queryByRole('textbox', { name: 'What helped?' }),
+      ).not.toBeInTheDocument()
+      expect(
         screen.queryByRole('textbox', { name: 'Any thoughts?' }),
       ).not.toBeInTheDocument()
     })
@@ -3926,7 +3929,7 @@ describe('DailyEntryForm', () => {
       ).not.toBeInTheDocument()
     })
 
-    it('shows No-path follow-ups when No is selected (#835)', () => {
+    it('shows No-path follow-ups when No is selected (#835 / #842)', () => {
       render(
         <DailyEntryForm
           date="2026-03-01"
@@ -3945,8 +3948,11 @@ describe('DailyEntryForm', () => {
         screen.getByRole('radiogroup', { name: 'Was it easy?' }),
       ).toBeInTheDocument()
       expect(
-        screen.getByRole('textbox', { name: 'Any thoughts?' }),
-      ).toBeInTheDocument()
+        screen.getByRole('textbox', { name: 'What helped?' }),
+      ).toHaveAttribute('placeholder', 'What helped you stick with it')
+      expect(
+        screen.queryByRole('textbox', { name: 'Any thoughts?' }),
+      ).not.toBeInTheDocument()
       expect(
         screen.queryByRole('radiogroup', { name: 'I remember how I ate' }),
       ).not.toBeInTheDocument()
@@ -3974,6 +3980,9 @@ describe('DailyEntryForm', () => {
         screen.queryByRole('radiogroup', { name: 'Was it easy?' }),
       ).not.toBeInTheDocument()
       expect(
+        screen.queryByRole('textbox', { name: 'What helped?' }),
+      ).not.toBeInTheDocument()
+      expect(
         screen.queryByRole('textbox', { name: 'Any thoughts?' }),
       ).not.toBeInTheDocument()
     })
@@ -3998,26 +4007,37 @@ describe('DailyEntryForm', () => {
       expect(onSave.mock.calls.at(-1)?.[0].nightEatingNoEasy).toBe(true)
     })
 
-    it('saves No-path thoughts on check (#835)', async () => {
+    it('saves No-path what helped on check without migrating thoughts (#842)', async () => {
       const user = userEvent.setup()
       const onSave = vi.fn()
       render(
-        <DailyEntryForm date="2026-03-01" existingEntry={null} onSave={onSave} />,
+        <DailyEntryForm
+          date="2026-03-01"
+          existingEntry={{
+            id: 'entry-1',
+            date: '2026-03-01',
+            nightEatingOverride: false,
+            nightEatingNoThoughts: 'old thoughts',
+            createdAt: now,
+            updatedAt: now,
+          }}
+          onSave={onSave}
+        />,
       )
 
-      const nightFood = within(
-        screen.getByRole('radiogroup', { name: 'Ate late tonight' }),
-      )
-      await user.click(nightFood.getByRole('radio', { name: 'No' }))
+      expect(screen.queryByText('old thoughts')).not.toBeInTheDocument()
       await user.type(
-        screen.getByRole('textbox', { name: 'Any thoughts?' }),
+        screen.getByRole('textbox', { name: 'What helped?' }),
         'tea helped',
       )
-      await user.click(screen.getByRole('button', { name: 'Save thoughts' }))
+      await user.click(screen.getByRole('button', { name: 'Save what helped' }))
 
       expect(onSave).toHaveBeenCalled()
-      expect(onSave.mock.calls.at(-1)?.[0].nightEatingNoThoughts).toBe(
+      expect(onSave.mock.calls.at(-1)?.[0].nightEatingNoWhatHelped).toBe(
         'tea helped',
+      )
+      expect(onSave.mock.calls.at(-1)?.[0].nightEatingNoThoughts).toBe(
+        'old thoughts',
       )
     })
 

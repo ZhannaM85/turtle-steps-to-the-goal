@@ -22,7 +22,7 @@ export function entryToFormValues(
     nightEatingRemember: entry.nightEatingRemember,
     nightEatingReason: entry.nightEatingReason,
     nightEatingNoEasy: entry.nightEatingNoEasy,
-    nightEatingNoThoughts: entry.nightEatingNoThoughts,
+    nightEatingNoWhatHelped: entry.nightEatingNoWhatHelped,
     waterEntries: entry.waterEntries,
     waistCm: entry.waistCm,
     hipCm: entry.hipCm,
@@ -38,6 +38,7 @@ export function formValuesToEntry(
   values: DailyEntryFormValues,
   date: string,
   identity: { id: string; createdAt: string },
+  existing?: Pick<DailyEntry, 'nightEatingNoThoughts'> | null,
 ): DailyEntry {
   return {
     id: identity.id,
@@ -58,7 +59,9 @@ export function formValuesToEntry(
     nightEatingRemember: values.nightEatingRemember,
     nightEatingReason: values.nightEatingReason,
     nightEatingNoEasy: values.nightEatingNoEasy,
-    nightEatingNoThoughts: values.nightEatingNoThoughts,
+    nightEatingNoWhatHelped: values.nightEatingNoWhatHelped,
+    // #842 — do not migrate or rewrite thoughts; keep whatever was stored.
+    nightEatingNoThoughts: existing?.nightEatingNoThoughts,
     waterEntries: values.waterEntries,
     waistCm: values.waistCm,
     hipCm: values.hipCm,

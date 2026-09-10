@@ -213,8 +213,13 @@ export interface DailyEntry {
   /** #835 — No-path only: was skipping night food easy? Hidden unless
    * `nightEatingOverride === false`. Independent of Yes-path remember/reason. */
   nightEatingNoEasy?: boolean
-  /** #835 — No-path only: free-text thoughts when night food is No. */
+  /** #835 — No-path only: free-text thoughts when night food is No.
+   * #842 stopped writing this from the Day UI and Daily Log exports;
+   * historical values stay under this key and are not migrated. */
   nightEatingNoThoughts?: string
+  /** #842 — No-path only: what helped skip night food. Replaces the
+   * thoughts field in the UI/exports; hidden unless No. */
+  nightEatingNoWhatHelped?: string
   /** Opt-in water/hydration tracking (#258, list shape #271), same gating
    * as onPeriod/hadConstipation above — only ever set when enabled in
    * Settings (`useWaterTrackingStore`). A list of discrete adds rather than

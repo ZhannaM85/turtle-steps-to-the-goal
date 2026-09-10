@@ -62,9 +62,10 @@ export const nightEatingRememberSchema = z
   .enum(['yes', 'partial', 'no'])
   .optional()
 export const nightEatingReasonSchema = noteSchema
-// #835 — Night food No-path follow-ups (easy + thoughts). Hidden unless No.
+// #835 / #842 — Night food No-path follow-ups (easy + what helped).
+// Hidden unless No. Historical `nightEatingNoThoughts` is not a form field.
 export const nightEatingNoEasySchema = z.boolean().optional()
-export const nightEatingNoThoughtsSchema = noteSchema
+export const nightEatingNoWhatHelpedSchema = noteSchema
 // Opt-in water tracking (#258), one discrete add (#271) — same gating
 // shape as onPeriod/hadConstipation above. #282 removed the manual
 // input; #549 restores it alongside the two quick-add buttons.
@@ -118,7 +119,7 @@ export const dailyEntryFormSchema = z.object({
   nightEatingRemember: nightEatingRememberSchema,
   nightEatingReason: nightEatingReasonSchema,
   nightEatingNoEasy: nightEatingNoEasySchema,
-  nightEatingNoThoughts: nightEatingNoThoughtsSchema,
+  nightEatingNoWhatHelped: nightEatingNoWhatHelpedSchema,
   waterEntries: z.array(waterEntrySchema).optional(),
   waistCm: waistCmSchema,
   hipCm: hipCmSchema,

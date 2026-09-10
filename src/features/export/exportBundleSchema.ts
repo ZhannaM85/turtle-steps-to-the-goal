@@ -151,9 +151,12 @@ const dailyEntrySchema = z.object({
   // #818 — Night food remember + reason; purely additive, no version bump.
   nightEatingRemember: z.enum(['yes', 'partial', 'no']).optional(),
   nightEatingReason: z.string().optional(),
-  // #835 — Night food No-path follow-ups; purely additive, no version bump.
+  // #835 / #842 — Night food No-path follow-ups; purely additive, no
+  // version bump. `nightEatingNoThoughts` stays so older backups still
+  // import; new writes/exports use `nightEatingNoWhatHelped`.
   nightEatingNoEasy: z.boolean().optional(),
   nightEatingNoThoughts: z.string().optional(),
+  nightEatingNoWhatHelped: z.string().optional(),
   // Opt-in water tracking (#258, list shape #271) — a list of discrete
   // adds rather than a single running total; see upgradeV6ToV7 in
   // exportActions.ts for the migration from the old waterMl number.

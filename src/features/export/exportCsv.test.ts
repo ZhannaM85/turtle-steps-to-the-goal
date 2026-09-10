@@ -9,7 +9,7 @@ const t = getDictionary('en')
 const DAILY_HEADER =
   'Date,Weight (kg),Calories (kcal),Protein (g),Fat (g),Carbs (g),' +
   'Sleep (h),Deep sleep (h),Steps,Waist (cm),Hip (cm),Body fat (%),' +
-  'Mood,Morning note,Note,On period,Constipation,Alcohol,Ate late tonight,I remember how I ate,Night food reason,Was it easy?,Night food thoughts,Water (ml),' +
+  'Mood,Morning note,Note,On period,Constipation,Alcohol,Ate late tonight,I remember how I ate,Night food reason,Was it easy?,What helped?,Water (ml),' +
   'Muscle (kg),Visceral fat,Body water (%),Bone (kg),Fiber (g),' +
   'Sodium (mg),Potassium (mg),Magnesium (mg)'
 
@@ -128,20 +128,28 @@ describe('buildDailyLogCsv', () => {
     expect(cells[reasonIndex]).toBe('could not sleep')
   })
 
-  it('exports night food No-path easy and thoughts columns (#835)', () => {
+  it('exports night food No-path easy and what-helped columns (#842)', () => {
     const entry = makeEntry({
       nightEatingOverride: false,
       nightEatingNoEasy: true,
-      nightEatingNoThoughts: 'tea helped',
+      nightEatingNoThoughts: 'old thoughts',
+      nightEatingNoWhatHelped: 'tea helped',
     })
     const csv = buildDailyLogCsv([entry], t)
     const [header, row] = dailyTable(csv).split('\r\n')
     const cells = row.split(',')
     const easyIndex = header.split(',').indexOf('Was it easy?')
-    const thoughtsIndex = header.split(',').indexOf('Night food thoughts')
+    const whatHelpedIndex = header.split(',').indexOf('What helped?')
 
+    expect(header.split(',').indexOf('Night food thoughts')).toBe(-1)
     expect(cells[easyIndex]).toBe('Yes')
-    expect(cells[thoughtsIndex]).toBe('tea helped')
+    expect(cells[whatHelpedIndex]).toBe('tea helped')
+    expect(row).not.toContain('old thoughts')
+
+    const ruCsv = buildDailyLogCsv([entry], getDictionary('ru'))
+    const [ruHeader] = dailyTable(ruCsv).split('\r\n')
+    expect(ruHeader).toContain('Что помогло?')
+    expect(ruHeader).not.toContain('Мысли о ночной еде')
   })
 
   it('quotes fields containing a comma and escapes embedded quotes', () => {

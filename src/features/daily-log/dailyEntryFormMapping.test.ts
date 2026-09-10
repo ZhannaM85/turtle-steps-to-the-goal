@@ -125,20 +125,43 @@ describe('formValuesToEntry', () => {
     expect(entryToFormValues(entry).nightEatingReason).toBe('could not sleep')
   })
 
-  it('round-trips night food No-path easy and thoughts (#835)', () => {
+  it('round-trips night food No-path easy and what helped (#842)', () => {
     const entry = formValuesToEntry(
       {
         nightEatingOverride: false,
         nightEatingNoEasy: true,
-        nightEatingNoThoughts: 'tea helped',
+        nightEatingNoWhatHelped: 'tea helped',
       },
       '2026-03-01',
       { id: 'entry-1', createdAt: '2026-03-01T00:00:00.000Z' },
     )
 
     expect(entry.nightEatingNoEasy).toBe(true)
-    expect(entry.nightEatingNoThoughts).toBe('tea helped')
+    expect(entry.nightEatingNoWhatHelped).toBe('tea helped')
+    expect(entry.nightEatingNoThoughts).toBeUndefined()
     expect(entryToFormValues(entry).nightEatingNoEasy).toBe(true)
-    expect(entryToFormValues(entry).nightEatingNoThoughts).toBe('tea helped')
+    expect(entryToFormValues(entry).nightEatingNoWhatHelped).toBe('tea helped')
+  })
+
+  it('preserves historical thoughts under the old key and does not migrate them (#842)', () => {
+    const entry = formValuesToEntry(
+      {
+        nightEatingOverride: false,
+        nightEatingNoWhatHelped: 'walked',
+      },
+      '2026-03-01',
+      { id: 'entry-1', createdAt: '2026-03-01T00:00:00.000Z' },
+      { nightEatingNoThoughts: 'tea helped' },
+    )
+
+    expect(entry.nightEatingNoWhatHelped).toBe('walked')
+    expect(entry.nightEatingNoThoughts).toBe('tea helped')
+    expect(entryToFormValues(entry).nightEatingNoWhatHelped).toBe('walked')
+    expect(
+      Object.prototype.hasOwnProperty.call(
+        entryToFormValues(entry),
+        'nightEatingNoThoughts',
+      ),
+    ).toBe(false)
   })
 })
