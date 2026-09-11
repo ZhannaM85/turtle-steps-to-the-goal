@@ -13,13 +13,15 @@ export interface NoteEditRowProps {
 }
 
 /**
- * Shared Day note-style edit row (#850): auto-growing textarea (#417)
- * plus a **fixed-size** save checkmark and clear ×. The field still floors
- * at 48px so a short note matches the `icon-xl` buttons (#420 / #841), but
- * the buttons stay 48×48 when the textarea grows — they must not stretch
- * with multi-line height. Empty / single-line text (and the placeholder)
- * is padded into that 48px floor so it sits vertically centered; multi-line
- * growth keeps the same padding so the first line doesn’t jump.
+ * Shared Day note-style edit row (#850 / #851): auto-growing textarea
+ * (#417) plus a **fixed-size** save checkmark and clear ×. The field still
+ * floors at 48px so a short note matches the `icon-xl` buttons (#420 /
+ * #841), but the buttons stay 48×48 when the textarea grows — they must
+ * not stretch with multi-line height. The row uses `items-center` so those
+ * fixed buttons sit in the vertical middle of a tall field (#851). Empty /
+ * single-line text (and the placeholder) is padded into that 48px floor so
+ * it sits vertically centered; multi-line growth keeps the same padding so
+ * the first line doesn’t jump.
  *
  * Clear × is always shown (day note, morning note, Night food reason,
  * What helped) so peers stay consistent: discard a draft, or revert a
@@ -35,7 +37,7 @@ export function NoteEditRow({
   const { className: textareaClassName, ...restTextareaProps } = textareaProps
 
   return (
-    <div className="flex items-start gap-3">
+    <div className="flex items-center gap-3">
       <Textarea
         {...restTextareaProps}
         className={cn(

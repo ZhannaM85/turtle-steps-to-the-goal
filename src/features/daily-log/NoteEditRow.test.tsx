@@ -3,8 +3,8 @@ import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
 import { NoteEditRow } from './NoteEditRow'
 
-describe('NoteEditRow (#850)', () => {
-  it('keeps the save and clear controls at a fixed 48px and does not stretch them', () => {
+describe('NoteEditRow (#850 / #851)', () => {
+  it('keeps the save and clear controls at a fixed 48px and centers them on the row', () => {
     render(
       <NoteEditRow
         textareaProps={{ 'aria-label': 'Any thoughts?' }}
@@ -20,8 +20,11 @@ describe('NoteEditRow (#850)', () => {
     const clear = screen.getByRole('button', { name: 'Cancel editing thoughts' })
 
     expect(textarea).toHaveClass('min-h-12', 'py-[11px]', 'leading-6')
-    expect(textarea.parentElement).toHaveClass('items-start')
-    expect(textarea.parentElement).not.toHaveClass('items-stretch')
+    expect(textarea.parentElement).toHaveClass('items-center')
+    expect(textarea.parentElement).not.toHaveClass(
+      'items-start',
+      'items-stretch',
+    )
     expect(save).toHaveClass('size-12')
     expect(save).not.toHaveClass('self-stretch', 'h-auto')
     expect(save).toHaveAttribute('data-size', 'icon-xl')

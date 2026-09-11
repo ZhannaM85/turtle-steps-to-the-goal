@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 806,
+    issue: 851,
+    date: '2026-09-11T10:28:00+03:00',
+    en: 'On Day, the save checkmark and clear × now sit in the middle of a tall note field instead of at the top.',
+    ru: 'На экране «День» галочка сохранения и крестик очистки теперь стоят по середине высокого поля заметки, а не сверху.',
+  },
+  {
     version: 805,
     issue: 850,
     date: '2026-09-11T10:06:00+03:00',
