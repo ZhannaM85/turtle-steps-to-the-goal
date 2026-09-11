@@ -1232,11 +1232,7 @@ export function DailyEntryFormMorning() {
                     saveLabel={t.dailyEntry.saveMorningNoteLabel}
                     onSave={state.saveMorningNote}
                     cancelLabel={t.dailyEntry.cancelEditMorningNoteLabel}
-                    onCancel={
-                      state.canCancelMorningNoteEdit
-                        ? state.cancelEditMorningNote
-                        : undefined
-                    }
+                    onCancel={state.cancelEditMorningNote}
                   />
                   {state.errors.morningNote && (
                     <p className="text-sm text-destructive">

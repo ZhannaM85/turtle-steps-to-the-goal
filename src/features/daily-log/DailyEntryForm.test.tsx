@@ -1839,15 +1839,23 @@ describe('DailyEntryForm', () => {
       expect(input).toHaveValue('line one\nline two')
     })
 
-    describe('leaving edit mode without saving (#437)', () => {
-      it('has no Cancel button for a brand-new note with nothing saved yet', () => {
+    describe('leaving edit mode without saving (#437 / #850)', () => {
+      it('shows a clear × on a brand-new note that empties the draft without leaving edit', async () => {
+        const user = userEvent.setup()
+        const onSave = vi.fn()
         render(
-          <DailyEntryForm date="2026-03-01" existingEntry={null} onSave={vi.fn()} />,
+          <DailyEntryForm date="2026-03-01" existingEntry={null} onSave={onSave} />,
         )
 
-        expect(
-          screen.queryByRole('button', { name: 'Cancel editing note' }),
-        ).not.toBeInTheDocument()
+        const input = screen.getByLabelText("Day's note")
+        await user.type(input, 'draft I do not want')
+        await user.click(
+          screen.getByRole('button', { name: 'Cancel editing note' }),
+        )
+
+        expect(onSave).not.toHaveBeenCalled()
+        expect(input).toHaveValue('')
+        expect(screen.getByLabelText("Day's note")).toBeInTheDocument()
       })
 
       it('discards a typed change and reverts to the saved note', async () => {
@@ -2036,6 +2044,24 @@ describe('DailyEntryForm', () => {
       expect(onSave).not.toHaveBeenCalled()
       expect(screen.getByText('woke up heavy')).toBeInTheDocument()
       expect(screen.queryByLabelText('Morning note')).not.toBeInTheDocument()
+    })
+
+    it('shows a clear × on a brand-new morning note (#850)', async () => {
+      const user = userEvent.setup()
+      const onSave = vi.fn()
+      render(
+        <DailyEntryForm date="2026-03-01" existingEntry={null} onSave={onSave} />,
+      )
+
+      const input = screen.getByLabelText('Morning note')
+      await user.type(input, 'draft')
+      await user.click(
+        screen.getByRole('button', { name: 'Cancel editing morning note' }),
+      )
+
+      expect(onSave).not.toHaveBeenCalled()
+      expect(input).toHaveValue('')
+      expect(screen.getByLabelText('Morning note')).toBeInTheDocument()
     })
   })
 
@@ -4082,6 +4108,121 @@ describe('DailyEntryForm', () => {
       expect(onSave.mock.calls.at(-1)?.[0].nightEatingReason).toBe(
         'could not sleep',
       )
+    })
+
+    it('keeps a fixed-size check and a clear × on What helped (#850)', () => {
+      render(
+        <DailyEntryForm
+          date="2026-03-01"
+          existingEntry={{
+            id: 'entry-1',
+            date: '2026-03-01',
+            nightEatingOverride: false,
+            createdAt: now,
+            updatedAt: now,
+          }}
+          onSave={vi.fn()}
+        />,
+      )
+
+      const save = screen.getByRole('button', { name: 'Save what helped' })
+      const clear = screen.getByRole('button', {
+        name: 'Cancel editing what helped',
+      })
+      expect(save).toHaveAttribute('data-size', 'icon-xl')
+      expect(clear).toHaveAttribute('data-size', 'icon-xl')
+      expect(save).not.toHaveClass('self-stretch')
+      expect(clear).not.toHaveClass('self-stretch')
+    })
+
+    it('keeps a fixed-size check and a clear × on Night food reason (#850)', () => {
+      render(
+        <DailyEntryForm
+          date="2026-03-01"
+          existingEntry={{
+            id: 'entry-1',
+            date: '2026-03-01',
+            nightEatingOverride: true,
+            createdAt: now,
+            updatedAt: now,
+          }}
+          onSave={vi.fn()}
+        />,
+      )
+
+      const save = screen.getByRole('button', { name: 'Save reason' })
+      const clear = screen.getByRole('button', {
+        name: 'Cancel editing reason',
+      })
+      expect(save).toHaveAttribute('data-size', 'icon-xl')
+      expect(clear).toHaveAttribute('data-size', 'icon-xl')
+      expect(save).not.toHaveClass('self-stretch')
+    })
+
+    it('clears an unsaved What helped draft without persisting it (#850)', async () => {
+      const user = userEvent.setup()
+      const onSave = vi.fn()
+      render(
+        <DailyEntryForm
+          date="2026-03-01"
+          existingEntry={{
+            id: 'entry-1',
+            date: '2026-03-01',
+            nightEatingOverride: false,
+            createdAt: now,
+            updatedAt: now,
+          }}
+          onSave={onSave}
+        />,
+      )
+
+      const input = screen.getByRole('textbox', { name: 'What helped?' })
+      await user.type(input, 'tea helped')
+      await user.click(
+        screen.getByRole('button', { name: 'Cancel editing what helped' }),
+      )
+
+      expect(onSave).not.toHaveBeenCalled()
+      expect(input).toHaveValue('')
+      expect(
+        screen.getByRole('textbox', { name: 'What helped?' }),
+      ).toBeInTheDocument()
+    })
+
+    it('reverts What helped to the value saved this session (#850)', async () => {
+      const user = userEvent.setup()
+      const onSave = vi.fn()
+      render(
+        <DailyEntryForm
+          date="2026-03-01"
+          existingEntry={{
+            id: 'entry-1',
+            date: '2026-03-01',
+            nightEatingOverride: false,
+            createdAt: now,
+            updatedAt: now,
+          }}
+          onSave={onSave}
+        />,
+      )
+
+      await user.type(
+        screen.getByRole('textbox', { name: 'What helped?' }),
+        'tea helped',
+      )
+      await user.click(screen.getByRole('button', { name: 'Save what helped' }))
+      await user.click(screen.getByRole('button', { name: 'Edit what helped' }))
+      const input = screen.getByRole('textbox', { name: 'What helped?' })
+      await user.clear(input)
+      await user.type(input, 'changed my mind')
+      await user.click(
+        screen.getByRole('button', { name: 'Cancel editing what helped' }),
+      )
+
+      expect(screen.getByText('tea helped')).toBeInTheDocument()
+      expect(
+        screen.queryByRole('textbox', { name: 'What helped?' }),
+      ).not.toBeInTheDocument()
     })
 
   })

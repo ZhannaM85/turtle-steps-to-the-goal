@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 805,
+    issue: 850,
+    date: '2026-09-11T10:06:00+03:00',
+    en: 'On Day, note fields keep a fixed-size save checkmark as the text grows, and every one has a clear × like the day note.',
+    ru: 'На экране «День» у полей заметки галочка сохранения больше не растягивается вместе с текстом, и у каждого есть крестик очистки, как у «Заметки дня».',
+  },
+  {
     version: 804,
     issue: 849,
     date: '2026-09-10T22:25:00+03:00',

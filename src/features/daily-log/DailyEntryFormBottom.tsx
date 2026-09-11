@@ -206,9 +206,9 @@ export function DailyEntryFormBottom() {
                   <span className="text-sm font-medium">
                     {t.dailyEntry.noteLabel}
                   </span>
-                  {/* #417 / #437 — auto-growing note + save, and cancel
-                   * when there's a saved value to revert to. #840 layout
-                   * lives in NoteEditRow (shared with Night food what helped). */}
+                  {/* #417 / #850 — auto-growing note + fixed-size save
+                   * check and clear ×. Layout lives in NoteEditRow
+                   * (shared with morning note and Night food notes). */}
                   <NoteEditRow
                     textareaProps={{
                       'aria-label': t.dailyEntry.noteLabel,
@@ -219,11 +219,7 @@ export function DailyEntryFormBottom() {
                     saveLabel={t.dailyEntry.saveNoteLabel}
                     onSave={state.saveNote}
                     cancelLabel={t.dailyEntry.cancelEditNoteLabel}
-                    onCancel={
-                      state.canCancelNoteEdit
-                        ? state.cancelEditNote
-                        : undefined
-                    }
+                    onCancel={state.cancelEditNote}
                   />
                   {state.errors.note && (
                     <p className="text-sm text-destructive">

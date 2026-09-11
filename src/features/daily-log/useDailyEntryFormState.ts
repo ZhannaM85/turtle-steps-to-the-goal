@@ -206,6 +206,19 @@ export function useDailyEntryFormState({
   )
   const [isEditingNightEatingNoWhatHelped, setIsEditingNightEatingNoWhatHelped] =
     useState(alwaysEditable || !initialValues.nightEatingNoWhatHelped)
+  // #850 — last successfully saved note-like value this session, so the
+  // always-shown clear × can revert to it (or stay in edit and empty a
+  // draft when nothing has been saved yet). `initialValues` is frozen at
+  // mount; without this, a first-save-then-clear would wipe back to empty.
+  const [savedNote, setSavedNote] = useState(initialValues.note)
+  const [savedMorningNote, setSavedMorningNote] = useState(
+    initialValues.morningNote,
+  )
+  const [savedNightEatingReason, setSavedNightEatingReason] = useState(
+    initialValues.nightEatingReason,
+  )
+  const [savedNightEatingNoWhatHelped, setSavedNightEatingNoWhatHelped] =
+    useState(initialValues.nightEatingNoWhatHelped)
   const [isEditingSleep, setIsEditingSleep] = useState(
     alwaysEditable ||
       (initialValues.sleepHours === undefined &&
@@ -488,13 +501,6 @@ export function useDailyEntryFormState({
   // there has to be an actual saved value to delete, regardless of which
   // edit affordance (pencil-toggle vs. always-editable input) is showing it.
   const canDeleteWeight = hasSavedWeight
-  const canCancelNoteEdit = alwaysEditable || Boolean(initialValues.note)
-  const canCancelMorningNoteEdit =
-    alwaysEditable || Boolean(initialValues.morningNote)
-  const canCancelNightEatingReasonEdit =
-    alwaysEditable || Boolean(initialValues.nightEatingReason)
-  const canCancelNightEatingNoWhatHelpedEdit =
-    alwaysEditable || Boolean(initialValues.nightEatingNoWhatHelped)
   const canCancelSleepEdit = alwaysEditable || hasSavedSleep
   const canDeleteSleep = hasSavedSleep
   const canCancelStepsEdit = alwaysEditable || initialValues.steps !== undefined
@@ -646,14 +652,17 @@ export function useDailyEntryFormState({
       return
     }
     clearErrors('nightEatingReason')
+    setSavedNightEatingReason(result.data)
     setIsEditingNightEatingReason(false)
     persist(getValues())
   }
 
   function cancelEditNightEatingReason() {
-    setValue('nightEatingReason', initialValues.nightEatingReason)
-    clearErrors('nightEatingReason')
-    setIsEditingNightEatingReason(false)
+    cancelNoteLikeEdit(
+      'nightEatingReason',
+      savedNightEatingReason,
+      setIsEditingNightEatingReason,
+    )
   }
 
   function setNightEatingNoEasy(value: boolean | undefined) {
@@ -670,14 +679,17 @@ export function useDailyEntryFormState({
       return
     }
     clearErrors('nightEatingNoWhatHelped')
+    setSavedNightEatingNoWhatHelped(result.data)
     setIsEditingNightEatingNoWhatHelped(false)
     persist(getValues())
   }
 
   function cancelEditNightEatingNoWhatHelped() {
-    setValue('nightEatingNoWhatHelped', initialValues.nightEatingNoWhatHelped)
-    clearErrors('nightEatingNoWhatHelped')
-    setIsEditingNightEatingNoWhatHelped(false)
+    cancelNoteLikeEdit(
+      'nightEatingNoWhatHelped',
+      savedNightEatingNoWhatHelped,
+      setIsEditingNightEatingNoWhatHelped,
+    )
   }
 
   // #271: each quick-add tap becomes its own removable entry instead of
@@ -871,16 +883,28 @@ export function useDailyEntryFormState({
       return
     }
     clearErrors('note')
+    setSavedNote(result.data)
     setIsEditingNote(false)
     persist(getValues())
   }
 
-  // #437 — same #424 Cancel-without-saving affordance, extended to the day
-  // note (the two other fields, weight/sleep/etc., already got this).
+  // #850 — NoteEditRow always shows ×. Revert to the last saved value;
+  // stay in edit (cleared draft) when nothing has been saved yet so we
+  // don't flip to an empty display pill (#437 / #620).
+  function cancelNoteLikeEdit(
+    field: 'note' | 'morningNote' | 'nightEatingReason' | 'nightEatingNoWhatHelped',
+    saved: string | undefined,
+    setEditing: (editing: boolean) => void,
+  ) {
+    setValue(field, saved)
+    clearErrors(field)
+    if (alwaysEditable || Boolean(saved)) {
+      setEditing(false)
+    }
+  }
+
   function cancelEditNote() {
-    setValue('note', initialValues.note)
-    clearErrors('note')
-    setIsEditingNote(false)
+    cancelNoteLikeEdit('note', savedNote, setIsEditingNote)
   }
 
   function saveMorningNote() {
@@ -890,14 +914,13 @@ export function useDailyEntryFormState({
       return
     }
     clearErrors('morningNote')
+    setSavedMorningNote(result.data)
     setIsEditingMorningNote(false)
     persist(getValues())
   }
 
   function cancelEditMorningNote() {
-    setValue('morningNote', initialValues.morningNote)
-    clearErrors('morningNote')
-    setIsEditingMorningNote(false)
+    cancelNoteLikeEdit('morningNote', savedMorningNote, setIsEditingMorningNote)
   }
 
   function saveSleep() {
@@ -1470,14 +1493,12 @@ export function useDailyEntryFormState({
     showNoteAsDisplay,
     setIsEditingNote,
     saveNote,
-    canCancelNoteEdit,
     cancelEditNote,
     // Morning note (#763)
     morningNote,
     showMorningNoteAsDisplay,
     setIsEditingMorningNote,
     saveMorningNote,
-    canCancelMorningNoteEdit,
     cancelEditMorningNote,
     // Mood
     dayEmotion,
@@ -1507,7 +1528,6 @@ export function useDailyEntryFormState({
     showNightEatingReasonAsDisplay,
     setIsEditingNightEatingReason,
     saveNightEatingReason,
-    canCancelNightEatingReasonEdit,
     cancelEditNightEatingReason,
     nightEatingNoEasy,
     setNightEatingNoEasy,
@@ -1515,7 +1535,6 @@ export function useDailyEntryFormState({
     showNightEatingNoWhatHelpedAsDisplay,
     setIsEditingNightEatingNoWhatHelped,
     saveNightEatingNoWhatHelped,
-    canCancelNightEatingNoWhatHelpedEdit,
     cancelEditNightEatingNoWhatHelped,
   }
 }

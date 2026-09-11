@@ -159,11 +159,7 @@ export function DailyEntryFormNightFood() {
                   saveLabel={t.dailyEntry.saveNightEatingReasonLabel}
                   onSave={state.saveNightEatingReason}
                   cancelLabel={t.dailyEntry.cancelEditNightEatingReasonLabel}
-                  onCancel={
-                    state.canCancelNightEatingReasonEdit
-                      ? state.cancelEditNightEatingReason
-                      : undefined
-                  }
+                  onCancel={state.cancelEditNightEatingReason}
                 />
                 {state.errors.nightEatingReason && (
                   <p className="text-sm text-destructive">
@@ -249,11 +245,7 @@ export function DailyEntryFormNightFood() {
                   cancelLabel={
                     t.dailyEntry.cancelEditNightEatingNoWhatHelpedLabel
                   }
-                  onCancel={
-                    state.canCancelNightEatingNoWhatHelpedEdit
-                      ? state.cancelEditNightEatingNoWhatHelped
-                      : undefined
-                  }
+                  onCancel={state.cancelEditNightEatingNoWhatHelped}
                 />
                 {state.errors.nightEatingNoWhatHelped && (
                   <p className="text-sm text-destructive">

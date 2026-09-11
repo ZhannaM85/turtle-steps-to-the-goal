@@ -8,19 +8,22 @@ export interface NoteEditRowProps {
   textareaProps: ComponentProps<typeof Textarea>
   saveLabel: string
   onSave: () => void
-  cancelLabel?: string
-  onCancel?: () => void
+  cancelLabel: string
+  onCancel: () => void
 }
 
 /**
- * Shared Day note-style edit row (#840 / #841): auto-growing textarea (#417)
- * plus save checkmark (and optional cancel X). Same-row-same-height (#420):
- * the field floors at 48px so a short note matches the action buttons, and
- * the buttons stretch to the field’s height as it grows, with the icons
- * vertically centered (`icon-stretch`). Empty / single-line text (and the
- * placeholder) is padded into that 48px floor so it sits vertically
- * centered; multi-line growth keeps the same padding so the first line
- * doesn’t jump and the stretch checkmark still tracks the field.
+ * Shared Day note-style edit row (#850): auto-growing textarea (#417)
+ * plus a **fixed-size** save checkmark and clear ×. The field still floors
+ * at 48px so a short note matches the `icon-xl` buttons (#420 / #841), but
+ * the buttons stay 48×48 when the textarea grows — they must not stretch
+ * with multi-line height. Empty / single-line text (and the placeholder)
+ * is padded into that 48px floor so it sits vertically centered; multi-line
+ * growth keeps the same padding so the first line doesn’t jump.
+ *
+ * Clear × is always shown (day note, morning note, Night food reason,
+ * What helped) so peers stay consistent: discard a draft, or revert a
+ * saved note.
  */
 export function NoteEditRow({
   textareaProps,
@@ -32,7 +35,7 @@ export function NoteEditRow({
   const { className: textareaClassName, ...restTextareaProps } = textareaProps
 
   return (
-    <div className="flex items-stretch gap-3">
+    <div className="flex items-start gap-3">
       <Textarea
         {...restTextareaProps}
         className={cn(
@@ -45,23 +48,21 @@ export function NoteEditRow({
       <Button
         type="button"
         variant="outline"
-        size="icon-stretch"
+        size="icon-xl"
         aria-label={saveLabel}
         onClick={onSave}
       >
         <Check aria-hidden="true" />
       </Button>
-      {onCancel && cancelLabel && (
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon-stretch"
-          aria-label={cancelLabel}
-          onClick={onCancel}
-        >
-          <X aria-hidden="true" />
-        </Button>
-      )}
+      <Button
+        type="button"
+        variant="ghost"
+        size="icon-xl"
+        aria-label={cancelLabel}
+        onClick={onCancel}
+      >
+        <X aria-hidden="true" />
+      </Button>
     </div>
   )
 }

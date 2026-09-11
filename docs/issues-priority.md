@@ -41,3 +41,13 @@ _Dependabot / security follow-ups from the same day as the Vitest 5 and js-yaml 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#848](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/848) | 🔍 Pending validation | Bump sharp override 0.35.3 → 0.35.4 (Dependabot #61) | Override + lockfile bumped; clears GHSA-rgj7-g3m4-5g8c. `sharp` is `@capacitor/assets` transitive (dev-only). |
+
+---
+
+## Tier 159 — Live feedback (2026-09-11)
+
+_Day note/input + check controls: fixed-size checkmark and clear × everywhere._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#850](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/850) | 🔍 Pending validation | Note+check inputs: fixed-size checkmark + clear × everywhere (like day note) | Shared `NoteEditRow` now uses fixed `icon-xl` check/× (no stretch with multi-line height) and always shows ×. Wired on Day note, morning note, Night food reason, and What helped. × clears an unsaved draft or reverts a saved note. |

@@ -3,29 +3,34 @@ import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
 import { NoteEditRow } from './NoteEditRow'
 
-describe('NoteEditRow (#840)', () => {
-  it('matches the textarea and save button at the 48px floor and stretches together', () => {
+describe('NoteEditRow (#850)', () => {
+  it('keeps the save and clear controls at a fixed 48px and does not stretch them', () => {
     render(
       <NoteEditRow
         textareaProps={{ 'aria-label': 'Any thoughts?' }}
         saveLabel="Save thoughts"
         onSave={() => {}}
+        cancelLabel="Cancel editing thoughts"
+        onCancel={() => {}}
       />,
     )
 
     const textarea = screen.getByRole('textbox', { name: 'Any thoughts?' })
     const save = screen.getByRole('button', { name: 'Save thoughts' })
+    const clear = screen.getByRole('button', { name: 'Cancel editing thoughts' })
 
     expect(textarea).toHaveClass('min-h-12', 'py-[11px]', 'leading-6')
-    expect(textarea.parentElement).toHaveClass('items-stretch')
-    expect(save).toHaveClass('h-auto', 'min-h-12', 'w-12', 'self-stretch')
-    expect(save).toHaveAttribute('data-size', 'icon-stretch')
-    expect(
-      screen.queryByRole('button', { name: 'Cancel' }),
-    ).not.toBeInTheDocument()
+    expect(textarea.parentElement).toHaveClass('items-start')
+    expect(textarea.parentElement).not.toHaveClass('items-stretch')
+    expect(save).toHaveClass('size-12')
+    expect(save).not.toHaveClass('self-stretch', 'h-auto')
+    expect(save).toHaveAttribute('data-size', 'icon-xl')
+    expect(clear).toHaveClass('size-12')
+    expect(clear).not.toHaveClass('self-stretch', 'h-auto')
+    expect(clear).toHaveAttribute('data-size', 'icon-xl')
   })
 
-  it('shows a matching cancel control when provided', async () => {
+  it('always shows a clear × next to save', async () => {
     const user = userEvent.setup()
     const onSave = vi.fn()
     const onCancel = vi.fn()
@@ -40,17 +45,16 @@ describe('NoteEditRow (#840)', () => {
       />,
     )
 
-    const cancel = screen.getByRole('button', { name: 'Cancel editing note' })
-    expect(cancel).toHaveClass('h-auto', 'min-h-12', 'w-12', 'self-stretch')
-    expect(cancel).toHaveAttribute('data-size', 'icon-stretch')
+    const clear = screen.getByRole('button', { name: 'Cancel editing note' })
+    expect(clear).toHaveAttribute('data-size', 'icon-xl')
 
     await user.click(screen.getByRole('button', { name: 'Save note' }))
-    await user.click(cancel)
+    await user.click(clear)
     expect(onSave).toHaveBeenCalledTimes(1)
     expect(onCancel).toHaveBeenCalledTimes(1)
   })
 
-  it('keeps the stretch save control when centering a single-line empty note (#841)', () => {
+  it('keeps the fixed save control when centering a single-line empty note (#841)', () => {
     render(
       <NoteEditRow
         textareaProps={{
@@ -59,6 +63,8 @@ describe('NoteEditRow (#840)', () => {
         }}
         saveLabel="Save note"
         onSave={() => {}}
+        cancelLabel="Cancel editing note"
+        onCancel={() => {}}
       />,
     )
 
@@ -67,7 +73,7 @@ describe('NoteEditRow (#840)', () => {
 
     expect(textarea).toHaveAttribute('placeholder', 'How was the day?')
     expect(textarea).toHaveClass('min-h-12', 'py-[11px]', 'leading-6')
-    expect(save).toHaveClass('h-auto', 'min-h-12', 'w-12', 'self-stretch')
-    expect(save).toHaveAttribute('data-size', 'icon-stretch')
+    expect(save).toHaveClass('size-12')
+    expect(save).toHaveAttribute('data-size', 'icon-xl')
   })
 })
