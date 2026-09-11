@@ -223,6 +223,21 @@ export function useDailyEntryFormState({
   )
   const [savedNightEatingNoWhatHelped, setSavedNightEatingNoWhatHelped] =
     useState(initialValues.nightEatingNoWhatHelped)
+  // #855 — confirm-before-delete for note-like fields and steps (Weight
+  // already has its own isConfirmingDeleteWeight).
+  const [isConfirmingDeleteNote, setIsConfirmingDeleteNote] = useState(false)
+  const [isConfirmingDeleteMorningNote, setIsConfirmingDeleteMorningNote] =
+    useState(false)
+  const [isConfirmingDeleteNightEatingReason, setIsConfirmingDeleteNightEatingReason] =
+    useState(false)
+  const [
+    isConfirmingDeleteNightEatingNoWhatHelped,
+    setIsConfirmingDeleteNightEatingNoWhatHelped,
+  ] = useState(false)
+  const [isConfirmingDeleteSteps, setIsConfirmingDeleteSteps] = useState(false)
+  // Live "anything saved" flag so Delete appears after the first save of
+  // the day without waiting for a remount (#672 / #855).
+  const [savedSteps, setSavedSteps] = useState(initialValues.steps)
   const [isEditingSleep, setIsEditingSleep] = useState(
     alwaysEditable ||
       (initialValues.sleepHours === undefined &&
@@ -507,7 +522,14 @@ export function useDailyEntryFormState({
   const canDeleteWeight = hasSavedWeight
   const canCancelSleepEdit = alwaysEditable || hasSavedSleep
   const canDeleteSleep = hasSavedSleep
-  const canCancelStepsEdit = alwaysEditable || initialValues.steps !== undefined
+  const canCancelStepsEdit = alwaysEditable || savedSteps !== undefined
+  const canDeleteSteps = savedSteps !== undefined
+  const canDeleteNote = Boolean(savedNote)
+  const canDeleteMorningNote = Boolean(savedMorningNote)
+  const canDeleteNightEatingReason = Boolean(savedNightEatingReason)
+  const canDeleteNightEatingNoWhatHelped = Boolean(
+    savedNightEatingNoWhatHelped,
+  )
   const canCancelBodyMeasurementsEdit =
     alwaysEditable || hasSavedBodyMeasurements
   const canDeleteBodyMeasurements = hasSavedBodyMeasurements
@@ -605,6 +627,22 @@ export function useDailyEntryFormState({
     onSave(
       formValuesToEntry(
         sanitizeForPersist(values),
+        date,
+        entryIdentity,
+        existingEntry,
+      ),
+    )
+  }
+
+  // #855 — persistableText (#854) would restore lastSaved when the draft
+  // is blank, so a real delete must override those fields after sanitize.
+  function persistWithCleared(
+    values: DailyEntryFormValues,
+    cleared: Partial<DailyEntryFormValues>,
+  ) {
+    onSave(
+      formValuesToEntry(
+        { ...sanitizeForPersist(values), ...cleared },
         date,
         entryIdentity,
         existingEntry,
@@ -928,6 +966,98 @@ export function useDailyEntryFormState({
     cancelNoteLikeEdit('morningNote', savedMorningNote, setIsEditingMorningNote)
   }
 
+  type NoteLikeField =
+    | 'note'
+    | 'morningNote'
+    | 'nightEatingReason'
+    | 'nightEatingNoWhatHelped'
+
+  function confirmDeleteNoteLikeField(
+    field: NoteLikeField,
+    setSaved: (value: string | undefined) => void,
+    setEditing: (editing: boolean) => void,
+    setConfirming: (confirming: boolean) => void,
+  ) {
+    setSaved(undefined)
+    setConfirming(false)
+    const next = { ...getValues(), [field]: undefined }
+    reset(next)
+    persistWithCleared(next, { [field]: undefined })
+    setEditing(true)
+  }
+
+  function requestDeleteNote() {
+    setIsConfirmingDeleteNote(true)
+  }
+
+  function cancelDeleteNote() {
+    setIsConfirmingDeleteNote(false)
+    cancelEditNote()
+  }
+
+  function confirmDeleteNote() {
+    confirmDeleteNoteLikeField(
+      'note',
+      setSavedNote,
+      setIsEditingNote,
+      setIsConfirmingDeleteNote,
+    )
+  }
+
+  function requestDeleteMorningNote() {
+    setIsConfirmingDeleteMorningNote(true)
+  }
+
+  function cancelDeleteMorningNote() {
+    setIsConfirmingDeleteMorningNote(false)
+    cancelEditMorningNote()
+  }
+
+  function confirmDeleteMorningNote() {
+    confirmDeleteNoteLikeField(
+      'morningNote',
+      setSavedMorningNote,
+      setIsEditingMorningNote,
+      setIsConfirmingDeleteMorningNote,
+    )
+  }
+
+  function requestDeleteNightEatingReason() {
+    setIsConfirmingDeleteNightEatingReason(true)
+  }
+
+  function cancelDeleteNightEatingReason() {
+    setIsConfirmingDeleteNightEatingReason(false)
+    cancelEditNightEatingReason()
+  }
+
+  function confirmDeleteNightEatingReason() {
+    confirmDeleteNoteLikeField(
+      'nightEatingReason',
+      setSavedNightEatingReason,
+      setIsEditingNightEatingReason,
+      setIsConfirmingDeleteNightEatingReason,
+    )
+  }
+
+  function requestDeleteNightEatingNoWhatHelped() {
+    setIsConfirmingDeleteNightEatingNoWhatHelped(true)
+  }
+
+  function cancelDeleteNightEatingNoWhatHelped() {
+    setIsConfirmingDeleteNightEatingNoWhatHelped(false)
+    cancelEditNightEatingNoWhatHelped()
+  }
+
+  function confirmDeleteNightEatingNoWhatHelped() {
+    confirmDeleteNoteLikeField(
+      'nightEatingNoWhatHelped',
+      setSavedNightEatingNoWhatHelped,
+      setIsEditingNightEatingNoWhatHelped,
+      setIsConfirmingDeleteNightEatingNoWhatHelped,
+    )
+  }
+
   function saveSleep() {
     const sleepHoursValue = combineHoursMinutes(
       sleepHoursPart,
@@ -1064,13 +1194,35 @@ export function useDailyEntryFormState({
     clearErrors('steps')
     setIsEditingSteps(false)
     persist(getValues())
+    setSavedSteps(result.data)
   }
 
   // #424
   function cancelEditSteps() {
-    setValue('steps', initialValues.steps)
+    setValue('steps', savedSteps)
     clearErrors('steps')
-    setIsEditingSteps(false)
+    if (alwaysEditable || savedSteps !== undefined) {
+      setIsEditingSteps(false)
+    }
+  }
+
+  function requestDeleteSteps() {
+    setIsConfirmingDeleteSteps(true)
+  }
+
+  function cancelDeleteSteps() {
+    setIsConfirmingDeleteSteps(false)
+    cancelEditSteps()
+  }
+
+  function confirmDeleteSteps() {
+    const next = { ...getValues(), steps: undefined }
+    reset(next)
+    persist(next)
+    setIsConfirmingDeleteSteps(false)
+    clearErrors('steps')
+    setIsEditingSteps(true)
+    setSavedSteps(undefined)
   }
 
   function saveBodyMeasurements() {
@@ -1475,6 +1627,11 @@ export function useDailyEntryFormState({
     saveSteps,
     canCancelStepsEdit,
     cancelEditSteps,
+    isConfirmingDeleteSteps,
+    canDeleteSteps,
+    requestDeleteSteps,
+    confirmDeleteSteps,
+    cancelDeleteSteps,
     // Body measurements
     waistCm,
     hipCm,
@@ -1514,12 +1671,22 @@ export function useDailyEntryFormState({
     setIsEditingNote,
     saveNote,
     cancelEditNote,
+    canDeleteNote,
+    isConfirmingDeleteNote,
+    requestDeleteNote,
+    confirmDeleteNote,
+    cancelDeleteNote,
     // Morning note (#763)
     morningNote,
     showMorningNoteAsDisplay,
     setIsEditingMorningNote,
     saveMorningNote,
     cancelEditMorningNote,
+    canDeleteMorningNote,
+    isConfirmingDeleteMorningNote,
+    requestDeleteMorningNote,
+    confirmDeleteMorningNote,
+    cancelDeleteMorningNote,
     // Mood
     dayEmotion,
     saveMood,
@@ -1549,6 +1716,11 @@ export function useDailyEntryFormState({
     setIsEditingNightEatingReason,
     saveNightEatingReason,
     cancelEditNightEatingReason,
+    canDeleteNightEatingReason,
+    isConfirmingDeleteNightEatingReason,
+    requestDeleteNightEatingReason,
+    confirmDeleteNightEatingReason,
+    cancelDeleteNightEatingReason,
     nightEatingNoEasy,
     setNightEatingNoEasy,
     nightEatingNoWhatHelped,
@@ -1556,6 +1728,11 @@ export function useDailyEntryFormState({
     setIsEditingNightEatingNoWhatHelped,
     saveNightEatingNoWhatHelped,
     cancelEditNightEatingNoWhatHelped,
+    canDeleteNightEatingNoWhatHelped,
+    isConfirmingDeleteNightEatingNoWhatHelped,
+    requestDeleteNightEatingNoWhatHelped,
+    confirmDeleteNightEatingNoWhatHelped,
+    cancelDeleteNightEatingNoWhatHelped,
   }
 }
 

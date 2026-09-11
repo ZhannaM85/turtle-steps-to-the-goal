@@ -190,9 +190,9 @@ describe('CustomMetricLogSection', () => {
     const noteInput = await screen.findByLabelText('Note')
     await user.clear(noteInput)
     await user.type(noteInput, 'a change I want to discard')
-    await user.click(
-      screen.getByRole('button', { name: 'Cancel editing note' }),
-    )
+    await user.click(screen.getByRole('button', { name: 'Delete note' }))
+    expect(screen.getByText('Delete this entry?')).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Cancel' }))
 
     expect(await screen.findByText('felt strong')).toBeInTheDocument()
     expect(
@@ -325,6 +325,74 @@ describe('CustomMetricLogSection', () => {
     ).toBeDisabled()
     const entries = await db.customMetricEntries.toArray()
     expect(entries[0].note).toBeUndefined()
+  })
+
+  it('deletes a saved custom-metric note after confirm (#855)', async () => {
+    await db.customMetrics.put({
+      id: 'metric-1',
+      name: 'Push-ups',
+      inputKind: 'number',
+      createdAt: '2026-01-01T00:00:00.000Z',
+    })
+    await db.customMetricEntries.put({
+      id: 'entry-1',
+      metricId: 'metric-1',
+      date: '2026-03-01',
+      value: 20,
+      note: 'felt strong',
+      updatedAt: '2026-01-01T00:00:00.000Z',
+    })
+    const user = userEvent.setup()
+    render(<CustomMetricLogSection date="2026-03-01" />)
+
+    await user.click(await screen.findByRole('button', { name: 'Delete note' }))
+    expect(screen.getByText('Delete this entry?')).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Cancel' }))
+    expect(await screen.findByText('felt strong')).toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: 'Delete note' }))
+    await user.click(screen.getByRole('button', { name: 'Delete' }))
+
+    await waitFor(async () => {
+      const entries = await db.customMetricEntries.toArray()
+      expect(entries[0].note).toBeUndefined()
+      expect(entries[0].value).toBe(20)
+    })
+    expect(screen.getByRole('button', { name: 'Add note' })).toBeInTheDocument()
+  })
+
+  it('deletes a saved custom-metric value after confirm (#855)', async () => {
+    await db.customMetrics.put({
+      id: 'metric-1',
+      name: 'Push-ups',
+      inputKind: 'number',
+      createdAt: '2026-01-01T00:00:00.000Z',
+    })
+    await db.customMetricEntries.put({
+      id: 'entry-1',
+      metricId: 'metric-1',
+      date: '2026-03-01',
+      value: 20,
+      note: 'felt strong',
+      updatedAt: '2026-01-01T00:00:00.000Z',
+    })
+    const user = userEvent.setup()
+    render(<CustomMetricLogSection date="2026-03-01" />)
+
+    await user.click(await screen.findByRole('button', { name: 'Delete value' }))
+    expect(screen.getByText('Delete this entry?')).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Cancel' }))
+    expect(await screen.findByLabelText('Push-ups')).toHaveValue('20')
+
+    await user.click(screen.getByRole('button', { name: 'Delete value' }))
+    await user.click(screen.getByRole('button', { name: 'Delete' }))
+
+    await waitFor(async () => {
+      const entries = await db.customMetricEntries.toArray()
+      expect(entries).toHaveLength(0)
+    })
+    expect(screen.getByLabelText('Push-ups')).toHaveValue('')
+    expect(screen.queryByText('felt strong')).not.toBeInTheDocument()
   })
 
   it('wraps metrics in a bordered collapsible with a collapsed logged/total summary (#478)', async () => {

@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 810,
+    issue: 855,
+    date: '2026-09-11T18:35:04+03:00',
+    en: 'On Day, you can delete a saved note, steps, or custom metric value after confirming. Cancel leaves it as it was.',
+    ru: 'На экране «День» сохранённую заметку, шаги или значение своей метрики можно удалить после подтверждения. Отмена оставляет всё как было.',
+  },
+  {
     version: 809,
     issue: 854,
     date: '2026-09-11T18:25:00+03:00',

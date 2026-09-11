@@ -1135,12 +1135,64 @@ describe('DailyEntryForm', () => {
         const input = screen.getByLabelText('Steps')
         await user.clear(input)
         await user.type(input, '99999')
-        await user.click(
-          screen.getByRole('button', { name: 'Cancel editing steps' }),
-        )
+        await user.click(screen.getByRole('button', { name: 'Delete steps' }))
+        expect(screen.getByText('Delete this entry?')).toBeInTheDocument()
+        await user.click(screen.getByRole('button', { name: 'Cancel' }))
 
         expect(onSave).not.toHaveBeenCalled()
         expect(screen.getByText('6,000')).toBeInTheDocument()
+      })
+    })
+
+    describe('deleting steps (#855)', () => {
+      it('asks for confirmation before deleting, and does nothing on Cancel', async () => {
+        const user = userEvent.setup()
+        const onSave = vi.fn()
+        render(
+          <DailyEntryForm
+            date="2026-03-01"
+            existingEntry={{
+              id: 'e1',
+              date: '2026-03-01',
+              steps: 6000,
+              createdAt: now,
+              updatedAt: now,
+            }}
+            onSave={onSave}
+          />,
+        )
+
+        await user.click(screen.getByRole('button', { name: 'Delete steps' }))
+        expect(screen.getByText('Delete this entry?')).toBeInTheDocument()
+        await user.click(screen.getByRole('button', { name: 'Cancel' }))
+
+        expect(onSave).not.toHaveBeenCalled()
+        expect(screen.getByText('6,000')).toBeInTheDocument()
+      })
+
+      it('clears the saved step count on confirm', async () => {
+        const user = userEvent.setup()
+        const onSave = vi.fn()
+        render(
+          <DailyEntryForm
+            date="2026-03-01"
+            existingEntry={{
+              id: 'e1',
+              date: '2026-03-01',
+              steps: 6000,
+              createdAt: now,
+              updatedAt: now,
+            }}
+            onSave={onSave}
+          />,
+        )
+
+        await user.click(screen.getByRole('button', { name: 'Delete steps' }))
+        await user.click(screen.getByRole('button', { name: 'Delete' }))
+
+        expect(onSave).toHaveBeenCalledTimes(1)
+        expect(onSave.mock.calls[0][0].steps).toBeUndefined()
+        expect(screen.getByLabelText('Steps')).toHaveValue('')
       })
     })
   })
@@ -1850,7 +1902,7 @@ describe('DailyEntryForm', () => {
       expect(screen.getByLabelText("Day's note")).toBeInTheDocument()
     })
 
-    it('keeps × able to revert a saved note after the field is cleared (#854)', async () => {
+    it('keeps × able to restore a saved note after the field is cleared (#854 / #855)', async () => {
       const user = userEvent.setup()
       const onSave = vi.fn()
       render(
@@ -1870,9 +1922,9 @@ describe('DailyEntryForm', () => {
       await user.click(screen.getByRole('button', { name: 'Edit note' }))
       await user.clear(screen.getByLabelText("Day's note"))
       expect(screen.getByRole('button', { name: 'Save note' })).toBeDisabled()
-      await user.click(
-        screen.getByRole('button', { name: 'Cancel editing note' }),
-      )
+      await user.click(screen.getByRole('button', { name: 'Delete note' }))
+      expect(screen.getByText('Delete this entry?')).toBeInTheDocument()
+      await user.click(screen.getByRole('button', { name: 'Cancel' }))
 
       expect(onSave).not.toHaveBeenCalled()
       expect(screen.getByText('felt good')).toBeInTheDocument()
@@ -1964,15 +2016,67 @@ describe('DailyEntryForm', () => {
         const input = screen.getByLabelText("Day's note")
         await user.clear(input)
         await user.type(input, 'a change I want to discard')
-        await user.click(
-          screen.getByRole('button', { name: 'Cancel editing note' }),
-        )
+        await user.click(screen.getByRole('button', { name: 'Delete note' }))
+        expect(screen.getByText('Delete this entry?')).toBeInTheDocument()
+        await user.click(screen.getByRole('button', { name: 'Cancel' }))
 
         expect(onSave).not.toHaveBeenCalled()
         expect(screen.getByText('felt good')).toBeInTheDocument()
         expect(
           screen.queryByLabelText("Day's note"),
         ).not.toBeInTheDocument()
+      })
+    })
+
+    describe('deleting a saved note (#855)', () => {
+      it('asks for confirmation before deleting, and does nothing on Cancel', async () => {
+        const user = userEvent.setup()
+        const onSave = vi.fn()
+        render(
+          <DailyEntryForm
+            date="2026-03-01"
+            existingEntry={{
+              id: 'e1',
+              date: '2026-03-01',
+              note: 'felt good',
+              createdAt: now,
+              updatedAt: now,
+            }}
+            onSave={onSave}
+          />,
+        )
+
+        await user.click(screen.getByRole('button', { name: 'Delete note' }))
+        expect(screen.getByText('Delete this entry?')).toBeInTheDocument()
+        await user.click(screen.getByRole('button', { name: 'Cancel' }))
+
+        expect(onSave).not.toHaveBeenCalled()
+        expect(screen.getByText('felt good')).toBeInTheDocument()
+      })
+
+      it('clears the saved note on confirm and reopens an empty editor', async () => {
+        const user = userEvent.setup()
+        const onSave = vi.fn()
+        render(
+          <DailyEntryForm
+            date="2026-03-01"
+            existingEntry={{
+              id: 'e1',
+              date: '2026-03-01',
+              note: 'felt good',
+              createdAt: now,
+              updatedAt: now,
+            }}
+            onSave={onSave}
+          />,
+        )
+
+        await user.click(screen.getByRole('button', { name: 'Delete note' }))
+        await user.click(screen.getByRole('button', { name: 'Delete' }))
+
+        expect(onSave).toHaveBeenCalledTimes(1)
+        expect(onSave.mock.calls[0][0].note).toBeUndefined()
+        expect(screen.getByLabelText("Day's note")).toHaveValue('')
       })
     })
 
@@ -2116,20 +2220,49 @@ describe('DailyEntryForm', () => {
         />,
       )
 
-      await user.click(
-        screen.getByRole('button', { name: 'Edit morning note' }),
-      )
-      const input = screen.getByLabelText('Morning note')
-      await user.clear(input)
-      await user.type(input, 'a change I want to discard')
-      await user.click(
-        screen.getByRole('button', { name: 'Cancel editing morning note' }),
-      )
+        await user.click(
+          screen.getByRole('button', { name: 'Edit morning note' }),
+        )
+        const input = screen.getByLabelText('Morning note')
+        await user.clear(input)
+        await user.type(input, 'a change I want to discard')
+        await user.click(
+          screen.getByRole('button', { name: 'Delete morning note' }),
+        )
+        expect(screen.getByText('Delete this entry?')).toBeInTheDocument()
+        await user.click(screen.getByRole('button', { name: 'Cancel' }))
 
-      expect(onSave).not.toHaveBeenCalled()
-      expect(screen.getByText('woke up heavy')).toBeInTheDocument()
-      expect(screen.queryByLabelText('Morning note')).not.toBeInTheDocument()
-    })
+        expect(onSave).not.toHaveBeenCalled()
+        expect(screen.getByText('woke up heavy')).toBeInTheDocument()
+        expect(screen.queryByLabelText('Morning note')).not.toBeInTheDocument()
+      })
+
+      it('deletes a saved morning note after confirm (#855)', async () => {
+        const user = userEvent.setup()
+        const onSave = vi.fn()
+        render(
+          <DailyEntryForm
+            date="2026-03-01"
+            existingEntry={{
+              id: 'e1',
+              date: '2026-03-01',
+              morningNote: 'woke up heavy',
+              createdAt: now,
+              updatedAt: now,
+            }}
+            onSave={onSave}
+          />,
+        )
+
+        await user.click(
+          screen.getByRole('button', { name: 'Delete morning note' }),
+        )
+        await user.click(screen.getByRole('button', { name: 'Delete' }))
+
+        expect(onSave).toHaveBeenCalledTimes(1)
+        expect(onSave.mock.calls[0][0].morningNote).toBeUndefined()
+        expect(screen.getByLabelText('Morning note')).toHaveValue('')
+      })
 
     it('shows a clear × on a brand-new morning note (#850)', async () => {
       const user = userEvent.setup()
@@ -4357,13 +4490,45 @@ describe('DailyEntryForm', () => {
       await user.clear(input)
       await user.type(input, 'changed my mind')
       await user.click(
-        screen.getByRole('button', { name: 'Cancel editing what helped' }),
+        screen.getByRole('button', { name: 'Delete what helped' }),
       )
+      expect(screen.getByText('Delete this entry?')).toBeInTheDocument()
+      await user.click(screen.getByRole('button', { name: 'Cancel' }))
 
       expect(screen.getByText('tea helped')).toBeInTheDocument()
       expect(
         screen.queryByRole('textbox', { name: 'What helped?' }),
       ).not.toBeInTheDocument()
+    })
+
+    it('deletes a saved What helped after confirm (#855)', async () => {
+      const user = userEvent.setup()
+      const onSave = vi.fn()
+      render(
+        <DailyEntryForm
+          date="2026-03-01"
+          existingEntry={{
+            id: 'entry-1',
+            date: '2026-03-01',
+            nightEatingOverride: false,
+            nightEatingNoWhatHelped: 'tea helped',
+            createdAt: now,
+            updatedAt: now,
+          }}
+          onSave={onSave}
+        />,
+      )
+
+      await user.click(
+        screen.getByRole('button', { name: 'Delete what helped' }),
+      )
+      await user.click(screen.getByRole('button', { name: 'Delete' }))
+
+      expect(onSave).toHaveBeenCalled()
+      expect(onSave.mock.calls.at(-1)?.[0].nightEatingNoWhatHelped).toBeUndefined()
+      expect(screen.getByRole('textbox', { name: 'What helped?' })).toHaveValue(
+        '',
+      )
     })
 
   })

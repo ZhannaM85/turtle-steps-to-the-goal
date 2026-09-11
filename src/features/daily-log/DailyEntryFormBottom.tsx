@@ -1,4 +1,4 @@
-import { Check, ChevronDown, Moon, Pencil, X } from 'lucide-react'
+import { Check, ChevronDown, Moon, Pencil, Trash2, X } from 'lucide-react'
 import { formatNumber } from '@/i18n'
 import { DAY_EMOTIONS } from '@/shared/lib/emotionIcons'
 import { isBlankSaveValue } from '@/shared/lib/isBlankSaveValue'
@@ -16,6 +16,7 @@ import {
   EntryFieldComparisonInfo,
   EntryFieldComparisonLive,
 } from './EntryFieldComparison'
+import { ConfirmDeleteEntryBar } from './ConfirmDeleteEntryBar'
 import { EmotionPicker } from './EmotionPicker'
 import { NoteEditRow } from './NoteEditRow'
 import { useDailyEntryFormStateContext } from './useDailyEntryFormStateContext'
@@ -85,7 +86,17 @@ export function DailyEntryFormBottom() {
         <CollapsibleContent>
           <div className="flex flex-col gap-4 pt-4">
             {state.trackedFields.steps &&
-              (state.showStepsAsDisplay ? (
+              (state.isConfirmingDeleteSteps ? (
+                <div className="flex flex-col gap-1.5">
+                  <span className="text-sm font-medium">
+                    {t.dailyEntry.stepsLabel}
+                  </span>
+                  <ConfirmDeleteEntryBar
+                    onConfirm={state.confirmDeleteSteps}
+                    onCancel={state.cancelDeleteSteps}
+                  />
+                </div>
+              ) : state.showStepsAsDisplay ? (
                 <div className="flex flex-col gap-1.5">
                   <span className="flex items-center gap-1 text-sm font-medium">
                     {t.dailyEntry.stepsLabel}
@@ -103,15 +114,28 @@ export function DailyEntryFormBottom() {
                         ? '—'
                         : formatNumber(state.steps, locale, 0)}
                     </span>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon-xl"
-                      aria-label={t.dailyEntry.editStepsLabel}
-                      onClick={() => state.setIsEditingSteps(true)}
-                    >
-                      <Pencil aria-hidden="true" />
-                    </Button>
+                    <span className="flex shrink-0 items-center gap-1">
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon-xl"
+                        aria-label={t.dailyEntry.editStepsLabel}
+                        onClick={() => state.setIsEditingSteps(true)}
+                      >
+                        <Pencil aria-hidden="true" />
+                      </Button>
+                      {state.canDeleteSteps && (
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon-xl"
+                          aria-label={t.dailyEntry.deleteStepsLabel}
+                          onClick={state.requestDeleteSteps}
+                        >
+                          <Trash2 aria-hidden="true" />
+                        </Button>
+                      )}
+                    </span>
                   </div>
                 </div>
               ) : (
@@ -136,14 +160,23 @@ export function DailyEntryFormBottom() {
                         setValueAs: parseNumberInput,
                       })}
                     />
-                    {/* #424 */}
-                    {state.canCancelStepsEdit && (
+                    {/* #855 — × on a saved value means delete (with confirm);
+                     * × on an unsaved always-editable draft still cancels. */}
+                    {(state.canDeleteSteps || state.canCancelStepsEdit) && (
                       <Button
                         type="button"
                         variant="ghost"
                         size="icon-xl"
-                        aria-label={t.dailyEntry.cancelEditStepsLabel}
-                        onClick={state.cancelEditSteps}
+                        aria-label={
+                          state.canDeleteSteps
+                            ? t.dailyEntry.deleteStepsLabel
+                            : t.dailyEntry.cancelEditStepsLabel
+                        }
+                        onClick={
+                          state.canDeleteSteps
+                            ? state.requestDeleteSteps
+                            : state.cancelEditSteps
+                        }
                       >
                         <X aria-hidden="true" />
                       </Button>
@@ -174,7 +207,17 @@ export function DailyEntryFormBottom() {
               ))}
 
             {state.trackedFields.note &&
-              (state.showNoteAsDisplay ? (
+              (state.isConfirmingDeleteNote ? (
+                <div className="flex flex-col gap-1.5">
+                  <span className="text-sm font-medium">
+                    {t.dailyEntry.noteLabel}
+                  </span>
+                  <ConfirmDeleteEntryBar
+                    onConfirm={state.confirmDeleteNote}
+                    onCancel={state.cancelDeleteNote}
+                  />
+                </div>
+              ) : state.showNoteAsDisplay ? (
                 <div className="flex flex-col gap-1.5">
                   <span className="text-sm font-medium">
                     {t.dailyEntry.noteLabel}
@@ -192,15 +235,28 @@ export function DailyEntryFormBottom() {
                     <span className="flex items-center gap-1.5 text-sm text-foreground">
                       {state.note}
                     </span>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon-xl"
-                      aria-label={t.dailyEntry.editNoteLabel}
-                      onClick={() => state.setIsEditingNote(true)}
-                    >
-                      <Pencil aria-hidden="true" />
-                    </Button>
+                    <span className="flex shrink-0 items-center gap-1">
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon-xl"
+                        aria-label={t.dailyEntry.editNoteLabel}
+                        onClick={() => state.setIsEditingNote(true)}
+                      >
+                        <Pencil aria-hidden="true" />
+                      </Button>
+                      {state.canDeleteNote && (
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon-xl"
+                          aria-label={t.dailyEntry.deleteNoteLabel}
+                          onClick={state.requestDeleteNote}
+                        >
+                          <Trash2 aria-hidden="true" />
+                        </Button>
+                      )}
+                    </span>
                   </div>
                 </div>
               ) : (
@@ -223,6 +279,9 @@ export function DailyEntryFormBottom() {
                     saveDisabled={isBlankSaveValue(state.note)}
                     cancelLabel={t.dailyEntry.cancelEditNoteLabel}
                     onCancel={state.cancelEditNote}
+                    hasSavedValue={state.canDeleteNote}
+                    deleteLabel={t.dailyEntry.deleteNoteLabel}
+                    onDelete={state.requestDeleteNote}
                   />
                   {state.errors.note && (
                     <p className="text-sm text-destructive">

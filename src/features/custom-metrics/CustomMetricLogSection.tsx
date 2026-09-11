@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Check, ChevronDown, Pencil, Plus, X } from 'lucide-react'
+import { Check, ChevronDown, Pencil, Plus, Trash2, X } from 'lucide-react'
 import type { CustomMetric } from '@/domain/customMetric'
 import { useTranslation } from '@/i18n'
 import { isBlankSaveValue } from '@/shared/lib/isBlankSaveValue'
@@ -16,6 +16,7 @@ import {
 } from '@/shared/ui/collapsible'
 import { Input } from '@/shared/ui/input'
 import { ToggleGroup, ToggleGroupItem } from '@/shared/ui/toggle-group'
+import { ConfirmDeleteEntryBar } from '@/features/daily-log/ConfirmDeleteEntryBar'
 
 /** One metric's value-entry row for the given date (#336) — widget shape
  * depends on `metric.inputKind`: a plain number field, a Yes/No toggle
@@ -27,17 +28,20 @@ import { ToggleGroup, ToggleGroupItem } from '@/shared/ui/toggle-group'
 function MetricValueRow({
   metric,
   date,
+  entryId,
   value,
   note,
 }: {
   metric: CustomMetric
   date: string
+  entryId: string | undefined
   value: number | undefined
   note: string | undefined
 }) {
   const t = useTranslation()
   const setEntryValue = useCustomMetricStore((state) => state.setEntryValue)
   const setEntryNote = useCustomMetricStore((state) => state.setEntryNote)
+  const deleteEntry = useCustomMetricStore((state) => state.deleteEntry)
   // Lazy initializer, not a synced useEffect (the React Compiler's
   // react-hooks/set-state-in-effect lint rule flags calling setState
   // directly in an effect body) — the parent keys each row by
@@ -60,6 +64,8 @@ function MetricValueRow({
   // canceled one are otherwise indistinguishable (`note` is `undefined`
   // either way), so without this the editor reopened on every remount.
   const [isEditingNote, setIsEditingNote] = useState(!note && !noteDismissed)
+  const [isConfirmingDeleteNote, setIsConfirmingDeleteNote] = useState(false)
+  const [isConfirmingDeleteValue, setIsConfirmingDeleteValue] = useState(false)
 
   function commitNumber() {
     const parsed = Number(draft)
@@ -86,6 +92,59 @@ function MetricValueRow({
     setIsEditingNote(false)
   }
 
+  function requestDeleteNote() {
+    setIsConfirmingDeleteNote(true)
+  }
+
+  function cancelDeleteNote() {
+    setIsConfirmingDeleteNote(false)
+    cancelEditNote()
+  }
+
+  async function confirmDeleteNote() {
+    await setEntryNote(metric.id, date, '')
+    setIsConfirmingDeleteNote(false)
+    setNoteDraft('')
+    setIsEditingNote(false)
+    dismissNote(dismissalKey)
+  }
+
+  function requestDeleteValue() {
+    setIsConfirmingDeleteValue(true)
+  }
+
+  function cancelDeleteValue() {
+    setIsConfirmingDeleteValue(false)
+  }
+
+  async function confirmDeleteValue() {
+    if (!entryId) return
+    await deleteEntry(entryId)
+    setIsConfirmingDeleteValue(false)
+    setDraft('')
+    setNoteDraft('')
+    setIsEditingNote(true)
+  }
+
+  if (isConfirmingDeleteValue) {
+    return (
+      <div className="flex flex-col gap-2 rounded-lg border border-border px-3 py-2">
+        <span className="text-sm font-medium">
+          {metric.name}
+          {metric.unit && (
+            <span className="text-muted-foreground"> ({metric.unit})</span>
+          )}
+        </span>
+        <ConfirmDeleteEntryBar
+          onConfirm={() => {
+            void confirmDeleteValue()
+          }}
+          onCancel={cancelDeleteValue}
+        />
+      </div>
+    )
+  }
+
   return (
     <div className="flex flex-col gap-2 rounded-lg border border-border px-3 py-2">
       <div className="flex items-center justify-between gap-3">
@@ -95,6 +154,7 @@ function MetricValueRow({
             <span className="text-muted-foreground"> ({metric.unit})</span>
           )}
         </span>
+        <div className="flex items-center gap-1">
         {metric.inputKind === 'number' && (
           <Input
             type="text"
@@ -150,6 +210,18 @@ function MetricValueRow({
             ))}
           </ToggleGroup>
         )}
+        {value !== undefined && (
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon-lg"
+            aria-label={t.customMetrics.deleteValueLabel}
+            onClick={requestDeleteValue}
+          >
+            <X aria-hidden="true" />
+          </Button>
+        )}
+        </div>
       </div>
       {/* #363 — only once a value for this day exists: a note has nowhere
        * to attach to otherwise, since `CustomMetricEntry.value` is required.
@@ -158,8 +230,15 @@ function MetricValueRow({
        * matching the day note's own read/edit-mode toggle. Now mirrors that
        * exactly: an already-saved note reads as plain text with a pencil to
        * reopen it, an unsaved one starts directly in edit mode. */}
-      {value !== undefined && (
-        isEditingNote ? (
+      {value !== undefined &&
+        (isConfirmingDeleteNote ? (
+          <ConfirmDeleteEntryBar
+            onConfirm={() => {
+              void confirmDeleteNote()
+            }}
+            onCancel={cancelDeleteNote}
+          />
+        ) : isEditingNote ? (
           <div className="flex items-center gap-2">
             <Input
               type="text"
@@ -185,20 +264,18 @@ function MetricValueRow({
             >
               <Check aria-hidden="true" />
             </Button>
-            {/* #619 — always shown, including a brand-new note with nothing
-             * saved yet (#437 hid it in that case, since back then there was
-             * no display-mode render to fall back to). `cancelEditNote`
-             * reverts `noteDraft` to `note ?? ''`, landing on the idle
-             * "+ Add note" branch below when nothing was ever saved (#620
-             * fix — that branch used to be the read-mode one, which showed
-             * an empty box + pencil that looked like a blank note had been
-             * saved). */}
+            {/* #619 / #855 — unsaved draft: × clears without confirm.
+             * Saved note: × requests delete, then confirm. */}
             <Button
               type="button"
               variant="ghost"
               size="icon-lg"
-              aria-label={t.customMetrics.cancelEditNoteLabel}
-              onClick={cancelEditNote}
+              aria-label={
+                note
+                  ? t.customMetrics.deleteNoteLabel
+                  : t.customMetrics.cancelEditNoteLabel
+              }
+              onClick={note ? requestDeleteNote : cancelEditNote}
             >
               <X aria-hidden="true" />
             </Button>
@@ -206,15 +283,26 @@ function MetricValueRow({
         ) : note ? (
           <div className="flex min-h-9 items-center justify-between gap-2 rounded-lg bg-muted px-2.5 py-1">
             <span className="text-sm text-foreground">{noteDraft}</span>
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon-lg"
-              aria-label={t.customMetrics.editNoteLabel}
-              onClick={() => setIsEditingNote(true)}
-            >
-              <Pencil aria-hidden="true" />
-            </Button>
+            <span className="flex shrink-0 items-center gap-1">
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon-lg"
+                aria-label={t.customMetrics.editNoteLabel}
+                onClick={() => setIsEditingNote(true)}
+              >
+                <Pencil aria-hidden="true" />
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon-lg"
+                aria-label={t.customMetrics.deleteNoteLabel}
+                onClick={requestDeleteNote}
+              >
+                <Trash2 aria-hidden="true" />
+              </Button>
+            </span>
           </div>
         ) : (
           // #620 — nothing has ever been saved (a fresh note was opened,
@@ -232,8 +320,7 @@ function MetricValueRow({
             <Plus aria-hidden="true" />
             {t.customMetrics.addNoteLabel}
           </Button>
-        )
-      )}
+        ))}
     </div>
   )
 }
@@ -318,6 +405,7 @@ export function CustomMetricLogSection({ date }: { date: string }) {
                   key={`${metric.id}:${date}`}
                   metric={metric}
                   date={date}
+                  entryId={entry?.id}
                   value={entry?.value}
                   note={entry?.note}
                 />

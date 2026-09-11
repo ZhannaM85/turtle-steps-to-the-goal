@@ -12,6 +12,14 @@ export interface NoteEditRowProps {
   onCancel: () => void
   /** #854 — empty / whitespace-only must not save; × still clears/reverts. */
   saveDisabled?: boolean
+  /**
+   * #855 — when a saved value exists, × means delete (parent shows
+   * confirm) rather than only reverting a draft. Unsaved drafts still
+   * use `onCancel` with no confirm.
+   */
+  hasSavedValue?: boolean
+  deleteLabel?: string
+  onDelete?: () => void
 }
 
 /**
@@ -29,8 +37,8 @@ export interface NoteEditRowProps {
  * line doesn’t jump.
  *
  * Clear × is always shown (day note, morning note, Night food reason,
- * What helped) so peers stay consistent: discard a draft, or revert a
- * saved note.
+ * What helped) so peers stay consistent: discard an unsaved draft
+ * immediately, or delete a saved note after confirm (#855).
  */
 export function NoteEditRow({
   textareaProps,
@@ -39,8 +47,12 @@ export function NoteEditRow({
   cancelLabel,
   onCancel,
   saveDisabled = false,
+  hasSavedValue = false,
+  deleteLabel,
+  onDelete,
 }: NoteEditRowProps) {
   const { className: textareaClassName, ...restTextareaProps } = textareaProps
+  const clearIsDelete = hasSavedValue && Boolean(onDelete)
 
   return (
     <div className="flex items-center gap-3">
@@ -77,8 +89,14 @@ export function NoteEditRow({
         type="button"
         variant="ghost"
         size="icon-xl"
-        aria-label={cancelLabel}
-        onClick={onCancel}
+        aria-label={clearIsDelete ? (deleteLabel ?? cancelLabel) : cancelLabel}
+        onClick={() => {
+          if (clearIsDelete) {
+            onDelete?.()
+            return
+          }
+          onCancel()
+        }}
       >
         <X aria-hidden="true" />
       </Button>

@@ -65,6 +65,36 @@ describe('NoteEditRow (#850 / #851 / #852 / #854)', () => {
     expect(onCancel).toHaveBeenCalledTimes(1)
   })
 
+  it('treats × as delete when a saved value exists (#855)', async () => {
+    const user = userEvent.setup()
+    const onSave = vi.fn()
+    const onCancel = vi.fn()
+    const onDelete = vi.fn()
+
+    render(
+      <NoteEditRow
+        textareaProps={{ 'aria-label': "Day's note" }}
+        saveLabel="Save note"
+        onSave={onSave}
+        cancelLabel="Cancel editing note"
+        onCancel={onCancel}
+        hasSavedValue
+        deleteLabel="Delete note"
+        onDelete={onDelete}
+      />,
+    )
+
+    const clear = screen.getByRole('button', { name: 'Delete note' })
+    expect(
+      screen.queryByRole('button', { name: 'Cancel editing note' }),
+    ).not.toBeInTheDocument()
+
+    await user.click(clear)
+    expect(onDelete).toHaveBeenCalledTimes(1)
+    expect(onCancel).not.toHaveBeenCalled()
+    expect(onSave).not.toHaveBeenCalled()
+  })
+
   it('disables save when empty or whitespace-only (#854)', async () => {
     const user = userEvent.setup()
     const onSave = vi.fn()

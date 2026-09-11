@@ -344,6 +344,9 @@ export interface Dictionary {
     cancelEditWeightLabel: string
     cancelEditNoteLabel: string
     cancelEditMorningNoteLabel: string
+    /** #855 — delete a saved day / morning note after confirm. */
+    deleteNoteLabel: string
+    deleteMorningNoteLabel: string
     /** #670 — deletes a logged weight entry (today or any past date) after
      * a confirmation step; reuses the generic `history.confirmDelete*`
      * strings for that step, same as `deleteMealLabel`'s confirm flow. */
@@ -739,6 +742,8 @@ export interface Dictionary {
     saveStepsLabel: string
     /** #424 */
     cancelEditStepsLabel: string
+    /** #855 — delete a saved step count after confirm. */
+    deleteStepsLabel: string
     /** #367 — generic "meals" data-type label, for the MyFitnessPal import
      * field picker. Meals aren't a single pencil-to-edit field the way
      * weight/steps are (they're the existing MealList.tsx flow), so this
@@ -875,6 +880,8 @@ export interface Dictionary {
     saveNightEatingReasonLabel: string
     editNightEatingReasonLabel: string
     cancelEditNightEatingReasonLabel: string
+    /** #855 — delete a saved Night food reason after confirm. */
+    deleteNightEatingReasonLabel: string
     /** #835 / #842 — Night food No-path follow-ups (not Yes remember/reason). */
     nightEatingNoEasyLabel: string
     nightEatingNoWhatHelpedLabel: string
@@ -882,6 +889,8 @@ export interface Dictionary {
     saveNightEatingNoWhatHelpedLabel: string
     editNightEatingNoWhatHelpedLabel: string
     cancelEditNightEatingNoWhatHelpedLabel: string
+    /** #855 — delete a saved What-helped note after confirm. */
+    deleteNightEatingNoWhatHelpedLabel: string
     /** #413 — History's own single-button night-eating toggle (unlike
      * Today's two-option ToggleGroup, #406) has no built-in third click
      * state, so a small separate "×" button clears an explicit override
@@ -2453,6 +2462,10 @@ export interface Dictionary {
     /** #437 — same #424/#437 Cancel-without-saving affordance
      * `t.dailyEntry.cancelEditNoteLabel` already gives the day note. */
     cancelEditNoteLabel: string
+    /** #855 — delete a saved custom-metric note after confirm. */
+    deleteNoteLabel: string
+    /** #855 — delete a saved custom-metric day value after confirm. */
+    deleteValueLabel: string
     /** #620 — trigger for the "nothing logged yet" idle state, reached by
      * canceling a fresh note that was never saved (a real idle state,
      * distinct from the read-mode box above which is only for an actual

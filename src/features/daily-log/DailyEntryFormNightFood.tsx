@@ -1,4 +1,4 @@
-import { ChevronDown, Moon, Pencil } from 'lucide-react'
+import { ChevronDown, Moon, Pencil, Trash2 } from 'lucide-react'
 import { isBlankSaveValue } from '@/shared/lib/isBlankSaveValue'
 import { Button } from '@/shared/ui/button'
 import {
@@ -8,6 +8,7 @@ import {
 } from '@/shared/ui/collapsible'
 import { ToggleGroup, ToggleGroupItem } from '@/shared/ui/toggle-group'
 import { useTodaySectionsCollapseStore } from '@/stores'
+import { ConfirmDeleteEntryBar } from './ConfirmDeleteEntryBar'
 import { NoteEditRow } from './NoteEditRow'
 import { useDailyEntryFormStateContext } from './useDailyEntryFormStateContext'
 
@@ -122,7 +123,17 @@ export function DailyEntryFormNightFood() {
               </ToggleGroup>
             </div>
 
-            {state.showNightEatingReasonAsDisplay ? (
+            {state.isConfirmingDeleteNightEatingReason ? (
+              <div className="flex flex-col gap-1.5">
+                <span className="text-sm font-medium">
+                  {t.dailyEntry.nightEatingReasonLabel}
+                </span>
+                <ConfirmDeleteEntryBar
+                  onConfirm={state.confirmDeleteNightEatingReason}
+                  onCancel={state.cancelDeleteNightEatingReason}
+                />
+              </div>
+            ) : state.showNightEatingReasonAsDisplay ? (
               <div className="flex flex-col gap-1.5">
                 <span className="text-sm font-medium">
                   {t.dailyEntry.nightEatingReasonLabel}
@@ -131,15 +142,28 @@ export function DailyEntryFormNightFood() {
                   <span className="flex items-center gap-1.5 text-sm text-foreground">
                     {state.nightEatingReason}
                   </span>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon-xl"
-                    aria-label={t.dailyEntry.editNightEatingReasonLabel}
-                    onClick={() => state.setIsEditingNightEatingReason(true)}
-                  >
-                    <Pencil aria-hidden="true" />
-                  </Button>
+                  <span className="flex shrink-0 items-center gap-1">
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon-xl"
+                      aria-label={t.dailyEntry.editNightEatingReasonLabel}
+                      onClick={() => state.setIsEditingNightEatingReason(true)}
+                    >
+                      <Pencil aria-hidden="true" />
+                    </Button>
+                    {state.canDeleteNightEatingReason && (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon-xl"
+                        aria-label={t.dailyEntry.deleteNightEatingReasonLabel}
+                        onClick={state.requestDeleteNightEatingReason}
+                      >
+                        <Trash2 aria-hidden="true" />
+                      </Button>
+                    )}
+                  </span>
                 </div>
               </div>
             ) : (
@@ -162,6 +186,9 @@ export function DailyEntryFormNightFood() {
                   saveDisabled={isBlankSaveValue(state.nightEatingReason)}
                   cancelLabel={t.dailyEntry.cancelEditNightEatingReasonLabel}
                   onCancel={state.cancelEditNightEatingReason}
+                  hasSavedValue={state.canDeleteNightEatingReason}
+                  deleteLabel={t.dailyEntry.deleteNightEatingReasonLabel}
+                  onDelete={state.requestDeleteNightEatingReason}
                 />
                 {state.errors.nightEatingReason && (
                   <p className="text-sm text-destructive">
@@ -205,7 +232,17 @@ export function DailyEntryFormNightFood() {
               </ToggleGroup>
             </div>
 
-            {state.showNightEatingNoWhatHelpedAsDisplay ? (
+            {state.isConfirmingDeleteNightEatingNoWhatHelped ? (
+              <div className="flex flex-col gap-1.5">
+                <span className="text-sm font-medium">
+                  {t.dailyEntry.nightEatingNoWhatHelpedLabel}
+                </span>
+                <ConfirmDeleteEntryBar
+                  onConfirm={state.confirmDeleteNightEatingNoWhatHelped}
+                  onCancel={state.cancelDeleteNightEatingNoWhatHelped}
+                />
+              </div>
+            ) : state.showNightEatingNoWhatHelpedAsDisplay ? (
               <div className="flex flex-col gap-1.5">
                 <span className="text-sm font-medium">
                   {t.dailyEntry.nightEatingNoWhatHelpedLabel}
@@ -214,17 +251,36 @@ export function DailyEntryFormNightFood() {
                   <span className="flex items-center gap-1.5 text-sm text-foreground">
                     {state.nightEatingNoWhatHelped}
                   </span>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon-xl"
-                    aria-label={t.dailyEntry.editNightEatingNoWhatHelpedLabel}
-                    onClick={() =>
-                      state.setIsEditingNightEatingNoWhatHelped(true)
-                    }
-                  >
-                    <Pencil aria-hidden="true" />
-                  </Button>
+                  <span className="flex shrink-0 items-center gap-1">
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon-xl"
+                      aria-label={
+                        t.dailyEntry.editNightEatingNoWhatHelpedLabel
+                      }
+                      onClick={() =>
+                        state.setIsEditingNightEatingNoWhatHelped(true)
+                      }
+                    >
+                      <Pencil aria-hidden="true" />
+                    </Button>
+                    {state.canDeleteNightEatingNoWhatHelped && (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon-xl"
+                        aria-label={
+                          t.dailyEntry.deleteNightEatingNoWhatHelpedLabel
+                        }
+                        onClick={
+                          state.requestDeleteNightEatingNoWhatHelped
+                        }
+                      >
+                        <Trash2 aria-hidden="true" />
+                      </Button>
+                    )}
+                  </span>
                 </div>
               </div>
             ) : (
@@ -251,6 +307,11 @@ export function DailyEntryFormNightFood() {
                     t.dailyEntry.cancelEditNightEatingNoWhatHelpedLabel
                   }
                   onCancel={state.cancelEditNightEatingNoWhatHelped}
+                  hasSavedValue={state.canDeleteNightEatingNoWhatHelped}
+                  deleteLabel={
+                    t.dailyEntry.deleteNightEatingNoWhatHelpedLabel
+                  }
+                  onDelete={state.requestDeleteNightEatingNoWhatHelped}
                 />
                 {state.errors.nightEatingNoWhatHelped && (
                   <p className="text-sm text-destructive">

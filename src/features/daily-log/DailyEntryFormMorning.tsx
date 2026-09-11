@@ -24,6 +24,7 @@ import {
   EntryFieldComparisonLive,
 } from './EntryFieldComparison'
 import { NoteEditRow } from './NoteEditRow'
+import { ConfirmDeleteEntryBar } from './ConfirmDeleteEntryBar'
 import { AutoSleepScreenshotFillControl } from './autoSleepScreenshot/AutoSleepScreenshotFillControl'
 import { useDailyEntryFormStateContext } from './useDailyEntryFormStateContext'
 import { ZeppScreenshotFillControl } from './zeppScreenshot/ZeppScreenshotFillControl'
@@ -1196,7 +1197,17 @@ export function DailyEntryFormMorning() {
               ))}
 
             {state.trackedFields.morningNote &&
-              (state.showMorningNoteAsDisplay ? (
+              (state.isConfirmingDeleteMorningNote ? (
+                <div className="flex flex-col gap-1.5">
+                  <span className="text-sm font-medium">
+                    {t.dailyEntry.morningNoteLabel}
+                  </span>
+                  <ConfirmDeleteEntryBar
+                    onConfirm={state.confirmDeleteMorningNote}
+                    onCancel={state.cancelDeleteMorningNote}
+                  />
+                </div>
+              ) : state.showMorningNoteAsDisplay ? (
                 <div className="flex flex-col gap-1.5">
                   <span className="text-sm font-medium">
                     {t.dailyEntry.morningNoteLabel}
@@ -1205,15 +1216,28 @@ export function DailyEntryFormMorning() {
                     <span className="flex items-center gap-1.5 text-sm text-foreground">
                       {state.morningNote}
                     </span>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon-xl"
-                      aria-label={t.dailyEntry.editMorningNoteLabel}
-                      onClick={() => state.setIsEditingMorningNote(true)}
-                    >
-                      <Pencil aria-hidden="true" />
-                    </Button>
+                    <span className="flex shrink-0 items-center gap-1">
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon-xl"
+                        aria-label={t.dailyEntry.editMorningNoteLabel}
+                        onClick={() => state.setIsEditingMorningNote(true)}
+                      >
+                        <Pencil aria-hidden="true" />
+                      </Button>
+                      {state.canDeleteMorningNote && (
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon-xl"
+                          aria-label={t.dailyEntry.deleteMorningNoteLabel}
+                          onClick={state.requestDeleteMorningNote}
+                        >
+                          <Trash2 aria-hidden="true" />
+                        </Button>
+                      )}
+                    </span>
                   </div>
                 </div>
               ) : (
@@ -1235,6 +1259,9 @@ export function DailyEntryFormMorning() {
                     saveDisabled={isBlankSaveValue(state.morningNote)}
                     cancelLabel={t.dailyEntry.cancelEditMorningNoteLabel}
                     onCancel={state.cancelEditMorningNote}
+                    hasSavedValue={state.canDeleteMorningNote}
+                    deleteLabel={t.dailyEntry.deleteMorningNoteLabel}
+                    onDelete={state.requestDeleteMorningNote}
                   />
                   {state.errors.morningNote && (
                     <p className="text-sm text-destructive">
