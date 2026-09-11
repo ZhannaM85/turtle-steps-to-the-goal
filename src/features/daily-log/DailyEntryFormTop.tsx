@@ -512,13 +512,17 @@ export function DailyEntryFormTop() {
                   <Label htmlFor="water-entry-time">
                     {t.dailyEntry.timeEatenLabel}
                   </Label>
-                  <Input
-                    id="water-entry-time"
-                    type="time"
-                    aria-label={t.dailyEntry.timeEatenLabel}
-                    value={editTime}
-                    onChange={(event) => setEditTime(event.target.value)}
-                  />
+                  {/* #856 — NumberInput shell so native time can't outgrow Amount+мл. */}
+                  <div className="relative min-w-0">
+                    <Input
+                      id="water-entry-time"
+                      type="time"
+                      aria-label={t.dailyEntry.timeEatenLabel}
+                      value={editTime}
+                      onChange={(event) => setEditTime(event.target.value)}
+                      className="h-12 w-full max-w-full"
+                    />
+                  </div>
                 </div>
                 <Button type="submit" size="xl" className="w-full">
                   {t.dailyEntry.saveButton}

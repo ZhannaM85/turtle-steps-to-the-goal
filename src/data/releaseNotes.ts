@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 811,
+    issue: 856,
+    date: '2026-09-11T21:41:05+03:00',
+    en: 'On Edit water, the time field is now the same width as the amount field.',
+    ru: 'В окне «Изменить воду» поле времени теперь той же ширины, что и поле количества.',
+  },
+  {
     version: 810,
     issue: 855,
     date: '2026-09-11T18:35:04+03:00',

@@ -4690,6 +4690,14 @@ describe('DailyEntryForm', () => {
 
       await user.click(screen.getByRole('button', { name: 'Edit 500ml entry' }))
       expect(screen.getByRole('heading', { name: 'Edit water' })).toBeInTheDocument()
+      // #856 — Time uses the same standalone field box as Amount (h-12,
+      // full width, capped so the native picker can't outgrow мл).
+      expect(screen.getByLabelText('Amount')).toHaveClass('h-12')
+      expect(screen.getByLabelText('Time')).toHaveClass(
+        'h-12',
+        'w-full',
+        'max-w-full',
+      )
       fireEvent.change(screen.getByLabelText('Time'), {
         target: { value: '07:30' },
       })
