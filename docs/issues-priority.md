@@ -31,13 +31,3 @@ _User asked about pulling data from Apple Health and Zepp Life. Researched via W
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#334](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/334) | 📋 Not started | Epic — Apple Health integration (blocked on mobile app + HealthKit bridge) | HealthKit has no public/cloud API at all — data is on-device only, readable exclusively by a native iOS app (or hybrid app with a HealthKit plugin/entitlement) the user has granted permission to. Genuinely blocked until the mobile app exists; can't be built sooner by any workaround. |
-
----
-
-## Tier 159 — Live feedback (2026-09-11)
-
-_Day note/input + check controls._
-
-| # | Status | Issue | Notes |
-|---|--------|-------|-------|
-| [#856](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/856) | 🔍 Pending validation | Edit water modal: time input width should match quantity | Follow-up: Safari `input[type=time]` intrinsic width. Both fields are one `grid-cols-1` column (`w-full min-w-0`); мл stays an in-field overlay; time resets `-webkit-appearance` and forces `width: 100%` (unlayered `#water-entry-time`). |
