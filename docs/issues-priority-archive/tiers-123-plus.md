@@ -568,6 +568,7 @@ _Night-food No-path follow-ups._
 | [#845](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/845) | ✅ Done | Meal name field should be read-only; set only via template chips | Confirmed on-device 2026-09-10 — meal name is read-only; names only via template chips. |
 | [#846](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/846) | ✅ Done | Upgrade Vitest 4.x → 5.x (deliberate major migration) | Confirmed 2026-09-10 — deployments green; Dependabot #838 superseded and #847 (js-yaml) merged. |
 | [#849](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/849) | ✅ Done | Water entries: log drink time on chips + include in export | Confirmed on-device 2026-09-10 — water chips auto-stamp and show drink time (`500мл · HH:MM`); tap chip to edit time; export includes per-entry time+volume; historical entries without time stay blank. |
+| [#848](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/848) | ✅ Done | Bump sharp override 0.35.3 → 0.35.4 (Dependabot #61) | Confirmed 2026-09-11 — Dependabot alerts clear after the sharp 0.35.4 override. |
 
 ---
 
