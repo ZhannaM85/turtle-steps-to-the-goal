@@ -583,3 +583,4 @@ _Day note/input + check controls: fixed-size checkmark and clear × everywhere._
 | [#855](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/855) | ✅ Done | Day entries: delete option + confirmation modal | Confirmed on-device 2026-09-11 — confirm-before-delete for saved Day entries. |
 | [#854](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/854) | ✅ Done | Block saving empty values on Day input fields (audit all) | Confirmed on-device 2026-09-11 — empty Day field saves are blocked. |
 | [#853](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/853) | ✅ Done | Export missing custom notes on «Свои метрики» | Confirmed on-device 2026-09-11 — custom-metric notes in export (CSV/Excel/Markdown Daily Log). |
+| [#852](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/852) | ✅ Done | Morning note placeholder not vertically balanced in the field | Confirmed on-device 2026-09-11 — note placeholder vertical balance. |

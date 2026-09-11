@@ -40,5 +40,4 @@ _Day note/input + check controls._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#852](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/852) | 🔍 Pending validation | Morning note placeholder not vertically balanced in the field | Same `NoteEditRow` as Day note / Night food notes. Empty fields stay at the 48px floor (auto-grow no longer inflates from a wrapped placeholder); `placeholder:leading-6` + nowrap + `content-center` keep the hint/first line vertically balanced. |
 | [#856](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/856) | 🔍 Pending validation | Edit water modal: time input width should match quantity | Time field uses the same standalone box as Amount+мл (`h-12 w-full max-w-full` in a `min-w-0` wrapper) so the native time control can't outgrow Количество. |
