@@ -31,13 +31,3 @@ _User asked about pulling data from Apple Health and Zepp Life. Researched via W
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#334](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/334) | 📋 Not started | Epic — Apple Health integration (blocked on mobile app + HealthKit bridge) | HealthKit has no public/cloud API at all — data is on-device only, readable exclusively by a native iOS app (or hybrid app with a HealthKit plugin/entitlement) the user has granted permission to. Genuinely blocked until the mobile app exists; can't be built sooner by any workaround. |
-
----
-
-## Tier 159 — Live feedback (2026-09-11)
-
-_Day note/input + check controls: fixed-size checkmark and clear × everywhere._
-
-| # | Status | Issue | Notes |
-|---|--------|-------|-------|
-| [#850](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/850) | 🔍 Pending validation | Note+check inputs: fixed-size checkmark + clear × everywhere (like day note) | Shared `NoteEditRow` now uses fixed `icon-xl` check/× (no stretch with multi-line height) and always shows ×. Wired on Day note, morning note, Night food reason, and What helped. × clears an unsaved draft or reverts a saved note. |
