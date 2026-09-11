@@ -31,13 +31,3 @@ _User asked about pulling data from Apple Health and Zepp Life. Researched via W
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#334](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/334) | 📋 Not started | Epic — Apple Health integration (blocked on mobile app + HealthKit bridge) | HealthKit has no public/cloud API at all — data is on-device only, readable exclusively by a native iOS app (or hybrid app with a HealthKit plugin/entitlement) the user has granted permission to. Genuinely blocked until the mobile app exists; can't be built sooner by any workaround. |
-
----
-
-## Tier 159 — Live feedback (2026-09-11)
-
-_Day note/input + check controls. Closed rows for this day live in the archive; #857 is the remaining open follow-up._
-
-| # | Status | Issue | Notes |
-|---|--------|-------|-------|
-| [#857](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/857) | 🔍 Pending validation | Edit water: vertically center time value in the input | Follow-up to #856 (width kept). `#water-entry-time` is `display: flex; align-items: center` with `padding: 0` / `line-height: normal` on the input and `::-webkit-datetime-edit` / fields-wrapper / `::-webkit-date-and-time-value` so Safari `type="time"` matches Количество. |
