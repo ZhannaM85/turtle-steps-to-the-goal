@@ -41,3 +41,4 @@ _Day note fields: placeholder vertical balance (follow-up to #841 / #850 / #851)
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#852](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/852) | 🔍 Pending validation | Morning note placeholder not vertically balanced in the field | Same `NoteEditRow` as Day note / Night food notes. Empty fields stay at the 48px floor (auto-grow no longer inflates from a wrapped placeholder); `placeholder:leading-6` + nowrap + `content-center` keep the hint/first line vertically balanced. |
+| [#853](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/853) | 🔍 Pending validation | Export missing custom notes on «Свои метрики» | CSV/Excel/Markdown Daily Log now emit a note column next to every custom metric value (`CustomMetricEntry.note`). JSON backup already included `note`; locked with a test. PDF summary stays averages-only (no per-day notes). |

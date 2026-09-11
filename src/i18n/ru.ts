@@ -987,6 +987,7 @@ export const ru: Dictionary = {
     mealReactionColumn: 'Реакция на приём',
     eatingReasonColumn: 'Почему ем',
     itemNoteColumn: 'Заметка к блюду',
+    customMetricNoteColumn: (name) => `${name} (заметка)`,
     mealColumn: 'Приём пищи',
     itemColumn: 'Блюдо',
     brandColumn: 'Бренд',

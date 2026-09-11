@@ -941,6 +941,7 @@ export const en: Dictionary = {
     mealReactionColumn: 'Meal reaction',
     eatingReasonColumn: 'Why eating',
     itemNoteColumn: 'Item note',
+    customMetricNoteColumn: (name) => `${name} note`,
     mealColumn: 'Meal',
     itemColumn: 'Item',
     brandColumn: 'Brand',

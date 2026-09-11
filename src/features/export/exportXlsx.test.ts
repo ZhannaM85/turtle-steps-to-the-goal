@@ -357,4 +357,55 @@ describe('buildExportWorkbook', () => {
       'Goals',
     ])
   })
+
+  it('exports a note column next to every custom metric value (#853)', async () => {
+    const workbook = await buildExportWorkbook(
+      [],
+      [makeEntry()],
+      t,
+      undefined,
+      {
+        customMetrics: [
+          {
+            id: 'm-acne',
+            name: 'Acne',
+            inputKind: 'scale5',
+            createdAt: '2026-01-01T00:00:00.000Z',
+          },
+          {
+            id: 'm-reps',
+            name: 'Reps',
+            inputKind: 'number',
+            unit: 'reps',
+            createdAt: '2026-01-01T00:00:00.000Z',
+          },
+        ],
+        customMetricEntries: [
+          {
+            id: 'e-acne',
+            metricId: 'm-acne',
+            date: '2026-03-01',
+            value: 1,
+            note: 'Прыщей меньше. Посмотрим.',
+            updatedAt: '2026-03-01T00:00:00.000Z',
+          },
+        ],
+      },
+    )
+    const dailyLog = workbook.getWorksheet('Daily Log')!
+    const headers = dailyLog.getRow(1).values as unknown[]
+    const [row] = sheetRows(dailyLog)
+    const acneIdx = headers.indexOf('Acne')
+    const acneNoteIdx = headers.indexOf('Acne note')
+    const repsIdx = headers.indexOf('Reps (reps)')
+    const repsNoteIdx = headers.indexOf('Reps note')
+
+    expect(acneIdx).toBeGreaterThan(0)
+    expect(acneNoteIdx).toBe(acneIdx + 1)
+    expect(repsNoteIdx).toBe(repsIdx + 1)
+    expect(row[acneIdx]).toBe(1)
+    expect(row[acneNoteIdx]).toBe('Прыщей меньше. Посмотрим.')
+    expect(row[repsIdx]).toBeUndefined()
+    expect(row[repsNoteIdx]).toBeUndefined()
+  })
 })

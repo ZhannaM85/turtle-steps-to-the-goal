@@ -1499,6 +1499,8 @@ export interface Dictionary {
     eatingReasonColumn: string
     /** #743 — per-item `CalorieItem.noteText`, distinct from the meal note. */
     itemNoteColumn: string
+    /** #853 — per-day `CustomMetricEntry.note`, one column after each custom metric value. */
+    customMetricNoteColumn: (name: string) => string
     mealColumn: string
     itemColumn: string
     brandColumn: string

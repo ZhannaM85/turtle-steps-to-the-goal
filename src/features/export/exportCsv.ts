@@ -84,7 +84,8 @@ function withNextMorningWeightColumn(
  *
  * #225: waist/hip/body fat columns added alongside sleep/steps.
  * #743: Daily Log also includes body composition, fiber, electrolytes, and
- * custom-metric columns; a second Meals table follows after a blank line
+ * custom-metric columns; #853 adds a note column after each custom-metric
+ * value. A second Meals table follows after a blank line
  * (Excel already had that sheet — CSV/Markdown had been one table only).
  * #849: a third Water table (date, amount, time) follows Meals.
  */

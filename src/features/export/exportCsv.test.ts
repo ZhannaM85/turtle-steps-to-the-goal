@@ -249,8 +249,79 @@ describe('buildDailyLogCsv', () => {
     })
     const [header, row] = dailyTable(csv).split('\r\n')
 
-    expect(header.endsWith(',Acne,Reps (reps)')).toBe(true)
-    expect(row.endsWith(',3,')).toBe(true)
+    expect(header.endsWith(',Acne,Acne note,Reps (reps),Reps note')).toBe(
+      true,
+    )
+    expect(row.endsWith(',3,,,')).toBe(true)
+  })
+
+  it('exports a note column next to every custom metric value (#853)', () => {
+    const csv = buildDailyLogCsv([makeEntry()], t, undefined, {
+      customMetrics: [
+        {
+          id: 'm-acne',
+          name: 'Acne',
+          inputKind: 'scale5',
+          createdAt: '2026-01-01T00:00:00.000Z',
+        },
+        {
+          id: 'm-sleep-quality',
+          name: 'Sleep quality',
+          inputKind: 'scale5',
+          createdAt: '2026-01-01T00:00:00.000Z',
+        },
+        {
+          id: 'm-reps',
+          name: 'Reps',
+          inputKind: 'number',
+          unit: 'reps',
+          createdAt: '2026-01-01T00:00:00.000Z',
+        },
+      ],
+      customMetricEntries: [
+        {
+          id: 'e-acne',
+          metricId: 'm-acne',
+          date: '2026-03-01',
+          value: 1,
+          note: 'Прыщей меньше. Посмотрим.',
+          updatedAt: '2026-03-01T00:00:00.000Z',
+        },
+        {
+          id: 'e-sleep',
+          metricId: 'm-sleep-quality',
+          date: '2026-03-01',
+          value: 4,
+          note: 'Woke once then back to sleep',
+          updatedAt: '2026-03-01T00:00:00.000Z',
+        },
+        {
+          id: 'e-reps',
+          metricId: 'm-reps',
+          date: '2026-03-01',
+          value: 12,
+          updatedAt: '2026-03-01T00:00:00.000Z',
+        },
+      ],
+    })
+    const [header, row] = dailyTable(csv).split('\r\n')
+    const cells = row.split(',')
+
+    expect(
+      header.endsWith(
+        ',Acne,Acne note,Reps (reps),Reps note,Sleep quality,Sleep quality note',
+      ),
+    ).toBe(true)
+    expect(cells[header.split(',').indexOf('Acne')]).toBe('1')
+    expect(cells[header.split(',').indexOf('Acne note')]).toBe(
+      'Прыщей меньше. Посмотрим.',
+    )
+    expect(cells[header.split(',').indexOf('Sleep quality')]).toBe('4')
+    expect(cells[header.split(',').indexOf('Sleep quality note')]).toBe(
+      'Woke once then back to sleep',
+    )
+    expect(cells[header.split(',').indexOf('Reps (reps)')]).toBe('12')
+    expect(cells[header.split(',').indexOf('Reps note')]).toBe('')
   })
 
   it('omits a Daily Log column when its Settings gate is off, even if days have values (#744)', () => {

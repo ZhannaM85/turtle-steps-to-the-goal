@@ -20,7 +20,8 @@ import { formatEatingReasonsLine, type EatingReasonLabelOverrides } from '@/shar
 import { formatSleepDuration } from '@/shared/lib/sleepDuration'
 
 /** #743 — extra collections the daily-log table can project into columns.
- * #744 — optional `tracking` omits columns whose Settings gate is off. */
+ * #744 — optional `tracking` omits columns whose Settings gate is off.
+ * #853 — each custom metric also gets a note column (`CustomMetricEntry.note`). */
 export interface DailyLogExportExtras {
   customMetrics?: CustomMetric[]
   customMetricEntries?: CustomMetricEntry[]
@@ -101,14 +102,31 @@ function sortedCustomMetrics(
   )
 }
 
+function customMetricEntryForDay(
+  metricId: string,
+  date: string,
+  extras?: DailyLogExportExtras,
+): CustomMetricEntry | undefined {
+  return extras?.customMetricEntries?.find(
+    (entry) => entry.metricId === metricId && entry.date === date,
+  )
+}
+
 function customMetricValue(
   metricId: string,
   date: string,
   extras?: DailyLogExportExtras,
 ): number | undefined {
-  return extras?.customMetricEntries?.find(
-    (entry) => entry.metricId === metricId && entry.date === date,
-  )?.value
+  return customMetricEntryForDay(metricId, date, extras)?.value
+}
+
+/** #853 — per-day `CustomMetricEntry.note` for every custom metric, not only one. */
+function customMetricNote(
+  metricId: string,
+  date: string,
+  extras?: DailyLogExportExtras,
+): string | undefined {
+  return customMetricEntryForDay(metricId, date, extras)?.note
 }
 
 function customMetricHeader(metric: CustomMetric): string {
@@ -304,11 +322,18 @@ function dailyLogColumns(
       value: (entry) => totalMagnesium(entry.calorieEntries),
       gatedBy: 'magnesium',
     },
-    ...sortedCustomMetrics(extras).map((metric) => ({
-      header: customMetricHeader(metric),
-      value: (entry: DailyEntry) =>
-        customMetricValue(metric.id, entry.date, extras),
-    })),
+    ...sortedCustomMetrics(extras).flatMap((metric) => [
+      {
+        header: customMetricHeader(metric),
+        value: (entry: DailyEntry) =>
+          customMetricValue(metric.id, entry.date, extras),
+      },
+      {
+        header: t.exportXlsx.customMetricNoteColumn(metric.name),
+        value: (entry: DailyEntry) =>
+          customMetricNote(metric.id, entry.date, extras),
+      },
+    ]),
   ]
   return columns.filter((column) => isIncluded(column, extras?.tracking))
 }

@@ -152,4 +152,40 @@ describe('buildDailyLogMarkdown', () => {
     })
     expect(markdown).not.toContain(t.exportXlsx.nextMorningWeightColumn)
   })
+
+  it('exports a note column next to every custom metric value (#853)', () => {
+    const markdown = buildDailyLogMarkdown([makeEntry()], t, undefined, {
+      customMetrics: [
+        {
+          id: 'm-acne',
+          name: 'Acne',
+          inputKind: 'scale5',
+          createdAt: '2026-01-01T00:00:00.000Z',
+        },
+        {
+          id: 'm-reps',
+          name: 'Reps',
+          inputKind: 'number',
+          unit: 'reps',
+          createdAt: '2026-01-01T00:00:00.000Z',
+        },
+      ],
+      customMetricEntries: [
+        {
+          id: 'e-acne',
+          metricId: 'm-acne',
+          date: '2026-03-01',
+          value: 1,
+          note: 'Прыщей меньше. Посмотрим.',
+          updatedAt: '2026-03-01T00:00:00.000Z',
+        },
+      ],
+    })
+    const [header, , row] = dailyTable(markdown).split('\n')
+
+    expect(header.endsWith('| Acne | Acne note | Reps (reps) | Reps note |')).toBe(
+      true,
+    )
+    expect(row.endsWith('| 1 | Прыщей меньше. Посмотрим. |  |  |')).toBe(true)
+  })
 })

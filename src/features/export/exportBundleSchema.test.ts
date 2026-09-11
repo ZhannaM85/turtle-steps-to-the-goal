@@ -119,4 +119,35 @@ describe('exportBundleSchema', () => {
       ])
     }
   })
+
+  it('keeps a custom metric entry note (#853)', () => {
+    const withNote = {
+      ...validBundle,
+      customMetrics: [
+        {
+          id: 'm-acne',
+          name: 'Acne',
+          inputKind: 'scale5',
+          createdAt: '2026-01-01T00:00:00.000Z',
+        },
+      ],
+      customMetricEntries: [
+        {
+          id: 'e-acne',
+          metricId: 'm-acne',
+          date: '2026-03-01',
+          value: 1,
+          note: 'Прыщей меньше. Посмотрим.',
+          updatedAt: '2026-03-01T00:00:00.000Z',
+        },
+      ],
+    }
+    const parsed = exportBundleSchema.safeParse(withNote)
+    expect(parsed.success).toBe(true)
+    if (parsed.success) {
+      expect(parsed.data.customMetricEntries?.[0]?.note).toBe(
+        'Прыщей меньше. Посмотрим.',
+      )
+    }
+  })
 })

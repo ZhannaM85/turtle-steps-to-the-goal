@@ -46,7 +46,8 @@ function mdTable(
  * notes app or a Markdown-rendering chat tool rather than a spreadsheet.
  *
  * #743: same extra Daily Log columns as CSV/Excel, plus a second Meals
- * table after a blank line. #849: a third Water table follows Meals.
+ * table after a blank line. #853: a note column after each custom-metric
+ * value. #849: a third Water table follows Meals.
  */
 export function buildDailyLogMarkdown(
   dailyEntries: DailyEntry[],

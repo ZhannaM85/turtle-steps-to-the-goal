@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 808,
+    issue: 853,
+    date: '2026-09-11T18:02:00+03:00',
+    en: 'Export now includes the notes you write under each custom metric, next to that metric’s value.',
+    ru: 'Экспорт теперь включает заметки под каждой своей метрикой — рядом со значением этой метрики.',
+  },
+  {
     version: 807,
     issue: 852,
     date: '2026-09-11T17:54:00+03:00',

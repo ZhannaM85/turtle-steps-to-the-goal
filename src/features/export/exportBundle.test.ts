@@ -199,6 +199,28 @@ describe('buildExportBundle', () => {
     expect(bundle.customCorrelations).toEqual(customCorrelations)
   })
 
+  it('keeps per-entry custom metric notes on JSON backup (#853)', () => {
+    const customMetricEntries = [
+      makeCustomMetricEntry({ note: 'Прыщей меньше. Посмотрим.' }),
+    ]
+    const bundle = buildExportBundle(
+      [],
+      [],
+      [],
+      [],
+      [],
+      [makeCustomMetric()],
+      customMetricEntries,
+      [],
+      [],
+      [],
+    )
+
+    expect(bundle.customMetricEntries?.[0]?.note).toBe(
+      'Прыщей меньше. Посмотрим.',
+    )
+  })
+
   it('includes weekly notes (#557)', () => {
     const weeklyNotes = [
       {

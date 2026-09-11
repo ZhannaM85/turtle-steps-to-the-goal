@@ -53,7 +53,8 @@ function columnsFromHeaders(headers: string[]): { header: string; width: number 
  * the library on every Settings page load.
  *
  * #743: Daily Log columns include body composition, fiber, electrolytes,
- * and custom metrics; Meals gained fiber, electrolytes, whole-meal
+ * and custom metrics; #853 adds a note column after each custom-metric
+ * value. Meals gained fiber, electrolytes, whole-meal
  * reaction, and per-item note (meal note stays).
  */
 export async function buildExportWorkbook(
