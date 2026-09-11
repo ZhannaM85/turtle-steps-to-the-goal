@@ -580,3 +580,4 @@ _Day note/input + check controls: fixed-size checkmark and clear × everywhere._
 |---|--------|-------|-------|
 | [#851](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/851) | ✅ Done | NoteEditRow: vertically center check + × (fixed size, no stretch) | Confirmed on-device 2026-09-11 — NoteEditRow check + × vertically centered, fixed size. |
 | [#850](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/850) | ✅ Done | Note+check inputs: fixed-size checkmark + clear × everywhere (like day note) | Confirmed on-device 2026-09-11 — shared NoteEditRow check is fixed-size and × always shows on Day note, morning note, Night food reason, and What helped. |
+| [#855](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/855) | ✅ Done | Day entries: delete option + confirmation modal | Confirmed on-device 2026-09-11 — confirm-before-delete for saved Day entries. |
