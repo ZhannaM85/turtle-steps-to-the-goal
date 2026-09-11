@@ -516,7 +516,9 @@ export function DailyEntryFormTop() {
                   </Label>
                   {/* #856 — Safari input[type=time] ignores width unless
                    * appearance is reset; keep the same full-width box as
-                   * Amount (мл stays an overlay inside NumberInput). */}
+                   * Amount (мл stays an overlay inside NumberInput).
+                   * #857 — flex + leading-normal so the value sits in the
+                   * vertical middle (Safari type=time otherwise sits high). */}
                   <div className="relative w-full min-w-0">
                     <Input
                       id="water-entry-time"
@@ -524,7 +526,7 @@ export function DailyEntryFormTop() {
                       aria-label={t.dailyEntry.timeEatenLabel}
                       value={editTime}
                       onChange={(event) => setEditTime(event.target.value)}
-                      className="block h-12 w-full min-w-0 max-w-full appearance-none [-webkit-appearance:none]"
+                      className="flex h-12 w-full min-w-0 max-w-full items-center appearance-none leading-normal [-webkit-appearance:none]"
                     />
                   </div>
                 </div>

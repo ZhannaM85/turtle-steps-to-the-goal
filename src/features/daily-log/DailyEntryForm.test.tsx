@@ -4692,6 +4692,7 @@ describe('DailyEntryForm', () => {
       expect(screen.getByRole('heading', { name: 'Edit water' })).toBeInTheDocument()
       // #856 — both controls are the same full-width box; мл is overlayed
       // inside Amount; Time resets Safari's intrinsic time-input width.
+      // #857 — Time also flex-centers the value (Safari type=time sits high).
       const dialog = screen.getByRole('dialog')
       expect(screen.getByLabelText('Amount')).toHaveClass(
         'h-12',
@@ -4705,6 +4706,9 @@ describe('DailyEntryForm', () => {
         'min-w-0',
         'max-w-full',
         'appearance-none',
+        'flex',
+        'items-center',
+        'leading-normal',
       )
       expect(within(dialog).getByText('ml')).toBeInTheDocument()
       fireEvent.change(screen.getByLabelText('Time'), {

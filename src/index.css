@@ -596,25 +596,49 @@ html body[data-scroll-locked] {
  * control's intrinsic min-width (menulist-button) and ignores utility
  * `width`. Unlayered + appearance reset so both Edit-water fields share
  * the same used box as Amount+мл.
+ *
+ * #857 — after that appearance reset, WebKit top-aligns the time value
+ * in the h-12 box. Flex + zero padding + normal line-height on the
+ * input and datetime-edit internals match Количество's vertical center.
  */
 #water-entry-amount,
 #water-entry-time {
-  display: block;
   box-sizing: border-box;
   width: 100% !important;
   min-width: 0 !important;
   max-width: 100% !important;
 }
 
+#water-entry-amount {
+  display: block;
+}
+
 #water-entry-time {
+  display: flex;
+  align-items: center;
+  padding-top: 0;
+  padding-bottom: 0;
+  line-height: normal;
   -webkit-appearance: none;
   appearance: none;
 }
 
 #water-entry-time::-webkit-datetime-edit,
 #water-entry-time::-webkit-datetime-edit-fields-wrapper {
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  height: 100%;
   min-width: 0;
   width: 100%;
+  padding: 0;
+  line-height: normal;
+}
+
+#water-entry-time::-webkit-date-and-time-value {
+  margin: 0;
+  padding: 0;
+  line-height: normal;
 }
 
 @layer base {

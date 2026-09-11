@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 812,
+    issue: 857,
+    date: '2026-09-11T23:19:16+03:00',
+    en: 'On Edit water, the time now sits in the middle of the field, like the amount.',
+    ru: 'В окне «Изменить воду» время теперь стоит по середине поля, как количество.',
+  },
+  {
     version: 811,
     issue: 856,
     date: '2026-09-11T22:49:08+03:00',
