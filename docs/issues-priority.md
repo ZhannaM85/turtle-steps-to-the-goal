@@ -40,4 +40,4 @@ _Day note/input + check controls._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#856](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/856) | 🔍 Pending validation | Edit water modal: time input width should match quantity | Time field uses the same standalone box as Amount+мл (`h-12 w-full max-w-full` in a `min-w-0` wrapper) so the native time control can't outgrow Количество. |
+| [#856](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/856) | 🔍 Pending validation | Edit water modal: time input width should match quantity | Follow-up: Safari `input[type=time]` intrinsic width. Both fields are one `grid-cols-1` column (`w-full min-w-0`); мл stays an in-field overlay; time resets `-webkit-appearance` and forces `width: 100%` (unlayered `#water-entry-time`). |

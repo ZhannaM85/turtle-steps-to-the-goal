@@ -39,14 +39,14 @@ export const NumberInput = React.forwardRef<HTMLInputElement, NumberInputProps>(
     const describedBy = [hintId, errorId].filter(Boolean).join(' ') || undefined
 
     return (
-      <div className="flex flex-col gap-1.5">
+      <div className="flex w-full min-w-0 flex-col gap-1.5">
         <div className="flex items-center gap-1.5">
           <Label htmlFor={inputId}>{label}</Label>
           {tooltip && (
             <InfoTooltip text={tooltip} label={tooltipLabel ?? label} />
           )}
         </div>
-        <div className="relative">
+        <div className="relative w-full min-w-0">
           <Input
             ref={ref}
             id={inputId}

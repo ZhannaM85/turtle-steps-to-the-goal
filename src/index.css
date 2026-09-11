@@ -591,6 +591,32 @@ html body[data-scroll-locked] {
   animation: dialog-fade-out 150ms ease-in both;
 }
 
+/*
+ * #856 — Safari / iOS WebKit sizes input[type=time] from the native
+ * control's intrinsic min-width (menulist-button) and ignores utility
+ * `width`. Unlayered + appearance reset so both Edit-water fields share
+ * the same used box as Amount+мл.
+ */
+#water-entry-amount,
+#water-entry-time {
+  display: block;
+  box-sizing: border-box;
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+}
+
+#water-entry-time {
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+#water-entry-time::-webkit-datetime-edit,
+#water-entry-time::-webkit-datetime-edit-fields-wrapper {
+  min-width: 0;
+  width: 100%;
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

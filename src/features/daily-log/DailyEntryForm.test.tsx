@@ -4690,14 +4690,23 @@ describe('DailyEntryForm', () => {
 
       await user.click(screen.getByRole('button', { name: 'Edit 500ml entry' }))
       expect(screen.getByRole('heading', { name: 'Edit water' })).toBeInTheDocument()
-      // #856 — Time uses the same standalone field box as Amount (h-12,
-      // full width, capped so the native picker can't outgrow мл).
-      expect(screen.getByLabelText('Amount')).toHaveClass('h-12')
+      // #856 — both controls are the same full-width box; мл is overlayed
+      // inside Amount; Time resets Safari's intrinsic time-input width.
+      const dialog = screen.getByRole('dialog')
+      expect(screen.getByLabelText('Amount')).toHaveClass(
+        'h-12',
+        'w-full',
+        'min-w-0',
+        'max-w-full',
+      )
       expect(screen.getByLabelText('Time')).toHaveClass(
         'h-12',
         'w-full',
+        'min-w-0',
         'max-w-full',
+        'appearance-none',
       )
+      expect(within(dialog).getByText('ml')).toBeInTheDocument()
       fireEvent.change(screen.getByLabelText('Time'), {
         target: { value: '07:30' },
       })

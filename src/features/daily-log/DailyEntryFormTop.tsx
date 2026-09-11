@@ -495,32 +495,36 @@ export function DailyEntryFormTop() {
                 {t.dailyEntry.editWaterEntryDialogTitle}
               </DialogTitle>
               <form
-                className="flex flex-col gap-3 pt-3"
+                className="grid w-full min-w-0 grid-cols-1 gap-3 pt-3"
                 onSubmit={saveWaterEdit}
               >
                 <NumberInput
+                  id="water-entry-amount"
                   label={t.dailyEntry.waterAmountLabel}
                   unit={t.dailyEntry.mlUnit}
                   value={editAmount}
                   error={editAmountError}
+                  className="w-full min-w-0 max-w-full"
                   onChange={(event) => {
                     setEditAmount(event.target.value)
                     setEditAmountError(undefined)
                   }}
                 />
-                <div className="flex flex-col gap-1.5">
+                <div className="flex w-full min-w-0 flex-col gap-1.5">
                   <Label htmlFor="water-entry-time">
                     {t.dailyEntry.timeEatenLabel}
                   </Label>
-                  {/* #856 — NumberInput shell so native time can't outgrow Amount+мл. */}
-                  <div className="relative min-w-0">
+                  {/* #856 — Safari input[type=time] ignores width unless
+                   * appearance is reset; keep the same full-width box as
+                   * Amount (мл stays an overlay inside NumberInput). */}
+                  <div className="relative w-full min-w-0">
                     <Input
                       id="water-entry-time"
                       type="time"
                       aria-label={t.dailyEntry.timeEatenLabel}
                       value={editTime}
                       onChange={(event) => setEditTime(event.target.value)}
-                      className="h-12 w-full max-w-full"
+                      className="block h-12 w-full min-w-0 max-w-full appearance-none [-webkit-appearance:none]"
                     />
                   </div>
                 </div>
