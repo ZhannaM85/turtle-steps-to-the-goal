@@ -1,7 +1,8 @@
 import { Check, ChevronDown, Pencil, Sun, Trash2, X } from 'lucide-react'
 import { formatExactNumber } from '@/i18n'
-import { splitHoursMinutes } from '@/shared/lib/sleepDuration'
+import { isBlankSaveValue } from '@/shared/lib/isBlankSaveValue'
 import { parseNumberInput } from '@/shared/lib/parseNumberInput'
+import { splitHoursMinutes } from '@/shared/lib/sleepDuration'
 import { Button } from '@/shared/ui/button'
 import {
   Collapsible,
@@ -1231,6 +1232,7 @@ export function DailyEntryFormMorning() {
                     }}
                     saveLabel={t.dailyEntry.saveMorningNoteLabel}
                     onSave={state.saveMorningNote}
+                    saveDisabled={isBlankSaveValue(state.morningNote)}
                     cancelLabel={t.dailyEntry.cancelEditMorningNoteLabel}
                     onCancel={state.cancelEditMorningNote}
                   />

@@ -1,6 +1,7 @@
 import { Check, ChevronDown, Moon, Pencil, X } from 'lucide-react'
 import { formatNumber } from '@/i18n'
 import { DAY_EMOTIONS } from '@/shared/lib/emotionIcons'
+import { isBlankSaveValue } from '@/shared/lib/isBlankSaveValue'
 import { parseNumberInput } from '@/shared/lib/parseNumberInput'
 import { Button } from '@/shared/ui/button'
 import {
@@ -152,6 +153,7 @@ export function DailyEntryFormBottom() {
                       variant="outline"
                       size="icon-xl"
                       aria-label={t.dailyEntry.saveStepsLabel}
+                      disabled={isBlankSaveValue(state.steps)}
                       onClick={state.saveSteps}
                     >
                       <Check aria-hidden="true" />
@@ -218,6 +220,7 @@ export function DailyEntryFormBottom() {
                     }}
                     saveLabel={t.dailyEntry.saveNoteLabel}
                     onSave={state.saveNote}
+                    saveDisabled={isBlankSaveValue(state.note)}
                     cancelLabel={t.dailyEntry.cancelEditNoteLabel}
                     onCancel={state.cancelEditNote}
                   />

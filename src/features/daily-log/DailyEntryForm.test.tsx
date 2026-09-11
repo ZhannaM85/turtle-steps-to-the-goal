@@ -1038,6 +1038,20 @@ describe('DailyEntryForm', () => {
       expect(screen.getByText('8,500')).toBeInTheDocument()
     })
 
+    it('does not save empty steps as a dash (#854)', () => {
+      const onSave = vi.fn()
+      render(
+        <DailyEntryForm
+          date="2026-03-01"
+          existingEntry={null}
+          onSave={onSave}
+        />,
+      )
+
+      expect(screen.getByRole('button', { name: 'Save steps' })).toBeDisabled()
+      expect(onSave).not.toHaveBeenCalled()
+    })
+
     it('rejects a value above the 20,000/day ceiling and does not save (#68)', async () => {
       const user = userEvent.setup()
       const onSave = vi.fn()
@@ -1153,6 +1167,28 @@ describe('DailyEntryForm', () => {
       expect(onSave.mock.calls[0][0].waistCm).toBe(80)
       expect(onSave.mock.calls[0][0].hipCm).toBe(95)
       expect(screen.getByText('Waist 80cm · Hip 95cm')).toBeInTheDocument()
+    })
+
+    it('rejects an empty Save and does not persist dashes (#854)', async () => {
+      const user = userEvent.setup()
+      const onSave = vi.fn()
+      render(
+        <DailyEntryForm
+          date="2026-03-01"
+          existingEntry={null}
+          onSave={onSave}
+        />,
+      )
+
+      await user.click(
+        screen.getByRole('button', { name: 'Save body measurements' }),
+      )
+
+      expect(await screen.findByText(/Invalid value/)).toBeInTheDocument()
+      expect(onSave).not.toHaveBeenCalled()
+      expect(
+        screen.getByRole('button', { name: 'Save body measurements' }),
+      ).toBeInTheDocument()
     })
 
     it('rejects an out-of-range waist value and does not save', async () => {
@@ -1793,6 +1829,55 @@ describe('DailyEntryForm', () => {
       expect(screen.getByText('felt good')).toBeInTheDocument()
     })
 
+    it('does not save an empty or whitespace-only note (#854)', async () => {
+      const user = userEvent.setup()
+      const onSave = vi.fn()
+      render(
+        <DailyEntryForm
+          date="2026-03-01"
+          existingEntry={null}
+          onSave={onSave}
+        />,
+      )
+
+      const save = screen.getByRole('button', { name: 'Save note' })
+      expect(save).toBeDisabled()
+      expect(onSave).not.toHaveBeenCalled()
+
+      await user.type(screen.getByLabelText("Day's note"), '   ')
+      expect(save).toBeDisabled()
+      expect(onSave).not.toHaveBeenCalled()
+      expect(screen.getByLabelText("Day's note")).toBeInTheDocument()
+    })
+
+    it('keeps × able to revert a saved note after the field is cleared (#854)', async () => {
+      const user = userEvent.setup()
+      const onSave = vi.fn()
+      render(
+        <DailyEntryForm
+          date="2026-03-01"
+          existingEntry={{
+            id: 'e1',
+            date: '2026-03-01',
+            note: 'felt good',
+            createdAt: now,
+            updatedAt: now,
+          }}
+          onSave={onSave}
+        />,
+      )
+
+      await user.click(screen.getByRole('button', { name: 'Edit note' }))
+      await user.clear(screen.getByLabelText("Day's note"))
+      expect(screen.getByRole('button', { name: 'Save note' })).toBeDisabled()
+      await user.click(
+        screen.getByRole('button', { name: 'Cancel editing note' }),
+      )
+
+      expect(onSave).not.toHaveBeenCalled()
+      expect(screen.getByText('felt good')).toBeInTheDocument()
+    })
+
     it('shows an existing note as read-only text with a pencil, editable via a Save button', async () => {
       const user = userEvent.setup()
       const onSave = vi.fn()
@@ -2062,6 +2147,20 @@ describe('DailyEntryForm', () => {
       expect(onSave).not.toHaveBeenCalled()
       expect(input).toHaveValue('')
       expect(screen.getByLabelText('Morning note')).toBeInTheDocument()
+    })
+
+    it('does not save an empty or whitespace-only morning note (#854)', async () => {
+      const user = userEvent.setup()
+      const onSave = vi.fn()
+      render(
+        <DailyEntryForm date="2026-03-01" existingEntry={null} onSave={onSave} />,
+      )
+
+      const save = screen.getByRole('button', { name: 'Save morning note' })
+      expect(save).toBeDisabled()
+      await user.type(screen.getByLabelText('Morning note'), '   ')
+      expect(save).toBeDisabled()
+      expect(onSave).not.toHaveBeenCalled()
     })
   })
 
@@ -4108,6 +4207,48 @@ describe('DailyEntryForm', () => {
       expect(onSave.mock.calls.at(-1)?.[0].nightEatingReason).toBe(
         'could not sleep',
       )
+    })
+
+    it('does not save an empty night food reason (#854)', async () => {
+      const onSave = vi.fn()
+      render(
+        <DailyEntryForm
+          date="2026-03-01"
+          existingEntry={{
+            id: 'entry-1',
+            date: '2026-03-01',
+            nightEatingOverride: true,
+            createdAt: now,
+            updatedAt: now,
+          }}
+          onSave={onSave}
+        />,
+      )
+
+      expect(screen.getByRole('button', { name: 'Save reason' })).toBeDisabled()
+      expect(onSave).not.toHaveBeenCalled()
+    })
+
+    it('does not save an empty What helped (#854)', async () => {
+      const onSave = vi.fn()
+      render(
+        <DailyEntryForm
+          date="2026-03-01"
+          existingEntry={{
+            id: 'entry-1',
+            date: '2026-03-01',
+            nightEatingOverride: false,
+            createdAt: now,
+            updatedAt: now,
+          }}
+          onSave={onSave}
+        />,
+      )
+
+      expect(
+        screen.getByRole('button', { name: 'Save what helped' }),
+      ).toBeDisabled()
+      expect(onSave).not.toHaveBeenCalled()
     })
 
     it('keeps a fixed-size check and a clear × on What helped (#850)', () => {

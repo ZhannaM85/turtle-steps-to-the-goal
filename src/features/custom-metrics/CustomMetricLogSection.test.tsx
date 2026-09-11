@@ -304,7 +304,7 @@ describe('CustomMetricLogSection', () => {
     expect(screen.queryByLabelText('Note')).not.toBeInTheDocument()
   })
 
-  it('does not reopen the note editor on remount after saving a blank note', async () => {
+  it('does not save a blank custom-metric note (#854)', async () => {
     await db.customMetrics.put({
       id: 'metric-1',
       name: 'Push-ups',
@@ -318,22 +318,13 @@ describe('CustomMetricLogSection', () => {
       value: 20,
       updatedAt: '2026-01-01T00:00:00.000Z',
     })
-    const user = userEvent.setup()
-    const { unmount } = render(<CustomMetricLogSection date="2026-03-01" />)
-
-    await user.click(await screen.findByRole('button', { name: 'Save note' }))
-    await waitFor(async () => {
-      const entries = await db.customMetricEntries.toArray()
-      expect(entries[0].note).toBeUndefined()
-    })
-
-    unmount()
     render(<CustomMetricLogSection date="2026-03-01" />)
 
     expect(
-      await screen.findByRole('button', { name: 'Add note' }),
-    ).toBeInTheDocument()
-    expect(screen.queryByLabelText('Note')).not.toBeInTheDocument()
+      await screen.findByRole('button', { name: 'Save note' }),
+    ).toBeDisabled()
+    const entries = await db.customMetricEntries.toArray()
+    expect(entries[0].note).toBeUndefined()
   })
 
   it('wraps metrics in a bordered collapsible with a collapsed logged/total summary (#478)', async () => {

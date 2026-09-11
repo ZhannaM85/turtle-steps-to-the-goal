@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Check, ChevronDown, Pencil, Plus, X } from 'lucide-react'
 import type { CustomMetric } from '@/domain/customMetric'
 import { useTranslation } from '@/i18n'
+import { isBlankSaveValue } from '@/shared/lib/isBlankSaveValue'
 import {
   useCustomMetricNoteDismissalStore,
   useCustomMetricStore,
@@ -67,11 +68,8 @@ function MetricValueRow({
   }
 
   function saveNote() {
+    if (isBlankSaveValue(noteDraft)) return
     setEntryNote(metric.id, date, noteDraft)
-    // #622 — the store normalizes a blank draft to `undefined` (no empty
-    // note rows), same end state as Cancel, so it needs the same dismissal
-    // marker to keep the editor from reopening on the next remount.
-    if (noteDraft.trim() === '') dismissNote(dismissalKey)
     setIsEditingNote(false)
   }
 
@@ -182,6 +180,7 @@ function MetricValueRow({
               variant="outline"
               size="icon-lg"
               aria-label={t.customMetrics.saveNoteLabel}
+              disabled={isBlankSaveValue(noteDraft)}
               onClick={saveNote}
             >
               <Check aria-hidden="true" />

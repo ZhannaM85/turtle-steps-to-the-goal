@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 809,
+    issue: 854,
+    date: '2026-09-11T18:25:00+03:00',
+    en: 'On Day, empty or space-only notes and numbers can no longer be saved with the checkmark. Unused fields can still be left blank.',
+    ru: 'На экране «День» пустую или состоящую только из пробелов заметку или число больше нельзя сохранить галочкой. Незаполненные поля по-прежнему можно оставлять пустыми.',
+  },
+  {
     version: 808,
     issue: 853,
     date: '2026-09-11T18:02:00+03:00',

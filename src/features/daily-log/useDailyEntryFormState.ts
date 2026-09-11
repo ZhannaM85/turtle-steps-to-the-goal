@@ -15,6 +15,10 @@ import {
   formatMacroGrams,
   macrosSummaryTextWithCalories,
 } from '@/shared/lib/macroDisplay'
+import {
+  isBlankSaveValue,
+  persistableText,
+} from '@/shared/lib/isBlankSaveValue'
 import { parseNumberInput } from '@/shared/lib/parseNumberInput'
 import {
   combineHoursMinutes,
@@ -546,20 +550,18 @@ export function useDailyEntryFormState({
       weightKg: weightSchema.safeParse(values.weightKg).success
         ? values.weightKg
         : initialValues.weightKg,
-      note: noteSchema.safeParse(values.note).success
-        ? values.note
-        : initialValues.note,
-      morningNote: noteSchema.safeParse(values.morningNote).success
-        ? values.morningNote
-        : initialValues.morningNote,
-      nightEatingReason: noteSchema.safeParse(values.nightEatingReason).success
-        ? values.nightEatingReason
-        : initialValues.nightEatingReason,
-      nightEatingNoWhatHelped: noteSchema.safeParse(
+      // #854 — never persist empty / whitespace-only notes; fall back to
+      // the last successful save this session rather than writing "".
+      note: persistableText(values.note, savedNote),
+      morningNote: persistableText(values.morningNote, savedMorningNote),
+      nightEatingReason: persistableText(
+        values.nightEatingReason,
+        savedNightEatingReason,
+      ),
+      nightEatingNoWhatHelped: persistableText(
         values.nightEatingNoWhatHelped,
-      ).success
-        ? values.nightEatingNoWhatHelped
-        : initialValues.nightEatingNoWhatHelped,
+        savedNightEatingNoWhatHelped,
+      ),
       sleepHours: sleepHoursSchema.safeParse(values.sleepHours).success
         ? values.sleepHours
         : initialValues.sleepHours,
@@ -644,17 +646,11 @@ export function useDailyEntryFormState({
   }
 
   function saveNightEatingReason() {
-    const result = noteSchema.safeParse(getValues('nightEatingReason'))
-    if (!result.success) {
-      setError('nightEatingReason', {
-        message: t.dailyEntry.invalidValueMessage,
-      })
-      return
-    }
-    clearErrors('nightEatingReason')
-    setSavedNightEatingReason(result.data)
-    setIsEditingNightEatingReason(false)
-    persist(getValues())
+    saveNoteLikeField(
+      'nightEatingReason',
+      setSavedNightEatingReason,
+      setIsEditingNightEatingReason,
+    )
   }
 
   function cancelEditNightEatingReason() {
@@ -671,17 +667,11 @@ export function useDailyEntryFormState({
   }
 
   function saveNightEatingNoWhatHelped() {
-    const result = noteSchema.safeParse(getValues('nightEatingNoWhatHelped'))
-    if (!result.success) {
-      setError('nightEatingNoWhatHelped', {
-        message: t.dailyEntry.invalidValueMessage,
-      })
-      return
-    }
-    clearErrors('nightEatingNoWhatHelped')
-    setSavedNightEatingNoWhatHelped(result.data)
-    setIsEditingNightEatingNoWhatHelped(false)
-    persist(getValues())
+    saveNoteLikeField(
+      'nightEatingNoWhatHelped',
+      setSavedNightEatingNoWhatHelped,
+      setIsEditingNightEatingNoWhatHelped,
+    )
   }
 
   function cancelEditNightEatingNoWhatHelped() {
@@ -799,7 +789,8 @@ export function useDailyEntryFormState({
     // clear it: it used to fall through to `persist()` and flip the field to
     // its read-only display, which then rendered `formatExactNumber(undefined)`
     // (Intl formats that as literal "NaN"/"не число") instead of being blocked.
-    if (!result.success || result.data === undefined) {
+    // #854 — same blank-save guard as notes/steps (`isBlankSaveValue`).
+    if (!result.success || isBlankSaveValue(result.data)) {
       setError('weightKg', { message: t.dailyEntry.invalidValueMessage })
       setPendingUnusualWeight(null)
       return
@@ -876,16 +867,34 @@ export function useDailyEntryFormState({
     setHasSavedWeight(false)
   }
 
-  function saveNote() {
-    const result = noteSchema.safeParse(getValues('note'))
+  // #854 — shared NoteEditRow save path: refuse empty / whitespace-only;
+  // × (`cancelNoteLikeEdit`) still reverts or empties a draft.
+  function saveNoteLikeField(
+    field:
+      | 'note'
+      | 'morningNote'
+      | 'nightEatingReason'
+      | 'nightEatingNoWhatHelped',
+    setSaved: (value: string | undefined) => void,
+    setEditing: (editing: boolean) => void,
+  ) {
+    const raw = getValues(field)
+    if (isBlankSaveValue(raw)) return
+    const trimmed = typeof raw === 'string' ? raw.trim() : raw
+    const result = noteSchema.safeParse(trimmed)
     if (!result.success) {
-      setError('note', { message: t.dailyEntry.invalidValueMessage })
+      setError(field, { message: t.dailyEntry.invalidValueMessage })
       return
     }
-    clearErrors('note')
-    setSavedNote(result.data)
-    setIsEditingNote(false)
-    persist(getValues())
+    clearErrors(field)
+    setValue(field, result.data, { shouldDirty: true })
+    setSaved(result.data)
+    setEditing(false)
+    persist({ ...getValues(), [field]: result.data })
+  }
+
+  function saveNote() {
+    saveNoteLikeField('note', setSavedNote, setIsEditingNote)
   }
 
   // #850 — NoteEditRow always shows ×. Revert to the last saved value;
@@ -908,15 +917,11 @@ export function useDailyEntryFormState({
   }
 
   function saveMorningNote() {
-    const result = noteSchema.safeParse(getValues('morningNote'))
-    if (!result.success) {
-      setError('morningNote', { message: t.dailyEntry.invalidValueMessage })
-      return
-    }
-    clearErrors('morningNote')
-    setSavedMorningNote(result.data)
-    setIsEditingMorningNote(false)
-    persist(getValues())
+    saveNoteLikeField(
+      'morningNote',
+      setSavedMorningNote,
+      setIsEditingMorningNote,
+    )
   }
 
   function cancelEditMorningNote() {
@@ -947,7 +952,10 @@ export function useDailyEntryFormState({
     // #753 — empty Save is not a valid way to log sleep, same as Weight
     // (#669). 0 is already rejected by `.positive()`. One of the two
     // fields may still be left unset.
-    if (hoursResult.data === undefined && deepHoursResult.data === undefined) {
+    if (
+      isBlankSaveValue(hoursResult.data) &&
+      isBlankSaveValue(deepHoursResult.data)
+    ) {
       setError('sleepHours', { message: t.dailyEntry.invalidValueMessage })
       setError('deepSleepHours', {
         message: t.dailyEntry.invalidValueMessage,
@@ -1047,7 +1055,9 @@ export function useDailyEntryFormState({
 
   function saveSteps() {
     const result = stepsSchema.safeParse(getValues('steps'))
-    if (!result.success) {
+    // #854 — empty Save used to persist a dash display (`undefined` is
+    // schema-optional). Same blank guard as Weight (#669).
+    if (!result.success || isBlankSaveValue(result.data)) {
       setError('steps', { message: t.dailyEntry.invalidValueMessage })
       return
     }
@@ -1071,6 +1081,16 @@ export function useDailyEntryFormState({
       return
     }
     if (!hipResult.success) {
+      setError('hipCm', { message: t.dailyEntry.invalidValueMessage })
+      return
+    }
+    // #854 — both fields blank is not a persistable save (dash display).
+    // One of the two may still be left unset, same as Sleep (#753).
+    if (
+      isBlankSaveValue(waistResult.data) &&
+      isBlankSaveValue(hipResult.data)
+    ) {
+      setError('waistCm', { message: t.dailyEntry.invalidValueMessage })
       setError('hipCm', { message: t.dailyEntry.invalidValueMessage })
       return
     }
@@ -1163,11 +1183,11 @@ export function useDailyEntryFormState({
     // as Weight (#669). 0 is already rejected by `.positive()`. Some of
     // the five fields may still be left unset.
     if (
-      muscleResult.data === undefined &&
-      visceralResult.data === undefined &&
-      waterResult.data === undefined &&
-      boneResult.data === undefined &&
-      bodyFatResult.data === undefined
+      isBlankSaveValue(muscleResult.data) &&
+      isBlankSaveValue(visceralResult.data) &&
+      isBlankSaveValue(waterResult.data) &&
+      isBlankSaveValue(boneResult.data) &&
+      isBlankSaveValue(bodyFatResult.data)
     ) {
       const message = t.dailyEntry.invalidValueMessage
       setError('muscleMassKg', { message })

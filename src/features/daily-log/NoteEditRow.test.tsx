@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
 import { NoteEditRow } from './NoteEditRow'
 
-describe('NoteEditRow (#850 / #851 / #852)', () => {
+describe('NoteEditRow (#850 / #851 / #852 / #854)', () => {
   it('keeps the save and clear controls at a fixed 48px and centers them on the row', () => {
     render(
       <NoteEditRow
@@ -60,10 +60,43 @@ describe('NoteEditRow (#850 / #851 / #852)', () => {
     const clear = screen.getByRole('button', { name: 'Cancel editing note' })
     expect(clear).toHaveAttribute('data-size', 'icon-xl')
 
-    await user.click(screen.getByRole('button', { name: 'Save note' }))
     await user.click(clear)
-    expect(onSave).toHaveBeenCalledTimes(1)
+    expect(onSave).not.toHaveBeenCalled()
     expect(onCancel).toHaveBeenCalledTimes(1)
+  })
+
+  it('disables save when empty or whitespace-only (#854)', async () => {
+    const user = userEvent.setup()
+    const onSave = vi.fn()
+
+    const { rerender } = render(
+      <NoteEditRow
+        textareaProps={{ 'aria-label': "Day's note" }}
+        saveLabel="Save note"
+        onSave={onSave}
+        cancelLabel="Cancel editing note"
+        onCancel={() => {}}
+        saveDisabled
+      />,
+    )
+
+    expect(screen.getByRole('button', { name: 'Save note' })).toBeDisabled()
+    expect(onSave).not.toHaveBeenCalled()
+
+    rerender(
+      <NoteEditRow
+        textareaProps={{ 'aria-label': "Day's note" }}
+        saveLabel="Save note"
+        onSave={onSave}
+        cancelLabel="Cancel editing note"
+        onCancel={() => {}}
+        saveDisabled={false}
+      />,
+    )
+
+    expect(screen.getByRole('button', { name: 'Save note' })).toBeEnabled()
+    await user.click(screen.getByRole('button', { name: 'Save note' }))
+    expect(onSave).toHaveBeenCalledTimes(1)
   })
 
   it('keeps the fixed save control when centering a single-line empty note (#841 / #852)', () => {

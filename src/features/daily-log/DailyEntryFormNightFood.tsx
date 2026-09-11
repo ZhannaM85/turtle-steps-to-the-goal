@@ -1,4 +1,5 @@
 import { ChevronDown, Moon, Pencil } from 'lucide-react'
+import { isBlankSaveValue } from '@/shared/lib/isBlankSaveValue'
 import { Button } from '@/shared/ui/button'
 import {
   Collapsible,
@@ -158,6 +159,7 @@ export function DailyEntryFormNightFood() {
                   }}
                   saveLabel={t.dailyEntry.saveNightEatingReasonLabel}
                   onSave={state.saveNightEatingReason}
+                  saveDisabled={isBlankSaveValue(state.nightEatingReason)}
                   cancelLabel={t.dailyEntry.cancelEditNightEatingReasonLabel}
                   onCancel={state.cancelEditNightEatingReason}
                 />
@@ -242,6 +244,9 @@ export function DailyEntryFormNightFood() {
                   }}
                   saveLabel={t.dailyEntry.saveNightEatingNoWhatHelpedLabel}
                   onSave={state.saveNightEatingNoWhatHelped}
+                  saveDisabled={isBlankSaveValue(
+                    state.nightEatingNoWhatHelped,
+                  )}
                   cancelLabel={
                     t.dailyEntry.cancelEditNightEatingNoWhatHelpedLabel
                   }

@@ -10,6 +10,8 @@ export interface NoteEditRowProps {
   onSave: () => void
   cancelLabel: string
   onCancel: () => void
+  /** #854 — empty / whitespace-only must not save; × still clears/reverts. */
+  saveDisabled?: boolean
 }
 
 /**
@@ -36,6 +38,7 @@ export function NoteEditRow({
   onSave,
   cancelLabel,
   onCancel,
+  saveDisabled = false,
 }: NoteEditRowProps) {
   const { className: textareaClassName, ...restTextareaProps } = textareaProps
 
@@ -62,7 +65,11 @@ export function NoteEditRow({
         variant="outline"
         size="icon-xl"
         aria-label={saveLabel}
-        onClick={onSave}
+        disabled={saveDisabled}
+        onClick={() => {
+          if (saveDisabled) return
+          onSave()
+        }}
       >
         <Check aria-hidden="true" />
       </Button>

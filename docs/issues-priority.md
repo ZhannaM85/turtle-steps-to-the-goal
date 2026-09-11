@@ -36,9 +36,10 @@ _User asked about pulling data from Apple Health and Zepp Life. Researched via W
 
 ## Tier 159 — Live feedback (2026-09-11)
 
-_Day note fields: placeholder vertical balance (follow-up to #841 / #850 / #851)._
+_Day note/input + check controls._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#852](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/852) | 🔍 Pending validation | Morning note placeholder not vertically balanced in the field | Same `NoteEditRow` as Day note / Night food notes. Empty fields stay at the 48px floor (auto-grow no longer inflates from a wrapped placeholder); `placeholder:leading-6` + nowrap + `content-center` keep the hint/first line vertically balanced. |
 | [#853](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/853) | 🔍 Pending validation | Export missing custom notes on «Свои метрики» | CSV/Excel/Markdown Daily Log now emit a note column next to every custom metric value (`CustomMetricEntry.note`). JSON backup already included `note`; locked with a test. PDF summary stays averages-only (no per-day notes). |
+| [#854](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/854) | 🔍 Pending validation | Block saving empty values on Day input fields (audit all) | Shared `isBlankSaveValue` guard: NoteEditRow ✓ disabled/no-op on empty or whitespace (morning note, day note, Night reason, What helped); same for custom-metric notes. Steps ✓ disabled when empty; body measurements / sleep / weight / body composition empty Save still rejected. × still reverts or clears a draft; optional unused fields stay unset. |
