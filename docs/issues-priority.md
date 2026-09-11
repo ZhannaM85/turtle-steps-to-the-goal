@@ -31,3 +31,13 @@ _User asked about pulling data from Apple Health and Zepp Life. Researched via W
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#334](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/334) | 📋 Not started | Epic — Apple Health integration (blocked on mobile app + HealthKit bridge) | HealthKit has no public/cloud API at all — data is on-device only, readable exclusively by a native iOS app (or hybrid app with a HealthKit plugin/entitlement) the user has granted permission to. Genuinely blocked until the mobile app exists; can't be built sooner by any workaround. |
+
+---
+
+## Tier 159 — Live feedback (2026-09-11)
+
+_Day note fields: placeholder vertical balance (follow-up to #841 / #850 / #851)._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#852](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/852) | 🔍 Pending validation | Morning note placeholder not vertically balanced in the field | Same `NoteEditRow` as Day note / Night food notes. Empty fields stay at the 48px floor (auto-grow no longer inflates from a wrapped placeholder); `placeholder:leading-6` + nowrap + `content-center` keep the hint/first line vertically balanced. |

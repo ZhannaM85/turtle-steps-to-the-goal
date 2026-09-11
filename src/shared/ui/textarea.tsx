@@ -18,8 +18,20 @@ const Textarea = React.forwardRef<
   React.ComponentProps<'textarea'>
 >(({ className, onInput, rows = 1, ...props }, ref) => {
   function resize(el: HTMLTextAreaElement) {
-    el.style.height = 'auto'
+    // #852 — an empty field must stay at the CSS min-height floor
+    // (48px in NoteEditRow). Measuring scrollHeight while empty bakes in
+    // a wrapped placeholder or Chrome’s extra line, so the inline height
+    // jumps to ~70px and the hint sits too high with leftover space
+    // underneath. Only grow once there is real text.
+    if (!el.value) {
+      el.style.height = ''
+      el.style.minHeight = ''
+      return
+    }
+    el.style.minHeight = '0px'
+    el.style.height = '0px'
     el.style.height = `${el.scrollHeight}px`
+    el.style.minHeight = ''
   }
 
   return (

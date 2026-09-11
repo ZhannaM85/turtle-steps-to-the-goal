@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 807,
+    issue: 852,
+    date: '2026-09-11T17:54:00+03:00',
+    en: 'On Day, the morning note placeholder now sits in the middle of the field, like the other note fields.',
+    ru: 'На экране «День» подсказка в утренней заметке теперь стоит по центру поля, как в остальных полях заметки.',
+  },
+  {
     version: 806,
     issue: 851,
     date: '2026-09-11T10:28:00+03:00',

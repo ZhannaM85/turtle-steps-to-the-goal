@@ -39,7 +39,7 @@ describe('Textarea', () => {
     expect(element!.style.height).toBe(`${20 + longValue.length}px`)
   })
 
-  it('resizes to fit an empty value when nothing is set by the forwarded ref', () => {
+  it('leaves an empty field at CSS min-height instead of baking scrollHeight into an inline height (#852)', () => {
     let element: HTMLTextAreaElement | null = null
 
     render(
@@ -53,6 +53,7 @@ describe('Textarea', () => {
     )
 
     expect(element).not.toBeNull()
-    expect(element!.style.height).toBe('20px')
+    expect(element!.style.height).toBe('')
+    expect(element!.style.minHeight).toBe('')
   })
 })
