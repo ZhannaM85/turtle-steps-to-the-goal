@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 816,
+    issue: 861,
+    date: '2026-09-12T23:15:00+03:00',
+    en: 'A backup now also restores alcohol tracking, why-I-am-eating, planned meals, nutrition facts, time since last meal, and day comparison toggles.',
+    ru: 'Резервная копия теперь также восстанавливает переключатели алкоголя, «почему ем», запланированных приёмов, фактов о питании, времени с последнего приёма и сравнения дня.',
+  },
+  {
     version: 815,
     issue: 860,
     date: '2026-09-12T23:00:00+03:00',

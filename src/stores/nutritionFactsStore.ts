@@ -7,7 +7,7 @@ import { createJSONStorage, persist } from 'zustand/middleware'
  * persisted the earlier off default pick up on). Same shape as
  * alcoholTrackingStore/digestionTrackingStore. Gates both the Day
  * screen's nutrition-facts card and the meal-composition screen's inline
- * praise; a local-only UI preference, not exported with backups.
+ * praise. The on/off switch is in the JSON backup settings blob (#861).
  */
 interface NutritionFactsStoreState {
   enabled: boolean

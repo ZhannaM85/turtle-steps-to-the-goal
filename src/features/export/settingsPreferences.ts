@@ -1,9 +1,7 @@
 import { useLocaleStore } from '@/i18n'
 import {
-  useCycleTrackingStore,
   useDailyReminderStore,
   useDayStartStore,
-  useDigestionTrackingStore,
   useMealLabelPresetStore,
   useEatingReasonTrackingStore,
   useMealSlotDefaultTimesStore,
@@ -12,11 +10,14 @@ import {
   useTrackedFieldsStore,
   useTrendChartSeriesStore,
   useUnitStore,
-  useWaterTrackingStore,
   useWeekStartStore,
 } from '@/stores'
 import { applyTheme, useThemeStore } from '@/stores/themeStore'
 import type { ExportBundle } from './exportBundleSchema'
+import {
+  applyPortableDayToggles,
+  collectPortableDayToggles,
+} from './portableDayToggles'
 
 /** #594 — Settings-page prefs snapshot (optional on the bundle). */
 export type ExportSettingsPreferences = NonNullable<ExportBundle['settings']>
@@ -31,9 +32,7 @@ export function collectSettingsPreferences(): ExportSettingsPreferences {
     mealSlotDefaultTimes: {
       ...useMealSlotDefaultTimesStore.getState().times,
     },
-    cycleTracking: useCycleTrackingStore.getState().enabled,
-    digestionTracking: useDigestionTrackingStore.getState().enabled,
-    waterTracking: useWaterTrackingStore.getState().enabled,
+    ...collectPortableDayToggles(),
     micronutrients: {
       ...useMicronutrientTrackingStore.getState().tracked,
     },
@@ -85,15 +84,7 @@ export function applySettingsPreferences(
       .getState()
       .setTimes(settings.mealSlotDefaultTimes)
   }
-  if (settings.cycleTracking !== undefined) {
-    useCycleTrackingStore.setState({ enabled: settings.cycleTracking })
-  }
-  if (settings.digestionTracking !== undefined) {
-    useDigestionTrackingStore.setState({ enabled: settings.digestionTracking })
-  }
-  if (settings.waterTracking !== undefined) {
-    useWaterTrackingStore.setState({ enabled: settings.waterTracking })
-  }
+  applyPortableDayToggles(settings)
   if (settings.micronutrients) {
     useMicronutrientTrackingStore.setState((state) => ({
       tracked: { ...state.tracked, ...settings.micronutrients },

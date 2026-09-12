@@ -130,9 +130,14 @@ describe('exportAllData', () => {
       '@/stores/eatingReasonTrackingStore'
     )
     useEatingReasonTrackingStore.setState({
+      enabled: true,
       customReasons: ['Tired after work'],
       builtinLabelOverrides: { hunger: 'Stomach growl' },
     })
+    const { useAlcoholTrackingStore } = await import(
+      '@/stores/alcoholTrackingStore'
+    )
+    useAlcoholTrackingStore.setState({ enabled: true })
 
     const bundle = await exportAllData()
     expect(bundle.settings?.unit).toBe('lb')
@@ -148,6 +153,8 @@ describe('exportAllData', () => {
     expect(bundle.settings?.builtinEatingReasonLabels).toEqual({
       hunger: 'Stomach growl',
     })
+    expect(bundle.settings?.eatingReasonTracking).toBe(true)
+    expect(bundle.settings?.alcoholTracking).toBe(true)
   })
 
   it('exports all goals and entries currently stored', async () => {
@@ -484,8 +491,24 @@ describe('importAllData', () => {
     const { useProfileStore } = await import('@/stores/profileStore')
     const { useTrackedFieldsStore } = await import('@/stores/trackedFieldsStore')
     const { useCycleTrackingStore } = await import('@/stores/cycleTrackingStore')
+    const { useAlcoholTrackingStore } = await import(
+      '@/stores/alcoholTrackingStore'
+    )
+    const { useEatingReasonTrackingStore: eatingReasonStore } = await import(
+      '@/stores/eatingReasonTrackingStore'
+    )
+    const { useNutritionFactsStore } = await import(
+      '@/stores/nutritionFactsStore'
+    )
+    const { useEntryComparisonStore } = await import(
+      '@/stores/entryComparisonStore'
+    )
     useUnitStore.setState({ unit: 'kg' })
     useCycleTrackingStore.setState({ enabled: false })
+    useAlcoholTrackingStore.setState({ enabled: false })
+    eatingReasonStore.setState({ enabled: false })
+    useNutritionFactsStore.setState({ enabled: true })
+    useEntryComparisonStore.setState({ enabled: true })
     useProfileStore.setState({
       heightCm: undefined,
       age: undefined,
@@ -514,6 +537,12 @@ describe('importAllData', () => {
         mealLabelPresets: ['Tea'],
         customEatingReasons: ['Tired after work'],
         builtinEatingReasonLabels: { hunger: 'Stomach growl' },
+        alcoholTracking: true,
+        eatingReasonTracking: true,
+        plannedMealsTracking: true,
+        nutritionFacts: false,
+        sinceLastMealTimer: true,
+        entryComparison: false,
       },
     })
 
@@ -531,15 +560,24 @@ describe('importAllData', () => {
       '@/stores/mealLabelPresetStore'
     )
     expect(useMealLabelPresetStore.getState().presets).toEqual(['Tea'])
-    const { useEatingReasonTrackingStore } = await import(
-      '@/stores/eatingReasonTrackingStore'
-    )
-    expect(useEatingReasonTrackingStore.getState().customReasons).toEqual([
+    expect(eatingReasonStore.getState().customReasons).toEqual([
       'Tired after work',
     ])
-    expect(
-      useEatingReasonTrackingStore.getState().builtinLabelOverrides,
-    ).toEqual({ hunger: 'Stomach growl' })
+    expect(eatingReasonStore.getState().builtinLabelOverrides).toEqual({
+      hunger: 'Stomach growl',
+    })
+    expect(eatingReasonStore.getState().enabled).toBe(true)
+    expect(useAlcoholTrackingStore.getState().enabled).toBe(true)
+    const { usePlannedMealsTrackingStore } = await import(
+      '@/stores/plannedMealsTrackingStore'
+    )
+    expect(usePlannedMealsTrackingStore.getState().enabled).toBe(true)
+    expect(useNutritionFactsStore.getState().enabled).toBe(false)
+    const { useSinceLastMealTimerStore } = await import(
+      '@/stores/sinceLastMealTimerStore'
+    )
+    expect(useSinceLastMealTimerStore.getState().enabled).toBe(true)
+    expect(useEntryComparisonStore.getState().enabled).toBe(false)
   })
 
   it('leaves Settings preferences alone when a pre-v10 backup omits them (#594)', async () => {

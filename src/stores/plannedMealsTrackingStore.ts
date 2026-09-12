@@ -6,9 +6,8 @@ import { createJSONStorage, persist } from 'zustand/middleware'
  * right after #614 shipped: without food search/macros, the feature's
  * value wasn't obvious, so it moved behind a toggle like the other
  * optional Day-screen sections (cycle/digestion/water/alcohol tracking).
- * A local-only UI preference, same shape as those — not part of the
- * export bundle (only the `PlannedMeal` data itself, if any exists,
- * travels with a backup; this on/off switch doesn't).
+ * Same shape as those — the on/off switch is in the JSON backup settings
+ * blob (#861); logged `PlannedMeal` rows still travel with the day's data.
  */
 interface PlannedMealsTrackingStoreState {
   enabled: boolean

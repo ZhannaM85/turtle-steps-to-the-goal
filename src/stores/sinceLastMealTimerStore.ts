@@ -4,8 +4,8 @@ import { createJSONStorage, persist } from 'zustand/middleware'
 /**
  * #791 — opt-in elapsed time since last meal on the Day screen
  * (intermittent fasting). Off by default. Same shape as
- * `useCopyYesterdayMealsStore`: a local-only UI preference, not part of
- * the export bundle.
+ * `useCopyYesterdayMealsStore`. The on/off switch is in the JSON backup
+ * settings blob (#861).
  */
 interface SinceLastMealTimerStoreState {
   enabled: boolean

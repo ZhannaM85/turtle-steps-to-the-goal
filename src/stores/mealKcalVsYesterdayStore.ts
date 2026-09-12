@@ -3,8 +3,8 @@ import { createJSONStorage, persist } from 'zustand/middleware'
 
 /**
  * #836 — Day meal-card vs-yesterday kcal arrows. On by default to match
- * entry field comparisons (#664): same up/down family, local-only UI
- * preference, not exported with backups.
+ * entry field comparisons (#664): same up/down family. The on/off switch
+ * is in the JSON backup settings blob (#861).
  */
 interface MealKcalVsYesterdayStoreState {
   enabled: boolean

@@ -10,10 +10,9 @@ const MAX_CUSTOM_EATING_REASON_LENGTH = 80
  * #765 — user-authored extra reasons, shown in the same dropdown.
  * #766 — optional display-label overrides for the built-in reasons.
  * #769 — HALT built-ins (Hungry / Angry / Lonely / Tired).
- * Local UI preference only (the on/off switch is not in the export
- * bundle); logged `eatingReason` values still travel with JSON backups,
- * and the custom *list* plus builtin overrides are included in the
- * settings blob like meal-name presets.
+ * Logged `eatingReason` values travel with JSON backups. The custom list,
+ * builtin overrides, and the on/off switch are all in the settings blob
+ * (#861; labels already traveled since #594).
  */
 interface EatingReasonTrackingStoreState {
   enabled: boolean

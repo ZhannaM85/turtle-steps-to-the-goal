@@ -2,10 +2,10 @@ import { create } from 'zustand'
 import { createJSONStorage, persist } from 'zustand/middleware'
 
 /**
- * Opt-in alcohol day signal (#607) — off by default. A local-only UI
- * preference, same shape as cycleTrackingStore/digestionTrackingStore: not
- * part of the export bundle (only `DailyEntry.hadAlcohol` itself, the
- * logged data, travels with a backup; this on/off switch doesn't).
+ * Opt-in alcohol day signal (#607) — off by default. Same shape as
+ * cycleTrackingStore/digestionTrackingStore. The on/off switch is in the
+ * JSON backup settings blob (#861); logged `DailyEntry.hadAlcohol` still
+ * travels with the day's data either way.
  */
 interface AlcoholTrackingStoreState {
   enabled: boolean
