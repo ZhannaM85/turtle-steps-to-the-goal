@@ -47,7 +47,8 @@ import {
   macrosSummaryTextCompact,
   macrosSummaryTextCompactWithCalories,
 } from '@/shared/lib/macroDisplay'
-import { defaultMealLabel, editableMealLabel, effectiveMealLabel, effectiveTimeEaten, mealLabelSuggestionsForLocale, nextUnusedMealTemplate, sortCalorieEntriesByLoggedTime } from '@/shared/lib/mealLabel'
+import { defaultMealLabel, editableMealLabel, effectiveMealLabel, effectiveTimeEaten, mealLabelSuggestionsForLocale, mealSlotKeyForLabel, nextUnusedMealTemplate, sortCalorieEntriesByLoggedTime } from '@/shared/lib/mealLabel'
+import { defaultTimeEatenForTemplatePick, timeAfterMealTemplatePick } from '@/shared/lib/mealTemplateTime'
 import { normalizeTextSpaces } from '@/shared/lib/normalizeTextSpaces'
 import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/ui/button'
@@ -723,6 +724,17 @@ export function MealList({
             t,
           ),
     )
+    // #862 Option 2 — a custom Settings template has no built-in slot
+    // mapping, so seed the nearest unused slot clock. Built-in seeds keep
+    // #357's "now" default until the user picks a chip.
+    if (nextTemplate && !mealSlotKeyForLabel(nextTemplate)) {
+      const stamped = defaultTimeEatenForTemplatePick(nextTemplate, {
+        siblingMeals: calorieEntries,
+        slotTimes: mealSlotTimes,
+        referenceHHMM: currentTimeHHMM(),
+      })
+      if (stamped) setNewMealTime(stamped)
+    }
     keepInProgressMealRef.current = false
     setConfirmDiscardAddMeal(false)
     setIsAddMealDialogOpen(true)
@@ -1102,10 +1114,29 @@ export function MealList({
   function updateNewMealLabel(value: string) {
     const custom = customMealLabelOrUndefined(value, newMealPosition, t)
     setNewMealLabel(custom)
+    // #862 Option 2 — chip pick stamps the matching slot time, or the
+    // nearest unused built-in slot for a custom template. Clearing the
+    // name leaves the clock alone.
+    const siblings = inProgressMealId
+      ? calorieEntries.filter((entry) => entry.id !== inProgressMealId)
+      : calorieEntries
+    const stamped = timeAfterMealTemplatePick(value, {
+      siblingMeals: siblings,
+      slotTimes: mealSlotTimes,
+      referenceHHMM: newMealTime || currentTimeHHMM(),
+      overwriteExisting: true,
+    })
+    if (stamped) setNewMealTime(stamped)
     if (!inProgressMealId) return
     setCalorieEntries(
       calorieEntries.map((entry) =>
-        entry.id === inProgressMealId ? { ...entry, label: custom } : entry,
+        entry.id === inProgressMealId
+          ? {
+              ...entry,
+              label: custom,
+              ...(stamped ? { timeEaten: stamped } : {}),
+            }
+          : entry,
       ),
     )
   }
@@ -1217,10 +1248,20 @@ export function MealList({
     if (!editingMealDraft || !editingMealId) return
     const position =
       calorieEntries.findIndex((entry) => entry.id === editingMealId) + 1
-    setEditingMealDraft({
+    const next = {
       ...editingMealDraft,
       label: customMealLabelOrUndefined(value, position, t),
+    }
+    // #862 — stamp only when the meal has no clock yet, so renaming an
+    // already-timed historical meal does not rewrite it.
+    const stamped = timeAfterMealTemplatePick(value, {
+      siblingMeals: calorieEntries.filter((entry) => entry.id !== editingMealId),
+      slotTimes: mealSlotTimes,
+      referenceHHMM: currentTimeHHMM(),
+      existingTime: editingMealDraft.timeEaten,
     })
+    if (stamped) next.timeEaten = stamped
+    setEditingMealDraft(next)
   }
 
   function deleteEditingMeal() {

@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 817,
+    issue: 862,
+    date: '2026-09-12T22:55:00+03:00',
+    en: 'Choosing a custom meal name now fills in the nearest unused default meal time.',
+    ru: 'Если выбрать своё название приёма пищи, подставится ближайшее свободное стандартное время.',
+  },
+  {
     version: 816,
     issue: 861,
     date: '2026-09-12T23:15:00+03:00',
