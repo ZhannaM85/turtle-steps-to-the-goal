@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
 import { NoteDisplayBlock, NoteEditRow } from './NoteEditRow'
 
-describe('NoteEditRow (#850 / #851 / #852 / #854 / #858)', () => {
+describe('NoteEditRow (#850 / #851 / #852 / #854 / #858 / #860)', () => {
   it('puts save and clear on the title row so the textarea is full width (#858)', () => {
     render(
       <NoteEditRow
@@ -65,7 +65,7 @@ describe('NoteEditRow (#850 / #851 / #852 / #854 / #858)', () => {
     expect(onCancel).toHaveBeenCalledTimes(1)
   })
 
-  it('treats × as delete when a saved value exists (#855)', async () => {
+  it('keeps × as cancel and shows trash when a saved value exists (#860)', async () => {
     const user = userEvent.setup()
     const onSave = vi.fn()
     const onCancel = vi.fn()
@@ -85,14 +85,16 @@ describe('NoteEditRow (#850 / #851 / #852 / #854 / #858)', () => {
       />,
     )
 
-    const clear = screen.getByRole('button', { name: 'Delete note' })
-    expect(
-      screen.queryByRole('button', { name: 'Cancel editing note' }),
-    ).not.toBeInTheDocument()
+    const clear = screen.getByRole('button', { name: 'Cancel editing note' })
+    const trash = screen.getByRole('button', { name: 'Delete note' })
 
     await user.click(clear)
+    expect(onCancel).toHaveBeenCalledTimes(1)
+    expect(onDelete).not.toHaveBeenCalled()
+    expect(onSave).not.toHaveBeenCalled()
+
+    await user.click(trash)
     expect(onDelete).toHaveBeenCalledTimes(1)
-    expect(onCancel).not.toHaveBeenCalled()
     expect(onSave).not.toHaveBeenCalled()
   })
 

@@ -294,6 +294,8 @@ export function useDailyEntryFormState({
   const [dayTotalsCarbsInput, setDayTotalsCarbsInput] = useState('')
   const [dayTotalsFiberInput, setDayTotalsFiberInput] = useState('')
   const [dayTotalsError, setDayTotalsError] = useState<string | null>(null)
+  const [isConfirmingDeleteDayTotals, setIsConfirmingDeleteDayTotals] =
+    useState(false)
 
   // Opt-in digestion tracking's on/off toggle (Settings) — the toggle
   // itself only renders on this screen when enabled, same gate DayDetail
@@ -820,6 +822,41 @@ export function useDailyEntryFormState({
     setIsEditingDayTotals(true)
   }
 
+  function cancelEditDayTotals() {
+    setDayTotalsKcalInput(
+      dayTotals?.amountKcal !== undefined ? String(dayTotals.amountKcal) : '',
+    )
+    setDayTotalsProteinInput(
+      dayTotals?.proteinG !== undefined ? String(dayTotals.proteinG) : '',
+    )
+    setDayTotalsFatInput(
+      dayTotals?.fatG !== undefined ? String(dayTotals.fatG) : '',
+    )
+    setDayTotalsCarbsInput(
+      dayTotals?.carbsG !== undefined ? String(dayTotals.carbsG) : '',
+    )
+    setDayTotalsFiberInput(
+      dayTotals?.fiberG !== undefined ? String(dayTotals.fiberG) : '',
+    )
+    setDayTotalsError(null)
+    if (dayTotals !== undefined) {
+      setIsEditingDayTotals(false)
+    }
+  }
+
+  function requestDeleteDayTotals() {
+    setIsConfirmingDeleteDayTotals(true)
+  }
+
+  function cancelDeleteDayTotals() {
+    setIsConfirmingDeleteDayTotals(false)
+  }
+
+  function confirmDeleteDayTotals() {
+    setIsConfirmingDeleteDayTotals(false)
+    clearDayTotals()
+  }
+
   function saveWeight() {
     const result = weightSchema.safeParse(getValues('weightKg'))
     // #669 — weightSchema allows `undefined` (a day can go untracked), but an
@@ -935,9 +972,10 @@ export function useDailyEntryFormState({
     saveNoteLikeField('note', setSavedNote, setIsEditingNote)
   }
 
-  // #850 — NoteEditRow always shows ×. Revert to the last saved value;
-  // stay in edit (cleared draft) when nothing has been saved yet so we
-  // don't flip to an empty display pill (#437 / #620).
+  // #850 / #860 — NoteEditRow always shows × as cancel (never delete).
+  // Revert to the last saved value; stay in edit (cleared draft) when
+  // nothing has been saved yet so we don't flip to an empty display
+  // pill (#437 / #620). Trash + confirm is the delete path (#855).
   function cancelNoteLikeEdit(
     field: 'note' | 'morningNote' | 'nightEatingReason' | 'nightEatingNoWhatHelped',
     saved: string | undefined,
@@ -992,7 +1030,6 @@ export function useDailyEntryFormState({
 
   function cancelDeleteNote() {
     setIsConfirmingDeleteNote(false)
-    cancelEditNote()
   }
 
   function confirmDeleteNote() {
@@ -1010,7 +1047,6 @@ export function useDailyEntryFormState({
 
   function cancelDeleteMorningNote() {
     setIsConfirmingDeleteMorningNote(false)
-    cancelEditMorningNote()
   }
 
   function confirmDeleteMorningNote() {
@@ -1028,7 +1064,6 @@ export function useDailyEntryFormState({
 
   function cancelDeleteNightEatingReason() {
     setIsConfirmingDeleteNightEatingReason(false)
-    cancelEditNightEatingReason()
   }
 
   function confirmDeleteNightEatingReason() {
@@ -1046,7 +1081,6 @@ export function useDailyEntryFormState({
 
   function cancelDeleteNightEatingNoWhatHelped() {
     setIsConfirmingDeleteNightEatingNoWhatHelped(false)
-    cancelEditNightEatingNoWhatHelped()
   }
 
   function confirmDeleteNightEatingNoWhatHelped() {
@@ -1212,7 +1246,6 @@ export function useDailyEntryFormState({
 
   function cancelDeleteSteps() {
     setIsConfirmingDeleteSteps(false)
-    cancelEditSteps()
   }
 
   function confirmDeleteSteps() {
@@ -1620,6 +1653,11 @@ export function useDailyEntryFormState({
     saveDayTotals,
     clearDayTotals,
     startEditDayTotals,
+    cancelEditDayTotals,
+    isConfirmingDeleteDayTotals,
+    requestDeleteDayTotals,
+    confirmDeleteDayTotals,
+    cancelDeleteDayTotals,
     // Steps
     showStepsAsDisplay,
     steps,

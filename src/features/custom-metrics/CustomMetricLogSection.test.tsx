@@ -75,6 +75,7 @@ describe('CustomMetricLogSection', () => {
     )
 
     const noteInput = await screen.findByLabelText('Note')
+    expect(noteInput.tagName).toBe('TEXTAREA')
     await user.type(noteInput, 'started a new skincare product')
     await user.click(screen.getByRole('button', { name: 'Save note' }))
 
@@ -190,9 +191,9 @@ describe('CustomMetricLogSection', () => {
     const noteInput = await screen.findByLabelText('Note')
     await user.clear(noteInput)
     await user.type(noteInput, 'a change I want to discard')
-    await user.click(screen.getByRole('button', { name: 'Delete note' }))
-    expect(screen.getByText('Delete this entry?')).toBeInTheDocument()
-    await user.click(screen.getByRole('button', { name: 'Cancel' }))
+    await user.click(
+      screen.getByRole('button', { name: 'Cancel editing note' }),
+    )
 
     expect(await screen.findByText('felt strong')).toBeInTheDocument()
     expect(

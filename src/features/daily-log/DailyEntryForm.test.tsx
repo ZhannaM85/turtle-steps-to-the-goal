@@ -1192,9 +1192,9 @@ describe('DailyEntryForm', () => {
         const input = screen.getByLabelText('Steps')
         await user.clear(input)
         await user.type(input, '99999')
-        await user.click(screen.getByRole('button', { name: 'Delete steps' }))
-        expect(screen.getByText('Delete this entry?')).toBeInTheDocument()
-        await user.click(screen.getByRole('button', { name: 'Cancel' }))
+        await user.click(
+          screen.getByRole('button', { name: 'Cancel editing steps' }),
+        )
 
         expect(onSave).not.toHaveBeenCalled()
         expect(screen.getByText('6,000')).toBeInTheDocument()
@@ -1982,9 +1982,9 @@ describe('DailyEntryForm', () => {
       await user.click(screen.getByRole('button', { name: 'Edit note' }))
       await user.clear(screen.getByLabelText("Day's note"))
       expect(screen.getByRole('button', { name: 'Save note' })).toBeDisabled()
-      await user.click(screen.getByRole('button', { name: 'Delete note' }))
-      expect(screen.getByText('Delete this entry?')).toBeInTheDocument()
-      await user.click(screen.getByRole('button', { name: 'Cancel' }))
+      await user.click(
+        screen.getByRole('button', { name: 'Cancel editing note' }),
+      )
 
       expect(onSave).not.toHaveBeenCalled()
       expect(screen.getByText('felt good')).toBeInTheDocument()
@@ -2076,9 +2076,9 @@ describe('DailyEntryForm', () => {
         const input = screen.getByLabelText("Day's note")
         await user.clear(input)
         await user.type(input, 'a change I want to discard')
-        await user.click(screen.getByRole('button', { name: 'Delete note' }))
-        expect(screen.getByText('Delete this entry?')).toBeInTheDocument()
-        await user.click(screen.getByRole('button', { name: 'Cancel' }))
+        await user.click(
+          screen.getByRole('button', { name: 'Cancel editing note' }),
+        )
 
         expect(onSave).not.toHaveBeenCalled()
         expect(screen.getByText('felt good')).toBeInTheDocument()
@@ -2287,10 +2287,8 @@ describe('DailyEntryForm', () => {
         await user.clear(input)
         await user.type(input, 'a change I want to discard')
         await user.click(
-          screen.getByRole('button', { name: 'Delete morning note' }),
+          screen.getByRole('button', { name: 'Cancel editing morning note' }),
         )
-        expect(screen.getByText('Delete this entry?')).toBeInTheDocument()
-        await user.click(screen.getByRole('button', { name: 'Cancel' }))
 
         expect(onSave).not.toHaveBeenCalled()
         expect(screen.getByText('woke up heavy')).toBeInTheDocument()
@@ -4558,10 +4556,8 @@ describe('DailyEntryForm', () => {
       await user.clear(input)
       await user.type(input, 'changed my mind')
       await user.click(
-        screen.getByRole('button', { name: 'Delete what helped' }),
+        screen.getByRole('button', { name: 'Cancel editing what helped' }),
       )
-      expect(screen.getByText('Delete this entry?')).toBeInTheDocument()
-      await user.click(screen.getByRole('button', { name: 'Cancel' }))
 
       expect(screen.getByText('tea helped')).toBeInTheDocument()
       expect(
@@ -4714,6 +4710,15 @@ describe('DailyEntryForm', () => {
       await user.click(
         screen.getByRole('button', { name: 'Remove 250ml entry' }),
       )
+      expect(screen.getByText('Delete this entry?')).toBeInTheDocument()
+      await user.click(screen.getByRole('button', { name: 'Cancel' }))
+      expect(onSave).not.toHaveBeenCalled()
+      expect(screen.getByText('250ml')).toBeInTheDocument()
+
+      await user.click(
+        screen.getByRole('button', { name: 'Remove 250ml entry' }),
+      )
+      await user.click(screen.getByRole('button', { name: 'Delete' }))
 
       expect(onSave).toHaveBeenCalledTimes(1)
       expect(onSave.mock.calls[0][0].waterEntries).toEqual([
@@ -4813,6 +4818,7 @@ describe('DailyEntryForm', () => {
         screen.getByRole('button', { name: 'Remove 250ml entry' }),
       )
 
+      expect(screen.getByText('Delete this entry?')).toBeInTheDocument()
       expect(
         screen.queryByRole('heading', { name: 'Edit water' }),
       ).not.toBeInTheDocument()
@@ -4851,6 +4857,63 @@ describe('DailyEntryForm', () => {
         .getByText('Remaining')
         .closest('div') as HTMLElement
       expect(within(remainingSection).getByText('1,500')).toBeInTheDocument()
+    })
+
+    it('puts save/edit/delete on the title row, not text buttons (#860)', async () => {
+      const user = userEvent.setup()
+      render(
+        <DailyEntryForm date="2026-03-01" existingEntry={null} onSave={vi.fn()} />,
+      )
+
+      const save = screen.getByRole('button', { name: 'Save day totals' })
+      expect(save).toHaveAttribute('data-size', 'icon-sm')
+      expect(
+        screen.queryByRole('button', { name: 'Clear' }),
+      ).not.toBeInTheDocument()
+      expect(save).toBeDisabled()
+
+      await user.type(screen.getByLabelText('Day total calories'), '500')
+      await user.click(save)
+
+      const edit = screen.getByRole('button', { name: 'Edit day totals' })
+      const trash = screen.getByRole('button', { name: 'Delete day totals' })
+      expect(edit).toHaveAttribute('data-size', 'icon-sm')
+      expect(trash).toHaveAttribute('data-size', 'icon-sm')
+    })
+
+    it('asks before clearing saved day totals (#860 / #855)', async () => {
+      const user = userEvent.setup()
+      const onSave = vi.fn()
+      render(
+        <DailyEntryForm
+          date="2026-03-01"
+          existingEntry={{
+            id: 'e1',
+            date: '2026-03-01',
+            dayTotals: { amountKcal: 500, proteinG: 30 },
+            createdAt: now,
+            updatedAt: now,
+          }}
+          onSave={onSave}
+        />,
+      )
+
+      await user.click(
+        screen.getByRole('button', { name: 'Delete day totals' }),
+      )
+      expect(screen.getByText('Delete this entry?')).toBeInTheDocument()
+      await user.click(screen.getByRole('button', { name: 'Cancel' }))
+      expect(onSave).not.toHaveBeenCalled()
+      expect(
+        screen.getByRole('button', { name: 'Edit day totals' }),
+      ).toBeInTheDocument()
+
+      await user.click(
+        screen.getByRole('button', { name: 'Delete day totals' }),
+      )
+      await user.click(screen.getByRole('button', { name: 'Delete' }))
+      expect(onSave).toHaveBeenCalledTimes(1)
+      expect(onSave.mock.calls[0][0].dayTotals).toBeUndefined()
     })
   })
 

@@ -17,12 +17,7 @@ import {
 import { Input } from '@/shared/ui/input'
 import { ToggleGroup, ToggleGroupItem } from '@/shared/ui/toggle-group'
 import { ConfirmDeleteEntryBar } from '@/features/daily-log/ConfirmDeleteEntryBar'
-import {
-  DayFieldHeader,
-  DayFieldHeaderCancelButton,
-  DayFieldHeaderSaveButton,
-  DayFieldViewActions,
-} from '@/features/daily-log/DayFieldHeader'
+import { NoteDisplayBlock, NoteEditRow } from '@/features/daily-log/NoteEditRow'
 
 /** One metric's value-entry row for the given date (#336) — widget shape
  * depends on `metric.inputKind`: a plain number field, a Yes/No toggle
@@ -104,7 +99,6 @@ function MetricValueRow({
 
   function cancelDeleteNote() {
     setIsConfirmingDeleteNote(false)
-    cancelEditNote()
   }
 
   async function confirmDeleteNote() {
@@ -245,62 +239,33 @@ function MetricValueRow({
             onCancel={cancelDeleteNote}
           />
         ) : isEditingNote ? (
-          <div className="flex flex-col gap-1.5">
-            <DayFieldHeader
-              label={t.customMetrics.noteLabel}
-              actions={
-                <>
-                  <DayFieldHeaderSaveButton
-                    label={t.customMetrics.saveNoteLabel}
-                    onClick={saveNote}
-                    disabled={isBlankSaveValue(noteDraft)}
-                  />
-                  {/* #619 / #855 — unsaved draft: × clears without confirm.
-                   * Saved note: × requests delete, then confirm. */}
-                  <DayFieldHeaderCancelButton
-                    label={
-                      note
-                        ? t.customMetrics.deleteNoteLabel
-                        : t.customMetrics.cancelEditNoteLabel
-                    }
-                    onClick={note ? requestDeleteNote : cancelEditNote}
-                  />
-                </>
-              }
-            />
-            <Input
-              type="text"
-              aria-label={t.customMetrics.noteLabel}
-              placeholder={t.customMetrics.notePlaceholder}
-              value={noteDraft}
-              onChange={(e) => setNoteDraft(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') {
-                  e.preventDefault()
-                  saveNote()
-                }
-              }}
-              className="h-9 w-full"
-            />
-          </div>
+          <NoteEditRow
+            label={t.customMetrics.noteLabel}
+            textareaProps={{
+              'aria-label': t.customMetrics.noteLabel,
+              placeholder: t.customMetrics.notePlaceholder,
+              value: noteDraft,
+              onChange: (e) => setNoteDraft(e.target.value),
+            }}
+            saveLabel={t.customMetrics.saveNoteLabel}
+            onSave={saveNote}
+            saveDisabled={isBlankSaveValue(noteDraft)}
+            cancelLabel={t.customMetrics.cancelEditNoteLabel}
+            onCancel={cancelEditNote}
+            hasSavedValue={Boolean(note)}
+            deleteLabel={t.customMetrics.deleteNoteLabel}
+            onDelete={requestDeleteNote}
+          />
         ) : note ? (
-          <div className="flex flex-col gap-1.5">
-            <DayFieldHeader
-              label={t.customMetrics.noteLabel}
-              actions={
-                <DayFieldViewActions
-                  editLabel={t.customMetrics.editNoteLabel}
-                  onEdit={() => setIsEditingNote(true)}
-                  deleteLabel={t.customMetrics.deleteNoteLabel}
-                  onDelete={requestDeleteNote}
-                  showDelete
-                />
-              }
-            />
-            <div className="flex min-h-9 items-center rounded-lg bg-muted px-2.5 py-1">
-              <span className="text-sm text-foreground">{noteDraft}</span>
-            </div>
-          </div>
+          <NoteDisplayBlock
+            label={t.customMetrics.noteLabel}
+            text={noteDraft}
+            editLabel={t.customMetrics.editNoteLabel}
+            onEdit={() => setIsEditingNote(true)}
+            canDelete
+            deleteLabel={t.customMetrics.deleteNoteLabel}
+            onDelete={requestDeleteNote}
+          />
         ) : (
           // #620 — nothing has ever been saved (a fresh note was opened,
           // typed into, then canceled): a real "nothing logged" idle

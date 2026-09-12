@@ -2,9 +2,8 @@ import type { ComponentProps, ReactNode } from 'react'
 import { cn } from '@/shared/lib/utils'
 import { Textarea } from '@/shared/ui/textarea'
 import {
+  DayFieldEditActions,
   DayFieldHeader,
-  DayFieldHeaderCancelButton,
-  DayFieldHeaderSaveButton,
   DayFieldViewActions,
 } from './DayFieldHeader'
 
@@ -18,9 +17,8 @@ export interface NoteEditRowProps {
   /** #854 — empty / whitespace-only must not save; × still clears/reverts. */
   saveDisabled?: boolean
   /**
-   * #855 — when a saved value exists, × means delete (parent shows
-   * confirm) rather than only reverting a draft. Unsaved drafts still
-   * use `onCancel` with no confirm.
+   * #860 — trash (not ×) deletes a saved note after confirm (#855).
+   * × always calls `onCancel`.
    */
   hasSavedValue?: boolean
   deleteLabel?: string
@@ -37,8 +35,8 @@ export interface NoteEditRowProps {
  * doesn’t jump.
  *
  * Clear × is always shown (day note, morning note, Night food reason,
- * What helped) so peers stay consistent: discard an unsaved draft
- * immediately, or delete a saved note after confirm (#855).
+ * What helped, custom-metric notes) so an unsaved draft can be discarded
+ * immediately. A saved note also gets trash; delete still confirms (#855).
  */
 export function NoteEditRow({
   label,
@@ -53,30 +51,23 @@ export function NoteEditRow({
   onDelete,
 }: NoteEditRowProps) {
   const { className: textareaClassName, ...restTextareaProps } = textareaProps
-  const clearIsDelete = hasSavedValue && Boolean(onDelete)
 
   return (
     <>
       <DayFieldHeader
         label={label}
         actions={
-          <>
-            <DayFieldHeaderSaveButton
-              label={saveLabel}
-              onClick={onSave}
-              disabled={saveDisabled}
-            />
-            <DayFieldHeaderCancelButton
-              label={clearIsDelete ? (deleteLabel ?? cancelLabel) : cancelLabel}
-              onClick={() => {
-                if (clearIsDelete) {
-                  onDelete?.()
-                  return
-                }
-                onCancel()
-              }}
-            />
-          </>
+          <DayFieldEditActions
+            saveLabel={saveLabel}
+            onSave={onSave}
+            saveDisabled={saveDisabled}
+            cancelLabel={cancelLabel}
+            onCancel={onCancel}
+            showCancel
+            deleteLabel={deleteLabel}
+            onDelete={onDelete}
+            showDelete={hasSavedValue && Boolean(onDelete)}
+          />
         }
       />
       <Textarea

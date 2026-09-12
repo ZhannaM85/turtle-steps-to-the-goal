@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 815,
+    issue: 860,
+    date: '2026-09-12T23:00:00+03:00',
+    en: 'Day notes, day totals, and water now use the same save, cancel, and delete icons, and deleting still asks for confirmation.',
+    ru: 'Заметки дня, итоги дня и вода теперь используют те же значки сохранения, отмены и удаления, а удаление по-прежнему спрашивает подтверждение.',
+  },
+  {
     version: 814,
     issue: 859,
     date: '2026-09-12T22:50:00+03:00',

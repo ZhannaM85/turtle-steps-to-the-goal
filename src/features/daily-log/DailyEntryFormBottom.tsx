@@ -17,9 +17,8 @@ import {
 } from './EntryFieldComparison'
 import { ConfirmDeleteEntryBar } from './ConfirmDeleteEntryBar'
 import {
+  DayFieldEditActions,
   DayFieldHeader,
-  DayFieldHeaderCancelButton,
-  DayFieldHeaderSaveButton,
   DayFieldViewActions,
 } from './DayFieldHeader'
 import { EmotionPicker } from './EmotionPicker'
@@ -139,30 +138,17 @@ export function DailyEntryFormBottom() {
                   <DayFieldHeader
                     label={t.dailyEntry.stepsLabel}
                     actions={
-                      <>
-                        <DayFieldHeaderSaveButton
-                          label={t.dailyEntry.saveStepsLabel}
-                          onClick={state.saveSteps}
-                          disabled={isBlankSaveValue(state.steps)}
-                        />
-                        {/* #855 — × on a saved value means delete (with
-                         * confirm); × on an unsaved draft still cancels. */}
-                        {(state.canDeleteSteps ||
-                          state.canCancelStepsEdit) && (
-                          <DayFieldHeaderCancelButton
-                            label={
-                              state.canDeleteSteps
-                                ? t.dailyEntry.deleteStepsLabel
-                                : t.dailyEntry.cancelEditStepsLabel
-                            }
-                            onClick={
-                              state.canDeleteSteps
-                                ? state.requestDeleteSteps
-                                : state.cancelEditSteps
-                            }
-                          />
-                        )}
-                      </>
+                      <DayFieldEditActions
+                        saveLabel={t.dailyEntry.saveStepsLabel}
+                        onSave={state.saveSteps}
+                        saveDisabled={isBlankSaveValue(state.steps)}
+                        cancelLabel={t.dailyEntry.cancelEditStepsLabel}
+                        onCancel={state.cancelEditSteps}
+                        showCancel={state.canCancelStepsEdit}
+                        deleteLabel={t.dailyEntry.deleteStepsLabel}
+                        onDelete={state.requestDeleteSteps}
+                        showDelete={state.canDeleteSteps}
+                      />
                     }
                   />
                   <Input

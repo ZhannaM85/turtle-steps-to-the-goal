@@ -137,8 +137,11 @@ export function DayFieldViewActions({
 }
 
 /**
- * Edit mode: ✓ then ×, plus trash when delete is a separate action from
- * cancel (#854 empty-save stays on the check; #855 confirm stays on trash).
+ * #860 edit-mode rule (all Day fields):
+ * - ✓ saves; empty / whitespace stays disabled (#854)
+ * - × always cancels / reverts the draft — never deletes
+ * - trash deletes a saved value after `ConfirmDeleteEntryBar` (#855)
+ * View mode stays pencil + trash. Notes no longer treat × as delete.
  */
 export function DayFieldEditActions({
   saveLabel,

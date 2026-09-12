@@ -40,4 +40,5 @@ _Shared Safari-safe clocks. #858 already archived as validated the same day._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
+| [#860](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/860) | 🔍 Pending validation | Finish Day field chrome: notes, totals, water delete confirm | Custom-metric notes use `NoteEditRow` / `NoteDisplayBlock`. Day totals use `DayFieldHeader` icons (not text Save/Edit/Clear). Water chip × and day-totals clear use `ConfirmDeleteEntryBar`. **Edit-mode rule:** ✓ saves (#854 empty blocked); × always cancels/reverts; trash deletes after confirm (#855). Chip × is still remove (with confirm), not field-header cancel. |
 | [#859](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/859) | 🔍 Pending validation | Shared Safari-safe TimeInput for all clocks | Extracted #856/#857 water-edit appearance + vertical-center into `TimeInput` (`src/shared/ui/time-input.tsx`). Applied to Settings (day-start / meal-slot / reminder), Add meal (compact), MFP slot times, and Edit water. Native picker behavior unchanged. |
