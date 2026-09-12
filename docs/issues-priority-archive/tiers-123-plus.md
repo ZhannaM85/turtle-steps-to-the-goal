@@ -586,3 +586,13 @@ _Day note/input + check controls: fixed-size checkmark and clear × everywhere._
 | [#852](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/852) | ✅ Done | Morning note placeholder not vertically balanced in the field | Confirmed on-device 2026-09-11 — note placeholder vertical balance. |
 | [#856](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/856) | ✅ Done | Edit water time width matched to amount; Safari type=time fix | Confirmed on-device 2026-09-11 — Edit water time width matched to amount; Safari type=time fix. |
 | [#857](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/857) | ✅ Done | Edit water time value vertically centered | Confirmed on-device 2026-09-11 — Edit water time value vertically centered. |
+
+---
+
+## Tier 160 — Live feedback (2026-09-12)
+
+_Day field actions: move edit/trash and save/cancel to the title row so content is full width._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#858](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/858) | ✅ Done | Move note edit/trash and save/cancel icons to top for full-width text | Confirmed on-device 2026-09-12 — Day field actions moved to title-row header; full-width content. |
