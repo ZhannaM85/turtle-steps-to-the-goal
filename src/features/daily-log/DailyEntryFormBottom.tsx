@@ -1,9 +1,8 @@
-import { Check, ChevronDown, Moon, Pencil, Trash2, X } from 'lucide-react'
+import { ChevronDown, Moon } from 'lucide-react'
 import { formatNumber } from '@/i18n'
 import { DAY_EMOTIONS } from '@/shared/lib/emotionIcons'
 import { isBlankSaveValue } from '@/shared/lib/isBlankSaveValue'
 import { parseNumberInput } from '@/shared/lib/parseNumberInput'
-import { Button } from '@/shared/ui/button'
 import {
   Collapsible,
   CollapsibleContent,
@@ -17,8 +16,14 @@ import {
   EntryFieldComparisonLive,
 } from './EntryFieldComparison'
 import { ConfirmDeleteEntryBar } from './ConfirmDeleteEntryBar'
+import {
+  DayFieldHeader,
+  DayFieldHeaderCancelButton,
+  DayFieldHeaderSaveButton,
+  DayFieldViewActions,
+} from './DayFieldHeader'
 import { EmotionPicker } from './EmotionPicker'
-import { NoteEditRow } from './NoteEditRow'
+import { NoteDisplayBlock, NoteEditRow } from './NoteEditRow'
 import { useDailyEntryFormStateContext } from './useDailyEntryFormStateContext'
 
 /**
@@ -98,100 +103,84 @@ export function DailyEntryFormBottom() {
                 </div>
               ) : state.showStepsAsDisplay ? (
                 <div className="flex flex-col gap-1.5">
-                  <span className="flex items-center gap-1 text-sm font-medium">
-                    {t.dailyEntry.stepsLabel}
-                    <EntryFieldComparisonInfo
-                      field="steps"
-                      currentValue={state.steps}
-                      prior={comparison.prior('steps')}
-                      day30Value={comparison.day30Value('steps')}
-                      unit="none"
-                    />
-                  </span>
-                  <div className="flex h-12 items-center justify-between rounded-lg bg-muted px-3">
+                  <DayFieldHeader
+                    label={
+                      <>
+                        {t.dailyEntry.stepsLabel}
+                        <EntryFieldComparisonInfo
+                          field="steps"
+                          currentValue={state.steps}
+                          prior={comparison.prior('steps')}
+                          day30Value={comparison.day30Value('steps')}
+                          unit="none"
+                        />
+                      </>
+                    }
+                    actions={
+                      <DayFieldViewActions
+                        editLabel={t.dailyEntry.editStepsLabel}
+                        onEdit={() => state.setIsEditingSteps(true)}
+                        deleteLabel={t.dailyEntry.deleteStepsLabel}
+                        onDelete={state.requestDeleteSteps}
+                        showDelete={state.canDeleteSteps}
+                      />
+                    }
+                  />
+                  <div className="flex h-12 items-center rounded-lg bg-muted px-3">
                     <span className="text-sm text-foreground">
                       {state.steps === undefined
                         ? '—'
                         : formatNumber(state.steps, locale, 0)}
                     </span>
-                    <span className="flex shrink-0 items-center gap-1">
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon-xl"
-                        aria-label={t.dailyEntry.editStepsLabel}
-                        onClick={() => state.setIsEditingSteps(true)}
-                      >
-                        <Pencil aria-hidden="true" />
-                      </Button>
-                      {state.canDeleteSteps && (
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="icon-xl"
-                          aria-label={t.dailyEntry.deleteStepsLabel}
-                          onClick={state.requestDeleteSteps}
-                        >
-                          <Trash2 aria-hidden="true" />
-                        </Button>
-                      )}
-                    </span>
                   </div>
                 </div>
               ) : (
                 <div className="flex flex-col gap-1.5">
-                  <span className="text-sm font-medium">
-                    {t.dailyEntry.stepsLabel}
-                  </span>
-                  <div className="flex items-center gap-3">
-                    <Input
-                      type="text"
-                      inputMode="numeric"
-                      aria-label={t.dailyEntry.stepsLabel}
-                      aria-invalid={state.errors.steps ? true : undefined}
-                      className="h-12 w-24"
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter') {
-                          e.preventDefault()
-                          state.saveSteps()
-                        }
-                      }}
-                      {...state.register('steps', {
-                        setValueAs: parseNumberInput,
-                      })}
-                    />
-                    {/* #855 — × on a saved value means delete (with confirm);
-                     * × on an unsaved always-editable draft still cancels. */}
-                    {(state.canDeleteSteps || state.canCancelStepsEdit) && (
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon-xl"
-                        aria-label={
-                          state.canDeleteSteps
-                            ? t.dailyEntry.deleteStepsLabel
-                            : t.dailyEntry.cancelEditStepsLabel
-                        }
-                        onClick={
-                          state.canDeleteSteps
-                            ? state.requestDeleteSteps
-                            : state.cancelEditSteps
-                        }
-                      >
-                        <X aria-hidden="true" />
-                      </Button>
-                    )}
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="icon-xl"
-                      aria-label={t.dailyEntry.saveStepsLabel}
-                      disabled={isBlankSaveValue(state.steps)}
-                      onClick={state.saveSteps}
-                    >
-                      <Check aria-hidden="true" />
-                    </Button>
-                  </div>
+                  <DayFieldHeader
+                    label={t.dailyEntry.stepsLabel}
+                    actions={
+                      <>
+                        <DayFieldHeaderSaveButton
+                          label={t.dailyEntry.saveStepsLabel}
+                          onClick={state.saveSteps}
+                          disabled={isBlankSaveValue(state.steps)}
+                        />
+                        {/* #855 — × on a saved value means delete (with
+                         * confirm); × on an unsaved draft still cancels. */}
+                        {(state.canDeleteSteps ||
+                          state.canCancelStepsEdit) && (
+                          <DayFieldHeaderCancelButton
+                            label={
+                              state.canDeleteSteps
+                                ? t.dailyEntry.deleteStepsLabel
+                                : t.dailyEntry.cancelEditStepsLabel
+                            }
+                            onClick={
+                              state.canDeleteSteps
+                                ? state.requestDeleteSteps
+                                : state.cancelEditSteps
+                            }
+                          />
+                        )}
+                      </>
+                    }
+                  />
+                  <Input
+                    type="text"
+                    inputMode="numeric"
+                    aria-label={t.dailyEntry.stepsLabel}
+                    aria-invalid={state.errors.steps ? true : undefined}
+                    className="h-12 w-24"
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault()
+                        state.saveSteps()
+                      }
+                    }}
+                    {...state.register('steps', {
+                      setValueAs: parseNumberInput,
+                    })}
+                  />
                   <EntryFieldComparisonLive
                     field="steps"
                     currentValue={state.steps}
@@ -218,56 +207,21 @@ export function DailyEntryFormBottom() {
                   />
                 </div>
               ) : state.showNoteAsDisplay ? (
-                <div className="flex flex-col gap-1.5">
-                  <span className="text-sm font-medium">
-                    {t.dailyEntry.noteLabel}
-                  </span>
-                  {/* #189: min-h-12, not a fixed h-12 — a long note wraps to
-                   * multiple lines, and the fixed-height version didn't grow to
-                   * fit, so the edit button (vertically centered against the old,
-                   * too-short box) ended up overlapping the wrapped text instead
-                   * of sitting clear of it. With only a floor height, a short
-                   * single-line note still renders at the same 48px (the icon-xl
-                   * button's own 44px + this row's centering keeps it there),
-                   * while a long one grows the row to fit and items-center still
-                   * centers the button against the full wrapped height. */}
-                  <div className="flex min-h-12 items-center justify-between gap-2 rounded-lg bg-muted px-3 py-1.5">
-                    <span className="flex items-center gap-1.5 text-sm text-foreground">
-                      {state.note}
-                    </span>
-                    <span className="flex shrink-0 items-center gap-1">
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon-xl"
-                        aria-label={t.dailyEntry.editNoteLabel}
-                        onClick={() => state.setIsEditingNote(true)}
-                      >
-                        <Pencil aria-hidden="true" />
-                      </Button>
-                      {state.canDeleteNote && (
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="icon-xl"
-                          aria-label={t.dailyEntry.deleteNoteLabel}
-                          onClick={state.requestDeleteNote}
-                        >
-                          <Trash2 aria-hidden="true" />
-                        </Button>
-                      )}
-                    </span>
-                  </div>
-                </div>
+                <NoteDisplayBlock
+                  label={t.dailyEntry.noteLabel}
+                  text={state.note}
+                  editLabel={t.dailyEntry.editNoteLabel}
+                  onEdit={() => state.setIsEditingNote(true)}
+                  canDelete={state.canDeleteNote}
+                  deleteLabel={t.dailyEntry.deleteNoteLabel}
+                  onDelete={state.requestDeleteNote}
+                />
               ) : (
                 <div className="flex flex-col gap-1.5">
-                  <span className="text-sm font-medium">
-                    {t.dailyEntry.noteLabel}
-                  </span>
-                  {/* #417 / #850 — auto-growing note + fixed-size save
-                   * check and clear ×. Layout lives in NoteEditRow
-                   * (shared with morning note and Night food notes). */}
+                  {/* #417 / #850 / #858 — full-width note; ✓ / × on the
+                   * title row (shared with morning note and Night food). */}
                   <NoteEditRow
+                    label={t.dailyEntry.noteLabel}
                     textareaProps={{
                       'aria-label': t.dailyEntry.noteLabel,
                       'aria-invalid': state.errors.note ? true : undefined,

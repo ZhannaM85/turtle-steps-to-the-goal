@@ -1,10 +1,15 @@
-import type { ComponentProps } from 'react'
-import { Check, X } from 'lucide-react'
+import type { ComponentProps, ReactNode } from 'react'
 import { cn } from '@/shared/lib/utils'
-import { Button } from '@/shared/ui/button'
 import { Textarea } from '@/shared/ui/textarea'
+import {
+  DayFieldHeader,
+  DayFieldHeaderCancelButton,
+  DayFieldHeaderSaveButton,
+  DayFieldViewActions,
+} from './DayFieldHeader'
 
 export interface NoteEditRowProps {
+  label: ReactNode
   textareaProps: ComponentProps<typeof Textarea>
   saveLabel: string
   onSave: () => void
@@ -23,24 +28,20 @@ export interface NoteEditRowProps {
 }
 
 /**
- * Shared Day note-style edit row (#850 / #851): auto-growing textarea
- * (#417) plus a **fixed-size** save checkmark and clear ×. The field still
- * floors at 48px so a short note matches the `icon-xl` buttons (#420 /
- * #841), but the buttons stay 48×48 when the textarea grows — they must
- * not stretch with multi-line height. The row uses `items-center` so those
- * fixed buttons sit in the vertical middle of a tall field (#851). Empty /
- * single-line text (and the placeholder) is padded into that 48px floor so
- * it sits vertically centered (#841 / #852); `content-center` splits any
- * leftover height equally, and a long empty placeholder stays on one line
- * (`placeholder-shown:whitespace-nowrap`) so it cannot wrap into a block
- * that hugs the top. Multi-line growth keeps the same padding so the first
- * line doesn’t jump.
+ * Shared Day note-style editor (#850 / #851 / #858): auto-growing textarea
+ * (#417) with ✓ / × on the **title row** so the field is full width.
+ * Empty / single-line text (and the placeholder) is padded into a 48px
+ * floor so it sits vertically centered (#841 / #852);
+ * `placeholder-shown:whitespace-nowrap` keeps a long empty hint on one
+ * line. Multi-line growth keeps the same padding so the first line
+ * doesn’t jump.
  *
  * Clear × is always shown (day note, morning note, Night food reason,
  * What helped) so peers stay consistent: discard an unsaved draft
  * immediately, or delete a saved note after confirm (#855).
  */
 export function NoteEditRow({
+  label,
   textareaProps,
   saveLabel,
   onSave,
@@ -55,7 +56,29 @@ export function NoteEditRow({
   const clearIsDelete = hasSavedValue && Boolean(onDelete)
 
   return (
-    <div className="flex items-center gap-3">
+    <>
+      <DayFieldHeader
+        label={label}
+        actions={
+          <>
+            <DayFieldHeaderSaveButton
+              label={saveLabel}
+              onClick={onSave}
+              disabled={saveDisabled}
+            />
+            <DayFieldHeaderCancelButton
+              label={clearIsDelete ? (deleteLabel ?? cancelLabel) : cancelLabel}
+              onClick={() => {
+                if (clearIsDelete) {
+                  onDelete?.()
+                  return
+                }
+                onCancel()
+              }}
+            />
+          </>
+        }
+      />
       <Textarea
         {...restTextareaProps}
         className={cn(
@@ -69,37 +92,49 @@ export function NoteEditRow({
           // hugs the top. `md:text-base` keeps the 16/24 metrics the
           // padding math assumes — the shared Textarea’s `md:text-sm`
           // would otherwise shrink line-height from the md breakpoint.
-          'min-h-12 flex-1 py-[11px] text-base md:text-base leading-6 placeholder:leading-6 placeholder-shown:whitespace-nowrap content-center',
+          'min-h-12 w-full py-[11px] text-base md:text-base leading-6 placeholder:leading-6 placeholder-shown:whitespace-nowrap content-center',
         )}
       />
-      <Button
-        type="button"
-        variant="outline"
-        size="icon-xl"
-        aria-label={saveLabel}
-        disabled={saveDisabled}
-        onClick={() => {
-          if (saveDisabled) return
-          onSave()
-        }}
-      >
-        <Check aria-hidden="true" />
-      </Button>
-      <Button
-        type="button"
-        variant="ghost"
-        size="icon-xl"
-        aria-label={clearIsDelete ? (deleteLabel ?? cancelLabel) : cancelLabel}
-        onClick={() => {
-          if (clearIsDelete) {
-            onDelete?.()
-            return
-          }
-          onCancel()
-        }}
-      >
-        <X aria-hidden="true" />
-      </Button>
+    </>
+  )
+}
+
+/** View-mode peer of `NoteEditRow` (#858): pencil + trash on the title row. */
+export function NoteDisplayBlock({
+  label,
+  text,
+  editLabel,
+  onEdit,
+  canDelete = false,
+  deleteLabel,
+  onDelete,
+}: {
+  label: ReactNode
+  text: ReactNode
+  editLabel: string
+  onEdit: () => void
+  canDelete?: boolean
+  deleteLabel?: string
+  onDelete?: () => void
+}) {
+  return (
+    <div className="flex flex-col gap-1.5">
+      <DayFieldHeader
+        label={label}
+        actions={
+          <DayFieldViewActions
+            editLabel={editLabel}
+            onEdit={onEdit}
+            deleteLabel={deleteLabel}
+            onDelete={onDelete}
+            showDelete={canDelete}
+          />
+        }
+      />
+      {/* #189: min-h-12, not a fixed h-12 — a long note wraps. */}
+      <div className="flex min-h-12 items-center rounded-lg bg-muted px-3 py-1.5">
+        <span className="text-sm text-foreground">{text}</span>
+      </div>
     </div>
   )
 }

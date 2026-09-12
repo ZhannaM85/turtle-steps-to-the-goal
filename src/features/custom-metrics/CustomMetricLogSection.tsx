@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Check, ChevronDown, Pencil, Plus, Trash2, X } from 'lucide-react'
+import { ChevronDown, Plus, X } from 'lucide-react'
 import type { CustomMetric } from '@/domain/customMetric'
 import { useTranslation } from '@/i18n'
 import { isBlankSaveValue } from '@/shared/lib/isBlankSaveValue'
@@ -17,6 +17,12 @@ import {
 import { Input } from '@/shared/ui/input'
 import { ToggleGroup, ToggleGroupItem } from '@/shared/ui/toggle-group'
 import { ConfirmDeleteEntryBar } from '@/features/daily-log/ConfirmDeleteEntryBar'
+import {
+  DayFieldHeader,
+  DayFieldHeaderCancelButton,
+  DayFieldHeaderSaveButton,
+  DayFieldViewActions,
+} from '@/features/daily-log/DayFieldHeader'
 
 /** One metric's value-entry row for the given date (#336) — widget shape
  * depends on `metric.inputKind`: a plain number field, a Yes/No toggle
@@ -239,7 +245,29 @@ function MetricValueRow({
             onCancel={cancelDeleteNote}
           />
         ) : isEditingNote ? (
-          <div className="flex items-center gap-2">
+          <div className="flex flex-col gap-1.5">
+            <DayFieldHeader
+              label={t.customMetrics.noteLabel}
+              actions={
+                <>
+                  <DayFieldHeaderSaveButton
+                    label={t.customMetrics.saveNoteLabel}
+                    onClick={saveNote}
+                    disabled={isBlankSaveValue(noteDraft)}
+                  />
+                  {/* #619 / #855 — unsaved draft: × clears without confirm.
+                   * Saved note: × requests delete, then confirm. */}
+                  <DayFieldHeaderCancelButton
+                    label={
+                      note
+                        ? t.customMetrics.deleteNoteLabel
+                        : t.customMetrics.cancelEditNoteLabel
+                    }
+                    onClick={note ? requestDeleteNote : cancelEditNote}
+                  />
+                </>
+              }
+            />
             <Input
               type="text"
               aria-label={t.customMetrics.noteLabel}
@@ -252,57 +280,26 @@ function MetricValueRow({
                   saveNote()
                 }
               }}
-              className="h-9 flex-1"
+              className="h-9 w-full"
             />
-            <Button
-              type="button"
-              variant="outline"
-              size="icon-lg"
-              aria-label={t.customMetrics.saveNoteLabel}
-              disabled={isBlankSaveValue(noteDraft)}
-              onClick={saveNote}
-            >
-              <Check aria-hidden="true" />
-            </Button>
-            {/* #619 / #855 — unsaved draft: × clears without confirm.
-             * Saved note: × requests delete, then confirm. */}
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon-lg"
-              aria-label={
-                note
-                  ? t.customMetrics.deleteNoteLabel
-                  : t.customMetrics.cancelEditNoteLabel
-              }
-              onClick={note ? requestDeleteNote : cancelEditNote}
-            >
-              <X aria-hidden="true" />
-            </Button>
           </div>
         ) : note ? (
-          <div className="flex min-h-9 items-center justify-between gap-2 rounded-lg bg-muted px-2.5 py-1">
-            <span className="text-sm text-foreground">{noteDraft}</span>
-            <span className="flex shrink-0 items-center gap-1">
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon-lg"
-                aria-label={t.customMetrics.editNoteLabel}
-                onClick={() => setIsEditingNote(true)}
-              >
-                <Pencil aria-hidden="true" />
-              </Button>
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon-lg"
-                aria-label={t.customMetrics.deleteNoteLabel}
-                onClick={requestDeleteNote}
-              >
-                <Trash2 aria-hidden="true" />
-              </Button>
-            </span>
+          <div className="flex flex-col gap-1.5">
+            <DayFieldHeader
+              label={t.customMetrics.noteLabel}
+              actions={
+                <DayFieldViewActions
+                  editLabel={t.customMetrics.editNoteLabel}
+                  onEdit={() => setIsEditingNote(true)}
+                  deleteLabel={t.customMetrics.deleteNoteLabel}
+                  onDelete={requestDeleteNote}
+                  showDelete
+                />
+              }
+            />
+            <div className="flex min-h-9 items-center rounded-lg bg-muted px-2.5 py-1">
+              <span className="text-sm text-foreground">{noteDraft}</span>
+            </div>
           </div>
         ) : (
           // #620 — nothing has ever been saved (a fresh note was opened,

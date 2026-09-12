@@ -1,6 +1,5 @@
-import { ChevronDown, Moon, Pencil, Trash2 } from 'lucide-react'
+import { ChevronDown, Moon } from 'lucide-react'
 import { isBlankSaveValue } from '@/shared/lib/isBlankSaveValue'
-import { Button } from '@/shared/ui/button'
 import {
   Collapsible,
   CollapsibleContent,
@@ -9,7 +8,7 @@ import {
 import { ToggleGroup, ToggleGroupItem } from '@/shared/ui/toggle-group'
 import { useTodaySectionsCollapseStore } from '@/stores'
 import { ConfirmDeleteEntryBar } from './ConfirmDeleteEntryBar'
-import { NoteEditRow } from './NoteEditRow'
+import { NoteDisplayBlock, NoteEditRow } from './NoteEditRow'
 import { useDailyEntryFormStateContext } from './useDailyEntryFormStateContext'
 
 /**
@@ -134,44 +133,19 @@ export function DailyEntryFormNightFood() {
                 />
               </div>
             ) : state.showNightEatingReasonAsDisplay ? (
-              <div className="flex flex-col gap-1.5">
-                <span className="text-sm font-medium">
-                  {t.dailyEntry.nightEatingReasonLabel}
-                </span>
-                <div className="flex min-h-12 items-center justify-between gap-2 rounded-lg bg-muted px-3 py-1.5">
-                  <span className="flex items-center gap-1.5 text-sm text-foreground">
-                    {state.nightEatingReason}
-                  </span>
-                  <span className="flex shrink-0 items-center gap-1">
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon-xl"
-                      aria-label={t.dailyEntry.editNightEatingReasonLabel}
-                      onClick={() => state.setIsEditingNightEatingReason(true)}
-                    >
-                      <Pencil aria-hidden="true" />
-                    </Button>
-                    {state.canDeleteNightEatingReason && (
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon-xl"
-                        aria-label={t.dailyEntry.deleteNightEatingReasonLabel}
-                        onClick={state.requestDeleteNightEatingReason}
-                      >
-                        <Trash2 aria-hidden="true" />
-                      </Button>
-                    )}
-                  </span>
-                </div>
-              </div>
+              <NoteDisplayBlock
+                label={t.dailyEntry.nightEatingReasonLabel}
+                text={state.nightEatingReason}
+                editLabel={t.dailyEntry.editNightEatingReasonLabel}
+                onEdit={() => state.setIsEditingNightEatingReason(true)}
+                canDelete={state.canDeleteNightEatingReason}
+                deleteLabel={t.dailyEntry.deleteNightEatingReasonLabel}
+                onDelete={state.requestDeleteNightEatingReason}
+              />
             ) : (
               <div className="flex flex-col gap-1.5">
-                <span className="text-sm font-medium">
-                  {t.dailyEntry.nightEatingReasonLabel}
-                </span>
                 <NoteEditRow
+                  label={t.dailyEntry.nightEatingReasonLabel}
                   textareaProps={{
                     'aria-label': t.dailyEntry.nightEatingReasonLabel,
                     'aria-invalid': state.errors.nightEatingReason
@@ -243,52 +217,21 @@ export function DailyEntryFormNightFood() {
                 />
               </div>
             ) : state.showNightEatingNoWhatHelpedAsDisplay ? (
-              <div className="flex flex-col gap-1.5">
-                <span className="text-sm font-medium">
-                  {t.dailyEntry.nightEatingNoWhatHelpedLabel}
-                </span>
-                <div className="flex min-h-12 items-center justify-between gap-2 rounded-lg bg-muted px-3 py-1.5">
-                  <span className="flex items-center gap-1.5 text-sm text-foreground">
-                    {state.nightEatingNoWhatHelped}
-                  </span>
-                  <span className="flex shrink-0 items-center gap-1">
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon-xl"
-                      aria-label={
-                        t.dailyEntry.editNightEatingNoWhatHelpedLabel
-                      }
-                      onClick={() =>
-                        state.setIsEditingNightEatingNoWhatHelped(true)
-                      }
-                    >
-                      <Pencil aria-hidden="true" />
-                    </Button>
-                    {state.canDeleteNightEatingNoWhatHelped && (
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon-xl"
-                        aria-label={
-                          t.dailyEntry.deleteNightEatingNoWhatHelpedLabel
-                        }
-                        onClick={
-                          state.requestDeleteNightEatingNoWhatHelped
-                        }
-                      >
-                        <Trash2 aria-hidden="true" />
-                      </Button>
-                    )}
-                  </span>
-                </div>
-              </div>
+              <NoteDisplayBlock
+                label={t.dailyEntry.nightEatingNoWhatHelpedLabel}
+                text={state.nightEatingNoWhatHelped}
+                editLabel={t.dailyEntry.editNightEatingNoWhatHelpedLabel}
+                onEdit={() =>
+                  state.setIsEditingNightEatingNoWhatHelped(true)
+                }
+                canDelete={state.canDeleteNightEatingNoWhatHelped}
+                deleteLabel={t.dailyEntry.deleteNightEatingNoWhatHelpedLabel}
+                onDelete={state.requestDeleteNightEatingNoWhatHelped}
+              />
             ) : (
               <div className="flex flex-col gap-1.5">
-                <span className="text-sm font-medium">
-                  {t.dailyEntry.nightEatingNoWhatHelpedLabel}
-                </span>
                 <NoteEditRow
+                  label={t.dailyEntry.nightEatingNoWhatHelpedLabel}
                   textareaProps={{
                     'aria-label': t.dailyEntry.nightEatingNoWhatHelpedLabel,
                     'aria-invalid': state.errors.nightEatingNoWhatHelped

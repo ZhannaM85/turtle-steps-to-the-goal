@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 813,
+    issue: 858,
+    date: '2026-09-12T10:23:19+03:00',
+    en: 'On Day, edit, save, and cancel icons now sit at the top-right of each field, so the text and numbers use the full width.',
+    ru: 'На экране «День» значки изменения, сохранения и отмены теперь стоят справа вверху у каждого поля, чтобы текст и числа занимали всю ширину.',
+  },
+  {
     version: 812,
     issue: 857,
     date: '2026-09-11T23:19:16+03:00',

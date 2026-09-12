@@ -441,6 +441,37 @@ describe('DailyEntryForm', () => {
       expectWeightDisplay('80')
     })
 
+    it('puts save and cancel on the title row in edit mode (#858)', async () => {
+      const user = userEvent.setup()
+      render(
+        <DailyEntryForm
+          date="2026-03-01"
+          existingEntry={{
+            id: 'e1',
+            date: '2026-03-01',
+            weightKg: 80,
+            createdAt: now,
+            updatedAt: now,
+          }}
+          onSave={vi.fn()}
+        />,
+      )
+
+      await user.click(screen.getByRole('button', { name: 'Edit weight' }))
+      const titleRow = screen.getByText('Weight (kg)').closest(
+        'div',
+      ) as HTMLElement
+      expect(
+        within(titleRow).getByRole('button', { name: 'Save weight' }),
+      ).toHaveAttribute('data-size', 'icon-sm')
+      expect(
+        within(titleRow).getByRole('button', { name: 'Cancel editing weight' }),
+      ).toHaveAttribute('data-size', 'icon-sm')
+      expect(
+        titleRow.contains(screen.getByLabelText('Weight (kg)')),
+      ).toBe(false)
+    })
+
     it('blocks saving an empty weight instead of clearing it and showing NaN (#669)', async () => {
       const user = userEvent.setup()
       const onSave = vi.fn()
@@ -971,6 +1002,32 @@ describe('DailyEntryForm', () => {
       expect(
         screen.getByText('7h 0m slept · 1h 30m deep'),
       ).toBeInTheDocument()
+    })
+
+    it('puts save and cancel on the Sleep title row in edit mode (#858)', async () => {
+      const user = userEvent.setup()
+      render(
+        <DailyEntryForm
+          date="2026-03-01"
+          existingEntry={{
+            id: 'e1',
+            date: '2026-03-01',
+            sleepHours: 7,
+            createdAt: now,
+            updatedAt: now,
+          }}
+          onSave={vi.fn()}
+        />,
+      )
+
+      await user.click(screen.getByRole('button', { name: 'Edit sleep' }))
+      const titleRow = screen.getByText('Sleep').closest('div') as HTMLElement
+      expect(
+        within(titleRow).getByRole('button', { name: 'Save sleep' }),
+      ).toHaveAttribute('data-size', 'icon-sm')
+      expect(
+        within(titleRow).getByRole('button', { name: 'Cancel editing sleep' }),
+      ).toHaveAttribute('data-size', 'icon-sm')
     })
 
     describe('leaving edit mode without saving (#424)', () => {
@@ -1603,20 +1660,23 @@ describe('DailyEntryForm', () => {
       })
     })
 
-    // #427 — jsdom has no layout engine (same reasoning #343's dnd-kit note
-    // already documents), so the real fix was verified live via a Playwright
-    // boundingBox() measurement, not here. This guards the specific classes
-    // that placement depends on, so a future refactor back to grid auto-flow
-    // (the original bug) doesn't silently regress unnoticed.
-    it('pins the Save button to column 3/row 2 of the grid, not auto-flow (#427)', () => {
+    it('puts Save on the title row so the grid is full width (#858)', () => {
       render(
         <DailyEntryForm date="2026-03-01" existingEntry={null} onSave={vi.fn()} />,
       )
 
-      const saveButton = screen.getByRole('button', {
+      const titleRow = screen.getByText('Body composition').closest(
+        'div',
+      ) as HTMLElement
+      const saveButton = within(titleRow).getByRole('button', {
         name: 'Save body composition',
       })
-      expect(saveButton).toHaveClass('col-start-3', 'row-start-2', 'self-end')
+      expect(saveButton).toHaveAttribute('data-size', 'icon-sm')
+      expect(saveButton).not.toHaveClass(
+        'col-start-3',
+        'row-start-2',
+        'self-end',
+      )
     })
 
     it('shows existing body composition as read-only text with a pencil, editable via a Save button', async () => {
@@ -4384,7 +4444,7 @@ describe('DailyEntryForm', () => {
       expect(onSave).not.toHaveBeenCalled()
     })
 
-    it('keeps a fixed-size check and a clear × on What helped (#850)', () => {
+    it('puts What helped save and clear on the title row (#850 / #858)', () => {
       render(
         <DailyEntryForm
           date="2026-03-01"
@@ -4399,17 +4459,23 @@ describe('DailyEntryForm', () => {
         />,
       )
 
-      const save = screen.getByRole('button', { name: 'Save what helped' })
-      const clear = screen.getByRole('button', {
+      const titleRow = screen.getByText('What helped?').closest(
+        'div',
+      ) as HTMLElement
+      const save = within(titleRow).getByRole('button', {
+        name: 'Save what helped',
+      })
+      const clear = within(titleRow).getByRole('button', {
         name: 'Cancel editing what helped',
       })
-      expect(save).toHaveAttribute('data-size', 'icon-xl')
-      expect(clear).toHaveAttribute('data-size', 'icon-xl')
-      expect(save).not.toHaveClass('self-stretch')
-      expect(clear).not.toHaveClass('self-stretch')
+      expect(save).toHaveAttribute('data-size', 'icon-sm')
+      expect(clear).toHaveAttribute('data-size', 'icon-sm')
+      expect(
+        titleRow.contains(screen.getByRole('textbox', { name: 'What helped?' })),
+      ).toBe(false)
     })
 
-    it('keeps a fixed-size check and a clear × on Night food reason (#850)', () => {
+    it('puts Night food reason save and clear on the title row (#850 / #858)', () => {
       render(
         <DailyEntryForm
           date="2026-03-01"
@@ -4424,13 +4490,15 @@ describe('DailyEntryForm', () => {
         />,
       )
 
-      const save = screen.getByRole('button', { name: 'Save reason' })
-      const clear = screen.getByRole('button', {
+      const titleRow = screen.getByText('Reason').closest('div') as HTMLElement
+      const save = within(titleRow).getByRole('button', {
+        name: 'Save reason',
+      })
+      const clear = within(titleRow).getByRole('button', {
         name: 'Cancel editing reason',
       })
-      expect(save).toHaveAttribute('data-size', 'icon-xl')
-      expect(clear).toHaveAttribute('data-size', 'icon-xl')
-      expect(save).not.toHaveClass('self-stretch')
+      expect(save).toHaveAttribute('data-size', 'icon-sm')
+      expect(clear).toHaveAttribute('data-size', 'icon-sm')
     })
 
     it('clears an unsaved What helped draft without persisting it (#850)', async () => {

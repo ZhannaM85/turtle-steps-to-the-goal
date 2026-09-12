@@ -1,4 +1,4 @@
-import { Check, ChevronDown, Pencil, Sun, Trash2, X } from 'lucide-react'
+import { ChevronDown, Sun } from 'lucide-react'
 import { formatExactNumber } from '@/i18n'
 import { isBlankSaveValue } from '@/shared/lib/isBlankSaveValue'
 import { parseNumberInput } from '@/shared/lib/parseNumberInput'
@@ -23,7 +23,12 @@ import {
   EntryFieldComparisonInfo,
   EntryFieldComparisonLive,
 } from './EntryFieldComparison'
-import { NoteEditRow } from './NoteEditRow'
+import {
+  DayFieldEditActions,
+  DayFieldHeader,
+  DayFieldViewActions,
+} from './DayFieldHeader'
+import { NoteDisplayBlock, NoteEditRow } from './NoteEditRow'
 import { ConfirmDeleteEntryBar } from './ConfirmDeleteEntryBar'
 import { AutoSleepScreenshotFillControl } from './autoSleepScreenshot/AutoSleepScreenshotFillControl'
 import { useDailyEntryFormStateContext } from './useDailyEntryFormStateContext'
@@ -197,47 +202,32 @@ export function DailyEntryFormMorning() {
               </div>
             ) : state.showWeightAsDisplay ? (
               <div className="flex flex-col gap-1.5">
-                {/* #798 — pencil + trash on the title row (same as Sleep
-                 * #752 / Body composition #750) so they stack in one
-                 * column. Large #516 value stays in the muted card. */}
-                <div className="flex items-center justify-between gap-2">
-                  <span className="flex items-center gap-1 text-sm font-medium">
-                    {t.dailyEntry.weightLabel}
-                    <EntryFieldComparisonInfo
-                      field="weightKg"
-                      currentValue={state.weightKg}
-                      prior={comparison.prior('weightKg')}
-                      day30Value={comparison.day30Value('weightKg')}
-                      unit="kg"
+                {/* #798 / #858 — pencil + trash on the title row (same as
+                 * Sleep #752 / Body composition #750) so they stack in
+                 * one column. Large #516 value stays in the muted card. */}
+                <DayFieldHeader
+                  label={
+                    <>
+                      {t.dailyEntry.weightLabel}
+                      <EntryFieldComparisonInfo
+                        field="weightKg"
+                        currentValue={state.weightKg}
+                        prior={comparison.prior('weightKg')}
+                        day30Value={comparison.day30Value('weightKg')}
+                        unit="kg"
+                      />
+                    </>
+                  }
+                  actions={
+                    <DayFieldViewActions
+                      editLabel={t.dailyEntry.editWeightLabel}
+                      onEdit={() => state.setIsEditingWeight(true)}
+                      deleteLabel={t.dailyEntry.deleteWeightLabel}
+                      onDelete={state.requestDeleteWeight}
+                      showDelete={state.canDeleteWeight}
                     />
-                  </span>
-                  <span className="flex shrink-0 items-center gap-1">
-                    {/* #746 — Pencil then Trash, same order as meals and
-                     * History. #807 — gap-1 matches title ⓘ / ImageUp+ⓘ,
-                     * not #127's wider control gap. #670 — delete a
-                     * logged weight, gated on a saved value. */}
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon-sm"
-                      aria-label={t.dailyEntry.editWeightLabel}
-                      onClick={() => state.setIsEditingWeight(true)}
-                    >
-                      <Pencil aria-hidden="true" />
-                    </Button>
-                    {state.canDeleteWeight && (
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon-sm"
-                        aria-label={t.dailyEntry.deleteWeightLabel}
-                        onClick={state.requestDeleteWeight}
-                      >
-                        <Trash2 aria-hidden="true" />
-                      </Button>
-                    )}
-                  </span>
-                </div>
+                  }
+                />
                 <div className="flex min-h-12 items-center rounded-lg bg-muted px-3 py-2">
                   {/* #516 — Weight is the Day screen's primary morning
                    * figure (unlike body composition's five peers). Value
@@ -254,65 +244,37 @@ export function DailyEntryFormMorning() {
               </div>
             ) : (
               <div className="flex flex-col gap-1.5">
-                <span className="text-sm font-medium">
-                  {t.dailyEntry.weightLabel}
-                </span>
-                <div className="flex items-center gap-3">
-                  <Input
-                    type="text"
-                    inputMode="decimal"
-                    aria-label={t.dailyEntry.weightLabel}
-                    aria-invalid={state.errors.weightKg ? true : undefined}
-                    className="h-12 flex-1"
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') {
-                        e.preventDefault()
-                        state.saveWeight()
-                      }
-                    }}
-                    {...state.register('weightKg', {
-                      setValueAs: parseNumberInput,
-                    })}
-                  />
-                  {/* #670 — same delete affordance as the display-mode pill
-                   * above, offered here too since History's inline "Edit
-                   * entry" (alwaysEditable) never shows that display mode. */}
-                  {state.canDeleteWeight && (
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon-xl"
-                      aria-label={t.dailyEntry.deleteWeightLabel}
-                      onClick={state.requestDeleteWeight}
-                    >
-                      <Trash2 aria-hidden="true" />
-                    </Button>
-                  )}
-                  {/* #424 — leave edit mode without saving, same affordance
-                   * MealList.tsx's #169 Cancel button already established. Hidden
-                   * when there's no established value to actually revert to (a
-                   * brand-new entry auto-opens here with nothing saved yet). */}
-                  {state.canCancelWeightEdit && (
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon-xl"
-                      aria-label={t.dailyEntry.cancelEditWeightLabel}
-                      onClick={state.cancelEditWeight}
-                    >
-                      <X aria-hidden="true" />
-                    </Button>
-                  )}
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="icon-xl"
-                    aria-label={t.dailyEntry.saveWeightLabel}
-                    onClick={state.saveWeight}
-                  >
-                    <Check aria-hidden="true" />
-                  </Button>
-                </div>
+                <DayFieldHeader
+                  label={t.dailyEntry.weightLabel}
+                  actions={
+                    <DayFieldEditActions
+                      saveLabel={t.dailyEntry.saveWeightLabel}
+                      onSave={state.saveWeight}
+                      cancelLabel={t.dailyEntry.cancelEditWeightLabel}
+                      onCancel={state.cancelEditWeight}
+                      showCancel={state.canCancelWeightEdit}
+                      deleteLabel={t.dailyEntry.deleteWeightLabel}
+                      onDelete={state.requestDeleteWeight}
+                      showDelete={state.canDeleteWeight}
+                    />
+                  }
+                />
+                <Input
+                  type="text"
+                  inputMode="decimal"
+                  aria-label={t.dailyEntry.weightLabel}
+                  aria-invalid={state.errors.weightKg ? true : undefined}
+                  className="h-12 w-full"
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault()
+                      state.saveWeight()
+                    }
+                  }}
+                  {...state.register('weightKg', {
+                    setValueAs: parseNumberInput,
+                  })}
+                />
                 <EntryFieldComparisonLive
                   field="weightKg"
                   currentValue={state.weightKg}
@@ -388,57 +350,47 @@ export function DailyEntryFormMorning() {
                 </div>
               ) : state.showSleepAsDisplay ? (
                 <div className="flex flex-col gap-1.5">
-                  {/* #752 — screenshot + pencil + trash sit on the title
-                   * row (same as Body composition #750) so the duration
-                   * card is text only. */}
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="flex items-center gap-1 text-sm font-medium">
-                      {t.dailyEntry.sleepLabel}
-                      <EntryFieldComparisonInfo
-                        field="sleepHours"
-                        currentValue={state.sleepHours}
-                        prior={comparison.prior('sleepHours')}
-                        day30Value={comparison.day30Value('sleepHours')}
-                        unit="hours"
-                      />
-                    </span>
-                    <div className="flex shrink-0 items-center gap-1">
-                      <AutoSleepScreenshotFillControl
-                        asOfDate={state.date}
-                        onConfirm={state.applySleepPatch}
-                      />
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon-sm"
-                        aria-label={t.dailyEntry.editSleepLabel}
-                        onClick={() => {
-                          const parts = splitHoursMinutes(state.sleepHours)
-                          const deepParts = splitHoursMinutes(
-                            state.deepSleepHours,
-                          )
-                          state.setSleepHoursPart(parts.hours)
-                          state.setSleepMinutesPart(parts.minutes)
-                          state.setDeepSleepHoursPart(deepParts.hours)
-                          state.setDeepSleepMinutesPart(deepParts.minutes)
-                          state.setIsEditingSleep(true)
-                        }}
-                      >
-                        <Pencil aria-hidden="true" />
-                      </Button>
-                      {state.canDeleteSleep && (
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="icon-sm"
-                          aria-label={t.dailyEntry.deleteSleepLabel}
-                          onClick={state.requestDeleteSleep}
-                        >
-                          <Trash2 aria-hidden="true" />
-                        </Button>
-                      )}
-                    </div>
-                  </div>
+                  {/* #752 / #858 — screenshot + pencil + trash on the
+                   * title row so the duration card is text only. */}
+                  <DayFieldHeader
+                    label={
+                      <>
+                        {t.dailyEntry.sleepLabel}
+                        <EntryFieldComparisonInfo
+                          field="sleepHours"
+                          currentValue={state.sleepHours}
+                          prior={comparison.prior('sleepHours')}
+                          day30Value={comparison.day30Value('sleepHours')}
+                          unit="hours"
+                        />
+                      </>
+                    }
+                    actions={
+                      <>
+                        <AutoSleepScreenshotFillControl
+                          asOfDate={state.date}
+                          onConfirm={state.applySleepPatch}
+                        />
+                        <DayFieldViewActions
+                          editLabel={t.dailyEntry.editSleepLabel}
+                          onEdit={() => {
+                            const parts = splitHoursMinutes(state.sleepHours)
+                            const deepParts = splitHoursMinutes(
+                              state.deepSleepHours,
+                            )
+                            state.setSleepHoursPart(parts.hours)
+                            state.setSleepMinutesPart(parts.minutes)
+                            state.setDeepSleepHoursPart(deepParts.hours)
+                            state.setDeepSleepMinutesPart(deepParts.minutes)
+                            state.setIsEditingSleep(true)
+                          }}
+                          deleteLabel={t.dailyEntry.deleteSleepLabel}
+                          onDelete={state.requestDeleteSleep}
+                          showDelete={state.canDeleteSleep}
+                        />
+                      </>
+                    }
+                  />
                   <div className="flex h-12 items-center rounded-lg bg-muted px-3">
                     <span className="text-sm text-foreground">
                       {t.dailyEntry.sleepSummary(
@@ -454,17 +406,27 @@ export function DailyEntryFormMorning() {
                 </div>
               ) : (
                 <div className="flex flex-col gap-1.5">
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="text-sm font-medium">
-                      {t.dailyEntry.sleepLabel}
-                    </span>
-                    <div className="flex shrink-0 items-center gap-1">
-                      <AutoSleepScreenshotFillControl
-                        asOfDate={state.date}
-                        onConfirm={state.applySleepPatch}
-                      />
-                    </div>
-                  </div>
+                  <DayFieldHeader
+                    label={t.dailyEntry.sleepLabel}
+                    actions={
+                      <>
+                        <AutoSleepScreenshotFillControl
+                          asOfDate={state.date}
+                          onConfirm={state.applySleepPatch}
+                        />
+                        <DayFieldEditActions
+                          saveLabel={t.dailyEntry.saveSleepLabel}
+                          onSave={state.saveSleep}
+                          cancelLabel={t.dailyEntry.cancelEditSleepLabel}
+                          onCancel={state.cancelEditSleep}
+                          showCancel={state.canCancelSleepEdit}
+                          deleteLabel={t.dailyEntry.deleteSleepLabel}
+                          onDelete={state.requestDeleteSleep}
+                          showDelete={state.canDeleteSleep}
+                        />
+                      </>
+                    }
+                  />
                   <div className="flex flex-wrap items-end gap-3">
                     <div className="flex flex-col gap-1">
                       <Label htmlFor="sleep-hours-part">
@@ -567,39 +529,6 @@ export function DailyEntryFormMorning() {
                         </span>
                       </div>
                     </div>
-                    {/* #745 */}
-                    {state.canDeleteSleep && (
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon-xl"
-                        aria-label={t.dailyEntry.deleteSleepLabel}
-                        onClick={state.requestDeleteSleep}
-                      >
-                        <Trash2 aria-hidden="true" />
-                      </Button>
-                    )}
-                    {/* #424 */}
-                    {state.canCancelSleepEdit && (
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon-xl"
-                        aria-label={t.dailyEntry.cancelEditSleepLabel}
-                        onClick={state.cancelEditSleep}
-                      >
-                        <X aria-hidden="true" />
-                      </Button>
-                    )}
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="icon-xl"
-                      aria-label={t.dailyEntry.saveSleepLabel}
-                      onClick={state.saveSleep}
-                    >
-                      <Check aria-hidden="true" />
-                    </Button>
                   </div>
                   <EntryFieldComparisonLive
                     field="sleepHours"
@@ -654,10 +583,21 @@ export function DailyEntryFormMorning() {
                 </div>
               ) : state.showBodyMeasurementsAsDisplay ? (
                 <div className="flex flex-col gap-1.5">
-                  <span className="text-sm font-medium">
-                    {t.dailyEntry.bodyMeasurementsLabel}
-                  </span>
-                  <div className="flex h-12 items-center justify-between rounded-lg bg-muted px-3">
+                  <DayFieldHeader
+                    label={t.dailyEntry.bodyMeasurementsLabel}
+                    actions={
+                      <DayFieldViewActions
+                        editLabel={t.dailyEntry.editBodyMeasurementsLabel}
+                        onEdit={() =>
+                          state.setIsEditingBodyMeasurements(true)
+                        }
+                        deleteLabel={t.dailyEntry.deleteBodyMeasurementsLabel}
+                        onDelete={state.requestDeleteBodyMeasurements}
+                        showDelete={state.canDeleteBodyMeasurements}
+                      />
+                    }
+                  />
+                  <div className="flex h-12 items-center rounded-lg bg-muted px-3">
                     <span className="text-sm text-foreground">
                       {t.dailyEntry.bodyMeasurementsSummary(
                         state.waistCm === undefined
@@ -668,37 +608,27 @@ export function DailyEntryFormMorning() {
                           : `${formatExactNumber(state.hipCm, locale)}${t.dailyEntry.cmUnit}`,
                       )}
                     </span>
-                    <span className="flex items-center gap-1">
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon-xl"
-                        aria-label={t.dailyEntry.editBodyMeasurementsLabel}
-                        onClick={() =>
-                          state.setIsEditingBodyMeasurements(true)
-                        }
-                      >
-                        <Pencil aria-hidden="true" />
-                      </Button>
-                      {state.canDeleteBodyMeasurements && (
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="icon-xl"
-                          aria-label={t.dailyEntry.deleteBodyMeasurementsLabel}
-                          onClick={state.requestDeleteBodyMeasurements}
-                        >
-                          <Trash2 aria-hidden="true" />
-                        </Button>
-                      )}
-                    </span>
                   </div>
                 </div>
               ) : (
                 <div className="flex flex-col gap-1.5">
-                  <span className="text-sm font-medium">
-                    {t.dailyEntry.bodyMeasurementsLabel}
-                  </span>
+                  <DayFieldHeader
+                    label={t.dailyEntry.bodyMeasurementsLabel}
+                    actions={
+                      <DayFieldEditActions
+                        saveLabel={t.dailyEntry.saveBodyMeasurementsLabel}
+                        onSave={state.saveBodyMeasurements}
+                        cancelLabel={
+                          t.dailyEntry.cancelEditBodyMeasurementsLabel
+                        }
+                        onCancel={state.cancelEditBodyMeasurements}
+                        showCancel={state.canCancelBodyMeasurementsEdit}
+                        deleteLabel={t.dailyEntry.deleteBodyMeasurementsLabel}
+                        onDelete={state.requestDeleteBodyMeasurements}
+                        showDelete={state.canDeleteBodyMeasurements}
+                      />
+                    }
+                  />
                   <div className="flex flex-wrap items-end gap-3">
                     <div className="flex flex-col gap-1">
                       <Label>{t.dailyEntry.waistLabel}</Label>
@@ -748,40 +678,6 @@ export function DailyEntryFormMorning() {
                         </span>
                       </div>
                     </div>
-                    {state.canDeleteBodyMeasurements && (
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon-xl"
-                        aria-label={t.dailyEntry.deleteBodyMeasurementsLabel}
-                        onClick={state.requestDeleteBodyMeasurements}
-                      >
-                        <Trash2 aria-hidden="true" />
-                      </Button>
-                    )}
-                    {/* #424 */}
-                    {state.canCancelBodyMeasurementsEdit && (
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon-xl"
-                        aria-label={
-                          t.dailyEntry.cancelEditBodyMeasurementsLabel
-                        }
-                        onClick={state.cancelEditBodyMeasurements}
-                      >
-                        <X aria-hidden="true" />
-                      </Button>
-                    )}
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="icon-xl"
-                      aria-label={t.dailyEntry.saveBodyMeasurementsLabel}
-                      onClick={state.saveBodyMeasurements}
-                    >
-                      <Check aria-hidden="true" />
-                    </Button>
                   </div>
                   {(state.errors.waistCm || state.errors.hipCm) && (
                     <p className="text-sm text-destructive">
@@ -828,42 +724,29 @@ export function DailyEntryFormMorning() {
                 </div>
               ) : state.showBodyCompositionAsDisplay ? (
                 <div className="flex flex-col gap-1.5">
-                  {/* #750 — screenshot + pencil + trash sit on the title
-                   * row (same as edit mode) so the five-value grid can use
-                   * the full width underneath instead of colliding. */}
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="text-sm font-medium">
-                      {t.dailyEntry.bodyCompositionLabel}
-                    </span>
-                    <div className="flex shrink-0 items-center gap-1">
-                      <ZeppScreenshotFillControl
-                        asOfDate={state.date}
-                        onConfirm={state.applyBodyCompositionPatch}
-                      />
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon-sm"
-                        aria-label={t.dailyEntry.editBodyCompositionLabel}
-                        onClick={() =>
-                          state.setIsEditingBodyComposition(true)
-                        }
-                      >
-                        <Pencil aria-hidden="true" />
-                      </Button>
-                      {state.canDeleteBodyComposition && (
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="icon-sm"
-                          aria-label={t.dailyEntry.deleteBodyCompositionLabel}
-                          onClick={state.requestDeleteBodyComposition}
-                        >
-                          <Trash2 aria-hidden="true" />
-                        </Button>
-                      )}
-                    </div>
-                  </div>
+                  {/* #750 / #858 — screenshot + pencil + trash on the
+                   * title row so the five-value grid can use the full
+                   * width underneath. */}
+                  <DayFieldHeader
+                    label={t.dailyEntry.bodyCompositionLabel}
+                    actions={
+                      <>
+                        <ZeppScreenshotFillControl
+                          asOfDate={state.date}
+                          onConfirm={state.applyBodyCompositionPatch}
+                        />
+                        <DayFieldViewActions
+                          editLabel={t.dailyEntry.editBodyCompositionLabel}
+                          onEdit={() =>
+                            state.setIsEditingBodyComposition(true)
+                          }
+                          deleteLabel={t.dailyEntry.deleteBodyCompositionLabel}
+                          onDelete={state.requestDeleteBodyComposition}
+                          showDelete={state.canDeleteBodyComposition}
+                        />
+                      </>
+                    }
+                  />
                   {/* #515 — two-row grid, each metric the same visual weight. */}
                   <div className="rounded-lg bg-muted px-3 py-2.5">
                     <dl className="grid grid-cols-3 gap-x-3 gap-y-2">
@@ -892,52 +775,35 @@ export function DailyEntryFormMorning() {
                 </div>
               ) : (
                 <div className="flex flex-col gap-1.5">
-                    <div className="flex items-center justify-between gap-2">
-                    <span className="text-sm font-medium">
-                      {t.dailyEntry.bodyCompositionLabel}
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <ZeppScreenshotFillControl
-                        asOfDate={state.date}
-                        onConfirm={state.applyBodyCompositionPatch}
-                      />
-                      {state.canDeleteBodyComposition && (
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="icon-sm"
-                          aria-label={t.dailyEntry.deleteBodyCompositionLabel}
-                          onClick={state.requestDeleteBodyComposition}
-                        >
-                          <Trash2 aria-hidden="true" />
-                        </Button>
-                      )}
-                    </span>
-                  </div>
-                  {/* #427 — 5 fields plus the Save button don't wrap evenly in a
-                   * single `flex flex-wrap` row the way Sleep's 2/Body
-                   * measurements' 2 do (2 then 3, stranding the button on its
-                   * own line). A fixed 2-per-row grid keeps every field's
-                   * position predictable regardless of viewport width. The Save
-                   * button is explicitly placed at column 3, row 2 (not relying
-                   * on grid auto-flow, which would place it right after field 5
-                   * on a 3rd row instead) — `self-end` bottom-aligns it within
-                   * that row's cell, which (since the button is `size-12`/48px,
-                   * exactly matching each `h-12` input) lands its top border
-                   * flush with row 2's own input top border, not just "roughly
-                   * near it." Three earlier placements (floating below in
-                   * leftover grid whitespace, same-row-as-the-last-field only,
-                   * then centered against all 3 rows rather than exactly
-                   * top-aligned with row 2 specifically) each missed live
-                   * feedback before landing here. `w-fit` on the grid keeps its
-                   * columns sized to their (narrow, `w-16`) field content
-                   * instead of splitting the card's full width evenly.
-                   * #660 — `gap-y-4` (was `gap-y-3`) widens the gap between
-                   * one row's input and the next row's label, so it reads
-                   * clearly larger than each label's own `gap-1` to its
-                   * input below (see the `min-h-8` spans' `items-end` for
-                   * the other half of the fix). */}
-                  <div className="grid w-fit grid-cols-[auto_auto_auto_auto] gap-x-6 gap-y-4">
+                  <DayFieldHeader
+                    label={t.dailyEntry.bodyCompositionLabel}
+                    actions={
+                      <>
+                        <ZeppScreenshotFillControl
+                          asOfDate={state.date}
+                          onConfirm={state.applyBodyCompositionPatch}
+                        />
+                        <DayFieldEditActions
+                          saveLabel={t.dailyEntry.saveBodyCompositionLabel}
+                          onSave={state.saveBodyComposition}
+                          cancelLabel={
+                            t.dailyEntry.cancelEditBodyCompositionLabel
+                          }
+                          onCancel={state.cancelEditBodyComposition}
+                          showCancel={state.canCancelBodyCompositionEdit}
+                          deleteLabel={t.dailyEntry.deleteBodyCompositionLabel}
+                          onDelete={state.requestDeleteBodyComposition}
+                          showDelete={state.canDeleteBodyComposition}
+                        />
+                      </>
+                    }
+                  />
+                  {/* #427 / #858 — 2-per-row grid of the five fields;
+                   * ✓ / × / trash live on the title row so they no longer
+                   * sit mid-grid. `w-fit` keeps columns sized to the
+                   * narrow `w-16` inputs. #660 — `gap-y-4` keeps the gap
+                   * between rows larger than each label's own `gap-1`. */}
+                  <div className="grid w-fit grid-cols-[auto_auto] gap-x-6 gap-y-4">
                     <div className="col-start-1 row-start-1 flex flex-col gap-1">
                       {/* #446 — a fixed min-h reserves the same vertical space
                        * whether or not this particular label actually wraps, so
@@ -1125,32 +991,6 @@ export function DailyEntryFormMorning() {
                         unit="percent"
                       />
                     </div>
-                    {/* #424 — added as a 4th grid column at Save's own row (not
-                     * a new row/placement scheme), so Save's already-live-
-                     * validated col-start-3/row-start-2 position (#427) is
-                     * untouched by this addition. */}
-                    {state.canCancelBodyCompositionEdit && (
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon-xl"
-                        aria-label={t.dailyEntry.cancelEditBodyCompositionLabel}
-                        onClick={state.cancelEditBodyComposition}
-                        className="col-start-4 row-start-2 self-end"
-                      >
-                        <X aria-hidden="true" />
-                      </Button>
-                    )}
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="icon-xl"
-                      aria-label={t.dailyEntry.saveBodyCompositionLabel}
-                      onClick={state.saveBodyComposition}
-                      className="col-start-3 row-start-2 self-end"
-                    >
-                      <Check aria-hidden="true" />
-                    </Button>
                   </div>
                   {(state.errors.muscleMassKg ||
                     state.errors.visceralFatRating ||
@@ -1208,44 +1048,19 @@ export function DailyEntryFormMorning() {
                   />
                 </div>
               ) : state.showMorningNoteAsDisplay ? (
-                <div className="flex flex-col gap-1.5">
-                  <span className="text-sm font-medium">
-                    {t.dailyEntry.morningNoteLabel}
-                  </span>
-                  <div className="flex min-h-12 items-center justify-between gap-2 rounded-lg bg-muted px-3 py-1.5">
-                    <span className="flex items-center gap-1.5 text-sm text-foreground">
-                      {state.morningNote}
-                    </span>
-                    <span className="flex shrink-0 items-center gap-1">
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon-xl"
-                        aria-label={t.dailyEntry.editMorningNoteLabel}
-                        onClick={() => state.setIsEditingMorningNote(true)}
-                      >
-                        <Pencil aria-hidden="true" />
-                      </Button>
-                      {state.canDeleteMorningNote && (
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="icon-xl"
-                          aria-label={t.dailyEntry.deleteMorningNoteLabel}
-                          onClick={state.requestDeleteMorningNote}
-                        >
-                          <Trash2 aria-hidden="true" />
-                        </Button>
-                      )}
-                    </span>
-                  </div>
-                </div>
+                <NoteDisplayBlock
+                  label={t.dailyEntry.morningNoteLabel}
+                  text={state.morningNote}
+                  editLabel={t.dailyEntry.editMorningNoteLabel}
+                  onEdit={() => state.setIsEditingMorningNote(true)}
+                  canDelete={state.canDeleteMorningNote}
+                  deleteLabel={t.dailyEntry.deleteMorningNoteLabel}
+                  onDelete={state.requestDeleteMorningNote}
+                />
               ) : (
                 <div className="flex flex-col gap-1.5">
-                  <span className="text-sm font-medium">
-                    {t.dailyEntry.morningNoteLabel}
-                  </span>
                   <NoteEditRow
+                    label={t.dailyEntry.morningNoteLabel}
                     textareaProps={{
                       'aria-label': t.dailyEntry.morningNoteLabel,
                       'aria-invalid': state.errors.morningNote

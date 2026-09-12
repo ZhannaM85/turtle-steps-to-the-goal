@@ -31,3 +31,13 @@ _User asked about pulling data from Apple Health and Zepp Life. Researched via W
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#334](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/334) | 📋 Not started | Epic — Apple Health integration (blocked on mobile app + HealthKit bridge) | HealthKit has no public/cloud API at all — data is on-device only, readable exclusively by a native iOS app (or hybrid app with a HealthKit plugin/entitlement) the user has granted permission to. Genuinely blocked until the mobile app exists; can't be built sooner by any workaround. |
+
+---
+
+## Tier 160 — Live feedback (2026-09-12)
+
+_Day field actions: move edit/trash and save/cancel to the title row so content is full width._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#858](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/858) | 🔍 Pending validation | Move note edit/trash and save/cancel icons to top for full-width text | Shared `DayFieldHeader`: view pencil+trash and edit ✓/× on the title row for morning note, day note, night reason / what helped, steps, custom-metric notes, weight, sleep, body measurements, and body composition. #854 empty-save and #855 delete confirm kept. |
