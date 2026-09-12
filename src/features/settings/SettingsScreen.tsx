@@ -69,6 +69,7 @@ import { SettingsPinnableCard } from './SettingsPinnableCard'
 import { SettingsCardsCollapseControl } from './SettingsCardsCollapseControl'
 import { Input } from '@/shared/ui/input'
 import { Label } from '@/shared/ui/label'
+import { TimeInput } from '@/shared/ui/time-input'
 import { PageHeader } from '@/shared/ui/page-header'
 import { ToggleGroup, ToggleGroupItem } from '@/shared/ui/toggle-group'
 import { ClearAllDataSection } from './ClearAllDataSection'
@@ -913,12 +914,11 @@ export function SettingsScreen() {
           <span className="text-sm text-muted-foreground">
             {t.settings.dayStartDescription}
           </span>
-          <Input
-            type="time"
+          <TimeInput
             aria-label={t.settings.dayStartLabel}
             value={dayStartTime}
             onChange={(e) => setDayStartTime(e.target.value)}
-            className="h-12 w-32"
+            className="w-32"
           />
         </CardContent>
       </SettingsPinnableCard>
@@ -942,9 +942,8 @@ export function SettingsScreen() {
             ).map(([slot, label]) => (
               <div key={slot} className="flex flex-col gap-1.5">
                 <Label htmlFor={`settings-meal-slot-${slot}`}>{label}</Label>
-                <Input
+                <TimeInput
                   id={`settings-meal-slot-${slot}`}
-                  type="time"
                   aria-label={label}
                   value={mealSlotDefaultTimes[slot]}
                   onFocus={() => {
@@ -955,7 +954,7 @@ export function SettingsScreen() {
                     const previous = slotFocusValueRef.current[slot] ?? ''
                     void offerApplySlotDefaults(previous, e.target.value)
                   }}
-                  className="h-12 w-32"
+                  className="w-32"
                 />
               </div>
             ))}
@@ -1258,13 +1257,12 @@ export function SettingsScreen() {
               <Label htmlFor="settings-daily-reminder-time">
                 {t.settings.dailyReminderTimeLabel}
               </Label>
-              <Input
+              <TimeInput
                 id="settings-daily-reminder-time"
-                type="time"
                 aria-label={t.settings.dailyReminderTimeLabel}
                 value={dailyReminderTime}
                 onChange={(e) => setDailyReminderTime(e.target.value)}
-                className="h-12 w-32"
+                className="w-32"
               />
             </div>
           )}

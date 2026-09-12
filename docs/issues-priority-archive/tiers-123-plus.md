@@ -591,7 +591,7 @@ _Day note/input + check controls: fixed-size checkmark and clear × everywhere._
 
 ## Tier 160 — Live feedback (2026-09-12)
 
-_Day field actions: move edit/trash and save/cancel to the title row so content is full width._
+_Day field actions: move edit/trash and save/cancel to the title row so content is full width. Same-day open follow-up #859 is in the active `docs/issues-priority.md`._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|

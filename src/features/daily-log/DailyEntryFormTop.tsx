@@ -10,8 +10,8 @@ import {
   CollapsibleTrigger,
 } from '@/shared/ui/collapsible'
 import { Dialog, DialogContent, DialogTitle } from '@/shared/ui/dialog'
-import { Input } from '@/shared/ui/input'
 import { Label } from '@/shared/ui/label'
+import { TimeInput } from '@/shared/ui/time-input'
 import { NumberInput } from '@/shared/ui/number-input'
 import { StatCard } from '@/shared/ui/stat-card'
 import { usePlannedMealsTrackingStore, useTodaySectionsCollapseStore } from '@/stores'
@@ -514,19 +514,15 @@ export function DailyEntryFormTop() {
                   <Label htmlFor="water-entry-time">
                     {t.dailyEntry.timeEatenLabel}
                   </Label>
-                  {/* #856 — Safari input[type=time] ignores width unless
-                   * appearance is reset; keep the same full-width box as
-                   * Amount (мл stays an overlay inside NumberInput).
-                   * #857 — flex + leading-normal so the value sits in the
-                   * vertical middle (Safari type=time otherwise sits high). */}
+                  {/* #859 — shared TimeInput carries #856/#857 Safari width
+                   * + vertical-center; keep the same full-width box as Amount. */}
                   <div className="relative w-full min-w-0">
-                    <Input
+                    <TimeInput
                       id="water-entry-time"
-                      type="time"
                       aria-label={t.dailyEntry.timeEatenLabel}
                       value={editTime}
                       onChange={(event) => setEditTime(event.target.value)}
-                      className="flex h-12 w-full min-w-0 max-w-full items-center appearance-none leading-normal [-webkit-appearance:none]"
+                      className="w-full min-w-0 max-w-full"
                     />
                   </div>
                 </div>

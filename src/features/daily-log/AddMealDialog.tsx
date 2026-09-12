@@ -57,6 +57,7 @@ import { Button } from '@/shared/ui/button'
 import { Dialog, DialogContent, DialogTitle } from '@/shared/ui/dialog'
 import { Input } from '@/shared/ui/input'
 import { Label } from '@/shared/ui/label'
+import { TimeInput } from '@/shared/ui/time-input'
 import { SectionTitleWithToggle } from '@/shared/ui/section-title-with-toggle'
 import {
   calorieItemToShareMealItem,
@@ -1400,12 +1401,12 @@ export function AddMealDialog({
              * Close (the two were easy to confuse), and whole-meal delete
              * moved down next to the Done footer. */}
             <div className="flex h-12 shrink-0 items-center rounded-lg border border-input bg-transparent pr-1 transition-colors focus-within:border-ring focus-within:ring-3 focus-within:ring-ring/50 dark:bg-input/30">
-              <Input
-                type="time"
+              <TimeInput
+                compact
                 aria-label={t.dailyEntry.timeEatenLabel}
                 value={timeEaten}
                 onChange={(e) => onTimeEatenChange(e.target.value)}
-                className="h-full w-24 border-transparent bg-transparent pr-0 focus-visible:border-transparent focus-visible:ring-0 dark:bg-transparent"
+                className="border-transparent bg-transparent pr-0 focus-visible:border-transparent focus-visible:ring-0 dark:bg-transparent"
               />
               {/* App-level clear button (#117) — restored after being
                * dropped in the #454 rewrite; the native time picker's own

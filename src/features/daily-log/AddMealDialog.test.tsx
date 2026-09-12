@@ -1276,6 +1276,13 @@ describe('AddMealDialog (#454)', () => {
 
     expect(screen.getByLabelText('Meal name')).toHaveClass('h-12')
     expect(screen.getByLabelText('Time').parentElement).toHaveClass('h-12')
+    expect(screen.getByLabelText('Time')).toHaveClass(
+      'h-full',
+      'w-24',
+      'appearance-none',
+      'flex',
+      'items-center',
+    )
     expect(screen.getByLabelText('Meal note')).toHaveClass('h-12')
   })
 

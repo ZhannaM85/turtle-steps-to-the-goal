@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 814,
+    issue: 859,
+    date: '2026-09-12T22:50:00+03:00',
+    en: 'Clock fields on Settings, Add meal, MyFitnessPal import, and Edit water now share the same Safari-safe layout.',
+    ru: 'Поля времени в Настройках, «Добавить приём», импорте MyFitnessPal и «Изменить воду» теперь используют одну и ту же Safari-безопасную вёрстку.',
+  },
+  {
     version: 813,
     issue: 858,
     date: '2026-09-12T10:23:19+03:00',

@@ -12,8 +12,8 @@ import {
   DialogDescription,
   DialogTitle,
 } from '@/shared/ui/dialog'
-import { Input } from '@/shared/ui/input'
 import { Label } from '@/shared/ui/label'
+import { TimeInput } from '@/shared/ui/time-input'
 
 const SLOT_ORDER: MealSlotKey[] = ['breakfast', 'lunch', 'snack', 'dinner']
 
@@ -99,15 +99,14 @@ function SlotTimesFields({
         {SLOT_ORDER.map((slot) => (
           <div key={slot} className="flex flex-col gap-1.5">
             <Label htmlFor={`mfp-slot-time-${slot}`}>{slotLabels[slot]}</Label>
-            <Input
+            <TimeInput
               id={`mfp-slot-time-${slot}`}
-              type="time"
               value={times[slot]}
               onChange={(e) =>
                 setTimes((prev) => ({ ...prev, [slot]: e.target.value }))
               }
               disabled={submitting}
-              className="h-12 w-32"
+              className="w-32"
             />
           </div>
         ))}
