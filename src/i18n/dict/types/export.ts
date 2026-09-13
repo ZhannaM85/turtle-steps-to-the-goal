@@ -45,6 +45,8 @@ export interface PdfSummaryDict {
     customMetricsSectionTitle: string
     /** #609 acceptance criterion — must render visibly on the document. */
     disclaimer: string
+    /** #865 — title on optional extra pages after the one-page summary. */
+    dailyLogPagesTitle: string
   }
 
 export interface ExportDict {
@@ -127,10 +129,8 @@ export interface ExportDict {
      * `crypto.subtle.decrypt` itself throws before anything reaches
      * `importAllData`, so a wrong attempt never touches IndexedDB. */
     wrongEncryptedBackupPassword: string
-    /** #609 — a one-page PDF summary (weight trend, weekly averages,
-     * optional body measurements) for sharing outside the app, e.g. with a
-     * clinician. Document content strings live in `pdfSummary` below;
-     * these are just the trigger button/range picker/status messages. */
+    /** #609 / #865 — Settings copy for the PDF export. Still a one-page
+     * clinician summary by default; optional daily-log pages are gated. */
     exportPdfBlurb: string
     exportPdfButton: string
     exportingPdfButton: string
@@ -161,6 +161,9 @@ export interface ExportDict {
     pdfSectionDisabledNotTrackedTooltip: string
     pdfSectionDisabledNoDataTooltip: string
     pdfSectionDisabledTooltipLabel: string
+    /** #865 — off-by-default extra pages; not part of the summary toggles. */
+    pdfSectionDailyLogPagesLabel: string
+    pdfSectionDailyLogPagesHint: string
     exportExcelBlurb: string
     exportExcelButton: string
     exportingExcelButton: string

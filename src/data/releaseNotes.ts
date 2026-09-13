@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 832,
+    issue: 865,
+    date: '2026-09-13T16:55:00+03:00',
+    en: 'PDF export is still a one-page summary unless you turn on optional daily-log pages.',
+    ru: 'PDF по-прежнему одностраничная сводка, пока вы сами не включите дополнительные страницы дневника.',
+  },
+  {
     version: 831,
     issue: 871,
     date: '2026-09-13T16:40:00+03:00',

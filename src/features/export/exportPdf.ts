@@ -17,6 +17,10 @@ import {
 } from '@/i18n'
 import { formatSleepDuration } from '@/shared/lib/sleepDuration'
 import type { Unit } from '@/stores/unitStore'
+import {
+  appendDailyLogPdfPages,
+  type DailyLogPdfInput,
+} from './exportPdfDailyLog'
 
 interface LatestField {
   value: number
@@ -433,6 +437,7 @@ export async function buildSummaryPdf(
   unit: Unit,
   sections: PdfSections = DEFAULT_PDF_SECTIONS,
   customMetricSummaries: CustomMetricPdfSummary[] = [],
+  dailyLog?: DailyLogPdfInput,
 ): Promise<Blob> {
   const { jsPDF } = await import('jspdf')
   const { default: autoTable } = await import('jspdf-autotable')
@@ -775,6 +780,11 @@ export async function buildSummaryPdf(
       marginX,
       cursorY,
     )
+  }
+
+  // #865 — optional gated daily-log pages; default is still summary-only.
+  if (dailyLog && dailyLog.entries.length > 0) {
+    appendDailyLogPdfPages(doc, autoTable, dailyLog, t)
   }
 
   // #609 acceptance: the disclaimer must be visible on the document —

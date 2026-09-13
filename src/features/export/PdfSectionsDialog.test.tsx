@@ -53,6 +53,7 @@ describe('PdfSectionsDialog', () => {
         rawAvailability={availability({ bodyMeasurements: true })}
         trackingGate={{ ...ALL_TRACKED, bodyMeasurements: false }}
         customMetrics={[]}
+        dailyLogAvailable
       />,
     )
 
@@ -77,6 +78,7 @@ describe('PdfSectionsDialog', () => {
         rawAvailability={availability()} // no data anywhere
         trackingGate={ALL_TRACKED}
         customMetrics={[]}
+        dailyLogAvailable
       />,
     )
 
@@ -100,6 +102,7 @@ describe('PdfSectionsDialog', () => {
         rawAvailability={availability({ weightTrend: true })}
         trackingGate={ALL_TRACKED}
         customMetrics={[]}
+        dailyLogAvailable
       />,
     )
 
@@ -123,6 +126,7 @@ describe('PdfSectionsDialog', () => {
         rawAvailability={availability()}
         trackingGate={ALL_TRACKED}
         customMetrics={[{ id: 'm1', name: 'Acne', available: false }]}
+        dailyLogAvailable
       />,
     )
 
@@ -133,5 +137,29 @@ describe('PdfSectionsDialog', () => {
     expect(
       await screen.findByText(/no data logged for this/i),
     ).toBeInTheDocument()
+  })
+
+  it('leaves Daily log pages off by default (#865)', async () => {
+    const user = userEvent.setup()
+    const onSubmit = vi.fn()
+    render(
+      <PdfSectionsDialog
+        open
+        onOpenChange={vi.fn()}
+        onSubmit={onSubmit}
+        submitting={false}
+        availability={availability({ weightTrend: true })}
+        rawAvailability={availability({ weightTrend: true })}
+        trackingGate={ALL_TRACKED}
+        customMetrics={[]}
+        dailyLogAvailable
+      />,
+    )
+
+    const dailyLog = screen.getByRole('button', { name: 'Daily log pages' })
+    expect(dailyLog).toHaveAttribute('aria-pressed', 'false')
+
+    await user.click(screen.getByRole('button', { name: 'Generate PDF' }))
+    expect(onSubmit).toHaveBeenCalledWith(expect.anything(), false)
   })
 })

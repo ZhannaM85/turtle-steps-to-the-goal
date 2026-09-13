@@ -33,6 +33,7 @@ export const pdfSummary: PdfSummaryDict = {
     customMetricsSectionTitle: 'Custom metrics',
     disclaimer:
       'This document is a personal summary generated from self-reported data in Turtle Steps to the Goal. It is not medical advice — consult a healthcare professional for guidance about your health.',
+    dailyLogPagesTitle: 'Daily log',
   }
 
 export const exportCopy: ExportDict = {
@@ -102,7 +103,7 @@ export const exportCopy: ExportDict = {
     wrongEncryptedBackupPassword:
       'Wrong password, or the file is corrupted.',
     exportPdfBlurb:
-      'Download a one-page PDF summary — weight trend, weekly averages, and body measurements if logged — for sharing outside the app, e.g. with a clinician.',
+      'PDF is a one-page clinician summary (weight trend, weekly averages, optional measurements) — not a full Excel dump. Daily-log table pages are optional and off unless you turn them on in the next step.',
     exportPdfButton: 'Export PDF summary',
     exportingPdfButton: 'Generating…',
     exportedPdfSummary: 'PDF summary downloaded.',
@@ -124,6 +125,9 @@ export const exportCopy: ExportDict = {
     pdfSectionDisabledNoDataTooltip:
       'No data logged for this in the selected date range.',
     pdfSectionDisabledTooltipLabel: 'Why this is disabled',
+    pdfSectionDailyLogPagesLabel: 'Daily log pages',
+    pdfSectionDailyLogPagesHint:
+      'Adds extra landscape pages with the same day-by-day columns as CSV. Off by default so the PDF stays a one-page summary.',
     exportExcelBlurb:
       'Download your data as an Excel file for viewing or analysis — this is not a backup and can’t be imported back in.',
     exportExcelButton: 'Export as Excel',

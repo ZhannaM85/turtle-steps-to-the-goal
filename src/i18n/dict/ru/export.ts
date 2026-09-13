@@ -34,6 +34,7 @@ export const pdfSummary: PdfSummaryDict = {
     customMetricsSectionTitle: 'Свои показатели',
     disclaimer:
       'Этот документ — личная сводка, сформированная на основе самостоятельно внесённых данных в приложении «Черепашка идёт к цели». Это не медицинская рекомендация — за консультацией о состоянии здоровья обратитесь к врачу.',
+    dailyLogPagesTitle: 'Дневник по дням',
   }
 
 export const exportCopy: ExportDict = {
@@ -102,7 +103,7 @@ export const exportCopy: ExportDict = {
     wrongEncryptedBackupPassword:
       'Неверный пароль или файл повреждён.',
     exportPdfBlurb:
-      'Скачайте сводку на одну страницу PDF — динамика веса, средние по неделям и замеры тела, если они внесены — чтобы поделиться за пределами приложения, например с врачом.',
+      'PDF — это одностраничная сводка для врача (динамика веса, средние по неделям, выборочные замеры), а не полная выгрузка как в Excel. Таблица по дням — отдельная опция и по умолчанию выключена.',
     exportPdfButton: 'Экспорт PDF-сводки',
     exportingPdfButton: 'Формирование…',
     exportedPdfSummary: 'PDF-сводка скачана.',
@@ -124,6 +125,9 @@ export const exportCopy: ExportDict = {
     pdfSectionDisabledNoDataTooltip:
       'За выбранный период нет данных по этому показателю.',
     pdfSectionDisabledTooltipLabel: 'Почему это недоступно',
+    pdfSectionDailyLogPagesLabel: 'Страницы дневника',
+    pdfSectionDailyLogPagesHint:
+      'Добавляет альбомные страницы с теми же колонками по дням, что и CSV. По умолчанию выключено, чтобы PDF оставался одностраничной сводкой.',
     exportExcelBlurb:
       'Скачайте свои данные в формате Excel для просмотра или анализа — это не резервная копия, импортировать её обратно нельзя.',
     exportExcelButton: 'Экспорт в Excel',

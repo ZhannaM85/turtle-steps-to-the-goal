@@ -6,6 +6,10 @@ import {
   useCustomMetricStore,
   useCycleTrackingStore,
   useDigestionTrackingStore,
+  useEatingReasonTrackingStore,
+  useMealSlotDefaultTimesStore,
+  useMicronutrientTrackingStore,
+  useProfileStore,
   useTrackedFieldsStore,
   useUnitStore,
   useWaterTrackingStore,
@@ -14,7 +18,10 @@ import {
 import { Button } from '@/shared/ui/button'
 import { DateInput } from '@/shared/ui/date-input'
 import { resolveWeekStartsOn } from '@/shared/lib/resolveWeekStartsOn'
+import type { DailyEntry } from '@/domain/dailyEntry'
 import { exportAllData } from './exportActions'
+import type { DailyLogExportExtras } from './dailyLogExport'
+import { filterByExportPeriod } from './filterByExportPeriod'
 import {
   exportPeriodFileStamp,
 } from './exportPeriodFileStamp'
@@ -32,6 +39,7 @@ import {
   type PdfSections,
   type PdfSummaryData,
 } from './exportPdf'
+import type { DailyLogPdfInput } from './exportPdfDailyLog'
 import { PdfSectionsDialog } from './PdfSectionsDialog'
 import { sectionErrorMessage } from './exportSectionStatus'
 import { SectionStatus } from './SectionStatus'
@@ -56,6 +64,17 @@ export function PdfExportSection() {
     (state) => state.enabled,
   )
   const waterTrackingEnabled = useWaterTrackingStore((state) => state.enabled)
+  const sex = useProfileStore((state) => state.sex)
+  const eatingReasonTrackingEnabled = useEatingReasonTrackingStore(
+    (state) => state.enabled,
+  )
+  const eatingReasonLabelOverrides = useEatingReasonTrackingStore(
+    (state) => state.builtinLabelOverrides,
+  )
+  const micronutrients = useMicronutrientTrackingStore((state) => state.tracked)
+  const mealSlotDefaultTimes = useMealSlotDefaultTimesStore(
+    (state) => state.times,
+  )
   const pdfTrackingGate: PdfSectionTrackingGate = {
     sleep: trackedFields.sleep,
     steps: trackedFields.steps,
@@ -91,6 +110,10 @@ export function PdfExportSection() {
   const [pdfCustomMetricOptions, setPdfCustomMetricOptions] = useState<
     CustomMetricPdfOption[]
   >([])
+  const [pdfDailyEntries, setPdfDailyEntries] = useState<DailyEntry[]>([])
+  const [pdfDailyLogExtras, setPdfDailyLogExtras] = useState<
+    DailyLogExportExtras
+  >({})
 
   async function openPdfSectionsDialog() {
     setStatus({ kind: 'exportingPdf' })
@@ -121,6 +144,38 @@ export function PdfExportSection() {
       setPdfCustomMetricOptions(
         customMetricPdfOptions(metrics, customMetricSummaries),
       )
+      setPdfDailyEntries(
+        filterByExportPeriod(
+          bundle.dailyEntries,
+          pdfPeriodStart,
+          pdfPeriodEnd,
+        ),
+      )
+      setPdfDailyLogExtras({
+        customMetrics: metrics,
+        customMetricEntries,
+        tracking: {
+          sleep: trackedFields.sleep,
+          steps: trackedFields.steps,
+          bodyMeasurements: trackedFields.bodyMeasurements,
+          note: trackedFields.note,
+          morningNote: trackedFields.morningNote,
+          mood: trackedFields.mood,
+          bodyComposition: trackedFields.bodyComposition,
+          nightEating: trackedFields.nightEating,
+          fiber: trackedFields.fiber,
+          cycle: cycleTrackingEnabled,
+          digestion: digestionTrackingEnabled,
+          alcohol: alcoholTrackingEnabled,
+          water: waterTrackingEnabled,
+          sodium: micronutrients.sodium,
+          potassium: micronutrients.potassium,
+          magnesium: micronutrients.magnesium,
+          eatingReason: eatingReasonTrackingEnabled,
+        },
+        mealSlotTimes: mealSlotDefaultTimes,
+        eatingReasonLabelOverrides,
+      })
       setStatus({ kind: 'idle' })
       setPdfSectionsDialogOpen(true)
     } catch {
@@ -132,10 +187,20 @@ export function PdfExportSection() {
     }
   }
 
-  async function handleExportPdf(sections: PdfSections) {
+  async function handleExportPdf(
+    sections: PdfSections,
+    includeDailyLogPages: boolean,
+  ) {
     if (!pdfPreviewData) return
     setStatus({ kind: 'exportingPdf' })
     try {
+      const dailyLog: DailyLogPdfInput | undefined = includeDailyLogPages
+        ? {
+            entries: pdfDailyEntries,
+            extras: pdfDailyLogExtras,
+            sex,
+          }
+        : undefined
       const blob = await buildSummaryPdf(
         pdfPreviewData,
         t,
@@ -143,6 +208,7 @@ export function PdfExportSection() {
         unit,
         sections,
         pdfCustomMetricSummaries,
+        dailyLog,
       )
       const url = URL.createObjectURL(blob)
       const link = document.createElement('a')
@@ -251,6 +317,7 @@ export function PdfExportSection() {
         }
         trackingGate={pdfTrackingGate}
         customMetrics={pdfCustomMetricOptions}
+        dailyLogAvailable={pdfDailyEntries.length > 0}
       />
     </>
   )

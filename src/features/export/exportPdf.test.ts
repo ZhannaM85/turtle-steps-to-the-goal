@@ -576,4 +576,30 @@ describe('buildSummaryPdf', () => {
 
     expect(withoutMetric.size).toBeLessThan(withMetric.size)
   })
+
+  it('appends daily-log pages only when they are requested (#865)', async () => {
+    const entries = [
+      makeEntry({ date: '2026-08-01', weightKg: 80 }),
+      makeEntry({ date: '2026-08-02', weightKg: 79 }),
+    ]
+    const data = buildPdfSummaryData(entries, '2026-07-07', '2026-08-05', 1)
+    const summaryOnly = await buildSummaryPdf(
+      data,
+      t,
+      'en',
+      'kg',
+      ALL_SECTIONS_EXCLUDED,
+    )
+    const withDailyLog = await buildSummaryPdf(
+      data,
+      t,
+      'en',
+      'kg',
+      ALL_SECTIONS_EXCLUDED,
+      [],
+      { entries },
+    )
+
+    expect(withDailyLog.size).toBeGreaterThan(summaryOnly.size)
+  })
 })

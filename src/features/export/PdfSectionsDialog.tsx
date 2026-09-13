@@ -20,7 +20,7 @@ import {
 export interface PdfSectionsDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
-  onSubmit: (sections: PdfSections) => void
+  onSubmit: (sections: PdfSections, includeDailyLogPages: boolean) => void
   submitting: boolean
   /** #630 — whether each built-in section has data in the currently-picked
    * date range, ANDed with its Settings tracking gate (#633); a section
@@ -35,6 +35,8 @@ export interface PdfSectionsDialogProps {
   trackingGate: PdfSectionTrackingGate
   /** #630 — every defined custom metric, each flagged the same way. */
   customMetrics: CustomMetricPdfOption[]
+  /** #865 — day rows exist in the picked range. Toggle stays off by default. */
+  dailyLogAvailable: boolean
 }
 
 /** #634 — text for a disabled toggle's tooltip, naming which of the two
@@ -79,9 +81,11 @@ export function PdfSectionsDialog({
   rawAvailability,
   trackingGate,
   customMetrics,
+  dailyLogAvailable,
 }: PdfSectionsDialogProps) {
   const t = useTranslation()
   const [selected, setSelected] = useState<string[]>([])
+  const [includeDailyLogPages, setIncludeDailyLogPages] = useState(false)
 
   // #634 — labels built from `t` so this can't drift from the JSX that used
   // to spell out one `ToggleGroupItem` per section; each disabled toggle
@@ -118,6 +122,7 @@ export function PdfSectionsDialog({
   if (open !== prevOpen) {
     setPrevOpen(open)
     if (open) {
+      setIncludeDailyLogPages(false)
       setSelected([
         ...builtinSections
           .map(({ key }) => key)
@@ -160,7 +165,7 @@ export function PdfSectionsDialog({
       customMetricIds: customMetrics
         .filter((metric) => isSelected(`${CUSTOM_METRIC_PREFIX}${metric.id}`))
         .map((metric) => metric.id),
-    })
+    }, includeDailyLogPages && dailyLogAvailable)
   }
 
   const builtinSelected = selected.filter(
@@ -247,6 +252,36 @@ export function PdfSectionsDialog({
               </ToggleGroup>
             </div>
           )}
+          <div className="flex flex-col gap-1.5">
+            <ToggleGroup
+              type="multiple"
+              aria-label={t.export.pdfSectionDailyLogPagesLabel}
+              value={includeDailyLogPages ? ['dailyLogPages'] : []}
+              onValueChange={(values) =>
+                setIncludeDailyLogPages(values.includes('dailyLogPages'))
+              }
+              className="flex-wrap"
+            >
+              <span className="inline-flex items-center gap-1">
+                <ToggleGroupItem
+                  value="dailyLogPages"
+                  className="h-12"
+                  disabled={!dailyLogAvailable}
+                >
+                  {t.export.pdfSectionDailyLogPagesLabel}
+                </ToggleGroupItem>
+                {!dailyLogAvailable && (
+                  <InfoTooltip
+                    text={t.export.pdfSectionDisabledNoDataTooltip}
+                    label={t.export.pdfSectionDisabledTooltipLabel}
+                  />
+                )}
+              </span>
+            </ToggleGroup>
+            <p className="text-sm text-muted-foreground">
+              {t.export.pdfSectionDailyLogPagesHint}
+            </p>
+          </div>
           <Button
             onClick={handleSubmit}
             disabled={submitting}

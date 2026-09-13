@@ -51,7 +51,7 @@ _Shared Safari-safe clocks. #858 already archived as validated the same day._
 
 ## Tier 161 — Live feedback (2026-09-13)
 
-_Pace-check copy plus the 2026-09-12 analysis/design-audit backlog (#865–#879), filed on GitHub but not queued until today. Work easiest → hardest. **#865 parked** until the user picks summary-copy vs optional daily-log PDF pages._
+_Pace-check copy plus the 2026-09-12 analysis/design-audit backlog (#865–#879), filed on GitHub but not queued until today. Work easiest → hardest._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
@@ -69,5 +69,5 @@ _Pace-check copy plus the 2026-09-12 analysis/design-audit backlog (#865–#879)
 | [#871](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/871) | 🔍 Pending validation | Split Dictionary / EN / RU by feature (P2) | `Dictionary.ts` / `en.ts` / `ru.ts` are thin assemblers. Feature copy lives in `src/i18n/dict/{types,en,ru}/`. Off the max-lines allowlist. |
 | [#868](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/868) | 🔍 Pending validation | Split remaining Day/export/settings god files (≤500) | Follow-up to #864 lint. ExportSection, SettingsScreen, useDailyEntryFormState, AddMealDialog, and TodayScreen are off the max-lines allowlist. |
 | [#877](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/877) | 📋 Not started | Settings: group ~29 peer cards instead of one flat scroll | 4–5 named sections (Logging, Appearance, Library, Backup, Danger). Keep pin. Real tap target for collapse-all. L. |
-| [#865](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/865) | 📋 Not started | PDF export: clarify summary-only vs optional daily-log pages | **Parked — design fork.** Louder “PDF is a one-page summary” copy vs optional gated daily-log pages. Do not silently dump Excel into PDF. |
+| [#865](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/865) | 🔍 Pending validation | PDF export: clarify summary-only vs optional daily-log pages | PDF stays a one-page summary unless “Daily log pages” is turned on. Extra landscape pages reuse `dailyLogExport` columns. Not a silent Excel dump. |
 | [#882](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/882) | 🔍 Pending validation | Day date field shows English month in Russian UI | `html lang` follows Settings. `DateInput` paints date-fns `PP` in the app locale and keeps a native picker overlay. Wired on Day, History, Goal, export/PDF, Dashboard, delete-range. |
