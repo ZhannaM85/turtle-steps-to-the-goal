@@ -11,9 +11,7 @@ describe('RouteErrorFallback', () => {
   it('shows a friendly message, not a blank screen', () => {
     render(<RouteErrorFallback />)
 
-    expect(
-      screen.getByRole('heading', { name: 'Something went wrong' }),
-    ).toBeInTheDocument()
+    expect(screen.getByText('Something went wrong')).toBeInTheDocument()
     expect(screen.getByText(/your data is safe/i)).toBeInTheDocument()
   })
 

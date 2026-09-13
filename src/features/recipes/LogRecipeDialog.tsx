@@ -12,6 +12,7 @@ import { formatComputedTotal } from '@/shared/lib/macroScaling'
 import { parseNumberInput } from '@/shared/lib/parseNumberInput'
 import { Button } from '@/shared/ui/button'
 import { Dialog, DialogContent, DialogTitle } from '@/shared/ui/dialog'
+import { EmptyState } from '@/shared/ui/empty-state'
 import { Input } from '@/shared/ui/input'
 
 export interface LogRecipeDialogProps {
@@ -83,9 +84,10 @@ export function LogRecipeDialog({
         <DialogTitle>{t.recipes.logRecipeDialogTitle}</DialogTitle>
         <div className="flex flex-1 flex-col gap-5 overflow-y-auto pt-4">
           {recipes.length === 0 ? (
-            <p className="text-sm text-muted-foreground">
-              {t.recipes.noRecipesYetMessage}
-            </p>
+            <EmptyState
+              title={t.recipes.noRecipesYetMessage}
+              className="py-6"
+            />
           ) : (
             <>
               <div className="flex flex-col gap-1.5">

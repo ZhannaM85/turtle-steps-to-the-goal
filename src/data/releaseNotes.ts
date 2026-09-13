@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 821,
+    issue: 879,
+    date: '2026-09-13T13:40:00+03:00',
+    en: 'Empty meals, recipe and metric libraries, and the crash screen now use the same empty-state layout.',
+    ru: 'Пустой список приёмов пищи, библиотеки рецептов и метрик и экран сбоя теперь выглядят одинаково.',
+  },
+  {
     version: 820,
     issue: 870,
     date: '2026-09-13T13:25:00+03:00',

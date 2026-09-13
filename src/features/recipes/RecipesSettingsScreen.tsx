@@ -8,6 +8,7 @@ import { formatComputedTotal } from '@/shared/lib/macroScaling'
 import { buildRecipeShoppingListText } from '@/shared/lib/recipeShoppingList'
 import { useMealItemStore, useRecipeStore } from '@/stores'
 import { Button } from '@/shared/ui/button'
+import { EmptyState } from '@/shared/ui/empty-state'
 import { PageHeader } from '@/shared/ui/page-header'
 import { RecipeEditorDialog } from './RecipeEditorDialog'
 
@@ -65,9 +66,7 @@ export function RecipesSettingsScreen() {
         description={t.recipes.screenDescription}
       />
       {recipes.length === 0 ? (
-        <p className="text-sm text-muted-foreground">
-          {t.recipes.emptyStateText}
-        </p>
+        <EmptyState title={t.recipes.emptyStateText} className="py-6" />
       ) : (
         <ul className="flex flex-col gap-2">
           {recipes.map((recipe) => {

@@ -94,6 +94,7 @@ describe('MealList', () => {
       { wrapper: MemoryRouter },
     )
 
+    expect(screen.getByText('No meals yet')).toBeInTheDocument()
     expect(
       screen.getByRole('button', { name: '+ Add a meal' }),
     ).toBeInTheDocument()

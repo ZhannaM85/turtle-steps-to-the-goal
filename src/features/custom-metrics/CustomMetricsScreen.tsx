@@ -8,6 +8,7 @@ import {
   useCustomMetricStore,
 } from '@/stores'
 import { Button } from '@/shared/ui/button'
+import { EmptyState } from '@/shared/ui/empty-state'
 import { PageHeader } from '@/shared/ui/page-header'
 import { AddCorrelationDialog } from './AddCorrelationDialog'
 import { AddMetricDialog } from './AddMetricDialog'
@@ -80,9 +81,10 @@ export function CustomMetricsScreen() {
           {t.customMetrics.metricsSectionLabel}
         </h2>
         {metrics.length === 0 ? (
-          <p className="text-sm text-muted-foreground">
-            {t.customMetrics.emptyMetricsText}
-          </p>
+          <EmptyState
+            title={t.customMetrics.emptyMetricsText}
+            className="py-6"
+          />
         ) : (
           <ul className="flex flex-col gap-2">
             {metrics.map((metric) => (
@@ -132,9 +134,10 @@ export function CustomMetricsScreen() {
           {t.customMetrics.correlationsSectionLabel}
         </h2>
         {correlations.length === 0 ? (
-          <p className="text-sm text-muted-foreground">
-            {t.customMetrics.emptyCorrelationsText}
-          </p>
+          <EmptyState
+            title={t.customMetrics.emptyCorrelationsText}
+            className="py-6"
+          />
         ) : (
           <ul className="flex flex-col gap-2">
             {correlations.map((correlation) => {

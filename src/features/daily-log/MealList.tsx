@@ -36,6 +36,7 @@ import { IndexedDbDailyEntryRepository } from '@/infrastructure/persistence/inde
 import { defaultMealLabel, editableMealLabel, effectiveMealLabel, mealLabelSuggestionsForLocale, mealSlotKeyForLabel, nextUnusedMealTemplate, sortCalorieEntriesByLoggedTime } from '@/shared/lib/mealLabel'
 import { defaultTimeEatenForTemplatePick, timeAfterMealTemplatePick } from '@/shared/lib/mealTemplateTime'
 import { Button } from '@/shared/ui/button'
+import { EmptyState } from '@/shared/ui/empty-state'
 import { useCopyYesterdayMealsStore, useDayStartStore, useMealItemStore, useMealLabelPresetStore, useMealSlotDefaultTimesStore, useMealKcalVsYesterdayStore, useSinceLastMealTimerStore } from '@/stores'
 import { AddMealDialog } from './AddMealDialog'
 import { CopyDayMealsDialog } from './CopyDayMealsDialog'
@@ -1088,6 +1089,13 @@ export function MealList({
        * toggle behind a whole card of triggers); now it's a single
        * trigger opening a dedicated full-screen flyout instead. */}
       {lastMealAt && <SinceLastMealTimer from={lastMealAt} />}
+      {calorieEntries.length === 0 && (
+        <EmptyState
+          title={t.dailyEntry.emptyMealsTitle}
+          description={t.dailyEntry.emptyMealsDescription}
+          className="py-6"
+        />
+      )}
       <Button
         type="button"
         variant="outline"

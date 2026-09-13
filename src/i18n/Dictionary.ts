@@ -552,6 +552,9 @@ export interface Dictionary {
     /** #691 — empty-day trigger opening the "add a meal" flyout
      * (`AddMealDialog`); no «another» / «ещё» because nothing is logged yet. */
     addMealLabel: string
+    /** #879 — Day meals empty (EmptyState), no illustration. */
+    emptyMealsTitle: string
+    emptyMealsDescription: string
     /** #454 — same trigger when the day already has ≥1 meal; superseded
      * #199/#201's collapse/expand accordion (and its now-removed sibling
      * `collapseAddMealLabel`). #691 keeps «another» / «ещё» only here. */

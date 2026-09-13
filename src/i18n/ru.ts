@@ -338,6 +338,8 @@ export const ru: Dictionary = {
     clearTimeLabel: 'Очистить время',
     clearFoodSearchLabel: 'Очистить поиск',
     addMealLabel: '+ Добавить приём пищи',
+    emptyMealsTitle: 'Пока нет приёмов пищи',
+    emptyMealsDescription: 'Добавьте первый приём за этот день, когда будете готовы.',
     expandAddMealLabel: '+ Добавить ещё приём пищи',
     sinceLastMealLabel: 'С последнего приёма',
     sinceLastMealDuration: (hours, minutes, seconds) =>
