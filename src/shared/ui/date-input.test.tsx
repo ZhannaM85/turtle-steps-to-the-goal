@@ -18,8 +18,16 @@ describe('DateInput', () => {
   it('shows a Russian closed-state label when the app is Russian', () => {
     useLocaleStore.getState().setLocale('ru')
     render(<DateInput aria-label="Day" value="2026-09-13" />)
-    expect(screen.getByText(/сент/i)).toBeInTheDocument()
+    expect(screen.getByText('13 сент. 2026 г.')).toBeInTheDocument()
     expect(screen.queryByText(/Sep/)).not.toBeInTheDocument()
+  })
+
+  it('does not clip the closed-state label (#884)', () => {
+    useLocaleStore.getState().setLocale('ru')
+    render(<DateInput aria-label="Day" value="2026-09-13" />)
+    const label = screen.getByText('13 сент. 2026 г.')
+    expect(label).toHaveClass('whitespace-nowrap')
+    expect(label).not.toHaveClass('truncate')
   })
 
   it('shows an English closed-state label when the app is English', () => {

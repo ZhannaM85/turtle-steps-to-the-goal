@@ -71,7 +71,7 @@ export function TodayDateNav({
           value={date}
           max={maxNavigableDate}
           onChange={(e) => onSetDate(e.target.value)}
-          className="max-w-48 h-[2.625rem] py-1"
+          className="h-[2.625rem] w-48 shrink-0 py-1"
         />
         <Button
           ref={debug465NextRef}

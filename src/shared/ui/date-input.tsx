@@ -40,7 +40,7 @@ export const DateInput = React.forwardRef<HTMLInputElement, DateInputProps>(
           className,
         )}
       >
-        <span aria-hidden className="pointer-events-none truncate">
+        <span aria-hidden className="pointer-events-none whitespace-nowrap">
           {display}
         </span>
         <input
@@ -58,7 +58,7 @@ export const DateInput = React.forwardRef<HTMLInputElement, DateInputProps>(
             if (!isControlled) setUncontrolledIso(event.target.value)
             onChange?.(event)
           }}
-          className="absolute inset-0 cursor-pointer opacity-0"
+          className="absolute inset-0 cursor-pointer opacity-0 text-transparent [-webkit-text-fill-color:transparent] [&::-webkit-datetime-edit]:opacity-0 [&::-webkit-date-and-time-value]:opacity-0"
         />
       </div>
     )

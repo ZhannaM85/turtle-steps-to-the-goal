@@ -1988,7 +1988,12 @@ describe('TodayScreen', () => {
     it('keeps pre-#808 padding on the Date field chrome so WebKit height still matches the arrows (#809 / #882 / #885)', async () => {
       renderToday()
       const input = await screen.findByLabelText('Date')
-      expect(input.parentElement).toHaveClass('py-1', 'h-[2.625rem]')
+      expect(input.parentElement).toHaveClass(
+        'py-1',
+        'h-[2.625rem]',
+        'w-48',
+        'shrink-0',
+      )
     })
   })
 

@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 836,
+    issue: 884,
+    date: '2026-09-13T18:35:00+03:00',
+    en: 'The Day date now shows spaced Russian text like “13 сент. 2026 г.” instead of a jammed label.',
+    ru: 'Дата на экране День снова с пробелами: «13 сент. 2026 г.», а не слипшаяся строка.',
+  },
+  {
     version: 835,
     issue: 885,
     date: '2026-09-13T18:30:00+03:00',
