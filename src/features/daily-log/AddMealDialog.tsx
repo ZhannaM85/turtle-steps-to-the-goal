@@ -54,6 +54,8 @@ import {
 } from '@/stores'
 import { IndexedDbMealItemRepository } from '@/infrastructure/persistence/indexeddb'
 import { Button } from '@/shared/ui/button'
+import { NoticeBar } from '@/shared/ui/notice-bar'
+import { ConfirmDeleteEntryBar } from './ConfirmDeleteEntryBar'
 import { Dialog, DialogContent, DialogTitle } from '@/shared/ui/dialog'
 import { Input } from '@/shared/ui/input'
 import { Label } from '@/shared/ui/label'
@@ -1299,27 +1301,10 @@ export function AddMealDialog({
   const deleteMealSection =
     onDeleteMeal && mealPosition !== undefined ? (
       isConfirmingMealDelete ? (
-        <div className="flex items-center gap-2 rounded-xl bg-card p-3 ring-1 ring-foreground/10">
-          <span className="text-sm text-muted-foreground">
-            {t.history.confirmDeleteLabel}
-          </span>
-          <Button
-            type="button"
-            variant="destructive"
-            size="sm"
-            onClick={onDeleteMeal}
-          >
-            {t.history.confirmDeleteYes}
-          </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            onClick={() => setIsConfirmingMealDelete(false)}
-          >
-            {t.history.confirmDeleteNo}
-          </Button>
-        </div>
+        <ConfirmDeleteEntryBar
+          onConfirm={onDeleteMeal}
+          onCancel={() => setIsConfirmingMealDelete(false)}
+        />
       ) : (
         <Button
           type="button"
@@ -1443,30 +1428,33 @@ export function AddMealDialog({
          * `mt-2`/`mt-3`/`mt-4` between confirms, quantity step, and browse. */}
         <div className="mt-3 flex flex-col gap-4">
         {isConfirmingDiscard && onConfirmDiscard && onCancelDiscard && (
-          <div className="flex flex-col gap-2 rounded-xl bg-card p-3 ring-1 ring-foreground/10">
-            <span className="text-sm text-muted-foreground">
-              {discardConfirmLabel ??
-                t.dailyEntry.confirmDiscardInProgressMealLabel}
-            </span>
-            <div className="flex items-center gap-2">
-              <Button
-                type="button"
-                variant="destructive"
-                size="sm"
-                onClick={onConfirmDiscard}
-              >
-                {t.dailyEntry.confirmDiscardInProgressMealYes}
-              </Button>
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                onClick={onCancelDiscard}
-              >
-                {t.dailyEntry.confirmDiscardInProgressMealNo}
-              </Button>
-            </div>
-          </div>
+          <NoticeBar
+            variant="confirm"
+            className="flex-col items-stretch sm:flex-row"
+            actions={
+              <>
+                <Button
+                  type="button"
+                  variant="destructive"
+                  size="sm"
+                  onClick={onConfirmDiscard}
+                >
+                  {t.dailyEntry.confirmDiscardInProgressMealYes}
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={onCancelDiscard}
+                >
+                  {t.dailyEntry.confirmDiscardInProgressMealNo}
+                </Button>
+              </>
+            }
+          >
+            {discardConfirmLabel ??
+              t.dailyEntry.confirmDiscardInProgressMealLabel}
+          </NoticeBar>
         )}
 
         {confirmRemoveItemId && (

@@ -64,6 +64,7 @@ import {
 import { useSeedBackupFirstSeenAt } from '@/shared/hooks/useSeedBackupFirstSeenAt'
 import { eatingReasonDisplayLabel } from '@/shared/lib/eatingReasonDisplay'
 import { Button } from '@/shared/ui/button'
+import { NoticeBar } from '@/shared/ui/notice-bar'
 import { CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
 import { SettingsPinnableCard } from './SettingsPinnableCard'
 import { SettingsCardsCollapseControl } from './SettingsCardsCollapseControl'
@@ -794,39 +795,39 @@ export function SettingsScreen() {
        * top so it's seen without scrolling; the link jumps down to the
        * Export card (`#export-section`) rather than duplicating its UI. */}
       {backupReminder.show && (
-        <div
+        <NoticeBar
+          variant="nudge"
           role="status"
           style={{ order: -3000 }}
-          className="flex items-center justify-between gap-2 rounded-lg border border-border bg-muted/40 px-3 py-2"
+          actions={
+            <>
+              <Button variant="outline" size="sm" asChild>
+                <a href="#export-section">
+                  {t.export.backupReminderGoToExportLabel}
+                </a>
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon-sm"
+                aria-label={t.export.dismissBackupReminderLabel}
+                onClick={() => {
+                  const snoozeUntil = new Date()
+                  snoozeUntil.setDate(
+                    snoozeUntil.getDate() + BACKUP_REMINDER_SNOOZE_DAYS,
+                  )
+                  dismissBackupReminder(snoozeUntil.toISOString())
+                }}
+              >
+                <X aria-hidden="true" />
+              </Button>
+            </>
+          }
         >
-          <span className="text-sm text-muted-foreground">
-            {backupReminder.days === null
-              ? t.export.lastBackupNeverLabel
-              : t.export.lastBackupAgoLabel(backupReminder.days)}
-          </span>
-          <div className="flex items-center gap-1">
-            <Button variant="outline" size="sm" asChild>
-              <a href="#export-section">
-                {t.export.backupReminderGoToExportLabel}
-              </a>
-            </Button>
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon-sm"
-              aria-label={t.export.dismissBackupReminderLabel}
-              onClick={() => {
-                const snoozeUntil = new Date()
-                snoozeUntil.setDate(
-                  snoozeUntil.getDate() + BACKUP_REMINDER_SNOOZE_DAYS,
-                )
-                dismissBackupReminder(snoozeUntil.toISOString())
-              }}
-            >
-              <X aria-hidden="true" />
-            </Button>
-          </div>
-        </div>
+          {backupReminder.days === null
+            ? t.export.lastBackupNeverLabel
+            : t.export.lastBackupAgoLabel(backupReminder.days)}
+        </NoticeBar>
       )}
 
       {/* #498 — About / Features promoted to the top so trust and

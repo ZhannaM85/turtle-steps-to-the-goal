@@ -37,6 +37,7 @@ import { defaultMealLabel, editableMealLabel, effectiveMealLabel, mealLabelSugge
 import { defaultTimeEatenForTemplatePick, timeAfterMealTemplatePick } from '@/shared/lib/mealTemplateTime'
 import { Button } from '@/shared/ui/button'
 import { EmptyState } from '@/shared/ui/empty-state'
+import { NoticeBar } from '@/shared/ui/notice-bar'
 import { useCopyYesterdayMealsStore, useDayStartStore, useMealItemStore, useMealLabelPresetStore, useMealSlotDefaultTimesStore, useMealKcalVsYesterdayStore, useSinceLastMealTimerStore } from '@/stores'
 import { AddMealDialog } from './AddMealDialog'
 import { CopyDayMealsDialog } from './CopyDayMealsDialog'
@@ -952,20 +953,22 @@ export function MealList({
       {/* #600 — short-lived undo after a meal delete commits; see
        * `deleteMealById`/`undoDeleteMeal` above. */}
       {undoDeletedMeal && (
-        <div
+        <NoticeBar
+          variant="undo"
           role="status"
-          className="flex items-center justify-between gap-2 rounded-lg border border-border bg-muted/40 px-3 py-2 text-sm text-muted-foreground"
+          actions={
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={undoDeleteMeal}
+            >
+              {t.dailyEntry.undoDeleteMealButton}
+            </Button>
+          }
         >
-          <span>{t.dailyEntry.mealDeletedToastMessage}</span>
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={undoDeleteMeal}
-          >
-            {t.dailyEntry.undoDeleteMealButton}
-          </Button>
-        </div>
+          {t.dailyEntry.mealDeletedToastMessage}
+        </NoticeBar>
       )}
       {fastingWindowParts && (
         // #456 — purely derived (see the useMemo above), so this note is

@@ -24,6 +24,7 @@ import { effectiveMealLabel, effectiveTimeEaten } from '@/shared/lib/mealLabel'
 import { normalizeTextSpaces } from '@/shared/lib/normalizeTextSpaces'
 import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/ui/button'
+import { ConfirmDeleteEntryBar } from './ConfirmDeleteEntryBar'
 import {
   useEatingReasonTrackingStore,
   useMealSlotDefaultTimesStore,
@@ -105,31 +106,11 @@ export function MealListItem({
 
   if (isConfirmingDelete) {
     return (
-      <li
-        // #143: same card treatment (bg-card/ring) as the other two
-        // MealListItem states below, so a meal doesn't lose its card
-        // boundary mid-delete-confirm.
-        className="flex items-center gap-2 rounded-xl bg-card p-3 ring-1 ring-foreground/10 whitespace-nowrap"
-      >
-        <span className="text-sm text-muted-foreground">
-          {t.history.confirmDeleteLabel}
-        </span>
-        <Button
-          type="button"
-          variant="destructive"
-          size="sm"
-          onClick={onConfirmDelete}
-        >
-          {t.history.confirmDeleteYes}
-        </Button>
-        <Button
-          type="button"
-          variant="ghost"
-          size="sm"
-          onClick={onCancelDelete}
-        >
-          {t.history.confirmDeleteNo}
-        </Button>
+      <li className="min-w-0">
+        <ConfirmDeleteEntryBar
+          onConfirm={onConfirmDelete}
+          onCancel={onCancelDelete}
+        />
       </li>
     )
   }

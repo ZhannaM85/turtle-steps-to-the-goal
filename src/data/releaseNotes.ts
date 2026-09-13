@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 822,
+    issue: 875,
+    date: '2026-09-13T13:15:00+03:00',
+    en: 'Delete, undo, and discard prompts now use the same quiet bar instead of mixing card and muted styles.',
+    ru: 'Подтверждение удаления, отмена и выход без сохранения теперь в одной спокойной полоске, без разных рамок.',
+  },
+  {
     version: 821,
     issue: 879,
     date: '2026-09-13T13:40:00+03:00',
