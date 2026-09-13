@@ -162,9 +162,11 @@ export function DailyEntryFormMorningCompositionField() {
                       </>
                     }
                   />
-                  {/* #515 — two-row grid, each metric the same visual weight. */}
+                  {/* #515 / #883 — same 2-column pairing as the edit grid
+                   * (muscle|visceral, water|bone, fat). A 3-column live
+                   * grid parked visceral fat in the center. */}
                   <div className="rounded-lg bg-muted px-3 py-2.5">
-                    <dl className="grid grid-cols-3 gap-x-3 gap-y-2">
+                    <dl className="grid grid-cols-2 gap-x-3 gap-y-2">
                       {bodyCompositionMetrics.map((metric) => (
                         <div
                           key={metric.label}

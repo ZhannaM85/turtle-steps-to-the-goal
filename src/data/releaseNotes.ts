@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 834,
+    issue: 883,
+    date: '2026-09-13T18:25:00+03:00',
+    en: 'Body composition numbers now line up in two columns, so visceral fat sits with the other readings.',
+    ru: 'Показатели состава тела теперь в двух колонках, и висцеральный жир стоит в одном ряду с остальными.',
+  },
+  {
     version: 833,
     issue: 886,
     date: '2026-09-13T18:20:00+03:00',

@@ -305,6 +305,10 @@ describe('DailyEntryForm', () => {
       )
 
       expectBodyCompositionValues(['30kg', '5', '48%', '2.3kg', '22%'])
+      const section = screen.getByText('Body composition').closest('div')
+        ?.parentElement as HTMLElement
+      expect(section.querySelector('dl')).toHaveClass('grid-cols-2')
+      expect(section.querySelector('dl')).not.toHaveClass('grid-cols-3')
       expect(
         screen.queryByRole('button', { name: 'Save body composition' }),
       ).not.toBeInTheDocument()
