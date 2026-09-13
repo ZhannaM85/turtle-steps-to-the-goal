@@ -1000,7 +1000,7 @@ export function GoalForm({
       {showOverlapWarning && (
         <p
           role="status"
-          className="rounded-lg border border-orange-600/40 bg-orange-500/15 p-3 text-sm text-orange-950 dark:text-orange-100"
+          className="rounded-lg border border-status-warn/40 bg-status-warn/15 p-3 text-sm text-foreground"
         >
           {t.goal.goalWindowOverlapWarning}
         </p>

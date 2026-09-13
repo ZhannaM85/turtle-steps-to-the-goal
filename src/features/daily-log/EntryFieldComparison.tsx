@@ -105,8 +105,8 @@ function buildComparisonLine(args: {
 }
 
 const toneClassName: Record<'good' | 'bad', string> = {
-  good: 'text-emerald-600 dark:text-emerald-400',
-  bad: 'text-orange-600 dark:text-orange-400',
+  good: 'text-status-good',
+  bad: 'text-status-warn',
 }
 
 export interface EntryFieldComparisonLiveProps {

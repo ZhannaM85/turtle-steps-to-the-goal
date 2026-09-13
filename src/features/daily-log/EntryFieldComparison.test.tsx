@@ -27,7 +27,7 @@ describe('EntryFieldComparison (#664)', () => {
     localStorage.clear()
   })
 
-  it('shows a green down-arrow for a weight decrease vs yesterday while editing', async () => {
+  it('shows a status-good down-arrow for a weight decrease vs yesterday while editing', async () => {
     render(
       <EntryFieldComparisonLive
         field="weightKg"
@@ -38,7 +38,7 @@ describe('EntryFieldComparison (#664)', () => {
     )
     await vi.advanceTimersByTimeAsync(300)
     const text = screen.getByText(/↓ 0\.5 kg compared to yesterday/)
-    expect(text.className).toMatch(/emerald/)
+    expect(text.className).toMatch(/status-good/)
   })
 
   it('names the prior date when yesterday has no entry', async () => {

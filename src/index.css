@@ -97,6 +97,22 @@
   --stat-sodium: #a85a5a;
   --stat-potassium: #5a8a78;
   --stat-magnesium: #6a6a9e;
+  /* #878 — semantic status (comparison, kcal-vs-yesterday, Goal overlap).
+   * Not mood-tinted. --destructive stays irreversible-actions only.
+   * Reason dots reuse already-claimed palette hues so the legend is
+   * stable across Pond/Dusk/Sage. */
+  --status-good: #4c7a62;
+  --status-warn: #a8672f;
+  --reason-hunger: var(--stat-carbs);
+  --reason-angry: var(--chart-protein);
+  --reason-lonely: var(--chart-sleep);
+  --reason-tired: #56707a;
+  --reason-habit: var(--stat-fiber);
+  --reason-craving: var(--stat-fat);
+  --reason-stress: var(--chart-carbs);
+  --reason-boredom: var(--stat-protein);
+  --reason-company: #879397;
+  --reason-custom: var(--chart-bodyfat);
   /* #347 — reported live: the fasting-hours series in the "Compare your
    * data" chart, set to bar mode, rendered in solid black. Root cause:
    * `useNumericSeriesConfig` gave it `--chart-5`, the last of the five
@@ -186,6 +202,18 @@
   --color-stat-sodium: var(--stat-sodium);
   --color-stat-potassium: var(--stat-potassium);
   --color-stat-magnesium: var(--stat-magnesium);
+  --color-status-good: var(--status-good);
+  --color-status-warn: var(--status-warn);
+  --color-reason-hunger: var(--reason-hunger);
+  --color-reason-angry: var(--reason-angry);
+  --color-reason-lonely: var(--reason-lonely);
+  --color-reason-tired: var(--reason-tired);
+  --color-reason-habit: var(--reason-habit);
+  --color-reason-craving: var(--reason-craving);
+  --color-reason-stress: var(--reason-stress);
+  --color-reason-boredom: var(--reason-boredom);
+  --color-reason-company: var(--reason-company);
+  --color-reason-custom: var(--reason-custom);
   --color-chart-fasting: var(--chart-fasting);
   --color-chart-bodyfat: var(--chart-bodyfat);
   --color-chart-sleep: var(--chart-sleep);
@@ -251,6 +279,10 @@
   --stat-sodium: #d99a9a;
   --stat-potassium: #90c7b0;
   --stat-magnesium: #a3a3d9;
+  --status-good: #90c7a6;
+  --status-warn: #d9a06b;
+  --reason-tired: #8da9b1;
+  --reason-company: #59676a;
   /* #347 — same dedicated fix as the light-mode value above, at the
    * lighter/pastel lightness level dark mode's own hued tokens already
    * use for everything else. */

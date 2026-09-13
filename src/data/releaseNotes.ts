@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 828,
+    issue: 878,
+    date: '2026-09-13T14:35:00+03:00',
+    en: 'Good/bad arrows and meal-reason dots now use the app’s own colors instead of leftover greens and oranges.',
+    ru: 'Стрелки лучше/хуже и точки причин еды теперь в цветах приложения, а не в чужих зелёных и оранжевых.',
+  },
+  {
     version: 827,
     issue: 876,
     date: '2026-09-13T14:20:00+03:00',

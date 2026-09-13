@@ -33,15 +33,15 @@ import {
 
 /** #764 — Day-card dots for why this meal happened. */
 const EATING_REASON_DOT_CLASS: Record<EatingReason, string> = {
-  hunger: 'bg-green-500',
-  angry: 'bg-red-500',
-  lonely: 'bg-pink-500',
-  tired: 'bg-slate-500',
-  habit: 'bg-yellow-400',
-  craving: 'bg-orange-500',
-  stress: 'bg-blue-500',
-  boredom: 'bg-purple-500',
-  company: 'bg-zinc-300 dark:bg-zinc-500',
+  hunger: 'bg-reason-hunger',
+  angry: 'bg-reason-angry',
+  lonely: 'bg-reason-lonely',
+  tired: 'bg-reason-tired',
+  habit: 'bg-reason-habit',
+  craving: 'bg-reason-craving',
+  stress: 'bg-reason-stress',
+  boredom: 'bg-reason-boredom',
+  company: 'bg-reason-company',
 }
 
 export interface MealListItemProps {
@@ -195,8 +195,8 @@ export function MealListItem({
           className={cn(
             'min-w-0 text-xs',
             kcalVsYesterdayDelta < 0
-              ? 'text-emerald-600 dark:text-emerald-400'
-              : 'text-orange-600 dark:text-orange-400',
+              ? 'text-status-good'
+              : 'text-status-warn',
           )}
         >
           {t.dailyEntry.entryComparisonComparedToYesterday(
@@ -222,7 +222,7 @@ export function MealListItem({
                 'size-2.5 shrink-0 rounded-full',
                 isBuiltInEatingReason(reason)
                   ? EATING_REASON_DOT_CLASS[reason]
-                  : 'bg-teal-500',
+                  : 'bg-reason-custom',
               )}
             />
           ))}
