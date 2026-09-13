@@ -13,6 +13,12 @@ export function detectDefaultLocale(): Locale {
   return navigator.language.toLowerCase().startsWith('ru') ? 'ru' : 'en'
 }
 
+/** `#882` — keep `<html lang>` in sync with Settings, not the hardcoded `en`. */
+export function applyDocumentLang(locale: Locale) {
+  if (typeof document === 'undefined') return
+  document.documentElement.lang = locale
+}
+
 interface LocaleStoreState {
   locale: Locale
   setLocale: (locale: Locale) => void
@@ -22,14 +28,25 @@ export const useLocaleStore = create<LocaleStoreState>()(
   persist(
     (set) => ({
       locale: detectDefaultLocale(),
-      setLocale: (locale) => set({ locale }),
+      setLocale: (locale) => {
+        applyDocumentLang(locale)
+        set({ locale })
+      },
     }),
     {
       name: 'turtle-steps-locale',
       storage: createJSONStorage(() => localStorage),
+      onRehydrateStorage: () => (state) => {
+        applyDocumentLang(state?.locale ?? detectDefaultLocale())
+      },
     },
   ),
 )
+
+applyDocumentLang(useLocaleStore.getState().locale)
+useLocaleStore.subscribe((state) => {
+  applyDocumentLang(state.locale)
+})
 
 export function getDictionary(locale: Locale): Dictionary {
   return dictionaries[locale]

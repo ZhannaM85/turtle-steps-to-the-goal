@@ -41,7 +41,7 @@ import {
   type Unit,
 } from '@/stores'
 import { Button } from '@/shared/ui/button'
-import { Input } from '@/shared/ui/input'
+import { DateInput } from '@/shared/ui/date-input'
 import { Label } from '@/shared/ui/label'
 import { NumberInput } from '@/shared/ui/number-input'
 import {
@@ -961,9 +961,8 @@ export function GoalForm({
        * afterwards (#659). */}
       <div className="flex flex-col gap-1.5">
         <Label htmlFor="goal-week-start-date">{t.goal.weekStartDateLabel}</Label>
-        <Input
+        <DateInput
           id="goal-week-start-date"
-          type="date"
           className="h-12 max-w-48"
           {...register('weekStartDate', {
             onChange: (event) => {
@@ -987,9 +986,8 @@ export function GoalForm({
        * constraint, no separate Zod cross-field check). */}
       <div className="flex flex-col gap-1.5">
         <Label htmlFor="goal-week-end-date">{t.goal.weekEndDateLabel}</Label>
-        <Input
+        <DateInput
           id="goal-week-end-date"
-          type="date"
           min={weekEndMinDate}
           className="h-12 max-w-48"
           {...register('weekEndDate')}

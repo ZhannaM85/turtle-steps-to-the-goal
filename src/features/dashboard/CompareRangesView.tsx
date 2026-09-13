@@ -13,7 +13,7 @@ import {
   type Locale,
 } from '@/i18n'
 import { macrosSummaryText } from '@/shared/lib/macroDisplay'
-import { Input } from '@/shared/ui/input'
+import { DateInput } from '@/shared/ui/date-input'
 import { Label } from '@/shared/ui/label'
 import { StatCard } from '@/shared/ui/stat-card'
 import { useDashboardChartVisibilityStore, useUnitStore } from '@/stores'
@@ -122,16 +122,14 @@ export function CompareRangesView({
         <div className="flex flex-col gap-1.5">
           <Label>{t.dashboard.rangeALabel}</Label>
           <div className="flex items-center gap-2">
-            <Input
-              type="date"
+            <DateInput
               aria-label={`${t.dashboard.rangeALabel} — ${t.dashboard.rangeStartLabel}`}
               value={startA}
               max={endA}
               onChange={(e) => setStartA(e.target.value)}
               className="h-12"
             />
-            <Input
-              type="date"
+            <DateInput
               aria-label={`${t.dashboard.rangeALabel} — ${t.dashboard.rangeEndLabel}`}
               value={endA}
               min={startA}
@@ -143,16 +141,14 @@ export function CompareRangesView({
         <div className="flex flex-col gap-1.5">
           <Label>{t.dashboard.rangeBLabel}</Label>
           <div className="flex items-center gap-2">
-            <Input
-              type="date"
+            <DateInput
               aria-label={`${t.dashboard.rangeBLabel} — ${t.dashboard.rangeStartLabel}`}
               value={startB}
               max={endB}
               onChange={(e) => setStartB(e.target.value)}
               className="h-12"
             />
-            <Input
-              type="date"
+            <DateInput
               aria-label={`${t.dashboard.rangeBLabel} — ${t.dashboard.rangeEndLabel}`}
               value={endB}
               min={startB}

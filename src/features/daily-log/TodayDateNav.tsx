@@ -3,7 +3,7 @@ import { Check, ChevronLeft, ChevronRight } from 'lucide-react'
 import { useTranslation } from '@/i18n'
 import { Button } from '@/shared/ui/button'
 import { InfoTooltip } from '@/shared/ui/info-tooltip'
-import { Input } from '@/shared/ui/input'
+import { DateInput } from '@/shared/ui/date-input'
 import { Label } from '@/shared/ui/label'
 import { isWebKitEngine, shiftDate } from './todayScreenUtils'
 
@@ -65,10 +65,9 @@ export function TodayDateNav({
         >
           <ChevronLeft aria-hidden="true" />
         </Button>
-        <Input
+        <DateInput
           id="log-date"
           ref={debug465DateRef}
-          type="date"
           value={date}
           max={maxNavigableDate}
           onChange={(e) => onSetDate(e.target.value)}

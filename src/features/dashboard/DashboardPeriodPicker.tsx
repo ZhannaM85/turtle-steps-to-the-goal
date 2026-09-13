@@ -4,7 +4,7 @@ import {
   useDashboardPeriodStore,
   type DashboardPeriodChartKey,
 } from '@/stores'
-import { Input } from '@/shared/ui/input'
+import { DateInput } from '@/shared/ui/date-input'
 import { ToggleGroup, ToggleGroupItem } from '@/shared/ui/toggle-group'
 
 export interface DashboardPeriodPickerProps {
@@ -67,16 +67,14 @@ export function DashboardPeriodPicker({ chart }: DashboardPeriodPickerProps) {
       </ToggleGroup>
       {period === 'custom' && (
         <div className="flex items-center gap-2">
-          <Input
-            type="date"
+          <DateInput
             aria-label={`${label} — ${t.dashboard.rangeStartLabel}`}
             value={customStart}
             max={customEnd || undefined}
             onChange={(e) => setCustomStart(chart, e.target.value)}
             className="h-12"
           />
-          <Input
-            type="date"
+          <DateInput
             aria-label={`${label} — ${t.dashboard.rangeEndLabel}`}
             value={customEnd}
             min={customStart || undefined}

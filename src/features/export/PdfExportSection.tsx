@@ -12,7 +12,7 @@ import {
   useWeekStartStore,
 } from '@/stores'
 import { Button } from '@/shared/ui/button'
-import { Input } from '@/shared/ui/input'
+import { DateInput } from '@/shared/ui/date-input'
 import { resolveWeekStartsOn } from '@/shared/lib/resolveWeekStartsOn'
 import { exportAllData } from './exportActions'
 import {
@@ -195,16 +195,14 @@ export function PdfExportSection() {
           {t.export.exportPdfRangeLabel}
         </span>
         <div className="flex items-center gap-2">
-          <Input
-            type="date"
+          <DateInput
             aria-label={`${t.export.exportPdfRangeLabel} — ${t.dashboard.rangeStartLabel}`}
             value={pdfPeriodStart}
             max={pdfPeriodEnd}
             onChange={(e) => setPdfPeriodStart(e.target.value)}
             className="h-12"
           />
-          <Input
-            type="date"
+          <DateInput
             aria-label={`${t.export.exportPdfRangeLabel} — ${t.dashboard.rangeEndLabel}`}
             value={pdfPeriodEnd}
             min={pdfPeriodStart}

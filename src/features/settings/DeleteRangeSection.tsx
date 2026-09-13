@@ -5,7 +5,7 @@ import {
   IndexedDbDailyEntryRepository,
 } from '@/infrastructure/persistence/indexeddb'
 import { Button } from '@/shared/ui/button'
-import { Input } from '@/shared/ui/input'
+import { DateInput } from '@/shared/ui/date-input'
 
 const dailyEntryRepository = new IndexedDbDailyEntryRepository()
 const customMetricEntryRepository = new IndexedDbCustomMetricEntryRepository()
@@ -87,8 +87,7 @@ export function DeleteRangeSection() {
         {t.settings.deleteRangeDescription}
       </p>
       <div className="flex items-center gap-2">
-        <Input
-          type="date"
+        <DateInput
           aria-label={`${t.settings.deleteRangeLabel} — ${t.dashboard.rangeStartLabel}`}
           value={start}
           max={end || undefined}
@@ -99,8 +98,7 @@ export function DeleteRangeSection() {
           className="h-12"
           disabled={isBusy}
         />
-        <Input
-          type="date"
+        <DateInput
           aria-label={`${t.settings.deleteRangeLabel} — ${t.dashboard.rangeEndLabel}`}
           value={end}
           min={start || undefined}

@@ -7,6 +7,6 @@ export {
   getDictionary,
 } from './localeStore'
 export { formatNumber, formatSignedNumber, formatExactNumber, formatSignedExactNumber } from './formatNumber'
-export { getDateFnsLocale } from './dateLocale'
+export { getDateFnsLocale, formatLocalizedDate } from './dateLocale'
 export { unitLabel } from './unitLabel'
 export { ruPluralize } from './ruPluralize'

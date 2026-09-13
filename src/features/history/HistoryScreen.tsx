@@ -8,6 +8,7 @@ import { unitLabel, useTranslation } from '@/i18n'
 import { DAY_EMOTIONS } from '@/shared/lib/emotionIcons'
 import { Button } from '@/shared/ui/button'
 import { EmptyState } from '@/shared/ui/empty-state'
+import { DateInput } from '@/shared/ui/date-input'
 import { Input } from '@/shared/ui/input'
 import { Label } from '@/shared/ui/label'
 import { PageHeader } from '@/shared/ui/page-header'
@@ -205,9 +206,8 @@ export function HistoryScreen() {
                     <Label htmlFor="history-date-from">
                       {t.history.dateFromLabel}
                     </Label>
-                    <Input
+                    <DateInput
                       id="history-date-from"
-                      type="date"
                       value={dateFrom}
                       max={dateTo || undefined}
                       onChange={(e) => setDateFrom(e.target.value)}
@@ -218,9 +218,8 @@ export function HistoryScreen() {
                     <Label htmlFor="history-date-to">
                       {t.history.dateToLabel}
                     </Label>
-                    <Input
+                    <DateInput
                       id="history-date-to"
-                      type="date"
                       value={dateTo}
                       min={dateFrom || undefined}
                       onChange={(e) => setDateTo(e.target.value)}

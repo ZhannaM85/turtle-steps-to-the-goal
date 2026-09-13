@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 830,
+    issue: 882,
+    date: '2026-09-13T16:10:00+03:00',
+    en: 'Date fields now show the month in the language you picked in Settings, including on iPhone.',
+    ru: 'Поля даты теперь показывают месяц на языке из Настроек, в том числе на iPhone.',
+  },
+  {
     version: 829,
     issue: 868,
     date: '2026-09-13T15:35:00+03:00',

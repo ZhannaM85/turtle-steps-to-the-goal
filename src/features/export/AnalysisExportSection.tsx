@@ -12,6 +12,7 @@ import {
   useWaterTrackingStore,
 } from '@/stores'
 import { Button } from '@/shared/ui/button'
+import { DateInput } from '@/shared/ui/date-input'
 import { Input } from '@/shared/ui/input'
 import { ToggleGroup, ToggleGroupItem } from '@/shared/ui/toggle-group'
 import { InfoTooltip } from '@/shared/ui/info-tooltip'
@@ -284,8 +285,7 @@ export function AnalysisExportSection({ children }: { children?: ReactNode }) {
           </ToggleGroupItem>
         </ToggleGroup>
         <div className="flex items-center gap-2">
-          <Input
-            type="date"
+          <DateInput
             aria-label={`${t.export.exportPeriodLabel} — ${t.dashboard.rangeStartLabel}`}
             value={periodStart}
             max={periodEnd || undefined}
@@ -294,8 +294,7 @@ export function AnalysisExportSection({ children }: { children?: ReactNode }) {
             }
             className="h-12"
           />
-          <Input
-            type="date"
+          <DateInput
             aria-label={`${t.export.exportPeriodLabel} — ${t.dashboard.rangeEndLabel}`}
             value={periodEnd}
             min={periodStart || undefined}
