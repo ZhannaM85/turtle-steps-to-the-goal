@@ -596,3 +596,13 @@ _Day field actions: move edit/trash and save/cancel to the title row so content 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#858](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/858) | ✅ Done | Move note edit/trash and save/cancel icons to top for full-width text | Confirmed on-device 2026-09-12 — Day field actions moved to title-row header; full-width content. |
+
+---
+
+## Tier 161 — Live feedback (2026-09-13)
+
+_Pace-check copy plus the 2026-09-12 analysis/design-audit backlog._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#867](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/867) | ✅ Done | CI test: portable Settings toggles must be in backup blob | Already shipped with #861 — `settingsPreferences.test.ts` asserts every `PORTABLE_DAY_TOGGLE_KEYS` entry is collected. |

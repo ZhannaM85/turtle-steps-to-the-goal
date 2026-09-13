@@ -56,7 +56,6 @@ _Pace-check copy plus the 2026-09-12 analysis/design-audit backlog (#865–#879)
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#881](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/881) | 🔍 Pending validation | Pace check copy reads as a loss when weight went up | Domain rate is **not** inverted (loss-positive, negative = gain). Card now says gained / lost / stayed the same with an unsigned kg/week amount — no signed `-0.2` that reads as a loss. |
-| [#867](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/867) | 📋 Not started | CI test: portable Settings toggles must be in backup blob | Assert every Settings key marked portable is in `collectSettingsPreferences()`. Pairs with #861. S. |
 | [#866](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/866) | 📋 Not started | Export format matrix + optional Excel Goals / weight parity | Short matrix of what CSV / Markdown / Excel / PDF / JSON include. Optional Excel Goals columns / next-morning weight. S–M. |
 | [#870](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/870) | 📋 Not started | Field-specific delete confirm copy (P2) | `ConfirmDeleteEntryBar` always uses generic `history.confirmDeleteLabel`. Optional per-field copy. S. Related: #855/#860. |
 | [#879](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/879) | 📋 Not started | Empty and error states: meals, libraries, RouteErrorFallback | Reuse `EmptyState` for meals / recipe+metric libraries / crash fallback. Keep loading as a quiet line. S. |
