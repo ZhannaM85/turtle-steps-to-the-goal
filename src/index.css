@@ -551,9 +551,11 @@ html body[data-scroll-locked] {
 
 /* #735 — two named section chromes, not one wrapper for everything:
  *   Card / StatCard  = number card (`rounded-xl ring-1 ring-foreground/10`)
- *   .section-shell   = chart / accordion / export panel (`rounded-lg` +
- *                      `border-border`). In Pond, --card and --muted are the
- *                      same fill, so only this outline differs.
+ *   .section-shell   = chart / accordion / export / Settings preference
+ *                      panel (`rounded-lg` + `border-border`). In Pond,
+ *                      --card and --muted are the same fill, so only this
+ *                      outline differs. #873: Settings groups use this,
+ *                      not Card.
  * Shadows stay overlay-only (dialogs, popovers, autocomplete). Do not put
  * shadow on either section chrome. */
 @utility section-shell {

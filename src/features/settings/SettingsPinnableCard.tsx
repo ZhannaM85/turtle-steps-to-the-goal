@@ -7,10 +7,12 @@ import {
   type SettingsCardKey,
 } from '@/stores/settingsCardsCollapseStore'
 import { Button } from '@/shared/ui/button'
-import { Card } from '@/shared/ui/card'
 import { cn } from '@/shared/lib/utils'
 
-/** #820 pin + #826 header collapse (About uses pinnable={false}). */
+/** #820 pin + #826 header collapse (About uses pinnable={false}).
+ * #873 — preference-panel chrome (`section-shell`), not number-card `Card`.
+ * Header padding reserves the pin/collapse cluster so long titles wrap
+ * instead of running under the icons. */
 export function SettingsPinnableCard({
   pinId,
   pinnable = true,
@@ -21,7 +23,7 @@ export function SettingsPinnableCard({
 }: {
   pinId: SettingsCardKey
   pinnable?: boolean
-} & ComponentProps<typeof Card>) {
+} & ComponentProps<'div'>) {
   const t = useTranslation()
   const pinned = useSettingsPinStore((state) => state.pinned)
   const togglePin = useSettingsPinStore((state) => state.toggle)
@@ -48,9 +50,14 @@ export function SettingsPinnableCard({
   }
 
   return (
-    <Card
+    <div
+      data-slot="settings-panel"
       className={cn(
-        'relative [&_[data-slot=card-header]]:cursor-pointer',
+        'section-shell relative flex flex-col gap-4 overflow-hidden py-4 text-sm [--card-spacing:--spacing(4)]',
+        '[&_[data-slot=card-header]]:cursor-pointer',
+        pinnable
+          ? '[&_[data-slot=card-header]]:!pe-28'
+          : '[&_[data-slot=card-header]]:!pe-16',
         collapsed && '[&_[data-slot=card-content]]:hidden',
         className,
       )}
@@ -63,7 +70,7 @@ export function SettingsPinnableCard({
       }}
       onClick={handleCardClick}
     >
-      <div className="absolute top-3 right-3 z-10 flex items-center">
+      <div className="absolute top-2 right-2 z-10 flex items-center">
         <Button
           type="button"
           variant="ghost"
@@ -100,6 +107,6 @@ export function SettingsPinnableCard({
         )}
       </div>
       {children}
-    </Card>
+    </div>
   )
 }

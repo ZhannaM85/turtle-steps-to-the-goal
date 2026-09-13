@@ -1053,7 +1053,7 @@ describe('SettingsScreen', () => {
     const user = userEvent.setup()
     renderSettings()
     const aboutCard = screen.getByRole('heading', { name: 'About' }).closest(
-      '[data-slot=card]',
+      '[data-slot=settings-panel]',
     )
     expect(aboutCard).toBeTruthy()
     await user.click(
@@ -1078,7 +1078,7 @@ describe('SettingsScreen', () => {
     await user.click(screen.getByRole('button', { name: 'Collapse all' }))
     expect(screen.getByRole('button', { name: 'Expand all' })).toBeInTheDocument()
     const aboutCard = screen.getByRole('heading', { name: 'About' }).closest(
-      '[data-slot=card]',
+      '[data-slot=settings-panel]',
     )
     expect(aboutCard).toHaveClass('[&_[data-slot=card-content]]:hidden')
   })
@@ -1087,7 +1087,7 @@ describe('SettingsScreen', () => {
     const user = userEvent.setup()
     renderSettings()
     const exportCard = screen.getByRole('heading', { name: 'Export' }).closest(
-      '[data-slot=card]',
+      '[data-slot=settings-panel]',
     )
     expect(exportCard).toBeTruthy()
     await user.click(
@@ -1097,7 +1097,9 @@ describe('SettingsScreen', () => {
     )
     expect(exportCard).toHaveStyle({ order: '-1000' })
     expect(
-      screen.getByRole('heading', { name: 'About' }).closest('[data-slot=card]'),
+      screen
+        .getByRole('heading', { name: 'About' })
+        .closest('[data-slot=settings-panel]'),
     ).toHaveStyle({ order: '-2000' })
   })
 })

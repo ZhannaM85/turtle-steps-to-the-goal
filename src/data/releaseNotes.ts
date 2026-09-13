@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 825,
+    issue: 873,
+    date: '2026-09-13T13:45:00+03:00',
+    en: 'Settings groups use the same quiet panel style as charts, and titles no longer run under the pin.',
+    ru: 'Группы в Настройках в той же спокойной рамке, что и графики, и заголовок больше не заходит под кнопку закрепления.',
+  },
+  {
     version: 824,
     issue: 872,
     date: '2026-09-13T13:30:00+03:00',
