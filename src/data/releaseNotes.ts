@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 826,
+    issue: 874,
+    date: '2026-09-13T14:00:00+03:00',
+    en: 'Water sips, meal-name templates, and the History legend now look like the same kind of chip.',
+    ru: 'Глотки воды, шаблоны названий приёмов и легенда Истории теперь в одном виде чипов.',
+  },
+  {
     version: 825,
     issue: 873,
     date: '2026-09-13T13:45:00+03:00',

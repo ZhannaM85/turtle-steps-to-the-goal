@@ -1,4 +1,5 @@
 import { useTranslation } from '@/i18n'
+import { Chip } from '@/shared/ui/chip'
 import { cn } from '@/shared/lib/utils'
 
 export interface ReachedGoalLegendProps {
@@ -46,24 +47,20 @@ export function ReachedGoalLegend({
     >
       {items.map((item) => (
         <li key={item.key}>
-          <button
-            type="button"
-            aria-pressed={item.pressed}
-            aria-label={`${item.label} — ${t.history.reachedGoalLegendLabel}`}
-            onClick={item.onToggle}
-            className={cn(
-              'inline-flex items-center gap-2 rounded-full border px-2.5 py-1 outline-none transition-colors focus-visible:ring-3 focus-visible:ring-ring/50',
-              item.pressed
-                ? 'border-primary/40 bg-muted text-foreground'
-                : 'border-border bg-card text-muted-foreground',
-            )}
+          <Chip
+            selected={item.pressed}
+            className="gap-2"
+            selectLabel={`${item.label} — ${t.history.reachedGoalLegendLabel}`}
+            onSelect={item.onToggle}
+            leading={
+              <span
+                aria-hidden="true"
+                className={cn('size-3 shrink-0 rounded-sm', item.swatchClass)}
+              />
+            }
           >
-            <span
-              aria-hidden="true"
-              className={cn('size-3 shrink-0 rounded-sm', item.swatchClass)}
-            />
             {item.label}
-          </button>
+          </Chip>
         </li>
       ))}
     </ul>

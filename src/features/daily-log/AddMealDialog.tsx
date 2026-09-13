@@ -54,6 +54,7 @@ import {
 } from '@/stores'
 import { IndexedDbMealItemRepository } from '@/infrastructure/persistence/indexeddb'
 import { Button } from '@/shared/ui/button'
+import { Chip } from '@/shared/ui/chip'
 import { NoticeBar } from '@/shared/ui/notice-bar'
 import { ConfirmDeleteEntryBar } from './ConfirmDeleteEntryBar'
 import { Dialog, DialogContent, DialogTitle } from '@/shared/ui/dialog'
@@ -1412,27 +1413,21 @@ export function AddMealDialog({
           </div>
           <div className="flex flex-wrap gap-3">
             {mealLabelSuggestions.map((name) => (
-              <Button
+              <Chip
                 key={name}
-                type="button"
-                variant={mealLabel === name ? 'secondary' : 'outline'}
-                size="sm"
-                aria-pressed={mealLabel === name}
-                onClick={() => onMealLabelChange(name)}
+                selected={mealLabel === name}
+                onSelect={() => onMealLabelChange(name)}
               >
                 {name}
-              </Button>
+              </Chip>
             ))}
             {mealLabel.trim() !== '' &&
               !mealLabelSuggestions.includes(mealLabel.trim()) && (
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => addMealLabelPreset(mealLabel)}
+                <Chip
+                  onSelect={() => addMealLabelPreset(mealLabel)}
                 >
                   {t.dailyEntry.saveMealNameAsTemplateLabel}
-                </Button>
+                </Chip>
               )}
           </div>
         </div>

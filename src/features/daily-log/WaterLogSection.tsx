@@ -1,9 +1,10 @@
 import { type FormEvent, useState } from 'react'
-import { ChevronDown, CupSoda, GlassWater, X } from 'lucide-react'
+import { ChevronDown, CupSoda, GlassWater } from 'lucide-react'
 import type { WaterEntry } from '@/domain/dailyEntry'
 import { formatNumber } from '@/i18n'
 import { parseNumberInput } from '@/shared/lib/parseNumberInput'
 import { Button } from '@/shared/ui/button'
+import { Chip } from '@/shared/ui/chip'
 import {
   Collapsible,
   CollapsibleContent,
@@ -149,36 +150,26 @@ export function WaterLogSection() {
                     const Icon =
                       entry.amountMl > 300 ? CupSoda : GlassWater
                     return (
-                      <span
+                      <Chip
                         key={entry.id}
-                        className="flex min-w-0 items-center justify-center gap-1 rounded-full bg-muted py-1 pr-1 pl-2 text-sm"
-                      >
-                        <button
-                          type="button"
-                          className="flex min-w-0 flex-1 items-center justify-center gap-1"
-                          aria-label={t.dailyEntry.editWaterEntryLabel(
-                            amountText,
-                          )}
-                          onClick={() => openWaterEdit(entry)}
-                        >
+                        className="w-full justify-center"
+                        selectLabel={t.dailyEntry.editWaterEntryLabel(
+                          amountText,
+                        )}
+                        onSelect={() => openWaterEdit(entry)}
+                        removeLabel={t.dailyEntry.removeWaterEntryLabel(
+                          amountText,
+                        )}
+                        onRemove={() => setConfirmingWaterId(entry.id)}
+                        leading={
                           <Icon
                             aria-hidden="true"
                             className="size-4 shrink-0 text-muted-foreground"
                           />
-                          <span className="truncate">{chipText}</span>
-                        </button>
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="icon-touch"
-                          aria-label={t.dailyEntry.removeWaterEntryLabel(
-                            amountText,
-                          )}
-                          onClick={() => setConfirmingWaterId(entry.id)}
-                        >
-                          <X aria-hidden="true" />
-                        </Button>
-                      </span>
+                        }
+                      >
+                        {chipText}
+                      </Chip>
                     )
                   })}
                 </div>
