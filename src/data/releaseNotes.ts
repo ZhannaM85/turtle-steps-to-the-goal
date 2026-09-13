@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 839,
+    issue: 883,
+    date: '2026-09-13T19:50:00+03:00',
+    en: 'Body composition is three values per row again, so the card stays compact.',
+    ru: 'Состав тела снова по три показателя в ряд, карточка снова компактная.',
+  },
+  {
     version: 838,
     issue: 885,
     date: '2026-09-13T19:30:00+03:00',

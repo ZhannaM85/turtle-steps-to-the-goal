@@ -162,19 +162,19 @@ export function DailyEntryFormMorningCompositionField() {
                       </>
                     }
                   />
-                  {/* #515 / #883 — 2-column pairing matches edit. Each
-                   * cell reserves the same label-row height so a missing
-                   * comparison ⓘ cannot lift that metric’s value (visceral
-                   * “5” was sitting above muscle). */}
+                  {/* #515 — compact 3-across live grid. #883 keeps values
+                   * on one baseline; do not drop to 2-col (that stretched
+                   * the card to three rows). Comparison ⓘ is size-4 here
+                   * so the 44px #872 hit box cannot blow the row. */}
                   <div className="rounded-lg bg-muted px-3 py-2.5">
-                    <dl className="grid grid-cols-2 gap-x-3 gap-y-2">
+                    <dl className="grid grid-cols-3 gap-x-3 gap-y-2">
                       {bodyCompositionMetrics.map((metric) => (
                         <div
                           key={metric.label}
                           data-slot="body-composition-metric"
-                          className="grid min-w-0 grid-rows-[2.75rem_auto] content-start"
+                          className="flex min-w-0 flex-col gap-0.5"
                         >
-                          <dt className="flex min-w-0 items-end gap-0.5 text-xs text-muted-foreground">
+                          <dt className="flex min-h-5 min-w-0 items-end gap-0.5 text-xs text-muted-foreground">
                             <span className="truncate">{metric.label}</span>
                             <EntryFieldComparisonInfo
                               field={metric.field}
@@ -182,6 +182,7 @@ export function DailyEntryFormMorningCompositionField() {
                               prior={comparison.prior(metric.field)}
                               day30Value={comparison.day30Value(metric.field)}
                               unit={metric.unit}
+                              className="size-4"
                             />
                           </dt>
                           <dd className="text-sm font-medium tabular-nums text-foreground">

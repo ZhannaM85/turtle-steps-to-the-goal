@@ -307,13 +307,11 @@ describe('DailyEntryForm', () => {
       expectBodyCompositionValues(['30kg', '5', '48%', '2.3kg', '22%'])
       const section = screen.getByText('Body composition').closest('div')
         ?.parentElement as HTMLElement
-      expect(section.querySelector('dl')).toHaveClass('grid-cols-2')
-      expect(section.querySelector('dl')).not.toHaveClass('grid-cols-3')
-      for (const cell of section.querySelectorAll(
-        '[data-slot="body-composition-metric"]',
-      )) {
-        expect(cell).toHaveClass('grid-rows-[2.75rem_auto]')
-      }
+      expect(section.querySelector('dl')).toHaveClass('grid-cols-3')
+      expect(section.querySelector('dl')).not.toHaveClass('grid-cols-2')
+      expect(
+        section.querySelectorAll('[data-slot="body-composition-metric"]'),
+      ).toHaveLength(5)
       expect(
         screen.queryByRole('button', { name: 'Save body composition' }),
       ).not.toBeInTheDocument()
