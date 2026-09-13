@@ -8,8 +8,8 @@ import eslintConfigPrettier from 'eslint-config-prettier'
 /**
  * #864 — hard ceiling. New / already-clean files must stay ≤500 physical
  * lines. Known offenders are allowlisted below (temporary; chip away, do
- * not grow). Dictionaries and the release-note dump stay on the list until
- * the next time those files are touched — split then, do not ignore forever.
+ * not grow). The release-note dump stays on the list until next touched.
+ * Dictionaries were split in #871 and are no longer allowlisted.
  * Generated trees (`dist` / native projects) are ignored in the first
  * config block, not here.
  */
@@ -41,9 +41,6 @@ const maxLinesAllowlist = [
   'src/features/settings/MealItemRow.tsx',
   'src/features/settings/MealItemsSection.test.tsx',
   'src/features/settings/SettingsScreen.test.tsx',
-  'src/i18n/Dictionary.ts',
-  'src/i18n/en.ts',
-  'src/i18n/ru.ts',
 ]
 
 export default tseslint.config(

@@ -44,6 +44,12 @@ describe('detectDefaultLocale', () => {
   })
 })
 
+describe('feature dictionaries (#871)', () => {
+  it('keeps English and Russian top-level sections aligned', () => {
+    expect(Object.keys(ru).sort()).toEqual(Object.keys(en).sort())
+  })
+})
+
 describe('getDictionary', () => {
   it('returns the matching dictionary for each locale', () => {
     expect(getDictionary('en')).toBe(en)

@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 831,
+    issue: 871,
+    date: '2026-09-13T16:40:00+03:00',
+    en: 'App text is now organized by screen, so English and Russian stay easier to keep in sync.',
+    ru: 'Тексты приложения теперь разложены по экранам, чтобы английский и русский было проще держать одинаковыми.',
+  },
+  {
     version: 830,
     issue: 882,
     date: '2026-09-13T16:10:00+03:00',
