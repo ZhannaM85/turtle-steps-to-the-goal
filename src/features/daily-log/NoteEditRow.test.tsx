@@ -24,10 +24,10 @@ describe('NoteEditRow (#850 / #851 / #852 / #854 / #858 / #860)', () => {
     })
 
     expect(header).not.toContainElement(textarea)
-    expect(save).toHaveAttribute('data-size', 'icon-sm')
-    expect(save).toHaveClass('size-7')
-    expect(clear).toHaveAttribute('data-size', 'icon-sm')
-    expect(clear).toHaveClass('size-7')
+    expect(save).toHaveAttribute('data-size', 'icon-touch')
+    expect(save).toHaveClass('size-11')
+    expect(clear).toHaveAttribute('data-size', 'icon-touch')
+    expect(clear).toHaveClass('size-11')
     expect(textarea).toHaveClass(
       'min-h-12',
       'w-full',
@@ -58,7 +58,7 @@ describe('NoteEditRow (#850 / #851 / #852 / #854 / #858 / #860)', () => {
     )
 
     const clear = screen.getByRole('button', { name: 'Cancel editing note' })
-    expect(clear).toHaveAttribute('data-size', 'icon-sm')
+    expect(clear).toHaveAttribute('data-size', 'icon-touch')
 
     await user.click(clear)
     expect(onSave).not.toHaveBeenCalled()
@@ -214,11 +214,11 @@ describe('NoteEditRow (#850 / #851 / #852 / #854 / #858 / #860)', () => {
     const header = screen.getByText("Day's note").closest('div') as HTMLElement
     expect(within(header).getByRole('button', { name: 'Edit note' })).toHaveAttribute(
       'data-size',
-      'icon-sm',
+      'icon-touch',
     )
     expect(
       within(header).getByRole('button', { name: 'Delete note' }),
-    ).toHaveAttribute('data-size', 'icon-sm')
+    ).toHaveAttribute('data-size', 'icon-touch')
     expect(header).not.toHaveTextContent('felt good')
     expect(screen.getByText('felt good')).toBeInTheDocument()
   })

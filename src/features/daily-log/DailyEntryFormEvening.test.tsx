@@ -391,7 +391,7 @@ describe('DailyEntryForm', () => {
       )
 
       const save = screen.getByRole('button', { name: 'Save day totals' })
-      expect(save).toHaveAttribute('data-size', 'icon-sm')
+      expect(save).toHaveAttribute('data-size', 'icon-touch')
       expect(
         screen.queryByRole('button', { name: 'Clear' }),
       ).not.toBeInTheDocument()
@@ -402,8 +402,8 @@ describe('DailyEntryForm', () => {
 
       const edit = screen.getByRole('button', { name: 'Edit day totals' })
       const trash = screen.getByRole('button', { name: 'Delete day totals' })
-      expect(edit).toHaveAttribute('data-size', 'icon-sm')
-      expect(trash).toHaveAttribute('data-size', 'icon-sm')
+      expect(edit).toHaveAttribute('data-size', 'icon-touch')
+      expect(trash).toHaveAttribute('data-size', 'icon-touch')
     })
 
     it('asks before clearing saved day totals (#860 / #855)', async () => {

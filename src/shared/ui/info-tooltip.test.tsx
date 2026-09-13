@@ -8,9 +8,9 @@ describe('InfoTooltip', () => {
     render(<InfoTooltip text="More detail here" label="About this field" />)
 
     expect(screen.queryByText('More detail here')).not.toBeInTheDocument()
-    expect(
-      screen.getByRole('button', { name: 'About this field' }),
-    ).toBeInTheDocument()
+    const trigger = screen.getByRole('button', { name: 'About this field' })
+    expect(trigger).toBeInTheDocument()
+    expect(trigger.className).toMatch(/size-11/)
   })
 
   it('opens on click (tap-to-open, not hover) and shows the text', async () => {

@@ -29,7 +29,7 @@ describe('DayFieldHeader (#858 / #863)', () => {
     expect(within(header).queryByRole('button')).not.toBeInTheDocument()
   })
 
-  it('lays out view actions as icon-sm pencil, then optional trash', () => {
+  it('lays out view actions as icon-touch pencil, then optional trash', () => {
     const onEdit = vi.fn()
     const onDelete = vi.fn()
 
@@ -54,10 +54,10 @@ describe('DayFieldHeader (#858 / #863)', () => {
       'Edit note',
       'Delete note',
     ])
-    expect(buttons[0]).toHaveAttribute('data-size', 'icon-sm')
-    expect(buttons[0]).toHaveClass('size-7')
-    expect(buttons[1]).toHaveAttribute('data-size', 'icon-sm')
-    expect(buttons[1]).toHaveClass('size-7')
+    expect(buttons[0]).toHaveAttribute('data-size', 'icon-touch')
+    expect(buttons[0]).toHaveClass('size-11')
+    expect(buttons[1]).toHaveAttribute('data-size', 'icon-touch')
+    expect(buttons[1]).toHaveClass('size-11')
   })
 
   it('hides trash in view mode until delete is offered', () => {
@@ -74,7 +74,7 @@ describe('DayFieldHeader (#858 / #863)', () => {
     expect(screen.queryByRole('button', { name: 'Delete sleep' })).not.toBeInTheDocument()
   })
 
-  it('lays out edit actions as icon-sm save, then cancel, then trash', () => {
+  it('lays out edit actions as icon-touch save, then cancel, then trash', () => {
     render(
       <DayFieldHeader
         label="Day totals"
@@ -100,12 +100,12 @@ describe('DayFieldHeader (#858 / #863)', () => {
       'Cancel editing day totals',
       'Delete day totals',
     ])
-    expect(buttons[0]).toHaveAttribute('data-size', 'icon-sm')
-    expect(buttons[0]).toHaveClass('size-7')
-    expect(buttons[1]).toHaveAttribute('data-size', 'icon-sm')
-    expect(buttons[1]).toHaveClass('size-7')
-    expect(buttons[2]).toHaveAttribute('data-size', 'icon-sm')
-    expect(buttons[2]).toHaveClass('size-7')
+    expect(buttons[0]).toHaveAttribute('data-size', 'icon-touch')
+    expect(buttons[0]).toHaveClass('size-11')
+    expect(buttons[1]).toHaveAttribute('data-size', 'icon-touch')
+    expect(buttons[1]).toHaveClass('size-11')
+    expect(buttons[2]).toHaveAttribute('data-size', 'icon-touch')
+    expect(buttons[2]).toHaveClass('size-11')
   })
 
   it('keeps cancel and trash off the title row until those actions are offered', () => {

@@ -215,10 +215,10 @@ describe('DailyEntryForm', () => {
       const titleRow = screen.getByText('Sleep').closest('div') as HTMLElement
       expect(
         within(titleRow).getByRole('button', { name: 'Save sleep' }),
-      ).toHaveAttribute('data-size', 'icon-sm')
+      ).toHaveAttribute('data-size', 'icon-touch')
       expect(
         within(titleRow).getByRole('button', { name: 'Cancel editing sleep' }),
-      ).toHaveAttribute('data-size', 'icon-sm')
+      ).toHaveAttribute('data-size', 'icon-touch')
     })
 
     describe('leaving edit mode without saving (#424)', () => {

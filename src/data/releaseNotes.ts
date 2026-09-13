@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 824,
+    issue: 872,
+    date: '2026-09-13T13:30:00+03:00',
+    en: 'Day field icons, Settings pin, and water-chip remove are larger tap targets again.',
+    ru: 'Иконки полей Дня, закрепление в Настройках и крестик у воды снова удобнее нажимать.',
+  },
+  {
     version: 823,
     issue: 869,
     date: '2026-09-13T13:20:00+03:00',

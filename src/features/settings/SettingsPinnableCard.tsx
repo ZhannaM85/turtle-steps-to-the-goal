@@ -67,7 +67,7 @@ export function SettingsPinnableCard({
         <Button
           type="button"
           variant="ghost"
-          size="icon-sm"
+          size="icon-touch"
           aria-label={
             collapsed
               ? t.settings.expandCardLabel
@@ -88,7 +88,7 @@ export function SettingsPinnableCard({
           <Button
             type="button"
             variant="ghost"
-            size="icon-sm"
+            size="icon-touch"
             aria-label={
               isPinned ? t.settings.unpinCardLabel : t.settings.pinCardLabel
             }

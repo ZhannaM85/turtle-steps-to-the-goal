@@ -174,13 +174,13 @@ export function ZeppScreenshotFillControl({
           void handleFile(file)
         }}
       />
-      {/* #807 — no inner flex wrapper: ImageUp + ⓘ must be siblings of
-       * pencil/trash in the title-row `gap-1` cluster. Same `icon-sm`
-       * box as those buttons so ⓘ isn’t a 16px control next to 48px ones. */}
+      {/* #807 / #872 — no inner flex wrapper: ImageUp + ⓘ must be siblings
+       * of pencil/trash in the title-row `gap-1` cluster. Same `icon-touch`
+       * box as those buttons so ⓘ isn’t a 16px control next to 44px ones. */}
       <Button
         type="button"
         variant="ghost"
-        size="icon-sm"
+        size="icon-touch"
         aria-label={t.dailyEntry.fillBodyCompositionFromScreenshotLabel}
         onClick={() => fileInputRef.current?.click()}
       >
@@ -189,7 +189,6 @@ export function ZeppScreenshotFillControl({
       <InfoTooltip
         text={t.dailyEntry.zeppScreenshotHelpText}
         label={t.dailyEntry.zeppScreenshotHelpLabel}
-        className="size-7"
       />
       <Dialog
         open={open}

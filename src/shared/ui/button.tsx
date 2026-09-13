@@ -52,6 +52,11 @@ const buttonVariants = cva(
           "size-6 rounded-[min(var(--radius-md),10px)] in-data-[slot=button-group]:rounded-lg [&_svg:not([class*='size-'])]:size-3",
         'icon-sm':
           'size-7 rounded-[min(var(--radius-md),12px)] in-data-[slot=button-group]:rounded-lg',
+        // #872 — ~44pt thumb target for Day title-row / Settings pin /
+        // InfoTooltip / water-chip remove. Keep icon-sm/icon-xs on
+        // dish-row list controls. Do not use this on the date-nav 42px
+        // exception (#420/#647).
+        'icon-touch': 'size-11',
         'icon-lg': 'size-9',
         // 48px — matches the standalone-field height (h-12) used by Today's
         // Date/Weight/Sleep/Steps/Note rows and MealItemEditorSheet, so a

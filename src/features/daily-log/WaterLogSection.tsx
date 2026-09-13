@@ -170,7 +170,7 @@ export function WaterLogSection() {
                         <Button
                           type="button"
                           variant="ghost"
-                          size="icon-xs"
+                          size="icon-touch"
                           aria-label={t.dailyEntry.removeWaterEntryLabel(
                             amountText,
                           )}

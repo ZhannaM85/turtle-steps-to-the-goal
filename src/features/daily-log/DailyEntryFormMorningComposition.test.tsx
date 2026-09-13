@@ -275,7 +275,7 @@ describe('DailyEntryForm', () => {
       const saveButton = within(titleRow).getByRole('button', {
         name: 'Save body composition',
       })
-      expect(saveButton).toHaveAttribute('data-size', 'icon-sm')
+      expect(saveButton).toHaveAttribute('data-size', 'icon-touch')
       expect(saveButton).not.toHaveClass(
         'col-start-3',
         'row-start-2',

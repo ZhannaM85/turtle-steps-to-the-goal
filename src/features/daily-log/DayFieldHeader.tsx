@@ -3,7 +3,8 @@ import { Check, Pencil, Trash2, X } from 'lucide-react'
 import { Button } from '@/shared/ui/button'
 
 /**
- * Shared Day field title row (#858): label left, `icon-sm` actions right.
+ * Shared Day field title row (#858 / #872): label left, `icon-touch`
+ * (~44px) actions right.
  * Same geometry as Weight / Sleep / Body composition (#750 / #752 / #798 /
  * #807) so note, steps, and metric-note peers stay aligned.
  */
@@ -39,7 +40,7 @@ export function DayFieldHeaderSaveButton({
     <Button
       type="button"
       variant="outline"
-      size="icon-sm"
+      size="icon-touch"
       aria-label={label}
       disabled={disabled}
       onClick={() => {
@@ -63,7 +64,7 @@ export function DayFieldHeaderCancelButton({
     <Button
       type="button"
       variant="ghost"
-      size="icon-sm"
+      size="icon-touch"
       aria-label={label}
       onClick={onClick}
     >
@@ -83,7 +84,7 @@ export function DayFieldHeaderEditButton({
     <Button
       type="button"
       variant="ghost"
-      size="icon-sm"
+      size="icon-touch"
       aria-label={label}
       onClick={onClick}
     >
@@ -103,7 +104,7 @@ export function DayFieldHeaderDeleteButton({
     <Button
       type="button"
       variant="ghost"
-      size="icon-sm"
+      size="icon-touch"
       aria-label={label}
       onClick={onClick}
     >

@@ -294,10 +294,10 @@ describe('DailyEntryForm', () => {
       ) as HTMLElement
       expect(
         within(titleRow).getByRole('button', { name: 'Save weight' }),
-      ).toHaveAttribute('data-size', 'icon-sm')
+      ).toHaveAttribute('data-size', 'icon-touch')
       expect(
         within(titleRow).getByRole('button', { name: 'Cancel editing weight' }),
-      ).toHaveAttribute('data-size', 'icon-sm')
+      ).toHaveAttribute('data-size', 'icon-touch')
       expect(
         titleRow.contains(screen.getByLabelText('Weight (kg)')),
       ).toBe(false)

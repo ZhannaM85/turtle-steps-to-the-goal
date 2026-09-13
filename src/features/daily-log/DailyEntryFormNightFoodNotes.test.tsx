@@ -174,8 +174,8 @@ describe('DailyEntryForm', () => {
       const clear = within(titleRow).getByRole('button', {
         name: 'Cancel editing what helped',
       })
-      expect(save).toHaveAttribute('data-size', 'icon-sm')
-      expect(clear).toHaveAttribute('data-size', 'icon-sm')
+      expect(save).toHaveAttribute('data-size', 'icon-touch')
+      expect(clear).toHaveAttribute('data-size', 'icon-touch')
       expect(
         titleRow.contains(screen.getByRole('textbox', { name: 'What helped?' })),
       ).toBe(false)
@@ -203,8 +203,8 @@ describe('DailyEntryForm', () => {
       const clear = within(titleRow).getByRole('button', {
         name: 'Cancel editing reason',
       })
-      expect(save).toHaveAttribute('data-size', 'icon-sm')
-      expect(clear).toHaveAttribute('data-size', 'icon-sm')
+      expect(save).toHaveAttribute('data-size', 'icon-touch')
+      expect(clear).toHaveAttribute('data-size', 'icon-touch')
     })
 
     it('clears an unsaved What helped draft without persisting it (#850)', async () => {
