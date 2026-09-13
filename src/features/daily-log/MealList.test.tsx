@@ -2082,7 +2082,7 @@ describe('MealList', () => {
       )
 
       const line = await screen.findByText('↓ 50 kcal compared to yesterday')
-      expect(line.className).toMatch(/emerald/)
+      expect(line.className).toMatch(/status-good/)
     })
 
     it('shows an up-arrow when the same-label meal has more kcal', async () => {
@@ -2111,7 +2111,7 @@ describe('MealList', () => {
       )
 
       const line = await screen.findByText('↑ 100 kcal compared to yesterday')
-      expect(line.className).toMatch(/orange/)
+      expect(line.className).toMatch(/status-warn/)
     })
 
     it('matches custom labels like Обед два, not a different lunch', async () => {

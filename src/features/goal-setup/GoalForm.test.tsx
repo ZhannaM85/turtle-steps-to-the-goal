@@ -1364,7 +1364,7 @@ describe('GoalForm', () => {
 
       const warning = screen.getByText(/This window overlaps a previous goal/)
       expect(warning).toBeInTheDocument()
-      expect(warning.className).toMatch(/orange/)
+      expect(warning.className).toMatch(/status-warn/)
     })
 
     it('prefills tomorrow when starting a new goal on a last-day reach (#671)', async () => {
