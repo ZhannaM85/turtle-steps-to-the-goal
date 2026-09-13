@@ -309,6 +309,11 @@ describe('DailyEntryForm', () => {
         ?.parentElement as HTMLElement
       expect(section.querySelector('dl')).toHaveClass('grid-cols-2')
       expect(section.querySelector('dl')).not.toHaveClass('grid-cols-3')
+      for (const cell of section.querySelectorAll(
+        '[data-slot="body-composition-metric"]',
+      )) {
+        expect(cell).toHaveClass('grid-rows-[2.75rem_auto]')
+      }
       expect(
         screen.queryByRole('button', { name: 'Save body composition' }),
       ).not.toBeInTheDocument()

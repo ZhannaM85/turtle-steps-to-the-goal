@@ -162,17 +162,19 @@ export function DailyEntryFormMorningCompositionField() {
                       </>
                     }
                   />
-                  {/* #515 / #883 — same 2-column pairing as the edit grid
-                   * (muscle|visceral, water|bone, fat). A 3-column live
-                   * grid parked visceral fat in the center. */}
+                  {/* #515 / #883 — 2-column pairing matches edit. Each
+                   * cell reserves the same label-row height so a missing
+                   * comparison ⓘ cannot lift that metric’s value (visceral
+                   * “5” was sitting above muscle). */}
                   <div className="rounded-lg bg-muted px-3 py-2.5">
                     <dl className="grid grid-cols-2 gap-x-3 gap-y-2">
                       {bodyCompositionMetrics.map((metric) => (
                         <div
                           key={metric.label}
-                          className="flex min-w-0 flex-col"
+                          data-slot="body-composition-metric"
+                          className="grid min-w-0 grid-rows-[2.75rem_auto] content-start"
                         >
-                          <dt className="flex min-w-0 items-center gap-0.5 truncate text-xs text-muted-foreground">
+                          <dt className="flex min-w-0 items-end gap-0.5 text-xs text-muted-foreground">
                             <span className="truncate">{metric.label}</span>
                             <EntryFieldComparisonInfo
                               field={metric.field}

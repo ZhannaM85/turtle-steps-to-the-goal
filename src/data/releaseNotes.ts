@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 837,
+    issue: 883,
+    date: '2026-09-13T19:25:00+03:00',
+    en: 'Visceral fat now sits on the same line as muscle mass, even when only one of them has a comparison tip.',
+    ru: 'Висцеральный жир теперь на одной линии с мышцами, даже если подсказка сравнения есть только у одного показателя.',
+  },
+  {
     version: 836,
     issue: 884,
     date: '2026-09-13T18:35:00+03:00',
