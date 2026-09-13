@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 823,
+    issue: 869,
+    date: '2026-09-13T13:20:00+03:00',
+    en: 'A meal name that is not already a template can be saved from Add meal, without typing in the name field.',
+    ru: 'Название приёма, которого ещё нет в шаблонах, можно сохранить прямо в «Добавить приём», не печатая в поле имени.',
+  },
+  {
     version: 822,
     issue: 875,
     date: '2026-09-13T13:15:00+03:00',

@@ -393,6 +393,7 @@ export function AddMealDialog({
     (state) => state.toggleRecentVisible,
   )
   const mealLabelPresets = useMealLabelPresetStore((state) => state.presets)
+  const addMealLabelPreset = useMealLabelPresetStore((state) => state.addPreset)
   const micronutrients = useMicronutrientTrackingStore((state) => state.tracked)
   const trackFiber = useTrackedFieldsStore((state) => state.tracked.fiber)
   // #663 — gates the inline meal-composition praise below, on by default.
@@ -1422,6 +1423,17 @@ export function AddMealDialog({
                 {name}
               </Button>
             ))}
+            {mealLabel.trim() !== '' &&
+              !mealLabelSuggestions.includes(mealLabel.trim()) && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => addMealLabelPreset(mealLabel)}
+                >
+                  {t.dailyEntry.saveMealNameAsTemplateLabel}
+                </Button>
+              )}
           </div>
         </div>
         {/* #505 — one vertical scale (`gap-3`/`gap-4`) instead of mixed

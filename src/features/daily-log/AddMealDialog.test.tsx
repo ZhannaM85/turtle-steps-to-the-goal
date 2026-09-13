@@ -181,6 +181,31 @@ describe('AddMealDialog (#454)', () => {
     expect(nameField).toHaveValue('Lunch')
   })
 
+  it('saves a custom meal name as a Settings template without unlocking typing (#869)', async () => {
+    const user = userEvent.setup()
+    render(
+      <ControlledAddMealDialog {...defaultProps} mealLabel="Tea time" />,
+    )
+
+    expect(screen.getByLabelText('Meal name')).toHaveAttribute('readonly')
+    await user.click(screen.getByRole('button', { name: 'Save as template' }))
+
+    expect(useMealLabelPresetStore.getState().presets).toContain('Tea time')
+    expect(screen.getByRole('button', { name: 'Tea time' })).toBeInTheDocument()
+    expect(
+      screen.queryByRole('button', { name: 'Save as template' }),
+    ).not.toBeInTheDocument()
+    expect(screen.getByLabelText('Meal name')).toHaveAttribute('readonly')
+  })
+
+  it('does not offer Save as template for a built-in chip name (#869)', () => {
+    render(<ControlledAddMealDialog {...defaultProps} />)
+
+    expect(
+      screen.queryByRole('button', { name: 'Save as template' }),
+    ).not.toBeInTheDocument()
+  })
+
   it('clears the meal name without enabling typing (#845)', async () => {
     const user = userEvent.setup()
     const onMealLabelChange = vi.fn()

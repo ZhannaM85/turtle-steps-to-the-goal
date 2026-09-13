@@ -235,6 +235,7 @@ export const en: Dictionary = {
     mealNotFoundText: "This meal couldn't be found.",
     mealLabelFieldLabel: 'Meal name',
     clearMealLabelFieldLabel: 'Clear meal name',
+    saveMealNameAsTemplateLabel: 'Save as template',
     defaultMealNamePresets: ['Breakfast', 'Lunch', 'Dinner', 'Snack'],
     saveButton: 'Save',
     saveAndAddAnotherButton: 'Save and add one more',
