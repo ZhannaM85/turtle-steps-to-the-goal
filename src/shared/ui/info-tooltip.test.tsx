@@ -11,6 +11,9 @@ describe('InfoTooltip', () => {
     const trigger = screen.getByRole('button', { name: 'About this field' })
     expect(trigger).toBeInTheDocument()
     expect(trigger.className).toMatch(/size-11/)
+    expect(
+      trigger.querySelector('[data-slot="info-tooltip-anchor"]'),
+    ).toBeInTheDocument()
   })
 
   it('opens on click (tap-to-open, not hover) and shows the text', async () => {

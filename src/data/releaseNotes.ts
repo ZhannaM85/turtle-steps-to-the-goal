@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 833,
+    issue: 886,
+    date: '2026-09-13T18:20:00+03:00',
+    en: 'Info tips now sit next to the ⓘ you tap, instead of floating far away from it.',
+    ru: 'Подсказка теперь появляется рядом с нажатой ⓘ, а не далеко от неё.',
+  },
+  {
     version: 832,
     issue: 865,
     date: '2026-09-13T16:55:00+03:00',

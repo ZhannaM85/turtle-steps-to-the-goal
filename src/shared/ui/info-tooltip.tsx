@@ -33,14 +33,19 @@ export function InfoTooltip({
             className,
           )}
         >
-          {icon ?? <Info className="size-3.5" aria-hidden="true" />}
+          {/* #886 — position against the glyph, not the 44px #872 hit box. */}
+          <PopoverPrimitive.Anchor asChild>
+            <span className="inline-flex" data-slot="info-tooltip-anchor">
+              {icon ?? <Info className="size-3.5" aria-hidden="true" />}
+            </span>
+          </PopoverPrimitive.Anchor>
         </button>
       </PopoverPrimitive.Trigger>
       <PopoverPrimitive.Portal>
         <PopoverPrimitive.Content
           side="top"
-          align="start"
-          sideOffset={6}
+          align="center"
+          sideOffset={4}
           className="z-50 max-w-64 whitespace-pre-line rounded-lg border border-border bg-popover px-3 py-2 text-xs text-popover-foreground shadow-md outline-none"
         >
           {text}
