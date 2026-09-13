@@ -26,7 +26,7 @@ export function SettingsCardsCollapseControl() {
     <div className="flex justify-end" style={{ order: -3500 }}>
       <button
         type="button"
-        className="text-sm text-muted-foreground hover:text-foreground"
+        className="inline-flex min-h-11 min-w-11 items-center justify-center px-3 text-sm text-muted-foreground hover:text-foreground"
         onClick={() => {
           if (anyExpanded) collapseAll()
           else expandAll()

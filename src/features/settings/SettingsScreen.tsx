@@ -14,6 +14,7 @@ import { PageHeader } from '@/shared/ui/page-header'
 import { SettingsBasicsCards } from './SettingsBasicsCards'
 import { SettingsCardsCollapseControl } from './SettingsCardsCollapseControl'
 import { SettingsLowerCards } from './SettingsLowerCards'
+import { SettingsSectionHeading } from './SettingsSectionHeading'
 import { SettingsTrackedFieldsSection } from './SettingsTrackedFieldsSection'
 
 export function SettingsScreen() {
@@ -41,7 +42,7 @@ export function SettingsScreen() {
   )
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-6">
       <div style={{ order: -4000 }}>
         <PageHeader
           title={t.settings.title}
@@ -60,6 +61,11 @@ export function SettingsScreen() {
       </div>
 
       <SettingsCardsCollapseControl />
+      <SettingsSectionHeading group="logging" />
+      <SettingsSectionHeading group="appearance" />
+      <SettingsSectionHeading group="library" />
+      <SettingsSectionHeading group="backup" />
+      <SettingsSectionHeading group="danger" />
 
       {backupReminder.show && (
         <NoticeBar

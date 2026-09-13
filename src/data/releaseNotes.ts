@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 840,
+    issue: 877,
+    date: '2026-09-13T21:20:00+03:00',
+    en: 'Settings is grouped into Logging, Display, Library, Backup, and Danger, and Collapse all is easier to tap.',
+    ru: 'Настройки сгруппированы: Дневник, Вид, Справочники, Резервные копии и Опасная зона. «Свернуть все» проще нажать.',
+  },
+  {
     version: 839,
     issue: 883,
     date: '2026-09-13T19:50:00+03:00',

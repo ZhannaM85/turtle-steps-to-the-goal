@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import { createJSONStorage, persist } from 'zustand/middleware'
+import { settingsCardNaturalOrder } from './settingsCardGroups'
 
 interface SettingsPinState {
   pinned: string[]
@@ -27,5 +28,5 @@ export const useSettingsPinStore = create<SettingsPinState>()(
 
 export function settingsPinOrder(pinned: string[], id: string): number {
   const index = pinned.indexOf(id)
-  return index === -1 ? 0 : -1000 + index
+  return index === -1 ? settingsCardNaturalOrder(id) : -1000 + index
 }

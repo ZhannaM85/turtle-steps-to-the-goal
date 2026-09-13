@@ -45,6 +45,10 @@ interface SettingsCardsCollapseState {
   /** `true` = that card's body is hidden. */
   cards: Record<SettingsCardKey, boolean>
   setCollapsed: (key: SettingsCardKey, collapsed: boolean) => void
+  setKeysCollapsed: (
+    keys: readonly SettingsCardKey[],
+    collapsed: boolean,
+  ) => void
   collapseAll: () => void
   expandAll: () => void
 }
@@ -57,6 +61,13 @@ export const useSettingsCardsCollapseStore =
         setCollapsed: (key, collapsed) =>
           set((state) => ({
             cards: { ...state.cards, [key]: collapsed },
+          })),
+        setKeysCollapsed: (keys, collapsed) =>
+          set((state) => ({
+            cards: {
+              ...state.cards,
+              ...Object.fromEntries(keys.map((key) => [key, collapsed])),
+            },
           })),
         collapseAll: () => set({ cards: allCollapsed(true) }),
         expandAll: () => set({ cards: allCollapsed(false) }),

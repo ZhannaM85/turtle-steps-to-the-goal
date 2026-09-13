@@ -358,4 +358,11 @@ export const settings: SettingsDict = {
       'Export (below) creates a portable backup file you can carry to another device.',
       'Import merges that backup into whatever is already on the other device — read its result message before relying on it, especially before a fresh install.',
     ],
+    settingsGroupLogging: 'Logging',
+    settingsGroupAppearance: 'Display',
+    settingsGroupLibrary: 'Library',
+    settingsGroupBackup: 'Backup',
+    settingsGroupDanger: 'Danger',
+    collapseSettingsGroupLabel: (section) => `Collapse ${section}`,
+    expandSettingsGroupLabel: (section) => `Expand ${section}`,
   }

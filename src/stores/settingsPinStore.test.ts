@@ -7,6 +7,6 @@ describe('settingsPinOrder (#820)', () => {
     expect(settingsPinOrder(['export', 'localTransfer'], 'localTransfer')).toBe(
       -999,
     )
-    expect(settingsPinOrder(['export'], 'units')).toBe(0)
+    expect(settingsPinOrder(['export'], 'units')).toBe(201)
   })
 })

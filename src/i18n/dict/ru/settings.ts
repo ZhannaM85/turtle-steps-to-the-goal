@@ -362,4 +362,11 @@ export const settings: SettingsDict = {
       '«Экспорт» (ниже) создаёт файл резервной копии, который можно перенести на другое устройство.',
       '«Импорт» объединяет эту копию с тем, что уже есть на другом устройстве — прочитайте сообщение о результате, прежде чем полагаться на него, особенно после новой установки.',
     ],
+    settingsGroupLogging: 'Дневник',
+    settingsGroupAppearance: 'Вид',
+    settingsGroupLibrary: 'Справочники',
+    settingsGroupBackup: 'Резервные копии',
+    settingsGroupDanger: 'Опасная зона',
+    collapseSettingsGroupLabel: (section) => `Свернуть «${section}»`,
+    expandSettingsGroupLabel: (section) => `Развернуть «${section}»`,
   }

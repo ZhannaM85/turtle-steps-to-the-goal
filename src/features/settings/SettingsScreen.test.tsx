@@ -1072,6 +1072,35 @@ describe('SettingsScreen', () => {
     ).not.toBeInTheDocument()
   })
 
+  it('groups Settings cards under named sections (#877)', () => {
+    renderSettings()
+    expect(screen.getByRole('heading', { name: 'Logging' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Display' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Library' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Backup' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Danger' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Collapse all' })).toHaveClass(
+      'min-h-11',
+    )
+  })
+
+  it('collapses one Settings group without collapsing the others (#877)', async () => {
+    const user = userEvent.setup()
+    renderSettings()
+    await user.click(screen.getByRole('button', { name: 'Collapse Logging' }))
+    const tracked = screen
+      .getByRole('heading', { name: 'What to track' })
+      .closest('[data-slot=settings-panel]')
+    const exportCard = screen
+      .getByRole('heading', { name: 'Export' })
+      .closest('[data-slot=settings-panel]')
+    expect(tracked).toHaveClass('[&_[data-slot=card-content]]:hidden')
+    expect(exportCard).not.toHaveClass('[&_[data-slot=card-content]]:hidden')
+    expect(
+      screen.getByRole('button', { name: 'Expand Logging' }),
+    ).toBeInTheDocument()
+  })
+
   it('collapses all Settings cards from the Day-style control (#826)', async () => {
     const user = userEvent.setup()
     renderSettings()

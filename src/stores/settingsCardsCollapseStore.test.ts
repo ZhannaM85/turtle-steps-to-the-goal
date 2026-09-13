@@ -16,6 +16,15 @@ describe('settingsCardsCollapseStore (#826)', () => {
     expect(useSettingsCardsCollapseStore.getState().cards.export).toBe(false)
   })
 
+  it('setKeysCollapsed toggles only that group (#877)', () => {
+    useSettingsCardsCollapseStore
+      .getState()
+      .setKeysCollapsed(['units', 'appearance'], true)
+    expect(useSettingsCardsCollapseStore.getState().cards.units).toBe(true)
+    expect(useSettingsCardsCollapseStore.getState().cards.appearance).toBe(true)
+    expect(useSettingsCardsCollapseStore.getState().cards.export).toBe(false)
+  })
+
   it('collapseAll hides every card; expandAll restores them', () => {
     useSettingsCardsCollapseStore.getState().collapseAll()
     expect(

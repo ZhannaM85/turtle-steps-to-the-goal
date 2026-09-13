@@ -78,7 +78,15 @@ export { useCustomMetricStore } from './customMetricStore'
 export { useCustomMetricNoteDismissalStore } from './customMetricNoteDismissalStore'
 export { useCustomCorrelationStore } from './customCorrelationStore'
 export { useWeeklyNoteStore } from './weeklyNoteStore'
-export { useSettingsPinStore } from './settingsPinStore'
+export { useSettingsPinStore, settingsPinOrder } from './settingsPinStore'
+export {
+  SETTINGS_CARD_GROUPS,
+  SETTINGS_GROUP_HEADING_ORDER,
+  SETTINGS_GROUP_IDS,
+  settingsCardNaturalOrder,
+  settingsGroupTitleKey,
+  type SettingsGroupId,
+} from './settingsCardGroups'
 export {
   SETTINGS_CARD_KEYS,
   anySettingsCardExpanded,

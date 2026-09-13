@@ -401,4 +401,12 @@ export interface SettingsDict {
     twoDevicesHelpLabel: string
     twoDevicesHelpIntro: string
     twoDevicesHelpSteps: string[]
+    /** #877 — Settings page group headings. */
+    settingsGroupLogging: string
+    settingsGroupAppearance: string
+    settingsGroupLibrary: string
+    settingsGroupBackup: string
+    settingsGroupDanger: string
+    collapseSettingsGroupLabel: (section: string) => string
+    expandSettingsGroupLabel: (section: string) => string
   }
