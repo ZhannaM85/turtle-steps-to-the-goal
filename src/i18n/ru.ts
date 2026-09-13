@@ -683,8 +683,12 @@ export const ru: Dictionary = {
     goalMissedNudge:
       'Цель на эту неделю не достигнута — это нормально. Начните новую ниже, когда будете готовы.',
     goalMissedSectionTitle: 'Итог недели',
-    paceCheckMessage: (actual, target) =>
-      `За последние недели изменение веса составило около ${actual} при целевых ${target} — возможно, стоит скорректировать недельный темп.`,
+    paceCheckLostMessage: (actual, target) =>
+      `За последние недели вес снизился примерно на ${actual} при цели ${target} — возможно, стоит скорректировать недельный темп.`,
+    paceCheckGainedMessage: (actual, target) =>
+      `За последние недели вес вырос примерно на ${actual} при цели похудеть на ${target} — возможно, стоит скорректировать недельный темп.`,
+    paceCheckUnchangedMessage: (target) =>
+      `За последние недели вес почти не изменился при цели ${target} — возможно, стоит скорректировать недельный темп.`,
     paceCheckPerWeekLabel: (value, unit) => `${value} ${unit}/нед.`,
     paceCheckSectionTitle: 'Проверка темпа',
     deletePastTargetLabel: (weekRange) => `Удалить цель за ${weekRange}`,

@@ -1094,16 +1094,14 @@ export interface Dictionary {
      * acknowledges the outcome instead of going silent on it. */
     goalMissedNudge: string
     goalMissedSectionTitle: string
-    /** #610 — calm, weekly-framed pace check: shown only when the last
-     * `PACE_CHECK_MIN_CONSECUTIVE_MISSES` (3) completed goal windows all
-     * missed. Explicitly not a long-term projection/finish-date estimate —
-     * #228 rejected that as conflicting with this app's small-steps
-     * framing; this only compares recent actual weekly change to the
-     * *current* target. `actual`/`target` are pre-formatted "X kg/week"
-     * strings (paceCheckPerWeekLabel below), same "caller formats, function
-     * composes the sentence" convention `today.weeklyTargetFromWeight`
-     * already uses. */
-    paceCheckMessage: (actual: string, target: string) => string
+    /** #610 / #881 — calm, weekly-framed pace check: shown only when the
+     * last `PACE_CHECK_MIN_CONSECUTIVE_MISSES` (3) completed goal windows
+     * all missed. Direction lives in the words (lost / gained / stayed
+     * the same), never a signed loss-positive number. `actual`/`target`
+     * are unsigned "X kg/week" strings (paceCheckPerWeekLabel). */
+    paceCheckLostMessage: (actual: string, target: string) => string
+    paceCheckGainedMessage: (actual: string, target: string) => string
+    paceCheckUnchangedMessage: (target: string) => string
     paceCheckPerWeekLabel: (value: string, unit: string) => string
     paceCheckSectionTitle: string
     /** Per-row delete on the past-targets history (#174) — same two-step

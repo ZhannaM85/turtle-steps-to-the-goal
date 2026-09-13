@@ -647,8 +647,12 @@ export const en: Dictionary = {
     goalMissedNudge:
       "This week's target wasn't reached — that's okay. Start a new one below whenever you're ready.",
     goalMissedSectionTitle: "This week's result",
-    paceCheckMessage: (actual, target) =>
-      `Recent weeks moved about ${actual} vs. your ${target} target — consider adjusting the weekly pace.`,
+    paceCheckLostMessage: (actual, target) =>
+      `Recent weeks you lost about ${actual} vs. your ${target} target — consider adjusting the weekly pace.`,
+    paceCheckGainedMessage: (actual, target) =>
+      `Recent weeks you gained about ${actual} vs. your ${target} loss target — consider adjusting the weekly pace.`,
+    paceCheckUnchangedMessage: (target) =>
+      `Recent weeks weight stayed about the same vs. your ${target} target — consider adjusting the weekly pace.`,
     paceCheckPerWeekLabel: (value, unit) => `${value} ${unit}/week`,
     paceCheckSectionTitle: 'Pace check',
     deletePastTargetLabel: (weekRange) => `Delete target for ${weekRange}`,

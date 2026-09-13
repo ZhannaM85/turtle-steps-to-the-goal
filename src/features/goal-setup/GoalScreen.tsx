@@ -4,7 +4,6 @@ import { Link } from 'react-router-dom'
 import {
   unitLabel,
   formatExactNumber,
-  formatSignedNumber,
   getDateFnsLocale,
   useLocale,
   useTranslation,
@@ -140,6 +139,31 @@ export function GoalScreen() {
     loadActiveGoal()
   }, [loadActiveGoal])
   const toDisplay = (kg: number) => (displayUnit === 'lb' ? kgToLb(kg) : kg)
+  // #881 — unsigned rates + gained/lost words. Domain delta stays
+  // loss-positive; a signed "-0.2 kg/week" read as a loss.
+  const paceCheckUnit = unitLabel(displayUnit, t)
+  const paceCheckActualLabel = paceCheck
+    ? t.goal.paceCheckPerWeekLabel(
+        formatExactNumber(
+          Math.abs(toDisplay(paceCheck.averageWeeklyDeltaKg)),
+          locale,
+        ),
+        paceCheckUnit,
+      )
+    : ''
+  const paceCheckTargetLabel = paceCheck
+    ? t.goal.paceCheckPerWeekLabel(
+        formatExactNumber(toDisplay(paceCheck.targetWeeklyLossKg), locale),
+        paceCheckUnit,
+      )
+    : ''
+  const paceCheckBody = !paceCheck
+    ? null
+    : paceCheck.changeKind === 'gained'
+      ? t.goal.paceCheckGainedMessage(paceCheckActualLabel, paceCheckTargetLabel)
+      : paceCheck.changeKind === 'lost'
+        ? t.goal.paceCheckLostMessage(paceCheckActualLabel, paceCheckTargetLabel)
+        : t.goal.paceCheckUnchangedMessage(paceCheckTargetLabel)
 
   return (
     <div className="flex flex-col gap-6">
@@ -246,22 +270,7 @@ export function GoalScreen() {
               {sectionTitle('goalPaceCheckNudge', t.goal.paceCheckSectionTitle)}
               {sectionVisible.goalPaceCheckNudge && (
                 <div className="rounded-lg border border-border px-3 py-2 text-sm text-muted-foreground">
-                  {t.goal.paceCheckMessage(
-                    t.goal.paceCheckPerWeekLabel(
-                      formatSignedNumber(
-                        toDisplay(paceCheck.averageWeeklyDeltaKg),
-                        locale,
-                      ),
-                      unitLabel(displayUnit, t),
-                    ),
-                    t.goal.paceCheckPerWeekLabel(
-                      formatExactNumber(
-                        toDisplay(paceCheck.targetWeeklyLossKg),
-                        locale,
-                      ),
-                      unitLabel(displayUnit, t),
-                    ),
-                  )}
+                  {paceCheckBody}
                 </div>
               )}
             </div>

@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 818,
+    issue: 881,
+    date: '2026-09-13T12:50:00+03:00',
+    en: 'Pace check now says whether recent weeks were a gain or a loss, instead of a minus number that looked like the opposite.',
+    ru: 'Проверка темпа теперь пишет, что вес вырос или снизился, а не показывает минус, который читался наоборот.',
+  },
+  {
     version: 817,
     issue: 862,
     date: '2026-09-12T22:55:00+03:00',

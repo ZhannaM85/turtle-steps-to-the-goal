@@ -62,6 +62,27 @@ describe('paceCheckInsight (#610)', () => {
     expect(insight?.windowCount).toBe(3)
     expect(insight?.targetWeeklyLossKg).toBe(1)
     expect(insight?.averageWeeklyDeltaKg).toBeCloseTo((0.5 + 0.3 - 0.1) / 3, 5)
+    expect(insight?.changeKind).toBe('lost')
+  })
+
+  it('labels a net gain as gained, not a signed loss (#881)', () => {
+    const records = [
+      record(missedWindow(90, 90.2)),
+      record(missedWindow(90.2, 90.4)),
+      record(missedWindow(90.4, 90.6)),
+    ]
+    const insight = paceCheckInsight(records, 0.4)
+    expect(insight?.averageWeeklyDeltaKg).toBeCloseTo(-0.2, 5)
+    expect(insight?.changeKind).toBe('gained')
+  })
+
+  it('labels a near-zero average as unchanged (#881)', () => {
+    const records = [
+      record(missedWindow(90, 90)),
+      record(missedWindow(90, 90)),
+      record(missedWindow(90, 90)),
+    ]
+    expect(paceCheckInsight(records, 0.4)?.changeKind).toBe('unchanged')
   })
 
   it('ignores anything past the most recent 3, even if also missed', () => {

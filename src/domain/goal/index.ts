@@ -33,7 +33,8 @@ export {
 export type { ReachedGoalWindow } from './reachedGoalWindows'
 export {
   paceCheckInsight,
+  paceCheckChangeKind,
   PACE_CHECK_MIN_CONSECUTIVE_MISSES,
 } from './paceCheck'
-export type { PaceCheckInsight } from './paceCheck'
+export type { PaceCheckInsight, PaceCheckChangeKind } from './paceCheck'
 export { goalWindowAverages } from './weeklyReviewAverages'

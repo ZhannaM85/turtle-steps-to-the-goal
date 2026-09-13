@@ -55,4 +55,4 @@ _Pace-check copy after two weeks of gain._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#881](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/881) | 📋 Not started | Pace check copy reads as a loss when weight went up | Goal → Pace check showed «около -0,2 кг/нед» after two weeks of gain — signed rate reads as a loss. Rephrase so gained vs lost is unambiguous (EN + RU). Confirm at implement time whether the signed weekly rate is also inverted. |
+| [#881](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/881) | 🔍 Pending validation | Pace check copy reads as a loss when weight went up | Domain rate is **not** inverted (loss-positive, negative = gain). Card now says gained / lost / stayed the same with an unsigned kg/week amount — no signed `-0.2` that reads as a loss. |

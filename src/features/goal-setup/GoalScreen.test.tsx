@@ -323,9 +323,47 @@ describe('GoalScreen', () => {
     expect(await screen.findByText('Pace check')).toBeInTheDocument()
     expect(
       screen.getByText(
-        'Recent weeks moved about +0.3 kg/week vs. your 1 kg/week target — consider adjusting the weekly pace.',
+        'Recent weeks you lost about 0.3 kg/week vs. your 1 kg/week target — consider adjusting the weekly pace.',
       ),
     ).toBeInTheDocument()
+  })
+
+  it('says gained, not a signed loss, after weeks of weight gain (#881)', async () => {
+    const pastWeeks: Array<[string, number]> = [
+      ['2026-01-05', 90],
+      ['2026-01-12', 90.2],
+      ['2026-01-19', 90.4],
+    ]
+    for (const [weekStart, baseline] of pastWeeks) {
+      await db.goals.put(
+        makeGoal({
+          id: `pace-gain-${weekStart}`,
+          weekStart,
+          createdAt: `${weekStart}T00:00:00.000Z`,
+          updatedAt: `${weekStart}T00:00:00.000Z`,
+        }),
+      )
+      await db.dailyEntries.put(makeEntry({ date: weekStart, weightKg: baseline }))
+      await db.dailyEntries.put(
+        makeEntry({
+          date: format(addDays(new Date(`${weekStart}T00:00:00.000Z`), 2), DATE_FORMAT),
+          weightKg: baseline + 0.2,
+        }),
+      )
+    }
+    await useGoalStore.getState().saveGoal(makeGoal({ targetWeeklyLossKg: 0.4 }))
+
+    renderGoalScreen()
+
+    expect(await screen.findByText('Pace check')).toBeInTheDocument()
+    expect(
+      screen.getByText(
+        'Recent weeks you gained about 0.2 kg/week vs. your 0.4 kg/week loss target — consider adjusting the weekly pace.',
+      ),
+    ).toBeInTheDocument()
+    expect(
+      screen.queryByText(/moved about -0\.2|moved about −0,2/),
+    ).not.toBeInTheDocument()
   })
 
   it('shows no pace-check note when the last 3 weeks are not all misses', async () => {

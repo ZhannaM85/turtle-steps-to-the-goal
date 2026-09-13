@@ -5,6 +5,21 @@ import type { PastGoalRecord } from './goalHistory'
  * "3-4" range: enough to read as a real pattern, not a single bad week. */
 export const PACE_CHECK_MIN_CONSECUTIVE_MISSES = 3
 
+/** #881 — display kind for the pace-check card. Domain `averageWeeklyDeltaKg`
+ * stays loss-positive (negative = gain); the card must say gained/lost in
+ * words, never a signed number that reads as the opposite. */
+export type PaceCheckChangeKind = 'lost' | 'gained' | 'unchanged'
+
+/** Below ~5 g/week, treat as no change after typical 2-decimal display. */
+const PACE_CHECK_UNCHANGED_KG = 0.005
+
+export function paceCheckChangeKind(
+  averageWeeklyDeltaKg: number,
+): PaceCheckChangeKind {
+  if (Math.abs(averageWeeklyDeltaKg) < PACE_CHECK_UNCHANGED_KG) return 'unchanged'
+  return averageWeeklyDeltaKg > 0 ? 'lost' : 'gained'
+}
+
 export interface PaceCheckInsight {
   windowCount: number
   /** Average of `baselineWeightKg - currentWeightKg` across the recent
@@ -12,6 +27,8 @@ export interface PaceCheckInsight {
    * `goalWindowProgress.ts` already uses, so a negative value here means
    * net weight *gain* across those weeks, not just "loss below target". */
   averageWeeklyDeltaKg: number
+  /** #881 — worded direction for copy; derived from averageWeeklyDeltaKg. */
+  changeKind: PaceCheckChangeKind
   targetWeeklyLossKg: number
 }
 
@@ -49,9 +66,12 @@ export function paceCheckInsight(
     deltas.push(progress.baselineWeightKg - progress.currentWeightKg)
   }
 
+  const averageWeeklyDeltaKg =
+    deltas.reduce((sum, d) => sum + d, 0) / deltas.length
   return {
     windowCount: recent.length,
-    averageWeeklyDeltaKg: deltas.reduce((sum, d) => sum + d, 0) / deltas.length,
+    averageWeeklyDeltaKg,
+    changeKind: paceCheckChangeKind(averageWeeklyDeltaKg),
     targetWeeklyLossKg,
   }
 }
