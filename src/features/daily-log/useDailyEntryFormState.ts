@@ -34,6 +34,7 @@ import {
   useWaterTrackingStore,
 } from '@/stores'
 import { entryToFormValues, formValuesToEntry } from './dailyEntryFormMapping'
+import { useDailyEntryBodyComposition } from './useDailyEntryBodyComposition'
 import {
   bodyFatPercentSchema,
   bodyWaterPercentSchema,
@@ -52,16 +53,6 @@ import {
   type DailyEntryFormValues,
 } from './dailyEntryFormSchema'
 import {
-  isUnusualBodyFatPercentDelta,
-  isUnusualBodyWaterPercentDelta,
-  isUnusualMuscleMassKg,
-  isUnusualVisceralFat,
-  isUnusualBodyWaterPercent,
-  isUnusualBoneMassKg,
-  isUnusualBodyFatPercent,
-  isUnusualBoneMassDeltaKg,
-  isUnusualMuscleMassDeltaKg,
-  isUnusualVisceralFatDelta,
   isUnusualWeightDeltaKg,
   isUnusualWeightKg,
 } from './unusualEntryThresholds'
@@ -167,17 +158,8 @@ export function useDailyEntryFormState({
   const [hasSavedBodyMeasurements, setHasSavedBodyMeasurements] = useState(
     initialValues.waistCm !== undefined || initialValues.hipCm !== undefined,
   )
-  const [hasSavedBodyComposition, setHasSavedBodyComposition] = useState(
-    initialValues.muscleMassKg !== undefined ||
-      initialValues.visceralFatRating !== undefined ||
-      initialValues.bodyWaterPercent !== undefined ||
-      initialValues.boneMassKg !== undefined ||
-      initialValues.bodyFatPercent !== undefined,
-  )
   const [isConfirmingDeleteSleep, setIsConfirmingDeleteSleep] = useState(false)
   const [isConfirmingDeleteBodyMeasurements, setIsConfirmingDeleteBodyMeasurements] =
-    useState(false)
-  const [isConfirmingDeleteBodyComposition, setIsConfirmingDeleteBodyComposition] =
     useState(false)
   // #218: the exact value a Save tap flagged as unusual (not the same as
   // "is the current field value unusual" — a second tap should only skip
@@ -187,18 +169,6 @@ export function useDailyEntryFormState({
   const [pendingUnusualWeight, setPendingUnusualWeight] = useState<
     number | null
   >(null)
-  // #401 — same "re-check fresh if the value changed" shape as
-  // pendingUnusualWeight above, but for the 5 body composition fields at
-  // once: a second Save tap only commits straight through if none of them
-  // changed since the warning appeared.
-  const [pendingUnusualBodyComposition, setPendingUnusualBodyComposition] =
-    useState<{
-      muscleMassKg?: number
-      visceralFatRating?: number
-      bodyWaterPercent?: number
-      boneMassKg?: number
-      bodyFatPercent?: number
-    } | null>(null)
   const [isEditingNote, setIsEditingNote] = useState(
     alwaysEditable || !initialValues.note,
   )
@@ -269,20 +239,6 @@ export function useDailyEntryFormState({
     alwaysEditable ||
       (initialValues.waistCm === undefined &&
         initialValues.hipCm === undefined),
-  )
-  // Body composition (#233) — muscle mass/visceral fat/body water/bone
-  // mass bundled under one edit toggle, same pattern as Body measurements
-  // above (a distinct group since these come from a smart scale rather
-  // than a tape measure/caliper). #263: body fat % moved here from Body
-  // measurements — for a bioimpedance scale it's read in the same sync as
-  // these four, not from a tape measure/caliper like waist/hip.
-  const [isEditingBodyComposition, setIsEditingBodyComposition] = useState(
-    alwaysEditable ||
-      (initialValues.muscleMassKg === undefined &&
-        initialValues.visceralFatRating === undefined &&
-        initialValues.bodyWaterPercent === undefined &&
-        initialValues.boneMassKg === undefined &&
-        initialValues.bodyFatPercent === undefined),
   )
   // #549 — day-level totals (kcal + optional macros), separate from meals.
   const [isEditingDayTotals, setIsEditingDayTotals] = useState(
@@ -505,8 +461,6 @@ export function useDailyEntryFormState({
   const showStepsAsDisplay = !alwaysEditable && !isEditingSteps
   const showBodyMeasurementsAsDisplay =
     !alwaysEditable && !isEditingBodyMeasurements
-  const showBodyCompositionAsDisplay =
-    !alwaysEditable && !isEditingBodyComposition
 
   // #424 — whether there's an established value to actually cancel back
   // to. A field that's still empty (nothing ever saved) auto-opens in edit
@@ -535,9 +489,6 @@ export function useDailyEntryFormState({
   const canCancelBodyMeasurementsEdit =
     alwaysEditable || hasSavedBodyMeasurements
   const canDeleteBodyMeasurements = hasSavedBodyMeasurements
-  const canCancelBodyCompositionEdit =
-    alwaysEditable || hasSavedBodyComposition
-  const canDeleteBodyComposition = hasSavedBodyComposition
 
   // #237: Mood is a standalone, always-interactive field (no separate
   // edit/display toggle the way Sleep/Steps/Note have — EmotionPicker is
@@ -651,6 +602,19 @@ export function useDailyEntryFormState({
       ),
     )
   }
+
+  const bodyComposition = useDailyEntryBodyComposition({
+    alwaysEditable,
+    initialValues,
+    previousDayEntry,
+    t,
+    getValues,
+    setValue,
+    reset,
+    setError,
+    clearErrors,
+    persist,
+  })
 
   // Saves immediately on tap, same as every other independent field here
   // (#31) — no separate confirm step, since a toggle whose own state
@@ -1316,266 +1280,6 @@ export function useDailyEntryFormState({
     setHasSavedBodyMeasurements(false)
   }
 
-  function saveBodyComposition() {
-    // #753 — RHF can hold `''` for a cleared/never-filled optional field
-    // (same empty-string leftover #241/#534 preprocess on the Goal form).
-    // Parse to undefined so a *partial* save can leave some fields unset;
-    // a fully empty Save is rejected below, same as Weight (#669).
-    const muscleResult = muscleMassKgSchema.safeParse(
-      parseNumberInput(getValues('muscleMassKg')),
-    )
-    const visceralResult = visceralFatRatingSchema.safeParse(
-      parseNumberInput(getValues('visceralFatRating')),
-    )
-    const waterResult = bodyWaterPercentSchema.safeParse(
-      parseNumberInput(getValues('bodyWaterPercent')),
-    )
-    const boneResult = boneMassKgSchema.safeParse(
-      parseNumberInput(getValues('boneMassKg')),
-    )
-    const bodyFatResult = bodyFatPercentSchema.safeParse(
-      parseNumberInput(getValues('bodyFatPercent')),
-    )
-    if (!muscleResult.success) {
-      setError('muscleMassKg', {
-        message: t.dailyEntry.invalidValueMessage,
-      })
-      return
-    }
-    if (!visceralResult.success) {
-      setError('visceralFatRating', {
-        message: t.dailyEntry.invalidValueMessage,
-      })
-      return
-    }
-    if (!waterResult.success) {
-      setError('bodyWaterPercent', {
-        message: t.dailyEntry.invalidValueMessage,
-      })
-      return
-    }
-    if (!boneResult.success) {
-      setError('boneMassKg', { message: t.dailyEntry.invalidValueMessage })
-      return
-    }
-    if (!bodyFatResult.success) {
-      setError('bodyFatPercent', {
-        message: t.dailyEntry.invalidValueMessage,
-      })
-      return
-    }
-    // #753 — empty Save is not a valid way to log body composition, same
-    // as Weight (#669). 0 is already rejected by `.positive()`. Some of
-    // the five fields may still be left unset.
-    if (
-      isBlankSaveValue(muscleResult.data) &&
-      isBlankSaveValue(visceralResult.data) &&
-      isBlankSaveValue(waterResult.data) &&
-      isBlankSaveValue(boneResult.data) &&
-      isBlankSaveValue(bodyFatResult.data)
-    ) {
-      const message = t.dailyEntry.invalidValueMessage
-      setError('muscleMassKg', { message })
-      setError('visceralFatRating', { message })
-      setError('bodyWaterPercent', { message })
-      setError('boneMassKg', { message })
-      setError('bodyFatPercent', { message })
-      return
-    }
-    clearErrors('muscleMassKg')
-    clearErrors('visceralFatRating')
-    clearErrors('bodyWaterPercent')
-    clearErrors('boneMassKg')
-    clearErrors('bodyFatPercent')
-    // #401 — each field's own unusual-jump-vs-yesterday check, same
-    // relative-delta reasoning as saveWeight() above; only ever compares
-    // against a previous value that's actually defined.
-    const current = {
-      muscleMassKg: muscleResult.data,
-      visceralFatRating: visceralResult.data,
-      bodyWaterPercent: waterResult.data,
-      boneMassKg: boneResult.data,
-      bodyFatPercent: bodyFatResult.data,
-    }
-    const isUnusual =
-      (current.muscleMassKg !== undefined &&
-        (isUnusualMuscleMassKg(current.muscleMassKg) ||
-          (previousDayEntry?.muscleMassKg !== undefined &&
-            isUnusualMuscleMassDeltaKg(
-              current.muscleMassKg,
-              previousDayEntry.muscleMassKg,
-            )))) ||
-      (current.visceralFatRating !== undefined &&
-        (isUnusualVisceralFat(current.visceralFatRating) ||
-          (previousDayEntry?.visceralFatRating !== undefined &&
-            isUnusualVisceralFatDelta(
-              current.visceralFatRating,
-              previousDayEntry.visceralFatRating,
-            )))) ||
-      (current.bodyWaterPercent !== undefined &&
-        (isUnusualBodyWaterPercent(current.bodyWaterPercent) ||
-          (previousDayEntry?.bodyWaterPercent !== undefined &&
-            isUnusualBodyWaterPercentDelta(
-              current.bodyWaterPercent,
-              previousDayEntry.bodyWaterPercent,
-            )))) ||
-      (current.boneMassKg !== undefined &&
-        (isUnusualBoneMassKg(current.boneMassKg) ||
-          (previousDayEntry?.boneMassKg !== undefined &&
-            isUnusualBoneMassDeltaKg(
-              current.boneMassKg,
-              previousDayEntry.boneMassKg,
-            )))) ||
-      (current.bodyFatPercent !== undefined &&
-        (isUnusualBodyFatPercent(current.bodyFatPercent) ||
-          (previousDayEntry?.bodyFatPercent !== undefined &&
-            isUnusualBodyFatPercentDelta(
-              current.bodyFatPercent,
-              previousDayEntry.bodyFatPercent,
-            ))))
-    const unchangedSincePendingWarning =
-      pendingUnusualBodyComposition !== null &&
-      pendingUnusualBodyComposition.muscleMassKg === current.muscleMassKg &&
-      pendingUnusualBodyComposition.visceralFatRating ===
-        current.visceralFatRating &&
-      pendingUnusualBodyComposition.bodyWaterPercent ===
-        current.bodyWaterPercent &&
-      pendingUnusualBodyComposition.boneMassKg === current.boneMassKg &&
-      pendingUnusualBodyComposition.bodyFatPercent === current.bodyFatPercent
-    if (isUnusual && !unchangedSincePendingWarning) {
-      setPendingUnusualBodyComposition(current)
-      return
-    }
-    setPendingUnusualBodyComposition(null)
-    setValue('muscleMassKg', current.muscleMassKg, { shouldDirty: true })
-    setValue('visceralFatRating', current.visceralFatRating, {
-      shouldDirty: true,
-    })
-    setValue('bodyWaterPercent', current.bodyWaterPercent, {
-      shouldDirty: true,
-    })
-    setValue('boneMassKg', current.boneMassKg, { shouldDirty: true })
-    setValue('bodyFatPercent', current.bodyFatPercent, { shouldDirty: true })
-    setIsEditingBodyComposition(false)
-    persist({ ...getValues(), ...current })
-    setHasSavedBodyComposition(
-      current.muscleMassKg !== undefined ||
-        current.visceralFatRating !== undefined ||
-        current.bodyWaterPercent !== undefined ||
-        current.boneMassKg !== undefined ||
-        current.bodyFatPercent !== undefined,
-    )
-  }
-
-  /** #742 — fill parsed screenshot values, then the usual save path
-   * (schema + unusual-jump confirm). Unparsed fields stay as they were. */
-  function applyBodyCompositionPatch(patch: {
-    muscleMassKg?: number
-    visceralFatRating?: number
-    bodyWaterPercent?: number
-    boneMassKg?: number
-    bodyFatPercent?: number
-  }) {
-    if (patch.muscleMassKg !== undefined) {
-      setValue('muscleMassKg', patch.muscleMassKg)
-    }
-    if (patch.visceralFatRating !== undefined) {
-      setValue('visceralFatRating', patch.visceralFatRating)
-    }
-    if (patch.bodyWaterPercent !== undefined) {
-      setValue('bodyWaterPercent', patch.bodyWaterPercent)
-    }
-    if (patch.boneMassKg !== undefined) {
-      setValue('boneMassKg', patch.boneMassKg)
-    }
-    if (patch.bodyFatPercent !== undefined) {
-      setValue('bodyFatPercent', patch.bodyFatPercent)
-    }
-    saveBodyComposition()
-  }
-
-  function discardUnusualBodyCompositionWarning() {
-    setPendingUnusualBodyComposition(null)
-  }
-
-  // #424
-  function cancelEditBodyComposition() {
-    setValue('muscleMassKg', initialValues.muscleMassKg)
-    setValue('visceralFatRating', initialValues.visceralFatRating)
-    setValue('bodyWaterPercent', initialValues.bodyWaterPercent)
-    setValue('boneMassKg', initialValues.boneMassKg)
-    setValue('bodyFatPercent', initialValues.bodyFatPercent)
-    clearErrors('muscleMassKg')
-    clearErrors('visceralFatRating')
-    clearErrors('bodyWaterPercent')
-    clearErrors('boneMassKg')
-    clearErrors('bodyFatPercent')
-    setPendingUnusualBodyComposition(null)
-    setIsEditingBodyComposition(false)
-  }
-
-  function requestDeleteBodyComposition() {
-    setIsConfirmingDeleteBodyComposition(true)
-  }
-
-  function cancelDeleteBodyComposition() {
-    setIsConfirmingDeleteBodyComposition(false)
-  }
-
-  function confirmDeleteBodyComposition() {
-    const next = {
-      ...getValues(),
-      muscleMassKg: undefined,
-      visceralFatRating: undefined,
-      bodyWaterPercent: undefined,
-      boneMassKg: undefined,
-      bodyFatPercent: undefined,
-    }
-    reset(next)
-    persist(next)
-    setIsConfirmingDeleteBodyComposition(false)
-    setPendingUnusualBodyComposition(null)
-    clearErrors('muscleMassKg')
-    clearErrors('visceralFatRating')
-    clearErrors('bodyWaterPercent')
-    clearErrors('boneMassKg')
-    clearErrors('bodyFatPercent')
-    setIsEditingBodyComposition(true)
-    setHasSavedBodyComposition(false)
-  }
-
-  // #435 — the hard schema bounds `saveBodyComposition()` already checks
-  // (above) only ever ran at Save time, so an absurd value sat looking
-  // accepted in the input until the user actually tapped Save. Validates
-  // one field on blur (not every keystroke, which would flash an error on a
-  // half-typed number, e.g. "2" -> "27" on the way to "2.7") — reuses the
-  // exact same schema, doesn't replace the Save-time check (still needed:
-  // blurring away without ever re-focusing the field would otherwise let an
-  // invalid value slip through un-validated at Save). Deliberately scoped
-  // to just these 5 fields, not weight/waist/hip/sleep/steps, per the
-  // resolved design fork.
-  function validateBodyCompositionFieldOnBlur(
-    field:
-      | 'muscleMassKg'
-      | 'visceralFatRating'
-      | 'bodyWaterPercent'
-      | 'boneMassKg'
-      | 'bodyFatPercent',
-    schema:
-      | typeof muscleMassKgSchema
-      | typeof visceralFatRatingSchema
-      | typeof bodyWaterPercentSchema
-      | typeof boneMassKgSchema
-      | typeof bodyFatPercentSchema,
-  ) {
-    const result = schema.safeParse(parseNumberInput(getValues(field)))
-    if (!result.success) {
-      setError(field, { message: t.dailyEntry.invalidValueMessage })
-    } else {
-      clearErrors(field)
-    }
-  }
-
   return {
     t,
     locale,
@@ -1689,20 +1393,7 @@ export function useDailyEntryFormState({
     bodyWaterPercent,
     boneMassKg,
     bodyFatPercent,
-    showBodyCompositionAsDisplay,
-    setIsEditingBodyComposition,
-    saveBodyComposition,
-    applyBodyCompositionPatch,
-    pendingUnusualBodyComposition,
-    discardUnusualBodyCompositionWarning,
-    canCancelBodyCompositionEdit,
-    cancelEditBodyComposition,
-    isConfirmingDeleteBodyComposition,
-    canDeleteBodyComposition,
-    requestDeleteBodyComposition,
-    confirmDeleteBodyComposition,
-    cancelDeleteBodyComposition,
-    validateBodyCompositionFieldOnBlur,
+    ...bodyComposition,
     // Note
     note,
     showNoteAsDisplay,
