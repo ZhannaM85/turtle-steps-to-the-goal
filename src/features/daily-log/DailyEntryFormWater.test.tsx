@@ -126,7 +126,7 @@ describe('DailyEntryForm', () => {
       await user.click(
         screen.getByRole('button', { name: 'Remove 250ml entry' }),
       )
-      expect(screen.getByText('Delete this entry?')).toBeInTheDocument()
+      expect(screen.getByText('Delete this water entry?')).toBeInTheDocument()
       await user.click(screen.getByRole('button', { name: 'Cancel' }))
       expect(onSave).not.toHaveBeenCalled()
       expect(screen.getByText('250ml')).toBeInTheDocument()
@@ -234,7 +234,7 @@ describe('DailyEntryForm', () => {
         screen.getByRole('button', { name: 'Remove 250ml entry' }),
       )
 
-      expect(screen.getByText('Delete this entry?')).toBeInTheDocument()
+      expect(screen.getByText('Delete this water entry?')).toBeInTheDocument()
       expect(
         screen.queryByRole('heading', { name: 'Edit water' }),
       ).not.toBeInTheDocument()

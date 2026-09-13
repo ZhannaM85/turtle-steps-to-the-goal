@@ -136,6 +136,7 @@ function MetricValueRow({
           )}
         </span>
         <ConfirmDeleteEntryBar
+          label={t.dailyEntry.confirmDeleteNamedLabel(metric.name)}
           onConfirm={() => {
             void confirmDeleteValue()
           }}
@@ -233,6 +234,7 @@ function MetricValueRow({
       {value !== undefined &&
         (isConfirmingDeleteNote ? (
           <ConfirmDeleteEntryBar
+            label={t.dailyEntry.confirmDeleteCustomMetricNoteLabel}
             onConfirm={() => {
               void confirmDeleteNote()
             }}

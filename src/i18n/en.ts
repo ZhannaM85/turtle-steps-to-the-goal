@@ -375,6 +375,14 @@ export const en: Dictionary = {
     confirmDeleteItemLabel: 'Remove this food?',
     confirmDeleteItemYes: 'Remove',
     confirmDeleteItemNo: 'Cancel',
+    confirmDeleteNoteLabel: 'Delete this note?',
+    confirmDeleteMorningNoteLabel: 'Delete this morning note?',
+    confirmDeleteStepsLabel: 'Delete these steps?',
+    confirmDeleteWaterLabel: 'Delete this water entry?',
+    confirmDeleteDayTotalsLabel: 'Delete these day totals?',
+    confirmDeleteNightFoodNoteLabel: 'Delete this night-food note?',
+    confirmDeleteNamedLabel: (name) => `Delete ${name}?`,
+    confirmDeleteCustomMetricNoteLabel: 'Delete this metric note?',
     fastingWindowToastMessage: (hours, minutes) =>
       minutes === 0
         ? `Your fasting window was ${hours}h.`

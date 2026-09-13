@@ -159,7 +159,7 @@ describe('DailyEntryForm', () => {
         )
 
         await user.click(screen.getByRole('button', { name: 'Delete steps' }))
-        expect(screen.getByText('Delete this entry?')).toBeInTheDocument()
+        expect(screen.getByText('Delete these steps?')).toBeInTheDocument()
         await user.click(screen.getByRole('button', { name: 'Cancel' }))
 
         expect(onSave).not.toHaveBeenCalled()
@@ -426,7 +426,7 @@ describe('DailyEntryForm', () => {
       await user.click(
         screen.getByRole('button', { name: 'Delete day totals' }),
       )
-      expect(screen.getByText('Delete this entry?')).toBeInTheDocument()
+      expect(screen.getByText('Delete these day totals?')).toBeInTheDocument()
       await user.click(screen.getByRole('button', { name: 'Cancel' }))
       expect(onSave).not.toHaveBeenCalled()
       expect(

@@ -123,6 +123,7 @@ export function WaterLogSection() {
             </div>
             {confirmingWaterId ? (
               <ConfirmDeleteEntryBar
+                label={t.dailyEntry.confirmDeleteWaterLabel}
                 onConfirm={() => {
                   state.removeWaterEntry(confirmingWaterId)
                   setConfirmingWaterId(null)

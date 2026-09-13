@@ -96,6 +96,7 @@ export function DailyEntryFormBottom() {
                     {t.dailyEntry.stepsLabel}
                   </span>
                   <ConfirmDeleteEntryBar
+                    label={t.dailyEntry.confirmDeleteStepsLabel}
                     onConfirm={state.confirmDeleteSteps}
                     onCancel={state.cancelDeleteSteps}
                   />
@@ -188,6 +189,7 @@ export function DailyEntryFormBottom() {
                     {t.dailyEntry.noteLabel}
                   </span>
                   <ConfirmDeleteEntryBar
+                    label={t.dailyEntry.confirmDeleteNoteLabel}
                     onConfirm={state.confirmDeleteNote}
                     onCancel={state.cancelDeleteNote}
                   />

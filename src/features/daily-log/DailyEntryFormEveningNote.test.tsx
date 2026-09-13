@@ -196,7 +196,7 @@ describe('DailyEntryForm', () => {
         )
 
         await user.click(screen.getByRole('button', { name: 'Delete note' }))
-        expect(screen.getByText('Delete this entry?')).toBeInTheDocument()
+        expect(screen.getByText('Delete this note?')).toBeInTheDocument()
         await user.click(screen.getByRole('button', { name: 'Cancel' }))
 
         expect(onSave).not.toHaveBeenCalled()

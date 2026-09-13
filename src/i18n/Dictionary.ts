@@ -664,6 +664,15 @@ export interface Dictionary {
     confirmDeleteItemLabel: string
     confirmDeleteItemYes: string
     confirmDeleteItemNo: string
+    /** #870 — field-specific `ConfirmDeleteEntryBar` copy. */
+    confirmDeleteNoteLabel: string
+    confirmDeleteMorningNoteLabel: string
+    confirmDeleteStepsLabel: string
+    confirmDeleteWaterLabel: string
+    confirmDeleteDayTotalsLabel: string
+    confirmDeleteNightFoodNoteLabel: string
+    confirmDeleteNamedLabel: (name: string) => string
+    confirmDeleteCustomMetricNoteLabel: string
     /** #287 — a quiet, dismissible in-app note shown right after saving the
      * day's first meal with a recorded time, if the previous day also had
      * one — not a background/push notification (see #261, closed as

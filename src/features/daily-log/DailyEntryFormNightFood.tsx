@@ -128,6 +128,7 @@ export function DailyEntryFormNightFood() {
                   {t.dailyEntry.nightEatingReasonLabel}
                 </span>
                 <ConfirmDeleteEntryBar
+                  label={t.dailyEntry.confirmDeleteNightFoodNoteLabel}
                   onConfirm={state.confirmDeleteNightEatingReason}
                   onCancel={state.cancelDeleteNightEatingReason}
                 />
@@ -212,6 +213,7 @@ export function DailyEntryFormNightFood() {
                   {t.dailyEntry.nightEatingNoWhatHelpedLabel}
                 </span>
                 <ConfirmDeleteEntryBar
+                  label={t.dailyEntry.confirmDeleteNightFoodNoteLabel}
                   onConfirm={state.confirmDeleteNightEatingNoWhatHelped}
                   onCancel={state.cancelDeleteNightEatingNoWhatHelped}
                 />

@@ -347,7 +347,7 @@ describe('CustomMetricLogSection', () => {
     render(<CustomMetricLogSection date="2026-03-01" />)
 
     await user.click(await screen.findByRole('button', { name: 'Delete note' }))
-    expect(screen.getByText('Delete this entry?')).toBeInTheDocument()
+    expect(screen.getByText('Delete this metric note?')).toBeInTheDocument()
     await user.click(screen.getByRole('button', { name: 'Cancel' }))
     expect(await screen.findByText('felt strong')).toBeInTheDocument()
 
@@ -381,7 +381,7 @@ describe('CustomMetricLogSection', () => {
     render(<CustomMetricLogSection date="2026-03-01" />)
 
     await user.click(await screen.findByRole('button', { name: 'Delete value' }))
-    expect(screen.getByText('Delete this entry?')).toBeInTheDocument()
+    expect(screen.getByText('Delete Push-ups?')).toBeInTheDocument()
     await user.click(screen.getByRole('button', { name: 'Cancel' }))
     expect(await screen.findByLabelText('Push-ups')).toHaveValue('20')
 

@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 820,
+    issue: 870,
+    date: '2026-09-13T13:25:00+03:00',
+    en: 'Deleting a Day field now asks about that field — note, steps, water, and so on — not a generic “this entry”.',
+    ru: 'При удалении поля дня вопрос теперь про это поле — заметку, шаги, воду и так далее — а не «эту запись».',
+  },
+  {
     version: 819,
     issue: 866,
     date: '2026-09-13T13:15:00+03:00',

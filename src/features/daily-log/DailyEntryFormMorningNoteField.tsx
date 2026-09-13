@@ -17,6 +17,7 @@ export function DailyEntryFormMorningNoteField() {
                     {t.dailyEntry.morningNoteLabel}
                   </span>
                   <ConfirmDeleteEntryBar
+                    label={t.dailyEntry.confirmDeleteMorningNoteLabel}
                     onConfirm={state.confirmDeleteMorningNote}
                     onCancel={state.cancelDeleteMorningNote}
                   />

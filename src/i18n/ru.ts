@@ -394,6 +394,14 @@ export const ru: Dictionary = {
     confirmDeleteItemLabel: 'Убрать это блюдо?',
     confirmDeleteItemYes: 'Убрать',
     confirmDeleteItemNo: 'Отмена',
+    confirmDeleteNoteLabel: 'Удалить эту заметку?',
+    confirmDeleteMorningNoteLabel: 'Удалить утреннюю заметку?',
+    confirmDeleteStepsLabel: 'Удалить эти шаги?',
+    confirmDeleteWaterLabel: 'Удалить эту запись воды?',
+    confirmDeleteDayTotalsLabel: 'Удалить итоги дня?',
+    confirmDeleteNightFoodNoteLabel: 'Удалить эту заметку о ночной еде?',
+    confirmDeleteNamedLabel: (name) => `Удалить «${name}»?`,
+    confirmDeleteCustomMetricNoteLabel: 'Удалить заметку к метрике?',
     fastingWindowToastMessage: (hours, minutes) =>
       minutes === 0
         ? `Ваше окно голодания составило ${hours} ч.`

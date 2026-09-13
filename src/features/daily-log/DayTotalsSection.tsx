@@ -55,6 +55,7 @@ export function DayTotalsSection() {
           <div className="flex flex-col gap-3 pt-3">
             {state.isConfirmingDeleteDayTotals ? (
               <ConfirmDeleteEntryBar
+                label={t.dailyEntry.confirmDeleteDayTotalsLabel}
                 onConfirm={state.confirmDeleteDayTotals}
                 onCancel={state.cancelDeleteDayTotals}
               />
