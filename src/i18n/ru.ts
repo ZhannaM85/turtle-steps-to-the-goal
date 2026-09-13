@@ -1006,6 +1006,9 @@ export const ru: Dictionary = {
     reactionColumn: 'Реакция',
     createdColumn: 'Создано',
     weeklyTargetColumn: 'Цель на неделю (кг)',
+    weekStartColumn: 'Начало недели',
+    weekEndColumn: 'Конец недели',
+    baselineWeightColumn: 'Исходный вес (кг)',
   },
   dashboard: {
     title: 'Обзор',

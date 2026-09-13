@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 819,
+    issue: 866,
+    date: '2026-09-13T13:15:00+03:00',
+    en: 'Excel Goals now include each target’s week dates and starting weight, not only the created date and weekly pace.',
+    ru: 'В листе «Цели» Excel теперь есть даты недели и исходный вес, а не только дата создания и темп.',
+  },
+  {
     version: 818,
     issue: 881,
     date: '2026-09-13T12:50:00+03:00',

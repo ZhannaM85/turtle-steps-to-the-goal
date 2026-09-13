@@ -1,6 +1,6 @@
 import type ExcelJS from 'exceljs'
 import type { DailyEntry } from '@/domain/dailyEntry'
-import type { Goal } from '@/domain/goal'
+import { goalWeekEnd, type Goal } from '@/domain/goal'
 import type { Sex } from '@/domain/stats'
 import type { Dictionary } from '@/i18n'
 import {
@@ -20,6 +20,11 @@ const DATE_FORMAT = 'yyyy-mm-dd'
 
 function toDate(isoDate: string): Date {
   return new Date(`${isoDate}T00:00:00`)
+}
+
+function toOptionalDate(iso?: string): Date | undefined {
+  if (!iso) return undefined
+  return iso.includes('T') ? new Date(iso) : toDate(iso)
 }
 
 function excelRow(
@@ -104,17 +109,30 @@ export async function buildExportWorkbook(
       key: 'weeklyTarget',
       width: 16,
     },
+    { header: t.exportXlsx.weekStartColumn, key: 'weekStart', width: 12 },
+    { header: t.exportXlsx.weekEndColumn, key: 'weekEnd', width: 12 },
+    {
+      header: t.exportXlsx.baselineWeightColumn,
+      key: 'baselineWeight',
+      width: 14,
+    },
   ]
   const sortedGoals = [...goals].sort((a, b) =>
     a.createdAt.localeCompare(b.createdAt),
   )
   for (const goal of sortedGoals) {
+    const weekEnd = goal.weekEnd ?? (goal.weekStart ? goalWeekEnd(goal.weekStart) : undefined)
     goalsSheet.addRow({
       created: new Date(goal.createdAt),
       weeklyTarget: goal.targetWeeklyLossKg,
+      weekStart: toOptionalDate(goal.weekStart),
+      weekEnd: toOptionalDate(weekEnd),
+      baselineWeight: goal.baselineWeightKg,
     })
   }
   goalsSheet.getColumn('created').numFmt = DATE_FORMAT
+  goalsSheet.getColumn('weekStart').numFmt = DATE_FORMAT
+  goalsSheet.getColumn('weekEnd').numFmt = DATE_FORMAT
 
   return workbook
 }

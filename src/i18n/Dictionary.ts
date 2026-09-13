@@ -1517,6 +1517,10 @@ export interface Dictionary {
     reactionColumn: string
     createdColumn: string
     weeklyTargetColumn: string
+    /** #866 — Excel Goals sheet window + baseline (beyond created + weekly target). */
+    weekStartColumn: string
+    weekEndColumn: string
+    baselineWeightColumn: string
   }
   dashboard: {
     title: string

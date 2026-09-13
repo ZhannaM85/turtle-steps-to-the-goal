@@ -960,6 +960,9 @@ export const en: Dictionary = {
     reactionColumn: 'Reaction',
     createdColumn: 'Created',
     weeklyTargetColumn: 'Weekly target (kg)',
+    weekStartColumn: 'Week start',
+    weekEndColumn: 'Week end',
+    baselineWeightColumn: 'Baseline (kg)',
   },
   dashboard: {
     title: 'Dashboard',

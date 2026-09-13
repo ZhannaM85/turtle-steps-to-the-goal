@@ -285,6 +285,40 @@ describe('buildExportWorkbook', () => {
     expect(row[2]).toBe(0.5)
   })
 
+  it('writes week window and baseline on the Goals sheet (#866)', async () => {
+    const workbook = await buildExportWorkbook(
+      [
+        makeGoal({
+          targetWeeklyLossKg: 0.4,
+          weekStart: '2026-01-05',
+          baselineWeightKg: 84.35,
+        }),
+      ],
+      [],
+      t,
+    )
+    const sheet = workbook.getWorksheet('Goals')!
+    expect(sheet.getRow(1).values).toEqual([
+      undefined,
+      'Created',
+      'Weekly target (kg)',
+      'Week start',
+      'Week end',
+      'Baseline (kg)',
+    ])
+    const [row] = sheetRows(sheet)
+    expect(row[2]).toBe(0.4)
+    expect(row[3]).toBeInstanceOf(Date)
+    expect((row[3] as Date).getFullYear()).toBe(2026)
+    expect((row[3] as Date).getMonth()).toBe(0)
+    expect((row[3] as Date).getDate()).toBe(5)
+    expect(row[4]).toBeInstanceOf(Date)
+    expect((row[4] as Date).getFullYear()).toBe(2026)
+    expect((row[4] as Date).getMonth()).toBe(0)
+    expect((row[4] as Date).getDate()).toBe(11)
+    expect(row[5]).toBe(84.35)
+  })
+
   it('handles no data at all', async () => {
     const workbook = await buildExportWorkbook([], [], t)
 
