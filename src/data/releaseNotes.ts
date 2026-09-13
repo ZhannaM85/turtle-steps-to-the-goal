@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 835,
+    issue: 885,
+    date: '2026-09-13T18:30:00+03:00',
+    en: 'The Day date field matches the height of the previous/next arrows again.',
+    ru: 'Поле даты на экране День снова той же высоты, что и стрелки вперёд/назад.',
+  },
+  {
     version: 834,
     issue: 883,
     date: '2026-09-13T18:25:00+03:00',

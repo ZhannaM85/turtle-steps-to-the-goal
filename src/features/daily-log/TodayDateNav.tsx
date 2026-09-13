@@ -5,7 +5,7 @@ import { Button } from '@/shared/ui/button'
 import { InfoTooltip } from '@/shared/ui/info-tooltip'
 import { DateInput } from '@/shared/ui/date-input'
 import { Label } from '@/shared/ui/label'
-import { isWebKitEngine, shiftDate } from './todayScreenUtils'
+import { shiftDate } from './todayScreenUtils'
 
 export function TodayDateNav({
   date,
@@ -71,9 +71,7 @@ export function TodayDateNav({
           value={date}
           max={maxNavigableDate}
           onChange={(e) => onSetDate(e.target.value)}
-          className={
-            isWebKitEngine ? 'max-w-48 py-1' : 'max-w-48 h-[2.625rem] py-1'
-          }
+          className="max-w-48 h-[2.625rem] py-1"
         />
         <Button
           ref={debug465NextRef}
