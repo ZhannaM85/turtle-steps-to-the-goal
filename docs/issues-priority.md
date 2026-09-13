@@ -46,3 +46,13 @@ _Shared Safari-safe clocks. #858 already archived as validated the same day._
 | [#861](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/861) | 🔍 Pending validation | Settings backup: include remaining portable toggles | Optional settings-blob booleans for Day-facing toggles still missing after #594: alcohol, eating-reason enabled, planned meals, nutrition facts, since-last-meal, entry comparison, plus copy-yesterday and meal kcal-vs-yesterday. Older backups omit keys and leave the device alone. Guarded by `PORTABLE_DAY_TOGGLE_KEYS` — collect/schema fail if a marked toggle is dropped. |
 | [#860](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/860) | 🔍 Pending validation | Finish Day field chrome: notes, totals, water delete confirm | Custom-metric notes use `NoteEditRow` / `NoteDisplayBlock`. Day totals use `DayFieldHeader` icons (not text Save/Edit/Clear). Water chip × and day-totals clear use `ConfirmDeleteEntryBar`. **Edit-mode rule:** ✓ saves (#854 empty blocked); × always cancels/reverts; trash deletes after confirm (#855). Chip × is still remove (with confirm), not field-header cancel. |
 | [#859](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/859) | 🔍 Pending validation | Shared Safari-safe TimeInput for all clocks | Extracted #856/#857 water-edit appearance + vertical-center into `TimeInput` (`src/shared/ui/time-input.tsx`). Applied to Settings (day-start / meal-slot / reminder), Add meal (compact), MFP slot times, and Edit water. Native picker behavior unchanged. |
+
+---
+
+## Tier 161 — Live feedback (2026-09-13)
+
+_Pace-check copy after two weeks of gain._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#881](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/881) | 📋 Not started | Pace check copy reads as a loss when weight went up | Goal → Pace check showed «около -0,2 кг/нед» after two weeks of gain — signed rate reads as a loss. Rephrase so gained vs lost is unambiguous (EN + RU). Confirm at implement time whether the signed weekly rate is also inverted. |
