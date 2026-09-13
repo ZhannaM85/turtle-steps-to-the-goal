@@ -596,6 +596,7 @@ _Day field actions: move edit/trash and save/cancel to the title row so content 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#858](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/858) | ✅ Done | Move note edit/trash and save/cancel icons to top for full-width text | Confirmed on-device 2026-09-12 — Day field actions moved to title-row header; full-width content. |
+| [#863](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/863) | ✅ Done | Split DailyEntryForm.test.tsx + add DayFieldHeader tests | Closed 2026-09-13 — test-file split only; no on-device surface. |
 
 ---
 
