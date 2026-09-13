@@ -1,0 +1,259 @@
+import { useState } from 'react'
+import { format, subDays } from 'date-fns'
+import { useLocale, useTranslation } from '@/i18n'
+import {
+  useAlcoholTrackingStore,
+  useCustomMetricStore,
+  useCycleTrackingStore,
+  useDigestionTrackingStore,
+  useTrackedFieldsStore,
+  useUnitStore,
+  useWaterTrackingStore,
+  useWeekStartStore,
+} from '@/stores'
+import { Button } from '@/shared/ui/button'
+import { Input } from '@/shared/ui/input'
+import { resolveWeekStartsOn } from '@/shared/lib/resolveWeekStartsOn'
+import { exportAllData } from './exportActions'
+import {
+  exportPeriodFileStamp,
+} from './exportPeriodFileStamp'
+import {
+  buildCustomMetricPdfSummaries,
+  buildPdfSummaryData,
+  buildSummaryPdf,
+  customMetricPdfOptions,
+  EMPTY_PDF_SECTION_AVAILABILITY,
+  gatePdfSectionAvailability,
+  pdfSectionAvailability,
+  type CustomMetricPdfOption,
+  type CustomMetricPdfSummary,
+  type PdfSectionTrackingGate,
+  type PdfSections,
+  type PdfSummaryData,
+} from './exportPdf'
+import { PdfSectionsDialog } from './PdfSectionsDialog'
+import { sectionErrorMessage } from './exportSectionStatus'
+import { SectionStatus } from './SectionStatus'
+
+type Status =
+  | { kind: 'idle' }
+  | { kind: 'exportingPdf' }
+  | { kind: 'exportedPdf' }
+  | { kind: 'error'; section: 'pdf'; message: string }
+
+export function PdfExportSection() {
+  const t = useTranslation()
+  const locale = useLocale()
+  const unit = useUnitStore((state) => state.unit)
+  const weekStart = useWeekStartStore((state) => state.weekStart)
+  const trackedFields = useTrackedFieldsStore((state) => state.tracked)
+  const cycleTrackingEnabled = useCycleTrackingStore((state) => state.enabled)
+  const digestionTrackingEnabled = useDigestionTrackingStore(
+    (state) => state.enabled,
+  )
+  const alcoholTrackingEnabled = useAlcoholTrackingStore(
+    (state) => state.enabled,
+  )
+  const waterTrackingEnabled = useWaterTrackingStore((state) => state.enabled)
+  const pdfTrackingGate: PdfSectionTrackingGate = {
+    sleep: trackedFields.sleep,
+    steps: trackedFields.steps,
+    bodyMeasurements: trackedFields.bodyMeasurements,
+    bodyComposition: trackedFields.bodyComposition,
+    nightEating: trackedFields.nightEating,
+    cycle: cycleTrackingEnabled,
+    digestion: digestionTrackingEnabled,
+    alcohol: alcoholTrackingEnabled,
+    water: waterTrackingEnabled,
+  }
+  const [status, setStatus] = useState<Status>({ kind: 'idle' })
+  // #624 — a free-form date range (own state, not the shared periodStart/
+  // periodEnd above) replaces the original fixed 30/90-day toggle. Unlike
+  // that shared picker, blank isn't a valid "everything" default here — an
+  // unbounded weight-trend chart/weekly table would defeat the "one-page
+  // summary" point — so these start prefilled with the last 90 days
+  // (matching the toggle's own prior default) rather than empty strings.
+  // The two quick-fill buttons below just overwrite these same fields.
+  const [pdfPeriodStart, setPdfPeriodStart] = useState(() =>
+    format(subDays(new Date(), 89), 'yyyy-MM-dd'),
+  )
+  const [pdfPeriodEnd, setPdfPeriodEnd] = useState(() =>
+    format(new Date(), 'yyyy-MM-dd'),
+  )
+  const [pdfSectionsDialogOpen, setPdfSectionsDialogOpen] = useState(false)
+  const [pdfPreviewData, setPdfPreviewData] = useState<PdfSummaryData | null>(
+    null,
+  )
+  const [pdfCustomMetricSummaries, setPdfCustomMetricSummaries] = useState<
+    CustomMetricPdfSummary[]
+  >([])
+  const [pdfCustomMetricOptions, setPdfCustomMetricOptions] = useState<
+    CustomMetricPdfOption[]
+  >([])
+
+  async function openPdfSectionsDialog() {
+    setStatus({ kind: 'exportingPdf' })
+    try {
+      const bundle = await exportAllData()
+      const earliestEntryDate = bundle.dailyEntries.reduce<string | undefined>(
+        (min, entry) =>
+          min === undefined || entry.date < min ? entry.date : min,
+        undefined,
+      )
+      const data = buildPdfSummaryData(
+        bundle.dailyEntries,
+        pdfPeriodStart,
+        pdfPeriodEnd,
+        resolveWeekStartsOn(weekStart, earliestEntryDate),
+      )
+      await useCustomMetricStore.getState().loadAll()
+      const { metrics, entries: customMetricEntries } =
+        useCustomMetricStore.getState()
+      const customMetricSummaries = buildCustomMetricPdfSummaries(
+        metrics,
+        customMetricEntries,
+        pdfPeriodStart,
+        pdfPeriodEnd,
+      )
+      setPdfPreviewData(data)
+      setPdfCustomMetricSummaries(customMetricSummaries)
+      setPdfCustomMetricOptions(
+        customMetricPdfOptions(metrics, customMetricSummaries),
+      )
+      setStatus({ kind: 'idle' })
+      setPdfSectionsDialogOpen(true)
+    } catch {
+      setStatus({
+        kind: 'error',
+        section: 'pdf',
+        message: t.export.exportPdfFailed,
+      })
+    }
+  }
+
+  async function handleExportPdf(sections: PdfSections) {
+    if (!pdfPreviewData) return
+    setStatus({ kind: 'exportingPdf' })
+    try {
+      const blob = await buildSummaryPdf(
+        pdfPreviewData,
+        t,
+        locale,
+        unit,
+        sections,
+        pdfCustomMetricSummaries,
+      )
+      const url = URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      link.href = url
+      link.download = `turtle-steps-summary-${exportPeriodFileStamp(pdfPeriodStart, pdfPeriodEnd)}.pdf`
+      link.click()
+      URL.revokeObjectURL(url)
+      setPdfSectionsDialogOpen(false)
+      setStatus({ kind: 'exportedPdf' })
+    } catch {
+      setStatus({
+        kind: 'error',
+        section: 'pdf',
+        message: t.export.exportPdfFailed,
+      })
+    }
+  }
+
+  return (
+    <>
+      <div className="flex flex-col gap-2">
+        <p className="text-sm text-muted-foreground">
+          {t.export.exportPdfBlurb}
+        </p>
+        <div className="flex flex-wrap items-center gap-2">
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={() => {
+              setPdfPeriodStart(format(subDays(new Date(), 29), 'yyyy-MM-dd'))
+              setPdfPeriodEnd(format(new Date(), 'yyyy-MM-dd'))
+            }}
+          >
+            {t.export.exportPdfRange30Label}
+          </Button>
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={() => {
+              setPdfPeriodStart(format(subDays(new Date(), 89), 'yyyy-MM-dd'))
+              setPdfPeriodEnd(format(new Date(), 'yyyy-MM-dd'))
+            }}
+          >
+            {t.export.exportPdfRange90Label}
+          </Button>
+        </div>
+        <span className="text-sm font-medium">
+          {t.export.exportPdfRangeLabel}
+        </span>
+        <div className="flex items-center gap-2">
+          <Input
+            type="date"
+            aria-label={`${t.export.exportPdfRangeLabel} — ${t.dashboard.rangeStartLabel}`}
+            value={pdfPeriodStart}
+            max={pdfPeriodEnd}
+            onChange={(e) => setPdfPeriodStart(e.target.value)}
+            className="h-12"
+          />
+          <Input
+            type="date"
+            aria-label={`${t.export.exportPdfRangeLabel} — ${t.dashboard.rangeEndLabel}`}
+            value={pdfPeriodEnd}
+            min={pdfPeriodStart}
+            onChange={(e) => setPdfPeriodEnd(e.target.value)}
+            className="h-12"
+          />
+        </div>
+        <Button
+          variant="outline"
+          onClick={openPdfSectionsDialog}
+          className="self-start"
+          disabled={
+            status.kind === 'exportingPdf' || !pdfPeriodStart || !pdfPeriodEnd
+          }
+        >
+          {status.kind === 'exportingPdf'
+            ? t.export.exportingPdfButton
+            : t.export.exportPdfButton}
+        </Button>
+        {status.kind === 'exportedPdf' && (
+          <SectionStatus>{t.export.exportedPdfSummary}</SectionStatus>
+        )}
+        {sectionErrorMessage(status, 'pdf') && (
+          <SectionStatus error>
+            {sectionErrorMessage(status, 'pdf')!}
+          </SectionStatus>
+        )}
+      </div>
+      <PdfSectionsDialog
+        open={pdfSectionsDialogOpen}
+        onOpenChange={setPdfSectionsDialogOpen}
+        onSubmit={handleExportPdf}
+        submitting={status.kind === 'exportingPdf'}
+        availability={
+          pdfPreviewData
+            ? gatePdfSectionAvailability(
+                pdfSectionAvailability(pdfPreviewData),
+                pdfTrackingGate,
+              )
+            : EMPTY_PDF_SECTION_AVAILABILITY
+        }
+        rawAvailability={
+          pdfPreviewData
+            ? pdfSectionAvailability(pdfPreviewData)
+            : EMPTY_PDF_SECTION_AVAILABILITY
+        }
+        trackingGate={pdfTrackingGate}
+        customMetrics={pdfCustomMetricOptions}
+      />
+    </>
+  )
+}

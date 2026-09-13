@@ -30,7 +30,6 @@ const maxLinesAllowlist = [
   'src/features/dashboard/CustomChartView.tsx',
   'src/features/dashboard/WeightTrendChart.tsx',
   'src/features/export/ExportSection.test.tsx',
-  'src/features/export/ExportSection.tsx',
   'src/features/export/appleHealth/appleHealthParser.test.ts',
   'src/features/export/appleHealth/appleHealthParser.ts',
   'src/features/export/dailyLogExport.ts',
