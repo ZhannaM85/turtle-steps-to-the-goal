@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 827,
+    issue: 876,
+    date: '2026-09-13T14:20:00+03:00',
+    en: 'Day sections share one header style, stats are no longer boxed twice, and the extra line under “Day” is gone.',
+    ru: 'Разделы Дня с одним заголовком, карточки статистики без второй рамки, и лишняя строка под «День» убрана.',
+  },
+  {
     version: 826,
     issue: 874,
     date: '2026-09-13T14:00:00+03:00',

@@ -1,9 +1,5 @@
-import { ChevronDown, Sun } from 'lucide-react'
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from '@/shared/ui/collapsible'
+import { Sun } from 'lucide-react'
+import { SectionAccordion } from '@/shared/ui/section-accordion'
 import { useTodaySectionsCollapseStore } from '@/stores'
 import { DailyEntryFormMorningCompositionField } from './DailyEntryFormMorningCompositionField'
 import { DailyEntryFormMorningMeasurementsField } from './DailyEntryFormMorningMeasurementsField'
@@ -35,46 +31,20 @@ export function DailyEntryFormMorning() {
   const setCollapsed = useTodaySectionsCollapseStore((s) => s.setCollapsed)
 
   return (
-    <div className="section-shell p-3">
-      <Collapsible
-        open={!collapsed}
-        onOpenChange={(open) => setCollapsed('morning', !open)}
-      >
-        <CollapsibleTrigger asChild>
-          <button
-            type="button"
-            aria-label={
-              collapsed
-                ? t.dailyEntry.expandMorningEntriesLabel
-                : t.dailyEntry.collapseMorningEntriesLabel
-            }
-            className="group flex w-full flex-col gap-0.5 text-left"
-          >
-            <span className="flex items-center justify-between gap-1.5">
-              <span className="flex items-center gap-1.5 text-sm font-medium">
-                <Sun aria-hidden="true" className="size-4" />
-                {t.dailyEntry.morningEntriesTitle}
-              </span>
-              <ChevronDown
-                aria-hidden="true"
-                className="size-4 text-muted-foreground transition-transform group-data-[state=open]:rotate-180"
-              />
-            </span>
-            <span className="text-xs text-muted-foreground">
-              {t.dailyEntry.morningEntriesSubtitle}
-            </span>
-          </button>
-        </CollapsibleTrigger>
-        <CollapsibleContent>
-          <div className="flex flex-col gap-4 pt-4">
-            <DailyEntryFormMorningWeightField />
-            <DailyEntryFormMorningSleepField />
-            <DailyEntryFormMorningMeasurementsField />
-            <DailyEntryFormMorningCompositionField />
-            <DailyEntryFormMorningNoteField />
-          </div>
-        </CollapsibleContent>
-      </Collapsible>
-    </div>
+    <SectionAccordion
+      open={!collapsed}
+      onOpenChange={(open) => setCollapsed('morning', !open)}
+      title={t.dailyEntry.morningEntriesTitle}
+      icon={<Sun aria-hidden="true" className="size-4" />}
+      subtitle={t.dailyEntry.morningEntriesSubtitle}
+      expandLabel={t.dailyEntry.expandMorningEntriesLabel}
+      collapseLabel={t.dailyEntry.collapseMorningEntriesLabel}
+    >
+      <DailyEntryFormMorningWeightField />
+      <DailyEntryFormMorningSleepField />
+      <DailyEntryFormMorningMeasurementsField />
+      <DailyEntryFormMorningCompositionField />
+      <DailyEntryFormMorningNoteField />
+    </SectionAccordion>
   )
 }

@@ -1,11 +1,6 @@
-import { ChevronDown } from 'lucide-react'
 import { isBlankSaveValue } from '@/shared/lib/isBlankSaveValue'
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from '@/shared/ui/collapsible'
 import { NumberInput } from '@/shared/ui/number-input'
+import { SectionAccordion } from '@/shared/ui/section-accordion'
 import { useTodaySectionsCollapseStore } from '@/stores'
 import { ConfirmDeleteEntryBar } from './ConfirmDeleteEntryBar'
 import {
@@ -29,30 +24,14 @@ export function DayTotalsSection() {
   if (!state.trackedFields.dayTotals) return null
 
   return (
-    <div className="section-shell p-3">
-      <Collapsible
-        open={!collapsed}
-        onOpenChange={(open) => setCollapsed('dayTotals', !open)}
-      >
-        <CollapsibleTrigger asChild>
-          <button
-            type="button"
-            aria-label={
-              collapsed
-                ? t.dailyEntry.expandDayTotalsLabel
-                : t.dailyEntry.collapseDayTotalsLabel
-            }
-            className="group flex w-full items-center justify-between text-sm font-medium text-muted-foreground hover:text-foreground"
-          >
-            {t.dailyEntry.dayTotalsLabel}
-            <ChevronDown
-              aria-hidden="true"
-              className="size-4 transition-transform group-data-[state=open]:rotate-180"
-            />
-          </button>
-        </CollapsibleTrigger>
-        <CollapsibleContent>
-          <div className="flex flex-col gap-3 pt-3">
+    <SectionAccordion
+      open={!collapsed}
+      onOpenChange={(open) => setCollapsed('dayTotals', !open)}
+      title={t.dailyEntry.dayTotalsLabel}
+      expandLabel={t.dailyEntry.expandDayTotalsLabel}
+      collapseLabel={t.dailyEntry.collapseDayTotalsLabel}
+      contentClassName="flex flex-col gap-3 pt-3"
+    >
             {state.isConfirmingDeleteDayTotals ? (
               <ConfirmDeleteEntryBar
                 label={t.dailyEntry.confirmDeleteDayTotalsLabel}
@@ -159,9 +138,6 @@ export function DayTotalsSection() {
                 )}
               </div>
             )}
-          </div>
-        </CollapsibleContent>
-      </Collapsible>
-    </div>
+    </SectionAccordion>
   )
 }

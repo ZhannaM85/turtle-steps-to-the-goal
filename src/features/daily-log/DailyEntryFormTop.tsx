@@ -1,10 +1,5 @@
-import { ChevronDown } from 'lucide-react'
 import { formatNumber } from '@/i18n'
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from '@/shared/ui/collapsible'
+import { SectionAccordion } from '@/shared/ui/section-accordion'
 import { StatCard } from '@/shared/ui/stat-card'
 import { usePlannedMealsTrackingStore, useTodaySectionsCollapseStore } from '@/stores'
 import { DayTotalsSection } from './DayTotalsSection'
@@ -76,56 +71,38 @@ export function DailyEntryFormTop() {
        * reported live as looking visually inconsistent with those
        * cards otherwise. */}
       {(state.dayMacrosSummary || state.dayRemainingMacrosSummary) && (
-        <div className="section-shell p-3">
-          <Collapsible
-            open={!macrosCollapsed}
-            onOpenChange={(open) => setCollapsed('macros', !open)}
-          >
-            <CollapsibleTrigger asChild>
-              <button
-                type="button"
-                aria-label={
-                  macrosCollapsed
-                    ? t.dailyEntry.expandMacrosLabel
-                    : t.dailyEntry.collapseMacrosLabel
-                }
-                className="group flex w-full items-center justify-between text-sm font-medium text-muted-foreground hover:text-foreground"
-              >
-                {t.dailyEntry.macrosLabel}
-                <ChevronDown
-                  aria-hidden="true"
-                  className="size-4 transition-transform group-data-[state=open]:rotate-180"
-                />
-              </button>
-            </CollapsibleTrigger>
-            <CollapsibleContent>
-              <div className="flex flex-col gap-6 pt-3">
-                {state.dayMacrosSummary && (
-                  <StatCard
-                    label={t.dailyEntry.consumedMacrosLabel}
-                    value={formatNumber(state.dayTotalCalories, locale, 0)}
-                    unit={t.dailyEntry.kcalUnit}
-                    description={state.dayMacrosDescription ?? undefined}
-                  />
-                )}
-                {state.dayRemainingMacrosSummary && (
-                  <StatCard
-                    label={t.dailyEntry.remainingMacrosLabel}
-                    value={
-                      state.remainingKcal !== undefined
-                        ? formatNumber(state.remainingKcal, locale, 0)
-                        : '—'
-                    }
-                    unit={t.dailyEntry.kcalUnit}
-                    description={
-                      state.dayRemainingMacrosDescription ?? undefined
-                    }
-                  />
-                )}
-              </div>
-            </CollapsibleContent>
-          </Collapsible>
-        </div>
+        <SectionAccordion
+          open={!macrosCollapsed}
+          onOpenChange={(open) => setCollapsed('macros', !open)}
+          title={t.dailyEntry.macrosLabel}
+          expandLabel={t.dailyEntry.expandMacrosLabel}
+          collapseLabel={t.dailyEntry.collapseMacrosLabel}
+          shell={false}
+          contentClassName="flex flex-col gap-6 pt-3"
+        >
+          {state.dayMacrosSummary && (
+            <StatCard
+              label={t.dailyEntry.consumedMacrosLabel}
+              value={formatNumber(state.dayTotalCalories, locale, 0)}
+              unit={t.dailyEntry.kcalUnit}
+              description={state.dayMacrosDescription ?? undefined}
+            />
+          )}
+          {state.dayRemainingMacrosSummary && (
+            <StatCard
+              label={t.dailyEntry.remainingMacrosLabel}
+              value={
+                state.remainingKcal !== undefined
+                  ? formatNumber(state.remainingKcal, locale, 0)
+                  : '—'
+              }
+              unit={t.dailyEntry.kcalUnit}
+              description={
+                state.dayRemainingMacrosDescription ?? undefined
+              }
+            />
+          )}
+        </SectionAccordion>
       )}
 
       {/* #549/#575 — optional day-level kcal/macros without meal items.
@@ -141,46 +118,27 @@ export function DailyEntryFormTop() {
        * paired with removing the meal cards' own broken drag-to-reorder
        * handles, tracked separately as a future on-demand-mode
        * replacement in #471). */}
-      <div className="section-shell p-3">
-        <Collapsible
-          open={!mealsCollapsed}
-          onOpenChange={(open) => setCollapsed('meals', !open)}
-        >
-          <CollapsibleTrigger asChild>
-            <button
-              type="button"
-              aria-label={
-                mealsCollapsed
-                  ? t.dailyEntry.expandMealsLabel
-                  : t.dailyEntry.collapseMealsLabel
-              }
-              className="group flex w-full items-center justify-between text-sm font-medium text-muted-foreground hover:text-foreground"
-            >
-              {t.dailyEntry.mealsLabel}
-              <ChevronDown
-                aria-hidden="true"
-                className="size-4 transition-transform group-data-[state=open]:rotate-180"
-              />
-            </button>
-          </CollapsibleTrigger>
-          <CollapsibleContent>
-            <div className="min-w-0 max-w-full pt-3">
-              <MealList
-                calorieEntries={state.calorieEntries}
-                date={state.date}
-                onChange={(next) => {
-                  state.setValue('calorieEntries', next, {
-                    shouldDirty: true,
-                  })
-                  state.persist({ ...state.getValues(), calorieEntries: next })
-                }}
-                dailyCalorieTargetKcal={state.dailyCalorieTargetKcal}
-                dayTotals={state.dayTotals}
-              />
-            </div>
-          </CollapsibleContent>
-        </Collapsible>
-      </div>
+      <SectionAccordion
+        open={!mealsCollapsed}
+        onOpenChange={(open) => setCollapsed('meals', !open)}
+        title={t.dailyEntry.mealsLabel}
+        expandLabel={t.dailyEntry.expandMealsLabel}
+        collapseLabel={t.dailyEntry.collapseMealsLabel}
+        contentClassName="min-w-0 max-w-full pt-3"
+      >
+        <MealList
+          calorieEntries={state.calorieEntries}
+          date={state.date}
+          onChange={(next) => {
+            state.setValue('calorieEntries', next, {
+              shouldDirty: true,
+            })
+            state.persist({ ...state.getValues(), calorieEntries: next })
+          }}
+          dailyCalorieTargetKcal={state.dailyCalorieTargetKcal}
+          dayTotals={state.dayTotals}
+        />
+      </SectionAccordion>
 
       {plannedMealsTrackingEnabled && (
         <PlannedMealsSection

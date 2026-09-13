@@ -1,10 +1,6 @@
-import { ChevronDown, Moon } from 'lucide-react'
+import { Moon } from 'lucide-react'
 import { isBlankSaveValue } from '@/shared/lib/isBlankSaveValue'
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from '@/shared/ui/collapsible'
+import { SectionAccordion } from '@/shared/ui/section-accordion'
 import { ToggleGroup, ToggleGroupItem } from '@/shared/ui/toggle-group'
 import { useTodaySectionsCollapseStore } from '@/stores'
 import { ConfirmDeleteEntryBar } from './ConfirmDeleteEntryBar'
@@ -27,38 +23,15 @@ export function DailyEntryFormNightFood() {
   if (!state.trackedFields.nightEating) return null
 
   return (
-    <div className="section-shell p-3">
-      <Collapsible
-        open={!collapsed}
-        onOpenChange={(open) => setCollapsed('nightFood', !open)}
-      >
-        <CollapsibleTrigger asChild>
-          <button
-            type="button"
-            aria-label={
-              collapsed
-                ? t.dailyEntry.expandNightFoodCardLabel
-                : t.dailyEntry.collapseNightFoodCardLabel
-            }
-            className="group flex w-full flex-col gap-0.5 text-left"
-          >
-            <span className="flex items-center justify-between gap-1.5">
-              <span className="flex items-center gap-1.5 text-sm font-medium">
-                <Moon aria-hidden="true" className="size-4" />
-                {t.dailyEntry.nightFoodCardTitle}
-              </span>
-              <ChevronDown
-                aria-hidden="true"
-                className="size-4 text-muted-foreground transition-transform group-data-[state=open]:rotate-180"
-              />
-            </span>
-            <span className="text-xs text-muted-foreground">
-              {t.dailyEntry.nightFoodCardHint(state.sex)}
-            </span>
-          </button>
-        </CollapsibleTrigger>
-        <CollapsibleContent>
-          <div className="flex flex-col gap-4 pt-4">
+    <SectionAccordion
+      open={!collapsed}
+      onOpenChange={(open) => setCollapsed('nightFood', !open)}
+      title={t.dailyEntry.nightFoodCardTitle}
+      icon={<Moon aria-hidden="true" className="size-4" />}
+      subtitle={t.dailyEntry.nightFoodCardHint(state.sex)}
+      expandLabel={t.dailyEntry.expandNightFoodCardLabel}
+      collapseLabel={t.dailyEntry.collapseNightFoodCardLabel}
+    >
         <ToggleGroup
           type="single"
           aria-label={t.dailyEntry.nightEatingLabel(state.sex)}
@@ -267,9 +240,6 @@ export function DailyEntryFormNightFood() {
             )}
           </>
         )}
-          </div>
-        </CollapsibleContent>
-      </Collapsible>
-    </div>
+    </SectionAccordion>
   )
 }

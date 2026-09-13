@@ -573,6 +573,7 @@ shadcn-style primitives (Nova preset, `radix-ui` primitives, `cva` variants, ali
 | `segmented-progress-bar.tsx` | `SegmentedProgressBar` | Extracted from `StatCard` (#326, see above) — the shared 10-segment progress-bar primitive. Briefly also used directly by `daily-log/CaloriesBreakdownCard.tsx`; that component was removed by #328 (see its entry above), so `StatCard` is this primitive's only consumer again. |
 | `empty-state.tsx` | `EmptyState` | Calm empty screen (icon/title/description/action) — no guilt copy, per brief §2. |
 | `chip.tsx` | `Chip` | **#874** — one compact token (selected / unselected / removable). Water entries, Add-meal name templates, History reached-goal legend. Leave `ToggleGroup` for exclusive 2–3 option rows. |
+| `section-accordion.tsx` | `SectionAccordion` | **#876** — one Day section header (title, optional icon/subtitle, one chevron). `shell` is `section-shell`; set `shell={false}` when the body is already StatCards (Day stats + macros). |
 | `page-header.tsx` | `PageHeader` | `h1` + description + right-aligned action slot; every screen opens with one. |
 
 ### Shared (`src/shared/`)

@@ -1,4 +1,4 @@
-import { ChevronDown, Scale } from 'lucide-react'
+import { Scale } from 'lucide-react'
 import { nextMorningWeight } from '@/domain/dailyEntry'
 import { kgToLb } from '@/domain/goal'
 import {
@@ -8,11 +8,7 @@ import {
   useLocale,
 } from '@/i18n'
 import { useNextDayEntry } from '@/shared/hooks'
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from '@/shared/ui/collapsible'
+import { SectionAccordion } from '@/shared/ui/section-accordion'
 import { useTodaySectionsCollapseStore, useUnitStore } from '@/stores'
 import { useDailyEntryFormStateContext } from './useDailyEntryFormStateContext'
 
@@ -46,38 +42,16 @@ export function DailyEntryFormNextMorningWeight() {
   const unit = unitLabel(displayUnit, t)
 
   return (
-    <div className="section-shell p-3">
-      <Collapsible
-        open={!collapsed}
-        onOpenChange={(open) => setCollapsed('nextMorningWeight', !open)}
-      >
-        <CollapsibleTrigger asChild>
-          <button
-            type="button"
-            aria-label={
-              collapsed
-                ? t.dailyEntry.expandNextMorningWeightCardLabel
-                : t.dailyEntry.collapseNextMorningWeightCardLabel
-            }
-            className="group flex w-full flex-col gap-0.5 text-left"
-          >
-            <span className="flex items-center justify-between gap-1.5">
-              <span className="flex items-center gap-1.5 text-sm font-medium">
-                <Scale aria-hidden="true" className="size-4" />
-                {t.dailyEntry.nextMorningWeightCardTitle}
-              </span>
-              <ChevronDown
-                aria-hidden="true"
-                className="size-4 text-muted-foreground transition-transform group-data-[state=open]:rotate-180"
-              />
-            </span>
-            <span className="text-xs text-muted-foreground">
-              {t.dailyEntry.nextMorningWeightCardHint}
-            </span>
-          </button>
-        </CollapsibleTrigger>
-        <CollapsibleContent>
-          <div className="flex flex-col gap-1 pt-4">
+    <SectionAccordion
+      open={!collapsed}
+      onOpenChange={(open) => setCollapsed('nextMorningWeight', !open)}
+      title={t.dailyEntry.nextMorningWeightCardTitle}
+      icon={<Scale aria-hidden="true" className="size-4" />}
+      subtitle={t.dailyEntry.nextMorningWeightCardHint}
+      expandLabel={t.dailyEntry.expandNextMorningWeightCardLabel}
+      collapseLabel={t.dailyEntry.collapseNextMorningWeightCardLabel}
+      contentClassName="flex flex-col gap-1 pt-4"
+    >
             <div className="flex items-baseline gap-1.5">
               <span className="text-2xl font-semibold">
                 {formatExactNumber(toDisplay(derived.weightKg), locale)}
@@ -89,9 +63,6 @@ export function DailyEntryFormNextMorningWeight() {
                 {formatSignedExactNumber(toDisplay(derived.changeKg), locale)} {unit}
               </span>
             )}
-          </div>
-        </CollapsibleContent>
-      </Collapsible>
-    </div>
+    </SectionAccordion>
   )
 }

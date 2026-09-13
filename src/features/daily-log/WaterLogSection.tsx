@@ -1,15 +1,11 @@
 import { type FormEvent, useState } from 'react'
-import { ChevronDown, CupSoda, GlassWater } from 'lucide-react'
+import { CupSoda, GlassWater } from 'lucide-react'
 import type { WaterEntry } from '@/domain/dailyEntry'
 import { formatNumber } from '@/i18n'
 import { parseNumberInput } from '@/shared/lib/parseNumberInput'
 import { Button } from '@/shared/ui/button'
 import { Chip } from '@/shared/ui/chip'
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from '@/shared/ui/collapsible'
+import { SectionAccordion } from '@/shared/ui/section-accordion'
 import { Dialog, DialogContent, DialogTitle } from '@/shared/ui/dialog'
 import { Label } from '@/shared/ui/label'
 import { NumberInput } from '@/shared/ui/number-input'
@@ -80,30 +76,16 @@ export function WaterLogSection() {
   }
 
   return (
-    <div id="water-entry-section" className="section-shell p-3">
-      <Collapsible
-        open={!collapsed}
-        onOpenChange={(open) => setCollapsed('water', !open)}
-      >
-        <CollapsibleTrigger asChild>
-          <button
-            type="button"
-            aria-label={
-              collapsed
-                ? t.dailyEntry.expandWaterLabel
-                : t.dailyEntry.collapseWaterLabel
-            }
-            className="group flex w-full items-center justify-between text-sm font-medium text-muted-foreground hover:text-foreground"
-          >
-            {t.dailyEntry.waterLabel}
-            <ChevronDown
-              aria-hidden="true"
-              className="size-4 transition-transform group-data-[state=open]:rotate-180"
-            />
-          </button>
-        </CollapsibleTrigger>
-        <CollapsibleContent>
-          <div className="flex flex-col gap-1.5 pt-3">
+    <>
+    <SectionAccordion
+      id="water-entry-section"
+      open={!collapsed}
+      onOpenChange={(open) => setCollapsed('water', !open)}
+      title={t.dailyEntry.waterLabel}
+      expandLabel={t.dailyEntry.expandWaterLabel}
+      collapseLabel={t.dailyEntry.collapseWaterLabel}
+      contentClassName="flex flex-col gap-1.5 pt-3"
+    >
             <div className="flex flex-wrap items-center gap-3">
               <Button
                 type="button"
@@ -175,9 +157,7 @@ export function WaterLogSection() {
                 </div>
               )
             )}
-          </div>
-        </CollapsibleContent>
-      </Collapsible>
+    </SectionAccordion>
       <Dialog
         open={editingWaterId !== null}
         onOpenChange={(open) => {
@@ -226,6 +206,6 @@ export function WaterLogSection() {
           </form>
         </DialogContent>
       </Dialog>
-    </div>
+    </>
   )
 }

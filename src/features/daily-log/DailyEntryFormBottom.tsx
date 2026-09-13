@@ -1,14 +1,10 @@
-import { ChevronDown, Moon } from 'lucide-react'
+import { Moon } from 'lucide-react'
 import { formatNumber } from '@/i18n'
 import { DAY_EMOTIONS } from '@/shared/lib/emotionIcons'
 import { isBlankSaveValue } from '@/shared/lib/isBlankSaveValue'
 import { parseNumberInput } from '@/shared/lib/parseNumberInput'
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from '@/shared/ui/collapsible'
 import { Input } from '@/shared/ui/input'
+import { SectionAccordion } from '@/shared/ui/section-accordion'
 import { ToggleGroup, ToggleGroupItem } from '@/shared/ui/toggle-group'
 import { useTodaySectionsCollapseStore } from '@/stores'
 import {
@@ -57,38 +53,15 @@ export function DailyEntryFormBottom() {
   const comparison = state.entryComparisonBaselines
 
   return (
-    <div className="section-shell p-3">
-      <Collapsible
-        open={!collapsed}
-        onOpenChange={(open) => setCollapsed('evening', !open)}
-      >
-        <CollapsibleTrigger asChild>
-          <button
-            type="button"
-            aria-label={
-              collapsed
-                ? t.dailyEntry.expandEveningEntriesLabel
-                : t.dailyEntry.collapseEveningEntriesLabel
-            }
-            className="group flex w-full flex-col gap-0.5 text-left"
-          >
-            <span className="flex items-center justify-between gap-1.5">
-              <span className="flex items-center gap-1.5 text-sm font-medium">
-                <Moon aria-hidden="true" className="size-4" />
-                {t.dailyEntry.eveningEntriesTitle}
-              </span>
-              <ChevronDown
-                aria-hidden="true"
-                className="size-4 text-muted-foreground transition-transform group-data-[state=open]:rotate-180"
-              />
-            </span>
-            <span className="text-xs text-muted-foreground">
-              {t.dailyEntry.eveningEntriesSubtitle}
-            </span>
-          </button>
-        </CollapsibleTrigger>
-        <CollapsibleContent>
-          <div className="flex flex-col gap-4 pt-4">
+    <SectionAccordion
+      open={!collapsed}
+      onOpenChange={(open) => setCollapsed('evening', !open)}
+      title={t.dailyEntry.eveningEntriesTitle}
+      icon={<Moon aria-hidden="true" className="size-4" />}
+      subtitle={t.dailyEntry.eveningEntriesSubtitle}
+      expandLabel={t.dailyEntry.expandEveningEntriesLabel}
+      collapseLabel={t.dailyEntry.collapseEveningEntriesLabel}
+    >
             {state.trackedFields.steps &&
               (state.isConfirmingDeleteSteps ? (
                 <div className="flex flex-col gap-1.5">
@@ -306,9 +279,6 @@ export function DailyEntryFormBottom() {
                 </ToggleGroup>
               </div>
             )}
-          </div>
-        </CollapsibleContent>
-      </Collapsible>
-    </div>
+    </SectionAccordion>
   )
 }

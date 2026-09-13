@@ -19,7 +19,6 @@ import { CSS } from '@dnd-kit/utilities'
 import { addDays, format, parseISO } from 'date-fns'
 import {
   Check,
-  ChevronDown,
   ChevronLeft,
   ChevronRight,
   GripVertical,
@@ -59,12 +58,8 @@ import {
 import { formatKcal, formatMacroGrams, formatMl } from '@/shared/lib/macroDisplay'
 import { formatSleepDuration } from '@/shared/lib/sleepDuration'
 import { Button } from '@/shared/ui/button'
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from '@/shared/ui/collapsible'
 import { EmptyState } from '@/shared/ui/empty-state'
+import { SectionAccordion } from '@/shared/ui/section-accordion'
 import { InfoTooltip } from '@/shared/ui/info-tooltip'
 import { Input } from '@/shared/ui/input'
 import { Label } from '@/shared/ui/label'
@@ -1001,7 +996,6 @@ export function TodayScreen() {
       <GoalCelebrationModal />
       <PageHeader
         title={t.today.title}
-        description={t.today.description}
         action={
           localTransferEnabled ? (
             <Button
@@ -1344,48 +1338,20 @@ export function TodayScreen() {
          * Metrics/Evening entries further down. The Goal target card,
          * Morning entries, and the banners below all stay outside this
          * block, unaffected. */}
-        {/* #421 — the trigger and its collapsed content used to be two
-         * visually separate pieces (the trigger had its own border box,
-         * the cards below had none linking them together) — reported live
-         * as looking detached. One shared bordered container now wraps
-         * both, same `section-shell p-3` treatment
-         * `DailyEntryFormMorning`/`DailyEntryFormBottom` already use for
-         * their own grouped sections. */}
-        <div className="section-shell p-3">
-        <Collapsible
+        {/* #876 — StatCards are the chrome. Do not wrap them in a second
+         * section-shell. One SectionAccordion trigger + chevron; reorder
+         * stays a sibling so it is not a button inside a button (#470). */}
+        <SectionAccordion
           open={!statsCollapsed}
           onOpenChange={(open) => setStatsCollapsed('stats', !open)}
-        >
-          <div className="flex items-center justify-between gap-2">
-            {/* #470 — the label stays the one real accessible trigger
-             * (aria-label carries the expand/collapse meaning); the
-             * trailing chevron below is a second, `aria-hidden` trigger —
-             * same toggle, visually last in the row instead of stuck
-             * right after the label, so the Reorder controls can sit
-             * between the two without nesting a button inside a button. */}
-            <CollapsibleTrigger asChild>
-              <button
-                type="button"
-                aria-label={
-                  statsCollapsed
-                    ? t.today.expandStatsLabel
-                    : t.today.collapseStatsLabel
-                }
-                className="text-sm font-medium text-muted-foreground hover:text-foreground"
-              >
-                {t.today.statsSectionLabel}
-              </button>
-            </CollapsibleTrigger>
-            {/* #470 — moved here from the page header: this only ever
-             * reorders the card group below, inside this same accordion,
-             * but used to sit next to the page's own "Today" title at the
-             * very top, reading as if it reordered the whole page.
-             * Entering reorder mode also force-expands this section (it
-             * was previously independent of statsCollapsed) — the cards
-             * being reordered would otherwise stay hidden behind a
-             * collapsed trigger the reorder toggle now sits directly on. */}
-            {cardOrder.some((key) => cardsByKey[key]) && (
-              <div className="flex flex-1 items-center justify-end gap-2">
+          title={t.today.statsSectionLabel}
+          expandLabel={t.today.expandStatsLabel}
+          collapseLabel={t.today.collapseStatsLabel}
+          shell={false}
+          contentClassName="flex flex-col gap-6 pt-3"
+          actions={
+            cardOrder.some((key) => cardsByKey[key]) ? (
+              <div className="flex items-center justify-end gap-2">
                 {isReorderingCards && (
                   <Button
                     type="button"
@@ -1421,23 +1387,9 @@ export function TodayScreen() {
                   )}
                 </Button>
               </div>
-            )}
-            <CollapsibleTrigger asChild>
-              <button
-                type="button"
-                aria-hidden="true"
-                tabIndex={-1}
-                className="group shrink-0"
-              >
-                <ChevronDown
-                  aria-hidden="true"
-                  className="size-4 text-muted-foreground transition-transform group-data-[state=open]:rotate-180"
-                />
-              </button>
-            </CollapsibleTrigger>
-          </div>
-          <CollapsibleContent>
-            <div className="flex flex-col gap-6 pt-3">
+            ) : undefined
+          }
+        >
               {/* #415 — moved here, right after the Goal target card, from
                * after the reorderable card group below: with most other
                * stat cards hidden via Settings, BMI was ending up the only
@@ -1518,10 +1470,7 @@ export function TodayScreen() {
                   </div>
                 </SortableContext>
               </DndContext>
-            </div>
-          </CollapsibleContent>
-        </Collapsible>
-        </div>
+        </SectionAccordion>
 
       {showTargetMetBanner && (
         <div className="flex flex-col gap-1.5">
