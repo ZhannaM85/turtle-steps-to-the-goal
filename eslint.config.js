@@ -16,7 +16,6 @@ import eslintConfigPrettier from 'eslint-config-prettier'
 const maxLinesAllowlist = [
   'src/data/releaseNotes.ts',
   'src/features/daily-log/AddMealDialog.test.tsx',
-  'src/features/daily-log/AddMealDialog.tsx',
   'src/features/daily-log/FoodPickerDialog.test.tsx',
   'src/features/daily-log/FoodPickerDialog.tsx',
   'src/features/daily-log/MealItemEditorSheet.tsx',
