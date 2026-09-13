@@ -611,3 +611,4 @@ _Pace-check copy plus the 2026-09-12 analysis/design-audit backlog._
 | [#868](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/868) | ✅ Done | Split remaining Day/export/settings god files (≤500) | Closed 2026-09-13 — file splits only; no on-device surface. |
 | [#871](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/871) | ✅ Done | Split Dictionary / EN / RU by feature (P2) | Closed 2026-09-13 — dictionary split only; no on-device surface. |
 | [#883](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/883) | ✅ Done | Body composition: visceral fat is shifted vs the other four metrics | Confirmed on-device 2026-09-13 — 3-across compact grid, values aligned. |
+| [#885](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/885) | ✅ Done | Day: date input vs arrows height mismatch (regression of #809 / #647) | Confirmed on-device 2026-09-13 — date field matches arrow height. |
