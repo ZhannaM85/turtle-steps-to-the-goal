@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 829,
+    issue: 868,
+    date: '2026-09-13T15:35:00+03:00',
+    en: 'Long Day and Settings screens were split into smaller pieces so the app stays easier to maintain.',
+    ru: 'Длинные экраны Дня и Настроек разбиты на меньшие части, чтобы приложение было проще поддерживать.',
+  },
+  {
     version: 828,
     issue: 878,
     date: '2026-09-13T14:35:00+03:00',
