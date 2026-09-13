@@ -597,6 +597,7 @@ _Day field actions: move edit/trash and save/cancel to the title row so content 
 |---|--------|-------|-------|
 | [#858](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/858) | ✅ Done | Move note edit/trash and save/cancel icons to top for full-width text | Confirmed on-device 2026-09-12 — Day field actions moved to title-row header; full-width content. |
 | [#863](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/863) | ✅ Done | Split DailyEntryForm.test.tsx + add DayFieldHeader tests | Closed 2026-09-13 — test-file split only; no on-device surface. |
+| [#864](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/864) | ✅ Done | Enforce max 500 lines per source file + split offenders | Closed 2026-09-13 — ESLint 500-line ceiling and extracts; no on-device surface. |
 
 ---
 
