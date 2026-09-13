@@ -44,7 +44,6 @@ const maxLinesAllowlist = [
   'src/features/settings/MealItemRow.tsx',
   'src/features/settings/MealItemsSection.test.tsx',
   'src/features/settings/SettingsScreen.test.tsx',
-  'src/features/settings/SettingsScreen.tsx',
   'src/i18n/Dictionary.ts',
   'src/i18n/en.ts',
   'src/i18n/ru.ts',
