@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 838,
+    issue: 885,
+    date: '2026-09-13T19:30:00+03:00',
+    en: 'The Day date field is locked to the same 42px height as the arrows, so it cannot shrink again.',
+    ru: 'Поле даты на экране День зафиксировано на тех же 42px, что и стрелки, и больше не должно сжиматься.',
+  },
+  {
     version: 837,
     issue: 883,
     date: '2026-09-13T19:25:00+03:00',

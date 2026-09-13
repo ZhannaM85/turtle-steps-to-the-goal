@@ -22,6 +22,20 @@ describe('DateInput', () => {
     expect(screen.queryByText(/Sep/)).not.toBeInTheDocument()
   })
 
+  it('lets a caller override the default h-12 height (#885)', () => {
+    render(
+      <DateInput
+        aria-label="Day"
+        value="2026-09-13"
+        className="h-[2.625rem]"
+      />,
+    )
+    expect(screen.getByLabelText('Day').parentElement).toHaveClass(
+      'h-[2.625rem]',
+    )
+    expect(screen.getByLabelText('Day').parentElement).not.toHaveClass('h-8')
+  })
+
   it('does not clip the closed-state label (#884)', () => {
     useLocaleStore.getState().setLocale('ru')
     render(<DateInput aria-label="Day" value="2026-09-13" />)

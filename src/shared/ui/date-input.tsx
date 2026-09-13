@@ -36,7 +36,7 @@ export const DateInput = React.forwardRef<HTMLInputElement, DateInputProps>(
     return (
       <div
         className={cn(
-          'relative flex h-8 min-w-0 items-center rounded-lg border border-input bg-transparent px-2.5 py-0 text-base leading-normal transition-colors outline-none focus-within:border-ring focus-within:ring-3 focus-within:ring-ring/50 has-[:disabled]:pointer-events-none has-[:disabled]:cursor-not-allowed has-[:disabled]:bg-input/50 has-[:disabled]:opacity-50 md:text-sm dark:bg-input/30 dark:has-[:disabled]:bg-input/80',
+          'relative flex h-12 min-h-0 min-w-0 items-center rounded-lg border border-input bg-transparent px-2.5 py-0 text-base leading-normal transition-colors outline-none focus-within:border-ring focus-within:ring-3 focus-within:ring-ring/50 has-[:disabled]:pointer-events-none has-[:disabled]:cursor-not-allowed has-[:disabled]:bg-input/50 has-[:disabled]:opacity-50 md:text-sm dark:bg-input/30 dark:has-[:disabled]:bg-input/80',
           className,
         )}
       >
@@ -58,7 +58,7 @@ export const DateInput = React.forwardRef<HTMLInputElement, DateInputProps>(
             if (!isControlled) setUncontrolledIso(event.target.value)
             onChange?.(event)
           }}
-          className="absolute inset-0 cursor-pointer opacity-0 text-transparent [-webkit-text-fill-color:transparent] [&::-webkit-datetime-edit]:opacity-0 [&::-webkit-date-and-time-value]:opacity-0"
+          className="absolute inset-0 h-full min-h-0 w-full cursor-pointer opacity-0 text-transparent [-webkit-text-fill-color:transparent] [&::-webkit-datetime-edit]:opacity-0 [&::-webkit-date-and-time-value]:opacity-0"
         />
       </div>
     )
