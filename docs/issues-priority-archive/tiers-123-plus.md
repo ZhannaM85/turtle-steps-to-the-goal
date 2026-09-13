@@ -608,3 +608,4 @@ _Pace-check copy plus the 2026-09-12 analysis/design-audit backlog._
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#867](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/867) | ✅ Done | CI test: portable Settings toggles must be in backup blob | Already shipped with #861 — `settingsPreferences.test.ts` asserts every `PORTABLE_DAY_TOGGLE_KEYS` entry is collected. |
+| [#868](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/868) | ✅ Done | Split remaining Day/export/settings god files (≤500) | Closed 2026-09-13 — file splits only; no on-device surface. |
