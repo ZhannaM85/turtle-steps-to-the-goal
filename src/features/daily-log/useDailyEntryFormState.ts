@@ -1,6 +1,6 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useRef } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
-import type { DailyEntry, DayTotals, Emotion, NightEatingRemember } from '@/domain/dailyEntry'
+import type { DailyEntry, Emotion, NightEatingRemember } from '@/domain/dailyEntry'
 import {
   hadNightEating,
   totalCalories,
@@ -16,17 +16,7 @@ import {
   macrosSummaryTextWithCalories,
 } from '@/shared/lib/macroDisplay'
 import {
-  isBlankSaveValue,
-  persistableText,
-} from '@/shared/lib/isBlankSaveValue'
-import { parseNumberInput } from '@/shared/lib/parseNumberInput'
-import {
-  combineHoursMinutes,
-  splitHoursMinutes,
-} from '@/shared/lib/sleepDuration'
-import {
   useAlcoholTrackingStore,
-  useDailyEntryStore,
   useDigestionTrackingStore,
   useGoalStore,
   useProfileStore,
@@ -34,28 +24,14 @@ import {
   useWaterTrackingStore,
 } from '@/stores'
 import { entryToFormValues, formValuesToEntry } from './dailyEntryFormMapping'
+import { sanitizeDailyEntryFormValues } from './sanitizeDailyEntryFormValues'
 import { useDailyEntryBodyComposition } from './useDailyEntryBodyComposition'
-import {
-  bodyFatPercentSchema,
-  bodyWaterPercentSchema,
-  boneMassKgSchema,
-  dayTotalsSchema,
-  deepSleepHoursSchema,
-  hipCmSchema,
-  muscleMassKgSchema,
-  noteSchema,
-  sleepHoursSchema,
-  stepsSchema,
-  visceralFatRatingSchema,
-  waistCmSchema,
-  waterMlSchema,
-  weightSchema,
-  type DailyEntryFormValues,
-} from './dailyEntryFormSchema'
-import {
-  isUnusualWeightDeltaKg,
-  isUnusualWeightKg,
-} from './unusualEntryThresholds'
+import { useDailyEntryNoteFields } from './useDailyEntryNoteFields'
+import { useDailyEntrySleep } from './useDailyEntrySleep'
+import { useDailyEntryStepsAndMeasurements } from './useDailyEntryStepsAndMeasurements'
+import { useDailyEntryWaterAndTotals } from './useDailyEntryWaterAndTotals'
+import { useDailyEntryWeight } from './useDailyEntryWeight'
+import { type DailyEntryFormValues } from './dailyEntryFormSchema'
 
 export interface DailyEntryFormProps {
   date: string
@@ -75,15 +51,8 @@ export interface DailyEntryFormProps {
 }
 
 /**
- * #416 — every field's state/handler `DailyEntryForm.tsx` used to own
- * directly, extracted into a shared hook so the form can be split across
- * two non-contiguous render points (`DailyEntryFormTop`/`DailyEntryFormBottom`)
- * while both still read/write the *same* live react-hook-form instance —
- * needed so e.g. the Evening group's night-eating toggle sees the same
- * live `calorieEntries` the Meals section in the Top half edits, without
- * waiting for a remount. `DailyEntryForm.tsx` itself (the combined,
- * single-call-site default used by History's `EntryRow.tsx`) just calls
- * this once and renders both halves together, unchanged from before.
+ * #416 — field state/handlers for `DailyEntryFormTop`/`DailyEntryFormBottom`.
+ * #868 — per-field groups live in dedicated hooks so this file stays ≤500.
  */
 export function useDailyEntryFormState({
   date,
@@ -93,19 +62,8 @@ export function useDailyEntryFormState({
 }: DailyEntryFormProps) {
   const t = useTranslation()
   const locale = useLocale()
-  // #401 — the prior calendar day's entry, for a relative sanity check
-  // (unusual jump vs. yesterday) alongside #218's absolute-plausibility
-  // checks below. `null` when there's no entry for that date (nothing to
-  // compare against, so no delta warning is possible).
   const previousDayEntry = usePreviousDayEntry(date)
-  // #664 — prior-day / exactly-30-days-ago baselines for live arrows + ⓘ.
   const entryComparisonBaselines = useEntryFieldComparisonBaselines(date)
-  // A stable identity for this day's entry, reused across every independent
-  // save in this session (weight, note, each meal) so they all update the
-  // same record instead of each save inventing a new id. Computed once —
-  // existingEntry won't reactively reflect earlier saves made in this same
-  // session, since the parent doesn't necessarily re-pass a fresh prop
-  // after every one of potentially many saves.
   const entryIdentity = useMemo(
     () => ({
       id: existingEntry?.id ?? crypto.randomUUID(),
@@ -119,167 +77,24 @@ export function useDailyEntryFormState({
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [],
   )
-  // Whether Weight/Note render as an editable input rather than read-only
-  // display + pencil. Deliberately NOT derived from the live watched value —
-  // that would flip to display mode mid-keystroke on every first character
-  // typed into a blank field. Starts editable only when there's nothing
-  // saved yet; a pencil click re-opens it explicitly, a successful save
-  // collapses it back.
-  const [isEditingWeight, setIsEditingWeight] = useState(
-    alwaysEditable || initialValues.weightKg === undefined,
-  )
-  // #670 — two-step confirm before deleting a logged weight entry, same
-  // shape as MealList's/EntryRow's/PastTargetsList's own inline
-  // confirmDelete flows (a muted label + destructive Yes / ghost No),
-  // rather than a heavier Dialog-component modal this codebase doesn't
-  // otherwise use for delete confirmations.
-  const [isConfirmingDeleteWeight, setIsConfirmingDeleteWeight] =
-    useState(false)
-  // #672 — canCancelWeightEdit/canDeleteWeight below used to derive
-  // straight from `initialValues.weightKg`, which is frozen at mount
-  // (see initialValues' own comment) and never re-synced after a save made
-  // later in this same session. That meant the very first weight save of
-  // the day (nothing existed at mount) left Trash hidden until a full page
-  // reload re-mounted the component with a fresh `existingEntry` — and,
-  // symmetrically, deleting a weight left Trash/Cancel visible even though
-  // there was nothing left to act on, reading like the delete hadn't taken
-  // effect (#673). Tracked as live state instead, updated by saveWeight/
-  // confirmDeleteWeight themselves rather than re-derived from a stale prop.
-  const [hasSavedWeight, setHasSavedWeight] = useState(
-    initialValues.weightKg !== undefined,
-  )
-  // #745 — same live "anything saved in this card" flag as weight (#672),
-  // so Trash appears after the first save of the day and hides after delete
-  // without waiting for a remount.
-  const [hasSavedSleep, setHasSavedSleep] = useState(
-    initialValues.sleepHours !== undefined ||
-      initialValues.deepSleepHours !== undefined,
-  )
-  const [hasSavedBodyMeasurements, setHasSavedBodyMeasurements] = useState(
-    initialValues.waistCm !== undefined || initialValues.hipCm !== undefined,
-  )
-  const [isConfirmingDeleteSleep, setIsConfirmingDeleteSleep] = useState(false)
-  const [isConfirmingDeleteBodyMeasurements, setIsConfirmingDeleteBodyMeasurements] =
-    useState(false)
-  // #218: the exact value a Save tap flagged as unusual (not the same as
-  // "is the current field value unusual" — a second tap should only skip
-  // straight to saving if the value hasn't changed since the warning
-  // appeared; editing it after seeing the warning re-checks it fresh
-  // rather than silently reusing a stale confirmation).
-  const [pendingUnusualWeight, setPendingUnusualWeight] = useState<
-    number | null
-  >(null)
-  const [isEditingNote, setIsEditingNote] = useState(
-    alwaysEditable || !initialValues.note,
-  )
-  const [isEditingMorningNote, setIsEditingMorningNote] = useState(
-    alwaysEditable || !initialValues.morningNote,
-  )
-  const [isEditingNightEatingReason, setIsEditingNightEatingReason] = useState(
-    alwaysEditable || !initialValues.nightEatingReason,
-  )
-  const [isEditingNightEatingNoWhatHelped, setIsEditingNightEatingNoWhatHelped] =
-    useState(alwaysEditable || !initialValues.nightEatingNoWhatHelped)
-  // #850 — last successfully saved note-like value this session, so the
-  // always-shown clear × can revert to it (or stay in edit and empty a
-  // draft when nothing has been saved yet). `initialValues` is frozen at
-  // mount; without this, a first-save-then-clear would wipe back to empty.
-  const [savedNote, setSavedNote] = useState(initialValues.note)
-  const [savedMorningNote, setSavedMorningNote] = useState(
-    initialValues.morningNote,
-  )
-  const [savedNightEatingReason, setSavedNightEatingReason] = useState(
-    initialValues.nightEatingReason,
-  )
-  const [savedNightEatingNoWhatHelped, setSavedNightEatingNoWhatHelped] =
-    useState(initialValues.nightEatingNoWhatHelped)
-  // #855 — confirm-before-delete for note-like fields and steps (Weight
-  // already has its own isConfirmingDeleteWeight).
-  const [isConfirmingDeleteNote, setIsConfirmingDeleteNote] = useState(false)
-  const [isConfirmingDeleteMorningNote, setIsConfirmingDeleteMorningNote] =
-    useState(false)
-  const [isConfirmingDeleteNightEatingReason, setIsConfirmingDeleteNightEatingReason] =
-    useState(false)
-  const [
-    isConfirmingDeleteNightEatingNoWhatHelped,
-    setIsConfirmingDeleteNightEatingNoWhatHelped,
-  ] = useState(false)
-  const [isConfirmingDeleteSteps, setIsConfirmingDeleteSteps] = useState(false)
-  // Live "anything saved" flag so Delete appears after the first save of
-  // the day without waiting for a remount (#672 / #855).
-  const [savedSteps, setSavedSteps] = useState(initialValues.steps)
-  const [isEditingSleep, setIsEditingSleep] = useState(
-    alwaysEditable ||
-      (initialValues.sleepHours === undefined &&
-        initialValues.deepSleepHours === undefined),
-  )
-  // Hours+minutes sub-fields for sleep entry (#69) — kept as local text
-  // state rather than react-hook-form fields, since the form's own
-  // sleepHours/deepSleepHours stay decimal; these are combined into that
-  // decimal only on save (see combineHoursMinutes).
-  const initialSleepParts = splitHoursMinutes(initialValues.sleepHours)
-  const initialDeepSleepParts = splitHoursMinutes(initialValues.deepSleepHours)
-  const [sleepHoursPart, setSleepHoursPart] = useState(initialSleepParts.hours)
-  const [sleepMinutesPart, setSleepMinutesPart] = useState(
-    initialSleepParts.minutes,
-  )
-  const [deepSleepHoursPart, setDeepSleepHoursPart] = useState(
-    initialDeepSleepParts.hours,
-  )
-  const [deepSleepMinutesPart, setDeepSleepMinutesPart] = useState(
-    initialDeepSleepParts.minutes,
-  )
-  const [isEditingSteps, setIsEditingSteps] = useState(
-    alwaysEditable || initialValues.steps === undefined,
-  )
-  // Body measurements (#225) — waist/hip/body fat bundled under one edit
-  // toggle, same "combine related optional numbers into one section"
-  // pattern Sleep already uses for hours+deep hours above.
-  const [isEditingBodyMeasurements, setIsEditingBodyMeasurements] = useState(
-    alwaysEditable ||
-      (initialValues.waistCm === undefined &&
-        initialValues.hipCm === undefined),
-  )
-  // #549 — day-level totals (kcal + optional macros), separate from meals.
-  const [isEditingDayTotals, setIsEditingDayTotals] = useState(
-    alwaysEditable || initialValues.dayTotals === undefined,
-  )
-  const [dayTotalsKcalInput, setDayTotalsKcalInput] = useState('')
-  const [dayTotalsProteinInput, setDayTotalsProteinInput] = useState('')
-  const [dayTotalsFatInput, setDayTotalsFatInput] = useState('')
-  const [dayTotalsCarbsInput, setDayTotalsCarbsInput] = useState('')
-  const [dayTotalsFiberInput, setDayTotalsFiberInput] = useState('')
-  const [dayTotalsError, setDayTotalsError] = useState<string | null>(null)
-  const [isConfirmingDeleteDayTotals, setIsConfirmingDeleteDayTotals] =
-    useState(false)
-
-  // Opt-in digestion tracking's on/off toggle (Settings) — the toggle
-  // itself only renders on this screen when enabled, same gate DayDetail
-  // already uses for its own copy of this control.
+  const savedNotesRef = useRef({
+    note: initialValues.note,
+    morningNote: initialValues.morningNote,
+    nightEatingReason: initialValues.nightEatingReason,
+    nightEatingNoWhatHelped: initialValues.nightEatingNoWhatHelped,
+  })
   const digestionTrackingEnabled = useDigestionTrackingStore(
     (state) => state.enabled,
   )
-  // Opt-in alcohol day signal (#607) — same gate as digestion tracking above.
   const alcoholTrackingEnabled = useAlcoholTrackingStore(
     (state) => state.enabled,
   )
-  // Opt-in water tracking's on/off toggle (#258) — same gate as digestion
-  // tracking above.
   const waterTrackingEnabled = useWaterTrackingStore((state) => state.enabled)
-  // #237 — which optional fields appear on this form at all, unified in
-  // one Settings section.
   const trackedFields = useTrackedFieldsStore((state) => state.tracked)
-  // #398 — grammatically-correct verb form for the night-eating label below.
   const sex = useProfileStore((state) => state.sex)
-  // #399 — passed to MealList's add-food flows for a "remaining calories"
-  // preview; already loaded by this screen's own parent (TodayScreen) or,
-  // for EntryRow's alwaysEditable mode, by HistoryScreen's useHistoryData.
   const dailyCalorieTargetKcal = useGoalStore(
     (state) => state.goal?.dailyCalorieTargetKcal,
   )
-  // #462 — read alongside dailyCalorieTargetKcal above, to compute the
-  // "remaining macros" row below (dayRemainingMacrosSummary). Each is
-  // independently optional, same as the calorie target.
   const dailyProteinTargetG = useGoalStore(
     (state) => state.goal?.dailyProteinTargetG,
   )
@@ -340,25 +155,15 @@ export function useDailyEntryFormState({
   const dayTotals = useWatch({ control, name: 'dayTotals' })
   const dayEmotion = useWatch({ control, name: 'emotion' })
   const calorieEntries = useWatch({ control, name: 'calorieEntries' }) ?? []
-  // #383 — the toggle always shows the *effective* value (override, or
-  // else derived from today's own logged meal times), so it reflects
-  // reality even before the user has ever touched it themselves.
   const nightEatingEffective = hadNightEating({
     calorieEntries,
     nightEatingOverride,
   })
   const dayTotalCalories = totalCalories(calorieEntries, dayTotals) ?? 0
-  // #462 — consumed macros pulled out to standalone variables so the
-  // "remaining" computation below can reuse them, rather than calling
-  // totalProtein/totalFat/totalCarbs a second time.
   const consumedProteinG = totalProtein(calorieEntries, dayTotals)
   const consumedFatG = totalFat(calorieEntries, dayTotals)
   const consumedCarbG = totalCarbs(calorieEntries, dayTotals)
   const dayMacrosSummary = macrosSummaryTextWithCalories(
-    // Undefined-preserving (not dayTotalCalories's `?? 0` above) — matches
-    // the three macros' own "dash when unlogged" treatment, and keeps this
-    // row hidden entirely on a day with nothing logged at all, same as
-    // before #462 added calories in here.
     totalCalories(calorieEntries, dayTotals),
     consumedProteinG,
     consumedFatG,
@@ -366,12 +171,6 @@ export function useDailyEntryFormState({
     locale,
     t,
   )
-  // #462 — "remaining" counterpart to dayMacrosSummary above: each daily
-  // target minus what's been consumed so far, same unclamped shape
-  // TodayScreen's own remaining-nutrient cards already use (#266/#321) —
-  // an overage just reads as a negative number here rather than a
-  // "0g remaining" floor. Undefined (not shown, dash) when that particular
-  // target isn't set; the whole row hides when none of the four are.
   const remainingKcal =
     dailyCalorieTargetKcal !== undefined
       ? dailyCalorieTargetKcal - dayTotalCalories
@@ -396,25 +195,11 @@ export function useDailyEntryFormState({
     locale,
     t,
   )
-  // #467 — StatCard-shaped counterparts to the two combined strings above:
-  // kcal as the card's own big value, this as its description (protein/fat/
-  // carbs only, no kcal prefix since the card already shows it as the
-  // number). Built directly rather than via macrosSummaryText — that
-  // helper returns null when all 3 macros are unset, which is right for
-  // its other callers (no card renders at all then) but wrong here: the
-  // card itself is already gated on dayMacrosSummary/dayRemainingMacrosSummary
-  // (true once *any* of kcal+3 macros is set), so a macros-only null would
-  // silently drop the description on a day with just calories logged.
   const dayMacrosDescription = t.dailyEntry.macrosSummary(
     formatMacroGrams(consumedProteinG, locale, t),
     formatMacroGrams(consumedFatG, locale, t),
     formatMacroGrams(consumedCarbG, locale, t),
   )
-  // #521 — Remaining card's big number alone doesn't answer "left from
-  // how many?"; prepend the same target − consumed line TodayScreen's
-  // Stats remaining-calories card already shows (`targetMinusConsumedText`).
-  // Macros stay on a second line (StatCard description uses
-  // whitespace-pre-line). Omitted when no daily calorie target is set.
   const remainingMacrosLine = t.dailyEntry.macrosSummary(
     formatMacroGrams(remainingProteinG, locale, t),
     formatMacroGrams(remainingFatG, locale, t),
@@ -430,7 +215,6 @@ export function useDailyEntryFormState({
           remainingMacrosLine,
         ].join('\n')
       : remainingMacrosLine
-  // #549 — one-line saved summary for the day totals section display mode.
   const dayTotalsSavedSummary =
     dayTotals !== undefined
       ? [
@@ -450,136 +234,14 @@ export function useDailyEntryFormState({
           .join(' · ')
       : null
 
-  const showWeightAsDisplay = !alwaysEditable && !isEditingWeight
-  const showNoteAsDisplay = !alwaysEditable && !isEditingNote
-  const showMorningNoteAsDisplay = !alwaysEditable && !isEditingMorningNote
-  const showNightEatingReasonAsDisplay =
-    !alwaysEditable && !isEditingNightEatingReason
-  const showNightEatingNoWhatHelpedAsDisplay =
-    !alwaysEditable && !isEditingNightEatingNoWhatHelped
-  const showSleepAsDisplay = !alwaysEditable && !isEditingSleep
-  const showStepsAsDisplay = !alwaysEditable && !isEditingSteps
-  const showBodyMeasurementsAsDisplay =
-    !alwaysEditable && !isEditingBodyMeasurements
-
-  // #424 — whether there's an established value to actually cancel back
-  // to. A field that's still empty (nothing ever saved) auto-opens in edit
-  // mode with no display-mode rendering to return to (its own display JSX
-  // assumes a real value); offering Cancel there would flip to display mode
-  // with nothing to show. Mirrors the exact same "any field in the group
-  // already has a value" condition each field's own isEditingX initial
-  // state above already uses (negated) — `alwaysEditable` itself always
-  // permits it, since that context never reaches the display-mode branch
-  // and cancel there just clears the input back to blank, safely.
-  const canCancelWeightEdit = alwaysEditable || hasSavedWeight
-  // #670 — unlike canCancelWeightEdit above, NOT widened by alwaysEditable:
-  // there has to be an actual saved value to delete, regardless of which
-  // edit affordance (pencil-toggle vs. always-editable input) is showing it.
-  const canDeleteWeight = hasSavedWeight
-  const canCancelSleepEdit = alwaysEditable || hasSavedSleep
-  const canDeleteSleep = hasSavedSleep
-  const canCancelStepsEdit = alwaysEditable || savedSteps !== undefined
-  const canDeleteSteps = savedSteps !== undefined
-  const canDeleteNote = Boolean(savedNote)
-  const canDeleteMorningNote = Boolean(savedMorningNote)
-  const canDeleteNightEatingReason = Boolean(savedNightEatingReason)
-  const canDeleteNightEatingNoWhatHelped = Boolean(
-    savedNightEatingNoWhatHelped,
-  )
-  const canCancelBodyMeasurementsEdit =
-    alwaysEditable || hasSavedBodyMeasurements
-  const canDeleteBodyMeasurements = hasSavedBodyMeasurements
-
-  // #237: Mood is a standalone, always-interactive field (no separate
-  // edit/display toggle the way Sleep/Steps/Note have — EmotionPicker is
-  // already a compact, single-tap control) — saves immediately on pick,
-  // same as MealList's own per-item reaction picker.
-  function saveMood(emotion: Emotion | undefined) {
-    setValue('emotion', emotion, { shouldDirty: true })
-    persist(getValues())
-  }
-
-  // #447 — every save handler calls `persist(getValues())`, which writes
-  // *every* registered field at once, not just the one the user actually
-  // clicked Save on. Reported live: typing far-out-of-range values into
-  // all 5 Body composition fields (which only validate inside
-  // `saveBodyComposition()` itself, and #435's on-blur check) got
-  // persisted anyway despite Body composition's own Save button never
-  // being successfully clicked — because saving a *different* field
-  // (Weight/Sleep/Steps/Note/etc.) calls `persist(getValues())` too, and
-  // `getValues()` includes whatever garbage is still sitting, unvalidated,
-  // in every other field's input at that moment. Fixed by sanitizing here,
-  // the one shared choke point every save handler already goes through:
-  // any schema-backed field that currently fails its own validation falls
-  // back to `initialValues` (the last value this render session actually
-  // started with) instead of being written through as-is. This doesn't
-  // change the intentional behavior of the field actually being saved —
-  // that field's own handler already validated it before ever calling
-  // persist() — it only stops *other* fields' in-progress, never-saved
-  // drafts from silently riding along.
-  function sanitizeForPersist(
-    values: DailyEntryFormValues,
-  ): DailyEntryFormValues {
-    return {
-      ...values,
-      weightKg: weightSchema.safeParse(values.weightKg).success
-        ? values.weightKg
-        : initialValues.weightKg,
-      // #854 — never persist empty / whitespace-only notes; fall back to
-      // the last successful save this session rather than writing "".
-      note: persistableText(values.note, savedNote),
-      morningNote: persistableText(values.morningNote, savedMorningNote),
-      nightEatingReason: persistableText(
-        values.nightEatingReason,
-        savedNightEatingReason,
-      ),
-      nightEatingNoWhatHelped: persistableText(
-        values.nightEatingNoWhatHelped,
-        savedNightEatingNoWhatHelped,
-      ),
-      sleepHours: sleepHoursSchema.safeParse(values.sleepHours).success
-        ? values.sleepHours
-        : initialValues.sleepHours,
-      deepSleepHours: deepSleepHoursSchema.safeParse(values.deepSleepHours)
-        .success
-        ? values.deepSleepHours
-        : initialValues.deepSleepHours,
-      steps: stepsSchema.safeParse(values.steps).success
-        ? values.steps
-        : initialValues.steps,
-      waistCm: waistCmSchema.safeParse(values.waistCm).success
-        ? values.waistCm
-        : initialValues.waistCm,
-      hipCm: hipCmSchema.safeParse(values.hipCm).success
-        ? values.hipCm
-        : initialValues.hipCm,
-      muscleMassKg: muscleMassKgSchema.safeParse(values.muscleMassKg).success
-        ? values.muscleMassKg
-        : initialValues.muscleMassKg,
-      visceralFatRating: visceralFatRatingSchema.safeParse(
-        values.visceralFatRating,
-      ).success
-        ? values.visceralFatRating
-        : initialValues.visceralFatRating,
-      bodyWaterPercent: bodyWaterPercentSchema.safeParse(
-        values.bodyWaterPercent,
-      ).success
-        ? values.bodyWaterPercent
-        : initialValues.bodyWaterPercent,
-      boneMassKg: boneMassKgSchema.safeParse(values.boneMassKg).success
-        ? values.boneMassKg
-        : initialValues.boneMassKg,
-      bodyFatPercent: bodyFatPercentSchema.safeParse(values.bodyFatPercent)
-        .success
-        ? values.bodyFatPercent
-        : initialValues.bodyFatPercent,
-    }
-  }
-
   function persist(values: DailyEntryFormValues) {
     onSave(
       formValuesToEntry(
-        sanitizeForPersist(values),
+        sanitizeDailyEntryFormValues(
+          values,
+          initialValues,
+          savedNotesRef.current,
+        ),
         date,
         entryIdentity,
         existingEntry,
@@ -587,15 +249,20 @@ export function useDailyEntryFormState({
     )
   }
 
-  // #855 — persistableText (#854) would restore lastSaved when the draft
-  // is blank, so a real delete must override those fields after sanitize.
   function persistWithCleared(
     values: DailyEntryFormValues,
     cleared: Partial<DailyEntryFormValues>,
   ) {
     onSave(
       formValuesToEntry(
-        { ...sanitizeForPersist(values), ...cleared },
+        {
+          ...sanitizeDailyEntryFormValues(
+            values,
+            initialValues,
+            savedNotesRef.current,
+          ),
+          ...cleared,
+        },
         date,
         entryIdentity,
         existingEntry,
@@ -603,10 +270,9 @@ export function useDailyEntryFormState({
     )
   }
 
-  const bodyComposition = useDailyEntryBodyComposition({
+  const fieldApi = {
     alwaysEditable,
     initialValues,
-    previousDayEntry,
     t,
     getValues,
     setValue,
@@ -614,31 +280,42 @@ export function useDailyEntryFormState({
     setError,
     clearErrors,
     persist,
+  }
+  const weight = useDailyEntryWeight({
+    ...fieldApi,
+    previousDayEntry,
+  })
+  const sleep = useDailyEntrySleep(fieldApi)
+  const notes = useDailyEntryNoteFields({
+    ...fieldApi,
+    persistWithCleared,
+    savedNotesRef,
+  })
+  const waterAndTotals = useDailyEntryWaterAndTotals({
+    ...fieldApi,
+    dayTotals,
+  })
+  const stepsAndMeasurements = useDailyEntryStepsAndMeasurements(fieldApi)
+  const bodyComposition = useDailyEntryBodyComposition({
+    ...fieldApi,
+    previousDayEntry,
   })
 
-  // Saves immediately on tap, same as every other independent field here
-  // (#31) — no separate confirm step, since a toggle whose own state
-  // already shows what's about to happen doesn't need one.
+  function saveMood(emotion: Emotion | undefined) {
+    setValue('emotion', emotion, { shouldDirty: true })
+    persist(getValues())
+  }
+
   function setHadConstipation(value: boolean) {
     setValue('hadConstipation', value, { shouldDirty: true })
     persist({ ...getValues(), hadConstipation: value })
   }
 
-  // #607 — same "saves immediately, no confirm step" reasoning as
-  // setHadConstipation above.
   function setHadAlcohol(value: boolean) {
     setValue('hadAlcohol', value, { shouldDirty: true })
     persist({ ...getValues(), hadAlcohol: value })
   }
 
-  // #383 — sets an explicit override once touched, same "saves
-  // immediately, no confirm step" reasoning as setHadConstipation above.
-  // The toggle's own displayed value (see nightEatingEffective below)
-  // shows the *derived* value until the user actually overrides it.
-  // #406 — `undefined` clears the override back to "no override, use the
-  // derived value" — tapping the already-active option deselects it
-  // (see the ToggleGroup's onValueChange below), rather than leaving no
-  // way back to the untracked/derived state once tapped.
   function setNightEatingOverride(value: boolean | undefined) {
     setValue('nightEatingOverride', value, { shouldDirty: true })
     persist({ ...getValues(), nightEatingOverride: value })
@@ -649,635 +326,9 @@ export function useDailyEntryFormState({
     persist({ ...getValues(), nightEatingRemember: value })
   }
 
-  function saveNightEatingReason() {
-    saveNoteLikeField(
-      'nightEatingReason',
-      setSavedNightEatingReason,
-      setIsEditingNightEatingReason,
-    )
-  }
-
-  function cancelEditNightEatingReason() {
-    cancelNoteLikeEdit(
-      'nightEatingReason',
-      savedNightEatingReason,
-      setIsEditingNightEatingReason,
-    )
-  }
-
   function setNightEatingNoEasy(value: boolean | undefined) {
     setValue('nightEatingNoEasy', value, { shouldDirty: true })
     persist({ ...getValues(), nightEatingNoEasy: value })
-  }
-
-  function saveNightEatingNoWhatHelped() {
-    saveNoteLikeField(
-      'nightEatingNoWhatHelped',
-      setSavedNightEatingNoWhatHelped,
-      setIsEditingNightEatingNoWhatHelped,
-    )
-  }
-
-  function cancelEditNightEatingNoWhatHelped() {
-    cancelNoteLikeEdit(
-      'nightEatingNoWhatHelped',
-      savedNightEatingNoWhatHelped,
-      setIsEditingNightEatingNoWhatHelped,
-    )
-  }
-
-  // #271: each quick-add tap becomes its own removable entry instead of
-  // bumping a single running total. #598: freeform ml input removed — only
-  // glass/bottle quick-add amounts call this. #849: stamp current HH:MM
-  // so Day chips and export can show when this glass/bottle was logged.
-  function addWaterEntry(amountMl: number) {
-    const result = waterMlSchema.safeParse(amountMl)
-    if (!result.success) return
-    if (result.data === 0) return
-    const now = new Date()
-    const timeDrunk = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`
-    const entries = [
-      ...(getValues('waterEntries') ?? []),
-      { id: crypto.randomUUID(), amountMl: result.data, timeDrunk },
-    ]
-    setValue('waterEntries', entries, { shouldDirty: true })
-    persist({ ...getValues(), waterEntries: entries })
-  }
-
-  function removeWaterEntry(id: string) {
-    const entries = (getValues('waterEntries') ?? []).filter(
-      (entry) => entry.id !== id,
-    )
-    setValue('waterEntries', entries, { shouldDirty: true })
-    persist({ ...getValues(), waterEntries: entries })
-  }
-
-  function updateWaterEntry(
-    id: string,
-    patch: { amountMl: number; timeDrunk?: string },
-  ) {
-    const entries = (getValues('waterEntries') ?? []).map((entry) => {
-      if (entry.id !== id) return entry
-      return {
-        id: entry.id,
-        amountMl: patch.amountMl,
-        ...(patch.timeDrunk ? { timeDrunk: patch.timeDrunk } : {}),
-      }
-    })
-    setValue('waterEntries', entries, { shouldDirty: true })
-    persist({ ...getValues(), waterEntries: entries })
-  }
-
-  function startEditDayTotals() {
-    setDayTotalsKcalInput(
-      dayTotals?.amountKcal !== undefined ? String(dayTotals.amountKcal) : '',
-    )
-    setDayTotalsProteinInput(
-      dayTotals?.proteinG !== undefined ? String(dayTotals.proteinG) : '',
-    )
-    setDayTotalsFatInput(
-      dayTotals?.fatG !== undefined ? String(dayTotals.fatG) : '',
-    )
-    setDayTotalsCarbsInput(
-      dayTotals?.carbsG !== undefined ? String(dayTotals.carbsG) : '',
-    )
-    setDayTotalsFiberInput(
-      dayTotals?.fiberG !== undefined ? String(dayTotals.fiberG) : '',
-    )
-    setDayTotalsError(null)
-    setIsEditingDayTotals(true)
-  }
-
-  function saveDayTotals() {
-    const amountKcal = parseNumberInput(dayTotalsKcalInput)
-    if (amountKcal === undefined) {
-      setDayTotalsError(t.dailyEntry.invalidValueMessage)
-      return
-    }
-    const next: DayTotals = { amountKcal }
-    const proteinG = parseNumberInput(dayTotalsProteinInput)
-    const fatG = parseNumberInput(dayTotalsFatInput)
-    const carbsG = parseNumberInput(dayTotalsCarbsInput)
-    const fiberG = parseNumberInput(dayTotalsFiberInput)
-    if (proteinG !== undefined) next.proteinG = proteinG
-    if (fatG !== undefined) next.fatG = fatG
-    if (carbsG !== undefined) next.carbsG = carbsG
-    if (fiberG !== undefined) next.fiberG = fiberG
-    const result = dayTotalsSchema.safeParse(next)
-    if (!result.success) {
-      setDayTotalsError(t.dailyEntry.invalidValueMessage)
-      return
-    }
-    setDayTotalsError(null)
-    setValue('dayTotals', result.data, { shouldDirty: true })
-    persist({ ...getValues(), dayTotals: result.data })
-    setIsEditingDayTotals(false)
-  }
-
-  function clearDayTotals() {
-    setValue('dayTotals', undefined, { shouldDirty: true })
-    persist({ ...getValues(), dayTotals: undefined })
-    setDayTotalsKcalInput('')
-    setDayTotalsProteinInput('')
-    setDayTotalsFatInput('')
-    setDayTotalsCarbsInput('')
-    setDayTotalsFiberInput('')
-    setDayTotalsError(null)
-    setIsEditingDayTotals(true)
-  }
-
-  function cancelEditDayTotals() {
-    setDayTotalsKcalInput(
-      dayTotals?.amountKcal !== undefined ? String(dayTotals.amountKcal) : '',
-    )
-    setDayTotalsProteinInput(
-      dayTotals?.proteinG !== undefined ? String(dayTotals.proteinG) : '',
-    )
-    setDayTotalsFatInput(
-      dayTotals?.fatG !== undefined ? String(dayTotals.fatG) : '',
-    )
-    setDayTotalsCarbsInput(
-      dayTotals?.carbsG !== undefined ? String(dayTotals.carbsG) : '',
-    )
-    setDayTotalsFiberInput(
-      dayTotals?.fiberG !== undefined ? String(dayTotals.fiberG) : '',
-    )
-    setDayTotalsError(null)
-    if (dayTotals !== undefined) {
-      setIsEditingDayTotals(false)
-    }
-  }
-
-  function requestDeleteDayTotals() {
-    setIsConfirmingDeleteDayTotals(true)
-  }
-
-  function cancelDeleteDayTotals() {
-    setIsConfirmingDeleteDayTotals(false)
-  }
-
-  function confirmDeleteDayTotals() {
-    setIsConfirmingDeleteDayTotals(false)
-    clearDayTotals()
-  }
-
-  function saveWeight() {
-    const result = weightSchema.safeParse(getValues('weightKg'))
-    // #669 — weightSchema allows `undefined` (a day can go untracked), but an
-    // empty *Save* tap on the weight field specifically isn't a valid way to
-    // clear it: it used to fall through to `persist()` and flip the field to
-    // its read-only display, which then rendered `formatExactNumber(undefined)`
-    // (Intl formats that as literal "NaN"/"не число") instead of being blocked.
-    // #854 — same blank-save guard as notes/steps (`isBlankSaveValue`).
-    if (!result.success || isBlankSaveValue(result.data)) {
-      setError('weightKg', { message: t.dailyEntry.invalidValueMessage })
-      setPendingUnusualWeight(null)
-      return
-    }
-    clearErrors('weightKg')
-    // #401 — a value can pass the absolute plausibility band above while
-    // still being an unusual jump from yesterday's own logged weight.
-    const isUnusual =
-      isUnusualWeightKg(result.data) ||
-      (previousDayEntry?.weightKg !== undefined &&
-        isUnusualWeightDeltaKg(result.data, previousDayEntry.weightKg))
-    if (isUnusual && pendingUnusualWeight !== result.data) {
-      setPendingUnusualWeight(result.data)
-      return
-    }
-    setPendingUnusualWeight(null)
-    setIsEditingWeight(false)
-    setHasSavedWeight(true)
-    persist(getValues())
-    // #783 — complete-week celebration is gated on a real weight save,
-    // not on opening Day with an already-logged Sunday weigh-in.
-    useDailyEntryStore.getState().noteWeightSaved()
-  }
-
-  function discardUnusualWeightWarning() {
-    setPendingUnusualWeight(null)
-  }
-
-  // #424 — reverts to the value from when this render's edit session
-  // started, same "leave without saving" affordance MealList.tsx's #169
-  // Cancel button already established, applied here. `initialValues` is
-  // memoized once on mount (see its own comment above) — reverting mid-
-  // session after an earlier save-then-reopen-then-cancel in the same
-  // mount would revert further back than just that reopen, a known,
-  // accepted limitation shared with every other use of `initialValues`
-  // in this hook.
-  function cancelEditWeight() {
-    setValue('weightKg', initialValues.weightKg)
-    clearErrors('weightKg')
-    setPendingUnusualWeight(null)
-    setIsEditingWeight(false)
-  }
-
-  function requestDeleteWeight() {
-    setIsConfirmingDeleteWeight(true)
-  }
-
-  function cancelDeleteWeight() {
-    setIsConfirmingDeleteWeight(false)
-  }
-
-  // #670 — clears the persisted weight entirely (not just the input), then
-  // reopens edit mode (empty input) rather than leaving showWeightAsDisplay
-  // on with no value — that combination is exactly the #669 NaN bug this
-  // would otherwise reintroduce. Uses `reset()`, not `setValue()`: the
-  // weight Input unmounts in display/confirm mode, and a plain `setValue`
-  // on an unmounted `register()`-bound field doesn't survive the field
-  // remounting back into edit mode below — the uncontrolled input falls
-  // back to its original `useForm({ defaultValues })` value (confirmed with
-  // an isolated repro) instead of showing empty. `reset()` re-baselines
-  // `defaultValues` itself, which the remounted input's ref sync reads from.
-  function confirmDeleteWeight() {
-    const next = { ...getValues(), weightKg: undefined }
-    reset(next)
-    persist(next)
-    setIsConfirmingDeleteWeight(false)
-    setPendingUnusualWeight(null)
-    setIsEditingWeight(true)
-    // #672/#673 — without this, canDeleteWeight/canCancelWeightEdit stayed
-    // stuck true (derived from the mount-frozen initialValues), so the
-    // reopened edit-mode input kept showing a live Trash button and a
-    // Cancel that would revert straight back to the just-deleted value —
-    // reading as "delete didn't actually do anything."
-    setHasSavedWeight(false)
-  }
-
-  // #854 — shared NoteEditRow save path: refuse empty / whitespace-only;
-  // × (`cancelNoteLikeEdit`) still reverts or empties a draft.
-  function saveNoteLikeField(
-    field:
-      | 'note'
-      | 'morningNote'
-      | 'nightEatingReason'
-      | 'nightEatingNoWhatHelped',
-    setSaved: (value: string | undefined) => void,
-    setEditing: (editing: boolean) => void,
-  ) {
-    const raw = getValues(field)
-    if (isBlankSaveValue(raw)) return
-    const trimmed = typeof raw === 'string' ? raw.trim() : raw
-    const result = noteSchema.safeParse(trimmed)
-    if (!result.success) {
-      setError(field, { message: t.dailyEntry.invalidValueMessage })
-      return
-    }
-    clearErrors(field)
-    setValue(field, result.data, { shouldDirty: true })
-    setSaved(result.data)
-    setEditing(false)
-    persist({ ...getValues(), [field]: result.data })
-  }
-
-  function saveNote() {
-    saveNoteLikeField('note', setSavedNote, setIsEditingNote)
-  }
-
-  // #850 / #860 — NoteEditRow always shows × as cancel (never delete).
-  // Revert to the last saved value; stay in edit (cleared draft) when
-  // nothing has been saved yet so we don't flip to an empty display
-  // pill (#437 / #620). Trash + confirm is the delete path (#855).
-  function cancelNoteLikeEdit(
-    field: 'note' | 'morningNote' | 'nightEatingReason' | 'nightEatingNoWhatHelped',
-    saved: string | undefined,
-    setEditing: (editing: boolean) => void,
-  ) {
-    setValue(field, saved)
-    clearErrors(field)
-    if (alwaysEditable || Boolean(saved)) {
-      setEditing(false)
-    }
-  }
-
-  function cancelEditNote() {
-    cancelNoteLikeEdit('note', savedNote, setIsEditingNote)
-  }
-
-  function saveMorningNote() {
-    saveNoteLikeField(
-      'morningNote',
-      setSavedMorningNote,
-      setIsEditingMorningNote,
-    )
-  }
-
-  function cancelEditMorningNote() {
-    cancelNoteLikeEdit('morningNote', savedMorningNote, setIsEditingMorningNote)
-  }
-
-  type NoteLikeField =
-    | 'note'
-    | 'morningNote'
-    | 'nightEatingReason'
-    | 'nightEatingNoWhatHelped'
-
-  function confirmDeleteNoteLikeField(
-    field: NoteLikeField,
-    setSaved: (value: string | undefined) => void,
-    setEditing: (editing: boolean) => void,
-    setConfirming: (confirming: boolean) => void,
-  ) {
-    setSaved(undefined)
-    setConfirming(false)
-    const next = { ...getValues(), [field]: undefined }
-    reset(next)
-    persistWithCleared(next, { [field]: undefined })
-    setEditing(true)
-  }
-
-  function requestDeleteNote() {
-    setIsConfirmingDeleteNote(true)
-  }
-
-  function cancelDeleteNote() {
-    setIsConfirmingDeleteNote(false)
-  }
-
-  function confirmDeleteNote() {
-    confirmDeleteNoteLikeField(
-      'note',
-      setSavedNote,
-      setIsEditingNote,
-      setIsConfirmingDeleteNote,
-    )
-  }
-
-  function requestDeleteMorningNote() {
-    setIsConfirmingDeleteMorningNote(true)
-  }
-
-  function cancelDeleteMorningNote() {
-    setIsConfirmingDeleteMorningNote(false)
-  }
-
-  function confirmDeleteMorningNote() {
-    confirmDeleteNoteLikeField(
-      'morningNote',
-      setSavedMorningNote,
-      setIsEditingMorningNote,
-      setIsConfirmingDeleteMorningNote,
-    )
-  }
-
-  function requestDeleteNightEatingReason() {
-    setIsConfirmingDeleteNightEatingReason(true)
-  }
-
-  function cancelDeleteNightEatingReason() {
-    setIsConfirmingDeleteNightEatingReason(false)
-  }
-
-  function confirmDeleteNightEatingReason() {
-    confirmDeleteNoteLikeField(
-      'nightEatingReason',
-      setSavedNightEatingReason,
-      setIsEditingNightEatingReason,
-      setIsConfirmingDeleteNightEatingReason,
-    )
-  }
-
-  function requestDeleteNightEatingNoWhatHelped() {
-    setIsConfirmingDeleteNightEatingNoWhatHelped(true)
-  }
-
-  function cancelDeleteNightEatingNoWhatHelped() {
-    setIsConfirmingDeleteNightEatingNoWhatHelped(false)
-  }
-
-  function confirmDeleteNightEatingNoWhatHelped() {
-    confirmDeleteNoteLikeField(
-      'nightEatingNoWhatHelped',
-      setSavedNightEatingNoWhatHelped,
-      setIsEditingNightEatingNoWhatHelped,
-      setIsConfirmingDeleteNightEatingNoWhatHelped,
-    )
-  }
-
-  function saveSleep() {
-    const sleepHoursValue = combineHoursMinutes(
-      sleepHoursPart,
-      sleepMinutesPart,
-    )
-    const deepSleepHoursValue = combineHoursMinutes(
-      deepSleepHoursPart,
-      deepSleepMinutesPart,
-    )
-    const hoursResult = sleepHoursSchema.safeParse(sleepHoursValue)
-    const deepHoursResult = deepSleepHoursSchema.safeParse(deepSleepHoursValue)
-    if (!hoursResult.success) {
-      setError('sleepHours', { message: t.dailyEntry.invalidValueMessage })
-      return
-    }
-    if (!deepHoursResult.success) {
-      setError('deepSleepHours', {
-        message: t.dailyEntry.invalidValueMessage,
-      })
-      return
-    }
-    // #753 — empty Save is not a valid way to log sleep, same as Weight
-    // (#669). 0 is already rejected by `.positive()`. One of the two
-    // fields may still be left unset.
-    if (
-      isBlankSaveValue(hoursResult.data) &&
-      isBlankSaveValue(deepHoursResult.data)
-    ) {
-      setError('sleepHours', { message: t.dailyEntry.invalidValueMessage })
-      setError('deepSleepHours', {
-        message: t.dailyEntry.invalidValueMessage,
-      })
-      return
-    }
-    clearErrors('sleepHours')
-    clearErrors('deepSleepHours')
-    setValue('sleepHours', sleepHoursValue, { shouldDirty: true })
-    setValue('deepSleepHours', deepSleepHoursValue, { shouldDirty: true })
-    setIsEditingSleep(false)
-    persist({
-      ...getValues(),
-      sleepHours: sleepHoursValue,
-      deepSleepHours: deepSleepHoursValue,
-    })
-    setHasSavedSleep(
-      sleepHoursValue !== undefined || deepSleepHoursValue !== undefined,
-    )
-  }
-
-  /** #748 — fill parsed AutoSleep screenshot values, then the usual save path. */
-  function applySleepPatch(patch: {
-    sleepHours?: number
-    deepSleepHours?: number
-  }) {
-    const sleepHoursValue = patch.sleepHours ?? getValues().sleepHours
-    const deepSleepHoursValue =
-      patch.deepSleepHours ?? getValues().deepSleepHours
-    const hoursResult = sleepHoursSchema.safeParse(sleepHoursValue)
-    const deepHoursResult = deepSleepHoursSchema.safeParse(deepSleepHoursValue)
-    if (!hoursResult.success || !deepHoursResult.success) return
-    const sleepParts = splitHoursMinutes(sleepHoursValue)
-    const deepParts = splitHoursMinutes(deepSleepHoursValue)
-    setSleepHoursPart(sleepParts.hours)
-    setSleepMinutesPart(sleepParts.minutes)
-    setDeepSleepHoursPart(deepParts.hours)
-    setDeepSleepMinutesPart(deepParts.minutes)
-    clearErrors('sleepHours')
-    clearErrors('deepSleepHours')
-    setValue('sleepHours', sleepHoursValue, { shouldDirty: true })
-    setValue('deepSleepHours', deepSleepHoursValue, { shouldDirty: true })
-    setIsEditingSleep(false)
-    persist({
-      ...getValues(),
-      sleepHours: sleepHoursValue,
-      deepSleepHours: deepSleepHoursValue,
-    })
-    setHasSavedSleep(
-      sleepHoursValue !== undefined || deepSleepHoursValue !== undefined,
-    )
-  }
-
-  // #424 — same "revert to session-start value" shape as cancelEditWeight
-  // above, plus resetting the hours/minutes sub-fields local state (not
-  // react-hook-form fields, see combineHoursMinutes' own comment) back to
-  // the initial split.
-  function cancelEditSleep() {
-    setValue('sleepHours', initialValues.sleepHours)
-    setValue('deepSleepHours', initialValues.deepSleepHours)
-    setSleepHoursPart(initialSleepParts.hours)
-    setSleepMinutesPart(initialSleepParts.minutes)
-    setDeepSleepHoursPart(initialDeepSleepParts.hours)
-    setDeepSleepMinutesPart(initialDeepSleepParts.minutes)
-    clearErrors('sleepHours')
-    clearErrors('deepSleepHours')
-    setIsEditingSleep(false)
-  }
-
-  function requestDeleteSleep() {
-    setIsConfirmingDeleteSleep(true)
-  }
-
-  function cancelDeleteSleep() {
-    setIsConfirmingDeleteSleep(false)
-  }
-
-  // #745 — same reset+persist+reopen-edit shape as confirmDeleteWeight.
-  function confirmDeleteSleep() {
-    const next = {
-      ...getValues(),
-      sleepHours: undefined,
-      deepSleepHours: undefined,
-    }
-    reset(next)
-    persist(next)
-    setSleepHoursPart('')
-    setSleepMinutesPart('')
-    setDeepSleepHoursPart('')
-    setDeepSleepMinutesPart('')
-    setIsConfirmingDeleteSleep(false)
-    clearErrors('sleepHours')
-    clearErrors('deepSleepHours')
-    setIsEditingSleep(true)
-    setHasSavedSleep(false)
-  }
-
-  function saveSteps() {
-    const result = stepsSchema.safeParse(getValues('steps'))
-    // #854 — empty Save used to persist a dash display (`undefined` is
-    // schema-optional). Same blank guard as Weight (#669).
-    if (!result.success || isBlankSaveValue(result.data)) {
-      setError('steps', { message: t.dailyEntry.invalidValueMessage })
-      return
-    }
-    clearErrors('steps')
-    setIsEditingSteps(false)
-    persist(getValues())
-    setSavedSteps(result.data)
-  }
-
-  // #424
-  function cancelEditSteps() {
-    setValue('steps', savedSteps)
-    clearErrors('steps')
-    if (alwaysEditable || savedSteps !== undefined) {
-      setIsEditingSteps(false)
-    }
-  }
-
-  function requestDeleteSteps() {
-    setIsConfirmingDeleteSteps(true)
-  }
-
-  function cancelDeleteSteps() {
-    setIsConfirmingDeleteSteps(false)
-  }
-
-  function confirmDeleteSteps() {
-    const next = { ...getValues(), steps: undefined }
-    reset(next)
-    persist(next)
-    setIsConfirmingDeleteSteps(false)
-    clearErrors('steps')
-    setIsEditingSteps(true)
-    setSavedSteps(undefined)
-  }
-
-  function saveBodyMeasurements() {
-    const waistResult = waistCmSchema.safeParse(getValues('waistCm'))
-    const hipResult = hipCmSchema.safeParse(getValues('hipCm'))
-    if (!waistResult.success) {
-      setError('waistCm', { message: t.dailyEntry.invalidValueMessage })
-      return
-    }
-    if (!hipResult.success) {
-      setError('hipCm', { message: t.dailyEntry.invalidValueMessage })
-      return
-    }
-    // #854 — both fields blank is not a persistable save (dash display).
-    // One of the two may still be left unset, same as Sleep (#753).
-    if (
-      isBlankSaveValue(waistResult.data) &&
-      isBlankSaveValue(hipResult.data)
-    ) {
-      setError('waistCm', { message: t.dailyEntry.invalidValueMessage })
-      setError('hipCm', { message: t.dailyEntry.invalidValueMessage })
-      return
-    }
-    clearErrors('waistCm')
-    clearErrors('hipCm')
-    setIsEditingBodyMeasurements(false)
-    persist(getValues())
-    setHasSavedBodyMeasurements(
-      waistResult.data !== undefined || hipResult.data !== undefined,
-    )
-  }
-
-  // #424
-  function cancelEditBodyMeasurements() {
-    setValue('waistCm', initialValues.waistCm)
-    setValue('hipCm', initialValues.hipCm)
-    clearErrors('waistCm')
-    clearErrors('hipCm')
-    setIsEditingBodyMeasurements(false)
-  }
-
-  function requestDeleteBodyMeasurements() {
-    setIsConfirmingDeleteBodyMeasurements(true)
-  }
-
-  function cancelDeleteBodyMeasurements() {
-    setIsConfirmingDeleteBodyMeasurements(false)
-  }
-
-  function confirmDeleteBodyMeasurements() {
-    const next = { ...getValues(), waistCm: undefined, hipCm: undefined }
-    reset(next)
-    persist(next)
-    setIsConfirmingDeleteBodyMeasurements(false)
-    clearErrors('waistCm')
-    clearErrors('hipCm')
-    setIsEditingBodyMeasurements(true)
-    setHasSavedBodyMeasurements(false)
   }
 
   return {
@@ -1286,47 +337,13 @@ export function useDailyEntryFormState({
     alwaysEditable,
     errors,
     register,
-    // #664
     entryComparisonBaselines,
-    // Weight
     weightKg,
-    showWeightAsDisplay,
-    isEditingWeight,
-    setIsEditingWeight,
-    pendingUnusualWeight,
-    saveWeight,
-    discardUnusualWeightWarning,
-    canCancelWeightEdit,
-    cancelEditWeight,
-    isConfirmingDeleteWeight,
-    canDeleteWeight,
-    requestDeleteWeight,
-    confirmDeleteWeight,
-    cancelDeleteWeight,
-    // Sleep
+    ...weight,
     trackedFields,
     sleepHours,
     deepSleepHours,
-    showSleepAsDisplay,
-    setIsEditingSleep,
-    sleepHoursPart,
-    setSleepHoursPart,
-    sleepMinutesPart,
-    setSleepMinutesPart,
-    deepSleepHoursPart,
-    setDeepSleepHoursPart,
-    deepSleepMinutesPart,
-    setDeepSleepMinutesPart,
-    saveSleep,
-    applySleepPatch,
-    canCancelSleepEdit,
-    cancelEditSleep,
-    isConfirmingDeleteSleep,
-    canDeleteSleep,
-    requestDeleteSleep,
-    confirmDeleteSleep,
-    cancelDeleteSleep,
-    // Meals/macros
+    ...sleep,
     dayTotalCalories,
     dayMacrosSummary,
     dayMacrosDescription,
@@ -1339,101 +356,32 @@ export function useDailyEntryFormState({
     persist,
     dailyCalorieTargetKcal,
     date,
-    // Day totals (#549)
     dayTotals,
     dayTotalsSavedSummary,
-    isEditingDayTotals,
-    dayTotalsKcalInput,
-    setDayTotalsKcalInput,
-    dayTotalsProteinInput,
-    setDayTotalsProteinInput,
-    dayTotalsFatInput,
-    setDayTotalsFatInput,
-    dayTotalsCarbsInput,
-    setDayTotalsCarbsInput,
-    dayTotalsFiberInput,
-    setDayTotalsFiberInput,
-    dayTotalsError,
-    saveDayTotals,
-    clearDayTotals,
-    startEditDayTotals,
-    cancelEditDayTotals,
-    isConfirmingDeleteDayTotals,
-    requestDeleteDayTotals,
-    confirmDeleteDayTotals,
-    cancelDeleteDayTotals,
-    // Steps
-    showStepsAsDisplay,
+    ...waterAndTotals,
     steps,
-    setIsEditingSteps,
-    saveSteps,
-    canCancelStepsEdit,
-    cancelEditSteps,
-    isConfirmingDeleteSteps,
-    canDeleteSteps,
-    requestDeleteSteps,
-    confirmDeleteSteps,
-    cancelDeleteSteps,
-    // Body measurements
+    ...stepsAndMeasurements,
     waistCm,
     hipCm,
-    showBodyMeasurementsAsDisplay,
-    setIsEditingBodyMeasurements,
-    saveBodyMeasurements,
-    canCancelBodyMeasurementsEdit,
-    cancelEditBodyMeasurements,
-    isConfirmingDeleteBodyMeasurements,
-    canDeleteBodyMeasurements,
-    requestDeleteBodyMeasurements,
-    confirmDeleteBodyMeasurements,
-    cancelDeleteBodyMeasurements,
-    // Body composition
     muscleMassKg,
     visceralFatRating,
     bodyWaterPercent,
     boneMassKg,
     bodyFatPercent,
     ...bodyComposition,
-    // Note
     note,
-    showNoteAsDisplay,
-    setIsEditingNote,
-    saveNote,
-    cancelEditNote,
-    canDeleteNote,
-    isConfirmingDeleteNote,
-    requestDeleteNote,
-    confirmDeleteNote,
-    cancelDeleteNote,
-    // Morning note (#763)
+    ...notes,
     morningNote,
-    showMorningNoteAsDisplay,
-    setIsEditingMorningNote,
-    saveMorningNote,
-    cancelEditMorningNote,
-    canDeleteMorningNote,
-    isConfirmingDeleteMorningNote,
-    requestDeleteMorningNote,
-    confirmDeleteMorningNote,
-    cancelDeleteMorningNote,
-    // Mood
     dayEmotion,
     saveMood,
-    // Water
     waterTrackingEnabled,
     waterEntries,
-    addWaterEntry,
-    removeWaterEntry,
-    updateWaterEntry,
-    // Constipation
     digestionTrackingEnabled,
     hadConstipation,
     setHadConstipation,
-    // Alcohol
     alcoholTrackingEnabled,
     hadAlcohol,
     setHadAlcohol,
-    // Night eating
     sex,
     nightEatingOverride,
     nightEatingEffective,
@@ -1441,27 +389,9 @@ export function useDailyEntryFormState({
     nightEatingRemember,
     setNightEatingRemember,
     nightEatingReason,
-    showNightEatingReasonAsDisplay,
-    setIsEditingNightEatingReason,
-    saveNightEatingReason,
-    cancelEditNightEatingReason,
-    canDeleteNightEatingReason,
-    isConfirmingDeleteNightEatingReason,
-    requestDeleteNightEatingReason,
-    confirmDeleteNightEatingReason,
-    cancelDeleteNightEatingReason,
     nightEatingNoEasy,
     setNightEatingNoEasy,
     nightEatingNoWhatHelped,
-    showNightEatingNoWhatHelpedAsDisplay,
-    setIsEditingNightEatingNoWhatHelped,
-    saveNightEatingNoWhatHelped,
-    cancelEditNightEatingNoWhatHelped,
-    canDeleteNightEatingNoWhatHelped,
-    isConfirmingDeleteNightEatingNoWhatHelped,
-    requestDeleteNightEatingNoWhatHelped,
-    confirmDeleteNightEatingNoWhatHelped,
-    cancelDeleteNightEatingNoWhatHelped,
   }
 }
 

@@ -24,7 +24,6 @@ const maxLinesAllowlist = [
   'src/features/daily-log/MealList.tsx',
   'src/features/daily-log/TodayScreen.test.tsx',
   'src/features/daily-log/TodayScreen.tsx',
-  'src/features/daily-log/useDailyEntryFormState.ts',
   'src/features/dashboard/BodyCompositionTrendChart.tsx',
   'src/features/dashboard/CustomChartView.test.tsx',
   'src/features/dashboard/CustomChartView.tsx',
