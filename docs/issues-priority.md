@@ -51,8 +51,23 @@ _Shared Safari-safe clocks. #858 already archived as validated the same day._
 
 ## Tier 161 — Live feedback (2026-09-13)
 
-_Pace-check copy after two weeks of gain._
+_Pace-check copy plus the 2026-09-12 analysis/design-audit backlog (#865–#879), filed on GitHub but not queued until today. Work easiest → hardest. **#865 parked** until the user picks summary-copy vs optional daily-log PDF pages._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#881](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/881) | 🔍 Pending validation | Pace check copy reads as a loss when weight went up | Domain rate is **not** inverted (loss-positive, negative = gain). Card now says gained / lost / stayed the same with an unsigned kg/week amount — no signed `-0.2` that reads as a loss. |
+| [#867](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/867) | 📋 Not started | CI test: portable Settings toggles must be in backup blob | Assert every Settings key marked portable is in `collectSettingsPreferences()`. Pairs with #861. S. |
+| [#866](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/866) | 📋 Not started | Export format matrix + optional Excel Goals / weight parity | Short matrix of what CSV / Markdown / Excel / PDF / JSON include. Optional Excel Goals columns / next-morning weight. S–M. |
+| [#870](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/870) | 📋 Not started | Field-specific delete confirm copy (P2) | `ConfirmDeleteEntryBar` always uses generic `history.confirmDeleteLabel`. Optional per-field copy. S. Related: #855/#860. |
+| [#879](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/879) | 📋 Not started | Empty and error states: meals, libraries, RouteErrorFallback | Reuse `EmptyState` for meals / recipe+metric libraries / crash fallback. Keep loading as a quiet line. S. |
+| [#875](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/875) | 📋 Not started | Unify confirm, undo, and discard bars | One notice bar (confirm-delete / undo / quiet-nudge). Meal confirm + discard should use it. Do not change copy or two-step flow. S. |
+| [#869](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/869) | 📋 Not started | Add meal: optional “Save name as template” (no free-text) | Optional chip-row save after #845. Do not reopen free-text at log time. S. |
+| [#872](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/872) | 📋 Not started | Title-row icon actions stay under 44pt after #858 | Named `icon-touch` (~44px) for Day title-row, Settings pin/collapse, InfoTooltip, water-chip remove. Keep `icon-sm`/`icon-xs` on dish-row controls. M. |
+| [#873](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/873) | 📋 Not started | Settings cards still use number-card chrome; titles collide with pin | Settings groups on `section-shell` (or preference-panel chrome). Reserve header space for pin/collapse. M. |
+| [#874](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/874) | 📋 Not started | One Chip primitive for water, meal names, and History legend | Shared Chip (selected / unselected / removable). Leave `ToggleGroup` for exclusive 2–3 option rows. M. |
+| [#876](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/876) | 📋 Not started | Day accordion recipe: headers, stats nesting, redundant page blurb | One `SectionAccordion`. Don’t nest StatCards in a second shell. Shorten Day page blurb. M. |
+| [#878](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/878) | 📋 Not started | Tokenize semantic status colors (reason dots, good/bad, Goal warning) | `--status-good` / `--status-warn` (+ reason-dot map). Leave `--destructive` for irreversible actions. M. |
+| [#871](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/871) | 📋 Not started | Split Dictionary / EN / RU by feature (P2) | Opportunistic or dedicated later — noisy if done alone. M–L. |
+| [#868](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/868) | 📋 Not started | Split remaining Day/export/settings god files (≤500) | Follow-up to #864 lint. ExportSection / SettingsScreen / useDailyEntryFormState / AddMealDialog / TodayScreen. L; one commit per split. |
+| [#877](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/877) | 📋 Not started | Settings: group ~29 peer cards instead of one flat scroll | 4–5 named sections (Logging, Appearance, Library, Backup, Danger). Keep pin. Real tap target for collapse-all. L. |
+| [#865](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/865) | 📋 Not started | PDF export: clarify summary-only vs optional daily-log pages | **Parked — design fork.** Louder “PDF is a one-page summary” copy vs optional gated daily-log pages. Do not silently dump Excel into PDF. |
