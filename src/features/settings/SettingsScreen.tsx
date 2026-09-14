@@ -43,7 +43,7 @@ export function SettingsScreen() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div style={{ order: -4000 }}>
+      <div className="flex flex-col gap-1.5" style={{ order: -4000 }}>
         <PageHeader
           title={t.settings.title}
           description={t.settings.description}
@@ -58,9 +58,8 @@ export function SettingsScreen() {
             )
           }
         />
+        <SettingsCardsCollapseControl />
       </div>
-
-      <SettingsCardsCollapseControl />
       <SettingsSectionHeading group="logging" />
       <SettingsSectionHeading group="appearance" />
       <SettingsSectionHeading group="library" />

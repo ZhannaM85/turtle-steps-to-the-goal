@@ -2607,4 +2607,15 @@ describe('TodayScreen', () => {
       }),
     ).toBeInTheDocument()
   })
+
+  it('keeps the Day title tight above the date row (#888)', async () => {
+    render(
+      <MemoryRouter>
+        <TodayScreen />
+      </MemoryRouter>,
+    )
+
+    const title = await screen.findByRole('heading', { name: 'Day' })
+    expect(title.closest('.gap-2')).toContainElement(screen.getByLabelText('Date'))
+  })
 })

@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 843,
+    issue: 888,
+    date: '2026-09-14T22:20:00+03:00',
+    en: 'Day and Settings titles sit closer to the next row, without a leftover empty strip.',
+    ru: 'Заголовки «День» и «Настройки» ближе к следующему блоку — пустая полоса под ними убрана.',
+  },
+  {
     version: 842,
     issue: 887,
     date: '2026-09-14T22:10:00+03:00',

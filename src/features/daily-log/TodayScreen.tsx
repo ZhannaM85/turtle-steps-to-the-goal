@@ -182,45 +182,47 @@ export function TodayScreen() {
   return (
     <div className="flex flex-col gap-6">
       <GoalCelebrationModal />
-      <PageHeader
-        title={t.today.title}
-        action={
-          localTransferEnabled ? (
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon-xl"
-              aria-label={t.today.sendDayLogLabel}
-              onClick={() => setSendDayOpen(true)}
-            >
-              <Share2 aria-hidden="true" />
-            </Button>
-          ) : undefined
-        }
-      />
+      <div className="flex flex-col gap-2">
+        <PageHeader
+          title={t.today.title}
+          action={
+            localTransferEnabled ? (
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon-xl"
+                aria-label={t.today.sendDayLogLabel}
+                onClick={() => setSendDayOpen(true)}
+              >
+                <Share2 aria-hidden="true" />
+              </Button>
+            ) : undefined
+          }
+        />
+        <TodayDateNav
+          date={date}
+          todayIso={todayIso()}
+          realTodayIso={realTodayIso}
+          maxNavigableDate={maxNavigableDate}
+          hasEntry={entry !== null}
+          onSetDate={setDate}
+          onStartTodayEarly={(realToday) => {
+            startTodayEarly(realToday)
+            setDate(realToday)
+          }}
+          debug465={debug465}
+          debug465Sizes={debug465Sizes}
+          debug465PrevRef={debug465PrevRef}
+          debug465DateRef={debug465DateRef}
+          debug465NextRef={debug465NextRef}
+          debug465TodayRef={debug465TodayRef}
+        />
+      </div>
       <SendDaySnippetDialog
         open={sendDayOpen}
         onOpenChange={setSendDayOpen}
         date={date}
         entry={entry}
-      />
-      <TodayDateNav
-        date={date}
-        todayIso={todayIso()}
-        realTodayIso={realTodayIso}
-        maxNavigableDate={maxNavigableDate}
-        hasEntry={entry !== null}
-        onSetDate={setDate}
-        onStartTodayEarly={(realToday) => {
-          startTodayEarly(realToday)
-          setDate(realToday)
-        }}
-        debug465={debug465}
-        debug465Sizes={debug465Sizes}
-        debug465PrevRef={debug465PrevRef}
-        debug465DateRef={debug465DateRef}
-        debug465NextRef={debug465NextRef}
-        debug465TodayRef={debug465TodayRef}
       />
       <TodayWeeklyTarget
         goalStatus={goalStatus}

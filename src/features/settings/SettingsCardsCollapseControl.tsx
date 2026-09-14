@@ -10,6 +10,7 @@ import {
 /**
  * #826 — Collapse all / Expand all for Settings cards, same quiet control
  * as Day (`DaySectionsCollapseControl`).
+ * #888 — lives in the title block, not a `gap-6` page-column sibling.
  */
 export function SettingsCardsCollapseControl() {
   const t = useTranslation()
@@ -23,7 +24,7 @@ export function SettingsCardsCollapseControl() {
   const anyExpanded = anySettingsCardExpanded(cards, keys)
 
   return (
-    <div className="flex justify-end" style={{ order: -3500 }}>
+    <div className="flex justify-end">
       <button
         type="button"
         className="inline-flex min-h-11 min-w-11 items-center justify-center px-3 text-sm text-muted-foreground hover:text-foreground"
