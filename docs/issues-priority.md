@@ -60,3 +60,13 @@ _Pace-check copy plus the 2026-09-12 analysis/design-audit backlog (#865–#879)
 | [#874](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/874) | 🔍 Pending validation | One Chip primitive for water, meal names, and History legend | Shared `Chip` (selected / unselected / removable) on water entries, Add-meal name templates, History legend. ToggleGroup left for exclusive 2–3 option rows. |
 | [#876](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/876) | 🔍 Pending validation | Day accordion recipe: headers, stats nesting, redundant page blurb | Shared `SectionAccordion` on Morning/Evening/Water/Day totals/Meals/Night food/Next morning. Stats + macros have no second shell. Day `PageHeader` description dropped (sticky date is the context). |
 | [#865](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/865) | 🔍 Pending validation | PDF export: clarify summary-only vs optional daily-log pages | PDF stays a one-page summary unless “Daily log pages” is turned on. Extra landscape pages reuse `dailyLogExport` columns. Not a silent Excel dump. |
+
+---
+
+## Tier 162 — Live feedback (2026-09-14)
+
+_Found while validating Settings groups / DateInput follow-ups on device._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#887](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/887) | ⬜ Open | Delete-range date inputs render as empty thin pills | Settings → Danger → Удалить за период: two `DateInput`s collapse to tall empty vertical ovals (empty value, only `h-12`). Likely #882/#884 overlay width follow-up. |
