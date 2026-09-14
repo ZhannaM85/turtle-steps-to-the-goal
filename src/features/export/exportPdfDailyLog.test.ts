@@ -1,8 +1,10 @@
 import { describe, expect, it } from 'vitest'
 import type { DailyEntry } from '@/domain/dailyEntry'
 import { getDictionary } from '@/i18n'
-import { dailyLogHeaderValues } from './dailyLogExport'
-import { appendDailyLogPdfPages } from './exportPdfDailyLog'
+import {
+  appendDailyLogPdfPages,
+  dailyLogPdfDayLines,
+} from './exportPdfDailyLog'
 
 const t = getDictionary('en')
 
@@ -13,53 +15,93 @@ function makeEntry(overrides: Partial<DailyEntry> = {}): DailyEntry {
     date: '2026-08-01',
     createdAt: now,
     updatedAt: now,
-    weightKg: 80,
     ...overrides,
   }
 }
 
+describe('dailyLogPdfDayLines (#891)', () => {
+  it('builds a readable day block with weight, metrics, food, water, and notes', () => {
+    const lines = dailyLogPdfDayLines(
+      makeEntry({
+        weightKg: 80,
+        sleepHours: 7.5,
+        steps: 8000,
+        calorieEntries: [
+          {
+            id: 'meal-1',
+            label: 'Breakfast',
+            timeEaten: '08:00',
+            createdAt: '2026-08-01T08:00:00.000Z',
+            items: [{ id: 'item-1', name: 'Oatmeal', amountKcal: 300 }],
+            note: 'Slow morning',
+          },
+        ],
+        waterEntries: [{ id: 'w1', amountMl: 250, timeDrunk: '09:15' }],
+        note: 'Walked after lunch',
+      }),
+      t,
+      'en',
+      'kg',
+    )
+
+    const text = lines.map((line) => line.text)
+    expect(text[0]).toContain('80')
+    expect(text).toContain('Metrics')
+    expect(text.some((line) => line.includes('Hours slept'))).toBe(true)
+    expect(text).toContain('Food')
+    expect(text.some((line) => line.includes('Breakfast'))).toBe(true)
+    expect(text.some((line) => line.includes('Oatmeal'))).toBe(true)
+    expect(text).toContain('Water')
+    expect(text.some((line) => line.includes('250'))).toBe(true)
+    expect(text).toContain('Notes')
+    expect(text.some((line) => line.includes('Walked after lunch'))).toBe(true)
+    expect(text.some((line) => line === t.exportXlsx.dateColumn)).toBe(false)
+  })
+
+  it('skips empty metric fields', () => {
+    const lines = dailyLogPdfDayLines(
+      makeEntry({ weightKg: 79, note: 'Just a note' }),
+      t,
+      'en',
+      'kg',
+    )
+    const text = lines.map((line) => line.text)
+    expect(text).not.toContain('Metrics')
+    expect(text.some((line) => line.includes('Hours slept'))).toBe(false)
+    expect(text).toContain('Notes')
+  })
+})
+
 describe('appendDailyLogPdfPages', () => {
   it('does nothing when there are no entries', async () => {
     const { jsPDF } = await import('jspdf')
-    const { default: autoTable } = await import('jspdf-autotable')
     const doc = new jsPDF({ unit: 'mm', format: 'a4' })
-    appendDailyLogPdfPages(doc, autoTable, { entries: [] }, t)
+    appendDailyLogPdfPages(doc, { entries: [] }, t, 'en', 'kg')
     expect(doc.getNumberOfPages()).toBe(1)
   })
 
-  it('appends a landscape page that uses the daily-log column headers (#865)', async () => {
+  it('appends portrait diary pages instead of a landscape spreadsheet (#891)', async () => {
     const { jsPDF } = await import('jspdf')
-    const { default: autoTable } = await import('jspdf-autotable')
+    const { PT_SANS_REGULAR_BASE64 } = await import('./ptSansRegularFont')
     const doc = new jsPDF({ unit: 'mm', format: 'a4' })
+    doc.addFileToVFS('PTSans-Regular.ttf', PT_SANS_REGULAR_BASE64)
+    doc.addFont('PTSans-Regular.ttf', 'PTSans', 'normal')
     appendDailyLogPdfPages(
       doc,
-      autoTable,
-      { entries: [makeEntry(), makeEntry({ date: '2026-08-02', weightKg: 79 })] },
+      {
+        entries: [
+          makeEntry(),
+          makeEntry({ date: '2026-08-02', weightKg: 79 }),
+        ],
+      },
       t,
+      'en',
+      'kg',
     )
     expect(doc.getNumberOfPages()).toBe(2)
-    expect(dailyLogHeaderValues(t)[0]).toBe(t.exportXlsx.dateColumn)
-    const raw = doc.output('arraybuffer')
-    expect(raw.byteLength).toBeGreaterThan(0)
-  })
-
-  it('reserves a bottom margin so table rows stay above the footer (#892)', async () => {
-    const { jsPDF } = await import('jspdf')
-    const { PDF_FOOTER_RESERVE_MM } = await import('./exportPdfFooter')
-    const doc = new jsPDF({ unit: 'mm', format: 'a4' })
-    let captured: { margin?: { bottom?: number } } | undefined
-    const autoTable = (
-      _doc: unknown,
-      options: { margin?: { bottom?: number } },
-    ) => {
-      captured = options
-    }
-    appendDailyLogPdfPages(
-      doc,
-      autoTable as typeof import('jspdf-autotable').default,
-      { entries: [makeEntry()] },
-      t,
+    doc.setPage(2)
+    expect(doc.internal.pageSize.getWidth()).toBeLessThan(
+      doc.internal.pageSize.getHeight(),
     )
-    expect(captured?.margin?.bottom).toBe(PDF_FOOTER_RESERVE_MM)
   })
 })

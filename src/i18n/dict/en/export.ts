@@ -34,6 +34,9 @@ export const pdfSummary: PdfSummaryDict = {
     disclaimer:
       'This document is a personal summary generated from self-reported data in Turtle Steps to the Goal. It is not medical advice — consult a healthcare professional for guidance about your health.',
     dailyLogPagesTitle: 'Daily log',
+    dailyLogMetricsSectionTitle: 'Metrics',
+    dailyLogFoodSectionTitle: 'Food',
+    dailyLogNotesSectionTitle: 'Notes',
   }
 
 export const exportCopy: ExportDict = {

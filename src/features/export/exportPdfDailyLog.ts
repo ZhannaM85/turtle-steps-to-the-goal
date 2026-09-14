@@ -1,9 +1,30 @@
-import type { DailyEntry } from '@/domain/dailyEntry'
-import type { Sex } from '@/domain/stats'
-import type { Dictionary } from '@/i18n'
+import type { CalorieEntry, DailyEntry } from '@/domain/dailyEntry'
 import {
-  dailyLogHeaderValues,
-  dailyLogRowValues,
+  calorieEntryCarbs,
+  calorieEntryFat,
+  calorieEntryKcal,
+  calorieEntryProtein,
+  hadNightEating,
+  mealEatingReasons,
+  totalCalories,
+  totalWaterMl,
+} from '@/domain/dailyEntry'
+import { kgToLb } from '@/domain/goal'
+import type { Sex } from '@/domain/stats'
+import {
+  formatLocalizedDate,
+  formatNumber,
+  unitLabel,
+  type Dictionary,
+  type Locale,
+} from '@/i18n'
+import { formatEatingReasonsLine } from '@/shared/lib/eatingReasonDisplay'
+import { formatKcal, macrosSummaryTextCompact } from '@/shared/lib/macroDisplay'
+import { effectiveMealLabel, effectiveTimeEaten } from '@/shared/lib/mealLabel'
+import { formatSleepDuration } from '@/shared/lib/sleepDuration'
+import type { Unit } from '@/stores/unitStore'
+import {
+  type AnalysisExportTrackingGate,
   type DailyLogExportExtras,
 } from './dailyLogExport'
 import { PDF_FOOTER_RESERVE_MM } from './exportPdfFooter'
@@ -14,54 +35,342 @@ export interface DailyLogPdfInput {
   sex?: Sex
 }
 
-function formatPdfCell(
-  value: string | number | boolean | undefined,
+export type DailyLogPdfLineRole = 'header' | 'section' | 'body' | 'item'
+
+export interface DailyLogPdfLine {
+  role: DailyLogPdfLineRole
+  text: string
+}
+
+function trackingOn(
+  extras: DailyLogExportExtras | undefined,
+  key: keyof AnalysisExportTrackingGate,
+): boolean {
+  return extras?.tracking?.[key] !== false
+}
+
+function yesNo(value: boolean, t: Dictionary): string {
+  return value
+    ? t.dailyEntry.hadConstipationYesOption
+    : t.dailyEntry.hadConstipationNoOption
+}
+
+function displayWeight(kg: number, unit: Unit): number {
+  return unit === 'lb' ? kgToLb(kg) : kg
+}
+
+function joinParts(parts: Array<string | undefined>): string {
+  return parts.filter((part) => part && part.length > 0).join('  ·  ')
+}
+
+function mealHeading(
+  meal: CalorieEntry,
+  position: number,
+  t: Dictionary,
+  locale: Locale,
+  extras: DailyLogExportExtras | undefined,
 ): string {
-  if (value === undefined || value === '') return '—'
-  if (typeof value === 'boolean') return value ? 'yes' : '—'
-  return String(value)
+  const kcal = calorieEntryKcal(meal)
+  const macros = macrosSummaryTextCompact(
+    calorieEntryProtein(meal),
+    calorieEntryFat(meal),
+    calorieEntryCarbs(meal),
+    locale,
+    t,
+  )
+  const reasons =
+    trackingOn(extras, 'eatingReason') && mealEatingReasons(meal).length > 0
+      ? formatEatingReasonsLine(
+          mealEatingReasons(meal),
+          t,
+          extras?.eatingReasonLabelOverrides,
+        )
+      : undefined
+  return joinParts([
+    effectiveMealLabel(t, position, meal.label),
+    effectiveTimeEaten(meal, extras?.mealSlotTimes),
+    kcal !== undefined ? formatKcal(kcal, locale, t) : undefined,
+    macros ?? undefined,
+    reasons,
+  ])
 }
 
 /**
- * `#865` — optional landscape pages after the one-page summary.
- * Uses the same column projections as CSV/Excel (`dailyLogHeaderValues` /
- * `dailyLogRowValues`). Off unless the caller passes entries.
+ * `#891` — readable day blocks for optional PDF daily pages (not the
+ * Excel/CSV spreadsheet columns).
+ */
+export function dailyLogPdfDayLines(
+  entry: DailyEntry,
+  t: Dictionary,
+  locale: Locale,
+  unit: Unit,
+  extras?: DailyLogExportExtras,
+): DailyLogPdfLine[] {
+  const lines: DailyLogPdfLine[] = []
+  const weight =
+    entry.weightKg === undefined
+      ? undefined
+      : `${formatNumber(displayWeight(entry.weightKg, unit), locale)} ${unitLabel(unit, t)}`
+  lines.push({
+    role: 'header',
+    text: joinParts([formatLocalizedDate(entry.date, locale), weight]),
+  })
+
+  const metrics: string[] = []
+  if (trackingOn(extras, 'sleep') && entry.sleepHours !== undefined) {
+    metrics.push(
+      `${t.dailyEntry.sleepHoursLabel}: ${formatSleepDuration(
+        entry.sleepHours,
+        t.dailyEntry.hoursUnit,
+        t.dailyEntry.minutesUnit,
+      )}`,
+    )
+  }
+  if (trackingOn(extras, 'sleep') && entry.deepSleepHours !== undefined) {
+    metrics.push(
+      `${t.dailyEntry.deepSleepLabel}: ${formatSleepDuration(
+        entry.deepSleepHours,
+        t.dailyEntry.hoursUnit,
+        t.dailyEntry.minutesUnit,
+      )}`,
+    )
+  }
+  if (trackingOn(extras, 'steps') && entry.steps !== undefined) {
+    metrics.push(
+      `${t.dailyEntry.stepsLabel}: ${formatNumber(entry.steps, locale, 0)}`,
+    )
+  }
+  if (trackingOn(extras, 'mood') && entry.emotion) {
+    metrics.push(
+      `${t.dailyEntry.dayMoodLabel}: ${t.dailyEntry.emotionLabel(entry.emotion)}`,
+    )
+  }
+  if (trackingOn(extras, 'bodyMeasurements') && entry.waistCm !== undefined) {
+    metrics.push(
+      t.pdfSummary.waistLabel(
+        formatNumber(entry.waistCm, locale),
+        formatLocalizedDate(entry.date, locale),
+      ),
+    )
+  }
+  if (trackingOn(extras, 'bodyMeasurements') && entry.hipCm !== undefined) {
+    metrics.push(
+      t.pdfSummary.hipLabel(
+        formatNumber(entry.hipCm, locale),
+        formatLocalizedDate(entry.date, locale),
+      ),
+    )
+  }
+  if (
+    trackingOn(extras, 'bodyMeasurements') &&
+    entry.bodyFatPercent !== undefined
+  ) {
+    metrics.push(
+      t.pdfSummary.bodyFatLabel(
+        formatNumber(entry.bodyFatPercent, locale),
+        formatLocalizedDate(entry.date, locale),
+      ),
+    )
+  }
+  if (trackingOn(extras, 'bodyComposition') && entry.muscleMassKg !== undefined) {
+    metrics.push(
+      t.pdfSummary.muscleMassLabel(
+        formatNumber(entry.muscleMassKg, locale),
+        formatLocalizedDate(entry.date, locale),
+      ),
+    )
+  }
+  if (trackingOn(extras, 'cycle') && entry.onPeriod !== undefined) {
+    metrics.push(`${t.dailyEntry.onPeriodLabel}: ${yesNo(entry.onPeriod, t)}`)
+  }
+  if (trackingOn(extras, 'digestion') && entry.hadConstipation !== undefined) {
+    metrics.push(
+      `${t.dailyEntry.hadConstipationLabel}: ${yesNo(entry.hadConstipation, t)}`,
+    )
+  }
+  if (trackingOn(extras, 'alcohol') && entry.hadAlcohol !== undefined) {
+    metrics.push(`${t.dailyEntry.hadAlcoholLabel}: ${yesNo(entry.hadAlcohol, t)}`)
+  }
+  if (trackingOn(extras, 'nightEating')) {
+    const night = hadNightEating(entry)
+    if (night !== undefined) {
+      metrics.push(`${t.dailyEntry.nightEatingLabel()}: ${yesNo(night, t)}`)
+      if (night && entry.nightEatingReason) {
+        metrics.push(entry.nightEatingReason)
+      }
+    }
+  }
+  for (const metric of extras?.customMetrics ?? []) {
+    const logged = extras?.customMetricEntries?.find(
+      (item) => item.metricId === metric.id && item.date === entry.date,
+    )
+    if (!logged) continue
+    const value =
+      metric.inputKind === 'boolean'
+        ? yesNo(logged.value === 1, t)
+        : metric.unit
+          ? `${formatNumber(logged.value, locale)} ${metric.unit}`
+          : formatNumber(logged.value, locale)
+    metrics.push(`${metric.name}: ${value}`)
+    if (logged.note) metrics.push(logged.note)
+  }
+  if (metrics.length > 0) {
+    lines.push({ role: 'section', text: t.pdfSummary.dailyLogMetricsSectionTitle })
+    for (const metric of metrics) {
+      lines.push({ role: 'body', text: metric })
+    }
+  }
+
+  const meals = entry.calorieEntries ?? []
+  const dayTotalKcal = totalCalories(meals, entry.dayTotals)
+  if (meals.length > 0 || entry.dayTotals) {
+    lines.push({ role: 'section', text: t.pdfSummary.dailyLogFoodSectionTitle })
+    meals.forEach((meal, index) => {
+      lines.push({
+        role: 'body',
+        text: mealHeading(meal, index + 1, t, locale, extras),
+      })
+      for (const item of meal.items) {
+        const itemLine = joinParts([
+          [item.name, item.brand].filter(Boolean).join(', ') || undefined,
+          formatKcal(item.amountKcal, locale, t),
+          item.noteText,
+        ])
+        if (itemLine) lines.push({ role: 'item', text: itemLine })
+      }
+      if (meal.note) lines.push({ role: 'item', text: meal.note })
+    })
+    if (entry.dayTotals) {
+      lines.push({
+        role: 'body',
+        text: joinParts([
+          t.dailyEntry.dayTotalsLabel,
+          formatKcal(entry.dayTotals.amountKcal, locale, t),
+        ]),
+      })
+    }
+    if (dayTotalKcal !== undefined && meals.length > 0) {
+      lines.push({
+        role: 'body',
+        text: joinParts([
+          t.dailyEntry.consumedMacrosLabel,
+          formatKcal(dayTotalKcal, locale, t),
+        ]),
+      })
+    }
+  }
+
+  if (trackingOn(extras, 'water')) {
+    const total = totalWaterMl(entry.waterEntries)
+    const sips = entry.waterEntries ?? []
+    if (total !== undefined || sips.length > 0) {
+      lines.push({ role: 'section', text: t.dailyEntry.waterLabel })
+      if (total !== undefined) {
+        lines.push({
+          role: 'body',
+          text: `${formatNumber(total, locale, 0)} ${t.dailyEntry.mlUnit}`,
+        })
+      }
+      for (const sip of sips) {
+        lines.push({
+          role: 'item',
+          text: joinParts([
+            sip.timeDrunk,
+            `${formatNumber(sip.amountMl, locale, 0)} ${t.dailyEntry.mlUnit}`,
+          ]),
+        })
+      }
+    }
+  }
+
+  const notes: string[] = []
+  if (trackingOn(extras, 'morningNote') && entry.morningNote) {
+    notes.push(`${t.dailyEntry.morningNoteLabel}: ${entry.morningNote}`)
+  }
+  if (trackingOn(extras, 'note') && entry.note) {
+    notes.push(`${t.dailyEntry.noteLabel}: ${entry.note}`)
+  }
+  if (notes.length > 0) {
+    lines.push({ role: 'section', text: t.pdfSummary.dailyLogNotesSectionTitle })
+    for (const note of notes) {
+      lines.push({ role: 'body', text: note })
+    }
+  }
+
+  return lines
+}
+
+const MARGIN_X = 15
+const LINE_MM: Record<DailyLogPdfLineRole, number> = {
+  header: 7,
+  section: 6,
+  body: 5,
+  item: 4.5,
+}
+const SIZE: Record<DailyLogPdfLineRole, number> = {
+  header: 13,
+  section: 11,
+  body: 9,
+  item: 8,
+}
+
+function contentBottom(doc: import('jspdf').jsPDF): number {
+  return doc.internal.pageSize.getHeight() - PDF_FOOTER_RESERVE_MM
+}
+
+function startPortraitPage(doc: import('jspdf').jsPDF): number {
+  doc.addPage('a4', 'p')
+  doc.setFont('PTSans')
+  doc.setTextColor(0)
+  return 16
+}
+
+/**
+ * `#865` / `#891` — optional portrait diary pages after the one-page
+ * summary. Excel/CSV keep the spreadsheet columns; these pages are for
+ * reading one day at a time.
  */
 export function appendDailyLogPdfPages(
   doc: import('jspdf').jsPDF,
-  autoTable: typeof import('jspdf-autotable').default,
   input: DailyLogPdfInput,
   t: Dictionary,
+  locale: Locale,
+  unit: Unit,
 ): void {
   const entries = [...input.entries].sort((a, b) => a.date.localeCompare(b.date))
   if (entries.length === 0) return
 
-  doc.addPage('a4', 'l')
-  const marginX = 10
-  doc.setFont('PTSans')
-  doc.setFontSize(13)
-  doc.setTextColor(0)
-  doc.text(t.pdfSummary.dailyLogPagesTitle, marginX, 14)
+  let y = startPortraitPage(doc)
+  const pageWidth = doc.internal.pageSize.getWidth()
+  const maxWidth = pageWidth - MARGIN_X * 2
 
-  autoTable(doc, {
-    startY: 20,
-    margin: {
-      left: marginX,
-      right: marginX,
-      bottom: PDF_FOOTER_RESERVE_MM,
-    },
-    head: [dailyLogHeaderValues(t, input.sex, input.extras)],
-    body: entries.map((entry) =>
-      dailyLogRowValues(entry, t, input.extras).map(formatPdfCell),
-    ),
-    theme: 'grid',
-    styles: {
-      fontSize: 6,
-      font: 'PTSans',
-      fontStyle: 'normal',
-      cellPadding: 1,
-      overflow: 'linebreak',
-    },
-    headStyles: { fillColor: [90, 90, 90], fontSize: 6, font: 'PTSans' },
-  })
+  doc.setFontSize(13)
+  doc.text(t.pdfSummary.dailyLogPagesTitle, MARGIN_X, y)
+  y += 8
+
+  for (const entry of entries) {
+    const dayLines = dailyLogPdfDayLines(entry, t, locale, unit, input.extras)
+    const estimated = dayLines.reduce((sum, line) => sum + LINE_MM[line.role], 0)
+    if (y > 24 && y + Math.min(estimated, 40) > contentBottom(doc)) {
+      y = startPortraitPage(doc)
+    }
+
+    for (const line of dayLines) {
+      doc.setFontSize(SIZE[line.role])
+      const wrapped = doc.splitTextToSize(
+        line.text,
+        line.role === 'item' ? maxWidth - 4 : maxWidth,
+      ) as string[]
+      const indent = line.role === 'item' ? 4 : 0
+      for (const piece of wrapped) {
+        if (y + LINE_MM[line.role] > contentBottom(doc)) {
+          y = startPortraitPage(doc)
+          doc.setFontSize(SIZE[line.role])
+        }
+        doc.text(piece, MARGIN_X + indent, y)
+        y += LINE_MM[line.role]
+      }
+    }
+    y += 4
+  }
 }

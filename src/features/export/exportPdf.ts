@@ -789,11 +789,10 @@ export async function buildSummaryPdf(
 
   // #865 — optional gated daily-log pages; default is still summary-only.
   if (dailyLog && dailyLog.entries.length > 0) {
-    appendDailyLogPdfPages(doc, autoTable, dailyLog, t)
+    appendDailyLogPdfPages(doc, dailyLog, t, locale, unit)
   }
 
-  // #609 / #892 — disclaimer on every page, in that page's bottom margin
-  // (portrait summary vs landscape daily-log have different heights).
+  // #609 / #892 — disclaimer on every page, in that page's bottom margin.
   drawPdfDocumentFooters(
     doc,
     t,

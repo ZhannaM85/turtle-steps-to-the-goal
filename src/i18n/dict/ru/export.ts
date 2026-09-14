@@ -35,6 +35,9 @@ export const pdfSummary: PdfSummaryDict = {
     disclaimer:
       'Этот документ — личная сводка, сформированная на основе самостоятельно внесённых данных в приложении «Черепашка идёт к цели». Это не медицинская рекомендация — за консультацией о состоянии здоровья обратитесь к врачу.',
     dailyLogPagesTitle: 'Дневник по дням',
+    dailyLogMetricsSectionTitle: 'Показатели',
+    dailyLogFoodSectionTitle: 'Еда',
+    dailyLogNotesSectionTitle: 'Заметки',
   }
 
 export const exportCopy: ExportDict = {

@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 849,
+    issue: 891,
+    date: '2026-09-14T23:50:00+03:00',
+    en: 'Optional PDF daily pages now read like a diary — one day at a time, not a spreadsheet.',
+    ru: 'Дополнительные страницы дневника в PDF читаются как дневник: один день — один блок, а не таблица.',
+  },
+  {
     version: 848,
     issue: 892,
     date: '2026-09-14T23:35:00+03:00',

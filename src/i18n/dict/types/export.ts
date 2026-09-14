@@ -47,6 +47,10 @@ export interface PdfSummaryDict {
     disclaimer: string
     /** #865 — title on optional extra pages after the one-page summary. */
     dailyLogPagesTitle: string
+    /** #891 — section headings inside a day’s readable PDF block. */
+    dailyLogMetricsSectionTitle: string
+    dailyLogFoodSectionTitle: string
+    dailyLogNotesSectionTitle: string
   }
 
 export interface ExportDict {
