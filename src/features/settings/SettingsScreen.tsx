@@ -43,22 +43,24 @@ export function SettingsScreen() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex flex-col gap-1.5" style={{ order: -4000 }}>
+      <div style={{ order: -4000 }}>
         <PageHeader
           title={t.settings.title}
           description={t.settings.description}
           action={
-            currentVersion !== undefined && (
-              <Link
-                to="/about"
-                className="text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
-              >
-                {t.settings.versionBadgeLabel(currentVersion)}
-              </Link>
-            )
+            <div className="flex flex-col items-end">
+              {currentVersion !== undefined && (
+                <Link
+                  to="/about"
+                  className="px-3 pt-0.5 text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+                >
+                  {t.settings.versionBadgeLabel(currentVersion)}
+                </Link>
+              )}
+              <SettingsCardsCollapseControl />
+            </div>
           }
         />
-        <SettingsCardsCollapseControl />
       </div>
       <SettingsSectionHeading group="logging" />
       <SettingsSectionHeading group="appearance" />

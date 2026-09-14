@@ -60,5 +60,5 @@ _Found while validating Settings groups / Day accordion / DateInput follow-ups o
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#887](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/887) | 🔍 Pending validation | Delete-range date inputs render as empty thin pills | `DateInput` default `min-w-36`; delete-range is a 1→2 col `w-full` grid so empty fields cannot collapse. |
-| [#888](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/888) | 🔍 Pending validation | Empty space under Day and Settings page titles | Day title + date nav share `gap-2`. Settings Collapse all sits in the title block (`gap-1.5`), not a separate `gap-6` / `order: -3500` row. |
+| [#888](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/888) | 🔍 Pending validation | Empty space under Day and Settings page titles | On-device follow-up: share `overlayAction` so the 48px icon does not stretch a gap under «День»; Settings Collapse all is in the header action column beside the description. |
 | [#890](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/890) | ⬜ Open | Confirm before deleting meal-name templates (and other trash actions) | Settings meal-name trash deletes immediately (`removePreset` with no confirm). Align with Day NoticeBar; audit other Settings library trash. |

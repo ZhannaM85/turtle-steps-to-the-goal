@@ -23,4 +23,18 @@ describe('PageHeader', () => {
     expect(screen.getByText('Your trends at a glance')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Export' })).toBeInTheDocument()
   })
+
+  it('overlays an action without stretching the title row (#888)', () => {
+    render(
+      <PageHeader
+        title="Day"
+        overlayAction
+        action={<button>Share</button>}
+      />,
+    )
+    const heading = screen.getByRole('heading', { name: 'Day' })
+    const action = screen.getByRole('button', { name: 'Share' })
+    expect(heading.parentElement?.parentElement).toHaveClass('relative', 'pr-12')
+    expect(action.parentElement).toHaveClass('absolute', 'top-0', 'right-0')
+  })
 })

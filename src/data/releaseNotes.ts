@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 844,
+    issue: 888,
+    date: '2026-09-14T22:30:00+03:00',
+    en: 'The Day date row sits right under the title, and Settings Collapse all sits beside the description instead of in an empty band.',
+    ru: 'На экране «День» дата сразу под заголовком, а в Настройках «Свернуть все» стоит рядом с описанием, без пустой полосы.',
+  },
+  {
     version: 843,
     issue: 888,
     date: '2026-09-14T22:20:00+03:00',

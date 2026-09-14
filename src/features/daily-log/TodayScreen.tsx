@@ -182,9 +182,10 @@ export function TodayScreen() {
   return (
     <div className="flex flex-col gap-6">
       <GoalCelebrationModal />
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col" data-slot="day-intro">
         <PageHeader
           title={t.today.title}
+          overlayAction
           action={
             localTransferEnabled ? (
               <Button

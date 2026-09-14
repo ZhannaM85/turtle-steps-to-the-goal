@@ -1079,14 +1079,14 @@ describe('SettingsScreen', () => {
     expect(screen.getByRole('heading', { name: 'Library' })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Backup' })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Danger' })).toBeInTheDocument()
-    expect(
-      screen.getByRole('button', { name: 'Collapse all' }),
-    ).toHaveClass('min-h-11')
     const title = screen.getByRole('heading', { name: 'Settings' })
     const collapse = screen.getByRole('button', { name: 'Collapse all' })
-    // #888 — Collapse all sits in the title block, not a gap-6 empty band.
-    expect(title.closest('[class*="gap-1.5"]')).toContainElement(collapse)
+    // #888 — Collapse all sits in the header action column, not a
+    // full-width row under the description.
+    expect(title.parentElement?.parentElement).toContainElement(collapse)
+    expect(collapse).toHaveClass('min-h-11')
     expect(collapse.parentElement).not.toHaveStyle({ order: '-3500' })
+    expect(collapse.parentElement).not.toHaveClass('justify-end')
   })
 
   it('collapses one Settings group without collapsing the others (#877)', async () => {

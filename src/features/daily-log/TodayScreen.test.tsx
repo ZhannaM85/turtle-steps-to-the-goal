@@ -2616,6 +2616,9 @@ describe('TodayScreen', () => {
     )
 
     const title = await screen.findByRole('heading', { name: 'Day' })
-    expect(title.closest('.gap-2')).toContainElement(screen.getByLabelText('Date'))
+    expect(title.closest('[data-slot="day-intro"]')).toContainElement(
+      screen.getByLabelText('Date'),
+    )
+    expect(title.parentElement?.parentElement).toHaveClass('relative')
   })
 })
