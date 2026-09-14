@@ -630,6 +630,7 @@ _Pace-check copy plus the 2026-09-12 analysis/design-audit backlog._
 | [#870](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/870) | ✅ Done | Field-specific delete confirm copy (P2) | Confirmed on-device 2026-09-14 — note/steps/water/etc. confirms name the field. |
 | [#869](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/869) | ✅ Done | Add meal: optional “Save name as template” (no free-text) | Confirmed on-device 2026-09-14 — Save as template for non-preset name; stays read-only. |
 | [#866](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/866) | ✅ Done | Export format matrix + optional Excel Goals / weight parity | Confirmed on-device 2026-09-14 — Excel Goals has week dates + starting weight. |
+| [#865](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/865) | ✅ Done | PDF export: clarify summary-only vs optional daily-log pages | Confirmed on-device 2026-09-14 — summary by default; optional daily-log pages. Footer/layout follow-ups filed. |
 | [#886](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/886) | ✅ Done | Info tooltip sits too far from the info icon | Confirmed on-device 2026-09-13 — tip sits next to the ⓘ. |
 
 ---

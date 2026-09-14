@@ -34,18 +34,6 @@ _User asked about pulling data from Apple Health and Zepp Life. Researched via W
 
 ---
 
----
-
-## Tier 161 — Live feedback (2026-09-13)
-
-_Pace-check copy plus the 2026-09-12 analysis/design-audit backlog (#865–#879), filed on GitHub but not queued until today. Work easiest → hardest._
-
-| # | Status | Issue | Notes |
-|---|--------|-------|-------|
-| [#865](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/865) | 🔍 Pending validation | PDF export: clarify summary-only vs optional daily-log pages | PDF stays a one-page summary unless “Daily log pages” is turned on. Extra landscape pages reuse `dailyLogExport` columns. Not a silent Excel dump. |
-
----
-
 ## Tier 162 — Live feedback (2026-09-14)
 
 _Found while validating Settings groups / Day accordion / DateInput follow-ups on device._
