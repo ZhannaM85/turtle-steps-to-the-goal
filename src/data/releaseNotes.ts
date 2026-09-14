@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 841,
+    issue: 889,
+    date: '2026-09-14T22:00:00+03:00',
+    en: 'Deleting a water entry still shows the other glasses while you confirm.',
+    ru: 'При удалении записи воды остальные чипы остаются на экране, пока вы подтверждаете.',
+  },
+  {
     version: 840,
     issue: 877,
     date: '2026-09-13T21:20:00+03:00',

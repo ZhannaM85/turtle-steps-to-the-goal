@@ -127,6 +127,9 @@ describe('DailyEntryForm', () => {
         screen.getByRole('button', { name: 'Remove 250ml entry' }),
       )
       expect(screen.getByText('Delete this water entry?')).toBeInTheDocument()
+      // #889 — confirm sits above the list; other chips stay mounted.
+      expect(screen.getByText('250ml')).toBeInTheDocument()
+      expect(screen.getByText('500ml')).toBeInTheDocument()
       await user.click(screen.getByRole('button', { name: 'Cancel' }))
       expect(onSave).not.toHaveBeenCalled()
       expect(screen.getByText('250ml')).toBeInTheDocument()

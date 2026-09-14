@@ -29,6 +29,7 @@ function normalizeTimeHHMM(value: string): string | undefined {
  * #258/#271/#476/#598/#849 water quick-add + chips. #860: chip × asks
  * `ConfirmDeleteEntryBar` before removing (same as #855 Day fields).
  * Chip × is still remove — not the field-header cancel rule.
+ * #889: confirm sits above the chip grid; the list stays mounted.
  */
 export function WaterLogSection() {
   const state = useDailyEntryFormStateContext()
@@ -104,7 +105,7 @@ export function WaterLogSection() {
                 {t.dailyEntry.addBottleLabel}
               </Button>
             </div>
-            {confirmingWaterId ? (
+            {confirmingWaterId && (
               <ConfirmDeleteEntryBar
                 label={t.dailyEntry.confirmDeleteWaterLabel}
                 onConfirm={() => {
@@ -113,8 +114,8 @@ export function WaterLogSection() {
                 }}
                 onCancel={() => setConfirmingWaterId(null)}
               />
-            ) : (
-              state.waterEntries.length > 0 && (
+            )}
+            {state.waterEntries.length > 0 && (
                 // #488 — three chips per row was the volume-only layout.
                 // #849 adds HH:MM on the same chip (`500мл · 10:15`), so
                 // two columns keeps the time readable on a phone.
@@ -155,8 +156,7 @@ export function WaterLogSection() {
                     )
                   })}
                 </div>
-              )
-            )}
+              )}
     </SectionAccordion>
       <Dialog
         open={editingWaterId !== null}
