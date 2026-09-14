@@ -7,6 +7,7 @@ import {
   useCustomCorrelationStore,
   useCustomMetricStore,
 } from '@/stores'
+import { ConfirmDeleteEntryBar } from '@/features/daily-log/ConfirmDeleteEntryBar'
 import { Button } from '@/shared/ui/button'
 import { EmptyState } from '@/shared/ui/empty-state'
 import { PageHeader } from '@/shared/ui/page-header'
@@ -52,6 +53,10 @@ export function CustomMetricsScreen() {
 
   const [isAddingMetric, setIsAddingMetric] = useState(false)
   const [isAddingCorrelation, setIsAddingCorrelation] = useState(false)
+  const [pendingDelete, setPendingDelete] = useState<{
+    kind: 'metric' | 'correlation'
+    id: string
+  } | null>(null)
 
   useEffect(() => {
     loadMetrics()
@@ -90,8 +95,20 @@ export function CustomMetricsScreen() {
             {metrics.map((metric) => (
               <li
                 key={metric.id}
-                className="flex items-center justify-between gap-2 rounded-lg bg-muted/40 px-3 py-2"
+                className="flex flex-col gap-2 rounded-lg bg-muted/40 px-3 py-2"
               >
+                {pendingDelete?.kind === 'metric' &&
+                pendingDelete.id === metric.id ? (
+                  <ConfirmDeleteEntryBar
+                    label={t.dailyEntry.confirmDeleteNamedLabel(metric.name)}
+                    onConfirm={() => {
+                      void handleDeleteMetric(metric.id)
+                      setPendingDelete(null)
+                    }}
+                    onCancel={() => setPendingDelete(null)}
+                  />
+                ) : null}
+                <div className="flex items-center justify-between gap-2">
                 <div className="flex flex-col">
                   <span className="text-sm font-medium">{metric.name}</span>
                   <span className="text-xs text-muted-foreground">
@@ -104,10 +121,16 @@ export function CustomMetricsScreen() {
                   variant="ghost"
                   size="icon-sm"
                   aria-label={t.customMetrics.deleteMetricLabel(metric.name)}
-                  onClick={() => handleDeleteMetric(metric.id)}
+                  onClick={() =>
+                    setPendingDelete({
+                      kind: 'metric',
+                      id: metric.id,
+                    })
+                  }
                 >
                   <Trash2 aria-hidden="true" />
                 </Button>
+                </div>
               </li>
             ))}
           </ul>
@@ -147,8 +170,20 @@ export function CustomMetricsScreen() {
               return (
                 <li
                   key={correlation.id}
-                  className="flex items-center justify-between gap-2 rounded-lg bg-muted/40 px-3 py-2"
+                  className="flex flex-col gap-2 rounded-lg bg-muted/40 px-3 py-2"
                 >
+                  {pendingDelete?.kind === 'correlation' &&
+                  pendingDelete.id === correlation.id ? (
+                    <ConfirmDeleteEntryBar
+                      label={t.dailyEntry.confirmDeleteNamedLabel(displayName)}
+                      onConfirm={() => {
+                        void deleteCorrelation(correlation.id)
+                        setPendingDelete(null)
+                      }}
+                      onCancel={() => setPendingDelete(null)}
+                    />
+                  ) : null}
+                  <div className="flex items-center justify-between gap-2">
                   <div className="flex flex-col">
                     <span className="text-sm font-medium">{displayName}</span>
                     <span className="text-xs text-muted-foreground">
@@ -162,10 +197,16 @@ export function CustomMetricsScreen() {
                     aria-label={t.customMetrics.deleteCorrelationLabel(
                       displayName,
                     )}
-                    onClick={() => deleteCorrelation(correlation.id)}
+                    onClick={() =>
+                      setPendingDelete({
+                        kind: 'correlation',
+                        id: correlation.id,
+                      })
+                    }
                   >
                     <Trash2 aria-hidden="true" />
                   </Button>
+                  </div>
                 </li>
               )
             })}

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Check, Pencil, Trash2 } from 'lucide-react'
 import { getDictionary, useLocale, useTranslation, type Locale } from '@/i18n'
 import { localizeLeftoverEnglishMealPresets } from '@/shared/lib/mealLabel'
+import { ConfirmDeleteEntryBar } from '@/features/daily-log/ConfirmDeleteEntryBar'
 import { useMealLabelPresetStore } from '@/stores'
 import { Button } from '@/shared/ui/button'
 import { Input } from '@/shared/ui/input'
@@ -18,6 +19,7 @@ export function MealLabelPresetsSection() {
   const [newPreset, setNewPreset] = useState('')
   const [editingPreset, setEditingPreset] = useState<string | null>(null)
   const [editDraft, setEditDraft] = useState('')
+  const [pendingDelete, setPendingDelete] = useState<string | null>(null)
 
   useEffect(() => {
     const next = localizeLeftoverEnglishMealPresets(presets, locale)
@@ -75,7 +77,18 @@ export function MealLabelPresetsSection() {
       ) : (
         <ul className="flex flex-col gap-2">
           {presets.map((preset) => (
-            <li key={preset} className="flex items-center gap-2">
+            <li key={preset} className="flex flex-col gap-2">
+              {pendingDelete === preset ? (
+                <ConfirmDeleteEntryBar
+                  label={t.dailyEntry.confirmDeleteNamedLabel(preset)}
+                  onConfirm={() => {
+                    removePreset(preset)
+                    setPendingDelete(null)
+                  }}
+                  onCancel={() => setPendingDelete(null)}
+                />
+              ) : null}
+              <div className="flex items-center gap-2">
               {editingPreset === preset ? (
                 <Input
                   type="text"
@@ -126,10 +139,11 @@ export function MealLabelPresetsSection() {
                   variant="ghost"
                   size="icon-sm"
                   aria-label={t.settings.deletePresetLabel(preset)}
-                  onClick={() => removePreset(preset)}
+                  onClick={() => setPendingDelete(preset)}
                 >
                   <Trash2 aria-hidden="true" />
                 </Button>
+              </div>
               </div>
             </li>
           ))}

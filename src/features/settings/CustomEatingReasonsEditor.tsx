@@ -10,6 +10,7 @@ import { IndexedDbDailyEntryRepository } from '@/infrastructure/persistence/inde
 import { getDictionary, useTranslation, type Locale } from '@/i18n'
 import { useEatingReasonTrackingStore } from '@/stores'
 import { eatingReasonDisplayLabel } from '@/shared/lib/eatingReasonDisplay'
+import { ConfirmDeleteEntryBar } from '@/features/daily-log/ConfirmDeleteEntryBar'
 import { Button } from '@/shared/ui/button'
 import { Input } from '@/shared/ui/input'
 import { Label } from '@/shared/ui/label'
@@ -65,6 +66,7 @@ export function CustomEatingReasonsEditor() {
   const [newReason, setNewReason] = useState('')
   const [editingReason, setEditingReason] = useState<string | null>(null)
   const [editDraft, setEditDraft] = useState('')
+  const [pendingDelete, setPendingDelete] = useState<string | null>(null)
 
   function displayLabel(reason: string): string {
     return eatingReasonDisplayLabel(reason, t, builtinLabelOverrides)
@@ -199,7 +201,18 @@ export function CustomEatingReasonsEditor() {
           )
         })}
         {customReasons.map((reason) => (
-          <li key={reason} className="flex items-center gap-2">
+          <li key={reason} className="flex flex-col gap-2">
+            {pendingDelete === reason ? (
+              <ConfirmDeleteEntryBar
+                label={t.dailyEntry.confirmDeleteNamedLabel(reason)}
+                onConfirm={() => {
+                  removeCustomReason(reason)
+                  setPendingDelete(null)
+                }}
+                onCancel={() => setPendingDelete(null)}
+              />
+            ) : null}
+            <div className="flex items-center gap-2">
             {editingReason === reason ? (
               <Input
                 type="text"
@@ -250,10 +263,11 @@ export function CustomEatingReasonsEditor() {
                 variant="ghost"
                 size="icon-sm"
                 aria-label={t.settings.deleteCustomEatingReasonLabel(reason)}
-                onClick={() => removeCustomReason(reason)}
+                onClick={() => setPendingDelete(reason)}
               >
                 <Trash2 aria-hidden="true" />
               </Button>
+            </div>
             </div>
           </li>
         ))}

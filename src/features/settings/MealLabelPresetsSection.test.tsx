@@ -66,12 +66,23 @@ describe('MealLabelPresetsSection', () => {
     expect(screen.getByText('Snack')).toBeInTheDocument()
   })
 
-  it('deletes a preset', async () => {
+  it('asks before deleting a preset (#890)', async () => {
     useMealLabelPresetStore.setState({ presets: ['Breakfast'] })
     const user = userEvent.setup()
     render(<MealLabelPresetsSection />)
 
     await user.click(screen.getByRole('button', { name: 'Delete "Breakfast"' }))
+
+    expect(screen.getByText('Breakfast')).toBeInTheDocument()
+    expect(useMealLabelPresetStore.getState().presets).toEqual(['Breakfast'])
+    expect(screen.getByText('Delete Breakfast?')).toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: 'Cancel' }))
+    expect(screen.queryByText('Delete Breakfast?')).not.toBeInTheDocument()
+    expect(useMealLabelPresetStore.getState().presets).toEqual(['Breakfast'])
+
+    await user.click(screen.getByRole('button', { name: 'Delete "Breakfast"' }))
+    await user.click(screen.getByRole('button', { name: 'Delete' }))
 
     expect(screen.queryByText('Breakfast')).not.toBeInTheDocument()
     expect(useMealLabelPresetStore.getState().presets).toEqual([])

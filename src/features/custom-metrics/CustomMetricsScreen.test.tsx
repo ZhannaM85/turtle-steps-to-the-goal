@@ -92,6 +92,8 @@ describe('CustomMetricsScreen', () => {
 
     await screen.findByText('Push-ups')
     await user.click(screen.getByRole('button', { name: 'Delete Push-ups' }))
+    expect(screen.getByText('Delete Push-ups?')).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Delete' }))
 
     await waitFor(() =>
       expect(screen.queryByText('Push-ups')).not.toBeInTheDocument(),
@@ -164,6 +166,10 @@ describe('CustomMetricsScreen', () => {
     await user.click(
       screen.getByRole('button', { name: `Delete ${name.textContent}` }),
     )
+    expect(
+      screen.getByText(`Delete ${name.textContent}?`),
+    ).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Delete' }))
 
     await waitFor(() => expect(screen.queryByText(/vs\./)).not.toBeInTheDocument())
     expect(await db.customCorrelations.toArray()).toEqual([])

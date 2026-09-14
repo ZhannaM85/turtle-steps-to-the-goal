@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 847,
+    issue: 890,
+    date: '2026-09-14T23:20:00+03:00',
+    en: 'Deleting a meal-name template, recipe, custom metric, or custom eating reason now asks first.',
+    ru: 'Удаление шаблона названия приёма пищи, рецепта, своей метрики или своей причины еды сначала спрашивает подтверждение.',
+  },
+  {
     version: 846,
     issue: 893,
     date: '2026-09-14T23:10:00+03:00',

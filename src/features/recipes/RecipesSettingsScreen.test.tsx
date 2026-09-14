@@ -129,6 +129,8 @@ describe('RecipesSettingsScreen', () => {
 
     await screen.findByText('Chili')
     await user.click(screen.getByRole('button', { name: 'Delete Chili' }))
+    expect(screen.getByText('Delete Chili?')).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Delete' }))
 
     await waitFor(() => expect(screen.queryByText('Chili')).not.toBeInTheDocument())
     expect(await db.recipes.toArray()).toEqual([])

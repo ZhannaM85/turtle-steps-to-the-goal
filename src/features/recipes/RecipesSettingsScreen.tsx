@@ -7,6 +7,7 @@ import { useLocale, useTranslation } from '@/i18n'
 import { formatComputedTotal } from '@/shared/lib/macroScaling'
 import { buildRecipeShoppingListText } from '@/shared/lib/recipeShoppingList'
 import { useMealItemStore, useRecipeStore } from '@/stores'
+import { ConfirmDeleteEntryBar } from '@/features/daily-log/ConfirmDeleteEntryBar'
 import { Button } from '@/shared/ui/button'
 import { EmptyState } from '@/shared/ui/empty-state'
 import { PageHeader } from '@/shared/ui/page-header'
@@ -34,6 +35,7 @@ export function RecipesSettingsScreen() {
   // #611 — brief "Copied" confirmation, same auto-clearing shape
   // GoalForm.tsx's justSaved already established (2s, cleared via effect).
   const [copiedRecipeId, setCopiedRecipeId] = useState<string | null>(null)
+  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null)
 
   useEffect(() => {
     loadRecipes()
@@ -76,6 +78,16 @@ export function RecipesSettingsScreen() {
                 key={recipe.id}
                 className="flex flex-col gap-1 rounded-lg bg-muted/40 px-3 py-2"
               >
+                {pendingDeleteId === recipe.id ? (
+                  <ConfirmDeleteEntryBar
+                    label={t.dailyEntry.confirmDeleteNamedLabel(recipe.name)}
+                    onConfirm={() => {
+                      void deleteRecipe(recipe.id)
+                      setPendingDeleteId(null)
+                    }}
+                    onCancel={() => setPendingDeleteId(null)}
+                  />
+                ) : null}
                 <div className="flex items-center justify-between gap-2">
                   <div className="flex flex-col">
                     <span className="text-sm font-medium">{recipe.name}</span>
@@ -116,7 +128,7 @@ export function RecipesSettingsScreen() {
                       variant="ghost"
                       size="icon-sm"
                       aria-label={t.recipes.deleteRecipeLabel(recipe.name)}
-                      onClick={() => deleteRecipe(recipe.id)}
+                      onClick={() => setPendingDeleteId(recipe.id)}
                     >
                       <Trash2 aria-hidden="true" />
                     </Button>
