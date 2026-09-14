@@ -64,8 +64,9 @@ _Pace-check copy plus the 2026-09-12 analysis/design-audit backlog (#865–#879)
 
 ## Tier 162 — Live feedback (2026-09-14)
 
-_Found while validating Settings groups / DateInput follow-ups on device._
+_Found while validating Settings groups / Day accordion / DateInput follow-ups on device._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#887](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/887) | ⬜ Open | Delete-range date inputs render as empty thin pills | Settings → Danger → Удалить за период: two `DateInput`s collapse to tall empty vertical ovals (empty value, only `h-12`). Likely #882/#884 overlay width follow-up. |
+| [#888](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/888) | ⬜ Open | Empty space under Day and Settings page titles | Follow-up to #876/#877. Day: gap under «День» after description dropped. Settings: empty band with only «Свернуть все» when nothing pinned. |
